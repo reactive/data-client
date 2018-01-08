@@ -1,0 +1,10 @@
+{
+  "presets": [
+    [
+      "@anansi/babel-preset",
+      {
+        "typing": "typescript"
+      }
+    ]
+  ]
+}

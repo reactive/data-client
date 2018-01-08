@@ -1,0 +1,159 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`useDispatch should dispatch an action that fetches 1`] = `
+Object {
+  "meta": Object {
+    "mutate": true,
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": EntitySchema {
+      "_getId": [Function],
+      "_idAttribute": [Function],
+      "_key": "http://test.com/article-cooler/",
+      "_mergeStrategy": [Function],
+      "_processStrategy": [Function],
+      "schema": Object {},
+    },
+    "throttle": false,
+    "url": "http://test.com/article-cooler/",
+  },
+  "payload": [Function],
+  "type": "fetch",
+}
+`;
+
+exports[`useFetch should dispatch singles 1`] = `
+Object {
+  "meta": Object {
+    "mutate": false,
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": EntitySchema {
+      "_getId": [Function],
+      "_idAttribute": [Function],
+      "_key": "http://test.com/article-cooler/",
+      "_mergeStrategy": [Function],
+      "_processStrategy": [Function],
+      "schema": Object {},
+    },
+    "throttle": true,
+    "url": "http://test.com/article-cooler/5",
+  },
+  "payload": [Function],
+  "type": "fetch",
+}
+`;
+
+exports[`useResource should dispatch an action that fetches 1`] = `
+Object {
+  "meta": Object {
+    "mutate": false,
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": EntitySchema {
+      "_getId": [Function],
+      "_idAttribute": [Function],
+      "_key": "http://test.com/article-cooler/",
+      "_mergeStrategy": [Function],
+      "_processStrategy": [Function],
+      "schema": Object {},
+    },
+    "throttle": true,
+    "url": "http://test.com/article-cooler/5",
+  },
+  "payload": [Function],
+  "type": "fetch",
+}
+`;
+
+exports[`useResource should dispatch fetch when sent multiple arguments 1`] = `
+Object {
+  "meta": Object {
+    "mutate": false,
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": EntitySchema {
+      "_getId": [Function],
+      "_idAttribute": [Function],
+      "_key": "http://test.com/article-cooler/",
+      "_mergeStrategy": [Function],
+      "_processStrategy": [Function],
+      "schema": Object {},
+    },
+    "throttle": true,
+    "url": "http://test.com/article-cooler/5",
+  },
+  "payload": [Function],
+  "type": "fetch",
+}
+`;
+
+exports[`useResource should dispatch fetch when sent multiple arguments 2`] = `
+Object {
+  "meta": Object {
+    "mutate": false,
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": Array [
+      EntitySchema {
+        "_getId": [Function],
+        "_idAttribute": [Function],
+        "_key": "http://test.com/user/",
+        "_mergeStrategy": [Function],
+        "_processStrategy": [Function],
+        "schema": Object {},
+      },
+    ],
+    "throttle": true,
+    "url": "http://test.com/user/",
+  },
+  "payload": [Function],
+  "type": "fetch",
+}
+`;
+
+exports[`useSelect should select paginated results 1`] = `
+Array [
+  PaginatedArticleResource {
+    "__ownerID": 1337,
+    "author": null,
+    "content": "the best things in life com efree",
+    "id": 23,
+    "tags": Array [
+      "one",
+      "two",
+    ],
+    "title": "the first draft",
+  },
+  PaginatedArticleResource {
+    "__ownerID": 1337,
+    "author": null,
+    "content": "the best things in life com efree",
+    "id": 44,
+    "tags": Array [
+      "hbh",
+      "wew",
+    ],
+    "title": "the second book",
+  },
+  PaginatedArticleResource {
+    "__ownerID": 1337,
+    "author": null,
+    "content": "the best things in life com efree",
+    "id": 2,
+    "tags": Array [
+      "free",
+      "honey",
+    ],
+    "title": "the third novel",
+  },
+  PaginatedArticleResource {
+    "__ownerID": 1337,
+    "author": null,
+    "content": "the best things in life com efree",
+    "id": 643,
+    "tags": Array [],
+    "title": "a long time ago",
+  },
+]
+`;

@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<RestProvider /> should change state 1`] = `
+Object {
+  "entities": Object {
+    "http://test.com/article-cooler/": Object {
+      "5": CoolerArticleResource {
+        "__ownerID": 1337,
+        "author": null,
+        "content": "more things here",
+        "id": 5,
+        "tags": Array [],
+        "title": "hi",
+      },
+    },
+  },
+  "meta": Object {
+    "http://test.com/article-cooler/5": Object {
+      "date": 50,
+      "expiresAt": 55,
+    },
+  },
+  "results": Object {
+    "http://test.com/article-cooler/5": "5",
+  },
+}
+`;
