@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 import { State } from '../types';
-import { ReadShape, isEntity, Schema, SchemaOf } from '../resource/types';
-import { denormalize } from 'normalizr';
+import { ReadShape, isEntity, SchemaOf } from '../resource/types';
+import { Schema, denormalize } from '../resource/normal';
 
 export function selectMeta<R = any>(state: State<R>, url: string) {
   return state.meta[url];
@@ -15,11 +15,11 @@ export const makeResults = <R = any>(getUrl: (...args: any[]) => string) => (
 export function makeSchemaSelector<
 Params extends Readonly<object>,
 Body extends Readonly<object> | void,
-S extends Schema,
+S extends Schema
 >(
   { schema, getUrl }: Pick<ReadShape<Params, Body, S>, 'schema' | 'getUrl'>,
   getResultList?: (results: any) => SchemaOf<typeof schema>
-):  (state: State<any>, params: Params) => SchemaOf<typeof schema> | null {
+): (state: State<any>, params: Params) => SchemaOf<typeof schema> | null {
   const selectResults = makeResults<any>(getUrl);
   const ret = createSelector(
     (state: State<any>) => state.entities,
@@ -42,12 +42,16 @@ S extends Schema,
       if (process.env.NODE_ENV !== 'production' && isEntity(schema)) {
         if (Array.isArray(results)) {
           throw new Error(
-            `url ${getUrl(params)} has list results when single result is expected`,
+            `url ${getUrl(
+              params
+            )} has list results when single result is expected`
           );
         }
         if (typeof results === 'object') {
           throw new Error(
-            `url ${getUrl(params)} has object results when single result is expected`,
+            `url ${getUrl(
+              params
+            )} has object results when single result is expected`
           );
         }
       }
@@ -59,9 +63,7 @@ S extends Schema,
       if (process.env.NODE_ENV !== 'production' && !Array.isArray(output)) {
         // this is the immutable.js look-alike hack
         if (!output.__ownerID) {
-          throw new Error(
-            `wrong type found : ${output}`,
-          );
+          throw new Error(`wrong type found : ${output}`);
         }
       }
       return output;

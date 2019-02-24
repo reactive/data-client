@@ -1,4 +1,4 @@
-import { normalize } from 'normalizr';
+import { normalize } from '../resource';
 import { merge } from 'lodash';
 import { Resource } from '../resource';
 import { ActionTypes, State } from '../types';

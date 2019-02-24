@@ -1,10 +1,5 @@
 import { State } from '../types';
-import {
-  Schema,
-  SchemaArray,
-  SchemaBase,
-  schema as normalizr,
-} from 'normalizr';
+import { schemas, Schema, SchemaArray, SchemaBase } from './normal';
 
 /** Purges a value from the server */
 export interface DeleteShape<
@@ -73,11 +68,14 @@ export type BodyArg<RS> = RS extends {
   : never;
 export type RequestResource<RS> = SchemaOf<ResultShape<RS>>;
 
-export function isEntity<T>(schema: Schema): schema is normalizr.Entity<T> {
-  return (schema as normalizr.Entity<T>).key !== undefined;
+export function isEntity<T>(schema: Schema): schema is schemas.Entity<T> {
+  return (schema as schemas.Entity<T>).key !== undefined;
 }
 
-export type SchemaOf<T> = T extends SchemaArray<infer R> ? R[] : T extends SchemaBase<infer R> ? R : never;
-export type SchemaArray<T = any> = SchemaArray<T>;
-export type SchemaBase<T = any> = SchemaBase<T>;
-export type Schema<T = any> = Schema<T>;
+export type SchemaOf<T> = T extends SchemaArray<infer R>
+  ? R[]
+  : T extends SchemaBase<infer R>
+    ? R
+    : never;
+
+

@@ -3,8 +3,9 @@ import { memoize, isEmpty } from 'lodash';
 import qs from 'qs';
 import { AbstractInstanceType, Method } from '../types';
 import { makeSchemaSelector } from '../state/selectors';
-import { ReadShape, MutateShape, DeleteShape, SchemaBase, SchemaArray } from './types'
-import { schema as schemas } from 'normalizr'
+
+import { ReadShape, MutateShape, DeleteShape } from './types'
+import { schemas, SchemaBase, SchemaArray } from './normal'
 
 const getEntitySchema: <T extends typeof Resource>(M: T) => schemas.Entity<AbstractInstanceType<T>> = memoize(
   <T extends typeof Resource>(M: T) => {

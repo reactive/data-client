@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { cleanup, render, act, testHook } from 'react-testing-library';
 import nock from 'nock';
-import { normalize } from 'normalizr';
+import { normalize } from '../../resource';
 
 import { DispatchContext, StateContext } from '../context';
 import {

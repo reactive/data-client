@@ -2,7 +2,7 @@ import {
   CoolerArticleResource,
   PaginatedArticleResource,
 } from '../../__tests__/common';
-import { normalize } from 'normalizr';
+import { normalize } from '../../resource';
 
 const { select } = CoolerArticleResource.singleRequest();
 const { select: listSelect } = CoolerArticleResource.listRequest();

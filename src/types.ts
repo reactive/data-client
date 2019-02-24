@@ -1,6 +1,6 @@
 import React from 'react';
 import { FSA } from 'flux-standard-action';
-import { Schema } from 'normalizr';
+import { Schema } from './resource';
 
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
 
