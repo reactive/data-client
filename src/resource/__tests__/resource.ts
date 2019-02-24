@@ -34,6 +34,14 @@ describe('Resource', () => {
       'http://test.com/article-cooler/',
     );
   });
+  it('should not include __ownerID when converting to JS', () => {
+    const json = {...CoolerArticleResource.fromJS({})};
+    expect(json).not.toHaveProperty('__ownerID');
+  });
+  it('should have __ownerID property on lookup', () => {
+    const r = CoolerArticleResource.fromJS({});
+    expect(r.hasOwnProperty('__ownerID')).toBe(true);
+  });
 
   describe('Resource.fetch()', () => {
     const id = 5;

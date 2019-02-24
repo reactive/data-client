@@ -5,7 +5,6 @@ Object {
   "entities": Object {
     "http://test.com/article-cooler/": Object {
       "5": CoolerArticleResource {
-        "__ownerID": 1337,
         "author": null,
         "content": "more things here",
         "id": 5,

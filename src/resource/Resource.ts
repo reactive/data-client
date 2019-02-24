@@ -34,9 +34,6 @@ export default abstract class Resource {
   /** A unique identifier for this Resource */
   abstract pk(): string | number | null;
 
-  // to trick normalizr into thinking we're Immutable.js does it doesn't copy
-  private __ownerID = 1337;
-
   /** Resource factory. Takes an object of properties to assign to Resource. */
   static fromJS<T extends typeof Resource>(
     this: T,
@@ -47,6 +44,11 @@ export default abstract class Resource {
     // we type guarded abstract case above, so ok to force typescript to allow constructor call
     const instance = new (this as any)(props) as AbstractInstanceType<T>;
     Object.assign(instance, props);
+    // to trick normalizr into thinking we're Immutable.js does it doesn't copy
+    Object.defineProperty(instance, '__ownerID', {
+      value: 1337,
+      writable: false,
+    })
     return instance;
   }
 
