@@ -58,7 +58,7 @@ describe('<RestProvider />', () => {
       type: 'receive',
       payload: { id: 5, title: 'hi', content: 'more things here' },
       meta: {
-        schema: CoolerArticleResource.getSchema(),
+        schema: CoolerArticleResource.getEntitySchema(),
         url: CoolerArticleResource.url({ id: 5 }),
         mutate: false,
         date: 50,

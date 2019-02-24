@@ -1,28 +1,29 @@
 import request from 'superagent';
-import { schema, Schema } from 'normalizr';
 import { memoize, isEmpty } from 'lodash';
 import qs from 'qs';
 import { AbstractInstanceType, Method } from '../types';
-import { makeSingle, makeList } from '../state/selectors';
+import { makeSchemaSelector } from '../state/selectors';
+import { ReadShape, MutateShape, DeleteShape, SchemaBase, SchemaArray } from './types'
+import { schema as schemas } from 'normalizr'
 
-const getSchema: <T extends typeof Resource>(M: T) => schema.Entity = memoize(
+const getEntitySchema: <T extends typeof Resource>(M: T) => schemas.Entity<AbstractInstanceType<T>> = memoize(
   <T extends typeof Resource>(M: T) => {
-    return new schema.Entity(
+    const e =  new schemas.Entity(
       M.getKey(),
       {},
       {
         idAttribute: (value, parent, key) => {
           return (M.pk(value) || key).toString();
         },
-        processStrategy: value => {
+        processStrategy: (value) => {
           return M.fromJS(value);
         },
         mergeStrategy: (a, b) => b,
       },
     );
+    return e;
   },
-);
-
+) as any;
 /** Represents an entity to be retrieved from a server. Typically 1:1 with a url endpoint. */
 export default abstract class Resource {
   // typescript todo: require subclasses to implement
@@ -130,100 +131,93 @@ export default abstract class Resource {
   }
 
   /** Get the entity schema defining  */
-  static getSchema<T extends typeof Resource>(this: T) {
-    return getSchema(this);
+  static getEntitySchema<T extends typeof Resource>(this: T) {
+    return getEntitySchema(this);
   }
 
   // TODO: memoize these so they can be referentially compared
   /** Shape to get a single entity */
-  static singleRequest<T extends typeof Resource>(this: T) {
+  static singleRequest<T extends typeof Resource>(this: T): ReadShape<Readonly<object>, Readonly<object>, SchemaBase<AbstractInstanceType<T>>> {
     const self = this;
+    const getUrl = (params: Readonly<object>) => {
+      return this.url(params);
+    };
+    const schema: SchemaBase<AbstractInstanceType<T>> = this.getEntitySchema();
     return {
-      select: makeSingle(self),
-      schema: self.getSchema(),
-      getUrl(params: Readonly<object>) {
-        return self.url(params);
-      },
-      fetch(url: string, body?: object) {
+      select: makeSchemaSelector({ getUrl, schema }),
+      schema,
+      getUrl,
+      fetch(url: string, body?: Readonly<object>) {
         return self.fetch('get', url, body);
       },
-      mutate: false,
     };
   }
 
   /** Shape to get a list of entities */
-  static listRequest<T extends typeof Resource>(this: T) {
+  static listRequest<T extends typeof Resource>(this: T): ReadShape<Readonly<object>, Readonly<object>, SchemaArray<AbstractInstanceType<T>>> {
     const self = this;
+    const getUrl = (params: Readonly<object>) => {
+      return this.listUrl(params);
+    };
+    const schema: SchemaArray<AbstractInstanceType<T>> = [this.getEntitySchema()];
     return {
-      select: makeList(self),
-      schema: [self.getSchema()] as Schema,
-      getUrl(params: object) {
-        return self.listUrl(params);
-      },
-      fetch(url: string, body?: object) {
+      select: makeSchemaSelector({ getUrl, schema }),
+      schema,
+      getUrl,
+      fetch(url: string, body?: Readonly<object>) {
         return self.fetch('get', url, body);
       },
-      mutate: false,
     };
   }
   /** Shape to create a new entity (post) */
-  static createRequest<T extends typeof Resource>(this: T) {
+  static createRequest<T extends typeof Resource>(this: T): MutateShape<any, Partial<AbstractInstanceType<T>>, SchemaBase<AbstractInstanceType<T>>> {
     const self = this;
     return {
-      select: makeSingle(self),
-      schema: self.getSchema(),
+      schema: self.getEntitySchema(),
       getUrl(p: object | void) {
         return self.listUrl();
       },
       fetch(url: string, body: Partial<AbstractInstanceType<T>>) {
         return self.fetch('post', url, body);
       },
-      mutate: true,
     };
   }
   /** Shape to update an existing entity (put) */
-  static updateRequest<T extends typeof Resource>(this: T) {
+  static updateRequest<T extends typeof Resource>(this: T): MutateShape<Readonly<object>, Partial<AbstractInstanceType<T>>, SchemaBase<AbstractInstanceType<T>>> {
     const self = this;
     return {
-      select: makeSingle(self),
-      schema: self.getSchema(),
+      schema: self.getEntitySchema(),
       getUrl(params: object) {
         return self.url(params);
       },
       fetch(url: string, body: Partial<AbstractInstanceType<T>>) {
         return self.fetch('put', url, body);
       },
-      mutate: true,
     };
   }
   /** Shape to update a subset of fields of an existing entity (patch) */
-  static partialUpdateRequest<T extends typeof Resource>(this: T) {
+  static partialUpdateRequest<T extends typeof Resource>(this: T): MutateShape<Readonly<object>, Partial<AbstractInstanceType<T>>, SchemaBase<AbstractInstanceType<T>>> {
     const self = this;
     return {
-      select: makeSingle(self),
-      schema: self.getSchema(), //TODO: change merge strategy in case we want to handle partial returns
+      schema: self.getEntitySchema(), //TODO: change merge strategy in case we want to handle partial returns
       getUrl(params: Readonly<object>) {
         return self.url(params);
       },
       fetch(url: string, body: Partial<AbstractInstanceType<T>>) {
         return self.fetch('patch', url, body);
       },
-      mutate: true,
     };
   }
   /** Shape to delete an entity (delete) */
-  static deleteRequest<T extends typeof Resource>(this: T) {
+  static deleteRequest<T extends typeof Resource>(this: T): DeleteShape<Readonly<object>, any> {
     const self = this;
     return {
-      select: () => null,
-      schema: {},
       getUrl(params: object) {
         return self.url(params);
       },
       fetch(url: string) {
         return self.fetch('delete', url);
       },
-      mutate: true,
     };
   }
 }

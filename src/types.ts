@@ -30,7 +30,7 @@ export interface FetchAction extends FSA<any, any> {
   type: 'fetch';
   payload: () => Promise<any>;
   meta: {
-    schema: Schema;
+    schema?: Schema;
     url: string;
     mutate: boolean;
     throttle: boolean;

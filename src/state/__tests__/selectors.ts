@@ -16,6 +16,22 @@ describe('selectors', () => {
 
       expect(article).toBe(null);
     });
+    it('should be null when state is populated just not with our query', async () => {
+      const state = {
+        entities: {
+          [CoolerArticleResource.getKey()]: {
+            [params.id]: article,
+          },
+        },
+        results: {
+          [CoolerArticleResource.url(params)]: params.id,
+        },
+        meta: {},
+      };
+      const selected = select(state, { id: 543345345345453 });
+
+      expect(selected).toBe(null);
+    });
     it('should find value when state exists', async () => {
       const state = {
         entities: {
@@ -104,9 +120,9 @@ describe('selectors', () => {
     ];
     it('should be null when state is empty', async () => {
       const state = { entities: {}, results: {}, meta: {} };
-      const article = listSelect(state, {});
+      const articles = listSelect(state, {});
 
-      expect(article).toBe(null);
+      expect(articles).toBe(null);
     });
     it('should be null when state is partial', async () => {
       const { entities } = normalize(
@@ -114,9 +130,9 @@ describe('selectors', () => {
         CoolerArticleResource.listRequest().schema,
       );
       const state = { entities, results: {}, meta: {} };
-      const article = listSelect(state, {});
+      const selected = listSelect(state, {});
 
-      expect(article).toBe(null);
+      expect(selected).toBe(null);
     });
     it('should throw when results are not a list', async () => {
       const { entities } = normalize(

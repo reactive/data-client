@@ -1,7 +1,8 @@
 import React from 'react';
-import { Schema, schema } from 'normalizr';
-import { Resource } from '../resource';
-import * as selectors from '../state/selectors';
+import { Resource, SchemaArray } from '../resource';
+import { makeSchemaSelector } from '../state/selectors';
+import { AbstractInstanceType } from '../types';
+import { useSelect } from '../react-integration/hooks'
 
 export class ArticleResource extends Resource {
   readonly id: number | null = null;
@@ -41,13 +42,17 @@ export class UserResource extends Resource {
   }
   static urlRoot = 'http://test.com/user/';
 }
+class OtherArticleResource extends CoolerArticleResource {
 
-export class PaginatedArticleResource extends CoolerArticleResource {
+}
+export class PaginatedArticleResource extends OtherArticleResource {
   static listRequest<T extends typeof Resource>(this: T) {
+    const req = super.listRequest();
+    const schema: SchemaArray<AbstractInstanceType<T>> = { results: [this.getEntitySchema()] };
     return {
-      ...super.listRequest(),
-      schema: { results: [super.getSchema()] },
-      select: selectors.makeList(this, results => results.results),
+      ...req,
+      schema,
+      select: makeSchemaSelector({ schema, getUrl: req.getUrl }, results => results.results),
     };
   }
 }

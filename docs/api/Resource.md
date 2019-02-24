@@ -79,7 +79,7 @@ parameters.
 Performs the actual network fetch returning a promise that resolves to the network response or rejects
 on network error. This can be useful to override to really customize your transport.
 
-### static getSchema() => [schema.Entity](https://github.com/paularmstrong/normalizr/blob/master/docs/api.md#entitykey-definition---options--)
+### static getEntitySchema() => [schema.Entity](https://github.com/paularmstrong/normalizr/blob/master/docs/api.md#entitykey-definition---options--)
 
 Returns the [shape of the data](https://github.com/paularmstrong/normalizr/blob/master/docs/api.md#schema)
 when requesting one resource at a time. Defaults to a plain object
@@ -87,32 +87,32 @@ containing the keys. This can be useful to override if your response is in a dif
 
 ## [Request shapes](../api/RequestShape.md)
 
-### singleRequest()
+### singleRequest(): ReadShape
 
 A GET request using standard `url()` that receives a detail body.
 Mostly useful with [useResource](../api/useResource.md)
 
-### listRequest()
+### listRequest(): ReadShape
 
 A GET request using `listUrl()` that receives a list of entities.
 Mostly useful with [useResource](../api/useResource.md)
 
-### createRequest()
+### createRequest(): MutateShape
 
 A POST request sending a payload to `listUrl()` with empty params, and expecting a detail body response.
 Mostly useful with [useDispatch](../api/useDispatch.md)
 
-### updateRequest()
+### updateRequest(): MutateShape
 
 A PUT request sending a payload to a `url()` expecting a detail body response.
 Mostly useful with [useDispatch](../api/useDispatch.md)
 
-### partialUpdateRquest()
+### partialUpdateRquest(): MutateShape
 
 A PATCH request sending a partial payload to `url()` expecting a detail body response.
 Mostly useful with [useDispatch](../api/useDispatch.md)
 
-### deleteRequest()
+### deleteRequest(): DeleteShape
 
 A DELETE request sent to `url()`
 Mostly useful with [useDispatch](../api/useDispatch.md)

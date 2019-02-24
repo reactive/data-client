@@ -5,7 +5,7 @@ Say you have a foreignkey author, and an array of foreign keys to contributors.
 First we need to model what this will look like by adding members to our [Resource][1] defintion.
 These should be the primary keys of the entities we care about.
 
-Next we'll need to extend the schema definition provided by `getSchema()`.
+Next we'll need to extend the schema definition provided by `getEntitySchema()`.
 
 ```tsx
 import { Resource } from 'rest-hooks';
@@ -23,11 +23,11 @@ export default class ArticleResource extends Resource {
   static urlRoot = 'http://test.com/article/';
 
   // operative method!
-  static getSchema<T extends typeof Resource>(this: T) {
-    const schema = super.getSchema();
+  static getEntitySchema<T extends typeof Resource>(this: T) {
+    const schema = super.getEntitySchema();
     schema.define({
-      author: UserResource.getSchema(),
-      contributors: [UserResource.getSchema()]
+      author: UserResource.getEntitySchema(),
+      contributors: [UserResource.getEntitySchema()]
     })
     return schema;
   }

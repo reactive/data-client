@@ -28,12 +28,12 @@ and the Array of results as another member.
 
 To deal with our specific shape, we'll need to customize the [RequestShape](../api/RequestShape.md) of lists to
 understand how to normalize the results (via schema), as well as denormalizing from
-the `rest-hooks` cache (via a selector).
+the `rest-hooks` cache (via a [selector](../api/makeSchemaSelector.md)).
 
 `resources/ArticleResource.ts`
 
 ```typescript
-import { Resource, selectors } from 'rest-hooks';
+import { Resource, makeSchemaSelector, SchemaArray, AbstractInstanceType } from 'rest-hooks';
 import { UserResource } from 'resources';
 
 export default class ArticleResource extends Resource {
@@ -48,10 +48,12 @@ export default class ArticleResource extends Resource {
   static urlRoot = 'http://test.com/article/';
 
   static listRequest<T extends typeof Resource>(this: T) {
+    const req = super.listRequest();
+    const schema: SchemaArray<AbstractInstanceType<T>> = { results: [this.getEntitySchema()] };
     return {
-      ...super.listRequest(),
-      schema: { results: [super.getSchema()] },
-      select: selectors.makeList(this, results => results.results),
+      ...req,
+      schema,
+      select: makeSchemaSelector({ schema, getUrl: req.getUrl }, results => results.results),
     };
   }
 }

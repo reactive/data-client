@@ -1,96 +1,71 @@
 import { createSelector } from 'reselect';
-import { AbstractInstanceType } from '../types';
-import { Resource } from '../resource';
-import { State, PK } from '../types';
+import { State } from '../types';
+import { ReadShape, isEntity, Schema, SchemaOf } from '../resource/types';
+import { denormalize } from 'normalizr';
 
-export function makeSingle<T extends typeof Resource>(Resource: T) {
-  return (
-    state: State<Resource>,
-    urlParams: Partial<AbstractInstanceType<T>>,
-  ) => {
-    let id = Resource.pk(urlParams);
-    if (id === null || id === undefined) {
-      const url = Resource.url(urlParams);
-      const results = state.results[url];
-      if (process.env.NODE_ENV !== 'production') {
+export function selectMeta<R = any>(state: State<R>, url: string) {
+  return state.meta[url];
+}
+
+export const makeResults = <R = any>(getUrl: (...args: any[]) => string) => (
+  state: State<R>,
+  params: object
+) => state.results[getUrl(params)] || null;
+
+export function makeSchemaSelector<
+Params extends Readonly<object>,
+Body extends Readonly<object> | void,
+S extends Schema,
+>(
+  { schema, getUrl }: Pick<ReadShape<Params, Body, S>, 'schema' | 'getUrl'>,
+  getResultList?: (results: any) => SchemaOf<typeof schema>
+):  (state: State<any>, params: Params) => SchemaOf<typeof schema> | null {
+  const selectResults = makeResults<any>(getUrl);
+  const ret = createSelector(
+    (state: State<any>) => state.entities,
+    selectResults,
+    (state: State<any>, params: Params) => params,
+    (entities, results, params: Params) => {
+      // We can grab entities without actual results if the params compute a primary key
+      if (isEntity(schema) && !results) {
+        const id = schema.getId(params, undefined, '');
+        // in case we don't even have entities for a model yet, denormalize() will throw
+        if (
+          id !== undefined &&
+          id !== '' &&
+          entities[schema.key] !== undefined
+        ) {
+          results = id;
+        }
+      }
+      if (!entities || !results) return null;
+      if (process.env.NODE_ENV !== 'production' && isEntity(schema)) {
         if (Array.isArray(results)) {
           throw new Error(
-            `url ${url} has list results when single result is expected`,
+            `url ${getUrl(params)} has list results when single result is expected`,
           );
         }
         if (typeof results === 'object') {
           throw new Error(
-            `url ${url} has object results when single result is expected`,
+            `url ${getUrl(params)} has object results when single result is expected`,
           );
         }
       }
-      if (results === undefined) return null;
-      id = results as PK;
-    }
-    const resourceEntitySection = state.entities[Resource.getKey()];
-    if (!resourceEntitySection) return null;
-    const instance = resourceEntitySection[id];
-    if (!instance) return null;
-    if (!(instance instanceof Resource)) {
-      throw new Error(
-        `entity of wrong type found for ${Resource.toString()} : ${id}`,
-      );
-    }
-    return instance as AbstractInstanceType<T>;
-  };
-}
-
-export function ByPK<T extends typeof Resource>(
-  Resource: T,
-  state: State<Resource>,
-  pk: PK,
-) {
-  const resourceEntitySection = state.entities[Resource.getKey()];
-  if (!resourceEntitySection) return null;
-  return resourceEntitySection[pk];
-}
-
-export function All<T extends typeof Resource>(
-  Resource: T,
-  state: State<Resource>,
-) {
-  const resourceEntitySection = state.entities[Resource.getKey()];
-  if (!resourceEntitySection) return [];
-  return Object.values(resourceEntitySection);
-}
-
-export function selectMeta(state: State<Resource>, url: string) {
-  return state.meta[url];
-}
-
-export const makeEntities = <T extends typeof Resource>(Resource: T) => (
-  state: State<Resource>,
-) => {
-  const resourceEntitySection = state.entities[Resource.getKey()];
-  if (!resourceEntitySection) return null;
-  return resourceEntitySection;
-};
-
-export const makeResults = (
-  getUrl: (...args: any[]) => string,
-) => (state: State<Resource>, params: object) => state.results[getUrl(params)] || null;
-
-
-export function makeList<T extends typeof Resource>(Resource: T, getResultList?: (results: any) => PK[]) {
-  const selectEntities = makeEntities(Resource);
-  const selectResults = makeResults((v) => Resource.listUrl(v));
-  return createSelector(
-    selectEntities,
-    selectResults,
-    (entities, results) => {
-      if (!entities || !results) return null;
+      let output = denormalize(results, schema, entities);
       if (getResultList) {
-        results = getResultList(results)
+        output = getResultList(output);
       }
-      if (!Array.isArray(results)) {
-        throw new Error(`does not have list when list expected`);
+      if (!output) return null;
+      if (process.env.NODE_ENV !== 'production' && !Array.isArray(output)) {
+        // this is the immutable.js look-alike hack
+        if (!output.__ownerID) {
+          throw new Error(
+            `wrong type found : ${output}`,
+          );
+        }
       }
-      return results.map(pk => entities[pk]) as AbstractInstanceType<T>[]
+      return output;
     }
   );
+  return ret;
 }

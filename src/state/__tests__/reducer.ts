@@ -8,7 +8,7 @@ describe('reducer', () => {
       type: 'receive' as 'receive',
       payload: { id, title: 'hi', content: 'this is the content' },
       meta: {
-        schema: ArticleResource.getSchema(),
+        schema: ArticleResource.getEntitySchema(),
         url: ArticleResource.url({ id }),
         mutate: false,
         date: 5000000000,
@@ -29,7 +29,7 @@ describe('reducer', () => {
       type: 'receive' as 'receive',
       payload: { id, title: 'hi', content: 'this is the content' },
       meta: {
-        schema: ArticleResource.getSchema(),
+        schema: ArticleResource.getEntitySchema(),
         url: ArticleResource.url({ id }),
         mutate: true,
         date: 5000000000,
@@ -51,7 +51,7 @@ describe('reducer', () => {
       type: 'receive' as 'receive',
       payload: error,
       meta: {
-        schema: ArticleResource.getSchema(),
+        schema: ArticleResource.getEntitySchema(),
         url: ArticleResource.url({ id }),
         mutate: false,
         date: 5000000000,
@@ -72,7 +72,7 @@ describe('reducer', () => {
       type: 'fetch' as 'fetch',
       payload: () => new Promise<any>(() => null),
       meta: {
-        schema: ArticleResource.getSchema(),
+        schema: ArticleResource.getEntitySchema(),
         url: ArticleResource.url({ id: 5 }),
         mutate: true,
         throttle: true,

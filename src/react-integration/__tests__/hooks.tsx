@@ -18,8 +18,8 @@ import {
 } from '../hooks';
 import { initialState } from '../../state/reducer';
 import { State, ActionTypes } from '../../types';
-import { Resource } from '../../resource';
-import { RequestShape } from '../../resource';
+import { Resource, Schema } from '../../resource';
+import { ReadShape } from '../../resource';
 
 async function testDispatchFetch(
   Component: React.FunctionComponent,
@@ -60,11 +60,11 @@ function testRestHook(
   });
 }
 
-function buildState(
+function buildState<S extends Schema>(
   payload: any,
-  requestShape: RequestShape<any, any>,
+  requestShape: ReadShape<any, any, S>,
   params: object
-) {
+): State<Resource> {
   const { entities, result } = normalize(payload, requestShape.schema);
   const url = requestShape.getUrl(params);
   return {
@@ -318,7 +318,7 @@ describe('useResource', () => {
   it('should NOT suspend even when result is stale', () => {
     const { entities, result } = normalize(
       payload,
-      CoolerArticleResource.getSchema()
+      CoolerArticleResource.getEntitySchema()
     );
     const url = CoolerArticleResource.url(payload);
     const state = {

@@ -48,8 +48,8 @@ class TradeResource extends Resource {
     return {
       ...this.super.createRequest(),
       schema: {
-        trade: this.getSchema(),
-        account: AccountResource.getSchema(),
+        trade: this.getEntitySchema(),
+        account: AccountResource.getEntitySchema(),
       },
     };
   }
