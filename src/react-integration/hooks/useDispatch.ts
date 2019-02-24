@@ -11,7 +11,7 @@ S extends Schema
 >(requestShape: RequestShape<Params, Body, S>, throttle = false) {
   const { getUrl, fetch } = requestShape;
   const schema = isMutateShape(requestShape) ? requestShape.schema : undefined;
-  const mutate = !isReadShape(requestShape);
+  const responseType = isReadShape(requestShape) ? 'receive' : 'rpc';
 
   const dispatch = useContext(DispatchContext);
 
@@ -28,7 +28,7 @@ S extends Schema
         payload: () => fetch(url, body),
         meta: {
           schema,
-          mutate,
+          responseType,
           url,
           throttle,
           resolve,
@@ -37,7 +37,7 @@ S extends Schema
       });
       return promise;
     },
-    [fetch, schema, getUrl, mutate, throttle, dispatch]
+    [fetch, schema, getUrl, responseType, throttle, dispatch]
   );
   return fetchDispatcher;
 }

@@ -21,9 +21,14 @@ export interface ReceiveAction extends FSA<any, any> {
   meta: {
     schema: Schema;
     url: string;
-    mutate: boolean;
     date: number;
     expiresAt: number;
+  };
+}
+export interface RPCAction extends FSA<any, any> {
+  type: 'rpc';
+  meta: {
+    schema: Schema;
   };
 }
 export interface FetchAction extends FSA<any, any> {
@@ -32,14 +37,14 @@ export interface FetchAction extends FSA<any, any> {
   meta: {
     schema?: Schema;
     url: string;
-    mutate: boolean;
+    responseType: 'rpc' | 'receive';
     throttle: boolean;
     resolve: (value?: any | PromiseLike<any>) => void;
     reject: (reason?: any) => void;
   };
 }
 // put other actions here in union
-export type ActionTypes = ReceiveAction | FetchAction;
+export type ActionTypes = FetchAction | ReceiveAction | RPCAction;
 
 export type Middleware = <R extends React.Reducer<any, any>>({
   dispatch,

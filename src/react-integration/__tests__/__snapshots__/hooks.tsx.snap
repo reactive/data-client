@@ -3,9 +3,9 @@
 exports[`useDispatch should dispatch an action that fetches 1`] = `
 Object {
   "meta": Object {
-    "mutate": true,
     "reject": [Function],
     "resolve": [Function],
+    "responseType": "rpc",
     "schema": EntitySchema {
       "_getId": [Function],
       "_idAttribute": [Function],
@@ -25,9 +25,9 @@ Object {
 exports[`useFetch should dispatch singles 1`] = `
 Object {
   "meta": Object {
-    "mutate": false,
     "reject": [Function],
     "resolve": [Function],
+    "responseType": "receive",
     "schema": EntitySchema {
       "_getId": [Function],
       "_idAttribute": [Function],
@@ -47,9 +47,9 @@ Object {
 exports[`useResource should dispatch an action that fetches 1`] = `
 Object {
   "meta": Object {
-    "mutate": false,
     "reject": [Function],
     "resolve": [Function],
+    "responseType": "receive",
     "schema": EntitySchema {
       "_getId": [Function],
       "_idAttribute": [Function],
@@ -69,9 +69,9 @@ Object {
 exports[`useResource should dispatch fetch when sent multiple arguments 1`] = `
 Object {
   "meta": Object {
-    "mutate": false,
     "reject": [Function],
     "resolve": [Function],
+    "responseType": "receive",
     "schema": EntitySchema {
       "_getId": [Function],
       "_idAttribute": [Function],
@@ -91,9 +91,9 @@ Object {
 exports[`useResource should dispatch fetch when sent multiple arguments 2`] = `
 Object {
   "meta": Object {
-    "mutate": false,
     "reject": [Function],
     "resolve": [Function],
+    "responseType": "receive",
     "schema": Array [
       EntitySchema {
         "_getId": [Function],

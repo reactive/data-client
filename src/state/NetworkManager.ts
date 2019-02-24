@@ -51,18 +51,17 @@ export default class NetworkManager {
    */
   protected handleFetch(action: FetchAction, dispatch: React.Dispatch<any>) {
     const fetch = action.payload;
-    const { schema, url, mutate, throttle, resolve, reject } = action.meta;
+    const { schema, url, responseType, throttle, resolve, reject } = action.meta;
     const deferedFetch = () =>
       fetch()
         .then(data => {
           const now = Date.now();
           dispatch({
-            type: 'receive',
+            type: responseType,
             payload: data,
             meta: {
               schema,
               url,
-              mutate,
               date: now,
               expiresAt: now + this.dataExpiryLength,
             },
@@ -72,12 +71,11 @@ export default class NetworkManager {
         .catch(error => {
           const now = Date.now();
           dispatch({
-            type: 'receive',
+            type: responseType,
             payload: error,
             meta: {
               schema,
               url,
-              mutate,
               date: now,
               expiresAt: now + this.errorExpiryLength,
             },
@@ -140,6 +138,7 @@ export default class NetworkManager {
           case 'fetch':
             this.handleFetch(action, dispatch);
             return;
+          case 'rpc':
           case 'receive':
             if (action.meta.url in this.fetched) {
               this.handleReceive(action);

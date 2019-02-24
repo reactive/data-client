@@ -26,15 +26,12 @@ export default function reducer(state: State<Resource>, action: ActionTypes) {
         };
       }
       const normalized = normalize(action.payload, action.meta.schema);
-      let results = action.meta.mutate
-        ? state.results
-        : {
-          ...state.results,
-          [action.meta.url]: normalized.result,
-        };
       return {
         entities: merge({ ...state.entities }, normalized.entities),
-        results,
+        results: {
+          ...state.results,
+          [action.meta.url]: normalized.result,
+        },
         meta: {
           ...state.meta,
           [action.meta.url]: {
@@ -42,6 +39,12 @@ export default function reducer(state: State<Resource>, action: ActionTypes) {
             expiresAt: action.meta.expiresAt,
           },
         },
+      };
+    case 'rpc':
+      const { entities } = normalize(action.payload, action.meta.schema);
+      return {
+        ...state,
+        entities: merge({ ...state.entities }, entities),
       };
     default:
       // A reducer must always return a valid state.
