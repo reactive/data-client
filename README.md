@@ -1,4 +1,5 @@
-# 🛌🎣 Rest hooks [![build status](https://img.shields.io/travis/coinbase/rest-hooks/master.svg?style=flat-square)](https://travis-ci.org/coinbase/rest-hooks) [![Coverage Status](https://img.shields.io/coveralls/coinbase/rest-hooks/master.svg?style=flat-square)](https://coveralls.io/github/coinbase/rest-hooks?branch=master) [![JS gzip size](https://img.badgesize.io/https://unpkg.com/rest-hooks.js?compression=gzip&label=JS+gzip+size)](https://unpkg.com/rest-hooks.js) [![npm version](https://img.shields.io/npm/v/rest-hooks.svg?style=flat-square)](https://www.npmjs.com/package/rest-hooks)
+# 🛌🎣 Rest hooks
+[![CircleCI](https://circleci.com/gh/coinbase/rest-hooks.svg?style=shield)](https://circleci.com/gh/coinbase/rest-hooks) [![Coverage Status](https://img.shields.io/coveralls/coinbase/rest-hooks/master.svg?style=flat-square)](https://coveralls.io/github/coinbase/rest-hooks?branch=master) [![JS gzip size](https://img.badgesize.io/https://unpkg.com/rest-hooks.js?compression=gzip&label=JS+gzip+size)](https://unpkg.com/rest-hooks.js) [![npm version](https://img.shields.io/npm/v/rest-hooks.svg?style=flat-square)](https://www.npmjs.com/package/rest-hooks)
 
 Making dynamic sites performant, scalable, simple to build with almost any API design.
 
