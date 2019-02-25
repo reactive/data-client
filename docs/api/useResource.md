@@ -2,11 +2,15 @@
 
 ```typescript
 function useResource<
-  S extends RequestShape,
->(selectShape: S, params: ParamArg<S> | null): AlwaysSelect<S>;
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void,
+  S extends Schema
+>(selectShape: ReadShape<Params, Body, S>, params: Params | null): SchemaOf<S>;
 function useResource<
-  S extends RequestShape,
->(...[selectShape: S, params: ParamArg<S> | null]): AlwaysSelect<S>[];
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void,
+  S extends Schema
+>(...[selectShape: ReadShape<Params, Body, S>, params: Params | null]): SchemaOf<S>[];
 ```
 
 Excellent for retrieving the data you need.
@@ -61,3 +65,13 @@ function PostWithAuthor() {
   // author as UserResource
 }
 ```
+
+## Useful `RequestShape`s to send
+
+[Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
+
+* singleRequest()
+* listRequest()
+
+Feel free to add your own [RequestShape](./RequestShape.md) as well.
+

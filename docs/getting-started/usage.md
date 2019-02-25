@@ -61,6 +61,7 @@ import ArticleResource from 'resources/article';
 
 export default function NewArticleForm() {
   const create = hooks.useDispatch(ArticleResource.createRequest())
+  // create as (body: Readonly<Partial<ArticleResource>>, params?: Readonly<object>) => Promise<any>
   return (
     <form onSubmit={e => create(new FormData(e.target), {})}>
       <FormField name="title" />
@@ -71,8 +72,12 @@ export default function NewArticleForm() {
 }
 ```
 
-`create()` here will return a promise that resolves to the new Resource created by the API.
-It will automatically be added in the cache for any consumers to display.
+`create()` then takes any `keyable` body to send as the payload and then returns a promise that
+resolves to the new Resource created by the API. It will automatically be added in the cache for any consumers to display.
+
+We use [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData/FormData) in
+the example since it doesn't require any opinionated form state management solution.
+Feel free to use whichever one you prefer.
 
 ### [⬅️Installation](./installation.md)
 ### 📖[Documentation](..)

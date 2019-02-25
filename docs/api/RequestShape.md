@@ -93,3 +93,28 @@ The provided `listRequest()` and `singleRequest()` Resource methods that return
 and getUrl function already provided. This is highly recommended for custom
 `ReadShape`s you might want to build. You'll also need to use this when customizing
 schema for any `ReadShape`. See [pagination](../guides/pagination.md) for a common example.
+
+## Example
+
+This is the code for the default listRequest() implementation. Note the explicit return type of
+`ReadShape`. This is important to ensure the type is wide enough that it can be overridden
+in descendants.
+
+```typescript
+  /** Shape to get a list of entities */
+  static listRequest<T extends typeof Resource>(this: T): ReadShape<Readonly<object>, Readonly<object>, SchemaArray<AbstractInstanceType<T>>> {
+    const self = this;
+    const getUrl = (params: Readonly<object>) => {
+      return this.listUrl(params);
+    };
+    const schema: SchemaArray<AbstractInstanceType<T>> = [this.getEntitySchema()];
+    return {
+      select: makeSchemaSelector({ getUrl, schema }),
+      schema,
+      getUrl,
+      fetch(url: string, body?: Readonly<object>) {
+        return self.fetch('get', url, body);
+      },
+    };
+  }
+```

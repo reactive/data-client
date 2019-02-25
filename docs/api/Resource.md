@@ -45,11 +45,20 @@ A final note: `Resource` provides a factory method called `fromJS()` that will b
 to construct instances. This is the only supported way of created `Resource`s so please
 don't use constructors.
 
+## Factory method
+
+### static fromJS<T extends typeof Resource>(this: T, props: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T>;
+
+This is used to create instances of the `Resource` you defined. Will copy over props provided to
+the instance in construction.
+
 ## Be sure to always provide:
 
 ### pk: () => string | number | null
 
-Typically just return the id field. In case of multicolumn you can simply join them together.
+PK stands for *primary key* and is intended to provide a standard means of retrieving
+a key identifier for any `Resource`. In many cases there will simply be an 'id' field
+member to return. In case of multicolumn you can simply join them together.
 
 multi-column primary key:
 
@@ -57,6 +66,19 @@ multi-column primary key:
 pk() {
   return [this.firstCol, this.secondCol, this.thirdCol].join(',');
 }
+```
+
+While the `pk()` definition is key (pun intended) for making the normalized cache work;
+it also becomes quite convenient for sending to a react element when iterating on
+list results:
+
+```tsx
+//....
+return (
+  <div>
+    {results.map(result => <TheThing key={result.pk()} thing={result} />)}
+  </div>
+)
 ```
 
 ### static urlRoot: string

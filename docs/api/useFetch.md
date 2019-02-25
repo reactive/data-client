@@ -1,10 +1,14 @@
 # useFetch()
 
 ```typescript
-function useFetch<S extends RequestShape>(
-  selectShape: S,
-  params: ParamArg<S> | null,
-  body?: PayloadArg<S>,
+function useFetch<
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void,
+  S extends Schema
+>(
+  selectShape: ReadShape<Params, Body, S>,
+  params: Params | null,
+  body?: Body
 ): Promise<any> | undefined;
 ```
 
@@ -26,3 +30,12 @@ function MasterPost({ id }: { id: number }) {
   // ...
 }
 ```
+
+## Useful `RequestShape`s to send
+
+[Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
+
+- singleRequest()
+- listRequest()
+
+Feel free to add your own [RequestShape](./RequestShape.md) as well.

@@ -1,10 +1,10 @@
 # useSelect()
 
 ```typescript
-function useSelect<S extends RequestShape>(
-  requestShape: S,
-  params: ParamArg<S> | null,
-): SelectReturn<S>;
+function useSelect<Params extends Readonly<object>, S extends Schema>(
+  { select, getUrl }: ReadShape<Params, any, S>,
+  params: Params | null
+): SchemaOf<S> | null;
 ```
 
 Excellent to use data in the normalized cache without fetching.
@@ -25,3 +25,12 @@ function Post({ id }: { id: number }) {
   // ...render stuff here
 }
 ```
+
+## Useful `RequestShape`s to send
+
+[Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
+
+- singleRequest()
+- listRequest()
+
+Feel free to add your own [RequestShape](./RequestShape.md) as well.

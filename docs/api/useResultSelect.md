@@ -1,14 +1,16 @@
 # useResultSelect()
 
 ```typescript
-function useResultSelect<S extends RequestShape, D extends object>(
-  requestShape: S,
-  params: ParamArg<S> | null,
+function useResultSelect<Params extends Readonly<object>, D extends object>(
+  { getUrl, fetch }: ReadShape<Params, any, any>,
+  params: Params | null,
   defaults?: D
-): D extends undefined ? Resolved<ReturnType<S['fetch']>> | null : Readonly<D>;
+): D extends undefined
+  ? Resolved<ReturnType<typeof fetch>> | null
+  : Readonly<D>;
 ```
 
-Excellent to use with pagination or any other extra (non-entity) data in results.
+Excellent to use with [pagination](../guides/pagination.md) or any other extra (non-entity) data in results.
 
 Because of this it will not block rendering and instead return null
 if the desired data is not found.
@@ -27,3 +29,11 @@ function PostList() {
   // ...render stuff here
 }
 ```
+
+## Useful `RequestShape`s to send
+
+[Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
+
+- listRequest()
+
+Feel free to add your own [RequestShape](./RequestShape.md) as well.

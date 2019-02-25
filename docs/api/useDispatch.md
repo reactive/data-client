@@ -1,22 +1,27 @@
 # useDispatch()
 
 ```typescript
-function useDispatch<S extends RequestShape>(
-  requestShape: S,
-  throttle?: boolean,
-): (body: PayloadArg<S>, params: ParamArg<S>) => Promise<any>;
+function useDispatch<
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void,
+  S extends Schema
+>(
+  requestShape: RequestShape<Params, Body, S>,
+  throttle?: boolean
+): (body: Body, params: Params) => Promise<any>;
 ```
 
 Mostly useful for imperatively triggering mutation effects.
 
-However, this hook is actually used by the retrieval hooks. You can use also use it for imperatively triggering retrievals if you so desire.
+However, this hook is actually used by the retrieval hooks (useFetch(), useSelect(), useResource()). Using
+it with a `ReadRequest` like `singleRequest()` can be done to force a refresh imperatively.
 
 ## Example
 
 ```tsx
 function CreatePost() {
   const create = useDispatch(PostResource.createRequest());
-  // create as (body: Partial<PostResource>, params: object | void) => Promise<any>
+  // create as (body: Readonly<Partial<PostResource>>, params?: Readonly<object>) => Promise<any>
 
   return (
     <form onSubmit={e => create(new FormData(e.target), {})}>{/* ... */}</form>
@@ -27,7 +32,7 @@ function CreatePost() {
 ```tsx
 function UpdatePost({ id }: { id: string }) {
   const update = useDispatch(PostResource.updateRequest());
-  // update as (body: Partial<PostResource>, params: object) => Promise<any>
+  // update as (body: Readonly<Partial<PostResource>>, params?: Readonly<object>) => Promise<any>
 
   return (
     <form onSubmit={e => update(new FormData(e.target), { id })}>
@@ -36,6 +41,17 @@ function UpdatePost({ id }: { id: string }) {
   );
 }
 ```
+
+## Useful `RequestShape`s to send
+
+[Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
+
+- createRequest()
+- updateRequest()
+- partialUpdateRequest()
+- deleteRequest()
+
+Feel free to add your own [RequestShape](./RequestShape.md) as well.
 
 ## Notes
 
