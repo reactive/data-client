@@ -3,7 +3,6 @@
   "version": "0.7.0",
   "description": "Simple typed React hooks for REST APIs",
   "sideEffects": false,
-  "browser": "dist/rest-hooks.umd.js",
   "main": "lib/index.js",
   "module": "lib/index.js",
   "types": "lib/index.d.ts",

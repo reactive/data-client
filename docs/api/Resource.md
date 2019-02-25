@@ -47,7 +47,7 @@ don't use constructors.
 
 ## Factory method
 
-### static fromJS<T extends typeof Resource>(this: T, props: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T>;
+### static fromJS<T extends typeof Resource>(this: T, props: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T>
 
 This is used to create instances of the `Resource` you defined. Will copy over props provided to
 the instance in construction.
@@ -96,7 +96,7 @@ Computes the url based on the parameters. Default implementation follows `/urlRo
 Computes url for retrieving list items. Defaults to urlRoot with `searchParams` being sent as GET
 parameters.
 
-### static fetch<T extends typeof Resource>(method: "get" | "post" | "put" | "patch" | "delete", url: string, body?: Partial<AbstractInstanceType\<T>>) => Promise\<any>
+### static fetch<T extends typeof Resource>(method: "get" | "post" | "put" | "patch" | "delete" | "options", url: string, body?: Partial<AbstractInstanceType\<T>>) => Promise\<any>
 
 Performs the actual network fetch returning a promise that resolves to the network response or rejects
 on network error. This can be useful to override to really customize your transport.

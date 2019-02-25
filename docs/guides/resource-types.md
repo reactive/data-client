@@ -5,7 +5,7 @@ One of the main benefits is to enforce immutability, as this brings certain assu
 to the correctness of your application as well as enables certain performance enhancements
 with React.
 
-Here we have an example [Resource](docs/api/Resource.md) for a User typed in typescript.
+Here we have an example [Resource](../api/Resource.md) for a User typed in typescript.
 
 ```typescript
 export interface Address {

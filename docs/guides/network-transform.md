@@ -17,7 +17,7 @@ import { camelCase, snakeCase } from 'lodash';
 function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
   const ret = Array.isArray(obj) ? [] : {};
   Object.keys(obj).forEach(key => {
-    if (typeof obj === 'object') {
+    if (obj[key] != null && typeof obj[key] === 'object') {
       ret[transform(key)] = deeplyApplyKeyTransform(obj[key], transform);
     } else {
       ret[transform(key)] = obj[key];
@@ -28,7 +28,7 @@ function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
 
 // We can now extend CamelResource instead of Resource to build
 // all of our classes.
-class CamelResource extends Resource {
+abstract class CamelResource extends Resource {
   static async fetch<T extends typeof Resource>(
     this: T,
     method: Method = 'get',
@@ -113,7 +113,7 @@ response.
 ```typescript
 const USERNAME_MATCHER = /.*\/([^\/]+)\/?/;
 
-class StreamResource extends CamelResource {
+abstract class StreamResource extends CamelResource {
   readonly username: string = '';
   readonly title: string = '';
   readonly game: string = '';
