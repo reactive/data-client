@@ -1,6 +1,6 @@
 {
   "name": "rest-hooks",
-  "version": "0.7.0-beta.6",
+  "version": "0.7.0",
   "description": "Simple typed React hooks for REST APIs",
   "sideEffects": false,
   "browser": "dist/rest-hooks.umd.js",
