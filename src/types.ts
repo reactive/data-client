@@ -2,7 +2,7 @@ import React from 'react';
 import { FSA } from 'flux-standard-action';
 import { Schema } from './resource';
 
-export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
+export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
 
 export type AbstractInstanceType<T> = T extends { prototype: infer U }
   ? U
