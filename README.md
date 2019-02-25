@@ -5,7 +5,8 @@ Making dynamic sites performant, scalable, simple to build with almost any API d
 
 <div align="center">
 
-**[📖Read The Docs](docs)** &nbsp;|&nbsp; [🏁Getting Started](docs/getting-started/installation.md)
+**[📖Read The Docs](docs)** &nbsp;|&nbsp; [🏁Getting Started](docs/getting-started/installation.md) &nbsp;|&nbsp;
+[🎮Demo](https://stackblitz.com/edit/rest-hooks)
 
 </div>
 
