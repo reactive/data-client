@@ -22,6 +22,10 @@ const getEntitySchema: <T extends typeof Resource>(M: T) => schemas.Entity<Abstr
         mergeStrategy: (a, b) => b,
       },
     );
+    // TODO: long term figure out a plan to actually denormalize
+    (e as any).denormalize = function denormalize(entity: any) {
+      return entity;
+    }
     return e;
   },
 ) as any;

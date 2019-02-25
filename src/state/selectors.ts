@@ -66,6 +66,9 @@ S extends Schema
           throw new Error(`wrong type found : ${output}`);
         }
       }
+      if (Array.isArray(output)) {
+        output = output.filter(entity => entity);
+      }
       return output;
     }
   );

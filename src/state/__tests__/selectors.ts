@@ -1,6 +1,8 @@
 import {
   CoolerArticleResource,
+  NestedArticleResource,
   PaginatedArticleResource,
+  UserResource,
 } from '../../__tests__/common';
 import { normalize } from '../../resource';
 
@@ -47,6 +49,18 @@ describe('selectors', () => {
       const selected = select(state, params);
 
       expect(selected).toBe(article);
+    });
+    it('should be null without entity', async () => {
+      const state = {
+        entities: {[CoolerArticleResource.getKey()]: {}},
+        results: {
+          [CoolerArticleResource.url(params)]: params.id,
+        },
+        meta: {},
+      };
+      const selected = select(state, params);
+
+      expect(selected).toBe(null);
     });
     it('should find value when no result exists but primary key is used', async () => {
       const state = {
@@ -111,12 +125,27 @@ describe('selectors', () => {
         CoolerArticleResource.singleRequest().select(state, params),
       ).toThrow();
     });
+    it('should handle nested resources', async () => {
+      const nestedArticle = NestedArticleResource.fromJS({ ...params, user: 23 });
+      const user = UserResource.fromJS({ id: 23, username: 'anne' })
+
+      const state = {
+        entities: {
+          [NestedArticleResource.getKey()]: { [`${nestedArticle.pk()}`]: nestedArticle },
+          [UserResource.getKey()]: { [`${user.pk()}`]: user },
+        },
+        results: {},
+        meta: {},
+      };
+      expect(NestedArticleResource.singleRequest().select(state, params)).toBe(nestedArticle);
+    });
   });
   describe('List', () => {
     const params = { things: 5 };
     const articles = [
       CoolerArticleResource.fromJS({ id: 5 }),
       CoolerArticleResource.fromJS({ id: 6 }),
+      CoolerArticleResource.fromJS({ id: 34, title: 'five' }),
     ];
     it('should be null when state is empty', async () => {
       const state = { entities: {}, results: {}, meta: {} };
@@ -161,6 +190,24 @@ describe('selectors', () => {
       const selected = listSelect(state, params);
 
       expect(selected).toEqual(articles);
+    });
+    it('should simply ignore missing entities when their id is found in results', async () => {
+      const { entities, result } = normalize(
+        articles,
+        CoolerArticleResource.listRequest().schema,
+      );
+      delete entities[CoolerArticleResource.getKey()]['5'];
+      const state = {
+        entities,
+        results: {
+          [CoolerArticleResource.listUrl(params)]: result,
+        },
+        meta: {},
+      };
+      const selected = listSelect(state, params);
+
+      const expectedArticles = articles.slice(1);
+      expect(selected).toEqual(expectedArticles);
     });
     it('should work with paginated results', async () => {
       const { entities, result } = normalize(

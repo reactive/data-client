@@ -1,5 +1,5 @@
 import React from 'react';
-import { Resource, SchemaArray } from '../resource';
+import { Resource, SchemaArray, schemas } from '../resource';
 import { makeSchemaSelector } from '../state/selectors';
 import { AbstractInstanceType } from '../types';
 import { useSelect } from '../react-integration/hooks'
@@ -54,6 +54,18 @@ export class PaginatedArticleResource extends OtherArticleResource {
       schema,
       select: makeSchemaSelector({ schema, getUrl: req.getUrl }, results => results.results),
     };
+  }
+}
+
+export class NestedArticleResource extends OtherArticleResource {
+  readonly user: number | null = null;
+
+  static getEntitySchema<T extends typeof Resource>(this: T): schemas.Entity<AbstractInstanceType<T>> {
+    const schema = super.getEntitySchema();
+    schema.define({
+      user: UserResource.getEntitySchema(),
+    })
+    return schema as any;
   }
 }
 
