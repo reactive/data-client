@@ -10,7 +10,7 @@
 - Hooks:
   - [useResource](api/useResource.md)
   - [useDispatch](api/useDispatch.md)
-  - [useSelect](api/useSelect.md)
+  - [useCache](api/useCache.md)
   - [useFetch](api/useFetch.md)
   - [useResultSelect](api/useResultSelect.md)
 - Components:

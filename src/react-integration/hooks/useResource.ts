@@ -4,7 +4,7 @@ import {
   RequestResource,
   SchemaOf,
 } from '../../resource';
-import useSelect from './useSelect';
+import useCache from './useCache';
 import useFetch from './useFetch';
 import useMeta from './useMeta';
 
@@ -38,7 +38,7 @@ Body extends Readonly<object> | void,
 S extends Schema,
 >(selectShape: ReadShape<Params, Body, S>, params: Params | null) {
   let maybePromise = useFetch(selectShape, params);
-  const resource = useSelect(selectShape, params);
+  const resource = useCache(selectShape, params);
 
   if (!resource && maybePromise && typeof maybePromise.then === 'function')
     throw maybePromise;
@@ -60,7 +60,7 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
     S extends Schema>([
       select,
       params,
-    ]: ResourceArgs<Params, Body, S>) => useSelect(select, params)
+    ]: ResourceArgs<Params, Body, S>) => useCache(select, params)
   );
   // only wait on promises without results
   promises = promises.filter((p, i) => p && !resources[i]);

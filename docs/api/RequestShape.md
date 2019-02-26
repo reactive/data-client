@@ -6,7 +6,7 @@ both APIs. In fact, using `Resource` is not even needed to work with `RestProvid
 simply operates as a convenience to organize schemas.
 
 Because of the different capabilities of each shape, some shapes won't be usable with
-certain hooks and their interaction is not well defined. For instance, `useSelect()`
+certain hooks and their interaction is not well defined. For instance, `useCache()`
 only works with `ReadShape`s because this is the only shape that specifies the
 specific results needed.
 
@@ -81,8 +81,8 @@ export interface ReadShape<
 }
 ```
 
-By providing a select function, `ReadShape` is able to be used with `useSelect()`
-and thus also `useResource()` (that uses useSelect() under the hood) to inspect
+By providing a select function, `ReadShape` is able to be used with `useCache()`
+and thus also `useResource()` (that uses useCache() under the hood) to inspect
 particular results from the url.
 
 This also has the effect of using the response body to update which results

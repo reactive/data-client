@@ -13,7 +13,7 @@ import {
   useDispatch,
   useFetch,
   useResource,
-  useSelect,
+  useCache,
   useResultSelect,
 } from '../hooks';
 import { initialState } from '../../state/reducer';
@@ -159,13 +159,13 @@ describe('useDispatch', () => {
     await testDispatchFetch(DispatchTester, [payload]);
   });
 });
-describe('useSelect', () => {
+describe('useCache', () => {
   it('should select singles', async () => {
     let article: any;
     let state = { ...initialState };
     const { rerender } = testHook(
       () =>
-        (article = useSelect(CoolerArticleResource.singleRequest(), payload)),
+        (article = useCache(CoolerArticleResource.singleRequest(), payload)),
       {
         wrapper: ({ children }) => (
           <StateContext.Provider value={state}>
@@ -188,7 +188,7 @@ describe('useSelect', () => {
     );
     let articles: any;
     testRestHook(() => {
-      articles = useSelect(PaginatedArticleResource.listRequest(), {});
+      articles = useCache(PaginatedArticleResource.listRequest(), {});
     }, state);
     expect(articles).toBeDefined();
     expect(articles.length).toBe(articlesPages.results.length);

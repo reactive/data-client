@@ -13,7 +13,7 @@ function useDispatch<
 
 Mostly useful for imperatively triggering mutation effects.
 
-However, this hook is actually used by the retrieval hooks (useFetch(), useSelect(), useResource()). Using
+However, this hook is actually used by the retrieval hooks (useFetch(), useCache(), useResource()). Using
 it with a `ReadRequest` like `singleRequest()` can be done to force a refresh imperatively.
 
 ## Example

@@ -2,7 +2,7 @@ import React from 'react';
 import { Resource, SchemaArray, schemas } from '../resource';
 import { makeSchemaSelector } from '../state/selectors';
 import { AbstractInstanceType } from '../types';
-import { useSelect } from '../react-integration/hooks'
+import { useCache } from '../react-integration/hooks'
 
 export class ArticleResource extends Resource {
   readonly id: number | null = null;

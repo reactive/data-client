@@ -1,7 +1,7 @@
-# useSelect()
+# useCache()
 
 ```typescript
-function useSelect<Params extends Readonly<object>, S extends Schema>(
+function useCache<Params extends Readonly<object>, S extends Schema>(
   { select, getUrl }: ReadShape<Params, any, S>,
   params: Params | null
 ): SchemaOf<S> | null;
@@ -18,7 +18,7 @@ Using a type guard to deal with null
 
 ```tsx
 function Post({ id }: { id: number }) {
-  const post = useSelect(PostResource.singleRequest(), { id });
+  const post = useCache(PostResource.singleRequest(), { id });
   // post as PostResource | null
   if (!post) return null;
   // post as PostResource (typeguarded)

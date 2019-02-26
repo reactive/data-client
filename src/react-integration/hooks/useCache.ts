@@ -1,10 +1,10 @@
 import { useContext, useMemo } from 'react';
 
-import { ReadShape, Schema, Resource } from '../../resource';
+import { ReadShape, Schema } from '../../resource';
 import { StateContext } from '../context';
 
 /** Access a resource if it is available. */
-export default function useSelect<
+export default function useCache<
 Params extends Readonly<object>,
 S extends Schema,
 >({ select, getUrl }: ReadShape<Params, any, S>, params: Params | null) {
