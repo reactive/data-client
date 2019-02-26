@@ -6,10 +6,10 @@ import createEnhancedReducerHook from './middleware';
 
 interface ProviderProps {
   children: ReactNode;
-  manager: NetworkManager;
+  manager?: NetworkManager;
 }
 /** Controller managing state of the REST cache and coordinating network requests. */
-export default function RestProvider({ children, manager }: ProviderProps) {
+export default function RestProvider({ children, manager = new NetworkManager() }: ProviderProps) {
   // TODO: option to use redux
   const useEnhancedReducer = createEnhancedReducerHook(
     manager.getMiddleware()
@@ -30,6 +30,3 @@ export default function RestProvider({ children, manager }: ProviderProps) {
     </DispatchContext.Provider>
   );
 }
-RestProvider.defaultProps = {
-  manager: new NetworkManager(),
-};
