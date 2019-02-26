@@ -42,7 +42,7 @@ Array [
 ]
 `;
 
-exports[`useDispatch should dispatch an action that fetches 1`] = `
+exports[`useDispatcher should dispatch an action that fetches 1`] = `
 Object {
   "meta": Object {
     "reject": [Function],

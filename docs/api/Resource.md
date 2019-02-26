@@ -122,19 +122,19 @@ Mostly useful with [useResource](../api/useResource.md)
 ### createRequest(): MutateShape
 
 A POST request sending a payload to `listUrl()` with empty params, and expecting a detail body response.
-Mostly useful with [useDispatch](../api/useDispatch.md)
+Mostly useful with [useDispatcher](../api/useDispatcher.md)
 
 ### updateRequest(): MutateShape
 
 A PUT request sending a payload to a `url()` expecting a detail body response.
-Mostly useful with [useDispatch](../api/useDispatch.md)
+Mostly useful with [useDispatcher](../api/useDispatcher.md)
 
 ### partialUpdateRquest(): MutateShape
 
 A PATCH request sending a partial payload to `url()` expecting a detail body response.
-Mostly useful with [useDispatch](../api/useDispatch.md)
+Mostly useful with [useDispatcher](../api/useDispatcher.md)
 
 ### deleteRequest(): DeleteShape
 
 A DELETE request sent to `url()`
-Mostly useful with [useDispatch](../api/useDispatch.md)
+Mostly useful with [useDispatcher](../api/useDispatcher.md)

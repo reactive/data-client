@@ -10,7 +10,7 @@ import {
   PaginatedArticleResource,
 } from '../../__tests__/common';
 import {
-  useDispatch,
+  useDispatcher,
   useFetch,
   useResource,
   useCache,
@@ -144,7 +144,7 @@ function ArticleComponentTester() {
   );
 }
 
-describe('useDispatch', () => {
+describe('useDispatcher', () => {
   it('should dispatch an action that fetches', async () => {
     const payload = { id: 1, content: 'hi' };
     nock('http://test.com')
@@ -152,7 +152,7 @@ describe('useDispatch', () => {
       .reply(201, payload);
 
     function DispatchTester() {
-      const a = useDispatch(CoolerArticleResource.createRequest());
+      const a = useDispatcher(CoolerArticleResource.createRequest());
       a({ content: 'hi' }, {});
       return null;
     }

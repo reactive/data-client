@@ -1,7 +1,7 @@
-import useDispatch from './useDispatch';
+import useDispatcher from './useDispatcher';
 import useCache from './useCache';
 import useResultSelect from './useResultSelect';
 import useFetch from './useFetch';
 import useResource from './useResource';
 
-export { useDispatch, useCache, useResultSelect, useFetch, useResource };
+export { useDispatcher, useCache, useResultSelect, useFetch, useResource };

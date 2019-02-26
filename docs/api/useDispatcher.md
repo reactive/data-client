@@ -1,7 +1,7 @@
-# useDispatch()
+# useDispatcher()
 
 ```typescript
-function useDispatch<
+function useDispatcher<
   Params extends Readonly<object>,
   Body extends Readonly<object> | void,
   S extends Schema
@@ -20,7 +20,7 @@ it with a `ReadRequest` like `singleRequest()` can be done to force a refresh im
 
 ```tsx
 function CreatePost() {
-  const create = useDispatch(PostResource.createRequest());
+  const create = useDispatcher(PostResource.createRequest());
   // create as (body: Readonly<Partial<PostResource>>, params?: Readonly<object>) => Promise<any>
 
   return (
@@ -31,7 +31,7 @@ function CreatePost() {
 
 ```tsx
 function UpdatePost({ id }: { id: string }) {
-  const update = useDispatch(PostResource.updateRequest());
+  const update = useDispatcher(PostResource.updateRequest());
   // update as (body: Readonly<Partial<PostResource>>, params?: Readonly<object>) => Promise<any>
 
   return (

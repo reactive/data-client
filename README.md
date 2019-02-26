@@ -38,7 +38,7 @@ return (
 ### And mutation
 
 ```tsx
-const update = useDispatch(ArticleResource.updateRequest(), { id });
+const update = useDispatcher(ArticleResource.updateRequest(), { id });
 return <ArticleForm onSubmit={update} />;
 ```
 

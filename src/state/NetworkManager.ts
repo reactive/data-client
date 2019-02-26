@@ -174,7 +174,7 @@ export default class NetworkManager {
 
     // since our real promise is resolved via the wrapReducer(),
     // we should just stop all errors here.
-    // TODO: decouple this from useDispatch() (that's what's dispatching the error the resolves in here)
+    // TODO: decouple this from useDispatcher() (that's what's dispatching the error the resolves in here)
     RIC(() => fetch().catch(() => null), { timeout: 500 });
 
     return this.fetched[url];

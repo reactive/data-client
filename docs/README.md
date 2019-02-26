@@ -9,7 +9,7 @@
   - [RequestShape](api/RequestShape.md)
 - Hooks:
   - [useResource](api/useResource.md)
-  - [useDispatch](api/useDispatch.md)
+  - [useDispatcher](api/useDispatcher.md)
   - [useCache](api/useCache.md)
   - [useFetch](api/useFetch.md)
   - [useResultSelect](api/useResultSelect.md)

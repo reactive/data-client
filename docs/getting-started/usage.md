@@ -52,7 +52,7 @@ This will automatically fetch the resource if it is not already available. Param
 in a fetch. It will automatically re-render when a new article is fetched even if from another component.
 
 
-## [Dispatch mutation](../api/useDispatch.md)
+## [Dispatch mutation](../api/useDispatcher.md)
 
 `article.tsx`
 ```tsx
@@ -60,7 +60,7 @@ import { hooks } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function NewArticleForm() {
-  const create = hooks.useDispatch(ArticleResource.createRequest())
+  const create = hooks.useDispatcher(ArticleResource.createRequest())
   // create as (body: Readonly<Partial<ArticleResource>>, params?: Readonly<object>) => Promise<any>
   return (
     <form onSubmit={e => create(new FormData(e.target), {})}>
