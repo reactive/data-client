@@ -1,6 +1,6 @@
 {
   "name": "rest-hooks",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "description": "Simple typed React hooks for REST APIs",
   "sideEffects": false,
   "main": "lib/index.js",
