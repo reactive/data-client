@@ -33,7 +33,7 @@ export default [
     output: [{ file: pkg.browser, format: 'umd', name: 'restHook' }],
     plugins: [
       babel({
-        exclude: ['node_modules/**'],
+        exclude: ['node_modules/**', '**/__tests__/**'],
         extensions,
       }),
       resolve({ extensions }),
@@ -43,4 +43,19 @@ export default [
       filesize(),
     ],
   },
+  // node-friendly commonjs build
+  {
+    input: 'src/index.ts',
+    external: isExternal,
+    output: [{ file: pkg.main, format: 'cjs' }],
+    plugins: [
+      babel({
+        exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
+        extensions,
+      }),
+      resolve({ extensions }),
+      commonjs({ extensions }),
+    ],
+  },
+
 ];
