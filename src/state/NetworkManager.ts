@@ -1,9 +1,9 @@
 import { memoize } from 'lodash'
 import { FetchAction, ReceiveAction } from '../types';
 
-const RIC: (cb: Function, ...args: any[]) => void = (typeof (global as any).requestIdleCallback === 'function'
+const RIC: (cb: Function, options: any) => void = (typeof (global as any).requestIdleCallback === 'function'
   ? (global as any).requestIdleCallback
-  : global.setTimeout);
+  : (cb) => global.setTimeout(cb));
 
 
 /** Handles all async network dispatches
