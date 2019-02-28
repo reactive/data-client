@@ -52,6 +52,8 @@ export default [
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions,
+        runtimeHelpers: true,
+        plugins: ['@babel/plugin-transform-runtime'],
       }),
       resolve({ extensions }),
       commonjs({ extensions }),
