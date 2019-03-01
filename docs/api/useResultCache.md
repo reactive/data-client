@@ -1,7 +1,7 @@
-# useResultSelect()
+# useResultCache()
 
 ```typescript
-function useResultSelect<Params extends Readonly<object>, D extends object>(
+function useResultCache<Params extends Readonly<object>, D extends object>(
   { getUrl, fetch }: ReadShape<Params, any, any>,
   params: Params | null,
   defaults?: D
@@ -21,7 +21,7 @@ By sending defaults we can destructure the values even if the results don't exis
 
 ```tsx
 function PostList() {
-  const { prevPage, nextPage } = useResultSelect(
+  const { prevPage, nextPage } = useResultCache(
     PaginatedResource.listRequest(),
     {},
     { prevPage: '', nextPage: '' }

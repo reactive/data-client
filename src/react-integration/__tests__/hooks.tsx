@@ -14,7 +14,7 @@ import {
   useFetch,
   useResource,
   useCache,
-  useResultSelect,
+  useResultCache,
 } from '../hooks';
 import { initialState } from '../../state/reducer';
 import { State, ActionTypes } from '../../types';
@@ -196,12 +196,12 @@ describe('useCache', () => {
     expect(articles).toMatchSnapshot();
   });
 });
-describe('useResultSelect', () => {
+describe('useResultCache', () => {
   it('should be null with nothing in state', () => {
     let results: any;
     let state = { ...initialState };
     const { rerender } = testRestHook(() => {
-      results = useResultSelect(PaginatedArticleResource.listRequest(), {});
+      results = useResultCache(PaginatedArticleResource.listRequest(), {});
     }, state);
     expect(results).toBe(null);
   });
@@ -210,7 +210,7 @@ describe('useResultSelect', () => {
     let state = { ...initialState };
     const defaults = { prevPage: '', nextPage: '' }
     testRestHook(() => {
-      results = useResultSelect(PaginatedArticleResource.listRequest(), {}, defaults);
+      results = useResultCache(PaginatedArticleResource.listRequest(), {}, defaults);
     }, state);
     expect(results).toEqual(defaults);
   });
@@ -222,7 +222,7 @@ describe('useResultSelect', () => {
     );
     let results: any;
     testRestHook(() => {
-      results = useResultSelect(PaginatedArticleResource.listRequest(), {});
+      results = useResultCache(PaginatedArticleResource.listRequest(), {});
     }, state);
     expect(results).toBeTruthy();
     expect(results.nextPage).toBe(articlesPages.nextPage);

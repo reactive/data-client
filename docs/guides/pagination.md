@@ -61,7 +61,7 @@ export default class ArticleResource extends Resource {
 
 Now we can use `listRequest()` as normal.
 
-Additionally, we can add pagination buttons using [useResultSelect](../api/useResultSelect).
+Additionally, we can add pagination buttons using [useResultCache](../api/useResultCache).
 
 `ArticleList.tsx`
 
@@ -71,7 +71,7 @@ import ArticleResource from 'resources/ArticleResource';
 
 export default function ArticleList() {
   const articles = hooks.useResource(ArticleResource.listRequest(), {});
-  const { nextPage, prevPage } = hooks.useResultSelect(
+  const { nextPage, prevPage } = hooks.useResultCache(
     ArticleResource.listRequest(),
     {},
     { nextPage: '', prevPage: '' }

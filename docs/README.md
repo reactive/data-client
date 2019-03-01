@@ -12,7 +12,7 @@
   - [useDispatcher](api/useDispatcher.md)
   - [useCache](api/useCache.md)
   - [useFetch](api/useFetch.md)
-  - [useResultSelect](api/useResultSelect.md)
+  - [useResultCache](api/useResultCache.md)
 - Components:
   - [RestProvider](api/RestProvider.md)
   - [NetworkErrorBoundary](api/NetworkErrorBoundary.md)
