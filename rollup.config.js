@@ -30,11 +30,13 @@ export default [
   {
     input: 'src/index.ts',
     external: isExternal,
-    output: [{ file: pkg.browser, format: 'umd', name: 'restHook' }],
+    output: [{ file: pkg.unpkg, format: 'umd', name: 'restHook' }],
     plugins: [
       babel({
         exclude: ['node_modules/**', '**/__tests__/**'],
         extensions,
+        runtimeHelpers: true,
+        plugins: ['@babel/plugin-transform-runtime'],
       }),
       resolve({ extensions }),
       commonjs({ extensions }),
