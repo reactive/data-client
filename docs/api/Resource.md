@@ -91,7 +91,7 @@ Must be globally unique - even if you don't use it in url().
 
 Computes the url based on the parameters. Default implementation follows `/urlRoot/[pk]` pattern.
 
-### static listUrl<T extends typeof Resource>(searchParams?: object) => string
+### static listUrl<T extends typeof Resource>(searchParams?: Readonly<Record<string, string>>) => string
 
 Computes url for retrieving list items. Defaults to urlRoot with `searchParams` being sent as GET
 parameters.

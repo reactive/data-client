@@ -103,7 +103,6 @@
     "flux-standard-action": "^2.0.3",
     "lodash": "^4.17.11",
     "normalizr": "^3.3.0",
-    "qs": "^6.6.0",
     "regenerator-runtime": "^0.13.1",
     "reselect": "^4.0.0",
     "superagent": "^4.1.0"

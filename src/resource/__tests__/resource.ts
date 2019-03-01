@@ -24,16 +24,23 @@ describe('Resource', () => {
     });
     expect(article.url).toBe('http://test.com/article-cooler/5');
   });
-  it('should listUrl with an arg', () => {
-    expect(CoolerArticleResource.listUrl({ author: 5 })).toBe(
-      'http://test.com/article-cooler/?author=5',
-    );
-  });
-  it('should listUrl with no args', () => {
-    expect(CoolerArticleResource.listUrl({})).toBe(
-      'http://test.com/article-cooler/',
-    );
-  });
+  describe('listUrl', () => {
+    it('should listUrl with an arg', () => {
+      expect(CoolerArticleResource.listUrl({ author: 5 })).toBe(
+        'http://test.com/article-cooler/?author=5',
+      );
+    });
+    it('should listUrl with no args', () => {
+      expect(CoolerArticleResource.listUrl({})).toBe(
+        'http://test.com/article-cooler/',
+      );
+    });
+    it('should sort consistently', () => {
+      expect(CoolerArticleResource.listUrl({z: 'alpha', y: 'beta', m: 'never', a: 'sometimes', c: 'again'})).toBe(
+        'http://test.com/article-cooler/?a=sometimes&c=again&m=never&y=beta&z=alpha',
+      );
+    });
+  })
   it('should not include __ownerID when converting to JS', () => {
     const json = {...CoolerArticleResource.fromJS({})};
     expect(json).not.toHaveProperty('__ownerID');

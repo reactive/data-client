@@ -104,7 +104,7 @@ in descendants.
   /** Shape to get a list of entities */
   static listRequest<T extends typeof Resource>(this: T): ReadShape<Readonly<object>, Readonly<object>, SchemaArray<AbstractInstanceType<T>>> {
     const self = this;
-    const getUrl = (params: Readonly<object>) => {
+    const getUrl = (params: Readonly<Record<string, string>>) => {
       return this.listUrl(params);
     };
     const schema: SchemaArray<AbstractInstanceType<T>> = [this.getEntitySchema()];

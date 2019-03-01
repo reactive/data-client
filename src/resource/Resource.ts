@@ -1,6 +1,5 @@
 import request from 'superagent';
-import { memoize, isEmpty } from 'lodash';
-import qs from 'qs';
+import { memoize } from 'lodash';
 import { AbstractInstanceType, Method } from '../types';
 import { makeSchemaSelector } from '../state/selectors';
 
@@ -110,17 +109,14 @@ export default abstract class Resource {
   */
   static listUrl<T extends typeof Resource>(
     this: T,
-    searchParams?: Readonly<object>,
+    searchParams?: Readonly<Record<string, string | number>>,
   ): string {
-    const queryString =
-      searchParams && !isEmpty(searchParams)
-        ? `?${qs.stringify(searchParams, {
-            indices: false,
-            sort: a => a,
-            strictNullHandling: true,
-          })}`
-        : '';
-    return `${this.urlRoot}${queryString}`;
+    if (searchParams && Object.keys(searchParams).length) {
+      const params = new URLSearchParams(searchParams as any);
+      params.sort();
+      return `${this.urlRoot}?${params.toString()}`;
+    }
+    return this.urlRoot;
   }
 
   /** Perform network request and resolve with json body */
@@ -163,7 +159,7 @@ export default abstract class Resource {
   /** Shape to get a list of entities */
   static listRequest<T extends typeof Resource>(this: T): ReadShape<Readonly<object>, Readonly<object>, SchemaArray<AbstractInstanceType<T>>> {
     const self = this;
-    const getUrl = (params: Readonly<object>) => {
+    const getUrl = (params: Readonly<Record<string, string>>) => {
       return this.listUrl(params);
     };
     const schema: SchemaArray<AbstractInstanceType<T>> = [this.getEntitySchema()];
