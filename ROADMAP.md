@@ -16,6 +16,7 @@
 
 ## Future
 
+- [ ] Server Side Rendering
 - [ ] Configurable cache presistance (PWA)
 - [ ] Immutable.js support as optional peerdep
 - [ ] Symbol as unique identifier instead of urlRoot
