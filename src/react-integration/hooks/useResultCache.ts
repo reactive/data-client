@@ -15,7 +15,7 @@ export default function useResultCache<
 Params extends Readonly<object>,
 D extends object
 >(
-  { getUrl, fetch }: ReadShape<Params, any, any>,
+  { getUrl, fetch }: ReadShape<any, Params, any>,
   params: Params | null,
   defaults?: D
 ): D extends undefined ? Resolved<ReturnType<typeof fetch>> | null : Readonly<D> {

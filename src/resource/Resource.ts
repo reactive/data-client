@@ -139,7 +139,7 @@ export default abstract class Resource {
 
   // TODO: memoize these so they can be referentially compared
   /** Shape to get a single entity */
-  static singleRequest<T extends typeof Resource>(this: T): ReadShape<Readonly<object>, Readonly<object>, SchemaBase<AbstractInstanceType<T>>> {
+  static singleRequest<T extends typeof Resource>(this: T): ReadShape<SchemaBase<AbstractInstanceType<T>>> {
     const self = this;
     const getUrl = (params: Readonly<object>) => {
       return this.url(params);
@@ -156,7 +156,7 @@ export default abstract class Resource {
   }
 
   /** Shape to get a list of entities */
-  static listRequest<T extends typeof Resource>(this: T): ReadShape<Readonly<object>, Readonly<object>, SchemaArray<AbstractInstanceType<T>>> {
+  static listRequest<T extends typeof Resource>(this: T): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
     const self = this;
     const getUrl = (params: Readonly<Record<string, string>>) => {
       return this.listUrl(params);
@@ -172,7 +172,7 @@ export default abstract class Resource {
     };
   }
   /** Shape to create a new entity (post) */
-  static createRequest<T extends typeof Resource>(this: T): MutateShape<any, Partial<AbstractInstanceType<T>>, SchemaBase<AbstractInstanceType<T>>> {
+  static createRequest<T extends typeof Resource>(this: T): MutateShape<SchemaBase<AbstractInstanceType<T>>, any, Partial<AbstractInstanceType<T>>> {
     const self = this;
     return {
       type: 'mutate',
@@ -186,7 +186,7 @@ export default abstract class Resource {
     };
   }
   /** Shape to update an existing entity (put) */
-  static updateRequest<T extends typeof Resource>(this: T): MutateShape<Readonly<object>, Partial<AbstractInstanceType<T>>, SchemaBase<AbstractInstanceType<T>>> {
+  static updateRequest<T extends typeof Resource>(this: T): MutateShape<SchemaBase<AbstractInstanceType<T>>, Readonly<object>, Partial<AbstractInstanceType<T>>> {
     const self = this;
     return {
       type: 'mutate',
@@ -200,7 +200,7 @@ export default abstract class Resource {
     };
   }
   /** Shape to update a subset of fields of an existing entity (patch) */
-  static partialUpdateRequest<T extends typeof Resource>(this: T): MutateShape<Readonly<object>, Partial<AbstractInstanceType<T>>, SchemaBase<AbstractInstanceType<T>>> {
+  static partialUpdateRequest<T extends typeof Resource>(this: T): MutateShape<SchemaBase<AbstractInstanceType<T>>, Readonly<object>, Partial<AbstractInstanceType<T>>> {
     const self = this;
     return {
       type: 'mutate',
@@ -214,7 +214,7 @@ export default abstract class Resource {
     };
   }
   /** Shape to delete an entity (delete) */
-  static deleteRequest<T extends typeof Resource>(this: T): DeleteShape<Readonly<object>, any, any> {
+  static deleteRequest<T extends typeof Resource>(this: T): DeleteShape<schemas.Entity<AbstractInstanceType<T>>, Readonly<object>> {
     const self = this;
     return {
       type: 'delete',

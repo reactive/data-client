@@ -46,7 +46,7 @@ export default class ArticleResource extends Resource {
   }
   static urlRoot = 'http://test.com/article/';
 
-  static listRequest<T extends typeof Resource>(this: T): ReadShape<Readonly<object>, Readonly<object>, SchemaArray<AbstractInstanceType<T>>> {
+  static listRequest<T extends typeof Resource>(this: T): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
     return {
       ...super.listRequest(),
       schema: { results: [this.getEntitySchema()] },

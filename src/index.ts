@@ -24,25 +24,24 @@ import { Request as RequestType } from 'superagent';
 import { AbstractInstanceType } from './types';
 
 export type DeleteShape<
+S extends schemas.Entity,
 Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends schemas.Entity
-> = DeleteShape<Params, Body, S>;
+> = DeleteShape<S, Params>;
 export type MutateShape<
+S extends Schema,
 Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends Schema
-> = MutateShape<Params, Body, S>;
+Body extends Readonly<object> | void
+> = MutateShape<S, Params, Body>;
 export type ReadShape<
+S extends Schema,
 Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends Schema
-> = ReadShape<Params, Body, S>;
+Body extends Readonly<object> | void
+> = ReadShape<S, Params, Body>;
 export type RequestShape<
+S extends Schema,
 Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends Schema
-> = RequestShape<Params, Body, S>;
+Body extends Readonly<object> | void
+> = RequestShape<S, Params, Body>;
 
 export type Schema<T = any> = Schema<T>;
 export type SchemaArray<T> = SchemaArray<T>;

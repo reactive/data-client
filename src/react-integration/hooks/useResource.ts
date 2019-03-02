@@ -13,7 +13,7 @@ function useError<
 Params extends Readonly<object>,
 Body extends Readonly<object> | void,
 S extends Schema
->(selectShape: ReadShape<Params, Body, S>, params: Params | null, resource: RequestResource<typeof selectShape> | null) {
+>(selectShape: ReadShape<S, Params, Body>, params: Params | null, resource: RequestResource<typeof selectShape> | null) {
   const meta = useMeta(selectShape, params);
   if (!resource) {
     if(!meta) return;
@@ -29,17 +29,17 @@ S extends Schema
 }
 
 type ResourceArgs<
+S extends Schema,
 Params extends Readonly<object>,
 Body extends Readonly<object> | void,
-S extends Schema,
-> = [ReadShape<Params, Body, S>, Params | null];
+> = [ReadShape<S, Params, Body>, Params | null];
 
 /** single form resource */
 function useOneResource<
 Params extends Readonly<object>,
 Body extends Readonly<object> | void,
 S extends Schema,
->(selectShape: ReadShape<Params, Body, S>, params: Params | null) {
+>(selectShape: ReadShape<S, Params, Body>, params: Params | null) {
   let maybePromise = useRetrieve(selectShape, params);
   const resource = useCache(selectShape, params);
 
@@ -63,7 +63,7 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
     S extends Schema>([
       select,
       params,
-    ]: ResourceArgs<Params, Body, S>) => useCache(select, params)
+    ]: ResourceArgs<S, Params, Body>) => useCache(select, params)
   );
   // only wait on promises without results
   promises = promises.filter((p, i) => p && !resources[i]);
@@ -78,12 +78,12 @@ export default function useResource<
   P extends Readonly<object>,
   B extends Readonly<object> | void,
   S extends Schema
->(selectShape: ReadShape<P, B, S>, params: P | null): SchemaOf<S>;
+>(selectShape: ReadShape<S, P, B>, params: P | null): SchemaOf<S>;
 export default function useResource<
   P1 extends Readonly<object>,
   B1 extends Readonly<object> | void,
   S1 extends Schema,
->(v1: [ReadShape<P1, B1, S1>, P1 | null]): [SchemaOf<S1>];
+>(v1: [ReadShape<S1, P1, B1>, P1 | null]): [SchemaOf<S1>];
 export default function useResource<
   P1 extends Readonly<object>,
   B1 extends Readonly<object> | void,
@@ -92,8 +92,8 @@ export default function useResource<
   B2 extends Readonly<object> | void,
   S2 extends Schema,
 >(
-  v1: [ReadShape<P1, B1, S1>, P1 | null],
-  v2: [ReadShape<P2, B2, S2>, P2 | null],
+  v1: [ReadShape<S1, P1, B1>, P1 | null],
+  v2: [ReadShape<S2, P2, B2>, P2 | null],
 ): [SchemaOf<S1>, SchemaOf<S2>];
 export default function useResource<
   P1 extends Readonly<object>,
@@ -106,9 +106,9 @@ export default function useResource<
   B3 extends Readonly<object> | void,
   S3 extends Schema,
 >(
-  v1: [ReadShape<P1, B1, S1>, P1 | null],
-  v2: [ReadShape<P2, B2, S2>, P2 | null],
-  v3: [ReadShape<P3, B3, S3>, P3 | null],
+  v1: [ReadShape<S1, P1, B1>, P1 | null],
+  v2: [ReadShape<S2, P2, B2>, P2 | null],
+  v3: [ReadShape<S3, P3, B3>, P3 | null],
 ): [SchemaOf<S1>, SchemaOf<S2>, SchemaOf<S3>];
 export default function useResource<
   P1 extends Readonly<object>,
@@ -124,10 +124,10 @@ export default function useResource<
   B4 extends Readonly<object> | void,
   S4 extends Schema,
 >(
-  v1: [ReadShape<P1, B1, S1>, P1 | null],
-  v2: [ReadShape<P2, B2, S2>, P2 | null],
-  v3: [ReadShape<P3, B3, S3>, P3 | null],
-  v4: [ReadShape<P4, B4, S4>, P4 | null],
+  v1: [ReadShape<S1, P1, B1>, P1 | null],
+  v2: [ReadShape<S2, P2, B2>, P2 | null],
+  v3: [ReadShape<S3, P3, B3>, P3 | null],
+  v4: [ReadShape<S4, P4, B4>, P4 | null],
 ): [SchemaOf<S1>, SchemaOf<S2>, SchemaOf<S3>, SchemaOf<S4>];
 export default function useResource<
   P1 extends Readonly<object>,
@@ -146,23 +146,23 @@ export default function useResource<
   B5 extends Readonly<object> | void,
   S5 extends Schema,
 >(
-  v1: [ReadShape<P1, B1, S1>, P1 | null],
-  v2: [ReadShape<P2, B2, S2>, P2 | null],
-  v3: [ReadShape<P3, B3, S3>, P3 | null],
-  v4: [ReadShape<P4, B4, S4>, P4 | null],
-  v5: [ReadShape<P5, B5, S5>, P5 | null],
+  v1: [ReadShape<S1, P1, B1>, P1 | null],
+  v2: [ReadShape<S2, P2, B2>, P2 | null],
+  v3: [ReadShape<S3, P3, B3>, P3 | null],
+  v4: [ReadShape<S4, P4, B4>, P4 | null],
+  v5: [ReadShape<S5, P5, B5>, P5 | null],
 ): [SchemaOf<S1>, SchemaOf<S2>, SchemaOf<S3>, SchemaOf<S4>, SchemaOf<S5>];
 export default function useResource<
 Params extends Readonly<object>,
 Body extends Readonly<object> | void,
 S extends Schema,
->(...args: ResourceArgs<Params, Body, S> | ResourceArgs<Params, Body, S>[]) {
+>(...args: ResourceArgs<S, Params, Body> | ResourceArgs<S, Params, Body>[]) {
   // this conditional use of hooks is ok as long as the structure of the arguments don't change
   if (Array.isArray(args[0])) {
     // TODO: provide type guard function to detect this
-    return useManyResources(...(args as ResourceArgs<Params, Body, S>[]));
+    return useManyResources(...(args as ResourceArgs<S, Params, Body>[]));
   }
-  args = args as ResourceArgs<Params, Body, S>;
+  args = args as ResourceArgs<S, Params, Body>;
   // TODO: make return types match up with the branching logic we put in here.
   return useOneResource(args[0], args[1]);
 }

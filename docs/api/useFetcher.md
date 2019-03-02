@@ -6,7 +6,7 @@ function useFetcher<
   Body extends Readonly<object> | void,
   S extends Schema
 >(
-  requestShape: RequestShape<Params, Body, S>,
+  requestShape: RequestShape<S, Params, Body>,
   throttle?: boolean
 ): (body: Body, params: Params) => Promise<any>;
 ```

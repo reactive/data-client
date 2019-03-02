@@ -8,7 +8,7 @@ import { StateContext } from '../context';
 export default function useCache<
 Params extends Readonly<object>,
 S extends Schema,
->({ schema, getUrl }: ReadShape<Params, any, S>, params: Params | null) {
+>({ schema, getUrl }: ReadShape<S, Params, any>, params: Params | null) {
   const state = useContext(StateContext);
   const select = makeSchemaSelector(schema, getUrl);
   // TODO: if this is identical to before and render was triggered by state update,

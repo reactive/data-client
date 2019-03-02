@@ -12,9 +12,9 @@ specific results needed.
 
 ```typescript
 export interface RequestShape<
+S extends Schema,
 Params extends Readonly<object>,
 Body extends Readonly<object> | void,
-S extends Schema
 > {
   readonly type: 'read' | 'mutate' | 'delete';
   fetch(url: string, body: Body): Promise<any>;

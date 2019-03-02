@@ -2,9 +2,9 @@ import { schemas, Schema, SchemaArray, SchemaBase } from './normal';
 
 /** Defines the shape of a network request */
 export interface RequestShape<
-Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends Schema
+S extends Schema,
+Params extends Readonly<object> = Readonly<object>,
+Body extends Readonly<object> | void = Readonly<object> | undefined,
 > {
   readonly type: 'read' | 'mutate' | 'delete';
   fetch(url: string, body: Body): Promise<any>;
@@ -14,35 +14,34 @@ S extends Schema
 
 /** Purges a value from the server */
 export interface DeleteShape<
-Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends schemas.Entity
-> extends RequestShape<Params, Body, S> {
+S extends schemas.Entity,
+Params extends Readonly<object> = Readonly<object>,
+> extends RequestShape<S, Params, any> {
   readonly type: 'delete';
   readonly schema: S;
 }
 
 /** To change values on the server */
 export interface MutateShape<
-Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends Schema
-> extends RequestShape<Params, Body, S> {
+S extends Schema,
+Params extends Readonly<object> = Readonly<object>,
+Body extends Readonly<object> | void = Readonly<object> | undefined,
+> extends RequestShape<S, Params, Body> {
   readonly type: 'mutate';
 }
 
 /** For retrieval requests */
 export interface ReadShape<
-Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends Schema
-> extends RequestShape<Params, Body, S> {
+S extends Schema,
+Params extends Readonly<object> = Readonly<object>,
+Body extends Readonly<object> | void = Readonly<object> | undefined,
+> extends RequestShape<S, Params, Body> {
   readonly type: 'read';
 }
 
 export function isDeleteShape(
   shape: RequestShape<any, any, any>
-): shape is DeleteShape<any, any, any> {
+): shape is DeleteShape<any, any> {
   return shape.type === 'delete';
 }
 

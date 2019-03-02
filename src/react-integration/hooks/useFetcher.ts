@@ -14,7 +14,7 @@ export default function useFetcher<
 Params extends Readonly<object>,
 Body extends Readonly<object> | void,
 S extends Schema
->(requestShape: RequestShape<Params, Body, S>, throttle = false) {
+>(requestShape: RequestShape<S, Params, Body>, throttle = false) {
   const { fetch, schema, type, getUrl } = requestShape;
   const responseType = SHAPE_TYPE_TO_RESPONSE_TYPE[type];
 
