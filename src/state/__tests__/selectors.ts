@@ -235,5 +235,9 @@ describe('selectors', () => {
 
       expect(selected).toEqual(articles);
     });
+    it('should throw with invalid schemas', async () => {
+      const shape = PaginatedArticleResource.listRequest();
+      expect(() => makeSchemaSelector({'happy': {'go': {'lucky': 5}}} as any, shape.getUrl)).toThrow();
+    });
   });
 });

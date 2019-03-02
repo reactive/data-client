@@ -3,7 +3,7 @@ import reducer from '../reducer';
 import { FetchAction, RPCAction, ReceiveAction, PurgeAction, State } from '../../types';
 
 describe('reducer', () => {
-  it('handle get single', () => {
+  describe('singles', () => {
     const id = 20;
     const action: ReceiveAction = {
       type: 'receive',
@@ -21,7 +21,18 @@ describe('reducer', () => {
       meta: {},
     };
     const newState = reducer(iniState, action);
-    expect(newState).toMatchSnapshot();
+    it('should update state correctly', () => {
+      expect(newState).toMatchSnapshot();
+    })
+    it('should overwrite existing entity', () => {
+      const getEntity = (state: any): ArticleResource => state.entities[ArticleResource.getKey()][`${ArticleResource.pk(action.payload)}`]
+      const prevEntity = getEntity(newState);
+      expect(prevEntity).toBeDefined();
+      const nextState = reducer(newState, action);
+      const nextEntity = getEntity(nextState);
+      expect(nextEntity).not.toBe(prevEntity);
+      expect(nextEntity).toBeDefined();
+    })
   });
   it('mutate should never change results', () => {
     const id = 20;

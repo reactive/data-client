@@ -1,6 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`reducer handle get single 1`] = `
+exports[`reducer should set error in meta 1`] = `
+Object {
+  "entities": Object {},
+  "meta": Object {
+    "http://test.com/article/20": Object {
+      "date": 5000000000,
+      "error": [Error: hi],
+      "expiresAt": 5000500000,
+    },
+  },
+  "results": Object {},
+}
+`;
+
+exports[`reducer singles should update state correctly 1`] = `
 Object {
   "entities": Object {
     "http://test.com/article/": Object {
@@ -22,19 +36,5 @@ Object {
   "results": Object {
     "http://test.com/article/20": "20",
   },
-}
-`;
-
-exports[`reducer should set error in meta 1`] = `
-Object {
-  "entities": Object {},
-  "meta": Object {
-    "http://test.com/article/20": Object {
-      "date": 5000000000,
-      "error": [Error: hi],
-      "expiresAt": 5000500000,
-    },
-  },
-  "results": Object {},
 }
 `;

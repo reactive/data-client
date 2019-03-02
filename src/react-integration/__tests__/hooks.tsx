@@ -145,8 +145,9 @@ function ArticleComponentTester() {
 }
 
 describe('useFetcher', () => {
-  it('should dispatch an action that fetches', async () => {
-    const payload = { id: 1, content: 'hi' };
+  const payload = { id: 1, content: 'hi' };
+
+  it('should dispatch an action that fetches a create', async () => {
     nock('http://test.com')
       .post(`/article-cooler/`)
       .reply(201, payload);
@@ -154,6 +155,30 @@ describe('useFetcher', () => {
     function DispatchTester() {
       const a = useFetcher(CoolerArticleResource.createRequest());
       a({ content: 'hi' }, {});
+      return null;
+    }
+    await testDispatchFetch(DispatchTester, [payload]);
+  });
+  it('should dispatch an action that fetches a partial update', async () => {
+    nock('http://test.com')
+      .patch(`/article-cooler/1`)
+      .reply(200, payload);
+
+    function DispatchTester() {
+      const a = useFetcher(CoolerArticleResource.partialUpdateRequest());
+      a({ content: 'changed' }, { id: payload.id });
+      return null;
+    }
+    await testDispatchFetch(DispatchTester, [payload]);
+  });
+  it('should dispatch an action that fetches a full update', async () => {
+    nock('http://test.com')
+      .put(`/article-cooler/1`)
+      .reply(200, payload);
+
+    function DispatchTester() {
+      const a = useFetcher(CoolerArticleResource.updateRequest());
+      a({ content: 'changed' }, { id: payload.id });
       return null;
     }
     await testDispatchFetch(DispatchTester, [payload]);
