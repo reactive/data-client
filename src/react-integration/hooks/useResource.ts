@@ -18,7 +18,10 @@ S extends Schema
   if (!resource) {
     if(!meta) return;
     if (!meta.error) {
-      throw Error(`Resource not found when it should be ${params}`);
+      // this means we probably deleted the entity found in this result
+      const err: any = new Error(`Resource not found ${params ? selectShape.getUrl(params) : ''}`);
+      err.status = 404;
+      throw err;
     } else {
       throw meta.error;
     }

@@ -3,7 +3,7 @@
 ## Next
 
 - [x] Schema to build selectors
-- [ ] DELETE purges optimistically
+- [x] DELETE purges optimistically
 - [ ] Pluggable garbage collection
 - [ ] Easy storybook data mocking
 

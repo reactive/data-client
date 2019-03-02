@@ -9,6 +9,10 @@ export const initialState: State<Resource> = {
   meta: {},
 };
 
+type Writable<T> = {
+  [P in keyof T]: NonNullable<T[P]>;
+}
+
 export default function reducer(state: State<Resource>, action: ActionTypes) {
   switch (action.type) {
     case 'receive':
@@ -41,11 +45,32 @@ export default function reducer(state: State<Resource>, action: ActionTypes) {
         },
       };
     case 'rpc':
-      const { entities } = normalize(action.payload, action.meta.schema);
+      let { entities } = normalize(action.payload, action.meta.schema);
       return {
         ...state,
         entities: merge({ ...state.entities }, entities),
       };
+    case 'purge':
+      const key = action.meta.schema.key;
+      const pk = action.meta.url;
+      const e: Writable<typeof state.entities> = {};
+      for (const k in state.entities) {
+        const o = state.entities[k]
+        if (o === undefined) continue;
+        if (k === key) {
+          e[k] = {};
+          for (const j in o) {
+            if (j === pk) continue;
+            e[k][j] = o[j];
+          }
+        } else {
+          e[k] = o;
+        }
+      }
+      return {
+        ...state,
+        entities: e,
+      }
     default:
       // A reducer must always return a valid state.
       // Alternatively you can throw an error if an invalid action is dispatched.

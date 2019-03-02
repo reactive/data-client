@@ -3,7 +3,7 @@ import { cleanup, render, act, testHook } from 'react-testing-library';
 import nock from 'nock';
 
 import { CoolerArticleResource, UserResource } from '../../__tests__/common';
-import { useResource } from '../hooks';
+import { useResource, useFetcher } from '../hooks';
 import RestProvider from '../provider';
 import NetworkManager from '../../state/NetworkManager';
 import { FetchAction, ReceiveAction } from '../../types';
@@ -53,7 +53,7 @@ describe('<RestProvider />', () => {
       fbmock();
       return null;
     }
-    testHook(callback, {
+    return testHook(callback, {
       wrapper: ({ children }) => (
         <RestProvider manager={manager}>
           <Suspense fallback={<Fallback />}>{children}</Suspense>
@@ -76,6 +76,9 @@ describe('<RestProvider />', () => {
     nock('http://test.com')
       .get(`/article-cooler/${payload.id}`)
       .reply(200, payload);
+    nock('http://test.com')
+      .delete(`/article-cooler/${payload.id}`)
+      .reply(200, {});
     nock('http://test.com')
       .get(`/article-cooler/0`)
       .reply(403, {});
@@ -126,6 +129,31 @@ describe('<RestProvider />', () => {
     await (manager as any).fetched[url];
     expect(article instanceof CoolerArticleResource).toBe(true);
     expect(article.title).toBe(payload.title);
+  });
+
+  it('should throw 404 once deleted', async () => {
+    const url = CoolerArticleResource.url(payload);
+    const fbmock = jest.fn();
+    let article: any;
+    let del: any;
+    let error: any;
+    testProvider(() => {
+      try {
+        article = useResource(CoolerArticleResource.singleRequest(), payload);
+      } catch (e) {
+        if (typeof e.then === 'function') throw e;
+        error = e;
+      }
+      del = useFetcher(CoolerArticleResource.deleteRequest());
+    }, fbmock);
+    expect(fbmock).toBeCalled();
+    await (manager as any).fetched[url];
+    expect(article instanceof CoolerArticleResource).toBe(true);
+    expect(article.title).toBe(payload.title);
+
+    await del({}, payload);
+    expect(error).toBeDefined()
+    expect(error.status).toBe(404);
   });
   it('useResource() should throw errors on bad network', async () => {
     const url = CoolerArticleResource.url({ title: '0' });
