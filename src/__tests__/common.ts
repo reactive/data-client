@@ -44,7 +44,7 @@ class OtherArticleResource extends CoolerArticleResource {
 
 }
 export class PaginatedArticleResource extends OtherArticleResource {
-  static listRequest<T extends typeof Resource>(this: T): ReadShape<Readonly<object>, Readonly<object>, SchemaArray<AbstractInstanceType<T>>> {
+  static listRequest<T extends typeof Resource>(this: T): ReadShape<SchemaArray<AbstractInstanceType<T>>, Readonly<object>, Readonly<object>> {
     return {
       ...super.listRequest(),
       schema: { results: [this.getEntitySchema()] },

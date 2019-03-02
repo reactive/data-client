@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { cleanup, render, act, testHook } from 'react-testing-library';
 import nock from 'nock';
-import { normalize } from '../../resource';
+import { normalize, SchemaBase, SchemaOf } from '../../resource';
 
 import { DispatchContext, StateContext } from '../context';
 import {
@@ -62,7 +62,7 @@ function testRestHook(
 
 function buildState<S extends Schema>(
   payload: any,
-  requestShape: ReadShape<any, any, S>,
+  requestShape: ReadShape<S, any, any>,
   params: object
 ): State<Resource> {
   const { entities, result } = normalize(payload, requestShape.schema);
