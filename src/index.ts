@@ -11,7 +11,15 @@ import {
   schemas,
 } from './resource';
 import NetworkManager from './state/NetworkManager';
-import { RestProvider, hooks, NetworkErrorBoundary } from './react-integration';
+import {
+  useCache,
+  useDispatcher,
+  useFetch,
+  useResource,
+  useResultCache,
+  RestProvider,
+  NetworkErrorBoundary,
+} from './react-integration';
 import { makeSchemaSelector } from './state/selectors';
 import { Request as RequestType } from 'superagent';
 import { AbstractInstanceType } from './types';
@@ -47,7 +55,11 @@ export type Request = RequestType;
 export {
   Resource,
   RestProvider,
-  hooks,
+  useCache,
+  useDispatcher,
+  useFetch,
+  useResource,
+  useResultCache,
   makeSchemaSelector,
   NetworkManager,
   NetworkErrorBoundary,

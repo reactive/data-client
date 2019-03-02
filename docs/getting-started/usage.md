@@ -29,11 +29,11 @@ Also be sure to provide the `pk()` function and `static urlRoot` string.
 
 `article.tsx`
 ```tsx
-import { hooks } from 'rest-hooks';
+import { useResource } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function Article({ match: { params } }) {
-  const article = hooks.useResource(
+  const article = useResource(
     ArticleResource.singleRequest(),
     params
   )
@@ -56,11 +56,11 @@ in a fetch. It will automatically re-render when a new article is fetched even i
 
 `article.tsx`
 ```tsx
-import { hooks } from 'rest-hooks';
+import { useDispatcher } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function NewArticleForm() {
-  const create = hooks.useDispatcher(ArticleResource.createRequest())
+  const create = useDispatcher(ArticleResource.createRequest())
   // create as (body: Readonly<Partial<ArticleResource>>, params?: Readonly<object>) => Promise<any>
   return (
     <form onSubmit={e => create(new FormData(e.target), {})}>

@@ -66,12 +66,12 @@ Additionally, we can add pagination buttons using [useResultCache](../api/useRes
 `ArticleList.tsx`
 
 ```tsx
-import { hooks } from 'rest-hooks';
+import { useResource, useResultCache } from 'rest-hooks';
 import ArticleResource from 'resources/ArticleResource';
 
 export default function ArticleList() {
-  const articles = hooks.useResource(ArticleResource.listRequest(), {});
-  const { nextPage, prevPage } = hooks.useResultCache(
+  const articles = useResource(ArticleResource.listRequest(), {});
+  const { nextPage, prevPage } = useResultCache(
     ArticleResource.listRequest(),
     {},
     { nextPage: '', prevPage: '' }

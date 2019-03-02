@@ -6,11 +6,11 @@ If you have the parameters you needs to fetch, they will all happen in parallel!
 
 ```tsx
 import React from "react";
-import { hooks } from "rest-hooks";
+import { useResource } from "rest-hooks";
 import { PostResource, TaskResource } from "./resources";
 
 export default function Post({ name }: { name: string }) {
-  const [post, tasks] = hooks.useResource(
+  const [post, tasks] = useResource(
     [PostResource.singleRequest(), { name }],
     [TaskResource.singleRequest(), { name }],
   );
@@ -27,12 +27,12 @@ export default function Post({ name }: { name: string }) {
 
 ```tsx
 import React from "react";
-import { hooks } from "rest-hooks";
+import { useResource } from "rest-hooks";
 import { PostResource, UserResource } from "./resources";
 
 export default function Post({ id }: { id: number }) {
-  const post = hooks.useResource(PostResource.singleRequest(), { id });
-  const author = hooks.useResource(
+  const post = useResource(PostResource.singleRequest(), { id });
+  const author = useResource(
     UserResource.singleRequest(),
     {
       id: post.userId

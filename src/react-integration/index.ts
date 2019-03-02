@@ -1,5 +1,5 @@
-import * as hooks from './hooks';
+import { useCache, useDispatcher, useFetch, useResource, useResultCache } from './hooks';
 import RestProvider from './provider';
 import NetworkErrorBoundary from './NetworkErrorBoundary';
 
-export { hooks, RestProvider, NetworkErrorBoundary };
+export { useCache, useDispatcher, useFetch, useResource, useResultCache, RestProvider, NetworkErrorBoundary };
