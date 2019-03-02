@@ -1,8 +1,6 @@
 import React from 'react';
-import { Resource, SchemaArray, schemas } from '../resource';
-import { makeSchemaSelector } from '../state/selectors';
+import { Resource, SchemaArray, schemas, ReadShape } from '../resource';
 import { AbstractInstanceType } from '../types';
-import { useCache } from '../react-integration/hooks'
 
 export class ArticleResource extends Resource {
   readonly id: number | null = null;
@@ -46,13 +44,10 @@ class OtherArticleResource extends CoolerArticleResource {
 
 }
 export class PaginatedArticleResource extends OtherArticleResource {
-  static listRequest<T extends typeof Resource>(this: T) {
-    const req = super.listRequest();
-    const schema: SchemaArray<AbstractInstanceType<T>> = { results: [this.getEntitySchema()] };
+  static listRequest<T extends typeof Resource>(this: T): ReadShape<Readonly<object>, Readonly<object>, SchemaArray<AbstractInstanceType<T>>> {
     return {
-      ...req,
-      schema,
-      select: makeSchemaSelector({ schema, getUrl: req.getUrl }, results => results.results),
+      ...super.listRequest(),
+      schema: { results: [this.getEntitySchema()] },
     };
   }
 }

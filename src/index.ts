@@ -20,14 +20,14 @@ import {
   RestProvider,
   NetworkErrorBoundary,
 } from './react-integration';
-import { makeSchemaSelector } from './state/selectors';
 import { Request as RequestType } from 'superagent';
 import { AbstractInstanceType } from './types';
 
 export type DeleteShape<
 Params extends Readonly<object>,
-Body extends Readonly<object> | void
-> = DeleteShape<Params, Body>;
+Body extends Readonly<object> | void,
+S extends schemas.Entity
+> = DeleteShape<Params, Body, S>;
 export type MutateShape<
 Params extends Readonly<object>,
 Body extends Readonly<object> | void,
@@ -60,7 +60,6 @@ export {
   useRetrieve,
   useResource,
   useResultCache,
-  makeSchemaSelector,
   NetworkManager,
   NetworkErrorBoundary,
   schemas,

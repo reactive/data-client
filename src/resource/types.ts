@@ -1,52 +1,49 @@
-import { State } from '../types';
 import { schemas, Schema, SchemaArray, SchemaBase } from './normal';
+
+/** Defines the shape of a network request */
+export interface RequestShape<
+Params extends Readonly<object>,
+Body extends Readonly<object> | void,
+S extends Schema
+> {
+  readonly type: 'read' | 'mutate' | 'delete';
+  fetch(url: string, body: Body): Promise<any>;
+  getUrl(params: Params): string;
+  readonly schema: S;
+}
 
 /** Purges a value from the server */
 export interface DeleteShape<
-  Params extends Readonly<object>,
-  Body extends Readonly<object> | void
-> {
-  getUrl(params: Params): string;
-  fetch(url: string, body: Body): Promise<any>;
+Params extends Readonly<object>,
+Body extends Readonly<object> | void,
+S extends schemas.Entity
+> extends RequestShape<Params, Body, S> {
+  readonly type: 'delete';
+  readonly schema: S;
 }
 
 /** To change values on the server */
 export interface MutateShape<
-  Params extends Readonly<object>,
-  Body extends Readonly<object> | void,
-  S extends Schema
-> extends DeleteShape<Params, Body> {
-  readonly schema: S;
+Params extends Readonly<object>,
+Body extends Readonly<object> | void,
+S extends Schema
+> extends RequestShape<Params, Body, S> {
+  readonly type: 'mutate';
 }
 
 /** For retrieval requests */
 export interface ReadShape<
-  Params extends Readonly<object>,
-  Body extends Readonly<object> | void,
-  S extends Schema
-> extends MutateShape<Params, Body, S> {
-  select(state: State<any>, params: Params): SchemaOf<S> | null;
-}
-
-/** Any sort of request shape */
-export type RequestShape<
 Params extends Readonly<object>,
 Body extends Readonly<object> | void,
 S extends Schema
-> =
-  | ReadShape<Params, Body, S>
-  | MutateShape<Params, Body, S>
-  | DeleteShape<Params, Body>;
-
-export function isReadShape(
-  shape: RequestShape<any, any, any>
-): shape is ReadShape<any, any, any> {
-  return Object.prototype.hasOwnProperty.call(shape, 'select');
+> extends RequestShape<Params, Body, S> {
+  readonly type: 'read';
 }
-export function isMutateShape(
+
+export function isDeleteShape(
   shape: RequestShape<any, any, any>
-): shape is ReadShape<any, any, any> {
-  return Object.prototype.hasOwnProperty.call(shape, 'schema');
+): shape is DeleteShape<any, any, any> {
+  return shape.type === 'delete';
 }
 
 export type ResultShape<RS> = RS extends { schema: infer U } ? U : never;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { FSA } from 'flux-standard-action';
-import { Schema } from './resource';
+import { Schema, schemas } from './resource';
 
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
 
@@ -31,20 +31,27 @@ export interface RPCAction extends FSA<any, any> {
     schema: Schema;
   };
 }
+export interface PurgeAction extends FSA<any, any> {
+  type: 'purge';
+  meta: {
+    schema: schemas.Entity;
+    url: string;
+  };
+}
 export interface FetchAction extends FSA<any, any> {
   type: 'fetch';
   payload: () => Promise<any>;
   meta: {
     schema?: Schema;
     url: string;
-    responseType: 'rpc' | 'receive';
+    responseType: 'rpc' | 'receive' | 'purge';
     throttle: boolean;
     resolve: (value?: any | PromiseLike<any>) => void;
     reject: (reason?: any) => void;
   };
 }
 // put other actions here in union
-export type ActionTypes = FetchAction | ReceiveAction | RPCAction;
+export type ActionTypes = FetchAction | ReceiveAction | RPCAction | PurgeAction;
 
 export type Middleware = <R extends React.Reducer<any, any>>({
   dispatch,

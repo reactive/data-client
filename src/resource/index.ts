@@ -5,8 +5,7 @@ import {
   ReadShape,
   MutateShape,
   RequestShape,
-  isReadShape,
-  isMutateShape,
+  isDeleteShape,
   RequestResource,
   isEntity,
 } from './types';
@@ -21,8 +20,9 @@ import {
 
 export type DeleteShape<
 Params extends Readonly<object>,
-Body extends Readonly<object> | void
-> = DeleteShape<Params, Body>;
+Body extends Readonly<object> | void,
+S extends schemas.Entity
+> = DeleteShape<Params, Body, S>;
 export type MutateShape<
 Params extends Readonly<object>,
 Body extends Readonly<object> | void,
@@ -44,12 +44,4 @@ export type SchemaArray<T> = SchemaArray<T>;
 export type SchemaBase<T> = SchemaBase<T>;
 export type RequestResource<RS> = RequestResource<RS>;
 
-export {
-  Resource,
-  isReadShape,
-  isMutateShape,
-  isEntity,
-  normalize,
-  denormalize,
-  schemas,
-};
+export { Resource, isEntity, normalize, denormalize, isDeleteShape, schemas };

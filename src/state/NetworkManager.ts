@@ -1,5 +1,5 @@
-import { memoize } from 'lodash'
-import { FetchAction, ReceiveAction } from '../types';
+import { memoize } from 'lodash';
+import { FetchAction, ReceiveAction,  } from '../types';
 
 const RIC: (cb: (...args: any[]) => void, options: any) => void = (
   typeof (global as any).requestIdleCallback === 'function'
@@ -140,6 +140,7 @@ export default class NetworkManager {
           case 'fetch':
             this.handleFetch(action, dispatch);
             return;
+          case 'purge':
           case 'rpc':
           case 'receive':
             if (action.meta.url in this.fetched) {

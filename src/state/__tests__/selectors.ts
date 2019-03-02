@@ -5,9 +5,12 @@ import {
   UserResource,
 } from '../../__tests__/common';
 import { normalize } from '../../resource';
+import { makeSchemaSelector } from '../selectors';
 
-const { select } = CoolerArticleResource.singleRequest();
-const { select: listSelect } = CoolerArticleResource.listRequest();
+let { schema, getUrl } = CoolerArticleResource.singleRequest();
+const select = makeSchemaSelector(schema, getUrl);
+let listR = CoolerArticleResource.listRequest();
+const listSelect = makeSchemaSelector(listR.schema, listR.getUrl);
 describe('selectors', () => {
   describe('Single', () => {
     const params = { id: 5, title: 'bob', content: 'head' };
@@ -88,7 +91,7 @@ describe('selectors', () => {
         meta: {},
       };
       expect(
-        CoolerArticleResource.singleRequest().select(state, urlParams),
+        select(state, urlParams),
       ).toBe(article);
     });
     it('should throw when results are Array', async () => {
@@ -99,7 +102,7 @@ describe('selectors', () => {
         meta: {},
       };
       expect(() =>
-        CoolerArticleResource.singleRequest().select(state, params),
+        select(state, params),
       ).toThrow();
     });
     it('should throw when results are Object', async () => {
@@ -112,7 +115,7 @@ describe('selectors', () => {
         meta: {},
       };
       expect(() =>
-        CoolerArticleResource.singleRequest().select(state, params),
+        select(state, params),
       ).toThrow();
     });
     it('should throw when entity does not extend Resource', async () => {
@@ -122,7 +125,7 @@ describe('selectors', () => {
         meta: {},
       };
       expect(() =>
-        CoolerArticleResource.singleRequest().select(state, params),
+        select(state, params),
       ).toThrow();
     });
     it('should handle nested resources', async () => {
@@ -137,7 +140,9 @@ describe('selectors', () => {
         results: {},
         meta: {},
       };
-      expect(NestedArticleResource.singleRequest().select(state, params)).toBe(nestedArticle);
+      const shape = NestedArticleResource.singleRequest();
+      const select = makeSchemaSelector(shape.schema, shape.getUrl);
+      expect(select(state, params)).toBe(nestedArticle);
     });
   });
   describe('List', () => {
@@ -221,7 +226,9 @@ describe('selectors', () => {
         },
         meta: {},
       };
-      const selected = PaginatedArticleResource.listRequest().select(
+      const shape = PaginatedArticleResource.listRequest();
+      const select = makeSchemaSelector(shape.schema, shape.getUrl);
+      const selected = select(
         state,
         params,
       );

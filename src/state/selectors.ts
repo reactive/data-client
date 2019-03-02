@@ -1,7 +1,9 @@
 import { createSelector } from 'reselect';
+import { memoize } from 'lodash';
 import { State } from '../types';
-import { ReadShape, isEntity, SchemaOf } from '../resource/types';
+import { isEntity, SchemaOf } from '../resource/types';
 import { Schema, denormalize } from '../resource/normal';
+import getEntityPath from './getEntityPath';
 
 export function selectMeta<R = any>(state: State<R>, url: string) {
   return state.meta[url];
@@ -12,14 +14,30 @@ export const makeResults = <R = any>(getUrl: (...args: any[]) => string) => (
   params: object
 ) => state.results[getUrl(params)] || null;
 
-export function makeSchemaSelector<
+// TODO: there should honestly be a way to use the pre-existing normalizr object
+// to not even need this implementation
+function resultFinderFromSchema<S extends Schema>(schema: S): null | ((results: any) => SchemaOf<S>)
+{
+  const path = getEntityPath(schema);
+  if (path === false) throw new Error('Schema invalid - no path to entity found');
+  if (path.length === 0) return null;
+  return (results) => {
+    let cur = results;
+    for(const p of path) {
+      cur = cur[p];
+    }
+    return cur;
+  }
+}
+
+function makeSchemaSelectorSimple<
 Params extends Readonly<object>,
-Body extends Readonly<object> | void,
 S extends Schema
 >(
-  { schema, getUrl }: Pick<ReadShape<Params, Body, S>, 'schema' | 'getUrl'>,
-  getResultList?: (results: any) => SchemaOf<typeof schema>
+  schema: S,
+  getUrl: (params: Params) => string,
 ): (state: State<any>, params: Params) => SchemaOf<typeof schema> | null {
+  const getResultList = resultFinderFromSchema(schema);
   const selectResults = makeResults<any>(getUrl);
   const ret = createSelector(
     (state: State<any>) => state.entities,
@@ -74,3 +92,5 @@ S extends Schema
   );
   return ret;
 }
+
+export const makeSchemaSelector = memoize(makeSchemaSelectorSimple) as typeof makeSchemaSelectorSimple;

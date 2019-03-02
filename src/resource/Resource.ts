@@ -1,7 +1,6 @@
 import request from 'superagent';
 import { memoize } from 'lodash';
 import { AbstractInstanceType, Method } from '../types';
-import { makeSchemaSelector } from '../state/selectors';
 
 import { ReadShape, MutateShape, DeleteShape } from './types'
 import { schemas, SchemaBase, SchemaArray } from './normal'
@@ -147,7 +146,7 @@ export default abstract class Resource {
     };
     const schema: SchemaBase<AbstractInstanceType<T>> = this.getEntitySchema();
     return {
-      select: makeSchemaSelector({ getUrl, schema }),
+      type: 'read',
       schema,
       getUrl,
       fetch(url: string, body?: Readonly<object>) {
@@ -164,7 +163,7 @@ export default abstract class Resource {
     };
     const schema: SchemaArray<AbstractInstanceType<T>> = [this.getEntitySchema()];
     return {
-      select: makeSchemaSelector({ getUrl, schema }),
+      type: 'read',
       schema,
       getUrl,
       fetch(url: string, body?: Readonly<object>) {
@@ -176,8 +175,9 @@ export default abstract class Resource {
   static createRequest<T extends typeof Resource>(this: T): MutateShape<any, Partial<AbstractInstanceType<T>>, SchemaBase<AbstractInstanceType<T>>> {
     const self = this;
     return {
+      type: 'mutate',
       schema: self.getEntitySchema(),
-      getUrl(p: object | void) {
+      getUrl() {
         return self.listUrl();
       },
       fetch(url: string, body: Partial<AbstractInstanceType<T>>) {
@@ -189,6 +189,7 @@ export default abstract class Resource {
   static updateRequest<T extends typeof Resource>(this: T): MutateShape<Readonly<object>, Partial<AbstractInstanceType<T>>, SchemaBase<AbstractInstanceType<T>>> {
     const self = this;
     return {
+      type: 'mutate',
       schema: self.getEntitySchema(),
       getUrl(params: object) {
         return self.url(params);
@@ -202,6 +203,7 @@ export default abstract class Resource {
   static partialUpdateRequest<T extends typeof Resource>(this: T): MutateShape<Readonly<object>, Partial<AbstractInstanceType<T>>, SchemaBase<AbstractInstanceType<T>>> {
     const self = this;
     return {
+      type: 'mutate',
       schema: self.getEntitySchema(), //TODO: change merge strategy in case we want to handle partial returns
       getUrl(params: Readonly<object>) {
         return self.url(params);
@@ -212,9 +214,11 @@ export default abstract class Resource {
     };
   }
   /** Shape to delete an entity (delete) */
-  static deleteRequest<T extends typeof Resource>(this: T): DeleteShape<Readonly<object>, any> {
+  static deleteRequest<T extends typeof Resource>(this: T): DeleteShape<Readonly<object>, any, any> {
     const self = this;
     return {
+      type: 'delete',
+      schema: self.getEntitySchema(),
       getUrl(params: object) {
         return self.url(params);
       },
