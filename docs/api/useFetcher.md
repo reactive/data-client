@@ -42,6 +42,20 @@ function UpdatePost({ id }: { id: string }) {
 }
 ```
 
+```tsx
+function PostListItem({ post }: { post: PostResource }) {
+  const del = useFetcher(PostResource.deleteRequest());
+  // del as (body: any, params: Readonly<object>) => Promise<any>
+
+  return (
+    <div>
+      <h3>{post.title}</h3>
+      <button onClick={() => del({}, { id: post.id })}>X</button>
+    </div>
+  );
+}
+```
+
 ## Useful `RequestShape`s to send
 
 [Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
