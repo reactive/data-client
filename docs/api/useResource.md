@@ -15,10 +15,11 @@ function useResource<
 
 Excellent for retrieving the data you need.
 
-Will fetch if the resource requested is not found in cache or cache policy expires. Will always show what it has in cache even if its stale. While loading if the resource is not available it will yield rendering to React's Suspense so the loading indication policy you chose takes effect.
+* Will fetch if the resource requested is not found in cache or resource is considered stale.
+* Will always show what it has in cache even if its stale.
+* When the resource is not yet loaded in cache it will yield to [React's Suspense](../getting-started/installation.md#2-add-suspense).
+* Network errors are thrown to be [caught](../guides/network-errors.md) by [Error Boundaries](https://reactjs.org/docs/error-boundaries.html)
 
-Upon network error will throw the error. Make sure you use an [error boundary](https://reactjs.org/docs/error-boundaries.html)
-to [catch](../guides/network-errors.md) it.
 
 ## Example
 

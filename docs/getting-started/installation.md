@@ -35,13 +35,11 @@ const App = () => (
   <div>
     <h1>Main Title</h1>
     <Nav />
-    <ErrorBoundary>
+    <Suspense fallback={<Spinner />}>
       <NetworkErrorBoundary>
-        <Suspense fallback={<Spinner />}>
-          <Routes />
-        </Suspense>
+        <Routes />
       </NetworkErrorBoundary>
-    </ErrorBoundary>
+    </Suspense>
   </div>
 );
 ```
