@@ -64,3 +64,8 @@ For the small price of 6kb gziped. &nbsp;&nbsp; [🏁Get started now](docs/getti
 - [ ] 🔁 Subscriptions
 - [ ] ♻️ Optional [redux](https://redux.js.org/) integration
 - [ ] 📙 [Storybook](https://storybook.js.org/) mocking
+
+
+### Special thanks
+
+Thanks to @0xcaff, @melissafzhang and @alexiswolfish for their valuable feedback.
