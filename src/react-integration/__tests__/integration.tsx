@@ -127,15 +127,15 @@ describe('<RestProvider />', () => {
     expect(article instanceof CoolerArticleResource).toBe(true);
     expect(article.title).toBe(payload.title);
   });
-  /*it('useResource() should throw errors on bad network', async () => {
-    const url = CoolerArticleResource.url({ id: 0 });
+  it('useResource() should throw errors on bad network', async () => {
+    const url = CoolerArticleResource.url({ title: '0' });
     const fbmock = jest.fn();
     let article: any;
     let error: any;
     testProvider(() => {
       try {
         article = useResource(CoolerArticleResource.singleRequest(), {
-          id: 0,
+          title: '0',
         });
       } catch (e) {
         if (typeof e.then === 'function') throw e;
@@ -143,10 +143,12 @@ describe('<RestProvider />', () => {
       }
     }, fbmock);
     expect(fbmock).toBeCalled();
-    await (manager as any).fetched[url];
+    try {
+      await (manager as any).fetched[url]
+    } catch(e) {}
     expect(error).toBeDefined()
-    expect(error.status).toBe(404);
-  });TODO: figure out how to make superagent not fail this somehow*/
+    expect(error.status).toBe(403);
+  });
   it('should resolve parallel useResource() request', async () => {
     const url = CoolerArticleResource.url(payload);
     const userUrl = UserResource.listUrl({});
