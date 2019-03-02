@@ -5,12 +5,12 @@ function useResource<
   Params extends Readonly<object>,
   Body extends Readonly<object> | void,
   S extends Schema
->(selectShape: ReadShape<Params, Body, S>, params: Params | null): SchemaOf<S>;
+>(selectShape: ReadShape<S, Params, Body>, params: Params | null): SchemaOf<S>;
 function useResource<
   Params extends Readonly<object>,
   Body extends Readonly<object> | void,
   S extends Schema
->(...[selectShape: ReadShape<Params, Body, S>, params: Params | null]): SchemaOf<S>[];
+>(...[selectShape: ReadShape<S, Params, Body>, params: Params | null]): SchemaOf<S>[];
 ```
 
 Excellent for retrieving the data you need.

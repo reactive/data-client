@@ -11,8 +11,8 @@
   - [useResource](api/useResource.md)
   - [useFetcher](api/useFetcher.md)
   - [useCache](api/useCache.md)
-  - [useRetrieve](api/useRetrieve.md)
   - [useResultCache](api/useResultCache.md)
+  - [useRetrieve](api/useRetrieve.md)
 - Components:
   - [RestProvider](api/RestProvider.md)
   - [NetworkErrorBoundary](api/NetworkErrorBoundary.md)

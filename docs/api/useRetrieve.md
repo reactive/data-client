@@ -6,7 +6,7 @@ function useRetrieve<
   Body extends Readonly<object> | void,
   S extends Schema
 >(
-  selectShape: ReadShape<Params, Body, S>,
+  selectShape: ReadShape<S, Params, Body>,
   params: Params | null,
   body?: Body
 ): Promise<any> | undefined;
