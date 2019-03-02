@@ -1,7 +1,7 @@
-# useDispatcher()
+# useFetcher()
 
 ```typescript
-function useDispatcher<
+function useFetcher<
   Params extends Readonly<object>,
   Body extends Readonly<object> | void,
   S extends Schema
@@ -13,14 +13,14 @@ function useDispatcher<
 
 Mostly useful for imperatively triggering mutation effects.
 
-However, this hook is actually used by the retrieval hooks (useFetch(), useCache(), useResource()). Using
+However, this hook is actually used by the retrieval hooks (useRetrieve(), useCache(), useResource()). Using
 it with a `ReadRequest` like `singleRequest()` can be done to force a refresh imperatively.
 
 ## Example
 
 ```tsx
 function CreatePost() {
-  const create = useDispatcher(PostResource.createRequest());
+  const create = useFetcher(PostResource.createRequest());
   // create as (body: Readonly<Partial<PostResource>>, params?: Readonly<object>) => Promise<any>
 
   return (
@@ -31,7 +31,7 @@ function CreatePost() {
 
 ```tsx
 function UpdatePost({ id }: { id: string }) {
-  const update = useDispatcher(PostResource.updateRequest());
+  const update = useFetcher(PostResource.updateRequest());
   // update as (body: Readonly<Partial<PostResource>>, params?: Readonly<object>) => Promise<any>
 
   return (

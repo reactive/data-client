@@ -63,7 +63,7 @@ be updated in the cache after the `POST` request is complete.
 `CreateTrade.tsx`
 ```typescript
 export default function CreateTrade() {
-  const create = useDispatcher(TradeResource.createRequest());
+  const create = useFetcher(TradeResource.createRequest());
   //,..
 }
 ```

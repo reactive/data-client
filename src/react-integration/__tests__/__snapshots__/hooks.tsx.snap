@@ -42,7 +42,7 @@ Array [
 ]
 `;
 
-exports[`useDispatcher should dispatch an action that fetches 1`] = `
+exports[`useFetcher should dispatch an action that fetches 1`] = `
 Object {
   "meta": Object {
     "reject": [Function],
@@ -59,29 +59,6 @@ Object {
     },
     "throttle": false,
     "url": "http://test.com/article-cooler/",
-  },
-  "payload": [Function],
-  "type": "fetch",
-}
-`;
-
-exports[`useFetch should dispatch singles 1`] = `
-Object {
-  "meta": Object {
-    "reject": [Function],
-    "resolve": [Function],
-    "responseType": "receive",
-    "schema": EntitySchema {
-      "_getId": [Function],
-      "_idAttribute": [Function],
-      "_key": "http://test.com/article-cooler/",
-      "_mergeStrategy": [Function],
-      "_processStrategy": [Function],
-      "denormalize": [Function],
-      "schema": Object {},
-    },
-    "throttle": true,
-    "url": "http://test.com/article-cooler/5",
   },
   "payload": [Function],
   "type": "fetch",
@@ -153,6 +130,29 @@ Object {
     ],
     "throttle": true,
     "url": "http://test.com/user/",
+  },
+  "payload": [Function],
+  "type": "fetch",
+}
+`;
+
+exports[`useRetrieve should dispatch singles 1`] = `
+Object {
+  "meta": Object {
+    "reject": [Function],
+    "resolve": [Function],
+    "responseType": "receive",
+    "schema": EntitySchema {
+      "_getId": [Function],
+      "_idAttribute": [Function],
+      "_key": "http://test.com/article-cooler/",
+      "_mergeStrategy": [Function],
+      "_processStrategy": [Function],
+      "denormalize": [Function],
+      "schema": Object {},
+    },
+    "throttle": true,
+    "url": "http://test.com/article-cooler/5",
   },
   "payload": [Function],
   "type": "fetch",

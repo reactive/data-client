@@ -5,7 +5,7 @@ import {
   SchemaOf,
 } from '../../resource';
 import useCache from './useCache';
-import useFetch from './useFetch';
+import useRetrieve from './useRetrieve';
 import useMeta from './useMeta';
 
 /** Access a resource or error if failed to get it */
@@ -37,7 +37,7 @@ Params extends Readonly<object>,
 Body extends Readonly<object> | void,
 S extends Schema,
 >(selectShape: ReadShape<Params, Body, S>, params: Params | null) {
-  let maybePromise = useFetch(selectShape, params);
+  let maybePromise = useRetrieve(selectShape, params);
   const resource = useCache(selectShape, params);
 
   if (!resource && maybePromise && typeof maybePromise.then === 'function')
@@ -52,7 +52,7 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
   ...resourceList: A
 ) {
   let promises = resourceList.map(([select, params]) =>
-    useFetch(select, params)
+    useRetrieve(select, params)
   );
   const resources = resourceList.map(
     <Params extends Readonly<object>,

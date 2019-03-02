@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { ReadShape, Schema } from '../../resource';
-import useDispatcher from './useDispatcher';
+import useFetcher from './useFetcher';
 import useMeta from './useMeta';
 
 /** Returns whether the data at this url is fresh or stale */
@@ -18,12 +18,12 @@ S extends Schema
 }
 
 /** Request a resource if it is not in cache. */
-export default function useFetch<
+export default function useRetrieve<
 Params extends Readonly<object>,
 Body extends Readonly<object> | void,
 S extends Schema
 >(selectShape: ReadShape<Params, Body, S>, params: Params | null, body?: Body) {
-  const fetch = useDispatcher(selectShape, true);
+  const fetch = useFetcher(selectShape, true);
   const dataStale = useIsStale(selectShape, params);
 
   // TODO: figure out how to express that body is optional in RequestShape as we don't need to cast here

@@ -42,7 +42,7 @@ return (
 ### And mutation
 
 ```tsx
-const update = useDispatcher(ArticleResource.updateRequest(), { id });
+const update = useFetcher(ArticleResource.updateRequest(), { id });
 return <ArticleForm onSubmit={update} />;
 ```
 

@@ -10,8 +10,8 @@ import {
   PaginatedArticleResource,
 } from '../../__tests__/common';
 import {
-  useDispatcher,
-  useFetch,
+  useFetcher,
+  useRetrieve,
   useResource,
   useCache,
   useResultCache,
@@ -144,7 +144,7 @@ function ArticleComponentTester() {
   );
 }
 
-describe('useDispatcher', () => {
+describe('useFetcher', () => {
   it('should dispatch an action that fetches', async () => {
     const payload = { id: 1, content: 'hi' };
     nock('http://test.com')
@@ -152,7 +152,7 @@ describe('useDispatcher', () => {
       .reply(201, payload);
 
     function DispatchTester() {
-      const a = useDispatcher(CoolerArticleResource.createRequest());
+      const a = useFetcher(CoolerArticleResource.createRequest());
       a({ content: 'hi' }, {});
       return null;
     }
@@ -230,7 +230,7 @@ describe('useResultCache', () => {
     expect(results.results).toEqual(['23', '44', '2', '643']);
   });
 });
-describe('useFetch', () => {
+describe('useRetrieve', () => {
   beforeEach(() => {
     nock('http://test.com')
       .get(`/article-cooler/${payload.id}`)
@@ -241,7 +241,7 @@ describe('useFetch', () => {
   });
   it('should dispatch singles', async () => {
     function FetchTester() {
-      useFetch(CoolerArticleResource.singleRequest(), payload);
+      useRetrieve(CoolerArticleResource.singleRequest(), payload);
       return null;
     }
     await testDispatchFetch(FetchTester, [payload]);
@@ -251,7 +251,7 @@ describe('useFetch', () => {
     let params: any = null;
     const { rerender } = testRestHook(
       () => {
-        useFetch(CoolerArticleResource.singleRequest(), params);
+        useRetrieve(CoolerArticleResource.singleRequest(), params);
       },
       initialState,
       dispatch

@@ -9,9 +9,9 @@
   - [RequestShape](api/RequestShape.md)
 - Hooks:
   - [useResource](api/useResource.md)
-  - [useDispatcher](api/useDispatcher.md)
+  - [useFetcher](api/useFetcher.md)
   - [useCache](api/useCache.md)
-  - [useFetch](api/useFetch.md)
+  - [useRetrieve](api/useRetrieve.md)
   - [useResultCache](api/useResultCache.md)
 - Components:
   - [RestProvider](api/RestProvider.md)

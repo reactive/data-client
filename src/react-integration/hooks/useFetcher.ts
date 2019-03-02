@@ -4,7 +4,7 @@ import { RequestShape, Schema, isReadShape, isMutateShape } from '../../resource
 import { DispatchContext } from '../context';
 
 /** Build an imperative dispatcher to issue network requests. */
-export default function useDispatcher<
+export default function useFetcher<
 Params extends Readonly<object>,
 Body extends Readonly<object> | void,
 S extends Schema

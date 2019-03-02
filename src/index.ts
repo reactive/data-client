@@ -13,8 +13,8 @@ import {
 import NetworkManager from './state/NetworkManager';
 import {
   useCache,
-  useDispatcher,
-  useFetch,
+  useFetcher,
+  useRetrieve,
   useResource,
   useResultCache,
   RestProvider,
@@ -56,8 +56,8 @@ export {
   Resource,
   RestProvider,
   useCache,
-  useDispatcher,
-  useFetch,
+  useFetcher,
+  useRetrieve,
   useResource,
   useResultCache,
   makeSchemaSelector,

@@ -1,7 +1,7 @@
-# useFetch()
+# useRetrieve()
 
 ```typescript
-function useFetch<
+function useRetrieve<
   Params extends Readonly<object>,
   Body extends Readonly<object> | void,
   S extends Schema
@@ -12,7 +12,7 @@ function useFetch<
 ): Promise<any> | undefined;
 ```
 
-Great for fetching imperatively.
+Great for retrieving resources optimistically before they are needed.
 
 Will return a Promise if the resource is not yet in cache, otherwise undefined.
 
@@ -26,7 +26,7 @@ Using a type guard to deal with null
 
 ```tsx
 function MasterPost({ id }: { id: number }) {
-  useFetch(PostResource.singleRequest(), { id });
+  useRetrieve(PostResource.singleRequest(), { id });
   // ...
 }
 ```
