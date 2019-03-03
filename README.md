@@ -42,17 +42,17 @@ return (
 ### And mutation
 
 ```tsx
-const update = useFetcher(ArticleResource.updateRequest(), { id });
-return <ArticleForm onSubmit={update} />;
+const update = useFetcher(ArticleResource.updateRequest());
+return <ArticleForm onSubmit={data => update(data, { id })} />;
 ```
 
 ### ...all typed ...fast ...and consistent
 
-For the small price of 6kb gziped. &nbsp;&nbsp; [🏁Get started now](docs/getting-started/installation.md)
+For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](docs/getting-started/installation.md)
 
 ## Features
 
-- [x] ![TypeScript](typescript.svg) Strong [Typescript](https://www.typescriptlang.org/) types
+- [x] ![TS](typescript.svg) Strong [Typescript](https://www.typescriptlang.org/) types
 - [x] 🚦 React [Suspense](https://www.youtube.com/watch?v=ByBPyMBTzM0) support
 - [x] 🎣 Simple declarative API
 - [x] 💰 Normalized response caching
@@ -68,4 +68,5 @@ For the small price of 6kb gziped. &nbsp;&nbsp; [🏁Get started now](docs/getti
 
 ### Special thanks
 
-Thanks to @0xcaff, @melissafzhang and @alexiswolfish for their valuable feedback.
+Thanks to [@0xcaff](https://github.com/0xcaff), [@melissafzhang](https://github.com/melissafzhang)
+and [@alexiswolfish](https://github.com/alexiswolfish) for their valuable feedback.
