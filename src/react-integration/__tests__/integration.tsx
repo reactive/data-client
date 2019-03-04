@@ -202,6 +202,7 @@ describe('<RestProvider />', () => {
     expect(article.title).toBe(payload.title);
     expect(users).toBeDefined();
     expect(users.length).toBeTruthy();
+    expect(users[0] instanceof UserResource).toBe(true);
   });
   it('should suspend with no params to useResource()', async () => {
     const url = CoolerArticleResource.url(payload);

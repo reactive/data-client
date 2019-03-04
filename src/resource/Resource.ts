@@ -172,13 +172,13 @@ export default abstract class Resource {
     };
   }
   /** Shape to create a new entity (post) */
-  static createRequest<T extends typeof Resource>(this: T): MutateShape<SchemaBase<AbstractInstanceType<T>>, any, Partial<AbstractInstanceType<T>>> {
+  static createRequest<T extends typeof Resource>(this: T): MutateShape<SchemaBase<AbstractInstanceType<T>>, Readonly<object>, Partial<AbstractInstanceType<T>>> {
     const self = this;
     return {
       type: 'mutate',
       schema: self.getEntitySchema(),
-      getUrl() {
-        return self.listUrl();
+      getUrl(params: Readonly<Record<string, string>>) {
+        return self.listUrl(params);
       },
       fetch(url: string, body: Partial<AbstractInstanceType<T>>) {
         return self.fetch('post', url, body);
