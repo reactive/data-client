@@ -33,7 +33,7 @@ abstract class CamelResource extends Resource {
     this: T,
     method: Method = 'get',
     url: string,
-    body?: Partial<AbstractInstanceType<T>>,
+    body?: Readonly<object>,
   ) {
     // we'll need to do the inverse operation when sending data back to the server
     if (body) {
@@ -65,7 +65,7 @@ class ArticleResource extends CamelResource {
     this: T,
     method: Method = 'get',
     url: string,
-    body?: Partial<AbstractInstanceType<T>>,
+    body?: Readonly<object>,
   ) {
     // we'll need to do the inverse operation when sending data back to the server
     if (body && 'carrotsUsed' in body) {
@@ -128,7 +128,7 @@ abstract class StreamResource extends CamelResource {
     this: T,
     method: Method = 'get',
     url: string,
-    body?: Partial<AbstractInstanceType<T>>,
+    body?: Readonly<object>,
   ) {
     const jsonResponse = await super.fetch(method, url, body);
     // this looks like a detail response, so let's add the data
