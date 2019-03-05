@@ -32,3 +32,15 @@ jobs:
       - run: yarn run build
 
       - run: yarn run test:coverage --coverageReporters=text-lcov | yarn run coveralls
+  salus:
+    machine: true
+    steps:
+      - checkout
+      - run: docker run -t -v $(pwd):/home/repo coinbase/salus
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build
+      - salus
