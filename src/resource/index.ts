@@ -20,22 +20,22 @@ import {
 
 export type DeleteShape<
 S extends schemas.Entity,
-Params extends Readonly<object>,
+Params extends Readonly<object> = Readonly<object>,
 > = DeleteShape<S, Params>;
 export type MutateShape<
 S extends Schema,
-Params extends Readonly<object>,
-Body extends Readonly<object> | void
+Params extends Readonly<object> = Readonly<object>,
+Body extends Readonly<object> | void = Readonly<object> | undefined
 > = MutateShape<S, Params, Body>;
 export type ReadShape<
 S extends Schema,
-Params extends Readonly<object>,
-Body extends Readonly<object> | void
+Params extends Readonly<object> = Readonly<object>,
+Body extends Readonly<object> | void = Readonly<object> | undefined
 > = ReadShape<S, Params, Body>;
 export type RequestShape<
 S extends Schema,
-Params extends Readonly<object>,
-Body extends Readonly<object> | void
+Params extends Readonly<object> = Readonly<object>,
+Body extends Readonly<object> | void = Readonly<object> | undefined
 > = RequestShape<S, Params, Body>;
 export type Schema<T = any> = Schema<T>;
 export type SchemaOf<T> = SchemaOf<T>;

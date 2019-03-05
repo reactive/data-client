@@ -29,6 +29,7 @@ export interface RPCAction extends FSA<any, any> {
   type: 'rpc';
   meta: {
     schema: Schema;
+    url: string;
   };
 }
 export interface PurgeAction extends FSA<any, any> {
