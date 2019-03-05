@@ -36,11 +36,13 @@ describe('reducer', () => {
   });
   it('mutate should never change results', () => {
     const id = 20;
+    const payload = { id, title: 'hi', content: 'this is the content' };
     const action: RPCAction = {
       type: 'rpc',
-      payload: { id, title: 'hi', content: 'this is the content' },
+      payload,
       meta: {
         schema: ArticleResource.getEntitySchema(),
+        url: ArticleResource.listUrl(payload),
       },
     };
     const iniState = {
