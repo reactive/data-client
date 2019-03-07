@@ -1,9 +1,10 @@
 # 🛌🎣 Rest hooks
 [![CircleCI](https://circleci.com/gh/coinbase/rest-hooks.svg?style=shield)](https://circleci.com/gh/coinbase/rest-hooks)
-[![Coverage Status](https://img.shields.io/coveralls/coinbase/rest-hooks/master.svg?style=flat-square)](https://coveralls.io/github/coinbase/rest-hooks?branch=master)
+[![Coverage Status](https://img.shields.io/coveralls/coinbase/rest-hooks.svg?style=flat-square)](https://coveralls.io/github/coinbase/rest-hooks?branch=master)
 [![npm downloads](https://img.shields.io/npm/dm/rest-hooks.svg?style=flat-square)](https://www.npmjs.com/package/rest-hooks)
 [![gzip size](https://img.badgesize.io/https://unpkg.com/rest-hooks?compression=gzip&style=flat-square)](https://unpkg.com/rest-hooks)
 [![npm version](https://img.shields.io/npm/v/rest-hooks.svg?style=flat-square)](https://www.npmjs.com/package/rest-hooks)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 Making dynamic sites performant, scalable, simple to build with almost any API design.
 
@@ -53,7 +54,7 @@ For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](docs/getti
 ## Features
 
 - [x] ![TS](typescript.svg) Strong [Typescript](https://www.typescriptlang.org/) types
-- [x] 🚦 React [Suspense](https://www.youtube.com/watch?v=ByBPyMBTzM0) support
+- [x] 🛌 React [Suspense](https://www.youtube.com/watch?v=ByBPyMBTzM0) support
 - [x] 🎣 Simple declarative API
 - [x] 💰 Normalized response caching
 - [x] 💥 Tiny bundle footprint
