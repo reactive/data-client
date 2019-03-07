@@ -16,6 +16,7 @@
 
 ## Future
 
+- [ ] CLI Resource stub generator
 - [ ] Server Side Rendering
 - [ ] Configurable cache presistance (PWA)
 - [ ] Immutable.js support as optional peerdep
