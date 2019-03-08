@@ -31,4 +31,4 @@ jobs:
       - run: yarn run test:ci
       - run: yarn run build
 
-      - run: yarn run test:coverage
+      - run: yarn run test:coverage --coverageReporters=text-lcov | yarn run coveralls
