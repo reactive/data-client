@@ -61,6 +61,7 @@ For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](docs/getti
 - [x] 🛑 Automatic overfetching elimination
 - [x] ✨ Optimistic updates
 - [x] 🧘 Flexible to fit any API design (one size fits all)
+- [x] 🌳 Supports tree-shaking (only use what you need)
 - [ ] 🚯 Pluggable garbage collection policy
 - [ ] 🔁 Subscriptions
 - [ ] ♻️ Optional [redux](https://redux.js.org/) integration

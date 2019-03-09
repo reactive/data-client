@@ -87,6 +87,8 @@ Must be globally unique - even if you don't use it in url().
 
 ## Provided and overridable methods
 
+These are the basic building blocks used to compile the [Request shapes](../api/RequestShape.md) below.
+
 ### static url<T extends typeof Resource>(urlParams?: Partial<AbstractInstanceType\<T>>) => string
 
 Computes the url based on the parameters. Default implementation follows `/urlRoot/[pk]` pattern.
@@ -108,6 +110,10 @@ when requesting one resource at a time. Defaults to a plain object
 containing the keys. This can be useful to override if your response is in a different form.
 
 ## [Request shapes](../api/RequestShape.md)
+
+These provide the standard [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
+shapes common in [REST](https://www.restapitutorial.com/) APIs. Feel free to customize or add
+new shapes based to match your API.
 
 ### singleRequest(): ReadShape
 

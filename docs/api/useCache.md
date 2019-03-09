@@ -9,8 +9,12 @@ function useCache<Params extends Readonly<object>, S extends Schema>(
 
 Excellent to use data in the normalized cache without fetching.
 
-Because of this it will not block rendering and instead return null
-if the desired data is not found.
+* On Error:
+  * Previously cached if exists
+  * null otherwise
+* While loading:
+  * Previously cached if exists
+  * null otherwise
 
 ## Example
 

@@ -1,6 +1,14 @@
 # Installation
 
-## 1) Add provider at top-level component
+## 1) Install rest-hooks
+
+Install the rest-hooks package into your project using [yarn](https://yarnpkg.com/en/)
+
+```bash
+yarn add rest-hooks
+```
+
+## 2) Add provider at top-level component
 
 `index.tsx`
 
@@ -15,7 +23,7 @@ ReactDOM.createRoot(document.body).render(
 );
 ```
 
-## 2) Add [Suspense](https://reactjs.org/blog/2018/11/13/react-conf-recap.html)
+## 3) Add [Suspense](https://reactjs.org/blog/2018/11/13/react-conf-recap.html)
 
 Suspense will show a fallback while content is loading.
 

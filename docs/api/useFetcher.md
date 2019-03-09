@@ -7,7 +7,7 @@ function useFetcher<
   S extends Schema
 >(
   requestShape: RequestShape<S, Params, Body>,
-  throttle?: boolean
+  throttle?: boolean = false
 ): (body: Body, params: Params) => Promise<any>;
 ```
 
@@ -15,6 +15,11 @@ Mostly useful for imperatively triggering mutation effects.
 
 However, this hook is actually used by the retrieval hooks (useRetrieve(), useCache(), useResource()). Using
 it with a `ReadRequest` like `singleRequest()` can be done to force a refresh imperatively.
+
+## throttle?: boolean = false
+
+By default all calls force the fetch, however by calling with throttle=true identical
+in-flight requests will be deduped.
 
 ## Example
 
