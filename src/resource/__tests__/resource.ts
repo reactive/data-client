@@ -1,6 +1,7 @@
 import nock from 'nock';
 
-import { CoolerArticleResource } from '../../__tests__/common';
+import { CoolerArticleResource, UserResource } from '../../__tests__/common';
+import { Resource } from '..';
 
 describe('Resource', () => {
   it('should init', () => {
@@ -16,6 +17,15 @@ describe('Resource', () => {
     expect(resource.url).toBe('http://test.com/article-cooler/5');
     expect(resource.author).toBe(5);
   });
+  it('should not init Resource itself', () => {
+    expect(() => Resource.fromJS({})).toThrow();
+  });
+  it('should convert class to string', () => {
+    expect(CoolerArticleResource.toString()).toBeDefined();
+    expect(CoolerArticleResource.toString()).toMatchInlineSnapshot(
+      `"CoolerArticleResource::http://test.com/article-cooler/"`
+    );
+  });
   it('should render url property', () => {
     const article = CoolerArticleResource.fromJS({
       id: 5,
@@ -27,28 +37,43 @@ describe('Resource', () => {
   describe('listUrl', () => {
     it('should listUrl with an arg', () => {
       expect(CoolerArticleResource.listUrl({ author: 5 })).toBe(
-        'http://test.com/article-cooler/?author=5',
+        'http://test.com/article-cooler/?author=5'
       );
     });
     it('should listUrl with no args', () => {
       expect(CoolerArticleResource.listUrl({})).toBe(
-        'http://test.com/article-cooler/',
+        'http://test.com/article-cooler/'
       );
     });
     it('should sort consistently', () => {
-      expect(CoolerArticleResource.listUrl({z: 'alpha', y: 'beta', m: 'never', a: 'sometimes', c: 'again'})).toBe(
-        'http://test.com/article-cooler/?a=sometimes&c=again&m=never&y=beta&z=alpha',
+      expect(
+        CoolerArticleResource.listUrl({
+          z: 'alpha',
+          y: 'beta',
+          m: 'never',
+          a: 'sometimes',
+          c: 'again',
+        })
+      ).toBe(
+        'http://test.com/article-cooler/?a=sometimes&c=again&m=never&y=beta&z=alpha'
       );
     });
-  })
+  });
   it('should not include __ownerID when converting to JS', () => {
-    const json = {...CoolerArticleResource.fromJS({})};
+    const json = { ...CoolerArticleResource.fromJS({}) };
     expect(json).not.toHaveProperty('__ownerID');
   });
   it('should have __ownerID property on lookup', () => {
     const r = CoolerArticleResource.fromJS({});
     expect(r.hasOwnProperty('__ownerID')).toBe(true);
   });
+
+  describe('static url', () => {
+    it('should use provided url parameter as value', () => {
+      const url = 'this is the url';
+      expect(UserResource.url({ url })).toBe(url);
+    })
+  })
 
   describe('Resource.fetch()', () => {
     const id = 5;
@@ -112,7 +137,7 @@ describe('Resource', () => {
         'get',
         CoolerArticleResource.url({
           id: payload.id,
-        }),
+        })
       );
       expect(article).toBeDefined();
       if (!article) {
@@ -125,7 +150,7 @@ describe('Resource', () => {
       const article = await CoolerArticleResource.fetch(
         'post',
         CoolerArticleResource.url(),
-        payload2,
+        payload2
       );
       expect(article).toMatchObject(payload2);
     });
@@ -134,7 +159,7 @@ describe('Resource', () => {
         'delete',
         CoolerArticleResource.url({
           id: payload.id,
-        }),
+        })
       );
 
       expect(res).toEqual({});
@@ -143,7 +168,7 @@ describe('Resource', () => {
       const response = await CoolerArticleResource.fetch(
         'put',
         CoolerArticleResource.url(payload),
-        CoolerArticleResource.fromJS(payload),
+        CoolerArticleResource.fromJS(payload)
       );
 
       expect(response).toEqual(putResponseBody);
@@ -152,7 +177,7 @@ describe('Resource', () => {
       const response = await CoolerArticleResource.fetch(
         'patch',
         CoolerArticleResource.url({ id }),
-        patchPayload,
+        patchPayload
       );
 
       expect(response).toEqual(patchResponseBody);

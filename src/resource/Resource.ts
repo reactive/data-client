@@ -56,7 +56,7 @@ export default abstract class Resource {
   }
 
   static toString<T extends typeof Resource>(this: T) {
-    return `this.name::${this.urlRoot}`;
+    return `${this.name}::${this.urlRoot}`;
   }
 
   /** Returns the globally unique identifier for this Resource */

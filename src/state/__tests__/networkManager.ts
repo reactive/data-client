@@ -27,3 +27,18 @@ describe('NetworkManager', () => {
     });
   });
 });
+
+describe('RequestIdleCallback', () => {
+  it('should still run when requestIdleCallback is not available', () => {
+    const requestIdle = (global as any).requestIdleCallback;
+    (global as any).requestIdleCallback = undefined;
+    jest.resetModules();
+    const { RIC } = require('../NetworkManager');
+    const fn = jest.fn();
+    jest.useFakeTimers();
+    RIC(fn, {});
+    jest.runAllTimers();
+    expect(fn).toBeCalled();
+    (global as any).requestIdleCallback = requestIdle;
+  })
+})
