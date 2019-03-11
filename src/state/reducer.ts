@@ -1,5 +1,5 @@
 import { normalize } from '../resource';
-import { merge } from 'lodash';
+import { mergeWith } from 'lodash';
 import { Resource } from '../resource';
 import { ActionTypes, State } from '../types';
 
@@ -11,6 +11,14 @@ export const initialState: State<Resource> = {
 
 type Writable<T> = {
   [P in keyof T]: NonNullable<T[P]>;
+}
+
+function resourceCustomizer(a, b) {
+	if (b instanceof Resource) {
+			const merged = mergeWith({ ...a }, b, resourceCustomizer);
+
+			return Object.assign(b, merged);
+	}
 }
 
 export default function reducer(state: State<Resource>, action: ActionTypes) {
@@ -31,7 +39,7 @@ export default function reducer(state: State<Resource>, action: ActionTypes) {
       }
       const normalized = normalize(action.payload, action.meta.schema);
       return {
-        entities: merge({ ...state.entities }, normalized.entities),
+        entities: mergeWith({ ...state.entities }, normalized.entities, resourceCustomizer),
         results: {
           ...state.results,
           [action.meta.url]: normalized.result,
@@ -49,7 +57,7 @@ export default function reducer(state: State<Resource>, action: ActionTypes) {
       let { entities } = normalize(action.payload, action.meta.schema);
       return {
         ...state,
-        entities: merge({ ...state.entities }, entities),
+        entities: mergeWith({ ...state.entities }, entities, resourceCustomizer),
       };
     case 'purge':
       if (action.error) return state;
