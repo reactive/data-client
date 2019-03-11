@@ -1,6 +1,6 @@
 # Usage
 
-## Create a [Resource](../api/Resource.md)
+## Define a [Resource](../api/Resource.md)
 
 `resources/article.ts`
 ```javascript

@@ -12,13 +12,13 @@ function useResultCache<Params extends Readonly<object>, D extends object>(
 
 Excellent to use with [pagination](../guides/pagination.md) or any other extra (non-entity) data in results.
 
-* On Error:
-  * Previously cached if exists
-  * defaults if provided
+* [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):
+  * Returns previously cached if exists
+  * `defaults` if provided
   * null otherwise
 * While loading:
-  * Previously cached if exists
-  * defaults if provided
+  * Returns previously cached if exists
+  * `defaults` if provided
   * null otherwise
 
 ## Example

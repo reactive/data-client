@@ -19,10 +19,10 @@ Excellent for retrieving the data you need.
   * On first-render and when parameters change
   * and When not in cache or result is considered stale
   * and When no identical requests are in flight
-* Error:
+* [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):
   * Throws error to be [caught](../guides/network-errors.md) by [Error Boundaries](https://reactjs.org/docs/error-boundaries.html)
-* Loading:
-  * Previously cached if exists (even if stale)
+* While Loading:
+  * Returns previously cached if exists (even if stale)
   * [Suspend rendering](../getting-started/installation.md#2-add-suspense) otherwise
 
 ## Example

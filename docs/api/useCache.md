@@ -9,11 +9,11 @@ function useCache<Params extends Readonly<object>, S extends Schema>(
 
 Excellent to use data in the normalized cache without fetching.
 
-* On Error:
-  * Previously cached if exists
+* [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):
+  * Returns previously cached if exists
   * null otherwise
 * While loading:
-  * Previously cached if exists
+  * Returns previously cached if exists
   * null otherwise
 
 ## Example

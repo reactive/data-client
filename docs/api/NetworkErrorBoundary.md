@@ -1,4 +1,4 @@
-# NetworkErrorBoundary
+# \<NetworkErrorBoundary />
 
 Displays a fallback component when a network error happens in its subtree.
 
