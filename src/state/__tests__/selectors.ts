@@ -118,16 +118,6 @@ describe('selectors', () => {
         select(state, params),
       ).toThrow();
     });
-    it('should throw when entity does not extend Resource', async () => {
-      const state = {
-        entities: { [CoolerArticleResource.getKey()]: { [`${CoolerArticleResource.pk(params)}`]: params as any } },
-        results: {},
-        meta: {},
-      };
-      expect(() =>
-        select(state, params),
-      ).toThrow();
-    });
     it('should handle nested resources', async () => {
       const nestedArticle = NestedArticleResource.fromJS({ ...params, user: 23 });
       const user = UserResource.fromJS({ id: 23, username: 'anne' })
@@ -167,18 +157,6 @@ describe('selectors', () => {
       const selected = listSelect(state, {});
 
       expect(selected).toBe(null);
-    });
-    it('should throw when results are not a list', async () => {
-      const { entities } = normalize(
-        articles,
-        CoolerArticleResource.listRequest().schema,
-      );
-      const state = {
-        entities,
-        results: { [CoolerArticleResource.listUrl(params)]: 5 },
-        meta: {},
-      };
-      expect(() => listSelect(state, params)).toThrow();
     });
     it('should find value when state exists', async () => {
       const { entities, result } = normalize(

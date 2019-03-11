@@ -78,12 +78,6 @@ S extends Schema
         output = getResultList(output);
       }
       if (!output) return null;
-      if (process.env.NODE_ENV !== 'production' && !Array.isArray(output)) {
-        // this is the immutable.js look-alike hack
-        if (!output.__ownerID) {
-          throw new Error(`wrong type found : ${output}`);
-        }
-      }
       if (Array.isArray(output)) {
         output = output.filter(entity => entity);
       }
