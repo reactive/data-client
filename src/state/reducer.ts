@@ -13,12 +13,11 @@ type Writable<T> = {
   [P in keyof T]: NonNullable<T[P]>;
 }
 
-function resourceCustomizer(a, b) {
-	if (b instanceof Resource) {
-			const merged = mergeWith({ ...a }, b, resourceCustomizer);
-
-			return Object.assign(b, merged);
-	}
+function resourceCustomizer(a: any, b: any): any {
+  if (b instanceof Resource) {
+    const merged = mergeWith({ ...a }, b, resourceCustomizer);
+    return Object.assign(b, merged);
+  }
 }
 
 export default function reducer(state: State<Resource>, action: ActionTypes) {
