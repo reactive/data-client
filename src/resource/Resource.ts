@@ -43,6 +43,10 @@ export default abstract class Resource {
   static readonly urlRoot: string;
   /** A function to mutate all requests for fetch */
   static fetchPlugin?: request.Plugin;
+  /** Default data expiry length in all request shapes, will fall back to NetworkManager default if not defined */
+  static readonly dataExpiryLength?: number;
+  /** Default error expiry length in all request shapes, will fall back to NetworkManager default if not defined */
+  static readonly errorExpiryLength?: number;
   /** A unique identifier for this Resource */
   abstract pk(): string | number | null;
 
@@ -213,6 +217,8 @@ export default abstract class Resource {
     return {
       type: 'read',
       schema,
+      dataExpiryLength: this.dataExpiryLength,
+      errorExpiryLength: this.errorExpiryLength,
       getUrl,
       fetch(url: string, body?: Readonly<object>) {
         return self.fetch('get', url, body);
@@ -234,6 +240,8 @@ export default abstract class Resource {
     return {
       type: 'read',
       schema,
+      dataExpiryLength: this.dataExpiryLength,
+      errorExpiryLength: this.errorExpiryLength,
       getUrl,
       fetch(url: string, body?: Readonly<object>) {
         return self.fetch('get', url, body);
@@ -252,6 +260,8 @@ export default abstract class Resource {
     return {
       type: 'mutate',
       schema: self.getEntitySchema(),
+      dataExpiryLength: this.dataExpiryLength,
+      errorExpiryLength: this.errorExpiryLength,
       getUrl(params: Readonly<Record<string, string>>) {
         return self.listUrl(params);
       },
@@ -272,6 +282,8 @@ export default abstract class Resource {
     return {
       type: 'mutate',
       schema: self.getEntitySchema(),
+      dataExpiryLength: this.dataExpiryLength,
+      errorExpiryLength: this.errorExpiryLength,
       getUrl(params: object) {
         return self.url(params);
       },
@@ -292,6 +304,8 @@ export default abstract class Resource {
     return {
       type: 'mutate',
       schema: self.getEntitySchema(), //TODO: change merge strategy in case we want to handle partial returns
+      dataExpiryLength: this.dataExpiryLength,
+      errorExpiryLength: this.errorExpiryLength,
       getUrl(params: Readonly<object>) {
         return self.url(params);
       },
@@ -308,6 +322,8 @@ export default abstract class Resource {
     return {
       type: 'delete',
       schema: self.getEntitySchema(),
+      dataExpiryLength: this.dataExpiryLength,
+      errorExpiryLength: this.errorExpiryLength,
       getUrl(params: object) {
         return self.url(params);
       },

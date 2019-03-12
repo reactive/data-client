@@ -8,6 +8,7 @@ import {
   CoolerArticleResource,
   UserResource,
   PaginatedArticleResource,
+  StaticArticleResource,
 } from '../../__tests__/common';
 import {
   useFetcher,
@@ -265,6 +266,9 @@ describe('useRetrieve', () => {
       .get(`/article-cooler/${payload.id}`)
       .reply(200, payload);
     nock('http://test.com')
+      .get(`/article-static/${payload.id}`)
+      .reply(200, payload);
+    nock('http://test.com')
       .get(`/user/`)
       .reply(200, users);
   });
@@ -289,6 +293,27 @@ describe('useRetrieve', () => {
     params = payload;
     rerender();
     expect(dispatch).toBeCalled();
+  });
+  it('should dispatch with resource defined dataExpiryLength', async () => {
+    function FetchTester() {
+      useRetrieve(StaticArticleResource.singleRequest(), payload);
+      return null;
+    }
+    await testDispatchFetch(FetchTester, [payload]);
+  });
+  it('should dispatch with request shape defined dataExpiryLength', async () => {
+    function FetchTester() {
+      useRetrieve(StaticArticleResource.longLivingRequest(), payload);
+      return null;
+    }
+    await testDispatchFetch(FetchTester, [payload]);
+  });
+  it('should dispatch with request shape defined errorExpiryLength', async () => {
+    function FetchTester() {
+      useRetrieve(StaticArticleResource.neverRetryOnErrorRequest(), payload);
+      return null;
+    }
+    await testDispatchFetch(FetchTester, [payload]);
   });
 });
 

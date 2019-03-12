@@ -49,6 +49,8 @@ export interface FetchAction extends FSA<any, any> {
     url: string;
     responseType: 'rpc' | 'receive' | 'purge';
     throttle: boolean;
+    errorExpiryLength?: number;
+    dataExpiryLength?: number;
     resolve: (value?: any | PromiseLike<any>) => void;
     reject: (reason?: any) => void;
   };

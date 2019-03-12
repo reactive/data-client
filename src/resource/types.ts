@@ -10,6 +10,8 @@ export interface RequestShape<
   fetch(url: string, body: Body): Promise<any>;
   getUrl(params: Params): string;
   readonly schema: S;
+  readonly dataExpiryLength?: number;
+  readonly errorExpiryLength?: number;
 }
 
 /** Purges a value from the server */

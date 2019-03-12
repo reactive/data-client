@@ -58,7 +58,10 @@ export default class NetworkManager {
       throttle,
       resolve,
       reject,
+      dataExpiryLength = this.dataExpiryLength,
+      errorExpiryLength = this.errorExpiryLength
     } = action.meta;
+
     const deferedFetch = () =>
       fetch()
         .then(data => {
@@ -70,7 +73,7 @@ export default class NetworkManager {
               schema,
               url,
               date: now,
-              expiresAt: now + this.dataExpiryLength,
+              expiresAt: now + dataExpiryLength,
             },
           });
           return data;
@@ -84,7 +87,7 @@ export default class NetworkManager {
               schema,
               url,
               date: now,
-              expiresAt: now + this.errorExpiryLength,
+              expiresAt: now + errorExpiryLength,
             },
             error: true,
           });

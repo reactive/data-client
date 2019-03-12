@@ -20,6 +20,20 @@ export class ArticleResource extends Resource {
     }
     return super.url(urlParams);
   }
+
+  static longLivingRequest<T extends typeof Resource>(this: T) {
+    return {
+      ...this.singleRequest(),
+      dataExpiryLength: 1000 * 60 * 60
+    }
+  }
+
+  static neverRetryOnErrorRequest<T extends typeof Resource>(this: T) {
+    return {
+      ...this.singleRequest(),
+      errorExpiryLength: Infinity
+    }
+  }
 }
 
 export class CoolerArticleResource extends ArticleResource {
@@ -27,6 +41,11 @@ export class CoolerArticleResource extends ArticleResource {
   get things() {
     return `${this.title} five`;
   }
+}
+
+export class StaticArticleResource extends ArticleResource {
+  static urlRoot = 'http://test.com/article-static/';
+  static dataExpiryLength = Infinity;
 }
 
 export class UserResource extends Resource {

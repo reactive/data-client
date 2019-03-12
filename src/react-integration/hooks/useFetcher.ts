@@ -18,7 +18,7 @@ Params extends Readonly<object>,
 Body extends Readonly<object> | void,
 S extends Schema
 >(requestShape: RequestShape<S, Params, Body>, throttle = false) {
-  const { fetch, schema, type, getUrl } = requestShape;
+  const { fetch, schema, type, getUrl, dataExpiryLength, errorExpiryLength } = requestShape;
   const responseType = SHAPE_TYPE_TO_RESPONSE_TYPE[type];
 
   const dispatch = useContext(DispatchContext);
@@ -43,6 +43,8 @@ S extends Schema
           responseType,
           url: identifier,
           throttle,
+          dataExpiryLength,
+          errorExpiryLength,
           resolve,
           reject,
         },
