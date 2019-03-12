@@ -93,7 +93,6 @@
     "ignore-styles": "^5.0.1",
     "jest": "^24.1.0",
     "nock": "^10.0.6",
-    "nsp": "^3.2.1",
     "prettier-eslint-cli": "^4.7.1",
     "react": "16.8.4",
     "react-dom": "16.8.4",
