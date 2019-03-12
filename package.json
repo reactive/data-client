@@ -14,11 +14,11 @@
     "README.md"
   ],
   "scripts": {
-    "build:lib": "NODE_ENV=production babel src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:lib": "cross-env NODE_ENV=production babel src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
     "build:types": "tsc --emitDeclarationOnly -p ./src",
     "build:bundle": "rollup -c",
     "build:clean": "rimraf lib",
-    "build": "npm run build:lib && npm run build:types && cp ./src/resource/normal.d.ts ./lib/resource/normal.d.ts",
+    "build": "npm run build:lib && npm run build:types && cpy ./src/resource/normal.d.ts ./lib/resource",
     "dev": "yarn run build:lib -w",
     "prepare": "npm run build:clean && npm run build",
     "prepublishOnly": "npm run build:bundle",
@@ -87,6 +87,8 @@
     "babel-plugin-root-import": "^6.1.0",
     "better-npm-run": "^0.1.1",
     "coveralls": "^3.0.3",
+    "cpy-cli": "^2.0.0",
+    "cross-env": "^5.2.0",
     "eslint": "^5.14.1",
     "ignore-styles": "^5.0.1",
     "jest": "^24.1.0",
