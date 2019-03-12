@@ -33,6 +33,7 @@
   - [Authentication](guides/auth.md)
   - [Cross-orgin requests with JSONP](guides/jsonp.md)
   - [Custom networking library](guides/custom-networking.md)
+  - [Custom cache lifetime](guides/resource-lifetime.md)
 - 💨 Performance Optimizations (optional)
   - [Nesting related resources (server-side join)](guides/nested-response.md)
   - [Cross-resource multi-update RPC (dealing with side-effects)](guides/rpc.md)

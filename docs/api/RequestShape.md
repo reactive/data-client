@@ -17,6 +17,8 @@ Params extends Readonly<object>,
 Body extends Readonly<object> | void,
 > {
   readonly type: 'read' | 'mutate' | 'delete';
+  readonly dataExpiryLength?: number;
+  readonly errorExpiryLength?: number;
   fetch(url: string, body: Body): Promise<any>;
   getUrl(params: Params): string;
   readonly schema: S;
@@ -41,6 +43,14 @@ mutation update properly in the cache without having to do another request.
 
 It sends a request and represents a success response to mean that entity is deleted.
 Upon success it will purge that entity from the cache.
+
+### dataExpiryLength: number
+
+Custom data cache lifetime for the fetched resource. Will override the value set in NetworkManager.
+
+### errorExpiryLength: number
+
+Custom data error lifetime for the fetched resource. Will override the value set in NetworkManager.
 
 ### fetch(url: string, body: Payload): Promise\<any>
 
