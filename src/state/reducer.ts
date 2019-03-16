@@ -14,9 +14,9 @@ type Writable<T> = {
 }
 
 function resourceCustomizer(a: any, b: any): any {
-  if (b instanceof Resource) {
-    const merged = mergeWith({ ...a }, b, resourceCustomizer);
-    return Object.assign(b, merged);
+  if (a instanceof Resource && b instanceof Resource) {
+    const Static = b.constructor as typeof Resource;
+    return Static.merge(a, b);
   }
 }
 
