@@ -9,9 +9,10 @@ in the React tree.
 import { RestProvider } from 'rest-hooks';
 import ReactDOM from 'react-dom';
 
-ReactDOM.createRoot(document.body).render(
+ReactDOM.render(
   <RestProvider>
     <App />
   </RestProvider>,
+  document.body
 );
 ```

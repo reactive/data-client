@@ -16,10 +16,11 @@ yarn add rest-hooks
 import { RestProvider } from 'rest-hooks';
 import ReactDOM from 'react-dom';
 
-ReactDOM.createRoot(document.body).render(
+ReactDOM.render(
   <RestProvider>
     <App />
   </RestProvider>,
+  document.body
 );
 ```
 
@@ -53,4 +54,5 @@ const App = () => (
 ```
 
 ### [Usage➡️](./usage.md)
+
 ### 📖[Documentation](..)
