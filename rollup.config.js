@@ -25,6 +25,17 @@ function isExternal(id) {
   return ret;
 }
 
+const plugins = [['@babel/plugin-transform-runtime', { useESModules: true }]];
+const presets = [
+  [
+    '@anansi/babel-preset',
+    {
+      typing: 'typescript',
+      useBuiltIns: false,
+    },
+  ],
+];
+
 export default [
   // browser-friendly UMD build
   {
@@ -36,7 +47,8 @@ export default [
         exclude: ['node_modules/**', '**/__tests__/**'],
         extensions,
         runtimeHelpers: true,
-        plugins: ['@babel/plugin-transform-runtime'],
+        plugins,
+        presets,
       }),
       resolve({ extensions }),
       commonjs({ extensions }),
@@ -55,11 +67,11 @@ export default [
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions,
         runtimeHelpers: true,
-        plugins: ['@babel/plugin-transform-runtime'],
+        plugins,
+        presets,
       }),
       resolve({ extensions }),
       commonjs({ extensions }),
     ],
   },
-
 ];
