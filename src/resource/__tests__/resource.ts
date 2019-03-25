@@ -43,7 +43,7 @@ describe('Resource', () => {
     CoolerArticleResource.fromJS({}),
   ];
   describe('merge()', () => {
-    const c = coolA.merge(coolB);
+    const c = CoolerArticleResource.merge(coolA, coolB);
     it('works with partial', () => {
       expect(c.things).toBeDefined();
       expect(c.id).toBe(5);
@@ -71,37 +71,37 @@ CoolerArticleResource {
 `);
     });
     it('does nothing with empty arg', () => {
-      expect(c.merge(coolC)).toEqual(c);
+      expect(CoolerArticleResource.merge(c, coolC)).toEqual(c);
     })
   });
   describe('hasDefined()', () => {
     it('works ', () => {
-      expect(coolA.hasDefined('title')).toBe(true);
-      expect(coolA.hasDefined('author')).toBe(false);
+      expect(CoolerArticleResource.hasDefined(coolA, 'title')).toBe(true);
+      expect(CoolerArticleResource.hasDefined(coolA, 'author')).toBe(false);
     });
   });
-  describe('definedObject()', () => {
+  describe('toObjectDefined()', () => {
     it('works', () => {
-      expect(coolA.definedObject()).toMatchInlineSnapshot(`
+      expect(CoolerArticleResource.toObjectDefined(coolA)).toMatchInlineSnapshot(`
 Object {
   "title": "great",
 }
 `);
-      expect(coolB.definedObject()).toMatchInlineSnapshot(`
+      expect(CoolerArticleResource.toObjectDefined(coolB)).toMatchInlineSnapshot(`
 Object {
   "id": 5,
 }
 `);
     });
   });
-  describe('definedKeys()', () => {
+  describe('keysDefined()', () => {
     it('works', () => {
-      expect(coolA.definedKeys()).toMatchInlineSnapshot(`
+      expect(CoolerArticleResource.keysDefined(coolA)).toMatchInlineSnapshot(`
 Array [
   "title",
 ]
 `);
-      expect(coolB.definedKeys()).toMatchInlineSnapshot(`
+      expect(CoolerArticleResource.keysDefined(coolB)).toMatchInlineSnapshot(`
 Array [
   "id",
 ]

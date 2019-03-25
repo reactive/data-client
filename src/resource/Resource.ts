@@ -30,8 +30,8 @@ const getEntitySchema: <T extends typeof Resource>(M: T) => schemas.Entity<Abstr
 
 type Filter<T, U> = T extends U ? T : never;
 const DefinedMembersKey = Symbol('Defined Members');
-interface ResourceMembers<T extends Resource> {
-  [DefinedMembersKey]: (Filter<keyof T, string>)[]
+interface ResourceMembers<T extends typeof Resource> {
+  [DefinedMembersKey]: (Filter<keyof AbstractInstanceType<T>, string>)[]
 }
 
 /** Represents an entity to be retrieved from a server. Typically 1:1 with a url endpoint. */
@@ -69,27 +69,39 @@ export default abstract class Resource {
     return instance;
   }
 
-  merge<T extends Resource>(this: T, other: T) {
-    // TODO: figure out how to make Static the class type of T
-    const Static: typeof Resource = this.constructor as any;
-    const props = Object.assign({}, this, other.definedObject());
-    return Static.fromJS(props) as T;
+  static merge<T extends typeof Resource>(
+    this: T,
+    first: AbstractInstanceType<T>,
+    second: AbstractInstanceType<T>
+  ) {
+    const props = Object.assign({}, this.toObjectDefined(first), this.toObjectDefined(second));
+    return this.fromJS(props);
   }
 
-  hasDefined<T extends Resource>(this: T, key: Filter<keyof T, string>) {
-    return (this as any as ResourceMembers<T>)[DefinedMembersKey].includes(key);
+  static hasDefined<T extends typeof Resource>(
+    this: T,
+    instance: AbstractInstanceType<T>,
+    key: Filter<keyof AbstractInstanceType<T>, string>,
+  ) {
+    return (instance as any as ResourceMembers<T>)[DefinedMembersKey].includes(key);
   }
 
-  definedObject<T extends Resource>(this: T) {
-    const defined: Partial<T> = {};
-    for (const member of (this as any as ResourceMembers<T>)[DefinedMembersKey]) {
-      defined[member] = this[member];
+  static toObjectDefined<T extends typeof Resource>(
+    this: T,
+    instance: AbstractInstanceType<T>,
+  ) {
+    const defined: Partial<AbstractInstanceType<T>> = {};
+    for (const member of (instance as any as ResourceMembers<T>)[DefinedMembersKey]) {
+      defined[member] = instance[member];
     }
     return defined;
   }
 
-  definedKeys<T extends Resource>(this: T) {
-    return (this as any as ResourceMembers<T>)[DefinedMembersKey];
+  static keysDefined<T extends typeof Resource>(
+    this: T,
+    instance: AbstractInstanceType<T>,
+  ) {
+    return (instance as any as ResourceMembers<T>)[DefinedMembersKey];
   }
 
   static toString<T extends typeof Resource>(this: T) {
