@@ -69,6 +69,7 @@ export default abstract class Resource {
     return instance;
   }
 
+  /** Creates new instance copying over defined values of arguments */
   static merge<T extends typeof Resource>(
     this: T,
     first: AbstractInstanceType<T>,
@@ -78,6 +79,7 @@ export default abstract class Resource {
     return this.fromJS(props);
   }
 
+  /** Whether key is non-default */
   static hasDefined<T extends typeof Resource>(
     this: T,
     instance: AbstractInstanceType<T>,
@@ -86,6 +88,7 @@ export default abstract class Resource {
     return (instance as any as ResourceMembers<T>)[DefinedMembersKey].includes(key);
   }
 
+  /** Returns simple object with all the non-default members */
   static toObjectDefined<T extends typeof Resource>(
     this: T,
     instance: AbstractInstanceType<T>,
@@ -97,6 +100,7 @@ export default abstract class Resource {
     return defined;
   }
 
+  /** Returns array of all keys that have values defined in instance */
   static keysDefined<T extends typeof Resource>(
     this: T,
     instance: AbstractInstanceType<T>,
