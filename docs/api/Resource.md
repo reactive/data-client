@@ -104,7 +104,7 @@ Returns an `Object` with only the defined (non-default) members of `instance`.
 
 Returns an `Array` of all defined (non-default) keys of `instance`.
 
-## Network static methods
+## Static network methods
 
 These are the basic building blocks used to compile the [Request shapes](../api/RequestShape.md) below.
 
