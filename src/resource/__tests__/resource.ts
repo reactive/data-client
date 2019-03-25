@@ -1,6 +1,9 @@
 import nock from 'nock';
 
-import { CoolerArticleResource, UserResource } from '../../__tests__/common';
+import {
+  CoolerArticleResource,
+  UserResource,
+} from '../../__tests__/common';
 import { Resource } from '..';
 
 describe('Resource', () => {
@@ -33,6 +36,77 @@ describe('Resource', () => {
       author: 5,
     });
     expect(article.url).toBe('http://test.com/article-cooler/5');
+  });
+  const [coolA, coolB, coolC] = [
+    CoolerArticleResource.fromJS({ title: 'great' }),
+    CoolerArticleResource.fromJS({ id: 5 }),
+    CoolerArticleResource.fromJS({}),
+  ];
+  describe('merge()', () => {
+    const c = coolA.merge(coolB);
+    it('works with partial', () => {
+      expect(c.things).toBeDefined();
+      expect(c.id).toBe(5);
+      expect(c.content).toBe('');
+      expect(c.title).toBe('great');
+      expect(c).toMatchInlineSnapshot(`
+CoolerArticleResource {
+  "author": null,
+  "content": "",
+  "id": 5,
+  "tags": Array [],
+  "title": "great",
+}
+`);
+    });
+    it('works with definedObjects()', () => {
+      expect(c).toMatchInlineSnapshot(`
+CoolerArticleResource {
+  "author": null,
+  "content": "",
+  "id": 5,
+  "tags": Array [],
+  "title": "great",
+}
+`);
+    });
+    it('does nothing with empty arg', () => {
+      expect(c.merge(coolC)).toEqual(c);
+    })
+  });
+  describe('hasDefined()', () => {
+    it('works ', () => {
+      expect(coolA.hasDefined('title')).toBe(true);
+      expect(coolA.hasDefined('author')).toBe(false);
+    });
+  });
+  describe('definedObject()', () => {
+    it('works', () => {
+      expect(coolA.definedObject()).toMatchInlineSnapshot(`
+Object {
+  "title": "great",
+}
+`);
+      expect(coolB.definedObject()).toMatchInlineSnapshot(`
+Object {
+  "id": 5,
+}
+`);
+    });
+  });
+  describe('definedKeys()', () => {
+    it('works', () => {
+      expect(coolA.definedKeys()).toMatchInlineSnapshot(`
+Array [
+  "title",
+]
+`);
+      expect(coolB.definedKeys()).toMatchInlineSnapshot(`
+Array [
+  "id",
+]
+`);
+    });
   });
   describe('listUrl', () => {
     it('should listUrl with an arg', () => {
@@ -72,8 +146,8 @@ describe('Resource', () => {
     it('should use provided url parameter as value', () => {
       const url = 'this is the url';
       expect(UserResource.url({ url })).toBe(url);
-    })
-  })
+    });
+  });
 
   describe('Resource.fetch()', () => {
     const id = 5;

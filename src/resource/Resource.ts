@@ -27,6 +27,13 @@ const getEntitySchema: <T extends typeof Resource>(M: T) => schemas.Entity<Abstr
     return e;
   },
 ) as any;
+
+type Filter<T, U> = T extends U ? T : never;
+const DefinedMembersKey = Symbol('Defined Members');
+interface ResourceMembers<T extends Resource> {
+  [DefinedMembersKey]: (Filter<keyof T, string>)[]
+}
+
 /** Represents an entity to be retrieved from a server. Typically 1:1 with a url endpoint. */
 export default abstract class Resource {
   // typescript todo: require subclasses to implement
@@ -46,13 +53,42 @@ export default abstract class Resource {
       throw new Error('cannot construct on abstract types');
     // we type guarded abstract case above, so ok to force typescript to allow constructor call
     const instance = new (this as any)(props) as AbstractInstanceType<T>;
+
+    Object.defineProperty(instance, DefinedMembersKey, {
+      value: Object.keys(props),
+      writable: false,
+    });
+
     Object.assign(instance, props);
+
     // to trick normalizr into thinking we're Immutable.js does it doesn't copy
     Object.defineProperty(instance, '__ownerID', {
       value: 1337,
       writable: false,
     })
     return instance;
+  }
+
+  merge<T extends Resource>(this: T, other: T) {
+    const Static: typeof Resource = this.constructor as any;
+    const props = Object.assign({}, this, other.definedObject());
+    return Static.fromJS(props) as T;
+  }
+
+  hasDefined<T extends Resource>(this: T, key: Filter<keyof T, string>) {
+    return (this as any as ResourceMembers<T>)[DefinedMembersKey].includes(key);
+  }
+
+  definedObject<T extends Resource>(this: T) {
+    const defined: Partial<T> = {};
+    for (const member of (this as any as ResourceMembers<T>)[DefinedMembersKey]) {
+      defined[member] = this[member];
+    }
+    return defined;
+  }
+
+  definedKeys<T extends Resource>(this: T) {
+    return (this as any as ResourceMembers<T>)[DefinedMembersKey];
   }
 
   static toString<T extends typeof Resource>(this: T) {
@@ -75,8 +111,8 @@ export default abstract class Resource {
   /** URL to find this Resource */
   get url(): string {
     // typescript thinks constructor is just a function
-    const S = this.constructor as typeof Resource;
-    return S.url(this);
+    const Static = this.constructor as typeof Resource;
+    return Static.url(this);
   }
 
   /** Get the url for a Resource
