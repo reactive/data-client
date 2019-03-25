@@ -85,7 +85,26 @@ return (
 
 Must be globally unique - even if you don't use it in url().
 
-## Provided and overridable methods
+## Data methods
+
+### static merge<T extends typeof Resource>(first: InstanceType<T>, second: InstanceType<T>) => InstanceType<T>
+
+Takes only the defined (non-default) values of first and second and creates a new instance copying them over.
+Second will override values of first.
+
+### static hasDefined<T extends typeof Resource>(instance: InstanceType<T>, key: keyof InstanceType<T>) => boolean
+
+Returns whether provided `key` is defined (non-default) in `instance`.
+
+### static toObjectDefined<T extends typeof Resource>(instance: AbstractInstanceType<T>) => Partial<InstanceType<T>>
+
+Returns an `Object` with only the defined (non-default) members of `instance`.
+
+### static keysDefined<T extends typeof Resource>(instance: InstanceType<T>) => (keyof InstanceType<T>)[]
+
+Returns an `Array` of all defined (non-default) keys of `instance`.
+
+## Network static methods
 
 These are the basic building blocks used to compile the [Request shapes](../api/RequestShape.md) below.
 
