@@ -70,6 +70,7 @@ export default abstract class Resource {
   }
 
   merge<T extends Resource>(this: T, other: T) {
+    // TODO: figure out how to make Static the class type of T
     const Static: typeof Resource = this.constructor as any;
     const props = Object.assign({}, this, other.definedObject());
     return Static.fromJS(props) as T;
