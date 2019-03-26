@@ -27,6 +27,13 @@ const getEntitySchema: <T extends typeof Resource>(M: T) => schemas.Entity<Abstr
     return e;
   },
 ) as any;
+
+const DefinedMembersKey = Symbol('Defined Members');
+type Filter<T, U> = T extends U ? T : never;
+interface ResourceMembers<T extends typeof Resource> {
+  [DefinedMembersKey]: (Filter<keyof AbstractInstanceType<T>, string>)[]
+}
+
 /** Represents an entity to be retrieved from a server. Typically 1:1 with a url endpoint. */
 export default abstract class Resource {
   // typescript todo: require subclasses to implement
@@ -46,13 +53,59 @@ export default abstract class Resource {
       throw new Error('cannot construct on abstract types');
     // we type guarded abstract case above, so ok to force typescript to allow constructor call
     const instance = new (this as any)(props) as AbstractInstanceType<T>;
+
+    Object.defineProperty(instance, DefinedMembersKey, {
+      value: Object.keys(props),
+      writable: false,
+    });
+
     Object.assign(instance, props);
+
     // to trick normalizr into thinking we're Immutable.js does it doesn't copy
     Object.defineProperty(instance, '__ownerID', {
       value: 1337,
       writable: false,
     })
     return instance;
+  }
+
+  /** Creates new instance copying over defined values of arguments */
+  static merge<T extends typeof Resource>(
+    this: T,
+    first: AbstractInstanceType<T>,
+    second: AbstractInstanceType<T>
+  ) {
+    const props = Object.assign({}, this.toObjectDefined(first), this.toObjectDefined(second));
+    return this.fromJS(props);
+  }
+
+  /** Whether key is non-default */
+  static hasDefined<T extends typeof Resource>(
+    this: T,
+    instance: AbstractInstanceType<T>,
+    key: Filter<keyof AbstractInstanceType<T>, string>,
+  ) {
+    return (instance as any as ResourceMembers<T>)[DefinedMembersKey].includes(key);
+  }
+
+  /** Returns simple object with all the non-default members */
+  static toObjectDefined<T extends typeof Resource>(
+    this: T,
+    instance: AbstractInstanceType<T>,
+  ) {
+    const defined: Partial<AbstractInstanceType<T>> = {};
+    for (const member of (instance as any as ResourceMembers<T>)[DefinedMembersKey]) {
+      defined[member] = instance[member];
+    }
+    return defined;
+  }
+
+  /** Returns array of all keys that have values defined in instance */
+  static keysDefined<T extends typeof Resource>(
+    this: T,
+    instance: AbstractInstanceType<T>,
+  ) {
+    return (instance as any as ResourceMembers<T>)[DefinedMembersKey];
   }
 
   static toString<T extends typeof Resource>(this: T) {
@@ -75,8 +128,8 @@ export default abstract class Resource {
   /** URL to find this Resource */
   get url(): string {
     // typescript thinks constructor is just a function
-    const S = this.constructor as typeof Resource;
-    return S.url(this);
+    const Static = this.constructor as typeof Resource;
+    return Static.url(this);
   }
 
   /** Get the url for a Resource
