@@ -28,8 +28,8 @@ const getEntitySchema: <T extends typeof Resource>(M: T) => schemas.Entity<Abstr
   },
 ) as any;
 
-type Filter<T, U> = T extends U ? T : never;
 const DefinedMembersKey = Symbol('Defined Members');
+type Filter<T, U> = T extends U ? T : never;
 interface ResourceMembers<T extends typeof Resource> {
   [DefinedMembersKey]: (Filter<keyof AbstractInstanceType<T>, string>)[]
 }
