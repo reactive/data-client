@@ -2,6 +2,7 @@ import React from 'react';
 
 export interface ErrorWithStatus extends Error {
   status: number;
+  response?: { statusText?: string, body?: any };
 }
 
 interface Props {
