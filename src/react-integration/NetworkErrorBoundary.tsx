@@ -1,27 +1,31 @@
 import React from 'react';
 
+export interface ErrorWithStatus extends Error {
+  status: number;
+}
+
 interface Props {
   children: React.ReactNode;
-  fallbackComponent: React.ComponentType<{ error: Error }>;
+  fallbackComponent: React.ComponentType<{ error: ErrorWithStatus }>;
 }
 interface State {
-  error?: Error;
+  error?: ErrorWithStatus;
 }
 export default class NetworkErrorBoundary extends React.Component<
   Props,
   State
 > {
   static defaultProps = {
-    fallbackComponent: ({ error }: { error: any }) => (
+    fallbackComponent: ({ error }: { error: ErrorWithStatus }) => (
       <div>
         {error.status} {error.response && error.response.statusText}
       </div>
     ),
   };
 
-  static getDerivedStateFromError(error: any) {
+  static getDerivedStateFromError(error: ErrorWithStatus | any) {
     if (error.status) {
-      return { error };
+      return { error: error as ErrorWithStatus };
     }
   }
 
