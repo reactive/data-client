@@ -22,16 +22,24 @@ export class ArticleResource extends Resource {
   }
 
   static longLivingRequest<T extends typeof Resource>(this: T) {
+    const single = this.singleRequest();
     return {
-      ...this.singleRequest(),
-      dataExpiryLength: 1000 * 60 * 60
+      ...single,
+      options: {
+        ...single.options,
+        dataExpiryLength: 1000 * 60 * 60,
+      },
     }
   }
 
   static neverRetryOnErrorRequest<T extends typeof Resource>(this: T) {
+    const single = this.singleRequest();
     return {
-      ...this.singleRequest(),
-      errorExpiryLength: Infinity
+      ...single,
+      options: {
+        ...single.options,
+        errorExpiryLength: Infinity,
+      },
     }
   }
 }
@@ -45,7 +53,13 @@ export class CoolerArticleResource extends ArticleResource {
 
 export class StaticArticleResource extends ArticleResource {
   static urlRoot = 'http://test.com/article-static/';
-  static dataExpiryLength = Infinity;
+
+  static getRequestOptions() {
+    return {
+      ...super.getRequestOptions(),
+      dataExpiryLength: Infinity
+    }
+  }
 }
 
 export class UserResource extends Resource {

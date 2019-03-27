@@ -45,8 +45,7 @@ Array [
 exports[`useFetcher should dispatch an action that fetches a create 1`] = `
 Object {
   "meta": Object {
-    "dataExpiryLength": undefined,
-    "errorExpiryLength": undefined,
+    "options": undefined,
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rpc",
@@ -70,8 +69,7 @@ Object {
 exports[`useFetcher should dispatch an action that fetches a full update 1`] = `
 Object {
   "meta": Object {
-    "dataExpiryLength": undefined,
-    "errorExpiryLength": undefined,
+    "options": undefined,
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rpc",
@@ -95,8 +93,7 @@ Object {
 exports[`useFetcher should dispatch an action that fetches a partial update 1`] = `
 Object {
   "meta": Object {
-    "dataExpiryLength": undefined,
-    "errorExpiryLength": undefined,
+    "options": undefined,
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rpc",
@@ -120,8 +117,7 @@ Object {
 exports[`useResource should dispatch an action that fetches 1`] = `
 Object {
   "meta": Object {
-    "dataExpiryLength": undefined,
-    "errorExpiryLength": undefined,
+    "options": undefined,
     "reject": [Function],
     "resolve": [Function],
     "responseType": "receive",
@@ -145,8 +141,7 @@ Object {
 exports[`useResource should dispatch fetch when sent multiple arguments 1`] = `
 Object {
   "meta": Object {
-    "dataExpiryLength": undefined,
-    "errorExpiryLength": undefined,
+    "options": undefined,
     "reject": [Function],
     "resolve": [Function],
     "responseType": "receive",
@@ -170,8 +165,7 @@ Object {
 exports[`useResource should dispatch fetch when sent multiple arguments 2`] = `
 Object {
   "meta": Object {
-    "dataExpiryLength": undefined,
-    "errorExpiryLength": undefined,
+    "options": undefined,
     "reject": [Function],
     "resolve": [Function],
     "responseType": "receive",
@@ -197,8 +191,7 @@ Object {
 exports[`useRetrieve should dispatch singles 1`] = `
 Object {
   "meta": Object {
-    "dataExpiryLength": undefined,
-    "errorExpiryLength": undefined,
+    "options": undefined,
     "reject": [Function],
     "resolve": [Function],
     "responseType": "receive",
@@ -222,8 +215,9 @@ Object {
 exports[`useRetrieve should dispatch with request shape defined dataExpiryLength 1`] = `
 Object {
   "meta": Object {
-    "dataExpiryLength": 3600000,
-    "errorExpiryLength": undefined,
+    "options": Object {
+      "dataExpiryLength": 3600000,
+    },
     "reject": [Function],
     "resolve": [Function],
     "responseType": "receive",
@@ -247,8 +241,10 @@ Object {
 exports[`useRetrieve should dispatch with request shape defined errorExpiryLength 1`] = `
 Object {
   "meta": Object {
-    "dataExpiryLength": Infinity,
-    "errorExpiryLength": Infinity,
+    "options": Object {
+      "dataExpiryLength": Infinity,
+      "errorExpiryLength": Infinity,
+    },
     "reject": [Function],
     "resolve": [Function],
     "responseType": "receive",
@@ -272,8 +268,9 @@ Object {
 exports[`useRetrieve should dispatch with resource defined dataExpiryLength 1`] = `
 Object {
   "meta": Object {
-    "dataExpiryLength": Infinity,
-    "errorExpiryLength": undefined,
+    "options": Object {
+      "dataExpiryLength": Infinity,
+    },
     "reject": [Function],
     "resolve": [Function],
     "responseType": "receive",

@@ -18,6 +18,13 @@ export type State<T> = Readonly<{
   }>;
 }>;
 
+export interface RequestOptions {
+  /** Default data expiry length, will fall back to NetworkManager default if not defined */
+  readonly dataExpiryLength?: number;
+  /** Default error expiry length, will fall back to NetworkManager default if not defined */
+  readonly errorExpiryLength?: number;
+}
+
 export interface ReceiveAction extends FSA<any, any> {
   type: 'receive';
   meta: {
@@ -49,8 +56,7 @@ export interface FetchAction extends FSA<any, any> {
     url: string;
     responseType: 'rpc' | 'receive' | 'purge';
     throttle: boolean;
-    errorExpiryLength?: number;
-    dataExpiryLength?: number;
+    options?: RequestOptions;
     resolve: (value?: any | PromiseLike<any>) => void;
     reject: (reason?: any) => void;
   };

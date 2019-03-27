@@ -17,11 +17,10 @@ Params extends Readonly<object>,
 Body extends Readonly<object> | void,
 > {
   readonly type: 'read' | 'mutate' | 'delete';
-  readonly dataExpiryLength?: number;
-  readonly errorExpiryLength?: number;
   fetch(url: string, body: Body): Promise<any>;
   getUrl(params: Params): string;
   readonly schema: S;
+  readonly options?: RequestOptions;
 }
 ```
 
@@ -44,14 +43,6 @@ mutation update properly in the cache without having to do another request.
 It sends a request and represents a success response to mean that entity is deleted.
 Upon success it will purge that entity from the cache.
 
-### dataExpiryLength: number
-
-Custom data cache lifetime for the fetched resource. Will override the value set in NetworkManager.
-
-### errorExpiryLength: number
-
-Custom data error lifetime for the fetched resource. Will override the value set in NetworkManager.
-
 ### fetch(url: string, body: Payload): Promise\<any>
 
 Handles performing an actual network request. This usually just proxies to the `Resource`
@@ -65,3 +56,25 @@ Turns the provided object params into a url to fetch.
 
 Schemas define the shape of the response data and are used to parse and update
 the normalized cache. Read more about [schemas at the normalizr documentation](https://github.com/paularmstrong/normalizr/blob/master/docs/api.md#schema).
+
+### options?: RequestOptions
+
+
+# RequestOptions
+
+Additional optional request options passed on to network manager and reducer.
+
+```typescript
+export interface RequestOptions {
+  readonly dataExpiryLength?: number;
+  readonly errorExpiryLength?: number;
+}
+```
+
+### dataExpiryLength?: number
+
+Custom data cache lifetime for the fetched resource. Will override the value set in NetworkManager.
+
+### errorExpiryLength?: number
+
+Custom data error lifetime for the fetched resource. Will override the value set in NetworkManager.

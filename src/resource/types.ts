@@ -1,4 +1,5 @@
 import { schemas, Schema, SchemaArray, SchemaBase } from './normal';
+import { RequestOptions } from 'types';
 
 /** Defines the shape of a network request */
 export interface RequestShape<
@@ -10,8 +11,7 @@ export interface RequestShape<
   fetch(url: string, body: Body): Promise<any>;
   getUrl(params: Params): string;
   readonly schema: S;
-  readonly dataExpiryLength?: number;
-  readonly errorExpiryLength?: number;
+  readonly options?: RequestOptions;
 }
 
 /** Purges a value from the server */

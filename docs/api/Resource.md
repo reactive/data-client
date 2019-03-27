@@ -142,14 +142,9 @@ Returns the [shape of the data](https://github.com/paularmstrong/normalizr/blob/
 when requesting one resource at a time. Defaults to a plain object
 containing the keys. This can be useful to override if your response is in a different form.
 
-### static dataExpiryLength?: number
+### static getRequestOptions() => [RequestOptions](../api/RequestShape.md#RequestOptions) | undefined
 
-Cache lifetime of the resource. Will override the value set in NetworkManager if defined.
-
-### static errorExpiryLength?: number
-
-Cache lifetime of network errors. Will override the value set in NetworkManager if defined.
-
+Returns the default request options for this resource. By default this returns undefined
 
 ## [Request shapes](../api/RequestShape.md)
 
