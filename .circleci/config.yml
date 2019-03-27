@@ -31,7 +31,10 @@ jobs:
       - run: yarn run test:ci
       - run: yarn run build
 
-      - run: yarn run test:coverage --coverageReporters=text-lcov | yarn run coveralls
+      # only run coverage if repo token is available (so third parties don't fail the build)
+      - run:
+          name: coverage
+          command: 'if [ "$COVERALLS_REPO_TOKEN" != "" ]; then yarn run test:coverage --coverageReporters=text-lcov | yarn run coveralls; fi'
   salus:
     machine: true
     steps:

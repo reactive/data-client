@@ -17,6 +17,7 @@ import {
   useRetrieve,
   useResource,
   useResultCache,
+  useMeta,
   RestProvider,
   NetworkErrorBoundary,
   NetworkError,
@@ -26,7 +27,7 @@ import { AbstractInstanceType } from './types';
 
 export type DeleteShape<
 S extends schemas.Entity,
-Params extends Readonly<object> = Readonly<object>,
+Params extends Readonly<object> = Readonly<object>
 > = DeleteShape<S, Params>;
 export type MutateShape<
 S extends Schema,
@@ -61,6 +62,7 @@ export {
   useRetrieve,
   useResource,
   useResultCache,
+  useMeta,
   NetworkManager,
   NetworkErrorBoundary,
   schemas,

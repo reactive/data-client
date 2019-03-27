@@ -83,7 +83,21 @@ return (
 
 ### static urlRoot: string
 
-Must be globally unique - even if you don't use it in url().
+Used to build url patterns in `url()` and `listUrl()`. Used as the default in
+`getKey()` so typically you'll want this to be globally unique per Resource.
+
+### static getKey()
+
+This defines the key for the Resource itself, rather than an instance. As seen below, by default it
+simply returns the urlRoot since this is typically globally unique. However if you want to share
+urlRoot across different Resources, be sure to override this.
+
+```typescript
+/** Returns the globally unique identifier for this Resource */
+static getKey<T extends typeof Resource>(this: T) {
+  return this.urlRoot;
+}
+```
 
 ## Data methods
 
