@@ -7,8 +7,9 @@ import {
   useMeta,
 } from './hooks';
 import RestProvider from './provider';
-import NetworkErrorBoundary from './NetworkErrorBoundary';
+import NetworkErrorBoundary, { NetworkError } from './NetworkErrorBoundary';
 
+export type NetworkError = NetworkError;
 export {
   useCache,
   useFetcher,
