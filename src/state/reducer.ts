@@ -45,12 +45,14 @@ export default function reducer(state: State<Resource>, action: ActionTypes) {
         },
       };
     case 'rpc':
+      if (action.error) return state;
       let { entities } = normalize(action.payload, action.meta.schema);
       return {
         ...state,
         entities: merge({ ...state.entities }, entities),
       };
     case 'purge':
+      if (action.error) return state;
       const key = action.meta.schema.key;
       const pk = action.meta.url;
       const e: Writable<typeof state.entities> = {};

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`reducer should set error in meta 1`] = `
+exports[`reducer should set error in meta for "receive" 1`] = `
 Object {
   "entities": Object {},
   "meta": Object {
