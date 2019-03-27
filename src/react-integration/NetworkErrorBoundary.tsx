@@ -1,12 +1,12 @@
 import React from 'react';
 
 export interface NetworkError extends Error {
-  status: number;
+  status: number | undefined;
   response?: { statusText?: string, body?: any };
 }
 
 function isNetworkError(error: NetworkError | any): error is NetworkError {
-  return !!(error as NetworkError).status;
+  return Object.prototype.hasOwnProperty.call(error, 'status');
 }
 
 interface Props<E extends NetworkError> {
