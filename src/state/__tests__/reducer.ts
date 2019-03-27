@@ -15,6 +15,10 @@ describe('reducer', () => {
         expiresAt: 5000500000,
       },
     };
+    const partialResultAction: ReceiveAction = {
+      ...action,
+      payload: { id, title: 'hello' },
+    };
     const iniState = {
       entities: {},
       results: {},
@@ -32,6 +36,21 @@ describe('reducer', () => {
       const nextEntity = getEntity(nextState);
       expect(nextEntity).not.toBe(prevEntity);
       expect(nextEntity).toBeDefined();
+    })
+    it('should merge partial entity with existing entity', () => {
+      const getEntity = (state: any): ArticleResource => state.entities[ArticleResource.getKey()][`${ArticleResource.pk(action.payload)}`]
+      const prevEntity = getEntity(newState);
+      expect(prevEntity).toBeDefined();
+      const nextState = reducer(newState, partialResultAction);
+      const nextEntity = getEntity(nextState);
+      expect(nextEntity).not.toBe(prevEntity);
+      expect(nextEntity).toBeDefined();
+
+      expect(nextEntity.title).not.toBe(prevEntity.title);
+      expect(nextEntity.title).toBe(partialResultAction.payload.title);
+
+      expect(nextEntity.content).toBe(prevEntity.content);
+      expect(nextEntity.content).not.toBe(partialResultAction.payload.content);
     })
   });
   it('mutate should never change results', () => {
