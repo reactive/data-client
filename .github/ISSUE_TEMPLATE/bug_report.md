@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-**React verion** (e.g., 16.8.5)
+**React version** (e.g., 16.8.5)
 
 **Concurrent mode** yes/no
 
