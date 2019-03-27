@@ -19,6 +19,7 @@ import {
   useResultCache,
   RestProvider,
   NetworkErrorBoundary,
+  NetworkError,
 } from './react-integration';
 import { Request as RequestType } from 'superagent';
 import { AbstractInstanceType } from './types';
@@ -49,6 +50,7 @@ export type SchemaBase<T> = SchemaBase<T>;
 export type SchemaOf<T> = SchemaOf<T>;
 export type AbstractInstanceType<T> = AbstractInstanceType<T>;
 
+export type NetworkError = NetworkError;
 export type Request = RequestType;
 
 export {
