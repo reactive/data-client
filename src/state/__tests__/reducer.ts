@@ -86,7 +86,7 @@ describe('reducer', () => {
     expect(newState.entities[ArticleResource.getKey()]).toEqual(expectedEntities);
 
   });
-  it('should set error in meta', () => {
+  it('should set error in meta for "receive"', () => {
     const id = 20;
     const error = new Error('hi');
     const action: ReceiveAction = {
@@ -107,6 +107,52 @@ describe('reducer', () => {
     };
     const newState = reducer(iniState, action);
     expect(newState).toMatchSnapshot();
+  });
+  it('should not modify state on error for "rpc"', () => {
+    const id = 20;
+    const error = new Error('hi');
+    const action: RPCAction = {
+      type: 'rpc',
+      payload: error,
+      meta: {
+        schema: ArticleResource.getEntitySchema(),
+        url: ArticleResource.url({ id }),
+      },
+      error: true,
+    };
+    const iniState = {
+      entities: {},
+      results: {},
+      meta: {},
+    };
+    const newState = reducer(iniState, action);
+    expect(newState).toEqual(iniState);
+  });
+  it('should not delete on error for "purge"', () => {
+    const id = 20;
+    const error = new Error('hi');
+    const action: PurgeAction = {
+      type: 'purge',
+      payload: error,
+      meta: {
+        schema: ArticleResource.getEntitySchema(),
+        url: ArticleResource.url({ id }),
+      },
+      error: true,
+    };
+    const iniState = {
+      entities: {
+        [ArticleResource.getKey()]: {
+          [id]: ArticleResource.fromJS({})
+        }
+      },
+      results: {
+        [ArticleResource.url({ id })]: id,
+      },
+      meta: {},
+    };
+    const newState = reducer(iniState, action);
+    expect(newState).toEqual(iniState);
   });
   it('other types should do nothing', () => {
     const action: FetchAction = {
