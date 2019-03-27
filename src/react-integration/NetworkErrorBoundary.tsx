@@ -34,7 +34,7 @@ export default class NetworkErrorBoundary<E extends NetworkError> extends React.
     }
   }
 
-  state: State = {};
+  state: State<E> = {};
 
   componentDidCatch(error: any) {
     // Note this is dependant on superagent errors. Should rethink this.
