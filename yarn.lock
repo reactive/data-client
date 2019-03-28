@@ -1714,10 +1714,10 @@ atob@^2.1.1:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-auto-changelog@^1.11.0:
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/auto-changelog/-/auto-changelog-1.11.0.tgz#c302aa534892ee77df242862cd21717f51b1c54f"
-  integrity sha512-WvG2WBbPPYqAkqlF2SSKktdQ0jhOG37GvybrJxUKv4uxp/KVzqC0+ptgbcUJAbaFyLGEApbTtGS36K5vSC2jGQ==
+auto-changelog@^1.12.0:
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/auto-changelog/-/auto-changelog-1.12.0.tgz#9195882fd2e46b867881124e2b225d0637840747"
+  integrity sha512-+V6Zd4xRBe8TvVCGaKD6w/pj+tb7Y+3kFApQKuxv5rnlZvAbBqz/x66qgZmeevlOWxBeoIsPuzl5o2r6sjSCiQ==
   dependencies:
     "@babel/polyfill" "^7.0.0"
     commander "^2.19.0"

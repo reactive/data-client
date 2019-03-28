@@ -9,34 +9,37 @@
     {{summary}}
   {{/if}}
 
-  {{! List commits with `Breaking change: ` somewhere in the message }}
-  {{#commit-list commits heading='### :boom: Breaking Change' message='\[breaking\]'}}
-    - {{subject}} [`{{shorthash}}`]({{href}})
-  {{/commit-list}}
+  {{#includeMerges}}
 
-  {{! List commits that add new features, but not those already listed above }}
-  {{#commit-list commits heading='### :rocket: New Feature' message='\[feature\]' exclude='\[breaking\]'}}
-    - {{subject}} [`{{shorthash}}`]({{href}})
-  {{/commit-list}}
+    {{! List commits with `Breaking change: ` somewhere in the message }}
+    {{#commit-list commits heading='### :boom: Breaking Change' message='\[breaking\]'}}
+      - {{subject}} [`{{shorthash}}`]({{href}})
+    {{/commit-list}}
 
-  {{#commit-list commits heading='### :nail_care: Enhancement' message='\[enhance\]' exclude='\[breaking\]'}}
-    - {{subject}} [`{{shorthash}}`]({{href}})
-  {{/commit-list}}
+    {{! List commits that add new features, but not those already listed above }}
+    {{#commit-list commits heading='### :rocket: New Feature' message='\[feature\]' exclude='\[breaking\]'}}
+      - {{subject}} [`{{shorthash}}`]({{href}})
+    {{/commit-list}}
 
-  {{#commit-list commits heading='### :bug: Bug Fix' message='\[fix\]' exclude='\[breaking\]'}}
-    - {{subject}} [`{{shorthash}}`]({{href}})
-  {{/commit-list}}
+    {{#commit-list commits heading='### :nail_care: Enhancement' message='\[enhance\]' exclude='\[breaking\]'}}
+      - {{subject}} [`{{shorthash}}`]({{href}})
+    {{/commit-list}}
 
-  {{#commit-list commits heading='### :package: Package' message='\[pkg\]' exclude='\[breaking\]'}}
-    - {{subject}} [`{{shorthash}}`]({{href}})
-  {{/commit-list}}
+    {{#commit-list commits heading='### :bug: Bug Fix' message='\[fix\]' exclude='\[breaking\]'}}
+      - {{subject}} [`{{shorthash}}`]({{href}})
+    {{/commit-list}}
 
-  {{#commit-list commits heading='### :house: Internal' message='\[internal\]' exclude='\[breaking\]'}}
-    - {{subject}} [`{{shorthash}}`]({{href}})
-  {{/commit-list}}
+    {{#commit-list commits heading='### :package: Package' message='\[pkg\]' exclude='\[breaking\]'}}
+      - {{subject}} [`{{shorthash}}`]({{href}})
+    {{/commit-list}}
 
-  {{#commit-list commits heading='### :memo: Documentation' message='\[docs\]' exclude='\[breaking\]'}}
-    - {{subject}} [`{{shorthash}}`]({{href}})
-  {{/commit-list}}
+    {{#commit-list commits heading='### :house: Internal' message='\[internal\]' exclude='\[breaking\]'}}
+      - {{subject}} [`{{shorthash}}`]({{href}})
+    {{/commit-list}}
 
+    {{#commit-list commits heading='### :memo: Documentation' message='\[docs\]' exclude='\[breaking\]'}}
+      - {{subject}} [`{{shorthash}}`]({{href}})
+    {{/commit-list}}
+
+  {{/includeMerges}}
 {{/each}}
