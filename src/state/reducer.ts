@@ -1,5 +1,5 @@
 import { normalize } from '../resource';
-import { mergeWith } from 'lodash';
+import { mergeWith, MergeWithCustomizer } from 'lodash';
 import { Resource } from '../resource';
 import { ActionTypes, State } from '../types';
 
@@ -13,11 +13,14 @@ type Writable<T> = {
   [P in keyof T]: NonNullable<T[P]>;
 }
 
-function resourceCustomizer(a: any, b: any): any {
+export const resourceCustomizer: MergeWithCustomizer = (a, b) => {
   if (a instanceof Resource && b instanceof Resource) {
     const Static = b.constructor as typeof Resource;
     return Static.merge(a, b);
   }
+
+  // use default merging in lodash.merge()
+  return undefined;
 }
 
 export default function reducer(state: State<Resource>, action: ActionTypes) {
