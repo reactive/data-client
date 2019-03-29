@@ -4,7 +4,9 @@ import { Middleware } from '../../types';
 
 // TODO: release as own library?
 /** Redux-middleware compatible integration for useReducer() */
-export default function createEnhancedReducerHook(...middlewares: Middleware[]) {
+export default function createEnhancedReducerHook(
+  ...middlewares: Middleware[]
+) {
   const useEnhancedReducer = <R extends React.Reducer<any, any>>(
     reducer: R,
     startingState: React.ReducerState<R>,

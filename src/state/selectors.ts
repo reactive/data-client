@@ -11,23 +11,25 @@ export function selectMeta<R = any>(state: State<R>, url: string) {
 
 export const makeResults = <R = any>(getUrl: (...args: any[]) => string) => (
   state: State<R>,
-  params: object
+  params: object,
 ) => state.results[getUrl(params)] || null;
 
 // TODO: there should honestly be a way to use the pre-existing normalizr object
 // to not even need this implementation
-function resultFinderFromSchema<S extends Schema>(schema: S): null | ((results: any) => SchemaOf<S>)
-{
+function resultFinderFromSchema<S extends Schema>(
+  schema: S,
+): null | ((results: any) => SchemaOf<S>) {
   const path = getEntityPath(schema);
-  if (path === false) throw new Error('Schema invalid - no path to entity found');
+  if (path === false)
+    throw new Error('Schema invalid - no path to entity found');
   if (path.length === 0) return null;
-  return (results) => {
+  return results => {
     let cur = results;
-    for(const p of path) {
+    for (const p of path) {
       cur = cur[p];
     }
     return cur;
-  }
+  };
 }
 
 function makeSchemaSelectorSimple<
@@ -61,15 +63,15 @@ S extends Schema
         if (Array.isArray(results)) {
           throw new Error(
             `url ${getUrl(
-              params
-            )} has list results when single result is expected`
+              params,
+            )} has list results when single result is expected`,
           );
         }
         if (typeof results === 'object') {
           throw new Error(
             `url ${getUrl(
-              params
-            )} has object results when single result is expected`
+              params,
+            )} has object results when single result is expected`,
           );
         }
       }
@@ -82,9 +84,11 @@ S extends Schema
         output = output.filter(entity => entity);
       }
       return output;
-    }
+    },
   );
   return ret;
 }
 
-export const makeSchemaSelector = memoize(makeSchemaSelectorSimple) as typeof makeSchemaSelectorSimple;
+export const makeSchemaSelector = memoize(
+  makeSchemaSelectorSimple,
+) as typeof makeSchemaSelectorSimple;

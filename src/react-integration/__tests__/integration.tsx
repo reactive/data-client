@@ -85,7 +85,7 @@ describe('<RestProvider />', () => {
     nock('http://test.com')
       .get(`/user/`)
       .reply(200, users);
-      manager = new MockNetworkManager();
+    manager = new MockNetworkManager();
   });
   afterEach(() => {
     manager.cleanup();
@@ -152,7 +152,7 @@ describe('<RestProvider />', () => {
     expect(article.title).toBe(payload.title);
 
     await del({}, payload);
-    expect(error).toBeDefined()
+    expect(error).toBeDefined();
     expect(error.status).toBe(404);
   });
   it('useResource() should throw errors on bad network', async () => {
@@ -172,9 +172,9 @@ describe('<RestProvider />', () => {
     }, fbmock);
     expect(fbmock).toBeCalled();
     try {
-      await (manager as any).fetched[url]
-    } catch(e) {}
-    expect(error).toBeDefined()
+      await (manager as any).fetched[url];
+    } catch (e) {}
+    expect(error).toBeDefined();
     expect(error.status).toBe(403);
   });
   it('should resolve parallel useResource() request', async () => {
@@ -190,7 +190,7 @@ describe('<RestProvider />', () => {
             id: payload.id,
           },
         ],
-        [UserResource.listRequest(), {}]
+        [UserResource.listRequest(), {}],
       );
     }, fbmock);
     expect(fbmock).toBeCalled();

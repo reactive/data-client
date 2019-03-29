@@ -13,7 +13,9 @@ export type PK = string | number;
 export type State<T> = Readonly<{
   entities: Readonly<{ [k: string]: { [id: string]: T } | undefined }>;
   results: Readonly<{ [url: string]: unknown | PK[] | PK | undefined }>;
-  meta: Readonly<{ [url: string]: { date: number; error?: Error; expiresAt: number } }>;
+  meta: Readonly<{
+    [url: string]: { date: number; error?: Error; expiresAt: number };
+  }>;
 }>;
 
 export interface ReceiveAction extends FSA<any, any> {

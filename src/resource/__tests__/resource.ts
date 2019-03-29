@@ -1,9 +1,6 @@
 import nock from 'nock';
 
-import {
-  CoolerArticleResource,
-  UserResource,
-} from '../../__tests__/common';
+import { CoolerArticleResource, UserResource } from '../../__tests__/common';
 import { Resource } from '..';
 
 describe('Resource', () => {
@@ -26,7 +23,7 @@ describe('Resource', () => {
   it('should convert class to string', () => {
     expect(CoolerArticleResource.toString()).toBeDefined();
     expect(CoolerArticleResource.toString()).toMatchInlineSnapshot(
-      `"CoolerArticleResource::http://test.com/article-cooler/"`
+      `"CoolerArticleResource::http://test.com/article-cooler/"`,
     );
   });
   it('should render url property', () => {
@@ -72,7 +69,7 @@ CoolerArticleResource {
     });
     it('does nothing with empty arg', () => {
       expect(CoolerArticleResource.merge(c, coolC)).toEqual(c);
-    })
+    });
   });
   describe('hasDefined()', () => {
     it('works ', () => {
@@ -82,12 +79,14 @@ CoolerArticleResource {
   });
   describe('toObjectDefined()', () => {
     it('works', () => {
-      expect(CoolerArticleResource.toObjectDefined(coolA)).toMatchInlineSnapshot(`
+      expect(CoolerArticleResource.toObjectDefined(coolA))
+        .toMatchInlineSnapshot(`
 Object {
   "title": "great",
 }
 `);
-      expect(CoolerArticleResource.toObjectDefined(coolB)).toMatchInlineSnapshot(`
+      expect(CoolerArticleResource.toObjectDefined(coolB))
+        .toMatchInlineSnapshot(`
 Object {
   "id": 5,
 }
@@ -111,12 +110,12 @@ Array [
   describe('listUrl', () => {
     it('should listUrl with an arg', () => {
       expect(CoolerArticleResource.listUrl({ author: 5 })).toBe(
-        'http://test.com/article-cooler/?author=5'
+        'http://test.com/article-cooler/?author=5',
       );
     });
     it('should listUrl with no args', () => {
       expect(CoolerArticleResource.listUrl({})).toBe(
-        'http://test.com/article-cooler/'
+        'http://test.com/article-cooler/',
       );
     });
     it('should sort consistently', () => {
@@ -127,9 +126,9 @@ Array [
           m: 'never',
           a: 'sometimes',
           c: 'again',
-        })
+        }),
       ).toBe(
-        'http://test.com/article-cooler/?a=sometimes&c=again&m=never&y=beta&z=alpha'
+        'http://test.com/article-cooler/?a=sometimes&c=again&m=never&y=beta&z=alpha',
       );
     });
   });
@@ -211,7 +210,7 @@ Array [
         'get',
         CoolerArticleResource.url({
           id: payload.id,
-        })
+        }),
       );
       expect(article).toBeDefined();
       if (!article) {
@@ -224,7 +223,7 @@ Array [
       const article = await CoolerArticleResource.fetch(
         'post',
         CoolerArticleResource.url(),
-        payload2
+        payload2,
       );
       expect(article).toMatchObject(payload2);
     });
@@ -233,7 +232,7 @@ Array [
         'delete',
         CoolerArticleResource.url({
           id: payload.id,
-        })
+        }),
       );
 
       expect(res).toEqual({});
@@ -242,7 +241,7 @@ Array [
       const response = await CoolerArticleResource.fetch(
         'put',
         CoolerArticleResource.url(payload),
-        CoolerArticleResource.fromJS(payload)
+        CoolerArticleResource.fromJS(payload),
       );
 
       expect(response).toEqual(putResponseBody);
@@ -251,7 +250,7 @@ Array [
       const response = await CoolerArticleResource.fetch(
         'patch',
         CoolerArticleResource.url({ id }),
-        patchPayload
+        patchPayload,
       );
 
       expect(response).toEqual(patchResponseBody);

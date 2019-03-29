@@ -2,7 +2,7 @@ import React from 'react';
 
 export interface NetworkError extends Error {
   status: number | undefined;
-  response?: { statusText?: string, body?: any };
+  response?: { statusText?: string; body?: any };
 }
 
 function isNetworkError(error: NetworkError | any): error is NetworkError {
@@ -16,10 +16,9 @@ interface Props<E extends NetworkError> {
 interface State<E extends NetworkError> {
   error?: E;
 }
-export default class NetworkErrorBoundary<E extends NetworkError> extends React.Component<
-  Props<E>,
-  State<E>
-  > {
+export default class NetworkErrorBoundary<
+  E extends NetworkError
+> extends React.Component<Props<E>, State<E>> {
   static defaultProps = {
     fallbackComponent: ({ error }: { error: NetworkError }) => (
       <div>

@@ -6,7 +6,7 @@ declare namespace schemas {
   export class Array<T = any> {
     constructor(
       definition: Schema<T>,
-      schemaAttribute?: string | SchemaFunction
+      schemaAttribute?: string | SchemaFunction,
     );
     define(definition: Schema): void;
   }
@@ -33,7 +33,7 @@ declare namespace schemas {
   export class Union<T> {
     constructor(
       definition: Schema<T>,
-      schemaAttribute?: string | SchemaFunction
+      schemaAttribute?: string | SchemaFunction,
     );
     define(definition: Schema): void;
   }
@@ -41,7 +41,7 @@ declare namespace schemas {
   export class Values<T = any> {
     constructor(
       definition: Schema<T>,
-      schemaAttribute?: string | SchemaFunction
+      schemaAttribute?: string | SchemaFunction,
     );
     define(definition: Schema): void;
   }
@@ -66,7 +66,7 @@ export type SchemaBase<T = any> =
 
 export function normalize<T>(
   data: any,
-  schema: Schema<T>
+  schema: Schema<T>,
 ): {
   entities: { [key: string]: { [key: string]: T } };
   result: any;

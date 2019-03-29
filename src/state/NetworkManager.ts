@@ -1,12 +1,10 @@
 import { memoize } from 'lodash';
-import { FetchAction, ReceiveAction,  } from '../types';
+import { FetchAction, ReceiveAction } from '../types';
 
-export const RIC: (cb: (...args: any[]) => void, options: any) => void = (
+export const RIC: (cb: (...args: any[]) => void, options: any) => void =
   typeof (global as any).requestIdleCallback === 'function'
     ? (global as any).requestIdleCallback
-    : (cb) => global.setTimeout(cb, 0)
-  );
-
+    : cb => global.setTimeout(cb, 0);
 
 /** Handles all async network dispatches
  *
@@ -32,7 +30,7 @@ export default class NetworkManager {
   /** Ensures all promises are completed by rejecting remaining. */
   cleanup() {
     for (const k in this.rejectors) {
-      this.rejectors[k](new Error('Cleaning up Network Manager'))
+      this.rejectors[k](new Error('Cleaning up Network Manager'));
     }
   }
 
@@ -53,7 +51,14 @@ export default class NetworkManager {
    */
   protected handleFetch(action: FetchAction, dispatch: React.Dispatch<any>) {
     const fetch = action.payload;
-    const { schema, url, responseType, throttle, resolve, reject } = action.meta;
+    const {
+      schema,
+      url,
+      responseType,
+      throttle,
+      resolve,
+      reject,
+    } = action.meta;
     const deferedFetch = () =>
       fetch()
         .then(data => {
@@ -106,8 +111,7 @@ export default class NetworkManager {
         let promiseHandler: (value?: any) => void;
         if (action.error) {
           promiseHandler = this.rejectors[action.meta.url];
-        }
-        else {
+        } else {
           promiseHandler = this.resolvers[action.meta.url];
         }
         promiseHandler(action.payload);
@@ -131,28 +135,28 @@ export default class NetworkManager {
     return <R extends React.Reducer<any, any>>({
       dispatch,
     }: {
-      dispatch: React.Dispatch<React.ReducerAction<R>>;
+    dispatch: React.Dispatch<React.ReducerAction<R>>;
     }) => {
       return (next: React.Dispatch<React.ReducerAction<R>>) => (
         action: React.ReducerAction<R>,
       ) => {
         switch (action.type) {
-          case 'fetch':
-            this.handleFetch(action, dispatch);
-            return;
-          case 'purge':
-          case 'rpc':
-          case 'receive':
-            if (action.meta.url in this.fetched) {
-              this.handleReceive(action);
-            }
-            // fallthrough is on purpose
-          default:
-            return next(action);
+        case 'fetch':
+          this.handleFetch(action, dispatch);
+          return;
+        case 'purge':
+        case 'rpc':
+        case 'receive':
+          if (action.meta.url in this.fetched) {
+            this.handleReceive(action);
+          }
+          // fallthrough is on purpose
+        default:
+          return next(action);
         }
       };
     };
-  })
+  });
 
   /** Ensures only one request for a given url is in flight at any time
    *

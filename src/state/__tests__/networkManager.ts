@@ -15,12 +15,17 @@ describe('NetworkManager', () => {
   describe('cleanup()', () => {
     it('should reject current promises', async () => {
       let rejection: any;
-      let promise = (manager as any).throttle(
-        'a',
-        () => new Promise(resolve => {
-          setTimeout(resolve, 1000);
-        })
-      ).catch((e: any) => { rejection = e });;
+      let promise = (manager as any)
+        .throttle(
+          'a',
+          () =>
+            new Promise(resolve => {
+              setTimeout(resolve, 1000);
+            }),
+        )
+        .catch((e: any) => {
+          rejection = e;
+        });
       manager.cleanup();
       await promise;
       expect(rejection).toBeDefined();
@@ -33,6 +38,7 @@ describe('RequestIdleCallback', () => {
     const requestIdle = (global as any).requestIdleCallback;
     (global as any).requestIdleCallback = undefined;
     jest.resetModules();
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { RIC } = require('../NetworkManager');
     const fn = jest.fn();
     jest.useFakeTimers();
@@ -40,5 +46,5 @@ describe('RequestIdleCallback', () => {
     jest.runAllTimers();
     expect(fn).toBeCalled();
     (global as any).requestIdleCallback = requestIdle;
-  })
-})
+  });
+});

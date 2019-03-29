@@ -40,11 +40,15 @@ export class UserResource extends Resource {
   }
   static urlRoot = 'http://test.com/user/';
 }
-class OtherArticleResource extends CoolerArticleResource {
-
-}
+class OtherArticleResource extends CoolerArticleResource {}
 export class PaginatedArticleResource extends OtherArticleResource {
-  static listRequest<T extends typeof Resource>(this: T): ReadShape<SchemaArray<AbstractInstanceType<T>>, Readonly<object>, Readonly<object>> {
+  static listRequest<T extends typeof Resource>(
+    this: T,
+  ): ReadShape<
+    SchemaArray<AbstractInstanceType<T>>,
+    Readonly<object>,
+    Readonly<object>
+  > {
     return {
       ...super.listRequest(),
       schema: { results: [this.getEntitySchema()] },
@@ -55,11 +59,13 @@ export class PaginatedArticleResource extends OtherArticleResource {
 export class NestedArticleResource extends OtherArticleResource {
   readonly user: number | null = null;
 
-  static getEntitySchema<T extends typeof Resource>(this: T): schemas.Entity<AbstractInstanceType<T>> {
+  static getEntitySchema<T extends typeof Resource>(
+    this: T,
+  ): schemas.Entity<AbstractInstanceType<T>> {
     const schema = super.getEntitySchema();
     schema.define({
       user: UserResource.getEntitySchema(),
-    })
+    });
     return schema as any;
   }
 }
