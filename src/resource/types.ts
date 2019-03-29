@@ -40,7 +40,7 @@ export interface ReadShape<
 }
 
 export function isDeleteShape(
-  shape: RequestShape<any, any, any>
+  shape: RequestShape<any, any, any>,
 ): shape is DeleteShape<any, any> {
   return shape.type === 'delete';
 }

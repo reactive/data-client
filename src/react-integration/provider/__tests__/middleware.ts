@@ -54,7 +54,7 @@ describe('createEnhancedReducerHook', () => {
       const useEnhancedReducer = createEnhancedReducerHook(logger);
       [state, dispatch] = useEnhancedReducer(
         (state, action) => ({ ...state, omlet: action.payload }),
-        { eggs: 'bacon' }
+        { eggs: 'bacon' },
       );
     });
     act(() => {
@@ -78,7 +78,7 @@ describe('createEnhancedReducerHook', () => {
     testHook(() => {
       const useEnhancedReducer = createEnhancedReducerHook(
         logger,
-        dispatchingMiddleware
+        dispatchingMiddleware,
       );
       [state, dispatch] = useEnhancedReducer(state => state, {});
     });

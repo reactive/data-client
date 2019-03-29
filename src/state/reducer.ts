@@ -50,7 +50,7 @@ export default function reducer(state: State<Resource>, action: ActionTypes) {
       entities: mergeWith(
         { ...state.entities },
         normalized.entities,
-        resourceCustomizer
+        resourceCustomizer,
       ),
       results: {
         ...state.results,
@@ -72,7 +72,7 @@ export default function reducer(state: State<Resource>, action: ActionTypes) {
       entities: mergeWith(
         { ...state.entities },
         entities,
-        resourceCustomizer
+        resourceCustomizer,
       ),
     };
   case 'purge':

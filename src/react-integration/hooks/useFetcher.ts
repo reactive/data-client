@@ -49,7 +49,7 @@ S extends Schema
       });
       return promise;
     },
-    [fetch, schema, type, getUrl, responseType, throttle, dispatch]
+    [fetch, schema, type, getUrl, responseType, throttle, dispatch],
   );
   return fetchDispatcher;
 }

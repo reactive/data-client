@@ -29,7 +29,7 @@ describe('resourceCustomizer', () => {
         id,
         title: 'hello',
         content: 'this is the content',
-      })
+      }),
     );
   });
   it('should handle merging of Resource instances when used with lodash.mergeWith()', () => {
@@ -51,14 +51,14 @@ describe('resourceCustomizer', () => {
 
     const merged = mergeWith({ ...entitiesA }, entitiesB, resourceCustomizer);
     expect(merged[ArticleResource.getKey()][id]).toBeInstanceOf(
-      ArticleResource
+      ArticleResource,
     );
     expect(merged[ArticleResource.getKey()][id]).toEqual(
       ArticleResource.fromJS({
         id,
         title: 'hello',
         content: 'this is the content',
-      })
+      }),
     );
   });
   it('should not affect merging of plain objects when used with lodash.mergeWith()', () => {
@@ -89,7 +89,7 @@ describe('resourceCustomizer', () => {
 
     const merged = mergeWith({ ...entitiesA }, entitiesB, resourceCustomizer);
     expect(merged[ArticleResource.getKey()][42]).toBe(
-      entitiesA[ArticleResource.getKey()][42]
+      entitiesA[ArticleResource.getKey()][42],
     );
   });
 });
@@ -201,7 +201,7 @@ describe('reducer', () => {
     const expectedEntities = { ...iniState.entities[ArticleResource.getKey()] };
     delete expectedEntities['20'];
     expect(newState.entities[ArticleResource.getKey()]).toEqual(
-      expectedEntities
+      expectedEntities,
     );
   });
   it('should set error in meta for "receive"', () => {

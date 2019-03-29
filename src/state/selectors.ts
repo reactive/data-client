@@ -11,13 +11,13 @@ export function selectMeta<R = any>(state: State<R>, url: string) {
 
 export const makeResults = <R = any>(getUrl: (...args: any[]) => string) => (
   state: State<R>,
-  params: object
+  params: object,
 ) => state.results[getUrl(params)] || null;
 
 // TODO: there should honestly be a way to use the pre-existing normalizr object
 // to not even need this implementation
 function resultFinderFromSchema<S extends Schema>(
-  schema: S
+  schema: S,
 ): null | ((results: any) => SchemaOf<S>) {
   const path = getEntityPath(schema);
   if (path === false)
@@ -37,7 +37,7 @@ Params extends Readonly<object>,
 S extends Schema
 >(
   schema: S,
-  getUrl: (params: Params) => string
+  getUrl: (params: Params) => string,
 ): (state: State<any>, params: Params) => SchemaOf<typeof schema> | null {
   const getResultList = resultFinderFromSchema(schema);
   const selectResults = makeResults<any>(getUrl);
@@ -63,15 +63,15 @@ S extends Schema
         if (Array.isArray(results)) {
           throw new Error(
             `url ${getUrl(
-              params
-            )} has list results when single result is expected`
+              params,
+            )} has list results when single result is expected`,
           );
         }
         if (typeof results === 'object') {
           throw new Error(
             `url ${getUrl(
-              params
-            )} has object results when single result is expected`
+              params,
+            )} has object results when single result is expected`,
           );
         }
       }
@@ -84,11 +84,11 @@ S extends Schema
         output = output.filter(entity => entity);
       }
       return output;
-    }
+    },
   );
   return ret;
 }
 
 export const makeSchemaSelector = memoize(
-  makeSchemaSelectorSimple
+  makeSchemaSelectorSimple,
 ) as typeof makeSchemaSelectorSimple;

@@ -35,7 +35,7 @@ describe('<RestProvider />', () => {
     rerender(
       <DispatchContext.Provider value={() => null}>
         {chil}
-      </DispatchContext.Provider>
+      </DispatchContext.Provider>,
     );
     expect(curDisp).not.toBe(dispatch);
     expect(count).toBe(2);

@@ -43,7 +43,7 @@ export class UserResource extends Resource {
 class OtherArticleResource extends CoolerArticleResource {}
 export class PaginatedArticleResource extends OtherArticleResource {
   static listRequest<T extends typeof Resource>(
-    this: T
+    this: T,
   ): ReadShape<
     SchemaArray<AbstractInstanceType<T>>,
     Readonly<object>,
@@ -60,7 +60,7 @@ export class NestedArticleResource extends OtherArticleResource {
   readonly user: number | null = null;
 
   static getEntitySchema<T extends typeof Resource>(
-    this: T
+    this: T,
   ): schemas.Entity<AbstractInstanceType<T>> {
     const schema = super.getEntitySchema();
     schema.define({

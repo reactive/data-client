@@ -21,7 +21,7 @@ export default class NetworkManager {
   readonly errorExpiryLength: number;
   constructor(
     dataExpiryLength: number = 60000,
-    errorExpiryLength: number = 1000
+    errorExpiryLength: number = 1000,
   ) {
     this.dataExpiryLength = dataExpiryLength;
     this.errorExpiryLength = errorExpiryLength;
@@ -138,7 +138,7 @@ export default class NetworkManager {
     dispatch: React.Dispatch<React.ReducerAction<R>>;
     }) => {
       return (next: React.Dispatch<React.ReducerAction<R>>) => (
-        action: React.ReducerAction<R>
+        action: React.ReducerAction<R>,
       ) => {
         switch (action.type) {
         case 'fetch':

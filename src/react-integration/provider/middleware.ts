@@ -9,7 +9,7 @@ export default function createEnhancedReducerHook(
 ) {
   const useEnhancedReducer = <R extends React.Reducer<any, any>>(
     reducer: R,
-    startingState: React.ReducerState<R>
+    startingState: React.ReducerState<R>,
   ): [React.ReducerState<R>, React.Dispatch<React.ReducerAction<R>>] => {
     const [state, realDispatch] = useReducer(reducer, startingState);
 
@@ -17,7 +17,7 @@ export default function createEnhancedReducerHook(
       let dispatch: React.Dispatch<React.ReducerAction<R>> = () => {
         throw new Error(
           `Dispatching while constructing your middleware is not allowed. ` +
-            `Other middleware would not be applied to this dispatch.`
+            `Other middleware would not be applied to this dispatch.`,
         );
       };
       // closure here around dispatch allows us to change it after middleware is constructed

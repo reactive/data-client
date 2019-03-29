@@ -150,7 +150,7 @@ describe('selectors', () => {
     it('should be null when state is partial', async () => {
       const { entities } = normalize(
         articles,
-        CoolerArticleResource.listRequest().schema
+        CoolerArticleResource.listRequest().schema,
       );
       const state = { entities, results: {}, meta: {} };
       const selected = listSelect(state, {});
@@ -160,7 +160,7 @@ describe('selectors', () => {
     it('should find value when state exists', async () => {
       const { entities, result } = normalize(
         articles,
-        CoolerArticleResource.listRequest().schema
+        CoolerArticleResource.listRequest().schema,
       );
       const state = {
         entities,
@@ -176,7 +176,7 @@ describe('selectors', () => {
     it('should simply ignore missing entities when their id is found in results', async () => {
       const { entities, result } = normalize(
         articles,
-        CoolerArticleResource.listRequest().schema
+        CoolerArticleResource.listRequest().schema,
       );
       delete entities[CoolerArticleResource.getKey()]['5'];
       const state = {
@@ -194,7 +194,7 @@ describe('selectors', () => {
     it('should work with paginated results', async () => {
       const { entities, result } = normalize(
         { results: articles },
-        PaginatedArticleResource.listRequest().schema
+        PaginatedArticleResource.listRequest().schema,
       );
       const state = {
         entities,
@@ -212,7 +212,10 @@ describe('selectors', () => {
     it('should throw with invalid schemas', async () => {
       const shape = PaginatedArticleResource.listRequest();
       expect(() =>
-        makeSchemaSelector({ happy: { go: { lucky: 5 } } } as any, shape.getUrl)
+        makeSchemaSelector(
+          { happy: { go: { lucky: 5 } } } as any,
+          shape.getUrl,
+        ),
       ).toThrow();
     });
   });

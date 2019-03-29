@@ -17,7 +17,7 @@ D extends object
 >(
   { getUrl, fetch }: ReadShape<any, Params, any>,
   params: Params | null,
-  defaults?: D
+  defaults?: D,
 ): D extends undefined
   ? Resolved<ReturnType<typeof fetch>> | null
   : Readonly<D> {

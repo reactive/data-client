@@ -11,7 +11,7 @@ S extends Schema
 >(
   selectShape: ReadShape<S, Params, Body>,
   params: Params | null,
-  resource: RequestResource<typeof selectShape> | null
+  resource: RequestResource<typeof selectShape> | null,
 ) {
   const meta = useMeta(selectShape, params);
   if (!resource) {
@@ -19,7 +19,7 @@ S extends Schema
     if (!meta.error) {
       // this means we probably deleted the entity found in this result
       const err: any = new Error(
-        `Resource not found ${params ? selectShape.getUrl(params) : ''}`
+        `Resource not found ${params ? selectShape.getUrl(params) : ''}`,
       );
       err.status = 404;
       throw err;
@@ -56,7 +56,7 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
   ...resourceList: A
 ) {
   let promises = resourceList.map(([select, params]) =>
-    useRetrieve(select, params)
+    useRetrieve(select, params),
   );
   const resources = resourceList.map(
     <
@@ -64,7 +64,7 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
     Body extends Readonly<object> | void,
     S extends Schema
     >([select, params]: ResourceArgs<S, Params, Body>) =>
-      useCache(select, params)
+      useCache(select, params),
   );
   // only wait on promises without results
   promises = promises.filter((p, i) => p && !resources[i]);
@@ -94,7 +94,7 @@ export default function useResource<
   S2 extends Schema
 >(
   v1: [ReadShape<S1, P1, B1>, P1 | null],
-  v2: [ReadShape<S2, P2, B2>, P2 | null]
+  v2: [ReadShape<S2, P2, B2>, P2 | null],
 ): [SchemaOf<S1>, SchemaOf<S2>];
 export default function useResource<
   P1 extends Readonly<object>,
@@ -109,7 +109,7 @@ export default function useResource<
 >(
   v1: [ReadShape<S1, P1, B1>, P1 | null],
   v2: [ReadShape<S2, P2, B2>, P2 | null],
-  v3: [ReadShape<S3, P3, B3>, P3 | null]
+  v3: [ReadShape<S3, P3, B3>, P3 | null],
 ): [SchemaOf<S1>, SchemaOf<S2>, SchemaOf<S3>];
 export default function useResource<
   P1 extends Readonly<object>,
@@ -128,7 +128,7 @@ export default function useResource<
   v1: [ReadShape<S1, P1, B1>, P1 | null],
   v2: [ReadShape<S2, P2, B2>, P2 | null],
   v3: [ReadShape<S3, P3, B3>, P3 | null],
-  v4: [ReadShape<S4, P4, B4>, P4 | null]
+  v4: [ReadShape<S4, P4, B4>, P4 | null],
 ): [SchemaOf<S1>, SchemaOf<S2>, SchemaOf<S3>, SchemaOf<S4>];
 export default function useResource<
   P1 extends Readonly<object>,
@@ -151,7 +151,7 @@ export default function useResource<
   v2: [ReadShape<S2, P2, B2>, P2 | null],
   v3: [ReadShape<S3, P3, B3>, P3 | null],
   v4: [ReadShape<S4, P4, B4>, P4 | null],
-  v5: [ReadShape<S5, P5, B5>, P5 | null]
+  v5: [ReadShape<S5, P5, B5>, P5 | null],
 ): [SchemaOf<S1>, SchemaOf<S2>, SchemaOf<S3>, SchemaOf<S4>, SchemaOf<S5>];
 export default function useResource<
 Params extends Readonly<object>,
