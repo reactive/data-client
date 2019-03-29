@@ -27,7 +27,7 @@ jobs:
           key: v2-dependencies-{{ checksum "yarn.lock" }}
 
       # run tests!
-      - run: yarn run lint
+      - run: yarn run lint src
       - run: yarn run test:ci
       - run: yarn run build
 

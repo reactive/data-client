@@ -7,8 +7,8 @@
   },
   "rules": {
     "react-hooks/rules-of-hooks": "error",
-    "indent": "off",
-    "@typescript-eslint/indent": ["error", 2],
+    "indent": ["error", 2],
+    "@typescript-eslint/indent": ["off", 2],  // this breaks with 'as' https://github.com/babel/babel-eslint/issues/530
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-explicit-any": "off"
   }
