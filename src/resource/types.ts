@@ -2,9 +2,9 @@ import { schemas, Schema, SchemaArray, SchemaBase } from './normal';
 
 /** Defines the shape of a network request */
 export interface RequestShape<
-S extends Schema,
-Params extends Readonly<object> = Readonly<object>,
-Body extends Readonly<object> | void = Readonly<object> | undefined,
+  S extends Schema,
+  Params extends Readonly<object> = Readonly<object>,
+  Body extends Readonly<object> | void = Readonly<object> | undefined
 > {
   readonly type: 'read' | 'mutate' | 'delete';
   fetch(url: string, body: Body): Promise<any>;
@@ -14,8 +14,8 @@ Body extends Readonly<object> | void = Readonly<object> | undefined,
 
 /** Purges a value from the server */
 export interface DeleteShape<
-S extends schemas.Entity,
-Params extends Readonly<object> = Readonly<object>,
+  S extends schemas.Entity,
+  Params extends Readonly<object> = Readonly<object>
 > extends RequestShape<S, Params, any> {
   readonly type: 'delete';
   readonly schema: S;
@@ -23,18 +23,18 @@ Params extends Readonly<object> = Readonly<object>,
 
 /** To change values on the server */
 export interface MutateShape<
-S extends Schema,
-Params extends Readonly<object> = Readonly<object>,
-Body extends Readonly<object> | void = Readonly<object> | undefined,
+  S extends Schema,
+  Params extends Readonly<object> = Readonly<object>,
+  Body extends Readonly<object> | void = Readonly<object> | undefined
 > extends RequestShape<S, Params, Body> {
   readonly type: 'mutate';
 }
 
 /** For retrieval requests */
 export interface ReadShape<
-S extends Schema,
-Params extends Readonly<object> = Readonly<object>,
-Body extends Readonly<object> | void = Readonly<object> | undefined,
+  S extends Schema,
+  Params extends Readonly<object> = Readonly<object>,
+  Body extends Readonly<object> | void = Readonly<object> | undefined
 > extends RequestShape<S, Params, Body> {
   readonly type: 'read';
 }
@@ -71,7 +71,5 @@ export function isEntity<T>(schema: Schema): schema is schemas.Entity<T> {
 export type SchemaOf<T> = T extends SchemaArray<infer R>
   ? R[]
   : T extends SchemaBase<infer R>
-    ? R
-    : never;
-
-
+  ? R
+  : never;

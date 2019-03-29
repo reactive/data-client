@@ -16,18 +16,20 @@ export const makeResults = <R = any>(getUrl: (...args: any[]) => string) => (
 
 // TODO: there should honestly be a way to use the pre-existing normalizr object
 // to not even need this implementation
-function resultFinderFromSchema<S extends Schema>(schema: S): null | ((results: any) => SchemaOf<S>)
-{
+function resultFinderFromSchema<S extends Schema>(
+  schema: S
+): null | ((results: any) => SchemaOf<S>) {
   const path = getEntityPath(schema);
-  if (path === false) throw new Error('Schema invalid - no path to entity found');
+  if (path === false)
+    throw new Error('Schema invalid - no path to entity found');
   if (path.length === 0) return null;
-  return (results) => {
+  return results => {
     let cur = results;
-    for(const p of path) {
+    for (const p of path) {
       cur = cur[p];
     }
     return cur;
-  }
+  };
 }
 
 function makeSchemaSelectorSimple<
@@ -35,7 +37,7 @@ Params extends Readonly<object>,
 S extends Schema
 >(
   schema: S,
-  getUrl: (params: Params) => string,
+  getUrl: (params: Params) => string
 ): (state: State<any>, params: Params) => SchemaOf<typeof schema> | null {
   const getResultList = resultFinderFromSchema(schema);
   const selectResults = makeResults<any>(getUrl);
@@ -87,4 +89,6 @@ S extends Schema
   return ret;
 }
 
-export const makeSchemaSelector = memoize(makeSchemaSelectorSimple) as typeof makeSchemaSelectorSimple;
+export const makeSchemaSelector = memoize(
+  makeSchemaSelectorSimple
+) as typeof makeSchemaSelectorSimple;

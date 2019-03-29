@@ -9,11 +9,12 @@ interface ProviderProps {
   manager?: NetworkManager;
 }
 /** Controller managing state of the REST cache and coordinating network requests. */
-export default function RestProvider({ children, manager = new NetworkManager() }: ProviderProps) {
+export default function RestProvider({
+  children,
+  manager = new NetworkManager(),
+}: ProviderProps) {
   // TODO: option to use redux
-  const useEnhancedReducer = createEnhancedReducerHook(
-    manager.getMiddleware()
-  );
+  const useEnhancedReducer = createEnhancedReducerHook(manager.getMiddleware());
   const [state, dispatch] = useEnhancedReducer(masterReducer, initialState);
 
   // if we change out the manager we need to make sure all its

@@ -20,7 +20,7 @@ import {
 
 export type DeleteShape<
 S extends schemas.Entity,
-Params extends Readonly<object> = Readonly<object>,
+Params extends Readonly<object> = Readonly<object>
 > = DeleteShape<S, Params>;
 export type MutateShape<
 S extends Schema,

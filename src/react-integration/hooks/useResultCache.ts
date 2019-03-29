@@ -18,7 +18,9 @@ D extends object
   { getUrl, fetch }: ReadShape<any, Params, any>,
   params: Params | null,
   defaults?: D
-): D extends undefined ? Resolved<ReturnType<typeof fetch>> | null : Readonly<D> {
+): D extends undefined
+  ? Resolved<ReturnType<typeof fetch>> | null
+  : Readonly<D> {
   const state = useContext(StateContext);
   const resultSelector = useMemo(() => makeResults((p: Params) => getUrl(p)), [
     getUrl,

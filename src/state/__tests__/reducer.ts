@@ -1,12 +1,25 @@
-import { ArticleResource, PaginatedArticleResource } from '../../__tests__/common';
+import {
+  ArticleResource,
+  PaginatedArticleResource,
+} from '../../__tests__/common';
 import reducer, { resourceCustomizer } from '../reducer';
-import { FetchAction, RPCAction, ReceiveAction, PurgeAction, State } from '../../types';
+import {
+  FetchAction,
+  RPCAction,
+  ReceiveAction,
+  PurgeAction,
+  State,
+} from '../../types';
 import { mergeWith } from 'lodash';
 
 describe('resourceCustomizer', () => {
   it('should merge two Resource instances', () => {
     const id = 20;
-    const a = ArticleResource.fromJS({ id, title: 'hi', content: 'this is the content' });
+    const a = ArticleResource.fromJS({
+      id,
+      title: 'hi',
+      content: 'this is the content',
+    });
     const b = ArticleResource.fromJS({ id, title: 'hello' });
 
     const merged = resourceCustomizer(a, b);
@@ -15,49 +28,69 @@ describe('resourceCustomizer', () => {
       ArticleResource.fromJS({
         id,
         title: 'hello',
-        content: 'this is the content'
+        content: 'this is the content',
       })
-    )
+    );
   });
   it('should handle merging of Resource instances when used with lodash.mergeWith()', () => {
     const id = 20;
     const entitiesA = {
       [ArticleResource.getKey()]: {
-        [id]: ArticleResource.fromJS({ id, title: 'hi', content: 'this is the content' }),
+        [id]: ArticleResource.fromJS({
+          id,
+          title: 'hi',
+          content: 'this is the content',
+        }),
       },
-    }
+    };
     const entitiesB = {
       [ArticleResource.getKey()]: {
         [id]: ArticleResource.fromJS({ id, title: 'hello' }),
       },
-    }
+    };
 
     const merged = mergeWith({ ...entitiesA }, entitiesB, resourceCustomizer);
-    expect(merged[ArticleResource.getKey()][id]).toBeInstanceOf(ArticleResource);
+    expect(merged[ArticleResource.getKey()][id]).toBeInstanceOf(
+      ArticleResource
+    );
     expect(merged[ArticleResource.getKey()][id]).toEqual(
       ArticleResource.fromJS({
         id,
         title: 'hello',
-        content: 'this is the content'
+        content: 'this is the content',
       })
-    )
+    );
   });
   it('should not affect merging of plain objects when used with lodash.mergeWith()', () => {
     const id = 20;
     const entitiesA = {
       [ArticleResource.getKey()]: {
-        [id]: ArticleResource.fromJS({ id, title: 'hi', content: 'this is the content' }),
-        [42]: ArticleResource.fromJS({ id: 42, title: 'dont touch me', content: 'this is mine' }),
+        [id]: ArticleResource.fromJS({
+          id,
+          title: 'hi',
+          content: 'this is the content',
+        }),
+        [42]: ArticleResource.fromJS({
+          id: 42,
+          title: 'dont touch me',
+          content: 'this is mine',
+        }),
       },
-    }
+    };
     const entitiesB = {
       [ArticleResource.getKey()]: {
-        [id]: ArticleResource.fromJS({ id, title: 'hi', content: 'this is the content' }),
+        [id]: ArticleResource.fromJS({
+          id,
+          title: 'hi',
+          content: 'this is the content',
+        }),
       },
-    }
+    };
 
     const merged = mergeWith({ ...entitiesA }, entitiesB, resourceCustomizer);
-    expect(merged[ArticleResource.getKey()][42]).toBe(entitiesA[ArticleResource.getKey()][42]);
+    expect(merged[ArticleResource.getKey()][42]).toBe(
+      entitiesA[ArticleResource.getKey()][42]
+    );
   });
 });
 
@@ -86,18 +119,24 @@ describe('reducer', () => {
     const newState = reducer(iniState, action);
     it('should update state correctly', () => {
       expect(newState).toMatchSnapshot();
-    })
+    });
     it('should overwrite existing entity', () => {
-      const getEntity = (state: any): ArticleResource => state.entities[ArticleResource.getKey()][`${ArticleResource.pk(action.payload)}`]
+      const getEntity = (state: any): ArticleResource =>
+        state.entities[ArticleResource.getKey()][
+          `${ArticleResource.pk(action.payload)}`
+        ];
       const prevEntity = getEntity(newState);
       expect(prevEntity).toBeDefined();
       const nextState = reducer(newState, action);
       const nextEntity = getEntity(nextState);
       expect(nextEntity).not.toBe(prevEntity);
       expect(nextEntity).toBeDefined();
-    })
+    });
     it('should merge partial entity with existing entity', () => {
-      const getEntity = (state: any): ArticleResource => state.entities[ArticleResource.getKey()][`${ArticleResource.pk(action.payload)}`]
+      const getEntity = (state: any): ArticleResource =>
+        state.entities[ArticleResource.getKey()][
+          `${ArticleResource.pk(action.payload)}`
+        ];
       const prevEntity = getEntity(newState);
       expect(prevEntity).toBeDefined();
       const nextState = reducer(newState, partialResultAction);
@@ -110,7 +149,7 @@ describe('reducer', () => {
 
       expect(nextEntity.content).toBe(prevEntity.content);
       expect(nextEntity.content).not.toBe(partialResultAction.payload.content);
-    })
+    });
   });
   it('mutate should never change results', () => {
     const id = 20;
@@ -135,7 +174,7 @@ describe('reducer', () => {
     const id = 20;
     const action: PurgeAction = {
       type: 'purge',
-      payload: { },
+      payload: {},
       meta: {
         schema: ArticleResource.getEntitySchema(),
         url: id.toString(),
@@ -149,7 +188,7 @@ describe('reducer', () => {
           '25': ArticleResource.fromJS({ id: 25 }),
         },
         [PaginatedArticleResource.getKey()]: {
-          'hi': PaginatedArticleResource.fromJS({id: 5}),
+          hi: PaginatedArticleResource.fromJS({ id: 5 }),
         },
         '5': undefined,
       },
@@ -159,10 +198,11 @@ describe('reducer', () => {
     const newState = reducer(iniState, action);
     expect(newState.results).toBe(iniState.results);
     expect(newState.meta).toBe(iniState.meta);
-    const expectedEntities = {...iniState.entities[ArticleResource.getKey()]};
+    const expectedEntities = { ...iniState.entities[ArticleResource.getKey()] };
     delete expectedEntities['20'];
-    expect(newState.entities[ArticleResource.getKey()]).toEqual(expectedEntities);
-
+    expect(newState.entities[ArticleResource.getKey()]).toEqual(
+      expectedEntities
+    );
   });
   it('should set error in meta for "receive"', () => {
     const id = 20;
@@ -221,8 +261,8 @@ describe('reducer', () => {
     const iniState = {
       entities: {
         [ArticleResource.getKey()]: {
-          [id]: ArticleResource.fromJS({})
-        }
+          [id]: ArticleResource.fromJS({}),
+        },
       },
       results: {
         [ArticleResource.url({ id })]: id,

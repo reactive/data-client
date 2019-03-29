@@ -2,36 +2,38 @@ import request from 'superagent';
 import { memoize } from 'lodash';
 import { AbstractInstanceType, Method } from '../types';
 
-import { ReadShape, MutateShape, DeleteShape } from './types'
-import { schemas, SchemaBase, SchemaArray } from './normal'
+import { ReadShape, MutateShape, DeleteShape } from './types';
+import { schemas, SchemaBase, SchemaArray } from './normal';
 
-const getEntitySchema: <T extends typeof Resource>(M: T) => schemas.Entity<AbstractInstanceType<T>> = memoize(
+const getEntitySchema: <T extends typeof Resource>(
+  M: T
+) => schemas.Entity<AbstractInstanceType<T>> = memoize(
   <T extends typeof Resource>(M: T) => {
-    const e =  new schemas.Entity(
+    const e = new schemas.Entity(
       M.getKey(),
       {},
       {
         idAttribute: (value, parent, key) => {
           return (M.pk(value) || key).toString();
         },
-        processStrategy: (value) => {
+        processStrategy: value => {
           return M.fromJS(value);
         },
         mergeStrategy: (a, b) => b,
-      },
+      }
     );
     // TODO: long term figure out a plan to actually denormalize
     (e as any).denormalize = function denormalize(entity: any) {
       return entity;
-    }
+    };
     return e;
-  },
+  }
 ) as any;
 
 const DefinedMembersKey = Symbol('Defined Members');
 type Filter<T, U> = T extends U ? T : never;
 interface ResourceMembers<T extends typeof Resource> {
-  [DefinedMembersKey]: (Filter<keyof AbstractInstanceType<T>, string>)[]
+  [DefinedMembersKey]: (Filter<keyof AbstractInstanceType<T>, string>)[];
 }
 
 /** Represents an entity to be retrieved from a server. Typically 1:1 with a url endpoint. */
@@ -47,7 +49,7 @@ export default abstract class Resource {
   /** Resource factory. Takes an object of properties to assign to Resource. */
   static fromJS<T extends typeof Resource>(
     this: T,
-    props: Partial<AbstractInstanceType<T>>,
+    props: Partial<AbstractInstanceType<T>>
   ) {
     if (this === Resource)
       throw new Error('cannot construct on abstract types');
@@ -65,7 +67,7 @@ export default abstract class Resource {
     Object.defineProperty(instance, '__ownerID', {
       value: 1337,
       writable: false,
-    })
+    });
     return instance;
   }
 
@@ -75,7 +77,11 @@ export default abstract class Resource {
     first: AbstractInstanceType<T>,
     second: AbstractInstanceType<T>
   ) {
-    const props = Object.assign({}, this.toObjectDefined(first), this.toObjectDefined(second));
+    const props = Object.assign(
+      {},
+      this.toObjectDefined(first),
+      this.toObjectDefined(second)
+    );
     return this.fromJS(props);
   }
 
@@ -83,18 +89,22 @@ export default abstract class Resource {
   static hasDefined<T extends typeof Resource>(
     this: T,
     instance: AbstractInstanceType<T>,
-    key: Filter<keyof AbstractInstanceType<T>, string>,
+    key: Filter<keyof AbstractInstanceType<T>, string>
   ) {
-    return (instance as any as ResourceMembers<T>)[DefinedMembersKey].includes(key);
+    return ((instance as any) as ResourceMembers<T>)[
+      DefinedMembersKey
+    ].includes(key);
   }
 
   /** Returns simple object with all the non-default members */
   static toObjectDefined<T extends typeof Resource>(
     this: T,
-    instance: AbstractInstanceType<T>,
+    instance: AbstractInstanceType<T>
   ) {
     const defined: Partial<AbstractInstanceType<T>> = {};
-    for (const member of (instance as any as ResourceMembers<T>)[DefinedMembersKey]) {
+    for (const member of ((instance as any) as ResourceMembers<T>)[
+      DefinedMembersKey
+    ]) {
       defined[member] = instance[member];
     }
     return defined;
@@ -103,9 +113,9 @@ export default abstract class Resource {
   /** Returns array of all keys that have values defined in instance */
   static keysDefined<T extends typeof Resource>(
     this: T,
-    instance: AbstractInstanceType<T>,
+    instance: AbstractInstanceType<T>
   ) {
-    return (instance as any as ResourceMembers<T>)[DefinedMembersKey];
+    return ((instance as any) as ResourceMembers<T>)[DefinedMembersKey];
   }
 
   static toString<T extends typeof Resource>(this: T) {
@@ -120,7 +130,7 @@ export default abstract class Resource {
   /** A unique identifier for this Resource */
   static pk<T extends typeof Resource>(
     this: T,
-    params: Partial<AbstractInstanceType<T>>,
+    params: Partial<AbstractInstanceType<T>>
   ): string | number | null {
     return this.prototype.pk.call(params);
   }
@@ -135,10 +145,10 @@ export default abstract class Resource {
   /** Get the url for a Resource
    *
    * Default implementation conforms to commoon REST patterns
-  */
+   */
   static url<T extends typeof Resource>(
     this: T,
-    urlParams?: Partial<AbstractInstanceType<T>>,
+    urlParams?: Partial<AbstractInstanceType<T>>
   ): string {
     if (urlParams) {
       if (
@@ -158,10 +168,10 @@ export default abstract class Resource {
   /** Get the url for many Resources
    *
    * Default implementation conforms to common REST patterns
-  */
+   */
   static listUrl<T extends typeof Resource>(
     this: T,
-    searchParams?: Readonly<Record<string, string | number>>,
+    searchParams?: Readonly<Record<string, string | number>>
   ): string {
     if (searchParams && Object.keys(searchParams).length) {
       const params = new URLSearchParams(searchParams as any);
@@ -176,7 +186,7 @@ export default abstract class Resource {
     this: T,
     method: Method = 'get',
     url: string,
-    body?: Readonly<object>,
+    body?: Readonly<object>
   ) {
     let req = request[method](url).on('error', () => {});
     if (this.fetchPlugin) req = req.use(this.fetchPlugin);
@@ -192,7 +202,9 @@ export default abstract class Resource {
 
   // TODO: memoize these so they can be referentially compared
   /** Shape to get a single entity */
-  static singleRequest<T extends typeof Resource>(this: T): ReadShape<SchemaBase<AbstractInstanceType<T>>> {
+  static singleRequest<T extends typeof Resource>(
+    this: T
+  ): ReadShape<SchemaBase<AbstractInstanceType<T>>> {
     const self = this;
     const getUrl = (params: Readonly<object>) => {
       return this.url(params);
@@ -209,12 +221,16 @@ export default abstract class Resource {
   }
 
   /** Shape to get a list of entities */
-  static listRequest<T extends typeof Resource>(this: T): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
+  static listRequest<T extends typeof Resource>(
+    this: T
+  ): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
     const self = this;
     const getUrl = (params: Readonly<Record<string, string>>) => {
       return this.listUrl(params);
     };
-    const schema: SchemaArray<AbstractInstanceType<T>> = [this.getEntitySchema()];
+    const schema: SchemaArray<AbstractInstanceType<T>> = [
+      this.getEntitySchema(),
+    ];
     return {
       type: 'read',
       schema,
@@ -225,7 +241,13 @@ export default abstract class Resource {
     };
   }
   /** Shape to create a new entity (post) */
-  static createRequest<T extends typeof Resource>(this: T): MutateShape<SchemaBase<AbstractInstanceType<T>>, Readonly<object>, Partial<AbstractInstanceType<T>>> {
+  static createRequest<T extends typeof Resource>(
+    this: T
+  ): MutateShape<
+    SchemaBase<AbstractInstanceType<T>>,
+    Readonly<object>,
+    Partial<AbstractInstanceType<T>>
+  > {
     const self = this;
     return {
       type: 'mutate',
@@ -239,7 +261,13 @@ export default abstract class Resource {
     };
   }
   /** Shape to update an existing entity (put) */
-  static updateRequest<T extends typeof Resource>(this: T): MutateShape<SchemaBase<AbstractInstanceType<T>>, Readonly<object>, Partial<AbstractInstanceType<T>>> {
+  static updateRequest<T extends typeof Resource>(
+    this: T
+  ): MutateShape<
+    SchemaBase<AbstractInstanceType<T>>,
+    Readonly<object>,
+    Partial<AbstractInstanceType<T>>
+  > {
     const self = this;
     return {
       type: 'mutate',
@@ -253,7 +281,13 @@ export default abstract class Resource {
     };
   }
   /** Shape to update a subset of fields of an existing entity (patch) */
-  static partialUpdateRequest<T extends typeof Resource>(this: T): MutateShape<SchemaBase<AbstractInstanceType<T>>, Readonly<object>, Partial<AbstractInstanceType<T>>> {
+  static partialUpdateRequest<T extends typeof Resource>(
+    this: T
+  ): MutateShape<
+    SchemaBase<AbstractInstanceType<T>>,
+    Readonly<object>,
+    Partial<AbstractInstanceType<T>>
+  > {
     const self = this;
     return {
       type: 'mutate',
@@ -267,7 +301,9 @@ export default abstract class Resource {
     };
   }
   /** Shape to delete an entity (delete) */
-  static deleteRequest<T extends typeof Resource>(this: T): DeleteShape<schemas.Entity<AbstractInstanceType<T>>, Readonly<object>> {
+  static deleteRequest<T extends typeof Resource>(
+    this: T
+  ): DeleteShape<schemas.Entity<AbstractInstanceType<T>>, Readonly<object>> {
     const self = this;
     return {
       type: 'delete',

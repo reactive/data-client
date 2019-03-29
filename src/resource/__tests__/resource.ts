@@ -1,9 +1,6 @@
 import nock from 'nock';
 
-import {
-  CoolerArticleResource,
-  UserResource,
-} from '../../__tests__/common';
+import { CoolerArticleResource, UserResource } from '../../__tests__/common';
 import { Resource } from '..';
 
 describe('Resource', () => {
@@ -72,7 +69,7 @@ CoolerArticleResource {
     });
     it('does nothing with empty arg', () => {
       expect(CoolerArticleResource.merge(c, coolC)).toEqual(c);
-    })
+    });
   });
   describe('hasDefined()', () => {
     it('works ', () => {
@@ -82,12 +79,14 @@ CoolerArticleResource {
   });
   describe('toObjectDefined()', () => {
     it('works', () => {
-      expect(CoolerArticleResource.toObjectDefined(coolA)).toMatchInlineSnapshot(`
+      expect(CoolerArticleResource.toObjectDefined(coolA))
+        .toMatchInlineSnapshot(`
 Object {
   "title": "great",
 }
 `);
-      expect(CoolerArticleResource.toObjectDefined(coolB)).toMatchInlineSnapshot(`
+      expect(CoolerArticleResource.toObjectDefined(coolB))
+        .toMatchInlineSnapshot(`
 Object {
   "id": 5,
 }

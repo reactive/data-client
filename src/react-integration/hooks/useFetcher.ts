@@ -3,11 +3,14 @@ import { useContext, useCallback } from 'react';
 import { RequestShape, Schema, isDeleteShape } from '../../resource';
 import { DispatchContext } from '../context';
 
-const SHAPE_TYPE_TO_RESPONSE_TYPE: Record<RequestShape<any, any, any>['type'], 'receive' | 'rpc' | 'purge'> = {
+const SHAPE_TYPE_TO_RESPONSE_TYPE: Record<
+RequestShape<any, any, any>['type'],
+'receive' | 'rpc' | 'purge'
+> = {
   read: 'receive',
   mutate: 'rpc',
   delete: 'purge',
-}
+};
 
 /** Build an imperative dispatcher to issue network requests. */
 export default function useFetcher<
@@ -23,7 +26,9 @@ S extends Schema
   const fetchDispatcher = useCallback(
     (body: Body, params: Params) => {
       const url = getUrl(params);
-      const identifier = isDeleteShape(requestShape) ? (schema as any).getId(params) : url;
+      const identifier = isDeleteShape(requestShape)
+        ? (schema as any).getId(params)
+        : url;
       let resolve: (value?: any | PromiseLike<any>) => void = () => undefined;
       let reject: (reason?: any) => void = () => undefined;
       const promise = new Promise<any>((a, b) => {

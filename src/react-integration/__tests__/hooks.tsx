@@ -233,9 +233,13 @@ describe('useResultCache', () => {
   it('should send defaults with nothing in state', () => {
     let results: any;
     let state = { ...initialState };
-    const defaults = { prevPage: '', nextPage: '' }
+    const defaults = { prevPage: '', nextPage: '' };
     testRestHook(() => {
-      results = useResultCache(PaginatedArticleResource.listRequest(), {}, defaults);
+      results = useResultCache(
+        PaginatedArticleResource.listRequest(),
+        {},
+        defaults
+      );
     }, state);
     expect(results).toEqual(defaults);
   });

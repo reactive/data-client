@@ -55,7 +55,7 @@ describe('selectors', () => {
     });
     it('should be null without entity', async () => {
       const state = {
-        entities: {[CoolerArticleResource.getKey()]: {}},
+        entities: { [CoolerArticleResource.getKey()]: {} },
         results: {
           [CoolerArticleResource.url(params)]: params.id,
         },
@@ -90,9 +90,7 @@ describe('selectors', () => {
         results: { [CoolerArticleResource.url(urlParams)]: params.id },
         meta: {},
       };
-      expect(
-        select(state, urlParams),
-      ).toBe(article);
+      expect(select(state, urlParams)).toBe(article);
     });
     it('should throw when results are Array', async () => {
       const params = { title: 'bob' };
@@ -101,9 +99,7 @@ describe('selectors', () => {
         results: { [CoolerArticleResource.url(params)]: [5, 6, 7] },
         meta: {},
       };
-      expect(() =>
-        select(state, params),
-      ).toThrow();
+      expect(() => select(state, params)).toThrow();
     });
     it('should throw when results are Object', async () => {
       const params = { title: 'bob' };
@@ -114,17 +110,20 @@ describe('selectors', () => {
         },
         meta: {},
       };
-      expect(() =>
-        select(state, params),
-      ).toThrow();
+      expect(() => select(state, params)).toThrow();
     });
     it('should handle nested resources', async () => {
-      const nestedArticle = NestedArticleResource.fromJS({ ...params, user: 23 });
-      const user = UserResource.fromJS({ id: 23, username: 'anne' })
+      const nestedArticle = NestedArticleResource.fromJS({
+        ...params,
+        user: 23,
+      });
+      const user = UserResource.fromJS({ id: 23, username: 'anne' });
 
       const state = {
         entities: {
-          [NestedArticleResource.getKey()]: { [`${nestedArticle.pk()}`]: nestedArticle },
+          [NestedArticleResource.getKey()]: {
+            [`${nestedArticle.pk()}`]: nestedArticle,
+          },
           [UserResource.getKey()]: { [`${user.pk()}`]: user },
         },
         results: {},
@@ -151,7 +150,7 @@ describe('selectors', () => {
     it('should be null when state is partial', async () => {
       const { entities } = normalize(
         articles,
-        CoolerArticleResource.listRequest().schema,
+        CoolerArticleResource.listRequest().schema
       );
       const state = { entities, results: {}, meta: {} };
       const selected = listSelect(state, {});
@@ -161,7 +160,7 @@ describe('selectors', () => {
     it('should find value when state exists', async () => {
       const { entities, result } = normalize(
         articles,
-        CoolerArticleResource.listRequest().schema,
+        CoolerArticleResource.listRequest().schema
       );
       const state = {
         entities,
@@ -177,7 +176,7 @@ describe('selectors', () => {
     it('should simply ignore missing entities when their id is found in results', async () => {
       const { entities, result } = normalize(
         articles,
-        CoolerArticleResource.listRequest().schema,
+        CoolerArticleResource.listRequest().schema
       );
       delete entities[CoolerArticleResource.getKey()]['5'];
       const state = {
@@ -195,7 +194,7 @@ describe('selectors', () => {
     it('should work with paginated results', async () => {
       const { entities, result } = normalize(
         { results: articles },
-        PaginatedArticleResource.listRequest().schema,
+        PaginatedArticleResource.listRequest().schema
       );
       const state = {
         entities,
@@ -206,16 +205,15 @@ describe('selectors', () => {
       };
       const shape = PaginatedArticleResource.listRequest();
       const select = makeSchemaSelector(shape.schema, shape.getUrl);
-      const selected = select(
-        state,
-        params,
-      );
+      const selected = select(state, params);
 
       expect(selected).toEqual(articles);
     });
     it('should throw with invalid schemas', async () => {
       const shape = PaginatedArticleResource.listRequest();
-      expect(() => makeSchemaSelector({'happy': {'go': {'lucky': 5}}} as any, shape.getUrl)).toThrow();
+      expect(() =>
+        makeSchemaSelector({ happy: { go: { lucky: 5 } } } as any, shape.getUrl)
+      ).toThrow();
     });
   });
 });

@@ -54,7 +54,7 @@ describe('createEnhancedReducerHook', () => {
       const useEnhancedReducer = createEnhancedReducerHook(logger);
       [state, dispatch] = useEnhancedReducer(
         (state, action) => ({ ...state, omlet: action.payload }),
-        { eggs: 'bacon' },
+        { eggs: 'bacon' }
       );
     });
     act(() => {
@@ -76,7 +76,10 @@ describe('createEnhancedReducerHook', () => {
   test('should work with middlewares that call dispatch', () => {
     let state, dispatch: Function;
     testHook(() => {
-      const useEnhancedReducer = createEnhancedReducerHook(logger, dispatchingMiddleware);
+      const useEnhancedReducer = createEnhancedReducerHook(
+        logger,
+        dispatchingMiddleware
+      );
       [state, dispatch] = useEnhancedReducer(state => state, {});
     });
     expect(faker.called).toBeFalsy();
