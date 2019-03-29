@@ -1,6 +1,65 @@
 import { ArticleResource, PaginatedArticleResource } from '../../__tests__/common';
-import reducer from '../reducer';
+import reducer, { resourceCustomizer } from '../reducer';
 import { FetchAction, RPCAction, ReceiveAction, PurgeAction, State } from '../../types';
+import { mergeWith } from 'lodash';
+
+describe('resourceCustomizer', () => {
+  it('should merge two Resource instances', () => {
+    const id = 20;
+    const a = ArticleResource.fromJS({ id, title: 'hi', content: 'this is the content' });
+    const b = ArticleResource.fromJS({ id, title: 'hello' });
+
+    const merged = resourceCustomizer(a, b);
+    expect(merged).toBeInstanceOf(ArticleResource);
+    expect(merged).toEqual(
+      ArticleResource.fromJS({
+        id,
+        title: 'hello',
+        content: 'this is the content'
+      })
+    )
+  });
+  it('should handle merging of Resource instances when used with lodash.mergeWith()', () => {
+    const id = 20;
+    const entitiesA = {
+      [ArticleResource.getKey()]: {
+        [id]: ArticleResource.fromJS({ id, title: 'hi', content: 'this is the content' }),
+      },
+    }
+    const entitiesB = {
+      [ArticleResource.getKey()]: {
+        [id]: ArticleResource.fromJS({ id, title: 'hello' }),
+      },
+    }
+
+    const merged = mergeWith({ ...entitiesA }, entitiesB, resourceCustomizer);
+    expect(merged[ArticleResource.getKey()][id]).toBeInstanceOf(ArticleResource);
+    expect(merged[ArticleResource.getKey()][id]).toEqual(
+      ArticleResource.fromJS({
+        id,
+        title: 'hello',
+        content: 'this is the content'
+      })
+    )
+  });
+  it('should not affect merging of plain objects when used with lodash.mergeWith()', () => {
+    const id = 20;
+    const entitiesA = {
+      [ArticleResource.getKey()]: {
+        [id]: ArticleResource.fromJS({ id, title: 'hi', content: 'this is the content' }),
+        [42]: ArticleResource.fromJS({ id: 42, title: 'dont touch me', content: 'this is mine' }),
+      },
+    }
+    const entitiesB = {
+      [ArticleResource.getKey()]: {
+        [id]: ArticleResource.fromJS({ id, title: 'hi', content: 'this is the content' }),
+      },
+    }
+
+    const merged = mergeWith({ ...entitiesA }, entitiesB, resourceCustomizer);
+    expect(merged[ArticleResource.getKey()][42]).toBe(entitiesA[ArticleResource.getKey()][42]);
+  });
+});
 
 describe('reducer', () => {
   describe('singles', () => {
@@ -14,6 +73,10 @@ describe('reducer', () => {
         date: 5000000000,
         expiresAt: 5000500000,
       },
+    };
+    const partialResultAction: ReceiveAction = {
+      ...action,
+      payload: { id, title: 'hello' },
     };
     const iniState = {
       entities: {},
@@ -32,6 +95,21 @@ describe('reducer', () => {
       const nextEntity = getEntity(nextState);
       expect(nextEntity).not.toBe(prevEntity);
       expect(nextEntity).toBeDefined();
+    })
+    it('should merge partial entity with existing entity', () => {
+      const getEntity = (state: any): ArticleResource => state.entities[ArticleResource.getKey()][`${ArticleResource.pk(action.payload)}`]
+      const prevEntity = getEntity(newState);
+      expect(prevEntity).toBeDefined();
+      const nextState = reducer(newState, partialResultAction);
+      const nextEntity = getEntity(nextState);
+      expect(nextEntity).not.toBe(prevEntity);
+      expect(nextEntity).toBeDefined();
+
+      expect(nextEntity.title).not.toBe(prevEntity.title);
+      expect(nextEntity.title).toBe(partialResultAction.payload.title);
+
+      expect(nextEntity.content).toBe(prevEntity.content);
+      expect(nextEntity.content).not.toBe(partialResultAction.payload.content);
     })
   });
   it('mutate should never change results', () => {

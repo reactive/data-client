@@ -1,5 +1,5 @@
 import { normalize } from '../resource';
-import { merge } from 'lodash';
+import { mergeWith } from 'lodash';
 import { Resource } from '../resource';
 import { ActionTypes, State } from '../types';
 
@@ -12,6 +12,29 @@ export const initialState: State<Resource> = {
 type Writable<T> = {
   [P in keyof T]: NonNullable<T[P]>;
 }
+
+interface MergeableStatic<T> {
+  new(): T;
+  merge(a: T, b: T): T;
+}
+
+function isMergeable<T>(
+  constructor: any
+): constructor is MergeableStatic<T> {
+  return (
+    constructor &&
+    typeof constructor.merge === 'function'
+  );
+}
+
+export const resourceCustomizer = (a: any, b: any): any => {
+  const Static = b && b.constructor;
+  if (a && Static && isMergeable(Static)) {
+    return Static.merge(a, b);
+  }
+
+  // use default merging in lodash.merge()
+};
 
 export default function reducer(state: State<Resource>, action: ActionTypes) {
   switch (action.type) {
@@ -31,7 +54,7 @@ export default function reducer(state: State<Resource>, action: ActionTypes) {
       }
       const normalized = normalize(action.payload, action.meta.schema);
       return {
-        entities: merge({ ...state.entities }, normalized.entities),
+        entities: mergeWith({ ...state.entities }, normalized.entities, resourceCustomizer),
         results: {
           ...state.results,
           [action.meta.url]: normalized.result,
@@ -49,7 +72,7 @@ export default function reducer(state: State<Resource>, action: ActionTypes) {
       let { entities } = normalize(action.payload, action.meta.schema);
       return {
         ...state,
-        entities: merge({ ...state.entities }, entities),
+        entities: mergeWith({ ...state.entities }, entities, resourceCustomizer),
       };
     case 'purge':
       if (action.error) return state;
