@@ -9,7 +9,7 @@ describe('resourceCustomizer', () => {
     const a = ArticleResource.fromJS({ id, title: 'hi', content: 'this is the content' });
     const b = ArticleResource.fromJS({ id, title: 'hello' });
 
-    const merged = resourceCustomizer(a, b, "", undefined, undefined);
+    const merged = resourceCustomizer(a, b);
     expect(merged).toBeInstanceOf(ArticleResource);
     expect(merged).toEqual(
       ArticleResource.fromJS({
