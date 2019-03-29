@@ -56,6 +56,7 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
   ...resourceList: A
 ) {
   let promises = resourceList.map(([select, params]) =>
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useRetrieve(select, params),
   );
   const resources = resourceList.map(
@@ -64,6 +65,7 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
     Body extends Readonly<object> | void,
     S extends Schema
     >([select, params]: ResourceArgs<S, Params, Body>) =>
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       useCache(select, params),
   );
   // only wait on promises without results
@@ -161,9 +163,11 @@ S extends Schema
   // this conditional use of hooks is ok as long as the structure of the arguments don't change
   if (Array.isArray(args[0])) {
     // TODO: provide type guard function to detect this
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     return useManyResources(...(args as ResourceArgs<S, Params, Body>[]));
   }
   args = args as ResourceArgs<S, Params, Body>;
   // TODO: make return types match up with the branching logic we put in here.
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   return useOneResource(args[0], args[1]);
 }

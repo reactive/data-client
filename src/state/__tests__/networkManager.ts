@@ -38,6 +38,7 @@ describe('RequestIdleCallback', () => {
     const requestIdle = (global as any).requestIdleCallback;
     (global as any).requestIdleCallback = undefined;
     jest.resetModules();
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { RIC } = require('../NetworkManager');
     const fn = jest.fn();
     jest.useFakeTimers();
