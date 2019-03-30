@@ -58,7 +58,13 @@ export default class NetworkManager {
       throttle,
       resolve,
       reject,
+      options = {},
     } = action.meta;
+    const {
+      dataExpiryLength = this.dataExpiryLength,
+      errorExpiryLength = this.errorExpiryLength,
+    } = options;
+
     const deferedFetch = () =>
       fetch()
         .then(data => {
@@ -70,7 +76,7 @@ export default class NetworkManager {
               schema,
               url,
               date: now,
-              expiresAt: now + this.dataExpiryLength,
+              expiresAt: now + dataExpiryLength,
             },
           });
           return data;
@@ -84,7 +90,7 @@ export default class NetworkManager {
               schema,
               url,
               date: now,
-              expiresAt: now + this.errorExpiryLength,
+              expiresAt: now + errorExpiryLength,
             },
             error: true,
           });
@@ -135,7 +141,7 @@ export default class NetworkManager {
     return <R extends React.Reducer<any, any>>({
       dispatch,
     }: {
-    dispatch: React.Dispatch<React.ReducerAction<R>>;
+      dispatch: React.Dispatch<React.ReducerAction<R>>;
     }) => {
       return (next: React.Dispatch<React.ReducerAction<R>>) => (
         action: React.ReducerAction<R>,
@@ -150,7 +156,7 @@ export default class NetworkManager {
           if (action.meta.url in this.fetched) {
             this.handleReceive(action);
           }
-          // fallthrough is on purpose
+        // fallthrough is on purpose
         default:
           return next(action);
         }

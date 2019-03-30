@@ -45,6 +45,7 @@ Array [
 exports[`useFetcher should dispatch an action that fetches a create 1`] = `
 Object {
   "meta": Object {
+    "options": undefined,
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rpc",
@@ -68,6 +69,7 @@ Object {
 exports[`useFetcher should dispatch an action that fetches a full update 1`] = `
 Object {
   "meta": Object {
+    "options": undefined,
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rpc",
@@ -91,6 +93,7 @@ Object {
 exports[`useFetcher should dispatch an action that fetches a partial update 1`] = `
 Object {
   "meta": Object {
+    "options": undefined,
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rpc",
@@ -114,6 +117,7 @@ Object {
 exports[`useResource should dispatch an action that fetches 1`] = `
 Object {
   "meta": Object {
+    "options": undefined,
     "reject": [Function],
     "resolve": [Function],
     "responseType": "receive",
@@ -137,6 +141,7 @@ Object {
 exports[`useResource should dispatch fetch when sent multiple arguments 1`] = `
 Object {
   "meta": Object {
+    "options": undefined,
     "reject": [Function],
     "resolve": [Function],
     "responseType": "receive",
@@ -160,6 +165,7 @@ Object {
 exports[`useResource should dispatch fetch when sent multiple arguments 2`] = `
 Object {
   "meta": Object {
+    "options": undefined,
     "reject": [Function],
     "resolve": [Function],
     "responseType": "receive",
@@ -185,6 +191,7 @@ Object {
 exports[`useRetrieve should dispatch singles 1`] = `
 Object {
   "meta": Object {
+    "options": undefined,
     "reject": [Function],
     "resolve": [Function],
     "responseType": "receive",
@@ -199,6 +206,85 @@ Object {
     },
     "throttle": true,
     "url": "http://test.com/article-cooler/5",
+  },
+  "payload": [Function],
+  "type": "fetch",
+}
+`;
+
+exports[`useRetrieve should dispatch with request shape defined dataExpiryLength 1`] = `
+Object {
+  "meta": Object {
+    "options": Object {
+      "dataExpiryLength": 3600000,
+    },
+    "reject": [Function],
+    "resolve": [Function],
+    "responseType": "receive",
+    "schema": EntitySchema {
+      "_getId": [Function],
+      "_idAttribute": [Function],
+      "_key": "http://test.com/article-static/",
+      "_mergeStrategy": [Function],
+      "_processStrategy": [Function],
+      "denormalize": [Function],
+      "schema": Object {},
+    },
+    "throttle": true,
+    "url": "http://test.com/article-static/5",
+  },
+  "payload": [Function],
+  "type": "fetch",
+}
+`;
+
+exports[`useRetrieve should dispatch with request shape defined errorExpiryLength 1`] = `
+Object {
+  "meta": Object {
+    "options": Object {
+      "dataExpiryLength": Infinity,
+      "errorExpiryLength": Infinity,
+    },
+    "reject": [Function],
+    "resolve": [Function],
+    "responseType": "receive",
+    "schema": EntitySchema {
+      "_getId": [Function],
+      "_idAttribute": [Function],
+      "_key": "http://test.com/article-static/",
+      "_mergeStrategy": [Function],
+      "_processStrategy": [Function],
+      "denormalize": [Function],
+      "schema": Object {},
+    },
+    "throttle": true,
+    "url": "http://test.com/article-static/5",
+  },
+  "payload": [Function],
+  "type": "fetch",
+}
+`;
+
+exports[`useRetrieve should dispatch with resource defined dataExpiryLength 1`] = `
+Object {
+  "meta": Object {
+    "options": Object {
+      "dataExpiryLength": Infinity,
+    },
+    "reject": [Function],
+    "resolve": [Function],
+    "responseType": "receive",
+    "schema": EntitySchema {
+      "_getId": [Function],
+      "_idAttribute": [Function],
+      "_key": "http://test.com/article-static/",
+      "_mergeStrategy": [Function],
+      "_processStrategy": [Function],
+      "denormalize": [Function],
+      "schema": Object {},
+    },
+    "throttle": true,
+    "url": "http://test.com/article-static/5",
   },
   "payload": [Function],
   "type": "fetch",

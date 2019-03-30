@@ -20,6 +20,7 @@ Body extends Readonly<object> | void,
   fetch(url: string, body: Body): Promise<any>;
   getUrl(params: Params): string;
   readonly schema: S;
+  readonly options?: RequestOptions;
 }
 ```
 
@@ -55,3 +56,25 @@ Turns the provided object params into a url to fetch.
 
 Schemas define the shape of the response data and are used to parse and update
 the normalized cache. Read more about [schemas at the normalizr documentation](https://github.com/paularmstrong/normalizr/blob/master/docs/api.md#schema).
+
+### options?: RequestOptions
+
+
+# RequestOptions
+
+Additional optional request options passed on to network manager and reducer.
+
+```typescript
+export interface RequestOptions {
+  readonly dataExpiryLength?: number;
+  readonly errorExpiryLength?: number;
+}
+```
+
+### dataExpiryLength?: number
+
+Custom data cache lifetime for the fetched resource. Will override the value set in NetworkManager.
+
+### errorExpiryLength?: number
+
+Custom data error lifetime for the fetched resource. Will override the value set in NetworkManager.

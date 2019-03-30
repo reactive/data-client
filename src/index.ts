@@ -23,7 +23,7 @@ import {
   NetworkError,
 } from './react-integration';
 import { Request as RequestType } from 'superagent';
-import { AbstractInstanceType } from './types';
+import { AbstractInstanceType, RequestOptions } from './types';
 
 export type DeleteShape<
 S extends schemas.Entity,
@@ -50,6 +50,7 @@ export type SchemaArray<T> = SchemaArray<T>;
 export type SchemaBase<T> = SchemaBase<T>;
 export type SchemaOf<T> = SchemaOf<T>;
 export type AbstractInstanceType<T> = AbstractInstanceType<T>;
+export type RequestOptions = RequestOptions;
 
 export type NetworkError = NetworkError;
 export type Request = RequestType;

@@ -20,12 +20,45 @@ export class ArticleResource extends Resource {
     }
     return super.url(urlParams);
   }
+
+  static longLivingRequest<T extends typeof Resource>(this: T) {
+    const single = this.singleRequest();
+    return {
+      ...single,
+      options: {
+        ...single.options,
+        dataExpiryLength: 1000 * 60 * 60,
+      },
+    }
+  }
+
+  static neverRetryOnErrorRequest<T extends typeof Resource>(this: T) {
+    const single = this.singleRequest();
+    return {
+      ...single,
+      options: {
+        ...single.options,
+        errorExpiryLength: Infinity,
+      },
+    }
+  }
 }
 
 export class CoolerArticleResource extends ArticleResource {
   static urlRoot = 'http://test.com/article-cooler/';
   get things() {
     return `${this.title} five`;
+  }
+}
+
+export class StaticArticleResource extends ArticleResource {
+  static urlRoot = 'http://test.com/article-static/';
+
+  static getRequestOptions() {
+    return {
+      ...super.getRequestOptions(),
+      dataExpiryLength: Infinity
+    }
   }
 }
 

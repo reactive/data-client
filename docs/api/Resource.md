@@ -118,7 +118,7 @@ Returns an `Object` with only the defined (non-default) members of `instance`.
 
 Returns an `Array` of all defined (non-default) keys of `instance`.
 
-## Static network methods
+## Static network methods and properties
 
 These are the basic building blocks used to compile the [Request shapes](../api/RequestShape.md) below.
 
@@ -141,6 +141,10 @@ on network error. This can be useful to override to really customize your transp
 Returns the [shape of the data](https://github.com/paularmstrong/normalizr/blob/master/docs/api.md#schema)
 when requesting one resource at a time. Defaults to a plain object
 containing the keys. This can be useful to override if your response is in a different form.
+
+### static getRequestOptions() => [RequestOptions](../api/RequestShape.md#RequestOptions) | undefined
+
+Returns the default request options for this resource. By default this returns undefined
 
 ## [Request shapes](../api/RequestShape.md)
 

@@ -1,6 +1,6 @@
 import request from 'superagent';
 import { memoize } from 'lodash';
-import { AbstractInstanceType, Method } from '../types';
+import { AbstractInstanceType, Method, RequestOptions } from '../types';
 
 import { ReadShape, MutateShape, DeleteShape } from './types';
 import { schemas, SchemaBase, SchemaArray } from './normal';
@@ -200,6 +200,11 @@ export default abstract class Resource {
     return getEntitySchema(this);
   }
 
+  /** Get the request options for this resource  */
+  static getRequestOptions<T extends typeof Resource>(this: T): RequestOptions | undefined {
+    return;
+  }
+
   // TODO: memoize these so they can be referentially compared
   /** Shape to get a single entity */
   static singleRequest<T extends typeof Resource>(
@@ -210,9 +215,11 @@ export default abstract class Resource {
       return this.url(params);
     };
     const schema: SchemaBase<AbstractInstanceType<T>> = this.getEntitySchema();
+    const options = this.getRequestOptions();
     return {
       type: 'read',
       schema,
+      options,
       getUrl,
       fetch(url: string, body?: Readonly<object>) {
         return self.fetch('get', url, body);
@@ -231,9 +238,11 @@ export default abstract class Resource {
     const schema: SchemaArray<AbstractInstanceType<T>> = [
       this.getEntitySchema(),
     ];
+    const options = this.getRequestOptions();
     return {
       type: 'read',
       schema,
+      options,
       getUrl,
       fetch(url: string, body?: Readonly<object>) {
         return self.fetch('get', url, body);
@@ -249,9 +258,11 @@ export default abstract class Resource {
     Partial<AbstractInstanceType<T>>
   > {
     const self = this;
+    const options = this.getRequestOptions();
     return {
       type: 'mutate',
       schema: self.getEntitySchema(),
+      options,
       getUrl(params: Readonly<Record<string, string>>) {
         return self.listUrl(params);
       },
@@ -269,9 +280,11 @@ export default abstract class Resource {
     Partial<AbstractInstanceType<T>>
   > {
     const self = this;
+    const options = this.getRequestOptions();
     return {
       type: 'mutate',
       schema: self.getEntitySchema(),
+      options,
       getUrl(params: object) {
         return self.url(params);
       },
@@ -289,9 +302,11 @@ export default abstract class Resource {
     Partial<AbstractInstanceType<T>>
   > {
     const self = this;
+    const options = this.getRequestOptions();
     return {
       type: 'mutate',
       schema: self.getEntitySchema(), //TODO: change merge strategy in case we want to handle partial returns
+      options,
       getUrl(params: Readonly<object>) {
         return self.url(params);
       },
@@ -305,9 +320,11 @@ export default abstract class Resource {
     this: T,
   ): DeleteShape<schemas.Entity<AbstractInstanceType<T>>, Readonly<object>> {
     const self = this;
+    const options = this.getRequestOptions();
     return {
       type: 'delete',
       schema: self.getEntitySchema(),
+      options,
       getUrl(params: object) {
         return self.url(params);
       },
