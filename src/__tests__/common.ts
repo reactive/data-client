@@ -1,5 +1,11 @@
 import React from 'react';
-import { Resource, SchemaArray, schemas, ReadShape } from '../resource';
+import {
+  Resource,
+  SchemaArray,
+  schemas,
+  ReadShape,
+  SchemaBase,
+} from '../resource';
 import { AbstractInstanceType } from '../types';
 
 export class ArticleResource extends Resource {
@@ -21,6 +27,15 @@ export class ArticleResource extends Resource {
     return super.url(urlParams);
   }
 
+  /** Get the entity schema defining  */
+  static getNestedEntitySchema<T extends typeof Resource>(this: T) {
+    const baseSchema = this.getEntitySchema();
+    baseSchema.define({
+      author: UserResource.getEntitySchema(),
+    });
+    return baseSchema;
+  }
+
   static longLivingRequest<T extends typeof Resource>(this: T) {
     const single = this.singleRequest();
     return {
@@ -29,7 +44,7 @@ export class ArticleResource extends Resource {
         ...single.options,
         dataExpiryLength: 1000 * 60 * 60,
       },
-    }
+    };
   }
 
   static neverRetryOnErrorRequest<T extends typeof Resource>(this: T) {
@@ -40,7 +55,31 @@ export class ArticleResource extends Resource {
         ...single.options,
         errorExpiryLength: Infinity,
       },
-    }
+    };
+  }
+
+  static singleWithUserRequest<T extends typeof ArticleResource>(
+    this: T
+  ): ReadShape<SchemaBase<AbstractInstanceType<T>>> {
+    const baseShape = this.singleRequest();
+    return {
+      ...baseShape,
+      getUrl: (params: Readonly<Record<string, string>>) =>
+        baseShape.getUrl({ ...params, includeUser: true }),
+      schema: this.getNestedEntitySchema(),
+    };
+  }
+
+  static listWithUserRequest<T extends typeof ArticleResource>(
+    this: T
+  ): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
+    const baseShape = this.listRequest();
+    return {
+      ...baseShape,
+      getUrl: (params: Readonly<Record<string, string>>) =>
+        baseShape.getUrl({ ...params, includeUser: true }),
+      schema: [this.getNestedEntitySchema()],
+    };
   }
 }
 
@@ -57,8 +96,8 @@ export class StaticArticleResource extends ArticleResource {
   static getRequestOptions() {
     return {
       ...super.getRequestOptions(),
-      dataExpiryLength: Infinity
-    }
+      dataExpiryLength: Infinity,
+    };
   }
 }
 
@@ -76,7 +115,7 @@ export class UserResource extends Resource {
 class OtherArticleResource extends CoolerArticleResource {}
 export class PaginatedArticleResource extends OtherArticleResource {
   static listRequest<T extends typeof Resource>(
-    this: T,
+    this: T
   ): ReadShape<
     SchemaArray<AbstractInstanceType<T>>,
     Readonly<object>,
@@ -93,7 +132,7 @@ export class NestedArticleResource extends OtherArticleResource {
   readonly user: number | null = null;
 
   static getEntitySchema<T extends typeof Resource>(
-    this: T,
+    this: T
   ): schemas.Entity<AbstractInstanceType<T>> {
     const schema = super.getEntitySchema();
     schema.define({

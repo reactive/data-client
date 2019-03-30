@@ -1,7 +1,7 @@
 import nock from 'nock';
 
 import { CoolerArticleResource, UserResource } from '../../__tests__/common';
-import { Resource } from '..';
+import { Resource, normalize } from '..';
 
 describe('Resource', () => {
   it('should init', () => {
@@ -23,7 +23,7 @@ describe('Resource', () => {
   it('should convert class to string', () => {
     expect(CoolerArticleResource.toString()).toBeDefined();
     expect(CoolerArticleResource.toString()).toMatchInlineSnapshot(
-      `"CoolerArticleResource::http://test.com/article-cooler/"`,
+      `"CoolerArticleResource::http://test.com/article-cooler/"`
     );
   });
   it('should render url property', () => {
@@ -110,12 +110,12 @@ Array [
   describe('listUrl', () => {
     it('should listUrl with an arg', () => {
       expect(CoolerArticleResource.listUrl({ author: 5 })).toBe(
-        'http://test.com/article-cooler/?author=5',
+        'http://test.com/article-cooler/?author=5'
       );
     });
     it('should listUrl with no args', () => {
       expect(CoolerArticleResource.listUrl({})).toBe(
-        'http://test.com/article-cooler/',
+        'http://test.com/article-cooler/'
       );
     });
     it('should sort consistently', () => {
@@ -126,9 +126,9 @@ Array [
           m: 'never',
           a: 'sometimes',
           c: 'again',
-        }),
+        })
       ).toBe(
-        'http://test.com/article-cooler/?a=sometimes&c=again&m=never&y=beta&z=alpha',
+        'http://test.com/article-cooler/?a=sometimes&c=again&m=never&y=beta&z=alpha'
       );
     });
   });
@@ -210,7 +210,7 @@ Array [
         'get',
         CoolerArticleResource.url({
           id: payload.id,
-        }),
+        })
       );
       expect(article).toBeDefined();
       if (!article) {
@@ -223,7 +223,7 @@ Array [
       const article = await CoolerArticleResource.fetch(
         'post',
         CoolerArticleResource.url(),
-        payload2,
+        payload2
       );
       expect(article).toMatchObject(payload2);
     });
@@ -232,7 +232,7 @@ Array [
         'delete',
         CoolerArticleResource.url({
           id: payload.id,
-        }),
+        })
       );
 
       expect(res).toEqual({});
@@ -241,7 +241,7 @@ Array [
       const response = await CoolerArticleResource.fetch(
         'put',
         CoolerArticleResource.url(payload),
-        CoolerArticleResource.fromJS(payload),
+        CoolerArticleResource.fromJS(payload)
       );
 
       expect(response).toEqual(putResponseBody);
@@ -250,10 +250,60 @@ Array [
       const response = await CoolerArticleResource.fetch(
         'patch',
         CoolerArticleResource.url({ id }),
-        patchPayload,
+        patchPayload
       );
 
       expect(response).toEqual(patchResponseBody);
+    });
+  });
+
+  describe('getEntitySchema()', () => {
+    describe('merging', () => {
+      const nested = [
+        {
+          id: 5,
+          title: 'hi ho',
+          content: 'whatever',
+          tags: ['a', 'best', 'react'],
+          author: {
+            id: 23,
+            username: 'bob',
+            email: 'bob@bob.com',
+          },
+        },
+        {
+          id: 3,
+          title: 'the next time',
+          content: 'whatever',
+          author: {
+            id: 23,
+            username: 'charles',
+          },
+        },
+      ];
+      const { schema } = CoolerArticleResource.listWithUserRequest();
+      const normalized = normalize(nested, schema);
+
+      // TODO: fix normalize types so we know this is actuaally multiple things
+      const user: any = normalized.entities[UserResource.getKey()]['23'];
+      it('should include nested user', () => {
+        expect(user).toBeDefined();
+      });
+      it('should have user be UserResource type', () => {
+        expect(user).toBeInstanceOf(UserResource);
+      });
+      it('should take property of first if not set in second', () => {
+        expect(user.email).toBe('bob@bob.com');
+      });
+      it('should overwrite second properties over first', () => {
+        expect(user.username).toBe('charles');
+      });
+      it('should use default for unset propreties', () => {
+        expect(UserResource.hasDefined(user, 'isAdmin')).toBe(false);
+      });
+      it('should match snapshot', () => {
+        expect(normalized).toMatchSnapshot();
+      });
     });
   });
 });
