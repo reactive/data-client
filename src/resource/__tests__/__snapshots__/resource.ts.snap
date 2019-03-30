@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Resource getEntitySchema() merging should match snapshot 1`] = `
+Object {
+  "entities": Object {
+    "http://test.com/article-cooler/": Object {
+      "3": CoolerArticleResource {
+        "author": "23",
+        "content": "whatever",
+        "id": 3,
+        "tags": Array [],
+        "title": "the next time",
+      },
+      "5": CoolerArticleResource {
+        "author": "23",
+        "content": "whatever",
+        "id": 5,
+        "tags": Array [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      },
+    },
+    "http://test.com/user/": Object {
+      "23": UserResource {
+        "email": "bob@bob.com",
+        "id": 23,
+        "isAdmin": false,
+        "username": "charles",
+      },
+    },
+  },
+  "result": Array [
+    "5",
+    "3",
+  ],
+}
+`;

@@ -47,6 +47,30 @@ describe('<RestProvider />', () => {
       isAdmin: true,
     },
   ];
+  const nested = [
+    {
+      id: 5,
+      title: 'hi ho',
+      content: 'whatever',
+      tags: ['a', 'best', 'react'],
+      author: {
+        id: 23,
+        username: 'bob',
+      },
+    },
+    {
+      id: 3,
+      title: 'the next time',
+      content: 'whatever',
+      author: {
+        id: 23,
+        username: 'charles',
+        email: 'bob@bob.com',
+      },
+    },
+  ];
+
+  // TODO: add nested resource test case that has multiple partials to test merge functionality
   let manager: NetworkManager;
   function testProvider(callback: () => void, fbmock: jest.Mock<any, any>) {
     function Fallback() {
@@ -82,6 +106,9 @@ describe('<RestProvider />', () => {
     nock('http://test.com')
       .get(`/article-cooler/0`)
       .reply(403, {});
+    nock('http://test.com')
+      .get(`/article-cooler/`)
+      .reply(200, nested);
     nock('http://test.com')
       .get(`/user/`)
       .reply(200, users);
@@ -190,7 +217,7 @@ describe('<RestProvider />', () => {
             id: payload.id,
           },
         ],
-        [UserResource.listRequest(), {}],
+        [UserResource.listRequest(), {}]
       );
     }, fbmock);
     expect(fbmock).toBeCalled();
