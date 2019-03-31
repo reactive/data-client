@@ -6,7 +6,7 @@
 [![npm version](https://img.shields.io/npm/v/rest-hooks.svg?style=flat-square)](https://www.npmjs.com/package/rest-hooks)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-Making dynamic sites performant, scalable, simple to build with almost any API design.
+Making dynamic sites performant, scalable, simple to build with any API design.
 
 <div align="center">
 
