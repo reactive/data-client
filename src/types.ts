@@ -71,3 +71,8 @@ dispatch: React.Dispatch<React.ReducerAction<R>>;
 }) => (
   next: React.Dispatch<React.ReducerAction<R>>,
 ) => (action: React.ReducerAction<R>) => void;
+
+export interface INetworkManager {
+  cleanup(): void;
+  getMiddleware(): Middleware;
+}

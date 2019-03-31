@@ -2,11 +2,13 @@ import React, { ReactNode, useEffect } from 'react';
 import { StateContext, DispatchContext } from '../context';
 import masterReducer, { initialState } from '../../state/reducer';
 import NetworkManager from '../../state/NetworkManager';
+import { INetworkManager } from '../../types';
 import createEnhancedReducerHook from './middleware';
+
 
 interface ProviderProps {
   children: ReactNode;
-  manager?: NetworkManager;
+  manager?: INetworkManager;
 }
 /** Controller managing state of the REST cache and coordinating network requests. */
 export default function RestProvider({
