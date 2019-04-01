@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
-import { cleanup, render, act, testHook } from 'react-testing-library';
+import { render } from 'react-testing-library';
+import { cleanup, renderHook, act } from 'react-hooks-testing-library';
 import nock from 'nock';
 
 import { CoolerArticleResource, UserResource } from '../../__tests__/common';
@@ -24,7 +25,9 @@ class MockNetworkManager extends NetworkManager {
   }
 }
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+});
 
 describe('<RestProvider />', () => {
   const payload = {
@@ -72,15 +75,11 @@ describe('<RestProvider />', () => {
 
   // TODO: add nested resource test case that has multiple partials to test merge functionality
   let manager: NetworkManager;
-  function testProvider(callback: () => void, fbmock: jest.Mock<any, any>) {
-    function Fallback() {
-      fbmock();
-      return null;
-    }
-    return testHook(callback, {
+  function testProvider<T>(callback: () => T) {
+    return renderHook(callback, {
       wrapper: ({ children }) => (
         <RestProvider manager={manager}>
-          <Suspense fallback={<Fallback />}>{children}</Suspense>
+          <Suspense fallback={() => null}>{children}</Suspense>
         </RestProvider>
       ),
     });
@@ -117,17 +116,6 @@ describe('<RestProvider />', () => {
   afterEach(() => {
     manager.cleanup();
   });
-  function ResourceTester() {
-    const article = useResource(CoolerArticleResource.singleRequest(), {
-      id: payload.id,
-    });
-    return (
-      <div>
-        <h3>{article.title}</h3>
-        <p>{article.content}</p>
-      </div>
-    );
-  }
   it('should mount/umount happily', async () => {
     function Component() {
       return <>hi</>;
@@ -146,71 +134,44 @@ describe('<RestProvider />', () => {
   });
 
   it('should resolve useResource()', async () => {
-    const url = CoolerArticleResource.url(payload);
-    const fbmock = jest.fn();
-    let article: any;
-    testProvider(() => {
-      article = useResource(CoolerArticleResource.singleRequest(), payload);
-    }, fbmock);
-    expect(fbmock).toBeCalled();
-    await (manager as any).fetched[url];
-    expect(article instanceof CoolerArticleResource).toBe(true);
-    expect(article.title).toBe(payload.title);
+    const { result, waitForNextUpdate } = testProvider(() => {
+      return useResource(CoolerArticleResource.singleRequest(), payload);
+    });
+    expect(result.current).toBe(null);
+    await waitForNextUpdate();
+    expect(result.current instanceof CoolerArticleResource).toBe(true);
+    expect(result.current.title).toBe(payload.title);
   });
 
   it('should throw 404 once deleted', async () => {
-    const url = CoolerArticleResource.url(payload);
-    const fbmock = jest.fn();
-    let article: any;
     let del: any;
-    let error: any;
-    testProvider(() => {
-      try {
-        article = useResource(CoolerArticleResource.singleRequest(), payload);
-      } catch (e) {
-        if (typeof e.then === 'function') throw e;
-        error = e;
-      }
+    const { result, waitForNextUpdate } = testProvider(() => {
       del = useFetcher(CoolerArticleResource.deleteRequest());
-    }, fbmock);
-    expect(fbmock).toBeCalled();
-    await (manager as any).fetched[url];
-    expect(article instanceof CoolerArticleResource).toBe(true);
-    expect(article.title).toBe(payload.title);
+      return useResource(CoolerArticleResource.singleRequest(), payload);
+    });
+    expect(result.current).toBe(null);
+    await waitForNextUpdate();
+    expect(result.current instanceof CoolerArticleResource).toBe(true);
+    expect(result.current.title).toBe(payload.title);
 
     await del({}, payload);
-    expect(error).toBeDefined();
-    expect(error.status).toBe(404);
+    expect(result.error).toBeDefined();
+    expect((result.error as any).status).toBe(404);
   });
   it('useResource() should throw errors on bad network', async () => {
-    const url = CoolerArticleResource.url({ title: '0' });
-    const fbmock = jest.fn();
-    let article: any;
-    let error: any;
-    testProvider(() => {
-      try {
-        article = useResource(CoolerArticleResource.singleRequest(), {
-          title: '0',
-        });
-      } catch (e) {
-        if (typeof e.then === 'function') throw e;
-        error = e;
-      }
-    }, fbmock);
-    expect(fbmock).toBeCalled();
-    try {
-      await (manager as any).fetched[url];
-    } catch (e) {}
-    expect(error).toBeDefined();
-    expect(error.status).toBe(403);
+    const { result, waitForNextUpdate } = testProvider(() => {
+      return useResource(CoolerArticleResource.singleRequest(), {
+        title: '0',
+      });
+    });
+    expect(result.current).toBe(null);
+    await waitForNextUpdate();
+    expect(result.error).toBeDefined();
+    expect((result.error as any).status).toBe(403);
   });
   it('should resolve parallel useResource() request', async () => {
-    const url = CoolerArticleResource.url(payload);
-    const userUrl = UserResource.listUrl({});
-    const fbmock = jest.fn();
-    let article: any, users: any;
-    testProvider(() => {
-      [article, users] = useResource(
+    const { result, waitForNextUpdate } = testProvider(() => {
+      return useResource(
         [
           CoolerArticleResource.singleRequest(),
           {
@@ -219,27 +180,23 @@ describe('<RestProvider />', () => {
         ],
         [UserResource.listRequest(), {}],
       );
-    }, fbmock);
-    expect(fbmock).toBeCalled();
-    await Promise.all([
-      (manager as any).fetched[url],
-      (manager as any).fetched[userUrl],
-    ]);
+    });
+    expect(result.current).toBe(null);
+    await waitForNextUpdate();
+    const [article, users] = result.current;
     expect(article instanceof CoolerArticleResource).toBe(true);
     expect(article.title).toBe(payload.title);
     expect(users).toBeDefined();
     expect(users.length).toBeTruthy();
     expect(users[0] instanceof UserResource).toBe(true);
   });
-  it('should suspend with no params to useResource()', async () => {
-    const url = CoolerArticleResource.url(payload);
-    const fbmock = jest.fn();
+  it('should not suspend with no params to useResource()', async () => {
     let article: any;
-    testProvider(() => {
+    const { result, waitForNextUpdate } = testProvider(() => {
       article = useResource(CoolerArticleResource.singleRequest(), null);
-    }, fbmock);
-    expect(fbmock).toBeCalledTimes(0);
-    expect(url in (manager as any).fetched).toBe(false);
+      return 'done';
+    });
+    expect(result.current).toBe('done');
     expect(article).toBeNull();
   });
 });
