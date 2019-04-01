@@ -1,5 +1,5 @@
 import { schemas, Schema, SchemaArray, SchemaBase } from './normal';
-import { RequestOptions } from 'types';
+import { RequestOptions } from '../types';
 
 /** Defines the shape of a network request */
 export interface RequestShape<
