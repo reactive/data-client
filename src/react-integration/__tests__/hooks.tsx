@@ -49,7 +49,7 @@ async function testDispatchFetch(
 
 function testRestHook(
   callback: () => void,
-  state: State<Resource>,
+  state: State<unknown>,
   dispatch = (v: ActionTypes) => {},
 ) {
   return testHook(callback, {

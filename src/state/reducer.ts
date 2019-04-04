@@ -1,9 +1,8 @@
 import { normalize } from '../resource';
 import { mergeWith } from 'lodash';
-import { Resource } from '../resource';
 import { ActionTypes, State } from '../types';
 
-export const initialState: State<Resource> = {
+export const initialState: State<unknown> = {
   entities: {},
   results: {},
   meta: {},
@@ -29,7 +28,7 @@ export const resourceCustomizer = (a: any, b: any): any => {
   // use default merging in lodash.merge()
 };
 
-export default function reducer(state: State<Resource>, action: ActionTypes) {
+export default function reducer(state: State<unknown>, action: ActionTypes) {
   switch (action.type) {
   case 'receive':
     if (action.error) {
