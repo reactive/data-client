@@ -8,7 +8,6 @@ import {
   RPCAction,
   ReceiveAction,
   PurgeAction,
-  State,
 } from '../../types';
 import { mergeWith } from 'lodash';
 

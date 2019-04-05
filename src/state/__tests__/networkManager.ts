@@ -1,6 +1,6 @@
 import { cleanup } from 'react-testing-library';
 import NetworkManager from '../NetworkManager';
-import { FetchAction } from 'types';
+import { FetchAction } from '../../types';
 import { ArticleResource } from '../../__tests__/common';
 
 afterEach(cleanup);
