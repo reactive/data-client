@@ -119,7 +119,7 @@
     "normalizr": "^3.3.0",
     "regenerator-runtime": "^0.13.2",
     "reselect": "^4.0.0",
-    "superagent": "^4.1.0"
+    "superagent": "^5.0.2"
   },
   "peerDependencies": {
     "@types/react": "^16.8.2",
