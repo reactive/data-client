@@ -21,7 +21,11 @@ export default function createEnhancedReducerHook(
         );
       };
       // closure here around dispatch allows us to change it after middleware is constructed
-      const middlewareAPI = { dispatch: (a: any) => dispatch(a) };
+      const middlewareAPI = {
+        // state is not needed in useMemo() param list since it's retrieved as function
+        getState: () => state,
+        dispatch: (a: any) => dispatch(a),
+      };
       const chain = middlewares.map(middleware => middleware(middlewareAPI));
       dispatch = compose(chain)(realDispatch);
       return dispatch;
