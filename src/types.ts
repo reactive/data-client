@@ -70,9 +70,9 @@ export type Middleware = <R extends React.Reducer<any, any>>({
   next: React.Dispatch<React.ReducerAction<R>>,
 ) => (action: React.ReducerAction<R>) => void;
 
-export type MiddlewareAPI<
-R extends React.Reducer<any, any> = React.Reducer<any, any>
-> = {
+export interface MiddlewareAPI<
+  R extends React.Reducer<any, any> = React.Reducer<any, any>
+> {
   getState: () => React.ReducerState<R>;
   dispatch: React.Dispatch<React.ReducerAction<R>>;
-};
+}
