@@ -66,8 +66,13 @@ export type ActionTypes = FetchAction | ReceiveAction | RPCAction | PurgeAction;
 
 export type Middleware = <R extends React.Reducer<any, any>>({
   dispatch,
-}: {
-dispatch: React.Dispatch<React.ReducerAction<R>>;
-}) => (
+}: MiddlewareAPI<R>) => (
   next: React.Dispatch<React.ReducerAction<R>>,
 ) => (action: React.ReducerAction<R>) => void;
+
+export type MiddlewareAPI<
+R extends React.Reducer<any, any> = React.Reducer<any, any>
+> = {
+  getState: () => React.ReducerState<R>;
+  dispatch: React.Dispatch<React.ReducerAction<R>>;
+};

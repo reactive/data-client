@@ -24,7 +24,7 @@ export default function createEnhancedReducerHook(
       const middlewareAPI = {
         // state is not needed in useMemo() param list since it's retrieved as function
         getState: () => state,
-        dispatch: (a: any) => dispatch(a),
+        dispatch: (action: React.ReducerAction<R>) => dispatch(action),
       };
       const chain = middlewares.map(middleware => middleware(middlewareAPI));
       dispatch = compose(chain)(realDispatch);

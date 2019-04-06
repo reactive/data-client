@@ -1,6 +1,8 @@
 import sinon from 'sinon';
 import React from 'react';
 import createEnhancedReducerHook from '../middleware';
+import { MiddlewareAPI } from '../../../types';
+
 import { testHook, act, cleanup } from 'react-testing-library';
 
 function ignoreError(e: Event) {
@@ -15,42 +17,28 @@ afterEach(() => {
 afterEach(cleanup);
 
 describe('createEnhancedReducerHook', () => {
-  let logger: any;
-  let faker: sinon.SinonSpy;
-  let statefaker: sinon.SinonSpy;
-  let methodspy: any;
-  let statespy: any;
-  let dispatchingMiddleware: any;
-
-  beforeEach(() => {
-    faker = sinon.spy();
-    statefaker = sinon.spy();
-    logger = ({}) => {
-      return (next: any) => (action: any) => {
-        faker(action);
-        const returnValue = next(action);
-        return returnValue;
-      };
+  const makeTestActionMiddleware = (test: Function) => ({}: MiddlewareAPI) => {
+    return (next: any) => (action: any) => {
+      test(action);
+      return next(action);
     };
-    methodspy = (methods: any) => {
-      faker(methods);
-      return (next: any) => (action: any) => next(action);
+  };
+  const makeTestMiddleware = (spy: Function) => (methods: MiddlewareAPI) => {
+    spy(methods);
+    return (next: any) => (action: any) => next(action);
+  };
+  const dispatchingMiddleware = ({ dispatch }: MiddlewareAPI) => {
+    return (next: any) => (action: any) => {
+      if (action.type === 'dispatch') {
+        dispatch({ ...action, type: 'nothing' });
+      }
+      return next(action);
     };
-    statespy = (methods: any) => {
-      statefaker(methods.getState());
-      return (next: any) => (action: any) => next(action);
-    };
-    dispatchingMiddleware = ({ dispatch }: { dispatch: Function }) => {
-      return (next: any) => (action: any) => {
-        if (action.type === 'dispatch') {
-          dispatch({ ...action, type: 'nothing' });
-        }
-        return next(action);
-      };
-    };
-  });
+  };
 
   test('runs through a single middleware', () => {
+    const faker = sinon.spy();
+    const logger = makeTestActionMiddleware(faker);
     let state, dispatch: Function;
     testHook(() => {
       const useEnhancedReducer = createEnhancedReducerHook(logger);
@@ -71,6 +59,10 @@ describe('createEnhancedReducerHook', () => {
   });
 
   it('wraps dispatch method with middleware once', () => {
+    const [faker, statefaker] = [sinon.spy(), sinon.spy()];
+    const methodspy = makeTestMiddleware(faker);
+    const statespy = makeTestMiddleware(({ getState }: MiddlewareAPI) => statefaker(getState()));
+
     let state, dispatch: Function;
     testHook(() => {
       const useEnhancedReducer = createEnhancedReducerHook(methodspy, statespy);
@@ -92,6 +84,9 @@ describe('createEnhancedReducerHook', () => {
   });
 
   test('reducer to work properly', () => {
+    const faker = sinon.spy();
+    const logger = makeTestActionMiddleware(faker);
+
     let state, dispatch: Function;
     testHook(() => {
       const useEnhancedReducer = createEnhancedReducerHook(logger);
@@ -117,6 +112,9 @@ describe('createEnhancedReducerHook', () => {
   });
 
   test('should work with middlewares that call dispatch', () => {
+    const faker = sinon.spy();
+    const logger = makeTestActionMiddleware(faker);
+
     let state, dispatch: Function;
     testHook(() => {
       const useEnhancedReducer = createEnhancedReducerHook(
