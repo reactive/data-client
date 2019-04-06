@@ -42,3 +42,24 @@ export default function App(): React.ReactElement {
   );
 }
 ```
+
+Note: Once `<NetworkErrorBoundary />` catches an error it will only render the fallback
+until it is remounted. In many cases this will automatically happen upon navigation; however,
+in the case the boundary is placed above the navigation (your `<Route/>` component) it will
+need to be forced to remount by setting the key.
+
+.e.g,)
+
+```tsx
+import { Suspense } from 'react';
+import { NetworkErrorBoundary } from 'rest-hooks';
+import { RouteChildrenProps } from 'react-router';
+
+const App = ({ location }: RouteChildrenProps) => (
+  <Suspense fallback={<Spinner />}>
+    <NetworkErrorBoundary key={location && location.key}>
+      <Routes />
+    </NetworkErrorBoundary>
+  </Suspense>
+)
+```

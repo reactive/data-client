@@ -14,18 +14,21 @@ indicator. Often this will be just above your routes; but feel free to place
 it in multiple locations!
 
 `App.tsx`
+
 ```tsx
 import { Suspense } from 'react';
+import { NetworkErrorBoundary } from 'rest-hooks';
+import { RouteChildrenProps } from 'react-router';
 
 const App = () => (
   <div>
     <h1>Main Title</h1>
     <Nav />
-    <ErrorBoundary>
-      <Suspense fallback={<Spinner />}>
+    <Suspense fallback={<Spinner />}>
+      <ErrorBoundary key={location && location.key}>
         <Routes />
-      </Suspense>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </Suspense>
   </div>
 );
 ```

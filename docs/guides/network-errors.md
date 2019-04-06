@@ -12,16 +12,22 @@ This library provides `NetworkErrorBoundary` component that only catches network
 errors and sends them to a fallback component you provide. Other errors will rethrow.
 
 ```tsx
+import { Suspense } from 'react';
 import { NetworkErrorBoundary } from 'rest-hooks';
+import { RouteChildrenProps } from 'react-router';
 
-const App = () => (
-  <NetworkErrorBoundary fallbackComponent={({ error }) => error.status}>
-    <Suspense fallback={<Spinner />}>
+const App = ({ location }: RouteChildrenProps) => (
+  <Suspense fallback={<Spinner />}>
+    <NetworkErrorBoundary key={location && location.key}>
       <Routes />
-    </Suspense>
-  </NetworkErrorBoundary>
+    </NetworkErrorBoundary>
+  </Suspense>
 )
 ```
+
+Note how we set the key based on location; this forces a remount on every location
+change so any errors will be cleared. This is only necessary as this is the route-level
+boundary, but it is placed above the route selected.
 
 Alternatively you could create your own error boundary where you might
 try dispatching the errors to another provider to use in a transient
