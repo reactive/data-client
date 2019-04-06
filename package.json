@@ -80,7 +80,6 @@
     "@types/lodash": "^4.14.123",
     "@types/nock": "^9.3.1",
     "@types/react": "^16.8.12",
-    "@types/sinon": "^7.0.11",
     "@typescript-eslint/eslint-plugin": "^1.6.0",
     "@typescript-eslint/parser": "^1.6.0",
     "auto-changelog": "^1.12.0",
@@ -106,7 +105,6 @@
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-resolve": "^4.0.1",
     "rollup-plugin-uglify": "^6.0.2",
-    "sinon": "^7.3.1",
     "ts-jest": "^24.0.1",
     "typescript": "^3.4.1",
     "uglify-es": "^3.3.9"

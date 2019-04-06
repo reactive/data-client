@@ -1,4 +1,3 @@
-import sinon from 'sinon';
 import React from 'react';
 import createEnhancedReducerHook from '../middleware';
 import { MiddlewareAPI } from '../../../types';
@@ -17,7 +16,7 @@ afterEach(() => {
 afterEach(cleanup);
 
 describe('createEnhancedReducerHook', () => {
-  const makeTestActionMiddleware = (test: Function) => ({}: MiddlewareAPI) => {
+  const makeTestActionMiddleware = (test: Function) => () => {
     return (next: any) => (action: any) => {
       test(action);
       return next(action);
@@ -37,7 +36,7 @@ describe('createEnhancedReducerHook', () => {
   };
 
   test('runs through a single middleware', () => {
-    const faker = sinon.spy();
+    const faker = jest.fn();
     const logger = makeTestActionMiddleware(faker);
     let state, dispatch: Function;
     testHook(() => {
@@ -45,23 +44,25 @@ describe('createEnhancedReducerHook', () => {
       [state, dispatch] = useEnhancedReducer(state => state, {});
     });
 
-    expect(faker.called).toBeFalsy();
+    expect(faker.mock.calls.length).toBe(0);
     const action = { type: 5 };
     act(() => {
       dispatch(action);
     });
-    expect(faker.calledOnce).toBeTruthy();
-    expect(faker.calledWith(action)).toBeTruthy();
+    expect(faker.mock.calls.length).toBe(1);
+    expect(faker.mock.calls[0][0]).toBe(action);
     act(() => {
       dispatch(action);
     });
-    expect(faker.callCount).toBe(2);
+    expect(faker.mock.calls.length).toBe(2);
   });
 
   it('wraps dispatch method with middleware once', () => {
-    const [faker, statefaker] = [sinon.spy(), sinon.spy()];
+    const [faker, statefaker] = [jest.fn(), jest.fn()];
     const methodspy = makeTestMiddleware(faker);
-    const statespy = makeTestMiddleware(({ getState }: MiddlewareAPI) => statefaker(getState()));
+    const statespy = makeTestMiddleware(({ getState }: MiddlewareAPI) =>
+      statefaker(getState()),
+    );
 
     let state, dispatch: Function;
     testHook(() => {
@@ -75,17 +76,16 @@ describe('createEnhancedReducerHook', () => {
       dispatch(action);
     });
 
-    expect(faker.getCalls().length).toEqual(1);
+    expect(faker.mock.calls.length).toEqual(1);
 
-    expect(faker.getCalls()[0].args[0]).toHaveProperty('getState');
-    expect(faker.getCalls()[0].args[0]).toHaveProperty('dispatch');
+    expect(faker.mock.calls[0][0]).toHaveProperty('getState');
+    expect(faker.mock.calls[0][0]).toHaveProperty('dispatch');
 
-    expect(statefaker.getCalls()[0].args[0]).toEqual({ double: 5 });
+    expect(statefaker.mock.calls[0][0]).toEqual({ double: 5 });
   });
 
   test('reducer to work properly', () => {
-    const faker = sinon.spy();
-    const logger = makeTestActionMiddleware(faker);
+    const logger = makeTestActionMiddleware(() => {});
 
     let state, dispatch: Function;
     testHook(() => {
@@ -112,7 +112,7 @@ describe('createEnhancedReducerHook', () => {
   });
 
   test('should work with middlewares that call dispatch', () => {
-    const faker = sinon.spy();
+    const faker = jest.fn();
     const logger = makeTestActionMiddleware(faker);
 
     let state, dispatch: Function;
@@ -123,19 +123,19 @@ describe('createEnhancedReducerHook', () => {
       );
       [state, dispatch] = useEnhancedReducer(state => state, {});
     });
-    expect(faker.called).toBeFalsy();
+    expect(faker.mock.calls.length).toBe(0);
     let action: any = { type: 'hi' };
     act(() => {
       dispatch(action);
     });
-    expect(faker.calledOnce).toBeTruthy();
-    expect(faker.calledWith(action)).toBeTruthy();
+    expect(faker.mock.calls.length).toBe(1);
+    expect(faker.mock.calls[0][0]).toBe(action);
     action = { type: 'dispatch', payload: 5 };
     act(() => {
       dispatch(action);
     });
-    expect(faker.callCount).toBe(3);
-    expect(faker.thirdCall.calledWith({ type: 'nothing', payload: 5 }));
+    expect(faker.mock.calls.length).toBe(3);
+    expect(faker.mock.calls[3][0]).toEqual({ type: 'nothing', payload: 5 });
   });
 
   it('warns when dispatching during middleware setup', () => {
