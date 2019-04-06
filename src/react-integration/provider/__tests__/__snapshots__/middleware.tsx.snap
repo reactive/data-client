@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createEnhancedReducerHook warns when dispatching during middleware setup 1`] = `"Dispatching while constructing your middleware is not allowed. Other middleware would not be applied to this dispatch."`;
