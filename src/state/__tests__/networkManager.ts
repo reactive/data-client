@@ -7,6 +7,7 @@ afterEach(cleanup);
 
 describe('NetworkManager', () => {
   const manager = new NetworkManager();
+  const getState = () => {}
   describe('getMiddleware()', () => {
     it('should return the same value every call', () => {
       const a = manager.getMiddleware();
@@ -64,7 +65,7 @@ describe('NetworkManager', () => {
       const next = jest.fn();
       const dispatch = jest.fn();
 
-      middleware({ dispatch })(next)(fetchResolveAction);
+      middleware({ dispatch, getState })(next)(fetchResolveAction);
 
       const data = await fetchResolveAction.payload();
 
@@ -85,7 +86,7 @@ describe('NetworkManager', () => {
 
       const dispatch = jest.fn();
 
-      middleware({ dispatch })(() => {})({
+      middleware({ dispatch, getState })(() => {})({
         ...fetchResolveAction,
         meta: {
           ...fetchResolveAction.meta,
@@ -104,7 +105,7 @@ describe('NetworkManager', () => {
 
       const dispatch = jest.fn();
 
-      middleware({ dispatch })(() => {})({
+      middleware({ dispatch, getState })(() => {})({
         ...fetchResolveAction,
         meta: {
           ...fetchResolveAction.meta,
@@ -124,7 +125,7 @@ describe('NetworkManager', () => {
       const next = jest.fn();
       const dispatch = jest.fn();
 
-      middleware({ dispatch })(next)(fetchRejectAction);
+      middleware({ dispatch, getState })(next)(fetchRejectAction);
       try {
         await fetchRejectAction.payload();
       } catch (error) {
@@ -147,7 +148,7 @@ describe('NetworkManager', () => {
 
       const dispatch = jest.fn();
 
-      middleware({ dispatch })(() => {})({
+      middleware({ dispatch, getState })(() => {})({
         ...fetchRejectAction,
         meta: {
           ...fetchRejectAction.meta,
@@ -168,7 +169,7 @@ describe('NetworkManager', () => {
 
       const dispatch = jest.fn();
 
-      middleware({ dispatch })(() => {})({
+      middleware({ dispatch, getState })(() => {})({
         ...fetchRejectAction,
         meta: {
           ...fetchRejectAction.meta,

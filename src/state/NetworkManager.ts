@@ -1,5 +1,5 @@
 import { memoize } from 'lodash';
-import { FetchAction, ReceiveAction } from '../types';
+import { FetchAction, ReceiveAction, MiddlewareAPI } from '../types';
 
 export const RIC: (cb: (...args: any[]) => void, options: any) => void =
   typeof (global as any).requestIdleCallback === 'function'
@@ -140,9 +140,7 @@ export default class NetworkManager {
   getMiddleware = memoize(function<T extends NetworkManager>(this: T) {
     return <R extends React.Reducer<any, any>>({
       dispatch,
-    }: {
-      dispatch: React.Dispatch<React.ReducerAction<R>>;
-    }) => {
+    }: MiddlewareAPI<R>) => {
       return (next: React.Dispatch<React.ReducerAction<R>>) => (
         action: React.ReducerAction<R>,
       ) => {
@@ -156,7 +154,7 @@ export default class NetworkManager {
           if (action.meta.url in this.fetched) {
             this.handleReceive(action);
           }
-        // fallthrough is on purpose
+          // fallthrough is on purpose
         default:
           return next(action);
         }
