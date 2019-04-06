@@ -135,7 +135,7 @@ describe('createEnhancedReducerHook', () => {
       dispatch(action);
     });
     expect(faker.mock.calls.length).toBe(3);
-    expect(faker.mock.calls[3][0]).toEqual({ type: 'nothing', payload: 5 });
+    expect(faker.mock.calls[2][0]).toEqual({ type: 'nothing', payload: 5 });
   });
 
   it('warns when dispatching during middleware setup', () => {
