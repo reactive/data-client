@@ -11,7 +11,7 @@
 
 - [ ] Optimistic query update on create
 - [ ] Optional redux-integration
-- [ ] Polling based subscriptions
+- [x] Polling based subscriptions
 - [ ] Automatic batching
 
 ## Future
