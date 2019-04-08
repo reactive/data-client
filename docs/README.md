@@ -12,6 +12,7 @@
   - [useFetcher](api/useFetcher.md)
   - [useCache](api/useCache.md)
   - [useResultCache](api/useResultCache.md)
+  - [useSubscription](api/useSubscription.md)
   - [useRetrieve](api/useRetrieve.md)
 - Components:
   - [RestProvider](api/RestProvider.md)

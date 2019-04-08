@@ -68,6 +68,7 @@ Additional optional request options passed on to network manager and reducer.
 export interface RequestOptions {
   readonly dataExpiryLength?: number;
   readonly errorExpiryLength?: number;
+  readonly pollFrequency?: number;
 }
 ```
 
@@ -78,3 +79,8 @@ Custom data cache lifetime for the fetched resource. Will override the value set
 ### errorExpiryLength?: number
 
 Custom data error lifetime for the fetched resource. Will override the value set in NetworkManager.
+
+### pollFrequency: number
+
+Frequency in millisecond to poll at. Requires using [useSubscription()](./useSubscription.md) to have
+an effect.
