@@ -8,7 +8,7 @@ function useSubscription<
 >(
   selectShape: ReadShape<S, Params, Body>,
   params: Params | null,
-  body?: Body
+  body?: Body,
 ): void;
 ```
 
@@ -21,6 +21,8 @@ Frequency must be set in [RequestShape](./RequestShape.md), otherwise will have 
 `PriceResource.ts`
 
 ```typescript
+import { Resource } from 'rest-hooks';
+
 export default class PriceResource extends Resource {
   readonly symbol: string | null = null;
   readonly price: string = '0.0';
@@ -35,15 +37,15 @@ export default class PriceResource extends Resource {
   static getRequestOptions(): RequestOptions {
     return {
       pollingFrequency: 5000, // every 5 seconds
-    }
+    };
   }
 }
-
 ```
 
 `MasterPrice.tsx`
 
 ```tsx
+import { useResource, useSubscription } from 'rest-hooks';
 import PriceResource from 'resources/PriceResource';
 
 function MasterPrice({ symbol }: { symbol: string }) {
