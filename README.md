@@ -40,11 +40,19 @@ return (
 );
 ```
 
-### And mutation
+### Mutation
 
 ```tsx
 const update = useFetcher(ArticleResource.updateRequest());
 return <ArticleForm onSubmit={data => update(data, { id })} />;
+```
+
+### And subscriptions
+
+```tsx
+const price = useResource(PriceResource.singleRequest(), { symbol });
+useSubscription(PriceResource.singleRequest(), { symbol });
+return price.value;
 ```
 
 ### ...all typed ...fast ...and consistent
