@@ -6,7 +6,7 @@ import {
   ReadShape,
   SchemaBase,
 } from '../resource';
-import { AbstractInstanceType } from '../types';
+import { AbstractInstanceType, RequestOptions } from '../types';
 
 export class ArticleResource extends Resource {
   readonly id: number | null = null;
@@ -59,7 +59,7 @@ export class ArticleResource extends Resource {
   }
 
   static singleWithUserRequest<T extends typeof ArticleResource>(
-    this: T
+    this: T,
   ): ReadShape<SchemaBase<AbstractInstanceType<T>>> {
     const baseShape = this.singleRequest();
     return {
@@ -71,7 +71,7 @@ export class ArticleResource extends Resource {
   }
 
   static listWithUserRequest<T extends typeof ArticleResource>(
-    this: T
+    this: T,
   ): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
     const baseShape = this.listRequest();
     return {
@@ -87,6 +87,15 @@ export class CoolerArticleResource extends ArticleResource {
   static urlRoot = 'http://test.com/article-cooler/';
   get things() {
     return `${this.title} five`;
+  }
+}
+
+export class PollingArticleResource extends ArticleResource {
+  static getRequestOptions(): RequestOptions {
+    return {
+      ...super.getRequestOptions(),
+      pollFrequency: 5000,
+    };
   }
 }
 
@@ -115,7 +124,7 @@ export class UserResource extends Resource {
 class OtherArticleResource extends CoolerArticleResource {}
 export class PaginatedArticleResource extends OtherArticleResource {
   static listRequest<T extends typeof Resource>(
-    this: T
+    this: T,
   ): ReadShape<
     SchemaArray<AbstractInstanceType<T>>,
     Readonly<object>,
@@ -132,7 +141,7 @@ export class NestedArticleResource extends OtherArticleResource {
   readonly user: number | null = null;
 
   static getEntitySchema<T extends typeof Resource>(
-    this: T
+    this: T,
   ): schemas.Entity<AbstractInstanceType<T>> {
     const schema = super.getEntitySchema();
     schema.define({

@@ -23,6 +23,8 @@ export interface RequestOptions {
   readonly dataExpiryLength?: number;
   /** Default error expiry length, will fall back to NetworkManager default if not defined */
   readonly errorExpiryLength?: number;
+  /** Poll with at least this frequency in miliseconds */
+  readonly pollFrequency?: number;
 }
 
 export interface ReceiveAction extends FSA<any, any> {
@@ -48,6 +50,7 @@ export interface PurgeAction extends FSA<any, any> {
     url: string;
   };
 }
+
 export interface FetchAction extends FSA<any, any> {
   type: 'fetch';
   payload: () => Promise<any>;
@@ -61,8 +64,33 @@ export interface FetchAction extends FSA<any, any> {
     reject: (reason?: any) => void;
   };
 }
+
+export interface SubscribeAction extends FSA<undefined, any> {
+  type: 'subscribe';
+  meta: {
+    schema: Schema;
+    fetch: () => Promise<any>;
+    url: string;
+    frequency?: number;
+  };
+}
+
+export interface UnsubscribeAction extends FSA<undefined, any> {
+  type: 'unsubscribe';
+  meta: {
+    url: string;
+    frequency?: number;
+  };
+}
+
 // put other actions here in union
-export type ActionTypes = FetchAction | ReceiveAction | RPCAction | PurgeAction;
+export type ActionTypes =
+  | FetchAction
+  | ReceiveAction
+  | RPCAction
+  | PurgeAction
+  | SubscribeAction
+  | UnsubscribeAction;
 
 export type Middleware = <R extends React.Reducer<any, any>>({
   dispatch,

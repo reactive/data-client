@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PollingSubscription should call after period 1`] = `
+Array [
+  Object {
+    "meta": Object {
+      "options": Object {
+        "dataExpiryLength": 2500,
+        "errorExpiryLength": 500,
+      },
+      "reject": [Function],
+      "resolve": [Function],
+      "responseType": "receive",
+      "schema": EntitySchema {
+        "_getId": [Function],
+        "_idAttribute": [Function],
+        "_key": "http://test.com/article/",
+        "_mergeStrategy": [Function],
+        "_processStrategy": [Function],
+        "denormalize": [Function],
+        "schema": Object {},
+      },
+      "throttle": true,
+      "url": "test.com",
+    },
+    "payload": [MockFunction],
+    "type": "fetch",
+  },
+]
+`;
+
+exports[`PollingSubscription should call after period 2`] = `
+Array [
+  Object {
+    "meta": Object {
+      "options": Object {
+        "dataExpiryLength": 2500,
+        "errorExpiryLength": 500,
+      },
+      "reject": [Function],
+      "resolve": [Function],
+      "responseType": "receive",
+      "schema": EntitySchema {
+        "_getId": [Function],
+        "_idAttribute": [Function],
+        "_key": "http://test.com/article/",
+        "_mergeStrategy": [Function],
+        "_processStrategy": [Function],
+        "denormalize": [Function],
+        "schema": Object {},
+      },
+      "throttle": true,
+      "url": "test.com",
+    },
+    "payload": [MockFunction],
+    "type": "fetch",
+  },
+]
+`;

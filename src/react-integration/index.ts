@@ -3,6 +3,7 @@ import {
   useFetcher,
   useRetrieve,
   useResource,
+  useSubscription,
   useResultCache,
   useMeta,
 } from './hooks';
@@ -15,6 +16,7 @@ export {
   useFetcher,
   useRetrieve,
   useResource,
+  useSubscription,
   useResultCache,
   useMeta,
   RestProvider,
