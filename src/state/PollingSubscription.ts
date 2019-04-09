@@ -69,18 +69,21 @@ export default class PollingSubscription implements Subscription {
       if ((this.frequencyHistogram.get(frequency) as number) < 1) {
         this.frequencyHistogram.delete(frequency);
 
+        // nothing subscribed to this anymore...it is invalid
+        if (this.frequencyHistogram.size === 0) {
+          this.cleanup();
+          return true;
+        }
+
         // this was the min, so find the next size
         if (frequency <= this.frequency) {
-          if (this.frequencyHistogram.size === 0) return true;
           this.frequency = min(this.frequencyHistogram.keys());
           this.run();
         }
       }
     } else if (process.env.NODE_ENV !== 'production') {
       console.error(
-        `Mismatched remove: ${this.frequency} is not subscribed for ${
-          this.url
-        }`,
+        `Mismatched remove: ${frequency} is not subscribed for ${this.url}`,
       );
     }
     return false;
@@ -88,8 +91,14 @@ export default class PollingSubscription implements Subscription {
 
   /** Cleanup means clearing out background interval. */
   cleanup() {
-    if (this.intervalId) clearInterval(this.intervalId);
-    if (this.lastIntervalId) clearInterval(this.lastIntervalId);
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = undefined;
+    }
+    if (this.lastIntervalId) {
+      clearInterval(this.lastIntervalId);
+      this.lastIntervalId = undefined;
+    }
   }
 
   /** Trigger request for latest resource */
@@ -106,6 +115,8 @@ export default class PollingSubscription implements Subscription {
           dataExpiryLength: this.frequency / 2,
           errorExpiryLength: this.frequency / 10,
         },
+        resolve: () => {},
+        reject: () => {},
       },
     });
   }
