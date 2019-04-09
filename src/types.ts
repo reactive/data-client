@@ -65,20 +65,20 @@ export interface FetchAction extends FSA<any, any> {
   };
 }
 
-export interface SubscribeAction extends FSA<string, any> {
+export interface SubscribeAction extends FSA<undefined, any> {
   type: 'subscribe';
-  payload: string;
   meta: {
     schema: Schema;
     fetch: () => Promise<any>;
+    url: string;
     frequency?: number;
   };
 }
 
-export interface UnsubscribeAction extends FSA<string, any> {
+export interface UnsubscribeAction extends FSA<undefined, any> {
   type: 'unsubscribe';
-  payload: string;
   meta: {
+    url: string;
     frequency?: number;
   };
 }

@@ -16,18 +16,18 @@ S extends Schema
   useEffect(() => {
     dispatch({
       type: 'subscribe',
-      payload: url,
       meta: {
         schema,
         fetch: () => fetch(url, body as Body),
+        url,
         frequency: options && options.pollFrequency,
       },
     });
     return () => {
       dispatch({
         type: 'unsubscribe',
-        payload: url,
         meta: {
+          url,
           frequency: options && options.pollFrequency,
         },
       });

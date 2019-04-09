@@ -54,8 +54,10 @@ export default class SubscriptionManager<S extends SubscriptionConstructable> {
     action: SubscribeAction,
     dispatch: React.Dispatch<any>,
   ) {
-    const url = action.payload;
+    const url = action.meta.url;
     if (url in this.subscriptions) {
+      this.subscriptions[url].add(action.meta.frequency);
+    } else {
       this.subscriptions[url] = new this.Subscription(
         {
           schema: action.meta.schema,
@@ -65,8 +67,6 @@ export default class SubscriptionManager<S extends SubscriptionConstructable> {
         },
         dispatch,
       ) as InstanceType<S>;
-    } else {
-      this.subscriptions[url].add(action.meta.frequency);
     }
   }
 
@@ -77,10 +77,7 @@ export default class SubscriptionManager<S extends SubscriptionConstructable> {
     action: UnsubscribeAction,
     dispatch: React.Dispatch<any>,
   ) {
-    // polling subscriptions require frequency
-    if (action.meta.frequency === undefined) return;
-
-    const url = action.payload;
+    const url = action.meta.url;
     if (url in this.subscriptions) {
       const empty = this.subscriptions[url].remove(action.meta.frequency);
       if (empty) {
