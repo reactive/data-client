@@ -21,7 +21,7 @@ Frequency must be set in [RequestShape](./RequestShape.md), otherwise will have 
 `PriceResource.ts`
 
 ```typescript
-import { Resource } from 'rest-hooks';
+import { Resource, RequestOptions } from 'rest-hooks';
 
 export default class PriceResource extends Resource {
   readonly symbol: string | null = null;
@@ -36,7 +36,7 @@ export default class PriceResource extends Resource {
   /** Used as default options for every RequestShape */
   static getRequestOptions(): RequestOptions {
     return {
-      pollingFrequency: 5000, // every 5 seconds
+      pollFrequency: 5000, // every 5 seconds
     };
   }
 }
