@@ -51,6 +51,8 @@ export type SchemaArray<T> = SchemaArray<T>;
 export type SchemaBase<T> = SchemaBase<T>;
 export type SchemaOf<T> = SchemaOf<T>;
 export type AbstractInstanceType<T> = AbstractInstanceType<T>;
+export type RequestOptions = RequestOptions;
+export type Method = Method;
 
 export type NetworkError = NetworkError;
 export type Request = RequestType;
@@ -67,7 +69,5 @@ export {
   useMeta,
   NetworkManager,
   NetworkErrorBoundary,
-  RequestOptions,
-  Method,
   schemas,
 };
