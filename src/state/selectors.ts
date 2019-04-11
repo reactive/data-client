@@ -40,6 +40,9 @@ S extends Schema
   getUrl: (params: Params) => string,
 ): (state: State<any>, params: Params) => SchemaOf<typeof schema> | null {
   const getResultList = resultFinderFromSchema(schema);
+  const dataSchema = getResultList
+    ? getResultList(schema)
+    : (schema as SchemaOf<typeof schema>);
   const selectResults = makeResults<any>(getUrl);
   const ret = createSelector(
     (state: State<any>) => state.entities,
@@ -47,15 +50,20 @@ S extends Schema
     (state: State<any>, params: Params) => params,
     (entities, results, params: Params) => {
       // We can grab entities without actual results if the params compute a primary key
-      if (isEntity(schema) && !results) {
-        const id = schema.getId(params, undefined, '');
+      let getRequestListForThis = getResultList;
+      if (isEntity(dataSchema) && !results) {
+        const id = dataSchema.getId(params, undefined, '');
         // in case we don't even have entities for a model yet, denormalize() will throw
         if (
           id !== undefined &&
           id !== '' &&
-          entities[schema.key] !== undefined
+          entities[dataSchema.key] !== undefined
         ) {
           results = id;
+          // simplify schema since we already grabbed the id
+          schema = dataSchema;
+          // don't try to extract for this query
+          getRequestListForThis = null;
         }
       }
       if (!entities || !results) return null;
@@ -76,8 +84,8 @@ S extends Schema
         }
       }
       let output = denormalize(results, schema, entities);
-      if (getResultList) {
-        output = getResultList(output);
+      if (getRequestListForThis) {
+        output = getRequestListForThis(output);
       }
       if (!output) return null;
       if (Array.isArray(output)) {

@@ -79,6 +79,23 @@ describe('selectors', () => {
 
       expect(selected).toBe(article);
     });
+    it('should find value when no result exists but primary key is used when using nested schema', async () => {
+      const pageArticle = PaginatedArticleResource.fromJS(article);
+      let { schema, getUrl } = PaginatedArticleResource.singleRequest();
+      const select = makeSchemaSelector(schema, getUrl);
+      const state = {
+        entities: {
+          [PaginatedArticleResource.getKey()]: {
+            [params.id]: pageArticle,
+          },
+        },
+        results: {},
+        meta: {},
+      };
+      const selected = select(state, params);
+
+      expect(selected).toBe(pageArticle);
+    });
     it('should find value when not using primary key as param', async () => {
       const urlParams = { title: 'bob' };
       const state = {
