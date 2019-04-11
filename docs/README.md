@@ -26,6 +26,7 @@
   - [Fetching multiple resources at once](guides/fetch-multiple.md)
   - [Pagination](guides/pagination.md)
   - [Understanding Immutability](guides/immutability.md)
+  - [Mocking unfinished endpoints](guides/mocking-unfinished.md)
 - 🖧 Defining your network interface
   - [Defining your Resource types](guides/resource-types.md)
   - [Computed properties](guides/computed-properties.md)
