@@ -123,6 +123,7 @@ export class UserResource extends Resource {
 }
 class OtherArticleResource extends CoolerArticleResource {}
 export class PaginatedArticleResource extends OtherArticleResource {
+  static urlRoot = 'http://test.com/article-paginated/'
   static listRequest<T extends typeof Resource>(
     this: T,
   ): ReadShape<
@@ -133,6 +134,19 @@ export class PaginatedArticleResource extends OtherArticleResource {
     return {
       ...super.listRequest(),
       schema: { results: [this.getEntitySchema()] },
+    };
+  }
+
+  static singleRequest<T extends typeof Resource>(
+    this: T,
+  ): ReadShape<
+    SchemaBase<AbstractInstanceType<T>>,
+    Readonly<object>,
+    Readonly<object>
+  > {
+    return {
+      ...super.listRequest(),
+      schema: { data: this.getEntitySchema() },
     };
   }
 }
