@@ -6,6 +6,7 @@ import {
   useSubscription,
   useResultCache,
   useMeta,
+  useError,
 } from './hooks';
 import RestProvider from './provider';
 import NetworkErrorBoundary, { NetworkError } from './NetworkErrorBoundary';
@@ -19,6 +20,7 @@ export {
   useSubscription,
   useResultCache,
   useMeta,
+  useError,
   RestProvider,
   NetworkErrorBoundary,
 };
