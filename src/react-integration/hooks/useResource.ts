@@ -1,45 +1,19 @@
 import { ReadShape, Schema, RequestResource, SchemaOf } from '../../resource';
 import useCache from './useCache';
 import useRetrieve from './useRetrieve';
-import useMeta from './useMeta';
-
-/** Access a resource or error if failed to get it */
-function useError<
-Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends Schema
->(
-  selectShape: ReadShape<S, Params, Body>,
-  params: Params | null,
-  resource: RequestResource<typeof selectShape> | null,
-) {
-  const meta = useMeta(selectShape, params);
-  if (!resource) {
-    if (!meta) return;
-    if (!meta.error) {
-      // this means we probably deleted the entity found in this result
-      const err: any = new Error(
-        `Resource not found ${params ? selectShape.getUrl(params) : ''}`,
-      );
-      err.status = 404;
-      throw err;
-    } else {
-      throw meta.error;
-    }
-  }
-}
+import useError from './useError';
 
 type ResourceArgs<
-S extends Schema,
-Params extends Readonly<object>,
-Body extends Readonly<object> | void
+  S extends Schema,
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void
 > = [ReadShape<S, Params, Body>, Params | null];
 
 /** single form resource */
 function useOneResource<
-Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends Schema
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void,
+  S extends Schema
 >(selectShape: ReadShape<S, Params, Body>, params: Params | null) {
   let maybePromise = useRetrieve(selectShape, params);
   const resource = useCache(selectShape, params);
@@ -61,9 +35,9 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
   );
   const resources = resourceList.map(
     <
-    Params extends Readonly<object>,
-    Body extends Readonly<object> | void,
-    S extends Schema
+      Params extends Readonly<object>,
+      Body extends Readonly<object> | void,
+      S extends Schema
     >([select, params]: ResourceArgs<S, Params, Body>) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
       useCache(select, params),
@@ -156,9 +130,9 @@ export default function useResource<
   v5: [ReadShape<S5, P5, B5>, P5 | null],
 ): [SchemaOf<S1>, SchemaOf<S2>, SchemaOf<S3>, SchemaOf<S4>, SchemaOf<S5>];
 export default function useResource<
-Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends Schema
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void,
+  S extends Schema
 >(...args: ResourceArgs<S, Params, Body> | ResourceArgs<S, Params, Body>[]) {
   // this conditional use of hooks is ok as long as the structure of the arguments don't change
   if (Array.isArray(args[0])) {

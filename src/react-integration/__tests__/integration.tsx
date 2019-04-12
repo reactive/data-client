@@ -217,7 +217,7 @@ describe('<RestProvider />', () => {
             id: payload.id,
           },
         ],
-        [UserResource.listRequest(), {}]
+        [UserResource.listRequest(), {}],
       );
     }, fbmock);
     expect(fbmock).toBeCalled();

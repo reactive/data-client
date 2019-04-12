@@ -1,6 +1,4 @@
-import SubscriptionManager, {
-  Subscription,
-} from '../SubscriptionManager';
+import SubscriptionManager, { Subscription } from '../SubscriptionManager';
 import { SubscribeAction, UnsubscribeAction } from '../../types';
 import { PollingArticleResource } from '../../__tests__/common';
 
@@ -13,7 +11,6 @@ beforeAll(() => {
 afterAll(() => {
   window.removeEventListener('error', onError);
 });
-
 
 describe('SubscriptionManager', () => {
   class TestSubscription implements Subscription {

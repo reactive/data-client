@@ -6,9 +6,9 @@ import useMeta from './useMeta';
 
 /** Returns whether the data at this url is fresh or stale */
 function useIsStale<
-Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends Schema
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void,
+  S extends Schema
 >(selectShape: ReadShape<S, Params, Body>, params: Params | null): boolean {
   const meta = useMeta(selectShape, params);
   if (!meta) {
@@ -19,9 +19,9 @@ S extends Schema
 
 /** Request a resource if it is not in cache. */
 export default function useRetrieve<
-Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends Schema
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void,
+  S extends Schema
 >(selectShape: ReadShape<S, Params, Body>, params: Params | null, body?: Body) {
   const fetch = useFetcher(selectShape, true);
   const dataStale = useIsStale(selectShape, params);

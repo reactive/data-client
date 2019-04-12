@@ -7,7 +7,7 @@ afterEach(cleanup);
 
 describe('NetworkManager', () => {
   const manager = new NetworkManager();
-  const getState = () => {}
+  const getState = () => {};
   describe('getMiddleware()', () => {
     it('should return the same value every call', () => {
       const a = manager.getMiddleware();
