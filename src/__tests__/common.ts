@@ -123,7 +123,7 @@ export class UserResource extends Resource {
 }
 class OtherArticleResource extends CoolerArticleResource {}
 export class PaginatedArticleResource extends OtherArticleResource {
-  static urlRoot = 'http://test.com/article-paginated/'
+  static urlRoot = 'http://test.com/article-paginated/';
   static listRequest<T extends typeof Resource>(
     this: T,
   ): ReadShape<

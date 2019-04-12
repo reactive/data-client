@@ -12,7 +12,6 @@ afterAll(() => {
   window.removeEventListener('error', onError);
 });
 
-
 describe('PollingSubscription', () => {
   const dispatch = jest.fn();
   const a = () => Promise.resolve({ id: 5, title: 'hi' });
