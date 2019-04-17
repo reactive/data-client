@@ -6,6 +6,7 @@ import useResource from './useResource';
 import useSubscription from './useSubscription';
 import useMeta from './useMeta';
 import useError from './useError';
+import useSelection_unstable from './useSelection';
 
 export {
   useFetcher,
@@ -16,4 +17,5 @@ export {
   useResource,
   useSubscription,
   useMeta,
+  useSelection_unstable,
 };
