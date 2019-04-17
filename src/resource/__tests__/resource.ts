@@ -150,6 +150,7 @@ Array [
 
   describe('Resource.fetch()', () => {
     const id = 5;
+    const idHtml = 6;
     const payload = {
       id,
       title: 'happy',
@@ -172,6 +173,9 @@ Array [
       nock('http://test.com')
         .get(`/article-cooler/${payload.id}`)
         .reply(200, payload);
+      nock('http://test.com')
+        .get(`/article-cooler/${idHtml}`)
+        .reply(200, '<body>this is html</body>');
 
       nock('http://test.com')
         .post('/article-cooler/')
@@ -254,6 +258,15 @@ Array [
       );
 
       expect(response).toEqual(patchResponseBody);
+    });
+
+    it('should throw if response is not json', async () => {
+      await expect(
+        CoolerArticleResource.fetch(
+          'get',
+          CoolerArticleResource.url({ id: idHtml }),
+        ),
+      ).rejects.toMatchSnapshot();
     });
   });
 
