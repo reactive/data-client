@@ -1,9 +1,6 @@
-import { cleanup } from 'react-testing-library';
 import NetworkManager from '../NetworkManager';
 import { FetchAction } from '../../types';
 import { ArticleResource } from '../../__tests__/common';
-
-afterEach(cleanup);
 
 describe('NetworkManager', () => {
   const manager = new NetworkManager();
@@ -24,7 +21,7 @@ describe('NetworkManager', () => {
           () =>
             new Promise(resolve => {
               setTimeout(resolve, 1000);
-            }),
+            })
         )
         .catch((e: any) => {
           rejection = e;

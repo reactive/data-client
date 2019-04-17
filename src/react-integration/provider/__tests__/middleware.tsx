@@ -1,8 +1,7 @@
 import React from 'react';
+import { cleanup, renderHook, act } from 'react-hooks-testing-library';
 import createEnhancedReducerHook from '../middleware';
 import { MiddlewareAPI } from '../../../types';
-
-import { testHook, act, cleanup } from 'react-testing-library';
 
 function ignoreError(e: Event) {
   e.preventDefault();
@@ -38,11 +37,11 @@ describe('createEnhancedReducerHook', () => {
   test('runs through a single middleware', () => {
     const faker = jest.fn();
     const logger = makeTestActionMiddleware(faker);
-    let state, dispatch: Function;
-    testHook(() => {
+    const { result } = renderHook(() => {
       const useEnhancedReducer = createEnhancedReducerHook(logger);
-      [state, dispatch] = useEnhancedReducer(state => state, {});
+      return useEnhancedReducer(state => state, {});
     });
+    const [state, dispatch] = result.current;
 
     expect(faker.mock.calls.length).toBe(0);
     const action = { type: 5 };
@@ -64,11 +63,11 @@ describe('createEnhancedReducerHook', () => {
       statefaker(getState()),
     );
 
-    let state, dispatch: Function;
-    testHook(() => {
+    const { result } = renderHook(() => {
       const useEnhancedReducer = createEnhancedReducerHook(methodspy, statespy);
-      [state, dispatch] = useEnhancedReducer(state => state, { double: 5 });
+      return useEnhancedReducer(state => state, { double: 5 });
     });
+    const [state, dispatch] = result.current;
 
     const action = { type: 5 };
     act(() => {
@@ -87,17 +86,18 @@ describe('createEnhancedReducerHook', () => {
   test('reducer to work properly', () => {
     const logger = makeTestActionMiddleware(() => {});
 
-    let state, dispatch: Function;
-    testHook(() => {
+    const { result } = renderHook(() => {
       const useEnhancedReducer = createEnhancedReducerHook(logger);
-      [state, dispatch] = useEnhancedReducer(
+      return useEnhancedReducer(
         (state, action) => ({ ...state, omlet: action.payload }),
         { eggs: 'bacon' },
       );
     });
+    let [state, dispatch] = result.current;
     act(() => {
       dispatch({ payload: 5 });
     });
+    [state, dispatch] = result.current;
     expect(state).toEqual({
       eggs: 'bacon',
       omlet: 5,
@@ -105,6 +105,7 @@ describe('createEnhancedReducerHook', () => {
     act(() => {
       dispatch({ payload: 'chicken' });
     });
+    [state, dispatch] = result.current;
     expect(state).toEqual({
       eggs: 'bacon',
       omlet: 'chicken',
@@ -115,14 +116,14 @@ describe('createEnhancedReducerHook', () => {
     const faker = jest.fn();
     const logger = makeTestActionMiddleware(faker);
 
-    let state, dispatch: Function;
-    testHook(() => {
+    const { result } = renderHook(() => {
       const useEnhancedReducer = createEnhancedReducerHook(
         logger,
         dispatchingMiddleware,
       );
-      [state, dispatch] = useEnhancedReducer(state => state, {});
+      return useEnhancedReducer(state => state, {});
     });
+    const [state, dispatch] = result.current;
     expect(faker.mock.calls.length).toBe(0);
     let action: any = { type: 'hi' };
     act(() => {
@@ -143,29 +144,10 @@ describe('createEnhancedReducerHook', () => {
       dispatch({ type: 'dispatch', payload: 5 });
       return (next: Function) => (action: any) => next(action);
     }
-    const test: { error: any } = { error: {} };
-    class ErrorBoundary extends React.Component {
-      state = { found: false };
-      componentDidCatch(error: any) {
-        test.error = error;
-      }
-      static getDerivedStateFromError() {
-        return {
-          found: true,
-        };
-      }
-      render() {
-        if (this.state.found) return null;
-        return this.props.children;
-      }
-    }
-    testHook(
-      () => {
-        createEnhancedReducerHook(dispatchingMiddleware)(state => state, {});
-      },
-      { wrapper: ({ children }) => <ErrorBoundary>{children}</ErrorBoundary> },
-    );
-    expect(test.error).toBeDefined();
-    expect(test.error.message).toMatchSnapshot();
+    const { result } = renderHook(() => {
+      createEnhancedReducerHook(dispatchingMiddleware)(state => state, {});
+    });
+    expect(result.error).toBeDefined();
+    expect(result.error.message).toMatchSnapshot();
   });
 });

@@ -1,12 +1,12 @@
 import React, { Suspense } from 'react';
-import { cleanup, render, act, testHook } from 'react-testing-library';
+import { cleanup, renderHook, act } from 'react-hooks-testing-library';
+
 import nock from 'nock';
 
 import {
-  ArticleResource,
   PollingArticleResource,
 } from '../../__tests__/common';
-import { useResource, useSubscription, useCache } from '../hooks';
+import { useSubscription, useCache } from '../hooks';
 import RestProvider from '../provider';
 import NetworkManager from '../../state/NetworkManager';
 import SubscriptionManager from '../../state/SubscriptionManager';
@@ -49,15 +49,11 @@ describe('<RestProvider /> with subscriptions', () => {
   // TODO: add nested resource test case that has multiple partials to test merge functionality
   let manager: NetworkManager;
   let subManager: SubscriptionManager<typeof MockPollingSubscription>;
-  function testProvider(callback: () => void, fbmock: jest.Mock<any, any>) {
-    function Fallback() {
-      fbmock();
-      return null;
-    }
-    return testHook(callback, {
+  function testProvider<T>(callback: () => T) {
+    return renderHook(callback, {
       wrapper: ({ children }) => (
         <RestProvider manager={manager} subscriptionManager={subManager}>
-          <Suspense fallback={<Fallback />}>{children}</Suspense>
+          <Suspense fallback={() => null}>{children}</Suspense>
         </RestProvider>
       ),
     });
@@ -87,34 +83,30 @@ describe('<RestProvider /> with subscriptions', () => {
 
   it('useSubscription() + useCache()', async () => {
     jest.useFakeTimers();
-    const url = PollingArticleResource.url(articlePayload);
-    const fbmock = jest.fn();
     const frequency: number = (PollingArticleResource.singleRequest()
       .options as any).pollFrequency;
-    let article: PollingArticleResource | null | void = undefined;
 
-    testProvider(() => {
+    const { result, waitForNextUpdate } = testProvider(() => {
       useSubscription(PollingArticleResource.singleRequest(), articlePayload);
-      article = useCache(
+      return useCache(
         PollingArticleResource.singleRequest(),
         articlePayload,
       );
-    }, fbmock);
+    });
 
     // should be null to start
-    expect(article).toBeDefined();
-    expect(article).toBeNull();
+    expect(result.current).toBeNull();
     // should be defined after frequency milliseconds
     jest.advanceTimersByTime(frequency);
-    await (manager as any).fetched[url];
-    expect(article).toBeInstanceOf(PollingArticleResource);
-    expect(article).toEqual(PollingArticleResource.fromJS(articlePayload));
+    await waitForNextUpdate();
+    expect(result.current).toBeInstanceOf(PollingArticleResource);
+    expect(result.current).toEqual(PollingArticleResource.fromJS(articlePayload));
     // should update again after frequency
     nock('http://test.com')
       .get(`/article/${articlePayload.id}`)
       .reply(200, { ...articlePayload, title: 'fiver' });
     jest.advanceTimersByTime(frequency);
-    await (manager as any).fetched[url];
-    expect((article as any).title).toBe('fiver');
+    await waitForNextUpdate();
+    expect((result.current as any).title).toBe('fiver');
   });
 });
