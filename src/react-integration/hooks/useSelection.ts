@@ -4,7 +4,7 @@ import { StateContext } from '../context';
 import { State } from '../../types';
 
 /** Use selector to access part of state */
-export default function useSelection_unstable<
+export default function useSelectionUnstable<
 Params extends Readonly<object>,
 F extends (state: State<unknown>, params: Params) => any
 >(
