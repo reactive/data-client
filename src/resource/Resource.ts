@@ -197,7 +197,7 @@ export default abstract class Resource {
     const res = await req;
     if (process.env.NODE_ENV !== 'production') {
       if (!res.type.includes('json') && Object.keys(res.body).length === 0) {
-        throw new Error('JSON expected but not returned from API')
+        throw new Error('JSON expected but not returned from API');
       }
     }
     return res.body;
