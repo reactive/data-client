@@ -7,6 +7,7 @@ import {
   useResultCache,
   useMeta,
   useError,
+  useSelectionUnstable,
 } from './hooks';
 import RestProvider from './provider';
 import NetworkErrorBoundary, { NetworkError } from './NetworkErrorBoundary';
@@ -21,6 +22,7 @@ export {
   useResultCache,
   useMeta,
   useError,
+  useSelectionUnstable,
   RestProvider,
   NetworkErrorBoundary,
 };
