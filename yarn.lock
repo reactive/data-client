@@ -2066,15 +2066,6 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
-better-npm-run@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/better-npm-run/-/better-npm-run-0.1.1.tgz#6bb6008591de1b72554aa8b0cefa0da1572fd481"
-  integrity sha512-SBBYsUsb6bYcUMF9QUWy39GX5kzD4CoRBP11gx/k5jYkUr4Tr+irAokIeQX5FgfCRz0Q27rt8U0J4D2TlRgQFA==
-  dependencies:
-    commander "^2.9.0"
-    dotenv "^2.0.0"
-    object-assign "^4.0.1"
-
 binary-extensions@^1.0.0:
   version "1.13.0"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-1.13.0.tgz#9523e001306a32444b907423f1de2164222f6ab1"
@@ -2561,7 +2552,7 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@^2.11.0, commander@^2.8.1, commander@^2.9.0:
+commander@^2.11.0, commander@^2.8.1:
   version "2.19.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.19.0.tgz#f6198aa84e5b83c46054b94ddedbfed5ee9ff12a"
   integrity sha512-6tvAOO+D6OENvRAh524Dh9jcfKTYDQAqvqezbCW82xj5X0pSrcpxtvRKHLG0yBY6SD7PSDrJaj+0AiOcKVd1Xg==
@@ -3065,11 +3056,6 @@ domexception@^1.0.1:
   integrity sha512-raigMkn7CJNNo6Ihro1fzG7wr3fHuYVytzquZKX5n0yizGsTcYgzdIUwj1X9pK0VvjeihV+XiclP+DjwbsSKug==
   dependencies:
     webidl-conversions "^4.0.2"
-
-dotenv@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-2.0.0.tgz#bd759c357aaa70365e01c96b7b0bec08a6e0d949"
-  integrity sha1-vXWcNXqqcDZeAclrewvsCKbg2Uk=
 
 duplexer@^0.1.1:
   version "0.1.1"
