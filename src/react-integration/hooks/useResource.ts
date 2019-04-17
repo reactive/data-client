@@ -4,16 +4,16 @@ import useRetrieve from './useRetrieve';
 import useError from './useError';
 
 type ResourceArgs<
-  S extends Schema,
-  Params extends Readonly<object>,
-  Body extends Readonly<object> | void
+S extends Schema,
+Params extends Readonly<object>,
+Body extends Readonly<object> | void
 > = [ReadShape<S, Params, Body>, Params | null];
 
 /** single form resource */
 function useOneResource<
-  Params extends Readonly<object>,
-  Body extends Readonly<object> | void,
-  S extends Schema
+Params extends Readonly<object>,
+Body extends Readonly<object> | void,
+S extends Schema
 >(selectShape: ReadShape<S, Params, Body>, params: Params | null) {
   let maybePromise = useRetrieve(selectShape, params);
   const resource = useCache(selectShape, params);
@@ -35,9 +35,9 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
   );
   const resources = resourceList.map(
     <
-      Params extends Readonly<object>,
-      Body extends Readonly<object> | void,
-      S extends Schema
+    Params extends Readonly<object>,
+    Body extends Readonly<object> | void,
+    S extends Schema
     >([select, params]: ResourceArgs<S, Params, Body>) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
       useCache(select, params),
@@ -50,89 +50,109 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
   return resources;
 }
 
+type CondNull<P, R> = P extends null ? null : R;
+
 /** Ensure a resource is available; suspending to React until it is. */
 export default function useResource<
-  P extends Readonly<object>,
+  P extends Readonly<object> | null,
   B extends Readonly<object> | void,
   S extends Schema
->(selectShape: ReadShape<S, P, B>, params: P | null): SchemaOf<S>;
+>(
+  selectShape: ReadShape<S, NonNullable<P>, B>,
+  params: P,
+): CondNull<P, SchemaOf<S>>;
 export default function useResource<
-  P1 extends Readonly<object>,
+  P1 extends Readonly<object> | null,
   B1 extends Readonly<object> | void,
   S1 extends Schema
->(v1: [ReadShape<S1, P1, B1>, P1 | null]): [SchemaOf<S1>];
+>(v1: [ReadShape<S1, NonNullable<P1>, B1>, P1]): [CondNull<P1, SchemaOf<S1>>];
 export default function useResource<
-  P1 extends Readonly<object>,
+  P1 extends Readonly<object> | null,
   B1 extends Readonly<object> | void,
   S1 extends Schema,
-  P2 extends Readonly<object>,
+  P2 extends Readonly<object> | null,
   B2 extends Readonly<object> | void,
   S2 extends Schema
 >(
-  v1: [ReadShape<S1, P1, B1>, P1 | null],
-  v2: [ReadShape<S2, P2, B2>, P2 | null],
-): [SchemaOf<S1>, SchemaOf<S2>];
+  v1: [ReadShape<S1, NonNullable<P1>, B1>, P1],
+  v2: [ReadShape<S2, NonNullable<P2>, B2>, P2],
+): [CondNull<P1, SchemaOf<S1>>, CondNull<P2, SchemaOf<S2>>];
 export default function useResource<
-  P1 extends Readonly<object>,
+  P1 extends Readonly<object> | null,
   B1 extends Readonly<object> | void,
   S1 extends Schema,
-  P2 extends Readonly<object>,
+  P2 extends Readonly<object> | null,
   B2 extends Readonly<object> | void,
   S2 extends Schema,
-  P3 extends Readonly<object>,
+  P3 extends Readonly<object> | null,
   B3 extends Readonly<object> | void,
   S3 extends Schema
 >(
-  v1: [ReadShape<S1, P1, B1>, P1 | null],
-  v2: [ReadShape<S2, P2, B2>, P2 | null],
-  v3: [ReadShape<S3, P3, B3>, P3 | null],
-): [SchemaOf<S1>, SchemaOf<S2>, SchemaOf<S3>];
+  v1: [ReadShape<S1, NonNullable<P1>, B1>, P1],
+  v2: [ReadShape<S2, NonNullable<P2>, B2>, P2],
+  v3: [ReadShape<S3, NonNullable<P3>, B3>, P3],
+): [
+  CondNull<P1, SchemaOf<S1>>,
+  CondNull<P2, SchemaOf<S2>>,
+  CondNull<P3, SchemaOf<S3>>
+];
 export default function useResource<
-  P1 extends Readonly<object>,
+  P1 extends Readonly<object> | null,
   B1 extends Readonly<object> | void,
   S1 extends Schema,
-  P2 extends Readonly<object>,
+  P2 extends Readonly<object> | null,
   B2 extends Readonly<object> | void,
   S2 extends Schema,
-  P3 extends Readonly<object>,
+  P3 extends Readonly<object> | null,
   B3 extends Readonly<object> | void,
   S3 extends Schema,
-  P4 extends Readonly<object>,
+  P4 extends Readonly<object> | null,
   B4 extends Readonly<object> | void,
   S4 extends Schema
 >(
-  v1: [ReadShape<S1, P1, B1>, P1 | null],
-  v2: [ReadShape<S2, P2, B2>, P2 | null],
-  v3: [ReadShape<S3, P3, B3>, P3 | null],
-  v4: [ReadShape<S4, P4, B4>, P4 | null],
-): [SchemaOf<S1>, SchemaOf<S2>, SchemaOf<S3>, SchemaOf<S4>];
+  v1: [ReadShape<S1, NonNullable<P1>, B1>, P1],
+  v2: [ReadShape<S2, NonNullable<P2>, B2>, P2],
+  v3: [ReadShape<S3, NonNullable<P3>, B3>, P3],
+  v4: [ReadShape<S4, NonNullable<P4>, B4>, P4],
+): [
+  CondNull<P1, SchemaOf<S1>>,
+  CondNull<P2, SchemaOf<S2>>,
+  CondNull<P3, SchemaOf<S3>>,
+  CondNull<P4, SchemaOf<S4>>
+];
 export default function useResource<
-  P1 extends Readonly<object>,
+  P1 extends Readonly<object> | null,
   B1 extends Readonly<object> | void,
   S1 extends Schema,
-  P2 extends Readonly<object>,
+  P2 extends Readonly<object> | null,
   B2 extends Readonly<object> | void,
   S2 extends Schema,
-  P3 extends Readonly<object>,
+  P3 extends Readonly<object> | null,
   B3 extends Readonly<object> | void,
   S3 extends Schema,
-  P4 extends Readonly<object>,
+  P4 extends Readonly<object> | null,
   B4 extends Readonly<object> | void,
   S4 extends Schema,
-  P5 extends Readonly<object>,
+  P5 extends Readonly<object> | null,
   B5 extends Readonly<object> | void,
   S5 extends Schema
 >(
-  v1: [ReadShape<S1, P1, B1>, P1 | null],
-  v2: [ReadShape<S2, P2, B2>, P2 | null],
-  v3: [ReadShape<S3, P3, B3>, P3 | null],
-  v4: [ReadShape<S4, P4, B4>, P4 | null],
-  v5: [ReadShape<S5, P5, B5>, P5 | null],
-): [SchemaOf<S1>, SchemaOf<S2>, SchemaOf<S3>, SchemaOf<S4>, SchemaOf<S5>];
+  v1: [ReadShape<S1, NonNullable<P1>, B1>, P1],
+  v2: [ReadShape<S2, NonNullable<P2>, B2>, P2],
+  v3: [ReadShape<S3, NonNullable<P3>, B3>, P3],
+  v4: [ReadShape<S4, NonNullable<P4>, B4>, P4],
+  v5: [ReadShape<S5, NonNullable<P5>, B5>, P5],
+): [
+  CondNull<P1, SchemaOf<S1>>,
+  CondNull<P2, SchemaOf<S2>>,
+  CondNull<P3, SchemaOf<S3>>,
+  CondNull<P4, SchemaOf<S4>>,
+  CondNull<P5, SchemaOf<S5>>
+];
 export default function useResource<
-  Params extends Readonly<object>,
-  Body extends Readonly<object> | void,
-  S extends Schema
+Params extends Readonly<object>,
+Body extends Readonly<object> | void,
+S extends Schema
 >(...args: ResourceArgs<S, Params, Body> | ResourceArgs<S, Params, Body>[]) {
   // this conditional use of hooks is ok as long as the structure of the arguments don't change
   if (Array.isArray(args[0])) {
