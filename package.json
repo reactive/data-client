@@ -112,7 +112,7 @@
   "dependencies": {
     "@types/superagent": "^4.1.1",
     "core-js": "^3.0.0",
-    "flux-standard-action": "^2.0.4",
+    "flux-standard-action": "^2.1.0",
     "lodash": "^4.17.11",
     "normalizr": "^3.3.0",
     "regenerator-runtime": "^0.13.2",
