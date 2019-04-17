@@ -194,8 +194,13 @@ export default abstract class Resource {
     let req = request[method](url).on('error', () => {});
     if (this.fetchPlugin) req = req.use(this.fetchPlugin);
     if (body) req = req.send(body);
-    const json = (await req).body;
-    return json;
+    const res = await req;
+    if (process.env.NODE_ENV !== 'production') {
+      if (!res.type.includes('json') && Object.keys(res.body).length === 0) {
+        throw new Error('JSON expected but not returned from API')
+      }
+    }
+    return res.body;
   }
 
   /** Get the entity schema defining  */
