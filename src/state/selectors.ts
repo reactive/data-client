@@ -5,14 +5,38 @@ import { isEntity, SchemaOf } from '../resource/types';
 import { Schema, denormalize } from '../resource/normal';
 import getEntityPath from './getEntityPath';
 
-export function selectMeta<R = any>(state: State<R>, url: string) {
+export function selectMeta(state: State<unknown>, url: string) {
   return state.meta[url];
 }
 
-export const makeResults = <R = any>(getUrl: (...args: any[]) => string) => (
-  state: State<R>,
+useResource(UserResource.singleRequest(), [{ id: 5 }, { id: 2}]);
+useResource(UserResource.listRequest(), [{ id: 5 }, { id: 2}]);
+
+export const makeResultSelector = <S extends Schema>(getUrl: (...args: any[]) => string, dataSchema: S) => (
+  state: State<unknown>,
   params: object,
-) => state.results[getUrl(params)] || null;
+) => {
+  const results = state.results[getUrl(params)];
+  if (isEntity(dataSchema) && !results) {
+    const id = dataSchema.getId(params, undefined, '');
+    // in case we don't even have entities for a model yet, denormalize() will throw
+    if (
+      id !== undefined &&
+      id !== '' &&
+      entities[dataSchema.key] !== undefined
+    ) {
+      results = id;
+      // simplify schema since we already grabbed the id
+      schema = dataSchema;
+      // don't try to extract for this query
+      getRequestListForThis = null;
+    }
+  }
+  /*if (Array.isArray(params)) {
+
+  }*/
+  return results || null;
+}
 
 // TODO: there should honestly be a way to use the pre-existing normalizr object
 // to not even need this implementation
@@ -43,7 +67,7 @@ S extends Schema
   const dataSchema = getResultList
     ? getResultList(schema)
     : (schema as SchemaOf<typeof schema>);
-  const selectResults = makeResults<any>(getUrl);
+  const selectResults = makeResultSelector(getUrl, dataSchema);
   const ret = createSelector(
     (state: State<any>) => state.entities,
     selectResults,

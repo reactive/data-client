@@ -3,7 +3,12 @@ import { useContext, useMemo } from 'react';
 import { StateContext } from '../context';
 import { State } from '../../types';
 
-/** Use selector to access part of state */
+/** *UNSTABLE* Use selector to access part of state
+ *
+ * If you find yourself needing this, please post to
+ * https://github.com/coinbase/rest-hooks/issues/new/choose
+ * with your use case.
+*/
 export default function useSelectionUnstable<
 Params extends Readonly<object>,
 F extends (state: State<unknown>, params: Params) => any
