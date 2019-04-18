@@ -9,7 +9,7 @@ import {
   useError,
   useSelectionUnstable,
 } from './hooks';
-import RestProvider from './provider';
+import { RestProvider, ExternalCacheProvider } from './provider';
 import NetworkErrorBoundary, { NetworkError } from './NetworkErrorBoundary';
 
 export type NetworkError = NetworkError;
@@ -24,5 +24,6 @@ export {
   useError,
   useSelectionUnstable,
   RestProvider,
+  ExternalCacheProvider,
   NetworkErrorBoundary,
 };

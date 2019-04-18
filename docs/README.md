@@ -16,6 +16,7 @@
   - [useRetrieve](api/useRetrieve.md)
 - Components:
   - [RestProvider](api/RestProvider.md)
+  - [ExternalCacheProvider](api/ExternalCacheProvider.md)
   - [NetworkErrorBoundary](api/NetworkErrorBoundary.md)
 
 ## 🎎 Patterns & Examples
@@ -27,6 +28,7 @@
   - [Pagination](guides/pagination.md)
   - [Understanding Immutability](guides/immutability.md)
   - [Mocking unfinished endpoints](guides/mocking-unfinished.md)
+  - [Redux integration](guides/redux.md)
 - 🖧 Defining your network interface
   - [Defining your Resource types](guides/resource-types.md)
   - [Computed properties](guides/computed-properties.md)

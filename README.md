@@ -72,7 +72,7 @@ For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](docs/getti
 - [x] 🌳 Tree-shakable (only use what you need)
 - [x] 🔁 Subscriptions
 - [ ] 🚯 Pluggable garbage collection policy
-- [ ] ♻️ Optional [redux](https://redux.js.org/) integration
+- [x] ♻️ Optional [redux](https://redux.js.org/) integration
 - [ ] 📙 [Storybook](https://storybook.js.org/) mocking
 
 

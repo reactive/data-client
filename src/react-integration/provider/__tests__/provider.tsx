@@ -3,7 +3,7 @@ import { cleanup, act, render } from 'react-testing-library';
 
 import { DispatchContext, StateContext } from '../../context';
 import { CoolerArticleResource } from '../../../__tests__/common';
-import RestProvider from '..';
+import RestProvider from '../RestProvider';
 import NetworkManager from '../../../state/NetworkManager';
 
 afterEach(cleanup);

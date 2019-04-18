@@ -28,7 +28,8 @@ export const resourceCustomizer = (a: any, b: any): any => {
   // use default merging in lodash.merge()
 };
 
-export default function reducer(state: State<unknown>, action: ActionTypes) {
+export default function reducer(state: State<unknown> | undefined, action: ActionTypes) {
+  if (!state) state = initialState;
   switch (action.type) {
   case 'receive':
     if (action.error) {
