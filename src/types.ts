@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  FSAAuto,
   FSAWithPayloadAndMeta,
   FSAWithMeta,
 } from 'flux-standard-action';
@@ -31,8 +30,9 @@ export interface RequestOptions {
   readonly pollFrequency?: number;
 }
 
+
 export interface ReceiveAction
-  extends FSAWithPayloadAndMeta<'receive', any, any> {
+  extends FSAWithPayloadAndMeta<'rest-hooks/receive', any, any> {
   meta: {
     schema: Schema;
     url: string;
@@ -40,13 +40,13 @@ export interface ReceiveAction
     expiresAt: number;
   };
 }
-export interface RPCAction extends FSAWithPayloadAndMeta<'rpc', any, any> {
+export interface RPCAction extends FSAWithPayloadAndMeta<'rest-hooks/rpc', any, any> {
   meta: {
     schema: Schema;
     url: string;
   };
 }
-export interface PurgeAction extends FSAWithPayloadAndMeta<'purge', any, any> {
+export interface PurgeAction extends FSAWithPayloadAndMeta<'rest-hooks/purge', any, any> {
   meta: {
     schema: schemas.Entity;
     url: string;
@@ -54,11 +54,11 @@ export interface PurgeAction extends FSAWithPayloadAndMeta<'purge', any, any> {
 }
 
 export interface FetchAction
-  extends FSAWithPayloadAndMeta<'fetch', () => Promise<any>, any> {
+  extends FSAWithPayloadAndMeta<'rest-hooks/fetch', () => Promise<any>, any> {
   meta: {
     schema?: Schema;
     url: string;
-    responseType: 'rpc' | 'receive' | 'purge';
+    responseType: 'rest-hooks/rpc' | 'rest-hooks/receive' | 'rest-hooks/purge';
     throttle: boolean;
     options?: RequestOptions;
     resolve: (value?: any | PromiseLike<any>) => void;
@@ -67,7 +67,7 @@ export interface FetchAction
 }
 
 export interface SubscribeAction
-  extends FSAWithMeta<'subscribe', undefined, any> {
+  extends FSAWithMeta<'rest-hooks/subscribe', undefined, any> {
   meta: {
     schema: Schema;
     fetch: () => Promise<any>;
@@ -77,7 +77,7 @@ export interface SubscribeAction
 }
 
 export interface UnsubscribeAction
-  extends FSAWithMeta<'unsubscribe', undefined, any> {
+  extends FSAWithMeta<'rest-hooks/unsubscribe', undefined, any> {
   meta: {
     url: string;
     frequency?: number;

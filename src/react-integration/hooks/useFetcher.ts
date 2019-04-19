@@ -5,11 +5,11 @@ import { DispatchContext } from '../context';
 
 const SHAPE_TYPE_TO_RESPONSE_TYPE: Record<
   RequestShape<any, any, any>['type'],
-  'receive' | 'rpc' | 'purge'
+  'rest-hooks/receive' | 'rest-hooks/rpc' | 'rest-hooks/purge'
 > = {
-  read: 'receive',
-  mutate: 'rpc',
-  delete: 'purge',
+  read: 'rest-hooks/receive',
+  mutate: 'rest-hooks/rpc',
+  delete: 'rest-hooks/purge',
 };
 
 /** Build an imperative dispatcher to issue network requests. */
@@ -36,7 +36,7 @@ export default function useFetcher<
       });
 
       dispatch({
-        type: 'fetch',
+        type: 'rest-hooks/fetch',
         payload: () => fetch(url, body),
         meta: {
           schema,

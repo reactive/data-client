@@ -47,7 +47,7 @@ export default class SubscriptionManager<S extends SubscriptionConstructable> {
     }
   }
 
-  /** Called when middleware intercepts 'subscribe' action.
+  /** Called when middleware intercepts 'rest-hooks/subscribe' action.
    *
    */
   protected handleSubscribe(
@@ -70,7 +70,7 @@ export default class SubscriptionManager<S extends SubscriptionConstructable> {
     }
   }
 
-  /** Called when middleware intercepts 'unsubscribe' action.
+  /** Called when middleware intercepts 'rest-hooks/unsubscribe' action.
    *
    */
   protected handleUnsubscribe(
@@ -90,10 +90,10 @@ export default class SubscriptionManager<S extends SubscriptionConstructable> {
 
   /** Attaches Manager to store
    *
-   * Intercepts 'subscribe'/'unsubscribe' to register resources that
+   * Intercepts 'rest-hooks/subscribe'/'rest-hooks/unsubscribe' to register resources that
    * need to be kept up to date.
    *
-   * Will possibly dispatch 'fetch' or 'receive' to keep resources fresh
+   * Will possibly dispatch 'rest-hooks/fetch' or 'rest-hooks/receive' to keep resources fresh
    *
    */
   getMiddleware<T extends SubscriptionManager<S>>(this: T) {
@@ -104,10 +104,10 @@ export default class SubscriptionManager<S extends SubscriptionConstructable> {
         action: Actions,
       ) => {
         switch (action.type) {
-        case 'subscribe':
+        case 'rest-hooks/subscribe':
           this.handleSubscribe(action, dispatch);
           return;
-        case 'unsubscribe':
+        case 'rest-hooks/unsubscribe':
           this.handleUnsubscribe(action, dispatch);
           return;
         default:

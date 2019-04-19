@@ -31,7 +31,7 @@ export const resourceCustomizer = (a: any, b: any): any => {
 export default function reducer(state: State<unknown> | undefined, action: ActionTypes) {
   if (!state) state = initialState;
   switch (action.type) {
-  case 'receive':
+  case 'rest-hooks/receive':
     if (action.error) {
       return {
         ...state,
@@ -64,7 +64,7 @@ export default function reducer(state: State<unknown> | undefined, action: Actio
         },
       },
     };
-  case 'rpc':
+  case 'rest-hooks/rpc':
     if (action.error) return state;
     let { entities } = normalize(action.payload, action.meta.schema);
     return {
@@ -75,7 +75,7 @@ export default function reducer(state: State<unknown> | undefined, action: Actio
         resourceCustomizer,
       ),
     };
-  case 'purge':
+  case 'rest-hooks/purge':
     if (action.error) return state;
     const key = action.meta.schema.key;
     const pk = action.meta.url;

@@ -10,7 +10,7 @@ Array [
       },
       "reject": [Function],
       "resolve": [Function],
-      "responseType": "receive",
+      "responseType": "rest-hooks/receive",
       "schema": EntitySchema {
         "_getId": [Function],
         "_idAttribute": [Function],
@@ -24,7 +24,7 @@ Array [
       "url": "test.com",
     },
     "payload": [MockFunction],
-    "type": "fetch",
+    "type": "rest-hooks/fetch",
   },
 ]
 `;
@@ -39,7 +39,7 @@ Array [
       },
       "reject": [Function],
       "resolve": [Function],
-      "responseType": "receive",
+      "responseType": "rest-hooks/receive",
       "schema": EntitySchema {
         "_getId": [Function],
         "_idAttribute": [Function],
@@ -53,7 +53,7 @@ Array [
       "url": "test.com",
     },
     "payload": [MockFunction],
-    "type": "fetch",
+    "type": "rest-hooks/fetch",
   },
 ]
 `;

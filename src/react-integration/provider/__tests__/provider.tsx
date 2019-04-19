@@ -55,7 +55,7 @@ describe('<RestProvider />', () => {
     expect(dispatch).toBeDefined();
     expect(state).toBeDefined();
     const action = {
-      type: 'receive',
+      type: 'rest-hooks/receive',
       payload: { id: 5, title: 'hi', content: 'more things here' },
       meta: {
         schema: CoolerArticleResource.getEntitySchema(),

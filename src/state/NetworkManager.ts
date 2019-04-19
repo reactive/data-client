@@ -41,7 +41,7 @@ export default class NetworkManager {
     delete this.fetched[url];
   }
 
-  /** Called when middleware intercepts 'fetch' action.
+  /** Called when middleware intercepts 'rest-hooks/fetch' action.
    *
    * Will then start a promise for a url and potentially start the network
    * fetch.
@@ -132,9 +132,9 @@ export default class NetworkManager {
 
   /** Attaches NetworkManager to store
    *
-   * Intercepts 'fetch' actions to start requests.
+   * Intercepts 'rest-hooks/fetch' actions to start requests.
    *
-   * Resolve/rejects a request when matching 'receive' event
+   * Resolve/rejects a request when matching 'rest-hooks/receive' event
    * is seen.
    */
   getMiddleware = memoize(function<T extends NetworkManager>(this: T) {
@@ -145,12 +145,12 @@ export default class NetworkManager {
         action: React.ReducerAction<R>,
       ) => {
         switch (action.type) {
-        case 'fetch':
+        case 'rest-hooks/fetch':
           this.handleFetch(action, dispatch);
           return;
-        case 'purge':
-        case 'rpc':
-        case 'receive':
+        case 'rest-hooks/purge':
+        case 'rest-hooks/rpc':
+        case 'rest-hooks/receive':
           if (action.meta.url in this.fetched) {
             this.handleReceive(action);
           }

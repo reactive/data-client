@@ -49,7 +49,7 @@ describe('SubscriptionManager', () => {
         ? () => Promise.reject(new Error('Failed'))
         : () => Promise.resolve(payload);
       return {
-        type: 'subscribe',
+        type: 'rest-hooks/subscribe',
         meta: {
           schema: PollingArticleResource.getEntitySchema(),
           url: PollingArticleResource.url(payload),
@@ -60,7 +60,7 @@ describe('SubscriptionManager', () => {
     }
     function createUnsubscribeAction(payload: {}): UnsubscribeAction {
       return {
-        type: 'unsubscribe',
+        type: 'rest-hooks/unsubscribe',
         meta: {
           url: PollingArticleResource.url(payload),
           frequency: 1000,
@@ -143,7 +143,7 @@ describe('SubscriptionManager', () => {
     });
 
     it('should let other actions pass through', () => {
-      const action = { type: 'receive' };
+      const action = { type: 'rest-hooks/receive' };
       next.mockReset();
 
       middleware({ dispatch, getState })(next)(action as any);

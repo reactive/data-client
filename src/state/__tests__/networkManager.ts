@@ -33,24 +33,24 @@ describe('NetworkManager', () => {
   });
   describe('middleware', () => {
     const fetchResolveAction: FetchAction = {
-      type: 'fetch',
+      type: 'rest-hooks/fetch',
       payload: () => Promise.resolve({ id: 5, title: 'hi' }),
       meta: {
         schema: ArticleResource.getEntitySchema(),
         url: ArticleResource.url({ id: 5 }),
-        responseType: 'receive',
+        responseType: 'rest-hooks/receive',
         throttle: false,
         reject: (v: any) => null,
         resolve: (v: any) => null,
       },
     };
     const fetchRejectAction: FetchAction = {
-      type: 'fetch',
+      type: 'rest-hooks/fetch',
       payload: () => Promise.reject(new Error('Failed')),
       meta: {
         schema: ArticleResource.getEntitySchema(),
         url: ArticleResource.url({ id: 5 }),
-        responseType: 'receive',
+        responseType: 'rest-hooks/receive',
         throttle: false,
         reject: (v: any) => null,
         resolve: (v: any) => null,
