@@ -40,6 +40,7 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
       renderRestHook = createRenderRestHook(makeProvider);
     });
     afterEach(() => {
+      nock.cleanAll();
       renderRestHook.cleanup();
     });
 
@@ -47,9 +48,10 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
       jest.useFakeTimers();
       const frequency: number = (PollingArticleResource.singleRequest()
         .options as any).pollFrequency;
+      let active = true;
 
-      const { result, waitForNextUpdate } = renderRestHook(() => {
-        useSubscription(PollingArticleResource.singleRequest(), articlePayload);
+      const { result, waitForNextUpdate, rerender } = renderRestHook(() => {
+        useSubscription(PollingArticleResource.singleRequest(), articlePayload, undefined, active);
         return useCache(PollingArticleResource.singleRequest(), articlePayload);
       });
 
@@ -69,6 +71,16 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
       jest.advanceTimersByTime(frequency);
       await waitForNextUpdate();
       expect((result.current as any).title).toBe('fiver');
+
+      // should not update if active is false
+      active = false;
+      rerender();
+      nock('http://test.com')
+        .get(`/article/${articlePayload.id}`)
+        .reply(200, { ...articlePayload, title: 'sixer' });
+      jest.advanceTimersByTime(frequency);
+      expect((result.current as any).title).toBe('fiver');
     });
+
   });
 }

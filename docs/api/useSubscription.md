@@ -9,6 +9,7 @@ function useSubscription<
   selectShape: ReadShape<S, Params, Body>,
   params: Params | null,
   body?: Body,
+  active?: boolean = true,
 ): void;
 ```
 
@@ -54,6 +55,37 @@ function MasterPrice({ symbol }: { symbol: string }) {
   // ...
 }
 ```
+
+## Only subscribe while element is visible
+
+`MasterPrice.tsx`
+
+```tsx
+import { useRef } from 'react';
+import { useResource, useSubscription } from 'rest-hooks';
+import PriceResource from 'resources/PriceResource';
+
+function MasterPrice({ symbol }: { symbol: string }) {
+  const price = useResource(PriceResource.singleRequest(), { symbol });
+  const ref = useRef();
+  const onScreen = useOnScreen(ref);
+  useSubscription(
+    PriceResource.singleRequest(),
+    { symbol },
+    undefined,
+    onScreen,
+  );
+
+  return (
+    <div ref={ref}>{price.value.toLocaleString('en', { currency: 'USD' })}</div>
+  );
+}
+```
+
+Using the last argument `active` we control whether the subscription is active or not
+based on whether the element rendered is [visible on screen](https://usehooks.com/useOnScreen/).
+
+[useOnScreen()](https://usehooks.com/useOnScreen/) uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant.
 
 ## Useful `RequestShape`s to send
 
