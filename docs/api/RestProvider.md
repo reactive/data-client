@@ -16,3 +16,18 @@ ReactDOM.render(
   document.body
 );
 ```
+
+## initialState?: State<unknown>
+
+```
+type State<T> = Readonly<{
+  entities: Readonly<{ [k: string]: { [id: string]: T } | undefined }>;
+  results: Readonly<{ [url: string]: unknown | PK[] | PK | undefined }>;
+  meta: Readonly<{
+    [url: string]: { date: number; error?: Error; expiresAt: number };
+  }>;
+}>;
+```
+
+Instead of starting with an empty cache, you can provide your own initial state. This can
+be useful for testing, or rehydrating the cache state when using server side rendering.

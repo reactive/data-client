@@ -24,6 +24,8 @@ ReactDOM.render(
 );
 ```
 
+Alternatively [integrate state with redux](../guides/redux.md)
+
 ## 3) Add [Suspense](https://reactjs.org/blog/2018/11/13/react-conf-recap.html)
 
 Suspense will show a fallback while content is loading.
