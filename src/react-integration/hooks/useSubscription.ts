@@ -8,12 +8,13 @@ export default function useSubscription<
   Params extends Readonly<object>,
   Body extends Readonly<object> | void,
   S extends Schema
->(requestShape: ReadShape<S, Params, Body>, params: Params, body?: Body) {
+>(requestShape: ReadShape<S, Params, Body>, params: Params, body?: Body, active = true) {
   const { fetch, schema, getUrl, options } = requestShape;
   const url = getUrl(params);
   const dispatch = useContext(DispatchContext);
 
   useEffect(() => {
+    if (!active) return;
     dispatch({
       type: 'rest-hooks/subscribe',
       meta: {
@@ -32,5 +33,5 @@ export default function useSubscription<
         },
       });
     };
-  }, [dispatch, fetch, schema, url, options, body]);
+  }, [dispatch, fetch, schema, url, options, body, active]);
 }

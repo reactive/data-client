@@ -1,5 +1,5 @@
-import React, { Suspense } from 'react';
-import { cleanup, renderHook, act } from 'react-hooks-testing-library';
+import React from 'react';
+import { cleanup } from 'react-hooks-testing-library';
 
 import nock from 'nock';
 
@@ -40,10 +40,44 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
       renderRestHook = createRenderRestHook(makeProvider);
     });
     afterEach(() => {
+      nock.cleanAll();
       renderRestHook.cleanup();
     });
 
     it('useSubscription() + useCache()', async () => {
+      jest.useFakeTimers();
+      const frequency: number = (PollingArticleResource.singleRequest()
+        .options as any).pollFrequency;
+      let active = true;
+
+      const { result, waitForNextUpdate, rerender } = renderRestHook(() => {
+        useSubscription(
+          PollingArticleResource.singleRequest(),
+          articlePayload,
+          undefined,
+          active,
+        );
+        return useCache(PollingArticleResource.singleRequest(), articlePayload);
+      });
+
+      await validateSubscription(
+        result,
+        frequency,
+        waitForNextUpdate,
+        articlePayload,
+      );
+
+      // should not update if active is false
+      active = false;
+      rerender();
+      nock('http://test.com')
+        .get(`/article/${articlePayload.id}`)
+        .reply(200, { ...articlePayload, title: 'sixer' });
+      jest.advanceTimersByTime(frequency);
+      expect((result.current as any).title).toBe('fiver');
+    });
+
+    it('useSubscription() without active arg', async () => {
       jest.useFakeTimers();
       const frequency: number = (PollingArticleResource.singleRequest()
         .options as any).pollFrequency;
@@ -53,22 +87,38 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
         return useCache(PollingArticleResource.singleRequest(), articlePayload);
       });
 
-      // should be null to start
-      expect(result.current).toBeNull();
-      // should be defined after frequency milliseconds
-      jest.advanceTimersByTime(frequency);
-      await waitForNextUpdate();
-      expect(result.current).toBeInstanceOf(PollingArticleResource);
-      expect(result.current).toEqual(
-        PollingArticleResource.fromJS(articlePayload),
+      await validateSubscription(
+        result,
+        frequency,
+        waitForNextUpdate,
+        articlePayload,
       );
-      // should update again after frequency
-      nock('http://test.com')
-        .get(`/article/${articlePayload.id}`)
-        .reply(200, { ...articlePayload, title: 'fiver' });
-      jest.advanceTimersByTime(frequency);
-      await waitForNextUpdate();
-      expect((result.current as any).title).toBe('fiver');
     });
   });
+}
+async function validateSubscription(
+  result: { readonly current: PollingArticleResource | null; readonly error: Error },
+  frequency: number,
+  waitForNextUpdate: () => Promise<void>,
+  articlePayload: {
+  id: number;
+  title: string;
+  content: string;
+  tags: string[];
+  },
+) {
+  // should be null to start
+  expect(result.current).toBeNull();
+  // should be defined after frequency milliseconds
+  jest.advanceTimersByTime(frequency);
+  await waitForNextUpdate();
+  expect(result.current).toBeInstanceOf(PollingArticleResource);
+  expect(result.current).toEqual(PollingArticleResource.fromJS(articlePayload));
+  // should update again after frequency
+  nock('http://test.com')
+    .get(`/article/${articlePayload.id}`)
+    .reply(200, { ...articlePayload, title: 'fiver' });
+  jest.advanceTimersByTime(frequency);
+  await waitForNextUpdate();
+  expect((result.current as any).title).toBe('fiver');
 }
