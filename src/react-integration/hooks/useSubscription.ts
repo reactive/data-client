@@ -15,7 +15,7 @@ export default function useSubscription<
 
   useEffect(() => {
     dispatch({
-      type: 'subscribe',
+      type: 'rest-hooks/subscribe',
       meta: {
         schema,
         fetch: () => fetch(url, body as Body),
@@ -25,7 +25,7 @@ export default function useSubscription<
     });
     return () => {
       dispatch({
-        type: 'unsubscribe',
+        type: 'rest-hooks/unsubscribe',
         meta: {
           url,
           frequency: options && options.pollFrequency,

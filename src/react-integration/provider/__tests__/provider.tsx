@@ -3,7 +3,7 @@ import { cleanup, act, render } from 'react-testing-library';
 
 import { DispatchContext, StateContext } from '../../context';
 import { CoolerArticleResource } from '../../../__tests__/common';
-import RestProvider from '..';
+import RestProvider from '../RestProvider';
 import NetworkManager from '../../../state/NetworkManager';
 
 afterEach(cleanup);
@@ -55,7 +55,7 @@ describe('<RestProvider />', () => {
     expect(dispatch).toBeDefined();
     expect(state).toBeDefined();
     const action = {
-      type: 'receive',
+      type: 'rest-hooks/receive',
       payload: { id: 5, title: 'hi', content: 'more things here' },
       meta: {
         schema: CoolerArticleResource.getEntitySchema(),

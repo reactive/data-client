@@ -97,7 +97,7 @@ describe('reducer', () => {
   describe('singles', () => {
     const id = 20;
     const action: ReceiveAction = {
-      type: 'receive',
+      type: 'rest-hooks/receive',
       payload: { id, title: 'hi', content: 'this is the content' },
       meta: {
         schema: ArticleResource.getEntitySchema(),
@@ -154,7 +154,7 @@ describe('reducer', () => {
     const id = 20;
     const payload = { id, title: 'hi', content: 'this is the content' };
     const action: RPCAction = {
-      type: 'rpc',
+      type: 'rest-hooks/rpc',
       payload,
       meta: {
         schema: ArticleResource.getEntitySchema(),
@@ -172,7 +172,7 @@ describe('reducer', () => {
   it('purge should delete entities', () => {
     const id = 20;
     const action: PurgeAction = {
-      type: 'purge',
+      type: 'rest-hooks/purge',
       payload: {},
       meta: {
         schema: ArticleResource.getEntitySchema(),
@@ -207,7 +207,7 @@ describe('reducer', () => {
     const id = 20;
     const error = new Error('hi');
     const action: ReceiveAction = {
-      type: 'receive',
+      type: 'rest-hooks/receive',
       payload: error,
       meta: {
         schema: ArticleResource.getEntitySchema(),
@@ -229,7 +229,7 @@ describe('reducer', () => {
     const id = 20;
     const error = new Error('hi');
     const action: RPCAction = {
-      type: 'rpc',
+      type: 'rest-hooks/rpc',
       payload: error,
       meta: {
         schema: ArticleResource.getEntitySchema(),
@@ -249,7 +249,7 @@ describe('reducer', () => {
     const id = 20;
     const error = new Error('hi');
     const action: PurgeAction = {
-      type: 'purge',
+      type: 'rest-hooks/purge',
       payload: error,
       meta: {
         schema: ArticleResource.getEntitySchema(),
@@ -273,12 +273,12 @@ describe('reducer', () => {
   });
   it('other types should do nothing', () => {
     const action: FetchAction = {
-      type: 'fetch',
+      type: 'rest-hooks/fetch',
       payload: () => new Promise<any>(() => null),
       meta: {
         schema: ArticleResource.getEntitySchema(),
         url: ArticleResource.url({ id: 5 }),
-        responseType: 'rpc',
+        responseType: 'rest-hooks/rpc',
         throttle: true,
         reject: (v: any) => null,
         resolve: (v: any) => null,

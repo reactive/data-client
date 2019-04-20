@@ -68,11 +68,11 @@ For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](docs/getti
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination
 - [x] ✨ Optimistic updates
-- [x] 🧘 Flexible to fit any API design (one size fits all)
+- [x] 🧘 [Flexible](docs/api/RequestShape.md) to fit any API design (one size fits all)
 - [x] 🌳 Tree-shakable (only use what you need)
-- [x] 🔁 Subscriptions
+- [x] 🔁 [Subscriptions](docs/api/useSubscription.md)
+- [x] ♻️ Optional [redux](https://redux.js.org/) [integration](docs/guides/redux.md)
 - [ ] 🚯 Pluggable garbage collection policy
-- [ ] ♻️ Optional [redux](https://redux.js.org/) integration
 - [ ] 📙 [Storybook](https://storybook.js.org/) mocking
 
 

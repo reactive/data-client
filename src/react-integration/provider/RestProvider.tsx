@@ -14,9 +14,6 @@ interface ProviderProps {
   manager?: NetworkManager;
   subscriptionManager?: SubscriptionManager<any>;
   initialState?: State<unknown>;
-  store?: {
-    state: State<unknown>;
-  };
 }
 /** Controller managing state of the REST cache and coordinating network requests. */
 export default function RestProvider({
@@ -24,7 +21,6 @@ export default function RestProvider({
   manager = new NetworkManager(),
   subscriptionManager = new SubscriptionManager(PollingSubscription),
   initialState = defaultState,
-  store,
 }: ProviderProps) {
   // TODO: option to use redux
   const useEnhancedReducer = createEnhancedReducerHook(
@@ -32,9 +28,6 @@ export default function RestProvider({
     subscriptionManager.getMiddleware(),
   );
   const [state, dispatch] = useEnhancedReducer(masterReducer, initialState);
-  if (store) {
-    store.state = state;
-  }
 
   // if we change out the manager we need to make sure it has no hanging async
   useEffect(() => {

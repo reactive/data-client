@@ -28,9 +28,10 @@ export const resourceCustomizer = (a: any, b: any): any => {
   // use default merging in lodash.merge()
 };
 
-export default function reducer(state: State<unknown>, action: ActionTypes) {
+export default function reducer(state: State<unknown> | undefined, action: ActionTypes) {
+  if (!state) state = initialState;
   switch (action.type) {
-  case 'receive':
+  case 'rest-hooks/receive':
     if (action.error) {
       return {
         ...state,
@@ -63,7 +64,7 @@ export default function reducer(state: State<unknown>, action: ActionTypes) {
         },
       },
     };
-  case 'rpc':
+  case 'rest-hooks/rpc':
     if (action.error) return state;
     let { entities } = normalize(action.payload, action.meta.schema);
     return {
@@ -74,7 +75,7 @@ export default function reducer(state: State<unknown>, action: ActionTypes) {
         resourceCustomizer,
       ),
     };
-  case 'purge':
+  case 'rest-hooks/purge':
     if (action.error) return state;
     const key = action.meta.schema.key;
     const pk = action.meta.url;

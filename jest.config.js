@@ -5,6 +5,7 @@ module.exports = {
     '^.+\\.jsx?$': 'babel-jest',
   },
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
+  coveragePathIgnorePatterns: ['test'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
-  setupFiles: ['./testSetup.js']
+  setupFiles: ['./testSetup.js'],
 };

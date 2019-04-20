@@ -104,12 +104,12 @@ export default class PollingSubscription implements Subscription {
   /** Trigger request for latest resource */
   protected update() {
     this.dispatch({
-      type: 'fetch',
+      type: 'rest-hooks/fetch',
       payload: this.fetch,
       meta: {
         schema: this.schema,
         url: this.url,
-        responseType: 'receive',
+        responseType: 'rest-hooks/receive',
         throttle: true,
         options: {
           dataExpiryLength: this.frequency / 2,

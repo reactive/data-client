@@ -11,6 +11,7 @@ import {
   schemas,
 } from './resource';
 import NetworkManager from './state/NetworkManager';
+import reducer from './state/reducer';
 import {
   useCache,
   useFetcher,
@@ -22,6 +23,7 @@ import {
   useError,
   useSelectionUnstable,
   RestProvider,
+  ExternalCacheProvider,
   NetworkErrorBoundary,
   NetworkError,
 } from './react-integration';
@@ -62,6 +64,7 @@ export type Request = RequestType;
 export {
   Resource,
   RestProvider,
+  ExternalCacheProvider,
   useCache,
   useFetcher,
   useRetrieve,
@@ -72,6 +75,7 @@ export {
   useError,
   useSelectionUnstable,
   NetworkManager,
+  reducer,
   NetworkErrorBoundary,
   schemas,
 };
