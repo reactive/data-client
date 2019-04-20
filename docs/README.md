@@ -18,6 +18,10 @@
   - [RestProvider](api/RestProvider.md)
   - [ExternalCacheProvider](api/ExternalCacheProvider.md)
   - [NetworkErrorBoundary](api/NetworkErrorBoundary.md)
+- [Manager](api/Manager.md)s
+  - [NetworkManager](api/NetworkManager.md)
+  - [SubscriptionManager](api/SubscriptionManager.md)
+    - [PollingSubscription](api/PollingSubscription.md)
 
 ## 🎎 Patterns & Examples
 

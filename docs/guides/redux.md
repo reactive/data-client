@@ -1,10 +1,10 @@
 # Redux integration
 
-Using redux is completely optional. However, for many it means easy integration or migration
+Using [redux](https://redux.js.org/) is completely optional. However, for many it means easy integration or migration
 with existing projects, or just a nice centralized state management abstraction.
 
 Integration is fairly straightforward as rest-hooks already uses the same paradigms as redux under
-the hood. However, care should be taken to integrate the reducer and middlewares properly
+the hood. However, care should be taken to integrate the reducer and [middlewares](../api/Manager.md) properly
 or it won't work as expected.
 
 First make sure you have redux installed:
@@ -38,9 +38,10 @@ const store = createStore(
   reducer,
   applyMiddleware(manager.getMiddleware(), subscriptionManager.getMiddleware()),
 );
+const selector = state => state
 
 ReactDOM.render(
-  <ExternalCacheProvider store={store} selector={s => s}>
+  <ExternalCacheProvider store={store} selector={selector}>
     <App />
   </ExternalCacheProvider>,
   document.body,
@@ -53,19 +54,7 @@ will need to use the `selector` prop of `<ExternalCacheProvider />` to specify
 where in the state tree the rest-hooks information is.
 
 ```tsx
-import {
-  reducer as restReducer,
-  NeworkManager,
-  SubscriptionManager,
-  PollingSubscription,
-  ExternalCacheProvider,
-} from 'rest-hooks';
-import { createStore, combineReducers } from 'redux';
-import ReactDOM from 'react-dom';
-
-const manager = new NetworkManager();
-const subscriptionManager = new SubscriptionManager(PollingSubscription);
-
+// ...
 const store = createStore(
   // Now we have other reducers
   combineReducers({
@@ -74,14 +63,8 @@ const store = createStore(
   }),
   applyMiddleware(manager.getMiddleware(), subscriptionManager.getMiddleware()),
 );
-
-ReactDOM.render(
-  // Our selector gets the part of the tree rest-hooks cares about.
-  <ExternalCacheProvider store={store} selector={s => s.restHooks}>
-    <App />
-  </ExternalCacheProvider>,
-  document.body,
-);
+const selector = state => state.restHooks
+// ...
 ```
 
 Here we store rest-hooks state information in the 'restHooks' part of the tree.
