@@ -40,7 +40,8 @@
     "fetch",
     "data fetching",
     "api",
-    "typescript"
+    "typescript",
+    "redux"
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
