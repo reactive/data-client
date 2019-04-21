@@ -1,5 +1,6 @@
-# useResultCache()
-
+---
+title: useResultCache()
+---
 ```typescript
 function useResultCache<Params extends Readonly<object>, D extends object>(
   { getUrl, fetch }: ReadShape<any, Params, any>,

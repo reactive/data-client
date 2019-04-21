@@ -1,5 +1,6 @@
-# Fetching multiple resources at once
-
+---
+title: Fetching multiple resources at once
+---
 ## Parallel
 
 If you have the parameters you needs to fetch, they will all happen in parallel!

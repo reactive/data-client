@@ -1,4 +1,7 @@
-# Resources with nested structure
+---
+title: Resources with nested structure
+sidebar_label: Nesting related resources (server-side join)
+---
 
 Say you have a foreignkey author, and an array of foreign keys to contributors.
 
@@ -7,7 +10,7 @@ These should be the primary keys of the entities we care about.
 
 Next we'll need to extend the schema definition provided by `getEntitySchema()`.
 
-`ArticleResource.ts`
+#### `resources/ArticleResource.ts`
 
 ```tsx
 import { Resource } from 'rest-hooks';
@@ -29,8 +32,8 @@ export default class ArticleResource extends Resource {
     const schema = super.getEntitySchema();
     schema.define({
       author: UserResource.getEntitySchema(),
-      contributors: [UserResource.getEntitySchema()]
-    })
+      contributors: [UserResource.getEntitySchema()],
+    });
     return schema;
   }
 }
@@ -38,17 +41,22 @@ export default class ArticleResource extends Resource {
 
 Upon fetching the nested items will end up in the cache so they can be retrieved with [useCache()][2]
 
-`ArticleList.tsx`
+#### `ArticleList.tsx`
 
 ```tsx
+import { useResource } from 'rest-hooks';
+import ArticleResource from 'resources/ArticleResource';
+
 export default function ArticleList({ id }: { id: number }) {
-  const articles = useResource(ArticleResource.listRequest(), { id })
+  const articles = useResource(ArticleResource.listRequest(), { id });
 
   return (
     <React.Fragment>
-      {articles.map(article => <ArticleInline key={article.pk()} article={article} />)}
+      {articles.map(article => (
+        <ArticleInline key={article.pk()} article={article} />
+      ))}
     </React.Fragment>
-  )
+  );
 }
 
 function ArticleInline({ article }: { article: ArticleResource }) {

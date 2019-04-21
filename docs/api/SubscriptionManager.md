@@ -1,5 +1,7 @@
-# SubscriptionManager\<S extends SubscriptionConstructable> implements [Manager](./Manager.md)
-
+---
+title: SubscriptionManager<S extends SubscriptionConstructable> implements Manager
+sidebar_label: SubscriptionManager
+---
 Keeps track of all resource subscriptions.
 
 ## constructor(Subscription: S)

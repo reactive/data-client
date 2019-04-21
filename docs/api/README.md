@@ -1,0 +1,21 @@
+---
+title: API Reference
+---
+
+- [Resource](Resource.md)
+  - [RequestShape](RequestShape.md)
+- Hooks:
+  - [useResource](useResource.md)
+  - [useFetcher](useFetcher.md)
+  - [useCache](useCache.md)
+  - [useResultCache](useResultCache.md)
+  - [useSubscription](useSubscription.md)
+  - [useRetrieve](useRetrieve.md)
+- Components:
+  - [RestProvider](RestProvider.md)
+  - [ExternalCacheProvider](ExternalCacheProvider.md)
+  - [NetworkErrorBoundary](NetworkErrorBoundary.md)
+- [Manager](Manager.md)s
+  - [NetworkManager](NetworkManager.md)
+  - [SubscriptionManager](SubscriptionManager.md)
+    - [PollingSubscription](PollingSubscription.md)

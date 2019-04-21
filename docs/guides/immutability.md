@@ -1,5 +1,7 @@
-# Understanding Immutability (doc is WIP)
-
+---
+title: Understanding Immutability (doc is WIP)
+sidebar_label: Understanding Immutability
+---
 ## Benefits
 
 * Simplicity

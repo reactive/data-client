@@ -1,5 +1,6 @@
-# useRetrieve()
-
+---
+title: useRetrieve()
+---
 ```typescript
 function useRetrieve<
   Params extends Readonly<object>,

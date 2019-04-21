@@ -1,5 +1,7 @@
-# Cross-resource multi-update RPC
-
+---
+title: Cross-resource multi-update RPC
+sidebar_label: Cross-resource multi-update RPC (dealing with side-effects)
+---
 ## How to deal with side-effects
 
 If you have an endpoint that updates many resources on your server,

@@ -1,5 +1,7 @@
-# Using a custom networking library
-
+---
+title: Using a custom networking library
+sidebar_label: Custom networking library
+---
 The default `fetch()` implementation uses [superagent]() due to it's server-side support
 and excellent builder-pattern api. However, a simple overriding of the `fetch()` function
 will enable you to use any networking backend you please.

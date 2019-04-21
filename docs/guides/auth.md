@@ -1,5 +1,6 @@
-# Authentication
-
+---
+title: Authentication
+---
 All network requests are run through the `static fetchPlugin` optionally
 defined in your `Resource`.
 

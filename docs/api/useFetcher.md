@@ -1,5 +1,6 @@
-# useFetcher()
-
+---
+title: useFetcher()
+---
 ```typescript
 function useFetcher<
   Params extends Readonly<object>,

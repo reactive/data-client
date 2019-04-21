@@ -1,5 +1,7 @@
-# useResource()
-
+---
+id: useresource
+title: useResource()
+---
 ```typescript
 function useResource<
   Params extends Readonly<object>,
@@ -23,11 +25,10 @@ Excellent for retrieving the data you need.
   * Throws error to be [caught](../guides/network-errors.md) by [Error Boundaries](https://reactjs.org/docs/error-boundaries.html)
 * While Loading:
   * Returns previously cached if exists (even if stale)
-  * [Suspend rendering](../getting-started/installation.md#2-add-suspense) otherwise
+  * [Suspend rendering](../guides/loading-state.md) otherwise
 
-## Example
 
-Single
+## Single
 
 ```tsx
 function Post({ id }: { id: number }) {
@@ -36,7 +37,7 @@ function Post({ id }: { id: number }) {
 }
 ```
 
-List
+## List
 
 ```tsx
 function Posts() {
@@ -45,7 +46,7 @@ function Posts() {
 }
 ```
 
-Parallel
+## Parallel
 
 ```tsx
 function Posts() {
@@ -58,7 +59,7 @@ function Posts() {
 }
 ```
 
-Sequential
+## Sequential
 
 ```tsx
 function PostWithAuthor() {

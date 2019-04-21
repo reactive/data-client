@@ -1,0 +1,85 @@
+{
+  "docs": {
+    "Getting Started": [
+      "getting-started/installation",
+      "getting-started/usage"
+    ],
+    "API": [
+      "api/README",
+      {
+        "type": "subcategory",
+        "label": "Interface Definitions",
+        "ids": ["api/resource", "api/requestshape"]
+      },
+      {
+        "type": "subcategory",
+        "label": "Hooks",
+        "ids": [
+          "api/useresource",
+          "api/useFetcher",
+          "api/useCache",
+          "api/useResultCache",
+          "api/useSubscription",
+          "api/useRetrieve"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Components",
+        "ids": [
+          "api/RestProvider",
+          "api/ExternalCacheProvider",
+          "api/NetworkErrorBoundary"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Manager",
+        "ids": [
+          "api/Manager",
+          "api/NetworkManager",
+          "api/SubscriptionManager",
+          "api/PollingSubscription"
+        ]
+      }
+    ],
+    "Patterns & Examples": [
+      "guides/README",
+      {
+        "type": "subcategory",
+        "label": "Basics",
+        "ids": [
+          "guides/loading-state",
+          "guides/network-errors",
+          "guides/fetch-multiple",
+          "guides/pagination",
+          "guides/immutability",
+          "guides/mocking-unfinished",
+          "guides/redux"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Defining your network interface",
+        "ids": [
+          "guides/resource-types",
+          "guides/computed-properties",
+          "guides/multi-pk",
+          "guides/network-transform",
+          "guides/auth",
+          "guides/jsonp",
+          "guides/custom-networking",
+          "guides/resource-lifetime"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Performance Optimizations (optional)",
+        "ids": ["guides/nested-response", "guides/rpc"]
+      }
+    ]
+  },
+  "docs-other": {
+    "First Category": ["doc4", "doc5"]
+  }
+}

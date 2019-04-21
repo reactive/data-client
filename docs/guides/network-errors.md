@@ -1,5 +1,6 @@
-# Dealing with network errors
-
+---
+title: Dealing with network errors
+---
 When you use the `useResource()` hook, React will suspend rendering while the network
 request takes place. But what happens if there is a network failure? It will
 throw the network error. When this happens you'll want to have an

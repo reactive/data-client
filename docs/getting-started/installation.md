@@ -1,4 +1,7 @@
-# Installation
+---
+id: installation
+title: Installation
+---
 
 ## 1) Install rest-hooks
 
@@ -10,7 +13,7 @@ yarn add rest-hooks
 
 ## 2) Add provider at top-level component
 
-`index.tsx`
+#### `index.tsx`
 
 ```tsx
 import { RestProvider } from 'rest-hooks';
@@ -36,7 +39,7 @@ Any usage of the hooks will need to be below this point in the tree.
 Feel free to hook up multiple `<Suspense/>` points if you want to show loaders at different
 points in your application.
 
-`App.tsx`
+#### `App.tsx`
 
 ```tsx
 import { Suspense } from 'react';
@@ -55,7 +58,3 @@ const App = ({ location }: RouteChildrenProps) => (
   </div>
 );
 ```
-
-### [Usage➡️](./usage.md)
-
-### 📖[Documentation](..)

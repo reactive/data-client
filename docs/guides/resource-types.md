@@ -1,4 +1,6 @@
-# Defining your Resource types
+---
+title: Defining your Resource types
+---
 
 Typing your data can be very useful and is highly recommended when using this library.
 One of the main benefits is to enforce immutability, as this brings certain assurances
@@ -36,10 +38,10 @@ export class UserResource extends Resource {
 }
 ```
 
-## Guidelines:
+### Guidelines:
 
-* Define all properties you expect to see
-* Mark them as readonly to enforce immutability
-* Give each property as specific and descriptive a type as possible
-* Initialize the property with a sensible default
-  * This will simplify handling so we don't have to deal with `undefined`s
+- Define all properties you expect to see
+- Mark them as readonly to enforce immutability
+- Give each property as specific and descriptive a type as possible
+- Initialize the property with a sensible default
+  - This will simplify handling so we don't have to deal with `undefined`s

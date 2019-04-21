@@ -1,5 +1,6 @@
-# \<ExternalCacheProvider />
-
+---
+title: <ExternalCacheProvider />
+---
 Integrates external stores with `rest-hooks`. Should be placed as high as possible
 in application tree as any usage of the hooks is only possible for components below the provider
 in the React tree.

@@ -1,5 +1,6 @@
-# Multi-column primary key
-
+---
+title: Multi-column primary key
+---
 Sometimes you have a resource that doesn't have its own primary key. This is typically
 found in `join tables` that express `many-to-many` relationships.
 

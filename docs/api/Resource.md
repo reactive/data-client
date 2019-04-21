@@ -1,5 +1,7 @@
-# Resource
-
+---
+id: resource
+title: Resource
+---
 ```typescript
 import { Resource } from 'rest-hooks';
 
@@ -25,7 +27,7 @@ two sides to `Resource` - the static and instance side.
 
 Is used to define how you retrieve and mutate data across the network. There are several
 static methods that do this, but their ultimate purpose is to build [RequestShapes](./RequestShape.md), which
-tell the [hooks](../useResource.md) how to process requests. Shapes are provided for the
+tell the [hooks](./useResource.md) how to process requests. Shapes are provided for the
 common `REST` request types. However, it is encouraged to build your own or override the
 provided ones to fit the needs of your API.
 

@@ -1,0 +1,42 @@
+@font-face {
+  font-family: 'Graphik';
+  src: url('../font/Graphik-Regular-Web.woff2') format('woff2');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Graphik';
+  src: url('../font/Graphik-RegularItalic-Web.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Graphik';
+  src: url('../font/Graphik-Medium-Web.woff2') format('woff2');
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'Graphik';
+  src: url('../font/Graphik-MediumItalic-Web.woff2') format('woff2');
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Graphik';
+  src: url('../font/Graphik-Semibold-Web.woff2') format('woff2');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'Graphik';
+  src: url('../font/Graphik-SemiboldItalic-Web.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+}
+
+body {
+  font-family: $sansFont;
+}

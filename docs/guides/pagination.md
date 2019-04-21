@@ -1,5 +1,6 @@
-# Pagination
-
+---
+title: Pagination
+---
 A common way APIs deal with pagination is the list view will return an object with both pagination information
 and the Array of results as another member.
 

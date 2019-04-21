@@ -1,4 +1,6 @@
-# Handling loading state
+---
+title: Handling loading state
+---
 
 Network resources taken an unknown amount of time so it's important to be able
 to handle rendering while they load. After sometime you might want to display
@@ -13,7 +15,7 @@ Simply place the `<Suspense />` component where you want to show a loading
 indicator. Often this will be just above your routes; but feel free to place
 it in multiple locations!
 
-`App.tsx`
+#### `App.tsx`
 
 ```tsx
 import { Suspense } from 'react';

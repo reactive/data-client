@@ -1,11 +1,10 @@
-# Transforming data on network load
-
+---
+title: Transforming data on network load
+---
 All network requests flow through the `fetch()` method, so any transforms needed can simply
 be done by overrided it with a call to super.
 
-## Examples
-
-### Snakes to camels
+## Snakes to camels
 
 Commonly APIs are designed with keys using `snake_case`, but many in typescript/javascript
 prefer `camelCase`. This snippet let's us make the transform needed.
@@ -48,7 +47,7 @@ abstract class CamelResource extends Resource {
 }
 ```
 
-### Name calling
+## Name calling
 
 Sometimes an API might change a key name, or choose one you don't like. Of course
 you have much better naming standards, so instead of your `Resource` class definition
@@ -88,7 +87,7 @@ class ArticleResource extends CamelResource {
 }
 ```
 
-### Case of the missing `Id`
+## Case of the missing `Id`
 
 You now want to interface with a great new streaming site called `mystreamsite.tv`. It has
 a simple API to retireve information about current streams. You can get a stream with the

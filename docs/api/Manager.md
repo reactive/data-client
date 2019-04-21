@@ -1,4 +1,6 @@
-# Manager
+---
+title: Manager
+---
 
 Managers are singletons that orchestrate the complex asynchronous behavior of `rest-hooks`.
 Several managers are provided by `rest-hooks` and used by default; however there is nothing
@@ -12,15 +14,20 @@ take any parameters; a simple cleanup() method to tear down any dangling pieces 
 or unresolved Promises; and finally getMiddleware() - providing the mechanism to hook into
 the flux data flow.
 
-## static getMiddleware<T extends Manager(this: T): [ReduxMiddleware](https://redux.js.org/advanced/middleware)
-
 ```typescript
 type ReduxMiddleware = <R extends React.Reducer<any, A>, A extends Actions>({
   dispatch,
 }: MiddlewareAPI<R>) => (
   next: React.Dispatch<React.ReducerAction<R>>,
 ) => (action: Actions) => void;
+
+interface Manager {
+  getMiddleware<T extends Manager>(this: T): ReduxMiddleware;
+  cleanup(): void;
+}
 ```
+
+## getMiddleware()
 
 getMiddleware() returns a function that is 100% redux compatible. This enables it to be integrated into redux,
 or used by the internal useReducer() enhancer in <RestProvider />.
@@ -28,11 +35,11 @@ or used by the internal useReducer() enhancer in <RestProvider />.
 Middlewares will intercept actions that are dispatched and then potentially dispatch their own actions as well.
 To read more about middlewares, see the [redux documentation](https://redux.js.org/advanced/middleware).
 
-## static cleanup(): void
+## cleanup()
 
 Provides any cleanup of dangling resources after manager is no longer in use.
 
 ## Provided managers:
 
- * [NetworkManager](./NetworkManager.md)
- * [SubscriptionManager](./SubscriptionManager.md)
+- [NetworkManager](./NetworkManager.md)
+- [SubscriptionManager](./SubscriptionManager.md)

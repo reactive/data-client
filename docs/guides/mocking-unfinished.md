@@ -1,5 +1,6 @@
-# Mocking unfinished endpoints
-
+---
+title: Mocking unfinished endpoints
+---
 You have agreed to an API schema with a backend engineer who will implement it;
 but they are starting to code the same time as you. It would be nice to easily
 mock the endpoint and use it in a way such that when the endpoint is done

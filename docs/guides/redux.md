@@ -1,4 +1,7 @@
-# Redux integration
+---
+id: redux
+title: Redux integration
+---
 
 Using [redux](https://redux.js.org/) is completely optional. However, for many it means easy integration or migration
 with existing projects, or just a nice centralized state management abstraction.
@@ -9,16 +12,19 @@ or it won't work as expected.
 
 First make sure you have redux installed:
 
-`yarn add redux`
+```bash
+yarn add redux
+```
 
 Note: react-redux is _not_ needed for this integration (though you can use it if you want).
 
-Then you'll want to use the [\<ExternalCacheProvider />](../ExternalCacheProvider.md) instead of [\<RestProvider />](../RestProvider.md) and pass in
-the store and a selector function to grab the rest-hooks specific part of the state.
+Then you'll want to use the [\<ExternalCacheProvider />](../api/ExternalCacheProvider.md) instead of
+[\<RestProvider />](../api/RestProvider.md) and pass in the store and a selector function to grab
+the rest-hooks specific part of the state.
 
 Note: You should only use ONE provider; using
 
-`index.tsx`
+#### `index.tsx`
 
 ```tsx
 import {
@@ -28,7 +34,7 @@ import {
   PollingSubscription,
   ExternalCacheProvider,
 } from 'rest-hooks';
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import ReactDOM from 'react-dom';
 
 const manager = new NetworkManager();
@@ -38,7 +44,7 @@ const store = createStore(
   reducer,
   applyMiddleware(manager.getMiddleware(), subscriptionManager.getMiddleware()),
 );
-const selector = state => state
+const selector = state => state;
 
 ReactDOM.render(
   <ExternalCacheProvider store={store} selector={selector}>
@@ -53,7 +59,7 @@ However, more commonly you will be integrating with other state. In this case, y
 will need to use the `selector` prop of `<ExternalCacheProvider />` to specify
 where in the state tree the rest-hooks information is.
 
-```tsx
+```typescript
 // ...
 const store = createStore(
   // Now we have other reducers
@@ -63,7 +69,7 @@ const store = createStore(
   }),
   applyMiddleware(manager.getMiddleware(), subscriptionManager.getMiddleware()),
 );
-const selector = state => state.restHooks
+const selector = state => state.restHooks;
 // ...
 ```
 

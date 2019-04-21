@@ -1,9 +1,13 @@
-# Usage
+---
+id: usage
+title: Usage
+---
 
 ## Define a [Resource](../api/Resource.md)
 
-`resources/article.ts`
-```javascript
+#### `resources/article.ts`
+
+```typescript
 import { Resource } from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
@@ -27,34 +31,30 @@ Also be sure to provide the `pk()` function and `static urlRoot` string.
 
 ## [Use resource](../api/useResource.md)
 
-`article.tsx`
+#### `article.tsx`
+
 ```tsx
 import { useResource } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function Article({ match: { params } }) {
-  const article = useResource(
-    ArticleResource.singleRequest(),
-    params
-  )
+  const article = useResource(ArticleResource.singleRequest(), params);
   return (
     <article>
       <h2>{article.title}</h2>
-      <div>
-        {article.content}
-      </div>
+      <div>{article.content}</div>
     </article>
-  )
+  );
 }
 ```
 
 This will automatically fetch the resource if it is not already available. Param changes also results
 in a fetch. It will automatically re-render when a new article is fetched even if from another component.
 
-
 ## [Dispatch mutation](../api/useFetcher.md)
 
-`article.tsx`
+#### `article.tsx`
+
 ```tsx
 import { useFetcher } from 'rest-hooks';
 import ArticleResource from 'resources/article';
@@ -78,6 +78,3 @@ resolves to the new Resource created by the API. It will automatically be added 
 We use [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData/FormData) in
 the example since it doesn't require any opinionated form state management solution.
 Feel free to use whichever one you prefer.
-
-### [⬅️Installation](./installation.md)
-### 📖[Documentation](..)

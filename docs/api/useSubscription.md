@@ -1,5 +1,6 @@
-# useSubscription()
-
+---
+title: useSubscription()
+---
 ```typescript
 function useSubscription<
   Params extends Readonly<object>,

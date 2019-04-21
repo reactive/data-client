@@ -1,5 +1,6 @@
-# Computed Properties
-
+---
+title: Computed Properties
+---
 `Resource` classes are just normal classes, so any common derived data can just be added as
 getters to the class itself.
 

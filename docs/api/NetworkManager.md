@@ -1,5 +1,7 @@
-# NetworkManager implements [Manager](./Manager.md)
-
+---
+title: NetworkManager implements Manager
+sidebar_label: NetworkManager
+---
 NetworkManager orchestrates asynchronous fetches. By keeping track of all in-flight requests
 it is able to dedupe identical requests if they are made using the throttle flag.
 
@@ -21,7 +23,7 @@ Will initiate network request and then dispatch upon completion.
 
 Marks request as complete.
 
-# Dispatched Actions
+## Dispatched Actions
 
 - 'rest-hooks/purge'
 - 'rest-hooks/rpc'

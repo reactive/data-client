@@ -1,5 +1,6 @@
-# Cross-orgin requests with JSONP
-
+---
+title: Cross-orgin requests with JSONP
+---
 ```tsx
 import jsonp from 'superagent-jsonp';
 import { Resource } from 'rest-hooks';
