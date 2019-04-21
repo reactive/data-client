@@ -49,8 +49,8 @@ const siteConfig = {
     { doc: 'getting-started/installation', label: 'Getting Started' },
     { doc: 'api/README', label: 'API' },
     { doc: 'guides/README', label: 'Guides' },
-    { href : "https://www.github.com/coinbase/rest-hooks", label : "Github"},
-    { href : "https://stackblitz.com/edit/rest-hooks", label : "🎮 Demo"},
+    { href: 'https://www.github.com/coinbase/rest-hooks', label: 'Github' },
+    { href: 'https://stackblitz.com/edit/rest-hooks', label: '🎮 Demo' },
     //{ page: 'help', label: 'Help' },
     { search: true },
   ],
@@ -105,7 +105,7 @@ const siteConfig = {
     'https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js',
     'https://buttons.github.io/buttons.js',
   ],
-  stylesheets: [`${baseUrl}css/font.css`, `${baseUrl}css/code-block-buttons.css`],
+  stylesheets: [`/css/font.css`, `/css/code-block-buttons.css`],
 
   // On page navigation for the current documentation page.
   onPageNav: 'separate',
