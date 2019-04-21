@@ -19,22 +19,22 @@
   padding: 4em 10px 1em;
 }
 
-.navigationSlider .slidingNav ul a[href*="github"] {
+.navigationSlider .slidingNav ul a[href*='github'] {
   font-size: 0;
 }
 
-.navigationSlider .slidingNav ul a[href*="github"]::before {
-  content : "";
-  width : 32px;
-  height : 32px;
-  background: url("/img/github-brands.svg");
+.navigationSlider .slidingNav ul a[href*='github']::before {
+  content: '';
+  width: 32px;
+  height: 32px;
+  background: url('../img/github-brands.svg');
 }
 
 .button.hero {
   background: $primaryColor;
   color: #fff;
   font-size: 30px;
-  padding: .5em 1.25em;
+  padding: 0.5em 1.25em;
   font-weight: bold;
   border-radius: 5px;
 }
@@ -60,4 +60,3 @@
 .blockImage img {
   min-width: 60px;
 }
-

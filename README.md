@@ -68,10 +68,10 @@ For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](https://co
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination
 - [x] ✨ Optimistic updates
-- [x] 🧘 [Flexible](docs/api/RequestShape.md) to fit any API design (one size fits all)
+- [x] 🧘 [Flexible](https://coinbase.github.io/rest-hooks/docs/api/requestshape) to fit any API design (one size fits all)
 - [x] 🌳 Tree-shakable (only use what you need)
-- [x] 🔁 [Subscriptions](docs/api/useSubscription.md)
-- [x] ♻️ Optional [redux integration](docs/guides/redux.md)
+- [x] 🔁 [Subscriptions](https://coinbase.github.io/rest-hooks/docs/api/useSubscription)
+- [x] ♻️ Optional [redux integration](https://coinbase.github.io/rest-hooks/docs/guides/redux)
 - [ ] 🚯 Pluggable garbage collection policy
 - [ ] 📙 [Storybook](https://storybook.js.org/) mocking
 

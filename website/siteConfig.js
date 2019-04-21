@@ -14,7 +14,7 @@ const users = [
     caption: 'Coinbase',
     // You will need to prepend the image path with your baseUrl
     // if it is not '/', like: '/test-site/img/docusaurus.svg'.
-    image: '/img/coinbase-logo-square.svg',
+    image: '/rest-hooks/img/coinbase-logo-square.svg',
     infoLink: 'https://www.coinbase.com',
     pinned: true,
   },
