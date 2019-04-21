@@ -2,10 +2,13 @@
 id: resource
 title: Resource
 ---
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--TypeScript-->
 ```typescript
 import { Resource } from 'rest-hooks';
 
-export class ArticleResource extends Resource {
+export default class ArticleResource extends Resource {
   readonly id: number | null = null;
   readonly title: string = '';
   readonly content: string = '';
@@ -19,6 +22,43 @@ export class ArticleResource extends Resource {
   static urlRoot = 'http://test.com/article/';
 }
 ```
+<!--Javascript-->
+```js
+import { Resource } from 'rest-hooks';
+
+export default class ArticleResource extends Resource {
+  id = null;
+  title = '';
+  content = '';
+  author = null;
+  tags = [];
+
+  pk() {
+    return this.id;
+  }
+
+  static urlRoot = 'http://test.com/article/';
+}
+```
+<!--FlowType-->
+```jsx
+import { Resource } from 'rest-hooks';
+
+export default class ArticleResource extends Resource {
+  +id: ?number = null;
+  +title: string = '';
+  +content: string = '';
+  +author: ?number = null;
+  +tags: string[] = [];
+
+  pk() {
+    return this.id;
+  }
+
+  static urlRoot = 'http://test.com/article/';
+}
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 `Resource` is an abstract class that will help you define the data you are working with. There are
 two sides to `Resource` - the static and instance side.

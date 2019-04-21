@@ -7,6 +7,8 @@ title: Usage
 
 #### `resources/article.ts`
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--TypeScript-->
 ```typescript
 import { Resource } from 'rest-hooks';
 
@@ -24,6 +26,44 @@ export default class ArticleResource extends Resource {
   static urlRoot = 'http://test.com/article/';
 }
 ```
+<!--Javascript-->
+```js
+import { Resource } from 'rest-hooks';
+
+export default class ArticleResource extends Resource {
+  id = null;
+  title = '';
+  content = '';
+  author = null;
+  tags = [];
+
+  pk() {
+    return this.id;
+  }
+
+  static urlRoot = 'http://test.com/article/';
+}
+```
+<!--FlowType-->
+```jsx
+import { Resource } from 'rest-hooks';
+
+export default class ArticleResource extends Resource {
+  +id: ?number = null;
+  +title: string = '';
+  +content: string = '';
+  +author: ?number = null;
+  +tags: string[] = [];
+
+  pk() {
+    return this.id;
+  }
+
+  static urlRoot = 'http://test.com/article/';
+}
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
+
 
 Be sure to add all the properties you expect and mark them as readonly. [Mutation is considered harmful.](../guides/immutability.md)
 

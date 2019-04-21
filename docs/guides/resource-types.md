@@ -9,6 +9,8 @@ with React.
 
 Here we have an example [Resource](../api/Resource.md) for a User typed in typescript.
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--TypeScript-->
 ```typescript
 export interface Address {
   readonly street: string;
@@ -20,7 +22,9 @@ export interface Address {
     readonly lng: string;
   };
 }
+
 export type Status = 'pending' | 'rejected' | 'accepted';
+
 export class UserResource extends Resource {
   readonly id: number | null = null;
   readonly name: string = '';
@@ -37,6 +41,25 @@ export class UserResource extends Resource {
   static urlRoot = 'https://example.com/users/';
 }
 ```
+<!--Javascript-->
+```js
+export class UserResource extends Resource {
+  id = null;
+  name = '';
+  username = '';
+  email = '';
+  phone = '';
+  website = '';
+  address = null;
+  status = 'pending';
+
+  pk() {
+    return this.id;
+  }
+  static urlRoot = 'https://example.com/users/';
+}
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 ### Guidelines:
 
