@@ -20,11 +20,13 @@ const users = [
   },
 ];
 
+const baseUrl = '/rest-hooks/';
+
 const siteConfig = {
   title: 'Rest Hooks', // Title for your website.
   tagline: 'Delightful data fetching',
   url: 'https://coinbase.github.io', // Your website URL
-  baseUrl: '/rest-hooks/', // Base URL for your project */
+  baseUrl, // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
   //   url: 'https://facebook.github.io',
   //   baseUrl: '/test-site/',
@@ -98,12 +100,12 @@ const siteConfig = {
 
   // Add custom scripts here that would be placed in <script> tags.
   scripts: [
-    '/scripts/sidebarScroll.js',
-    '/scripts/codeblock.js',
+    `${baseUrl}scripts/sidebarScroll.js`,
+    `${baseUrl}scripts/codeblock.js`,
     'https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js',
     'https://buttons.github.io/buttons.js',
   ],
-  stylesheets: ['css/font.css', '/css/code-block-buttons.css'],
+  stylesheets: [`${baseUrl}css/font.css`, `${baseUrl}css/code-block-buttons.css`],
 
   // On page navigation for the current documentation page.
   onPageNav: 'separate',
