@@ -5,7 +5,7 @@ import { State } from '../../types';
 
 /** Use selector to access part of state */
 export default function useSelectionUnstable<
-Params extends Readonly<object>,
+Params extends Readonly<object> | Readonly<object>[],
 F extends (state: State<unknown>, params: Params) => any
 >(
   select: F,
