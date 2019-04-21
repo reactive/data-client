@@ -45,7 +45,7 @@
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/coinbase/rest-hooks",
+  "homepage": "https://coinbase.github.io/rest-hooks/",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:coinbase/rest-hooks.git"

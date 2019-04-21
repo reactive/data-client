@@ -10,7 +10,7 @@ Making dynamic sites performant, scalable, simple to build with any API design.
 
 <div align="center">
 
-**[📖Read The Docs](docs)** &nbsp;|&nbsp; [🏁Getting Started](docs/getting-started/installation.md) &nbsp;|&nbsp;
+**[📖Read The Docs](https://coinbase.github.io/rest-hooks/)** &nbsp;|&nbsp; [🏁Getting Started](https://coinbase.github.io/rest-hooks/docs/getting-started/installation) &nbsp;|&nbsp;
 [🎮Demo](https://stackblitz.com/edit/rest-hooks)
 
 </div>
@@ -57,7 +57,7 @@ return price.value;
 
 ### ...all typed ...fast ...and consistent
 
-For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](docs/getting-started/installation.md)
+For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](https://coinbase.github.io/rest-hooks/docs/getting-started/installation)
 
 ## Features
 
