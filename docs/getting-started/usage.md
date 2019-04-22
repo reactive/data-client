@@ -83,8 +83,8 @@ Also be sure to provide the `pk()` function and `static urlRoot` string.
 import { useResource } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
-export default function ArticleDetail({ match: { params } }) {
-  const article = useResource(ArticleResource.singleRequest(), params);
+export default function ArticleDetail({ id }: { id: number }) {
+  const article = useResource(ArticleResource.singleRequest(), { id });
   return (
     <article>
       <h2>{article.title}</h2>
@@ -116,7 +116,8 @@ export default function ArticleList({ sortBy }: { sortBy: string }) {
 <!--END_DOCUSAURUS_CODE_TABS-->
 
 This will automatically fetch the resource if it is not already available. Param changes also results
-in a fetch. It will automatically re-render when a new article is fetched even if from another component.
+in a fetch. Consistency of data is guaranteed even when other components fetch updates and even when
+those updates are of a different form.
 
 ## [Dispatch mutation](../api/useFetcher.md)
 
@@ -170,6 +171,26 @@ export default function UpdateArticleForm({ id }: { id: number }) {
 
 `update()` then takes any `keyable` body to send as the payload and then returns a promise that
 resolves to the new Resource created by the API. It will automatically be added in the cache for any consumers to display.
+
+<!--Delete-->
+
+```tsx
+import { useResource } from 'rest-hooks';
+import ArticleResource from 'resources/article';
+
+export default function ArticleDetailWithDelete({ id }: { id: number }) {
+  const article = useResource(ArticleResource.singleRequest(), { id });
+  const del = useFetcher(ArticleResource.deleteRequest());
+  // del as (body: any, params?: Readonly<object>) => Promise<any>
+  return (
+    <article>
+      <h2>{article.title}</h2>
+      <div>{article.content}</div>
+      <button onClick={() => del(undefined, { id })}>Delete</button>
+    </article>
+  );
+}
+```
 
 <!--END_DOCUSAURUS_CODE_TABS-->
 
