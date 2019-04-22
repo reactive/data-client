@@ -14,7 +14,7 @@ const users = [
     caption: 'Coinbase',
     // You will need to prepend the image path with your baseUrl
     // if it is not '/', like: '/test-site/img/docusaurus.svg'.
-    image: '/rest-hooks/img/coinbase-logo-square.svg',
+    image: '/rest-hooks/img/coinbase-logo.svg',
     infoLink: 'https://www.coinbase.com',
     pinned: true,
   },
@@ -36,6 +36,7 @@ const siteConfig = {
     indexName: 'rest-hooks',
     algoliaOptions: {},
   },
+  gaTrackingId: 'UA-138752992-1',
 
   // Used for publishing and more
   projectName: 'rest-hooks',

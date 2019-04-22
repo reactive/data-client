@@ -7,9 +7,17 @@ title: Installation
 
 Install the rest-hooks package into your project using [yarn](https://yarnpkg.com/en/)
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--yarn-->
 ```bash
 yarn add rest-hooks
 ```
+<!--npm-->
+```bash
+npm install rest-hooks
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
+
 
 ## 2) Add provider at top-level component
 
@@ -29,7 +37,7 @@ ReactDOM.render(
 
 Alternatively [integrate state with redux](../guides/redux.md)
 
-## 3) Add [Suspense](https://reactjs.org/blog/2018/11/13/react-conf-recap.html)
+## 3) Add [Suspense](https://reactjs.org/blog/2018/11/13/react-conf-recap.html) and ErrorBoundary
 
 Suspense will show a fallback while content is loading.
 
@@ -38,6 +46,8 @@ Any usage of the hooks will need to be below this point in the tree.
 
 Feel free to hook up multiple `<Suspense/>` points if you want to show loaders at different
 points in your application.
+
+`<NetworkErrorBoundary/>` will handle fallbacks upon any network errors.
 
 #### `App.tsx`
 

@@ -1,5 +1,5 @@
 ---
-title: Patterns and Examples
+title: Guides
 ---
 
 - 🔰 Basics
@@ -9,7 +9,6 @@ title: Patterns and Examples
   - [Pagination](guides/pagination.md)
   - [Understanding Immutability](guides/immutability.md)
   - [Mocking unfinished endpoints](guides/mocking-unfinished.md)
-  - [Redux integration](guides/redux.md)
 - 🖧 Defining your network interface
   - [Defining your Resource types](guides/resource-types.md)
   - [Computed properties](guides/computed-properties.md)
@@ -22,3 +21,5 @@ title: Patterns and Examples
 - 💨 Performance Optimizations (optional)
   - [Nesting related resources (server-side join)](guides/nested-response.md)
   - [Cross-resource multi-update RPC (dealing with side-effects)](guides/rpc.md)
+- Integrations
+  - [Redux integration](guides/redux.md)

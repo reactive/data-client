@@ -108,7 +108,7 @@
         "title": "Pagination"
       },
       "guides/README": {
-        "title": "Patterns and Examples"
+        "title": "Guides"
       },
       "guides/redux": {
         "title": "Redux integration"
@@ -137,9 +137,8 @@
     },
     "categories": {
       "Getting Started": "Getting Started",
-      "API": "API",
-      "Patterns & Examples": "Patterns & Examples",
-      "First Category": "First Category"
+      "Guides": "Guides",
+      "API": "API"
     }
   },
   "pages-strings": {

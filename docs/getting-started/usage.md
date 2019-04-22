@@ -9,6 +9,7 @@ title: Usage
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--TypeScript-->
+
 ```typescript
 import { Resource } from 'rest-hooks';
 
@@ -26,7 +27,9 @@ export default class ArticleResource extends Resource {
   static urlRoot = 'http://test.com/article/';
 }
 ```
+
 <!--Javascript-->
+
 ```js
 import { Resource } from 'rest-hooks';
 
@@ -44,7 +47,9 @@ export default class ArticleResource extends Resource {
   static urlRoot = 'http://test.com/article/';
 }
 ```
+
 <!--FlowType-->
+
 ```jsx
 import { Resource } from 'rest-hooks';
 
@@ -62,8 +67,8 @@ export default class ArticleResource extends Resource {
   static urlRoot = 'http://test.com/article/';
 }
 ```
-<!--END_DOCUSAURUS_CODE_TABS-->
 
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 Be sure to add all the properties you expect and mark them as readonly. [Mutation is considered harmful.](../guides/immutability.md)
 
@@ -71,13 +76,14 @@ Also be sure to provide the `pk()` function and `static urlRoot` string.
 
 ## [Use resource](../api/useResource.md)
 
-#### `article.tsx`
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Single-->
 
 ```tsx
 import { useResource } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
-export default function Article({ match: { params } }) {
+export default function ArticleDetail({ match: { params } }) {
   const article = useResource(ArticleResource.singleRequest(), params);
   return (
     <article>
@@ -88,6 +94,27 @@ export default function Article({ match: { params } }) {
 }
 ```
 
+<!--List-->
+
+```tsx
+import { useResource } from 'rest-hooks';
+import ArticleResource from 'resources/article';
+import ArticleSummary from './ArticleSummary';
+
+export default function ArticleList({ sortBy }: { sortBy: string }) {
+  const articles = useResource(ArticleResource.listRequest(), { sorBy });
+  return (
+    <section>
+      {articles.map(article => (
+        <ArticleSummary key={article.pk()} article={article} />
+      ))}
+    </section>
+  );
+}
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
+
 This will automatically fetch the resource if it is not already available. Param changes also results
 in a fetch. It will automatically re-render when a new article is fetched even if from another component.
 
@@ -95,25 +122,56 @@ in a fetch. It will automatically re-render when a new article is fetched even i
 
 #### `article.tsx`
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Create-->
+
 ```tsx
 import { useFetcher } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function NewArticleForm() {
-  const create = useFetcher(ArticleResource.createRequest())
+  const create = useFetcher(ArticleResource.createRequest());
   // create as (body: Readonly<Partial<ArticleResource>>, params?: Readonly<object>) => Promise<any>
   return (
-    <form onSubmit={e => create(new FormData(e.target), {})}>
+    <Form onSubmit={e => create(new FormData(e.target), {})}>
       <FormField name="title" />
       <FormField name="content" type="textarea" />
       <FormField name="tags" type="tag" />
-    </article>
-  )
+    </Form>
+  );
 }
 ```
 
 `create()` then takes any `keyable` body to send as the payload and then returns a promise that
 resolves to the new Resource created by the API. It will automatically be added in the cache for any consumers to display.
+
+<!--Update-->
+
+```tsx
+import { useFetcher } from 'rest-hooks';
+import ArticleResource from 'resources/article';
+
+export default function UpdateArticleForm({ id }: { id: number }) {
+  const article = useResource(ArticleResource.singleRequest(), { id });
+  const update = useFetcher(ArticleResource.updateRequest());
+  // update as (body: Readonly<Partial<ArticleResource>>, params?: Readonly<object>) => Promise<any>
+  return (
+    <Form
+      onSubmit={e => update(new FormData(e.target), { id })}
+      initialValues={article}
+    >
+      <FormField name="title" />
+      <FormField name="content" type="textarea" />
+      <FormField name="tags" type="tag" />
+    </Form>
+  );
+}
+```
+
+`update()` then takes any `keyable` body to send as the payload and then returns a promise that
+resolves to the new Resource created by the API. It will automatically be added in the cache for any consumers to display.
+
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 We use [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData/FormData) in
 the example since it doesn't require any opinionated form state management solution.

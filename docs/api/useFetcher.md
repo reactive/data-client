@@ -73,7 +73,7 @@ function PostListItem({ post }: { post: PostResource }) {
 
 Feel free to add your own [RequestShape](./RequestShape.md) as well.
 
-## Notes
-
-As this is the most basic hook to dispatch network requests with `rest-hooks` it will run through all normal fetch processing like updating
-the normalized cache, etc.
+> ### Notes
+>
+> As this is the most basic hook to dispatch network requests with `rest-hooks` it will run through all normal fetch processing like updating
+> the normalized cache, etc.

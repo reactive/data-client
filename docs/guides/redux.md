@@ -12,9 +12,16 @@ or it won't work as expected.
 
 First make sure you have redux installed:
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--yarn-->
 ```bash
 yarn add redux
 ```
+<!--npm-->
+```bash
+npm install redux
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 Note: react-redux is _not_ needed for this integration (though you can use it if you want).
 

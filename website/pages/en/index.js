@@ -109,7 +109,6 @@ class Index extends React.Component {
         {[
           {
             content: "Rest hooks' TypeScript definitions will infer **specific** and **accurate** types based on your definition of the data. Predictable results means **no surprises** at runtime.",
-            //image: imgUrl('icon/time.png'),
             image : imgUrl("typescript.svg"),
             imageAlign: 'top',
             title: "Strongly Typed"

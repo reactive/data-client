@@ -13,10 +13,10 @@ in the React tree.
 import { ExternalCacheProvider } from 'rest-hooks';
 import ReactDOM from 'react-dom';
 
-import store from './store';
+import { store, selector } from './store';
 
 ReactDOM.render(
-  <ExternalCacheProvider store={store} selector={s => s}>
+  <ExternalCacheProvider store={store} selector={selector}>
     <App />
   </ExternalCacheProvider>,
   document.body,
@@ -40,6 +40,10 @@ but theoretically any external store could be used.
 
 [Read more about integrating redux.](../guides/redux.md)
 
-## selector: (state: Object) => State<unknown>
+## selector
+
+```typescript
+(state: S) => State<unknown>
+```
 
 This function is used to retrieve the `rest-hooks` specific part of the store's state tree.
