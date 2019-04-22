@@ -31,9 +31,8 @@ const siteConfig = {
   //   url: 'https://facebook.github.io',
   //   baseUrl: '/test-site/',
   algolia: {
-    apiKey: 'c7ce8ef3591918372ca0647cbfd31719',
-    appId: 'KRAVO5XFTA',
-    indexName: 'rest-hooks',
+    apiKey: '52e661c10738fd114bcf68d537358c16',
+    indexName: 'coinbase-rest-hooks',
     algoliaOptions: {},
   },
   gaTrackingId: 'UA-138752992-1',
