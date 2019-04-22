@@ -175,18 +175,17 @@ resolves to the new Resource created by the API. It will automatically be added 
 <!--Delete-->
 
 ```tsx
-import { useResource } from 'rest-hooks';
+import { useFetcher } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
-export default function ArticleDetailWithDelete({ id }: { id: number }) {
-  const article = useResource(ArticleResource.singleRequest(), { id });
+export default function ArticleWithDelete({ article }: { article: ArticleResource }) {
   const del = useFetcher(ArticleResource.deleteRequest());
   // del as (body: any, params?: Readonly<object>) => Promise<any>
   return (
     <article>
       <h2>{article.title}</h2>
       <div>{article.content}</div>
-      <button onClick={() => del(undefined, { id })}>Delete</button>
+      <button onClick={() => del(undefined, { id: article.id })}>Delete</button>
     </article>
   );
 }
