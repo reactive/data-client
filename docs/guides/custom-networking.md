@@ -4,7 +4,7 @@ sidebar_label: Custom networking library
 ---
 The default `fetch()` implementation uses [superagent]() due to it's server-side support
 and excellent builder-pattern api. However, a simple overriding of the `fetch()` function
-will enable you to use any networking backend you please.
+will enable you to use any networking library you please.
 
 ### Default fetch with superagent:
 
@@ -31,7 +31,7 @@ Here are examples using other popular networking APIs:
 ```typescript
 import { Resource, Method } from 'rest-hooks';
 
-export default class FetchResource extends Resource {
+export default abstract class FetchResource extends Resource {
   /** A function to mutate all request options for fetch */
   static fetchOptionsPlugin?: (options: RequestInit) => RequestInit;
 
@@ -65,7 +65,7 @@ export default class FetchResource extends Resource {
 import { Resource, Method } from 'rest-hooks';
 import axios from 'axios';
 
-export default class AxiosResource extends Resource {
+export default abstract class AxiosResource extends Resource {
   /** Perform network request and resolve with json body */
   static async fetch<T extends typeof Resource>(
     this: T,

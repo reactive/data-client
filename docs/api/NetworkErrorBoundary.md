@@ -1,21 +1,20 @@
 ---
 title: <NetworkErrorBoundary />
 ---
+
 Displays a fallback component when a network error happens in its subtree.
 
 ```typescript
 interface Props {
-    children: React.ReactNode;
-    fallbackComponent: React.ComponentType<{
-        error: NetworkError;
-    }>;
+  children: React.ReactNode;
+  fallbackComponent: React.ComponentType<{
+    error: NetworkError;
+  }>;
 }
 export default class NetworkErrorBoundary extends React.Component<Props> {
-    static defaultProps: {
-        fallbackComponent: ({ error }: {
-            error: NetworkError;
-        }) => JSX.Element;
-    };
+  static defaultProps: {
+    fallbackComponent: ({ error }: { error: NetworkError }) => JSX.Element;
+  };
 }
 ```
 
@@ -30,16 +29,16 @@ function ErrorPage({ error }: { error: NetworkError }) {
     <div>
       {error.status} {error.response && error.response.statusText}
     </div>
-  )
+  );
 }
 
 export default function App(): React.ReactElement {
   return (
-    <NetworkErrorBoundary fallbackComponent={ErrorPage}>
-      <RestProvider>
+    <RestProvider>
+      <NetworkErrorBoundary fallbackComponent={ErrorPage}>
         <Router />
-      </RestProvider>
-    </NetworkErrorBoundary>
+      </NetworkErrorBoundary>
+    </RestProvider>
   );
 }
 ```
@@ -62,5 +61,5 @@ const App = ({ location }: RouteChildrenProps) => (
       <Routes />
     </NetworkErrorBoundary>
   </Suspense>
-)
+);
 ```

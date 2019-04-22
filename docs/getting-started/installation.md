@@ -3,7 +3,7 @@ id: installation
 title: Installation
 ---
 
-## 1) Install rest-hooks
+## Install rest-hooks
 
 Install the rest-hooks package into your project using [yarn](https://yarnpkg.com/en/)
 
@@ -19,7 +19,7 @@ npm install rest-hooks
 <!--END_DOCUSAURUS_CODE_TABS-->
 
 
-## 2) Add provider at top-level component
+## Add provider at top-level component
 
 #### `index.tsx`
 
@@ -37,9 +37,9 @@ ReactDOM.render(
 
 Alternatively [integrate state with redux](../guides/redux.md)
 
-## 3) Add [Suspense](https://reactjs.org/blog/2018/11/13/react-conf-recap.html) and ErrorBoundary
+## Add Suspense and ErrorBoundary
 
-Suspense will show a fallback while content is loading.
+[Suspense](https://reactjs.org/blog/2018/11/13/react-conf-recap.html) will show a fallback while content is loading.
 
 Put the `<Suspense/>` component around the pointer where you want the fallback to be shown.
 Any usage of the hooks will need to be below this point in the tree.

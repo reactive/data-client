@@ -29,7 +29,7 @@ Then you'll want to use the [\<ExternalCacheProvider />](../api/ExternalCachePro
 [\<RestProvider />](../api/RestProvider.md) and pass in the store and a selector function to grab
 the rest-hooks specific part of the state.
 
-Note: You should only use ONE provider; using
+> Note: You should only use ONE provider; nested another provider will override the previous.
 
 #### `index.tsx`
 

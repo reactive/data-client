@@ -4,7 +4,7 @@ sidebar_label: Custom cache lifetime
 ---
 By default the NetworkManager specifies the lifetime of data and errors in the cache.
 If some resources are longer living, or shorter living than other, the can specify their own expiry length values,
-which will be passed on to all request shape creator functions on Resource.
+which will be passed on to all [request shape](../api/RequestShape.md) creator functions of [Resource](../api/Resource.md).
 
 ## Examples
 
