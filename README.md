@@ -10,7 +10,7 @@ Making dynamic sites performant, scalable, simple to build with any API design.
 
 <div align="center">
 
-**[📖Read The Docs](https://www.resthooks.io)** &nbsp;|&nbsp; [🏁Getting Started](https://www.resthooks.io/docs/getting-started/installation) &nbsp;|&nbsp;
+**[📖Read The Docs](https://resthooks.io)** &nbsp;|&nbsp; [🏁Getting Started](https://resthooks.io/docs/getting-started/installation) &nbsp;|&nbsp;
 [🎮Demo](https://stackblitz.com/edit/rest-hooks)
 
 </div>
@@ -57,7 +57,7 @@ return price.value;
 
 ### ...all typed ...fast ...and consistent
 
-For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](https://coinbase.github.io/rest-hooks/docs/getting-started/installation)
+For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](https://resthooks.io/docs/getting-started/installation)
 
 ## Features
 
@@ -68,10 +68,10 @@ For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](https://co
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination
 - [x] ✨ Optimistic updates
-- [x] 🧘 [Flexible](https://coinbase.github.io/rest-hooks/docs/api/requestshape) to fit any API design (one size fits all)
+- [x] 🧘 [Flexible](https://resthooks.io/docs/api/requestshape) to fit any API design (one size fits all)
 - [x] 🌳 Tree-shakable (only use what you need)
-- [x] 🔁 [Subscriptions](https://coinbase.github.io/rest-hooks/docs/api/useSubscription)
-- [x] ♻️ Optional [redux integration](https://coinbase.github.io/rest-hooks/docs/guides/redux)
+- [x] 🔁 [Subscriptions](https://resthooks.io/docs/api/useSubscription)
+- [x] ♻️ Optional [redux integration](https://resthooks.io/docs/guides/redux)
 - [ ] 🚯 Pluggable garbage collection policy
 - [ ] 📙 [Storybook](https://storybook.js.org/) mocking
 

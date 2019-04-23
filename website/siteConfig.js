@@ -25,11 +25,12 @@ const baseUrl = '/';
 const siteConfig = {
   title: 'Rest Hooks', // Title for your website.
   tagline: 'Delightful data fetching',
-  url: 'https://www.resthooks.io', // Your website URL
+  url: 'https://resthooks.io', // Your website URL
   baseUrl, // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
   //   url: 'https://facebook.github.io',
   //   baseUrl: '/test-site/',
+  cname: 'resthooks.io',
   algolia: {
     apiKey: '52e661c10738fd114bcf68d537358c16',
     indexName: 'coinbase-rest-hooks',
@@ -105,7 +106,7 @@ const siteConfig = {
     'https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js',
     'https://buttons.github.io/buttons.js',
   ],
-  stylesheets: [`/css/font.css`, `/css/code-block-buttons.css`],
+  //stylesheets: [`/css/font.css`, `/css/code-block-buttons.css`],
 
   // On page navigation for the current documentation page.
   onPageNav: 'separate',
