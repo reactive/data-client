@@ -10,7 +10,7 @@ Making dynamic sites performant, scalable, simple to build with any API design.
 
 <div align="center">
 
-**[📖Read The Docs](https://coinbase.github.io/rest-hooks/)** &nbsp;|&nbsp; [🏁Getting Started](https://coinbase.github.io/rest-hooks/docs/getting-started/installation) &nbsp;|&nbsp;
+**[📖Read The Docs](https://www.resthooks.io)** &nbsp;|&nbsp; [🏁Getting Started](https://www.resthooks.io/docs/getting-started/installation) &nbsp;|&nbsp;
 [🎮Demo](https://stackblitz.com/edit/rest-hooks)
 
 </div>

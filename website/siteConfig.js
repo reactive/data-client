@@ -14,18 +14,18 @@ const users = [
     caption: 'Coinbase',
     // You will need to prepend the image path with your baseUrl
     // if it is not '/', like: '/test-site/img/docusaurus.svg'.
-    image: '/rest-hooks/img/coinbase-logo.svg',
+    image: '/img/coinbase-logo.svg',
     infoLink: 'https://www.coinbase.com',
     pinned: true,
   },
 ];
 
-const baseUrl = '/rest-hooks/';
+const baseUrl = '/';
 
 const siteConfig = {
   title: 'Rest Hooks', // Title for your website.
   tagline: 'Delightful data fetching',
-  url: 'https://coinbase.github.io', // Your website URL
+  url: 'https://www.resthooks.io', // Your website URL
   baseUrl, // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
   //   url: 'https://facebook.github.io',
