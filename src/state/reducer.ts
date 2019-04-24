@@ -98,6 +98,11 @@ export default function reducer(state: State<unknown> | undefined, action: Actio
       entities: e,
     };
   default:
+    // If 'fetch' action reaches the reducer there are no middlewares installed to handle it
+    if (process.env.NODE_ENV !== 'production' && action.type === 'rest-hooks/fetch') {
+      console.warn('Reducer recieved fetch action - you are likely missing the NetworkManager middleware')
+      console.warn('See https://resthooks.io/docs/guides/redux#indextsx for hooking up redux')
+    }
     // A reducer must always return a valid state.
     // Alternatively you can throw an error if an invalid action is dispatched.
     return state;
