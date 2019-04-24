@@ -271,7 +271,8 @@ describe('reducer', () => {
     const newState = reducer(iniState, action);
     expect(newState).toEqual(iniState);
   });
-  it('other types should do nothing', () => {
+  it('rest-hooks/fetch should console.warn()', () => {
+    global.console.warn = jest.fn();
     const action: FetchAction = {
       type: 'rest-hooks/fetch',
       payload: () => new Promise<any>(() => null),
@@ -283,6 +284,19 @@ describe('reducer', () => {
         reject: (v: any) => null,
         resolve: (v: any) => null,
       },
+    };
+    const iniState = {
+      entities: {},
+      results: { abc: '5' },
+      meta: {},
+    };
+    const newState = reducer(iniState, action);
+    expect(newState).toBe(iniState);
+    expect((global.console.warn as jest.Mock).mock.calls.length).toBe(2);
+  });
+  it('other types should do nothing', () => {
+    const action: any = {
+      type: 'whatever',
     };
     const iniState = {
       entities: {},
