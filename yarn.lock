@@ -1311,20 +1311,20 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-11.11.0.tgz#070e9ce7c90e727aca0e0c14e470f9a93ffe9390"
   integrity sha512-D5Rt+HXgEywr3RQJcGlZUCTCx1qVbCZpVk3/tOOA6spLNZdGm8BU+zRgdRYDoF1pO3RuXLxADzMrF903JlQXqg==
 
-"@types/node@^11.13.4":
-  version "11.13.4"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.13.4.tgz#f83ec3c3e05b174b7241fadeb6688267fe5b22ca"
-  integrity sha512-+rabAZZ3Yn7tF/XPGHupKIL5EcAbrLxnTr/hgQICxbeuAfWtT0UZSfULE+ndusckBItcv4o6ZeOJplQikVcLvQ==
+"@types/node@^11.13.5":
+  version "11.13.7"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.13.7.tgz#85dbb71c510442d00c0631f99dae957ce44fd104"
+  integrity sha512-suFHr6hcA9mp8vFrZTgrmqW2ZU3mbWsryQtQlY/QvwTISCw7nw/j+bCQPPohqmskhmqa5wLNuMHTTsc+xf1MQg==
 
 "@types/prop-types@*":
   version "15.7.0"
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.0.tgz#4c48fed958d6dcf9487195a0ef6456d5f6e0163a"
   integrity sha512-eItQyV43bj4rR3JPV0Skpl1SncRCdziTEK9/v8VwXmV6d/qOUO8/EuWeHBbCZcsfSHfzI5UyMJLCSXtxxznyZg==
 
-"@types/react@^16.8.13":
-  version "16.8.13"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.8.13.tgz#a82b15aad9ab91c40edca0d6889b7745ae24f053"
-  integrity sha512-otJ4ntMuHGrvm67CdDJMAls4WqotmAmW0g3HmWi9LCjSWXrxoXY/nHXrtmMfvPEEmGFNm6NdgMsJmnfH820Qaw==
+"@types/react@^16.8.14":
+  version "16.8.14"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.8.14.tgz#b561bfabeb8f60d12e6d4766367e7a9ae927aa18"
+  integrity sha512-26tFVJ1omGmzIdFTFmnC5zhz1GTaqCjxgUxV4KzWvsybF42P7/j4RBn6UeO3KbHPXqKWZszMXMoI65xIWm954A==
   dependencies:
     "@types/prop-types" "*"
     csstype "^2.2.0"
@@ -6899,6 +6899,14 @@ rollup-plugin-node-resolve@^4.2.3:
     is-module "^1.0.0"
     resolve "^1.10.0"
 
+rollup-plugin-replace@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-replace/-/rollup-plugin-replace-2.2.0.tgz#f41ae5372e11e7a217cde349c8b5d5fd115e70e3"
+  integrity sha512-/5bxtUPkDHyBJAKketb4NfaeZjL5yLZdeUihSfbF2PQMz+rSTEb8ARKoOl3UBT4m7/X+QOXJo3sLTcq+yMMYTA==
+  dependencies:
+    magic-string "^0.25.2"
+    rollup-pluginutils "^2.6.0"
+
 rollup-plugin-uglify@^6.0.2:
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/rollup-plugin-uglify/-/rollup-plugin-uglify-6.0.2.tgz#681042cfdf7ea4e514971946344e1a95bc2772fe"
@@ -6933,13 +6941,13 @@ rollup-pluginutils@^2.6.0:
     estree-walker "^0.6.0"
     micromatch "^3.1.10"
 
-rollup@^1.10.0:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-1.10.0.tgz#91d594aa4386c51ca0883ad4ef2050b469d3e8aa"
-  integrity sha512-U9t/JaKtO0+X0pSmLVKMrAZEixrbVzITf193TiEhfoVKCnd7pDimIFo94IxUCgbn6+v5VmduHkubx2VV1s0Ftw==
+rollup@^1.10.1:
+  version "1.10.1"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-1.10.1.tgz#aeb763bbe98f707dc6496708db88372fa66687e7"
+  integrity sha512-pW353tmBE7QP622ITkGxtqF0d5gSRCVPD9xqM+fcPjudeZfoXMFW2sCzsTe2TU/zU1xamIjiS9xuFCPVT9fESw==
   dependencies:
     "@types/estree" "0.0.39"
-    "@types/node" "^11.13.4"
+    "@types/node" "^11.13.5"
     acorn "^6.1.1"
 
 rsvp@^3.3.3:
@@ -7730,10 +7738,10 @@ typescript@^2.5.1:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.9.2.tgz#1cbf61d05d6b96269244eb6a3bce4bd914e0f00c"
   integrity sha512-Gr4p6nFNaoufRIY4NMdpQRNmgxVIGMs4Fcu/ujdYk3nAZqk7supzBE9idmvfZIlH/Cuj//dvi+019qEue9lV0w==
 
-typescript@^3.4.3:
-  version "3.4.3"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.4.3.tgz#0eb320e4ace9b10eadf5bc6103286b0f8b7c224f"
-  integrity sha512-FFgHdPt4T/duxx6Ndf7hwgMZZjZpB+U0nMNGVCYPq0rEzWKjEDobm4J6yb3CS7naZ0yURFqdw9Gwc7UOh/P9oQ==
+typescript@^3.4.5:
+  version "3.4.5"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.4.5.tgz#2d2618d10bb566572b8d7aad5180d84257d70a99"
+  integrity sha512-YycBxUb49UUhdNMU5aJ7z5Ej2XGmaIBL0x34vZ82fn3hGvD+bgrMrVDpatgz2f7YxUMJxMkbWxJZeAvDxVe7Vw==
 
 uglify-es@^3.3.9:
   version "3.3.9"

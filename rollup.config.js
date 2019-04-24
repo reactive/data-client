@@ -4,6 +4,7 @@ import babel from 'rollup-plugin-babel';
 import json from 'rollup-plugin-json';
 import { uglify } from 'rollup-plugin-uglify';
 import filesize from 'rollup-plugin-filesize';
+import replace from 'rollup-plugin-replace';
 import { minify } from 'uglify-es';
 
 import pkg from './package.json';
@@ -50,6 +51,7 @@ export default [
         plugins,
         presets,
       }),
+      replace({ 'process.env.NODE_ENV': JSON.stringify('production') }),
       resolve({ extensions }),
       commonjs({ extensions }),
       json(),
