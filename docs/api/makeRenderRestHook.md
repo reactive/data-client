@@ -7,7 +7,7 @@ function makeRenderRestHook(makeProvider: ProviderType): RenderRestHookFunction;
 ```
 
 `makeRenderRestHook()` is useful to test hooks that rely on the `rest-hooks`. It creates a renderRestHook()
-function that mirrors [react-hooks-testing-library](https://github.com/mpeyper/react-hooks-testing-library)'s [renderHook()](https://github.com/mpeyper/react-hooks-testing-library#renderhookcallback-options) but does so with a `<Suspense/>` boundary
+function that mirrors [@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library)'s [renderHook()](https://react-hooks-testing-library.com/reference/api#renderhook-options) but does so with a `<Suspense/>` boundary
 as well as in a `<Provider />` context.
 
 ## Arguments
@@ -85,7 +85,7 @@ Cleans up all managers used in tests. Should be run in `afterEach()` to ensure e
 - `rerender` (`function([newProps])`) - function to rerender the test component including any hooks called in the `callback` function. If `newProps` are passed, the will replace the `initialProps` passed the the `callback` function for future renders.
 - `unmount` (`function()`) - function to unmount the test component, commonly used to trigger cleanup effects for `useEffect` hooks.
 
-[react-hooks-testing-library reference](https://github.com/mpeyper/react-hooks-testing-library/blob/master/README.md#returns)
+[@testing-library/react-hooks reference](https://react-hooks-testing-library.com/reference/api#renderhook-result)
 
 ## Example
 

@@ -1,7 +1,7 @@
 import React from 'react';
 // eslint-disable-next-line @typescript-eslint/camelcase
 import { unstable_scheduleCallback } from 'scheduler';
-import { cleanup, renderHook, act } from 'react-hooks-testing-library';
+import { renderHook, act } from '@testing-library/react-hooks';
 import createEnhancedReducerHook from '../middleware';
 import { MiddlewareAPI } from '../../../types';
 
@@ -14,7 +14,6 @@ beforeEach(() => {
 afterEach(() => {
   window.removeEventListener('error', ignoreError);
 });
-afterEach(cleanup);
 
 describe('createEnhancedReducerHook', () => {
   const makeTestActionMiddleware = (test: Function) => () => {

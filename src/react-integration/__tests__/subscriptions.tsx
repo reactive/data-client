@@ -1,6 +1,5 @@
 import React from 'react';
-import { cleanup } from 'react-hooks-testing-library';
-import { renderHook } from 'react-hooks-testing-library';
+import { renderHook } from '@testing-library/react-hooks';
 
 import nock from 'nock';
 
@@ -12,8 +11,6 @@ import {
   makeExternalCacheProvider,
 } from '../../test/providers';
 import { DispatchContext } from '../context';
-
-afterEach(cleanup);
 
 for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
   describe(`${makeProvider.name} with subscriptions`, () => {

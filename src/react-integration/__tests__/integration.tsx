@@ -1,5 +1,4 @@
 import React from 'react';
-import { cleanup } from 'react-hooks-testing-library';
 import nock from 'nock';
 
 import {
@@ -14,8 +13,14 @@ import {
   makeExternalCacheProvider,
 } from '../../test/providers';
 
+function onError(e: any) {
+  e.preventDefault();
+}
+beforeEach(() => {
+  window.addEventListener('error', onError);
+});
 afterEach(() => {
-  cleanup();
+  window.removeEventListener('error', onError);
 });
 
 for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
@@ -65,16 +70,6 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     // TODO: add nested resource test case that has multiple partials to test merge functionality
 
     let renderRestHook: ReturnType<typeof makeRenderRestHook>;
-
-    function onError(e: any) {
-      e.preventDefault();
-    }
-    beforeEach(() => {
-      window.addEventListener('error', onError);
-    });
-    afterEach(() => {
-      window.removeEventListener('error', onError);
-    });
 
     beforeEach(() => {
       nock('http://test.com')
@@ -131,7 +126,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     });
 
     it('should throw when retrieving an empty string', async () => {
-      const { result, waitForNextUpdate } = renderRestHook(() => {
+      const { result } = renderRestHook(() => {
         return useFetcher(CoolerArticleResource.detailShape());
       });
 
@@ -141,7 +136,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     });
 
     it('should not throw on delete', async () => {
-      const { result, waitForNextUpdate } = renderRestHook(() => {
+      const { result } = renderRestHook(() => {
         return [
           useFetcher(CoolerArticleResource.deleteShape()),
           useFetcher(ArticleResource.deleteShape()),
@@ -204,7 +199,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
 
     it('should not suspend with no params to useResource()', async () => {
       let article: any;
-      const { result, waitForNextUpdate } = renderRestHook(() => {
+      const { result } = renderRestHook(() => {
         article = useResource(CoolerArticleResource.detailShape(), null);
         return 'done';
       });

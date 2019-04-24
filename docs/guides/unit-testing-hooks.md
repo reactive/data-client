@@ -7,7 +7,7 @@ composable functions. This makes testing component behavior potentially much
 easier. But how does this work if you want to use hooks from `rest-hooks`?
 
 We have provided some simple utilities to reduce boilerplate for unit tests
-that are wrappers around [react-hooks-testing-library](https://github.com/mpeyper/react-hooks-testing-library)'s [renderHook()](https://github.com/mpeyper/react-hooks-testing-library#renderhookcallback-options).
+that are wrappers around [@testing-library/react-hooks](https://github.com/testing-library/react-hooks-testing-library)'s [renderHook()](https://react-hooks-testing-library.com/reference/api#renderhook-options).
 
 We want a `renderRestHook()` function that renders in the context of both
 a `Provider` and `Suspense` boundary.

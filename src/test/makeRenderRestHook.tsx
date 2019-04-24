@@ -1,6 +1,6 @@
 import React from 'react';
 import { RenderOptions } from 'react-testing-library';
-import { renderHook } from 'react-hooks-testing-library';
+import { renderHook } from '@testing-library/react-hooks';
 
 import { MockNetworkManager } from './managers';
 import mockInitialState, { Fixture } from './mockState';
