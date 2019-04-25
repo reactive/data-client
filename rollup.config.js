@@ -76,4 +76,21 @@ export default [
       commonjs({ extensions }),
     ],
   },
+  // test utils commonjs build
+  {
+    input: 'src/test/index.ts',
+    external: id => id === '../index' || isExternal(id),
+    output: [{ file: 'dist/test.cjs.js', format: 'cjs' }],
+    plugins: [
+      babel({
+        exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
+        extensions,
+        runtimeHelpers: true,
+        plugins,
+        presets,
+      }),
+      resolve({ extensions }),
+      commonjs({ extensions }),
+    ],
+  },
 ];

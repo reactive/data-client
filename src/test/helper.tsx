@@ -2,9 +2,7 @@ import React, { Suspense } from 'react';
 import { renderHook } from 'react-hooks-testing-library';
 
 import { MockNetworkManager } from './managers';
-import NetworkManager from '../state/NetworkManager';
-import SubscriptionManager from '../state/SubscriptionManager';
-import PollingSubscription from '../state/PollingSubscription';
+import { NetworkManager, SubscriptionManager, PollingSubscription } from '../index';
 
 export default function createRenderRestHook(
   makeProvider: (

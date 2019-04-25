@@ -35,13 +35,6 @@ export default class NetworkErrorBoundary<
 
   state: State<E> = {};
 
-  componentDidCatch(error: any) {
-    // Note this is dependant on superagent errors. Should rethink this.
-    if (!isNetworkError(error)) {
-      throw error;
-    }
-  }
-
   render() {
     if (!this.state.error) {
       return this.props.children;

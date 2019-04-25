@@ -13,7 +13,7 @@ import {
 import NetworkManager from './state/NetworkManager';
 import PollingSubscription from './state/PollingSubscription';
 import SubscriptionManager from './state/SubscriptionManager';
-import reducer from './state/reducer';
+import reducer, { initialState } from './state/reducer';
 import {
   useCache,
   useFetcher,
@@ -30,7 +30,20 @@ import {
   NetworkError,
 } from './react-integration';
 import { Request as RequestType } from 'superagent';
-import { AbstractInstanceType, RequestOptions, Method } from './types';
+import {
+  AbstractInstanceType,
+  RequestOptions,
+  Method,
+  FetchAction,
+  ReceiveAction,
+} from './types';
+import { StateContext, DispatchContext } from './react-integration/context';
+
+const __INTERNAL__ = {
+  initialState,
+  StateContext,
+  DispatchContext,
+};
 
 export type DeleteShape<
 S extends schemas.Entity,
@@ -62,6 +75,8 @@ export type Method = Method;
 
 export type NetworkError = NetworkError;
 export type Request = RequestType;
+export type FetchAction = FetchAction;
+export type ReceiveAction = ReceiveAction;
 
 export {
   Resource,
@@ -82,4 +97,5 @@ export {
   reducer,
   NetworkErrorBoundary,
   schemas,
+  __INTERNAL__,
 };
