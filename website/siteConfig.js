@@ -93,11 +93,8 @@ const siteConfig = {
   // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
   copyright: `Copyright © ${new Date().getFullYear()} Coinbase`,
 
-  highlight: {
-    // Highlight.js theme to use for syntax highlighting in code blocks.
-    theme: 'atom-one-dark',
-  },
-  usePrism: ['tsx', 'typescript', 'ts'],
+
+  usePrism: true,
 
   // Add custom scripts here that would be placed in <script> tags.
   scripts: [
