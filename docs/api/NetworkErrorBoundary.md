@@ -4,7 +4,7 @@ title: <NetworkErrorBoundary />
 
 Displays a fallback component when a network error happens in its subtree.
 
-```typescript
+```tsx
 interface Props {
   children: React.ReactNode;
   fallbackComponent: React.ComponentType<{
@@ -20,7 +20,7 @@ export default class NetworkErrorBoundary extends React.Component<Props> {
 
 Custom fallback usage example:
 
-```typescript
+```tsx
 import React from 'react';
 import { RestProvider, NetworkErrorBoundary, NetworkError } from 'rest-hooks';
 
