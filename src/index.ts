@@ -11,6 +11,8 @@ import {
   schemas,
 } from './resource';
 import NetworkManager from './state/NetworkManager';
+import PollingSubscription from './state/PollingSubscription';
+import SubscriptionManager from './state/SubscriptionManager';
 import reducer from './state/reducer';
 import {
   useCache,
@@ -75,6 +77,8 @@ export {
   useError,
   useSelectionUnstable,
   NetworkManager,
+  SubscriptionManager,
+  PollingSubscription,
   reducer,
   NetworkErrorBoundary,
   schemas,
