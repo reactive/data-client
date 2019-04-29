@@ -33,8 +33,8 @@ function resultFinderFromSchema<S extends Schema>(
 }
 
 function makeSchemaSelectorSimple<
-Params extends Readonly<object>,
-S extends Schema
+  Params extends Readonly<object>,
+  S extends Schema
 >(
   schema: S,
   getUrl: (params: Params) => string,

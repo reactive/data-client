@@ -145,18 +145,18 @@ export default class NetworkManager {
         action: React.ReducerAction<R>,
       ) => {
         switch (action.type) {
-        case 'rest-hooks/fetch':
-          this.handleFetch(action, dispatch);
-          return;
-        case 'rest-hooks/purge':
-        case 'rest-hooks/rpc':
-        case 'rest-hooks/receive':
-          if (action.meta.url in this.fetched) {
-            this.handleReceive(action);
-          }
+          case 'rest-hooks/fetch':
+            this.handleFetch(action, dispatch);
+            return;
+          case 'rest-hooks/purge':
+          case 'rest-hooks/rpc':
+          case 'rest-hooks/receive':
+            if (action.meta.url in this.fetched) {
+              this.handleReceive(action);
+            }
           // fallthrough is on purpose
-        default:
-          return next(action);
+          default:
+            return next(action);
         }
       };
     };
