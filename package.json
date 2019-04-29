@@ -23,6 +23,7 @@
     "prepare": "npm run build:clean && npm run build",
     "prepublishOnly": "npm run build:bundle",
     "lint": "eslint --ext .ts,.tsx",
+    "format": "prettier-eslint \"src/**/*.ts\" --write",
     "test": "cross-env NODE_ENV=test jest",
     "test:ci": "npm test -- --ci",
     "test:watch": "npm test -- --watch",

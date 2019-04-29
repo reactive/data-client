@@ -3,9 +3,9 @@ import useMeta from './useMeta';
 
 /** Access a resource or error if failed to get it */
 export default function useError<
-  Params extends Readonly<object>,
-  Body extends Readonly<object> | void,
-  S extends Schema
+Params extends Readonly<object>,
+Body extends Readonly<object> | void,
+S extends Schema
 >(
   selectShape: ReadShape<S, Params, Body>,
   params: Params | null,

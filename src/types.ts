@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  FSAWithPayloadAndMeta,
-  FSAWithMeta,
-} from 'flux-standard-action';
+import { FSAWithPayloadAndMeta, FSAWithMeta } from 'flux-standard-action';
 import { Schema, schemas } from './resource';
 
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
@@ -30,7 +27,6 @@ export interface RequestOptions {
   readonly pollFrequency?: number;
 }
 
-
 export interface ReceiveAction
   extends FSAWithPayloadAndMeta<'rest-hooks/receive', any, any> {
   meta: {
@@ -40,13 +36,15 @@ export interface ReceiveAction
     expiresAt: number;
   };
 }
-export interface RPCAction extends FSAWithPayloadAndMeta<'rest-hooks/rpc', any, any> {
+export interface RPCAction
+  extends FSAWithPayloadAndMeta<'rest-hooks/rpc', any, any> {
   meta: {
     schema: Schema;
     url: string;
   };
 }
-export interface PurgeAction extends FSAWithPayloadAndMeta<'rest-hooks/purge', any, any> {
+export interface PurgeAction
+  extends FSAWithPayloadAndMeta<'rest-hooks/purge', any, any> {
   meta: {
     schema: schemas.Entity;
     url: string;

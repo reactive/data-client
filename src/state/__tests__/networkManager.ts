@@ -21,7 +21,7 @@ describe('NetworkManager', () => {
           () =>
             new Promise(resolve => {
               setTimeout(resolve, 1000);
-            })
+            }),
         )
         .catch((e: any) => {
           rejection = e;

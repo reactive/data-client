@@ -5,10 +5,15 @@ import { ReadShape, Schema } from '../../resource';
 
 /** Keeps a resource fresh by subscribing to updates. */
 export default function useSubscription<
-  Params extends Readonly<object>,
-  Body extends Readonly<object> | void,
-  S extends Schema
->(requestShape: ReadShape<S, Params, Body>, params: Params, body?: Body, active = true) {
+Params extends Readonly<object>,
+Body extends Readonly<object> | void,
+S extends Schema
+>(
+  requestShape: ReadShape<S, Params, Body>,
+  params: Params,
+  body?: Body,
+  active = true,
+) {
   const { fetch, schema, getUrl, options } = requestShape;
   const url = getUrl(params);
   const dispatch = useContext(DispatchContext);
