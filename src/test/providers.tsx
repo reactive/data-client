@@ -1,11 +1,13 @@
 import React from 'react';
 import { createStore, applyMiddleware } from 'redux';
-import reducer from '../state/reducer';
-import NetworkManager from '../state/NetworkManager';
-import SubscriptionManager from '../state/SubscriptionManager';
-import ExternalCacheProvider from '../react-integration/provider/ExternalCacheProvider';
-import RestProvider from '../react-integration/provider/RestProvider';
 import { ReactNode } from 'react';
+import {
+  reducer,
+  NetworkManager,
+  SubscriptionManager,
+  ExternalCacheProvider,
+  RestProvider,
+} from '../index';
 
 const makeExternalCacheProvider = (
   manager: NetworkManager,
