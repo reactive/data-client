@@ -94,6 +94,7 @@ const payload = {
   content: 'whatever',
   tags: ['a', 'best', 'react'],
 };
+
 const articlesPages = {
   prevPage: '23asdl',
   nextPage: 's3f3',
@@ -123,6 +124,7 @@ const articlesPages = {
     },
   ],
 };
+
 const users = [
   {
     id: 23,
@@ -326,6 +328,13 @@ describe('useRetrieve', () => {
 });
 
 describe('useResource', () => {
+  let fbmock = jest.fn();
+
+  function Fallback() {
+    fbmock();
+    return null;
+  }
+
   beforeEach(() => {
     nock('http://test.com')
       .get(`/article-cooler/${payload.id}`)
@@ -359,11 +368,6 @@ describe('useResource', () => {
       payload,
     );
 
-    const fbmock = jest.fn();
-    function Fallback() {
-      fbmock();
-      return null;
-    }
     const tree = (
       <StateContext.Provider value={state}>
         <Suspense fallback={<Fallback />}>
@@ -396,11 +400,6 @@ describe('useResource', () => {
       },
     };
 
-    const fbmock = jest.fn();
-    function Fallback() {
-      fbmock();
-      return null;
-    }
     const tree = (
       <StateContext.Provider value={state}>
         <Suspense fallback={<Fallback />}>
@@ -433,11 +432,6 @@ describe('useResource', () => {
       },
     };
 
-    const fbmock = jest.fn();
-    function Fallback() {
-      fbmock();
-      return null;
-    }
     const tree = (
       <StateContext.Provider value={state}>
         <Suspense fallback={<Fallback />}>
@@ -470,11 +464,6 @@ describe('useResource', () => {
       },
     };
 
-    const fbmock = jest.fn();
-    function Fallback() {
-      fbmock();
-      return null;
-    }
     const tree = (
       <StateContext.Provider value={state}>
         <Suspense fallback={<Fallback />}>
