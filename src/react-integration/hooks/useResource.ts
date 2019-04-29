@@ -4,21 +4,39 @@ import useRetrieve from './useRetrieve';
 import useError from './useError';
 
 type ResourceArgs<
-S extends Schema,
-Params extends Readonly<object>,
-Body extends Readonly<object> | void
+  S extends Schema,
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void
 > = [ReadShape<S, Params, Body>, Params | null];
+
+/** If the invalidIfStale option is set we suspend if resource has expired */
+function shouldSuspend<
+  S extends Schema,
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void
+>(
+  resource: RequestResource<ReadShape<S, Params, Body>> | null,
+  selectShape: ReadShape<S, Params, Body>,
+) {
+  return (
+    (selectShape.options && selectShape.options.invalidIfStale) || !resource
+  );
+}
 
 /** single form resource */
 function useOneResource<
-Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends Schema
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void,
+  S extends Schema
 >(selectShape: ReadShape<S, Params, Body>, params: Params | null) {
   let maybePromise = useRetrieve(selectShape, params);
   const resource = useCache(selectShape, params);
 
-  if (!resource && maybePromise && typeof maybePromise.then === 'function')
+  if (
+    shouldSuspend(resource, selectShape) &&
+    maybePromise &&
+    typeof maybePromise.then === 'function'
+  )
     throw maybePromise;
   useError(selectShape, params, resource);
 
@@ -35,15 +53,17 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
   );
   const resources = resourceList.map(
     <
-    Params extends Readonly<object>,
-    Body extends Readonly<object> | void,
-    S extends Schema
+      Params extends Readonly<object>,
+      Body extends Readonly<object> | void,
+      S extends Schema
     >([select, params]: ResourceArgs<S, Params, Body>) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
       useCache(select, params),
   );
   // only wait on promises without results
-  promises = promises.filter((p, i) => p && !resources[i]);
+  promises = promises.filter(
+    (p, i) => p && shouldSuspend(resources[i], resourceList[i][0]),
+  );
   if (promises.length) {
     throw Promise.all(promises);
   }
@@ -150,9 +170,9 @@ export default function useResource<
   CondNull<P5, SchemaOf<S5>>
 ];
 export default function useResource<
-Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends Schema
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void,
+  S extends Schema
 >(...args: ResourceArgs<S, Params, Body> | ResourceArgs<S, Params, Body>[]) {
   // this conditional use of hooks is ok as long as the structure of the arguments don't change
   if (Array.isArray(args[0])) {

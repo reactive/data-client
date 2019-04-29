@@ -25,6 +25,8 @@ export interface RequestOptions {
   readonly errorExpiryLength?: number;
   /** Poll with at least this frequency in miliseconds */
   readonly pollFrequency?: number;
+  /** If the result is stale then we suspend instead of using the cached value */
+  readonly invalidIfStale?: boolean;
 }
 
 export interface ReceiveAction
