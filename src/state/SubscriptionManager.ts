@@ -104,14 +104,14 @@ export default class SubscriptionManager<S extends SubscriptionConstructable> {
         action: Actions,
       ) => {
         switch (action.type) {
-          case 'rest-hooks/subscribe':
-            this.handleSubscribe(action, dispatch);
-            return;
-          case 'rest-hooks/unsubscribe':
-            this.handleUnsubscribe(action, dispatch);
-            return;
-          default:
-            return next(action);
+        case 'rest-hooks/subscribe':
+          this.handleSubscribe(action, dispatch);
+          return;
+        case 'rest-hooks/unsubscribe':
+          this.handleUnsubscribe(action, dispatch);
+          return;
+        default:
+          return next(action);
         }
       };
     };
