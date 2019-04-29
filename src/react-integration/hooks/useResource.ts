@@ -9,6 +9,21 @@ Params extends Readonly<object>,
 Body extends Readonly<object> | void
 > = [ReadShape<S, Params, Body>, Params | null];
 
+/** If the invalidIfStale option is set we suspend if resource has expired */
+function hasUsableData<
+S extends Schema,
+Params extends Readonly<object>,
+Body extends Readonly<object> | void
+>(
+  resource: RequestResource<ReadShape<S, Params, Body>> | null,
+  selectShape: ReadShape<S, Params, Body>,
+) {
+  return !(
+    (selectShape.options && selectShape.options.invalidIfStale) ||
+    !resource
+  );
+}
+
 /** single form resource */
 function useOneResource<
 Params extends Readonly<object>,
@@ -18,7 +33,11 @@ S extends Schema
   let maybePromise = useRetrieve(selectShape, params);
   const resource = useCache(selectShape, params);
 
-  if (!resource && maybePromise && typeof maybePromise.then === 'function')
+  if (
+    !hasUsableData(resource, selectShape) &&
+    maybePromise &&
+    typeof maybePromise.then === 'function'
+  )
     throw maybePromise;
   useError(selectShape, params, resource);
 
@@ -43,7 +62,9 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
       useCache(select, params),
   );
   // only wait on promises without results
-  promises = promises.filter((p, i) => p && !resources[i]);
+  promises = promises.filter(
+    (p, i) => p && !hasUsableData(resources[i], resourceList[i][0]),
+  );
   if (promises.length) {
     throw Promise.all(promises);
   }

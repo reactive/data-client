@@ -71,6 +71,7 @@ export interface RequestOptions {
   readonly dataExpiryLength?: number;
   readonly errorExpiryLength?: number;
   readonly pollFrequency?: number;
+  readonly invalidIfStale?: boolean;
 }
 ```
 
@@ -86,3 +87,8 @@ Custom data error lifetime for the fetched resource. Will override the value set
 
 Frequency in millisecond to poll at. Requires using [useSubscription()](./useSubscription.md) to have
 an effect.
+
+#### invalidIfStale: boolean
+
+Indicates stale data should be considered unusable and thus not be returned from the cache. This means
+that useResource() will suspend when data is stale even if it already exists in cache.

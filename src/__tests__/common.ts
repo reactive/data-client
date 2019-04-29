@@ -90,6 +90,17 @@ export class CoolerArticleResource extends ArticleResource {
   }
 }
 
+export class InvalidIfStaleArticleResource extends ArticleResource {
+  static getRequestOptions(): RequestOptions {
+    return {
+      ...super.getRequestOptions(),
+      dataExpiryLength: 0,
+      errorExpiryLength: 0,
+      invalidIfStale: true,
+    };
+  }
+}
+
 export class PollingArticleResource extends ArticleResource {
   static getRequestOptions(): RequestOptions {
     return {

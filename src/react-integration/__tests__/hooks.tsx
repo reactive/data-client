@@ -10,6 +10,7 @@ import {
   UserResource,
   PaginatedArticleResource,
   StaticArticleResource,
+  InvalidIfStaleArticleResource,
 } from '../../__tests__/common';
 import {
   useFetcher,
@@ -24,7 +25,7 @@ import { Resource, Schema } from '../../resource';
 import { ReadShape } from '../../resource';
 
 async function testDispatchFetch(
-  Component: React.FunctionComponent,
+  Component: React.FunctionComponent<any>,
   payloads: any[],
 ) {
   const dispatch = jest.fn();
@@ -93,6 +94,7 @@ const payload = {
   content: 'whatever',
   tags: ['a', 'best', 'react'],
 };
+
 const articlesPages = {
   prevPage: '23asdl',
   nextPage: 's3f3',
@@ -122,6 +124,7 @@ const articlesPages = {
     },
   ],
 };
+
 const users = [
   {
     id: 23,
@@ -136,8 +139,12 @@ const users = [
     isAdmin: true,
   },
 ];
-function ArticleComponentTester() {
-  const article = useResource(CoolerArticleResource.singleRequest(), {
+
+function ArticleComponentTester({ invalidIfStale = false }) {
+  const resource = invalidIfStale
+    ? InvalidIfStaleArticleResource
+    : CoolerArticleResource;
+  const article = useResource(resource.singleRequest(), {
     id: payload.id,
   });
   return (
@@ -321,6 +328,13 @@ describe('useRetrieve', () => {
 });
 
 describe('useResource', () => {
+  let fbmock = jest.fn();
+
+  function Fallback() {
+    fbmock();
+    return null;
+  }
+
   beforeEach(() => {
     nock('http://test.com')
       .get(`/article-cooler/${payload.id}`)
@@ -347,18 +361,13 @@ describe('useResource', () => {
     }
     await testDispatchFetch(MultiResourceTester, [payload, users]);
   });
-  it('should NOT suspend if result already in cache', () => {
+  it('should NOT suspend if result already in cache and options.invalidIfStale is false', () => {
     const state = buildState(
       payload,
       CoolerArticleResource.singleRequest(),
       payload,
     );
 
-    const fbmock = jest.fn();
-    function Fallback() {
-      fbmock();
-      return null;
-    }
     const tree = (
       <StateContext.Provider value={state}>
         <Suspense fallback={<Fallback />}>
@@ -372,7 +381,7 @@ describe('useResource', () => {
     expect(title).toBeDefined();
     expect(title.tagName).toBe('H3');
   });
-  it('should NOT suspend even when result is stale', () => {
+  it('should NOT suspend even when result is stale and options.invalidIfStale is false', () => {
     const { entities, result } = normalize(
       payload,
       CoolerArticleResource.getEntitySchema(),
@@ -391,11 +400,6 @@ describe('useResource', () => {
       },
     };
 
-    const fbmock = jest.fn();
-    function Fallback() {
-      fbmock();
-      return null;
-    }
     const tree = (
       <StateContext.Provider value={state}>
         <Suspense fallback={<Fallback />}>
@@ -408,5 +412,66 @@ describe('useResource', () => {
     const title = getByText(payload.title);
     expect(title).toBeDefined();
     expect(title.tagName).toBe('H3');
+  });
+  it('should NOT suspend if result is not stale and options.invalidIfStale is true', () => {
+    const { entities, result } = normalize(
+      payload,
+      InvalidIfStaleArticleResource.getEntitySchema(),
+    );
+    const url = InvalidIfStaleArticleResource.url(payload);
+    const state = {
+      entities,
+      results: {
+        [url]: result,
+      },
+      meta: {
+        [url]: {
+          date: Infinity,
+          expiresAt: Infinity,
+        },
+      },
+    };
+
+    const tree = (
+      <StateContext.Provider value={state}>
+        <Suspense fallback={<Fallback />}>
+          <ArticleComponentTester invalidIfStale />
+        </Suspense>
+      </StateContext.Provider>
+    );
+    const { getByText } = render(tree);
+    expect(fbmock).not.toBeCalled();
+    const title = getByText(payload.title);
+    expect(title).toBeDefined();
+    expect(title.tagName).toBe('H3');
+  });
+  it('should suspend if result stale in cache and options.invalidIfStale is true', () => {
+    const { entities, result } = normalize(
+      payload,
+      InvalidIfStaleArticleResource.getEntitySchema(),
+    );
+    const url = InvalidIfStaleArticleResource.url(payload);
+    const state = {
+      entities,
+      results: {
+        [url]: result,
+      },
+      meta: {
+        [url]: {
+          date: 0,
+          expiresAt: 0,
+        },
+      },
+    };
+
+    const tree = (
+      <StateContext.Provider value={state}>
+        <Suspense fallback={<Fallback />}>
+          <ArticleComponentTester invalidIfStale />
+        </Suspense>
+      </StateContext.Provider>
+    );
+    render(tree);
+    expect(fbmock).toHaveBeenCalled();
   });
 });

@@ -25,6 +25,8 @@ export interface RequestOptions {
   readonly errorExpiryLength?: number;
   /** Poll with at least this frequency in miliseconds */
   readonly pollFrequency?: number;
+  /** Marks cached resources as invalid if they are stale */
+  readonly invalidIfStale?: boolean;
 }
 
 export interface ReceiveAction
