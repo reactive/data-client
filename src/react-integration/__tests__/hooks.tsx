@@ -25,7 +25,7 @@ import { Resource, Schema } from '../../resource';
 import { ReadShape } from '../../resource';
 
 async function testDispatchFetch(
-  Component: React.FunctionComponent,
+  Component: React.FunctionComponent<any>,
   payloads: any[],
 ) {
   const dispatch = jest.fn();
@@ -414,12 +414,49 @@ describe('useResource', () => {
     expect(title).toBeDefined();
     expect(title.tagName).toBe('H3');
   });
+  it('should NOT suspend if result is not stale and options.invalidIfStale is true', () => {
+    const { entities, result } = normalize(
+      payload,
+      InvalidIfStaleArticleResource.getEntitySchema(),
+    );
+    const url = InvalidIfStaleArticleResource.url(payload);
+    const state = {
+      entities,
+      results: {
+        [url]: result,
+      },
+      meta: {
+        [url]: {
+          date: Infinity,
+          expiresAt: Infinity,
+        },
+      },
+    };
+
+    const fbmock = jest.fn();
+    function Fallback() {
+      fbmock();
+      return null;
+    }
+    const tree = (
+      <StateContext.Provider value={state}>
+        <Suspense fallback={<Fallback />}>
+          <ArticleComponentTester invalidIfStale />
+        </Suspense>
+      </StateContext.Provider>
+    );
+    const { getByText } = render(tree);
+    expect(fbmock).not.toBeCalled();
+    const title = getByText(payload.title);
+    expect(title).toBeDefined();
+    expect(title.tagName).toBe('H3');
+  });
   it('should suspend if result stale in cache and options.invalidIfStale is true', () => {
     const { entities, result } = normalize(
       payload,
-      CoolerArticleResource.getEntitySchema(),
+      InvalidIfStaleArticleResource.getEntitySchema(),
     );
-    const url = CoolerArticleResource.url(payload);
+    const url = InvalidIfStaleArticleResource.url(payload);
     const state = {
       entities,
       results: {

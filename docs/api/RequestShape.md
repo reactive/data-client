@@ -90,4 +90,5 @@ an effect.
 
 #### invalidIfStale: boolean
 
-Forces useResource to suspend if the data in cache is stale. Requires `dataExpiryLength` to have effect.
+Indicates stale data should be considered unusable and thus not be returned from the cache. This means
+that useResource() will suspend when data is stale even if it already exists in cache.
