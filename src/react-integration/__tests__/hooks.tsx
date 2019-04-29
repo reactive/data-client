@@ -25,7 +25,7 @@ import { ReadShape } from '../../resource';
 
 async function testDispatchFetch(
   Component: React.FunctionComponent,
-  payloads: any[]
+  payloads: any[],
 ) {
   const dispatch = jest.fn();
   const tree = (
@@ -65,7 +65,7 @@ function testRestHook(
 function buildState<S extends Schema>(
   payload: any,
   requestShape: ReadShape<S, any, any>,
-  params: object
+  params: object,
 ): State<Resource> {
   const { entities, result } = normalize(payload, requestShape.schema);
   const url = requestShape.getUrl(params);
@@ -201,7 +201,7 @@ describe('useCache', () => {
             {children}
           </StateContext.Provider>
         ),
-      }
+      },
     );
     expect(article).toBe(null);
     state = buildState(payload, CoolerArticleResource.singleRequest(), payload);
@@ -213,7 +213,7 @@ describe('useCache', () => {
     const state = buildState(
       articlesPages,
       PaginatedArticleResource.listRequest(),
-      {}
+      {},
     );
     let articles: any;
     testRestHook(() => {
@@ -242,7 +242,7 @@ describe('useResultCache', () => {
       results = useResultCache(
         PaginatedArticleResource.listRequest(),
         {},
-        defaults
+        defaults,
       );
     }, state);
     expect(results).toEqual(defaults);
@@ -251,7 +251,7 @@ describe('useResultCache', () => {
     const state = buildState(
       articlesPages,
       PaginatedArticleResource.listRequest(),
-      {}
+      {},
     );
     let results: any;
     testRestHook(() => {
@@ -290,7 +290,7 @@ describe('useRetrieve', () => {
         useRetrieve(CoolerArticleResource.singleRequest(), params);
       },
       initialState,
-      dispatch
+      dispatch,
     );
     expect(dispatch).toBeCalledTimes(0);
     params = payload;
@@ -341,7 +341,7 @@ describe('useResource', () => {
             id: payload.id,
           },
         ],
-        [UserResource.listRequest(), {}]
+        [UserResource.listRequest(), {}],
       );
       return null;
     }
@@ -351,7 +351,7 @@ describe('useResource', () => {
     const state = buildState(
       payload,
       CoolerArticleResource.singleRequest(),
-      payload
+      payload,
     );
 
     const fbmock = jest.fn();
@@ -375,7 +375,7 @@ describe('useResource', () => {
   it('should NOT suspend even when result is stale', () => {
     const { entities, result } = normalize(
       payload,
-      CoolerArticleResource.getEntitySchema()
+      CoolerArticleResource.getEntitySchema(),
     );
     const url = CoolerArticleResource.url(payload);
     const state = {

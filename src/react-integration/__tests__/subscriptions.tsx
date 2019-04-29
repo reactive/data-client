@@ -97,7 +97,10 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
   });
 }
 async function validateSubscription(
-  result: { readonly current: PollingArticleResource | null; readonly error: Error },
+  result: {
+  readonly current: PollingArticleResource | null;
+  readonly error: Error;
+  },
   frequency: number,
   waitForNextUpdate: () => Promise<void>,
   articlePayload: {
