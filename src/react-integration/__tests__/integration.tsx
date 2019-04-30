@@ -1,9 +1,9 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { cleanup } from 'react-hooks-testing-library';
 import nock from 'nock';
 
 import { CoolerArticleResource, UserResource } from '../../__tests__/common';
-import { useResource, useFetcher } from '../hooks';
+import { useResource, useFetcher, useInvalidator } from '../hooks';
 import createRenderRestHook from '../../test/helper';
 import {
   makeRestProvider,
@@ -13,6 +13,21 @@ import {
 afterEach(() => {
   cleanup();
 });
+
+// Always fetch a new article by invalidating the previous one
+function useFreshArticle(params: any) {
+  const article = useResource(CoolerArticleResource.singleRequest(), {
+    params,
+  });
+  const invalidate = useInvalidator(CoolerArticleResource.singleRequest(), {
+    params,
+  });
+
+  // invalidate on cleanup
+  useEffect(() => invalidate, [invalidate]);
+
+  return article;
+}
 
 for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
   describe(`${makeProvider.name} => <Provider />`, () => {
@@ -130,6 +145,14 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
       await waitForNextUpdate();
       expect(result.error).toBeDefined();
       expect((result.error as any).status).toBe(403);
+    });
+
+    // TODO: Flesh out this test
+    it.only('correctly refetches invalid resources', async () => {
+      const { result, rerender } = renderRestHook(() => {
+        return useFreshArticle(payload);
+      });
+      expect(result.current).toBe(null);
     });
 
     it('should resolve parallel useResource() request', async () => {

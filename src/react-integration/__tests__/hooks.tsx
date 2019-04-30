@@ -1,5 +1,5 @@
-import React, { Suspense } from 'react';
-import { render } from 'react-testing-library';
+import React, { Suspense, useEffect } from 'react';
+import { render, wait } from 'react-testing-library';
 import { cleanup, renderHook } from 'react-hooks-testing-library';
 import nock from 'nock';
 import { normalize } from '../../resource';
