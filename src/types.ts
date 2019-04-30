@@ -84,6 +84,13 @@ export interface UnsubscribeAction
   };
 }
 
+export interface InvalidateAction
+  extends FSAWithMeta<'rest-hooks/invalidate', undefined, any> {
+  meta: {
+    url: string;
+  };
+}
+
 // put other actions here in union
 export type ActionTypes =
   | FetchAction
@@ -91,7 +98,8 @@ export type ActionTypes =
   | RPCAction
   | PurgeAction
   | SubscribeAction
-  | UnsubscribeAction;
+  | UnsubscribeAction
+  | InvalidateAction;
 
 export type Middleware = <R extends React.Reducer<any, any>>({
   dispatch,

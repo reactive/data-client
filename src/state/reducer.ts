@@ -19,6 +19,28 @@ function isMergeable<T>(constructor: any): constructor is MergeableStatic<T> {
   return constructor && typeof constructor.merge === 'function';
 }
 
+function purgeEntity(
+  entities: typeof initialState.entities,
+  key: string,
+  pk: string,
+) {
+  const copy: Writable<typeof entities> = {};
+  for (const k in entities) {
+    const o = entities[k];
+    if (o === undefined) continue;
+    if (k === key) {
+      copy[k] = {};
+      for (const j in o) {
+        if (j === pk) continue;
+        copy[k][j] = o[j];
+      }
+    } else {
+      copy[k] = o;
+    }
+  }
+  return copy;
+}
+
 export const resourceCustomizer = (a: any, b: any): any => {
   const Static = b && b.constructor;
   if (a && Static && isMergeable(Static)) {
@@ -82,24 +104,23 @@ export default function reducer(
     if (action.error) return state;
     const key = action.meta.schema.key;
     const pk = action.meta.url;
-    const e: Writable<typeof state.entities> = {};
-    for (const k in state.entities) {
-      const o = state.entities[k];
-      if (o === undefined) continue;
-      if (k === key) {
-        e[k] = {};
-        for (const j in o) {
-          if (j === pk) continue;
-          e[k][j] = o[j];
-        }
-      } else {
-        e[k] = o;
-      }
-    }
+    const e = purgeEntity(state.entities, key, pk);
     return {
       ...state,
       entities: e,
     };
+  case 'rest-hooks/invalidate':
+    return {
+      ...state,
+      meta: {
+        ...state.meta,
+        [action.meta.url]: {
+          ...state.meta[action.meta.url],
+          expiresAt: 0,
+        },
+      },
+    };
+
   default:
     // If 'fetch' action reaches the reducer there are no middlewares installed to handle it
     if (

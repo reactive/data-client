@@ -18,6 +18,7 @@ import {
   useResource,
   useCache,
   useResultCache,
+  useInvalidator,
 } from '../hooks';
 import { initialState } from '../../state/reducer';
 import { State, ActionTypes } from '../../types';
@@ -195,6 +196,33 @@ describe('useFetcher', () => {
     await testDispatchFetch(DispatchTester, [payload]);
   });
 });
+
+describe('useInvalidate', () => {
+  it('should return a function that dispatches an action to invalidate a resource', () => {
+    const state = buildState(
+      articlesPages,
+      PaginatedArticleResource.listRequest(),
+      {},
+    );
+    const dispatch = jest.fn();
+    let invalidate: any;
+    testRestHook(
+      () => {
+        invalidate = useInvalidator(PaginatedArticleResource.listRequest(), {});
+      },
+      state,
+      dispatch,
+    );
+    invalidate();
+    expect(dispatch).toHaveBeenCalledWith({
+      type: 'rest-hooks/invalidate',
+      meta: {
+        url: 'http://test.com/article-paginated/',
+      },
+    });
+  });
+});
+
 describe('useCache', () => {
   it('should select singles', async () => {
     let article: any;
@@ -216,6 +244,7 @@ describe('useCache', () => {
     expect(article).toBeTruthy();
     expect(article.title).toBe(payload.title);
   });
+
   it('should select paginated results', async () => {
     const state = buildState(
       articlesPages,
@@ -232,6 +261,7 @@ describe('useCache', () => {
     expect(articles).toMatchSnapshot();
   });
 });
+
 describe('useResultCache', () => {
   it('should be null with nothing in state', () => {
     let results: any;
@@ -241,6 +271,7 @@ describe('useResultCache', () => {
     }, state);
     expect(results).toBe(null);
   });
+
   it('should send defaults with nothing in state', () => {
     let results: any;
     let state = { ...initialState };
@@ -254,6 +285,7 @@ describe('useResultCache', () => {
     }, state);
     expect(results).toEqual(defaults);
   });
+
   it('should find results', async () => {
     const state = buildState(
       articlesPages,
@@ -270,6 +302,7 @@ describe('useResultCache', () => {
     expect(results.results).toEqual(['23', '44', '2', '643']);
   });
 });
+
 describe('useRetrieve', () => {
   beforeEach(() => {
     nock('http://test.com')
@@ -282,6 +315,7 @@ describe('useRetrieve', () => {
       .get(`/user/`)
       .reply(200, users);
   });
+
   it('should dispatch singles', async () => {
     function FetchTester() {
       useRetrieve(CoolerArticleResource.singleRequest(), payload);
@@ -289,6 +323,7 @@ describe('useRetrieve', () => {
     }
     await testDispatchFetch(FetchTester, [payload]);
   });
+
   it('should not dispatch will null params', async () => {
     const dispatch = jest.fn();
     let params: any = null;
@@ -304,6 +339,7 @@ describe('useRetrieve', () => {
     rerender();
     expect(dispatch).toBeCalled();
   });
+
   it('should dispatch with resource defined dataExpiryLength', async () => {
     function FetchTester() {
       useRetrieve(StaticArticleResource.singleRequest(), payload);
@@ -311,6 +347,7 @@ describe('useRetrieve', () => {
     }
     await testDispatchFetch(FetchTester, [payload]);
   });
+
   it('should dispatch with request shape defined dataExpiryLength', async () => {
     function FetchTester() {
       useRetrieve(StaticArticleResource.longLivingRequest(), payload);
@@ -318,6 +355,7 @@ describe('useRetrieve', () => {
     }
     await testDispatchFetch(FetchTester, [payload]);
   });
+
   it('should dispatch with request shape defined errorExpiryLength', async () => {
     function FetchTester() {
       useRetrieve(StaticArticleResource.neverRetryOnErrorRequest(), payload);
@@ -343,9 +381,11 @@ describe('useResource', () => {
       .get(`/user/`)
       .reply(200, users);
   });
+
   it('should dispatch an action that fetches', async () => {
     await testDispatchFetch(ArticleComponentTester, [payload]);
   });
+
   it('should dispatch fetch when sent multiple arguments', async () => {
     function MultiResourceTester() {
       const [article, user] = useResource(
@@ -361,7 +401,12 @@ describe('useResource', () => {
     }
     await testDispatchFetch(MultiResourceTester, [payload, users]);
   });
+<<<<<<< HEAD
   it('should NOT suspend if result already in cache and options.invalidIfStale is false', () => {
+=======
+
+  it('should NOT suspend if result already in cache', () => {
+>>>>>>> Initial version
     const state = buildState(
       payload,
       CoolerArticleResource.singleRequest(),
@@ -381,7 +426,12 @@ describe('useResource', () => {
     expect(title).toBeDefined();
     expect(title.tagName).toBe('H3');
   });
+<<<<<<< HEAD
   it('should NOT suspend even when result is stale and options.invalidIfStale is false', () => {
+=======
+
+  it('should NOT suspend even when result is stale', () => {
+>>>>>>> Initial version
     const { entities, result } = normalize(
       payload,
       CoolerArticleResource.getEntitySchema(),

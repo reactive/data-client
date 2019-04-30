@@ -119,6 +119,7 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
       expect(result.error).toBeDefined();
       expect((result.error as any).status).toBe(404);
     });
+
     it('useResource() should throw errors on bad network', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
         return useResource(CoolerArticleResource.singleRequest(), {
@@ -130,6 +131,7 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
       expect(result.error).toBeDefined();
       expect((result.error as any).status).toBe(403);
     });
+
     it('should resolve parallel useResource() request', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
         return useResource(
@@ -151,6 +153,7 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
       expect(users.length).toBeTruthy();
       expect(users[0] instanceof UserResource).toBe(true);
     });
+
     it('should not suspend with no params to useResource()', async () => {
       let article: any;
       const { result, waitForNextUpdate } = renderRestHook(() => {
