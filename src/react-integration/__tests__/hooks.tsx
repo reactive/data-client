@@ -401,12 +401,7 @@ describe('useResource', () => {
     }
     await testDispatchFetch(MultiResourceTester, [payload, users]);
   });
-<<<<<<< HEAD
   it('should NOT suspend if result already in cache and options.invalidIfStale is false', () => {
-=======
-
-  it('should NOT suspend if result already in cache', () => {
->>>>>>> Initial version
     const state = buildState(
       payload,
       CoolerArticleResource.singleRequest(),
@@ -426,12 +421,7 @@ describe('useResource', () => {
     expect(title).toBeDefined();
     expect(title.tagName).toBe('H3');
   });
-<<<<<<< HEAD
   it('should NOT suspend even when result is stale and options.invalidIfStale is false', () => {
-=======
-
-  it('should NOT suspend even when result is stale', () => {
->>>>>>> Initial version
     const { entities, result } = normalize(
       payload,
       CoolerArticleResource.getEntitySchema(),
