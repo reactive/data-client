@@ -7,10 +7,12 @@ function useInvalidator<
   Params extends Readonly<object>,
   Body extends Readonly<object> | void,
   S extends Schema
->(selectShape: ReadShape<S, Params, Body>, params: Params | null);
+>(selectShape: ReadShape<S, Params, Body>): (params: Params) => void;
 ```
 
-Mostly useful for imperatively triggering cache invalidation. When used in conjunction with `invalidIfStale` it can force a component to re-suspend even if it has already fetched the data.
+Mostly useful for imperatively triggering cache invalidation, with a similar signiature as
+[useFetcher](./useFetcher). When used in conjunction with `invalidIfStale` it can force a
+component to re-suspend even if it has already fetched the data.
 
 ## Example
 
@@ -34,11 +36,11 @@ export default class ArticleResource extends Resource {
 ```tsx
 function ArticleName({ id }: { id: string }) {
   const asset = useResource(ArticleResource.singleRequest(), { id });
-  const invalidate = useInvalidator(ArticleResource.singleRequest(), { id });
+  const invalidate = useInvalidator(ArticleResource.singleRequest());
 
   // Invalidate cache on unmount. When component is remounted it will re-fetch
   useEffect(() => {
-    return invalidate;
+    return () => invalidate({ id });
   }, []);
 
   return (

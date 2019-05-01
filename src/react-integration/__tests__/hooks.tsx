@@ -208,12 +208,12 @@ describe('useInvalidate', () => {
     let invalidate: any;
     testRestHook(
       () => {
-        invalidate = useInvalidator(PaginatedArticleResource.listRequest(), {});
+        invalidate = useInvalidator(PaginatedArticleResource.listRequest());
       },
       state,
       dispatch,
     );
-    invalidate();
+    invalidate({});
     expect(dispatch).toHaveBeenCalledWith({
       type: 'rest-hooks/invalidate',
       meta: {

@@ -14,7 +14,7 @@ import {
 type DeepPartialWithUnkown<T> = {
   [K in keyof T]?: T[K] extends unknown
     ? any
-    : (T[K] extends object ? DeepPartial<T[K]> : T[K])
+    : (T[K] extends object ? DeepPartialWithUnkown<T[K]> : T[K])
 };
 
 const makeExternalCacheProvider = (

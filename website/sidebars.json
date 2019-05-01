@@ -59,7 +59,8 @@
           "api/useCache",
           "api/useResultCache",
           "api/useSubscription",
-          "api/useRetrieve"
+          "api/useRetrieve",
+          "api/useInvalidator"
         ]
       },
       {
