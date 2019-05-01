@@ -3,14 +3,12 @@ title: useInvalidator()
 ---
 
 ```typescript
-function useInvalidator<
-  Params extends Readonly<object>,
-  Body extends Readonly<object> | void,
-  S extends Schema
->(selectShape: ReadShape<S, Params, Body>): (params: Params) => void;
+function useInvalidator<Params extends Readonly<object>, S extends Schema>(
+  selectShape: ReadShape<S, Params, any>,
+): (params: Params) => void;
 ```
 
-Mostly useful for imperatively triggering cache invalidation, with a similar signiature as
+Mostly useful for imperatively invalidating the cache, with a similar signiature to
 [useFetcher](./useFetcher). When used in conjunction with `invalidIfStale` it can force a
 component to re-suspend even if it has already fetched the data.
 
