@@ -55,7 +55,6 @@ export default function reducer(
   action: ActionTypes,
 ) {
   if (!state) state = initialState;
-  console.log(state.meta, action.type, action.meta);
   switch (action.type) {
   case 'rest-hooks/receive':
     if (action.error) {
