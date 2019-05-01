@@ -198,7 +198,7 @@ describe('useFetcher', () => {
 });
 
 describe('useInvalidate', () => {
-  it('should not invalidate anything if params is missing', () => {
+  it('should not invalidate anything if params is null', () => {
     const state = buildState(
       articlesPages,
       PaginatedArticleResource.listRequest(),
@@ -213,7 +213,7 @@ describe('useInvalidate', () => {
       state,
       dispatch,
     );
-    invalidate();
+    invalidate(null);
     expect(dispatch).not.toHaveBeenCalled();
   });
   it('should return a function that dispatches an action to invalidate a resource', () => {
