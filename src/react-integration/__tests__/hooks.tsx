@@ -198,6 +198,24 @@ describe('useFetcher', () => {
 });
 
 describe('useInvalidate', () => {
+  it('should not invalidate anything if params is missing', () => {
+    const state = buildState(
+      articlesPages,
+      PaginatedArticleResource.listRequest(),
+      {},
+    );
+    const dispatch = jest.fn();
+    let invalidate: any;
+    testRestHook(
+      () => {
+        invalidate = useInvalidator(PaginatedArticleResource.listRequest());
+      },
+      state,
+      dispatch,
+    );
+    invalidate();
+    expect(dispatch).not.toHaveBeenCalled();
+  });
   it('should return a function that dispatches an action to invalidate a resource', () => {
     const state = buildState(
       articlesPages,

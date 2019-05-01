@@ -36,15 +36,24 @@ export default class ArticleResource extends Resource {
 }
 ```
 
+```typescript
+// Invalidate cache on unmount. When component is remounted it will re-fetch
+function useInvalidateOnUnmount<
+  Params extends Readonly<object>,
+  S extends Schema
+>(selectShape: ReadShape<S, Params, any>, params: Params) {
+  const invalidate = useInvalidator(selectShape);
+
+  useEffect(() => {
+    return () => invalidate(params);
+  }, []);
+}
+```
+
 ```tsx
 function ArticleName({ id }: { id: string }) {
   const asset = useResource(ArticleResource.singleRequest(), { id });
-  const invalidate = useInvalidator(ArticleResource.singleRequest());
-
-  // Invalidate cache on unmount. When component is remounted it will re-fetch
-  useEffect(() => {
-    return () => invalidate({ id });
-  }, []);
+  useInvalidateOnUnmount(ArticleResource.singleRequest(), { id });
 
   return (
     <div>
