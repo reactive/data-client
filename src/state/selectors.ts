@@ -51,6 +51,7 @@ S extends Schema
     (entities, results, params: Params) => {
       // We can grab entities without actual results if the params compute a primary key
       let getRequestListForThis = getResultList;
+
       if (isEntity(dataSchema) && !results) {
         const id = dataSchema.getId(params, undefined, '');
         // in case we don't even have entities for a model yet, denormalize() will throw

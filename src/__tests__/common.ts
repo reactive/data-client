@@ -90,12 +90,12 @@ export class CoolerArticleResource extends ArticleResource {
   }
 }
 
-export class InvalidIfStaleArticleResource extends ArticleResource {
+export class InvalidIfStaleArticleResource extends CoolerArticleResource {
   static getRequestOptions(): RequestOptions {
     return {
       ...super.getRequestOptions(),
-      dataExpiryLength: 0,
-      errorExpiryLength: 0,
+      dataExpiryLength: 5000,
+      errorExpiryLength: 5000,
       invalidIfStale: true,
     };
   }

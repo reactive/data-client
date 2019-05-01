@@ -209,7 +209,6 @@ describe('reducer', () => {
     const action: InvalidateAction = {
       type: 'rest-hooks/invalidate',
       meta: {
-        schema: ArticleResource.getEntitySchema(),
         url: id.toString(),
       },
     };
