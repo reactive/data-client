@@ -25,6 +25,7 @@ import {
   useError,
   useSelectionUnstable,
   RestProvider,
+  useInvalidator,
   ExternalCacheProvider,
   NetworkErrorBoundary,
   NetworkError,
@@ -34,6 +35,7 @@ import {
   AbstractInstanceType,
   RequestOptions,
   Method,
+  State,
   FetchAction,
   ReceiveAction,
 } from './types';
@@ -65,6 +67,7 @@ Params extends Readonly<object> = Readonly<object>,
 Body extends Readonly<object> | void = Readonly<object> | undefined
 > = RequestShape<S, Params, Body>;
 
+export type State<T> = State<T>;
 export type Schema<T = any> = Schema<T>;
 export type SchemaArray<T> = SchemaArray<T>;
 export type SchemaBase<T> = SchemaBase<T>;
@@ -85,6 +88,7 @@ export {
   useCache,
   useFetcher,
   useRetrieve,
+  useInvalidator,
   useResource,
   useSubscription,
   useResultCache,

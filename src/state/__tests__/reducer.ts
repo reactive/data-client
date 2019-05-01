@@ -8,6 +8,7 @@ import {
   RPCAction,
   ReceiveAction,
   PurgeAction,
+  InvalidateAction,
 } from '../../types';
 import { mergeWith } from 'lodash';
 
@@ -202,6 +203,43 @@ describe('reducer', () => {
     expect(newState.entities[ArticleResource.getKey()]).toEqual(
       expectedEntities,
     );
+  });
+  it('invalidates resources correctly', () => {
+    const id = 20;
+    const action: InvalidateAction = {
+      type: 'rest-hooks/invalidate',
+      meta: {
+        url: id.toString(),
+      },
+    };
+    const iniState: any = {
+      entities: {
+        [ArticleResource.getKey()]: {
+          '10': ArticleResource.fromJS({ id: 10 }),
+          '20': ArticleResource.fromJS({ id: 20 }),
+          '25': ArticleResource.fromJS({ id: 25 }),
+        },
+        [PaginatedArticleResource.getKey()]: {
+          hi: PaginatedArticleResource.fromJS({ id: 5 }),
+        },
+        '5': undefined,
+      },
+      results: { abc: '20' },
+      meta: {
+        '20': {
+          expiresAt: 500,
+        },
+        '25': {
+          expiresAt: 1000,
+        },
+      },
+    };
+    const newState = reducer(iniState, action);
+    expect(newState.results).toBe(iniState.results);
+    expect(newState.entities).toBe(iniState.entities);
+    const expectedMeta = { ...iniState.meta };
+    expectedMeta['20'] = { expiresAt: 0 };
+    expect(newState.meta).toEqual(expectedMeta);
   });
   it('should set error in meta for "receive"', () => {
     const id = 20;

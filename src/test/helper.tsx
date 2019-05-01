@@ -2,19 +2,24 @@ import React, { Suspense } from 'react';
 import { renderHook } from 'react-hooks-testing-library';
 
 import { MockNetworkManager } from './managers';
-import { NetworkManager, SubscriptionManager, PollingSubscription } from '../index';
+import {
+  State,
+  NetworkManager,
+  SubscriptionManager,
+  PollingSubscription,
+} from '../index';
 
 export default function createRenderRestHook(
   makeProvider: (
     manager: NetworkManager,
     subManager: SubscriptionManager<any>,
+    initialState?: State<unknown>,
   ) => React.ComponentType<{ children: React.ReactChild }>,
 ) {
   const manager = new MockNetworkManager();
   const subManager = new SubscriptionManager(PollingSubscription);
-  const Provider = makeProvider(manager, subManager);
-
-  function renderRestHook<T>(callback: () => T) {
+  function renderRestHook<T>(callback: () => T, initialState?: State<unknown>) {
+    const Provider = makeProvider(manager, subManager, initialState);
     return renderHook(callback, {
       wrapper: ({ children }) => (
         <Provider>

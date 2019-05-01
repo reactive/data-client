@@ -7,6 +7,7 @@ import {
   useResultCache,
   useMeta,
   useError,
+  useInvalidator,
   useSelectionUnstable,
 } from './hooks';
 import { RestProvider, ExternalCacheProvider } from './provider';
@@ -20,6 +21,7 @@ export {
   useResource,
   useSubscription,
   useResultCache,
+  useInvalidator,
   useMeta,
   useError,
   useSelectionUnstable,

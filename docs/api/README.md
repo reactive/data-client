@@ -11,6 +11,7 @@ title: API Reference
   - [useResultCache](useResultCache.md)
   - [useSubscription](useSubscription.md)
   - [useRetrieve](useRetrieve.md)
+  - [useInvalidator](useInvalidator.md)
 - Components:
   - [RestProvider](RestProvider.md)
   - [ExternalCacheProvider](ExternalCacheProvider.md)
