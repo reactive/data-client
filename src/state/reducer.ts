@@ -20,7 +20,7 @@ function isMergeable<T>(constructor: any): constructor is MergeableStatic<T> {
 }
 
 function purgeEntity(
-  entities: typeof initialState.entities,
+  entities: State<unknown>['entities'],
   key: string,
   pk: string,
 ) {
