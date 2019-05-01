@@ -5,7 +5,7 @@ title: useInvalidator()
 ```typescript
 function useInvalidator<Params extends Readonly<object>, S extends Schema>(
   selectShape: ReadShape<S, Params, any>,
-): (params: Params) => void;
+): (params: Params | null) => void;
 ```
 
 Mostly useful for imperatively invalidating the cache, with a similar signature to
@@ -41,7 +41,7 @@ export default class ArticleResource extends Resource {
 function useInvalidateOnUnmount<
   Params extends Readonly<object>,
   S extends Schema
->(selectShape: ReadShape<S, Params, any>, params: Params) {
+>(selectShape: ReadShape<S, Params, any>, params: Params | null) {
   const invalidate = useInvalidator(selectShape);
 
   useEffect(() => {

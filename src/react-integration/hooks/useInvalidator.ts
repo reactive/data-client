@@ -7,12 +7,12 @@ import { DispatchContext } from '../context';
 export default function useInvalidator<
 Params extends Readonly<object>,
 S extends Schema
->(selectShape: ReadShape<S, Params, any>): (params: Params) => void {
+>(selectShape: ReadShape<S, Params, any>): (params: Params | null) => void {
   const { getUrl } = selectShape;
   const dispatch = useContext(DispatchContext);
 
   const invalidateDispatcher = useCallback(
-    (params: Params) => {
+    (params: Params | null) => {
       if (!params) return;
       dispatch({
         type: 'rest-hooks/invalidate',
