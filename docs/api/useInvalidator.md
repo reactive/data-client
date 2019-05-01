@@ -8,7 +8,7 @@ function useInvalidator<Params extends Readonly<object>, S extends Schema>(
 ): (params: Params) => void;
 ```
 
-Mostly useful for imperatively invalidating the cache, with a similar signiature to
+Mostly useful for imperatively invalidating the cache, with a similar signature to
 [useFetcher](./useFetcher). When used in conjunction with `invalidIfStale` it can force a
 component to re-suspend even if it has already fetched the data.
 
