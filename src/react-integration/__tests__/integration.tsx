@@ -4,7 +4,7 @@ import nock from 'nock';
 
 import { CoolerArticleResource, UserResource } from '../../__tests__/common';
 import { useResource, useFetcher } from '../hooks';
-import createRenderRestHook from '../../test/helper';
+import makeRenderRestHook from '../../test/helper';
 import {
   makeRestProvider,
   makeExternalCacheProvider,
@@ -60,7 +60,7 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
     ];
     // TODO: add nested resource test case that has multiple partials to test merge functionality
 
-    let renderRestHook: ReturnType<typeof createRenderRestHook>;
+    let renderRestHook: ReturnType<typeof makeRenderRestHook>;
 
     function onError(e: any) {
       e.preventDefault();
@@ -88,7 +88,7 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
       nock('http://test.com')
         .get(`/user/`)
         .reply(200, users);
-      renderRestHook = createRenderRestHook(makeProvider);
+      renderRestHook = makeRenderRestHook(makeProvider);
     });
     afterEach(() => {
       renderRestHook.cleanup();

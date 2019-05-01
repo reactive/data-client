@@ -5,7 +5,7 @@
 - [x] Schema to build selectors
 - [x] DELETE purges optimistically
 - [ ] Pluggable garbage collection
-- [ ] Easy storybook data mocking
+- [x] Easy storybook data mocking
 
 ## Soon
 
