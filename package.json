@@ -10,6 +10,9 @@
   "files": [
     "dist",
     "lib",
+    "test.js",
+    "test.d.ts",
+    "index.js",
     "LICENSE",
     "README.md"
   ],
