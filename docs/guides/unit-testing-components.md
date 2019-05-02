@@ -15,7 +15,7 @@ export default {
   full: [
     {
       request: ArticleResource.listRequest(),
-      params: { prop: 10 },
+      params: { maxResults: 10 },
       result: [
         {
           id: 5,
@@ -35,7 +35,7 @@ export default {
   empty: [
     {
       request: ArticleResource.listRequest(),
-      params: { prop: 10 },
+      params: { maxResults: 10 },
       result: [],
     },
   ],
@@ -46,17 +46,22 @@ export default {
 #### `__tests__/ArticleList.tsx`
 
 ```tsx
-import { shallow } from 'enzyme';
+import { render } from 'react-testing-library';
+import { MockProvider } from 'rest-hooks/test';
+
+import ArticleList from 'components/ArticleList';
 import results from './fixtures';
 
 describe('<ArticleList />', () => {
   it('renders', () => {
-    const wrapper = shallow(
-      <MockProvider results={results}>
-        <ArticleList prop={10} />
-      </MockProvider>,
+    const tree = (
+      <MockProvider results={results.full}>
+        <ArticleList maxResults={10} />
+      </MockProvider>
     );
-    expect(wrapper).toMatchSnapshot();
+    const { queryByText } = render(tree);
+    const content = queryByText(results.full.result[0].content);
+    expect(content).toBeDefined();
   });
 });
 ```

@@ -49,7 +49,7 @@ import MyComponentToTest from 'components/MyComponentToTest';
 const results = [
   {
     request: ArticleResource.listRequest(),
-    params: { prop: 10 },
+    params: { maxResults: 10 },
     result: [
       {
         id: 5,

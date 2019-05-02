@@ -56,7 +56,7 @@ export default {
   full: [
     {
       request: ArticleResource.listRequest(),
-      params: { prop: 10 },
+      params: { maxResults: 10 },
       result: [
         {
           id: 5,
@@ -76,7 +76,7 @@ export default {
   empty: [
     {
       request: ArticleResource.listRequest(),
-      params: { prop: 10 },
+      params: { maxResults: 10 },
       result: [],
     },
   ],
@@ -105,7 +105,7 @@ storiesOf('name', module).add('Name', () => {
   const results = select(label, options, defaultValue, groupId);
   return (
     <MockProvider results={results}>
-      <ArticleList prop={10} />
+      <ArticleList maxResults={10} />
     </MockProvider>
   );
 });

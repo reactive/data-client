@@ -28,16 +28,16 @@ describe('useResource()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
   beforeEach(() => {
     nock('http://test.com')
-      .get(`/article-cooler/0`)
+      .get(`/article/0`)
       .reply(403, {});
     renderRestHook = makeRenderRestHook(makeRestProvider);
   });
   afterEach(() => {
     renderRestHook.cleanup();
   });
-  it('useResource() should throw errors on bad network', async () => {
+  it('should throw errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useResource(CoolerArticleResource.singleRequest(), {
+      return useResource(ArticleResource.singleRequest(), {
         title: '0',
       });
     });
