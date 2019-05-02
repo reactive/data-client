@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react';
+import { RenderOptions } from 'react-testing-library';
 import { renderHook } from 'react-hooks-testing-library';
 
 import { MockNetworkManager } from './managers';
@@ -18,14 +19,29 @@ export default function makeRenderRestHook(
 ) {
   const manager = new MockNetworkManager();
   const subManager = new SubscriptionManager(PollingSubscription);
-  function renderRestHook<T>(callback: () => T, initialState?: State<unknown>) {
-    const Provider = makeProvider(manager, subManager, initialState);
-    return renderHook(callback, {
-      wrapper: ({ children }) => (
+  function renderRestHook<P, R>(
+    callback: (props: P) => R,
+    options?: {
+      initialProps?: P;
+      initialState?: State<unknown>;
+    } & RenderOptions,
+  ) {
+    const Provider: React.ComponentType<any> = makeProvider(
+      manager,
+      subManager,
+      options && options.initialState,
+    );
+    const Wrapper = options && options.wrapper;
+    const wrapper: React.ComponentType<any> = Wrapper
+      ? ({ children }: { children: React.ReactChild }) => (
         <Provider>
-          <Suspense fallback={() => null}>{children}</Suspense>
+          <Wrapper>{children}</Wrapper>
         </Provider>
-      ),
+      )
+      : Provider;
+    return renderHook(callback, {
+      ...options,
+      wrapper,
     });
   }
   renderRestHook.cleanup = () => {

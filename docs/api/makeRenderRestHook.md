@@ -33,14 +33,21 @@ providers as they both are initialized in a very different fashion.
 
 ```typescript
 type RenderRestHookFunction = {
-  <T>(callback: () => T, initialState?: State<unknown>): {
+  <P, R>(
+    callback: (props: P) => R,
+    options?: {
+      initialProps?: P;
+      initialState?: State<unknown>;
+      wrapper?: React.ComponentType;
+    },
+  ): {
     readonly result: {
-      readonly current: T;
+      readonly current: R;
       readonly error: Error;
     };
     readonly waitForNextUpdate: () => Promise<void>;
     readonly unmount: () => boolean;
-    readonly rerender: (hookProps?: {} | undefined) => void;
+    readonly rerender: (hookProps?: P | undefined) => void;
   };
   cleanup(): void;
 };
@@ -52,9 +59,17 @@ type RenderRestHookFunction = {
 
 Hooks to run inside React. Return value will become available in `result`
 
-#### initialState
+#### options.initialState
 
 Can be used to prime the cache if test expects cache values to already be filled.
+
+#### options.initialProps
+
+The initial values to pass to the callback function
+
+#### options.wrapper
+
+Pass a React Component as the wrapper option to have it rendered around the inner element
 
 ### cleanup()
 

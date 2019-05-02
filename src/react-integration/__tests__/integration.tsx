@@ -134,9 +134,12 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
 
     it('useResource() should throw errors on bad network (multiarg)', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        return useResource([CoolerArticleResource.singleRequest(), {
-          title: '0',
-        }]);
+        return useResource([
+          CoolerArticleResource.singleRequest(),
+          {
+            title: '0',
+          },
+        ]);
       });
       expect(result.current).toBe(null);
       await waitForNextUpdate();
