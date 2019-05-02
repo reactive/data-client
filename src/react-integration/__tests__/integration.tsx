@@ -132,6 +132,18 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
       expect((result.error as any).status).toBe(403);
     });
 
+    it('useResource() should throw errors on bad network (multiarg)', async () => {
+      const { result, waitForNextUpdate } = renderRestHook(() => {
+        return useResource([CoolerArticleResource.singleRequest(), {
+          title: '0',
+        }]);
+      });
+      expect(result.current).toBe(null);
+      await waitForNextUpdate();
+      expect(result.error).toBeDefined();
+      expect((result.error as any).status).toBe(403);
+    });
+
     it('should resolve parallel useResource() request', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
         return useResource(

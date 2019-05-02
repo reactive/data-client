@@ -68,6 +68,13 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
   if (promises.length) {
     throw Promise.all(promises);
   }
+  // throw any errors that exist after all promises have resolved
+  for (let i = 0; i < resourceList.length; i++) {
+    const [selectShape, params] = resourceList[i];
+    const resource = resources[i];
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useError(selectShape, params, resource);
+  }
   return resources;
 }
 

@@ -383,7 +383,7 @@ describe('useRetrieve', () => {
   });
 });
 
-describe('useResource', () => {
+describe('useResource()', () => {
   let fbmock = jest.fn();
 
   function Fallback() {
