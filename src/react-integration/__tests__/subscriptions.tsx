@@ -5,7 +5,7 @@ import nock from 'nock';
 
 import { PollingArticleResource } from '../../__tests__/common';
 import { useSubscription, useCache } from '../hooks';
-import createRenderRestHook from '../../test/helper';
+import makeRenderRestHook from '../../test/helper';
 import {
   makeRestProvider,
   makeExternalCacheProvider,
@@ -21,7 +21,7 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
       content: 'whatever',
       tags: ['a', 'best', 'react'],
     };
-    let renderRestHook: ReturnType<typeof createRenderRestHook>;
+    let renderRestHook: ReturnType<typeof makeRenderRestHook>;
 
     function onError(e: any) {
       e.preventDefault();
@@ -37,7 +37,7 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
       nock('http://test.com')
         .get(`/article/${articlePayload.id}`)
         .reply(200, articlePayload);
-      renderRestHook = createRenderRestHook(makeProvider);
+      renderRestHook = makeRenderRestHook(makeProvider);
     });
     afterEach(() => {
       nock.cleanAll();

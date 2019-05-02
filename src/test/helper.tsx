@@ -9,7 +9,7 @@ import {
   PollingSubscription,
 } from '../index';
 
-export default function createRenderRestHook(
+export default function makeRenderRestHook(
   makeProvider: (
     manager: NetworkManager,
     subManager: SubscriptionManager<any>,

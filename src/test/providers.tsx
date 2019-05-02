@@ -11,16 +11,16 @@ import {
 } from '../index';
 
 // Extension of the DeepPartial type defined by Redux which handles unknown
-type DeepPartialWithUnkown<T> = {
+type DeepPartialWithUnknown<T> = {
   [K in keyof T]?: T[K] extends unknown
     ? any
-    : (T[K] extends object ? DeepPartialWithUnkown<T[K]> : T[K])
+    : (T[K] extends object ? DeepPartialWithUnknown<T[K]> : T[K])
 };
 
 const makeExternalCacheProvider = (
   manager: NetworkManager,
   subscriptionManager: SubscriptionManager<any>,
-  initialState?: DeepPartialWithUnkown<State<any>>,
+  initialState?: DeepPartialWithUnknown<State<any>>,
 ) => {
   const store = createStore(
     reducer,

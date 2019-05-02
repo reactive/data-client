@@ -72,8 +72,8 @@ For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 - [x] 🌳 Tree-shakable (only use what you need)
 - [x] 🔁 [Subscriptions](https://resthooks.io/docs/api/useSubscription)
 - [x] ♻️ Optional [redux integration](https://resthooks.io/docs/guides/redux)
+- [x] 📙 [Storybook](https://storybook.js.org/) mocking
 - [ ] 🚯 Pluggable garbage collection policy
-- [ ] 📙 [Storybook](https://storybook.js.org/) mocking
 
 
 ### Special thanks

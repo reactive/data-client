@@ -8,8 +8,20 @@
       "api/ExternalCacheProvider": {
         "title": "<ExternalCacheProvider />"
       },
+      "api/makeExternalCacheProvider": {
+        "title": "makeExternalCacheProvider()"
+      },
+      "api/makeRenderRestHook": {
+        "title": "makeRenderRestHook()"
+      },
+      "api/makeRestProvider": {
+        "title": "makeRestProvider()"
+      },
       "api/Manager": {
         "title": "Manager"
+      },
+      "api/MockProvider": {
+        "title": "<MockProvider />"
       },
       "api/NetworkErrorBoundary": {
         "title": "<NetworkErrorBoundary />"
@@ -43,6 +55,9 @@
       },
       "api/useFetcher": {
         "title": "useFetcher()"
+      },
+      "api/useInvalidator": {
+        "title": "useInvalidator()"
       },
       "api/useresource": {
         "title": "useResource()"
@@ -123,6 +138,15 @@
       "guides/rpc": {
         "title": "Cross-resource multi-update RPC",
         "sidebar_label": "Cross-resource multi-update RPC (dealing with side-effects)"
+      },
+      "guides/storybook": {
+        "title": "Mocking data for Storybook"
+      },
+      "guides/unit-testing-components": {
+        "title": "Unit testing components"
+      },
+      "guides/unit-testing-hooks": {
+        "title": "Unit testing hooks"
       },
       "README": {
         "title": "README"
