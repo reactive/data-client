@@ -32,7 +32,7 @@ boundary, but it is placed above the route selected.
 
 Alternatively you could create your own error boundary where you might
 try dispatching the errors to another provider to use in a transient
-popups.
+popup.
 
 Additionally you could also use one error boundary for any error
 type and handle network errors there.
