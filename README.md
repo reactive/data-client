@@ -61,7 +61,7 @@ For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 
 ## Features
 
-- [x] ![TS](typescript.svg) Strong [Typescript](https://www.typescriptlang.org/) types
+- [x] ![TS](./scripts/typescript.svg) Strong [Typescript](https://www.typescriptlang.org/) types
 - [x] 🛌 React [Suspense](https://www.youtube.com/watch?v=ByBPyMBTzM0) support
 - [x] 🎣 Simple declarative API
 - [x] 💰 Normalized response caching

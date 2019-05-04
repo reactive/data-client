@@ -7,5 +7,5 @@ module.exports = {
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
   coveragePathIgnorePatterns: ['test'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
-  setupFiles: ['./testSetup.js'],
+  setupFiles: ['./scripts/testSetup.js'],
 };
