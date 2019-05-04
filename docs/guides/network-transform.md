@@ -2,12 +2,12 @@
 title: Transforming data on network load
 ---
 All network requests flow through the `fetch()` method, so any transforms needed can simply
-be done by overrided it with a call to super.
+be done by overriding it with a call to super.
 
 ## Snakes to camels
 
 Commonly APIs are designed with keys using `snake_case`, but many in typescript/javascript
-prefer `camelCase`. This snippet let's us make the transform needed.
+prefer `camelCase`. This snippet lets us make the transform needed.
 
 `CamelResource.ts`
 ```typescript
