@@ -58,11 +58,11 @@
     "url": "https://github.com/coinbase/issues"
   },
   "auto-changelog": {
-    "template": "changelog.hbs",
+    "template": "./scripts/changelog.hbs",
     "breakingPattern": "\\[breaking\\]",
     "unreleased": true,
     "commitLimit": false,
-    "handlebarsSetup": "changelogSetup.js"
+    "handlebarsSetup": "./scripts/changelogSetup.js"
   },
   "github": {
     "release": true
