@@ -14,7 +14,8 @@
     "test.d.ts",
     "index.js",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "./scripts/typescript.svg"
   ],
   "scripts": {
     "build:lib": "cross-env NODE_ENV=production babel src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
