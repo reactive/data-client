@@ -65,8 +65,13 @@
     "commitLimit": false,
     "handlebarsSetup": "./scripts/changelogSetup.js"
   },
-  "github": {
-    "release": true
+  "git": {
+    "changelog": "npx auto-changelog --stdout"
+  },
+  "release-it": {
+    "github": {
+      "release": true
+    }
   },
   "devDependencies": {
     "@anansi/babel-preset": "0.13.2",
