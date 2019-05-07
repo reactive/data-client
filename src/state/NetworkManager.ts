@@ -1,5 +1,7 @@
 import { memoize } from 'lodash';
+import { unstable_scheduleCallback } from 'scheduler';
 import { FetchAction, ReceiveAction, MiddlewareAPI, Manager } from '~/types';
+
 export const RIC: (cb: (...args: any[]) => void, options: any) => void =
   typeof (global as any).requestIdleCallback === 'function'
     ? (global as any).requestIdleCallback
@@ -124,9 +126,8 @@ export default class NetworkManager implements Manager {
         this.clear(action.meta.url);
       }
     };
-    // TODO: this should call after the reducer has been updated
-    // in all concurrent fibers
-    RIC(completePromise, { timeout: 1000 });
+    // eslint-disable-next-line @typescript-eslint/camelcase
+    unstable_scheduleCallback(completePromise, null);
   }
 
   /** Attaches NetworkManager to store

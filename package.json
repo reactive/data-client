@@ -130,7 +130,8 @@
   },
   "peerDependencies": {
     "@types/react": "^16.8.2",
-    "react": "^16.8.2"
+    "react": "^16.8.2",
+    "scheduler": "^0.13.6"
   },
   "peerDependenciesMeta": {
     "@types/react": {
