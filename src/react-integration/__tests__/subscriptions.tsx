@@ -5,7 +5,7 @@ import nock from 'nock';
 
 import { PollingArticleResource } from '../../__tests__/common';
 import { useSubscription, useCache } from '../hooks';
-import makeRenderRestHook from '../../test/helper';
+import makeRenderRestHook from '../../test/makeRenderRestHook';
 import {
   makeRestProvider,
   makeExternalCacheProvider,
