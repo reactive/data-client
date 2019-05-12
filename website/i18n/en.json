@@ -50,6 +50,9 @@
         "title": "SubscriptionManager<S extends SubscriptionConstructable> implements Manager",
         "sidebar_label": "SubscriptionManager"
       },
+      "api/types": {
+        "title": "TypeScript Types"
+      },
       "api/useCache": {
         "title": "useCache()"
       },
@@ -150,6 +153,9 @@
       },
       "README": {
         "title": "README"
+      },
+      "ROADMAP": {
+        "title": "ROADMAP"
       }
     },
     "links": {

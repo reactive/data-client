@@ -54,6 +54,7 @@
     ],
     "API": [
       "api/README",
+      "api/types",
       {
         "type": "subcategory",
         "label": "Interface Definitions",
