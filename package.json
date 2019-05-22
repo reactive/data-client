@@ -113,10 +113,9 @@
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-resolve": "^4.2.3",
     "rollup-plugin-replace": "^2.2.0",
-    "rollup-plugin-uglify": "^6.0.2",
+    "rollup-plugin-terser": "^5.0.0",
     "ts-jest": "^24.0.2",
-    "typescript": "^3.4.5",
-    "uglify-es": "^3.3.9"
+    "typescript": "^3.4.5"
   },
   "dependencies": {
     "@types/superagent": "^4.1.1",
