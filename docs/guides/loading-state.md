@@ -34,3 +34,8 @@ const App = () => (
   </div>
 );
 ```
+
+> #### Note:
+>
+> The `<Suspense/>` boundary must be placed in another component that is above the one
+> where `useResource()` and other hooks are used.

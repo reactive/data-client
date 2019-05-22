@@ -1,6 +1,9 @@
 ---
 title: Pagination
 ---
+
+## Tokens in Body
+
 A common way APIs deal with pagination is the list view will return an object with both pagination information
 and the Array of results as another member.
 
@@ -86,3 +89,50 @@ export default function ArticleList() {
   );
 }
 ```
+
+
+## Tokens in HTTP Headers
+
+In some cases the pagination tokens will be embeded in HTTP headers, rather than part of the payload. In this
+case you'll need to customize the [fetch()](../api/requestshape#fetchurl-string-body-payload-promise-any) function
+for [listRequest()](../api/resource#listrequest-readshape) so the pagination headers are included fetch object.
+
+We show the custom listRequest() below. All other parts of the above example remain the same.
+
+Pagination token is stored in the header `link` for this example.
+
+```typescript
+import request from 'superagent';
+import { Resource, ReadShape, SchemaArray, AbstractInstanceType } from 'rest-hooks';
+
+export default class ArticleResource extends Resource {
+  // same as above....
+
+  /** Shape to get a list of entities */
+  static listRequest<T extends typeof Resource>(this: T): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
+    const fetch = async (url: string, body?: Readonly<object>) => {
+      let req = request['get'](url).on('error', () => {});
+      if (this.fetchPlugin) req = req.use(this.fetchPlugin);
+      if (body) req = req.send(body);
+      const res = (await req);
+      let jsonResponse = res.body;
+      // include both the body and the link header
+      jsonResponse = {
+        link: res.headers.link,
+        results: jsonResponse,
+      }
+      return jsonResponse;
+    };
+    return {
+      ...super.listRequest(),
+      fetch,
+      schema: { results: [this.getEntitySchema()] },
+    };
+  }
+}
+```
+
+## Code organization
+
+If much of your `Resources` share a similar pagination, you might
+try extending from a base class that defines such common customizations.

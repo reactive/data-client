@@ -44,9 +44,12 @@
     "suspense",
     "fetch",
     "data fetching",
+    "data caching",
     "api",
     "typescript",
-    "redux"
+    "redux",
+    "entity caching",
+    "normalized cache"
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
