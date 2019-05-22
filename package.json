@@ -59,7 +59,7 @@
     "url": "git+ssh://git@github.com:coinbase/rest-hooks.git"
   },
   "bugs": {
-    "url": "https://github.com/coinbase/issues"
+    "url": "https://github.com/coinbase/rest-hooks/issues"
   },
   "auto-changelog": {
     "template": "./scripts/changelog.hbs",
