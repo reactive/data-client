@@ -15,7 +15,7 @@ export default function makeRenderRestHook(
   makeProvider: (
     manager: NetworkManager,
     subManager: SubscriptionManager<any>,
-    results?: State<unknown>,
+    initialState?: State<unknown>,
   ) => React.ComponentType<{ children: React.ReactChild }>,
 ) {
   const manager = new MockNetworkManager();
