@@ -37,7 +37,7 @@ type RenderRestHookFunction = {
     callback: (props: P) => R,
     options?: {
       initialProps?: P;
-      initialState?: State<unknown>;
+      results?: Fixture[];
       wrapper?: React.ComponentType;
     },
   ): {
@@ -59,9 +59,10 @@ type RenderRestHookFunction = {
 
 Hooks to run inside React. Return value will become available in `result`
 
-#### options.initialState
+#### options.results
 
-Can be used to prime the cache if test expects cache values to already be filled.
+Can be used to prime the cache if test expects cache values to already be filled. Takes same
+[array of fixtures as MockProvider](https://resthooks.io/docs/api/MockProvider#results)
 
 #### options.initialProps
 
