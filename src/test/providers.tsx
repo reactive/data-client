@@ -1,5 +1,5 @@
 import React from 'react';
-import { createStore, applyMiddleware, DeepPartial } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import { ReactNode } from 'react';
 import {
   State,

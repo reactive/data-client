@@ -1,5 +1,5 @@
 import { MockNetworkManager } from './managers';
-import makeRenderRestHook from './helper';
+import makeRenderRestHook from './makeRenderRestHook';
 import { makeExternalCacheProvider, makeRestProvider } from './providers';
 import MockProvider from './MockProvider';
 

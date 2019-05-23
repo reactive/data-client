@@ -1,8 +1,9 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { RenderOptions } from 'react-testing-library';
 import { renderHook } from 'react-hooks-testing-library';
 
 import { MockNetworkManager } from './managers';
+import mockInitialState, { Fixture } from './mockState';
 import {
   State,
   NetworkManager,
@@ -23,13 +24,15 @@ export default function makeRenderRestHook(
     callback: (props: P) => R,
     options?: {
       initialProps?: P;
-      initialState?: State<unknown>;
+      results?: Fixture[];
     } & RenderOptions,
   ) {
+    const initialState =
+      options && options.results && mockInitialState(options.results);
     const Provider: React.ComponentType<any> = makeProvider(
       manager,
       subManager,
-      options && options.initialState,
+      initialState,
     );
     const Wrapper = options && options.wrapper;
     const wrapper: React.ComponentType<any> = Wrapper

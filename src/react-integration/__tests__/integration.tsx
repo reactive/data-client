@@ -4,7 +4,7 @@ import nock from 'nock';
 
 import { CoolerArticleResource, UserResource } from '../../__tests__/common';
 import { useResource, useFetcher } from '../hooks';
-import makeRenderRestHook from '../../test/helper';
+import makeRenderRestHook from '../../test/makeRenderRestHook';
 import {
   makeRestProvider,
   makeExternalCacheProvider,
