@@ -47,6 +47,7 @@
     "data fetching",
     "data caching",
     "api",
+    "api call",
     "typescript",
     "redux",
     "entity caching",
@@ -69,12 +70,10 @@
     "commitLimit": false,
     "handlebarsSetup": "./scripts/changelogSetup.js"
   },
-  "git": {
-    "changelog": "npx auto-changelog --stdout"
-  },
   "release-it": {
     "github": {
-      "release": true
+      "release": true,
+      "releaseNotes": "npx auto-changelog --stdout --starting-commit \"$(git rev-list -n 1 ${latestVersion})\""
     }
   },
   "devDependencies": {

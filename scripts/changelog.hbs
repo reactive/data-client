@@ -1,13 +1,15 @@
 {{#each releases}}
-  {{#if href}}
-    ## [{{title}}]({{href}}){{#if tag}} - {{isoDate}}{{/if}}
-  {{else}}
-    ## {{title}}{{#if tag}} - {{isoDate}}{{/if}}
-  {{/if}}
+  {{#unless @first}}
+    {{#if href}}
+      ## [{{title}}]({{href}}){{#if tag}} - {{isoDate}}{{/if}}
+    {{else}}
+      ## {{title}}{{#if tag}} - {{isoDate}}{{/if}}
+    {{/if}}
 
-  {{#if summary}}
-    {{summary}}
-  {{/if}}
+    {{#if summary}}
+      {{summary}}
+    {{/if}}
+  {{/unless}}
 
   {{#includeMerges}}
 
