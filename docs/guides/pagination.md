@@ -123,6 +123,7 @@ export default class ArticleResource extends Resource {
       }
       return jsonResponse;
     };
+
     return {
       ...super.listRequest(),
       fetch,

@@ -98,15 +98,18 @@ const payload = {
   content: 'whatever',
   tags: ['a', 'best', 'react'],
 };
+
 beforeEach(() => {
   nock('http://test.com')
     .get(`/article-cooler/${payload.id}`)
     .reply(200, payload);
   renderRestHook = makeRenderRestHook(makeRestProvider);
 });
+
 afterEach(() => {
   renderRestHook.cleanup();
 });
+
 it('should resolve useResource()', async () => {
   const { result, waitForNextUpdate } = renderRestHook(() => {
     return useResource(ArticleResource.singleRequest(), payload);

@@ -26,15 +26,18 @@ import { makeRenderRestHook, makeRestProvider } from 'rest-hooks/test';
 
 describe('useResource()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+
   beforeEach(() => {
     nock('http://test.com')
       .get(`/article/0`)
       .reply(403, {});
     renderRestHook = makeRenderRestHook(makeRestProvider);
   });
+
   afterEach(() => {
     renderRestHook.cleanup();
   });
+
   it('should throw errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useResource(ArticleResource.singleRequest(), {

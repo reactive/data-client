@@ -78,7 +78,9 @@ function MasterPrice({ symbol }: { symbol: string }) {
   );
 
   return (
-    <div ref={ref}>{price.value.toLocaleString('en', { currency: 'USD' })}</div>
+    <div ref={ref}>
+      {price.value.toLocaleString('en', { currency: 'USD' })}
+    </div>
   );
 }
 ```
