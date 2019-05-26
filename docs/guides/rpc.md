@@ -1,7 +1,7 @@
 ---
-title: Cross-resource multi-update RPC
-sidebar_label: Cross-resource multi-update RPC (dealing with side-effects)
+title: Capturing Mutation Side-Effects
 ---
+
 ## How to deal with side-effects
 
 If you have an endpoint that updates many resources on your server,
@@ -21,6 +21,7 @@ you nest both the updated accounts object along with the trade you just
 created.
 
 `POST /trade/`
+
 ```json
 {
   "trade": {
@@ -35,7 +36,7 @@ created.
     "user": 1,
     "balance": "1337.00",
     "coin_value": "3.50"
-  },
+  }
 }
 ```
 
@@ -43,12 +44,24 @@ To handle this, we just need to update the `schema` to include the custom
 shape.
 
 `TradeResource.ts`
+
 ```typescript
-import { Resource, MutateShape, SchemaBase, AbstractInstanceType } from 'rest-hooks';
+import {
+  Resource,
+  MutateShape,
+  SchemaBase,
+  AbstractInstanceType,
+} from 'rest-hooks';
 
 class TradeResource extends Resource {
   // ...
-  static createRequest<T extends typeof Resource>(this: T): MutateShape<SchemaBase<AbstractInstanceType<T>>, any, Partial<AbstractInstanceType<T>>> {
+  static createRequest<T extends typeof Resource>(
+    this: T,
+  ): MutateShape<
+    SchemaBase<AbstractInstanceType<T>>,
+    any,
+    Partial<AbstractInstanceType<T>>
+  > {
     return {
       ...this.super.createRequest(),
       schema: {
@@ -65,6 +78,7 @@ we will be happy knowing both the trade and account information will
 be updated in the cache after the `POST` request is complete.
 
 `CreateTrade.tsx`
+
 ```typescript
 export default function CreateTrade() {
   const create = useFetcher(TradeResource.createRequest());
@@ -72,8 +86,8 @@ export default function CreateTrade() {
 }
 ```
 
-### Final note
-
-Feel free to create completely new [RequestShape](../api/RequestShape.md) methods for any custom
-endpoints you have. This shape tells `rest-hooks` how to process any
-request.
+> #### Note:
+>
+> Feel free to create completely new [RequestShape](../api/RequestShape.md) methods for any custom
+> endpoints you have. This shape tells `rest-hooks` how to process any
+> request.
