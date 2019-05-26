@@ -1,6 +1,6 @@
-import { normalize } from '../resource';
 import { mergeWith } from 'lodash';
-import { ActionTypes, State } from '../types';
+import { normalize } from '~/resource';
+import { ActionTypes, State } from '~/types';
 
 export const initialState: State<unknown> = {
   entities: {},

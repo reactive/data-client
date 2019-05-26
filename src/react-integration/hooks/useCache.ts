@@ -1,5 +1,5 @@
-import { ReadShape, Schema } from '../../resource';
-import { makeSchemaSelector } from '../../state/selectors';
+import { ReadShape, Schema } from '~/resource';
+import { makeSchemaSelector } from '~/state/selectors';
 import useSelection from './useSelection';
 
 /** Access a resource if it is available. */

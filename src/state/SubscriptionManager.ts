@@ -1,6 +1,6 @@
 import { memoize } from 'lodash';
-import { MiddlewareAPI, SubscribeAction, UnsubscribeAction } from '../types';
-import { Schema } from '../resource';
+import { MiddlewareAPI, SubscribeAction, UnsubscribeAction } from '~/types';
+import { Schema } from '~/resource';
 
 type Actions = UnsubscribeAction | SubscribeAction;
 

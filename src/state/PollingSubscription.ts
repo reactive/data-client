@@ -1,4 +1,4 @@
-import { Schema } from '../resource';
+import { Schema } from '~/resource';
 import { Subscription, SubscriptionInit } from './SubscriptionManager';
 
 function min(iter: IterableIterator<number>) {
