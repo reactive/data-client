@@ -136,8 +136,7 @@
         "title": "Defining your Resource types"
       },
       "guides/rpc": {
-        "title": "Cross-resource multi-update RPC",
-        "sidebar_label": "Cross-resource multi-update RPC (dealing with side-effects)"
+        "title": "Capturing Mutation Side-Effects"
       },
       "guides/storybook": {
         "title": "Mocking data for Storybook"
@@ -150,6 +149,9 @@
       },
       "README": {
         "title": "README"
+      },
+      "ROADMAP": {
+        "title": "ROADMAP"
       }
     },
     "links": {
