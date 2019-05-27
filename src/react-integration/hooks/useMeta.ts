@@ -1,8 +1,8 @@
 import { useContext, useMemo } from 'react';
 
-import { RequestShape } from '~/resource';
+import { RequestShape } from '../../resource';
 import { StateContext } from '../context';
-import { selectMeta } from '~/state/selectors';
+import { selectMeta } from '../../state/selectors';
 
 /** Gets meta for a url. */
 export default function useMeta<Params extends Readonly<object>>(

@@ -1,6 +1,6 @@
 import request from 'superagent';
 import { memoize } from 'lodash';
-import { AbstractInstanceType, Method, RequestOptions } from '~/types';
+import { AbstractInstanceType, Method, RequestOptions } from '../types';
 
 import { ReadShape, MutateShape, DeleteShape } from './types';
 import { schemas, SchemaBase, SchemaArray } from './normal';

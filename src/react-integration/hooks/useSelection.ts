@@ -1,7 +1,7 @@
 import { useContext, useMemo } from 'react';
 
 import { StateContext } from '../context';
-import { State } from '~/types';
+import { State } from '../../types';
 
 /** Use selector to access part of state */
 export default function useSelectionUnstable<

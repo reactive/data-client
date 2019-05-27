@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { ReadShape, Schema } from '~/resource';
+import { ReadShape, Schema } from '../../resource';
 import useFetcher from './useFetcher';
 import useMeta from './useMeta';
 

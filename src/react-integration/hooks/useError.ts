@@ -1,4 +1,4 @@
-import { ReadShape, Schema, RequestResource } from '~/resource';
+import { ReadShape, Schema, RequestResource } from '../../resource';
 import useMeta from './useMeta';
 
 /** Access a resource or error if failed to get it */

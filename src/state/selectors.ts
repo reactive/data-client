@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect';
 import { memoize } from 'lodash';
-import { State } from '~/types';
-import { isEntity, SchemaOf } from '~/resource/types';
-import { Schema, denormalize } from '~/resource/normal';
+import { State } from '../types';
+import { isEntity, SchemaOf } from '../resource/types';
+import { Schema, denormalize } from '../resource/normal';
 import getEntityPath from './getEntityPath';
 
 export function selectMeta<R = any>(state: State<R>, url: string) {

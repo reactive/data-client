@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import { StateContext, DispatchContext } from '../context';
-import { State, ActionTypes } from '~/types';
+import { State, ActionTypes } from '../../types';
 
 interface Store<S> {
   subscribe(listener: () => void): () => void;

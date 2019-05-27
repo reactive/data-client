@@ -1,4 +1,4 @@
-import { ReadShape, Schema, RequestResource, SchemaOf } from '~/resource';
+import { ReadShape, Schema, RequestResource, SchemaOf } from '../../resource';
 import useCache from './useCache';
 import useRetrieve from './useRetrieve';
 import useError from './useError';

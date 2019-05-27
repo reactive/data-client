@@ -2,12 +2,12 @@ import React, { ReactNode, useEffect } from 'react';
 import { StateContext, DispatchContext } from '../context';
 import masterReducer, {
   initialState as defaultState,
-} from '~/state/reducer';
-import NetworkManager from '~/state/NetworkManager';
-import SubscriptionManager from '~/state/SubscriptionManager';
-import PollingSubscription from '~/state/PollingSubscription';
-import { State } from '~/types';
+} from '../../state/reducer';
+import NetworkManager from '../../state/NetworkManager';
+import SubscriptionManager from '../../state/SubscriptionManager';
+import PollingSubscription from '../../state/PollingSubscription';
 import createEnhancedReducerHook from './middleware';
+import { State } from '../../types';
 
 interface ProviderProps {
   children: ReactNode;
