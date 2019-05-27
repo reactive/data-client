@@ -19,6 +19,31 @@ npm install rest-hooks
 <!--END_DOCUSAURUS_CODE_TABS-->
 
 
+## Include polyfill (optional IE support)
+
+Rest-hooks is built to be compatible with old browsers, but assumes polyfills will
+already be loaded. If you want to support old browsers like Internet Explorer, you'll
+need to install core-js and import it at the entry point of your bundle.
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--yarn-->
+```bash
+yarn add core-js
+```
+<!--npm-->
+```bash
+npm install core-js
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
+
+#### `index.tsx`
+
+```tsx
+import 'core-js/stable';
+// place the above line at top
+```
+
+
 ## Add provider at top-level component
 
 #### `index.tsx`
