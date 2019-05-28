@@ -29,7 +29,7 @@ describe('<CacheProvider />', () => {
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
     const manager = new NetworkManager();
-    rerender(<CacheProvider manager={manager}>{chil}</CacheProvider>);
+    rerender(<CacheProvider managers={[manager]}>{chil}</CacheProvider>);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
     rerender(

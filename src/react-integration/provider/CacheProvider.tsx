@@ -6,40 +6,35 @@ import masterReducer, {
 import NetworkManager from '~/state/NetworkManager';
 import SubscriptionManager from '~/state/SubscriptionManager';
 import PollingSubscription from '~/state/PollingSubscription';
-import { State } from '~/types';
+import { State, Manager } from '~/types';
 import createEnhancedReducerHook from './middleware';
 
 interface ProviderProps {
   children: ReactNode;
-  manager: NetworkManager;
-  subscriptionManager: SubscriptionManager<any>;
+  managers: Manager[];
   initialState?: State<unknown>;
 }
+
 /** Controller managing state of the REST cache and coordinating network requests. */
 export default function CacheProvider({
   children,
-  manager,
-  subscriptionManager,
+  managers,
   initialState = defaultState,
 }: ProviderProps) {
   // TODO: option to use redux
   const useEnhancedReducer = createEnhancedReducerHook(
-    manager.getMiddleware(),
-    subscriptionManager.getMiddleware(),
+    ...managers.map(manager => manager.getMiddleware()),
   );
   const [state, dispatch] = useEnhancedReducer(masterReducer, initialState);
 
   // if we change out the manager we need to make sure it has no hanging async
   useEffect(() => {
     return () => {
-      manager.cleanup();
+      for (let i = 0; i < managers.length; ++i) {
+        managers[i].cleanup();
+      }
     };
-  }, [manager]);
-  useEffect(() => {
-    return () => {
-      subscriptionManager.cleanup();
-    };
-  }, [subscriptionManager]);
+  }, managers);
 
   return (
     <DispatchContext.Provider value={dispatch}>
@@ -48,6 +43,5 @@ export default function CacheProvider({
   );
 }
 CacheProvider.defaultProps = {
-  manager: new NetworkManager(),
-  subscriptionManager: new SubscriptionManager(PollingSubscription),
+  managers: [new NetworkManager(), new SubscriptionManager(PollingSubscription)],
 };
