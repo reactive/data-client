@@ -77,7 +77,7 @@
     }
   },
   "devDependencies": {
-    "@anansi/babel-preset": "^0.15.0",
+    "@anansi/babel-preset": "^0.17.1",
     "@anansi/eslint-config": "^0.6.3",
     "@babel/cli": "^7.4.4",
     "@babel/core": "^7.4.5",
