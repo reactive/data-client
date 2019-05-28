@@ -38,6 +38,8 @@ import {
   State,
   FetchAction,
   ReceiveAction,
+  Middleware,
+  Manager,
 } from './types';
 import { StateContext, DispatchContext } from './react-integration/context';
 
@@ -80,6 +82,9 @@ export type NetworkError = NetworkError;
 export type Request = RequestType;
 export type FetchAction = FetchAction;
 export type ReceiveAction = ReceiveAction;
+
+export type Middleware = Middleware;
+export type Manager = Manager;
 
 export {
   Resource,
