@@ -4,17 +4,11 @@ import { renderHook } from 'react-hooks-testing-library';
 
 import { MockNetworkManager } from './managers';
 import mockInitialState, { Fixture } from './mockState';
-import {
-  State,
-  NetworkManager,
-  SubscriptionManager,
-  PollingSubscription,
-} from '..';
+import { State, SubscriptionManager, PollingSubscription, Manager } from '..';
 
 export default function makeRenderRestHook(
   makeProvider: (
-    manager: NetworkManager,
-    subManager: SubscriptionManager<any>,
+    managers: Manager[],
     initialState?: State<unknown>,
   ) => React.ComponentType<{ children: React.ReactChild }>,
 ) {
@@ -30,8 +24,7 @@ export default function makeRenderRestHook(
     const initialState =
       options && options.results && mockInitialState(options.results);
     const Provider: React.ComponentType<any> = makeProvider(
-      manager,
-      subManager,
+      [manager, subManager],
       initialState,
     );
     const Wrapper = options && options.wrapper;
