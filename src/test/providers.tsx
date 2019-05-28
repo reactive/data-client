@@ -4,10 +4,9 @@ import { ReactNode } from 'react';
 import {
   State,
   reducer,
-  NetworkManager,
-  SubscriptionManager,
   ExternalCacheProvider,
   CacheProvider,
+  Manager,
 } from '..';
 
 // Extension of the DeepPartial type defined by Redux which handles unknown
@@ -18,17 +17,13 @@ type DeepPartialWithUnknown<T> = {
 };
 
 const makeExternalCacheProvider = (
-  manager: NetworkManager,
-  subscriptionManager: SubscriptionManager<any>,
+  managers: Manager[],
   initialState?: DeepPartialWithUnknown<State<any>>,
 ) => {
   const store = createStore(
     reducer,
     initialState,
-    applyMiddleware(
-      manager.getMiddleware(),
-      subscriptionManager.getMiddleware(),
-    ),
+    applyMiddleware(...managers.map(manager => manager.getMiddleware())),
   );
 
   return function ConfiguredExternalCacheProvider({
@@ -45,8 +40,7 @@ const makeExternalCacheProvider = (
 };
 
 const makeCacheProvider = (
-  manager: NetworkManager,
-  subscriptionManager: SubscriptionManager<any>,
+  managers: Manager[],
   initialState?: State<unknown>,
 ) => {
   return function ConfiguredCacheProvider({
@@ -55,11 +49,7 @@ const makeCacheProvider = (
     children: ReactNode;
   }) {
     return (
-      <CacheProvider
-        manager={manager}
-        subscriptionManager={subscriptionManager}
-        initialState={initialState}
-      >
+      <CacheProvider managers={managers} initialState={initialState}>
         {children}
       </CacheProvider>
     );

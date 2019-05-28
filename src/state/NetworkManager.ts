@@ -1,6 +1,5 @@
 import { memoize } from 'lodash';
-import { FetchAction, ReceiveAction, MiddlewareAPI } from '~/types';
-
+import { FetchAction, ReceiveAction, MiddlewareAPI, Manager } from '~/types';
 export const RIC: (cb: (...args: any[]) => void, options: any) => void =
   typeof (global as any).requestIdleCallback === 'function'
     ? (global as any).requestIdleCallback
@@ -13,7 +12,7 @@ export const RIC: (cb: (...args: any[]) => void, options: any) => void =
  *
  * Interfaces with store via a redux-compatible middleware.
  */
-export default class NetworkManager {
+export default class NetworkManager implements Manager {
   protected fetched: { [k: string]: Promise<any> } = {};
   protected resolvers: { [k: string]: (value?: any) => void } = {};
   protected rejectors: { [k: string]: (value?: any) => void } = {};

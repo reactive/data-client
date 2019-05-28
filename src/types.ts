@@ -113,3 +113,8 @@ export interface MiddlewareAPI<
   getState: () => React.ReducerState<R>;
   dispatch: React.Dispatch<React.ReducerAction<R>>;
 }
+
+export interface Manager {
+  getMiddleware(): Middleware;
+  cleanup(): void;
+}

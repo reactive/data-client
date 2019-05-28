@@ -1,5 +1,10 @@
 import { memoize } from 'lodash';
-import { MiddlewareAPI, SubscribeAction, UnsubscribeAction } from '~/types';
+import {
+  MiddlewareAPI,
+  SubscribeAction,
+  UnsubscribeAction,
+  Manager,
+} from '~/types';
 import { Schema } from '~/resource';
 
 type Actions = UnsubscribeAction | SubscribeAction;
@@ -29,7 +34,8 @@ export interface SubscriptionConstructable {
  * Constructor takes a SubscriptionConstructable class to control how
  * subscriptions are handled. (e.g., polling, websockets)
  */
-export default class SubscriptionManager<S extends SubscriptionConstructable> {
+export default class SubscriptionManager<S extends SubscriptionConstructable>
+  implements Manager {
   protected subscriptions: {
     [url: string]: InstanceType<S>;
   } = {};
