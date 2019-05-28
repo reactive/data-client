@@ -26,7 +26,7 @@ npm install redux
 Note: react-redux is _not_ needed for this integration (though you can use it if you want).
 
 Then you'll want to use the [\<ExternalCacheProvider />](../api/ExternalCacheProvider.md) instead of
-[\<RestProvider />](../api/RestProvider.md) and pass in the store and a selector function to grab
+[\<CacheProvider />](../api/CacheProvider.md) and pass in the store and a selector function to grab
 the rest-hooks specific part of the state.
 
 > Note: You should only use ONE provider; nested another provider will override the previous.

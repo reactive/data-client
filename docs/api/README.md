@@ -16,7 +16,7 @@ title: API Reference
 - [useInvalidator](useInvalidator.md)
 
 ## Components
-- [RestProvider](RestProvider.md)
+- [CacheProvider](CacheProvider.md)
 - [ExternalCacheProvider](ExternalCacheProvider.md)
 - [NetworkErrorBoundary](NetworkErrorBoundary.md)
 
@@ -36,6 +36,6 @@ to production themselves.
 
 - [\<MockProvider />](MockProvider)
 - [makeRenderRestHook()](makeRenderRestHook)
-- [makeRestProvider()](makeRestProvider)
+- [makeCacheProvider()](makeCacheProvider)
 - [makeExternalCacheProvider()](makeExternalCacheProvider)
 

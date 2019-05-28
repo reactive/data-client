@@ -15,7 +15,7 @@
   - [useSubscription](api/useSubscription.md)
   - [useRetrieve](api/useRetrieve.md)
 - Components:
-  - [RestProvider](api/RestProvider.md)
+  - [CacheProvider](api/CacheProvider.md)
   - [ExternalCacheProvider](api/ExternalCacheProvider.md)
   - [NetworkErrorBoundary](api/NetworkErrorBoundary.md)
 - [Manager](api/Manager.md)s

@@ -1,2 +1,2 @@
-import { MockNetworkManager, makeRenderRestHook, makeExternalCacheProvider, makeRestProvider, MockProvider } from './lib/test';
-export { MockNetworkManager, makeRenderRestHook, makeExternalCacheProvider, makeRestProvider, MockProvider, };
+import { MockNetworkManager, makeRenderRestHook, makeExternalCacheProvider, makeCacheProvider, MockProvider } from './lib/test';
+export { MockNetworkManager, makeRenderRestHook, makeExternalCacheProvider, makeCacheProvider, MockProvider, };

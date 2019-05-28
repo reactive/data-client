@@ -5,17 +5,20 @@
     "previous": "Previous",
     "tagline": "Delightful data fetching",
     "docs": {
+      "api/CacheProvider": {
+        "title": "<CacheProvider />"
+      },
       "api/ExternalCacheProvider": {
         "title": "<ExternalCacheProvider />"
+      },
+      "api/makeCacheProvider": {
+        "title": "makeCacheProvider()"
       },
       "api/makeExternalCacheProvider": {
         "title": "makeExternalCacheProvider()"
       },
       "api/makeRenderRestHook": {
         "title": "makeRenderRestHook()"
-      },
-      "api/makeRestProvider": {
-        "title": "makeRestProvider()"
       },
       "api/Manager": {
         "title": "Manager"
@@ -42,9 +45,6 @@
       },
       "api/resource": {
         "title": "Resource"
-      },
-      "api/RestProvider": {
-        "title": "<RestProvider />"
       },
       "api/SubscriptionManager": {
         "title": "SubscriptionManager<S extends SubscriptionConstructable> implements Manager",

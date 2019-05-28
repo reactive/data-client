@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<RestProvider /> should change state 1`] = `
+exports[`<CacheProvider /> should change state 1`] = `
 Object {
   "entities": Object {
     "http://test.com/article-cooler/": Object {
