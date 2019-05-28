@@ -24,7 +24,7 @@ import {
   useMeta,
   useError,
   useSelectionUnstable,
-  RestProvider,
+  CacheProvider,
   useInvalidator,
   ExternalCacheProvider,
   NetworkErrorBoundary,
@@ -83,7 +83,7 @@ export type ReceiveAction = ReceiveAction;
 
 export {
   Resource,
-  RestProvider,
+  CacheProvider,
   ExternalCacheProvider,
   useCache,
   useFetcher,

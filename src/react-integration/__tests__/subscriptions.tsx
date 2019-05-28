@@ -8,14 +8,14 @@ import { PollingArticleResource } from '../../__tests__/common';
 import { useSubscription, useCache } from '../hooks';
 import makeRenderRestHook from '../../test/makeRenderRestHook';
 import {
-  makeRestProvider,
+  makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../test/providers';
 import { DispatchContext } from '../context';
 
 afterEach(cleanup);
 
-for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
+for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
   describe(`${makeProvider.name} with subscriptions`, () => {
     const articlePayload = {
       id: 5,

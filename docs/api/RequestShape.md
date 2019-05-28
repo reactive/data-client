@@ -5,7 +5,7 @@ title: RequestShape
 
 `RequestShape` is the most basic interface sent to hooks telling rest-hooks how to
 handle the request. Several methods of `Resource` return `RequestShapes`, which offers a bridge between
-both APIs. In fact, using `Resource` is not even needed to work with `RestProvider` and
+both APIs. In fact, using `Resource` is not even needed to work with `CacheProvider` and
 simply operates as a convenience to organize schemas.
 
 Because of the different capabilities of each shape, some shapes won't be usable with

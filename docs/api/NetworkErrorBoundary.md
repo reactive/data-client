@@ -22,7 +22,7 @@ Custom fallback usage example:
 
 ```tsx
 import React from 'react';
-import { RestProvider, NetworkErrorBoundary, NetworkError } from 'rest-hooks';
+import { CacheProvider, NetworkErrorBoundary, NetworkError } from 'rest-hooks';
 
 function ErrorPage({ error }: { error: NetworkError }) {
   return (
@@ -34,11 +34,11 @@ function ErrorPage({ error }: { error: NetworkError }) {
 
 export default function App(): React.ReactElement {
   return (
-    <RestProvider>
+    <CacheProvider>
       <NetworkErrorBoundary fallbackComponent={ErrorPage}>
         <Router />
       </NetworkErrorBoundary>
-    </RestProvider>
+    </CacheProvider>
   );
 }
 ```
