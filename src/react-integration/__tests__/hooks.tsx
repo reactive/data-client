@@ -26,8 +26,7 @@ import { Resource, Schema } from '../../resource';
 import { ReadShape } from '../../resource';
 import makeRenderRestHook from '../../test/makeRenderRestHook';
 import {
-  makeRestProvider,
-  makeExternalCacheProvider,
+  makeCacheProvider,
 } from '../../test/providers';
 
 async function testDispatchFetch(
@@ -477,7 +476,7 @@ describe('useResource()', () => {
     await testDispatchFetch(MultiResourceTester, [payload, users]);
   });
   it('should throw same promise until both resolve', async () => {
-    const renderRestHook = makeRenderRestHook(makeRestProvider);
+    const renderRestHook = makeRenderRestHook(makeCacheProvider);
     jest.useFakeTimers();
     nock('http://test.com')
       .get(`/article-cooler/${payload.id}`)

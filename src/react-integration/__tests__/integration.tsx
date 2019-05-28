@@ -6,7 +6,7 @@ import { CoolerArticleResource, UserResource } from '../../__tests__/common';
 import { useResource, useFetcher } from '../hooks';
 import makeRenderRestHook from '../../test/makeRenderRestHook';
 import {
-  makeRestProvider,
+  makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../test/providers';
 
@@ -14,7 +14,7 @@ afterEach(() => {
   cleanup();
 });
 
-for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
+for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
   describe(`${makeProvider.name} => <Provider />`, () => {
     const payload = {
       id: 5,

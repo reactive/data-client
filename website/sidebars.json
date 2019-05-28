@@ -86,7 +86,7 @@
         "type": "subcategory",
         "label": "Components",
         "ids": [
-          "api/RestProvider",
+          "api/CacheProvider",
           "api/ExternalCacheProvider",
           "api/NetworkErrorBoundary"
         ]
@@ -107,7 +107,7 @@
         "ids": [
           "api/MockProvider",
           "api/makeRenderRestHook",
-          "api/makeRestProvider",
+          "api/makeCacheProvider",
           "api/makeExternalCacheProvider"
         ]
       }

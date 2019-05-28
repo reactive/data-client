@@ -10,15 +10,15 @@ Will dispatch a `fetch` action at the minimum interval of all subscriptions to t
 resource.
 
 ```tsx
-import { SubscriptionManager, PollingSubscription, RestProvider } from 'rest-hooks';
+import { SubscriptionManager, PollingSubscription, CacheProvider } from 'rest-hooks';
 import ReactDOM from 'react-dom';
 
 const subscriptionManager = new SubscriptionManager(PollingSubscription);
 
 ReactDOM.render(
-  <RestProvider subscriptionManager={subscriptionManager}>
+  <CacheProvider subscriptionManager={subscriptionManager}>
     <App />
-  </RestProvider>,
+  </CacheProvider>,
   document.body
 );
 ```
@@ -29,4 +29,4 @@ ReactDOM.render(
 
 > #### Note:
 >
-> This is already used by `RestProvider` by default.
+> This is already used by `CacheProvider` by default.

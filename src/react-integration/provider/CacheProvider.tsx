@@ -16,7 +16,7 @@ interface ProviderProps {
   initialState?: State<unknown>;
 }
 /** Controller managing state of the REST cache and coordinating network requests. */
-export default function RestProvider({
+export default function CacheProvider({
   children,
   manager,
   subscriptionManager,
@@ -47,7 +47,7 @@ export default function RestProvider({
     </DispatchContext.Provider>
   );
 }
-RestProvider.defaultProps = {
+CacheProvider.defaultProps = {
   manager: new NetworkManager(),
   subscriptionManager: new SubscriptionManager(PollingSubscription),
 };

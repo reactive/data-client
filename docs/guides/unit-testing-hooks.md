@@ -22,7 +22,7 @@ upon test completion.
 
 ```typescript
 import nock from 'nock';
-import { makeRenderRestHook, makeRestProvider } from 'rest-hooks/test';
+import { makeRenderRestHook, makeCacheProvider } from 'rest-hooks/test';
 
 describe('useResource()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
@@ -31,7 +31,7 @@ describe('useResource()', () => {
     nock('http://test.com')
       .get(`/article/0`)
       .reply(403, {});
-    renderRestHook = makeRenderRestHook(makeRestProvider);
+    renderRestHook = makeRenderRestHook(makeCacheProvider);
   });
 
   afterEach(() => {
