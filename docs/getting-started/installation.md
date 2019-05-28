@@ -63,13 +63,13 @@ import 'core-js/stable';
 #### `index.tsx`
 
 ```tsx
-import { RestProvider } from 'rest-hooks';
+import { CacheProvider } from 'rest-hooks';
 import ReactDOM from 'react-dom';
 
 ReactDOM.render(
-  <RestProvider>
+  <CacheProvider>
     <App />
-  </RestProvider>,
+  </CacheProvider>,
   document.body
 );
 ```

@@ -26,7 +26,7 @@ type ProviderType = (
 Function to generate the provider used in `renderRestHook()`. The purpose of this is to unify construction of
 providers as they both are initialized in a very different fashion.
 
-- [makeRestProvider()](./makeRestProvider.md)
+- [makeCacheProvider()](./makeCacheProvider.md)
 - [makeExternalCacheProvider()](./makeExternalCacheProvider.md)
 
 ## Returns
@@ -90,7 +90,7 @@ Cleans up all managers used in tests. Should be run in `afterEach()` to ensure e
 ## Example
 
 ```typescript
-import { makeRenderRestHook, makeRestProvider } from 'rest-hooks/test';
+import { makeRenderRestHook, makeCacheProvider } from 'rest-hooks/test';
 
 const payload = {
   id: 5,
@@ -103,7 +103,7 @@ beforeEach(() => {
   nock('http://test.com')
     .get(`/article-cooler/${payload.id}`)
     .reply(200, payload);
-  renderRestHook = makeRenderRestHook(makeRestProvider);
+  renderRestHook = makeRenderRestHook(makeCacheProvider);
 });
 
 afterEach(() => {

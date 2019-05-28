@@ -7,7 +7,7 @@ import {
   NetworkManager,
   SubscriptionManager,
   ExternalCacheProvider,
-  RestProvider,
+  CacheProvider,
 } from '..';
 
 // Extension of the DeepPartial type defined by Redux which handles unknown
@@ -44,26 +44,26 @@ const makeExternalCacheProvider = (
   };
 };
 
-const makeRestProvider = (
+const makeCacheProvider = (
   manager: NetworkManager,
   subscriptionManager: SubscriptionManager<any>,
   initialState?: State<unknown>,
 ) => {
-  return function ConfiguredRestProvider({
+  return function ConfiguredCacheProvider({
     children,
   }: {
     children: ReactNode;
   }) {
     return (
-      <RestProvider
+      <CacheProvider
         manager={manager}
         subscriptionManager={subscriptionManager}
         initialState={initialState}
       >
         {children}
-      </RestProvider>
+      </CacheProvider>
     );
   };
 };
 
-export { makeExternalCacheProvider, makeRestProvider };
+export { makeExternalCacheProvider, makeCacheProvider };

@@ -30,7 +30,7 @@ interface Manager {
 ## getMiddleware()
 
 getMiddleware() returns a function that is 100% redux compatible. This enables it to be integrated into redux,
-or used by the internal useReducer() enhancer in <RestProvider />.
+or used by the internal useReducer() enhancer in <CacheProvider />.
 
 Middlewares will intercept actions that are dispatched and then potentially dispatch their own actions as well.
 To read more about middlewares, see the [redux documentation](https://redux.js.org/advanced/middleware).
