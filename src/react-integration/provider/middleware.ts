@@ -12,8 +12,8 @@ export default function createEnhancedReducerHook(
     startingState: React.ReducerState<R>,
   ): [React.ReducerState<R>, React.Dispatch<React.ReducerAction<R>>] => {
     const [state, realDispatch] = useReducer(reducer, startingState);
-    const store = useRef({ state });
-    store.current.state = state;
+    const store = useRef(state);
+    store.current = state;
 
     let outerDispatch = useMemo(() => {
       let dispatch: React.Dispatch<React.ReducerAction<R>> = () => {
@@ -24,7 +24,7 @@ export default function createEnhancedReducerHook(
       };
       // closure here around dispatch allows us to change it after middleware is constructed
       const middlewareAPI = {
-        getState: () => store.current.state,
+        getState: () => store.current,
         dispatch: (action: React.ReducerAction<R>) => dispatch(action),
       };
       const chain = middlewares.map(middleware => middleware(middlewareAPI));
