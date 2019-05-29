@@ -54,14 +54,13 @@ points in your application.
 ```tsx
 import { Suspense } from 'react';
 import { NetworkErrorBoundary } from 'rest-hooks';
-import { RouteChildrenProps } from 'react-router';
 
-const App = ({ location }: RouteChildrenProps) => (
+const App = () => (
   <div>
     <h1>Main Title</h1>
     <Nav />
     <Suspense fallback={<Spinner />}>
-      <NetworkErrorBoundary key={location && location.key}>
+      <NetworkErrorBoundary>
         <Routes />
       </NetworkErrorBoundary>
     </Suspense>

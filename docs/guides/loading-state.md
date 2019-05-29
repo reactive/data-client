@@ -27,7 +27,7 @@ const App = () => (
     <h1>Main Title</h1>
     <Nav />
     <Suspense fallback={<Spinner />}>
-      <ErrorBoundary key={location && location.key}>
+      <ErrorBoundary>
         <Routes />
       </ErrorBoundary>
     </Suspense>
