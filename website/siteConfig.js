@@ -60,13 +60,13 @@ const siteConfig = {
   users,
 
   /* path to images for header/footer */
-  //headerIcon: 'img/docusaurus.svg',
-  //footerIcon: 'img/docusaurus.svg',
+  headerIcon: 'img/rest_hooks_logo.svg',
+  footerIcon: 'img/rest_hooks_logo.svg',
   favicon: 'img/favicon/favicon.ico',
 
   /* Colors for website */
   colors: {
-    primaryColor: '#1652F0',
+    primaryColor: '#633EFF',
     secondaryColor: 'rgb(22, 82, 240);',
   },
 
@@ -112,8 +112,8 @@ const siteConfig = {
   docsSideNavCollapsible: true,
 
   // Open Graph and Twitter card images.
-  //ogImage: 'img/docusaurus.png',
-  //twitterImage: 'img/docusaurus.png',
+  ogImage: 'img/rest_hooks_logo.png',
+  twitterImage: 'img/rest_hooks_logo.png',
 
   // Show documentation's last contributor's name.
   // enableUpdateBy: true,

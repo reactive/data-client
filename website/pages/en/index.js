@@ -42,13 +42,13 @@ class HomeSplash extends React.Component {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
+            marginBottom: '30px',
           }}
         >
-          {/*<img src={"img/rest-hooks.svg"} alt="Rest Hooks logo" width={100} height={100}/>*/}
-          <h1 className="projectTitle">{siteConfig.title}</h1>
+          <img src={"img/rest_hooks_logo_and_text_subtitle.svg"} alt="Rest Hooks - Delightful Data Fetching" height={140}/>
         </div>
 
-        <h2 style={{ marginTop: '0.0', fontWeight: '500' }}>{siteConfig.tagline}</h2>
+        {/*<h2 style={{ marginTop: '0.0', fontWeight: '500' }}>{siteConfig.tagline}</h2>*/}
       </React.Fragment>
     );
 
@@ -70,7 +70,7 @@ class HomeSplash extends React.Component {
 
     return (
       <SplashContainer>
-        {/*<Logo img_src={`${baseUrl}img/docusaurus.svg`} />*/}
+        {/*<Logo img_src={`${baseUrl}img/rest_hooks_logo.svg`} />*/}
         <div className="inner">
           <ProjectTitle siteConfig={siteConfig} />
           <PromoSection>
