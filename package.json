@@ -16,7 +16,7 @@
     "LICENSE",
     "README.md",
     "./scripts/typescript.svg",
-    "./rest_hooks_logo.png"
+    "./rest_hooks_logo_and_text.svg"
   ],
   "scripts": {
     "build:lib": "cross-env NODE_ENV=production babel src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
