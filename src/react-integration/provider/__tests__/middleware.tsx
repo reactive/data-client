@@ -1,4 +1,6 @@
 import React from 'react';
+// eslint-disable-next-line @typescript-eslint/camelcase
+import { unstable_scheduleCallback } from 'scheduler';
 import { cleanup, renderHook, act } from 'react-hooks-testing-library';
 import createEnhancedReducerHook from '../middleware';
 import { MiddlewareAPI } from '../../../types';
@@ -43,7 +45,8 @@ describe('createEnhancedReducerHook', () => {
     return (next: any) => (action: any) => {
       callBefore(getState());
       next(action);
-      callAfter(getState());
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      unstable_scheduleCallback(() => callAfter(getState()), {});
     };
   };
 
@@ -152,7 +155,8 @@ describe('createEnhancedReducerHook', () => {
     expect(faker.mock.calls[2][0]).toEqual({ type: 'nothing', payload: 5 });
   });
 
-  test('should work with middlewares that getState()', () => {
+  test('should work with middlewares that getState()', async () => {
+    jest.useFakeTimers();
     const callBefore = jest.fn();
     const callAfter = jest.fn();
     const logger = makeStatefulMiddleware({ callBefore, callAfter });
@@ -171,18 +175,20 @@ describe('createEnhancedReducerHook', () => {
     act(() => {
       dispatch(action);
     });
+    jest.runAllTimers();
     [state, dispatch] = result.current;
     expect(callBefore.mock.calls.length).toBe(1);
-    //expect(callAfter.mock.calls.length).toBe(1);
+    expect(callAfter.mock.calls.length).toBe(1);
     expect(callBefore.mock.calls[0][0]).toEqual({ counter: 0 });
-    //expect(callAfter.mock.calls[0][0]).toEqual({ counter: 1 });
-    //expect(callAfter.mock.calls[0][0]).toEqual(state);
+    expect(callAfter.mock.calls[0][0]).toEqual({ counter: 1 });
+    expect(callAfter.mock.calls[0][0]).toEqual(state);
     action = { type: 'dispatch', payload: 5 };
     act(() => {
       dispatch(action);
     });
+    jest.runAllTimers();
     expect(callBefore.mock.calls[1][0]).toEqual({ counter: 1 });
-    //expect(callAfter.mock.calls[1][0]).toEqual({ counter: 2 });
+    expect(callAfter.mock.calls[1][0]).toEqual({ counter: 2 });
   });
 
   it('warns when dispatching during middleware setup', () => {
