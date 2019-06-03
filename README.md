@@ -1,4 +1,4 @@
-# ![🛌🎣 Rest hooks](./rest_hooks_logo_and_text.svg)
+# ![🛌🎣 Rest hooks](./rest_hooks_logo_and_text.svg?sanitize=true)
 [![CircleCI](https://circleci.com/gh/coinbase/rest-hooks.svg?style=shield)](https://circleci.com/gh/coinbase/rest-hooks)
 [![Coverage Status](https://img.shields.io/coveralls/coinbase/rest-hooks.svg?style=flat-square)](https://coveralls.io/github/coinbase/rest-hooks?branch=master)
 [![npm downloads](https://img.shields.io/npm/dm/rest-hooks.svg?style=flat-square)](https://www.npmjs.com/package/rest-hooks)
@@ -61,7 +61,7 @@ For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 
 ## Features
 
-- [x] ![TS](./scripts/typescript.svg) Strong [Typescript](https://www.typescriptlang.org/) types
+- [x] ![TS](./scripts/typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) types
 - [x] 🛌 React [Suspense](https://www.youtube.com/watch?v=ByBPyMBTzM0) support
 - [x] 🎣 Simple declarative API
 - [x] 💰 Normalized response caching
