@@ -151,12 +151,15 @@ export default class NetworkManager {
         case 'rest-hooks/purge':
         case 'rest-hooks/rpc':
         case 'rest-hooks/receive':
+          // only receive after new state is computed
+          next(action);
           if (action.meta.url in this.fetched) {
             this.handleReceive(action);
           }
-          // fallthrough is on purpose
+          return;
         default:
-          return next(action);
+          next(action);
+          return;
         }
       };
     };

@@ -1,4 +1,4 @@
-import { useReducer, useMemo } from 'react';
+import { useReducer, useMemo, useRef } from 'react';
 import compose from 'lodash/fp/compose';
 import { Middleware } from '../../types';
 
@@ -12,6 +12,8 @@ export default function createEnhancedReducerHook(
     startingState: React.ReducerState<R>,
   ): [React.ReducerState<R>, React.Dispatch<React.ReducerAction<R>>] => {
     const [state, realDispatch] = useReducer(reducer, startingState);
+    const store = useRef(state);
+    store.current = state;
 
     let outerDispatch = useMemo(() => {
       let dispatch: React.Dispatch<React.ReducerAction<R>> = () => {
@@ -22,14 +24,13 @@ export default function createEnhancedReducerHook(
       };
       // closure here around dispatch allows us to change it after middleware is constructed
       const middlewareAPI = {
-        // state is not needed in useMemo() param list since it's retrieved as function
-        getState: () => state,
+        getState: () => store.current,
         dispatch: (action: React.ReducerAction<R>) => dispatch(action),
       };
       const chain = middlewares.map(middleware => middleware(middlewareAPI));
       dispatch = compose(chain)(realDispatch);
       return dispatch;
-    }, [realDispatch]);
+    }, [realDispatch, store]);
     return [state, outerDispatch];
   };
   return useEnhancedReducer;

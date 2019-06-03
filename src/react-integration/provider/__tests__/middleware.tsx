@@ -1,4 +1,6 @@
 import React from 'react';
+// eslint-disable-next-line @typescript-eslint/camelcase
+import { unstable_scheduleCallback } from 'scheduler';
 import { cleanup, renderHook, act } from 'react-hooks-testing-library';
 import createEnhancedReducerHook from '../middleware';
 import { MiddlewareAPI } from '../../../types';
@@ -31,6 +33,20 @@ describe('createEnhancedReducerHook', () => {
         dispatch({ ...action, type: 'nothing' });
       }
       return next(action);
+    };
+  };
+  const makeStatefulMiddleware = ({
+    callBefore,
+    callAfter,
+  }: {
+  callBefore: Function;
+  callAfter: Function;
+  }) => ({ getState }: MiddlewareAPI) => {
+    return (next: any) => (action: any) => {
+      callBefore(getState());
+      next(action);
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      unstable_scheduleCallback(() => callAfter(getState()), {});
     };
   };
 
@@ -137,6 +153,42 @@ describe('createEnhancedReducerHook', () => {
     });
     expect(faker.mock.calls.length).toBe(3);
     expect(faker.mock.calls[2][0]).toEqual({ type: 'nothing', payload: 5 });
+  });
+
+  test('should work with middlewares that getState()', async () => {
+    jest.useFakeTimers();
+    const callBefore = jest.fn();
+    const callAfter = jest.fn();
+    const logger = makeStatefulMiddleware({ callBefore, callAfter });
+
+    const reducer = (state: { counter: number }) => ({
+      ...state,
+      counter: state.counter + 1,
+    });
+    const { result } = renderHook(() => {
+      const useEnhancedReducer = createEnhancedReducerHook(logger);
+      return useEnhancedReducer(reducer, { counter: 0 });
+    });
+    let [state, dispatch] = result.current;
+    expect(callBefore.mock.calls.length).toBe(0);
+    let action: any = { type: 'hi' };
+    act(() => {
+      dispatch(action);
+    });
+    jest.runAllTimers();
+    [state, dispatch] = result.current;
+    expect(callBefore.mock.calls.length).toBe(1);
+    expect(callAfter.mock.calls.length).toBe(1);
+    expect(callBefore.mock.calls[0][0]).toEqual({ counter: 0 });
+    expect(callAfter.mock.calls[0][0]).toEqual({ counter: 1 });
+    expect(callAfter.mock.calls[0][0]).toEqual(state);
+    action = { type: 'dispatch', payload: 5 };
+    act(() => {
+      dispatch(action);
+    });
+    jest.runAllTimers();
+    expect(callBefore.mock.calls[1][0]).toEqual({ counter: 1 });
+    expect(callAfter.mock.calls[1][0]).toEqual({ counter: 2 });
   });
 
   it('warns when dispatching during middleware setup', () => {
