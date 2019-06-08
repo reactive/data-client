@@ -49,7 +49,7 @@ const siteConfig = {
   headerLinks: [
     { doc: 'getting-started/installation', label: 'Getting Started' },
     { doc: 'api/README', label: 'API' },
-    { doc: 'guides/README', label: 'Guides' },
+    { doc: 'guides/resource-types', label: 'Resource Definitions' },
     { href: 'https://www.github.com/coinbase/rest-hooks', label: 'Github' },
     { href: 'https://stackblitz.com/edit/rest-hooks', label: '🎮 Demo' },
     //{ page: 'help', label: 'Help' },

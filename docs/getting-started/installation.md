@@ -67,3 +67,5 @@ const App = () => (
   </div>
 );
 ```
+
+[More about loading state](../guides/loading-state)

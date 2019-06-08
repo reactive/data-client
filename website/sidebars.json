@@ -4,37 +4,28 @@
       "getting-started/installation",
       "getting-started/usage"
     ],
-    "Guides": [
-      "guides/README",
+    "Basics": [
+      "guides/loading-state",
+      "guides/network-errors",
+      "guides/fetch-multiple",
+      "guides/pagination",
+      "guides/immutability",
+      "guides/mocking-unfinished"
+    ],
+    "Defining Network Interfaces": [
+      "guides/resource-types",
+      "guides/computed-properties",
+      "guides/multi-pk",
+      "guides/network-transform",
+      "guides/auth",
+      "guides/jsonp",
+      "guides/custom-networking",
+      "guides/resource-lifetime"
+    ],
+    "Advanced": [
       {
         "type": "subcategory",
-        "label": "Basics",
-        "ids": [
-          "guides/loading-state",
-          "guides/network-errors",
-          "guides/fetch-multiple",
-          "guides/pagination",
-          "guides/immutability",
-          "guides/mocking-unfinished"
-        ]
-      },
-      {
-        "type": "subcategory",
-        "label": "Defining your network interface",
-        "ids": [
-          "guides/resource-types",
-          "guides/computed-properties",
-          "guides/multi-pk",
-          "guides/network-transform",
-          "guides/auth",
-          "guides/jsonp",
-          "guides/custom-networking",
-          "guides/resource-lifetime"
-        ]
-      },
-      {
-        "type": "subcategory",
-        "label": "Performance Optimizations (optional)",
+        "label": "Performance Optimizations",
         "ids": ["guides/nested-response", "guides/rpc"]
       },
       {
