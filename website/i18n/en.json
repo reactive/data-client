@@ -83,6 +83,9 @@
       "guides/auth": {
         "title": "Authentication"
       },
+      "guides/class-components": {
+        "title": "Usage with class components"
+      },
       "guides/computed-properties": {
         "title": "Computed Properties"
       },
@@ -118,6 +121,9 @@
       },
       "guides/network-transform": {
         "title": "Transforming data on network load"
+      },
+      "guides/no-suspense": {
+        "title": "Usage without Suspense"
       },
       "guides/pagination": {
         "title": "Pagination"

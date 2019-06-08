@@ -50,6 +50,11 @@
         "type": "subcategory",
         "label": "Integrations",
         "ids": ["guides/redux"]
+      },
+      {
+        "type": "subcategory",
+        "label": "Legacy",
+        "ids": ["guides/class-components", "guides/no-suspense"]
       }
     ],
     "API": [
