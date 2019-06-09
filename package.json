@@ -77,22 +77,22 @@
     }
   },
   "devDependencies": {
-    "@anansi/babel-preset": "^0.17.1",
-    "@anansi/eslint-config": "^0.6.3",
+    "@anansi/babel-preset": "^0.17.2",
+    "@anansi/eslint-config": "^0.6.4",
     "@babel/cli": "^7.4.4",
     "@babel/core": "^7.4.5",
     "@babel/plugin-transform-runtime": "^7.4.4",
     "@types/jest": "^24.0.13",
     "@types/lodash": "^4.14.130",
     "@types/nock": "^10.0.3",
-    "@types/react": "^16.8.18",
+    "@types/react": "^16.8.19",
     "@typescript-eslint/eslint-plugin": "^1.9.0",
     "@typescript-eslint/parser": "^1.9.0",
     "auto-changelog": "^1.13.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^24.8.0",
     "babel-plugin-root-import": "^6.2.0",
-    "coveralls": "^3.0.3",
+    "coveralls": "^3.0.4",
     "cpy-cli": "^2.0.0",
     "cross-env": "^5.2.0",
     "eslint": "^5.16.0",
@@ -115,7 +115,7 @@
     "rollup-plugin-terser": "^5.0.0",
     "scheduler": "^0.13.6",
     "ts-jest": "^24.0.2",
-    "typescript": "^3.4.5"
+    "typescript": "^3.5.1"
   },
   "dependencies": {
     "@babel/runtime": "^7.4.5",
