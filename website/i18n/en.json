@@ -97,7 +97,7 @@
         "title": "Fetching multiple resources at once"
       },
       "guides/immutability": {
-        "title": "Understanding Immutability (doc is WIP)",
+        "title": "Understanding Immutability",
         "sidebar_label": "Understanding Immutability"
       },
       "guides/jsonp": {
@@ -163,13 +163,15 @@
     "links": {
       "Getting Started": "Getting Started",
       "API": "API",
-      "Guides": "Guides",
+      "Resource Definitions": "Resource Definitions",
       "Github": "Github",
       "🎮 Demo": "🎮 Demo"
     },
     "categories": {
       "Getting Started": "Getting Started",
-      "Guides": "Guides",
+      "Basics": "Basics",
+      "Defining Network Interfaces": "Defining Network Interfaces",
+      "Advanced": "Advanced",
       "API": "API"
     }
   },

@@ -74,6 +74,8 @@ Be sure to add all the properties you expect and mark them as readonly. [Mutatio
 
 Also be sure to provide the `pk()` function and `static urlRoot` string.
 
+APIs quickly get much more complicated! [Customizing Resources to fit your API](../guides/resource-types)
+
 ## [Use resource](../api/useResource.md)
 
 <!--DOCUSAURUS_CODE_TABS-->
