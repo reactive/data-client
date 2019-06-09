@@ -39,8 +39,8 @@ describe('createEnhancedReducerHook', () => {
     callBefore,
     callAfter,
   }: {
-  callBefore: Function;
-  callAfter: Function;
+    callBefore: Function;
+    callAfter: Function;
   }) => ({ getState }: MiddlewareAPI) => {
     return (next: any) => (action: any) => {
       callBefore(getState());

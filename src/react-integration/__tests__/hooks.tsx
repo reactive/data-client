@@ -56,11 +56,15 @@ function testRestHook(
   dispatch = (v: ActionTypes) => {},
 ) {
   return renderHook(callback, {
-    wrapper: ({ children }) => (
-      <DispatchContext.Provider value={dispatch}>
-        <StateContext.Provider value={state}>{children}</StateContext.Provider>
-      </DispatchContext.Provider>
-    ),
+    wrapper: function Wrapper({ children }) {
+      return (
+        <DispatchContext.Provider value={dispatch}>
+          <StateContext.Provider value={state}>
+            {children}
+          </StateContext.Provider>
+        </DispatchContext.Provider>
+      );
+    },
   });
 }
 
@@ -249,11 +253,13 @@ describe('useCache', () => {
       () =>
         (article = useCache(CoolerArticleResource.singleRequest(), payload)),
       {
-        wrapper: ({ children }) => (
-          <StateContext.Provider value={state}>
-            {children}
-          </StateContext.Provider>
-        ),
+        wrapper: function Wrapper({ children }) {
+          return (
+            <StateContext.Provider value={state}>
+              {children}
+            </StateContext.Provider>
+          );
+        },
       },
     );
     expect(article).toBe(null);

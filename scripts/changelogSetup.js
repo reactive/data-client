@@ -7,7 +7,7 @@ module.exports = function(Handlebars) {
         ...merge,
         subject: merge.message,
         shorthash: `#${merge.id}`,
-      }))
+      })),
     );
     return options.fn(this);
   });

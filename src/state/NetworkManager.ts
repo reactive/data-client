@@ -145,21 +145,21 @@ export default class NetworkManager {
         action: React.ReducerAction<R>,
       ) => {
         switch (action.type) {
-        case 'rest-hooks/fetch':
-          this.handleFetch(action, dispatch);
-          return;
-        case 'rest-hooks/purge':
-        case 'rest-hooks/rpc':
-        case 'rest-hooks/receive':
-          // only receive after new state is computed
-          next(action);
-          if (action.meta.url in this.fetched) {
-            this.handleReceive(action);
-          }
-          return;
-        default:
-          next(action);
-          return;
+          case 'rest-hooks/fetch':
+            this.handleFetch(action, dispatch);
+            return;
+          case 'rest-hooks/purge':
+          case 'rest-hooks/rpc':
+          case 'rest-hooks/receive':
+            // only receive after new state is computed
+            next(action);
+            if (action.meta.url in this.fetched) {
+              this.handleReceive(action);
+            }
+            return;
+          default:
+            next(action);
+            return;
         }
       };
     };

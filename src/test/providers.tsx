@@ -14,7 +14,7 @@ import {
 type DeepPartialWithUnknown<T> = {
   [K in keyof T]?: T[K] extends unknown
     ? any
-    : (T[K] extends object ? DeepPartialWithUnknown<T[K]> : T[K])
+    : (T[K] extends object ? DeepPartialWithUnknown<T[K]> : T[K]);
 };
 
 const makeExternalCacheProvider = (
@@ -31,11 +31,17 @@ const makeExternalCacheProvider = (
     ),
   );
 
-  return ({ children }: { children: ReactNode }) => (
-    <ExternalCacheProvider store={store} selector={s => s}>
-      {children}
-    </ExternalCacheProvider>
-  );
+  return function ConfiguredExternalCacheProvider({
+    children,
+  }: {
+    children: ReactNode;
+  }) {
+    return (
+      <ExternalCacheProvider store={store} selector={s => s}>
+        {children}
+      </ExternalCacheProvider>
+    );
+  };
 };
 
 const makeRestProvider = (
@@ -43,15 +49,21 @@ const makeRestProvider = (
   subscriptionManager: SubscriptionManager<any>,
   initialState?: State<unknown>,
 ) => {
-  return ({ children }: { children: ReactNode }) => (
-    <RestProvider
-      manager={manager}
-      subscriptionManager={subscriptionManager}
-      initialState={initialState}
-    >
-      {children}
-    </RestProvider>
-  );
+  return function ConfiguredRestProvider({
+    children,
+  }: {
+    children: ReactNode;
+  }) {
+    return (
+      <RestProvider
+        manager={manager}
+        subscriptionManager={subscriptionManager}
+        initialState={initialState}
+      >
+        {children}
+      </RestProvider>
+    );
+  };
 };
 
 export { makeExternalCacheProvider, makeRestProvider };

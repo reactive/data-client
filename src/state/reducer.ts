@@ -56,86 +56,86 @@ export default function reducer(
 ) {
   if (!state) state = initialState;
   switch (action.type) {
-  case 'rest-hooks/receive':
-    if (action.error) {
+    case 'rest-hooks/receive':
+      if (action.error) {
+        return {
+          ...state,
+          meta: {
+            ...state.meta,
+            [action.meta.url]: {
+              date: action.meta.date,
+              error: action.payload,
+              expiresAt: action.meta.expiresAt,
+            },
+          },
+        };
+      }
+      const normalized = normalize(action.payload, action.meta.schema);
+      return {
+        entities: mergeWith(
+          { ...state.entities },
+          normalized.entities,
+          resourceCustomizer,
+        ),
+        results: {
+          ...state.results,
+          [action.meta.url]: normalized.result,
+        },
+        meta: {
+          ...state.meta,
+          [action.meta.url]: {
+            date: action.meta.date,
+            expiresAt: action.meta.expiresAt,
+          },
+        },
+      };
+    case 'rest-hooks/rpc':
+      if (action.error) return state;
+      let { entities } = normalize(action.payload, action.meta.schema);
+      return {
+        ...state,
+        entities: mergeWith(
+          { ...state.entities },
+          entities,
+          resourceCustomizer,
+        ),
+      };
+    case 'rest-hooks/purge':
+      if (action.error) return state;
+      const key = action.meta.schema.key;
+      const pk = action.meta.url;
+      const e = purgeEntity(state.entities, key, pk);
+      return {
+        ...state,
+        entities: e,
+      };
+    case 'rest-hooks/invalidate':
       return {
         ...state,
         meta: {
           ...state.meta,
           [action.meta.url]: {
-            date: action.meta.date,
-            error: action.payload,
-            expiresAt: action.meta.expiresAt,
+            ...state.meta[action.meta.url],
+            expiresAt: 0,
           },
         },
       };
-    }
-    const normalized = normalize(action.payload, action.meta.schema);
-    return {
-      entities: mergeWith(
-        { ...state.entities },
-        normalized.entities,
-        resourceCustomizer,
-      ),
-      results: {
-        ...state.results,
-        [action.meta.url]: normalized.result,
-      },
-      meta: {
-        ...state.meta,
-        [action.meta.url]: {
-          date: action.meta.date,
-          expiresAt: action.meta.expiresAt,
-        },
-      },
-    };
-  case 'rest-hooks/rpc':
-    if (action.error) return state;
-    let { entities } = normalize(action.payload, action.meta.schema);
-    return {
-      ...state,
-      entities: mergeWith(
-        { ...state.entities },
-        entities,
-        resourceCustomizer,
-      ),
-    };
-  case 'rest-hooks/purge':
-    if (action.error) return state;
-    const key = action.meta.schema.key;
-    const pk = action.meta.url;
-    const e = purgeEntity(state.entities, key, pk);
-    return {
-      ...state,
-      entities: e,
-    };
-  case 'rest-hooks/invalidate':
-    return {
-      ...state,
-      meta: {
-        ...state.meta,
-        [action.meta.url]: {
-          ...state.meta[action.meta.url],
-          expiresAt: 0,
-        },
-      },
-    };
 
-  default:
-    // If 'fetch' action reaches the reducer there are no middlewares installed to handle it
-    if (
-      process.env.NODE_ENV !== 'production' &&
+    default:
+      // If 'fetch' action reaches the reducer there are no middlewares installed to handle it
+      if (
+        process.env.NODE_ENV !== 'production' &&
         action.type === 'rest-hooks/fetch'
-    ) {
-      console.warn(
-        'Reducer recieved fetch action - you are likely missing the NetworkManager middleware',
-      );
-      console.warn(
-        'See https://resthooks.io/docs/guides/redux#indextsx for hooking up redux',
-      );
-    }
-    // A reducer must always return a valid state.
-    // Alternatively you can throw an error if an invalid action is dispatched.
-    return state;
+      ) {
+        console.warn(
+          'Reducer recieved fetch action - you are likely missing the NetworkManager middleware',
+        );
+        console.warn(
+          'See https://resthooks.io/docs/guides/redux#indextsx for hooking up redux',
+        );
+      }
+      // A reducer must always return a valid state.
+      // Alternatively you can throw an error if an invalid action is dispatched.
+      return state;
   }
 }

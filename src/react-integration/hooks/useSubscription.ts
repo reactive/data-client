@@ -5,9 +5,9 @@ import { ReadShape, Schema } from '../../resource';
 
 /** Keeps a resource fresh by subscribing to updates. */
 export default function useSubscription<
-Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends Schema
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void,
+  S extends Schema
 >(
   requestShape: ReadShape<S, Params, Body>,
   params: Params,

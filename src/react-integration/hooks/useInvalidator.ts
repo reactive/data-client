@@ -5,8 +5,8 @@ import { DispatchContext } from '../context';
 
 /** Invalidate a certain item within the cache */
 export default function useInvalidator<
-Params extends Readonly<object>,
-S extends Schema
+  Params extends Readonly<object>,
+  S extends Schema
 >(selectShape: ReadShape<S, Params, any>): (params: Params | null) => void {
   const { getUrl } = selectShape;
   const dispatch = useContext(DispatchContext);

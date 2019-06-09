@@ -99,16 +99,16 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
 
 async function validateSubscription(
   result: {
-  readonly current: PollingArticleResource | null;
-  readonly error: Error;
+    readonly current: PollingArticleResource | null;
+    readonly error: Error;
   },
   frequency: number,
   waitForNextUpdate: () => Promise<void>,
   articlePayload: {
-  id: number;
-  title: string;
-  content: string;
-  tags: string[];
+    id: number;
+    title: string;
+    content: string;
+    tags: string[];
   },
 ) {
   // should be null to start

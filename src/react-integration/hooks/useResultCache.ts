@@ -12,8 +12,8 @@ type Resolved<P extends Promise<any>> = P extends Promise<infer R> ? R : any;
  * Useful for retrieving response meta-data like pagination info
  */
 export default function useResultCache<
-Params extends Readonly<object>,
-D extends object
+  Params extends Readonly<object>,
+  D extends object
 >(
   { getUrl, fetch }: ReadShape<any, Params, any>,
   params: Params | null,

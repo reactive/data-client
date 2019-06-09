@@ -4,16 +4,16 @@ import useRetrieve from './useRetrieve';
 import useError from './useError';
 
 type ResourceArgs<
-S extends Schema,
-Params extends Readonly<object>,
-Body extends Readonly<object> | void
+  S extends Schema,
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void
 > = [ReadShape<S, Params, Body>, Params | null];
 
 /** If the invalidIfStale option is set we suspend if resource has expired */
 function hasUsableData<
-S extends Schema,
-Params extends Readonly<object>,
-Body extends Readonly<object> | void
+  S extends Schema,
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void
 >(
   resource: RequestResource<ReadShape<S, Params, Body>> | null,
   selectShape: ReadShape<S, Params, Body>,
@@ -26,9 +26,9 @@ Body extends Readonly<object> | void
 
 /** single form resource */
 function useOneResource<
-Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends Schema
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void,
+  S extends Schema
 >(selectShape: ReadShape<S, Params, Body>, params: Params | null) {
   let maybePromise = useRetrieve(selectShape, params);
   const resource = useCache(selectShape, params);
@@ -54,9 +54,9 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
   );
   const resources = resourceList.map(
     <
-    Params extends Readonly<object>,
-    Body extends Readonly<object> | void,
-    S extends Schema
+      Params extends Readonly<object>,
+      Body extends Readonly<object> | void,
+      S extends Schema
     >([select, params]: ResourceArgs<S, Params, Body>) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
       useCache(select, params),
@@ -122,7 +122,7 @@ export default function useResource<
 ): [
   CondNull<P1, SchemaOf<S1>>,
   CondNull<P2, SchemaOf<S2>>,
-  CondNull<P3, SchemaOf<S3>>
+  CondNull<P3, SchemaOf<S3>>,
 ];
 export default function useResource<
   P1 extends Readonly<object> | null,
@@ -146,7 +146,7 @@ export default function useResource<
   CondNull<P1, SchemaOf<S1>>,
   CondNull<P2, SchemaOf<S2>>,
   CondNull<P3, SchemaOf<S3>>,
-  CondNull<P4, SchemaOf<S4>>
+  CondNull<P4, SchemaOf<S4>>,
 ];
 export default function useResource<
   P1 extends Readonly<object> | null,
@@ -175,12 +175,12 @@ export default function useResource<
   CondNull<P2, SchemaOf<S2>>,
   CondNull<P3, SchemaOf<S3>>,
   CondNull<P4, SchemaOf<S4>>,
-  CondNull<P5, SchemaOf<S5>>
+  CondNull<P5, SchemaOf<S5>>,
 ];
 export default function useResource<
-Params extends Readonly<object>,
-Body extends Readonly<object> | void,
-S extends Schema
+  Params extends Readonly<object>,
+  Body extends Readonly<object> | void,
+  S extends Schema
 >(...args: ResourceArgs<S, Params, Body> | ResourceArgs<S, Params, Body>[]) {
   // this conditional use of hooks is ok as long as the structure of the arguments don't change
   if (Array.isArray(args[0])) {

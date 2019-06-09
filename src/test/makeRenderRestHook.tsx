@@ -36,11 +36,13 @@ export default function makeRenderRestHook(
     );
     const Wrapper = options && options.wrapper;
     const wrapper: React.ComponentType<any> = Wrapper
-      ? ({ children }: { children: React.ReactChild }) => (
-        <Provider>
-          <Wrapper>{children}</Wrapper>
-        </Provider>
-      )
+      ? function ProviderWrapped({ children }: { children: React.ReactChild }) {
+          return (
+            <Provider>
+              <Wrapper>{children}</Wrapper>
+            </Provider>
+          );
+        }
       : Provider;
     return renderHook(callback, {
       ...options,
