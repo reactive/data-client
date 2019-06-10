@@ -1,5 +1,6 @@
 import React from 'react';
 import { cleanup } from 'react-hooks-testing-library';
+import { renderHook } from 'react-hooks-testing-library';
 
 import nock from 'nock';
 
@@ -10,6 +11,7 @@ import {
   makeRestProvider,
   makeExternalCacheProvider,
 } from '../../test/providers';
+import { DispatchContext } from '../context';
 
 afterEach(cleanup);
 
@@ -93,6 +95,32 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
         waitForNextUpdate,
         articlePayload,
       );
+    });
+
+    it('useSubscription() should dispatch rest-hooks/subscribe only once even with rerender', async () => {
+      const fakeDispatch = jest.fn();
+
+      const { rerender } = renderHook(
+        () => {
+          useSubscription(PollingArticleResource.listRequest(), { id: 5 });
+        },
+        {
+          wrapper: function Wrapper({
+            children,
+          }: any) {
+            return (
+              <DispatchContext.Provider value={fakeDispatch}>
+                {children}
+              </DispatchContext.Provider>
+            );
+          },
+        },
+      );
+      expect(fakeDispatch.mock.calls.length).toBe(1);
+      for(let i=0; i<2; ++i) {
+        rerender();
+      }
+      expect(fakeDispatch.mock.calls.length).toBe(1);
     });
   });
 }

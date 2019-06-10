@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 
 import { DispatchContext } from '../context';
 import { ReadShape, Schema } from '../../resource';
@@ -14,12 +14,17 @@ export default function useSubscription<
   body?: Body,
   active = true,
 ) {
-  const { fetch, schema, getUrl, options } = requestShape;
-  const url = getUrl(params);
   const dispatch = useContext(DispatchContext);
+  // we just want the current values when we dispatch, so
+  // box the shape in a ref to make react-hooks/exhaustive-deps happy
+  const shapeRef = useRef(requestShape);
+  shapeRef.current = requestShape;
 
   useEffect(() => {
     if (!active) return;
+    const { fetch, schema, getUrl, options } = shapeRef.current;
+    const url = getUrl(params);
+
     dispatch({
       type: 'rest-hooks/subscribe',
       meta: {
@@ -38,5 +43,7 @@ export default function useSubscription<
         },
       });
     };
-  }, [dispatch, fetch, schema, url, options, body, active]);
+  // serialize params
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, body, active, params && requestShape.getUrl(params)]);
 }

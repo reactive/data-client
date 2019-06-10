@@ -22,6 +22,7 @@ export default function useResultCache<
   ? Resolved<ReturnType<typeof fetch>> | null
   : Readonly<D> {
   const state = useContext(StateContext);
+  // TODO: make sure getUrl stays the same
   const resultSelector = useMemo(() => makeResults((p: Params) => getUrl(p)), [
     getUrl,
   ]);
