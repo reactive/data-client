@@ -1,4 +1,4 @@
-import { useContext, useMemo, useRef } from 'react';
+import { useContext, useRef, useCallback } from 'react';
 
 import { RequestShape, Schema, isDeleteShape } from '../../resource';
 import { DispatchContext } from '../context';
@@ -25,11 +25,11 @@ export default function useFetcher<
   const shapeRef = useRef(requestShape);
   shapeRef.current = requestShape;
 
-  const fetchDispatcher = useMemo(() => {
-    const { fetch, schema, type, getUrl, options } = shapeRef.current;
-    const responseType = SHAPE_TYPE_TO_RESPONSE_TYPE[type];
+  const fetchDispatcher = useCallback(
+    (body: Body, params: Params) => {
+      const { fetch, schema, type, getUrl, options } = shapeRef.current;
+      const responseType = SHAPE_TYPE_TO_RESPONSE_TYPE[type];
 
-    return (body: Body, params: Params) => {
       const url = getUrl(params);
       const identifier = isDeleteShape(shapeRef.current)
         ? (schema as any).getId(params)
@@ -54,7 +54,8 @@ export default function useFetcher<
         },
       });
       return promise;
-    };
-  }, [dispatch, throttle]);
+    },
+    [dispatch, throttle],
+  );
   return fetchDispatcher;
 }
