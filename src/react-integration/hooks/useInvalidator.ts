@@ -1,4 +1,4 @@
-import { useContext, useCallback } from 'react';
+import { useContext, useCallback, useRef } from 'react';
 
 import { ReadShape, Schema } from '../../resource';
 import { DispatchContext } from '../context';
@@ -8,8 +8,9 @@ export default function useInvalidator<
   Params extends Readonly<object>,
   S extends Schema
 >(selectShape: ReadShape<S, Params, any>): (params: Params | null) => void {
-  const { getUrl } = selectShape;
   const dispatch = useContext(DispatchContext);
+  const getUrlRef = useRef(selectShape.getUrl);
+  getUrlRef.current = selectShape.getUrl;
 
   const invalidateDispatcher = useCallback(
     (params: Params | null) => {
@@ -17,11 +18,11 @@ export default function useInvalidator<
       dispatch({
         type: 'rest-hooks/invalidate',
         meta: {
-          url: getUrl(params),
+          url: getUrlRef.current(params),
         },
       });
     },
-    [getUrl, dispatch],
+    [dispatch],
   );
 
   return invalidateDispatcher;

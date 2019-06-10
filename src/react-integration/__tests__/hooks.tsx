@@ -243,6 +243,19 @@ describe('useInvalidate', () => {
       },
     });
   });
+  it('should return the same === function each time', async () => {
+    const track = jest.fn();
+
+    const { rerender } = renderHook(() => {
+      const invalidate = useInvalidator(PaginatedArticleResource.listRequest());
+      useEffect(track, [invalidate]);
+    });
+    expect(track.mock.calls.length).toBe(1);
+    for (let i = 0; i < 4; ++i) {
+      rerender();
+    }
+    expect(track.mock.calls.length).toBe(1);
+  });
 });
 
 describe('useCache', () => {
@@ -284,6 +297,21 @@ describe('useCache', () => {
     expect(articles[0]).toBeInstanceOf(PaginatedArticleResource);
     expect(articles).toMatchSnapshot();
   });
+
+  it('should return identical value no matter how many re-renders', async () => {
+    const track = jest.fn();
+
+    const { rerender } = renderHook(() => {
+      const article = useCache(PaginatedArticleResource.listRequest(), {});
+      useEffect(track, [article]);
+    });
+
+    expect(track.mock.calls.length).toBe(1);
+    for (let i = 0; i < 2; ++i) {
+      rerender();
+    }
+    expect(track.mock.calls.length).toBe(1);
+  });
 });
 
 describe('useResultCache', () => {
@@ -324,6 +352,21 @@ describe('useResultCache', () => {
     expect(results.nextPage).toBe(articlesPages.nextPage);
     expect(results.prevPage).toBe(articlesPages.prevPage);
     expect(results.results).toEqual(['23', '44', '2', '643']);
+  });
+
+  it('should return identical value no matter how many re-renders', async () => {
+    const track = jest.fn();
+
+    const { rerender } = renderHook(() => {
+      const results = useResultCache(PaginatedArticleResource.listRequest(), {});
+      useEffect(track, [results]);
+    });
+
+    expect(track.mock.calls.length).toBe(1);
+    for (let i = 0; i < 2; ++i) {
+      rerender();
+    }
+    expect(track.mock.calls.length).toBe(1);
   });
 });
 
