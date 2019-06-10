@@ -1,4 +1,4 @@
-import { useContext, useCallback } from 'react';
+import { useContext, useMemo, useRef } from 'react';
 
 import { RequestShape, Schema, isDeleteShape } from '../../resource';
 import { DispatchContext } from '../context';
@@ -18,15 +18,20 @@ export default function useFetcher<
   Body extends Readonly<object> | void,
   S extends Schema
 >(requestShape: RequestShape<S, Params, Body>, throttle = false) {
-  const { fetch, schema, type, getUrl, options } = requestShape;
-  const responseType = SHAPE_TYPE_TO_RESPONSE_TYPE[type];
-
   const dispatch = useContext(DispatchContext);
 
-  const fetchDispatcher = useCallback(
-    (body: Body, params: Params) => {
+  // we just want the current values when we dispatch, so
+  // box the shape in a ref to make react-hooks/exhaustive-deps happy
+  const shapeRef = useRef(requestShape);
+  shapeRef.current = requestShape;
+
+  const fetchDispatcher = useMemo(() => {
+    const { fetch, schema, type, getUrl, options } = shapeRef.current;
+    const responseType = SHAPE_TYPE_TO_RESPONSE_TYPE[type];
+
+    return (body: Body, params: Params) => {
       const url = getUrl(params);
-      const identifier = isDeleteShape(requestShape)
+      const identifier = isDeleteShape(shapeRef.current)
         ? (schema as any).getId(params)
         : url;
       let resolve: (value?: any | PromiseLike<any>) => void = () => undefined;
@@ -49,8 +54,7 @@ export default function useFetcher<
         },
       });
       return promise;
-    },
-    [fetch, schema, type, getUrl, responseType, throttle, dispatch],
-  );
+    };
+  }, [dispatch, throttle]);
   return fetchDispatcher;
 }
