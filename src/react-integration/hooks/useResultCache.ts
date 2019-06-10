@@ -25,10 +25,12 @@ export default function useResultCache<
   const resultSelector = useMemo(() => makeResults((p: Params) => getUrl(p)), [
     getUrl,
   ]);
-  const results = useMemo(() => params && resultSelector(state, params), [
-    state,
-    params && getUrl(params),
-  ]);
+  const results = useMemo(
+    () => params && resultSelector(state, params),
+    // params must be serialized in check
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [params && getUrl(params), resultSelector, state],
+  );
   if (defaults && !results) {
     return defaults as any;
   }

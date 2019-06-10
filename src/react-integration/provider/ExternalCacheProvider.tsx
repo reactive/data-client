@@ -18,13 +18,14 @@ export default function ExternalCacheProvider<S>({
   store,
   selector,
 }: Props<S>) {
-  // TODO: Does this short-circuit if state === prevState? if not we should useReducer()
   const [state, setState] = useState(() => selector(store.getState()));
   useEffect(() => {
     const unsubscribe = store.subscribe(() => {
       setState(selector(store.getState()));
     });
     return unsubscribe;
+    // we don't care to recompute if they change selector - only when store updates
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store]);
   return (
     <DispatchContext.Provider value={store.dispatch}>

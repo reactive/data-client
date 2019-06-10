@@ -32,5 +32,8 @@ export default function useRetrieve<
     // null params mean don't do anything
     if (!params) return;
     return fetch(body as Body, params);
-  }, [dataStale, params && selectShape.getUrl(params)]);
+    // we don't care to re-request on body (should we?)
+    // we need to check against serialized params, since params can change frequently
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataStale, fetch, params && selectShape.getUrl(params)]);
 }

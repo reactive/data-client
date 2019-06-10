@@ -13,7 +13,7 @@ export default function useMeta<Params extends Readonly<object>>(
   const url = params ? getUrl(params) : '';
 
   return useMemo(() => {
-    if (!params) return null;
+    if (!url) return null;
     return selectMeta(state, url);
-  }, [state, url]);
+  }, [url, state]);
 }
