@@ -47,25 +47,25 @@ describe('Resource', () => {
       expect(c.content).toBe('');
       expect(c.title).toBe('great');
       expect(c).toMatchInlineSnapshot(`
-CoolerArticleResource {
-  "author": null,
-  "content": "",
-  "id": 5,
-  "tags": Array [],
-  "title": "great",
-}
-`);
+        CoolerArticleResource {
+          "author": null,
+          "content": "",
+          "id": 5,
+          "tags": Array [],
+          "title": "great",
+        }
+      `);
     });
     it('works with definedObjects()', () => {
       expect(c).toMatchInlineSnapshot(`
-CoolerArticleResource {
-  "author": null,
-  "content": "",
-  "id": 5,
-  "tags": Array [],
-  "title": "great",
-}
-`);
+        CoolerArticleResource {
+          "author": null,
+          "content": "",
+          "id": 5,
+          "tags": Array [],
+          "title": "great",
+        }
+      `);
     });
     it('does nothing with empty arg', () => {
       expect(CoolerArticleResource.merge(c, coolC)).toEqual(c);
@@ -81,30 +81,30 @@ CoolerArticleResource {
     it('works', () => {
       expect(CoolerArticleResource.toObjectDefined(coolA))
         .toMatchInlineSnapshot(`
-Object {
-  "title": "great",
-}
-`);
+        Object {
+          "title": "great",
+        }
+      `);
       expect(CoolerArticleResource.toObjectDefined(coolB))
         .toMatchInlineSnapshot(`
-Object {
-  "id": 5,
-}
-`);
+        Object {
+          "id": 5,
+        }
+      `);
     });
   });
   describe('keysDefined()', () => {
     it('works', () => {
       expect(CoolerArticleResource.keysDefined(coolA)).toMatchInlineSnapshot(`
-Array [
-  "title",
-]
-`);
+        Array [
+          "title",
+        ]
+      `);
       expect(CoolerArticleResource.keysDefined(coolB)).toMatchInlineSnapshot(`
-Array [
-  "id",
-]
-`);
+        Array [
+          "id",
+        ]
+      `);
     });
   });
   describe('listUrl', () => {
@@ -317,6 +317,20 @@ Array [
       it('should match snapshot', () => {
         expect(normalized).toMatchSnapshot();
       });
+    });
+
+    it('should throw a custom error if data does not include pk', () => {
+      const schema = CoolerArticleResource.getEntitySchema();
+      function normalizeBad() {
+        normalize({}, schema);
+      }
+      expect(normalizeBad).toThrowErrorMatchingInlineSnapshot(`
+"Missing usable resource key when normalizing response.
+
+This is likely due to a malformed response.
+Try inspecting the network response or fetch() return value.
+"
+`);
     });
   });
 });

@@ -146,7 +146,7 @@ static getKey<T extends typeof Resource>(this: T) {
 ### static merge<T extends typeof Resource>(first: InstanceType<T>, second: InstanceType<T>) => InstanceType<T>
 
 Takes only the defined (non-default) values of first and second and creates a new instance copying them over.
-Second will override values of first.
+Second will override values of first. Merge is shallow, so you'll need to override this to do any deep merges.
 
 ### static hasDefined<T extends typeof Resource>(instance: InstanceType<T>, key: keyof InstanceType<T>) => boolean
 
