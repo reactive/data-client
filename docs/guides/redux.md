@@ -36,7 +36,7 @@ the rest-hooks specific part of the state.
 ```tsx
 import {
   reducer,
-  NeworkManager,
+  NetworkManager,
   SubscriptionManager,
   PollingSubscription,
   ExternalCacheProvider,
