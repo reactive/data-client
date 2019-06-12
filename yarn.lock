@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@anansi/babel-preset@^0.17.2":
-  version "0.17.2"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-0.17.2.tgz#ded5380d895d30cb77c50a18c7b61673a7868487"
-  integrity sha512-YYyvm3uDtU8c5tHZBhAZDF6JY4/sw7XAMGC77b6pq0atuvGEN1xp9FTswDTwdYj1MgOhaTScQ3cJNRz1WffLbA==
+"@anansi/babel-preset@^0.17.4":
+  version "0.17.4"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-0.17.4.tgz#06f28359648d66ce0cfa33d00a83bdeb0dc5ac7e"
+  integrity sha512-VFMRuTNcJRuxrKNjnDIZD9TFvqnlfEFpkbXlmHZ16yhz5M+WEVsa2YaWPn2352pbmCPWukvhXKHuPFa1CjYY/Q==
   dependencies:
     "@babel/plugin-proposal-class-properties" "^7.4.0"
     "@babel/plugin-proposal-decorators" "^7.4.0"
