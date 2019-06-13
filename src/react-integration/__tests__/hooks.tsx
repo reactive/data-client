@@ -24,6 +24,11 @@ import { initialState } from '../../state/reducer';
 import { State, ActionTypes } from '../../types';
 import { Resource, Schema } from '../../resource';
 import { ReadShape } from '../../resource';
+import makeRenderRestHook from '../../test/makeRenderRestHook';
+import {
+  makeRestProvider,
+  makeExternalCacheProvider,
+} from '../../test/providers';
 
 async function testDispatchFetch(
   Component: React.FunctionComponent<any>,
@@ -358,7 +363,10 @@ describe('useResultCache', () => {
     const track = jest.fn();
 
     const { rerender } = renderHook(() => {
-      const results = useResultCache(PaginatedArticleResource.listRequest(), {});
+      const results = useResultCache(
+        PaginatedArticleResource.listRequest(),
+        {},
+      );
       useEffect(track, [results]);
     });
 
@@ -467,6 +475,68 @@ describe('useResource()', () => {
       return null;
     }
     await testDispatchFetch(MultiResourceTester, [payload, users]);
+  });
+  it('should throw same promise until both resolve', async () => {
+    const renderRestHook = makeRenderRestHook(makeRestProvider);
+    jest.useFakeTimers();
+    nock('http://test.com')
+      .get(`/article-cooler/${payload.id}`)
+      .delay(1000)
+      .reply(200, payload);
+    nock('http://test.com')
+      .get(`/user/`)
+      .delay(2000)
+      .reply(200, users);
+
+    function MultiResourceTester() {
+      try {
+        const [article, user] = useResource(
+          [
+            CoolerArticleResource.singleRequest(),
+            {
+              id: payload.id,
+            },
+          ],
+          [UserResource.listRequest(), {}],
+        );
+        return article;
+      } catch (e) {
+        if (typeof e.then === 'function') {
+          return e;
+        } else {
+          // TODO: we're not handling suspense properly so react complains
+          // When upgrading test util we should be able to fix this as we'll suspense ourselves.
+          if (e.name === 'Invariant Violation') {
+            return null;
+          } else {
+            throw e;
+          }
+        }
+      }
+    }
+    const { rerender, result, waitForNextUpdate } = renderRestHook(
+      MultiResourceTester,
+    );
+    const firstPromise = result.current;
+    jest.advanceTimersByTime(50);
+    rerender();
+    expect(result.current).toBe(firstPromise);
+    jest.advanceTimersByTime(1000);
+    rerender();
+    expect(result.current).toBe(firstPromise);
+    jest.advanceTimersByTime(2000);
+    rerender();
+    expect(result.current).toBe(firstPromise);
+
+    // TODO: we're not handling suspense properly so react complains
+    // When upgrading test util we should be able to fix this as we'll suspense ourselves.
+    const oldError = console.error;
+    console.error = () => {};
+    jest.runAllTimers();
+    await result.current;
+    rerender();
+    expect(result.current).toBe(null);
+    console.error = oldError;
   });
   it('should NOT suspend if result already in cache and options.invalidIfStale is false', () => {
     const state = buildState(

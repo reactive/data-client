@@ -2,6 +2,7 @@ import { ReadShape, Schema, RequestResource, SchemaOf } from '../../resource';
 import useCache from './useCache';
 import useRetrieve from './useRetrieve';
 import useError from './useError';
+import { useMemo } from 'react';
 
 type ResourceArgs<
   S extends Schema,
@@ -48,10 +49,6 @@ function useOneResource<
 function useManyResources<A extends ResourceArgs<any, any, any>[]>(
   ...resourceList: A
 ) {
-  let promises = resourceList.map(([select, params]) =>
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useRetrieve(select, params),
-  );
   const resources = resourceList.map(
     <
       Params extends Readonly<object>,
@@ -61,13 +58,24 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
       // eslint-disable-next-line react-hooks/rules-of-hooks
       useCache(select, params),
   );
-  // only wait on promises without results
-  promises = promises.filter(
-    (p, i) => p && !hasUsableData(resources[i], resourceList[i][0]),
-  );
-  if (promises.length) {
-    throw Promise.all(promises);
-  }
+  let promises = resourceList
+    .map(([select, params]) =>
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useRetrieve(select, params),
+    )
+    // only wait on promises without results
+    .filter((p, i) => p && !hasUsableData(resources[i], resourceList[i][0]));
+
+  const promiseDeps = (promises as unknown[]).concat([promises.length]);
+
+  const promise = useMemo(() => {
+    if (promises.length) {
+      return Promise.all(promises);
+    }
+  }, promiseDeps);
+
+  if (promise) throw promise;
+
   // throw any errors that exist after all promises have resolved
   for (let i = 0; i < resourceList.length; i++) {
     const [selectShape, params] = resourceList[i];
