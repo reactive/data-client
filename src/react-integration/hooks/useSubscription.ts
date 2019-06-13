@@ -15,8 +15,13 @@ export default function useSubscription<
   active = true,
 ) {
   const dispatch = useContext(DispatchContext);
-  // we just want the current values when we dispatch, so
-  // box the shape in a ref to make react-hooks/exhaustive-deps happy
+  /*
+  we just want the current values when we dispatch, so
+  box the shape in a ref to make react-hooks/exhaustive-deps happy
+
+  "Although useEffect is deferred until after the browser has painted, it’s guaranteed to fire before any new renders.
+  React will always flush a previous render’s effects before starting a new update." - https://reactjs.org/docs/hooks-reference.html#useeffect
+  */
   const shapeRef = useRef(requestShape);
   shapeRef.current = requestShape;
 
@@ -43,7 +48,7 @@ export default function useSubscription<
         },
       });
     };
-  // serialize params
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // serialize params
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, body, active, params && requestShape.getUrl(params)]);
 }
