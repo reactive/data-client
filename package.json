@@ -125,7 +125,7 @@
     "core-js": "^3.0.0",
     "flux-standard-action": "^2.1.0",
     "lodash": "^4.17.11",
-    "normalizr": "^3.3.0",
+    "normalizr": "^3.4.0",
     "reselect": "^4.0.0",
     "superagent": "^5.0.2"
   },
