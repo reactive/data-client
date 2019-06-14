@@ -2,7 +2,7 @@
 title: Handling loading state
 ---
 
-Network resources taken an unknown amount of time so it's important to be able
+Network resources take an unknown amount of time so it's important to be able
 to handle rendering while they load. After sometime you might want to display
 a loading indicator, but at the very least you'll need to be able to deal with
 not having the resource available yet!
