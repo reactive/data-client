@@ -11,15 +11,15 @@ import { State } from '../../types';
 
 interface ProviderProps {
   children: ReactNode;
-  manager?: NetworkManager;
-  subscriptionManager?: SubscriptionManager<any>;
+  manager: NetworkManager;
+  subscriptionManager: SubscriptionManager<any>;
   initialState?: State<unknown>;
 }
 /** Controller managing state of the REST cache and coordinating network requests. */
 export default function RestProvider({
   children,
-  manager = new NetworkManager(),
-  subscriptionManager = new SubscriptionManager(PollingSubscription),
+  manager,
+  subscriptionManager,
   initialState = defaultState,
 }: ProviderProps) {
   // TODO: option to use redux
@@ -46,4 +46,8 @@ export default function RestProvider({
       <StateContext.Provider value={state}>{children}</StateContext.Provider>
     </DispatchContext.Provider>
   );
+}
+RestProvider.defaultProps = {
+  manager: new NetworkManager(),
+  subscriptionManager: new SubscriptionManager(PollingSubscription),
 }
