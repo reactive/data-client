@@ -47,7 +47,7 @@ Any usage of the hooks will need to be below this point in the tree.
 Feel free to hook up multiple `<Suspense/>` points if you want to show loaders at different
 points in your application.
 
-`<NetworkErrorBoundary/>` will handle fallbacks upon any network errors.
+[`<NetworkErrorBoundary/>`](../api/NetworkErrorBoundary.md) will handle fallbacks upon any network errors.
 
 #### `App.tsx`
 
