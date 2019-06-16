@@ -82,7 +82,7 @@ be updated in the cache after the `POST` request is complete.
 ```typescript
 export default function CreateTrade() {
   const create = useFetcher(TradeResource.createRequest());
-  //,..
+  //...
 }
 ```
 

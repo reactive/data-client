@@ -8,9 +8,7 @@
       "guides/loading-state",
       "guides/network-errors",
       "guides/fetch-multiple",
-      "guides/pagination",
-      "guides/immutability",
-      "guides/mocking-unfinished"
+      "guides/pagination"
     ],
     "Defining Network Interfaces": [
       "guides/resource-types",
@@ -20,6 +18,7 @@
       "guides/auth",
       "guides/jsonp",
       "guides/custom-networking",
+      "guides/mocking-unfinished",
       "guides/resource-lifetime"
     ],
     "Advanced": [

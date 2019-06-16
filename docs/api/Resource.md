@@ -168,10 +168,15 @@ These are the basic building blocks used to compile the [Request shapes](../api/
 
 Computes the url based on the parameters. Default implementation follows `/urlRoot/[pk]` pattern.
 
+Used in [singleRequest()](#singlerequest-readshape), [updateRequest()](#updaterequest-mutateshape)
+[partialUpdateRequest()](#partialupdaterquest-mutateshape), and [deleteRequest()](#deleterequest-deleteshape)
+
 ### static listUrl<T extends typeof Resource>(searchParams?: Readonly<Record<string, string>>) => string
 
 Computes url for retrieving list items. Defaults to urlRoot with `searchParams` being sent as GET
 parameters.
+
+Used in [listRequest()](#listrequest-readshape) and [createRequest()](#createrequest-mutateshape)
 
 ### static fetch<T extends typeof Resource>(method: "get" | "post" | "put" | "patch" | "delete" | "options", url: string, body?: Partial<AbstractInstanceType\<T>>) => Promise\<any>
 
