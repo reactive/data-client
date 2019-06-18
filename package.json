@@ -106,7 +106,6 @@
     "react-dom": "16.8.6",
     "react-hooks-testing-library": "^0.4.1",
     "react-testing-library": "^6.1.2",
-    "redux": "^4.0.1",
     "rollup": "^1.15.5",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^10.0.0",
@@ -126,6 +125,7 @@
     "flux-standard-action": "^2.1.0",
     "lodash": "^4.17.11",
     "normalizr": "^3.4.0",
+    "redux": "^4.0.1",
     "reselect": "^4.0.0",
     "superagent": "^5.0.2"
   },
