@@ -1,6 +1,6 @@
 import { act } from 'react-hooks-testing-library';
 
-import { NetworkManager, FetchAction, ReceiveAction } from '../index';
+import { NetworkManager, FetchAction, ReceiveAction } from '..';
 
 export class MockNetworkManager extends NetworkManager {
   handleFetch(action: FetchAction, dispatch: React.Dispatch<any>) {

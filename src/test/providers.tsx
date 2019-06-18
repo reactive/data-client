@@ -8,7 +8,7 @@ import {
   SubscriptionManager,
   ExternalCacheProvider,
   RestProvider,
-} from '../index';
+} from '..';
 
 // Extension of the DeepPartial type defined by Redux which handles unknown
 type DeepPartialWithUnknown<T> = {
