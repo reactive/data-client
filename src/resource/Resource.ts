@@ -17,11 +17,12 @@ const getEntitySchema: <T extends typeof Resource>(
           const id = M.pk(value) || key;
           if (process.env.NODE_ENV !== 'production' && id === null) {
             throw new Error(
-`Missing usable resource key when normalizing response.
+              `Missing usable resource key when normalizing response.
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.
-`);
+`,
+            );
           }
           return id.toString();
         },

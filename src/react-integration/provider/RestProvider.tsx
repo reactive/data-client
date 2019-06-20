@@ -50,4 +50,4 @@ export default function RestProvider({
 RestProvider.defaultProps = {
   manager: new NetworkManager(),
   subscriptionManager: new SubscriptionManager(PollingSubscription),
-}
+};

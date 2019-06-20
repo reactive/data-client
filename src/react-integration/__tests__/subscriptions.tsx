@@ -105,9 +105,7 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
           useSubscription(PollingArticleResource.listRequest(), { id: 5 });
         },
         {
-          wrapper: function Wrapper({
-            children,
-          }: any) {
+          wrapper: function Wrapper({ children }: any) {
             return (
               <DispatchContext.Provider value={fakeDispatch}>
                 {children}
@@ -117,7 +115,7 @@ for (const makeProvider of [makeRestProvider, makeExternalCacheProvider]) {
         },
       );
       expect(fakeDispatch.mock.calls.length).toBe(1);
-      for(let i=0; i<2; ++i) {
+      for (let i = 0; i < 2; ++i) {
         rerender();
       }
       expect(fakeDispatch.mock.calls.length).toBe(1);
