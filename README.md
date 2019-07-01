@@ -11,7 +11,7 @@ Making dynamic sites performant, scalable, simple to build with any API design.
 <div align="center">
 
 **[📖Read The Docs](https://resthooks.io)** &nbsp;|&nbsp; [🏁Getting Started](https://resthooks.io/docs/getting-started/installation) &nbsp;|&nbsp;
-[🎮Demo](https://stackblitz.com/edit/rest-hooks)
+[🎮Demo](https://codesandbox.io/s/rest-hooks-hinux?fontsize=14&module=%2Fsrc%2Fpages%2FIssueList.tsx)
 
 </div>
 
