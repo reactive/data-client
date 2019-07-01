@@ -51,7 +51,7 @@ const siteConfig = {
     { doc: 'api/README', label: 'API' },
     { doc: 'guides/resource-types', label: 'Resource Definitions' },
     { href: 'https://www.github.com/coinbase/rest-hooks', label: 'Github' },
-    { href: 'https://stackblitz.com/edit/rest-hooks', label: '🎮 Demo' },
+    { href: 'https://codesandbox.io/s/rest-hooks-hinux?fontsize=14&module=%2Fsrc%2Fpages%2FIssueList.tsx', label: '🎮 Demo' },
     //{ page: 'help', label: 'Help' },
     { search: true },
   ],
