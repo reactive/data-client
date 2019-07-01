@@ -54,9 +54,23 @@
   height: 60px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-items: center;
 }
 
 .blockImage img {
   min-width: 60px;
+}
+
+.blockImageFull {
+  display: flex;
+  align-items: center;
+  justify-items: center;
+}
+.blockImageFull img {
+  box-shadow: rgba(0, 0, 0, 0.45) 0px 10px 30px;
+  border-radius: 6px;
+}
+
+.gridImage {
+  justify-content: space-around;
 }

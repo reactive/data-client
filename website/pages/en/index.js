@@ -45,7 +45,11 @@ class HomeSplash extends React.Component {
             marginBottom: '30px',
           }}
         >
-          <img src={"img/rest_hooks_logo_and_text_subtitle.svg"} alt="Rest Hooks - Delightful Data Fetching" height={140}/>
+          <img
+            src={'img/rest_hooks_logo_and_text_subtitle.svg'}
+            alt="Rest Hooks - Delightful Data Fetching"
+            height={140}
+          />
         </div>
 
         {/*<h2 style={{ marginTop: '0.0', fontWeight: '500' }}>{siteConfig.tagline}</h2>*/}
@@ -108,31 +112,64 @@ class Index extends React.Component {
       <Block layout="fourColumn" background="light">
         {[
           {
-            content: "Rest hooks' TypeScript definitions will infer **specific** and **accurate** types based on your definition of the data. Predictable results means **no surprises** at runtime.",
-            image : imgUrl("typescript.svg"),
+            content:
+              "Rest hooks' TypeScript definitions will infer **specific** and **accurate** types based on your definition of the data. Predictable results means **no surprises** at runtime.",
+            image: imgUrl('typescript.svg'),
             imageAlign: 'top',
-            title: "Strongly Typed"
+            title: 'Strongly Typed',
           },
           {
-            content: "Normalized cache means data is often **ready before** it is even needed. Automatic **request deduplication** means less data to send over the network.",
+            content:
+              'Normalized cache means data is often **ready before** it is even needed. Automatic **request deduplication** means less data to send over the network.',
             image: imgUrl('space-shuttle-solid.svg'),
             imageAlign: 'top',
-            title: "Fast"
+            title: 'Fast',
           },
           {
             content: `**Declare** what you need **where** you need it, while maintaining optimal efficiency. Say goodbye to unnecessary tight couplings.`,
             image: imgUrl('dice-d6-solid.svg'),
             imageAlign: 'top',
-            title: "Simple"
+            title: 'Simple',
           },
           {
-            content: "Rest hooks is **protocol agnostic**. REST out of the box, with GraphQL, GRPC, and websockets all possible.",
+            content:
+              'Rest hooks is **protocol agnostic**. REST out of the box, with GraphQL, GRPC, and websockets all possible.',
             image: imgUrl('spa-solid.svg'),
             imageAlign: 'top',
-            title: "Flexible"
+            title: 'Flexible',
           },
         ]}
       </Block>
+    );
+    const Demo = props => (
+      <Container
+        padding={['bottom']}
+        id={props.id}
+        background={props.background}
+      >
+        <div className="gridBlock gridImage">
+          <a
+            className="blockElement blockImageFull"
+            href="https://jsonplaceholder.typicode.com/comments/1"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            <img src={imgUrl('json.png')} width="437" height="212" />
+          </a>
+          <a
+            className="blockElement blockImageFull"
+            href="/docs/getting-started/usage#define-a-resource-docs-api-resource"
+          >
+            <img src={imgUrl('resource.png')} width="437" height="244" />
+          </a>
+          <a
+            className="blockElement blockImageFull"
+            href="/docs/getting-started/usage#use-resource-docs-api-useresource"
+          >
+            <img src={imgUrl('component.png')} width="437" height="227" />
+          </a>
+        </div>
+      </Container>
     );
 
     const Showcase = () => {
@@ -167,6 +204,7 @@ class Index extends React.Component {
       <div>
         <HomeSplash siteConfig={siteConfig} language={language} />
         <div className="mainContainer">
+          <Demo />
           <Features />
           <Showcase />
         </div>
