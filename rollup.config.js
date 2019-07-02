@@ -78,7 +78,7 @@ export default [
   // test utils commonjs build
   {
     input: 'src/test/index.ts',
-    external: id => id === '../index' || isExternal(id),
+    external: id => id === '..' || isExternal(id),
     output: [{ file: 'dist/test.cjs.js', format: 'cjs' }],
     plugins: [
       babel({
