@@ -147,26 +147,26 @@ class Index extends React.Component {
         id={props.id}
         background={props.background}
       >
-        <div className="gridBlock gridImage">
+        <div className="gridImageBlock">
           <a
             className="blockElement blockImageFull"
             href="https://jsonplaceholder.typicode.com/comments/1"
             target="_blank"
             rel="noreferrer noopener"
           >
-            <img src={imgUrl('json.png')} width="437" height="212" />
+            <img src={imgUrl('json.png')} />
           </a>
           <a
             className="blockElement blockImageFull"
             href="/docs/getting-started/usage#define-a-resource-docs-api-resource"
           >
-            <img src={imgUrl('resource.png')} width="437" height="244" />
+            <img src={imgUrl('resource.png')} />
           </a>
           <a
             className="blockElement blockImageFull"
             href="/docs/getting-started/usage#use-resource-docs-api-useresource"
           >
-            <img src={imgUrl('component.png')} width="437" height="227" />
+            <img src={imgUrl('component.png')} />
           </a>
         </div>
       </Container>

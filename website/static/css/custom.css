@@ -12,7 +12,19 @@
 @media only screen and (min-width: 1400px) {
 }
 
+@media only screen and (max-width: 1500px) {
+  .gridImageBlock {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
 @media only screen and (min-width: 1500px) {
+  .gridImageBlock {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
 }
 
 .homeContainer .homeWrapper {
@@ -65,12 +77,16 @@
   display: flex;
   align-items: center;
   justify-items: center;
+  box-shadow: rgba(0, 0, 0, 0.45) 0px 10px 30px;
+  border-radius: 6px;
+  background: #1e1e1e;
+  margin-bottom: 40px;
 }
 .blockImageFull img {
-  box-shadow: rgba(0, 0, 0, 0.45) 0px 10px 30px;
   border-radius: 6px;
 }
 
-.gridImage {
-  justify-content: space-around;
+.gridImageBlock {
+  justify-content: space-between;
+  margin-bottom: -40px;
 }
