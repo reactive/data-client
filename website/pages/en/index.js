@@ -166,11 +166,23 @@ class Index extends React.Component {
             className="blockElement blockImageFull"
             href="/docs/getting-started/usage#use-resource-docs-api-useresource"
           >
-            <video autoPlay loop width="437">
+            <video
+              autoPlay
+              loop
+              muted
+              preload="auto"
+              style={{ maxWidth: '437px', width: '100%' }}
+            >
               <source src={imgUrl('code.mp4')} type="video/mp4" />
               <source src={imgUrl('code.webm')} type="video/webm" />
               <img src={imgUrl('component.png')} />
             </video>
+            <script
+              dangerouslySetInnerHTML={{
+                __html:
+                  "window.onload = function() {document.querySelector('video').play()}",
+              }}
+            ></script>
           </a>
         </div>
       </Container>
