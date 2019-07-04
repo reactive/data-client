@@ -29,9 +29,9 @@ const App = () => (
     <h1>Main Title</h1>
     <Nav />
     <Suspense fallback={<Spinner />}>
-      <ErrorBoundary>
+      <NetworkErrorBoundary>
         <Routes />
-      </ErrorBoundary>
+      </NetworkErrorBoundary>
     </Suspense>
   </div>
 );
