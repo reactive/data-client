@@ -172,6 +172,7 @@ class Index extends React.Component {
               muted
               preload="auto"
               style={{ maxWidth: '437px', width: '100%' }}
+              poster={imgUrl('component.png')}
             >
               <source src={imgUrl('code.mp4')} type="video/mp4" />
               <source src={imgUrl('code.webm')} type="video/webm" />
