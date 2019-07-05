@@ -103,7 +103,32 @@ const siteConfig = {
     'https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js',
     'https://buttons.github.io/buttons.js',
   ],
-  //stylesheets: [`/css/font.css`, `/css/code-block-buttons.css`],
+  stylesheets: [
+    {
+      rel: 'preload',
+      href: '/font/Graphik-Regular-Web.woff2',
+      as: 'font',
+      type: 'font/woff2',
+    },
+    {
+      rel: 'preload',
+      href: '/font/Graphik-RegularItalic-Web.woff2',
+      as: 'font',
+      type: 'font/woff2',
+    },
+    {
+      rel: 'preload',
+      href: '/font/Graphik-Semibold-Web.woff2',
+      as: 'font',
+      type: 'font/woff2',
+    },
+    {
+      rel: 'preload',
+      href: '/font/Graphik-SemiboldItalic-Web.woff2',
+      as: 'font',
+      type: 'font/woff2',
+    },
+  ],
 
   // On page navigation for the current documentation page.
   onPageNav: 'separate',
