@@ -1,7 +1,7 @@
 import { useContext, useMemo } from 'react';
 
 import { ReadShape } from '~/resource';
-import { StateContext } from '../context';
+import { StateContext } from '~/react-integration/context';
 import { makeResults } from '~/state/selectors';
 
 type Resolved<P extends Promise<any>> = P extends Promise<infer R> ? R : any;

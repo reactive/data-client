@@ -1,6 +1,6 @@
 import { useContext, useMemo } from 'react';
 
-import { StateContext } from '../context';
+import { StateContext } from '~/react-integration/context';
 import { State } from '~/types';
 
 /** Use selector to access part of state */

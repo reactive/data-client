@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef } from 'react';
 
-import { DispatchContext } from '../context';
+import { DispatchContext } from '~/react-integration/context';
 import { ReadShape, Schema } from '~/resource';
 
 /** Keeps a resource fresh by subscribing to updates. */

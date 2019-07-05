@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect } from 'react';
-import { StateContext, DispatchContext } from '../context';
+import { StateContext, DispatchContext } from '~/react-integration/context';
 import masterReducer, {
   initialState as defaultState,
 } from '~/state/reducer';

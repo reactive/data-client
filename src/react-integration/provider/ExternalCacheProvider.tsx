@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect, useState } from 'react';
-import { StateContext, DispatchContext } from '../context';
+import { StateContext, DispatchContext } from '~/react-integration/context';
 import { State, ActionTypes } from '~/types';
 
 interface Store<S> {
