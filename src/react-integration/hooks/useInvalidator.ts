@@ -1,7 +1,7 @@
 import { useContext, useCallback, useRef } from 'react';
 
-import { ReadShape, Schema } from '../../resource';
-import { DispatchContext } from '../context';
+import { ReadShape, Schema } from '~/resource';
+import { DispatchContext } from '~/react-integration/context';
 
 /** Invalidate a certain item within the cache */
 export default function useInvalidator<

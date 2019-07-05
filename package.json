@@ -19,7 +19,7 @@
   ],
   "scripts": {
     "build:lib": "cross-env NODE_ENV=production babel src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
-    "build:types": "tsc --emitDeclarationOnly -p ./src",
+    "build:types": "ttsc --emitDeclarationOnly -p ./src",
     "build:bundle": "rollup -c",
     "build:clean": "rimraf lib",
     "build": "npm run build:lib && npm run build:types && cpy ./src/resource/normal.d.ts ./lib/resource",
@@ -87,10 +87,10 @@
     "@types/react": "^16.8.23",
     "@typescript-eslint/eslint-plugin": "^1.10.2",
     "@typescript-eslint/parser": "^1.10.2",
+    "@zerollup/ts-transform-paths": "^1.7.3",
     "auto-changelog": "^1.13.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^24.8.0",
-    "babel-plugin-root-import": "^6.2.0",
     "coveralls": "^3.0.4",
     "cpy-cli": "^2.0.0",
     "cross-env": "^5.2.0",
@@ -115,6 +115,7 @@
     "rollup-plugin-terser": "^5.1.0",
     "scheduler": "^0.13.6",
     "ts-jest": "^24.0.2",
+    "ttypescript": "^1.5.7",
     "typescript": "^3.5.2"
   },
   "dependencies": {
