@@ -90,7 +90,6 @@
     "auto-changelog": "^1.13.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^24.8.0",
-    "babel-plugin-root-import": "^6.2.0",
     "coveralls": "^3.0.4",
     "cpy-cli": "^2.0.0",
     "cross-env": "^5.2.0",

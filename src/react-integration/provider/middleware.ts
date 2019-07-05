@@ -1,6 +1,6 @@
 import { useReducer, useMemo, useRef } from 'react';
 import compose from 'lodash/fp/compose';
-import { Middleware } from '../../types';
+import { Middleware } from '~/types';
 
 // TODO: release as own library?
 /** Redux-middleware compatible integration for useReducer() */

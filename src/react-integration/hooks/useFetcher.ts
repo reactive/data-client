@@ -1,6 +1,6 @@
 import { useContext, useRef, useCallback } from 'react';
 
-import { RequestShape, Schema, isDeleteShape } from '../../resource';
+import { RequestShape, Schema, isDeleteShape } from '~/resource';
 import { DispatchContext } from '../context';
 
 const SHAPE_TYPE_TO_RESPONSE_TYPE: Record<
