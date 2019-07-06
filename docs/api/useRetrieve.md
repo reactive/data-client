@@ -27,7 +27,7 @@ Using a type guard to deal with null
 
 ```tsx
 function MasterPost({ id }: { id: number }) {
-  useRetrieve(PostResource.singleRequest(), { id });
+  useRetrieve(PostResource.detailShape(), { id });
   // ...
 }
 ```
@@ -36,7 +36,7 @@ function MasterPost({ id }: { id: number }) {
 
 [Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
 
-- singleRequest()
-- listRequest()
+- detailShape()
+- listShape()
 
 Feel free to add your own [FetchShape](./FetchShape.md) as well.

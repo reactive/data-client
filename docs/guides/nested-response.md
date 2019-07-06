@@ -50,7 +50,7 @@ import { useResource } from 'rest-hooks';
 import ArticleResource from 'resources/ArticleResource';
 
 export default function ArticleList({ id }: { id: number }) {
-  const articles = useResource(ArticleResource.listRequest(), { id });
+  const articles = useResource(ArticleResource.listShape(), { id });
 
   return (
     <React.Fragment>
@@ -62,7 +62,7 @@ export default function ArticleList({ id }: { id: number }) {
 }
 
 function ArticleInline({ article }: { article: ArticleResource }) {
-  const author = useCache(UserResource.singleRequest(), { id: article.author });
+  const author = useCache(UserResource.detailShape(), { id: article.author });
   // some jsx here
 }
 ```

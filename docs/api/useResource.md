@@ -32,7 +32,7 @@ Excellent for retrieving the data you need.
 
 ```tsx
 function Post({ id }: { id: number }) {
-  const post = useResource(PostResource.singleRequest(), { id });
+  const post = useResource(PostResource.detailShape(), { id });
   // post as PostResource
 }
 ```
@@ -41,7 +41,7 @@ function Post({ id }: { id: number }) {
 
 ```tsx
 function Posts() {
-  const posts = useResource(PostResource.listRequest(), {});
+  const posts = useResource(PostResource.listShape(), {});
   // posts as PostResource[]
 }
 ```
@@ -51,8 +51,8 @@ function Posts() {
 ```tsx
 function Posts() {
   const [user, posts] = useResource(
-    [UserResource.singleRequest(), { id: userId }],
-    [PostResource.listRequest(), { userId }],
+    [UserResource.detailShape(), { id: userId }],
+    [PostResource.listShape(), { userId }],
   );
   // user as UserResource
   // posts as PostResource[]
@@ -63,7 +63,7 @@ function Posts() {
 
 ```tsx
 function PostWithAuthor() {
-  const post = useResource(PostResource.singleRequest(), { id });
+  const post = useResource(PostResource.detailShape(), { id });
   // post as PostResource
   const author = useResource(UserResource.singleResource(), {
     id: post.userId,
@@ -76,8 +76,8 @@ function PostWithAuthor() {
 
 [Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
 
-* singleRequest()
-* listRequest()
+* detailShape()
+* listShape()
 
 Feel free to add your own [FetchShape](./FetchShape.md) as well.
 

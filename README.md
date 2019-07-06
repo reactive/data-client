@@ -31,7 +31,7 @@ class ArticleResource extends Resource {
 ### One line data hookup
 
 ```tsx
-const article = useResource(ArticleResource.singleRequest(), { id });
+const article = useResource(ArticleResource.detailShape(), { id });
 return (
   <>
     <h2>{article.title}</h2>
@@ -43,15 +43,15 @@ return (
 ### Mutation
 
 ```tsx
-const update = useFetcher(ArticleResource.updateRequest());
+const update = useFetcher(ArticleResource.updateShape());
 return <ArticleForm onSubmit={data => update(data, { id })} />;
 ```
 
 ### And subscriptions
 
 ```tsx
-const price = useResource(PriceResource.singleRequest(), { symbol });
-useSubscription(PriceResource.singleRequest(), { symbol });
+const price = useResource(PriceResource.detailShape(), { symbol });
+useSubscription(PriceResource.detailShape(), { symbol });
 return price.value;
 ```
 

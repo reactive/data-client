@@ -50,16 +50,16 @@ export default class ArticleResource extends Resource {
   }
   static urlRoot = 'http://test.com/article/';
 
-  static listRequest<T extends typeof Resource>(this: T): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
+  static listShape<T extends typeof Resource>(this: T): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
     return {
-      ...super.listRequest(),
+      ...super.listShape(),
       schema: { results: [this.getEntitySchema()] },
     };
   }
 }
 ```
 
-Now we can use `listRequest()` as normal.
+Now we can use `listShape()` as normal.
 
 Additionally, we can add pagination buttons using [useResultCache](../api/useResultCache).
 
@@ -70,9 +70,9 @@ import { useResource, useResultCache } from 'rest-hooks';
 import ArticleResource from 'resources/ArticleResource';
 
 export default function ArticleList() {
-  const articles = useResource(ArticleResource.listRequest(), {});
+  const articles = useResource(ArticleResource.listShape(), {});
   const { nextPage, prevPage } = useResultCache(
-    ArticleResource.listRequest(),
+    ArticleResource.listShape(),
     {},
     { nextPage: '', prevPage: '' }
   );
@@ -95,9 +95,9 @@ export default function ArticleList() {
 
 In some cases the pagination tokens will be embeded in HTTP headers, rather than part of the payload. In this
 case you'll need to customize the [fetch()](../api/FetchShape#fetchurl-string-body-payload-promise-any) function
-for [listRequest()](../api/resource#listrequest-readshape) so the pagination headers are included fetch object.
+for [listShape()](../api/resource#listshape-readshape) so the pagination headers are included fetch object.
 
-We show the custom listRequest() below. All other parts of the above example remain the same.
+We show the custom listShape() below. All other parts of the above example remain the same.
 
 Pagination token is stored in the header `link` for this example.
 
@@ -109,7 +109,7 @@ export default class ArticleResource extends Resource {
   // same as above....
 
   /** Shape to get a list of entities */
-  static listRequest<T extends typeof Resource>(this: T): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
+  static listShape<T extends typeof Resource>(this: T): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
     const fetch = async (url: string, body?: Readonly<object>) => {
       let req = request['get'](url).on('error', () => {});
       if (this.fetchPlugin) req = req.use(this.fetchPlugin);
@@ -125,7 +125,7 @@ export default class ArticleResource extends Resource {
     };
 
     return {
-      ...super.listRequest(),
+      ...super.listShape(),
       fetch,
       schema: { results: [this.getEntitySchema()] },
     };

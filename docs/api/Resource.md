@@ -168,15 +168,15 @@ These are the basic building blocks used to compile the [Fetch shapes](../api/Fe
 
 Computes the url based on the parameters. Default implementation follows `/urlRoot/[pk]` pattern.
 
-Used in [singleRequest()](#singlerequest-readshape), [updateRequest()](#updaterequest-mutateshape)
-[partialUpdateRequest()](#partialupdaterquest-mutateshape), and [deleteRequest()](#deleterequest-deleteshape)
+Used in [detailShape()](#detailshape-readshape), [updateShape()](#updateshape-mutateshape)
+[partialUpdateShape()](#partialupdaterquest-mutateshape), and [deleteShape()](#deleteshape-deleteshape)
 
 ### static listUrl<T extends typeof Resource>(searchParams?: Readonly<Record<string, string>>) => string
 
 Computes url for retrieving list items. Defaults to urlRoot with `searchParams` being sent as GET
 parameters.
 
-Used in [listRequest()](#listrequest-readshape) and [createRequest()](#createrequest-mutateshape)
+Used in [listShape()](#listshape-readshape) and [createShape()](#createshape-mutateshape)
 
 ### static fetch<T extends typeof Resource>(method: "get" | "post" | "put" | "patch" | "delete" | "options", url: string, body?: Partial<AbstractInstanceType\<T>>) => Promise\<any>
 
@@ -199,22 +199,22 @@ These provide the standard [CRUD](https://en.wikipedia.org/wiki/Create,_read,_up
 shapes common in [REST](https://www.restapitutorial.com/) APIs. Feel free to customize or add
 new shapes based to match your API.
 
-### singleRequest(): ReadShape
+### detailShape(): ReadShape
 
 A GET request using standard `url()` that receives a detail body.
 Mostly useful with [useResource](../api/useResource.md)
 
-### listRequest(): ReadShape
+### listShape(): ReadShape
 
 A GET request using `listUrl()` that receives a list of entities.
 Mostly useful with [useResource](../api/useResource.md)
 
-### createRequest(): MutateShape
+### createShape(): MutateShape
 
 A POST request sending a payload to `listUrl()` with empty params, and expecting a detail body response.
 Mostly useful with [useFetcher](../api/useFetcher.md)
 
-### updateRequest(): MutateShape
+### updateShape(): MutateShape
 
 A PUT request sending a payload to a `url()` expecting a detail body response.
 Mostly useful with [useFetcher](../api/useFetcher.md)
@@ -224,7 +224,7 @@ Mostly useful with [useFetcher](../api/useFetcher.md)
 A PATCH request sending a partial payload to `url()` expecting a detail body response.
 Mostly useful with [useFetcher](../api/useFetcher.md)
 
-### deleteRequest(): DeleteShape
+### deleteShape(): DeleteShape
 
 A DELETE request sent to `url()`
 Mostly useful with [useFetcher](../api/useFetcher.md)

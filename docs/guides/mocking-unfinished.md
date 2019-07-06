@@ -35,11 +35,11 @@ export default class RatingResource extends Resource {
     };
   }
 
-  static listRequest<T extends typeof Resource>(
+  static listShape<T extends typeof Resource>(
     this: T,
   ): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
     return {
-      ...super.listRequest(),
+      ...super.listShape(),
       fetch(url: string, body?: Readonly<object>) {
         return Promise.resolve(
           ['Morningstar', 'Seekingalpha', 'Morningstar', 'CNBC'].map(
@@ -61,7 +61,7 @@ By mocking the [fetch](../api/FetchShape.md#fetchurl-string-body-payload-promise
 [FetchShape](../api/FetchShape.md) we can easily fake the data the server will return. Doing
 this allows free use of the strongly typed RatingResource as normal throughout the codebase.
 
-Once the API is implemented you can simply remove the custom fetch (and the entire listRequest()
+Once the API is implemented you can simply remove the custom fetch (and the entire listShape()
 override if that's all it's doing).
 
 In this example we also set the dataExpiryLength to a longer time so the random values generated

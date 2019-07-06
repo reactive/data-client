@@ -29,7 +29,7 @@ By sending defaults we can destructure the values even if the results don't exis
 ```tsx
 function PostList() {
   const { prevPage, nextPage } = useResultCache(
-    PaginatedResource.listRequest(),
+    PaginatedResource.listShape(),
     {},
     { prevPage: '', nextPage: '' }
   );
@@ -41,6 +41,6 @@ function PostList() {
 
 [Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
 
-- listRequest()
+- listShape()
 
 Feel free to add your own [FetchShape](./FetchShape.md) as well.

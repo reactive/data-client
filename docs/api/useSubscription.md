@@ -51,8 +51,8 @@ import { useResource, useSubscription } from 'rest-hooks';
 import PriceResource from 'resources/PriceResource';
 
 function MasterPrice({ symbol }: { symbol: string }) {
-  const price = useResource(PriceResource.singleRequest(), { symbol });
-  useSubscription(PriceResource.singleRequest(), { symbol });
+  const price = useResource(PriceResource.detailShape(), { symbol });
+  useSubscription(PriceResource.detailShape(), { symbol });
   // ...
 }
 ```
@@ -67,11 +67,11 @@ import { useResource, useSubscription } from 'rest-hooks';
 import PriceResource from 'resources/PriceResource';
 
 function MasterPrice({ symbol }: { symbol: string }) {
-  const price = useResource(PriceResource.singleRequest(), { symbol });
+  const price = useResource(PriceResource.detailShape(), { symbol });
   const ref = useRef();
   const onScreen = useOnScreen(ref);
   useSubscription(
-    PriceResource.singleRequest(),
+    PriceResource.detailShape(),
     { symbol },
     undefined,
     onScreen,
@@ -94,8 +94,8 @@ based on whether the element rendered is [visible on screen](https://usehooks.co
 
 [Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
 
-- singleRequest()
-- listRequest()
+- detailShape()
+- listShape()
 
 Be sure to extend these [FetchShape](./FetchShape.md)s with a pollFrequency to set
 the polling-rate.

@@ -89,7 +89,7 @@ const { Meta } = Card;
 
 function ProfileList() {
   const { data, loading, error } = useStatefulResource(
-    ProfileResource.singleRequest(),
+    ProfileResource.detailShape(),
     {},
   );
   if (error) return <div>Error {error.status}</div>
