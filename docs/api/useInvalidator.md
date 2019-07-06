@@ -11,7 +11,7 @@ function useInvalidator<Params extends Readonly<object>, S extends Schema>(
 Mostly useful for imperatively invalidating the cache, with a similar signature to
 [useFetcher](./useFetcher.md).
 
-When used in conjunction with [invalidIfStale](./RequestShape.md#invalidifstale-boolean)
+When used in conjunction with [invalidIfStale](./FetchShape.md#invalidifstale-boolean)
 it can force a component to re-suspend even if it has already fetched the data. Normally
 [useResource](./useResource.md) will not suspend if the data is in the cache, even if it
 is stale. By pairing this option with `useInvalidator` the component will act as though it
@@ -27,7 +27,7 @@ export default class ArticleResource extends Resource {
   readonly title: string = '';
   // ...
 
-  /** Used as default options for every RequestShape */
+  /** Used as default options for every FetchShape */
   static getRequestOptions(): RequestOptions {
     return {
       invalidIfStale: true,

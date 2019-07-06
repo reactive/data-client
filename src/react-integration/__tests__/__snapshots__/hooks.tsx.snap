@@ -212,7 +212,7 @@ Object {
 }
 `;
 
-exports[`useRetrieve should dispatch with request shape defined dataExpiryLength 1`] = `
+exports[`useRetrieve should dispatch with fetch shape defined dataExpiryLength 1`] = `
 Object {
   "meta": Object {
     "options": Object {
@@ -238,7 +238,7 @@ Object {
 }
 `;
 
-exports[`useRetrieve should dispatch with request shape defined errorExpiryLength 1`] = `
+exports[`useRetrieve should dispatch with fetch shape defined errorExpiryLength 1`] = `
 Object {
   "meta": Object {
     "options": Object {

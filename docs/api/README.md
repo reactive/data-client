@@ -4,7 +4,7 @@ title: API Reference
 
 ## Interface Definitions
 - [Resource](Resource.md)
-- [RequestShape](RequestShape.md)
+- [FetchShape](FetchShape.md)
 
 ## Hooks
 - [useResource](useResource.md)

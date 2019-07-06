@@ -16,7 +16,7 @@ function useSubscription<
 
 Great for keeping resources up-to-date with frequent changes.
 
-Frequency must be set in [RequestShape](./RequestShape.md), otherwise will have no affect.
+Frequency must be set in [FetchShape](./FetchShape.md), otherwise will have no affect.
 
 ## Example
 
@@ -35,7 +35,7 @@ export default class PriceResource extends Resource {
   }
   static urlRoot = 'http://test.com/price/';
 
-  /** Used as default options for every RequestShape */
+  /** Used as default options for every FetchShape */
   static getRequestOptions(): RequestOptions {
     return {
       pollFrequency: 5000, // every 5 seconds
@@ -90,12 +90,12 @@ based on whether the element rendered is [visible on screen](https://usehooks.co
 
 [useOnScreen()](https://usehooks.com/useOnScreen/) uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant.
 
-## Useful `RequestShape`s to send
+## Useful `FetchShape`s to send
 
 [Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
 
 - singleRequest()
 - listRequest()
 
-Be sure to extend these [RequestShape](./RequestShape.md)s with a pollFrequency to set
+Be sure to extend these [FetchShape](./FetchShape.md)s with a pollFrequency to set
 the polling-rate.

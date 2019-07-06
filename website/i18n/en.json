@@ -11,6 +11,9 @@
       "api/ExternalCacheProvider": {
         "title": "<ExternalCacheProvider />"
       },
+      "api/FetchShape": {
+        "title": "FetchShape"
+      },
       "api/makeCacheProvider": {
         "title": "makeCacheProvider()"
       },
@@ -39,9 +42,6 @@
       },
       "api/README": {
         "title": "API Reference"
-      },
-      "api/requestshape": {
-        "title": "RequestShape"
       },
       "api/resource": {
         "title": "Resource"
