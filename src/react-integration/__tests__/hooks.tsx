@@ -74,11 +74,11 @@ function testRestHook(
 
 function buildState<S extends Schema>(
   payload: any,
-  requestShape: ReadShape<S, any, any>,
+  fetchShape: ReadShape<S, any, any>,
   params: object,
 ): State<Resource> {
-  const { entities, result } = normalize(payload, requestShape.schema);
-  const url = requestShape.getUrl(params);
+  const { entities, result } = normalize(payload, fetchShape.schema);
+  const url = fetchShape.getUrl(params);
   return {
     entities,
     results: {
@@ -422,7 +422,7 @@ describe('useRetrieve', () => {
     await testDispatchFetch(FetchTester, [payload]);
   });
 
-  it('should dispatch with request shape defined dataExpiryLength', async () => {
+  it('should dispatch with fetch shape defined dataExpiryLength', async () => {
     function FetchTester() {
       useRetrieve(StaticArticleResource.longLivingRequest(), payload);
       return null;
@@ -430,7 +430,7 @@ describe('useRetrieve', () => {
     await testDispatchFetch(FetchTester, [payload]);
   });
 
-  it('should dispatch with request shape defined errorExpiryLength', async () => {
+  it('should dispatch with fetch shape defined errorExpiryLength', async () => {
     function FetchTester() {
       useRetrieve(StaticArticleResource.neverRetryOnErrorRequest(), payload);
       return null;

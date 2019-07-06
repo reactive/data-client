@@ -1,10 +1,10 @@
 import { useContext, useRef, useCallback } from 'react';
 
-import { RequestShape, Schema, isDeleteShape } from '~/resource';
+import { FetchShape, Schema, isDeleteShape } from '~/resource';
 import { DispatchContext } from '~/react-integration/context';
 
 const SHAPE_TYPE_TO_RESPONSE_TYPE: Record<
-  RequestShape<any, any, any>['type'],
+  FetchShape<any, any, any>['type'],
   'rest-hooks/receive' | 'rest-hooks/rpc' | 'rest-hooks/purge'
 > = {
   read: 'rest-hooks/receive',
@@ -17,13 +17,13 @@ export default function useFetcher<
   Params extends Readonly<object>,
   Body extends Readonly<object> | void,
   S extends Schema
->(requestShape: RequestShape<S, Params, Body>, throttle = false) {
+>(fetchShape: FetchShape<S, Params, Body>, throttle = false) {
   const dispatch = useContext(DispatchContext);
 
   // we just want the current values when we dispatch, so
   // box the shape in a ref to make react-hooks/exhaustive-deps happy
-  const shapeRef = useRef(requestShape);
-  shapeRef.current = requestShape;
+  const shapeRef = useRef(fetchShape);
+  shapeRef.current = fetchShape;
 
   const fetchDispatcher = useCallback(
     (body: Body, params: Params) => {

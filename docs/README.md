@@ -6,7 +6,7 @@
 ## 💬 API
 
 - [Resource](api/Resource.md)
-  - [RequestShape](api/RequestShape.md)
+  - [FetchShape](api/FetchShape.md)
 - Hooks:
   - [useResource](api/useResource.md)
   - [useFetcher](api/useFetcher.md)

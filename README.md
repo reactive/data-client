@@ -68,7 +68,7 @@ For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination
 - [x] ✨ Optimistic updates
-- [x] 🧘 [Flexible](https://resthooks.io/docs/api/requestshape) to fit any API design (one size fits all)
+- [x] 🧘 [Flexible](https://resthooks.io/docs/api/FetchShape) to fit any API design (one size fits all)
 - [x] 🌳 Tree-shakable (only use what you need)
 - [x] 🔁 [Subscriptions](https://resthooks.io/docs/api/useSubscription)
 - [x] ♻️ Optional [redux integration](https://resthooks.io/docs/guides/redux)

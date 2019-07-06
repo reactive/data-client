@@ -4,7 +4,7 @@ import {
   DeleteShape,
   ReadShape,
   MutateShape,
-  RequestShape,
+  FetchShape,
   isDeleteShape,
   RequestResource,
   isEntity,
@@ -32,11 +32,11 @@ export type ReadShape<
   Params extends Readonly<object> = Readonly<object>,
   Body extends Readonly<object> | void = Readonly<object> | undefined
 > = ReadShape<S, Params, Body>;
-export type RequestShape<
+export type FetchShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
   Body extends Readonly<object> | void = Readonly<object> | undefined
-> = RequestShape<S, Params, Body>;
+> = FetchShape<S, Params, Body>;
 export type Schema<T = any> = Schema<T>;
 export type SchemaOf<T> = SchemaOf<T>;
 export type SchemaArray<T> = SchemaArray<T>;

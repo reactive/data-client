@@ -66,7 +66,7 @@ two sides to `Resource` - the static and instance side.
 ### Static
 
 Is used to define how you retrieve and mutate data across the network. There are several
-static methods that do this, but their ultimate purpose is to build [RequestShapes](./RequestShape.md), which
+static methods that do this, but their ultimate purpose is to build [FetchShapes](./FetchShape.md), which
 tell the [hooks](./useResource.md) how to process requests. Shapes are provided for the
 common `REST` request types. However, it is encouraged to build your own or override the
 provided ones to fit the needs of your API.
@@ -162,7 +162,7 @@ Returns an `Array` of all defined (non-default) keys of `instance`.
 
 ## Static network methods and properties
 
-These are the basic building blocks used to compile the [Request shapes](../api/RequestShape.md) below.
+These are the basic building blocks used to compile the [Fetch shapes](../api/FetchShape.md) below.
 
 ### static url<T extends typeof Resource>(urlParams?: Partial<AbstractInstanceType\<T>>) => string
 
@@ -189,11 +189,11 @@ Returns the [shape of the data](https://github.com/paularmstrong/normalizr/blob/
 when requesting one resource at a time. Defaults to a plain object
 containing the keys. This can be useful to override if your response is in a different form.
 
-### static getRequestOptions() => [RequestOptions](../api/RequestShape.md#RequestOptions) | undefined
+### static getRequestOptions() => [RequestOptions](../api/FetchShape.md#RequestOptions) | undefined
 
 Returns the default request options for this resource. By default this returns undefined
 
-## [Request shapes](../api/RequestShape.md)
+## [Fetch shapes](../api/FetchShape)
 
 These provide the standard [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
 shapes common in [REST](https://www.restapitutorial.com/) APIs. Feel free to customize or add

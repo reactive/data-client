@@ -7,7 +7,7 @@ function useFetcher<
   Body extends Readonly<object> | void,
   S extends Schema
 >(
-  requestShape: RequestShape<S, Params, Body>,
+  fetchShape: FetchShape<S, Params, Body>,
   throttle?: boolean = false
 ): (body: Body, params: Params) => Promise<any>;
 ```
@@ -62,7 +62,7 @@ function PostListItem({ post }: { post: PostResource }) {
 }
 ```
 
-## Useful `RequestShape`s to send
+## Useful `FetchShape`s to send
 
 [Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
 
@@ -71,7 +71,7 @@ function PostListItem({ post }: { post: PostResource }) {
 - partialUpdateRequest()
 - deleteRequest()
 
-Feel free to add your own [RequestShape](./RequestShape.md) as well.
+Feel free to add your own [FetchShape](./FetchShape.md) as well.
 
 > ### Notes
 >

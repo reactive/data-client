@@ -57,8 +57,8 @@ export default class RatingResource extends Resource {
 }
 ```
 
-By mocking the [fetch](../api/RequestShape.md#fetchurl-string-body-payload-promiseany) part of
-[RequestShape](../api/RequestShape.md) we can easily fake the data the server will return. Doing
+By mocking the [fetch](../api/FetchShape.md#fetchurl-string-body-payload-promiseany) part of
+[FetchShape](../api/FetchShape.md) we can easily fake the data the server will return. Doing
 this allows free use of the strongly typed RatingResource as normal throughout the codebase.
 
 Once the API is implemented you can simply remove the custom fetch (and the entire listRequest()

@@ -2,7 +2,7 @@ import { schemas, Schema, SchemaArray, SchemaBase } from './normal';
 import { RequestOptions } from '~/types';
 
 /** Defines the shape of a network request */
-export interface RequestShape<
+export interface FetchShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
   Body extends Readonly<object> | void = Readonly<object> | undefined
@@ -18,7 +18,7 @@ export interface RequestShape<
 export interface DeleteShape<
   S extends schemas.Entity,
   Params extends Readonly<object> = Readonly<object>
-> extends RequestShape<S, Params, any> {
+> extends FetchShape<S, Params, any> {
   readonly type: 'delete';
   readonly schema: S;
 }
@@ -28,7 +28,7 @@ export interface MutateShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
   Body extends Readonly<object> | void = Readonly<object> | undefined
-> extends RequestShape<S, Params, Body> {
+> extends FetchShape<S, Params, Body> {
   readonly type: 'mutate';
 }
 
@@ -37,12 +37,12 @@ export interface ReadShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
   Body extends Readonly<object> | void = Readonly<object> | undefined
-> extends RequestShape<S, Params, Body> {
+> extends FetchShape<S, Params, Body> {
   readonly type: 'read';
 }
 
 export function isDeleteShape(
-  shape: RequestShape<any, any, any>,
+  shape: FetchShape<any, any, any>,
 ): shape is DeleteShape<any, any> {
   return shape.type === 'delete';
 }

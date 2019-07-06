@@ -9,7 +9,7 @@ export default function useSubscription<
   Body extends Readonly<object> | void,
   S extends Schema
 >(
-  requestShape: ReadShape<S, Params, Body>,
+  fetchShape: ReadShape<S, Params, Body>,
   params: Params,
   body?: Body,
   active = true,
@@ -22,8 +22,8 @@ export default function useSubscription<
   "Although useEffect is deferred until after the browser has painted, it’s guaranteed to fire before any new renders.
   React will always flush a previous render’s effects before starting a new update." - https://reactjs.org/docs/hooks-reference.html#useeffect
   */
-  const shapeRef = useRef(requestShape);
-  shapeRef.current = requestShape;
+  const shapeRef = useRef(fetchShape);
+  shapeRef.current = fetchShape;
 
   useEffect(() => {
     if (!active) return;
@@ -50,5 +50,5 @@ export default function useSubscription<
     };
     // serialize params
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, body, active, params && requestShape.getUrl(params)]);
+  }, [dispatch, body, active, params && fetchShape.getUrl(params)]);
 }

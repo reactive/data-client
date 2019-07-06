@@ -28,7 +28,7 @@ interface Fixture {
 ```
 
 This prop specifies the fixtures to use data from. Each item represents a fetch defined by the
-[RequestShape](./RequestShape.md) and params. `Result` contains the JSON response expected from said fetch.
+[FetchShape](./FetchShape.md) and params. `Result` contains the JSON response expected from said fetch.
 
 ## Returns
 

@@ -26,7 +26,7 @@ export default function useRetrieve<
   const fetch = useFetcher(selectShape, true);
   const dataStale = useIsStale(selectShape, params);
 
-  // TODO: figure out how to express that body is optional in RequestShape as we don't need to cast here
+  // TODO: figure out how to express that body is optional in FetchShape as we don't need to cast here
   return useMemo(() => {
     if (!dataStale) return;
     // null params mean don't do anything

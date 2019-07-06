@@ -1,10 +1,9 @@
 ---
-id: requestshape
-title: RequestShape
+title: FetchShape
 ---
 
-`RequestShape` is the most basic interface sent to hooks telling rest-hooks how to
-handle the request. Several methods of `Resource` return `RequestShapes`, which offers a bridge between
+`FetchShape` is the most basic interface sent to hooks telling rest-hooks how to
+handle the request. Several methods of `Resource` return `FetchShapes`, which offers a bridge between
 both APIs. In fact, using `Resource` is not even needed to work with `CacheProvider` and
 simply operates as a convenience to organize schemas.
 
@@ -14,7 +13,7 @@ only works with `ReadShape`s because this is the only shape that specifies the
 specific results needed.
 
 ```typescript
-interface RequestShape<
+interface FetchShape<
   S extends Schema,
   Params extends Readonly<object>,
   Body extends Readonly<object> | void
