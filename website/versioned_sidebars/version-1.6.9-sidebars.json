@@ -1,0 +1,130 @@
+{
+  "version-1.6.9-docs": {
+    "Getting Started": [
+      "version-1.6.9-getting-started/installation",
+      "version-1.6.9-getting-started/usage",
+      "version-1.6.9-guides/loading-state",
+      "version-1.6.9-guides/network-errors",
+      "version-1.6.9-guides/fetch-multiple"
+    ],
+    "Resource Definitions": [
+      "version-1.6.9-guides/resource-types",
+      {
+        "type": "subcategory",
+        "label": "Network Interface",
+        "ids": [
+          "version-1.6.9-guides/url",
+          "version-1.6.9-guides/endpoints",
+          "version-1.6.9-guides/pagination",
+          "version-1.6.9-guides/auth",
+          "version-1.6.9-guides/network-transform",
+          "version-1.6.9-guides/mocking-unfinished"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Entity Interface",
+        "ids": [
+          "version-1.6.9-guides/computed-properties",
+          "version-1.6.9-guides/multi-pk"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Performance Optimizations",
+        "ids": [
+          "version-1.6.9-guides/nested-response",
+          "version-1.6.9-guides/rpc"
+        ]
+      }
+    ],
+    "Advanced": [
+      {
+        "type": "subcategory",
+        "label": "Resource Definitions",
+        "ids": [
+          "version-1.6.9-guides/custom-networking",
+          "version-1.6.9-guides/resource-lifetime",
+          "version-1.6.9-guides/jsonp"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Testing",
+        "ids": [
+          "version-1.6.9-guides/storybook",
+          "version-1.6.9-guides/unit-testing-hooks",
+          "version-1.6.9-guides/unit-testing-components"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Integrations",
+        "ids": [
+          "version-1.6.9-guides/redux"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Legacy",
+        "ids": [
+          "version-1.6.9-guides/class-components",
+          "version-1.6.9-guides/no-suspense"
+        ]
+      }
+    ],
+    "API": [
+      "version-1.6.9-api/README",
+      {
+        "type": "subcategory",
+        "label": "Interface Definitions",
+        "ids": [
+          "version-1.6.9-api/resource",
+          "version-1.6.9-api/requestshape"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Hooks",
+        "ids": [
+          "version-1.6.9-api/useresource",
+          "version-1.6.9-api/useFetcher",
+          "version-1.6.9-api/useCache",
+          "version-1.6.9-api/useResultCache",
+          "version-1.6.9-api/useSubscription",
+          "version-1.6.9-api/useRetrieve",
+          "version-1.6.9-api/useInvalidator"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Components",
+        "ids": [
+          "version-1.6.9-api/RestProvider",
+          "version-1.6.9-api/ExternalCacheProvider",
+          "version-1.6.9-api/NetworkErrorBoundary"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Managers",
+        "ids": [
+          "version-1.6.9-api/Manager",
+          "version-1.6.9-api/NetworkManager",
+          "version-1.6.9-api/SubscriptionManager",
+          "version-1.6.9-api/PollingSubscription"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Testing",
+        "ids": [
+          "version-1.6.9-api/MockProvider",
+          "version-1.6.9-api/makeRenderRestHook",
+          "version-1.6.9-api/makeRestProvider",
+          "version-1.6.9-api/makeExternalCacheProvider"
+        ]
+      }
+    ]
+  }
+}

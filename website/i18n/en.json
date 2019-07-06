@@ -165,6 +165,158 @@
       },
       "ROADMAP": {
         "title": "ROADMAP"
+      },
+      "version-1.6.9/api/version-1.6.9-ExternalCacheProvider": {
+        "title": "<ExternalCacheProvider />"
+      },
+      "version-1.6.9/api/version-1.6.9-makeExternalCacheProvider": {
+        "title": "makeExternalCacheProvider()"
+      },
+      "version-1.6.9/api/version-1.6.9-makeRenderRestHook": {
+        "title": "makeRenderRestHook()"
+      },
+      "version-1.6.9/api/version-1.6.9-makeRestProvider": {
+        "title": "makeRestProvider()"
+      },
+      "version-1.6.9/api/version-1.6.9-Manager": {
+        "title": "Manager"
+      },
+      "version-1.6.9/api/version-1.6.9-MockProvider": {
+        "title": "<MockProvider />"
+      },
+      "version-1.6.9/api/version-1.6.9-NetworkErrorBoundary": {
+        "title": "<NetworkErrorBoundary />"
+      },
+      "version-1.6.9/api/version-1.6.9-NetworkManager": {
+        "title": "NetworkManager implements Manager",
+        "sidebar_label": "NetworkManager"
+      },
+      "version-1.6.9/api/version-1.6.9-PollingSubscription": {
+        "title": "PollingSubscription implements Subscription",
+        "sidebar_label": "PollingSubscription"
+      },
+      "version-1.6.9/api/version-1.6.9-README": {
+        "title": "API Reference"
+      },
+      "version-1.6.9/api/version-1.6.9-requestshape": {
+        "title": "RequestShape"
+      },
+      "version-1.6.9/api/version-1.6.9-resource": {
+        "title": "Resource"
+      },
+      "version-1.6.9/api/version-1.6.9-RestProvider": {
+        "title": "<RestProvider />"
+      },
+      "version-1.6.9/api/version-1.6.9-SubscriptionManager": {
+        "title": "SubscriptionManager<S extends SubscriptionConstructable> implements Manager",
+        "sidebar_label": "SubscriptionManager"
+      },
+      "version-1.6.9/api/version-1.6.9-useCache": {
+        "title": "useCache()"
+      },
+      "version-1.6.9/api/version-1.6.9-useFetcher": {
+        "title": "useFetcher()"
+      },
+      "version-1.6.9/api/version-1.6.9-useInvalidator": {
+        "title": "useInvalidator()"
+      },
+      "version-1.6.9/api/version-1.6.9-useresource": {
+        "title": "useResource()"
+      },
+      "version-1.6.9/api/version-1.6.9-useResultCache": {
+        "title": "useResultCache()"
+      },
+      "version-1.6.9/api/version-1.6.9-useRetrieve": {
+        "title": "useRetrieve()"
+      },
+      "version-1.6.9/api/version-1.6.9-useSubscription": {
+        "title": "useSubscription()"
+      },
+      "version-1.6.9/getting-started/version-1.6.9-installation": {
+        "title": "Installation"
+      },
+      "version-1.6.9/getting-started/version-1.6.9-usage": {
+        "title": "Usage"
+      },
+      "version-1.6.9/guides/version-1.6.9-auth": {
+        "title": "Authentication"
+      },
+      "version-1.6.9/guides/version-1.6.9-class-components": {
+        "title": "Usage with class components"
+      },
+      "version-1.6.9/guides/version-1.6.9-computed-properties": {
+        "title": "Computed Properties"
+      },
+      "version-1.6.9/guides/version-1.6.9-custom-networking": {
+        "title": "Using a custom networking library",
+        "sidebar_label": "Custom networking library"
+      },
+      "version-1.6.9/guides/version-1.6.9-endpoints": {
+        "title": "Custom endpoints"
+      },
+      "version-1.6.9/guides/version-1.6.9-fetch-multiple": {
+        "title": "Fetching multiple resources at once"
+      },
+      "version-1.6.9/guides/version-1.6.9-immutability": {
+        "title": "Understanding Immutability",
+        "sidebar_label": "Understanding Immutability"
+      },
+      "version-1.6.9/guides/version-1.6.9-jsonp": {
+        "title": "Cross-orgin requests with JSONP"
+      },
+      "version-1.6.9/guides/version-1.6.9-loading-state": {
+        "title": "Handling loading state"
+      },
+      "version-1.6.9/guides/version-1.6.9-mocking-unfinished": {
+        "title": "Mocking unfinished endpoints"
+      },
+      "version-1.6.9/guides/version-1.6.9-multi-pk": {
+        "title": "Multi-column primary key"
+      },
+      "version-1.6.9/guides/version-1.6.9-nested-response": {
+        "title": "Resources with nested structure",
+        "sidebar_label": "Nesting related resources (server-side join)"
+      },
+      "version-1.6.9/guides/version-1.6.9-network-errors": {
+        "title": "Dealing with network errors"
+      },
+      "version-1.6.9/guides/version-1.6.9-network-transform": {
+        "title": "Transforming data on fetch"
+      },
+      "version-1.6.9/guides/version-1.6.9-no-suspense": {
+        "title": "Usage without Suspense"
+      },
+      "version-1.6.9/guides/version-1.6.9-pagination": {
+        "title": "Pagination"
+      },
+      "version-1.6.9/guides/version-1.6.9-README": {
+        "title": "Guides"
+      },
+      "version-1.6.9/guides/version-1.6.9-redux": {
+        "title": "Redux integration"
+      },
+      "version-1.6.9/guides/version-1.6.9-resource-lifetime": {
+        "title": "Custom Resource cache lifetime",
+        "sidebar_label": "Custom cache lifetime"
+      },
+      "version-1.6.9/guides/version-1.6.9-resource-types": {
+        "title": "Defining your Resource types",
+        "sidebar_label": "Resource types"
+      },
+      "version-1.6.9/guides/version-1.6.9-rpc": {
+        "title": "Capturing Mutation Side-Effects"
+      },
+      "version-1.6.9/guides/version-1.6.9-storybook": {
+        "title": "Mocking data for Storybook"
+      },
+      "version-1.6.9/guides/version-1.6.9-unit-testing-components": {
+        "title": "Unit testing components"
+      },
+      "version-1.6.9/guides/version-1.6.9-unit-testing-hooks": {
+        "title": "Unit testing hooks"
+      },
+      "version-1.6.9/guides/version-1.6.9-url": {
+        "title": "URL Patterns"
       }
     },
     "links": {
