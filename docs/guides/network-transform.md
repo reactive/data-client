@@ -1,5 +1,5 @@
 ---
-title: Transforming data on network load
+title: Transforming data on fetch
 ---
 All network requests flow through the `fetch()` method, so any transforms needed can simply
 be done by overriding it with a call to super.
