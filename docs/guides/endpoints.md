@@ -4,11 +4,11 @@ title: Custom endpoints
 
 [Previously we saw how we could use](../getting-started/usage#use-resource-docs-api-useresource)
 the [useResource()](../api/useResource) and [useFetcher()](../api/useFetcher) hooks to read and mutate
-data. The first argument of these hooks is known as a [RequestShape](../api/requestshape).
-RequestShapes are the minimal definition of instructions needed to tell Rest Hooks how to handle
+data. The first argument of these hooks is known as a [FetchShape](../api/FetchShape).
+FetchShapes are the minimal definition of instructions needed to tell Rest Hooks how to handle
 those types of requests.
 
-Resource comes with a [small handleful RequestShapes](../api/resource#request-shapes-docs-api-requestshape)
+Resource comes with a [small handleful FetchShapes](../api/resource#fetch-shapes-docs-next-api-fetchshape)
 for each of the typical [CRUD operations](https://restfulapi.net/http-methods/). This is often not enough.
 
 ## Overriding endpoints
@@ -157,7 +157,7 @@ export default class CommentResource extends Resource {
 }
 ```
 
-Here we only overrode the 'schema' part of the [RequestShape](../api/requestshape) - taking advantage
+Here we only overrode the 'schema' part of the [FetchShape](../api/FetchShape) - taking advantage
 of [super](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/super) to keep
 the other pieces the same. See [pagination](./pagination) guide for more examples of custom schemas and overriding
 endpoints.
@@ -166,7 +166,7 @@ endpoints.
 
 In many cases there are more means of interacting with a given resource than the basic CRUD
 operations. Often this means a custom RPC call, or even a custom retrieval endpoint. We'll demonstrate
-a few examples here, but be sure to learn more about [RequestShape](../api/requestshape)s to
+a few examples here, but be sure to learn more about [FetchShape](../api/FetchShape)s to
 define exactly what your endpoint needs.
 
 ### RPC

@@ -32,11 +32,11 @@ function MasterPost({ id }: { id: number }) {
 }
 ```
 
-## Useful `RequestShape`s to send
+## Useful `FetchShape`s to send
 
 [Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
 
 - singleRequest()
 - listRequest()
 
-Feel free to add your own [RequestShape](./RequestShape.md) as well.
+Feel free to add your own [FetchShape](./FetchShape.md) as well.

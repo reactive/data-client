@@ -30,7 +30,7 @@ export default ArticleResource extends Resource {
 It does this by using that `urlRoot` static property in two static methods:
 
 - [url(urlParams)](../api/resource#static-url-t-extends-typeof-resource-urlparams-partial-abstractinstancetype-t-string)
-  - handles most Request Shapes
+  - handles most Fetch Shapes
 - [listUrl(searchParams)](../api/resource#static-listurl-t-extends-typeof-resource-searchparams-readonly-record-string-string-string)
   - used in createRequest() and listRequest()
 
@@ -44,8 +44,8 @@ ArticleResource.url({ id: 5 });
 ```
 
 Customizing the url patterns is typically as easy as overriding either of these
-methods. However, in more extreme scenarios, [getUrl()](../api/requestshape#geturlparams-param-string)
-can be set in a custom RequestShape definition.
+methods. However, in more extreme scenarios, [getUrl()](../api/FetchShape#geturlparams-param-string)
+can be set in a custom FetchShape definition.
 
 ## Example
 

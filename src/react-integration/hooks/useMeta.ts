@@ -1,12 +1,12 @@
 import { useContext, useMemo } from 'react';
 
-import { RequestShape } from '~/resource';
+import { FetchShape } from '~/resource';
 import { StateContext } from '~/react-integration/context';
 import { selectMeta } from '~/state/selectors';
 
 /** Gets meta for a url. */
 export default function useMeta<Params extends Readonly<object>>(
-  { getUrl }: Pick<RequestShape<any, any, Params>, 'getUrl'>,
+  { getUrl }: Pick<FetchShape<any, any, Params>, 'getUrl'>,
   params: Params | null,
 ) {
   const state = useContext(StateContext);

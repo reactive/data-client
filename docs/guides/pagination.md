@@ -30,7 +30,7 @@ and the Array of results as another member.
 }
 ```
 
-To deal with our specific shape, we'll need to customize the [RequestShape](../api/RequestShape.md) of lists to
+To deal with our specific shape, we'll need to customize the [FetchShape](../api/FetchShape.md) of lists to
 understand how to normalize the results (via schema).
 
 `resources/ArticleResource.ts`
@@ -94,7 +94,7 @@ export default function ArticleList() {
 ## Tokens in HTTP Headers
 
 In some cases the pagination tokens will be embeded in HTTP headers, rather than part of the payload. In this
-case you'll need to customize the [fetch()](../api/requestshape#fetchurl-string-body-payload-promise-any) function
+case you'll need to customize the [fetch()](../api/FetchShape#fetchurl-string-body-payload-promise-any) function
 for [listRequest()](../api/resource#listrequest-readshape) so the pagination headers are included fetch object.
 
 We show the custom listRequest() below. All other parts of the above example remain the same.

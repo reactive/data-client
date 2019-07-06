@@ -8,7 +8,7 @@ If you have an endpoint that updates many resources on your server,
 there is a straightforward mechanism to get all those updates
 to your client in one request.
 
-By defining a custom [RequestShape](../api/RequestShape.md) method on your resource,
+By defining a custom [FetchShape](../api/FetchShape.md) method on your resource,
 you'll be able to use custom response shapes that still
 updated `rest-hooks`' normalized cache.
 
@@ -73,7 +73,7 @@ class TradeResource extends Resource {
 }
 ```
 
-Now if when we use the [createRequest()](../api/Resource.md#createrequest) RequestShape generator method,
+Now if when we use the [createRequest()](../api/Resource.md#createrequest) FetchShape generator method,
 we will be happy knowing both the trade and account information will
 be updated in the cache after the `POST` request is complete.
 
@@ -88,6 +88,6 @@ export default function CreateTrade() {
 
 > #### Note:
 >
-> Feel free to create completely new [RequestShape](../api/RequestShape.md) methods for any custom
+> Feel free to create completely new [FetchShape](../api/FetchShape.md) methods for any custom
 > endpoints you have. This shape tells `rest-hooks` how to process any
 > request.

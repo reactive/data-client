@@ -67,7 +67,7 @@
       {
         "type": "subcategory",
         "label": "Interface Definitions",
-        "ids": ["api/resource", "api/requestshape"]
+        "ids": ["api/resource", "api/FetchShape"]
       },
       {
         "type": "subcategory",

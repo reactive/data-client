@@ -1,6 +1,6 @@
 import {
   Resource,
-  RequestShape,
+  FetchShape,
   DeleteShape,
   ReadShape,
   MutateShape,
@@ -63,11 +63,11 @@ export type ReadShape<
   Params extends Readonly<object> = Readonly<object>,
   Body extends Readonly<object> | void = Readonly<object> | undefined
 > = ReadShape<S, Params, Body>;
-export type RequestShape<
+export type FetchShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
   Body extends Readonly<object> | void = Readonly<object> | undefined
-> = RequestShape<S, Params, Body>;
+> = FetchShape<S, Params, Body>;
 
 export type State<T> = State<T>;
 export type Schema<T = any> = Schema<T>;
