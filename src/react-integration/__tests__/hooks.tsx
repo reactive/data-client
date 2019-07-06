@@ -78,7 +78,7 @@ function buildState<S extends Schema>(
   params: object,
 ): State<Resource> {
   const { entities, result } = normalize(payload, fetchShape.schema);
-  const url = fetchShape.getUrl(params);
+  const url = fetchShape.getFetchKey(params);
   return {
     entities,
     results: {
@@ -243,7 +243,7 @@ describe('useInvalidate', () => {
     expect(dispatch).toHaveBeenCalledWith({
       type: 'rest-hooks/invalidate',
       meta: {
-        url: 'http://test.com/article-paginated/',
+        url: 'GET http://test.com/article-paginated/',
       },
     });
   });
@@ -562,14 +562,14 @@ describe('useResource()', () => {
       payload,
       CoolerArticleResource.getEntitySchema(),
     );
-    const url = CoolerArticleResource.url(payload);
+    const fetchKey = CoolerArticleResource.detailShape().getFetchKey(payload);
     const state = {
       entities,
       results: {
-        [url]: result,
+        [fetchKey]: result,
       },
       meta: {
-        [url]: {
+        [fetchKey]: {
           date: 0,
           expiresAt: 0,
         },
@@ -594,14 +594,14 @@ describe('useResource()', () => {
       payload,
       InvalidIfStaleArticleResource.getEntitySchema(),
     );
-    const url = InvalidIfStaleArticleResource.url(payload);
+    const fetchKey = InvalidIfStaleArticleResource.detailShape().getFetchKey(payload);
     const state = {
       entities,
       results: {
-        [url]: result,
+        [fetchKey]: result,
       },
       meta: {
-        [url]: {
+        [fetchKey]: {
           date: Infinity,
           expiresAt: Infinity,
         },
@@ -626,14 +626,14 @@ describe('useResource()', () => {
       payload,
       InvalidIfStaleArticleResource.getEntitySchema(),
     );
-    const url = InvalidIfStaleArticleResource.url(payload);
+    const fetchKey = InvalidIfStaleArticleResource.detailShape().getFetchKey(payload);
     const state = {
       entities,
       results: {
-        [url]: result,
+        [fetchKey]: result,
       },
       meta: {
-        [url]: {
+        [fetchKey]: {
           date: 0,
           expiresAt: 0,
         },

@@ -27,14 +27,14 @@ export default function useSubscription<
 
   useEffect(() => {
     if (!active) return;
-    const { fetch, schema, getUrl, options } = shapeRef.current;
-    const url = getUrl(params);
+    const { fetch, schema, getFetchKey, options } = shapeRef.current;
+    const url = getFetchKey(params);
 
     dispatch({
       type: 'rest-hooks/subscribe',
       meta: {
         schema,
-        fetch: () => fetch(url, body as Body),
+        fetch: () => fetch(params, body as Body),
         url,
         frequency: options && options.pollFrequency,
       },
@@ -50,5 +50,5 @@ export default function useSubscription<
     };
     // serialize params
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, body, active, params && fetchShape.getUrl(params)]);
+  }, [dispatch, body, active, params && fetchShape.getFetchKey(params)]);
 }

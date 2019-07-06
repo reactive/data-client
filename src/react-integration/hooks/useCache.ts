@@ -6,7 +6,7 @@ import useSelection from './useSelection';
 export default function useCache<
   Params extends Readonly<object>,
   S extends Schema
->({ schema, getUrl }: ReadShape<S, Params, any>, params: Params | null) {
-  const select = makeSchemaSelector(schema, getUrl);
-  return useSelection(select, params, getUrl);
+>({ schema, getFetchKey }: ReadShape<S, Params, any>, params: Params | null) {
+  const select = makeSchemaSelector(schema, getFetchKey);
+  return useSelection(select, params, getFetchKey);
 }

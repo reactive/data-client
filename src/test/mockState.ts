@@ -14,8 +14,8 @@ export default function mockInitialState<
 >(results: Fixture[]) {
   const now = Date.now();
   const mockState = results.reduce((acc, { request, params, result }) => {
-    const { schema, getUrl } = request;
-    const url = getUrl(params);
+    const { schema, getFetchKey } = request;
+    const url = getFetchKey(params);
     return reducer(acc, {
       type: 'rest-hooks/receive',
       payload: result,

@@ -189,8 +189,11 @@ export default class UserResource extends Resource {
   ): MutateShape<SchemaBase<AbstractInstanceType<T>>, { id: number }, {}> {
     return {
       ...this.createShape(),
-      getUrl({ id }: { id: number }) {
+      getFetchKey({ id }: { id: number }) {
         return `/users/${id}/make_manager`;
+      },
+      fetch({ id }: { id: number }, body?: Readonly<object>) {
+        return self.fetch('post', `/users/${id}/make_manager`, body);
       },
     };
   }
@@ -226,8 +229,11 @@ export default class UserResource extends Resource {
   ): ReadShape<SchemaBase<AbstractInstanceType<T>>, {}> {
     return {
       ...this.detailShape(),
-      getUrl() {
+      getFetchKey() {
         return '/current_user/';
+      },
+      fetch(params: {}, body?: Readonly<object>) {
+        return self.fetch('post', `/current_user/`, body);
       },
     };
   }

@@ -7,10 +7,10 @@ import {
 import { normalize } from '../../resource';
 import { makeSchemaSelector } from '../selectors';
 
-let { schema, getUrl } = CoolerArticleResource.detailShape();
-const select = makeSchemaSelector(schema, getUrl);
+let { schema, getFetchKey } = CoolerArticleResource.detailShape();
+const select = makeSchemaSelector(schema, getFetchKey);
 let listR = CoolerArticleResource.listShape();
-const listSelect = makeSchemaSelector(listR.schema, listR.getUrl);
+const listSelect = makeSchemaSelector(listR.schema, listR.getFetchKey);
 describe('selectors', () => {
   describe('Single', () => {
     const params = { id: 5, title: 'bob', content: 'head' };
@@ -29,7 +29,7 @@ describe('selectors', () => {
           },
         },
         results: {
-          [CoolerArticleResource.url(params)]: params.id,
+          [CoolerArticleResource.detailShape().getFetchKey(params)]: params.id,
         },
         meta: {},
       };
@@ -45,7 +45,7 @@ describe('selectors', () => {
           },
         },
         results: {
-          [CoolerArticleResource.url(params)]: params.id,
+          [CoolerArticleResource.detailShape().getFetchKey(params)]: params.id,
         },
         meta: {},
       };
@@ -57,7 +57,7 @@ describe('selectors', () => {
       const state = {
         entities: { [CoolerArticleResource.getKey()]: {} },
         results: {
-          [CoolerArticleResource.url(params)]: params.id,
+          [CoolerArticleResource.detailShape().getFetchKey(params)]: params.id,
         },
         meta: {},
       };
@@ -81,8 +81,8 @@ describe('selectors', () => {
     });
     it('should find value when no result exists but primary key is used when using nested schema', async () => {
       const pageArticle = PaginatedArticleResource.fromJS(article);
-      let { schema, getUrl } = PaginatedArticleResource.detailShape();
-      const select = makeSchemaSelector(schema, getUrl);
+      let { schema, getFetchKey } = PaginatedArticleResource.detailShape();
+      const select = makeSchemaSelector(schema, getFetchKey);
       const state = {
         entities: {
           [PaginatedArticleResource.getKey()]: {
@@ -104,7 +104,7 @@ describe('selectors', () => {
             [params.id]: article,
           },
         },
-        results: { [CoolerArticleResource.url(urlParams)]: params.id },
+        results: { [CoolerArticleResource.detailShape().getFetchKey(urlParams)]: params.id },
         meta: {},
       };
       expect(select(state, urlParams)).toBe(article);
@@ -113,7 +113,7 @@ describe('selectors', () => {
       const params = { title: 'bob' };
       const state = {
         entities: {},
-        results: { [CoolerArticleResource.url(params)]: [5, 6, 7] },
+        results: { [CoolerArticleResource.detailShape().getFetchKey(params)]: [5, 6, 7] },
         meta: {},
       };
       expect(() => select(state, params)).toThrow();
@@ -123,7 +123,7 @@ describe('selectors', () => {
       const state = {
         entities: {},
         results: {
-          [CoolerArticleResource.url(params)]: { results: [5, 6, 7] },
+          [CoolerArticleResource.detailShape().getFetchKey(params)]: { results: [5, 6, 7] },
         },
         meta: {},
       };
@@ -147,7 +147,7 @@ describe('selectors', () => {
         meta: {},
       };
       const shape = NestedArticleResource.detailShape();
-      const select = makeSchemaSelector(shape.schema, shape.getUrl);
+      const select = makeSchemaSelector(shape.schema, shape.getFetchKey);
       expect(select(state, params)).toBe(nestedArticle);
     });
   });
@@ -182,7 +182,7 @@ describe('selectors', () => {
       const state = {
         entities,
         results: {
-          [CoolerArticleResource.listUrl(params)]: result,
+          [CoolerArticleResource.listShape().getFetchKey(params)]: result,
         },
         meta: {},
       };
@@ -199,7 +199,7 @@ describe('selectors', () => {
       const state = {
         entities,
         results: {
-          [CoolerArticleResource.listUrl(params)]: result,
+          [CoolerArticleResource.listShape().getFetchKey(params)]: result,
         },
         meta: {},
       };
@@ -216,12 +216,12 @@ describe('selectors', () => {
       const state = {
         entities,
         results: {
-          [PaginatedArticleResource.listUrl(params)]: result,
+          [PaginatedArticleResource.listShape().getFetchKey(params)]: result,
         },
         meta: {},
       };
       const shape = PaginatedArticleResource.listShape();
-      const select = makeSchemaSelector(shape.schema, shape.getUrl);
+      const select = makeSchemaSelector(shape.schema, shape.getFetchKey);
       const selected = select(state, params);
 
       expect(selected).toEqual(articles);
@@ -231,7 +231,7 @@ describe('selectors', () => {
       expect(() =>
         makeSchemaSelector(
           { happy: { go: { lucky: 5 } } } as any,
-          shape.getUrl,
+          shape.getFetchKey,
         ),
       ).toThrow();
     });
