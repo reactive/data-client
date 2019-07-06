@@ -44,12 +44,7 @@ function useStatefulResource<
     maybePromise &&
     typeof maybePromise.then === 'function';
 
-  let error = null;
-  try {
-    useError(selectShape, params, resource);
-  } catch (e) {
-    error = e;
-  }
+  let error = useError(selectShape, params, resource);
 
   return {
     data: resource as NonNullable<typeof resource>,
