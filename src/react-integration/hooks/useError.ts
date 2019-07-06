@@ -20,9 +20,9 @@ export default function useError<
         `Resource not found ${params ? selectShape.getUrl(params) : ''}`,
       );
       err.status = 404;
-      throw err;
+      return err;
     } else {
-      throw meta.error;
+      return meta.error;
     }
   }
 }

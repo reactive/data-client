@@ -40,7 +40,8 @@ function useOneResource<
     typeof maybePromise.then === 'function'
   )
     throw maybePromise;
-  useError(selectShape, params, resource);
+  const error = useError(selectShape, params, resource);
+  if (error) throw error;
 
   return resource as NonNullable<typeof resource>;
 }
@@ -81,7 +82,8 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
     const [selectShape, params] = resourceList[i];
     const resource = resources[i];
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useError(selectShape, params, resource);
+    const error = useError(selectShape, params, resource);
+    if (error) throw error;
   }
   return resources;
 }
