@@ -12,14 +12,14 @@ import createEnhancedReducerHook from './middleware';
 interface ProviderProps {
   children: ReactNode;
   managers: Manager[];
-  initialState?: State<unknown>;
+  initialState: State<unknown>;
 }
 
 /** Controller managing state of the REST cache and coordinating network requests. */
 export default function CacheProvider({
   children,
   managers,
-  initialState = defaultState,
+  initialState,
 }: ProviderProps) {
   // TODO: option to use redux
   const useEnhancedReducer = createEnhancedReducerHook(
@@ -44,4 +44,5 @@ export default function CacheProvider({
 }
 CacheProvider.defaultProps = {
   managers: [new NetworkManager(), new SubscriptionManager(PollingSubscription)],
+  initialState: defaultState,
 };
