@@ -45,7 +45,7 @@ function Versions(props) {
                   </a>
                 </td>
                 <td>
-                  <a href="">Release Notes</a>
+                  <a href="https://github.com/coinbase/rest-hooks/releases">Release Notes</a>
                 </td>
               </tr>
             </tbody>
