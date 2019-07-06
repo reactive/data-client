@@ -73,9 +73,6 @@
     "github": {
       "release": true,
       "releaseNotes": "npx auto-changelog --stdout --starting-commit \"$(git rev-list --reverse ${latestVersion}...HEAD | head -n 1)\""
-    },
-    "hooks": {
-      "after:git:bump": "cd website && yarn run version ${version}"
     }
   },
   "devDependencies": {
