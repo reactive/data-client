@@ -31,7 +31,6 @@ const presets = [
     '@anansi/babel-preset',
     {
       typing: 'typescript',
-      useBuiltIns: false,
     },
   ],
 ];
