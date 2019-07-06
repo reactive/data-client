@@ -1,6 +1,11 @@
 ---
 title: Cross-orgin requests with JSONP
 ---
+
+JSONP is a method for sending JSON data without worrying about cross-domain issues. This
+is sometimes needed when calling third-party APIs that don't come with appropriate
+[CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) settings.
+
 ```tsx
 import jsonp from 'superagent-jsonp';
 import { Resource } from 'rest-hooks';

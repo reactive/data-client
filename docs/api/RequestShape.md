@@ -92,3 +92,9 @@ an effect.
 
 Indicates stale data should be considered unusable and thus not be returned from the cache. This means
 that useResource() will suspend when data is stale even if it already exists in cache.
+
+## Examples
+
+- [Custom endpoints](../guides/endpoints)
+- [Pagination](../guides/pagination)
+- [Mocking unfinished endpoints](../guides/mocking-unfinished)

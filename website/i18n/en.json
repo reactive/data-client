@@ -93,6 +93,9 @@
         "title": "Using a custom networking library",
         "sidebar_label": "Custom networking library"
       },
+      "guides/endpoints": {
+        "title": "Custom endpoints"
+      },
       "guides/fetch-multiple": {
         "title": "Fetching multiple resources at once"
       },
@@ -120,7 +123,7 @@
         "title": "Dealing with network errors"
       },
       "guides/network-transform": {
-        "title": "Transforming data on network load"
+        "title": "Transforming data on fetch"
       },
       "guides/no-suspense": {
         "title": "Usage without Suspense"
@@ -139,7 +142,8 @@
         "sidebar_label": "Custom cache lifetime"
       },
       "guides/resource-types": {
-        "title": "Defining your Resource types"
+        "title": "Defining your Resource types",
+        "sidebar_label": "Resource types"
       },
       "guides/rpc": {
         "title": "Capturing Mutation Side-Effects"
@@ -152,6 +156,9 @@
       },
       "guides/unit-testing-hooks": {
         "title": "Unit testing hooks"
+      },
+      "guides/url": {
+        "title": "URL Patterns"
       },
       "README": {
         "title": "README"
@@ -169,8 +176,7 @@
     },
     "categories": {
       "Getting Started": "Getting Started",
-      "Basics": "Basics",
-      "Defining Network Interfaces": "Defining Network Interfaces",
+      "Resource Definitions": "Resource Definitions",
       "Advanced": "Advanced",
       "API": "API"
     }

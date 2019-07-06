@@ -1,5 +1,6 @@
 ---
 title: Defining your Resource types
+sidebar_label: Resource types
 ---
 
 Typing your data can be very useful and is highly recommended when using this library.

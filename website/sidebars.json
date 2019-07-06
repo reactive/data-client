@@ -2,30 +2,45 @@
   "docs": {
     "Getting Started": [
       "getting-started/installation",
-      "getting-started/usage"
-    ],
-    "Basics": [
+      "getting-started/usage",
       "guides/loading-state",
       "guides/network-errors",
-      "guides/fetch-multiple",
-      "guides/pagination"
+      "guides/fetch-multiple"
     ],
-    "Defining Network Interfaces": [
+    "Resource Definitions": [
       "guides/resource-types",
-      "guides/computed-properties",
-      "guides/multi-pk",
-      "guides/network-transform",
-      "guides/auth",
-      "guides/jsonp",
-      "guides/custom-networking",
-      "guides/mocking-unfinished",
-      "guides/resource-lifetime"
-    ],
-    "Advanced": [
+      {
+        "type": "subcategory",
+        "label": "Network Interface",
+        "ids": [
+          "guides/url",
+          "guides/endpoints",
+          "guides/pagination",
+          "guides/auth",
+          "guides/network-transform",
+          "guides/mocking-unfinished"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Entity Interface",
+        "ids": ["guides/computed-properties", "guides/multi-pk"]
+      },
       {
         "type": "subcategory",
         "label": "Performance Optimizations",
         "ids": ["guides/nested-response", "guides/rpc"]
+      }
+    ],
+    "Advanced": [
+      {
+        "type": "subcategory",
+        "label": "Resource Definitions",
+        "ids": [
+          "guides/custom-networking",
+          "guides/resource-lifetime",
+          "guides/jsonp"
+        ]
       },
       {
         "type": "subcategory",
