@@ -3,8 +3,7 @@
     [
       "@anansi/babel-preset",
       {
-        "typing": "typescript",
-        "useBuiltIns": "usage"
+        "typing": "typescript"
       }
     ]
   ]

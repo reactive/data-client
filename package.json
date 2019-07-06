@@ -121,7 +121,6 @@
   "dependencies": {
     "@babel/runtime": "^7.4.5",
     "@types/superagent": "^4.1.2",
-    "core-js": "^3.0.0",
     "flux-standard-action": "^2.1.0",
     "lodash": "^4.17.14",
     "normalizr": "^3.4.0",
