@@ -55,7 +55,7 @@ import {
 
 class TradeResource extends Resource {
   // ...
-  static createRequest<T extends typeof Resource>(
+  static createShape<T extends typeof Resource>(
     this: T,
   ): MutateShape<
     SchemaBase<AbstractInstanceType<T>>,
@@ -63,7 +63,7 @@ class TradeResource extends Resource {
     Partial<AbstractInstanceType<T>>
   > {
     return {
-      ...this.super.createRequest(),
+      ...this.super.createShape(),
       schema: {
         trade: this.getEntitySchema(),
         account: AccountResource.getEntitySchema(),
@@ -73,7 +73,7 @@ class TradeResource extends Resource {
 }
 ```
 
-Now if when we use the [createRequest()](../api/Resource.md#createrequest) FetchShape generator method,
+Now if when we use the [createShape()](../api/Resource.md#createshape) FetchShape generator method,
 we will be happy knowing both the trade and account information will
 be updated in the cache after the `POST` request is complete.
 
@@ -81,7 +81,7 @@ be updated in the cache after the `POST` request is complete.
 
 ```typescript
 export default function CreateTrade() {
-  const create = useFetcher(TradeResource.createRequest());
+  const create = useFetcher(TradeResource.createShape());
   //...
 }
 ```

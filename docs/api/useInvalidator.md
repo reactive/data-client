@@ -52,8 +52,8 @@ function useInvalidateOnUnmount<
 
 ```tsx
 function ArticleName({ id }: { id: string }) {
-  const asset = useResource(ArticleResource.singleRequest(), { id });
-  useInvalidateOnUnmount(ArticleResource.singleRequest(), { id });
+  const asset = useResource(ArticleResource.detailShape(), { id });
+  useInvalidateOnUnmount(ArticleResource.detailShape(), { id });
 
   return (
     <div>

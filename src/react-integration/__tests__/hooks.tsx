@@ -153,7 +153,7 @@ function ArticleComponentTester({ invalidIfStale = false }) {
   const resource = invalidIfStale
     ? InvalidIfStaleArticleResource
     : CoolerArticleResource;
-  const article = useResource(resource.singleRequest(), {
+  const article = useResource(resource.detailShape(), {
     id: payload.id,
   });
   return (
@@ -173,7 +173,7 @@ describe('useFetcher', () => {
       .reply(201, payload);
 
     function DispatchTester() {
-      const a = useFetcher(CoolerArticleResource.createRequest());
+      const a = useFetcher(CoolerArticleResource.createShape());
       a({ content: 'hi' }, {});
       return null;
     }
@@ -185,7 +185,7 @@ describe('useFetcher', () => {
       .reply(200, payload);
 
     function DispatchTester() {
-      const a = useFetcher(CoolerArticleResource.partialUpdateRequest());
+      const a = useFetcher(CoolerArticleResource.partialUpdateShape());
       a({ content: 'changed' }, { id: payload.id });
       return null;
     }
@@ -197,7 +197,7 @@ describe('useFetcher', () => {
       .reply(200, payload);
 
     function DispatchTester() {
-      const a = useFetcher(CoolerArticleResource.updateRequest());
+      const a = useFetcher(CoolerArticleResource.updateShape());
       a({ content: 'changed' }, { id: payload.id });
       return null;
     }
@@ -209,14 +209,14 @@ describe('useInvalidate', () => {
   it('should not invalidate anything if params is null', () => {
     const state = buildState(
       articlesPages,
-      PaginatedArticleResource.listRequest(),
+      PaginatedArticleResource.listShape(),
       {},
     );
     const dispatch = jest.fn();
     let invalidate: any;
     testRestHook(
       () => {
-        invalidate = useInvalidator(PaginatedArticleResource.listRequest());
+        invalidate = useInvalidator(PaginatedArticleResource.listShape());
       },
       state,
       dispatch,
@@ -227,14 +227,14 @@ describe('useInvalidate', () => {
   it('should return a function that dispatches an action to invalidate a resource', () => {
     const state = buildState(
       articlesPages,
-      PaginatedArticleResource.listRequest(),
+      PaginatedArticleResource.listShape(),
       {},
     );
     const dispatch = jest.fn();
     let invalidate: any;
     testRestHook(
       () => {
-        invalidate = useInvalidator(PaginatedArticleResource.listRequest());
+        invalidate = useInvalidator(PaginatedArticleResource.listShape());
       },
       state,
       dispatch,
@@ -251,7 +251,7 @@ describe('useInvalidate', () => {
     const track = jest.fn();
 
     const { rerender } = renderHook(() => {
-      const invalidate = useInvalidator(PaginatedArticleResource.listRequest());
+      const invalidate = useInvalidator(PaginatedArticleResource.listShape());
       useEffect(track, [invalidate]);
     });
     expect(track.mock.calls.length).toBe(1);
@@ -268,7 +268,7 @@ describe('useCache', () => {
     let state = { ...initialState };
     const { rerender } = renderHook(
       () =>
-        (article = useCache(CoolerArticleResource.singleRequest(), payload)),
+        (article = useCache(CoolerArticleResource.detailShape(), payload)),
       {
         wrapper: function Wrapper({ children }) {
           return (
@@ -280,7 +280,7 @@ describe('useCache', () => {
       },
     );
     expect(article).toBe(null);
-    state = buildState(payload, CoolerArticleResource.singleRequest(), payload);
+    state = buildState(payload, CoolerArticleResource.detailShape(), payload);
     rerender();
     expect(article).toBeTruthy();
     expect(article.title).toBe(payload.title);
@@ -289,12 +289,12 @@ describe('useCache', () => {
   it('should select paginated results', async () => {
     const state = buildState(
       articlesPages,
-      PaginatedArticleResource.listRequest(),
+      PaginatedArticleResource.listShape(),
       {},
     );
     let articles: any;
     testRestHook(() => {
-      articles = useCache(PaginatedArticleResource.listRequest(), {});
+      articles = useCache(PaginatedArticleResource.listShape(), {});
     }, state);
     expect(articles).toBeDefined();
     expect(articles.length).toBe(articlesPages.results.length);
@@ -306,7 +306,7 @@ describe('useCache', () => {
     const track = jest.fn();
 
     const { rerender } = renderHook(() => {
-      const article = useCache(PaginatedArticleResource.listRequest(), {});
+      const article = useCache(PaginatedArticleResource.listShape(), {});
       useEffect(track, [article]);
     });
 
@@ -323,7 +323,7 @@ describe('useResultCache', () => {
     let results: any;
     let state = { ...initialState };
     const { rerender } = testRestHook(() => {
-      results = useResultCache(PaginatedArticleResource.listRequest(), {});
+      results = useResultCache(PaginatedArticleResource.listShape(), {});
     }, state);
     expect(results).toBe(null);
   });
@@ -334,7 +334,7 @@ describe('useResultCache', () => {
     const defaults = { prevPage: '', nextPage: '' };
     testRestHook(() => {
       results = useResultCache(
-        PaginatedArticleResource.listRequest(),
+        PaginatedArticleResource.listShape(),
         {},
         defaults,
       );
@@ -345,12 +345,12 @@ describe('useResultCache', () => {
   it('should find results', async () => {
     const state = buildState(
       articlesPages,
-      PaginatedArticleResource.listRequest(),
+      PaginatedArticleResource.listShape(),
       {},
     );
     let results: any;
     testRestHook(() => {
-      results = useResultCache(PaginatedArticleResource.listRequest(), {});
+      results = useResultCache(PaginatedArticleResource.listShape(), {});
     }, state);
     expect(results).toBeTruthy();
     expect(results.nextPage).toBe(articlesPages.nextPage);
@@ -363,7 +363,7 @@ describe('useResultCache', () => {
 
     const { rerender } = renderHook(() => {
       const results = useResultCache(
-        PaginatedArticleResource.listRequest(),
+        PaginatedArticleResource.listShape(),
         {},
       );
       useEffect(track, [results]);
@@ -392,7 +392,7 @@ describe('useRetrieve', () => {
 
   it('should dispatch singles', async () => {
     function FetchTester() {
-      useRetrieve(CoolerArticleResource.singleRequest(), payload);
+      useRetrieve(CoolerArticleResource.detailShape(), payload);
       return null;
     }
     await testDispatchFetch(FetchTester, [payload]);
@@ -403,7 +403,7 @@ describe('useRetrieve', () => {
     let params: any = null;
     const { rerender } = testRestHook(
       () => {
-        useRetrieve(CoolerArticleResource.singleRequest(), params);
+        useRetrieve(CoolerArticleResource.detailShape(), params);
       },
       initialState,
       dispatch,
@@ -416,7 +416,7 @@ describe('useRetrieve', () => {
 
   it('should dispatch with resource defined dataExpiryLength', async () => {
     function FetchTester() {
-      useRetrieve(StaticArticleResource.singleRequest(), payload);
+      useRetrieve(StaticArticleResource.detailShape(), payload);
       return null;
     }
     await testDispatchFetch(FetchTester, [payload]);
@@ -464,12 +464,12 @@ describe('useResource()', () => {
     function MultiResourceTester() {
       const [article, user] = useResource(
         [
-          CoolerArticleResource.singleRequest(),
+          CoolerArticleResource.detailShape(),
           {
             id: payload.id,
           },
         ],
-        [UserResource.listRequest(), {}],
+        [UserResource.listShape(), {}],
       );
       return null;
     }
@@ -491,12 +491,12 @@ describe('useResource()', () => {
       try {
         const [article, user] = useResource(
           [
-            CoolerArticleResource.singleRequest(),
+            CoolerArticleResource.detailShape(),
             {
               id: payload.id,
             },
           ],
-          [UserResource.listRequest(), {}],
+          [UserResource.listShape(), {}],
         );
         return article;
       } catch (e) {
@@ -540,7 +540,7 @@ describe('useResource()', () => {
   it('should NOT suspend if result already in cache and options.invalidIfStale is false', () => {
     const state = buildState(
       payload,
-      CoolerArticleResource.singleRequest(),
+      CoolerArticleResource.detailShape(),
       payload,
     );
 

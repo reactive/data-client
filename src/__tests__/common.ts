@@ -37,7 +37,7 @@ export class ArticleResource extends Resource {
   }
 
   static longLivingRequest<T extends typeof Resource>(this: T) {
-    const single = this.singleRequest();
+    const single = this.detailShape();
     return {
       ...single,
       options: {
@@ -48,7 +48,7 @@ export class ArticleResource extends Resource {
   }
 
   static neverRetryOnErrorRequest<T extends typeof Resource>(this: T) {
-    const single = this.singleRequest();
+    const single = this.detailShape();
     return {
       ...single,
       options: {
@@ -61,7 +61,7 @@ export class ArticleResource extends Resource {
   static singleWithUserRequest<T extends typeof ArticleResource>(
     this: T,
   ): ReadShape<SchemaBase<AbstractInstanceType<T>>> {
-    const baseShape = this.singleRequest();
+    const baseShape = this.detailShape();
     return {
       ...baseShape,
       getUrl: (params: Readonly<Record<string, string>>) =>
@@ -73,7 +73,7 @@ export class ArticleResource extends Resource {
   static listWithUserRequest<T extends typeof ArticleResource>(
     this: T,
   ): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
-    const baseShape = this.listRequest();
+    const baseShape = this.listShape();
     return {
       ...baseShape,
       getUrl: (params: Readonly<Record<string, string>>) =>
@@ -135,7 +135,7 @@ export class UserResource extends Resource {
 class OtherArticleResource extends CoolerArticleResource {}
 export class PaginatedArticleResource extends OtherArticleResource {
   static urlRoot = 'http://test.com/article-paginated/';
-  static listRequest<T extends typeof Resource>(
+  static listShape<T extends typeof Resource>(
     this: T,
   ): ReadShape<
     SchemaArray<AbstractInstanceType<T>>,
@@ -143,12 +143,12 @@ export class PaginatedArticleResource extends OtherArticleResource {
     Readonly<object>
   > {
     return {
-      ...super.listRequest(),
+      ...super.listShape(),
       schema: { results: [this.getEntitySchema()] },
     };
   }
 
-  static singleRequest<T extends typeof Resource>(
+  static detailShape<T extends typeof Resource>(
     this: T,
   ): ReadShape<
     SchemaBase<AbstractInstanceType<T>>,
@@ -156,7 +156,7 @@ export class PaginatedArticleResource extends OtherArticleResource {
     Readonly<object>
   > {
     return {
-      ...super.listRequest(),
+      ...super.listShape(),
       schema: { data: this.getEntitySchema() },
     };
   }

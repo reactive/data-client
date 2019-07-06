@@ -228,7 +228,7 @@ export default abstract class Resource {
 
   // TODO: memoize these so they can be referentially compared
   /** Shape to get a single entity */
-  static singleRequest<T extends typeof Resource>(
+  static detailShape<T extends typeof Resource>(
     this: T,
   ): ReadShape<SchemaBase<AbstractInstanceType<T>>> {
     const self = this;
@@ -249,7 +249,7 @@ export default abstract class Resource {
   }
 
   /** Shape to get a list of entities */
-  static listRequest<T extends typeof Resource>(
+  static listShape<T extends typeof Resource>(
     this: T,
   ): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
     const self = this;
@@ -271,7 +271,7 @@ export default abstract class Resource {
     };
   }
   /** Shape to create a new entity (post) */
-  static createRequest<T extends typeof Resource>(
+  static createShape<T extends typeof Resource>(
     this: T,
   ): MutateShape<
     SchemaBase<AbstractInstanceType<T>>,
@@ -293,7 +293,7 @@ export default abstract class Resource {
     };
   }
   /** Shape to update an existing entity (put) */
-  static updateRequest<T extends typeof Resource>(
+  static updateShape<T extends typeof Resource>(
     this: T,
   ): MutateShape<
     SchemaBase<AbstractInstanceType<T>>,
@@ -315,7 +315,7 @@ export default abstract class Resource {
     };
   }
   /** Shape to update a subset of fields of an existing entity (patch) */
-  static partialUpdateRequest<T extends typeof Resource>(
+  static partialUpdateShape<T extends typeof Resource>(
     this: T,
   ): MutateShape<
     SchemaBase<AbstractInstanceType<T>>,
@@ -337,7 +337,7 @@ export default abstract class Resource {
     };
   }
   /** Shape to delete an entity (delete) */
-  static deleteRequest<T extends typeof Resource>(
+  static deleteShape<T extends typeof Resource>(
     this: T,
   ): DeleteShape<schemas.Entity<AbstractInstanceType<T>>, Readonly<object>> {
     const self = this;

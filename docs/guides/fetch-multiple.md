@@ -12,8 +12,8 @@ import { PostResource, TaskResource } from "./resources";
 
 export default function Post({ name }: { name: string }) {
   const [post, tasks] = useResource(
-    [PostResource.singleRequest(), { name }],
-    [TaskResource.singleRequest(), { name }],
+    [PostResource.detailShape(), { name }],
+    [TaskResource.detailShape(), { name }],
   );
   return (
     <div>
@@ -36,9 +36,9 @@ import { useResource } from "rest-hooks";
 import { PostResource, UserResource } from "./resources";
 
 export default function Post({ id }: { id: number }) {
-  const post = useResource(PostResource.singleRequest(), { id });
+  const post = useResource(PostResource.detailShape(), { id });
   const author = useResource(
-    UserResource.singleRequest(),
+    UserResource.detailShape(),
     {
       id: post.userId
     }

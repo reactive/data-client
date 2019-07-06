@@ -13,7 +13,7 @@ for each of the typical [CRUD operations](https://restfulapi.net/http-methods/).
 
 ## Overriding endpoints
 
-By default the listRequest() assumes an array of entities returned while singleRequest() assumes
+By default the listShape() assumes an array of entities returned while detailShape() assumes
 just the entity returned.
 
 ### Default schema
@@ -125,7 +125,7 @@ key of an object:
 
 ### Resource definition
 
-In this case, you'll need to override your singleRequest() and listRequest() definitions to reflect
+In this case, you'll need to override your detailShape() and listShape() definitions to reflect
 the structure of your data. This is known as a 'schema' definition.
 
 ```typescript
@@ -138,19 +138,19 @@ import {
 } from 'rest-hooks';
 
 export default class CommentResource extends Resource {
-  static singleRequest<T extends typeof Resource>(
+  static detailShape<T extends typeof Resource>(
     this: T,
   ): ReadShape<SchemaBase<AbstractInstanceType<T>>> {
     return {
-      ...super.singleRequest(),
+      ...super.detailShape(),
       schema: { data: this.getEntitySchema() },
     };
   }
-  static listRequest<T extends typeof Resource>(
+  static listShape<T extends typeof Resource>(
     this: T,
   ): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
     return {
-      ...super.listRequest(),
+      ...super.listShape(),
       schema: { data: [this.getEntitySchema()] },
     };
   }
@@ -172,7 +172,7 @@ define exactly what your endpoint needs.
 ### RPC
 
 In this example, we have an RPC endpoint located at `/users/[id]/make_manager`. This endpoint
-doesn't expect any body, but is a POST requeest. Because it is so similar to a [createRequest()](../api/resource#createrequest-mutateshape)
+doesn't expect any body, but is a POST requeest. Because it is so similar to a [createShape()](../api/resource#createshape-mutateshape)
 we'll be extended that schema definition.
 
 ```typescript
@@ -188,7 +188,7 @@ export default class UserResource extends Resource {
     this: T,
   ): MutateShape<SchemaBase<AbstractInstanceType<T>>, { id: number }, {}> {
     return {
-      ...this.createRequest(),
+      ...this.createShape(),
       getUrl({ id }: { id: number }) {
         return `/users/${id}/make_manager`;
       },
@@ -225,7 +225,7 @@ export default class UserResource extends Resource {
     this: T,
   ): ReadShape<SchemaBase<AbstractInstanceType<T>>, {}> {
     return {
-      ...this.singleRequest(),
+      ...this.detailShape(),
       getUrl() {
         return '/current_user/';
       },

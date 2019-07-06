@@ -23,7 +23,7 @@ Using a type guard to deal with null
 
 ```tsx
 function Post({ id }: { id: number }) {
-  const post = useCache(PostResource.singleRequest(), { id });
+  const post = useCache(PostResource.detailShape(), { id });
   // post as PostResource | null
   if (!post) return null;
   // post as PostResource (typeguarded)
@@ -35,7 +35,7 @@ function Post({ id }: { id: number }) {
 
 [Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
 
-- singleRequest()
-- listRequest()
+- detailShape()
+- listShape()
 
 Feel free to add your own [FetchShape](./FetchShape.md) as well.

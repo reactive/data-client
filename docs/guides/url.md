@@ -32,7 +32,7 @@ It does this by using that `urlRoot` static property in two static methods:
 - [url(urlParams)](../api/resource#static-url-t-extends-typeof-resource-urlparams-partial-abstractinstancetype-t-string)
   - handles most Fetch Shapes
 - [listUrl(searchParams)](../api/resource#static-listurl-t-extends-typeof-resource-searchparams-readonly-record-string-string-string)
-  - used in createRequest() and listRequest()
+  - used in createShape() and listShape()
 
 ```typescript
 ArticleResource.listUrl();
