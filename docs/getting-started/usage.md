@@ -86,7 +86,7 @@ import { useResource } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function ArticleDetail({ id }: { id: number }) {
-  const article = useResource(ArticleResource.singleRequest(), { id });
+  const article = useResource(ArticleResource.detailShape(), { id });
   return (
     <article>
       <h2>{article.title}</h2>
@@ -104,7 +104,7 @@ import ArticleResource from 'resources/article';
 import ArticleSummary from './ArticleSummary';
 
 export default function ArticleList({ sortBy }: { sortBy: string }) {
-  const articles = useResource(ArticleResource.listRequest(), { sorBy });
+  const articles = useResource(ArticleResource.listShape(), { sorBy });
   return (
     <section>
       {articles.map(article => (
@@ -133,7 +133,7 @@ import { useFetcher } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function NewArticleForm() {
-  const create = useFetcher(ArticleResource.createRequest());
+  const create = useFetcher(ArticleResource.createShape());
   // create as (body: Readonly<Partial<ArticleResource>>, params?: Readonly<object>) => Promise<any>
   return (
     <Form onSubmit={e => create(new FormData(e.target), {})}>
@@ -155,8 +155,8 @@ import { useFetcher } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function UpdateArticleForm({ id }: { id: number }) {
-  const article = useResource(ArticleResource.singleRequest(), { id });
-  const update = useFetcher(ArticleResource.updateRequest());
+  const article = useResource(ArticleResource.detailShape(), { id });
+  const update = useFetcher(ArticleResource.updateShape());
   // update as (body: Readonly<Partial<ArticleResource>>, params?: Readonly<object>) => Promise<any>
   return (
     <Form
@@ -181,7 +181,7 @@ import { useFetcher } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function ArticleWithDelete({ article }: { article: ArticleResource }) {
-  const del = useFetcher(ArticleResource.deleteRequest());
+  const del = useFetcher(ArticleResource.deleteShape());
   // del as (body: any, params?: Readonly<object>) => Promise<any>
   return (
     <article>

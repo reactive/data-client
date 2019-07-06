@@ -96,7 +96,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
 
     it('should resolve useResource()', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        return useResource(CoolerArticleResource.singleRequest(), payload);
+        return useResource(CoolerArticleResource.detailShape(), payload);
       });
       expect(result.current).toBe(null);
       await waitForNextUpdate();
@@ -107,8 +107,8 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     it('should throw 404 once deleted', async () => {
       let del: any;
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        del = useFetcher(CoolerArticleResource.deleteRequest());
-        return useResource(CoolerArticleResource.singleRequest(), payload);
+        del = useFetcher(CoolerArticleResource.deleteShape());
+        return useResource(CoolerArticleResource.detailShape(), payload);
       });
       expect(result.current).toBe(null);
       await waitForNextUpdate();
@@ -122,7 +122,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
 
     it('useResource() should throw errors on bad network', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        return useResource(CoolerArticleResource.singleRequest(), {
+        return useResource(CoolerArticleResource.detailShape(), {
           title: '0',
         });
       });
@@ -135,7 +135,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     it('useResource() should throw errors on bad network (multiarg)', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
         return useResource([
-          CoolerArticleResource.singleRequest(),
+          CoolerArticleResource.detailShape(),
           {
             title: '0',
           },
@@ -151,12 +151,12 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       const { result, waitForNextUpdate } = renderRestHook(() => {
         return useResource(
           [
-            CoolerArticleResource.singleRequest(),
+            CoolerArticleResource.detailShape(),
             {
               id: payload.id,
             },
           ],
-          [UserResource.listRequest(), {}],
+          [UserResource.listShape(), {}],
         );
       });
       expect(result.current).toBe(null);
@@ -172,7 +172,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     it('should not suspend with no params to useResource()', async () => {
       let article: any;
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        article = useResource(CoolerArticleResource.singleRequest(), null);
+        article = useResource(CoolerArticleResource.detailShape(), null);
         return 'done';
       });
       expect(result.current).toBe('done');

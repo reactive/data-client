@@ -15,7 +15,7 @@ function useFetcher<
 Mostly useful for imperatively triggering mutation effects.
 
 However, this hook is actually used by the retrieval hooks (useRetrieve(), useCache(), useResource()). Using
-it with a `ReadRequest` like `singleRequest()` can be done to force a refresh imperatively.
+it with a `ReadRequest` like `detailShape()` can be done to force a refresh imperatively.
 
 ## throttle?: boolean = false
 
@@ -26,7 +26,7 @@ in-flight requests will be deduped.
 
 ```tsx
 function CreatePost() {
-  const create = useFetcher(PostResource.createRequest());
+  const create = useFetcher(PostResource.createShape());
   // create as (body: Readonly<Partial<PostResource>>, params?: Readonly<object>) => Promise<any>
 
   return (
@@ -37,7 +37,7 @@ function CreatePost() {
 
 ```tsx
 function UpdatePost({ id }: { id: string }) {
-  const update = useFetcher(PostResource.updateRequest());
+  const update = useFetcher(PostResource.updateShape());
   // update as (body: Readonly<Partial<PostResource>>, params?: Readonly<object>) => Promise<any>
 
   return (
@@ -50,7 +50,7 @@ function UpdatePost({ id }: { id: string }) {
 
 ```tsx
 function PostListItem({ post }: { post: PostResource }) {
-  const del = useFetcher(PostResource.deleteRequest());
+  const del = useFetcher(PostResource.deleteShape());
   // del as (body: any, params: Readonly<object>) => Promise<any>
 
   return (
@@ -66,10 +66,10 @@ function PostListItem({ post }: { post: PostResource }) {
 
 [Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
 
-- createRequest()
-- updateRequest()
-- partialUpdateRequest()
-- deleteRequest()
+- createShape()
+- updateShape()
+- partialUpdateShape()
+- deleteShape()
 
 Feel free to add your own [FetchShape](./FetchShape.md) as well.
 

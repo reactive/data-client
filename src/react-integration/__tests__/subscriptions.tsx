@@ -48,18 +48,18 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
 
     it('useSubscription() + useCache()', async () => {
       jest.useFakeTimers();
-      const frequency: number = (PollingArticleResource.singleRequest()
+      const frequency: number = (PollingArticleResource.detailShape()
         .options as any).pollFrequency;
       let active = true;
 
       const { result, waitForNextUpdate, rerender } = renderRestHook(() => {
         useSubscription(
-          PollingArticleResource.singleRequest(),
+          PollingArticleResource.detailShape(),
           articlePayload,
           undefined,
           active,
         );
-        return useCache(PollingArticleResource.singleRequest(), articlePayload);
+        return useCache(PollingArticleResource.detailShape(), articlePayload);
       });
 
       await validateSubscription(
@@ -81,12 +81,12 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
 
     it('useSubscription() without active arg', async () => {
       jest.useFakeTimers();
-      const frequency: number = (PollingArticleResource.singleRequest()
+      const frequency: number = (PollingArticleResource.detailShape()
         .options as any).pollFrequency;
 
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        useSubscription(PollingArticleResource.singleRequest(), articlePayload);
-        return useCache(PollingArticleResource.singleRequest(), articlePayload);
+        useSubscription(PollingArticleResource.detailShape(), articlePayload);
+        return useCache(PollingArticleResource.detailShape(), articlePayload);
       });
 
       await validateSubscription(
@@ -102,7 +102,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
 
       const { rerender } = renderHook(
         () => {
-          useSubscription(PollingArticleResource.listRequest(), { id: 5 });
+          useSubscription(PollingArticleResource.listShape(), { id: 5 });
         },
         {
           wrapper: function Wrapper({ children }: any) {

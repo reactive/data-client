@@ -48,7 +48,7 @@ import MyComponentToTest from 'components/MyComponentToTest';
 
 const results = [
   {
-    request: ArticleResource.listRequest(),
+    request: ArticleResource.listShape(),
     params: { maxResults: 10 },
     result: [
       {

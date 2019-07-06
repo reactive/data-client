@@ -40,7 +40,7 @@ describe('useResource()', () => {
 
   it('should throw errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useResource(ArticleResource.singleRequest(), {
+      return useResource(ArticleResource.detailShape(), {
         title: '0',
       });
     });
