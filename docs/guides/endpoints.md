@@ -159,7 +159,8 @@ export default class CommentResource extends Resource {
 
 Here we only overrode the 'schema' part of the [FetchShape](../api/FetchShape) - taking advantage
 of [super](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/super) to keep
-the other pieces the same. See [pagination](./pagination) guide for more examples of custom schemas and overriding
+the other pieces the same. See [pagination](./pagination), [nested resources](./nested-response)
+and [mutation side-effects](./rpc) guide for more examples of custom schemas and overriding
 endpoints.
 
 ## Additional endpoints
