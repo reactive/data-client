@@ -65,7 +65,7 @@ function Posts() {
 function PostWithAuthor() {
   const post = useResource(PostResource.detailShape(), { id });
   // post as PostResource
-  const author = useResource(UserResource.singleResource(), {
+  const author = useResource(UserResource.detailShape(), {
     id: post.userId,
   });
   // author as UserResource
