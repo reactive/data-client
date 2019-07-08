@@ -44,7 +44,7 @@ ArticleResource.url({ id: 5 });
 ```
 
 Customizing the url patterns is typically as easy as overriding either of these
-methods. However, in more extreme scenarios, [getFetchKey()](../api/FetchShape#fetchkeylparams-param-string)
+methods. However, in more extreme scenarios, [getFetchKey()](../api/FetchShape#fetchkeyparams-param-string)
 can be set in a custom FetchShape definition.
 
 ## Example
