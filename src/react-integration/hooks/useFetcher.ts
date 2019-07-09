@@ -27,13 +27,13 @@ export default function useFetcher<
 
   const fetchDispatcher = useCallback(
     (body: Body, params: Params) => {
-      const { fetch, schema, type, getUrl, options } = shapeRef.current;
+      const { fetch, schema, type, getFetchKey, options } = shapeRef.current;
       const responseType = SHAPE_TYPE_TO_RESPONSE_TYPE[type];
 
-      const url = getUrl(params);
+      const key = getFetchKey(params);
       const identifier = isDeleteShape(shapeRef.current)
         ? (schema as any).getId(params)
-        : url;
+        : key;
       let resolve: (value?: any | PromiseLike<any>) => void = () => undefined;
       let reject: (reason?: any) => void = () => undefined;
       const promise = new Promise<any>((a, b) => {
@@ -42,7 +42,7 @@ export default function useFetcher<
 
       dispatch({
         type: 'rest-hooks/fetch',
-        payload: () => fetch(url, body),
+        payload: () => fetch(params, body),
         meta: {
           schema,
           responseType,

@@ -9,8 +9,8 @@ export default function useInvalidator<
   S extends Schema
 >(selectShape: ReadShape<S, Params, any>): (params: Params | null) => void {
   const dispatch = useContext(DispatchContext);
-  const getUrlRef = useRef(selectShape.getUrl);
-  getUrlRef.current = selectShape.getUrl;
+  const getFetchKeyRef = useRef(selectShape.getFetchKey);
+  getFetchKeyRef.current = selectShape.getFetchKey;
 
   const invalidateDispatcher = useCallback(
     (params: Params | null) => {
@@ -18,7 +18,7 @@ export default function useInvalidator<
       dispatch({
         type: 'rest-hooks/invalidate',
         meta: {
-          url: getUrlRef.current(params),
+          url: getFetchKeyRef.current(params),
         },
       });
     },

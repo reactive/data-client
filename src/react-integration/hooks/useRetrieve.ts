@@ -35,5 +35,5 @@ export default function useRetrieve<
     // we don't care to re-request on body (should we?)
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataStale, fetch, params && selectShape.getUrl(params)]);
+  }, [dataStale, fetch, params && selectShape.getFetchKey(params)]);
 }

@@ -6,11 +6,11 @@ import { selectMeta } from '~/state/selectors';
 
 /** Gets meta for a url. */
 export default function useMeta<Params extends Readonly<object>>(
-  { getUrl }: Pick<FetchShape<any, any, Params>, 'getUrl'>,
+  { getFetchKey }: Pick<FetchShape<any, any, Params>, 'getFetchKey'>,
   params: Params | null,
 ) {
   const state = useContext(StateContext);
-  const url = params ? getUrl(params) : '';
+  const url = params ? getFetchKey(params) : '';
 
   return useMemo(() => {
     if (!url) return null;

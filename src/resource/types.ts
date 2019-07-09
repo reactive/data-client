@@ -8,8 +8,8 @@ export interface FetchShape<
   Body extends Readonly<object> | void = Readonly<object> | undefined
 > {
   readonly type: 'read' | 'mutate' | 'delete';
-  fetch(url: string, body: Body): Promise<any>;
-  getUrl(params: Params): string;
+  fetch(params: Params, body: Body): Promise<any>;
+  getFetchKey(params: Params): string;
   readonly schema: S;
   readonly options?: RequestOptions;
 }
@@ -55,7 +55,7 @@ export type SelectReturn<RS> = RS extends {
   : never;
 export type AlwaysSelect<RS> = NonNullable<SelectReturn<RS>>;
 export type ParamArg<RS> = RS extends {
-  getUrl: (params: infer U) => any;
+  getFetchKey: (params: infer U) => any;
 }
   ? U
   : never;

@@ -9,10 +9,10 @@ export function selectMeta<R = any>(state: State<R>, url: string) {
   return state.meta[url];
 }
 
-export const makeResults = <R = any>(getUrl: (...args: any[]) => string) => (
+export const makeResults = <R = any>(getFetchKey: (...args: any[]) => string) => (
   state: State<R>,
   params: object,
-) => state.results[getUrl(params)] || null;
+) => state.results[getFetchKey(params)] || null;
 
 // TODO: there should honestly be a way to use the pre-existing normalizr object
 // to not even need this implementation
@@ -37,13 +37,13 @@ function makeSchemaSelectorSimple<
   S extends Schema
 >(
   schema: S,
-  getUrl: (params: Params) => string,
+  getFetchKey: (params: Params) => string,
 ): (state: State<any>, params: Params) => SchemaOf<typeof schema> | null {
   const getResultList = resultFinderFromSchema(schema);
   const dataSchema = getResultList
     ? getResultList(schema)
     : (schema as SchemaOf<typeof schema>);
-  const selectResults = makeResults<any>(getUrl);
+  const selectResults = makeResults<any>(getFetchKey);
   const ret = createSelector(
     (state: State<any>) => state.entities,
     selectResults,
@@ -71,14 +71,14 @@ function makeSchemaSelectorSimple<
       if (process.env.NODE_ENV !== 'production' && isEntity(schema)) {
         if (Array.isArray(results)) {
           throw new Error(
-            `url ${getUrl(
+            `url ${getFetchKey(
               params,
             )} has list results when single result is expected`,
           );
         }
         if (typeof results === 'object') {
           throw new Error(
-            `url ${getUrl(
+            `url ${getFetchKey(
               params,
             )} has object results when single result is expected`,
           );
