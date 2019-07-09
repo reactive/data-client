@@ -3,7 +3,7 @@ title: useCache()
 ---
 ```typescript
 function useCache<Params extends Readonly<object>, S extends Schema>(
-  { select, getUrl }: ReadShape<S, Params, any>,
+  { select, getFetchKey }: ReadShape<S, Params, any>,
   params: Params | null
 ): SchemaOf<S> | null;
 ```
