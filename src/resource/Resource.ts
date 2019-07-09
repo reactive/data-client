@@ -232,8 +232,8 @@ export default abstract class Resource {
     this: T,
   ): ReadShape<SchemaBase<AbstractInstanceType<T>>> {
     const self = this;
-    const getUrl = (params: Readonly<object>) => {
-      return this.url(params);
+    const getFetchKey = (params: Readonly<object>) => {
+      return 'GET ' + this.url(params);
     };
     const schema: SchemaBase<AbstractInstanceType<T>> = this.getEntitySchema();
     const options = this.getRequestOptions();
@@ -241,9 +241,9 @@ export default abstract class Resource {
       type: 'read',
       schema,
       options,
-      getUrl,
-      fetch(url: string, body?: Readonly<object>) {
-        return self.fetch('get', url, body);
+      getFetchKey,
+      fetch(params: Readonly<object>, body?: Readonly<object>) {
+        return self.fetch('get', self.url(params), body);
       },
     };
   }
@@ -253,8 +253,8 @@ export default abstract class Resource {
     this: T,
   ): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
     const self = this;
-    const getUrl = (params: Readonly<Record<string, string>>) => {
-      return this.listUrl(params);
+    const getFetchKey = (params: Readonly<Record<string, string>>) => {
+      return 'GET ' + this.listUrl(params);
     };
     const schema: SchemaArray<AbstractInstanceType<T>> = [
       this.getEntitySchema(),
@@ -264,9 +264,9 @@ export default abstract class Resource {
       type: 'read',
       schema,
       options,
-      getUrl,
-      fetch(url: string, body?: Readonly<object>) {
-        return self.fetch('get', url, body);
+      getFetchKey,
+      fetch(params: Readonly<Record<string, string | number>>, body?: Readonly<object>) {
+        return self.fetch('get', self.listUrl(params), body);
       },
     };
   }
@@ -284,11 +284,11 @@ export default abstract class Resource {
       type: 'mutate',
       schema: self.getEntitySchema(),
       options,
-      getUrl(params: Readonly<Record<string, string>>) {
-        return self.listUrl(params);
+      getFetchKey(params: Readonly<Record<string, string>>) {
+        return 'POST ' + self.listUrl(params);
       },
-      fetch(url: string, body: Partial<AbstractInstanceType<T>>) {
-        return self.fetch('post', url, body);
+      fetch(params: Readonly<Record<string, string | number>>, body: Partial<AbstractInstanceType<T>>) {
+        return self.fetch('post', self.listUrl(params), body);
       },
     };
   }
@@ -306,11 +306,11 @@ export default abstract class Resource {
       type: 'mutate',
       schema: self.getEntitySchema(),
       options,
-      getUrl(params: object) {
-        return self.url(params);
+      getFetchKey(params: object) {
+        return 'PUT ' + self.url(params);
       },
-      fetch(url: string, body: Partial<AbstractInstanceType<T>>) {
-        return self.fetch('put', url, body);
+      fetch(params: Readonly<object>, body: Partial<AbstractInstanceType<T>>) {
+        return self.fetch('put', self.url(params), body);
       },
     };
   }
@@ -328,11 +328,11 @@ export default abstract class Resource {
       type: 'mutate',
       schema: self.getEntitySchema(), //TODO: change merge strategy in case we want to handle partial returns
       options,
-      getUrl(params: Readonly<object>) {
-        return self.url(params);
+      getFetchKey(params: Readonly<object>) {
+        return 'PATCH ' + self.url(params);
       },
-      fetch(url: string, body: Partial<AbstractInstanceType<T>>) {
-        return self.fetch('patch', url, body);
+      fetch(params: Readonly<object>, body: Partial<AbstractInstanceType<T>>) {
+        return self.fetch('patch', self.url(params), body);
       },
     };
   }
@@ -346,11 +346,11 @@ export default abstract class Resource {
       type: 'delete',
       schema: self.getEntitySchema(),
       options,
-      getUrl(params: object) {
-        return self.url(params);
+      getFetchKey(params: object) {
+        return 'DELETE ' + self.url(params);
       },
-      fetch(url: string) {
-        return self.fetch('delete', url);
+      fetch(params: Readonly<object>) {
+        return self.fetch('delete', self.url(params));
       },
     };
   }

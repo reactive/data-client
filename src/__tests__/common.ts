@@ -64,8 +64,10 @@ export class ArticleResource extends Resource {
     const baseShape = this.detailShape();
     return {
       ...baseShape,
-      getUrl: (params: Readonly<Record<string, string>>) =>
-        baseShape.getUrl({ ...params, includeUser: true }),
+      getFetchKey: (params: Readonly<Record<string, string>>) =>
+        baseShape.getFetchKey({ ...params, includeUser: true }),
+      fetch: (params: object, body: object) =>
+        this.fetch('get', this.url({ ...params, includeUser: true }), body),
       schema: this.getNestedEntitySchema(),
     };
   }
@@ -76,8 +78,10 @@ export class ArticleResource extends Resource {
     const baseShape = this.listShape();
     return {
       ...baseShape,
-      getUrl: (params: Readonly<Record<string, string>>) =>
-        baseShape.getUrl({ ...params, includeUser: true }),
+      getFetchKey: (params: Readonly<Record<string, string>>) =>
+        baseShape.getFetchKey({ ...params, includeUser: true }),
+      fetch: (params: object, body: object) =>
+        this.fetch('get', this.listUrl({ ...params, includeUser: 'true' }), body),
       schema: [this.getNestedEntitySchema()],
     };
   }

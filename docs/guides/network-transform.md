@@ -1,6 +1,7 @@
 ---
 title: Transforming data on fetch
 ---
+
 All network requests flow through the `fetch()` method, so any transforms needed can simply
 be done by overriding it with a call to super.
 
@@ -10,12 +11,13 @@ Commonly APIs are designed with keys using `snake_case`, but many in typescript/
 prefer `camelCase`. This snippet lets us make the transform needed.
 
 `CamelResource.ts`
+
 ```typescript
 import { camelCase, snakeCase } from 'lodash';
 import { Method, Resource } from 'rest-hooks';
 
 function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
-  const ret: {[key:string]: any} = Array.isArray(obj) ? [] : {};
+  const ret: { [key: string]: any } = Array.isArray(obj) ? [] : {};
   Object.keys(obj).forEach(key => {
     if (obj[key] != null && typeof obj[key] === 'object') {
       ret[transform(key)] = deeplyApplyKeyTransform(obj[key], transform);
@@ -54,6 +56,7 @@ you have much better naming standards, so instead of your `Resource` class defin
 and all your code, you just want to remap that key.
 
 `ArticleResource.ts`
+
 ```typescript
 // We're using camelCase now as well ;)
 class ArticleResource extends CamelResource {
@@ -110,6 +113,7 @@ response.
 ```
 
 `StreamResource.ts`
+
 ```typescript
 const USERNAME_MATCHER = /.*\/([^\/]+)\/?/;
 
@@ -124,18 +128,18 @@ abstract class StreamResource extends CamelResource {
     return this.username;
   }
 
-  static async fetch<T extends typeof Resource>(
+  static detailShape<T extends typeof Resource>(
     this: T,
-    method: Method = 'get',
-    url: string,
-    body?: Readonly<object>,
-  ) {
-    const jsonResponse = await super.fetch(method, url, body);
-    // this looks like a detail response, so let's add the data
-    if ('currentViewers' in jsonResponse) {
-      jsonResponse.username = USERNAME_MATCHER.match(url)[1];
-    }
-    return jsonResponse;
+  ): ReadShape<SchemaBase<AbstractInstanceType<T>>, { username: string }> {
+    const superShape = super.detailShape();
+    return {
+      ...superShape,
+      fetch: async (params: { username: string }, body?: Readonly<object>) => {
+        const response = await superShape.fetch(params, body);
+        response.username = params.username;
+        return response;
+      },
+    };
   }
 }
 ```

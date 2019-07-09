@@ -15,22 +15,22 @@ export default function useResultCache<
   Params extends Readonly<object>,
   D extends object
 >(
-  { getUrl, fetch }: ReadShape<any, Params, any>,
+  { getFetchKey, fetch }: ReadShape<any, Params, any>,
   params: Params | null,
   defaults?: D,
 ): D extends undefined
   ? Resolved<ReturnType<typeof fetch>> | null
   : Readonly<D> {
   const state = useContext(StateContext);
-  // TODO: make sure getUrl stays the same
-  const resultSelector = useMemo(() => makeResults((p: Params) => getUrl(p)), [
-    getUrl,
+  // TODO: make sure getFetchKey stays the same
+  const resultSelector = useMemo(() => makeResults((p: Params) => getFetchKey(p)), [
+    getFetchKey,
   ]);
   const results = useMemo(
     () => params && resultSelector(state, params),
     // params must be serialized in check
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [params && getUrl(params), resultSelector, state],
+    [params && getFetchKey(params), resultSelector, state],
   );
   if (defaults && !results) {
     return defaults as any;

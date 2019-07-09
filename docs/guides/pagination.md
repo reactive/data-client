@@ -110,7 +110,8 @@ export default class ArticleResource extends Resource {
 
   /** Shape to get a list of entities */
   static listShape<T extends typeof Resource>(this: T): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
-    const fetch = async (url: string, body?: Readonly<object>) => {
+    const fetch = async (params: Readonly<object>, body?: Readonly<object>) => {
+      const url = this.listUrl(params);
       let req = request['get'](url).on('error', () => {});
       if (this.fetchPlugin) req = req.use(this.fetchPlugin);
       if (body) req = req.send(body);

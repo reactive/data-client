@@ -19,8 +19,8 @@ interface FetchShape<
   Body extends Readonly<object> | void
 > {
   readonly type: 'read' | 'mutate' | 'delete';
-  fetch(url: string, body: Body): Promise<any>;
-  getUrl(params: Params): string;
+  fetch(params: Params, body: Body): Promise<any>;
+  getFetchKey(params: Params): string;
   readonly schema: S;
   readonly options?: RequestOptions;
 }
@@ -45,14 +45,14 @@ mutation update properly in the cache without having to do another request.
 It sends a request and represents a success response to mean that entity is deleted.
 Upon success it will purge that entity from the cache.
 
-## fetch(url: string, body: Payload): Promise\<any>
+## fetch(params: Param, body: Payload): Promise\<any>
 
 Handles performing an actual network request. This usually just proxies to the `Resource`
 fetch method with a defined `method`.
 
-## getUrl(params: Param): string
+## getFetchKey(params: Param): string
 
-Turns the provided object params into a url to fetch.
+Serializes the params into a globally unique key.
 
 ## schema: Schema
 
