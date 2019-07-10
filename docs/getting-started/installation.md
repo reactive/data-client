@@ -3,6 +3,16 @@ id: installation
 title: Installation
 ---
 
+Rest Hooks is a library for fetching structured data in performant way with no boilerplate.
+
+Its interface is declarative and minimal. A small structure declaration is all that is needed
+for Rest Hooks to perform numerous fetching and caching optimizations while providing predictable,
+precisely typed data to consume.
+
+Structured data means data composed of Objects (maps) and Arrays (lists), as opposed media
+like images and videos. This makes it great for API calls regardless of form (REST-like, GraphQL, gRPC)
+or transport (HTTP, websockets, local).
+
 ## Install rest-hooks
 
 Install the rest-hooks package into your project using [yarn](https://yarnpkg.com/en/)
