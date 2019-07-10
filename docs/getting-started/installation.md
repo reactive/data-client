@@ -9,9 +9,11 @@ Its interface is declarative and minimal. A small structure declaration is all t
 for Rest Hooks to perform numerous fetching and caching optimizations while providing predictable,
 precisely typed data to consume.
 
-Structured data means data composed of Objects (maps) and Arrays (lists), as opposed media
-like images and videos. This makes it great for API calls regardless of form (REST-like, GraphQL, gRPC)
-or transport (HTTP, websockets, local).
+Structured data means data composed of Objects ([maps](https://en.wikipedia.org/wiki/Associative_array))
+and Arrays ([lists](https://en.wikipedia.org/wiki/List_(abstract_data_type))), as opposed media
+like images and videos. This makes it great for API calls regardless of form ([REST-like](https://restfulapi.net/),
+[GraphQL](https://graphql.org/), [gRPC](https://grpc.io/))
+or transport ([HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview), [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API), [local](../guides/mocking-unfinished)).
 
 ## Install rest-hooks
 
