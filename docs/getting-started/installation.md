@@ -7,7 +7,7 @@ Rest Hooks is a library for fetching structured data in performant way with no b
 
 Its interface is declarative and minimal. A small structure declaration is all that is needed
 for Rest Hooks to perform numerous fetching and caching optimizations while providing predictable,
-precisely typed data to consume.
+precisely-typed data to consume.
 
 Structured data means data composed of [Objects](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
 ([maps](https://en.wikipedia.org/wiki/Associative_array))
