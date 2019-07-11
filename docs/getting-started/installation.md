@@ -3,7 +3,7 @@ id: installation
 title: Installation
 ---
 
-Rest Hooks is a library for fetching structured data in performant way with no boilerplate.
+Rest Hooks is a library for fetching structured data in a performant way with no boilerplate.
 
 Its interface is declarative and minimal. A small structure declaration is all that is needed
 for Rest Hooks to perform numerous fetching and caching optimizations while providing predictable,
