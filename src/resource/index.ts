@@ -10,9 +10,9 @@ import {
   isEntity,
 } from './types';
 import {
-  SchemaArray,
+  SchemaList,
   Schema,
-  SchemaBase,
+  SchemaDetail,
   normalize,
   denormalize,
   schemas,
@@ -39,8 +39,8 @@ export type FetchShape<
 > = FetchShape<S, Params, Body>;
 export type Schema<T = any> = Schema<T>;
 export type SchemaOf<T> = SchemaOf<T>;
-export type SchemaArray<T> = SchemaArray<T>;
-export type SchemaBase<T> = SchemaBase<T>;
+export type SchemaList<T> = SchemaList<T>;
+export type SchemaDetail<T> = SchemaDetail<T>;
 export type RequestResource<RS> = RequestResource<RS>;
 
 export { Resource, isEntity, normalize, denormalize, isDeleteShape, schemas };

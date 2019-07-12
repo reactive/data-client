@@ -3,7 +3,7 @@ import { memoize } from 'lodash';
 import { AbstractInstanceType, Method, RequestOptions } from '~/types';
 
 import { ReadShape, MutateShape, DeleteShape } from './types';
-import { schemas, SchemaBase, SchemaArray } from './normal';
+import { schemas, SchemaDetail, SchemaList } from './normal';
 
 const getEntitySchema: <T extends typeof Resource>(
   M: T,
@@ -215,7 +215,9 @@ export default abstract class Resource {
   }
 
   /** Get the entity schema defining  */
-  static getEntitySchema<T extends typeof Resource>(this: T) {
+  static getEntitySchema<T extends typeof Resource>(
+    this: T,
+  ): schemas.Entity<AbstractInstanceType<T>> {
     return getEntitySchema(this);
   }
 
@@ -230,12 +232,12 @@ export default abstract class Resource {
   /** Shape to get a single entity */
   static detailShape<T extends typeof Resource>(
     this: T,
-  ): ReadShape<SchemaBase<AbstractInstanceType<T>>> {
+  ): ReadShape<SchemaDetail<AbstractInstanceType<T>>> {
     const self = this;
     const getFetchKey = (params: Readonly<object>) => {
       return 'GET ' + this.url(params);
     };
-    const schema: SchemaBase<AbstractInstanceType<T>> = this.getEntitySchema();
+    const schema: SchemaDetail<AbstractInstanceType<T>> = this.getEntitySchema();
     const options = this.getRequestOptions();
     return {
       type: 'read',
@@ -251,12 +253,12 @@ export default abstract class Resource {
   /** Shape to get a list of entities */
   static listShape<T extends typeof Resource>(
     this: T,
-  ): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
+  ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
     const self = this;
     const getFetchKey = (params: Readonly<Record<string, string>>) => {
       return 'GET ' + this.listUrl(params);
     };
-    const schema: SchemaArray<AbstractInstanceType<T>> = [
+    const schema: SchemaList<AbstractInstanceType<T>> = [
       this.getEntitySchema(),
     ];
     const options = this.getRequestOptions();
@@ -265,7 +267,10 @@ export default abstract class Resource {
       schema,
       options,
       getFetchKey,
-      fetch(params: Readonly<Record<string, string | number>>, body?: Readonly<object>) {
+      fetch(
+        params: Readonly<Record<string, string | number>>,
+        body?: Readonly<object>,
+      ) {
         return self.fetch('get', self.listUrl(params), body);
       },
     };
@@ -274,7 +279,7 @@ export default abstract class Resource {
   static createShape<T extends typeof Resource>(
     this: T,
   ): MutateShape<
-    SchemaBase<AbstractInstanceType<T>>,
+    SchemaDetail<AbstractInstanceType<T>>,
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
@@ -287,7 +292,10 @@ export default abstract class Resource {
       getFetchKey(params: Readonly<Record<string, string>>) {
         return 'POST ' + self.listUrl(params);
       },
-      fetch(params: Readonly<Record<string, string | number>>, body: Partial<AbstractInstanceType<T>>) {
+      fetch(
+        params: Readonly<Record<string, string | number>>,
+        body: Partial<AbstractInstanceType<T>>,
+      ) {
         return self.fetch('post', self.listUrl(params), body);
       },
     };
@@ -296,7 +304,7 @@ export default abstract class Resource {
   static updateShape<T extends typeof Resource>(
     this: T,
   ): MutateShape<
-    SchemaBase<AbstractInstanceType<T>>,
+    SchemaDetail<AbstractInstanceType<T>>,
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
@@ -318,7 +326,7 @@ export default abstract class Resource {
   static partialUpdateShape<T extends typeof Resource>(
     this: T,
   ): MutateShape<
-    SchemaBase<AbstractInstanceType<T>>,
+    SchemaDetail<AbstractInstanceType<T>>,
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {

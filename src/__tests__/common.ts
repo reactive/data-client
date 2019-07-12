@@ -1,10 +1,10 @@
 import React from 'react';
 import {
   Resource,
-  SchemaArray,
+  SchemaList,
   schemas,
   ReadShape,
-  SchemaBase,
+  SchemaDetail,
 } from '../resource';
 import { AbstractInstanceType, RequestOptions } from '../types';
 
@@ -60,7 +60,7 @@ export class ArticleResource extends Resource {
 
   static singleWithUserRequest<T extends typeof ArticleResource>(
     this: T,
-  ): ReadShape<SchemaBase<AbstractInstanceType<T>>> {
+  ): ReadShape<SchemaDetail<AbstractInstanceType<T>>> {
     const baseShape = this.detailShape();
     return {
       ...baseShape,
@@ -74,7 +74,7 @@ export class ArticleResource extends Resource {
 
   static listWithUserRequest<T extends typeof ArticleResource>(
     this: T,
-  ): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
+  ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
     const baseShape = this.listShape();
     return {
       ...baseShape,
@@ -86,6 +86,7 @@ export class ArticleResource extends Resource {
     };
   }
 }
+
 
 export class CoolerArticleResource extends ArticleResource {
   static urlRoot = 'http://test.com/article-cooler/';
@@ -141,11 +142,7 @@ export class PaginatedArticleResource extends OtherArticleResource {
   static urlRoot = 'http://test.com/article-paginated/';
   static listShape<T extends typeof Resource>(
     this: T,
-  ): ReadShape<
-    SchemaArray<AbstractInstanceType<T>>,
-    Readonly<object>,
-    Readonly<object>
-  > {
+  ) {
     return {
       ...super.listShape(),
       schema: { results: [this.getEntitySchema()] },
@@ -154,11 +151,7 @@ export class PaginatedArticleResource extends OtherArticleResource {
 
   static detailShape<T extends typeof Resource>(
     this: T,
-  ): ReadShape<
-    SchemaBase<AbstractInstanceType<T>>,
-    Readonly<object>,
-    Readonly<object>
-  > {
+  ) {
     return {
       ...super.listShape(),
       schema: { data: this.getEntitySchema() },

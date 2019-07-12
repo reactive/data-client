@@ -30,7 +30,7 @@ declare namespace schemas {
     define(definition: Schema): void;
   }
 
-  export class Union<T> {
+  export class Union<T = any> {
     constructor(
       definition: Schema<T>,
       schemaAttribute?: string | SchemaFunction,
@@ -47,29 +47,47 @@ declare namespace schemas {
   }
 }
 
-export type Schema<T = any> = SchemaArray<T> | SchemaBase<T>;
+interface SimpleObject {
+  [key: string]: SimpleObject | string | number | boolean;
+}
 
-export type SchemaArray<T = any> =
-  | schemas.Array<T>[]
-  | schemas.Entity<T>[]
-  | schemas.Object<T>[]
-  | schemas.Union<T>[]
-  | schemas.Values<T>[]
-  | { [key: string]: SchemaArray<T> };
-export type SchemaBase<T = any> =
-  | schemas.Array<T>
+interface SchemaObjectOne<T> {
+  [key: string]: SchemaDetail<T> | string | number | boolean | SimpleObject | void;
+}
+
+interface SchemaObjectMany<T> {
+  [key: string]:
+    | SchemaList<T>
+    | string
+    | number
+    | boolean
+    | SimpleObject
+    | void;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface SchemaArray<T> extends Array<SchemaDetail<T>> {}
+
+export type SchemaDetail<T> =
   | schemas.Entity<T>
   | schemas.Object<T>
   | schemas.Union<T>
   | schemas.Values<T>
-  | { [key: string]: SchemaBase<T> };
+  | SchemaObjectOne<T>;
 
-export function normalize<T>(
-  data: any,
-  schema: Schema<T>,
-): {
-  entities: { [key: string]: { [key: string]: T } };
-  result: any;
-};
+export type SchemaList<T> = SchemaArray<T> | SchemaObjectMany<T>;
+
+export type Schema<T = any> = SchemaDetail<T> | SchemaList<T>;
+
+export interface NormalizedSchema<E, R> {
+  entities: E;
+  result: R;
+}
+
+export function normalize<
+  T = any,
+  E = { [key: string]: { [key: string]: T } },
+  R = any
+>(data: any, schema: Schema<T>): NormalizedSchema<E, R>;
 
 export function denormalize(input: any, schema: Schema, entities: any): any;

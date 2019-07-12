@@ -132,15 +132,15 @@ the structure of your data. This is known as a 'schema' definition.
 import {
   Resource,
   ReadShape,
-  SchemaBase,
-  SchemaArray,
+  SchemaDetail,
+  SchemaList,
   AbstractInstanceType,
 } from 'rest-hooks';
 
 export default class CommentResource extends Resource {
   static detailShape<T extends typeof Resource>(
     this: T,
-  ): ReadShape<SchemaBase<AbstractInstanceType<T>>> {
+  ): ReadShape<SchemaDetail<AbstractInstanceType<T>>> {
     return {
       ...super.detailShape(),
       schema: { data: this.getEntitySchema() },
@@ -148,7 +148,7 @@ export default class CommentResource extends Resource {
   }
   static listShape<T extends typeof Resource>(
     this: T,
-  ): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
+  ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
     return {
       ...super.listShape(),
       schema: { data: [this.getEntitySchema()] },

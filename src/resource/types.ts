@@ -1,4 +1,4 @@
-import { schemas, Schema, SchemaArray, SchemaBase } from './normal';
+import { schemas, Schema, SchemaList, SchemaDetail } from './normal';
 import { RequestOptions } from '~/types';
 
 /** Defines the shape of a network request */
@@ -70,8 +70,8 @@ export function isEntity<T>(schema: Schema): schema is schemas.Entity<T> {
   return (schema as schemas.Entity<T>).key !== undefined;
 }
 
-export type SchemaOf<T> = T extends SchemaArray<infer R>
+export type SchemaOf<T> = T extends SchemaList<infer R>
   ? R[]
-  : T extends SchemaBase<infer R>
+  : T extends SchemaDetail<infer R>
   ? R
   : never;

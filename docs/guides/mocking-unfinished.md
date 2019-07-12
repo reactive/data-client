@@ -12,7 +12,7 @@ you won't need to make major changes to your code.
 import {
   Resource,
   ReadShape,
-  SchemaArray,
+  SchemaList,
   AbstractInstanceType,
   RequestOptions,
 } from 'rest-hooks';
@@ -37,7 +37,7 @@ export default class RatingResource extends Resource {
 
   static listShape<T extends typeof Resource>(
     this: T,
-  ): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
+  ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
     return {
       ...super.listShape(),
       fetch(params: Readonly<object>, body?: Readonly<object>) {

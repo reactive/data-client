@@ -36,7 +36,7 @@ understand how to normalize the results (via schema).
 `resources/ArticleResource.ts`
 
 ```typescript
-import { Resource, SchemaArray, ReadShape, AbstractInstanceType } from 'rest-hooks';
+import { Resource, SchemaList, ReadShape, AbstractInstanceType } from 'rest-hooks';
 import { UserResource } from 'resources';
 
 export default class ArticleResource extends Resource {
@@ -50,7 +50,7 @@ export default class ArticleResource extends Resource {
   }
   static urlRoot = 'http://test.com/article/';
 
-  static listShape<T extends typeof Resource>(this: T): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
+  static listShape<T extends typeof Resource>(this: T): ReadShape<SchemaList<AbstractInstanceType<T>>> {
     return {
       ...super.listShape(),
       schema: { results: [this.getEntitySchema()] },
@@ -103,13 +103,13 @@ Pagination token is stored in the header `link` for this example.
 
 ```typescript
 import request from 'superagent';
-import { Resource, ReadShape, SchemaArray, AbstractInstanceType } from 'rest-hooks';
+import { Resource, ReadShape, SchemaList, AbstractInstanceType } from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
   // same as above....
 
   /** Shape to get a list of entities */
-  static listShape<T extends typeof Resource>(this: T): ReadShape<SchemaArray<AbstractInstanceType<T>>> {
+  static listShape<T extends typeof Resource>(this: T): ReadShape<SchemaList<AbstractInstanceType<T>>> {
     const fetch = async (params: Readonly<object>, body?: Readonly<object>) => {
       const url = this.listUrl(params);
       let req = request['get'](url).on('error', () => {});

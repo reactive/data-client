@@ -5,8 +5,8 @@ import {
   ReadShape,
   MutateShape,
   Schema,
-  SchemaArray,
-  SchemaBase,
+  SchemaList,
+  SchemaDetail,
   SchemaOf,
   schemas,
 } from './resource';
@@ -71,8 +71,8 @@ export type FetchShape<
 
 export type State<T> = State<T>;
 export type Schema<T = any> = Schema<T>;
-export type SchemaArray<T> = SchemaArray<T>;
-export type SchemaBase<T> = SchemaBase<T>;
+export type SchemaList<T> = SchemaList<T>;
+export type SchemaDetail<T> = SchemaDetail<T>;
 export type SchemaOf<T> = SchemaOf<T>;
 export type AbstractInstanceType<T> = AbstractInstanceType<T>;
 export type RequestOptions = RequestOptions;
