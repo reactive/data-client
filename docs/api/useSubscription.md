@@ -16,7 +16,7 @@ function useSubscription<
 
 Great for keeping resources up-to-date with frequent changes.
 
-Frequency must be set in [FetchShape](./FetchShape.md), otherwise will have no affect.
+Frequency must be set in [FetchShape](./FetchShape.md), otherwise will have no effect.
 
 ## Example
 
