@@ -31,7 +31,7 @@ but also didn't sufficiently express what the provider is actually _providing_.
 
 #### RequestShape -> FetchShape
 
-[FetchShape](/docs/api/fetchshape) is the core interface that enables Rest Hooks to be both
+[FetchShape](/docs/api/FetchShape) is the core interface that enables Rest Hooks to be both
 **declarative**, **performant** and **protocol agnostic**. The previous `Request` terminology
 only represented one-side of the entire request/response pattern in fetch. This did not comprehensively
 encapsulate the entirety of what it provided - thus we changed the name to `FetchShape` to capture
@@ -66,7 +66,7 @@ empower the next wave of applications using Rest Hooks.
 
 #### CacheProvider and Managers
 
-The [Manager]() abstraction has existed since the beginning of Rest Hooks. The first Manager - [NetworkManager](/docs/api/NetworkManager)
+The [Manager](/docs/api/Manager) abstraction has existed since the beginning of Rest Hooks. The first Manager - [NetworkManager](/docs/api/NetworkManager)
 orchestrated the complex world of fetching. It provided performance optimizations like fetch deduplication
 while providing Suspense promise resolution free of race conditions. This enabled the consistent bug-free behavior
 of Rest Hooks while maintaining its minimal bundle footprint. Later the [SubscriptionManager](/docs/api/SubscriptionManager) was added
