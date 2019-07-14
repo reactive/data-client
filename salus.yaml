@@ -1,3 +1,11 @@
+active_scanners:
+  - RepoNotEmpty
+  - Brakeman
+  - BundleAudit
+  - PatternSearch
+  - Gosec
+  - NPMAudit
+  - NodeAudit
 scanner_configs:
   YardAudit:
     exceptions:
