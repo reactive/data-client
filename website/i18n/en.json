@@ -317,6 +317,114 @@
       },
       "version-1.6.9/guides/version-1.6.9-url": {
         "title": "URL Patterns"
+      },
+      "version-2.0/api/version-2.0-CacheProvider": {
+        "title": "<CacheProvider />"
+      },
+      "version-2.0/api/version-2.0-ExternalCacheProvider": {
+        "title": "<ExternalCacheProvider />"
+      },
+      "version-2.0/api/version-2.0-FetchShape": {
+        "title": "FetchShape"
+      },
+      "version-2.0/api/version-2.0-makeCacheProvider": {
+        "title": "makeCacheProvider()"
+      },
+      "version-2.0/api/version-2.0-makeRenderRestHook": {
+        "title": "makeRenderRestHook()"
+      },
+      "version-2.0/api/version-2.0-Manager": {
+        "title": "Manager"
+      },
+      "version-2.0/api/version-2.0-MockProvider": {
+        "title": "<MockProvider />"
+      },
+      "version-2.0/api/version-2.0-NetworkErrorBoundary": {
+        "title": "<NetworkErrorBoundary />"
+      },
+      "version-2.0/api/version-2.0-PollingSubscription": {
+        "title": "PollingSubscription implements Subscription",
+        "sidebar_label": "PollingSubscription"
+      },
+      "version-2.0/api/version-2.0-README": {
+        "title": "API Reference"
+      },
+      "version-2.0/api/version-2.0-resource": {
+        "title": "Resource"
+      },
+      "version-2.0/api/version-2.0-useCache": {
+        "title": "useCache()"
+      },
+      "version-2.0/api/version-2.0-useFetcher": {
+        "title": "useFetcher()"
+      },
+      "version-2.0/api/version-2.0-useInvalidator": {
+        "title": "useInvalidator()"
+      },
+      "version-2.0/api/version-2.0-useresource": {
+        "title": "useResource()"
+      },
+      "version-2.0/api/version-2.0-useResultCache": {
+        "title": "useResultCache()"
+      },
+      "version-2.0/api/version-2.0-useRetrieve": {
+        "title": "useRetrieve()"
+      },
+      "version-2.0/api/version-2.0-useSubscription": {
+        "title": "useSubscription()"
+      },
+      "version-2.0/getting-started/version-2.0-installation": {
+        "title": "Installation"
+      },
+      "version-2.0/getting-started/version-2.0-usage": {
+        "title": "Usage"
+      },
+      "version-2.0/guides/version-2.0-class-components": {
+        "title": "Usage with class components"
+      },
+      "version-2.0/guides/version-2.0-endpoints": {
+        "title": "Custom endpoints"
+      },
+      "version-2.0/guides/version-2.0-fetch-multiple": {
+        "title": "Fetching multiple resources at once"
+      },
+      "version-2.0/guides/version-2.0-mocking-unfinished": {
+        "title": "Mocking unfinished endpoints"
+      },
+      "version-2.0/guides/version-2.0-nested-response": {
+        "title": "Resources with nested structure",
+        "sidebar_label": "Nesting related resources (server-side join)"
+      },
+      "version-2.0/guides/version-2.0-network-transform": {
+        "title": "Transforming data on fetch"
+      },
+      "version-2.0/guides/version-2.0-no-suspense": {
+        "title": "Usage without Suspense"
+      },
+      "version-2.0/guides/version-2.0-pagination": {
+        "title": "Pagination"
+      },
+      "version-2.0/guides/version-2.0-redux": {
+        "title": "Redux integration"
+      },
+      "version-2.0/guides/version-2.0-resource-lifetime": {
+        "title": "Custom Resource cache lifetime",
+        "sidebar_label": "Custom cache lifetime"
+      },
+      "version-2.0/guides/version-2.0-rpc": {
+        "title": "Capturing Mutation Side-Effects"
+      },
+      "version-2.0/guides/version-2.0-storybook": {
+        "title": "Mocking data for Storybook"
+      },
+      "version-2.0/guides/version-2.0-unit-testing-components": {
+        "title": "Unit testing components"
+      },
+      "version-2.0/guides/version-2.0-unit-testing-hooks": {
+        "title": "Unit testing hooks"
+      },
+      "version-2.0/guides/version-2.0-url": {
+        "title": "URL Patterns"
       }
     },
     "links": {
