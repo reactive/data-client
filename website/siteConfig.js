@@ -50,6 +50,7 @@ const siteConfig = {
     { doc: 'getting-started/installation', label: 'Getting Started' },
     { doc: 'api/README', label: 'API' },
     { doc: 'guides/resource-types', label: 'Resource Definitions' },
+    { blog: true, label: 'Blog' },
     { href: 'https://www.github.com/coinbase/rest-hooks', label: 'Github' },
     { href: 'https://codesandbox.io/s/rest-hooks-hinux?fontsize=14&module=%2Fsrc%2Fpages%2FIssueList.tsx', label: '🎮 Demo' },
     //{ page: 'help', label: 'Help' },
