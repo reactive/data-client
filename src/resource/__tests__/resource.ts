@@ -1,6 +1,6 @@
 import nock from 'nock';
 
-import { CoolerArticleResource, UserResource } from '../../__tests__/common';
+import { CoolerArticleResource, UserResource, UrlArticleResource } from '../../__tests__/common';
 import { Resource, normalize } from '..';
 
 describe('Resource', () => {
@@ -19,6 +19,12 @@ describe('Resource', () => {
   });
   it('should not init Resource itself', () => {
     expect(() => Resource.fromJS({})).toThrow();
+  });
+  it('should work with `url` member', () => {
+    expect(() => UrlArticleResource.fromJS({})).not.toThrow();
+    expect(() => UrlArticleResource.fromJS({url: 'five'})).not.toThrow();
+    const urlArticle = UrlArticleResource.fromJS({url: 'five'});
+    expect(urlArticle.url).toBe('five');
   });
   it('should convert class to string', () => {
     expect(CoolerArticleResource.toString()).toBeDefined();
