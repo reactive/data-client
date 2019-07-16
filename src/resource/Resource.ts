@@ -199,7 +199,7 @@ export default abstract class Resource {
   /** Perform network request and resolve with json body */
   static fetch<T extends typeof Resource>(
     this: T,
-    method: Method = 'get',
+    method: Method,
     url: string,
     body?: Readonly<object>,
   ) {

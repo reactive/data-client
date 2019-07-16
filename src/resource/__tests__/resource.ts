@@ -274,6 +274,20 @@ describe('Resource', () => {
         ),
       ).rejects.toMatchSnapshot();
     });
+
+    it('should use fetchPlugin if defined', async () => {
+      class FetchResource extends CoolerArticleResource {
+        static fetchPlugin = jest.fn(a => a);
+      }
+      const article = await FetchResource.fetch(
+        'get',
+        FetchResource.url({
+          id: payload.id,
+        }),
+      );
+      expect(article).toBeDefined();
+      expect(FetchResource.fetchPlugin.mock.calls.length).toBeGreaterThan(0);
+    })
   });
 
   describe('getEntitySchema()', () => {
