@@ -105,7 +105,7 @@ import ArticleResource from 'resources/article';
 import ArticleSummary from './ArticleSummary';
 
 export default function ArticleList({ sortBy }: { sortBy: string }) {
-  const articles = useResource(ArticleResource.listShape(), { sorBy });
+  const articles = useResource(ArticleResource.listShape(), { sortBy });
   return (
     <section>
       {articles.map(article => (
