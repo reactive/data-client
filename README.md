@@ -62,7 +62,7 @@ For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 ## Features
 
 - [x] ![TS](./scripts/typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) types
-- [x] 🛌 React [Suspense](https://www.youtube.com/watch?v=ByBPyMBTzM0) support
+- [x] 🛌 React [Suspense](https://resthooks.io/docs/guides/loading-state) support
 - [x] 🎣 Simple declarative API
 - [x] 💰 Normalized response caching
 - [x] 💥 Tiny bundle footprint

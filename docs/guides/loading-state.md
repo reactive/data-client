@@ -9,7 +9,7 @@ not having the resource available yet!
 
 Normally you might do a check to see if the resource is loaded yet and manually
 specify each fallback condition in every component. However, since `rest-hooks`
-uses React's `Suspsense` API, it is much simpler to do here.
+uses React's [Suspense](https://www.youtube.com/watch?v=ByBPyMBTzM0) API, it is much simpler to do here.
 
 ## Using Suspense
 
