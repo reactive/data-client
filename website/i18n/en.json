@@ -388,6 +388,9 @@
       "version-2.0/guides/version-2.0-fetch-multiple": {
         "title": "Fetching multiple resources at once"
       },
+      "version-2.0/guides/version-2.0-loading-state": {
+        "title": "Handling loading state"
+      },
       "version-2.0/guides/version-2.0-mocking-unfinished": {
         "title": "Mocking unfinished endpoints"
       },
