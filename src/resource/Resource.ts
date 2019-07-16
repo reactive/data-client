@@ -150,10 +150,12 @@ export default abstract class Resource {
 
   /** URL to find this Resource */
   get url(): string {
+    if (this.__url !== undefined) return this.__url;
     // typescript thinks constructor is just a function
     const Static = this.constructor as typeof Resource;
     return Static.url(this);
   }
+  private __url?: string;
 
   /** Get the url for a Resource
    *
@@ -237,7 +239,9 @@ export default abstract class Resource {
     const getFetchKey = (params: Readonly<object>) => {
       return 'GET ' + this.url(params);
     };
-    const schema: SchemaDetail<AbstractInstanceType<T>> = this.getEntitySchema();
+    const schema: SchemaDetail<
+      AbstractInstanceType<T>
+    > = this.getEntitySchema();
     const options = this.getRequestOptions();
     return {
       type: 'read',
@@ -363,3 +367,11 @@ export default abstract class Resource {
     };
   }
 }
+
+// We're only allowing this to get set for descendants but
+// by default we want Typescript to treat it as readonly.
+Object.defineProperty(Resource.prototype, 'url', {
+  set(url: string) {
+    this.__url = url;
+  },
+});

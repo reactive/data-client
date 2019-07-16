@@ -87,6 +87,9 @@ export class ArticleResource extends Resource {
   }
 }
 
+export class UrlArticleResource extends ArticleResource {
+  readonly url: string = 'happy.com';
+}
 
 export class CoolerArticleResource extends ArticleResource {
   static urlRoot = 'http://test.com/article-cooler/';
