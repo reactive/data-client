@@ -87,7 +87,7 @@ to `fetch()` using an object of params like `{ id: 5 }`. This made it easy to ov
 just the url portion of a shape for custom endpoints.
 
 However, for protocols that don't base their requests on url like GraphQL this was a bit
-awkward. Additionally, maniuplating the request/response based on fetch params [became
+awkward. Additionally, manipulating the request/response based on fetch params [became
 cumbersome when the fetch method had to parse the url](https://github.com/coinbase/rest-hooks/issues/87)
 instead of just access those params itself.
 
@@ -137,7 +137,7 @@ To summarize:
 - FetchShape.fetch(url: string, body: Body) -> FetchShape.fetch(params: Params, body: Body)
 - SchemaBase -> SchemaDetail; SchemaArray -> SchemaList
 - useError() returns error instead of throwing
-- polyfills are not included automatically
+- Polyfills are not included automatically
 
 ## What's next
 
