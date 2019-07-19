@@ -25,7 +25,6 @@ function isExternal(id) {
   return ret;
 }
 
-const plugins = [['@babel/plugin-transform-runtime', { useESModules: true }]];
 const presets = [
   [
     '@anansi/babel-preset',
@@ -46,7 +45,6 @@ export default [
         exclude: ['node_modules/**', '**/__tests__/**'],
         extensions,
         runtimeHelpers: true,
-        plugins,
         presets,
       }),
       replace({ 'process.env.NODE_ENV': JSON.stringify('production') }),
@@ -67,7 +65,6 @@ export default [
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions,
         runtimeHelpers: true,
-        plugins,
         presets,
       }),
       resolve({ extensions }),
@@ -84,7 +81,6 @@ export default [
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions,
         runtimeHelpers: true,
-        plugins,
         presets,
       }),
       resolve({ extensions }),
