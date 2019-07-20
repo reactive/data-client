@@ -81,7 +81,11 @@ export class ArticleResource extends Resource {
       getFetchKey: (params: Readonly<Record<string, string>>) =>
         baseShape.getFetchKey({ ...params, includeUser: true }),
       fetch: (params: object, body: object) =>
-        this.fetch('get', this.listUrl({ ...params, includeUser: 'true' }), body),
+        this.fetch(
+          'get',
+          this.listUrl({ ...params, includeUser: 'true' }),
+          body,
+        ),
       schema: [this.getNestedEntitySchema()],
     };
   }
@@ -143,18 +147,14 @@ export class UserResource extends Resource {
 class OtherArticleResource extends CoolerArticleResource {}
 export class PaginatedArticleResource extends OtherArticleResource {
   static urlRoot = 'http://test.com/article-paginated/';
-  static listShape<T extends typeof Resource>(
-    this: T,
-  ) {
+  static listShape<T extends typeof Resource>(this: T) {
     return {
       ...super.listShape(),
       schema: { results: [this.getEntitySchema()] },
     };
   }
 
-  static detailShape<T extends typeof Resource>(
-    this: T,
-  ) {
+  static detailShape<T extends typeof Resource>(this: T) {
     return {
       ...super.listShape(),
       schema: { data: this.getEntitySchema() },

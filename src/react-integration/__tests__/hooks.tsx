@@ -25,9 +25,7 @@ import { State, ActionTypes } from '../../types';
 import { Resource, Schema } from '../../resource';
 import { ReadShape } from '../../resource';
 import makeRenderRestHook from '../../test/makeRenderRestHook';
-import {
-  makeCacheProvider,
-} from '../../test/providers';
+import { makeCacheProvider } from '../../test/providers';
 
 async function testDispatchFetch(
   Component: React.FunctionComponent<any>,
@@ -267,8 +265,7 @@ describe('useCache', () => {
     let article: any;
     let state = { ...initialState };
     const { rerender } = renderHook(
-      () =>
-        (article = useCache(CoolerArticleResource.detailShape(), payload)),
+      () => (article = useCache(CoolerArticleResource.detailShape(), payload)),
       {
         wrapper: function Wrapper({ children }) {
           return (
@@ -362,10 +359,7 @@ describe('useResultCache', () => {
     const track = jest.fn();
 
     const { rerender } = renderHook(() => {
-      const results = useResultCache(
-        PaginatedArticleResource.listShape(),
-        {},
-      );
+      const results = useResultCache(PaginatedArticleResource.listShape(), {});
       useEffect(track, [results]);
     });
 
@@ -594,7 +588,9 @@ describe('useResource()', () => {
       payload,
       InvalidIfStaleArticleResource.getEntitySchema(),
     );
-    const fetchKey = InvalidIfStaleArticleResource.detailShape().getFetchKey(payload);
+    const fetchKey = InvalidIfStaleArticleResource.detailShape().getFetchKey(
+      payload,
+    );
     const state = {
       entities,
       results: {
@@ -626,7 +622,9 @@ describe('useResource()', () => {
       payload,
       InvalidIfStaleArticleResource.getEntitySchema(),
     );
-    const fetchKey = InvalidIfStaleArticleResource.detailShape().getFetchKey(payload);
+    const fetchKey = InvalidIfStaleArticleResource.detailShape().getFetchKey(
+      payload,
+    );
     const state = {
       entities,
       results: {

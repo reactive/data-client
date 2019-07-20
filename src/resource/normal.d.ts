@@ -52,7 +52,13 @@ interface SimpleObject {
 }
 
 interface SchemaObjectOne<T> {
-  [key: string]: SchemaDetail<T> | string | number | boolean | SimpleObject | void;
+  [key: string]:
+    | SchemaDetail<T>
+    | string
+    | number
+    | boolean
+    | SimpleObject
+    | void;
 }
 
 interface SchemaObjectMany<T> {
