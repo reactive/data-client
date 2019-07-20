@@ -23,9 +23,10 @@ export default function useResultCache<
   : Readonly<D> {
   const state = useContext(StateContext);
   // TODO: make sure getFetchKey stays the same
-  const resultSelector = useMemo(() => makeResults((p: Params) => getFetchKey(p)), [
-    getFetchKey,
-  ]);
+  const resultSelector = useMemo(
+    () => makeResults((p: Params) => getFetchKey(p)),
+    [getFetchKey],
+  );
   const results = useMemo(
     () => params && resultSelector(state, params),
     // params must be serialized in check

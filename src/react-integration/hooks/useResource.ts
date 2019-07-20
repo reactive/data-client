@@ -73,6 +73,7 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
     if (promises.length) {
       return Promise.all(promises);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, promiseDeps);
 
   if (promise) throw promise;

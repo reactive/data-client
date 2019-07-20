@@ -1,6 +1,10 @@
 import nock from 'nock';
 
-import { CoolerArticleResource, UserResource, UrlArticleResource } from '../../__tests__/common';
+import {
+  CoolerArticleResource,
+  UserResource,
+  UrlArticleResource,
+} from '../../__tests__/common';
 import { Resource, normalize } from '..';
 
 describe('Resource', () => {
@@ -22,8 +26,8 @@ describe('Resource', () => {
   });
   it('should work with `url` member', () => {
     expect(() => UrlArticleResource.fromJS({})).not.toThrow();
-    expect(() => UrlArticleResource.fromJS({url: 'five'})).not.toThrow();
-    const urlArticle = UrlArticleResource.fromJS({url: 'five'});
+    expect(() => UrlArticleResource.fromJS({ url: 'five' })).not.toThrow();
+    const urlArticle = UrlArticleResource.fromJS({ url: 'five' });
     expect(urlArticle.url).toBe('five');
   });
   it('should convert class to string', () => {
@@ -287,7 +291,7 @@ describe('Resource', () => {
       );
       expect(article).toBeDefined();
       expect(FetchResource.fetchPlugin.mock.calls.length).toBeGreaterThan(0);
-    })
+    });
   });
 
   describe('getEntitySchema()', () => {

@@ -19,6 +19,7 @@ export default function useSelectionUnstable<
   // params must be serialized in check
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const resource = useMemo(() => params && select(state, params), [
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     params && paramSerializer(params),
     select,
     state,

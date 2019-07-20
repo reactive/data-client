@@ -104,7 +104,11 @@ describe('selectors', () => {
             [params.id]: article,
           },
         },
-        results: { [CoolerArticleResource.detailShape().getFetchKey(urlParams)]: params.id },
+        results: {
+          [CoolerArticleResource.detailShape().getFetchKey(
+            urlParams,
+          )]: params.id,
+        },
         meta: {},
       };
       expect(select(state, urlParams)).toBe(article);
@@ -113,7 +117,9 @@ describe('selectors', () => {
       const params = { title: 'bob' };
       const state = {
         entities: {},
-        results: { [CoolerArticleResource.detailShape().getFetchKey(params)]: [5, 6, 7] },
+        results: {
+          [CoolerArticleResource.detailShape().getFetchKey(params)]: [5, 6, 7],
+        },
         meta: {},
       };
       expect(() => select(state, params)).toThrow();
@@ -123,7 +129,9 @@ describe('selectors', () => {
       const state = {
         entities: {},
         results: {
-          [CoolerArticleResource.detailShape().getFetchKey(params)]: { results: [5, 6, 7] },
+          [CoolerArticleResource.detailShape().getFetchKey(params)]: {
+            results: [5, 6, 7],
+          },
         },
         meta: {},
       };

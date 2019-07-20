@@ -1,8 +1,6 @@
 import React, { ReactNode, useEffect } from 'react';
 import { StateContext, DispatchContext } from '~/react-integration/context';
-import masterReducer, {
-  initialState as defaultState,
-} from '~/state/reducer';
+import masterReducer, { initialState as defaultState } from '~/state/reducer';
 import NetworkManager from '~/state/NetworkManager';
 import SubscriptionManager from '~/state/SubscriptionManager';
 import PollingSubscription from '~/state/PollingSubscription';
@@ -34,6 +32,7 @@ export default function CacheProvider({
         managers[i].cleanup();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, managers);
 
   return (
@@ -43,6 +42,9 @@ export default function CacheProvider({
   );
 }
 CacheProvider.defaultProps = {
-  managers: [new NetworkManager(), new SubscriptionManager(PollingSubscription)],
+  managers: [
+    new NetworkManager(),
+    new SubscriptionManager(PollingSubscription),
+  ],
   initialState: defaultState,
 };

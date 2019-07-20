@@ -9,10 +9,10 @@ export function selectMeta<R = any>(state: State<R>, url: string) {
   return state.meta[url];
 }
 
-export const makeResults = <R = any>(getFetchKey: (...args: any[]) => string) => (
-  state: State<R>,
-  params: object,
-) => state.results[getFetchKey(params)] || null;
+export const makeResults = <R = any>(
+  getFetchKey: (...args: any[]) => string,
+) => (state: State<R>, params: object) =>
+  state.results[getFetchKey(params)] || null;
 
 // TODO: there should honestly be a way to use the pre-existing normalizr object
 // to not even need this implementation
