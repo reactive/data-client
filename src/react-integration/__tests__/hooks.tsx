@@ -177,6 +177,22 @@ describe('useFetcher', () => {
     }
     await testDispatchFetch(DispatchTester, [payload]);
   });
+  it('should console.error() a warning when fetching without a Provider', () => {
+    const oldError = console.error;
+    const spy = (console.error = jest.fn());
+    renderHook(() => {
+      const a = useFetcher(CoolerArticleResource.createShape());
+      a({ content: 'hi' }, {});
+      return null;
+    });
+    expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
+      Array [
+        "It appears you are trying to use Rest Hooks without a provider.
+      Follow instructions: https://resthooks.io/docs/getting-started/installation#add-provider-at-top-level-component",
+      ]
+    `);
+    console.error = oldError;
+  });
   it('should dispatch an action that fetches a partial update', async () => {
     nock('http://test.com')
       .patch(`/article-cooler/1`)
@@ -572,9 +588,11 @@ describe('useResource()', () => {
 
     const tree = (
       <StateContext.Provider value={state}>
-        <Suspense fallback={<Fallback />}>
-          <ArticleComponentTester />
-        </Suspense>
+        <DispatchContext.Provider value={() => {}}>
+          <Suspense fallback={<Fallback />}>
+            <ArticleComponentTester />
+          </Suspense>{' '}
+        </DispatchContext.Provider>
       </StateContext.Provider>
     );
     const { getByText } = render(tree);
@@ -640,9 +658,11 @@ describe('useResource()', () => {
 
     const tree = (
       <StateContext.Provider value={state}>
-        <Suspense fallback={<Fallback />}>
-          <ArticleComponentTester invalidIfStale />
-        </Suspense>
+        <DispatchContext.Provider value={() => {}}>
+          <Suspense fallback={<Fallback />}>
+            <ArticleComponentTester invalidIfStale />
+          </Suspense>
+        </DispatchContext.Provider>
       </StateContext.Provider>
     );
     render(tree);
