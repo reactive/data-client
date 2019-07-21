@@ -7,7 +7,7 @@ function useSubscription<
   Body extends Readonly<object> | void,
   S extends Schema
 >(
-  selectShape: ReadShape<S, Params, Body>,
+  fetchShape: ReadShape<S, Params, Body>,
   params: Params | null,
   body?: Body,
   active?: boolean = true,

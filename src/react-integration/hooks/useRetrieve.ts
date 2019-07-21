@@ -9,8 +9,8 @@ function useIsStale<
   Params extends Readonly<object>,
   Body extends Readonly<object> | void,
   S extends Schema
->(selectShape: ReadShape<S, Params, Body>, params: Params | null): boolean {
-  const meta = useMeta(selectShape, params);
+>(fetchShape: ReadShape<S, Params, Body>, params: Params | null): boolean {
+  const meta = useMeta(fetchShape, params);
   if (!meta) {
     return true;
   }
@@ -22,9 +22,9 @@ export default function useRetrieve<
   Params extends Readonly<object>,
   Body extends Readonly<object> | void,
   S extends Schema
->(selectShape: ReadShape<S, Params, Body>, params: Params | null, body?: Body) {
-  const fetch = useFetcher(selectShape, true);
-  const dataStale = useIsStale(selectShape, params);
+>(fetchShape: ReadShape<S, Params, Body>, params: Params | null, body?: Body) {
+  const fetch = useFetcher(fetchShape, true);
+  const dataStale = useIsStale(fetchShape, params);
 
   // TODO: figure out how to express that body is optional in FetchShape as we don't need to cast here
   return useMemo(() => {
@@ -35,5 +35,5 @@ export default function useRetrieve<
     // we don't care to re-request on body (should we?)
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataStale, fetch, params && selectShape.getFetchKey(params)]);
+  }, [dataStale, fetch, params && fetchShape.getFetchKey(params)]);
 }

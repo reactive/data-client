@@ -7,17 +7,17 @@ export default function useError<
   Body extends Readonly<object> | void,
   S extends Schema
 >(
-  selectShape: ReadShape<S, Params, Body>,
+  fetchShape: ReadShape<S, Params, Body>,
   params: Params | null,
-  resource: RequestResource<typeof selectShape> | null,
+  resource: RequestResource<typeof fetchShape> | null,
 ) {
-  const meta = useMeta(selectShape, params);
+  const meta = useMeta(fetchShape, params);
   if (!resource) {
     if (!meta) return;
     if (!meta.error) {
       // this means we probably deleted the entity found in this result
       const err: any = new Error(
-        `Resource not found ${params ? selectShape.getFetchKey(params) : ''}`,
+        `Resource not found ${params ? fetchShape.getFetchKey(params) : ''}`,
       );
       err.status = 404;
       return err;

@@ -17,10 +17,10 @@ function hasUsableData<
   Body extends Readonly<object> | void
 >(
   resource: RequestResource<ReadShape<S, Params, Body>> | null,
-  selectShape: ReadShape<S, Params, Body>,
+  fetchShape: ReadShape<S, Params, Body>,
 ) {
   return !(
-    (selectShape.options && selectShape.options.invalidIfStale) ||
+    (fetchShape.options && fetchShape.options.invalidIfStale) ||
     !resource
   );
 }
@@ -30,17 +30,17 @@ function useOneResource<
   Params extends Readonly<object>,
   Body extends Readonly<object> | void,
   S extends Schema
->(selectShape: ReadShape<S, Params, Body>, params: Params | null) {
-  let maybePromise = useRetrieve(selectShape, params);
-  const resource = useCache(selectShape, params);
+>(fetchShape: ReadShape<S, Params, Body>, params: Params | null) {
+  let maybePromise = useRetrieve(fetchShape, params);
+  const resource = useCache(fetchShape, params);
 
   if (
-    !hasUsableData(resource, selectShape) &&
+    !hasUsableData(resource, fetchShape) &&
     maybePromise &&
     typeof maybePromise.then === 'function'
   )
     throw maybePromise;
-  const error = useError(selectShape, params, resource);
+  const error = useError(fetchShape, params, resource);
   if (error) throw error;
 
   return resource as NonNullable<typeof resource>;
@@ -80,10 +80,10 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
 
   // throw any errors that exist after all promises have resolved
   for (let i = 0; i < resourceList.length; i++) {
-    const [selectShape, params] = resourceList[i];
+    const [fetchShape, params] = resourceList[i];
     const resource = resources[i];
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const error = useError(selectShape, params, resource);
+    const error = useError(fetchShape, params, resource);
     if (error) throw error;
   }
   return resources;
@@ -97,7 +97,7 @@ export default function useResource<
   B extends Readonly<object> | void,
   S extends Schema
 >(
-  selectShape: ReadShape<S, NonNullable<P>, B>,
+  fetchShape: ReadShape<S, NonNullable<P>, B>,
   params: P,
 ): CondNull<P, SchemaOf<S>>;
 export default function useResource<

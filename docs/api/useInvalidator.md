@@ -4,7 +4,7 @@ title: useInvalidator()
 
 ```typescript
 function useInvalidator<Params extends Readonly<object>, S extends Schema>(
-  selectShape: ReadShape<S, Params, any>,
+  fetchShape: ReadShape<S, Params, any>,
 ): (params: Params | null) => void;
 ```
 
@@ -41,8 +41,8 @@ export default class ArticleResource extends Resource {
 function useInvalidateOnUnmount<
   Params extends Readonly<object>,
   S extends Schema
->(selectShape: ReadShape<S, Params, any>, params: Params | null) {
-  const invalidate = useInvalidator(selectShape);
+>(fetchShape: ReadShape<S, Params, any>, params: Params | null) {
+  const invalidate = useInvalidator(fetchShape);
 
   useEffect(() => {
     return () => invalidate(params);
