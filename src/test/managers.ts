@@ -1,19 +1,18 @@
 import { act } from 'react-hooks-testing-library';
 
-import { NetworkManager, FetchAction, ReceiveAction, State } from '..';
+import { NetworkManager, FetchAction, ReceiveAction } from '..';
 
 export class MockNetworkManager extends NetworkManager {
   handleFetch(
     action: FetchAction,
     dispatch: React.Dispatch<any>,
-    getState: () => State<unknown>,
   ) {
     const mockDispatch: typeof dispatch = (v: any) => {
       act(() => {
         dispatch(v);
       });
     };
-    return super.handleFetch(action, mockDispatch, getState);
+    return super.handleFetch(action, mockDispatch);
   }
   handleReceive(action: ReceiveAction) {
     act(() => {

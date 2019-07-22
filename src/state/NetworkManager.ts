@@ -56,18 +56,13 @@ export default class NetworkManager implements Manager {
    * Uses throttle only when instructed by action meta. This is valuable
    * for ensures mutation requests always go through.
    */
-  protected handleFetch(
-    action: FetchAction,
-    dispatch: React.Dispatch<any>,
-    getState: () => State<unknown>,
-  ) {
+  protected handleFetch(action: FetchAction, dispatch: React.Dispatch<any>) {
     const fetch = action.payload;
     const {
       schema,
       url,
       responseType,
       throttle,
-      onlyIfStale,
       resolve,
       reject,
       options = {},
@@ -76,12 +71,6 @@ export default class NetworkManager implements Manager {
       dataExpiryLength = this.dataExpiryLength,
       errorExpiryLength = this.errorExpiryLength,
     } = options;
-    const state = getState();
-    if (onlyIfStale && !selectIsStale(state, url)) {
-      // we really shouldn't be relying on this, but just make sure it's not blocking
-      resolve(null);
-      return;
-    }
 
     const deferedFetch = () =>
       fetch()
@@ -165,7 +154,14 @@ export default class NetworkManager implements Manager {
       ) => {
         switch (action.type) {
           case 'rest-hooks/fetch':
-            this.handleFetch(action, dispatch, getState);
+            const { url, resolve, onlyIfStale } = action.meta;
+            const state = getState();
+            if (onlyIfStale && !selectIsStale(state, url)) {
+              // we really shouldn't be relying on this, but just make sure it's not blocking
+              resolve(null);
+              return;
+            }
+            this.handleFetch(action, dispatch);
             return;
           case 'rest-hooks/purge':
           case 'rest-hooks/rpc':
