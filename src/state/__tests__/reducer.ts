@@ -319,6 +319,7 @@ describe('reducer', () => {
         url: ArticleResource.url({ id: 5 }),
         responseType: 'rest-hooks/rpc',
         throttle: true,
+        onlyIfStale: true,
         reject: (v: any) => null,
         resolve: (v: any) => null,
       },

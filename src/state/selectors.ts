@@ -5,8 +5,20 @@ import { isEntity, SchemaOf } from '~/resource/types';
 import { Schema, denormalize } from '~/resource/normal';
 import getEntityPath from './getEntityPath';
 
-export function selectMeta<R = any>(state: State<R>, url: string) {
-  return state.meta[url];
+export function selectMeta<R = any>(state: State<R>, fetchKey: string) {
+  return state.meta[fetchKey];
+}
+
+/** Returns whether the data at this url is fresh or stale */
+export function selectIsStale<R = any>(
+  state: State<R>,
+  fetchKey: string,
+): boolean {
+  const meta = selectMeta(state, fetchKey);
+  if (!meta) {
+    return true;
+  }
+  return Date.now() > meta.expiresAt;
 }
 
 export const makeResults = <R = any>(

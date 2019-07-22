@@ -45,6 +45,7 @@ Array [
 exports[`useFetcher should dispatch an action that fetches a create 1`] = `
 Object {
   "meta": Object {
+    "onlyIfStale": false,
     "options": undefined,
     "reject": [Function],
     "resolve": [Function],
@@ -69,6 +70,7 @@ Object {
 exports[`useFetcher should dispatch an action that fetches a full update 1`] = `
 Object {
   "meta": Object {
+    "onlyIfStale": false,
     "options": undefined,
     "reject": [Function],
     "resolve": [Function],
@@ -93,6 +95,7 @@ Object {
 exports[`useFetcher should dispatch an action that fetches a partial update 1`] = `
 Object {
   "meta": Object {
+    "onlyIfStale": false,
     "options": undefined,
     "reject": [Function],
     "resolve": [Function],
@@ -117,6 +120,7 @@ Object {
 exports[`useResource() should dispatch an action that fetches 1`] = `
 Object {
   "meta": Object {
+    "onlyIfStale": true,
     "options": undefined,
     "reject": [Function],
     "resolve": [Function],
@@ -141,6 +145,7 @@ Object {
 exports[`useResource() should dispatch fetch when sent multiple arguments 1`] = `
 Object {
   "meta": Object {
+    "onlyIfStale": true,
     "options": undefined,
     "reject": [Function],
     "resolve": [Function],
@@ -165,6 +170,7 @@ Object {
 exports[`useResource() should dispatch fetch when sent multiple arguments 2`] = `
 Object {
   "meta": Object {
+    "onlyIfStale": true,
     "options": undefined,
     "reject": [Function],
     "resolve": [Function],
@@ -191,6 +197,7 @@ Object {
 exports[`useRetrieve should dispatch singles 1`] = `
 Object {
   "meta": Object {
+    "onlyIfStale": true,
     "options": undefined,
     "reject": [Function],
     "resolve": [Function],
@@ -215,6 +222,7 @@ Object {
 exports[`useRetrieve should dispatch with fetch shape defined dataExpiryLength 1`] = `
 Object {
   "meta": Object {
+    "onlyIfStale": true,
     "options": Object {
       "dataExpiryLength": 3600000,
     },
@@ -241,6 +249,7 @@ Object {
 exports[`useRetrieve should dispatch with fetch shape defined errorExpiryLength 1`] = `
 Object {
   "meta": Object {
+    "onlyIfStale": true,
     "options": Object {
       "dataExpiryLength": Infinity,
       "errorExpiryLength": Infinity,
@@ -268,6 +277,7 @@ Object {
 exports[`useRetrieve should dispatch with resource defined dataExpiryLength 1`] = `
 Object {
   "meta": Object {
+    "onlyIfStale": true,
     "options": Object {
       "dataExpiryLength": Infinity,
     },

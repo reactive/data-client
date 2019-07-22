@@ -17,7 +17,11 @@ export default function useFetcher<
   Params extends Readonly<object>,
   Body extends Readonly<object> | void,
   S extends Schema
->(fetchShape: FetchShape<S, Params, Body>, throttle = false) {
+>(
+  fetchShape: FetchShape<S, Params, Body>,
+  throttle = false,
+  onlyIfStale = false,
+) {
   const dispatch = useContext(DispatchContext);
 
   // we just want the current values when we dispatch, so
@@ -48,6 +52,7 @@ export default function useFetcher<
           responseType,
           url: identifier,
           throttle,
+          onlyIfStale,
           options,
           resolve,
           reject,
@@ -55,7 +60,7 @@ export default function useFetcher<
       });
       return promise;
     },
-    [dispatch, throttle],
+    [dispatch, throttle, onlyIfStale],
   );
   return fetchDispatcher;
 }

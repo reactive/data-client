@@ -60,6 +60,7 @@ export interface FetchAction
     url: string;
     responseType: 'rest-hooks/rpc' | 'rest-hooks/receive' | 'rest-hooks/purge';
     throttle: boolean;
+    onlyIfStale: boolean;
     options?: RequestOptions;
     resolve: (value?: any | PromiseLike<any>) => void;
     reject: (reason?: any) => void;

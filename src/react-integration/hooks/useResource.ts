@@ -1,8 +1,10 @@
-import { ReadShape, Schema, RequestResource, SchemaOf } from '~/resource';
+import { useMemo, useContext } from 'react';
+import { ReadShape, Schema, SchemaOf } from '~/resource';
+import { selectIsStale } from '~/state/selectors';
+import { StateContext } from '~/react-integration/context';
 import useCache from './useCache';
 import useRetrieve from './useRetrieve';
 import useError from './useError';
-import { useMemo } from 'react';
 
 type ResourceArgs<
   S extends Schema,
@@ -11,17 +13,17 @@ type ResourceArgs<
 > = [ReadShape<S, Params, Body>, Params | null];
 
 /** If the invalidIfStale option is set we suspend if resource has expired */
-function hasUsableData<
-  S extends Schema,
+function useIsExpired<
   Params extends Readonly<object>,
-  Body extends Readonly<object> | void
->(
-  resource: RequestResource<ReadShape<S, Params, Body>> | null,
-  fetchShape: ReadShape<S, Params, Body>,
-) {
-  return !(
-    (fetchShape.options && fetchShape.options.invalidIfStale) ||
-    !resource
+  Body extends Readonly<object> | void,
+  S extends Schema
+>(fetchShape: ReadShape<S, Params, Body>, params: Params | null): boolean {
+  const state = useContext(StateContext);
+  const fetchKey = params ? fetchShape.getFetchKey(params) : '';
+  const isStale = selectIsStale(state, fetchKey);
+
+  return Boolean(
+    fetchShape.options && fetchShape.options.invalidIfStale && isStale,
   );
 }
 
@@ -33,15 +35,16 @@ function useOneResource<
 >(fetchShape: ReadShape<S, Params, Body>, params: Params | null) {
   let maybePromise = useRetrieve(fetchShape, params);
   const resource = useCache(fetchShape, params);
+  const isExpired = useIsExpired(fetchShape, params);
+  const error = useError(fetchShape, params, resource);
 
+  if (error && !isExpired) throw error;
   if (
-    !hasUsableData(resource, fetchShape) &&
     maybePromise &&
-    typeof maybePromise.then === 'function'
+    typeof maybePromise.then === 'function' &&
+    (!resource || isExpired)
   )
     throw maybePromise;
-  const error = useError(fetchShape, params, resource);
-  if (error) throw error;
 
   return resource as NonNullable<typeof resource>;
 }
@@ -55,17 +58,33 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
       Params extends Readonly<object>,
       Body extends Readonly<object> | void,
       S extends Schema
-    >([select, params]: ResourceArgs<S, Params, Body>) =>
+    >([fetchShape, params]: ResourceArgs<S, Params, Body>) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      useCache(select, params),
+      useCache(fetchShape, params),
+  );
+  const isExpiredList = resourceList.map(([fetchShape, params]) =>
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsExpired(fetchShape, params),
   );
   let promises = resourceList
-    .map(([select, params]) =>
+    .map(([fetchShape, params]) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      useRetrieve(select, params),
+      useRetrieve(fetchShape, params),
     )
     // only wait on promises without results
-    .filter((p, i) => p && !hasUsableData(resources[i], resourceList[i][0]));
+    .filter((p, i) => p && (!resources[i] || isExpiredList[i]));
+
+  // get the first error that is valid.
+  let error: null | Error = null;
+  for (let i = 0; i < resourceList.length; i++) {
+    const [fetchShape, params] = resourceList[i];
+    const resource = resources[i];
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const e = useError(fetchShape, params, resource);
+    if (e && !isExpiredList[i]) error = e;
+  }
+
+  if (error) throw error;
 
   const promiseDeps = (promises as unknown[]).concat([promises.length]);
 
@@ -78,14 +97,6 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
 
   if (promise) throw promise;
 
-  // throw any errors that exist after all promises have resolved
-  for (let i = 0; i < resourceList.length; i++) {
-    const [fetchShape, params] = resourceList[i];
-    const resource = resources[i];
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const error = useError(fetchShape, params, resource);
-    if (error) throw error;
-  }
   return resources;
 }
 

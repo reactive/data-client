@@ -4,6 +4,7 @@ exports[`PollingSubscription should call after period 1`] = `
 Array [
   Object {
     "meta": Object {
+      "onlyIfStale": false,
       "options": Object {
         "dataExpiryLength": 2500,
         "errorExpiryLength": 500,
@@ -33,6 +34,7 @@ exports[`PollingSubscription should call after period 2`] = `
 Array [
   Object {
     "meta": Object {
+      "onlyIfStale": false,
       "options": Object {
         "dataExpiryLength": 2500,
         "errorExpiryLength": 500,

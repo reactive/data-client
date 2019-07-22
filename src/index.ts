@@ -14,6 +14,7 @@ import NetworkManager from './state/NetworkManager';
 import PollingSubscription from './state/PollingSubscription';
 import SubscriptionManager from './state/SubscriptionManager';
 import reducer, { initialState } from './state/reducer';
+import { selectIsStale } from './state/selectors';
 import {
   useCache,
   useFetcher,
@@ -47,6 +48,7 @@ const __INTERNAL__ = {
   initialState,
   StateContext,
   DispatchContext,
+  selectIsStale,
 };
 
 export type DeleteShape<

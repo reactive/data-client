@@ -1,5 +1,13 @@
 import { memoize } from 'lodash';
-import { FetchAction, ReceiveAction, MiddlewareAPI, Manager } from '~/types';
+import {
+  FetchAction,
+  ReceiveAction,
+  MiddlewareAPI,
+  Manager,
+  State,
+} from '~/types';
+import { selectIsStale } from '~/state/selectors';
+
 export const RIC: (cb: (...args: any[]) => void, options: any) => void =
   typeof (global as any).requestIdleCallback === 'function'
     ? (global as any).requestIdleCallback
@@ -48,13 +56,18 @@ export default class NetworkManager implements Manager {
    * Uses throttle only when instructed by action meta. This is valuable
    * for ensures mutation requests always go through.
    */
-  protected handleFetch(action: FetchAction, dispatch: React.Dispatch<any>) {
+  protected handleFetch(
+    action: FetchAction,
+    dispatch: React.Dispatch<any>,
+    getState: () => State<unknown>,
+  ) {
     const fetch = action.payload;
     const {
       schema,
       url,
       responseType,
       throttle,
+      onlyIfStale,
       resolve,
       reject,
       options = {},
@@ -63,6 +76,12 @@ export default class NetworkManager implements Manager {
       dataExpiryLength = this.dataExpiryLength,
       errorExpiryLength = this.errorExpiryLength,
     } = options;
+    const state = getState();
+    if (onlyIfStale && !selectIsStale(state, url)) {
+      // we really shouldn't be relying on this, but just make sure it's not blocking
+      resolve(null);
+      return;
+    }
 
     const deferedFetch = () =>
       fetch()
@@ -139,13 +158,14 @@ export default class NetworkManager implements Manager {
   getMiddleware = memoize(function<T extends NetworkManager>(this: T) {
     return <R extends React.Reducer<any, any>>({
       dispatch,
+      getState,
     }: MiddlewareAPI<R>) => {
       return (next: React.Dispatch<React.ReducerAction<R>>) => (
         action: React.ReducerAction<R>,
       ) => {
         switch (action.type) {
           case 'rest-hooks/fetch':
-            this.handleFetch(action, dispatch);
+            this.handleFetch(action, dispatch, getState);
             return;
           case 'rest-hooks/purge':
           case 'rest-hooks/rpc':

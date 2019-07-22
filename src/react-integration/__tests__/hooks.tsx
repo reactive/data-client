@@ -186,11 +186,11 @@ describe('useFetcher', () => {
       return null;
     });
     expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
-      Array [
-        "It appears you are trying to use Rest Hooks without a provider.
-      Follow instructions: https://resthooks.io/docs/getting-started/installation#add-provider-at-top-level-component",
-      ]
-    `);
+            Array [
+              "It appears you are trying to use Rest Hooks without a provider.
+            Follow instructions: https://resthooks.io/docs/getting-started/installation#add-provider-at-top-level-component",
+            ]
+        `);
     console.error = oldError;
   });
   it('should dispatch an action that fetches a partial update', async () => {
@@ -514,7 +514,7 @@ describe('useResource()', () => {
           return e;
         } else {
           // TODO: we're not handling suspense properly so react complains
-          // When upgrading test util we should be able to fix this as we'll suspense ourselves.
+          // When upgrading test until we should be able to fix this as we'll suspense ourselves.
           if (e.name === 'Invariant Violation') {
             return null;
           } else {
@@ -544,7 +544,19 @@ describe('useResource()', () => {
     jest.runAllTimers();
     await result.current;
     rerender();
-    expect(result.current).toBe(null);
+    expect(result.current).toMatchInlineSnapshot(`
+      CoolerArticleResource {
+        "author": null,
+        "content": "whatever",
+        "id": 5,
+        "tags": Array [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      }
+    `);
     console.error = oldError;
   });
   it('should NOT suspend if result already in cache and options.invalidIfStale is false', () => {

@@ -111,6 +111,7 @@ export default class PollingSubscription implements Subscription {
         url: this.url,
         responseType: 'rest-hooks/receive',
         throttle: true,
+        onlyIfStale: false,
         options: {
           dataExpiryLength: this.frequency / 2,
           errorExpiryLength: this.frequency / 10,

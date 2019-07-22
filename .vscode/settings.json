@@ -1,4 +1,5 @@
 {
+  "eslint.nodePath": "node_modules",
   "typescript.format.enable": true,
   "typescript.validate.enable": true,
   "prettier.eslintIntegration": true,
