@@ -49,7 +49,7 @@ shape.
 import {
   Resource,
   MutateShape,
-  SchemaBase,
+  SchemaDetail,
   AbstractInstanceType,
 } from 'rest-hooks';
 
@@ -58,7 +58,7 @@ class TradeResource extends Resource {
   static createShape<T extends typeof Resource>(
     this: T,
   ): MutateShape<
-    SchemaBase<AbstractInstanceType<T>>,
+    SchemaDetail<AbstractInstanceType<T>>,
     any,
     Partial<AbstractInstanceType<T>>
   > {

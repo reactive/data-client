@@ -180,14 +180,14 @@ we'll be extended that schema definition.
 import {
   Resource,
   MutateShape,
-  SchemaBase,
+  SchemaDetail,
   AbstractInstanceType,
 } from 'rest-hooks';
 
 export default class UserResource extends Resource {
   static makeManagerRequest<T extends typeof Resource>(
     this: T,
-  ): MutateShape<SchemaBase<AbstractInstanceType<T>>, { id: number }, {}> {
+  ): MutateShape<SchemaDetail<AbstractInstanceType<T>>, { id: number }, {}> {
     return {
       ...this.createShape(),
       getFetchKey({ id }: { id: number }) {
@@ -219,7 +219,7 @@ is only one - we won't need to send any params.
 import {
   Resource,
   ReadShape,
-  SchemaBase,
+  SchemaDetail,
   AbstractInstanceType,
 } from 'rest-hooks';
 
@@ -227,7 +227,7 @@ export default class UserResource extends Resource {
   /** Retrieves current logged in user */
   static currentRequest<T extends typeof Resource>(
     this: T,
-  ): ReadShape<SchemaBase<AbstractInstanceType<T>>, {}> {
+  ): ReadShape<SchemaDetail<AbstractInstanceType<T>>, {}> {
     return {
       ...this.detailShape(),
       getFetchKey() {
