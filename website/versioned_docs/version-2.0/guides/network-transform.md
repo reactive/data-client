@@ -132,7 +132,7 @@ abstract class StreamResource extends CamelResource {
 
   static detailShape<T extends typeof Resource>(
     this: T,
-  ): ReadShape<SchemaBase<AbstractInstanceType<T>>, { username: string }> {
+  ): ReadShape<SchemaDetail<AbstractInstanceType<T>>, { username: string }> {
     const superShape = super.detailShape();
     return {
       ...superShape,

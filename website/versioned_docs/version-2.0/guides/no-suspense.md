@@ -24,10 +24,10 @@ function hasUsableData<
   Body extends Readonly<object> | void
 >(
   resource: RequestResource<ReadShape<S, Params, Body>> | null,
-  selectShape: ReadShape<S, Params, Body>,
+  fetchShape: ReadShape<S, Params, Body>,
 ) {
   return !(
-    (selectShape.options && selectShape.options.invalidIfStale) ||
+    (fetchShape.options && fetchShape.options.invalidIfStale) ||
     !resource
   );
 }
@@ -37,16 +37,16 @@ function useStatefulResource<
   Params extends Readonly<object>,
   Body extends Readonly<object> | void,
   S extends Schema
->(selectShape: ReadShape<S, Params, Body>, params: Params | null) {
-  let maybePromise = useRetrieve(selectShape, params);
-  const resource = useCache(selectShape, params);
+>(fetchShape: ReadShape<S, Params, Body>, params: Params | null) {
+  let maybePromise = useRetrieve(fetchShape, params);
+  const resource = useCache(fetchShape, params);
 
   const loading =
-    !hasUsableData(resource, selectShape) &&
+    !hasUsableData(resource, fetchShape) &&
     maybePromise &&
     typeof maybePromise.then === 'function';
 
-  let error = useError(selectShape, params, resource);
+  let error = useError(fetchShape, params, resource);
 
   return {
     data: resource as NonNullable<typeof resource>,
