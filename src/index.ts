@@ -1,5 +1,7 @@
 import {
   Resource,
+  SimpleResource,
+  SuperagentResource,
   FetchShape,
   DeleteShape,
   ReadShape,
@@ -88,6 +90,8 @@ export type Manager = Manager;
 
 export {
   Resource,
+  SimpleResource,
+  SuperagentResource,
   CacheProvider,
   ExternalCacheProvider,
   useCache,

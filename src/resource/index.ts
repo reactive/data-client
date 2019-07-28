@@ -1,4 +1,5 @@
 import Resource from './Resource';
+import SimpleResource from './SimpleResource';
 import {
   SchemaOf,
   DeleteShape,
@@ -42,5 +43,15 @@ export type SchemaOf<T> = SchemaOf<T>;
 export type SchemaList<T> = SchemaList<T>;
 export type SchemaDetail<T> = SchemaDetail<T>;
 export type RequestResource<RS> = RequestResource<RS>;
+const SuperagentResource = Resource;
 
-export { Resource, isEntity, normalize, denormalize, isDeleteShape, schemas };
+export {
+  Resource,
+  SimpleResource,
+  SuperagentResource,
+  isEntity,
+  normalize,
+  denormalize,
+  isDeleteShape,
+  schemas,
+};

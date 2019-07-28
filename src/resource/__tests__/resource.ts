@@ -5,7 +5,7 @@ import {
   UserResource,
   UrlArticleResource,
 } from '../../__tests__/common';
-import { Resource, normalize } from '..';
+import { Resource, normalize, SimpleResource } from '..';
 
 describe('Resource', () => {
   it('should init', () => {
@@ -218,6 +218,16 @@ describe('Resource', () => {
       nock('http://test.com')
         .intercept('/article-cooler/5', 'DELETE')
         .reply(200, {});
+    });
+    it('should throw with SimpleResource', () => {
+      expect(() =>
+        SimpleResource.fetch(
+          'get',
+          CoolerArticleResource.url({
+            id: payload.id,
+          }),
+        ),
+      ).toThrow();
     });
     it('should GET', async () => {
       const article = await CoolerArticleResource.fetch(
