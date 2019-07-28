@@ -34,7 +34,9 @@ const siteConfig = {
   algolia: {
     apiKey: '52e661c10738fd114bcf68d537358c16',
     indexName: 'coinbase-rest-hooks',
-    algoliaOptions: {},
+    algoliaOptions: {
+      facetFilters: [ "version:VERSION" ],
+    },
   },
   gaTrackingId: 'UA-138752992-1',
 
