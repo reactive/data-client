@@ -43,10 +43,12 @@ export type SchemaOf<T> = SchemaOf<T>;
 export type SchemaList<T> = SchemaList<T>;
 export type SchemaDetail<T> = SchemaDetail<T>;
 export type RequestResource<RS> = RequestResource<RS>;
+const SuperagentResource = Resource;
 
 export {
   Resource,
   SimpleResource,
+  SuperagentResource,
   isEntity,
   normalize,
   denormalize,
