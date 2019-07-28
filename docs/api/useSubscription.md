@@ -1,6 +1,21 @@
 ---
 title: useSubscription()
 ---
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Type-->
+
+```typescript
+function useSubscription(
+  fetchShape: ReadShape,
+  params: Readonly<object> | null,
+  body?: Readonly<object> | void,
+  active?: boolean = true,
+): void;
+```
+
+<!--With Generics-->
+
 ```typescript
 function useSubscription<
   Params extends Readonly<object>,
@@ -13,6 +28,8 @@ function useSubscription<
   active?: boolean = true,
 ): void;
 ```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 Great for keeping resources up-to-date with frequent changes.
 
@@ -70,17 +87,10 @@ function MasterPrice({ symbol }: { symbol: string }) {
   const price = useResource(PriceResource.detailShape(), { symbol });
   const ref = useRef();
   const onScreen = useOnScreen(ref);
-  useSubscription(
-    PriceResource.detailShape(),
-    { symbol },
-    undefined,
-    onScreen,
-  );
+  useSubscription(PriceResource.detailShape(), { symbol }, undefined, onScreen);
 
   return (
-    <div ref={ref}>
-      {price.value.toLocaleString('en', { currency: 'USD' })}
-    </div>
+    <div ref={ref}>{price.value.toLocaleString('en', { currency: 'USD' })}</div>
   );
 }
 ```

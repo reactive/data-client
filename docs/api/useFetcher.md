@@ -1,6 +1,19 @@
 ---
 title: useFetcher()
 ---
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Type-->
+
+```typescript
+function useFetcher(
+  fetchShape: FetchShape,
+  throttle?: boolean = false,
+): (body: Readonly<object> | void, params: Readonly<object>) => Promise<any>;
+```
+
+<!--With Generics-->
+
 ```typescript
 function useFetcher<
   Params extends Readonly<object>,
@@ -8,9 +21,11 @@ function useFetcher<
   S extends Schema
 >(
   fetchShape: FetchShape<S, Params, Body>,
-  throttle?: boolean = false
+  throttle?: boolean = false,
 ): (body: Body, params: Params) => Promise<any>;
 ```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 Mostly useful for imperatively triggering mutation effects.
 

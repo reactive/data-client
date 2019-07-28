@@ -1,26 +1,42 @@
 ---
 title: useResultCache()
 ---
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Type-->
+
+```typescript
+function useResultCache(
+  { getFetchKey, fetch }: ReadShape,
+  params: Readonly<object> | null,
+  defaults?: object,
+): typeof defaults;
+```
+
+<!--With Generics-->
+
 ```typescript
 function useResultCache<Params extends Readonly<object>, D extends object>(
   { getFetchKey, fetch }: ReadShape<any, Params, any>,
   params: Params | null,
-  defaults?: D
+  defaults?: D,
 ): D extends undefined
   ? Resolved<ReturnType<typeof fetch>> | null
   : Readonly<D>;
 ```
 
+<!--END_DOCUSAURUS_CODE_TABS-->
+
 Excellent to use with [pagination](../guides/pagination.md) or any other extra (non-entity) data in results.
 
-* [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):
-  * Returns previously cached if exists
-  * `defaults` if provided
-  * null otherwise
-* While loading:
-  * Returns previously cached if exists
-  * `defaults` if provided
-  * null otherwise
+- [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):
+  - Returns previously cached if exists
+  - `defaults` if provided
+  - null otherwise
+- While loading:
+  - Returns previously cached if exists
+  - `defaults` if provided
+  - null otherwise
 
 ## Example
 
@@ -31,7 +47,7 @@ function PostList() {
   const { prevPage, nextPage } = useResultCache(
     PaginatedResource.listShape(),
     {},
-    { prevPage: '', nextPage: '' }
+    { prevPage: '', nextPage: '' },
   );
   // ...render stuff here
 }

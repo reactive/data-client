@@ -1,21 +1,36 @@
 ---
 title: useCache()
 ---
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Type-->
+
 ```typescript
-function useCache<Params extends Readonly<object>, S extends Schema>(
-  { select, getFetchKey }: ReadShape<S, Params, any>,
+useCache(
+  { schema, getFetchKey }: ReadShape,
+  params: Params | null
+): SchemaOf<typeof schema> | null;
+```
+
+<!--With Generics-->
+
+```typescript
+useCache<Params extends Readonly<object>, S extends Schema>(
+  { schema, getFetchKey }: ReadShape<S, Params, any>,
   params: Params | null
 ): SchemaOf<S> | null;
 ```
 
+<!--END_DOCUSAURUS_CODE_TABS-->
+
 Excellent to use data in the normalized cache without fetching.
 
-* [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):
-  * Returns previously cached if exists
-  * null otherwise
-* While loading:
-  * Returns previously cached if exists
-  * null otherwise
+- [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):
+  - Returns previously cached if exists
+  - null otherwise
+- While loading:
+  - Returns previously cached if exists
+  - null otherwise
 
 ## Example
 

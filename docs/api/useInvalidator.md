@@ -2,11 +2,24 @@
 title: useInvalidator()
 ---
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Type-->
+
+```typescript
+function useInvalidator(
+  fetchShape: ReadShape,
+): (params: Readonly<object> | null) => void;
+```
+
+<!--With Generics-->
+
 ```typescript
 function useInvalidator<Params extends Readonly<object>, S extends Schema>(
   fetchShape: ReadShape<S, Params, any>,
 ): (params: Params | null) => void;
 ```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 Mostly useful for imperatively invalidating the cache, with a similar signature to
 [useFetcher](./useFetcher.md).

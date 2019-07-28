@@ -1,6 +1,20 @@
 ---
 title: useRetrieve()
 ---
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Type-->
+
+```typescript
+function useRetrieve(
+  fetchShape: ReadShape,
+  params: Readonly<object> | null,
+  body?: Readonly<object> | void,
+): Promise<any> | undefined;
+```
+
+<!--With Generics-->
+
 ```typescript
 function useRetrieve<
   Params extends Readonly<object>,
@@ -9,9 +23,11 @@ function useRetrieve<
 >(
   fetchShape: ReadShape<S, Params, Body>,
   params: Params | null,
-  body?: Body
+  body?: Body,
 ): Promise<any> | undefined;
 ```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 Great for retrieving resources optimistically before they are needed.
 

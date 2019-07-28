@@ -12,11 +12,26 @@ certain hooks and their interaction is not well defined. For instance, `useCache
 only works with `ReadShape`s because this is the only shape that specifies the
 specific results needed.
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Type-->
+
+```typescript
+interface FetchShape {
+  readonly type: 'read' | 'mutate' | 'delete';
+  fetch(params: Readonly<object>, body: Readonly<object> | void): Promise<any>;
+  getFetchKey(params: Readonly<object>): string;
+  readonly schema: Schema;
+  readonly options?: RequestOptions;
+}
+```
+
+<!--With Generics-->
+
 ```typescript
 interface FetchShape<
   S extends Schema,
-  Params extends Readonly<object>,
-  Body extends Readonly<object> | void
+  Params extends Readonly<object> = Readonly<object>,
+  Body extends Readonly<object> | void = Readonly<object> | undefined
 > {
   readonly type: 'read' | 'mutate' | 'delete';
   fetch(params: Params, body: Body): Promise<any>;
@@ -25,6 +40,8 @@ interface FetchShape<
   readonly options?: RequestOptions;
 }
 ```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 ## type: 'read' | 'mutate' | 'delete'
 
@@ -52,7 +69,8 @@ fetch method with a defined `method`.
 
 ## getFetchKey(params: Param): string
 
-Serializes the params into a globally unique key.
+Serializes the params into a globally unique key. This is used to index into the `request`
+table in the normalized cache.
 
 ## schema: Schema
 
