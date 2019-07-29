@@ -7,7 +7,7 @@ title: useResultCache()
 
 ```typescript
 function useResultCache(
-  { getFetchKey, fetch }: ReadShape,
+  fetchShape: ReadShape,
   params: Readonly<object> | null,
   defaults?: object,
 ): typeof defaults;

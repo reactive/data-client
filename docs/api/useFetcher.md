@@ -9,7 +9,12 @@ title: useFetcher()
 function useFetcher(
   fetchShape: FetchShape,
   throttle?: boolean = false,
-): (body: Readonly<object> | void, params: Readonly<object>) => Promise<any>;
+): FetchFunction;
+
+type FetchFunction = (
+  body: Readonly<object> | void,
+  params: Readonly<object>,
+) => Promise<any>;
 ```
 
 <!--With Generics-->

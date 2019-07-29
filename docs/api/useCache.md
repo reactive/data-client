@@ -6,16 +6,16 @@ title: useCache()
 <!--Type-->
 
 ```typescript
-useCache(
-  { schema, getFetchKey }: ReadShape,
+function useCache(
+  fetchShape: ReadShape,
   params: Params | null
-): SchemaOf<typeof schema> | null;
+): SchemaOf<typeof fetchShape.schema> | null;
 ```
 
 <!--With Generics-->
 
 ```typescript
-useCache<Params extends Readonly<object>, S extends Schema>(
+function useCache<Params extends Readonly<object>, S extends Schema>(
   { schema, getFetchKey }: ReadShape<S, Params, any>,
   params: Params | null
 ): SchemaOf<S> | null;

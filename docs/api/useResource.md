@@ -9,6 +9,7 @@ title: useResource()
 ```typescript
 function useResource(fetchShape: ReadShape, params: Params | null):
   SchemaOf<typeof fetchShape.schema>;
+
 function useResource(...[fetchShape: ReadShape, params: Params | null]):
   SchemaOf<typeof fetchShape.schema>[];
 ```
@@ -21,6 +22,7 @@ function useResource<
   Body extends Readonly<object> | void,
   S extends Schema
 >(fetchShape: ReadShape<S, Params, Body>, params: Params | null): SchemaOf<S>;
+
 function useResource<
   Params extends Readonly<object>,
   Body extends Readonly<object> | void,
