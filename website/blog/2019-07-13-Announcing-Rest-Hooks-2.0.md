@@ -91,7 +91,10 @@ awkward. Additionally, manipulating the request/response based on fetch params [
 cumbersome when the fetch method had to parse the url](https://github.com/coinbase/rest-hooks/issues/87)
 instead of just access those params itself.
 
-- getUrl() -> getFetchKey()
+- [getUrl() -> getFetchKey() + fetch()](/docs/guides/endpoints#rpc)
+  - If you were setting getUrl() before, you'll need to also override the [FetchShape.fetch()](/docs/api/FetchShape#fetchparams-param-body-payload-promise-any). getFetchKey() is only used as a lookup
+  key in the results table cache. [FetchShape.fetch()](/docs/api/FetchShape#fetchparams-param-body-payload-promise-any)
+  is responsible for constructing the actual url.
 
 - fetch(url: string, body: Body) -> fetch(params: Params, body: Body)
 
@@ -133,7 +136,7 @@ To summarize:
 - partialUpdateRequest() -> partialUpdateShape()
 - deleteRequest() -> deleteShape()
 - `<CacheProvider manager={myNetworkManager} subscriptionManager={mySubcriptionManager}>` -> `<CacheProvider managers={[myNetworkManager, mySubscriptionManager]}>`
-- FetchShape.getUrl() -> FetchShape.getFetchKey()
+- [FetchShape.getUrl() -> FetchShape.getFetchKey() + FetchShape.fetch()](/docs/guides/endpoints#rpc)
 - FetchShape.fetch(url: string, body: Body) -> FetchShape.fetch(params: Params, body: Body)
 - SchemaBase -> SchemaDetail; SchemaArray -> SchemaList
 - useError() returns error instead of throwing
