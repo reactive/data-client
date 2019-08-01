@@ -31,19 +31,33 @@ function useRetrieve<
 
 Great for retrieving resources optimistically before they are needed.
 
-Will return a Promise if the resource is not yet in cache, otherwise undefined.
-
 This can be useful for ensuring resources early in a render tree before they are needed.
 
-Network errors will result in the promise rejecting.
+- Triggers fetch:
+  - On first-render and when parameters change
+  - and When not in cache or result is considered stale
+  - and When no identical requests are in flight
+  - and when params are not null
+- [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):
+  - Returned promise will reject
+- On fetch returns a promise else undefined.
 
 ## Example
 
-Using a type guard to deal with null
+### Simple
 
 ```tsx
 function MasterPost({ id }: { id: number }) {
   useRetrieve(PostResource.detailShape(), { id });
+  // ...
+}
+```
+
+### Conditional
+
+```tsx
+function MasterPost({ id, doNotFetch }: { id: number, doNotFetch: boolean }) {
+  useRetrieve(PostResource.detailShape(), doNotFetch ? null : { id });
   // ...
 }
 ```

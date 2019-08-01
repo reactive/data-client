@@ -24,6 +24,8 @@ function useInvalidator<Params extends Readonly<object>, S extends Schema>(
 Mostly useful for imperatively invalidating the cache, with a similar signature to
 [useFetcher](./useFetcher.md).
 
+Sending a `null` to params results in a no-op.
+
 When used in conjunction with [invalidIfStale](./FetchShape.md#invalidifstale-boolean)
 it can force a component to re-suspend even if it has already fetched the data. Normally
 [useResource](./useResource.md) will not suspend if the data is in the cache, even if it

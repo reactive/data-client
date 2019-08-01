@@ -18,16 +18,16 @@ function useResource<
 
 Excellent for retrieving the data you need.
 
-* Triggers fetch:
-  * On first-render and when parameters change
-  * and When not in cache or result is considered stale
-  * and When no identical requests are in flight
-* [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):
-  * Throws error to be [caught](../guides/network-errors.md) by [Error Boundaries](https://reactjs.org/docs/error-boundaries.html)
-* While Loading:
-  * Returns previously cached if exists (even if stale)
-  * [Suspend rendering](../guides/loading-state.md) otherwise
-
+- Triggers fetch:
+  - On first-render and when parameters change
+  - and When not in cache or result is considered stale
+  - and When no identical requests are in flight
+  - and when params are not null
+- [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):
+  - Throws error to be [caught](../guides/network-errors.md) by [Error Boundaries](https://reactjs.org/docs/error-boundaries.html)
+- While Loading:
+  - Returns previously cached if exists (even if stale)
+  - [Suspend rendering](../guides/loading-state.md) otherwise
 
 ## Single
 
@@ -77,8 +77,7 @@ function PostWithAuthor() {
 
 [Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
 
-* detailShape()
-* listShape()
+- detailShape()
+- listShape()
 
 Feel free to add your own [FetchShape](./FetchShape.md) as well.
-
