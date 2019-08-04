@@ -40,7 +40,7 @@ export default class RatingResource extends Resource {
   ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
     return {
       ...super.listShape(),
-      fetch(params: Readonly<object>, body?: Readonly<object>) {
+      fetch(params: Readonly<object>, body?: Readonly<object | string>) {
         return Promise.resolve(
           ['Morningstar', 'Seekingalpha', 'Morningstar', 'CNBC'].map(
             author => ({

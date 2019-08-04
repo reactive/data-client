@@ -22,7 +22,7 @@ type FetchFunction = (
 ```typescript
 function useFetcher<
   Params extends Readonly<object>,
-  Body extends Readonly<object> | void,
+  Body extends Readonly<object | string> | void,
   S extends Schema
 >(
   fetchShape: FetchShape<S, Params, Body>,

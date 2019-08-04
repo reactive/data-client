@@ -26,7 +26,7 @@ export default abstract class Resource extends SimpleResource {
     this: T,
     method: Method,
     url: string,
-    body?: Readonly<object>,
+    body?: Readonly<object | string>,
   ) {
     let req = request[method](url).on('error', () => {});
     if (this.fetchPlugin) req = req.use(this.fetchPlugin);
@@ -61,7 +61,7 @@ export default abstract class FetchResource extends SimpleResource {
     this: T,
     method: Method,
     url: string,
-    body?: Readonly<object>
+    body?: Readonly<object | string>
   ) {
     let options: RequestInit = {
       method: method.toUpperCase(),
@@ -94,7 +94,7 @@ export default abstract class AxiosResource extends SimpleResource {
     this: T,
     method: Method,
     url: string,
-    body?: Readonly<object>
+    body?: Readonly<object | string>
   ) {
     return await axios[method](url, body);
   }

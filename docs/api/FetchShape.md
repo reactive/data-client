@@ -31,7 +31,7 @@ interface FetchShape {
 interface FetchShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
-  Body extends Readonly<object> | void = Readonly<object> | undefined
+  Body extends Readonly<object | string> | void = Readonly<object> | undefined
 > {
   readonly type: 'read' | 'mutate' | 'delete';
   fetch(params: Params, body: Body): Promise<any>;

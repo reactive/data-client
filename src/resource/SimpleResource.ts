@@ -199,7 +199,7 @@ export default abstract class SimpleResource {
     this: T,
     method: Method,
     url: string,
-    body?: Readonly<object>,
+    body?: Readonly<object | string>,
   ): Promise<any> {
     // typescript currently doesn't allow abstract static methods
     throw new Error('not implemented');
@@ -237,7 +237,7 @@ export default abstract class SimpleResource {
       schema,
       options,
       getFetchKey,
-      fetch(params: Readonly<object>, body?: Readonly<object>) {
+      fetch(params: Readonly<object>, body?: Readonly<object | string>) {
         return self.fetch('get', self.url(params), body);
       },
     };
@@ -262,7 +262,7 @@ export default abstract class SimpleResource {
       getFetchKey,
       fetch(
         params: Readonly<Record<string, string | number>>,
-        body?: Readonly<object>,
+        body?: Readonly<object | string>,
       ) {
         return self.fetch('get', self.listUrl(params), body);
       },

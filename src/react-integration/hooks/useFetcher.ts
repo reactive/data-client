@@ -15,7 +15,7 @@ const SHAPE_TYPE_TO_RESPONSE_TYPE: Record<
 /** Build an imperative dispatcher to issue network requests. */
 export default function useFetcher<
   Params extends Readonly<object>,
-  Body extends Readonly<object> | void,
+  Body extends Readonly<object | string> | void,
   S extends Schema
 >(fetchShape: FetchShape<S, Params, Body>, throttle = false) {
   const dispatch = useContext(DispatchContext);

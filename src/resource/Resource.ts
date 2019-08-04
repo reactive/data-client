@@ -13,7 +13,7 @@ export default abstract class Resource extends SimpleResource {
     this: T,
     method: Method,
     url: string,
-    body?: Readonly<object>,
+    body?: Readonly<object | string>,
   ) {
     let req = request[method](url).on('error', () => {});
     if (this.fetchPlugin) req = req.use(this.fetchPlugin);
