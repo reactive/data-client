@@ -193,7 +193,7 @@ export default class UserResource extends Resource {
       getFetchKey({ id }: { id: number }) {
         return `/users/${id}/make_manager`;
       },
-      fetch({ id }: { id: number }, body?: Readonly<object>) {
+      fetch({ id }: { id: number }, body?: Readonly<object | string>) {
         return self.fetch('post', `/users/${id}/make_manager`, body);
       },
     };
@@ -233,7 +233,7 @@ export default class UserResource extends Resource {
       getFetchKey() {
         return '/current_user/';
       },
-      fetch(params: {}, body?: Readonly<object>) {
+      fetch(params: {}, body?: Readonly<object | string>) {
         return self.fetch('post', `/current_user/`, body);
       },
     };

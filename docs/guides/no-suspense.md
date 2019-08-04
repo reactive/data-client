@@ -19,7 +19,7 @@ import { useRetrieve, useCache, useError, Schema, ReadShape } from 'rest-hooks';
 function hasUsableData<
   S extends Schema,
   Params extends Readonly<object>,
-  Body extends Readonly<object> | void
+  Body extends Readonly<object | string> | void
 >(
   resource: RequestResource<ReadShape<S, Params, Body>> | null,
   fetchShape: ReadShape<S, Params, Body>,
@@ -33,7 +33,7 @@ function hasUsableData<
 /** Ensure a resource is available; loading and error returned explicitly. */
 function useStatefulResource<
   Params extends Readonly<object>,
-  Body extends Readonly<object> | void,
+  Body extends Readonly<object | string> | void,
   S extends Schema
 >(fetchShape: ReadShape<S, Params, Body>, params: Params | null) {
   let maybePromise = useRetrieve(fetchShape, params);

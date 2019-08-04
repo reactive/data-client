@@ -35,7 +35,7 @@ abstract class CamelResource extends Resource {
     this: T,
     method: Method = 'get',
     url: string,
-    body?: Readonly<object>,
+    body?: Readonly<object | string>,
   ) {
     // we'll need to do the inverse operation when sending data back to the server
     if (body) {
@@ -68,7 +68,7 @@ class ArticleResource extends CamelResource {
     this: T,
     method: Method = 'get',
     url: string,
-    body?: Readonly<object>,
+    body?: Readonly<object | string>,
   ) {
     // we'll need to do the inverse operation when sending data back to the server
     if (body && 'carrotsUsed' in body) {
@@ -134,7 +134,7 @@ abstract class StreamResource extends CamelResource {
     const superShape = super.detailShape();
     return {
       ...superShape,
-      fetch: async (params: { username: string }, body?: Readonly<object>) => {
+      fetch: async (params: { username: string }, body?: Readonly<object | string>) => {
         const response = await superShape.fetch(params, body);
         response.username = params.username;
         return response;

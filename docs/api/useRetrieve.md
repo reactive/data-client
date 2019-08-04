@@ -9,7 +9,7 @@ title: useRetrieve()
 function useRetrieve(
   fetchShape: ReadShape,
   params: Readonly<object> | null,
-  body?: Readonly<object> | void,
+  body?: Readonly<object | string> | void,
 ): Promise<any> | undefined;
 ```
 
@@ -18,7 +18,7 @@ function useRetrieve(
 ```typescript
 function useRetrieve<
   Params extends Readonly<object>,
-  Body extends Readonly<object> | void,
+  Body extends Readonly<object | string> | void,
   S extends Schema
 >(
   fetchShape: ReadShape<S, Params, Body>,

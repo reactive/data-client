@@ -5,7 +5,9 @@ import { RequestOptions } from '~/types';
 export interface FetchShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
-  Body extends Readonly<object> | void = Readonly<object> | undefined
+  Body extends Readonly<object | string> | void =
+    | Readonly<object | string>
+    | undefined
 > {
   readonly type: 'read' | 'mutate' | 'delete';
   fetch(params: Params, body: Body): Promise<any>;
@@ -27,7 +29,9 @@ export interface DeleteShape<
 export interface MutateShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
-  Body extends Readonly<object> | void = Readonly<object> | undefined
+  Body extends Readonly<object | string> | void =
+    | Readonly<object | string>
+    | undefined
 > extends FetchShape<S, Params, Body> {
   readonly type: 'mutate';
 }
@@ -36,7 +40,9 @@ export interface MutateShape<
 export interface ReadShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
-  Body extends Readonly<object> | void = Readonly<object> | undefined
+  Body extends Readonly<object | string> | void =
+    | Readonly<object | string>
+    | undefined
 > extends FetchShape<S, Params, Body> {
   readonly type: 'read';
 }
