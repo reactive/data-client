@@ -1,5 +1,5 @@
 import React from 'react';
-import { FSAWithPayloadAndMeta, FSAWithMeta } from 'flux-standard-action';
+import { FSAWithPayloadAndMeta, FSAWithMeta, ErrorFSAWithMeta } from 'flux-standard-action';
 import { Schema, schemas } from './resource';
 
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
@@ -29,24 +29,30 @@ export interface RequestOptions {
   readonly invalidIfStale?: boolean;
 }
 
+interface ReceiveMeta {
+  schema: Schema;
+  url: string;
+  date: number;
+  expiresAt: number;
+};
+
 export interface ReceiveAction
-  extends FSAWithPayloadAndMeta<'rest-hooks/receive', any, any> {
-  meta: {
-    schema: Schema;
-    url: string;
-    date: number;
-    expiresAt: number;
-  };
+  extends FSAWithPayloadAndMeta<'rest-hooks/receive', object | string | number, ReceiveMeta> {
+  error?: undefined;
 }
+
+export type ReceiveErrorAction = ErrorFSAWithMeta<'rest-hooks/receive', Error, ReceiveMeta>;
+
 export interface RPCAction
-  extends FSAWithPayloadAndMeta<'rest-hooks/rpc', any, any> {
+  extends FSAWithPayloadAndMeta<'rest-hooks/rpc', object | string | number, any> {
   meta: {
     schema: Schema;
     url: string;
   };
 }
+
 export interface PurgeAction
-  extends FSAWithPayloadAndMeta<'rest-hooks/purge', any, any> {
+  extends FSAWithPayloadAndMeta<'rest-hooks/purge', undefined, any> {
   meta: {
     schema: schemas.Entity;
     url: string;
@@ -54,7 +60,7 @@ export interface PurgeAction
 }
 
 export interface FetchAction
-  extends FSAWithPayloadAndMeta<'rest-hooks/fetch', () => Promise<any>, any> {
+  extends FSAWithPayloadAndMeta<'rest-hooks/fetch', () => Promise<object | string | number>, any> {
   meta: {
     schema?: Schema;
     url: string;
@@ -95,6 +101,7 @@ export interface InvalidateAction
 export type ActionTypes =
   | FetchAction
   | ReceiveAction
+  | ReceiveErrorAction
   | RPCAction
   | PurgeAction
   | SubscribeAction

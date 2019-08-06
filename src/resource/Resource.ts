@@ -19,10 +19,8 @@ export default abstract class Resource extends SimpleResource {
     if (this.fetchPlugin) req = req.use(this.fetchPlugin);
     if (body) req = req.send(body);
     return req.then(res => {
-      if (process.env.NODE_ENV !== 'production') {
-        if (!res.type.includes('json') && Object.keys(res.body).length === 0) {
-          throw new Error('JSON expected but not returned from API');
-        }
+      if (!res.type.includes('json') && Object.keys(res.body).length === 0 || res.body === null) {
+        throw new Error('JSON expected but not returned from API');
       }
       return res.body;
     });
