@@ -20,10 +20,14 @@ export default abstract class Resource extends SimpleResource {
     if (body) req = req.send(body);
     return req.then(res => {
       if (
-        (!res.type.includes('json') && Object.keys(res.body).length === 0) ||
-        res.body === null
+        !(
+          res.type.includes('json') ||
+          // empty is only valid when no response is expect (204)
+          (res.text === '' && res.status === 204)
+        ) &&
+        Object.keys(res.body).length === 0
       ) {
-        throw new Error('JSON expected but not returned from API');
+        throw new Error(`JSON expected but not returned from API`);
       }
       return res.body;
     });

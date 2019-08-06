@@ -2,7 +2,11 @@ import React from 'react';
 import { cleanup } from 'react-hooks-testing-library';
 import nock from 'nock';
 
-import { CoolerArticleResource, UserResource } from '../../__tests__/common';
+import {
+  CoolerArticleResource,
+  ArticleResource,
+  UserResource,
+} from '../../__tests__/common';
 import { useResource, useFetcher } from '../hooks';
 import makeRenderRestHook from '../../test/makeRenderRestHook';
 import {
@@ -78,10 +82,16 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         .reply(200, payload);
       nock('http://test.com')
         .delete(`/article-cooler/${payload.id}`)
+        .reply(204, '');
+      nock('http://test.com')
+        .delete(`/article/${payload.id}`)
         .reply(200, {});
       nock('http://test.com')
         .get(`/article-cooler/0`)
         .reply(403, {});
+      nock('http://test.com')
+        .get(`/article-cooler/666`)
+        .reply(200, '');
       nock('http://test.com')
         .get(`/article-cooler/`)
         .reply(200, nested);
@@ -118,6 +128,29 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       await del({}, payload);
       expect(result.error).toBeDefined();
       expect((result.error as any).status).toBe(404);
+    });
+
+    it('should throw when retrieving an empty string', async () => {
+      const { result, waitForNextUpdate } = renderRestHook(() => {
+        return useFetcher(CoolerArticleResource.detailShape());
+      });
+
+      await expect(result.current({}, { id: 666 })).rejects.toThrowError(
+        'JSON expected but not returned from API',
+      );
+    });
+
+    it('should not throw on delete', async () => {
+      const { result, waitForNextUpdate } = renderRestHook(() => {
+        return [
+          useFetcher(CoolerArticleResource.deleteShape()),
+          useFetcher(ArticleResource.deleteShape()),
+        ];
+      });
+
+      for (const del of result.current) {
+        await expect(del({}, payload)).resolves.toBeDefined();
+      }
     });
 
     it('useResource() should throw errors on bad network', async () => {

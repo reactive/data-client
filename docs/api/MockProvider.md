@@ -23,7 +23,7 @@ can be tested. This is useful for [storybook](../guides/storybook.md) as well as
 interface Fixture {
   request: ReadShape<Schema, object, any>;
   params: object;
-  result: any;
+  result: object | string | number;
 }
 ```
 
