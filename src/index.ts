@@ -40,6 +40,8 @@ import {
   State,
   FetchAction,
   ReceiveAction,
+  RPCAction,
+  PurgeAction,
   Middleware,
   Manager,
 } from './types';
@@ -82,8 +84,16 @@ export type Method = Method;
 
 export type NetworkError = NetworkError;
 export type Request = RequestType;
-export type FetchAction = FetchAction;
-export type ReceiveAction = ReceiveAction;
+export type FetchAction<
+  Payload extends object | string | number = object | string | number
+> = FetchAction<Payload>;
+export type ReceiveAction<
+  Payload extends object | string | number = object | string | number
+> = ReceiveAction<Payload>;
+export type RPCAction<
+  Payload extends object | string | number = object | string | number
+> = RPCAction<Payload>;
+export type PurgeAction = PurgeAction;
 
 export type Middleware = Middleware;
 export type Manager = Manager;

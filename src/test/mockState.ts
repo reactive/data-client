@@ -1,10 +1,10 @@
-import { ReadShape, Schema, reducer, __INTERNAL__ } from '..';
+import { ReadShape, ReceiveAction, Schema, reducer, __INTERNAL__ } from '..';
 const { initialState } = __INTERNAL__;
 
 export interface Fixture {
   request: ReadShape<Schema, object, any>;
   params: object;
-  result: any;
+  result: object | string | number;
 }
 
 export default function mockInitialState<

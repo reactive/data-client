@@ -97,9 +97,10 @@ describe('resourceCustomizer', () => {
 describe('reducer', () => {
   describe('singles', () => {
     const id = 20;
-    const action: ReceiveAction = {
+    const payload = { id, title: 'hi', content: 'this is the content' };
+    const action: ReceiveAction<typeof payload> = {
       type: 'rest-hooks/receive',
-      payload: { id, title: 'hi', content: 'this is the content' },
+      payload,
       meta: {
         schema: ArticleResource.getEntitySchema(),
         url: ArticleResource.url({ id }),
@@ -107,7 +108,7 @@ describe('reducer', () => {
         expiresAt: 5000500000,
       },
     };
-    const partialResultAction: ReceiveAction = {
+    const partialResultAction = {
       ...action,
       payload: { id, title: 'hello' },
     };
@@ -148,7 +149,7 @@ describe('reducer', () => {
       expect(nextEntity.title).toBe(partialResultAction.payload.title);
 
       expect(nextEntity.content).toBe(prevEntity.content);
-      expect(nextEntity.content).not.toBe(partialResultAction.payload.content);
+      expect(nextEntity.content).not.toBe(undefined);
     });
   });
   it('mutate should never change results', () => {
@@ -174,7 +175,6 @@ describe('reducer', () => {
     const id = 20;
     const action: PurgeAction = {
       type: 'rest-hooks/purge',
-      payload: {},
       meta: {
         schema: ArticleResource.getEntitySchema(),
         url: id.toString(),
