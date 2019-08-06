@@ -1,5 +1,6 @@
 import React from 'react';
-import { FSAWithPayloadAndMeta, FSAWithMeta, ErrorFSAWithMeta } from 'flux-standard-action';
+import { FSAWithPayloadAndMeta, FSAWithMeta } from 'flux-standard-action';
+import { ErrorableFSAAuto } from './fsa';
 import { Schema, schemas } from './resource';
 
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
@@ -34,33 +35,40 @@ interface ReceiveMeta {
   url: string;
   date: number;
   expiresAt: number;
-};
-
-export interface ReceiveAction
-  extends FSAWithPayloadAndMeta<'rest-hooks/receive', object | string | number, ReceiveMeta> {
-  error?: undefined;
 }
 
-export type ReceiveErrorAction = ErrorFSAWithMeta<'rest-hooks/receive', Error, ReceiveMeta>;
+export type ReceiveAction<
+  Payload extends object | string | number = object | string | number
+> = ErrorableFSAAuto<'rest-hooks/receive', Payload, ReceiveMeta>;
 
-export interface RPCAction
-  extends FSAWithPayloadAndMeta<'rest-hooks/rpc', object | string | number, any> {
-  meta: {
-    schema: Schema;
-    url: string;
-  };
+interface RPCMeta {
+  schema: Schema;
+  url: string;
 }
 
-export interface PurgeAction
-  extends FSAWithPayloadAndMeta<'rest-hooks/purge', undefined, any> {
-  meta: {
-    schema: schemas.Entity;
-    url: string;
-  };
+export type RPCAction<
+  Payload extends object | string | number = object | string | number
+> = ErrorableFSAAuto<'rest-hooks/rpc', Payload, RPCMeta>;
+
+interface PurgeMeta {
+  schema: schemas.Entity;
+  url: string;
 }
 
-export interface FetchAction
-  extends FSAWithPayloadAndMeta<'rest-hooks/fetch', () => Promise<object | string | number>, any> {
+export type PurgeAction = ErrorableFSAAuto<
+  'rest-hooks/purge',
+  undefined,
+  PurgeMeta
+>;
+
+export interface FetchAction<
+  Payload extends object | string | number = object | string | number
+>
+  extends FSAWithPayloadAndMeta<
+    'rest-hooks/fetch',
+    () => Promise<Payload>,
+    any
+  > {
   meta: {
     schema?: Schema;
     url: string;
@@ -101,7 +109,6 @@ export interface InvalidateAction
 export type ActionTypes =
   | FetchAction
   | ReceiveAction
-  | ReceiveErrorAction
   | RPCAction
   | PurgeAction
   | SubscribeAction
