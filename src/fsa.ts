@@ -1,13 +1,35 @@
-import { ErrorFSAAuto, FSA } from 'flux-standard-action';
+import {
+  ErrorFluxStandardActionWithPayloadAndMeta,
+  ErrorFluxStandardActionWithPayload,
+  FSA,
+} from 'flux-standard-action';
 
-export type ErrorableFSAAuto<
+export type ErrorableFSAWithPayloadAndMeta<
   Type extends string = string,
   Payload = undefined,
   Meta = undefined,
   CustomError extends Error = Error
 > =
-  | ErrorFSAAuto<Type, CustomError, Meta>
-  | NoErrorFluxStandardActionAuto<Type, Payload, Meta>;
+  | ErrorFluxStandardActionWithPayloadAndMeta<Type, CustomError, Meta>
+  | NoErrorFluxStandardActionWithPayloadAndMeta<Type, Payload, Meta>;
+
+export type ErrorableFSAWithMeta<
+  Type extends string = string,
+  Payload = undefined,
+  Meta = undefined,
+  CustomError extends Error = Error
+> =
+  | ErrorFluxStandardActionWithPayloadAndMeta<Type, CustomError, Meta>
+  | NoErrorFluxStandardActionWithMeta<Type, Payload, Meta>;
+
+export type ErrorableFSAWithPayload<
+  Type extends string = string,
+  Payload = undefined,
+  Meta = undefined,
+  CustomError extends Error = Error
+> =
+  | ErrorFluxStandardActionWithPayload<Type, CustomError, Meta>
+  | NoErrorFluxStandardActionWithPayload<Type, Payload, Meta>;
 
 export interface NoErrorFluxStandardAction<
   Type extends string = string,

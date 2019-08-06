@@ -1,6 +1,6 @@
 import React from 'react';
 import { FSAWithPayloadAndMeta, FSAWithMeta } from 'flux-standard-action';
-import { ErrorableFSAAuto } from './fsa';
+import { ErrorableFSAWithPayloadAndMeta, ErrorableFSAWithMeta } from './fsa';
 import { Schema, schemas } from './resource';
 
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
@@ -39,7 +39,7 @@ interface ReceiveMeta {
 
 export type ReceiveAction<
   Payload extends object | string | number = object | string | number
-> = ErrorableFSAAuto<'rest-hooks/receive', Payload, ReceiveMeta>;
+> = ErrorableFSAWithPayloadAndMeta<'rest-hooks/receive', Payload, ReceiveMeta>;
 
 interface RPCMeta {
   schema: Schema;
@@ -48,14 +48,14 @@ interface RPCMeta {
 
 export type RPCAction<
   Payload extends object | string | number = object | string | number
-> = ErrorableFSAAuto<'rest-hooks/rpc', Payload, RPCMeta>;
+> = ErrorableFSAWithPayloadAndMeta<'rest-hooks/rpc', Payload, RPCMeta>;
 
 interface PurgeMeta {
   schema: schemas.Entity;
   url: string;
 }
 
-export type PurgeAction = ErrorableFSAAuto<
+export type PurgeAction = ErrorableFSAWithMeta<
   'rest-hooks/purge',
   undefined,
   PurgeMeta

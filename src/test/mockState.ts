@@ -1,4 +1,4 @@
-import { ReadShape, Schema, reducer, __INTERNAL__ } from '..';
+import { ReadShape, ReceiveAction, Schema, reducer, __INTERNAL__ } from '..';
 const { initialState } = __INTERNAL__;
 
 export interface Fixture {
