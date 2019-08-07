@@ -428,6 +428,55 @@
       },
       "version-2.0/guides/version-2.0-url": {
         "title": "URL Patterns"
+      },
+      "version-2.1/api/version-2.1-FetchShape": {
+        "title": "FetchShape"
+      },
+      "version-2.1/api/version-2.1-MockProvider": {
+        "title": "<MockProvider />"
+      },
+      "version-2.1/api/version-2.1-resource": {
+        "title": "Resource"
+      },
+      "version-2.1/api/version-2.1-useCache": {
+        "title": "useCache()"
+      },
+      "version-2.1/api/version-2.1-useFetcher": {
+        "title": "useFetcher()"
+      },
+      "version-2.1/api/version-2.1-useInvalidator": {
+        "title": "useInvalidator()"
+      },
+      "version-2.1/api/version-2.1-useresource": {
+        "title": "useResource()"
+      },
+      "version-2.1/api/version-2.1-useResultCache": {
+        "title": "useResultCache()"
+      },
+      "version-2.1/api/version-2.1-useRetrieve": {
+        "title": "useRetrieve()"
+      },
+      "version-2.1/api/version-2.1-useSubscription": {
+        "title": "useSubscription()"
+      },
+      "version-2.1/guides/version-2.1-custom-networking": {
+        "title": "Using a custom networking library",
+        "sidebar_label": "Custom networking library"
+      },
+      "version-2.1/guides/version-2.1-endpoints": {
+        "title": "Custom endpoints"
+      },
+      "version-2.1/guides/version-2.1-mocking-unfinished": {
+        "title": "Mocking unfinished endpoints"
+      },
+      "version-2.1/guides/version-2.1-network-transform": {
+        "title": "Transforming data on fetch"
+      },
+      "version-2.1/guides/version-2.1-no-suspense": {
+        "title": "Usage without Suspense"
+      },
+      "version-2.1/guides/version-2.1-pagination": {
+        "title": "Pagination"
       }
     },
     "links": {
