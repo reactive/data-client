@@ -178,7 +178,7 @@ parameters.
 
 Used in [listShape()](#listshape-readshape) and [createShape()](#createshape-mutateshape)
 
-### static fetch<T extends typeof Resource>(method: "get" | "post" | "put" | "patch" | "delete" | "options", url: string, body?: Partial<AbstractInstanceType\<T>>) => Promise\<any>
+### static fetch<T extends typeof Resource>(method: "get" | "post" | "put" | "patch" | "delete" | "options", url: string, body?: Readonly<object | string>>) => Promise\<any>
 
 Performs the actual network fetch returning a promise that resolves to the network response or rejects
 on network error. This can be useful to override to really customize your transport.
