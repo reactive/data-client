@@ -37,7 +37,6 @@ describe('Resource', () => {
     );
   });
   it('should render url property', () => {
-    CoolerArticleResource.urlRoot = 'http://test.com/article-cooler';
     const article = CoolerArticleResource.fromJS({
       id: 5,
       title: 'happy',
