@@ -157,7 +157,7 @@ export default abstract class SimpleResource {
 
   /** Get the url for a SimpleResource
    *
-   * Default implementation conforms to commoon REST patterns
+   * Default implementation conforms to common REST patterns
    */
   static url<T extends typeof SimpleResource>(
     this: T,
@@ -172,7 +172,10 @@ export default abstract class SimpleResource {
         return urlParams.url;
       }
       if (this.pk(urlParams) !== null) {
-        return `${this.urlRoot}${this.pk(urlParams)}`;
+        if (this.urlRoot.slice(-1) === '/') {
+          return `${this.urlRoot}${this.pk(urlParams)}`;
+        }
+        return `${this.urlRoot}/${this.pk(urlParams)}`;
       }
     }
     return this.urlRoot;
