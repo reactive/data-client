@@ -44,6 +44,18 @@ describe('Resource', () => {
     });
     expect(article.url).toBe('http://test.com/article-cooler/5');
   });
+  it('should render url property with non-trailing slash root', () => {
+    // Remove trailing slash in url root
+    CoolerArticleResource.urlRoot = 'http://test.com/article-cooler';
+    const article = CoolerArticleResource.fromJS({
+      id: 5,
+      title: 'happy',
+      author: 5,
+    });
+    expect(article.url).toBe('http://test.com/article-cooler/5');
+    // Reset for future tests
+    CoolerArticleResource.urlRoot = 'http://test.com/article-cooler/';
+  });
   const [coolA, coolB, coolC] = [
     CoolerArticleResource.fromJS({ title: 'great' }),
     CoolerArticleResource.fromJS({ id: 5 }),
