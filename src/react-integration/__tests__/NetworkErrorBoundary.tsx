@@ -1,9 +1,7 @@
 import React, { useContext, ReactChild, ReactNode, ReactElement } from 'react';
-import { cleanup, act, render } from 'react-testing-library';
+import { render } from '@testing-library/react';
 
 import NetworkErrorBoundary from '../NetworkErrorBoundary';
-
-afterEach(cleanup);
 
 describe('<NetworkErrorBoundary />', () => {
   function onError(e: any) {

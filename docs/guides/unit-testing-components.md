@@ -46,7 +46,7 @@ export default {
 #### `__tests__/ArticleList.tsx`
 
 ```tsx
-import { render } from 'react-testing-library';
+import { render } from '@testing-library/react';
 import { MockProvider } from 'rest-hooks/test';
 
 import ArticleList from 'components/ArticleList';

@@ -1,12 +1,10 @@
 import React, { useContext } from 'react';
-import { cleanup, act, render } from 'react-testing-library';
+import { act, render } from '@testing-library/react';
 
 import { DispatchContext, StateContext } from '../../context';
 import { CoolerArticleResource } from '../../../__tests__/common';
 import CacheProvider from '../CacheProvider';
 import NetworkManager from '../../../state/NetworkManager';
-
-afterEach(cleanup);
 
 describe('<CacheProvider />', () => {
   it('should not change dispatch function on re-render', () => {

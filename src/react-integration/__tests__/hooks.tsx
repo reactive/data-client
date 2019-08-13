@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect } from 'react';
-import { render, cleanup } from 'react-testing-library';
+import { render } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
 import { normalize } from '../../resource';
@@ -90,10 +90,6 @@ function buildState<S extends Schema>(
     },
   };
 }
-
-afterEach(() => {
-  cleanup();
-});
 
 const payload = {
   id: 5,

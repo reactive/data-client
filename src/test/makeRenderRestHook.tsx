@@ -1,5 +1,5 @@
 import React from 'react';
-import { RenderOptions } from 'react-testing-library';
+import { RenderOptions } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 
 import { MockNetworkManager } from './managers';
