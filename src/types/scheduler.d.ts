@@ -16,8 +16,9 @@ export function unstable_runWithPriority(
   eventHandler: any,
 ): any;
 export function unstable_scheduleCallback(
+  priorityLevel: number,
   callback: any,
-  deprecated_options: any,
+  options: any,
 ): any;
 export function unstable_shouldYield(): any;
 export function unstable_wrapCallback(callback: any): any;
