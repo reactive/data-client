@@ -56,7 +56,7 @@ export default function reducer(
 ): State<unknown> {
   if (!state) state = initialState;
   switch (action.type) {
-    case 'rest-hooks/receive':
+    case 'rest-hooks/receive': {
       if (action.error) {
         return {
           ...state,
@@ -89,9 +89,10 @@ export default function reducer(
           },
         },
       };
-    case 'rest-hooks/rpc':
+    }
+    case 'rest-hooks/rpc': {
       if (action.error) return state;
-      let { entities } = normalize(action.payload, action.meta.schema);
+      const { entities } = normalize(action.payload, action.meta.schema);
       return {
         ...state,
         entities: mergeWith(
@@ -100,7 +101,8 @@ export default function reducer(
           resourceCustomizer,
         ),
       };
-    case 'rest-hooks/purge':
+    }
+    case 'rest-hooks/purge': {
       if (action.error) return state;
       const key = action.meta.schema.key;
       const pk = action.meta.url;
@@ -109,6 +111,7 @@ export default function reducer(
         ...state,
         entities: e,
       };
+    }
     case 'rest-hooks/invalidate':
       return {
         ...state,

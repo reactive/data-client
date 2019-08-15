@@ -160,7 +160,7 @@ describe('Resource', () => {
   });
   it('should have __ownerID property on lookup', () => {
     const r = CoolerArticleResource.fromJS({});
-    expect(r.hasOwnProperty('__ownerID')).toBe(true);
+    expect(Object.prototype.hasOwnProperty.call(r, '__ownerID')).toBe(true);
   });
 
   describe('static url', () => {

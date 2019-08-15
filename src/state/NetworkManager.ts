@@ -18,10 +18,7 @@ export default class NetworkManager implements Manager {
   protected rejectors: { [k: string]: (value?: any) => void } = {};
   readonly dataExpiryLength: number;
   readonly errorExpiryLength: number;
-  constructor(
-    dataExpiryLength: number = 60000,
-    errorExpiryLength: number = 1000,
-  ) {
+  constructor(dataExpiryLength = 60000, errorExpiryLength = 1000) {
     this.dataExpiryLength = dataExpiryLength;
     this.errorExpiryLength = errorExpiryLength;
   }
@@ -188,7 +185,12 @@ export default class NetworkManager implements Manager {
     // since our real promise is resolved via the wrapReducer(),
     // we should just stop all errors here.
     // TODO: decouple this from useFetcher() (that's what's dispatching the error the resolves in here)
-    RIC(() => fetch().catch(() => null), { timeout: 500 });
+    RIC(
+      () => {
+        fetch().catch(() => null);
+      },
+      { timeout: 500 },
+    );
 
     return this.fetched[url];
   }

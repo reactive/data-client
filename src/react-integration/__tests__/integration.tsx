@@ -197,7 +197,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       expect(users[0] instanceof UserResource).toBe(true);
     });
 
-    it('should not suspend with no params to useResource()', async () => {
+    it('should not suspend with no params to useResource()', () => {
       let article: any;
       const { result } = renderRestHook(() => {
         article = useResource(CoolerArticleResource.detailShape(), null);

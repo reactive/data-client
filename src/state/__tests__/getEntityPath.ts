@@ -4,29 +4,29 @@ import getEntityPath from '../getEntityPath';
 
 describe('getEntityPath()', () => {
   const entity = CoolerArticleResource.getEntitySchema();
-  it('should find base Entity', async () => {
+  it('should find base Entity', () => {
     const path = getEntityPath(entity);
 
     expect(path).toEqual([]);
   });
-  it('should find base array Entity', async () => {
+  it('should find base array Entity', () => {
     const path = getEntityPath([entity]);
 
     expect(path).toEqual([]);
   });
-  it('should find schemas.Array(Entity)', async () => {
+  it('should find schemas.Array(Entity)', () => {
     const path = getEntityPath(new schemas.Array(entity));
 
     expect(path).toEqual([]);
   });
-  it('should find deeply nested', async () => {
+  it('should find deeply nested', () => {
     const path = getEntityPath({
       happy: { go: { lucky: new schemas.Array(entity) } },
     });
 
     expect(path).toEqual(['happy', 'go', 'lucky']);
   });
-  it('should find with red herring', async () => {
+  it('should find with red herring', () => {
     const path = getEntityPath({
       a: null,
       happy: { go: { lucky: new schemas.Array(entity) }, other: 5 },
@@ -37,7 +37,7 @@ describe('getEntityPath()', () => {
 
     expect(path).toEqual(['happy', 'go', 'lucky']);
   });
-  it('should find deeply nested Object', async () => {
+  it('should find deeply nested Object', () => {
     const scheme = new schemas.Object({
       happy: new schemas.Object({ go: { lucky: new schemas.Array(entity) } }),
     });
@@ -45,7 +45,7 @@ describe('getEntityPath()', () => {
 
     expect(path).toEqual(['happy', 'go', 'lucky']);
   });
-  it('should be false if we never find entity', async () => {
+  it('should be false if we never find entity', () => {
     const path = getEntityPath({ happy: { go: { lucky: 5 } } } as any);
 
     expect(path).toBe(false);

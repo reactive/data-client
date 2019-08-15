@@ -257,7 +257,7 @@ describe('useInvalidate', () => {
       },
     });
   });
-  it('should return the same === function each time', async () => {
+  it('should return the same === function each time', () => {
     const track = jest.fn();
 
     const { rerender } = renderHook(() => {
@@ -273,7 +273,7 @@ describe('useInvalidate', () => {
 });
 
 describe('useCache', () => {
-  it('should select singles', async () => {
+  it('should select singles', () => {
     let article: any;
     let state = { ...initialState };
     const { rerender } = renderHook(
@@ -295,7 +295,7 @@ describe('useCache', () => {
     expect(article.title).toBe(payload.title);
   });
 
-  it('should select paginated results', async () => {
+  it('should select paginated results', () => {
     const state = buildState(
       articlesPages,
       PaginatedArticleResource.listShape(),
@@ -311,7 +311,7 @@ describe('useCache', () => {
     expect(articles).toMatchSnapshot();
   });
 
-  it('should return identical value no matter how many re-renders', async () => {
+  it('should return identical value no matter how many re-renders', () => {
     const track = jest.fn();
 
     const { rerender } = renderHook(() => {
@@ -330,7 +330,7 @@ describe('useCache', () => {
 describe('useResultCache', () => {
   it('should be null with nothing in state', () => {
     let results: any;
-    let state = { ...initialState };
+    const state = { ...initialState };
     const { rerender } = testRestHook(() => {
       results = useResultCache(PaginatedArticleResource.listShape(), {});
     }, state);
@@ -339,7 +339,7 @@ describe('useResultCache', () => {
 
   it('should send defaults with nothing in state', () => {
     let results: any;
-    let state = { ...initialState };
+    const state = { ...initialState };
     const defaults = { prevPage: '', nextPage: '' };
     testRestHook(() => {
       results = useResultCache(
@@ -351,7 +351,7 @@ describe('useResultCache', () => {
     expect(results).toEqual(defaults);
   });
 
-  it('should find results', async () => {
+  it('should find results', () => {
     const state = buildState(
       articlesPages,
       PaginatedArticleResource.listShape(),
@@ -367,7 +367,7 @@ describe('useResultCache', () => {
     expect(results.results).toEqual(['23', '44', '2', '643']);
   });
 
-  it('should return identical value no matter how many re-renders', async () => {
+  it('should return identical value no matter how many re-renders', () => {
     const track = jest.fn();
 
     const { rerender } = renderHook(() => {
@@ -404,7 +404,7 @@ describe('useRetrieve', () => {
     await testDispatchFetch(FetchTester, [payload]);
   });
 
-  it('should not dispatch will null params', async () => {
+  it('should not dispatch will null params', () => {
     const dispatch = jest.fn();
     let params: any = null;
     const { rerender } = testRestHook(
@@ -446,7 +446,7 @@ describe('useRetrieve', () => {
 });
 
 describe('useResource()', () => {
-  let fbmock = jest.fn();
+  const fbmock = jest.fn();
 
   function Fallback() {
     fbmock();
@@ -541,6 +541,7 @@ describe('useResource()', () => {
     await result.current;
     rerender();
     expect(result.current).toBe(null);
+    // eslint-disable-next-line require-atomic-updates
     console.error = oldError;
   });
   it('should NOT suspend if result already in cache and options.invalidIfStale is false', () => {

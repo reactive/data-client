@@ -15,7 +15,7 @@ describe('NetworkManager', () => {
   describe('cleanup()', () => {
     it('should reject current promises', async () => {
       let rejection: any;
-      let promise = (manager as any)
+      const promise = (manager as any)
         .throttle(
           'a',
           () =>

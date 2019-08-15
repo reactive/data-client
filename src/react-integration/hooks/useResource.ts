@@ -31,7 +31,7 @@ function useOneResource<
   Body extends Readonly<object | string> | void,
   S extends Schema
 >(fetchShape: ReadShape<S, Params, Body>, params: Params | null) {
-  let maybePromise = useRetrieve(fetchShape, params);
+  const maybePromise = useRetrieve(fetchShape, params);
   const resource = useCache(fetchShape, params);
 
   if (
@@ -59,7 +59,7 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
       // eslint-disable-next-line react-hooks/rules-of-hooks
       useCache(select, params),
   );
-  let promises = resourceList
+  const promises = resourceList
     .map(([select, params]) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
       useRetrieve(select, params),

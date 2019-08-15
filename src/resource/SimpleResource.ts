@@ -165,14 +165,14 @@ export default abstract class SimpleResource {
   ): string {
     if (urlParams) {
       if (
-        urlParams.hasOwnProperty('url') &&
+        Object.prototype.hasOwnProperty.call(urlParams, 'url') &&
         urlParams.url &&
         typeof urlParams.url === 'string'
       ) {
         return urlParams.url;
       }
       if (this.pk(urlParams) !== null) {
-        if (this.urlRoot.slice(-1) === '/') {
+        if (this.urlRoot.endsWith('/')) {
           return `${this.urlRoot}${this.pk(urlParams)}`;
         }
         return `${this.urlRoot}/${this.pk(urlParams)}`;
@@ -227,7 +227,6 @@ export default abstract class SimpleResource {
   static detailShape<T extends typeof SimpleResource>(
     this: T,
   ): ReadShape<SchemaDetail<AbstractInstanceType<T>>> {
-    const self = this;
     const getFetchKey = (params: Readonly<object>) => {
       return 'GET ' + this.url(params);
     };
@@ -240,8 +239,8 @@ export default abstract class SimpleResource {
       schema,
       options,
       getFetchKey,
-      fetch(params: Readonly<object>, body?: Readonly<object | string>) {
-        return self.fetch('get', self.url(params), body);
+      fetch: (params: Readonly<object>, body?: Readonly<object | string>) => {
+        return this.fetch('get', this.url(params), body);
       },
     };
   }
@@ -250,7 +249,6 @@ export default abstract class SimpleResource {
   static listShape<T extends typeof SimpleResource>(
     this: T,
   ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
-    const self = this;
     const getFetchKey = (params: Readonly<Record<string, string>>) => {
       return 'GET ' + this.listUrl(params);
     };
@@ -263,11 +261,11 @@ export default abstract class SimpleResource {
       schema,
       options,
       getFetchKey,
-      fetch(
+      fetch: (
         params: Readonly<Record<string, string | number>>,
         body?: Readonly<object | string>,
-      ) {
-        return self.fetch('get', self.listUrl(params), body);
+      ) => {
+        return this.fetch('get', this.listUrl(params), body);
       },
     };
   }
@@ -279,20 +277,19 @@ export default abstract class SimpleResource {
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
-    const self = this;
     const options = this.getRequestOptions();
     return {
       type: 'mutate',
-      schema: self.getEntitySchema(),
+      schema: this.getEntitySchema(),
       options,
-      getFetchKey(params: Readonly<Record<string, string>>) {
-        return 'POST ' + self.listUrl(params);
+      getFetchKey: (params: Readonly<Record<string, string>>) => {
+        return 'POST ' + this.listUrl(params);
       },
-      fetch(
+      fetch: (
         params: Readonly<Record<string, string | number>>,
         body: Partial<AbstractInstanceType<T>>,
-      ) {
-        return self.fetch('post', self.listUrl(params), body);
+      ) => {
+        return this.fetch('post', this.listUrl(params), body);
       },
     };
   }
@@ -304,17 +301,19 @@ export default abstract class SimpleResource {
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
-    const self = this;
     const options = this.getRequestOptions();
     return {
       type: 'mutate',
-      schema: self.getEntitySchema(),
+      schema: this.getEntitySchema(),
       options,
-      getFetchKey(params: object) {
-        return 'PUT ' + self.url(params);
+      getFetchKey: (params: object) => {
+        return 'PUT ' + this.url(params);
       },
-      fetch(params: Readonly<object>, body: Partial<AbstractInstanceType<T>>) {
-        return self.fetch('put', self.url(params), body);
+      fetch: (
+        params: Readonly<object>,
+        body: Partial<AbstractInstanceType<T>>,
+      ) => {
+        return this.fetch('put', this.url(params), body);
       },
     };
   }
@@ -326,17 +325,19 @@ export default abstract class SimpleResource {
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
-    const self = this;
     const options = this.getRequestOptions();
     return {
       type: 'mutate',
-      schema: self.getEntitySchema(), //TODO: change merge strategy in case we want to handle partial returns
+      schema: this.getEntitySchema(), //TODO: change merge strategy in case we want to handle partial returns
       options,
-      getFetchKey(params: Readonly<object>) {
-        return 'PATCH ' + self.url(params);
+      getFetchKey: (params: Readonly<object>) => {
+        return 'PATCH ' + this.url(params);
       },
-      fetch(params: Readonly<object>, body: Partial<AbstractInstanceType<T>>) {
-        return self.fetch('patch', self.url(params), body);
+      fetch: (
+        params: Readonly<object>,
+        body: Partial<AbstractInstanceType<T>>,
+      ) => {
+        return this.fetch('patch', this.url(params), body);
       },
     };
   }
@@ -344,17 +345,16 @@ export default abstract class SimpleResource {
   static deleteShape<T extends typeof SimpleResource>(
     this: T,
   ): DeleteShape<schemas.Entity<AbstractInstanceType<T>>, Readonly<object>> {
-    const self = this;
     const options = this.getRequestOptions();
     return {
       type: 'delete',
-      schema: self.getEntitySchema(),
+      schema: this.getEntitySchema(),
       options,
-      getFetchKey(params: object) {
-        return 'DELETE ' + self.url(params);
+      getFetchKey: (params: object) => {
+        return 'DELETE ' + this.url(params);
       },
-      fetch(params: Readonly<object>) {
-        return self.fetch('delete', self.url(params));
+      fetch: (params: Readonly<object>) => {
+        return this.fetch('delete', this.url(params));
       },
     };
   }

@@ -15,7 +15,7 @@ export default function createEnhancedReducerHook(
     const store = useRef(state);
     store.current = state;
 
-    let outerDispatch = useMemo(() => {
+    const outerDispatch = useMemo(() => {
       let dispatch: React.Dispatch<React.ReducerAction<R>> = () => {
         throw new Error(
           `Dispatching while constructing your middleware is not allowed. ` +

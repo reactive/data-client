@@ -30,7 +30,7 @@ describe('SubscriptionManager', () => {
   });
 
   describe('cleanup()', () => {
-    it('should cleanup all Subcription members', async () => {
+    it('should cleanup all Subcription members', () => {
       const sub = new TestSubscription();
       (manager as any).subscriptions[
         PollingArticleResource.url({ id: 5 })

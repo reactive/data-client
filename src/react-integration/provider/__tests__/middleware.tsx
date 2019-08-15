@@ -165,7 +165,7 @@ describe('createEnhancedReducerHook', () => {
     expect(faker.mock.calls[2][0]).toEqual({ type: 'nothing', payload: 5 });
   });
 
-  test('should work with middlewares that getState()', async () => {
+  test('should work with middlewares that getState()', () => {
     const callBefore = jest.fn();
     const callAfter = jest.fn();
     const logger = makeStatefulMiddleware({ callBefore, callAfter });

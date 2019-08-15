@@ -94,7 +94,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       );
     });
 
-    it('useSubscription() should dispatch rest-hooks/subscribe only once even with rerender', async () => {
+    it('useSubscription() should dispatch rest-hooks/subscribe only once even with rerender', () => {
       const fakeDispatch = jest.fn();
 
       const { rerender } = renderHook(

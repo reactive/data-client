@@ -7,21 +7,21 @@ import {
 import { normalize } from '../../resource';
 import { makeSchemaSelector } from '../selectors';
 
-let { schema, getFetchKey } = CoolerArticleResource.detailShape();
+const { schema, getFetchKey } = CoolerArticleResource.detailShape();
 const select = makeSchemaSelector(schema, getFetchKey);
-let listR = CoolerArticleResource.listShape();
+const listR = CoolerArticleResource.listShape();
 const listSelect = makeSchemaSelector(listR.schema, listR.getFetchKey);
 describe('selectors', () => {
   describe('Single', () => {
     const params = { id: 5, title: 'bob', content: 'head' };
     const article = CoolerArticleResource.fromJS(params);
-    it('should be null when state is empty', async () => {
+    it('should be null when state is empty', () => {
       const state = { entities: {}, results: {}, meta: {} };
       const article = select(state, { id: 5 });
 
       expect(article).toBe(null);
     });
-    it('should be null when state is populated just not with our query', async () => {
+    it('should be null when state is populated just not with our query', () => {
       const state = {
         entities: {
           [CoolerArticleResource.getKey()]: {
@@ -37,7 +37,7 @@ describe('selectors', () => {
 
       expect(selected).toBe(null);
     });
-    it('should find value when state exists', async () => {
+    it('should find value when state exists', () => {
       const state = {
         entities: {
           [CoolerArticleResource.getKey()]: {
@@ -53,7 +53,7 @@ describe('selectors', () => {
 
       expect(selected).toBe(article);
     });
-    it('should be null without entity', async () => {
+    it('should be null without entity', () => {
       const state = {
         entities: { [CoolerArticleResource.getKey()]: {} },
         results: {
@@ -65,7 +65,7 @@ describe('selectors', () => {
 
       expect(selected).toBe(null);
     });
-    it('should find value when no result exists but primary key is used', async () => {
+    it('should find value when no result exists but primary key is used', () => {
       const state = {
         entities: {
           [CoolerArticleResource.getKey()]: {
@@ -79,9 +79,9 @@ describe('selectors', () => {
 
       expect(selected).toBe(article);
     });
-    it('should find value when no result exists but primary key is used when using nested schema', async () => {
+    it('should find value when no result exists but primary key is used when using nested schema', () => {
       const pageArticle = PaginatedArticleResource.fromJS(article);
-      let { schema, getFetchKey } = PaginatedArticleResource.detailShape();
+      const { schema, getFetchKey } = PaginatedArticleResource.detailShape();
       const select = makeSchemaSelector(schema, getFetchKey);
       const state = {
         entities: {
@@ -96,7 +96,7 @@ describe('selectors', () => {
 
       expect(selected).toBe(pageArticle);
     });
-    it('should find value when not using primary key as param', async () => {
+    it('should find value when not using primary key as param', () => {
       const urlParams = { title: 'bob' };
       const state = {
         entities: {
@@ -113,7 +113,7 @@ describe('selectors', () => {
       };
       expect(select(state, urlParams)).toBe(article);
     });
-    it('should throw when results are Array', async () => {
+    it('should throw when results are Array', () => {
       const params = { title: 'bob' };
       const state = {
         entities: {},
@@ -124,7 +124,7 @@ describe('selectors', () => {
       };
       expect(() => select(state, params)).toThrow();
     });
-    it('should throw when results are Object', async () => {
+    it('should throw when results are Object', () => {
       const params = { title: 'bob' };
       const state = {
         entities: {},
@@ -137,7 +137,7 @@ describe('selectors', () => {
       };
       expect(() => select(state, params)).toThrow();
     });
-    it('should handle nested resources', async () => {
+    it('should handle nested resources', () => {
       const nestedArticle = NestedArticleResource.fromJS({
         ...params,
         user: 23,
@@ -166,13 +166,13 @@ describe('selectors', () => {
       CoolerArticleResource.fromJS({ id: 6 }),
       CoolerArticleResource.fromJS({ id: 34, title: 'five' }),
     ];
-    it('should be null when state is empty', async () => {
+    it('should be null when state is empty', () => {
       const state = { entities: {}, results: {}, meta: {} };
       const articles = listSelect(state, {});
 
       expect(articles).toBe(null);
     });
-    it('should be null when state is partial', async () => {
+    it('should be null when state is partial', () => {
       const { entities } = normalize(
         articles,
         CoolerArticleResource.listShape().schema,
@@ -182,7 +182,7 @@ describe('selectors', () => {
 
       expect(selected).toBe(null);
     });
-    it('should find value when state exists', async () => {
+    it('should find value when state exists', () => {
       const { entities, result } = normalize(
         articles,
         CoolerArticleResource.listShape().schema,
@@ -198,7 +198,7 @@ describe('selectors', () => {
 
       expect(selected).toEqual(articles);
     });
-    it('should simply ignore missing entities when their id is found in results', async () => {
+    it('should simply ignore missing entities when their id is found in results', () => {
       const { entities, result } = normalize(
         articles,
         CoolerArticleResource.listShape().schema,
@@ -216,7 +216,7 @@ describe('selectors', () => {
       const expectedArticles = articles.slice(1);
       expect(selected).toEqual(expectedArticles);
     });
-    it('should work with paginated results', async () => {
+    it('should work with paginated results', () => {
       const { entities, result } = normalize(
         { results: articles },
         PaginatedArticleResource.listShape().schema,
@@ -234,7 +234,7 @@ describe('selectors', () => {
 
       expect(selected).toEqual(articles);
     });
-    it('should throw with invalid schemas', async () => {
+    it('should throw with invalid schemas', () => {
       const shape = PaginatedArticleResource.listShape();
       expect(() =>
         makeSchemaSelector(
