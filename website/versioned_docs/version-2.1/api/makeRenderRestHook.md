@@ -1,5 +1,7 @@
 ---
 title: makeRenderRestHook()
+id: version-2.1-makeRenderRestHook
+original_id: makeRenderRestHook
 ---
 
 ```typescript

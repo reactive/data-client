@@ -1,4 +1,4 @@
-import { act } from 'react-hooks-testing-library';
+import { act } from '@testing-library/react-hooks';
 
 import { NetworkManager, FetchAction, ReceiveAction } from '..';
 

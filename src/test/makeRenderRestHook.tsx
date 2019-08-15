@@ -1,6 +1,5 @@
 import React from 'react';
-import { RenderOptions } from 'react-testing-library';
-import { renderHook } from 'react-hooks-testing-library';
+import { renderHook, RenderHookOptions } from '@testing-library/react-hooks';
 
 import { MockNetworkManager } from './managers';
 import mockInitialState, { Fixture } from './mockState';
@@ -19,7 +18,7 @@ export default function makeRenderRestHook(
     options?: {
       initialProps?: P;
       results?: Fixture[];
-    } & RenderOptions,
+    } & RenderHookOptions<P>,
   ) {
     const initialState =
       options && options.results && mockInitialState(options.results);
