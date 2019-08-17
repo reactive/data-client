@@ -1,11 +1,11 @@
 import nock from 'nock';
-import { normalize } from 'normalizr';
 
 import {
   CoolerArticleResource,
   UserResource,
   UrlArticleResource,
 } from '../../__tests__/common';
+import { normalize } from '../normal';
 import Resource, { isResponseEmpty } from '../Resource';
 import SimpleResource from '../SimpleResource';
 
@@ -172,7 +172,7 @@ describe('Resource', () => {
     const json = { ...CoolerArticleResource.fromJS({}) };
     expect(json).not.toHaveProperty('__ownerID');
   });
-  
+
   it('should have __ownerID property on lookup', () => {
     const r = CoolerArticleResource.fromJS({});
     expect(Object.prototype.hasOwnProperty.call(r, '__ownerID')).toBe(true);
