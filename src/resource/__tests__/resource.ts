@@ -1,11 +1,13 @@
 import nock from 'nock';
+import { normalize } from 'normalizr';
 
 import {
   CoolerArticleResource,
   UserResource,
   UrlArticleResource,
 } from '../../__tests__/common';
-import { Resource, normalize, SimpleResource } from '..';
+import Resource, { isResponseEmpty } from '../Resource';
+import SimpleResource from '../SimpleResource';
 
 describe('Resource', () => {
   it('should init', () => {
@@ -21,21 +23,25 @@ describe('Resource', () => {
     expect(resource.url).toBe('http://test.com/article-cooler/5');
     expect(resource.author).toBe(5);
   });
+
   it('should not init Resource itself', () => {
     expect(() => Resource.fromJS({})).toThrow();
   });
+
   it('should work with `url` member', () => {
     expect(() => UrlArticleResource.fromJS({})).not.toThrow();
     expect(() => UrlArticleResource.fromJS({ url: 'five' })).not.toThrow();
     const urlArticle = UrlArticleResource.fromJS({ url: 'five' });
     expect(urlArticle.url).toBe('five');
   });
+
   it('should convert class to string', () => {
     expect(CoolerArticleResource.toString()).toBeDefined();
     expect(CoolerArticleResource.toString()).toMatchInlineSnapshot(
       `"CoolerArticleResource::http://test.com/article-cooler/"`,
     );
   });
+
   it('should render url property', () => {
     const article = CoolerArticleResource.fromJS({
       id: 5,
@@ -44,6 +50,7 @@ describe('Resource', () => {
     });
     expect(article.url).toBe('http://test.com/article-cooler/5');
   });
+
   it('should render url property with non-trailing slash root', () => {
     // Remove trailing slash in url root
     CoolerArticleResource.urlRoot = 'http://test.com/article-cooler';
@@ -56,11 +63,13 @@ describe('Resource', () => {
     // Reset for future tests
     CoolerArticleResource.urlRoot = 'http://test.com/article-cooler/';
   });
+
   const [coolA, coolB, coolC] = [
     CoolerArticleResource.fromJS({ title: 'great' }),
     CoolerArticleResource.fromJS({ id: 5 }),
     CoolerArticleResource.fromJS({}),
   ];
+
   describe('merge()', () => {
     const c = CoolerArticleResource.merge(coolA, coolB);
     it('works with partial', () => {
@@ -93,12 +102,14 @@ describe('Resource', () => {
       expect(CoolerArticleResource.merge(c, coolC)).toEqual(c);
     });
   });
+
   describe('hasDefined()', () => {
     it('works ', () => {
       expect(CoolerArticleResource.hasDefined(coolA, 'title')).toBe(true);
       expect(CoolerArticleResource.hasDefined(coolA, 'author')).toBe(false);
     });
   });
+
   describe('toObjectDefined()', () => {
     it('works', () => {
       expect(CoolerArticleResource.toObjectDefined(coolA))
@@ -115,6 +126,7 @@ describe('Resource', () => {
       `);
     });
   });
+
   describe('keysDefined()', () => {
     it('works', () => {
       expect(CoolerArticleResource.keysDefined(coolA)).toMatchInlineSnapshot(`
@@ -129,6 +141,7 @@ describe('Resource', () => {
       `);
     });
   });
+
   describe('listUrl', () => {
     it('should listUrl with an arg', () => {
       expect(CoolerArticleResource.listUrl({ author: 5 })).toBe(
@@ -154,10 +167,12 @@ describe('Resource', () => {
       );
     });
   });
+
   it('should not include __ownerID when converting to JS', () => {
     const json = { ...CoolerArticleResource.fromJS({}) };
     expect(json).not.toHaveProperty('__ownerID');
   });
+  
   it('should have __ownerID property on lookup', () => {
     const r = CoolerArticleResource.fromJS({});
     expect(Object.prototype.hasOwnProperty.call(r, '__ownerID')).toBe(true);
