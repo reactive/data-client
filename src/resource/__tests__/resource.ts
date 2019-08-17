@@ -6,7 +6,7 @@ import {
   UrlArticleResource,
 } from '../../__tests__/common';
 import { normalize } from '../normal';
-import Resource, { isResponseEmpty } from '../Resource';
+import Resource from '../Resource';
 import SimpleResource from '../SimpleResource';
 
 describe('Resource', () => {
@@ -206,7 +206,7 @@ describe('Resource', () => {
       title: 'happy',
       completed: false,
     };
-    
+
     beforeEach(() => {
       nock('http://test.com')
         .get(`/article-cooler/${payload.id}`)
