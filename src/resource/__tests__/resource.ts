@@ -206,6 +206,7 @@ describe('Resource', () => {
       title: 'happy',
       completed: false,
     };
+    
     beforeEach(() => {
       nock('http://test.com')
         .get(`/article-cooler/${payload.id}`)
@@ -246,6 +247,7 @@ describe('Resource', () => {
         .intercept('/article-cooler/5', 'DELETE')
         .reply(200, {});
     });
+
     it('should throw with SimpleResource', () => {
       expect(() =>
         SimpleResource.fetch(
@@ -256,6 +258,7 @@ describe('Resource', () => {
         ),
       ).toThrow();
     });
+
     it('should GET', async () => {
       const article = await CoolerArticleResource.fetch(
         'get',
@@ -269,6 +272,7 @@ describe('Resource', () => {
       }
       expect(article.title).toBe(payload.title);
     });
+
     it('should POST', async () => {
       const payload2 = { id: 20, content: 'better task' };
       const article = await CoolerArticleResource.fetch(
@@ -278,6 +282,7 @@ describe('Resource', () => {
       );
       expect(article).toMatchObject(payload2);
     });
+
     it('should DELETE', async () => {
       const res = await CoolerArticleResource.fetch(
         'delete',
@@ -285,25 +290,24 @@ describe('Resource', () => {
           id: payload.id,
         }),
       );
-
       expect(res).toEqual({});
     });
+
     it('should PUT', async () => {
       const response = await CoolerArticleResource.fetch(
         'put',
         CoolerArticleResource.url(payload),
         CoolerArticleResource.fromJS(payload),
       );
-
       expect(response).toEqual(putResponseBody);
     });
+
     it('should PATCH', async () => {
       const response = await CoolerArticleResource.fetch(
         'patch',
         CoolerArticleResource.url({ id }),
         patchPayload,
       );
-
       expect(response).toEqual(patchResponseBody);
     });
 
