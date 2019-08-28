@@ -223,7 +223,6 @@ class Index extends React.Component {
         <div className="mainContainer">
           <Demo />
           <Features />
-          <Showcase />
         </div>
       </div>
     );
