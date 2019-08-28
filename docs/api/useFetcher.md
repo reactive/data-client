@@ -35,7 +35,7 @@ function useFetcher<
 Mostly useful for imperatively triggering mutation effects.
 
 However, this hook is actually used by the retrieval hooks (useRetrieve(), useCache(), useResource()). Using
-it with a `ReadRequest` like `detailShape()` can be done to force a refresh imperatively.
+it with a `ReadShape` like `detailShape()` can be done to force a refresh imperatively.
 
 ## throttle?: boolean = false
 

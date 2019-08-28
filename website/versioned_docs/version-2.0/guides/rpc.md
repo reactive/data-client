@@ -65,7 +65,7 @@ class TradeResource extends Resource {
     Partial<AbstractInstanceType<T>>
   > {
     return {
-      ...this.super.createShape(),
+      ...super.createShape(),
       schema: {
         trade: this.getEntitySchema(),
         account: AccountResource.getEntitySchema(),

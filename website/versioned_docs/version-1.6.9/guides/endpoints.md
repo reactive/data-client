@@ -191,7 +191,7 @@ export default class UserResource extends Resource {
   ): MutateShape<SchemaBase<AbstractInstanceType<T>>, { id: number }, {}> {
     return {
       ...this.createRequest(),
-      getUrl({ id }: { id: number }) {
+      getUrl: ({ id }: { id: number }) => {
         return `/users/${id}/make_manager`;
       },
     };
@@ -228,7 +228,7 @@ export default class UserResource extends Resource {
   ): ReadShape<SchemaBase<AbstractInstanceType<T>>, {}> {
     return {
       ...this.singleRequest(),
-      getUrl() {
+      getUrl: () => {
         return '/current_user/';
       },
     };
