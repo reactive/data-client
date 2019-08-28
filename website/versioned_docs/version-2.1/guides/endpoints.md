@@ -196,7 +196,7 @@ export default class UserResource extends Resource {
         return `/users/${id}/make_manager`;
       },
       fetch: ({ id }: { id: number }, body?: Readonly<object | string>) => {
-        return self.fetch('post', `/users/${id}/make_manager`, body);
+        return this.fetch('post', `/users/${id}/make_manager`, body);
       },
     };
   }
@@ -236,7 +236,7 @@ export default class UserResource extends Resource {
         return '/current_user/';
       },
       fetch: (params: {}, body?: Readonly<object | string>) => {
-        return self.fetch('post', `/current_user/`, body);
+        return this.fetch('post', `/current_user/`, body);
       },
     };
   }
