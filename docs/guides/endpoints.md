@@ -185,7 +185,7 @@ import {
 } from 'rest-hooks';
 
 export default class UserResource extends Resource {
-  static makeManagerRequest<T extends typeof Resource>(
+  static makeManagerShape<T extends typeof Resource>(
     this: T,
   ): MutateShape<SchemaDetail<AbstractInstanceType<T>>, { id: number }, {}> {
     return {
@@ -225,7 +225,7 @@ import {
 
 export default class UserResource extends Resource {
   /** Retrieves current logged in user */
-  static currentRequest<T extends typeof Resource>(
+  static currentShape<T extends typeof Resource>(
     this: T,
   ): ReadShape<SchemaDetail<AbstractInstanceType<T>>, {}> {
     return {
@@ -255,7 +255,7 @@ import { useResource } from 'rest-hooks';
 import UserResource from 'resources/user';
 
 export default function CurrentUserProfilePage() {
-  const loggedInUser = useResource(UserResource.currentRequest(), {});
+  const loggedInUser = useResource(UserResource.currentShape(), {});
 
   return <ProfileDetail user={loggedInUser} />
 }
