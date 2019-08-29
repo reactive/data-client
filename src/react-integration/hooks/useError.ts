@@ -17,7 +17,7 @@ export default function useError<
     if (!meta.error) {
       // this means we probably deleted the entity found in this result
       const err: any = new Error(
-        `Resource not found ${params ? fetchShape.getFetchKey(params) : ''}`,
+        `Resource not found in cache ${params ? fetchShape.getFetchKey(params) : ''}`,
       );
       err.status = 404;
       return err;
