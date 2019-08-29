@@ -1,5 +1,6 @@
 import {
   ArticleResource,
+  ArticleResourceWithOtherListUrl,
   PaginatedArticleResource,
 } from '../../__tests__/common';
 import reducer from '../reducer';
@@ -10,7 +11,9 @@ import {
   PurgeAction,
   ResetAction,
   InvalidateAction,
+  UpdateFunction,
 } from '../../types';
+import { SchemaArray } from '../../resource';
 
 describe('reducer', () => {
   describe('singles', () => {
@@ -122,6 +125,192 @@ describe('reducer', () => {
       expectedEntities,
     );
   });
+
+  describe('optimistic update', () => {
+    describe('Update on get (pagination use case)', () => {
+      const shape = PaginatedArticleResource.listShape();
+      function makeOptimisticAction(
+        payload: { results: Partial<PaginatedArticleResource>[] },
+        updaters: {
+          [key: string]: UpdateFunction<
+            typeof shape['schema'],
+            typeof shape['schema']
+          >;
+        },
+      ) {
+        return {
+          type: 'rest-hooks/receive' as const,
+          payload,
+          meta: {
+            schema: PaginatedArticleResource.listShape().schema,
+            url: PaginatedArticleResource.listShape().getFetchKey({
+              cursor: 2,
+            }),
+            updaters,
+            date: 5000000000,
+            expiresAt: 5000500000,
+          },
+        };
+      }
+
+      const insertAfterUpdater = (
+        newPage: { results: string[] },
+        oldResults: { results?: string[] },
+      ) => ({
+        ...oldResults,
+        results: [...(oldResults.results || []), ...newPage.results],
+      });
+
+      const insertBeforeUpdater = (
+        newPage: { results: string[] },
+        oldResults: { results?: string[] },
+      ) => ({
+        ...oldResults,
+        results: [...newPage.results, ...(oldResults.results || [])],
+      });
+
+      const iniState: any = {
+        entities: {
+          [PaginatedArticleResource.getKey()]: {
+            '10': PaginatedArticleResource.fromJS({ id: 10 }),
+          },
+        },
+        results: {
+          [PaginatedArticleResource.listUrl()]: { results: ['10'] },
+        },
+        meta: {},
+      };
+
+      it('should insert a new page of resources into a list request', () => {
+        const newState = reducer(
+          iniState,
+          makeOptimisticAction(
+            { results: [{ id: 11 }, { id: 12 }] },
+            {
+              [PaginatedArticleResource.listUrl()]: insertAfterUpdater,
+            },
+          ),
+        );
+        expect(
+          newState.results[PaginatedArticleResource.listUrl()],
+        ).toStrictEqual({ results: ['10', '11', '12'] });
+      });
+
+      it('should insert correctly into the beginning of the list request', () => {
+        const newState = reducer(
+          iniState,
+          makeOptimisticAction(
+            { results: [{ id: 11 }, { id: 12 }] },
+            {
+              [PaginatedArticleResource.listUrl()]: insertBeforeUpdater,
+            },
+          ),
+        );
+        expect(
+          newState.results[PaginatedArticleResource.listUrl()],
+        ).toStrictEqual({ results: ['11', '12', '10'] });
+      });
+    });
+
+    describe('rpc update on create', () => {
+      const createShape = ArticleResource.createShape();
+      function makeOptimisticAction(
+        payload: Partial<ArticleResource>,
+        updaters: {
+          [key: string]: UpdateFunction<
+            typeof createShape['schema'],
+            SchemaArray<ArticleResource>
+          >;
+        },
+      ) {
+        return {
+          type: 'rest-hooks/rpc' as const,
+          payload,
+          meta: {
+            schema: ArticleResource.getEntitySchema(),
+            url: ArticleResource.createShape().getFetchKey({}),
+            updaters,
+          },
+        };
+      }
+
+      const insertAfterUpdater = (
+        result: string,
+        oldResults: string[] | undefined,
+      ) => [...(oldResults || []), result];
+
+      const insertBeforeUpdater = (
+        result: string,
+        oldResults: string[] | undefined,
+      ) => [result, ...(oldResults || [])];
+
+      const iniState: any = {
+        entities: {
+          [ArticleResourceWithOtherListUrl.getKey()]: {
+            '10': ArticleResourceWithOtherListUrl.fromJS({ id: 10 }),
+            '21': ArticleResourceWithOtherListUrl.fromJS({ id: 21 }),
+          },
+        },
+        results: {
+          [ArticleResourceWithOtherListUrl.listUrl()]: ['10'],
+          [ArticleResourceWithOtherListUrl.otherListUrl()]: ['21'],
+        },
+        meta: {},
+      };
+
+      it('it should run inserts for a simple resource after the existing list entities', () => {
+        const newState = reducer(
+          iniState,
+          makeOptimisticAction(
+            { id: 11 },
+            {
+              [ArticleResource.listUrl()]: insertAfterUpdater,
+            },
+          ),
+        );
+        expect(newState.results[ArticleResource.listUrl()]).toStrictEqual([
+          '10',
+          '11',
+        ]);
+      });
+
+      it('it should run inserts for a simple resource before the existing list entities', () => {
+        const newState = reducer(
+          iniState,
+          makeOptimisticAction(
+            { id: 11 },
+            {
+              [ArticleResource.listUrl()]: insertBeforeUpdater,
+            },
+          ),
+        );
+        expect(newState.results[ArticleResource.listUrl()]).toStrictEqual([
+          '11',
+          '10',
+        ]);
+      });
+
+      it('it runs inserts for multiple updaters', () => {
+        const newState = reducer(
+          iniState,
+          makeOptimisticAction(
+            { id: 11 },
+            {
+              [ArticleResourceWithOtherListUrl.listUrl()]: insertAfterUpdater,
+              [ArticleResourceWithOtherListUrl.otherListUrl()]: insertAfterUpdater,
+            },
+          ),
+        );
+        expect(
+          newState.results[ArticleResourceWithOtherListUrl.listUrl()],
+        ).toStrictEqual(['10', '11']);
+        expect(
+          newState.results[ArticleResourceWithOtherListUrl.otherListUrl()],
+        ).toStrictEqual(['21', '11']);
+      });
+    });
+  });
+
   it('invalidates resources correctly', () => {
     const id = 20;
     const action: InvalidateAction = {

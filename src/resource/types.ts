@@ -16,13 +16,22 @@ export interface FetchShape<
   readonly options?: RequestOptions;
 }
 
+export type SchemaFromShape<
+  F extends FetchShape<any, any, any>
+> = F extends FetchShape<infer S, any, any> ? S : never;
+export type ParamsFromShape<
+  F extends FetchShape<any, any, any>
+> = F extends FetchShape<any, infer P, any> ? P : never;
+export type BodyFromShape<
+  F extends FetchShape<any, any, any>
+> = F extends FetchShape<any, any, infer B> ? B : never;
+
 /** Purges a value from the server */
 export interface DeleteShape<
   S extends schemas.Entity,
   Params extends Readonly<object> = Readonly<object>
 > extends FetchShape<S, Params, any> {
   readonly type: 'delete';
-  readonly schema: S;
 }
 
 /** To change values on the server */
@@ -72,12 +81,18 @@ export type BodyArg<RS> = RS extends {
   : never;
 export type RequestResource<RS> = SchemaOf<ResultShape<RS>>;
 
-export function isEntity<T>(schema: Schema): schema is schemas.Entity<T> {
-  return (schema as schemas.Entity<T>).key !== undefined;
+export function isEntity<T>(schema: Schema<T>): schema is schemas.Entity<T> {
+  return (schema as schemas.Entity).key !== undefined;
 }
 
-export type SchemaOf<T> = T extends SchemaList<infer R>
+export type SchemaOf2<T> = T extends SchemaList<infer R>
   ? R[]
   : T extends SchemaDetail<infer R>
   ? R
   : never;
+
+export type SchemaOf<S> = Extract<S, schemas.Entity<any>> extends never
+  ? (S extends (infer I)[] | schemas.Array<infer I>
+      ? SchemaOf2<Extract<I, schemas.Entity<any>>>[]
+      : SchemaOf2<S>)
+  : SchemaOf2<Extract<S, schemas.Entity<any>>>;

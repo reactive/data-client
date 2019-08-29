@@ -4,6 +4,7 @@ import nock from 'nock';
 import {
   CoolerArticleResource,
   ArticleResource,
+  PaginatedArticleResource,
   UserResource,
 } from '../../__tests__/common';
 import { useResource, useFetcher } from '../hooks';
@@ -12,7 +13,14 @@ import {
   makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../test/providers';
-import { payload, users, nested } from './fixtures';
+import {
+  payload,
+  createPayload,
+  users,
+  nested,
+  paginatedFirstPage,
+  paginatedSecondPage,
+} from './fixtures';
 
 function onError(e: any) {
   e.preventDefault();
@@ -48,7 +56,11 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         .reply(200, '');
       nock('http://test.com')
         .get(`/article-cooler/`)
-        .reply(200, nested);
+        .reply(200, nested)
+        .persist();
+      nock('http://test.com')
+        .post(`/article-cooler/`)
+        .reply(200, createPayload);
       nock('http://test.com')
         .get(`/user/`)
         .reply(200, users);
@@ -164,6 +176,65 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       });
       expect(result.current).toBe('done');
       expect(article).toBeNull();
+    });
+
+    it('should update on create', async () => {
+      const { result, waitForNextUpdate } = renderRestHook(() => {
+        const articles = useResource(CoolerArticleResource.listShape(), {});
+        const createNewArticle = useFetcher(
+          CoolerArticleResource.createShape(),
+        );
+        return { articles, createNewArticle };
+      });
+      await waitForNextUpdate();
+      await result.current.createNewArticle({ id: 1 }, {}, [
+        [
+          CoolerArticleResource.listShape(),
+          {},
+          (newArticle: string, articles: string[]): string[] => [
+            ...articles,
+            newArticle,
+          ],
+        ],
+      ]);
+      expect(
+        result.current.articles.map(
+          ({ id }: Partial<CoolerArticleResource>) => id,
+        ),
+      ).toEqual([5, 3, 1]);
+    });
+
+    it('should update on get for a paginated resource', async () => {
+      nock('http://test.com')
+        .get(`/article-paginated/`)
+        .reply(200, paginatedFirstPage);
+      nock('http://test.com')
+        .get(`/article-paginated/?cursor=2`)
+        .reply(200, paginatedSecondPage);
+
+      const { result, waitForNextUpdate } = renderRestHook(() => {
+        const articles = useResource(PaginatedArticleResource.listShape(), {});
+        const getNextPage = useFetcher(PaginatedArticleResource.listShape());
+        return { articles, getNextPage };
+      });
+      await waitForNextUpdate();
+      await result.current.getNextPage({}, { cursor: 2 }, [
+        [
+          PaginatedArticleResource.listShape(),
+          {},
+          (
+            newArticles: { results: string[] },
+            articles: { results?: string[] },
+          ) => ({
+            results: [...(articles.results || []), ...newArticles.results],
+          }),
+        ],
+      ]);
+      expect(
+        result.current.articles.map(
+          ({ id }: Partial<PaginatedArticleResource>) => id,
+        ),
+      ).toEqual([5, 3, 7, 8]);
     });
   });
 }

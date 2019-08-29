@@ -5,6 +5,13 @@ export const payload = {
   tags: ['a', 'best', 'react'],
 };
 
+export const createPayload = {
+  id: 1,
+  title: 'hi ho',
+  content: 'whatever',
+  tags: ['a', 'best', 'react'],
+};
+
 export const articlesPages = {
   prevPage: '23asdl',
   nextPage: 's3f3',
@@ -72,6 +79,37 @@ export const nested = [
     },
   },
 ];
+
+const moreNested = [
+  {
+    id: 7,
+    title: 'article 7',
+    content: 'whatever',
+    tags: ['blah'],
+    author: {
+      id: 23,
+      username: 'bob',
+    },
+  },
+  {
+    id: 8,
+    title: 'article 8',
+    content: 'whatever',
+    author: {
+      id: 27,
+      username: 'zac',
+      email: 'zac@bob.com',
+    },
+  },
+];
+
+export const paginatedFirstPage = {
+  results: nested,
+};
+
+export const paginatedSecondPage = {
+  results: moreNested,
+};
 
 describe('fixtures', () => {
   it('should pass', () => {});
