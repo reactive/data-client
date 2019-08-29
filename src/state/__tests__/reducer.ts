@@ -9,6 +9,7 @@ import {
   ReceiveAction,
   PurgeAction,
   InvalidateAction,
+  OptimisticUpdateAction,
 } from '../../types';
 
 describe('reducer', () => {
@@ -120,6 +121,50 @@ describe('reducer', () => {
     expect(newState.entities[ArticleResource.getKey()]).toEqual(
       expectedEntities,
     );
+  });
+  describe('rest-hooks/optimistic-update', () => {
+    it('it should run inserts', () => {
+      const id = 20;
+      function makeOptimisticAction(
+        url: string,
+        items: string[],
+      ): OptimisticUpdateAction {
+        return {
+          type: 'rest-hooks/optimistic-update',
+          payload: {
+            [url]: ((result: string[] | undefined) => [
+              ...items,
+              ...(result || []),
+            ]) as any,
+          },
+        };
+      }
+      const iniState: any = {
+        entities: {
+          [ArticleResource.getKey()]: {
+            '10': ArticleResource.fromJS({ id: 10 }),
+            '20': ArticleResource.fromJS({ id: 20 }),
+            '25': ArticleResource.fromJS({ id: 25 }),
+          },
+        },
+        results: {},
+        meta: {},
+      };
+      const newState = reducer(
+        iniState,
+        makeOptimisticAction(ArticleResource.listUrl(), ['10']),
+      );
+      expect(newState.results[ArticleResource.listUrl()]).toStrictEqual(['10']);
+      const newState2 = reducer(
+        newState,
+        makeOptimisticAction(ArticleResource.listUrl(), ['20', '25']),
+      );
+      expect(newState2.results[ArticleResource.listUrl()]).toStrictEqual([
+        '20',
+        '25',
+        '10',
+      ]);
+    });
   });
   it('invalidates resources correctly', () => {
     const id = 20;

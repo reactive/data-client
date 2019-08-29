@@ -1,6 +1,10 @@
 import React from 'react';
 import { FSAWithPayloadAndMeta, FSAWithMeta } from 'flux-standard-action';
-import { ErrorableFSAWithPayloadAndMeta, ErrorableFSAWithMeta } from './fsa';
+import {
+  ErrorableFSAWithPayloadAndMeta,
+  ErrorableFSAWithMeta,
+  ErrorableFSAWithPayload,
+} from './fsa';
 import { Schema, schemas } from './resource';
 
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
@@ -61,6 +65,15 @@ export type PurgeAction = ErrorableFSAWithMeta<
   PurgeMeta
 >;
 
+type OptimisticUpdatePayload = {
+  [key: string]: <T>(result: T | undefined, key: string) => T;
+};
+
+export type OptimisticUpdateAction = ErrorableFSAWithPayload<
+  'rest-hooks/optimistic-update',
+  OptimisticUpdatePayload
+>;
+
 export interface FetchAction<
   Payload extends object | string | number = object | string | number
 >
@@ -111,6 +124,7 @@ export type ActionTypes =
   | ReceiveAction
   | RPCAction
   | PurgeAction
+  | OptimisticUpdateAction
   | SubscribeAction
   | UnsubscribeAction
   | InvalidateAction;

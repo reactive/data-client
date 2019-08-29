@@ -53,6 +53,24 @@ export default function reducer(
         entities: mergeDeepCopy(state.entities, entities),
       };
     }
+    case 'rest-hooks/optimistic-update': {
+      if (action.error) return state;
+      return {
+        ...state,
+        results: {
+          ...state.results,
+          ...Object.fromEntries(
+            Object.entries(action.payload).map(([fetchKey, updateFunction]) => [
+              fetchKey,
+              updateFunction(
+                (state as NonNullable<typeof state>).results[fetchKey],
+                fetchKey,
+              ),
+            ]),
+          ),
+        },
+      };
+    }
     case 'rest-hooks/purge': {
       if (action.error) return state;
       const key = action.meta.schema.key;
