@@ -7,10 +7,10 @@ title: useResource()
 <!--Type-->
 
 ```typescript
-function useResource(fetchShape: ReadShape, params: Params | null):
+function useResource(fetchShape: ReadShape, params: object | null):
   SchemaOf<typeof fetchShape.schema>;
 
-function useResource(...[fetchShape: ReadShape, params: Params | null]):
+function useResource(...[fetchShape: ReadShape, params: object | null]):
   SchemaOf<typeof fetchShape.schema>[];
 ```
 

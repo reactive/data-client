@@ -10,7 +10,7 @@ original_id: useInvalidator
 ```typescript
 function useInvalidator(
   fetchShape: ReadShape,
-): (params: Readonly<object> | null) => void;
+): (params: object | null) => void;
 ```
 
 <!--With Generics-->

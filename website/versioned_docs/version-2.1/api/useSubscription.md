@@ -10,8 +10,8 @@ original_id: useSubscription
 ```typescript
 function useSubscription(
   fetchShape: ReadShape,
-  params: Readonly<object> | null,
-  body?: Readonly<object | string> | void,
+  params: object | null,
+  body?: object | string,
   active?: boolean = true,
 ): void;
 ```

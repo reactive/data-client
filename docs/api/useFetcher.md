@@ -12,8 +12,8 @@ function useFetcher(
 ): FetchFunction;
 
 type FetchFunction = (
-  body: Readonly<object> | void,
-  params: Readonly<object>,
+  body: object | void,
+  params: object,
 ) => Promise<any>;
 ```
 

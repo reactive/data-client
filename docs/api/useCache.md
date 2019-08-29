@@ -8,7 +8,7 @@ title: useCache()
 ```typescript
 function useCache(
   fetchShape: ReadShape,
-  params: Params | null
+  params: object | null
 ): SchemaOf<typeof fetchShape.schema> | null;
 ```
 

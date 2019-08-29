@@ -10,7 +10,7 @@ original_id: useResultCache
 ```typescript
 function useResultCache(
   fetchShape: ReadShape,
-  params: Readonly<object> | null,
+  params: object | null,
   defaults?: object,
 ): typeof defaults;
 ```

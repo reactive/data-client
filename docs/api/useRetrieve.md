@@ -8,8 +8,8 @@ title: useRetrieve()
 ```typescript
 function useRetrieve(
   fetchShape: ReadShape,
-  params: Readonly<object> | null,
-  body?: Readonly<object | string> | void,
+  params: object | null,
+  body?: object | string,
 ): Promise<any> | undefined;
 ```
 
