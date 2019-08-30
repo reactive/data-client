@@ -170,7 +170,7 @@ These are the basic building blocks used to compile the [Request shapes](../api/
 Computes the url based on the parameters. Default implementation follows `/urlRoot/[pk]` pattern.
 
 Used in [singleRequest()](#singlerequest-readshape), [updateRequest()](#updaterequest-mutateshape)
-[partialUpdateRequest()](#partialupdaterquest-mutateshape), and [deleteRequest()](#deleterequest-deleteshape)
+[partialUpdateRequest()](#partialupdaterequest-mutateshape), and [deleteRequest()](#deleterequest-deleteshape)
 
 ### static listUrl<T extends typeof Resource>(searchParams?: Readonly<Record<string, string>>) => string
 
@@ -220,7 +220,7 @@ Mostly useful with [useFetcher](../api/useFetcher.md)
 A PUT request sending a payload to a `url()` expecting a detail body response.
 Mostly useful with [useFetcher](../api/useFetcher.md)
 
-### partialUpdateRquest(): MutateShape
+### partialUpdateRequest(): MutateShape
 
 A PATCH request sending a partial payload to `url()` expecting a detail body response.
 Mostly useful with [useFetcher](../api/useFetcher.md)

@@ -170,7 +170,7 @@ These are the basic building blocks used to compile the [Fetch shapes](../api/Fe
 Computes the url based on the parameters. Default implementation follows `/urlRoot/[pk]` pattern.
 
 Used in [detailShape()](#detailshape-readshape), [updateShape()](#updateshape-mutateshape)
-[partialUpdateShape()](#partialupdaterquest-mutateshape), and [deleteShape()](#deleteshape-deleteshape)
+[partialUpdateShape()](#partialupdateshape-mutateshape), and [deleteShape()](#deleteshape-deleteshape)
 
 ### static listUrl<T extends typeof Resource>(searchParams?: Readonly<Record<string, string>>) => string
 
@@ -220,7 +220,7 @@ Mostly useful with [useFetcher](../api/useFetcher.md)
 A PUT request sending a payload to a `url()` expecting a detail body response.
 Mostly useful with [useFetcher](../api/useFetcher.md)
 
-### partialUpdateRquest(): MutateShape
+### partialUpdateShape(): MutateShape
 
 A PATCH request sending a partial payload to `url()` expecting a detail body response.
 Mostly useful with [useFetcher](../api/useFetcher.md)
