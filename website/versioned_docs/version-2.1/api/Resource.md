@@ -124,6 +124,19 @@ return (
 )
 ```
 
+#### Singleton Resources
+
+What there is only ever once instance of a Resource for your entire application? You
+don't really need to distinguish between each instance, so likely there was no `id` or
+similar field defined in the API. In these cases you can just return a literal like
+'the_only_one'.
+
+```typescript
+pk() {
+  return 'the_only_one';
+}
+```
+
 ### static urlRoot: string
 
 Used to build url patterns in `url()` and `listUrl()`. Used as the default in
