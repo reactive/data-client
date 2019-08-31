@@ -125,7 +125,6 @@
     "lodash": "^4.17.15",
     "normalizr": "^3.4.1",
     "redux": "^4.0.4",
-    "reselect": "^4.0.0",
     "superagent": "^5.1.0"
   },
   "peerDependencies": {

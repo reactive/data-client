@@ -8,7 +8,6 @@ import {
   useMeta,
   useError,
   useInvalidator,
-  useSelectionUnstable,
 } from './hooks';
 import { CacheProvider, ExternalCacheProvider } from './provider';
 import NetworkErrorBoundary, { NetworkError } from './NetworkErrorBoundary';
@@ -24,7 +23,6 @@ export {
   useInvalidator,
   useMeta,
   useError,
-  useSelectionUnstable,
   CacheProvider,
   ExternalCacheProvider,
   NetworkErrorBoundary,

@@ -1,3 +1,4 @@
+import { renderHook } from '@testing-library/react-hooks';
 import {
   CoolerArticleResource,
   NestedArticleResource,
@@ -5,21 +6,19 @@ import {
   UserResource,
 } from '../../__tests__/common';
 import { normalize } from '../../resource';
-import { makeSchemaSelector } from '../selectors';
+import { useSchemaSelect } from '../selectors';
 
-const { schema, getFetchKey } = CoolerArticleResource.detailShape();
-const select = makeSchemaSelector(schema, getFetchKey);
-const listR = CoolerArticleResource.listShape();
-const listSelect = makeSchemaSelector(listR.schema, listR.getFetchKey);
 describe('selectors', () => {
   describe('Single', () => {
     const params = { id: 5, title: 'bob', content: 'head' };
     const article = CoolerArticleResource.fromJS(params);
     it('should be null when state is empty', () => {
       const state = { entities: {}, results: {}, meta: {} };
-      const article = select(state, { id: 5 });
+      const { result } = renderHook(() =>
+        useSchemaSelect(CoolerArticleResource.detailShape(), state, { id: 5 }),
+      );
 
-      expect(article).toBe(null);
+      expect(result.current).toBe(null);
     });
     it('should be null when state is populated just not with our query', () => {
       const state = {
@@ -33,9 +32,13 @@ describe('selectors', () => {
         },
         meta: {},
       };
-      const selected = select(state, { id: 543345345345453 });
+      const { result } = renderHook(() =>
+        useSchemaSelect(CoolerArticleResource.detailShape(), state, {
+          id: 543345345345453,
+        }),
+      );
 
-      expect(selected).toBe(null);
+      expect(result.current).toBe(null);
     });
     it('should find value when state exists', () => {
       const state = {
@@ -49,9 +52,11 @@ describe('selectors', () => {
         },
         meta: {},
       };
-      const selected = select(state, params);
+      const { result } = renderHook(() =>
+        useSchemaSelect(CoolerArticleResource.detailShape(), state, params),
+      );
 
-      expect(selected).toBe(article);
+      expect(result.current).toBe(article);
     });
     it('should be null without entity', () => {
       const state = {
@@ -61,9 +66,11 @@ describe('selectors', () => {
         },
         meta: {},
       };
-      const selected = select(state, params);
+      const { result } = renderHook(() =>
+        useSchemaSelect(CoolerArticleResource.detailShape(), state, params),
+      );
 
-      expect(selected).toBe(null);
+      expect(result.current).toBe(null);
     });
     it('should find value when no result exists but primary key is used', () => {
       const state = {
@@ -75,14 +82,14 @@ describe('selectors', () => {
         results: {},
         meta: {},
       };
-      const selected = select(state, params);
+      const { result } = renderHook(() =>
+        useSchemaSelect(CoolerArticleResource.detailShape(), state, params),
+      );
 
-      expect(selected).toBe(article);
+      expect(result.current).toBe(article);
     });
     it('should find value when no result exists but primary key is used when using nested schema', () => {
       const pageArticle = PaginatedArticleResource.fromJS(article);
-      const { schema, getFetchKey } = PaginatedArticleResource.detailShape();
-      const select = makeSchemaSelector(schema, getFetchKey);
       const state = {
         entities: {
           [PaginatedArticleResource.getKey()]: {
@@ -92,9 +99,11 @@ describe('selectors', () => {
         results: {},
         meta: {},
       };
-      const selected = select(state, params);
+      const { result } = renderHook(() =>
+        useSchemaSelect(PaginatedArticleResource.detailShape(), state, params),
+      );
 
-      expect(selected).toBe(pageArticle);
+      expect(result.current).toBe(pageArticle);
     });
     it('should find value when not using primary key as param', () => {
       const urlParams = { title: 'bob' };
@@ -111,7 +120,10 @@ describe('selectors', () => {
         },
         meta: {},
       };
-      expect(select(state, urlParams)).toBe(article);
+      const { result } = renderHook(() =>
+        useSchemaSelect(CoolerArticleResource.detailShape(), state, params),
+      );
+      expect(result.current).toBe(article);
     });
     it('should throw when results are Array', () => {
       const params = { title: 'bob' };
@@ -122,7 +134,10 @@ describe('selectors', () => {
         },
         meta: {},
       };
-      expect(() => select(state, params)).toThrow();
+      const { result } = renderHook(() =>
+        useSchemaSelect(CoolerArticleResource.detailShape(), state, params),
+      );
+      expect(result.error).toBeDefined();
     });
     it('should throw when results are Object', () => {
       const params = { title: 'bob' };
@@ -135,7 +150,10 @@ describe('selectors', () => {
         },
         meta: {},
       };
-      expect(() => select(state, params)).toThrow();
+      const { result } = renderHook(() =>
+        useSchemaSelect(CoolerArticleResource.detailShape(), state, params),
+      );
+      expect(result.error).toBeDefined();
     });
     it('should handle nested resources', () => {
       const nestedArticle = NestedArticleResource.fromJS({
@@ -154,9 +172,10 @@ describe('selectors', () => {
         results: {},
         meta: {},
       };
-      const shape = NestedArticleResource.detailShape();
-      const select = makeSchemaSelector(shape.schema, shape.getFetchKey);
-      expect(select(state, params)).toBe(nestedArticle);
+      const { result } = renderHook(() =>
+        useSchemaSelect(NestedArticleResource.detailShape(), state, params),
+      );
+      expect(result.current).toBe(nestedArticle);
     });
   });
   describe('List', () => {
@@ -168,9 +187,11 @@ describe('selectors', () => {
     ];
     it('should be null when state is empty', () => {
       const state = { entities: {}, results: {}, meta: {} };
-      const articles = listSelect(state, {});
+      const { result } = renderHook(() =>
+        useSchemaSelect(CoolerArticleResource.listShape(), state, {}),
+      );
 
-      expect(articles).toBe(null);
+      expect(result.current).toBe(null);
     });
     it('should be null when state is partial', () => {
       const { entities } = normalize(
@@ -178,28 +199,32 @@ describe('selectors', () => {
         CoolerArticleResource.listShape().schema,
       );
       const state = { entities, results: {}, meta: {} };
-      const selected = listSelect(state, {});
+      const { result } = renderHook(() =>
+        useSchemaSelect(CoolerArticleResource.listShape(), state, {}),
+      );
 
-      expect(selected).toBe(null);
+      expect(result.current).toBe(null);
     });
     it('should find value when state exists', () => {
-      const { entities, result } = normalize(
+      const { entities, result: resultState } = normalize(
         articles,
         CoolerArticleResource.listShape().schema,
       );
       const state = {
         entities,
         results: {
-          [CoolerArticleResource.listShape().getFetchKey(params)]: result,
+          [CoolerArticleResource.listShape().getFetchKey(params)]: resultState,
         },
         meta: {},
       };
-      const selected = listSelect(state, params);
+      const { result } = renderHook(() =>
+        useSchemaSelect(CoolerArticleResource.listShape(), state, params),
+      );
 
-      expect(selected).toEqual(articles);
+      expect(result.current).toEqual(articles);
     });
     it('should simply ignore missing entities when their id is found in results', () => {
-      const { entities, result } = normalize(
+      const { entities, result: resultState } = normalize(
         articles,
         CoolerArticleResource.listShape().schema,
       );
@@ -207,41 +232,44 @@ describe('selectors', () => {
       const state = {
         entities,
         results: {
-          [CoolerArticleResource.listShape().getFetchKey(params)]: result,
+          [CoolerArticleResource.listShape().getFetchKey(params)]: resultState,
         },
         meta: {},
       };
-      const selected = listSelect(state, params);
+      const { result } = renderHook(() =>
+        useSchemaSelect(CoolerArticleResource.listShape(), state, params),
+      );
 
       const expectedArticles = articles.slice(1);
-      expect(selected).toEqual(expectedArticles);
+      expect(result.current).toEqual(expectedArticles);
     });
     it('should work with paginated results', () => {
-      const { entities, result } = normalize(
+      const { entities, result: resultState } = normalize(
         { results: articles },
         PaginatedArticleResource.listShape().schema,
       );
       const state = {
         entities,
         results: {
-          [PaginatedArticleResource.listShape().getFetchKey(params)]: result,
+          [PaginatedArticleResource.listShape().getFetchKey(
+            params,
+          )]: resultState,
         },
         meta: {},
       };
-      const shape = PaginatedArticleResource.listShape();
-      const select = makeSchemaSelector(shape.schema, shape.getFetchKey);
-      const selected = select(state, params);
+      const { result } = renderHook(() =>
+        useSchemaSelect(PaginatedArticleResource.listShape(), state, params),
+      );
 
-      expect(selected).toEqual(articles);
+      expect(result.current).toEqual(articles);
     });
     it('should throw with invalid schemas', () => {
       const shape = PaginatedArticleResource.listShape();
-      expect(() =>
-        makeSchemaSelector(
-          { happy: { go: { lucky: 5 } } } as any,
-          shape.getFetchKey,
-        ),
-      ).toThrow();
+      shape.schema = { happy: { go: { lucky: 5 } } } as any;
+      const { result } = renderHook(() =>
+        useSchemaSelect(shape, {} as any, params),
+      );
+      expect(result.error).toBeDefined();
     });
   });
 });

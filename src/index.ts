@@ -25,13 +25,13 @@ import {
   useResultCache,
   useMeta,
   useError,
-  useSelectionUnstable,
   CacheProvider,
   useInvalidator,
   ExternalCacheProvider,
   NetworkErrorBoundary,
   NetworkError,
 } from './react-integration';
+import useSelectionUnstable from './react-integration/hooks/useSelection';
 import { Request as RequestType } from 'superagent';
 import {
   AbstractInstanceType,
