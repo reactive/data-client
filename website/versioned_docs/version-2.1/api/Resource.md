@@ -111,10 +111,14 @@ pk() {
 }
 ```
 
+#### Null value
+
 A `null` can be used as a default to indicate the resource has not been created yet.
 This is useful when initializing a creation form using [Resource.fromJS()](./api/resource#static-fromjs-t-extends-typeof-resource-this-t-props-partial-abstractinstancetype-t-abstractinstancetype-t)
 directly. If `pk()` resolves to null it is considered not persisted to the server,
 and thus will not be kept in the cache.
+
+#### Other uses
 
 While the `pk()` definition is key (pun intended) for making the normalized cache work;
 it also becomes quite convenient for sending to a react element when iterating on
