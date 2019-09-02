@@ -31,7 +31,6 @@ function resultFinderFromSchema<S extends Schema>(
   };
 }
 
-
 export function useSchemaSelect<
   Params extends Readonly<object>,
   S extends Schema
