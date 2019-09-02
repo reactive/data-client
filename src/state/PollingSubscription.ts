@@ -1,14 +1,6 @@
 import { Schema } from '~/resource';
 import { Subscription, SubscriptionInit } from './SubscriptionManager';
 
-function min(iter: IterableIterator<number>) {
-  let ret = Infinity;
-  for (const n of iter) {
-    if (n < ret) ret = n;
-  }
-  return ret;
-}
-
 /**
  * PollingSubscription keeps a given resource updated by
  * dispatching a fetch at a rate equal to the minimum update
@@ -77,7 +69,7 @@ export default class PollingSubscription implements Subscription {
 
         // this was the min, so find the next size
         if (frequency <= this.frequency) {
-          this.frequency = min(this.frequencyHistogram.keys());
+          this.frequency = Math.min(...this.frequencyHistogram.keys());
           this.run();
         }
       }
