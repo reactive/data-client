@@ -19,7 +19,6 @@ export default function CacheProvider({
   managers,
   initialState,
 }: ProviderProps) {
-  // TODO: option to use redux
   const useEnhancedReducer = createEnhancedReducerHook(
     ...managers.map(manager => manager.getMiddleware()),
   );
