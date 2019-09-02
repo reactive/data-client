@@ -102,13 +102,18 @@ PK stands for *primary key* and is intended to provide a standard means of retri
 a key identifier for any `Resource`. In many cases there will simply be an 'id' field
 member to return. In case of multicolumn you can simply join them together.
 
-multi-column primary key:
+#### Multi-column primary key:
 
 ```typescript
 pk() {
   return [this.firstCol, this.secondCol, this.thirdCol].join(',');
 }
 ```
+
+A `null` can be used as a default to indicate the resource has not been created yet.
+This is useful when initializing a creation form using [Resource.fromJS()](./api/resource#static-fromjs-t-extends-typeof-resource-this-t-props-partial-abstractinstancetype-t-abstractinstancetype-t)
+directly. If `pk()` resolves to null it is considered not persisted to the server,
+and thus will not be kept in the cache.
 
 While the `pk()` definition is key (pun intended) for making the normalized cache work;
 it also becomes quite convenient for sending to a react element when iterating on
@@ -125,7 +130,7 @@ return (
 
 #### Singleton Resources
 
-What there is only ever once instance of a Resource for your entire application? You
+What if there is only ever once instance of a Resource for your entire application? You
 don't really need to distinguish between each instance, so likely there was no `id` or
 similar field defined in the API. In these cases you can just return a literal like
 'the_only_one'.
