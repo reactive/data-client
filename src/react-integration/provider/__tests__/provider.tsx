@@ -5,6 +5,8 @@ import { DispatchContext, StateContext } from '../../context';
 import { CoolerArticleResource } from '../../../__tests__/common';
 import CacheProvider from '../CacheProvider';
 import NetworkManager from '../../../state/NetworkManager';
+import SubscriptionManager from '../../../state/SubscriptionManager';
+import PollingSubscription from '../../../state/PollingSubscription';
 
 describe('<CacheProvider />', () => {
   it('should not change dispatch function on re-render', () => {
@@ -26,8 +28,11 @@ describe('<CacheProvider />', () => {
     rerender(<CacheProvider>{chil}</CacheProvider>);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
-    const manager = new NetworkManager();
-    rerender(<CacheProvider managers={[manager]}>{chil}</CacheProvider>);
+    const managers = [
+      new NetworkManager(),
+      new SubscriptionManager(PollingSubscription),
+    ];
+    rerender(<CacheProvider managers={managers}>{chil}</CacheProvider>);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
     rerender(

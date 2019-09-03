@@ -135,11 +135,21 @@ describe('SubscriptionManager', () => {
     });
 
     it('unsubscribe should do nothing when there was no subscription already', () => {
+      const oldError = console.error;
+      const spy = (console.error = jest.fn());
+
       const action = createUnsubscribeAction({ id: 25 });
 
       middleware({ dispatch, getState })(next)(action);
 
       expect((manager as any).subscriptions[action.meta.url]).not.toBeDefined();
+
+      expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
+        Array [
+          "Mismatched unsubscribe: http://test.com/article/25 is not subscribed",
+        ]
+      `);
+      console.error = oldError;
     });
 
     it('should let other actions pass through', () => {

@@ -109,10 +109,20 @@ describe('PollingSubscription', () => {
     });
 
     it('should do nothing if frequency is not registered', () => {
+      const oldError = console.error;
+      const spy = (console.error = jest.fn());
+
       sub.remove(1000);
       dispatch.mockClear();
       jest.advanceTimersByTime(5000 * 13);
       expect(dispatch.mock.calls.length).toBe(13);
+
+      expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
+        Array [
+          "Mismatched remove: 1000 is not subscribed for test.com",
+        ]
+      `);
+      console.error = oldError;
     });
 
     it('should do nothing if frequency is undefined', () => {
