@@ -11,6 +11,13 @@ describe('NetworkManager', () => {
       expect(a).toBe(manager.getMiddleware());
       expect(a).toBe(manager.getMiddleware());
     });
+    it('should return the different value for a different instance', () => {
+      const a = manager.getMiddleware();
+      const manager2 = new NetworkManager();
+      const a2 = manager2.getMiddleware()
+      expect(a).not.toBe(a2);
+      expect(a2).toBe(manager2.getMiddleware());
+    });
   });
   describe('cleanup()', () => {
     it('should reject current promises', async () => {
