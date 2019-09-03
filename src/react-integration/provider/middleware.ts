@@ -1,6 +1,8 @@
 import { useReducer, useMemo, useRef } from 'react';
-import compose from 'lodash/fp/compose';
 import { Middleware } from '~/types';
+
+const compose = (fns: Function[]) => (initial: any) =>
+  fns.reduceRight((v, f) => f(v), initial);
 
 // TODO: release as own library?
 /** Redux-middleware compatible integration for useReducer() */
