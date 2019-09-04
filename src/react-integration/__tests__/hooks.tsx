@@ -312,12 +312,17 @@ describe('useCache', () => {
   });
 
   it('should return identical value no matter how many re-renders', () => {
+    const state = buildState(
+      articlesPages,
+      PaginatedArticleResource.listShape(),
+      {},
+    );
     const track = jest.fn();
 
-    const { rerender } = renderHook(() => {
-      const article = useCache(PaginatedArticleResource.listShape(), {});
-      useEffect(track, [article]);
-    });
+    const { rerender } = testRestHook(() => {
+      const articles = useCache(PaginatedArticleResource.listShape(), {});
+      useEffect(track, [articles]);
+    }, state);
 
     expect(track.mock.calls.length).toBe(1);
     for (let i = 0; i < 2; ++i) {
@@ -368,12 +373,17 @@ describe('useResultCache', () => {
   });
 
   it('should return identical value no matter how many re-renders', () => {
+    const state = buildState(
+      articlesPages,
+      PaginatedArticleResource.listShape(),
+      {},
+    );
     const track = jest.fn();
 
-    const { rerender } = renderHook(() => {
+    const { rerender } = testRestHook(() => {
       const results = useResultCache(PaginatedArticleResource.listShape(), {});
       useEffect(track, [results]);
-    });
+    }, state);
 
     expect(track.mock.calls.length).toBe(1);
     for (let i = 0; i < 2; ++i) {

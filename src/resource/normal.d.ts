@@ -96,4 +96,21 @@ export function normalize<
   R = any
 >(data: any, schema: Schema<T>): NormalizedSchema<E, R>;
 
-export function denormalize(input: any, schema: Schema, entities: any): any;
+export function denormalize<S extends Schema>(
+  input: ResultType<S>,
+  schema: Schema,
+  entities: any,
+): Denormalized<S>;
+
+// TODO: support Object, Union, Values, Array
+export type Denormalized<S> = S extends schemas.Entity<infer T>
+  ? T
+  : S extends { [key: string]: any }
+  ? { [K in keyof S]: S[K] extends Schema ? Denormalized<S[K]> : S[K] }
+  : S;
+
+export type ResultType<S> = S extends schemas.Entity
+  ? ReturnType<S['getId']>
+  : S extends { [key: string]: any }
+  ? { [K in keyof S]: S[K] extends Schema ? ResultType<S[K]> : S[K] }
+  : S;

@@ -4,18 +4,18 @@ import {
   NestedArticleResource,
   PaginatedArticleResource,
   UserResource,
-} from '../../__tests__/common';
-import { normalize } from '../../resource';
-import { useSchemaSelect } from '../selectors';
+} from '../../../__tests__/common';
+import { normalize } from '../../../resource';
+import useSchemaSelect, { resultFinderFromSchema } from '../useSchemaSelect';
 
-describe('selectors', () => {
+describe('useSchemaSelect()', () => {
   describe('Single', () => {
     const params = { id: 5, title: 'bob', content: 'head' };
     const article = CoolerArticleResource.fromJS(params);
     it('should be null when state is empty', () => {
       const state = { entities: {}, results: {}, meta: {} };
       const { result } = renderHook(() =>
-        useSchemaSelect(CoolerArticleResource.detailShape(), state, { id: 5 }),
+        useSchemaSelect(CoolerArticleResource.detailShape(), { id: 5 }, state),
       );
 
       expect(result.current).toBe(null);
@@ -33,9 +33,13 @@ describe('selectors', () => {
         meta: {},
       };
       const { result } = renderHook(() =>
-        useSchemaSelect(CoolerArticleResource.detailShape(), state, {
-          id: 543345345345453,
-        }),
+        useSchemaSelect(
+          CoolerArticleResource.detailShape(),
+          {
+            id: 543345345345453,
+          },
+          state,
+        ),
       );
 
       expect(result.current).toBe(null);
@@ -53,7 +57,7 @@ describe('selectors', () => {
         meta: {},
       };
       const { result } = renderHook(() =>
-        useSchemaSelect(CoolerArticleResource.detailShape(), state, params),
+        useSchemaSelect(CoolerArticleResource.detailShape(), params, state),
       );
 
       expect(result.current).toBe(article);
@@ -67,7 +71,7 @@ describe('selectors', () => {
         meta: {},
       };
       const { result } = renderHook(() =>
-        useSchemaSelect(CoolerArticleResource.detailShape(), state, params),
+        useSchemaSelect(CoolerArticleResource.detailShape(), params, state),
       );
 
       expect(result.current).toBe(null);
@@ -83,7 +87,7 @@ describe('selectors', () => {
         meta: {},
       };
       const { result } = renderHook(() =>
-        useSchemaSelect(CoolerArticleResource.detailShape(), state, params),
+        useSchemaSelect(CoolerArticleResource.detailShape(), params, state),
       );
 
       expect(result.current).toBe(article);
@@ -100,7 +104,7 @@ describe('selectors', () => {
         meta: {},
       };
       const { result } = renderHook(() =>
-        useSchemaSelect(PaginatedArticleResource.detailShape(), state, params),
+        useSchemaSelect(PaginatedArticleResource.detailShape(), params, state),
       );
 
       expect(result.current).toBe(pageArticle);
@@ -121,7 +125,7 @@ describe('selectors', () => {
         meta: {},
       };
       const { result } = renderHook(() =>
-        useSchemaSelect(CoolerArticleResource.detailShape(), state, params),
+        useSchemaSelect(CoolerArticleResource.detailShape(), params, state),
       );
       expect(result.current).toBe(article);
     });
@@ -135,7 +139,7 @@ describe('selectors', () => {
         meta: {},
       };
       const { result } = renderHook(() =>
-        useSchemaSelect(CoolerArticleResource.detailShape(), state, params),
+        useSchemaSelect(CoolerArticleResource.detailShape(), params, state),
       );
       expect(result.error).toBeDefined();
     });
@@ -151,7 +155,7 @@ describe('selectors', () => {
         meta: {},
       };
       const { result } = renderHook(() =>
-        useSchemaSelect(CoolerArticleResource.detailShape(), state, params),
+        useSchemaSelect(CoolerArticleResource.detailShape(), params, state),
       );
       expect(result.error).toBeDefined();
     });
@@ -173,7 +177,7 @@ describe('selectors', () => {
         meta: {},
       };
       const { result } = renderHook(() =>
-        useSchemaSelect(NestedArticleResource.detailShape(), state, params),
+        useSchemaSelect(NestedArticleResource.detailShape(), params, state),
       );
       expect(result.current).toBe(nestedArticle);
     });
@@ -188,7 +192,7 @@ describe('selectors', () => {
     it('should be null when state is empty', () => {
       const state = { entities: {}, results: {}, meta: {} };
       const { result } = renderHook(() =>
-        useSchemaSelect(CoolerArticleResource.listShape(), state, {}),
+        useSchemaSelect(PaginatedArticleResource.listShape(), {}, state),
       );
 
       expect(result.current).toBe(null);
@@ -200,7 +204,7 @@ describe('selectors', () => {
       );
       const state = { entities, results: {}, meta: {} };
       const { result } = renderHook(() =>
-        useSchemaSelect(CoolerArticleResource.listShape(), state, {}),
+        useSchemaSelect(CoolerArticleResource.listShape(), {}, state),
       );
 
       expect(result.current).toBe(null);
@@ -218,7 +222,7 @@ describe('selectors', () => {
         meta: {},
       };
       const { result } = renderHook(() =>
-        useSchemaSelect(CoolerArticleResource.listShape(), state, params),
+        useSchemaSelect(CoolerArticleResource.listShape(), params, state),
       );
 
       expect(result.current).toEqual(articles);
@@ -237,7 +241,7 @@ describe('selectors', () => {
         meta: {},
       };
       const { result } = renderHook(() =>
-        useSchemaSelect(CoolerArticleResource.listShape(), state, params),
+        useSchemaSelect(CoolerArticleResource.listShape(), params, state),
       );
 
       const expectedArticles = articles.slice(1);
@@ -258,7 +262,7 @@ describe('selectors', () => {
         meta: {},
       };
       const { result } = renderHook(() =>
-        useSchemaSelect(PaginatedArticleResource.listShape(), state, params),
+        useSchemaSelect(PaginatedArticleResource.listShape(), params, state),
       );
 
       expect(result.current).toEqual(articles);
@@ -267,9 +271,22 @@ describe('selectors', () => {
       const shape = PaginatedArticleResource.listShape();
       shape.schema = { happy: { go: { lucky: 5 } } } as any;
       const { result } = renderHook(() =>
-        useSchemaSelect(shape, {} as any, params),
+        useSchemaSelect(shape, params, {} as any),
       );
       expect(result.error).toBeDefined();
     });
+  });
+});
+
+describe('resultFinderFromSchema()', () => {
+  it('should throw when schema has no entity', () => {
+    const schema = {
+      nextPage: '',
+    };
+    expect(() =>
+      resultFinderFromSchema(schema),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `"Schema invalid - no path to entity found"`,
+    );
   });
 });

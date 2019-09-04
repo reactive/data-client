@@ -5,8 +5,4 @@ export * from './normal';
 
 const SuperagentResource = Resource;
 
-export {
-  Resource,
-  SimpleResource,
-  SuperagentResource,
-};
+export { Resource, SimpleResource, SuperagentResource };
