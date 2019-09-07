@@ -1,6 +1,7 @@
-import { mergeWith } from 'lodash';
 import { normalize } from '~/resource';
 import { ActionTypes, State } from '~/types';
+
+import mergeDeepCopy from './merge/mergeDeepCopy';
 
 export const initialState: State<unknown> = {
   entities: {},
@@ -10,15 +11,7 @@ export const initialState: State<unknown> = {
 
 type Writable<T> = { [P in keyof T]: NonNullable<T[P]> };
 
-interface MergeableStatic<T> {
-  new (): T;
-  merge(a: T, b: T): T;
-}
-
-function isMergeable<T>(constructor: any): constructor is MergeableStatic<T> {
-  return constructor && typeof constructor.merge === 'function';
-}
-
+// equivalent to entities.deleteIn(key, pk)
 function purgeEntity(
   entities: State<unknown>['entities'],
   key: string,
@@ -40,15 +33,6 @@ function purgeEntity(
   }
   return copy;
 }
-
-export const resourceCustomizer = (a: any, b: any): any => {
-  const Static = b && b.constructor;
-  if (a && Static && isMergeable(Static)) {
-    return Static.merge(a, b);
-  }
-
-  // use default merging in lodash.merge()
-};
 
 export default function reducer(
   state: State<unknown> | undefined,
@@ -72,11 +56,7 @@ export default function reducer(
       }
       const normalized = normalize(action.payload, action.meta.schema);
       return {
-        entities: mergeWith(
-          { ...state.entities },
-          normalized.entities,
-          resourceCustomizer,
-        ),
+        entities: mergeDeepCopy(state.entities, normalized.entities),
         results: {
           ...state.results,
           [action.meta.url]: normalized.result,
@@ -95,11 +75,7 @@ export default function reducer(
       const { entities } = normalize(action.payload, action.meta.schema);
       return {
         ...state,
-        entities: mergeWith(
-          { ...state.entities },
-          entities,
-          resourceCustomizer,
-        ),
+        entities: mergeDeepCopy(state.entities, entities),
       };
     }
     case 'rest-hooks/purge': {
