@@ -509,8 +509,7 @@ describe('useResource()', () => {
         if (typeof e.then === 'function') {
           return e;
         } else {
-          // TODO: we're not handling suspense properly so react complains
-          // When upgrading test util we should be able to fix this as we'll suspense ourselves.
+          // TODO: https://github.com/coinbase/rest-hooks/issues/131
           if (e.name === 'Invariant Violation') {
             return null;
           } else {
@@ -533,8 +532,7 @@ describe('useResource()', () => {
     rerender();
     expect(result.current).toBe(firstPromise);
 
-    // TODO: we're not handling suspense properly so react complains
-    // When upgrading test util we should be able to fix this as we'll suspense ourselves.
+    // TODO: https://github.com/coinbase/rest-hooks/issues/131
     const oldError = console.error;
     console.error = () => {};
     jest.runAllTimers();
