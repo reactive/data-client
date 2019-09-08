@@ -5,12 +5,11 @@ import SimpleResource from './SimpleResource';
 
 const ResourceError = `JSON expected but not returned from API`;
 
-export const isResponseEmpty = (res: request.Response):boolean => {
-  const resIncludesJSON = res.type.includes('json');
+export const isInvalidResponse = (res: request.Response):boolean => {
   // Empty is only valid when no response is expect (204)
-  const resNoResponse = res.text === '' && res.status === 204;
+  const resEmptyIsExpected = res.text === '' && res.status === 204;
   const resBodyEmpty = Object.keys(res.body).length === 0
-  return !(resIncludesJSON || resNoResponse) && resBodyEmpty;
+  return !(res.type.includes('json') || resEmptyIsExpected) && resBodyEmpty;
 }
 
 /**
@@ -32,7 +31,7 @@ export default abstract class Resource extends SimpleResource {
     if (this.fetchPlugin) req = req.use(this.fetchPlugin);
     if (body) req = req.send(body);
     return req.then(res => {
-      if (isResponseEmpty(res)) {
+      if (isInvalidResponse(res)) {
         throw new Error(ResourceError);
       }
       return res.body;
