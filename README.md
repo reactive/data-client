@@ -57,7 +57,7 @@ return price.value;
 
 ### ...all typed ...fast ...and consistent
 
-For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](https://resthooks.io/docs/getting-started/installation)
+For the small price of 8kb gziped. &nbsp;&nbsp; [🏁Get started now](https://resthooks.io/docs/getting-started/installation)
 
 ## Features
 
