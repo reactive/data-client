@@ -17,20 +17,9 @@ function purgeEntity(
   key: string,
   pk: string,
 ) {
-  const copy: Writable<typeof entities> = {};
-  for (const k in entities) {
-    const o = entities[k];
-    if (o === undefined) continue;
-    if (k === key) {
-      copy[k] = {};
-      for (const j in o) {
-        if (j === pk) continue;
-        copy[k][j] = o[j];
-      }
-    } else {
-      copy[k] = o;
-    }
-  }
+  const copy: Writable<typeof entities> = { ...entities } as any;
+  copy[key] = { ...copy[key] };
+  delete copy[key][pk];
   return copy;
 }
 
