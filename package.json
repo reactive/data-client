@@ -95,7 +95,7 @@
     "cpy-cli": "^2.0.0",
     "cross-env": "^5.2.1",
     "eslint": "^6.3.0",
-    "eslint-config-prettier": "^6.2.0",
+    "eslint-config-prettier": "^6.3.0",
     "eslint-plugin-react": "^7.14.3",
     "ignore-styles": "^5.0.1",
     "jest": "^24.9.0",
