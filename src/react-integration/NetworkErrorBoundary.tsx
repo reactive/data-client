@@ -5,7 +5,7 @@ export interface NetworkError extends Error {
   response?: { statusText?: string; body?: any };
 }
 
-function isNetworkError(error: NetworkError | any): error is NetworkError {
+function isNetworkError(error: NetworkError | unknown): error is NetworkError {
   return Object.prototype.hasOwnProperty.call(error, 'status');
 }
 
