@@ -1,5 +1,6 @@
 import { memoize } from 'lodash';
 import { FetchAction, ReceiveAction, MiddlewareAPI, Manager } from '~/types';
+
 export const RIC: (cb: (...args: any[]) => void, options: any) => void =
   typeof (global as any).requestIdleCallback === 'function'
     ? (global as any).requestIdleCallback

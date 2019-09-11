@@ -5,13 +5,6 @@ import SimpleResource from './SimpleResource';
 
 const ResourceError = `JSON expected but not returned from API`;
 
-export const isInvalidResponse = (res: request.Response): boolean => {
-  // Empty is only valid when no response is expect (204)
-  const resEmptyIsExpected = res.text === '' && res.status === 204;
-  const resBodyEmpty = Object.keys(res.body).length === 0;
-  return !(res.type.includes('json') || resEmptyIsExpected) && resBodyEmpty;
-};
-
 /**
  * Represents an entity to be retrieved from a server.
  * Typically 1:1 with a url endpoint.
@@ -38,3 +31,10 @@ export default abstract class Resource extends SimpleResource {
     });
   }
 }
+
+export const isInvalidResponse = (res: request.Response): boolean => {
+  // Empty is only valid when no response is expect (204)
+  const resEmptyIsExpected = res.text === '' && res.status === 204;
+  const resBodyEmpty = Object.keys(res.body).length === 0;
+  return !(res.type.includes('json') || resEmptyIsExpected) && resBodyEmpty;
+};

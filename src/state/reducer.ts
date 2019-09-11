@@ -9,20 +9,6 @@ export const initialState: State<unknown> = {
   meta: {},
 };
 
-type Writable<T> = { [P in keyof T]: NonNullable<T[P]> };
-
-// equivalent to entities.deleteIn(key, pk)
-function purgeEntity(
-  entities: State<unknown>['entities'],
-  key: string,
-  pk: string,
-) {
-  const copy: Writable<typeof entities> = { ...entities } as any;
-  copy[key] = { ...copy[key] };
-  delete copy[key][pk];
-  return copy;
-}
-
 export default function reducer(
   state: State<unknown> | undefined,
   action: ActionTypes,
@@ -71,10 +57,10 @@ export default function reducer(
       if (action.error) return state;
       const key = action.meta.schema.key;
       const pk = action.meta.url;
-      const e = purgeEntity(state.entities, key, pk);
+      const entities = purgeEntity(state.entities, key, pk);
       return {
         ...state,
-        entities: e,
+        entities,
       };
     }
     case 'rest-hooks/invalidate':
@@ -106,4 +92,18 @@ export default function reducer(
       // Alternatively you can throw an error if an invalid action is dispatched.
       return state;
   }
+}
+
+type Writable<T> = { [P in keyof T]: NonNullable<T[P]> };
+
+// equivalent to entities.deleteIn(key, pk)
+function purgeEntity(
+  entities: State<unknown>['entities'],
+  key: string,
+  pk: string,
+) {
+  const copy: Writable<typeof entities> = { ...entities } as any;
+  copy[key] = { ...copy[key] };
+  delete copy[key][pk];
+  return copy;
 }

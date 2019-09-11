@@ -4,44 +4,6 @@ import { AbstractInstanceType, Method, RequestOptions } from '~/types';
 import { ReadShape, MutateShape, DeleteShape } from './types';
 import { schemas, SchemaDetail, SchemaList } from './normal';
 
-const getEntitySchema: <T extends typeof SimpleResource>(
-  M: T,
-) => schemas.Entity<AbstractInstanceType<T>> = memoize(
-  <T extends typeof SimpleResource>(M: T) => {
-    const e = new schemas.Entity(
-      M.getKey(),
-      {},
-      {
-        idAttribute: (value, parent, key) => {
-          const id = M.pk(value) || key;
-          if (process.env.NODE_ENV !== 'production' && id === null) {
-            throw new Error(
-              `Missing usable resource key when normalizing response.
-
-This is likely due to a malformed response.
-Try inspecting the network response or fetch() return value.
-`,
-            );
-          }
-          return id.toString();
-        },
-        processStrategy: value => {
-          return M.fromJS(value);
-        },
-        mergeStrategy: (
-          a: AbstractInstanceType<T>,
-          b: AbstractInstanceType<T>,
-        ) => (a.constructor as T).merge(a, b),
-      },
-    );
-    // TODO: long term figure out a plan to actually denormalize
-    (e as any).denormalize = function denormalize(entity: any) {
-      return entity;
-    };
-    return e;
-  },
-) as any;
-
 const DefinedMembersKey = Symbol('Defined Members');
 type Filter<T, U> = T extends U ? T : never;
 interface SimpleResourceMembers<T extends typeof SimpleResource> {
@@ -269,6 +231,7 @@ export default abstract class SimpleResource {
       },
     };
   }
+
   /** Shape to create a new entity (post) */
   static createShape<T extends typeof SimpleResource>(
     this: T,
@@ -293,6 +256,7 @@ export default abstract class SimpleResource {
       },
     };
   }
+
   /** Shape to update an existing entity (put) */
   static updateShape<T extends typeof SimpleResource>(
     this: T,
@@ -317,6 +281,7 @@ export default abstract class SimpleResource {
       },
     };
   }
+
   /** Shape to update a subset of fields of an existing entity (patch) */
   static partialUpdateShape<T extends typeof SimpleResource>(
     this: T,
@@ -341,6 +306,7 @@ export default abstract class SimpleResource {
       },
     };
   }
+
   /** Shape to delete an entity (delete) */
   static deleteShape<T extends typeof SimpleResource>(
     this: T,
@@ -367,3 +333,41 @@ Object.defineProperty(SimpleResource.prototype, 'url', {
     this.__url = url;
   },
 });
+
+const getEntitySchema: <T extends typeof SimpleResource>(
+  M: T,
+) => schemas.Entity<AbstractInstanceType<T>> = memoize(
+  <T extends typeof SimpleResource>(M: T) => {
+    const e = new schemas.Entity(
+      M.getKey(),
+      {},
+      {
+        idAttribute: (value, parent, key) => {
+          const id = M.pk(value) || key;
+          if (process.env.NODE_ENV !== 'production' && id === null) {
+            throw new Error(
+              `Missing usable resource key when normalizing response.
+
+This is likely due to a malformed response.
+Try inspecting the network response or fetch() return value.
+`,
+            );
+          }
+          return id.toString();
+        },
+        processStrategy: value => {
+          return M.fromJS(value);
+        },
+        mergeStrategy: (
+          a: AbstractInstanceType<T>,
+          b: AbstractInstanceType<T>,
+        ) => (a.constructor as T).merge(a, b),
+      },
+    );
+    // TODO: long term figure out a plan to actually denormalize
+    (e as any).denormalize = function denormalize(entity: any) {
+      return entity;
+    };
+    return e;
+  },
+) as any;
