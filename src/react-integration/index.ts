@@ -10,9 +10,9 @@ import {
   useInvalidator,
 } from './hooks';
 import { CacheProvider, ExternalCacheProvider } from './provider';
-import NetworkErrorBoundary, { NetworkError } from './NetworkErrorBoundary';
+import NetworkErrorBoundary from './NetworkErrorBoundary';
 
-export type NetworkError = NetworkError;
+export * from './NetworkErrorBoundary';
 export {
   useCache,
   useFetcher,
