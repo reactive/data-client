@@ -334,16 +334,18 @@ Object.defineProperty(SimpleResource.prototype, 'url', {
   },
 });
 
-const getEntitySchema: <T extends typeof SimpleResource>(
-  M: T,
-) => schemas.Entity<AbstractInstanceType<T>> = memoize(
-  <T extends typeof SimpleResource>(M: T) => {
+type GetEntitySchema = <T extends typeof SimpleResource>(
+  ResourceClass: T,
+) => schemas.Entity<AbstractInstanceType<T>>;
+
+const getEntitySchema: GetEntitySchema = memoize(
+  <T extends typeof SimpleResource>(ResourceClass: T) => {
     const e = new schemas.Entity(
-      M.getKey(),
+      ResourceClass.getKey(),
       {},
       {
         idAttribute: (value, parent, key) => {
-          const id = M.pk(value) || key;
+          const id = ResourceClass.pk(value) || key;
           if (process.env.NODE_ENV !== 'production' && id === null) {
             throw new Error(
               `Missing usable resource key when normalizing response.
@@ -356,7 +358,7 @@ Try inspecting the network response or fetch() return value.
           return id.toString();
         },
         processStrategy: value => {
-          return M.fromJS(value);
+          return ResourceClass.fromJS(value);
         },
         mergeStrategy: (
           a: AbstractInstanceType<T>,
