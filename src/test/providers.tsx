@@ -1,6 +1,5 @@
 import React from 'react';
 import { createStore, applyMiddleware } from 'redux';
-import { ReactNode } from 'react';
 import {
   State,
   reducer,
@@ -29,7 +28,7 @@ const makeExternalCacheProvider = (
   return function ConfiguredExternalCacheProvider({
     children,
   }: {
-    children: ReactNode;
+    children: React.ReactNode;
   }) {
     return (
       <ExternalCacheProvider store={store} selector={s => s}>
@@ -46,7 +45,7 @@ const makeCacheProvider = (
   return function ConfiguredCacheProvider({
     children,
   }: {
-    children: ReactNode;
+    children: React.ReactNode;
   }) {
     return (
       <CacheProvider managers={managers} initialState={initialState}>
