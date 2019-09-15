@@ -16,11 +16,24 @@ export default function buildInferredResults<
     if (id === undefined || id === '') return null;
     return id as any;
   }
-  if (schema instanceof schemas.Array || Array.isArray(schema)) {
+  if (
+    schema instanceof schemas.Array ||
+    Array.isArray(schema) ||
+    schema instanceof schemas.Values
+  ) {
     // array schemas should not be inferred because they're likely to be missing many members
+    // Values cannot be inferred because they have aribtrary keys
     return null;
   }
-  // TODO: handle other schemas besides array and object
+  if (schema instanceof schemas.Union) {
+    const discriminatedSchema = schema.inferSchema(params, undefined, '');
+    // Was unable to infer the entity's schema from params
+    if (discriminatedSchema === undefined) return null;
+    return {
+      id: buildInferredResults(discriminatedSchema, params),
+      schema: schema.getSchemaAttribute(params, parent, ''),
+    } as any;
+  }
   const o = schema instanceof schemas.Object ? (schema as any).schema : schema;
   const resultObject = {} as any;
   for (const k in o) {
