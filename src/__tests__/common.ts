@@ -162,6 +162,59 @@ export class PaginatedArticleResource extends OtherArticleResource {
   }
 }
 
+export class UnionResource extends Resource {
+  readonly id: string = '';
+  readonly body: string = '';
+  readonly type: string = '';
+
+  pk() {
+    return this.id;
+  }
+
+  static urlRoot = '/union/';
+
+  static detailShape<T extends typeof Resource>(
+    this: T,
+  ): ReadShape<SchemaDetail<AbstractInstanceType<T>>> {
+    const schema = new schemas.Union(
+      {
+        first: FirstUnionResource.getEntitySchema(),
+        second: SecondUnionResource.getEntitySchema(),
+      },
+      'type',
+    );
+    return {
+      ...super.detailShape(),
+      schema,
+    };
+  }
+  static listShape<T extends typeof Resource>(
+    this: T,
+  ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
+    const schema = [
+      new schemas.Union(
+        {
+          first: FirstUnionResource.getEntitySchema(),
+          second: SecondUnionResource.getEntitySchema(),
+        },
+        (input: FirstUnionResource | SecondUnionResource) => input['type'],
+      ),
+    ];
+    return {
+      ...super.detailShape(),
+      schema,
+    };
+  }
+}
+export class FirstUnionResource extends UnionResource {
+  readonly type = 'first' as const;
+  readonly firstOnlyField: number = 5;
+}
+export class SecondUnionResource extends UnionResource {
+  readonly type = 'second' as const;
+  readonly secondeOnlyField: number = 10;
+}
+
 export class NestedArticleResource extends OtherArticleResource {
   readonly user: number | null = null;
 
