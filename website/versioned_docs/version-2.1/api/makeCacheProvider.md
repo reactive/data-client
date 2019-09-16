@@ -1,17 +1,17 @@
 ---
-title: makeExternalCacheProvider()
+title: makeCacheProvider()
+id: version-2.1-makeCacheProvider
+original_id: makeCacheProvider
 ---
 
 ```typescript
-declare const makeExternalCacheProvider: (
+declare const makeCacheProvider: (
   managers: Manager[],
   initialState?: State<unknown>,
 ) => ({ children }: { children: React.ReactNode }) => JSX.Element;
 ```
 
-Used to build a [\<ExternalCacheProvider />](./ExternalCacheProvider.md) for [makeRenderRestHook()](./makeRenderRestHook.md)
-
-Internally constructs a redux store attaching the middlwares.
+Used to build a [\<CacheProvider />](./CacheProvider.md) for [makeRenderRestHook()](./makeRenderRestHook.md)
 
 ## Arguments
 
@@ -30,7 +30,7 @@ Simple wrapper component that only has child as prop.
 ```tsx
 const manager = new MockNetworkManager();
 const subscriptionManager = new SubscriptionManager(PollingSubscription);
-const Provider = makeExternalCacheProvider([manager, subscriptionManager]);
+const Provider = makeCacheProvider([manager, subscriptionManager]);
 
 function renderRestHook<T>(callback: () => T) {
   return renderHook(callback, {

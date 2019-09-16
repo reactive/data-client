@@ -4,8 +4,7 @@ title: makeCacheProvider()
 
 ```typescript
 declare const makeCacheProvider: (
-  manager: NetworkManager,
-  subscriptionManager: SubscriptionManager<any>,
+  managers: Manager[],
   initialState?: State<unknown>,
 ) => ({ children }: { children: React.ReactNode }) => JSX.Element;
 ```
@@ -14,13 +13,9 @@ Used to build a [\<CacheProvider />](./CacheProvider.md) for [makeRenderRestHook
 
 ## Arguments
 
-### manager
+### managers
 
-[NetworkManager](./NetworkManager.md)
-
-### subscriptionManager
-
-[SubscriptionManager](./SubscriptionManager.md)
+[Manager](./Manager.md)
 
 ### initialState
 
@@ -33,7 +28,7 @@ Simple wrapper component that only has child as prop.
 ```tsx
 const manager = new MockNetworkManager();
 const subscriptionManager = new SubscriptionManager(PollingSubscription);
-const Provider = makeCacheProvider(manager, subscriptionManager);
+const Provider = makeCacheProvider([manager, subscriptionManager]);
 
 function renderRestHook<T>(callback: () => T) {
   return renderHook(callback, {

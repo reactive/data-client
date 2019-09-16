@@ -16,8 +16,8 @@ as well as in a `<Provider />` context.
 
 ```typescript
 type ProviderType = (
-  manager: NetworkManager,
-  subManager: SubscriptionManager<any>,
+  managers: Manager[],
+  initialState?: State<unknown>,
 ) => React.ComponentType<{
   children: React.ReactChild;
 }>;

@@ -432,6 +432,12 @@
       "version-2.1/api/version-2.1-FetchShape": {
         "title": "FetchShape"
       },
+      "version-2.1/api/version-2.1-makeCacheProvider": {
+        "title": "makeCacheProvider()"
+      },
+      "version-2.1/api/version-2.1-makeExternalCacheProvider": {
+        "title": "makeExternalCacheProvider()"
+      },
       "version-2.1/api/version-2.1-makeRenderRestHook": {
         "title": "makeRenderRestHook()"
       },

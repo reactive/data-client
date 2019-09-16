@@ -1,5 +1,7 @@
 ---
 title: makeExternalCacheProvider()
+id: version-2.1-makeExternalCacheProvider
+original_id: makeExternalCacheProvider
 ---
 
 ```typescript
