@@ -3,8 +3,4 @@ import NetworkErrorBoundary from './NetworkErrorBoundary';
 
 export * from './hooks';
 export * from './NetworkErrorBoundary';
-export {
-  CacheProvider,
-  ExternalCacheProvider,
-  NetworkErrorBoundary,
-};
+export { CacheProvider, ExternalCacheProvider, NetworkErrorBoundary };

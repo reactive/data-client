@@ -30,8 +30,7 @@ export default function useDenormalized<
   // Select from state
   const entities = state.entities;
   const cacheResults =
-    params &&
-    ((state.results[getFetchKey(params)] as ResultType<typeof schema>) || null);
+    params && (state.results[getFetchKey(params)] as ResultType<typeof schema>);
 
   // We can grab entities without actual results if the params compute a primary key
   const results = useMemo(() => {

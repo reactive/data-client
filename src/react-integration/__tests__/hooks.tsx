@@ -22,10 +22,10 @@ import {
 } from '../hooks';
 import { initialState } from '../../state/reducer';
 import { State, ActionTypes } from '../../types';
-import { Resource, Schema } from '../../resource';
-import { ReadShape } from '../../resource';
 import makeRenderRestHook from '../../test/makeRenderRestHook';
 import { makeCacheProvider } from '../../test/providers';
+import mockInitialState from '../../test/mockState';
+import { users, articlesPages, payload } from './fixtures';
 
 async function testDispatchFetch(
   Component: React.FunctionComponent<any>,
@@ -69,79 +69,6 @@ function testRestHook(
     },
   });
 }
-
-function buildState<S extends Schema>(
-  payload: any,
-  fetchShape: ReadShape<S, any, any>,
-  params: object,
-): State<Resource> {
-  const { entities, result } = normalize(payload, fetchShape.schema);
-  const url = fetchShape.getFetchKey(params);
-  return {
-    entities,
-    results: {
-      [url]: result,
-    },
-    meta: {
-      [url]: {
-        date: Date.now(),
-        expiresAt: Date.now() + 10000,
-      },
-    },
-  };
-}
-
-const payload = {
-  id: 5,
-  title: 'hi ho',
-  content: 'whatever',
-  tags: ['a', 'best', 'react'],
-};
-
-const articlesPages = {
-  prevPage: '23asdl',
-  nextPage: 's3f3',
-  results: [
-    {
-      id: 23,
-      title: 'the first draft',
-      content: 'the best things in life com efree',
-      tags: ['one', 'two'],
-    },
-    {
-      id: 44,
-      title: 'the second book',
-      content: 'the best things in life com efree',
-      tags: ['hbh', 'wew'],
-    },
-    {
-      id: 2,
-      title: 'the third novel',
-      content: 'the best things in life com efree',
-      tags: ['free', 'honey'],
-    },
-    {
-      id: 643,
-      title: 'a long time ago',
-      content: 'the best things in life com efree',
-    },
-  ],
-};
-
-const users = [
-  {
-    id: 23,
-    username: 'bob',
-    email: 'bob@bob.com',
-    isAdmin: false,
-  },
-  {
-    id: 7342,
-    username: 'lindsey',
-    email: 'lindsey@bob.com',
-    isAdmin: true,
-  },
-];
 
 function ArticleComponentTester({ invalidIfStale = false }) {
   const resource = invalidIfStale
@@ -217,11 +144,13 @@ describe('useFetcher', () => {
 
 describe('useInvalidate', () => {
   it('should not invalidate anything if params is null', () => {
-    const state = buildState(
-      articlesPages,
-      PaginatedArticleResource.listShape(),
-      {},
-    );
+    const state = mockInitialState([
+      {
+        request: PaginatedArticleResource.listShape(),
+        params: {},
+        result: articlesPages,
+      },
+    ]);
     const dispatch = jest.fn();
     let invalidate: any;
     testRestHook(
@@ -235,11 +164,13 @@ describe('useInvalidate', () => {
     expect(dispatch).not.toHaveBeenCalled();
   });
   it('should return a function that dispatches an action to invalidate a resource', () => {
-    const state = buildState(
-      articlesPages,
-      PaginatedArticleResource.listShape(),
-      {},
-    );
+    const state = mockInitialState([
+      {
+        request: PaginatedArticleResource.listShape(),
+        params: {},
+        result: articlesPages,
+      },
+    ]);
     const dispatch = jest.fn();
     let invalidate: any;
     testRestHook(
@@ -289,18 +220,26 @@ describe('useCache', () => {
       },
     );
     expect(article).toBe(null);
-    state = buildState(payload, CoolerArticleResource.detailShape(), payload);
+    state = mockInitialState([
+      {
+        request: CoolerArticleResource.detailShape(),
+        params: payload,
+        result: payload,
+      },
+    ]);
     rerender();
     expect(article).toBeTruthy();
     expect(article.title).toBe(payload.title);
   });
 
   it('should select paginated results', () => {
-    const state = buildState(
-      articlesPages,
-      PaginatedArticleResource.listShape(),
-      {},
-    );
+    const state = mockInitialState([
+      {
+        request: PaginatedArticleResource.listShape(),
+        params: {},
+        result: articlesPages,
+      },
+    ]);
     let articles: any;
     testRestHook(() => {
       articles = useCache(PaginatedArticleResource.listShape(), {});
@@ -312,11 +251,13 @@ describe('useCache', () => {
   });
 
   it('should return identical value no matter how many re-renders', () => {
-    const state = buildState(
-      articlesPages,
-      PaginatedArticleResource.listShape(),
-      {},
-    );
+    const state = mockInitialState([
+      {
+        request: PaginatedArticleResource.listShape(),
+        params: {},
+        result: articlesPages,
+      },
+    ]);
     const track = jest.fn();
 
     const { rerender } = testRestHook(() => {
@@ -357,11 +298,13 @@ describe('useResultCache', () => {
   });
 
   it('should find results', () => {
-    const state = buildState(
-      articlesPages,
-      PaginatedArticleResource.listShape(),
-      {},
-    );
+    const state = mockInitialState([
+      {
+        request: PaginatedArticleResource.listShape(),
+        params: {},
+        result: articlesPages,
+      },
+    ]);
     let results: any;
     testRestHook(() => {
       results = useResultCache(PaginatedArticleResource.listShape(), {});
@@ -373,11 +316,13 @@ describe('useResultCache', () => {
   });
 
   it('should return identical value no matter how many re-renders', () => {
-    const state = buildState(
-      articlesPages,
-      PaginatedArticleResource.listShape(),
-      {},
-    );
+    const state = mockInitialState([
+      {
+        request: PaginatedArticleResource.listShape(),
+        params: {},
+        result: articlesPages,
+      },
+    ]);
     const track = jest.fn();
 
     const { rerender } = testRestHook(() => {
@@ -555,11 +500,13 @@ describe('useResource()', () => {
     console.error = oldError;
   });
   it('should NOT suspend if result already in cache and options.invalidIfStale is false', () => {
-    const state = buildState(
-      payload,
-      CoolerArticleResource.detailShape(),
-      payload,
-    );
+    const state = mockInitialState([
+      {
+        request: CoolerArticleResource.detailShape(),
+        params: payload,
+        result: payload,
+      },
+    ]);
 
     const tree = (
       <StateContext.Provider value={state}>
