@@ -13,5 +13,5 @@ export default function useCache<
   params: Params | null,
 ) {
   const state = useContext(StateContext);
-  return useSchemaSelect(fetchShape, state, params);
+  return useSchemaSelect(fetchShape, params, state);
 }

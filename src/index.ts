@@ -16,6 +16,7 @@ import NetworkManager from './state/NetworkManager';
 import PollingSubscription from './state/PollingSubscription';
 import SubscriptionManager from './state/SubscriptionManager';
 import reducer, { initialState } from './state/reducer';
+import { useDenormalized } from './state/selectors';
 import {
   useCache,
   useFetcher,
@@ -114,6 +115,7 @@ export {
   useMeta,
   useError,
   useSelectionUnstable,
+  useDenormalized,
   NetworkManager,
   SubscriptionManager,
   PollingSubscription,
