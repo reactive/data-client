@@ -32,6 +32,13 @@ function useResource<
 
 <!--END_DOCUSAURUS_CODE_TABS-->
 
+> ### Rest Hooks 3.0 - Deprecation
+>
+> This hook is being deprecated in favor of [useResourceNew()](./useResourceNew)
+>
+> - 3.0 this will be renamed to `useResourceLegacy()`
+> - 3.1 will remove `useResourceLegacy()`
+
 Excellent for retrieving the data you need.
 
 - Triggers fetch:

@@ -23,6 +23,13 @@ function useCache<Params extends Readonly<object>, S extends Schema>(
 
 <!--END_DOCUSAURUS_CODE_TABS-->
 
+> ### Rest Hooks 3.0 - Deprecation
+>
+> This hook is being deprecated in favor of [useCacheNew()](./useCacheNew)
+>
+> - 3.0 this will be renamed to `useCacheLegacy()`
+> - 3.1 will remove `useCacheLegacy()`
+
 Excellent to use data in the normalized cache without fetching.
 
 - [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):

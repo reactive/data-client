@@ -74,8 +74,10 @@
         "label": "Hooks",
         "ids": [
           "api/useresource",
+          "api/useresourcenew",
           "api/useFetcher",
           "api/useCache",
+          "api/useCacheNew",
           "api/useResultCache",
           "api/useSubscription",
           "api/useRetrieve",

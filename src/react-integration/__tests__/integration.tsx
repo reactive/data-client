@@ -12,6 +12,7 @@ import {
   makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../test/providers';
+import { payload, users, nested } from './fixtures';
 
 function onError(e: any) {
   e.preventDefault();
@@ -25,48 +26,6 @@ afterEach(() => {
 
 for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
   describe(`${makeProvider.name} => <Provider />`, () => {
-    const payload = {
-      id: 5,
-      title: 'hi ho',
-      content: 'whatever',
-      tags: ['a', 'best', 'react'],
-    };
-    const users = [
-      {
-        id: 23,
-        username: 'bob',
-        email: 'bob@bob.com',
-        isAdmin: false,
-      },
-      {
-        id: 7342,
-        username: 'lindsey',
-        email: 'lindsey@bob.com',
-        isAdmin: true,
-      },
-    ];
-    const nested = [
-      {
-        id: 5,
-        title: 'hi ho',
-        content: 'whatever',
-        tags: ['a', 'best', 'react'],
-        author: {
-          id: 23,
-          username: 'bob',
-        },
-      },
-      {
-        id: 3,
-        title: 'the next time',
-        content: 'whatever',
-        author: {
-          id: 23,
-          username: 'charles',
-          email: 'bob@bob.com',
-        },
-      },
-    ];
     // TODO: add nested resource test case that has multiple partials to test merge functionality
 
     let renderRestHook: ReturnType<typeof makeRenderRestHook>;

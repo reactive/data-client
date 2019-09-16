@@ -8,8 +8,10 @@ title: API Reference
 
 ## Hooks
 - [useResource](useResource.md)
+- [useResourceNew](useResourceNew.md)
 - [useFetcher](useFetcher.md)
 - [useCache](useCache.md)
+- [useCacheNew](useCacheNew.md)
 - [useResultCache](useResultCache.md)
 - [useSubscription](useSubscription.md)
 - [useRetrieve](useRetrieve.md)

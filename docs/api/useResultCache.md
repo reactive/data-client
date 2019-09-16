@@ -27,6 +27,13 @@ function useResultCache<Params extends Readonly<object>, D extends object>(
 
 <!--END_DOCUSAURUS_CODE_TABS-->
 
+> ### Rest Hooks 3.0 - Deprecation
+>
+> This hook is being deprecated in favor of [useCacheNew()](./useCacheNew)
+>
+> - 3.0 `useCacheNew()` will be renamed to `useCache()`
+> - 3.1 will remove `useResultCache()`
+
 Excellent to use with [pagination](../guides/pagination.md) or any other extra (non-entity) data in results.
 
 - [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):

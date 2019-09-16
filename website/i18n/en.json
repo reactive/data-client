@@ -53,6 +53,9 @@
       "api/useCache": {
         "title": "useCache()"
       },
+      "api/useCacheNew": {
+        "title": "useCacheNew()"
+      },
       "api/useFetcher": {
         "title": "useFetcher()"
       },
@@ -61,6 +64,9 @@
       },
       "api/useresource": {
         "title": "useResource()"
+      },
+      "api/useresourcenew": {
+        "title": "useResourceNew()"
       },
       "api/useResultCache": {
         "title": "useResultCache()"
