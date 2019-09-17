@@ -1,4 +1,4 @@
-import { schemas, Schema, SchemaList, SchemaDetail } from './normal';
+import { schemas, Schema, SchemaList, SchemaDetail, Denormalized } from './normal';
 import { RequestOptions } from '~/types';
 
 /** Defines the shape of a network request */
@@ -10,7 +10,7 @@ export interface FetchShape<
     | undefined
 > {
   readonly type: 'read' | 'mutate' | 'delete';
-  fetch(params: Params, body: Body): Promise<any>;
+  fetch(params: Params, body: Body): Promise<Denormalized<S>>;
   getFetchKey(params: Params): string;
   readonly schema: S;
   readonly options?: RequestOptions;

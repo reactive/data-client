@@ -18,7 +18,7 @@ specific results needed.
 ```typescript
 interface FetchShape {
   readonly type: 'read' | 'mutate' | 'delete';
-  fetch(params: Readonly<object>, body: Readonly<object> | void): Promise<any>;
+  fetch(params: Readonly<object>, body: Readonly<object> | void): Promise<Denormalized<typeof schema>>;
   getFetchKey(params: Readonly<object>): string;
   readonly schema: Schema;
   readonly options?: RequestOptions;
@@ -34,7 +34,7 @@ interface FetchShape<
   Body extends Readonly<object | string> | void = Readonly<object> | undefined
 > {
   readonly type: 'read' | 'mutate' | 'delete';
-  fetch(params: Params, body: Body): Promise<any>;
+  fetch(params: Params, body: Body): Promise<Denormalized<S>>;
   getFetchKey(params: Params): string;
   readonly schema: S;
   readonly options?: RequestOptions;
