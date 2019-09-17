@@ -1161,6 +1161,13 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
+"@rest-hooks/normalizr@^3.4.3":
+  version "3.4.3"
+  resolved "https://registry.yarnpkg.com/@rest-hooks/normalizr/-/normalizr-3.4.3.tgz#bdfcdd78333cab92949d439c3ee5091d057ab4a4"
+  integrity sha512-YAskraBDO1Znbv9r8WIqkdykOrtxZTZCuG07OB3BMnMMowJRzbb7QB9N09Tf2j1MhCyRm9FzC0fvjglPobZpYA==
+  dependencies:
+    "@babel/runtime" "^7.6.0"
+
 "@sheerun/mutationobserver-shim@^0.3.2":
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/@sheerun/mutationobserver-shim/-/mutationobserver-shim-0.3.2.tgz#8013f2af54a2b7d735f71560ff360d3a8176a87b"
@@ -5792,11 +5799,6 @@ normalize-path@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/normalize-path/-/normalize-path-3.0.0.tgz#0dcd69ff23a1c9b11fd0978316644a0388216a65"
   integrity sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==
-
-normalizr@^3.4.1:
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/normalizr/-/normalizr-3.4.1.tgz#cf4f8ac7a4a0dd7fe504b77cbe9dd533cb3e45b5"
-  integrity sha512-gei+tJucERU8vYN6TFQL2k5YMLX2Yh7nlylKMJC65+Uu/LS3xQCDJc8cies72aHouycKYyVgcnyLRbaJsigXKw==
 
 npm-bundled@^1.0.1:
   version "1.0.6"
