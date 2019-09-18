@@ -135,10 +135,45 @@ export function normalize<
 >(data: any, schema: Schema<T>): NormalizedSchema<E, R>;
 
 export function denormalize<S extends Schema>(
-  input: ResultType<S>,
-  schema: Schema,
+  input: any,
+  schema: S,
   entities: any,
-): Denormalized<S>;
+): DenormalizedNullable<S>;
+
+export type DenormalizedNullableCore<S> = S extends schemas.Entity<infer T>
+  ? T | undefined
+  : S extends schemas.Values<any, infer Choices>
+  ? Record<
+      string,
+      Choices extends schemas.EntityMap<infer T>
+        ? T | undefined
+        : Choices extends Schema<infer T>
+        ? T | undefined
+        : never
+    >
+  : S extends schemas.Union<any, infer Choices>
+  ? (Choices[keyof Choices] extends schemas.Entity<infer T> ? T : never) // TODO: typescript 3.7 make this recursive instead
+  : S extends schemas.Object<any, infer O>
+  ? {
+      [K in keyof O]: O[K] extends Schema
+        ? DenormalizedNullableCore<O[K]>
+        : O[K];
+    }
+  : S extends { [key: string]: any }
+  ? {
+      [K in keyof S]: S[K] extends Schema
+        ? DenormalizedNullableCore<S[K]>
+        : S[K];
+    }
+  : S;
+
+export type DenormalizedNullable<S> = Extract<S, schemas.Entity> extends never
+  ? (Extract<S, SchemaArray<any>> extends never
+      ? DenormalizedNullableCore<S>
+      : Extract<S, SchemaArray<any>> extends SchemaArray<infer T>
+      ? T[] | undefined
+      : never)
+  : DenormalizedNullableCore<Extract<S, schemas.Entity>>;
 
 export type DenormalizedCore<S> = S extends schemas.Entity<infer T>
   ? T
@@ -164,20 +199,22 @@ type UnionResult<Choices extends schemas.EntityMap> = {
   schema: keyof Choices;
 };
 
-export type Denormalized<S> = Extract<S, schemas.Entity<any>> extends never
-  ? (S extends (infer I)[] | schemas.Array<infer I>
-      ? DenormalizedCore<Extract<I, schemas.Entity<any>>>[]
-      : DenormalizedCore<S>)
-  : DenormalizedCore<Extract<S, schemas.Entity<any>>>;
+export type Denormalized<S> = Extract<S, schemas.Entity> extends never
+  ? (Extract<S, SchemaArray<any>> extends never
+      ? DenormalizedCore<S>
+      : Extract<S, SchemaArray<any>> extends SchemaArray<infer T>
+      ? T[]
+      : never)
+  : DenormalizedCore<Extract<S, schemas.Entity>>;
 
-export type ResultTypeCore<S> = S extends schemas.Entity<any>
+export type ResultTypeCore<S> = S extends schemas.Entity
   ? ReturnType<S['getId']> // should always be string
   : S extends schemas.Values<any, infer Choices>
   ? Record<
       string,
       Choices extends schemas.EntityMap
         ? UnionResult<Choices>
-        : Choices extends schemas.Entity<any>
+        : Choices extends schemas.Entity
         ? ReturnType<Choices['getId']> // TODO: typescript 3.7 let's us make this recursive
         : never
     >
@@ -189,8 +226,41 @@ export type ResultTypeCore<S> = S extends schemas.Entity<any>
   ? { [K in keyof S]: S[K] extends Schema ? ResultTypeCore<S[K]> : S[K] }
   : S;
 
-export type ResultType<S> = Extract<S, schemas.Entity<any>> extends never
-  ? (S extends (infer I)[] | schemas.Array<infer I>
-      ? ResultTypeCore<Extract<I, schemas.Entity<any>>>[]
-      : ResultTypeCore<S>)
-  : ResultTypeCore<Extract<S, schemas.Entity<any>>>;
+export type ResultType<S> = Extract<S, schemas.Entity> extends never
+  ? (Extract<S, SchemaArray<any>> extends never
+      ? ResultTypeCore<S>
+      : Extract<S, SchemaArray<any>> extends SchemaArray<infer T>
+      ? string[]
+      : never)
+  : ResultTypeCore<Extract<S, schemas.Entity>>;
+
+export type ResultTypeNullableCore<S> = S extends schemas.Entity
+  ? ReturnType<S['getId']> | undefined
+  : S extends schemas.Values<any, infer Choices>
+  ? Record<
+      string,
+      Choices extends schemas.EntityMap
+        ? UnionResult<Choices>
+        : Choices extends schemas.Entity
+        ? ReturnType<Choices['getId']> | undefined // TODO: typescript 3.7 let's us make this recursive
+        : never
+    >
+  : S extends schemas.Union<any, infer Choices>
+  ? UnionResult<Choices>
+  : S extends schemas.Object<any, infer O>
+  ? {
+      [K in keyof O]: O[K] extends Schema ? ResultTypeNullableCore<O[K]> : O[K];
+    }
+  : S extends { [key: string]: any }
+  ? {
+      [K in keyof S]: S[K] extends Schema ? ResultTypeNullableCore<S[K]> : S[K];
+    }
+  : S;
+
+export type ResultTypeNullable<S> = Extract<S, schemas.Entity> extends never
+  ? (Extract<S, SchemaArray<any>> extends never
+      ? ResultTypeNullableCore<S>
+      : Extract<S, SchemaArray<any>> extends SchemaArray<infer T>
+      ? string[] | undefined
+      : never)
+  : ResultTypeNullableCore<Extract<S, schemas.Entity>>;

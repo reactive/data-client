@@ -1,5 +1,5 @@
-import { ReadShape, Schema, SchemaOf } from '~/resource';
-import { Denormalized } from '~/resource/normal';
+import { ReadShape, Schema } from '~/resource';
+import { Denormalized, DenormalizedNullable } from '~/resource/normal';
 import useCacheNew from './useCacheNew';
 import useRetrieve from './useRetrieve';
 import useError from './useError';
@@ -21,8 +21,7 @@ function useOneResource<
 >(
   fetchShape: ReadShape<S, Params, Body>,
   params: Params | null,
-): CondNull<typeof params, Denormalized<S>> {
-  // maybePromise is undefined when data is stale or params is null
+): CondNull<typeof params, DenormalizedNullable<S>, Denormalized<S>> {
   const maybePromise = useRetrieve(fetchShape, params);
   // resource is null when it is not in cache or params is null
   const resource = useCacheNew(fetchShape, params);
@@ -77,7 +76,7 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
   return resources;
 }
 
-type CondNull<P, R> = P extends null ? null : R;
+type CondNull<P, A, B> = P extends null ? A : B;
 
 /** Ensure a resource is available; suspending to React until it is. */
 export default function useResourceNew<
@@ -87,12 +86,14 @@ export default function useResourceNew<
 >(
   fetchShape: ReadShape<S, NonNullable<P>, B>,
   params: P,
-): CondNull<P, SchemaOf<S>>;
+): CondNull<P, DenormalizedNullable<S>, Denormalized<S>>;
 export default function useResourceNew<
   P1 extends Readonly<object> | null,
   B1 extends Readonly<object | string> | void,
   S1 extends Schema
->(v1: [ReadShape<S1, NonNullable<P1>, B1>, P1]): [CondNull<P1, SchemaOf<S1>>];
+>(
+  v1: [ReadShape<S1, NonNullable<P1>, B1>, P1],
+): [CondNull<P1, DenormalizedNullable<S1>, Denormalized<S1>>];
 export default function useResourceNew<
   P1 extends Readonly<object> | null,
   B1 extends Readonly<object | string> | void,
@@ -103,7 +104,10 @@ export default function useResourceNew<
 >(
   v1: [ReadShape<S1, NonNullable<P1>, B1>, P1],
   v2: [ReadShape<S2, NonNullable<P2>, B2>, P2],
-): [CondNull<P1, SchemaOf<S1>>, CondNull<P2, SchemaOf<S2>>];
+): [
+  CondNull<P1, DenormalizedNullable<S1>, Denormalized<S1>>,
+  CondNull<P2, DenormalizedNullable<S2>, Denormalized<S2>>,
+];
 export default function useResourceNew<
   P1 extends Readonly<object> | null,
   B1 extends Readonly<object | string> | void,
@@ -119,9 +123,9 @@ export default function useResourceNew<
   v2: [ReadShape<S2, NonNullable<P2>, B2>, P2],
   v3: [ReadShape<S3, NonNullable<P3>, B3>, P3],
 ): [
-  CondNull<P1, SchemaOf<S1>>,
-  CondNull<P2, SchemaOf<S2>>,
-  CondNull<P3, SchemaOf<S3>>,
+  CondNull<P1, DenormalizedNullable<S1>, Denormalized<S1>>,
+  CondNull<P2, DenormalizedNullable<S2>, Denormalized<S2>>,
+  CondNull<P3, DenormalizedNullable<S3>, Denormalized<S3>>,
 ];
 export default function useResourceNew<
   P1 extends Readonly<object> | null,
@@ -142,10 +146,10 @@ export default function useResourceNew<
   v3: [ReadShape<S3, NonNullable<P3>, B3>, P3],
   v4: [ReadShape<S4, NonNullable<P4>, B4>, P4],
 ): [
-  CondNull<P1, SchemaOf<S1>>,
-  CondNull<P2, SchemaOf<S2>>,
-  CondNull<P3, SchemaOf<S3>>,
-  CondNull<P4, SchemaOf<S4>>,
+  CondNull<P1, DenormalizedNullable<S1>, Denormalized<S1>>,
+  CondNull<P2, DenormalizedNullable<S2>, Denormalized<S2>>,
+  CondNull<P3, DenormalizedNullable<S3>, Denormalized<S3>>,
+  CondNull<P4, DenormalizedNullable<S4>, Denormalized<S4>>,
 ];
 export default function useResourceNew<
   P1 extends Readonly<object> | null,
@@ -170,11 +174,11 @@ export default function useResourceNew<
   v4: [ReadShape<S4, NonNullable<P4>, B4>, P4],
   v5: [ReadShape<S5, NonNullable<P5>, B5>, P5],
 ): [
-  CondNull<P1, SchemaOf<S1>>,
-  CondNull<P2, SchemaOf<S2>>,
-  CondNull<P3, SchemaOf<S3>>,
-  CondNull<P4, SchemaOf<S4>>,
-  CondNull<P5, SchemaOf<S5>>,
+  CondNull<P1, DenormalizedNullable<S1>, Denormalized<S1>>,
+  CondNull<P2, DenormalizedNullable<S2>, Denormalized<S2>>,
+  CondNull<P3, DenormalizedNullable<S3>, Denormalized<S3>>,
+  CondNull<P4, DenormalizedNullable<S4>, Denormalized<S4>>,
+  CondNull<P5, DenormalizedNullable<S5>, Denormalized<S5>>,
 ];
 export default function useResourceNew<
   Params extends Readonly<object>,

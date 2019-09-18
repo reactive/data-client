@@ -5,9 +5,9 @@ import {
   Schema,
   denormalize,
   ResultType,
-  DenormalizedNullable,
+  Denormalized,
 } from '~/resource/normal';
-import buildInferredResults from './buildInferredResults';
+import buildInferredResultsLegacy from './buildInferredResultsLegacy';
 
 /**
  * Selects the denormalized form from `state` cache.
@@ -16,7 +16,7 @@ import buildInferredResults from './buildInferredResults';
  * using params and schema. This increases cache hit rate for many
  * detail shapes.
  */
-export default function useDenormalized<
+export default function useDenormalizedLegacy<
   Params extends Readonly<object>,
   S extends Schema
 >(
@@ -26,7 +26,7 @@ export default function useDenormalized<
   }: Pick<ReadShape<S, Params, any>, 'schema' | 'getFetchKey'>,
   params: Params | null,
   state: State<any>,
-): DenormalizedNullable<typeof schema> {
+): Denormalized<typeof schema> | null {
   // Select from state
   const entities = state.entities;
   const cacheResults =
@@ -34,34 +34,40 @@ export default function useDenormalized<
 
   // We can grab entities without actual results if the params compute a primary key
   const results = useMemo(() => {
+    if (!params) return null;
     if (cacheResults) return cacheResults;
 
     // in case we don't even have entities for a model yet, denormalize() will throw
     // entities[entitySchema.key] === undefined
-    return buildInferredResults(schema, params);
+    return buildInferredResultsLegacy(schema, params);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cacheResults, params && getFetchKey(params)]);
 
   // The final denormalize block
   return useMemo(() => {
+    if (!entities || !params || !results) return null;
+
     // Warn users with bad configurations
     if (process.env.NODE_ENV !== 'production' && isEntity(schema)) {
-      const paramEncoding = params ? getFetchKey(params) : '';
       if (Array.isArray(results)) {
         throw new Error(
-          `url ${paramEncoding} has list results when single result is expected`,
+          `url ${getFetchKey(
+            params,
+          )} has list results when single result is expected`,
         );
       }
       if (typeof results === 'object') {
         throw new Error(
-          `url ${paramEncoding} has object results when single result is expected`,
+          `url ${getFetchKey(
+            params,
+          )} has object results when single result is expected`,
         );
       }
     }
 
     // Select the actual results now
-    let denormalized = denormalize(results, schema, entities || {});
-    // TODO: move this logic into denormalize as this only works for top level lists
+    let denormalized = denormalize(results, schema, entities);
+    if (!denormalized) return null;
     // entities are sometimes deleted but not removed from list results
     if (Array.isArray(denormalized)) {
       denormalized = denormalized.filter((entity: any) => entity);

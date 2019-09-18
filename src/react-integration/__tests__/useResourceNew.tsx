@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense } from 'react';
 import { render } from '@testing-library/react';
 import nock from 'nock';
 import { normalize } from '../../resource';
@@ -55,7 +55,7 @@ function ArticleComponentTester({ invalidIfStale = false }) {
   );
 }
 
-describe('useResourceNewNew()', () => {
+describe('useResourceNew()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
   const fbmock = jest.fn();
 
@@ -348,7 +348,6 @@ describe('useResourceNewNew()', () => {
         [UserResource.listShape(), {}],
       );
     });
-    expect(result.current).toBe(null);
     await waitForNextUpdate();
     const [article, users] = result.current;
     expect(article instanceof CoolerArticleResource).toBe(true);
@@ -365,6 +364,6 @@ describe('useResourceNewNew()', () => {
       return 'done';
     });
     expect(result.current).toBe('done');
-    expect(article).toBeNull();
+    expect(article).toBeUndefined();
   });
 });
