@@ -1,12 +1,4 @@
 import React from 'react';
-import {
-  // eslint-disable-next-line @typescript-eslint/camelcase
-  unstable_advanceTime,
-  // eslint-disable-next-line @typescript-eslint/camelcase
-  unstable_scheduleCallback,
-  // eslint-disable-next-line @typescript-eslint/camelcase
-  unstable_NormalPriority,
-} from 'scheduler/unstable_mock';
 import { renderHook, act } from '@testing-library/react-hooks';
 import createEnhancedReducerHook from '../middleware';
 import { MiddlewareAPI } from '../../../types';
@@ -47,16 +39,10 @@ describe('createEnhancedReducerHook', () => {
     callBefore: Function;
     callAfter: Function;
   }) => ({ getState }: MiddlewareAPI) => {
-    return (next: any) => (action: any) => {
+    return (next: any) => async (action: any) => {
       callBefore(getState());
-      next(action);
-      // eslint-disable-next-line @typescript-eslint/camelcase
-      unstable_scheduleCallback(
-        // eslint-disable-next-line @typescript-eslint/camelcase
-        unstable_NormalPriority,
-        () => callAfter(getState()),
-        {},
-      );
+      await next(action);
+      callAfter(getState());
     };
   };
 
@@ -165,7 +151,7 @@ describe('createEnhancedReducerHook', () => {
     expect(faker.mock.calls[2][0]).toEqual({ type: 'nothing', payload: 5 });
   });
 
-  test('should work with middlewares that getState()', () => {
+  test('should work with middlewares that getState()', async () => {
     const callBefore = jest.fn();
     const callAfter = jest.fn();
     const logger = makeStatefulMiddleware({ callBefore, callAfter });
@@ -181,11 +167,9 @@ describe('createEnhancedReducerHook', () => {
     let [state, dispatch] = result.current;
     expect(callBefore.mock.calls.length).toBe(0);
     let action: any = { type: 'hi' };
-    act(() => {
-      dispatch(action);
+    await act(() => {
+      return dispatch(action);
     });
-    // eslint-disable-next-line @typescript-eslint/camelcase
-    unstable_advanceTime(100000);
     [state, dispatch] = result.current;
     expect(callBefore.mock.calls.length).toBe(1);
     expect(callAfter.mock.calls.length).toBe(1);
@@ -193,11 +177,11 @@ describe('createEnhancedReducerHook', () => {
     expect(callAfter.mock.calls[0][0]).toEqual({ counter: 1 });
     expect(callAfter.mock.calls[0][0]).toEqual(state);
     action = { type: 'dispatch', payload: 5 };
-    act(() => {
-      dispatch(action);
+    await act(() => {
+      return dispatch(action);
     });
-    // eslint-disable-next-line @typescript-eslint/camelcase
-    unstable_advanceTime(100000);
+    expect(callBefore.mock.calls.length).toBe(2);
+    expect(callAfter.mock.calls.length).toBe(2);
     expect(callBefore.mock.calls[1][0]).toEqual({ counter: 1 });
     expect(callAfter.mock.calls[1][0]).toEqual({ counter: 2 });
   });

@@ -15,4 +15,5 @@ export const DispatchContext = React.createContext((value: ActionTypes) => {
       );
     }
   }
+  return Promise.resolve();
 });

@@ -227,7 +227,7 @@ describe('useResourceNew()', () => {
 
     const tree = (
       <StateContext.Provider value={state}>
-        <DispatchContext.Provider value={() => {}}>
+        <DispatchContext.Provider value={() => Promise.resolve()}>
           <Suspense fallback={<Fallback />}>
             <ArticleComponentTester />
           </Suspense>{' '}
@@ -297,7 +297,7 @@ describe('useResourceNew()', () => {
 
     const tree = (
       <StateContext.Provider value={state}>
-        <DispatchContext.Provider value={() => {}}>
+        <DispatchContext.Provider value={() => Promise.resolve()}>
           <Suspense fallback={<Fallback />}>
             <ArticleComponentTester invalidIfStale />
           </Suspense>

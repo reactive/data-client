@@ -1,4 +1,5 @@
 import { Schema } from '~/resource';
+import { Dispatch } from '~/types';
 import { Subscription, SubscriptionInit } from './SubscriptionManager';
 
 /**
@@ -12,13 +13,13 @@ export default class PollingSubscription implements Subscription {
   protected readonly url: string;
   protected frequency: number;
   protected frequencyHistogram: Map<number, number> = new Map();
-  protected dispatch: React.Dispatch<any>;
+  protected dispatch: Dispatch<any>;
   protected intervalId?: NodeJS.Timeout;
   protected lastIntervalId?: NodeJS.Timeout;
 
   constructor(
     { url, schema, fetch, frequency }: SubscriptionInit,
-    dispatch: React.Dispatch<any>,
+    dispatch: Dispatch<any>,
   ) {
     if (frequency === undefined)
       throw new Error('frequency needed for polling subscription');

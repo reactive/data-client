@@ -4,6 +4,7 @@ import {
   SubscribeAction,
   UnsubscribeAction,
   Manager,
+  Dispatch,
 } from '~/types';
 import { Schema } from '~/resource';
 
@@ -26,7 +27,7 @@ export interface Subscription {
 
 /** The static class that constructs Subscription */
 export interface SubscriptionConstructable {
-  new (init: SubscriptionInit, dispatch: React.Dispatch<any>): Subscription;
+  new (init: SubscriptionInit, dispatch: Dispatch<any>): Subscription;
 }
 
 /** Handles subscription actions -> fetch or receive actions
@@ -56,10 +57,7 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
   /** Called when middleware intercepts 'rest-hooks/subscribe' action.
    *
    */
-  protected handleSubscribe(
-    action: SubscribeAction,
-    dispatch: React.Dispatch<any>,
-  ) {
+  protected handleSubscribe(action: SubscribeAction, dispatch: Dispatch<any>) {
     const url = action.meta.url;
     if (url in this.subscriptions) {
       this.subscriptions[url].add(action.meta.frequency);
@@ -81,7 +79,7 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
    */
   protected handleUnsubscribe(
     action: UnsubscribeAction,
-    dispatch: React.Dispatch<any>,
+    dispatch: Dispatch<any>,
   ) {
     const url = action.meta.url;
     if (url in this.subscriptions) {
@@ -106,16 +104,14 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
     return <R extends React.Reducer<any, A>, A extends Actions>({
       dispatch,
     }: MiddlewareAPI<R>) => {
-      return (next: React.Dispatch<React.ReducerAction<R>>) => (
-        action: Actions,
-      ) => {
+      return (next: Dispatch<R>) => (action: Actions) => {
         switch (action.type) {
           case 'rest-hooks/subscribe':
             this.handleSubscribe(action, dispatch);
-            return;
+            return Promise.resolve();
           case 'rest-hooks/unsubscribe':
             this.handleUnsubscribe(action, dispatch);
-            return;
+            return Promise.resolve();
           default:
             return next(action);
         }

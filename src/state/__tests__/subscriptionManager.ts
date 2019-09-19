@@ -71,7 +71,7 @@ describe('SubscriptionManager', () => {
     const manager = new SubscriptionManager(TestSubscription);
     const middleware = manager.getMiddleware();
     const next = jest.fn();
-    const dispatch = () => {};
+    const dispatch = () => Promise.resolve();
 
     it('subscribe should add a subscription', () => {
       const action = createSubscribeAction({ id: 5 });

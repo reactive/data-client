@@ -5,13 +5,10 @@ import {
   MiddlewareAPI,
   Manager,
   PurgeAction,
+  Dispatch,
 } from '~/types';
 import { RPCAction } from '..';
-
-export const RIC: (cb: (...args: any[]) => void, options: any) => void =
-  typeof (global as any).requestIdleCallback === 'function'
-    ? (global as any).requestIdleCallback
-    : cb => global.setTimeout(cb, 0);
+import RIC from './RIC';
 
 /** Handles all async network dispatches
  *
@@ -55,7 +52,7 @@ export default class NetworkManager implements Manager {
    * Uses throttle only when instructed by action meta. This is valuable
    * for ensures mutation requests always go through.
    */
-  protected handleFetch(action: FetchAction, dispatch: React.Dispatch<any>) {
+  protected handleFetch(action: FetchAction, dispatch: Dispatch<any>) {
     const fetch = action.payload;
     const {
       schema,
@@ -126,23 +123,18 @@ export default class NetworkManager implements Manager {
    * Will resolve the promise associated with receive url.
    */
   protected handleReceive(action: ReceiveAction) {
-    const completePromise = () => {
-      // this can still turn out to be untrue since this is async
-      if (action.meta.url in this.fetched) {
-        let promiseHandler: (value?: any) => void;
-        if (action.error) {
-          promiseHandler = this.rejectors[action.meta.url];
-        } else {
-          promiseHandler = this.resolvers[action.meta.url];
-        }
-        promiseHandler(action.payload);
-        // since we're resolved we no longer need to keep track of this promise
-        this.clear(action.meta.url);
+    // this can still turn out to be untrue since this is async
+    if (action.meta.url in this.fetched) {
+      let promiseHandler: (value?: any) => void;
+      if (action.error) {
+        promiseHandler = this.rejectors[action.meta.url];
+      } else {
+        promiseHandler = this.resolvers[action.meta.url];
       }
-    };
-    // TODO: this should call after the reducer has been updated
-    // in all concurrent fibers
-    RIC(completePromise, { timeout: 1000 });
+      promiseHandler(action.payload);
+      // since we're resolved we no longer need to keep track of this promise
+      this.clear(action.meta.url);
+    }
   }
 
   /** Attaches NetworkManager to store
@@ -156,29 +148,27 @@ export default class NetworkManager implements Manager {
     return <R extends React.Reducer<any, any>>({
       dispatch,
     }: MiddlewareAPI<R>) => {
-      return (next: React.Dispatch<React.ReducerAction<R>>) => (
+      return (next: Dispatch<R>) => (
         action: React.ReducerAction<R>,
-      ) => {
+      ): Promise<void> => {
         switch (action.type) {
           case 'rest-hooks/fetch':
             this.handleFetch(action, dispatch);
-            return;
+            return Promise.resolve();
           case 'rest-hooks/purge':
           case 'rest-hooks/rpc':
           case 'rest-hooks/receive':
             // only receive after new state is computed
-            next(action);
-            if (action.meta.url in this.fetched) {
-              this.handleReceive(action);
-            }
-            return;
+            return next(action).then(() => {
+              if (action.meta.url in this.fetched) {
+                this.handleReceive(action);
+              }
+            });
           case 'rest-hooks/reset':
             this.cleanup();
-            next(action);
-            return;
+            return next(action);
           default:
-            next(action);
-            return;
+            return next(action);
         }
       };
     };

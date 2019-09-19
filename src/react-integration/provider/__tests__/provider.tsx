@@ -36,7 +36,7 @@ describe('<CacheProvider />', () => {
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
     rerender(
-      <DispatchContext.Provider value={() => null}>
+      <DispatchContext.Provider value={() => Promise.resolve()}>
         {chil}
       </DispatchContext.Provider>,
     );
