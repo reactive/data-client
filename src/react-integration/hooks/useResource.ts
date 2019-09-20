@@ -65,16 +65,15 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
       useRetrieve(select, params),
     )
     // only wait on promises without results
-    .filter((p, i) => p && !hasUsableData(resources[i], resourceList[i][0]));
-
-  const promiseDeps = (promises as unknown[]).concat([promises.length]);
+    .map((p, i) => !hasUsableData(resources[i], resourceList[i][0]) && p);
 
   const promise = useMemo(() => {
-    if (promises.length) {
-      return Promise.all(promises);
+    const activePromises = promises.filter(p => p);
+    if (activePromises.length) {
+      return Promise.all(activePromises);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, promiseDeps);
+  }, promises);
 
   if (promise) throw promise;
 
