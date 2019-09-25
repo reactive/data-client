@@ -74,6 +74,13 @@ export default function reducer(
           },
         },
       };
+    case 'rest-hooks/reset': {
+      return {
+        entities: {},
+        meta: {},
+        results: {},
+      };
+    }
 
     default:
       // If 'fetch' action reaches the reducer there are no middlewares installed to handle it
