@@ -1,5 +1,5 @@
 import React from 'react';
-import { FSAWithPayloadAndMeta, FSAWithMeta } from 'flux-standard-action';
+import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
 import { ErrorableFSAWithPayloadAndMeta, ErrorableFSAWithMeta } from './fsa';
 import { Schema, schemas } from './resource';
 
@@ -61,6 +61,8 @@ export type PurgeAction = ErrorableFSAWithMeta<
   PurgeMeta
 >;
 
+export type ResetAction = FSA<'rest-hooks/reset'>;
+
 export interface FetchAction<
   Payload extends object | string | number = object | string | number
 >
@@ -113,7 +115,8 @@ export type ActionTypes =
   | PurgeAction
   | SubscribeAction
   | UnsubscribeAction
-  | InvalidateAction;
+  | InvalidateAction
+  | ResetAction;
 
 export type Middleware = <R extends React.Reducer<any, any>>({
   dispatch,

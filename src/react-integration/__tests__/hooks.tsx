@@ -19,6 +19,7 @@ import {
   useCache,
   useResultCache,
   useInvalidator,
+  useReset,
 } from '../hooks';
 import { initialState } from '../../state/reducer';
 import { State, ActionTypes } from '../../types';
@@ -193,6 +194,44 @@ describe('useInvalidate', () => {
     const { rerender } = renderHook(() => {
       const invalidate = useInvalidator(PaginatedArticleResource.listShape());
       useEffect(track, [invalidate]);
+    });
+    expect(track.mock.calls.length).toBe(1);
+    for (let i = 0; i < 4; ++i) {
+      rerender();
+    }
+    expect(track.mock.calls.length).toBe(1);
+  });
+});
+
+describe('useReset', () => {
+  it('should return a function that dispatches an action to reset the cache', () => {
+    const state = mockInitialState([
+      {
+        request: PaginatedArticleResource.listShape(),
+        params: {},
+        result: articlesPages,
+      },
+    ]);
+    const dispatch = jest.fn();
+    let reset: any;
+    testRestHook(
+      () => {
+        reset = useReset();
+      },
+      state,
+      dispatch,
+    );
+    reset({});
+    expect(dispatch).toHaveBeenCalledWith({
+      type: 'rest-hooks/reset',
+    });
+  });
+  it('should return the same === function each time', () => {
+    const track = jest.fn();
+
+    const { rerender } = renderHook(() => {
+      const reset = useReset();
+      useEffect(track, [reset]);
     });
     expect(track.mock.calls.length).toBe(1);
     for (let i = 0; i < 4; ++i) {
