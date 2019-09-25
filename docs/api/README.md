@@ -16,7 +16,7 @@ title: API Reference
 - [useSubscription](useSubscription.md)
 - [useRetrieve](useRetrieve.md)
 - [useInvalidator](useInvalidator.md)
-- [useReset](useReset.md)
+- [useResetter](useResetter.md)
 
 ## Components
 - [CacheProvider](CacheProvider.md)

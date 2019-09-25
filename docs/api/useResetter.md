@@ -1,9 +1,9 @@
 ---
-title: useReset()
+title: useResetter()
 ---
 
 ```typescript
-function useReset(): () => void;
+function useResetter(): () => void;
 ```
 
 Mostly useful for imperatively resetting the cache.
@@ -32,7 +32,7 @@ const USER_NUMBER_ONE: string = "1111";
 
 function UserName() {
   const user = useResource(CurrentUserResource.detailShape(), { });
-  const resetCache = useReset();
+  const resetCache = useResetter();
 
   const becomeAdmin = useCallback(() => {
     // Changes the current user

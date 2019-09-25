@@ -9,7 +9,7 @@ import useSubscription from './useSubscription';
 import useMeta from './useMeta';
 import useError from './useError';
 import useInvalidator from './useInvalidator';
-import useReset from './useReset';
+import useResetter from './useResetter';
 
 export {
   useFetcher,
@@ -23,5 +23,5 @@ export {
   useSubscription,
   useMeta,
   useInvalidator,
-  useReset,
+  useResetter,
 };

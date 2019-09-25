@@ -82,7 +82,7 @@
           "api/useSubscription",
           "api/useRetrieve",
           "api/useInvalidator",
-          "api/useReset"
+          "api/useResetter"
         ]
       },
       {

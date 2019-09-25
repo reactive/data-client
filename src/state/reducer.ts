@@ -74,11 +74,8 @@ export default function reducer(
           },
         },
       };
-    case 'rest-hooks/reset': {
-      return {
-        ...initialState,
-      };
-    }
+    case 'rest-hooks/reset':
+      return initialState;
 
     default:
       // If 'fetch' action reaches the reducer there are no middlewares installed to handle it

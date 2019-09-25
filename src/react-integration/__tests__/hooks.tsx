@@ -19,7 +19,7 @@ import {
   useCache,
   useResultCache,
   useInvalidator,
-  useReset,
+  useResetter,
 } from '../hooks';
 import { initialState } from '../../state/reducer';
 import { State, ActionTypes } from '../../types';
@@ -203,7 +203,7 @@ describe('useInvalidate', () => {
   });
 });
 
-describe('useReset', () => {
+describe('useResetter', () => {
   it('should return a function that dispatches an action to reset the cache', () => {
     const state = mockInitialState([
       {
@@ -216,7 +216,7 @@ describe('useReset', () => {
     let reset: any;
     testRestHook(
       () => {
-        reset = useReset();
+        reset = useResetter();
       },
       state,
       dispatch,
@@ -230,7 +230,7 @@ describe('useReset', () => {
     const track = jest.fn();
 
     const { rerender } = renderHook(() => {
-      const reset = useReset();
+      const reset = useResetter();
       useEffect(track, [reset]);
     });
     expect(track.mock.calls.length).toBe(1);
