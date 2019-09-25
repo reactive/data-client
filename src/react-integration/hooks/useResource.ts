@@ -20,7 +20,7 @@ function useOneResource<
 >(
   fetchShape: ReadShape<S, Params, Body>,
   params: Params | null,
-): typeof params extends null ? null : NonNullable<typeof resource> {
+): CondNull<typeof params, NonNullable<SchemaOf<S>>> {
   // maybePromise is undefined when data is stale or params is null
   const maybePromise = useRetrieve(fetchShape, params);
   // resource is null when it is not in cache or params is null
