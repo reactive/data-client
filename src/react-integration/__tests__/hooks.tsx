@@ -465,7 +465,7 @@ describe('useResource()', () => {
           return e;
         } else {
           // TODO: we're not handling suspense properly so react complains
-          // When upgrading test util we should be able to fix this as we'll suspense ourselves.
+          // When upgrading test until we should be able to fix this as we'll suspense ourselves.
           if (e.name === 'Invariant Violation') {
             return null;
           } else {
@@ -489,7 +489,7 @@ describe('useResource()', () => {
     expect(result.current).toBe(firstPromise);
 
     // TODO: we're not handling suspense properly so react complains
-    // When upgrading test util we should be able to fix this as we'll suspense ourselves.
+    // When upgrading test until we should be able to fix this as we'll suspense ourselves.
     const oldError = console.error;
     console.error = () => {};
     jest.runAllTimers();
