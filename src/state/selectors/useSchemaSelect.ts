@@ -15,7 +15,7 @@ export default function useSchemaSelect<
   }: Pick<ReadShape<S, Params, any>, 'schema' | 'getFetchKey'>,
   params: Params | null,
   state: State<any>,
-): SchemaOf<typeof schema> | null {
+): typeof params extends null ? null : (SchemaOf<typeof schema> | null) {
   const denormalized = useDenormalized({ schema, getFetchKey }, params, state);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getItemsFromResults = useMemo(() => resultFinderFromSchema(schema), []);
@@ -26,7 +26,7 @@ export default function useSchemaSelect<
         : denormalized,
     [denormalized, getItemsFromResults],
   );
-  return output;
+  return output as any;
 }
 
 // TODO: there should honestly be a way to use the pre-existing normalizr object
