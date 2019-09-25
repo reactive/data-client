@@ -61,9 +61,7 @@ export type PurgeAction = ErrorableFSAWithMeta<
   PurgeMeta
 >;
 
-export type ResetAction = FSA<
-  'rest-hooks/reset'
->;
+export type ResetAction = FSA<'rest-hooks/reset'>;
 
 export interface FetchAction<
   Payload extends object | string | number = object | string | number

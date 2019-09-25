@@ -6,14 +6,11 @@ import { DispatchContext } from '~/react-integration/context';
 export default function useReset(): () => void {
   const dispatch = useContext(DispatchContext);
 
-  const resetDispatcher = useCallback(
-    () => {
-      dispatch({
-        type: 'rest-hooks/reset',
-      });
-    },
-    [dispatch],
-  );
+  const resetDispatcher = useCallback(() => {
+    dispatch({
+      type: 'rest-hooks/reset',
+    });
+  }, [dispatch]);
 
   return resetDispatcher;
 }
