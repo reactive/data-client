@@ -74,5 +74,5 @@ export const nested = [
 ];
 
 describe('fixtures', () => {
-  it('should pass', () => {})
+  it('should pass', () => {});
 });
