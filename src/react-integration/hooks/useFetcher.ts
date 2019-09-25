@@ -34,8 +34,8 @@ export default function useFetcher<
       const identifier = isDeleteShape(shapeRef.current)
         ? (schema as any).getId(params)
         : key;
-      let resolve: (value?: any | PromiseLike<any>) => void = () => undefined;
-      let reject: (reason?: any) => void = () => undefined;
+      let resolve: (value?: any | PromiseLike<any>) => void = 0 as any;
+      let reject: (reason?: any) => void = 0 as any;
       const promise = new Promise<any>((a, b) => {
         [resolve, reject] = [a, b];
       });
