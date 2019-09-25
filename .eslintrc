@@ -11,11 +11,12 @@
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": { "project": "./tsconfig.json" },
-  "plugins": ["react-hooks"],
+  "plugins": ["prettier", "react-hooks"],
   "env": {
     "jest": true
   },
   "rules": {
+    "prettier/prettier": "error",
     "react/prop-types": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "error",

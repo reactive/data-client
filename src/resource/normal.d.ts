@@ -140,8 +140,7 @@ export type Denormalized<S> = S extends schemas.Entity<infer T>
         : never
     >
   : S extends schemas.Union<infer Choices>
-  ? // TODO: typescript 3.7 make this recursive instead
-    (Choices[keyof Choices] extends schemas.Entity<infer T> ? T : never)
+  ? (Choices[keyof Choices] extends schemas.Entity<infer T> ? T : never) // TODO: typescript 3.7 make this recursive instead
   : S extends schemas.Object<any, infer O>
   ? { [K in keyof O]: O[K] extends Schema ? Denormalized<O[K]> : O[K] }
   : S extends { [key: string]: any }
@@ -161,9 +160,8 @@ export type ResultType<S> = S extends schemas.Entity
       Choices extends schemas.EntityMap
         ? UnionResult<Choices>
         : Choices extends schemas.Entity
-        ? ReturnType<Choices['getId']>
-        : // TODO: typescript 3.7 let's us make this recursive
-          never
+        ? ReturnType<Choices['getId']> // TODO: typescript 3.7 let's us make this recursive
+        : never
     >
   : S extends schemas.Union<infer Choices>
   ? UnionResult<Choices>
