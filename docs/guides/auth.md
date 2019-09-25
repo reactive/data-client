@@ -7,7 +7,7 @@ defined in your `Resource`.
 Here's an example using simple cookie auth:
 
 ```typescript
-import { Request } from 'rest-hooks';
+import { Request } from 'superagent';
 
 class AuthdResource extends Resource {
   static fetchPlugin = (request: Request) => request.withCredentials();
