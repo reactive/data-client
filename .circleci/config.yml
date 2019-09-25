@@ -28,7 +28,7 @@ jobs:
 
       # run tests!
       - run: yarn run lint src
-      - run: yarn run test:ci
+      - run: yarn run test:ci --maxWorkers=2
       - run: yarn run build
 
       # only run coverage if repo token is available (so third parties don't fail the build)
