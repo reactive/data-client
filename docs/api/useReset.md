@@ -2,14 +2,9 @@
 title: useReset()
 ---
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Type-->
-
 ```typescript
 function useReset(): () => void;
 ```
-
-<!--END_DOCUSAURUS_CODE_TABS-->
 
 Mostly useful for imperatively resetting the cache.
 
@@ -33,7 +28,6 @@ export default class CurrentUserResource extends Resource {
 ```
 
 ```tsx
-
 const USER_NUMBER_ONE: string = "1111";
 
 function UserName() {

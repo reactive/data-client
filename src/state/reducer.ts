@@ -76,9 +76,7 @@ export default function reducer(
       };
     case 'rest-hooks/reset': {
       return {
-        entities: {},
-        meta: {},
-        results: {},
+        ...initialState,
       };
     }
 

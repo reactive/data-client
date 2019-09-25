@@ -262,7 +262,7 @@ describe('reducer', () => {
     const newState = reducer(iniState, action);
     expect(newState).toBe(iniState);
   });
-  it('reset should delete all entities', () => {
+  it('reset should delete all entries', () => {
     const action: ResetAction = {
       type: 'rest-hooks/reset',
     };
