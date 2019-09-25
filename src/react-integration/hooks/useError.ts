@@ -1,6 +1,8 @@
 import { ReadShape, Schema, RequestResource } from '~/resource';
 import useMeta from './useMeta';
 
+type UseErrorReturn<P> = P extends null ? undefined : Error;
+
 /** Access a resource or error if failed to get it */
 export default function useError<
   Params extends Readonly<object>,
@@ -10,8 +12,9 @@ export default function useError<
   fetchShape: ReadShape<S, Params, Body>,
   params: Params | null,
   resource: RequestResource<typeof fetchShape> | null,
-) {
+): UseErrorReturn<typeof params> {
   const meta = useMeta(fetchShape, params);
+  if (!params) return;
   if (!resource) {
     if (!meta) return;
     if (!meta.error) {
@@ -24,7 +27,7 @@ export default function useError<
       err.status = 404;
       return err;
     } else {
-      return meta.error;
+      return meta.error as any;
     }
   }
 }

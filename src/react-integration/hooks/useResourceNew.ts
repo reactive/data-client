@@ -1,8 +1,10 @@
-import { ReadShape, Schema, RequestResource, SchemaOf } from '~/resource';
+import { ReadShape, Schema, SchemaOf } from '~/resource';
 import useCacheNew from './useCacheNew';
 import useRetrieve from './useRetrieve';
 import useError from './useError';
 import { useMemo } from 'react';
+
+import hasUsableData from './hasUsableData';
 
 type ResourceArgs<
   S extends Schema,
@@ -10,40 +12,25 @@ type ResourceArgs<
   Body extends Readonly<object | string> | void
 > = [ReadShape<S, Params, Body>, Params | null];
 
-/** If the invalidIfStale option is set we suspend if resource has expired */
-function hasUsableData<
-  S extends Schema,
-  Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void
->(
-  resource: RequestResource<ReadShape<S, Params, Body>> | null,
-  fetchShape: ReadShape<S, Params, Body>,
-) {
-  return !(
-    (fetchShape.options && fetchShape.options.invalidIfStale) ||
-    !resource
-  );
-}
-
 /** single form resource */
 function useOneResource<
   Params extends Readonly<object>,
   Body extends Readonly<object | string> | void,
   S extends Schema
->(fetchShape: ReadShape<S, Params, Body>, params: Params | null) {
+>(
+  fetchShape: ReadShape<S, Params, Body>,
+  params: Params | null,
+): typeof params extends null ? null : NonNullable<typeof resource> {
+  // maybePromise is undefined when data is stale or params is null
   const maybePromise = useRetrieve(fetchShape, params);
+  // resource is null when it is not in cache or params is null
   const resource = useCacheNew(fetchShape, params);
-
-  if (
-    !hasUsableData(resource, fetchShape) &&
-    maybePromise &&
-    typeof maybePromise.then === 'function'
-  )
-    throw maybePromise;
   const error = useError(fetchShape, params, resource);
+
+  if (!hasUsableData(resource, fetchShape) && maybePromise) throw maybePromise;
   if (error) throw error;
 
-  return resource as NonNullable<typeof resource>;
+  return resource as any;
 }
 
 /** many form resource */
@@ -55,17 +42,26 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
       Params extends Readonly<object>,
       Body extends Readonly<object | string> | void,
       S extends Schema
-    >([select, params]: ResourceArgs<S, Params, Body>) =>
+    >([fetchShape, params]: ResourceArgs<S, Params, Body>) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      useCacheNew(select, params),
+      useCacheNew(fetchShape, params),
   );
   const promises = resourceList
-    .map(([select, params]) =>
+    .map(([fetchShape, params]) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      useRetrieve(select, params),
+      useRetrieve(fetchShape, params),
     )
     // only wait on promises without results
     .map((p, i) => !hasUsableData(resources[i], resourceList[i][0]) && p);
+
+  // throw first valid error
+  for (let i = 0; i < resourceList.length; i++) {
+    const [fetchShape, params] = resourceList[i];
+    const resource = resources[i];
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const error = useError(fetchShape, params, resource);
+    if (error && !promises[i]) throw error;
+  }
 
   const promise = useMemo(() => {
     const activePromises = promises.filter(p => p);
@@ -77,14 +73,6 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
 
   if (promise) throw promise;
 
-  // throw any errors that exist after all promises have resolved
-  for (let i = 0; i < resourceList.length; i++) {
-    const [fetchShape, params] = resourceList[i];
-    const resource = resources[i];
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const error = useError(fetchShape, params, resource);
-    if (error) throw error;
-  }
   return resources;
 }
 
