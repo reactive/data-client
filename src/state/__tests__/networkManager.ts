@@ -1,5 +1,5 @@
 import NetworkManager from '../NetworkManager';
-import { FetchAction } from '../../types';
+import { FetchAction, ResetAction } from '../../types';
 import { ArticleResource } from '../../__tests__/common';
 
 describe('NetworkManager', () => {
@@ -188,6 +188,50 @@ describe('NetworkManager', () => {
         const { meta } = dispatch.mock.calls[0][0];
         expect(meta.expiresAt - meta.date).toBe(7);
       }
+    });
+    it('should reject current promises on rest-hooks/reset', async () => {
+      const resetAction: ResetAction = { type: 'rest-hooks/reset' };
+      const manager = new NetworkManager(42, 7);
+      const middleware = manager.getMiddleware();
+      let rejection: any;
+
+      let resolve: any, reject: any;
+      const promise: Promise<any> = new Promise((res, rej) => {
+        setTimeout(() => res({ id: 5, title: 'hi' }), 10000);
+        resolve = res;
+        reject = rej;
+      }).catch((e: any) => {
+        rejection = e;
+        throw e;
+      });
+
+      const fetchResolveAction: FetchAction = {
+        type: 'rest-hooks/fetch',
+        payload: () => promise,
+        meta: {
+          schema: ArticleResource.getEntitySchema(),
+          url: ArticleResource.url({ id: 5 }),
+          responseType: 'rest-hooks/receive',
+          throttle: true,
+          resolve,
+          reject,
+        },
+      };
+
+      const next = jest.fn();
+      const dispatch = jest.fn();
+
+      expect(Object.keys((manager as any).rejectors).length).toBe(0);
+      (manager as any).handleFetch(fetchResolveAction, dispatch);
+      expect(Object.keys((manager as any).rejectors).length).toBe(1);
+      middleware({ dispatch, getState })(next)(resetAction);
+
+      expect(next).toHaveBeenCalled();
+
+      await expect(promise).rejects.toBeDefined();
+      expect(rejection).toBeDefined();
+
+      expect(dispatch).not.toHaveBeenCalled();
     });
   });
 });
