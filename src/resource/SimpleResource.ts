@@ -16,7 +16,7 @@ export default abstract class SimpleResource {
   /** Used as base of url construction */
   static readonly urlRoot: string;
   /** A unique identifier for this SimpleResource */
-  abstract pk(): string | number | null;
+  abstract pk(): string | number | undefined;
 
   /** SimpleResource factory. Takes an object of properties to assign to SimpleResource. */
   static fromJS<T extends typeof SimpleResource>(
