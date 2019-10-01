@@ -1,5 +1,4 @@
 import React from 'react';
-import { createStore, applyMiddleware } from 'redux';
 import {
   State,
   reducer,
@@ -15,28 +14,46 @@ type DeepPartialWithUnknown<T> = {
     : (T[K] extends object ? DeepPartialWithUnknown<T[K]> : T[K]);
 };
 
-const makeExternalCacheProvider = (
+let makeExternalCacheProvider: (
   managers: Manager[],
   initialState?: DeepPartialWithUnknown<State<any>>,
-) => {
-  const store = createStore(
-    reducer,
-    initialState,
-    applyMiddleware(...managers.map(manager => manager.getMiddleware())),
-  );
+) => (props: { children: React.ReactNode }) => JSX.Element;
 
-  return function ConfiguredExternalCacheProvider({
-    children,
-  }: {
-    children: React.ReactNode;
-  }) {
-    return (
-      <ExternalCacheProvider store={store} selector={s => s}>
-        {children}
-      </ExternalCacheProvider>
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { createStore, applyMiddleware } = require('redux');
+  makeExternalCacheProvider = (
+    managers: Manager[],
+    initialState?: DeepPartialWithUnknown<State<any>>,
+  ) => {
+    const store = createStore(
+      reducer,
+      initialState,
+      applyMiddleware(...managers.map(manager => manager.getMiddleware())),
+    );
+
+    return function ConfiguredExternalCacheProvider({
+      children,
+    }: {
+      children: React.ReactNode;
+    }) {
+      return (
+        <ExternalCacheProvider store={store} selector={(s: State<any>) => s}>
+          {children}
+        </ExternalCacheProvider>
+      );
+    };
+  };
+} catch (e) {
+  makeExternalCacheProvider = (
+    managers: Manager[],
+    initialState?: DeepPartialWithUnknown<State<any>>,
+  ): ((props: { children: React.ReactNode }) => JSX.Element) => {
+    throw new Error(
+      'Using makeExternalCacheProvider() requires redux to be installed as a peerDependency to rest-hooks',
     );
   };
-};
+}
 
 const makeCacheProvider = (
   managers: Manager[],
