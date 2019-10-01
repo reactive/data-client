@@ -9,7 +9,7 @@ export type AbstractInstanceType<T> = T extends { prototype: infer U }
   ? U
   : never;
 
-export type PK = string | number;
+export type PK = string | number | undefined;
 
 export type State<T> = Readonly<{
   entities: Readonly<{ [k: string]: { [id: string]: T } | undefined }>;
