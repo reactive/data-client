@@ -45,7 +45,6 @@ import {
   ReceiveAction,
   RPCAction,
   PurgeAction,
-  OptimisticUpdateAction,
   Middleware,
   Manager,
 } from './types';
@@ -98,7 +97,6 @@ export type RPCAction<
   Payload extends object | string | number = object | string | number
 > = RPCAction<Payload>;
 export type PurgeAction = PurgeAction;
-export type OptimisticUpdateAction = OptimisticUpdateAction;
 
 export type Middleware = Middleware;
 export type Manager = Manager;

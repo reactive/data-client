@@ -100,6 +100,21 @@ describe('useFetcher', () => {
     }
     await testDispatchFetch(DispatchTester, [payload]);
   });
+  it('should dispatch an action that updates on create if the param is provided', async () => {
+    nock('http://test.com')
+      .post(`/article-cooler/`)
+      .reply(201, payload);
+
+    function DispatchTester() {
+      const create = useFetcher(CoolerArticleResource.createShape());
+      const params = { content: 'hi' };
+      create(params, {}, {
+        [CoolerArticleResource.createShape().getFetchKey(params)]: (result: blah[] | undefined, key: string ) => [...]
+      });
+      return null;
+    }
+    await testDispatchFetch(DispatchTester, [payload]);
+  });
   it('should console.error() a warning when fetching without a Provider', () => {
     const oldError = console.error;
     const spy = (console.error = jest.fn());

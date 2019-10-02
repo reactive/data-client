@@ -1,6 +1,7 @@
 import { useContext, useRef, useCallback } from 'react';
 
 import { FetchShape, Schema, isDeleteShape } from '~/resource';
+import { OptimisticUpdatePayload } from '~/types';
 import { DispatchContext } from '~/react-integration/context';
 
 const SHAPE_TYPE_TO_RESPONSE_TYPE: Record<
@@ -26,7 +27,7 @@ export default function useFetcher<
   shapeRef.current = fetchShape;
 
   const fetchDispatcher = useCallback(
-    (body: Body, params: Params) => {
+    (body: Body, params: Params, optimistUpdatePayload?: OptimisticUpdatePayload) => {
       const { fetch, schema, type, getFetchKey, options } = shapeRef.current;
       const responseType = SHAPE_TYPE_TO_RESPONSE_TYPE[type];
 
@@ -39,6 +40,13 @@ export default function useFetcher<
       const promise = new Promise<any>((a, b) => {
         [resolve, reject] = [a, b];
       });
+
+      if (optimistUpdatePayload) {
+        dispatch({
+          type: 'rest-hooks/optimistic-update',
+          payload: optimistUpdatePayload,
+        })
+      }
 
       dispatch({
         type: 'rest-hooks/fetch',

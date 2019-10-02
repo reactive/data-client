@@ -65,14 +65,9 @@ export type PurgeAction = ErrorableFSAWithMeta<
   PurgeMeta
 >;
 
-type OptimisticUpdatePayload = {
+export type OptimisticUpdatePayload = {
   [key: string]: <T>(result: T | undefined, key: string) => T;
 };
-
-export type OptimisticUpdateAction = ErrorableFSAWithPayload<
-  'rest-hooks/optimistic-update',
-  OptimisticUpdatePayload
->;
 
 export interface FetchAction<
   Payload extends object | string | number = object | string | number
