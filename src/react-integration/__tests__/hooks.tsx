@@ -9,6 +9,7 @@ import {
   CoolerArticleResource,
   UserResource,
   PaginatedArticleResource,
+  ArticleResourceWithOtherListUrl,
   StaticArticleResource,
   InvalidIfStaleArticleResource,
 } from '../../__tests__/common';
@@ -100,7 +101,8 @@ describe('useFetcher', () => {
     }
     await testDispatchFetch(DispatchTester, [payload]);
   });
-  it('should dispatch an action that updates on create if the param is provided', async () => {
+
+  it('should dispatch an action with updater in the meta if update shapes params are passed in', async () => {
     nock('http://test.com')
       .post(`/article-cooler/`)
       .reply(201, payload);
@@ -108,13 +110,43 @@ describe('useFetcher', () => {
     function DispatchTester() {
       const create = useFetcher(CoolerArticleResource.createShape());
       const params = { content: 'hi' };
-      create(params, {}, {
-        [CoolerArticleResource.createShape().getFetchKey(params)]: (result: blah[] | undefined, key: string ) => [...]
-      });
+      create(params, {}, [
+        [
+          CoolerArticleResource.listShape(),
+          {},
+          (article: any, articles: any) => [...articles, article],
+        ],
+      ]);
       return null;
     }
     await testDispatchFetch(DispatchTester, [payload]);
   });
+
+  it('should dispatch an action with multiple updaters in the meta if update shapes params are passed in', async () => {
+    nock('http://test.com')
+      .post(`/article/`)
+      .reply(201, payload);
+
+    function DispatchTester() {
+      const create = useFetcher(ArticleResourceWithOtherListUrl.createShape());
+      const params = { content: 'hi' };
+      create(params, {}, [
+        [
+          ArticleResourceWithOtherListUrl.listShape(),
+          {},
+          (article: any, articles: any) => [...articles, article],
+        ],
+        [
+          ArticleResourceWithOtherListUrl.otherListShape(),
+          {},
+          (article: any, articles: any) => [...articles, article],
+        ],
+      ]);
+      return null;
+    }
+    await testDispatchFetch(DispatchTester, [payload]);
+  });
+
   it('should console.error() a warning when fetching without a Provider', () => {
     const oldError = console.error;
     const spy = (console.error = jest.fn());
@@ -131,6 +163,7 @@ describe('useFetcher', () => {
     `);
     console.error = oldError;
   });
+
   it('should dispatch an action that fetches a partial update', async () => {
     nock('http://test.com')
       .patch(`/article-cooler/1`)
@@ -143,6 +176,7 @@ describe('useFetcher', () => {
     }
     await testDispatchFetch(DispatchTester, [payload]);
   });
+
   it('should dispatch an action that fetches a full update', async () => {
     nock('http://test.com')
       .put(`/article-cooler/1`)

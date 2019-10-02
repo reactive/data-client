@@ -1,5 +1,12 @@
 import { memoize } from 'lodash';
-import { FetchAction, ReceiveAction, MiddlewareAPI, Manager } from '~/types';
+import {
+  FetchAction,
+  ReceiveAction,
+  MiddlewareAPI,
+  Manager,
+  PurgeAction,
+} from '~/types';
+import { RPCAction } from '..';
 
 export const RIC: (cb: (...args: any[]) => void, options: any) => void =
   typeof (global as any).requestIdleCallback === 'function'
@@ -69,13 +76,16 @@ export default class NetworkManager implements Manager {
       fetch()
         .then(data => {
           const now = Date.now();
-          const meta = {
+          const meta:
+            | ReceiveAction['meta']
+            | RPCAction['meta']
+            | PurgeAction['meta'] = {
             schema,
             url,
             date: now,
             expiresAt: now + dataExpiryLength,
           };
-          if (responseType === 'rest-hooks/receive') {
+          if (['rest-hooks/receive', 'rest-hooks/rpc'].includes(responseType)) {
             meta.updaters = updaters;
           }
           dispatch({

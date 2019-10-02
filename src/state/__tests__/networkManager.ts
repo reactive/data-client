@@ -51,6 +51,25 @@ describe('NetworkManager', () => {
         resolve: (v: any) => null,
       },
     };
+    const fetchReceiveWithUpdatersAction: FetchAction = {
+      ...fetchResolveAction,
+      meta: {
+        ...fetchResolveAction.meta,
+        updaters: {
+          [ArticleResource.listUrl()]: () => (
+            result: string[],
+            oldResults: string[] | undefined,
+          ) => [...(oldResults || []), result] as any,
+        },
+      },
+    };
+    const fetchRpcWithUpdatersAction: FetchAction = {
+      ...fetchReceiveWithUpdatersAction,
+      meta: {
+        ...fetchReceiveWithUpdatersAction.meta,
+        responseType: 'rest-hooks/rpc',
+      },
+    };
     const fetchRejectAction: FetchAction = {
       type: 'rest-hooks/fetch',
       payload: () => Promise.reject(new Error('Failed')),
@@ -80,6 +99,56 @@ describe('NetworkManager', () => {
         meta: {
           schema: fetchResolveAction.meta.schema,
           url: fetchResolveAction.meta.url,
+          date: expect.any(Number),
+          expiresAt: expect.any(Number),
+        },
+      });
+    });
+    it('should handle fetch receive action and dispatch on success with updaters', async () => {
+      const middleware = new NetworkManager(42, 7).getMiddleware();
+
+      const next = jest.fn();
+      const dispatch = jest.fn();
+
+      middleware({ dispatch, getState })(next)(fetchReceiveWithUpdatersAction);
+
+      const data = await fetchReceiveWithUpdatersAction.payload();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(dispatch).toHaveBeenCalledWith({
+        type: fetchReceiveWithUpdatersAction.meta.responseType,
+        payload: data,
+        meta: {
+          updaters: {
+            [ArticleResource.listUrl()]: expect.any(Function),
+          },
+          schema: fetchReceiveWithUpdatersAction.meta.schema,
+          url: fetchReceiveWithUpdatersAction.meta.url,
+          date: expect.any(Number),
+          expiresAt: expect.any(Number),
+        },
+      });
+    });
+    it('should handle fetch rpc action and dispatch on success with updaters', async () => {
+      const middleware = new NetworkManager(42, 7).getMiddleware();
+
+      const next = jest.fn();
+      const dispatch = jest.fn();
+
+      middleware({ dispatch, getState })(next)(fetchRpcWithUpdatersAction);
+
+      const data = await fetchRpcWithUpdatersAction.payload();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(dispatch).toHaveBeenCalledWith({
+        type: fetchRpcWithUpdatersAction.meta.responseType,
+        payload: data,
+        meta: {
+          updaters: {
+            [ArticleResource.listUrl()]: expect.any(Function),
+          },
+          schema: fetchRpcWithUpdatersAction.meta.schema,
+          url: fetchRpcWithUpdatersAction.meta.url,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
         },
