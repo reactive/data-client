@@ -62,6 +62,9 @@
       "api/useInvalidator": {
         "title": "useInvalidator()"
       },
+      "api/useResetter": {
+        "title": "useResetter()"
+      },
       "api/useresource": {
         "title": "useResource()"
       },

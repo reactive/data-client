@@ -1,10 +1,6 @@
 import React from 'react';
-import { FSAWithPayloadAndMeta, FSAWithMeta } from 'flux-standard-action';
-import {
-  ErrorableFSAWithPayloadAndMeta,
-  ErrorableFSAWithMeta,
-  ErrorableFSAWithPayload,
-} from './fsa';
+import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
+import { ErrorableFSAWithPayloadAndMeta, ErrorableFSAWithMeta } from './fsa';
 import { Schema, schemas } from './resource';
 
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
@@ -37,6 +33,7 @@ export interface RequestOptions {
 interface ReceiveMeta {
   schema: Schema;
   url: string;
+  updaters: { [key: string]: OptimisticUpdateFunction } | undefined,
   date: number;
   expiresAt: number;
 }
@@ -65,9 +62,12 @@ export type PurgeAction = ErrorableFSAWithMeta<
   PurgeMeta
 >;
 
-export type OptimisticUpdatePayload = {
-  [key: string]: <T>(result: T | undefined, key: string) => T;
-};
+export type OptimisticUpdateFunction = (
+  fromResults: any,
+  resultsFromList: any,
+) => any;
+
+export type ResetAction = FSA<'rest-hooks/reset'>;
 
 export interface FetchAction<
   Payload extends object | string | number = object | string | number
@@ -80,6 +80,7 @@ export interface FetchAction<
   meta: {
     schema?: Schema;
     url: string;
+    updaters: { [key: string]: OptimisticUpdateFunction } | undefined;
     responseType: 'rest-hooks/rpc' | 'rest-hooks/receive' | 'rest-hooks/purge';
     throttle: boolean;
     options?: RequestOptions;
@@ -119,10 +120,10 @@ export type ActionTypes =
   | ReceiveAction
   | RPCAction
   | PurgeAction
-  | OptimisticUpdateAction
   | SubscribeAction
   | UnsubscribeAction
-  | InvalidateAction;
+  | InvalidateAction
+  | ResetAction;
 
 export type Middleware = <R extends React.Reducer<any, any>>({
   dispatch,

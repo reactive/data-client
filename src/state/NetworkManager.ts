@@ -27,7 +27,9 @@ export default class NetworkManager implements Manager {
   /** Ensures all promises are completed by rejecting remaining. */
   cleanup() {
     for (const k in this.rejectors) {
-      this.rejectors[k](new Error('Cleaning up Network Manager'));
+      const error = new Error('Cleaning up Network Manager');
+      error.name = 'CLEANUP';
+      this.rejectors[k](error);
     }
   }
 
@@ -54,6 +56,7 @@ export default class NetworkManager implements Manager {
       responseType,
       throttle,
       resolve,
+      updaters,
       reject,
       options = {},
     } = action.meta;
@@ -66,19 +69,24 @@ export default class NetworkManager implements Manager {
       fetch()
         .then(data => {
           const now = Date.now();
+          const meta = {
+            schema,
+            url,
+            date: now,
+            expiresAt: now + dataExpiryLength,
+          };
+          if (responseType === 'rest-hooks/receive') {
+            meta.updaters = updaters;
+          }
           dispatch({
             type: responseType,
             payload: data,
-            meta: {
-              schema,
-              url,
-              date: now,
-              expiresAt: now + dataExpiryLength,
-            },
+            meta,
           });
           return data;
         })
         .catch(error => {
+          if (error.name === 'CLEANUP') return;
           const now = Date.now();
           dispatch({
             type: responseType,
@@ -153,6 +161,10 @@ export default class NetworkManager implements Manager {
             if (action.meta.url in this.fetched) {
               this.handleReceive(action);
             }
+            return;
+          case 'rest-hooks/reset':
+            this.cleanup();
+            next(action);
             return;
           default:
             next(action);

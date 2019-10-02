@@ -16,6 +16,7 @@ title: API Reference
 - [useSubscription](useSubscription.md)
 - [useRetrieve](useRetrieve.md)
 - [useInvalidator](useInvalidator.md)
+- [useResetter](useResetter.md)
 
 ## Components
 - [CacheProvider](CacheProvider.md)
@@ -40,4 +41,3 @@ to production themselves.
 - [makeRenderRestHook()](makeRenderRestHook)
 - [makeCacheProvider()](makeCacheProvider)
 - [makeExternalCacheProvider()](makeExternalCacheProvider)
-

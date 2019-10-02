@@ -137,23 +137,20 @@ describe('useResourceNewNew()', () => {
         );
         return article;
       } catch (e) {
+        // TODO: we're not handling suspense properly so react complains
+        // When upgrading test util we should be able to fix this as we'll suspense ourselves.
         if (typeof e.then === 'function') {
           return e;
         } else {
-          // TODO: we're not handling suspense properly so react complains
-          // When upgrading test util we should be able to fix this as we'll suspense ourselves.
-          if (e.name === 'Invariant Violation') {
-            return null;
-          } else {
-            throw e;
-          }
+          throw e;
         }
       }
     }
-    const { rerender, result, waitForNextUpdate } = renderRestHook(
-      MultiResourceTester,
-    );
+    const { rerender, result } = renderRestHook(MultiResourceTester);
     const firstPromise = result.current;
+    expect(firstPromise).toBeDefined();
+    expect(typeof firstPromise.then).toBe('function');
+
     jest.advanceTimersByTime(50);
     rerender();
     expect(result.current).toBe(firstPromise);
@@ -171,7 +168,19 @@ describe('useResourceNewNew()', () => {
     jest.runAllTimers();
     await result.current;
     rerender();
-    expect(result.current).toBe(null);
+    expect(result.current).toMatchInlineSnapshot(`
+      CoolerArticleResource {
+        "author": null,
+        "content": "whatever",
+        "id": 5,
+        "tags": Array [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      }
+    `);
     // eslint-disable-next-line require-atomic-updates
     console.error = oldError;
   });

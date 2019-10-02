@@ -3,6 +3,7 @@ import { useContext, useRef, useCallback } from 'react';
 import { FetchShape, Schema, isDeleteShape } from '~/resource';
 import { OptimisticUpdatePayload } from '~/types';
 import { DispatchContext } from '~/react-integration/context';
+import createUpdater from './createUpdater';
 
 const SHAPE_TYPE_TO_RESPONSE_TYPE: Record<
   FetchShape<any, any, any>['type'],
@@ -27,7 +28,8 @@ export default function useFetcher<
   shapeRef.current = fetchShape;
 
   const fetchDispatcher = useCallback(
-    (body: Body, params: Params, optimistUpdatePayload?: OptimisticUpdatePayload) => {
+    // TODO: Type payload better
+    (body: Body, params: Params, updateShapeParams?: any[]) => {
       const { fetch, schema, type, getFetchKey, options } = shapeRef.current;
       const responseType = SHAPE_TYPE_TO_RESPONSE_TYPE[type];
 
@@ -41,11 +43,19 @@ export default function useFetcher<
         [resolve, reject] = [a, b];
       });
 
-      if (optimistUpdatePayload) {
-        dispatch({
-          type: 'rest-hooks/optimistic-update',
-          payload: optimistUpdatePayload,
-        })
+      let updaters;
+      if (updateShapeParams) {
+        updaters = updateShapeParams.reduce(
+          (accumulator: object, [toShape, toParams, updateFn]) => ({
+            [toShape.getFetchKey(toParams)]: createUpdater(
+              schema,
+              toShape.schema,
+              updateFn,
+            ),
+            ...accumulator,
+          }),
+          {},
+        );
       }
 
       dispatch({
@@ -53,6 +63,7 @@ export default function useFetcher<
         payload: () => fetch(params, body),
         meta: {
           schema,
+          updaters,
           responseType,
           url: identifier,
           throttle,

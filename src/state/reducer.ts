@@ -30,12 +30,25 @@ export default function reducer(
         };
       }
       const normalized = normalize(action.payload, action.meta.schema);
+      let results = {
+        ...state.results,
+        [action.meta.url]: normalized.result,
+      };
+      if (action.meta.updaters) {
+        results = {
+          ...results,
+          ...Object.fromEntries(
+            Object.entries(action.meta.updaters).map(([fetchKey, updater]) => [
+              fetchKey,
+              // TODO: What do we pass in here?
+              updater(normalized.result, state.results),
+            ]),
+          ),
+        };
+      }
       return {
         entities: mergeDeepCopy(state.entities, normalized.entities),
-        results: {
-          ...state.results,
-          [action.meta.url]: normalized.result,
-        },
+        results,
         meta: {
           ...state.meta,
           [action.meta.url]: {
@@ -53,24 +66,6 @@ export default function reducer(
         entities: mergeDeepCopy(state.entities, entities),
       };
     }
-    // case 'rest-hooks/optimistic-update': {
-    //   if (action.error) return state;
-    //   return {
-    //     ...state,
-    //     results: {
-    //       ...state.results,
-    //       ...Object.fromEntries(
-    //         Object.entries(action.payload).map(([fetchKey, updateFunction]) => [
-    //           fetchKey,
-    //           updateFunction(
-    //             (state as NonNullable<typeof state>).results[fetchKey],
-    //             fetchKey,
-    //           ),
-    //         ]),
-    //       ),
-    //     },
-    //   };
-    // }
     case 'rest-hooks/purge': {
       if (action.error) return state;
       const key = action.meta.schema.key;
@@ -92,6 +87,8 @@ export default function reducer(
           },
         },
       };
+    case 'rest-hooks/reset':
+      return initialState;
 
     default:
       // If 'fetch' action reaches the reducer there are no middlewares installed to handle it

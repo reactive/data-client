@@ -19,6 +19,7 @@ import {
   useCache,
   useResultCache,
   useInvalidator,
+  useResetter,
 } from '../hooks';
 import { initialState } from '../../state/reducer';
 import { State, ActionTypes } from '../../types';
@@ -40,8 +41,7 @@ async function testDispatchFetch(
     </DispatchContext.Provider>
   );
   render(tree);
-  expect(dispatch).toHaveBeenCalled();
-  expect(dispatch.mock.calls.length).toBe(payloads.length);
+  expect(dispatch).toHaveBeenCalledTimes(payloads.length);
   let i = 0;
   for (const call of dispatch.mock.calls) {
     expect(call[0]).toMatchSnapshot();
@@ -218,6 +218,44 @@ describe('useInvalidate', () => {
   });
 });
 
+describe('useResetter', () => {
+  it('should return a function that dispatches an action to reset the cache', () => {
+    const state = mockInitialState([
+      {
+        request: PaginatedArticleResource.listShape(),
+        params: {},
+        result: articlesPages,
+      },
+    ]);
+    const dispatch = jest.fn();
+    let reset: any;
+    testRestHook(
+      () => {
+        reset = useResetter();
+      },
+      state,
+      dispatch,
+    );
+    reset({});
+    expect(dispatch).toHaveBeenCalledWith({
+      type: 'rest-hooks/reset',
+    });
+  });
+  it('should return the same === function each time', () => {
+    const track = jest.fn();
+
+    const { rerender } = renderHook(() => {
+      const reset = useResetter();
+      useEffect(track, [reset]);
+    });
+    expect(track.mock.calls.length).toBe(1);
+    for (let i = 0; i < 4; ++i) {
+      rerender();
+    }
+    expect(track.mock.calls.length).toBe(1);
+  });
+});
+
 describe('useCache', () => {
   it('should select singles', () => {
     let article: any;
@@ -354,6 +392,7 @@ describe('useResultCache', () => {
 });
 
 describe('useRetrieve', () => {
+  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
   beforeEach(() => {
     nock('http://test.com')
       .get(`/article-cooler/${payload.id}`)
@@ -364,6 +403,11 @@ describe('useRetrieve', () => {
     nock('http://test.com')
       .get(`/user/`)
       .reply(200, users);
+    renderRestHook = makeRenderRestHook(makeCacheProvider);
+  });
+  afterEach(() => {
+    nock.cleanAll();
+    renderRestHook.cleanup();
   });
 
   it('should dispatch singles', async () => {
@@ -412,6 +456,43 @@ describe('useRetrieve', () => {
       return null;
     }
     await testDispatchFetch(FetchTester, [payload]);
+  });
+
+  it('should not refetch after expiry and render', async () => {
+    let time = 1000;
+    global.Date.now = jest.fn(() => time);
+    nock.cleanAll();
+    const fetchMock = jest.fn(() => payload);
+    nock('http://test.com')
+      .get(`/article-cooler/${payload.id}`)
+      .reply(200, fetchMock)
+      .persist();
+    const results: any[] = [
+      {
+        request: CoolerArticleResource.detailShape(),
+        params: payload,
+        result: payload,
+      },
+    ];
+    const { result, rerender } = renderRestHook(
+      () => {
+        return useRetrieve(CoolerArticleResource.detailShape(), payload);
+      },
+      { results },
+    );
+    await result.current;
+    expect(fetchMock).toHaveBeenCalledTimes(0);
+    time += 100;
+    rerender();
+    await result.current;
+    expect(fetchMock).toHaveBeenCalledTimes(0);
+    // eslint-disable-next-line require-atomic-updates
+    time += 610000000;
+    rerender();
+    await result.current;
+    rerender();
+    await result.current;
+    expect(fetchMock).toHaveBeenCalledTimes(0);
   });
 });
 
@@ -476,23 +557,19 @@ describe('useResource()', () => {
         );
         return article;
       } catch (e) {
+        // TODO: we're not handling suspense properly so react complains
+        // When upgrading test util we should be able to fix this as we'll suspense ourselves.
         if (typeof e.then === 'function') {
           return e;
         } else {
-          // TODO: we're not handling suspense properly so react complains
-          // When upgrading test until we should be able to fix this as we'll suspense ourselves.
-          if (e.name === 'Invariant Violation') {
-            return null;
-          } else {
-            throw e;
-          }
+          throw e;
         }
       }
     }
-    const { rerender, result, waitForNextUpdate } = renderRestHook(
-      MultiResourceTester,
-    );
+    const { rerender, result } = renderRestHook(MultiResourceTester);
     const firstPromise = result.current;
+    expect(firstPromise).toBeDefined();
+    expect(typeof firstPromise.then).toBe('function');
     jest.advanceTimersByTime(50);
     rerender();
     expect(result.current).toBe(firstPromise);
@@ -510,7 +587,19 @@ describe('useResource()', () => {
     jest.runAllTimers();
     await result.current;
     rerender();
-    expect(result.current).toBe(null);
+    expect(result.current).toMatchInlineSnapshot(`
+      CoolerArticleResource {
+        "author": null,
+        "content": "whatever",
+        "id": 5,
+        "tags": Array [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      }
+    `);
     // eslint-disable-next-line require-atomic-updates
     console.error = oldError;
   });

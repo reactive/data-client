@@ -8,6 +8,7 @@ import {
   RPCAction,
   ReceiveAction,
   PurgeAction,
+  ResetAction,
   InvalidateAction,
 } from '../../types';
 
@@ -304,5 +305,29 @@ describe('reducer', () => {
     };
     const newState = reducer(iniState, action);
     expect(newState).toBe(iniState);
+  });
+  it('reset should delete all entries', () => {
+    const action: ResetAction = {
+      type: 'rest-hooks/reset',
+    };
+    const iniState: any = {
+      entities: {
+        [ArticleResource.getKey()]: {
+          '10': ArticleResource.fromJS({ id: 10 }),
+          '20': ArticleResource.fromJS({ id: 20 }),
+          '25': ArticleResource.fromJS({ id: 25 }),
+        },
+        [PaginatedArticleResource.getKey()]: {
+          hi: PaginatedArticleResource.fromJS({ id: 5 }),
+        },
+        '5': undefined,
+      },
+      results: { abc: '20' },
+      meta: {},
+    };
+    const newState = reducer(iniState, action);
+    expect(newState.results).toEqual({});
+    expect(newState.meta).toEqual({});
+    expect(newState.entities).toEqual({});
   });
 });
