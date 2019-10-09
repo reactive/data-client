@@ -11,7 +11,7 @@ declare namespace schemas {
     parent: any,
     key: string,
   ) => S;
-  type EntityMap<T = any> = { [key: string]: Entity<T> };
+  export type EntityMap<T = any> = { [key: string]: Entity<T> };
 
   export class Array<S extends Schema = Schema<any>> {
     private _identifier: 'Array';
@@ -48,7 +48,7 @@ declare namespace schemas {
     readonly schema: O;
   }
 
-  export class Union<Choices extends EntityMap = any> {
+  export class Union<T = any, Choices extends EntityMap<T> = any> {
     private _identifier: 'Union';
     constructor(
       definition: Choices,
@@ -62,7 +62,7 @@ declare namespace schemas {
     readonly schema: Choices;
   }
 
-  export class Values<Choices extends EntityMap | Schema = any> {
+  export class Values<T = any, Choices extends EntityMap<T> | Schema<T> = any> {
     private _identifier: 'Values';
     constructor(
       definition: Choices,
@@ -112,8 +112,8 @@ interface SchemaArray<T> extends Array<SchemaDetail<T>> {}
 export type SchemaDetail<T> =
   | schemas.Entity<T>
   | schemas.Object<T>
-  | schemas.Union<schemas.EntityMap<T>>
-  | schemas.Values<schemas.Entity<T> | SchemaObjectOne<T>>
+  | schemas.Union<T>
+  | schemas.Values<T, schemas.Entity<T> | SchemaObjectOne<T>>
   | SchemaObjectOne<T>;
 
 export type SchemaList<T> =
@@ -142,7 +142,7 @@ export function denormalize<S extends Schema>(
 
 export type DenormalizedCore<S> = S extends schemas.Entity<infer T>
   ? T
-  : S extends schemas.Values<infer Choices>
+  : S extends schemas.Values<any, infer Choices>
   ? Record<
       string,
       Choices extends schemas.EntityMap<infer T>
@@ -151,7 +151,7 @@ export type DenormalizedCore<S> = S extends schemas.Entity<infer T>
         ? T
         : never
     >
-  : S extends schemas.Union<infer Choices>
+  : S extends schemas.Union<any, infer Choices>
   ? (Choices[keyof Choices] extends schemas.Entity<infer T> ? T : never) // TODO: typescript 3.7 make this recursive instead
   : S extends schemas.Object<any, infer O>
   ? { [K in keyof O]: O[K] extends Schema ? DenormalizedCore<O[K]> : O[K] }
@@ -172,7 +172,7 @@ export type Denormalized<S> = Extract<S, schemas.Entity<any>> extends never
 
 export type ResultTypeCore<S> = S extends schemas.Entity<any>
   ? ReturnType<S['getId']> // should always be string
-  : S extends schemas.Values<infer Choices>
+  : S extends schemas.Values<any, infer Choices>
   ? Record<
       string,
       Choices extends schemas.EntityMap
@@ -181,7 +181,7 @@ export type ResultTypeCore<S> = S extends schemas.Entity<any>
         ? ReturnType<Choices['getId']> // TODO: typescript 3.7 let's us make this recursive
         : never
     >
-  : S extends schemas.Union<infer Choices>
+  : S extends schemas.Union<any, infer Choices>
   ? UnionResult<Choices>
   : S extends schemas.Object<any, infer O>
   ? { [K in keyof O]: O[K] extends Schema ? ResultTypeCore<O[K]> : O[K] }
