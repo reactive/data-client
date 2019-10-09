@@ -1,6 +1,15 @@
 import { useContext, useRef, useCallback } from 'react';
 
-import { FetchShape, Schema, isDeleteShape } from '~/resource';
+import { FetchAction, UpdateFunction } from '~/types';
+import {
+  FetchShape,
+  DeleteShape,
+  Schema,
+  isDeleteShape,
+  SchemaFromShape,
+  ParamsFromShape,
+  BodyFromShape,
+} from '~/resource';
 import { DispatchContext } from '~/react-integration/context';
 
 const SHAPE_TYPE_TO_RESPONSE_TYPE: Record<
@@ -12,12 +21,37 @@ const SHAPE_TYPE_TO_RESPONSE_TYPE: Record<
   delete: 'rest-hooks/purge',
 };
 
+type OptimisticUpdateParams<
+  SourceSchema extends Schema,
+  DestShape extends FetchShape<any, any, any>
+> = [
+  DestShape,
+  ParamsFromShape<DestShape>,
+  UpdateFunction<SourceSchema, SchemaFromShape<DestShape>>,
+];
+
 /** Build an imperative dispatcher to issue network requests. */
 export default function useFetcher<
-  Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void,
-  S extends Schema
->(fetchShape: FetchShape<S, Params, Body>, throttle = false) {
+  Shape extends FetchShape<
+    Schema,
+    Readonly<object>,
+    Readonly<object | string> | void
+  >
+>(
+  fetchShape: Shape,
+  throttle = false,
+): Shape extends DeleteShape<any, any>
+  ? (body: BodyFromShape<Shape>, params: ParamsFromShape<Shape>) => Promise<any>
+  : <
+      UpdateParams extends OptimisticUpdateParams<
+        SchemaFromShape<Shape>,
+        FetchShape<any, any, any>
+      >[]
+    >(
+      body: BodyFromShape<Shape>,
+      params: ParamsFromShape<Shape>,
+      updateParams?: UpdateParams | undefined,
+    ) => Promise<any> {
   const dispatch = useContext(DispatchContext);
 
   // we just want the current values when we dispatch, so
@@ -26,36 +60,57 @@ export default function useFetcher<
   shapeRef.current = fetchShape;
 
   const fetchDispatcher = useCallback(
-    (body: Body, params: Params) => {
+    (
+      body: BodyFromShape<Shape>,
+      params: ParamsFromShape<Shape>,
+      updateParams?:
+        | OptimisticUpdateParams<
+            SchemaFromShape<Shape>,
+            FetchShape<any, any, any>
+          >[]
+        | undefined,
+    ) => {
       const { fetch, schema, type, getFetchKey, options } = shapeRef.current;
       const responseType = SHAPE_TYPE_TO_RESPONSE_TYPE[type];
 
       const key = getFetchKey(params);
       const identifier = isDeleteShape(shapeRef.current)
-        ? (schema as any).getId(params)
+        ? shapeRef.current.schema.getId(params)
         : key;
       let resolve: (value?: any | PromiseLike<any>) => void = 0 as any;
       let reject: (reason?: any) => void = 0 as any;
       const promise = new Promise<any>((a, b) => {
         [resolve, reject] = [a, b];
       });
+      const meta: FetchAction['meta'] = {
+        schema,
+        responseType,
+        url: identifier,
+        throttle,
+        options,
+        resolve,
+        reject,
+      };
+
+      if (updateParams) {
+        meta.updaters = updateParams.reduce(
+          (accumulator: object, [toShape, toParams, updateFn]) => ({
+            [toShape.getFetchKey(toParams)]: updateFn,
+            ...accumulator,
+          }),
+          {},
+        );
+      }
 
       dispatch({
         type: 'rest-hooks/fetch',
         payload: () => fetch(params, body),
-        meta: {
-          schema,
-          responseType,
-          url: identifier,
-          throttle,
-          options,
-          resolve,
-          reject,
-        },
+        meta,
       });
       return promise;
     },
     [dispatch, throttle],
   );
-  return fetchDispatcher;
+  // any is due to the ternary that we don't want to deal with in our implementation
+  return fetchDispatcher as any;
 }

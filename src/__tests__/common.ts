@@ -95,6 +95,24 @@ export class UrlArticleResource extends ArticleResource {
   readonly url: string = 'happy.com';
 }
 
+export class ArticleResourceWithOtherListUrl extends ArticleResource {
+  static otherListShape<T extends typeof ArticleResourceWithOtherListUrl>(
+    this: T,
+  ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
+    const getFetchKey = () => this.otherListUrl();
+    return {
+      ...this.listShape(),
+      getFetchKey,
+      fetch: (_params: object, body: object) =>
+        this.fetch('get', getFetchKey(), body),
+    };
+  }
+
+  static otherListUrl<T extends typeof ArticleResource>(this: T): string {
+    return this.urlRoot + 'some-list-url';
+  }
+}
+
 export class CoolerArticleResource extends ArticleResource {
   static urlRoot = 'http://test.com/article-cooler/';
   get things() {
@@ -145,6 +163,7 @@ export class UserResource extends Resource {
   static urlRoot = 'http://test.com/user/';
 }
 class OtherArticleResource extends CoolerArticleResource {}
+
 export class PaginatedArticleResource extends OtherArticleResource {
   static urlRoot = 'http://test.com/article-paginated/';
   static listShape<T extends typeof Resource>(this: T) {

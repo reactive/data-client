@@ -1,7 +1,12 @@
 import React from 'react';
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
-import { ErrorableFSAWithPayloadAndMeta, ErrorableFSAWithMeta } from './fsa';
+import {
+  ErrorableFSAWithPayloadAndMeta,
+  ErrorableFSAWithMeta,
+  ErrorableFSAWithPayload,
+} from './fsa';
 import { Schema, schemas } from './resource';
+import { ResultType } from '~/resource/normal';
 
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
 
@@ -30,25 +35,33 @@ export interface RequestOptions {
   readonly invalidIfStale?: boolean;
 }
 
-interface ReceiveMeta {
-  schema: Schema;
+interface ReceiveMeta<S extends Schema> {
+  schema: S;
   url: string;
   date: number;
+  updaters?: { [key: string]: UpdateFunction<S, any> };
   expiresAt: number;
 }
 
 export type ReceiveAction<
-  Payload extends object | string | number = object | string | number
-> = ErrorableFSAWithPayloadAndMeta<'rest-hooks/receive', Payload, ReceiveMeta>;
+  Payload extends object | string | number = object | string | number,
+  S extends Schema = any
+> = ErrorableFSAWithPayloadAndMeta<
+  'rest-hooks/receive',
+  Payload,
+  ReceiveMeta<S>
+>;
 
-interface RPCMeta {
-  schema: Schema;
+interface RPCMeta<S extends Schema> {
+  schema: S;
   url: string;
+  updaters?: { [key: string]: UpdateFunction<S, any> };
 }
 
 export type RPCAction<
-  Payload extends object | string | number = object | string | number
-> = ErrorableFSAWithPayloadAndMeta<'rest-hooks/rpc', Payload, RPCMeta>;
+  Payload extends object | string | number = object | string | number,
+  S extends Schema = any
+> = ErrorableFSAWithPayloadAndMeta<'rest-hooks/rpc', Payload, RPCMeta<S>>;
 
 interface PurgeMeta {
   schema: schemas.Entity;
@@ -63,23 +76,44 @@ export type PurgeAction = ErrorableFSAWithMeta<
 
 export type ResetAction = FSA<'rest-hooks/reset'>;
 
+export type OptimisticUpdatePayload = {
+  [key: string]: <T>(result: T | undefined, key: string) => T;
+};
+
+export type UpdateFunction<
+  SourceSchema extends Schema,
+  DestSchema extends Schema
+> = (
+  sourceResults: ResultType<SourceSchema>,
+  destResults: ResultType<DestSchema>,
+) => ResultType<DestSchema>;
+
+export type OptimisticUpdateAction = ErrorableFSAWithPayload<
+  'rest-hooks/optimistic-update',
+  OptimisticUpdatePayload
+>;
+
+interface FetchMeta<S extends Schema> {
+  responseType: 'rest-hooks/receive' | 'rest-hooks/rpc' | 'rest-hooks/purge';
+  url: string;
+  schema: S;
+  throttle: boolean;
+  updaters?: { [key: string]: UpdateFunction<S, any> };
+  options?: RequestOptions;
+  resolve: (value?: any | PromiseLike<any>) => void;
+  reject: (reason?: any) => void;
+}
+
 export interface FetchAction<
-  Payload extends object | string | number = object | string | number
+  Payload extends object | string | number = object | string | number,
+  S extends Schema = any
 >
   extends FSAWithPayloadAndMeta<
     'rest-hooks/fetch',
     () => Promise<Payload>,
-    any
+    FetchMeta<any>
   > {
-  meta: {
-    schema?: Schema;
-    url: string;
-    responseType: 'rest-hooks/rpc' | 'rest-hooks/receive' | 'rest-hooks/purge';
-    throttle: boolean;
-    options?: RequestOptions;
-    resolve: (value?: any | PromiseLike<any>) => void;
-    reject: (reason?: any) => void;
-  };
+  meta: FetchMeta<S>;
 }
 
 export interface SubscribeAction
@@ -107,12 +141,12 @@ export interface InvalidateAction
   };
 }
 
+export type ResponseActions = ReceiveAction | RPCAction | PurgeAction;
+
 // put other actions here in union
 export type ActionTypes =
   | FetchAction
-  | ReceiveAction
-  | RPCAction
-  | PurgeAction
+  | ResponseActions
   | SubscribeAction
   | UnsubscribeAction
   | InvalidateAction

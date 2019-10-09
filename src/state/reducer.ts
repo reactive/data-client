@@ -2,6 +2,7 @@ import { normalize } from '~/resource';
 import { ActionTypes, State } from '~/types';
 
 import mergeDeepCopy from './merge/mergeDeepCopy';
+import applyUpdatersToResults from './applyUpdatersToResults';
 
 export const initialState: State<unknown> = {
   entities: {},
@@ -29,13 +30,18 @@ export default function reducer(
           },
         };
       }
-      const normalized = normalize(action.payload, action.meta.schema);
+      const { result, entities } = normalize(
+        action.payload,
+        action.meta.schema,
+      );
+      let results = {
+        ...state.results,
+        [action.meta.url]: result,
+      };
+      results = applyUpdatersToResults(results, result, action.meta.updaters);
       return {
-        entities: mergeDeepCopy(state.entities, normalized.entities),
-        results: {
-          ...state.results,
-          [action.meta.url]: normalized.result,
-        },
+        entities: mergeDeepCopy(state.entities, entities),
+        results,
         meta: {
           ...state.meta,
           [action.meta.url]: {
@@ -47,10 +53,19 @@ export default function reducer(
     }
     case 'rest-hooks/rpc': {
       if (action.error) return state;
-      const { entities } = normalize(action.payload, action.meta.schema);
+      const { entities, result } = normalize(
+        action.payload,
+        action.meta.schema,
+      );
+      const results = applyUpdatersToResults(
+        state.results,
+        result,
+        action.meta.updaters,
+      );
       return {
         ...state,
         entities: mergeDeepCopy(state.entities, entities),
+        results,
       };
     }
     case 'rest-hooks/purge': {

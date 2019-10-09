@@ -114,6 +114,61 @@ Object {
 }
 `;
 
+exports[`useFetcher should dispatch an action with multiple updaters in the meta if update shapes params are passed in 1`] = `
+Object {
+  "meta": Object {
+    "options": undefined,
+    "reject": [Function],
+    "resolve": [Function],
+    "responseType": "rest-hooks/rpc",
+    "schema": EntitySchema {
+      "_getId": [Function],
+      "_idAttribute": [Function],
+      "_key": "http://test.com/article/",
+      "_mergeStrategy": [Function],
+      "_processStrategy": [Function],
+      "denormalize": [Function],
+      "schema": Object {},
+    },
+    "throttle": false,
+    "updaters": Object {
+      "GET http://test.com/article/": [Function],
+      "http://test.com/article/some-list-url": [Function],
+    },
+    "url": "POST http://test.com/article/",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetcher should dispatch an action with updater in the meta if update shapes params are passed in 1`] = `
+Object {
+  "meta": Object {
+    "options": undefined,
+    "reject": [Function],
+    "resolve": [Function],
+    "responseType": "rest-hooks/rpc",
+    "schema": EntitySchema {
+      "_getId": [Function],
+      "_idAttribute": [Function],
+      "_key": "http://test.com/article-cooler/",
+      "_mergeStrategy": [Function],
+      "_processStrategy": [Function],
+      "denormalize": [Function],
+      "schema": Object {},
+    },
+    "throttle": false,
+    "updaters": Object {
+      "GET http://test.com/article-cooler/": [Function],
+    },
+    "url": "POST http://test.com/article-cooler/",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
 exports[`useResource() should dispatch an action that fetches 1`] = `
 Object {
   "meta": Object {
