@@ -6,6 +6,7 @@ active_scanners:
   - Gosec
   - NPMAudit
   - NodeAudit
+  - YardAudit
 scanner_configs:
   YardAudit:
     exceptions:
