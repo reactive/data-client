@@ -138,7 +138,7 @@ export function denormalize<S extends Schema>(
   input: any,
   schema: S,
   entities: any,
-): DenormalizedNullable<S>;
+): [DenormalizedNullable<S>, false] | [Denormalized<S>, true];
 
 export type DenormalizedNullableCore<S> = S extends schemas.Entity<infer T>
   ? T | undefined
@@ -167,11 +167,13 @@ export type DenormalizedNullableCore<S> = S extends schemas.Entity<infer T>
     }
   : S;
 
+type B<T extends null> = T;
+
 export type DenormalizedNullable<S> = Extract<S, schemas.Entity> extends never
   ? (Extract<S, SchemaArray<any>> extends never
       ? DenormalizedNullableCore<S>
       : Extract<S, SchemaArray<any>> extends SchemaArray<infer T>
-      ? T[] | undefined
+      ? T[]
       : never)
   : DenormalizedNullableCore<Extract<S, schemas.Entity>>;
 
@@ -261,6 +263,6 @@ export type ResultTypeNullable<S> = Extract<S, schemas.Entity> extends never
   ? (Extract<S, SchemaArray<any>> extends never
       ? ResultTypeNullableCore<S>
       : Extract<S, SchemaArray<any>> extends SchemaArray<infer T>
-      ? string[] | undefined
+      ? string[]
       : never)
   : ResultTypeNullableCore<Extract<S, schemas.Entity>>;

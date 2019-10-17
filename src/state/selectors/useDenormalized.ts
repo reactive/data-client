@@ -26,7 +26,10 @@ export default function useDenormalized<
   }: Pick<ReadShape<S, Params, any>, 'schema' | 'getFetchKey'>,
   params: Params | null,
   state: State<any>,
-): DenormalizedNullable<typeof schema> {
+): [
+  DenormalizedNullable<typeof schema>,
+  typeof params extends null ? false : boolean,
+] {
   // Select from state
   const entities = state.entities;
   const cacheResults =
@@ -59,14 +62,15 @@ export default function useDenormalized<
       }
     }
 
-    // Select the actual results now
-    let denormalized = denormalize(results, schema, entities || {});
-    // TODO: move this logic into denormalize as this only works for top level lists
-    // entities are sometimes deleted but not removed from list results
-    if (Array.isArray(denormalized)) {
-      denormalized = denormalized.filter((entity: any) => entity);
-    }
-    return denormalized;
+    // second argument is false if any entities are missing
+    const [denormalized, entitiesFound] = denormalize(
+      results,
+      schema,
+      entities || {},
+    );
+    // only consider missing entities a failure if results was inferred
+    // delete will sometimes remove entities
+    return [denormalized, !!cacheResults || entitiesFound] as any;
     // TODO: would be nice to make this only recompute on the entity types that are in schema
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entities, params && getFetchKey(params), results]);

@@ -66,13 +66,13 @@ export default function useDenormalizedLegacy<
     }
 
     // Select the actual results now
-    let denormalized = denormalize(results, schema, entities);
-    if (!denormalized) return null;
-    // entities are sometimes deleted but not removed from list results
-    if (Array.isArray(denormalized)) {
-      denormalized = denormalized.filter((entity: any) => entity);
-    }
-    return denormalized;
+    const [denormalized, entitiesFound] = denormalize(
+      results,
+      schema,
+      entities,
+    );
+    if (!entitiesFound && !cacheResults) return null;
+    return denormalized as any;
     // TODO: would be nice to make this only recompute on the entity types that are in schema
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entities, params && getFetchKey(params), results]);

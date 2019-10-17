@@ -30,6 +30,7 @@ export default function useSchemaSelect<
         : denormalized,
     [denormalized, getItemsFromResults],
   );
+  if (output === undefined) return null as any;
   return output as any;
 }
 

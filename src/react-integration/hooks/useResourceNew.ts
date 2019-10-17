@@ -1,9 +1,10 @@
 import { ReadShape, Schema } from '~/resource';
 import { Denormalized, DenormalizedNullable } from '~/resource/normal';
-import useCacheNew from './useCacheNew';
+import { useDenormalized } from '~/state/selectors';
 import useRetrieve from './useRetrieve';
 import useError from './useError';
-import { useMemo } from 'react';
+import { useMemo, useContext } from 'react';
+import { StateContext } from '~/react-integration/context';
 
 import hasUsableData from './hasUsableData';
 
@@ -23,28 +24,29 @@ function useOneResource<
   params: Params | null,
 ): CondNull<typeof params, DenormalizedNullable<S>, Denormalized<S>> {
   const maybePromise = useRetrieve(fetchShape, params);
-  // resource is null when it is not in cache or params is null
-  const resource = useCacheNew(fetchShape, params);
-  const error = useError(fetchShape, params, resource);
+  const state = useContext(StateContext);
+  const [denormalized, ready] = useDenormalized(fetchShape, params, state);
+  const error = useError(fetchShape, params, ready);
 
-  if (!hasUsableData(resource, fetchShape) && maybePromise) throw maybePromise;
+  if (!hasUsableData(ready, fetchShape) && maybePromise) throw maybePromise;
   if (error) throw error;
 
-  return resource as any;
+  return denormalized as any;
 }
 
 /** many form resource */
 function useManyResources<A extends ResourceArgs<any, any, any>[]>(
   ...resourceList: A
 ) {
-  const resources = resourceList.map(
+  const state = useContext(StateContext);
+  const denormals = resourceList.map(
     <
       Params extends Readonly<object>,
       Body extends Readonly<object | string> | void,
       S extends Schema
     >([fetchShape, params]: ResourceArgs<S, Params, Body>) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      useCacheNew(fetchShape, params),
+      useDenormalized(fetchShape, params, state),
   );
   const promises = resourceList
     .map(([fetchShape, params]) =>
@@ -52,14 +54,14 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
       useRetrieve(fetchShape, params),
     )
     // only wait on promises without results
-    .map((p, i) => !hasUsableData(resources[i], resourceList[i][0]) && p);
+    .map((p, i) => !hasUsableData(denormals[i][1], resourceList[i][0]) && p);
 
   // throw first valid error
   for (let i = 0; i < resourceList.length; i++) {
     const [fetchShape, params] = resourceList[i];
-    const resource = resources[i];
+    const [_, ready] = denormals[i];
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const error = useError(fetchShape, params, resource);
+    const error = useError(fetchShape, params, ready);
     if (error && !promises[i]) throw error;
   }
 
@@ -73,7 +75,7 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
 
   if (promise) throw promise;
 
-  return resources;
+  return denormals.map(([denormalized]) => denormalized);
 }
 
 type CondNull<P, A, B> = P extends null ? A : B;
