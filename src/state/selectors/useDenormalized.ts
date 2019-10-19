@@ -15,6 +15,8 @@ import buildInferredResults from './buildInferredResults';
  * If `result` is not found, will attempt to generate it naturally
  * using params and schema. This increases cache hit rate for many
  * detail shapes.
+ *
+ * @returns [denormalizedValue, allEntitiesFound]
  */
 export default function useDenormalized<
   Params extends Readonly<object>,
@@ -66,7 +68,7 @@ export default function useDenormalized<
     const [denormalized, entitiesFound] = denormalize(
       results,
       schema,
-      entities || {},
+      entities,
     );
     // only consider missing entities a failure if results was inferred
     // delete will sometimes remove entities

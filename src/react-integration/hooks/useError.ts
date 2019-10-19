@@ -11,11 +11,11 @@ export default function useError<
 >(
   fetchShape: ReadShape<S, Params, Body>,
   params: Params | null,
-  resource: boolean,
+  cacheReady: boolean,
 ): UseErrorReturn<typeof params> {
   const meta = useMeta(fetchShape, params);
   if (!params) return;
-  if (!resource) {
+  if (!cacheReady) {
     if (!meta) return;
     if (!meta.error) {
       // this means we probably deleted the entity found in this result

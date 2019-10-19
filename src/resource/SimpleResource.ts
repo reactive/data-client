@@ -364,7 +364,7 @@ Try inspecting the network response or fetch() return value.
     );
     // TODO: long term figure out a plan to actually denormalize
     (e as any).denormalize = function denormalize(entity: any) {
-      return entity;
+      return [entity, true];
     };
     return e;
   },

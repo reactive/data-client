@@ -39,7 +39,7 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
   ...resourceList: A
 ) {
   const state = useContext(StateContext);
-  const denormals = resourceList.map(
+  const denormalizedValues = resourceList.map(
     <
       Params extends Readonly<object>,
       Body extends Readonly<object | string> | void,
@@ -54,12 +54,15 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
       useRetrieve(fetchShape, params),
     )
     // only wait on promises without results
-    .map((p, i) => !hasUsableData(denormals[i][1], resourceList[i][0]) && p);
+    .map(
+      (p, i) =>
+        !hasUsableData(denormalizedValues[i][1], resourceList[i][0]) && p,
+    );
 
   // throw first valid error
   for (let i = 0; i < resourceList.length; i++) {
     const [fetchShape, params] = resourceList[i];
-    const [_, ready] = denormals[i];
+    const [_, ready] = denormalizedValues[i];
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const error = useError(fetchShape, params, ready);
     if (error && !promises[i]) throw error;
@@ -75,7 +78,7 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
 
   if (promise) throw promise;
 
-  return denormals.map(([denormalized]) => denormalized);
+  return denormalizedValues.map(([denormalized]) => denormalized);
 }
 
 type CondNull<P, A, B> = P extends null ? A : B;

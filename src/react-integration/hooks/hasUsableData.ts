@@ -5,9 +5,12 @@ export default function hasUsableData<
   S extends Schema,
   Params extends Readonly<object>,
   Body extends Readonly<object | string> | void
->(resource: boolean, fetchShape: Pick<FetchShape<S, Params, Body>, 'options'>) {
+>(
+  cacheReady: boolean,
+  fetchShape: Pick<FetchShape<S, Params, Body>, 'options'>,
+) {
   return !(
     (fetchShape.options && fetchShape.options.invalidIfStale) ||
-    !resource
+    !cacheReady
   );
 }
