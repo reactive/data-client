@@ -3,51 +3,47 @@ import {
   UnionResource,
 } from '../../../__tests__/common';
 import { schemas } from '../../../resource';
-import buildInferredResults from '../buildInferredResults';
+import buildInferredResultsLegacy from '../buildInferredResultsLegacy';
 
-describe('buildInferredResults()', () => {
+describe('buildInferredResultsLegacy()', () => {
   it('should work with Object', () => {
     const schema = new schemas.Object({
       data: new schemas.Object({
         article: CoolerArticleResource.getEntitySchema(),
       }),
     });
-    expect(buildInferredResults(schema, { id: 5 })).toEqual({
+    expect(buildInferredResultsLegacy(schema, { id: 5 })).toEqual({
       data: { article: '5' },
     });
   });
 
-  it('should be undefined with Array', () => {
+  it('should be null with Array', () => {
     const schema = {
       data: new schemas.Array(CoolerArticleResource.getEntitySchema()),
     };
-    expect(buildInferredResults(schema, { id: 5 })).toStrictEqual({
-      data: undefined,
-    });
+    expect(buildInferredResultsLegacy(schema, { id: 5 })).toBe(null);
 
     const schema2 = {
       data: [CoolerArticleResource.getEntitySchema()],
     };
-    expect(buildInferredResults(schema2, { id: 5 })).toStrictEqual({
-      data: undefined,
-    });
+    expect(buildInferredResultsLegacy(schema2, { id: 5 })).toBe(null);
   });
 
-  it('should be {} with Values', () => {
+  it('should be null with Values', () => {
     const schema = {
       data: new schemas.Values(CoolerArticleResource.getEntitySchema()),
     };
-    expect(buildInferredResults(schema, { id: 5 })).toStrictEqual({ data: {} });
+    expect(buildInferredResultsLegacy(schema, { id: 5 })).toBe(null);
   });
 
-  it('should be undefined with Union and type', () => {
+  it('should be null with Union and type', () => {
     const schema = UnionResource.detailShape().schema;
-    expect(buildInferredResults(schema, { id: 5 })).toBe(undefined);
+    expect(buildInferredResultsLegacy(schema, { id: 5 })).toBe(null);
   });
 
   it('should work with Union', () => {
     const schema = UnionResource.detailShape().schema;
-    expect(buildInferredResults(schema, { id: 5, type: 'first' }))
+    expect(buildInferredResultsLegacy(schema, { id: 5, type: 'first' }))
       .toMatchInlineSnapshot(`
       Object {
         "id": "5",
@@ -61,7 +57,7 @@ describe('buildInferredResults()', () => {
       pagination: { next: '', previous: '' },
       data: CoolerArticleResource.getEntitySchema(),
     };
-    expect(buildInferredResults(schema, { id: 5 })).toEqual({
+    expect(buildInferredResultsLegacy(schema, { id: 5 })).toEqual({
       pagination: { next: '', previous: '' },
       data: '5',
     });

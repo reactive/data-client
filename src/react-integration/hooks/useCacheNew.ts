@@ -13,5 +13,5 @@ export default function useCacheNew<
   params: Params | null,
 ) {
   const state = useContext(StateContext);
-  return useDenormalized(fetchShape, params, state);
+  return useDenormalized(fetchShape, params, state)[0];
 }

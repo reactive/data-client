@@ -1196,10 +1196,10 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
-"@rest-hooks/normalizr@^3.4.3":
-  version "3.4.3"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/normalizr/-/normalizr-3.4.3.tgz#bdfcdd78333cab92949d439c3ee5091d057ab4a4"
-  integrity sha512-YAskraBDO1Znbv9r8WIqkdykOrtxZTZCuG07OB3BMnMMowJRzbb7QB9N09Tf2j1MhCyRm9FzC0fvjglPobZpYA==
+"@rest-hooks/normalizr@^4.0.0-beta.0":
+  version "4.0.0-beta.0"
+  resolved "https://registry.yarnpkg.com/@rest-hooks/normalizr/-/normalizr-4.0.0-beta.0.tgz#1b7b5addf256437e584193dd69ad56647fb0b2ad"
+  integrity sha512-G9Q1GB1WOmYTpCajGTYQwsR/a0uYe6URjVGnfcEPK7CFG+qbvf2JRoZXLRnLiUp6UW0CPXRsJPAdSAeDhK4yTA==
   dependencies:
     "@babel/runtime" "^7.6.0"
 

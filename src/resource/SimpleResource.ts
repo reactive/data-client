@@ -192,9 +192,7 @@ export default abstract class SimpleResource {
     const getFetchKey = (params: Readonly<object>) => {
       return 'GET ' + this.url(params);
     };
-    const schema: SchemaDetail<
-      AbstractInstanceType<T>
-    > = this.getEntitySchema();
+    const schema = this.getEntitySchema();
     const options = this.getRequestOptions();
     return {
       type: 'read',
@@ -214,9 +212,7 @@ export default abstract class SimpleResource {
     const getFetchKey = (params: Readonly<Record<string, string>>) => {
       return 'GET ' + this.listUrl(params);
     };
-    const schema: SchemaList<AbstractInstanceType<T>> = [
-      this.getEntitySchema(),
-    ];
+    const schema = [this.getEntitySchema()];
     const options = this.getRequestOptions();
     return {
       type: 'read',
@@ -310,7 +306,7 @@ export default abstract class SimpleResource {
   /** Shape to delete an entity (delete) */
   static deleteShape<T extends typeof SimpleResource>(
     this: T,
-  ): DeleteShape<schemas.Entity<AbstractInstanceType<T>>, Readonly<object>> {
+  ): DeleteShape<any, Readonly<object>> {
     const options = this.getRequestOptions();
     return {
       type: 'delete',
@@ -368,7 +364,7 @@ Try inspecting the network response or fetch() return value.
     );
     // TODO: long term figure out a plan to actually denormalize
     (e as any).denormalize = function denormalize(entity: any) {
-      return entity;
+      return [entity, true];
     };
     return e;
   },

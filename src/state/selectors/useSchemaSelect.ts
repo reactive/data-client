@@ -3,7 +3,7 @@ import { State } from '~/types';
 import { SchemaOf, ReadShape } from '~/resource/types';
 import { Schema } from '~/resource/normal';
 import getEntityPath from './getEntityPath';
-import useDenormalized from './useDenormalized';
+import useDenormalizedLegacy from './useDenormalizedLegacy';
 
 export default function useSchemaSelect<
   Params extends Readonly<object>,
@@ -16,7 +16,11 @@ export default function useSchemaSelect<
   params: Params | null,
   state: State<any>,
 ): typeof params extends null ? null : (SchemaOf<typeof schema> | null) {
-  const denormalized = useDenormalized({ schema, getFetchKey }, params, state);
+  const denormalized = useDenormalizedLegacy(
+    { schema, getFetchKey },
+    params,
+    state,
+  );
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getItemsFromResults = useMemo(() => resultFinderFromSchema(schema), []);
   const output = useMemo(
@@ -26,6 +30,7 @@ export default function useSchemaSelect<
         : denormalized,
     [denormalized, getItemsFromResults],
   );
+  if (output === undefined) return null as any;
   return output as any;
 }
 

@@ -25,9 +25,10 @@ function useOneResource<
   const maybePromise = useRetrieve(fetchShape, params);
   // resource is null when it is not in cache or params is null
   const resource = useCache(fetchShape, params);
-  const error = useError(fetchShape, params, resource);
+  const error = useError(fetchShape, params, !!resource);
 
-  if (!hasUsableData(resource, fetchShape) && maybePromise) throw maybePromise;
+  if (!hasUsableData(!!resource, fetchShape) && maybePromise)
+    throw maybePromise;
   if (error) throw error;
 
   return resource as any;
@@ -52,14 +53,14 @@ function useManyResources<A extends ResourceArgs<any, any, any>[]>(
       useRetrieve(fetchShape, params),
     )
     // only wait on promises without results
-    .map((p, i) => !hasUsableData(resources[i], resourceList[i][0]) && p);
+    .map((p, i) => !hasUsableData(!!resources[i], resourceList[i][0]) && p);
 
   // throw first valid error
   for (let i = 0; i < resourceList.length; i++) {
     const [fetchShape, params] = resourceList[i];
     const resource = resources[i];
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const error = useError(fetchShape, params, resource);
+    const error = useError(fetchShape, params, !!resource);
     if (error && !promises[i]) throw error;
   }
 

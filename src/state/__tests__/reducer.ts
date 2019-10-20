@@ -130,7 +130,9 @@ describe('reducer', () => {
     describe('Update on get (pagination use case)', () => {
       const shape = PaginatedArticleResource.listShape();
       function makeOptimisticAction(
-        payload: { results: Partial<PaginatedArticleResource>[] },
+        payload: {
+          results: Partial<PaginatedArticleResource>[];
+        },
         updaters: {
           [key: string]: UpdateFunction<
             typeof shape['schema'],
@@ -153,17 +155,17 @@ describe('reducer', () => {
         };
       }
 
-      const insertAfterUpdater = (
+      const insertAfterUpdater = <T extends { results?: string[] }>(
         newPage: { results: string[] },
-        oldResults: { results?: string[] },
+        oldResults: T,
       ) => ({
         ...oldResults,
         results: [...(oldResults.results || []), ...newPage.results],
       });
 
-      const insertBeforeUpdater = (
+      const insertBeforeUpdater = <T extends { results?: string[] }>(
         newPage: { results: string[] },
-        oldResults: { results?: string[] },
+        oldResults: T,
       ) => ({
         ...oldResults,
         results: [...newPage.results, ...(oldResults.results || [])],

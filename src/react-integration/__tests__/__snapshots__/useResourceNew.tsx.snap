@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`useResourceNewNew() should dispatch an action that fetches 1`] = `
+exports[`useResourceNew() should dispatch an action that fetches 1`] = `
 Object {
   "meta": Object {
     "options": undefined,
@@ -24,7 +24,7 @@ Object {
 }
 `;
 
-exports[`useResourceNewNew() should dispatch fetch when sent multiple arguments 1`] = `
+exports[`useResourceNew() should dispatch fetch when sent multiple arguments 1`] = `
 Object {
   "meta": Object {
     "options": undefined,
@@ -48,7 +48,7 @@ Object {
 }
 `;
 
-exports[`useResourceNewNew() should dispatch fetch when sent multiple arguments 2`] = `
+exports[`useResourceNew() should dispatch fetch when sent multiple arguments 2`] = `
 Object {
   "meta": Object {
     "options": undefined,

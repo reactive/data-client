@@ -169,7 +169,7 @@ export class PaginatedArticleResource extends OtherArticleResource {
   static listShape<T extends typeof Resource>(this: T) {
     return {
       ...super.listShape(),
-      schema: { results: [this.getEntitySchema()] },
+      schema: { results: [this.getEntitySchema()], prevPage: '', nextPage: '' },
     };
   }
 
