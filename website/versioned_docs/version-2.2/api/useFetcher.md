@@ -1,5 +1,7 @@
 ---
 title: useFetcher()
+id: version-2.2-useFetcher
+original_id: useFetcher
 ---
 
 <!--DOCUSAURUS_CODE_TABS-->

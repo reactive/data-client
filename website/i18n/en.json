@@ -511,6 +511,9 @@
       "version-2.2/api/version-2.2-useCacheNew": {
         "title": "useCacheNew()"
       },
+      "version-2.2/api/version-2.2-useFetcher": {
+        "title": "useFetcher()"
+      },
       "version-2.2/api/version-2.2-useResetter": {
         "title": "useResetter()"
       },
