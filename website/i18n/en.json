@@ -501,6 +501,27 @@
       },
       "version-2.1/guides/version-2.1-unit-testing-hooks": {
         "title": "Unit testing hooks"
+      },
+      "version-2.2/api/version-2.2-README": {
+        "title": "API Reference"
+      },
+      "version-2.2/api/version-2.2-useCache": {
+        "title": "useCache()"
+      },
+      "version-2.2/api/version-2.2-useCacheNew": {
+        "title": "useCacheNew()"
+      },
+      "version-2.2/api/version-2.2-useResetter": {
+        "title": "useResetter()"
+      },
+      "version-2.2/api/version-2.2-useresource": {
+        "title": "useResource()"
+      },
+      "version-2.2/api/version-2.2-useresourcenew": {
+        "title": "useResourceNew()"
+      },
+      "version-2.2/api/version-2.2-useResultCache": {
+        "title": "useResultCache()"
       }
     },
     "links": {
