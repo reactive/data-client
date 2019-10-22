@@ -70,9 +70,7 @@ export default function useDenormalized<
       schema,
       entities,
     );
-    // only consider missing entities a failure if results was inferred
-    // delete will sometimes remove entities
-    return [denormalized, !!cacheResults || entitiesFound] as any;
+    return [denormalized, entitiesFound] as any;
     // TODO: would be nice to make this only recompute on the entity types that are in schema
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entities, params && getFetchKey(params), results]);

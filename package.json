@@ -121,7 +121,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.6.0",
-    "@rest-hooks/normalizr": "^4.0.0-beta.0",
+    "@rest-hooks/normalizr": "^4.0.0-beta.2",
     "@types/superagent": "^4.1.3",
     "flux-standard-action": "^2.1.1",
     "lodash": "^4.17.15",
