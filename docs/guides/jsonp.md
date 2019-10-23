@@ -11,7 +11,7 @@ import jsonp from 'superagent-jsonp';
 import { Resource } from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
-  readonly id: number | null = null;
+  readonly id: number | undefined = undefined;
   readonly content: string = '';
 
   pk() {

@@ -15,7 +15,7 @@ happy path of components. Loading state is bypassed by initializing the cache ah
 
 ```typescript
 export default class ArticleResource extends Resource {
-  readonly id: number | null = null;
+  readonly id: number | undefined = undefined;
   readonly content: string = '';
   readonly author: number | null = null;
   readonly contributors: number[] = [];

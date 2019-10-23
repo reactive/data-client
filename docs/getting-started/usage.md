@@ -14,7 +14,7 @@ title: Usage
 import { Resource } from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
-  readonly id: number | null = null;
+  readonly id: number | undefined = undefined;
   readonly title: string = '';
   readonly content: string = '';
   readonly author: number | null = null;
@@ -34,7 +34,7 @@ export default class ArticleResource extends Resource {
 import { Resource } from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
-  id = null;
+  id = undefined;
   title = '';
   content = '';
   author = null;
@@ -54,7 +54,7 @@ export default class ArticleResource extends Resource {
 import { Resource } from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
-  +id: ?number = null;
+  +id: ?number = undefined;
   +title: string = '';
   +content: string = '';
   +author: ?number = null;

@@ -8,7 +8,7 @@ getters to the class itself.
 import { Resource } from 'rest-hooks';
 
 class User extends Resource {
-  readonly id: number | null = null;
+  readonly id: number | undefined = undefined;
   readonly firstName: string = '';
   readonly lastName: string = '';
   readonly username: string = '';

@@ -42,7 +42,7 @@ Frequency must be set in [FetchShape](./FetchShape.md), otherwise will have no e
 import { Resource, FetchOptions } from 'rest-hooks';
 
 export default class PriceResource extends Resource {
-  readonly symbol: string | null = null;
+  readonly symbol: string | undefined = undefined;
   readonly price: string = '0.0';
   // ...
 

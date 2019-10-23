@@ -27,7 +27,7 @@ export interface Address {
 export type Status = 'pending' | 'rejected' | 'accepted';
 
 export class UserResource extends Resource {
-  readonly id: number | null = null;
+  readonly id: number | undefined = undefined;
   readonly name: string = '';
   readonly username: string = '';
   readonly email: string = '';
@@ -45,7 +45,7 @@ export class UserResource extends Resource {
 <!--Javascript-->
 ```js
 export class UserResource extends Resource {
-  id = null;
+  id = undefined;
   name = '';
   username = '';
   email = '';
