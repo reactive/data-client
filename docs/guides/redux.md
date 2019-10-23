@@ -14,13 +14,17 @@ First make sure you have redux installed:
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--yarn-->
+
 ```bash
 yarn add redux
 ```
+
 <!--npm-->
+
 ```bash
 npm install redux
 ```
+
 <!--END_DOCUSAURUS_CODE_TABS-->
 
 Note: react-redux is _not_ needed for this integration (though you can use it if you want).
@@ -31,6 +35,10 @@ the rest-hooks specific part of the state.
 
 > Note: You should only use ONE provider; nested another provider will override the previous.
 
+> Note: Rest Hooks manager middlewares return promises, which is different from how redux middlewares work.
+> Because of this, if you want to integrate both, you'll need to place all redux middlewares
+> after the `PromiseifyMiddleware` adapter, and place all Rest Hooks manager middlewares before.
+
 #### `index.tsx`
 
 ```tsx
@@ -40,6 +48,7 @@ import {
   SubscriptionManager,
   PollingSubscription,
   ExternalCacheProvider,
+  PromiseifyMiddleware,
 } from 'rest-hooks';
 import { createStore, applyMiddleware } from 'redux';
 import ReactDOM from 'react-dom';
@@ -49,7 +58,13 @@ const subscriptionManager = new SubscriptionManager(PollingSubscription);
 
 const store = createStore(
   reducer,
-  applyMiddleware(manager.getMiddleware(), subscriptionManager.getMiddleware()),
+  applyMiddleware(
+    manager.getMiddleware(),
+    subscriptionManager.getMiddleware(),
+    // place Rest Hooks built middlewares before PromiseifyMiddleware
+    PromiseifyMiddleware,
+    // place redux middlewares after PromiseifyMiddleware
+  ),
 );
 const selector = state => state;
 
@@ -74,7 +89,11 @@ const store = createStore(
     restHooks: restReducer,
     myOtherState: otherReducer,
   }),
-  applyMiddleware(manager.getMiddleware(), subscriptionManager.getMiddleware()),
+  applyMiddleware(
+    manager.getMiddleware(),
+    subscriptionManager.getMiddleware(),
+    PromiseifyMiddleware,
+  ),
 );
 const selector = state => state.restHooks;
 // ...

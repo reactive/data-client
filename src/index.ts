@@ -13,6 +13,7 @@ import {
   schemas,
 } from './resource';
 import NetworkManager from './state/NetworkManager';
+import RIC from './state/RIC';
 import PollingSubscription from './state/PollingSubscription';
 import SubscriptionManager from './state/SubscriptionManager';
 import reducer, { initialState } from './state/reducer';
@@ -46,6 +47,8 @@ import {
   ReceiveAction,
   RPCAction,
   PurgeAction,
+  Dispatch,
+  MiddlewareAPI,
   Middleware,
   Manager,
 } from './types';
@@ -55,6 +58,7 @@ const __INTERNAL__ = {
   initialState,
   StateContext,
   DispatchContext,
+  RIC,
 };
 
 export type DeleteShape<
@@ -99,6 +103,10 @@ export type RPCAction<
 > = RPCAction<Payload>;
 export type PurgeAction = PurgeAction;
 
+export type Dispatch<R extends React.Reducer<any, any>> = Dispatch<R>;
+export type MiddlewareAPI<
+  R extends React.Reducer<any, any> = React.Reducer<any, any>
+> = MiddlewareAPI<R>;
 export type Middleware = Middleware;
 export type Manager = Manager;
 

@@ -15,22 +15,30 @@ or unresolved Promises; and finally getMiddleware() - providing the mechanism to
 the flux data flow.
 
 ```typescript
-type ReduxMiddleware = <R extends React.Reducer<any, A>, A extends Actions>({
+type Dispatch<R extends React.Reducer<any, any>> = (action: React.ReducerAction<R>) => Promise<void>;
+
+type Middleware = <R extends React.Reducer<any, A>, A extends Actions>({
   dispatch,
 }: MiddlewareAPI<R>) => (
-  next: React.Dispatch<React.ReducerAction<R>>,
-) => (action: Actions) => void;
+  next: Dispatch<R>,
+) => Dispatch<R>;
 
 interface Manager {
-  getMiddleware<T extends Manager>(this: T): ReduxMiddleware;
+  getMiddleware<T extends Manager>(this: T): Middleware;
   cleanup(): void;
 }
 ```
 
 ## getMiddleware()
 
-getMiddleware() returns a function that is 100% redux compatible. This enables it to be integrated into redux,
-or used by the internal useReducer() enhancer in <CacheProvider />.
+getMiddleware() returns a function that very similar to a [redux middleware](https://redux.js.org/advanced/middleware).
+The only differences is that the `next()` function returns a `Promise`. This promise resolves when the reducer update is
+[committed](https://indepth.dev/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react/#general-algorithm)
+when using <CacheProvider />. This is necessary since the commit phase is asynchronously scheduled. This enables building
+managers that perform work after the DOM is updated and also with the newly computed state.
+
+Since redux is fully synchronous, an adapter must be placed in front of Rest Hooks style middleware to
+ensure they can consume a promise. Conversely, redux middleware must be changed to pass through promises.
 
 Middlewares will intercept actions that are dispatched and then potentially dispatch their own actions as well.
 To read more about middlewares, see the [redux documentation](https://redux.js.org/advanced/middleware).

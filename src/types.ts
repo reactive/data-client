@@ -152,17 +152,19 @@ export type ActionTypes =
   | InvalidateAction
   | ResetAction;
 
+export type Dispatch<R extends React.Reducer<any, any>> = (
+  action: React.ReducerAction<R>,
+) => Promise<void>;
+
 export type Middleware = <R extends React.Reducer<any, any>>({
   dispatch,
-}: MiddlewareAPI<R>) => (
-  next: React.Dispatch<React.ReducerAction<R>>,
-) => (action: React.ReducerAction<R>) => void;
+}: MiddlewareAPI<R>) => (next: Dispatch<R>) => Dispatch<R>;
 
 export interface MiddlewareAPI<
   R extends React.Reducer<any, any> = React.Reducer<any, any>
 > {
   getState: () => React.ReducerState<R>;
-  dispatch: React.Dispatch<React.ReducerAction<R>>;
+  dispatch: Dispatch<R>;
 }
 
 export interface Manager {

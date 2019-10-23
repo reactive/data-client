@@ -1,8 +1,7 @@
-import { useReducer, useMemo, useRef } from 'react';
-import { Middleware } from '~/types';
+import { useReducer, useMemo, useRef, useCallback, useEffect } from 'react';
+import { Middleware, Dispatch } from '~/types';
 
-const compose = (fns: Function[]) => (initial: any) =>
-  fns.reduceRight((v, f) => f(v), initial);
+import usePromisifiedDispatch from './usePromisifiedDispatch';
 
 // TODO: release as own library?
 /** Redux-middleware compatible integration for useReducer() */
@@ -12,13 +11,21 @@ export default function createEnhancedReducerHook(
   const useEnhancedReducer = <R extends React.Reducer<any, any>>(
     reducer: R,
     startingState: React.ReducerState<R>,
-  ): [React.ReducerState<R>, React.Dispatch<React.ReducerAction<R>>] => {
+  ): [
+    React.ReducerState<R>,
+    (value: React.ReducerAction<R>) => Promise<any>,
+  ] => {
+    const stateRef = useRef(startingState);
     const [state, realDispatch] = useReducer(reducer, startingState);
-    const store = useRef(state);
-    store.current = state;
+
+    useEffect(() => {
+      stateRef.current = state;
+    }, [state]);
+
+    const dispatchWithPromise = usePromisifiedDispatch(realDispatch, state);
 
     const outerDispatch = useMemo(() => {
-      let dispatch: React.Dispatch<React.ReducerAction<R>> = () => {
+      let dispatch: Dispatch<R> = () => {
         throw new Error(
           `Dispatching while constructing your middleware is not allowed. ` +
             `Other middleware would not be applied to this dispatch.`,
@@ -26,14 +33,17 @@ export default function createEnhancedReducerHook(
       };
       // closure here around dispatch allows us to change it after middleware is constructed
       const middlewareAPI = {
-        getState: () => store.current,
+        getState: () => stateRef.current,
         dispatch: (action: React.ReducerAction<R>) => dispatch(action),
       };
       const chain = middlewares.map(middleware => middleware(middlewareAPI));
-      dispatch = compose(chain)(realDispatch);
+      dispatch = compose(chain)(dispatchWithPromise);
       return dispatch;
-    }, [realDispatch, store]);
+    }, [dispatchWithPromise]);
     return [state, outerDispatch];
   };
   return useEnhancedReducer;
 }
+
+const compose = (fns: Function[]) => (initial: any) =>
+  fns.reduceRight((v, f) => f(v), initial);
