@@ -9,7 +9,7 @@ title: Resource
 import { Resource } from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
-  readonly id: number | null = null;
+  readonly id: number | undefined = undefined;
   readonly title: string = '';
   readonly content: string = '';
   readonly author: number | null = null;
@@ -27,7 +27,7 @@ export default class ArticleResource extends Resource {
 import { Resource } from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
-  id = null;
+  id = undefined;
   title = '';
   content = '';
   author = null;
@@ -45,7 +45,7 @@ export default class ArticleResource extends Resource {
 import { Resource } from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
-  +id: ?number = null;
+  +id: ?number = undefined;
   +title: string = '';
   +content: string = '';
   +author: ?number = null;
@@ -96,7 +96,7 @@ the instance in construction.
 
 ## Be sure to always provide:
 
-### pk: () => string | number | null
+### pk: () => string | number | undefined
 
 PK stands for *primary key* and is intended to provide a standard means of retrieving
 a key identifier for any `Resource`. In many cases there will simply be an 'id' field
@@ -110,9 +110,9 @@ pk() {
 }
 ```
 
-#### Null value
+#### undefined value
 
-A `null` can be used as a default to indicate the resource has not been created yet.
+A `undefined` can be used as a default to indicate the resource has not been created yet.
 This is useful when initializing a creation form using [Resource.fromJS()](./api/resource#static-fromjs-t-extends-typeof-resource-this-t-props-partial-abstractinstancetype-t-abstractinstancetype-t)
 directly. If `pk()` resolves to null it is considered not persisted to the server,
 and thus will not be kept in the cache.

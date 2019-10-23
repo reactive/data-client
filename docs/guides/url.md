@@ -74,7 +74,7 @@ export default class CommentResource extends Resource {
     urlParams?: { articleId: string } & Partial<AbstractInstanceType<T>>,
   ): string {
     if (urlParams) {
-      if (this.pk(urlParams) !== null) {
+      if (this.pk(urlParams) !== undefined) {
         return `/articles/${articleId}/comments/${this.pk(urlParams)}`;
       }
     }

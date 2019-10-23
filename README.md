@@ -19,7 +19,7 @@ Making dynamic sites performant, scalable, simple to build with any API design.
 
 ```typescript
 class ArticleResource extends Resource {
-  readonly id: number | null = null;
+  readonly id: number | undefined = undefined;
   readonly title: string = '';
   readonly body: string = '';
 

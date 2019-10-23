@@ -58,7 +58,7 @@ function useStatefulResource<
 
 ```typescript
 export default class ProfileResource extends Resource {
-  readonly id: number | null = null;
+  readonly id: number | undefined = undefined;
   readonly img: string = '';
   readonly fullName: string = '';
   readonly bio: string = '';

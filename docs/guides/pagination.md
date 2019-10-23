@@ -40,7 +40,7 @@ import { Resource, SchemaList, ReadShape, AbstractInstanceType } from 'rest-hook
 import { UserResource } from 'resources';
 
 export default class ArticleResource extends Resource {
-  readonly id: number | null = null;
+  readonly id: number | undefined = undefined;
   readonly content: string = '';
   readonly author: number | null = null;
   readonly contributors: number[] = [];

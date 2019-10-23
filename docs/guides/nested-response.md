@@ -19,7 +19,7 @@ import { Resource } from 'rest-hooks';
 import { UserResource } from 'resources';
 
 export default class ArticleResource extends Resource {
-  readonly id: number | null = null;
+  readonly id: number | undefined = undefined;
   readonly content: string = '';
   readonly author: number | null = null;
   readonly contributors: number[] = [];
@@ -79,7 +79,7 @@ import { Resource } from 'rest-hooks';
 import { UserResource } from 'resources';
 
 export default class ArticleResource extends Resource {
-  readonly id: number | null = null;
+  readonly id: number | undefined = undefined;
   readonly content: string = '';
   readonly author: number | null = null;
   readonly contributors: number[] = [];
@@ -117,7 +117,7 @@ import { Resource } from 'rest-hooks';
 // no need to import ArticleResource as the getEntitySchema() override happens there.
 
 export default class UserResource extends Resource {
-  readonly id: number | null = null;
+  readonly id: number | undefined = undefined;
   readonly name: string = '';
   readonly posts: number[] = [];
 

@@ -9,7 +9,7 @@ import {
 import { AbstractInstanceType, FetchOptions } from '../types';
 
 export class ArticleResource extends Resource {
-  readonly id: number | null = null;
+  readonly id: number | undefined = undefined;
   readonly title: string = '';
   readonly content: string = '';
   readonly author: number | null = null;
@@ -147,7 +147,7 @@ export class StaticArticleResource extends ArticleResource {
 }
 
 export class UserResource extends Resource {
-  readonly id: number | null = null;
+  readonly id: number | undefined = undefined;
   readonly username: string = '';
   readonly email: string = '';
   readonly isAdmin: boolean = false;
