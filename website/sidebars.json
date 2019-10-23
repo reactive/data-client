@@ -78,7 +78,6 @@
           "api/useFetcher",
           "api/useCache",
           "api/useCacheLegacy",
-          "api/useResultCache",
           "api/useSubscription",
           "api/useRetrieve",
           "api/useInvalidator",

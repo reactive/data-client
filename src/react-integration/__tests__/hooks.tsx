@@ -18,7 +18,6 @@ import {
   useRetrieve,
   useResourceLegacy,
   useCacheLegacy,
-  useResultCache,
   useInvalidator,
   useResetter,
 } from '../hooks';
@@ -354,71 +353,6 @@ describe('useCacheLegacy', () => {
     const { rerender } = testRestHook(() => {
       const articles = useCacheLegacy(PaginatedArticleResource.listShape(), {});
       useEffect(track, [articles]);
-    }, state);
-
-    expect(track.mock.calls.length).toBe(1);
-    for (let i = 0; i < 2; ++i) {
-      rerender();
-    }
-    expect(track.mock.calls.length).toBe(1);
-  });
-});
-
-describe('useResultCache', () => {
-  it('should be null with nothing in state', () => {
-    let results: any;
-    const state = { ...initialState };
-    const { rerender } = testRestHook(() => {
-      results = useResultCache(PaginatedArticleResource.listShape(), {});
-    }, state);
-    expect(results).toBe(null);
-  });
-
-  it('should send defaults with nothing in state', () => {
-    let results: any;
-    const state = { ...initialState };
-    const defaults = { prevPage: '', nextPage: '' };
-    testRestHook(() => {
-      results = useResultCache(
-        PaginatedArticleResource.listShape(),
-        {},
-        defaults,
-      );
-    }, state);
-    expect(results).toEqual(defaults);
-  });
-
-  it('should find results', () => {
-    const state = mockInitialState([
-      {
-        request: PaginatedArticleResource.listShape(),
-        params: {},
-        result: articlesPages,
-      },
-    ]);
-    let results: any;
-    testRestHook(() => {
-      results = useResultCache(PaginatedArticleResource.listShape(), {});
-    }, state);
-    expect(results).toBeTruthy();
-    expect(results.nextPage).toBe(articlesPages.nextPage);
-    expect(results.prevPage).toBe(articlesPages.prevPage);
-    expect(results.results).toEqual(['23', '44', '2', '643']);
-  });
-
-  it('should return identical value no matter how many re-renders', () => {
-    const state = mockInitialState([
-      {
-        request: PaginatedArticleResource.listShape(),
-        params: {},
-        result: articlesPages,
-      },
-    ]);
-    const track = jest.fn();
-
-    const { rerender } = testRestHook(() => {
-      const results = useResultCache(PaginatedArticleResource.listShape(), {});
-      useEffect(track, [results]);
     }, state);
 
     expect(track.mock.calls.length).toBe(1);

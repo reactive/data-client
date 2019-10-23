@@ -71,9 +71,6 @@
       "api/useresourcelegacy": {
         "title": "useResourceLegacy()"
       },
-      "api/useResultCache": {
-        "title": "useResultCache()"
-      },
       "api/useRetrieve": {
         "title": "useRetrieve()"
       },

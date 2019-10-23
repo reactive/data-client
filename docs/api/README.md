@@ -12,7 +12,6 @@ title: API Reference
 - [useFetcher](useFetcher.md)
 - [useCache](useCache.md)
 - [useCacheLegacy](useCacheLegacy.md)
-- [useResultCache](useResultCache.md)
 - [useSubscription](useSubscription.md)
 - [useRetrieve](useRetrieve.md)
 - [useInvalidator](useInvalidator.md)

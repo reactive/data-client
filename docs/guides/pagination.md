@@ -31,12 +31,18 @@ and the Array of results as another member.
 ```
 
 To deal with our specific shape, we'll need to customize the [FetchShape](../api/FetchShape.md) of lists to
-understand how to normalize the results (via schema).
+understand how to normalize the results (via schema). Be sure to provide defaults in your schema for any members
+that aren't entities.
 
 `resources/ArticleResource.ts`
 
 ```typescript
-import { Resource, SchemaList, ReadShape, AbstractInstanceType } from 'rest-hooks';
+import {
+  Resource,
+  SchemaList,
+  ReadShape,
+  AbstractInstanceType,
+} from 'rest-hooks';
 import { UserResource } from 'resources';
 
 export default class ArticleResource extends Resource {
@@ -50,31 +56,30 @@ export default class ArticleResource extends Resource {
   }
   static urlRoot = 'http://test.com/article/';
 
-  static listShape<T extends typeof Resource>(this: T): ReadShape<SchemaList<AbstractInstanceType<T>>> {
+  static listShape<T extends typeof Resource>(
+    this: T,
+  ) {
     return {
       ...super.listShape(),
-      schema: { results: [this.getEntitySchema()] },
+      schema: { results: [this.getEntitySchema()], nextPage: '', prevPage: '' },
     };
   }
 }
 ```
 
-Now we can use `listShape()` as normal.
-
-Additionally, we can add pagination buttons using [useResultCache](../api/useResultCache).
+Now we can use `listShape()` to get not only the articles, but also our `nextPage`
+and `prevPage` values. We can use those tokens to define our pagination buttons.
 
 `ArticleList.tsx`
 
 ```tsx
-import { useResource, useResultCache } from 'rest-hooks';
+import { useResource } from 'rest-hooks';
 import ArticleResource from 'resources/ArticleResource';
 
 export default function ArticleList() {
-  const articles = useResource(ArticleResource.listShape(), {});
-  const { nextPage, prevPage } = useResultCache(
+  const { results: articles, nextPage, prevPage } = useResource(
     ArticleResource.listShape(),
     {},
-    { nextPage: '', prevPage: '' }
   );
   return (
     <>
@@ -90,7 +95,6 @@ export default function ArticleList() {
 }
 ```
 
-
 ## Tokens in HTTP Headers
 
 In some cases the pagination tokens will be embeded in HTTP headers, rather than part of the payload. In this
@@ -103,32 +107,42 @@ Pagination token is stored in the header `link` for this example.
 
 ```typescript
 import request from 'superagent';
-import { Resource, ReadShape, SchemaList, AbstractInstanceType } from 'rest-hooks';
+import {
+  Resource,
+  ReadShape,
+  SchemaList,
+  AbstractInstanceType,
+} from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
   // same as above....
 
   /** Shape to get a list of entities */
-  static listShape<T extends typeof Resource>(this: T): ReadShape<SchemaList<AbstractInstanceType<T>>> {
-    const fetch = async (params: Readonly<object>, body?: Readonly<object | string>) => {
+  static listShape<T extends typeof Resource>(
+    this: T,
+  ) {
+    const fetch = async (
+      params: Readonly<object>,
+      body?: Readonly<object | string>,
+    ) => {
       const url = this.listUrl(params);
       let req = request['get'](url).on('error', () => {});
       if (this.fetchPlugin) req = req.use(this.fetchPlugin);
       if (body) req = req.send(body);
-      const res = (await req);
+      const res = await req;
       let jsonResponse = res.body;
       // include both the body and the link header
       jsonResponse = {
         link: res.headers.link,
         results: jsonResponse,
-      }
+      };
       return jsonResponse;
     };
 
     return {
       ...super.listShape(),
       fetch,
-      schema: { results: [this.getEntitySchema()] },
+      schema: { results: [this.getEntitySchema()], link: '' },
     };
   }
 }

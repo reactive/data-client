@@ -1,7 +1,6 @@
 import useFetcher from './useFetcher';
 import useCache from './useCache';
 import useCacheLegacy from './useCacheLegacy';
-import useResultCache from './useResultCache';
 import useRetrieve from './useRetrieve';
 import useResource from './useResource';
 import useResourceLegacy from './useResourceLegacy';
@@ -16,7 +15,6 @@ export {
   useCache,
   useCacheLegacy,
   useError,
-  useResultCache,
   useRetrieve,
   useResource,
   useResourceLegacy,
