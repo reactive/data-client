@@ -5,11 +5,10 @@ import useFetcher from './useFetcher';
 import useMeta from './useMeta';
 
 /** Returns whether the data at this url is fresh or stale */
-function useExpiresAt<
-  Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void,
-  S extends Schema
->(fetchShape: ReadShape<S, Params, Body>, params: Params | null): number {
+function useExpiresAt<Params extends Readonly<object>, S extends Schema>(
+  fetchShape: ReadShape<S, Params>,
+  params: Params | null,
+): number {
   const meta = useMeta(fetchShape, params);
   if (!meta) {
     return 0;
@@ -20,9 +19,8 @@ function useExpiresAt<
 /** Request a resource if it is not in cache. */
 export default function useRetrieve<
   Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void,
   S extends Schema
->(fetchShape: ReadShape<S, Params, Body>, params: Params | null, body?: Body) {
+>(fetchShape: ReadShape<S, Params>, params: Params | null, body?: Body) {
   const fetch = useFetcher(fetchShape, true);
   const expiresAt = useExpiresAt(fetchShape, params);
 
@@ -31,7 +29,7 @@ export default function useRetrieve<
     if (Date.now() <= expiresAt) return;
     // null params mean don't do anything
     if (!params) return;
-    return fetch(body as Body, params);
+    return fetch(params);
     // we don't care to re-request on body (should we?)
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps

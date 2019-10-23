@@ -91,7 +91,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       expect(result.current instanceof CoolerArticleResource).toBe(true);
       expect(result.current.title).toBe(payload.title);
 
-      await del({}, payload);
+      await del(payload);
       expect(result.error).toBeDefined();
       expect((result.error as any).status).toBe(404);
     });
@@ -101,7 +101,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         return useFetcher(CoolerArticleResource.detailShape());
       });
 
-      await expect(result.current({}, { id: 666 })).rejects.toThrowError(
+      await expect(result.current({ id: 666 })).rejects.toThrowError(
         'JSON expected but not returned from API',
       );
     });
@@ -115,7 +115,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       });
 
       for (const del of result.current) {
-        await expect(del({}, payload)).resolves.toBeDefined();
+        await expect(del(payload, undefined)).resolves.toBeDefined();
       }
     });
 
@@ -187,7 +187,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         return { articles, createNewArticle };
       });
       await waitForNextUpdate();
-      await result.current.createNewArticle({ id: 1 }, {}, [
+      await result.current.createNewArticle({}, { id: 1 }, [
         [
           CoolerArticleResource.listShape(),
           {},
@@ -218,7 +218,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         return { articles, getNextPage };
       });
       await waitForNextUpdate();
-      await result.current.getNextPage({}, { cursor: 2 }, [
+      await result.current.getNextPage({ cursor: 2 }, {}, [
         [
           PaginatedArticleResource.listShape(),
           {},

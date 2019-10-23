@@ -6,19 +6,14 @@ import { useMemo } from 'react';
 
 import hasUsableData from './hasUsableData';
 
-type ResourceArgs<
-  S extends Schema,
-  Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void
-> = [ReadShape<S, Params, Body>, Params | null];
+type ResourceArgs<S extends Schema, Params extends Readonly<object>> = [
+  ReadShape<S, Params>,
+  Params | null,
+];
 
 /** single form resource */
-function useOneResource<
-  Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void,
-  S extends Schema
->(
-  fetchShape: ReadShape<S, Params, Body>,
+function useOneResource<Params extends Readonly<object>, S extends Schema>(
+  fetchShape: ReadShape<S, Params>,
   params: Params | null,
 ): CondNull<typeof params, NonNullable<SchemaOf<S>>> {
   // maybePromise is undefined when data is stale or params is null
@@ -35,15 +30,14 @@ function useOneResource<
 }
 
 /** many form resource */
-function useManyResources<A extends ResourceArgs<any, any, any>[]>(
+function useManyResources<A extends ResourceArgs<any, any>[]>(
   ...resourceList: A
 ) {
   const resources = resourceList.map(
-    <
-      Params extends Readonly<object>,
-      Body extends Readonly<object | string> | void,
-      S extends Schema
-    >([fetchShape, params]: ResourceArgs<S, Params, Body>) =>
+    <Params extends Readonly<object>, S extends Schema>([
+      fetchShape,
+      params,
+    ]: ResourceArgs<S, Params>) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
       useCache(fetchShape, params),
   );
@@ -82,42 +76,35 @@ type CondNull<P, R> = P extends null ? null : R;
 /** Ensure a resource is available; suspending to React until it is. */
 export default function useResource<
   P extends Readonly<object> | null,
-  B extends Readonly<object | string> | void,
   S extends Schema
 >(
-  fetchShape: ReadShape<S, NonNullable<P>, B>,
+  fetchShape: ReadShape<S, NonNullable<P>>,
   params: P,
 ): CondNull<P, SchemaOf<S>>;
 export default function useResource<
   P1 extends Readonly<object> | null,
-  B1 extends Readonly<object | string> | void,
   S1 extends Schema
->(v1: [ReadShape<S1, NonNullable<P1>, B1>, P1]): [CondNull<P1, SchemaOf<S1>>];
+>(v1: [ReadShape<S1, NonNullable<P1>>, P1]): [CondNull<P1, SchemaOf<S1>>];
 export default function useResource<
   P1 extends Readonly<object> | null,
-  B1 extends Readonly<object | string> | void,
   S1 extends Schema,
   P2 extends Readonly<object> | null,
-  B2 extends Readonly<object | string> | void,
   S2 extends Schema
 >(
-  v1: [ReadShape<S1, NonNullable<P1>, B1>, P1],
-  v2: [ReadShape<S2, NonNullable<P2>, B2>, P2],
+  v1: [ReadShape<S1, NonNullable<P1>>, P1],
+  v2: [ReadShape<S2, NonNullable<P2>>, P2],
 ): [CondNull<P1, SchemaOf<S1>>, CondNull<P2, SchemaOf<S2>>];
 export default function useResource<
   P1 extends Readonly<object> | null,
-  B1 extends Readonly<object | string> | void,
   S1 extends Schema,
   P2 extends Readonly<object> | null,
-  B2 extends Readonly<object | string> | void,
   S2 extends Schema,
   P3 extends Readonly<object> | null,
-  B3 extends Readonly<object | string> | void,
   S3 extends Schema
 >(
-  v1: [ReadShape<S1, NonNullable<P1>, B1>, P1],
-  v2: [ReadShape<S2, NonNullable<P2>, B2>, P2],
-  v3: [ReadShape<S3, NonNullable<P3>, B3>, P3],
+  v1: [ReadShape<S1, NonNullable<P1>>, P1],
+  v2: [ReadShape<S2, NonNullable<P2>>, P2],
+  v3: [ReadShape<S3, NonNullable<P3>>, P3],
 ): [
   CondNull<P1, SchemaOf<S1>>,
   CondNull<P2, SchemaOf<S2>>,
@@ -125,22 +112,18 @@ export default function useResource<
 ];
 export default function useResource<
   P1 extends Readonly<object> | null,
-  B1 extends Readonly<object | string> | void,
   S1 extends Schema,
   P2 extends Readonly<object> | null,
-  B2 extends Readonly<object | string> | void,
   S2 extends Schema,
   P3 extends Readonly<object> | null,
-  B3 extends Readonly<object | string> | void,
   S3 extends Schema,
   P4 extends Readonly<object> | null,
-  B4 extends Readonly<object | string> | void,
   S4 extends Schema
 >(
-  v1: [ReadShape<S1, NonNullable<P1>, B1>, P1],
-  v2: [ReadShape<S2, NonNullable<P2>, B2>, P2],
-  v3: [ReadShape<S3, NonNullable<P3>, B3>, P3],
-  v4: [ReadShape<S4, NonNullable<P4>, B4>, P4],
+  v1: [ReadShape<S1, NonNullable<P1>>, P1],
+  v2: [ReadShape<S2, NonNullable<P2>>, P2],
+  v3: [ReadShape<S3, NonNullable<P3>>, P3],
+  v4: [ReadShape<S4, NonNullable<P4>>, P4],
 ): [
   CondNull<P1, SchemaOf<S1>>,
   CondNull<P2, SchemaOf<S2>>,
@@ -149,26 +132,21 @@ export default function useResource<
 ];
 export default function useResource<
   P1 extends Readonly<object> | null,
-  B1 extends Readonly<object | string> | void,
   S1 extends Schema,
   P2 extends Readonly<object> | null,
-  B2 extends Readonly<object | string> | void,
   S2 extends Schema,
   P3 extends Readonly<object> | null,
-  B3 extends Readonly<object | string> | void,
   S3 extends Schema,
   P4 extends Readonly<object> | null,
-  B4 extends Readonly<object | string> | void,
   S4 extends Schema,
   P5 extends Readonly<object> | null,
-  B5 extends Readonly<object | string> | void,
   S5 extends Schema
 >(
-  v1: [ReadShape<S1, NonNullable<P1>, B1>, P1],
-  v2: [ReadShape<S2, NonNullable<P2>, B2>, P2],
-  v3: [ReadShape<S3, NonNullable<P3>, B3>, P3],
-  v4: [ReadShape<S4, NonNullable<P4>, B4>, P4],
-  v5: [ReadShape<S5, NonNullable<P5>, B5>, P5],
+  v1: [ReadShape<S1, NonNullable<P1>>, P1],
+  v2: [ReadShape<S2, NonNullable<P2>>, P2],
+  v3: [ReadShape<S3, NonNullable<P3>>, P3],
+  v4: [ReadShape<S4, NonNullable<P4>>, P4],
+  v5: [ReadShape<S5, NonNullable<P5>>, P5],
 ): [
   CondNull<P1, SchemaOf<S1>>,
   CondNull<P2, SchemaOf<S2>>,
@@ -178,16 +156,15 @@ export default function useResource<
 ];
 export default function useResource<
   Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void,
   S extends Schema
->(...args: ResourceArgs<S, Params, Body> | ResourceArgs<S, Params, Body>[]) {
+>(...args: ResourceArgs<S, Params> | ResourceArgs<S, Params>[]) {
   // this conditional use of hooks is ok as long as the structure of the arguments don't change
   if (Array.isArray(args[0])) {
     // TODO: provide type guard function to detect this
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useManyResources(...(args as ResourceArgs<S, Params, Body>[]));
+    return useManyResources(...(args as ResourceArgs<S, Params>[]));
   }
-  args = args as ResourceArgs<S, Params, Body>;
+  args = args as ResourceArgs<S, Params>;
   // TODO: make return types match up with the branching logic we put in here.
   // eslint-disable-next-line react-hooks/rules-of-hooks
   return useOneResource(args[0], args[1]);

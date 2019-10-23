@@ -9,10 +9,7 @@ export default function useSchemaSelect<
   Params extends Readonly<object>,
   S extends Schema
 >(
-  {
-    schema,
-    getFetchKey,
-  }: Pick<ReadShape<S, Params, any>, 'schema' | 'getFetchKey'>,
+  { schema, getFetchKey }: Pick<ReadShape<S, Params>, 'schema' | 'getFetchKey'>,
   params: Params | null,
   state: State<any>,
 ): typeof params extends null ? null : (SchemaOf<typeof schema> | null) {

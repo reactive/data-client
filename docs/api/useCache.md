@@ -16,7 +16,7 @@ function useCache(
 
 ```typescript
 function useCache<Params extends Readonly<object>, S extends Schema>(
-  { schema, getFetchKey }: ReadShape<S, Params, any>,
+  { schema, getFetchKey }: ReadShape<S, Params>,
   params: Params | null
 ): SchemaOf<S> | null;
 ```

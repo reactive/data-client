@@ -9,7 +9,7 @@ export default function useCacheNew<
   Params extends Readonly<object>,
   S extends Schema
 >(
-  fetchShape: Pick<ReadShape<S, Params, any>, 'schema' | 'getFetchKey'>,
+  fetchShape: Pick<ReadShape<S, Params>, 'schema' | 'getFetchKey'>,
   params: Params | null,
 ) {
   const state = useContext(StateContext);

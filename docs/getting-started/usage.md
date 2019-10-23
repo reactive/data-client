@@ -136,7 +136,7 @@ export default function NewArticleForm() {
   const create = useFetcher(ArticleResource.createShape());
   // create as (body: Readonly<Partial<ArticleResource>>, params?: Readonly<object>) => Promise<any>
   return (
-    <Form onSubmit={e => create(new FormData(e.target), {})}>
+    <Form onSubmit={e => create({}, new FormData(e.target))}>
       <FormField name="title" />
       <FormField name="content" type="textarea" />
       <FormField name="tags" type="tag" />
@@ -160,7 +160,7 @@ export default function UpdateArticleForm({ id }: { id: number }) {
   // update as (body: Readonly<Partial<ArticleResource>>, params?: Readonly<object>) => Promise<any>
   return (
     <Form
-      onSubmit={e => update(new FormData(e.target), { id })}
+      onSubmit={e => update({ id }, new FormData(e.target))}
       initialValues={article}
     >
       <FormField name="title" />
@@ -187,7 +187,7 @@ export default function ArticleWithDelete({ article }: { article: ArticleResourc
     <article>
       <h2>{article.title}</h2>
       <div>{article.content}</div>
-      <button onClick={() => del(undefined, { id: article.id })}>Delete</button>
+      <button onClick={() => del({ id: article.id })}>Delete</button>
     </article>
   );
 }

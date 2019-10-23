@@ -19,15 +19,13 @@ function useResourceNew(...[fetchShape: ReadShape, params: object | null]):
 ```typescript
 function useResourceNew<
   Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void,
   S extends Schema
->(fetchShape: ReadShape<S, Params, Body>, params: Params | null): Denormalized<S>;
+>(fetchShape: ReadShape<S, Params>, params: Params | null): Denormalized<S>;
 
 function useResourceNew<
   Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void,
   S extends Schema
->(...[fetchShape: ReadShape<S, Params, Body>, params: Params | null]): Denormalized<S>[];
+>(...[fetchShape: ReadShape<S, Params>, params: Params | null]): Denormalized<S>[];
 ```
 
 <!--END_DOCUSAURUS_CODE_TABS-->

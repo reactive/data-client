@@ -63,8 +63,9 @@ const __INTERNAL__ = {
 
 export type DeleteShape<
   S extends schemas.Entity,
-  Params extends Readonly<object> = Readonly<object>
-> = DeleteShape<S, Params>;
+  Params extends Readonly<object> = Readonly<object>,
+  Body extends Readonly<object | string> | void = undefined
+> = DeleteShape<S, Params, Body>;
 export type MutateShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
@@ -72,9 +73,8 @@ export type MutateShape<
 > = MutateShape<S, Params, Body>;
 export type ReadShape<
   S extends Schema,
-  Params extends Readonly<object> = Readonly<object>,
-  Body extends Readonly<object | string> | void = Readonly<object> | undefined
-> = ReadShape<S, Params, Body>;
+  Params extends Readonly<object> = Readonly<object>
+> = ReadShape<S, Params>;
 export type FetchShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,

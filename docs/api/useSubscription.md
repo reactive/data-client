@@ -19,10 +19,9 @@ function useSubscription(
 ```typescript
 function useSubscription<
   Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void,
   S extends Schema
 >(
-  fetchShape: ReadShape<S, Params, Body>,
+  fetchShape: ReadShape<S, Params>,
   params: Params | null,
   body?: Body,
   active?: boolean = true,

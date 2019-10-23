@@ -199,8 +199,8 @@ export default abstract class SimpleResource {
       schema,
       options,
       getFetchKey,
-      fetch: (params: Readonly<object>, body?: Readonly<object | string>) => {
-        return this.fetch('get', this.url(params), body);
+      fetch: (params: Readonly<object>) => {
+        return this.fetch('get', this.url(params));
       },
     };
   }
@@ -219,11 +219,8 @@ export default abstract class SimpleResource {
       schema,
       options,
       getFetchKey,
-      fetch: (
-        params: Readonly<Record<string, string | number>>,
-        body?: Readonly<object | string>,
-      ) => {
-        return this.fetch('get', this.listUrl(params), body);
+      fetch: (params: Readonly<Record<string, string | number>>) => {
+        return this.fetch('get', this.listUrl(params));
       },
     };
   }

@@ -12,8 +12,8 @@ function useFetcher(
 ): FetchFunction;
 
 type FetchFunction = (
-  body: object | void,
   params: object,
+  body: object | void,
   updateParams?: OptimisticUpdateParams[]
 ) => Promise<any>;
 
@@ -34,16 +34,16 @@ function useFetcher<
 >(
   fetchShape: FetchShape<S, Params, Body>,
   throttle?: boolean = false,
-): Shape extends DeleteShape<any, any>
-  ? (body: BodyFromShape<Shape>, params: ParamsFromShape<Shape>) => Promise<any>
+): Shape extends DeleteShape<any, any, any>
+  ? (params: ParamsFromShape<Shape>, body: BodyFromShape<Shape>) => Promise<any>
   : <
       UpdateParams extends OptimisticUpdateParams<
         SchemaFromShape<Shape>,
         FetchShape<any, any, any>
       >[]
     >(
-      body: BodyFromShape<Shape>,
       params: ParamsFromShape<Shape>,
+      body: BodyFromShape<Shape>,
       updateParams?: UpdateParams | undefined,
     ) => Promise<any>;
 
@@ -82,7 +82,7 @@ function CreatePost() {
   // create as (body: Readonly<Partial<PostResource>>, params?: Readonly<object>) => Promise<any>
 
   return (
-    <form onSubmit={e => create(new FormData(e.target), {})}>{/* ... */}</form>
+    <form onSubmit={e => create({}, new FormData(e.target))}>{/* ... */}</form>
   );
 }
 ```
@@ -93,7 +93,7 @@ function UpdatePost({ id }: { id: string }) {
   // update as (body: Readonly<Partial<PostResource>>, params?: Readonly<object>) => Promise<any>
 
   return (
-    <form onSubmit={e => update(new FormData(e.target), { id })}>
+    <form onSubmit={e => update({ id }, new FormData(e.target))}>
       {/* ... */}
     </form>
   );
@@ -108,7 +108,7 @@ function PostListItem({ post }: { post: PostResource }) {
   return (
     <div>
       <h3>{post.title}</h3>
-      <button onClick={() => del({}, { id: post.id })}>X</button>
+      <button onClick={() => del({ id: post.id })}>X</button>
     </div>
   );
 }
@@ -139,7 +139,7 @@ This will insert the newly created article id onto the end of the listshape with
 ```typescript
 const createArticle = useFetcher(ArticleResource.createShape());
 
-createArticle({ id: 1 }, {}, [
+createArticle({}, { id: 1 }, [
   [
     ArticleResource.listShape(),
     {},
@@ -164,7 +164,7 @@ class ArticlePaginatedResource extends Resource {
 ```typescript
 const createArticle = useFetcher(ArticleResource.createShape());
 
-createArticle({ id: 1 }, {}, [
+createArticle({}, { id: 1 }, [
   [
     ArticlePaginatedResource.listShape(),
     {},
