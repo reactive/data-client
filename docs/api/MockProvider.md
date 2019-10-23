@@ -21,7 +21,7 @@ can be tested. This is useful for [storybook](../guides/storybook.md) as well as
 
 ```typescript
 interface Fixture {
-  request: ReadShape<Schema, object, any>;
+  request: ReadShape<Schema, object>;
   params: object;
   result: object | string | number;
 }

@@ -19,10 +19,9 @@ import { useRetrieve, useCache, useError, Schema, ReadShape } from 'rest-hooks';
 function hasUsableData<
   S extends Schema,
   Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void
 >(
-  resource: RequestResource<ReadShape<S, Params, Body>> | null,
-  fetchShape: ReadShape<S, Params, Body>,
+  resource: RequestResource<ReadShape<S, Params>> | null,
+  fetchShape: ReadShape<S, Params>,
 ) {
   return !(
     (fetchShape.options && fetchShape.options.invalidIfStale) ||
@@ -33,9 +32,8 @@ function hasUsableData<
 /** Ensure a resource is available; loading and error returned explicitly. */
 function useStatefulResource<
   Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void,
   S extends Schema
->(fetchShape: ReadShape<S, Params, Body>, params: Params | null) {
+>(fetchShape: ReadShape<S, Params>, params: Params | null) {
   let maybePromise = useRetrieve(fetchShape, params);
   const resource = useCache(fetchShape, params);
 

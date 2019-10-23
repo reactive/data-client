@@ -22,10 +22,7 @@ export default function useDenormalized<
   Params extends Readonly<object>,
   S extends Schema
 >(
-  {
-    schema,
-    getFetchKey,
-  }: Pick<ReadShape<S, Params, any>, 'schema' | 'getFetchKey'>,
+  { schema, getFetchKey }: Pick<ReadShape<S, Params>, 'schema' | 'getFetchKey'>,
   params: Params | null,
   state: State<any>,
 ): [

@@ -44,7 +44,7 @@ return (
 
 ```tsx
 const update = useFetcher(ArticleResource.updateShape());
-return <ArticleForm onSubmit={data => update(data, { id })} />;
+return <ArticleForm onSubmit={data => update({ id }, data)} />;
 ```
 
 ### And subscriptions

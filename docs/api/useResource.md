@@ -19,15 +19,13 @@ function useResource(...[fetchShape: ReadShape, params: object | null]):
 ```typescript
 function useResource<
   Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void,
   S extends Schema
->(fetchShape: ReadShape<S, Params, Body>, params: Params | null): SchemaOf<S>;
+>(fetchShape: ReadShape<S, Params>, params: Params | null): SchemaOf<S>;
 
 function useResource<
   Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void,
   S extends Schema
->(...[fetchShape: ReadShape<S, Params, Body>, params: Params | null]): SchemaOf<S>[];
+>(...[fetchShape: ReadShape<S, Params>, params: Params | null]): SchemaOf<S>[];
 ```
 
 <!--END_DOCUSAURUS_CODE_TABS-->

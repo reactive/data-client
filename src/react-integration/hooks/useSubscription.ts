@@ -6,14 +6,8 @@ import { ReadShape, Schema } from '~/resource';
 /** Keeps a resource fresh by subscribing to updates. */
 export default function useSubscription<
   Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void,
   S extends Schema
->(
-  fetchShape: ReadShape<S, Params, Body>,
-  params: Params,
-  body?: Body,
-  active = true,
-) {
+>(fetchShape: ReadShape<S, Params>, params: Params, active = true) {
   const dispatch = useContext(DispatchContext);
   /*
   we just want the current values when we dispatch, so
@@ -34,7 +28,7 @@ export default function useSubscription<
       type: 'rest-hooks/subscribe',
       meta: {
         schema,
-        fetch: () => fetch(params, body as Body),
+        fetch: () => fetch(params),
         url,
         frequency: options && options.pollFrequency,
       },
@@ -50,5 +44,5 @@ export default function useSubscription<
     };
     // serialize params
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, body, active, params && fetchShape.getFetchKey(params)]);
+  }, [dispatch, active, params && fetchShape.getFetchKey(params)]);
 }

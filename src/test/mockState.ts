@@ -2,7 +2,7 @@ import { ReadShape, ReceiveAction, Schema, reducer, __INTERNAL__ } from '..';
 const { initialState } = __INTERNAL__;
 
 export interface Fixture {
-  request: ReadShape<Schema, object, any>;
+  request: ReadShape<Schema, object>;
   params: object;
   result: object | string | number;
 }

@@ -53,7 +53,6 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         useSubscription(
           PollingArticleResource.detailShape(),
           articlePayload,
-          undefined,
           active,
         );
         return useCache(PollingArticleResource.detailShape(), articlePayload);

@@ -18,10 +18,9 @@ function useRetrieve(
 ```typescript
 function useRetrieve<
   Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void,
   S extends Schema
 >(
-  fetchShape: ReadShape<S, Params, Body>,
+  fetchShape: ReadShape<S, Params>,
   params: Params | null,
   body?: Body,
 ): Promise<any> | undefined;

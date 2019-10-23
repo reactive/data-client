@@ -96,7 +96,7 @@ describe('useFetcher', () => {
 
     function DispatchTester() {
       const a = useFetcher(CoolerArticleResource.createShape());
-      a({ content: 'hi' }, {});
+      a({}, { content: 'hi' });
       return null;
     }
     await testDispatchFetch(DispatchTester, [payload]);
@@ -110,7 +110,7 @@ describe('useFetcher', () => {
     function DispatchTester() {
       const create = useFetcher(CoolerArticleResource.createShape());
       const params = { content: 'hi' };
-      create(params, {}, [
+      create({}, params, [
         [
           CoolerArticleResource.listShape(),
           {},
@@ -130,7 +130,7 @@ describe('useFetcher', () => {
     function DispatchTester() {
       const create = useFetcher(ArticleResourceWithOtherListUrl.createShape());
       const params = { content: 'hi' };
-      create(params, {}, [
+      create({}, params, [
         [
           ArticleResourceWithOtherListUrl.listShape(),
           {},
@@ -152,7 +152,7 @@ describe('useFetcher', () => {
     const spy = (console.error = jest.fn());
     renderHook(() => {
       const a = useFetcher(CoolerArticleResource.createShape());
-      a({ content: 'hi' }, {});
+      a({}, { content: 'hi' });
       return null;
     });
     expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
@@ -171,7 +171,7 @@ describe('useFetcher', () => {
 
     function DispatchTester() {
       const a = useFetcher(CoolerArticleResource.partialUpdateShape());
-      a({ content: 'changed' }, { id: payload.id });
+      a({ id: payload.id }, { content: 'changed' });
       return null;
     }
     await testDispatchFetch(DispatchTester, [payload]);
@@ -184,7 +184,7 @@ describe('useFetcher', () => {
 
     function DispatchTester() {
       const a = useFetcher(CoolerArticleResource.updateShape());
-      a({ content: 'changed' }, { id: payload.id });
+      a({ id: payload.id }, { content: 'changed' });
       return null;
     }
     await testDispatchFetch(DispatchTester, [payload]);

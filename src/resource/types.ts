@@ -29,8 +29,9 @@ export type BodyFromShape<
 /** Purges a value from the server */
 export interface DeleteShape<
   S extends schemas.Entity,
-  Params extends Readonly<object> = Readonly<object>
-> extends FetchShape<S, Params, any> {
+  Params extends Readonly<object> = Readonly<object>,
+  Body extends Readonly<object | string> | void = undefined
+> extends FetchShape<S, Params, Body> {
   readonly type: 'delete';
 }
 
@@ -48,12 +49,10 @@ export interface MutateShape<
 /** For retrieval requests */
 export interface ReadShape<
   S extends Schema,
-  Params extends Readonly<object> = Readonly<object>,
-  Body extends Readonly<object | string> | void =
-    | Readonly<object | string>
-    | undefined
-> extends FetchShape<S, Params, Body> {
+  Params extends Readonly<object> = Readonly<object>
+> extends FetchShape<S, Params, undefined> {
   readonly type: 'read';
+  fetch(params: Params): Promise<any>;
 }
 
 export function isDeleteShape(

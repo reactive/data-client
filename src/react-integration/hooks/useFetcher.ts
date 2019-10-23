@@ -40,16 +40,16 @@ export default function useFetcher<
 >(
   fetchShape: Shape,
   throttle = false,
-): Shape extends DeleteShape<any, any>
-  ? (body: BodyFromShape<Shape>, params: ParamsFromShape<Shape>) => Promise<any>
+): Shape extends DeleteShape<any, any, any>
+  ? (params: ParamsFromShape<Shape>, body: BodyFromShape<Shape>) => Promise<any>
   : <
       UpdateParams extends OptimisticUpdateParams<
         SchemaFromShape<Shape>,
         FetchShape<any, any, any>
       >[]
     >(
-      body: BodyFromShape<Shape>,
       params: ParamsFromShape<Shape>,
+      body: BodyFromShape<Shape>,
       updateParams?: UpdateParams | undefined,
     ) => Promise<any> {
   const dispatch = useContext(DispatchContext);
@@ -61,8 +61,8 @@ export default function useFetcher<
 
   const fetchDispatcher = useCallback(
     (
-      body: BodyFromShape<Shape>,
       params: ParamsFromShape<Shape>,
+      body: BodyFromShape<Shape>,
       updateParams?:
         | OptimisticUpdateParams<
             SchemaFromShape<Shape>,

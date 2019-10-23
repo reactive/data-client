@@ -7,7 +7,7 @@ import { DispatchContext } from '~/react-integration/context';
 export default function useInvalidator<
   Params extends Readonly<object>,
   S extends Schema
->(fetchShape: ReadShape<S, Params, any>): (params: Params | null) => void {
+>(fetchShape: ReadShape<S, Params>): (params: Params | null) => void {
   const dispatch = useContext(DispatchContext);
   const getFetchKeyRef = useRef(fetchShape.getFetchKey);
   getFetchKeyRef.current = fetchShape.getFetchKey;

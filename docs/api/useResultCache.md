@@ -17,7 +17,7 @@ function useResultCache(
 
 ```typescript
 function useResultCache<Params extends Readonly<object>, D extends object>(
-  { getFetchKey, fetch }: ReadShape<any, Params, any>,
+  { getFetchKey, fetch }: ReadShape<any, Params>,
   params: Params | null,
   defaults?: D,
 ): D extends undefined
