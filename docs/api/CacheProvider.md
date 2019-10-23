@@ -32,7 +32,7 @@ ReactDOM.render(
 
 ```typescript
 type State<T> = Readonly<{
-  entities: Readonly<{ [k: string]: { [id: string]: T } | undefined }>;
+  entities: Readonly<{ [fetchKey: string]: { [pk: string]: T } | undefined }>;
   results: Readonly<{ [url: string]: unknown | PK[] | PK | undefined }>;
   meta: Readonly<{
     [url: string]: { date: number; error?: Error; expiresAt: number };
