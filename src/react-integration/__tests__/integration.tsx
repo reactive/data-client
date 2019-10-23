@@ -7,7 +7,7 @@ import {
   PaginatedArticleResource,
   UserResource,
 } from '../../__tests__/common';
-import { useResource, useFetcher } from '../hooks';
+import { useResource, useFetcher, useCache } from '../hooks';
 import makeRenderRestHook from '../../test/makeRenderRestHook';
 import {
   makeCacheProvider,
@@ -74,7 +74,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       const { result, waitForNextUpdate } = renderRestHook(() => {
         return useResource(CoolerArticleResource.detailShape(), payload);
       });
-      expect(result.current).toBe(null);
+      expect(result.current).toBeNull();
       await waitForNextUpdate();
       expect(result.current instanceof CoolerArticleResource).toBe(true);
       expect(result.current.title).toBe(payload.title);
@@ -86,7 +86,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         del = useFetcher(CoolerArticleResource.deleteShape());
         return useResource(CoolerArticleResource.detailShape(), payload);
       });
-      expect(result.current).toBe(null);
+      expect(result.current).toBeNull();
       await waitForNextUpdate();
       expect(result.current instanceof CoolerArticleResource).toBe(true);
       expect(result.current.title).toBe(payload.title);
@@ -125,7 +125,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           title: '0',
         });
       });
-      expect(result.current).toBe(null);
+      expect(result.current).toBeNull();
       await waitForNextUpdate();
       expect(result.error).toBeDefined();
       expect((result.error as any).status).toBe(403);
@@ -140,7 +140,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           },
         ]);
       });
-      expect(result.current).toBe(null);
+      expect(result.current).toBeNull();
       await waitForNextUpdate();
       expect(result.error).toBeDefined();
       expect((result.error as any).status).toBe(403);
@@ -158,7 +158,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           [UserResource.listShape(), {}],
         );
       });
-      expect(result.current).toBe(null);
+      expect(result.current).toBeNull();
       await waitForNextUpdate();
       const [article, users] = result.current;
       expect(article instanceof CoolerArticleResource).toBe(true);
@@ -175,7 +175,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         return 'done';
       });
       expect(result.current).toBe('done');
-      expect(article).toBeNull();
+      expect(article).toBeUndefined();
     });
 
     it('should update on create', async () => {
@@ -213,7 +213,10 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         .reply(200, paginatedSecondPage);
 
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        const articles = useResource(PaginatedArticleResource.listShape(), {});
+        const { results: articles } = useResource(
+          PaginatedArticleResource.listShape(),
+          {},
+        );
         const getNextPage = useFetcher(PaginatedArticleResource.listShape());
         return { articles, getNextPage };
       });

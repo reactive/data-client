@@ -9,7 +9,6 @@ title: useSubscription()
 function useSubscription(
   fetchShape: ReadShape,
   params: object | null,
-  body?: object | string,
   active?: boolean = true,
 ): void;
 ```
@@ -23,7 +22,6 @@ function useSubscription<
 >(
   fetchShape: ReadShape<S, Params>,
   params: Params | null,
-  body?: Body,
   active?: boolean = true,
 ): void;
 ```

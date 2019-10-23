@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`useCache should select paginated results 1`] = `
+exports[`useCacheLegacy should select paginated results 1`] = `
 Array [
   PaginatedArticleResource {
     "author": null,
@@ -169,7 +169,7 @@ Object {
 }
 `;
 
-exports[`useResource() should dispatch an action that fetches 1`] = `
+exports[`useResourceLegacy() should dispatch an action that fetches 1`] = `
 Object {
   "meta": Object {
     "options": undefined,
@@ -193,7 +193,7 @@ Object {
 }
 `;
 
-exports[`useResource() should dispatch fetch when sent multiple arguments 1`] = `
+exports[`useResourceLegacy() should dispatch fetch when sent multiple arguments 1`] = `
 Object {
   "meta": Object {
     "options": undefined,
@@ -217,7 +217,7 @@ Object {
 }
 `;
 
-exports[`useResource() should dispatch fetch when sent multiple arguments 2`] = `
+exports[`useResourceLegacy() should dispatch fetch when sent multiple arguments 2`] = `
 Object {
   "meta": Object {
     "options": undefined,

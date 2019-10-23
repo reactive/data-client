@@ -8,10 +8,10 @@ title: useResource()
 
 ```typescript
 function useResource(fetchShape: ReadShape, params: object | null):
-  SchemaOf<typeof fetchShape.schema>;
+  Denormalized<typeof fetchShape.schema>;
 
 function useResource(...[fetchShape: ReadShape, params: object | null]):
-  SchemaOf<typeof fetchShape.schema>[];
+  Denormalized<typeof fetchShape.schema>[];
 ```
 
 <!--With Generics-->
@@ -20,22 +20,22 @@ function useResource(...[fetchShape: ReadShape, params: object | null]):
 function useResource<
   Params extends Readonly<object>,
   S extends Schema
->(fetchShape: ReadShape<S, Params>, params: Params | null): SchemaOf<S>;
+>(fetchShape: ReadShape<S, Params>, params: Params | null): Denormalized<S>;
 
 function useResource<
   Params extends Readonly<object>,
   S extends Schema
->(...[fetchShape: ReadShape<S, Params>, params: Params | null]): SchemaOf<S>[];
+>(...[fetchShape: ReadShape<S, Params>, params: Params | null]): Denormalized<S>[];
 ```
 
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-> ### Rest Hooks 3.0 - Deprecation
+> ### Rest Hooks 3.0
 >
-> This hook is being deprecated in favor of [useResourceNew()](./useResourceNew)
+> This is the future default behavior of `useResource()` in version 3.0.
 >
-> - 3.0 this will be renamed to `useResourceLegacy()`
-> - 3.1 will remove `useResourceLegacy()`
+> - 3.0 will keep the legacy version as `useResourceLegacy()`
+> - 3.1 will remove both `useResourceLegacy()` and `useResource()`, leaving this behavior in `useResource()`
 
 Excellent for retrieving the data you need.
 
@@ -91,6 +91,37 @@ function PostWithAuthor() {
     id: post.userId,
   });
   // author as UserResource
+}
+```
+
+## Paginated data
+
+When entities are stored in nested structures, that structure will remain.
+
+```typescript
+export class PaginatedPostResource extends Resource {
+  readonly id: number | null = null;
+  readonly title: string = '';
+  readonly content: string = '';
+
+  static urlRoot = 'http://test.com/post/';
+
+  static listShape<T extends typeof Resource>(this: T) {
+    return {
+      ...super.listShape(),
+      schema: { results: [this.getEntitySchema()], nextPage: '', lastPage: '' },
+    };
+  }
+}
+```
+
+```tsx
+function ArticleList({ page }: { page: string }) {
+  const { results: posts, nextPage, lastPage } = useResource(
+    PaginatedPostResource.listShape(),
+    { page },
+  );
+  // posts as PaginatedPostResource[]
 }
 ```
 

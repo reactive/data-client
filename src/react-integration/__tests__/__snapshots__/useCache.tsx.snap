@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`useCacheNew() should select paginated results 1`] = `
+exports[`useCache() should select paginated results 1`] = `
 Array [
   PaginatedArticleResource {
     "author": null,

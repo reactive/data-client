@@ -2,10 +2,10 @@ import { useContext } from 'react';
 
 import { StateContext } from '~/react-integration/context';
 import { ReadShape, Schema } from '~/resource';
-import { useDenormalized } from '~/state/selectors';
+import { useSchemaSelect } from '~/state/selectors';
 
 /** Access a resource if it is available. */
-export default function useCacheNew<
+export default function useCacheLegacy<
   Params extends Readonly<object>,
   S extends Schema
 >(
@@ -13,5 +13,5 @@ export default function useCacheNew<
   params: Params | null,
 ) {
   const state = useContext(StateContext);
-  return useDenormalized(fetchShape, params, state)[0];
+  return useSchemaSelect(fetchShape, params, state);
 }

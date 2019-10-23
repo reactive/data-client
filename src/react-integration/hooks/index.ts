@@ -1,10 +1,10 @@
 import useFetcher from './useFetcher';
 import useCache from './useCache';
-import useCacheNew from './useCacheNew';
+import useCacheLegacy from './useCacheLegacy';
 import useResultCache from './useResultCache';
 import useRetrieve from './useRetrieve';
 import useResource from './useResource';
-import useResourceNew from './useResourceNew';
+import useResourceLegacy from './useResourceLegacy';
 import useSubscription from './useSubscription';
 import useMeta from './useMeta';
 import useError from './useError';
@@ -14,12 +14,12 @@ import useResetter from './useResetter';
 export {
   useFetcher,
   useCache,
-  useCacheNew,
+  useCacheLegacy,
   useError,
   useResultCache,
   useRetrieve,
   useResource,
-  useResourceNew,
+  useResourceLegacy,
   useSubscription,
   useMeta,
   useInvalidator,

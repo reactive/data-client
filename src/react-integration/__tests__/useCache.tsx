@@ -3,12 +3,12 @@ import {
   CoolerArticleResource,
   PaginatedArticleResource,
 } from '../../__tests__/common';
-import { useCacheNew } from '../hooks';
+import { useCache } from '../hooks';
 import makeRenderRestHook from '../../test/makeRenderRestHook';
 import { makeCacheProvider } from '../../test/providers';
 import { articlesPages, payload } from './fixtures';
 
-describe('useCacheNew()', () => {
+describe('useCache()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
   beforeEach(() => {
     renderRestHook = makeRenderRestHook(makeCacheProvider);
@@ -19,7 +19,7 @@ describe('useCacheNew()', () => {
 
   it('should be null with empty state', () => {
     const { result } = renderRestHook(() => {
-      return useCacheNew(CoolerArticleResource.detailShape(), payload);
+      return useCache(CoolerArticleResource.detailShape(), payload);
     }, {});
     expect(result.current).toBe(undefined);
   });
@@ -34,7 +34,7 @@ describe('useCacheNew()', () => {
     ];
     const { result } = renderRestHook(
       () => {
-        return useCacheNew(CoolerArticleResource.detailShape(), payload);
+        return useCache(CoolerArticleResource.detailShape(), payload);
       },
       { results },
     );
@@ -53,7 +53,7 @@ describe('useCacheNew()', () => {
     ];
     const { result } = renderRestHook(
       () => {
-        return useCacheNew(PaginatedArticleResource.listShape(), {});
+        return useCache(PaginatedArticleResource.listShape(), {});
       },
       { results },
     );
@@ -76,7 +76,7 @@ describe('useCacheNew()', () => {
 
     const { rerender } = renderRestHook(
       () => {
-        const articles = useCacheNew(PaginatedArticleResource.listShape(), {});
+        const articles = useCache(PaginatedArticleResource.listShape(), {});
         useEffect(track, [articles]);
       },
       { results },
@@ -94,7 +94,7 @@ describe('useCacheNew()', () => {
       const defaults = { prevPage: '', nextPage: '', results: undefined };
       const { result } = renderRestHook(
         () => {
-          return useCacheNew(PaginatedArticleResource.listShape(), {});
+          return useCache(PaginatedArticleResource.listShape(), {});
         },
         { results: [] },
       );
@@ -111,7 +111,7 @@ describe('useCacheNew()', () => {
       ];
       const { result } = renderRestHook(
         () => {
-          return useCacheNew(PaginatedArticleResource.listShape(), {});
+          return useCache(PaginatedArticleResource.listShape(), {});
         },
         { results },
       );
@@ -138,7 +138,7 @@ describe('useCacheNew()', () => {
       const { rerender } = renderRestHook(
         () => {
           useEffect(track, [results]);
-          return useCacheNew(PaginatedArticleResource.listShape(), {});
+          return useCache(PaginatedArticleResource.listShape(), {});
         },
         { results },
       );

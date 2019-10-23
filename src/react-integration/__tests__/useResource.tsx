@@ -9,7 +9,7 @@ import {
   UserResource,
   InvalidIfStaleArticleResource,
 } from '../../__tests__/common';
-import { useResourceNew } from '../hooks';
+import { useResource } from '../hooks';
 import makeRenderRestHook from '../../test/makeRenderRestHook';
 import { makeCacheProvider } from '../../test/providers';
 import mockInitialState from '../../test/mockState';
@@ -44,7 +44,7 @@ function ArticleComponentTester({ invalidIfStale = false }) {
   const resource = invalidIfStale
     ? InvalidIfStaleArticleResource
     : CoolerArticleResource;
-  const article = useResourceNew(resource.detailShape(), {
+  const article = useResource(resource.detailShape(), {
     id: payload.id,
   });
   return (
@@ -55,7 +55,7 @@ function ArticleComponentTester({ invalidIfStale = false }) {
   );
 }
 
-describe('useResourceNew()', () => {
+describe('useResource()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
   const fbmock = jest.fn();
 
@@ -99,7 +99,7 @@ describe('useResourceNew()', () => {
 
   it('should dispatch fetch when sent multiple arguments', async () => {
     function MultiResourceTester() {
-      const [article, user] = useResourceNew(
+      const [article, user] = useResource(
         [
           CoolerArticleResource.detailShape(),
           {
@@ -126,7 +126,7 @@ describe('useResourceNew()', () => {
 
     function MultiResourceTester() {
       try {
-        const [article, user] = useResourceNew(
+        const [article, user] = useResource(
           [
             CoolerArticleResource.detailShape(),
             {
@@ -309,9 +309,9 @@ describe('useResourceNew()', () => {
   });
 
   // taken from integration
-  it('useResourceNew() should throw errors on bad network', async () => {
+  it('useResource() should throw errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useResourceNew(CoolerArticleResource.detailShape(), {
+      return useResource(CoolerArticleResource.detailShape(), {
         title: '0',
       });
     });
@@ -321,9 +321,9 @@ describe('useResourceNew()', () => {
     expect((result.error as any).status).toBe(403);
   });
 
-  it('useResourceNew() should throw errors on bad network (multiarg)', async () => {
+  it('useResource() should throw errors on bad network (multiarg)', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useResourceNew([
+      return useResource([
         CoolerArticleResource.detailShape(),
         {
           title: '0',
@@ -336,9 +336,9 @@ describe('useResourceNew()', () => {
     expect((result.error as any).status).toBe(403);
   });
 
-  it('should resolve parallel useResourceNew() request', async () => {
+  it('should resolve parallel useResource() request', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useResourceNew(
+      return useResource(
         [
           CoolerArticleResource.detailShape(),
           {
@@ -357,10 +357,10 @@ describe('useResourceNew()', () => {
     expect(users[0] instanceof UserResource).toBe(true);
   });
 
-  it('should not suspend with no params to useResourceNew()', () => {
+  it('should not suspend with no params to useResource()', () => {
     let article: any;
     const { result } = renderRestHook(() => {
-      article = useResourceNew(CoolerArticleResource.detailShape(), null);
+      article = useResource(CoolerArticleResource.detailShape(), null);
       return 'done';
     });
     expect(result.current).toBe('done');

@@ -121,7 +121,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
 
 async function validateSubscription(
   result: {
-    readonly current: PollingArticleResource | null;
+    readonly current: PollingArticleResource | undefined;
     readonly error: Error;
   },
   frequency: number,
@@ -134,7 +134,7 @@ async function validateSubscription(
   },
 ) {
   // should be null to start
-  expect(result.current).toBeNull();
+  expect(result.current).toBeUndefined();
   // should be defined after frequency milliseconds
   jest.advanceTimersByTime(frequency);
   await waitForNextUpdate();
