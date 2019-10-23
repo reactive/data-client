@@ -44,6 +44,10 @@ export interface MutateShape<
     | undefined
 > extends FetchShape<S, Params, Body> {
   readonly type: 'mutate';
+  fetch(
+    params: Params,
+    body: Body,
+  ): Promise<object | string | number | boolean>;
 }
 
 /** For retrieval requests */
@@ -52,7 +56,7 @@ export interface ReadShape<
   Params extends Readonly<object> = Readonly<object>
 > extends FetchShape<S, Params, undefined> {
   readonly type: 'read';
-  fetch(params: Params): Promise<any>;
+  fetch(params: Params): Promise<object | string | number | boolean>;
 }
 
 export function isDeleteShape(
