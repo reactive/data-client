@@ -211,7 +211,7 @@ Returns the [shape of the data](https://github.com/paularmstrong/normalizr/blob/
 when requesting one resource at a time. Defaults to a plain object
 containing the keys. This can be useful to override if your response is in a different form.
 
-### static getRequestOptions() => [RequestOptions](../api/FetchShape.md#RequestOptions) | undefined
+### static getFetchOptions() => [FetchOptions](../api/FetchShape.md#FetchOptions) | undefined
 
 Returns the default request options for this resource. By default this returns undefined
 

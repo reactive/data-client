@@ -40,7 +40,7 @@ import useSelectionUnstable from './react-integration/hooks/useSelection';
 import { Request as RequestType } from 'superagent';
 import {
   AbstractInstanceType,
-  RequestOptions,
+  FetchOptions,
   Method,
   State,
   FetchAction,
@@ -87,7 +87,7 @@ export type SchemaList<T> = SchemaList<T>;
 export type SchemaDetail<T> = SchemaDetail<T>;
 export type SchemaOf<T> = SchemaOf<T>;
 export type AbstractInstanceType<T> = AbstractInstanceType<T>;
-export type RequestOptions = RequestOptions;
+export type FetchOptions = FetchOptions;
 export type Method = Method;
 
 export type NetworkError = NetworkError;

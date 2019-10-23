@@ -21,7 +21,7 @@ interface FetchShape {
   fetch(params: Readonly<object>, body: Readonly<object> | void): Promise<any>;
   getFetchKey(params: Readonly<object>): string;
   readonly schema: Schema;
-  readonly options?: RequestOptions;
+  readonly options?: FetchOptions;
 }
 ```
 
@@ -37,7 +37,7 @@ interface FetchShape<
   fetch(params: Params, body: Body): Promise<any>;
   getFetchKey(params: Params): string;
   readonly schema: S;
-  readonly options?: RequestOptions;
+  readonly options?: FetchOptions;
 }
 ```
 
@@ -77,14 +77,14 @@ table in the normalized cache.
 Schemas define the shape of the response data and are used to parse and update
 the normalized cache. Read more about [schemas at the normalizr documentation](https://github.com/paularmstrong/normalizr/blob/master/docs/api.md#schema).
 
-## options?: RequestOptions
+## options?: FetchOptions
 
-### RequestOptions
+### FetchOptions
 
 Additional optional request options passed on to network manager and reducer.
 
 ```typescript
-export interface RequestOptions {
+export interface FetchOptions {
   readonly dataExpiryLength?: number;
   readonly errorExpiryLength?: number;
   readonly pollFrequency?: number;

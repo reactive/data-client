@@ -35,7 +35,7 @@ has never tried to fetch the resource before and trigger a fetch with suspense.
 ## Example
 
 ```typescript
-import { Resource, RequestOptions } from 'rest-hooks';
+import { Resource, FetchOptions } from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
   readonly id: string = null;
@@ -43,7 +43,7 @@ export default class ArticleResource extends Resource {
   // ...
 
   /** Used as default options for every FetchShape */
-  static getRequestOptions(): RequestOptions {
+  static getFetchOptions(): FetchOptions {
     return {
       invalidIfStale: true,
     };

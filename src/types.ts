@@ -24,7 +24,7 @@ export type State<T> = Readonly<{
   }>;
 }>;
 
-export interface RequestOptions {
+export interface FetchOptions {
   /** Default data expiry length, will fall back to NetworkManager default if not defined */
   readonly dataExpiryLength?: number;
   /** Default error expiry length, will fall back to NetworkManager default if not defined */
@@ -99,7 +99,7 @@ interface FetchMeta<S extends Schema> {
   schema: S;
   throttle: boolean;
   updaters?: { [key: string]: UpdateFunction<S, any> };
-  options?: RequestOptions;
+  options?: FetchOptions;
   resolve: (value?: any | PromiseLike<any>) => void;
   reject: (reason?: any) => void;
 }

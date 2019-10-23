@@ -15,9 +15,9 @@ which will be passed on to all [fetch shape](../api/FetchShape.md) creator funct
 ```typescript
 // We can now extend LongLivingResource to get a resource that will be cached for one hour
 abstract class LongLivingResource extends Resource {
-  static getRequestOptions() {
+  static getFetchOptions() {
     return {
-      ...super.getRequestOptions(),
+      ...super.getFetchOptions(),
       dataExpiryLength: 60 * 60 * 1000, // one hour
     };
   }
@@ -31,9 +31,9 @@ abstract class LongLivingResource extends Resource {
 ```typescript
 // We can now extend NoRetryResource to get a resource that will never retry on network error
 abstract class NoRetryResource extends Resource {
-  static getRequestOptions() {
+  static getFetchOptions() {
     return {
-      ...super.getRequestOptions(),
+      ...super.getFetchOptions(),
       errorExpiryLength: Infinity,
     };
   }

@@ -39,7 +39,7 @@ Frequency must be set in [FetchShape](./FetchShape.md), otherwise will have no e
 `PriceResource.ts`
 
 ```typescript
-import { Resource, RequestOptions } from 'rest-hooks';
+import { Resource, FetchOptions } from 'rest-hooks';
 
 export default class PriceResource extends Resource {
   readonly symbol: string | null = null;
@@ -52,7 +52,7 @@ export default class PriceResource extends Resource {
   static urlRoot = 'http://test.com/price/';
 
   /** Used as default options for every FetchShape */
-  static getRequestOptions(): RequestOptions {
+  static getFetchOptions(): FetchOptions {
     return {
       pollFrequency: 5000, // every 5 seconds
     };
