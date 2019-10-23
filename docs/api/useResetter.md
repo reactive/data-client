@@ -17,7 +17,7 @@ retrieved again.
 ## Example
 
 ```typescript
-import { Resource, RequestOptions } from 'rest-hooks';
+import { Resource } from 'rest-hooks';
 
 // Server returns the logged in user
 export default class CurrentUserResource extends Resource {

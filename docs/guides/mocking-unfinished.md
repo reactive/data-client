@@ -14,7 +14,7 @@ import {
   ReadShape,
   SchemaList,
   AbstractInstanceType,
-  RequestOptions,
+  FetchOptions,
 } from 'rest-hooks';
 
 export default class RatingResource extends Resource {
@@ -29,7 +29,7 @@ export default class RatingResource extends Resource {
 
   static urlRoot = '/ratings';
 
-  static getRequestOptions(): RequestOptions {
+  static getFetchOptions(): FetchOptions {
     return {
       dataExpiryLength: 10 * 60 * 1000, // 10 minutes
     };

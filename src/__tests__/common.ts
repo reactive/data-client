@@ -6,7 +6,7 @@ import {
   ReadShape,
   SchemaDetail,
 } from '../resource';
-import { AbstractInstanceType, RequestOptions } from '../types';
+import { AbstractInstanceType, FetchOptions } from '../types';
 
 export class ArticleResource extends Resource {
   readonly id: number | null = null;
@@ -116,9 +116,9 @@ export class CoolerArticleResource extends ArticleResource {
 }
 
 export class InvalidIfStaleArticleResource extends CoolerArticleResource {
-  static getRequestOptions(): RequestOptions {
+  static getFetchOptions(): FetchOptions {
     return {
-      ...super.getRequestOptions(),
+      ...super.getFetchOptions(),
       dataExpiryLength: 5000,
       errorExpiryLength: 5000,
       invalidIfStale: true,
@@ -127,9 +127,9 @@ export class InvalidIfStaleArticleResource extends CoolerArticleResource {
 }
 
 export class PollingArticleResource extends ArticleResource {
-  static getRequestOptions(): RequestOptions {
+  static getFetchOptions(): FetchOptions {
     return {
-      ...super.getRequestOptions(),
+      ...super.getFetchOptions(),
       pollFrequency: 5000,
     };
   }
@@ -138,9 +138,9 @@ export class PollingArticleResource extends ArticleResource {
 export class StaticArticleResource extends ArticleResource {
   static urlRoot = 'http://test.com/article-static/';
 
-  static getRequestOptions() {
+  static getFetchOptions() {
     return {
-      ...super.getRequestOptions(),
+      ...super.getFetchOptions(),
       dataExpiryLength: Infinity,
     };
   }

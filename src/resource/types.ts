@@ -1,5 +1,5 @@
 import { schemas, Schema, SchemaList, SchemaDetail } from './normal';
-import { RequestOptions } from '~/types';
+import { FetchOptions } from '~/types';
 
 /** Defines the shape of a network request */
 export interface FetchShape<
@@ -13,7 +13,7 @@ export interface FetchShape<
   fetch(params: Params, body: Body): Promise<any>;
   getFetchKey(params: Params): string;
   readonly schema: S;
-  readonly options?: RequestOptions;
+  readonly options?: FetchOptions;
 }
 
 export type SchemaFromShape<

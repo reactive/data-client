@@ -1,5 +1,5 @@
 import { memoize } from 'lodash';
-import { AbstractInstanceType, Method, RequestOptions } from '~/types';
+import { AbstractInstanceType, Method, FetchOptions } from '~/types';
 
 import { ReadShape, MutateShape, DeleteShape } from './types';
 import { schemas, SchemaDetail, SchemaList } from './normal';
@@ -178,9 +178,9 @@ export default abstract class SimpleResource {
   }
 
   /** Get the request options for this SimpleResource  */
-  static getRequestOptions<T extends typeof SimpleResource>(
+  static getFetchOptions<T extends typeof SimpleResource>(
     this: T,
-  ): RequestOptions | undefined {
+  ): FetchOptions | undefined {
     return;
   }
 
@@ -193,7 +193,7 @@ export default abstract class SimpleResource {
       return 'GET ' + this.url(params);
     };
     const schema = this.getEntitySchema();
-    const options = this.getRequestOptions();
+    const options = this.getFetchOptions();
     return {
       type: 'read',
       schema,
@@ -213,7 +213,7 @@ export default abstract class SimpleResource {
       return 'GET ' + this.listUrl(params);
     };
     const schema = [this.getEntitySchema()];
-    const options = this.getRequestOptions();
+    const options = this.getFetchOptions();
     return {
       type: 'read',
       schema,
@@ -233,7 +233,7 @@ export default abstract class SimpleResource {
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
-    const options = this.getRequestOptions();
+    const options = this.getFetchOptions();
     return {
       type: 'mutate',
       schema: this.getEntitySchema(),
@@ -258,7 +258,7 @@ export default abstract class SimpleResource {
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
-    const options = this.getRequestOptions();
+    const options = this.getFetchOptions();
     return {
       type: 'mutate',
       schema: this.getEntitySchema(),
@@ -283,7 +283,7 @@ export default abstract class SimpleResource {
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
-    const options = this.getRequestOptions();
+    const options = this.getFetchOptions();
     return {
       type: 'mutate',
       schema: this.getEntitySchema(), //TODO: change merge strategy in case we want to handle partial returns
@@ -304,7 +304,7 @@ export default abstract class SimpleResource {
   static deleteShape<T extends typeof SimpleResource>(
     this: T,
   ): DeleteShape<any, Readonly<object>> {
-    const options = this.getRequestOptions();
+    const options = this.getFetchOptions();
     return {
       type: 'delete',
       schema: this.getEntitySchema(),
