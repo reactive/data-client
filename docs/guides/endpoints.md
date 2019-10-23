@@ -129,26 +129,16 @@ In this case, you'll need to override your detailShape() and listShape() definit
 the structure of your data. This is known as a 'schema' definition.
 
 ```typescript
-import {
-  Resource,
-  ReadShape,
-  SchemaDetail,
-  SchemaList,
-  AbstractInstanceType,
-} from 'rest-hooks';
+import { Resource } from 'rest-hooks';
 
 export default class CommentResource extends Resource {
-  static detailShape<T extends typeof Resource>(
-    this: T,
-  ): ReadShape<SchemaDetail<AbstractInstanceType<T>>> {
+  static detailShape<T extends typeof Resource>(this: T) {
     return {
       ...super.detailShape(),
       schema: { data: this.getEntitySchema() },
     };
   }
-  static listShape<T extends typeof Resource>(
-    this: T,
-  ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
+  static listShape<T extends typeof Resource>(this: T) {
     return {
       ...super.listShape(),
       schema: { data: [this.getEntitySchema()] },
@@ -177,17 +167,10 @@ doesn't expect any body, but is a POST requeest. Because it is so similar to a [
 we'll be extended that schema definition.
 
 ```typescript
-import {
-  Resource,
-  MutateShape,
-  SchemaDetail,
-  AbstractInstanceType,
-} from 'rest-hooks';
+import { Resource } from 'rest-hooks';
 
 export default class UserResource extends Resource {
-  static makeManagerShape<T extends typeof Resource>(
-    this: T,
-  ): MutateShape<SchemaDetail<AbstractInstanceType<T>>, { id: number }, {}> {
+  static makeManagerShape<T extends typeof Resource>(this: T) {
     return {
       ...this.createShape(),
       getFetchKey: ({ id }: { id: number }) => {
@@ -216,18 +199,11 @@ just for retrieving the current user. In this case - `/current_user/`. Since the
 is only one - we won't need to send any params.
 
 ```typescript
-import {
-  Resource,
-  ReadShape,
-  SchemaDetail,
-  AbstractInstanceType,
-} from 'rest-hooks';
+import { Resource } from 'rest-hooks';
 
 export default class UserResource extends Resource {
   /** Retrieves current logged in user */
-  static currentShape<T extends typeof Resource>(
-    this: T,
-  ): ReadShape<SchemaDetail<AbstractInstanceType<T>>, {}> {
+  static currentShape<T extends typeof Resource>(this: T) {
     return {
       ...this.detailShape(),
       getFetchKey: () => {
@@ -257,6 +233,6 @@ import UserResource from 'resources/user';
 export default function CurrentUserProfilePage() {
   const loggedInUser = useResource(UserResource.currentShape(), {});
 
-  return <ProfileDetail user={loggedInUser} />
+  return <ProfileDetail user={loggedInUser} />;
 }
 ```

@@ -46,22 +46,11 @@ shape.
 `TradeResource.ts`
 
 ```typescript
-import {
-  Resource,
-  MutateShape,
-  SchemaDetail,
-  AbstractInstanceType,
-} from 'rest-hooks';
+import { Resource } from 'rest-hooks';
 
 class TradeResource extends Resource {
   // ...
-  static createShape<T extends typeof Resource>(
-    this: T,
-  ): MutateShape<
-    SchemaDetail<AbstractInstanceType<T>>,
-    any,
-    Partial<AbstractInstanceType<T>>
-  > {
+  static createShape<T extends typeof Resource>(this: T) {
     return {
       ...super.createShape(),
       schema: {

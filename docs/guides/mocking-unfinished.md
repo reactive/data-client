@@ -1,6 +1,7 @@
 ---
 title: Mocking unfinished endpoints
 ---
+
 You have agreed to an API schema with a backend engineer who will implement it;
 but they are starting to code the same time as you. It would be nice to easily
 mock the endpoint and use it in a way such that when the endpoint is done
@@ -9,13 +10,7 @@ you won't need to make major changes to your code.
 `resource/RatingResource.ts`
 
 ```typescript
-import {
-  Resource,
-  ReadShape,
-  SchemaList,
-  AbstractInstanceType,
-  FetchOptions,
-} from 'rest-hooks';
+import { Resource, FetchOptions } from 'rest-hooks';
 
 export default class RatingResource extends Resource {
   readonly id: string = '';
@@ -35,9 +30,7 @@ export default class RatingResource extends Resource {
     };
   }
 
-  static listShape<T extends typeof Resource>(
-    this: T,
-  ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
+  static listShape<T extends typeof Resource>(this: T) {
     return {
       ...super.listShape(),
       fetch(params: Readonly<object>, body?: Readonly<object | string>) {
