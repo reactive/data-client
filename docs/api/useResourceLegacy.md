@@ -32,7 +32,7 @@ function useResourceLegacy<
 
 > ### Rest Hooks 3.1 - Removal
 >
-> This hook is deprecated in favor of [useResource()](./useResource)
+> This hook is deprecated in favor of [useResource()](./useresource)
 >
 > - 3.1 will remove `useResourceLegacy()`
 
