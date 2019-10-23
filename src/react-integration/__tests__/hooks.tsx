@@ -16,8 +16,8 @@ import {
 import {
   useFetcher,
   useRetrieve,
-  useResource,
-  useCache,
+  useResourceLegacy,
+  useCacheLegacy,
   useResultCache,
   useInvalidator,
   useResetter,
@@ -75,7 +75,7 @@ function ArticleComponentTester({ invalidIfStale = false }) {
   const resource = invalidIfStale
     ? InvalidIfStaleArticleResource
     : CoolerArticleResource;
-  const article = useResource(resource.detailShape(), {
+  const article = useResourceLegacy(resource.detailShape(), {
     id: payload.id,
   });
   return (
@@ -290,12 +290,16 @@ describe('useResetter', () => {
   });
 });
 
-describe('useCache', () => {
+describe('useCacheLegacy', () => {
   it('should select singles', () => {
     let article: any;
     let state = { ...initialState };
     const { rerender } = renderHook(
-      () => (article = useCache(CoolerArticleResource.detailShape(), payload)),
+      () =>
+        (article = useCacheLegacy(
+          CoolerArticleResource.detailShape(),
+          payload,
+        )),
       {
         wrapper: function Wrapper({ children }) {
           return (
@@ -329,7 +333,7 @@ describe('useCache', () => {
     ]);
     let articles: any;
     testRestHook(() => {
-      articles = useCache(PaginatedArticleResource.listShape(), {});
+      articles = useCacheLegacy(PaginatedArticleResource.listShape(), {});
     }, state);
     expect(articles).toBeDefined();
     expect(articles.length).toBe(articlesPages.results.length);
@@ -348,7 +352,7 @@ describe('useCache', () => {
     const track = jest.fn();
 
     const { rerender } = testRestHook(() => {
-      const articles = useCache(PaginatedArticleResource.listShape(), {});
+      const articles = useCacheLegacy(PaginatedArticleResource.listShape(), {});
       useEffect(track, [articles]);
     }, state);
 
@@ -530,7 +534,7 @@ describe('useRetrieve', () => {
   });
 });
 
-describe('useResource()', () => {
+describe('useResourceLegacy()', () => {
   const fbmock = jest.fn();
 
   function Fallback() {
@@ -553,7 +557,7 @@ describe('useResource()', () => {
 
   it('should dispatch fetch when sent multiple arguments', async () => {
     function MultiResourceTester() {
-      const [article, user] = useResource(
+      const [article, user] = useResourceLegacy(
         [
           CoolerArticleResource.detailShape(),
           {
@@ -580,7 +584,7 @@ describe('useResource()', () => {
 
     function MultiResourceTester() {
       try {
-        const [article, user] = useResource(
+        const [article, user] = useResourceLegacy(
           [
             CoolerArticleResource.detailShape(),
             {

@@ -7,7 +7,7 @@ import {
   PaginatedArticleResource,
   UserResource,
 } from '../../__tests__/common';
-import { useResource, useFetcher, useCache } from '../hooks';
+import { useResourceLegacy, useFetcher } from '../hooks';
 import makeRenderRestHook from '../../test/makeRenderRestHook';
 import {
   makeCacheProvider,
@@ -70,9 +70,9 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       renderRestHook.cleanup();
     });
 
-    it('should resolve useResource()', async () => {
+    it('should resolve useResourceLegacy()', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        return useResource(CoolerArticleResource.detailShape(), payload);
+        return useResourceLegacy(CoolerArticleResource.detailShape(), payload);
       });
       expect(result.current).toBeNull();
       await waitForNextUpdate();
@@ -84,7 +84,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       let del: any;
       const { result, waitForNextUpdate } = renderRestHook(() => {
         del = useFetcher(CoolerArticleResource.deleteShape());
-        return useResource(CoolerArticleResource.detailShape(), payload);
+        return useResourceLegacy(CoolerArticleResource.detailShape(), payload);
       });
       expect(result.current).toBeNull();
       await waitForNextUpdate();
@@ -119,9 +119,9 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       }
     });
 
-    it('useResource() should throw errors on bad network', async () => {
+    it('useResourceLegacy() should throw errors on bad network', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        return useResource(CoolerArticleResource.detailShape(), {
+        return useResourceLegacy(CoolerArticleResource.detailShape(), {
           title: '0',
         });
       });
@@ -131,9 +131,9 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       expect((result.error as any).status).toBe(403);
     });
 
-    it('useResource() should throw errors on bad network (multiarg)', async () => {
+    it('useResourceLegacy() should throw errors on bad network (multiarg)', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        return useResource([
+        return useResourceLegacy([
           CoolerArticleResource.detailShape(),
           {
             title: '0',
@@ -146,9 +146,9 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       expect((result.error as any).status).toBe(403);
     });
 
-    it('should resolve parallel useResource() request', async () => {
+    it('should resolve parallel useResourceLegacy() request', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        return useResource(
+        return useResourceLegacy(
           [
             CoolerArticleResource.detailShape(),
             {
@@ -168,19 +168,22 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       expect(users[0] instanceof UserResource).toBe(true);
     });
 
-    it('should not suspend with no params to useResource()', () => {
+    it('should not suspend with no params to useResourceLegacy()', () => {
       let article: any;
       const { result } = renderRestHook(() => {
-        article = useResource(CoolerArticleResource.detailShape(), null);
+        article = useResourceLegacy(CoolerArticleResource.detailShape(), null);
         return 'done';
       });
       expect(result.current).toBe('done');
-      expect(article).toBeUndefined();
+      expect(article).toBeNull();
     });
 
     it('should update on create', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        const articles = useResource(CoolerArticleResource.listShape(), {});
+        const articles = useResourceLegacy(
+          CoolerArticleResource.listShape(),
+          {},
+        );
         const createNewArticle = useFetcher(
           CoolerArticleResource.createShape(),
         );
@@ -213,7 +216,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         .reply(200, paginatedSecondPage);
 
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        const { results: articles } = useResource(
+        const articles = useResourceLegacy(
           PaginatedArticleResource.listShape(),
           {},
         );

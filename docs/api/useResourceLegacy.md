@@ -1,34 +1,40 @@
 ---
-id: useresource
-title: useResource()
+id: useresourcelegacy
+title: useResourceLegacy()
 ---
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--Type-->
 
 ```typescript
-function useResource(fetchShape: ReadShape, params: object | null):
-  Denormalized<typeof fetchShape.schema>;
+function useResourceLegacy(fetchShape: ReadShape, params: object | null):
+  SchemaOf<typeof fetchShape.schema>;
 
-function useResource(...[fetchShape: ReadShape, params: object | null]):
-  Denormalized<typeof fetchShape.schema>[];
+function useResourceLegacy(...[fetchShape: ReadShape, params: object | null]):
+  SchemaOf<typeof fetchShape.schema>[];
 ```
 
 <!--With Generics-->
 
 ```typescript
-function useResource<
+function useResourceLegacy<
   Params extends Readonly<object>,
   S extends Schema
->(fetchShape: ReadShape<S, Params>, params: Params | null): Denormalized<S>;
+>(fetchShape: ReadShape<S, Params>, params: Params | null): SchemaOf<S>;
 
-function useResource<
+function useResourceLegacy<
   Params extends Readonly<object>,
   S extends Schema
->(...[fetchShape: ReadShape<S, Params>, params: Params | null]): Denormalized<S>[];
+>(...[fetchShape: ReadShape<S, Params>, params: Params | null]): SchemaOf<S>[];
 ```
 
 <!--END_DOCUSAURUS_CODE_TABS-->
+
+> ### Rest Hooks 3.1 - Removal
+>
+> This hook is deprecated in favor of [useResource()](./useResource)
+>
+> - 3.1 will remove `useResourceLegacy()`
 
 Excellent for retrieving the data you need.
 
@@ -47,7 +53,7 @@ Excellent for retrieving the data you need.
 
 ```tsx
 function Post({ id }: { id: number }) {
-  const post = useResource(PostResource.detailShape(), { id });
+  const post = useResourceLegacy(PostResource.detailShape(), { id });
   // post as PostResource
 }
 ```
@@ -56,7 +62,7 @@ function Post({ id }: { id: number }) {
 
 ```tsx
 function Posts() {
-  const posts = useResource(PostResource.listShape(), {});
+  const posts = useResourceLegacy(PostResource.listShape(), {});
   // posts as PostResource[]
 }
 ```
@@ -65,7 +71,7 @@ function Posts() {
 
 ```tsx
 function Posts() {
-  const [user, posts] = useResource(
+  const [user, posts] = useResourceLegacy(
     [UserResource.detailShape(), { id: userId }],
     [PostResource.listShape(), { userId }],
   );
@@ -78,43 +84,12 @@ function Posts() {
 
 ```tsx
 function PostWithAuthor() {
-  const post = useResource(PostResource.detailShape(), { id });
+  const post = useResourceLegacy(PostResource.detailShape(), { id });
   // post as PostResource
-  const author = useResource(UserResource.detailShape(), {
+  const author = useResourceLegacy(UserResource.detailShape(), {
     id: post.userId,
   });
   // author as UserResource
-}
-```
-
-## Paginated data
-
-When entities are stored in nested structures, that structure will remain.
-
-```typescript
-export class PaginatedPostResource extends Resource {
-  readonly id: number | null = null;
-  readonly title: string = '';
-  readonly content: string = '';
-
-  static urlRoot = 'http://test.com/post/';
-
-  static listShape<T extends typeof Resource>(this: T) {
-    return {
-      ...super.listShape(),
-      schema: { results: [this.getEntitySchema()], nextPage: '', lastPage: '' },
-    };
-  }
-}
-```
-
-```tsx
-function ArticleList({ page }: { page: string }) {
-  const { results: posts, nextPage, lastPage } = useResource(
-    PaginatedPostResource.listShape(),
-    { page },
-  );
-  // posts as PaginatedPostResource[]
 }
 ```
 

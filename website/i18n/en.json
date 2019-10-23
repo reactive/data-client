@@ -53,8 +53,8 @@
       "api/useCache": {
         "title": "useCache()"
       },
-      "api/useCacheNew": {
-        "title": "useCacheNew()"
+      "api/useCacheLegacy": {
+        "title": "useCacheLegacy()"
       },
       "api/useFetcher": {
         "title": "useFetcher()"
@@ -68,8 +68,8 @@
       "api/useresource": {
         "title": "useResource()"
       },
-      "api/useresourcenew": {
-        "title": "useResourceNew()"
+      "api/useresourcelegacy": {
+        "title": "useResourceLegacy()"
       },
       "api/useResultCache": {
         "title": "useResultCache()"
