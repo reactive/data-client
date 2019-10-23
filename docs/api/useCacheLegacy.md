@@ -23,11 +23,10 @@ function useCacheLegacy<Params extends Readonly<object>, S extends Schema>(
 
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-> ### Rest Hooks 3.0 - Deprecation
+> ### Rest Hooks 3.1 - Removal
 >
-> This hook is being deprecated in favor of [useCacheLegacy()](./useCacheLegacy)
+> This hook is deprecated in favor of [useCache()](./useCache)
 >
-> - 3.0 this will be renamed to `useCacheLegacy()`
 > - 3.1 will remove `useCacheLegacy()`
 
 Excellent to use data in the normalized cache without fetching.

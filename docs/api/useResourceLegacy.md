@@ -30,11 +30,10 @@ function useResourceLegacy<
 
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-> ### Rest Hooks 3.0 - Deprecation
+> ### Rest Hooks 3.1 - Removal
 >
-> This hook is being deprecated in favor of [useResourceLegacy()](./useResourceLegacy)
+> This hook is deprecated in favor of [useResource()](./useResource)
 >
-> - 3.0 this will be renamed to `useResourceLegacy()`
 > - 3.1 will remove `useResourceLegacy()`
 
 Excellent for retrieving the data you need.

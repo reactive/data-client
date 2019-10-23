@@ -30,13 +30,6 @@ function useResource<
 
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-> ### Rest Hooks 3.0
->
-> This is the future default behavior of `useResource()` in version 3.0.
->
-> - 3.0 will keep the legacy version as `useResourceLegacy()`
-> - 3.1 will remove both `useResourceLegacy()` and `useResource()`, leaving this behavior in `useResource()`
-
 Excellent for retrieving the data you need.
 
 - Triggers fetch:
