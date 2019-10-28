@@ -42,6 +42,7 @@
     "ajax",
     "networking",
     "suspense",
+    "concurrent mode",
     "fetch",
     "hook",
     "typescript",
