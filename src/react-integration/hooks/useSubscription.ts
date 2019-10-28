@@ -7,7 +7,7 @@ import { ReadShape, Schema } from '~/resource';
 export default function useSubscription<
   Params extends Readonly<object>,
   S extends Schema
->(fetchShape: ReadShape<S, Params>, params: Params, active = true) {
+>(fetchShape: ReadShape<S, Params>, params: Params | null) {
   const dispatch = useContext(DispatchContext);
   /*
   we just want the current values when we dispatch, so
@@ -20,7 +20,7 @@ export default function useSubscription<
   shapeRef.current = fetchShape;
 
   useEffect(() => {
-    if (!active) return;
+    if (!params) return;
     const { fetch, schema, getFetchKey, options } = shapeRef.current;
     const url = getFetchKey(params);
 
@@ -44,5 +44,5 @@ export default function useSubscription<
     };
     // serialize params
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, active, params && fetchShape.getFetchKey(params)]);
+  }, [dispatch, params && fetchShape.getFetchKey(params)]);
 }
