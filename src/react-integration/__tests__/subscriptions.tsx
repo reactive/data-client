@@ -52,8 +52,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       const { result, waitForNextUpdate, rerender } = renderRestHook(() => {
         useSubscription(
           PollingArticleResource.detailShape(),
-          articlePayload,
-          active,
+          active ? articlePayload : null,
         );
         return useCache(PollingArticleResource.detailShape(), articlePayload);
       });

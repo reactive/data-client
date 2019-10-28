@@ -9,7 +9,6 @@ title: useSubscription()
 function useSubscription(
   fetchShape: ReadShape,
   params: object | null,
-  active?: boolean = true,
 ): void;
 ```
 
@@ -22,7 +21,6 @@ function useSubscription<
 >(
   fetchShape: ReadShape<S, Params>,
   params: Params | null,
-  active?: boolean = true,
 ): void;
 ```
 
@@ -30,7 +28,10 @@ function useSubscription<
 
 Great for keeping resources up-to-date with frequent changes.
 
-Frequency must be set in [FetchShape](./FetchShape.md), otherwise will have no effect.
+When using the default [polling subscriptions](./PollingSubscription), frequency must be set in
+[FetchShape](./FetchShape.md), otherwise will have no effect.
+
+> Send `null` to params to unsubscribe.
 
 ## Example
 
@@ -84,7 +85,8 @@ function MasterPrice({ symbol }: { symbol: string }) {
   const price = useResource(PriceResource.detailShape(), { symbol });
   const ref = useRef();
   const onScreen = useOnScreen(ref);
-  useSubscription(PriceResource.detailShape(), { symbol }, undefined, onScreen);
+  // null params means don't subscribe
+  useSubscription(PriceResource.detailShape(), onScreen ? null : { symbol });
 
   return (
     <div ref={ref}>{price.value.toLocaleString('en', { currency: 'USD' })}</div>
