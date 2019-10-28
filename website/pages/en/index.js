@@ -229,6 +229,7 @@ class Index extends React.Component {
   }
 }
 
-Index.description = 'Making dynamic sites performant, scalable, simple to build with any API design. ...all typed ...fast ...and consistent.';
+Index.description =
+  'Making dynamic sites performant, scalable, simple to build with any API design. ...all typed ...fast ...and consistent.';
 
 module.exports = Index;

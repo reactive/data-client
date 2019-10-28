@@ -27,6 +27,10 @@
   }
 }
 
+.homeContainer {
+  margin-bottom: 50px;
+}
+
 .homeContainer .homeWrapper {
   padding: 4em 10px 1em;
 }
@@ -46,9 +50,10 @@
   background: $primaryColor;
   color: #fff;
   font-size: 30px;
-  padding: 0.5em 1.25em;
+  padding: 0.75em 1.5em;
   font-weight: bold;
-  border-radius: 5px;
+  border-radius: 10px;
+  letter-spacing: 1px;
 }
 
 .button.hero:visited {
