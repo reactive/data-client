@@ -20,7 +20,7 @@ function useExpiresAt<Params extends Readonly<object>, S extends Schema>(
 export default function useRetrieve<
   Params extends Readonly<object>,
   S extends Schema
->(fetchShape: ReadShape<S, Params>, params: Params | null, body?: Body) {
+>(fetchShape: ReadShape<S, Params>, params: Params | null) {
   const fetch = useFetcher(fetchShape, true);
   const expiresAt = useExpiresAt(fetchShape, params);
 

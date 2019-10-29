@@ -9,7 +9,6 @@ title: useRetrieve()
 function useRetrieve(
   fetchShape: ReadShape,
   params: object | null,
-  body?: object | string,
 ): Promise<any> | undefined;
 ```
 
@@ -22,7 +21,6 @@ function useRetrieve<
 >(
   fetchShape: ReadShape<S, Params>,
   params: Params | null,
-  body?: Body,
 ): Promise<any> | undefined;
 ```
 
