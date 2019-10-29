@@ -131,4 +131,4 @@ export default class UserResource extends Resource {
 
 [1]: ../api/Resource.md
 [2]: ../api/useCache.md
-[3]: ../api/Resource.md#static-getentityschema-schemaentity-https-githubcom-paularmstrong-normalizr-blob-master-docs-apimd-entitykey-definition-options
+[3]: ../api/Resource.md#static-getentityschema-schemaentity-https-githubcom-ntucker-normalizr-blob-master-docs-apimd-entitykey-definition-options

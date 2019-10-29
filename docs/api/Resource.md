@@ -205,9 +205,9 @@ Used in [listShape()](#listshape-readshape) and [createShape()](#createshape-mut
 Performs the actual network fetch returning a promise that resolves to the network response or rejects
 on network error. This can be useful to override to really customize your transport.
 
-### static getEntitySchema() => [schema.Entity](https://github.com/paularmstrong/normalizr/blob/master/docs/api.md#entitykey-definition---options--)
+### static getEntitySchema() => [schema.Entity](https://github.com/ntucker/normalizr/blob/master/docs/api.md#entitykey-definition---options--)
 
-Returns the [shape of the data](https://github.com/paularmstrong/normalizr/blob/master/docs/api.md#schema)
+Returns the [shape of the data](https://github.com/ntucker/normalizr/blob/master/docs/api.md#schema)
 when requesting one resource at a time. Defaults to a plain object
 containing the keys. This can be useful to override if your response is in a different form.
 

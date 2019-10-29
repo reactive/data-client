@@ -75,7 +75,7 @@ table in the normalized cache.
 ## schema: Schema
 
 Schemas define the shape of the response data and are used to parse and update
-the normalized cache. Read more about [schemas at the normalizr documentation](https://github.com/paularmstrong/normalizr/blob/master/docs/api.md#schema).
+the normalized cache. Read more about [schemas at the normalizr documentation](https://github.com/ntucker/normalizr/blob/master/docs/api.md#schema).
 
 ## options?: FetchOptions
 
