@@ -32,6 +32,8 @@ function useResource<
 
 Excellent for retrieving the data you need.
 
+Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by default but also [configurable](https://resthooks.io/docs/guides/resource-lifetime).
+
 - Triggers fetch:
   - On first-render and when parameters change
   - and When not in cache or result is considered stale

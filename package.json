@@ -51,7 +51,8 @@
     "data cache",
     "api",
     "api call",
-    "normalized cache"
+    "normalized cache",
+    "swr"
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
