@@ -1,12 +1,7 @@
 import { useMemo } from 'react';
 import { State } from '~/types';
 import { isEntity, ReadShape } from '~/resource/types';
-import {
-  Schema,
-  denormalize,
-  ResultType,
-  DenormalizedNullable,
-} from '~/resource/normal';
+import { Schema, denormalize, DenormalizeNullable } from '~/resource';
 import buildInferredResults from './buildInferredResults';
 
 /**
@@ -26,13 +21,12 @@ export default function useDenormalized<
   params: Params | null,
   state: State<any>,
 ): [
-  DenormalizedNullable<typeof schema>,
+  DenormalizeNullable<typeof schema>,
   typeof params extends null ? false : boolean,
 ] {
   // Select from state
   const entities = state.entities;
-  const cacheResults =
-    params && (state.results[getFetchKey(params)] as ResultType<typeof schema>);
+  const cacheResults = params && state.results[getFetchKey(params)];
 
   // We can grab entities without actual results if the params compute a primary key
   const results = useMemo(() => {
@@ -62,7 +56,7 @@ export default function useDenormalized<
     }
 
     // second argument is false if any entities are missing
-    const [denormalized, entitiesFound] = denormalize(
+    const [denormalized, entitiesFound]: [any, boolean] = denormalize(
       results,
       schema,
       entities,

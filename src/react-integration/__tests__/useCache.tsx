@@ -59,6 +59,8 @@ describe('useCache()', () => {
     );
     expect(result.current).toBeDefined();
     if (!result.current) return;
+    expect(result.current.results).toBeDefined();
+    if (!result.current.results) return;
     expect(result.current.results.length).toBe(articlesPages.results.length);
     expect(result.current.results[0]).toBeInstanceOf(PaginatedArticleResource);
     expect(result.current.results).toMatchSnapshot();

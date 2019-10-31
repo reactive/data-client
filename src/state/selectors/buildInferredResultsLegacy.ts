@@ -1,6 +1,5 @@
-import { ResultType } from '~/resource/normal';
+import { Normalize, Schema, schemas } from '~/resource';
 import { isEntity } from '~/resource/types';
-import { Schema, schemas } from '~/resource/normal';
 
 /**
  * Build the result parameter to denormalize from schema alone.
@@ -9,7 +8,7 @@ import { Schema, schemas } from '~/resource/normal';
 export default function buildInferredResults<
   Params extends Readonly<object>,
   S extends Schema
->(schema: S, params: Params): ResultType<S> | null {
+>(schema: S, params: Params): Normalize<S> | null {
   if (isEntity(schema)) {
     const id = schema.getId(params, undefined, '');
     // Was unable to infer the entity's primary key from params

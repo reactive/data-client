@@ -13,7 +13,6 @@ import {
   InvalidateAction,
   UpdateFunction,
 } from '../../types';
-import { SchemaArray } from '../../resource';
 
 describe('reducer', () => {
   describe('singles', () => {
@@ -221,7 +220,7 @@ describe('reducer', () => {
         updaters: {
           [key: string]: UpdateFunction<
             typeof createShape['schema'],
-            SchemaArray<ArticleResource>
+            ReturnType<typeof ArticleResource.getEntitySchema>[]
           >;
         },
       ) {

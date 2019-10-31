@@ -1,4 +1,8 @@
-import { schemas, Schema, SchemaList, SchemaDetail } from './normal';
+import { schemas, Schema } from './normal';
+import {
+  SchemaList as SchemaListLegacy,
+  SchemaDetail as SchemaDetailLegacy,
+} from './schemaLegacy';
 import { FetchOptions } from '~/types';
 
 /** Defines the shape of a network request */
@@ -84,18 +88,19 @@ export type BodyArg<RS> = RS extends {
   : never;
 export type RequestResource<RS> = SchemaOf<ResultShape<RS>>;
 
-export function isEntity<T>(schema: Schema<T>): schema is schemas.Entity<T> {
-  return (schema as schemas.Entity).key !== undefined;
+export function isEntity(schema: Schema): schema is schemas.Entity {
+  return (schema as any).key !== undefined;
 }
 
-export type SchemaOf2<T> = T extends SchemaList<infer R>
+// Legacy:
+export type SchemaOfCore<T> = T extends SchemaListLegacy<infer R>
   ? R[]
-  : T extends SchemaDetail<infer R>
+  : T extends SchemaDetailLegacy<infer R>
   ? R
   : never;
 
-export type SchemaOf<S> = Extract<S, schemas.Entity<any>> extends never
-  ? (S extends (infer I)[] | schemas.Array<infer I>
-      ? SchemaOf2<Extract<I, schemas.Entity<any>>>[]
-      : SchemaOf2<S>)
-  : SchemaOf2<Extract<S, schemas.Entity<any>>>;
+export type SchemaOf<S> = Extract<S, schemas.Entity> extends never
+  ? (Extract<S, schemas.Entity[]> extends never
+      ? SchemaOfCore<S>
+      : SchemaOfCore<Extract<S, schemas.Entity[]>>)
+  : SchemaOfCore<Extract<S, schemas.Entity>>;

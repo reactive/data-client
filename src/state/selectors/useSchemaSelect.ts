@@ -13,7 +13,7 @@ export default function useSchemaSelect<
   params: Params | null,
   state: State<any>,
 ): typeof params extends null ? null : (SchemaOf<typeof schema> | null) {
-  const denormalized = useDenormalizedLegacy(
+  const denormalized: any = useDenormalizedLegacy(
     { schema, getFetchKey },
     params,
     state,
@@ -28,7 +28,7 @@ export default function useSchemaSelect<
     [denormalized, getItemsFromResults],
   );
   if (output === undefined) return null as any;
-  return output as any;
+  return output;
 }
 
 // TODO: there should honestly be a way to use the pre-existing normalizr object

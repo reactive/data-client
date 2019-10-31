@@ -81,7 +81,7 @@ export type FetchShape<
 > = FetchShape<S, Params, Body>;
 
 export type State<T> = State<T>;
-export type Schema<T = any> = Schema<T>;
+export type Schema = Schema;
 export type SchemaList<T> = SchemaList<T>;
 export type SchemaDetail<T> = SchemaDetail<T>;
 export type SchemaOf<T> = SchemaOf<T>;
