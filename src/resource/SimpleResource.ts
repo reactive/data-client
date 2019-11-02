@@ -24,7 +24,9 @@ export default abstract class SimpleResource {
     props: Partial<AbstractInstanceType<T>>,
   ) {
     // we type guarded abstract case above, so ok to force typescript to allow constructor call
-    const instance = new (this as any)(props) as AbstractInstanceType<T>;
+    const instance = new (this as any)(props) as Readonly<
+      AbstractInstanceType<T>
+    >;
 
     if (instance.pk === undefined)
       throw new Error('cannot construct on abstract types');
@@ -171,9 +173,7 @@ export default abstract class SimpleResource {
   }
 
   /** Get the entity schema defining  */
-  static getEntitySchema<T extends typeof SimpleResource>(
-    this: T,
-  ): schemas.Entity<AbstractInstanceType<T>> {
+  static getEntitySchema<T extends typeof SimpleResource>(this: T) {
     return getEntitySchema(this);
   }
 
@@ -188,7 +188,7 @@ export default abstract class SimpleResource {
   /** Shape to get a single entity */
   static detailShape<T extends typeof SimpleResource>(
     this: T,
-  ): ReadShape<SchemaDetail<AbstractInstanceType<T>>> {
+  ): ReadShape<SchemaDetail<Readonly<AbstractInstanceType<T>>>> {
     const getFetchKey = (params: Readonly<object>) => {
       return 'GET ' + this.url(params);
     };
@@ -208,7 +208,7 @@ export default abstract class SimpleResource {
   /** Shape to get a list of entities */
   static listShape<T extends typeof SimpleResource>(
     this: T,
-  ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
+  ): ReadShape<SchemaList<Readonly<AbstractInstanceType<T>>>> {
     const getFetchKey = (params: Readonly<Record<string, string>>) => {
       return 'GET ' + this.listUrl(params);
     };
@@ -229,7 +229,7 @@ export default abstract class SimpleResource {
   static createShape<T extends typeof SimpleResource>(
     this: T,
   ): MutateShape<
-    SchemaDetail<AbstractInstanceType<T>>,
+    SchemaDetail<Readonly<AbstractInstanceType<T>>>,
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
@@ -254,7 +254,7 @@ export default abstract class SimpleResource {
   static updateShape<T extends typeof SimpleResource>(
     this: T,
   ): MutateShape<
-    SchemaDetail<AbstractInstanceType<T>>,
+    SchemaDetail<Readonly<AbstractInstanceType<T>>>,
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
@@ -279,7 +279,7 @@ export default abstract class SimpleResource {
   static partialUpdateShape<T extends typeof SimpleResource>(
     this: T,
   ): MutateShape<
-    SchemaDetail<AbstractInstanceType<T>>,
+    SchemaDetail<Readonly<AbstractInstanceType<T>>>,
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
@@ -329,7 +329,7 @@ Object.defineProperty(SimpleResource.prototype, 'url', {
 
 type GetEntitySchema = <T extends typeof SimpleResource>(
   ResourceClass: T,
-) => schemas.Entity<AbstractInstanceType<T>>;
+) => schemas.Entity<Readonly<AbstractInstanceType<T>>>;
 
 const getEntitySchema: GetEntitySchema = memoize(
   <T extends typeof SimpleResource>(ResourceClass: T) => {
