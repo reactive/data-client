@@ -154,20 +154,28 @@ describe('reducer', () => {
         };
       }
 
-      const insertAfterUpdater = <T extends { results?: string[] }>(
+      const insertAfterUpdater = <T extends { results?: string[] } | undefined>(
         newPage: { results: string[] },
         oldResults: T,
       ) => ({
         ...oldResults,
-        results: [...(oldResults.results || []), ...newPage.results],
+        results: [
+          ...((oldResults && oldResults.results) || []),
+          ...newPage.results,
+        ],
       });
 
-      const insertBeforeUpdater = <T extends { results?: string[] }>(
+      const insertBeforeUpdater = <
+        T extends { results?: string[] } | undefined
+      >(
         newPage: { results: string[] },
         oldResults: T,
       ) => ({
         ...oldResults,
-        results: [...newPage.results, ...(oldResults.results || [])],
+        results: [
+          ...newPage.results,
+          ...((oldResults && oldResults.results) || []),
+        ],
       });
 
       const iniState: any = {
