@@ -1,5 +1,9 @@
-import { ReadShape, Schema } from '~/resource';
-import { Denormalized, DenormalizedNullable } from '~/resource/normal';
+import {
+  ReadShape,
+  Schema,
+  Denormalize,
+  DenormalizeNullable,
+} from '~/resource';
 import { useDenormalized } from '~/state/selectors';
 import useRetrieve from './useRetrieve';
 import useError from './useError';
@@ -17,7 +21,7 @@ type ResourceArgs<S extends Schema, Params extends Readonly<object>> = [
 function useOneResource<Params extends Readonly<object>, S extends Schema>(
   fetchShape: ReadShape<S, Params>,
   params: Params | null,
-): CondNull<typeof params, DenormalizedNullable<S>, Denormalized<S>> {
+): CondNull<typeof params, DenormalizeNullable<S>, Denormalize<S>> {
   const maybePromise = useRetrieve(fetchShape, params);
   const state = useContext(StateContext);
   const [denormalized, ready] = useDenormalized(fetchShape, params, state);
@@ -85,13 +89,13 @@ export default function useResource<
 >(
   fetchShape: ReadShape<S, NonNullable<P>>,
   params: P,
-): CondNull<P, DenormalizedNullable<S>, Denormalized<S>>;
+): CondNull<P, DenormalizeNullable<S>, Denormalize<S>>;
 export default function useResource<
   P1 extends Readonly<object> | null,
   S1 extends Schema
 >(
   v1: [ReadShape<S1, NonNullable<P1>>, P1],
-): [CondNull<P1, DenormalizedNullable<S1>, Denormalized<S1>>];
+): [CondNull<P1, DenormalizeNullable<S1>, Denormalize<S1>>];
 export default function useResource<
   P1 extends Readonly<object> | null,
   S1 extends Schema,
@@ -101,8 +105,8 @@ export default function useResource<
   v1: [ReadShape<S1, NonNullable<P1>>, P1],
   v2: [ReadShape<S2, NonNullable<P2>>, P2],
 ): [
-  CondNull<P1, DenormalizedNullable<S1>, Denormalized<S1>>,
-  CondNull<P2, DenormalizedNullable<S2>, Denormalized<S2>>,
+  CondNull<P1, DenormalizeNullable<S1>, Denormalize<S1>>,
+  CondNull<P2, DenormalizeNullable<S2>, Denormalize<S2>>,
 ];
 export default function useResource<
   P1 extends Readonly<object> | null,
@@ -116,9 +120,9 @@ export default function useResource<
   v2: [ReadShape<S2, NonNullable<P2>>, P2],
   v3: [ReadShape<S3, NonNullable<P3>>, P3],
 ): [
-  CondNull<P1, DenormalizedNullable<S1>, Denormalized<S1>>,
-  CondNull<P2, DenormalizedNullable<S2>, Denormalized<S2>>,
-  CondNull<P3, DenormalizedNullable<S3>, Denormalized<S3>>,
+  CondNull<P1, DenormalizeNullable<S1>, Denormalize<S1>>,
+  CondNull<P2, DenormalizeNullable<S2>, Denormalize<S2>>,
+  CondNull<P3, DenormalizeNullable<S3>, Denormalize<S3>>,
 ];
 export default function useResource<
   P1 extends Readonly<object> | null,
@@ -135,10 +139,10 @@ export default function useResource<
   v3: [ReadShape<S3, NonNullable<P3>>, P3],
   v4: [ReadShape<S4, NonNullable<P4>>, P4],
 ): [
-  CondNull<P1, DenormalizedNullable<S1>, Denormalized<S1>>,
-  CondNull<P2, DenormalizedNullable<S2>, Denormalized<S2>>,
-  CondNull<P3, DenormalizedNullable<S3>, Denormalized<S3>>,
-  CondNull<P4, DenormalizedNullable<S4>, Denormalized<S4>>,
+  CondNull<P1, DenormalizeNullable<S1>, Denormalize<S1>>,
+  CondNull<P2, DenormalizeNullable<S2>, Denormalize<S2>>,
+  CondNull<P3, DenormalizeNullable<S3>, Denormalize<S3>>,
+  CondNull<P4, DenormalizeNullable<S4>, Denormalize<S4>>,
 ];
 export default function useResource<
   P1 extends Readonly<object> | null,
@@ -158,16 +162,16 @@ export default function useResource<
   v4: [ReadShape<S4, NonNullable<P4>>, P4],
   v5: [ReadShape<S5, NonNullable<P5>>, P5],
 ): [
-  CondNull<P1, DenormalizedNullable<S1>, Denormalized<S1>>,
-  CondNull<P2, DenormalizedNullable<S2>, Denormalized<S2>>,
-  CondNull<P3, DenormalizedNullable<S3>, Denormalized<S3>>,
-  CondNull<P4, DenormalizedNullable<S4>, Denormalized<S4>>,
-  CondNull<P5, DenormalizedNullable<S5>, Denormalized<S5>>,
+  CondNull<P1, DenormalizeNullable<S1>, Denormalize<S1>>,
+  CondNull<P2, DenormalizeNullable<S2>, Denormalize<S2>>,
+  CondNull<P3, DenormalizeNullable<S3>, Denormalize<S3>>,
+  CondNull<P4, DenormalizeNullable<S4>, Denormalize<S4>>,
+  CondNull<P5, DenormalizeNullable<S5>, Denormalize<S5>>,
 ];
 export default function useResource<
   Params extends Readonly<object>,
   S extends Schema
->(...args: ResourceArgs<S, Params> | ResourceArgs<S, Params>[]) {
+>(...args: ResourceArgs<S, Params> | ResourceArgs<S, Params>[]): any {
   // this conditional use of hooks is ok as long as the structure of the arguments don't change
   if (Array.isArray(args[0])) {
     // TODO: provide type guard function to detect this

@@ -1,6 +1,5 @@
-import { ResultTypeNullable } from '~/resource/normal';
+import { Schema, schemas, NormalizeNullable } from '~/resource';
 import { isEntity } from '~/resource/types';
-import { Schema, schemas } from '~/resource/normal';
 
 /**
  * Build the result parameter to denormalize from schema alone.
@@ -9,7 +8,7 @@ import { Schema, schemas } from '~/resource/normal';
 export default function buildInferredResults<
   Params extends Readonly<object>,
   S extends Schema
->(schema: S, params: Params | null): ResultTypeNullable<S> {
+>(schema: S, params: Params | null): NormalizeNullable<S> {
   if (isEntity(schema)) {
     if (!params) return undefined as any;
     const id = schema.getId(params, undefined, '');

@@ -57,9 +57,9 @@ type OptimisticUpdateParams<
 ];
 
 type UpdateFunction<SourceSchema extends Schema, DestSchema extends Schema> = (
-  sourceResults: ResultType<SourceSchema>,
-  destResults: ResultType<DestSchema>,
-) => ResultType<DestSchema>;
+  sourceResults: Normalize<SourceSchema>,
+  destResults: Normalize<DestSchema>,
+) => Normalize<DestSchema>;
 ```
 
 <!--END_DOCUSAURUS_CODE_TABS-->

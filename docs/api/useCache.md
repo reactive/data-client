@@ -9,7 +9,7 @@ title: useCache()
 function useCache(
   fetchShape: ReadShape,
   params: object | null,
-): Denormalized<typeof fetchShape.schema> | null;
+): Denormalize<typeof fetchShape.schema> | null;
 ```
 
 <!--With Generics-->
@@ -18,7 +18,7 @@ function useCache(
 function useCache<Params extends Readonly<object>, S extends Schema>(
   fetchShape: Pick<ReadShape<S, Params>, 'schema' | 'getFetchKey'>,
   params: Params | null,
-): Denormalized<S> | null;
+): Denormalize<S> | null;
 ```
 
 <!--END_DOCUSAURUS_CODE_TABS-->

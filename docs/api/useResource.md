@@ -8,10 +8,10 @@ title: useResource()
 
 ```typescript
 function useResource(fetchShape: ReadShape, params: object | null):
-  Denormalized<typeof fetchShape.schema>;
+  Denormalize<typeof fetchShape.schema>;
 
 function useResource(...[fetchShape: ReadShape, params: object | null]):
-  Denormalized<typeof fetchShape.schema>[];
+  Denormalize<typeof fetchShape.schema>[];
 ```
 
 <!--With Generics-->
@@ -20,12 +20,12 @@ function useResource(...[fetchShape: ReadShape, params: object | null]):
 function useResource<
   Params extends Readonly<object>,
   S extends Schema
->(fetchShape: ReadShape<S, Params>, params: Params | null): Denormalized<S>;
+>(fetchShape: ReadShape<S, Params>, params: Params | null): Denormalize<S>;
 
 function useResource<
   Params extends Readonly<object>,
   S extends Schema
->(...[fetchShape: ReadShape<S, Params>, params: Params | null]): Denormalized<S>[];
+>(...[fetchShape: ReadShape<S, Params>, params: Params | null]): Denormalize<S>[];
 ```
 
 <!--END_DOCUSAURUS_CODE_TABS-->

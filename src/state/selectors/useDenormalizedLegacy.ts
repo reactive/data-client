@@ -1,16 +1,11 @@
 import { useMemo } from 'react';
 import { State } from '~/types';
 import { isEntity, ReadShape } from '~/resource/types';
-import {
-  Schema,
-  denormalize,
-  ResultType,
-  Denormalized,
-} from '~/resource/normal';
+import { Schema, denormalize, Normalize, Denormalize } from '~/resource';
 import buildInferredResultsLegacy from './buildInferredResultsLegacy';
 
 /**
- * Selects the denormalized form from `state` cache.
+ * Selects the Denormalize form from `state` cache.
  *
  * If `result` is not found, will attempt to generate it naturally
  * using params and schema. This increases cache hit rate for many
@@ -23,11 +18,10 @@ export default function useDenormalizedLegacy<
   { schema, getFetchKey }: Pick<ReadShape<S, Params>, 'schema' | 'getFetchKey'>,
   params: Params | null,
   state: State<any>,
-): Denormalized<typeof schema> | null {
+): Denormalize<typeof schema> | null {
   // Select from state
   const entities = state.entities;
-  const cacheResults =
-    params && (state.results[getFetchKey(params)] as ResultType<typeof schema>);
+  const cacheResults = params && (state.results[getFetchKey(params)] as any);
 
   // We can grab entities without actual results if the params compute a primary key
   const results = useMemo(() => {

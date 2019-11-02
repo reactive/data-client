@@ -1,5 +1,5 @@
 import { UpdateFunction } from '~/types';
-import { ResultType, Schema } from '~/resource/normal';
+import { Normalize, Schema } from '~/resource';
 
 type ResultStateFromUpdateFunctions<
   SourceSchema extends Schema,
@@ -15,7 +15,7 @@ export default function applyUpdatersToResults<
   }
 >(
   results: ResultStateFromUpdateFunctions<SourceSchema, UpdateFunctions>,
-  result: ResultType<SourceSchema>,
+  result: Normalize<SourceSchema>,
   updaters: UpdateFunctions | undefined,
 ) {
   if (!updaters) return results;
