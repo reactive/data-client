@@ -58,8 +58,8 @@ type OptimisticUpdateParams<
 
 type UpdateFunction<SourceSchema extends Schema, DestSchema extends Schema> = (
   sourceResults: Normalize<SourceSchema>,
-  destResults: Normalize<DestSchema>,
-) => Normalize<DestSchema>;
+  destResults: NormalizeNullable<DestSchema>,
+) => NormalizeNullable<DestSchema>;
 ```
 
 <!--END_DOCUSAURUS_CODE_TABS-->
@@ -143,7 +143,10 @@ createArticle({}, { id: 1 }, [
   [
     ArticleResource.listShape(),
     {},
-    (newArticleID: string, articleIDs: string[]) => [...articleIDs, newArticleID],
+    (newArticleID: string, articleIDs: string[] | undefined) => [
+      ...(articleIDs || []),
+      newArticleID,
+    ],
   ],
 ]);
 ```
@@ -168,9 +171,9 @@ createArticle({}, { id: 1 }, [
   [
     ArticlePaginatedResource.listShape(),
     {},
-    (newArticleID: string, articleIDs: { results: string[] }) => ({
+    (newArticleID: string, articleIDs: { results: string[] | undefined }) => ({
       ...articleIDs,
-      results: [...articleIDs.results, newArticleID],
+      results: [...(articleIDs.results || []), newArticleID],
     }),
   ],
 ]);

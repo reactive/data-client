@@ -5,7 +5,7 @@ import {
   ErrorableFSAWithMeta,
   ErrorableFSAWithPayload,
 } from './fsa';
-import { Schema, schemas, Normalize } from './resource';
+import { Schema, schemas, Normalize, NormalizeNullable } from './resource';
 
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
 
@@ -84,8 +84,8 @@ export type UpdateFunction<
   DestSchema extends Schema
 > = (
   sourceResults: Normalize<SourceSchema>,
-  destResults: Normalize<DestSchema>,
-) => Normalize<DestSchema>;
+  destResults: NormalizeNullable<DestSchema>,
+) => NormalizeNullable<DestSchema>;
 
 export type OptimisticUpdateAction = ErrorableFSAWithPayload<
   'rest-hooks/optimistic-update',
