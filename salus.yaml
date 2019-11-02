@@ -6,12 +6,4 @@ active_scanners:
   - Gosec
   - NPMAudit
   - NodeAudit
-  - YardAudit
-scanner_configs:
-  YardAudit:
-    exceptions:
-      - {
-          advisory_id: '755',
-          changed_by: 'nathaniel.tucker',
-          notes: 'Handlebars is only used by devdeps to build changelog. Does not run in library.',
-        }
+  - YarnAudit
