@@ -522,6 +522,99 @@
       },
       "version-2.2/api/version-2.2-useResultCache": {
         "title": "useResultCache()"
+      },
+      "version-3.0/api/version-3.0-CacheProvider": {
+        "title": "<CacheProvider />"
+      },
+      "version-3.0/api/version-3.0-FetchShape": {
+        "title": "FetchShape"
+      },
+      "version-3.0/api/version-3.0-Manager": {
+        "title": "Manager"
+      },
+      "version-3.0/api/version-3.0-MockProvider": {
+        "title": "<MockProvider />"
+      },
+      "version-3.0/api/version-3.0-README": {
+        "title": "API Reference"
+      },
+      "version-3.0/api/version-3.0-resource": {
+        "title": "Resource"
+      },
+      "version-3.0/api/version-3.0-useCache": {
+        "title": "useCache()"
+      },
+      "version-3.0/api/version-3.0-useCacheLegacy": {
+        "title": "useCacheLegacy()"
+      },
+      "version-3.0/api/version-3.0-useFetcher": {
+        "title": "useFetcher()"
+      },
+      "version-3.0/api/version-3.0-useInvalidator": {
+        "title": "useInvalidator()"
+      },
+      "version-3.0/api/version-3.0-useResetter": {
+        "title": "useResetter()"
+      },
+      "version-3.0/api/version-3.0-useresource": {
+        "title": "useResource()"
+      },
+      "version-3.0/api/version-3.0-useresourcelegacy": {
+        "title": "useResourceLegacy()"
+      },
+      "version-3.0/api/version-3.0-useRetrieve": {
+        "title": "useRetrieve()"
+      },
+      "version-3.0/api/version-3.0-useSubscription": {
+        "title": "useSubscription()"
+      },
+      "version-3.0/getting-started/version-3.0-usage": {
+        "title": "Usage"
+      },
+      "version-3.0/guides/version-3.0-computed-properties": {
+        "title": "Computed Properties"
+      },
+      "version-3.0/guides/version-3.0-endpoints": {
+        "title": "Custom endpoints"
+      },
+      "version-3.0/guides/version-3.0-jsonp": {
+        "title": "Cross-orgin requests with JSONP"
+      },
+      "version-3.0/guides/version-3.0-mocking-unfinished": {
+        "title": "Mocking unfinished endpoints"
+      },
+      "version-3.0/guides/version-3.0-multi-pk": {
+        "title": "Multi-column primary key"
+      },
+      "version-3.0/guides/version-3.0-nested-response": {
+        "title": "Resources with nested structure",
+        "sidebar_label": "Nesting related resources (server-side join)"
+      },
+      "version-3.0/guides/version-3.0-no-suspense": {
+        "title": "Usage without Suspense"
+      },
+      "version-3.0/guides/version-3.0-pagination": {
+        "title": "Pagination"
+      },
+      "version-3.0/guides/version-3.0-redux": {
+        "title": "Redux integration"
+      },
+      "version-3.0/guides/version-3.0-resource-lifetime": {
+        "title": "Custom Resource cache lifetime",
+        "sidebar_label": "Custom cache lifetime"
+      },
+      "version-3.0/guides/version-3.0-resource-types": {
+        "title": "Defining your Resource types",
+        "sidebar_label": "Resource types"
+      },
+      "version-3.0/guides/version-3.0-rpc": {
+        "title": "Capturing Mutation Side-Effects"
+      },
+      "version-3.0/guides/version-3.0-storybook": {
+        "title": "Mocking data for Storybook"
+      },
+      "version-3.0/guides/version-3.0-url": {
+        "title": "URL Patterns"
       }
     },
     "links": {
