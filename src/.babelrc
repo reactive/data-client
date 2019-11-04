@@ -3,7 +3,8 @@
     [
       "@anansi/babel-preset",
       {
-        "typing": "typescript"
+        "typing": "typescript",
+        "legacyDecorators": true
       }
     ]
   ]
