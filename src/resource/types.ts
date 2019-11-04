@@ -1,8 +1,4 @@
 import { schemas, Schema } from './normal';
-import {
-  SchemaList as SchemaListLegacy,
-  SchemaDetail as SchemaDetailLegacy,
-} from './schemaLegacy';
 import { FetchOptions } from '~/types';
 
 /** Defines the shape of a network request */
@@ -86,21 +82,7 @@ export type BodyArg<RS> = RS extends {
 }
   ? U
   : never;
-export type RequestResource<RS> = SchemaOf<ResultShape<RS>>;
 
 export function isEntity(schema: Schema): schema is schemas.Entity {
   return (schema as any).key !== undefined;
 }
-
-// Legacy:
-export type SchemaOfCore<T> = T extends SchemaListLegacy<infer R>
-  ? R[]
-  : T extends SchemaDetailLegacy<infer R>
-  ? R
-  : never;
-
-export type SchemaOf<S> = Extract<S, schemas.Entity> extends never
-  ? (Extract<S, schemas.Entity[]> extends never
-      ? SchemaOfCore<S>
-      : SchemaOfCore<Extract<S, schemas.Entity[]>>)
-  : SchemaOfCore<Extract<S, schemas.Entity>>;

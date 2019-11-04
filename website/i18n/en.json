@@ -53,9 +53,6 @@
       "api/useCache": {
         "title": "useCache()"
       },
-      "api/useCacheLegacy": {
-        "title": "useCacheLegacy()"
-      },
       "api/useFetcher": {
         "title": "useFetcher()"
       },
@@ -67,9 +64,6 @@
       },
       "api/useresource": {
         "title": "useResource()"
-      },
-      "api/useresourcelegacy": {
-        "title": "useResourceLegacy()"
       },
       "api/useRetrieve": {
         "title": "useRetrieve()"
