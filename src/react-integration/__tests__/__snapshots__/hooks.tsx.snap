@@ -1,47 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`useCacheLegacy should select paginated results 1`] = `
-Array [
-  PaginatedArticleResource {
-    "author": null,
-    "content": "the best things in life com efree",
-    "id": 23,
-    "tags": Array [
-      "one",
-      "two",
-    ],
-    "title": "the first draft",
-  },
-  PaginatedArticleResource {
-    "author": null,
-    "content": "the best things in life com efree",
-    "id": 44,
-    "tags": Array [
-      "hbh",
-      "wew",
-    ],
-    "title": "the second book",
-  },
-  PaginatedArticleResource {
-    "author": null,
-    "content": "the best things in life com efree",
-    "id": 2,
-    "tags": Array [
-      "free",
-      "honey",
-    ],
-    "title": "the third novel",
-  },
-  PaginatedArticleResource {
-    "author": null,
-    "content": "the best things in life com efree",
-    "id": 643,
-    "tags": Array [],
-    "title": "a long time ago",
-  },
-]
-`;
-
 exports[`useFetcher should dispatch an action that fetches a create 1`] = `
 Object {
   "meta": Object {
@@ -163,80 +121,6 @@ Object {
       "GET http://test.com/article-cooler/": [Function],
     },
     "url": "POST http://test.com/article-cooler/",
-  },
-  "payload": [Function],
-  "type": "rest-hooks/fetch",
-}
-`;
-
-exports[`useResourceLegacy() should dispatch an action that fetches 1`] = `
-Object {
-  "meta": Object {
-    "options": undefined,
-    "reject": [Function],
-    "resolve": [Function],
-    "responseType": "rest-hooks/receive",
-    "schema": EntitySchema {
-      "_getId": [Function],
-      "_idAttribute": [Function],
-      "_key": "http://test.com/article-cooler/",
-      "_mergeStrategy": [Function],
-      "_processStrategy": [Function],
-      "denormalize": [Function],
-      "schema": Object {},
-    },
-    "throttle": true,
-    "url": "GET http://test.com/article-cooler/5",
-  },
-  "payload": [Function],
-  "type": "rest-hooks/fetch",
-}
-`;
-
-exports[`useResourceLegacy() should dispatch fetch when sent multiple arguments 1`] = `
-Object {
-  "meta": Object {
-    "options": undefined,
-    "reject": [Function],
-    "resolve": [Function],
-    "responseType": "rest-hooks/receive",
-    "schema": EntitySchema {
-      "_getId": [Function],
-      "_idAttribute": [Function],
-      "_key": "http://test.com/article-cooler/",
-      "_mergeStrategy": [Function],
-      "_processStrategy": [Function],
-      "denormalize": [Function],
-      "schema": Object {},
-    },
-    "throttle": true,
-    "url": "GET http://test.com/article-cooler/5",
-  },
-  "payload": [Function],
-  "type": "rest-hooks/fetch",
-}
-`;
-
-exports[`useResourceLegacy() should dispatch fetch when sent multiple arguments 2`] = `
-Object {
-  "meta": Object {
-    "options": undefined,
-    "reject": [Function],
-    "resolve": [Function],
-    "responseType": "rest-hooks/receive",
-    "schema": Array [
-      EntitySchema {
-        "_getId": [Function],
-        "_idAttribute": [Function],
-        "_key": "http://test.com/user/",
-        "_mergeStrategy": [Function],
-        "_processStrategy": [Function],
-        "denormalize": [Function],
-        "schema": Object {},
-      },
-    ],
-    "throttle": true,
-    "url": "GET http://test.com/user/",
   },
   "payload": [Function],
   "type": "rest-hooks/fetch",

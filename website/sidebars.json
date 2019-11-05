@@ -74,10 +74,8 @@
         "label": "Hooks",
         "ids": [
           "api/useresource",
-          "api/useresourcelegacy",
           "api/useFetcher",
           "api/useCache",
-          "api/useCacheLegacy",
           "api/useSubscription",
           "api/useRetrieve",
           "api/useInvalidator",

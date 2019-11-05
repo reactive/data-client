@@ -9,7 +9,6 @@ import {
   Schema,
   SchemaList,
   SchemaDetail,
-  SchemaOf,
   schemas,
 } from './resource';
 import NetworkManager from './state/NetworkManager';
@@ -20,11 +19,9 @@ import reducer, { initialState } from './state/reducer';
 import { useDenormalized } from './state/selectors';
 import {
   useCache,
-  useCacheLegacy,
   useFetcher,
   useRetrieve,
   useResource,
-  useResourceLegacy,
   useSubscription,
   useMeta,
   useError,
@@ -84,7 +81,6 @@ export type State<T> = State<T>;
 export type Schema = Schema;
 export type SchemaList<T> = SchemaList<T>;
 export type SchemaDetail<T> = SchemaDetail<T>;
-export type SchemaOf<T> = SchemaOf<T>;
 export type AbstractInstanceType<T> = AbstractInstanceType<T>;
 export type FetchOptions = FetchOptions;
 export type Method = Method;
@@ -116,13 +112,11 @@ export {
   CacheProvider,
   ExternalCacheProvider,
   useCache,
-  useCacheLegacy,
   useFetcher,
   useRetrieve,
   useInvalidator,
   useResetter,
   useResource,
-  useResourceLegacy,
   useSubscription,
   useMeta,
   useError,
