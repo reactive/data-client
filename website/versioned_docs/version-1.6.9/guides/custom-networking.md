@@ -55,6 +55,7 @@ export default abstract class FetchResource extends Resource {
     if (this.fetchOptionsPlugin) options = this.fetchOptionsPlugin(options);
     if (body) options.body = JSON.stringify(body);
     const response = await fetch(url, options);
+    if (!response.ok) throw new Error(response.statusText);
     const json = (await response).json();
     return json;
   }
