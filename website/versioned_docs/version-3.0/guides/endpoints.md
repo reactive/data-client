@@ -165,7 +165,7 @@ define exactly what your endpoint needs.
 ### RPC
 
 In this example, we have an RPC endpoint located at `/users/[id]/make_manager`. This endpoint
-doesn't expect any body, but is a POST requeest. Because it is so similar to a [createShape()](../api/resource#createshape-mutateshape)
+doesn't expect any body, but is a POST request. Because it is so similar to a [createShape()](../api/resource#createshape-mutateshape)
 we'll be extended that schema definition.
 
 ```typescript
