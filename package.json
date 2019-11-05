@@ -77,6 +77,13 @@
       "releaseNotes": "npx auto-changelog --stdout --starting-commit \"$(git rev-list --reverse ${latestVersion}...HEAD | head -n 1)\""
     }
   },
+  "browserslist": [
+    "> 1%",
+    "Firefox ESR",
+    "not dead",
+    "not ie<12",
+    "not OperaMini all"
+  ],
   "devDependencies": {
     "@anansi/babel-preset": "^0.18.2",
     "@anansi/eslint-config": "^0.6.6",
@@ -123,7 +130,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.6.0",
-    "@rest-hooks/normalizr": "^4.0.0-beta.3",
+    "@rest-hooks/normalizr": "^4.0.0-beta.4",
     "@types/superagent": "^4.1.4",
     "flux-standard-action": "^2.1.1",
     "lodash": "^4.17.15",
