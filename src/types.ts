@@ -75,7 +75,7 @@ export type PurgeAction = ErrorableFSAWithMeta<
 
 export type ResetAction = FSA<'rest-hooks/reset'>;
 
-export type OptimisticUpdatePayload = {
+type OptimisticUpdatePayload = {
   [key: string]: <T>(result: T | undefined, key: string) => T;
 };
 
