@@ -1,6 +1,6 @@
 {
   "name": "rest-hooks",
-  "version": "3.0.0",
+  "version": "4.0.0-beta.0",
   "description": "Delightful data fetching for React",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
