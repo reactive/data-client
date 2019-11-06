@@ -1,7 +1,7 @@
 import { memoize } from 'lodash';
 import { AbstractInstanceType, Method, FetchOptions } from '~/types';
 
-import { ReadShape, MutateShape, DeleteShape } from './types';
+import { ReadShape, MutateShape, DeleteShape } from './shapes';
 import { schemas, SchemaDetail, SchemaList } from './normal';
 
 const DefinedMembersKey = Symbol('Defined Members');

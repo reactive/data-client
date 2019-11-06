@@ -1,7 +1,12 @@
 import { useMemo } from 'react';
 import { State } from '~/types';
-import { isEntity, ReadShape } from '~/resource/types';
-import { Schema, denormalize, DenormalizeNullable } from '~/resource';
+import {
+  isEntity,
+  ReadShape,
+  Schema,
+  denormalize,
+  DenormalizeNullable,
+} from '~/resource';
 import buildInferredResults from './buildInferredResults';
 
 /**
