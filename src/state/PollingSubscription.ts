@@ -8,14 +8,14 @@ import { Subscription, SubscriptionInit } from './SubscriptionManager';
  * interval requested.
  */
 export default class PollingSubscription implements Subscription {
-  protected readonly schema: Schema;
-  protected readonly fetch: () => Promise<any>;
-  protected readonly url: string;
-  protected frequency: number;
+  protected declare readonly schema: Schema;
+  protected declare readonly fetch: () => Promise<any>;
+  protected declare readonly url: string;
+  protected declare frequency: number;
   protected frequencyHistogram: Map<number, number> = new Map();
-  protected dispatch: Dispatch<any>;
-  protected intervalId?: NodeJS.Timeout;
-  protected lastIntervalId?: NodeJS.Timeout;
+  protected declare dispatch: Dispatch<any>;
+  protected declare intervalId?: NodeJS.Timeout;
+  protected declare lastIntervalId?: NodeJS.Timeout;
 
   constructor(
     { url, schema, fetch, frequency }: SubscriptionInit,

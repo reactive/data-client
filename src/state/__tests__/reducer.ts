@@ -159,10 +159,7 @@ describe('reducer', () => {
         oldResults: T,
       ) => ({
         ...oldResults,
-        results: [
-          ...((oldResults && oldResults.results) || []),
-          ...newPage.results,
-        ],
+        results: [...(oldResults?.results || []), ...newPage.results],
       });
 
       const insertBeforeUpdater = <
@@ -172,10 +169,7 @@ describe('reducer', () => {
         oldResults: T,
       ) => ({
         ...oldResults,
-        results: [
-          ...newPage.results,
-          ...((oldResults && oldResults.results) || []),
-        ],
+        results: [...newPage.results, ...(oldResults?.results || [])],
       });
 
       const iniState: any = {

@@ -40,7 +40,7 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
   protected subscriptions: {
     [url: string]: InstanceType<S>;
   } = {};
-  protected readonly Subscription: S;
+  protected declare readonly Subscription: S;
 
   constructor(Subscription: S) {
     this.Subscription = Subscription;

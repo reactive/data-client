@@ -97,7 +97,10 @@ describe('mergeDeepCopy()', () => {
       };
 
       const expected = {
-        characters: [{ name: 'barney', age: 36 }, { name: 'fred', age: 40 }],
+        characters: [
+          { name: 'barney', age: 36 },
+          { name: 'fred', age: 40 },
+        ],
       };
 
       expect(mergeDeepCopy(names, ages)).toStrictEqual(expected);

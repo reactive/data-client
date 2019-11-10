@@ -40,7 +40,7 @@ describe('useCache()', () => {
     );
 
     expect(result.current).toBeTruthy();
-    expect(result.current && result.current.title).toBe(payload.title);
+    expect(result.current?.title).toBe(payload.title);
   });
 
   it('should select paginated results', () => {

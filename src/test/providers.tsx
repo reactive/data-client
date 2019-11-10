@@ -13,7 +13,9 @@ import {
 type DeepPartialWithUnknown<T> = {
   [K in keyof T]?: T[K] extends unknown
     ? any
-    : (T[K] extends object ? DeepPartialWithUnknown<T[K]> : T[K]);
+    : T[K] extends object
+    ? DeepPartialWithUnknown<T[K]>
+    : T[K];
 };
 
 const PromiseifyMiddleware = <R extends React.Reducer<any, any>>(
