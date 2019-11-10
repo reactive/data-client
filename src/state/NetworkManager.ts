@@ -21,8 +21,8 @@ export default class NetworkManager implements Manager {
   protected fetched: { [k: string]: Promise<any> } = {};
   protected resolvers: { [k: string]: (value?: any) => void } = {};
   protected rejectors: { [k: string]: (value?: any) => void } = {};
-  readonly dataExpiryLength: number;
-  readonly errorExpiryLength: number;
+  declare readonly dataExpiryLength: number;
+  declare readonly errorExpiryLength: number;
   constructor(dataExpiryLength = 60000, errorExpiryLength = 1000) {
     this.dataExpiryLength = dataExpiryLength;
     this.errorExpiryLength = errorExpiryLength;

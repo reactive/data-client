@@ -7,7 +7,7 @@ import { schemas, SchemaDetail, SchemaList } from './normal';
 const DefinedMembersKey = Symbol('Defined Members');
 type Filter<T, U> = T extends U ? T : never;
 interface SimpleResourceMembers<T extends typeof SimpleResource> {
-  [DefinedMembersKey]: (Filter<keyof AbstractInstanceType<T>, string>)[];
+  [DefinedMembersKey]: Filter<keyof AbstractInstanceType<T>, string>[];
 }
 
 /** Represents an entity to be retrieved from a server. Typically 1:1 with a url endpoint. */
@@ -117,7 +117,7 @@ export default abstract class SimpleResource {
     const Static = this.constructor as typeof SimpleResource;
     return Static.url(this);
   }
-  private __url?: string;
+  private declare __url?: string;
 
   /** Get the url for a SimpleResource
    *

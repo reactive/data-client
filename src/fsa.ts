@@ -91,9 +91,9 @@ export type NoErrorFluxStandardActionAuto<
   Payload = undefined,
   Meta = undefined
 > = Payload extends undefined
-  ? (Meta extends undefined
-      ? NoErrorFluxStandardAction<Type, Payload, Meta>
-      : NoErrorFluxStandardActionWithMeta<Type, Payload, Meta>)
-  : (Meta extends undefined
-      ? NoErrorFluxStandardActionWithPayload<Type, Payload, Meta>
-      : NoErrorFluxStandardActionWithPayloadAndMeta<Type, Payload, Meta>);
+  ? Meta extends undefined
+    ? NoErrorFluxStandardAction<Type, Payload, Meta>
+    : NoErrorFluxStandardActionWithMeta<Type, Payload, Meta>
+  : Meta extends undefined
+  ? NoErrorFluxStandardActionWithPayload<Type, Payload, Meta>
+  : NoErrorFluxStandardActionWithPayloadAndMeta<Type, Payload, Meta>;
