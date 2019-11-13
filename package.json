@@ -85,7 +85,7 @@
     "not OperaMini all"
   ],
   "devDependencies": {
-    "@anansi/babel-preset": "^0.19.3",
+    "@anansi/babel-preset": "^0.22.0",
     "@anansi/eslint-config": "^0.6.6",
     "@babel/cli": "^7.7.0",
     "@babel/core": "^7.7.2",
@@ -98,7 +98,6 @@
     "@typescript-eslint/parser": "^2.7.0",
     "@zerollup/ts-transform-paths": "^1.7.5",
     "auto-changelog": "^1.16.1",
-    "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^24.9.0",
     "coveralls": "^3.0.7",
     "cpy-cli": "^2.0.0",

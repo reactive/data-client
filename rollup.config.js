@@ -25,15 +25,6 @@ function isExternal(id) {
   return ret;
 }
 
-const presets = [
-  [
-    '@anansi/babel-preset',
-    {
-      typing: 'typescript',
-    },
-  ],
-];
-
 export default [
   // browser-friendly UMD build
   {
@@ -45,7 +36,6 @@ export default [
         exclude: ['node_modules/**', '**/__tests__/**'],
         extensions,
         runtimeHelpers: true,
-        presets,
       }),
       replace({ 'process.env.NODE_ENV': JSON.stringify('production') }),
       resolve({ extensions }),
@@ -65,7 +55,6 @@ export default [
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions,
         runtimeHelpers: true,
-        presets,
       }),
       resolve({ extensions }),
       commonjs({ extensions }),
@@ -81,7 +70,6 @@ export default [
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions,
         runtimeHelpers: true,
-        presets,
       }),
       resolve({ extensions }),
       commonjs({ extensions }),

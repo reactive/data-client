@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@anansi/babel-preset@^0.19.3":
-  version "0.19.3"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-0.19.3.tgz#66a80623170a8a03a30cb2086de63fdfd766eb33"
-  integrity sha512-8qwz78nyMgCEe8P05K6XVNizLI1PKWR+NvT5jUoZd2paHqWtPwn4WvG0K9ejxWlzqi72q0Mzq6bP0lRVkp0sug==
+"@anansi/babel-preset@^0.22.0":
+  version "0.22.0"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-0.22.0.tgz#6b920dcadcb74f5323abf9bf2b2b81fbfff9643c"
+  integrity sha512-lC6/YVbkR0zj0dO7aRohOGlpEE9s4PM4eKXCojXt94fIHGw+tGw2OfnZCgtfORGGf8a2Sfb6fBfzjI31dpQoEg==
   dependencies:
     "@babel/plugin-proposal-class-properties" "^7.7.0"
     "@babel/plugin-proposal-decorators" "^7.7.0"
@@ -24,6 +24,7 @@
     "@babel/plugin-transform-runtime" "^7.6.2"
     "@babel/plugin-transform-typescript" "^7.7.2"
     "@babel/preset-env" "^7.7.1"
+    "@babel/preset-modules" "^0.1.0"
     "@babel/preset-react" "^7.7.0"
     babel-minify "^0.5.1"
     babel-plugin-dynamic-import-node "^2.3.0"
@@ -583,7 +584,7 @@
     "@babel/helper-create-class-features-plugin" "^7.6.0"
     "@babel/helper-plugin-utils" "^7.0.0"
 
-"@babel/plugin-proposal-unicode-property-regex@^7.7.0":
+"@babel/plugin-proposal-unicode-property-regex@^7.4.4", "@babel/plugin-proposal-unicode-property-regex@^7.7.0":
   version "7.7.0"
   resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-unicode-property-regex/-/plugin-proposal-unicode-property-regex-7.7.0.tgz#549fe1717a1bd0a2a7e63163841cb37e78179d5d"
   integrity sha512-mk34H+hp7kRBWJOOAR0ZMGCydgKMD4iN9TpDRp3IIcbunltxEY89XSimc6WbtSLCDrwcdy/EEw7h5CFCzxTchw==
@@ -755,7 +756,7 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.0.0"
 
-"@babel/plugin-transform-dotall-regex@^7.7.0":
+"@babel/plugin-transform-dotall-regex@^7.4.4", "@babel/plugin-transform-dotall-regex@^7.7.0":
   version "7.7.0"
   resolved "https://registry.yarnpkg.com/@babel/plugin-transform-dotall-regex/-/plugin-transform-dotall-regex-7.7.0.tgz#c5c9ecacab3a5e0c11db6981610f0c32fd698b3b"
   integrity sha512-3QQlF7hSBnSuM1hQ0pS3pmAbWLax/uGNCbPBND9y+oJ4Y776jsyujG2k0Sn2Aj2a0QwVOiOFL5QVPA7spjvzSA==
@@ -1078,6 +1079,17 @@
     invariant "^2.2.2"
     js-levenshtein "^1.1.3"
     semver "^5.5.0"
+
+"@babel/preset-modules@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@babel/preset-modules/-/preset-modules-0.1.0.tgz#bbf47ed5530f8d663f0eb1c592864964b7cdaead"
+  integrity sha512-6t3sNgGW4AhaR71sfXCVUq/4BlWDn1QhRbECD6CMPkMPxUhj66d1ss7xllftdi4WnrJWJ1RD3jDQnEqMcAFd5g==
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.0.0"
+    "@babel/plugin-proposal-unicode-property-regex" "^7.4.4"
+    "@babel/plugin-transform-dotall-regex" "^7.4.4"
+    "@babel/types" "^7.4.4"
+    esutils "^2.0.2"
 
 "@babel/preset-react@^7.7.0":
   version "7.7.0"
@@ -1986,11 +1998,6 @@ axobject-query@^2.0.2:
   integrity sha512-MCeek8ZH7hKyO1rWUbKNQBbl4l2eY0ntk7OGi+q0RlafrCnfPxC06WZA+uebCfmYp4mNU9jRBP1AhGyf8+W3ww==
   dependencies:
     ast-types-flow "0.0.7"
-
-babel-core@^7.0.0-bridge.0:
-  version "7.0.0-bridge.0"
-  resolved "https://registry.yarnpkg.com/babel-core/-/babel-core-7.0.0-bridge.0.tgz#95a492ddd90f9b4e9a4a1da14eb335b87b634ece"
-  integrity sha512-poPX9mZH/5CSanm50Q+1toVci6pv5KSRv/5TWCwtzQS5XEwn40BcCrgIeMFWP9CKKIniKXNxoIOnOq4VVlGXhg==
 
 babel-eslint@^10.0.1:
   version "10.0.3"
