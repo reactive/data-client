@@ -70,7 +70,7 @@ export default class ArticleResource extends Resource {
 
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-Be sure to add all the properties you expect and mark them as readonly. [Mutation is considered harmful.](../guides/immutability.md)
+Be sure to add all the properties you expect and mark them as readonly.
 
 Also be sure to provide the `pk()` function and `static urlRoot` string.
 
