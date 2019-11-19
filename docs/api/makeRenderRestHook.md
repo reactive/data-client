@@ -90,7 +90,7 @@ Cleans up all managers used in tests. Should be run in `afterEach()` to ensure e
 ## Example
 
 ```typescript
-import { makeRenderRestHook, makeCacheProvider } from 'rest-hooks/test';
+import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 
 const payload = {
   id: 5,

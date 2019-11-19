@@ -1,0 +1,14 @@
+{
+  "lerna": "0.0.1",
+  "npmClient": "yarn",
+  "useWorkspaces": true,
+  "version": "independent",
+  "command": {
+    "publish": {
+      "conventionalCommits": true,
+      "changelogPreset": "anansi",
+      "createRelease": "github",
+      "message": "internal: publish"
+    }
+  }
+}

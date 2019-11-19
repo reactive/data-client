@@ -47,7 +47,7 @@ export default {
 
 ```tsx
 import { render } from '@testing-library/react';
-import { MockProvider } from 'rest-hooks/test';
+import { MockProvider } from '@rest-hooks/test';
 
 import ArticleList from 'components/ArticleList';
 import results from './fixtures';
