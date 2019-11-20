@@ -24,17 +24,27 @@ jobs:
       - save_cache:
           paths:
             - node_modules
+            - packages/*/node_modules
           key: v2-dependencies-{{ checksum "yarn.lock" }}
 
       # run tests!
-      - run: yarn run lint src
-      - run: yarn run test:ci --maxWorkers=2
-      - run: yarn run build
+      - run: yarn run lint packages/*/src
+      - run:
+          command: |
+            cd packages/rest-hooks
+            yarn run build
+      - run:
+          command: |
+            cd packages/test
+            yarn run build
+      - run: yarn run test:ci -- -- --maxWorkers=2
 
       # only run coverage if repo token is available (so third parties don't fail the build)
       - run:
           name: coverage
-          command: 'if [ "$COVERALLS_REPO_TOKEN" != "" ]; then yarn run test:coverage --coverageReporters=text-lcov --maxWorkers=2 | yarn run coveralls; fi'
+          command: |
+            cd packages/rest-hooks
+            if [ "$COVERALLS_REPO_TOKEN" != "" ]; then yarn run test:coverage --maxWorkers=2 --coverageReporters=text-lcov | yarn run coveralls; fi
   salus:
     machine: true
     steps:

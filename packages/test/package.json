@@ -1,0 +1,68 @@
+{
+  "name": "@rest-hooks/test",
+  "version": "0.1.0",
+  "description": "Testing utilities for Rest Hooks",
+  "sideEffects": false,
+  "main": "dist/index.cjs.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build:types": "ttsc --emitDeclarationOnly --isolatedModules -p ./tsconfig.compile.json",
+    "build:bundle": "rollup -c",
+    "build:clean": "rimraf dist",
+    "build": "npm run build:bundle && npm run build:types",
+    "prepublishOnly": "npm run build:clean && npm run build"
+  },
+  "keywords": [
+    "test",
+    "storybook",
+    "rest hooks",
+    "react",
+    "networking",
+    "suspense",
+    "concurrent mode",
+    "fetch",
+    "hook",
+    "typescript",
+    "redux",
+    "data fetching",
+    "data cache",
+    "normalized cache",
+    "swr"
+  ],
+  "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
+  "license": "Apache-2.0",
+  "homepage": "https://resthooks.io/docs/guides/storybook",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:coinbase/rest-hooks.git"
+  },
+  "bugs": {
+    "url": "https://github.com/coinbase/rest-hooks/issues"
+  },
+  "browserslist": [
+    "> 1%",
+    "Firefox ESR",
+    "not dead",
+    "not ie<12",
+    "not OperaMini all"
+  ],
+  "dependencies": {
+    "@testing-library/react-hooks": "^3.2.1"
+  },
+  "peerDependencies": {
+    "@types/react": "^16.8.2",
+    "react": "^16.8.2",
+    "rest-hooks": "^3.0.0 || ^4.0.0-beta.0",
+    "redux": "^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "redux": {
+      "optional": true
+    }
+  }
+}

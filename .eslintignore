@@ -1,2 +1,4 @@
-lib*/*
-dist*/*
+**/lib*/*
+**/dist*/*
+**/node_modules*/*
+node_modules/*

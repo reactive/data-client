@@ -22,7 +22,7 @@ upon test completion.
 
 ```typescript
 import nock from 'nock';
-import { makeRenderRestHook, makeCacheProvider } from 'rest-hooks/test';
+import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 
 describe('useResource()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;

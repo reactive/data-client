@@ -1,94 +1,29 @@
 {
-  "name": "rest-hooks",
-  "version": "4.0.0-beta.0",
-  "description": "Delightful data fetching for React",
-  "sideEffects": false,
-  "main": "dist/index.cjs.js",
-  "module": "lib/index.js",
-  "unpkg": "dist/index.umd.min.js",
-  "types": "lib/index.d.ts",
-  "files": [
-    "dist",
-    "lib",
-    "test.js",
-    "test.d.ts",
-    "LICENSE",
-    "README.md",
-    "./scripts/typescript.svg",
-    "./rest_hooks_logo_and_text.svg"
+  "private": true,
+  "workspaces": [
+    "packages/*"
   ],
   "scripts": {
-    "build:lib": "cross-env NODE_ENV=production babel src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
-    "build:types": "ttsc --emitDeclarationOnly -p ./src",
-    "build:bundle": "rollup -c",
-    "build:clean": "rimraf lib",
-    "build": "npm run build:lib && npm run build:types && cpy ./src/resource/normal.d.ts ./lib/resource",
-    "dev": "yarn run build:lib -w",
-    "prepare": "npm run build:clean && npm run build",
-    "prepublishOnly": "npm run build:bundle",
+    "release": "lerna publish",
     "lint": "eslint --ext .ts,.tsx",
-    "format": "eslint --fix \"src/**/*.{js,ts,tsx}\"",
-    "test": "cross-env NODE_ENV=test jest",
-    "test:ci": "npm test -- --ci",
-    "test:watch": "npm test -- --watch",
-    "test:coverage": "npm test -- --coverage",
-    "changelog": "npx auto-changelog --stdout",
-    "beforeStage": "npx auto-changelog -p && git add CHANGELOG.md"
+    "format": "eslint --fix \"packages/*/!(node_modules)/**/*.{js,ts,tsx}\"",
+    "clean": "lerna clean",
+    "build": "lerna run build --stream",
+    "test": "lerna run test --stream",
+    "test:ci": "lerna run --stream test:ci",
+    "test:coverage": "lerna run test:coverage --stream"
   },
-  "keywords": [
-    "rest",
-    "react",
-    "flux",
-    "ajax",
-    "networking",
-    "suspense",
-    "concurrent mode",
-    "fetch",
-    "hook",
-    "typescript",
-    "redux",
-    "data fetching",
-    "data cache",
-    "api",
-    "api call",
-    "normalized cache",
-    "swr"
-  ],
-  "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
-  "license": "Apache-2.0",
-  "homepage": "https://resthooks.io",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com:coinbase/rest-hooks.git"
-  },
-  "bugs": {
-    "url": "https://github.com/coinbase/rest-hooks/issues"
-  },
-  "auto-changelog": {
-    "template": "./scripts/changelog.hbs",
-    "breakingPattern": "\\[breaking\\]",
-    "unreleased": true,
-    "commitLimit": false,
-    "handlebarsSetup": "./scripts/changelogSetup.js"
-  },
-  "release-it": {
-    "github": {
-      "release": true,
-      "releaseNotes": "npx auto-changelog --stdout --starting-commit \"$(git rev-list --reverse ${latestVersion}...HEAD | head -n 1)\""
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
-  "browserslist": [
-    "> 1%",
-    "Firefox ESR",
-    "not dead",
-    "not ie<12",
-    "not OperaMini all"
-  ],
   "devDependencies": {
     "@anansi/babel-preset": "^0.22.0",
-    "@anansi/eslint-config": "^0.6.6",
     "@babel/cli": "^7.7.0",
     "@babel/core": "^7.7.2",
+    "@commitlint/cli": "^8.2.0",
+    "@commitlint/config-conventional": "^8.2.0",
     "@testing-library/react": "^9.3.2",
     "@testing-library/react-hooks": "^3.2.1",
     "@types/jest": "^24.0.22",
@@ -96,18 +31,21 @@
     "@types/react": "^16.9.11",
     "@typescript-eslint/eslint-plugin": "^2.7.0",
     "@typescript-eslint/parser": "^2.7.0",
-    "@zerollup/ts-transform-paths": "^1.7.5",
-    "auto-changelog": "^1.16.1",
+    "@zerollup/ts-transform-paths": "^1.7.7",
     "babel-jest": "^24.9.0",
-    "coveralls": "^3.0.7",
+    "conventional-changelog-anansi": "^0.1.1",
+    "core-js": "^3.4.1",
     "cpy-cli": "^2.0.0",
     "cross-env": "^6.0.3",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.5.0",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-react": "^7.16.0",
+    "eslint-plugin-react-hooks": "^2.3.0",
+    "husky": "^3.0.9",
     "ignore-styles": "^5.0.1",
     "jest": "^24.9.0",
+    "lerna": "^3.18.4",
     "nock": "^11.6.0",
     "prettier": "^1.19.1",
     "react": "16.12.0",
@@ -122,34 +60,12 @@
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-terser": "^5.1.2",
-    "scheduler": "^0.18.0",
     "ts-jest": "^24.1.0",
+    "ts-node": "^8.5.2",
     "ttypescript": "^1.5.8",
     "typescript": "^3.7.2"
   },
-  "dependencies": {
-    "@babel/runtime": "^7.7.2",
-    "@rest-hooks/normalizr": "^4.0.0",
-    "@types/superagent": "^4.1.4",
-    "flux-standard-action": "^2.1.1",
-    "lodash": "^4.17.15",
-    "superagent": "^5.1.0"
-  },
-  "peerDependencies": {
-    "@testing-library/react-hooks": "^2.0.0",
-    "@types/react": "^16.8.2",
-    "react": "^16.8.2",
-    "redux": "^4.0.0"
-  },
-  "peerDependenciesMeta": {
-    "@testing-library/react-hooks": {
-      "optional": true
-    },
-    "@types/react": {
-      "optional": true
-    },
-    "redux": {
-      "optional": true
-    }
+  "resolutions": {
+    "@lerna/conventional-commits": "https://github.com/ntucker/lerna-conventional-commits.git"
   }
 }
