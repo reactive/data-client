@@ -29,7 +29,14 @@ jobs:
 
       # run tests!
       - run: yarn run lint packages/*/src
-      - run: yarn run build
+      - run:
+          command: |
+            cd packages/rest-hooks
+            yarn run build
+      - run:
+          command: |
+            cd packages/test
+            yarn run build
       - run: yarn run test:ci -- -- --maxWorkers=2
 
       # only run coverage if repo token is available (so third parties don't fail the build)
