@@ -13,13 +13,14 @@
   "scripts": {
     "build:types": "ttsc --emitDeclarationOnly --isolatedModules -p ./tsconfig.compile.json",
     "build:bundle": "rollup -c",
-    "build:clean": "rimraf lib",
+    "build:clean": "rimraf dist",
     "build": "npm run build:bundle && npm run build:types",
-    "prepare": "npm run build:clean && npm run build"
+    "prepublishOnly": "npm run build:clean && npm run build"
   },
   "keywords": [
     "test",
     "storybook",
+    "rest hooks",
     "react",
     "networking",
     "suspense",
@@ -35,7 +36,7 @@
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
-  "homepage": "https://resthooks.io",
+  "homepage": "https://resthooks.io/docs/guides/storybook",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:coinbase/rest-hooks.git"

@@ -42,7 +42,9 @@ jobs:
       # only run coverage if repo token is available (so third parties don't fail the build)
       - run:
           name: coverage
-          command: 'if [ "$COVERALLS_REPO_TOKEN" != "" ]; then yarn run test:coverage -- -- --maxWorkers=2 --coverageReporters=text-lcov | yarn run coveralls; fi'
+          command: |
+            cd packages/rest-hooks
+            if [ "$COVERALLS_REPO_TOKEN" != "" ]; then yarn run test:coverage --maxWorkers=2 --coverageReporters=text-lcov | yarn run coveralls; fi
   salus:
     machine: true
     steps:
