@@ -43,7 +43,7 @@ Renders the children prop.
 ## Example
 
 ```typescript
-import { MockProvider } from 'rest-hooks/test';
+import { MockProvider } from '@rest-hooks/test';
 
 import ArticleResource from 'resources/ArticleResource';
 import MyComponentToTest from 'components/MyComponentToTest';

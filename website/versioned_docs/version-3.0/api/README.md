@@ -34,7 +34,7 @@ Extended the networking/state layer works through [managers](Manager.md).
 
 ## Testing
 
-Testing utilities are imported from `rest-hooks/testing`. These are useful
+Testing utilities are imported from `@rest-hooks/test`. These are useful
 helpers to ensure your code works as intended and are not meant to be shipped
 to production themselves.
 

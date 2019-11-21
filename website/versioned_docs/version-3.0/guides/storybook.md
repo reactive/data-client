@@ -98,7 +98,7 @@ to make it easy for the user to select between each dataset to compare how it lo
 
 ```tsx
 import { select } from '@storybook/addon-knobs';
-import { MockProvider } from 'rest-hooks/test';
+import { MockProvider } from '@rest-hooks/test';
 import ArticleList from 'ArticleList';
 import options from './fixtures';
 
