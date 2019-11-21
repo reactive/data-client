@@ -607,6 +607,12 @@
       "version-3.0/guides/version-3.0-storybook": {
         "title": "Mocking data for Storybook"
       },
+      "version-3.0/guides/version-3.0-unit-testing-components": {
+        "title": "Unit testing components"
+      },
+      "version-3.0/guides/version-3.0-unit-testing-hooks": {
+        "title": "Unit testing hooks"
+      },
       "version-3.0/guides/version-3.0-url": {
         "title": "URL Patterns"
       }

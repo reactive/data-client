@@ -1,5 +1,7 @@
 ---
+id: version-3.0-unit-testing-components
 title: Unit testing components
+original_id: unit-testing-components
 ---
 
 If you need to add unit tests to your components to check some behavior you might want

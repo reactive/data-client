@@ -1,5 +1,7 @@
 ---
+id: version-3.0-unit-testing-hooks
 title: Unit testing hooks
+original_id: unit-testing-hooks
 ---
 
 Hooks allow you to pull complex behaviors out of your components into succinct,
