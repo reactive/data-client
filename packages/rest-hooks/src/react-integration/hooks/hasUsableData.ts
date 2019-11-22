@@ -1,13 +1,9 @@
-import { FetchShape, Schema } from '~/resource';
+import { FetchShape } from '~/resource';
 
 /** If the invalidIfStale option is set we suspend if resource has expired */
-export default function hasUsableData<
-  S extends Schema,
-  Params extends Readonly<object>,
-  Body extends Readonly<object | string> | void
->(
+export default function hasUsableData(
   cacheReady: boolean,
-  fetchShape: Pick<FetchShape<S, Params, Body>, 'options'>,
+  fetchShape: Pick<FetchShape<any>, 'options'>,
 ) {
   return !(
     (fetchShape.options && fetchShape.options.invalidIfStale) ||

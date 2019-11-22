@@ -15,21 +15,19 @@ way you please.
 #### `useStatefulResource.tsx`
 
 ```typescript
-import { useRetrieve, useCache, useError, Schema, ReadShape } from 'rest-hooks';
+import { useRetrieve, useCache, useError, Schema, ReadShape, FetchShape } from 'rest-hooks';
 
 /** If the invalidIfStale option is set we suspend if resource has expired */
-function hasUsableData<
-  S extends Schema,
-  Params extends Readonly<object>,
->(
-  resource: RequestResource<ReadShape<S, Params>> | null,
-  fetchShape: ReadShape<S, Params>,
+export default function hasUsableData(
+  cacheReady: boolean,
+  fetchShape: Pick<FetchShape<any>, 'options'>,
 ) {
   return !(
     (fetchShape.options && fetchShape.options.invalidIfStale) ||
-    !resource
+    !cacheReady
   );
 }
+
 
 /** Ensure a resource is available; loading and error returned explicitly. */
 function useStatefulResource<
@@ -47,7 +45,7 @@ function useStatefulResource<
   let error = useError(fetchShape, params, resource);
 
   return {
-    data: resource as NonNullable<typeof resource>,
+    data: resource,
     loading,
     error,
   };
