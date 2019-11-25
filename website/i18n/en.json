@@ -523,6 +523,9 @@
       "version-3.0/api/version-3.0-FetchShape": {
         "title": "FetchShape"
       },
+      "version-3.0/api/version-3.0-makeRenderRestHook": {
+        "title": "makeRenderRestHook()"
+      },
       "version-3.0/api/version-3.0-Manager": {
         "title": "Manager"
       },
