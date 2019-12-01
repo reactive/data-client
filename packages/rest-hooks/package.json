@@ -17,10 +17,10 @@
   ],
   "scripts": {
     "build:lib": "cross-env NODE_ENV=production babel src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
-    "build:types": "ttsc --emitDeclarationOnly -p ./src",
+    "build:types": "ttsc --build",
     "build:bundle": "rollup -c",
-    "build:clean": "rimraf lib",
-    "build": "npm run build:lib && npm run build:types && cpy ./src/resource/normal.d.ts ./lib/resource",
+    "build:clean": "rimraf lib tsconfig.compile.tsbuildinfo tsconfig.tsbuildinfo",
+    "build": "npm run build:lib && npm run build:types",
     "dev": "yarn run build:lib -w",
     "prepare": "npm run build:clean && npm run build",
     "prepublishOnly": "npm run build:bundle",

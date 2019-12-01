@@ -10,7 +10,7 @@
     "prettier/react"
   ],
   "parser": "@typescript-eslint/parser",
-  "parserOptions": { "project": "./tsconfig.json" },
+  "parserOptions": { "project": "./packages/**/tsconfig.json" },
   "plugins": ["prettier", "react-hooks"],
   "env": {
     "jest": true

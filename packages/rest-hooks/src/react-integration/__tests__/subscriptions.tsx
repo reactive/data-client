@@ -9,7 +9,7 @@ import {
   makeCacheProvider,
   makeExternalCacheProvider,
   makeRenderRestHook,
-} from '../../../../test/src';
+} from '../../../../test';
 import { DispatchContext } from '../context';
 
 for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {

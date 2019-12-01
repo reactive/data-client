@@ -12,7 +12,7 @@ import {
   makeRenderRestHook,
   makeCacheProvider,
   makeExternalCacheProvider,
-} from '../../../../test/src';
+} from '../../../../test';
 import {
   payload,
   createPayload,

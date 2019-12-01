@@ -11,11 +11,11 @@
     "README.md"
   ],
   "scripts": {
-    "build:types": "ttsc --emitDeclarationOnly --isolatedModules -p ./tsconfig.compile.json",
+    "build:types": "ttsc --build ./tsconfig.compile.json",
     "build:bundle": "rollup -c",
-    "build:clean": "rimraf dist",
-    "build": "npm run build:bundle && npm run build:types",
-    "prepublishOnly": "npm run build:clean && npm run build"
+    "build:clean": "rimraf dist tsconfig.compile.tsbuildinfo tsconfig.tsbuildinfo",
+    "build": "yarn run build:bundle && yarn run build:types",
+    "prepublishOnly": "yarn run build:clean && yarn run build"
   },
   "keywords": [
     "test",
@@ -51,6 +51,9 @@
     "not ie<12",
     "not OperaMini all"
   ],
+  "devDependencies": {
+    "rest-hooks": "*"
+  },
   "dependencies": {
     "@testing-library/react-hooks": "^3.2.1"
   },
