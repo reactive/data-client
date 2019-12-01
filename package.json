@@ -4,7 +4,7 @@
     "packages/*"
   ],
   "scripts": {
-    "release": "yarn run build:clean && yarn run build:types && lerna publish",
+    "release": "lerna publish",
     "lint": "eslint --ext .ts,.tsx",
     "format": "eslint --fix \"packages/*/!(node_modules)/**/*.{js,ts,tsx}\"",
     "clean": "lerna clean",
@@ -13,7 +13,8 @@
     "build:types": "ttsc --build",
     "test": "lerna run test --stream",
     "test:ci": "lerna run --stream test:ci",
-    "test:coverage": "lerna run test:coverage --stream"
+    "test:coverage": "lerna run test:coverage --stream",
+    "prepublishOnly": "yarn run build:clean && yarn run build:types"
   },
   "husky": {
     "hooks": {

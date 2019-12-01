@@ -14,7 +14,7 @@
   "scripts": {
     "build:types": "ttsc --build ./tsconfig.compile.json",
     "build:bundle": "rollup -c",
-    "build:clean": "rimraf dist tsconfig.compile.tsbuildinfo tsconfig.tsbuildinfo",
+    "build:clean": "rimraf dist *.tsbuildinfo",
     "build": "yarn run build:bundle && yarn run build:types",
     "prepublishOnly": "yarn run build"
   },
