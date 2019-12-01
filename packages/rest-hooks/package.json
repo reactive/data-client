@@ -23,7 +23,7 @@
     "build:clean": "rimraf lib tsconfig.compile.tsbuildinfo tsconfig.tsbuildinfo",
     "build": "npm run build:lib && npm run build:types",
     "dev": "yarn run build:lib -w",
-    "prepare": "npm run build:clean && npm run build",
+    "prepare": "npm run build",
     "prepublishOnly": "npm run build:bundle",
     "test": "cross-env NODE_ENV=test jest",
     "test:ci": "npm test -- --ci",

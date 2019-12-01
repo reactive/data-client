@@ -4,7 +4,7 @@
     "packages/*"
   ],
   "scripts": {
-    "release": "lerna publish",
+    "release": "yarn run build:clean && yarn run build:types && lerna publish",
     "lint": "eslint --ext .ts,.tsx",
     "format": "eslint --fix \"packages/*/!(node_modules)/**/*.{js,ts,tsx}\"",
     "clean": "lerna clean",
