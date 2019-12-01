@@ -17,7 +17,7 @@ import {
   makeRenderRestHook,
   makeCacheProvider,
   mockInitialState,
-} from '../../../../test/src';
+} from '../../../../test';
 import { users, articlesPages, payload } from './fixtures';
 
 async function testDispatchFetch(

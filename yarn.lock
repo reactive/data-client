@@ -2316,7 +2316,7 @@
   dependencies:
     "@types/node" ">= 8"
 
-"@rest-hooks/normalizr@^4.0.0":
+"@rest-hooks/normalizr@^4.0.0", "@rest-hooks/normalizr@^4.0.0-beta.3":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@rest-hooks/normalizr/-/normalizr-4.0.0.tgz#5707d1291546c17db39ab94639b2dcc6a859d4d4"
   integrity sha512-0nvJjk7ff21tctjJ44WTOZn1jTHCEz8EjssD5WNaKL61rgnIoV65mJxDBGB5K2sOyOjYXgs8sntbuoqK8XrC7A==
@@ -8170,6 +8170,18 @@ resolve@1.x, resolve@^1.10.0, resolve@^1.11.0, resolve@^1.11.1, resolve@^1.12.0,
   integrity sha512-B/dOmuoAik5bKcD6s6nXDCjzUKnaDvdkRyAk6rsmsKLipWj4797iothd7jmmUhWTfinVMU+wc56rYKsit2Qy4w==
   dependencies:
     path-parse "^1.0.6"
+
+rest-hooks@*:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/rest-hooks/-/rest-hooks-3.0.0.tgz#47188880d84b9f80c771e045ecaec5d018ea1c76"
+  integrity sha512-SRMpbFb8JkmlO75j1vnhXIfwWoCPl/L8Tx09V7Bx37/mwXylYbHYOZyQKsvO1Pd1e5K5XEWlXhvvoCdZwRpbgw==
+  dependencies:
+    "@babel/runtime" "^7.6.0"
+    "@rest-hooks/normalizr" "^4.0.0-beta.3"
+    "@types/superagent" "^4.1.4"
+    flux-standard-action "^2.1.1"
+    lodash "^4.17.15"
+    superagent "^5.1.0"
 
 restore-cursor@^2.0.0:
   version "2.0.0"

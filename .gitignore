@@ -59,5 +59,8 @@ typings/
 .env
 
 # build directory
-/lib
-/dist
+**/lib
+**/dist
+
+# build info
+**/tsconfig*.tsbuildinfo

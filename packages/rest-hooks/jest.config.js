@@ -10,7 +10,7 @@ module.exports = {
   globals: {
     'ts-jest': {
       babelConfig: 'src/.babelrc',
-      tsConfig: 'src/tsconfig.json',
+      tsConfig: 'tsconfig.json',
     },
   },
   transform: {
@@ -18,11 +18,11 @@ module.exports = {
     '^.+\\.jsx?$': 'babel-jest',
   },
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
-  coveragePathIgnorePatterns: ['react-integration/hooks/useSelection'],
+  coveragePathIgnorePatterns: ['node_modules', 'react-integration/hooks/useSelection'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   moduleNameMapper: {
     ...pathsToModuleNameMapper(compilerOptions.paths, {
-      prefix: '<rootDir>/src/',
+      prefix: '<rootDir>/../../',
     }),
     '^rest-hooks$': '<rootDir>/src/index.ts',
   },

@@ -4,7 +4,7 @@ import {
   PaginatedArticleResource,
 } from '../../__tests__/common';
 import { useCache } from '../hooks';
-import { makeRenderRestHook, makeCacheProvider } from '../../../../test/src';
+import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import { articlesPages, payload } from './fixtures';
 
 describe('useCache()', () => {
