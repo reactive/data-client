@@ -52,7 +52,7 @@
     "outDir": "lib",
     "paths": {
       "~/*": ["packages/rest-hooks/src/*"],
-      //"@rest-hooks/*": ["packages/*/src"],
+      //"@rest-hooks/*": ["packages/*/src"],  TODO: move @rest-hooks/normalizr in here so this works
       "rest-hooks": ["packages/rest-hooks/src"],
       "__tests__/*": ["__tests__/*"]
     },
