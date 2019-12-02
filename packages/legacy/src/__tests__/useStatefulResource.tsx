@@ -62,7 +62,8 @@ describe('useStatefulResource()', () => {
     expect(result.current.data).toEqual(CoolerArticleResource.fromJS(payload));
   });
 
-  /*it('should return errors on bad network', async () => {
+  /* TODO: figure out why this fails test suite even tho the expects all pass. maybe has to do with console.error?
+  it('should return errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useStatefulResource(CoolerArticleResource.detailShape(), {
         title: '0',
