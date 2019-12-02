@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import {
   CoolerArticleResource,
   PaginatedArticleResource,
-} from '../../__tests__/common';
+} from '__tests__/common';
 import { useCache } from '../hooks';
 import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import { articlesPages, payload } from './fixtures';

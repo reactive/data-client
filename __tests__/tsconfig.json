@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig-base",
+  "compilerOptions": {
+    "outDir": ".",
+  },
+  "include": ["."],
+  "references": [
+    { "path": "../packages/rest-hooks" }
+  ]
+}

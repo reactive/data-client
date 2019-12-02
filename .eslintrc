@@ -10,7 +10,9 @@
     "prettier/react"
   ],
   "parser": "@typescript-eslint/parser",
-  "parserOptions": { "project": "./packages/**/tsconfig.json" },
+  "parserOptions": {
+    "project": ["./packages/**/tsconfig.json", "./__tests__/tsconfig.json"]
+  },
   "plugins": ["prettier", "react-hooks"],
   "env": {
     "jest": true
@@ -25,7 +27,10 @@
     "@typescript-eslint/explicit-member-accessibility": "off",
     "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/unbound-method": "warn",
-    "@typescript-eslint/no-unnecessary-type-assertion": ["error", { "typesToIgnore": ["any"] }]
+    "@typescript-eslint/no-unnecessary-type-assertion": [
+      "error",
+      { "typesToIgnore": ["any"] }
+    ]
   },
   "settings": {
     "react": {

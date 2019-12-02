@@ -9,7 +9,7 @@ import {
   PaginatedArticleResource,
   ArticleResourceWithOtherListUrl,
   StaticArticleResource,
-} from '../../__tests__/common';
+} from '__tests__/common';
 import { useFetcher, useRetrieve, useInvalidator, useResetter } from '../hooks';
 import { initialState } from '../../state/reducer';
 import { State, ActionTypes } from '../../types';

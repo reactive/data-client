@@ -17,18 +17,18 @@
     "./rest_hooks_logo_and_text.svg"
   ],
   "scripts": {
-    "build:lib": "cross-env NODE_ENV=production babel src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:lib": "cross-env NODE_ENV=production babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
     "build:types": "ttsc --build",
     "build:bundle": "rollup -c",
     "build:clean": "rimraf lib dist *.tsbuildinfo",
-    "build": "npm run build:lib && npm run build:types",
+    "build": "yarn run build:lib",
     "dev": "yarn run build:lib -w",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm run build:bundle",
+    "prepare": "yarn run build",
+    "prepublishOnly": "yarn run build:bundle",
     "test": "cross-env NODE_ENV=test jest",
-    "test:ci": "npm test -- --ci",
-    "test:watch": "npm test -- --watch",
-    "test:coverage": "npm test -- --coverage"
+    "test:ci": "yarn test -- --ci",
+    "test:watch": "yarn test -- --watch",
+    "test:coverage": "yarn test -- --coverage"
   },
   "keywords": [
     "rest",

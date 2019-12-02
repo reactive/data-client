@@ -51,8 +51,10 @@
     "rootDir": ".",
     "outDir": "lib",
     "paths": {
-      "@rest-hooks/*": ["packages/*/src"],
-      "rest-hooks": ["packages/rest-hooks/src"]
+      "~/*": ["packages/rest-hooks/src/*"],
+      //"@rest-hooks/*": ["packages/*/src"],  TODO: move @rest-hooks/normalizr in here so this works
+      "rest-hooks": ["packages/rest-hooks/src"],
+      "__tests__/*": ["__tests__/*"]
     },
 
     /* Source Map Options */
@@ -69,6 +71,7 @@
   "exclude": [
     "node_modules",
     "dist",
-    "lib"
+    "lib",
+    "coverage"
   ]
 }

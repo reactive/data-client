@@ -8,7 +8,7 @@ import {
   CoolerArticleResource,
   UserResource,
   InvalidIfStaleArticleResource,
-} from '../../__tests__/common';
+} from '__tests__/common';
 import { useResource } from '../hooks';
 import {
   makeRenderRestHook,

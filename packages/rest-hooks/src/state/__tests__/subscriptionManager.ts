@@ -1,6 +1,6 @@
 import SubscriptionManager, { Subscription } from '../SubscriptionManager';
 import { SubscribeAction, UnsubscribeAction } from '../../types';
-import { PollingArticleResource } from '../../__tests__/common';
+import { PollingArticleResource } from '__tests__/common';
 
 function onError(e: any) {
   e.preventDefault();

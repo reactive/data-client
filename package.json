@@ -6,7 +6,7 @@
   "scripts": {
     "release": "lerna publish",
     "lint": "eslint --ext .ts,.tsx",
-    "format": "eslint --fix \"packages/*/!(node_modules)/**/*.{js,ts,tsx}\"",
+    "format": "eslint --fix \"packages/*/src/**/*.{js,ts,tsx}\"",
     "clean": "lerna clean",
     "build": "ttsc --build && lerna run build --stream",
     "build:clean": "lerna run build:clean --stream",
@@ -22,7 +22,7 @@
     }
   },
   "devDependencies": {
-    "@anansi/babel-preset": "^0.22.1",
+    "@anansi/babel-preset": "^0.23.0",
     "@babel/cli": "^7.7.4",
     "@babel/core": "^7.7.4",
     "@commitlint/cli": "^8.2.0",
@@ -55,6 +55,7 @@
     "react-dom": "16.12.0",
     "react-test-renderer": "^16.12.0",
     "redux": "^4.0.4",
+    "rimraf": "^3.0.0",
     "rollup": "^1.27.5",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.1.0",

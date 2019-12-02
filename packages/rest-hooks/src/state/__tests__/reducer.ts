@@ -2,7 +2,7 @@ import {
   ArticleResource,
   ArticleResourceWithOtherListUrl,
   PaginatedArticleResource,
-} from '../../__tests__/common';
+} from '__tests__/common';
 import reducer from '../reducer';
 import {
   FetchAction,

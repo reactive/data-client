@@ -4,7 +4,7 @@ import {
   PaginatedArticleResource,
   NestedArticleResource,
   UserResource,
-} from '../../../__tests__/common';
+} from '__tests__/common';
 import { normalize } from '../../../resource';
 import useDenormalized from '../useDenormalized';
 
