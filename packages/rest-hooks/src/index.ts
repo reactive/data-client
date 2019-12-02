@@ -21,6 +21,7 @@ import {
   NetworkError as OGNetworkError,
 } from './react-integration';
 import useSelectionUnstable from './react-integration/hooks/useSelection';
+import hasUsableData from './react-integration/hooks/hasUsableData';
 import { Request as RequestType } from 'superagent';
 import { StateContext, DispatchContext } from './react-integration/context';
 
@@ -29,6 +30,7 @@ const __INTERNAL__ = {
   StateContext,
   DispatchContext,
   RIC,
+  hasUsableData,
 };
 
 export type NetworkError = OGNetworkError;

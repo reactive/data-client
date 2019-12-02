@@ -8,49 +8,18 @@ In these cases you might want a boolean `loading` instead of yielding to Suspens
 In any case, here's a sample hook you can adapt to use that information in any
 way you please.
 
-## Sample Hook
+## Installation
 
-#### `useStatefulResource.tsx`
-
-```typescript
-import { useContext} from 'react';
-import { useRetrieve, useError, Schema, ReadShape, FetchShape, useDenormalized, __INTERNAL__ } from 'rest-hooks';
-
-/** If the invalidIfStale option is set we suspend if resource has expired */
-export default function hasUsableData(
-  cacheReady: boolean,
-  fetchShape: Pick<FetchShape<any>, 'options'>,
-) {
-  return !(
-    (fetchShape.options && fetchShape.options.invalidIfStale) ||
-    !cacheReady
-  );
-}
-
-
-/** Ensure a resource is available; loading and error returned explicitly. */
-export function useStatefulResource<
-  Params extends Readonly<object>,
-  S extends Schema
->(fetchShape: ReadShape<S, Params>, params: Params | null) {
-  let maybePromise = useRetrieve(fetchShape, params);
-  const state = useContext(__INTERNAL__.StateContext);
-  const [denormalized, ready] = useDenormalized(fetchShape, params, state);
-
-  const loading =
-    !hasUsableData(ready, fetchShape) &&
-    maybePromise &&
-    typeof maybePromise.then === 'function';
-
-  let error = useError(fetchShape, params, ready);
-
-  return {
-    data: denormalized,
-    loading,
-    error,
-  };
-}
+<!--DOCUSAURUS_CODE_TABS-->
+<!--yarn-->
+```bash
+yarn add @rest-hooks/legacy
 ```
+<!--npm-->
+```bash
+npm install @rest-hooks/legacy
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 ## Hook usage
 
@@ -73,10 +42,9 @@ export default class ProfileResource extends Resource {
 #### `ProfileList.tsx`
 
 ```tsx
+import { useStatefulResource } from '@rest-hooks/legacy';
 import { Skeleton, Card, Avatar } from 'antd';
 import ProfileResource from 'resources/ProfileResource';
-
-import useStatefulResource from './useStatefulResource';
 
 const { Meta } = Card;
 
@@ -98,4 +66,14 @@ function ProfileList() {
     </Card>
   );
 }
+```
+
+## API
+
+```typescript
+function useStatefulResource<Params extends Readonly<object>, S extends Schema>(fetchShape: ReadShape<S, Params>, params: Params | null): {
+    data: DenormalizeNullable<S>;
+    loading: boolean;
+    error: (Params extends null ? undefined : Error) | undefined;
+};
 ```
