@@ -6,7 +6,7 @@ import {
   ArticleResource,
   PaginatedArticleResource,
   UserResource,
-} from '../../__tests__/common';
+} from '__tests__/common';
 import { useResource, useFetcher } from '../hooks';
 import {
   makeRenderRestHook,

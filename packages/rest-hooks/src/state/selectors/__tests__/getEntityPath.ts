@@ -1,4 +1,4 @@
-import { CoolerArticleResource } from '../../../__tests__/common';
+import { CoolerArticleResource } from '__tests__/common';
 import { schemas } from '../../../resource/normal';
 import getEntityPath from '../getEntityPath';
 

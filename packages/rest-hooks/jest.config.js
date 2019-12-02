@@ -1,5 +1,29 @@
 const { pathsToModuleNameMapper } = require('ts-jest/utils');
-const { compilerOptions } = require('./tsconfig');
+const ts = require('typescript');
+
+function readTsConfig(path = "./") {
+  const parseConfigHost = {
+    fileExists: ts.sys.fileExists,
+    readFile: ts.sys.readFile,
+    readDirectory: ts.sys.readDirectory,
+    useCaseSensitiveFileNames: true
+  };
+
+  const configFileName = ts.findConfigFile(
+    path,
+    ts.sys.fileExists,
+    "tsconfig.json"
+  );
+  const configFile = ts.readConfigFile(configFileName, ts.sys.readFile);
+  const compilerOptions = ts.parseJsonConfigFileContent(
+    configFile.config,
+    parseConfigHost,
+    path
+  );
+  return compilerOptions;
+}
+
+const { options } = readTsConfig();
 
 module.exports = {
   roots: ['<rootDir>/src'],
@@ -9,22 +33,21 @@ module.exports = {
    */
   globals: {
     'ts-jest': {
-      babelConfig: 'src/.babelrc',
+      babelConfig: require('../../babel.config')({cache:{using: () => {}}}),
       tsConfig: 'tsconfig.json',
     },
   },
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
-    '^.+\\.jsx?$': 'babel-jest',
+    '^.+\\.jsx?$': '<rootDir>/../../scripts/babel-jest',
   },
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
   coveragePathIgnorePatterns: ['node_modules', 'react-integration/hooks/useSelection'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   moduleNameMapper: {
-    ...pathsToModuleNameMapper(compilerOptions.paths, {
+    ...pathsToModuleNameMapper(options.paths, {
       prefix: '<rootDir>/../../',
     }),
-    '^rest-hooks$': '<rootDir>/src/index.ts',
   },
   setupFiles: ['../../scripts/testSetup.js'],
 };

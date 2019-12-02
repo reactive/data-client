@@ -1,4 +1,4 @@
-import { ArticleResourceWithOtherListUrl } from '../../__tests__/common';
+import { ArticleResourceWithOtherListUrl } from '__tests__/common';
 import applyUpdatersToResults from '../applyUpdatersToResults';
 
 describe('applyUpdatersToResults', () => {

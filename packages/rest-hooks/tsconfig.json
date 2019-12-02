@@ -2,11 +2,10 @@
   "extends": "../../tsconfig-base",
   "compilerOptions": {
     "outDir": "lib",
-    "rootDir": "src",
-    "paths": {
-      "~/*": ["packages/rest-hooks/src/*"],
-      "rest-hooks": ["packages/rest-hooks/src"]
-    }
+    "rootDir": "src"
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [
+    { "path": "../../__tests__" }
+  ]
 }

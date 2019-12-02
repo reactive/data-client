@@ -5,8 +5,8 @@ import {
   schemas,
   ReadShape,
   SchemaDetail,
-} from '../resource';
-import { AbstractInstanceType, FetchOptions } from '../types';
+} from 'rest-hooks';
+import { AbstractInstanceType, FetchOptions } from 'rest-hooks';
 
 export class ArticleResource extends Resource {
   readonly id: number | undefined = undefined;

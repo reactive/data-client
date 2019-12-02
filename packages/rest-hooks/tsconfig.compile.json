@@ -1,4 +1,7 @@
 {
   "extends": "./tsconfig",
+  "paths": {
+    "~/*": ["packages/rest-hooks/src/*"],
+  },
   "exclude": ["node_modules", "dist", "lib", "**/__tests__"]
 }

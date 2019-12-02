@@ -35,6 +35,7 @@ export default [
       babel({
         exclude: ['node_modules/**', '**/__tests__/**'],
         extensions,
+        rootMode: "upward",
         runtimeHelpers: true,
       }),
       replace({ 'process.env.NODE_ENV': JSON.stringify('production') }),
@@ -54,6 +55,7 @@ export default [
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
         extensions,
+        rootMode: "upward",
         runtimeHelpers: true,
       }),
       resolve({ extensions }),
