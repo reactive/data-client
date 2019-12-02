@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/legacy",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Legacy features for Rest Hooks",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
@@ -63,10 +63,9 @@
     "not OperaMini all"
   ],
   "devDependencies": {
-    "@rest-hooks/test": "^0.1.0",
+    "@rest-hooks/test": "^1.0.0",
     "coveralls": "^3.0.8"
   },
-  "dependencies": {},
   "peerDependencies": {
     "@types/react": "^16.8.2",
     "react": "^16.8.2",

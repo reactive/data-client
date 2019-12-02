@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/test",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Testing utilities for Rest Hooks",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
@@ -61,8 +61,8 @@
   "peerDependencies": {
     "@types/react": "^16.8.2",
     "react": "^16.8.2",
-    "rest-hooks": "^3.0.0 || ^4.0.0-beta.0",
-    "redux": "^4.0.0"
+    "redux": "^4.0.0",
+    "rest-hooks": "^3.0.0 || ^4.0.0-beta.0"
   },
   "peerDependenciesMeta": {
     "redux": {
