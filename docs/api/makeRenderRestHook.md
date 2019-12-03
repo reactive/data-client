@@ -29,7 +29,9 @@ providers as they both are initialized in a very different fashion.
 - [makeCacheProvider()](./makeCacheProvider.md)
 - [makeExternalCacheProvider()](./makeExternalCacheProvider.md)
 
-## Returns
+## renderRestHook()
+
+Returned from makeRenderRestHook():
 
 ```typescript
 type RenderRestHookFunction = {
