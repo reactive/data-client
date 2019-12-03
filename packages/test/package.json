@@ -40,18 +40,12 @@
   "homepage": "https://resthooks.io/docs/guides/storybook",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:coinbase/rest-hooks.git"
+    "url": "git+ssh://git@github.com:coinbase/rest-hooks.git",
+    "directory": "packages/test"
   },
   "bugs": {
     "url": "https://github.com/coinbase/rest-hooks/issues"
   },
-  "browserslist": [
-    "> 1%",
-    "Firefox ESR",
-    "not dead",
-    "not ie<12",
-    "not OperaMini all"
-  ],
   "devDependencies": {
     "rest-hooks": "*"
   },

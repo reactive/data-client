@@ -21,6 +21,13 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
+  "browserslist": [
+    "> 1%",
+    "Firefox ESR",
+    "not dead",
+    "not ie<12",
+    "not OperaMini all"
+  ],
   "devDependencies": {
     "@anansi/babel-preset": "^0.23.0",
     "@babel/cli": "^7.7.4",
