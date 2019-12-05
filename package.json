@@ -22,7 +22,7 @@
     "build:types": "ttsc --emitDeclarationOnly -p ./src",
     "build:bundle": "rollup -c",
     "build:clean": "rimraf lib",
-    "build": "npm run build:lib && npm run build:types && cpy ./src/resource/normal.d.ts ./lib/resource",
+    "build": "npm run build:lib && npm run build:types && cpy ./src/resource/schemaLegacy.d.ts ./lib/resource",
     "dev": "yarn run build:lib -w",
     "prepare": "npm run build:clean && npm run build",
     "prepublishOnly": "npm run build:bundle",
