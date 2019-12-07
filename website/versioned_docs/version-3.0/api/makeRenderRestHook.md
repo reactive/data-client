@@ -57,6 +57,9 @@ type RenderRestHookFunction = {
 };
 ```
 
+`renderRestHook()` creates a Provider context with new manager instances. This means each call
+to `renderRestHook()` will result in a completely fresh cache state as well as manager state.
+
 ### Arguments
 
 #### callback
