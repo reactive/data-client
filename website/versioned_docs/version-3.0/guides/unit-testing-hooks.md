@@ -20,6 +20,11 @@ send as args to the [renderRestHook()](../api/makeRenderRestHook#renderresthook)
 These will generally be done during test setup. It's important to call cleanup
 upon test completion.
 
+> Note:
+>
+> `renderRestHook()` creates a Provider context with new manager instances. This means each call
+> to `renderRestHook()` will result in a completely fresh cache state as well as manager state.
+
 ### Example:
 
 <!--DOCUSAURUS_CODE_TABS-->
