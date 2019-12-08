@@ -5,8 +5,7 @@ import {
   ExternalCacheProvider,
   CacheProvider,
   Manager,
-  MiddlewareAPI,
-  Dispatch,
+  PromiseifyMiddleware,
 } from 'rest-hooks';
 
 // Extension of the DeepPartial type defined by Redux which handles unknown
@@ -16,13 +15,6 @@ type DeepPartialWithUnknown<T> = {
     : T[K] extends object
     ? DeepPartialWithUnknown<T[K]>
     : T[K];
-};
-
-const PromiseifyMiddleware = <R extends React.Reducer<any, any>>(
-  _: MiddlewareAPI<R>,
-) => (next: Dispatch<R>) => (action: React.ReducerAction<R>): Promise<void> => {
-  next(action);
-  return Promise.resolve();
 };
 
 let makeExternalCacheProvider: (
