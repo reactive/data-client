@@ -32,6 +32,7 @@ import {
   useInvalidator,
   useResetter,
   ExternalCacheProvider,
+  PromiseifyMiddleware,
   NetworkErrorBoundary,
   NetworkError,
 } from './react-integration';
@@ -115,6 +116,7 @@ export {
   SuperagentResource,
   CacheProvider,
   ExternalCacheProvider,
+  PromiseifyMiddleware,
   useCache,
   useCacheLegacy,
   useFetcher,
