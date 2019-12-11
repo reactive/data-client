@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@1.0.0...@rest-hooks/test@1.0.1) (2019-12-11)
+
+
+### 🐛 Bug Fix
+
+* export PromiseifyMiddleware ([#197](https://github.com/coinbase/rest-hooks/issues/197)) ([89370ff](https://github.com/coinbase/rest-hooks/commit/89370ffccaee39a6e147b449a76a1ce9778f7010))
+
+
+### 📝 Documentation
+
+* Point to repository directory for npm ([942a563](https://github.com/coinbase/rest-hooks/commit/942a563493d35dca9787e541dd89599d2059be1c))
+
+
+
 ## 1.0.0 (2019-12-02)
 
 

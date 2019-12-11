@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.0-beta.1...rest-hooks@4.0.0-beta.2) (2019-12-11)
+
+
+### 🐛 Bug Fix
+
+* Add lodash types ([#198](https://github.com/coinbase/rest-hooks/issues/198)) ([0523401](https://github.com/coinbase/rest-hooks/commit/05234010b884cbfcf1d5341a5bd5b318a1260360))
+* export PromiseifyMiddleware ([#197](https://github.com/coinbase/rest-hooks/issues/197)) ([89370ff](https://github.com/coinbase/rest-hooks/commit/89370ffccaee39a6e147b449a76a1ce9778f7010))
+
+
+### 🏠 Internal
+
+* React.createContext -> createContext ([c5ff9cc](https://github.com/coinbase/rest-hooks/commit/c5ff9ccd41e1d4bf92aed3bf0ff9a42edaaa8985))
+
+
+### 📝 Documentation
+
+* Point to repository directory for npm ([942a563](https://github.com/coinbase/rest-hooks/commit/942a563493d35dca9787e541dd89599d2059be1c))
+
+
+
 ## 4.0.0-beta.1 (2019-12-02)
 
 
