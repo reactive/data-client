@@ -1,3 +1,7 @@
+scanner_configs:
+  YarnAudit:
+    exclude_groups:
+    - devDependencies
 active_scanners:
   - RepoNotEmpty
   - Brakeman
