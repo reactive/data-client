@@ -1,4 +1,4 @@
-import { Resource, SimpleResource, SuperagentResource } from './resource';
+import { Resource, SimpleResource } from './resource';
 import NetworkManager from './state/NetworkManager';
 import RIC from './state/RIC';
 import PollingSubscription from './state/PollingSubscription';
@@ -23,7 +23,6 @@ import {
 } from './react-integration';
 import useSelectionUnstable from './react-integration/hooks/useSelection';
 import hasUsableData from './react-integration/hooks/hasUsableData';
-import { Request as RequestType } from 'superagent';
 import { StateContext, DispatchContext } from './react-integration/context';
 
 const __INTERNAL__ = {
@@ -35,7 +34,6 @@ const __INTERNAL__ = {
 };
 
 export type NetworkError = OGNetworkError;
-export type Request = RequestType;
 
 export * from './types';
 export * from './resource/shapes';
@@ -43,7 +41,6 @@ export * from './resource/normal';
 export {
   Resource,
   SimpleResource,
-  SuperagentResource,
   CacheProvider,
   ExternalCacheProvider,
   PromiseifyMiddleware,

@@ -37,33 +37,44 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     // TODO: add nested resource test case that has multiple partials to test merge functionality
 
     let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+    let mynock: nock.Scope;
 
     beforeEach(() => {
-      nock('http://test.com')
+      nock(/.*/)
+        .persist()
+        .defaultReplyHeaders({
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        })
+        .options(/.*/)
+        .reply(200)
         .get(`/article-cooler/${payload.id}`)
-        .reply(200, payload);
-      nock('http://test.com')
+        .reply(200, payload)
         .delete(`/article-cooler/${payload.id}`)
-        .reply(204, '');
-      nock('http://test.com')
+        .reply(204, '')
         .delete(`/article/${payload.id}`)
-        .reply(200, {});
-      nock('http://test.com')
+        .reply(200, {})
         .get(`/article-cooler/0`)
-        .reply(403, {});
-      nock('http://test.com')
+        .reply(403, {})
         .get(`/article-cooler/666`)
-        .reply(200, '');
-      nock('http://test.com')
+        .reply(200, '')
         .get(`/article-cooler/`)
         .reply(200, nested)
-        .persist();
-      nock('http://test.com')
         .post(`/article-cooler/`)
-        .reply(200, createPayload);
-      nock('http://test.com')
+        .reply(200, createPayload)
         .get(`/user/`)
         .reply(200, users);
+      mynock = nock(/.*/).defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      });
+    });
+
+    afterEach(() => {
+      nock.cleanAll();
+    });
+
+    beforeEach(() => {
       renderRestHook = makeRenderRestHook(makeProvider);
     });
     afterEach(() => {
@@ -102,7 +113,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       });
 
       await expect(result.current({ id: 666 })).rejects.toThrowError(
-        'JSON expected but not returned from API',
+        'Unexpected end of JSON input',
       );
     });
 
@@ -205,10 +216,8 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     });
 
     it('should update on get for a paginated resource', async () => {
-      nock('http://test.com')
-        .get(`/article-paginated/`)
-        .reply(200, paginatedFirstPage);
-      nock('http://test.com')
+      mynock.get(`/article-paginated/`).reply(200, paginatedFirstPage);
+      mynock
         .get(`/article-paginated/?cursor=2`)
         .reply(200, paginatedSecondPage);
 

@@ -12,6 +12,8 @@ import {
 } from '../../../../test';
 import { DispatchContext } from '../context';
 
+let mynock: nock.Scope;
+
 for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
   describe(`${makeProvider.name} with subscriptions`, () => {
     const articlePayload = {
@@ -33,13 +35,28 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     });
 
     beforeEach(() => {
-      nock('http://test.com')
+      nock(/.*/)
+        .persist()
+        .defaultReplyHeaders({
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        })
+        .options(/.*/)
+        .reply(200);
+      mynock = nock(/.*/).defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      });
+      mynock
+        .get(`/article-cooler/${articlePayload.id}`)
+        .reply(200, articlePayload)
         .get(`/article/${articlePayload.id}`)
         .reply(200, articlePayload);
       renderRestHook = makeRenderRestHook(makeProvider);
     });
     afterEach(() => {
       nock.cleanAll();
+
       renderRestHook.cleanup();
     });
 
@@ -67,7 +84,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       // should not update if active is false
       active = false;
       rerender();
-      nock('http://test.com')
+      mynock
         .get(`/article/${articlePayload.id}`)
         .reply(200, { ...articlePayload, title: 'sixer' });
       jest.advanceTimersByTime(frequency);
@@ -140,7 +157,7 @@ async function validateSubscription(
   expect(result.current).toBeInstanceOf(PollingArticleResource);
   expect(result.current).toEqual(PollingArticleResource.fromJS(articlePayload));
   // should update again after frequency
-  nock('http://test.com')
+  mynock
     .get(`/article/${articlePayload.id}`)
     .reply(200, { ...articlePayload, title: 'fiver' });
   jest.advanceTimersByTime(frequency);

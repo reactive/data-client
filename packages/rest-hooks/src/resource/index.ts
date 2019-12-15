@@ -4,6 +4,4 @@ export * from './shapes';
 export * from './types';
 export * from './normal';
 
-const SuperagentResource = Resource;
-
-export { Resource, SimpleResource, SuperagentResource };
+export { Resource, SimpleResource };

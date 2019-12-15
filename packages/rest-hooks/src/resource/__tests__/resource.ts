@@ -10,6 +10,21 @@ import Resource from '../Resource';
 import SimpleResource from '../SimpleResource';
 
 describe('Resource', () => {
+  beforeAll(() => {
+    nock(/.*/)
+      .persist()
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
+      .options(/.*/)
+      .reply(200);
+  });
+
+  afterAll(() => {
+    nock.cleanAll();
+  });
+
   it('should init', () => {
     const resource = CoolerArticleResource.fromJS({
       id: 5,
@@ -188,6 +203,7 @@ describe('Resource', () => {
   describe('Resource.fetch()', () => {
     const id = 5;
     const idHtml = 6;
+    const idNoContent = 7;
     const payload = {
       id,
       title: 'happy',
@@ -208,21 +224,23 @@ describe('Resource', () => {
     };
 
     beforeEach(() => {
-      nock('http://test.com')
+      nock(/.*/)
+        .defaultReplyHeaders({
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        })
         .get(`/article-cooler/${payload.id}`)
-        .reply(200, payload);
-      nock('http://test.com')
+        .reply(200, payload)
         .get(`/article-cooler/${idHtml}`)
-        .reply(200, '<body>this is html</body>');
-
-      nock('http://test.com')
+        .reply(200, '<body>this is html</body>')
+        .get(`/article-cooler/${idNoContent}`)
+        .reply(204, '')
         .post('/article-cooler/')
         .reply((uri, requestBody) => [
           201,
           requestBody,
           { 'content-type': 'application/json' },
-        ]);
-      nock('http://test.com')
+        ])
         .put('/article-cooler/5')
         .reply((uri, requestBody) => {
           let body = requestBody as any;
@@ -235,15 +253,13 @@ describe('Resource', () => {
             }
           }
           return [200, putResponseBody, { 'content-type': 'application/json' }];
-        });
-      nock('http://test.com')
+        })
         .patch('/article-cooler/5')
         .reply(() => [
           200,
           patchResponseBody,
           { 'content-type': 'application/json' },
-        ]);
-      nock('http://test.com')
+        ])
         .intercept('/article-cooler/5', 'DELETE')
         .reply(200, {});
     });
@@ -312,17 +328,65 @@ describe('Resource', () => {
     });
 
     it('should throw if response is not json', async () => {
-      await expect(
-        CoolerArticleResource.fetch(
+      let error: any;
+      try {
+        await CoolerArticleResource.fetch(
           'get',
           CoolerArticleResource.url({ id: idHtml }),
-        ),
-      ).rejects.toMatchSnapshot();
+        );
+      } catch (e) {
+        error = e;
+      }
+      expect(error).toBeDefined();
+      expect(error.status).toBe(400);
     });
 
-    it('should use fetchPlugin if defined', async () => {
+    it('should return raw response if status is 204 No Content', async () => {
+      const res = await CoolerArticleResource.fetch(
+        'get',
+        CoolerArticleResource.url({ id: idNoContent }),
+      );
+      expect(res).toBe('');
+    });
+
+    it('should return text if content-type is not json', async () => {
+      const id = 8;
+      const text = '<body>this is html</body>';
+      nock(/.*/)
+        .defaultReplyHeaders({
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        })
+        .get(`/article-cooler/${id}`)
+        .reply(200, text, { 'content-type': 'html/text' });
+
+      const res = await CoolerArticleResource.fetch(
+        'get',
+        CoolerArticleResource.url({ id }),
+      );
+      expect(res).toBe('<body>this is html</body>');
+    });
+
+    it('should return text if content-type does not exist', async () => {
+      const id = 10;
+      const text = '<body>this is html</body>';
+      nock(/.*/)
+        .defaultReplyHeaders({
+          'Access-Control-Allow-Origin': '*',
+        })
+        .get(`/article-cooler/${id}`)
+        .reply(200, text, {});
+
+      const res = await CoolerArticleResource.fetch(
+        'get',
+        CoolerArticleResource.url({ id }),
+      );
+      expect(res).toBe(text);
+    });
+
+    it('should use fetchOptionsPlugin if defined', async () => {
       class FetchResource extends CoolerArticleResource {
-        static fetchPlugin = jest.fn(a => a);
+        static fetchOptionsPlugin = jest.fn(a => a);
       }
       const article = await FetchResource.fetch(
         'get',
@@ -331,7 +395,9 @@ describe('Resource', () => {
         }),
       );
       expect(article).toBeDefined();
-      expect(FetchResource.fetchPlugin.mock.calls.length).toBeGreaterThan(0);
+      expect(
+        FetchResource.fetchOptionsPlugin.mock.calls.length,
+      ).toBeGreaterThan(0);
     });
   });
 
