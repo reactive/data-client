@@ -103,9 +103,6 @@
         "title": "Understanding Immutability",
         "sidebar_label": "Understanding Immutability"
       },
-      "guides/jsonp": {
-        "title": "Cross-orgin requests with JSONP"
-      },
       "guides/loading-state": {
         "title": "Handling loading state"
       },

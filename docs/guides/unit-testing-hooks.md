@@ -23,6 +23,36 @@ upon test completion.
 > `renderRestHook()` creates a Provider context with new manager instances. This means each call
 > to `renderRestHook()` will result in a completely fresh cache state as well as manager state.
 
+### Polyfill fetch in node
+
+Node doesn't come with fetch out of the box, so we need to be sure to polyfill it.
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--yarn-->
+```bash
+yarn add whatwg-fetch
+```
+<!--npm-->
+```bash
+npm install whatwg-fetch
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--jest-->
+```js
+// jest.config.js
+module.exports = {
+  // other things
+  setupFiles: ['./testSetup.js'],
+};
+```
+```js
+// testSetup.js
+require('whatwg-fetch');
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
+
 ### Example:
 
 <!--DOCUSAURUS_CODE_TABS-->
@@ -37,13 +67,21 @@ describe('useResource()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
 
   beforeEach(() => {
-    nock('http://test.com')
+    nock(/.*/)
+      .persist()
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
+      .options(/.*/)
+      .reply(200)
       .get(`/article/0`)
       .reply(403, {});
     renderRestHook = makeRenderRestHook(makeCacheProvider);
   });
 
   afterEach(() => {
+    nock.cleanAll();
     renderRestHook.cleanup();
   });
 
@@ -71,13 +109,21 @@ describe('useResource()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
 
   beforeEach(() => {
-    nock('http://test.com')
+    nock(/.*/)
+      .persist()
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
+      .options(/.*/)
+      .reply(200)
       .get(`/article/0`)
       .reply(403, {});
     renderRestHook = makeRenderRestHook(makeExternalCacheProvider);
   });
 
   afterEach(() => {
+    nock.cleanAll();
     renderRestHook.cleanup();
   });
 

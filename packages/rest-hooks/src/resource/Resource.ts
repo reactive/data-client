@@ -42,7 +42,7 @@ export default abstract class Resource extends SimpleResource {
         if (!response.ok) {
           throw new NetworkError(response);
         }
-        return resolveValidResponse(response);
+        return (this as any).resolveFetchData(response);
       })
       .catch(error => {
         // ensure CORS, network down, and parse errors are still caught by NetworkErrorBoundary
@@ -52,10 +52,14 @@ export default abstract class Resource extends SimpleResource {
         throw error;
       });
   }
-}
 
-export function resolveValidResponse(res: Response) {
-  if (!res.headers.get('content-type')?.includes('json') || res.status === 204)
-    return res.text();
-  return res.json();
+  /** Resolve response into correct data type */
+  static resolveFetchData?(response: Response) {
+    if (
+      !response.headers.get('content-type')?.includes('json') ||
+      response.status === 204
+    )
+      return response.text();
+    return response.json();
+  }
 }

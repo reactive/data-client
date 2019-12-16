@@ -1,10 +1,25 @@
 ---
 title: Authentication
 ---
-All network requests are run through the `static fetchPlugin` optionally
+
+All network requests are run through the `static fetchOptionsPlugin` optionally
 defined in your `Resource`.
 
 Here's an example using simple cookie auth:
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--fetch-->
+
+```typescript
+class AuthdResource extends Resource {
+  static fetchOptionsPlugin = (options: RequestInit) => ({
+    ...options,
+    credentials: 'same-origin',
+  });
+}
+```
+
+<!--superagent-->
 
 ```typescript
 import { Request } from 'rest-hooks';
@@ -14,10 +29,10 @@ class AuthdResource extends Resource {
 }
 ```
 
+<!--END_DOCUSAURUS_CODE_TABS-->
+
 You can also do more complex flows (like adding arbitrary headers) to
-the request. Every `fetchPlugin` will take in a [superagent](http://visionmedia.github.io/superagent/)
-`Request` and return a new `Request`. `Superagent` uses the builder
-pattern so this is quite easy.
+the request. Every `fetchOptionsPlugin` takes in the existing [init options](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) of fetch, and returns new init options to be used.
 
 ## Code organization
 

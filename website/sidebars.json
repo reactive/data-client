@@ -38,8 +38,7 @@
         "label": "Resource Definitions",
         "ids": [
           "guides/custom-networking",
-          "guides/resource-lifetime",
-          "guides/jsonp"
+          "guides/resource-lifetime"
         ]
       },
       {
