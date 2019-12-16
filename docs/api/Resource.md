@@ -92,7 +92,13 @@ don't use constructors.
 ### static fromJS<T extends typeof Resource>(this: T, props: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T>
 
 This is used to create instances of the `Resource` you defined. Will copy over props provided to
-the instance in construction.
+the instance in construction, among other things. *Be sure to always call `super.fromJS()` when
+overriding.*
+
+Can be useful to override to:
+
+* [Deserialize fields](../guides/network-transform#deserializing-fields)
+* Add runtime field validation
 
 ## Be sure to always provide:
 

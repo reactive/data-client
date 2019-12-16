@@ -49,6 +49,38 @@ abstract class CamelResource extends Resource {
 }
 ```
 
+## Deserializing fields
+
+In many cases, data sent through JSON is serialized into strings since JSON
+only has a few primitive types. Common examples include [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+for dates or even strings for decimals that require high precision ([floats can be lossy](https://floating-point-gui.de/)).
+Keeping data in the serialized form is often fine, especially if it is only being used to
+be displayed. However, this can be problematic when derived data is computed like adding time to a date
+or multiplying two numbers.
+
+In this case override the [fromJS()](../api/resource#static-fromjst-extends-typeof-resourcethis-t-props-partialabstractinstancetypet-abstractinstancetypet)
+factory method, transforming the fields you wish to change.
+
+```typescript
+class MyResource extends Resource {
+  readonly createdAt: Date | null = new Date(0);
+  readonly largeNumber = BigInt(0);
+  // other fields here
+
+  /** MyResource factory. Takes an object of properties to assign to MyResource. */
+  static fromJS<T extends typeof Resource>(
+    this: T,
+    props: Partial<AbstractInstanceType<T>>,
+  ) {
+    return super.fromJS({
+      ...props,
+      createdAt: props.createdAt ? new Date(props.createdAt) : null,
+      largeNumber: BigInt(props.largeNumber):
+    });
+  }
+}
+```
+
 ## Name calling
 
 Sometimes an API might change a key name, or choose one you don't like. Of course
