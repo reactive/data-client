@@ -42,11 +42,11 @@ need to install core-js and import it at the entry point of your bundle.
 <!--DOCUSAURUS_CODE_TABS-->
 <!--yarn-->
 ```bash
-yarn add core-js
+yarn add core-js whatwg-fetch
 ```
 <!--npm-->
 ```bash
-npm install core-js
+npm install core-js whatwg-fetch
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
@@ -54,6 +54,7 @@ npm install core-js
 
 ```tsx
 import 'core-js/stable';
+import 'whatwg-fetch';
 // place the above line at top
 ```
 

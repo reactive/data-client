@@ -62,13 +62,32 @@ function testRestHook(
   });
 }
 
+let mynock: nock.Scope;
+
+beforeAll(() => {
+  nock(/.*/)
+    .persist()
+    .defaultReplyHeaders({
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'application/json',
+    })
+    .options(/.*/)
+    .reply(200);
+  mynock = nock(/.*/).defaultReplyHeaders({
+    'Access-Control-Allow-Origin': '*',
+    'Content-Type': 'application/json',
+  });
+});
+
+afterAll(() => {
+  nock.cleanAll();
+});
+
 describe('useFetcher', () => {
   const payload = { id: 1, content: 'hi' };
 
   it('should dispatch an action that fetches a create', async () => {
-    nock('http://test.com')
-      .post(`/article-cooler/`)
-      .reply(201, payload);
+    mynock.post(`/article-cooler/`).reply(201, payload);
 
     function DispatchTester() {
       const a = useFetcher(CoolerArticleResource.createShape());
@@ -79,9 +98,7 @@ describe('useFetcher', () => {
   });
 
   it('should dispatch an action with updater in the meta if update shapes params are passed in', async () => {
-    nock('http://test.com')
-      .post(`/article-cooler/`)
-      .reply(201, payload);
+    mynock.post(`/article-cooler/`).reply(201, payload);
 
     function DispatchTester() {
       const create = useFetcher(CoolerArticleResource.createShape());
@@ -99,9 +116,7 @@ describe('useFetcher', () => {
   });
 
   it('should dispatch an action with multiple updaters in the meta if update shapes params are passed in', async () => {
-    nock('http://test.com')
-      .post(`/article/`)
-      .reply(201, payload);
+    mynock.post(`/article/`).reply(201, payload);
 
     function DispatchTester() {
       const create = useFetcher(ArticleResourceWithOtherListUrl.createShape());
@@ -141,9 +156,7 @@ describe('useFetcher', () => {
   });
 
   it('should dispatch an action that fetches a partial update', async () => {
-    nock('http://test.com')
-      .patch(`/article-cooler/1`)
-      .reply(200, payload);
+    mynock.patch(`/article-cooler/1`).reply(200, payload);
 
     function DispatchTester() {
       const a = useFetcher(CoolerArticleResource.partialUpdateShape());
@@ -154,9 +167,7 @@ describe('useFetcher', () => {
   });
 
   it('should dispatch an action that fetches a full update', async () => {
-    nock('http://test.com')
-      .put(`/article-cooler/1`)
-      .reply(200, payload);
+    mynock.put(`/article-cooler/1`).reply(200, payload);
 
     function DispatchTester() {
       const a = useFetcher(CoolerArticleResource.updateShape());
@@ -269,15 +280,9 @@ describe('useResetter', () => {
 describe('useRetrieve', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
   beforeEach(() => {
-    nock('http://test.com')
-      .get(`/article-cooler/${payload.id}`)
-      .reply(200, payload);
-    nock('http://test.com')
-      .get(`/article-static/${payload.id}`)
-      .reply(200, payload);
-    nock('http://test.com')
-      .get(`/user/`)
-      .reply(200, users);
+    mynock.get(`/article-cooler/${payload.id}`).reply(200, payload);
+    mynock.get(`/article-static/${payload.id}`).reply(200, payload);
+    mynock.get(`/user/`).reply(200, users);
     renderRestHook = makeRenderRestHook(makeCacheProvider);
   });
   afterEach(() => {
@@ -338,7 +343,7 @@ describe('useRetrieve', () => {
     global.Date.now = jest.fn(() => time);
     nock.cleanAll();
     const fetchMock = jest.fn(() => payload);
-    nock('http://test.com')
+    mynock
       .get(`/article-cooler/${payload.id}`)
       .reply(200, fetchMock)
       .persist();

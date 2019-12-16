@@ -66,32 +66,39 @@ describe('useResource()', () => {
     return null;
   }
 
-  beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
-    nock('http://test.com')
+  beforeAll(() => {
+    nock(/.*/)
+      .persist()
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
+      .options(/.*/)
+      .reply(200)
       .get(`/article-cooler/${payload.id}`)
-      .reply(200, payload);
-    nock('http://test.com')
+      .reply(200, payload)
       .delete(`/article-cooler/${payload.id}`)
-      .reply(204, '');
-    nock('http://test.com')
+      .reply(204, '')
       .delete(`/article/${payload.id}`)
-      .reply(200, {});
-    nock('http://test.com')
+      .reply(200, {})
       .get(`/article-cooler/0`)
-      .reply(403, {});
-    nock('http://test.com')
+      .reply(403, {})
       .get(`/article-cooler/666`)
-      .reply(200, '');
-    nock('http://test.com')
+      .reply(200, '')
       .get(`/article-cooler/`)
-      .reply(200, nested);
-    nock('http://test.com')
+      .reply(200, nested)
       .get(`/user/`)
       .reply(200, users);
   });
-  afterEach(() => {
+
+  afterAll(() => {
     nock.cleanAll();
+  });
+
+  beforeEach(() => {
+    renderRestHook = makeRenderRestHook(makeCacheProvider);
+  });
+  afterEach(() => {
     renderRestHook.cleanup();
   });
 

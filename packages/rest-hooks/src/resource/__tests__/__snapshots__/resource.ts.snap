@@ -1,7 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Resource Resource.fetch() should throw if response is not json 1`] = `[Error: JSON expected but not returned from API]`;
-
 exports[`Resource getEntitySchema() merging should match snapshot 1`] = `
 Object {
   "entities": Object {

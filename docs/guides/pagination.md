@@ -56,9 +56,7 @@ export default class ArticleResource extends Resource {
   }
   static urlRoot = 'http://test.com/article/';
 
-  static listShape<T extends typeof Resource>(
-    this: T,
-  ) {
+  static listShape<T extends typeof Resource>(this: T) {
     return {
       ...super.listShape(),
       schema: { results: [this.getEntitySchema()], nextPage: '', prevPage: '' },
@@ -105,6 +103,32 @@ We show the custom listShape() below. All other parts of the above example remai
 
 Pagination token is stored in the header `link` for this example.
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--fetch (default)-->
+
+```typescript
+import {
+  Resource,
+  ReadShape,
+  SchemaList,
+  AbstractInstanceType,
+} from 'rest-hooks';
+
+export default class ArticleResource extends Resource {
+  // same as above....
+
+  /** Resolve response into correct data type */
+  static async resolveFetchData(response: Response) {
+    return {
+      link: response.headers.get('link'),
+      results: await super.resolveFetchData(response),
+    };
+  }
+}
+```
+
+<!--superagent-->
+
 ```typescript
 import request from 'superagent';
 import {
@@ -118,9 +142,7 @@ export default class ArticleResource extends Resource {
   // same as above....
 
   /** Shape to get a list of entities */
-  static listShape<T extends typeof Resource>(
-    this: T,
-  ) {
+  static listShape<T extends typeof Resource>(this: T) {
     const fetch = async (
       params: Readonly<object>,
       body?: Readonly<object | string>,
@@ -147,6 +169,8 @@ export default class ArticleResource extends Resource {
   }
 }
 ```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 ## Code organization
 

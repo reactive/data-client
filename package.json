@@ -74,7 +74,8 @@
     "ts-jest": "^24.2.0",
     "ts-node": "^8.5.2",
     "ttypescript": "^1.5.8",
-    "typescript": "^3.7.2"
+    "typescript": "^3.7.2",
+    "whatwg-fetch": "^3.0.0"
   },
   "resolutions": {
     "@lerna/conventional-commits": "https://github.com/ntucker/lerna-conventional-commits.git"
