@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0-beta.3](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.0-beta.2...rest-hooks@4.0.0-beta.3) (2019-12-16)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* * fetchPlugin -> fetchOptionsPlugin, which has different signature
+* No more SuperagentResource export
+* New overridable Resource.resolveFetchData()
+
+### 💅 Enhancement
+
+* Resource.fetch uses fetch instead of superagent ([#199](https://github.com/coinbase/rest-hooks/issues/199)) ([5c740ec](https://github.com/coinbase/rest-hooks/commit/5c740ecf8f864e33cd9a6ab6cbc0a872ba0344ed))
+
+
+
 ## [4.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.0-beta.1...rest-hooks@4.0.0-beta.2) (2019-12-11)
 
 
