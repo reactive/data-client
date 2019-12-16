@@ -15,12 +15,19 @@ const CWD = process.cwd();
 
 const versions = require(`${CWD}/versions.json`);
 
+
 function Versions(props) {
   const {config: siteConfig} = props;
   const latestVersion = versions[0];
   const repoUrl = `https://github.com/${siteConfig.organizationName}/${
     siteConfig.projectName
   }`;
+
+  function VersionLink({ version }) {
+    const prefix = parseFloat(version) >= 4 ? 'rest-hooks@' : '';
+    return <a href={`${repoUrl}/releases/tag/${prefix}${version}.0`}>Release Notes</a>
+  }
+
   return (
     <div className="docMainWrapper wrapper">
       <Container className="mainContainer versionsContainer">
@@ -45,7 +52,7 @@ function Versions(props) {
                   </a>
                 </td>
                 <td>
-                  <a href="https://github.com/coinbase/rest-hooks/releases">Release Notes</a>
+                  <VersionLink version={latestVersion}>Release Notes</VersionLink>
                 </td>
               </tr>
             </tbody>
@@ -95,9 +102,9 @@ function Versions(props) {
                         </a>
                       </td>
                       <td>
-                        <a href={`${repoUrl}/releases/tag/v${version}`}>
+                        <VersionLink version={version}>
                           Release Notes
-                        </a>
+                        </VersionLink>
                       </td>
                     </tr>
                   ),
