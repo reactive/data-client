@@ -10,7 +10,7 @@
       "changelogPreset": "anansi",
       "createRelease": "github",
       "message": "internal: publish",
-      "ignoreChanges": ["**/package.json", "**/__tests__/**", "**/*.md"]
+      "ignoreChanges": ["**/__tests__/**", "**/*.md"]
     }
   }
 }
