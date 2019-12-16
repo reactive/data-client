@@ -3,6 +3,9 @@ id: installation
 title: Installation
 ---
 
+- displaying data on the server with high performance and reliability
+- if the only network calls you make at to change things and you never retrieve data - rest hooks not needed. simply do the request directly
+
 Rest Hooks is a library for fetching structured data in a performant way with no boilerplate.
 
 Its interface is declarative and minimal. A small structure declaration is all that is needed
@@ -38,6 +41,9 @@ npm install rest-hooks
 Rest-hooks is built to be compatible with old browsers, but assumes polyfills will
 already be loaded. If you want to support old browsers like Internet Explorer, you'll
 need to install core-js and import it at the entry point of your bundle.
+
+Use [CRA polyfill](https://github.com/facebook/create-react-app/tree/master/packages/react-app-polyfill)
+or follow instructions below.
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--yarn-->
