@@ -198,9 +198,8 @@ describe('NetworkManager', () => {
       const next = jest.fn();
       const dispatch = jest.fn();
 
-      middleware({ dispatch, getState })(next)(fetchRejectAction);
       try {
-        await fetchRejectAction.payload();
+        await middleware({ dispatch, getState })(next)(fetchRejectAction);
       } catch (error) {
         expect(next).not.toHaveBeenCalled();
         expect(dispatch).toHaveBeenCalledWith({
@@ -221,16 +220,14 @@ describe('NetworkManager', () => {
 
       const dispatch = jest.fn();
 
-      middleware({ dispatch, getState })(() => Promise.resolve())({
-        ...fetchRejectAction,
-        meta: {
-          ...fetchRejectAction.meta,
-          options: { errorExpiryLength: 1234 },
-        },
-      });
-
       try {
-        await fetchRejectAction.payload();
+        await middleware({ dispatch, getState })(() => Promise.resolve())({
+          ...fetchRejectAction,
+          meta: {
+            ...fetchRejectAction.meta,
+            options: { errorExpiryLength: 1234 },
+          },
+        });
       } catch (error) {
         expect(dispatch).toHaveBeenCalled();
         const { meta } = dispatch.mock.calls[0][0];
@@ -242,16 +239,14 @@ describe('NetworkManager', () => {
 
       const dispatch = jest.fn();
 
-      middleware({ dispatch, getState })(() => Promise.resolve())({
-        ...fetchRejectAction,
-        meta: {
-          ...fetchRejectAction.meta,
-          options: { errorExpiryLength: undefined },
-        },
-      });
-
       try {
-        await fetchRejectAction.payload();
+        await middleware({ dispatch, getState })(() => Promise.resolve())({
+          ...fetchRejectAction,
+          meta: {
+            ...fetchRejectAction.meta,
+            options: { errorExpiryLength: undefined },
+          },
+        });
       } catch (error) {
         expect(dispatch).toHaveBeenCalled();
         const { meta } = dispatch.mock.calls[0][0];
