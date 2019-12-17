@@ -3,9 +3,6 @@ id: installation
 title: Installation
 ---
 
-- displaying data on the server with high performance and reliability
-- if the only network calls you make at to change things and you never retrieve data - rest hooks not needed. simply do the request directly
-
 Rest Hooks is a library for fetching structured data in a performant way with no boilerplate.
 
 Its interface is declarative and minimal. A small structure declaration is all that is needed
