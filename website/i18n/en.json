@@ -46,6 +46,9 @@
       "api/resource": {
         "title": "Resource"
       },
+      "api/SimpleRecord": {
+        "title": "SimpleRecord"
+      },
       "api/SubscriptionManager": {
         "title": "SubscriptionManager<S extends SubscriptionConstructable> implements Manager",
         "sidebar_label": "SubscriptionManager"

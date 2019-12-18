@@ -82,12 +82,12 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
     dispatch: Dispatch<any>,
   ) {
     const url = action.meta.url;
+    /* istanbul ignore else */
     if (url in this.subscriptions) {
       const empty = this.subscriptions[url].remove(action.meta.frequency);
       if (empty) {
         delete this.subscriptions[url];
       }
-      /* istanbul ignore next */
     } else if (process.env.NODE_ENV !== 'production') {
       console.error(`Mismatched unsubscribe: ${url} is not subscribed`);
     }

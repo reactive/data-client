@@ -74,8 +74,9 @@ export default class PollingSubscription implements Subscription {
           this.run();
         }
       }
-      /* istanbul ignore next */
-    } else if (process.env.NODE_ENV !== 'production') {
+    } /* istanbul ignore next */ else if (
+      process.env.NODE_ENV !== 'production'
+    ) {
       console.error(
         `Mismatched remove: ${frequency} is not subscribed for ${this.url}`,
       );

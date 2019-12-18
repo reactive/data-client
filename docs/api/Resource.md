@@ -63,6 +63,8 @@ export default class ArticleResource extends Resource {
 `Resource` is an abstract class that will help you define the data you are working with. There are
 two sides to `Resource` - the static and instance side.
 
+`Resource` extends [SimpleRecord](./SimpleRecord)
+
 ### Static
 
 Is used to define how you retrieve and mutate data across the network. There are several
@@ -168,25 +170,6 @@ static getKey<T extends typeof Resource>(this: T) {
   return this.urlRoot;
 }
 ```
-
-## Data methods
-
-### static merge<T extends typeof Resource>(first: InstanceType<T>, second: InstanceType<T>) => InstanceType<T>
-
-Takes only the defined (non-default) values of first and second and creates a new instance copying them over.
-Second will override values of first. Merge is shallow, so you'll need to override this to do any deep merges.
-
-### static hasDefined<T extends typeof Resource>(instance: InstanceType<T>, key: keyof InstanceType<T>) => boolean
-
-Returns whether provided `key` is defined (non-default) in `instance`.
-
-### static toObjectDefined<T extends typeof Resource>(instance: AbstractInstanceType<T>) => Partial<InstanceType<T>>
-
-Returns an `Object` with only the defined (non-default) members of `instance`.
-
-### static keysDefined<T extends typeof Resource>(instance: InstanceType<T>) => (keyof InstanceType<T>)[]
-
-Returns an `Array` of all defined (non-default) keys of `instance`.
 
 ## Static network methods and properties
 

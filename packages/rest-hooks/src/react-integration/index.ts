@@ -1,6 +1,5 @@
-import NetworkErrorBoundary from './NetworkErrorBoundary';
+import NetworkErrorBoundary, { NetworkError } from './NetworkErrorBoundary';
 
 export * from './provider';
 export * from './hooks';
-export * from './NetworkErrorBoundary';
-export { NetworkErrorBoundary };
+export { NetworkErrorBoundary, NetworkError };

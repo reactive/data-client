@@ -4,6 +4,7 @@ title: API Reference
 
 ## Interface Definitions
 - [Resource](Resource.md)
+- [SimpleRecord](SimpleRecord.md)
 - [FetchShape](FetchShape.md)
 
 ## Hooks
