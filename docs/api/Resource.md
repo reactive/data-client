@@ -91,7 +91,7 @@ don't use constructors.
 
 ## Factory method
 
-### static fromJS<T extends typeof Resource>(this: T, props: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T>
+### static fromJS\<T extends typeof Resource\>(this: T, props: Partial\<AbstractInstanceType\<T\>\>): AbstractInstanceType\<T\>
 
 This is used to create instances of the `Resource` you defined. Will copy over props provided to
 the instance in construction, among other things. *Be sure to always call `super.fromJS()` when
@@ -175,21 +175,21 @@ static getKey<T extends typeof Resource>(this: T) {
 
 These are the basic building blocks used to compile the [Fetch shapes](../api/FetchShape.md) below.
 
-### static url<T extends typeof Resource>(urlParams?: Partial<AbstractInstanceType\<T>>) => string
+### static url\<T extends typeof Resource>(urlParams?: Partial<AbstractInstanceType\<T>>) => string
 
 Computes the url based on the parameters. Default implementation follows `/urlRoot/[pk]` pattern.
 
 Used in [detailShape()](#detailshape-readshape), [updateShape()](#updateshape-mutateshape)
 [partialUpdateShape()](#partialupdateshape-mutateshape), and [deleteShape()](#deleteshape-deleteshape)
 
-### static listUrl<T extends typeof Resource>(searchParams?: Readonly<Record<string, string>>) => string
+### static listUrl\<T extends typeof Resource>(searchParams?: Readonly\<Record\<string, string>>) => string
 
 Computes url for retrieving list items. Defaults to urlRoot with `searchParams` being sent as GET
 parameters.
 
 Used in [listShape()](#listshape-readshape) and [createShape()](#createshape-mutateshape)
 
-### static fetch<T extends typeof Resource>(method: "get" | "post" | "put" | "patch" | "delete" | "options", url: string, body?: Readonly<object | string>>) => Promise\<any>
+### static fetch\<T extends typeof Resource>(method: "get" | "post" | "put" | "patch" | "delete" | "options", url: string, body?: Readonly\<object | string>) => Promise\<any>
 
 Performs the actual network fetch returning a promise that resolves to the network response or rejects
 on network error. This can be useful to override to really customize your transport.
