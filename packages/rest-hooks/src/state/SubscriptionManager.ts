@@ -87,6 +87,7 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
       if (empty) {
         delete this.subscriptions[url];
       }
+      /* istanbul ignore next */
     } else if (process.env.NODE_ENV !== 'production') {
       console.error(`Mismatched unsubscribe: ${url} is not subscribed`);
     }

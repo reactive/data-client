@@ -46,6 +46,7 @@ export default function useDenormalized<
   // The final denormalize block
   return useMemo(() => {
     // Warn users with bad configurations
+    /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'production' && isEntity(schema)) {
       const paramEncoding = params ? getFetchKey(params) : '';
       if (Array.isArray(results)) {
