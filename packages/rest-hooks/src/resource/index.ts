@@ -1,7 +1,8 @@
 import Resource from './Resource';
 import SimpleResource from './SimpleResource';
+import SimpleRecord from './SimpleRecord';
 export * from './shapes';
 export * from './types';
 export * from './normal';
 
-export { Resource, SimpleResource };
+export { Resource, SimpleResource, SimpleRecord };

@@ -3,95 +3,15 @@ import { AbstractInstanceType, Method, FetchOptions } from '~/types';
 
 import { ReadShape, MutateShape, DeleteShape } from './shapes';
 import { schemas, SchemaDetail, SchemaList } from './normal';
-
-const DefinedMembersKey = Symbol('Defined Members');
-type Filter<T, U> = T extends U ? T : never;
-interface SimpleResourceMembers<T extends typeof SimpleResource> {
-  [DefinedMembersKey]: Filter<keyof AbstractInstanceType<T>, string>[];
-}
+import SimpleRecord from './SimpleRecord';
 
 /** Represents an entity to be retrieved from a server. Typically 1:1 with a url endpoint. */
-export default abstract class SimpleResource {
+export default abstract class SimpleResource extends SimpleRecord {
   // typescript todo: require subclasses to implement
   /** Used as base of url construction */
   static readonly urlRoot: string;
   /** A unique identifier for this SimpleResource */
   abstract pk(): string | number | undefined;
-
-  /** SimpleResource factory. Takes an object of properties to assign to SimpleResource. */
-  static fromJS<T extends typeof SimpleResource>(
-    this: T,
-    props: Partial<AbstractInstanceType<T>>,
-  ) {
-    // we type guarded abstract case above, so ok to force typescript to allow constructor call
-    const instance = new (this as any)(props) as Readonly<
-      AbstractInstanceType<T>
-    >;
-
-    if (instance.pk === undefined)
-      throw new Error('cannot construct on abstract types');
-
-    Object.defineProperty(instance, DefinedMembersKey, {
-      value: Object.keys(props),
-      writable: false,
-    });
-
-    Object.assign(instance, props);
-
-    // to trick normalizr into thinking we're Immutable.js does it doesn't copy
-    Object.defineProperty(instance, '__ownerID', {
-      value: 1337,
-      writable: false,
-    });
-    return instance;
-  }
-
-  /** Creates new instance copying over defined values of arguments */
-  static merge<T extends typeof SimpleResource>(
-    this: T,
-    first: AbstractInstanceType<T>,
-    second: AbstractInstanceType<T>,
-  ) {
-    const props = Object.assign(
-      {},
-      this.toObjectDefined(first),
-      this.toObjectDefined(second),
-    );
-    return this.fromJS(props);
-  }
-
-  /** Whether key is non-default */
-  static hasDefined<T extends typeof SimpleResource>(
-    this: T,
-    instance: AbstractInstanceType<T>,
-    key: Filter<keyof AbstractInstanceType<T>, string>,
-  ) {
-    return ((instance as any) as SimpleResourceMembers<T>)[
-      DefinedMembersKey
-    ].includes(key);
-  }
-
-  /** Returns simple object with all the non-default members */
-  static toObjectDefined<T extends typeof SimpleResource>(
-    this: T,
-    instance: AbstractInstanceType<T>,
-  ) {
-    const defined: Partial<AbstractInstanceType<T>> = {};
-    for (const member of ((instance as any) as SimpleResourceMembers<T>)[
-      DefinedMembersKey
-    ]) {
-      defined[member] = instance[member];
-    }
-    return defined;
-  }
-
-  /** Returns array of all keys that have values defined in instance */
-  static keysDefined<T extends typeof SimpleResource>(
-    this: T,
-    instance: AbstractInstanceType<T>,
-  ) {
-    return ((instance as any) as SimpleResourceMembers<T>)[DefinedMembersKey];
-  }
 
   static toString<T extends typeof SimpleResource>(this: T) {
     return `${this.name}::${this.urlRoot}`;
@@ -327,6 +247,20 @@ Object.defineProperty(SimpleResource.prototype, 'url', {
   },
 });
 
+/* istanbul ignore next */
+if (process.env.NODE_ENV !== 'production') {
+  // for those not using TypeScript this is a good catch to ensure they are defining
+  // the abstract members
+  SimpleResource.fromJS = function fromJS<T extends typeof SimpleRecord>(
+    this: T,
+    props: Partial<AbstractInstanceType<T>>,
+  ): Readonly<AbstractInstanceType<T>> {
+    if ((this as any).prototype.pk === undefined)
+      throw new Error('cannot construct on abstract types');
+    return SimpleRecord.fromJS.call(this, props) as any;
+  };
+}
+
 type GetEntitySchema = <T extends typeof SimpleResource>(
   ResourceClass: T,
 ) => schemas.Entity<Readonly<AbstractInstanceType<T>>>;
@@ -339,6 +273,7 @@ const getEntitySchema: GetEntitySchema = memoize(
       {
         idAttribute: (value, parent, key) => {
           const id = ResourceClass.pk(value) || key;
+          /* istanbul ignore next */
           if (process.env.NODE_ENV !== 'production' && id === null) {
             throw new Error(
               `Missing usable resource key when normalizing response.
