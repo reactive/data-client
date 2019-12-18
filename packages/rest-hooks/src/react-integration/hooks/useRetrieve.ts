@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 
-import { ReadShape, Schema } from '~/resource';
 import useFetcher from './useFetcher';
 import useMeta from './useMeta';
+
+import { ReadShape, Schema } from '~/resource';
 
 /** Returns whether the data at this url is fresh or stale */
 function useExpiresAt<Params extends Readonly<object>, S extends Schema>(

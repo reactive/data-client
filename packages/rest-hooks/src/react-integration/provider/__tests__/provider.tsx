@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { act, render } from '@testing-library/react';
+import { CoolerArticleResource } from '__tests__/common';
 
 import { DispatchContext, StateContext } from '../../context';
-import { CoolerArticleResource } from '__tests__/common';
 import CacheProvider from '../CacheProvider';
 import NetworkManager from '../../../state/NetworkManager';
 import SubscriptionManager from '../../../state/SubscriptionManager';

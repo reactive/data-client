@@ -1,5 +1,6 @@
 import React from 'react';
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
+
 import {
   ErrorableFSAWithPayloadAndMeta,
   ErrorableFSAWithMeta,

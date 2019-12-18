@@ -1,14 +1,14 @@
 import React, { Suspense } from 'react';
 import { render } from '@testing-library/react';
 import nock from 'nock';
-import { normalize } from '../../resource';
-
-import { DispatchContext, StateContext } from '../context';
 import {
   CoolerArticleResource,
   UserResource,
   InvalidIfStaleArticleResource,
 } from '__tests__/common';
+
+import { normalize } from '../../resource';
+import { DispatchContext, StateContext } from '../context';
 import { useResource } from '../hooks';
 import {
   makeRenderRestHook,

@@ -1,6 +1,6 @@
-import { Method } from '~/types';
-
 import SimpleResource from './SimpleResource';
+
+import { Method } from '~/types';
 
 class NetworkError extends Error {
   declare status: number;

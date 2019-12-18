@@ -1,12 +1,12 @@
 import React from 'react';
 import nock from 'nock';
-
 import {
   CoolerArticleResource,
   ArticleResource,
   PaginatedArticleResource,
   UserResource,
 } from '__tests__/common';
+
 import { useResource, useFetcher } from '../hooks';
 import {
   makeRenderRestHook,

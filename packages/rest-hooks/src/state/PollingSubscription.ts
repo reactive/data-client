@@ -1,6 +1,7 @@
+import { Subscription, SubscriptionInit } from './SubscriptionManager';
+
 import { Schema } from '~/resource';
 import { Dispatch } from '~/types';
-import { Subscription, SubscriptionInit } from './SubscriptionManager';
 
 /**
  * PollingSubscription keeps a given resource updated by
