@@ -1,7 +1,9 @@
 import React, { ReactNode, useEffect, useState } from 'react';
+
+import usePromisifiedDispatch from './usePromisifiedDispatch';
+
 import { StateContext, DispatchContext } from '~/react-integration/context';
 import { State, ActionTypes } from '~/types';
-import usePromisifiedDispatch from './usePromisifiedDispatch';
 
 interface Store<S> {
   subscribe(listener: () => void): () => void;

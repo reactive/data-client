@@ -2,14 +2,14 @@ import React, { Suspense, useEffect } from 'react';
 import { render } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
-
-import { DispatchContext, StateContext } from '../context';
 import {
   CoolerArticleResource,
   PaginatedArticleResource,
   ArticleResourceWithOtherListUrl,
   StaticArticleResource,
 } from '__tests__/common';
+
+import { DispatchContext, StateContext } from '../context';
 import { useFetcher, useRetrieve, useInvalidator, useResetter } from '../hooks';
 import { initialState } from '../../state/reducer';
 import { State, ActionTypes } from '../../types';

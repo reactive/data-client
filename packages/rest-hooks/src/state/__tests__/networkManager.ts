@@ -1,6 +1,7 @@
+import { ArticleResource } from '__tests__/common';
+
 import NetworkManager from '../NetworkManager';
 import { FetchAction, ResetAction } from '../../types';
-import { ArticleResource } from '__tests__/common';
 
 describe('NetworkManager', () => {
   const manager = new NetworkManager();

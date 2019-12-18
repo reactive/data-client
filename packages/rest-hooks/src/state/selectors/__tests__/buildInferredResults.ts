@@ -1,4 +1,5 @@
 import { CoolerArticleResource, UnionResource } from '__tests__/common';
+
 import { schemas } from '../../../resource';
 import buildInferredResults from '../buildInferredResults';
 

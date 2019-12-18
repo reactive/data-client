@@ -1,3 +1,9 @@
+import { useMemo, useContext } from 'react';
+
+import useRetrieve from './useRetrieve';
+import useError from './useError';
+import hasUsableData from './hasUsableData';
+
 import {
   ReadShape,
   Schema,
@@ -5,12 +11,7 @@ import {
   DenormalizeNullable,
 } from '~/resource';
 import { useDenormalized } from '~/state/selectors';
-import useRetrieve from './useRetrieve';
-import useError from './useError';
-import { useMemo, useContext } from 'react';
 import { StateContext } from '~/react-integration/context';
-
-import hasUsableData from './hasUsableData';
 
 type ResourceArgs<S extends Schema, Params extends Readonly<object>> = [
   ReadShape<S, Params>,

@@ -1,4 +1,5 @@
 import { act } from '@testing-library/react-hooks';
+
 import {
   NetworkManager,
   FetchAction,
@@ -16,6 +17,7 @@ export class MockNetworkManager extends NetworkManager {
     };
     return super.handleFetch(action, mockDispatch);
   }
+
   handleReceive(action: ReceiveAction) {
     act(() => {
       super.handleReceive(action);

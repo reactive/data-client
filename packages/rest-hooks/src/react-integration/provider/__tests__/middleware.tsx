@@ -1,5 +1,6 @@
 import React from 'react';
 import { renderHook, act } from '@testing-library/react-hooks';
+
 import createEnhancedReducerHook from '../middleware';
 import { MiddlewareAPI } from '../../../types';
 

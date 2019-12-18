@@ -1,4 +1,7 @@
 import { memoize } from 'lodash';
+
+import RIC from './RIC';
+
 import {
   FetchAction,
   ReceiveAction,
@@ -8,7 +11,6 @@ import {
   Dispatch,
 } from '~/types';
 import { RPCAction } from '..';
-import RIC from './RIC';
 
 /** Handles all async network dispatches
  *

@@ -1,4 +1,7 @@
 import { useMemo } from 'react';
+
+import buildInferredResults from './buildInferredResults';
+
 import { State } from '~/types';
 import {
   isEntity,
@@ -7,7 +10,6 @@ import {
   denormalize,
   DenormalizeNullable,
 } from '~/resource';
-import buildInferredResults from './buildInferredResults';
 
 /**
  * Selects the denormalized form from `state` cache.

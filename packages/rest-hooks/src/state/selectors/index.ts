@@ -1,5 +1,6 @@
-import { State } from '~/types';
 import useDenormalized from './useDenormalized';
+
+import { State } from '~/types';
 
 export { useDenormalized };
 

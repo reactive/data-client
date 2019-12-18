@@ -1,5 +1,6 @@
-import PollingSubscription from '../PollingSubscription';
 import { PollingArticleResource } from '__tests__/common';
+
+import PollingSubscription from '../PollingSubscription';
 
 function onError(e: any) {
   e.preventDefault();

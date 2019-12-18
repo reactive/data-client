@@ -1,7 +1,8 @@
 import { useReducer, useMemo, useRef, useCallback, useEffect } from 'react';
-import { Middleware, Dispatch } from '~/types';
 
 import usePromisifiedDispatch from './usePromisifiedDispatch';
+
+import { Middleware, Dispatch } from '~/types';
 
 // TODO: release as own library?
 /** Redux-middleware compatible integration for useReducer() */

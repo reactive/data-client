@@ -1,8 +1,8 @@
-import { normalize } from '~/resource';
-import { ActionTypes, State } from '~/types';
-
 import mergeDeepCopy from './merge/mergeDeepCopy';
 import applyUpdatersToResults from './applyUpdatersToResults';
+
+import { normalize } from '~/resource';
+import { ActionTypes, State } from '~/types';
 
 export const initialState: State<unknown> = {
   entities: {},

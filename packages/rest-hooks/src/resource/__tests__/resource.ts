@@ -1,10 +1,10 @@
 import nock from 'nock';
-
 import {
   CoolerArticleResource,
   UserResource,
   UrlArticleResource,
 } from '__tests__/common';
+
 import { normalize } from '../normal';
 import Resource from '../Resource';
 import SimpleResource from '../SimpleResource';

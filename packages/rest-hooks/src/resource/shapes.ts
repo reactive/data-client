@@ -1,4 +1,5 @@
 import { schemas, Schema } from './normal';
+
 import { FetchOptions } from '~/types';
 
 /** Defines the shape of a network request */

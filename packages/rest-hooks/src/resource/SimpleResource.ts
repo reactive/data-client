@@ -1,9 +1,10 @@
 import { memoize } from 'lodash';
-import { AbstractInstanceType, Method, FetchOptions } from '~/types';
 
 import { ReadShape, MutateShape, DeleteShape } from './shapes';
 import { schemas, SchemaDetail, SchemaList } from './normal';
 import SimpleRecord from './SimpleRecord';
+
+import { AbstractInstanceType, Method, FetchOptions } from '~/types';
 
 /** Represents an entity to be retrieved from a server. Typically 1:1 with a url endpoint. */
 export default abstract class SimpleResource extends SimpleRecord {
@@ -37,6 +38,7 @@ export default abstract class SimpleResource extends SimpleRecord {
     const Static = this.constructor as typeof SimpleResource;
     return Static.url(this);
   }
+
   private declare __url?: string;
 
   /** Get the url for a SimpleResource
