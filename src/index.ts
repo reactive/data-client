@@ -37,6 +37,7 @@ import {
   NetworkError,
 } from './react-integration';
 import useSelectionUnstable from './react-integration/hooks/useSelection';
+import hasUsableData from './react-integration/hooks/hasUsableData';
 import { Request as RequestType } from 'superagent';
 import {
   AbstractInstanceType,
@@ -59,6 +60,7 @@ const __INTERNAL__ = {
   StateContext,
   DispatchContext,
   RIC,
+  hasUsableData,
 };
 
 export type DeleteShape<
