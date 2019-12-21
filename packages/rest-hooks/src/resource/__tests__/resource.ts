@@ -453,13 +453,18 @@ describe('Resource', () => {
     it('should throw a custom error if data does not include pk', () => {
       const schema = CoolerArticleResource.getEntitySchema();
       function normalizeBad() {
-        normalize({}, schema);
+        normalize({ weirdthing: 'hi' }, schema);
       }
       expect(normalizeBad).toThrowErrorMatchingInlineSnapshot(`
 "Missing usable resource key when normalizing response.
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.
+
+Resource: CoolerArticleResource::http://test.com/article-cooler/
+Value: {
+  \\"weirdthing\\": \\"hi\\"
+}
 "
 `);
     });

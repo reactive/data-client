@@ -282,6 +282,9 @@ const getEntitySchema: GetEntitySchema = memoize(
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.
+
+Resource: ${ResourceClass}
+Value: ${value && JSON.stringify(value, null, 2)}
 `,
             );
           }
