@@ -31,8 +31,7 @@ function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
 // We can now extend CamelResource instead of Resource to build
 // all of our classes.
 abstract class CamelResource extends Resource {
-  static async fetch<T extends typeof Resource>(
-    this: T,
+  static async fetch(
     method: Method = 'get',
     url: string,
     body?: Readonly<object | string>,
@@ -96,8 +95,7 @@ class ArticleResource extends CamelResource {
   readonly title: string = '';
   readonly carrotsUsed: number = 0;
 
-  static async fetch<T extends typeof Resource>(
-    this: T,
+  static async fetch(
     method: Method = 'get',
     url: string,
     body?: Readonly<object | string>,

@@ -46,12 +46,7 @@ export default abstract class Resource extends SimpleResource {
   static fetchOptionsPlugin?: (options: RequestInit) => RequestInit;
 
   /** Perform network request and resolve with json body */
-  static fetch<T extends typeof Resource>(
-    this: T,
-    method: Method,
-    url: string,
-    body?: Readonly<object | string>,
-  ) {
+  static fetch(method: Method, url: string, body?: Readonly<object | string>) {
     let options: RequestInit = {
       method: method.toUpperCase(),
       headers: {
@@ -66,7 +61,7 @@ export default abstract class Resource extends SimpleResource {
         if (!response.ok) {
           throw new NetworkError(response);
         }
-        return resolveValidResponse(response);
+        return this.resolveFetchData(response);
       })
       .catch(error => {
         // ensure CORS, network down, and parse errors are still caught by NetworkErrorBoundary
@@ -76,12 +71,16 @@ export default abstract class Resource extends SimpleResource {
         throw error;
       });
   }
-}
 
-export function resolveValidResponse(res: Response) {
-  if (!res.headers.get('content-type')?.includes('json') || res.status === 204)
-    return res.text();
-  return res.json();
+  /** Resolve response into correct data type */
+  static resolveFetchData(response: Response) {
+    if (
+      !response.headers.get('content-type')?.includes('json') ||
+      response.status === 204
+    )
+      return response.text();
+    return response.json();
+  }
 }
 ```
 
@@ -106,8 +105,7 @@ export default abstract class Resource extends SimpleResource {
   static fetchPlugin?: request.Plugin;
 
   /** Perform network request and resolve with json body */
-  static fetch<T extends typeof Resource>(
-    this: T,
+  static fetch(
     method: Method,
     url: string,
     body?: Readonly<object | string>,
@@ -142,8 +140,7 @@ import axios from 'axios';
 
 export default abstract class AxiosResource extends SimpleResource {
   /** Perform network request and resolve with json body */
-  static async fetch<T extends typeof AxiosResource>(
-    this: T,
+  static async fetch(
     method: Method,
     url: string,
     body?: Readonly<object | string>

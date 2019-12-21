@@ -84,13 +84,16 @@ export default abstract class SimpleResource extends SimpleRecord {
   }
 
   /** Perform network request and resolve with json body */
-  static fetch<T extends typeof SimpleResource>(
-    this: T,
+  static fetch(
     method: Method,
     url: string,
     body?: Readonly<object | string>,
   ): Promise<any> {
     // typescript currently doesn't allow abstract static methods
+    throw new Error('not implemented');
+  }
+
+  static resolveFetchData(response: Response): Promise<any> {
     throw new Error('not implemented');
   }
 
