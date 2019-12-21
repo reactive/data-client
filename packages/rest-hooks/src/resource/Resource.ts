@@ -22,12 +22,7 @@ export default abstract class Resource extends SimpleResource {
   static fetchOptionsPlugin?: (options: RequestInit) => RequestInit;
 
   /** Perform network request and resolve with json body */
-  static fetch<T extends typeof Resource>(
-    this: T,
-    method: Method,
-    url: string,
-    body?: Readonly<object | string>,
-  ) {
+  static fetch(method: Method, url: string, body?: Readonly<object | string>) {
     let options: RequestInit = {
       method: method.toUpperCase(),
       headers: {
@@ -42,7 +37,7 @@ export default abstract class Resource extends SimpleResource {
         if (!response.ok) {
           throw new NetworkError(response);
         }
-        return (this as any).resolveFetchData(response);
+        return this.resolveFetchData(response);
       })
       .catch(error => {
         // ensure CORS, network down, and parse errors are still caught by NetworkErrorBoundary
@@ -54,7 +49,7 @@ export default abstract class Resource extends SimpleResource {
   }
 
   /** Resolve response into correct data type */
-  static resolveFetchData?(response: Response) {
+  static resolveFetchData(response: Response) {
     if (
       !response.headers.get('content-type')?.includes('json') ||
       response.status === 204
