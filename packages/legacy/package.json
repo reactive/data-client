@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "@rest-hooks/test": "^1.0.1",
-    "coveralls": "^3.0.8"
+    "coveralls": "^3.0.9"
   },
   "peerDependencies": {
     "@types/react": "^16.8.2",
