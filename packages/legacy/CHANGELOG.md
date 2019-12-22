@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@1.0.1...@rest-hooks/legacy@1.0.2) (2019-12-22)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* * fetchPlugin -> fetchOptionsPlugin, which has different signature
+* No more SuperagentResource export
+* New overridable Resource.resolveFetchData()
+
+### 💅 Enhancement
+
+* Resource.fetch uses fetch instead of superagent ([#199](https://github.com/coinbase/rest-hooks/issues/199)) ([5c740ec](https://github.com/coinbase/rest-hooks/commit/5c740ecf8f864e33cd9a6ab6cbc0a872ba0344ed))
+
+
+### 🐛 Bug Fix
+
+* Correct peerdepencency version constraints ([37734a8](https://github.com/coinbase/rest-hooks/commit/37734a834b7c87419c744d02cbc17fbe424e4338))
+
+
+### 📦 Package
+
+* testing ([138c846](https://github.com/coinbase/rest-hooks/commit/138c846035e704d78f751156e5587366310edf98))
+
+
+### 🏠 Internal
+
+* Update lint rules ([#206](https://github.com/coinbase/rest-hooks/issues/206)) ([732f875](https://github.com/coinbase/rest-hooks/commit/732f87536e23d6b43cea3abce5be8cd6f1dd75c7))
+
+
+
 ### [1.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@1.0.0...@rest-hooks/legacy@1.0.1) (2019-12-11)
 
 

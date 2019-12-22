@@ -3,6 +3,49 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0-beta.4](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.0-beta.3...rest-hooks@4.0.0-beta.4) (2019-12-22)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* * url() and listUrl() params are no longer optional
+* Removed resolveFetchData() in favor of fetchResponse().
+  * fetch() now calls fetchResponse()
+  * This means custom use of Response can be achieved by calling
+fetchResponse() in custom FetchShape.fetch
+* Remove generic signatures to any Resource.fetch()
+overrides
+
+### 🚀 Features
+
+* export SimpleRecord which has the data methods of Resource ([#203](https://github.com/coinbase/rest-hooks/issues/203)) ([0c0dd49](https://github.com/coinbase/rest-hooks/commit/0c0dd4932a1c33c7477d77252f6a11b5adb3be5e))
+
+
+### 💅 Enhancement
+
+* Easier to handle http fetch headers in response ([#208](https://github.com/coinbase/rest-hooks/issues/208)) ([86074a6](https://github.com/coinbase/rest-hooks/commit/86074a6f51acf0c689a74386c2ee9be3efc240d5))
+* Include context in error message when failing to build PK ([b754a64](https://github.com/coinbase/rest-hooks/commit/b754a64bc506f2b88a5e307b215f57c20c21abb5))
+* Resource.fetch() is no longer generic ([#207](https://github.com/coinbase/rest-hooks/issues/207)) ([e41da6c](https://github.com/coinbase/rest-hooks/commit/e41da6cf175f0c8e901e7f0f4dd90920f836a1e3))
+
+
+### 🐛 Bug Fix
+
+* NetworkError type export should not be exposed to js build ([de9413c](https://github.com/coinbase/rest-hooks/commit/de9413c0cf29bc9e8aa752494e749f607370b8a3))
+* Tests run in node 12 ([#202](https://github.com/coinbase/rest-hooks/issues/202)) ([58e55e0](https://github.com/coinbase/rest-hooks/commit/58e55e0d08f1d79ab4b24408dbd5603afb8e8505))
+
+
+### 📦 Package
+
+* testing ([138c846](https://github.com/coinbase/rest-hooks/commit/138c846035e704d78f751156e5587366310edf98))
+
+
+### 🏠 Internal
+
+* Ignore process.env.NODE_ENV checks for coverage ([e71a0c1](https://github.com/coinbase/rest-hooks/commit/e71a0c1b7244ecf3e9db15e27600c7fb35a9a0d4))
+* Update lint rules ([#206](https://github.com/coinbase/rest-hooks/issues/206)) ([732f875](https://github.com/coinbase/rest-hooks/commit/732f87536e23d6b43cea3abce5be8cd6f1dd75c7))
+
+
+
 ## [4.0.0-beta.3](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.0-beta.2...rest-hooks@4.0.0-beta.3) (2019-12-16)
 
 
