@@ -47,22 +47,20 @@ export default abstract class SimpleResource extends SimpleRecord {
    */
   static url<T extends typeof SimpleResource>(
     this: T,
-    urlParams?: Partial<AbstractInstanceType<T>>,
+    urlParams: Partial<AbstractInstanceType<T>>,
   ): string {
-    if (urlParams) {
-      if (
-        Object.prototype.hasOwnProperty.call(urlParams, 'url') &&
-        urlParams.url &&
-        typeof urlParams.url === 'string'
-      ) {
-        return urlParams.url;
+    if (
+      Object.prototype.hasOwnProperty.call(urlParams, 'url') &&
+      urlParams.url &&
+      typeof urlParams.url === 'string'
+    ) {
+      return urlParams.url;
+    }
+    if (this.pk(urlParams) !== undefined) {
+      if (this.urlRoot.endsWith('/')) {
+        return `${this.urlRoot}${this.pk(urlParams)}`;
       }
-      if (this.pk(urlParams) !== null) {
-        if (this.urlRoot.endsWith('/')) {
-          return `${this.urlRoot}${this.pk(urlParams)}`;
-        }
-        return `${this.urlRoot}/${this.pk(urlParams)}`;
-      }
+      return `${this.urlRoot}/${this.pk(urlParams)}`;
     }
     return this.urlRoot;
   }
@@ -73,9 +71,9 @@ export default abstract class SimpleResource extends SimpleRecord {
    */
   static listUrl<T extends typeof SimpleResource>(
     this: T,
-    searchParams?: Readonly<Record<string, string | number>>,
+    searchParams: Readonly<Record<string, string | number>> = {},
   ): string {
-    if (searchParams && Object.keys(searchParams).length) {
+    if (Object.keys(searchParams).length) {
       const params = new URLSearchParams(searchParams as any);
       params.sort();
       return `${this.urlRoot}?${params.toString()}`;
@@ -93,7 +91,13 @@ export default abstract class SimpleResource extends SimpleRecord {
     throw new Error('not implemented');
   }
 
-  static resolveFetchData(response: Response): Promise<any> {
+  /** Perform network request and resolve with HTTP Response */
+  static fetchResponse(
+    method: Method,
+    url: string,
+    body?: Readonly<object | string>,
+  ): Promise<Response> {
+    // typescript currently doesn't allow abstract static methods
     throw new Error('not implemented');
   }
 

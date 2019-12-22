@@ -80,46 +80,6 @@ class MyResource extends Resource {
 }
 ```
 
-## Name calling
-
-Sometimes an API might change a key name, or choose one you don't like. Of course
-you have much better naming standards, so instead of your `Resource` class definition
-and all your code, you just want to remap that key.
-
-`ArticleResource.ts`
-
-```typescript
-// We're using camelCase now as well ;)
-class ArticleResource extends CamelResource {
-  readonly id: string = '';
-  readonly title: string = '';
-  readonly carrotsUsed: number = 0;
-
-  static async fetch(
-    method: Method = 'get',
-    url: string,
-    body?: Readonly<object | string>,
-  ) {
-    // we'll need to do the inverse operation when sending data back to the server
-    if (body && 'carrotsUsed' in body) {
-      // caller should manage body, so we don't want to modify it
-      body = { ...body };
-      body.carrotsUsedIsThisNameTooLong = body.carrotsUsed;
-      delete body.carrotsUsed;
-    }
-    // perform actual network request getting back json
-    const jsonResponse = await super.fetch(method, url, body);
-    // only replace the name if it exists. This also helps us ignore list responses.
-    if ('carrotsUsedIsThisNameTooLong' in jsonResponse) {
-      // ok to mutate jsonResponse since we control it
-      jsonResponse.carrotsUsed = jsonResponse.carrotsUsedIsThisNameTooLong;
-      delete jsonResponse.carrotsUsedIsThisNameTooLong;
-    }
-    return jsonResponse;
-  }
-}
-```
-
 ## Case of the missing `Id`
 
 You now want to interface with a great new streaming site called `mystreamsite.tv`. It has
@@ -170,6 +130,81 @@ abstract class StreamResource extends CamelResource {
         return response;
       },
     };
+  }
+}
+```
+
+## Using HTTP Headers
+
+HTTP [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers) are accessible in the fetch
+[Response](https://developer.mozilla.org/en-US/docs/Web/API/Response). [Resource.fetchResponse()](../api/resource#static-fetchresponsemethod-get--post--put--patch--delete--options-url-string-body-readonlyobject--string--promiseresponse)
+can be used to construct [FetchShape.fetch()](../api/FetchShape#fetchparams-param-body-payload-promiseany).
+
+Sometimes this is used for cursor based [pagination](./pagination.md#tokens-in-http-headers).
+
+```typescript
+import { Resource } from 'rest-hooks';
+
+export default class ArticleResource extends Resource {
+  // same as above....
+
+  /** Shape to get a list of entities */
+  static listShape<T extends typeof Resource>(this: T) {
+    const fetch = async (params: Readonly<Record<string, string | number>>) => {
+      const response = await this.fetchResponse('get', this.listUrl(params));
+      return {
+        link: response.headers.get('link'),
+        results: await response.json().catch((error: any) => {
+          error.status = 400;
+          throw error;
+        }),
+      };
+    };
+    return {
+      ...super.listShape(),
+      fetch,
+      schema: { results: [this.getEntitySchema()], link: '' },
+    };
+  }
+}
+```
+
+## Name calling
+
+Sometimes an API might change a key name, or choose one you don't like. Of course
+you have much better naming standards, so instead of your `Resource` class definition
+and all your code, you just want to remap that key.
+
+`ArticleResource.ts`
+
+```typescript
+// We're using camelCase now as well ;)
+class ArticleResource extends CamelResource {
+  readonly id: string = '';
+  readonly title: string = '';
+  readonly carrotsUsed: number = 0;
+
+  static async fetch(
+    method: Method = 'get',
+    url: string,
+    body?: Readonly<object | string>,
+  ) {
+    // we'll need to do the inverse operation when sending data back to the server
+    if (body && 'carrotsUsed' in body) {
+      // caller should manage body, so we don't want to modify it
+      body = { ...body };
+      body.carrotsUsedIsThisNameTooLong = body.carrotsUsed;
+      delete body.carrotsUsed;
+    }
+    // perform actual network request getting back json
+    const jsonResponse = await super.fetch(method, url, body);
+    // only replace the name if it exists. This also helps us ignore list responses.
+    if ('carrotsUsedIsThisNameTooLong' in jsonResponse) {
+      // ok to mutate jsonResponse since we control it
+      jsonResponse.carrotsUsed = jsonResponse.carrotsUsedIsThisNameTooLong;
+      delete jsonResponse.carrotsUsedIsThisNameTooLong;
+    }
+    return jsonResponse;
   }
 }
 ```

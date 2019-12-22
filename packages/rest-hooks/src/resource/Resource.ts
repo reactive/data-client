@@ -21,8 +21,12 @@ export default abstract class Resource extends SimpleResource {
   /** A function to mutate all request options for fetch */
   static fetchOptionsPlugin?: (options: RequestInit) => RequestInit;
 
-  /** Perform network request and resolve with json body */
-  static fetch(method: Method, url: string, body?: Readonly<object | string>) {
+  /** Perform network request and resolve with HTTP Response */
+  static fetchResponse(
+    method: Method,
+    url: string,
+    body?: Readonly<object | string>,
+  ) {
     let options: RequestInit = {
       method: method.toUpperCase(),
       headers: {
@@ -37,24 +41,29 @@ export default abstract class Resource extends SimpleResource {
         if (!response.ok) {
           throw new NetworkError(response);
         }
-        return this.resolveFetchData(response);
+        return response;
       })
       .catch(error => {
         // ensure CORS, network down, and parse errors are still caught by NetworkErrorBoundary
-        if (error instanceof TypeError || error instanceof SyntaxError) {
+        if (error instanceof TypeError) {
           (error as any).status = 400;
         }
         throw error;
       });
   }
 
-  /** Resolve response into correct data type */
-  static resolveFetchData(response: Response) {
-    if (
-      !response.headers.get('content-type')?.includes('json') ||
-      response.status === 204
-    )
-      return response.text();
-    return response.json();
+  /** Perform network request and resolve with json body */
+  static fetch(method: Method, url: string, body?: Readonly<object | string>) {
+    return this.fetchResponse(method, url, body).then((response: Response) => {
+      if (
+        !response.headers.get('content-type')?.includes('json') ||
+        response.status === 204
+      )
+        return response.text();
+      return response.json().catch(error => {
+        error.status = 400;
+        throw error;
+      });
+    });
   }
 }

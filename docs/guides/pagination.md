@@ -7,12 +7,12 @@ title: Pagination
 A common way APIs deal with pagination is the list view will return an object with both pagination information
 and the Array of results as another member.
 
-`GET http://test.com/article/page=abcd`
+`GET http://test.com/article/?page=abcd`
 
 ```json
 {
   "nextPage": null,
-  "prevPage": "http://test.com/article/page=aedcba",
+  "prevPage": "http://test.com/article/?page=aedcba",
   "results": [
     {
       "id": 5,
@@ -107,21 +107,27 @@ Pagination token is stored in the header `link` for this example.
 <!--fetch (default)-->
 
 ```typescript
-import {
-  Resource,
-  ReadShape,
-  SchemaList,
-  AbstractInstanceType,
-} from 'rest-hooks';
+import { Resource } from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
   // same as above....
 
-  /** Resolve response into correct data type */
-  static async resolveFetchData(response: Response) {
+  /** Shape to get a list of entities */
+  static listShape<T extends typeof Resource>(this: T) {
+    const fetch = async (params: Readonly<Record<string, string | number>>) => {
+      const response = await this.fetchResponse('get', this.listUrl(params));
+      return {
+        link: response.headers.get('link'),
+        results: await response.json().catch((error: any) => {
+          error.status = 400;
+          throw error;
+        }),
+      };
+    };
     return {
-      link: response.headers.get('link'),
-      results: await super.resolveFetchData(response),
+      ...super.listShape(),
+      fetch,
+      schema: { results: [this.getEntitySchema()], link: '' },
     };
   }
 }

@@ -189,10 +189,14 @@ parameters.
 
 Used in [listShape()](#listshape-readshape) and [createShape()](#createshape-mutateshape)
 
-### static fetch\<T extends typeof Resource>(method: "get" | "post" | "put" | "patch" | "delete" | "options", url: string, body?: Readonly\<object | string>) => Promise\<any>
+### static fetch(method: "get" | "post" | "put" | "patch" | "delete" | "options", url: string, body?: Readonly\<object | string>) => Promise\<any>
 
 Performs the actual network fetch returning a promise that resolves to the network response or rejects
 on network error. This can be useful to override to really customize your transport.
+
+### static fetchResponse(method: "get" | "post" | "put" | "patch" | "delete" | "options", url: string, body?: Readonly\<object | string>) => Promise\<Response>
+
+Used in `fetch()`. Resolves the HTTP [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response).
 
 ### static getEntitySchema() => [schema.Entity](https://github.com/ntucker/normalizr/blob/master/docs/api.md#entitykey-definition---options--)
 
