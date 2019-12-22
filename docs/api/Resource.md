@@ -182,7 +182,7 @@ Computes the url based on the parameters. Default implementation follows `/urlRo
 Used in [detailShape()](#detailshape-readshape), [updateShape()](#updateshape-mutateshape)
 [partialUpdateShape()](#partialupdateshape-mutateshape), and [deleteShape()](#deleteshape-deleteshape)
 
-### static listUrl\<T extends typeof Resource>(searchParams?: Readonly\<Record\<string, string>>) => string
+### static listUrl(searchParams?: Readonly\<Record\<string, string>>) => string
 
 Computes url for retrieving list items. Defaults to urlRoot with `searchParams` being sent as GET
 parameters.

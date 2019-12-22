@@ -14,12 +14,12 @@ export default abstract class SimpleResource extends SimpleRecord {
   /** A unique identifier for this SimpleResource */
   abstract pk(): string | number | undefined;
 
-  static toString<T extends typeof SimpleResource>(this: T) {
+  static toString() {
     return `${this.name}::${this.urlRoot}`;
   }
 
   /** Returns the globally unique identifier for this SimpleResource */
-  static getKey<T extends typeof SimpleResource>(this: T) {
+  static getKey() {
     return this.urlRoot;
   }
 
@@ -69,8 +69,7 @@ export default abstract class SimpleResource extends SimpleRecord {
    *
    * Default implementation conforms to common REST patterns
    */
-  static listUrl<T extends typeof SimpleResource>(
-    this: T,
+  static listUrl(
     searchParams: Readonly<Record<string, string | number>> = {},
   ): string {
     if (Object.keys(searchParams).length) {
@@ -107,9 +106,7 @@ export default abstract class SimpleResource extends SimpleRecord {
   }
 
   /** Get the request options for this SimpleResource  */
-  static getFetchOptions<T extends typeof SimpleResource>(
-    this: T,
-  ): FetchOptions | undefined {
+  static getFetchOptions(): FetchOptions | undefined {
     return;
   }
 
