@@ -198,6 +198,11 @@ describe('Resource', () => {
       const url = 'this is the url';
       expect(UserResource.url({ url })).toBe(url);
     });
+    it('should return root if cannot find params with url', () => {
+      expect(UserResource.url({})).toMatchInlineSnapshot(
+        `"http://test.com/user/"`,
+      );
+    });
   });
 
   describe('Resource.fetch()', () => {
@@ -275,6 +280,17 @@ describe('Resource', () => {
       ).toThrow();
     });
 
+    it('fetchResponse() should throw with SimpleResource', () => {
+      expect(() =>
+        SimpleResource.fetchResponse(
+          'get',
+          CoolerArticleResource.url({
+            id: payload.id,
+          }),
+        ),
+      ).toThrow();
+    });
+
     it('should GET', async () => {
       const article = await CoolerArticleResource.fetch(
         'get',
@@ -293,7 +309,7 @@ describe('Resource', () => {
       const payload2 = { id: 20, content: 'better task' };
       const article = await CoolerArticleResource.fetch(
         'post',
-        CoolerArticleResource.url(),
+        CoolerArticleResource.listUrl(),
         payload2,
       );
       expect(article).toMatchObject(payload2);
@@ -333,6 +349,29 @@ describe('Resource', () => {
         await CoolerArticleResource.fetch(
           'get',
           CoolerArticleResource.url({ id: idHtml }),
+        );
+      } catch (e) {
+        error = e;
+      }
+      expect(error).toBeDefined();
+      expect(error.status).toBe(400);
+    });
+
+    it('should throw if network is down', async () => {
+      const id = 10;
+      nock(/.*/)
+        .defaultReplyHeaders({
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        })
+        .get(`/article-cooler/${id}`)
+        .replyWithError(new TypeError('Network Down'));
+
+      let error: any;
+      try {
+        await CoolerArticleResource.fetch(
+          'get',
+          CoolerArticleResource.url({ id }),
         );
       } catch (e) {
         error = e;
