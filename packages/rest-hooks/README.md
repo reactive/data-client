@@ -1,4 +1,4 @@
-# ![🛌🎣 Rest hooks](./rest_hooks_logo_and_text.svg?sanitize=true)
+# ![🛌🎣 Rest hooks](/packages/rest-hooks/rest_hooks_logo_and_text.svg?sanitize=true)
 [![CircleCI](https://circleci.com/gh/coinbase/rest-hooks.svg?style=shield)](https://circleci.com/gh/coinbase/rest-hooks)
 [![Coverage Status](https://img.shields.io/coveralls/coinbase/rest-hooks.svg?style=flat-square)](https://coveralls.io/github/coinbase/rest-hooks?branch=master)
 [![npm downloads](https://img.shields.io/npm/dm/rest-hooks.svg?style=flat-square)](https://www.npmjs.com/package/rest-hooks)
@@ -57,7 +57,7 @@ return price.value;
 
 ### ...all typed ...fast ...and consistent
 
-For the small price of 8kb gziped. &nbsp;&nbsp; [🏁Get started now](https://resthooks.io/docs/getting-started/installation)
+For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](https://resthooks.io/docs/getting-started/installation)
 
 ## Features
 

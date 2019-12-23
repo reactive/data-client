@@ -13,7 +13,7 @@
     "lib",
     "LICENSE",
     "README.md",
-    "./scripts/typescript.svg",
+    "./typescript.svg",
     "./rest_hooks_logo_and_text.svg"
   ],
   "scripts": {
