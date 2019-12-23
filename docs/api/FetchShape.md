@@ -35,7 +35,7 @@ interface FetchShape<
 > {
   readonly type: 'read' | 'mutate' | 'delete';
   fetch(params: Params, body: Body): Promise<any>;
-  getFetchKey(params: Readonly<object>): string;
+  getFetchKey(params: Params): string;
   readonly schema: S;
   readonly options?: FetchOptions;
 }
