@@ -9,6 +9,16 @@ import { normalize } from '../normal';
 import Resource from '../Resource';
 import SimpleResource from '../SimpleResource';
 
+function onError(e: any) {
+  e.preventDefault();
+}
+beforeEach(() => {
+  window.addEventListener('error', onError);
+});
+afterEach(() => {
+  window.removeEventListener('error', onError);
+});
+
 describe('Resource', () => {
   beforeAll(() => {
     nock(/.*/)
@@ -358,6 +368,9 @@ describe('Resource', () => {
     });
 
     it('should throw if network is down', async () => {
+      const oldError = console.error;
+      console.error = () => {};
+
       const id = 10;
       nock(/.*/)
         .defaultReplyHeaders({
@@ -378,6 +391,9 @@ describe('Resource', () => {
       }
       expect(error).toBeDefined();
       expect(error.status).toBe(400);
+
+      // eslint-disable-next-line require-atomic-updates
+      console.error = oldError;
     });
 
     it('should return raw response if status is 204 No Content', async () => {

@@ -4,9 +4,14 @@ import { FetchShape, DeleteShape } from './shapes';
 export type SchemaFromShape<
   F extends FetchShape<any, any, any>
 > = F extends FetchShape<infer S, any, any> ? S : never;
-export type ParamsFromShape<
-  F extends FetchShape<any, any, any>
-> = F extends FetchShape<any, infer P, any> ? P : never;
+/** Get the Params type for a given Shape */
+export type ParamsFromShape<S> = S extends {
+  fetch: (first: infer A, ...rest: any[]) => any;
+}
+  ? A
+  : S extends { getFetchKey: (first: infer A, ...rest: any[]) => any }
+  ? A
+  : never;
 export type BodyFromShape<
   F extends FetchShape<any, any, any>
 > = F extends FetchShape<any, any, infer B> ? B : never;

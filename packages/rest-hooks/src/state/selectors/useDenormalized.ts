@@ -6,9 +6,9 @@ import { State } from '~/types';
 import {
   isEntity,
   ReadShape,
-  Schema,
   denormalize,
   DenormalizeNullable,
+  ParamsFromShape,
 } from '~/resource';
 
 /**
@@ -21,11 +21,10 @@ import {
  * @returns [denormalizedValue, allEntitiesFound]
  */
 export default function useDenormalized<
-  Params extends Readonly<object>,
-  S extends Schema
+  Shape extends Pick<ReadShape<any, any>, 'getFetchKey' | 'schema'>
 >(
-  { schema, getFetchKey }: Pick<ReadShape<S, Params>, 'schema' | 'getFetchKey'>,
-  params: Params | null,
+  { schema, getFetchKey }: Shape,
+  params: ParamsFromShape<Shape> | null,
   state: State<any>,
 ): [
   DenormalizeNullable<typeof schema>,
