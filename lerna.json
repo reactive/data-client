@@ -7,6 +7,7 @@
     "publish": {
       "conventionalCommits": true,
       "preid": "beta",
+      "preDistTag": "beta",
       "changelogPreset": "anansi",
       "createRelease": "github",
       "message": "internal: publish",
