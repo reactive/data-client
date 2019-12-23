@@ -21,13 +21,23 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
-  "browserslist": [
-    "> 1%",
-    "Firefox ESR",
-    "not dead",
-    "not ie<12",
-    "not OperaMini all"
-  ],
+  "browserslist": {
+    "production": [
+      "> 1%",
+      "Firefox ESR",
+      "not dead",
+      "not ie<12",
+      "not OperaMini all"
+    ],
+    "legacy": [
+      "> 0.5%",
+      "Firefox ESR",
+      "not dead",
+      "not ie<11",
+      "not safari<11",
+      "not OperaMini all"
+    ]
+  },
   "devDependencies": {
     "@anansi/babel-preset": "^0.25.1",
     "@anansi/eslint-plugin": "^0.8.0",
