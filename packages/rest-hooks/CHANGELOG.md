@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0-beta.5](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.0-beta.4...rest-hooks@4.0.0-beta.5) (2019-12-23)
+
+
+### 💅 Enhancement
+
+* Non-ES bundlers will use IE11 compatible build ([29eaefc](https://github.com/coinbase/rest-hooks/commit/29eaefcf380830a5bb0be92254d3217b371c893c))
+* Remove extraneous generics on Resource statics ([3be6a6a](https://github.com/coinbase/rest-hooks/commit/3be6a6a17a789f6a3909cf0d7401aa1394be8196))
+
+
+
 ## [4.0.0-beta.4](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.0-beta.3...rest-hooks@4.0.0-beta.4) (2019-12-22)
 
 
