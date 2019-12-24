@@ -236,3 +236,77 @@ export default function CurrentUserProfilePage() {
   return <ProfileDetail user={loggedInUser} />;
 }
 ```
+
+### Custom List Shapes
+
+Sometimes we have endpoints that select particular results. We set the url
+in our custom [fetch](../api/FetchShape#fetchparams-param-body-payload-promiseany) function,
+and ensure the data is normalized and typed
+correctly via the [schema](../api/FetchShape#schema-schema) definition.
+
+```typescript
+import { Resource } from 'rest-hooks';
+
+export default class BirthdayResource extends BaseResource {
+  readonly id: string | undefined = undefined;
+  readonly name: string = '';
+  readonly image: string = '';
+  readonly source: string = '';
+  readonly date: Date = new Date();
+
+  pk() {
+    return this.id;
+  }
+
+  static urlRoot = '/api/birthdays/';
+
+  /** Lists all upcoming birthdays */
+  static upcomingShape<T extends typeof Resource>(this: T) {
+    return {
+      ...this.listShape(),
+      getFetchKey: () => {
+        return '/api/birthdays/upcoming/';
+      },
+      fetch: (params = {}) => {
+        return this.fetch('post', `/api/birthdays/upcoming/`);
+      },
+      schema: {
+        withinSevenDays: [this.getEntitySchema()],
+        withinThirtyDays: [this.getEntitySchema()],
+      },
+    };
+  }
+}
+```
+
+#### Usage
+
+```tsx
+import { useResource } from 'rest-hooks';
+
+import BirthdayResource from 'resources/user';
+
+export default function UpcomingBirthdays() {
+  const { withinSevenDays, withinThirtyDays } = useResource(
+    BirthdayResource.upcomingShape(),
+    {},
+  );
+
+  return (
+    <div>
+      <h2>Next Seven</h2>
+      <div>
+        {withinSevenDays.map(birthday => (
+          <Birthday key={birthday.pk()} birthday={birthday} />
+        ))}
+      </div>
+      <h2>Next Thirty</h2>
+      <div>
+        {withinThirtyDays.map(birthday => (
+          <Birthday key={birthday.pk()} birthday={birthday} />
+        ))}
+      </div>
+    </div>
+  );
+}
+```
