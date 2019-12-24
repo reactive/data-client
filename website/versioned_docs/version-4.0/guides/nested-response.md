@@ -1,6 +1,8 @@
 ---
 title: Resources with nested structure
 sidebar_label: Nesting related resources (server-side join)
+id: version-4.0-nested-response
+original_id: nested-response
 ---
 
 Say you have a foreignkey author, and an array of foreign keys to contributors.
@@ -30,9 +32,7 @@ export default class ArticleResource extends Resource {
   static urlRoot = 'http://test.com/article/';
 
   // operative method!
-  static getEntitySchema<T extends typeof Resource>(
-    this: T,
-  ): schemas.Entity<Readonly<AbstractInstanceType<T>>> {
+  static getEntitySchema<T extends typeof Resource>(this: T): schemas.Entity<Readonly<AbstractInstanceType<T>>> {
     const schema = super.getEntitySchema();
     schema.define({
       author: UserResource.getEntitySchema(),
@@ -93,9 +93,7 @@ export default class ArticleResource extends Resource {
   static urlRoot = 'http://test.com/article/';
 
   // operative method!
-  static getEntitySchema<T extends typeof Resource>(
-    this: T,
-  ): schemas.Entity<Readonly<AbstractInstanceType<T>>> {
+  static getEntitySchema<T extends typeof Resource>(this: T): schemas.Entity<Readonly<AbstractInstanceType<T>>> {
     const schema = super.getEntitySchema();
     schema.define({
       author: UserResource.getEntitySchema(),
@@ -106,14 +104,14 @@ export default class ArticleResource extends Resource {
   }
 }
 
-UserResource.getEntitySchema = function<T extends typeof Resource>(this: T) {
+UserResource.getEntitySchema = function <T extends typeof Resource>(this: T) {
   // can't use 'super' here :(
   const schema = Resource.getEntitySchema();
   schema.define({
     posts: [ArticleResource.getEntitySchema()],
   });
   return schema;
-};
+}
 ```
 
 #### `resources/UserResource.ts`
@@ -131,6 +129,7 @@ export default class UserResource extends Resource {
     return this.id;
   }
   static urlRoot = 'http://test.com/user/';
+
 }
 ```
 

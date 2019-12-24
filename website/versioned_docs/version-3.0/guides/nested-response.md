@@ -17,7 +17,7 @@ Next we'll need to extend the schema definition provided by [getEntitySchema()][
 #### `resources/ArticleResource.ts`
 
 ```tsx
-import { Resource } from 'rest-hooks';
+import { Resource, schemas, AbstractInstanceType } from 'rest-hooks';
 import { UserResource } from 'resources';
 
 export default class ArticleResource extends Resource {
@@ -32,13 +32,15 @@ export default class ArticleResource extends Resource {
   static urlRoot = 'http://test.com/article/';
 
   // operative method!
-  static getEntitySchema<T extends typeof Resource>(this: T) {
+  static getEntitySchema<T extends typeof Resource>(
+    this: T,
+  ): schemas.Entity<Readonly<AbstractInstanceType<T>>> {
     const schema = super.getEntitySchema();
     schema.define({
       author: UserResource.getEntitySchema(),
       contributors: [UserResource.getEntitySchema()],
     });
-    return schema;
+    return schema as any;
   }
 }
 ```
@@ -77,7 +79,7 @@ one of their [getEntitySchema()][3] to avoid circular imports.
 #### `resources/ArticleResource.ts`
 
 ```typescript
-import { Resource } from 'rest-hooks';
+import { Resource, schemas, AbstractInstanceType } from 'rest-hooks';
 import { UserResource } from 'resources';
 
 export default class ArticleResource extends Resource {
@@ -92,13 +94,15 @@ export default class ArticleResource extends Resource {
   static urlRoot = 'http://test.com/article/';
 
   // operative method!
-  static getEntitySchema<T extends typeof Resource>(this: T) {
+  static getEntitySchema<T extends typeof Resource>(
+    this: T,
+  ): schemas.Entity<Readonly<AbstractInstanceType<T>>> {
     const schema = super.getEntitySchema();
     schema.define({
       author: UserResource.getEntitySchema(),
       contributors: [UserResource.getEntitySchema()],
     });
-    return schema;
+    return schema as any;
   }
 }
 
