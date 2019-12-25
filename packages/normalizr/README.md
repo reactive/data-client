@@ -1,4 +1,5 @@
-# normalizr [![build status](https://img.shields.io/travis/ntucker/normalizr/master.svg?style=flat-square)](https://travis-ci.org/ntucker/normalizr) [![Coverage Status](https://img.shields.io/coveralls/ntucker/normalizr/master.svg?style=flat-square)](https://coveralls.io/github/ntucker/normalizr?branch=master) [![npm version](https://img.shields.io/npm/v/@rest-hooks/normalizr.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/normalizr) [![npm downloads](https://img.shields.io/npm/dm/@rest-hooks/normalizr.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/normalizr) [![Greenkeeper badge](https://badges.greenkeeper.io/ntucker/normalizr.svg)](https://greenkeeper.io/)
+# normalizr
+[![CircleCI](https://circleci.com/gh/coinbase/rest-hooks.svg?style=shield)](https://circleci.com/gh/coinbase/rest-hooks) [![Coverage Status](https://img.shields.io/coveralls/ntucker/normalizr/master.svg?style=flat-square)](https://coveralls.io/github/ntucker/normalizr?branch=master) [![npm version](https://img.shields.io/npm/v/@rest-hooks/normalizr.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/normalizr) [![npm downloads](https://img.shields.io/npm/dm/@rest-hooks/normalizr.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/normalizr)
 
 ## Install
 

@@ -1,7 +1,9 @@
 import * as ImmutableUtils from './ImmutableUtils';
 
-const getDefaultGetId = (idAttribute) => (input) =>
-  ImmutableUtils.isImmutable(input) ? input.get(idAttribute) : input[idAttribute];
+const getDefaultGetId = idAttribute => input =>
+  ImmutableUtils.isImmutable(input)
+    ? input.get(idAttribute)
+    : input[idAttribute];
 
 export default class EntitySchema {
   constructor(key, definition = {}, options = {}) {
@@ -14,11 +16,14 @@ export default class EntitySchema {
       mergeStrategy = (entityA, entityB) => {
         return { ...entityA, ...entityB };
       },
-      processStrategy = (input) => ({ ...input })
+      processStrategy = input => ({ ...input }),
     } = options;
 
     this._key = key;
-    this._getId = typeof idAttribute === 'function' ? idAttribute : getDefaultGetId(idAttribute);
+    this._getId =
+      typeof idAttribute === 'function'
+        ? idAttribute
+        : getDefaultGetId(idAttribute);
     this._idAttribute = idAttribute;
     this._mergeStrategy = mergeStrategy;
     this._processStrategy = processStrategy;
@@ -58,16 +63,26 @@ export default class EntitySchema {
     if (!(id in visitedEntities[entityType])) {
       visitedEntities[entityType][id] = [];
     }
-    if (visitedEntities[entityType][id].some((entity) => entity === input)) {
+    if (visitedEntities[entityType][id].some(entity => entity === input)) {
       return id;
     }
     visitedEntities[entityType][id].push(input);
 
     const processedEntity = this._processStrategy(input, parent, key);
-    Object.keys(this.schema).forEach((key) => {
-      if (processedEntity.hasOwnProperty(key) && typeof processedEntity[key] === 'object') {
+    Object.keys(this.schema).forEach(key => {
+      if (
+        Object.hasOwnProperty.call(processedEntity, key) &&
+        typeof processedEntity[key] === 'object'
+      ) {
         const schema = this.schema[key];
-        processedEntity[key] = visit(processedEntity[key], processedEntity, key, schema, addEntity, visitedEntities);
+        processedEntity[key] = visit(
+          processedEntity[key],
+          processedEntity,
+          key,
+          schema,
+          addEntity,
+          visitedEntities,
+        );
       }
     });
 
@@ -81,13 +96,13 @@ export default class EntitySchema {
     }
 
     let found = true;
-    Object.keys(this.schema).forEach((key) => {
+    Object.keys(this.schema).forEach(key => {
       const schema = this.schema[key];
       const [value, foundItem] = unvisit(entity[key], schema);
       if (!foundItem) {
         found = false;
       }
-      if (entity.hasOwnProperty(key)) {
+      if (Object.hasOwnProperty.call(entity, key)) {
         entity[key] = value;
       }
     });

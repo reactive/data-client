@@ -10,15 +10,41 @@ const visit = (value, parent, key, schema, addEntity, visitedEntities) => {
     return value;
   }
 
-  if (typeof schema === 'object' && (!schema.normalize || typeof schema.normalize !== 'function')) {
-    const method = Array.isArray(schema) ? ArrayUtils.normalize : ObjectUtils.normalize;
-    return method(schema, value, parent, key, visit, addEntity, visitedEntities);
+  if (
+    typeof schema === 'object' &&
+    (!schema.normalize || typeof schema.normalize !== 'function')
+  ) {
+    const method = Array.isArray(schema)
+      ? ArrayUtils.normalize
+      : ObjectUtils.normalize;
+    return method(
+      schema,
+      value,
+      parent,
+      key,
+      visit,
+      addEntity,
+      visitedEntities,
+    );
   }
 
-  return schema.normalize(value, parent, key, visit, addEntity, visitedEntities);
+  return schema.normalize(
+    value,
+    parent,
+    key,
+    visit,
+    addEntity,
+    visitedEntities,
+  );
 };
 
-const addEntities = (entities) => (schema, processedEntity, value, parent, key) => {
+const addEntities = entities => (
+  schema,
+  processedEntity,
+  value,
+  parent,
+  key,
+) => {
   const schemaKey = schema.key;
   const id = schema.getId(value, parent, key);
   if (!(schemaKey in entities)) {
@@ -38,7 +64,7 @@ export const schema = {
   Entity: EntitySchema,
   Object: ObjectSchema,
   Union: UnionSchema,
-  Values: ValuesSchema
+  Values: ValuesSchema,
 };
 
 export const normalize = (input, schema) => {
@@ -46,7 +72,7 @@ export const normalize = (input, schema) => {
     throw new Error(
       `Unexpected input given to normalize. Expected type to be "object", found "${
         input === null ? 'null' : typeof input
-      }".`
+      }".`,
     );
   }
 
@@ -71,7 +97,9 @@ const unvisitEntity = (id, schema, unvisit, getEntity, cache) => {
   let found = true;
   if (!cache[schema.key][id]) {
     // Ensure we don't mutate it non-immutable objects
-    const entityCopy = ImmutableUtils.isImmutable(entity) ? entity : { ...entity };
+    const entityCopy = ImmutableUtils.isImmutable(entity)
+      ? entity
+      : { ...entity };
 
     // Need to set this first so that if it is referenced further within the
     // denormalization the reference will already exist.
@@ -82,13 +110,18 @@ const unvisitEntity = (id, schema, unvisit, getEntity, cache) => {
   return [cache[schema.key][id], found];
 };
 
-const getUnvisit = (entities) => {
+const getUnvisit = entities => {
   const cache = {};
   const getEntity = getEntities(entities);
 
   return function unvisit(input, schema) {
-    if (typeof schema === 'object' && (!schema.denormalize || typeof schema.denormalize !== 'function')) {
-      const method = Array.isArray(schema) ? ArrayUtils.denormalize : ObjectUtils.denormalize;
+    if (
+      typeof schema === 'object' &&
+      (!schema.denormalize || typeof schema.denormalize !== 'function')
+    ) {
+      const method = Array.isArray(schema)
+        ? ArrayUtils.denormalize
+        : ObjectUtils.denormalize;
       return method(schema, input, unvisit);
     }
 
@@ -113,7 +146,7 @@ const getUnvisit = (entities) => {
   };
 };
 
-const getEntities = (entities) => {
+const getEntities = entities => {
   const isImmutable = ImmutableUtils.isImmutable(entities);
 
   return (entityOrId, schema) => {

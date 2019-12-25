@@ -104,7 +104,7 @@ Array [
     },
     Object {
       "guest": Object {
-        "guest_id": 1,
+        "guestId": 1,
       },
       "id": "2",
       "name": "Tom",

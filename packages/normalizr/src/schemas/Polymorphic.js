@@ -3,7 +3,10 @@ import { isImmutable } from './ImmutableUtils';
 export default class PolymorphicSchema {
   constructor(definition, schemaAttribute) {
     if (schemaAttribute) {
-      this._schemaAttribute = typeof schemaAttribute === 'string' ? (input) => input[schemaAttribute] : schemaAttribute;
+      this._schemaAttribute =
+        typeof schemaAttribute === 'string'
+          ? input => input[schemaAttribute]
+          : schemaAttribute;
     }
     this.define(definition);
   }
@@ -34,10 +37,22 @@ export default class PolymorphicSchema {
     if (!schema) {
       return value;
     }
-    const normalizedValue = visit(value, parent, key, schema, addEntity, visitedEntities);
-    return this.isSingleSchema || normalizedValue === undefined || normalizedValue === null
+    const normalizedValue = visit(
+      value,
+      parent,
+      key,
+      schema,
+      addEntity,
+      visitedEntities,
+    );
+    return this.isSingleSchema ||
+      normalizedValue === undefined ||
+      normalizedValue === null
       ? normalizedValue
-      : { id: normalizedValue, schema: this.getSchemaAttribute(value, parent, key) };
+      : {
+          id: normalizedValue,
+          schema: this.getSchemaAttribute(value, parent, key),
+        };
   }
 
   denormalizeValue(value, unvisit) {

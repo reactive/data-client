@@ -14,8 +14,8 @@ export function isImmutable(object) {
   return !!(
     object &&
     typeof object.hasOwnProperty === 'function' &&
-    (object.hasOwnProperty('__ownerID') || // Immutable.Map
-      (object._map && object._map.hasOwnProperty('__ownerID')))
+    (Object.hasOwnProperty.call(object, '__ownerID') || // Immutable.Map
+      (object._map && Object.hasOwnProperty.call(object._map, '__ownerID')))
   ); // Immutable.Record
 }
 
@@ -36,7 +36,10 @@ export function denormalizeImmutable(schema, input, unvisit) {
       // we're accessing them using string keys.
       const stringKey = `${key}`;
 
-      const [item, foundItem] = unvisit(object.get(stringKey), schema[stringKey]);
+      const [item, foundItem] = unvisit(
+        object.get(stringKey),
+        schema[stringKey],
+      );
       if (!foundItem) {
         found = false;
       }
@@ -46,6 +49,6 @@ export function denormalizeImmutable(schema, input, unvisit) {
         return object;
       }
     }, input),
-    found
+    found,
   ];
 }

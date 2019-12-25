@@ -7,7 +7,14 @@ export default class ValuesSchema extends PolymorphicSchema {
       return value !== undefined && value !== null
         ? {
             ...output,
-            [key]: this.normalizeValue(value, input, key, visit, addEntity, visitedEntities)
+            [key]: this.normalizeValue(
+              value,
+              input,
+              key,
+              visit,
+              addEntity,
+              visitedEntities,
+            ),
           }
         : output;
     }, {});
@@ -24,10 +31,10 @@ export default class ValuesSchema extends PolymorphicSchema {
         }
         return {
           ...output,
-          [key]: value
+          [key]: value,
         };
       }, {}),
-      found
+      found,
     ];
   }
 }

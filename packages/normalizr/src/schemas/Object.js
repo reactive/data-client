@@ -1,10 +1,25 @@
 import * as ImmutableUtils from './ImmutableUtils';
 
-export const normalize = (schema, input, parent, key, visit, addEntity, visitedEntities) => {
+export const normalize = (
+  schema,
+  input,
+  parent,
+  key,
+  visit,
+  addEntity,
+  visitedEntities,
+) => {
   const object = { ...input };
-  Object.keys(schema).forEach((key) => {
+  Object.keys(schema).forEach(key => {
     const localSchema = schema[key];
-    const value = visit(input[key], input, key, localSchema, addEntity, visitedEntities);
+    const value = visit(
+      input[key],
+      input,
+      key,
+      localSchema,
+      addEntity,
+      visitedEntities,
+    );
     if (value === undefined || value === null) {
       delete object[key];
     } else {
@@ -21,7 +36,7 @@ export const denormalize = (schema, input, unvisit) => {
 
   const object = { ...input };
   let found = true;
-  Object.keys(schema).forEach((key) => {
+  Object.keys(schema).forEach(key => {
     const [item, foundItem] = unvisit(object[key], schema[key]);
     if (object[key] != null) {
       object[key] = item;

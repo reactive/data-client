@@ -317,7 +317,7 @@ Object {
   "entities": Object {
     "users": Object {
       "134351": Object {
-        "id_str": "134351",
+        "idStr": "134351",
         "name": "Kathy",
       },
     },

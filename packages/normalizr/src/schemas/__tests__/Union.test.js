@@ -1,5 +1,6 @@
 // eslint-env jest
 import { fromJS } from 'immutable';
+
 import { denormalize, normalize, schema } from '../../';
 
 describe(`${schema.Union.name} normalization`, () => {
@@ -13,9 +14,9 @@ describe(`${schema.Union.name} normalization`, () => {
     const union = new schema.Union(
       {
         users: user,
-        groups: group
+        groups: group,
       },
-      'type'
+      'type',
     );
 
     expect(normalize({ id: 1, type: 'users' }, union)).toMatchSnapshot();
@@ -28,11 +29,11 @@ describe(`${schema.Union.name} normalization`, () => {
     const union = new schema.Union(
       {
         users: user,
-        groups: group
+        groups: group,
       },
-      (input) => {
+      input => {
         return input.username ? 'users' : input.groupname ? 'groups' : null;
-      }
+      },
     );
 
     expect(normalize({ id: 1, username: 'Janey' }, union)).toMatchSnapshot();
@@ -46,59 +47,77 @@ describe(`${schema.Union.name} denormalization`, () => {
   const group = new schema.Entity('groups');
   const entities = {
     users: {
-      1: { id: 1, username: 'Janey', type: 'users' }
+      1: { id: 1, username: 'Janey', type: 'users' },
     },
     groups: {
-      2: { id: 2, groupname: 'People', type: 'groups' }
-    }
+      2: { id: 2, groupname: 'People', type: 'groups' },
+    },
   };
 
   test('denormalizes an object using string schemaAttribute', () => {
     const union = new schema.Union(
       {
         users: user,
-        groups: group
+        groups: group,
       },
-      'type'
+      'type',
     );
 
-    expect(denormalize({ id: 1, schema: 'users' }, union, entities)).toMatchSnapshot();
-    expect(denormalize(fromJS({ id: 1, schema: 'users' }), union, fromJS(entities))).toMatchSnapshot();
+    expect(
+      denormalize({ id: 1, schema: 'users' }, union, entities),
+    ).toMatchSnapshot();
+    expect(
+      denormalize(fromJS({ id: 1, schema: 'users' }), union, fromJS(entities)),
+    ).toMatchSnapshot();
 
-    expect(denormalize({ id: 2, schema: 'groups' }, union, entities)).toMatchSnapshot();
-    expect(denormalize(fromJS({ id: 2, schema: 'groups' }), union, fromJS(entities))).toMatchSnapshot();
+    expect(
+      denormalize({ id: 2, schema: 'groups' }, union, entities),
+    ).toMatchSnapshot();
+    expect(
+      denormalize(fromJS({ id: 2, schema: 'groups' }), union, fromJS(entities)),
+    ).toMatchSnapshot();
   });
 
   test('denormalizes an array of multiple entities using a function to infer the schemaAttribute', () => {
     const union = new schema.Union(
       {
         users: user,
-        groups: group
+        groups: group,
       },
-      (input) => {
+      input => {
         return input.username ? 'users' : 'groups';
-      }
+      },
     );
 
-    expect(denormalize({ id: 1, schema: 'users' }, union, entities)).toMatchSnapshot();
-    expect(denormalize(fromJS({ id: 1, schema: 'users' }), union, fromJS(entities))).toMatchSnapshot();
+    expect(
+      denormalize({ id: 1, schema: 'users' }, union, entities),
+    ).toMatchSnapshot();
+    expect(
+      denormalize(fromJS({ id: 1, schema: 'users' }), union, fromJS(entities)),
+    ).toMatchSnapshot();
 
-    expect(denormalize({ id: 2, schema: 'groups' }, union, entities)).toMatchSnapshot();
-    expect(denormalize(fromJS({ id: 2, schema: 'groups' }), union, fromJS(entities))).toMatchSnapshot();
+    expect(
+      denormalize({ id: 2, schema: 'groups' }, union, entities),
+    ).toMatchSnapshot();
+    expect(
+      denormalize(fromJS({ id: 2, schema: 'groups' }), union, fromJS(entities)),
+    ).toMatchSnapshot();
   });
 
   test('returns the original value no schema is given', () => {
     const union = new schema.Union(
       {
         users: user,
-        groups: group
+        groups: group,
       },
-      (input) => {
+      input => {
         return input.username ? 'users' : 'groups';
-      }
+      },
     );
 
     expect(denormalize({ id: 1 }, union, entities)).toMatchSnapshot();
-    expect(denormalize(fromJS({ id: 1 }), union, fromJS(entities))).toMatchSnapshot();
+    expect(
+      denormalize(fromJS({ id: 1 }), union, fromJS(entities)),
+    ).toMatchSnapshot();
   });
 });

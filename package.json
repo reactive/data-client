@@ -5,7 +5,7 @@
   ],
   "scripts": {
     "release": "lerna publish",
-    "lint": "eslint --ext .ts,.tsx",
+    "lint": "eslint --ext .ts,.tsx,.js",
     "format": "eslint --fix \"packages/*/src/**/*.{js,ts,tsx}\"",
     "clean": "lerna clean",
     "build": "ttsc --build && lerna run build --stream",
