@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig-base",
+  "compilerOptions": {
+    "outFile": "index.d.ts",
+    "rootDir": "."
+  },
+  "include": ["."]
+}

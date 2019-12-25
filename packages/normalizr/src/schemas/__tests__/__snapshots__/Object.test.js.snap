@@ -1,0 +1,248 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ObjectSchema denormalization denormalizes an object 1`] = `
+Array [
+  Object {
+    "user": Object {
+      "id": 1,
+      "name": "Nacho",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ObjectSchema denormalization denormalizes an object 2`] = `
+Array [
+  Object {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Nacho",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ObjectSchema denormalization denormalizes an object 3`] = `
+Array [
+  Immutable.Map {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Nacho",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ObjectSchema denormalization denormalizes an object that contains a property representing a an object with an id of zero 1`] = `
+Array [
+  Object {
+    "user": Object {
+      "id": 0,
+      "name": "Chancho",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ObjectSchema denormalization denormalizes an object that contains a property representing a an object with an id of zero 2`] = `
+Array [
+  Object {
+    "user": Immutable.Map {
+      "id": 0,
+      "name": "Chancho",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ObjectSchema denormalization denormalizes an object that contains a property representing a an object with an id of zero 3`] = `
+Array [
+  Immutable.Map {
+    "user": Immutable.Map {
+      "id": 0,
+      "name": "Chancho",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ObjectSchema denormalization denormalizes an object with plain members 1`] = `
+Array [
+  Object {
+    "user": Object {
+      "id": 1,
+      "name": "Nacho",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ObjectSchema denormalization denormalizes an object with plain members 2`] = `
+Array [
+  Object {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Nacho",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ObjectSchema denormalization denormalizes an object with plain members 3`] = `
+Array [
+  Immutable.Map {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Nacho",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ObjectSchema denormalization denormalizes plain object shorthand 1`] = `
+Array [
+  Object {
+    "user": Object {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ObjectSchema denormalization denormalizes plain object shorthand 2`] = `
+Array [
+  Object {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ObjectSchema denormalization denormalizes plain object shorthand 3`] = `
+Array [
+  Immutable.Map {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ObjectSchema denormalization denormalizes plain object shorthand 4`] = `
+Array [
+  Object {
+    "tacos": Object {},
+    "user": Object {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ObjectSchema denormalization denormalizes plain object shorthand 5`] = `
+Array [
+  Object {
+    "tacos": Object {},
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ObjectSchema denormalization denormalizes plain object shorthand 6`] = `
+Array [
+  Immutable.Map {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+    "tacos": Immutable.Map {},
+  },
+  true,
+]
+`;
+
+exports[`ObjectSchema denormalization should have found = true with null member even when schema has nested entity 1`] = `
+Object {
+  "item": null,
+}
+`;
+
+exports[`ObjectSchema denormalization should have found = true with null member even when schema has nested entity 2`] = `
+Object {
+  "item": null,
+}
+`;
+
+exports[`ObjectSchema denormalization should have found = true with null member even when schema has nested entity 3`] = `
+Immutable.Map {
+  "item": null,
+}
+`;
+
+exports[`ObjectSchema normalization filters out undefined and null values 1`] = `
+Object {
+  "entities": Object {
+    "user": Object {
+      "1": Object {
+        "id": "1",
+      },
+      "undefined": Object {},
+    },
+  },
+  "result": Object {
+    "bar": "1",
+  },
+}
+`;
+
+exports[`ObjectSchema normalization normalizes an object 1`] = `
+Object {
+  "entities": Object {
+    "user": Object {
+      "1": Object {
+        "id": 1,
+      },
+    },
+  },
+  "result": Object {
+    "user": 1,
+  },
+}
+`;
+
+exports[`ObjectSchema normalization normalizes plain objects as shorthand for ObjectSchema 1`] = `
+Object {
+  "entities": Object {
+    "user": Object {
+      "1": Object {
+        "id": 1,
+      },
+    },
+  },
+  "result": Object {
+    "user": 1,
+  },
+}
+`;

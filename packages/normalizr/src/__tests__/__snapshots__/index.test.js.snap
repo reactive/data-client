@@ -1,0 +1,349 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`denormalize denormalizes arrays with objects inside 1`] = `
+Array [
+  Object {
+    "data": Object {
+      "id": 1,
+      "type": "foo",
+    },
+  },
+]
+`;
+
+exports[`denormalize denormalizes entities 1`] = `
+Array [
+  Object {
+    "id": 1,
+    "type": "foo",
+  },
+  Object {
+    "id": 2,
+    "type": "bar",
+  },
+]
+`;
+
+exports[`denormalize denormalizes ignoring unfound entities in arrays 1`] = `
+Array [
+  Array [
+    Object {
+      "id": 1,
+      "type": "foo",
+    },
+  ],
+  true,
+]
+`;
+
+exports[`denormalize denormalizes ignoring unfound entities in arrays 2`] = `
+Array [
+  Object {
+    "results": Array [
+      Object {
+        "id": 1,
+        "type": "foo",
+      },
+    ],
+  },
+  true,
+]
+`;
+
+exports[`denormalize denormalizes nested entities 1`] = `
+Array [
+  Object {
+    "author": Object {
+      "id": "8472",
+      "name": "Paul",
+    },
+    "body": "This article is great.",
+    "comments": Array [
+      Object {
+        "comment": "I like it!",
+        "id": "comment-123-4738",
+        "user": Object {
+          "id": "10293",
+          "name": "Jane",
+        },
+      },
+    ],
+    "id": "123",
+    "title": "A Great Article",
+  },
+  true,
+]
+`;
+
+exports[`denormalize denormalizes schema with extra members 1`] = `
+Array [
+  Object {
+    "data": Array [
+      Object {
+        "id": 1,
+        "type": "foo",
+      },
+      Object {
+        "id": 2,
+        "type": "bar",
+      },
+    ],
+    "extra": "5",
+  },
+  true,
+]
+`;
+
+exports[`denormalize denormalizes with function as idAttribute 1`] = `
+Array [
+  Array [
+    Object {
+      "guest": null,
+      "id": "1",
+      "name": "Esther",
+    },
+    Object {
+      "guest": Object {
+        "guest_id": 1,
+      },
+      "id": "2",
+      "name": "Tom",
+    },
+  ],
+  true,
+]
+`;
+
+exports[`denormalize denormalizes without entities fills undefined 1`] = `
+Array [
+  Object {
+    "data": undefined,
+  },
+  false,
+]
+`;
+
+exports[`denormalize set to undefined if schema key is not in entities 1`] = `
+Array [
+  Object {
+    "author": undefined,
+    "comments": Array [],
+    "id": "123",
+  },
+  false,
+]
+`;
+
+exports[`normalize can use fully custom entity classes 1`] = `
+Object {
+  "entities": Object {
+    "children": Object {
+      "4": Object {
+        "id": 4,
+        "name": "lettuce",
+      },
+    },
+    "food": Object {
+      "1234": Object {
+        "children": Array [
+          4,
+        ],
+        "name": "tacos",
+        "uuid": "1234",
+      },
+    },
+  },
+  "result": Object {
+    "schema": "food",
+    "uuid": "1234",
+  },
+}
+`;
+
+exports[`normalize ignores null values 1`] = `
+Object {
+  "entities": Object {},
+  "result": Array [
+    null,
+  ],
+}
+`;
+
+exports[`normalize ignores null values 2`] = `
+Object {
+  "entities": Object {},
+  "result": Array [
+    undefined,
+  ],
+}
+`;
+
+exports[`normalize ignores null values 3`] = `
+Object {
+  "entities": Object {},
+  "result": Array [
+    false,
+  ],
+}
+`;
+
+exports[`normalize normalizes entities 1`] = `
+Object {
+  "entities": Object {
+    "tacos": Object {
+      "1": Object {
+        "id": 1,
+        "type": "foo",
+      },
+      "2": Object {
+        "id": 2,
+        "type": "bar",
+      },
+    },
+  },
+  "result": Array [
+    1,
+    2,
+  ],
+}
+`;
+
+exports[`normalize normalizes entities with circular references 1`] = `
+Object {
+  "entities": Object {
+    "users": Object {
+      "123": Object {
+        "friends": Array [
+          123,
+        ],
+        "id": 123,
+      },
+    },
+  },
+  "result": 123,
+}
+`;
+
+exports[`normalize normalizes nested entities 1`] = `
+Object {
+  "entities": Object {
+    "articles": Object {
+      "123": Object {
+        "author": "8472",
+        "body": "This article is great.",
+        "comments": Array [
+          "comment-123-4738",
+        ],
+        "id": "123",
+        "title": "A Great Article",
+      },
+    },
+    "comments": Object {
+      "comment-123-4738": Object {
+        "comment": "I like it!",
+        "id": "comment-123-4738",
+        "user": "10293",
+      },
+    },
+    "users": Object {
+      "10293": Object {
+        "id": "10293",
+        "name": "Jane",
+      },
+      "8472": Object {
+        "id": "8472",
+        "name": "Paul",
+      },
+    },
+  },
+  "result": "123",
+}
+`;
+
+exports[`normalize normalizes schema with extra members 1`] = `
+Object {
+  "entities": Object {
+    "tacos": Object {
+      "1": Object {
+        "id": 1,
+        "type": "foo",
+      },
+      "2": Object {
+        "id": 2,
+        "type": "bar",
+      },
+    },
+  },
+  "result": Object {
+    "data": Array [
+      1,
+      2,
+    ],
+    "extra": "five",
+  },
+}
+`;
+
+exports[`normalize passes over pre-normalized values 1`] = `
+Object {
+  "entities": Object {
+    "articles": Object {
+      "123": Object {
+        "author": 1,
+        "id": "123",
+        "title": "normalizr is great!",
+      },
+    },
+  },
+  "result": "123",
+}
+`;
+
+exports[`normalize uses the non-normalized input when getting the ID for an entity 1`] = `
+Object {
+  "entities": Object {
+    "recommendations": Object {
+      "456": Object {
+        "user": "456",
+      },
+    },
+    "users": Object {
+      "456": Object {
+        "id": "456",
+      },
+    },
+  },
+  "result": "456",
+}
+`;
+
+exports[`normalize uses the non-normalized input when getting the ID for an entity 2`] = `
+Array [
+  Array [
+    Object {
+      "user": Object {
+        "id": "456",
+      },
+    },
+    Object {
+      "user": Object {
+        "id": "456",
+      },
+    },
+    null,
+  ],
+  Array [
+    Object {
+      "user": Object {
+        "id": "456",
+      },
+    },
+    Object {
+      "user": Object {
+        "id": "456",
+      },
+    },
+    null,
+  ],
+]
+`;

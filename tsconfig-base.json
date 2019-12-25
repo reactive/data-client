@@ -47,12 +47,14 @@
     "allowSyntheticDefaultImports": true,     /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */
     "esModuleInterop": true,                   /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
     // "preserveSymlinks": true,              /* Do not resolve the real path of symlinks. */
-    "baseUrl": ".",
     "rootDir": ".",
     "outDir": "lib",
+
+    "baseUrl": ".",
     "paths": {
       "~/*": ["packages/rest-hooks/src/*"],
-      //"@rest-hooks/*": ["packages/*/src"],  TODO: move @rest-hooks/normalizr in here so this works
+      "@rest-hooks/normalizr": ["packages/normalizr/index"],
+      "@rest-hooks/*": ["packages/*/src"],
       "rest-hooks": ["packages/rest-hooks/src"],
       "__tests__/*": ["__tests__/*"]
     },
