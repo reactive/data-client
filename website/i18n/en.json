@@ -618,6 +618,41 @@
       },
       "version-3.0/guides/version-3.0-url": {
         "title": "URL Patterns"
+      },
+      "version-4.0/api/version-4.0-README": {
+        "title": "API Reference"
+      },
+      "version-4.0/api/version-4.0-resource": {
+        "title": "Resource"
+      },
+      "version-4.0/api/version-4.0-SimpleRecord": {
+        "title": "SimpleRecord"
+      },
+      "version-4.0/getting-started/version-4.0-installation": {
+        "title": "Installation"
+      },
+      "version-4.0/getting-started/version-4.0-usage": {
+        "title": "Usage"
+      },
+      "version-4.0/guides/version-4.0-auth": {
+        "title": "Authentication"
+      },
+      "version-4.0/guides/version-4.0-custom-networking": {
+        "title": "Using a custom networking library",
+        "sidebar_label": "Custom networking library"
+      },
+      "version-4.0/guides/version-4.0-nested-response": {
+        "title": "Resources with nested structure",
+        "sidebar_label": "Nesting related resources (server-side join)"
+      },
+      "version-4.0/guides/version-4.0-network-transform": {
+        "title": "Transforming data on fetch"
+      },
+      "version-4.0/guides/version-4.0-pagination": {
+        "title": "Pagination"
+      },
+      "version-4.0/guides/version-4.0-unit-testing-hooks": {
+        "title": "Unit testing hooks"
       }
     },
     "links": {
