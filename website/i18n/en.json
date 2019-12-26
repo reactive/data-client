@@ -102,6 +102,9 @@
       "guides/fetch-multiple": {
         "title": "Fetching multiple resources at once"
       },
+      "guides/fetch-then-render": {
+        "title": "Fetch then Render"
+      },
       "guides/immutability": {
         "title": "Understanding Immutability",
         "sidebar_label": "Understanding Immutability"
@@ -574,6 +577,9 @@
       "version-3.0/guides/version-3.0-endpoints": {
         "title": "Custom endpoints"
       },
+      "version-3.0/guides/version-3.0-fetch-then-render": {
+        "title": "Fetch then Render"
+      },
       "version-3.0/guides/version-3.0-jsonp": {
         "title": "Cross-orgin requests with JSONP"
       },
@@ -640,6 +646,12 @@
       "version-4.0/guides/version-4.0-custom-networking": {
         "title": "Using a custom networking library",
         "sidebar_label": "Custom networking library"
+      },
+      "version-4.0/guides/version-4.0-endpoints": {
+        "title": "Custom endpoints"
+      },
+      "version-4.0/guides/version-4.0-fetch-then-render": {
+        "title": "Fetch then Render"
       },
       "version-4.0/guides/version-4.0-nested-response": {
         "title": "Resources with nested structure",

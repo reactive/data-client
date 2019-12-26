@@ -52,6 +52,13 @@
       },
       {
         "type": "subcategory",
+        "label": "Performance",
+        "ids": [
+          "guides/fetch-then-render"
+        ]
+      },
+      {
+        "type": "subcategory",
         "label": "Integrations",
         "ids": ["guides/redux"]
       },
