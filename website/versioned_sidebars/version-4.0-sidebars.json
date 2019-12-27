@@ -60,7 +60,8 @@
         "type": "subcategory",
         "label": "Performance",
         "ids": [
-          "version-4.0-guides/fetch-then-render"
+          "version-4.0-guides/fetch-then-render",
+          "version-4.0-guides/eager-updates"
         ]
       },
       {

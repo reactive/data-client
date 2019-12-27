@@ -54,7 +54,8 @@
         "type": "subcategory",
         "label": "Performance",
         "ids": [
-          "guides/fetch-then-render"
+          "guides/fetch-then-render",
+          "guides/eager-updates"
         ]
       },
       {

@@ -96,6 +96,9 @@
         "title": "Using a custom networking library",
         "sidebar_label": "Custom networking library"
       },
+      "guides/eager-updates": {
+        "title": "Eager Updates"
+      },
       "guides/endpoints": {
         "title": "Custom endpoints"
       },
@@ -652,6 +655,9 @@
       },
       "version-4.0/guides/version-4.0-fetch-then-render": {
         "title": "Fetch then Render"
+      },
+      "version-4.0/guides/version-4.0-loading-state": {
+        "title": "Handling loading state"
       },
       "version-4.0/guides/version-4.0-nested-response": {
         "title": "Resources with nested structure",
