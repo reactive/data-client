@@ -6,7 +6,7 @@ original_id: fetch-then-render
 
 A core design feature of Rest Hooks is decoupling actual data retrieval from data
 usage. This means hooks that want to ensure data availability like [useRetrieve()](../api/useRetrieve)
-or [useResource()](../api/useresource) actually only dispatch the request to fetch. [NetworkManager]()
+or [useResource()](../api/useresource) actually only dispatch the request to fetch. [NetworkManager](../api/NetworkManager)
 then uses its global awareness to determine whether to fetch. This means, for instance, that
 duplicate requests for data can be deduped into one fetch, with one promise to resolve.
 
