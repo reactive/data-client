@@ -175,14 +175,14 @@ static getKey<T extends typeof Resource>(this: T) {
 
 These are the basic building blocks used to compile the [Fetch shapes](../api/FetchShape.md) below.
 
-### static url\<T extends typeof Resource>(urlParams?: Partial<AbstractInstanceType\<T>>) => string
+### static url\<T extends typeof Resource>(urlParams: Partial<AbstractInstanceType\<T>>) => string
 
 Computes the url based on the parameters. Default implementation follows `/urlRoot/[pk]` pattern.
 
 Used in [detailShape()](#detailshape-readshape), [updateShape()](#updateshape-mutateshape)
 [partialUpdateShape()](#partialupdateshape-mutateshape), and [deleteShape()](#deleteshape-deleteshape)
 
-### static listUrl(searchParams?: Readonly\<Record\<string, string>>) => string
+### static listUrl(searchParams: Readonly\<Record\<string, string>>) => string
 
 Computes url for retrieving list items. Defaults to urlRoot with `searchParams` being sent as GET
 parameters.
