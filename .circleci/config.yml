@@ -2,47 +2,65 @@
 #
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
-version: 2
+version: 2.1
 jobs:
-  build:
-    docker:
+  setup:
+    docker: &docker
       # specify the version you desire here
       - image: circleci/node:12.13
 
     steps:
       - checkout
-
-      # Download and cache dependencies
       - restore_cache:
           keys:
             - v3-dependencies-{{ checksum "yarn.lock" }}
             # fallback to using the latest cache if no exact match is found
             - v3-dependencies-
-
       - run:
           name: yarn install
           command: |
-            yarn config set cache-folder .cache/yarn
+            yarn config set cache-folder ~/.cache/yarn
             yarn install --prefer-offline --frozen-lockfile
-
       - save_cache:
           paths:
             - node_modules
             - packages/*/node_modules
-            - .cache/yarn
+            - ~/.cache/yarn
           key: v3-dependencies-{{ checksum "yarn.lock" }}
-
-      # run tests!
-      - run: yarn run lint packages/*/src
       - run: yarn run build
-      - run: yarn run test:ci -- -- --maxWorkers=2
+      - persist_to_workspace:
+          root: /root
+          paths:
+            - project
 
-      # only run coverage if repo token is available (so third parties don't fail the build)
+  lint:
+    docker: *docker
+    steps:
+      - attach_workspace:
+          at: /root
       - run:
-          name: coverage
+          command: |
+            yarn lint packages/*/src
+
+  unit_tests:
+    docker: *docker
+    steps:
+      - attach_workspace:
+          at: /root
+      - run:
+          command: |
+            yarn test:ci -- -- --maxWorkers=2
+
+  test_coverage:
+    docker: *docker
+    steps:
+      - attach_workspace:
+          at: /root
+      - run:
           command: |
             cd packages/rest-hooks
             if [ "$COVERALLS_REPO_TOKEN" != "" ]; then yarn run test:coverage --maxWorkers=2 --coverageReporters=text-lcov | yarn run coveralls; fi
+
   salus:
     machine: true
     steps:
@@ -53,5 +71,14 @@ workflows:
   version: 2
   build:
     jobs:
-      - build
+      - setup
+      - unit_tests:
+          requires:
+            - setup
+      - test_coverage:
+          requires:
+            - setup
+      - lint:
+          requires:
+            - setup
       - salus

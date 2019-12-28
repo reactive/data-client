@@ -650,6 +650,9 @@
         "title": "Using a custom networking library",
         "sidebar_label": "Custom networking library"
       },
+      "version-4.0/guides/version-4.0-eager-updates": {
+        "title": "Eager Updates"
+      },
       "version-4.0/guides/version-4.0-endpoints": {
         "title": "Custom endpoints"
       },
