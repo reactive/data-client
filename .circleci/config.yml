@@ -7,8 +7,7 @@ jobs:
   setup:
     docker: &docker
       # specify the version you desire here
-      - image: circleci/node:12.13
-
+      - image: circleci/node:12.14
     steps:
       - checkout
       - restore_cache:
@@ -29,7 +28,7 @@ jobs:
           key: v3-dependencies-{{ checksum "yarn.lock" }}
       - run: yarn run build
       - persist_to_workspace:
-          root: /root
+          root: ~/
           paths:
             - project
 
@@ -37,7 +36,7 @@ jobs:
     docker: *docker
     steps:
       - attach_workspace:
-          at: /root
+          at: ~/
       - run:
           command: |
             yarn lint packages/*/src
@@ -46,7 +45,7 @@ jobs:
     docker: *docker
     steps:
       - attach_workspace:
-          at: /root
+          at: ~/
       - run:
           command: |
             yarn test:ci -- -- --maxWorkers=2
@@ -55,7 +54,7 @@ jobs:
     docker: *docker
     steps:
       - attach_workspace:
-          at: /root
+          at: ~/
       - run:
           command: |
             cd packages/rest-hooks
