@@ -674,6 +674,9 @@
       },
       "version-4.0/guides/version-4.0-unit-testing-hooks": {
         "title": "Unit testing hooks"
+      },
+      "version-4.0/guides/version-4.0-url": {
+        "title": "URL Patterns"
       }
     },
     "links": {

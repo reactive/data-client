@@ -29,9 +29,9 @@ export default ArticleResource extends Resource {
 
 It does this by using that `urlRoot` static property in two static methods:
 
-- [url(urlParams)](../api/resource#static-url-t-extends-typeof-resource-urlparams-partial-abstractinstancetype-t-string)
+- [url(urlParams)](../api/resource#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
   - handles most Fetch Shapes
-- [listUrl(searchParams)](../api/resource#static-listurl-t-extends-typeof-resource-searchparams-readonly-record-string-string-string)
+- [listUrl(searchParams)](../api/resource#static-listurlsearchparams-readonlyrecordstring-string--string)
   - used in createShape() and listShape()
 
 ```typescript
