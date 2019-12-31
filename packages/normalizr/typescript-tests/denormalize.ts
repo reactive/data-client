@@ -1,4 +1,4 @@
-import { denormalize, normalize, schema, DenormalizeNullable, Normalize } from '../index';
+import { denormalize, normalize, schema, DenormalizeNullable, Normalize } from '../src';
 
 class Magic {
   readonly a: 'first';

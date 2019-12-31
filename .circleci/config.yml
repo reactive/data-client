@@ -41,6 +41,16 @@ jobs:
           command: |
             yarn lint packages/*/src
 
+  typecheck:
+    docker: *docker
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          command: |
+            cd packages/normalizr
+            yarn run typecheck
+
   unit_tests:
     docker: *docker
     steps:
@@ -78,6 +88,9 @@ workflows:
           requires:
             - setup
       - lint:
+          requires:
+            - setup
+      - typecheck:
           requires:
             - setup
       - salus

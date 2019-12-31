@@ -1,4 +1,4 @@
-import { normalize, schema } from '../index'
+import { normalize, schema } from '../src'
 
 const data = { owner: { id: 1, type: 'user' } };
 

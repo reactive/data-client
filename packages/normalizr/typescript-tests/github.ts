@@ -1,4 +1,4 @@
-import { normalize, schema } from '../index'
+import { normalize, schema } from '../src'
 
 const user = new schema.Entity('users');
 
