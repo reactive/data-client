@@ -1,6 +1,6 @@
 {
   "name": "rest-hooks",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Delightful data fetching for React",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
@@ -61,12 +61,12 @@
     "url": "https://github.com/coinbase/rest-hooks/issues"
   },
   "devDependencies": {
-    "@rest-hooks/test": "^1.0.2",
+    "@rest-hooks/test": "^1.0.3",
     "coveralls": "^3.0.9"
   },
   "dependencies": {
     "@babel/runtime": "^7.7.2",
-    "@rest-hooks/normalizr": "^4.0.0",
+    "@rest-hooks/normalizr": "^4.1.0",
     "@types/lodash": "^4.14.149",
     "flux-standard-action": "^2.1.1",
     "lodash": "^4.17.15"

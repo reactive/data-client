@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.0.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.0...rest-hooks@4.0.1) (2019-12-31)
+
+
+### 🏠 Internal
+
+* Move normalizr code into repo ([#212](https://github.com/coinbase/rest-hooks/issues/212)) ([7d290f4](https://github.com/coinbase/rest-hooks/commit/7d290f404016073b64b4cddfc723e3591241b358))
+
+
+### 📝 Documentation
+
+* Fix svg links in README ([7cad255](https://github.com/coinbase/rest-hooks/commit/7cad255a338f14fd165b54d79aa337f6dafe3c6a))
+
+
+
 ## [4.0.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.0-beta.5...rest-hooks@4.0.0) (2019-12-23)
 
 **Note:** Version bump only for package rest-hooks
