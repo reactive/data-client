@@ -6,6 +6,7 @@
   },
   "include": ["src"],
   "references": [
-    { "path": "../../__tests__" }
+    { "path": "../../__tests__" },
+    { "path": "../normalizr" }
   ]
 }

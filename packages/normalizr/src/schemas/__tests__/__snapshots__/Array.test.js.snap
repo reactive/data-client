@@ -1,0 +1,1010 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ArraySchema denormalization Class denormalizes a single entity 1`] = `
+Array [
+  Array [
+    Object {
+      "id": 1,
+      "name": "Milo",
+    },
+    Object {
+      "id": 2,
+      "name": "Jake",
+    },
+  ],
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes a single entity 2`] = `
+Array [
+  Array [
+    Immutable.Map {
+      "id": 1,
+      "name": "Milo",
+    },
+    Immutable.Map {
+      "id": 2,
+      "name": "Jake",
+    },
+  ],
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes multiple entities 1`] = `
+Array [
+  Array [
+    Object {
+      "id": "123",
+      "type": "cats",
+    },
+    Object {
+      "id": "123",
+      "type": "people",
+    },
+    Object {
+      "id": "789",
+    },
+    Object {
+      "id": "456",
+      "type": "cats",
+    },
+  ],
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes multiple entities 2`] = `
+Array [
+  Array [
+    Immutable.Map {
+      "id": "123",
+      "type": "cats",
+    },
+    Immutable.Map {
+      "id": "123",
+      "type": "people",
+    },
+    Object {
+      "id": "789",
+    },
+    Immutable.Map {
+      "id": "456",
+      "type": "cats",
+    },
+  ],
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes nested in object 1`] = `
+Array [
+  Object {
+    "results": Array [
+      Object {
+        "id": 1,
+        "name": "Milo",
+      },
+      Object {
+        "id": 2,
+        "name": "Jake",
+      },
+    ],
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes nested in object 2`] = `
+Array [
+  Object {
+    "results": Array [
+      Immutable.Map {
+        "id": 1,
+        "name": "Milo",
+      },
+      Immutable.Map {
+        "id": 2,
+        "name": "Jake",
+      },
+    ],
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes nested in object with primitive 1`] = `
+Object {
+  "results": Array [
+    Object {
+      "id": 1,
+      "name": "Milo",
+    },
+    Object {
+      "id": 2,
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization Class denormalizes nested in object with primitive 2`] = `
+Object {
+  "results": Array [
+    Immutable.Map {
+      "id": 1,
+      "name": "Milo",
+    },
+    Immutable.Map {
+      "id": 2,
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization Class denormalizes plain arrays with nothing inside 1`] = `
+Array [
+  Object {
+    "user": Object {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes plain arrays with nothing inside 2`] = `
+Array [
+  Object {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes plain arrays with nothing inside 3`] = `
+Array [
+  Immutable.Map {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes plain arrays with nothing inside 4`] = `
+Array [
+  Object {
+    "tacos": Array [],
+    "user": Object {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes plain arrays with nothing inside 5`] = `
+Array [
+  Object {
+    "tacos": Array [],
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes plain arrays with nothing inside 6`] = `
+Array [
+  Immutable.Map {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+    "tacos": Immutable.List [],
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes plain arrays with plain object inside 1`] = `
+Array [
+  Object {
+    "user": Object {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes plain arrays with plain object inside 2`] = `
+Array [
+  Object {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes plain arrays with plain object inside 3`] = `
+Array [
+  Immutable.Map {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes plain arrays with plain object inside 4`] = `
+Array [
+  Object {
+    "tacos": Array [],
+    "user": Object {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes plain arrays with plain object inside 5`] = `
+Array [
+  Object {
+    "tacos": Array [],
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes plain arrays with plain object inside 6`] = `
+Array [
+  Immutable.Map {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+    "tacos": Immutable.List [],
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes should not be found when result array is undefined 1`] = `
+Object {
+  "results": undefined,
+}
+`;
+
+exports[`ArraySchema denormalization Class denormalizes should not be found when result array is undefined 2`] = `
+Object {
+  "results": undefined,
+}
+`;
+
+exports[`ArraySchema denormalization Class denormalizes with missing entity should have true second value 1`] = `
+Array [
+  Array [
+    Object {
+      "id": 1,
+      "name": "Milo",
+    },
+    Object {
+      "id": 2,
+      "name": "Jake",
+    },
+  ],
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class denormalizes with missing entity should have true second value 2`] = `
+Array [
+  Array [
+    Immutable.Map {
+      "id": 1,
+      "name": "Milo",
+    },
+    Immutable.Map {
+      "id": 2,
+      "name": "Jake",
+    },
+  ],
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class returns the input value if is not an array 1`] = `
+Array [
+  Object {
+    "fillings": Object {},
+    "id": "123",
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Class returns the input value if is not an array 2`] = `
+Array [
+  Immutable.Map {
+    "id": "123",
+    "fillings": Immutable.Map {},
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes a single entity 1`] = `
+Array [
+  Array [
+    Object {
+      "id": 1,
+      "name": "Milo",
+    },
+    Object {
+      "id": 2,
+      "name": "Jake",
+    },
+  ],
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes a single entity 2`] = `
+Array [
+  Array [
+    Immutable.Map {
+      "id": 1,
+      "name": "Milo",
+    },
+    Immutable.Map {
+      "id": 2,
+      "name": "Jake",
+    },
+  ],
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes nested in object 1`] = `
+Array [
+  Object {
+    "results": Array [
+      Object {
+        "id": 1,
+        "name": "Milo",
+      },
+      Object {
+        "id": 2,
+        "name": "Jake",
+      },
+    ],
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes nested in object 2`] = `
+Array [
+  Object {
+    "results": Array [
+      Immutable.Map {
+        "id": 1,
+        "name": "Milo",
+      },
+      Immutable.Map {
+        "id": 2,
+        "name": "Jake",
+      },
+    ],
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes nested in object with primitive 1`] = `
+Object {
+  "results": Array [
+    Object {
+      "id": 1,
+      "name": "Milo",
+    },
+    Object {
+      "id": 2,
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization Object denormalizes nested in object with primitive 2`] = `
+Object {
+  "results": Array [
+    Immutable.Map {
+      "id": 1,
+      "name": "Milo",
+    },
+    Immutable.Map {
+      "id": 2,
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization Object denormalizes plain arrays with nothing inside 1`] = `
+Array [
+  Object {
+    "user": Object {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes plain arrays with nothing inside 2`] = `
+Array [
+  Object {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes plain arrays with nothing inside 3`] = `
+Array [
+  Immutable.Map {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes plain arrays with nothing inside 4`] = `
+Array [
+  Object {
+    "tacos": Array [],
+    "user": Object {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes plain arrays with nothing inside 5`] = `
+Array [
+  Object {
+    "tacos": Array [],
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes plain arrays with nothing inside 6`] = `
+Array [
+  Immutable.Map {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+    "tacos": Immutable.List [],
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes plain arrays with plain object inside 1`] = `
+Array [
+  Object {
+    "user": Object {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes plain arrays with plain object inside 2`] = `
+Array [
+  Object {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes plain arrays with plain object inside 3`] = `
+Array [
+  Immutable.Map {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes plain arrays with plain object inside 4`] = `
+Array [
+  Object {
+    "tacos": Array [],
+    "user": Object {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes plain arrays with plain object inside 5`] = `
+Array [
+  Object {
+    "tacos": Array [],
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes plain arrays with plain object inside 6`] = `
+Array [
+  Immutable.Map {
+    "user": Immutable.Map {
+      "id": 1,
+      "name": "Jane",
+    },
+    "tacos": Immutable.List [],
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes should not be found when result array is undefined 1`] = `
+Object {
+  "results": undefined,
+}
+`;
+
+exports[`ArraySchema denormalization Object denormalizes should not be found when result array is undefined 2`] = `
+Object {
+  "results": undefined,
+}
+`;
+
+exports[`ArraySchema denormalization Object denormalizes with missing entity should have true second value 1`] = `
+Array [
+  Object {
+    "data": Object {
+      "id": 1,
+      "name": "Milo",
+    },
+  },
+  Object {
+    "data": Object {
+      "id": 2,
+      "name": "Jake",
+    },
+  },
+]
+`;
+
+exports[`ArraySchema denormalization Object denormalizes with missing entity should have true second value 2`] = `
+Array [
+  Object {
+    "data": Immutable.Map {
+      "id": 1,
+      "name": "Milo",
+    },
+  },
+  Object {
+    "data": Immutable.Map {
+      "id": 2,
+      "name": "Jake",
+    },
+  },
+]
+`;
+
+exports[`ArraySchema denormalization Object returns the input value if is not an array 1`] = `
+Array [
+  Object {
+    "fillings": null,
+    "id": "123",
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema denormalization Object returns the input value if is not an array 2`] = `
+Array [
+  Immutable.Map {
+    "id": "123",
+    "fillings": null,
+  },
+  true,
+]
+`;
+
+exports[`ArraySchema normalization Class filters out undefined and null normalized values 1`] = `
+Object {
+  "entities": Object {
+    "user": Object {
+      "123": Object {
+        "id": 123,
+      },
+    },
+  },
+  "result": Array [
+    123,
+  ],
+}
+`;
+
+exports[`ArraySchema normalization Class normalizes Objects using their values 1`] = `
+Object {
+  "entities": Object {
+    "user": Object {
+      "1": Object {
+        "id": 1,
+      },
+      "2": Object {
+        "id": 2,
+      },
+    },
+  },
+  "result": Array [
+    1,
+    2,
+  ],
+}
+`;
+
+exports[`ArraySchema normalization Class normalizes a single entity 1`] = `
+Object {
+  "entities": Object {
+    "cats": Object {
+      "1": Object {
+        "id": 1,
+      },
+      "2": Object {
+        "id": 2,
+      },
+    },
+  },
+  "result": Array [
+    1,
+    2,
+  ],
+}
+`;
+
+exports[`ArraySchema normalization Class normalizes multiple entities 1`] = `
+Object {
+  "entities": Object {
+    "cats": Object {
+      "123": Object {
+        "id": "123",
+        "type": "cats",
+      },
+      "456": Object {
+        "id": "456",
+        "type": "cats",
+      },
+    },
+    "person": Object {
+      "123": Object {
+        "id": "123",
+        "type": "people",
+      },
+    },
+  },
+  "result": Array [
+    Object {
+      "id": "123",
+      "schema": "cats",
+    },
+    Object {
+      "id": "123",
+      "schema": "people",
+    },
+    Object {
+      "id": "789",
+      "name": "fido",
+    },
+    Object {
+      "id": "456",
+      "schema": "cats",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema normalization Class normalizes multiple entities 2`] = `
+Array [
+  Array [
+    Object {
+      "id": "123",
+      "type": "cats",
+    },
+    Array [
+      Object {
+        "id": "123",
+        "type": "cats",
+      },
+      Object {
+        "id": "123",
+        "type": "people",
+      },
+      Object {
+        "id": "789",
+        "name": "fido",
+      },
+      Object {
+        "id": "456",
+        "type": "cats",
+      },
+    ],
+    null,
+  ],
+  Array [
+    Object {
+      "id": "123",
+      "type": "cats",
+    },
+    Array [
+      Object {
+        "id": "123",
+        "type": "cats",
+      },
+      Object {
+        "id": "123",
+        "type": "people",
+      },
+      Object {
+        "id": "789",
+        "name": "fido",
+      },
+      Object {
+        "id": "456",
+        "type": "cats",
+      },
+    ],
+    null,
+  ],
+  Array [
+    Object {
+      "id": "123",
+      "type": "people",
+    },
+    Array [
+      Object {
+        "id": "123",
+        "type": "cats",
+      },
+      Object {
+        "id": "123",
+        "type": "people",
+      },
+      Object {
+        "id": "789",
+        "name": "fido",
+      },
+      Object {
+        "id": "456",
+        "type": "cats",
+      },
+    ],
+    null,
+  ],
+  Array [
+    Object {
+      "id": "123",
+      "type": "people",
+    },
+    Array [
+      Object {
+        "id": "123",
+        "type": "cats",
+      },
+      Object {
+        "id": "123",
+        "type": "people",
+      },
+      Object {
+        "id": "789",
+        "name": "fido",
+      },
+      Object {
+        "id": "456",
+        "type": "cats",
+      },
+    ],
+    null,
+  ],
+  Array [
+    Object {
+      "id": "789",
+      "name": "fido",
+    },
+    Array [
+      Object {
+        "id": "123",
+        "type": "cats",
+      },
+      Object {
+        "id": "123",
+        "type": "people",
+      },
+      Object {
+        "id": "789",
+        "name": "fido",
+      },
+      Object {
+        "id": "456",
+        "type": "cats",
+      },
+    ],
+    null,
+  ],
+  Array [
+    Object {
+      "id": "456",
+      "type": "cats",
+    },
+    Array [
+      Object {
+        "id": "123",
+        "type": "cats",
+      },
+      Object {
+        "id": "123",
+        "type": "people",
+      },
+      Object {
+        "id": "789",
+        "name": "fido",
+      },
+      Object {
+        "id": "456",
+        "type": "cats",
+      },
+    ],
+    null,
+  ],
+  Array [
+    Object {
+      "id": "456",
+      "type": "cats",
+    },
+    Array [
+      Object {
+        "id": "123",
+        "type": "cats",
+      },
+      Object {
+        "id": "123",
+        "type": "people",
+      },
+      Object {
+        "id": "789",
+        "name": "fido",
+      },
+      Object {
+        "id": "456",
+        "type": "cats",
+      },
+    ],
+    null,
+  ],
+]
+`;
+
+exports[`ArraySchema normalization Object normalizes Objects using their values 1`] = `
+Object {
+  "entities": Object {
+    "user": Object {
+      "1": Object {
+        "id": 1,
+      },
+      "2": Object {
+        "id": 2,
+      },
+    },
+  },
+  "result": Array [
+    1,
+    2,
+  ],
+}
+`;
+
+exports[`ArraySchema normalization Object normalizes plain arrays as shorthand for ArraySchema 1`] = `
+Object {
+  "entities": Object {
+    "user": Object {
+      "1": Object {
+        "id": 1,
+      },
+      "2": Object {
+        "id": 2,
+      },
+    },
+  },
+  "result": Array [
+    1,
+    2,
+  ],
+}
+`;
+
+exports[`ArraySchema normalization Object passes its parent to its children when normalizing 1`] = `
+Object {
+  "entities": Object {
+    "children": Object {
+      "4": Object {
+        "content": "child",
+        "id": 4,
+        "parentId": 1,
+        "parentKey": "children",
+      },
+    },
+    "parents": Object {
+      "1": Object {
+        "children": Array [
+          4,
+        ],
+        "content": "parent",
+        "id": 1,
+      },
+    },
+  },
+  "result": 1,
+}
+`;
