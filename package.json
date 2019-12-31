@@ -11,7 +11,7 @@
     "build": "ttsc --build && lerna run build --stream",
     "build:clean": "lerna run build:clean --stream",
     "build:types": "ttsc --build",
-    "test": "lerna run test --stream",
+    "test": "cross-env NODE_ENV=test jest",
     "test:ci": "lerna run --stream test:ci",
     "test:coverage": "lerna run test:coverage --stream",
     "prepublishOnly": "yarn run build:clean && yarn run build:types"

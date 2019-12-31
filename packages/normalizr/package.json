@@ -44,7 +44,7 @@
     "prepublishOnly": "npm run build",
     "test": "jest",
     "test:ci": "jest --ci",
-    "test:coverage": "npm run test -- --coverage && cat ./coverage/lcov.info | coveralls",
+    "test:coverage": "npm run test -- --coverage",
     "tsc:ci": "tsc --noEmit typescript-tests/*",
     "typecheck": "run-p tsc:ci"
   },

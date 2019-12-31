@@ -1,7 +1,7 @@
 const { pathsToModuleNameMapper } = require('ts-jest/utils');
 const ts = require('typescript');
 
-function readTsConfig(path = "./") {
+function readTsConfig(path = "./", configName = "tsconfig.json") {
   const parseConfigHost = {
     fileExists: ts.sys.fileExists,
     readFile: ts.sys.readFile,
@@ -12,7 +12,7 @@ function readTsConfig(path = "./") {
   const configFileName = ts.findConfigFile(
     path,
     ts.sys.fileExists,
-    "tsconfig.json"
+    configName
   );
   const configFile = ts.readConfigFile(configFileName, ts.sys.readFile);
   const compilerOptions = ts.parseJsonConfigFileContent(
@@ -23,32 +23,44 @@ function readTsConfig(path = "./") {
   return compilerOptions;
 }
 
-const { options } = readTsConfig();
+const { options } = readTsConfig('./', 'tsconfig-base.json');
 
-module.exports = {
+const baseConfig = {
   roots: ['<rootDir>/src'],
-  /**
-   *  If you comment this out, you will get error unexpected token with optional chaining because you are using babel in your project
-   *  When using babel together with ts-jest in a project, you need to let ts-jest know about it
-   */
-  globals: {
-    // ts-jest is not very flexible in handling these properly, which is why we have to make a separate config
-    // for each package
-    'ts-jest': {
-      babelConfig: require('../../babel.config')({cache:{using: () => {}}}),
-      tsConfig: 'tsconfig.json',
-    },
-  },
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
     '^.+\\.jsx?$': '<rootDir>/../../scripts/babel-jest',
   },
-  testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
+  globals: {
+    'ts-jest': {
+      babelConfig: 'babel.config.js',
+      tsConfig: '<rootDir>/tsconfig.json',
+    },
+  },  
+  testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(j|t)sx?$',
+  coveragePathIgnorePatterns: ['node_modules', 'react-integration/hooks/useSelection'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   moduleNameMapper: {
     ...pathsToModuleNameMapper(options.paths, {
       prefix: '<rootDir>/../../',
     }),
   },
-  setupFiles: ['../../scripts/testSetup.js'],
+  setupFiles: ['<rootDir>/../../scripts/testSetup.js'],
+};
+
+const projects = [
+  {
+    ...baseConfig,
+    rootDir: __dirname + '/packages/rest-hooks',
+    moduleNameMapper: {
+      ...pathsToModuleNameMapper(readTsConfig('./packages/rest-hooks/').options.paths, {
+        prefix: '<rootDir>/../../',
+      }),
+    },
+  
+  }
+]
+
+module.exports = {
+  projects,
 };

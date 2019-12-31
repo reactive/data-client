@@ -1,6 +1,5 @@
 import nock from 'nock';
 import { CoolerArticleResource } from '__tests__/common';
-
 import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 
 import { payload, users, nested } from './fixtures';
