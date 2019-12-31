@@ -346,7 +346,11 @@ export type NormalizeNullable<S> = S extends schema.SchemaClass
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface SchemaArray extends Array<Schema> {}
 
-export type Schema = { [K: string]: any } | SchemaArray | schema.SchemaClass;
+export type Schema =
+  | string
+  | { [K: string]: any }
+  | SchemaArray
+  | schema.SchemaClass;
 
 export type NormalizedSchema<E, R> = { entities: E; result: R };
 

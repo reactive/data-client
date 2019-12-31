@@ -17,6 +17,16 @@ describe('normalize', () => {
     expect(() => normalize(null, mySchema)).toThrow(/null/);
   });
 
+  test('can normalize string', () => {
+    const mySchema = '';
+    expect(normalize('bob', mySchema)).toMatchInlineSnapshot(`
+      Object {
+        "entities": Object {},
+        "result": "bob",
+      }
+    `);
+  });
+
   test('normalizes entities', () => {
     const mySchema = new schema.Entity('tacos');
 
@@ -212,6 +222,10 @@ describe('denormalize', () => {
 
   test('returns the input if undefined', () => {
     expect(denormalize(undefined, {}, {})).toEqual([undefined, false]);
+  });
+
+  test('returns the input if string', () => {
+    expect(denormalize('bob', '', {})).toEqual(['bob', true]);
   });
 
   test('denormalizes entities', () => {

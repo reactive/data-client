@@ -68,11 +68,11 @@ export const schema = {
 };
 
 export const normalize = (input, schema) => {
-  if (!input || typeof input !== 'object') {
+  if (input === null || typeof input !== typeof schema) {
     throw new Error(
-      `Unexpected input given to normalize. Expected type to be "object", found "${
-        input === null ? 'null' : typeof input
-      }".`,
+      `Unexpected input given to normalize. Expected type to be "${
+        schema === null ? 'null' : typeof schema
+      }", found "${input === null ? 'null' : typeof input}".`,
     );
   }
 
