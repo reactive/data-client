@@ -21,13 +21,13 @@
   ],
   "files": [
     "dist/",
-    "index.d.ts",
+    "src/index.d.ts",
     "LICENSE",
     "README.md"
   ],
   "main": "dist/normalizr.js",
   "module": "dist/normalizr.es.js",
-  "typings": "index.d.ts",
+  "typings": "src/index.d.ts",
   "sideEffects": false,
   "scripts": {
     "build": "npm run clean && run-p build:*",

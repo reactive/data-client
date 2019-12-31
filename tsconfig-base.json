@@ -53,7 +53,6 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["packages/rest-hooks/src/*"],
-      "@rest-hooks/normalizr": ["packages/normalizr/src/index"],
       "@rest-hooks/*": ["packages/*/src"],
       "rest-hooks": ["packages/rest-hooks/src"],
       "__tests__/*": ["__tests__/*"]

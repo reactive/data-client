@@ -1,8 +1,16 @@
 declare namespace schema {
   export type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
-  export type SchemaFunction<K = string> = (value: any, parent: any, key: string) => K;
+  export type SchemaFunction<K = string> = (
+    value: any,
+    parent: any,
+    key: string,
+  ) => K;
   export type MergeFunction = (entityA: any, entityB: any) => any;
-  export type SchemaAttributeFunction<S extends Schema> = (value: any, parent: any, key: string) => S;
+  export type SchemaAttributeFunction<S extends Schema> = (
+    value: any,
+    parent: any,
+    key: string,
+  ) => S;
   export type EntityMap<T = any> = { [key: string]: Entity<T> };
   export type UnvisitFunction = (input: any, schema: any) => [any, boolean];
   export type UnionResult<Choices extends EntityMap> = {
@@ -17,7 +25,7 @@ declare namespace schema {
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any }
+      visitedEntities: { [key: string]: any },
     ): NormalizedSchema<any, any>;
     // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
     _normalizeNullable(
@@ -26,7 +34,7 @@ declare namespace schema {
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any }
+      visitedEntities: { [key: string]: any },
     ): NormalizedSchema<any, any>;
     denormalize(input: any, unvisit: UnvisitFunction): [any, boolean];
     // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo
@@ -43,18 +51,27 @@ declare namespace schema {
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any }
+      visitedEntities: { [key: string]: any },
     ): NormalizedSchema<any, Normalize<S>[]>;
+
     _normalizeNullable(
       input: any,
       parent: any,
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any }
+      visitedEntities: { [key: string]: any },
     ): NormalizedSchema<any, Normalize<S>[] | undefined>;
-    denormalize(input: any, unvisit: UnvisitFunction): [Denormalize<S>[], boolean];
-    _denormalizeNullable(input: any, unvisit: UnvisitFunction): [Denormalize<S>[] | undefined, false];
+
+    denormalize(
+      input: any,
+      unvisit: UnvisitFunction,
+    ): [Denormalize<S>[], boolean];
+
+    _denormalizeNullable(
+      input: any,
+      unvisit: UnvisitFunction,
+    ): [Denormalize<S>[] | undefined, false];
   }
 
   export interface EntityOptions<T = any, ID = string> {
@@ -63,8 +80,14 @@ declare namespace schema {
     processStrategy?: StrategyFunction<T>;
   }
 
-  export class Entity<T = any, K extends string | symbol = string> implements SchemaClass {
-    constructor(key: K, definition?: Schema, options?: EntityOptions<T, string>);
+  export class Entity<T = any, K extends string | symbol = string>
+    implements SchemaClass {
+    constructor(
+      key: K,
+      definition?: Schema,
+      options?: EntityOptions<T, string>,
+    );
+
     define(definition: Schema): void;
     readonly key: K;
     getId: SchemaFunction;
@@ -75,21 +98,28 @@ declare namespace schema {
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any }
+      visitedEntities: { [key: string]: any },
     ): NormalizedSchema<any, string>; // string is the ReturnType of 'getId'
+
     _normalizeNullable(
       input: any,
       parent: any,
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any }
+      visitedEntities: { [key: string]: any },
     ): NormalizedSchema<any, string | undefined>; // string is the ReturnType of 'getId'
+
     denormalize(input: any, unvisit: UnvisitFunction): [T, boolean];
-    _denormalizeNullable(input: any, unvisit: UnvisitFunction): [T | undefined, boolean];
+    _denormalizeNullable(
+      input: any,
+      unvisit: UnvisitFunction,
+    ): [T | undefined, boolean];
   }
 
-  export class Object<O extends { [key: string]: any } = { [key: string]: Schema }> implements SchemaClass {
+  export class Object<
+    O extends { [key: string]: any } = { [key: string]: Schema }
+  > implements SchemaClass {
     constructor(definition: O);
     define(definition: Schema): void;
     readonly schema: O;
@@ -99,18 +129,27 @@ declare namespace schema {
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any }
+      visitedEntities: { [key: string]: any },
     ): NormalizedSchema<any, NormalizeObject<O>>;
+
     _normalizeNullable(
       input: any,
       parent: any,
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any }
+      visitedEntities: { [key: string]: any },
     ): NormalizedSchema<any, NormalizedNullableObject<O>>;
-    denormalize(input: any, unvisit: UnvisitFunction): [DenormalizeObject<O>, boolean];
-    _denormalizeNullable(input: any, unvisit: UnvisitFunction): [DenormalizeNullableObject<O>, false];
+
+    denormalize(
+      input: any,
+      unvisit: UnvisitFunction,
+    ): [DenormalizeObject<O>, boolean];
+
+    _denormalizeNullable(
+      input: any,
+      unvisit: UnvisitFunction,
+    ): [DenormalizeNullableObject<O>, false];
   }
 
   export class Union<Choices extends EntityMap = any> implements SchemaClass {
@@ -118,8 +157,9 @@ declare namespace schema {
       definition: Choices,
       schemaAttribute:
         | (Choices[keyof Choices] extends Entity<infer T> ? keyof T : never)
-        | SchemaFunction<keyof Choices>
+        | SchemaFunction<keyof Choices>,
     );
+
     define(definition: Schema): void;
     inferSchema: SchemaAttributeFunction<Choices[keyof Choices]>;
     getSchemaAttribute: SchemaFunction<keyof Choices>;
@@ -130,35 +170,50 @@ declare namespace schema {
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any }
+      visitedEntities: { [key: string]: any },
     ): NormalizedSchema<any, UnionResult<Choices>>;
+
     _normalizeNullable(
       input: any,
       parent: any,
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any }
+      visitedEntities: { [key: string]: any },
     ): NormalizedSchema<any, UnionResult<Choices> | undefined>;
+
     denormalize(
       input: any,
-      unvisit: UnvisitFunction
+      unvisit: UnvisitFunction,
     ): [Choices[keyof Choices] extends Entity<infer T> ? T : never, boolean];
+
     _denormalizeNullable(
       input: any,
-      unvisit: UnvisitFunction
-    ): [Choices[keyof Choices] extends Entity<infer T> ? T | undefined : never, false];
+      unvisit: UnvisitFunction,
+    ): [
+      Choices[keyof Choices] extends Entity<infer T> ? T | undefined : never,
+      false,
+    ];
   }
 
   export class Values<Choices extends Schema = any> implements SchemaClass {
     constructor(
       definition: Choices,
-      schemaAttribute?: Choices extends EntityMap<infer T> ? keyof T | SchemaFunction<keyof Choices> : undefined
+      schemaAttribute?: Choices extends EntityMap<infer T>
+        ? keyof T | SchemaFunction<keyof Choices>
+        : undefined,
     );
+
     define(definition: Schema): void;
     readonly isSingleSchema: Choices extends EntityMap ? false : true;
-    inferSchema: SchemaAttributeFunction<Choices extends EntityMap ? Choices[keyof Choices] : Choices>;
-    getSchemaAttribute: Choices extends EntityMap ? SchemaFunction<keyof Choices> : false;
+    inferSchema: SchemaAttributeFunction<
+      Choices extends EntityMap ? Choices[keyof Choices] : Choices
+    >;
+
+    getSchemaAttribute: Choices extends EntityMap
+      ? SchemaFunction<keyof Choices>
+      : false;
+
     readonly schema: Choices;
     normalize(
       input: any,
@@ -166,27 +221,56 @@ declare namespace schema {
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any }
-    ): NormalizedSchema<any, Record<string, Choices extends EntityMap ? UnionResult<Choices> : Normalize<Choices>>>;
+      visitedEntities: { [key: string]: any },
+    ): NormalizedSchema<
+      any,
+      Record<
+        string,
+        Choices extends EntityMap ? UnionResult<Choices> : Normalize<Choices>
+      >
+    >;
+
     _normalizeNullable(
       input: any,
       parent: any,
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any }
+      visitedEntities: { [key: string]: any },
     ): NormalizedSchema<
       any,
-      Record<string, Choices extends EntityMap ? UnionResult<Choices> : NormalizeNullable<Choices>> | undefined
+      | Record<
+          string,
+          Choices extends EntityMap
+            ? UnionResult<Choices>
+            : NormalizeNullable<Choices>
+        >
+      | undefined
     >;
+
     denormalize(
       input: any,
-      unvisit: UnvisitFunction
-    ): [Record<string, Choices extends EntityMap<infer T> ? T : Denormalize<Choices>>, boolean];
+      unvisit: UnvisitFunction,
+    ): [
+      Record<
+        string,
+        Choices extends EntityMap<infer T> ? T : Denormalize<Choices>
+      >,
+      boolean,
+    ];
+
     _denormalizeNullable(
       input: any,
-      unvisit: UnvisitFunction
-    ): [Record<string, Choices extends EntityMap<infer T> ? T | undefined : DenormalizeNullable<Choices>>, false];
+      unvisit: UnvisitFunction,
+    ): [
+      Record<
+        string,
+        Choices extends EntityMap<infer T>
+          ? T | undefined
+          : DenormalizeNullable<Choices>
+      >,
+      false,
+    ];
   }
 }
 
@@ -206,8 +290,17 @@ type NormalizedNullableObject<S extends { [key: string]: any }> = {
   [K in keyof S]: S[K] extends Schema ? NormalizeNullable<S[K]> : S[K];
 };
 
-export type DenormalizeReturnType<T> = T extends (input: any, unvisit: any) => [infer R, any] ? R : never;
-export type NormalizeReturnType<T> = T extends (...args: any) => NormalizedSchema<any, infer R> ? R : never;
+export type DenormalizeReturnType<T> = T extends (
+  input: any,
+  unvisit: any,
+) => [infer R, any]
+  ? R
+  : never;
+export type NormalizeReturnType<T> = T extends (
+  ...args: any
+) => NormalizedSchema<any, infer R>
+  ? R
+  : never;
 
 // interfaces prevent infinite recursion since they eval lazily
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -259,12 +352,14 @@ export type NormalizedSchema<E, R> = { entities: E; result: R };
 
 export function normalize<
   S extends Schema = Schema,
-  E extends { [key: string]: { [key: string]: any } } = { [key: string]: { [key: string]: any } },
+  E extends { [key: string]: { [key: string]: any } } = {
+    [key: string]: { [key: string]: any };
+  },
   R = NormalizeNullable<S>
 >(data: any, schema: S): NormalizedSchema<E, R>;
 
 export function denormalize<S extends Schema>(
   input: any,
   schema: S,
-  entities: any
+  entities: any,
 ): [Denormalize<S>, true] | [DenormalizeNullable<S>, false];
