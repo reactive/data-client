@@ -8,6 +8,18 @@ import {
 } from 'rest-hooks';
 import { AbstractInstanceType, FetchOptions } from 'rest-hooks';
 
+export class UserResource extends Resource {
+  readonly id: number | undefined = undefined;
+  readonly username: string = '';
+  readonly email: string = '';
+  readonly isAdmin: boolean = false;
+
+  pk() {
+    return this.id?.toString();
+  }
+
+  static urlRoot = 'http://test.com/user/';
+}
 export class ArticleResource extends Resource {
   readonly id: number | undefined = undefined;
   readonly title: string = '';
@@ -16,8 +28,12 @@ export class ArticleResource extends Resource {
   readonly tags: string[] = [];
 
   pk() {
-    return this.id;
+    return this.id?.toString();
   }
+
+  static schema = {
+    author: UserResource.asSchema(),
+  };
 
   static urlRoot = 'http://test.com/article/';
   static url<T extends typeof Resource>(this: T, urlParams?: any): string {
@@ -25,15 +41,6 @@ export class ArticleResource extends Resource {
       return `${this.urlRoot}${urlParams.title}`;
     }
     return super.url(urlParams);
-  }
-
-  /** Get the entity schema defining  */
-  static getNestedEntitySchema<T extends typeof Resource>(this: T) {
-    const baseSchema = this.getEntitySchema();
-    baseSchema.define({
-      author: UserResource.getEntitySchema(),
-    });
-    return baseSchema;
   }
 
   static longLivingRequest<T extends typeof Resource>(this: T) {
@@ -68,7 +75,7 @@ export class ArticleResource extends Resource {
         baseShape.getFetchKey({ ...params, includeUser: true }),
       fetch: (params: object) =>
         this.fetch('get', this.url({ ...params, includeUser: true })),
-      schema: this.getNestedEntitySchema(),
+      schema: this.asSchema(),
     };
   }
 
@@ -82,7 +89,7 @@ export class ArticleResource extends Resource {
         baseShape.getFetchKey({ ...params, includeUser: true }),
       fetch: (params: object) =>
         this.fetch('get', this.listUrl({ ...params, includeUser: 'true' })),
-      schema: [this.getNestedEntitySchema()],
+      schema: [this.asSchema()],
     };
   }
 }
@@ -146,17 +153,6 @@ export class StaticArticleResource extends ArticleResource {
   }
 }
 
-export class UserResource extends Resource {
-  readonly id: number | undefined = undefined;
-  readonly username: string = '';
-  readonly email: string = '';
-  readonly isAdmin: boolean = false;
-
-  pk() {
-    return this.id;
-  }
-  static urlRoot = 'http://test.com/user/';
-}
 class OtherArticleResource extends CoolerArticleResource {}
 
 export class PaginatedArticleResource extends OtherArticleResource {
@@ -164,14 +160,14 @@ export class PaginatedArticleResource extends OtherArticleResource {
   static listShape<T extends typeof Resource>(this: T) {
     return {
       ...super.listShape(),
-      schema: { results: [this.getEntitySchema()], prevPage: '', nextPage: '' },
+      schema: { results: [this.asSchema()], prevPage: '', nextPage: '' },
     };
   }
 
   static detailShape<T extends typeof Resource>(this: T) {
     return {
       ...super.listShape(),
-      schema: { data: this.getEntitySchema() },
+      schema: { data: this.asSchema() },
     };
   }
 }
@@ -192,8 +188,8 @@ export class UnionResource extends Resource {
   ): ReadShape<SchemaDetail<AbstractInstanceType<T>>> {
     const schema = new schemas.Union(
       {
-        first: FirstUnionResource.getEntitySchema(),
-        second: SecondUnionResource.getEntitySchema(),
+        first: FirstUnionResource.asSchema(),
+        second: SecondUnionResource.asSchema(),
       },
       'type',
     );
@@ -202,14 +198,15 @@ export class UnionResource extends Resource {
       schema,
     };
   }
+
   static listShape<T extends typeof Resource>(
     this: T,
   ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
     const schema = [
       new schemas.Union(
         {
-          first: FirstUnionResource.getEntitySchema(),
-          second: SecondUnionResource.getEntitySchema(),
+          first: FirstUnionResource.asSchema(),
+          second: SecondUnionResource.asSchema(),
         },
         (input: FirstUnionResource | SecondUnionResource) => input['type'],
       ),
@@ -232,15 +229,10 @@ export class SecondUnionResource extends UnionResource {
 export class NestedArticleResource extends OtherArticleResource {
   readonly user: number | null = null;
 
-  static getEntitySchema<T extends typeof Resource>(
-    this: T,
-  ): schemas.Entity<AbstractInstanceType<T>> {
-    const schema = super.getEntitySchema();
-    schema.define({
-      user: UserResource.getEntitySchema(),
-    });
-    return schema as any;
-  }
+  static schema = {
+    ...OtherArticleResource.schema,
+    user: UserResource.asSchema(),
+  };
 }
 
 export function makeErrorBoundary(cb: (error: any) => void) {
@@ -250,6 +242,7 @@ export function makeErrorBoundary(cb: (error: any) => void) {
       this.setState({ error });
       cb(error);
     }
+
     render() {
       if (this.state.error) return null;
       return this.props.children;

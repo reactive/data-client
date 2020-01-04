@@ -48,7 +48,7 @@ describe('buildInferredResults()', () => {
     expect(buildInferredResults(schema, { id: 5, type: 'first' }))
       .toMatchInlineSnapshot(`
       Object {
-        "id": "5",
+        "id": 5,
         "schema": "first",
       }
     `);

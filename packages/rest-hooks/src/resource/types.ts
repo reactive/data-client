@@ -1,4 +1,5 @@
-import { schemas, Schema } from './normal';
+import { Schema } from './normal';
+import Entity from './Entity';
 import { FetchShape, DeleteShape } from './shapes';
 
 export type SchemaFromShape<
@@ -40,6 +41,6 @@ export type BodyArg<RS> = RS extends {
   ? U
   : never;
 
-export function isEntity(schema: Schema): schema is schemas.Entity {
-  return (schema as any).key !== undefined;
+export function isEntity(schema: Schema): schema is typeof Entity {
+  return (schema as any).getId !== undefined;
 }

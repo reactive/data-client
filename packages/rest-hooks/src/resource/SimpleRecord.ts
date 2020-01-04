@@ -12,6 +12,8 @@ export default abstract class SimpleRecord {
   static fromJS<T extends typeof SimpleRecord>(
     this: T,
     props: Partial<AbstractInstanceType<T>>,
+    parent?: any,
+    key?: string,
   ) {
     // we type guarded abstract case above, so ok to force typescript to allow constructor call
     const instance = new (this as any)(props) as Readonly<

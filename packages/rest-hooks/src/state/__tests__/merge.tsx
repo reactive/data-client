@@ -28,7 +28,7 @@ describe('mergeDeepCopy()', () => {
     it('should handle merging of Resource instances when used with lodash.mergeWith()', () => {
       const id = 20;
       const entitiesA = {
-        [ArticleResource.getKey()]: {
+        [ArticleResource.key]: {
           [id]: ArticleResource.fromJS({
             id,
             title: 'hi',
@@ -37,16 +37,14 @@ describe('mergeDeepCopy()', () => {
         },
       };
       const entitiesB = {
-        [ArticleResource.getKey()]: {
+        [ArticleResource.key]: {
           [id]: ArticleResource.fromJS({ id, title: 'hello' }),
         },
       };
 
       const merged = mergeDeepCopy(entitiesA, entitiesB);
-      expect(merged[ArticleResource.getKey()][id]).toBeInstanceOf(
-        ArticleResource,
-      );
-      expect(merged[ArticleResource.getKey()][id]).toEqual(
+      expect(merged[ArticleResource.key][id]).toBeInstanceOf(ArticleResource);
+      expect(merged[ArticleResource.key][id]).toEqual(
         ArticleResource.fromJS({
           id,
           title: 'hello',
@@ -57,7 +55,7 @@ describe('mergeDeepCopy()', () => {
     it('should not affect merging of plain objects when used with lodash.mergeWith()', () => {
       const id = 20;
       const entitiesA = {
-        [ArticleResource.getKey()]: {
+        [ArticleResource.key]: {
           [id]: ArticleResource.fromJS({
             id,
             title: 'hi',
@@ -71,7 +69,7 @@ describe('mergeDeepCopy()', () => {
         },
       };
       const entitiesB = {
-        [ArticleResource.getKey()]: {
+        [ArticleResource.key]: {
           [id]: ArticleResource.fromJS({
             id,
             title: 'hi',
@@ -81,8 +79,8 @@ describe('mergeDeepCopy()', () => {
       };
 
       const merged = mergeDeepCopy(entitiesA, entitiesB);
-      expect(merged[ArticleResource.getKey()][42]).toBe(
-        entitiesA[ArticleResource.getKey()][42],
+      expect(merged[ArticleResource.key][42]).toBe(
+        entitiesA[ArticleResource.key][42],
       );
     });
   });

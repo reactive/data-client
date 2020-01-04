@@ -44,7 +44,7 @@ describe('reducer', () => {
     });
     it('should overwrite existing entity', () => {
       const getEntity = (state: any): ArticleResource =>
-        state.entities[ArticleResource.getKey()][
+        state.entities[ArticleResource.key][
           `${ArticleResource.pk(action.payload)}`
         ];
       const prevEntity = getEntity(newState);
@@ -56,7 +56,7 @@ describe('reducer', () => {
     });
     it('should merge partial entity with existing entity', () => {
       const getEntity = (state: any): ArticleResource =>
-        state.entities[ArticleResource.getKey()][
+        state.entities[ArticleResource.key][
           `${ArticleResource.pk(action.payload)}`
         ];
       const prevEntity = getEntity(newState);
@@ -103,12 +103,12 @@ describe('reducer', () => {
     };
     const iniState: any = {
       entities: {
-        [ArticleResource.getKey()]: {
+        [ArticleResource.key]: {
           '10': ArticleResource.fromJS({ id: 10 }),
           '20': ArticleResource.fromJS({ id: 20 }),
           '25': ArticleResource.fromJS({ id: 25 }),
         },
-        [PaginatedArticleResource.getKey()]: {
+        [PaginatedArticleResource.key]: {
           hi: PaginatedArticleResource.fromJS({ id: 5 }),
         },
         '5': undefined,
@@ -119,11 +119,9 @@ describe('reducer', () => {
     const newState = reducer(iniState, action);
     expect(newState.results).toBe(iniState.results);
     expect(newState.meta).toBe(iniState.meta);
-    const expectedEntities = { ...iniState.entities[ArticleResource.getKey()] };
+    const expectedEntities = { ...iniState.entities[ArticleResource.key] };
     delete expectedEntities['20'];
-    expect(newState.entities[ArticleResource.getKey()]).toEqual(
-      expectedEntities,
-    );
+    expect(newState.entities[ArticleResource.key]).toEqual(expectedEntities);
   });
 
   describe('optimistic update', () => {
@@ -175,7 +173,7 @@ describe('reducer', () => {
 
       const iniState: any = {
         entities: {
-          [PaginatedArticleResource.getKey()]: {
+          [PaginatedArticleResource.key]: {
             '10': PaginatedArticleResource.fromJS({ id: 10 }),
           },
         },
@@ -250,7 +248,7 @@ describe('reducer', () => {
 
       const iniState: any = {
         entities: {
-          [ArticleResourceWithOtherListUrl.getKey()]: {
+          [ArticleResourceWithOtherListUrl.key]: {
             '10': ArticleResourceWithOtherListUrl.fromJS({ id: 10 }),
             '21': ArticleResourceWithOtherListUrl.fromJS({ id: 21 }),
           },
@@ -325,12 +323,12 @@ describe('reducer', () => {
     };
     const iniState: any = {
       entities: {
-        [ArticleResource.getKey()]: {
+        [ArticleResource.key]: {
           '10': ArticleResource.fromJS({ id: 10 }),
           '20': ArticleResource.fromJS({ id: 20 }),
           '25': ArticleResource.fromJS({ id: 25 }),
         },
-        [PaginatedArticleResource.getKey()]: {
+        [PaginatedArticleResource.key]: {
           hi: PaginatedArticleResource.fromJS({ id: 5 }),
         },
         '5': undefined,
@@ -408,7 +406,7 @@ describe('reducer', () => {
     };
     const iniState = {
       entities: {
-        [ArticleResource.getKey()]: {
+        [ArticleResource.key]: {
           [id]: ArticleResource.fromJS({}),
         },
       },
@@ -461,12 +459,12 @@ describe('reducer', () => {
     };
     const iniState: any = {
       entities: {
-        [ArticleResource.getKey()]: {
+        [ArticleResource.key]: {
           '10': ArticleResource.fromJS({ id: 10 }),
           '20': ArticleResource.fromJS({ id: 20 }),
           '25': ArticleResource.fromJS({ id: 25 }),
         },
-        [PaginatedArticleResource.getKey()]: {
+        [PaginatedArticleResource.key]: {
           hi: PaginatedArticleResource.fromJS({ id: 5 }),
         },
         '5': undefined,

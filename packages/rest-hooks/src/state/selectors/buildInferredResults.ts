@@ -46,7 +46,7 @@ export default function buildInferredResults<
 function isSchema(candidate: any) {
   // TODO: improve detection
   return (
-    typeof candidate === 'object' &&
+    ['object', 'function'].includes(typeof candidate) &&
     candidate !== null &&
     candidate !== undefined
   );
