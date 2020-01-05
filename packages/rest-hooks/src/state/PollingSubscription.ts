@@ -31,6 +31,7 @@ export default class PollingSubscription implements Subscription {
     this.url = url;
     this.frequencyHistogram.set(this.frequency, 1);
     this.dispatch = dispatch;
+    if (isOnline()) this.update();
     this.run();
   }
 
