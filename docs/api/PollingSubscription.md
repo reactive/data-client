@@ -7,7 +7,7 @@ hide_title: true
 # PollingSubscription implements [Subscription](./SubscriptionManager.md)
 
 Will dispatch a `fetch` action at the minimum interval of all subscriptions to this
-resource.
+resource. Pauses when offline. Immediately fetches when online status returns.
 
 ```tsx
 import { SubscriptionManager, PollingSubscription, CacheProvider } from 'rest-hooks';
