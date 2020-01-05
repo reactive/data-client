@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.1.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@4.1.0...@rest-hooks/normalizr@4.1.1) (2020-01-05)
+
+
+### 💅 Enhancement
+
+* Remove extraneous logic - schema is not allowed to be null ([775cc8a](https://github.com/coinbase/rest-hooks/commit/775cc8a47a7d016f3f33766aee83a0154b7385ac))
+
+
+### 📦 Package
+
+* Build things ([9d386aa](https://github.com/coinbase/rest-hooks/commit/9d386aa1ab944159f5ed4576b81d8d5e5f67847b))
+
+
+### 🏠 Internal
+
+* Run normalizr typescript tests ([#223](https://github.com/coinbase/rest-hooks/issues/223)) ([17a3f84](https://github.com/coinbase/rest-hooks/commit/17a3f84a390762173843736ad0b2d6a3ef8e031f))
+
+
+
 ## 4.1.0 (2019-12-31)
 
 

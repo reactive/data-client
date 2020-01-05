@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.0.2](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.1...rest-hooks@4.0.2) (2020-01-05)
+
+
+### 💅 Enhancement
+
+* Immediately fetch polling subscriptions ([#228](https://github.com/coinbase/rest-hooks/issues/228)) ([ae02bff](https://github.com/coinbase/rest-hooks/commit/ae02bfffc08d16cd41e6c285a8ddf1b802302e9b))
+* Polling subscriptions handle offline/online ([#227](https://github.com/coinbase/rest-hooks/issues/227)) ([38c9bc6](https://github.com/coinbase/rest-hooks/commit/38c9bc6b3aad62ad0ea17d43f366b98a968e529e))
+
+
+
 ### [4.0.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.0...rest-hooks@4.0.1) (2019-12-31)
 
 
