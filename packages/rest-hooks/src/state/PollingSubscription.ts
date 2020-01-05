@@ -1,4 +1,5 @@
 import { Subscription, SubscriptionInit } from './SubscriptionManager';
+import isOnline from './isOnline';
 
 import { Schema } from '~/resource';
 import { Dispatch } from '~/types';
@@ -95,6 +96,8 @@ export default class PollingSubscription implements Subscription {
       clearInterval(this.lastIntervalId);
       this.lastIntervalId = undefined;
     }
+    removeEventListener('online', this.onlineListener);
+    removeEventListener('offline', this.offlineListener);
   }
 
   /** Trigger request for latest resource */
@@ -117,20 +120,37 @@ export default class PollingSubscription implements Subscription {
     });
   }
 
+  /** What happens when browser goes offline */
+  protected offlineListener = () => {
+    this.cleanup();
+    addEventListener('online', this.onlineListener);
+  };
+
+  /** What happens when browser comes online */
+  protected onlineListener = () => {
+    this.update();
+    this.run();
+  };
+
   /** Run polling process with current frequency
    *
    * Will clean up old poll interval on next run
    */
   protected run() {
-    this.lastIntervalId = this.intervalId;
-    this.intervalId = setInterval(() => {
-      // since we don't know how long into the last poll it was before resetting
-      // we wait til the next fetch to clear old intervals
-      if (this.lastIntervalId) {
-        clearInterval(this.lastIntervalId);
-        this.lastIntervalId = undefined;
-      }
-      this.update();
-    }, this.frequency);
+    if (isOnline()) {
+      this.lastIntervalId = this.intervalId;
+      this.intervalId = setInterval(() => {
+        // since we don't know how long into the last poll it was before resetting
+        // we wait til the next fetch to clear old intervals
+        if (this.lastIntervalId) {
+          clearInterval(this.lastIntervalId);
+          this.lastIntervalId = undefined;
+        }
+        this.update();
+      }, this.frequency);
+      addEventListener('offline', this.offlineListener);
+    } else {
+      addEventListener('online', this.onlineListener);
+    }
   }
 }

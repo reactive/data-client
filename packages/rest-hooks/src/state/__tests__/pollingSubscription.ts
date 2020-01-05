@@ -1,4 +1,5 @@
 import { PollingArticleResource } from '__tests__/common';
+import { mockEventHandlers } from '__tests__/utils';
 
 import PollingSubscription from '../PollingSubscription';
 
@@ -27,6 +28,10 @@ describe('PollingSubscription', () => {
     },
     dispatch,
   );
+
+  afterAll(() => {
+    sub.cleanup();
+  });
 
   it('should throw on undefined frequency in construction', () => {
     expect(
@@ -159,6 +164,57 @@ describe('PollingSubscription', () => {
     });
     it('should be idempotent', () => {
       sub.cleanup();
+    });
+  });
+
+  describe('offline support', () => {
+    const dispatch = jest.fn();
+    const a = () => Promise.resolve({ id: 5, title: 'hi' });
+    const fetch = jest.fn(a);
+    jest.useFakeTimers();
+    const triggerEvent = mockEventHandlers();
+    let sub: PollingSubscription;
+
+    beforeAll(() => {
+      Object.defineProperty(navigator, 'onLine', {
+        value: false,
+        writable: true,
+      });
+      sub = new PollingSubscription(
+        {
+          url: 'test.com',
+          schema: PollingArticleResource.getEntitySchema(),
+          fetch,
+          frequency: 5000,
+        },
+        dispatch,
+      );
+      Object.defineProperty(navigator, 'onLine', {
+        value: true,
+        writable: false,
+      });
+    });
+    afterAll(() => {
+      sub.cleanup();
+    });
+
+    it('should not dispatch when offline', () => {
+      jest.advanceTimersByTime(50000);
+      expect(dispatch.mock.calls.length).toBe(0);
+    });
+
+    it('should immediately start fetching when online', () => {
+      triggerEvent('online', new Event('online'));
+      expect(dispatch.mock.calls.length).toBe(1);
+      jest.advanceTimersByTime(5000);
+      expect(dispatch.mock.calls.length).toBe(2);
+    });
+
+    it('should stop dispatching when offline again', () => {
+      dispatch.mockReset();
+      triggerEvent('offline', new Event('offline'));
+      jest.advanceTimersByTime(50000);
+      expect(dispatch.mock.calls.length).toBe(0);
     });
   });
 });
