@@ -2,13 +2,13 @@ import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
 import { PollingArticleResource } from '__tests__/common';
-
-import { useSubscription, useCache } from '../hooks';
 import {
   makeCacheProvider,
   makeExternalCacheProvider,
   makeRenderRestHook,
-} from '../../../../test';
+} from '@rest-hooks/test';
+
+import { useSubscription, useCache } from '../hooks';
 import { DispatchContext } from '../context';
 
 let mynock: nock.Scope;
