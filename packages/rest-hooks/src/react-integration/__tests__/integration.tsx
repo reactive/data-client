@@ -6,13 +6,13 @@ import {
   PaginatedArticleResource,
   UserResource,
 } from '__tests__/common';
-
-import { useResource, useFetcher } from '../hooks';
 import {
   makeRenderRestHook,
   makeCacheProvider,
   makeExternalCacheProvider,
-} from '../../../../test';
+} from '@rest-hooks/test';
+
+import { useResource, useFetcher } from '../hooks';
 import {
   payload,
   createPayload,

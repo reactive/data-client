@@ -8,16 +8,16 @@ import {
   ArticleResourceWithOtherListUrl,
   StaticArticleResource,
 } from '__tests__/common';
+import {
+  makeRenderRestHook,
+  makeCacheProvider,
+  mockInitialState,
+} from '@rest-hooks/test';
 
 import { DispatchContext, StateContext } from '../context';
 import { useFetcher, useRetrieve, useInvalidator, useResetter } from '../hooks';
 import { initialState } from '../../state/reducer';
 import { State, ActionTypes } from '../../types';
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  mockInitialState,
-} from '../../../../test';
 import { users, articlesPages, payload } from './fixtures';
 
 async function testDispatchFetch(

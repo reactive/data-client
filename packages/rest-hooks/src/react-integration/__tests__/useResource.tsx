@@ -6,15 +6,15 @@ import {
   UserResource,
   InvalidIfStaleArticleResource,
 } from '__tests__/common';
-
-import { normalize } from '../../resource';
-import { DispatchContext, StateContext } from '../context';
-import { useResource } from '../hooks';
 import {
   makeRenderRestHook,
   makeCacheProvider,
   mockInitialState,
-} from '../../../../test';
+} from '@rest-hooks/test';
+
+import { normalize } from '../../resource';
+import { DispatchContext, StateContext } from '../context';
+import { useResource } from '../hooks';
 import { payload, users, nested } from './fixtures';
 
 async function testDispatchFetch(
