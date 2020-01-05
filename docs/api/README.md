@@ -4,8 +4,21 @@ title: API Reference
 
 ## Interface Definitions
 - [Resource](Resource.md)
+- [Entity](Entity.md)
 - [SimpleRecord](SimpleRecord.md)
 - [FetchShape](FetchShape.md)
+
+### Hierarchy
+
+```
+ SimpleRecord
+      |
+   Entity
+      |
+SimpleResource
+      |
+   Resource
+```
 
 ## Hooks
 - [useResource](useResource.md)

@@ -59,7 +59,7 @@ export default class ArticleResource extends Resource {
   static listShape<T extends typeof Resource>(this: T) {
     return {
       ...super.listShape(),
-      schema: { results: [this.getEntitySchema()], nextPage: '', prevPage: '' },
+      schema: { results: [this.asSchema()], nextPage: '', prevPage: '' },
     };
   }
 }
@@ -127,7 +127,7 @@ export default class ArticleResource extends Resource {
     return {
       ...super.listShape(),
       fetch,
-      schema: { results: [this.getEntitySchema()], link: '' },
+      schema: { results: [this.asSchema()], link: '' },
     };
   }
 }
@@ -170,7 +170,7 @@ export default class ArticleResource extends Resource {
     return {
       ...super.listShape(),
       fetch,
-      schema: { results: [this.getEntitySchema()], link: '' },
+      schema: { results: [this.asSchema()], link: '' },
     };
   }
 }

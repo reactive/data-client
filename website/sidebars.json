@@ -36,10 +36,7 @@
       {
         "type": "subcategory",
         "label": "Resource Definitions",
-        "ids": [
-          "guides/custom-networking",
-          "guides/resource-lifetime"
-        ]
+        "ids": ["guides/custom-networking", "guides/resource-lifetime"]
       },
       {
         "type": "subcategory",
@@ -53,10 +50,7 @@
       {
         "type": "subcategory",
         "label": "Performance",
-        "ids": [
-          "guides/fetch-then-render",
-          "guides/eager-updates"
-        ]
+        "ids": ["guides/fetch-then-render", "guides/eager-updates"]
       },
       {
         "type": "subcategory",
@@ -74,7 +68,12 @@
       {
         "type": "subcategory",
         "label": "Interface Definitions",
-        "ids": ["api/resource", "api/SimpleRecord", "api/FetchShape"]
+        "ids": [
+          "api/resource",
+          "api/Entity",
+          "api/SimpleRecord",
+          "api/FetchShape"
+        ]
       },
       {
         "type": "subcategory",

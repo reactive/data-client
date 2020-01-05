@@ -8,6 +8,9 @@
       "api/CacheProvider": {
         "title": "<CacheProvider />"
       },
+      "api/Entity": {
+        "title": "Entity"
+      },
       "api/ExternalCacheProvider": {
         "title": "<ExternalCacheProvider />"
       },

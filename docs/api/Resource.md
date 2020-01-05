@@ -60,10 +60,13 @@ export default class ArticleResource extends Resource {
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-`Resource` is an abstract class that will help you define the data you are working with. There are
-two sides to `Resource` - the static and instance side.
+`Resource` extends [Entity](./Entity)
 
-`Resource` extends [SimpleRecord](./SimpleRecord)
+`Resource` is an abstract class that will help you define the data you are working with.
+`Resource` aids in defining REST-like APIs - to implement other patterns, try building
+[FetchShape](./FetchShape)s with [Entity](./Entity).
+
+There are two sides to `Resource` definition - the static and instance side.
 
 ### Static
 
@@ -93,6 +96,8 @@ don't use constructors.
 
 ### static fromJS\<T extends typeof Resource\>(this: T, props: Partial\<AbstractInstanceType\<T\>\>): AbstractInstanceType\<T\>
 
+> Inherited from [SimpleRecord](./SimpleRecord)
+
 This is used to create instances of the `Resource` you defined. Will copy over props provided to
 the instance in construction, among other things. *Be sure to always call `super.fromJS()` when
 overriding.*
@@ -104,7 +109,9 @@ Can be useful to override to:
 
 ## Be sure to always provide:
 
-### pk: () => string | number | undefined
+### pk: (parent?: any, key?: string) => string | number | undefined
+
+> Inherited from [Entity](./Entity)
 
 PK stands for *primary key* and is intended to provide a standard means of retrieving
 a key identifier for any `Resource`. In many cases there will simply be an 'id' field
@@ -113,7 +120,7 @@ member to return. In case of multicolumn you can simply join them together.
 #### Multi-column primary key:
 
 ```typescript
-pk() {
+pk(parent?: any, key?: string) {
   return [this.firstCol, this.secondCol, this.thirdCol].join(',');
 }
 ```
@@ -156,9 +163,11 @@ pk() {
 ### static urlRoot: string
 
 Used to build url patterns in `url()` and `listUrl()`. Used as the default in
-`getKey()` so typically you'll want this to be globally unique per Resource.
+[key](#static-get-key-string) so typically you'll want this to be globally unique per Resource.
 
-### static getKey()
+### static get key(): string
+
+> Inherited from [Entity](./Entity)
 
 This defines the key for the Resource itself, rather than an instance. As seen below, by default it
 simply returns the urlRoot since this is typically globally unique. However if you want to share
@@ -166,7 +175,7 @@ urlRoot across different Resources, be sure to override this.
 
 ```typescript
 /** Returns the globally unique identifier for this Resource */
-static getKey<T extends typeof Resource>(this: T) {
+static get key(): string {
   return this.urlRoot;
 }
 ```
@@ -198,11 +207,21 @@ on network error. This can be useful to override to really customize your transp
 
 Used in `fetch()`. Resolves the HTTP [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response).
 
-### static getEntitySchema() => [schema.Entity](https://github.com/ntucker/normalizr/blob/master/docs/api.md#entitykey-definition---options--)
+### static asSchema() => [Entity](./Entity)
 
-Returns the [shape of the data](https://github.com/ntucker/normalizr/blob/master/docs/api.md#schema)
-when requesting one resource at a time. Defaults to a plain object
-containing the keys. This can be useful to override if your response is in a different form.
+Returns this Resource as an [Entity](./Entity) with the TypeScript type set properly. Using
+this method instead of `this` directly key to getting correct typing from the hooks.
+
+Use in schemas when referring to this Resource.
+
+```typescript
+  static listShape<T extends typeof Resource>(this: T) {
+    return {
+      ...super.listShape(),
+      schema: { results: [this.asSchema()], nextPage: '', prevPage: '' },
+    };
+  }
+```
 
 ### static getFetchOptions() => [FetchOptions](../api/FetchShape.md#FetchOptions) | undefined
 
