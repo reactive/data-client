@@ -47,11 +47,12 @@ describe('PollingSubscription', () => {
     ).toThrow();
   });
 
-  it('should not call immediately', () => {
-    expect(dispatch.mock.calls.length).toBe(0);
+  it('should call immediately', () => {
+    expect(dispatch.mock.calls.length).toBe(1);
   });
 
   it('should call after period', () => {
+    dispatch.mockReset();
     jest.advanceTimersByTime(5000);
     expect(dispatch.mock.calls.length).toBe(1);
     expect(dispatch.mock.calls[0]).toMatchSnapshot();
