@@ -27,7 +27,7 @@ export default function useDenormalized<
   params: ParamsFromShape<Shape> | null,
   state: State<any>,
 ): [
-  DenormalizeNullable<typeof schema>,
+  DenormalizeNullable<Shape['schema']>,
   typeof params extends null ? false : boolean,
 ] {
   // Select from state
