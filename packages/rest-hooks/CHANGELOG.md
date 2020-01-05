@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.0.4](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.3...rest-hooks@4.0.4) (2020-01-05)
+
+
+### 🐛 Bug Fix
+
+* Import @rest-hooks/normalizr properly ([#229](https://github.com/coinbase/rest-hooks/issues/229)) ([c9d0474](https://github.com/coinbase/rest-hooks/commit/c9d04740ce2c8823f812c91a230b46077c286873))
+
+
+
 ### [4.0.3](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.2...rest-hooks@4.0.3) (2020-01-05)
 
 
