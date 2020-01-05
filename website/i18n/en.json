@@ -628,6 +628,10 @@
       "version-3.0/guides/version-3.0-url": {
         "title": "URL Patterns"
       },
+      "version-4.0/api/version-4.0-PollingSubscription": {
+        "title": "PollingSubscription implements Subscription",
+        "sidebar_label": "PollingSubscription"
+      },
       "version-4.0/api/version-4.0-README": {
         "title": "API Reference"
       },
