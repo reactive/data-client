@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.0.3](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.2...rest-hooks@4.0.3) (2020-01-05)
+
+
+### 🐛 Bug Fix
+
+* Type inferencing for hooks ([1fa5f2c](https://github.com/coinbase/rest-hooks/commit/1fa5f2c368ad4485e808fd3ee4d4e6bc36bd39e7))
+
+
+
 ### [4.0.2](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.1...rest-hooks@4.0.2) (2020-01-05)
 
 
