@@ -4,9 +4,14 @@ import SimpleRecord from './SimpleRecord';
 import { AbstractInstanceType } from '~/types';
 import { NotImplementedError } from '~/errors';
 
-/** Represents an entity to be retrieved from a server. Typically 1:1 with a url endpoint. */
+/** Represents data that should be deduped by specifying a primary key. */
 export default abstract class Entity extends SimpleRecord {
-  /** A unique identifier for each Entity */
+  /**
+   * A unique identifier for each Entity
+   *
+   * @param [parent] When normalizing, the object which included the entity
+   * @param [key] When normalizing, the key where this entity was found
+   */
   abstract pk(parent?: any, key?: string): string | undefined;
 
   /** Returns the globally unique identifier for the static Entity */
@@ -17,14 +22,20 @@ export default abstract class Entity extends SimpleRecord {
   /** Defines nested entities */
   static schema: { [k: string]: Schema } = {};
 
-  /** A unique identifier for each Entity */
+  /**
+   * A unique identifier for each Entity
+   *
+   * @param [value] POJO of the entity or subset used
+   * @param [parent] When normalizing, the object which included the entity
+   * @param [key] When normalizing, the key where this entity was found
+   */
   static pk<T extends typeof Entity>(
     this: T,
-    params: Partial<AbstractInstanceType<T>>,
+    value: Partial<AbstractInstanceType<T>>,
     parent?: any,
     key?: string,
   ): string | undefined {
-    return this.prototype.pk.call(params, parent, key) || key;
+    return this.prototype.pk.call(value, parent, key) || key;
   }
 
   /** Returns this to be used in a schema definition.

@@ -8,7 +8,12 @@ interface SimpleResourceMembers<T extends typeof SimpleRecord> {
 
 /** Immutable record that keeps track of which members are defined vs defaults. */
 export default abstract class SimpleRecord {
-  /** Factory method. Takes an object of properties to assign. */
+  /** Factory method to convert from Plain JS Objects.
+   *
+   * @param [props] Plain Object of properties to assign.
+   * @param [parent] When normalizing, the object which included the record
+   * @param [key] When normalizing, the key where this record was found
+   */
   static fromJS<T extends typeof SimpleRecord>(
     this: T,
     props: Partial<AbstractInstanceType<T>>,

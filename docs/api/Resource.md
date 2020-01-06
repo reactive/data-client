@@ -210,7 +210,7 @@ Used in `fetch()`. Resolves the HTTP [Response](https://developer.mozilla.org/en
 ### static asSchema() => [Entity](./Entity)
 
 Returns this Resource as an [Entity](./Entity) with the TypeScript type set properly. Using
-this method instead of `this` directly key to getting correct typing from the hooks.
+`asSchema()` instead of `this` directly is key to getting correct typing from the hooks.
 
 Use in schemas when referring to this Resource.
 
