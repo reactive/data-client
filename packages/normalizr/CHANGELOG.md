@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@4.1.1...@rest-hooks/normalizr@4.2.0) (2020-01-06)
+
+
+### 🚀 Features
+
+* Entity class added to Resource hierarchy ([#226](https://github.com/coinbase/rest-hooks/issues/226)) ([7c4efb7](https://github.com/coinbase/rest-hooks/commit/7c4efb7a55efbffa8a0cab3dab1b39e69535df49))
+
+
+
 ### [4.1.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@4.1.0...@rest-hooks/normalizr@4.1.1) (2020-01-05)
 
 

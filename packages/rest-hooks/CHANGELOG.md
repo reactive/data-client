@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.1.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.4...rest-hooks@4.1.0) (2020-01-06)
+
+
+### 🚀 Features
+
+* Entity class added to Resource hierarchy ([#226](https://github.com/coinbase/rest-hooks/issues/226)) ([7c4efb7](https://github.com/coinbase/rest-hooks/commit/7c4efb7a55efbffa8a0cab3dab1b39e69535df49))
+
+
+### 🏠 Internal
+
+* Avoid circular depdency (and note it) ([a47cf7e](https://github.com/coinbase/rest-hooks/commit/a47cf7e5518883d4afe95fe34324220e5aa33d45))
+
+
+
 ### [4.0.4](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.3...rest-hooks@4.0.4) (2020-01-05)
 
 
