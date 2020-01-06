@@ -8,12 +8,13 @@ import {
   ArticleResourceWithOtherListUrl,
   StaticArticleResource,
 } from '__tests__/common';
+
+// relative imports to avoid circular dependency in tsconfig references
 import {
   makeRenderRestHook,
   makeCacheProvider,
   mockInitialState,
-} from '@rest-hooks/test';
-
+} from '../../../../test';
 import { DispatchContext, StateContext } from '../context';
 import { useFetcher, useRetrieve, useInvalidator, useResetter } from '../hooks';
 import { initialState } from '../../state/reducer';

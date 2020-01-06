@@ -6,12 +6,13 @@ import {
   PaginatedArticleResource,
   UserResource,
 } from '__tests__/common';
+
+// relative imports to avoid circular dependency in tsconfig references
 import {
   makeRenderRestHook,
   makeCacheProvider,
   makeExternalCacheProvider,
-} from '@rest-hooks/test';
-
+} from '../../../../test';
 import { useResource, useFetcher } from '../hooks';
 import {
   payload,

@@ -6,12 +6,13 @@ import {
   UserResource,
   InvalidIfStaleArticleResource,
 } from '__tests__/common';
+
+// relative imports to avoid circular dependency in tsconfig references
 import {
   makeRenderRestHook,
   makeCacheProvider,
   mockInitialState,
-} from '@rest-hooks/test';
-
+} from '../../../../test';
 import { normalize } from '../../resource';
 import { DispatchContext, StateContext } from '../context';
 import { useResource } from '../hooks';

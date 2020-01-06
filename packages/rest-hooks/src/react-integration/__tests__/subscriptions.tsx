@@ -2,12 +2,13 @@ import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
 import { PollingArticleResource } from '__tests__/common';
+
+// relative imports to avoid circular dependency in tsconfig references
 import {
   makeCacheProvider,
   makeExternalCacheProvider,
   makeRenderRestHook,
-} from '@rest-hooks/test';
-
+} from '../../../../test';
 import { useSubscription, useCache } from '../hooks';
 import { DispatchContext } from '../context';
 

@@ -3,8 +3,9 @@ import {
   CoolerArticleResource,
   PaginatedArticleResource,
 } from '__tests__/common';
-import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 
+// relative imports to avoid circular dependency in tsconfig references
+import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import { useCache } from '../hooks';
 import { articlesPages, payload } from './fixtures';
 
