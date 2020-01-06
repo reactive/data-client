@@ -64,7 +64,7 @@ export type RPCAction<
 > = ErrorableFSAWithPayloadAndMeta<'rest-hooks/rpc', Payload, RPCMeta<S>>;
 
 interface PurgeMeta {
-  schema: schemas.Entity;
+  schema: schemas.EntityInterface<any>;
   url: string;
 }
 

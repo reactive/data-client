@@ -64,7 +64,7 @@ export default class CommentResource extends Resource {
 
   // since we won't be using urlRoot to build our urls we
   // still need to tell rest hooks how to uniquely identify this Resource
-  static getKey() {
+  static get key() {
     return 'CommentResource';
   }
 

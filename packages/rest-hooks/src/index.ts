@@ -1,4 +1,4 @@
-import { Resource, SimpleResource, SimpleRecord } from './resource';
+import { Resource, SimpleResource, SimpleRecord, Entity } from './resource';
 import NetworkManager from './state/NetworkManager';
 import RIC from './state/RIC';
 import PollingSubscription from './state/PollingSubscription';
@@ -41,6 +41,7 @@ export * from './resource/normal';
 export {
   Resource,
   SimpleResource,
+  Entity,
   SimpleRecord,
   CacheProvider,
   ExternalCacheProvider,

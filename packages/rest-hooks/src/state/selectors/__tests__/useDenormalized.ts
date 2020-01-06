@@ -30,7 +30,7 @@ describe('useDenormalized()', () => {
     describe('state is populated just not with our query', () => {
       const state = {
         entities: {
-          [CoolerArticleResource.getKey()]: {
+          [CoolerArticleResource.key]: {
             [params.id]: article,
           },
         },
@@ -60,7 +60,7 @@ describe('useDenormalized()', () => {
     describe('when state exists', () => {
       const state = {
         entities: {
-          [CoolerArticleResource.getKey()]: {
+          [CoolerArticleResource.key]: {
             [params.id]: article,
           },
         },
@@ -87,7 +87,7 @@ describe('useDenormalized()', () => {
     });
     describe('without entity with defined results', () => {
       const state = {
-        entities: { [CoolerArticleResource.getKey()]: {} },
+        entities: { [CoolerArticleResource.key]: {} },
         results: {
           [CoolerArticleResource.detailShape().getFetchKey(params)]: params.id,
         },
@@ -112,7 +112,7 @@ describe('useDenormalized()', () => {
     describe('no result exists but primary key is used', () => {
       const state = {
         entities: {
-          [CoolerArticleResource.getKey()]: {
+          [CoolerArticleResource.key]: {
             [params.id]: article,
           },
         },
@@ -139,7 +139,7 @@ describe('useDenormalized()', () => {
       const pageArticle = PaginatedArticleResource.fromJS(article);
       const state = {
         entities: {
-          [PaginatedArticleResource.getKey()]: {
+          [PaginatedArticleResource.key]: {
             [params.id]: pageArticle,
           },
         },
@@ -166,7 +166,7 @@ describe('useDenormalized()', () => {
       const urlParams = { title: 'bob' };
       const state = {
         entities: {
-          [CoolerArticleResource.getKey()]: {
+          [CoolerArticleResource.key]: {
             [params.id]: article,
           },
         },
@@ -232,10 +232,10 @@ describe('useDenormalized()', () => {
 
       const state = {
         entities: {
-          [NestedArticleResource.getKey()]: {
+          [NestedArticleResource.key]: {
             [`${nestedArticle.pk()}`]: nestedArticle,
           },
-          [UserResource.getKey()]: { [`${user.pk()}`]: user },
+          [UserResource.key]: { [`${user.pk()}`]: user },
         },
         results: {},
         meta: {},
@@ -352,7 +352,7 @@ describe('useDenormalized()', () => {
         articles,
         CoolerArticleResource.listShape().schema,
       );
-      delete entities[CoolerArticleResource.getKey()]['5'];
+      delete entities[CoolerArticleResource.key]['5'];
       const state = {
         entities,
         results: {
@@ -383,7 +383,7 @@ describe('useDenormalized()', () => {
         { results: articles },
         PaginatedArticleResource.listShape().schema,
       );
-      delete entities[PaginatedArticleResource.getKey()]['5'];
+      delete entities[PaginatedArticleResource.key]['5'];
       const state = {
         entities,
         results: {

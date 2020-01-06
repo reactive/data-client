@@ -791,7 +791,7 @@ Array [
         "type": "cats",
       },
     ],
-    null,
+    undefined,
   ],
   Array [
     Object {
@@ -816,7 +816,7 @@ Array [
         "type": "cats",
       },
     ],
-    null,
+    undefined,
   ],
   Array [
     Object {
@@ -841,7 +841,7 @@ Array [
         "type": "cats",
       },
     ],
-    null,
+    undefined,
   ],
   Array [
     Object {
@@ -866,7 +866,7 @@ Array [
         "type": "cats",
       },
     ],
-    null,
+    undefined,
   ],
   Array [
     Object {
@@ -891,7 +891,7 @@ Array [
         "type": "cats",
       },
     ],
-    null,
+    undefined,
   ],
   Array [
     Object {
@@ -916,7 +916,7 @@ Array [
         "type": "cats",
       },
     ],
-    null,
+    undefined,
   ],
   Array [
     Object {
@@ -941,7 +941,7 @@ Array [
         "type": "cats",
       },
     ],
-    null,
+    undefined,
   ],
 ]
 `;

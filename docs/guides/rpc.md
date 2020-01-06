@@ -54,8 +54,8 @@ class TradeResource extends Resource {
     return {
       ...super.createShape(),
       schema: {
-        trade: this.getEntitySchema(),
-        account: AccountResource.getEntitySchema(),
+        trade: this.asSchema(),
+        account: AccountResource.asSchema(),
       },
     };
   }

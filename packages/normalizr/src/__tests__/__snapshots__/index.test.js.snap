@@ -330,7 +330,7 @@ Array [
         "id": "456",
       },
     },
-    null,
+    undefined,
   ],
   Array [
     Object {
@@ -343,7 +343,7 @@ Array [
         "id": "456",
       },
     },
-    null,
+    undefined,
   ],
 ]
 `;

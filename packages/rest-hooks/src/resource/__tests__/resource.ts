@@ -41,8 +41,8 @@ describe('Resource', () => {
       title: 'happy',
       author: 5,
     });
-    expect(resource.pk()).toBe(5);
-    expect(CoolerArticleResource.pk(resource)).toBe(5);
+    expect(resource.pk()).toBe('5');
+    expect(CoolerArticleResource.pk(resource)).toBe('5');
     expect(resource.title).toBe('happy');
     expect(resource.things).toBe('happy five');
     expect(resource.url).toBe('http://test.com/article-cooler/5');
@@ -484,7 +484,7 @@ describe('Resource', () => {
       const normalized = normalize(nested, schema);
 
       // TODO: fix normalize types so we know this is actuaally multiple things
-      const user: any = normalized.entities[UserResource.getKey()]['23'];
+      const user: any = normalized.entities[UserResource.key]['23'];
       it('should include nested user', () => {
         expect(user).toBeDefined();
       });
@@ -513,14 +513,14 @@ describe('Resource', () => {
       expect(normalizeBad).toThrowErrorMatchingInlineSnapshot(`
 "Missing usable resource key when normalizing response.
 
-This is likely due to a malformed response.
-Try inspecting the network response or fetch() return value.
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
 
-Resource: CoolerArticleResource::http://test.com/article-cooler/
-Value: {
+  Entity: CoolerArticleResource::http://test.com/article-cooler/
+  Value: {
   \\"weirdthing\\": \\"hi\\"
 }
-"
+  "
 `);
     });
   });

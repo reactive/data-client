@@ -67,10 +67,17 @@ export const schema = {
   Values: ValuesSchema,
 };
 
+function expectedSchemaType(schema) {
+  return ['object', 'function'].includes(typeof schema)
+    ? 'object'
+    : typeof schema;
+}
+
 export const normalize = (input, schema) => {
-  if (input === null || typeof input !== typeof schema) {
+  const schemaType = expectedSchemaType(schema);
+  if (input === null || typeof input !== schemaType) {
     throw new Error(
-      `Unexpected input given to normalize. Expected type to be "${typeof schema}", found "${
+      `Unexpected input given to normalize. Expected type to be "${schemaType}", found "${
         input === null ? 'null' : typeof input
       }".`,
     );
@@ -80,7 +87,14 @@ export const normalize = (input, schema) => {
   const addEntity = addEntities(entities);
   const visitedEntities = {};
 
-  const result = visit(input, input, null, schema, addEntity, visitedEntities);
+  const result = visit(
+    input,
+    input,
+    undefined,
+    schema,
+    addEntity,
+    visitedEntities,
+  );
   return { entities, result };
 };
 
@@ -130,7 +144,10 @@ const getUnvisit = entities => {
       return [input, true];
     }
 
-    if (schema instanceof EntitySchema) {
+    if (
+      typeof schema.getId === 'function' &&
+      typeof schema.normalize === 'function'
+    ) {
       // unvisitEntity just can't handle undefined
       if (input === undefined) {
         return [input, false];

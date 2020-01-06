@@ -1,34 +1,27 @@
-import { memoize } from 'lodash';
-
 import { ReadShape, MutateShape, DeleteShape } from './shapes';
-import { schemas, SchemaDetail, SchemaList } from './normal';
-import SimpleRecord from './SimpleRecord';
+import { SchemaDetail, SchemaList } from './normal';
+import Entity from './Entity';
 
+import { NotImplementedError } from '~/errors';
 import { AbstractInstanceType, Method, FetchOptions } from '~/types';
 
-/** Represents an entity to be retrieved from a server. Typically 1:1 with a url endpoint. */
-export default abstract class SimpleResource extends SimpleRecord {
+/** Represents an entity to be retrieved from a server.
+ * Typically 1:1 with a url endpoint.
+ *
+ * This can be a useful organization for many REST-like API patterns.
+ */
+export default abstract class SimpleResource extends Entity {
   // typescript todo: require subclasses to implement
   /** Used as base of url construction */
   static readonly urlRoot: string;
-  /** A unique identifier for this SimpleResource */
-  abstract pk(): string | number | undefined;
 
   static toString() {
     return `${this.name}::${this.urlRoot}`;
   }
 
   /** Returns the globally unique identifier for this SimpleResource */
-  static getKey() {
-    return this.urlRoot;
-  }
-
-  /** A unique identifier for this SimpleResource */
-  static pk<T extends typeof SimpleResource>(
-    this: T,
-    params: Partial<AbstractInstanceType<T>>,
-  ): string | number | undefined {
-    return this.prototype.pk.call(params);
+  static get key(): string {
+    return this.getKey();
   }
 
   /** URL to find this SimpleResource */
@@ -87,7 +80,7 @@ export default abstract class SimpleResource extends SimpleRecord {
     body?: Readonly<object | string>,
   ): Promise<any> {
     // typescript currently doesn't allow abstract static methods
-    throw new Error('not implemented');
+    throw new NotImplementedError();
   }
 
   /** Perform network request and resolve with HTTP Response */
@@ -97,12 +90,18 @@ export default abstract class SimpleResource extends SimpleRecord {
     body?: Readonly<object | string>,
   ): Promise<Response> {
     // typescript currently doesn't allow abstract static methods
-    throw new Error('not implemented');
+    throw new NotImplementedError();
   }
 
   /** Get the entity schema defining  */
   static getEntitySchema<T extends typeof SimpleResource>(this: T) {
-    return getEntitySchema(this);
+    /* istanbul ignore next */
+    if (process.env.NODE_ENV === 'development') {
+      console.error(
+        'getEntitySchema() is deprecated - use asSchema() instead.',
+      );
+    }
+    return this.asSchema();
   }
 
   /** Get the request options for this SimpleResource  */
@@ -118,11 +117,10 @@ export default abstract class SimpleResource extends SimpleRecord {
     const getFetchKey = (params: Readonly<object>) => {
       return 'GET ' + this.url(params);
     };
-    const schema = this.getEntitySchema();
     const options = this.getFetchOptions();
     return {
       type: 'read',
-      schema,
+      schema: this.asSchema(),
       options,
       getFetchKey,
       fetch: (params: Readonly<object>) => {
@@ -138,11 +136,10 @@ export default abstract class SimpleResource extends SimpleRecord {
     const getFetchKey = (params: Readonly<Record<string, string>>) => {
       return 'GET ' + this.listUrl(params);
     };
-    const schema = [this.getEntitySchema()];
     const options = this.getFetchOptions();
     return {
       type: 'read',
-      schema,
+      schema: [this.asSchema()],
       options,
       getFetchKey,
       fetch: (params: Readonly<Record<string, string | number>>) => {
@@ -162,7 +159,7 @@ export default abstract class SimpleResource extends SimpleRecord {
     const options = this.getFetchOptions();
     return {
       type: 'mutate',
-      schema: this.getEntitySchema(),
+      schema: this.asSchema(),
       options,
       getFetchKey: (params: Readonly<Record<string, string>>) => {
         return 'POST ' + this.listUrl(params);
@@ -187,7 +184,7 @@ export default abstract class SimpleResource extends SimpleRecord {
     const options = this.getFetchOptions();
     return {
       type: 'mutate',
-      schema: this.getEntitySchema(),
+      schema: this.asSchema(),
       options,
       getFetchKey: (params: object) => {
         return 'PUT ' + this.url(params);
@@ -212,7 +209,7 @@ export default abstract class SimpleResource extends SimpleRecord {
     const options = this.getFetchOptions();
     return {
       type: 'mutate',
-      schema: this.getEntitySchema(), //TODO: change merge strategy in case we want to handle partial returns
+      schema: this.asSchema(),
       options,
       getFetchKey: (params: Readonly<object>) => {
         return 'PATCH ' + this.url(params);
@@ -233,7 +230,7 @@ export default abstract class SimpleResource extends SimpleRecord {
     const options = this.getFetchOptions();
     return {
       type: 'delete',
-      schema: this.getEntitySchema(),
+      schema: this.asSchema(),
       options,
       getFetchKey: (params: object) => {
         return 'DELETE ' + this.url(params);
@@ -242,6 +239,11 @@ export default abstract class SimpleResource extends SimpleRecord {
         return this.fetch('delete', this.url(params));
       },
     };
+  }
+
+  /** Returns the globally unique identifier for this SimpleResource */
+  static getKey() {
+    return this.urlRoot;
   }
 }
 
@@ -252,61 +254,3 @@ Object.defineProperty(SimpleResource.prototype, 'url', {
     this.__url = url;
   },
 });
-
-/* istanbul ignore next */
-if (process.env.NODE_ENV !== 'production') {
-  // for those not using TypeScript this is a good catch to ensure they are defining
-  // the abstract members
-  SimpleResource.fromJS = function fromJS<T extends typeof SimpleRecord>(
-    this: T,
-    props: Partial<AbstractInstanceType<T>>,
-  ): Readonly<AbstractInstanceType<T>> {
-    if ((this as any).prototype.pk === undefined)
-      throw new Error('cannot construct on abstract types');
-    return SimpleRecord.fromJS.call(this, props) as any;
-  };
-}
-
-type GetEntitySchema = <T extends typeof SimpleResource>(
-  ResourceClass: T,
-) => schemas.Entity<Readonly<AbstractInstanceType<T>>>;
-
-const getEntitySchema: GetEntitySchema = memoize(
-  <T extends typeof SimpleResource>(ResourceClass: T) => {
-    const e = new schemas.Entity(
-      ResourceClass.getKey(),
-      {},
-      {
-        idAttribute: (value, parent, key) => {
-          const id = ResourceClass.pk(value) || key;
-          /* istanbul ignore next */
-          if (process.env.NODE_ENV !== 'production' && id === null) {
-            throw new Error(
-              `Missing usable resource key when normalizing response.
-
-This is likely due to a malformed response.
-Try inspecting the network response or fetch() return value.
-
-Resource: ${ResourceClass}
-Value: ${value && JSON.stringify(value, null, 2)}
-`,
-            );
-          }
-          return id.toString();
-        },
-        processStrategy: value => {
-          return ResourceClass.fromJS(value);
-        },
-        mergeStrategy: (
-          a: AbstractInstanceType<T>,
-          b: AbstractInstanceType<T>,
-        ) => (a.constructor as T).merge(a, b),
-      },
-    );
-    // TODO: long term figure out a plan to actually denormalize
-    (e as any).denormalize = function denormalize(entity: any) {
-      return [entity, true];
-    };
-    return e;
-  },
-) as any;

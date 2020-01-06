@@ -8,9 +8,9 @@ Say you have a foreignkey author, and an array of foreign keys to contributors.
 First we need to model what this will look like by adding members to our [Resource][1] defintion.
 These should be the primary keys of the entities we care about.
 
-Next we'll need to extend the schema definition provided by [getEntitySchema()][3].
+Next we'll need to extend the schema definition provided by [asSchema()][3].
 
-## getEntitySchema
+## asSchema
 
 #### `resources/ArticleResource.ts`
 
@@ -29,18 +29,10 @@ export default class ArticleResource extends Resource {
   }
   static urlRoot = 'http://test.com/article/';
 
-  // operative method!
-  static getEntitySchema<T extends typeof Resource>(
-    this: T,
-  ): schemas.Entity<Readonly<AbstractInstanceType<T>>> {
-    const schema = super.getEntitySchema();
-    schema.define({
-      author: UserResource.getEntitySchema(),
-      contributors: [UserResource.getEntitySchema()],
-    });
-    // TypeScript is improperly restricting schema's type to the constraint of our generic
-    return schema as any;
-  }
+  static schema = {
+    author: UserResource.asSchema(),
+    contributors: [UserResource.asSchema()],
+  };
 }
 ```
 
@@ -73,7 +65,7 @@ function ArticleInline({ article }: { article: ArticleResource }) {
 ## Circular dependencies
 
 If two or more [Resources][1] include each other in their schema, you can dynamically override
-one of their [getEntitySchema()][3] to avoid circular imports.
+one of their [asSchema()][3] to avoid circular imports.
 
 #### `resources/ArticleResource.ts`
 
@@ -92,27 +84,14 @@ export default class ArticleResource extends Resource {
   }
   static urlRoot = 'http://test.com/article/';
 
-  // operative method!
-  static getEntitySchema<T extends typeof Resource>(
-    this: T,
-  ): schemas.Entity<Readonly<AbstractInstanceType<T>>> {
-    const schema = super.getEntitySchema();
-    schema.define({
-      author: UserResource.getEntitySchema(),
-      contributors: [UserResource.getEntitySchema()],
-    });
-    // TypeScript is improperly restricting schema's type to the constraint of our generic
-    return schema as any;
-  }
+  static schema = {
+    author: UserResource.asSchema(),
+    contributors: [UserResource.asSchema()],
+  };
 }
 
-UserResource.getEntitySchema = function<T extends typeof Resource>(this: T) {
-  // can't use 'super' here :(
-  const schema = Resource.getEntitySchema();
-  schema.define({
-    posts: [ArticleResource.getEntitySchema()],
-  });
-  return schema;
+UserResource.schema = {
+  posts: [ArticleResource.asSchema()],
 };
 ```
 
@@ -120,7 +99,7 @@ UserResource.getEntitySchema = function<T extends typeof Resource>(this: T) {
 
 ```typescript
 import { Resource } from 'rest-hooks';
-// no need to import ArticleResource as the getEntitySchema() override happens there.
+// no need to import ArticleResource as the asSchema() override happens there.
 
 export default class UserResource extends Resource {
   readonly id: number | undefined = undefined;
