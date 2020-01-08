@@ -7,8 +7,8 @@ original_id: no-suspense
 Some libraries you work with may take a [loading](https://ant.design/components/card/#components-card-demo-loading) or error state.
 In these cases you might want a boolean `loading` instead of yielding to Suspense.
 
-In any case, here's a sample hook you can adapt to use that information in any
-way you please.
+`useStatefulResource()` hook has been published under [@rest-hooks/legacy](https://www.npmjs.com/package/@rest-hooks/legacy)
+for this purpose.
 
 ## Installation
 
