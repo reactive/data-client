@@ -1,12 +1,11 @@
 import { useContext, useRef, useCallback } from 'react';
-
-import { FetchAction, UpdateFunction, ReceiveTypes } from '~/types';
+import { FetchAction, UpdateFunction, ReceiveTypes } from 'rest-hooks/types';
 import {
   RECEIVE_DELETE_TYPE,
   RECEIVE_MUTATE_TYPE,
   RECEIVE_TYPE,
   FETCH_TYPE,
-} from '~/actionTypes';
+} from 'rest-hooks/actionTypes';
 import {
   FetchShape,
   DeleteShape,
@@ -15,8 +14,8 @@ import {
   SchemaFromShape,
   ParamsFromShape,
   BodyFromShape,
-} from '~/resource';
-import { DispatchContext } from '~/react-integration/context';
+} from 'rest-hooks/resource';
+import { DispatchContext } from 'rest-hooks/react-integration/context';
 
 const SHAPE_TYPE_TO_RESPONSE_TYPE: Record<
   FetchShape<any, any, any>['type'],

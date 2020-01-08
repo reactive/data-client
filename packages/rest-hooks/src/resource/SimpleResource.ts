@@ -1,10 +1,10 @@
+import { NotImplementedError } from 'rest-hooks/errors';
+import { AbstractInstanceType, Method, FetchOptions } from 'rest-hooks/types';
+
 import { ReadShape, MutateShape, DeleteShape } from './shapes';
 import { SchemaDetail, SchemaList } from './normal';
 import Entity from './Entity';
 import paramsToString from './paramsToString';
-
-import { NotImplementedError } from '~/errors';
-import { AbstractInstanceType, Method, FetchOptions } from '~/types';
 
 /** Represents an entity to be retrieved from a server.
  * Typically 1:1 with a url endpoint.

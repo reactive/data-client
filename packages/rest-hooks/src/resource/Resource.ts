@@ -1,6 +1,6 @@
-import SimpleResource from './SimpleResource';
+import { Method } from 'rest-hooks/types';
 
-import { Method } from '~/types';
+import SimpleResource from './SimpleResource';
 
 class NetworkError extends Error {
   declare status: number;

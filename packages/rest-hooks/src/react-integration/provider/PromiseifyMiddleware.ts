@@ -1,4 +1,4 @@
-import { MiddlewareAPI, Dispatch } from '~/types';
+import { MiddlewareAPI, Dispatch } from 'rest-hooks/types';
 
 const PromiseifyMiddleware = <R extends React.Reducer<any, any>>(
   _: MiddlewareAPI<R>,

@@ -6,11 +6,10 @@ import {
   NestedArticleResource,
   UserResource,
 } from '__tests__/common';
+import { normalize } from 'rest-hooks/resource';
+import { initialState } from 'rest-hooks/state/reducer';
 
 import useDenormalized from '../useDenormalized';
-
-import { normalize } from '~/resource';
-import { initialState } from '~/state/reducer';
 
 describe('useDenormalized()', () => {
   describe('Single', () => {

@@ -1,12 +1,13 @@
-import { Schema } from '~/resource';
+import { RPCAction } from '..';
+
+import { Schema } from 'rest-hooks/resource';
 import {
   FetchAction,
   ReceiveAction,
   PurgeAction,
   ResponseActions,
-} from '~/types';
-import { RECEIVE_TYPE, RECEIVE_MUTATE_TYPE } from '~/actionTypes';
-import { RPCAction } from '..';
+} from 'rest-hooks/types';
+import { RECEIVE_TYPE, RECEIVE_MUTATE_TYPE } from 'rest-hooks/actionTypes';
 
 export function createReceive<
   Payload extends object | string | number = object | string | number,

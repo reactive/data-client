@@ -1,7 +1,6 @@
 import { createContext } from 'react';
-
-import { ActionTypes } from '~/types';
-import { initialState } from '~/state/reducer';
+import { ActionTypes } from 'rest-hooks/types';
+import { initialState } from 'rest-hooks/state/reducer';
 
 export const StateContext = createContext(initialState);
 

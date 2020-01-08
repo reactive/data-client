@@ -5,9 +5,9 @@ import {
   UnsubscribeAction,
   Manager,
   Dispatch,
-} from '~/types';
-import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '~/actionTypes';
-import { Schema } from '~/resource';
+} from 'rest-hooks/types';
+import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from 'rest-hooks/actionTypes';
+import { Schema } from 'rest-hooks/resource';
 
 type Actions = UnsubscribeAction | SubscribeAction;
 

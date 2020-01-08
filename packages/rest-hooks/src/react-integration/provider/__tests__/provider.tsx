@@ -1,14 +1,13 @@
 import React, { useContext } from 'react';
 import { act, render } from '@testing-library/react';
 import { CoolerArticleResource } from '__tests__/common';
+import { RECEIVE_TYPE } from 'rest-hooks/actionTypes';
 
 import { DispatchContext, StateContext } from '../../context';
 import CacheProvider from '../CacheProvider';
 import NetworkManager from '../../../state/NetworkManager';
 import SubscriptionManager from '../../../state/SubscriptionManager';
 import PollingSubscription from '../../../state/PollingSubscription';
-
-import { RECEIVE_TYPE } from '~/actionTypes';
 
 describe('<CacheProvider />', () => {
   it('should not change dispatch function on re-render', () => {

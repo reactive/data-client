@@ -1,9 +1,9 @@
-import { Subscription, SubscriptionInit } from './SubscriptionManager';
-import isOnline from './isOnline';
+import { Schema } from 'rest-hooks/resource';
+import { Dispatch } from 'rest-hooks/types';
+import { FETCH_TYPE, RECEIVE_TYPE } from 'rest-hooks/actionTypes';
 
-import { Schema } from '~/resource';
-import { Dispatch } from '~/types';
-import { FETCH_TYPE, RECEIVE_TYPE } from '~/actionTypes';
+import isOnline from './isOnline';
+import { Subscription, SubscriptionInit } from './SubscriptionManager';
 
 /**
  * PollingSubscription keeps a given resource updated by

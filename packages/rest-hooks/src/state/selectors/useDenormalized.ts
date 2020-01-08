@@ -1,15 +1,14 @@
 import { useMemo } from 'react';
-
-import buildInferredResults from './buildInferredResults';
-
-import { State } from '~/types';
+import { State } from 'rest-hooks/types';
 import {
   isEntity,
   ReadShape,
   denormalize,
   DenormalizeNullable,
   ParamsFromShape,
-} from '~/resource';
+} from 'rest-hooks/resource';
+
+import buildInferredResults from './buildInferredResults';
 
 /**
  * Selects the denormalized form from `state` cache.

@@ -1,4 +1,4 @@
-import { FetchShape } from '~/resource';
+import { FetchShape } from 'rest-hooks/resource';
 
 /** If the invalidIfStale option is set we suspend if resource has expired */
 export default function hasUsableData(

@@ -1,4 +1,5 @@
 import { act } from '@testing-library/react-hooks';
+
 import {
   NetworkManager,
   FetchAction,
