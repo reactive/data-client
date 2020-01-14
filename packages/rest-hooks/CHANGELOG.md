@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.1.2](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.1.0...rest-hooks@4.1.2) (2020-01-14)
+
+
+### 🐛 Bug Fix
+
+* Make SubscriptionManager type compatible with redux-toolkit ([#235](https://github.com/coinbase/rest-hooks/issues/235)) ([9e04388](https://github.com/coinbase/rest-hooks/commit/9e04388114dcb2f31da37a29cc5971661241e80c))
+* Re-publish correct typings ([3520594](https://github.com/coinbase/rest-hooks/commit/3520594b090ff1231e1d8c65620257af46e8ffcb))
+
+
+
 ## [4.1.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.0.4...rest-hooks@4.1.0) (2020-01-06)
 
 
