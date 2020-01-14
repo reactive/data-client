@@ -104,10 +104,10 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
    *
    */
   getMiddleware<T extends SubscriptionManager<S>>(this: T) {
-    return <R extends React.Reducer<any, A>, A extends Actions>({
+    return <R extends React.Reducer<any, any>>({
       dispatch,
     }: MiddlewareAPI<R>) => {
-      return (next: Dispatch<R>) => (action: Actions) => {
+      return (next: Dispatch<R>) => (action: React.ReducerAction<R>) => {
         switch (action.type) {
           case 'rest-hooks/subscribe':
             this.handleSubscribe(action, dispatch);
