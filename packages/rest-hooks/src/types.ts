@@ -1,14 +1,24 @@
 import React from 'react';
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
 
-import {
-  ErrorableFSAWithPayloadAndMeta,
-  ErrorableFSAWithMeta,
-  ErrorableFSAWithPayload,
-} from './fsa';
+import { ErrorableFSAWithPayloadAndMeta, ErrorableFSAWithMeta } from './fsa';
 import { Schema, schemas, Normalize } from './resource';
 
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
+
+export const FETCH_TYPE = 'rest-hooks/fetch' as const;
+export const RECEIVE_TYPE = 'rest-hooks/receive' as const;
+export const RECEIVE_MUTATE_TYPE = 'rest-hooks/rpc' as const;
+export const RECEIVE_DELETE_TYPE = 'rest-hooks/purge' as const;
+export const RESET_TYPE = 'rest-hooks/reset' as const;
+export const SUBSCRIBE_TYPE = 'rest-hooks/subscribe' as const;
+export const UNSUBSCRIBE_TYPE = 'rest-hook/unsubscribe' as const;
+export const INVALIDATE_TYPE = 'rest-hooks/invalidate' as const;
+
+export type ReceiveTypes =
+  | typeof RECEIVE_TYPE
+  | typeof RECEIVE_MUTATE_TYPE
+  | typeof RECEIVE_DELETE_TYPE;
 
 export type AbstractInstanceType<T> = T extends { prototype: infer U }
   ? U
@@ -47,7 +57,7 @@ export type ReceiveAction<
   Payload extends object | string | number = object | string | number,
   S extends Schema = any
 > = ErrorableFSAWithPayloadAndMeta<
-  'rest-hooks/receive',
+  typeof RECEIVE_TYPE,
   Payload,
   ReceiveMeta<S>
 >;
@@ -61,7 +71,11 @@ interface RPCMeta<S extends Schema> {
 export type RPCAction<
   Payload extends object | string | number = object | string | number,
   S extends Schema = any
-> = ErrorableFSAWithPayloadAndMeta<'rest-hooks/rpc', Payload, RPCMeta<S>>;
+> = ErrorableFSAWithPayloadAndMeta<
+  typeof RECEIVE_MUTATE_TYPE,
+  Payload,
+  RPCMeta<S>
+>;
 
 interface PurgeMeta {
   schema: schemas.EntityInterface<any>;
@@ -69,16 +83,12 @@ interface PurgeMeta {
 }
 
 export type PurgeAction = ErrorableFSAWithMeta<
-  'rest-hooks/purge',
+  typeof RECEIVE_DELETE_TYPE,
   undefined,
   PurgeMeta
 >;
 
-export type ResetAction = FSA<'rest-hooks/reset'>;
-
-type OptimisticUpdatePayload = {
-  [key: string]: <T>(result: T | undefined, key: string) => T;
-};
+export type ResetAction = FSA<typeof RESET_TYPE>;
 
 export type UpdateFunction<
   SourceSchema extends Schema,
@@ -88,13 +98,8 @@ export type UpdateFunction<
   destResults: Normalize<DestSchema> | undefined,
 ) => Normalize<DestSchema>;
 
-export type OptimisticUpdateAction = ErrorableFSAWithPayload<
-  'rest-hooks/optimistic-update',
-  OptimisticUpdatePayload
->;
-
 interface FetchMeta<S extends Schema> {
-  responseType: 'rest-hooks/receive' | 'rest-hooks/rpc' | 'rest-hooks/purge';
+  responseType: ReceiveTypes;
   url: string;
   schema: S;
   throttle: boolean;
@@ -109,7 +114,7 @@ export interface FetchAction<
   S extends Schema = any
 >
   extends FSAWithPayloadAndMeta<
-    'rest-hooks/fetch',
+    typeof FETCH_TYPE,
     () => Promise<Payload>,
     FetchMeta<any>
   > {
@@ -117,7 +122,7 @@ export interface FetchAction<
 }
 
 export interface SubscribeAction
-  extends FSAWithMeta<'rest-hooks/subscribe', undefined, any> {
+  extends FSAWithMeta<typeof SUBSCRIBE_TYPE, undefined, any> {
   meta: {
     schema: Schema;
     fetch: () => Promise<any>;
@@ -127,7 +132,7 @@ export interface SubscribeAction
 }
 
 export interface UnsubscribeAction
-  extends FSAWithMeta<'rest-hooks/unsubscribe', undefined, any> {
+  extends FSAWithMeta<typeof UNSUBSCRIBE_TYPE, undefined, any> {
   meta: {
     url: string;
     frequency?: number;
@@ -135,7 +140,7 @@ export interface UnsubscribeAction
 }
 
 export interface InvalidateAction
-  extends FSAWithMeta<'rest-hooks/invalidate', undefined, any> {
+  extends FSAWithMeta<typeof INVALIDATE_TYPE, undefined, any> {
   meta: {
     url: string;
   };

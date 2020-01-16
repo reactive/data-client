@@ -1,6 +1,7 @@
 import { useContext, useCallback } from 'react';
 
 import { DispatchContext } from '~/react-integration/context';
+import { RESET_TYPE } from '~/types';
 
 /** Returns a function to completely clear the cache of all entries */
 export default function useResetter(): () => void {
@@ -8,7 +9,7 @@ export default function useResetter(): () => void {
 
   const resetDispatcher = useCallback(() => {
     dispatch({
-      type: 'rest-hooks/reset',
+      type: RESET_TYPE,
     });
   }, [dispatch]);
 

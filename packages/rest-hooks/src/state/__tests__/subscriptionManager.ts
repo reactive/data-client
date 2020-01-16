@@ -1,7 +1,13 @@
 import { PollingArticleResource } from '__tests__/common';
 
 import SubscriptionManager, { Subscription } from '../SubscriptionManager';
-import { SubscribeAction, UnsubscribeAction } from '../../types';
+import {
+  SubscribeAction,
+  UnsubscribeAction,
+  UNSUBSCRIBE_TYPE,
+  SUBSCRIBE_TYPE,
+  RECEIVE_TYPE,
+} from '../../types';
 
 function onError(e: any) {
   e.preventDefault();
@@ -50,7 +56,7 @@ describe('SubscriptionManager', () => {
         ? () => Promise.reject(new Error('Failed'))
         : () => Promise.resolve(payload);
       return {
-        type: 'rest-hooks/subscribe',
+        type: SUBSCRIBE_TYPE,
         meta: {
           schema: PollingArticleResource.getEntitySchema(),
           url: PollingArticleResource.url(payload),
@@ -61,7 +67,7 @@ describe('SubscriptionManager', () => {
     }
     function createUnsubscribeAction(payload: {}): UnsubscribeAction {
       return {
-        type: 'rest-hooks/unsubscribe',
+        type: UNSUBSCRIBE_TYPE,
         meta: {
           url: PollingArticleResource.url(payload),
           frequency: 1000,
@@ -154,7 +160,7 @@ describe('SubscriptionManager', () => {
     });
 
     it('should let other actions pass through', () => {
-      const action = { type: 'rest-hooks/receive' };
+      const action = { type: RECEIVE_TYPE };
       next.mockReset();
 
       middleware({ dispatch, getState })(next)(action as any);

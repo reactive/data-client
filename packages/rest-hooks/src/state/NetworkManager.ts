@@ -9,6 +9,11 @@ import {
   Manager,
   PurgeAction,
   Dispatch,
+  RECEIVE_TYPE,
+  RECEIVE_MUTATE_TYPE,
+  RECEIVE_DELETE_TYPE,
+  FETCH_TYPE,
+  RESET_TYPE,
 } from '~/types';
 import { RPCAction } from '..';
 
@@ -84,7 +89,11 @@ export default class NetworkManager implements Manager {
             date: now,
             expiresAt: now + dataExpiryLength,
           };
-          if (['rest-hooks/receive', 'rest-hooks/rpc'].includes(responseType)) {
+          if (
+            ([RECEIVE_TYPE, RECEIVE_MUTATE_TYPE] as string[]).includes(
+              responseType,
+            )
+          ) {
             meta.updaters = updaters;
           }
           dispatch({
@@ -154,19 +163,19 @@ export default class NetworkManager implements Manager {
         action: React.ReducerAction<R>,
       ): Promise<void> => {
         switch (action.type) {
-          case 'rest-hooks/fetch':
+          case FETCH_TYPE:
             this.handleFetch(action, dispatch);
             return Promise.resolve();
-          case 'rest-hooks/purge':
-          case 'rest-hooks/rpc':
-          case 'rest-hooks/receive':
+          case RECEIVE_DELETE_TYPE:
+          case RECEIVE_MUTATE_TYPE:
+          case RECEIVE_TYPE:
             // only receive after new state is computed
             return next(action).then(() => {
               if (action.meta.url in this.fetched) {
                 this.handleReceive(action);
               }
             });
-          case 'rest-hooks/reset':
+          case RESET_TYPE:
             this.cleanup();
             return next(action);
           default:

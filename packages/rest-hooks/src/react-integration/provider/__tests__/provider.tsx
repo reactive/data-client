@@ -7,6 +7,7 @@ import CacheProvider from '../CacheProvider';
 import NetworkManager from '../../../state/NetworkManager';
 import SubscriptionManager from '../../../state/SubscriptionManager';
 import PollingSubscription from '../../../state/PollingSubscription';
+import { RECEIVE_TYPE } from '~/types';
 
 describe('<CacheProvider />', () => {
   it('should not change dispatch function on re-render', () => {
@@ -58,7 +59,7 @@ describe('<CacheProvider />', () => {
     expect(dispatch).toBeDefined();
     expect(state).toBeDefined();
     const action = {
-      type: 'rest-hooks/receive',
+      type: RECEIVE_TYPE,
       payload: { id: 5, title: 'hi', content: 'more things here' },
       meta: {
         schema: CoolerArticleResource.getEntitySchema(),

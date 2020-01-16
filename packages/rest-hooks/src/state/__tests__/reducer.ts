@@ -13,6 +13,12 @@ import {
   ResetAction,
   InvalidateAction,
   UpdateFunction,
+  RECEIVE_TYPE,
+  RECEIVE_MUTATE_TYPE,
+  RECEIVE_DELETE_TYPE,
+  INVALIDATE_TYPE,
+  FETCH_TYPE,
+  RESET_TYPE,
 } from '../../types';
 
 describe('reducer', () => {
@@ -20,7 +26,7 @@ describe('reducer', () => {
     const id = 20;
     const payload = { id, title: 'hi', content: 'this is the content' };
     const action: ReceiveAction<typeof payload> = {
-      type: 'rest-hooks/receive',
+      type: RECEIVE_TYPE,
       payload,
       meta: {
         schema: ArticleResource.getEntitySchema(),
@@ -77,7 +83,7 @@ describe('reducer', () => {
     const id = 20;
     const payload = { id, title: 'hi', content: 'this is the content' };
     const action: RPCAction = {
-      type: 'rest-hooks/rpc',
+      type: RECEIVE_MUTATE_TYPE,
       payload,
       meta: {
         schema: ArticleResource.getEntitySchema(),
@@ -95,7 +101,7 @@ describe('reducer', () => {
   it('purge should delete entities', () => {
     const id = 20;
     const action: PurgeAction = {
-      type: 'rest-hooks/purge',
+      type: RECEIVE_DELETE_TYPE,
       meta: {
         schema: ArticleResource.getEntitySchema(),
         url: id.toString(),
@@ -139,7 +145,7 @@ describe('reducer', () => {
         },
       ) {
         return {
-          type: 'rest-hooks/receive' as const,
+          type: RECEIVE_TYPE,
           payload,
           meta: {
             schema: PaginatedArticleResource.listShape().schema,
@@ -226,7 +232,7 @@ describe('reducer', () => {
         },
       ) {
         return {
-          type: 'rest-hooks/rpc' as const,
+          type: RECEIVE_MUTATE_TYPE,
           payload,
           meta: {
             schema: ArticleResource.getEntitySchema(),
@@ -316,7 +322,7 @@ describe('reducer', () => {
   it('invalidates resources correctly', () => {
     const id = 20;
     const action: InvalidateAction = {
-      type: 'rest-hooks/invalidate',
+      type: INVALIDATE_TYPE,
       meta: {
         url: id.toString(),
       },
@@ -354,7 +360,7 @@ describe('reducer', () => {
     const id = 20;
     const error = new Error('hi');
     const action: ReceiveAction = {
-      type: 'rest-hooks/receive',
+      type: RECEIVE_TYPE,
       payload: error,
       meta: {
         schema: ArticleResource.getEntitySchema(),
@@ -376,7 +382,7 @@ describe('reducer', () => {
     const id = 20;
     const error = new Error('hi');
     const action: RPCAction = {
-      type: 'rest-hooks/rpc',
+      type: RECEIVE_MUTATE_TYPE,
       payload: error,
       meta: {
         schema: ArticleResource.getEntitySchema(),
@@ -396,7 +402,7 @@ describe('reducer', () => {
     const id = 20;
     const error = new Error('hi');
     const action: PurgeAction = {
-      type: 'rest-hooks/purge',
+      type: RECEIVE_DELETE_TYPE,
       payload: error,
       meta: {
         schema: ArticleResource.getEntitySchema(),
@@ -421,12 +427,12 @@ describe('reducer', () => {
   it('rest-hooks/fetch should console.warn()', () => {
     global.console.warn = jest.fn();
     const action: FetchAction = {
-      type: 'rest-hooks/fetch',
+      type: FETCH_TYPE,
       payload: () => new Promise<any>(() => null),
       meta: {
         schema: ArticleResource.getEntitySchema(),
         url: ArticleResource.url({ id: 5 }),
-        responseType: 'rest-hooks/rpc',
+        responseType: RECEIVE_MUTATE_TYPE,
         throttle: true,
         reject: (v: any) => null,
         resolve: (v: any) => null,
@@ -455,7 +461,7 @@ describe('reducer', () => {
   });
   it('reset should delete all entries', () => {
     const action: ResetAction = {
-      type: 'rest-hooks/reset',
+      type: RESET_TYPE,
     };
     const iniState: any = {
       entities: {
