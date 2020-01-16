@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.1.3](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.1.2...rest-hooks@4.1.3) (2020-01-16)
+
+
+### 💅 Enhancement
+
+* Centralize action type string definitions ([#238](https://github.com/coinbase/rest-hooks/issues/238)) ([b558986](https://github.com/coinbase/rest-hooks/commit/b558986b1c17bc4217d4d5ec9d31d28e410e9725))
+
+
+
 ### [4.1.2](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.1.0...rest-hooks@4.1.2) (2020-01-14)
 
 
