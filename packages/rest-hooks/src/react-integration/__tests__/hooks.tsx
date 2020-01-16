@@ -18,7 +18,8 @@ import {
 import { DispatchContext, StateContext } from '../context';
 import { useFetcher, useRetrieve, useInvalidator, useResetter } from '../hooks';
 import { initialState } from '../../state/reducer';
-import { State, ActionTypes, INVALIDATE_TYPE, RESET_TYPE } from '../../types';
+import { State, ActionTypes } from '../../types';
+import { INVALIDATE_TYPE, RESET_TYPE } from '../../actionTypes';
 import { users, articlesPages, payload } from './fixtures';
 
 async function testDispatchFetch(

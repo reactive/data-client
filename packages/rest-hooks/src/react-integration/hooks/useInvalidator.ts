@@ -2,7 +2,7 @@ import { useContext, useCallback, useRef } from 'react';
 
 import { ReadShape, Schema } from '~/resource';
 import { DispatchContext } from '~/react-integration/context';
-import { INVALIDATE_TYPE } from '~/types';
+import { INVALIDATE_TYPE } from '~/actionTypes';
 
 /** Invalidate a certain item within the cache */
 export default function useInvalidator<

@@ -1,14 +1,13 @@
 import { ArticleResource } from '__tests__/common';
 
 import NetworkManager from '../NetworkManager';
+import { FetchAction, ResetAction } from '../../types';
 import {
-  FetchAction,
-  ResetAction,
   FETCH_TYPE,
   RECEIVE_TYPE,
   RECEIVE_MUTATE_TYPE,
   RESET_TYPE,
-} from '../../types';
+} from '../../actionTypes';
 
 describe('NetworkManager', () => {
   const manager = new NetworkManager();

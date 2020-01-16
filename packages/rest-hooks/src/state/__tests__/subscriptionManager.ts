@@ -1,13 +1,12 @@
 import { PollingArticleResource } from '__tests__/common';
 
 import SubscriptionManager, { Subscription } from '../SubscriptionManager';
+import { SubscribeAction, UnsubscribeAction } from '../../types';
 import {
-  SubscribeAction,
-  UnsubscribeAction,
   UNSUBSCRIBE_TYPE,
   SUBSCRIBE_TYPE,
   RECEIVE_TYPE,
-} from '../../types';
+} from '../../actionTypes';
 
 function onError(e: any) {
   e.preventDefault();

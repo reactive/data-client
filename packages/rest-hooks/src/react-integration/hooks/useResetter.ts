@@ -1,7 +1,7 @@
 import { useContext, useCallback } from 'react';
 
 import { DispatchContext } from '~/react-integration/context';
-import { RESET_TYPE } from '~/types';
+import { RESET_TYPE } from '~/actionTypes';
 
 /** Returns a function to completely clear the cache of all entries */
 export default function useResetter(): () => void {

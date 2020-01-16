@@ -1,14 +1,12 @@
 import { useContext, useRef, useCallback } from 'react';
 
+import { FetchAction, UpdateFunction, ReceiveTypes } from '~/types';
 import {
-  FetchAction,
-  UpdateFunction,
   RECEIVE_DELETE_TYPE,
   RECEIVE_MUTATE_TYPE,
   RECEIVE_TYPE,
-  ReceiveTypes,
   FETCH_TYPE,
-} from '~/types';
+} from '~/actionTypes';
 import {
   FetchShape,
   DeleteShape,

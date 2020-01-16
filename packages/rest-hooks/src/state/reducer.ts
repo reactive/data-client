@@ -2,16 +2,15 @@ import mergeDeepCopy from './merge/mergeDeepCopy';
 import applyUpdatersToResults from './applyUpdatersToResults';
 
 import { normalize } from '~/resource';
+import { ActionTypes, State } from '~/types';
 import {
-  ActionTypes,
-  State,
   RECEIVE_TYPE,
   RECEIVE_MUTATE_TYPE,
   RECEIVE_DELETE_TYPE,
   INVALIDATE_TYPE,
   RESET_TYPE,
   FETCH_TYPE,
-} from '~/types';
+} from '~/actionTypes';
 
 export const initialState: State<unknown> = {
   entities: {},

@@ -6,9 +6,8 @@ import {
   UnsubscribeAction,
   Manager,
   Dispatch,
-  SUBSCRIBE_TYPE,
-  UNSUBSCRIBE_TYPE,
 } from '~/types';
+import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '~/actionTypes';
 import { Schema } from '~/resource';
 
 type Actions = UnsubscribeAction | SubscribeAction;
