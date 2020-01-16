@@ -80,6 +80,21 @@ export default function useFetcher<
       const responseType = SHAPE_TYPE_TO_RESPONSE_TYPE[type];
 
       const key = getFetchKey(params);
+      /* istanbul ignore next */
+      if (process.env.NODE_ENV !== 'production') {
+        if (
+          isDeleteShape(shapeRef.current) &&
+          typeof shapeRef.current.schema.getId !== 'function'
+        ) {
+          throw new Error(
+            `Request for '${key}' of type delete used, but schema has no pk().
+Schema must be an entity.
+Schema: ${JSON.stringify(shapeRef.current.schema, null, 2)}
+
+Note: Network response is ignored for delete type.`,
+          );
+        }
+      }
       const identifier = isDeleteShape(shapeRef.current)
         ? shapeRef.current.schema.getId(params)
         : key;
