@@ -1,7 +1,14 @@
 import { ArticleResource } from '__tests__/common';
 
 import NetworkManager from '../NetworkManager';
-import { FetchAction, ResetAction } from '../../types';
+import {
+  FetchAction,
+  ResetAction,
+  FETCH_TYPE,
+  RECEIVE_TYPE,
+  RECEIVE_MUTATE_TYPE,
+  RESET_TYPE,
+} from '../../types';
 
 describe('NetworkManager', () => {
   const manager = new NetworkManager();
@@ -41,12 +48,12 @@ describe('NetworkManager', () => {
   });
   describe('middleware', () => {
     const fetchResolveAction: FetchAction = {
-      type: 'rest-hooks/fetch',
+      type: FETCH_TYPE,
       payload: () => Promise.resolve({ id: 5, title: 'hi' }),
       meta: {
         schema: ArticleResource.getEntitySchema(),
         url: ArticleResource.url({ id: 5 }),
-        responseType: 'rest-hooks/receive',
+        responseType: RECEIVE_TYPE,
         throttle: false,
         reject: (v: any) => null,
         resolve: (v: any) => null,
@@ -68,16 +75,16 @@ describe('NetworkManager', () => {
       ...fetchReceiveWithUpdatersAction,
       meta: {
         ...fetchReceiveWithUpdatersAction.meta,
-        responseType: 'rest-hooks/rpc',
+        responseType: RECEIVE_MUTATE_TYPE,
       },
     };
     const fetchRejectAction: FetchAction = {
-      type: 'rest-hooks/fetch',
+      type: FETCH_TYPE,
       payload: () => Promise.reject(new Error('Failed')),
       meta: {
         schema: ArticleResource.getEntitySchema(),
         url: ArticleResource.url({ id: 5 }),
-        responseType: 'rest-hooks/receive',
+        responseType: RECEIVE_TYPE,
         throttle: false,
         reject: (v: any) => null,
         resolve: (v: any) => null,
@@ -255,7 +262,7 @@ describe('NetworkManager', () => {
       }
     });
     it('should reject current promises on rest-hooks/reset', async () => {
-      const resetAction: ResetAction = { type: 'rest-hooks/reset' };
+      const resetAction: ResetAction = { type: RESET_TYPE };
       const manager = new NetworkManager(42, 7);
       const middleware = manager.getMiddleware();
       let rejection: any;
@@ -271,12 +278,12 @@ describe('NetworkManager', () => {
       });
 
       const fetchResolveAction: FetchAction = {
-        type: 'rest-hooks/fetch',
+        type: FETCH_TYPE,
         payload: () => promise,
         meta: {
           schema: ArticleResource.getEntitySchema(),
           url: ArticleResource.url({ id: 5 }),
-          responseType: 'rest-hooks/receive',
+          responseType: RECEIVE_TYPE,
           throttle: true,
           resolve,
           reject,

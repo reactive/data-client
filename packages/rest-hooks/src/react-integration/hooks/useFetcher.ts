@@ -1,6 +1,14 @@
 import { useContext, useRef, useCallback } from 'react';
 
-import { FetchAction, UpdateFunction } from '~/types';
+import {
+  FetchAction,
+  UpdateFunction,
+  RECEIVE_DELETE_TYPE,
+  RECEIVE_MUTATE_TYPE,
+  RECEIVE_TYPE,
+  ReceiveTypes,
+  FETCH_TYPE,
+} from '~/types';
 import {
   FetchShape,
   DeleteShape,
@@ -14,11 +22,11 @@ import { DispatchContext } from '~/react-integration/context';
 
 const SHAPE_TYPE_TO_RESPONSE_TYPE: Record<
   FetchShape<any, any, any>['type'],
-  'rest-hooks/receive' | 'rest-hooks/rpc' | 'rest-hooks/purge'
+  ReceiveTypes
 > = {
-  read: 'rest-hooks/receive',
-  mutate: 'rest-hooks/rpc',
-  delete: 'rest-hooks/purge',
+  read: RECEIVE_TYPE,
+  mutate: RECEIVE_MUTATE_TYPE,
+  delete: RECEIVE_DELETE_TYPE,
 };
 
 type OptimisticUpdateParams<
@@ -103,7 +111,7 @@ export default function useFetcher<
       }
 
       dispatch({
-        type: 'rest-hooks/fetch',
+        type: FETCH_TYPE,
         payload: () => fetch(params, body),
         meta,
       });

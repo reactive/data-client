@@ -2,6 +2,7 @@ import { useContext, useCallback, useRef } from 'react';
 
 import { ReadShape, Schema } from '~/resource';
 import { DispatchContext } from '~/react-integration/context';
+import { INVALIDATE_TYPE } from '~/types';
 
 /** Invalidate a certain item within the cache */
 export default function useInvalidator<
@@ -16,7 +17,7 @@ export default function useInvalidator<
     (params: Params | null) => {
       if (!params) return;
       dispatch({
-        type: 'rest-hooks/invalidate',
+        type: INVALIDATE_TYPE,
         meta: {
           url: getFetchKeyRef.current(params),
         },

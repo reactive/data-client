@@ -2,7 +2,7 @@ import { Subscription, SubscriptionInit } from './SubscriptionManager';
 import isOnline from './isOnline';
 
 import { Schema } from '~/resource';
-import { Dispatch } from '~/types';
+import { Dispatch, FETCH_TYPE, RECEIVE_TYPE } from '~/types';
 
 /**
  * PollingSubscription keeps a given resource updated by
@@ -104,12 +104,12 @@ export default class PollingSubscription implements Subscription {
   /** Trigger request for latest resource */
   protected update() {
     this.dispatch({
-      type: 'rest-hooks/fetch',
+      type: FETCH_TYPE,
       payload: this.fetch,
       meta: {
         schema: this.schema,
         url: this.url,
-        responseType: 'rest-hooks/receive',
+        responseType: RECEIVE_TYPE,
         throttle: true,
         options: {
           dataExpiryLength: this.frequency / 2,

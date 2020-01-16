@@ -2,7 +2,16 @@ import mergeDeepCopy from './merge/mergeDeepCopy';
 import applyUpdatersToResults from './applyUpdatersToResults';
 
 import { normalize } from '~/resource';
-import { ActionTypes, State } from '~/types';
+import {
+  ActionTypes,
+  State,
+  RECEIVE_TYPE,
+  RECEIVE_MUTATE_TYPE,
+  RECEIVE_DELETE_TYPE,
+  INVALIDATE_TYPE,
+  RESET_TYPE,
+  FETCH_TYPE,
+} from '~/types';
 
 export const initialState: State<unknown> = {
   entities: {},
@@ -16,7 +25,7 @@ export default function reducer(
 ): State<unknown> {
   if (!state) state = initialState;
   switch (action.type) {
-    case 'rest-hooks/receive': {
+    case RECEIVE_TYPE: {
       if (action.error) {
         return {
           ...state,
@@ -51,7 +60,7 @@ export default function reducer(
         },
       };
     }
-    case 'rest-hooks/rpc': {
+    case RECEIVE_MUTATE_TYPE: {
       if (action.error) return state;
       const { entities, result } = normalize(
         action.payload,
@@ -68,7 +77,7 @@ export default function reducer(
         results,
       };
     }
-    case 'rest-hooks/purge': {
+    case RECEIVE_DELETE_TYPE: {
       if (action.error) return state;
       const key = action.meta.schema.key;
       const pk = action.meta.url;
@@ -78,7 +87,7 @@ export default function reducer(
         entities,
       };
     }
-    case 'rest-hooks/invalidate':
+    case INVALIDATE_TYPE:
       return {
         ...state,
         meta: {
@@ -89,15 +98,12 @@ export default function reducer(
           },
         },
       };
-    case 'rest-hooks/reset':
+    case RESET_TYPE:
       return initialState;
 
     default:
       // If 'fetch' action reaches the reducer there are no middlewares installed to handle it
-      if (
-        process.env.NODE_ENV !== 'production' &&
-        action.type === 'rest-hooks/fetch'
-      ) {
+      if (process.env.NODE_ENV !== 'production' && action.type === FETCH_TYPE) {
         console.warn(
           'Reducer recieved fetch action - you are likely missing the NetworkManager middleware',
         );

@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef } from 'react';
 
 import { DispatchContext } from '~/react-integration/context';
 import { ReadShape, Schema } from '~/resource';
+import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '~/types';
 
 /** Keeps a resource fresh by subscribing to updates. */
 export default function useSubscription<
@@ -25,7 +26,7 @@ export default function useSubscription<
     const url = getFetchKey(params);
 
     dispatch({
-      type: 'rest-hooks/subscribe',
+      type: SUBSCRIBE_TYPE,
       meta: {
         schema,
         fetch: () => fetch(params),
@@ -35,7 +36,7 @@ export default function useSubscription<
     });
     return () => {
       dispatch({
-        type: 'rest-hooks/unsubscribe',
+        type: UNSUBSCRIBE_TYPE,
         meta: {
           url,
           frequency: options && options.pollFrequency,

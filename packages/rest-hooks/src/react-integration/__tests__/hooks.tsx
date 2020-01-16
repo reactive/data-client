@@ -18,7 +18,7 @@ import {
 import { DispatchContext, StateContext } from '../context';
 import { useFetcher, useRetrieve, useInvalidator, useResetter } from '../hooks';
 import { initialState } from '../../state/reducer';
-import { State, ActionTypes } from '../../types';
+import { State, ActionTypes, INVALIDATE_TYPE, RESET_TYPE } from '../../types';
 import { users, articlesPages, payload } from './fixtures';
 
 async function testDispatchFetch(
@@ -219,7 +219,7 @@ describe('useInvalidate', () => {
     );
     invalidate({});
     expect(dispatch).toHaveBeenCalledWith({
-      type: 'rest-hooks/invalidate',
+      type: INVALIDATE_TYPE,
       meta: {
         url: 'GET http://test.com/article-paginated/',
       },
@@ -260,7 +260,7 @@ describe('useResetter', () => {
     );
     reset({});
     expect(dispatch).toHaveBeenCalledWith({
-      type: 'rest-hooks/reset',
+      type: RESET_TYPE,
     });
   });
   it('should return the same === function each time', () => {

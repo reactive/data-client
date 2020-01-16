@@ -6,6 +6,8 @@ import {
   UnsubscribeAction,
   Manager,
   Dispatch,
+  SUBSCRIBE_TYPE,
+  UNSUBSCRIBE_TYPE,
 } from '~/types';
 import { Schema } from '~/resource';
 
@@ -109,10 +111,10 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
     }: MiddlewareAPI<R>) => {
       return (next: Dispatch<R>) => (action: React.ReducerAction<R>) => {
         switch (action.type) {
-          case 'rest-hooks/subscribe':
+          case SUBSCRIBE_TYPE:
             this.handleSubscribe(action, dispatch);
             return Promise.resolve();
-          case 'rest-hooks/unsubscribe':
+          case UNSUBSCRIBE_TYPE:
             this.handleUnsubscribe(action, dispatch);
             return Promise.resolve();
           default:
