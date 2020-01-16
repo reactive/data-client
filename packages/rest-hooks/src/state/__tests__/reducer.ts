@@ -13,13 +13,15 @@ import {
   ResetAction,
   InvalidateAction,
   UpdateFunction,
+} from '../../types';
+import {
   RECEIVE_TYPE,
   RECEIVE_MUTATE_TYPE,
   RECEIVE_DELETE_TYPE,
   INVALIDATE_TYPE,
   FETCH_TYPE,
   RESET_TYPE,
-} from '../../types';
+} from '../../actionTypes';
 
 describe('reducer', () => {
   describe('singles', () => {

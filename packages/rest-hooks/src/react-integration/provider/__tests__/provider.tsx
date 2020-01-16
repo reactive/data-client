@@ -7,7 +7,8 @@ import CacheProvider from '../CacheProvider';
 import NetworkManager from '../../../state/NetworkManager';
 import SubscriptionManager from '../../../state/SubscriptionManager';
 import PollingSubscription from '../../../state/PollingSubscription';
-import { RECEIVE_TYPE } from '~/types';
+
+import { RECEIVE_TYPE } from '~/actionTypes';
 
 describe('<CacheProvider />', () => {
   it('should not change dispatch function on re-render', () => {

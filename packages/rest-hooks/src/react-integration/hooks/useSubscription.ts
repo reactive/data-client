@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef } from 'react';
 
 import { DispatchContext } from '~/react-integration/context';
 import { ReadShape, Schema } from '~/resource';
-import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '~/types';
+import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '~/actionTypes';
 
 /** Keeps a resource fresh by subscribing to updates. */
 export default function useSubscription<

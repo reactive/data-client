@@ -9,12 +9,14 @@ import {
   Manager,
   PurgeAction,
   Dispatch,
+} from '~/types';
+import {
   RECEIVE_TYPE,
   RECEIVE_MUTATE_TYPE,
   RECEIVE_DELETE_TYPE,
   FETCH_TYPE,
   RESET_TYPE,
-} from '~/types';
+} from '~/actionTypes';
 import { RPCAction } from '..';
 
 /** Handles all async network dispatches

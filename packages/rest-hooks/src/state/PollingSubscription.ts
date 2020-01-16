@@ -2,7 +2,8 @@ import { Subscription, SubscriptionInit } from './SubscriptionManager';
 import isOnline from './isOnline';
 
 import { Schema } from '~/resource';
-import { Dispatch, FETCH_TYPE, RECEIVE_TYPE } from '~/types';
+import { Dispatch } from '~/types';
+import { FETCH_TYPE, RECEIVE_TYPE } from '~/actionTypes';
 
 /**
  * PollingSubscription keeps a given resource updated by
