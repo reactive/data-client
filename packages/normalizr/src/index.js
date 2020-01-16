@@ -38,7 +38,7 @@ const visit = (value, parent, key, schema, addEntity, visitedEntities) => {
   );
 };
 
-const addEntities = entities => (
+const addEntities = (entities, indexes) => (
   schema,
   processedEntity,
   value,
@@ -56,6 +56,21 @@ const addEntities = entities => (
     entities[schemaKey][id] = schema.merge(existingEntity, processedEntity);
   } else {
     entities[schemaKey][id] = processedEntity;
+  }
+  // update index
+  if (Array.isArray(schema.indexes)) {
+    const entity = entities[schemaKey][id];
+    if (!(schemaKey in indexes)) {
+      indexes[schemaKey] = {};
+    }
+    for (const index of schema.indexes) {
+      if (!(index in indexes[schemaKey])) {
+        indexes[schemaKey][index] = {};
+      }
+      const indexMap = indexes[schemaKey][index];
+      delete indexMap[existingEntity[index]];
+      indexMap[entity[index]] = id;
+    }
   }
 };
 
@@ -84,7 +99,8 @@ export const normalize = (input, schema) => {
   }
 
   const entities = {};
-  const addEntity = addEntities(entities);
+  const indexes = {};
+  const addEntity = addEntities(entities, indexes);
   const visitedEntities = {};
 
   const result = visit(
@@ -95,7 +111,7 @@ export const normalize = (input, schema) => {
     addEntity,
     visitedEntities,
   );
-  return { entities, result };
+  return { entities, indexes, result };
 };
 
 const unvisitEntity = (id, schema, unvisit, getEntity, cache) => {

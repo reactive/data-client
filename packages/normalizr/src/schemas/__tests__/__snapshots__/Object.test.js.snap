@@ -211,6 +211,7 @@ Object {
       "undefined": Object {},
     },
   },
+  "indexes": Object {},
   "result": Object {
     "bar": "1",
   },
@@ -226,6 +227,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": Object {
     "user": 1,
   },
@@ -241,6 +243,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": Object {
     "user": 1,
   },

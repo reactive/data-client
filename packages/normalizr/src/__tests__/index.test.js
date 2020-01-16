@@ -22,6 +22,7 @@ describe('normalize', () => {
     expect(normalize('bob', mySchema)).toMatchInlineSnapshot(`
       Object {
         "entities": Object {},
+        "indexes": Object {},
         "result": "bob",
       }
     `);

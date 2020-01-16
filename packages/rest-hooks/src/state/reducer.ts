@@ -14,6 +14,7 @@ import {
 
 export const initialState: State<unknown> = {
   entities: {},
+  indexes: {},
   results: {},
   meta: {},
 };
@@ -38,7 +39,7 @@ export default function reducer(
           },
         };
       }
-      const { result, entities } = normalize(
+      const { result, entities, indexes } = normalize(
         action.payload,
         action.meta.schema,
       );
@@ -49,6 +50,7 @@ export default function reducer(
       results = applyUpdatersToResults(results, result, action.meta.updaters);
       return {
         entities: mergeDeepCopy(state.entities, entities),
+        indexes: mergeDeepCopy(state.indexes, indexes),
         results,
         meta: {
           ...state.meta,
@@ -61,7 +63,7 @@ export default function reducer(
     }
     case RECEIVE_MUTATE_TYPE: {
       if (action.error) return state;
-      const { entities, result } = normalize(
+      const { entities, result, indexes } = normalize(
         action.payload,
         action.meta.schema,
       );
@@ -73,6 +75,7 @@ export default function reducer(
       return {
         ...state,
         entities: mergeDeepCopy(state.entities, entities),
+        indexes: mergeDeepCopy(state.indexes, indexes),
         results,
       };
     }

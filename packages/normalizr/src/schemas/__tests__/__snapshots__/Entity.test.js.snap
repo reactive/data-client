@@ -280,6 +280,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": Object {
     "name": "tacos",
     "user": "tacos-user-4",
@@ -299,6 +300,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": Object {
     "4": Object {
       "id": "4",
@@ -322,6 +324,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": "134351",
 }
 `;
@@ -337,6 +340,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": Array [
     1,
     1,
@@ -355,6 +359,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": Array [
     1,
     1,
@@ -371,6 +376,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": 1,
 }
 `;
@@ -386,6 +392,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": 1,
 }
 `;
@@ -409,6 +416,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": 1,
 }
 `;
@@ -431,6 +439,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": "123",
 }
 `;

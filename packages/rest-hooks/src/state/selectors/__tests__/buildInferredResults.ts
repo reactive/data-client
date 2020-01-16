@@ -10,7 +10,7 @@ describe('buildInferredResults()', () => {
         article: CoolerArticleResource.getEntitySchema(),
       }),
     });
-    expect(buildInferredResults(schema, { id: 5 })).toEqual({
+    expect(buildInferredResults(schema, { id: 5 }, {})).toEqual({
       data: { article: '5' },
     });
   });
@@ -19,14 +19,14 @@ describe('buildInferredResults()', () => {
     const schema = {
       data: new schemas.Array(CoolerArticleResource.getEntitySchema()),
     };
-    expect(buildInferredResults(schema, { id: 5 })).toStrictEqual({
+    expect(buildInferredResults(schema, { id: 5 }, {})).toStrictEqual({
       data: undefined,
     });
 
     const schema2 = {
       data: [CoolerArticleResource.getEntitySchema()],
     };
-    expect(buildInferredResults(schema2, { id: 5 })).toStrictEqual({
+    expect(buildInferredResults(schema2, { id: 5 }, {})).toStrictEqual({
       data: undefined,
     });
   });
@@ -35,17 +35,19 @@ describe('buildInferredResults()', () => {
     const schema = {
       data: new schemas.Values(CoolerArticleResource.getEntitySchema()),
     };
-    expect(buildInferredResults(schema, { id: 5 })).toStrictEqual({ data: {} });
+    expect(buildInferredResults(schema, { id: 5 }, {})).toStrictEqual({
+      data: {},
+    });
   });
 
   it('should be undefined with Union and type', () => {
     const schema = UnionResource.detailShape().schema;
-    expect(buildInferredResults(schema, { id: 5 })).toBe(undefined);
+    expect(buildInferredResults(schema, { id: 5 }, {})).toBe(undefined);
   });
 
   it('should work with Union', () => {
     const schema = UnionResource.detailShape().schema;
-    expect(buildInferredResults(schema, { id: 5, type: 'first' }))
+    expect(buildInferredResults(schema, { id: 5, type: 'first' }, {}))
       .toMatchInlineSnapshot(`
       Object {
         "id": 5,
@@ -59,7 +61,7 @@ describe('buildInferredResults()', () => {
       pagination: { next: '', previous: '' },
       data: CoolerArticleResource.getEntitySchema(),
     };
-    expect(buildInferredResults(schema, { id: 5 })).toEqual({
+    expect(buildInferredResults(schema, { id: 5 }, {})).toEqual({
       pagination: { next: '', previous: '' },
       data: '5',
     });

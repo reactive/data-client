@@ -4,7 +4,7 @@ import {
   PaginatedArticleResource,
 } from '__tests__/common';
 
-import reducer from '../reducer';
+import reducer, { initialState } from '../reducer';
 import {
   FetchAction,
   RPCAction,
@@ -41,11 +41,7 @@ describe('reducer', () => {
       ...action,
       payload: { id, title: 'hello' },
     };
-    const iniState = {
-      entities: {},
-      results: {},
-      meta: {},
-    };
+    const iniState = initialState;
     const newState = reducer(iniState, action);
     it('should update state correctly', () => {
       expect(newState).toMatchSnapshot();
@@ -94,6 +90,7 @@ describe('reducer', () => {
     };
     const iniState = {
       entities: {},
+      indexes: {},
       results: { abc: '5' },
       meta: {},
     };
@@ -375,6 +372,7 @@ describe('reducer', () => {
     const iniState = {
       entities: {},
       results: {},
+      indexes: {},
       meta: {},
     };
     const newState = reducer(iniState, action);
@@ -395,6 +393,7 @@ describe('reducer', () => {
     const iniState = {
       entities: {},
       results: {},
+      indexes: {},
       meta: {},
     };
     const newState = reducer(iniState, action);
@@ -421,6 +420,7 @@ describe('reducer', () => {
       results: {
         [ArticleResource.url({ id })]: id,
       },
+      indexes: {},
       meta: {},
     };
     const newState = reducer(iniState, action);
@@ -443,6 +443,7 @@ describe('reducer', () => {
     const iniState = {
       entities: {},
       results: { abc: '5' },
+      indexes: {},
       meta: {},
     };
     const newState = reducer(iniState, action);
@@ -456,6 +457,7 @@ describe('reducer', () => {
     const iniState = {
       entities: {},
       results: { abc: '5' },
+      indexes: {},
       meta: {},
     };
     const newState = reducer(iniState, action);
@@ -478,6 +480,7 @@ describe('reducer', () => {
         '5': undefined,
       },
       results: { abc: '20' },
+      indexes: {},
       meta: {},
     };
     const newState = reducer(iniState, action);

@@ -1,5 +1,9 @@
+import { NormalizedIndex } from '@rest-hooks/normalizr';
+
 import { Schema, schemas, NormalizeNullable } from '~/resource';
 import { isEntity } from '~/resource/types';
+
+type POJO = { [key: string]: any };
 
 /**
  * Build the result parameter to denormalize from schema alone.
@@ -8,20 +12,30 @@ import { isEntity } from '~/resource/types';
 export default function buildInferredResults<
   Params extends Readonly<object>,
   S extends Schema
->(schema: S, params: Params | null): NormalizeNullable<S> {
+>(
+  schema: S,
+  params: Params | null,
+  indexes: NormalizedIndex,
+): NormalizeNullable<S> {
   if (isEntity(schema)) {
     if (!params) return undefined as any;
     const id = schema.getId(params, undefined, '');
-    // Was unable to infer the entity's primary key from params
-    if (id === undefined || id === '') return undefined as any;
-    return id as any;
+    // Was able to infer the entity's primary key from params
+    if (id !== undefined && id !== '') return id as any;
+    // now attempt lookup in indexes
+    const indexName = indexFromParams(params, schema.indexes);
+    if (indexName) {
+      // 'as POJO': indexName can only be found if params is a string key'd object
+      return indexes[schema.key][indexName][(params as POJO)[indexName]] as any;
+    }
+    return undefined as any;
   }
   if (schema instanceof schemas.Union) {
     const discriminatedSchema = schema.inferSchema(params, undefined, '');
     // Was unable to infer the entity's schema from params
     if (discriminatedSchema === undefined) return undefined as any;
     return {
-      id: buildInferredResults(discriminatedSchema, params),
+      id: buildInferredResults(discriminatedSchema, params, indexes),
       schema: schema.getSchemaAttribute(params, parent, ''),
     } as any;
   }
@@ -37,7 +51,7 @@ export default function buildInferredResults<
     if (!isSchema(o[k])) {
       resultObject[k] = o[k];
     } else {
-      resultObject[k] = buildInferredResults(o[k], params);
+      resultObject[k] = buildInferredResults(o[k], params, indexes);
     }
   }
   return resultObject;
@@ -50,4 +64,15 @@ function isSchema(candidate: any) {
     candidate !== null &&
     candidate !== undefined
   );
+}
+
+function indexFromParams<I extends string>(
+  params: Readonly<object>,
+  indexes?: Readonly<I[]>,
+) {
+  if (!indexes) return undefined;
+  for (const index of indexes) {
+    if (index in params) return index;
+  }
+  return undefined;
 }

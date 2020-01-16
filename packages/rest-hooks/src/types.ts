@@ -1,5 +1,6 @@
 import React from 'react';
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
+import { NormalizedIndex } from '@rest-hooks/normalizr';
 
 import { ErrorableFSAWithPayloadAndMeta, ErrorableFSAWithMeta } from './fsa';
 import { Schema, schemas, Normalize } from './resource';
@@ -28,7 +29,8 @@ export type AbstractInstanceType<T> = T extends { prototype: infer U }
 export type PK = string | number;
 
 export type State<T> = Readonly<{
-  entities: Readonly<{ [k: string]: { [id: string]: T } | undefined }>;
+  entities: Readonly<{ [entityKey: string]: { [pk: string]: T } | undefined }>;
+  indexes: Readonly<NormalizedIndex>;
   results: Readonly<{ [url: string]: unknown | PK[] | PK | undefined }>;
   meta: Readonly<{
     [url: string]: { date: number; error?: Error; expiresAt: number };

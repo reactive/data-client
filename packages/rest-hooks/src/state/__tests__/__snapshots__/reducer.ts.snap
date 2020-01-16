@@ -3,6 +3,7 @@
 exports[`reducer should set error in meta for "receive" 1`] = `
 Object {
   "entities": Object {},
+  "indexes": Object {},
   "meta": Object {
     "http://test.com/article/20": Object {
       "date": 5000000000,
@@ -27,6 +28,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "meta": Object {
     "http://test.com/article/20": Object {
       "date": 5000000000,
