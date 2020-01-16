@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.1.4](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.1.3...rest-hooks@4.1.4) (2020-01-16)
+
+
+### 💅 Enhancement
+
+* Don't export action types ([b91ca03](https://github.com/coinbase/rest-hooks/commit/b91ca03618d8909565cc87bdfa44c9489d3abc22))
+
+
+
 ### [4.1.3](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.1.2...rest-hooks@4.1.3) (2020-01-16)
 
 
