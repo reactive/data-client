@@ -157,7 +157,7 @@ describe('useFetcher', () => {
     console.error = oldError;
   });
 
-  it.only('should throw when providing a delete shape without an entity schema', () => {
+  it('should throw when providing a delete shape without an entity schema', () => {
     const badDeleteShape = {
       ...CoolerArticleResource.deleteShape(),
       schema: { data: CoolerArticleResource.asSchema(), other: 5 },
