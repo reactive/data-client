@@ -19,8 +19,12 @@ export default abstract class Entity extends SimpleRecord {
     throw new NotImplementedError();
   }
 
+  // TODO: add 'declare' once babel supports 'declare static' syntax
   /** Defines nested entities */
   static schema: { [k: string]: Schema } = {};
+
+  /** Defines indexes to enable lookup by */
+  static indexes?: string[];
 
   /**
    * A unique identifier for each Entity

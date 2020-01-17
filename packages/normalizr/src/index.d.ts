@@ -310,7 +310,15 @@ export type Schema =
   | SchemaArray
   | schema.SchemaClass;
 
-export type NormalizedSchema<E, R> = { entities: E; result: R };
+export type NormalizedIndex = {
+  [entityKey: string]: { [indexName: string]: { [lookup: string]: string } };
+};
+
+export type NormalizedSchema<E, R> = {
+  entities: E;
+  result: R;
+  indexes: NormalizedIndex;
+};
 
 export function normalize<
   S extends Schema = Schema,

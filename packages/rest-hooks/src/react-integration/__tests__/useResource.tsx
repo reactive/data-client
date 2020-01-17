@@ -18,6 +18,8 @@ import { DispatchContext, StateContext } from '../context';
 import { useResource } from '../hooks';
 import { payload, users, nested } from './fixtures';
 
+import { State } from '~/types';
+
 async function testDispatchFetch(
   Component: React.FunctionComponent<any>,
   payloads: any[],
@@ -195,13 +197,13 @@ describe('useResource()', () => {
     console.error = oldError;
   });
   it('should NOT suspend if result already in cache and options.invalidIfStale is false', () => {
-    const state = mockInitialState([
+    const state: State<unknown> = mockInitialState([
       {
         request: CoolerArticleResource.detailShape(),
         params: payload,
         result: payload,
       },
-    ]);
+    ]) as any;
 
     const tree = (
       <StateContext.Provider value={state}>
@@ -227,6 +229,7 @@ describe('useResource()', () => {
       results: {
         [fetchKey]: result,
       },
+      indexes: {},
       meta: {
         [fetchKey]: {
           date: 0,
@@ -263,6 +266,7 @@ describe('useResource()', () => {
       results: {
         [fetchKey]: result,
       },
+      indexes: {},
       meta: {
         [fetchKey]: {
           date: Infinity,
@@ -297,6 +301,7 @@ describe('useResource()', () => {
       results: {
         [fetchKey]: result,
       },
+      indexes: {},
       meta: {
         [fetchKey]: {
           date: 0,

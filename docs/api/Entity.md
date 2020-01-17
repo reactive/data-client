@@ -4,6 +4,7 @@ title: Entity
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--TypeScript-->
+
 ```typescript
 import { Entity } from 'rest-hooks';
 
@@ -19,7 +20,9 @@ export default class Article extends Entity {
   }
 }
 ```
+
 <!--Javascript-->
+
 ```js
 import { Entity } from 'rest-hooks';
 
@@ -35,6 +38,7 @@ export default class Article extends Entity {
   }
 }
 ```
+
 <!--END_DOCUSAURUS_CODE_TABS-->
 
 `Entity` extends [SimpleRecord](./SimpleRecord)
@@ -59,7 +63,7 @@ This is used to create new entities when normalizing data. These are stored in t
 
 ### abstract pk: (parent?: any, key?: string): string | number | undefined
 
-PK stands for *primary key* and is intended to provide a standard means of retrieving
+PK stands for _primary key_ and is intended to provide a standard means of retrieving
 a key identifier for any `Entity`. In many cases there will simply be an 'id' field
 member to return. In case of multicolumn you can simply join them together.
 
@@ -80,9 +84,11 @@ list results:
 //....
 return (
   <div>
-    {results.map(result => <TheThing key={result.pk()} thing={result} />)}
+    {results.map(result => (
+      <TheThing key={result.pk()} thing={result} />
+    ))}
   </div>
-)
+);
 ```
 
 #### Singleton Entities
@@ -127,11 +133,88 @@ class LatestPriceEntity extends Entity {
   readonly price: string = '0.0';
   readonly symbol: string = '';
 
-  static merge<T extends typeof SimpleRecord>(first: InstanceType<T>, second: InstanceType<T>) {
+  static merge<T extends typeof SimpleRecord>(
+    first: InstanceType<T>,
+    second: InstanceType<T>,
+  ) {
     if (first.timestamp > second.timestamp) return first;
     return second;
   }
 }
+```
+
+### static indexes?: (keyof this)[]
+
+Indexes enable increased performance when doing lookups based on those parameters. Add
+fieldnames (like `slug`, `username`) to the list that you want to send as params to lookup
+later.
+
+> #### Note:
+>
+> Don't add your primary key like `id` to the indexes list, as that will already be optimized.
+
+#### useResource()
+
+With [useResource()](./useResource) this will eagerly infer the results from entities table if possible,
+rendering without needing to complete the fetch. This is typically helpful when the entities
+cache has already been populated by another request like a list request.
+
+```typescript
+export class UserResource extends Resource {
+  readonly id: number | undefined = undefined;
+  readonly username: string = '';
+  readonly email: string = '';
+  readonly isAdmin: boolean = false;
+
+  pk() {
+    return this.id?.toString();
+  }
+
+  static urlRoot = 'http://test.com/user/';
+
+  // right here
+  static indexes = ['username'];
+}
+```
+
+```tsx
+const user = useResource(UserResource.detailShape(), { username: 'bob' });
+```
+
+#### useCache()
+
+With [useCache()](./useCache), this enables accessing results retrieved inside other requests - even
+if there is no endpoint it can be fetched from.
+
+```typescript
+class LatestPrice extends Entity {
+  readonly id: string = '';
+  readonly symbol: string = '';
+  readonly price: string = '0.0';
+}
+```
+
+```typescript
+class AssetResource extends Resource {
+  readonly id: string = '';
+  readonly price: string = '';
+
+  static schema = {
+    price: LatestPrice.asSchema(),
+  };
+}
+```
+
+Some top level component:
+
+```tsx
+const assets = useResource(AssetResource.listShape(), {});
+```
+
+Nested below:
+
+```tsx
+const price = useCache(LatestPrice.asSchema(), { symbol: 'BTC' });
 ```
 
 ### static asSchema() => [Entity](./Entity)

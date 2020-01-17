@@ -40,7 +40,7 @@ export default function useDenormalized<
 
     // in case we don't even have entities for a model yet, denormalize() will throw
     // entities[entitySchema.key] === undefined
-    return buildInferredResults(schema, params);
+    return buildInferredResults(schema, params, state.indexes);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cacheResults, params && getFetchKey(params)]);
 

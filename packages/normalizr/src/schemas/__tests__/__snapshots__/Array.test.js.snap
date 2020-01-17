@@ -681,6 +681,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": Array [
     123,
   ],
@@ -699,6 +700,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": Array [
     1,
     2,
@@ -718,6 +720,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": Array [
     1,
     2,
@@ -745,6 +748,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": Array [
     Object {
       "id": "123",
@@ -958,6 +962,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": Array [
     1,
     2,
@@ -977,6 +982,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": Array [
     1,
     2,
@@ -1005,6 +1011,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "result": 1,
 }
 `;

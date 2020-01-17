@@ -13,6 +13,7 @@ Object {
       },
     },
   },
+  "indexes": Object {},
   "meta": Object {
     "http://test.com/article-cooler/5": Object {
       "date": 50,

@@ -14,7 +14,7 @@ describe('useDenormalized()', () => {
     const params = { id: 5, title: 'bob', content: 'head' };
     const article = CoolerArticleResource.fromJS(params);
     describe('state is empty', () => {
-      const state = { entities: {}, results: {}, meta: {} };
+      const state = { entities: {}, results: {}, indexes: {}, meta: {} };
       const { result } = renderHook(() =>
         useDenormalized(CoolerArticleResource.detailShape(), { id: 5 }, state),
       );
@@ -37,6 +37,7 @@ describe('useDenormalized()', () => {
         results: {
           [CoolerArticleResource.detailShape().getFetchKey(params)]: params.id,
         },
+        indexes: {},
         meta: {},
       };
       const { result } = renderHook(() =>
@@ -67,6 +68,7 @@ describe('useDenormalized()', () => {
         results: {
           [CoolerArticleResource.detailShape().getFetchKey(params)]: params.id,
         },
+        indexes: {},
         meta: {},
       };
       const {
@@ -91,6 +93,7 @@ describe('useDenormalized()', () => {
         results: {
           [CoolerArticleResource.detailShape().getFetchKey(params)]: params.id,
         },
+        indexes: {},
         meta: {},
       };
       const {
@@ -117,6 +120,7 @@ describe('useDenormalized()', () => {
           },
         },
         results: {},
+        indexes: {},
         meta: {},
       };
       const {
@@ -143,6 +147,7 @@ describe('useDenormalized()', () => {
             [params.id]: pageArticle,
           },
         },
+        indexes: {},
         results: {},
         meta: {},
       };
@@ -175,6 +180,7 @@ describe('useDenormalized()', () => {
             urlParams,
           )]: params.id,
         },
+        indexes: {},
         meta: {},
       };
       const {
@@ -200,6 +206,7 @@ describe('useDenormalized()', () => {
         results: {
           [CoolerArticleResource.detailShape().getFetchKey(params)]: [5, 6, 7],
         },
+        indexes: {},
         meta: {},
       };
       const { result } = renderHook(() =>
@@ -216,6 +223,7 @@ describe('useDenormalized()', () => {
             results: [5, 6, 7],
           },
         },
+        indexes: {},
         meta: {},
       };
       const { result } = renderHook(() =>
@@ -238,6 +246,7 @@ describe('useDenormalized()', () => {
           [UserResource.key]: { [`${user.pk()}`]: user },
         },
         results: {},
+        indexes: {},
         meta: {},
       };
       const {
@@ -274,7 +283,7 @@ describe('useDenormalized()', () => {
       CoolerArticleResource.fromJS({ id: 34, title: 'five' }),
     ];
     describe('state is empty', () => {
-      const state = { entities: {}, results: {}, meta: {} };
+      const state = { entities: {}, results: {}, indexes: {}, meta: {} };
       const {
         result: {
           current: [value, found],
@@ -302,7 +311,7 @@ describe('useDenormalized()', () => {
         articles,
         CoolerArticleResource.listShape().schema,
       );
-      const state = { entities, results: {}, meta: {} };
+      const state = { entities, results: {}, indexes: {}, meta: {} };
       const {
         result: {
           current: [value, found],
@@ -329,6 +338,7 @@ describe('useDenormalized()', () => {
         results: {
           [CoolerArticleResource.listShape().getFetchKey(params)]: resultState,
         },
+        indexes: {},
         meta: {},
       };
       const {
@@ -358,6 +368,7 @@ describe('useDenormalized()', () => {
         results: {
           [CoolerArticleResource.listShape().getFetchKey(params)]: resultState,
         },
+        indexes: {},
         meta: {},
       };
       const {
@@ -391,6 +402,7 @@ describe('useDenormalized()', () => {
             params,
           )]: resultState,
         },
+        indexes: {},
         meta: {},
       };
       const {
@@ -422,6 +434,7 @@ describe('useDenormalized()', () => {
             params,
           )]: resultState,
         },
+        indexes: {},
         meta: {},
       };
       const {
@@ -448,6 +461,7 @@ describe('useDenormalized()', () => {
       const state = {
         entities,
         results: {},
+        indexes: {},
         meta: {},
       };
       const {

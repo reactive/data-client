@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   Resource,
   SchemaList,
@@ -120,6 +121,10 @@ export class CoolerArticleResource extends ArticleResource {
   get things() {
     return `${this.title} five`;
   }
+}
+
+export class IndexedUserResource extends UserResource {
+  static indexes = ['username'];
 }
 
 export class InvalidIfStaleArticleResource extends CoolerArticleResource {

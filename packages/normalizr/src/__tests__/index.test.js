@@ -22,6 +22,7 @@ describe('normalize', () => {
     expect(normalize('bob', mySchema)).toMatchInlineSnapshot(`
       Object {
         "entities": Object {},
+        "indexes": Object {},
         "result": "bob",
       }
     `);
@@ -56,6 +57,57 @@ describe('normalize', () => {
         { data: [mySchema], extra: '' },
       ),
     ).toMatchSnapshot();
+  });
+
+  test('normalizes schema with indexes', () => {
+    const mySchema = new schema.Entity('tacos');
+    mySchema.indexes = ['type'];
+
+    expect(
+      normalize(
+        {
+          data: [
+            { id: 1, type: 'foo' },
+            { id: 2, type: 'bar' },
+          ],
+          alt: { id: 2, type: 'bar2' },
+        },
+        { data: [mySchema], alt: mySchema },
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('normalizes warns on schemas with unfound indexes', () => {
+    const oldError = console.warn;
+    const spy = (console.warn = jest.fn());
+
+    const mySchema = new schema.Entity('tacos');
+    mySchema.indexes = ['notfound'];
+
+    expect(
+      normalize(
+        {
+          data: [
+            { id: 1, type: 'foo' },
+            { id: 2, type: 'bar' },
+          ],
+          alt: { id: 2, type: 'bar2' },
+        },
+        { data: [mySchema], alt: mySchema },
+      ),
+    ).toMatchSnapshot();
+
+    expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
+      Array [
+        "Index not found in entity. Indexes must be top-level members of your entity.
+      Index: notfound
+      Entity: {
+        \\"id\\": 1,
+        \\"type\\": \\"foo\\"
+      }",
+      ]
+    `);
+    console.warn = oldError;
   });
 
   test('normalizes entities with circular references', () => {
