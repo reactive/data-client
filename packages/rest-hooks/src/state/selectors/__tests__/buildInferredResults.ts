@@ -1,4 +1,8 @@
-import { CoolerArticleResource, UnionResource } from '__tests__/common';
+import {
+  CoolerArticleResource,
+  UnionResource,
+  IndexedUserResource,
+} from '__tests__/common';
 
 import { schemas } from '../../../resource';
 import buildInferredResults from '../buildInferredResults';
@@ -64,6 +68,84 @@ describe('buildInferredResults()', () => {
     expect(buildInferredResults(schema, { id: 5 }, {})).toEqual({
       pagination: { next: '', previous: '' },
       data: '5',
+    });
+  });
+
+  it('should work with indexes', () => {
+    const schema = {
+      pagination: { next: '', previous: '' },
+      data: IndexedUserResource.asSchema(),
+    };
+    expect(
+      buildInferredResults(
+        schema,
+        { username: 'bob' },
+        {
+          [IndexedUserResource.key]: {
+            username: {
+              bob: '5',
+            },
+          },
+        },
+      ),
+    ).toEqual({
+      pagination: { next: '', previous: '' },
+      data: '5',
+    });
+    expect(
+      buildInferredResults(
+        schema,
+        { username: 'bob', mary: 'five' },
+        {
+          [IndexedUserResource.key]: {
+            username: {
+              bob: '5',
+            },
+          },
+        },
+      ),
+    ).toEqual({
+      pagination: { next: '', previous: '' },
+      data: '5',
+    });
+  });
+
+  it('should work with indexes but none set', () => {
+    const schema = {
+      pagination: { next: '', previous: '' },
+      data: IndexedUserResource.asSchema(),
+    };
+    expect(
+      buildInferredResults(
+        schema,
+        { username: 'bob' },
+        {
+          [IndexedUserResource.key]: {
+            username: {
+              charles: '5',
+            },
+          },
+        },
+      ),
+    ).toEqual({
+      pagination: { next: '', previous: '' },
+      data: undefined,
+    });
+    expect(
+      buildInferredResults(
+        schema,
+        { hover: 'bob' },
+        {
+          [IndexedUserResource.key]: {
+            username: {
+              charles: '5',
+            },
+          },
+        },
+      ),
+    ).toEqual({
+      pagination: { next: '', previous: '' },
+      data: undefined,
     });
   });
 });

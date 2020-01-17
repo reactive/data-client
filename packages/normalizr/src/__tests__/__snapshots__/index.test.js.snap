@@ -292,6 +292,67 @@ Object {
 }
 `;
 
+exports[`normalize normalizes schema with indexes 1`] = `
+Object {
+  "entities": Object {
+    "tacos": Object {
+      "1": Object {
+        "id": 1,
+        "type": "foo",
+      },
+      "2": Object {
+        "id": 2,
+        "type": "bar2",
+      },
+    },
+  },
+  "indexes": Object {
+    "tacos": Object {
+      "type": Object {
+        "bar2": 2,
+        "foo": 1,
+      },
+    },
+  },
+  "result": Object {
+    "alt": 2,
+    "data": Array [
+      1,
+      2,
+    ],
+  },
+}
+`;
+
+exports[`normalize normalizes warns on schemas with unfound indexes 1`] = `
+Object {
+  "entities": Object {
+    "tacos": Object {
+      "1": Object {
+        "id": 1,
+        "type": "foo",
+      },
+      "2": Object {
+        "id": 2,
+        "type": "bar2",
+      },
+    },
+  },
+  "indexes": Object {
+    "tacos": Object {
+      "notfound": Object {},
+    },
+  },
+  "result": Object {
+    "alt": 2,
+    "data": Array [
+      1,
+      2,
+    ],
+  },
+}
+`;
+
 exports[`normalize passes over pre-normalized values 1`] = `
 Object {
   "entities": Object {
