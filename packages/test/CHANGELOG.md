@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.11](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@1.0.9...@rest-hooks/test@1.0.11) (2020-01-17)
+
+
+### 🏠 Internal
+
+* Fix test package version ([f3a5a25](https://github.com/coinbase/rest-hooks/commit/f3a5a2507378e810f705b63fcc3ea3cb6869f7a3))
+
+
+
 ### [1.0.9](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@1.0.8...@rest-hooks/test@1.0.9) (2020-01-16)
 
 **Note:** Version bump only for package @rest-hooks/test

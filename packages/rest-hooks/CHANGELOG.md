@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.2.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.1.3...rest-hooks@4.2.0) (2020-01-17)
+
+
+### 🚀 Features
+
+* Add indexes to Entity for improved performance ([#237](https://github.com/coinbase/rest-hooks/issues/237)) ([a2339f0](https://github.com/coinbase/rest-hooks/commit/a2339f0e61e9446da87af85440061b060ad0f444))
+
+
+### 💅 Enhancement
+
+* Devmode: Throw error if delete shape fetched with wrong schema ([#240](https://github.com/coinbase/rest-hooks/issues/240)) ([130e070](https://github.com/coinbase/rest-hooks/commit/130e07059936d255d72ef9ee35a738c755fada00))
+* Don't export action types ([#239](https://github.com/coinbase/rest-hooks/issues/239)) ([41fedfe](https://github.com/coinbase/rest-hooks/commit/41fedfe1890834950e5330c61329abe6d734e768))
+
+
+### 🐛 Bug Fix
+
+* Test coverage ([c3d51e2](https://github.com/coinbase/rest-hooks/commit/c3d51e2927d48dfdda51764fc6e0fabb27b4dbaf))
+
+
+
 ### [4.1.3](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.1.2...rest-hooks@4.1.3) (2020-01-16)
 
 

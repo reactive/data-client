@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@4.2.0...@rest-hooks/normalizr@4.3.0) (2020-01-17)
+
+
+### 🚀 Features
+
+* Add indexes to Entity for improved performance ([#237](https://github.com/coinbase/rest-hooks/issues/237)) ([a2339f0](https://github.com/coinbase/rest-hooks/commit/a2339f0e61e9446da87af85440061b060ad0f444))
+
+
+
 ## [4.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@4.1.1...@rest-hooks/normalizr@4.2.0) (2020-01-06)
 
 
