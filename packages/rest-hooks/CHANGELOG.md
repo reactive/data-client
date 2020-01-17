@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.2.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.2.0...rest-hooks@4.2.1) (2020-01-17)
+
+
+### 💅 Enhancement
+
+* Add buildInferredResults and isEntity to __INTERNAL__ ([f88717b](https://github.com/coinbase/rest-hooks/commit/f88717b82b06f7226a6ca3044d47d311744a881d))
+
+
+
 ## [4.2.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.1.3...rest-hooks@4.2.0) (2020-01-17)
 
 
