@@ -721,6 +721,9 @@
       },
       "version-4.1/guides/version-4.1-url": {
         "title": "URL Patterns"
+      },
+      "version-4.2/api/version-4.2-Entity": {
+        "title": "Entity"
       }
     },
     "links": {

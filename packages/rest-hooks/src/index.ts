@@ -1,10 +1,17 @@
-import { Resource, SimpleResource, SimpleRecord, Entity } from './resource';
+import {
+  Resource,
+  SimpleResource,
+  SimpleRecord,
+  Entity,
+  isEntity,
+} from './resource';
 import NetworkManager from './state/NetworkManager';
 import RIC from './state/RIC';
 import PollingSubscription from './state/PollingSubscription';
 import SubscriptionManager from './state/SubscriptionManager';
 import reducer, { initialState } from './state/reducer';
 import { useDenormalized } from './state/selectors';
+import buildInferredResults from './state/selectors/buildInferredResults';
 import {
   useCache,
   useFetcher,
@@ -31,6 +38,8 @@ const __INTERNAL__ = {
   DispatchContext,
   RIC,
   hasUsableData,
+  buildInferredResults,
+  isEntity,
 };
 
 export type NetworkError = OGNetworkError;
