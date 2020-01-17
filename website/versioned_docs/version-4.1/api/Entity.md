@@ -136,6 +136,10 @@ class LatestPriceEntity extends Entity {
 }
 ```
 
+### static schema: { [k: keyof this]: Schema }
+
+Set this to [define entities nested](../guides/nested-response) inside this one.
+
 ### static asSchema() => [Entity](./Entity)
 
 Returns this `Entity` with the TypeScript type set properly. Using `asSchema()` instead of
