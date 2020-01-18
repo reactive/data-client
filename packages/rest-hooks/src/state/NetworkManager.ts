@@ -1,13 +1,13 @@
 import { memoize } from 'lodash';
 
 import RIC from './RIC';
+import { createReceive, createReceiveError } from './actionCreators';
 
 import {
   FetchAction,
   ReceiveAction,
   MiddlewareAPI,
   Manager,
-  PurgeAction,
   Dispatch,
 } from '~/types';
 import {
@@ -17,7 +17,10 @@ import {
   FETCH_TYPE,
   RESET_TYPE,
 } from '~/actionTypes';
-import { RPCAction } from '..';
+
+class CleanupError extends Error {
+  message = 'Cleaning up Network Manager';
+}
 
 /** Handles all async network dispatches
  *
@@ -40,9 +43,7 @@ export default class NetworkManager implements Manager {
   /** Ensures all promises are completed by rejecting remaining. */
   cleanup() {
     for (const k in this.rejectors) {
-      const error = new Error('Cleaning up Network Manager');
-      error.name = 'CLEANUP';
-      this.rejectors[k](error);
+      this.rejectors[k](new CleanupError());
     }
   }
 
@@ -63,62 +64,16 @@ export default class NetworkManager implements Manager {
    */
   protected handleFetch(action: FetchAction, dispatch: Dispatch<any>) {
     const fetch = action.payload;
-    const {
-      schema,
-      url,
-      responseType,
-      throttle,
-      resolve,
-      updaters,
-      reject,
-      options = {},
-    } = action.meta;
-    const {
-      dataExpiryLength = this.dataExpiryLength,
-      errorExpiryLength = this.errorExpiryLength,
-    } = options;
-
+    const { url, throttle, resolve, reject } = action.meta;
     const deferedFetch = () =>
       fetch()
         .then(data => {
-          const now = Date.now();
-          const meta:
-            | ReceiveAction['meta']
-            | RPCAction['meta']
-            | PurgeAction['meta'] = {
-            schema,
-            url,
-            date: now,
-            expiresAt: now + dataExpiryLength,
-          };
-          if (
-            ([RECEIVE_TYPE, RECEIVE_MUTATE_TYPE] as string[]).includes(
-              responseType,
-            )
-          ) {
-            meta.updaters = updaters;
-          }
-          dispatch({
-            type: responseType,
-            payload: data,
-            meta,
-          });
+          dispatch(createReceive(data, action.meta, this));
           return data;
         })
         .catch(error => {
-          if (error.name === 'CLEANUP') return;
-          const now = Date.now();
-          dispatch({
-            type: responseType,
-            payload: error,
-            meta: {
-              schema,
-              url,
-              date: now,
-              expiresAt: now + errorExpiryLength,
-            },
-            error: true,
-          });
+          if (error instanceof CleanupError) return;
+          dispatch(createReceiveError(error, action.meta, this));
           throw error;
         });
     let promise;
