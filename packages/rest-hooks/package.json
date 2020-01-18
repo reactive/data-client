@@ -1,6 +1,6 @@
 {
   "name": "rest-hooks",
-  "version": "4.2.2",
+  "version": "4.2.3",
   "description": "Delightful data fetching for React",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
@@ -66,7 +66,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.2",
-    "@rest-hooks/normalizr": "^4.3.1",
+    "@rest-hooks/normalizr": "^4.3.2",
     "@types/lodash": "^4.14.149",
     "flux-standard-action": "^2.1.1",
     "lodash": "^4.17.15"
