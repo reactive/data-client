@@ -38,7 +38,7 @@ export const denormalize = (schema, input, unvisit) => {
   let found = true;
   Object.keys(schema).forEach(key => {
     const [item, foundItem] = unvisit(object[key], schema[key]);
-    if (object[key] != null) {
+    if (object[key] !== undefined) {
       object[key] = item;
     }
     if (!foundItem) {

@@ -89,6 +89,35 @@ Array [
       },
     ],
     "extra": "5",
+    "page": Object {
+      "complex": Object {
+        "complex": false,
+        "next": true,
+      },
+      "first": null,
+      "second": Object {
+        "thing": "two",
+      },
+      "third": 1,
+    },
+  },
+  true,
+]
+`;
+
+exports[`denormalize denormalizes schema with extra members but not set 1`] = `
+Array [
+  Object {
+    "data": Array [
+      Object {
+        "id": 1,
+        "type": "foo",
+      },
+      Object {
+        "id": 2,
+        "type": "bar",
+      },
+    ],
   },
   true,
 ]
@@ -292,9 +321,6 @@ Object {
       "complex": Object {
         "complex": false,
         "next": true,
-      },
-      "first": Object {
-        "whenever": "five",
       },
       "second": Object {
         "thing": "two",
