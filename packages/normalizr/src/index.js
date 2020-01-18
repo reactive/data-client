@@ -156,6 +156,8 @@ const getUnvisit = entities => {
   const getEntity = getEntities(entities);
 
   return function unvisit(input, schema) {
+    if (!schema) return [input, true];
+
     if (
       typeof schema === 'object' &&
       (!schema.denormalize || typeof schema.denormalize !== 'function')
@@ -209,6 +211,10 @@ const getEntities = entities => {
 };
 
 export const denormalize = (input, schema, entities) => {
+  /* istanbul ignore next */
+  // eslint-disable-next-line no-undef
+  if (process.env.NODE_ENV !== 'production' && schema === undefined)
+    throw new Error('shema needed');
   if (typeof input !== 'undefined') {
     return getUnvisit(entities)(input, schema);
   }

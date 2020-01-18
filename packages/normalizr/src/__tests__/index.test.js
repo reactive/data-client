@@ -54,7 +54,7 @@ describe('normalize', () => {
           ],
           extra: 'five',
           page: {
-            first: { whenever: 'five' },
+            first: null,
             second: { thing: 'two' },
             third: 1,
             complex: { complex: false, next: true },
@@ -379,8 +379,54 @@ describe('denormalize', () => {
     };
     expect(
       denormalize(
-        { data: [1, 2], extra: '5' },
-        { data: [mySchema], extra: '' },
+        {
+          data: [1, 2],
+          extra: '5',
+          page: {
+            first: null,
+            second: { thing: 'two' },
+            third: 1,
+            complex: { complex: false, next: true },
+          },
+        },
+        {
+          data: [mySchema],
+          extra: '',
+          page: {
+            first: null,
+            second: undefined,
+            third: 0,
+            complex: { complex: true, next: false },
+          },
+        },
+        entities,
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('denormalizes schema with extra members but not set', () => {
+    const mySchema = new schema.Entity('tacos');
+    const entities = {
+      tacos: {
+        1: { id: 1, type: 'foo' },
+        2: { id: 2, type: 'bar' },
+      },
+    };
+    expect(
+      denormalize(
+        {
+          data: [1, 2],
+        },
+        {
+          data: [mySchema],
+          extra: '',
+          page: {
+            first: null,
+            second: undefined,
+            third: 0,
+            complex: { complex: true, next: false },
+          },
+        },
         entities,
       ),
     ).toMatchSnapshot();
