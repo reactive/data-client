@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.3.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@4.3.0...@rest-hooks/normalizr@4.3.1) (2020-01-18)
+
+
+### 🐛 Bug Fix
+
+* Support extra members of schema that are only sometimes empty ([#243](https://github.com/coinbase/rest-hooks/issues/243)) ([74916a3](https://github.com/coinbase/rest-hooks/commit/74916a3f9c5a0e5a9843a6211517dfeff1b86eb6))
+
+
+
 ## [4.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@4.2.0...@rest-hooks/normalizr@4.3.0) (2020-01-17)
 
 
