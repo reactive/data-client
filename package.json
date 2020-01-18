@@ -47,7 +47,7 @@
     "@commitlint/config-conventional": "^8.3.4",
     "@testing-library/react": "^9.4.0",
     "@testing-library/react-hooks": "^3.2.1",
-    "@types/jest": "^24.0.25",
+    "@types/jest": "^24.9.0",
     "@types/lodash": "^4.14.149",
     "@types/react": "^16.9.17",
     "@zerollup/ts-transform-paths": "^1.7.11",
@@ -79,7 +79,7 @@
     "ts-jest": "^24.3.0",
     "ts-node": "^8.6.2",
     "ttypescript": "^1.5.10",
-    "typescript": "^3.7.4",
+    "typescript": "^3.7.5",
     "whatwg-fetch": "^3.0.0"
   },
   "resolutions": {
