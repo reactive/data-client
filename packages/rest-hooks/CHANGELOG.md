@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.2.4](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.2.3...rest-hooks@4.2.4) (2020-01-18)
+
+
+### 🐛 Bug Fix
+
+* Entity export ([c4d3136](https://github.com/coinbase/rest-hooks/commit/c4d3136f47945960e4b7bdeab7bc108b33ecd268))
+
+
+
 ### [4.2.3](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.2.2...rest-hooks@4.2.3) (2020-01-18)
 
 **Note:** Version bump only for package rest-hooks
