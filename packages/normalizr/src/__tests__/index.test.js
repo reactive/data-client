@@ -53,8 +53,48 @@ describe('normalize', () => {
             { id: 2, type: 'bar' },
           ],
           extra: 'five',
+          page: {
+            first: { whenever: 'five' },
+            second: { thing: 'two' },
+            third: 1,
+            complex: { complex: false, next: true },
+          },
         },
-        { data: [mySchema], extra: '' },
+        {
+          data: [mySchema],
+          extra: '',
+          page: {
+            first: null,
+            second: undefined,
+            third: 0,
+            complex: { complex: true, next: false },
+          },
+        },
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('normalizes schema with extra members but not set', () => {
+    const mySchema = new schema.Entity('tacos');
+
+    expect(
+      normalize(
+        {
+          data: [
+            { id: 1, type: 'foo' },
+            { id: 2, type: 'bar' },
+          ],
+        },
+        {
+          data: [mySchema],
+          extra: '',
+          page: {
+            first: null,
+            second: undefined,
+            third: 0,
+            complex: { complex: true, next: false },
+          },
+        },
       ),
     ).toMatchSnapshot();
   });

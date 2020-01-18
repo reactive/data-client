@@ -288,6 +288,43 @@ Object {
       2,
     ],
     "extra": "five",
+    "page": Object {
+      "complex": Object {
+        "complex": false,
+        "next": true,
+      },
+      "first": Object {
+        "whenever": "five",
+      },
+      "second": Object {
+        "thing": "two",
+      },
+      "third": 1,
+    },
+  },
+}
+`;
+
+exports[`normalize normalizes schema with extra members but not set 1`] = `
+Object {
+  "entities": Object {
+    "tacos": Object {
+      "1": Object {
+        "id": 1,
+        "type": "foo",
+      },
+      "2": Object {
+        "id": 2,
+        "type": "bar",
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": Object {
+    "data": Array [
+      1,
+      2,
+    ],
   },
 }
 `;
