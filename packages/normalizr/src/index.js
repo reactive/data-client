@@ -6,7 +6,7 @@ import ArraySchema, * as ArrayUtils from './schemas/Array';
 import ObjectSchema, * as ObjectUtils from './schemas/Object';
 
 const visit = (value, parent, key, schema, addEntity, visitedEntities) => {
-  if (typeof value !== 'object' || !value) {
+  if (typeof value !== 'object' || !value || !schema) {
     return value;
   }
 
