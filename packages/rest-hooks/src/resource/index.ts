@@ -1,5 +1,5 @@
 import Resource from './Resource';
-import Entity from './Resource';
+import Entity from './Entity';
 import SimpleResource from './SimpleResource';
 import SimpleRecord from './SimpleRecord';
 export * from './shapes';
