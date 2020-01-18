@@ -122,7 +122,7 @@ export default class NetworkManager implements Manager {
         switch (action.type) {
           case FETCH_TYPE:
             this.handleFetch(action, dispatch);
-            return Promise.resolve();
+            return next(action);
           case RECEIVE_DELETE_TYPE:
           case RECEIVE_MUTATE_TYPE:
           case RECEIVE_TYPE:

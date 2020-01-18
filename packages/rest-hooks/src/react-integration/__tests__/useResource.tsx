@@ -19,6 +19,7 @@ import { useResource } from '../hooks';
 import { payload, users, nested } from './fixtures';
 
 import { State } from '~/types';
+import { initialState } from '~/state/reducer';
 
 async function testDispatchFetch(
   Component: React.FunctionComponent<any>,
@@ -225,11 +226,11 @@ describe('useResource()', () => {
     );
     const fetchKey = CoolerArticleResource.detailShape().getFetchKey(payload);
     const state = {
+      ...initialState,
       entities,
       results: {
         [fetchKey]: result,
       },
-      indexes: {},
       meta: {
         [fetchKey]: {
           date: 0,
@@ -262,11 +263,11 @@ describe('useResource()', () => {
       payload,
     );
     const state = {
+      ...initialState,
       entities,
       results: {
         [fetchKey]: result,
       },
-      indexes: {},
       meta: {
         [fetchKey]: {
           date: Infinity,
@@ -297,11 +298,11 @@ describe('useResource()', () => {
       payload,
     );
     const state = {
+      ...initialState,
       entities,
       results: {
         [fetchKey]: result,
       },
-      indexes: {},
       meta: {
         [fetchKey]: {
           date: 0,

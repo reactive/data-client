@@ -99,7 +99,7 @@ describe('NetworkManager', () => {
 
       const data = await fetchResolveAction.payload();
 
-      expect(next).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalled();
       expect(dispatch).toHaveBeenCalledWith({
         type: fetchResolveAction.meta.responseType,
         payload: data,
@@ -121,7 +121,7 @@ describe('NetworkManager', () => {
 
       const data = await fetchReceiveWithUpdatersAction.payload();
 
-      expect(next).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalled();
       expect(dispatch).toHaveBeenCalledWith({
         type: fetchReceiveWithUpdatersAction.meta.responseType,
         payload: data,
@@ -146,7 +146,7 @@ describe('NetworkManager', () => {
 
       const data = await fetchRpcWithUpdatersAction.payload();
 
-      expect(next).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalled();
       expect(dispatch).toHaveBeenCalledWith({
         type: fetchRpcWithUpdatersAction.meta.responseType,
         payload: data,

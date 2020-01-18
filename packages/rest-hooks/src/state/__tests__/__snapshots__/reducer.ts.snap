@@ -11,6 +11,7 @@ Object {
       "expiresAt": 5000500000,
     },
   },
+  "optimistic": Array [],
   "results": Object {},
 }
 `;
@@ -35,6 +36,7 @@ Object {
       "expiresAt": 5000500000,
     },
   },
+  "optimistic": Array [],
   "results": Object {
     "http://test.com/article/20": "20",
   },

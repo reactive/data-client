@@ -35,6 +35,7 @@ export type State<T> = Readonly<{
   meta: Readonly<{
     [url: string]: { date: number; error?: Error; expiresAt: number };
   }>;
+  optimistic: ResponseActions[];
 }>;
 
 export interface FetchOptions {
@@ -46,6 +47,11 @@ export interface FetchOptions {
   readonly pollFrequency?: number;
   /** Marks cached resources as invalid if they are stale */
   readonly invalidIfStale?: boolean;
+  /** Enables optimistic updates for this request - uses return value as assumed network response */
+  readonly optimisticUpdate?: (
+    params: Readonly<object>,
+    body: Readonly<object | string> | void,
+  ) => any;
 }
 
 interface ReceiveMeta<S extends Schema> {
@@ -101,7 +107,10 @@ export type UpdateFunction<
   destResults: Normalize<DestSchema> | undefined,
 ) => Normalize<DestSchema>;
 
-interface FetchMeta<S extends Schema> {
+interface FetchMeta<
+  Payload extends object | string | number = object | string | number,
+  S extends Schema = any
+> {
   responseType: ReceiveTypes;
   url: string;
   schema: S;
@@ -110,6 +119,7 @@ interface FetchMeta<S extends Schema> {
   options?: FetchOptions;
   resolve: (value?: any | PromiseLike<any>) => void;
   reject: (reason?: any) => void;
+  optimisticResponse?: Payload;
 }
 
 export interface FetchAction<
@@ -119,9 +129,9 @@ export interface FetchAction<
   extends FSAWithPayloadAndMeta<
     typeof FETCH_TYPE,
     () => Promise<Payload>,
-    FetchMeta<any>
+    FetchMeta<any, any>
   > {
-  meta: FetchMeta<S>;
+  meta: FetchMeta<Payload, S>;
 }
 
 export interface SubscribeAction

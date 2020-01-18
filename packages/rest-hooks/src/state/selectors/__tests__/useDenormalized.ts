@@ -6,15 +6,17 @@ import {
   UserResource,
 } from '__tests__/common';
 
-import { normalize } from '../../../resource';
 import useDenormalized from '../useDenormalized';
+
+import { normalize } from '~/resource';
+import { initialState } from '~/state/reducer';
 
 describe('useDenormalized()', () => {
   describe('Single', () => {
     const params = { id: 5, title: 'bob', content: 'head' };
     const article = CoolerArticleResource.fromJS(params);
     describe('state is empty', () => {
-      const state = { entities: {}, results: {}, indexes: {}, meta: {} };
+      const state = initialState;
       const { result } = renderHook(() =>
         useDenormalized(CoolerArticleResource.detailShape(), { id: 5 }, state),
       );
@@ -29,6 +31,7 @@ describe('useDenormalized()', () => {
     });
     describe('state is populated just not with our query', () => {
       const state = {
+        ...initialState,
         entities: {
           [CoolerArticleResource.key]: {
             [params.id]: article,
@@ -37,8 +40,6 @@ describe('useDenormalized()', () => {
         results: {
           [CoolerArticleResource.detailShape().getFetchKey(params)]: params.id,
         },
-        indexes: {},
-        meta: {},
       };
       const { result } = renderHook(() =>
         useDenormalized(
@@ -60,6 +61,7 @@ describe('useDenormalized()', () => {
     });
     describe('when state exists', () => {
       const state = {
+        ...initialState,
         entities: {
           [CoolerArticleResource.key]: {
             [params.id]: article,
@@ -68,8 +70,6 @@ describe('useDenormalized()', () => {
         results: {
           [CoolerArticleResource.detailShape().getFetchKey(params)]: params.id,
         },
-        indexes: {},
-        meta: {},
       };
       const {
         result: {
@@ -89,12 +89,11 @@ describe('useDenormalized()', () => {
     });
     describe('without entity with defined results', () => {
       const state = {
+        ...initialState,
         entities: { [CoolerArticleResource.key]: {} },
         results: {
           [CoolerArticleResource.detailShape().getFetchKey(params)]: params.id,
         },
-        indexes: {},
-        meta: {},
       };
       const {
         result: {
@@ -114,14 +113,12 @@ describe('useDenormalized()', () => {
     });
     describe('no result exists but primary key is used', () => {
       const state = {
+        ...initialState,
         entities: {
           [CoolerArticleResource.key]: {
             [params.id]: article,
           },
         },
-        results: {},
-        indexes: {},
-        meta: {},
       };
       const {
         result: {
@@ -142,14 +139,12 @@ describe('useDenormalized()', () => {
     describe('no result exists but primary key is used when using nested schema', () => {
       const pageArticle = PaginatedArticleResource.fromJS(article);
       const state = {
+        ...initialState,
         entities: {
           [PaginatedArticleResource.key]: {
             [params.id]: pageArticle,
           },
         },
-        indexes: {},
-        results: {},
-        meta: {},
       };
       const {
         result: {
@@ -170,6 +165,7 @@ describe('useDenormalized()', () => {
     describe('not using primary key as param', () => {
       const urlParams = { title: 'bob' };
       const state = {
+        ...initialState,
         entities: {
           [CoolerArticleResource.key]: {
             [params.id]: article,
@@ -180,8 +176,6 @@ describe('useDenormalized()', () => {
             urlParams,
           )]: params.id,
         },
-        indexes: {},
-        meta: {},
       };
       const {
         result: {
@@ -202,12 +196,10 @@ describe('useDenormalized()', () => {
     it('should throw when results are Array', () => {
       const params = { title: 'bob' };
       const state = {
-        entities: {},
+        ...initialState,
         results: {
           [CoolerArticleResource.detailShape().getFetchKey(params)]: [5, 6, 7],
         },
-        indexes: {},
-        meta: {},
       };
       const { result } = renderHook(() =>
         useDenormalized(CoolerArticleResource.detailShape(), params, state),
@@ -217,14 +209,12 @@ describe('useDenormalized()', () => {
     it('should throw when results are Object', () => {
       const params = { title: 'bob' };
       const state = {
-        entities: {},
+        ...initialState,
         results: {
           [CoolerArticleResource.detailShape().getFetchKey(params)]: {
             results: [5, 6, 7],
           },
         },
-        indexes: {},
-        meta: {},
       };
       const { result } = renderHook(() =>
         useDenormalized(CoolerArticleResource.detailShape(), params, state),
@@ -239,15 +229,13 @@ describe('useDenormalized()', () => {
       const user = UserResource.fromJS({ id: 23, username: 'anne' });
 
       const state = {
+        ...initialState,
         entities: {
           [NestedArticleResource.key]: {
             [`${nestedArticle.pk()}`]: nestedArticle,
           },
           [UserResource.key]: { [`${user.pk()}`]: user },
         },
-        results: {},
-        indexes: {},
-        meta: {},
       };
       const {
         result: {
@@ -283,7 +271,7 @@ describe('useDenormalized()', () => {
       CoolerArticleResource.fromJS({ id: 34, title: 'five' }),
     ];
     describe('state is empty', () => {
-      const state = { entities: {}, results: {}, indexes: {}, meta: {} };
+      const state = initialState;
       const {
         result: {
           current: [value, found],
@@ -311,7 +299,7 @@ describe('useDenormalized()', () => {
         articles,
         CoolerArticleResource.listShape().schema,
       );
-      const state = { entities, results: {}, indexes: {}, meta: {} };
+      const state = initialState;
       const {
         result: {
           current: [value, found],
@@ -334,12 +322,11 @@ describe('useDenormalized()', () => {
         CoolerArticleResource.listShape().schema,
       );
       const state = {
+        ...initialState,
         entities,
         results: {
           [CoolerArticleResource.listShape().getFetchKey(params)]: resultState,
         },
-        indexes: {},
-        meta: {},
       };
       const {
         result: {
@@ -364,12 +351,11 @@ describe('useDenormalized()', () => {
       );
       delete entities[CoolerArticleResource.key]['5'];
       const state = {
+        ...initialState,
         entities,
         results: {
           [CoolerArticleResource.listShape().getFetchKey(params)]: resultState,
         },
-        indexes: {},
-        meta: {},
       };
       const {
         result: {
@@ -396,14 +382,13 @@ describe('useDenormalized()', () => {
       );
       delete entities[PaginatedArticleResource.key]['5'];
       const state = {
+        ...initialState,
         entities,
         results: {
           [PaginatedArticleResource.listShape().getFetchKey(
             params,
           )]: resultState,
         },
-        indexes: {},
-        meta: {},
       };
       const {
         result: {
@@ -428,14 +413,13 @@ describe('useDenormalized()', () => {
         PaginatedArticleResource.listShape().schema,
       );
       const state = {
+        ...initialState,
         entities,
         results: {
           [PaginatedArticleResource.listShape().getFetchKey(
             params,
           )]: resultState,
         },
-        indexes: {},
-        meta: {},
       };
       const {
         result: {
@@ -459,10 +443,8 @@ describe('useDenormalized()', () => {
         PaginatedArticleResource.listShape().schema,
       );
       const state = {
+        ...initialState,
         entities,
-        results: {},
-        indexes: {},
-        meta: {},
       };
       const {
         result: {

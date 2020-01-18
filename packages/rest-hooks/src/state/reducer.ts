@@ -2,7 +2,8 @@ import mergeDeepCopy from './merge/mergeDeepCopy';
 import applyUpdatersToResults from './applyUpdatersToResults';
 
 import { normalize } from '~/resource';
-import { ActionTypes, State } from '~/types';
+import { ActionTypes, State, ResponseActions } from '~/types';
+import { createReceive } from '~/state/actionCreators';
 import {
   RECEIVE_TYPE,
   RECEIVE_MUTATE_TYPE,
@@ -17,6 +18,7 @@ export const initialState: State<unknown> = {
   indexes: {},
   results: {},
   meta: {},
+  optimistic: [],
 };
 
 export default function reducer(
@@ -25,6 +27,19 @@ export default function reducer(
 ): State<unknown> {
   if (!state) state = initialState;
   switch (action.type) {
+    case FETCH_TYPE: {
+      const optimisticResponse = action.meta.optimisticResponse;
+      if (!optimisticResponse) return state;
+      return {
+        ...state,
+        optimistic: [
+          ...state.optimistic,
+          createReceive(optimisticResponse, action.meta, {
+            dataExpiryLength: 9999999999999,
+          }),
+        ],
+      };
+    }
     case RECEIVE_TYPE: {
       if (action.error) {
         return {
@@ -37,6 +52,7 @@ export default function reducer(
               expiresAt: action.meta.expiresAt,
             },
           },
+          optimistic: filterOptimistic(state, action),
         };
       }
       const { result, entities, indexes } = normalize(
@@ -59,10 +75,12 @@ export default function reducer(
             expiresAt: action.meta.expiresAt,
           },
         },
+        optimistic: filterOptimistic(state, action),
       };
     }
     case RECEIVE_MUTATE_TYPE: {
-      if (action.error) return state;
+      if (action.error)
+        return { ...state, optimistic: filterOptimistic(state, action) };
       const { entities, result, indexes } = normalize(
         action.payload,
         action.meta.schema,
@@ -77,16 +95,19 @@ export default function reducer(
         entities: mergeDeepCopy(state.entities, entities),
         indexes: mergeDeepCopy(state.indexes, indexes),
         results,
+        optimistic: filterOptimistic(state, action),
       };
     }
     case RECEIVE_DELETE_TYPE: {
-      if (action.error) return state;
+      if (action.error)
+        return { ...state, optimistic: filterOptimistic(state, action) };
       const key = action.meta.schema.key;
       const pk = action.meta.url;
       const entities = purgeEntity(state.entities, key, pk);
       return {
         ...state,
         entities,
+        optimistic: filterOptimistic(state, action),
       };
     }
     case INVALIDATE_TYPE:
@@ -105,14 +126,14 @@ export default function reducer(
 
     default:
       // If 'fetch' action reaches the reducer there are no middlewares installed to handle it
-      if (process.env.NODE_ENV !== 'production' && action.type === FETCH_TYPE) {
+      /*if (process.env.NODE_ENV !== 'production' && action.type === FETCH_TYPE) {
         console.warn(
           'Reducer recieved fetch action - you are likely missing the NetworkManager middleware',
         );
         console.warn(
           'See https://resthooks.io/docs/guides/redux#indextsx for hooking up redux',
         );
-      }
+      }*/
       // A reducer must always return a valid state.
       // Alternatively you can throw an error if an invalid action is dispatched.
       return state;
@@ -120,6 +141,12 @@ export default function reducer(
 }
 
 type Writable<T> = { [P in keyof T]: NonNullable<T[P]> };
+
+function filterOptimistic(state: State<unknown>, action: ResponseActions) {
+  return state.optimistic.filter(
+    optimisticAction => optimisticAction.meta.url !== action.meta.url,
+  );
+}
 
 // equivalent to entities.deleteIn(key, pk)
 function purgeEntity(

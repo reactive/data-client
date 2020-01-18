@@ -89,10 +89,8 @@ describe('reducer', () => {
       },
     };
     const iniState = {
-      entities: {},
-      indexes: {},
+      ...initialState,
       results: { abc: '5' },
-      meta: {},
     };
     const newState = reducer(iniState, action);
     expect(newState.results).toBe(iniState.results);
@@ -107,6 +105,7 @@ describe('reducer', () => {
       },
     };
     const iniState: any = {
+      ...initialState,
       entities: {
         [ArticleResource.key]: {
           '10': ArticleResource.fromJS({ id: 10 }),
@@ -119,7 +118,6 @@ describe('reducer', () => {
         '5': undefined,
       },
       results: { abc: '20' },
-      meta: {},
     };
     const newState = reducer(iniState, action);
     expect(newState.results).toBe(iniState.results);
@@ -177,6 +175,7 @@ describe('reducer', () => {
       });
 
       const iniState: any = {
+        ...initialState,
         entities: {
           [PaginatedArticleResource.key]: {
             '10': PaginatedArticleResource.fromJS({ id: 10 }),
@@ -185,7 +184,6 @@ describe('reducer', () => {
         results: {
           [PaginatedArticleResource.listUrl()]: { results: ['10'] },
         },
-        meta: {},
       };
 
       it('should insert a new page of resources into a list request', () => {
@@ -252,6 +250,7 @@ describe('reducer', () => {
       ) => [result, ...(oldResults || [])];
 
       const iniState: any = {
+        ...initialState,
         entities: {
           [ArticleResourceWithOtherListUrl.key]: {
             '10': ArticleResourceWithOtherListUrl.fromJS({ id: 10 }),
@@ -262,7 +261,6 @@ describe('reducer', () => {
           [ArticleResourceWithOtherListUrl.listUrl()]: ['10'],
           [ArticleResourceWithOtherListUrl.otherListUrl()]: ['21'],
         },
-        meta: {},
       };
 
       it('it should run inserts for a simple resource after the existing list entities', () => {
@@ -327,6 +325,7 @@ describe('reducer', () => {
       },
     };
     const iniState: any = {
+      ...initialState,
       entities: {
         [ArticleResource.key]: {
           '10': ArticleResource.fromJS({ id: 10 }),
@@ -369,12 +368,7 @@ describe('reducer', () => {
       },
       error: true,
     };
-    const iniState = {
-      entities: {},
-      results: {},
-      indexes: {},
-      meta: {},
-    };
+    const iniState = initialState;
     const newState = reducer(iniState, action);
     expect(newState).toMatchSnapshot();
   });
@@ -390,12 +384,7 @@ describe('reducer', () => {
       },
       error: true,
     };
-    const iniState = {
-      entities: {},
-      results: {},
-      indexes: {},
-      meta: {},
-    };
+    const iniState = initialState;
     const newState = reducer(iniState, action);
     expect(newState).toEqual(iniState);
   });
@@ -412,6 +401,7 @@ describe('reducer', () => {
       error: true,
     };
     const iniState = {
+      ...initialState,
       entities: {
         [ArticleResource.key]: {
           [id]: ArticleResource.fromJS({}),
@@ -420,13 +410,11 @@ describe('reducer', () => {
       results: {
         [ArticleResource.url({ id })]: id,
       },
-      indexes: {},
-      meta: {},
     };
     const newState = reducer(iniState, action);
     expect(newState).toEqual(iniState);
   });
-  it('rest-hooks/fetch should console.warn()', () => {
+  /*it('rest-hooks/fetch should console.warn()', () => {
     global.console.warn = jest.fn();
     const action: FetchAction = {
       type: FETCH_TYPE,
@@ -441,24 +429,20 @@ describe('reducer', () => {
       },
     };
     const iniState = {
-      entities: {},
+      ...initialState,
       results: { abc: '5' },
-      indexes: {},
-      meta: {},
     };
     const newState = reducer(iniState, action);
     expect(newState).toBe(iniState);
     expect((global.console.warn as jest.Mock).mock.calls.length).toBe(2);
-  });
+  });*/
   it('other types should do nothing', () => {
     const action: any = {
       type: 'whatever',
     };
     const iniState = {
-      entities: {},
+      ...initialState,
       results: { abc: '5' },
-      indexes: {},
-      meta: {},
     };
     const newState = reducer(iniState, action);
     expect(newState).toBe(iniState);
@@ -468,6 +452,7 @@ describe('reducer', () => {
       type: RESET_TYPE,
     };
     const iniState: any = {
+      ...initialState,
       entities: {
         [ArticleResource.key]: {
           '10': ArticleResource.fromJS({ id: 10 }),
@@ -480,8 +465,6 @@ describe('reducer', () => {
         '5': undefined,
       },
       results: { abc: '20' },
-      indexes: {},
-      meta: {},
     };
     const newState = reducer(iniState, action);
     expect(newState.results).toEqual({});
