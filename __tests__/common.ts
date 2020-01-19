@@ -1,5 +1,4 @@
 import React from 'react';
-
 import {
   Resource,
   SchemaList,
@@ -7,7 +6,7 @@ import {
   ReadShape,
   SchemaDetail,
 } from 'rest-hooks';
-import { AbstractInstanceType, FetchOptions } from 'rest-hooks';
+import { AbstractInstanceType, FetchOptions, MutateShape } from 'rest-hooks';
 
 export class UserResource extends Resource {
   readonly id: number | undefined = undefined;
@@ -93,6 +92,25 @@ export class ArticleResource extends Resource {
       schema: [this.asSchema()],
     };
   }
+
+  static partialUpdateShape<T extends typeof Resource>(
+    this: T,
+  ): MutateShape<
+    SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+    Readonly<object>,
+    Partial<AbstractInstanceType<T>>
+  > {
+    return {
+      ...super.partialUpdateShape(),
+      options: {
+        ...this.getFetchOptions(),
+        optimisticUpdate: (params: any, body: any) => ({
+          id: params.id,
+          ...body,
+        }),
+      },
+    };
+  }
 }
 
 export class UrlArticleResource extends ArticleResource {
@@ -113,6 +131,19 @@ export class ArticleResourceWithOtherListUrl extends ArticleResource {
 
   static otherListUrl<T extends typeof ArticleResource>(this: T): string {
     return this.urlRoot + 'some-list-url';
+  }
+
+  static createShape<T extends typeof Resource>(this: T) {
+    return {
+      ...super.createShape(),
+      options: {
+        ...this.getFetchOptions(),
+        optimisticUpdate: (
+          params: Readonly<object>,
+          body: Readonly<object | string> | void,
+        ) => body,
+      },
+    };
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect, useMemo } from 'react';
 
 import createEnhancedReducerHook from './middleware';
 
@@ -26,6 +26,11 @@ export default function CacheProvider({
   );
   const [state, dispatch] = useEnhancedReducer(masterReducer, initialState);
 
+  const optimisticState = useMemo(
+    () => state.optimistic.reduce(masterReducer, state),
+    [state],
+  );
+
   // if we change out the manager we need to make sure it has no hanging async
   useEffect(() => {
     return () => {
@@ -38,7 +43,9 @@ export default function CacheProvider({
 
   return (
     <DispatchContext.Provider value={dispatch}>
-      <StateContext.Provider value={state}>{children}</StateContext.Provider>
+      <StateContext.Provider value={optimisticState}>
+        {children}
+      </StateContext.Provider>
     </DispatchContext.Provider>
   );
 }

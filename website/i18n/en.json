@@ -137,6 +137,9 @@
       "guides/no-suspense": {
         "title": "Usage without Suspense"
       },
+      "guides/optimistic-updates": {
+        "title": "Optimistic Updates"
+      },
       "guides/pagination": {
         "title": "Pagination"
       },

@@ -9,7 +9,7 @@
 
 ## Soon
 
-- [ ] Optimistic query update on create
+- [x] Optimistic query update on create
 - [x] Optional redux-integration
 - [x] Polling based subscriptions
 - [ ] Automatic batching

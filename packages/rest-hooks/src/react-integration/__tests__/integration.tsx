@@ -5,6 +5,7 @@ import {
   ArticleResource,
   PaginatedArticleResource,
   UserResource,
+  ArticleResourceWithOtherListUrl,
 } from '__tests__/common';
 
 // relative imports to avoid circular dependency in tsconfig references
@@ -13,7 +14,7 @@ import {
   makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../../../test';
-import { useResource, useFetcher } from '../hooks';
+import { useResource, useFetcher, useCache } from '../hooks';
 import {
   payload,
   createPayload,
@@ -248,6 +249,240 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           ({ id }: Partial<PaginatedArticleResource>) => id,
         ),
       ).toEqual([5, 3, 7, 8]);
+    });
+
+    describe('Optimistic Updates', () => {
+      it('works with partial update', async () => {
+        const params = { id: payload.id };
+        mynock.patch('/article-cooler/5').reply(200, {
+          ...payload,
+          title: 'some other title',
+          content: 'real response',
+        });
+
+        const { result, waitForNextUpdate } = renderRestHook(
+          () => {
+            const put = useFetcher(CoolerArticleResource.partialUpdateShape());
+            const article = useCache(
+              CoolerArticleResource.detailShape(),
+              params,
+            );
+            return { put, article };
+          },
+          {
+            results: [
+              {
+                request: CoolerArticleResource.detailShape(),
+                params,
+                result: payload,
+              },
+            ],
+          },
+        );
+        expect(result.current.article).toEqual(
+          CoolerArticleResource.fromJS(payload),
+        );
+        const promise = result.current.put(params, { content: 'changed' });
+        expect(result.current.article).toBeInstanceOf(CoolerArticleResource);
+        expect(result.current.article).toEqual(
+          CoolerArticleResource.fromJS({
+            ...payload,
+            content: 'changed',
+          }),
+        );
+        await promise;
+        expect(result.current.article).toEqual(
+          CoolerArticleResource.fromJS({
+            ...payload,
+            title: 'some other title',
+            content: 'real response',
+          }),
+        );
+      });
+
+      it('works with eager creates', async () => {
+        const body = { id: -1111111111, content: 'hi' };
+        const existingItem = ArticleResourceWithOtherListUrl.fromJS({
+          id: 100,
+          content: 'something',
+        });
+
+        mynock.post(`/article/`).reply(201, {
+          ...payload,
+          title: 'some other title',
+          content: 'real response',
+        });
+
+        const { result, waitForNextUpdate } = renderRestHook(
+          () => {
+            const create = useFetcher(
+              ArticleResourceWithOtherListUrl.createShape(),
+            );
+            const listA = useCache(
+              ArticleResourceWithOtherListUrl.listShape(),
+              {},
+            );
+            const listB = useCache(
+              ArticleResourceWithOtherListUrl.otherListShape(),
+              {},
+            );
+            return { create, listA, listB };
+          },
+          {
+            results: [
+              {
+                request: ArticleResourceWithOtherListUrl.otherListShape(),
+                params: {},
+                result: [{ id: 100, content: 'something' }],
+              },
+            ],
+          },
+        );
+
+        expect(result.current.listA).toEqual(undefined);
+        expect(result.current.listB).toEqual([existingItem]);
+
+        const promise = result.current.create({}, body, [
+          [
+            ArticleResourceWithOtherListUrl.listShape(),
+            {},
+            (newArticleID: string, articleIDs: string[] | undefined) => [
+              ...(articleIDs || []),
+              newArticleID,
+            ],
+          ],
+          [
+            ArticleResourceWithOtherListUrl.otherListShape(),
+            {},
+            (newArticleID: string, articleIDs: string[] | undefined) => [
+              ...(articleIDs || []),
+              newArticleID,
+            ],
+          ],
+        ]);
+
+        expect(result.current.listA).toEqual([
+          CoolerArticleResource.fromJS(body),
+        ]);
+        expect(result.current.listB).toEqual([
+          existingItem,
+          CoolerArticleResource.fromJS(body),
+        ]);
+        await promise;
+        expect(result.current.listA).toEqual([
+          CoolerArticleResource.fromJS({
+            ...payload,
+            title: 'some other title',
+            content: 'real response',
+          }),
+        ]);
+        expect(result.current.listB).toEqual([
+          existingItem,
+          CoolerArticleResource.fromJS({
+            ...payload,
+            title: 'some other title',
+            content: 'real response',
+          }),
+        ]);
+      });
+
+      it('should clear only earlier optimistic updates when a promise resolves', async () => {
+        jest.useFakeTimers();
+
+        const params = { id: payload.id };
+        const { result, waitForNextUpdate } = renderRestHook(
+          () => {
+            const put = useFetcher(CoolerArticleResource.partialUpdateShape());
+            const article = useCache(
+              CoolerArticleResource.detailShape(),
+              params,
+            );
+            return { put, article };
+          },
+          {
+            results: [
+              {
+                request: CoolerArticleResource.detailShape(),
+                params,
+                result: payload,
+              },
+            ],
+          },
+        );
+
+        // first optimistic
+        mynock
+          .patch('/article-cooler/5')
+          .delay(200)
+          .reply(200, {
+            ...payload,
+            title: 'first',
+            content: 'first',
+          });
+        result.current.put(params, {
+          title: 'firstoptimistic',
+          content: 'firstoptimistic',
+        });
+        expect(result.current.article).toEqual(
+          CoolerArticleResource.fromJS({
+            ...payload,
+            title: 'firstoptimistic',
+            content: 'firstoptimistic',
+          }),
+        );
+
+        // second optimistic
+        mynock
+          .patch('/article-cooler/5')
+          .delay(50)
+          .reply(200, {
+            ...payload,
+            title: 'second',
+          });
+        result.current.put(params, {
+          title: 'secondoptimistic',
+        });
+        expect(result.current.article).toEqual(
+          CoolerArticleResource.fromJS({
+            ...payload,
+            title: 'secondoptimistic',
+            content: 'firstoptimistic',
+          }),
+        );
+
+        // second optimistic
+        mynock
+          .patch('/article-cooler/5')
+          .delay(500)
+          .reply(200, {
+            ...payload,
+            tags: ['third'],
+          });
+        result.current.put(params, {
+          tags: ['thirdoptimistic'],
+        });
+        expect(result.current.article).toEqual(
+          CoolerArticleResource.fromJS({
+            ...payload,
+            title: 'secondoptimistic',
+            content: 'firstoptimistic',
+            tags: ['thirdoptimistic'],
+          }),
+        );
+
+        // resolve second request while first is in flight
+        jest.advanceTimersByTime(51);
+        await waitForNextUpdate();
+
+        // first and second optimistic should be cleared with only third optimistic left to be layerd
+        // on top of second's network response
+        expect(result.current.article).toEqual(
+          CoolerArticleResource.fromJS({
+            ...payload,
+            title: 'second',
+          }),
+        );
+      });
     });
   });
 }

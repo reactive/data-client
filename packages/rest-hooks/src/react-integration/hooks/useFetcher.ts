@@ -123,6 +123,10 @@ Note: Network response is ignored for delete type.`,
         );
       }
 
+      if (options && options.optimisticUpdate) {
+        meta.optimisticResponse = options.optimisticUpdate(params, body);
+      }
+
       dispatch({
         type: FETCH_TYPE,
         payload: () => fetch(params, body),

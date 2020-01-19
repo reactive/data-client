@@ -1,8 +1,9 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState, useMemo } from 'react';
 
 import usePromisifiedDispatch from './usePromisifiedDispatch';
 
 import { StateContext, DispatchContext } from '~/react-integration/context';
+import masterReducer from '~/state/reducer';
 import { State, ActionTypes } from '~/types';
 
 interface Store<S> {
@@ -23,6 +24,11 @@ export default function ExternalCacheProvider<S>({
 }: Props<S>) {
   const [state, setState] = useState(() => selector(store.getState()));
 
+  const optimisticState = useMemo(
+    () => state.optimistic.reduce(masterReducer, state),
+    [state],
+  );
+
   useEffect(() => {
     const unsubscribe = store.subscribe(() => {
       setState(selector(store.getState()));
@@ -36,7 +42,9 @@ export default function ExternalCacheProvider<S>({
 
   return (
     <DispatchContext.Provider value={dispatch}>
-      <StateContext.Provider value={state}>{children}</StateContext.Provider>
+      <StateContext.Provider value={optimisticState}>
+        {children}
+      </StateContext.Provider>
     </DispatchContext.Provider>
   );
 }

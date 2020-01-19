@@ -35,7 +35,13 @@ Object {
 exports[`useFetcher should dispatch an action that fetches a partial update 1`] = `
 Object {
   "meta": Object {
-    "options": undefined,
+    "optimisticResponse": Object {
+      "content": "changed",
+      "id": 1,
+    },
+    "options": Object {
+      "optimisticUpdate": [Function],
+    },
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rest-hooks/rpc",
@@ -51,7 +57,12 @@ Object {
 exports[`useFetcher should dispatch an action with multiple updaters in the meta if update shapes params are passed in 1`] = `
 Object {
   "meta": Object {
-    "options": undefined,
+    "optimisticResponse": Object {
+      "content": "hi",
+    },
+    "options": Object {
+      "optimisticUpdate": [Function],
+    },
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rest-hooks/rpc",
