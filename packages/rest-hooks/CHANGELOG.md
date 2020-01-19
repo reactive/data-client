@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.3.0-beta.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.2.4...rest-hooks@4.3.0-beta.0) (2020-01-19)
+
+
+### 🚀 Features
+
+* Add optimistic updates ([#246](https://github.com/coinbase/rest-hooks/issues/246)) ([d448c55](https://github.com/coinbase/rest-hooks/commit/d448c55aeb87aae40902db4c4d5ec4535c6f7167))
+
+
+### 🏠 Internal
+
+* Move action creation into own functions ([#245](https://github.com/coinbase/rest-hooks/issues/245)) ([46edd0a](https://github.com/coinbase/rest-hooks/commit/46edd0a38d083f6cc00b411424b5f5b1eb8158e4))
+
+
+
 ### [4.2.4](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.2.3...rest-hooks@4.2.4) (2020-01-18)
 
 
