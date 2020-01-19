@@ -142,9 +142,15 @@ export default function reducer(
 
 type Writable<T> = { [P in keyof T]: NonNullable<T[P]> };
 
-function filterOptimistic(state: State<unknown>, action: ResponseActions) {
+/** Filter all requests with same serialization that did not start after the resolving request */
+function filterOptimistic(
+  state: State<unknown>,
+  resolvingAction: ResponseActions,
+) {
   return state.optimistic.filter(
-    optimisticAction => optimisticAction.meta.url !== action.meta.url,
+    optimisticAction =>
+      optimisticAction.meta.url !== resolvingAction.meta.url ||
+      optimisticAction.meta.date > resolvingAction.meta.date,
   );
 }
 

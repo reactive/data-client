@@ -86,6 +86,7 @@ describe('reducer', () => {
       meta: {
         schema: ArticleResource.getEntitySchema(),
         url: ArticleResource.listUrl(payload),
+        date: 0,
       },
     };
     const iniState = {
@@ -102,6 +103,7 @@ describe('reducer', () => {
       meta: {
         schema: ArticleResource.getEntitySchema(),
         url: id.toString(),
+        date: 0,
       },
     };
     const iniState: any = {
@@ -235,6 +237,7 @@ describe('reducer', () => {
             schema: ArticleResource.getEntitySchema(),
             url: ArticleResource.createShape().getFetchKey({}),
             updaters,
+            date: 0,
           },
         };
       }
@@ -381,6 +384,7 @@ describe('reducer', () => {
       meta: {
         schema: ArticleResource.getEntitySchema(),
         url: ArticleResource.url({ id }),
+        date: 0,
       },
       error: true,
     };
@@ -397,6 +401,7 @@ describe('reducer', () => {
       meta: {
         schema: ArticleResource.getEntitySchema(),
         url: ArticleResource.url({ id }),
+        date: 0,
       },
       error: true,
     };

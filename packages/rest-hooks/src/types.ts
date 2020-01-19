@@ -74,6 +74,7 @@ export type ReceiveAction<
 interface RPCMeta<S extends Schema> {
   schema: S;
   url: string;
+  date: number;
   updaters?: { [key: string]: UpdateFunction<S, any> };
 }
 
@@ -89,6 +90,7 @@ export type RPCAction<
 interface PurgeMeta {
   schema: schemas.EntityInterface<any>;
   url: string;
+  date: number;
 }
 
 export type PurgeAction = ErrorableFSAWithMeta<

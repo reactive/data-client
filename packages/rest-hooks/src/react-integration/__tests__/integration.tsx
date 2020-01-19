@@ -385,6 +385,104 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           }),
         ]);
       });
+
+      it('should clear only earlier optimistic updates when a promise resolves', async () => {
+        jest.useFakeTimers();
+
+        const params = { id: payload.id };
+        const { result, waitForNextUpdate } = renderRestHook(
+          () => {
+            const put = useFetcher(CoolerArticleResource.partialUpdateShape());
+            const article = useCache(
+              CoolerArticleResource.detailShape(),
+              params,
+            );
+            return { put, article };
+          },
+          {
+            results: [
+              {
+                request: CoolerArticleResource.detailShape(),
+                params,
+                result: payload,
+              },
+            ],
+          },
+        );
+
+        // first optimistic
+        mynock
+          .patch('/article-cooler/5')
+          .delay(200)
+          .reply(200, {
+            ...payload,
+            title: 'first',
+            content: 'first',
+          });
+        result.current.put(params, {
+          title: 'firstoptimistic',
+          content: 'firstoptimistic',
+        });
+        expect(result.current.article).toEqual(
+          CoolerArticleResource.fromJS({
+            ...payload,
+            title: 'firstoptimistic',
+            content: 'firstoptimistic',
+          }),
+        );
+
+        // second optimistic
+        mynock
+          .patch('/article-cooler/5')
+          .delay(50)
+          .reply(200, {
+            ...payload,
+            title: 'second',
+          });
+        result.current.put(params, {
+          title: 'secondoptimistic',
+        });
+        expect(result.current.article).toEqual(
+          CoolerArticleResource.fromJS({
+            ...payload,
+            title: 'secondoptimistic',
+            content: 'firstoptimistic',
+          }),
+        );
+
+        // second optimistic
+        mynock
+          .patch('/article-cooler/5')
+          .delay(500)
+          .reply(200, {
+            ...payload,
+            tags: ['third'],
+          });
+        result.current.put(params, {
+          tags: ['thirdoptimistic'],
+        });
+        expect(result.current.article).toEqual(
+          CoolerArticleResource.fromJS({
+            ...payload,
+            title: 'secondoptimistic',
+            content: 'firstoptimistic',
+            tags: ['thirdoptimistic'],
+          }),
+        );
+
+        // resolve second request while first is in flight
+        jest.advanceTimersByTime(51);
+        await waitForNextUpdate();
+
+        // first and second optimistic should be cleared with only third optimistic left to be layerd
+        // on top of second's network response
+        expect(result.current.article).toEqual(
+          CoolerArticleResource.fromJS({
+            ...payload,
+            title: 'second',
+          }),
+        );
+      });
     });
   });
 }
