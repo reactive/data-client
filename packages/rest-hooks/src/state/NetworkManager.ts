@@ -122,7 +122,7 @@ export default class NetworkManager implements Manager {
         switch (action.type) {
           case FETCH_TYPE:
             this.handleFetch(action, dispatch);
-            action.meta.nm = true;
+            if (process.env.NODE_ENV !== 'production') action.meta.nm = true;
             return next(action);
           case RECEIVE_DELETE_TYPE:
           case RECEIVE_MUTATE_TYPE:
