@@ -122,6 +122,8 @@ interface FetchMeta<
   resolve: (value?: any | PromiseLike<any>) => void;
   reject: (reason?: any) => void;
   optimisticResponse?: Payload;
+  // indicates whether network manager processed it
+  nm?: boolean;
 }
 
 export interface FetchAction<

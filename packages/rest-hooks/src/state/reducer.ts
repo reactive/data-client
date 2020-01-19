@@ -28,6 +28,16 @@ export default function reducer(
   if (!state) state = initialState;
   switch (action.type) {
     case FETCH_TYPE: {
+      // If 'fetch' action reaches the reducer there are no middlewares installed to handle it
+      if (process.env.NODE_ENV !== 'production' && !action.meta.nm) {
+        console.warn(
+          'Fetch appears unhandled - you are likely missing the NetworkManager middleware',
+        );
+        console.warn(
+          'See https://resthooks.io/docs/guides/redux#indextsx for hooking up redux',
+        );
+      }
+
       const optimisticResponse = action.meta.optimisticResponse;
       if (!optimisticResponse) return state;
       return {
@@ -125,15 +135,6 @@ export default function reducer(
       return initialState;
 
     default:
-      // If 'fetch' action reaches the reducer there are no middlewares installed to handle it
-      /*if (process.env.NODE_ENV !== 'production' && action.type === FETCH_TYPE) {
-        console.warn(
-          'Reducer recieved fetch action - you are likely missing the NetworkManager middleware',
-        );
-        console.warn(
-          'See https://resthooks.io/docs/guides/redux#indextsx for hooking up redux',
-        );
-      }*/
       // A reducer must always return a valid state.
       // Alternatively you can throw an error if an invalid action is dispatched.
       return state;

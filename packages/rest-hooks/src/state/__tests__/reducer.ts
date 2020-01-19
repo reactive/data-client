@@ -419,7 +419,7 @@ describe('reducer', () => {
     const newState = reducer(iniState, action);
     expect(newState).toEqual(iniState);
   });
-  /*it('rest-hooks/fetch should console.warn()', () => {
+  it('rest-hooks/fetch should console.warn()', () => {
     global.console.warn = jest.fn();
     const action: FetchAction = {
       type: FETCH_TYPE,
@@ -440,7 +440,7 @@ describe('reducer', () => {
     const newState = reducer(iniState, action);
     expect(newState).toBe(iniState);
     expect((global.console.warn as jest.Mock).mock.calls.length).toBe(2);
-  });*/
+  });
   it('other types should do nothing', () => {
     const action: any = {
       type: 'whatever',
