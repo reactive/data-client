@@ -89,6 +89,10 @@ export interface FetchOptions {
   readonly errorExpiryLength?: number;
   readonly pollFrequency?: number;
   readonly invalidIfStale?: boolean;
+  readonly optimisticUpdate?: (
+    params: Readonly<object>,
+    body: Readonly<object | string> | void,
+  ) => any;
 }
 ```
 
@@ -110,8 +114,15 @@ an effect.
 Indicates stale data should be considered unusable and thus not be returned from the cache. This means
 that useResource() will suspend when data is stale even if it already exists in cache.
 
+#### optimisticUpdate: (params, body) => fakePayload
+
+When provided, any fetches with this shape will behave as though the `fakePayload` return value
+from this function was a succesful network response. When the actual fetch completes (regardless
+of failure or success), the optimistic update will be replaced with the actual network response.
+
 ## Examples
 
 - [Custom endpoints](../guides/endpoints)
 - [Pagination](../guides/pagination)
 - [Mocking unfinished endpoints](../guides/mocking-unfinished)
+- [Optimistic updates](../guides/optimistic-updates)

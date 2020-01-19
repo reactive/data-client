@@ -50,7 +50,11 @@
       {
         "type": "subcategory",
         "label": "Performance",
-        "ids": ["guides/fetch-then-render", "guides/eager-updates"]
+        "ids": [
+          "guides/fetch-then-render",
+          "guides/eager-updates",
+          "guides/optimistic-updates"
+        ]
       },
       {
         "type": "subcategory",
