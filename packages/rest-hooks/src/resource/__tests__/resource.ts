@@ -67,6 +67,17 @@ describe('Resource', () => {
     );
   });
 
+  it('should serialize correctly', () => {
+    const article = CoolerArticleResource.fromJS({
+      url: 'five',
+      id: 5,
+      title: 'better',
+    });
+    expect(JSON.stringify({ data: article })).toMatchInlineSnapshot(
+      `"{\\"data\\":{\\"url\\":\\"five\\",\\"id\\":5,\\"title\\":\\"better\\"}}"`,
+    );
+  });
+
   it('should render url property', () => {
     const article = CoolerArticleResource.fromJS({
       id: 5,
@@ -103,22 +114,16 @@ describe('Resource', () => {
       expect(c.content).toBe('');
       expect(c.title).toBe('great');
       expect(c).toMatchInlineSnapshot(`
-        CoolerArticleResource {
-          "author": null,
-          "content": "",
+        Object {
           "id": 5,
-          "tags": Array [],
           "title": "great",
         }
       `);
     });
     it('works with definedObjects()', () => {
       expect(c).toMatchInlineSnapshot(`
-        CoolerArticleResource {
-          "author": null,
-          "content": "",
+        Object {
           "id": 5,
-          "tags": Array [],
           "title": "great",
         }
       `);

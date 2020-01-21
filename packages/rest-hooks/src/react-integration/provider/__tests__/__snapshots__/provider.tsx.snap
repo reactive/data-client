@@ -4,11 +4,9 @@ exports[`<CacheProvider /> should change state 1`] = `
 Object {
   "entities": Object {
     "http://test.com/article-cooler/": Object {
-      "5": CoolerArticleResource {
-        "author": null,
+      "5": Object {
         "content": "more things here",
         "id": 5,
-        "tags": Array [],
         "title": "hi",
       },
     },

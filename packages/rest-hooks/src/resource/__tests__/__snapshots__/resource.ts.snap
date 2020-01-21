@@ -4,14 +4,13 @@ exports[`Resource getEntitySchema() merging should match snapshot 1`] = `
 Object {
   "entities": Object {
     "http://test.com/article-cooler/": Object {
-      "3": CoolerArticleResource {
+      "3": Object {
         "author": "23",
         "content": "whatever",
         "id": 3,
-        "tags": Array [],
         "title": "the next time",
       },
-      "5": CoolerArticleResource {
+      "5": Object {
         "author": "23",
         "content": "whatever",
         "id": 5,
@@ -24,10 +23,9 @@ Object {
       },
     },
     "http://test.com/user/": Object {
-      "23": UserResource {
+      "23": Object {
         "email": "bob@bob.com",
         "id": 23,
-        "isAdmin": false,
         "username": "charles",
       },
     },

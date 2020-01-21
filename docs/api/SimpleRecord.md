@@ -105,6 +105,23 @@ console.log(mergedArticle.toObjectDefined());
 */
 ```
 
+### toJSON() => SerializedRecord
+
+Returns an `Object` with only the defined (non-default) members of `instance`.
+
+This is used by JSON.stringify() automatically when instances of this class are encountered.
+
+```typescript
+console.log(mergedArticle.toObjectDefined());
+/*
+{
+  title: 'The best library',
+  content: 'A long droning paragraph',
+  tags: ['React', 'TypeScript'],
+}
+*/
+```
+
 ### static keysDefined\<T extends typeof SimpleRecord\>(instance: InstanceType\<T\>) => (keyof InstanceType\<T\>)[]
 
 Returns an `Array` of all defined (non-default) keys of `instance`.

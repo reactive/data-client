@@ -250,11 +250,9 @@ describe('useDenormalized()', () => {
 
       it('should provide inferred results', () => {
         expect(value).toMatchInlineSnapshot(`
-          NestedArticleResource {
-            "author": null,
+          Object {
             "content": "head",
             "id": 5,
-            "tags": Array [],
             "title": "bob",
             "user": 23,
           }

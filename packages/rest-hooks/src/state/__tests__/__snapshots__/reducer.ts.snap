@@ -20,11 +20,9 @@ exports[`reducer singles should update state correctly 1`] = `
 Object {
   "entities": Object {
     "http://test.com/article/": Object {
-      "20": ArticleResource {
-        "author": null,
+      "20": Object {
         "content": "this is the content",
         "id": 20,
-        "tags": Array [],
         "title": "hi",
       },
     },

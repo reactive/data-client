@@ -1,3 +1,5 @@
+import { SimpleResource } from '.';
+
 import { AbstractInstanceType } from '~/types';
 
 const DefinedMembersKey = Symbol('Defined Members');
@@ -8,6 +10,13 @@ interface SimpleResourceMembers<T extends typeof SimpleRecord> {
 
 /** Immutable record that keeps track of which members are defined vs defaults. */
 export default abstract class SimpleRecord {
+  /** Serializes this SimpleRecord. Proxy for toObjectDefined. */
+  toJSON<T extends typeof SimpleResource>(
+    this: AbstractInstanceType<T>,
+  ): Partial<AbstractInstanceType<T>> {
+    return (this.constructor as T).toObjectDefined(this);
+  }
+
   /** Factory method to convert from Plain JS Objects.
    *
    * @param [props] Plain Object of properties to assign.

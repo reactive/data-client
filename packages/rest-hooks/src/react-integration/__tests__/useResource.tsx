@@ -182,8 +182,7 @@ describe('useResource()', () => {
     await result.current;
     rerender();
     expect(result.current).toMatchInlineSnapshot(`
-      CoolerArticleResource {
-        "author": null,
+      Object {
         "content": "whatever",
         "id": 5,
         "tags": Array [
