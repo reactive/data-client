@@ -300,6 +300,35 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         );
       });
 
+      it('works with deletes', async () => {
+        const params = { id: payload.id };
+        mynock.delete('/article-cooler/5').reply(200, '');
+
+        const { result, waitForNextUpdate } = renderRestHook(
+          () => {
+            const del = useFetcher(CoolerArticleResource.deleteShape());
+            const articles = useCache(CoolerArticleResource.listShape(), {});
+            return { del, articles };
+          },
+          {
+            results: [
+              {
+                request: CoolerArticleResource.listShape(),
+                params: {},
+                result: [payload],
+              },
+            ],
+          },
+        );
+        expect(result.current.articles).toEqual([
+          CoolerArticleResource.fromJS(payload),
+        ]);
+        const promise = result.current.del(params, undefined);
+        expect(result.current.articles).toEqual([]);
+        await promise;
+        expect(result.current.articles).toEqual([]);
+      });
+
       it('works with eager creates', async () => {
         const body = { id: -1111111111, content: 'hi' };
         const existingItem = ArticleResourceWithOtherListUrl.fromJS({
