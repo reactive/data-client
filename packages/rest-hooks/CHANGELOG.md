@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.3.0-beta.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.3.0-beta.0...rest-hooks@4.3.0-beta.1) (2020-01-22)
+
+
+### 💅 Enhancement
+
+* NM only marks fetch processing in dev mode ([3bfec50](https://github.com/coinbase/rest-hooks/commit/3bfec50e9af7d1331dc78a01d5d360fb2a0fd3e5))
+
+
+### 🐛 Bug Fix
+
+* Optimistic updates now trigger for results with empty string ([#248](https://github.com/coinbase/rest-hooks/issues/248)) ([6ac25ac](https://github.com/coinbase/rest-hooks/commit/6ac25acfff37e91e9e00c3449f1c5ee83285d46e))
+
+
+
 ## [4.3.0-beta.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.2.4...rest-hooks@4.3.0-beta.0) (2020-01-19)
 
 
