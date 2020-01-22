@@ -39,7 +39,7 @@ export default function reducer(
       }
 
       const optimisticResponse = action.meta.optimisticResponse;
-      if (!optimisticResponse) return state;
+      if (optimisticResponse === undefined) return state;
       return {
         ...state,
         optimistic: [

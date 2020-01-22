@@ -5,6 +5,7 @@ import {
   schemas,
   ReadShape,
   SchemaDetail,
+  DeleteShape,
 } from 'rest-hooks';
 import { AbstractInstanceType, FetchOptions, MutateShape } from 'rest-hooks';
 
@@ -108,6 +109,18 @@ export class ArticleResource extends Resource {
           id: params.id,
           ...body,
         }),
+      },
+    };
+  }
+
+  static deleteShape<T extends typeof Resource>(
+    this: T,
+  ): DeleteShape<any, Readonly<object>> {
+    return {
+      ...super.deleteShape(),
+      options: {
+        ...this.getFetchOptions(),
+        optimisticUpdate: (_params: any, _body: any) => '',
       },
     };
   }
