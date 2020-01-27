@@ -1,5 +1,3 @@
-import { memoize } from 'lodash';
-
 import RIC from './RIC';
 import { createReceive, createReceiveError } from './actionCreators';
 
@@ -7,6 +5,7 @@ import {
   FetchAction,
   ReceiveAction,
   MiddlewareAPI,
+  Middleware,
   Manager,
   Dispatch,
 } from '~/types';
@@ -35,9 +34,40 @@ export default class NetworkManager implements Manager {
   protected rejectors: { [k: string]: (value?: any) => void } = {};
   declare readonly dataExpiryLength: number;
   declare readonly errorExpiryLength: number;
+  protected declare middleware: Middleware;
+
   constructor(dataExpiryLength = 60000, errorExpiryLength = 1000) {
     this.dataExpiryLength = dataExpiryLength;
     this.errorExpiryLength = errorExpiryLength;
+
+    this.middleware = <R extends React.Reducer<any, any>>({
+      dispatch,
+    }: MiddlewareAPI<R>) => {
+      return (next: Dispatch<R>) => (
+        action: React.ReducerAction<R>,
+      ): Promise<void> => {
+        switch (action.type) {
+          case FETCH_TYPE:
+            this.handleFetch(action, dispatch);
+            if (process.env.NODE_ENV !== 'production') action.meta.nm = true;
+            return next(action);
+          case RECEIVE_DELETE_TYPE:
+          case RECEIVE_MUTATE_TYPE:
+          case RECEIVE_TYPE:
+            // only receive after new state is computed
+            return next(action).then(() => {
+              if (action.meta.url in this.fetched) {
+                this.handleReceive(action);
+              }
+            });
+          case RESET_TYPE:
+            this.cleanup();
+            return next(action);
+          default:
+            return next(action);
+        }
+      };
+    };
   }
 
   /** Ensures all promises are completed by rejecting remaining. */
@@ -112,36 +142,9 @@ export default class NetworkManager implements Manager {
    * Resolve/rejects a request when matching 'rest-hooks/receive' event
    * is seen.
    */
-  getMiddleware = memoize(function<T extends NetworkManager>(this: T) {
-    return <R extends React.Reducer<any, any>>({
-      dispatch,
-    }: MiddlewareAPI<R>) => {
-      return (next: Dispatch<R>) => (
-        action: React.ReducerAction<R>,
-      ): Promise<void> => {
-        switch (action.type) {
-          case FETCH_TYPE:
-            this.handleFetch(action, dispatch);
-            if (process.env.NODE_ENV !== 'production') action.meta.nm = true;
-            return next(action);
-          case RECEIVE_DELETE_TYPE:
-          case RECEIVE_MUTATE_TYPE:
-          case RECEIVE_TYPE:
-            // only receive after new state is computed
-            return next(action).then(() => {
-              if (action.meta.url in this.fetched) {
-                this.handleReceive(action);
-              }
-            });
-          case RESET_TYPE:
-            this.cleanup();
-            return next(action);
-          default:
-            return next(action);
-        }
-      };
-    };
-  });
+  getMiddleware<T extends NetworkManager>(this: T) {
+    return this.middleware;
+  }
 
   /** Ensures only one request for a given url is in flight at any time
    *

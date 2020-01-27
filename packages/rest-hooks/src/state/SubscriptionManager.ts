@@ -1,7 +1,6 @@
-import { memoize } from 'lodash';
-
 import {
   MiddlewareAPI,
+  Middleware,
   SubscribeAction,
   UnsubscribeAction,
   Manager,
@@ -44,10 +43,27 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
   } = {};
 
   protected declare readonly Subscription: S;
+  protected declare middleware: Middleware;
 
   constructor(Subscription: S) {
     this.Subscription = Subscription;
-    this.getMiddleware = memoize(this.getMiddleware);
+
+    this.middleware = <R extends React.Reducer<any, any>>({
+      dispatch,
+    }: MiddlewareAPI<R>) => {
+      return (next: Dispatch<R>) => (action: React.ReducerAction<R>) => {
+        switch (action.type) {
+          case SUBSCRIBE_TYPE:
+            this.handleSubscribe(action, dispatch);
+            return Promise.resolve();
+          case UNSUBSCRIBE_TYPE:
+            this.handleUnsubscribe(action, dispatch);
+            return Promise.resolve();
+          default:
+            return next(action);
+        }
+      };
+    };
   }
 
   /** Ensures all subscriptions are cleaned up. */
@@ -104,22 +120,7 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
    * Will possibly dispatch 'rest-hooks/fetch' or 'rest-hooks/receive' to keep resources fresh
    *
    */
-  getMiddleware<T extends SubscriptionManager<S>>(this: T) {
-    return <R extends React.Reducer<any, any>>({
-      dispatch,
-    }: MiddlewareAPI<R>) => {
-      return (next: Dispatch<R>) => (action: React.ReducerAction<R>) => {
-        switch (action.type) {
-          case SUBSCRIBE_TYPE:
-            this.handleSubscribe(action, dispatch);
-            return Promise.resolve();
-          case UNSUBSCRIBE_TYPE:
-            this.handleUnsubscribe(action, dispatch);
-            return Promise.resolve();
-          default:
-            return next(action);
-        }
-      };
-    };
+  getMiddleware<T extends SubscriptionManager<any>>(this: T) {
+    return this.middleware;
   }
 }
