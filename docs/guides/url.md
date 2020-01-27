@@ -105,9 +105,9 @@ export default class CommentResource extends Resource {
 CommentResource.listUrl();
 // error thrown
 CommentResource.listUrl({ articleId: '5' });
-// "/articles/${articleId}/comments/"
-CommentResource.listUrl({ articleId: '5', size: 20, page: 5 });
-// "/articles/${articleId}/comments/?size=20&page=5"
+// "/articles/5/comments/"
+CommentResource.listUrl({ articleId: '5', size: 20, page: 6 });
+// "/articles/5/comments/?size=20&page=6"
 CommentResource.url({ id: 5 });
 // error thrown
 CommentResource.url({ articleId: '5', id: '23' });

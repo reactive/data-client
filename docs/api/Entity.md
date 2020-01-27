@@ -18,6 +18,10 @@ export default class Article extends Entity {
   pk() {
     return this.id?.toString();
   }
+
+  static get key() {
+    return 'Article';
+  }
 }
 ```
 
@@ -35,6 +39,10 @@ export default class Article extends Entity {
 
   pk() {
     return this.id?.toString();
+  }
+
+  static get key() {
+    return 'Article';
   }
 }
 ```
