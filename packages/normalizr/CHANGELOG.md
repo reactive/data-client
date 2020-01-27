@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.3.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@4.3.2...@rest-hooks/normalizr@4.3.3) (2020-01-27)
+
+
+### 💅 Enhancement
+
+* Keep referential equality in list views ([#251](https://github.com/coinbase/rest-hooks/issues/251)) ([caf2bf7](https://github.com/coinbase/rest-hooks/commit/caf2bf78e6c48af8a32b080291ae60615ad05b34))
+
+
+
 ### [4.3.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@4.3.1...@rest-hooks/normalizr@4.3.2) (2020-01-18)
 
 

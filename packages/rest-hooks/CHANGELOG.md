@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.3.0-beta.2](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.3.0-beta.1...rest-hooks@4.3.0-beta.2) (2020-01-27)
+
+
+### 💅 Enhancement
+
+* Keep referential equality in list views ([#251](https://github.com/coinbase/rest-hooks/issues/251)) ([caf2bf7](https://github.com/coinbase/rest-hooks/commit/caf2bf78e6c48af8a32b080291ae60615ad05b34))
+* Remove lodash dependency, reducing total bundle size ([#250](https://github.com/coinbase/rest-hooks/issues/250)) ([1e2bff1](https://github.com/coinbase/rest-hooks/commit/1e2bff1f2f3014903d1bc9302412930bbe62f927))
+
+
+
 ## [4.3.0-beta.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.3.0-beta.0...rest-hooks@4.3.0-beta.1) (2020-01-22)
 
 
