@@ -67,9 +67,7 @@
   "dependencies": {
     "@babel/runtime": "^7.7.2",
     "@rest-hooks/normalizr": "^4.3.2",
-    "@types/lodash": "^4.14.149",
-    "flux-standard-action": "^2.1.1",
-    "lodash": "^4.17.15"
+    "flux-standard-action": "^2.1.1"
   },
   "peerDependencies": {
     "@types/react": "^16.8.2",
