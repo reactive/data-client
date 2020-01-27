@@ -6,7 +6,7 @@ import { State } from '~/types';
 import {
   isEntity,
   ReadShape,
-  denormalize,
+  denormalizeAndTracked,
   DenormalizeNullable,
   ParamsFromShape,
 } from '~/resource';
@@ -44,8 +44,8 @@ export default function useDenormalized<
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cacheResults, params && getFetchKey(params)]);
 
-  // The final denormalize block
-  return useMemo(() => {
+  // Compute denormalized value
+  const [denormalized, entitiesFound, entitiesList] = useMemo(() => {
     // Warn users with bad configurations
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'production' && isEntity(schema)) {
@@ -63,13 +63,31 @@ export default function useDenormalized<
     }
 
     // second argument is false if any entities are missing
-    const [denormalized, entitiesFound]: [any, boolean] = denormalize(
+    const [denormalized, entitiesFound, cache] = denormalizeAndTracked(
       results,
       schema,
       entities,
     );
-    return [denormalized, entitiesFound] as any;
+
+    // this enables us to keep referential equality based on entities contained within
+    const entitiesList = Object.values(cache)
+      .map(Object.values)
+      .reduce((a: any[], b: any[]) => a.concat(b), [])
+      .join(',');
+
+    return [denormalized, entitiesFound, entitiesList] as [
+      DenormalizeNullable<Shape['schema']>,
+      any,
+      string,
+    ];
     // TODO: would be nice to make this only recompute on the entity types that are in schema
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entities, params && getFetchKey(params), results]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useMemo(() => [denormalized, entitiesFound], [
+    entitiesFound,
+    results,
+    entitiesList,
+  ]);
 }

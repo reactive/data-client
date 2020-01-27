@@ -1,4 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { useState } from 'react';
+import { renderHook, act } from '@testing-library/react-hooks';
 import {
   CoolerArticleResource,
   PaginatedArticleResource,
@@ -421,22 +422,91 @@ describe('useDenormalized()', () => {
           )]: resultState,
         },
       };
-      const {
-        result: {
-          current: [value, found],
-        },
-      } = renderHook(() =>
-        useDenormalized(PaginatedArticleResource.listShape(), params, state),
-      );
+      let result: any;
+
+      beforeEach(() => {
+        const v = renderHook(() => {
+          const [usedState, setState] = useState(state);
+          return {
+            ret: useDenormalized(
+              PaginatedArticleResource.listShape(),
+              params,
+              usedState,
+            ),
+            setState,
+          };
+        });
+        result = v.result;
+      });
 
       it('found should be true', () => {
-        expect(found).toBe(true);
+        expect(result.current.ret[1]).toBe(true);
       });
 
       it('should match normalized articles', () => {
-        expect(value.results).toEqual(articles);
+        expect(result.current.ret[0].results).toEqual(articles);
+      });
+
+      it('should stay referentially equal with external entity changes', () => {
+        const prevValue = result.current.ret[0];
+        act(() =>
+          result.current.setState((state: any) => ({
+            ...state,
+            entities: { ...state.entities, whatever: {} },
+          })),
+        );
+        expect(result.current.ret[0]).toBe(prevValue);
+
+        act(() =>
+          result.current.setState((state: any) => ({
+            ...state,
+            entities: {
+              ...state.entities,
+              [PaginatedArticleResource.key]: {
+                ...state.entities[PaginatedArticleResource.key],
+                100000: 'fake',
+              },
+            },
+          })),
+        );
+        expect(result.current.ret[0]).toBe(prevValue);
+      });
+
+      it('should referentially change when an entity changes', () => {
+        const prevValue = result.current.ret[0];
+        act(() =>
+          result.current.setState((state: any) => ({
+            ...state,
+            entities: {
+              ...state.entities,
+              [PaginatedArticleResource.key]: {
+                ...state.entities[PaginatedArticleResource.key],
+                '5': CoolerArticleResource.fromJS({ id: 5, title: 'five' }),
+              },
+            },
+          })),
+        );
+        expect(result.current.ret[0]).not.toBe(prevValue);
+      });
+
+      it('should referentially change when the result extends', () => {
+        const prevValue = result.current.ret[0];
+        act(() =>
+          result.current.setState((state: any) => ({
+            ...state,
+            results: {
+              ...state.results,
+              [PaginatedArticleResource.listShape().getFetchKey(params)]: {
+                results: [...resultState.results, '5'],
+              },
+            },
+          })),
+        );
+        expect(result.current.ret[0]).not.toBe(prevValue);
+        expect(result.current.ret[0]).toMatchSnapshot();
       });
     });
+
     describe('paginated results still loading', () => {
       const { entities, result: resultState } = normalize(
         { results: articles },
@@ -468,6 +538,7 @@ describe('useDenormalized()', () => {
         `);
       });
     });
+
     it('should throw with invalid schemas', () => {
       const shape = PaginatedArticleResource.listShape();
       shape.schema = { happy: { go: { lucky: 5 } } } as any;

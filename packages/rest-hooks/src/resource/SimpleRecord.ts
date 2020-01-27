@@ -8,6 +8,13 @@ interface SimpleResourceMembers<T extends typeof SimpleRecord> {
 
 /** Immutable record that keeps track of which members are defined vs defaults. */
 export default abstract class SimpleRecord {
+  // a 'unique' identifier to make referential equality comparisons easy
+  declare readonly _unq: string;
+
+  toString(): string {
+    return this._unq;
+  }
+
   /** Factory method to convert from Plain JS Objects.
    *
    * @param [props] Plain Object of properties to assign.
@@ -30,9 +37,16 @@ export default abstract class SimpleRecord {
       writable: false,
     });
 
+    // a 'unique' identifier to make referential equality comparisons easy
+    Object.defineProperty(instance, '_unq', {
+      value: `${Math.random()}`,
+      writable: false,
+    });
+
     Object.assign(instance, props);
 
     // to trick normalizr into thinking we're Immutable.js does it doesn't copy
+    // TODO: remove when schemas.EntitySchema is deleted as this will not longer be needed
     Object.defineProperty(instance, '__ownerID', {
       value: 1337,
       writable: false,
