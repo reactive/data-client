@@ -26,7 +26,7 @@
     "README.md"
   ],
   "main": "dist/normalizr.js",
-  "module": "dist/normalizr.es.js",
+  "module": "dist/normalizr.es.min.js",
   "typings": "src/index.d.ts",
   "sideEffects": false,
   "scripts": {
