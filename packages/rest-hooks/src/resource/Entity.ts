@@ -98,11 +98,15 @@ export default abstract class Entity extends SimpleRecord {
         typeof processedEntity[key] === 'object'
       ) {
         const schema = this.schema[key];
+        const resolvedSchema =
+          typeof schema === 'function' && !Object.keys(schema).length
+            ? schema(input)
+            : schema;
         processedEntity[key] = visit(
           processedEntity[key],
           processedEntity,
           key,
-          schema,
+          resolvedSchema,
           addEntity,
           visitedEntities,
         );

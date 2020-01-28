@@ -106,7 +106,9 @@ declare namespace schema {
   }
 
   export class Object<
-    O extends { [key: string]: any } = { [key: string]: Schema }
+    O extends { [key: string]: any } = {
+      [key: string]: Schema | ((t: any) => Schema);
+    }
   > implements SchemaClass {
     constructor(definition: O);
     define(definition: Schema): void;
@@ -235,19 +237,35 @@ declare namespace schema {
 }
 
 type DenormalizeObject<S extends { [key: string]: any }> = {
-  [K in keyof S]: S[K] extends Schema ? Denormalize<S[K]> : S[K];
+  [K in keyof S]: S[K] extends Schema
+    ? Denormalize<S[K]>
+    : S[K] extends (v: any) => infer R
+    ? Denormalize<R>
+    : S[K];
 };
 
 type DenormalizeNullableObject<S extends { [key: string]: any }> = {
-  [K in keyof S]: S[K] extends Schema ? DenormalizeNullable<S[K]> : S[K];
+  [K in keyof S]: S[K] extends Schema
+    ? DenormalizeNullable<S[K]>
+    : S[K] extends (v: any) => infer R
+    ? DenormalizeNullable<R>
+    : S[K];
 };
 
 type NormalizeObject<S extends { [key: string]: any }> = {
-  [K in keyof S]: S[K] extends Schema ? Normalize<S[K]> : S[K];
+  [K in keyof S]: S[K] extends Schema
+    ? Normalize<S[K]>
+    : S[K] extends (v: any) => infer R
+    ? Normalize<R>
+    : S[K];
 };
 
 type NormalizedNullableObject<S extends { [key: string]: any }> = {
-  [K in keyof S]: S[K] extends Schema ? NormalizeNullable<S[K]> : S[K];
+  [K in keyof S]: S[K] extends Schema
+    ? NormalizeNullable<S[K]>
+    : S[K] extends (v: any) => infer R
+    ? NormalizeNullable<R>
+    : S[K];
 };
 
 export type DenormalizeReturnType<T> = T extends (

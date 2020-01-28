@@ -94,7 +94,8 @@ export const schema = {
 };
 
 function expectedSchemaType(schema) {
-  return ['object', 'function'].includes(typeof schema)
+  return ['object', 'function'].includes(typeof schema) &&
+    Object.keys(schema).length
     ? 'object'
     : typeof schema;
 }

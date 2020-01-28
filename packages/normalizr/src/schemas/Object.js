@@ -12,11 +12,15 @@ export const normalize = (
   const object = { ...input };
   Object.keys(schema).forEach(key => {
     const localSchema = schema[key];
+    const resolvedLocalSchema =
+      typeof localSchema === 'function' && !Object.keys(schema).length
+        ? localSchema(input)
+        : localSchema;
     const value = visit(
       input[key],
       input,
       key,
-      localSchema,
+      resolvedLocalSchema,
       addEntity,
       visitedEntities,
     );
