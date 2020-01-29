@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.3.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.3.0...rest-hooks@4.3.1) (2020-01-29)
+
+**Note:** Version bump only for package rest-hooks
+
+
+
+
+
 ## [4.3.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.3.0-beta.2...rest-hooks@4.3.0) (2020-01-29)
 
 

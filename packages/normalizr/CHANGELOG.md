@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@5.0.0...@rest-hooks/normalizr@5.0.1) (2020-01-29)
+
+
+### 🐛 Bug Fix
+
+* ES export is non-min version ([4b04b62](https://github.com/coinbase/rest-hooks/commit/4b04b629e67cce295c82743cb6d3a6d9f99df506))
+
+
+
 ## [5.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@4.3.3...@rest-hooks/normalizr@5.0.0) (2020-01-29)
 
 
