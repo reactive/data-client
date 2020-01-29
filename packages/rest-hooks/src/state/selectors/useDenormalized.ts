@@ -6,7 +6,7 @@ import { State } from '~/types';
 import {
   isEntity,
   ReadShape,
-  denormalizeAndTracked,
+  denormalize,
   DenormalizeNullable,
   ParamsFromShape,
 } from '~/resource';
@@ -63,7 +63,7 @@ export default function useDenormalized<
     }
 
     // second argument is false if any entities are missing
-    const [denormalized, entitiesFound, cache] = denormalizeAndTracked(
+    const [denormalized, entitiesFound, cache] = denormalize(
       results,
       schema,
       entities,
