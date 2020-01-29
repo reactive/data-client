@@ -1,7 +1,8 @@
 // eslint-env jest
 import { fromJS } from 'immutable';
 
-import { denormalize, normalize, schema } from '../../';
+import { denormalizeSimple as denormalize } from '../../denormalize';
+import { normalize, schema } from '../../';
 
 describe(`${schema.Array.name} normalization`, () => {
   describe('Object', () => {
