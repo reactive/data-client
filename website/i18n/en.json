@@ -727,6 +727,21 @@
       },
       "version-4.2/api/version-4.2-Entity": {
         "title": "Entity"
+      },
+      "version-4.3/api/version-4.3-Entity": {
+        "title": "Entity"
+      },
+      "version-4.3/api/version-4.3-FetchShape": {
+        "title": "FetchShape"
+      },
+      "version-4.3/getting-started/version-4.3-usage": {
+        "title": "Usage"
+      },
+      "version-4.3/guides/version-4.3-optimistic-updates": {
+        "title": "Optimistic Updates"
+      },
+      "version-4.3/guides/version-4.3-url": {
+        "title": "URL Patterns"
       }
     },
     "links": {
