@@ -1,7 +1,8 @@
 // eslint-env jest
 import { fromJS, Record } from 'immutable';
 
-import { denormalize, normalize, schema } from '../../';
+import { denormalizeSimple as denormalize } from '../../denormalize';
+import { normalize, schema } from '../../';
 
 const values = obj => Object.keys(obj).map(key => obj[key]);
 

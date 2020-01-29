@@ -332,12 +332,6 @@ export function denormalize<S extends Schema>(
   input: any,
   schema: S,
   entities: any,
-): [Denormalize<S>, true] | [DenormalizeNullable<S>, false];
-
-export function denormalizeAndTracked<S extends Schema>(
-  input: any,
-  schema: S,
-  entities: any,
 ):
   | [Denormalize<S>, true, { [key: string]: { [key: string]: any } }]
   | [DenormalizeNullable<S>, false, { [key: string]: { [key: string]: any } }];

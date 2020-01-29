@@ -1,5 +1,6 @@
 // eslint-env jest
-import { denormalize, normalize, schema } from '../';
+import { denormalizeSimple as denormalize } from '../denormalize';
+import { normalize, schema } from '../';
 
 describe('normalize', () => {
   [42, null, undefined, '42', () => {}].forEach(input => {
