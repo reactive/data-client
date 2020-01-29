@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@4.3.3...@rest-hooks/normalizr@5.0.0) (2020-01-29)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Remove denormalizeAndTracked
+
+### 💅 Enhancement
+
+* Only export one denormalize ([3f77da2](https://github.com/coinbase/rest-hooks/commit/3f77da206c1e4bc4065b98c8bdcfcfa3693586b7))
+* Use minified build for es modules ([a1a760c](https://github.com/coinbase/rest-hooks/commit/a1a760c74f5f389951ec1c827403e02bf5fb2442))
+
+
+### 🐛 Bug Fix
+
+* **schemas:** don't use schema to attribute mapping on singular array schemas ([a39d3e5](https://github.com/coinbase/rest-hooks/commit/a39d3e5402adfaef4651e0e8efeea0f1587186d5))
+
+
+### 🏠 Internal
+
+* Upgrade jest to 25 ([#253](https://github.com/coinbase/rest-hooks/issues/253)) ([745a253](https://github.com/coinbase/rest-hooks/commit/745a2532cb1ec3471f1fcb9c90fd87ffb55d6d1a))
+
+
+
 ### [4.3.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@4.3.2...@rest-hooks/normalizr@4.3.3) (2020-01-27)
 
 

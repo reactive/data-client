@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.3.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.3.0-beta.2...rest-hooks@4.3.0) (2020-01-29)
+
+
+### 💅 Enhancement
+
+* Use latest normalizr denormalize export ([4a55ce1](https://github.com/coinbase/rest-hooks/commit/4a55ce18816d7cf84a416217a0e51ae81c9fc7d0))
+
+
+
 ## [4.3.0-beta.2](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.3.0-beta.1...rest-hooks@4.3.0-beta.2) (2020-01-27)
 
 
