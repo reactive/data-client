@@ -4,6 +4,7 @@ import {
   SimpleRecord,
   Entity,
   isEntity,
+  ParamsFromShape,
 } from './resource';
 import NetworkManager from './state/NetworkManager';
 import RIC from './state/RIC';
@@ -52,6 +53,7 @@ export {
   SimpleResource,
   Entity,
   SimpleRecord,
+  ParamsFromShape,
   CacheProvider,
   ExternalCacheProvider,
   PromiseifyMiddleware,
