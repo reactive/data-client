@@ -1,6 +1,8 @@
 ---
 title: Defining your Resource types
 sidebar_label: Resource types
+id: version-4.1-resource-types
+original_id: resource-types
 ---
 
 Typing your data can be very useful and is highly recommended when using this library.
