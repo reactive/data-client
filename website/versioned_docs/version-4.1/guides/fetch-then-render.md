@@ -1,5 +1,7 @@
 ---
 title: Fetch then Render
+id: version-4.1-fetch-then-render
+original_id: fetch-then-render
 ---
 
 A core design feature of Rest Hooks is decoupling actual data retrieval from data

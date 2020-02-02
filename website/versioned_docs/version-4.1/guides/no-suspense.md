@@ -1,5 +1,7 @@
 ---
 title: Usage without Suspense
+id: version-4.1-no-suspense
+original_id: no-suspense
 ---
 
 Some libraries you work with may take a [loading](https://ant.design/components/card/#components-card-demo-loading) or error state.

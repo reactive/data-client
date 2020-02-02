@@ -27,7 +27,7 @@ export default class ArticleResource extends Resource {
   readonly contributors: number[] = [];
 
   pk() {
-    return this.id;
+    return this.id?.toString();
   }
   static urlRoot = 'http://test.com/article/';
 
@@ -82,7 +82,7 @@ export default class ArticleResource extends Resource {
   readonly contributors: number[] = [];
 
   pk() {
-    return this.id;
+    return this.id?.toString();
   }
   static urlRoot = 'http://test.com/article/';
 
@@ -109,7 +109,7 @@ export default class UserResource extends Resource {
   readonly posts: number[] = [];
 
   pk() {
-    return this.id;
+    return this.id?.toString();
   }
   static urlRoot = 'http://test.com/user/';
 }
