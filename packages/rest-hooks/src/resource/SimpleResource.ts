@@ -40,7 +40,7 @@ export default abstract class SimpleResource extends Entity {
    */
   static url<T extends typeof SimpleResource>(
     this: T,
-    urlParams: Partial<AbstractInstanceType<T>>,
+    urlParams: Readonly<Record<string, any>>,
   ): string {
     if (
       Object.prototype.hasOwnProperty.call(urlParams, 'url') &&
@@ -49,11 +49,11 @@ export default abstract class SimpleResource extends Entity {
     ) {
       return urlParams.url;
     }
-    if (this.pk(urlParams) !== undefined) {
+    if (this.pk(urlParams as any) !== undefined) {
       if (this.urlRoot.endsWith('/')) {
-        return `${this.urlRoot}${this.pk(urlParams)}`;
+        return `${this.urlRoot}${this.pk(urlParams as any)}`;
       }
-      return `${this.urlRoot}/${this.pk(urlParams)}`;
+      return `${this.urlRoot}/${this.pk(urlParams as any)}`;
     }
     return this.urlRoot;
   }
