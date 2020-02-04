@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.4.0-beta.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.3.1...rest-hooks@4.4.0-beta.0) (2020-02-04)
+
+
+### 🚀 Features
+
+* Add SetShapeParams ([#259](https://github.com/coinbase/rest-hooks/issues/259)) ([0c1a78e](https://github.com/coinbase/rest-hooks/commit/0c1a78e971f72b6c4fb288c2afa428b20de40464))
+* Export ParamsFromShape type ([df12329](https://github.com/coinbase/rest-hooks/commit/df1232995a0b2b62728a6b2e940e185d5d6ef8fd))
+
+
+### 🐛 Bug Fix
+
+* Export * for types ([3968d51](https://github.com/coinbase/rest-hooks/commit/3968d511647143c6934f14a4db4b906fe046123b))
+* listUrl() on react native no longer throws error ([#262](https://github.com/coinbase/rest-hooks/issues/262)) ([aeae764](https://github.com/coinbase/rest-hooks/commit/aeae76475be0fe350f066e3869b2a4936513214e))
+
+
+### 📝 Documentation
+
+* Use bundlephobia badge for lib size ([eb76258](https://github.com/coinbase/rest-hooks/commit/eb76258db4be81a4a22ce01074c4a88cfc4ff0b8))
+
+
+
 ### [4.3.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.3.0...rest-hooks@4.3.1) (2020-01-29)
 
 **Note:** Version bump only for package rest-hooks
