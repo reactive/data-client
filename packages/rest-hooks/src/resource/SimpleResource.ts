@@ -1,6 +1,7 @@
 import { ReadShape, MutateShape, DeleteShape } from './shapes';
 import { SchemaDetail, SchemaList } from './normal';
 import Entity from './Entity';
+import paramsToString from './paramsToString';
 
 import { NotImplementedError } from '~/errors';
 import { AbstractInstanceType, Method, FetchOptions } from '~/types';
@@ -66,9 +67,7 @@ export default abstract class SimpleResource extends Entity {
     searchParams: Readonly<Record<string, string | number>> = {},
   ): string {
     if (Object.keys(searchParams).length) {
-      const params = new URLSearchParams(searchParams as any);
-      params.sort();
-      return `${this.urlRoot}?${params.toString()}`;
+      return `${this.urlRoot}?${paramsToString(searchParams)}`;
     }
     return this.urlRoot;
   }
