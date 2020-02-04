@@ -4,7 +4,6 @@ import {
   SimpleRecord,
   Entity,
   isEntity,
-  ParamsFromShape,
 } from './resource';
 import NetworkManager from './state/NetworkManager';
 import RIC from './state/RIC';
@@ -48,12 +47,12 @@ export type NetworkError = OGNetworkError;
 export * from './types';
 export * from './resource/shapes';
 export * from './resource/normal';
+export * from './resource/publicTypes';
 export {
   Resource,
   SimpleResource,
   Entity,
   SimpleRecord,
-  ParamsFromShape,
   CacheProvider,
   ExternalCacheProvider,
   PromiseifyMiddleware,
