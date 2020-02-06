@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.4.0-beta.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.4.0-beta.0...rest-hooks@4.4.0-beta.1) (2020-02-06)
+
+
+### 🚀 Features
+
+* Export EntitySchema and EntityInstance types ([edef484](https://github.com/coinbase/rest-hooks/commit/edef48457e1a0acebbcc099e5900468e606156f4))
+
+
+
 ## [4.4.0-beta.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.3.1...rest-hooks@4.4.0-beta.0) (2020-02-04)
 
 
