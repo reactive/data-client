@@ -26,6 +26,8 @@ export type AbstractInstanceType<T> = T extends { prototype: infer U }
   ? U
   : never;
 
+export type EntityInstance<T> = Readonly<AbstractInstanceType<T>>;
+
 export type PK = string | number;
 
 export type State<T> = Readonly<{

@@ -6,5 +6,6 @@ export * from './shapes';
 export * from './types';
 export * from './publicTypes';
 export * from './normal';
+export * from './Entity';
 
 export { Resource, SimpleResource, SimpleRecord, Entity };

@@ -48,6 +48,7 @@ export * from './types';
 export * from './resource/shapes';
 export * from './resource/normal';
 export * from './resource/publicTypes';
+export * from './resource/Entity';
 export {
   Resource,
   SimpleResource,

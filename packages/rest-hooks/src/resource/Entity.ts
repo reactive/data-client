@@ -163,7 +163,7 @@ if (process.env.NODE_ENV !== 'production') {
   };
 }
 
-type EntitySchema<E extends typeof Entity> = E & {
+export type EntitySchema<E extends typeof Entity> = E & {
   normalize(
     input: any,
     parent: any,
