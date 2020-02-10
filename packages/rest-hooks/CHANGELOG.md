@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.4.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.4.0-beta.1...rest-hooks@4.4.0) (2020-02-10)
+
+
+### 💅 Enhancement
+
+* Commonjs bundle uses native-compatible code ([#263](https://github.com/coinbase/rest-hooks/issues/263)) ([5da9047](https://github.com/coinbase/rest-hooks/commit/5da9047aa1021b452732f6438fc49a8382f0dc77))
+
+
+
 ## [4.4.0-beta.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.4.0-beta.0...rest-hooks@4.4.0-beta.1) (2020-02-06)
 
 
