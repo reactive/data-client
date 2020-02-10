@@ -13,6 +13,7 @@ const dependencies = Object.keys(pkg.dependencies)
   .filter(dep => !['@rest-hooks/normalizr', '@babel/runtime'].includes(dep));
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
+const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
 process.env.BROWSERSLIST_ENV = 'legacy';
 
@@ -34,9 +35,9 @@ export default [
     output: [{ file: pkg.unpkg, format: 'umd', name: 'restHook' }],
     plugins: [
       babel({
-        exclude: ['node_modules/**', '**/__tests__/**'],
+        exclude: ['node_modules/**', '/**__tests__/**'],
         extensions,
-        rootMode: "upward",
+        rootMode: 'upward',
         runtimeHelpers: true,
       }),
       replace({ 'process.env.NODE_ENV': JSON.stringify('production') }),
@@ -55,12 +56,13 @@ export default [
     plugins: [
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
-        extensions,
-        rootMode: "upward",
+        extensions: nativeExtensions,
+        rootMode: 'upward',
         runtimeHelpers: true,
       }),
-      resolve({ extensions }),
-      commonjs({ extensions }),
+      replace({ 'process.env.CJS': 'true' }),
+      resolve({ extensions: nativeExtensions }),
+      commonjs({ extensions: nativeExtensions }),
     ],
   },
 ];
