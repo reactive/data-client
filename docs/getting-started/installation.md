@@ -32,12 +32,60 @@ npm install rest-hooks
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
+## Legacy browser (IE) support
 
-## Include polyfill (optional IE support)
+Rest Hooks includes multiple bundles including a commonjs bundle that is compiled with maximum compatibility as well as an ES6 module bundle that is compiled to target modern browsers or react native.
+Tools like webpack or rollup will use the ES6 modules to enable optimizations like tree-shaking. However,
+the Javascript included will not support legacy browsers like Internet Explorer. If your browser target
+includes such browsers (you'll likely see something like `Uncaught TypeError: Class constructor Resource cannot be invoked without 'new'`) you will need to follow the steps below.
 
-Rest-hooks is built to be compatible with old browsers, but assumes polyfills will
-already be loaded. If you want to support old browsers like Internet Explorer, you'll
-need to install core-js and import it at the entry point of your bundle.
+### Transpile Rest Hooks package
+
+> Note: Many out-of-the-box solutions like create react app will already perform this step and no
+> additional work is needed.
+
+Add preset to run only legacy transformations.
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--yarn-->
+```bash
+yarn add --dev babel-preset-react-app
+```
+<!--npm-->
+```bash
+npm install babel-preset-react-app
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
+
+Add this section to your `webpack.config.js` under the 'rules' section.
+
+This will only run legacy transpilation, and skip all other steps as they are unneeded.
+
+```js
+rules: [
+  // put other js rules here
+  {
+    test: /\.(js|mjs)$/,
+    use: ['thread-loader', babelLoader],
+    include: [/node_modules/],
+    exclude: /@babel(?:\/|\\{1,2})runtime/,
+    options: {
+      babelrc: false,
+      configFile: false,
+      compact: false,
+      presets: [
+        [
+          require.resolve('babel-preset-react-app/dependencies'),
+          { helpers: true },
+        ],
+      ],
+      cacheDirectory: true,
+    },
+  },
+]
+```
+
+### Polyfills
 
 Use [CRA polyfill](https://github.com/facebook/create-react-app/tree/master/packages/react-app-polyfill)
 or follow instructions below.
