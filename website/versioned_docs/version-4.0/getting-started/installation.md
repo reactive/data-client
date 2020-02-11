@@ -67,7 +67,7 @@ rules: [
   // put other js rules here
   {
     test: /\.(js|mjs)$/,
-    use: ['thread-loader', babelLoader],
+    use: ['babel-loader'],
     include: [/node_modules/],
     exclude: /@babel(?:\/|\\{1,2})runtime/,
     options: {
