@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   Resource,
   SchemaList,
@@ -187,6 +188,16 @@ export class PollingArticleResource extends ArticleResource {
     return {
       ...super.getFetchOptions(),
       pollFrequency: 5000,
+    };
+  }
+
+  static pusherShape<T extends typeof PollingArticleResource>(this: T) {
+    return {
+      ...this.detailShape(),
+      options: {
+        eventType: 'PollingArticleResource:fetch',
+        pollFrequency: 0,
+      },
     };
   }
 }

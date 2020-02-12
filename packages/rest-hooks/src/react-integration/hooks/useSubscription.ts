@@ -22,7 +22,8 @@ export default function useSubscription<
 
   useEffect(() => {
     if (!params) return;
-    const { fetch, schema, getFetchKey, options } = shapeRef.current;
+    const { fetch, schema, getFetchKey, options = {} } = shapeRef.current;
+    const { pollFrequency: frequency, ...otherOptions } = options;
     const url = getFetchKey(params);
 
     dispatch({
@@ -31,7 +32,8 @@ export default function useSubscription<
         schema,
         fetch: () => fetch(params),
         url,
-        frequency: options && options.pollFrequency,
+        frequency,
+        ...otherOptions
       },
     });
     return () => {
@@ -39,7 +41,8 @@ export default function useSubscription<
         type: UNSUBSCRIBE_TYPE,
         meta: {
           url,
-          frequency: options && options.pollFrequency,
+          frequency,
+          ...otherOptions
         },
       });
     };
