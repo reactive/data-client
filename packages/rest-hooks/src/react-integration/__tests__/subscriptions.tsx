@@ -134,7 +134,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     });
   });
 
-  it('useSubscription() should include options in dispatched meta', () => {
+  it('useSubscription() should include extra options in dispatched meta', () => {
     const fakeDispatch = jest.fn();
 
     renderHook(
@@ -153,7 +153,9 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     );
 
     const spy = fakeDispatch.mock.calls[0][0];
-    expect(spy.meta.eventType).toEqual('PollingArticleResource:fetch');
+    expect(spy.meta.options.extra.eventType).toEqual(
+      'PollingArticleResource:fetch',
+    );
   });
 }
 

@@ -195,8 +195,9 @@ export class PollingArticleResource extends ArticleResource {
     return {
       ...this.detailShape(),
       options: {
-        eventType: 'PollingArticleResource:fetch',
-        pollFrequency: 0,
+        extra: {
+          eventType: 'PollingArticleResource:fetch',
+        },
       },
     };
   }
