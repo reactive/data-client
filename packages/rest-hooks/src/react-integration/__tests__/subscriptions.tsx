@@ -133,6 +133,30 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       expect(fakeDispatch.mock.calls.length).toBe(1);
     });
   });
+
+  it('useSubscription() should include extra options in dispatched meta', () => {
+    const fakeDispatch = jest.fn();
+
+    renderHook(
+      () => {
+        useSubscription(PollingArticleResource.pusherShape(), {});
+      },
+      {
+        wrapper: function Wrapper({ children }: any) {
+          return (
+            <DispatchContext.Provider value={fakeDispatch}>
+              {children}
+            </DispatchContext.Provider>
+          );
+        },
+      },
+    );
+
+    const spy = fakeDispatch.mock.calls[0][0];
+    expect(spy.meta.options.extra.eventType).toEqual(
+      'PollingArticleResource:fetch',
+    );
+  });
 }
 
 async function validateSubscription(

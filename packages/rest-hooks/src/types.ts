@@ -1,5 +1,6 @@
 import React from 'react';
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
+
 import { NormalizedIndex } from '@rest-hooks/normalizr';
 
 import { ErrorableFSAWithPayloadAndMeta, ErrorableFSAWithMeta } from './fsa';
@@ -54,6 +55,8 @@ export interface FetchOptions {
     params: Readonly<object>,
     body: Readonly<object | string> | void,
   ) => any;
+  /** User-land extra data to send */
+  readonly extra?: any;
 }
 
 interface ReceiveMeta<S extends Schema> {
@@ -146,7 +149,7 @@ export interface SubscribeAction
     schema: Schema;
     fetch: () => Promise<any>;
     url: string;
-    frequency?: number;
+    options: FetchOptions | undefined;
   };
 }
 
@@ -154,7 +157,7 @@ export interface UnsubscribeAction
   extends FSAWithMeta<typeof UNSUBSCRIBE_TYPE, undefined, any> {
   meta: {
     url: string;
-    frequency?: number;
+    options: FetchOptions | undefined;
   };
 }
 

@@ -78,14 +78,16 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
    */
   protected handleSubscribe(action: SubscribeAction, dispatch: Dispatch<any>) {
     const url = action.meta.url;
+    const frequency = action.meta.options?.pollFrequency;
+
     if (url in this.subscriptions) {
-      this.subscriptions[url].add(action.meta.frequency);
+      this.subscriptions[url].add(frequency);
     } else {
       this.subscriptions[url] = new this.Subscription(
         {
           schema: action.meta.schema,
           fetch: action.meta.fetch,
-          frequency: action.meta.frequency,
+          frequency,
           url,
         },
         dispatch,
@@ -101,9 +103,11 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
     dispatch: Dispatch<any>,
   ) {
     const url = action.meta.url;
+    const frequency = action.meta.options?.pollFrequency;
+
     /* istanbul ignore else */
     if (url in this.subscriptions) {
-      const empty = this.subscriptions[url].remove(action.meta.frequency);
+      const empty = this.subscriptions[url].remove(frequency);
       if (empty) {
         delete this.subscriptions[url];
       }

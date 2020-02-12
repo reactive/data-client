@@ -31,7 +31,7 @@ export default function useSubscription<
         schema,
         fetch: () => fetch(params),
         url,
-        frequency: options && options.pollFrequency,
+        options,
       },
     });
     return () => {
@@ -39,7 +39,7 @@ export default function useSubscription<
         type: UNSUBSCRIBE_TYPE,
         meta: {
           url,
-          frequency: options && options.pollFrequency,
+          options,
         },
       });
     };

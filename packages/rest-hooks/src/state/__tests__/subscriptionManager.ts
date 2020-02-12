@@ -60,7 +60,7 @@ describe('SubscriptionManager', () => {
           schema: PollingArticleResource.getEntitySchema(),
           url: PollingArticleResource.url(payload),
           fetch,
-          frequency: 1000,
+          options: { pollFrequency: 1000 },
         },
       };
     }
@@ -69,7 +69,7 @@ describe('SubscriptionManager', () => {
         type: UNSUBSCRIBE_TYPE,
         meta: {
           url: PollingArticleResource.url(payload),
-          frequency: 1000,
+          options: { pollFrequency: 1000 },
         },
       };
     }
