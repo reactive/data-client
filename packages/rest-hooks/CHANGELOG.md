@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.5.0-beta.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.0-beta.0...rest-hooks@4.5.0-beta.1) (2020-02-13)
+
+
+### 🚀 Features
+
+* Support non JSON (aka binary) fetches ([#267](https://github.com/coinbase/rest-hooks/issues/267)) ([fb8e6d8](https://github.com/coinbase/rest-hooks/commit/fb8e6d8821d78dba11b4cac20762b94682110148))
+
+
+
 ## [4.5.0-beta.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.4.0...rest-hooks@4.5.0-beta.0) (2020-02-13)
 
 
