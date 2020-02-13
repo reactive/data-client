@@ -5,6 +5,7 @@ import {
   CoolerArticleResource,
   UserResource,
   InvalidIfStaleArticleResource,
+  photoShape,
 } from '__tests__/common';
 
 // relative imports to avoid circular dependency in tsconfig references
@@ -381,5 +382,20 @@ describe('useResource()', () => {
     });
     expect(result.current).toBe('done');
     expect(article).toBeUndefined();
+  });
+
+  it('should work with ArrayBuffer shapes', async () => {
+    const userId = '5';
+    const response = new ArrayBuffer(10);
+    nock(/.*/)
+      .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
+      .get(`/users/${userId}/photo`)
+      .reply(200, response);
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      return useResource(photoShape, { userId });
+    });
+    expect(result.current).toBe(null);
+    await waitForNextUpdate();
+    expect(result.current).toStrictEqual(response);
   });
 });

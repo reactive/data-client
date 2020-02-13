@@ -296,6 +296,20 @@ export class NestedArticleResource extends OtherArticleResource {
   };
 }
 
+export const photoShape = {
+  type: 'read' as const,
+  schema: null as ArrayBuffer | null,
+  getFetchKey({ userId }: { userId: string }) {
+    return `/users/${userId}/photo`;
+  },
+  fetch: async ({ userId }: { userId: string }) => {
+    const response = await fetch(`http://test.com/users/${userId}/photo`);
+    const photoArrayBuffer = await response.arrayBuffer();
+
+    return photoArrayBuffer;
+  },
+};
+
 export function makeErrorBoundary(cb: (error: any) => void) {
   return class ErrorInterceptor extends React.Component<any, { error: any }> {
     state = { error: null };

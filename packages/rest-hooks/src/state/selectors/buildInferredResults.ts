@@ -17,6 +17,9 @@ export default function buildInferredResults<
   params: Params | null,
   indexes: NormalizedIndex,
 ): NormalizeNullable<S> {
+  if (!isSchema(schema)) {
+    return schema as any;
+  }
   if (isEntity(schema)) {
     if (!params) return undefined as any;
     const id = schema.getId(params, undefined, '');
@@ -48,11 +51,7 @@ export default function buildInferredResults<
   const o = schema instanceof schemas.Object ? (schema as any).schema : schema;
   const resultObject = {} as any;
   for (const k in o) {
-    if (!isSchema(o[k])) {
-      resultObject[k] = o[k];
-    } else {
-      resultObject[k] = buildInferredResults(o[k], params, indexes);
-    }
+    resultObject[k] = buildInferredResults(o[k], params, indexes);
   }
   return resultObject;
 }
