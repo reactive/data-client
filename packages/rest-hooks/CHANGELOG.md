@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.5.0-beta.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.4.0...rest-hooks@4.5.0-beta.0) (2020-02-13)
+
+
+### 🚀 Features
+
+* Include all FetchOptions in subscribe action ([#265](https://github.com/coinbase/rest-hooks/issues/265)) ([e27f420](https://github.com/coinbase/rest-hooks/commit/e27f420f9a562535d1c1784570be80c9606948cf))
+
+
+
 ## [4.4.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.4.0-beta.1...rest-hooks@4.4.0) (2020-02-10)
 
 
