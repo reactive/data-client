@@ -36,7 +36,7 @@
       {
         "type": "subcategory",
         "label": "Resource Definitions",
-        "ids": ["guides/custom-networking", "guides/resource-lifetime"]
+        "ids": ["guides/custom-networking", "guides/resource-lifetime", "guides/binary-fetches"]
       },
       {
         "type": "subcategory",
