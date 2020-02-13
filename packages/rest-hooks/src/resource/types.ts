@@ -35,5 +35,5 @@ export type BodyArg<RS> = RS extends {
   : never;
 
 export function isEntity(schema: Schema): schema is typeof Entity {
-  return (schema as any).getId !== undefined;
+  return schema !== null && (schema as any).getId !== undefined;
 }

@@ -89,6 +89,9 @@
       "guides/auth": {
         "title": "Authentication"
       },
+      "guides/binary-fetches": {
+        "title": "Fetching Media"
+      },
       "guides/class-components": {
         "title": "Usage with class components"
       },
