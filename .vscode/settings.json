@@ -14,12 +14,11 @@
   "eslint.validate": [
     "javascript",
     "javascriptreact",
-    { "language": "typescript", "autoFix": true },
-    { "language": "typescriptreact", "autoFix": true }
+    "typescript",
+    "typescriptreact"
   ],
-  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.tsdk": "node_modules/ttypescript/lib",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "eslint.autoFixOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   }
