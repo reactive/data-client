@@ -1,10 +1,10 @@
 import { act } from '@testing-library/react-hooks';
-
 import {
   NetworkManager,
   FetchAction,
   ReceiveAction,
   Dispatch,
+  PollingSubscription,
 } from 'rest-hooks';
 
 export class MockNetworkManager extends NetworkManager {
@@ -21,6 +21,15 @@ export class MockNetworkManager extends NetworkManager {
   handleReceive(action: ReceiveAction) {
     act(() => {
       super.handleReceive(action);
+    });
+  }
+}
+
+export class MockPollingSubscription extends PollingSubscription {
+  /** Trigger request for latest resource */
+  protected update() {
+    act(() => {
+      super.update();
     });
   }
 }

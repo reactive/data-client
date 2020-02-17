@@ -1,14 +1,8 @@
 import React from 'react';
 import { renderHook, RenderHookOptions } from '@testing-library/react-hooks';
+import { State, SubscriptionManager, Manager } from 'rest-hooks';
 
-import {
-  State,
-  SubscriptionManager,
-  PollingSubscription,
-  Manager,
-} from 'rest-hooks';
-
-import { MockNetworkManager } from './managers';
+import { MockNetworkManager, MockPollingSubscription } from './managers';
 import mockInitialState, { Fixture } from './mockState';
 
 export default function makeRenderRestHook(
@@ -18,7 +12,7 @@ export default function makeRenderRestHook(
   ) => React.ComponentType<{ children: React.ReactChild }>,
 ) {
   const manager = new MockNetworkManager();
-  const subManager = new SubscriptionManager(PollingSubscription);
+  const subManager = new SubscriptionManager(MockPollingSubscription);
   function renderRestHook<P, R>(
     callback: (props: P) => R,
     options?: {

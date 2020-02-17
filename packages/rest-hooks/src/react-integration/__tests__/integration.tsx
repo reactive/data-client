@@ -1,5 +1,6 @@
 import React from 'react';
 import nock from 'nock';
+import { act } from '@testing-library/react-hooks';
 import {
   CoolerArticleResource,
   ArticleResource,
@@ -104,7 +105,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       expect(result.current instanceof CoolerArticleResource).toBe(true);
       expect(result.current.title).toBe(payload.title);
 
-      await del(payload);
+      await act(() => del(payload));
       expect(result.error).toBeDefined();
       expect((result.error as any).status).toBe(404);
     });
