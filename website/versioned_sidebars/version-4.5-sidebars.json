@@ -62,7 +62,7 @@
         "label": "Performance",
         "ids": [
           "version-4.5-guides/fetch-then-render",
-          "version-4.5-guides/eager-updates",
+          "version-4.5-guides/immediate-updates",
           "version-4.5-guides/optimistic-updates"
         ]
       },

@@ -1,5 +1,7 @@
 ---
-title: Eager Updates
+title: Immediate Mutation Updates
+id: version-4.5-immediate-updates
+original_id: immediate-updates
 ---
 
 When a user causes mutations like creating, updating, or deleting resources, it's important

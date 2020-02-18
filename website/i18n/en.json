@@ -102,9 +102,6 @@
         "title": "Using a custom networking library",
         "sidebar_label": "Custom networking library"
       },
-      "guides/eager-updates": {
-        "title": "Eager Updates"
-      },
       "guides/endpoints": {
         "title": "Custom endpoints"
       },
@@ -117,6 +114,9 @@
       "guides/immutability": {
         "title": "Understanding Immutability",
         "sidebar_label": "Understanding Immutability"
+      },
+      "guides/instant-updates": {
+        "title": "Instant Mutation Updates"
       },
       "guides/loading-state": {
         "title": "Handling loading state"
@@ -770,6 +770,12 @@
       },
       "version-4.5/guides/version-4.5-binary-fetches": {
         "title": "Fetching Media"
+      },
+      "version-4.5/guides/version-4.5-instant-updates": {
+        "title": "Instant Mutation Updates"
+      },
+      "version-4.5/guides/version-4.5-optimistic-updates": {
+        "title": "Optimistic Updates"
       }
     },
     "links": {

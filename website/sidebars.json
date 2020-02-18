@@ -52,7 +52,7 @@
         "label": "Performance",
         "ids": [
           "guides/fetch-then-render",
-          "guides/eager-updates",
+          "guides/immediate-updates",
           "guides/optimistic-updates"
         ]
       },
