@@ -1,7 +1,7 @@
+import { State, SubscriptionManager, Manager } from 'rest-hooks';
+
 import React from 'react';
 import { renderHook, RenderHookOptions } from '@testing-library/react-hooks';
-
-import { State, SubscriptionManager, Manager } from 'rest-hooks';
 
 import { MockNetworkManager, MockPollingSubscription } from './managers';
 import mockInitialState, { Fixture } from './mockState';

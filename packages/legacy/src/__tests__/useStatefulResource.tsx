@@ -1,10 +1,11 @@
-import { useStatefulResource } from '..';
-
-import nock from 'nock';
 import { CoolerArticleResource } from '__tests__/common';
 import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 
+import nock from 'nock';
+
 import { payload, users, nested } from './fixtures';
+
+import { useStatefulResource } from '..';
 
 function onError(e: any) {
   e.preventDefault();

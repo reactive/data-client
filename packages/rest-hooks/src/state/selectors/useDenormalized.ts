@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { State } from 'rest-hooks/types';
 import {
   isEntity,
@@ -7,6 +6,8 @@ import {
   DenormalizeNullable,
   ParamsFromShape,
 } from 'rest-hooks/resource';
+
+import { useMemo } from 'react';
 
 import buildInferredResults from './buildInferredResults';
 

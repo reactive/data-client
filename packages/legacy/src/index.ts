@@ -1,5 +1,3 @@
-import { useContext } from 'react';
-
 import {
   useRetrieve,
   useError,
@@ -8,6 +6,8 @@ import {
   useDenormalized,
   __INTERNAL__,
 } from 'rest-hooks';
+
+import { useContext } from 'react';
 
 /** Ensure a resource is available; loading and error returned explicitly. */
 export function useStatefulResource<
