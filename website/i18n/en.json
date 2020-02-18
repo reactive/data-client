@@ -764,6 +764,12 @@
       },
       "version-4.3/guides/version-4.3-url": {
         "title": "URL Patterns"
+      },
+      "version-4.5/getting-started/version-4.5-installation": {
+        "title": "Installation"
+      },
+      "version-4.5/guides/version-4.5-binary-fetches": {
+        "title": "Fetching Media"
       }
     },
     "links": {
