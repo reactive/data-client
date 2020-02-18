@@ -7,6 +7,8 @@
 [![npm version](https://img.shields.io/npm/v/@rest-hooks/legacy.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/use-enhanced-reducer)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
+`useEnhancedReducer()` empowers building complex orchestration into flux stores built using React Hooks.
+
 #### `loggerMiddleware.ts`
 
 ```typescript
@@ -56,3 +58,8 @@ export default function CacheProvider({
   );
 }
 ```
+
+## Examples
+
+- Rest Hook's (NetworkManager)[https://github.com/coinbase/rest-hooks/blob/master/packages/rest-hooks/src/state/NetworkManager.ts]
+- Rest Hook's (PollingSubscription)[https://github.com/coinbase/rest-hooks/blob/master/packages/rest-hooks/src/state/PollingSubscription.ts]
