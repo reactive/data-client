@@ -34,6 +34,7 @@ const baseConfig = {
   coveragePathIgnorePatterns: [
     'node_modules',
     'react-integration/hooks/useSelection',
+    'packages/test',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   moduleNameMapper: {
