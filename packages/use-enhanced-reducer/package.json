@@ -32,6 +32,9 @@
     "typescript",
     "redux",
     "hook",
+    "state",
+    "dispatch",
+    "thunk",
     "state management"
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
