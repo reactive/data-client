@@ -1,11 +1,9 @@
 import {
   MiddlewareAPI,
   Middleware,
-  SubscribeAction,
-  UnsubscribeAction,
-  Manager,
   Dispatch,
-} from 'rest-hooks/types';
+} from '@rest-hooks/use-enhanced-reducer';
+import { SubscribeAction, UnsubscribeAction, Manager } from 'rest-hooks/types';
 import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from 'rest-hooks/actionTypes';
 import { Schema } from 'rest-hooks/resource';
 

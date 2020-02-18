@@ -1,4 +1,3 @@
-import React, { ReactNode, useEffect, useMemo } from 'react';
 import {
   StateContext,
   DispatchContext,
@@ -10,8 +9,9 @@ import NetworkManager from 'rest-hooks/state/NetworkManager';
 import SubscriptionManager from 'rest-hooks/state/SubscriptionManager';
 import PollingSubscription from 'rest-hooks/state/PollingSubscription';
 import { State, Manager } from 'rest-hooks/types';
+import useEnhancedReducer from '@rest-hooks/use-enhanced-reducer';
 
-import createEnhancedReducerHook from './middleware';
+import React, { ReactNode, useEffect, useMemo } from 'react';
 
 interface ProviderProps {
   children: ReactNode;
@@ -25,10 +25,11 @@ export default function CacheProvider({
   managers,
   initialState,
 }: ProviderProps) {
-  const useEnhancedReducer = createEnhancedReducerHook(
-    ...managers.map(manager => manager.getMiddleware()),
+  const [state, dispatch] = useEnhancedReducer(
+    masterReducer,
+    initialState,
+    managers.map(manager => manager.getMiddleware()),
   );
-  const [state, dispatch] = useEnhancedReducer(masterReducer, initialState);
 
   const optimisticState = useMemo(
     () => state.optimistic.reduce(masterReducer, state),

@@ -48,7 +48,7 @@ const baseConfig = {
   setupFiles: ['<rootDir>/scripts/testSetup.js'],
 };
 
-const packages = ['legacy', 'rest-hooks', 'normalizr'];
+const packages = ['legacy', 'rest-hooks', 'normalizr', 'use-enhanced-reducer'];
 
 const projects = [
   {

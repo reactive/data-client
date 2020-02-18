@@ -2,6 +2,7 @@ import { useRef, useCallback, useEffect } from 'react';
 
 type PromiseHolder = { promise: Promise<void>; resolve: () => void };
 
+/** Turns a dispatch function into one that resolves once its been commited */
 export default function usePromisifiedDispatch<
   R extends React.Reducer<any, any>
 >(

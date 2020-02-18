@@ -1,12 +1,12 @@
-import React, { ReactNode, useEffect, useState, useMemo } from 'react';
 import {
   StateContext,
   DispatchContext,
 } from 'rest-hooks/react-integration/context';
 import masterReducer from 'rest-hooks/state/reducer';
 import { State, ActionTypes } from 'rest-hooks/types';
+import { usePromisifiedDispatch } from '@rest-hooks/use-enhanced-reducer';
 
-import usePromisifiedDispatch from './usePromisifiedDispatch';
+import React, { ReactNode, useEffect, useState, useMemo } from 'react';
 
 interface Store<S> {
   subscribe(listener: () => void): () => void;

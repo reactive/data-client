@@ -1,7 +1,8 @@
-import React, { useContext } from 'react';
-import { act, render } from '@testing-library/react';
 import { CoolerArticleResource } from '__tests__/common';
 import { RECEIVE_TYPE } from 'rest-hooks/actionTypes';
+
+import React, { useContext } from 'react';
+import { act, render } from '@testing-library/react';
 
 import { DispatchContext, StateContext } from '../../context';
 import CacheProvider from '../CacheProvider';
@@ -22,7 +23,7 @@ describe('<CacheProvider />', () => {
     const tree = <CacheProvider>{chil}</CacheProvider>;
     const { rerender } = render(tree);
     expect(dispatch).toBeDefined();
-    const curDisp = dispatch;
+    let curDisp = dispatch;
     rerender(tree);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
@@ -34,15 +35,17 @@ describe('<CacheProvider />', () => {
       new SubscriptionManager(PollingSubscription),
     ];
     rerender(<CacheProvider managers={managers}>{chil}</CacheProvider>);
+    curDisp = dispatch;
+    rerender(<CacheProvider managers={managers}>{chil}</CacheProvider>);
     expect(curDisp).toBe(dispatch);
-    expect(count).toBe(1);
+    expect(count).toBe(2);
     rerender(
       <DispatchContext.Provider value={() => Promise.resolve()}>
         {chil}
       </DispatchContext.Provider>,
     );
     expect(curDisp).not.toBe(dispatch);
-    expect(count).toBe(2);
+    expect(count).toBe(3);
   });
   it('should change state', () => {
     let dispatch: any, state;
