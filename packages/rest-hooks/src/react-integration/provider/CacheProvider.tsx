@@ -1,13 +1,17 @@
 import React, { ReactNode, useEffect, useMemo } from 'react';
+import {
+  StateContext,
+  DispatchContext,
+} from 'rest-hooks/react-integration/context';
+import masterReducer, {
+  initialState as defaultState,
+} from 'rest-hooks/state/reducer';
+import NetworkManager from 'rest-hooks/state/NetworkManager';
+import SubscriptionManager from 'rest-hooks/state/SubscriptionManager';
+import PollingSubscription from 'rest-hooks/state/PollingSubscription';
+import { State, Manager } from 'rest-hooks/types';
 
 import createEnhancedReducerHook from './middleware';
-
-import { StateContext, DispatchContext } from '~/react-integration/context';
-import masterReducer, { initialState as defaultState } from '~/state/reducer';
-import NetworkManager from '~/state/NetworkManager';
-import SubscriptionManager from '~/state/SubscriptionManager';
-import PollingSubscription from '~/state/PollingSubscription';
-import { State, Manager } from '~/types';
 
 interface ProviderProps {
   children: ReactNode;

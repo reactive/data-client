@@ -1,7 +1,6 @@
 import { NormalizedIndex } from '@rest-hooks/normalizr';
-
-import { Schema, schemas, NormalizeNullable } from '~/resource';
-import { isEntity } from '~/resource/types';
+import { Schema, schemas, NormalizeNullable } from 'rest-hooks/resource';
+import { isEntity } from 'rest-hooks/resource/types';
 
 type POJO = { [key: string]: any };
 

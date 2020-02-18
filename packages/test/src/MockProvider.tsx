@@ -1,6 +1,6 @@
-import React from 'react';
-
 import { __INTERNAL__ } from 'rest-hooks';
+
+import React from 'react';
 
 import mockState, { Fixture } from './mockState';
 const { StateContext } = __INTERNAL__;

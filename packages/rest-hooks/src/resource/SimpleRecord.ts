@@ -1,4 +1,4 @@
-import { AbstractInstanceType } from '~/types';
+import { AbstractInstanceType } from 'rest-hooks/types';
 
 const DefinedMembersKey = Symbol('Defined Members');
 type Filter<T, U> = T extends U ? T : never;

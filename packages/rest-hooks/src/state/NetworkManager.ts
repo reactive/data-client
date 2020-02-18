@@ -1,6 +1,3 @@
-import RIC from './RIC';
-import { createReceive, createReceiveError } from './actionCreators';
-
 import {
   FetchAction,
   ReceiveAction,
@@ -8,14 +5,17 @@ import {
   Middleware,
   Manager,
   Dispatch,
-} from '~/types';
+} from 'rest-hooks/types';
 import {
   RECEIVE_TYPE,
   RECEIVE_MUTATE_TYPE,
   RECEIVE_DELETE_TYPE,
   FETCH_TYPE,
   RESET_TYPE,
-} from '~/actionTypes';
+} from 'rest-hooks/actionTypes';
+
+import RIC from './RIC';
+import { createReceive, createReceiveError } from './actionCreators';
 
 class CleanupError extends Error {
   message = 'Cleaning up Network Manager';

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {
   State,
   reducer,
@@ -8,6 +6,8 @@ import {
   Manager,
   PromiseifyMiddleware,
 } from 'rest-hooks';
+
+import React from 'react';
 
 // Extension of the DeepPartial type defined by Redux which handles unknown
 type DeepPartialWithUnknown<T> = {

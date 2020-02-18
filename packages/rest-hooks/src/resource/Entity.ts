@@ -1,8 +1,8 @@
+import { AbstractInstanceType } from 'rest-hooks/types';
+import { NotImplementedError } from 'rest-hooks/errors';
+
 import { Schema, schemas } from './normal';
 import SimpleRecord from './SimpleRecord';
-
-import { AbstractInstanceType } from '~/types';
-import { NotImplementedError } from '~/errors';
 
 /** Represents data that should be deduped by specifying a primary key. */
 export default abstract class Entity extends SimpleRecord {

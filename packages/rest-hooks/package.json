@@ -17,7 +17,7 @@
     "./rest_hooks_logo_and_text.svg"
   ],
   "scripts": {
-    "build:lib": "cross-env NODE_ENV=production babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:lib": "cross-env NODE_ENV=production ROOT_PATH_PREFIX='rest-hooks' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
     "build:types": "ttsc --build",
     "build:bundle": "rollup -c",
     "build:clean": "rimraf lib dist *.tsbuildinfo",

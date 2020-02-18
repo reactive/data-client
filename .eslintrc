@@ -5,7 +5,9 @@
   "rules": {
     "@typescript-eslint/no-empty-function": "warn"
   },
-  "parserOptions": {
-    "project": ["./packages/**/tsconfig.json", "./__tests__/tsconfig.json"]
+  "settings": {
+    "import/resolver": {
+      "node": {}
+    }
   }
 }

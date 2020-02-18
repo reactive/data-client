@@ -52,9 +52,9 @@
 
     "baseUrl": ".",
     "paths": {
-      "~/*": ["packages/rest-hooks/src/*"],
       "@rest-hooks/*": ["packages/*/src"],
       "rest-hooks": ["packages/rest-hooks/src"],
+      "rest-hooks/*": ["packages/rest-hooks/src/*"],
       "__tests__/*": ["__tests__/*"]
     },
     "skipLibCheck": true,

@@ -1,6 +1,5 @@
 import React from 'react';
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
-
 import { NormalizedIndex } from '@rest-hooks/normalizr';
 
 import { ErrorableFSAWithPayloadAndMeta, ErrorableFSAWithMeta } from './fsa';

@@ -1,17 +1,16 @@
 import { useMemo, useContext } from 'react';
-
-import useRetrieve from './useRetrieve';
-import useError from './useError';
-import hasUsableData from './hasUsableData';
-
 import {
   ReadShape,
   Denormalize,
   DenormalizeNullable,
   ParamsFromShape,
-} from '~/resource';
-import { useDenormalized } from '~/state/selectors';
-import { StateContext } from '~/react-integration/context';
+} from 'rest-hooks/resource';
+import { useDenormalized } from 'rest-hooks/state/selectors';
+import { StateContext } from 'rest-hooks/react-integration/context';
+
+import useRetrieve from './useRetrieve';
+import useError from './useError';
+import hasUsableData from './hasUsableData';
 
 type ResourceArgs<
   S extends ReadShape<any, any>,

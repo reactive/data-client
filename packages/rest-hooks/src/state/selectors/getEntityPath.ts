@@ -1,5 +1,5 @@
-import { isEntity } from '~/resource/types';
-import { Schema, schemas } from '~/resource/normal';
+import { isEntity } from 'rest-hooks/resource/types';
+import { Schema, schemas } from 'rest-hooks/resource/normal';
 
 export default function getEntityPath(schema: Schema): string[] | false {
   if (

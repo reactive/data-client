@@ -1,8 +1,8 @@
-import { useContext } from 'react';
+import { StateContext } from 'rest-hooks/react-integration/context';
+import { ReadShape, ParamsFromShape } from 'rest-hooks/resource';
+import { useDenormalized } from 'rest-hooks/state/selectors';
 
-import { StateContext } from '~/react-integration/context';
-import { ReadShape, ParamsFromShape } from '~/resource';
-import { useDenormalized } from '~/state/selectors';
+import { useContext } from 'react';
 
 /** Access a resource if it is available. */
 export default function useCache<

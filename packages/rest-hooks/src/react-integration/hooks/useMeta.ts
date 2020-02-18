@@ -1,8 +1,7 @@
+import { FetchShape } from 'rest-hooks/resource';
+import { StateContext } from 'rest-hooks/react-integration/context';
+import { selectMeta } from 'rest-hooks/state/selectors';
 import { useContext, useMemo } from 'react';
-
-import { FetchShape } from '~/resource';
-import { StateContext } from '~/react-integration/context';
-import { selectMeta } from '~/state/selectors';
 
 /** Gets meta for a url. */
 export default function useMeta<Params extends Readonly<object>>(

@@ -1,6 +1,6 @@
-import { schemas, Schema } from './normal';
+import { FetchOptions } from 'rest-hooks/types';
 
-import { FetchOptions } from '~/types';
+import { schemas, Schema } from './normal';
 
 /** Defines the shape of a network request */
 export interface FetchShape<

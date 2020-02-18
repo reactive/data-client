@@ -1,8 +1,7 @@
 import { useContext, useCallback, useRef } from 'react';
-
-import { ReadShape, Schema } from '~/resource';
-import { DispatchContext } from '~/react-integration/context';
-import { INVALIDATE_TYPE } from '~/actionTypes';
+import { ReadShape, Schema } from 'rest-hooks/resource';
+import { DispatchContext } from 'rest-hooks/react-integration/context';
+import { INVALIDATE_TYPE } from 'rest-hooks/actionTypes';
 
 /** Invalidate a certain item within the cache */
 export default function useInvalidator<

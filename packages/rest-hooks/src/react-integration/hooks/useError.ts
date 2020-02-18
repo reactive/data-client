@@ -1,6 +1,6 @@
-import useMeta from './useMeta';
+import { ReadShape, Schema } from 'rest-hooks/resource';
 
-import { ReadShape, Schema } from '~/resource';
+import useMeta from './useMeta';
 
 type UseErrorReturn<P> = P extends null ? undefined : Error;
 

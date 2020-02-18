@@ -1,6 +1,6 @@
-import useDenormalized from './useDenormalized';
+import { State } from 'rest-hooks/types';
 
-import { State } from '~/types';
+import useDenormalized from './useDenormalized';
 
 export { useDenormalized };
 

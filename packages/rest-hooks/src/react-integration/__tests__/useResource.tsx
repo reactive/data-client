@@ -9,6 +9,9 @@ import {
 } from '__tests__/common';
 
 // relative imports to avoid circular dependency in tsconfig references
+import { State } from 'rest-hooks/types';
+import { initialState } from 'rest-hooks/state/reducer';
+
 import {
   makeRenderRestHook,
   makeCacheProvider,
@@ -18,9 +21,6 @@ import { normalize } from '../../resource';
 import { DispatchContext, StateContext } from '../context';
 import { useResource } from '../hooks';
 import { payload, users, nested } from './fixtures';
-
-import { State } from '~/types';
-import { initialState } from '~/state/reducer';
 
 async function testDispatchFetch(
   Component: React.FunctionComponent<any>,

@@ -1,9 +1,6 @@
-import mergeDeepCopy from './merge/mergeDeepCopy';
-import applyUpdatersToResults from './applyUpdatersToResults';
-
-import { normalize } from '~/resource';
-import { ActionTypes, State, ResponseActions } from '~/types';
-import { createReceive } from '~/state/actionCreators';
+import { normalize } from 'rest-hooks/resource';
+import { ActionTypes, State, ResponseActions } from 'rest-hooks/types';
+import { createReceive } from 'rest-hooks/state/actionCreators';
 import {
   RECEIVE_TYPE,
   RECEIVE_MUTATE_TYPE,
@@ -11,7 +8,10 @@ import {
   INVALIDATE_TYPE,
   RESET_TYPE,
   FETCH_TYPE,
-} from '~/actionTypes';
+} from 'rest-hooks/actionTypes';
+
+import applyUpdatersToResults from './applyUpdatersToResults';
+import mergeDeepCopy from './merge/mergeDeepCopy';
 
 export const initialState: State<unknown> = {
   entities: {},

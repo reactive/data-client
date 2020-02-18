@@ -11,9 +11,9 @@
     "build": "ttsc --build && lerna run build --stream",
     "build:clean": "lerna run build:clean --stream",
     "build:types": "ttsc --build",
-    "test": "lerna run test --stream",
-    "test:ci": "lerna run --stream test:ci",
-    "test:coverage": "lerna run test:coverage --stream",
+    "test": "cross-env NODE_ENV=test jest",
+    "test:ci": "yarn test -- --ci",
+    "test:coverage": "yarn test -- --coverage",
     "prepublishOnly": "yarn run build:clean && yarn run build:types"
   },
   "husky": {
@@ -39,7 +39,7 @@
     ]
   },
   "devDependencies": {
-    "@anansi/babel-preset": "^1.0.1",
+    "@anansi/babel-preset": "^1.1.0",
     "@anansi/eslint-plugin": "^0.8.4",
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.4",
