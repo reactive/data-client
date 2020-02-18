@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.5.0-beta.2](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.0-beta.1...rest-hooks@4.5.0-beta.2) (2020-02-18)
+
+
+### 🐛 Bug Fix
+
+* Poll fetches while testing should be wrapped in act ([#268](https://github.com/coinbase/rest-hooks/issues/268)) ([9c264bb](https://github.com/coinbase/rest-hooks/commit/9c264bb1e5a736b6bdab2077185cebd754c39b6f))
+
+
+### 🏠 Internal
+
+* Centralize jest config ([#230](https://github.com/coinbase/rest-hooks/issues/230)) ([5d769d2](https://github.com/coinbase/rest-hooks/commit/5d769d2485fe62ba65f4176894768bdbb6faafb3))
+
+
+
 ## [4.5.0-beta.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.0-beta.0...rest-hooks@4.5.0-beta.1) (2020-02-13)
 
 

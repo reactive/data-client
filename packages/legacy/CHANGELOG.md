@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.8-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@1.0.7...@rest-hooks/legacy@1.0.8-beta.0) (2020-02-18)
+
+
+### 🏠 Internal
+
+* Centralize jest config ([#230](https://github.com/coinbase/rest-hooks/issues/230)) ([5d769d2](https://github.com/coinbase/rest-hooks/commit/5d769d2485fe62ba65f4176894768bdbb6faafb3))
+
+
+### 📝 Documentation
+
+* Use bundlephobia badge for lib size ([eb76258](https://github.com/coinbase/rest-hooks/commit/eb76258db4be81a4a22ce01074c4a88cfc4ff0b8))
+
+
+
 ### [1.0.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@1.0.6...@rest-hooks/legacy@1.0.7) (2020-01-18)
 
 **Note:** Version bump only for package @rest-hooks/legacy
