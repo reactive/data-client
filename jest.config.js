@@ -20,15 +20,14 @@ function readTsConfig(path = './', configName = 'tsconfig.json') {
 }
 
 const baseConfig = {
-  roots: ['<rootDir>/src'],
   transform: {
-    //'^.+\\.tsx?$': 'ts-jest',
-    '^.+\\.(t|j)sx?$': '<rootDir>/../../scripts/babel-jest',
+    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.(j)sx?$': '<rootDir>/scripts/babel-jest',
   },
   globals: {
     'ts-jest': {
       babelConfig: 'babel.config.js',
-      tsConfig: '<rootDir>/tsconfig.json',
+      tsConfig: '<rootDir>/tsconfig.test.json',
     },
   },
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(j|t)sx?$',
@@ -39,29 +38,24 @@ const baseConfig = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   moduleNameMapper: {
     ...pathsToModuleNameMapper(
-      readTsConfig('./', 'tsconfig-base.json').options.paths,
+      readTsConfig('./', 'tsconfig.test.json').options.paths,
       {
-        prefix: '<rootDir>/../../',
+        prefix: '<rootDir>/',
       },
     ),
   },
-  setupFiles: ['<rootDir>/../../scripts/testSetup.js'],
+  setupFiles: ['<rootDir>/scripts/testSetup.js'],
 };
 
 const packages = ['legacy', 'rest-hooks', 'normalizr'];
 
-const projects = packages.map(pkgName => ({
-  ...baseConfig,
-  rootDir: __dirname + `/packages/${pkgName}`,
-  moduleNameMapper: {
-    ...pathsToModuleNameMapper(
-      readTsConfig(`./packages/${pkgName}/`).options.paths,
-      {
-        prefix: '<rootDir>/../../',
-      },
-    ),
+const projects = [
+  {
+    ...baseConfig,
+    rootDir: __dirname,
+    roots: packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
   },
-}));
+];
 
 module.exports = {
   projects,
