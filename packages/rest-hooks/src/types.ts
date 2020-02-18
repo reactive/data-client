@@ -1,6 +1,8 @@
+import { NormalizedIndex } from '@rest-hooks/normalizr';
+import { Middleware } from '@rest-hooks/use-enhanced-reducer';
+
 import React from 'react';
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
-import { NormalizedIndex } from '@rest-hooks/normalizr';
 
 import { ErrorableFSAWithPayloadAndMeta, ErrorableFSAWithMeta } from './fsa';
 import { Schema, schemas, Normalize } from './resource';
@@ -177,21 +179,6 @@ export type ActionTypes =
   | UnsubscribeAction
   | InvalidateAction
   | ResetAction;
-
-export type Dispatch<R extends React.Reducer<any, any>> = (
-  action: React.ReducerAction<R>,
-) => Promise<void>;
-
-export type Middleware = <R extends React.Reducer<any, any>>({
-  dispatch,
-}: MiddlewareAPI<R>) => (next: Dispatch<R>) => Dispatch<R>;
-
-export interface MiddlewareAPI<
-  R extends React.Reducer<any, any> = React.Reducer<any, any>
-> {
-  getState: () => React.ReducerState<R>;
-  dispatch: Dispatch<R>;
-}
 
 export interface Manager {
   getMiddleware(): Middleware;

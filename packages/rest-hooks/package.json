@@ -67,6 +67,7 @@
   "dependencies": {
     "@babel/runtime": "^7.7.2",
     "@rest-hooks/normalizr": "^5.0.3-beta.0",
+    "@rest-hooks/use-enhanced-reducer": "^0.1.0",
     "flux-standard-action": "^2.1.1"
   },
   "peerDependencies": {

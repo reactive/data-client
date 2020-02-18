@@ -1,8 +1,8 @@
 import React from 'react';
 import { renderHook, act } from '@testing-library/react-hooks';
 
-import createEnhancedReducerHook from '../middleware';
-import { MiddlewareAPI } from '../../../types';
+import useEnhancedReducer from '../useEnhancedReducer';
+import { MiddlewareAPI } from '../types';
 
 function ignoreError(e: Event) {
   e.preventDefault();
@@ -51,8 +51,7 @@ describe('createEnhancedReducerHook', () => {
     const faker = jest.fn();
     const logger = makeTestActionMiddleware(faker);
     const { result } = renderHook(() => {
-      const useEnhancedReducer = createEnhancedReducerHook(logger);
-      return useEnhancedReducer(state => state, {});
+      return useEnhancedReducer(state => state, {}, [logger]);
     });
     const [state, dispatch] = result.current;
 
@@ -77,8 +76,10 @@ describe('createEnhancedReducerHook', () => {
     );
 
     const { result } = renderHook(() => {
-      const useEnhancedReducer = createEnhancedReducerHook(methodspy, statespy);
-      return useEnhancedReducer(state => state, { double: 5 });
+      return useEnhancedReducer(state => state, { double: 5 }, [
+        methodspy,
+        statespy,
+      ]);
     });
     const [state, dispatch] = result.current;
 
@@ -100,10 +101,10 @@ describe('createEnhancedReducerHook', () => {
     const logger = makeTestActionMiddleware(() => {});
 
     const { result } = renderHook(() => {
-      const useEnhancedReducer = createEnhancedReducerHook(logger);
       return useEnhancedReducer(
         (state, action) => ({ ...state, omlet: action.payload }),
         { eggs: 'bacon' },
+        [logger],
       );
     });
     let [state, dispatch] = result.current;
@@ -130,11 +131,10 @@ describe('createEnhancedReducerHook', () => {
     const logger = makeTestActionMiddleware(faker);
 
     const { result } = renderHook(() => {
-      const useEnhancedReducer = createEnhancedReducerHook(
+      return useEnhancedReducer(state => state, {}, [
         logger,
         dispatchingMiddleware,
-      );
-      return useEnhancedReducer(state => state, {});
+      ]);
     });
     const [state, dispatch] = result.current;
     expect(faker.mock.calls.length).toBe(0);
@@ -162,8 +162,7 @@ describe('createEnhancedReducerHook', () => {
       counter: state.counter + 1,
     });
     const { result } = renderHook(() => {
-      const useEnhancedReducer = createEnhancedReducerHook(logger);
-      return useEnhancedReducer(reducer, { counter: 0 });
+      return useEnhancedReducer(reducer, { counter: 0 }, [logger]);
     });
     let [state, dispatch] = result.current;
     expect(callBefore.mock.calls.length).toBe(0);
@@ -193,7 +192,7 @@ describe('createEnhancedReducerHook', () => {
       return (next: Function) => (action: any) => next(action);
     }
     const { result } = renderHook(() => {
-      createEnhancedReducerHook(dispatchingMiddleware)(state => state, {});
+      useEnhancedReducer(state => state, {}, [dispatchingMiddleware]);
     });
     expect(result.error).toBeDefined();
     expect(result.error.message).toMatchSnapshot();

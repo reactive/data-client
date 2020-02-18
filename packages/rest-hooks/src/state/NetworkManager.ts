@@ -1,11 +1,9 @@
 import {
-  FetchAction,
-  ReceiveAction,
   MiddlewareAPI,
   Middleware,
-  Manager,
   Dispatch,
-} from 'rest-hooks/types';
+} from '@rest-hooks/use-enhanced-reducer';
+import { FetchAction, ReceiveAction, Manager } from 'rest-hooks/types';
 import {
   RECEIVE_TYPE,
   RECEIVE_MUTATE_TYPE,

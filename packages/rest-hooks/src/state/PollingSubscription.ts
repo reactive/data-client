@@ -1,5 +1,5 @@
 import { Schema } from 'rest-hooks/resource';
-import { Dispatch } from 'rest-hooks/types';
+import { Dispatch } from '@rest-hooks/use-enhanced-reducer';
 import { FETCH_TYPE, RECEIVE_TYPE } from 'rest-hooks/actionTypes';
 
 import isOnline from './isOnline';

@@ -1,4 +1,10 @@
 import {
+  MiddlewareAPI,
+  Middleware,
+  Dispatch,
+} from '@rest-hooks/use-enhanced-reducer';
+
+import {
   Resource,
   SimpleResource,
   SimpleRecord,
@@ -50,6 +56,9 @@ export * from './resource/normal';
 export * from './resource/publicTypes';
 export * from './resource/Entity';
 export {
+  MiddlewareAPI,
+  Middleware,
+  Dispatch,
   Resource,
   SimpleResource,
   Entity,
