@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.5.0-beta.3](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.0-beta.2...rest-hooks@4.5.0-beta.3) (2020-02-18)
+
+
+### 🏠 Internal
+
+* Pull out new package @rest-hooks/use-enhanced-reducer ([#269](https://github.com/coinbase/rest-hooks/issues/269)) ([bb99aeb](https://github.com/coinbase/rest-hooks/commit/bb99aebf6133b34950b1ce3c422fb034fd2971ed))
+
+
+
 ## [4.5.0-beta.2](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.0-beta.1...rest-hooks@4.5.0-beta.2) (2020-02-18)
 
 
