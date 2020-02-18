@@ -26,6 +26,7 @@
   },
   "keywords": [
     "react",
+    "reducer",
     "flux",
     "middleware",
     "orchestration",
@@ -35,7 +36,9 @@
     "state",
     "dispatch",
     "thunk",
-    "state management"
+    "state management",
+    "concurrent mode",
+    "async"
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
