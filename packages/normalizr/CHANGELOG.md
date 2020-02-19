@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@5.0.3...@rest-hooks/normalizr@5.0.4) (2020-02-19)
+
+
+### 🏠 Internal
+
+* Check compressed size changes on PR ([#270](https://github.com/coinbase/rest-hooks/issues/270)) ([d70ccbf](https://github.com/coinbase/rest-hooks/commit/d70ccbf44ac5ba8fdc4f70886851ab18349f37e6))
+
+
+
 ### [5.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@5.0.3-beta.0...@rest-hooks/normalizr@5.0.3) (2020-02-18)
 
 **Note:** Version bump only for package @rest-hooks/normalizr

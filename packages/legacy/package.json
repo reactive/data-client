@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/legacy",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Legacy features for Rest Hooks",
   "sideEffects": false,
   "main": "dist/index.cjs.js",

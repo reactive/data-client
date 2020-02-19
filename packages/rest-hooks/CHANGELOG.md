@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.5.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.0...rest-hooks@4.5.1) (2020-02-19)
+
+
+### 🐛 Bug Fix
+
+* Fix commonjs bundle ([#271](https://github.com/coinbase/rest-hooks/issues/271)) ([a898bd0](https://github.com/coinbase/rest-hooks/commit/a898bd0c3497711a25c584f78d1e9c0cbde29949))
+
+
+### 🏠 Internal
+
+* Check compressed size changes on PR ([#270](https://github.com/coinbase/rest-hooks/issues/270)) ([d70ccbf](https://github.com/coinbase/rest-hooks/commit/d70ccbf44ac5ba8fdc4f70886851ab18349f37e6))
+
+
+
 ## [4.5.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.0-beta.3...rest-hooks@4.5.0) (2020-02-18)
 
 **Note:** Version bump only for package rest-hooks
