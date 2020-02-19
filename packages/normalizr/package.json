@@ -34,7 +34,7 @@
     "build:development": "NODE_ENV=development rollup -c",
     "build:production": "NODE_ENV=production rollup -c",
     "build:es_development": "BROWSERSLIST_ENV=production NODE_ENV=development rollup -c",
-    "build:es_production": "BROWSERSLIST_ENV=production NODE_ENV=production rollup -c",
+    "build:bundle": "BROWSERSLIST_ENV=production NODE_ENV=production rollup -c",
     "clean": "rimraf dist",
     "lint": "yarn lint:cmd --fix",
     "lint:ci": "yarn lint:cmd",
