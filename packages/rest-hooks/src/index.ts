@@ -1,10 +1,4 @@
 import {
-  MiddlewareAPI,
-  Middleware,
-  Dispatch,
-} from '@rest-hooks/use-enhanced-reducer';
-
-import {
   Resource,
   SimpleResource,
   SimpleRecord,
@@ -50,15 +44,13 @@ const __INTERNAL__ = {
 
 export type NetworkError = OGNetworkError;
 
+export * from '@rest-hooks/use-enhanced-reducer';
 export * from './types';
 export * from './resource/shapes';
 export * from './resource/normal';
 export * from './resource/publicTypes';
 export * from './resource/Entity';
 export {
-  MiddlewareAPI,
-  Middleware,
-  Dispatch,
   Resource,
   SimpleResource,
   Entity,

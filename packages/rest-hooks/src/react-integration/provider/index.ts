@@ -1,5 +1,4 @@
-import { PromiseifyMiddleware } from '@rest-hooks/use-enhanced-reducer';
-
+import PromiseifyMiddleware from './PromiseifyMiddleware';
 import CacheProvider from './CacheProvider';
 import ExternalCacheProvider from './ExternalCacheProvider';
 
