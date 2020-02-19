@@ -1,4 +1,4 @@
-import { useReducer, useMemo, useRef, useEffect } from 'react';
+import React, { useReducer, useMemo, useRef, useEffect } from 'react';
 
 import { Middleware, Dispatch } from './types';
 import usePromisifiedDispatch from './usePromisifiedDispatch';

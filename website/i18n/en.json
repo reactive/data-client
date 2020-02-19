@@ -111,12 +111,12 @@
       "guides/fetch-then-render": {
         "title": "Fetch then Render"
       },
+      "guides/immediate-updates": {
+        "title": "Immediate Mutation Updates"
+      },
       "guides/immutability": {
         "title": "Understanding Immutability",
         "sidebar_label": "Understanding Immutability"
-      },
-      "guides/instant-updates": {
-        "title": "Instant Mutation Updates"
       },
       "guides/loading-state": {
         "title": "Handling loading state"
@@ -771,8 +771,8 @@
       "version-4.5/guides/version-4.5-binary-fetches": {
         "title": "Fetching Media"
       },
-      "version-4.5/guides/version-4.5-instant-updates": {
-        "title": "Instant Mutation Updates"
+      "version-4.5/guides/version-4.5-immediate-updates": {
+        "title": "Immediate Mutation Updates"
       },
       "version-4.5/guides/version-4.5-optimistic-updates": {
         "title": "Optimistic Updates"

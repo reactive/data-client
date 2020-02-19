@@ -1,4 +1,5 @@
-import { MiddlewareAPI, Dispatch } from './types';
+import React from 'react';
+import { MiddlewareAPI, Dispatch } from '@rest-hooks/use-enhanced-reducer';
 
 const PromiseifyMiddleware = <R extends React.Reducer<any, any>>(
   _: MiddlewareAPI<R>,

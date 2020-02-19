@@ -1,3 +1,5 @@
+import React from 'react';
+
 export interface MiddlewareAPI<
   R extends React.Reducer<any, any> = React.Reducer<any, any>
 > {
