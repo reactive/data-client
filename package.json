@@ -9,6 +9,7 @@
     "format": "eslint --fix \"packages/*/src/**/*.{js,ts,tsx}\"",
     "clean": "lerna clean",
     "build": "ttsc --build && lerna run build --stream",
+    "build:bundle": "lerna run build:bundle --stream",
     "build:clean": "lerna run build:clean --stream",
     "build:types": "ttsc --build",
     "test": "cross-env NODE_ENV=test jest",
