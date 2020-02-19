@@ -19,9 +19,11 @@ export default function loggerMiddleware<R extends React.Reducer<any, any>>({
   dispatch,
 }: MiddlewareAPI<R>) {
   return (next: Dispatch<R>) => async (action: React.ReducerAction<R>) => {
+    console.group(action.type);
     console.log('before', getState());
     await next(action);
     console.log('after', getState());
+    console.groupEnd();
   };
 }
 ```
