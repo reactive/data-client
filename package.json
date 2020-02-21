@@ -40,7 +40,7 @@
     ]
   },
   "devDependencies": {
-    "@anansi/babel-preset": "^1.1.0",
+    "@anansi/babel-preset": "^1.1.2",
     "@anansi/eslint-plugin": "^0.8.4",
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.4",
@@ -80,7 +80,7 @@
     "ts-jest": "^25.2.0",
     "ts-node": "^8.6.2",
     "ttypescript": "^1.5.10",
-    "typescript": "^3.7.5",
+    "typescript": "^3.8.2",
     "whatwg-fetch": "^3.0.0"
   },
   "resolutions": {
