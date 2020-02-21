@@ -55,7 +55,7 @@ export default abstract class Entity extends SimpleRecord {
     key: string | undefined,
     visit: Function,
     addEntity: Function,
-    visitedEntities: { [key: string]: any },
+    visitedEntities: Record<string, any>,
   ) {
     const id = this.pk(input, parent, key);
     /* istanbul ignore next */
@@ -170,7 +170,7 @@ export type EntitySchema<E extends typeof Entity> = E & {
     key: any,
     visit: Function,
     addEntity: Function,
-    visitedEntities: { [key: string]: any },
+    visitedEntities: Record<string, any>,
   ): string;
   denormalize(
     entity: any,

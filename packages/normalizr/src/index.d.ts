@@ -11,7 +11,7 @@ declare namespace schema {
     parent: any,
     key: string,
   ) => S;
-  export type EntityMap<T = any> = { [key: string]: EntityInterface<T> };
+  export type EntityMap<T = any> = Record<string, EntityInterface<T>>;
   export type UnvisitFunction = (input: any, schema: any) => [any, boolean];
   export type UnionResult<Choices extends EntityMap> = {
     id: string;
@@ -25,7 +25,7 @@ declare namespace schema {
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any },
+      visitedEntities: Record<string, any>,
     ): any;
     // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
     _normalizeNullable(): any;
@@ -44,7 +44,7 @@ declare namespace schema {
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any },
+      visitedEntities: Record<string, any>,
     ): Normalize<S>[];
 
     _normalizeNullable(): Normalize<S>[] | undefined;
@@ -80,7 +80,7 @@ declare namespace schema {
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any },
+      visitedEntities: Record<string, any>,
     ): string; // string is the ReturnType of 'pk'
 
     _normalizeNullable(): string | undefined; // string is the ReturnType of 'pk'
@@ -98,16 +98,15 @@ declare namespace schema {
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any },
+      visitedEntities: Record<string, any>,
     ): string;
     denormalize(entity: any, unvisit: Function): [T, boolean];
     _normalizeNullable(): string | undefined;
     _denormalizeNullable(): [T | undefined, boolean];
   }
 
-  export class Object<
-    O extends { [key: string]: any } = { [key: string]: Schema }
-  > implements SchemaClass {
+  export class Object<O extends Record<string, any> = Record<string, Schema>>
+    implements SchemaClass {
     constructor(definition: O);
     define(definition: Schema): void;
     readonly schema: O;
@@ -117,7 +116,7 @@ declare namespace schema {
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any },
+      visitedEntities: Record<string, any>,
     ): NormalizeObject<O>;
 
     _normalizeNullable(): NormalizedNullableObject<O>;
@@ -150,7 +149,7 @@ declare namespace schema {
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any },
+      visitedEntities: Record<string, any>,
     ): UnionResult<Choices>;
 
     _normalizeNullable(): UnionResult<Choices> | undefined;
@@ -196,7 +195,7 @@ declare namespace schema {
       key: any,
       visit: Function,
       addEntity: Function,
-      visitedEntities: { [key: string]: any },
+      visitedEntities: Record<string, any>,
     ): Record<
       string,
       Choices extends EntityMap ? UnionResult<Choices> : Normalize<Choices>
@@ -234,19 +233,19 @@ declare namespace schema {
   }
 }
 
-type DenormalizeObject<S extends { [key: string]: any }> = {
+type DenormalizeObject<S extends Record<string, any>> = {
   [K in keyof S]: S[K] extends Schema ? Denormalize<S[K]> : S[K];
 };
 
-type DenormalizeNullableObject<S extends { [key: string]: any }> = {
+type DenormalizeNullableObject<S extends Record<string, any>> = {
   [K in keyof S]: S[K] extends Schema ? DenormalizeNullable<S[K]> : S[K];
 };
 
-type NormalizeObject<S extends { [key: string]: any }> = {
+type NormalizeObject<S extends Record<string, any>> = {
   [K in keyof S]: S[K] extends Schema ? Normalize<S[K]> : S[K];
 };
 
-type NormalizedNullableObject<S extends { [key: string]: any }> = {
+type NormalizedNullableObject<S extends Record<string, any>> = {
   [K in keyof S]: S[K] extends Schema ? NormalizeNullable<S[K]> : S[K];
 };
 
@@ -322,9 +321,10 @@ export type NormalizedSchema<E, R> = {
 
 export function normalize<
   S extends Schema = Schema,
-  E extends { [key: string]: { [key: string]: any } } = {
-    [key: string]: { [key: string]: any };
-  },
+  E extends Record<string, Record<string, any>> = Record<
+    string,
+    Record<string, any>
+  >,
   R = NormalizeNullable<S>
 >(data: any, schema: S): NormalizedSchema<E, R>;
 
@@ -333,5 +333,5 @@ export function denormalize<S extends Schema>(
   schema: S,
   entities: any,
 ):
-  | [Denormalize<S>, true, { [key: string]: { [key: string]: any } }]
-  | [DenormalizeNullable<S>, false, { [key: string]: { [key: string]: any } }];
+  | [Denormalize<S>, true, Record<string, Record<string, any>>]
+  | [DenormalizeNullable<S>, false, Record<string, Record<string, any>>];

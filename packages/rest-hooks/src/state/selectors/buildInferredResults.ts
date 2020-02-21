@@ -2,8 +2,6 @@ import { NormalizedIndex } from '@rest-hooks/normalizr';
 import { Schema, schemas, NormalizeNullable } from 'rest-hooks/resource';
 import { isEntity } from 'rest-hooks/resource/types';
 
-type POJO = { [key: string]: any };
-
 /**
  * Build the result parameter to denormalize from schema alone.
  * Tries to compute the entity ids from params.
@@ -27,8 +25,10 @@ export default function buildInferredResults<
     // now attempt lookup in indexes
     const indexName = indexFromParams(params, schema.indexes);
     if (indexName) {
-      // 'as POJO': indexName can only be found if params is a string key'd object
-      return indexes[schema.key][indexName][(params as POJO)[indexName]] as any;
+      // 'as Record<string, any>': indexName can only be found if params is a string key'd object
+      return indexes[schema.key][indexName][
+        (params as Record<string, any>)[indexName]
+      ] as any;
     }
     return undefined as any;
   }

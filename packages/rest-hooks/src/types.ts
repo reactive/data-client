@@ -64,7 +64,7 @@ interface ReceiveMeta<S extends Schema> {
   schema: S;
   url: string;
   date: number;
-  updaters?: { [key: string]: UpdateFunction<S, any> };
+  updaters?: Record<string, UpdateFunction<S, any>>;
   expiresAt: number;
 }
 
@@ -81,7 +81,7 @@ interface RPCMeta<S extends Schema> {
   schema: S;
   url: string;
   date: number;
-  updaters?: { [key: string]: UpdateFunction<S, any> };
+  updaters?: Record<string, UpdateFunction<S, any>>;
 }
 
 export type RPCAction<
@@ -123,7 +123,7 @@ interface FetchMeta<
   url: string;
   schema: S;
   throttle: boolean;
-  updaters?: { [key: string]: UpdateFunction<S, any> };
+  updaters?: Record<string, UpdateFunction<S, any>>;
   options?: FetchOptions;
   resolve: (value?: any | PromiseLike<any>) => void;
   reject: (reason?: any) => void;
