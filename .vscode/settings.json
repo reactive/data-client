@@ -17,7 +17,7 @@
     "typescript",
     "typescriptreact"
   ],
-  "typescript.tsdk": "node_modules/ttypescript/lib",
+  "typescript.tsdk": "node_modules/typescript/lib",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true

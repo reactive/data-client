@@ -17,7 +17,7 @@ import { camelCase, snakeCase } from 'lodash';
 import { Method, Resource } from 'rest-hooks';
 
 function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
-  const ret: { [key: string]: any } = Array.isArray(obj) ? [] : {};
+  const ret: Record<string, any> = Array.isArray(obj) ? [] : {};
   Object.keys(obj).forEach(key => {
     if (obj[key] != null && typeof obj[key] === 'object') {
       ret[transform(key)] = deeplyApplyKeyTransform(obj[key], transform);

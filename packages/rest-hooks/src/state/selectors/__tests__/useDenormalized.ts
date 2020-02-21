@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { renderHook, act } from '@testing-library/react-hooks';
 import {
   CoolerArticleResource,
   PaginatedArticleResource,
@@ -8,6 +6,9 @@ import {
 } from '__tests__/common';
 import { normalize } from 'rest-hooks/resource';
 import { initialState } from 'rest-hooks/state/reducer';
+
+import { renderHook, act } from '@testing-library/react-hooks';
+import { useState } from 'react';
 
 import useDenormalized from '../useDenormalized';
 
@@ -496,7 +497,7 @@ describe('useDenormalized()', () => {
             results: {
               ...state.results,
               [PaginatedArticleResource.listShape().getFetchKey(params)]: {
-                results: [...resultState.results, '5'],
+                results: [...(resultState.results ?? []), '5'],
               },
             },
           })),
