@@ -1,5 +1,7 @@
 ---
 title: Authentication
+id: version-4.5-auth
+original_id: auth
 ---
 
 All network requests are run through the `static fetchOptionsPlugin` optionally
