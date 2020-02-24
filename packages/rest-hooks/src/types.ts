@@ -1,6 +1,5 @@
 import { NormalizedIndex } from '@rest-hooks/normalizr';
 import { Middleware } from '@rest-hooks/use-enhanced-reducer';
-
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
 
 import { ErrorableFSAWithPayloadAndMeta, ErrorableFSAWithMeta } from './fsa';
@@ -29,15 +28,21 @@ export type AbstractInstanceType<T> = T extends { prototype: infer U }
 
 export type EntityInstance<T> = Readonly<AbstractInstanceType<T>>;
 
-export type PK = string | number;
+export type PK = string;
 
 export type State<T> = Readonly<{
-  entities: Readonly<{ [entityKey: string]: { [pk: string]: T } | undefined }>;
-  indexes: Readonly<NormalizedIndex>;
-  results: Readonly<{ [url: string]: unknown | PK[] | PK | undefined }>;
-  meta: Readonly<{
-    [url: string]: { date: number; error?: Error; expiresAt: number };
-  }>;
+  entities: {
+    readonly [entityKey: string]: { readonly [pk: string]: T } | undefined;
+  };
+  indexes: NormalizedIndex;
+  results: { readonly [url: string]: unknown | PK[] | PK | undefined };
+  meta: {
+    readonly [url: string]: {
+      readonly date: number;
+      readonly error?: Error;
+      readonly expiresAt: number;
+    };
+  };
   optimistic: ResponseActions[];
 }>;
 
