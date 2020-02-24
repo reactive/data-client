@@ -310,7 +310,9 @@ export type Schema =
   | schema.SchemaClass;
 
 export type NormalizedIndex = {
-  [entityKey: string]: { [indexName: string]: { [lookup: string]: string } };
+  readonly [entityKey: string]: {
+    readonly [indexName: string]: { readonly [lookup: string]: string };
+  };
 };
 
 export type NormalizedSchema<E, R> = {

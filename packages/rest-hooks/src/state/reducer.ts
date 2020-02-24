@@ -141,7 +141,7 @@ export default function reducer(
   }
 }
 
-type Writable<T> = { [P in keyof T]: NonNullable<T[P]> };
+type Writable<T> = { [P in keyof T]: NonNullable<Writable<T[P]>> };
 
 /** Filter all requests with same serialization that did not start after the resolving request */
 function filterOptimistic(
