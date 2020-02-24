@@ -31,6 +31,7 @@ import {
 import useSelectionUnstable from './react-integration/hooks/useSelection';
 import hasUsableData from './react-integration/hooks/hasUsableData';
 import { StateContext, DispatchContext } from './react-integration/context';
+import * as actionTypes from './actionTypes';
 
 const __INTERNAL__ = {
   initialState,
@@ -39,6 +40,7 @@ const __INTERNAL__ = {
   RIC,
   hasUsableData,
   buildInferredResults,
+  actionTypes,
   isEntity,
 };
 
