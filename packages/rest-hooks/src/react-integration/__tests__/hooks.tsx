@@ -1,13 +1,14 @@
-import React, { Suspense, useEffect } from 'react';
-import { render } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
-import nock from 'nock';
 import {
   CoolerArticleResource,
   PaginatedArticleResource,
   ArticleResourceWithOtherListUrl,
   StaticArticleResource,
 } from '__tests__/common';
+
+import React, { Suspense, useEffect } from 'react';
+import { render } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
+import nock from 'nock';
 
 // relative imports to avoid circular dependency in tsconfig references
 import {

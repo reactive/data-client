@@ -1,18 +1,16 @@
-import { AbstractInstanceType } from 'rest-hooks/types';
+import { EntityInstance } from 'rest-hooks/types';
 
 const DefinedMembersKey = Symbol('Defined Members');
 type Filter<T, U> = T extends U ? T : never;
 interface SimpleResourceMembers<T extends typeof SimpleRecord> {
-  [DefinedMembersKey]: Filter<keyof AbstractInstanceType<T>, string>[];
+  [DefinedMembersKey]: Filter<keyof EntityInstance<T>, string>[];
 }
 
 /** Immutable record that keeps track of which members are defined vs defaults. */
 export default abstract class SimpleRecord {
-  // a 'unique' identifier to make referential equality comparisons easy
-  declare readonly _unq: string;
-
   toString(): string {
-    return this._unq;
+    // we don't make _unq a member so it doesn't play a role in type compatibility
+    return (this as any)._unq;
   }
 
   /** Factory method to convert from Plain JS Objects.
@@ -23,14 +21,12 @@ export default abstract class SimpleRecord {
    */
   static fromJS<T extends typeof SimpleRecord>(
     this: T,
-    props: Partial<AbstractInstanceType<T>>,
+    props: Partial<EntityInstance<T>>,
     parent?: any,
     key?: string,
   ) {
     // we type guarded abstract case above, so ok to force typescript to allow constructor call
-    const instance = new (this as any)(props) as Readonly<
-      AbstractInstanceType<T>
-    >;
+    const instance = new (this as any)(props) as EntityInstance<T>;
 
     Object.defineProperty(instance, DefinedMembersKey, {
       value: Object.keys(props),
@@ -57,8 +53,8 @@ export default abstract class SimpleRecord {
   /** Creates new instance copying over defined values of arguments */
   static merge<T extends typeof SimpleRecord>(
     this: T,
-    first: AbstractInstanceType<T>,
-    second: AbstractInstanceType<T>,
+    first: EntityInstance<T>,
+    second: EntityInstance<T>,
   ) {
     const props = Object.assign(
       {},
@@ -71,8 +67,8 @@ export default abstract class SimpleRecord {
   /** Whether key is non-default */
   static hasDefined<T extends typeof SimpleRecord>(
     this: T,
-    instance: AbstractInstanceType<T>,
-    key: Filter<keyof AbstractInstanceType<T>, string>,
+    instance: EntityInstance<T>,
+    key: Filter<keyof EntityInstance<T>, string>,
   ) {
     return ((instance as any) as SimpleResourceMembers<T>)[
       DefinedMembersKey
@@ -82,9 +78,9 @@ export default abstract class SimpleRecord {
   /** Returns simple object with all the non-default members */
   static toObjectDefined<T extends typeof SimpleRecord>(
     this: T,
-    instance: AbstractInstanceType<T>,
+    instance: EntityInstance<T>,
   ) {
-    const defined: Partial<AbstractInstanceType<T>> = {};
+    const defined: Partial<EntityInstance<T>> = {};
     for (const member of ((instance as any) as SimpleResourceMembers<T>)[
       DefinedMembersKey
     ]) {
@@ -96,7 +92,7 @@ export default abstract class SimpleRecord {
   /** Returns array of all keys that have values defined in instance */
   static keysDefined<T extends typeof SimpleRecord>(
     this: T,
-    instance: AbstractInstanceType<T>,
+    instance: EntityInstance<T>,
   ) {
     return ((instance as any) as SimpleResourceMembers<T>)[DefinedMembersKey];
   }
