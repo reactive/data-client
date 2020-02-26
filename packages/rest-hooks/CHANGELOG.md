@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.5.2](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.1...rest-hooks@4.5.2) (2020-02-26)
+
+
+### 🐛 Bug Fix
+
+* type SimpleRecord._unq should be private ([#274](https://github.com/coinbase/rest-hooks/issues/274)) ([e6ad2c1](https://github.com/coinbase/rest-hooks/commit/e6ad2c1c50d16b23e6b067b936a70f6672e8ce1c))
+
+
+### 📦 Package
+
+* Upgrade to TypeScript 3.8 ([#272](https://github.com/coinbase/rest-hooks/issues/272)) ([d9086b6](https://github.com/coinbase/rest-hooks/commit/d9086b6f0e7033a51e1ea5bd3850c4135d7a9b58))
+
+
+### 🏠 Internal
+
+* readonly should exist on all levels of internal state ([#276](https://github.com/coinbase/rest-hooks/issues/276)) ([a884186](https://github.com/coinbase/rest-hooks/commit/a884186e2696b40ab764979d646089aa625dfe8d))
+* Use Record<string, any> form for POJOs ([dae11b2](https://github.com/coinbase/rest-hooks/commit/dae11b233d4cc3d56ba93f1488a0b42ba7a1dfce))
+
+
+
 ### [4.5.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.0...rest-hooks@4.5.1) (2020-02-19)
 
 

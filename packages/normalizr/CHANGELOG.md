@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@5.0.4...@rest-hooks/normalizr@5.0.5) (2020-02-26)
+
+
+### 🏠 Internal
+
+* readonly should exist on all levels of internal state ([#276](https://github.com/coinbase/rest-hooks/issues/276)) ([a884186](https://github.com/coinbase/rest-hooks/commit/a884186e2696b40ab764979d646089aa625dfe8d))
+* Use Record<string, any> form for POJOs ([dae11b2](https://github.com/coinbase/rest-hooks/commit/dae11b233d4cc3d56ba93f1488a0b42ba7a1dfce))
+
+
+
 ### [5.0.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@5.0.3...@rest-hooks/normalizr@5.0.4) (2020-02-19)
 
 
