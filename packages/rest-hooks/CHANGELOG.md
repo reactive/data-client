@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.5.3](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.2...rest-hooks@4.5.3) (2020-03-01)
+
+
+### 🐛 Bug Fix
+
+* useCache() with indexes but no entities ever stored ([#279](https://github.com/coinbase/rest-hooks/issues/279)) ([67a1257](https://github.com/coinbase/rest-hooks/commit/67a12577620a3b2e8cec7498c0d654b210d2cce1))
+
+
+
 ### [4.5.2](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.1...rest-hooks@4.5.2) (2020-02-26)
 
 
