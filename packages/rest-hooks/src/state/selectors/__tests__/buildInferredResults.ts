@@ -148,4 +148,19 @@ describe('buildInferredResults()', () => {
       data: undefined,
     });
   });
+
+  it('should work with indexes but no indexes stored', () => {
+    const schema = {
+      pagination: { next: '', previous: '' },
+      data: IndexedUserResource.asSchema(),
+    };
+    expect(buildInferredResults(schema, { username: 'bob' }, {})).toEqual({
+      pagination: { next: '', previous: '' },
+      data: undefined,
+    });
+    expect(buildInferredResults(schema, { hover: 'bob' }, {})).toEqual({
+      pagination: { next: '', previous: '' },
+      data: undefined,
+    });
+  });
 });
