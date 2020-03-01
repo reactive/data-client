@@ -47,6 +47,21 @@ describe('createEnhancedReducerHook', () => {
     };
   };
 
+  test('runs through zero middlewares', () => {
+    const { result } = renderHook(() => {
+      return useEnhancedReducer(state => state, {}, []);
+    });
+    const [state, dispatch] = result.current;
+
+    const action = { type: 5 };
+    act(() => {
+      dispatch(action);
+    });
+    act(() => {
+      dispatch(action);
+    });
+  });
+
   test('runs through a single middleware', () => {
     const faker = jest.fn();
     const logger = makeTestActionMiddleware(faker);
