@@ -24,7 +24,7 @@ export default function buildInferredResults<
     if (id !== undefined && id !== '') return id as any;
     // now attempt lookup in indexes
     const indexName = indexFromParams(params, schema.indexes);
-    if (indexName) {
+    if (indexName && indexes[schema.key]) {
       // 'as Record<string, any>': indexName can only be found if params is a string key'd object
       return indexes[schema.key][indexName][
         (params as Record<string, any>)[indexName]
