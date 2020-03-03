@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.5.4](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.3...rest-hooks@4.5.4) (2020-03-03)
+
+
+### 🐛 Bug Fix
+
+* Add generic useResource parallel overloads for up to 16 arguments ([#281](https://github.com/coinbase/rest-hooks/issues/281)) ([da1578e](https://github.com/coinbase/rest-hooks/commit/da1578eeae6ee3b38b2a3406685032907cdaee16))
+
+
+
 ### [4.5.3](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.2...rest-hooks@4.5.3) (2020-03-01)
 
 
