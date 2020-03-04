@@ -118,6 +118,9 @@
         "title": "Understanding Immutability",
         "sidebar_label": "Understanding Immutability"
       },
+      "guides/infinite-scrolling-pagination": {
+        "title": "Infinite Scrolling"
+      },
       "guides/loading-state": {
         "title": "Handling loading state"
       },
@@ -591,6 +594,9 @@
       },
       "version-3.0/guides/version-3.0-fetch-then-render": {
         "title": "Fetch then Render"
+      },
+      "version-3.0/guides/version-3.0-infinite-scrolling-pagination": {
+        "title": "Infinite Scrolling"
       },
       "version-3.0/guides/version-3.0-jsonp": {
         "title": "Cross-orgin requests with JSONP"
