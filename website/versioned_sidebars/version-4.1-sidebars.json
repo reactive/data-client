@@ -49,6 +49,13 @@
       },
       {
         "type": "subcategory",
+        "label": "Components",
+        "ids": [
+          "version-4.1-guides/infinite-scrolling-pagination"
+        ]
+      },
+      {
+        "type": "subcategory",
         "label": "Testing",
         "ids": [
           "version-4.1-guides/storybook",
