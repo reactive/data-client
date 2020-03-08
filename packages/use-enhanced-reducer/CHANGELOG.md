@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.0.1...@rest-hooks/use-enhanced-reducer@1.0.2) (2020-03-08)
+
+
+### 🏠 Internal
+
+* Add zero middleware test for use-enhanced-reducer ([af77661](https://github.com/coinbase/rest-hooks/commit/af77661924f4233e0420b43edcb35a329201407c))
+* Only allow building types from root ([0c3d7ae](https://github.com/coinbase/rest-hooks/commit/0c3d7ae1a9d6130848f31850ed8b15e6ed01d0ab))
+
+
+### 📝 Documentation
+
+* Improve logging middleware example ([80b2553](https://github.com/coinbase/rest-hooks/commit/80b2553f765970fe4da1e23d506834f5cfc769e0))
+
+
+
 ### [1.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.0.0...@rest-hooks/use-enhanced-reducer@1.0.1) (2020-02-19)
 
 

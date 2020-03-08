@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.15](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@1.0.14...@rest-hooks/test@1.0.15) (2020-03-08)
+
+
+### 🏠 Internal
+
+* Only allow building types from root ([0c3d7ae](https://github.com/coinbase/rest-hooks/commit/0c3d7ae1a9d6130848f31850ed8b15e6ed01d0ab))
+
+
+
 ### [1.0.14](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@1.0.14-beta.0...@rest-hooks/test@1.0.14) (2020-02-18)
 
 **Note:** Version bump only for package @rest-hooks/test
