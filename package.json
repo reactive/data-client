@@ -15,7 +15,7 @@
     "test": "cross-env NODE_ENV=test jest",
     "test:ci": "yarn test -- --ci",
     "test:coverage": "yarn test -- --coverage",
-    "prepublishOnly": "yarn run build:clean && yarn run build:types"
+    "prepare": "yarn run build:types"
   },
   "husky": {
     "hooks": {
