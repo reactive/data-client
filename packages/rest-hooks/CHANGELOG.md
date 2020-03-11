@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.5.6](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.5...rest-hooks@4.5.6) (2020-03-11)
+
+
+### 🐛 Bug Fix
+
+* Index updates should possibly rerender ([#289](https://github.com/coinbase/rest-hooks/issues/289)) ([ad2927e](https://github.com/coinbase/rest-hooks/commit/ad2927eb30311f09b0b03abfd6a8364bc9ea2301))
+
+
+
 ### [4.5.5](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.4...rest-hooks@4.5.5) (2020-03-08)
 
 
