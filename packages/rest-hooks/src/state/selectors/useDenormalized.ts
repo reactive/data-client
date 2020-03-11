@@ -42,7 +42,8 @@ export default function useDenormalized<
     // entities[entitySchema.key] === undefined
     return buildInferredResults(schema, params, state.indexes);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cacheResults, params && getFetchKey(params)]);
+  }, [cacheResults, state.indexes, params && getFetchKey(params)]);
+  // TODO: only update when relevant indexes change
 
   // Compute denormalized value
   const [denormalized, entitiesFound, entitiesList] = useMemo(() => {

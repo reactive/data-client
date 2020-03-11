@@ -181,7 +181,7 @@ export class UserResource extends Resource {
   static urlRoot = 'http://test.com/user/';
 
   // right here
-  static indexes = ['username'];
+  static indexes = ['username' as const];
 }
 ```
 
