@@ -1,5 +1,3 @@
-import React from 'react';
-
 import {
   Resource,
   SchemaList,
@@ -9,6 +7,8 @@ import {
   DeleteShape,
 } from 'rest-hooks';
 import { AbstractInstanceType, FetchOptions, MutateShape } from 'rest-hooks';
+
+import React from 'react';
 
 export class UserResource extends Resource {
   readonly id: number | undefined = undefined;
@@ -169,7 +169,7 @@ export class CoolerArticleResource extends ArticleResource {
 }
 
 export class IndexedUserResource extends UserResource {
-  static indexes = ['username'];
+  static indexes = ['username' as const];
 }
 
 export class InvalidIfStaleArticleResource extends CoolerArticleResource {

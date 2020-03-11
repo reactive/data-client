@@ -3,8 +3,9 @@ import {
   PaginatedArticleResource,
   NestedArticleResource,
   UserResource,
+  IndexedUserResource,
 } from '__tests__/common';
-import { normalize } from 'rest-hooks/resource';
+import { normalize, NormalizedIndex } from 'rest-hooks/resource';
 import { initialState } from 'rest-hooks/state/reducer';
 
 import { renderHook, act } from '@testing-library/react-hooks';
@@ -163,6 +164,57 @@ describe('useDenormalized()', () => {
         expect(value.data).toBe(pageArticle);
       });
     });
+
+    describe.only('no result exists but index is used when using nested schema', () => {
+      const pageArticle = PaginatedArticleResource.fromJS({
+        ...params,
+        author: 23,
+      });
+      const user = IndexedUserResource.fromJS({ id: 23, username: 'anne' });
+      const IndexShape = {
+        type: 'read' as const,
+        getFetchKey({ username }: { username: string }) {
+          return username;
+        },
+        schema: {
+          pagination: { next: '', previous: '' },
+          data: IndexedUserResource.asSchema(),
+        },
+      };
+
+      it('should find value on index updates', () => {
+        let localstate = {
+          ...initialState,
+          entities: {
+            [PaginatedArticleResource.key]: {
+              [`${pageArticle.pk()}`]: pageArticle,
+            },
+            [UserResource.key]: { [`${user.pk()}`]: user },
+          },
+        };
+
+        const { result, rerender } = renderHook(
+          ({ state }) =>
+            useDenormalized(IndexShape, { username: user.username }, state),
+          { initialProps: { state: localstate } },
+        );
+        expect(result.current[1]).toBe(false);
+        localstate = {
+          ...localstate,
+          indexes: {
+            [IndexedUserResource.key]: {
+              username: {
+                [user.username]: user.pk(),
+              },
+            },
+          } as NormalizedIndex,
+        };
+        rerender({ state: localstate });
+        expect(result.current[1]).toBe(true);
+        expect(result.current[0].data).toBe(user);
+      });
+    });
+
     describe('not using primary key as param', () => {
       const urlParams = { title: 'bob' };
       const state = {
