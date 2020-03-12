@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.5.7](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.6...rest-hooks@4.5.7) (2020-03-12)
+
+
+### 🐛 Bug Fix
+
+* Don't throw when RN tries to poll ([#291](https://github.com/coinbase/rest-hooks/issues/291)) ([6a57af9](https://github.com/coinbase/rest-hooks/commit/6a57af9107fbd15eeac16365335f0d75825cc6bc))
+
+
+
 ### [4.5.6](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.5...rest-hooks@4.5.6) (2020-03-11)
 
 
