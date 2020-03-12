@@ -150,7 +150,9 @@ export default class PollingSubscription implements Subscription {
         }
         this.update();
       }, this.frequency);
-      addEventListener('offline', this.offlineListener);
+      // react native does not support addEventListener
+      if (typeof addEventListener === 'function')
+        addEventListener('offline', this.offlineListener);
     } else {
       addEventListener('online', this.onlineListener);
     }
