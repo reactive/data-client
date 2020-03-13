@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@5.0.5...@rest-hooks/normalizr@5.0.6) (2020-03-13)
+
+
+### 🐛 Bug Fix
+
+* Schema can be null (for media) ([#293](https://github.com/coinbase/rest-hooks/issues/293)) ([003b3ca](https://github.com/coinbase/rest-hooks/commit/003b3ca53703174b66c5fc9d546d2b340e293e86))
+
+
+
 ### [5.0.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@5.0.4...@rest-hooks/normalizr@5.0.5) (2020-02-26)
 
 

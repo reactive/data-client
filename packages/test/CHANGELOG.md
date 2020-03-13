@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.16](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@1.0.15...@rest-hooks/test@1.0.16) (2020-03-13)
+
+
+### 💅 Enhancement
+
+* MockProvider with mismatched fixtures console message ([#295](https://github.com/coinbase/rest-hooks/issues/295)) ([121bb10](https://github.com/coinbase/rest-hooks/commit/121bb109d456dba58fec41ea73c6924223942e71))
+
+
+
 ### [1.0.15](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@1.0.14...@rest-hooks/test@1.0.15) (2020-03-08)
 
 

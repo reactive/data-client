@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/legacy",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Legacy features for Rest Hooks",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
@@ -56,7 +56,7 @@
     "url": "https://github.com/coinbase/rest-hooks/issues"
   },
   "devDependencies": {
-    "@rest-hooks/test": "^1.0.15",
+    "@rest-hooks/test": "^1.0.16",
     "coveralls": "^3.0.9"
   },
   "peerDependencies": {

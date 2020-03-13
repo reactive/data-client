@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.5.8](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.7...rest-hooks@4.5.8) (2020-03-13)
+
+
+### 💅 Enhancement
+
+* Be more descriptive for not implemented ([#292](https://github.com/coinbase/rest-hooks/issues/292)) ([bb55212](https://github.com/coinbase/rest-hooks/commit/bb55212c206831acb2a669c5fba826e2fd0e96ca))
+
+
+### 🐛 Bug Fix
+
+* 0 for expiryLength should not result in default ([#296](https://github.com/coinbase/rest-hooks/issues/296)) ([c75dca5](https://github.com/coinbase/rest-hooks/commit/c75dca5fce8a07dcec5bbb942bddcb31625c757f))
+* Don't crash polling subscriptions on react native ([f57cd41](https://github.com/coinbase/rest-hooks/commit/f57cd41210547f3e3c8c57a32c2ba35311992fac))
+
+
+
 ### [4.5.7](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.6...rest-hooks@4.5.7) (2020-03-12)
 
 
