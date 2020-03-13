@@ -98,8 +98,11 @@ export default class PollingSubscription implements Subscription {
       clearInterval(this.lastIntervalId);
       this.lastIntervalId = undefined;
     }
-    removeEventListener('online', this.onlineListener);
-    removeEventListener('offline', this.offlineListener);
+    // react native does not support removeEventListener
+    if (typeof addEventListener === 'function') {
+      removeEventListener('online', this.onlineListener);
+      removeEventListener('offline', this.offlineListener);
+    }
   }
 
   /** Trigger request for latest resource */
