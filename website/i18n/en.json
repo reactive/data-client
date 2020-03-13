@@ -771,8 +771,14 @@
       "version-4.3/guides/version-4.3-url": {
         "title": "URL Patterns"
       },
+      "version-4.5/api/version-4.5-resource": {
+        "title": "Resource"
+      },
       "version-4.5/getting-started/version-4.5-installation": {
         "title": "Installation"
+      },
+      "version-4.5/getting-started/version-4.5-usage": {
+        "title": "Usage"
       },
       "version-4.5/guides/version-4.5-auth": {
         "title": "Authentication"
@@ -788,6 +794,9 @@
       },
       "version-4.5/guides/version-4.5-optimistic-updates": {
         "title": "Optimistic Updates"
+      },
+      "version-4.5/guides/version-4.5-storybook": {
+        "title": "Mocking data for Storybook"
       }
     },
     "links": {
