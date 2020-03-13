@@ -304,6 +304,7 @@ export type NormalizeNullable<S> = S extends schema.SchemaClass
 interface SchemaArray extends Array<Schema> {}
 
 export type Schema =
+  | null
   | string
   | { [K: string]: any }
   | SchemaArray
