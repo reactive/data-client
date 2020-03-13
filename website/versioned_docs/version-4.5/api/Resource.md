@@ -1,6 +1,7 @@
 ---
-id: resource
+id: version-4.5-resource
 title: Resource
+original_id: resource
 ---
 
 <!--DOCUSAURUS_CODE_TABS-->

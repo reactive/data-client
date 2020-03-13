@@ -1,6 +1,7 @@
 ---
-id: usage
+id: version-4.5-usage
 title: Usage
+original_id: usage
 ---
 
 ## Define a Resource

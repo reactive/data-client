@@ -1,5 +1,7 @@
 ---
 title: Mocking data for Storybook
+id: version-4.5-storybook
+original_id: storybook
 ---
 
 [Storybook](https://storybook.js.org/) is a great utility to do isolated development and
