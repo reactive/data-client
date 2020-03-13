@@ -23,7 +23,11 @@ export function createReceive<
   }: FetchAction<Payload, S>['meta'],
   { dataExpiryLength }: { dataExpiryLength: number },
 ): ReceiveAction<Payload, S> | RPCAction<Payload, S> | PurgeAction {
-  const expiryLength = options.dataExpiryLength || dataExpiryLength;
+  const expiryLength = options.dataExpiryLength ?? dataExpiryLength;
+  /* istanbul ignore next */
+  if (process.env.NODE_ENV === 'development' && expiryLength < 0) {
+    throw new Error('Negative dataExpiryLength are not allowed.');
+  }
   const now = Date.now();
   const meta:
     | ReceiveAction['meta']
@@ -51,7 +55,11 @@ export function createReceiveError<S extends Schema = any>(
   { schema, url, responseType, options = {} }: FetchAction<any, S>['meta'],
   { errorExpiryLength }: { errorExpiryLength: number },
 ): ResponseActions {
-  const expiryLength = options.errorExpiryLength || errorExpiryLength;
+  const expiryLength = options.errorExpiryLength ?? errorExpiryLength;
+  /* istanbul ignore next */
+  if (process.env.NODE_ENV === 'development' && expiryLength < 0) {
+    throw new Error('Negative errorExpiryLength are not allowed.');
+  }
   const now = Date.now();
   return {
     type: responseType as any,
