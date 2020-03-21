@@ -47,8 +47,15 @@ export default class NetworkManager implements Manager {
         switch (action.type) {
           case FETCH_TYPE:
             this.handleFetch(action, dispatch);
-            if (process.env.NODE_ENV !== 'production') action.meta.nm = true;
-            return next(action);
+            // This is the only case that causes any state change
+            // It's important to intercept other fetches as we don't want to trigger reducers during
+            // render - so we need to stop 'readonly' fetches which can be triggered in render
+            if (action.meta.optimisticResponse !== undefined) {
+              /* istanbul ignore next */
+              if (process.env.NODE_ENV !== 'production') action.meta.nm = true;
+              return next(action);
+            }
+            return Promise.resolve();
           case RECEIVE_DELETE_TYPE:
           case RECEIVE_MUTATE_TYPE:
           case RECEIVE_TYPE:
@@ -96,6 +103,7 @@ export default class NetworkManager implements Manager {
     const deferedFetch = () =>
       fetch()
         .then(data => {
+          // does this throw if the reducer fails?
           dispatch(createReceive(data, action.meta, this));
           return data;
         })

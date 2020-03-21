@@ -50,7 +50,7 @@ describe('NetworkManager', () => {
       type: FETCH_TYPE,
       payload: () => Promise.resolve({ id: 5, title: 'hi' }),
       meta: {
-        schema: ArticleResource.getEntitySchema(),
+        schema: ArticleResource.asSchema(),
         url: ArticleResource.url({ id: 5 }),
         responseType: RECEIVE_TYPE,
         throttle: false,
@@ -77,11 +77,19 @@ describe('NetworkManager', () => {
         responseType: RECEIVE_MUTATE_TYPE,
       },
     };
+    const fetchRpcWithUpdatersAndOptimisticAction: FetchAction = {
+      ...fetchReceiveWithUpdatersAction,
+      meta: {
+        ...fetchReceiveWithUpdatersAction.meta,
+        optimisticResponse: { id: 5, title: 'hi' },
+        responseType: RECEIVE_MUTATE_TYPE,
+      },
+    };
     const fetchRejectAction: FetchAction = {
       type: FETCH_TYPE,
       payload: () => Promise.reject(new Error('Failed')),
       meta: {
-        schema: ArticleResource.getEntitySchema(),
+        schema: ArticleResource.asSchema(),
         url: ArticleResource.url({ id: 5 }),
         responseType: RECEIVE_TYPE,
         throttle: false,
@@ -99,7 +107,7 @@ describe('NetworkManager', () => {
 
       const data = await fetchResolveAction.payload();
 
-      expect(next).toHaveBeenCalled();
+      expect(next).not.toHaveBeenCalled();
       expect(dispatch).toHaveBeenCalledWith({
         type: fetchResolveAction.meta.responseType,
         payload: data,
@@ -121,7 +129,7 @@ describe('NetworkManager', () => {
 
       const data = await fetchReceiveWithUpdatersAction.payload();
 
-      expect(next).toHaveBeenCalled();
+      expect(next).not.toHaveBeenCalled();
       expect(dispatch).toHaveBeenCalledWith({
         type: fetchReceiveWithUpdatersAction.meta.responseType,
         payload: data,
@@ -146,7 +154,7 @@ describe('NetworkManager', () => {
 
       const data = await fetchRpcWithUpdatersAction.payload();
 
-      expect(next).toHaveBeenCalled();
+      expect(next).not.toHaveBeenCalled();
       expect(dispatch).toHaveBeenCalledWith({
         type: fetchRpcWithUpdatersAction.meta.responseType,
         payload: data,
@@ -156,6 +164,33 @@ describe('NetworkManager', () => {
           },
           schema: fetchRpcWithUpdatersAction.meta.schema,
           url: fetchRpcWithUpdatersAction.meta.url,
+          date: expect.any(Number),
+          expiresAt: expect.any(Number),
+        },
+      });
+    });
+    it('should handle fetch rpc action with optimistic response and dispatch on success with updaters', async () => {
+      const middleware = new NetworkManager(42, 7).getMiddleware();
+
+      const next = jest.fn();
+      const dispatch = jest.fn();
+
+      middleware({ dispatch, getState })(next)(
+        fetchRpcWithUpdatersAndOptimisticAction,
+      );
+
+      const data = await fetchRpcWithUpdatersAndOptimisticAction.payload();
+
+      expect(next).toHaveBeenCalled();
+      expect(dispatch).toHaveBeenCalledWith({
+        type: fetchRpcWithUpdatersAndOptimisticAction.meta.responseType,
+        payload: data,
+        meta: {
+          updaters: {
+            [ArticleResource.listUrl()]: expect.any(Function),
+          },
+          schema: fetchRpcWithUpdatersAndOptimisticAction.meta.schema,
+          url: fetchRpcWithUpdatersAndOptimisticAction.meta.url,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
         },
