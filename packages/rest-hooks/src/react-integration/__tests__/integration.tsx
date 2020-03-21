@@ -1,6 +1,3 @@
-import React from 'react';
-import nock from 'nock';
-import { act } from '@testing-library/react-hooks';
 import {
   CoolerArticleResource,
   ArticleResource,
@@ -8,6 +5,10 @@ import {
   UserResource,
   ArticleResourceWithOtherListUrl,
 } from '__tests__/common';
+
+import React from 'react';
+import nock from 'nock';
+import { act } from '@testing-library/react-hooks';
 
 // relative imports to avoid circular dependency in tsconfig references
 import {
