@@ -28,18 +28,20 @@ export default function reducer(
   if (!state) state = initialState;
   switch (action.type) {
     case FETCH_TYPE: {
-      // If 'fetch' action reaches the reducer there are no middlewares installed to handle it
-      if (process.env.NODE_ENV !== 'production' && !action.meta.nm) {
-        console.warn(
-          'Fetch appears unhandled - you are likely missing the NetworkManager middleware',
-        );
-        console.warn(
-          'See https://resthooks.io/docs/guides/redux#indextsx for hooking up redux',
-        );
+      const optimisticResponse = action.meta.optimisticResponse;
+      if (optimisticResponse === undefined) {
+        // If 'fetch' action reaches the reducer there are no middlewares installed to handle it
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn(
+            'Fetch appears unhandled - you are likely missing the NetworkManager middleware',
+          );
+          console.warn(
+            'See https://resthooks.io/docs/guides/redux#indextsx for hooking up redux',
+          );
+        }
+        return state;
       }
 
-      const optimisticResponse = action.meta.optimisticResponse;
-      if (optimisticResponse === undefined) return state;
       return {
         ...state,
         optimistic: [

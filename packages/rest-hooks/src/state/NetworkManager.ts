@@ -51,8 +51,6 @@ export default class NetworkManager implements Manager {
             // It's important to intercept other fetches as we don't want to trigger reducers during
             // render - so we need to stop 'readonly' fetches which can be triggered in render
             if (action.meta.optimisticResponse !== undefined) {
-              /* istanbul ignore next */
-              if (process.env.NODE_ENV !== 'production') action.meta.nm = true;
               return next(action);
             }
             return Promise.resolve();
