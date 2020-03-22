@@ -4,7 +4,6 @@ import {
   ArticleResourceWithOtherListUrl,
   StaticArticleResource,
 } from '__tests__/common';
-
 import React, { Suspense, useEffect } from 'react';
 import { render } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
@@ -367,10 +366,7 @@ describe('useRetrieve', () => {
     global.Date.now = jest.fn(() => time);
     nock.cleanAll();
     const fetchMock = jest.fn(() => payload);
-    mynock
-      .get(`/article-cooler/${payload.id}`)
-      .reply(200, fetchMock)
-      .persist();
+    mynock.get(`/article-cooler/${payload.id}`).reply(200, fetchMock).persist();
     const results: any[] = [
       {
         request: CoolerArticleResource.detailShape(),

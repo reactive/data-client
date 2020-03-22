@@ -1,5 +1,4 @@
 import { __INTERNAL__, ActionTypes } from 'rest-hooks';
-
 import React from 'react';
 
 import mockState, { Fixture } from './mockState';

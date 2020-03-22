@@ -133,10 +133,7 @@ describe('useResource()', () => {
       .get(`/article-cooler/${payload.id}`)
       .delay(1000)
       .reply(200, payload);
-    nock('http://test.com')
-      .get(`/user/`)
-      .delay(2000)
-      .reply(200, users);
+    nock('http://test.com').get(`/user/`).delay(2000).reply(200, users);
 
     function MultiResourceTester() {
       try {

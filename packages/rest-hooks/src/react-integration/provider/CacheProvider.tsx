@@ -10,7 +10,6 @@ import SubscriptionManager from 'rest-hooks/state/SubscriptionManager';
 import PollingSubscription from 'rest-hooks/state/PollingSubscription';
 import { State, Manager } from 'rest-hooks/types';
 import useEnhancedReducer from '@rest-hooks/use-enhanced-reducer';
-
 import React, { ReactNode, useEffect, useMemo } from 'react';
 
 interface ProviderProps {
