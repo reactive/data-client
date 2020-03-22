@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.5.9](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.8...rest-hooks@4.5.9) (2020-03-22)
+
+
+### 🐛 Bug Fix
+
+* Do not run reducer on non-optimistic fetches ([#302](https://github.com/coinbase/rest-hooks/issues/302)) ([86cc80b](https://github.com/coinbase/rest-hooks/commit/86cc80bdef15ba1e8c0ebe011989405c334e458b))
+
+
+### 🏠 Internal
+
+* Update eslint-plugin + prettier 2 ([#304](https://github.com/coinbase/rest-hooks/issues/304)) ([210eabc](https://github.com/coinbase/rest-hooks/commit/210eabcec4651f3150658535df6dce730bf7665e))
+
+
+
 ### [4.5.8](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.7...rest-hooks@4.5.8) (2020-03-13)
 
 

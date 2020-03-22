@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.12](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@1.0.11...@rest-hooks/legacy@1.0.12) (2020-03-22)
+
+
+### 🏠 Internal
+
+* Update eslint-plugin + prettier 2 ([#304](https://github.com/coinbase/rest-hooks/issues/304)) ([210eabc](https://github.com/coinbase/rest-hooks/commit/210eabcec4651f3150658535df6dce730bf7665e))
+
+
+
 ### [1.0.11](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@1.0.10...@rest-hooks/legacy@1.0.11) (2020-03-13)
 
 **Note:** Version bump only for package @rest-hooks/legacy
