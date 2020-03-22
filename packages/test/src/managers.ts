@@ -5,7 +5,6 @@ import {
   Dispatch,
   PollingSubscription,
 } from 'rest-hooks';
-
 import { act } from '@testing-library/react-hooks';
 
 export class MockNetworkManager extends NetworkManager {

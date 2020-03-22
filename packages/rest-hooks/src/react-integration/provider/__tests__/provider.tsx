@@ -1,6 +1,5 @@
 import { CoolerArticleResource } from '__tests__/common';
 import { RECEIVE_TYPE } from 'rest-hooks/actionTypes';
-
 import React, { useContext } from 'react';
 import { act, render } from '@testing-library/react';
 

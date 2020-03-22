@@ -7,7 +7,6 @@ import {
 } from '__tests__/common';
 import { normalize, NormalizedIndex } from 'rest-hooks/resource';
 import { initialState } from 'rest-hooks/state/reducer';
-
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useState } from 'react';
 

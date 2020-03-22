@@ -6,7 +6,6 @@ import {
   DenormalizeNullable,
   ParamsFromShape,
 } from 'rest-hooks/resource';
-
 import { useMemo } from 'react';
 
 import buildInferredResults from './buildInferredResults';

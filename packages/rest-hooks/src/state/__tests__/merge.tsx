@@ -85,8 +85,8 @@ describe('mergeDeepCopy()', () => {
     });
   });
 
-  describe('basics', function() {
-    it('should merge `source` into `object`', function() {
+  describe('basics', function () {
+    it('should merge `source` into `object`', function () {
       const names = {
         characters: [{ name: 'barney' }, { name: 'fred' }],
       };
@@ -105,7 +105,7 @@ describe('mergeDeepCopy()', () => {
       expect(mergeDeepCopy(names, ages)).toStrictEqual(expected);
     });
 
-    it('should treat sparse array sources as dense', function() {
+    it('should treat sparse array sources as dense', function () {
       const array = [1];
       array[3] = 3;
 
@@ -121,18 +121,18 @@ describe('mergeDeepCopy()', () => {
       expect(actual).toStrictEqual(expected);
     });
 
-    it('should assign `null` values', function() {
+    it('should assign `null` values', function () {
       const actual = mergeDeepCopy({ a: 1 }, { a: null });
       expect(actual.a).toBe(null);
     });
 
-    it('should assign non array/buffer/typed-array/plain-object source values directly', function() {
+    it('should assign non array/buffer/typed-array/plain-object source values directly', function () {
       class Foo {}
 
       const values = [true, new Date(), Foo, 5, '', new RegExp('')],
         expected = values.map(() => true);
 
-      const actual = values.map(function(value) {
+      const actual = values.map(function (value) {
         const object = mergeDeepCopy({}, { a: value, b: { c: value } });
         return object.a === value && object.b.c === value;
       });
@@ -140,7 +140,7 @@ describe('mergeDeepCopy()', () => {
       expect(actual).toStrictEqual(expected);
     });
 
-    it('should not augment source objects', function() {
+    it('should not augment source objects', function () {
       const source1 = { a: [{ a: 1 }] },
         source2 = { a: [{ b: 2 }] },
         actual = mergeDeepCopy(source1, source2);
@@ -158,12 +158,12 @@ describe('mergeDeepCopy()', () => {
       expect(actualb.a).toStrictEqual([[3, 4, 3]]);
     });
 
-    it('should not overwrite existing values with `undefined` values of object sources', function() {
+    it('should not overwrite existing values with `undefined` values of object sources', function () {
       const actual = mergeDeepCopy({ a: 1 }, { a: undefined, b: undefined });
       expect(actual).toStrictEqual({ a: 1, b: undefined });
     });
 
-    it('should not overwrite existing values with `undefined` values of array sources', function() {
+    it('should not overwrite existing values with `undefined` values of array sources', function () {
       let array: any[] = [1];
       array[2] = 3;
 

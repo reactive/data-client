@@ -33,13 +33,13 @@
     path "^0.12.7"
     stable "^0.1.8"
 
-"@anansi/eslint-plugin@^0.8.6":
-  version "0.8.6"
-  resolved "https://registry.yarnpkg.com/@anansi/eslint-plugin/-/eslint-plugin-0.8.6.tgz#83c39b4b8601d55d4e9d8badc0c327260daf2f2f"
-  integrity sha512-ec+qUgzY8VvmzkaJQws/daRGDbpdsFIdLwUCdu22vf4b3l5kidWxwwcGrIwCdfnhgtiOwAZS2xcucV2hpV0lmw==
+"@anansi/eslint-plugin@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@anansi/eslint-plugin/-/eslint-plugin-0.9.0.tgz#5eaf0a976afb1164baafecea6940168ca53fef3b"
+  integrity sha512-T9tGIgzPb1DXFv8imb9cJ0nSi+Z8HCTZ5ubMtTW2xmfGd232GqZ6TnCsZpSTnWvGjXhR8ZCnsMUOUa6li72ViA==
   dependencies:
-    "@typescript-eslint/eslint-plugin" "^2.23.0"
-    "@typescript-eslint/parser" "^2.23.0"
+    "@typescript-eslint/eslint-plugin" "^2.24.0"
+    "@typescript-eslint/parser" "^2.24.0"
     babel-eslint "^10.1.0"
     babel-plugin-root-import "^6.4.1"
     eslint-config-prettier "^6.10.0"
@@ -52,7 +52,7 @@
     eslint-plugin-prettier "^3.1.2"
     eslint-plugin-react "^7.19.0"
     eslint-plugin-react-hooks "^2.5.0"
-    prettier "^1.19.1"
+    prettier "^2.0.1"
     typescript "^3.7.5"
 
 "@babel/cli@^7.8.4":
@@ -2649,7 +2649,7 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@typescript-eslint/eslint-plugin@^2.23.0":
+"@typescript-eslint/eslint-plugin@^2.24.0":
   version "2.24.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-2.24.0.tgz#a86cf618c965a462cddf3601f594544b134d6d68"
   integrity sha512-wJRBeaMeT7RLQ27UQkDFOu25MqFOBus8PtOa9KaT5ZuxC1kAsd7JEHqWt4YXuY9eancX0GK9C68i5OROnlIzBA==
@@ -2669,7 +2669,7 @@
     "@typescript-eslint/typescript-estree" "2.24.0"
     eslint-scope "^5.0.0"
 
-"@typescript-eslint/parser@^2.23.0":
+"@typescript-eslint/parser@^2.24.0":
   version "2.24.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/parser/-/parser-2.24.0.tgz#2cf0eae6e6dd44d162486ad949c126b887f11eb8"
   integrity sha512-H2Y7uacwSSg8IbVxdYExSI3T7uM1DzmOn2COGtCahCC3g8YtM1xYAPi2MAHyfPs61VKxP/J/UiSctcRgw4G8aw==
@@ -8534,10 +8534,10 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@^1.19.1:
-  version "1.19.1"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.19.1.tgz#f7d7f5ff8a9cd872a7be4ca142095956a60797cb"
-  integrity sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==
+prettier@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.0.1.tgz#3f00ac71263be34684b2b2c8d7e7f63737592dac"
+  integrity sha512-piXGBcY1zoFOG0MvHpNE5reAGseLmaCRifQ/fmfF49BcYkInEs/naD/unxGNAeOKFA5+JxVrPyMvMlpzcd20UA==
 
 pretty-format@^24.3.0:
   version "24.9.0"
