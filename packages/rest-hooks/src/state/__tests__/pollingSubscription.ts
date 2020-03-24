@@ -1,7 +1,57 @@
 import { PollingArticleResource } from '__tests__/common';
-import { mockEventHandlers } from '__tests__/utils';
 
 import PollingSubscription from '../PollingSubscription';
+import { ConnectionListener } from '../ConnectionListener';
+
+class MockConnectionListener implements ConnectionListener {
+  declare online: boolean;
+  declare onlineHandlers: (() => void)[];
+  declare offlineHandlers: (() => void)[];
+
+  constructor(online: boolean) {
+    this.online = online;
+    this.onlineHandlers = [];
+    this.offlineHandlers = [];
+  }
+
+  isOnline() {
+    return this.online;
+  }
+
+  addOnlineListener(handler: () => void) {
+    this.onlineHandlers.push(handler);
+  }
+
+  removeOnlineListener(handler: () => void) {
+    this.onlineHandlers = this.onlineHandlers.filter(h => h !== handler);
+  }
+
+  addOfflineListener(handler: () => void) {
+    this.offlineHandlers.push(handler);
+  }
+
+  removeOfflineListener(handler: () => void) {
+    this.offlineHandlers = this.offlineHandlers.filter(h => h !== handler);
+  }
+
+  trigger(event: 'offline' | 'online') {
+    switch (event) {
+      case 'offline':
+        this.online = false;
+        this.offlineHandlers.forEach(t => t());
+        break;
+      case 'online':
+        this.online = true;
+        this.onlineHandlers.forEach(t => t());
+        break;
+    }
+  }
+
+  reset() {
+    this.offlineHandlers = [];
+    this.onlineHandlers = [];
+  }
+}
 
 function onError(e: any) {
   e.preventDefault();
@@ -169,19 +219,14 @@ describe('PollingSubscription', () => {
   });
 
   describe('offline support', () => {
-    const dispatch = jest.fn();
-    const a = () => Promise.resolve({ id: 5, title: 'hi' });
-    const fetch = jest.fn(a);
     jest.useFakeTimers();
-    const triggerEvent = mockEventHandlers();
-    let sub: PollingSubscription;
 
-    beforeAll(() => {
-      Object.defineProperty(navigator, 'onLine', {
-        value: false,
-        writable: true,
-      });
-      sub = new PollingSubscription(
+    function createMocks(listener: ConnectionListener) {
+      const dispatch = jest.fn();
+      const a = () => Promise.resolve({ id: 5, title: 'hi' });
+      const fetch = jest.fn(a);
+
+      const pollingSubscription = new PollingSubscription(
         {
           url: 'test.com',
           schema: PollingArticleResource.getEntitySchema(),
@@ -189,33 +234,43 @@ describe('PollingSubscription', () => {
           frequency: 5000,
         },
         dispatch,
+        listener,
       );
-      Object.defineProperty(navigator, 'onLine', {
-        value: true,
-        writable: false,
-      });
-    });
-    afterAll(() => {
-      sub.cleanup();
-    });
+      return { dispatch, fetch, pollingSubscription };
+    }
 
     it('should not dispatch when offline', () => {
+      const listener = new MockConnectionListener(false);
+      const { dispatch } = createMocks(listener);
       jest.advanceTimersByTime(50000);
       expect(dispatch.mock.calls.length).toBe(0);
+      expect(listener.offlineHandlers.length).toBe(0);
+      expect(listener.onlineHandlers.length).toBe(1);
     });
 
     it('should immediately start fetching when online', () => {
-      triggerEvent('online', new Event('online'));
+      const listener = new MockConnectionListener(false);
+      const { dispatch } = createMocks(listener);
+      expect(dispatch.mock.calls.length).toBe(0);
+
+      listener.trigger('online');
       expect(dispatch.mock.calls.length).toBe(1);
       jest.advanceTimersByTime(5000);
       expect(dispatch.mock.calls.length).toBe(2);
+      expect(listener.offlineHandlers.length).toBe(1);
+      expect(listener.onlineHandlers.length).toBe(0);
     });
 
     it('should stop dispatching when offline again', () => {
-      dispatch.mockReset();
-      triggerEvent('offline', new Event('offline'));
+      const listener = new MockConnectionListener(true);
+      const { dispatch } = createMocks(listener);
+      expect(dispatch.mock.calls.length).toBe(1);
+
+      listener.trigger('offline');
       jest.advanceTimersByTime(50000);
-      expect(dispatch.mock.calls.length).toBe(0);
+      expect(dispatch.mock.calls.length).toBe(1);
+      expect(listener.offlineHandlers.length).toBe(0);
+      expect(listener.onlineHandlers.length).toBe(1);
     });
   });
 });

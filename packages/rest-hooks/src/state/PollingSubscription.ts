@@ -2,8 +2,9 @@ import { Schema } from 'rest-hooks/resource';
 import { Dispatch } from '@rest-hooks/use-enhanced-reducer';
 import { FETCH_TYPE, RECEIVE_TYPE } from 'rest-hooks/actionTypes';
 
-import isOnline from './isOnline';
 import { Subscription, SubscriptionInit } from './SubscriptionManager';
+import DefaultConnectionListener from './DefaultConnectionListener';
+import { ConnectionListener } from './ConnectionListener';
 
 /**
  * PollingSubscription keeps a given resource updated by
@@ -19,10 +20,12 @@ export default class PollingSubscription implements Subscription {
   protected declare dispatch: Dispatch<any>;
   protected declare intervalId?: NodeJS.Timeout;
   protected declare lastIntervalId?: NodeJS.Timeout;
+  private declare connectionListener: ConnectionListener;
 
   constructor(
     { url, schema, fetch, frequency }: SubscriptionInit,
     dispatch: Dispatch<any>,
+    connectionListener?: ConnectionListener,
   ) {
     if (frequency === undefined)
       throw new Error('frequency needed for polling subscription');
@@ -32,8 +35,15 @@ export default class PollingSubscription implements Subscription {
     this.url = url;
     this.frequencyHistogram.set(this.frequency, 1);
     this.dispatch = dispatch;
-    if (isOnline()) this.update();
-    this.run();
+    this.connectionListener =
+      connectionListener || new DefaultConnectionListener();
+
+    // Kickstart running since this is initialized after the online notif is sent
+    if (this.connectionListener.isOnline()) {
+      this.onlineListener();
+    } else {
+      this.offlineListener();
+    }
   }
 
   /** Subscribe to a frequency */
@@ -98,11 +108,8 @@ export default class PollingSubscription implements Subscription {
       clearInterval(this.lastIntervalId);
       this.lastIntervalId = undefined;
     }
-    // react native does not support removeEventListener
-    if (typeof addEventListener === 'function') {
-      removeEventListener('online', this.onlineListener);
-      removeEventListener('offline', this.offlineListener);
-    }
+    this.connectionListener.removeOnlineListener(this.onlineListener);
+    this.connectionListener.removeOfflineListener(this.offlineListener);
   }
 
   /** Trigger request for latest resource */
@@ -128,13 +135,20 @@ export default class PollingSubscription implements Subscription {
   /** What happens when browser goes offline */
   protected offlineListener = () => {
     this.cleanup();
-    addEventListener('online', this.onlineListener);
+    this.connectionListener.removeOfflineListener(this.offlineListener);
+    this.connectionListener.addOnlineListener(this.onlineListener);
   };
 
   /** What happens when browser comes online */
   protected onlineListener = () => {
-    this.update();
-    this.run();
+    this.connectionListener.removeOnlineListener(this.onlineListener);
+    if (this.connectionListener.isOnline()) {
+      this.update();
+      this.run();
+      this.connectionListener.addOfflineListener(this.offlineListener);
+    } else {
+      this.connectionListener.addOnlineListener(this.onlineListener);
+    }
   };
 
   /** Run polling process with current frequency
@@ -142,7 +156,7 @@ export default class PollingSubscription implements Subscription {
    * Will clean up old poll interval on next run
    */
   protected run() {
-    if (isOnline()) {
+    if (this.connectionListener.isOnline()) {
       this.lastIntervalId = this.intervalId;
       this.intervalId = setInterval(() => {
         // since we don't know how long into the last poll it was before resetting
@@ -153,11 +167,6 @@ export default class PollingSubscription implements Subscription {
         }
         this.update();
       }, this.frequency);
-      // react native does not support addEventListener
-      if (typeof addEventListener === 'function')
-        addEventListener('offline', this.offlineListener);
-    } else {
-      addEventListener('online', this.onlineListener);
     }
   }
 }
