@@ -24,7 +24,7 @@ export default abstract class Entity extends SimpleRecord {
   static schema: { [k: string]: Schema } = {};
 
   /** Defines indexes to enable lookup by */
-  static indexes?: string[];
+  static indexes?: readonly string[];
 
   /**
    * A unique identifier for each Entity

@@ -51,7 +51,7 @@
     "url": "https://github.com/coinbase/rest-hooks/issues"
   },
   "devDependencies": {
-    "coveralls": "^3.0.9"
+    "coveralls": "^3.0.11"
   },
   "peerDependencies": {
     "@types/react": "^16.8.2",
