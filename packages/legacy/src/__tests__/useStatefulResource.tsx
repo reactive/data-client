@@ -1,5 +1,9 @@
-import { CoolerArticleResource } from '__tests__/common';
+import {
+  CoolerArticleResource,
+  InvalidIfStaleArticleResource,
+} from '__tests__/common';
 import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
+
 import nock from 'nock';
 
 import { payload, users, nested } from './fixtures';
@@ -92,5 +96,34 @@ describe('useStatefulResource()', () => {
       return useStatefulResource(CoolerArticleResource.detailShape(), null);
     });
     expect(result.current.loading).toBe(false);
+  });
+
+  it('should not select when results are stale and invalidIfStale is true', async () => {
+    const realDate = global.Date.now;
+    Date.now = jest.fn(() => 999999999);
+    const { result, rerender, waitForNextUpdate } = renderRestHook(
+      props => {
+        return useStatefulResource(
+          InvalidIfStaleArticleResource.detailShape(),
+          props,
+        );
+      },
+      { initialProps: { id: payload.id } as any },
+    );
+
+    await waitForNextUpdate();
+    expect(result.current.data).toBeDefined();
+    Date.now = jest.fn(() => 999999999 * 3);
+
+    rerender(null);
+    expect(result.current.data).toBeUndefined();
+    rerender({ id: payload.id });
+    expect(result.current.data).toBeUndefined();
+    expect(result.current.loading).toBe(true);
+    await waitForNextUpdate();
+    expect(result.current.data).toBeDefined();
+    expect(result.current.loading).toBe(false);
+
+    global.Date.now = realDate;
   });
 });

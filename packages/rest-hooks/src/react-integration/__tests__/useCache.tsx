@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
 import {
   CoolerArticleResource,
   PaginatedArticleResource,
+  InvalidIfStaleArticleResource,
 } from '__tests__/common';
+
+import React, { useEffect } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
 import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
@@ -42,6 +44,34 @@ describe('useCache()', () => {
 
     expect(result.current).toBeTruthy();
     expect(result.current?.title).toBe(payload.title);
+  });
+
+  it('should not select when results are stale and invalidIfStale is true', () => {
+    const realDate = global.Date.now;
+    Date.now = jest.fn(() => 999999999);
+    const results = [
+      {
+        request: InvalidIfStaleArticleResource.detailShape(),
+        params: payload,
+        result: payload,
+      },
+    ];
+    const { result, rerender } = renderRestHook(
+      props => {
+        return useCache(InvalidIfStaleArticleResource.detailShape(), props);
+      },
+      { results, initialProps: { id: payload.id } },
+    );
+
+    expect(result.current).toBeDefined();
+    Date.now = jest.fn(() => 999999999 * 3);
+
+    rerender({ id: payload.id * 2 });
+    expect(result.current).toBeUndefined();
+    rerender({ id: payload.id });
+    expect(result.current).toBeUndefined();
+
+    global.Date.now = realDate;
   });
 
   it('should select paginated results', () => {
