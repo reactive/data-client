@@ -6,8 +6,10 @@ import {
   DenormalizeNullable,
   ParamsFromShape,
 } from 'rest-hooks/resource';
+
 import { useMemo } from 'react';
 
+import hasUsableData from '../../react-integration/hooks/hasUsableData';
 import buildInferredResults from './buildInferredResults';
 
 /**
@@ -20,11 +22,12 @@ import buildInferredResults from './buildInferredResults';
  * @returns [denormalizedValue, allEntitiesFound]
  */
 export default function useDenormalized<
-  Shape extends Pick<ReadShape<any, any>, 'getFetchKey' | 'schema'>
+  Shape extends Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>
 >(
-  { schema, getFetchKey }: Shape,
+  { schema, getFetchKey, options }: Shape,
   params: ParamsFromShape<Shape> | null,
   state: State<any>,
+  expired = false,
 ): [
   DenormalizeNullable<Shape['schema']>,
   typeof params extends null ? false : boolean,
@@ -32,6 +35,7 @@ export default function useDenormalized<
   // Select from state
   const entities = state.entities;
   const cacheResults = params && state.results[getFetchKey(params)];
+  const serializedParams = params && getFetchKey(params);
 
   // We can grab entities without actual results if the params compute a primary key
   const results = useMemo(() => {
@@ -41,7 +45,7 @@ export default function useDenormalized<
     // entities[entitySchema.key] === undefined
     return buildInferredResults(schema, params, state.indexes);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cacheResults, state.indexes, params && getFetchKey(params)]);
+  }, [cacheResults, state.indexes, serializedParams]);
   // TODO: only update when relevant indexes change
 
   // Compute denormalized value
@@ -49,7 +53,7 @@ export default function useDenormalized<
     // Warn users with bad configurations
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'production' && isEntity(schema)) {
-      const paramEncoding = params ? getFetchKey(params) : '';
+      const paramEncoding = serializedParams || '';
       if (Array.isArray(results)) {
         throw new Error(
           `url ${paramEncoding} has list results when single result is expected`,
@@ -63,7 +67,8 @@ export default function useDenormalized<
     }
 
     // second argument is false if any entities are missing
-    const [denormalized, entitiesFound, cache] = denormalize(
+    // eslint-disable-next-line prefer-const
+    let [denormalized, entitiesFound, cache] = denormalize(
       results,
       schema,
       entities,
@@ -75,6 +80,10 @@ export default function useDenormalized<
       .reduce((a: any[], b: any[]) => a.concat(b), [])
       .join(',');
 
+    if (!hasUsableData(entitiesFound, { options }) && expired) {
+      denormalized = denormalize(results, schema, {})[0];
+    }
+
     return [denormalized, entitiesFound, entitiesList] as [
       DenormalizeNullable<Shape['schema']>,
       any,
@@ -82,7 +91,13 @@ export default function useDenormalized<
     ];
     // TODO: would be nice to make this only recompute on the entity types that are in schema
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entities, params && getFetchKey(params), results]);
+  }, [
+    entities,
+    serializedParams,
+    results,
+    expired,
+    options && options.invalidIfStale,
+  ]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   return useMemo(() => [denormalized, entitiesFound], [
