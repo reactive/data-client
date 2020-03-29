@@ -1,6 +1,7 @@
 import { DispatchContext } from 'rest-hooks/react-integration/context';
 import { ReadShape, Schema } from 'rest-hooks/resource';
 import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from 'rest-hooks/actionTypes';
+
 import { useContext, useEffect, useRef } from 'react';
 
 /** Keeps a resource fresh by subscribing to updates. */

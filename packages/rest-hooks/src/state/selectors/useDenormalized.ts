@@ -35,6 +35,7 @@ export default function useDenormalized<
   // Select from state
   const entities = state.entities;
   const cacheResults = params && state.results[getFetchKey(params)];
+  const serializedParams = params && getFetchKey(params);
 
   // We can grab entities without actual results if the params compute a primary key
   const results = useMemo(() => {
@@ -44,10 +45,9 @@ export default function useDenormalized<
     // entities[entitySchema.key] === undefined
     return buildInferredResults(schema, params, state.indexes);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cacheResults, state.indexes, params && getFetchKey(params)]);
+  }, [cacheResults, state.indexes, serializedParams]);
   // TODO: only update when relevant indexes change
 
-  const serializedParams = params && getFetchKey(params);
   // Compute denormalized value
   const [denormalized, entitiesFound, entitiesList] = useMemo(() => {
     // Warn users with bad configurations
