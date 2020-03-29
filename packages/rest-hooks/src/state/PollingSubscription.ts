@@ -134,21 +134,17 @@ export default class PollingSubscription implements Subscription {
 
   /** What happens when browser goes offline */
   protected offlineListener = () => {
+    // this clears existing listeners, so no need to clear offline listener
     this.cleanup();
-    this.connectionListener.removeOfflineListener(this.offlineListener);
     this.connectionListener.addOnlineListener(this.onlineListener);
   };
 
   /** What happens when browser comes online */
   protected onlineListener = () => {
     this.connectionListener.removeOnlineListener(this.onlineListener);
-    if (this.connectionListener.isOnline()) {
-      this.update();
-      this.run();
-      this.connectionListener.addOfflineListener(this.offlineListener);
-    } else {
-      this.connectionListener.addOnlineListener(this.onlineListener);
-    }
+    this.update();
+    this.run();
+    this.connectionListener.addOfflineListener(this.offlineListener);
   };
 
   /** Run polling process with current frequency
@@ -156,17 +152,15 @@ export default class PollingSubscription implements Subscription {
    * Will clean up old poll interval on next run
    */
   protected run() {
-    if (this.connectionListener.isOnline()) {
-      this.lastIntervalId = this.intervalId;
-      this.intervalId = setInterval(() => {
-        // since we don't know how long into the last poll it was before resetting
-        // we wait til the next fetch to clear old intervals
-        if (this.lastIntervalId) {
-          clearInterval(this.lastIntervalId);
-          this.lastIntervalId = undefined;
-        }
-        this.update();
-      }, this.frequency);
-    }
+    this.lastIntervalId = this.intervalId;
+    this.intervalId = setInterval(() => {
+      // since we don't know how long into the last poll it was before resetting
+      // we wait til the next fetch to clear old intervals
+      if (this.lastIntervalId) {
+        clearInterval(this.lastIntervalId);
+        this.lastIntervalId = undefined;
+      }
+      this.update();
+    }, this.frequency);
   }
 }

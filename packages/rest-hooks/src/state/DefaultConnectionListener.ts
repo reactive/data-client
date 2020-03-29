@@ -1,30 +1,45 @@
 import { ConnectionListener } from './ConnectionListener';
 
-export default class DefaultConnectionListener implements ConnectionListener {
+export class BrowserConnectionListener implements ConnectionListener {
   isOnline() {
-    if (navigator.onLine !== undefined) {
-      return navigator.onLine;
-    }
-    return true;
+    return navigator.onLine;
   }
 
   addOnlineListener(handler: () => void) {
-    if (typeof addEventListener === 'function')
-      addEventListener('online', handler);
+    addEventListener('online', handler);
   }
 
   removeOnlineListener(handler: () => void) {
-    if (typeof removeEventListener === 'function')
-      removeEventListener('online', handler);
+    removeEventListener('online', handler);
   }
 
   addOfflineListener(handler: () => void) {
-    if (typeof addEventListener === 'function')
-      addEventListener('offline', handler);
+    addEventListener('offline', handler);
   }
 
   removeOfflineListener(handler: () => void) {
-    if (typeof removeEventListener === 'function')
-      removeEventListener('offline', handler);
+    removeEventListener('offline', handler);
   }
 }
+
+export class AlwaysOnlineConnectionListener implements ConnectionListener {
+  isOnline() {
+    return true;
+  }
+
+  addOnlineListener() {}
+
+  removeOnlineListener() {}
+
+  addOfflineListener() {}
+
+  removeOfflineListener() {}
+}
+
+let DefaultConnectionListener: { new (): ConnectionListener };
+if (navigator.onLine !== undefined && typeof addEventListener === 'function') {
+  DefaultConnectionListener = BrowserConnectionListener;
+} else {
+  DefaultConnectionListener = AlwaysOnlineConnectionListener;
+}
+export default DefaultConnectionListener;
