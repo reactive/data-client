@@ -1,16 +1,17 @@
-import React, { Suspense } from 'react';
-import { render } from '@testing-library/react';
-import nock from 'nock';
 import {
   CoolerArticleResource,
   UserResource,
   InvalidIfStaleArticleResource,
   photoShape,
 } from '__tests__/common';
-
-// relative imports to avoid circular dependency in tsconfig references
 import { State } from 'rest-hooks/types';
 import { initialState } from 'rest-hooks/state/reducer';
+
+import React, { Suspense } from 'react';
+import { render } from '@testing-library/react';
+import nock from 'nock';
+
+// relative imports to avoid circular dependency in tsconfig references
 
 import {
   makeRenderRestHook,
