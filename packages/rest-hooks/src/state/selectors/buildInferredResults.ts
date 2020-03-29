@@ -38,7 +38,7 @@ export default function buildInferredResults<
     if (discriminatedSchema === undefined) return undefined as any;
     return {
       id: buildInferredResults(discriminatedSchema, params, indexes),
-      schema: schema.getSchemaAttribute(params, parent, ''),
+      schema: schema.getSchemaAttribute(params, undefined, ''),
     } as any;
   }
   if (schema instanceof schemas.Array || Array.isArray(schema)) {
