@@ -2,7 +2,10 @@ import { ConnectionListener } from './ConnectionListener';
 
 export class BrowserConnectionListener implements ConnectionListener {
   isOnline() {
-    return navigator.onLine;
+    if (navigator.onLine !== undefined) {
+      return navigator.onLine;
+    }
+    return true;
   }
 
   addOnlineListener(handler: () => void) {
@@ -37,7 +40,10 @@ export class AlwaysOnlineConnectionListener implements ConnectionListener {
 }
 
 let DefaultConnectionListener: { new (): ConnectionListener };
-if (navigator.onLine !== undefined && typeof addEventListener === 'function') {
+if (
+  typeof navigator !== 'undefined' &&
+  typeof addEventListener === 'function'
+) {
   DefaultConnectionListener = BrowserConnectionListener;
 } else {
   DefaultConnectionListener = AlwaysOnlineConnectionListener;
