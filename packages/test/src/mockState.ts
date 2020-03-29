@@ -14,12 +14,15 @@ export default function mockInitialState<
 >(results: Fixture[]) {
   const now = Date.now();
   const mockState = results.reduce((acc, { request, params, result }) => {
-    const { schema, getFetchKey } = request;
+    const { schema, getFetchKey, options } = request;
     const url = getFetchKey(params);
+    const expiresAt = options?.dataExpiryLength
+      ? options?.dataExpiryLength + now
+      : now * 2;
     return reducer(acc, {
       type: 'rest-hooks/receive',
       payload: result,
-      meta: { schema, url, date: now, expiresAt: now * 2 },
+      meta: { schema, url, date: now, expiresAt },
     });
   }, initialState);
   return mockState;
