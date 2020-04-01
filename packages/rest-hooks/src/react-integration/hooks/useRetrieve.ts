@@ -1,4 +1,4 @@
-import { ReadShape, Schema } from 'rest-hooks/resource';
+import { ReadShape, ParamsFromShape } from 'rest-hooks/resource';
 
 import { useMemo } from 'react';
 
@@ -6,10 +6,10 @@ import useFetcher from './useFetcher';
 import useExpiresAt from './useExpiresAt';
 
 /** Request a resource if it is not in cache. */
-export default function useRetrieve<
-  Params extends Readonly<object>,
-  S extends Schema
->(fetchShape: ReadShape<S, Params>, params: Params | null) {
+export default function useRetrieve<Shape extends ReadShape<any, any>>(
+  fetchShape: Shape,
+  params: ParamsFromShape<Shape> | null,
+) {
   const fetch = useFetcher(fetchShape, true);
   const expiresAt = useExpiresAt(fetchShape, params);
 

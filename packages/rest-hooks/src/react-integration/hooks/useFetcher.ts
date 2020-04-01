@@ -1,4 +1,3 @@
-import { useContext, useRef, useCallback } from 'react';
 import { FetchAction, UpdateFunction, ReceiveTypes } from 'rest-hooks/types';
 import {
   RECEIVE_DELETE_TYPE,
@@ -16,6 +15,8 @@ import {
   BodyFromShape,
 } from 'rest-hooks/resource';
 import { DispatchContext } from 'rest-hooks/react-integration/context';
+
+import { useContext, useRef, useCallback } from 'react';
 
 const SHAPE_TYPE_TO_RESPONSE_TYPE: Record<
   FetchShape<any, any, any>['type'],
@@ -46,7 +47,10 @@ export default function useFetcher<
   fetchShape: Shape,
   throttle = false,
 ): Shape extends DeleteShape<any, any, any>
-  ? (params: ParamsFromShape<Shape>, body: BodyFromShape<Shape>) => Promise<any>
+  ? (
+      params: ParamsFromShape<Shape>,
+      body: BodyFromShape<Shape>,
+    ) => ReturnType<typeof fetchShape['fetch']>
   : <
       UpdateParams extends OptimisticUpdateParams<
         SchemaFromShape<Shape>,
@@ -56,7 +60,7 @@ export default function useFetcher<
       params: ParamsFromShape<Shape>,
       body: BodyFromShape<Shape>,
       updateParams?: UpdateParams | undefined,
-    ) => Promise<any> {
+    ) => ReturnType<typeof fetchShape['fetch']> {
   const dispatch = useContext(DispatchContext);
 
   // we just want the current values when we dispatch, so
