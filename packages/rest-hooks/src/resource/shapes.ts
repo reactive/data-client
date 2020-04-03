@@ -2,8 +2,6 @@ import { schemas, Schema } from './normal';
 
 import { FetchOptions } from '~/types';
 
-type DefaultPromise = Promise<object | string | number | boolean>;
-
 /** Defines the shape of a network request */
 export interface FetchShape<
   S extends Schema,
@@ -36,7 +34,9 @@ export interface MutateShape<
   Body extends Readonly<object | string> | void =
     | Readonly<object | string>
     | undefined,
-  ReturnPromise extends DefaultPromise = DefaultPromise
+  ReturnPromise extends Promise<object | string | number | boolean> = Promise<
+    object | string | number | boolean
+  >
 > extends FetchShape<S, Params, Body, ReturnPromise> {
   readonly type: 'mutate';
   fetch(params: Params, body: Body): ReturnPromise;
@@ -46,7 +46,9 @@ export interface MutateShape<
 export interface ReadShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
-  ReturnPromise extends DefaultPromise = DefaultPromise
+  ReturnPromise extends Promise<object | string | number | boolean> = Promise<
+    object | string | number | boolean
+  >
 > extends FetchShape<S, Params, undefined> {
   readonly type: 'read';
   fetch(params: Params): ReturnPromise;
