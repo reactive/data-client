@@ -1,4 +1,5 @@
 import { FetchOptions } from 'rest-hooks/types';
+import { Denormalize } from '@rest-hooks/normalizr/src';
 
 import { schemas, Schema } from './normal';
 
@@ -11,7 +12,7 @@ export interface FetchShape<
     | undefined
 > {
   readonly type: 'read' | 'mutate' | 'delete';
-  fetch(params: Params, body: Body): Promise<any>;
+  fetch(params: Params, body: Body): Promise<Denormalize<S>>;
   getFetchKey(params: Params): string;
   readonly schema: S;
   readonly options?: FetchOptions;
@@ -35,10 +36,7 @@ export interface MutateShape<
     | undefined
 > extends FetchShape<S, Params, Body> {
   readonly type: 'mutate';
-  fetch(
-    params: Params,
-    body: Body,
-  ): Promise<object | string | number | boolean>;
+  fetch(params: Params, body: Body): Promise<Denormalize<S>>;
 }
 
 /** For retrieval requests */
@@ -47,5 +45,5 @@ export interface ReadShape<
   Params extends Readonly<object> = Readonly<object>
 > extends FetchShape<S, Params, undefined> {
   readonly type: 'read';
-  fetch(params: Params): Promise<object | string | number | boolean>;
+  fetch(params: Params): Promise<Denormalize<S>>;
 }
