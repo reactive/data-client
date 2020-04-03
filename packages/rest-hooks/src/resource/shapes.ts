@@ -2,16 +2,19 @@ import { schemas, Schema } from './normal';
 
 import { FetchOptions } from '~/types';
 
+type DefaultPromise = Promise<object | string | number | boolean>;
+
 /** Defines the shape of a network request */
 export interface FetchShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
   Body extends Readonly<object | string> | void =
     | Readonly<object | string>
-    | undefined
+    | undefined,
+  ReturnPromise extends Promise<any> = Promise<any>
 > {
   readonly type: 'read' | 'mutate' | 'delete';
-  fetch(params: Params, body: Body): Promise<any>;
+  fetch(params: Params, body: Body): ReturnPromise;
   getFetchKey(params: Params): string;
   readonly schema: S;
   readonly options?: FetchOptions;
@@ -32,20 +35,19 @@ export interface MutateShape<
   Params extends Readonly<object> = Readonly<object>,
   Body extends Readonly<object | string> | void =
     | Readonly<object | string>
-    | undefined
-> extends FetchShape<S, Params, Body> {
+    | undefined,
+  ReturnPromise extends DefaultPromise = DefaultPromise
+> extends FetchShape<S, Params, Body, ReturnPromise> {
   readonly type: 'mutate';
-  fetch(
-    params: Params,
-    body: Body,
-  ): Promise<object | string | number | boolean>;
+  fetch(params: Params, body: Body): ReturnPromise;
 }
 
 /** For retrieval requests */
 export interface ReadShape<
   S extends Schema,
-  Params extends Readonly<object> = Readonly<object>
+  Params extends Readonly<object> = Readonly<object>,
+  ReturnPromise extends DefaultPromise = DefaultPromise
 > extends FetchShape<S, Params, undefined> {
   readonly type: 'read';
-  fetch(params: Params): Promise<object | string | number | boolean>;
+  fetch(params: Params): ReturnPromise;
 }
