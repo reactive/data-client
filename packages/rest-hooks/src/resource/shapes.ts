@@ -9,10 +9,10 @@ export interface FetchShape<
   Body extends Readonly<object | string> | void =
     | Readonly<object | string>
     | undefined,
-  ReturnPromise extends Promise<any> = Promise<any>
+  Response = any
 > {
   readonly type: 'read' | 'mutate' | 'delete';
-  fetch(params: Params, body: Body): ReturnPromise;
+  fetch(params: Params, body: Body): Promise<Response>;
   getFetchKey(params: Params): string;
   readonly schema: S;
   readonly options?: FetchOptions;
@@ -34,22 +34,26 @@ export interface MutateShape<
   Body extends Readonly<object | string> | void =
     | Readonly<object | string>
     | undefined,
-  ReturnPromise extends Promise<object | string | number | boolean> = Promise<
-    object | string | number | boolean
-  >
-> extends FetchShape<S, Params, Body, ReturnPromise> {
+  Response extends object | string | number | boolean =
+    | object
+    | string
+    | number
+    | boolean
+> extends FetchShape<S, Params, Body, Response> {
   readonly type: 'mutate';
-  fetch(params: Params, body: Body): ReturnPromise;
+  fetch(params: Params, body: Body): Promise<Response>;
 }
 
 /** For retrieval requests */
 export interface ReadShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
-  ReturnPromise extends Promise<object | string | number | boolean> = Promise<
-    object | string | number | boolean
-  >
+  Response extends object | string | number | boolean =
+    | object
+    | string
+    | number
+    | boolean
 > extends FetchShape<S, Params, undefined> {
   readonly type: 'read';
-  fetch(params: Params): ReturnPromise;
+  fetch(params: Params): Promise<Response>;
 }
