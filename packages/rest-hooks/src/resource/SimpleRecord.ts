@@ -1,6 +1,7 @@
 import { EntityInstance } from 'rest-hooks/types';
 
 const DefinedMembersKey = Symbol('Defined Members');
+const UniqueIdentifierKey = Symbol('unq');
 type Filter<T, U> = T extends U ? T : never;
 interface SimpleResourceMembers<T extends typeof SimpleRecord> {
   [DefinedMembersKey]: Filter<keyof EntityInstance<T>, string>[];
@@ -10,7 +11,7 @@ interface SimpleResourceMembers<T extends typeof SimpleRecord> {
 export default abstract class SimpleRecord {
   toString(): string {
     // we don't make _unq a member so it doesn't play a role in type compatibility
-    return (this as any)._unq;
+    return (this as any)[UniqueIdentifierKey];
   }
 
   /** Factory method to convert from Plain JS Objects.
@@ -34,7 +35,7 @@ export default abstract class SimpleRecord {
     });
 
     // a 'unique' identifier to make referential equality comparisons easy
-    Object.defineProperty(instance, '_unq', {
+    Object.defineProperty(instance, UniqueIdentifierKey, {
       value: `${Math.random()}`,
       writable: false,
     });
