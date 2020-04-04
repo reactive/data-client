@@ -91,14 +91,6 @@ type CondNull<P, A, B> = P extends null ? A : B;
 
 /** Ensure a resource is available; suspending to React until it is. */
 export default function useResource<
-  S extends ReadShape<any, any>,
-  P extends ParamsFromShape<S> | null
->(
-  fetchShape: S,
-  params: P,
-): CondNull<P, DenormalizeNullable<S['schema']>, Denormalize<S['schema']>>;
-
-export default function useResource<
   S1 extends ReadShape<any, any>,
   P1 extends ParamsFromShape<S1> | null
 >(
@@ -117,6 +109,14 @@ export default function useResource<
   CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>,
   CondNull<P2, DenormalizeNullable<S2['schema']>, Denormalize<S2['schema']>>,
 ];
+
+export default function useResource<
+  S extends ReadShape<any, any>,
+  P extends ParamsFromShape<S> | null
+>(
+  fetchShape: S,
+  params: P,
+): CondNull<P, DenormalizeNullable<S['schema']>, Denormalize<S['schema']>>;
 
 export default function useResource<
   S1 extends ReadShape<any, any>,
