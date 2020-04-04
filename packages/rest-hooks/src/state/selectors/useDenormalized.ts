@@ -1,11 +1,12 @@
 import { State } from 'rest-hooks/types';
 import {
-  isEntity,
   ReadShape,
   denormalize,
   DenormalizeNullable,
   ParamsFromShape,
 } from 'rest-hooks/resource';
+import { isEntity } from '@rest-hooks/normalizr';
+
 import { useMemo } from 'react';
 
 import hasUsableData from '../../react-integration/hooks/hasUsableData';

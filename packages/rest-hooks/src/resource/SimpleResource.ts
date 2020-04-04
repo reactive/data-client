@@ -1,9 +1,8 @@
-import { NotImplementedError } from 'rest-hooks/errors';
 import { AbstractInstanceType, Method, FetchOptions } from 'rest-hooks/types';
+import { NotImplementedError, Entity } from '@rest-hooks/normalizr';
 
 import { ReadShape, MutateShape, DeleteShape } from './shapes';
 import { SchemaDetail, SchemaList } from './normal';
-import Entity from './Entity';
 import paramsToString from './paramsToString';
 
 /** Represents an entity to be retrieved from a server.

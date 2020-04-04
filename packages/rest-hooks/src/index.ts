@@ -51,7 +51,7 @@ export * from './types';
 export * from './resource/shapes';
 export * from './resource/normal';
 export * from './resource/publicTypes';
-export * from './resource/Entity';
+export type { EntitySchema } from '@rest-hooks/normalizr';
 export {
   Resource,
   SimpleResource,

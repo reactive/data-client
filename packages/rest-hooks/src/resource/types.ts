@@ -1,5 +1,6 @@
+import { Entity } from '@rest-hooks/normalizr';
+
 import { Schema } from './normal';
-import Entity from './Entity';
 import { FetchShape, DeleteShape } from './shapes';
 
 export type SchemaFromShape<
@@ -33,7 +34,3 @@ export type BodyArg<RS> = RS extends {
 }
   ? U
   : never;
-
-export function isEntity(schema: Schema): schema is typeof Entity {
-  return schema !== null && (schema as any).getId !== undefined;
-}

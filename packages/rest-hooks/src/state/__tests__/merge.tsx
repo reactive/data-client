@@ -1,5 +1,6 @@
-import React from 'react';
 import { ArticleResource } from '__tests__/common';
+
+import React from 'react';
 
 import mergeDeepCopy from '../merge/mergeDeepCopy';
 import isMergeable from '../merge/isMergeable';
@@ -109,7 +110,7 @@ describe('mergeDeepCopy()', () => {
       const array = [1];
       array[3] = 3;
 
-      const array2 = [];
+      const array2: any = [];
       array2[1] = 5;
 
       const actual = mergeDeepCopy(array, array2),

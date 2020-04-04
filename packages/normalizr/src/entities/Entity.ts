@@ -1,7 +1,6 @@
-import { AbstractInstanceType } from 'rest-hooks/types';
-import { NotImplementedError } from 'rest-hooks/errors';
-
-import { Schema, schemas } from './normal';
+import { NotImplementedError } from '../errors';
+import * as schema from '../schema';
+import { Schema, AbstractInstanceType } from '../types';
 import SimpleRecord from './SimpleRecord';
 
 /** Represents data that should be deduped by specifying a primary key. */
@@ -16,15 +15,19 @@ export default abstract class Entity extends SimpleRecord {
 
   /** Returns the globally unique identifier for the static Entity */
   static get key(): string {
-    throw new NotImplementedError();
+    /* istanbul ignore next */
+    if (process.env.NODE_ENV !== 'production' && this.name === '')
+      throw new Error(
+        'Entity classes without a name must define `static get key()`',
+      );
+    return this.name;
   }
 
-  // TODO: add 'declare' once babel supports 'declare static' syntax
   /** Defines nested entities */
   static schema: { [k: string]: Schema } = {};
 
   /** Defines indexes to enable lookup by */
-  static indexes?: readonly string[];
+  declare static indexes?: readonly string[];
 
   /**
    * A unique identifier for each Entity
@@ -57,7 +60,9 @@ export default abstract class Entity extends SimpleRecord {
     addEntity: Function,
     visitedEntities: Record<string, any>,
   ) {
-    const id = this.pk(input, parent, key);
+    // TODO: what's store needs to be a differing type from fromJS
+    const processedEntity = this.fromJS(input, parent, key);
+    const id = processedEntity.pk(parent, key);
     /* istanbul ignore next */
     if (id === undefined) {
       if (process.env.NODE_ENV !== 'production' && id === undefined) {
@@ -90,8 +95,6 @@ export default abstract class Entity extends SimpleRecord {
     }
     visitedEntities[entityType][id].push(input);
 
-    // TODO: what's store needs to be a differing type from fromJS
-    const processedEntity: any = this.fromJS(input, parent, key);
     Object.keys(this.schema).forEach(key => {
       if (
         Object.hasOwnProperty.call(processedEntity, key) &&
@@ -117,35 +120,9 @@ export default abstract class Entity extends SimpleRecord {
   static denormalize<T extends typeof Entity>(
     this: T,
     entity: AbstractInstanceType<T> | undefined,
-    unvisit: schemas.UnvisitFunction,
+    unvisit: schema.UnvisitFunction,
   ): [AbstractInstanceType<T>, true] {
     return [entity, true] as any;
-  }
-
-  // backwards compatible with normalizr
-  /** Calls pk
-   *
-   * @param params
-   * @param parent
-   * @param key
-   */
-  static getId(params: any, parent?: any, key?: string) {
-    return this.pk(params, parent, key);
-  }
-
-  /** Add nested entities */
-  static define(definition: { [k: string]: Schema }) {
-    /* istanbul ignore next */
-    if (process.env.NODE_ENV === 'development') {
-      console.error(
-        'Entity.define() is deprecated - override Entity.schema instead.',
-      );
-    }
-    /* istanbul ignore next */
-    this.schema = Object.keys(definition).reduce((entitySchema, key) => {
-      const schema = definition[key];
-      return { ...entitySchema, [key]: schema };
-    }, this.schema || {});
   }
 }
 
@@ -156,7 +133,7 @@ if (process.env.NODE_ENV !== 'production') {
   Entity.fromJS = function fromJS<T extends typeof SimpleRecord>(
     this: T,
     props: Partial<AbstractInstanceType<T>>,
-  ): Readonly<AbstractInstanceType<T>> {
+  ): AbstractInstanceType<T> {
     if ((this as any).prototype.pk === undefined)
       throw new Error('cannot construct on abstract types');
     return SimpleRecord.fromJS.call(this, props) as any;
@@ -179,3 +156,7 @@ export type EntitySchema<E extends typeof Entity> = E & {
   _normalizeNullable(): string | undefined;
   _denormalizeNullable(): [AbstractInstanceType<E> | undefined, boolean];
 };
+
+export function isEntity(schema: Schema | null): schema is typeof Entity {
+  return schema !== null && (schema as any).pk !== undefined;
+}

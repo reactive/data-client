@@ -6,8 +6,6 @@ import { terser } from 'rollup-plugin-terser';
 
 import { name } from './package.json';
 
-const { presets } = require('./.babelrc');
-
 const isProduction = process.env.NODE_ENV === 'production';
 
 const destBase = 'dist/normalizr';
@@ -22,17 +20,24 @@ const configs = [];
 
 if (process.env.BROWSERSLIST_ENV === 'production') {
   configs.push({
-    input: 'src/index.js',
+    input: 'src/index.ts',
     output: [{ file: `${destBase}.es${destExtension}`, format: 'es' }],
     plugins: [
-      babel({ runtimeHelpers: true, presets }),
+      babel({
+        exclude: ['node_modules/**', '/**__tests__/**'],
+        extensions,
+        runtimeHelpers: true,
+        rootMode: 'upward',
+      }),
+      resolve({ extensions }),
+      commonjs({ extensions }),
       isProduction && terser(),
       filesize(),
     ].filter(Boolean),
   });
 } else {
   configs.push({
-    input: 'src/index.js',
+    input: 'src/index.ts',
     output: [
       { file: `${destBase}${destExtension}`, format: 'cjs' },
       {
@@ -52,7 +57,12 @@ if (process.env.BROWSERSLIST_ENV === 'production') {
       },
     ],
     plugins: [
-      babel({ runtimeHelpers: true }),
+      babel({
+        exclude: ['node_modules/**', '/**__tests__/**'],
+        extensions,
+        runtimeHelpers: true,
+        rootMode: 'upward',
+      }),
       resolve({ extensions }),
       commonjs({ extensions }),
       isProduction && terser(),
