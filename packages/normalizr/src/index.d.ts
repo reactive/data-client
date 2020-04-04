@@ -259,14 +259,10 @@ export type NormalizeReturnType<T> = T extends (...args: any) => infer R
   ? R
   : never;
 
-// interfaces prevent infinite recursion since they eval lazily
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface ArrayDenorm<F> extends Array<Denormalize<F>> {}
-
 export type Denormalize<S> = S extends schema.SchemaClass
   ? DenormalizeReturnType<S['denormalize']>
   : S extends Array<infer F>
-  ? ArrayDenorm<F>
+  ? Denormalize<F>[]
   : S extends { [K: string]: any }
   ? DenormalizeObject<S>
   : S;
@@ -274,19 +270,15 @@ export type Denormalize<S> = S extends schema.SchemaClass
 export type DenormalizeNullable<S> = S extends schema.SchemaClass
   ? DenormalizeReturnType<S['_denormalizeNullable']>
   : S extends Array<infer F>
-  ? ArrayDenorm<F> | undefined
+  ? Denormalize<F>[] | undefined
   : S extends { [K: string]: any }
   ? DenormalizeNullableObject<S>
   : S;
 
-// interfaces prevent infinite recursion since they eval lazily
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface ArrayNorm<F> extends Array<Normalize<F>> {}
-
 export type Normalize<S> = S extends schema.SchemaClass
   ? NormalizeReturnType<S['normalize']>
   : S extends Array<infer F>
-  ? ArrayNorm<F>
+  ? Normalize<F>[]
   : S extends { [K: string]: any }
   ? NormalizeObject<S>
   : S;
@@ -294,20 +286,16 @@ export type Normalize<S> = S extends schema.SchemaClass
 export type NormalizeNullable<S> = S extends schema.SchemaClass
   ? NormalizeReturnType<S['_normalizeNullable']>
   : S extends Array<infer F>
-  ? ArrayNorm<F> | undefined
+  ? Normalize<F>[] | undefined
   : S extends { [K: string]: any }
   ? NormalizedNullableObject<S>
   : S;
-
-// interfaces prevent infinite recursion since they eval lazily
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface SchemaArray extends Array<Schema> {}
 
 export type Schema =
   | null
   | string
   | { [K: string]: any }
-  | SchemaArray
+  | Schema[]
   | schema.SchemaClass;
 
 export type NormalizedIndex = {
