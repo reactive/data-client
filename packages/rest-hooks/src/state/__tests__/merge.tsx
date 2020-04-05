@@ -123,7 +123,8 @@ describe('mergeDeepCopy()', () => {
     });
 
     it('should assign `null` values', function () {
-      const actual = mergeDeepCopy({ a: 1 }, { a: null });
+      type A = { a: number | null };
+      const actual = mergeDeepCopy({ a: 1 } as A, { a: null } as A);
       expect(actual.a).toBe(null);
     });
 

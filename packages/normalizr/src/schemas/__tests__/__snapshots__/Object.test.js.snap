@@ -204,16 +204,19 @@ Immutable.Map {
 exports[`ObjectSchema normalization filters out undefined and null values 1`] = `
 Object {
   "entities": Object {
-    "user": Object {
-      "1": Object {
+    "User": Object {
+      "1": User {
         "id": "1",
       },
-      "undefined": Object {},
+      "undefined": User {
+        "id": undefined,
+      },
     },
   },
   "indexes": Object {},
   "result": Object {
     "bar": "1",
+    "foo": "undefined",
   },
 }
 `;
@@ -221,15 +224,15 @@ Object {
 exports[`ObjectSchema normalization normalizes an object 1`] = `
 Object {
   "entities": Object {
-    "user": Object {
-      "1": Object {
+    "User": Object {
+      "1": User {
         "id": 1,
       },
     },
   },
   "indexes": Object {},
   "result": Object {
-    "user": 1,
+    "user": "1",
   },
 }
 `;
@@ -237,15 +240,15 @@ Object {
 exports[`ObjectSchema normalization normalizes plain objects as shorthand for ObjectSchema 1`] = `
 Object {
   "entities": Object {
-    "user": Object {
-      "1": Object {
+    "User": Object {
+      "1": User {
         "id": 1,
       },
     },
   },
   "indexes": Object {},
   "result": Object {
-    "user": 1,
+    "user": "1",
   },
 }
 `;

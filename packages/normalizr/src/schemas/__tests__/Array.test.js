@@ -2,33 +2,41 @@
 import { fromJS } from 'immutable';
 
 import { denormalizeSimple as denormalize } from '../../denormalize';
-import { normalize, schema } from '../../';
+import { normalize, schema, Entity } from '../../';
+import IDEntity from '../../entities/IDEntity';
 
 describe(`${schema.Array.name} normalization`, () => {
   describe('Object', () => {
     test(`normalizes plain arrays as shorthand for ${schema.Array.name}`, () => {
-      const userSchema = new schema.Entity('user');
-      expect(normalize([{ id: 1 }, { id: 2 }], [userSchema])).toMatchSnapshot();
+      class User extends IDEntity {}
+      expect(
+        normalize([{ id: 1 }, { id: 2 }], [User.asSchema()]),
+      ).toMatchSnapshot();
     });
 
     test('throws an error if created with more than one schema', () => {
-      const userSchema = new schema.Entity('users');
-      const catSchema = new schema.Entity('cats');
-      expect(() => normalize([{ id: 1 }], [catSchema, userSchema])).toThrow();
+      class User extends IDEntity {}
+      class Cat extends IDEntity {}
+      expect(() =>
+        normalize([{ id: 1 }], [Cat.asSchema(), User.asSchema()]),
+      ).toThrow();
     });
 
     test('passes its parent to its children when normalizing', () => {
-      const processStrategy = (entity, parent, key) => {
-        return { ...entity, parentId: parent.id, parentKey: key };
-      };
-      const childEntity = new schema.Entity(
-        'children',
-        {},
-        { processStrategy },
-      );
-      const parentEntity = new schema.Entity('parents', {
-        children: [childEntity],
-      });
+      class Child extends IDEntity {
+        static fromJS(entity, parent, key) {
+          return super.fromJS({
+            ...entity,
+            parentId: parent.id,
+            parentKey: key,
+          });
+        }
+      }
+      class Parent extends IDEntity {
+        static schema = {
+          children: [Child.asSchema()],
+        };
+      }
 
       expect(
         normalize(
@@ -37,23 +45,23 @@ describe(`${schema.Array.name} normalization`, () => {
             content: 'parent',
             children: [{ id: 4, content: 'child' }],
           },
-          parentEntity,
+          Parent.asSchema(),
         ),
       ).toMatchSnapshot();
     });
 
     test('normalizes Objects using their values', () => {
-      const userSchema = new schema.Entity('user');
+      class User extends IDEntity {}
       expect(
-        normalize({ foo: { id: 1 }, bar: { id: 2 } }, [userSchema]),
+        normalize({ foo: { id: 1 }, bar: { id: 2 } }, [User.asSchema()]),
       ).toMatchSnapshot();
     });
   });
 
   describe('Class', () => {
+    class Cats extends IDEntity {}
     test('normalizes a single entity', () => {
-      const cats = new schema.Entity('cats');
-      const listSchema = new schema.Array(cats);
+      const listSchema = new schema.Array(Cats.asSchema());
       expect(normalize([{ id: 1 }, { id: 2 }], listSchema)).toMatchSnapshot();
     });
 
@@ -61,12 +69,11 @@ describe(`${schema.Array.name} normalization`, () => {
       const inferSchemaFn = jest.fn(
         (input, parent, key) => input.type || 'dogs',
       );
-      const catSchema = new schema.Entity('cats');
-      const peopleSchema = new schema.Entity('person');
+      class Person extends IDEntity {}
       const listSchema = new schema.Array(
         {
-          cats: catSchema,
-          people: peopleSchema,
+          Cat: Cats,
+          people: Person,
         },
         inferSchemaFn,
       );
@@ -74,10 +81,10 @@ describe(`${schema.Array.name} normalization`, () => {
       expect(
         normalize(
           [
-            { type: 'cats', id: '123' },
+            { type: 'Cat', id: '123' },
             { type: 'people', id: '123' },
             { id: '789', name: 'fido' },
-            { type: 'cats', id: '456' },
+            { type: 'Cat', id: '456' },
           ],
           listSchema,
         ),
@@ -86,16 +93,16 @@ describe(`${schema.Array.name} normalization`, () => {
     });
 
     test('normalizes Objects using their values', () => {
-      const userSchema = new schema.Entity('user');
-      const users = new schema.Array(userSchema);
+      class User extends IDEntity {}
+      const users = new schema.Array(User);
       expect(
         normalize({ foo: { id: 1 }, bar: { id: 2 } }, users),
       ).toMatchSnapshot();
     });
 
     test('filters out undefined and null normalized values', () => {
-      const userSchema = new schema.Entity('user');
-      const users = new schema.Array(userSchema);
+      class User extends IDEntity {}
+      const users = new schema.Array(User);
       expect(
         normalize([undefined, { id: 123 }, null], users),
       ).toMatchSnapshot();
@@ -106,38 +113,34 @@ describe(`${schema.Array.name} normalization`, () => {
 describe(`${schema.Array.name} denormalization`, () => {
   describe('Object', () => {
     test('denormalizes a single entity', () => {
-      const cats = new schema.Entity('cats');
+      class Cat extends IDEntity {}
       const entities = {
-        cats: {
+        Cat: {
           1: { id: 1, name: 'Milo' },
           2: { id: 2, name: 'Jake' },
         },
       };
-      expect(denormalize([1, 2], [cats], entities)).toMatchSnapshot();
-      expect(denormalize([1, 2], [cats], fromJS(entities))).toMatchSnapshot();
+      expect(denormalize([1, 2], [Cat], entities)).toMatchSnapshot();
+      expect(denormalize([1, 2], [Cat], fromJS(entities))).toMatchSnapshot();
     });
 
     test('denormalizes plain arrays with nothing inside', () => {
-      const userSchema = new schema.Entity('user');
+      class User extends IDEntity {}
       const entities = {
-        user: {
+        User: {
           1: { id: 1, name: 'Jane' },
         },
       };
       expect(
-        denormalize({ user: 1 }, { user: userSchema, tacos: [] }, entities),
+        denormalize({ user: 1 }, { user: User, tacos: [] }, entities),
       ).toMatchSnapshot();
       expect(
-        denormalize(
-          { user: 1 },
-          { user: userSchema, tacos: [] },
-          fromJS(entities),
-        ),
+        denormalize({ user: 1 }, { user: User, tacos: [] }, fromJS(entities)),
       ).toMatchSnapshot();
       expect(
         denormalize(
           fromJS({ user: 1 }),
-          { user: userSchema, tacos: [] },
+          { user: User, tacos: [] },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
@@ -145,51 +148,51 @@ describe(`${schema.Array.name} denormalization`, () => {
       expect(
         denormalize(
           { user: 1, tacos: [] },
-          { user: userSchema, tacos: [] },
+          { user: User, tacos: [] },
           entities,
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
           { user: 1, tacos: [] },
-          { user: userSchema, tacos: [] },
+          { user: User, tacos: [] },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
           fromJS({ user: 1, tacos: [] }),
-          { user: userSchema, tacos: [] },
+          { user: User, tacos: [] },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
     });
 
     test('denormalizes plain arrays with plain object inside', () => {
-      const userSchema = new schema.Entity('user');
+      class User extends IDEntity {}
       const entities = {
-        user: {
+        User: {
           1: { id: 1, name: 'Jane' },
         },
       };
       expect(
         denormalize(
           { user: 1 },
-          { user: userSchema, tacos: [{ next: '' }] },
+          { user: User, tacos: [{ next: '' }] },
           entities,
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
           { user: 1 },
-          { user: userSchema, tacos: [{ next: '' }] },
+          { user: User, tacos: [{ next: '' }] },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
           fromJS({ user: 1 }),
-          { user: userSchema, tacos: [{ next: '' }] },
+          { user: User, tacos: [{ next: '' }] },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
@@ -197,31 +200,31 @@ describe(`${schema.Array.name} denormalization`, () => {
       expect(
         denormalize(
           { user: 1, tacos: [] },
-          { user: userSchema, tacos: [{ next: '' }] },
+          { user: User, tacos: [{ next: '' }] },
           entities,
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
           { user: 1, tacos: [] },
-          { user: userSchema, tacos: [{ next: '' }] },
+          { user: User, tacos: [{ next: '' }] },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
           fromJS({ user: 1, tacos: [] }),
-          { user: userSchema, tacos: [{ next: '' }] },
+          { user: User, tacos: [{ next: '' }] },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
     });
 
     test('denormalizes nested in object', () => {
-      const cats = new schema.Entity('cats');
-      const catSchema = { results: [cats] };
+      class Cat extends IDEntity {}
+      const catSchema = { results: [Cat] };
       const entities = {
-        cats: {
+        Cat: {
           1: { id: 1, name: 'Milo' },
           2: { id: 2, name: 'Jake' },
         },
@@ -235,10 +238,10 @@ describe(`${schema.Array.name} denormalization`, () => {
     });
 
     test('denormalizes nested in object with primitive', () => {
-      const cats = new schema.Entity('cats');
-      const catSchema = { results: [cats], nextPage: '' };
+      class Cat extends IDEntity {}
+      const catSchema = { results: [Cat], nextPage: '' };
       const entities = {
-        cats: {
+        Cat: {
           1: { id: 1, name: 'Milo' },
           2: { id: 2, name: 'Jake' },
         },
@@ -260,10 +263,10 @@ describe(`${schema.Array.name} denormalization`, () => {
     });
 
     test('denormalizes should not be found when result array is undefined', () => {
-      const cats = new schema.Entity('cats');
-      const catSchema = { results: [cats] };
+      class Cat extends IDEntity {}
+      const catSchema = { results: [Cat] };
       const entities = {
-        cats: {
+        Cat: {
           1: { id: 1, name: 'Milo' },
           2: { id: 2, name: 'Jake' },
         },
@@ -285,23 +288,23 @@ describe(`${schema.Array.name} denormalization`, () => {
     });
 
     test('denormalizes with missing entity should have true second value', () => {
-      const cats = new schema.Entity('cats');
+      class Cat extends IDEntity {}
       const entities = {
-        cats: {
+        Cat: {
           1: { id: 1, name: 'Milo' },
           2: { id: 2, name: 'Jake' },
         },
       };
       let [value, foundEntities] = denormalize(
         [{ data: 1 }, { data: 2 }, { data: 3 }],
-        [{ data: cats }],
+        [{ data: Cat }],
         entities,
       );
       expect(value).toMatchSnapshot();
       expect(foundEntities).toBe(true);
       [value, foundEntities] = denormalize(
         [{ data: 1 }, { data: 2 }, { data: 3 }],
-        [{ data: cats }],
+        [{ data: Cat }],
         fromJS(entities),
       );
       expect(value).toMatchSnapshot();
@@ -309,10 +312,12 @@ describe(`${schema.Array.name} denormalization`, () => {
     });
 
     test('returns the input value if is not an array', () => {
-      const filling = new schema.Entity('fillings');
-      const taco = new schema.Entity('tacos', { fillings: [filling] });
+      class Filling extends IDEntity {}
+      class Taco extends IDEntity {
+        static schema = { fillings: [Filling] };
+      }
       const entities = {
-        tacos: {
+        Taco: {
           '123': {
             id: '123',
             fillings: null,
@@ -320,50 +325,50 @@ describe(`${schema.Array.name} denormalization`, () => {
         },
       };
 
-      expect(denormalize('123', taco, entities)).toMatchSnapshot();
-      expect(denormalize('123', taco, fromJS(entities))).toMatchSnapshot();
+      expect(denormalize('123', Taco, entities)).toMatchSnapshot();
+      expect(denormalize('123', Taco, fromJS(entities))).toMatchSnapshot();
     });
   });
 
   describe('Class', () => {
     test('denormalizes a single entity', () => {
-      const cats = new schema.Entity('cats');
+      class Cat extends IDEntity {}
       const entities = {
-        cats: {
+        Cat: {
           1: { id: 1, name: 'Milo' },
           2: { id: 2, name: 'Jake' },
         },
       };
-      const catList = new schema.Array(cats);
+      const catList = new schema.Array(Cat);
       expect(denormalize([1, 2], catList, entities)).toMatchSnapshot();
       expect(denormalize([1, 2], catList, fromJS(entities))).toMatchSnapshot();
     });
 
     test('denormalizes plain arrays with nothing inside', () => {
-      const userSchema = new schema.Entity('user');
+      class User extends IDEntity {}
       const entities = {
-        user: {
+        User: {
           1: { id: 1, name: 'Jane' },
         },
       };
       expect(
         denormalize(
           { user: 1 },
-          { user: userSchema, tacos: new schema.Array() },
+          { user: User, tacos: new schema.Array() },
           entities,
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
           { user: 1 },
-          { user: userSchema, tacos: new schema.Array() },
+          { user: User, tacos: new schema.Array() },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
           fromJS({ user: 1 }),
-          { user: userSchema, tacos: new schema.Array() },
+          { user: User, tacos: new schema.Array() },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
@@ -371,51 +376,51 @@ describe(`${schema.Array.name} denormalization`, () => {
       expect(
         denormalize(
           { user: 1, tacos: [] },
-          { user: userSchema, tacos: new schema.Array() },
+          { user: User, tacos: new schema.Array() },
           entities,
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
           { user: 1, tacos: [] },
-          { user: userSchema, tacos: new schema.Array() },
+          { user: User, tacos: new schema.Array() },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
           fromJS({ user: 1, tacos: [] }),
-          { user: userSchema, tacos: new schema.Array() },
+          { user: User, tacos: new schema.Array() },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
     });
 
     test('denormalizes plain arrays with plain object inside', () => {
-      const userSchema = new schema.Entity('user');
+      class User extends IDEntity {}
       const entities = {
-        user: {
+        User: {
           1: { id: 1, name: 'Jane' },
         },
       };
       expect(
         denormalize(
           { user: 1 },
-          { user: userSchema, tacos: new schema.Array({ next: '' }) },
+          { user: User, tacos: new schema.Array({ next: '' }) },
           entities,
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
           { user: 1 },
-          { user: userSchema, tacos: new schema.Array({ next: '' }) },
+          { user: User, tacos: new schema.Array({ next: '' }) },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
           fromJS({ user: 1 }),
-          { user: userSchema, tacos: new schema.Array({ next: '' }) },
+          { user: User, tacos: new schema.Array({ next: '' }) },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
@@ -423,31 +428,31 @@ describe(`${schema.Array.name} denormalization`, () => {
       expect(
         denormalize(
           { user: 1, tacos: [] },
-          { user: userSchema, tacos: new schema.Array({ next: '' }) },
+          { user: User, tacos: new schema.Array({ next: '' }) },
           entities,
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
           { user: 1, tacos: [] },
-          { user: userSchema, tacos: new schema.Array({ next: '' }) },
+          { user: User, tacos: new schema.Array({ next: '' }) },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
           fromJS({ user: 1, tacos: [] }),
-          { user: userSchema, tacos: new schema.Array({ next: '' }) },
+          { user: User, tacos: new schema.Array({ next: '' }) },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
     });
 
     test('denormalizes nested in object', () => {
-      const cats = new schema.Entity('cats');
-      const catSchema = { results: new schema.Array(cats) };
+      class Cat extends IDEntity {}
+      const catSchema = { results: new schema.Array(Cat) };
       const entities = {
-        cats: {
+        Cat: {
           1: { id: 1, name: 'Milo' },
           2: { id: 2, name: 'Jake' },
         },
@@ -461,10 +466,10 @@ describe(`${schema.Array.name} denormalization`, () => {
     });
 
     test('denormalizes nested in object with primitive', () => {
-      const cats = new schema.Entity('cats');
-      const catSchema = { results: new schema.Array(cats), nextPage: '' };
+      class Cat extends IDEntity {}
+      const catSchema = { results: new schema.Array(Cat), nextPage: '' };
       const entities = {
-        cats: {
+        Cat: {
           1: { id: 1, name: 'Milo' },
           2: { id: 2, name: 'Jake' },
         },
@@ -486,10 +491,10 @@ describe(`${schema.Array.name} denormalization`, () => {
     });
 
     test('denormalizes should not be found when result array is undefined', () => {
-      const cats = new schema.Entity('cats');
-      const catSchema = { results: new schema.Array(cats) };
+      class Cat extends IDEntity {}
+      const catSchema = { results: new schema.Array(Cat) };
       const entities = {
-        cats: {
+        Cat: {
           1: { id: 1, name: 'Milo' },
           2: { id: 2, name: 'Jake' },
         },
@@ -511,14 +516,14 @@ describe(`${schema.Array.name} denormalization`, () => {
     });
 
     test('denormalizes with missing entity should have true second value', () => {
-      const cats = new schema.Entity('cats');
+      class Cat extends IDEntity {}
       const entities = {
-        cats: {
+        Cat: {
           1: { id: 1, name: 'Milo' },
           2: { id: 2, name: 'Jake' },
         },
       };
-      const catList = new schema.Array(cats);
+      const catList = new schema.Array(Cat);
       expect(denormalize([1, 2, 3], catList, entities)).toMatchSnapshot();
       expect(
         denormalize([1, 2, 3], catList, fromJS(entities)),
@@ -526,29 +531,29 @@ describe(`${schema.Array.name} denormalization`, () => {
     });
 
     test('denormalizes multiple entities', () => {
-      const catSchema = new schema.Entity('cats');
-      const peopleSchema = new schema.Entity('person');
+      class Cat extends IDEntity {}
+      class Person extends IDEntity {}
       const listSchema = new schema.Array(
         {
-          cats: catSchema,
+          Cat: Cat,
           dogs: {},
-          people: peopleSchema,
+          people: Person,
         },
         (input, parent, key) => input.type || 'dogs',
       );
 
       const entities = {
-        cats: {
+        Cat: {
           '123': {
             id: '123',
-            type: 'cats',
+            type: 'Cat',
           },
           '456': {
             id: '456',
-            type: 'cats',
+            type: 'Cat',
           },
         },
-        person: {
+        Person: {
           '123': {
             id: '123',
             type: 'people',
@@ -557,10 +562,10 @@ describe(`${schema.Array.name} denormalization`, () => {
       };
 
       const input = [
-        { id: '123', schema: 'cats' },
+        { id: '123', schema: 'Cat' },
         { id: '123', schema: 'people' },
         { id: { id: '789' }, schema: 'dogs' },
-        { id: '456', schema: 'cats' },
+        { id: '456', schema: 'Cat' },
       ];
 
       expect(denormalize(input, listSchema, entities)).toMatchSnapshot();
@@ -570,11 +575,13 @@ describe(`${schema.Array.name} denormalization`, () => {
     });
 
     test('returns the input value if is not an array', () => {
-      const filling = new schema.Entity('fillings');
-      const fillings = new schema.Array(filling);
-      const taco = new schema.Entity('tacos', { fillings });
+      class Filling extends IDEntity {}
+      const fillings = new schema.Array(Filling);
+      class Taco extends IDEntity {
+        static schema = { fillings };
+      }
       const entities = {
-        tacos: {
+        Taco: {
           '123': {
             id: '123',
             fillings: {},
@@ -582,14 +589,14 @@ describe(`${schema.Array.name} denormalization`, () => {
         },
       };
 
-      expect(denormalize('123', taco, entities)).toMatchSnapshot();
-      expect(denormalize('123', taco, fromJS(entities))).toMatchSnapshot();
+      expect(denormalize('123', Taco, entities)).toMatchSnapshot();
+      expect(denormalize('123', Taco, fromJS(entities))).toMatchSnapshot();
     });
 
     test('does not assume mapping of schema to attribute values when schemaAttribute is not set', () => {
-      const cats = new schema.Entity('cats');
+      class Cat extends IDEntity {}
       const catRecord = new schema.Object({
-        cat: cats,
+        cat: Cat,
       });
       const catList = new schema.Array(catRecord);
       const input = [

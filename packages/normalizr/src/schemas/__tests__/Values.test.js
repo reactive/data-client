@@ -3,15 +3,16 @@ import { fromJS } from 'immutable';
 
 import { denormalizeSimple as denormalize } from '../../denormalize';
 import { normalize, schema } from '../../';
+import IDEntity from '../../entities/IDEntity';
 
 describe(`${schema.Values.name} normalization`, () => {
   test('normalizes the values of an object with the given schema', () => {
-    const cat = new schema.Entity('cats');
-    const dog = new schema.Entity('dogs');
+    class Cat extends IDEntity {}
+    class Dog extends IDEntity {}
     const valuesSchema = new schema.Values(
       {
-        dogs: dog,
-        cats: cat,
+        dogs: Dog,
+        cats: Cat,
       },
       (entity, key) => entity.type,
     );
@@ -28,12 +29,12 @@ describe(`${schema.Values.name} normalization`, () => {
   });
 
   test('can use a function to determine the schema when normalizing', () => {
-    const cat = new schema.Entity('cats');
-    const dog = new schema.Entity('dogs');
+    class Cat extends IDEntity {}
+    class Dog extends IDEntity {}
     const valuesSchema = new schema.Values(
       {
-        dogs: dog,
-        cats: cat,
+        dogs: Dog,
+        cats: Cat,
       },
       (entity, key) => `${entity.type}s`,
     );
@@ -51,12 +52,12 @@ describe(`${schema.Values.name} normalization`, () => {
   });
 
   test('filters out null and undefined values', () => {
-    const cat = new schema.Entity('cats');
-    const dog = new schema.Entity('dogs');
+    class Cat extends IDEntity {}
+    class Dog extends IDEntity {}
     const valuesSchema = new schema.Values(
       {
-        dogs: dog,
-        cats: cat,
+        dogs: Dog,
+        cats: Cat,
       },
       (entity, key) => entity.type,
     );
@@ -76,19 +77,19 @@ describe(`${schema.Values.name} normalization`, () => {
 
 describe(`${schema.Values.name} denormalization`, () => {
   test('denormalizes the values of an object with the given schema', () => {
-    const cat = new schema.Entity('cats');
-    const dog = new schema.Entity('dogs');
+    class Cat extends IDEntity {}
+    class Dog extends IDEntity {}
     const valuesSchema = new schema.Values(
       {
-        dogs: dog,
-        cats: cat,
+        dogs: Dog,
+        cats: Cat,
       },
       (entity, key) => entity.type,
     );
 
     const entities = {
-      cats: { 1: { id: 1, type: 'cats' } },
-      dogs: { 1: { id: 1, type: 'dogs' } },
+      Cat: { 1: { id: 1, type: 'cats' } },
+      Dog: { 1: { id: 1, type: 'dogs' } },
     };
 
     expect(
@@ -115,19 +116,19 @@ describe(`${schema.Values.name} denormalization`, () => {
   });
 
   test('denormalizes with missing entity should have false second value', () => {
-    const cat = new schema.Entity('cats');
-    const dog = new schema.Entity('dogs');
+    class Cat extends IDEntity {}
+    class Dog extends IDEntity {}
     const valuesSchema = new schema.Values(
       {
-        dogs: dog,
-        cats: cat,
+        dogs: Dog,
+        cats: Cat,
       },
       (entity, key) => entity.type,
     );
 
     const entities = {
-      cats: { 1: { id: 1, type: 'cats' } },
-      dogs: { 1: { id: 1, type: 'dogs' } },
+      Cat: { 1: { id: 1, type: 'cats' } },
+      Dog: { 1: { id: 1, type: 'dogs' } },
     };
 
     expect(

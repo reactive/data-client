@@ -69,14 +69,14 @@ Array [
 exports[`ValuesSchema normalization can use a function to determine the schema when normalizing 1`] = `
 Object {
   "entities": Object {
-    "cats": Object {
-      "1": Object {
+    "Cat": Object {
+      "1": Cat {
         "id": 1,
         "type": "cat",
       },
     },
-    "dogs": Object {
-      "1": Object {
+    "Dog": Object {
+      "1": Dog {
         "id": 1,
         "type": "dog",
       },
@@ -85,11 +85,11 @@ Object {
   "indexes": Object {},
   "result": Object {
     "fido": Object {
-      "id": 1,
+      "id": "1",
       "schema": "dogs",
     },
     "fluffy": Object {
-      "id": 1,
+      "id": "1",
       "schema": "cats",
     },
     "jim": Object {
@@ -103,8 +103,8 @@ Object {
 exports[`ValuesSchema normalization filters out null and undefined values 1`] = `
 Object {
   "entities": Object {
-    "cats": Object {
-      "1": Object {
+    "Cat": Object {
+      "1": Cat {
         "id": 1,
         "type": "cats",
       },
@@ -113,7 +113,7 @@ Object {
   "indexes": Object {},
   "result": Object {
     "fluffy": Object {
-      "id": 1,
+      "id": "1",
       "schema": "cats",
     },
   },
@@ -123,14 +123,14 @@ Object {
 exports[`ValuesSchema normalization normalizes the values of an object with the given schema 1`] = `
 Object {
   "entities": Object {
-    "cats": Object {
-      "1": Object {
+    "Cat": Object {
+      "1": Cat {
         "id": 1,
         "type": "cats",
       },
     },
-    "dogs": Object {
-      "1": Object {
+    "Dog": Object {
+      "1": Dog {
         "id": 1,
         "type": "dogs",
       },
@@ -139,11 +139,11 @@ Object {
   "indexes": Object {},
   "result": Object {
     "fido": Object {
-      "id": 1,
+      "id": "1",
       "schema": "dogs",
     },
     "fluffy": Object {
-      "id": 1,
+      "id": "1",
       "schema": "cats",
     },
   },
