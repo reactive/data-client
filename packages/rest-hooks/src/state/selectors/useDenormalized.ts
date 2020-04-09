@@ -6,7 +6,6 @@ import {
   DenormalizeNullable,
   ParamsFromShape,
 } from 'rest-hooks/resource';
-
 import { useMemo } from 'react';
 
 import hasUsableData from '../../react-integration/hooks/hasUsableData';
@@ -33,7 +32,7 @@ export default function useDenormalized<
   typeof params extends null ? false : boolean,
 ] {
   // Select from state
-  const entities = state.entities;
+  let entities = state.entities;
   const cacheResults = params && state.results[getFetchKey(params)];
   const serializedParams = params && getFetchKey(params);
 
@@ -65,6 +64,9 @@ export default function useDenormalized<
         );
       }
     }
+
+    // inferred results are considered stale
+    if (options && options.invalidIfStale && !cacheResults) entities = {};
 
     // second argument is false if any entities are missing
     // eslint-disable-next-line prefer-const
