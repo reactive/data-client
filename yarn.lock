@@ -33,6 +33,11 @@
     path "^0.12.7"
     stable "^0.1.8"
 
+"@anansi/browserslist-config@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@anansi/browserslist-config/-/browserslist-config-1.0.0.tgz#7062226ea6eafc2f0065a3e64a0fdd2f5ff4c6f8"
+  integrity sha512-NpucS7rG+NHuMeKAb3fIIOJoBZeFPAXVVs7bc3X8VO/VSmGsxdtaeO9dL+JrP+b1gtpMW+bMShjbNA04FQHa4Q==
+
 "@anansi/eslint-plugin@^0.9.0":
   version "0.9.0"
   resolved "https://registry.yarnpkg.com/@anansi/eslint-plugin/-/eslint-plugin-0.9.0.tgz#5eaf0a976afb1164baafecea6940168ca53fef3b"

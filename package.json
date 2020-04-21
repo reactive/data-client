@@ -22,25 +22,9 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
-  "browserslist": {
-    "production": [
-      "> 1%",
-      "Firefox ESR",
-      "not dead",
-      "not ie<12",
-      "not OperaMini all"
-    ],
-    "legacy": [
-      "> 0.5%",
-      "Firefox ESR",
-      "not dead",
-      "not ie<11",
-      "not safari<11",
-      "not OperaMini all"
-    ]
-  },
   "devDependencies": {
     "@anansi/babel-preset": "^1.2.0",
+    "@anansi/browserslist-config": "^1.0.0",
     "@anansi/eslint-plugin": "^0.9.0",
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.9.0",
