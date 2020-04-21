@@ -22,6 +22,9 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
+  "browserslist": [
+    "extends @anansi/browserslist-config"
+  ],
   "devDependencies": {
     "@anansi/babel-preset": "^1.2.0",
     "@anansi/browserslist-config": "^1.0.0",
