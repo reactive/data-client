@@ -16,7 +16,7 @@ import hasUsableData from './hasUsableData';
 type ResourceArgs<
   S extends ReadShape<any, any>,
   P extends ParamsFromShape<S> | null
-> = [S, P];
+> = readonly [S, P];
 
 /** single form resource */
 function useOneResource<
