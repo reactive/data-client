@@ -3,8 +3,8 @@
 exports[`denormalize denormalizes arrays with objects inside 1`] = `
 Array [
   Object {
-    "data": Object {
-      "id": 1,
+    "data": Tacos {
+      "id": "1",
       "type": "foo",
     },
   },
@@ -13,12 +13,12 @@ Array [
 
 exports[`denormalize denormalizes entities 1`] = `
 Array [
-  Object {
-    "id": 1,
+  Tacos {
+    "id": "1",
     "type": "foo",
   },
-  Object {
-    "id": 2,
+  Tacos {
+    "id": "2",
     "type": "bar",
   },
 ]
@@ -27,8 +27,8 @@ Array [
 exports[`denormalize denormalizes ignoring unfound entities in arrays 1`] = `
 Array [
   Array [
-    Object {
-      "id": 1,
+    Tacos {
+      "id": "1",
       "type": "foo",
     },
   ],
@@ -40,8 +40,8 @@ exports[`denormalize denormalizes ignoring unfound entities in arrays 2`] = `
 Array [
   Object {
     "results": Array [
-      Object {
-        "id": 1,
+      Tacos {
+        "id": "1",
         "type": "foo",
       },
     ],
@@ -52,11 +52,21 @@ Array [
 
 exports[`denormalize denormalizes nested entities 1`] = `
 Array [
-  Object {
-    "author": "8472",
+  Article {
+    "author": User {
+      "id": "8472",
+      "name": "Paul",
+    },
     "body": "This article is great.",
     "comments": Array [
-      "comment-123-4738",
+      Comment {
+        "comment": "I like it!",
+        "id": "comment-123-4738",
+        "user": User {
+          "id": "10293",
+          "name": "Jane",
+        },
+      },
     ],
     "id": "123",
     "title": "A Great Article",
@@ -69,12 +79,12 @@ exports[`denormalize denormalizes schema with extra members 1`] = `
 Array [
   Object {
     "data": Array [
-      Object {
-        "id": 1,
+      Tacos {
+        "id": "1",
         "type": "foo",
       },
-      Object {
-        "id": 2,
+      Tacos {
+        "id": "2",
         "type": "bar",
       },
     ],
@@ -99,12 +109,12 @@ exports[`denormalize denormalizes schema with extra members but not set 1`] = `
 Array [
   Object {
     "data": Array [
-      Object {
-        "id": 1,
+      Tacos {
+        "id": "1",
         "type": "foo",
       },
-      Object {
-        "id": 2,
+      Tacos {
+        "id": "2",
         "type": "bar",
       },
     ],
@@ -113,16 +123,18 @@ Array [
 ]
 `;
 
-exports[`denormalize denormalizes with function as idAttribute 1`] = `
+exports[`denormalize denormalizes with function as pk() 1`] = `
 Array [
   Array [
-    Object {
+    Patron {
       "guest": null,
       "id": "1",
       "name": "Esther",
     },
-    Object {
-      "guest": "guest-2-1",
+    Patron {
+      "guest": Guest {
+        "guestId": 1,
+      },
       "id": "2",
       "name": "Tom",
     },
@@ -142,14 +154,14 @@ Array [
 
 exports[`denormalize set to undefined if schema key is not in entities 1`] = `
 Array [
-  Object {
-    "author": "8472",
-    "comments": Array [
-      "1",
-    ],
+  Article {
+    "author": undefined,
+    "body": "",
+    "comments": Array [],
     "id": "123",
+    "title": "",
   },
-  true,
+  false,
 ]
 `;
 
@@ -215,11 +227,11 @@ Object {
   "entities": Object {
     "Tacos": Object {
       "1": Tacos {
-        "id": 1,
+        "id": "1",
         "type": "foo",
       },
       "2": Tacos {
-        "id": 2,
+        "id": "2",
         "type": "bar",
       },
     },
@@ -240,7 +252,7 @@ Object {
         "friends": Array [
           "123",
         ],
-        "id": 123,
+        "id": "123",
       },
     },
   },
@@ -291,11 +303,11 @@ Object {
   "entities": Object {
     "Tacos": Object {
       "1": Tacos {
-        "id": 1,
+        "id": "1",
         "type": "foo",
       },
       "2": Tacos {
-        "id": 2,
+        "id": "2",
         "type": "bar",
       },
     },
@@ -326,11 +338,11 @@ Object {
   "entities": Object {
     "Tacos": Object {
       "1": Tacos {
-        "id": 1,
+        "id": "1",
         "type": "foo",
       },
       "2": Tacos {
-        "id": 2,
+        "id": "2",
         "type": "bar",
       },
     },
@@ -350,11 +362,11 @@ Object {
   "entities": Object {
     "MyTaco": Object {
       "1": MyTaco {
-        "id": 1,
+        "id": "1",
         "type": "foo",
       },
       "2": MyTaco {
-        "id": 2,
+        "id": "2",
         "type": "bar2",
       },
     },
@@ -382,11 +394,11 @@ Object {
   "entities": Object {
     "MyTaco": Object {
       "1": MyTaco {
-        "id": 1,
+        "id": "1",
         "type": "foo",
       },
       "2": MyTaco {
-        "id": 2,
+        "id": "2",
         "type": "bar2",
       },
     },

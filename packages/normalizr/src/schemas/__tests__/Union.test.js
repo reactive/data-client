@@ -21,8 +21,8 @@ describe(`${schema.Union.name} normalization`, () => {
       'type',
     );
 
-    expect(normalize({ id: 1, type: 'users' }, union)).toMatchSnapshot();
-    expect(normalize({ id: 2, type: 'groups' }, union)).toMatchSnapshot();
+    expect(normalize({ id: '1', type: 'users' }, union)).toMatchSnapshot();
+    expect(normalize({ id: '2', type: 'groups' }, union)).toMatchSnapshot();
   });
 
   test('normalizes an array of multiple entities using a function to infer the schemaAttribute', () => {
@@ -38,9 +38,11 @@ describe(`${schema.Union.name} normalization`, () => {
       },
     );
 
-    expect(normalize({ id: 1, username: 'Janey' }, union)).toMatchSnapshot();
-    expect(normalize({ id: 2, groupname: 'People' }, union)).toMatchSnapshot();
-    expect(normalize({ id: 3, notdefined: 'yep' }, union)).toMatchSnapshot();
+    expect(normalize({ id: '1', username: 'Janey' }, union)).toMatchSnapshot();
+    expect(
+      normalize({ id: '2', groupname: 'People' }, union),
+    ).toMatchSnapshot();
+    expect(normalize({ id: '3', notdefined: 'yep' }, union)).toMatchSnapshot();
   });
 });
 
@@ -49,10 +51,10 @@ describe(`${schema.Union.name} denormalization`, () => {
   class Group extends IDEntity {}
   const entities = {
     User: {
-      1: { id: 1, username: 'Janey', type: 'users' },
+      '1': { id: '1', username: 'Janey', type: 'users' },
     },
     Group: {
-      2: { id: 2, groupname: 'People', type: 'groups' },
+      2: { id: '2', groupname: 'People', type: 'groups' },
     },
   };
 
@@ -66,17 +68,25 @@ describe(`${schema.Union.name} denormalization`, () => {
     );
 
     expect(
-      denormalize({ id: 1, schema: 'users' }, union, entities),
+      denormalize({ id: '1', schema: 'users' }, union, entities),
     ).toMatchSnapshot();
     expect(
-      denormalize(fromJS({ id: 1, schema: 'users' }), union, fromJS(entities)),
+      denormalize(
+        fromJS({ id: '1', schema: 'users' }),
+        union,
+        fromJS(entities),
+      ),
     ).toMatchSnapshot();
 
     expect(
-      denormalize({ id: 2, schema: 'groups' }, union, entities),
+      denormalize({ id: '2', schema: 'groups' }, union, entities),
     ).toMatchSnapshot();
     expect(
-      denormalize(fromJS({ id: 2, schema: 'groups' }), union, fromJS(entities)),
+      denormalize(
+        fromJS({ id: '2', schema: 'groups' }),
+        union,
+        fromJS(entities),
+      ),
     ).toMatchSnapshot();
   });
 
@@ -92,17 +102,25 @@ describe(`${schema.Union.name} denormalization`, () => {
     );
 
     expect(
-      denormalize({ id: 1, schema: 'users' }, union, entities),
+      denormalize({ id: '1', schema: 'users' }, union, entities),
     ).toMatchSnapshot();
     expect(
-      denormalize(fromJS({ id: 1, schema: 'users' }), union, fromJS(entities)),
+      denormalize(
+        fromJS({ id: '1', schema: 'users' }),
+        union,
+        fromJS(entities),
+      ),
     ).toMatchSnapshot();
 
     expect(
-      denormalize({ id: 2, schema: 'groups' }, union, entities),
+      denormalize({ id: '2', schema: 'groups' }, union, entities),
     ).toMatchSnapshot();
     expect(
-      denormalize(fromJS({ id: 2, schema: 'groups' }), union, fromJS(entities)),
+      denormalize(
+        fromJS({ id: '2', schema: 'groups' }),
+        union,
+        fromJS(entities),
+      ),
     ).toMatchSnapshot();
   });
 
@@ -117,9 +135,9 @@ describe(`${schema.Union.name} denormalization`, () => {
       },
     );
 
-    expect(denormalize({ id: 1 }, union, entities)).toMatchSnapshot();
+    expect(denormalize({ id: '1' }, union, entities)).toMatchSnapshot();
     expect(
-      denormalize(fromJS({ id: 1 }), union, fromJS(entities)),
+      denormalize(fromJS({ id: '1' }), union, fromJS(entities)),
     ).toMatchSnapshot();
   });
 });

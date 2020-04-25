@@ -1,7 +1,7 @@
 // eslint-env jest
 import { denormalizeSimple as denormalize } from '../denormalize';
 import { normalize, schema } from '../';
-import Entity from '../entities/Entity';
+import NestingEntity from '../entities/NestingEntity';
 import IDEntity from '../entities/IDEntity';
 
 class Tacos extends IDEntity {
@@ -39,8 +39,8 @@ describe('normalize', () => {
     expect(
       normalize(
         [
-          { id: 1, type: 'foo' },
-          { id: 2, type: 'bar' },
+          { id: '1', type: 'foo' },
+          { id: '2', type: 'bar' },
         ],
         [Tacos],
       ),
@@ -52,8 +52,8 @@ describe('normalize', () => {
       normalize(
         {
           data: [
-            { id: 1, type: 'foo' },
-            { id: 2, type: 'bar' },
+            { id: '1', type: 'foo' },
+            { id: '2', type: 'bar' },
           ],
           extra: 'five',
           page: {
@@ -82,8 +82,8 @@ describe('normalize', () => {
       normalize(
         {
           data: [
-            { id: 1, type: 'foo' },
-            { id: 2, type: 'bar' },
+            { id: '1', type: 'foo' },
+            { id: '2', type: 'bar' },
           ],
         },
         {
@@ -109,10 +109,10 @@ describe('normalize', () => {
       normalize(
         {
           data: [
-            { id: 1, type: 'foo' },
-            { id: 2, type: 'bar' },
+            { id: '1', type: 'foo' },
+            { id: '2', type: 'bar' },
           ],
-          alt: { id: 2, type: 'bar2' },
+          alt: { id: '2', type: 'bar2' },
         },
         { data: [MyTaco], alt: MyTaco },
       ),
@@ -131,10 +131,10 @@ describe('normalize', () => {
       normalize(
         {
           data: [
-            { id: 1, type: 'foo' },
-            { id: 2, type: 'bar' },
+            { id: '1', type: 'foo' },
+            { id: '2', type: 'bar' },
           ],
-          alt: { id: 2, type: 'bar2' },
+          alt: { id: '2', type: 'bar2' },
         },
         { data: [MyTaco], alt: MyTaco },
       ),
@@ -145,7 +145,7 @@ describe('normalize', () => {
         "Index not found in entity. Indexes must be top-level members of your entity.
       Index: notfound
       Entity: {
-        \\"id\\": 1,
+        \\"id\\": \\"1\\",
         \\"type\\": \\"foo\\"
       }",
       ]
@@ -157,7 +157,7 @@ describe('normalize', () => {
     class User extends IDEntity {}
     User.schema = { friends: [User] };
 
-    const input = { id: 123, friends: [] };
+    const input = { id: '123', friends: [] };
     input.friends.push(input);
 
     expect(normalize(input, User)).toMatchSnapshot();
@@ -232,7 +232,7 @@ describe('normalize', () => {
     class Children extends IDEntity {
       name = '';
     }
-    class MyEntity extends Entity {
+    class MyEntity extends NestingEntity {
       uuid = '';
       name = '';
 
@@ -281,7 +281,7 @@ describe('normalize', () => {
   test('uses the non-normalized input when getting the ID for an entity', () => {
     const calls = [];
     class User extends IDEntity {}
-    class Recommendations extends Entity {
+    class Recommendations extends NestingEntity {
       pk(parent, key) {
         calls.push([this, parent, key]);
         return parent.user.id;
@@ -312,10 +312,10 @@ describe('normalize', () => {
   });
 
   test('can normalize object without proper object prototype inheritance', () => {
-    const test = { id: 1, elements: [] };
+    const test = { id: '1', elements: [] };
     test.elements.push(
       Object.assign(Object.create(null), {
-        id: 18,
+        id: '18',
         name: 'test',
       }),
     );
@@ -347,34 +347,34 @@ describe('denormalize', () => {
   test('denormalizes entities', () => {
     const entities = {
       Tacos: {
-        1: { id: 1, type: 'foo' },
-        2: { id: 2, type: 'bar' },
+        '1': { id: '1', type: 'foo' },
+        '2': { id: '2', type: 'bar' },
       },
     };
-    expect(denormalize([1, 2], [Tacos], entities)[0]).toMatchSnapshot();
+    expect(denormalize(['1', '2'], [Tacos], entities)[0]).toMatchSnapshot();
   });
 
   test('denormalizes without entities fills undefined', () => {
-    expect(denormalize({ data: 1 }, { data: Tacos }, {})).toMatchSnapshot();
-    expect(denormalize(1, Tacos, {})).toEqual([undefined, false]);
+    expect(denormalize({ data: '1' }, { data: Tacos }, {})).toMatchSnapshot();
+    expect(denormalize('1', Tacos, {})).toEqual([undefined, false]);
   });
 
   test('denormalizes ignoring unfound entities in arrays', () => {
     const entities = {
       Tacos: {
-        1: { id: 1, type: 'foo' },
+        '1': { id: '1', type: 'foo' },
       },
     };
-    expect(denormalize([1, 2], [Tacos], entities)).toMatchSnapshot();
+    expect(denormalize(['1', '2'], [Tacos], entities)).toMatchSnapshot();
     expect(
-      denormalize({ results: [1, 2] }, { results: [Tacos] }, entities),
+      denormalize({ results: ['1', '2'] }, { results: [Tacos] }, entities),
     ).toMatchSnapshot();
   });
 
   test('denormalizes arrays with objects inside', () => {
     const entities = {
       Tacos: {
-        1: { id: 1, type: 'foo' },
+        '1': { id: '1', type: 'foo' },
       },
     };
     expect(
@@ -388,14 +388,14 @@ describe('denormalize', () => {
   test('denormalizes schema with extra members', () => {
     const entities = {
       Tacos: {
-        1: { id: 1, type: 'foo' },
-        2: { id: 2, type: 'bar' },
+        '1': { id: '1', type: 'foo' },
+        '2': { id: '2', type: 'bar' },
       },
     };
     expect(
       denormalize(
         {
-          data: [1, 2],
+          data: ['1', '2'],
           extra: '5',
           page: {
             first: null,
@@ -422,14 +422,14 @@ describe('denormalize', () => {
   test('denormalizes schema with extra members but not set', () => {
     const entities = {
       Tacos: {
-        1: { id: 1, type: 'foo' },
-        2: { id: 2, type: 'bar' },
+        '1': { id: '1', type: 'foo' },
+        '2': { id: '2', type: 'bar' },
       },
     };
     expect(
       denormalize(
         {
-          data: [1, 2],
+          data: ['1', '2'],
         },
         {
           data: [Tacos],
@@ -553,7 +553,18 @@ describe('denormalize', () => {
     expect(() => denormalize('123', Article, entities)).not.toThrow();
   });
 
-  test('denormalizes with function as idAttribute', () => {
+  test('denormalizes with function as pk()', () => {
+    class Guest extends NestingEntity {
+      pk(parent, key) {
+        return `${key}-${parent.id}-${this.guestId}`;
+      }
+    }
+    class Patron extends IDEntity {
+      static schema = {
+        guest: Guest,
+      };
+    }
+
     const normalizedData = {
       entities: {
         Patron: {
@@ -564,18 +575,6 @@ describe('denormalize', () => {
       },
       result: ['1', '2'],
     };
-
-    class Guest extends Entity {
-      guestId = '';
-      pk(parent, key) {
-        return `${key}-${parent.id}-${this.guestId}`;
-      }
-    }
-    class Patron extends IDEntity {
-      static schema = {
-        guest: Guest,
-      };
-    }
 
     expect(
       denormalize(normalizedData.result, [Patron], normalizedData.entities),

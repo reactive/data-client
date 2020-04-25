@@ -1,7 +1,7 @@
-import Entity from './Entity';
+import NestingEntity from './NestingEntity';
 
 /** Represents data with primary key being from 'id' field. */
-export default class IDEntity extends Entity {
+export default class IDEntity extends NestingEntity {
   readonly id: string | number | undefined = undefined;
 
   /**

@@ -11,12 +11,12 @@ describe(`${schema.Object.name} normalization`, () => {
     const object = new schema.Object({
       user: User,
     });
-    expect(normalize({ user: { id: 1 } }, object)).toMatchSnapshot();
+    expect(normalize({ user: { id: '1' } }, object)).toMatchSnapshot();
   });
 
   test(`normalizes plain objects as shorthand for ${schema.Object.name}`, () => {
     class User extends IDEntity {}
-    expect(normalize({ user: { id: 1 } }, { user: User })).toMatchSnapshot();
+    expect(normalize({ user: { id: '1' } }, { user: User })).toMatchSnapshot();
   });
 
   test('filters out undefined and null values', () => {
@@ -34,15 +34,15 @@ describe(`${schema.Object.name} denormalization`, () => {
     });
     const entities = {
       User: {
-        1: { id: 1, name: 'Nacho' },
+        '1': { id: '1', name: 'Nacho' },
       },
     };
-    expect(denormalize({ user: 1 }, object, entities)).toMatchSnapshot();
+    expect(denormalize({ user: '1' }, object, entities)).toMatchSnapshot();
     expect(
-      denormalize({ user: 1 }, object, fromJS(entities)),
+      denormalize({ user: '1' }, object, fromJS(entities)),
     ).toMatchSnapshot();
     expect(
-      denormalize(fromJS({ user: 1 }), object, fromJS(entities)),
+      denormalize(fromJS({ user: '1' }), object, fromJS(entities)),
     ).toMatchSnapshot();
   });
 
@@ -54,15 +54,15 @@ describe(`${schema.Object.name} denormalization`, () => {
     });
     const entities = {
       User: {
-        1: { id: 1, name: 'Nacho' },
+        '1': { id: '1', name: 'Nacho' },
       },
     };
-    expect(denormalize({ user: 1 }, object, entities)).toMatchSnapshot();
+    expect(denormalize({ user: '1' }, object, entities)).toMatchSnapshot();
     expect(
-      denormalize({ user: 1 }, object, fromJS(entities)),
+      denormalize({ user: '1' }, object, fromJS(entities)),
     ).toMatchSnapshot();
     expect(
-      denormalize(fromJS({ user: 1 }), object, fromJS(entities)),
+      denormalize(fromJS({ user: '1' }), object, fromJS(entities)),
     ).toMatchSnapshot();
   });
 
@@ -75,7 +75,7 @@ describe(`${schema.Object.name} denormalization`, () => {
     };
     const entities = {
       User: {
-        1: { id: 1, name: 'Nacho' },
+        '1': { id: '1', name: 'Nacho' },
       },
     };
     let [value, found] = denormalize({ item: null }, object, entities);
@@ -97,36 +97,40 @@ describe(`${schema.Object.name} denormalization`, () => {
     class User extends IDEntity {}
     const entities = {
       User: {
-        1: { id: 1, name: 'Jane' },
+        '1': { id: '1', name: 'Jane' },
       },
     };
     expect(
-      denormalize({ user: 1 }, { user: User, tacos: {} }, entities),
+      denormalize({ user: '1' }, { user: User, tacos: {} }, entities),
     ).toMatchSnapshot();
     expect(
-      denormalize({ user: 1 }, { user: User, tacos: {} }, fromJS(entities)),
+      denormalize({ user: '1' }, { user: User, tacos: {} }, fromJS(entities)),
     ).toMatchSnapshot();
     expect(
       denormalize(
-        fromJS({ user: 1 }),
+        fromJS({ user: '1' }),
         { user: User, tacos: {} },
         fromJS(entities),
       ),
     ).toMatchSnapshot();
 
     expect(
-      denormalize({ user: 1, tacos: {} }, { user: User, tacos: {} }, entities),
+      denormalize(
+        { user: '1', tacos: {} },
+        { user: User, tacos: {} },
+        entities,
+      ),
     ).toMatchSnapshot();
     expect(
       denormalize(
-        { user: 1, tacos: {} },
+        { user: '1', tacos: {} },
         { user: User, tacos: {} },
         fromJS(entities),
       ),
     ).toMatchSnapshot();
     expect(
       denormalize(
-        fromJS({ user: 1, tacos: {} }),
+        fromJS({ user: '1', tacos: {} }),
         { user: User, tacos: {} },
         fromJS(entities),
       ),
@@ -140,15 +144,15 @@ describe(`${schema.Object.name} denormalization`, () => {
     });
     const entities = {
       User: {
-        0: { id: 0, name: 'Chancho' },
+        '0': { id: '0', name: 'Chancho' },
       },
     };
-    expect(denormalize({ user: 0 }, object, entities)).toMatchSnapshot();
+    expect(denormalize({ user: '0' }, object, entities)).toMatchSnapshot();
     expect(
-      denormalize({ user: 0 }, object, fromJS(entities)),
+      denormalize({ user: '0' }, object, fromJS(entities)),
     ).toMatchSnapshot();
     expect(
-      denormalize(fromJS({ user: 0 }), object, fromJS(entities)),
+      denormalize(fromJS({ user: '0' }), object, fromJS(entities)),
     ).toMatchSnapshot();
   });
 });

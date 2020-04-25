@@ -1,4 +1,3 @@
-import { NotImplementedError } from '../errors';
 import * as schema from '../schema';
 import { Schema, AbstractInstanceType } from '../types';
 import SimpleRecord from './SimpleRecord';
@@ -119,9 +118,10 @@ export default abstract class Entity extends SimpleRecord {
   // TODO: Add denormalizing capability
   static denormalize<T extends typeof Entity>(
     this: T,
-    entity: AbstractInstanceType<T> | undefined,
+    entity: any,
     unvisit: schema.UnvisitFunction,
-  ): [AbstractInstanceType<T>, true] {
+    denormalizedEntityCache?: AbstractInstanceType<T>,
+  ): [AbstractInstanceType<T>, boolean] {
     return [entity, true] as any;
   }
 }
