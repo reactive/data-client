@@ -4,6 +4,7 @@ exports[`useFetcher should dispatch an action that fetches a create 1`] = `
 Object {
   "meta": Object {
     "options": undefined,
+    "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rest-hooks/rpc",
@@ -20,6 +21,7 @@ exports[`useFetcher should dispatch an action that fetches a full update 1`] = `
 Object {
   "meta": Object {
     "options": undefined,
+    "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rest-hooks/rpc",
@@ -42,6 +44,7 @@ Object {
     "options": Object {
       "optimisticUpdate": [Function],
     },
+    "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rest-hooks/rpc",
@@ -63,6 +66,7 @@ Object {
     "options": Object {
       "optimisticUpdate": [Function],
     },
+    "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rest-hooks/rpc",
@@ -83,6 +87,7 @@ exports[`useFetcher should dispatch an action with updater in the meta if update
 Object {
   "meta": Object {
     "options": undefined,
+    "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rest-hooks/rpc",
@@ -102,6 +107,7 @@ exports[`useRetrieve should dispatch singles 1`] = `
 Object {
   "meta": Object {
     "options": undefined,
+    "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rest-hooks/receive",
@@ -120,6 +126,7 @@ Object {
     "options": Object {
       "dataExpiryLength": 3600000,
     },
+    "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rest-hooks/receive",
@@ -139,6 +146,7 @@ Object {
       "dataExpiryLength": Infinity,
       "errorExpiryLength": Infinity,
     },
+    "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rest-hooks/receive",
@@ -157,6 +165,7 @@ Object {
     "options": Object {
       "dataExpiryLength": Infinity,
     },
+    "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rest-hooks/receive",

@@ -1,5 +1,6 @@
 import { NormalizedIndex } from '@rest-hooks/normalizr';
 import { Middleware } from '@rest-hooks/use-enhanced-reducer';
+
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
 
 import { ErrorableFSAWithPayloadAndMeta, ErrorableFSAWithMeta } from './fsa';
@@ -131,6 +132,7 @@ interface FetchMeta<
   options?: FetchOptions;
   resolve: (value?: any | PromiseLike<any>) => void;
   reject: (reason?: any) => void;
+  promise: PromiseLike<any>;
   optimisticResponse?: Payload;
   // indicates whether network manager processed it
   nm?: boolean;

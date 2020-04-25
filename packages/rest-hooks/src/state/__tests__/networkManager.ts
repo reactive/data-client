@@ -56,6 +56,7 @@ describe('NetworkManager', () => {
         throttle: false,
         reject: (v: any) => null,
         resolve: (v: any) => null,
+        promise: new Promise((v: any) => null),
       },
     };
     const fetchReceiveWithUpdatersAction: FetchAction = {
@@ -95,6 +96,7 @@ describe('NetworkManager', () => {
         throttle: false,
         reject: (v: any) => null,
         resolve: (v: any) => null,
+        promise: new Promise((v: any) => null),
       },
     };
     it('should handle fetch actions and dispatch on success', async () => {
@@ -321,6 +323,7 @@ describe('NetworkManager', () => {
           throttle: true,
           resolve,
           reject,
+          promise: new Promise((v: any) => null),
         },
       };
 
