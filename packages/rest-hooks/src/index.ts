@@ -47,10 +47,16 @@ export type NetworkError = OGNetworkError;
 export { default as createFetch } from './state/actions/createFetch';
 export * as actionTypes from './actionTypes';
 export * from '@rest-hooks/use-enhanced-reducer';
+/* istanbul ignore next */
 export * from './types';
-export * from './resource/shapes';
+export type {
+  FetchShape,
+  ReadShape,
+  MutateShape,
+  DeleteShape,
+} from './resource/shapes';
 export * from './resource/normal';
-export * from './resource/publicTypes';
+export type { SetShapeParams, ParamsFromShape } from './resource/publicTypes';
 export type { EntitySchema } from '@rest-hooks/normalizr';
 export {
   Resource,

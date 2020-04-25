@@ -1,11 +1,18 @@
 // eslint-env jest
 import { denormalizeSimple as denormalize } from '../denormalize';
 import { normalize, schema } from '../';
+import Entity from '../entities/Entity';
+import IDEntity from '../entities/IDEntity';
+
+class Tacos extends IDEntity {
+  type = '';
+}
 
 describe('normalize', () => {
   [42, null, undefined, '42', () => {}].forEach(input => {
     test(`cannot normalize input that == ${input}`, () => {
-      expect(() => normalize(input, new schema.Entity('test'))).toThrow();
+      class Test extends IDEntity {}
+      expect(() => normalize(input, Test)).toThrow();
     });
   });
 
@@ -14,8 +21,7 @@ describe('normalize', () => {
   });
 
   test('cannot normalize with null input', () => {
-    const mySchema = new schema.Entity('tacos');
-    expect(() => normalize(null, mySchema)).toThrow(/null/);
+    expect(() => normalize(null, Tacos)).toThrow(/null/);
   });
 
   test('can normalize string', () => {
@@ -30,22 +36,18 @@ describe('normalize', () => {
   });
 
   test('normalizes entities', () => {
-    const mySchema = new schema.Entity('tacos');
-
     expect(
       normalize(
         [
           { id: 1, type: 'foo' },
           { id: 2, type: 'bar' },
         ],
-        [mySchema],
+        [Tacos],
       ),
     ).toMatchSnapshot();
   });
 
   test('normalizes schema with extra members', () => {
-    const mySchema = new schema.Entity('tacos');
-
     expect(
       normalize(
         {
@@ -62,7 +64,7 @@ describe('normalize', () => {
           },
         },
         {
-          data: [mySchema],
+          data: [Tacos],
           extra: '',
           page: {
             first: null,
@@ -76,8 +78,6 @@ describe('normalize', () => {
   });
 
   test('normalizes schema with extra members but not set', () => {
-    const mySchema = new schema.Entity('tacos');
-
     expect(
       normalize(
         {
@@ -87,7 +87,7 @@ describe('normalize', () => {
           ],
         },
         {
-          data: [mySchema],
+          data: [Tacos],
           extra: '',
           page: {
             first: null,
@@ -101,8 +101,9 @@ describe('normalize', () => {
   });
 
   test('normalizes schema with indexes', () => {
-    const mySchema = new schema.Entity('tacos');
-    mySchema.indexes = ['type'];
+    class MyTaco extends Tacos {
+      static indexes = ['type'];
+    }
 
     expect(
       normalize(
@@ -113,7 +114,7 @@ describe('normalize', () => {
           ],
           alt: { id: 2, type: 'bar2' },
         },
-        { data: [mySchema], alt: mySchema },
+        { data: [MyTaco], alt: MyTaco },
       ),
     ).toMatchSnapshot();
   });
@@ -122,8 +123,9 @@ describe('normalize', () => {
     const oldError = console.warn;
     const spy = (console.warn = jest.fn());
 
-    const mySchema = new schema.Entity('tacos');
-    mySchema.indexes = ['notfound'];
+    class MyTaco extends Tacos {
+      static indexes = ['notfound'];
+    }
 
     expect(
       normalize(
@@ -134,7 +136,7 @@ describe('normalize', () => {
           ],
           alt: { id: 2, type: 'bar2' },
         },
-        { data: [mySchema], alt: mySchema },
+        { data: [MyTaco], alt: MyTaco },
       ),
     ).toMatchSnapshot();
 
@@ -152,26 +154,31 @@ describe('normalize', () => {
   });
 
   test('normalizes entities with circular references', () => {
-    const user = new schema.Entity('users');
-    user.define({
-      friends: [user],
-    });
+    class User extends IDEntity {}
+    User.schema = { friends: [User] };
 
     const input = { id: 123, friends: [] };
     input.friends.push(input);
 
-    expect(normalize(input, user)).toMatchSnapshot();
+    expect(normalize(input, User)).toMatchSnapshot();
   });
 
   test('normalizes nested entities', () => {
-    const user = new schema.Entity('users');
-    const comment = new schema.Entity('comments', {
-      user: user,
-    });
-    const article = new schema.Entity('articles', {
-      author: user,
-      comments: [comment],
-    });
+    class User extends IDEntity {}
+    class Comment extends IDEntity {
+      comment = '';
+      static schema = {
+        user: User,
+      };
+    }
+    class Article extends IDEntity {
+      title = '';
+      body = '';
+      static schema = {
+        author: User,
+        comments: [Comment],
+      };
+    }
 
     const input = {
       id: '123',
@@ -192,12 +199,17 @@ describe('normalize', () => {
         },
       ],
     };
-    expect(normalize(input, article)).toMatchSnapshot();
+    expect(normalize(input, Article)).toMatchSnapshot();
   });
 
   test('does not modify the original input', () => {
-    const user = new schema.Entity('users');
-    const article = new schema.Entity('articles', { author: user });
+    class User extends IDEntity {}
+    class Article extends IDEntity {
+      title = '';
+      static schema = {
+        author: User,
+      };
+    }
     const input = Object.freeze({
       id: '123',
       title: 'A Great Article',
@@ -206,27 +218,33 @@ describe('normalize', () => {
         name: 'Paul',
       }),
     });
-    expect(() => normalize(input, article)).not.toThrow();
+    expect(() => normalize(input, Article)).not.toThrow();
   });
 
   test('ignores null values', () => {
-    const myEntity = new schema.Entity('myentities');
-    expect(normalize([null], [myEntity])).toMatchSnapshot();
-    expect(normalize([undefined], [myEntity])).toMatchSnapshot();
-    expect(normalize([false], [myEntity])).toMatchSnapshot();
+    class MyEntity extends IDEntity {}
+    expect(normalize([null], [MyEntity])).toMatchSnapshot();
+    expect(normalize([undefined], [MyEntity])).toMatchSnapshot();
+    expect(normalize([false], [MyEntity])).toMatchSnapshot();
   });
 
   test('can use fully custom entity classes', () => {
-    class MyEntity extends schema.Entity {
-      schema = {
-        children: [new schema.Entity('children')],
+    class Children extends IDEntity {
+      name = '';
+    }
+    class MyEntity extends Entity {
+      uuid = '';
+      name = '';
+
+      static schema = {
+        children: [Children],
       };
 
-      getId(entity, parent, key) {
-        return entity.uuid;
+      pk(parent, key) {
+        return this.uuid;
       }
 
-      normalize(input, parent, key, visit, addEntity, visitedEntities) {
+      static normalize(input, parent, key, visit, addEntity, visitedEntities) {
         const entity = { ...input };
         Object.keys(this.schema).forEach(key => {
           const schema = this.schema[key];
@@ -241,13 +259,13 @@ describe('normalize', () => {
         });
         addEntity(this, entity, parent, key);
         return {
-          uuid: this.getId(entity),
+          uuid: this.pk(entity),
           schema: this.key,
         };
       }
     }
 
-    const mySchema = new MyEntity('food');
+    class Food extends MyEntity {}
     expect(
       normalize(
         {
@@ -255,38 +273,40 @@ describe('normalize', () => {
           name: 'tacos',
           children: [{ id: 4, name: 'lettuce' }],
         },
-        mySchema,
+        Food,
       ),
     ).toMatchSnapshot();
   });
 
   test('uses the non-normalized input when getting the ID for an entity', () => {
-    const userEntity = new schema.Entity('users');
-    const idAttributeFn = jest.fn(
-      (nonNormalized, parent, key) => nonNormalized.user.id,
-    );
-    const recommendation = new schema.Entity(
-      'recommendations',
-      { user: userEntity },
-      {
-        idAttribute: idAttributeFn,
-      },
-    );
+    const calls = [];
+    class User extends IDEntity {}
+    class Recommendations extends Entity {
+      pk(parent, key) {
+        calls.push([this, parent, key]);
+        return parent.user.id;
+      }
+
+      static schema = { user: User };
+    }
+
     expect(
-      normalize({ user: { id: '456' } }, recommendation),
+      normalize({ user: { id: '456' } }, Recommendations),
     ).toMatchSnapshot();
-    expect(idAttributeFn.mock.calls).toMatchSnapshot();
-    expect(recommendation.idAttribute).toBe(idAttributeFn);
+    expect(calls).toMatchSnapshot();
   });
 
   test('passes over pre-normalized values', () => {
-    const userEntity = new schema.Entity('users');
-    const articleEntity = new schema.Entity('articles', { author: userEntity });
+    class User extends IDEntity {}
+    class Article extends IDEntity {
+      title = '';
+      static schema = { author: User };
+    }
 
     expect(
       normalize(
         { id: '123', title: 'normalizr is great!', author: 1 },
-        articleEntity,
+        Article,
       ),
     ).toMatchSnapshot();
   });
@@ -300,11 +320,14 @@ describe('normalize', () => {
       }),
     );
 
-    const testEntity = new schema.Entity('test', {
-      elements: [new schema.Entity('elements')],
-    });
+    class Elements extends IDEntity {}
+    class Test extends IDEntity {
+      static schema = {
+        elements: [Elements],
+      };
+    }
 
-    expect(() => normalize(test, testEntity)).not.toThrow();
+    expect(() => normalize(test, Test)).not.toThrow();
   });
 });
 
@@ -322,58 +345,49 @@ describe('denormalize', () => {
   });
 
   test('denormalizes entities', () => {
-    const mySchema = new schema.Entity('tacos');
     const entities = {
-      tacos: {
+      Tacos: {
         1: { id: 1, type: 'foo' },
         2: { id: 2, type: 'bar' },
       },
     };
-    expect(denormalize([1, 2], [mySchema], entities)[0]).toMatchSnapshot();
+    expect(denormalize([1, 2], [Tacos], entities)[0]).toMatchSnapshot();
   });
 
   test('denormalizes without entities fills undefined', () => {
-    const mySchema = new schema.Entity('tacos');
-    expect(denormalize({ data: 1 }, { data: mySchema }, {})).toMatchSnapshot();
-    expect(denormalize(1, mySchema, {})).toEqual([undefined, false]);
+    expect(denormalize({ data: 1 }, { data: Tacos }, {})).toMatchSnapshot();
+    expect(denormalize(1, Tacos, {})).toEqual([undefined, false]);
   });
 
   test('denormalizes ignoring unfound entities in arrays', () => {
-    const mySchema = new schema.Entity('tacos');
     const entities = {
-      tacos: {
+      Tacos: {
         1: { id: 1, type: 'foo' },
       },
     };
-    expect(denormalize([1, 2], [mySchema], entities)).toMatchSnapshot();
+    expect(denormalize([1, 2], [Tacos], entities)).toMatchSnapshot();
     expect(
-      denormalize({ results: [1, 2] }, { results: [mySchema] }, entities),
+      denormalize({ results: [1, 2] }, { results: [Tacos] }, entities),
     ).toMatchSnapshot();
   });
 
   test('denormalizes arrays with objects inside', () => {
-    const mySchema = new schema.Entity('tacos');
     const entities = {
-      tacos: {
+      Tacos: {
         1: { id: 1, type: 'foo' },
       },
     };
     expect(
-      denormalize([{ data: 1 }, { data: 2 }], [{ data: mySchema }], {})[0],
+      denormalize([{ data: 1 }, { data: 2 }], [{ data: Tacos }], {})[0],
     ).toEqual([]);
     expect(
-      denormalize(
-        [{ data: 1 }, { data: 2 }],
-        [{ data: mySchema }],
-        entities,
-      )[0],
+      denormalize([{ data: 1 }, { data: 2 }], [{ data: Tacos }], entities)[0],
     ).toMatchSnapshot();
   });
 
   test('denormalizes schema with extra members', () => {
-    const mySchema = new schema.Entity('tacos');
     const entities = {
-      tacos: {
+      Tacos: {
         1: { id: 1, type: 'foo' },
         2: { id: 2, type: 'bar' },
       },
@@ -391,7 +405,7 @@ describe('denormalize', () => {
           },
         },
         {
-          data: [mySchema],
+          data: [Tacos],
           extra: '',
           page: {
             first: null,
@@ -406,9 +420,8 @@ describe('denormalize', () => {
   });
 
   test('denormalizes schema with extra members but not set', () => {
-    const mySchema = new schema.Entity('tacos');
     const entities = {
-      tacos: {
+      Tacos: {
         1: { id: 1, type: 'foo' },
         2: { id: 2, type: 'bar' },
       },
@@ -419,7 +432,7 @@ describe('denormalize', () => {
           data: [1, 2],
         },
         {
-          data: [mySchema],
+          data: [Tacos],
           extra: '',
           page: {
             first: null,
@@ -434,17 +447,24 @@ describe('denormalize', () => {
   });
 
   test('denormalizes nested entities', () => {
-    const user = new schema.Entity('users');
-    const comment = new schema.Entity('comments', {
-      user: user,
-    });
-    const article = new schema.Entity('articles', {
-      author: user,
-      comments: [comment],
-    });
+    class User extends IDEntity {}
+    class Comment extends IDEntity {
+      comment = '';
+      static schema = {
+        user: User,
+      };
+    }
+    class Article extends IDEntity {
+      title = '';
+      body = '';
+      static schema = {
+        author: User,
+        comments: [Comment],
+      };
+    }
 
     const entities = {
-      articles: {
+      Article: {
         '123': {
           author: '8472',
           body: 'This article is great.',
@@ -453,14 +473,14 @@ describe('denormalize', () => {
           title: 'A Great Article',
         },
       },
-      comments: {
+      Comment: {
         'comment-123-4738': {
           comment: 'I like it!',
           id: 'comment-123-4738',
           user: '10293',
         },
       },
-      users: {
+      User: {
         '10293': {
           id: '10293',
           name: 'Jane',
@@ -471,88 +491,94 @@ describe('denormalize', () => {
         },
       },
     };
-    expect(denormalize('123', article, entities)).toMatchSnapshot();
+    expect(denormalize('123', Article, entities)).toMatchSnapshot();
   });
 
   test('set to undefined if schema key is not in entities', () => {
-    const user = new schema.Entity('users');
-    const comment = new schema.Entity('comments', {
-      user: user,
-    });
-    const article = new schema.Entity('articles', {
-      author: user,
-      comments: [comment],
-    });
+    class User extends IDEntity {}
+    class Comment extends IDEntity {
+      comment = '';
+      static schema = {
+        user: User,
+      };
+    }
+    class Article extends IDEntity {
+      title = '';
+      body = '';
+      static schema = {
+        author: User,
+        comments: [Comment],
+      };
+    }
 
     const entities = {
-      articles: {
+      Article: {
         '123': {
           id: '123',
           author: '8472',
           comments: ['1'],
         },
       },
-      comments: {
+      Comment: {
         '1': {
           user: '123',
         },
       },
     };
-    expect(denormalize('123', article, entities)).toMatchSnapshot();
+    expect(denormalize('123', Article, entities)).toMatchSnapshot();
   });
 
   test('does not modify the original entities', () => {
-    const user = new schema.Entity('users');
-    const article = new schema.Entity('articles', { author: user });
+    class User extends IDEntity {}
+    class Article extends IDEntity {
+      static schema = {
+        author: User,
+      };
+    }
     const entities = Object.freeze({
-      articles: Object.freeze({
+      Article: Object.freeze({
         '123': Object.freeze({
           id: '123',
           title: 'A Great Article',
           author: '8472',
         }),
       }),
-      users: Object.freeze({
+      User: Object.freeze({
         '8472': Object.freeze({
           id: '8472',
           name: 'Paul',
         }),
       }),
     });
-    expect(() => denormalize('123', article, entities)).not.toThrow();
+    expect(() => denormalize('123', Article, entities)).not.toThrow();
   });
 
   test('denormalizes with function as idAttribute', () => {
     const normalizedData = {
       entities: {
-        patrons: {
+        Patron: {
           '1': { id: '1', guest: null, name: 'Esther' },
           '2': { id: '2', guest: 'guest-2-1', name: 'Tom' },
         },
-        guests: { 'guest-2-1': { guestId: 1 } },
+        Guest: { 'guest-2-1': { guestId: 1 } },
       },
       result: ['1', '2'],
     };
 
-    const guestSchema = new schema.Entity(
-      'guests',
-      {},
-      {
-        idAttribute: (value, parent, key) =>
-          `${key}-${parent.id}-${value.guestId}`,
-      },
-    );
-
-    const patronsSchema = new schema.Entity('patrons', {
-      guest: guestSchema,
-    });
+    class Guest extends Entity {
+      guestId = '';
+      pk(parent, key) {
+        return `${key}-${parent.id}-${this.guestId}`;
+      }
+    }
+    class Patron extends IDEntity {
+      static schema = {
+        guest: Guest,
+      };
+    }
 
     expect(
-      denormalize(
-        normalizedData.result,
-        [patronsSchema],
-        normalizedData.entities,
-      ),
+      denormalize(normalizedData.result, [Patron], normalizedData.entities),
     ).toMatchSnapshot();
   });
 });
