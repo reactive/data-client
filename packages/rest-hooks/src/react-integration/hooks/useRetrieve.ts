@@ -1,5 +1,4 @@
 import { ReadShape, ParamsFromShape } from 'rest-hooks/resource';
-
 import { useMemo } from 'react';
 
 import useFetcher from './useFetcher';

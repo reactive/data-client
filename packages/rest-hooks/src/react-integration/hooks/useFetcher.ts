@@ -10,7 +10,6 @@ import { DispatchContext } from 'rest-hooks/react-integration/context';
 import createFetch, {
   OptimisticUpdateParams,
 } from 'rest-hooks/state/actions/createFetch';
-
 import { useContext, useRef, useCallback } from 'react';
 
 /** Build an imperative dispatcher to issue network requests. */

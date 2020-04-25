@@ -52,7 +52,7 @@
     "jest": "^25.4.0",
     "lerna": "^3.20.2",
     "nock": "^12.0.3",
-    "prettier": "^2.0.2",
+    "prettier": "^2.0.5",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-test-renderer": "^16.13.1",

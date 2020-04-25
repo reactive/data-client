@@ -6,7 +6,6 @@ import {
 } from 'rest-hooks/resource';
 import { useDenormalized } from 'rest-hooks/state/selectors';
 import { StateContext } from 'rest-hooks/react-integration/context';
-
 import { useMemo, useContext } from 'react';
 
 import useRetrieve from './useRetrieve';

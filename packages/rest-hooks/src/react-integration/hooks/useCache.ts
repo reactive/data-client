@@ -1,7 +1,6 @@
 import { StateContext } from 'rest-hooks/react-integration/context';
 import { ReadShape, ParamsFromShape } from 'rest-hooks/resource';
 import { useDenormalized } from 'rest-hooks/state/selectors';
-
 import { useContext, useMemo } from 'react';
 
 import useExpiresAt from './useExpiresAt';

@@ -3,7 +3,6 @@ import {
   UserResource,
   UrlArticleResource,
 } from '__tests__/common';
-
 import nock from 'nock';
 
 import { normalize } from '../normal';

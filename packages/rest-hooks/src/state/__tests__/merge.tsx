@@ -1,5 +1,4 @@
 import { ArticleResource } from '__tests__/common';
-
 import React from 'react';
 
 import mergeDeepCopy from '../merge/mergeDeepCopy';

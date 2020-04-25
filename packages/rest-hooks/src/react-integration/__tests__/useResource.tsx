@@ -6,7 +6,6 @@ import {
 } from '__tests__/common';
 import { State } from 'rest-hooks/types';
 import { initialState } from 'rest-hooks/state/reducer';
-
 import React, { Suspense } from 'react';
 import { render } from '@testing-library/react';
 import nock from 'nock';

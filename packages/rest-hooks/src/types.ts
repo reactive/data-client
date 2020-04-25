@@ -1,7 +1,6 @@
 import { NormalizedIndex } from '@rest-hooks/normalizr';
 import type { AbstractInstanceType } from '@rest-hooks/normalizr';
 import { Middleware } from '@rest-hooks/use-enhanced-reducer';
-
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
 
 import { ErrorableFSAWithPayloadAndMeta, ErrorableFSAWithMeta } from './fsa';

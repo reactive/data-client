@@ -3,7 +3,6 @@ import {
   PaginatedArticleResource,
   InvalidIfStaleArticleResource,
 } from '__tests__/common';
-
 import React, { useEffect } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
