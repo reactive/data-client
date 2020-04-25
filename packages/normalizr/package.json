@@ -43,8 +43,8 @@
     "test": "jest",
     "test:ci": "jest --ci",
     "test:coverage": "npm run test -- --coverage",
-    "tsc:ci": "tsc --noEmit typescript-tests/*",
-    "typecheck": "run-p tsc:ci"
+    "tsc:ci": "ttsc --project tsconfig.test.json ",
+    "typecheck": "yarn run tsc:ci"
   },
   "author": "Nathaniel Tucker",
   "contributors": [

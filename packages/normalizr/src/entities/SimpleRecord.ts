@@ -52,7 +52,6 @@ export default abstract class SimpleRecord {
     second: AbstractInstanceType<T>,
   ) {
     const props = Object.assign(
-      {},
       this.toObjectDefined(first),
       this.toObjectDefined(second),
     );
