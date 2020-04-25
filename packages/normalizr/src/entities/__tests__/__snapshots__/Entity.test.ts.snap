@@ -1,0 +1,176 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Entity normalization idAttribute can build the entity's ID from the parent object 1`] = `
+Object {
+  "entities": Object {
+    "User": Object {
+      "tacos-user-4": User {
+        "id": "4",
+        "name": "Jimmy",
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": Object {
+    "name": "tacos",
+    "user": "tacos-user-4",
+  },
+}
+`;
+
+exports[`Entity normalization idAttribute can normalize entity IDs based on their object key 1`] = `
+Object {
+  "entities": Object {
+    "User": Object {
+      "4": User {
+        "name": "taco",
+      },
+      "56": User {
+        "name": "burrito",
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": Object {
+    "4": Object {
+      "id": "4",
+      "schema": "users",
+    },
+    "56": Object {
+      "id": "56",
+      "schema": "users",
+    },
+  },
+}
+`;
+
+exports[`Entity normalization idAttribute can use a custom idAttribute string 1`] = `
+Object {
+  "entities": Object {
+    "User": Object {
+      "134351": User {
+        "idStr": "134351",
+        "name": "Kathy",
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": "134351",
+}
+`;
+
+exports[`Entity normalization mergeStrategy can use a custom merging strategy 1`] = `
+Object {
+  "entities": Object {
+    "MergeTaco": Object {
+      "1": MergeTaco {
+        "alias": "bar",
+        "id": 1,
+        "name": "foo",
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": Array [
+    "1",
+    "1",
+  ],
+}
+`;
+
+exports[`Entity normalization mergeStrategy defaults to plain merging 1`] = `
+Object {
+  "entities": Object {
+    "Tacos": Object {
+      "1": Tacos {
+        "alias": "bar",
+        "id": 1,
+        "name": "bar",
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": Array [
+    "1",
+    "1",
+  ],
+}
+`;
+
+exports[`Entity normalization normalizes an entity 1`] = `
+Object {
+  "entities": Object {
+    "MyEntity": Object {
+      "1": MyEntity {
+        "id": 1,
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": "1",
+}
+`;
+
+exports[`Entity normalization processStrategy can use a custom processing strategy 1`] = `
+Object {
+  "entities": Object {
+    "ProcessTaco": Object {
+      "1": ProcessTaco {
+        "alias": undefined,
+        "id": 1,
+        "name": "foo",
+        "slug": "thing-1",
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": "1",
+}
+`;
+
+exports[`Entity normalization processStrategy can use information from the parent in the process strategy 1`] = `
+Object {
+  "entities": Object {
+    "ChildEntity": Object {
+      "4": ChildEntity {
+        "content": "child",
+        "id": 4,
+        "parentId": 1,
+        "parentKey": "child",
+      },
+    },
+    "ParentEntity": Object {
+      "1": ParentEntity {
+        "child": "4",
+        "content": "parent",
+        "id": 1,
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": "1",
+}
+`;
+
+exports[`Entity normalization processStrategy is run before and passed to the schema normalization 1`] = `
+Object {
+  "entities": Object {
+    "AttachmentsEntity": Object {
+      "456": AttachmentsEntity {
+        "id": "456",
+      },
+    },
+    "EntriesEntity": Object {
+      "123": EntriesEntity {
+        "data": Object {
+          "attachment": "456",
+        },
+        "id": "123",
+        "type": "message",
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": "123",
+}
+`;

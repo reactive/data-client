@@ -1,6 +1,7 @@
 import { FetchOptions } from 'rest-hooks/types';
+import { Entity } from '@rest-hooks/normalizr';
 
-import { schemas, Schema } from './normal';
+import { Schema } from './normal';
 
 /** Defines the shape of a network request */
 export interface FetchShape<
@@ -20,7 +21,7 @@ export interface FetchShape<
 
 /** Purges a value from the server */
 export interface DeleteShape<
-  S extends schemas.Entity,
+  S extends Entity,
   Params extends Readonly<object> = Readonly<object>,
   Body extends Readonly<object | string> | void = undefined
 > extends FetchShape<S, Params, Body> {

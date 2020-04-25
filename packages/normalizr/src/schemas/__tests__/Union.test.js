@@ -3,6 +3,7 @@ import { fromJS } from 'immutable';
 
 import { denormalizeSimple as denormalize } from '../../denormalize';
 import { normalize, schema } from '../../';
+import IDEntity from '../../entities/IDEntity';
 
 describe(`${schema.Union.name} normalization`, () => {
   test('throws if not given a schemaAttribute', () => {
@@ -10,12 +11,12 @@ describe(`${schema.Union.name} normalization`, () => {
   });
 
   test('normalizes an object using string schemaAttribute', () => {
-    const user = new schema.Entity('users');
-    const group = new schema.Entity('groups');
+    class User extends IDEntity {}
+    class Group extends IDEntity {}
     const union = new schema.Union(
       {
-        users: user,
-        groups: group,
+        users: User,
+        groups: Group,
       },
       'type',
     );
@@ -25,12 +26,12 @@ describe(`${schema.Union.name} normalization`, () => {
   });
 
   test('normalizes an array of multiple entities using a function to infer the schemaAttribute', () => {
-    const user = new schema.Entity('users');
-    const group = new schema.Entity('groups');
+    class User extends IDEntity {}
+    class Group extends IDEntity {}
     const union = new schema.Union(
       {
-        users: user,
-        groups: group,
+        users: User,
+        groups: Group,
       },
       input => {
         return input.username ? 'users' : input.groupname ? 'groups' : null;
@@ -44,13 +45,13 @@ describe(`${schema.Union.name} normalization`, () => {
 });
 
 describe(`${schema.Union.name} denormalization`, () => {
-  const user = new schema.Entity('users');
-  const group = new schema.Entity('groups');
+  class User extends IDEntity {}
+  class Group extends IDEntity {}
   const entities = {
-    users: {
+    User: {
       1: { id: 1, username: 'Janey', type: 'users' },
     },
-    groups: {
+    Group: {
       2: { id: 2, groupname: 'People', type: 'groups' },
     },
   };
@@ -58,8 +59,8 @@ describe(`${schema.Union.name} denormalization`, () => {
   test('denormalizes an object using string schemaAttribute', () => {
     const union = new schema.Union(
       {
-        users: user,
-        groups: group,
+        users: User,
+        groups: Group,
       },
       'type',
     );
@@ -82,8 +83,8 @@ describe(`${schema.Union.name} denormalization`, () => {
   test('denormalizes an array of multiple entities using a function to infer the schemaAttribute', () => {
     const union = new schema.Union(
       {
-        users: user,
-        groups: group,
+        users: User,
+        groups: Group,
       },
       input => {
         return input.username ? 'users' : 'groups';
@@ -108,8 +109,8 @@ describe(`${schema.Union.name} denormalization`, () => {
   test('returns the original value no schema is given', () => {
     const union = new schema.Union(
       {
-        users: user,
-        groups: group,
+        users: User,
+        groups: Group,
       },
       input => {
         return input.username ? 'users' : 'groups';

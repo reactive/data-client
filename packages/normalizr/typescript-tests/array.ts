@@ -1,12 +1,20 @@
-import { denormalize, normalize, schema } from '../src'
+import { denormalize, normalize, schema } from '../src';
+import IDEntity from '../src/entities/IDEntity';
 
-const data = [{ id: '123', name: 'Jim' }, { id: '456', name: 'Jane' }];
-const userSchema = new schema.Entity('users');
+const data = [
+  { id: '123', name: 'Jim' },
+  { id: '456', name: 'Jane' },
+];
+class User extends IDEntity {}
 
-const userListSchema = new schema.Array(userSchema);
+const userListSchema = new schema.Array(User);
 const normalizedData = normalize(data, userListSchema);
 
-const userListSchemaAlt = [userSchema];
+const userListSchemaAlt = [User];
 const normalizedDataAlt = normalize(data, userListSchemaAlt);
 
-const denormalizedData = denormalize(normalizedData.result, userListSchema, normalizedData.entities);
+const denormalizedData = denormalize(
+  normalizedData.result,
+  userListSchema,
+  normalizedData.entities,
+);

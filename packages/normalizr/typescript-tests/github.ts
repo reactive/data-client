@@ -1,35 +1,40 @@
-import { normalize, schema } from '../src'
+import { normalize, schema, Entity } from '../src';
+import IDEntity from '../src/entities/IDEntity';
 
-const user = new schema.Entity('users');
+class User extends IDEntity {}
 
-const label = new schema.Entity('labels');
+class Label extends IDEntity {}
 
-const milestone = new schema.Entity('milestones', {
-  creator: user
-});
+class Milestone extends IDEntity {
+  static schema = { creator: User };
+}
 
-const issue = new schema.Entity('issues', {
-  assignee: user,
-  assignees: [user],
-  labels: label,
-  milestone,
-  user
-});
+class Issue extends IDEntity {
+  static schema = {
+    assignee: User,
+    assignees: [User],
+    labels: Label,
+    milestone: Milestone,
+    user: User,
+  };
+}
 
-const pullRequest = new schema.Entity('pullRequests', {
-  assignee: user,
-  assignees: [user],
-  labels: label,
-  milestone,
-  user
-});
+class PullRequest extends IDEntity {
+  static schema = {
+    assignee: User,
+    assignees: [User],
+    labels: Label,
+    milestone: Milestone,
+    user: User,
+  };
+}
 
 const issueOrPullRequest = new schema.Array(
   {
-    issues: issue,
-    pullRequests: pullRequest
+    issues: Issue.asSchema(),
+    pullRequests: PullRequest.asSchema(),
   },
-  (entity: any) => (entity.pull_request ? 'pullRequests' : 'issues')
+  (entity: any) => (entity.pull_request ? 'pullRequests' : 'issues'),
 );
 
 const data = {

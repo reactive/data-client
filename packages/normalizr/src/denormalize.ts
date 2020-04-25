@@ -1,8 +1,17 @@
 import * as ImmutableUtils from './schemas/ImmutableUtils';
 import * as ArrayUtils from './schemas/Array';
 import * as ObjectUtils from './schemas/Object';
+import { Denormalize, DenormalizeNullable, Schema } from './types';
+import SimpleRecord from './entities/SimpleRecord';
+import { isEntity } from './entities/Entity';
 
-const unvisitEntity = (id, schema, unvisit, getEntity, cache) => {
+const unvisitEntity = (
+  id: any,
+  schema: any,
+  unvisit: any,
+  getEntity: any,
+  cache: Record<string, any>,
+): [any, boolean] => {
   const entity = getEntity(id, schema);
   if (typeof entity !== 'object' || entity === null) {
     return [entity, false];
@@ -15,9 +24,10 @@ const unvisitEntity = (id, schema, unvisit, getEntity, cache) => {
   let found = true;
   if (!cache[schema.key][id]) {
     // Ensure we don't mutate it non-immutable objects
-    const entityCopy = ImmutableUtils.isImmutable(entity)
-      ? entity
-      : { ...entity };
+    const entityCopy =
+      ImmutableUtils.isImmutable(entity) || entity instanceof SimpleRecord
+        ? entity
+        : { ...entity };
 
     // Need to set this first so that if it is referenced further within the
     // denormalization the reference will already exist.
@@ -28,12 +38,12 @@ const unvisitEntity = (id, schema, unvisit, getEntity, cache) => {
   return [cache[schema.key][id], found];
 };
 
-const getUnvisit = entities => {
+const getUnvisit = (entities: Record<string, any>) => {
   const cache = {};
   const getEntity = getEntities(entities);
 
   return [
-    function unvisit(input, schema) {
+    function unvisit(input: any, schema: any): [any, boolean] {
       if (!schema) return [input, true];
 
       if (
@@ -51,10 +61,7 @@ const getUnvisit = entities => {
         return [input, true];
       }
 
-      if (
-        typeof schema.getId === 'function' &&
-        typeof schema.normalize === 'function'
-      ) {
+      if (isEntity(schema)) {
         // unvisitEntity just can't handle undefined
         if (input === undefined) {
           return [input, false];
@@ -69,13 +76,13 @@ const getUnvisit = entities => {
       return [input, true];
     },
     cache,
-  ];
+  ] as const;
 };
 
-const getEntities = entities => {
+const getEntities = (entities: Record<string, any>) => {
   const isImmutable = ImmutableUtils.isImmutable(entities);
 
-  return (entityOrId, schema) => {
+  return (entityOrId: any, schema: any) => {
     const schemaKey = schema.key;
 
     if (typeof entityOrId === 'object') {
@@ -90,17 +97,26 @@ const getEntities = entities => {
   };
 };
 
-export const denormalize = (input, schema, entities) => {
+export const denormalize = <S extends Schema>(
+  input: any,
+  schema: S,
+  entities: any,
+):
+  | [Denormalize<S>, true, Record<string, Record<string, any>>]
+  | [DenormalizeNullable<S>, false, Record<string, Record<string, any>>] => {
   /* istanbul ignore next */
   // eslint-disable-next-line no-undef
   if (process.env.NODE_ENV !== 'production' && schema === undefined)
     throw new Error('shema needed');
   if (typeof input !== 'undefined') {
     const [unvisit, cache] = getUnvisit(entities);
-    return [...unvisit(input, schema), cache];
+    return [...unvisit(input, schema), cache] as any;
   }
-  return [undefined, false, {}];
+  return [undefined, false, {}] as any;
 };
 
-export const denormalizeSimple = (input, schema, entities) =>
-  denormalize(input, schema, entities).slice(0, 2);
+export const denormalizeSimple = <S extends Schema>(
+  input: any,
+  schema: S,
+  entities: any,
+) => denormalize(input, schema, entities).slice(0, 2);

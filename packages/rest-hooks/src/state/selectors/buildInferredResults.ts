@@ -1,6 +1,5 @@
-import { NormalizedIndex } from '@rest-hooks/normalizr';
+import { NormalizedIndex, isEntity } from '@rest-hooks/normalizr';
 import { Schema, schemas, NormalizeNullable } from 'rest-hooks/resource';
-import { isEntity } from 'rest-hooks/resource/types';
 
 /**
  * Build the result parameter to denormalize from schema alone.
@@ -19,7 +18,7 @@ export default function buildInferredResults<
   }
   if (isEntity(schema)) {
     if (!params) return undefined as any;
-    const id = schema.getId(params, undefined, '');
+    const id = schema.pk(params, undefined, '');
     // Was able to infer the entity's primary key from params
     if (id !== undefined && id !== '') return id as any;
     // now attempt lookup in indexes

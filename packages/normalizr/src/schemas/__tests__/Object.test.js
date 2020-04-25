@@ -3,38 +3,37 @@ import { fromJS } from 'immutable';
 
 import { denormalizeSimple as denormalize } from '../../denormalize';
 import { normalize, schema } from '../../';
+import IDEntity from '../../entities/IDEntity';
 
 describe(`${schema.Object.name} normalization`, () => {
   test('normalizes an object', () => {
-    const userSchema = new schema.Entity('user');
+    class User extends IDEntity {}
     const object = new schema.Object({
-      user: userSchema,
+      user: User,
     });
     expect(normalize({ user: { id: 1 } }, object)).toMatchSnapshot();
   });
 
   test(`normalizes plain objects as shorthand for ${schema.Object.name}`, () => {
-    const userSchema = new schema.Entity('user');
-    expect(
-      normalize({ user: { id: 1 } }, { user: userSchema }),
-    ).toMatchSnapshot();
+    class User extends IDEntity {}
+    expect(normalize({ user: { id: 1 } }, { user: User })).toMatchSnapshot();
   });
 
   test('filters out undefined and null values', () => {
-    const userSchema = new schema.Entity('user');
-    const users = { foo: userSchema, bar: userSchema, baz: userSchema };
+    class User extends IDEntity {}
+    const users = { foo: User, bar: User, baz: User };
     expect(normalize({ foo: {}, bar: { id: '1' } }, users)).toMatchSnapshot();
   });
 });
 
 describe(`${schema.Object.name} denormalization`, () => {
   test('denormalizes an object', () => {
-    const userSchema = new schema.Entity('user');
+    class User extends IDEntity {}
     const object = new schema.Object({
-      user: userSchema,
+      user: User,
     });
     const entities = {
-      user: {
+      User: {
         1: { id: 1, name: 'Nacho' },
       },
     };
@@ -48,13 +47,13 @@ describe(`${schema.Object.name} denormalization`, () => {
   });
 
   test('denormalizes an object with plain members', () => {
-    const userSchema = new schema.Entity('user');
+    class User extends IDEntity {}
     const object = new schema.Object({
-      user: userSchema,
+      user: User,
       plain: '',
     });
     const entities = {
-      user: {
+      User: {
         1: { id: 1, name: 'Nacho' },
       },
     };
@@ -68,14 +67,14 @@ describe(`${schema.Object.name} denormalization`, () => {
   });
 
   test('should have found = true with null member even when schema has nested entity', () => {
-    const userSchema = new schema.Entity('user');
+    class User extends IDEntity {}
     const object = {
       item: new schema.Object({
-        user: userSchema,
+        user: User,
       }),
     };
     const entities = {
-      user: {
+      User: {
         1: { id: 1, name: 'Nacho' },
       },
     };
@@ -95,60 +94,52 @@ describe(`${schema.Object.name} denormalization`, () => {
   });
 
   test('denormalizes plain object shorthand', () => {
-    const userSchema = new schema.Entity('user');
+    class User extends IDEntity {}
     const entities = {
-      user: {
+      User: {
         1: { id: 1, name: 'Jane' },
       },
     };
     expect(
-      denormalize({ user: 1 }, { user: userSchema, tacos: {} }, entities),
+      denormalize({ user: 1 }, { user: User, tacos: {} }, entities),
     ).toMatchSnapshot();
     expect(
-      denormalize(
-        { user: 1 },
-        { user: userSchema, tacos: {} },
-        fromJS(entities),
-      ),
+      denormalize({ user: 1 }, { user: User, tacos: {} }, fromJS(entities)),
     ).toMatchSnapshot();
     expect(
       denormalize(
         fromJS({ user: 1 }),
-        { user: userSchema, tacos: {} },
+        { user: User, tacos: {} },
         fromJS(entities),
       ),
     ).toMatchSnapshot();
 
     expect(
-      denormalize(
-        { user: 1, tacos: {} },
-        { user: userSchema, tacos: {} },
-        entities,
-      ),
+      denormalize({ user: 1, tacos: {} }, { user: User, tacos: {} }, entities),
     ).toMatchSnapshot();
     expect(
       denormalize(
         { user: 1, tacos: {} },
-        { user: userSchema, tacos: {} },
+        { user: User, tacos: {} },
         fromJS(entities),
       ),
     ).toMatchSnapshot();
     expect(
       denormalize(
         fromJS({ user: 1, tacos: {} }),
-        { user: userSchema, tacos: {} },
+        { user: User, tacos: {} },
         fromJS(entities),
       ),
     ).toMatchSnapshot();
   });
 
   test('denormalizes an object that contains a property representing a an object with an id of zero', () => {
-    const userSchema = new schema.Entity('user');
+    class User extends IDEntity {}
     const object = new schema.Object({
-      user: userSchema,
+      user: User,
     });
     const entities = {
-      user: {
+      User: {
         0: { id: 0, name: 'Chancho' },
       },
     };

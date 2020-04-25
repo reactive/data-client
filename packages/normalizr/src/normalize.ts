@@ -1,10 +1,20 @@
-import EntitySchema from './schemas/Entity';
-import UnionSchema from './schemas/Union';
-import ValuesSchema from './schemas/Values';
-import ArraySchema, * as ArrayUtils from './schemas/Array';
-import ObjectSchema, * as ObjectUtils from './schemas/Object';
+import * as ArrayUtils from './schemas/Array';
+import * as ObjectUtils from './schemas/Object';
+import {
+  NormalizeNullable,
+  NormalizedSchema,
+  Schema,
+  NormalizedIndex,
+} from './types';
 
-const visit = (value, parent, key, schema, addEntity, visitedEntities) => {
+const visit = (
+  value: any,
+  parent: any,
+  key: any,
+  schema: any,
+  addEntity: any,
+  visitedEntities: any,
+) => {
   if (typeof value !== 'object' || !value || !schema) {
     return value;
   }
@@ -37,15 +47,15 @@ const visit = (value, parent, key, schema, addEntity, visitedEntities) => {
   );
 };
 
-const addEntities = (entities, indexes) => (
-  schema,
-  processedEntity,
-  value,
-  parent,
-  key,
+const addEntities = (entities: Record<string, any>, indexes: any) => (
+  schema: any,
+  processedEntity: any,
+  value: any,
+  parent: any,
+  key: string,
 ) => {
   const schemaKey = schema.key;
-  const id = schema.getId(value, parent, key);
+  const id = schema.pk(processedEntity, parent, key);
   if (!(schemaKey in entities)) {
     entities[schemaKey] = {};
   }
@@ -84,21 +94,23 @@ Entity: ${JSON.stringify(entity, undefined, 2)}`);
   }
 };
 
-export const schema = {
-  Array: ArraySchema,
-  Entity: EntitySchema,
-  Object: ObjectSchema,
-  Union: UnionSchema,
-  Values: ValuesSchema,
-};
-
-function expectedSchemaType(schema) {
+function expectedSchemaType(schema: Schema) {
   return ['object', 'function'].includes(typeof schema)
     ? 'object'
     : typeof schema;
 }
 
-export const normalize = (input, schema) => {
+export const normalize = <
+  S extends Schema = Schema,
+  E extends Record<string, Record<string, any>> = Record<
+    string,
+    Record<string, any>
+  >,
+  R = NormalizeNullable<S>
+>(
+  input: any,
+  schema: S,
+): NormalizedSchema<E, R> => {
   const schemaType = expectedSchemaType(schema);
   if (input === null || typeof input !== schemaType) {
     throw new Error(
@@ -108,8 +120,8 @@ export const normalize = (input, schema) => {
     );
   }
 
-  const entities = {};
-  const indexes = {};
+  const entities: E = {} as any;
+  const indexes: NormalizedIndex = {};
   const addEntity = addEntities(entities, indexes);
   const visitedEntities = {};
 

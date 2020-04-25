@@ -1,53 +1,72 @@
-import { normalize, schema } from '../src'
+import { normalize, schema, SimpleRecord, AbstractInstanceType } from '../src';
+import IDEntity from '../src/entities/IDEntity';
 
-const userProcessStrategy = (value: any, parent: any, key: string) => {
-  switch (key) {
-    case 'author':
-      return { ...value, posts: [parent.id] };
-    case 'commenter':
-      return { ...value, comments: [parent.id] };
-    default:
-      return { ...value };
-  }
-};
+class User extends IDEntity {
+  readonly posts: string[] = [];
+  readonly comments: string[] = [];
 
-const userMergeStrategy = (entityA: any, entityB: any) => {
-  return {
-    ...entityA,
-    ...entityB,
-    posts: [...(entityA.posts || []), ...(entityB.posts || [])],
-    comments: [...(entityA.comments || []), ...(entityB.comments || [])]
-  };
-};
-
-const user = new schema.Entity(
-  'users',
-  {},
-  {
-    mergeStrategy: userMergeStrategy,
-    processStrategy: userProcessStrategy
-  }
-);
-
-const comment = new schema.Entity(
-  'comments',
-  {
-    commenter: user
-  },
-  {
-    processStrategy: (value: any, parent: any, key: string) => {
-      return { ...value, post: parent.id };
+  static fromJS<T extends typeof SimpleRecord>(
+    this: T,
+    props: Partial<AbstractInstanceType<T>> = {},
+    parent?: any,
+    key?: string,
+  ): AbstractInstanceType<T> {
+    switch (key) {
+      case 'author':
+        return super.fromJS({
+          ...(props as Partial<User>),
+          posts: [parent.id],
+        } as any) as any;
+      case 'commenter':
+        return super.fromJS({
+          ...(props as Partial<User>),
+          comments: [parent.id],
+        } as any) as any;
+      default:
+        return super.fromJS(props) as any;
     }
   }
-);
 
-const post = new schema.Entity('posts', {
-  author: user,
-  comments: [comment]
-});
+  static merge<T extends typeof SimpleRecord>(
+    this: T,
+    first: any,
+    second: any,
+  ) {
+    // Apply everything from entityB over entityA, except for "favorites"
+    const props = Object.assign(
+      this.toObjectDefined(first),
+      this.toObjectDefined(second),
+      {
+        posts: [...(first.posts || []), ...(second.posts || [])],
+        comments: [...(first.comments || []), ...(second.comments || [])],
+      },
+    );
+    return this.fromJS(props);
+  }
+}
+
+class Comment extends IDEntity {
+  static schema = { commenter: User.asSchema() };
+
+  static fromJS<T extends typeof SimpleRecord>(
+    this: T,
+    props: Partial<AbstractInstanceType<T>> = {},
+    parent?: any,
+    key?: string,
+  ): AbstractInstanceType<T> {
+    return super.fromJS({ ...props, post: parent.id }) as any;
+  }
+}
+
+class Post extends IDEntity {
+  static schema = {
+    author: User.asSchema(),
+    comments: [Comment.asSchema()],
+  };
+}
 
 const data = {
   /* ...*/
 };
-const normalizedData = normalize(data, post);
+const normalizedData = normalize(data, Post);
 console.log(normalizedData);

@@ -1,9 +1,10 @@
-import nock from 'nock';
 import {
   CoolerArticleResource,
   UserResource,
   UrlArticleResource,
 } from '__tests__/common';
+
+import nock from 'nock';
 
 import { normalize } from '../normal';
 import Resource from '../Resource';
@@ -191,16 +192,6 @@ describe('Resource', () => {
         'http://test.com/article-cooler/?a=sometimes&c=again&m=never&y=beta&z=alpha',
       );
     });
-  });
-
-  it('should not include __ownerID when converting to JS', () => {
-    const json = { ...CoolerArticleResource.fromJS({}) };
-    expect(json).not.toHaveProperty('__ownerID');
-  });
-
-  it('should have __ownerID property on lookup', () => {
-    const r = CoolerArticleResource.fromJS({});
-    expect(Object.prototype.hasOwnProperty.call(r, '__ownerID')).toBe(true);
   });
 
   describe('static url', () => {

@@ -1,4 +1,5 @@
 import { NormalizedIndex } from '@rest-hooks/normalizr';
+import type { AbstractInstanceType } from '@rest-hooks/normalizr';
 import { Middleware } from '@rest-hooks/use-enhanced-reducer';
 
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
@@ -16,18 +17,14 @@ import {
   INVALIDATE_TYPE,
 } from './actionTypes';
 
+export type { AbstractInstanceType };
+
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
 
 export type ReceiveTypes =
   | typeof RECEIVE_TYPE
   | typeof RECEIVE_MUTATE_TYPE
   | typeof RECEIVE_DELETE_TYPE;
-
-export type AbstractInstanceType<T> = T extends { prototype: infer U }
-  ? U
-  : never;
-
-export type EntityInstance<T> = Readonly<AbstractInstanceType<T>>;
 
 export type PK = string;
 

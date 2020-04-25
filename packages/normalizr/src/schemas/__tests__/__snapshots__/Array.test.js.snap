@@ -37,7 +37,7 @@ Array [
   Array [
     Object {
       "id": "123",
-      "type": "cats",
+      "type": "Cat",
     },
     Object {
       "id": "123",
@@ -48,7 +48,7 @@ Array [
     },
     Object {
       "id": "456",
-      "type": "cats",
+      "type": "Cat",
     },
   ],
   true,
@@ -60,7 +60,7 @@ Array [
   Array [
     Immutable.Map {
       "id": "123",
-      "type": "cats",
+      "type": "Cat",
     },
     Immutable.Map {
       "id": "123",
@@ -71,7 +71,7 @@ Array [
     },
     Immutable.Map {
       "id": "456",
-      "type": "cats",
+      "type": "Cat",
     },
   ],
   true,
@@ -341,11 +341,11 @@ Array [
 exports[`ArraySchema denormalization Class does not assume mapping of schema to attribute values when schemaAttribute is not set 1`] = `
 Object {
   "entities": Object {
-    "cats": Object {
-      "1": Object {
+    "Cat": Object {
+      "1": Cat {
         "id": 1,
       },
-      "2": Object {
+      "2": Cat {
         "id": 2,
       },
     },
@@ -353,11 +353,11 @@ Object {
   "indexes": Object {},
   "result": Array [
     Object {
-      "cat": 1,
+      "cat": "1",
       "id": 5,
     },
     Object {
-      "cat": 2,
+      "cat": "2",
       "id": 6,
     },
   ],
@@ -701,15 +701,15 @@ Array [
 exports[`ArraySchema normalization Class filters out undefined and null normalized values 1`] = `
 Object {
   "entities": Object {
-    "user": Object {
-      "123": Object {
+    "User": Object {
+      "123": User {
         "id": 123,
       },
     },
   },
   "indexes": Object {},
   "result": Array [
-    123,
+    "123",
   ],
 }
 `;
@@ -717,19 +717,19 @@ Object {
 exports[`ArraySchema normalization Class normalizes Objects using their values 1`] = `
 Object {
   "entities": Object {
-    "user": Object {
-      "1": Object {
+    "User": Object {
+      "1": User {
         "id": 1,
       },
-      "2": Object {
+      "2": User {
         "id": 2,
       },
     },
   },
   "indexes": Object {},
   "result": Array [
-    1,
-    2,
+    "1",
+    "2",
   ],
 }
 `;
@@ -737,19 +737,19 @@ Object {
 exports[`ArraySchema normalization Class normalizes a single entity 1`] = `
 Object {
   "entities": Object {
-    "cats": Object {
-      "1": Object {
+    "Cats": Object {
+      "1": Cats {
         "id": 1,
       },
-      "2": Object {
+      "2": Cats {
         "id": 2,
       },
     },
   },
   "indexes": Object {},
   "result": Array [
-    1,
-    2,
+    "1",
+    "2",
   ],
 }
 `;
@@ -757,18 +757,18 @@ Object {
 exports[`ArraySchema normalization Class normalizes multiple entities 1`] = `
 Object {
   "entities": Object {
-    "cats": Object {
-      "123": Object {
+    "Cats": Object {
+      "123": Cats {
         "id": "123",
-        "type": "cats",
+        "type": "Cat",
       },
-      "456": Object {
+      "456": Cats {
         "id": "456",
-        "type": "cats",
+        "type": "Cat",
       },
     },
-    "person": Object {
-      "123": Object {
+    "Person": Object {
+      "123": Person {
         "id": "123",
         "type": "people",
       },
@@ -778,7 +778,7 @@ Object {
   "result": Array [
     Object {
       "id": "123",
-      "schema": "cats",
+      "schema": "Cat",
     },
     Object {
       "id": "123",
@@ -790,7 +790,7 @@ Object {
     },
     Object {
       "id": "456",
-      "schema": "cats",
+      "schema": "Cat",
     },
   ],
 }
@@ -801,12 +801,12 @@ Array [
   Array [
     Object {
       "id": "123",
-      "type": "cats",
+      "type": "Cat",
     },
     Array [
       Object {
         "id": "123",
-        "type": "cats",
+        "type": "Cat",
       },
       Object {
         "id": "123",
@@ -818,7 +818,7 @@ Array [
       },
       Object {
         "id": "456",
-        "type": "cats",
+        "type": "Cat",
       },
     ],
     undefined,
@@ -826,12 +826,12 @@ Array [
   Array [
     Object {
       "id": "123",
-      "type": "cats",
+      "type": "Cat",
     },
     Array [
       Object {
         "id": "123",
-        "type": "cats",
+        "type": "Cat",
       },
       Object {
         "id": "123",
@@ -843,32 +843,7 @@ Array [
       },
       Object {
         "id": "456",
-        "type": "cats",
-      },
-    ],
-    undefined,
-  ],
-  Array [
-    Object {
-      "id": "123",
-      "type": "people",
-    },
-    Array [
-      Object {
-        "id": "123",
-        "type": "cats",
-      },
-      Object {
-        "id": "123",
-        "type": "people",
-      },
-      Object {
-        "id": "789",
-        "name": "fido",
-      },
-      Object {
-        "id": "456",
-        "type": "cats",
+        "type": "Cat",
       },
     ],
     undefined,
@@ -881,7 +856,7 @@ Array [
     Array [
       Object {
         "id": "123",
-        "type": "cats",
+        "type": "Cat",
       },
       Object {
         "id": "123",
@@ -893,7 +868,32 @@ Array [
       },
       Object {
         "id": "456",
-        "type": "cats",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  Array [
+    Object {
+      "id": "123",
+      "type": "people",
+    },
+    Array [
+      Object {
+        "id": "123",
+        "type": "Cat",
+      },
+      Object {
+        "id": "123",
+        "type": "people",
+      },
+      Object {
+        "id": "789",
+        "name": "fido",
+      },
+      Object {
+        "id": "456",
+        "type": "Cat",
       },
     ],
     undefined,
@@ -906,7 +906,7 @@ Array [
     Array [
       Object {
         "id": "123",
-        "type": "cats",
+        "type": "Cat",
       },
       Object {
         "id": "123",
@@ -918,7 +918,7 @@ Array [
       },
       Object {
         "id": "456",
-        "type": "cats",
+        "type": "Cat",
       },
     ],
     undefined,
@@ -926,12 +926,12 @@ Array [
   Array [
     Object {
       "id": "456",
-      "type": "cats",
+      "type": "Cat",
     },
     Array [
       Object {
         "id": "123",
-        "type": "cats",
+        "type": "Cat",
       },
       Object {
         "id": "123",
@@ -943,7 +943,7 @@ Array [
       },
       Object {
         "id": "456",
-        "type": "cats",
+        "type": "Cat",
       },
     ],
     undefined,
@@ -951,12 +951,12 @@ Array [
   Array [
     Object {
       "id": "456",
-      "type": "cats",
+      "type": "Cat",
     },
     Array [
       Object {
         "id": "123",
-        "type": "cats",
+        "type": "Cat",
       },
       Object {
         "id": "123",
@@ -968,7 +968,7 @@ Array [
       },
       Object {
         "id": "456",
-        "type": "cats",
+        "type": "Cat",
       },
     ],
     undefined,
@@ -979,19 +979,19 @@ Array [
 exports[`ArraySchema normalization Object normalizes Objects using their values 1`] = `
 Object {
   "entities": Object {
-    "user": Object {
-      "1": Object {
+    "User": Object {
+      "1": User {
         "id": 1,
       },
-      "2": Object {
+      "2": User {
         "id": 2,
       },
     },
   },
   "indexes": Object {},
   "result": Array [
-    1,
-    2,
+    "1",
+    "2",
   ],
 }
 `;
@@ -999,19 +999,19 @@ Object {
 exports[`ArraySchema normalization Object normalizes plain arrays as shorthand for ArraySchema 1`] = `
 Object {
   "entities": Object {
-    "user": Object {
-      "1": Object {
+    "User": Object {
+      "1": User {
         "id": 1,
       },
-      "2": Object {
+      "2": User {
         "id": 2,
       },
     },
   },
   "indexes": Object {},
   "result": Array [
-    1,
-    2,
+    "1",
+    "2",
   ],
 }
 `;
@@ -1019,18 +1019,18 @@ Object {
 exports[`ArraySchema normalization Object passes its parent to its children when normalizing 1`] = `
 Object {
   "entities": Object {
-    "children": Object {
-      "4": Object {
+    "Child": Object {
+      "4": Child {
         "content": "child",
         "id": 4,
         "parentId": 1,
         "parentKey": "children",
       },
     },
-    "parents": Object {
-      "1": Object {
+    "Parent": Object {
+      "1": Parent {
         "children": Array [
-          4,
+          "4",
         ],
         "content": "parent",
         "id": 1,
@@ -1038,6 +1038,6 @@ Object {
     },
   },
   "indexes": Object {},
-  "result": 1,
+  "result": "1",
 }
 `;
