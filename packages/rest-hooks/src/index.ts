@@ -44,6 +44,8 @@ const __INTERNAL__ = {
 
 export type NetworkError = OGNetworkError;
 
+export { default as createFetch } from './state/actions/createFetch';
+export * as actionTypes from './actionTypes';
 export * from '@rest-hooks/use-enhanced-reducer';
 export * from './types';
 export * from './resource/shapes';

@@ -4,6 +4,7 @@ exports[`useResource() should dispatch an action that fetches 1`] = `
 Object {
   "meta": Object {
     "options": undefined,
+    "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rest-hooks/receive",
@@ -20,6 +21,7 @@ exports[`useResource() should dispatch fetch when sent multiple arguments 1`] = 
 Object {
   "meta": Object {
     "options": undefined,
+    "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rest-hooks/receive",
@@ -36,6 +38,7 @@ exports[`useResource() should dispatch fetch when sent multiple arguments 2`] = 
 Object {
   "meta": Object {
     "options": undefined,
+    "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
     "responseType": "rest-hooks/receive",

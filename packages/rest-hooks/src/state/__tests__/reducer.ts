@@ -22,6 +22,7 @@ import {
   FETCH_TYPE,
   RESET_TYPE,
 } from '../../actionTypes';
+import createFetch from '../actions/createFetch';
 
 describe('reducer', () => {
   describe('singles', () => {
@@ -431,6 +432,7 @@ describe('reducer', () => {
         throttle: true,
         reject: (v: any) => null,
         resolve: (v: any) => null,
+        promise: new Promise((v: any) => null),
       },
     };
     const iniState = {
