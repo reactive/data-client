@@ -60,8 +60,7 @@
     "url": "https://github.com/coinbase/rest-hooks/issues"
   },
   "devDependencies": {
-    "@rest-hooks/test": "^1.0.17",
-    "coveralls": "^3.0.11"
+    "@rest-hooks/test": "^1.0.17"
   },
   "dependencies": {
     "@babel/runtime": "^7.7.2",
