@@ -3,6 +3,7 @@
 exports[`useFetcher should dispatch an action that fetches a create 1`] = `
 Object {
   "meta": Object {
+    "key": "POST http://test.com/article-cooler/",
     "options": undefined,
     "promise": Promise {},
     "reject": [Function],
@@ -10,7 +11,6 @@ Object {
     "responseType": "rest-hooks/rpc",
     "schema": [Function],
     "throttle": false,
-    "url": "POST http://test.com/article-cooler/",
   },
   "payload": [Function],
   "type": "rest-hooks/fetch",
@@ -20,6 +20,7 @@ Object {
 exports[`useFetcher should dispatch an action that fetches a full update 1`] = `
 Object {
   "meta": Object {
+    "key": "PUT http://test.com/article-cooler/1",
     "options": undefined,
     "promise": Promise {},
     "reject": [Function],
@@ -27,7 +28,6 @@ Object {
     "responseType": "rest-hooks/rpc",
     "schema": [Function],
     "throttle": false,
-    "url": "PUT http://test.com/article-cooler/1",
   },
   "payload": [Function],
   "type": "rest-hooks/fetch",
@@ -37,6 +37,7 @@ Object {
 exports[`useFetcher should dispatch an action that fetches a partial update 1`] = `
 Object {
   "meta": Object {
+    "key": "PATCH http://test.com/article-cooler/1",
     "optimisticResponse": Object {
       "content": "changed",
       "id": 1,
@@ -50,7 +51,6 @@ Object {
     "responseType": "rest-hooks/rpc",
     "schema": [Function],
     "throttle": false,
-    "url": "PATCH http://test.com/article-cooler/1",
   },
   "payload": [Function],
   "type": "rest-hooks/fetch",
@@ -60,6 +60,7 @@ Object {
 exports[`useFetcher should dispatch an action with multiple updaters in the meta if update shapes params are passed in 1`] = `
 Object {
   "meta": Object {
+    "key": "POST http://test.com/article/",
     "optimisticResponse": Object {
       "content": "hi",
     },
@@ -76,7 +77,6 @@ Object {
       "GET http://test.com/article/": [Function],
       "http://test.com/article/some-list-url": [Function],
     },
-    "url": "POST http://test.com/article/",
   },
   "payload": [Function],
   "type": "rest-hooks/fetch",
@@ -86,6 +86,7 @@ Object {
 exports[`useFetcher should dispatch an action with updater in the meta if update shapes params are passed in 1`] = `
 Object {
   "meta": Object {
+    "key": "POST http://test.com/article-cooler/",
     "options": undefined,
     "promise": Promise {},
     "reject": [Function],
@@ -96,7 +97,6 @@ Object {
     "updaters": Object {
       "GET http://test.com/article-cooler/": [Function],
     },
-    "url": "POST http://test.com/article-cooler/",
   },
   "payload": [Function],
   "type": "rest-hooks/fetch",
@@ -106,6 +106,7 @@ Object {
 exports[`useRetrieve should dispatch singles 1`] = `
 Object {
   "meta": Object {
+    "key": "GET http://test.com/article-cooler/5",
     "options": undefined,
     "promise": Promise {},
     "reject": [Function],
@@ -113,7 +114,6 @@ Object {
     "responseType": "rest-hooks/receive",
     "schema": [Function],
     "throttle": true,
-    "url": "GET http://test.com/article-cooler/5",
   },
   "payload": [Function],
   "type": "rest-hooks/fetch",
@@ -123,6 +123,7 @@ Object {
 exports[`useRetrieve should dispatch with fetch shape defined dataExpiryLength 1`] = `
 Object {
   "meta": Object {
+    "key": "GET http://test.com/article-static/5",
     "options": Object {
       "dataExpiryLength": 3600000,
     },
@@ -132,7 +133,6 @@ Object {
     "responseType": "rest-hooks/receive",
     "schema": [Function],
     "throttle": true,
-    "url": "GET http://test.com/article-static/5",
   },
   "payload": [Function],
   "type": "rest-hooks/fetch",
@@ -142,6 +142,7 @@ Object {
 exports[`useRetrieve should dispatch with fetch shape defined errorExpiryLength 1`] = `
 Object {
   "meta": Object {
+    "key": "GET http://test.com/article-static/5",
     "options": Object {
       "dataExpiryLength": Infinity,
       "errorExpiryLength": Infinity,
@@ -152,7 +153,6 @@ Object {
     "responseType": "rest-hooks/receive",
     "schema": [Function],
     "throttle": true,
-    "url": "GET http://test.com/article-static/5",
   },
   "payload": [Function],
   "type": "rest-hooks/fetch",
@@ -162,6 +162,7 @@ Object {
 exports[`useRetrieve should dispatch with resource defined dataExpiryLength 1`] = `
 Object {
   "meta": Object {
+    "key": "GET http://test.com/article-static/5",
     "options": Object {
       "dataExpiryLength": Infinity,
     },
@@ -171,7 +172,6 @@ Object {
     "responseType": "rest-hooks/receive",
     "schema": [Function],
     "throttle": true,
-    "url": "GET http://test.com/article-static/5",
   },
   "payload": [Function],
   "type": "rest-hooks/fetch",

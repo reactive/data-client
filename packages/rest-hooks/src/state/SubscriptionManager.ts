@@ -13,7 +13,7 @@ type Actions = UnsubscribeAction | SubscribeAction;
 export interface SubscriptionInit {
   schema: Schema;
   fetch: () => Promise<any>;
-  url: string;
+  key: string;
   frequency?: number;
 }
 
@@ -37,7 +37,7 @@ export interface SubscriptionConstructable {
 export default class SubscriptionManager<S extends SubscriptionConstructable>
   implements Manager {
   protected subscriptions: {
-    [url: string]: InstanceType<S>;
+    [key: string]: InstanceType<S>;
   } = {};
 
   protected declare readonly Subscription: S;
@@ -66,8 +66,8 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
 
   /** Ensures all subscriptions are cleaned up. */
   cleanup() {
-    for (const url in this.subscriptions) {
-      this.subscriptions[url].cleanup();
+    for (const key in this.subscriptions) {
+      this.subscriptions[key].cleanup();
     }
   }
 
@@ -75,18 +75,18 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
    *
    */
   protected handleSubscribe(action: SubscribeAction, dispatch: Dispatch<any>) {
-    const url = action.meta.url;
+    const key = action.meta.key;
     const frequency = action.meta.options?.pollFrequency;
 
-    if (url in this.subscriptions) {
-      this.subscriptions[url].add(frequency);
+    if (key in this.subscriptions) {
+      this.subscriptions[key].add(frequency);
     } else {
-      this.subscriptions[url] = new this.Subscription(
+      this.subscriptions[key] = new this.Subscription(
         {
           schema: action.meta.schema,
           fetch: action.meta.fetch,
           frequency,
-          url,
+          key,
         },
         dispatch,
       ) as InstanceType<S>;
@@ -100,17 +100,17 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
     action: UnsubscribeAction,
     dispatch: Dispatch<any>,
   ) {
-    const url = action.meta.url;
+    const key = action.meta.key;
     const frequency = action.meta.options?.pollFrequency;
 
     /* istanbul ignore else */
-    if (url in this.subscriptions) {
-      const empty = this.subscriptions[url].remove(frequency);
+    if (key in this.subscriptions) {
+      const empty = this.subscriptions[key].remove(frequency);
       if (empty) {
-        delete this.subscriptions[url];
+        delete this.subscriptions[key];
       }
     } else if (process.env.NODE_ENV !== 'production') {
-      console.error(`Mismatched unsubscribe: ${url} is not subscribed`);
+      console.error(`Mismatched unsubscribe: ${key} is not subscribed`);
     }
   }
 

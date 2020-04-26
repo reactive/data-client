@@ -16,11 +16,14 @@ export default function createReceive<
   data: Payload,
   {
     schema,
-    url,
+    key,
     responseType,
     updaters,
     options = {},
-  }: FetchAction<Payload, S>['meta'],
+  }: Pick<
+    FetchAction<Payload, S>['meta'],
+    'schema' | 'key' | 'responseType' | 'updaters' | 'options'
+  >,
   { dataExpiryLength }: { dataExpiryLength: number },
 ): ReceiveAction<Payload, S> | RPCAction<Payload, S> | PurgeAction {
   const expiryLength = options.dataExpiryLength ?? dataExpiryLength;
@@ -34,7 +37,7 @@ export default function createReceive<
     | RPCAction['meta']
     | PurgeAction['meta'] = {
     schema,
-    url,
+    key,
     date: now,
     expiresAt: now + expiryLength,
   };

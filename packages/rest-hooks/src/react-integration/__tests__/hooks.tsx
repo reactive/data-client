@@ -243,7 +243,7 @@ describe('useInvalidate', () => {
     expect(dispatch).toHaveBeenCalledWith({
       type: INVALIDATE_TYPE,
       meta: {
-        url: 'GET http://test.com/article-paginated/',
+        key: 'GET http://test.com/article-paginated/',
       },
     });
   });

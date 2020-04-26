@@ -22,14 +22,14 @@ export default function useSubscription<
   useEffect(() => {
     if (!params) return;
     const { fetch, schema, getFetchKey, options } = shapeRef.current;
-    const url = getFetchKey(params);
+    const key = getFetchKey(params);
 
     dispatch({
       type: SUBSCRIBE_TYPE,
       meta: {
         schema,
         fetch: () => fetch(params),
-        url,
+        key,
         options,
       },
     });
@@ -37,7 +37,7 @@ export default function useSubscription<
       dispatch({
         type: UNSUBSCRIBE_TYPE,
         meta: {
-          url,
+          key,
           options,
         },
       });

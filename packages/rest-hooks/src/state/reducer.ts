@@ -58,7 +58,7 @@ export default function reducer(
           ...state,
           meta: {
             ...state.meta,
-            [action.meta.url]: {
+            [action.meta.key]: {
               date: action.meta.date,
               error: action.payload,
               expiresAt: action.meta.expiresAt,
@@ -73,7 +73,7 @@ export default function reducer(
       );
       let results = {
         ...state.results,
-        [action.meta.url]: result,
+        [action.meta.key]: result,
       };
       results = applyUpdatersToResults(results, result, action.meta.updaters);
       return {
@@ -82,7 +82,7 @@ export default function reducer(
         results,
         meta: {
           ...state.meta,
-          [action.meta.url]: {
+          [action.meta.key]: {
             date: action.meta.date,
             expiresAt: action.meta.expiresAt,
           },
@@ -114,7 +114,7 @@ export default function reducer(
       if (action.error)
         return { ...state, optimistic: filterOptimistic(state, action) };
       const key = action.meta.schema.key;
-      const pk = action.meta.url;
+      const pk = action.meta.key;
       const entities = purgeEntity(state.entities, key, pk);
       return {
         ...state,
@@ -127,8 +127,8 @@ export default function reducer(
         ...state,
         meta: {
           ...state.meta,
-          [action.meta.url]: {
-            ...state.meta[action.meta.url],
+          [action.meta.key]: {
+            ...state.meta[action.meta.key],
             expiresAt: 0,
           },
         },
@@ -152,7 +152,7 @@ function filterOptimistic(
 ) {
   return state.optimistic.filter(
     optimisticAction =>
-      optimisticAction.meta.url !== resolvingAction.meta.url ||
+      optimisticAction.meta.key !== resolvingAction.meta.key ||
       optimisticAction.meta.date > resolvingAction.meta.date,
   );
 }

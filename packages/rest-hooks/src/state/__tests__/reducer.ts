@@ -33,7 +33,7 @@ describe('reducer', () => {
       payload,
       meta: {
         schema: ArticleResource.getEntitySchema(),
-        url: ArticleResource.url({ id }),
+        key: ArticleResource.url({ id }),
         date: 5000000000,
         expiresAt: 5000500000,
       },
@@ -86,7 +86,7 @@ describe('reducer', () => {
       payload,
       meta: {
         schema: ArticleResource.getEntitySchema(),
-        url: ArticleResource.listUrl(payload),
+        key: ArticleResource.listUrl(payload),
         date: 0,
       },
     };
@@ -103,7 +103,7 @@ describe('reducer', () => {
       type: RECEIVE_DELETE_TYPE,
       meta: {
         schema: ArticleResource.getEntitySchema(),
-        url: id.toString(),
+        key: id.toString(),
         date: 0,
       },
     };
@@ -149,7 +149,7 @@ describe('reducer', () => {
           payload,
           meta: {
             schema: PaginatedArticleResource.listShape().schema,
-            url: PaginatedArticleResource.listShape().getFetchKey({
+            key: PaginatedArticleResource.listShape().getFetchKey({
               cursor: 2,
             }),
             updaters,
@@ -236,7 +236,7 @@ describe('reducer', () => {
           payload,
           meta: {
             schema: ArticleResource.getEntitySchema(),
-            url: ArticleResource.createShape().getFetchKey({}),
+            key: ArticleResource.createShape().getFetchKey({}),
             updaters,
             date: 0,
           },
@@ -325,7 +325,7 @@ describe('reducer', () => {
     const action: InvalidateAction = {
       type: INVALIDATE_TYPE,
       meta: {
-        url: id.toString(),
+        key: id.toString(),
       },
     };
     const iniState: any = {
@@ -366,7 +366,7 @@ describe('reducer', () => {
       payload: error,
       meta: {
         schema: ArticleResource.getEntitySchema(),
-        url: ArticleResource.url({ id }),
+        key: ArticleResource.url({ id }),
         date: 5000000000,
         expiresAt: 5000500000,
       },
@@ -384,7 +384,7 @@ describe('reducer', () => {
       payload: error,
       meta: {
         schema: ArticleResource.getEntitySchema(),
-        url: ArticleResource.url({ id }),
+        key: ArticleResource.url({ id }),
         date: 0,
       },
       error: true,
@@ -401,7 +401,7 @@ describe('reducer', () => {
       payload: error,
       meta: {
         schema: ArticleResource.getEntitySchema(),
-        url: ArticleResource.url({ id }),
+        key: ArticleResource.url({ id }),
         date: 0,
       },
       error: true,
@@ -427,7 +427,7 @@ describe('reducer', () => {
       payload: () => new Promise<any>(() => null),
       meta: {
         schema: ArticleResource.getEntitySchema(),
-        url: ArticleResource.url({ id: 5 }),
+        key: ArticleResource.url({ id: 5 }),
         responseType: RECEIVE_MUTATE_TYPE,
         throttle: true,
         reject: (v: any) => null,

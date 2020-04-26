@@ -1,6 +1,7 @@
 import { Schema } from 'rest-hooks/resource';
 import { Dispatch } from '@rest-hooks/use-enhanced-reducer';
 import { FETCH_TYPE, RECEIVE_TYPE } from 'rest-hooks/actionTypes';
+import { createFetch } from 'rest-hooks/state/actions';
 
 import { Subscription, SubscriptionInit } from './SubscriptionManager';
 import DefaultConnectionListener from './DefaultConnectionListener';
@@ -14,7 +15,7 @@ import { ConnectionListener } from './ConnectionListener';
 export default class PollingSubscription implements Subscription {
   protected declare readonly schema: Schema;
   protected declare readonly fetch: () => Promise<any>;
-  protected declare readonly url: string;
+  protected declare readonly key: string;
   protected declare frequency: number;
   protected frequencyHistogram: Map<number, number> = new Map();
   protected declare dispatch: Dispatch<any>;
@@ -23,7 +24,7 @@ export default class PollingSubscription implements Subscription {
   private declare connectionListener: ConnectionListener;
 
   constructor(
-    { url, schema, fetch, frequency }: SubscriptionInit,
+    { key, schema, fetch, frequency }: SubscriptionInit,
     dispatch: Dispatch<any>,
     connectionListener?: ConnectionListener,
   ) {
@@ -32,7 +33,7 @@ export default class PollingSubscription implements Subscription {
     this.schema = schema;
     this.fetch = fetch;
     this.frequency = frequency;
-    this.url = url;
+    this.key = key;
     this.frequencyHistogram.set(this.frequency, 1);
     this.dispatch = dispatch;
     this.connectionListener =
@@ -92,7 +93,7 @@ export default class PollingSubscription implements Subscription {
       process.env.NODE_ENV !== 'production'
     ) {
       console.error(
-        `Mismatched remove: ${frequency} is not subscribed for ${this.url}`,
+        `Mismatched remove: ${frequency} is not subscribed for ${this.key}`,
       );
     }
     return false;
@@ -119,7 +120,7 @@ export default class PollingSubscription implements Subscription {
       payload: this.fetch,
       meta: {
         schema: this.schema,
-        url: this.url,
+        key: this.key,
         responseType: RECEIVE_TYPE,
         throttle: true,
         options: {

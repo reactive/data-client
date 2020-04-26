@@ -65,7 +65,7 @@ describe('<CacheProvider />', () => {
       payload: { id: 5, title: 'hi', content: 'more things here' },
       meta: {
         schema: CoolerArticleResource.getEntitySchema(),
-        url: CoolerArticleResource.url({ id: 5 }),
+        key: CoolerArticleResource.url({ id: 5 }),
         mutate: false,
         date: 50,
         expiresAt: 55,

@@ -18,7 +18,7 @@ export default function useInvalidator<
       dispatch({
         type: INVALIDATE_TYPE,
         meta: {
-          url: getFetchKeyRef.current(params),
+          key: getFetchKeyRef.current(params),
         },
       });
     },

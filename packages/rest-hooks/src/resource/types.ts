@@ -1,6 +1,3 @@
-import { Entity } from '@rest-hooks/normalizr';
-
-import { Schema } from './normal';
 import { FetchShape, DeleteShape } from './shapes';
 
 export type SchemaFromShape<

@@ -63,12 +63,12 @@ export default function useDenormalized<
       const paramEncoding = serializedParams || '';
       if (Array.isArray(results)) {
         throw new Error(
-          `url ${paramEncoding} has list results when single result is expected`,
+          `fetch key ${paramEncoding} has list results when single result is expected`,
         );
       }
       if (typeof results === 'object') {
         throw new Error(
-          `url ${paramEncoding} has object results when single result is expected`,
+          `fetch key ${paramEncoding} has object results when single result is expected`,
         );
       }
     }
