@@ -59,7 +59,7 @@ export default class NetworkManager implements Manager {
           case RECEIVE_TYPE:
             // only receive after new state is computed
             return next(action).then(() => {
-              if (action.meta.url in this.fetched) {
+              if (action.meta.key in this.fetched) {
                 this.handleReceive(action);
               }
             });
@@ -80,16 +80,16 @@ export default class NetworkManager implements Manager {
     }
   }
 
-  /** Clear promise state for a given url */
-  protected clear(url: string) {
-    delete this.resolvers[url];
-    delete this.rejectors[url];
-    delete this.fetched[url];
+  /** Clear promise state for a given key */
+  protected clear(key: string) {
+    delete this.resolvers[key];
+    delete this.rejectors[key];
+    delete this.fetched[key];
   }
 
   /** Called when middleware intercepts 'rest-hooks/fetch' action.
    *
-   * Will then start a promise for a url and potentially start the network
+   * Will then start a promise for a key and potentially start the network
    * fetch.
    *
    * Uses throttle only when instructed by action meta. This is valuable
@@ -97,7 +97,7 @@ export default class NetworkManager implements Manager {
    */
   protected handleFetch(action: FetchAction, dispatch: Dispatch<any>) {
     const fetch = action.payload;
-    const { url, throttle, resolve, reject } = action.meta;
+    const { key, throttle, resolve, reject } = action.meta;
     const deferedFetch = () =>
       fetch()
         .then(data => {
@@ -112,7 +112,7 @@ export default class NetworkManager implements Manager {
         });
     let promise;
     if (throttle) {
-      promise = this.throttle(url, deferedFetch);
+      promise = this.throttle(key, deferedFetch);
     } else {
       promise = deferedFetch();
     }
@@ -122,20 +122,20 @@ export default class NetworkManager implements Manager {
 
   /** Called when middleware intercepts a receive action.
    *
-   * Will resolve the promise associated with receive url.
+   * Will resolve the promise associated with receive key.
    */
   protected handleReceive(action: ReceiveAction) {
     // this can still turn out to be untrue since this is async
-    if (action.meta.url in this.fetched) {
+    if (action.meta.key in this.fetched) {
       let promiseHandler: (value?: any) => void;
       if (action.error) {
-        promiseHandler = this.rejectors[action.meta.url];
+        promiseHandler = this.rejectors[action.meta.key];
       } else {
-        promiseHandler = this.resolvers[action.meta.url];
+        promiseHandler = this.resolvers[action.meta.key];
       }
       promiseHandler(action.payload);
       // since we're resolved we no longer need to keep track of this promise
-      this.clear(action.meta.url);
+      this.clear(action.meta.key);
     }
   }
 
@@ -150,9 +150,9 @@ export default class NetworkManager implements Manager {
     return this.middleware;
   }
 
-  /** Ensures only one request for a given url is in flight at any time
+  /** Ensures only one request for a given key is in flight at any time
    *
-   * Uses url as key to either retrieve in-flight promise, or if not
+   * Uses key to either retrieve in-flight promise, or if not
    * create a new promise and call fetch.
    *
    * Note: The new promise is not actually tied to fetch at all,
@@ -160,15 +160,15 @@ export default class NetworkManager implements Manager {
    * This ensures promises are resolved only once their data is processed
    * by the reducer.
    */
-  protected throttle(url: string, fetch: () => Promise<any>) {
+  protected throttle(key: string, fetch: () => Promise<any>) {
     // we're already fetching so reuse the promise
-    if (url in this.fetched) {
-      return this.fetched[url];
+    if (key in this.fetched) {
+      return this.fetched[key];
     }
 
-    this.fetched[url] = new Promise((resolve, reject) => {
-      this.resolvers[url] = resolve;
-      this.rejectors[url] = reject;
+    this.fetched[key] = new Promise((resolve, reject) => {
+      this.resolvers[key] = resolve;
+      this.rejectors[key] = reject;
     });
 
     // since our real promise is resolved via the wrapReducer(),
@@ -181,6 +181,6 @@ export default class NetworkManager implements Manager {
       { timeout: 500 },
     );
 
-    return this.fetched[url];
+    return this.fetched[key];
   }
 }

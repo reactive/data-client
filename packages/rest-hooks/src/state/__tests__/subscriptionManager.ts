@@ -58,7 +58,7 @@ describe('SubscriptionManager', () => {
         type: SUBSCRIBE_TYPE,
         meta: {
           schema: PollingArticleResource.getEntitySchema(),
-          url: PollingArticleResource.url(payload),
+          key: PollingArticleResource.url(payload),
           fetch,
           options: { pollFrequency: 1000 },
         },
@@ -68,7 +68,7 @@ describe('SubscriptionManager', () => {
       return {
         type: UNSUBSCRIBE_TYPE,
         meta: {
-          url: PollingArticleResource.url(payload),
+          key: PollingArticleResource.url(payload),
           options: { pollFrequency: 1000 },
         },
       };
@@ -84,27 +84,27 @@ describe('SubscriptionManager', () => {
       middleware({ dispatch, getState })(next)(action);
 
       expect(next).not.toHaveBeenCalled();
-      expect((manager as any).subscriptions[action.meta.url]).toBeDefined();
+      expect((manager as any).subscriptions[action.meta.key]).toBeDefined();
     });
     it('subscribe with same should call subscription.add', () => {
       const action = createSubscribeAction({ id: 5, title: 'four' });
       middleware({ dispatch, getState })(next)(action);
 
       expect(
-        (manager as any).subscriptions[action.meta.url].add.mock.calls.length,
+        (manager as any).subscriptions[action.meta.key].add.mock.calls.length,
       ).toBe(1);
       middleware({ dispatch, getState })(next)(action);
       expect(
-        (manager as any).subscriptions[action.meta.url].add.mock.calls.length,
+        (manager as any).subscriptions[action.meta.key].add.mock.calls.length,
       ).toBe(2);
     });
     it('subscribe with another should create another', () => {
       const action = createSubscribeAction({ id: 7, title: 'four cakes' });
       middleware({ dispatch, getState })(next)(action);
 
-      expect((manager as any).subscriptions[action.meta.url]).toBeDefined();
+      expect((manager as any).subscriptions[action.meta.key]).toBeDefined();
       expect(
-        (manager as any).subscriptions[action.meta.url].add.mock.calls.length,
+        (manager as any).subscriptions[action.meta.key].add.mock.calls.length,
       ).toBe(0);
     });
     it('subscribe with another should not call previous', () => {
@@ -116,26 +116,26 @@ describe('SubscriptionManager', () => {
 
     it('unsubscribe should delete when remove returns true', () => {
       const action = createUnsubscribeAction({ id: 7, title: 'four cakes' });
-      (manager as any).subscriptions[action.meta.url].remove.mockImplementation(
+      (manager as any).subscriptions[action.meta.key].remove.mockImplementation(
         () => true,
       );
 
       middleware({ dispatch, getState })(next)(action);
 
-      expect((manager as any).subscriptions[action.meta.url]).not.toBeDefined();
+      expect((manager as any).subscriptions[action.meta.key]).not.toBeDefined();
     });
 
     it('unsubscribe should not delete when remove returns false', () => {
       const action = createUnsubscribeAction({ id: 5, title: 'four cakes' });
-      (manager as any).subscriptions[action.meta.url].remove.mockImplementation(
+      (manager as any).subscriptions[action.meta.key].remove.mockImplementation(
         () => false,
       );
 
       middleware({ dispatch, getState })(next)(action);
 
-      expect((manager as any).subscriptions[action.meta.url]).toBeDefined();
+      expect((manager as any).subscriptions[action.meta.key]).toBeDefined();
       expect(
-        (manager as any).subscriptions[action.meta.url].remove.mock.calls
+        (manager as any).subscriptions[action.meta.key].remove.mock.calls
           .length,
       ).toBe(1);
     });
@@ -148,7 +148,7 @@ describe('SubscriptionManager', () => {
 
       middleware({ dispatch, getState })(next)(action);
 
-      expect((manager as any).subscriptions[action.meta.url]).not.toBeDefined();
+      expect((manager as any).subscriptions[action.meta.key]).not.toBeDefined();
 
       expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
         Array [

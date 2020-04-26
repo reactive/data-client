@@ -4,6 +4,7 @@ exports[`PollingSubscription should call after period 1`] = `
 Array [
   Object {
     "meta": Object {
+      "key": "test.com",
       "options": Object {
         "dataExpiryLength": 2500,
         "errorExpiryLength": 500,
@@ -13,7 +14,6 @@ Array [
       "responseType": "rest-hooks/receive",
       "schema": [Function],
       "throttle": true,
-      "url": "test.com",
     },
     "payload": [MockFunction],
     "type": "rest-hooks/fetch",
@@ -25,6 +25,7 @@ exports[`PollingSubscription should call after period 2`] = `
 Array [
   Object {
     "meta": Object {
+      "key": "test.com",
       "options": Object {
         "dataExpiryLength": 2500,
         "errorExpiryLength": 500,
@@ -34,7 +35,6 @@ Array [
       "responseType": "rest-hooks/receive",
       "schema": [Function],
       "throttle": true,
-      "url": "test.com",
     },
     "payload": [MockFunction],
     "type": "rest-hooks/fetch",

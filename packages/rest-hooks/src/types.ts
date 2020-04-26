@@ -32,9 +32,9 @@ export type State<T> = Readonly<{
     readonly [entityKey: string]: { readonly [pk: string]: T } | undefined;
   };
   indexes: NormalizedIndex;
-  results: { readonly [url: string]: unknown | PK[] | PK | undefined };
+  results: { readonly [key: string]: unknown | PK[] | PK | undefined };
   meta: {
-    readonly [url: string]: {
+    readonly [key: string]: {
       readonly date: number;
       readonly error?: Error;
       readonly expiresAt: number;
@@ -63,7 +63,7 @@ export interface FetchOptions {
 
 interface ReceiveMeta<S extends Schema> {
   schema: S;
-  url: string;
+  key: string;
   date: number;
   updaters?: Record<string, UpdateFunction<S, any>>;
   expiresAt: number;
@@ -80,7 +80,7 @@ export type ReceiveAction<
 
 interface RPCMeta<S extends Schema> {
   schema: S;
-  url: string;
+  key: string;
   date: number;
   updaters?: Record<string, UpdateFunction<S, any>>;
 }
@@ -96,7 +96,7 @@ export type RPCAction<
 
 interface PurgeMeta {
   schema: schemas.EntityInterface<any>;
-  url: string;
+  key: string;
   date: number;
 }
 
@@ -121,7 +121,7 @@ interface FetchMeta<
   S extends Schema = any
 > {
   responseType: ReceiveTypes;
-  url: string;
+  key: string;
   schema: S;
   throttle: boolean;
   updaters?: Record<string, UpdateFunction<S, any>>;
@@ -151,7 +151,7 @@ export interface SubscribeAction
   meta: {
     schema: Schema;
     fetch: () => Promise<any>;
-    url: string;
+    key: string;
     options: FetchOptions | undefined;
   };
 }
@@ -159,7 +159,7 @@ export interface SubscribeAction
 export interface UnsubscribeAction
   extends FSAWithMeta<typeof UNSUBSCRIBE_TYPE, undefined, any> {
   meta: {
-    url: string;
+    key: string;
     options: FetchOptions | undefined;
   };
 }
@@ -167,7 +167,7 @@ export interface UnsubscribeAction
 export interface InvalidateAction
   extends FSAWithMeta<typeof INVALIDATE_TYPE, undefined, any> {
   meta: {
-    url: string;
+    key: string;
   };
 }
 

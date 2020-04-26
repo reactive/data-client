@@ -71,7 +71,7 @@ describe('PollingSubscription', () => {
 
   const sub = new PollingSubscription(
     {
-      url: 'test.com',
+      key: 'test.com',
       schema: PollingArticleResource.getEntitySchema(),
       fetch,
       frequency: 5000,
@@ -88,7 +88,7 @@ describe('PollingSubscription', () => {
       () =>
         new PollingSubscription(
           {
-            url: 'test.com',
+            key: 'test.com',
             schema: PollingArticleResource.getEntitySchema(),
             fetch,
           },
@@ -191,7 +191,7 @@ describe('PollingSubscription', () => {
     it('should return false until completely empty, then return true', () => {
       const sub = new PollingSubscription(
         {
-          url: 'test.com',
+          key: 'test.com',
           schema: PollingArticleResource.getEntitySchema(),
           fetch,
           frequency: 5000,
@@ -228,7 +228,7 @@ describe('PollingSubscription', () => {
 
       const pollingSubscription = new PollingSubscription(
         {
-          url: 'test.com',
+          key: 'test.com',
           schema: PollingArticleResource.getEntitySchema(),
           fetch,
           frequency: 5000,

@@ -80,7 +80,7 @@ Note: Network response is ignored for delete type.`,
   const meta: FetchAction['meta'] = {
     schema,
     responseType,
-    url: identifier,
+    key: identifier,
     throttle,
     options,
     resolve,

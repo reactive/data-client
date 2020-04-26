@@ -3,7 +3,7 @@ import { FetchAction, ResponseActions } from 'rest-hooks/types';
 
 export default function createReceiveError<S extends Schema = any>(
   error: any,
-  { schema, url, responseType, options = {} }: FetchAction<any, S>['meta'],
+  { schema, key, responseType, options = {} }: FetchAction<any, S>['meta'],
   { errorExpiryLength }: { errorExpiryLength: number },
 ): ResponseActions {
   const expiryLength = options.errorExpiryLength ?? errorExpiryLength;
@@ -17,7 +17,7 @@ export default function createReceiveError<S extends Schema = any>(
     payload: error,
     meta: {
       schema,
-      url,
+      key,
       date: now,
       expiresAt: now + expiryLength,
     },
