@@ -53,7 +53,7 @@ export default [
       commonjs({ extensions }),
       json(),
       terser({}),
-      filesize(),
+      filesize({ showBrotliSize: true }),
     ],
   },
   // node-friendly commonjs build
