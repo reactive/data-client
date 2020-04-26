@@ -83,6 +83,7 @@ interface RPCMeta<S extends Schema> {
   key: string;
   date: number;
   updaters?: Record<string, UpdateFunction<S, any>>;
+  expiresAt: number;
 }
 
 export type RPCAction<

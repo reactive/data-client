@@ -52,6 +52,7 @@ export default function reducer(
         ],
       };
     }
+    case RECEIVE_MUTATE_TYPE:
     case RECEIVE_TYPE: {
       if (action.error) {
         return {
@@ -87,26 +88,6 @@ export default function reducer(
             expiresAt: action.meta.expiresAt,
           },
         },
-        optimistic: filterOptimistic(state, action),
-      };
-    }
-    case RECEIVE_MUTATE_TYPE: {
-      if (action.error)
-        return { ...state, optimistic: filterOptimistic(state, action) };
-      const { entities, result, indexes } = normalize(
-        action.payload,
-        action.meta.schema,
-      );
-      const results = applyUpdatersToResults(
-        state.results,
-        result,
-        action.meta.updaters,
-      );
-      return {
-        ...state,
-        entities: mergeDeepCopy(state.entities, entities),
-        indexes: mergeDeepCopy(state.indexes, indexes),
-        results,
         optimistic: filterOptimistic(state, action),
       };
     }

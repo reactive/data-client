@@ -88,14 +88,15 @@ describe('reducer', () => {
         schema: ArticleResource.getEntitySchema(),
         key: ArticleResource.listUrl(payload),
         date: 0,
+        expiresAt: 1000000000000,
       },
     };
     const iniState = {
       ...initialState,
-      results: { abc: '5' },
+      results: { abc: '5', [ArticleResource.listUrl(payload)]: `${id}` },
     };
     const newState = reducer(iniState, action);
-    expect(newState.results).toBe(iniState.results);
+    expect(newState.results).toStrictEqual(iniState.results);
   });
   it('purge should delete entities', () => {
     const id = 20;
@@ -239,6 +240,7 @@ describe('reducer', () => {
             key: ArticleResource.createShape().getFetchKey({}),
             updaters,
             date: 0,
+            expiresAt: 100000000000,
           },
         };
       }
@@ -386,12 +388,14 @@ describe('reducer', () => {
         schema: ArticleResource.getEntitySchema(),
         key: ArticleResource.url({ id }),
         date: 0,
+        expiresAt: 10000000000000000000,
       },
       error: true,
     };
     const iniState = initialState;
     const newState = reducer(iniState, action);
-    expect(newState).toEqual(iniState);
+    // ignore meta for this check
+    expect({ ...newState, meta: {} }).toEqual(iniState);
   });
   it('should not delete on error for "purge"', () => {
     const id = 20;
