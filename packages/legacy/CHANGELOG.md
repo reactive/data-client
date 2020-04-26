@@ -3,6 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@1.0.12...@rest-hooks/legacy@2.0.0-beta.0) (2020-04-26)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* When invalidIfStale is true, useCache() and
+useStatefulResource() will no longer return entities, even if they
+are in the cache
+
+### 💅 Enhancement
+
+* useCache() and useStatefulResource() respect invalidIfStale ([#307](https://github.com/coinbase/rest-hooks/issues/307)) ([58f2c40](https://github.com/coinbase/rest-hooks/commit/58f2c40a66fb0d0c1f900840160e17ce87beace2))
+
+
+### 🐛 Bug Fix
+
+* Update rest-hooks peerDep to 5 ([526df3c](https://github.com/coinbase/rest-hooks/commit/526df3c23d7a8be2b3c1ac603d165db26efa0f1b))
+
+
+### 📦 Package
+
+* Bump internal pkgs ([#306](https://github.com/coinbase/rest-hooks/issues/306)) ([46bebad](https://github.com/coinbase/rest-hooks/commit/46bebad79d848404d02423fd2a3e2d647ee5bbbb))
+
+
+### 🏠 Internal
+
+* Hoist coveralls to root, since testing is done there ([3b1dbaa](https://github.com/coinbase/rest-hooks/commit/3b1dbaac303048a1b1e543f99fb9758b21feb083))
+* Update prettier, format files ([88d5627](https://github.com/coinbase/rest-hooks/commit/88d5627fb1963842d2a644cfe06f0780cb3c2dde))
+
+
+
 ### [1.0.12](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@1.0.11...@rest-hooks/legacy@1.0.12) (2020-03-22)
 
 

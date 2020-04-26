@@ -3,6 +3,55 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.9...rest-hooks@5.0.0-beta.0) (2020-04-26)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Added promise to FetchAction['meta']
+* When invalidIfStale is true, useCache() and
+useStatefulResource() will no longer return entities, even if they
+are in the cache
+
+### 🚀 Features
+
+* Add ConnectionListener and a default browser implementation ([#305](https://github.com/coinbase/rest-hooks/issues/305)) ([f63f66c](https://github.com/coinbase/rest-hooks/commit/f63f66c9499dd363574fbcd832fc94e7663b12e4))
+* Add createFetch() action creator ([#320](https://github.com/coinbase/rest-hooks/issues/320)) ([392ea15](https://github.com/coinbase/rest-hooks/commit/392ea151ec1a08dbf47480f19c149e869e28939e))
+* Simplified Entity class ([#315](https://github.com/coinbase/rest-hooks/issues/315)) ([0e6bfcb](https://github.com/coinbase/rest-hooks/commit/0e6bfcb3620006e285510d4e5121fce743214d55))
+
+
+### 💅 Enhancement
+
+* Add optional generic for fetch return value in shape types ([#311](https://github.com/coinbase/rest-hooks/issues/311)) ([280fa3d](https://github.com/coinbase/rest-hooks/commit/280fa3d19935e7f0b16b84c6532a71d64bc45da5))
+* Infer returntype of useFetcher()'s functions ([#310](https://github.com/coinbase/rest-hooks/issues/310)) ([bb75c15](https://github.com/coinbase/rest-hooks/commit/bb75c15391c85d77e3a70abdd7c55e20eca1eb49))
+* Make SimpleRecord's unique identifier keyed by symbol ([6f0781b](https://github.com/coinbase/rest-hooks/commit/6f0781b867f7e55d3d59b78b32e420e24a4ac844))
+* Make useResource() param type errors more readable ([2de35ce](https://github.com/coinbase/rest-hooks/commit/2de35ce41bfd780b8f8ca3aaba9e4ebc03c79447))
+* Schemas with no entities should not infer ([#323](https://github.com/coinbase/rest-hooks/issues/323)) ([79f048d](https://github.com/coinbase/rest-hooks/commit/79f048df72730f61ac905fe19b1074600ce1d8ee))
+* Simplify NM existance check in dev mode ([47afd8d](https://github.com/coinbase/rest-hooks/commit/47afd8d47cd4864afc228f3b4b345a3666906f86))
+* Simplify online/offline polling logic ([#308](https://github.com/coinbase/rest-hooks/issues/308)) ([3be8e9d](https://github.com/coinbase/rest-hooks/commit/3be8e9d0664d2f72f5fce1b4ba425c82e8ed229a))
+* useCache() and useStatefulResource() respect invalidIfStale ([#307](https://github.com/coinbase/rest-hooks/issues/307)) ([58f2c40](https://github.com/coinbase/rest-hooks/commit/58f2c40a66fb0d0c1f900840160e17ce87beace2))
+* useResource array parameters as readonly ([#319](https://github.com/coinbase/rest-hooks/issues/319)) ([fb1b39f](https://github.com/coinbase/rest-hooks/commit/fb1b39f54e2cfad062ba33eca8f7ffd15de7fe9d))
+
+
+### 🐛 Bug Fix
+
+* Connection listener feature detection ([5b360df](https://github.com/coinbase/rest-hooks/commit/5b360df5f23a0ce36f3638198ddb4938717401b4))
+* Inferred results are considered stale ([fc4ee61](https://github.com/coinbase/rest-hooks/commit/fc4ee61bb692f98f053b14e0aff20d5e76c8c131))
+* Inferring with union types ([5ab6159](https://github.com/coinbase/rest-hooks/commit/5ab6159a1887a216564ac15f84774c9b7b9e76bf))
+
+
+### 📦 Package
+
+* Bump internal pkgs ([#306](https://github.com/coinbase/rest-hooks/issues/306)) ([46bebad](https://github.com/coinbase/rest-hooks/commit/46bebad79d848404d02423fd2a3e2d647ee5bbbb))
+
+
+### 🏠 Internal
+
+* Hoist coveralls to root, since testing is done there ([3b1dbaa](https://github.com/coinbase/rest-hooks/commit/3b1dbaac303048a1b1e543f99fb9758b21feb083))
+* Update prettier, format files ([88d5627](https://github.com/coinbase/rest-hooks/commit/88d5627fb1963842d2a644cfe06f0780cb3c2dde))
+
+
+
 ### [4.5.9](https://github.com/coinbase/rest-hooks/compare/rest-hooks@4.5.8...rest-hooks@4.5.9) (2020-03-22)
 
 

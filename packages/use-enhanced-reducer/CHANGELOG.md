@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.0.2...@rest-hooks/use-enhanced-reducer@1.0.3) (2020-04-26)
+
+
+### 📦 Package
+
+* Bump internal pkgs ([#306](https://github.com/coinbase/rest-hooks/issues/306)) ([46bebad](https://github.com/coinbase/rest-hooks/commit/46bebad79d848404d02423fd2a3e2d647ee5bbbb))
+
+
+### 🏠 Internal
+
+* Better test coverage by using type-only exports ([1867dd7](https://github.com/coinbase/rest-hooks/commit/1867dd7e2d732540b1814076c88359ba299a2367))
+* Hoist coveralls to root, since testing is done there ([3b1dbaa](https://github.com/coinbase/rest-hooks/commit/3b1dbaac303048a1b1e543f99fb9758b21feb083))
+
+
+
 ### [1.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.0.1...@rest-hooks/use-enhanced-reducer@1.0.2) (2020-03-08)
 
 

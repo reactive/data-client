@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.18](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@1.0.17...@rest-hooks/test@1.0.18) (2020-04-26)
+
+
+### 🐛 Bug Fix
+
+* Make expiry time more testable and realistic ([5878998](https://github.com/coinbase/rest-hooks/commit/58789981ce54eb9718d704451285e48fa0b977cb))
+
+
+
 ### [1.0.17](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@1.0.16...@rest-hooks/test@1.0.17) (2020-03-22)
 
 

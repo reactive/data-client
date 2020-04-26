@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@5.0.6...@rest-hooks/normalizr@6.0.0-beta.0) (2020-04-26)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* TypeScript 3.7 or higher is required. This uses type
+recursion.
+
+### 🚀 Features
+
+* Simplified Entity class ([#315](https://github.com/coinbase/rest-hooks/issues/315)) ([0e6bfcb](https://github.com/coinbase/rest-hooks/commit/0e6bfcb3620006e285510d4e5121fce743214d55))
+
+
+### 💅 Enhancement
+
+* More readable array return types ([#314](https://github.com/coinbase/rest-hooks/issues/314)) ([4ac8918](https://github.com/coinbase/rest-hooks/commit/4ac8918df19a4d386ff717c3ceef40e151c60c1f))
+
+
+### 📦 Package
+
+* Bump internal pkgs ([#306](https://github.com/coinbase/rest-hooks/issues/306)) ([46bebad](https://github.com/coinbase/rest-hooks/commit/46bebad79d848404d02423fd2a3e2d647ee5bbbb))
+
+
+### 🏠 Internal
+
+* Hoist coveralls to root, since testing is done there ([3b1dbaa](https://github.com/coinbase/rest-hooks/commit/3b1dbaac303048a1b1e543f99fb9758b21feb083))
+* Update packages in redux example ([dbba679](https://github.com/coinbase/rest-hooks/commit/dbba67935a7b756d66ce7b6cb9e2d93e7f2ce44a))
+
+
+
 ### [5.0.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@5.0.5...@rest-hooks/normalizr@5.0.6) (2020-03-13)
 
 
