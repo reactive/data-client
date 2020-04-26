@@ -13,7 +13,7 @@ import {
 } from 'rest-hooks/actionTypes';
 
 import RIC from './RIC';
-import { createReceive, createReceiveError } from './actionCreators';
+import { createReceive, createReceiveError } from './actions';
 
 class CleanupError extends Error {
   message = 'Cleaning up Network Manager';
