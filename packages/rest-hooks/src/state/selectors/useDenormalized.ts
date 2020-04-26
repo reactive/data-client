@@ -5,7 +5,7 @@ import {
   DenormalizeNullable,
   ParamsFromShape,
 } from 'rest-hooks/resource';
-import { isEntity } from '@rest-hooks/normalizr';
+import { isEntity, Schema } from '@rest-hooks/normalizr';
 import { useMemo } from 'react';
 
 import hasUsableData from '../../react-integration/hooks/hasUsableData';
@@ -47,8 +47,16 @@ export default function useDenormalized<
   }, [cacheResults, state.indexes, serializedParams]);
   // TODO: only update when relevant indexes change
 
+  const needsDenormalization = useMemo(() => schemaHasEntity(schema), [schema]);
+
   // Compute denormalized value
   const [denormalized, entitiesFound, entitiesList] = useMemo(() => {
+    if (!needsDenormalization)
+      return [cacheResults, true, ''] as [
+        DenormalizeNullable<Shape['schema']>,
+        any,
+        string,
+      ];
     // Warn users with bad configurations
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'production' && isEntity(schema)) {
@@ -98,6 +106,7 @@ export default function useDenormalized<
     serializedParams,
     results,
     expired,
+    needsDenormalization,
     options && options.invalidIfStale,
   ]);
 
@@ -107,4 +116,20 @@ export default function useDenormalized<
     results,
     entitiesList,
   ]);
+}
+
+/** Determine whether the schema has any entities.
+ *
+ * Without entities, denormalization is not needed, and results should not be inferred.
+ */
+function schemaHasEntity(schema: Schema): boolean {
+  if (isEntity(schema)) return true;
+  if (Array.isArray(schema) && schema.length) return schemaHasEntity(schema[0]);
+  if (schema && typeof schema === 'object' && !('denormalize' in schema)) {
+    return Object.values(schema).reduce(
+      (prev, cur) => prev || schemaHasEntity(cur),
+      false,
+    );
+  }
+  return false;
 }

@@ -4,6 +4,7 @@ import {
   NestedArticleResource,
   UserResource,
   IndexedUserResource,
+  photoShape,
 } from '__tests__/common';
 import { normalize, NormalizedIndex } from 'rest-hooks/resource';
 import { initialState } from 'rest-hooks/state/reducer';
@@ -164,7 +165,7 @@ describe('useDenormalized()', () => {
       });
     });
 
-    describe.only('no result exists but index is used when using nested schema', () => {
+    describe('no result exists but index is used when using nested schema', () => {
       const pageArticle = PaginatedArticleResource.fromJS({
         ...params,
         author: 23,
@@ -588,6 +589,30 @@ describe('useDenormalized()', () => {
           }
         `);
       });
+    });
+
+    it('should not infer with schemas that have no entities', () => {
+      const userId = '5';
+      const { result } = renderHook(() => {
+        return useDenormalized(photoShape, { userId }, initialState as any);
+      });
+      expect(result.current).toStrictEqual([undefined, true]);
+    });
+
+    it('should return results as-is for schemas with no entities', () => {
+      const userId = '5';
+      const results = new ArrayBuffer(10);
+      const state = {
+        ...initialState,
+        results: {
+          ...initialState.results,
+          [photoShape.getFetchKey({ userId })]: results,
+        },
+      };
+      const { result } = renderHook(() => {
+        return useDenormalized(photoShape, { userId }, state);
+      });
+      expect(result.current).toStrictEqual([results, true]);
     });
 
     it('should throw with invalid schemas', () => {
