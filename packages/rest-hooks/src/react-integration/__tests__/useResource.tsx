@@ -391,7 +391,7 @@ describe('useResource()', () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useResource(photoShape, { userId });
     });
-    expect(result.current).toBe(null);
+    expect(result.current).toBe(undefined);
     await waitForNextUpdate();
     expect(result.current).toStrictEqual(response);
   });
