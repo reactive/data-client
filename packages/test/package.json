@@ -52,7 +52,7 @@
     "@types/react": "^16.8.2",
     "react": "^16.8.2",
     "redux": "^4.0.0",
-    "rest-hooks": "^5.0.0-beta.5"
+    "rest-hooks": "^5.0.0-beta.0"
   },
   "peerDependenciesMeta": {
     "redux": {
