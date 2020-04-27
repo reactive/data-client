@@ -114,6 +114,8 @@ import 'whatwg-fetch';
 
 #### `index.tsx`
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Web-->
 ```tsx
 import { CacheProvider } from 'rest-hooks';
 import ReactDOM from 'react-dom';
@@ -125,6 +127,33 @@ ReactDOM.render(
   document.body
 );
 ```
+<!--Concurrent mode-->
+```tsx
+import { CacheProvider } from 'rest-hooks';
+import ReactDOM from 'react-dom';
+
+ReactDOM.createRoot(document.body).render(
+  <CacheProvider>
+    <App />
+  </CacheProvider>
+);
+```
+<!--React Native-->
+```tsx
+import { CacheProvider } from 'rest-hooks';
+import { AppRegistry } from 'react-native';
+
+const Root = () => (
+  <CacheProvider>
+    <App />
+  </CacheProvider>
+);
+AppRegistry.registerComponent('MyApp', () => Root)
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
+
+
+
 
 Alternatively [integrate state with redux](../guides/redux.md)
 
@@ -143,10 +172,10 @@ points in your application.
 #### `App.tsx`
 
 ```tsx
-import { Suspense } from 'react';
+import { Suspense, memo } from 'react';
 import { NetworkErrorBoundary } from 'rest-hooks';
 
-const App = () => (
+const App = memo(() => (
   <div>
     <h1>Main Title</h1>
     <Nav />
@@ -156,7 +185,7 @@ const App = () => (
       </NetworkErrorBoundary>
     </Suspense>
   </div>
-);
+));
 ```
 
 [More about loading state](../guides/loading-state)
