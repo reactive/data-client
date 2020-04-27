@@ -6,7 +6,6 @@ import {
 import { FetchAction, ReceiveAction, Manager } from 'rest-hooks/types';
 import {
   RECEIVE_TYPE,
-  RECEIVE_MUTATE_TYPE,
   RECEIVE_DELETE_TYPE,
   FETCH_TYPE,
   RESET_TYPE,
@@ -55,7 +54,6 @@ export default class NetworkManager implements Manager {
             }
             return Promise.resolve();
           case RECEIVE_DELETE_TYPE:
-          case RECEIVE_MUTATE_TYPE:
           case RECEIVE_TYPE:
             // only receive after new state is computed
             return next(action).then(() => {
@@ -102,12 +100,25 @@ export default class NetworkManager implements Manager {
       fetch()
         .then(data => {
           // does this throw if the reducer fails?
-          dispatch(createReceive(data, action.meta, this));
+          dispatch(
+            createReceive(data, {
+              ...action.meta,
+              dataExpiryLength:
+                action.meta.options?.dataExpiryLength ?? this.dataExpiryLength,
+            }),
+          );
           return data;
         })
         .catch(error => {
           if (error instanceof CleanupError) return;
-          dispatch(createReceiveError(error, action.meta, this));
+          dispatch(
+            createReceiveError(error, {
+              ...action.meta,
+              errorExpiryLength:
+                action.meta.options?.errorExpiryLength ??
+                this.errorExpiryLength,
+            }),
+          );
           throw error;
         });
     let promise;

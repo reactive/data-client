@@ -1,3 +1,6 @@
+import { UpdateFunction } from 'rest-hooks/types';
+import { Schema } from '@rest-hooks/normalizr';
+
 import { FetchShape } from './shapes';
 
 /** Sets a FetchShape's Param type.
@@ -24,3 +27,22 @@ export type ParamsFromShape<S> = S extends {
   : S extends { getFetchKey: (first: infer A, ...rest: any) => any }
   ? A
   : never;
+
+/** Get the Schema type for a given Shape */
+export type SchemaFromShape<
+  F extends FetchShape<any, any, any>
+> = F extends FetchShape<infer S, any, any> ? S : never;
+
+/** Get the Body type for a given Shape */
+export type BodyFromShape<
+  F extends FetchShape<any, any, any>
+> = F extends FetchShape<any, any, infer B> ? B : never;
+
+export type OptimisticUpdateParams<
+  SourceSchema extends Schema,
+  DestShape extends FetchShape<any, any, any>
+> = [
+  DestShape,
+  ParamsFromShape<DestShape>,
+  UpdateFunction<SourceSchema, SchemaFromShape<DestShape>>,
+];

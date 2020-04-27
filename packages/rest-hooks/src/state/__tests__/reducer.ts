@@ -7,7 +7,6 @@ import {
 import reducer, { initialState } from '../reducer';
 import {
   FetchAction,
-  RPCAction,
   ReceiveAction,
   PurgeAction,
   ResetAction,
@@ -16,7 +15,6 @@ import {
 } from '../../types';
 import {
   RECEIVE_TYPE,
-  RECEIVE_MUTATE_TYPE,
   RECEIVE_DELETE_TYPE,
   INVALIDATE_TYPE,
   FETCH_TYPE,
@@ -81,8 +79,8 @@ describe('reducer', () => {
   it('mutate should never change results', () => {
     const id = 20;
     const payload = { id, title: 'hi', content: 'this is the content' };
-    const action: RPCAction = {
-      type: RECEIVE_MUTATE_TYPE,
+    const action: ReceiveAction = {
+      type: RECEIVE_TYPE,
       payload,
       meta: {
         schema: ArticleResource.getEntitySchema(),
@@ -233,7 +231,7 @@ describe('reducer', () => {
         },
       ) {
         return {
-          type: RECEIVE_MUTATE_TYPE,
+          type: RECEIVE_TYPE,
           payload,
           meta: {
             schema: ArticleResource.getEntitySchema(),
@@ -381,8 +379,8 @@ describe('reducer', () => {
   it('should not modify state on error for "rpc"', () => {
     const id = 20;
     const error = new Error('hi');
-    const action: RPCAction = {
-      type: RECEIVE_MUTATE_TYPE,
+    const action: ReceiveAction = {
+      type: RECEIVE_TYPE,
       payload: error,
       meta: {
         schema: ArticleResource.getEntitySchema(),
@@ -432,7 +430,7 @@ describe('reducer', () => {
       meta: {
         schema: ArticleResource.getEntitySchema(),
         key: ArticleResource.url({ id: 5 }),
-        responseType: RECEIVE_MUTATE_TYPE,
+        type: 'read' as const,
         throttle: true,
         reject: (v: any) => null,
         resolve: (v: any) => null,

@@ -121,7 +121,7 @@ export default class PollingSubscription implements Subscription {
       meta: {
         schema: this.schema,
         key: this.key,
-        responseType: RECEIVE_TYPE,
+        type: 'read',
         throttle: true,
         options: {
           dataExpiryLength: this.frequency / 2,

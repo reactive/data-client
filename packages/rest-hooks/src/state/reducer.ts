@@ -3,7 +3,6 @@ import { ActionTypes, State, ResponseActions } from 'rest-hooks/types';
 import { createReceive } from 'rest-hooks/state/actions';
 import {
   RECEIVE_TYPE,
-  RECEIVE_MUTATE_TYPE,
   RECEIVE_DELETE_TYPE,
   INVALIDATE_TYPE,
   RESET_TYPE,
@@ -31,6 +30,7 @@ export default function reducer(
       const optimisticResponse = action.meta.optimisticResponse;
       if (optimisticResponse === undefined) {
         // If 'fetch' action reaches the reducer there are no middlewares installed to handle it
+        /* istanbul ignore next */
         if (process.env.NODE_ENV !== 'production') {
           console.warn(
             'Fetch appears unhandled - you are likely missing the NetworkManager middleware',
@@ -46,13 +46,13 @@ export default function reducer(
         ...state,
         optimistic: [
           ...state.optimistic,
-          createReceive(optimisticResponse, action.meta, {
+          createReceive(optimisticResponse, {
+            ...action.meta,
             dataExpiryLength: 9999999999999,
           }),
         ],
       };
     }
-    case RECEIVE_MUTATE_TYPE:
     case RECEIVE_TYPE: {
       if (action.error) {
         return {

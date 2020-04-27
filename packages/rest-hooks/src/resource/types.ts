@@ -1,13 +1,5 @@
 import { FetchShape, DeleteShape } from './shapes';
 
-export type SchemaFromShape<
-  F extends FetchShape<any, any, any>
-> = F extends FetchShape<infer S, any, any> ? S : never;
-
-export type BodyFromShape<
-  F extends FetchShape<any, any, any>
-> = F extends FetchShape<any, any, infer B> ? B : never;
-
 export function isDeleteShape(
   shape: FetchShape<any, any, any>,
 ): shape is DeleteShape<any, any> {

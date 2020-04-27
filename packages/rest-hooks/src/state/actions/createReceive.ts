@@ -3,53 +3,50 @@ import {
   FetchAction,
   ReceiveAction,
   PurgeAction,
-  ReceiveTypes,
+  FetchOptions,
 } from 'rest-hooks/types';
-import { RECEIVE_TYPE, RECEIVE_MUTATE_TYPE } from 'rest-hooks/actionTypes';
 
-import { RPCAction } from '../..';
+import SHAPE_TYPE_TO_RESPONSE_TYPE from './responseTypeMapping';
 
+interface Options<
+  Payload extends object | string | number = object | string | number,
+  S extends Schema = any
+>
+  extends Pick<
+    FetchAction<Payload, S>['meta'],
+    'schema' | 'key' | 'type' | 'updaters'
+  > {
+  dataExpiryLength: NonNullable<FetchOptions['dataExpiryLength']>;
+}
+
+/** Update state with data
+ *
+ * @param data
+ * @param param1 { schema, key, type, updaters, dataExpiryLength }
+ */
 export default function createReceive<
   Payload extends object | string | number = object | string | number,
   S extends Schema = any
 >(
   data: Payload,
-  {
-    schema,
-    key,
-    responseType,
-    updaters,
-    options = {},
-  }: Pick<
-    FetchAction<Payload, S>['meta'],
-    'schema' | 'key' | 'responseType' | 'updaters' | 'options'
-  >,
-  { dataExpiryLength }: { dataExpiryLength: number },
-): ReceiveAction<Payload, S> | RPCAction<Payload, S> | PurgeAction {
-  const expiryLength = options.dataExpiryLength ?? dataExpiryLength;
+  { schema, key, type, updaters, dataExpiryLength }: Options<Payload, S>,
+): ReceiveAction<Payload, S> | PurgeAction {
   /* istanbul ignore next */
-  if (process.env.NODE_ENV === 'development' && expiryLength < 0) {
+  if (process.env.NODE_ENV === 'development' && dataExpiryLength < 0) {
     throw new Error('Negative dataExpiryLength are not allowed.');
   }
   const now = Date.now();
-  const meta:
-    | ReceiveAction['meta']
-    | RPCAction['meta']
-    | PurgeAction['meta'] = {
+  const meta: ReceiveAction['meta'] | PurgeAction['meta'] = {
     schema,
     key,
     date: now,
-    expiresAt: now + expiryLength,
+    expiresAt: now + dataExpiryLength,
   };
-  if (
-    ([RECEIVE_TYPE, RECEIVE_MUTATE_TYPE] as ReceiveTypes[]).includes(
-      responseType,
-    )
-  ) {
+  if ((['read', 'mutate'] as string[]).includes(type)) {
     meta.updaters = updaters;
   }
   return {
-    type: responseType as any,
+    type: SHAPE_TYPE_TO_RESPONSE_TYPE[type] as any,
     payload: data,
     meta,
   };

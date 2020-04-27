@@ -2,12 +2,8 @@ import { ArticleResource } from '__tests__/common';
 
 import NetworkManager from '../NetworkManager';
 import { FetchAction, ResetAction } from '../../types';
-import {
-  FETCH_TYPE,
-  RECEIVE_TYPE,
-  RECEIVE_MUTATE_TYPE,
-  RESET_TYPE,
-} from '../../actionTypes';
+import { FETCH_TYPE, RECEIVE_TYPE, RESET_TYPE } from '../../actionTypes';
+import { createFetch } from '../actions';
 
 describe('NetworkManager', () => {
   const manager = new NetworkManager();
@@ -46,59 +42,73 @@ describe('NetworkManager', () => {
     });
   });
   describe('middleware', () => {
-    const fetchResolveAction: FetchAction = {
-      type: FETCH_TYPE,
-      payload: () => Promise.resolve({ id: 5, title: 'hi' }),
-      meta: {
-        schema: ArticleResource.asSchema(),
-        key: ArticleResource.url({ id: 5 }),
-        responseType: RECEIVE_TYPE,
-        throttle: false,
-        reject: (v: any) => null,
-        resolve: (v: any) => null,
-        promise: new Promise((v: any) => null),
-      },
+    const detailShape = ArticleResource.detailShape();
+    detailShape.fetch = () => Promise.resolve({ id: 5, title: 'hi' });
+    const fetchResolveAction = createFetch(detailShape, {
+      params: { id: 5 },
+      throttle: false,
+    });
+
+    const updaters = {
+      [ArticleResource.listShape().getFetchKey({})]: () => (
+        result: string[],
+        oldResults: string[] | undefined,
+      ) => [...(oldResults || []), result] as any,
     };
     const fetchReceiveWithUpdatersAction: FetchAction = {
       ...fetchResolveAction,
       meta: {
         ...fetchResolveAction.meta,
-        updaters: {
-          [ArticleResource.listUrl()]: () => (
-            result: string[],
-            oldResults: string[] | undefined,
-          ) => [...(oldResults || []), result] as any,
-        },
+        updaters,
       },
     };
-    const fetchRpcWithUpdatersAction: FetchAction = {
-      ...fetchReceiveWithUpdatersAction,
-      meta: {
-        ...fetchReceiveWithUpdatersAction.meta,
-        responseType: RECEIVE_MUTATE_TYPE,
-      },
-    };
-    const fetchRpcWithUpdatersAndOptimisticAction: FetchAction = {
-      ...fetchReceiveWithUpdatersAction,
-      meta: {
-        ...fetchReceiveWithUpdatersAction.meta,
-        optimisticResponse: { id: 5, title: 'hi' },
-        responseType: RECEIVE_MUTATE_TYPE,
-      },
-    };
-    const fetchRejectAction: FetchAction = {
-      type: FETCH_TYPE,
-      payload: () => Promise.reject(new Error('Failed')),
-      meta: {
-        schema: ArticleResource.asSchema(),
-        key: ArticleResource.url({ id: 5 }),
-        responseType: RECEIVE_TYPE,
+
+    const updateShape = ArticleResource.updateShape();
+    updateShape.fetch = (params, body) => Promise.resolve(body);
+    const fetchRpcWithUpdatersAction = createFetch(updateShape, {
+      params: { id: 5 },
+      body: { id: 5, title: 'hi' },
+      throttle: false,
+      updateParams: [
+        [
+          ArticleResource.listShape(),
+          {},
+          () => (result: string[], oldResults: string[] | undefined) => [
+            ...(oldResults || []),
+            result,
+          ],
+        ],
+      ],
+    });
+    const partialUpdateShape = ArticleResource.partialUpdateShape();
+    partialUpdateShape.fetch = (params, body) => Promise.resolve(body);
+    const fetchRpcWithUpdatersAndOptimisticAction = createFetch(
+      partialUpdateShape,
+      {
+        params: { id: 5 },
+        body: { id: 5, title: 'hi' },
         throttle: false,
-        reject: (v: any) => null,
-        resolve: (v: any) => null,
-        promise: new Promise((v: any) => null),
+        updateParams: [
+          [
+            ArticleResource.listShape(),
+            {},
+            () => (result: string[], oldResults: string[] | undefined) => [
+              ...(oldResults || []),
+              result,
+            ],
+          ],
+        ],
       },
-    };
+    );
+
+    const errorUpdateShape = ArticleResource.updateShape();
+    errorUpdateShape.fetch = () => Promise.reject(new Error('Failed'));
+    const fetchRejectAction = createFetch(errorUpdateShape, {
+      params: { id: 5 },
+      body: { id: 5, title: 'hi' },
+      throttle: false,
+    });
+
     it('should handle fetch actions and dispatch on success', async () => {
       const middleware = new NetworkManager(42, 7).getMiddleware();
 
@@ -111,7 +121,7 @@ describe('NetworkManager', () => {
 
       expect(next).not.toHaveBeenCalled();
       expect(dispatch).toHaveBeenCalledWith({
-        type: fetchResolveAction.meta.responseType,
+        type: RECEIVE_TYPE,
         payload: data,
         meta: {
           schema: fetchResolveAction.meta.schema,
@@ -133,11 +143,11 @@ describe('NetworkManager', () => {
 
       expect(next).not.toHaveBeenCalled();
       expect(dispatch).toHaveBeenCalledWith({
-        type: fetchReceiveWithUpdatersAction.meta.responseType,
+        type: RECEIVE_TYPE,
         payload: data,
         meta: {
           updaters: {
-            [ArticleResource.listUrl()]: expect.any(Function),
+            [ArticleResource.listShape().getFetchKey({})]: expect.any(Function),
           },
           schema: fetchReceiveWithUpdatersAction.meta.schema,
           key: fetchReceiveWithUpdatersAction.meta.key,
@@ -158,11 +168,11 @@ describe('NetworkManager', () => {
 
       expect(next).not.toHaveBeenCalled();
       expect(dispatch).toHaveBeenCalledWith({
-        type: fetchRpcWithUpdatersAction.meta.responseType,
+        type: RECEIVE_TYPE,
         payload: data,
         meta: {
           updaters: {
-            [ArticleResource.listUrl()]: expect.any(Function),
+            [ArticleResource.listShape().getFetchKey({})]: expect.any(Function),
           },
           schema: fetchRpcWithUpdatersAction.meta.schema,
           key: fetchRpcWithUpdatersAction.meta.key,
@@ -185,11 +195,11 @@ describe('NetworkManager', () => {
 
       expect(next).toHaveBeenCalled();
       expect(dispatch).toHaveBeenCalledWith({
-        type: fetchRpcWithUpdatersAndOptimisticAction.meta.responseType,
+        type: RECEIVE_TYPE,
         payload: data,
         meta: {
           updaters: {
-            [ArticleResource.listUrl()]: expect.any(Function),
+            [ArticleResource.listShape().getFetchKey({})]: expect.any(Function),
           },
           schema: fetchRpcWithUpdatersAndOptimisticAction.meta.schema,
           key: fetchRpcWithUpdatersAndOptimisticAction.meta.key,
@@ -247,7 +257,7 @@ describe('NetworkManager', () => {
       } catch (error) {
         expect(next).not.toHaveBeenCalled();
         expect(dispatch).toHaveBeenCalledWith({
-          type: fetchRejectAction.meta.responseType,
+          type: RECEIVE_TYPE,
           payload: error,
           meta: {
             schema: fetchRejectAction.meta.schema,
@@ -319,7 +329,7 @@ describe('NetworkManager', () => {
         meta: {
           schema: ArticleResource.getEntitySchema(),
           key: ArticleResource.url({ id: 5 }),
-          responseType: RECEIVE_TYPE,
+          type: ArticleResource.detailShape().type,
           throttle: true,
           resolve,
           reject,

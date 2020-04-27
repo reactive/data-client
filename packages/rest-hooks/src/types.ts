@@ -4,10 +4,9 @@ import { Middleware } from '@rest-hooks/use-enhanced-reducer';
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
 
 import { ErrorableFSAWithPayloadAndMeta, ErrorableFSAWithMeta } from './fsa';
-import { Schema, schemas, Normalize } from './resource';
+import { Schema, schemas, Normalize, FetchShape } from './resource';
 import {
   RECEIVE_TYPE,
-  RECEIVE_MUTATE_TYPE,
   RECEIVE_DELETE_TYPE,
   RESET_TYPE,
   FETCH_TYPE,
@@ -20,10 +19,7 @@ export type { AbstractInstanceType };
 
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
 
-export type ReceiveTypes =
-  | typeof RECEIVE_TYPE
-  | typeof RECEIVE_MUTATE_TYPE
-  | typeof RECEIVE_DELETE_TYPE;
+export type ReceiveTypes = typeof RECEIVE_TYPE | typeof RECEIVE_DELETE_TYPE;
 
 export type PK = string;
 
@@ -64,8 +60,8 @@ export interface FetchOptions {
 interface ReceiveMeta<S extends Schema> {
   schema: S;
   key: string;
-  date: number;
   updaters?: Record<string, UpdateFunction<S, any>>;
+  date: number;
   expiresAt: number;
 }
 
@@ -76,23 +72,6 @@ export type ReceiveAction<
   typeof RECEIVE_TYPE,
   Payload,
   ReceiveMeta<S>
->;
-
-interface RPCMeta<S extends Schema> {
-  schema: S;
-  key: string;
-  date: number;
-  updaters?: Record<string, UpdateFunction<S, any>>;
-  expiresAt: number;
-}
-
-export type RPCAction<
-  Payload extends object | string | number = object | string | number,
-  S extends Schema = any
-> = ErrorableFSAWithPayloadAndMeta<
-  typeof RECEIVE_MUTATE_TYPE,
-  Payload,
-  RPCMeta<S>
 >;
 
 interface PurgeMeta {
@@ -121,12 +100,12 @@ interface FetchMeta<
   Payload extends object | string | number = object | string | number,
   S extends Schema = any
 > {
-  responseType: ReceiveTypes;
-  key: string;
+  type: FetchShape<any, any>['type'];
   schema: S;
-  throttle: boolean;
+  key: string;
   updaters?: Record<string, UpdateFunction<S, any>>;
   options?: FetchOptions;
+  throttle: boolean;
   resolve: (value?: any | PromiseLike<any>) => void;
   reject: (reason?: any) => void;
   promise: PromiseLike<any>;
@@ -172,7 +151,7 @@ export interface InvalidateAction
   };
 }
 
-export type ResponseActions = ReceiveAction | RPCAction | PurgeAction;
+export type ResponseActions = ReceiveAction | PurgeAction;
 
 // put other actions here in union
 export type ActionTypes =
