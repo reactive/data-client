@@ -1,10 +1,5 @@
-import { FetchAction, UpdateFunction, ReceiveTypes } from 'rest-hooks/types';
-import {
-  RECEIVE_DELETE_TYPE,
-  RECEIVE_MUTATE_TYPE,
-  RECEIVE_TYPE,
-  FETCH_TYPE,
-} from 'rest-hooks/actionTypes';
+import { FetchAction } from 'rest-hooks/types';
+import { FETCH_TYPE } from 'rest-hooks/actionTypes';
 import {
   FetchShape,
   Schema,
@@ -12,26 +7,32 @@ import {
   SchemaFromShape,
   ParamsFromShape,
   BodyFromShape,
+  OptimisticUpdateParams,
 } from 'rest-hooks/resource';
 
-const SHAPE_TYPE_TO_RESPONSE_TYPE: Record<
-  FetchShape<any, any, any>['type'],
-  ReceiveTypes
-> = {
-  read: RECEIVE_TYPE,
-  mutate: RECEIVE_MUTATE_TYPE,
-  delete: RECEIVE_DELETE_TYPE,
-};
+interface Options<
+  Shape extends FetchShape<
+    Schema,
+    Readonly<object>,
+    Readonly<object | string> | void
+  >
+> {
+  params: ParamsFromShape<Shape>;
+  body?: BodyFromShape<Shape>;
+  throttle: boolean;
+  updateParams?:
+    | OptimisticUpdateParams<
+        SchemaFromShape<Shape>,
+        FetchShape<any, any, any>
+      >[]
+    | undefined;
+}
 
-export type OptimisticUpdateParams<
-  SourceSchema extends Schema,
-  DestShape extends FetchShape<any, any, any>
-> = [
-  DestShape,
-  ParamsFromShape<DestShape>,
-  UpdateFunction<SourceSchema, SchemaFromShape<DestShape>>,
-];
-
+/** Requesting a fetch to begin
+ *
+ * @param fetchShape
+ * @param param1 { params, body, throttle, updateParams }
+ */
 export default function createFetch<
   Shape extends FetchShape<
     Schema,
@@ -40,20 +41,11 @@ export default function createFetch<
   >
 >(
   fetchShape: Shape,
-  params: ParamsFromShape<Shape>,
-  body: BodyFromShape<Shape>,
-  throttle: boolean,
-  updateParams?:
-    | OptimisticUpdateParams<
-        SchemaFromShape<Shape>,
-        FetchShape<any, any, any>
-      >[]
-    | undefined,
+  { params, body, throttle, updateParams }: Options<Shape>,
 ): FetchAction {
   const { fetch, schema, type, getFetchKey, options } = fetchShape;
-  const responseType = SHAPE_TYPE_TO_RESPONSE_TYPE[type];
 
-  const key = getFetchKey(params);
+  let key = getFetchKey(params);
   /* istanbul ignore next */
   if (process.env.NODE_ENV !== 'production') {
     if (
@@ -69,9 +61,7 @@ Note: Network response is ignored for delete type.`,
       );
     }
   }
-  const identifier = isDeleteShape(fetchShape)
-    ? fetchShape.schema.pk(params)
-    : key;
+  if (isDeleteShape(fetchShape)) key = fetchShape.schema.pk(params);
   let resolve: (value?: any | PromiseLike<any>) => void = 0 as any;
   let reject: (reason?: any) => void = 0 as any;
   const promise = new Promise<any>((a, b) => {
@@ -79,8 +69,8 @@ Note: Network response is ignored for delete type.`,
   });
   const meta: FetchAction['meta'] = {
     schema,
-    responseType,
-    key: identifier,
+    type,
+    key,
     throttle,
     options,
     resolve,

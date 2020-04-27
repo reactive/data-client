@@ -1,25 +1,30 @@
 import { Schema } from 'rest-hooks/resource';
-import { FetchAction, ResponseActions } from 'rest-hooks/types';
+import { FetchAction, ResponseActions, FetchOptions } from 'rest-hooks/types';
+
+import SHAPE_TYPE_TO_RESPONSE_TYPE from './responseTypeMapping';
+
+interface Options<S extends Schema = any>
+  extends Pick<FetchAction<any, S>['meta'], 'schema' | 'key' | 'type'> {
+  errorExpiryLength: NonNullable<FetchOptions['errorExpiryLength']>;
+}
 
 export default function createReceiveError<S extends Schema = any>(
   error: any,
-  { schema, key, responseType, options = {} }: FetchAction<any, S>['meta'],
-  { errorExpiryLength }: { errorExpiryLength: number },
+  { schema, key, type, errorExpiryLength }: Options<S>,
 ): ResponseActions {
-  const expiryLength = options.errorExpiryLength ?? errorExpiryLength;
   /* istanbul ignore next */
-  if (process.env.NODE_ENV === 'development' && expiryLength < 0) {
+  if (process.env.NODE_ENV === 'development' && errorExpiryLength < 0) {
     throw new Error('Negative errorExpiryLength are not allowed.');
   }
   const now = Date.now();
   return {
-    type: responseType as any,
+    type: SHAPE_TYPE_TO_RESPONSE_TYPE[type] as any,
     payload: error,
     meta: {
       schema,
       key,
       date: now,
-      expiresAt: now + expiryLength,
+      expiresAt: now + errorExpiryLength,
     },
     error: true,
   };
