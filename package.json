@@ -67,9 +67,9 @@
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-terser": "^5.3.0",
     "ts-jest": "^25.4.0",
-    "ts-node": "^8.9.0",
+    "ts-node": "^8.9.1",
     "ttypescript": "^1.5.10",
-    "typescript": "^3.9.0-beta",
+    "typescript": "^3.9.1-rc",
     "whatwg-fetch": "^3.0.0"
   },
   "resolutions": {
