@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/legacy",
-  "version": "2.0.0-beta.0",
+  "version": "2.0.0-beta.1",
   "description": "Legacy features for Rest Hooks",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
@@ -61,7 +61,7 @@
   "peerDependencies": {
     "@types/react": "^16.8.2",
     "react": "^16.8.2",
-    "rest-hooks": "^5.0.0-beta.0"
+    "rest-hooks": "^5.0.0-beta.5"
   },
   "peerDependenciesMeta": {
     "@types/react": {
