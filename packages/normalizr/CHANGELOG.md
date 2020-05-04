@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.0...@rest-hooks/normalizr@6.0.0-beta.1) (2020-05-04)
+
+
+### 🚀 Features
+
+* Entity fully denormalizes & Entity -> FlatEntity for non-nested ([#328](https://github.com/coinbase/rest-hooks/issues/328)) ([dd5e513](https://github.com/coinbase/rest-hooks/commit/dd5e5130e317bec5572f00e0d2a192ba2f1ea8cb))
+
+
+
 ## [6.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@5.0.6...@rest-hooks/normalizr@6.0.0-beta.0) (2020-04-26)
 
 

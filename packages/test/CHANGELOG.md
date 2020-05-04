@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@1.0.18...@rest-hooks/test@2.0.0-beta.0) (2020-05-04)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Action creator arguments changed
+Mutates produce the same action type as 'read's
+* url -> key on all action.meta
+Testing lib now relies on new export in rest-hooks 5
+
+### 💅 Enhancement
+
+* Refine action creator interface ([#327](https://github.com/coinbase/rest-hooks/issues/327)) ([8cdc119](https://github.com/coinbase/rest-hooks/commit/8cdc1198a37d1a253e1b7a9a54aec2ab76eddaaa))
+* Rename action.meta.url to 'key' ([#325](https://github.com/coinbase/rest-hooks/issues/325)) ([5a06fe4](https://github.com/coinbase/rest-hooks/commit/5a06fe4d1799f0d8806b57d6929813e00a23cffd))
+
+
+### 🐛 Bug Fix
+
+* Rest Hooks beta peerdep ([43ef2a1](https://github.com/coinbase/rest-hooks/commit/43ef2a16043207d7e52ae31b008b87d28fac0151))
+
+
+
 ### [1.0.18](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@1.0.17...@rest-hooks/test@1.0.18) (2020-04-26)
 
 

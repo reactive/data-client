@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@2.0.0-beta.0...@rest-hooks/legacy@2.0.0-beta.2) (2020-05-04)
+
+
+### 🐛 Bug Fix
+
+* Rest Hooks beta peerdep ([43ef2a1](https://github.com/coinbase/rest-hooks/commit/43ef2a16043207d7e52ae31b008b87d28fac0151))
+
+
+### 🏠 Internal
+
+* Fix package versions for publish ([06d69ca](https://github.com/coinbase/rest-hooks/commit/06d69ca6d8e8d4dbf847f8a1593bfa65af8d79c6))
+
+
+
 ## [2.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@1.0.12...@rest-hooks/legacy@2.0.0-beta.0) (2020-04-26)
 
 
