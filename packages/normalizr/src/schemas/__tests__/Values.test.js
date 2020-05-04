@@ -20,8 +20,8 @@ describe(`${schema.Values.name} normalization`, () => {
     expect(
       normalize(
         {
-          fido: { id: 1, type: 'dogs' },
-          fluffy: { id: 1, type: 'cats' },
+          fido: { id: '1', type: 'dogs' },
+          fluffy: { id: '1', type: 'cats' },
         },
         valuesSchema,
       ),
@@ -42,9 +42,9 @@ describe(`${schema.Values.name} normalization`, () => {
     expect(
       normalize(
         {
-          fido: { id: 1, type: 'dog' },
-          fluffy: { id: 1, type: 'cat' },
-          jim: { id: 2, type: 'lizard' },
+          fido: { id: '1', type: 'dog' },
+          fluffy: { id: '1', type: 'cat' },
+          jim: { id: '2', type: 'lizard' },
         },
         valuesSchema,
       ),
@@ -67,7 +67,7 @@ describe(`${schema.Values.name} normalization`, () => {
         {
           fido: undefined,
           milo: null,
-          fluffy: { id: 1, type: 'cats' },
+          fluffy: { id: '1', type: 'cats' },
         },
         valuesSchema,
       ),
@@ -88,15 +88,15 @@ describe(`${schema.Values.name} denormalization`, () => {
     );
 
     const entities = {
-      Cat: { 1: { id: 1, type: 'cats' } },
-      Dog: { 1: { id: 1, type: 'dogs' } },
+      Cat: { '1': { id: '1', type: 'cats' } },
+      Dog: { '1': { id: '1', type: 'dogs' } },
     };
 
     expect(
       denormalize(
         {
-          fido: { id: 1, schema: 'dogs' },
-          fluffy: { id: 1, schema: 'cats' },
+          fido: { id: '1', schema: 'dogs' },
+          fluffy: { id: '1', schema: 'cats' },
         },
         valuesSchema,
         entities,
@@ -106,8 +106,8 @@ describe(`${schema.Values.name} denormalization`, () => {
     expect(
       denormalize(
         {
-          fido: { id: 1, schema: 'dogs' },
-          fluffy: { id: 1, schema: 'cats' },
+          fido: { id: '1', schema: 'dogs' },
+          fluffy: { id: '1', schema: 'cats' },
         },
         valuesSchema,
         fromJS(entities),
@@ -127,16 +127,16 @@ describe(`${schema.Values.name} denormalization`, () => {
     );
 
     const entities = {
-      Cat: { 1: { id: 1, type: 'cats' } },
-      Dog: { 1: { id: 1, type: 'dogs' } },
+      Cat: { '1': { id: '1', type: 'cats' } },
+      Dog: { '1': { id: '1', type: 'dogs' } },
     };
 
     expect(
       denormalize(
         {
-          fido: { id: 1, schema: 'dogs' },
-          fluffy: { id: 1, schema: 'cats' },
-          prancy: { id: 5, schema: 'cats' },
+          fido: { id: '1', schema: 'dogs' },
+          fluffy: { id: '1', schema: 'cats' },
+          prancy: { id: '5', schema: 'cats' },
         },
         valuesSchema,
         entities,
@@ -146,9 +146,9 @@ describe(`${schema.Values.name} denormalization`, () => {
     expect(
       denormalize(
         {
-          fido: { id: 1, schema: 'dogs' },
-          fluffy: { id: 1, schema: 'cats' },
-          prancy: { id: 5, schema: 'cats' },
+          fido: { id: '1', schema: 'dogs' },
+          fluffy: { id: '1', schema: 'cats' },
+          prancy: { id: '5', schema: 'cats' },
         },
         valuesSchema,
         fromJS(entities),

@@ -1,6 +1,7 @@
 import { AbstractInstanceType, Method, FetchOptions } from 'rest-hooks/types';
-import { NotImplementedError, Entity } from '@rest-hooks/normalizr';
+import { FlatEntity } from '@rest-hooks/normalizr';
 
+import { NotImplementedError } from './errors';
 import { ReadShape, MutateShape, DeleteShape } from './shapes';
 import { SchemaDetail, SchemaList } from './normal';
 import paramsToString from './paramsToString';
@@ -10,7 +11,7 @@ import paramsToString from './paramsToString';
  *
  * This can be a useful organization for many REST-like API patterns.
  */
-export default abstract class SimpleResource extends Entity {
+export default abstract class SimpleResource extends FlatEntity {
   // typescript todo: require subclasses to implement
   /** Used as base of url construction */
   static readonly urlRoot: string;

@@ -4,6 +4,13 @@ export type AbstractInstanceType<T> = T extends { prototype: infer U }
   ? U
   : never;
 
+export type NormalizedEntity<T> = T extends {
+  prototype: infer U;
+  schema: infer S;
+}
+  ? { [K in Exclude<keyof U, keyof S>]: U[K] } & { [K in keyof S]: string }
+  : never;
+
 type DenormalizeObject<S extends Record<string, any>> = {
   [K in keyof S]: S[K] extends Schema ? Denormalize<S[K]> : S[K];
 };

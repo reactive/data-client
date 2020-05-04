@@ -2,8 +2,8 @@
 
 exports[`UnionSchema denormalization denormalizes an array of multiple entities using a function to infer the schemaAttribute 1`] = `
 Array [
-  Object {
-    "id": 1,
+  User {
+    "id": "1",
     "type": "users",
     "username": "Janey",
   },
@@ -13,10 +13,10 @@ Array [
 
 exports[`UnionSchema denormalization denormalizes an array of multiple entities using a function to infer the schemaAttribute 2`] = `
 Array [
-  Immutable.Map {
-    "id": 1,
-    "username": "Janey",
+  User {
+    "id": "1",
     "type": "users",
+    "username": "Janey",
   },
   true,
 ]
@@ -24,9 +24,9 @@ Array [
 
 exports[`UnionSchema denormalization denormalizes an array of multiple entities using a function to infer the schemaAttribute 3`] = `
 Array [
-  Object {
+  Group {
     "groupname": "People",
-    "id": 2,
+    "id": "2",
     "type": "groups",
   },
   true,
@@ -35,9 +35,9 @@ Array [
 
 exports[`UnionSchema denormalization denormalizes an array of multiple entities using a function to infer the schemaAttribute 4`] = `
 Array [
-  Immutable.Map {
-    "id": 2,
+  Group {
     "groupname": "People",
+    "id": "2",
     "type": "groups",
   },
   true,
@@ -46,8 +46,8 @@ Array [
 
 exports[`UnionSchema denormalization denormalizes an object using string schemaAttribute 1`] = `
 Array [
-  Object {
-    "id": 1,
+  User {
+    "id": "1",
     "type": "users",
     "username": "Janey",
   },
@@ -57,10 +57,10 @@ Array [
 
 exports[`UnionSchema denormalization denormalizes an object using string schemaAttribute 2`] = `
 Array [
-  Immutable.Map {
-    "id": 1,
-    "username": "Janey",
+  User {
+    "id": "1",
     "type": "users",
+    "username": "Janey",
   },
   true,
 ]
@@ -68,9 +68,9 @@ Array [
 
 exports[`UnionSchema denormalization denormalizes an object using string schemaAttribute 3`] = `
 Array [
-  Object {
+  Group {
     "groupname": "People",
-    "id": 2,
+    "id": "2",
     "type": "groups",
   },
   true,
@@ -79,9 +79,9 @@ Array [
 
 exports[`UnionSchema denormalization denormalizes an object using string schemaAttribute 4`] = `
 Array [
-  Immutable.Map {
-    "id": 2,
+  Group {
     "groupname": "People",
+    "id": "2",
     "type": "groups",
   },
   true,
@@ -91,7 +91,7 @@ Array [
 exports[`UnionSchema denormalization returns the original value no schema is given 1`] = `
 Array [
   Object {
-    "id": 1,
+    "id": "1",
   },
   true,
 ]
@@ -100,7 +100,7 @@ Array [
 exports[`UnionSchema denormalization returns the original value no schema is given 2`] = `
 Array [
   Immutable.Map {
-    "id": 1,
+    "id": "1",
   },
   true,
 ]
@@ -111,7 +111,7 @@ Object {
   "entities": Object {
     "User": Object {
       "1": User {
-        "id": 1,
+        "id": "1",
         "username": "Janey",
       },
     },
@@ -130,7 +130,7 @@ Object {
     "Group": Object {
       "2": Group {
         "groupname": "People",
-        "id": 2,
+        "id": "2",
       },
     },
   },
@@ -147,7 +147,7 @@ Object {
   "entities": Object {},
   "indexes": Object {},
   "result": Object {
-    "id": 3,
+    "id": "3",
     "notdefined": "yep",
   },
 }
@@ -158,7 +158,7 @@ Object {
   "entities": Object {
     "User": Object {
       "1": User {
-        "id": 1,
+        "id": "1",
         "type": "users",
       },
     },
@@ -176,7 +176,7 @@ Object {
   "entities": Object {
     "Group": Object {
       "2": Group {
-        "id": 2,
+        "id": "2",
         "type": "groups",
       },
     },

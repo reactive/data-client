@@ -2,8 +2,8 @@ import * as ImmutableUtils from './schemas/ImmutableUtils';
 import * as ArrayUtils from './schemas/Array';
 import * as ObjectUtils from './schemas/Object';
 import { Denormalize, DenormalizeNullable, Schema } from './types';
-import SimpleRecord from './entities/SimpleRecord';
-import { isEntity } from './entities/Entity';
+import Entity, { isEntity } from './entities/Entity';
+import FlatEntity from './entities/FlatEntity';
 
 const unvisitEntity = (
   id: any,
@@ -25,9 +25,9 @@ const unvisitEntity = (
   if (!cache[schema.key][id]) {
     // Ensure we don't mutate it non-immutable objects
     const entityCopy =
-      ImmutableUtils.isImmutable(entity) || entity instanceof SimpleRecord
+      ImmutableUtils.isImmutable(entity) || entity instanceof FlatEntity
         ? entity
-        : { ...entity };
+        : schema.fromJS(entity);
 
     // Need to set this first so that if it is referenced further within the
     // denormalization the reference will already exist.
@@ -82,7 +82,7 @@ const getUnvisit = (entities: Record<string, any>) => {
 const getEntities = (entities: Record<string, any>) => {
   const isImmutable = ImmutableUtils.isImmutable(entities);
 
-  return (entityOrId: any, schema: any) => {
+  return (entityOrId: Record<string, any> | string, schema: typeof Entity) => {
     const schemaKey = schema.key;
 
     if (typeof entityOrId === 'object') {
@@ -90,7 +90,7 @@ const getEntities = (entities: Record<string, any>) => {
     }
 
     if (isImmutable) {
-      return entities.getIn([schemaKey, entityOrId.toString()]);
+      return entities.getIn([schemaKey, entityOrId]);
     }
 
     return entities[schemaKey] && entities[schemaKey][entityOrId];
@@ -105,9 +105,8 @@ export const denormalize = <S extends Schema>(
   | [Denormalize<S>, true, Record<string, Record<string, any>>]
   | [DenormalizeNullable<S>, false, Record<string, Record<string, any>>] => {
   /* istanbul ignore next */
-  // eslint-disable-next-line no-undef
   if (process.env.NODE_ENV !== 'production' && schema === undefined)
-    throw new Error('shema needed');
+    throw new Error('schema needed');
   if (typeof input !== 'undefined') {
     const [unvisit, cache] = getUnvisit(entities);
     return [...unvisit(input, schema), cache] as any;
@@ -119,4 +118,5 @@ export const denormalizeSimple = <S extends Schema>(
   input: any,
   schema: S,
   entities: any,
-) => denormalize(input, schema, entities).slice(0, 2);
+): [Denormalize<S>, true] | [DenormalizeNullable<S>, false] =>
+  denormalize(input, schema, entities).slice(0, 2) as any;

@@ -2,7 +2,7 @@
 import { fromJS } from 'immutable';
 
 import { denormalizeSimple as denormalize } from '../../denormalize';
-import { normalize, schema, Entity } from '../../';
+import { normalize, schema } from '../../';
 import IDEntity from '../../entities/IDEntity';
 
 describe(`${schema.Array.name} normalization`, () => {
@@ -10,7 +10,7 @@ describe(`${schema.Array.name} normalization`, () => {
     test(`normalizes plain arrays as shorthand for ${schema.Array.name}`, () => {
       class User extends IDEntity {}
       expect(
-        normalize([{ id: 1 }, { id: 2 }], [User.asSchema()]),
+        normalize([{ id: '1' }, { id: '2' }], [User.asSchema()]),
       ).toMatchSnapshot();
     });
 
@@ -18,7 +18,7 @@ describe(`${schema.Array.name} normalization`, () => {
       class User extends IDEntity {}
       class Cat extends IDEntity {}
       expect(() =>
-        normalize([{ id: 1 }], [Cat.asSchema(), User.asSchema()]),
+        normalize([{ id: '1' }], [Cat.asSchema(), User.asSchema()]),
       ).toThrow();
     });
 
@@ -41,7 +41,7 @@ describe(`${schema.Array.name} normalization`, () => {
       expect(
         normalize(
           {
-            id: 1,
+            id: '1',
             content: 'parent',
             children: [{ id: 4, content: 'child' }],
           },
@@ -53,7 +53,7 @@ describe(`${schema.Array.name} normalization`, () => {
     test('normalizes Objects using their values', () => {
       class User extends IDEntity {}
       expect(
-        normalize({ foo: { id: 1 }, bar: { id: 2 } }, [User.asSchema()]),
+        normalize({ foo: { id: '1' }, bar: { id: '2' } }, [User.asSchema()]),
       ).toMatchSnapshot();
     });
   });
@@ -62,7 +62,9 @@ describe(`${schema.Array.name} normalization`, () => {
     class Cats extends IDEntity {}
     test('normalizes a single entity', () => {
       const listSchema = new schema.Array(Cats.asSchema());
-      expect(normalize([{ id: 1 }, { id: 2 }], listSchema)).toMatchSnapshot();
+      expect(
+        normalize([{ id: '1' }, { id: '2' }], listSchema),
+      ).toMatchSnapshot();
     });
 
     test('normalizes multiple entities', () => {
@@ -96,7 +98,7 @@ describe(`${schema.Array.name} normalization`, () => {
       class User extends IDEntity {}
       const users = new schema.Array(User);
       expect(
-        normalize({ foo: { id: 1 }, bar: { id: 2 } }, users),
+        normalize({ foo: { id: '1' }, bar: { id: '2' } }, users),
       ).toMatchSnapshot();
     });
 
@@ -104,7 +106,7 @@ describe(`${schema.Array.name} normalization`, () => {
       class User extends IDEntity {}
       const users = new schema.Array(User);
       expect(
-        normalize([undefined, { id: 123 }, null], users),
+        normalize([undefined, { id: '123' }, null], users),
       ).toMatchSnapshot();
     });
   });
@@ -116,30 +118,32 @@ describe(`${schema.Array.name} denormalization`, () => {
       class Cat extends IDEntity {}
       const entities = {
         Cat: {
-          1: { id: 1, name: 'Milo' },
-          2: { id: 2, name: 'Jake' },
+          '1': { id: '1', name: 'Milo' },
+          '2': { id: '2', name: 'Jake' },
         },
       };
-      expect(denormalize([1, 2], [Cat], entities)).toMatchSnapshot();
-      expect(denormalize([1, 2], [Cat], fromJS(entities))).toMatchSnapshot();
+      expect(denormalize(['1', '2'], [Cat], entities)).toMatchSnapshot();
+      expect(
+        denormalize(['1', '2'], [Cat], fromJS(entities)),
+      ).toMatchSnapshot();
     });
 
     test('denormalizes plain arrays with nothing inside', () => {
       class User extends IDEntity {}
       const entities = {
         User: {
-          1: { id: 1, name: 'Jane' },
+          '1': { id: '1', name: 'Jane' },
         },
       };
       expect(
-        denormalize({ user: 1 }, { user: User, tacos: [] }, entities),
+        denormalize({ user: '1' }, { user: User, tacos: [] }, entities),
       ).toMatchSnapshot();
       expect(
-        denormalize({ user: 1 }, { user: User, tacos: [] }, fromJS(entities)),
+        denormalize({ user: '1' }, { user: User, tacos: [] }, fromJS(entities)),
       ).toMatchSnapshot();
       expect(
         denormalize(
-          fromJS({ user: 1 }),
+          fromJS({ user: '1' }),
           { user: User, tacos: [] },
           fromJS(entities),
         ),
@@ -147,21 +151,21 @@ describe(`${schema.Array.name} denormalization`, () => {
 
       expect(
         denormalize(
-          { user: 1, tacos: [] },
+          { user: '1', tacos: [] },
           { user: User, tacos: [] },
           entities,
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
-          { user: 1, tacos: [] },
+          { user: '1', tacos: [] },
           { user: User, tacos: [] },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
-          fromJS({ user: 1, tacos: [] }),
+          fromJS({ user: '1', tacos: [] }),
           { user: User, tacos: [] },
           fromJS(entities),
         ),
@@ -172,26 +176,26 @@ describe(`${schema.Array.name} denormalization`, () => {
       class User extends IDEntity {}
       const entities = {
         User: {
-          1: { id: 1, name: 'Jane' },
+          '1': { id: '1', name: 'Jane' },
         },
       };
       expect(
         denormalize(
-          { user: 1 },
+          { user: '1' },
           { user: User, tacos: [{ next: '' }] },
           entities,
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
-          { user: 1 },
+          { user: '1' },
           { user: User, tacos: [{ next: '' }] },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
-          fromJS({ user: 1 }),
+          fromJS({ user: '1' }),
           { user: User, tacos: [{ next: '' }] },
           fromJS(entities),
         ),
@@ -199,21 +203,21 @@ describe(`${schema.Array.name} denormalization`, () => {
 
       expect(
         denormalize(
-          { user: 1, tacos: [] },
+          { user: '1', tacos: [] },
           { user: User, tacos: [{ next: '' }] },
           entities,
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
-          { user: 1, tacos: [] },
+          { user: '1', tacos: [] },
           { user: User, tacos: [{ next: '' }] },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
-          fromJS({ user: 1, tacos: [] }),
+          fromJS({ user: '1', tacos: [] }),
           { user: User, tacos: [{ next: '' }] },
           fromJS(entities),
         ),
@@ -225,15 +229,15 @@ describe(`${schema.Array.name} denormalization`, () => {
       const catSchema = { results: [Cat] };
       const entities = {
         Cat: {
-          1: { id: 1, name: 'Milo' },
-          2: { id: 2, name: 'Jake' },
+          '1': { id: '1', name: 'Milo' },
+          '2': { id: '2', name: 'Jake' },
         },
       };
       expect(
-        denormalize({ results: [1, 2] }, catSchema, entities),
+        denormalize({ results: ['1', '2'] }, catSchema, entities),
       ).toMatchSnapshot();
       expect(
-        denormalize({ results: [1, 2] }, catSchema, fromJS(entities)),
+        denormalize({ results: ['1', '2'] }, catSchema, fromJS(entities)),
       ).toMatchSnapshot();
     });
 
@@ -242,19 +246,19 @@ describe(`${schema.Array.name} denormalization`, () => {
       const catSchema = { results: [Cat], nextPage: '' };
       const entities = {
         Cat: {
-          1: { id: 1, name: 'Milo' },
-          2: { id: 2, name: 'Jake' },
+          '1': { id: '1', name: 'Milo' },
+          '2': { id: '2', name: 'Jake' },
         },
       };
       let [value, found] = denormalize(
-        { results: [1, 2] },
+        { results: ['1', '2'] },
         catSchema,
         entities,
       );
       expect(value).toMatchSnapshot();
       expect(found).toBe(true);
       [value, found] = denormalize(
-        { results: [1, 2] },
+        { results: ['1', '2'] },
         catSchema,
         fromJS(entities),
       );
@@ -267,8 +271,8 @@ describe(`${schema.Array.name} denormalization`, () => {
       const catSchema = { results: [Cat] };
       const entities = {
         Cat: {
-          1: { id: 1, name: 'Milo' },
-          2: { id: 2, name: 'Jake' },
+          '1': { id: '1', name: 'Milo' },
+          '2': { id: '2', name: 'Jake' },
         },
       };
       let [value, found] = denormalize(
@@ -291,19 +295,19 @@ describe(`${schema.Array.name} denormalization`, () => {
       class Cat extends IDEntity {}
       const entities = {
         Cat: {
-          1: { id: 1, name: 'Milo' },
-          2: { id: 2, name: 'Jake' },
+          '1': { id: '1', name: 'Milo' },
+          '2': { id: '2', name: 'Jake' },
         },
       };
       let [value, foundEntities] = denormalize(
-        [{ data: 1 }, { data: 2 }, { data: 3 }],
+        [{ data: '1' }, { data: '2' }, { data: '3' }],
         [{ data: Cat }],
         entities,
       );
       expect(value).toMatchSnapshot();
       expect(foundEntities).toBe(true);
       [value, foundEntities] = denormalize(
-        [{ data: 1 }, { data: 2 }, { data: 3 }],
+        [{ data: '1' }, { data: '2' }, { data: '3' }],
         [{ data: Cat }],
         fromJS(entities),
       );
@@ -335,39 +339,41 @@ describe(`${schema.Array.name} denormalization`, () => {
       class Cat extends IDEntity {}
       const entities = {
         Cat: {
-          1: { id: 1, name: 'Milo' },
-          2: { id: 2, name: 'Jake' },
+          '1': { id: '1', name: 'Milo' },
+          '2': { id: '2', name: 'Jake' },
         },
       };
       const catList = new schema.Array(Cat);
-      expect(denormalize([1, 2], catList, entities)).toMatchSnapshot();
-      expect(denormalize([1, 2], catList, fromJS(entities))).toMatchSnapshot();
+      expect(denormalize(['1', '2'], catList, entities)).toMatchSnapshot();
+      expect(
+        denormalize(['1', '2'], catList, fromJS(entities)),
+      ).toMatchSnapshot();
     });
 
     test('denormalizes plain arrays with nothing inside', () => {
       class User extends IDEntity {}
       const entities = {
         User: {
-          1: { id: 1, name: 'Jane' },
+          '1': { id: '1', name: 'Jane' },
         },
       };
       expect(
         denormalize(
-          { user: 1 },
+          { user: '1' },
           { user: User, tacos: new schema.Array() },
           entities,
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
-          { user: 1 },
+          { user: '1' },
           { user: User, tacos: new schema.Array() },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
-          fromJS({ user: 1 }),
+          fromJS({ user: '1' }),
           { user: User, tacos: new schema.Array() },
           fromJS(entities),
         ),
@@ -375,21 +381,21 @@ describe(`${schema.Array.name} denormalization`, () => {
 
       expect(
         denormalize(
-          { user: 1, tacos: [] },
+          { user: '1', tacos: [] },
           { user: User, tacos: new schema.Array() },
           entities,
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
-          { user: 1, tacos: [] },
+          { user: '1', tacos: [] },
           { user: User, tacos: new schema.Array() },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
-          fromJS({ user: 1, tacos: [] }),
+          fromJS({ user: '1', tacos: [] }),
           { user: User, tacos: new schema.Array() },
           fromJS(entities),
         ),
@@ -400,26 +406,26 @@ describe(`${schema.Array.name} denormalization`, () => {
       class User extends IDEntity {}
       const entities = {
         User: {
-          1: { id: 1, name: 'Jane' },
+          '1': { id: '1', name: 'Jane' },
         },
       };
       expect(
         denormalize(
-          { user: 1 },
+          { user: '1' },
           { user: User, tacos: new schema.Array({ next: '' }) },
           entities,
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
-          { user: 1 },
+          { user: '1' },
           { user: User, tacos: new schema.Array({ next: '' }) },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
-          fromJS({ user: 1 }),
+          fromJS({ user: '1' }),
           { user: User, tacos: new schema.Array({ next: '' }) },
           fromJS(entities),
         ),
@@ -427,21 +433,21 @@ describe(`${schema.Array.name} denormalization`, () => {
 
       expect(
         denormalize(
-          { user: 1, tacos: [] },
+          { user: '1', tacos: [] },
           { user: User, tacos: new schema.Array({ next: '' }) },
           entities,
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
-          { user: 1, tacos: [] },
+          { user: '1', tacos: [] },
           { user: User, tacos: new schema.Array({ next: '' }) },
           fromJS(entities),
         ),
       ).toMatchSnapshot();
       expect(
         denormalize(
-          fromJS({ user: 1, tacos: [] }),
+          fromJS({ user: '1', tacos: [] }),
           { user: User, tacos: new schema.Array({ next: '' }) },
           fromJS(entities),
         ),
@@ -453,15 +459,15 @@ describe(`${schema.Array.name} denormalization`, () => {
       const catSchema = { results: new schema.Array(Cat) };
       const entities = {
         Cat: {
-          1: { id: 1, name: 'Milo' },
-          2: { id: 2, name: 'Jake' },
+          '1': { id: '1', name: 'Milo' },
+          '2': { id: '2', name: 'Jake' },
         },
       };
       expect(
-        denormalize({ results: [1, 2] }, catSchema, entities),
+        denormalize({ results: ['1', '2'] }, catSchema, entities),
       ).toMatchSnapshot();
       expect(
-        denormalize({ results: [1, 2] }, catSchema, fromJS(entities)),
+        denormalize({ results: ['1', '2'] }, catSchema, fromJS(entities)),
       ).toMatchSnapshot();
     });
 
@@ -470,22 +476,23 @@ describe(`${schema.Array.name} denormalization`, () => {
       const catSchema = { results: new schema.Array(Cat), nextPage: '' };
       const entities = {
         Cat: {
-          1: { id: 1, name: 'Milo' },
-          2: { id: 2, name: 'Jake' },
+          '1': { id: '1', name: 'Milo' },
+          '2': { id: '2', name: 'Jake' },
         },
       };
       let [value, found] = denormalize(
-        { results: [1, 2] },
+        { results: ['1', '2'] },
         catSchema,
         entities,
       );
       expect(value).toMatchSnapshot();
       expect(found).toBe(true);
       [value, found] = denormalize(
-        { results: [1, 2] },
+        { results: ['1', '2'] },
         catSchema,
         fromJS(entities),
       );
+      console.log(fromJS(entities).getIn(['Cat', '1']));
       expect(value).toMatchSnapshot();
       expect(found).toBe(true);
     });
@@ -495,8 +502,8 @@ describe(`${schema.Array.name} denormalization`, () => {
       const catSchema = { results: new schema.Array(Cat) };
       const entities = {
         Cat: {
-          1: { id: 1, name: 'Milo' },
-          2: { id: 2, name: 'Jake' },
+          '1': { id: '1', name: 'Milo' },
+          '2': { id: '2', name: 'Jake' },
         },
       };
       let [value, found] = denormalize(
@@ -519,14 +526,14 @@ describe(`${schema.Array.name} denormalization`, () => {
       class Cat extends IDEntity {}
       const entities = {
         Cat: {
-          1: { id: 1, name: 'Milo' },
-          2: { id: 2, name: 'Jake' },
+          '1': { id: '1', name: 'Milo' },
+          '2': { id: '2', name: 'Jake' },
         },
       };
       const catList = new schema.Array(Cat);
-      expect(denormalize([1, 2, 3], catList, entities)).toMatchSnapshot();
+      expect(denormalize(['1', '2', '3'], catList, entities)).toMatchSnapshot();
       expect(
-        denormalize([1, 2, 3], catList, fromJS(entities)),
+        denormalize(['1', '2', '3'], catList, fromJS(entities)),
       ).toMatchSnapshot();
     });
 
@@ -600,8 +607,8 @@ describe(`${schema.Array.name} denormalization`, () => {
       });
       const catList = new schema.Array(catRecord);
       const input = [
-        { cat: { id: 1 }, id: 5 },
-        { cat: { id: 2 }, id: 6 },
+        { cat: { id: '1' }, id: '5' },
+        { cat: { id: '2' }, id: '6' },
       ];
       const output = normalize(input, catList);
       expect(output).toMatchSnapshot();
