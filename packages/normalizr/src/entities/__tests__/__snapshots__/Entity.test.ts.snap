@@ -1,176 +1,281 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Entity normalization idAttribute can build the entity's ID from the parent object 1`] = `
-Object {
-  "entities": Object {
-    "User": Object {
-      "tacos-user-4": User {
-        "id": "4",
-        "name": "Jimmy",
-      },
+exports[`Entity denormalization can denormalize already partially denormalized data 1`] = `
+Array [
+  Menu {
+    "food": Food {
+      "id": "1",
     },
+    "id": "1",
   },
-  "indexes": Object {},
-  "result": Object {
-    "name": "tacos",
-    "user": "tacos-user-4",
-  },
-}
+  true,
+]
 `;
 
-exports[`Entity normalization idAttribute can normalize entity IDs based on their object key 1`] = `
-Object {
-  "entities": Object {
-    "User": Object {
-      "4": User {
-        "name": "taco",
-      },
-      "56": User {
-        "name": "burrito",
-      },
+exports[`Entity denormalization can denormalize already partially denormalized data 2`] = `
+Array [
+  Menu {
+    "food": Food {
+      "id": "1",
     },
+    "id": "1",
   },
-  "indexes": Object {},
-  "result": Object {
-    "4": Object {
-      "id": "4",
-      "schema": "users",
-    },
-    "56": Object {
-      "id": "56",
-      "schema": "users",
-    },
-  },
-}
+  true,
+]
 `;
 
-exports[`Entity normalization idAttribute can use a custom idAttribute string 1`] = `
-Object {
-  "entities": Object {
-    "User": Object {
-      "134351": User {
-        "idStr": "134351",
-        "name": "Kathy",
-      },
-    },
+exports[`Entity denormalization denormalizes an entity 1`] = `
+Array [
+  Tacos {
+    "alias": undefined,
+    "id": "1",
+    "name": "",
+    "type": "foo",
   },
-  "indexes": Object {},
-  "result": "134351",
-}
+  true,
+]
 `;
 
-exports[`Entity normalization mergeStrategy can use a custom merging strategy 1`] = `
-Object {
-  "entities": Object {
-    "MergeTaco": Object {
-      "1": MergeTaco {
-        "alias": "bar",
-        "id": 1,
-        "name": "foo",
-      },
-    },
+exports[`Entity denormalization denormalizes an entity 2`] = `
+Array [
+  Tacos {
+    "alias": undefined,
+    "id": "1",
+    "name": "",
+    "type": "foo",
   },
-  "indexes": Object {},
-  "result": Array [
-    "1",
-    "1",
-  ],
-}
+  true,
+]
 `;
 
-exports[`Entity normalization mergeStrategy defaults to plain merging 1`] = `
-Object {
-  "entities": Object {
-    "Tacos": Object {
-      "1": Tacos {
-        "alias": "bar",
-        "id": 1,
-        "name": "bar",
-      },
+exports[`Entity denormalization denormalizes deep entities 1`] = `
+Array [
+  Menu {
+    "food": Food {
+      "id": "1",
     },
+    "id": "1",
   },
-  "indexes": Object {},
-  "result": Array [
-    "1",
-    "1",
-  ],
-}
+  true,
+]
 `;
 
-exports[`Entity normalization normalizes an entity 1`] = `
-Object {
-  "entities": Object {
-    "MyEntity": Object {
-      "1": MyEntity {
-        "id": 1,
-      },
+exports[`Entity denormalization denormalizes deep entities 2`] = `
+Array [
+  Menu {
+    "food": Food {
+      "id": "1",
     },
+    "id": "1",
   },
-  "indexes": Object {},
-  "result": "1",
-}
+  true,
+]
 `;
 
-exports[`Entity normalization processStrategy can use a custom processing strategy 1`] = `
-Object {
-  "entities": Object {
-    "ProcessTaco": Object {
-      "1": ProcessTaco {
-        "alias": undefined,
-        "id": 1,
-        "name": "foo",
-        "slug": "thing-1",
-      },
+exports[`Entity denormalization denormalizes deep entities 3`] = `
+Array [
+  Menu {
+    "food": Food {
+      "id": undefined,
     },
+    "id": "2",
   },
-  "indexes": Object {},
-  "result": "1",
-}
+  true,
+]
 `;
 
-exports[`Entity normalization processStrategy can use information from the parent in the process strategy 1`] = `
-Object {
-  "entities": Object {
-    "ChildEntity": Object {
-      "4": ChildEntity {
-        "content": "child",
-        "id": 4,
-        "parentId": 1,
-        "parentKey": "child",
-      },
+exports[`Entity denormalization denormalizes deep entities 4`] = `
+Array [
+  Menu {
+    "food": Food {
+      "id": undefined,
     },
-    "ParentEntity": Object {
-      "1": ParentEntity {
-        "child": "4",
-        "content": "parent",
-        "id": 1,
-      },
-    },
+    "id": "2",
   },
-  "indexes": Object {},
-  "result": "1",
-}
+  false,
+]
 `;
 
-exports[`Entity normalization processStrategy is run before and passed to the schema normalization 1`] = `
-Object {
-  "entities": Object {
-    "AttachmentsEntity": Object {
-      "456": AttachmentsEntity {
-        "id": "456",
-      },
+exports[`Entity denormalization denormalizes deep entities with records 1`] = `
+Array [
+  Menu {
+    "food": Food {
+      "id": "1",
     },
-    "EntriesEntity": Object {
-      "123": EntriesEntity {
-        "data": Object {
-          "attachment": "456",
+    "id": "1",
+  },
+  true,
+]
+`;
+
+exports[`Entity denormalization denormalizes deep entities with records 2`] = `
+Array [
+  Menu {
+    "food": Food {
+      "id": "1",
+    },
+    "id": "1",
+  },
+  true,
+]
+`;
+
+exports[`Entity denormalization denormalizes deep entities with records 3`] = `
+Array [
+  Menu {
+    "food": null,
+    "id": "2",
+  },
+  true,
+]
+`;
+
+exports[`Entity denormalization denormalizes deep entities with records 4`] = `
+Array [
+  Menu {
+    "food": null,
+    "id": "2",
+  },
+  true,
+]
+`;
+
+exports[`Entity denormalization denormalizes recursive dependencies 1`] = `
+Array [
+  Report {
+    "draftedBy": User {
+      "id": "456",
+      "reports": Array [
+        [Circular],
+      ],
+      "role": "manager",
+    },
+    "id": "123",
+    "publishedBy": User {
+      "id": "456",
+      "reports": Array [
+        [Circular],
+      ],
+      "role": "manager",
+    },
+    "title": "Weekly report",
+  },
+  true,
+]
+`;
+
+exports[`Entity denormalization denormalizes recursive dependencies 2`] = `
+Array [
+  Report {
+    "draftedBy": User {
+      "id": "456",
+      "reports": Immutable.List [
+        Immutable.Map {
+          "id": "123",
+          "title": "Weekly report",
+          "draftedBy": "456",
+          "publishedBy": "456",
+        },
+      ],
+      "role": "manager",
+    },
+    "id": "123",
+    "publishedBy": User {
+      "id": "456",
+      "reports": Immutable.List [
+        Immutable.Map {
+          "id": "123",
+          "title": "Weekly report",
+          "draftedBy": "456",
+          "publishedBy": "456",
+        },
+      ],
+      "role": "manager",
+    },
+    "title": "Weekly report",
+  },
+  true,
+]
+`;
+
+exports[`Entity denormalization denormalizes recursive dependencies 3`] = `
+Array [
+  User {
+    "id": "456",
+    "reports": Array [
+      Report {
+        "draftedBy": [Circular],
+        "id": "123",
+        "publishedBy": [Circular],
+        "title": "Weekly report",
+      },
+    ],
+    "role": "manager",
+  },
+  true,
+]
+`;
+
+exports[`Entity denormalization denormalizes recursive dependencies 4`] = `
+Array [
+  User {
+    "id": "456",
+    "reports": Immutable.List [
+      Report {
+        "draftedBy": Immutable.Map {
+          "id": "456",
+          "role": "manager",
+          "reports": Immutable.List [
+            "123",
+          ],
         },
         "id": "123",
-        "type": "message",
+        "publishedBy": Immutable.Map {
+          "id": "456",
+          "role": "manager",
+          "reports": Immutable.List [
+            "123",
+          ],
+        },
+        "title": "Weekly report",
       },
-    },
+    ],
+    "role": "manager",
   },
-  "indexes": Object {},
-  "result": "123",
-}
+  true,
+]
+`;
+
+exports[`Entity denormalization denormalizes to undefined for missing data 1`] = `
+Array [
+  Menu {
+    "food": undefined,
+    "id": "1",
+  },
+  false,
+]
+`;
+
+exports[`Entity denormalization denormalizes to undefined for missing data 2`] = `
+Array [
+  Menu {
+    "food": undefined,
+    "id": "1",
+  },
+  false,
+]
+`;
+
+exports[`Entity denormalization denormalizes to undefined for missing data 3`] = `
+Array [
+  undefined,
+  false,
+]
+`;
+
+exports[`Entity denormalization denormalizes to undefined for missing data 4`] = `
+Array [
+  undefined,
+  false,
+]
 `;

@@ -377,7 +377,7 @@ Array [
 exports[`ArraySchema denormalization Class returns the input value if is not an array 2`] = `
 Array [
   Taco {
-    "fillings": Object {},
+    "fillings": Immutable.Map {},
     "id": "123",
   },
   true,

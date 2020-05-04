@@ -1,7 +1,9 @@
 // eslint-env jest
+import { fromJS } from 'immutable';
+
 import { denormalizeSimple as denormalize } from '../denormalize';
 import { normalize, schema } from '../';
-import NestingEntity from '../entities/NestingEntity';
+import Entity from '../entities/Entity';
 import IDEntity from '../entities/IDEntity';
 
 class Tacos extends IDEntity {
@@ -232,7 +234,7 @@ describe('normalize', () => {
     class Children extends IDEntity {
       name = '';
     }
-    class MyEntity extends NestingEntity {
+    class MyEntity extends Entity {
       uuid = '';
       name = '';
 
@@ -281,7 +283,7 @@ describe('normalize', () => {
   test('uses the non-normalized input when getting the ID for an entity', () => {
     const calls = [];
     class User extends IDEntity {}
-    class Recommendations extends NestingEntity {
+    class Recommendations extends Entity {
       pk(parent, key) {
         calls.push([this, parent, key]);
         return parent.user.id;
@@ -356,6 +358,9 @@ describe('denormalize', () => {
 
   test('denormalizes without entities fills undefined', () => {
     expect(denormalize({ data: '1' }, { data: Tacos }, {})).toMatchSnapshot();
+    expect(
+      denormalize(fromJS({ data: '1' }), { data: Tacos }, {}),
+    ).toMatchSnapshot();
     expect(denormalize('1', Tacos, {})).toEqual([undefined, false]);
   });
 
@@ -554,7 +559,7 @@ describe('denormalize', () => {
   });
 
   test('denormalizes with function as pk()', () => {
-    class Guest extends NestingEntity {
+    class Guest extends Entity {
       pk(parent, key) {
         return `${key}-${parent.id}-${this.guestId}`;
       }

@@ -1,10 +1,4 @@
-import {
-  Resource,
-  SimpleResource,
-  SimpleRecord,
-  Entity,
-  isEntity,
-} from './resource';
+import { Resource, SimpleResource, SimpleRecord } from './resource';
 import NetworkManager from './state/NetworkManager';
 import RIC from './state/RIC';
 import PollingSubscription from './state/PollingSubscription';
@@ -32,6 +26,12 @@ import useSelectionUnstable from './react-integration/hooks/useSelection';
 import hasUsableData from './react-integration/hooks/hasUsableData';
 import { StateContext, DispatchContext } from './react-integration/context';
 
+export {
+  Entity as NestedEntity,
+  isEntity,
+  FlatEntity as Entity,
+} from '@rest-hooks/normalizr';
+
 const __INTERNAL__ = {
   initialState,
   StateContext,
@@ -39,7 +39,6 @@ const __INTERNAL__ = {
   RIC,
   hasUsableData,
   buildInferredResults,
-  isEntity,
 };
 
 export type NetworkError = OGNetworkError;
@@ -61,7 +60,6 @@ export type { EntitySchema } from '@rest-hooks/normalizr';
 export {
   Resource,
   SimpleResource,
-  Entity,
   SimpleRecord,
   CacheProvider,
   ExternalCacheProvider,

@@ -17,7 +17,7 @@ class Tacos extends IDEntity {
 describe(`${Entity.name} normalization`, () => {
   test('normalizes an entity', () => {
     class MyEntity extends IDEntity {}
-    expect(normalize({ id: 1 }, MyEntity)).toMatchSnapshot();
+    expect(normalize({ id: '1' }, MyEntity)).toMatchSnapshot();
   });
 
   describe('key', () => {
@@ -51,8 +51,8 @@ describe(`${Entity.name} normalization`, () => {
     });
   });
 
-  describe('idAttribute', () => {
-    test('can use a custom idAttribute string', () => {
+  describe('pk()', () => {
+    test('can use a custom pk() string', () => {
       class User extends Entity {
         readonly idStr: string = '';
         readonly name: string = '';
@@ -80,7 +80,7 @@ describe(`${Entity.name} normalization`, () => {
 
       expect(
         normalize(
-          { 4: { name: 'taco' }, 56: { name: 'burrito' } },
+          { '4': { name: 'taco' }, '56': { name: 'burrito' } },
           inputSchema,
         ),
       ).toMatchSnapshot();
@@ -110,8 +110,8 @@ describe(`${Entity.name} normalization`, () => {
       expect(
         normalize(
           [
-            { id: 1, name: 'foo' },
-            { id: 1, name: 'bar', alias: 'bar' },
+            { id: '1', name: 'foo' },
+            { id: '1', name: 'bar', alias: 'bar' },
           ],
           [Tacos.asSchema()],
         ),
@@ -138,8 +138,8 @@ describe(`${Entity.name} normalization`, () => {
       expect(
         normalize(
           [
-            { id: 1, name: 'foo' },
-            { id: 1, name: 'bar', alias: 'bar' },
+            { id: '1', name: 'foo' },
+            { id: '1', name: 'bar', alias: 'bar' },
           ],
           [MergeTaco.asSchema()],
         ),
@@ -164,7 +164,7 @@ describe(`${Entity.name} normalization`, () => {
       }
 
       expect(
-        normalize({ id: 1, name: 'foo' }, ProcessTaco.asSchema()),
+        normalize({ id: '1', name: 'foo' }, ProcessTaco.asSchema()),
       ).toMatchSnapshot();
     });
 
@@ -194,9 +194,9 @@ describe(`${Entity.name} normalization`, () => {
       expect(
         normalize(
           {
-            id: 1,
+            id: '1',
             content: 'parent',
-            child: { id: 4, content: 'child' },
+            child: { id: '4', content: 'child' },
           },
           ParentEntity.asSchema(),
         ),
@@ -233,17 +233,16 @@ describe(`${Entity.name} normalization`, () => {
   });
 });
 
-/* TODO: This isn't supported quite yet
-describe(`${Entity.name} denormalization`, () => {
+describe.only(`${Entity.name} denormalization`, () => {
   test('denormalizes an entity', () => {
     const entities = {
-      tacos: {
-        1: { id: 1, type: 'foo' },
+      Tacos: {
+        '1': { id: '1', type: 'foo' },
       },
     };
-    expect(denormalize(1, Tacos.asSchema(), entities)).toMatchSnapshot();
+    expect(denormalize('1', Tacos.asSchema(), entities)).toMatchSnapshot();
     expect(
-      denormalize(1, Tacos.asSchema(), fromJS(entities)),
+      denormalize('1', Tacos.asSchema(), fromJS(entities)),
     ).toMatchSnapshot();
   });
 
@@ -256,37 +255,45 @@ describe(`${Entity.name} denormalization`, () => {
 
   test('denormalizes deep entities', () => {
     const entities = {
-      menus: {
-        1: { id: 1, food: 1 },
-        2: { id: 2 },
+      Menu: {
+        '1': { id: '1', food: '1' },
+        '2': { id: '2' },
       },
-      foods: {
-        1: { id: 1 },
+      Food: {
+        '1': { id: '1' },
       },
     };
 
-    expect(denormalize(1, Menu.asSchema(), entities)).toMatchSnapshot();
-    expect(denormalize(1, Menu.asSchema(), fromJS(entities))).toMatchSnapshot();
+    expect(denormalize('1', Menu.asSchema(), entities)).toMatchSnapshot();
+    expect(
+      denormalize('1', Menu.asSchema(), fromJS(entities)),
+    ).toMatchSnapshot();
 
-    expect(denormalize(2, Menu.asSchema(), entities)).toMatchSnapshot();
-    expect(denormalize(2, Menu.asSchema(), fromJS(entities))).toMatchSnapshot();
+    expect(denormalize('2', Menu.asSchema(), entities)).toMatchSnapshot();
+    expect(
+      denormalize('2', Menu.asSchema(), fromJS(entities)),
+    ).toMatchSnapshot();
   });
 
   test('denormalizes to undefined for missing data', () => {
     const entities = {
-      menus: {
-        1: { id: 1, food: 2 },
+      Menu: {
+        '1': { id: '1', food: '2' },
       },
-      foods: {
-        1: { id: 1 },
+      Food: {
+        '1': { id: '1' },
       },
     };
 
-    expect(denormalize(1, Menu.asSchema(), entities)).toMatchSnapshot();
-    expect(denormalize(1, Menu.asSchema(), fromJS(entities))).toMatchSnapshot();
+    expect(denormalize('1', Menu.asSchema(), entities)).toMatchSnapshot();
+    expect(
+      denormalize('1', Menu.asSchema(), fromJS(entities)),
+    ).toMatchSnapshot();
 
-    expect(denormalize(2, Menu.asSchema(), entities)).toMatchSnapshot();
-    expect(denormalize(2, Menu.asSchema(), fromJS(entities))).toMatchSnapshot();
+    expect(denormalize('2', Menu.asSchema(), entities)).toMatchSnapshot();
+    expect(
+      denormalize('2', Menu.asSchema(), fromJS(entities)),
+    ).toMatchSnapshot();
   });
 
   test('denormalizes deep entities with records', () => {
@@ -294,34 +301,40 @@ describe(`${Entity.name} denormalization`, () => {
     const MenuR = Record({ id: null, food: null });
 
     const entities = {
-      menus: {
-        1: new MenuR({ id: 1, food: 1 }),
-        2: new MenuR({ id: 2 }),
+      Menu: {
+        '1': new MenuR({ id: '1', food: '1' }),
+        '2': new MenuR({ id: '2' }),
       },
-      foods: {
-        1: new Food({ id: 1 }),
+      Food: {
+        '1': new Food({ id: '1' }),
       },
     };
 
-    expect(denormalize(1, Menu.asSchema(), entities)).toMatchSnapshot();
-    expect(denormalize(1, Menu.asSchema(), fromJS(entities))).toMatchSnapshot();
+    expect(denormalize('1', Menu.asSchema(), entities)).toMatchSnapshot();
+    expect(
+      denormalize('1', Menu.asSchema(), fromJS(entities)),
+    ).toMatchSnapshot();
 
-    expect(denormalize(2, Menu.asSchema(), entities)).toMatchSnapshot();
-    expect(denormalize(2, Menu.asSchema(), fromJS(entities))).toMatchSnapshot();
+    expect(denormalize('2', Menu.asSchema(), entities)).toMatchSnapshot();
+    expect(
+      denormalize('2', Menu.asSchema(), fromJS(entities)),
+    ).toMatchSnapshot();
   });
 
   test('can denormalize already partially denormalized data', () => {
     const entities = {
-      menus: {
-        1: { id: 1, food: { id: 1 } },
+      Menu: {
+        '1': { id: '1', food: { id: '1' } },
       },
-      foods: {
-        1: { id: 1 },
+      Food: {
+        '1': { id: '1' },
       },
     };
 
-    expect(denormalize(1, Menu.asSchema(), entities)).toMatchSnapshot();
-    expect(denormalize(1, Menu.asSchema(), fromJS(entities))).toMatchSnapshot();
+    expect(denormalize('1', Menu.asSchema(), entities)).toMatchSnapshot();
+    expect(
+      denormalize('1', Menu.asSchema(), fromJS(entities)),
+    ).toMatchSnapshot();
   });
 
   class User extends IDEntity {
@@ -330,8 +343,8 @@ describe(`${Entity.name} denormalization`, () => {
   }
   class Report extends IDEntity {
     readonly title: string = '';
-    readonly draftedBy: User = User.fromJS({});
-    readonly publishedBy: User = User.fromJS({});
+    readonly draftedBy: User = User.fromJS();
+    readonly publishedBy: User = User.fromJS();
 
     static schema = {
       draftedBy: User,
@@ -344,7 +357,7 @@ describe(`${Entity.name} denormalization`, () => {
 
   test('denormalizes recursive dependencies', () => {
     const entities = {
-      reports: {
+      Report: {
         '123': {
           id: '123',
           title: 'Weekly report',
@@ -352,7 +365,7 @@ describe(`${Entity.name} denormalization`, () => {
           publishedBy: '456',
         },
       },
-      users: {
+      User: {
         '456': {
           id: '456',
           role: 'manager',
@@ -360,6 +373,7 @@ describe(`${Entity.name} denormalization`, () => {
         },
       },
     };
+
     expect(denormalize('123', Report.asSchema(), entities)).toMatchSnapshot();
     expect(
       denormalize('123', Report.asSchema(), fromJS(entities)),
@@ -373,7 +387,7 @@ describe(`${Entity.name} denormalization`, () => {
 
   test('denormalizes entities with referential equality', () => {
     const entities = {
-      reports: {
+      Report: {
         '123': {
           id: '123',
           title: 'Weekly report',
@@ -381,7 +395,7 @@ describe(`${Entity.name} denormalization`, () => {
           publishedBy: '456',
         },
       },
-      users: {
+      User: {
         '456': {
           id: '456',
           role: 'manager',
@@ -396,6 +410,9 @@ describe(`${Entity.name} denormalization`, () => {
       entities,
     );
 
+    expect(denormalizedReport).toBeDefined();
+    // This is just for TypeScript, the above line actually determines this
+    if (!denormalizedReport) throw new Error('expected to be defined');
     expect(denormalizedReport).toBe(denormalizedReport.draftedBy.reports[0]);
     expect(denormalizedReport.publishedBy).toBe(denormalizedReport.draftedBy);
 
@@ -403,4 +420,3 @@ describe(`${Entity.name} denormalization`, () => {
     // maintained with nested denormalization.
   });
 });
-*/

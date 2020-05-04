@@ -2,8 +2,8 @@ import * as ImmutableUtils from './schemas/ImmutableUtils';
 import * as ArrayUtils from './schemas/Array';
 import * as ObjectUtils from './schemas/Object';
 import { Denormalize, DenormalizeNullable, Schema } from './types';
-import SimpleRecord from './entities/SimpleRecord';
 import Entity, { isEntity } from './entities/Entity';
+import FlatEntity from './entities/FlatEntity';
 
 const unvisitEntity = (
   id: any,
@@ -24,15 +24,15 @@ const unvisitEntity = (
   let found = true;
   if (!cache[schema.key][id]) {
     // Ensure we don't mutate it non-immutable objects
-    /*const entityCopy =
-      ImmutableUtils.isImmutable(entity) || entity instanceof SimpleRecord
+    const entityCopy =
+      ImmutableUtils.isImmutable(entity) || entity instanceof FlatEntity
         ? entity
-        : { ...entity };*/
+        : schema.fromJS(entity);
 
     // Need to set this first so that if it is referenced further within the
     // denormalization the reference will already exist.
-    cache[schema.key][id] = entity;
-    [cache[schema.key][id], found] = schema.denormalize(entity, unvisit);
+    cache[schema.key][id] = entityCopy;
+    [cache[schema.key][id], found] = schema.denormalize(entityCopy, unvisit);
   }
 
   return [cache[schema.key][id], found];
@@ -118,4 +118,5 @@ export const denormalizeSimple = <S extends Schema>(
   input: any,
   schema: S,
   entities: any,
-) => denormalize(input, schema, entities).slice(0, 2);
+): [Denormalize<S>, true] | [DenormalizeNullable<S>, false] =>
+  denormalize(input, schema, entities).slice(0, 2) as any;

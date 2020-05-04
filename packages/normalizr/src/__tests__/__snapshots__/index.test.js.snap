@@ -152,6 +152,15 @@ Array [
 ]
 `;
 
+exports[`denormalize denormalizes without entities fills undefined 2`] = `
+Array [
+  Immutable.Map {
+    "data": undefined,
+  },
+  false,
+]
+`;
+
 exports[`denormalize set to undefined if schema key is not in entities 1`] = `
 Array [
   Article {

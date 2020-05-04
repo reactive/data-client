@@ -29,6 +29,7 @@ export default abstract class SimpleRecord {
   ) {
     // we type guarded abstract case above, so ok to force typescript to allow constructor call
     const instance = new (this as any)(props) as AbstractInstanceType<T>;
+    Object.assign(instance, props);
 
     Object.defineProperty(instance, DefinedMembersKey, {
       value: Object.keys(props),
@@ -41,7 +42,6 @@ export default abstract class SimpleRecord {
       writable: false,
     });
 
-    Object.assign(instance, props);
     return instance;
   }
 

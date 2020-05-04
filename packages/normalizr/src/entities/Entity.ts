@@ -1,6 +1,7 @@
-import * as schema from '../schema';
-import { Schema, AbstractInstanceType } from '../types';
 import SimpleRecord from './SimpleRecord';
+import { isImmutable, denormalizeImmutable } from '../schemas/ImmutableUtils';
+import * as schema from '../schema';
+import { AbstractInstanceType, Schema, NormalizedEntity } from '../types';
 
 /** Represents data that should be deduped by specifying a primary key. */
 export default abstract class Entity extends SimpleRecord {
@@ -115,14 +116,34 @@ export default abstract class Entity extends SimpleRecord {
     return id;
   }
 
-  // TODO: Add denormalizing capability
   static denormalize<T extends typeof Entity>(
     this: T,
-    entity: any,
+    entity: AbstractInstanceType<T>,
     unvisit: schema.UnvisitFunction,
-    denormalizedEntityCache?: AbstractInstanceType<T>,
   ): [AbstractInstanceType<T>, boolean] {
-    return [entity, true] as any;
+    if (isImmutable(entity)) {
+      const [denormEntity, found] = denormalizeImmutable(
+        this.schema,
+        entity,
+        unvisit,
+      );
+      return [this.fromJS(denormEntity.toObject()), found];
+    }
+    let found = true;
+    const denormEntity = entity;
+
+    Object.keys(this.schema).forEach(key => {
+      const schema = this.schema[key];
+      const [value, foundItem] = unvisit(entity[key], schema);
+      if (!foundItem) {
+        found = false;
+      }
+      if (this.hasDefined(entity, key as any) && denormEntity[key] !== value) {
+        denormEntity[key] = value;
+      }
+    });
+
+    return [denormEntity as any, found];
   }
 }
 
