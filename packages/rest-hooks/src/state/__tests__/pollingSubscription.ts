@@ -1,6 +1,7 @@
 import { PollingArticleResource } from '__tests__/common';
 
 import PollingSubscription from '../PollingSubscription';
+import DefaultConnectionListener from '../DefaultConnectionListener';
 import { ConnectionListener } from '../ConnectionListener';
 
 class MockConnectionListener implements ConnectionListener {
@@ -240,12 +241,27 @@ describe('PollingSubscription', () => {
     }
 
     it('should not dispatch when offline', () => {
-      const listener = new MockConnectionListener(false);
+      jest.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+      const listener = new DefaultConnectionListener();
+      const offlineSpy = jest.spyOn(listener, 'addOfflineListener');
+      const onlineSpy = jest.spyOn(listener, 'addOnlineListener');
       const { dispatch } = createMocks(listener);
       jest.advanceTimersByTime(50000);
+      jest.spyOn(navigator, 'onLine', 'get').mockReturnValue(true);
       expect(dispatch.mock.calls.length).toBe(0);
-      expect(listener.offlineHandlers.length).toBe(0);
-      expect(listener.onlineHandlers.length).toBe(1);
+      expect(offlineSpy.mock.calls.length).toBe(0);
+      expect(onlineSpy.mock.calls.length).toBe(1);
+    });
+
+    it('should not dispatch when onLine is undefined (default to true)', () => {
+      jest.spyOn(navigator, 'onLine', 'get').mockReturnValue(undefined as any);
+      const listener = new DefaultConnectionListener();
+      const offlineSpy = jest.spyOn(listener, 'addOfflineListener');
+      const onlineSpy = jest.spyOn(listener, 'addOnlineListener');
+      const { dispatch } = createMocks(listener);
+      expect(dispatch.mock.calls.length).toBe(1);
+      expect(offlineSpy.mock.calls.length).toBe(1);
+      expect(onlineSpy.mock.calls.length).toBe(0);
     });
 
     it('should immediately start fetching when online', () => {
