@@ -86,6 +86,15 @@ describe('SubscriptionManager', () => {
       expect(next).not.toHaveBeenCalled();
       expect((manager as any).subscriptions[action.meta.key]).toBeDefined();
     });
+    it('subscribe should add a subscription (no frequency)', () => {
+      const action = createSubscribeAction({ id: 597 });
+      delete action.meta.options;
+      middleware({ dispatch, getState })(next)(action);
+
+      expect(next).not.toHaveBeenCalled();
+      expect((manager as any).subscriptions[action.meta.key]).toBeDefined();
+    });
+
     it('subscribe with same should call subscription.add', () => {
       const action = createSubscribeAction({ id: 5, title: 'four' });
       middleware({ dispatch, getState })(next)(action);
@@ -116,6 +125,22 @@ describe('SubscriptionManager', () => {
 
     it('unsubscribe should delete when remove returns true', () => {
       const action = createUnsubscribeAction({ id: 7, title: 'four cakes' });
+      (manager as any).subscriptions[action.meta.key].remove.mockImplementation(
+        () => true,
+      );
+
+      middleware({ dispatch, getState })(next)(action);
+
+      expect((manager as any).subscriptions[action.meta.key]).not.toBeDefined();
+    });
+
+    it('unsubscribe should delete when remove returns true (no frequency)', () => {
+      middleware({ dispatch, getState })(next)(
+        createSubscribeAction({ id: 50, title: 'four cakes' }),
+      );
+
+      const action = createUnsubscribeAction({ id: 50, title: 'four cakes' });
+      delete action.meta.options;
       (manager as any).subscriptions[action.meta.key].remove.mockImplementation(
         () => true,
       );

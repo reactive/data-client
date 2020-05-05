@@ -233,7 +233,7 @@ describe(`${Entity.name} normalization`, () => {
   });
 });
 
-describe.only(`${Entity.name} denormalization`, () => {
+describe(`${Entity.name} denormalization`, () => {
   test('denormalizes an entity', () => {
     const entities = {
       Tacos: {

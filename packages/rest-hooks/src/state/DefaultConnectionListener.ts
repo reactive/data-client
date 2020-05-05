@@ -27,6 +27,7 @@ export class BrowserConnectionListener implements ConnectionListener {
 
 export class AlwaysOnlineConnectionListener implements ConnectionListener {
   isOnline() {
+    /* istanbul ignore next */
     return true;
   }
 
@@ -40,12 +41,14 @@ export class AlwaysOnlineConnectionListener implements ConnectionListener {
 }
 
 let DefaultConnectionListener: { new (): ConnectionListener };
+/* istanbul ignore if */
 if (
   typeof navigator !== 'undefined' &&
   typeof addEventListener === 'function'
 ) {
   DefaultConnectionListener = BrowserConnectionListener;
 } else {
+  /* istanbul ignore next */
   DefaultConnectionListener = AlwaysOnlineConnectionListener;
 }
 export default DefaultConnectionListener;
