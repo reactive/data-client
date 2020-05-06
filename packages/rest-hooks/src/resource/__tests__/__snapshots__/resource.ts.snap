@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Resource getEntitySchema() merging should match snapshot 1`] = `
+exports[`Resource asSchema() merging should match snapshot 1`] = `
 Object {
   "entities": Object {
     "http://test.com/article-cooler/": Object {
@@ -38,4 +38,17 @@ Object {
     "3",
   ],
 }
+`;
+
+exports[`Resource asSchema() should throw a custom error if data does not include pk 1`] = `
+"Missing usable resource key when normalizing response.
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+
+  Entity: CoolerArticleResource
+  Value: {
+  \\"content\\": \\"hi\\"
+}
+  "
 `;

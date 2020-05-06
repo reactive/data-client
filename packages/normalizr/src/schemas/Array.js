@@ -1,4 +1,5 @@
 import PolymorphicSchema from './Polymorphic';
+import { isImmutable } from './ImmutableUtils';
 
 const validateSchema = definition => {
   const isArray = Array.isArray(definition);

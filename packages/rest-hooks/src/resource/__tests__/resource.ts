@@ -446,7 +446,7 @@ describe('Resource', () => {
     });
   });
 
-  describe('getEntitySchema()', () => {
+  describe('asSchema()', () => {
     describe('merging', () => {
       const nested = [
         {
@@ -496,22 +496,11 @@ describe('Resource', () => {
     });
 
     it('should throw a custom error if data does not include pk', () => {
-      const schema = CoolerArticleResource.getEntitySchema();
+      const schema = CoolerArticleResource.asSchema();
       function normalizeBad() {
-        normalize({ weirdthing: 'hi' }, schema);
+        normalize({ content: 'hi' }, schema);
       }
-      expect(normalizeBad).toThrowErrorMatchingInlineSnapshot(`
-"Missing usable resource key when normalizing response.
-
-  This is likely due to a malformed response.
-  Try inspecting the network response or fetch() return value.
-
-  Entity: CoolerArticleResource::http://test.com/article-cooler/
-  Value: {
-  \\"weirdthing\\": \\"hi\\"
-}
-  "
-`);
+      expect(normalizeBad).toThrowErrorMatchingSnapshot();
     });
   });
 });
