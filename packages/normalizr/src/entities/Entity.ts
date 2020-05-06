@@ -62,20 +62,53 @@ export default abstract class Entity extends SimpleRecord {
   ) {
     // TODO: what's store needs to be a differing type from fromJS
     const processedEntity = this.fromJS(input, parent, key);
+    /* istanbul ignore else */
+    if (process.env.NODE_ENV !== 'production') {
+      const instanceSample = new (this as any)();
+      const keysOfRecord = new Set(Object.keys(instanceSample));
+      let [sameCount, diffCount] = [0, 0];
+      let extraKey = false;
+      for (const keyOfProps of Entity.keysDefined(processedEntity)) {
+        if (keysOfRecord.has(keyOfProps)) {
+          sameCount++;
+        } else {
+          diffCount++;
+          extraKey = true;
+        }
+      }
+      diffCount += keysOfRecord.size - sameCount;
+      if (diffCount > sameCount && keysOfRecord.size && extraKey) {
+        const error = new Error(
+          `Attempted to initialize ${
+            this.name
+          } with substantially different than expected keys
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+
+  Expected keys: ${Object.keys(instanceSample)}
+  Value: ${JSON.stringify(Entity.toObjectDefined(processedEntity), null, 2)}`,
+        );
+        (error as any).status = 400;
+        throw error;
+      }
+    }
     const id = processedEntity.pk(parent, key);
-    /* istanbul ignore next */
-    if (id === undefined) {
-      if (process.env.NODE_ENV !== 'production' && id === undefined) {
-        throw new Error(
+    if (id === undefined || id === '') {
+      /* istanbul ignore else */
+      if (process.env.NODE_ENV !== 'production') {
+        const error = new Error(
           `Missing usable resource key when normalizing response.
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
 
-  Entity: ${this}
+  Entity: ${this.name}
   Value: ${input && JSON.stringify(input, null, 2)}
   `,
         );
+        (error as any).status = 400;
+        throw error;
       } else {
         throw new Error('undefined pk');
       }

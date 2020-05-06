@@ -454,3 +454,28 @@ Object {
   "result": "123",
 }
 `;
+
+exports[`Entity normalization should throw a custom error if data does not include pk 1`] = `
+"Missing usable resource key when normalizing response.
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+
+  Entity: MyEntity
+  Value: {
+  \\"secondthing\\": \\"hi\\"
+}
+  "
+`;
+
+exports[`Entity normalization should throw a custom error if data loads with unexpected props 1`] = `
+"Attempted to initialize MyEntity with substantially different than expected keys
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+
+  Expected keys: name,secondthing
+  Value: {
+  \\"nonexistantthing\\": \\"hi\\"
+}"
+`;

@@ -7,6 +7,15 @@ import IDEntity from '../../entities/IDEntity';
 
 describe(`${schema.Array.name} normalization`, () => {
   describe('Object', () => {
+    test('should throw a custom error if data loads with unexpected value', () => {
+      class User extends IDEntity {}
+      const schema = [User.asSchema()];
+      function normalizeBad() {
+        normalize('5', schema);
+      }
+      expect(normalizeBad).toThrowErrorMatchingSnapshot();
+    });
+
     test(`normalizes plain arrays as shorthand for ${schema.Array.name}`, () => {
       class User extends IDEntity {}
       expect(
@@ -24,6 +33,8 @@ describe(`${schema.Array.name} normalization`, () => {
 
     test('passes its parent to its children when normalizing', () => {
       class Child extends IDEntity {
+        content = '';
+
         static fromJS(entity, parent, key) {
           return super.fromJS({
             ...entity,
@@ -33,6 +44,9 @@ describe(`${schema.Array.name} normalization`, () => {
         }
       }
       class Parent extends IDEntity {
+        content = '';
+        children = [];
+
         static schema = {
           children: [Child.asSchema()],
         };
@@ -492,7 +506,6 @@ describe(`${schema.Array.name} denormalization`, () => {
         catSchema,
         fromJS(entities),
       );
-      console.log(fromJS(entities).getIn(['Cat', '1']));
       expect(value).toMatchSnapshot();
       expect(found).toBe(true);
     });

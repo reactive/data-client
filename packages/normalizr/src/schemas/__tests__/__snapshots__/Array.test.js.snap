@@ -1041,3 +1041,5 @@ Object {
   "result": "1",
 }
 `;
+
+exports[`ArraySchema normalization Object should throw a custom error if data loads with unexpected value 1`] = `"Unexpected input given to normalize. Expected type to be \\"object\\", found \\"string\\"."`;

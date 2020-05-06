@@ -20,6 +20,36 @@ describe(`${Entity.name} normalization`, () => {
     expect(normalize({ id: '1' }, MyEntity)).toMatchSnapshot();
   });
 
+  it('should throw a custom error if data does not include pk', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      pk() {
+        return this.name;
+      }
+    }
+    const schema = MyEntity.asSchema();
+    function normalizeBad() {
+      normalize({ secondthing: 'hi' }, schema);
+    }
+    expect(normalizeBad).toThrowErrorMatchingSnapshot();
+  });
+
+  it('should throw a custom error if data loads with unexpected props', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      pk() {
+        return this.name;
+      }
+    }
+    const schema = MyEntity.asSchema();
+    function normalizeBad() {
+      normalize({ nonexistantthing: 'hi' }, schema);
+    }
+    expect(normalizeBad).toThrowErrorMatchingSnapshot();
+  });
+
   describe('key', () => {
     test('must be created with a key name', () => {
       const makeSchema = () =>
@@ -206,6 +236,8 @@ describe(`${Entity.name} normalization`, () => {
     test('is run before and passed to the schema normalization', () => {
       class AttachmentsEntity extends IDEntity {}
       class EntriesEntity extends IDEntity {
+        readonly type: string = '';
+
         static schema = {
           data: { attachment: AttachmentsEntity.asSchema() },
         };
