@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.1...@rest-hooks/normalizr@6.0.0-beta.2) (2020-05-08)
+
+
+### 💅 Enhancement
+
+* Detect more cases of network mismatching schema ([#331](https://github.com/coinbase/rest-hooks/issues/331)) ([2af464f](https://github.com/coinbase/rest-hooks/commit/2af464f54318c5f099899150371c911133a717cb))
+
+
+### 🐛 Bug Fix
+
+* Allow for multiple pk methods ([#333](https://github.com/coinbase/rest-hooks/issues/333)) ([7ea9ed9](https://github.com/coinbase/rest-hooks/commit/7ea9ed9ee4701b2ba1bb1cf29743ae755ed909e8))
+
+
+### 🏠 Internal
+
+* Improve test coverage ([#330](https://github.com/coinbase/rest-hooks/issues/330)) ([edc5f73](https://github.com/coinbase/rest-hooks/commit/edc5f73471fc2b68a95b4ef09d883e7dab016d7d))
+
+
+
 ## [6.0.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.0...@rest-hooks/normalizr@6.0.0-beta.1) (2020-05-04)
 
 

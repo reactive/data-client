@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0-beta.6](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.0-beta.5...rest-hooks@5.0.0-beta.6) (2020-05-08)
+
+
+### 💅 Enhancement
+
+* Detect more cases of network mismatching schema ([#331](https://github.com/coinbase/rest-hooks/issues/331)) ([2af464f](https://github.com/coinbase/rest-hooks/commit/2af464f54318c5f099899150371c911133a717cb))
+
+
+### 🏠 Internal
+
+* Improve test coverage ([#330](https://github.com/coinbase/rest-hooks/issues/330)) ([edc5f73](https://github.com/coinbase/rest-hooks/commit/edc5f73471fc2b68a95b4ef09d883e7dab016d7d))
+
+
+
 ## [5.0.0-beta.5](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.0-beta.1...rest-hooks@5.0.0-beta.5) (2020-05-04)
 
 
