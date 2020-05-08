@@ -145,7 +145,7 @@ export default abstract class Entity extends SimpleRecord {
       }
     });
 
-    addEntity(this, processedEntity, input, parent, key);
+    addEntity(this, processedEntity, processedEntity, parent, key);
     return id;
   }
 
