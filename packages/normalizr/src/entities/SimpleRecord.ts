@@ -1,4 +1,5 @@
-import { AbstractInstanceType } from '../types';
+import { AbstractInstanceType, Schema, NormalizedEntity } from '../types';
+import { normalize, denormalize } from '../schemas/Object';
 
 const DefinedMembersKey = Symbol('Defined Members');
 const UniqueIdentifierKey = Symbol('unq');
@@ -13,6 +14,9 @@ export default abstract class SimpleRecord {
     // we don't make _unq a member so it doesn't play a role in type compatibility
     return (this as any)[UniqueIdentifierKey];
   }
+
+  /** Defines nested entities */
+  static schema: { [k: string]: Schema } = {};
 
   /** Factory method to convert from Plain JS Objects.
    *
@@ -90,4 +94,43 @@ export default abstract class SimpleRecord {
   ) {
     return ((instance as any) as SimpleResourceMembers<T>)[DefinedMembersKey];
   }
+
+  static normalize<T extends typeof SimpleRecord>(
+    this: T,
+    ...args: any[]
+  ): NormalizedEntity<T> {
+    return normalize(this.schema, ...args) as any;
+  }
+
+  static denormalize<T extends typeof SimpleRecord>(
+    this: T,
+    ...args: any[]
+  ): [AbstractInstanceType<T>, boolean] {
+    // useDenormalized will memo based on entities, so creating a new object each time is fine
+    return this.fromJS(denormalize(this.schema, ...args)) as any;
+  }
+
+  /** Returns this to be used in a schema definition.
+   * This is essential to capture the correct type to be used in inferencing.
+   */
+  static asSchema<T extends typeof SimpleRecord>(this: T) {
+    return this as SimpleRecordSchema<T>;
+  }
 }
+
+export type SimpleRecordSchema<E extends typeof SimpleRecord> = E & {
+  normalize(
+    input: any,
+    parent: any,
+    key: any,
+    visit: Function,
+    addEntity: Function,
+    visitedEntities: Record<string, any>,
+  ): any;
+  denormalize(
+    entity: any,
+    unvisit: Function,
+  ): [AbstractInstanceType<E>, boolean];
+  _normalizeNullable(): any | undefined;
+  _denormalizeNullable(): [AbstractInstanceType<E> | undefined, boolean];
+};
