@@ -106,8 +106,9 @@ export default abstract class SimpleRecord {
     this: T,
     ...args: any[]
   ): [AbstractInstanceType<T>, boolean] {
+    const [res, found] = denormalize(this.schema, ...args);
     // useDenormalized will memo based on entities, so creating a new object each time is fine
-    return this.fromJS(denormalize(this.schema, ...args)) as any;
+    return [this.fromJS(res) as any, found];
   }
 
   /** Returns this to be used in a schema definition.
