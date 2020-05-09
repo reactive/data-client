@@ -1,7 +1,7 @@
-import SimpleRecord from './SimpleRecord';
+import SimpleRecord, { SimpleRecordSchema } from './SimpleRecord';
 import { isImmutable, denormalizeImmutable } from '../schemas/ImmutableUtils';
 import * as schema from '../schema';
-import { AbstractInstanceType, Schema, NormalizedEntity } from '../types';
+import { AbstractInstanceType, Schema } from '../types';
 
 /** Represents data that should be deduped by specifying a primary key. */
 export default abstract class Entity extends SimpleRecord {
@@ -23,9 +23,6 @@ export default abstract class Entity extends SimpleRecord {
     return this.name;
   }
 
-  /** Defines nested entities */
-  static schema: { [k: string]: Schema } = {};
-
   /** Defines indexes to enable lookup by */
   declare static indexes?: readonly string[];
 
@@ -45,21 +42,14 @@ export default abstract class Entity extends SimpleRecord {
     return this.prototype.pk.call(value, parent, key) || key;
   }
 
-  /** Returns this to be used in a schema definition.
-   * This is essential to capture the correct type to be used in inferencing.
-   */
-  static asSchema<T extends typeof Entity>(this: T) {
-    return this as EntitySchema<T>;
-  }
-
   static normalize(
-    input: Partial<Entity>,
+    input: any,
     parent: any,
     key: string | undefined,
     visit: Function,
     addEntity: Function,
     visitedEntities: Record<string, any>,
-  ) {
+  ): any {
     // TODO: what's store needs to be a differing type from fromJS
     const processedEntity = this.fromJS(input, parent, key);
     /* istanbul ignore else */
@@ -68,7 +58,7 @@ export default abstract class Entity extends SimpleRecord {
       const keysOfRecord = new Set(Object.keys(instanceSample));
       let [sameCount, diffCount] = [0, 0];
       let extraKey = false;
-      for (const keyOfProps of Entity.keysDefined(processedEntity)) {
+      for (const keyOfProps of this.keysDefined(processedEntity)) {
         if (keysOfRecord.has(keyOfProps)) {
           sameCount++;
         } else {
@@ -87,7 +77,7 @@ export default abstract class Entity extends SimpleRecord {
   Try inspecting the network response or fetch() return value.
 
   Expected keys: ${Object.keys(instanceSample)}
-  Value: ${JSON.stringify(Entity.toObjectDefined(processedEntity), null, 2)}`,
+  Value: ${JSON.stringify(this.toObjectDefined(processedEntity), null, 2)}`,
         );
         (error as any).status = 400;
         throw error;
@@ -149,7 +139,7 @@ export default abstract class Entity extends SimpleRecord {
     return id;
   }
 
-  static denormalize<T extends typeof Entity>(
+  static denormalize<T extends typeof SimpleRecord>(
     this: T,
     entity: AbstractInstanceType<T>,
     unvisit: schema.UnvisitFunction,
@@ -194,22 +184,7 @@ if (process.env.NODE_ENV !== 'production') {
   };
 }
 
-export type EntitySchema<E extends typeof Entity> = E & {
-  normalize(
-    input: any,
-    parent: any,
-    key: any,
-    visit: Function,
-    addEntity: Function,
-    visitedEntities: Record<string, any>,
-  ): string;
-  denormalize(
-    entity: any,
-    unvisit: Function,
-  ): [AbstractInstanceType<E>, boolean];
-  _normalizeNullable(): string | undefined;
-  _denormalizeNullable(): [AbstractInstanceType<E> | undefined, boolean];
-};
+export type EntitySchema<E extends typeof SimpleRecord> = SimpleRecordSchema<E>;
 
 export function isEntity(schema: Schema | null): schema is typeof Entity {
   return schema !== null && (schema as any).pk !== undefined;

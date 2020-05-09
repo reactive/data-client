@@ -1,9 +1,10 @@
 import Entity from './Entity';
 import * as schema from '../schema';
 import { AbstractInstanceType } from '../types';
+import { SimpleRecord } from '..';
 
 export default abstract class FlatEntity extends Entity {
-  static denormalize<T extends typeof Entity>(
+  static denormalize<T extends typeof SimpleRecord>(
     this: T,
     entity: any,
     unvisit: schema.UnvisitFunction,
