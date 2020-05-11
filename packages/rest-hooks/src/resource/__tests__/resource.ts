@@ -496,7 +496,7 @@ describe('Resource', () => {
     });
 
     it('should throw a custom error if data does not include pk', () => {
-      const schema = CoolerArticleResource.asSchema();
+      const schema = CoolerArticleResource;
       function normalizeBad() {
         normalize({ content: 'hi' }, schema);
       }

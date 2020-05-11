@@ -1,4 +1,4 @@
-import { SimpleRecord, denormalize } from '../..';
+import { SimpleRecord, denormalize, Entity } from '../..';
 import { normalize } from '../../normalize';
 
 class Article extends SimpleRecord {
@@ -6,6 +6,24 @@ class Article extends SimpleRecord {
   readonly title: string = '';
   readonly author: string = '';
   readonly content: string = '';
+}
+class ArticleEntity extends Entity {
+  readonly id: string = '';
+  readonly title: string = '';
+  readonly author: string = '';
+  readonly content: string = '';
+  pk() {
+    return this.id;
+  }
+}
+
+class Pagination extends SimpleRecord {
+  readonly data = ArticleEntity.fromJS();
+  readonly nextPage: string = '';
+  readonly lastPage: string = '';
+  static schema = {
+    data: ArticleEntity,
+  };
 }
 
 describe('SimpleRecord', () => {
@@ -31,7 +49,7 @@ describe('SimpleRecord', () => {
 
   describe('normalize', () => {
     it('should normalize into plain object', () => {
-      const schema = Article.asSchema();
+      const schema = Article;
       const normalized = normalize(
         {
           id: '5',
@@ -48,7 +66,7 @@ describe('SimpleRecord', () => {
     });
 
     it('should denormalize with defaults', () => {
-      const schema = Article.asSchema();
+      const schema = Article;
       const denormalized = denormalize(
         {
           id: '5',

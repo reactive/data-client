@@ -7,7 +7,6 @@ import {
   DeleteShape,
 } from 'rest-hooks';
 import { AbstractInstanceType, FetchOptions, MutateShape } from 'rest-hooks';
-
 import React from 'react';
 
 export class UserResource extends Resource {
@@ -34,7 +33,7 @@ export class ArticleResource extends Resource {
   }
 
   static schema = {
-    author: UserResource.asSchema(),
+    author: UserResource,
   };
 
   static urlRoot = 'http://test.com/article/';
@@ -77,7 +76,7 @@ export class ArticleResource extends Resource {
         baseShape.getFetchKey({ ...params, includeUser: true }),
       fetch: (params: object) =>
         this.fetch('get', this.url({ ...params, includeUser: true })),
-      schema: this.asSchema(),
+      schema: this,
     };
   }
 
@@ -91,7 +90,7 @@ export class ArticleResource extends Resource {
         baseShape.getFetchKey({ ...params, includeUser: true }),
       fetch: (params: object) =>
         this.fetch('get', this.listUrl({ ...params, includeUser: 'true' })),
-      schema: [this.asSchema()],
+      schema: [this],
     };
   }
 
@@ -221,14 +220,14 @@ export class PaginatedArticleResource extends OtherArticleResource {
   static listShape<T extends typeof Resource>(this: T) {
     return {
       ...super.listShape(),
-      schema: { results: [this.asSchema()], prevPage: '', nextPage: '' },
+      schema: { results: [this], prevPage: '', nextPage: '' },
     };
   }
 
   static detailShape<T extends typeof Resource>(this: T) {
     return {
       ...super.listShape(),
-      schema: { data: this.asSchema() },
+      schema: { data: this },
     };
   }
 }
@@ -249,8 +248,8 @@ export class UnionResource extends Resource {
   ): ReadShape<SchemaDetail<AbstractInstanceType<T>>> {
     const schema = new schemas.Union(
       {
-        first: FirstUnionResource.asSchema(),
-        second: SecondUnionResource.asSchema(),
+        first: FirstUnionResource,
+        second: SecondUnionResource,
       },
       'type',
     );
@@ -266,8 +265,8 @@ export class UnionResource extends Resource {
     const schema = [
       new schemas.Union(
         {
-          first: FirstUnionResource.asSchema(),
-          second: SecondUnionResource.asSchema(),
+          first: FirstUnionResource,
+          second: SecondUnionResource,
         },
         (input: FirstUnionResource | SecondUnionResource) => input['type'],
       ),
@@ -292,7 +291,7 @@ export class NestedArticleResource extends OtherArticleResource {
 
   static schema = {
     ...OtherArticleResource.schema,
-    user: UserResource.asSchema(),
+    user: UserResource,
   };
 }
 

@@ -30,8 +30,8 @@ export default class ArticleResource extends Resource {
   static urlRoot = 'http://test.com/article/';
 
   static schema = {
-    author: UserResource.asSchema(),
-    contributors: [UserResource.asSchema()],
+    author: UserResource,
+    contributors: [UserResource],
   };
 }
 ```
@@ -85,13 +85,13 @@ export default class ArticleResource extends Resource {
   static urlRoot = 'http://test.com/article/';
 
   static schema = {
-    author: UserResource.asSchema(),
-    contributors: [UserResource.asSchema()],
+    author: UserResource,
+    contributors: [UserResource],
   };
 }
 
 UserResource.schema = {
-  posts: [ArticleResource.asSchema()],
+  posts: [ArticleResource],
 };
 ```
 

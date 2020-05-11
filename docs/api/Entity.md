@@ -208,7 +208,7 @@ class AssetResource extends Resource {
   readonly price: string = '';
 
   static schema = {
-    price: LatestPrice.asSchema(),
+    price: LatestPrice,
   };
 }
 ```
@@ -222,7 +222,7 @@ const assets = useResource(AssetResource.listShape(), {});
 Nested below:
 
 ```tsx
-const price = useCache(LatestPrice.asSchema(), { symbol: 'BTC' });
+const price = useCache(LatestPrice, { symbol: 'BTC' });
 ```
 
 ### static schema: { [k: keyof this]: Schema }
@@ -242,7 +242,7 @@ import ArticleEntity from './ArticleEntity';
 
 export const articleListShape = {
   type: 'read',
-  schema: { results: [ArticleEntity.asSchema()], nextPage: '', prevPage: '' },
+  schema: { results: [ArticleEntity], nextPage: '', prevPage: '' },
   getFetchKey(params: Readonly<object>): {return `article/${JSON.stringify(params)}`;},
   fetch: universalFetchFunction,
 }

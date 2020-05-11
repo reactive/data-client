@@ -57,7 +57,7 @@ describe('SubscriptionManager', () => {
       return {
         type: SUBSCRIBE_TYPE,
         meta: {
-          schema: PollingArticleResource.getEntitySchema(),
+          schema: PollingArticleResource,
           key: PollingArticleResource.url(payload),
           fetch,
           options: { pollFrequency: 1000 },

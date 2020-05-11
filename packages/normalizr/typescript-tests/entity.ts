@@ -26,7 +26,7 @@ class Tweet extends Entity {
     return this.id_str;
   }
 
-  static schema = { user: User.asSchema() };
+  static schema = { user: User };
 
   static fromJS<T extends typeof SimpleRecord>(
     this: T,
@@ -58,8 +58,8 @@ class Tweet extends Entity {
 const data = {
   /* ...*/
 };
-const user = User.asSchema();
-const tweet = Tweet.asSchema();
+const user = User;
+const tweet = Tweet;
 
 const normalizedData = normalize(data, tweet);
 const denormalizedData = denormalize(

@@ -327,7 +327,7 @@ describe('NetworkManager', () => {
         type: FETCH_TYPE,
         payload: () => promise,
         meta: {
-          schema: ArticleResource.getEntitySchema(),
+          schema: ArticleResource,
           key: ArticleResource.url({ id: 5 }),
           type: ArticleResource.detailShape().type,
           throttle: true,

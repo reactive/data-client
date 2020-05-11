@@ -178,7 +178,7 @@ describe('useDenormalized()', () => {
         },
         schema: {
           pagination: { next: '', previous: '' },
-          data: IndexedUserResource.asSchema(),
+          data: IndexedUserResource,
         },
       };
 

@@ -4,6 +4,7 @@ import {
   schema,
   DenormalizeNullable,
   Normalize,
+  Denormalize,
 } from '../src';
 import IDEntity from '../src/entities/IDEntity';
 
@@ -16,8 +17,8 @@ class Magic2 extends IDEntity {
   readonly a = 'second' as const;
   private b3 = false;
 }
-const magicSchema = Magic.asSchema();
-const magic2Schema = Magic2.asSchema();
+const magicSchema = Magic;
+const magic2Schema = Magic2;
 
 const unionSchema = new schema.Union(
   {
@@ -35,7 +36,7 @@ const errorUnionSchema = new schema.Union(
   'notexistant',
 );
 const scheme = {
-  thing: { data: unionSchema, members: [Magic.asSchema()] },
+  thing: { data: unionSchema, members: [Magic] },
   first: '',
   second: '',
 };
@@ -47,7 +48,8 @@ const r = normalize({}, scheme);
 type A = DenormalizeNullable<typeof scheme>;
 type B = A['thing']['members'];
 type C = DenormalizeNullable<typeof schemeEntity>;
-type D = ReturnType<typeof magicSchema['_denormalizeNullable']>;
+type D = ReturnType<typeof unionSchema['_denormalizeNullable']>;
+type F = Denormalize<typeof unionSchema>;
 type E = Normalize<typeof scheme>['thing']['data'];
 
 if (de[1]) {

@@ -135,13 +135,13 @@ export default class CommentResource extends Resource {
   static detailShape<T extends typeof Resource>(this: T) {
     return {
       ...super.detailShape(),
-      schema: { data: this.asSchema() },
+      schema: { data: this },
     };
   }
   static listShape<T extends typeof Resource>(this: T) {
     return {
       ...super.listShape(),
-      schema: { data: [this.asSchema()] },
+      schema: { data: [this] },
     };
   }
 }
@@ -271,8 +271,8 @@ export default class BirthdayResource extends BaseResource {
         return this.fetch('post', `/api/birthdays/upcoming/`);
       },
       schema: {
-        withinSevenDays: [this.asSchema()],
-        withinThirtyDays: [this.asSchema()],
+        withinSevenDays: [this],
+        withinThirtyDays: [this],
       },
     };
   }

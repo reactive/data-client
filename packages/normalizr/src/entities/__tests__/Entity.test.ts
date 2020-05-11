@@ -28,7 +28,7 @@ describe(`${Entity.name} normalization`, () => {
         return this.name;
       }
     }
-    const schema = MyEntity.asSchema();
+    const schema = MyEntity;
     function normalizeBad() {
       normalize({ secondthing: 'hi' }, schema);
     }
@@ -43,7 +43,7 @@ describe(`${Entity.name} normalization`, () => {
         return this.name;
       }
     }
-    const schema = MyEntity.asSchema();
+    const schema = MyEntity;
     function normalizeBad() {
       normalize({ nonexistantthing: 'hi' }, schema);
     }
@@ -92,7 +92,7 @@ describe(`${Entity.name} normalization`, () => {
         }
       }
       expect(
-        normalize({ idStr: '134351', name: 'Kathy' }, User.asSchema()),
+        normalize({ idStr: '134351', name: 'Kathy' }, User),
       ).toMatchSnapshot();
     });
 
@@ -103,10 +103,7 @@ describe(`${Entity.name} normalization`, () => {
           return key;
         }
       }
-      const inputSchema = new schema.Values(
-        { users: User.asSchema() },
-        () => 'users',
-      );
+      const inputSchema = new schema.Values({ users: User }, () => 'users');
 
       expect(
         normalize(
@@ -124,7 +121,7 @@ describe(`${Entity.name} normalization`, () => {
           return `${parent.name}-${key}-${this.id}`;
         }
       }
-      const inputSchema = new schema.Object({ user: User.asSchema() });
+      const inputSchema = new schema.Object({ user: User });
 
       expect(
         normalize(
@@ -143,7 +140,7 @@ describe(`${Entity.name} normalization`, () => {
             { id: '1', name: 'foo' },
             { id: '1', name: 'bar', alias: 'bar' },
           ],
-          [Tacos.asSchema()],
+          [Tacos],
         ),
       ).toMatchSnapshot();
     });
@@ -171,7 +168,7 @@ describe(`${Entity.name} normalization`, () => {
             { id: '1', name: 'foo' },
             { id: '1', name: 'bar', alias: 'bar' },
           ],
-          [MergeTaco.asSchema()],
+          [MergeTaco],
         ),
       ).toMatchSnapshot();
     });
@@ -194,7 +191,7 @@ describe(`${Entity.name} normalization`, () => {
       }
 
       expect(
-        normalize({ id: '1', name: 'foo' }, ProcessTaco.asSchema()),
+        normalize({ id: '1', name: 'foo' }, ProcessTaco),
       ).toMatchSnapshot();
     });
 
@@ -218,7 +215,7 @@ describe(`${Entity.name} normalization`, () => {
       class ParentEntity extends IDEntity {
         readonly content: string = '';
 
-        static schema = { child: ChildEntity.asSchema() };
+        static schema = { child: ChildEntity };
       }
 
       expect(
@@ -228,7 +225,7 @@ describe(`${Entity.name} normalization`, () => {
             content: 'parent',
             child: { id: '4', content: 'child' },
           },
-          ParentEntity.asSchema(),
+          ParentEntity,
         ),
       ).toMatchSnapshot();
     });
@@ -239,7 +236,7 @@ describe(`${Entity.name} normalization`, () => {
         readonly type: string = '';
 
         static schema = {
-          data: { attachment: AttachmentsEntity.asSchema() },
+          data: { attachment: AttachmentsEntity },
         };
 
         static fromJS<T extends typeof SimpleRecord>(
@@ -258,7 +255,7 @@ describe(`${Entity.name} normalization`, () => {
       expect(
         normalize(
           { message: { id: '123', data: { attachment: { id: '456' } } } },
-          EntriesEntity.asSchema(),
+          EntriesEntity,
         ),
       ).toMatchSnapshot();
     });
@@ -272,17 +269,15 @@ describe(`${Entity.name} denormalization`, () => {
         '1': { id: '1', type: 'foo' },
       },
     };
-    expect(denormalize('1', Tacos.asSchema(), entities)).toMatchSnapshot();
-    expect(
-      denormalize('1', Tacos.asSchema(), fromJS(entities)),
-    ).toMatchSnapshot();
+    expect(denormalize('1', Tacos, entities)).toMatchSnapshot();
+    expect(denormalize('1', Tacos, fromJS(entities))).toMatchSnapshot();
   });
 
   class Food extends IDEntity {}
   class Menu extends IDEntity {
     readonly food: Food = Food.fromJS();
 
-    static schema = { food: Food.asSchema() };
+    static schema = { food: Food };
   }
 
   test('denormalizes deep entities', () => {
@@ -296,15 +291,11 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
 
-    expect(denormalize('1', Menu.asSchema(), entities)).toMatchSnapshot();
-    expect(
-      denormalize('1', Menu.asSchema(), fromJS(entities)),
-    ).toMatchSnapshot();
+    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
 
-    expect(denormalize('2', Menu.asSchema(), entities)).toMatchSnapshot();
-    expect(
-      denormalize('2', Menu.asSchema(), fromJS(entities)),
-    ).toMatchSnapshot();
+    expect(denormalize('2', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
   });
 
   test('denormalizes to undefined for missing data', () => {
@@ -317,15 +308,11 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
 
-    expect(denormalize('1', Menu.asSchema(), entities)).toMatchSnapshot();
-    expect(
-      denormalize('1', Menu.asSchema(), fromJS(entities)),
-    ).toMatchSnapshot();
+    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
 
-    expect(denormalize('2', Menu.asSchema(), entities)).toMatchSnapshot();
-    expect(
-      denormalize('2', Menu.asSchema(), fromJS(entities)),
-    ).toMatchSnapshot();
+    expect(denormalize('2', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
   });
 
   test('denormalizes deep entities with records', () => {
@@ -342,15 +329,11 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
 
-    expect(denormalize('1', Menu.asSchema(), entities)).toMatchSnapshot();
-    expect(
-      denormalize('1', Menu.asSchema(), fromJS(entities)),
-    ).toMatchSnapshot();
+    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
 
-    expect(denormalize('2', Menu.asSchema(), entities)).toMatchSnapshot();
-    expect(
-      denormalize('2', Menu.asSchema(), fromJS(entities)),
-    ).toMatchSnapshot();
+    expect(denormalize('2', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
   });
 
   test('can denormalize already partially denormalized data', () => {
@@ -363,10 +346,8 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
 
-    expect(denormalize('1', Menu.asSchema(), entities)).toMatchSnapshot();
-    expect(
-      denormalize('1', Menu.asSchema(), fromJS(entities)),
-    ).toMatchSnapshot();
+    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
   });
 
   class User extends IDEntity {
@@ -406,15 +387,11 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
 
-    expect(denormalize('123', Report.asSchema(), entities)).toMatchSnapshot();
-    expect(
-      denormalize('123', Report.asSchema(), fromJS(entities)),
-    ).toMatchSnapshot();
+    expect(denormalize('123', Report, entities)).toMatchSnapshot();
+    expect(denormalize('123', Report, fromJS(entities))).toMatchSnapshot();
 
-    expect(denormalize('456', User.asSchema(), entities)).toMatchSnapshot();
-    expect(
-      denormalize('456', User.asSchema(), fromJS(entities)),
-    ).toMatchSnapshot();
+    expect(denormalize('456', User, entities)).toMatchSnapshot();
+    expect(denormalize('456', User, fromJS(entities))).toMatchSnapshot();
   });
 
   test('denormalizes entities with referential equality', () => {
@@ -436,11 +413,7 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
 
-    const [denormalizedReport] = denormalize(
-      '123',
-      Report.asSchema(),
-      entities,
-    );
+    const [denormalizedReport] = denormalize('123', Report, entities);
 
     expect(denormalizedReport).toBeDefined();
     // This is just for TypeScript, the above line actually determines this

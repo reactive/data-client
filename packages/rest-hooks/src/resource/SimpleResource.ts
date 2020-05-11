@@ -97,10 +97,10 @@ export default abstract class SimpleResource extends FlatEntity {
     /* istanbul ignore next */
     if (process.env.NODE_ENV === 'development') {
       console.error(
-        'getEntitySchema() is deprecated - use asSchema() instead.',
+        'getEntitySchema() is deprecated - use Entity directly instead.',
       );
     }
-    return this.asSchema();
+    return this;
   }
 
   /** Get the request options for this SimpleResource  */
@@ -119,7 +119,7 @@ export default abstract class SimpleResource extends FlatEntity {
     const options = this.getFetchOptions();
     return {
       type: 'read',
-      schema: this.asSchema(),
+      schema: this,
       options,
       getFetchKey,
       fetch: (params: Readonly<object>) => {
@@ -138,7 +138,7 @@ export default abstract class SimpleResource extends FlatEntity {
     const options = this.getFetchOptions();
     return {
       type: 'read',
-      schema: [this.asSchema()],
+      schema: [this],
       options,
       getFetchKey,
       fetch: (params: Readonly<Record<string, string | number>>) => {
@@ -158,7 +158,7 @@ export default abstract class SimpleResource extends FlatEntity {
     const options = this.getFetchOptions();
     return {
       type: 'mutate',
-      schema: this.asSchema(),
+      schema: this,
       options,
       getFetchKey: (params: Readonly<Record<string, string>>) => {
         return 'POST ' + this.listUrl(params);
@@ -183,7 +183,7 @@ export default abstract class SimpleResource extends FlatEntity {
     const options = this.getFetchOptions();
     return {
       type: 'mutate',
-      schema: this.asSchema(),
+      schema: this,
       options,
       getFetchKey: (params: object) => {
         return 'PUT ' + this.url(params);
@@ -208,7 +208,7 @@ export default abstract class SimpleResource extends FlatEntity {
     const options = this.getFetchOptions();
     return {
       type: 'mutate',
-      schema: this.asSchema(),
+      schema: this,
       options,
       getFetchKey: (params: Readonly<object>) => {
         return 'PATCH ' + this.url(params);
@@ -229,7 +229,7 @@ export default abstract class SimpleResource extends FlatEntity {
     const options = this.getFetchOptions();
     return {
       type: 'delete',
-      schema: this.asSchema(),
+      schema: this,
       options,
       getFetchKey: (params: object) => {
         return 'DELETE ' + this.url(params);

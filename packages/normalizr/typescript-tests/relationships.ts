@@ -46,7 +46,7 @@ class User extends IDEntity {
 }
 
 class Comment extends IDEntity {
-  static schema = { commenter: User.asSchema() };
+  static schema = { commenter: User };
 
   static fromJS<T extends typeof SimpleRecord>(
     this: T,
@@ -60,8 +60,8 @@ class Comment extends IDEntity {
 
 class Post extends IDEntity {
   static schema = {
-    author: User.asSchema(),
-    comments: [Comment.asSchema()],
+    author: User,
+    comments: [Comment],
   };
 }
 

@@ -158,7 +158,7 @@ class ArticlePaginatedResource extends Resource {
   static listShape<T extends Resource>() {
     return {
       ...super.listShape(),
-      shape: { results: this.asSchema()[], nextPage: '' },
+      shape: { results: this[], nextPage: '' },
     }
   }
 }

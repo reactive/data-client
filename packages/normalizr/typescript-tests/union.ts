@@ -12,16 +12,16 @@ class Group extends IDEntity {
 
 const unionSchema = new schema.Union(
   {
-    user: User.asSchema(),
-    group: Group.asSchema(),
+    user: User,
+    group: Group,
   },
   'type',
 );
 
 const errorUnionSchema = new schema.Union(
   {
-    user: User.asSchema(),
-    group: Group.asSchema(),
+    user: User,
+    group: Group,
   },
   // @ts-expect-error
   'blob',
