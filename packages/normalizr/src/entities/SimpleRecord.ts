@@ -111,27 +111,7 @@ export default abstract class SimpleRecord {
     return [this.fromJS(res) as any, found];
   }
 
-  /** Returns this to be used in a schema definition.
-   * This is essential to capture the correct type to be used in inferencing.
-   */
   static asSchema<T extends typeof SimpleRecord>(this: T) {
-    return this as SimpleRecordSchema<T>;
+    return this;
   }
 }
-
-export type SimpleRecordSchema<E extends typeof SimpleRecord> = E & {
-  normalize(
-    input: any,
-    parent: any,
-    key: any,
-    visit: Function,
-    addEntity: Function,
-    visitedEntities: Record<string, any>,
-  ): any;
-  denormalize(
-    entity: any,
-    unvisit: Function,
-  ): [AbstractInstanceType<E>, boolean];
-  _normalizeNullable(): any | undefined;
-  _denormalizeNullable(): [AbstractInstanceType<E> | undefined, boolean];
-};

@@ -1,4 +1,4 @@
-import { Schema } from './types';
+import { Schema, AbstractInstanceType } from './types';
 import { EntitySchema } from './entities/Entity';
 
 export type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
@@ -20,7 +20,7 @@ export type UnionResult<Choices extends EntityMap> = {
   schema: keyof Choices;
 };
 
-export interface SchemaClass {
+export interface SchemaSimple {
   normalize(
     input: any,
     parent: any,
@@ -29,14 +29,17 @@ export interface SchemaClass {
     addEntity: Function,
     visitedEntities: Record<string, any>,
   ): any;
+  denormalize(input: any, unvisit: UnvisitFunction): [any, boolean];
+}
+
+export interface SchemaClass extends SchemaSimple {
   // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
   _normalizeNullable(): any;
-  denormalize(input: any, unvisit: UnvisitFunction): [any, boolean];
   // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo
   _denormalizeNullable(): [any, boolean];
 }
 
-interface EntityInterface<T = any> extends SchemaClass {
+interface EntityInterface<T = any> extends SchemaSimple {
   pk(params: any, parent?: any, key?: string): string | undefined;
   readonly key: string;
   normalize(
@@ -48,8 +51,6 @@ interface EntityInterface<T = any> extends SchemaClass {
     visitedEntities: Record<string, any>,
   ): string;
   denormalize(entity: any, unvisit: Function): [T, boolean];
-  _normalizeNullable(): string | undefined;
-  _denormalizeNullable(): [T | undefined, boolean];
 }
 
 export class Array<S extends Schema = Schema> implements SchemaClass {
@@ -103,9 +104,7 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
   constructor(
     definition: Choices,
     schemaAttribute:
-      | (Choices[keyof Choices] extends EntityInterface<infer T>
-          ? keyof T
-          : never)
+      | keyof AbstractInstanceType<Choices[keyof Choices]>
       | SchemaFunction<keyof Choices>,
   );
 
@@ -127,15 +126,10 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
   denormalize(
     input: any,
     unvisit: UnvisitFunction,
-  ): [
-    Choices[keyof Choices] extends EntityInterface<infer T> ? T : never,
-    boolean,
-  ];
+  ): [AbstractInstanceType<Choices[keyof Choices]>, boolean];
 
   _denormalizeNullable(): [
-    Choices[keyof Choices] extends EntityInterface<infer T>
-      ? T | undefined
-      : never,
+    AbstractInstanceType<Choices[keyof Choices]> | undefined,
     false,
   ];
 }

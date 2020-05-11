@@ -61,7 +61,7 @@ export class PaginatedPostResource extends Resource {
   static listShape<T extends typeof Resource>(this: T) {
     return {
       ...super.listShape(),
-      schema: { results: [this.asSchema()], nextPage: '', lastPage: '' },
+      schema: { results: [this], nextPage: '', lastPage: '' },
     };
   }
 }

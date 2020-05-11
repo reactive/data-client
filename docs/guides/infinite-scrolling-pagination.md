@@ -12,7 +12,7 @@ abstract class BaseResource extends Resource {
   static listShape<T extends typeof Resource>(this: T) {
     return {
       ...super.listShape(),
-      schema: { results: [this.asSchema()], cursor: null as string | null },
+      schema: { results: [this], cursor: null as string | null },
     };
   }
 

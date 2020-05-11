@@ -31,8 +31,8 @@ class PullRequest extends IDEntity {
 
 const issueOrPullRequest = new schema.Array(
   {
-    issues: Issue.asSchema(),
-    pullRequests: PullRequest.asSchema(),
+    issues: Issue,
+    pullRequests: PullRequest,
   },
   (entity: any) => (entity.pull_request ? 'pullRequests' : 'issues'),
 );

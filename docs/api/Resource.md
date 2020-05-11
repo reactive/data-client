@@ -218,7 +218,7 @@ Use in schemas when referring to this Resource.
   static listShape<T extends typeof Resource>(this: T) {
     return {
       ...super.listShape(),
-      schema: { results: [this.asSchema()], nextPage: '', prevPage: '' },
+      schema: { results: [this], nextPage: '', prevPage: '' },
     };
   }
 ```

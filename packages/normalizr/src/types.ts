@@ -1,4 +1,5 @@
 import type { default as schema } from './schema';
+import { Entity } from '.';
 
 export type AbstractInstanceType<T> = T extends { prototype: infer U }
   ? U
@@ -37,7 +38,15 @@ export type NormalizeReturnType<T> = T extends (...args: any) => infer R
   ? R
   : never;
 
-export type Denormalize<S> = S extends schema.SchemaClass
+export type Denormalize<S> = S extends {
+  pk(): string;
+  fromJS: Function;
+  prototype: infer U;
+}
+  ? U
+  : S extends { schema: Record<string, Schema>; fromJS: Function }
+  ? AbstractInstanceType<S>
+  : S extends schema.SchemaClass
   ? DenormalizeReturnType<S['denormalize']>
   : S extends Array<infer F>
   ? Denormalize<F>[]
@@ -45,7 +54,11 @@ export type Denormalize<S> = S extends schema.SchemaClass
   ? DenormalizeObject<S>
   : S;
 
-export type DenormalizeNullable<S> = S extends schema.SchemaClass
+export type DenormalizeNullable<S> = S extends typeof Entity
+  ? AbstractInstanceType<S> | undefined
+  : S extends { schema: Record<string, Schema>; fromJS: Function }
+  ? AbstractInstanceType<S>
+  : S extends schema.SchemaClass
   ? DenormalizeReturnType<S['_denormalizeNullable']>
   : S extends Array<infer F>
   ? Denormalize<F>[] | undefined
@@ -53,7 +66,14 @@ export type DenormalizeNullable<S> = S extends schema.SchemaClass
   ? DenormalizeNullableObject<S>
   : S;
 
-export type Normalize<S> = S extends schema.SchemaClass
+export type Normalize<S> = S extends {
+  pk(): string;
+  fromJS: Function;
+}
+  ? string
+  : S extends { schema: Record<string, Schema>; fromJS: Function }
+  ? NormalizeObject<S['schema']>
+  : S extends schema.SchemaClass
   ? NormalizeReturnType<S['normalize']>
   : S extends Array<infer F>
   ? Normalize<F>[]
@@ -61,7 +81,14 @@ export type Normalize<S> = S extends schema.SchemaClass
   ? NormalizeObject<S>
   : S;
 
-export type NormalizeNullable<S> = S extends schema.SchemaClass
+export type NormalizeNullable<S> = S extends {
+  pk(): string;
+  fromJS: Function;
+}
+  ? string | undefined
+  : S extends { schema: Record<string, Schema>; fromJS: Function }
+  ? NormalizedNullableObject<S['schema']>
+  : S extends schema.SchemaClass
   ? NormalizeReturnType<S['_normalizeNullable']>
   : S extends Array<infer F>
   ? Normalize<F>[] | undefined
@@ -74,7 +101,7 @@ export type Schema =
   | string
   | { [K: string]: any }
   | Schema[]
-  | schema.SchemaClass;
+  | schema.SchemaSimple;
 
 export type NormalizedIndex = {
   readonly [entityKey: string]: {

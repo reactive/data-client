@@ -163,7 +163,7 @@ export default class ArticleResource extends Resource {
     return {
       ...super.listShape(),
       fetch,
-      schema: { results: [this.asSchema()], link: '' },
+      schema: { results: [this], link: '' },
     };
   }
 }

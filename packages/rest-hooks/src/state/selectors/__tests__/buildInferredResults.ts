@@ -74,7 +74,7 @@ describe('buildInferredResults()', () => {
   it('should work with indexes', () => {
     const schema = {
       pagination: { next: '', previous: '' },
-      data: IndexedUserResource.asSchema(),
+      data: IndexedUserResource,
     };
     expect(
       buildInferredResults(
@@ -113,7 +113,7 @@ describe('buildInferredResults()', () => {
   it('should work with indexes but none set', () => {
     const schema = {
       pagination: { next: '', previous: '' },
-      data: IndexedUserResource.asSchema(),
+      data: IndexedUserResource,
     };
     expect(
       buildInferredResults(
@@ -152,7 +152,7 @@ describe('buildInferredResults()', () => {
   it('should work with indexes but no indexes stored', () => {
     const schema = {
       pagination: { next: '', previous: '' },
-      data: IndexedUserResource.asSchema(),
+      data: IndexedUserResource,
     };
     expect(buildInferredResults(schema, { username: 'bob' }, {})).toEqual({
       pagination: { next: '', previous: '' },

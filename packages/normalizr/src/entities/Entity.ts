@@ -1,4 +1,4 @@
-import SimpleRecord, { SimpleRecordSchema } from './SimpleRecord';
+import SimpleRecord from './SimpleRecord';
 import { isImmutable, denormalizeImmutable } from '../schemas/ImmutableUtils';
 import * as schema from '../schema';
 import { AbstractInstanceType, Schema } from '../types';
@@ -183,8 +183,6 @@ if (process.env.NODE_ENV !== 'production') {
     return SimpleRecord.fromJS.call(this, props) as any;
   };
 }
-
-export type EntitySchema<E extends typeof SimpleRecord> = SimpleRecordSchema<E>;
 
 export function isEntity(schema: Schema | null): schema is typeof Entity {
   return schema !== null && (schema as any).pk !== undefined;
