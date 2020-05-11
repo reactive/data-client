@@ -1,5 +1,5 @@
 import { Schema, AbstractInstanceType } from './types';
-import { EntitySchema } from './entities/Entity';
+import Entity from './entities/Entity';
 
 export type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
 export type SchemaFunction<K = string> = (
@@ -13,7 +13,7 @@ export type SchemaAttributeFunction<S extends Schema> = (
   parent: any,
   key: string,
 ) => S;
-export type EntityMap<T = any> = Record<string, EntitySchema<T>>;
+export type EntityMap<T = any> = Record<string, EntityInterface<T>>;
 export type UnvisitFunction = (input: any, schema: any) => [any, boolean];
 export type UnionResult<Choices extends EntityMap> = {
   id: string;
@@ -42,15 +42,7 @@ export interface SchemaClass extends SchemaSimple {
 interface EntityInterface<T = any> extends SchemaSimple {
   pk(params: any, parent?: any, key?: string): string | undefined;
   readonly key: string;
-  normalize(
-    input: any,
-    parent: any,
-    key: any,
-    visit: Function,
-    addEntity: Function,
-    visitedEntities: Record<string, any>,
-  ): string;
-  denormalize(entity: any, unvisit: Function): [T, boolean];
+  prototype: T;
 }
 
 export class Array<S extends Schema = Schema> implements SchemaClass {

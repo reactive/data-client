@@ -1,4 +1,4 @@
-import type { default as schema } from './schema';
+import type { default as schema, EntityInterface } from './schema';
 import { Entity } from '.';
 
 export type AbstractInstanceType<T> = T extends { prototype: infer U }
@@ -38,11 +38,7 @@ export type NormalizeReturnType<T> = T extends (...args: any) => infer R
   ? R
   : never;
 
-export type Denormalize<S> = S extends {
-  pk(): string;
-  fromJS: Function;
-  prototype: infer U;
-}
+export type Denormalize<S> = S extends EntityInterface<infer U>
   ? U
   : S extends { schema: Record<string, Schema>; fromJS: Function }
   ? AbstractInstanceType<S>
@@ -54,8 +50,8 @@ export type Denormalize<S> = S extends {
   ? DenormalizeObject<S>
   : S;
 
-export type DenormalizeNullable<S> = S extends typeof Entity
-  ? AbstractInstanceType<S> | undefined
+export type DenormalizeNullable<S> = S extends EntityInterface<infer U>
+  ? U | undefined
   : S extends { schema: Record<string, Schema>; fromJS: Function }
   ? AbstractInstanceType<S>
   : S extends schema.SchemaClass
@@ -66,10 +62,7 @@ export type DenormalizeNullable<S> = S extends typeof Entity
   ? DenormalizeNullableObject<S>
   : S;
 
-export type Normalize<S> = S extends {
-  pk(): string;
-  fromJS: Function;
-}
+export type Normalize<S> = S extends EntityInterface
   ? string
   : S extends { schema: Record<string, Schema>; fromJS: Function }
   ? NormalizeObject<S['schema']>
@@ -81,10 +74,7 @@ export type Normalize<S> = S extends {
   ? NormalizeObject<S>
   : S;
 
-export type NormalizeNullable<S> = S extends {
-  pk(): string;
-  fromJS: Function;
-}
+export type NormalizeNullable<S> = S extends EntityInterface
   ? string | undefined
   : S extends { schema: Record<string, Schema>; fromJS: Function }
   ? NormalizedNullableObject<S['schema']>

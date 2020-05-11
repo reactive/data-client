@@ -4,7 +4,7 @@ import { schemas } from '../../../resource/normal';
 import getEntityPath from '../getEntityPath';
 
 describe('getEntityPath()', () => {
-  const entity = CoolerArticleResource.getEntitySchema();
+  const entity = CoolerArticleResource;
   it('should find base Entity', () => {
     const path = getEntityPath(entity);
 

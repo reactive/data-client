@@ -11,7 +11,7 @@ describe('buildInferredResults()', () => {
   it('should work with Object', () => {
     const schema = new schemas.Object({
       data: new schemas.Object({
-        article: CoolerArticleResource.getEntitySchema(),
+        article: CoolerArticleResource,
       }),
     });
     expect(buildInferredResults(schema, { id: 5 }, {})).toEqual({
@@ -21,14 +21,14 @@ describe('buildInferredResults()', () => {
 
   it('should be undefined with Array', () => {
     const schema = {
-      data: new schemas.Array(CoolerArticleResource.getEntitySchema()),
+      data: new schemas.Array(CoolerArticleResource),
     };
     expect(buildInferredResults(schema, { id: 5 }, {})).toStrictEqual({
       data: undefined,
     });
 
     const schema2 = {
-      data: [CoolerArticleResource.getEntitySchema()],
+      data: [CoolerArticleResource],
     };
     expect(buildInferredResults(schema2, { id: 5 }, {})).toStrictEqual({
       data: undefined,
@@ -37,7 +37,7 @@ describe('buildInferredResults()', () => {
 
   it('should be {} with Values', () => {
     const schema = {
-      data: new schemas.Values(CoolerArticleResource.getEntitySchema()),
+      data: new schemas.Values(CoolerArticleResource),
     };
     expect(buildInferredResults(schema, { id: 5 }, {})).toStrictEqual({
       data: {},
@@ -63,7 +63,7 @@ describe('buildInferredResults()', () => {
   it('should work with primitive defaults', () => {
     const schema = {
       pagination: { next: '', previous: '' },
-      data: CoolerArticleResource.getEntitySchema(),
+      data: CoolerArticleResource,
     };
     expect(buildInferredResults(schema, { id: 5 }, {})).toEqual({
       pagination: { next: '', previous: '' },

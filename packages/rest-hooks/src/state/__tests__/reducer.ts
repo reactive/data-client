@@ -30,7 +30,7 @@ describe('reducer', () => {
       type: RECEIVE_TYPE,
       payload,
       meta: {
-        schema: ArticleResource.getEntitySchema(),
+        schema: ArticleResource,
         key: ArticleResource.url({ id }),
         date: 5000000000,
         expiresAt: 5000500000,
@@ -83,7 +83,7 @@ describe('reducer', () => {
       type: RECEIVE_TYPE,
       payload,
       meta: {
-        schema: ArticleResource.getEntitySchema(),
+        schema: ArticleResource,
         key: ArticleResource.listUrl(payload),
         date: 0,
         expiresAt: 1000000000000,
@@ -101,7 +101,7 @@ describe('reducer', () => {
     const action: PurgeAction = {
       type: RECEIVE_DELETE_TYPE,
       meta: {
-        schema: ArticleResource.getEntitySchema(),
+        schema: ArticleResource,
         key: id.toString(),
         date: 0,
       },
@@ -226,7 +226,7 @@ describe('reducer', () => {
         updaters: {
           [key: string]: UpdateFunction<
             typeof createShape['schema'],
-            ReturnType<typeof ArticleResource.getEntitySchema>[]
+            typeof ArticleResource[]
           >;
         },
       ) {
@@ -234,7 +234,7 @@ describe('reducer', () => {
           type: RECEIVE_TYPE,
           payload,
           meta: {
-            schema: ArticleResource.getEntitySchema(),
+            schema: ArticleResource,
             key: ArticleResource.createShape().getFetchKey({}),
             updaters,
             date: 0,
@@ -365,7 +365,7 @@ describe('reducer', () => {
       type: RECEIVE_TYPE,
       payload: error,
       meta: {
-        schema: ArticleResource.getEntitySchema(),
+        schema: ArticleResource,
         key: ArticleResource.url({ id }),
         date: 5000000000,
         expiresAt: 5000500000,
@@ -383,7 +383,7 @@ describe('reducer', () => {
       type: RECEIVE_TYPE,
       payload: error,
       meta: {
-        schema: ArticleResource.getEntitySchema(),
+        schema: ArticleResource,
         key: ArticleResource.url({ id }),
         date: 0,
         expiresAt: 10000000000000000000,
@@ -402,7 +402,7 @@ describe('reducer', () => {
       type: RECEIVE_DELETE_TYPE,
       payload: error,
       meta: {
-        schema: ArticleResource.getEntitySchema(),
+        schema: ArticleResource,
         key: ArticleResource.url({ id }),
         date: 0,
       },
@@ -428,7 +428,7 @@ describe('reducer', () => {
       type: FETCH_TYPE,
       payload: () => new Promise<any>(() => null),
       meta: {
-        schema: ArticleResource.getEntitySchema(),
+        schema: ArticleResource,
         key: ArticleResource.url({ id: 5 }),
         type: 'read' as const,
         throttle: true,

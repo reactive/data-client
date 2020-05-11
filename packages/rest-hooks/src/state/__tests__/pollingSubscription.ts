@@ -73,7 +73,7 @@ describe('PollingSubscription', () => {
   const sub = new PollingSubscription(
     {
       key: 'test.com',
-      schema: PollingArticleResource.getEntitySchema(),
+      schema: PollingArticleResource,
       fetch,
       frequency: 5000,
     },
@@ -90,7 +90,7 @@ describe('PollingSubscription', () => {
         new PollingSubscription(
           {
             key: 'test.com',
-            schema: PollingArticleResource.getEntitySchema(),
+            schema: PollingArticleResource,
             fetch,
           },
           dispatch,
@@ -193,7 +193,7 @@ describe('PollingSubscription', () => {
       const sub = new PollingSubscription(
         {
           key: 'test.com',
-          schema: PollingArticleResource.getEntitySchema(),
+          schema: PollingArticleResource,
           fetch,
           frequency: 5000,
         },
@@ -230,7 +230,7 @@ describe('PollingSubscription', () => {
       const pollingSubscription = new PollingSubscription(
         {
           key: 'test.com',
-          schema: PollingArticleResource.getEntitySchema(),
+          schema: PollingArticleResource,
           fetch,
           frequency: 5000,
         },

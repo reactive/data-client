@@ -7,9 +7,9 @@ const data = {
 class User extends IDEntity {}
 
 const responseSchema = new schema.Object({
-  users: new schema.Array(User,
+  users: new schema.Array(User),
 });
 const normalizedData = normalize(data, responseSchema);
 
-const responseSchemaAlt = { users: new schema.Array(User };
+const responseSchemaAlt = { users: new schema.Array(User) };
 const normalizedDataAlt = normalize(data, responseSchemaAlt);
