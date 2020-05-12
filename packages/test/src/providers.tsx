@@ -1,11 +1,5 @@
-import {
-  State,
-  reducer,
-  ExternalCacheProvider,
-  CacheProvider,
-  Manager,
-  PromiseifyMiddleware,
-} from 'rest-hooks';
+import { State, reducer, CacheProvider, Manager } from '@rest-hooks/core';
+import { ExternalCacheProvider, PromiseifyMiddleware } from 'rest-hooks';
 import React from 'react';
 
 // Extension of the DeepPartial type defined by Redux which handles unknown

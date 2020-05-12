@@ -4,8 +4,8 @@ import {
   UrlArticleResource,
 } from '__tests__/common';
 import nock from 'nock';
+import { normalize } from '@rest-hooks/normalizr';
 
-import { normalize } from '../normal';
 import Resource from '../Resource';
 import SimpleResource from '../SimpleResource';
 

@@ -1,6 +1,5 @@
 import { useContext, useMemo } from 'react';
-import { StateContext } from 'rest-hooks/react-integration/context';
-import { State } from 'rest-hooks/types';
+import { StateContext, State } from '@rest-hooks/core';
 
 /** Use selector to access part of state */
 export default function useSelectionUnstable<

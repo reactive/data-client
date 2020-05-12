@@ -1,9 +1,15 @@
-import { AbstractInstanceType, Method, FetchOptions } from 'rest-hooks/types';
 import { FlatEntity } from '@rest-hooks/normalizr';
+import type {
+  FetchOptions,
+  AbstractInstanceType,
+  Method,
+  ReadShape,
+  MutateShape,
+  DeleteShape,
+} from '@rest-hooks/core';
 
+import { SchemaDetail, SchemaList } from './types';
 import { NotImplementedError } from './errors';
-import { ReadShape, MutateShape, DeleteShape } from './shapes';
-import { SchemaDetail, SchemaList } from './normal';
 import paramsToString from './paramsToString';
 
 /** Represents an entity to be retrieved from a server.
@@ -100,6 +106,7 @@ export default abstract class SimpleResource extends FlatEntity {
         'getEntitySchema() is deprecated - use Entity directly instead.',
       );
     }
+    /* istanbul ignore next */
     return this;
   }
 

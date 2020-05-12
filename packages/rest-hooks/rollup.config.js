@@ -10,14 +10,7 @@ import pkg from './package.json';
 
 const dependencies = Object.keys(pkg.dependencies)
   .concat(Object.keys(pkg.peerDependencies))
-  .filter(
-    dep =>
-      ![
-        '@rest-hooks/normalizr',
-        '@rest-hooks/use-enhanced-reducer',
-        '@babel/runtime',
-      ].includes(dep),
-  );
+  .filter(dep => !['@babel/runtime'].includes(dep));
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
 const nativeExtensions = ['.native.ts', ...extensions];

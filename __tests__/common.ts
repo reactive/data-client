@@ -6,7 +6,11 @@ import {
   SchemaDetail,
   DeleteShape,
 } from 'rest-hooks';
-import { AbstractInstanceType, FetchOptions, MutateShape } from 'rest-hooks';
+import type {
+  AbstractInstanceType,
+  FetchOptions,
+  MutateShape,
+} from '@rest-hooks/core';
 import React from 'react';
 
 export class UserResource extends Resource {

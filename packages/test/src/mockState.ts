@@ -2,10 +2,9 @@ import {
   ReadShape,
   Schema,
   reducer,
-  __INTERNAL__,
   createReceive,
-} from 'rest-hooks';
-const { initialState } = __INTERNAL__;
+  initialState,
+} from '@rest-hooks/core';
 
 export interface Fixture {
   request: ReadShape<Schema, object>;
