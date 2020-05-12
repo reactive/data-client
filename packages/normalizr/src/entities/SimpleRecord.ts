@@ -112,6 +112,10 @@ export default abstract class SimpleRecord {
   }
 
   static asSchema<T extends typeof SimpleRecord>(this: T) {
+    /* istanbul ignore next */
+    if (process.env.NODE_ENV === 'development') {
+      console.error('asSchema() is deprecated - use Entity directly instead.');
+    }
     return this;
   }
 }
