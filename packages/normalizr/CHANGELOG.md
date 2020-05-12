@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.0-beta.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.2...@rest-hooks/normalizr@6.0.0-beta.3) (2020-05-12)
+
+
+### 🚀 Features
+
+* Allow SimpleRecords to be schemas ([#334](https://github.com/coinbase/rest-hooks/issues/334)) ([924c257](https://github.com/coinbase/rest-hooks/commit/924c2579f740434f62e3597503b2d4fb53b76916))
+
+
+### 💅 Enhancement
+
+* No longer require 'asSchema()' ([#335](https://github.com/coinbase/rest-hooks/issues/335)) ([a29c41b](https://github.com/coinbase/rest-hooks/commit/a29c41b4449741e0e589d513261186e1a1cbe98a))
+
+
+
 ## [6.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.1...@rest-hooks/normalizr@6.0.0-beta.2) (2020-05-08)
 
 
