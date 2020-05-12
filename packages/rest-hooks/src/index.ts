@@ -1,12 +1,19 @@
-import { Resource, SimpleResource, SimpleRecord } from './resource';
-import NetworkManager from './state/NetworkManager';
-import RIC from './state/RIC';
-import PollingSubscription from './state/PollingSubscription';
-import SubscriptionManager from './state/SubscriptionManager';
-import reducer, { initialState } from './state/reducer';
-import { useDenormalized } from './state/selectors';
-import buildInferredResults from './state/selectors/buildInferredResults';
 import {
+  initialState,
+  StateContext,
+  DispatchContext,
+  hasUsableData,
+  __INTERNAL__ as _INT_,
+} from '@rest-hooks/core';
+
+export {
+  Entity as NestedEntity,
+  isEntity,
+  FlatEntity as Entity,
+  schema as schemas,
+} from '@rest-hooks/normalizr';
+
+export {
   useCache,
   useFetcher,
   useRetrieve,
@@ -17,67 +24,63 @@ import {
   CacheProvider,
   useInvalidator,
   useResetter,
+  useDenormalized,
+  SimpleRecord,
+  // TODO: get rid of these exports once core has been out for a while
+  usePromisifiedDispatch,
+} from '@rest-hooks/core';
+export type {
+  FetchShape,
+  ReadShape,
+  MutateShape,
+  DeleteShape,
+  SetShapeParams,
+  ParamsFromShape,
+  AbstractInstanceType,
+  FetchOptions,
+  Method,
+  UpdateFunction,
+  // TODO: get rid of these exports once core has been out for a while
+  FetchAction,
+  InvalidateAction,
+  UnsubscribeAction,
+  SubscribeAction,
+  PurgeAction,
+  ResetAction,
+  ReceiveAction,
+  State,
+  ReceiveTypes,
+  PK,
+  Dispatch,
+  Middleware,
+  MiddlewareAPI,
+  ActionTypes,
+  Manager,
+  Schema,
+} from '@rest-hooks/core';
+export { Resource, SimpleResource } from './resource';
+export type { SchemaDetail, SchemaList } from './resource/types';
+export {
   ExternalCacheProvider,
   PromiseifyMiddleware,
   NetworkErrorBoundary,
-  NetworkError as OGNetworkError,
 } from './react-integration';
-import useSelectionUnstable from './react-integration/hooks/useSelection';
-import hasUsableData from './react-integration/hooks/hasUsableData';
-import { StateContext, DispatchContext } from './react-integration/context';
+export type { NetworkError } from './react-integration';
 
 export {
-  Entity as NestedEntity,
-  isEntity,
-  FlatEntity as Entity,
-} from '@rest-hooks/normalizr';
+  PollingSubscription,
+  SubscriptionManager,
+  DefaultConnectionListener,
+} from './manager';
+export type { ConnectionListener } from './manager';
+export { default as useSelectionUnstable } from './react-integration/hooks/useSelection';
 
-const __INTERNAL__ = {
+const { buildInferredResults, RIC } = _INT_;
+export const __INTERNAL__ = {
   initialState,
   StateContext,
   DispatchContext,
   RIC,
   hasUsableData,
   buildInferredResults,
-};
-
-export type NetworkError = OGNetworkError;
-
-export * from './state/actions';
-export * as actionTypes from './actionTypes';
-export * from '@rest-hooks/use-enhanced-reducer';
-/* istanbul ignore next */
-export * from './types';
-export type {
-  FetchShape,
-  ReadShape,
-  MutateShape,
-  DeleteShape,
-} from './resource/shapes';
-export * from './resource/normal';
-export type { SetShapeParams, ParamsFromShape } from './resource/publicTypes';
-export {
-  Resource,
-  SimpleResource,
-  SimpleRecord,
-  CacheProvider,
-  ExternalCacheProvider,
-  PromiseifyMiddleware,
-  useCache,
-  useFetcher,
-  useRetrieve,
-  useInvalidator,
-  useResetter,
-  useResource,
-  useSubscription,
-  useMeta,
-  useError,
-  useSelectionUnstable,
-  useDenormalized,
-  NetworkManager,
-  SubscriptionManager,
-  PollingSubscription,
-  reducer,
-  NetworkErrorBoundary,
-  __INTERNAL__,
 };

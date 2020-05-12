@@ -1,9 +1,10 @@
 import {
   StateContext,
   DispatchContext,
-} from 'rest-hooks/react-integration/context';
-import masterReducer from 'rest-hooks/state/reducer';
-import { State, ActionTypes } from 'rest-hooks/types';
+  reducer,
+  State,
+  ActionTypes,
+} from '@rest-hooks/core';
 import { usePromisifiedDispatch } from '@rest-hooks/use-enhanced-reducer';
 import React, { ReactNode, useEffect, useState, useMemo } from 'react';
 
@@ -26,7 +27,7 @@ export default function ExternalCacheProvider<S>({
   const [state, setState] = useState(() => selector(store.getState()));
 
   const optimisticState = useMemo(
-    () => state.optimistic.reduce(masterReducer, state),
+    () => state.optimistic.reduce(reducer, state),
     [state],
   );
 

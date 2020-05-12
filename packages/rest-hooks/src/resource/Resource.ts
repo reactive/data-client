@@ -1,4 +1,4 @@
-import { Method } from 'rest-hooks/types';
+import type { Method } from '@rest-hooks/core';
 
 import SimpleResource from './SimpleResource';
 

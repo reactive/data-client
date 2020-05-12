@@ -1,8 +1,8 @@
-import { __INTERNAL__, ActionTypes } from 'rest-hooks';
+import { StateContext, DispatchContext } from '@rest-hooks/core';
+import type { ActionTypes } from '@rest-hooks/core';
 import React from 'react';
 
 import mockState, { Fixture } from './mockState';
-const { StateContext, DispatchContext } = __INTERNAL__;
 
 const mockDispatch = (value: ActionTypes) => {
   console.error(

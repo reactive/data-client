@@ -5,5 +5,8 @@
     "rootDir": "src"
   },
   "include": ["src"],
-  "references": [{ "path": "../rest-hooks" }]
+  "references": [
+    { "path": "../core" },
+    { "path": "../rest-hooks" }
+  ]
 }

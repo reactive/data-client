@@ -52,6 +52,7 @@
 
     "baseUrl": ".",
     "paths": {
+      "@rest-hooks/core/*": ["packages/core/src/*"],
       "@rest-hooks/*": ["packages/*/src"],
       "rest-hooks": ["packages/rest-hooks/src"],
       "rest-hooks/*": ["packages/rest-hooks/src/*"],
