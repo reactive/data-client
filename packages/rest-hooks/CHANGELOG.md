@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0-beta.9](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.0-beta.8...rest-hooks@5.0.0-beta.9) (2020-05-13)
+
+
+### 💅 Enhancement
+
+* Add back remaining normalizr exports to rest-hooks ([b6878ee](https://github.com/coinbase/rest-hooks/commit/b6878eebbf1572a4b859828da81a058bc5c118e3))
+
+
+
 ## [5.0.0-beta.8](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.0-beta.7...rest-hooks@5.0.0-beta.8) (2020-05-13)
 
 **Note:** Version bump only for package rest-hooks
