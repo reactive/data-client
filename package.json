@@ -37,7 +37,7 @@
     "@testing-library/react-hooks": "^3.2.1",
     "@types/jest": "^25.2.1",
     "@types/lodash": "^4.14.150",
-    "@types/react": "^16.9.34",
+    "@types/react": "^16.9.35",
     "@zerollup/ts-transform-paths": "^1.7.17",
     "babel-jest": "^25.5.1",
     "conventional-changelog-anansi": "^0.1.1",
@@ -69,7 +69,7 @@
     "ts-jest": "^25.4.0",
     "ts-node": "^8.9.1",
     "ttypescript": "^1.5.10",
-    "typescript": "^3.9.1-rc",
+    "typescript": "^3.9.2",
     "whatwg-fetch": "^3.0.0"
   },
   "resolutions": {
