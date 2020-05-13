@@ -21,7 +21,7 @@ describe('CacheProvider', () => {
   });
 
   it('should render', () => {
-    const tree = <CoreCacheProvider>hi</CoreCacheProvider>;
+    const tree = <CacheProvider>hi</CacheProvider>;
     render(tree);
   });
 });
