@@ -9,5 +9,8 @@
     "import/resolver": {
       "node": {}
     }
+  },
+  "globals": {
+    "process": "writable"
   }
 }

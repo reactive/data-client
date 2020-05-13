@@ -56,18 +56,32 @@ export default abstract class Entity extends SimpleRecord {
     if (process.env.NODE_ENV !== 'production') {
       const instanceSample = new (this as any)();
       const keysOfRecord = new Set(Object.keys(instanceSample));
-      let [sameCount, diffCount] = [0, 0];
-      let extraKey = false;
-      for (const keyOfProps of this.keysDefined(processedEntity)) {
+      const keysOfProps = this.keysDefined(processedEntity);
+      const [found, missing, unexpected] = [[], [], []] as [
+        string[],
+        string[],
+        string[],
+      ];
+      for (const keyOfProps of keysOfProps) {
         if (keysOfRecord.has(keyOfProps)) {
-          sameCount++;
+          found.push(keyOfProps);
         } else {
-          diffCount++;
-          extraKey = true;
+          unexpected.push(keyOfProps);
         }
       }
-      diffCount += keysOfRecord.size - sameCount;
-      if (diffCount > sameCount && keysOfRecord.size && extraKey) {
+      for (const keyOfRecord of keysOfRecord) {
+        if (!found.includes(keyOfRecord)) {
+          missing.push(keyOfRecord);
+        }
+      }
+
+      // if we find nothing, or we find too many unexpected members
+      if (
+        ((Math.max(keysOfProps.length / 2, 1) <= unexpected.length &&
+          keysOfRecord.size > Math.max(unexpected.length, 2)) ||
+          found.length < Math.min(1, keysOfRecord.size / 2)) &&
+        keysOfRecord.size
+      ) {
         const error = new Error(
           `Attempted to initialize ${
             this.name
@@ -76,7 +90,10 @@ export default abstract class Entity extends SimpleRecord {
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
 
-  Expected keys: ${Object.keys(instanceSample)}
+  Expected keys:
+    Found: ${found}
+    Missing: ${missing}
+  Unexpected keys: ${unexpected}
   Value: ${JSON.stringify(this.toObjectDefined(processedEntity), null, 2)}`,
         );
         (error as any).status = 400;
@@ -85,7 +102,6 @@ export default abstract class Entity extends SimpleRecord {
     }
     const id = processedEntity.pk(parent, key);
     if (id === undefined || id === '') {
-      /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production') {
         const error = new Error(
           `Missing usable resource key when normalizing response.
@@ -100,7 +116,8 @@ export default abstract class Entity extends SimpleRecord {
         (error as any).status = 400;
         throw error;
       } else {
-        throw new Error('undefined pk');
+        // these make the keys get deleted
+        return undefined;
       }
     }
     const entityType = this.key;
