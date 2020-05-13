@@ -33,6 +33,12 @@ export {
   schema,
 } from '@rest-hooks/normalizr';
 export type { Schema } from '@rest-hooks/normalizr';
+export type {
+  Normalize,
+  NormalizeNullable,
+  Denormalize,
+  DenormalizeNullable,
+} from './endpoint/normal';
 
 export * from './state/actions';
 export * as actionTypes from './actionTypes';
