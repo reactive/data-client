@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@2.0.0-beta.1...@rest-hooks/test@2.0.0-beta.2) (2020-05-13)
+
+
+### 🐛 Bug Fix
+
+* Testing should be using context from @rest-hooks/core in cjs ([cf84798](https://github.com/coinbase/rest-hooks/commit/cf8479888638b78f36bd2ba1396ba372f4df70a5))
+
+
+
 ## [2.0.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@2.0.0-beta.0...@rest-hooks/test@2.0.0-beta.1) (2020-05-12)
 
 

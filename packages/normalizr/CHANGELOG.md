@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.0-beta.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.3...@rest-hooks/normalizr@6.0.0-beta.4) (2020-05-13)
+
+
+### 💅 Enhancement
+
+* Improve malformed entity normalization algorithm ([#338](https://github.com/coinbase/rest-hooks/issues/338)) ([b6032b2](https://github.com/coinbase/rest-hooks/commit/b6032b21aec1e982b4b1abcbddbd28593b86c91b))
+* Warn about using asSchema() in dev-mode ([35b680e](https://github.com/coinbase/rest-hooks/commit/35b680e4d6ecea309d62a140941042fa2b0d1f0b))
+
+
+
 ## [6.0.0-beta.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.2...@rest-hooks/normalizr@6.0.0-beta.3) (2020-05-12)
 
 

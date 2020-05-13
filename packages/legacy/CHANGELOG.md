@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0-beta.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@2.0.0-beta.3...@rest-hooks/legacy@2.0.0-beta.4) (2020-05-13)
+
+**Note:** Version bump only for package @rest-hooks/legacy
+
+
+
+
+
 ## [2.0.0-beta.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@2.0.0-beta.2...@rest-hooks/legacy@2.0.0-beta.3) (2020-05-12)
 
 
