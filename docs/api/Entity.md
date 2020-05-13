@@ -228,22 +228,3 @@ const price = useCache(LatestPrice, { symbol: 'BTC' });
 ### static schema: { [k: keyof this]: Schema }
 
 Set this to [define entities nested](../guides/nested-response) inside this one.
-
-### static asSchema() => [Entity](./Entity)
-
-Returns this `Entity` with the TypeScript type set properly. Using `asSchema()` instead of
-`this` directly is key to getting correct typing from the hooks.
-
-This can be used as a [Schema](./FetchShape#schema-schema) or to build other [Schema](./FetchShape#schema-schema)s.
-
-```typescript
-import { universalFetchFunction } from 'utils';
-import ArticleEntity from './ArticleEntity';
-
-export const articleListShape = {
-  type: 'read',
-  schema: { results: [ArticleEntity], nextPage: '', prevPage: '' },
-  getFetchKey(params: Readonly<object>): {return `article/${JSON.stringify(params)}`;},
-  fetch: universalFetchFunction,
-}
-```
