@@ -160,7 +160,7 @@ describe('useFetcher', () => {
   it('should throw when providing a delete shape without an entity schema', () => {
     const badDeleteShape = {
       ...CoolerArticleResource.deleteShape(),
-      schema: { data: CoolerArticleResource.asSchema(), other: 5 },
+      schema: { data: CoolerArticleResource, other: 5 },
     };
     const { result } = renderHook(() => {
       const a = useFetcher(badDeleteShape);

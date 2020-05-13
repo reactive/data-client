@@ -207,22 +207,6 @@ on network error. This can be useful to override to really customize your transp
 
 Used in `fetch()`. Resolves the HTTP [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response).
 
-### static asSchema() => [Entity](./Entity)
-
-Returns this Resource as an [Entity](./Entity) with the TypeScript type set properly. Using
-`asSchema()` instead of `this` directly is key to getting correct typing from the hooks.
-
-Use in schemas when referring to this Resource.
-
-```typescript
-  static listShape<T extends typeof Resource>(this: T) {
-    return {
-      ...super.listShape(),
-      schema: { results: [this], nextPage: '', prevPage: '' },
-    };
-  }
-```
-
 ### static getFetchOptions() => [FetchOptions](../api/FetchShape.md#FetchOptions) | undefined
 
 Returns the default request options for this resource. By default this returns undefined
