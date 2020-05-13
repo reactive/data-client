@@ -6,12 +6,7 @@ import {
   __INTERNAL__ as _INT_,
 } from '@rest-hooks/core';
 
-export {
-  Entity as NestedEntity,
-  isEntity,
-  FlatEntity as Entity,
-  schema as schemas,
-} from '@rest-hooks/normalizr';
+export {} from '@rest-hooks/normalizr';
 
 export {
   useCache,
@@ -26,6 +21,10 @@ export {
   useResetter,
   useDenormalized,
   SimpleRecord,
+  Entity as NestedEntity,
+  isEntity,
+  FlatEntity as Entity,
+  schema as schemas,
   // TODO: get rid of these exports once core has been out for a while
   usePromisifiedDispatch,
 } from '@rest-hooks/core';
@@ -57,6 +56,10 @@ export type {
   ActionTypes,
   Manager,
   Schema,
+  Normalize,
+  NormalizeNullable,
+  Denormalize,
+  DenormalizeNullable,
 } from '@rest-hooks/core';
 export { Resource, SimpleResource } from './resource';
 export type { SchemaDetail, SchemaList } from './resource/types';

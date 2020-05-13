@@ -27,9 +27,9 @@ export { StateContext, DispatchContext } from './react-integration/context';
 
 export {
   SimpleRecord,
-  Entity as NestedEntity,
+  Entity,
   isEntity,
-  FlatEntity as Entity,
+  FlatEntity,
   schema,
 } from '@rest-hooks/normalizr';
 export type { Schema } from '@rest-hooks/normalizr';
