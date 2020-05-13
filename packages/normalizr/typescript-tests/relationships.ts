@@ -29,16 +29,16 @@ class User extends IDEntity {
 
   static merge<T extends typeof SimpleRecord>(
     this: T,
-    first: any,
-    second: any,
+    existing: any,
+    incoming: any,
   ) {
     // Apply everything from entityB over entityA, except for "favorites"
     const props = Object.assign(
-      this.toObjectDefined(first),
-      this.toObjectDefined(second),
+      this.toObjectDefined(existing),
+      this.toObjectDefined(incoming),
       {
-        posts: [...(first.posts || []), ...(second.posts || [])],
-        comments: [...(first.comments || []), ...(second.comments || [])],
+        posts: [...(existing.posts || []), ...(incoming.posts || [])],
+        comments: [...(existing.comments || []), ...(incoming.comments || [])],
       },
     );
     return this.fromJS(props);
