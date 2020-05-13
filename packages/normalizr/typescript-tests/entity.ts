@@ -55,6 +55,8 @@ class Tweet extends Entity {
   }
 }
 
+const a: schema.EntityInterface<Tweet> = Tweet;
+
 const data = {
   /* ...*/
 };
