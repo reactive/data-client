@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.0-beta.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.4...@rest-hooks/normalizr@6.0.0-beta.5) (2020-05-13)
+
+
+### 💅 Enhancement
+
+* Include merge() in EntityInterface ([709cb38](https://github.com/coinbase/rest-hooks/commit/709cb380fa765c459a2b3edb72f7b7187c968f29))
+
+
+
 ## [6.0.0-beta.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.3...@rest-hooks/normalizr@6.0.0-beta.4) (2020-05-13)
 
 

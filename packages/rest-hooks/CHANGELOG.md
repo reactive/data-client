@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0-beta.10](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.0-beta.9...rest-hooks@5.0.0-beta.10) (2020-05-13)
+
+
+### 🐛 Bug Fix
+
+* Export correct CacheManager with PolingManager as default ([a6a99a0](https://github.com/coinbase/rest-hooks/commit/a6a99a07a2afe300f3b8a2b9c00735688bdb3b72))
+
+
+
 ## [5.0.0-beta.9](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.0-beta.8...rest-hooks@5.0.0-beta.9) (2020-05-13)
 
 
