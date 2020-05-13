@@ -9,7 +9,7 @@ describe(`${schema.Array.name} normalization`, () => {
   describe('Object', () => {
     test('should throw a custom error if data loads with unexpected value', () => {
       class User extends IDEntity {}
-      const schema = [User.asSchema()];
+      const schema = [User];
       function normalizeBad() {
         normalize('5', schema);
       }
@@ -18,17 +18,13 @@ describe(`${schema.Array.name} normalization`, () => {
 
     test(`normalizes plain arrays as shorthand for ${schema.Array.name}`, () => {
       class User extends IDEntity {}
-      expect(
-        normalize([{ id: '1' }, { id: '2' }], [User.asSchema()]),
-      ).toMatchSnapshot();
+      expect(normalize([{ id: '1' }, { id: '2' }], [User])).toMatchSnapshot();
     });
 
     test('throws an error if created with more than one schema', () => {
       class User extends IDEntity {}
       class Cat extends IDEntity {}
-      expect(() =>
-        normalize([{ id: '1' }], [Cat.asSchema(), User.asSchema()]),
-      ).toThrow();
+      expect(() => normalize([{ id: '1' }], [Cat, User])).toThrow();
     });
 
     test('passes its parent to its children when normalizing', () => {
@@ -48,7 +44,7 @@ describe(`${schema.Array.name} normalization`, () => {
         children = [];
 
         static schema = {
-          children: [Child.asSchema()],
+          children: [Child],
         };
       }
 
@@ -59,7 +55,7 @@ describe(`${schema.Array.name} normalization`, () => {
             content: 'parent',
             children: [{ id: 4, content: 'child' }],
           },
-          Parent.asSchema(),
+          Parent,
         ),
       ).toMatchSnapshot();
     });
@@ -67,7 +63,7 @@ describe(`${schema.Array.name} normalization`, () => {
     test('normalizes Objects using their values', () => {
       class User extends IDEntity {}
       expect(
-        normalize({ foo: { id: '1' }, bar: { id: '2' } }, [User.asSchema()]),
+        normalize({ foo: { id: '1' }, bar: { id: '2' } }, [User]),
       ).toMatchSnapshot();
     });
   });
@@ -75,7 +71,7 @@ describe(`${schema.Array.name} normalization`, () => {
   describe('Class', () => {
     class Cats extends IDEntity {}
     test('normalizes a single entity', () => {
-      const listSchema = new schema.Array(Cats.asSchema());
+      const listSchema = new schema.Array(Cats);
       expect(
         normalize([{ id: '1' }, { id: '2' }], listSchema),
       ).toMatchSnapshot();

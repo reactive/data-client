@@ -446,7 +446,7 @@ describe('Resource', () => {
     });
   });
 
-  describe('asSchema()', () => {
+  describe('nested schema', () => {
     describe('merging', () => {
       const nested = [
         {

@@ -8,9 +8,9 @@ Say you have a foreignkey author, and an array of foreign keys to contributors.
 First we need to model what this will look like by adding members to our [Resource][1] defintion.
 These should be the primary keys of the entities we care about.
 
-Next we'll need to extend the schema definition provided by [asSchema()][3].
+Next we'll provide a definition of nested members in the [schema][3] member.
 
-## asSchema
+## static schema
 
 #### `resources/ArticleResource.ts`
 
@@ -65,7 +65,7 @@ function ArticleInline({ article }: { article: ArticleResource }) {
 ## Circular dependencies
 
 If two or more [Resources][1] include each other in their schema, you can dynamically override
-one of their [asSchema()][3] to avoid circular imports.
+one of their [schema][3] to avoid circular imports.
 
 #### `resources/ArticleResource.ts`
 
@@ -99,7 +99,7 @@ UserResource.schema = {
 
 ```typescript
 import { Resource } from 'rest-hooks';
-// no need to import ArticleResource as the asSchema() override happens there.
+// no need to import ArticleResource as the schema override happens there.
 
 export default class UserResource extends Resource {
   readonly id: number | undefined = undefined;
@@ -115,4 +115,4 @@ export default class UserResource extends Resource {
 
 [1]: ../api/Resource.md
 [2]: ../api/useCache.md
-[3]: ../api/Resource.md#static-getentityschema-schemaentity-https-githubcom-ntucker-normalizr-blob-master-docs-apimd-entitykey-definition-options
+[3]: ../api/Entity#static-schema--k-keyof-this-schema-

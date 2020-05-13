@@ -111,11 +111,13 @@ export default abstract class SimpleRecord {
     return [this.fromJS(res) as any, found];
   }
 
+  /* istanbul ignore next */
   static asSchema<T extends typeof SimpleRecord>(this: T) {
     /* istanbul ignore next */
     if (process.env.NODE_ENV === 'development') {
       console.error('asSchema() is deprecated - use Entity directly instead.');
     }
+    /* istanbul ignore next */
     return this;
   }
 }
