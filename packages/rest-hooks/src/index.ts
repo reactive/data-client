@@ -16,7 +16,6 @@ export {
   useSubscription,
   useMeta,
   useError,
-  CacheProvider,
   useInvalidator,
   useResetter,
   useDenormalized,
@@ -64,6 +63,7 @@ export type {
 export { Resource, SimpleResource } from './resource';
 export type { SchemaDetail, SchemaList } from './resource/types';
 export {
+  CacheProvider,
   ExternalCacheProvider,
   PromiseifyMiddleware,
   NetworkErrorBoundary,
