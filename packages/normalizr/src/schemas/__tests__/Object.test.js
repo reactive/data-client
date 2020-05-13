@@ -3,6 +3,7 @@ import { fromJS } from 'immutable';
 
 import { denormalizeSimple as denormalize } from '../../denormalize';
 import { normalize, schema } from '../../';
+import Entity from '../../entities/Entity';
 import IDEntity from '../../entities/IDEntity';
 
 describe(`${schema.Object.name} normalization`, () => {
@@ -20,9 +21,16 @@ describe(`${schema.Object.name} normalization`, () => {
   });
 
   test('filters out undefined and null values', () => {
-    class User extends IDEntity {}
+    class User extends Entity {
+      pk() {
+        return this.id;
+      }
+    }
     const users = { foo: User, bar: User, baz: User };
+    const oldenv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
     expect(normalize({ foo: {}, bar: { id: '1' } }, users)).toMatchSnapshot();
+    process.env.NODE_ENV = oldenv;
   });
 });
 

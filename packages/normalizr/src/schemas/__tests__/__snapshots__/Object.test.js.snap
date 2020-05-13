@@ -208,15 +208,11 @@ Object {
       "1": User {
         "id": "1",
       },
-      "undefined": User {
-        "id": undefined,
-      },
     },
   },
   "indexes": Object {},
   "result": Object {
     "bar": "1",
-    "foo": "undefined",
   },
 }
 `;

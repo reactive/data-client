@@ -468,14 +468,31 @@ exports[`Entity normalization should throw a custom error if data does not inclu
   "
 `;
 
-exports[`Entity normalization should throw a custom error if data loads with unexpected props 1`] = `
+exports[`Entity normalization should throw a custom error if data loads with half unexpected props 1`] = `
 "Attempted to initialize MyEntity with substantially different than expected keys
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
 
-  Expected keys: name,secondthing
+  Expected keys:
+    Found: name
+    Missing: secondthing,thirdthing
+  Unexpected keys: nonexistantthing
   Value: {
+  \\"name\\": \\"hoho\\",
   \\"nonexistantthing\\": \\"hi\\"
 }"
+`;
+
+exports[`Entity normalization should throw a custom error if data loads with no matching props 1`] = `
+"Attempted to initialize MyEntity with substantially different than expected keys
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+
+  Expected keys:
+    Found: 
+    Missing: name,secondthing
+  Unexpected keys: 
+  Value: {}"
 `;

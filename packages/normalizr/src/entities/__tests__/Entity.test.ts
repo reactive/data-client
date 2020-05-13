@@ -35,7 +35,7 @@ describe(`${Entity.name} normalization`, () => {
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 
-  it('should throw a custom error if data loads with unexpected props', () => {
+  it('should throw a custom error if data loads with no matching props', () => {
     class MyEntity extends Entity {
       readonly name: string = '';
       readonly secondthing: string = '';
@@ -45,7 +45,23 @@ describe(`${Entity.name} normalization`, () => {
     }
     const schema = MyEntity;
     function normalizeBad() {
-      normalize({ nonexistantthing: 'hi' }, schema);
+      normalize({}, schema);
+    }
+    expect(normalizeBad).toThrowErrorMatchingSnapshot();
+  });
+
+  it('should throw a custom error if data loads with half unexpected props', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      readonly thirdthing: number = 0;
+      pk() {
+        return this.name;
+      }
+    }
+    const schema = MyEntity;
+    function normalizeBad() {
+      normalize({ name: 'hoho', nonexistantthing: 'hi' }, schema);
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
@@ -198,6 +214,8 @@ describe(`${Entity.name} normalization`, () => {
     test('can use information from the parent in the process strategy', () => {
       class ChildEntity extends IDEntity {
         readonly content: string = '';
+        readonly parentId: string = '';
+        readonly parentKey: string = '';
 
         static fromJS<T extends typeof SimpleRecord>(
           this: T,
