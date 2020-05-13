@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0-beta.11](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.0-beta.10...rest-hooks@5.0.0-beta.11) (2020-05-13)
+
+
+### 🐛 Bug Fix
+
+* CacheProvider in rest-hooks no longer infinitely recurses ([d2ded89](https://github.com/coinbase/rest-hooks/commit/d2ded895a09e7bd7d52054b6265f1c3e8c2de783))
+
+
+
 ## [5.0.0-beta.10](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.0-beta.9...rest-hooks@5.0.0-beta.10) (2020-05-13)
 
 
