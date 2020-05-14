@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.4...@rest-hooks/core@1.0.0-beta.5) (2020-05-14)
+
+
+### 📝 Documentation
+
+* Get rid of all references to asSchema() ([#339](https://github.com/coinbase/rest-hooks/issues/339)) ([01b878b](https://github.com/coinbase/rest-hooks/commit/01b878b85f7469a12e19912efc696a424663e5f5))
+
+
+
 ## [1.0.0-beta.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.3...@rest-hooks/core@1.0.0-beta.4) (2020-05-13)
 
 **Note:** Version bump only for package @rest-hooks/core

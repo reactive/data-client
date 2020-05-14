@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.0-beta.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.5...@rest-hooks/normalizr@6.0.0-beta.6) (2020-05-14)
+
+
+### 💅 Enhancement
+
+* Rename merge variables to (existing, incoming) ([#340](https://github.com/coinbase/rest-hooks/issues/340)) ([1d68c30](https://github.com/coinbase/rest-hooks/commit/1d68c30c4b07204d20782f257c9bf0b0fd594c7c))
+
+
+### 📝 Documentation
+
+* Get rid of all references to asSchema() ([#339](https://github.com/coinbase/rest-hooks/issues/339)) ([01b878b](https://github.com/coinbase/rest-hooks/commit/01b878b85f7469a12e19912efc696a424663e5f5))
+
+
+
 ## [6.0.0-beta.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.4...@rest-hooks/normalizr@6.0.0-beta.5) (2020-05-13)
 
 
