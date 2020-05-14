@@ -50,6 +50,51 @@ describe(`${Entity.name} normalization`, () => {
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 
+  it('should not expect getters returned', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      get other() {
+        return this.name + 5;
+      }
+
+      get another() {
+        return 'another';
+      }
+
+      get yetAnother() {
+        return 'another2';
+      }
+
+      pk() {
+        return this.name;
+      }
+    }
+    function normalizeBad() {
+      normalize({ name: 'bob' }, MyEntity);
+    }
+    expect(normalizeBad).not.toThrow();
+  });
+
+  it('should throw if data loads with unexpected prop that is a getter', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      readonly thirdthing: number = 0;
+
+      get nonexistantthing() {
+        return this.name + 5;
+      }
+
+      pk() {
+        return this.name;
+      }
+    }
+    function normalizeBad() {
+      normalize({ name: 'hoho', nonexistantthing: 'hi' }, MyEntity);
+    }
+    expect(normalizeBad).toThrow();
+  });
+
   it('should throw a custom error if data loads with half unexpected props', () => {
     class MyEntity extends Entity {
       readonly name: string = '';
