@@ -165,14 +165,14 @@ describe(`${Entity.name} normalization`, () => {
       class MergeTaco extends Tacos {
         static merge<T extends typeof SimpleRecord>(
           this: T,
-          first: AbstractInstanceType<T>,
-          second: AbstractInstanceType<T>,
+          existing: AbstractInstanceType<T>,
+          incoming: AbstractInstanceType<T>,
         ) {
           const props = Object.assign(
             {},
-            this.toObjectDefined(first),
-            this.toObjectDefined(second),
-            { name: (first as MergeTaco).name },
+            this.toObjectDefined(existing),
+            this.toObjectDefined(incoming),
+            { name: (existing as MergeTaco).name },
           );
           return this.fromJS(props);
         }

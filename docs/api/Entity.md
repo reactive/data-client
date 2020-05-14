@@ -117,10 +117,10 @@ pk() {
 This defines the key for the Entity itself, rather than an instance. This needs to be a globally
 unique value.
 
-### static merge(first, second): mergedValue
+### static merge(existing, incoming): mergedValue
 
 ```typescript
-static merge<T extends typeof SimpleRecord>(first: InstanceType<T>, second: InstanceType<T>) => InstanceType<T>
+static merge<T extends typeof SimpleRecord>(existing: InstanceType<T>, incoming: InstanceType<T>) => InstanceType<T>
 ```
 
 > Inherited from [SimpleRecord](./SimpleRecord)
@@ -142,11 +142,11 @@ class LatestPriceEntity extends Entity {
   readonly symbol: string = '';
 
   static merge<T extends typeof SimpleRecord>(
-    first: InstanceType<T>,
-    second: InstanceType<T>,
+    existing: InstanceType<T>,
+    incoming: InstanceType<T>,
   ) {
-    if (first.timestamp > second.timestamp) return first;
-    return second;
+    if (existing.timestamp > incoming.timestamp) return existing;
+    return incoming;
   }
 }
 ```

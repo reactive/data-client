@@ -42,14 +42,14 @@ class Tweet extends Entity {
 
   static merge<T extends typeof SimpleRecord>(
     this: T,
-    first: AbstractInstanceType<T>,
-    second: AbstractInstanceType<T>,
+    existing: AbstractInstanceType<T>,
+    incoming: AbstractInstanceType<T>,
   ) {
     // Apply everything from entityB over entityA, except for "favorites"
     const props = Object.assign(
-      this.toObjectDefined(first),
-      this.toObjectDefined(second),
-      { favorites: (first as Tweet).favorites },
+      this.toObjectDefined(existing),
+      this.toObjectDefined(incoming),
+      { favorites: (existing as Tweet).favorites },
     );
     return this.fromJS(props);
   }

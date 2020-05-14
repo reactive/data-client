@@ -42,7 +42,7 @@ export interface SchemaClass extends SchemaSimple {
 interface EntityInterface<T = any> extends SchemaSimple {
   pk(params: any, parent?: any, key?: string): string | undefined;
   readonly key: string;
-  merge(existing: any, latest: any): any;
+  merge(existing: any, incoming: any): any;
   prototype: T;
 }
 

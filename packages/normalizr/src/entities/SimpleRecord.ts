@@ -52,12 +52,12 @@ export default abstract class SimpleRecord {
   /** Creates new instance copying over defined values of arguments */
   static merge<T extends typeof SimpleRecord>(
     this: T,
-    first: AbstractInstanceType<T>,
-    second: AbstractInstanceType<T>,
+    existing: AbstractInstanceType<T>,
+    incoming: AbstractInstanceType<T>,
   ) {
     const props = Object.assign(
-      this.toObjectDefined(first),
-      this.toObjectDefined(second),
+      this.toObjectDefined(existing),
+      this.toObjectDefined(incoming),
     );
     return this.fromJS(props);
   }
