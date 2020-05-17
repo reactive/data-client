@@ -146,3 +146,39 @@ export default function CreateArticle() {
   return <Form onSubmit={submitHandler}>{/* rest of form */}</Form>;
 }
 ```
+
+## Optimistic Deletes
+
+Since deletes [automatically update the cache correctly](./immediate-updates#delete) upon fetch success,
+making your delete endpoint do this optimistically is as easy as adding the [optimisticUpdate](../api/FetchShape#optimisticupdate-params-body--fakepayload)
+function to your options.
+
+We return an empty string because that's the response we expect from the server. Although by
+default, the server response is ignored.
+
+```ts
+import { Resource, DeleteShape, SimpleResource } from 'rest-hooks';
+
+export default class ArticleResource extends Resource {
+  readonly id: string | undefined = undefined;
+  readonly title: string = '';
+  readonly content: string = '';
+  readonly published: boolean = false;
+
+  pk() {
+    return this.id;
+  }
+
+  static deleteShape<T extends typeof SimpleResource>(
+    this: T,
+  ): DeleteShape<any, Readonly<object>> {
+    return {
+      ...super.deleteShape(),
+      options: {
+        ...this.getFetchOptions(),
+        optimisticUpdate: (params: any, body: any) => '',
+      },
+    };
+  }
+}
+```
