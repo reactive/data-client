@@ -113,11 +113,41 @@ export const normalize = <
 ): NormalizedSchema<E, R> => {
   const schemaType = expectedSchemaType(schema);
   if (input === null || typeof input !== schemaType) {
-    throw new Error(
-      `Unexpected input given to normalize. Expected type to be "${schemaType}", found "${
-        input === null ? 'null' : typeof input
-      }".`,
-    );
+    /* istanbul ignore else */
+    if (process.env.NODE_ENV !== 'production') {
+      const parseWorks = (input: string) => {
+        try {
+          return typeof JSON.parse(input) !== 'string';
+        } catch (e) {
+          return false;
+        }
+      };
+      if (typeof input === 'string' && parseWorks(input)) {
+        throw new Error(`Normalizing a string, but this does match schema.
+
+Parsing this input string as JSON worked. This likely indicates fetch function did not parse
+the JSON. By default, this only happens if "content-type" header includes "json".
+See https://resthooks.io/docs/guides/custom-networking for more information
+
+  Schema: ${JSON.stringify(schema, undefined, 2)}
+  Input: "${input}"`);
+      } else {
+        throw new Error(
+          `Unexpected input given to normalize. Expected type to be "${schemaType}", found "${
+            input === null ? 'null' : typeof input
+          }".
+
+          Schema: ${JSON.stringify(schema, undefined, 2)}
+          Input: "${input}"`,
+        );
+      }
+    } else {
+      throw new Error(
+        `Unexpected input given to normalize. Expected type to be "${schemaType}", found "${
+          input === null ? 'null' : typeof input
+        }".`,
+      );
+    }
   }
 
   const entities: E = {} as any;

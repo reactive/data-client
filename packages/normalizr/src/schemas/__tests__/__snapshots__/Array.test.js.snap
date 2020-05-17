@@ -1042,4 +1042,24 @@ Object {
 }
 `;
 
-exports[`ArraySchema normalization Object should throw a custom error if data loads with unexpected value 1`] = `"Unexpected input given to normalize. Expected type to be \\"object\\", found \\"string\\"."`;
+exports[`ArraySchema normalization Object should throw a custom error if data loads with json string unexpected value 1`] = `
+"Normalizing a string, but this does match schema.
+
+Parsing this input string as JSON worked. This likely indicates fetch function did not parse
+the JSON. By default, this only happens if \\"content-type\\" header includes \\"json\\".
+See https://resthooks.io/docs/guides/custom-networking for more information
+
+  Schema: [
+  null
+]
+  Input: \\"[{\\"id\\":5}]\\""
+`;
+
+exports[`ArraySchema normalization Object should throw a custom error if data loads with string unexpected value 1`] = `
+"Unexpected input given to normalize. Expected type to be \\"object\\", found \\"string\\".
+
+          Schema: [
+  null
+]
+          Input: \\"abc\\""
+`;
