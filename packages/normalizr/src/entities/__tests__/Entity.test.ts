@@ -111,6 +111,22 @@ describe(`${Entity.name} normalization`, () => {
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 
+  it('should throw a custom error if data loads with string', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      readonly thirdthing: number = 0;
+      pk() {
+        return this.name;
+      }
+    }
+    const schema = MyEntity;
+    function normalizeBad() {
+      normalize('hibho', schema);
+    }
+    expect(normalizeBad).toThrowErrorMatchingSnapshot();
+  });
+
   describe('key', () => {
     test('must be created with a key name', () => {
       const makeSchema = () =>

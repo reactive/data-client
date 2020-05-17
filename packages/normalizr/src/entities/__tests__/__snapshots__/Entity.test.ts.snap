@@ -496,3 +496,10 @@ exports[`Entity normalization should throw a custom error if data loads with no 
   Unexpected keys: 
   Value: {}"
 `;
+
+exports[`Entity normalization should throw a custom error if data loads with string 1`] = `
+"Unexpected input given to normalize. Expected type to be \\"object\\", found \\"string\\".
+
+          Schema: undefined
+          Input: \\"hibho\\""
+`;
