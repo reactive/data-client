@@ -7,11 +7,20 @@ import IDEntity from '../../entities/IDEntity';
 
 describe(`${schema.Array.name} normalization`, () => {
   describe('Object', () => {
-    test('should throw a custom error if data loads with unexpected value', () => {
+    test('should throw a custom error if data loads with string unexpected value', () => {
       class User extends IDEntity {}
       const schema = [User];
       function normalizeBad() {
-        normalize('5', schema);
+        normalize('abc', schema);
+      }
+      expect(normalizeBad).toThrowErrorMatchingSnapshot();
+    });
+
+    test('should throw a custom error if data loads with json string unexpected value', () => {
+      class User extends IDEntity {}
+      const schema = [User];
+      function normalizeBad() {
+        normalize('[{"id":5}]', schema);
       }
       expect(normalizeBad).toThrowErrorMatchingSnapshot();
     });
