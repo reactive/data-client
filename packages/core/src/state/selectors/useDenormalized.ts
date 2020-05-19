@@ -17,7 +17,7 @@ import buildInferredResults from './buildInferredResults';
  * using params and schema. This increases cache hit rate for many
  * detail shapes.
  *
- * @returns [denormalizedValue, allEntitiesFound]
+ * @returns [denormalizedValue, ready]
  */
 export default function useDenormalized<
   Shape extends Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>
@@ -51,7 +51,7 @@ export default function useDenormalized<
   // Compute denormalized value
   const [denormalized, entitiesFound, entitiesList] = useMemo(() => {
     if (!needsDenormalization)
-      return [cacheResults, true, ''] as [
+      return [cacheResults, cacheResults !== undefined, ''] as [
         DenormalizeNullable<Shape['schema']>,
         any,
         string,

@@ -596,7 +596,7 @@ describe('useDenormalized()', () => {
       const { result } = renderHook(() => {
         return useDenormalized(photoShape, { userId }, initialState as any);
       });
-      expect(result.current).toStrictEqual([undefined, true]);
+      expect(result.current).toStrictEqual([undefined, false]);
     });
 
     it('should return results as-is for schemas with no entities', () => {

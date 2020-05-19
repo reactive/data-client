@@ -313,6 +313,17 @@ export const photoShape = {
   },
 };
 
+export const noEntitiesShape = {
+  type: 'read' as const,
+  schema: { firstThing: '', someItems: [] as { a: number }[] },
+  getFetchKey({ userId }: { userId: string }) {
+    return `/users/${userId}/simple`;
+  },
+  fetch: async ({ userId }: { userId: string }) => {
+    return await (await fetch(`http://test.com/users/${userId}/simple`)).json();
+  },
+};
+
 export function makeErrorBoundary(cb: (error: any) => void) {
   return class ErrorInterceptor extends React.Component<any, { error: any }> {
     state = { error: null };
