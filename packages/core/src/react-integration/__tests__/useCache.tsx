@@ -2,6 +2,7 @@ import {
   CoolerArticleResource,
   PaginatedArticleResource,
   InvalidIfStaleArticleResource,
+  noEntitiesShape,
 } from '__tests__/common';
 import React, { useEffect } from 'react';
 
@@ -23,6 +24,14 @@ describe('useCache()', () => {
     const { result } = renderRestHook(() => {
       return useCache(CoolerArticleResource.detailShape(), payload);
     }, {});
+    expect(result.current).toBe(undefined);
+  });
+
+  it('should return undefined for no entity shapes when results are not found', async () => {
+    const userId = '5';
+    const { result } = renderRestHook(() => {
+      return useCache(noEntitiesShape, { userId });
+    });
     expect(result.current).toBe(undefined);
   });
 

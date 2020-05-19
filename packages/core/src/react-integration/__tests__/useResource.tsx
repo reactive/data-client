@@ -3,6 +3,7 @@ import {
   UserResource,
   InvalidIfStaleArticleResource,
   photoShape,
+  noEntitiesShape,
 } from '__tests__/common';
 import { State } from '@rest-hooks/core';
 import { initialState } from '@rest-hooks/core/state/reducer';
@@ -379,6 +380,22 @@ describe('useResource()', () => {
     expect(article).toBeUndefined();
   });
 
+  it('should work with shapes with no entities', async () => {
+    const userId = '5';
+    const response = { firstThing: '', someItems: [{ a: 5 }] };
+    nock(/.*/)
+      .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
+      .get(`/users/${userId}/simple`)
+      .reply(200, response);
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      return useResource(noEntitiesShape, { userId });
+    });
+    // null means it threw
+    expect(result.current).toBe(null);
+    await waitForNextUpdate();
+    expect(result.current).toStrictEqual(response);
+  });
+
   it('should work with ArrayBuffer shapes', async () => {
     const userId = '5';
     const response = new ArrayBuffer(10);
@@ -389,7 +406,8 @@ describe('useResource()', () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useResource(photoShape, { userId });
     });
-    expect(result.current).toBe(undefined);
+    // null means it threw
+    expect(result.current).toBe(null);
     await waitForNextUpdate();
     expect(result.current).toStrictEqual(response);
   });
