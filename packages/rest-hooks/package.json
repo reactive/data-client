@@ -1,6 +1,6 @@
 {
   "name": "rest-hooks",
-  "version": "5.0.0-beta.12",
+  "version": "5.0.0-beta.13",
   "description": "Delightful data fetching for React",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
@@ -64,7 +64,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.2",
-    "@rest-hooks/core": "^1.0.0-beta.5"
+    "@rest-hooks/core": "^1.0.0-beta.6"
   },
   "peerDependencies": {
     "@types/react": "^16.8.2",

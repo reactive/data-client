@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.5...@rest-hooks/core@1.0.0-beta.6) (2020-05-19)
+
+
+### 🐛 Bug Fix
+
+* No entity schemas should suspend when they have no results ([#344](https://github.com/coinbase/rest-hooks/issues/344)) ([d3cd45e](https://github.com/coinbase/rest-hooks/commit/d3cd45e03bd639c49bf010ff848d4a158f0e6bf9))
+
+
+
 ## [1.0.0-beta.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.4...@rest-hooks/core@1.0.0-beta.5) (2020-05-14)
 
 

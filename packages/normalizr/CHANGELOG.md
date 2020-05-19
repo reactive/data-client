@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.0-beta.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.6...@rest-hooks/normalizr@6.0.0-beta.7) (2020-05-19)
+
+
+### 💅 Enhancement
+
+* Better dev error messaging with unexpected string to normalize ([#342](https://github.com/coinbase/rest-hooks/issues/342)) ([efc1b60](https://github.com/coinbase/rest-hooks/commit/efc1b609dc6e3b61b48f69a6bcb51c268cd39ef1))
+
+
+### 🏠 Internal
+
+* Add Entity tests for handling of getters ([8d1e552](https://github.com/coinbase/rest-hooks/commit/8d1e55269a624a6dc38cc90e0c257d720a81d3c2))
+* Add test for taking string response when expecting entity ([dfb2625](https://github.com/coinbase/rest-hooks/commit/dfb26259f47a21c7d95e9edc38a73e5db1367158))
+* Add test: methods are not expected in Entities ([d7c26e6](https://github.com/coinbase/rest-hooks/commit/d7c26e6a0c40b4fd059c496670f9dff394fc6c62))
+
+
+
 ## [6.0.0-beta.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.5...@rest-hooks/normalizr@6.0.0-beta.6) (2020-05-14)
 
 
