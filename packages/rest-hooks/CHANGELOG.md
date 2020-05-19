@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0-beta.15](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.0-beta.14...rest-hooks@5.0.0-beta.15) (2020-05-19)
+
+**Note:** Version bump only for package rest-hooks
+
+
+
+
+
 ## [5.0.0-beta.14](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.0-beta.13...rest-hooks@5.0.0-beta.14) (2020-05-19)
 
 **Note:** Version bump only for package rest-hooks
