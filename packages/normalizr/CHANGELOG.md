@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.0-beta.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.7...@rest-hooks/normalizr@6.0.0-beta.8) (2020-05-19)
+
+
+### 🐛 Bug Fix
+
+* Import types properly into schema.d.ts ([2d95f55](https://github.com/coinbase/rest-hooks/commit/2d95f554702c1d882f38448ff339528333ef58ad))
+
+
+
 ## [6.0.0-beta.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.6...@rest-hooks/normalizr@6.0.0-beta.7) (2020-05-19)
 
 
