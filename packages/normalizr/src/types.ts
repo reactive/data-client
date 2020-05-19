@@ -12,19 +12,19 @@ export type NormalizedEntity<T> = T extends {
   ? { [K in Exclude<keyof U, keyof S>]: U[K] } & { [K in keyof S]: string }
   : never;
 
-type DenormalizeObject<S extends Record<string, any>> = {
+export type DenormalizeObject<S extends Record<string, any>> = {
   [K in keyof S]: S[K] extends Schema ? Denormalize<S[K]> : S[K];
 };
 
-type DenormalizeNullableObject<S extends Record<string, any>> = {
+export type DenormalizeNullableObject<S extends Record<string, any>> = {
   [K in keyof S]: S[K] extends Schema ? DenormalizeNullable<S[K]> : S[K];
 };
 
-type NormalizeObject<S extends Record<string, any>> = {
+export type NormalizeObject<S extends Record<string, any>> = {
   [K in keyof S]: S[K] extends Schema ? Normalize<S[K]> : S[K];
 };
 
-type NormalizedNullableObject<S extends Record<string, any>> = {
+export type NormalizedNullableObject<S extends Record<string, any>> = {
   [K in keyof S]: S[K] extends Schema ? NormalizeNullable<S[K]> : S[K];
 };
 
