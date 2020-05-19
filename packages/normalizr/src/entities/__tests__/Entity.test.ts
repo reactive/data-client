@@ -95,6 +95,47 @@ describe(`${Entity.name} normalization`, () => {
     expect(normalizeBad).toThrow();
   });
 
+  it('should throw if data loads with unexpected prop that is a method', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      readonly thirdthing: number = 0;
+      readonly thirdthing2: number = 0;
+
+      nonexistantthing() {
+        return this.name + 5;
+      }
+
+      nonexistantthing2() {
+        return this.name + 5;
+      }
+
+      nonexistantthing3() {
+        return this.name + 5;
+      }
+
+      nonexistantthing4() {
+        return this.name + 5;
+      }
+
+      pk() {
+        return this.name;
+      }
+    }
+    function normalizeBad() {
+      normalize(
+        {
+          name: 'hoho',
+          nonexistantthing: 'hi',
+          nonexistantthing2: 'hi',
+          nonexistantthing3: 'hi',
+        },
+        MyEntity,
+      );
+    }
+    expect(normalizeBad).toThrow();
+  });
+
   it('should throw a custom error if data loads with half unexpected props', () => {
     class MyEntity extends Entity {
       readonly name: string = '';
