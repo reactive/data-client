@@ -1,5 +1,15 @@
-import { Schema, AbstractInstanceType } from './types';
-import Entity from './entities/Entity';
+import {
+  Schema,
+  AbstractInstanceType,
+  Normalize,
+  NormalizeNullable,
+  Denormalize,
+  DenormalizeNullable,
+  DenormalizeObject,
+  DenormalizeNullableObject,
+  NormalizeObject,
+  NormalizedNullableObject,
+} from './types';
 
 export type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
 export type SchemaFunction<K = string> = (
