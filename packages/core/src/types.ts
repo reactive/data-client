@@ -71,7 +71,11 @@ interface ReceiveMeta<S extends Schema> {
 }
 
 export type ReceiveAction<
-  Payload extends object | string | number = object | string | number,
+  Payload extends object | string | number | null =
+    | object
+    | string
+    | number
+    | null,
   S extends Schema = any
 > = ErrorableFSAWithPayloadAndMeta<
   typeof RECEIVE_TYPE,
@@ -102,7 +106,11 @@ export type UpdateFunction<
 ) => Normalize<DestSchema>;
 
 interface FetchMeta<
-  Payload extends object | string | number = object | string | number,
+  Payload extends object | string | number | null =
+    | object
+    | string
+    | number
+    | null,
   S extends Schema = any
 > {
   type: FetchShape<any, any>['type'];
@@ -120,7 +128,11 @@ interface FetchMeta<
 }
 
 export interface FetchAction<
-  Payload extends object | string | number = object | string | number,
+  Payload extends object | string | number | null =
+    | object
+    | string
+    | number
+    | null,
   S extends Schema = any
 >
   extends FSAWithPayloadAndMeta<

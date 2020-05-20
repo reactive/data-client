@@ -9,7 +9,11 @@ import {
 import SHAPE_TYPE_TO_RESPONSE_TYPE from './responseTypeMapping';
 
 interface Options<
-  Payload extends object | string | number = object | string | number,
+  Payload extends object | string | number | null =
+    | object
+    | string
+    | number
+    | null,
   S extends Schema = any
 >
   extends Pick<
@@ -25,7 +29,11 @@ interface Options<
  * @param param1 { schema, key, type, updaters, dataExpiryLength }
  */
 export default function createReceive<
-  Payload extends object | string | number = object | string | number,
+  Payload extends object | string | number | null =
+    | object
+    | string
+    | number
+    | null,
   S extends Schema = any
 >(
   data: Payload,
