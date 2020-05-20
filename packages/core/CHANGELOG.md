@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.9](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.8...@rest-hooks/core@1.0.0-beta.9) (2020-05-20)
+
+
+### 💅 Enhancement
+
+* Infer a reasonble type for fetch responses by default ([9d8c44c](https://github.com/coinbase/rest-hooks/commit/9d8c44cf2dfc085a8d5ad16fcc14095849283c68))
+
+
+### 🐛 Bug Fix
+
+* Accept null as payload of fetch ([4ff4d06](https://github.com/coinbase/rest-hooks/commit/4ff4d0662e73e053746e7491cf946c55d71baf52))
+* SimpleRecord as schema in useDenormalized() ([#346](https://github.com/coinbase/rest-hooks/issues/346)) ([2b96335](https://github.com/coinbase/rest-hooks/commit/2b96335d2758b67fa5616fdafb6b338c8128c9a2))
+* useFetcher() return types ([#347](https://github.com/coinbase/rest-hooks/issues/347)) ([d921cbe](https://github.com/coinbase/rest-hooks/commit/d921cbe41dc4b0d3f2c80bb9b6ef99dc71a8a86d))
+
+
+
 ## [1.0.0-beta.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.7...@rest-hooks/core@1.0.0-beta.8) (2020-05-19)
 
 **Note:** Version bump only for package @rest-hooks/core

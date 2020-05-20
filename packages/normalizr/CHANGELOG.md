@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.0.0-beta.10](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.9...@rest-hooks/normalizr@6.0.0-beta.10) (2020-05-20)
+
+
+### 🐛 Bug Fix
+
+* Types for nested nullable Record or Entity account for not finding nested pieces ([#345](https://github.com/coinbase/rest-hooks/issues/345)) ([f822b53](https://github.com/coinbase/rest-hooks/commit/f822b53487deedf5ae85909584ed5d8343a9cef8))
+
+
+
 ## [6.0.0-beta.9](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.8...@rest-hooks/normalizr@6.0.0-beta.9) (2020-05-19)
 
 
