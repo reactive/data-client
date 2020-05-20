@@ -30,7 +30,6 @@ export default function useDenormalized<
   DenormalizeNullable<Shape['schema']>,
   typeof params extends null ? false : boolean,
 ] {
-  // Select from state
   let entities = state.entities;
   const cacheResults = params && state.results[getFetchKey(params)];
   const serializedParams = params && getFetchKey(params);
