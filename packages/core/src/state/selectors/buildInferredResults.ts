@@ -51,11 +51,12 @@ export default function buildInferredResults<
   if (schema instanceof schemas.Values) {
     return {} as any;
   }
-  const o = schema instanceof schemas.Object ? (schema as any).schema : schema;
-  const resultObject = {} as any;
+  const o = 'schema' in schema ? (schema as any).schema : schema;
+  let resultObject = {} as any;
   for (const k in o) {
     resultObject[k] = buildInferredResults(o[k], params, indexes);
   }
+  if ('fromJS' in schema) resultObject = schema.fromJS(resultObject);
   return resultObject;
 }
 

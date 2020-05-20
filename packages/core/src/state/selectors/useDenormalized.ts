@@ -123,9 +123,12 @@ export default function useDenormalized<
  */
 function schemaHasEntity(schema: Schema): boolean {
   if (isEntity(schema)) return true;
-  if (Array.isArray(schema) && schema.length) return schemaHasEntity(schema[0]);
-  if (schema && typeof schema === 'object' && !('denormalize' in schema)) {
-    return Object.values(schema).reduce(
+  if (Array.isArray(schema))
+    return schema.length !== 0 && schemaHasEntity(schema[0]);
+  if (schema && (typeof schema === 'object' || typeof schema === 'function')) {
+    const nestedSchema =
+      'schema' in schema ? (schema.schema as Record<string, Schema>) : schema;
+    return Object.values(nestedSchema).reduce(
       (prev, cur) => prev || schemaHasEntity(cur),
       false,
     );
