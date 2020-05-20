@@ -5,6 +5,7 @@ export type {
   OptimisticUpdateParams,
   SchemaFromShape,
   BodyFromShape,
+  ReturnFromShape,
 } from './types';
 export { isDeleteShape } from './types';
 

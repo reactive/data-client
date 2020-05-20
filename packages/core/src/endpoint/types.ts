@@ -1,6 +1,7 @@
 import { UpdateFunction } from '@rest-hooks/core/types';
 import { Schema } from '@rest-hooks/normalizr';
 
+import type { Denormalize } from './normal';
 import { FetchShape, DeleteShape } from './shapes';
 
 export function isDeleteShape(
@@ -70,3 +71,9 @@ export type OptimisticUpdateParams<
   ParamsFromShape<DestShape>,
   UpdateFunction<SourceSchema, SchemaFromShape<DestShape>>,
 ];
+
+export type ReturnFromShape<S extends FetchShape<any, any, any>> = ReturnType<
+  S['fetch']
+> extends unknown
+  ? Denormalize<S['schema']>
+  : ReturnType<S['fetch']>;
