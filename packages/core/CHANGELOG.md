@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.11](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.10...@rest-hooks/core@1.0.0-beta.11) (2020-05-20)
+
+
+### 🏠 Internal
+
+* Bump typescript patch and get rid of comment ([17174ea](https://github.com/coinbase/rest-hooks/commit/17174ea13577571db1c1d2f2d3d7e7f64ea1ed57))
+
+
+
 ## [1.0.0-beta.10](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.9...@rest-hooks/core@1.0.0-beta.10) (2020-05-20)
 
 
