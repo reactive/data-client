@@ -51,4 +51,8 @@ export type {
   MutateShape,
   DeleteShape,
 } from './endpoint/shapes';
-export type { SetShapeParams, ParamsFromShape } from './endpoint/types';
+export type {
+  SetShapeParams,
+  ParamsFromShape,
+  ReturnFromShape,
+} from './endpoint/types';

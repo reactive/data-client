@@ -5,6 +5,7 @@ import {
   ParamsFromShape,
   BodyFromShape,
   OptimisticUpdateParams,
+  ReturnFromShape,
 } from '@rest-hooks/core/endpoint';
 import { Schema } from '@rest-hooks/normalizr';
 import { DispatchContext } from '@rest-hooks/core/react-integration/context';
@@ -25,7 +26,7 @@ export default function useFetcher<
   ? (
       params: ParamsFromShape<Shape>,
       body: BodyFromShape<Shape>,
-    ) => ReturnType<typeof fetchShape['fetch']>
+    ) => ReturnFromShape<typeof fetchShape>
   : <
       UpdateParams extends OptimisticUpdateParams<
         SchemaFromShape<Shape>,
@@ -35,7 +36,7 @@ export default function useFetcher<
       params: ParamsFromShape<Shape>,
       body: BodyFromShape<Shape>,
       updateParams?: UpdateParams | undefined,
-    ) => ReturnType<typeof fetchShape['fetch']> {
+    ) => ReturnFromShape<typeof fetchShape> {
   const dispatch = useContext(DispatchContext);
 
   // we just want the current values when we dispatch, so

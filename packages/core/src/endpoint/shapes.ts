@@ -1,8 +1,6 @@
 import { FetchOptions } from '@rest-hooks/core/types';
 import { Entity, Schema } from '@rest-hooks/normalizr';
 
-import { Denormalize } from './normal';
-
 /** Defines the shape of a network request */
 export interface FetchShape<
   S extends Schema,
@@ -10,7 +8,7 @@ export interface FetchShape<
   Body extends Readonly<object | string> | void =
     | Readonly<object | string>
     | undefined,
-  Response = Denormalize<S>
+  Response = any
 > {
   readonly type: 'read' | 'mutate' | 'delete';
   fetch(params: Params, body: Body): Promise<Response>;
@@ -23,8 +21,9 @@ export interface FetchShape<
 export interface DeleteShape<
   S extends Entity,
   Params extends Readonly<object> = Readonly<object>,
-  Body extends Readonly<object | string> | void = undefined
-> extends FetchShape<S, Params, Body> {
+  Body extends Readonly<object | string> | void = undefined,
+  Response = any
+> extends FetchShape<S, Params, Body, Response> {
   readonly type: 'delete';
 }
 
@@ -35,7 +34,7 @@ export interface MutateShape<
   Body extends Readonly<object | string> | void =
     | Readonly<object | string>
     | undefined,
-  Response extends object | string | number | boolean | null = Denormalize<S>
+  Response extends object | string | number | boolean | null = any
 > extends FetchShape<S, Params, Body, Response> {
   readonly type: 'mutate';
   fetch(params: Params, body: Body): Promise<Response>;
@@ -45,7 +44,7 @@ export interface MutateShape<
 export interface ReadShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
-  Response extends object | string | number | boolean | null = Denormalize<S>
+  Response extends object | string | number | boolean | null = any
 > extends FetchShape<S, Params, undefined, Response> {
   readonly type: 'read';
   fetch(params: Params): Promise<Response>;
