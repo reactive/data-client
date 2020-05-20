@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SimpleRecord normalize should work on nested 1`] = `
+Object {
+  "entities": Object {
+    "ArticleEntity": Object {
+      "5": ArticleEntity {
+        "author": "5",
+        "content": "",
+        "id": "5",
+        "title": "happy",
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": Object {
+    "data": "5",
+    "lastPage": "abc",
+    "nextPage": "slksfd",
+  },
+}
+`;

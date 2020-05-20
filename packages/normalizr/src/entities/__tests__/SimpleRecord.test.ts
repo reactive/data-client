@@ -21,6 +21,11 @@ class Pagination extends SimpleRecord {
   readonly data = ArticleEntity.fromJS();
   readonly nextPage: string = '';
   readonly lastPage: string = '';
+
+  get title() {
+    return this.data.title;
+  }
+
   static schema = {
     data: ArticleEntity,
   };
@@ -65,6 +70,25 @@ describe('SimpleRecord', () => {
       });
     });
 
+    it('should work on nested', () => {
+      const schema = Pagination;
+      const normalized = normalize(
+        {
+          data: {
+            id: '5',
+            title: 'happy',
+            author: '5',
+          },
+          lastPage: 'abc',
+          nextPage: 'slksfd',
+        },
+        schema,
+      );
+      expect(normalized).toMatchSnapshot();
+    });
+  });
+
+  describe('denormalize', () => {
     it('should denormalize with defaults', () => {
       const schema = Article;
       const denormalized = denormalize(
@@ -90,6 +114,47 @@ describe('SimpleRecord', () => {
       article?.author;
       // @ts-expect-error - fails when it doesn't
       article?.bob;
+    });
+
+    it('should work with nested and default correctly', () => {
+      const schema = Pagination;
+      const denormalized = denormalize(
+        {
+          data: '5',
+          nextPage: 'blob',
+        },
+        schema,
+        {
+          [ArticleEntity.key]: {
+            ['5']: {
+              id: '5',
+              title: 'happy',
+              author: '5',
+            },
+          },
+        },
+      );
+      expect(denormalized[1]).toBe(true);
+      const pagination = denormalized[0];
+      expect(pagination).toBeDefined();
+      expect(pagination).toBeInstanceOf(Pagination);
+      expect(pagination).toEqual({
+        data: {
+          id: '5',
+          title: 'happy',
+          author: '5',
+          content: '',
+        },
+        nextPage: 'blob',
+        lastPage: '',
+      });
+      // check getters
+      expect(pagination.title).toBe('happy');
+      // typing of members that it has
+      pagination.data.content;
+      pagination.data.content;
+      // @ts-expect-error - fails when it doesn't
+      pagination?.bob;
     });
   });
 });
