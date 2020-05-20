@@ -151,10 +151,33 @@ describe('SimpleRecord', () => {
       // check getters
       expect(pagination.title).toBe('happy');
       // typing of members that it has
+      pagination.data?.content;
+      pagination.data?.title;
+      // @ts-expect-error - data might be undefined since its a nested entity
       pagination.data.content;
-      pagination.data.content;
-      // @ts-expect-error - fails when it doesn't
+      // @ts-expect-error - fails when it doesn't have member
       pagination?.bob;
+    });
+  });
+
+  it('should have undefined member when entity is not found', () => {
+    const schema = Pagination;
+    const denormalized = denormalize(
+      {
+        data: '5',
+        nextPage: 'blob',
+      },
+      schema,
+      {},
+    );
+    expect(denormalized[1]).toBe(false);
+    const pagination = denormalized[0];
+    expect(pagination).toBeDefined();
+    expect(pagination).toBeInstanceOf(Pagination);
+    expect(pagination).toEqual({
+      data: undefined,
+      nextPage: 'blob',
+      lastPage: '',
     });
   });
 });
