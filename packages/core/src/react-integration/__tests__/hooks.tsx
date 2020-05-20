@@ -115,7 +115,11 @@ describe('useFetcher', () => {
           {},
           (article: any, articles: any) => [...articles, article],
         ],
-      ]);
+      ]).then(v => {
+        v.title;
+        // @ts-expect-error
+        v.doesnotexist;
+      });
       return null;
     }
     await testDispatchFetch(DispatchTester, [payload]);
