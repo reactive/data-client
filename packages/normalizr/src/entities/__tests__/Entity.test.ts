@@ -538,7 +538,7 @@ describe(`${Entity.name} denormalization`, () => {
     expect(denormalizedReport).toBeDefined();
     // This is just for TypeScript, the above line actually determines this
     if (!denormalizedReport) throw new Error('expected to be defined');
-    expect(denormalizedReport).toBe(denormalizedReport.draftedBy.reports[0]);
+    expect(denormalizedReport).toBe(denormalizedReport.draftedBy?.reports[0]);
     expect(denormalizedReport.publishedBy).toBe(denormalizedReport.draftedBy);
 
     // NOTE: Given how immutable data works, referential equality can't be
