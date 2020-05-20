@@ -6,10 +6,11 @@ import {
   SchemaDetail,
   DeleteShape,
 } from 'rest-hooks';
-import type {
+import {
   AbstractInstanceType,
   FetchOptions,
   MutateShape,
+  SimpleRecord,
 } from '@rest-hooks/core';
 import React from 'react';
 
@@ -219,12 +220,28 @@ export class StaticArticleResource extends ArticleResource {
 
 class OtherArticleResource extends CoolerArticleResource {}
 
+function makePaginatedRecord<T>(entity: T) {
+  return class PaginatedRecord extends SimpleRecord {
+    readonly prevPage = '';
+    readonly nextPage = '';
+    readonly results: AbstractInstanceType<T>[] = [];
+    static schema = { results: [entity] };
+  };
+}
+
 export class PaginatedArticleResource extends OtherArticleResource {
   static urlRoot = 'http://test.com/article-paginated/';
   static listShape<T extends typeof Resource>(this: T) {
     return {
       ...super.listShape(),
       schema: { results: [this], prevPage: '', nextPage: '' },
+    };
+  }
+
+  static listDefaultsShape<T extends typeof Resource>(this: T) {
+    return {
+      ...super.listShape(),
+      schema: makePaginatedRecord(this),
     };
   }
 

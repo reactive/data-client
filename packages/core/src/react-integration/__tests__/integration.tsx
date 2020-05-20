@@ -10,6 +10,8 @@ import nock from 'nock';
 import { act } from '@testing-library/react-hooks';
 
 // relative imports to avoid circular dependency in tsconfig references
+import { SimpleRecord } from '@rest-hooks/normalizr';
+
 import {
   makeRenderRestHook,
   makeCacheProvider,
@@ -94,6 +96,20 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       expect(result.current.title).toBe(payload.title);
     });
 
+    it('should resolve useResource() with SimpleRecords', async () => {
+      mynock.get(`/article-paginated/`).reply(200, paginatedFirstPage);
+
+      const { result, waitForNextUpdate } = renderRestHook(() => {
+        return useResource(PaginatedArticleResource.listDefaultsShape(), {});
+      });
+      expect(result.current).toBeNull();
+      await waitForNextUpdate();
+      expect(result.current).toBeInstanceOf(SimpleRecord);
+      expect(result.current.nextPage).toBe('');
+      expect(result.current.prevPage).toBe('');
+      expect(result.current.results).toMatchSnapshot();
+    });
+
     it('should throw 404 once deleted', async () => {
       let del: any;
       const { result, waitForNextUpdate } = renderRestHook(() => {
@@ -102,7 +118,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       });
       expect(result.current).toBeNull();
       await waitForNextUpdate();
-      expect(result.current instanceof CoolerArticleResource).toBe(true);
+      expect(result.current).toBeInstanceOf(CoolerArticleResource);
       expect(result.current.title).toBe(payload.title);
 
       await act(() => del(payload));

@@ -3,7 +3,7 @@ import {
   UnionResource,
   IndexedUserResource,
 } from '__tests__/common';
-import { schema as schemas } from '@rest-hooks/normalizr';
+import { schema as schemas, SimpleRecord } from '@rest-hooks/normalizr';
 
 import buildInferredResults from '../buildInferredResults';
 
@@ -17,6 +17,28 @@ describe('buildInferredResults()', () => {
     expect(buildInferredResults(schema, { id: 5 }, {})).toEqual({
       data: { article: '5' },
     });
+  });
+
+  it('should work with SimpleRecord', () => {
+    class Data extends SimpleRecord {
+      readonly article = CoolerArticleResource.fromJS();
+      readonly otherfield = '';
+      static schema = {
+        article: CoolerArticleResource,
+      };
+    }
+    class Message extends SimpleRecord {
+      readonly data = Data.fromJS();
+      static schema = {
+        data: Data,
+      };
+    }
+    const schema = Message;
+    const results = buildInferredResults(schema, { id: 5 }, {});
+    expect(results).toEqual({
+      data: { article: '5', otherfield: '' },
+    });
+    expect(results).toBeInstanceOf(SimpleRecord);
   });
 
   it('should be undefined with Array', () => {
