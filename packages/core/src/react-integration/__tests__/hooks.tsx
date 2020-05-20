@@ -93,8 +93,11 @@ describe('useFetcher', () => {
 
     function DispatchTester() {
       const a = useFetcher(CoolerArticleResource.createShape());
-      const ret = a({}, { content: 'hi' });
-      ret.author;
+      a({}, { content: 'hi' }).then(v => {
+        v.author;
+        //@ts-expect-error
+        v.jasfdasdf;
+      });
       return null;
     }
     await testDispatchFetch(DispatchTester, [payload]);

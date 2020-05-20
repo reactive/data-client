@@ -75,5 +75,5 @@ export type OptimisticUpdateParams<
 export type ReturnFromShape<S extends FetchShape<any, any, any>> = ReturnType<
   S['fetch']
 > extends unknown
-  ? Denormalize<S['schema']>
+  ? Promise<Denormalize<S['schema']>>
   : ReturnType<S['fetch']>;
