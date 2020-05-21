@@ -9,7 +9,7 @@ import React, { useEffect } from 'react';
 // relative imports to avoid circular dependency in tsconfig references
 import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import { useCache } from '../hooks';
-import { articlesPages, payload } from './fixtures';
+import { articlesPages, payload } from '../test-fixtures';
 
 describe('useCache()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;

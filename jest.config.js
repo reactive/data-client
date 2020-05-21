@@ -45,7 +45,7 @@ const baseConfig = {
       },
     ),
   },
-  setupFiles: ['<rootDir>/scripts/testSetup.js'],
+  testURL: 'http://localhost',
 };
 
 const packages = [
@@ -61,7 +61,30 @@ const projects = [
     ...baseConfig,
     rootDir: __dirname,
     roots: packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
+    displayName: 'ReactDOM',
+    setupFiles: ['<rootDir>/scripts/testSetup.js'],
   },
+  /*{
+    ...baseConfig,
+    rootDir: __dirname,
+    roots: packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
+    displayName: 'React Native',
+    preset: 'react-native',
+    transformIgnorePatterns: [
+      '/node_modules/(?!(jest-)?react-native|@react-native-community)', //from RN preset
+      '<rootDir>/.*__tests__/[^/]+\\.web\\.(j|t)sx?$',
+    ],
+    setupFiles: [
+      '<rootDir>/node_modules/react-native/jest/setup.js', //from RN preset
+      '<rootDir>/scripts/testSetupNative.js',
+    ],
+    transform: {
+      //'^.+\\.js$': '<rootDir>/node_modules/react-native/jest/preprocessor.js', //setup.js needs to be transformed, but preprocessor screws everything else up
+      ...baseConfig.transform,
+      '^.+\\.(bmp|gif|jpg|jpeg|mp4|png|psd|svg|webp)$':
+        '<rootDir>/node_modules/react-native/jest/assetFileTransformer.js', //from RN preset
+    },
+  },*/
 ];
 
 module.exports = {
