@@ -2632,10 +2632,10 @@
     "@types/istanbul-lib-coverage" "*"
     "@types/istanbul-lib-report" "*"
 
-"@types/jest@^25.2.2":
-  version "25.2.2"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-25.2.2.tgz#6a752e7a00f69c3e790ea00c345029d5cefa92bf"
-  integrity sha512-aRctFbG8Pb7DSLzUt/fEtL3q/GKb9mretFuYhRub2J0q6NhzBYbx9HTQzHrWgBNIxYOlxGNVe6Z54cpbUt+Few==
+"@types/jest@^25.2.3":
+  version "25.2.3"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-25.2.3.tgz#33d27e4c4716caae4eced355097a47ad363fdcaf"
+  integrity sha512-JXc1nK/tXHiDhV55dvfzqtmP4S3sy3T3ouV2tkViZgxY/zeUkcpQcQPGRlgF4KmWzWW5oiWYSZwtCB+2RsE4Fw==
   dependencies:
     jest-diff "^25.2.1"
     pretty-format "^25.2.1"
@@ -2645,10 +2645,10 @@
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.3.tgz#bdfd69d61e464dcc81b25159c270d75a73c1a636"
   integrity sha512-Il2DtDVRGDcqjDtE+rF8iqg1CArehSK84HZJCT7AMITlyXRBpuPhqGLDQMowraqqu1coEaimg4ZOqggt6L6L+A==
 
-"@types/lodash@^4.14.150":
-  version "4.14.150"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.150.tgz#649fe44684c3f1fcb6164d943c5a61977e8cf0bd"
-  integrity sha512-kMNLM5JBcasgYscD9x/Gvr6lTAv2NVgsKtet/hm93qMyf/D1pt+7jeEZklKJKxMVmXjxbRVQQGfqDSfipYCO6w==
+"@types/lodash@^4.14.152":
+  version "4.14.152"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.152.tgz#7e7679250adce14e749304cdb570969f77ec997c"
+  integrity sha512-Vwf9YF2x1GE3WNeUMjT5bTHa2DqgUo87ocdgTScupY2JclZ5Nn7W2RLM/N0+oreexUk8uaVugR81NnTY/jNNXg==
 
 "@types/minimatch@*":
   version "3.0.3"

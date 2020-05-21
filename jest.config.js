@@ -22,7 +22,7 @@ function readTsConfig(path = './', configName = 'tsconfig.json') {
 const baseConfig = {
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
-    '^.+\\.(j)sx?$': '<rootDir>/scripts/babel-jest',
+    '^.+\\.(j)sx?$': ['babel-jest', { rootMode: 'upward' }],
   },
   globals: {
     'ts-jest': {
