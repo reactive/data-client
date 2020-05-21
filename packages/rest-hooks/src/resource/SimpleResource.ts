@@ -98,18 +98,6 @@ export default abstract class SimpleResource extends FlatEntity {
     throw new NotImplementedError();
   }
 
-  /** Get the entity schema defining  */
-  static getEntitySchema<T extends typeof SimpleResource>(this: T) {
-    /* istanbul ignore next */
-    if (process.env.NODE_ENV === 'development') {
-      console.error(
-        'getEntitySchema() is deprecated - use Entity directly instead.',
-      );
-    }
-    /* istanbul ignore next */
-    return this;
-  }
-
   /** Get the request options for this SimpleResource  */
   static getFetchOptions(): FetchOptions | undefined {
     return;
