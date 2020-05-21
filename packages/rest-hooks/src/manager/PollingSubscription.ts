@@ -1,5 +1,4 @@
-import { Schema } from '@rest-hooks/normalizr';
-import { actionTypes, Dispatch } from '@rest-hooks/core';
+import { actionTypes, Dispatch, Schema } from '@rest-hooks/core';
 
 import { Subscription, SubscriptionInit } from './SubscriptionManager';
 import DefaultConnectionListener from './DefaultConnectionListener';

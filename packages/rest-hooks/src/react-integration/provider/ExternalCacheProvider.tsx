@@ -4,8 +4,8 @@ import {
   reducer,
   State,
   ActionTypes,
+  usePromisifiedDispatch,
 } from '@rest-hooks/core';
-import { usePromisifiedDispatch } from '@rest-hooks/use-enhanced-reducer';
 import React, { ReactNode, useEffect, useState, useMemo } from 'react';
 
 interface Store<S> {

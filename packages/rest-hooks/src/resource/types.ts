@@ -1,4 +1,4 @@
-import { schema as schemas, Schema } from '@rest-hooks/normalizr';
+import { schema as schemas, Schema } from '@rest-hooks/core';
 
 export type SchemaDetail<T> =
   | schemas.EntityInterface<T>

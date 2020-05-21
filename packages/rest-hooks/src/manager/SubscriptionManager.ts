@@ -6,8 +6,8 @@ import {
   UnsubscribeAction,
   Manager,
   actionTypes,
+  Schema,
 } from '@rest-hooks/core';
-import { Schema } from '@rest-hooks/normalizr';
 
 const { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } = actionTypes;
 

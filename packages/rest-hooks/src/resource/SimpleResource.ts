@@ -1,4 +1,4 @@
-import { FlatEntity } from '@rest-hooks/normalizr';
+import { FlatEntity } from '@rest-hooks/core';
 import type {
   FetchOptions,
   AbstractInstanceType,

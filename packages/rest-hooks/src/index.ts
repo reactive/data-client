@@ -6,8 +6,6 @@ import {
   __INTERNAL__ as _INT_,
 } from '@rest-hooks/core';
 
-export {} from '@rest-hooks/normalizr';
-
 export {
   useCache,
   useFetcher,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { MiddlewareAPI, Dispatch } from '@rest-hooks/use-enhanced-reducer';
+import { MiddlewareAPI, Dispatch } from '@rest-hooks/core';
 
 const PromiseifyMiddleware = <R extends React.Reducer<any, any>>(
   _: MiddlewareAPI<R>,
