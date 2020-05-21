@@ -28,7 +28,7 @@ export default abstract class SimpleResource extends FlatEntity {
 
   /** Returns the globally unique identifier for this SimpleResource */
   static get key(): string {
-    return this.getKey();
+    return this.urlRoot;
   }
 
   /** URL to find this SimpleResource */
@@ -245,11 +245,6 @@ export default abstract class SimpleResource extends FlatEntity {
         return this.fetch('delete', this.url(params));
       },
     };
-  }
-
-  /** Returns the globally unique identifier for this SimpleResource */
-  static getKey() {
-    return this.urlRoot;
   }
 }
 
