@@ -20,7 +20,7 @@ import { useFetcher, useRetrieve, useInvalidator, useResetter } from '../hooks';
 import { initialState } from '../../state/reducer';
 import { State, ActionTypes } from '../../types';
 import { INVALIDATE_TYPE, RESET_TYPE } from '../../actionTypes';
-import { users, articlesPages, payload } from './fixtures';
+import { users, articlesPages, payload } from '../test-fixtures';
 
 async function testDispatchFetch(
   Component: React.FunctionComponent<any>,

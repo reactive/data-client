@@ -110,7 +110,3 @@ export const paginatedFirstPage = {
 export const paginatedSecondPage = {
   results: moreNested,
 };
-
-describe('fixtures', () => {
-  it('should pass', () => {});
-});

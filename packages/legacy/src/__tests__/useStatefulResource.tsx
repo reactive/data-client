@@ -12,10 +12,12 @@ function onError(e: any) {
   e.preventDefault();
 }
 beforeAll(() => {
-  globalThis.addEventListener('error', onError);
+  if (typeof addEventListener === 'function')
+    addEventListener('error', onError);
 });
 afterAll(() => {
-  globalThis.removeEventListener('error', onError);
+  if (typeof removeEventListener === 'function')
+    removeEventListener('error', onError);
 });
 
 describe('useStatefulResource()', () => {

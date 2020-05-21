@@ -25,16 +25,18 @@ import {
   nested,
   paginatedFirstPage,
   paginatedSecondPage,
-} from './fixtures';
+} from '../test-fixtures';
 
 function onError(e: any) {
   e.preventDefault();
 }
 beforeEach(() => {
-  window.addEventListener('error', onError);
+  if (typeof addEventListener === 'function')
+    addEventListener('error', onError);
 });
 afterEach(() => {
-  window.removeEventListener('error', onError);
+  if (typeof removeEventListener === 'function')
+    removeEventListener('error', onError);
 });
 
 for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {

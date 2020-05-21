@@ -57,11 +57,13 @@ class MockConnectionListener implements ConnectionListener {
 function onError(e: any) {
   e.preventDefault();
 }
-beforeAll(() => {
-  window.addEventListener('error', onError);
+beforeEach(() => {
+  if (typeof addEventListener === 'function')
+    addEventListener('error', onError);
 });
-afterAll(() => {
-  window.removeEventListener('error', onError);
+afterEach(() => {
+  if (typeof removeEventListener === 'function')
+    removeEventListener('error', onError);
 });
 
 describe('PollingSubscription', () => {

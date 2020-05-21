@@ -355,10 +355,3 @@ export function makeErrorBoundary(cb: (error: any) => void) {
     }
   };
 }
-
-describe('ArticleResource', () => {
-  it('should use defaults', () => {
-    const a = ArticleResource.fromJS({});
-    expect(a.title).toBe('');
-  });
-});

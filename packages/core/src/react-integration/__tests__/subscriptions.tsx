@@ -28,10 +28,12 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       e.preventDefault();
     }
     beforeEach(() => {
-      window.addEventListener('error', onError);
+      if (typeof addEventListener === 'function')
+        addEventListener('error', onError);
     });
     afterEach(() => {
-      window.removeEventListener('error', onError);
+      if (typeof removeEventListener === 'function')
+        removeEventListener('error', onError);
     });
 
     beforeEach(() => {

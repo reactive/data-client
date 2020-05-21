@@ -1,4 +1,4 @@
-module.exports = function(api) {
+module.exports = function (api) {
   api.cache.using(() => process.env.NODE_ENV);
   return {
     presets: [
@@ -11,6 +11,6 @@ module.exports = function(api) {
       ],
     ],
     // allows us to load .babelrc in addition to this
-    babelrcRoots: ['packages/*'],
+    babelrcRoots: ['packages/*', '__tests__'],
   };
 };

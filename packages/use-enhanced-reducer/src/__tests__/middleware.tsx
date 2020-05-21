@@ -8,10 +8,12 @@ function ignoreError(e: Event) {
   e.preventDefault();
 }
 beforeEach(() => {
-  window.addEventListener('error', ignoreError);
+  if (typeof addEventListener === 'function')
+    addEventListener('error', ignoreError);
 });
 afterEach(() => {
-  window.removeEventListener('error', ignoreError);
+  if (typeof removeEventListener === 'function')
+    removeEventListener('error', ignoreError);
 });
 
 describe('createEnhancedReducerHook', () => {
