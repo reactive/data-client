@@ -35,8 +35,8 @@ export interface SchemaSimple {
     input: any,
     parent: any,
     key: any,
-    visit: Function,
-    addEntity: Function,
+    visit: (...args: any) => any,
+    addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
   ): any;
   denormalize(input: any, unvisit: UnvisitFunction): [any, boolean];
@@ -65,8 +65,8 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
     input: any,
     parent: any,
     key: any,
-    visit: Function,
-    addEntity: Function,
+    visit: (...args: any) => any,
+    addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
   ): Normalize<S>[];
 
@@ -89,8 +89,8 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
     input: any,
     parent: any,
     key: any,
-    visit: Function,
-    addEntity: Function,
+    visit: (...args: any) => any,
+    addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
   ): NormalizeObject<O>;
 
@@ -120,8 +120,8 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
     input: any,
     parent: any,
     key: any,
-    visit: Function,
-    addEntity: Function,
+    visit: (...args: any) => any,
+    addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
   ): UnionResult<Choices>;
 
@@ -161,8 +161,8 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
     input: any,
     parent: any,
     key: any,
-    visit: Function,
-    addEntity: Function,
+    visit: (...args: any) => any,
+    addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
   ): Record<
     string,

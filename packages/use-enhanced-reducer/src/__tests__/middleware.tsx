@@ -17,13 +17,15 @@ afterEach(() => {
 });
 
 describe('createEnhancedReducerHook', () => {
-  const makeTestActionMiddleware = (test: Function) => () => {
+  const makeTestActionMiddleware = (test: (...args: any) => any) => () => {
     return (next: any) => (action: any) => {
       test(action);
       return next(action);
     };
   };
-  const makeTestMiddleware = (spy: Function) => (methods: MiddlewareAPI) => {
+  const makeTestMiddleware = (spy: (...args: any) => any) => (
+    methods: MiddlewareAPI,
+  ) => {
     spy(methods);
     return (next: any) => (action: any) => next(action);
   };
@@ -39,8 +41,8 @@ describe('createEnhancedReducerHook', () => {
     callBefore,
     callAfter,
   }: {
-    callBefore: Function;
-    callAfter: Function;
+    callBefore: (...args: any) => any;
+    callAfter: (...args: any) => any;
   }) => ({ getState }: MiddlewareAPI) => {
     return (next: any) => async (action: any) => {
       callBefore(getState());
@@ -204,9 +206,13 @@ describe('createEnhancedReducerHook', () => {
   });
 
   it('warns when dispatching during middleware setup', () => {
-    function dispatchingMiddleware({ dispatch }: { dispatch: Function }) {
+    function dispatchingMiddleware({
+      dispatch,
+    }: {
+      dispatch: (...args: any) => any;
+    }) {
       dispatch({ type: 'dispatch', payload: 5 });
-      return (next: Function) => (action: any) => next(action);
+      return (next: (...args: any) => any) => (action: any) => next(action);
     }
     const { result } = renderHook(() => {
       useEnhancedReducer(state => state, {}, [dispatchingMiddleware]);

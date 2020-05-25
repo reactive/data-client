@@ -33,7 +33,7 @@ interface NestedSchemaClass<T = any> {
 }
 
 export interface RecordClass<T = any> extends NestedSchemaClass<T> {
-  fromJS: Function;
+  fromJS: (...args: any) => AbstractInstanceType<T>;
 }
 
 export type DenormalizeNullableNestedSchema<

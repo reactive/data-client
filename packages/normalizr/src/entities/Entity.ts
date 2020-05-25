@@ -46,8 +46,8 @@ export default abstract class Entity extends SimpleRecord {
     input: any,
     parent: any,
     key: string | undefined,
-    visit: Function,
-    addEntity: Function,
+    visit: (...args: any) => any,
+    addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
   ): any {
     // TODO: what's store needs to be a differing type from fromJS

@@ -42,5 +42,5 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
   return [state, outerDispatch];
 }
 
-const compose = (fns: Function[]) => (initial: any) =>
+const compose = (fns: ((...args: any) => any)[]) => (initial: any) =>
   fns.reduceRight((v, f) => f(v), initial);

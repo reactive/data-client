@@ -51,7 +51,7 @@ describe('SubscriptionManager', () => {
 
   describe('middleware', () => {
     function createSubscribeAction(
-      payload: {},
+      payload: Record<string, unknown>,
       reject = false,
     ): SubscribeAction {
       const fetch = reject
@@ -67,7 +67,9 @@ describe('SubscriptionManager', () => {
         },
       };
     }
-    function createUnsubscribeAction(payload: {}): UnsubscribeAction {
+    function createUnsubscribeAction(
+      payload: Record<string, unknown>,
+    ): UnsubscribeAction {
       return {
         type: UNSUBSCRIBE_TYPE,
         meta: {
