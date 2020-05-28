@@ -8,7 +8,7 @@ export default function useSelectionUnstable<
 >(
   select: F,
   params: Params | null,
-  paramSerializer: (p: Params) => string,
+  paramSerializer: (p: Params) => string = p => JSON.stringify(p),
 ): ReturnType<F> | null {
   const state = useContext(StateContext);
   // TODO: if this is identical to before and render was triggered by state update,
@@ -16,11 +16,11 @@ export default function useSelectionUnstable<
 
   // params must be serialized in check
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const resource = useMemo(() => params && select(state, params), [
+  const selection = useMemo(() => params && select(state, params), [
     // eslint-disable-next-line react-hooks/exhaustive-deps
     params && paramSerializer(params),
     select,
     state,
   ]);
-  return resource;
+  return selection;
 }
