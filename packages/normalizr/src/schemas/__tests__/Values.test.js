@@ -4,6 +4,7 @@ import { fromJS } from 'immutable';
 import { denormalizeSimple as denormalize } from '../../denormalize';
 import { normalize, schema } from '../../';
 import IDEntity from '../../entities/IDEntity';
+import Entity from '../../entities/Entity';
 
 class Cat extends IDEntity {
   type = '';
@@ -72,6 +73,91 @@ describe(`${schema.Values.name} normalization`, () => {
         },
         valuesSchema,
       ),
+    ).toMatchSnapshot();
+  });
+
+  test('works on complex object', () => {
+    class Estimate extends Entity {
+      pk() {
+        return this.fee.currency;
+      }
+    }
+    const response = {
+      data: {
+        estimates: {
+          BTC: {
+            confirmation_duration: 900,
+            exchange: {
+              rate: '6820.07',
+              local: 'USD',
+              crypto: 'BTC',
+            },
+            fee_per_kb: {
+              amount: '0.00016566',
+              currency: 'BTC',
+            },
+            fee: {
+              amount: '0.00002270',
+              currency: 'BTC',
+            },
+            priority: 'fast',
+            recipient_value: {
+              amount: '0.00054147',
+              currency: 'BTC',
+            },
+            exchange_to_proceeds: {
+              rate: '6820.07',
+              local: 'EUR',
+              crypto: 'BTC',
+            },
+            min_order_size: {
+              amount: '0.001',
+              currency: 'BTC',
+            },
+            coinbase_fees: {
+              amount: '0.00002270',
+              currency: 'BTC',
+            },
+          },
+          ETH: {
+            confirmation_duration: 900,
+            exchange: {
+              rate: '197.07',
+              local: 'USD',
+              crypto: 'ETH',
+            },
+            fee_per_kb: {
+              amount: '0.00086',
+              currency: 'ETH',
+            },
+            fee: {
+              amount: '0.03795',
+              currency: 'ETH',
+            },
+            priority: 'fast',
+            recipient_value: {
+              amount: '2.53',
+              currency: 'ETH',
+            },
+            exchange_to_proceeds: {
+              rate: '6820.07',
+              local: 'EUR',
+              crypto: 'BTC',
+            },
+            min_order_size: {
+              amount: '0.001',
+              currency: 'BTC',
+            },
+            coinbase_fees: {
+              amount: '0.00002270',
+              currency: 'BTC',
+            },
+          },
+        },
+      },
+    };
+    expect(
+      normalize(response, { data: { estimates: new schema.Values(Estimate) } }),
     ).toMatchSnapshot();
   });
 });
@@ -151,5 +237,90 @@ describe(`${schema.Values.name} denormalization`, () => {
         fromJS(entities),
       ),
     ).toMatchSnapshot();
+  });
+
+  test('works on complex object', () => {
+    class Estimate extends Entity {
+      pk() {
+        return this.fee.currency;
+      }
+    }
+    const response = {
+      data: {
+        estimates: {
+          BTC: {
+            confirmation_duration: 900,
+            exchange: {
+              rate: '6820.07',
+              local: 'USD',
+              crypto: 'BTC',
+            },
+            fee_per_kb: {
+              amount: '0.00016566',
+              currency: 'BTC',
+            },
+            fee: {
+              amount: '0.00002270',
+              currency: 'BTC',
+            },
+            priority: 'fast',
+            recipient_value: {
+              amount: '0.00054147',
+              currency: 'BTC',
+            },
+            exchange_to_proceeds: {
+              rate: '6820.07',
+              local: 'EUR',
+              crypto: 'BTC',
+            },
+            min_order_size: {
+              amount: '0.001',
+              currency: 'BTC',
+            },
+            coinbase_fees: {
+              amount: '0.00002270',
+              currency: 'BTC',
+            },
+          },
+          ETH: {
+            confirmation_duration: 900,
+            exchange: {
+              rate: '197.07',
+              local: 'USD',
+              crypto: 'ETH',
+            },
+            fee_per_kb: {
+              amount: '0.00086',
+              currency: 'ETH',
+            },
+            fee: {
+              amount: '0.03795',
+              currency: 'ETH',
+            },
+            priority: 'fast',
+            recipient_value: {
+              amount: '2.53',
+              currency: 'ETH',
+            },
+            exchange_to_proceeds: {
+              rate: '6820.07',
+              local: 'EUR',
+              crypto: 'BTC',
+            },
+            min_order_size: {
+              amount: '0.001',
+              currency: 'BTC',
+            },
+            coinbase_fees: {
+              amount: '0.00002270',
+              currency: 'BTC',
+            },
+          },
+        },
+      },
+    };
+    const shape = { data: { estimates: new schema.Values(Estimate) } };
+    const { result, entities } = normalize(response, shape);
+    expect(denormalize(result, shape, entities)[0]).toMatchSnapshot();
   });
 });

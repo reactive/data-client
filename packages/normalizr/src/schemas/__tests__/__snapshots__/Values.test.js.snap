@@ -66,6 +66,83 @@ Array [
 ]
 `;
 
+exports[`ValuesSchema denormalization works on complex object 1`] = `
+Object {
+  "data": Object {
+    "estimates": Object {
+      "BTC": Estimate {
+        "coinbase_fees": Object {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "confirmation_duration": 900,
+        "exchange": Object {
+          "crypto": "BTC",
+          "local": "USD",
+          "rate": "6820.07",
+        },
+        "exchange_to_proceeds": Object {
+          "crypto": "BTC",
+          "local": "EUR",
+          "rate": "6820.07",
+        },
+        "fee": Object {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "fee_per_kb": Object {
+          "amount": "0.00016566",
+          "currency": "BTC",
+        },
+        "min_order_size": Object {
+          "amount": "0.001",
+          "currency": "BTC",
+        },
+        "priority": "fast",
+        "recipient_value": Object {
+          "amount": "0.00054147",
+          "currency": "BTC",
+        },
+      },
+      "ETH": Estimate {
+        "coinbase_fees": Object {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "confirmation_duration": 900,
+        "exchange": Object {
+          "crypto": "ETH",
+          "local": "USD",
+          "rate": "197.07",
+        },
+        "exchange_to_proceeds": Object {
+          "crypto": "BTC",
+          "local": "EUR",
+          "rate": "6820.07",
+        },
+        "fee": Object {
+          "amount": "0.03795",
+          "currency": "ETH",
+        },
+        "fee_per_kb": Object {
+          "amount": "0.00086",
+          "currency": "ETH",
+        },
+        "min_order_size": Object {
+          "amount": "0.001",
+          "currency": "BTC",
+        },
+        "priority": "fast",
+        "recipient_value": Object {
+          "amount": "2.53",
+          "currency": "ETH",
+        },
+      },
+    },
+  },
+}
+`;
+
 exports[`ValuesSchema normalization can use a function to determine the schema when normalizing 1`] = `
 Object {
   "entities": Object {
@@ -145,6 +222,92 @@ Object {
     "fluffy": Object {
       "id": "1",
       "schema": "cats",
+    },
+  },
+}
+`;
+
+exports[`ValuesSchema normalization works on complex object 1`] = `
+Object {
+  "entities": Object {
+    "Estimate": Object {
+      "BTC": Estimate {
+        "coinbase_fees": Object {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "confirmation_duration": 900,
+        "exchange": Object {
+          "crypto": "BTC",
+          "local": "USD",
+          "rate": "6820.07",
+        },
+        "exchange_to_proceeds": Object {
+          "crypto": "BTC",
+          "local": "EUR",
+          "rate": "6820.07",
+        },
+        "fee": Object {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "fee_per_kb": Object {
+          "amount": "0.00016566",
+          "currency": "BTC",
+        },
+        "min_order_size": Object {
+          "amount": "0.001",
+          "currency": "BTC",
+        },
+        "priority": "fast",
+        "recipient_value": Object {
+          "amount": "0.00054147",
+          "currency": "BTC",
+        },
+      },
+      "ETH": Estimate {
+        "coinbase_fees": Object {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "confirmation_duration": 900,
+        "exchange": Object {
+          "crypto": "ETH",
+          "local": "USD",
+          "rate": "197.07",
+        },
+        "exchange_to_proceeds": Object {
+          "crypto": "BTC",
+          "local": "EUR",
+          "rate": "6820.07",
+        },
+        "fee": Object {
+          "amount": "0.03795",
+          "currency": "ETH",
+        },
+        "fee_per_kb": Object {
+          "amount": "0.00086",
+          "currency": "ETH",
+        },
+        "min_order_size": Object {
+          "amount": "0.001",
+          "currency": "BTC",
+        },
+        "priority": "fast",
+        "recipient_value": Object {
+          "amount": "2.53",
+          "currency": "ETH",
+        },
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": Object {
+    "data": Object {
+      "estimates": Object {
+        "BTC": "BTC",
+        "ETH": "ETH",
+      },
     },
   },
 }
