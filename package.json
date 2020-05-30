@@ -52,7 +52,7 @@
     "husky": "^4.2.5",
     "ignore-styles": "^5.0.1",
     "jest": "^26.0.1",
-    "lerna": "^3.21.0",
+    "lerna": "^3.22.0",
     "nock": "^12.0.3",
     "prettier": "^2.0.5",
     "react": "16.13.1",
@@ -74,9 +74,6 @@
     "ttypescript": "^1.5.10",
     "typescript": "^3.9.3",
     "whatwg-fetch": "^3.0.0"
-  },
-  "resolutions": {
-    "@lerna/conventional-commits": "https://github.com/ntucker/lerna-conventional-commits.git"
   },
   "version": "0.0.0"
 }
