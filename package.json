@@ -30,7 +30,7 @@
     "@anansi/browserslist-config": "^1.0.0",
     "@anansi/eslint-plugin": "^0.9.6",
     "@babel/cli": "^7.10.1",
-    "@babel/core": "^7.10.1",
+    "@babel/core": "^7.10.2",
     "@commitlint/cli": "^8.3.5",
     "@commitlint/config-conventional": "^8.3.4",
     "@testing-library/react": "^10.0.4",
