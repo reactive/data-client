@@ -196,11 +196,15 @@ describe('SimpleRecord', () => {
     it('should be marked as found even when optional is not there', () => {
       const denormalized = denormalize(
         {
-          requiredArticle: ArticleEntity.fromJS({ id: '5' }),
+          requiredArticle: '5',
           nextPage: 'blob',
         },
         WithOptional,
-        {},
+        {
+          [ArticleEntity.key]: {
+            5: ArticleEntity.fromJS({ id: '5' }),
+          },
+        },
       );
       expect(denormalized[1]).toBe(true);
       const response = denormalized[0];
@@ -216,11 +220,15 @@ describe('SimpleRecord', () => {
     it('should be marked as not found when required entity is missing', () => {
       const denormalized = denormalize(
         {
-          article: ArticleEntity.fromJS({ id: '5' }),
+          article: '5',
           nextPage: 'blob',
         },
         WithOptional,
-        {},
+        {
+          [ArticleEntity.key]: {
+            5: ArticleEntity.fromJS({ id: '5' }),
+          },
+        },
       );
       expect(denormalized[1]).toBe(false);
       const response = denormalized[0];

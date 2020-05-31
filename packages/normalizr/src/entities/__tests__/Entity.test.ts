@@ -14,6 +14,32 @@ class Tacos extends IDEntity {
   readonly alias: string | undefined = undefined;
 }
 
+class ArticleEntity extends Entity {
+  readonly id: string = '';
+  readonly title: string = '';
+  readonly author: string = '';
+  readonly content: string = '';
+  pk() {
+    return this.id;
+  }
+}
+
+class WithOptional extends Entity {
+  readonly id: string = '';
+  readonly article: ArticleEntity | null = null;
+  readonly requiredArticle = ArticleEntity.fromJS();
+  readonly nextPage: string = '';
+
+  pk() {
+    return this.id;
+  }
+
+  static schema = {
+    article: ArticleEntity,
+    requiredArticle: ArticleEntity,
+  };
+}
+
 describe(`${Entity.name} normalization`, () => {
   test('normalizes an entity', () => {
     class MyEntity extends IDEntity {}
@@ -543,5 +569,59 @@ describe(`${Entity.name} denormalization`, () => {
 
     // NOTE: Given how immutable data works, referential equality can't be
     // maintained with nested denormalization.
+  });
+
+  describe('optional entities', () => {
+    it('should be marked as found even when optional is not there', () => {
+      const denormalized = denormalize('abc', WithOptional, {
+        [WithOptional.key]: {
+          abc: WithOptional.fromJS({
+            id: 'abc',
+            // this is typed because we're actually sending wrong data to it
+            requiredArticle: '5' as any,
+            nextPage: 'blob',
+          }),
+        },
+        [ArticleEntity.key]: {
+          ['5']: ArticleEntity.fromJS({ id: '5' }),
+        },
+      });
+      expect(denormalized[1]).toBe(true);
+      const response = denormalized[0];
+      expect(response).toBeDefined();
+      expect(response).toBeInstanceOf(WithOptional);
+      expect(response).toEqual({
+        id: 'abc',
+        article: null,
+        requiredArticle: ArticleEntity.fromJS({ id: '5' }),
+        nextPage: 'blob',
+      });
+    });
+
+    it('should be marked as not found when required entity is missing', () => {
+      const denormalized = denormalize('abc', WithOptional, {
+        [WithOptional.key]: {
+          abc: WithOptional.fromJS({
+            id: 'abc',
+            // this is typed because we're actually sending wrong data to it
+            article: '5' as any,
+            nextPage: 'blob',
+          }),
+        },
+        [ArticleEntity.key]: {
+          ['5']: ArticleEntity.fromJS({ id: '5' }),
+        },
+      });
+      expect(denormalized[1]).toBe(false);
+      const response = denormalized[0];
+      expect(response).toBeDefined();
+      expect(response).toBeInstanceOf(WithOptional);
+      expect(response).toEqual({
+        id: 'abc',
+        article: ArticleEntity.fromJS({ id: '5' }),
+        requiredArticle: ArticleEntity.fromJS(),
+        nextPage: 'blob',
+      });
+    });
   });
 });

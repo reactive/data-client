@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import SimpleRecord from './SimpleRecord';
 import { isImmutable, denormalizeImmutable } from '../schemas/ImmutableUtils';
 import * as schema from '../schema';
@@ -178,7 +179,10 @@ export default abstract class Entity extends SimpleRecord {
 
     Object.keys(this.schema).forEach(key => {
       const schema = this.schema[key];
-      const [value, foundItem] = unvisit(entity[key], schema);
+      const input = this.hasDefined(entity, key as any)
+        ? entity[key]
+        : undefined;
+      const [value, foundItem] = unvisit(input, schema);
       // members who default to falsy values are considered 'optional'
       // if falsy value, and default is actually set then it is optional so pass through
       if (!foundItem && !(key in instance && !instance[key])) {

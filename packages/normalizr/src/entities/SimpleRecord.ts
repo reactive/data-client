@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { AbstractInstanceType, Schema, NormalizedEntity } from '../types';
 import { normalize, denormalize } from '../schemas/Object';
 
@@ -33,6 +34,9 @@ export default abstract class SimpleRecord {
   ) {
     // we type guarded abstract case above, so ok to force typescript to allow constructor call
     const instance = new (this as any)(props) as AbstractInstanceType<T>;
+    if (props instanceof SimpleRecord) {
+      props = (props.constructor as any).toObjectDefined(props);
+    }
     Object.assign(instance, props);
 
     Object.defineProperty(instance, DefinedMembersKey, {
