@@ -113,3 +113,10 @@ Returns an `Array` of all defined (non-default) keys of `instance`.
 console.log(mergedArticle.keysDefined());
 /* ['title', 'content', 'tags'] */
 ```
+
+### static schema: { [k: keyof this]: Schema }
+
+Set this to [define entities nested](../guides/nested-response) inside this one.
+
+Members with default values set to something falsy (like `null`) will consider the
+members 'optional'.

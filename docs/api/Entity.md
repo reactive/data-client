@@ -228,3 +228,6 @@ const price = useCache(LatestPrice, { symbol: 'BTC' });
 ### static schema: { [k: keyof this]: Schema }
 
 Set this to [define entities nested](../guides/nested-response) inside this one.
+
+Members with default values set to something falsy (like `null`) will consider the
+members 'optional'.
