@@ -31,6 +31,17 @@ class Pagination extends SimpleRecord {
   };
 }
 
+class WithOptional extends SimpleRecord {
+  readonly article: ArticleEntity | null = null;
+  readonly requiredArticle = ArticleEntity.fromJS();
+  readonly nextPage = '';
+
+  static schema = {
+    article: ArticleEntity,
+    requiredArticle: ArticleEntity,
+  };
+}
+
 describe('SimpleRecord', () => {
   it('should init', () => {
     const resource = Article.fromJS({
@@ -178,6 +189,48 @@ describe('SimpleRecord', () => {
       data: undefined,
       nextPage: 'blob',
       lastPage: '',
+    });
+  });
+
+  describe('optional entities', () => {
+    it('should be marked as found even when optional is not there', () => {
+      const denormalized = denormalize(
+        {
+          requiredArticle: ArticleEntity.fromJS({ id: '5' }),
+          nextPage: 'blob',
+        },
+        WithOptional,
+        {},
+      );
+      expect(denormalized[1]).toBe(true);
+      const response = denormalized[0];
+      expect(response).toBeDefined();
+      expect(response).toBeInstanceOf(WithOptional);
+      expect(response).toEqual({
+        article: null,
+        requiredArticle: ArticleEntity.fromJS({ id: '5' }),
+        nextPage: 'blob',
+      });
+    });
+
+    it('should be marked as not found when required entity is missing', () => {
+      const denormalized = denormalize(
+        {
+          article: ArticleEntity.fromJS({ id: '5' }),
+          nextPage: 'blob',
+        },
+        WithOptional,
+        {},
+      );
+      expect(denormalized[1]).toBe(false);
+      const response = denormalized[0];
+      expect(response).toBeDefined();
+      expect(response).toBeInstanceOf(WithOptional);
+      expect(response).toEqual({
+        article: ArticleEntity.fromJS({ id: '5' }),
+        requiredArticle: ArticleEntity.fromJS(),
+        nextPage: 'blob',
+      });
     });
   });
 });
