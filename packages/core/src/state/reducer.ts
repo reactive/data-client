@@ -1,5 +1,10 @@
 import { normalize } from '@rest-hooks/normalizr';
-import { ActionTypes, State, ResponseActions } from '@rest-hooks/core/types';
+import {
+  ActionTypes,
+  State,
+  ResponseActions,
+  ReceiveAction,
+} from '@rest-hooks/core/types';
 import { createReceive } from '@rest-hooks/core/state/actions';
 import {
   RECEIVE_TYPE,
@@ -55,41 +60,37 @@ export default function reducer(
     }
     case RECEIVE_TYPE: {
       if (action.error) {
+        return reduceError(state, action, action.payload);
+      }
+      try {
+        const { result, entities, indexes } = normalize(
+          action.payload,
+          action.meta.schema,
+        );
+        let results = {
+          ...state.results,
+          [action.meta.key]: result,
+        };
+        results = applyUpdatersToResults(results, result, action.meta.updaters);
         return {
-          ...state,
+          entities: mergeDeepCopy(state.entities, entities),
+          indexes: mergeDeepCopy(state.indexes, indexes),
+          results,
           meta: {
             ...state.meta,
             [action.meta.key]: {
               date: action.meta.date,
-              error: action.payload,
               expiresAt: action.meta.expiresAt,
             },
           },
           optimistic: filterOptimistic(state, action),
         };
+        // reducer must update the state, so in case of processing errors we simply compute the results inline
+      } catch (error) {
+        error.payload = action.payload;
+        error.status = 400;
+        return reduceError(state, action, error);
       }
-      const { result, entities, indexes } = normalize(
-        action.payload,
-        action.meta.schema,
-      );
-      let results = {
-        ...state.results,
-        [action.meta.key]: result,
-      };
-      results = applyUpdatersToResults(results, result, action.meta.updaters);
-      return {
-        entities: mergeDeepCopy(state.entities, entities),
-        indexes: mergeDeepCopy(state.indexes, indexes),
-        results,
-        meta: {
-          ...state.meta,
-          [action.meta.key]: {
-            date: action.meta.date,
-            expiresAt: action.meta.expiresAt,
-          },
-        },
-        optimistic: filterOptimistic(state, action),
-      };
     }
     case RECEIVE_DELETE_TYPE: {
       if (action.error)
@@ -125,6 +126,25 @@ export default function reducer(
 }
 
 type Writable<T> = { [P in keyof T]: NonNullable<Writable<T[P]>> };
+
+function reduceError(
+  state: State<unknown>,
+  action: ReceiveAction,
+  error: any,
+): State<unknown> {
+  return {
+    ...state,
+    meta: {
+      ...state.meta,
+      [action.meta.key]: {
+        date: action.meta.date,
+        error,
+        expiresAt: action.meta.expiresAt,
+      },
+    },
+    optimistic: filterOptimistic(state, action),
+  };
+}
 
 /** Filter all requests with same serialization that did not start after the resolving request */
 function filterOptimistic(

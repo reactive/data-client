@@ -178,6 +178,21 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       expect((result.error as any).status).toBe(403);
     });
 
+    it('useResource() should throw errors on malformed response', async () => {
+      const response = [1];
+      mynock.get(`/article-cooler/${878}`).reply(200, response);
+      const { result, waitForNextUpdate } = renderRestHook(() => {
+        return useResource(CoolerArticleResource.detailShape(), {
+          id: 878,
+        });
+      });
+      expect(result.current).toBeNull();
+      await waitForNextUpdate();
+      expect(result.error).toBeDefined();
+      expect((result.error as any).status).toBe(400);
+      expect(result.error).toMatchSnapshot();
+    });
+
     it('should resolve parallel useResource() request', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
         return useResource(

@@ -39,6 +39,7 @@ export default class NetworkManager implements Manager {
 
     this.middleware = <R extends React.Reducer<any, any>>({
       dispatch,
+      getState,
     }: MiddlewareAPI<R>) => {
       return (next: Dispatch<R>) => (
         action: React.ReducerAction<R>,
@@ -58,7 +59,14 @@ export default class NetworkManager implements Manager {
             // only receive after new state is computed
             return next(action).then(() => {
               if (action.meta.key in this.fetched) {
-                this.handleReceive(action);
+                // Note: meta *must* be set by reducer so this should be safe
+                const error = getState().meta[action.meta.key]?.error;
+                // processing errors result in state meta having error, so we should reject the promise
+                if (error) {
+                  this.handleReceive(createReceiveError(error, action.meta));
+                } else {
+                  this.handleReceive(action);
+                }
               }
             });
           case RESET_TYPE:
