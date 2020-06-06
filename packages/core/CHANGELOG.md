@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-beta.12 (2020-06-06)
+
+* fix: Normalizr errors reject and throw in useResource() (#352) ([1596b22](https://github.com/coinbase/rest-hooks/commit/1596b22)), closes [#352](https://github.com/coinbase/rest-hooks/issues/352)
+* fix: Protect against invalidIfStale with || request (#354) ([13f91d3](https://github.com/coinbase/rest-hooks/commit/13f91d3)), closes [#354](https://github.com/coinbase/rest-hooks/issues/354)
+* docs: Update @rest-hooks/core readme with Entity ([21e9d2e](https://github.com/coinbase/rest-hooks/commit/21e9d2e))
+* internal: Add additional type test for useFetcher() ([2f5c876](https://github.com/coinbase/rest-hooks/commit/2f5c876))
+* internal: Prepare tests to run in React Native env (#309) ([64efd70](https://github.com/coinbase/rest-hooks/commit/64efd70)), closes [#309](https://github.com/coinbase/rest-hooks/issues/309)
+
+
+
+
+
 ## [1.0.0-beta.11](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.10...@rest-hooks/core@1.0.0-beta.11) (2020-05-20)
 
 

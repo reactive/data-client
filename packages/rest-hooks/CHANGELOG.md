@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-beta.19 (2020-06-06)
+
+* enhance: Add default serializer to useSelectionUnstable ([f2d6d14](https://github.com/coinbase/rest-hooks/commit/f2d6d14))
+* enhance: Don't rollup normalizr and use-enhanced-reducer into rest-hooks ([c6f1e12](https://github.com/coinbase/rest-hooks/commit/c6f1e12))
+* enhance: Remove getEntitySchema() ([a90cfd5](https://github.com/coinbase/rest-hooks/commit/a90cfd5))
+* enhance: Remove getKey() from Resource ([3eafa5b](https://github.com/coinbase/rest-hooks/commit/3eafa5b))
+* enhance: rest-hooks package should only import from core ([f7c7134](https://github.com/coinbase/rest-hooks/commit/f7c7134))
+* internal: eslint major, plugin minor ([1532f7a](https://github.com/coinbase/rest-hooks/commit/1532f7a))
+* internal: Prepare tests to run in React Native env (#309) ([64efd70](https://github.com/coinbase/rest-hooks/commit/64efd70)), closes [#309](https://github.com/coinbase/rest-hooks/issues/309)
+
+
+### BREAKING CHANGE
+
+* Resource getKey() deleted. Use `get key()`
+* Resource.getEntitySchema() removed, use Resource
+directly
+
+
+
+
 ## [5.0.0-beta.18](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.0-beta.17...rest-hooks@5.0.0-beta.18) (2020-05-20)
 
 **Note:** Version bump only for package rest-hooks

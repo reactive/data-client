@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>1.0.4 (2020-06-06)</small>
+
+* internal: eslint major, plugin minor ([1532f7a](https://github.com/coinbase/rest-hooks/commit/1532f7a))
+* internal: Prepare tests to run in React Native env (#309) ([64efd70](https://github.com/coinbase/rest-hooks/commit/64efd70)), closes [#309](https://github.com/coinbase/rest-hooks/issues/309)
+
+
+
+
+
 ### [1.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.0.2...@rest-hooks/use-enhanced-reducer@1.0.3) (2020-04-26)
 
 

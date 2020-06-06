@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 6.0.0-beta.11 (2020-06-06)
+
+* enhance: Catch Entity key on node 14 ([2a99cd3](https://github.com/coinbase/rest-hooks/commit/2a99cd3))
+* feat: SimpleRecord can have optional entities by setting default to null (#350) ([b656185](https://github.com/coinbase/rest-hooks/commit/b656185)), closes [#350](https://github.com/coinbase/rest-hooks/issues/350)
+* internal: Add test for complex schema.Values() case (#349) ([d14802a](https://github.com/coinbase/rest-hooks/commit/d14802a)), closes [#349](https://github.com/coinbase/rest-hooks/issues/349)
+* internal: eslint major, plugin minor ([1532f7a](https://github.com/coinbase/rest-hooks/commit/1532f7a))
+
+
+
+
+
 ## [6.0.0-beta.10](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0-beta.9...@rest-hooks/normalizr@6.0.0-beta.10) (2020-05-20)
 
 
