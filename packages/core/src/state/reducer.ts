@@ -81,6 +81,7 @@ export default function reducer(
             [action.meta.key]: {
               date: action.meta.date,
               expiresAt: action.meta.expiresAt,
+              prevExpiresAt: state.meta[action.meta.key]?.expiresAt,
             },
           },
           optimistic: filterOptimistic(state, action),
