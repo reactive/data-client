@@ -18,6 +18,7 @@ Object {
     "http://test.com/article-cooler/5": Object {
       "date": 50,
       "expiresAt": 55,
+      "prevExpiresAt": undefined,
     },
   },
   "optimistic": Array [],
