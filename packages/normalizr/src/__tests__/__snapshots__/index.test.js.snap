@@ -432,7 +432,7 @@ Object {
   "entities": Object {
     "Article": Object {
       "123": Article {
-        "author": 1,
+        "author": "1",
         "id": "123",
         "title": "normalizr is great!",
       },
@@ -440,6 +440,16 @@ Object {
   },
   "indexes": Object {},
   "result": "123",
+}
+`;
+
+exports[`normalize passes over pre-normalized values 2`] = `
+Object {
+  "entities": Object {},
+  "indexes": Object {},
+  "result": Object {
+    "user": "1",
+  },
 }
 `;
 

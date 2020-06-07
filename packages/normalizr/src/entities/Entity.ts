@@ -54,6 +54,8 @@ export default abstract class Entity extends SimpleRecord {
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
   ): any {
+    // pass over already processed entities
+    if (typeof input === 'string') return input;
     // TODO: what's store needs to be a differing type from fromJS
     const processedEntity = this.fromJS(input, parent, key);
     /* istanbul ignore else */
@@ -140,10 +142,7 @@ export default abstract class Entity extends SimpleRecord {
     visitedEntities[entityType][id].push(input);
 
     Object.keys(this.schema).forEach(key => {
-      if (
-        Object.hasOwnProperty.call(processedEntity, key) &&
-        typeof processedEntity[key] === 'object'
-      ) {
+      if (Object.hasOwnProperty.call(processedEntity, key)) {
         const schema = this.schema[key];
         processedEntity[key] = visit(
           processedEntity[key],

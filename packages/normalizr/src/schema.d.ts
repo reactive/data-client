@@ -30,6 +30,12 @@ export type UnionResult<Choices extends EntityMap> = {
   schema: keyof Choices;
 };
 
+export type Serializable<
+  T extends { toJSON(): string } = { toJSON(): string }
+> = {
+  prototype: T;
+};
+
 export interface SchemaSimple {
   normalize(
     input: any,

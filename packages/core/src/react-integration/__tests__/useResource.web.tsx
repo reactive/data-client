@@ -4,6 +4,7 @@ import {
   InvalidIfStaleArticleResource,
   photoShape,
   noEntitiesShape,
+  ArticleTimedResource,
 } from '__tests__/common';
 import { State } from '@rest-hooks/core';
 import { initialState } from '@rest-hooks/core/state/reducer';
@@ -84,6 +85,8 @@ describe('useResource()', () => {
       .reply(200)
       .get(`/article-cooler/${payload.id}`)
       .reply(200, payload)
+      .get(`/article-time/${payload.id}`)
+      .reply(200, { ...payload, createdAt: '2020-06-07T02:00:15+0000' })
       .delete(`/article-cooler/${payload.id}`)
       .reply(204, '')
       .delete(`/article/${payload.id}`)
@@ -410,5 +413,22 @@ describe('useResource()', () => {
     expect(result.current).toBe(null);
     await waitForNextUpdate();
     expect(result.current).toStrictEqual(response);
+  });
+
+  it('should work with Serializable shapes', async () => {
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      return useResource(ArticleTimedResource.detailShape(), payload);
+    });
+    // null means it threw
+    expect(result.current).toBe(null);
+    await waitForNextUpdate();
+    expect(result.current.createdAt.getDate()).toBe(
+      result.current.createdAt.getDate(),
+    );
+    expect(result.current.createdAt).toEqual(
+      new Date('2020-06-07T02:00:15+0000'),
+    );
+    expect(result.current.id).toEqual(payload.id);
+    expect(result.current).toBeInstanceOf(ArticleTimedResource);
   });
 });

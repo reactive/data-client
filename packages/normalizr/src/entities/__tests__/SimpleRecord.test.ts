@@ -35,10 +35,12 @@ class WithOptional extends SimpleRecord {
   readonly article: ArticleEntity | null = null;
   readonly requiredArticle = ArticleEntity.fromJS();
   readonly nextPage = '';
+  readonly createdAt: Date | null = null;
 
   static schema = {
     article: ArticleEntity,
     requiredArticle: ArticleEntity,
+    createdAt: Date,
   };
 }
 
@@ -95,6 +97,33 @@ describe('SimpleRecord', () => {
         },
         schema,
       );
+      expect(normalized).toMatchSnapshot();
+    });
+
+    it('should deserialize Date', () => {
+      const normalized = normalize(
+        {
+          requiredArticle: { id: '5' },
+          nextPage: 'blob',
+          createdAt: '2020-06-07T02:00:15.000Z',
+        },
+        WithOptional,
+      );
+      expect(normalized.result.createdAt.getTime()).toBe(
+        normalized.result.createdAt.getTime(),
+      );
+      expect(normalized).toMatchSnapshot();
+    });
+
+    it('should use default when Date not provided', () => {
+      const normalized = normalize(
+        {
+          requiredArticle: { id: '5' },
+          nextPage: 'blob',
+        },
+        WithOptional,
+      );
+      expect(normalized.result.createdAt).toBeUndefined();
       expect(normalized).toMatchSnapshot();
     });
   });
@@ -198,6 +227,7 @@ describe('SimpleRecord', () => {
         {
           requiredArticle: '5',
           nextPage: 'blob',
+          createdAt: new Date('2020-06-07T02:00:15+0000'),
         },
         WithOptional,
         {
@@ -214,7 +244,13 @@ describe('SimpleRecord', () => {
         article: null,
         requiredArticle: ArticleEntity.fromJS({ id: '5' }),
         nextPage: 'blob',
+        createdAt: new Date('2020-06-07T02:00:15+0000'),
       });
+      // @ts-expect-error
+      response.createdAt.toISOString();
+      expect(response.createdAt?.toISOString()).toBe(
+        '2020-06-07T02:00:15.000Z',
+      );
     });
 
     it('should be marked as not found when required entity is missing', () => {
@@ -238,7 +274,9 @@ describe('SimpleRecord', () => {
         article: ArticleEntity.fromJS({ id: '5' }),
         requiredArticle: ArticleEntity.fromJS(),
         nextPage: 'blob',
+        createdAt: null,
       });
+      expect(response.createdAt).toBeNull();
     });
   });
 });

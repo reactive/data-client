@@ -46,14 +46,16 @@ const getUnvisit = (entities: Record<string, any>) => {
     function unvisit(input: any, schema: any): [any, boolean] {
       if (!schema) return [input, true];
 
-      if (
-        typeof schema === 'object' &&
-        (!schema.denormalize || typeof schema.denormalize !== 'function')
-      ) {
-        const method = Array.isArray(schema)
-          ? ArrayUtils.denormalize
-          : ObjectUtils.denormalize;
-        return method(schema, input, unvisit);
+      if (!schema.denormalize || typeof schema.denormalize !== 'function') {
+        if (typeof schema === 'function') {
+          if (input instanceof schema) return [input, true];
+          return [new schema(input), true];
+        } else if (typeof schema === 'object') {
+          const method = Array.isArray(schema)
+            ? ArrayUtils.denormalize
+            : ObjectUtils.denormalize;
+          return method(schema, input, unvisit);
+        }
       }
 
       // null is considered intentional, thus always 'found' as true
@@ -97,6 +99,7 @@ const getEntities = (entities: Record<string, any>) => {
   };
 };
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const denormalize = <S extends Schema>(
   input: any,
   schema: S,
