@@ -17,6 +17,6 @@ export default function useExpiresAt<Params extends Readonly<object>>(
     meta.prevExpiresAt &&
     meta.expiresAt - meta.prevExpiresAt < 1000
   )
-    return Number.POSITIVE_INFINITY;
+    return meta.expiresAt + 2000;
   return meta.expiresAt;
 }
