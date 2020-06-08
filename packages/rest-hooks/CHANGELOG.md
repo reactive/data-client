@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-beta.20 (2020-06-08)
+
+**Note:** Version bump only for package rest-hooks
+
+
+
+
+
 ## 5.0.0-beta.19 (2020-06-06)
 
 * enhance: Add default serializer to useSelectionUnstable ([f2d6d14](https://github.com/coinbase/rest-hooks/commit/f2d6d14))

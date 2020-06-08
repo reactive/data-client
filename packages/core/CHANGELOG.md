@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-beta.13 (2020-06-08)
+
+* fix: Looping fetches should still expire at some point ([ef560a9](https://github.com/coinbase/rest-hooks/commit/ef560a9))
+
+
+
+
+
 ## 1.0.0-beta.12 (2020-06-06)
 
 * fix: Normalizr errors reject and throw in useResource() (#352) ([1596b22](https://github.com/coinbase/rest-hooks/commit/1596b22)), closes [#352](https://github.com/coinbase/rest-hooks/issues/352)
