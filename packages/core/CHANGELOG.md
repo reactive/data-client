@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-beta.14 (2020-06-09)
+
+* fix: Clear invalidIfStale protections on mount (#357) ([b9a89dc](https://github.com/coinbase/rest-hooks/commit/b9a89dc)), closes [#357](https://github.com/coinbase/rest-hooks/issues/357)
+* internal: Add tests for malformed network responses ([96b788a](https://github.com/coinbase/rest-hooks/commit/96b788a))
+
+
+
+
+
 ## 1.0.0-beta.13 (2020-06-08)
 
 * fix: Looping fetches should still expire at some point ([ef560a9](https://github.com/coinbase/rest-hooks/commit/ef560a9))
