@@ -52,3 +52,63 @@ Object {
   "type": "rest-hooks/fetch",
 }
 `;
+
+exports[`useResource() should throw error when response is {} when expecting entity 1`] = `
+[Error: Attempted to initialize CoolerArticleResource with substantially different than expected keys
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+
+  Expected keys:
+    Found: 
+    Missing: id,title,content,author,tags
+  Unexpected keys: 
+  Value: {}]
+`;
+
+exports[`useResource() should throw error when response is array when expecting entity 1`] = `
+[Error: Attempted to initialize CoolerArticleResource with substantially different than expected keys
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+
+  Expected keys:
+    Found: 
+    Missing: id,title,content,author,tags
+  Unexpected keys: 
+  Value: {}]
+`;
+
+exports[`useResource() should throw error when response is expected Resource inside Record 1`] = `[Error: Resource not found in cache GET http://test.com/article-cooler/400]`;
+
+exports[`useResource() should throw error when response is nested missing id when expecting nested entity 1`] = `[Error: Resource not found in cache GET http://test.com/article-cooler/400]`;
+
+exports[`useResource() should throw error when response is nested string when expecting nested entity 1`] = `[Error: Resource not found in cache GET http://test.com/article-cooler/400]`;
+
+exports[`useResource() should throw error when response is number when expecting entity 1`] = `
+[Error: Attempted to initialize CoolerArticleResource with substantially different than expected keys
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+
+  Expected keys:
+    Found: 
+    Missing: id,title,content,author,tags
+  Unexpected keys: 
+  Value: {}]
+`;
+
+exports[`useResource() should throw error when response is string when expecting entity 1`] = `
+[Error: Attempted to initialize CoolerArticleResource with substantially different than expected keys
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+
+  Expected keys:
+    Found: 
+    Missing: id,title,content,author,tags
+  Unexpected keys: 
+  Value: {}]
+`;
+
+exports[`useResource() should throw error when response is string when expecting nested entity 1`] = `[Error: Resource not found in cache GET http://test.com/article-cooler/400]`;

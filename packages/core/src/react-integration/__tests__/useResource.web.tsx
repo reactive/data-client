@@ -5,7 +5,7 @@ import {
   photoShape,
   noEntitiesShape,
 } from '__tests__/common';
-import { State } from '@rest-hooks/core';
+import { State, ReadShape } from '@rest-hooks/core';
 import { initialState } from '@rest-hooks/core/state/reducer';
 import React, { Suspense } from 'react';
 import { render } from '@testing-library/react';
@@ -13,7 +13,7 @@ import nock from 'nock';
 
 // relative imports to avoid circular dependency in tsconfig references
 
-import { normalize } from '@rest-hooks/normalizr';
+import { normalize, SimpleRecord } from '@rest-hooks/normalizr';
 
 import {
   makeRenderRestHook,
@@ -67,6 +67,31 @@ function ArticleComponentTester({ invalidIfStale = false }) {
 describe('useResource()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
   const fbmock = jest.fn();
+
+  async function testMalformedResponse(
+    payload: any,
+    fetchShape: ReadShape<any> = CoolerArticleResource.detailShape(),
+  ) {
+    nock(/.*/)
+      .persist()
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
+      .get(`/article-cooler/400`)
+      .reply(200, payload);
+
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      return useResource(fetchShape, {
+        id: 400,
+      });
+    });
+    expect(result.current).toBe(null);
+    await waitForNextUpdate();
+    expect(result.error).toBeDefined();
+    expect((result.error as any).status).toBeGreaterThan(399);
+    expect(result.error).toMatchSnapshot();
+  }
 
   function Fallback() {
     fbmock();
@@ -322,7 +347,7 @@ describe('useResource()', () => {
   });
 
   // taken from integration
-  it('useResource() should throw errors on bad network', async () => {
+  it('should throw errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useResource(CoolerArticleResource.detailShape(), {
         title: '0',
@@ -334,7 +359,7 @@ describe('useResource()', () => {
     expect((result.error as any).status).toBe(403);
   });
 
-  it('useResource() should throw errors on bad network (multiarg)', async () => {
+  it('should throw errors on bad network (multiarg)', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useResource([
         CoolerArticleResource.detailShape(),
@@ -347,6 +372,65 @@ describe('useResource()', () => {
     await waitForNextUpdate();
     expect(result.error).toBeDefined();
     expect((result.error as any).status).toBe(403);
+  });
+
+  it('should throw error when response is array when expecting entity', async () => {
+    await testMalformedResponse([]);
+  });
+
+  it('should throw error when response is {} when expecting entity', async () => {
+    await testMalformedResponse({});
+  });
+
+  it('should throw error when response is number when expecting entity', async () => {
+    await testMalformedResponse(5);
+  });
+
+  it('should throw error when response is string when expecting entity', async () => {
+    await testMalformedResponse('hi');
+  });
+
+  it('should throw error when response is string when expecting nested entity', async () => {
+    const shape = {
+      ...CoolerArticleResource.detailShape(),
+      schema: { data: CoolerArticleResource },
+    };
+    await testMalformedResponse('hi', shape);
+  });
+
+  it('should throw error when response is nested string when expecting nested entity', async () => {
+    const shape = {
+      ...CoolerArticleResource.detailShape(),
+      schema: { data: CoolerArticleResource },
+    };
+    await testMalformedResponse({ data: 5, parcel: 2 }, shape);
+  });
+
+  it('should throw error when response is nested missing id when expecting nested entity', async () => {
+    const shape = {
+      ...CoolerArticleResource.detailShape(),
+      schema: { data: CoolerArticleResource },
+    };
+    await testMalformedResponse(
+      { data: { ...payload, id: undefined }, parcel: 2 },
+      shape,
+    );
+  });
+
+  it('should throw error when response is expected Resource inside Record', async () => {
+    class Scheme extends SimpleRecord {
+      data: CoolerArticleResource = CoolerArticleResource.fromJS();
+      optional: UserResource | null = null;
+      static schema = {
+        data: CoolerArticleResource,
+        optional: UserResource,
+      };
+    }
+    const shape = {
+      ...CoolerArticleResource.detailShape(),
+      schema: Scheme,
+    };
+    await testMalformedResponse({ data: null }, shape);
   });
 
   it('should resolve parallel useResource() request', async () => {
