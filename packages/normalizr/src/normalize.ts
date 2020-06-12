@@ -15,14 +15,15 @@ const visit = (
   addEntity: any,
   visitedEntities: any,
 ) => {
-  if (typeof value !== 'object' || !value || !schema) {
+  if (!value || !schema || !['function', 'object'].includes(typeof schema)) {
     return value;
   }
 
-  if (
-    typeof schema === 'object' &&
-    (!schema.normalize || typeof schema.normalize !== 'function')
-  ) {
+  if (!schema.normalize || typeof schema.normalize !== 'function') {
+    // serializable
+    if (typeof schema === 'function') {
+      return new schema(value);
+    }
     const method = Array.isArray(schema)
       ? ArrayUtils.normalize
       : ObjectUtils.normalize;
@@ -100,6 +101,7 @@ function expectedSchemaType(schema: Schema) {
     : typeof schema;
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const normalize = <
   S extends Schema = Schema,
   E extends Record<string, Record<string, any>> = Record<

@@ -64,6 +64,8 @@ export type Denormalize<S> = S extends EntityInterface<infer U>
   ? AbstractInstanceType<S>
   : S extends schema.SchemaClass
   ? DenormalizeReturnType<S['denormalize']>
+  : S extends schema.Serializable<infer T>
+  ? T
   : S extends Array<infer F>
   ? Denormalize<F>[]
   : S extends { [K: string]: any }
@@ -76,6 +78,8 @@ export type DenormalizeNullable<S> = S extends EntityInterface<any>
   ? DenormalizeNullableNestedSchema<S>
   : S extends schema.SchemaClass
   ? DenormalizeReturnType<S['_denormalizeNullable']>
+  : S extends schema.Serializable<infer T>
+  ? T
   : S extends Array<infer F>
   ? Denormalize<F>[] | undefined
   : S extends { [K: string]: any }
@@ -88,6 +92,8 @@ export type Normalize<S> = S extends EntityInterface
   ? NormalizeObject<S['schema']>
   : S extends schema.SchemaClass
   ? NormalizeReturnType<S['normalize']>
+  : S extends schema.Serializable<infer T>
+  ? T
   : S extends Array<infer F>
   ? Normalize<F>[]
   : S extends { [K: string]: any }
@@ -100,6 +106,8 @@ export type NormalizeNullable<S> = S extends EntityInterface
   ? NormalizedNullableObject<S['schema']>
   : S extends schema.SchemaClass
   ? NormalizeReturnType<S['_normalizeNullable']>
+  : S extends schema.Serializable<infer T>
+  ? T
   : S extends Array<infer F>
   ? Normalize<F>[] | undefined
   : S extends { [K: string]: any }
@@ -111,7 +119,8 @@ export type Schema =
   | string
   | { [K: string]: any }
   | Schema[]
-  | schema.SchemaSimple;
+  | schema.SchemaSimple
+  | schema.Serializable;
 
 export type NormalizedIndex = {
   readonly [entityKey: string]: {

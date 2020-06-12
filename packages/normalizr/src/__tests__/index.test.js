@@ -307,10 +307,12 @@ describe('normalize', () => {
 
     expect(
       normalize(
-        { id: '123', title: 'normalizr is great!', author: 1 },
+        { id: '123', title: 'normalizr is great!', author: '1' },
         Article,
       ),
     ).toMatchSnapshot();
+
+    expect(normalize({ user: '1' }, { user: User })).toMatchSnapshot();
   });
 
   test('can normalize object without proper object prototype inheritance', () => {

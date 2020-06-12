@@ -131,6 +131,17 @@ export class ArticleResource extends Resource {
   }
 }
 
+export class ArticleTimedResource extends ArticleResource {
+  readonly createdAt = new Date(0);
+
+  static schema = {
+    ...ArticleResource.schema,
+    createdAt: Date,
+  };
+
+  static urlRoot = 'http://test.com/article-time/';
+}
+
 export class UrlArticleResource extends ArticleResource {
   readonly url: string = 'happy.com';
 }
