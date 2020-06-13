@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 6.0.0-gamma.2 (2020-06-13)
+
+* docs: Fix normalizr docs links ([11c2995](https://github.com/coinbase/rest-hooks/commit/11c2995))
+* docs: Switch to 'gamma' channel ([f932659](https://github.com/coinbase/rest-hooks/commit/f932659))
+
+
+
+
+
 ## 6.0.0-beta.12 (2020-06-13)
 
 * docs: Add field deserialization ([05686cb](https://github.com/coinbase/rest-hooks/commit/05686cb))

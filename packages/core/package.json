@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/core",
-  "version": "1.0.0-beta.15",
+  "version": "1.0.0-gamma.0",
   "description": "Dynamic data fetching for React",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
@@ -62,7 +62,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.2",
-    "@rest-hooks/normalizr": "^6.0.0-beta.12",
+    "@rest-hooks/normalizr": "^6.0.0-gamma.2",
     "@rest-hooks/use-enhanced-reducer": "^1.0.4",
     "flux-standard-action": "^2.1.1"
   },
