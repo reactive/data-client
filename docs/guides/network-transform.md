@@ -57,27 +57,48 @@ Keeping data in the serialized form is often fine, especially if it is only bein
 be displayed. However, this can be problematic when derived data is computed like adding time to a date
 or multiplying two numbers.
 
-In this case override the [fromJS()](../api/resource#static-fromjst-extends-typeof-resourcethis-t-props-partialabstractinstancetypet-abstractinstancetypet)
-factory method, transforming the fields you wish to change.
+In this case, simply use the [static schema](../api/Entity#static-schema--k-keyof-this-schema-)
 
 ```typescript
+import BigNumber from 'bignumber.js';
+
 class MyResource extends Resource {
   readonly createdAt: Date | null = new Date(0);
-  readonly largeNumber = BigInt(0);
+  readonly price = new BigNumber(0);
   // other fields here
 
-  /** MyResource factory. Takes an object of properties to assign to MyResource. */
-  static fromJS<T extends typeof Resource>(
-    this: T,
-    props: Partial<AbstractInstanceType<T>>,
-  ) {
-    return super.fromJS({
-      ...props,
-      createdAt: props.createdAt ? new Date(props.createdAt) : null,
-      largeNumber: BigInt(props.largeNumber):
-    });
+  static schema = {
+    createdAt: Date,
+    price: BigNumber,
   }
 }
+```
+
+```typescript
+const resource = useResource(MyResouce.detailShape(), { id });
+resource.createdAt.getDay(); // createAt is a Date object
+```
+
+This also works with [SimpleRecord](../api/SimpleRecord#static-schema--k-keyof-this-schema-) and other [schemas](https://github.com/coinbase/rest-hooks/blob/master/packages/normalizr/docs/api.md#schema)
+
+```typescript
+import BigNumber from 'bignumber.js';
+
+class PaginatedWithDefaults extends SimpleRecord {
+  readonly updatedAt: Date | null = new Date(0);
+  readonly nextPage: string = '';
+  readonly data: MyResource[] = [];
+
+  static schema = {
+    updatedAt: Date,
+    data: [MyResource],
+  }
+}
+
+const Paginated = {
+  updatedAt: Date,
+  data: [MyResource],
+};
 ```
 
 ## Case of the missing `Id`

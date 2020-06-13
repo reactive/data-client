@@ -248,3 +248,38 @@ Object {
   },
 }
 `;
+
+exports[`ObjectSchema normalization should deserialize Date 1`] = `
+Object {
+  "entities": Object {
+    "User": Object {
+      "5": User {
+        "id": "5",
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": Object {
+    "createdAt": 2020-06-07T02:00:15.000Z,
+    "nextPage": "blob",
+    "user": "5",
+  },
+}
+`;
+
+exports[`ObjectSchema normalization should pass over when Date not provided 1`] = `
+Object {
+  "entities": Object {
+    "User": Object {
+      "5": User {
+        "id": "5",
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": Object {
+    "nextPage": "blob",
+    "user": "5",
+  },
+}
+`;

@@ -32,6 +32,45 @@ describe(`${schema.Object.name} normalization`, () => {
     expect(normalize({ foo: {}, bar: { id: '1' } }, users)).toMatchSnapshot();
     process.env.NODE_ENV = oldenv;
   });
+
+  it('should deserialize Date', () => {
+    class User extends IDEntity {}
+    const WithOptional = {
+      user: User,
+      nextPage: '',
+      createdAt: Date,
+    };
+    const normalized = normalize(
+      {
+        user: { id: '5' },
+        nextPage: 'blob',
+        createdAt: '2020-06-07T02:00:15.000Z',
+      },
+      WithOptional,
+    );
+    expect(normalized.result.createdAt.getTime()).toBe(
+      normalized.result.createdAt.getTime(),
+    );
+    expect(normalized).toMatchSnapshot();
+  });
+
+  it('should pass over when Date not provided', () => {
+    class User extends IDEntity {}
+    const WithOptional = {
+      user: User,
+      nextPage: '',
+      createdAt: Date,
+    };
+    const normalized = normalize(
+      {
+        user: { id: '5' },
+        nextPage: 'blob',
+      },
+      WithOptional,
+    );
+    expect(normalized.result.createdAt).toBeUndefined();
+    expect(normalized).toMatchSnapshot();
+  });
 });
 
 describe(`${schema.Object.name} denormalization`, () => {

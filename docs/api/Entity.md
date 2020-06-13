@@ -229,5 +229,21 @@ const price = useCache(LatestPrice, { symbol: 'BTC' });
 
 Set this to [define entities nested](../guides/nested-response) inside this one.
 
-Members with default values set to something falsy (like `null`) will consider the
-members 'optional'.
+Additionally can be used to [declare field deserialization](../guides/network-transform#deserializing-fields)
+
+#### Optional members
+
+Entities references here whose default values in the Record definition itself are
+considered 'optional'
+
+```typescript
+class User extends Entity {
+  readonly friend: User | null = null; // this field is optional
+  readonly lastUpdated: Date = new Date(0);
+
+  static schema = {
+    friend: User,
+    lastUpdated: Date,
+  }
+}
+```
