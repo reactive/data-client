@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 6.0.0-beta.12 (2020-06-13)
+
+* docs: Add field deserialization ([05686cb](https://github.com/coinbase/rest-hooks/commit/05686cb))
+* feat: Declarative schema deserialization (#355) ([9dbb019](https://github.com/coinbase/rest-hooks/commit/9dbb019)), closes [#355](https://github.com/coinbase/rest-hooks/issues/355)
+
+
+
+
+
 ## 6.0.0-beta.11 (2020-06-06)
 
 * enhance: Catch Entity key on node 14 ([2a99cd3](https://github.com/coinbase/rest-hooks/commit/2a99cd3))

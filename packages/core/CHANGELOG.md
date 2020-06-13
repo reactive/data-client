@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-beta.15 (2020-06-13)
+
+* feat: Declarative schema deserialization (#355) ([9dbb019](https://github.com/coinbase/rest-hooks/commit/9dbb019)), closes [#355](https://github.com/coinbase/rest-hooks/issues/355)
+
+
+
+
+
 ## 1.0.0-beta.14 (2020-06-09)
 
 * fix: Clear invalidIfStale protections on mount (#357) ([b9a89dc](https://github.com/coinbase/rest-hooks/commit/b9a89dc)), closes [#357](https://github.com/coinbase/rest-hooks/issues/357)
