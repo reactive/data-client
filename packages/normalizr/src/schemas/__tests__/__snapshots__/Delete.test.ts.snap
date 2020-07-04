@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Delete normalization normalizes an object using string schemaAttribute 1`] = `
+Object {
+  "entities": Object {
+    "User": Object {
+      "1": Symbol(ENTITY WAS DELETED),
+    },
+  },
+  "indexes": Object {},
+  "result": "1",
+}
+`;

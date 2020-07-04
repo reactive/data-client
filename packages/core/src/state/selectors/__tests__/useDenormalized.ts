@@ -27,6 +27,10 @@ describe('useDenormalized()', () => {
         expect(result.current[1]).toBe(false);
       });
 
+      it('notDeleted should be true', () => {
+        expect(result.current[2]).toBe(true);
+      });
+
       it('should provide inferred results with undefined', () => {
         expect(result.current[0]).toMatchInlineSnapshot(`undefined`);
       });
@@ -57,6 +61,10 @@ describe('useDenormalized()', () => {
         expect(result.current[1]).toBe(false);
       });
 
+      it('notDeleted should be true', () => {
+        expect(result.current[2]).toBe(true);
+      });
+
       it('should provide inferred results with undefined', () => {
         expect(result.current[0]).toMatchInlineSnapshot(`undefined`);
       });
@@ -75,7 +83,7 @@ describe('useDenormalized()', () => {
       };
       const {
         result: {
-          current: [value, found],
+          current: [value, found, notDeleted],
         },
       } = renderHook(() =>
         useDenormalized(CoolerArticleResource.detailShape(), params, state),
@@ -83,6 +91,10 @@ describe('useDenormalized()', () => {
 
       it('found should be true', () => {
         expect(found).toBe(true);
+      });
+
+      it('notDeleted should be true', () => {
+        expect(notDeleted).toBe(true);
       });
 
       it('should provide inferred results', () => {
@@ -99,7 +111,7 @@ describe('useDenormalized()', () => {
       };
       const {
         result: {
-          current: [value, found],
+          current: [value, found, notDeleted],
         },
       } = renderHook(() =>
         useDenormalized(CoolerArticleResource.detailShape(), params, state),
@@ -107,6 +119,10 @@ describe('useDenormalized()', () => {
 
       it('found should be false', () => {
         expect(found).toBe(false);
+      });
+
+      it('notDeleted should be true', () => {
+        expect(notDeleted).toBe(true);
       });
 
       it('should provide inferred results with undefined', () => {
@@ -124,7 +140,7 @@ describe('useDenormalized()', () => {
       };
       const {
         result: {
-          current: [value, found],
+          current: [value, found, notDeleted],
         },
       } = renderHook(() =>
         useDenormalized(CoolerArticleResource.detailShape(), params, state),
@@ -132,6 +148,10 @@ describe('useDenormalized()', () => {
 
       it('found should be true', () => {
         expect(found).toBe(true);
+      });
+
+      it('notDeleted should be true', () => {
+        expect(notDeleted).toBe(true);
       });
 
       it('should provide inferred results', () => {
@@ -150,7 +170,7 @@ describe('useDenormalized()', () => {
       };
       const {
         result: {
-          current: [value, found],
+          current: [value, found, notDeleted],
         },
       } = renderHook(() =>
         useDenormalized(PaginatedArticleResource.detailShape(), params, state),
@@ -158,6 +178,10 @@ describe('useDenormalized()', () => {
 
       it('found should be true', () => {
         expect(found).toBe(true);
+      });
+
+      it('notDeleted should be true', () => {
+        expect(notDeleted).toBe(true);
       });
 
       it('should provide inferred results', () => {
@@ -211,6 +235,7 @@ describe('useDenormalized()', () => {
         };
         rerender({ state: localstate });
         expect(result.current[1]).toBe(true);
+        expect(result.current[2]).toBe(true);
         expect(result.current[0].data).toBe(user);
       });
     });
@@ -596,7 +621,7 @@ describe('useDenormalized()', () => {
       const { result } = renderHook(() => {
         return useDenormalized(photoShape, { userId }, initialState as any);
       });
-      expect(result.current).toStrictEqual([undefined, false]);
+      expect(result.current).toStrictEqual([undefined, false, true]);
     });
 
     it('should return results as-is for schemas with no entities', () => {
@@ -612,7 +637,7 @@ describe('useDenormalized()', () => {
       const { result } = renderHook(() => {
         return useDenormalized(photoShape, { userId }, state);
       });
-      expect(result.current).toStrictEqual([results, true]);
+      expect(result.current).toStrictEqual([results, true, true]);
     });
 
     it('should throw with invalid schemas', () => {

@@ -58,7 +58,7 @@ export default class PolymorphicSchema {
   denormalizeValue(value, unvisit) {
     const schemaKey = isImmutable(value) ? value.get('schema') : value.schema;
     if (!this.isSingleSchema && !schemaKey) {
-      return [value, true];
+      return [value, true, true];
     }
     const id = this.isSingleSchema
       ? undefined

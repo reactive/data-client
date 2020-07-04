@@ -24,6 +24,34 @@ Array [
 ]
 `;
 
+exports[`denormalize denormalizes ignoring deleted entities in arrays 1`] = `
+Array [
+  Array [
+    Tacos {
+      "id": "1",
+      "type": "foo",
+    },
+  ],
+  true,
+  true,
+]
+`;
+
+exports[`denormalize denormalizes ignoring deleted entities in arrays 2`] = `
+Array [
+  Object {
+    "results": Array [
+      Tacos {
+        "id": "1",
+        "type": "foo",
+      },
+    ],
+  },
+  true,
+  true,
+]
+`;
+
 exports[`denormalize denormalizes ignoring unfound entities in arrays 1`] = `
 Array [
   Array [
@@ -32,6 +60,7 @@ Array [
       "type": "foo",
     },
   ],
+  true,
   true,
 ]
 `;
@@ -46,6 +75,7 @@ Array [
       },
     ],
   },
+  true,
   true,
 ]
 `;
@@ -71,6 +101,7 @@ Array [
     "id": "123",
     "title": "A Great Article",
   },
+  true,
   true,
 ]
 `;
@@ -102,6 +133,7 @@ Array [
     },
   },
   true,
+  true,
 ]
 `;
 
@@ -119,6 +151,7 @@ Array [
       },
     ],
   },
+  true,
   true,
 ]
 `;
@@ -140,6 +173,7 @@ Array [
     },
   ],
   true,
+  true,
 ]
 `;
 
@@ -149,6 +183,7 @@ Array [
     "data": undefined,
   },
   false,
+  true,
 ]
 `;
 
@@ -158,6 +193,7 @@ Array [
     "data": undefined,
   },
   false,
+  true,
 ]
 `;
 
@@ -171,6 +207,7 @@ Array [
     "title": "",
   },
   false,
+  true,
 ]
 `;
 

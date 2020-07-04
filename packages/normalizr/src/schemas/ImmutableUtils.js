@@ -30,18 +30,22 @@ export function isImmutable(object) {
  */
 export function denormalizeImmutable(schema, input, unvisit) {
   let found = true;
+  let notDeleted = true;
   return [
     Object.keys(schema).reduce((object, key) => {
       // Immutable maps cast keys to strings on write so we need to ensure
       // we're accessing them using string keys.
       const stringKey = `${key}`;
 
-      const [item, foundItem] = unvisit(
+      const [item, foundItem, notDeletedItem] = unvisit(
         object.get(stringKey),
         schema[stringKey],
       );
       if (!foundItem) {
         found = false;
+      }
+      if (!notDeletedItem) {
+        notDeleted = false;
       }
       if (object.has(stringKey)) {
         return object.set(stringKey, item);
@@ -50,5 +54,6 @@ export function denormalizeImmutable(schema, input, unvisit) {
       }
     }, input),
     found,
+    notDeleted,
   ];
 }

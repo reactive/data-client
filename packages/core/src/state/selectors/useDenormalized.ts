@@ -29,6 +29,7 @@ export default function useDenormalized<
 ): [
   DenormalizeNullable<Shape['schema']>,
   typeof params extends null ? false : boolean,
+  boolean,
 ] {
   let entities = state.entities;
   const cacheResults = params && state.results[getFetchKey(params)];
@@ -48,11 +49,17 @@ export default function useDenormalized<
   const needsDenormalization = useMemo(() => schemaHasEntity(schema), [schema]);
 
   // Compute denormalized value
-  const [denormalized, entitiesFound, entitiesList] = useMemo(() => {
+  const [
+    denormalized,
+    entitiesFound,
+    noEntitiesDeleted,
+    entitiesList,
+  ] = useMemo(() => {
     if (!needsDenormalization)
-      return [cacheResults, cacheResults !== undefined, ''] as [
+      return [cacheResults, cacheResults !== undefined, true, ''] as [
         DenormalizeNullable<Shape['schema']>,
         any,
+        boolean,
         string,
       ];
     // Warn users with bad configurations
@@ -76,7 +83,7 @@ export default function useDenormalized<
 
     // second argument is false if any entities are missing
     // eslint-disable-next-line prefer-const
-    let [denormalized, entitiesFound, cache] = denormalize(
+    let [denormalized, entitiesFound, noEntitiesDeleted, cache] = denormalize(
       results,
       schema,
       entities,
@@ -92,9 +99,10 @@ export default function useDenormalized<
       denormalized = denormalize(results, schema, {})[0];
     }
 
-    return [denormalized, entitiesFound, entitiesList] as [
+    return [denormalized, entitiesFound, noEntitiesDeleted, entitiesList] as [
       DenormalizeNullable<Shape['schema']>,
-      any,
+      boolean,
+      boolean,
       string,
     ];
     // TODO: would be nice to make this only recompute on the entity types that are in schema
@@ -109,8 +117,9 @@ export default function useDenormalized<
   ]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => [denormalized, entitiesFound], [
+  return useMemo(() => [denormalized, entitiesFound, noEntitiesDeleted], [
     entitiesFound,
+    noEntitiesDeleted,
     results,
     entitiesList,
   ]);

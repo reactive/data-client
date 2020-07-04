@@ -9,6 +9,7 @@ Array [
     "id": "1",
   },
   true,
+  true,
 ]
 `;
 
@@ -20,6 +21,7 @@ Array [
     },
     "id": "1",
   },
+  true,
   true,
 ]
 `;
@@ -33,6 +35,7 @@ Array [
     "type": "foo",
   },
   true,
+  true,
 ]
 `;
 
@@ -44,6 +47,7 @@ Array [
     "name": "",
     "type": "foo",
   },
+  true,
   true,
 ]
 `;
@@ -57,6 +61,7 @@ Array [
     "id": "1",
   },
   true,
+  true,
 ]
 `;
 
@@ -68,6 +73,7 @@ Array [
     },
     "id": "1",
   },
+  true,
   true,
 ]
 `;
@@ -81,6 +87,7 @@ Array [
     "id": "2",
   },
   false,
+  true,
 ]
 `;
 
@@ -93,6 +100,7 @@ Array [
     "id": "2",
   },
   false,
+  true,
 ]
 `;
 
@@ -104,6 +112,7 @@ Array [
     },
     "id": "1",
   },
+  true,
   true,
 ]
 `;
@@ -117,6 +126,7 @@ Array [
     "id": "1",
   },
   true,
+  true,
 ]
 `;
 
@@ -127,6 +137,7 @@ Array [
     "id": "2",
   },
   true,
+  true,
 ]
 `;
 
@@ -136,6 +147,7 @@ Array [
     "food": null,
     "id": "2",
   },
+  true,
   true,
 ]
 `;
@@ -160,6 +172,7 @@ Array [
     },
     "title": "Weekly report",
   },
+  true,
   true,
 ]
 `;
@@ -195,6 +208,7 @@ Array [
     "title": "Weekly report",
   },
   true,
+  true,
 ]
 `;
 
@@ -212,6 +226,7 @@ Array [
     ],
     "role": "manager",
   },
+  true,
   true,
 ]
 `;
@@ -243,6 +258,7 @@ Array [
     "role": "manager",
   },
   true,
+  true,
 ]
 `;
 
@@ -253,6 +269,7 @@ Array [
     "id": "1",
   },
   false,
+  true,
 ]
 `;
 
@@ -263,6 +280,7 @@ Array [
     "id": "1",
   },
   false,
+  true,
 ]
 `;
 
@@ -270,6 +288,7 @@ exports[`Entity denormalization denormalizes to undefined for missing data 3`] =
 Array [
   undefined,
   false,
+  true,
 ]
 `;
 
@@ -277,6 +296,7 @@ exports[`Entity denormalization denormalizes to undefined for missing data 4`] =
 Array [
   undefined,
   false,
+  true,
 ]
 `;
 

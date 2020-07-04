@@ -633,6 +633,7 @@ describe(`${schema.Array.name} denormalization`, () => {
       expect(denormalize(output.result, catList, output.entities)).toEqual([
         input,
         true,
+        true,
       ]);
     });
   });

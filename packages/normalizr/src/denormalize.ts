@@ -4,6 +4,7 @@ import * as ObjectUtils from './schemas/Object';
 import { Denormalize, DenormalizeNullable, Schema } from './types';
 import Entity, { isEntity } from './entities/Entity';
 import FlatEntity from './entities/FlatEntity';
+import { DELETED } from './special';
 
 const unvisitEntity = (
   id: any,
@@ -11,10 +12,13 @@ const unvisitEntity = (
   unvisit: any,
   getEntity: any,
   cache: Record<string, any>,
-): [any, boolean] => {
+): [any, boolean, boolean] => {
   const entity = getEntity(id, schema);
+  if (entity === DELETED) {
+    return [undefined, true, false];
+  }
   if (typeof entity !== 'object' || entity === null) {
-    return [entity, false];
+    return [entity, false, true];
   }
 
   if (!cache[schema.key]) {
@@ -22,6 +26,7 @@ const unvisitEntity = (
   }
 
   let found = true;
+  let notDeleted = true;
   if (!cache[schema.key][id]) {
     // Ensure we don't mutate it non-immutable objects
     const entityCopy =
@@ -32,10 +37,13 @@ const unvisitEntity = (
     // Need to set this first so that if it is referenced further within the
     // denormalization the reference will already exist.
     cache[schema.key][id] = entityCopy;
-    [cache[schema.key][id], found] = schema.denormalize(entityCopy, unvisit);
+    [cache[schema.key][id], found, notDeleted] = schema.denormalize(
+      entityCopy,
+      unvisit,
+    );
   }
 
-  return [cache[schema.key][id], found];
+  return [cache[schema.key][id], found, notDeleted];
 };
 
 const getUnvisit = (entities: Record<string, any>) => {
@@ -43,13 +51,13 @@ const getUnvisit = (entities: Record<string, any>) => {
   const getEntity = getEntities(entities);
 
   return [
-    function unvisit(input: any, schema: any): [any, boolean] {
-      if (!schema) return [input, true];
+    function unvisit(input: any, schema: any): [any, boolean, boolean] {
+      if (!schema) return [input, true, true];
 
       if (!schema.denormalize || typeof schema.denormalize !== 'function') {
         if (typeof schema === 'function') {
-          if (input instanceof schema) return [input, true];
-          return [new schema(input), true];
+          if (input instanceof schema) return [input, true, true];
+          return [new schema(input), true, true];
         } else if (typeof schema === 'object') {
           const method = Array.isArray(schema)
             ? ArrayUtils.denormalize
@@ -60,13 +68,13 @@ const getUnvisit = (entities: Record<string, any>) => {
 
       // null is considered intentional, thus always 'found' as true
       if (input === null) {
-        return [input, true];
+        return [input, true, true];
       }
 
       if (isEntity(schema)) {
         // unvisitEntity just can't handle undefined
         if (input === undefined) {
-          return [input, false];
+          return [input, false, true];
         }
         return unvisitEntity(input, schema, unvisit, getEntity, cache);
       }
@@ -75,7 +83,7 @@ const getUnvisit = (entities: Record<string, any>) => {
         return schema.denormalize(input, unvisit);
       }
 
-      return [input, true];
+      return [input, true, true];
     },
     cache,
   ] as const;
@@ -105,8 +113,19 @@ export const denormalize = <S extends Schema>(
   schema: S,
   entities: any,
 ):
-  | [Denormalize<S>, true, Record<string, Record<string, any>>]
-  | [DenormalizeNullable<S>, false, Record<string, Record<string, any>>] => {
+  | [Denormalize<S>, true, true, Record<string, Record<string, any>>]
+  | [
+      DenormalizeNullable<S>,
+      false,
+      boolean,
+      Record<string, Record<string, any>>,
+    ]
+  | [
+      DenormalizeNullable<S>,
+      boolean,
+      false,
+      Record<string, Record<string, any>>,
+    ] => {
   /* istanbul ignore next */
   if (process.env.NODE_ENV !== 'production' && schema === undefined)
     throw new Error('schema needed');
@@ -114,12 +133,15 @@ export const denormalize = <S extends Schema>(
     const [unvisit, cache] = getUnvisit(entities);
     return [...unvisit(input, schema), cache] as any;
   }
-  return [undefined, false, {}] as any;
+  return [undefined, false, true, {}] as any;
 };
 
 export const denormalizeSimple = <S extends Schema>(
   input: any,
   schema: S,
   entities: any,
-): [Denormalize<S>, true] | [DenormalizeNullable<S>, false] =>
-  denormalize(input, schema, entities).slice(0, 2) as any;
+):
+  | [Denormalize<S>, true, true]
+  | [DenormalizeNullable<S>, boolean, false]
+  | [DenormalizeNullable<S>, false, boolean] =>
+  denormalize(input, schema, entities).slice(0, 3) as any;

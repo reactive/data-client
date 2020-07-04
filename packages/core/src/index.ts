@@ -1,9 +1,12 @@
+import { DELETED } from '@rest-hooks/normalizr';
+
 import buildInferredResults from './state/selectors/buildInferredResults';
 import RIC from './state/RIC';
 
 const __INTERNAL__ = {
   buildInferredResults,
   RIC,
+  DELETED,
 };
 
 export { __INTERNAL__ };

@@ -110,13 +110,17 @@ export default abstract class SimpleRecord {
     this: T,
     input: any,
     unvisit: any,
-  ): [AbstractInstanceType<T>, boolean] {
+  ): [AbstractInstanceType<T>, boolean, boolean] {
     // TODO: This creates unneeded memory pressure
     const instance = new (this as any)();
     const object = { ...input };
+    let notDeleted = true;
     let found = true;
     Object.keys(this.schema).forEach(key => {
-      const [item, foundItem] = unvisit(object[key], this.schema[key]);
+      const [item, foundItem, notDeletedItem] = unvisit(
+        object[key],
+        this.schema[key],
+      );
       if (object[key] !== undefined) {
         object[key] = item;
       }
@@ -125,10 +129,13 @@ export default abstract class SimpleRecord {
       if (!foundItem && !(key in instance && !instance[key])) {
         found = false;
       }
+      if (!notDeletedItem && !(key in instance && !instance[key])) {
+        notDeleted = false;
+      }
     });
 
     // useDenormalized will memo based on entities, so creating a new object each time is fine
-    return [this.fromJS(object) as any, found];
+    return [this.fromJS(object) as any, found, notDeleted];
   }
 
   /* istanbul ignore next */

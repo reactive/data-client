@@ -1,5 +1,6 @@
 import { SimpleRecord, denormalize, Entity } from '../..';
 import { normalize } from '../../normalize';
+import { DELETED } from '../../special';
 
 class Article extends SimpleRecord {
   readonly id: string = '';
@@ -267,12 +268,42 @@ describe('SimpleRecord', () => {
         },
       );
       expect(denormalized[1]).toBe(false);
+      expect(denormalized[2]).toBe(true);
       const response = denormalized[0];
       expect(response).toBeDefined();
       expect(response).toBeInstanceOf(WithOptional);
       expect(response).toEqual({
         article: ArticleEntity.fromJS({ id: '5' }),
         requiredArticle: ArticleEntity.fromJS(),
+        nextPage: 'blob',
+        createdAt: null,
+      });
+      expect(response.createdAt).toBeNull();
+    });
+
+    it('should be marked as deleted when required entity is deleted symbol', () => {
+      const denormalized = denormalize(
+        {
+          article: '5',
+          requiredArticle: '6',
+          nextPage: 'blob',
+        },
+        WithOptional,
+        {
+          [ArticleEntity.key]: {
+            5: ArticleEntity.fromJS({ id: '5' }),
+            6: DELETED,
+          },
+        },
+      );
+      expect(denormalized[1]).toBe(true);
+      expect(denormalized[2]).toBe(false);
+      const response = denormalized[0];
+      expect(response).toBeDefined();
+      expect(response).toBeInstanceOf(WithOptional);
+      expect(response).toEqual({
+        article: ArticleEntity.fromJS({ id: '5' }),
+        requiredArticle: undefined,
         nextPage: 'blob',
         createdAt: null,
       });
