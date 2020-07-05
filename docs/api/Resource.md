@@ -242,7 +242,7 @@ Mostly useful with [useFetcher](../api/useFetcher.md)
 A PATCH request sending a partial payload to `url()` expecting a detail body response.
 Mostly useful with [useFetcher](../api/useFetcher.md)
 
-### deleteShape(): DeleteShape
+### deleteShape(): MutateShape
 
 A DELETE request sent to `url()`
 Mostly useful with [useFetcher](../api/useFetcher.md)

@@ -5,12 +5,12 @@ import type {
   Method,
   ReadShape,
   MutateShape,
-  DeleteShape,
 } from '@rest-hooks/core';
 
 import { SchemaDetail, SchemaList } from './types';
 import { NotImplementedError } from './errors';
 import paramsToString from './paramsToString';
+import { schemas } from '..';
 
 /** Represents an entity to be retrieved from a server.
  * Typically 1:1 with a url endpoint.
@@ -220,17 +220,17 @@ export default abstract class SimpleResource extends FlatEntity {
   /** Shape to delete an entity (delete) */
   static deleteShape<T extends typeof SimpleResource>(
     this: T,
-  ): DeleteShape<any, Readonly<object>> {
+  ): MutateShape<schemas.Delete<T>, Readonly<object>, undefined> {
     const options = this.getFetchOptions();
     return {
-      type: 'delete',
-      schema: this,
+      type: 'mutate',
+      schema: new schemas.Delete(this),
       options,
       getFetchKey: (params: object) => {
         return 'DELETE ' + this.url(params);
       },
       fetch: (params: Readonly<object>) => {
-        return this.fetch('delete', this.url(params));
+        return this.fetch('delete', this.url(params)).then(() => params);
       },
     };
   }

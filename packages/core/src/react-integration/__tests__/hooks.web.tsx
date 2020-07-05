@@ -165,27 +165,6 @@ describe('useFetcher', () => {
     console.error = oldError;
   });
 
-  it('should throw when providing a delete shape without an entity schema', () => {
-    const badDeleteShape = {
-      ...CoolerArticleResource.deleteShape(),
-      schema: { data: CoolerArticleResource, other: 5 },
-    };
-    const { result } = renderHook(() => {
-      const a = useFetcher(badDeleteShape);
-      a({ id: 5 }, undefined);
-      return null;
-    });
-    expect(result.error).toMatchInlineSnapshot(`
-      [Error: Request for 'DELETE http://test.com/article-cooler/5' of type delete used, but schema has no pk().
-      Schema must be an entity.
-      Schema: {
-        "other": 5
-      }
-
-      Note: Network response is ignored for delete type.]
-    `);
-  });
-
   it('should dispatch an action that fetches a partial update', async () => {
     mynock.patch(`/article-cooler/1`).reply(200, payload);
 

@@ -10,7 +10,9 @@ export default function useRetrieve<Shape extends ReadShape<any, any>>(
   fetchShape: Shape,
   params: ParamsFromShape<Shape> | null,
 ) {
-  const fetch = useFetcher(fetchShape, true);
+  const fetch = useFetcher(fetchShape, true) as (
+    params: ParamsFromShape<Shape>,
+  ) => Promise<any>;
   const expiresAt = useExpiresAt(fetchShape, params);
 
   // Clears invalidIfStale loop blocking mechanism

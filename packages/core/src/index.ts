@@ -48,12 +48,7 @@ export * as actionTypes from './actionTypes';
 export * from '@rest-hooks/use-enhanced-reducer';
 /* istanbul ignore next */
 export * from './types';
-export type {
-  FetchShape,
-  ReadShape,
-  MutateShape,
-  DeleteShape,
-} from './endpoint/shapes';
+export type { FetchShape, ReadShape, MutateShape } from './endpoint/shapes';
 export type {
   SetShapeParams,
   ParamsFromShape,

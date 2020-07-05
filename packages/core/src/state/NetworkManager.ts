@@ -6,7 +6,6 @@ import {
 import { FetchAction, ReceiveAction, Manager } from '@rest-hooks/core/types';
 import {
   RECEIVE_TYPE,
-  RECEIVE_DELETE_TYPE,
   FETCH_TYPE,
   RESET_TYPE,
 } from '@rest-hooks/core/actionTypes';
@@ -54,7 +53,6 @@ export default class NetworkManager implements Manager {
               return next(action);
             }
             return Promise.resolve();
-          case RECEIVE_DELETE_TYPE:
           case RECEIVE_TYPE:
             // only receive after new state is computed
             return next(action).then(() => {

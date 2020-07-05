@@ -2,11 +2,9 @@ import { Schema } from '@rest-hooks/normalizr';
 import {
   FetchAction,
   ReceiveAction,
-  PurgeAction,
   FetchOptions,
 } from '@rest-hooks/core/types';
-
-import SHAPE_TYPE_TO_RESPONSE_TYPE from './responseTypeMapping';
+import { RECEIVE_TYPE } from '@rest-hooks/core/actionTypes';
 
 interface Options<
   Payload extends object | string | number | null =
@@ -38,13 +36,13 @@ export default function createReceive<
 >(
   data: Payload,
   { schema, key, type, updaters, dataExpiryLength }: Options<Payload, S>,
-): ReceiveAction<Payload, S> | PurgeAction {
+): ReceiveAction<Payload, S> {
   /* istanbul ignore next */
   if (process.env.NODE_ENV === 'development' && dataExpiryLength < 0) {
     throw new Error('Negative dataExpiryLength are not allowed.');
   }
   const now = Date.now();
-  const meta: ReceiveAction['meta'] | PurgeAction['meta'] = {
+  const meta: ReceiveAction['meta'] = {
     schema,
     key,
     date: now,
@@ -54,7 +52,7 @@ export default function createReceive<
     meta.updaters = updaters;
   }
   return {
-    type: SHAPE_TYPE_TO_RESPONSE_TYPE[type] as any,
+    type: RECEIVE_TYPE,
     payload: data,
     meta,
   };

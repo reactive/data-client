@@ -3,7 +3,6 @@ import { FETCH_TYPE } from '@rest-hooks/core/actionTypes';
 import { Schema } from '@rest-hooks/normalizr';
 import {
   FetchShape,
-  isDeleteShape,
   SchemaFromShape,
   ParamsFromShape,
   BodyFromShape,
@@ -45,23 +44,7 @@ export default function createFetch<
 ): FetchAction {
   const { fetch, schema, type, getFetchKey, options } = fetchShape;
 
-  let key = getFetchKey(params);
-  /* istanbul ignore next */
-  if (process.env.NODE_ENV !== 'production') {
-    if (
-      isDeleteShape(fetchShape) &&
-      typeof fetchShape.schema.pk !== 'function'
-    ) {
-      throw new Error(
-        `Request for '${key}' of type delete used, but schema has no pk().
-Schema must be an entity.
-Schema: ${JSON.stringify(fetchShape.schema, null, 2)}
-
-Note: Network response is ignored for delete type.`,
-      );
-    }
-  }
-  if (isDeleteShape(fetchShape)) key = fetchShape.schema.pk(params);
+  const key = getFetchKey(params);
   let resolve: (value?: any | PromiseLike<any>) => void = 0 as any;
   let reject: (reason?: any) => void = 0 as any;
   const promise = new Promise<any>((a, b) => {

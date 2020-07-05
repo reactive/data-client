@@ -113,17 +113,21 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     });
 
     it('should throw 404 once deleted', async () => {
-      let del: any;
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        del = useFetcher(CoolerArticleResource.deleteShape());
-        return useResource(CoolerArticleResource.detailShape(), payload);
+        return [
+          useResource(CoolerArticleResource.detailShape(), payload),
+          useFetcher(CoolerArticleResource.deleteShape()),
+        ] as const;
       });
       expect(result.current).toBeNull();
       await waitForNextUpdate();
-      expect(result.current).toBeInstanceOf(CoolerArticleResource);
-      expect(result.current.title).toBe(payload.title);
+      const [data, del] = result.current;
+      expect(data).toBeInstanceOf(CoolerArticleResource);
+      expect(data.title).toBe(payload.title);
 
-      await act(() => del(payload));
+      await act(() => {
+        del(payload);
+      });
       expect(result.error).toBeDefined();
       expect((result.error as any).status).toBe(404);
     });
@@ -147,7 +151,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       });
 
       for (const del of result.current) {
-        await expect(del(payload, undefined)).resolves.toBeDefined();
+        await expect(del(payload)).resolves.toBeDefined();
       }
     });
 
@@ -357,7 +361,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         expect(result.current.articles).toEqual([
           CoolerArticleResource.fromJS(payload),
         ]);
-        const promise = result.current.del(params, undefined);
+        const promise = result.current.del(params);
         expect(result.current.articles).toEqual([]);
         await promise;
         expect(result.current.articles).toEqual([]);

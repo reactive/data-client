@@ -157,7 +157,7 @@ We return an empty string because that's the response we expect from the server.
 default, the server response is ignored.
 
 ```ts
-import { Resource, DeleteShape, SimpleResource } from 'rest-hooks';
+import { Resource, MutateShape, SimpleResource } from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
   readonly id: string | undefined = undefined;
@@ -171,12 +171,12 @@ export default class ArticleResource extends Resource {
 
   static deleteShape<T extends typeof SimpleResource>(
     this: T,
-  ): DeleteShape<any, Readonly<object>> {
+  ): MutateShape<schemas.Delete<T>, Readonly<object>, undefined> {
     return {
-      ...super.deleteShape(),
+      ...(super.deleteShape() as any),
       options: {
         ...this.getFetchOptions(),
-        optimisticUpdate: (params: any, body: any) => '',
+        optimisticUpdate: (params: any, body: any) => params,
       },
     };
   }

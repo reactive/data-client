@@ -4,7 +4,6 @@ import {
   schemas,
   ReadShape,
   SchemaDetail,
-  DeleteShape,
 } from 'rest-hooks';
 import {
   AbstractInstanceType,
@@ -120,12 +119,12 @@ export class ArticleResource extends Resource {
 
   static deleteShape<T extends typeof Resource>(
     this: T,
-  ): DeleteShape<any, Readonly<object>> {
+  ): MutateShape<schemas.Delete<T>, Readonly<object>, undefined> {
     return {
-      ...super.deleteShape(),
+      ...(super.deleteShape() as any),
       options: {
         ...this.getFetchOptions(),
-        optimisticUpdate: (_params: any, _body: any) => '',
+        optimisticUpdate: (params: any, _body: any) => params,
       },
     };
   }

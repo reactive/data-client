@@ -3,19 +3,18 @@ import {
   ArticleResourceWithOtherListUrl,
   PaginatedArticleResource,
 } from '__tests__/common';
+import { DELETED, schema } from '@rest-hooks/normalizr';
 
 import reducer, { initialState } from '../reducer';
 import {
   FetchAction,
   ReceiveAction,
-  PurgeAction,
   ResetAction,
   InvalidateAction,
   UpdateFunction,
 } from '../../types';
 import {
   RECEIVE_TYPE,
-  RECEIVE_DELETE_TYPE,
   INVALIDATE_TYPE,
   FETCH_TYPE,
   RESET_TYPE,
@@ -98,12 +97,14 @@ describe('reducer', () => {
   });
   it('purge should delete entities', () => {
     const id = 20;
-    const action: PurgeAction = {
-      type: RECEIVE_DELETE_TYPE,
+    const action: ReceiveAction = {
+      type: RECEIVE_TYPE,
+      payload: { id },
       meta: {
-        schema: ArticleResource,
-        key: id.toString(),
+        schema: new schema.Delete(ArticleResource),
+        key: ArticleResource.deleteShape().getFetchKey({ id }),
         date: 0,
+        expiresAt: 0,
       },
     };
     const iniState: any = {
@@ -122,10 +123,9 @@ describe('reducer', () => {
       results: { abc: '20' },
     };
     const newState = reducer(iniState, action);
-    expect(newState.results).toBe(iniState.results);
-    expect(newState.meta).toBe(iniState.meta);
+    expect(newState.results.abc).toBe(iniState.results.abc);
     const expectedEntities = { ...iniState.entities[ArticleResource.key] };
-    delete expectedEntities['20'];
+    expectedEntities['20'] = DELETED;
     expect(newState.entities[ArticleResource.key]).toEqual(expectedEntities);
   });
 
@@ -398,13 +398,14 @@ describe('reducer', () => {
   it('should not delete on error for "purge"', () => {
     const id = 20;
     const error = new Error('hi');
-    const action: PurgeAction = {
-      type: RECEIVE_DELETE_TYPE,
+    const action: ReceiveAction = {
+      type: RECEIVE_TYPE,
       payload: error,
       meta: {
-        schema: ArticleResource,
-        key: ArticleResource.url({ id }),
+        schema: new schema.Delete(ArticleResource),
+        key: ArticleResource.deleteShape().getFetchKey({ id }),
         date: 0,
+        expiresAt: 0,
       },
       error: true,
     };
@@ -420,7 +421,7 @@ describe('reducer', () => {
       },
     };
     const newState = reducer(iniState, action);
-    expect(newState).toEqual(iniState);
+    expect(newState.entities).toBe(iniState.entities);
   });
   it('rest-hooks/fetch should console.warn()', () => {
     global.console.warn = jest.fn();

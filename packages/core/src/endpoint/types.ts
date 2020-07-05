@@ -2,13 +2,7 @@ import { UpdateFunction } from '@rest-hooks/core/types';
 import { Schema } from '@rest-hooks/normalizr';
 
 import type { Denormalize } from './normal';
-import { FetchShape, DeleteShape } from './shapes';
-
-export function isDeleteShape(
-  shape: FetchShape<any, any, any>,
-): shape is DeleteShape<any, any> {
-  return shape.type === 'delete';
-}
+import { FetchShape } from './shapes';
 
 export type ResultShape<RS> = RS extends { schema: infer U } ? U : never;
 export type SelectReturn<RS> = RS extends {
