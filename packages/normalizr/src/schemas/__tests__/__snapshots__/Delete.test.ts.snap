@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Delete normalization normalizes an object using string schemaAttribute 1`] = `
+exports[`Delete normalization normalizes an object 1`] = `
 Object {
   "entities": Object {
     "User": Object {
@@ -10,4 +10,14 @@ Object {
   "indexes": Object {},
   "result": "1",
 }
+`;
+
+exports[`UnionSchema denormalization denormalizes deleted entities as undefined 1`] = `
+Array [
+  Object {
+    "data": undefined,
+  },
+  true,
+  false,
+]
 `;

@@ -51,7 +51,7 @@ export type DenormalizeNullableNestedSchema<
 export type DenormalizeReturnType<T> = T extends (
   input: any,
   unvisit: any,
-) => [infer R, any]
+) => [infer R, any, any]
   ? R
   : never;
 export type NormalizeReturnType<T> = T extends (...args: any) => infer R

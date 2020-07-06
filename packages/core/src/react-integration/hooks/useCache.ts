@@ -2,7 +2,10 @@ import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
 import { useDenormalized } from '@rest-hooks/core/state/selectors';
 import { useContext, useMemo } from 'react';
 import { StateContext } from '@rest-hooks/core/react-integration/context';
-import { hasUsableData, useMeta, __INTERNAL__ } from '@rest-hooks/core';
+import {
+  hasUsableData,
+  useMeta,
+} from '@rest-hooks/core/react-integration/hooks';
 import { denormalize } from '@rest-hooks/normalizr';
 import buildInferredResults from '@rest-hooks/core/state/selectors/buildInferredResults';
 

@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { SchemaSimple, UnvisitFunction, EntityInterface } from '../schema';
+import { SchemaClass, UnvisitFunction, EntityInterface } from '../schema';
 import { DELETED } from '../special';
 import type { AbstractInstanceType } from '..';
 
 export default class Delete<E extends EntityInterface & { fromJS: any }>
-  implements SchemaSimple {
+  implements SchemaClass {
   private declare _entity: E;
 
   constructor(entity: E) {
@@ -31,10 +31,28 @@ export default class Delete<E extends EntityInterface & { fromJS: any }>
     return id;
   }
 
-  denormalize(entity: AbstractInstanceType<E>, unvisit: UnvisitFunction) {
-    return this._entity.denormalize(entity, unvisit);
+  denormalize(
+    id: string,
+    unvisit: UnvisitFunction,
+  ): [AbstractInstanceType<E>, boolean, boolean] {
+    return unvisit(id, this._entity) as any;
   }
 
+  /* istanbul ignore next */
+  _denormalizeNullable(): [
+    AbstractInstanceType<E> | undefined,
+    boolean,
+    false,
+  ] {
+    return [] as any;
+  }
+
+  /* istanbul ignore next */
+  _normalizeNullable(): string | undefined {
+    return [] as any;
+  }
+
+  /* istanbul ignore next */
   merge(existing: any, incoming: any) {
     return incoming;
   }

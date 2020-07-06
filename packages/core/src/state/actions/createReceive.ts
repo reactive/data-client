@@ -35,7 +35,7 @@ export default function createReceive<
   S extends Schema = any
 >(
   data: Payload,
-  { schema, key, type, updaters, dataExpiryLength }: Options<Payload, S>,
+  { schema, key, updaters, dataExpiryLength }: Options<Payload, S>,
 ): ReceiveAction<Payload, S> {
   /* istanbul ignore next */
   if (process.env.NODE_ENV === 'development' && dataExpiryLength < 0) {
@@ -48,9 +48,7 @@ export default function createReceive<
     date: now,
     expiresAt: now + dataExpiryLength,
   };
-  if ((['read', 'mutate'] as string[]).includes(type)) {
-    meta.updaters = updaters;
-  }
+  meta.updaters = updaters;
   return {
     type: RECEIVE_TYPE,
     payload: data,

@@ -203,7 +203,6 @@ export default abstract class Entity extends SimpleRecord {
   }
 }
 
-/* istanbul ignore next */
 if (process.env.NODE_ENV !== 'production') {
   // for those not using TypeScript this is a good catch to ensure they are defining
   // the abstract members

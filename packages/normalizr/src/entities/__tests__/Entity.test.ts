@@ -462,6 +462,25 @@ describe(`${Entity.name} denormalization`, () => {
     expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
   });
 
+  test('denormalizes to undefined for deleted data', () => {
+    const entities = {
+      Menu: {
+        '1': { id: '1', food: '2' },
+        '2': DELETED,
+      },
+      Food: {
+        '1': { id: '1' },
+        '2': DELETED,
+      },
+    };
+
+    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
+
+    expect(denormalize('2', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
+  });
+
   test('denormalizes deep entities with records', () => {
     const Food = Record({ id: null });
     const MenuR = Record({ id: null, food: null });

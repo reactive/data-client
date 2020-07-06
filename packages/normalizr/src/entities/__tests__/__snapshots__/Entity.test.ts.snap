@@ -262,6 +262,44 @@ Array [
 ]
 `;
 
+exports[`Entity denormalization denormalizes to undefined for deleted data 1`] = `
+Array [
+  Menu {
+    "food": undefined,
+    "id": "1",
+  },
+  true,
+  false,
+]
+`;
+
+exports[`Entity denormalization denormalizes to undefined for deleted data 2`] = `
+Array [
+  Menu {
+    "food": undefined,
+    "id": "1",
+  },
+  true,
+  false,
+]
+`;
+
+exports[`Entity denormalization denormalizes to undefined for deleted data 3`] = `
+Array [
+  undefined,
+  true,
+  false,
+]
+`;
+
+exports[`Entity denormalization denormalizes to undefined for deleted data 4`] = `
+Array [
+  undefined,
+  true,
+  false,
+]
+`;
+
 exports[`Entity denormalization denormalizes to undefined for missing data 1`] = `
 Array [
   Menu {
