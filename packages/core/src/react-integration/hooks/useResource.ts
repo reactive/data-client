@@ -11,6 +11,7 @@ import { useMemo, useContext } from 'react';
 import useRetrieve from './useRetrieve';
 import useError from './useError';
 import hasUsableData from './hasUsableData';
+import useMeta from './useMeta';
 
 type ResourceArgs<
   S extends ReadShape<any, any>,
@@ -29,13 +30,28 @@ function useOneResource<
   DenormalizeNullable<Shape['schema']>,
   Denormalize<Shape['schema']>
 > {
-  const maybePromise = useRetrieve(fetchShape, params);
   const state = useContext(StateContext);
-  const [denormalized, ready] = useDenormalized(fetchShape, params, state);
-  const error = useError(fetchShape, params, ready);
+  const [denormalized, ready, notDeleted] = useDenormalized(
+    fetchShape,
+    params,
+    state,
+  );
+  const maybePromise = useRetrieve(fetchShape, params, notDeleted);
 
-  if (!hasUsableData(ready, fetchShape) && maybePromise) throw maybePromise;
+  // the order of throwing promise vs error should not matter so used outside they are still correct
+  const error = useError(fetchShape, params, ready);
   if (error) throw error;
+
+  if (
+    !hasUsableData(
+      fetchShape,
+      ready,
+      notDeleted,
+      useMeta(fetchShape, params)?.invalidated,
+    ) &&
+    maybePromise
+  )
+    throw maybePromise;
 
   return denormalized as any;
 }
@@ -54,14 +70,20 @@ function useManyResources<A extends ResourceArgs<any, any>[]>(
       useDenormalized(fetchShape, params, state),
   );
   const promises = resourceList
-    .map(([fetchShape, params]) =>
+    .map(([fetchShape, params], i) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      useRetrieve(fetchShape, params),
+      useRetrieve(fetchShape, params, denormalizedValues[i][2]),
     )
     // only wait on promises without results
     .map(
       (p, i) =>
-        !hasUsableData(denormalizedValues[i][1], resourceList[i][0]) && p,
+        !hasUsableData(
+          resourceList[i][0],
+          denormalizedValues[i][1],
+          denormalizedValues[i][2],
+          // eslint-disable-next-line react-hooks/rules-of-hooks
+          useMeta(...resourceList[i])?.invalidated,
+        ) && p,
     );
 
   // throw first valid error

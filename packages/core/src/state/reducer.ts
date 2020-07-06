@@ -100,17 +100,22 @@ export default function reducer(
         },
       };
     }
-    case INVALIDATE_TYPE:
+    case INVALIDATE_TYPE: {
+      const results = { ...state.results };
+      delete results[action.meta.key];
       return {
         ...state,
+        results,
         meta: {
           ...state.meta,
           [action.meta.key]: {
             ...state.meta[action.meta.key],
             expiresAt: 0,
+            invalidated: true,
           },
         },
       };
+    }
     case RESET_TYPE:
       return initialState;
 

@@ -9,6 +9,7 @@ import { DispatchContext } from '../context';
 export default function useRetrieve<Shape extends ReadShape<any, any>>(
   fetchShape: Shape,
   params: ParamsFromShape<Shape> | null,
+  notDeleted = true,
 ) {
   const fetch = useFetcher(fetchShape, true) as (
     params: ParamsFromShape<Shape>,
@@ -31,5 +32,5 @@ export default function useRetrieve<Shape extends ReadShape<any, any>>(
     return fetch(params);
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expiresAt, fetch, params && fetchShape.getFetchKey(params)]);
+  }, [expiresAt, fetch, params && fetchShape.getFetchKey(params), notDeleted]);
 }

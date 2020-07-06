@@ -25,7 +25,6 @@ export default function useDenormalized<
   { schema, getFetchKey, options }: Shape,
   params: ParamsFromShape<Shape> | null,
   state: State<any>,
-  expired = false,
 ): [
   DenormalizeNullable<Shape['schema']>,
   typeof params extends null ? false : boolean,
@@ -95,10 +94,6 @@ export default function useDenormalized<
       .reduce((a: any[], b: any[]) => a.concat(b), [])
       .join(',');
 
-    if (!hasUsableData(entitiesFound, { options }) && expired) {
-      denormalized = denormalize(results, schema, {})[0];
-    }
-
     return [denormalized, entitiesFound, noEntitiesDeleted, entitiesList] as [
       DenormalizeNullable<Shape['schema']>,
       boolean,
@@ -111,7 +106,7 @@ export default function useDenormalized<
     entities,
     serializedParams,
     results,
-    expired,
+    cacheResults,
     needsDenormalization,
     options && options.invalidIfStale,
   ]);

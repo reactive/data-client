@@ -18,12 +18,14 @@ export default function useError<
   if (!params) return;
   if (!cacheReady) {
     if (!meta) return;
-    if (!meta.error) {
-      // this means we probably deleted the entity found in this result
+    if (!meta.error && !meta.invalidated) {
+      // this means the response is missing an expected entity
       const err: any = new Error(
-        `Resource not found in cache ${fetchShape.getFetchKey(params)}`,
+        `Resource not found in cache ${fetchShape.getFetchKey(
+          params,
+        )}. Likely due to malformed response`,
       );
-      err.status = 404;
+      err.status = 400;
       return err;
     } else {
       return meta.error as any;

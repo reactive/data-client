@@ -30,9 +30,9 @@ describe('useError()', () => {
     );
 
     expect(result.current).toBeDefined();
-    expect((result.current as any).status).toBe(404);
+    expect((result.current as any).status).toBe(400);
     expect(result.current).toMatchInlineSnapshot(
-      `[Error: Resource not found in cache GET http://test.com/article-cooler/5]`,
+      `[Error: Resource not found in cache GET http://test.com/article-cooler/5. Likely due to malformed response]`,
     );
   });
 });

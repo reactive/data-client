@@ -38,6 +38,7 @@ export type State<T> = Readonly<{
       readonly error?: Error;
       readonly expiresAt: number;
       readonly prevExpiresAt?: number;
+      readonly invalidated?: boolean;
     };
   };
   optimistic: ReceiveAction[];

@@ -112,7 +112,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       expect(result.current.results).toMatchSnapshot();
     });
 
-    it('should throw 404 once deleted', async () => {
+    it('should suspend once deleted', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
         return [
           useResource(CoolerArticleResource.detailShape(), payload),
@@ -128,8 +128,10 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       await act(() => {
         del(payload);
       });
-      expect(result.error).toBeDefined();
-      expect((result.error as any).status).toBe(404);
+      expect(result.current[0]).toBeUndefined();
+      await waitForNextUpdate();
+      expect(data).toBeInstanceOf(CoolerArticleResource);
+      expect(data.title).toBe(payload.title);
     });
 
     it('should throw when retrieving an empty string', async () => {

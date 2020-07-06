@@ -352,10 +352,10 @@ describe('reducer', () => {
       },
     };
     const newState = reducer(iniState, action);
-    expect(newState.results).toBe(iniState.results);
+    expect(newState.results).toEqual(iniState.results);
     expect(newState.entities).toBe(iniState.entities);
     const expectedMeta = { ...iniState.meta };
-    expectedMeta['20'] = { expiresAt: 0 };
+    expectedMeta['20'] = { expiresAt: 0, invalidated: true };
     expect(newState.meta).toEqual(expectedMeta);
   });
   it('should set error in meta for "receive"', () => {

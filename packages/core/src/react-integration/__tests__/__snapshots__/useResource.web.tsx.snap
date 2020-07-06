@@ -79,11 +79,11 @@ exports[`useResource() should throw error when response is array when expecting 
   Value: {}]
 `;
 
-exports[`useResource() should throw error when response is expected Resource inside Record 1`] = `[Error: Resource not found in cache GET http://test.com/article-cooler/400]`;
+exports[`useResource() should throw error when response is expected Resource inside Record 1`] = `[Error: Resource not found in cache GET http://test.com/article-cooler/400. Likely due to malformed response]`;
 
-exports[`useResource() should throw error when response is nested missing id when expecting nested entity 1`] = `[Error: Resource not found in cache GET http://test.com/article-cooler/400]`;
+exports[`useResource() should throw error when response is nested missing id when expecting nested entity 1`] = `[Error: Resource not found in cache GET http://test.com/article-cooler/400. Likely due to malformed response]`;
 
-exports[`useResource() should throw error when response is nested string when expecting nested entity 1`] = `[Error: Resource not found in cache GET http://test.com/article-cooler/400]`;
+exports[`useResource() should throw error when response is nested string when expecting nested entity 1`] = `[Error: Resource not found in cache GET http://test.com/article-cooler/400. Likely due to malformed response]`;
 
 exports[`useResource() should throw error when response is number when expecting entity 1`] = `
 [Error: Attempted to initialize CoolerArticleResource with substantially different than expected keys
@@ -111,4 +111,4 @@ exports[`useResource() should throw error when response is string when expecting
   Value: {}]
 `;
 
-exports[`useResource() should throw error when response is string when expecting nested entity 1`] = `[Error: Resource not found in cache GET http://test.com/article-cooler/400]`;
+exports[`useResource() should throw error when response is string when expecting nested entity 1`] = `[Error: Resource not found in cache GET http://test.com/article-cooler/400. Likely due to malformed response]`;
