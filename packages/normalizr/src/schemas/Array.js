@@ -16,7 +16,7 @@ const validateSchema = definition => {
 const getValues = input =>
   Array.isArray(input) ? input : Object.keys(input).map(key => input[key]);
 
-const filterEmpty = ([, foundItem, deletedItem]) => foundItem && deletedItem;
+const filterEmpty = ([, foundItem, deletedItem]) => foundItem && !deletedItem;
 
 export const normalize = (
   schema,
@@ -40,10 +40,10 @@ export const normalize = (
 
 export const denormalize = (schema, input, unvisit) => {
   schema = validateSchema(schema);
-  let notDeleted = true;
+  let deleted = false;
   let found = true;
   if (input === undefined && schema) {
-    [, found, notDeleted] = unvisit(undefined, schema);
+    [, found, deleted] = unvisit(undefined, schema);
   }
   return [
     input && input.map
@@ -53,7 +53,7 @@ export const denormalize = (schema, input, unvisit) => {
           .map(([value]) => value)
       : input,
     found,
-    notDeleted,
+    deleted,
   ];
 };
 
@@ -76,10 +76,10 @@ export default class ArraySchema extends PolymorphicSchema {
   }
 
   denormalize(input, unvisit) {
-    let notDeleted = true;
+    let deleted = false;
     let found = true;
     if (input === undefined && this.schema) {
-      [, found, notDeleted] = unvisit(undefined, this.schema);
+      [, found, deleted] = unvisit(undefined, this.schema);
     }
     return [
       input && input.map
@@ -89,7 +89,7 @@ export default class ArraySchema extends PolymorphicSchema {
             .map(([value]) => value)
         : input,
       found,
-      notDeleted,
+      deleted,
     ];
   }
 }

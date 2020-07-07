@@ -31,14 +31,14 @@ function useOneResource<
   Denormalize<Shape['schema']>
 > {
   const state = useContext(StateContext);
-  const [denormalized, ready, notDeleted] = useDenormalized(
+  const [denormalized, ready, deleted] = useDenormalized(
     fetchShape,
     params,
     state,
   );
   const error = useError(fetchShape, params, ready);
 
-  const maybePromise = useRetrieve(fetchShape, params, !notDeleted && !error);
+  const maybePromise = useRetrieve(fetchShape, params, deleted && !error);
 
   if (error) throw error;
 
@@ -46,7 +46,7 @@ function useOneResource<
     !hasUsableData(
       fetchShape,
       ready,
-      notDeleted,
+      deleted,
       useMeta(fetchShape, params)?.invalidated,
     ) &&
     maybePromise
@@ -87,7 +87,7 @@ function useManyResources<A extends ResourceArgs<any, any>[]>(
       useRetrieve(
         fetchShape,
         params,
-        !denormalizedValues[i][2] && !errorValues[i],
+        denormalizedValues[i][2] && !errorValues[i],
       ),
     )
     // only wait on promises without results

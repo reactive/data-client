@@ -27,8 +27,8 @@ describe('useDenormalized()', () => {
         expect(result.current[1]).toBe(false);
       });
 
-      it('notDeleted should be true', () => {
-        expect(result.current[2]).toBe(true);
+      it('deleted should be false', () => {
+        expect(result.current[2]).toBe(false);
       });
 
       it('should provide inferred results with undefined', () => {
@@ -61,8 +61,8 @@ describe('useDenormalized()', () => {
         expect(result.current[1]).toBe(false);
       });
 
-      it('notDeleted should be true', () => {
-        expect(result.current[2]).toBe(true);
+      it('deleted should be false', () => {
+        expect(result.current[2]).toBe(false);
       });
 
       it('should provide inferred results with undefined', () => {
@@ -83,7 +83,7 @@ describe('useDenormalized()', () => {
       };
       const {
         result: {
-          current: [value, found, notDeleted],
+          current: [value, found, deleted],
         },
       } = renderHook(() =>
         useDenormalized(CoolerArticleResource.detailShape(), params, state),
@@ -93,8 +93,8 @@ describe('useDenormalized()', () => {
         expect(found).toBe(true);
       });
 
-      it('notDeleted should be true', () => {
-        expect(notDeleted).toBe(true);
+      it('deleted should be false', () => {
+        expect(deleted).toBe(false);
       });
 
       it('should provide inferred results', () => {
@@ -111,7 +111,7 @@ describe('useDenormalized()', () => {
       };
       const {
         result: {
-          current: [value, found, notDeleted],
+          current: [value, found, deleted],
         },
       } = renderHook(() =>
         useDenormalized(CoolerArticleResource.detailShape(), params, state),
@@ -121,8 +121,8 @@ describe('useDenormalized()', () => {
         expect(found).toBe(false);
       });
 
-      it('notDeleted should be true', () => {
-        expect(notDeleted).toBe(true);
+      it('deleted should be false', () => {
+        expect(deleted).toBe(false);
       });
 
       it('should provide inferred results with undefined', () => {
@@ -140,7 +140,7 @@ describe('useDenormalized()', () => {
       };
       const {
         result: {
-          current: [value, found, notDeleted],
+          current: [value, found, deleted],
         },
       } = renderHook(() =>
         useDenormalized(CoolerArticleResource.detailShape(), params, state),
@@ -150,8 +150,8 @@ describe('useDenormalized()', () => {
         expect(found).toBe(true);
       });
 
-      it('notDeleted should be true', () => {
-        expect(notDeleted).toBe(true);
+      it('deleted should be false', () => {
+        expect(deleted).toBe(false);
       });
 
       it('should provide inferred results', () => {
@@ -170,7 +170,7 @@ describe('useDenormalized()', () => {
       };
       const {
         result: {
-          current: [value, found, notDeleted],
+          current: [value, found, deleted],
         },
       } = renderHook(() =>
         useDenormalized(PaginatedArticleResource.detailShape(), params, state),
@@ -180,8 +180,8 @@ describe('useDenormalized()', () => {
         expect(found).toBe(true);
       });
 
-      it('notDeleted should be true', () => {
-        expect(notDeleted).toBe(true);
+      it('deleted should be false', () => {
+        expect(deleted).toBe(false);
       });
 
       it('should provide inferred results', () => {
@@ -235,7 +235,7 @@ describe('useDenormalized()', () => {
         };
         rerender({ state: localstate });
         expect(result.current[1]).toBe(true);
-        expect(result.current[2]).toBe(true);
+        expect(result.current[2]).toBe(false);
         expect(result.current[0].data).toBe(user);
       });
     });
@@ -621,7 +621,7 @@ describe('useDenormalized()', () => {
       const { result } = renderHook(() => {
         return useDenormalized(photoShape, { userId }, initialState as any);
       });
-      expect(result.current).toStrictEqual([undefined, false, true]);
+      expect(result.current).toStrictEqual([undefined, false, false]);
     });
 
     it('should return results as-is for schemas with no entities', () => {
@@ -637,7 +637,7 @@ describe('useDenormalized()', () => {
       const { result } = renderHook(() => {
         return useDenormalized(photoShape, { userId }, state);
       });
-      expect(result.current).toStrictEqual([results, true, true]);
+      expect(result.current).toStrictEqual([results, true, false]);
     });
 
     it('should throw with invalid schemas', () => {

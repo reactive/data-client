@@ -9,7 +9,7 @@ Array [
     "id": "1",
   },
   true,
-  true,
+  false,
 ]
 `;
 
@@ -22,7 +22,7 @@ Array [
     "id": "1",
   },
   true,
-  true,
+  false,
 ]
 `;
 
@@ -35,7 +35,7 @@ Array [
     "type": "foo",
   },
   true,
-  true,
+  false,
 ]
 `;
 
@@ -48,7 +48,7 @@ Array [
     "type": "foo",
   },
   true,
-  true,
+  false,
 ]
 `;
 
@@ -61,7 +61,7 @@ Array [
     "id": "1",
   },
   true,
-  true,
+  false,
 ]
 `;
 
@@ -74,7 +74,7 @@ Array [
     "id": "1",
   },
   true,
-  true,
+  false,
 ]
 `;
 
@@ -87,7 +87,7 @@ Array [
     "id": "2",
   },
   false,
-  true,
+  false,
 ]
 `;
 
@@ -100,7 +100,7 @@ Array [
     "id": "2",
   },
   false,
-  true,
+  false,
 ]
 `;
 
@@ -113,7 +113,7 @@ Array [
     "id": "1",
   },
   true,
-  true,
+  false,
 ]
 `;
 
@@ -126,7 +126,7 @@ Array [
     "id": "1",
   },
   true,
-  true,
+  false,
 ]
 `;
 
@@ -137,7 +137,7 @@ Array [
     "id": "2",
   },
   true,
-  true,
+  false,
 ]
 `;
 
@@ -148,7 +148,7 @@ Array [
     "id": "2",
   },
   true,
-  true,
+  false,
 ]
 `;
 
@@ -173,7 +173,7 @@ Array [
     "title": "Weekly report",
   },
   true,
-  true,
+  false,
 ]
 `;
 
@@ -208,7 +208,7 @@ Array [
     "title": "Weekly report",
   },
   true,
-  true,
+  false,
 ]
 `;
 
@@ -227,7 +227,7 @@ Array [
     "role": "manager",
   },
   true,
-  true,
+  false,
 ]
 `;
 
@@ -258,7 +258,7 @@ Array [
     "role": "manager",
   },
   true,
-  true,
+  false,
 ]
 `;
 
@@ -269,7 +269,7 @@ Array [
     "id": "1",
   },
   true,
-  false,
+  true,
 ]
 `;
 
@@ -280,7 +280,7 @@ Array [
     "id": "1",
   },
   true,
-  false,
+  true,
 ]
 `;
 
@@ -288,7 +288,7 @@ exports[`Entity denormalization denormalizes to undefined for deleted data 3`] =
 Array [
   undefined,
   true,
-  false,
+  true,
 ]
 `;
 
@@ -296,7 +296,7 @@ exports[`Entity denormalization denormalizes to undefined for deleted data 4`] =
 Array [
   undefined,
   true,
-  false,
+  true,
 ]
 `;
 
@@ -307,7 +307,7 @@ Array [
     "id": "1",
   },
   false,
-  true,
+  false,
 ]
 `;
 
@@ -318,7 +318,7 @@ Array [
     "id": "1",
   },
   false,
-  true,
+  false,
 ]
 `;
 
@@ -326,7 +326,7 @@ exports[`Entity denormalization denormalizes to undefined for missing data 3`] =
 Array [
   undefined,
   false,
-  true,
+  false,
 ]
 `;
 
@@ -334,7 +334,7 @@ exports[`Entity denormalization denormalizes to undefined for missing data 4`] =
 Array [
   undefined,
   false,
-  true,
+  false,
 ]
 `;
 

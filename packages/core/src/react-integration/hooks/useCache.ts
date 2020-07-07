@@ -19,13 +19,13 @@ export default function useCache<
   const expiresAt = useExpiresAt(fetchShape, params);
 
   const state = useContext(StateContext);
-  const [denormalized, ready, notDeleted] = useDenormalized(
+  const [denormalized, ready, deleted] = useDenormalized(
     fetchShape,
     params,
     state,
   );
   const error = useError(fetchShape, params, ready);
-  const trigger = !notDeleted && !error;
+  const trigger = deleted && !error;
 
   /*********** This block is to ensure results are only filled when they would not suspend **************/
   // This computation reflects the behavior of useResource/useRetrive
@@ -44,7 +44,7 @@ export default function useCache<
     !hasUsableData(
       fetchShape,
       ready,
-      notDeleted,
+      deleted,
       useMeta(fetchShape, params)?.invalidated,
     ) &&
     expired

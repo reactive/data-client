@@ -9,7 +9,7 @@ import { DispatchContext } from '../context';
 export default function useRetrieve<Shape extends ReadShape<any, any>>(
   fetchShape: Shape,
   params: ParamsFromShape<Shape> | null,
-  trigger = false,
+  triggerFetch = false,
 ) {
   const fetch = useFetcher(fetchShape, true) as (
     params: ParamsFromShape<Shape>,
@@ -28,9 +28,14 @@ export default function useRetrieve<Shape extends ReadShape<any, any>>(
 
   return useMemo(() => {
     // null params mean don't do anything
-    if ((Date.now() <= expiresAt && !trigger) || !params) return;
+    if ((Date.now() <= expiresAt && !triggerFetch) || !params) return;
     return fetch(params);
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expiresAt, fetch, params && fetchShape.getFetchKey(params), trigger]);
+  }, [
+    expiresAt,
+    fetch,
+    params && fetchShape.getFetchKey(params),
+    triggerFetch,
+  ]);
 }

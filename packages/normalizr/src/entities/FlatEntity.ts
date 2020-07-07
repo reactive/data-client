@@ -9,6 +9,6 @@ export default abstract class FlatEntity extends Entity {
     entity: any,
     unvisit: schema.UnvisitFunction,
   ): [AbstractInstanceType<T>, boolean, boolean] {
-    return [entity, true, true] as any;
+    return [entity, true, false] as any;
   }
 }

@@ -50,11 +50,11 @@ export default function useDenormalized<
   const [
     denormalized,
     entitiesFound,
-    noEntitiesDeleted,
+    entitiesDeleted,
     entitiesList,
   ] = useMemo(() => {
     if (!needsDenormalization)
-      return [cacheResults, cacheResults !== undefined, true, ''] as [
+      return [cacheResults, cacheResults !== undefined, false, ''] as [
         DenormalizeNullable<Shape['schema']>,
         any,
         boolean,
@@ -81,7 +81,7 @@ export default function useDenormalized<
 
     // second argument is false if any entities are missing
     // eslint-disable-next-line prefer-const
-    let [denormalized, entitiesFound, noEntitiesDeleted, cache] = denormalize(
+    let [denormalized, entitiesFound, entitiesDeleted, cache] = denormalize(
       results,
       schema,
       entities,
@@ -93,7 +93,7 @@ export default function useDenormalized<
       .reduce((a: any[], b: any[]) => a.concat(b), [])
       .join(',');
 
-    return [denormalized, entitiesFound, noEntitiesDeleted, entitiesList] as [
+    return [denormalized, entitiesFound, entitiesDeleted, entitiesList] as [
       DenormalizeNullable<Shape['schema']>,
       boolean,
       boolean,
@@ -111,9 +111,9 @@ export default function useDenormalized<
   ]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => [denormalized, entitiesFound, noEntitiesDeleted], [
+  return useMemo(() => [denormalized, entitiesFound, entitiesDeleted], [
     entitiesFound,
-    noEntitiesDeleted,
+    entitiesDeleted,
     results,
     entitiesList,
   ]);

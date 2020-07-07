@@ -4,11 +4,11 @@ import { FetchShape } from '@rest-hooks/core/endpoint';
 export default function hasUsableData(
   fetchShape: Pick<FetchShape<any>, 'options'>,
   cacheReady: boolean,
-  notDeleted: boolean,
+  deleted: boolean,
   invalidated?: boolean,
 ) {
   return (
-    notDeleted &&
+    !deleted &&
     !(fetchShape.options && fetchShape.options.invalidIfStale) &&
     cacheReady &&
     !invalidated

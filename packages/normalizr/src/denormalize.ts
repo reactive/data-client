@@ -15,10 +15,10 @@ const unvisitEntity = (
 ): [any, boolean, boolean] => {
   const entity = getEntity(id, schema);
   if (entity === DELETED) {
-    return [undefined, true, false];
+    return [undefined, true, true];
   }
   if (typeof entity !== 'object' || entity === null) {
-    return [entity, false, true];
+    return [entity, false, false];
   }
 
   if (!cache[schema.key]) {
@@ -26,7 +26,7 @@ const unvisitEntity = (
   }
 
   let found = true;
-  let notDeleted = true;
+  let deleted = false;
   if (!cache[schema.key][id]) {
     // Ensure we don't mutate it non-immutable objects
     const entityCopy =
@@ -37,13 +37,13 @@ const unvisitEntity = (
     // Need to set this first so that if it is referenced further within the
     // denormalization the reference will already exist.
     cache[schema.key][id] = entityCopy;
-    [cache[schema.key][id], found, notDeleted] = schema.denormalize(
+    [cache[schema.key][id], found, deleted] = schema.denormalize(
       entityCopy,
       unvisit,
     );
   }
 
-  return [cache[schema.key][id], found, notDeleted];
+  return [cache[schema.key][id], found, deleted];
 };
 
 const getUnvisit = (entities: Record<string, any>) => {
@@ -52,12 +52,12 @@ const getUnvisit = (entities: Record<string, any>) => {
 
   return [
     function unvisit(input: any, schema: any): [any, boolean, boolean] {
-      if (!schema) return [input, true, true];
+      if (!schema) return [input, true, false];
 
       if (!schema.denormalize || typeof schema.denormalize !== 'function') {
         if (typeof schema === 'function') {
-          if (input instanceof schema) return [input, true, true];
-          return [new schema(input), true, true];
+          if (input instanceof schema) return [input, true, false];
+          return [new schema(input), true, false];
         } else if (typeof schema === 'object') {
           const method = Array.isArray(schema)
             ? ArrayUtils.denormalize
@@ -68,13 +68,13 @@ const getUnvisit = (entities: Record<string, any>) => {
 
       // null is considered intentional, thus always 'found' as true
       if (input === null) {
-        return [input, true, true];
+        return [input, true, false];
       }
 
       if (isEntity(schema)) {
         // unvisitEntity just can't handle undefined
         if (input === undefined) {
-          return [input, false, true];
+          return [input, false, false];
         }
         return unvisitEntity(input, schema, unvisit, getEntity, cache);
       }
@@ -83,7 +83,7 @@ const getUnvisit = (entities: Record<string, any>) => {
         return schema.denormalize(input, unvisit);
       }
 
-      return [input, true, true];
+      return [input, true, false];
     },
     cache,
   ] as const;
@@ -113,7 +113,7 @@ export const denormalize = <S extends Schema>(
   schema: S,
   entities: any,
 ):
-  | [Denormalize<S>, true, true, Record<string, Record<string, any>>]
+  | [Denormalize<S>, true, false, Record<string, Record<string, any>>]
   | [
       DenormalizeNullable<S>,
       false,
@@ -123,7 +123,7 @@ export const denormalize = <S extends Schema>(
   | [
       DenormalizeNullable<S>,
       boolean,
-      false,
+      true,
       Record<string, Record<string, any>>,
     ] => {
   /* istanbul ignore next */
@@ -133,7 +133,7 @@ export const denormalize = <S extends Schema>(
     const [unvisit, cache] = getUnvisit(entities);
     return [...unvisit(input, schema), cache] as any;
   }
-  return [undefined, false, true, {}] as any;
+  return [undefined, false, false, {}] as any;
 };
 
 export const denormalizeSimple = <S extends Schema>(
@@ -141,7 +141,7 @@ export const denormalizeSimple = <S extends Schema>(
   schema: S,
   entities: any,
 ):
-  | [Denormalize<S>, true, true]
-  | [DenormalizeNullable<S>, boolean, false]
+  | [Denormalize<S>, true, false]
+  | [DenormalizeNullable<S>, boolean, true]
   | [DenormalizeNullable<S>, false, boolean] =>
   denormalize(input, schema, entities).slice(0, 3) as any;

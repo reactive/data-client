@@ -633,7 +633,7 @@ describe(`${Entity.name} denormalization`, () => {
         },
       });
       expect(denormalized[1]).toBe(false);
-      expect(denormalized[2]).toBe(true);
+      expect(denormalized[2]).toBe(false);
       const response = denormalized[0];
       expect(response).toBeDefined();
       expect(response).toBeInstanceOf(WithOptional);
@@ -660,7 +660,7 @@ describe(`${Entity.name} denormalization`, () => {
         },
       });
       expect(denormalized[1]).toBe(true);
-      expect(denormalized[2]).toBe(false);
+      expect(denormalized[2]).toBe(true);
       const response = denormalized[0];
       expect(response).toBeDefined();
       expect(response).toBeInstanceOf(WithOptional);
@@ -689,7 +689,7 @@ describe(`${Entity.name} denormalization`, () => {
         },
       });
       expect(denormalized[1]).toBe(true);
-      expect(denormalized[2]).toBe(true);
+      expect(denormalized[2]).toBe(false);
       const response = denormalized[0];
       expect(response).toBeDefined();
       expect(response).toBeInstanceOf(WithOptional);
@@ -722,7 +722,7 @@ describe(`${Entity.name} denormalization`, () => {
         },
       );
       expect(denormalized[1]).toBe(false);
-      expect(denormalized[2]).toBe(false);
+      expect(denormalized[2]).toBe(true);
       const response = denormalized[0];
       expect(response).toBeDefined();
       expect(response).toEqual({

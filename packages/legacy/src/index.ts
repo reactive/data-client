@@ -20,7 +20,7 @@ export function useStatefulResource<
   S extends Schema
 >(fetchShape: ReadShape<S, Params>, params: Params | null) {
   const state = useContext(StateContext);
-  const [denormalized, ready, notDeleted] = useDenormalized(
+  const [denormalized, ready, deleted] = useDenormalized(
     fetchShape,
     params,
     state,
@@ -30,14 +30,14 @@ export function useStatefulResource<
   const maybePromise: Promise<any> | undefined = useRetrieve(
     fetchShape,
     params,
-    !notDeleted && !error,
+    deleted && !error,
   );
 
   const loading =
     !hasUsableData(
       fetchShape,
       ready,
-      notDeleted,
+      deleted,
       useMeta(fetchShape, params)?.invalidated,
     ) && !!maybePromise;
   const data = loading

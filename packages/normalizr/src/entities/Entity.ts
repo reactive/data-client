@@ -174,16 +174,16 @@ export default abstract class Entity extends SimpleRecord {
     // TODO: this entire function is redundant with SimpleRecord, however right now we're storing the Entity instance
     // itself in cache. Once we offer full memoization, we will store raw objects and this can be consolidated with SimpleRecord
     if (isImmutable(entity)) {
-      const [denormEntity, found, notDeleted] = denormalizeImmutable(
+      const [denormEntity, found, deleted] = denormalizeImmutable(
         this.schema,
         entity,
         unvisit,
       );
-      return [this.fromJS(denormEntity.toObject()), found, notDeleted];
+      return [this.fromJS(denormEntity.toObject()), found, deleted];
     }
     // TODO: This creates unneeded memory pressure
     const instance = new (this as any)();
-    let notDeleted = true;
+    let deleted = false;
     let found = true;
     const denormEntity = entity;
 
@@ -192,21 +192,21 @@ export default abstract class Entity extends SimpleRecord {
       const input = this.hasDefined(entity, key as any)
         ? entity[key]
         : undefined;
-      const [value, foundItem, notDeletedItem] = unvisit(input, schema);
+      const [value, foundItem, deletedItem] = unvisit(input, schema);
       // members who default to falsy values are considered 'optional'
       // if falsy value, and default is actually set then it is optional so pass through
       if (!foundItem && !(key in instance && !instance[key])) {
         found = false;
       }
-      if (!notDeletedItem && !(key in instance && !instance[key])) {
-        notDeleted = false;
+      if (deletedItem && !(key in instance && !instance[key])) {
+        deleted = true;
       }
       if (this.hasDefined(entity, key as any) && denormEntity[key] !== value) {
         denormEntity[key] = value;
       }
     });
 
-    return [denormEntity as any, found, notDeleted];
+    return [denormEntity as any, found, deleted];
   }
 }
 

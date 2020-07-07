@@ -342,11 +342,11 @@ describe('denormalize', () => {
   });
 
   test('returns the input if undefined', () => {
-    expect(denormalize(undefined, {}, {})).toEqual([undefined, false, true]);
+    expect(denormalize(undefined, {}, {})).toEqual([undefined, false, false]);
   });
 
   test('returns the input if string', () => {
-    expect(denormalize('bob', '', {})).toEqual(['bob', true, true]);
+    expect(denormalize('bob', '', {})).toEqual(['bob', true, false]);
   });
 
   test('denormalizes entities', () => {
@@ -364,7 +364,7 @@ describe('denormalize', () => {
     expect(
       denormalize(fromJS({ data: '1' }), { data: Tacos }, {}),
     ).toMatchSnapshot();
-    expect(denormalize('1', Tacos, {})).toEqual([undefined, false, true]);
+    expect(denormalize('1', Tacos, {})).toEqual([undefined, false, false]);
   });
 
   test('denormalizes ignoring unfound entities in arrays', () => {
