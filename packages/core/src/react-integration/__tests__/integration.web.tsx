@@ -39,9 +39,7 @@ afterEach(() => {
     removeEventListener('error', onError);
 });
 
-for (const makeProvider of [
-  makeCacheProvider /*, makeExternalCacheProvider*/,
-]) {
+for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
   describe(`${makeProvider.name} => <Provider />`, () => {
     // TODO: add nested resource test case that has multiple partials to test merge functionality
 

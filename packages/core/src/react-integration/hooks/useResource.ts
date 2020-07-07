@@ -50,8 +50,9 @@ function useOneResource<
       useMeta(fetchShape, params)?.invalidated,
     ) &&
     maybePromise
-  )
+  ) {
     throw maybePromise;
+  }
 
   return denormalized as any;
 }
