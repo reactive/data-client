@@ -33,7 +33,6 @@ export type {
   ParamsFromShape,
   AbstractInstanceType,
   FetchOptions,
-  Method,
   UpdateFunction,
   // TODO: get rid of these exports once core has been out for a while
   FetchAction,

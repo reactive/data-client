@@ -14,7 +14,7 @@ prefer `camelCase`. This snippet lets us make the transform needed.
 
 ```typescript
 import { camelCase, snakeCase } from 'lodash';
-import { Method, Resource } from 'rest-hooks';
+import { Resource } from 'rest-hooks';
 
 function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
   const ret: Record<string, any> = Array.isArray(obj) ? [] : {};
@@ -31,17 +31,13 @@ function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
 // We can now extend CamelResource instead of Resource to build
 // all of our classes.
 abstract class CamelResource extends Resource {
-  static async fetch(
-    method: Method = 'get',
-    url: string,
-    body?: Readonly<object | string>,
-  ) {
+  static async fetch(input: RequestInfo, init: RequestInit) {
     // we'll need to do the inverse operation when sending data back to the server
-    if (body) {
-      body = deeplyApplyKeyTransform(body, snakeCase);
+    if (init.body) {
+      init.body = deeplyApplyKeyTransform(init.body, snakeCase);
     }
     // perform actual network request getting back json
-    const jsonResponse = await super.fetch(method, url, body);
+    const jsonResponse = await super.fetch(input, init);
     // do the conversion!
     return deeplyApplyKeyTransform(jsonResponse, camelCase);
   }
@@ -171,8 +167,9 @@ export default class ArticleResource extends Resource {
 
   /** Shape to get a list of entities */
   static listShape<T extends typeof Resource>(this: T) {
+    const init = this.getFetchInit({ method: 'GET' });
     const fetch = async (params: Readonly<Record<string, string | number>>) => {
-      const response = await this.fetchResponse('get', this.listUrl(params));
+      const response = await this.fetchResponse(this.listUrl(params), init);
       return {
         link: response.headers.get('link'),
         results: await response.json().catch((error: any) => {
@@ -205,20 +202,16 @@ class ArticleResource extends CamelResource {
   readonly title: string = '';
   readonly carrotsUsed: number = 0;
 
-  static async fetch(
-    method: Method = 'get',
-    url: string,
-    body?: Readonly<object | string>,
-  ) {
+  static async fetch(input: RequestInfo, init: RequestInit) {
     // we'll need to do the inverse operation when sending data back to the server
-    if (body && 'carrotsUsed' in body) {
-      // caller should manage body, so we don't want to modify it
-      body = { ...body };
-      body.carrotsUsedIsThisNameTooLong = body.carrotsUsed;
-      delete body.carrotsUsed;
+    if (init.body && 'carrotsUsed' in init.body) {
+      // caller should manage init & body, so we don't want to modify it
+      init = { ...init, body: {...init.body} };
+      init.body.carrotsUsedIsThisNameTooLong = init.body.carrotsUsed;
+      delete init.body.carrotsUsed;
     }
     // perform actual network request getting back json
-    const jsonResponse = await super.fetch(method, url, body);
+    const jsonResponse = await super.fetch(input, init);
     // only replace the name if it exists. This also helps us ignore list responses.
     if ('carrotsUsedIsThisNameTooLong' in jsonResponse) {
       // ok to mutate jsonResponse since we control it

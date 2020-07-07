@@ -1,5 +1,3 @@
-import type { Method } from '@rest-hooks/core';
-
 import SimpleResource from './SimpleResource';
 
 class NetworkError extends Error {
@@ -18,25 +16,17 @@ class NetworkError extends Error {
  * Typically 1:1 with a url endpoint.
  */
 export default abstract class Resource extends SimpleResource {
-  /** A function to mutate all request options for fetch */
-  static fetchOptionsPlugin?: (options: RequestInit) => RequestInit;
-
   /** Perform network request and resolve with HTTP Response */
-  static fetchResponse(
-    method: Method,
-    url: string,
-    body?: Readonly<object | string>,
-  ) {
-    let options: RequestInit = {
-      method: method.toUpperCase(),
+  static fetchResponse(input: RequestInfo, init: RequestInit) {
+    const options: RequestInit = {
+      ...init,
       headers: {
         'Content-Type': 'application/json',
         // "Content-Type": "application/x-www-form-urlencoded",  -- maybe use this if typeof body is FormData ?
+        ...init.headers,
       },
     };
-    if (this.fetchOptionsPlugin) options = this.fetchOptionsPlugin(options);
-    if (body) options.body = JSON.stringify(body);
-    return fetch(url, options)
+    return fetch(input, options)
       .then(response => {
         if (!response.ok) {
           throw new NetworkError(response);
@@ -53,8 +43,8 @@ export default abstract class Resource extends SimpleResource {
   }
 
   /** Perform network request and resolve with json body */
-  static fetch(method: Method, url: string, body?: Readonly<object | string>) {
-    return this.fetchResponse(method, url, body).then((response: Response) => {
+  static fetch(input: RequestInfo, init: RequestInit) {
+    return this.fetchResponse(input, init).then((response: Response) => {
       if (
         !response.headers.get('content-type')?.includes('json') ||
         response.status === 204

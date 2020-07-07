@@ -274,10 +274,10 @@ describe('Resource', () => {
     it('should throw with SimpleResource', () => {
       expect(() =>
         SimpleResource.fetch(
-          'get',
           CoolerArticleResource.url({
             id: payload.id,
           }),
+          { method: 'GET' },
         ),
       ).toThrow();
     });
@@ -285,20 +285,20 @@ describe('Resource', () => {
     it('fetchResponse() should throw with SimpleResource', () => {
       expect(() =>
         SimpleResource.fetchResponse(
-          'get',
           CoolerArticleResource.url({
             id: payload.id,
           }),
+          { method: 'GET' },
         ),
       ).toThrow();
     });
 
     it('should GET', async () => {
       const article = await CoolerArticleResource.fetch(
-        'get',
         CoolerArticleResource.url({
           id: payload.id,
         }),
+        { method: 'GET' },
       );
       expect(article).toBeDefined();
       if (!article) {
@@ -310,37 +310,40 @@ describe('Resource', () => {
     it('should POST', async () => {
       const payload2 = { id: 20, content: 'better task' };
       const article = await CoolerArticleResource.fetch(
-        'post',
         CoolerArticleResource.listUrl(),
-        payload2,
+        { method: 'POST', body: JSON.stringify(payload2) },
       );
       expect(article).toMatchObject(payload2);
     });
 
     it('should DELETE', async () => {
       const res = await CoolerArticleResource.fetch(
-        'delete',
         CoolerArticleResource.url({
           id: payload.id,
         }),
+        { method: 'DELETE' },
       );
       expect(res).toEqual({});
     });
 
     it('should PUT', async () => {
       const response = await CoolerArticleResource.fetch(
-        'put',
         CoolerArticleResource.url(payload),
-        CoolerArticleResource.fromJS(payload),
+        {
+          method: 'PUT',
+          body: JSON.stringify(CoolerArticleResource.fromJS(payload)),
+        },
       );
       expect(response).toEqual(putResponseBody);
     });
 
     it('should PATCH', async () => {
       const response = await CoolerArticleResource.fetch(
-        'patch',
         CoolerArticleResource.url({ id }),
-        patchPayload,
+        {
+          method: 'PATCH',
+          body: JSON.stringify(patchPayload),
+        },
       );
       expect(response).toEqual(patchResponseBody);
     });
@@ -349,8 +352,8 @@ describe('Resource', () => {
       let error: any;
       try {
         await CoolerArticleResource.fetch(
-          'get',
           CoolerArticleResource.url({ id: idHtml }),
+          { method: 'GET' },
         );
       } catch (e) {
         error = e;
@@ -377,10 +380,9 @@ describe('Resource', () => {
 
       let error: any;
       try {
-        await CoolerArticleResource.fetch(
-          'get',
-          CoolerArticleResource.url({ id }),
-        );
+        await CoolerArticleResource.fetch(CoolerArticleResource.url({ id }), {
+          method: 'GET',
+        });
       } catch (e) {
         error = e;
       }
@@ -393,8 +395,8 @@ describe('Resource', () => {
 
     it('should return raw response if status is 204 No Content', async () => {
       const res = await CoolerArticleResource.fetch(
-        'get',
         CoolerArticleResource.url({ id: idNoContent }),
+        { method: 'GET' },
       );
       expect(res).toBe('');
     });
@@ -411,8 +413,8 @@ describe('Resource', () => {
         .reply(200, text, { 'content-type': 'html/text' });
 
       const res = await CoolerArticleResource.fetch(
-        'get',
         CoolerArticleResource.url({ id }),
+        { method: 'GET' },
       );
       expect(res).toBe('<body>this is html</body>');
     });
@@ -428,26 +430,19 @@ describe('Resource', () => {
         .reply(200, text, {});
 
       const res = await CoolerArticleResource.fetch(
-        'get',
         CoolerArticleResource.url({ id }),
+        { method: 'GET' },
       );
       expect(res).toBe(text);
     });
 
-    it('should use fetchOptionsPlugin if defined', async () => {
+    it('should use getFetchInit if defined', async () => {
       class FetchResource extends CoolerArticleResource {
-        static fetchOptionsPlugin = jest.fn(a => a);
+        static getFetchInit = jest.fn(a => a);
       }
-      const article = await FetchResource.fetch(
-        'get',
-        FetchResource.url({
-          id: payload.id,
-        }),
-      );
+      const article = await FetchResource.detailShape();
       expect(article).toBeDefined();
-      expect(
-        FetchResource.fetchOptionsPlugin.mock.calls.length,
-      ).toBeGreaterThan(0);
+      expect(FetchResource.getFetchInit.mock.calls.length).toBeGreaterThan(0);
     });
   });
 
