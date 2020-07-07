@@ -6,7 +6,6 @@ import {
 } from '@rest-hooks/core/endpoint';
 import { isEntity, Schema, denormalize } from '@rest-hooks/normalizr';
 import { useMemo } from 'react';
-import hasUsableData from '@rest-hooks/core/react-integration/hooks/hasUsableData';
 
 import buildInferredResults from './buildInferredResults';
 

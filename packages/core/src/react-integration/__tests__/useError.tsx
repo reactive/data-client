@@ -31,8 +31,23 @@ describe('useError()', () => {
 
     expect(result.current).toBeDefined();
     expect((result.current as any).status).toBe(400);
-    expect(result.current).toMatchInlineSnapshot(
-      `[Error: Resource not found in cache GET http://test.com/article-cooler/5. Likely due to malformed response]`,
-    );
+    expect(result.current).toMatchInlineSnapshot(`
+      [Error: Entity from "GET http://test.com/article-cooler/5" not found in cache.
+
+              This is likely due to a malformed response.
+              Try inspecting the network response or fetch() return value.
+
+              Schema: {
+        "name": "CoolerArticleResource",
+        "schema": {
+          "author": {
+            "name": "UserResource",
+            "schema": {},
+            "key": "http://test.com/user/"
+          }
+        },
+        "key": "http://test.com/article-cooler/"
+      }]
+    `);
   });
 });

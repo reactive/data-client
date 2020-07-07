@@ -16,6 +16,13 @@ export default abstract class SimpleRecord {
     return (this as any)[UniqueIdentifierKey];
   }
 
+  static toJSON() {
+    return {
+      name: this.name,
+      schema: this.schema,
+    };
+  }
+
   /** Defines nested entities */
   static schema: { [k: string]: Schema } = {};
 

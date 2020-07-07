@@ -6,6 +6,13 @@ import { AbstractInstanceType, Schema } from '../types';
 
 /** Represents data that should be deduped by specifying a primary key. */
 export default abstract class Entity extends SimpleRecord {
+  static toJSON() {
+    return {
+      ...super.toJSON(),
+      key: this.key,
+    };
+  }
+
   /**
    * A unique identifier for each Entity
    *

@@ -1090,7 +1090,11 @@ the JSON. By default, this only happens if \\"content-type\\" header includes \\
 See https://resthooks.io/docs/guides/custom-networking for more information
 
   Schema: [
-  null
+  {
+    \\"name\\": \\"User\\",
+    \\"schema\\": {},
+    \\"key\\": \\"User\\"
+  }
 ]
   Input: \\"[{\\"id\\":5}]\\""
 `;
@@ -1099,7 +1103,11 @@ exports[`ArraySchema normalization Object should throw a custom error if data lo
 "Unexpected input given to normalize. Expected type to be \\"object\\", found \\"string\\".
 
           Schema: [
-  null
+  {
+    \\"name\\": \\"User\\",
+    \\"schema\\": {},
+    \\"key\\": \\"User\\"
+  }
 ]
           Input: \\"abc\\""
 `;
