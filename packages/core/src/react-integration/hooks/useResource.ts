@@ -36,10 +36,10 @@ function useOneResource<
     params,
     state,
   );
-  const maybePromise = useRetrieve(fetchShape, params, notDeleted);
-
-  // the order of throwing promise vs error should not matter so used outside they are still correct
   const error = useError(fetchShape, params, ready);
+
+  const maybePromise = useRetrieve(fetchShape, params, !notDeleted && !error);
+
   if (error) throw error;
 
   if (
@@ -69,10 +69,25 @@ function useManyResources<A extends ResourceArgs<any, any>[]>(
       // eslint-disable-next-line react-hooks/rules-of-hooks
       useDenormalized(fetchShape, params, state),
   );
+  const errorValues = resourceList.map(
+    <
+      Shape extends ReadShape<any, any>,
+      Params extends ParamsFromShape<Shape> | null
+    >(
+      [fetchShape, params]: ResourceArgs<Shape, Params>,
+      i: number,
+    ) =>
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useError(fetchShape, params, denormalizedValues[i][1]),
+  );
   const promises = resourceList
     .map(([fetchShape, params], i) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      useRetrieve(fetchShape, params, denormalizedValues[i][2]),
+      useRetrieve(
+        fetchShape,
+        params,
+        !denormalizedValues[i][2] && !errorValues[i],
+      ),
     )
     // only wait on promises without results
     .map(
@@ -88,11 +103,7 @@ function useManyResources<A extends ResourceArgs<any, any>[]>(
 
   // throw first valid error
   for (let i = 0; i < resourceList.length; i++) {
-    const [fetchShape, params] = resourceList[i];
-    const [_, ready] = denormalizedValues[i];
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const error = useError(fetchShape, params, ready);
-    if (error && !promises[i]) throw error;
+    if (errorValues[i] && !promises[i]) throw errorValues[i];
   }
 
   const promise = useMemo(() => {

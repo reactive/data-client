@@ -25,10 +25,12 @@ export function useStatefulResource<
     params,
     state,
   );
+  const error = useError(fetchShape, params, ready);
+
   const maybePromise: Promise<any> | undefined = useRetrieve(
     fetchShape,
     params,
-    notDeleted,
+    !notDeleted && !error,
   );
 
   const loading =
@@ -45,7 +47,6 @@ export function useStatefulResource<
         {},
       )[0]
     : denormalized;
-  const error = useError(fetchShape, params, ready);
 
   return {
     data,

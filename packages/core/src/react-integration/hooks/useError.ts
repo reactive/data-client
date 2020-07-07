@@ -10,7 +10,7 @@ export default function useError<
   Params extends Readonly<object>,
   S extends Schema
 >(
-  fetchShape: ReadShape<S, Params>,
+  fetchShape: Pick<ReadShape<S, Params>, 'getFetchKey' | 'schema' | 'options'>,
   params: Params | null,
   cacheReady: boolean,
 ): UseErrorReturn<typeof params> {
