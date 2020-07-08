@@ -26,11 +26,11 @@
     "extends @anansi/browserslist-config"
   ],
   "devDependencies": {
-    "@anansi/babel-preset": "^1.2.3",
-    "@anansi/browserslist-config": "^1.0.0",
-    "@anansi/eslint-plugin": "^0.9.6",
-    "@babel/cli": "^7.10.1",
-    "@babel/core": "^7.10.2",
+    "@anansi/babel-preset": "^1.2.5",
+    "@anansi/browserslist-config": "^1.0.1",
+    "@anansi/eslint-plugin": "^0.9.9",
+    "@babel/cli": "^7.10.4",
+    "@babel/core": "^7.10.4",
     "@commitlint/cli": "^8.3.5",
     "@commitlint/config-conventional": "^8.3.4",
     "@testing-library/react": "^10.2.1",
@@ -72,7 +72,7 @@
     "ts-jest": "^26.1.0",
     "ts-node": "^8.10.2",
     "ttypescript": "^1.5.10",
-    "typescript": "^3.9.5",
+    "typescript": "^3.9.6",
     "whatwg-fetch": "^3.0.0"
   },
   "version": "0.0.0"
