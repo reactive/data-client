@@ -9,8 +9,11 @@ import { DispatchContext } from '../context';
 export default function useRetrieve<Shape extends ReadShape<any, any>>(
   fetchShape: Shape,
   params: ParamsFromShape<Shape> | null,
+  triggerFetch = false,
 ) {
-  const fetch = useFetcher(fetchShape, true);
+  const fetch = useFetcher(fetchShape, true) as (
+    params: ParamsFromShape<Shape>,
+  ) => Promise<any>;
   const expiresAt = useExpiresAt(fetchShape, params);
 
   // Clears invalidIfStale loop blocking mechanism
@@ -25,9 +28,14 @@ export default function useRetrieve<Shape extends ReadShape<any, any>>(
 
   return useMemo(() => {
     // null params mean don't do anything
-    if (Date.now() <= expiresAt || !params) return;
+    if ((Date.now() <= expiresAt && !triggerFetch) || !params) return;
     return fetch(params);
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expiresAt, fetch, params && fetchShape.getFetchKey(params)]);
+  }, [
+    expiresAt,
+    fetch,
+    params && fetchShape.getFetchKey(params),
+    triggerFetch,
+  ]);
 }

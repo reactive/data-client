@@ -54,7 +54,7 @@ type E = Normalize<typeof scheme>['thing']['data'];
 
 if (de[1]) {
   const value = de[0];
-  const piece = value.thing.data.a;
+  const piece = value.thing.data?.a;
   const first: string = value.first;
   const members = value.thing.members;
 } else {

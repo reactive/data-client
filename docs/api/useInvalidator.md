@@ -26,54 +26,30 @@ Mostly useful for imperatively invalidating the cache, with a similar signature 
 
 Sending a `null` to params results in a no-op.
 
-When used in conjunction with [invalidIfStale](./FetchShape.md#invalidifstale-boolean)
-it can force a component to re-suspend even if it has already fetched the data. Normally
-[useResource](./useResource.md) will not suspend if the data is in the cache, even if it
-is stale. By pairing this option with `useInvalidator` the component will act as though it
-has never tried to fetch the resource before and trigger a fetch with suspense.
+Forces refetching and suspense on [useResource](./useResource.md) with the same FetchShape
+and parameters.
 
 ## Example
 
-```typescript
-import { Resource, FetchOptions } from 'rest-hooks';
-
-export default class ArticleResource extends Resource {
-  readonly id: string = null;
-  readonly title: string = '';
-  // ...
-
-  /** Used as default options for every FetchShape */
-  static getFetchOptions(): FetchOptions {
-    return {
-      invalidIfStale: true,
-    };
-  }
-}
-```
-
-```typescript
-// Invalidate cache on unmount. When component is remounted it will re-fetch
-function useInvalidateOnUnmount<
-  Params extends Readonly<object>,
-  S extends Schema
->(fetchShape: ReadShape<S, Params>, params: Params | null) {
-  const invalidate = useInvalidator(fetchShape);
-
-  useEffect(() => {
-    return () => invalidate(params);
-  }, []);
-}
-```
-
 ```tsx
 function ArticleName({ id }: { id: string }) {
-  const asset = useResource(ArticleResource.detailShape(), { id });
-  useInvalidateOnUnmount(ArticleResource.detailShape(), { id });
+  const article = useResource(ArticleResource.detailShape(), { id });
+  const invalidateArticle = useInvalidator(ArticleResource.detailShape());
 
   return (
     <div>
       <h1>{article.title}<h1>
+      <button onClick={() => invalidateArticle({ id })}>Fetch &amp; suspend</button>
     </div>
   );
 }
 ```
+
+## Internals
+
+- set expiresAt to 0.
+  - This triggers useRetrieve.
+- deletes results entry.
+  - This only allows direct read from the cache if inferred results.
+- sets meta.invalidated to true.
+  - This is used to determine whether to throw promise

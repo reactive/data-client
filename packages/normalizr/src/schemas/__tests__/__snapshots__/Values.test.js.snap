@@ -13,6 +13,7 @@ Array [
     },
   },
   true,
+  false,
 ]
 `;
 
@@ -29,6 +30,41 @@ Array [
     },
   },
   true,
+  false,
+]
+`;
+
+exports[`ValuesSchema denormalization denormalizes with deleted entity should have false third value 1`] = `
+Array [
+  Object {
+    "fido": Dog {
+      "id": "1",
+      "type": "dogs",
+    },
+    "fluffy": Cat {
+      "id": "1",
+      "type": "cats",
+    },
+  },
+  true,
+  true,
+]
+`;
+
+exports[`ValuesSchema denormalization denormalizes with deleted entity should have false third value 2`] = `
+Array [
+  Object {
+    "fido": Dog {
+      "id": "1",
+      "type": "dogs",
+    },
+    "fluffy": Cat {
+      "id": "1",
+      "type": "cats",
+    },
+  },
+  true,
+  true,
 ]
 `;
 
@@ -43,8 +79,8 @@ Array [
       "id": "1",
       "type": "cats",
     },
-    "prancy": undefined,
   },
+  false,
   false,
 ]
 `;
@@ -60,8 +96,8 @@ Array [
       "id": "1",
       "type": "cats",
     },
-    "prancy": undefined,
   },
+  false,
   false,
 ]
 `;

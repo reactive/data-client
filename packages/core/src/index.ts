@@ -1,9 +1,12 @@
+import { DELETED } from '@rest-hooks/normalizr';
+
 import buildInferredResults from './state/selectors/buildInferredResults';
 import RIC from './state/RIC';
 
 const __INTERNAL__ = {
   buildInferredResults,
   RIC,
+  DELETED,
 };
 
 export { __INTERNAL__ };
@@ -45,12 +48,7 @@ export * as actionTypes from './actionTypes';
 export * from '@rest-hooks/use-enhanced-reducer';
 /* istanbul ignore next */
 export * from './types';
-export type {
-  FetchShape,
-  ReadShape,
-  MutateShape,
-  DeleteShape,
-} from './endpoint/shapes';
+export type { FetchShape, ReadShape, MutateShape } from './endpoint/shapes';
 export type {
   SetShapeParams,
   ParamsFromShape,

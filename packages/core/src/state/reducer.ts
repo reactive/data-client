@@ -1,14 +1,8 @@
 import { normalize } from '@rest-hooks/normalizr';
-import {
-  ActionTypes,
-  State,
-  ResponseActions,
-  ReceiveAction,
-} from '@rest-hooks/core/types';
+import { ActionTypes, State, ReceiveAction } from '@rest-hooks/core/types';
 import { createReceive } from '@rest-hooks/core/state/actions';
 import {
   RECEIVE_TYPE,
-  RECEIVE_DELETE_TYPE,
   INVALIDATE_TYPE,
   RESET_TYPE,
   FETCH_TYPE,
@@ -106,29 +100,22 @@ export default function reducer(
         },
       };
     }
-    case RECEIVE_DELETE_TYPE: {
-      if (action.error)
-        return { ...state, optimistic: filterOptimistic(state, action) };
-      const key = action.meta.schema.key;
-      const pk = action.meta.key;
-      const entities = purgeEntity(state.entities, key, pk);
+    case INVALIDATE_TYPE: {
+      const results = { ...state.results };
+      delete results[action.meta.key];
       return {
         ...state,
-        entities,
-        optimistic: filterOptimistic(state, action),
-      };
-    }
-    case INVALIDATE_TYPE:
-      return {
-        ...state,
+        results,
         meta: {
           ...state.meta,
           [action.meta.key]: {
             ...state.meta[action.meta.key],
             expiresAt: 0,
+            invalidated: true,
           },
         },
       };
+    }
     case RESET_TYPE:
       return initialState;
 
@@ -163,23 +150,11 @@ function reduceError(
 /** Filter all requests with same serialization that did not start after the resolving request */
 function filterOptimistic(
   state: State<unknown>,
-  resolvingAction: ResponseActions,
+  resolvingAction: ReceiveAction,
 ) {
   return state.optimistic.filter(
     optimisticAction =>
       optimisticAction.meta.key !== resolvingAction.meta.key ||
       optimisticAction.meta.date > resolvingAction.meta.date,
   );
-}
-
-// equivalent to entities.deleteIn(key, pk)
-function purgeEntity(
-  entities: State<unknown>['entities'],
-  key: string,
-  pk: string,
-) {
-  const copy: Writable<typeof entities> = { ...entities } as any;
-  copy[key] = { ...copy[key] };
-  delete copy[key][pk];
-  return copy;
 }

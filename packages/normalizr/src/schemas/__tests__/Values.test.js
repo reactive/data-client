@@ -5,6 +5,7 @@ import { denormalizeSimple as denormalize } from '../../denormalize';
 import { normalize, schema } from '../../';
 import IDEntity from '../../entities/IDEntity';
 import Entity from '../../entities/Entity';
+import { DELETED } from '../../special';
 
 class Cat extends IDEntity {
   type = '';
@@ -211,6 +212,45 @@ describe(`${schema.Values.name} denormalization`, () => {
 
     const entities = {
       Cat: { '1': { id: '1', type: 'cats' } },
+      Dog: { '1': { id: '1', type: 'dogs' } },
+    };
+
+    expect(
+      denormalize(
+        {
+          fido: { id: '1', schema: 'dogs' },
+          fluffy: { id: '1', schema: 'cats' },
+          prancy: { id: '5', schema: 'cats' },
+        },
+        valuesSchema,
+        entities,
+      ),
+    ).toMatchSnapshot();
+
+    expect(
+      denormalize(
+        {
+          fido: { id: '1', schema: 'dogs' },
+          fluffy: { id: '1', schema: 'cats' },
+          prancy: { id: '5', schema: 'cats' },
+        },
+        valuesSchema,
+        fromJS(entities),
+      ),
+    ).toMatchSnapshot();
+  });
+
+  test('denormalizes with deleted entity should have false third value', () => {
+    const valuesSchema = new schema.Values(
+      {
+        dogs: Dog,
+        cats: Cat,
+      },
+      (entity, key) => entity.type,
+    );
+
+    const entities = {
+      Cat: { '1': { id: '1', type: 'cats' }, '5': DELETED },
       Dog: { '1': { id: '1', type: 'dogs' } },
     };
 

@@ -22,19 +22,28 @@ export default class ValuesSchema extends PolymorphicSchema {
 
   denormalize(input, unvisit) {
     let found = true;
+    let deleted = false;
     return [
       Object.keys(input).reduce((output, key) => {
         const entityOrId = input[key];
-        const [value, foundItem] = this.denormalizeValue(entityOrId, unvisit);
+        const [value, foundItem, deletedItem] = this.denormalizeValue(
+          entityOrId,
+          unvisit,
+        );
         if (!foundItem) {
           found = false;
         }
+        if (deletedItem) {
+          deleted = true;
+        }
+        if (!foundItem || deletedItem) return output;
         return {
           ...output,
           [key]: value,
         };
       }, {}),
       found,
+      deleted,
     ];
   }
 }

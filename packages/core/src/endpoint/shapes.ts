@@ -1,5 +1,5 @@
 import { FetchOptions } from '@rest-hooks/core/types';
-import { Entity, Schema } from '@rest-hooks/normalizr';
+import { Schema } from '@rest-hooks/normalizr';
 
 /** Defines the shape of a network request */
 export interface FetchShape<
@@ -15,16 +15,6 @@ export interface FetchShape<
   getFetchKey(params: Params): string;
   readonly schema: S;
   readonly options?: FetchOptions;
-}
-
-/** Purges a value from the server */
-export interface DeleteShape<
-  S extends Entity,
-  Params extends Readonly<object> = Readonly<object>,
-  Body extends Readonly<object | string> | void = undefined,
-  Response = any
-> extends FetchShape<S, Params, Body, Response> {
-  readonly type: 'delete';
 }
 
 /** To change values on the server */

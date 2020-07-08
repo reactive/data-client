@@ -6,6 +6,7 @@ import { denormalizeSimple as denormalize } from '../../denormalize';
 import { normalize, schema, SimpleRecord, AbstractInstanceType } from '../../';
 import Entity from '../Entity';
 import IDEntity from '../IDEntity';
+import { DELETED } from '../../special';
 
 const values = obj => Object.keys(obj).map(key => obj[key]);
 
@@ -461,6 +462,25 @@ describe(`${Entity.name} denormalization`, () => {
     expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
   });
 
+  test('denormalizes to undefined for deleted data', () => {
+    const entities = {
+      Menu: {
+        '1': { id: '1', food: '2' },
+        '2': DELETED,
+      },
+      Food: {
+        '1': { id: '1' },
+        '2': DELETED,
+      },
+    };
+
+    expect(denormalize('1', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('1', Menu, fromJS(entities))).toMatchSnapshot();
+
+    expect(denormalize('2', Menu, entities)).toMatchSnapshot();
+    expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
+  });
+
   test('denormalizes deep entities with records', () => {
     const Food = Record({ id: null });
     const MenuR = Record({ id: null, food: null });
@@ -613,6 +633,7 @@ describe(`${Entity.name} denormalization`, () => {
         },
       });
       expect(denormalized[1]).toBe(false);
+      expect(denormalized[2]).toBe(false);
       const response = denormalized[0];
       expect(response).toBeDefined();
       expect(response).toBeInstanceOf(WithOptional);
@@ -621,6 +642,96 @@ describe(`${Entity.name} denormalization`, () => {
         article: ArticleEntity.fromJS({ id: '5' }),
         requiredArticle: ArticleEntity.fromJS(),
         nextPage: 'blob',
+      });
+    });
+
+    it('should be marked as deleted when required entity is deleted symbol', () => {
+      const denormalized = denormalize('abc', WithOptional, {
+        [WithOptional.key]: {
+          abc: WithOptional.fromJS({
+            id: 'abc',
+            // this is typed because we're actually sending wrong data to it
+            requiredArticle: '5' as any,
+            nextPage: 'blob',
+          }),
+        },
+        [ArticleEntity.key]: {
+          ['5']: DELETED,
+        },
+      });
+      expect(denormalized[1]).toBe(true);
+      expect(denormalized[2]).toBe(true);
+      const response = denormalized[0];
+      expect(response).toBeDefined();
+      expect(response).toBeInstanceOf(WithOptional);
+      expect(response).toEqual({
+        id: 'abc',
+        article: null,
+        requiredArticle: undefined,
+        nextPage: 'blob',
+      });
+    });
+
+    it('should be non-required deleted members should not result in deleted indicator', () => {
+      const denormalized = denormalize('abc', WithOptional, {
+        [WithOptional.key]: {
+          abc: WithOptional.fromJS({
+            id: 'abc',
+            // this is typed because we're actually sending wrong data to it
+            article: '5' as any,
+            requiredArticle: '6' as any,
+            nextPage: 'blob',
+          }),
+        },
+        [ArticleEntity.key]: {
+          ['5']: DELETED,
+          ['6']: ArticleEntity.fromJS({ id: '6' }),
+        },
+      });
+      expect(denormalized[1]).toBe(true);
+      expect(denormalized[2]).toBe(false);
+      const response = denormalized[0];
+      expect(response).toBeDefined();
+      expect(response).toBeInstanceOf(WithOptional);
+      expect(response).toEqual({
+        id: 'abc',
+        article: undefined,
+        requiredArticle: ArticleEntity.fromJS({ id: '6' }),
+        nextPage: 'blob',
+      });
+    });
+
+    it('should be both deleted and not found when both are true in different parts of schema', () => {
+      const denormalized = denormalize(
+        { data: 'abc' },
+        { data: WithOptional, other: ArticleEntity },
+        {
+          [WithOptional.key]: {
+            abc: WithOptional.fromJS({
+              id: 'abc',
+              // this is typed because we're actually sending wrong data to it
+              article: '6' as any,
+              requiredArticle: '5' as any,
+              nextPage: 'blob',
+            }),
+          },
+          [ArticleEntity.key]: {
+            ['5']: DELETED,
+            ['6']: ArticleEntity.fromJS({ id: '6' }),
+          },
+        },
+      );
+      expect(denormalized[1]).toBe(false);
+      expect(denormalized[2]).toBe(true);
+      const response = denormalized[0];
+      expect(response).toBeDefined();
+      expect(response).toEqual({
+        data: {
+          id: 'abc',
+          article: ArticleEntity.fromJS({ id: '6' }),
+          requiredArticle: undefined,
+          nextPage: 'blob',
+        },
       });
     });
   });

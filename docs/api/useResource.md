@@ -36,6 +36,8 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
 
 - Triggers fetch:
   - On first-render and when parameters change
+    - or required entity is deleted
+    - or imperative [invalidation](./useInvalidator) triggered
   - and When not in cache or result is considered stale
   - and When no identical requests are in flight
   - and when params are not null
@@ -43,6 +45,7 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
   - Throws error to be [caught](../guides/network-errors.md) by [Error Boundaries](https://reactjs.org/docs/error-boundaries.html)
 - While Loading:
   - Returns previously cached if exists (even if stale)
+    - except in case of delete or [invalidation](./useInvalidator)
   - [Suspend rendering](../guides/loading-state.md) otherwise
 
 ## Single

@@ -4,15 +4,13 @@ import type {
   Schema,
   Normalize,
 } from '@rest-hooks/normalizr';
-import { schema } from '@rest-hooks/normalizr';
 import { Middleware } from '@rest-hooks/use-enhanced-reducer';
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
 
-import { ErrorableFSAWithPayloadAndMeta, ErrorableFSAWithMeta } from './fsa';
+import { ErrorableFSAWithPayloadAndMeta } from './fsa';
 import { FetchShape } from './endpoint';
 import {
   RECEIVE_TYPE,
-  RECEIVE_DELETE_TYPE,
   RESET_TYPE,
   FETCH_TYPE,
   SUBSCRIBE_TYPE,
@@ -24,7 +22,7 @@ export type { AbstractInstanceType };
 
 export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
 
-export type ReceiveTypes = typeof RECEIVE_TYPE | typeof RECEIVE_DELETE_TYPE;
+export type ReceiveTypes = typeof RECEIVE_TYPE;
 
 export type PK = string;
 
@@ -40,9 +38,10 @@ export type State<T> = Readonly<{
       readonly error?: Error;
       readonly expiresAt: number;
       readonly prevExpiresAt?: number;
+      readonly invalidated?: boolean;
     };
   };
-  optimistic: ResponseActions[];
+  optimistic: ReceiveAction[];
 }>;
 
 export interface FetchOptions {
@@ -63,7 +62,7 @@ export interface FetchOptions {
   readonly extra?: any;
 }
 
-interface ReceiveMeta<S extends Schema> {
+export interface ReceiveMeta<S extends Schema> {
   schema: S;
   key: string;
   updaters?: Record<string, UpdateFunction<S, any>>;
@@ -82,18 +81,6 @@ export type ReceiveAction<
   typeof RECEIVE_TYPE,
   Payload,
   ReceiveMeta<S>
->;
-
-interface PurgeMeta {
-  schema: schema.EntityInterface<any>;
-  key: string;
-  date: number;
-}
-
-export type PurgeAction = ErrorableFSAWithMeta<
-  typeof RECEIVE_DELETE_TYPE,
-  undefined,
-  PurgeMeta
 >;
 
 export type ResetAction = FSA<typeof RESET_TYPE>;
@@ -171,12 +158,12 @@ export interface InvalidateAction
 
 export type MountedAction = { type: 'rest-hook/mounted'; payload: string };
 
-export type ResponseActions = ReceiveAction | PurgeAction;
+export type ResponseActions = ReceiveAction;
 
 // put other actions here in union
 export type ActionTypes =
   | FetchAction
-  | ResponseActions
+  | ReceiveAction
   | SubscribeAction
   | UnsubscribeAction
   | InvalidateAction

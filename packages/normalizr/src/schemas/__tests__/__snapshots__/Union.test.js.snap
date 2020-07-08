@@ -8,6 +8,7 @@ Array [
     "username": "Janey",
   },
   true,
+  false,
 ]
 `;
 
@@ -19,6 +20,7 @@ Array [
     "username": "Janey",
   },
   true,
+  false,
 ]
 `;
 
@@ -30,6 +32,7 @@ Array [
     "type": "groups",
   },
   true,
+  false,
 ]
 `;
 
@@ -41,6 +44,7 @@ Array [
     "type": "groups",
   },
   true,
+  false,
 ]
 `;
 
@@ -52,6 +56,7 @@ Array [
     "username": "Janey",
   },
   true,
+  false,
 ]
 `;
 
@@ -63,6 +68,7 @@ Array [
     "username": "Janey",
   },
   true,
+  false,
 ]
 `;
 
@@ -74,6 +80,7 @@ Array [
     "type": "groups",
   },
   true,
+  false,
 ]
 `;
 
@@ -85,6 +92,7 @@ Array [
     "type": "groups",
   },
   true,
+  false,
 ]
 `;
 
@@ -94,6 +102,7 @@ Array [
     "id": "1",
   },
   true,
+  true,
 ]
 `;
 
@@ -102,6 +111,7 @@ Array [
   Immutable.Map {
     "id": "1",
   },
+  true,
   true,
 ]
 `;

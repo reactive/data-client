@@ -24,6 +24,34 @@ Array [
 ]
 `;
 
+exports[`denormalize denormalizes ignoring deleted entities in arrays 1`] = `
+Array [
+  Array [
+    Tacos {
+      "id": "1",
+      "type": "foo",
+    },
+  ],
+  true,
+  false,
+]
+`;
+
+exports[`denormalize denormalizes ignoring deleted entities in arrays 2`] = `
+Array [
+  Object {
+    "results": Array [
+      Tacos {
+        "id": "1",
+        "type": "foo",
+      },
+    ],
+  },
+  true,
+  false,
+]
+`;
+
 exports[`denormalize denormalizes ignoring unfound entities in arrays 1`] = `
 Array [
   Array [
@@ -33,6 +61,7 @@ Array [
     },
   ],
   true,
+  false,
 ]
 `;
 
@@ -47,6 +76,7 @@ Array [
     ],
   },
   true,
+  false,
 ]
 `;
 
@@ -72,6 +102,7 @@ Array [
     "title": "A Great Article",
   },
   true,
+  false,
 ]
 `;
 
@@ -102,6 +133,7 @@ Array [
     },
   },
   true,
+  false,
 ]
 `;
 
@@ -120,6 +152,7 @@ Array [
     ],
   },
   true,
+  false,
 ]
 `;
 
@@ -140,6 +173,7 @@ Array [
     },
   ],
   true,
+  false,
 ]
 `;
 
@@ -149,6 +183,7 @@ Array [
     "data": undefined,
   },
   false,
+  false,
 ]
 `;
 
@@ -157,6 +192,7 @@ Array [
   Immutable.Map {
     "data": undefined,
   },
+  false,
   false,
 ]
 `;
@@ -170,6 +206,7 @@ Array [
     "id": "123",
     "title": "",
   },
+  false,
   false,
 ]
 `;

@@ -27,12 +27,12 @@ describe('useCache()', () => {
     expect(result.current).toBe(undefined);
   });
 
-  it('should return undefined for no entity shapes when results are not found', async () => {
+  it('should return undefined in entities slots when results are not found', async () => {
     const userId = '5';
     const { result } = renderRestHook(() => {
       return useCache(noEntitiesShape, { userId });
     });
-    expect(result.current).toBe(undefined);
+    expect(result.current).toEqual({ firstThing: '', someItems: undefined });
   });
 
   it('should select singles', () => {

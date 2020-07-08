@@ -34,9 +34,7 @@ function useFetcher<
 >(
   fetchShape: FetchShape<S, Params, Body>,
   throttle?: boolean = false,
-): Shape extends DeleteShape<any, any, any>
-  ? (params: ParamsFromShape<Shape>, body: BodyFromShape<Shape>) => Promise<any>
-  : <
+): <
       UpdateParams extends OptimisticUpdateParams<
         SchemaFromShape<Shape>,
         FetchShape<any, any, any>

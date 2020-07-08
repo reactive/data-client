@@ -9,6 +9,7 @@ Array [
     "id": "1",
   },
   true,
+  false,
 ]
 `;
 
@@ -21,6 +22,7 @@ Array [
     "id": "1",
   },
   true,
+  false,
 ]
 `;
 
@@ -33,6 +35,7 @@ Array [
     "type": "foo",
   },
   true,
+  false,
 ]
 `;
 
@@ -45,6 +48,7 @@ Array [
     "type": "foo",
   },
   true,
+  false,
 ]
 `;
 
@@ -57,6 +61,7 @@ Array [
     "id": "1",
   },
   true,
+  false,
 ]
 `;
 
@@ -69,6 +74,7 @@ Array [
     "id": "1",
   },
   true,
+  false,
 ]
 `;
 
@@ -80,6 +86,7 @@ Array [
     },
     "id": "2",
   },
+  false,
   false,
 ]
 `;
@@ -93,6 +100,7 @@ Array [
     "id": "2",
   },
   false,
+  false,
 ]
 `;
 
@@ -105,6 +113,7 @@ Array [
     "id": "1",
   },
   true,
+  false,
 ]
 `;
 
@@ -117,6 +126,7 @@ Array [
     "id": "1",
   },
   true,
+  false,
 ]
 `;
 
@@ -127,6 +137,7 @@ Array [
     "id": "2",
   },
   true,
+  false,
 ]
 `;
 
@@ -137,6 +148,7 @@ Array [
     "id": "2",
   },
   true,
+  false,
 ]
 `;
 
@@ -161,6 +173,7 @@ Array [
     "title": "Weekly report",
   },
   true,
+  false,
 ]
 `;
 
@@ -195,6 +208,7 @@ Array [
     "title": "Weekly report",
   },
   true,
+  false,
 ]
 `;
 
@@ -213,6 +227,7 @@ Array [
     "role": "manager",
   },
   true,
+  false,
 ]
 `;
 
@@ -243,6 +258,45 @@ Array [
     "role": "manager",
   },
   true,
+  false,
+]
+`;
+
+exports[`Entity denormalization denormalizes to undefined for deleted data 1`] = `
+Array [
+  Menu {
+    "food": undefined,
+    "id": "1",
+  },
+  true,
+  true,
+]
+`;
+
+exports[`Entity denormalization denormalizes to undefined for deleted data 2`] = `
+Array [
+  Menu {
+    "food": undefined,
+    "id": "1",
+  },
+  true,
+  true,
+]
+`;
+
+exports[`Entity denormalization denormalizes to undefined for deleted data 3`] = `
+Array [
+  undefined,
+  true,
+  true,
+]
+`;
+
+exports[`Entity denormalization denormalizes to undefined for deleted data 4`] = `
+Array [
+  undefined,
+  true,
+  true,
 ]
 `;
 
@@ -252,6 +306,7 @@ Array [
     "food": undefined,
     "id": "1",
   },
+  false,
   false,
 ]
 `;
@@ -263,6 +318,7 @@ Array [
     "id": "1",
   },
   false,
+  false,
 ]
 `;
 
@@ -270,12 +326,14 @@ exports[`Entity denormalization denormalizes to undefined for missing data 3`] =
 Array [
   undefined,
   false,
+  false,
 ]
 `;
 
 exports[`Entity denormalization denormalizes to undefined for missing data 4`] = `
 Array [
   undefined,
+  false,
   false,
 ]
 `;
@@ -500,6 +558,10 @@ exports[`Entity normalization should throw a custom error if data loads with no 
 exports[`Entity normalization should throw a custom error if data loads with string 1`] = `
 "Unexpected input given to normalize. Expected type to be \\"object\\", found \\"string\\".
 
-          Schema: undefined
+          Schema: {
+  \\"name\\": \\"MyEntity\\",
+  \\"schema\\": {},
+  \\"key\\": \\"MyEntity\\"
+}
           Input: \\"hibho\\""
 `;

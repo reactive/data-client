@@ -16,7 +16,8 @@ export default function useExpiresAt<Params extends Readonly<object>>(
     fetchShape.options?.invalidIfStale &&
     meta.prevExpiresAt &&
     meta.expiresAt - meta.prevExpiresAt < 1000
-  )
+  ) {
     return meta.expiresAt + 2000;
+  }
   return meta.expiresAt;
 }

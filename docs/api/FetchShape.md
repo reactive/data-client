@@ -17,7 +17,7 @@ specific results needed.
 
 ```typescript
 interface FetchShape {
-  readonly type: 'read' | 'mutate' | 'delete';
+  readonly type: 'read' | 'mutate';
   fetch(params: Readonly<object>, body: Readonly<object> | void): Promise<any>;
   getFetchKey(params: Readonly<object>): string;
   readonly schema: Schema;
@@ -33,7 +33,7 @@ interface FetchShape<
   Params extends Readonly<object> = Readonly<object>,
   Body extends Readonly<object | string> | void = Readonly<object> | undefined
 > {
-  readonly type: 'read' | 'mutate' | 'delete';
+  readonly type: 'read' | 'mutate';
   fetch(params: Params, body: Body): Promise<any>;
   getFetchKey(params: Params): string;
   readonly schema: S;
@@ -43,24 +43,19 @@ interface FetchShape<
 
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-## type: 'read' | 'mutate' | 'delete'
+## type: 'read' | 'mutate'
 
 Defines the type of the shape, informing how it should be used.
 
 ### 'read'
 
-This uses the response body to update which results are returned by a particular url.
+Use this for any idempotent endpoints. Can be used with any hooks.
 
 ### 'mutate'
 
-Mutate will look at the response for updated entities to update the normalized
-cache from. This is useful to ensure that whatever entities are changed by the
-mutation update properly in the cache without having to do another request.
-
-### 'delete'
-
-It sends a request and represents a success response to mean that entity is deleted.
-Upon success it will purge that entity from the cache.
+Used to indicate endpoint might have side-effects (non-idempotent). This restricts it
+from being used with [useResource()](./useresource) or [useRetrieve()](useRetrieve) as those can hit the endpoint an unpredictable
+number of times.
 
 ## fetch(params: Param, body: Payload): Promise\<any>
 

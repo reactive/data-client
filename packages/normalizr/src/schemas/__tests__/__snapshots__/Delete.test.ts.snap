@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Delete normalization normalizes an object 1`] = `
+Object {
+  "entities": Object {
+    "User": Object {
+      "1": Symbol(ENTITY WAS DELETED),
+    },
+  },
+  "indexes": Object {},
+  "result": "1",
+}
+`;
+
+exports[`UnionSchema denormalization denormalizes deleted entities as undefined 1`] = `
+Array [
+  Object {
+    "data": undefined,
+  },
+  true,
+  true,
+]
+`;

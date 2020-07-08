@@ -5,6 +5,7 @@ import { denormalizeSimple as denormalize } from '../denormalize';
 import { normalize, schema } from '../';
 import Entity from '../entities/Entity';
 import IDEntity from '../entities/IDEntity';
+import { DELETED } from '../special';
 
 class Tacos extends IDEntity {
   type = '';
@@ -341,11 +342,11 @@ describe('denormalize', () => {
   });
 
   test('returns the input if undefined', () => {
-    expect(denormalize(undefined, {}, {})).toEqual([undefined, false]);
+    expect(denormalize(undefined, {}, {})).toEqual([undefined, false, false]);
   });
 
   test('returns the input if string', () => {
-    expect(denormalize('bob', '', {})).toEqual(['bob', true]);
+    expect(denormalize('bob', '', {})).toEqual(['bob', true, false]);
   });
 
   test('denormalizes entities', () => {
@@ -363,13 +364,26 @@ describe('denormalize', () => {
     expect(
       denormalize(fromJS({ data: '1' }), { data: Tacos }, {}),
     ).toMatchSnapshot();
-    expect(denormalize('1', Tacos, {})).toEqual([undefined, false]);
+    expect(denormalize('1', Tacos, {})).toEqual([undefined, false, false]);
   });
 
   test('denormalizes ignoring unfound entities in arrays', () => {
     const entities = {
       Tacos: {
         '1': { id: '1', type: 'foo' },
+      },
+    };
+    expect(denormalize(['1', '2'], [Tacos], entities)).toMatchSnapshot();
+    expect(
+      denormalize({ results: ['1', '2'] }, { results: [Tacos] }, entities),
+    ).toMatchSnapshot();
+  });
+
+  test('denormalizes ignoring deleted entities in arrays', () => {
+    const entities = {
+      Tacos: {
+        '1': { id: '1', type: 'foo' },
+        '2': DELETED,
       },
     };
     expect(denormalize(['1', '2'], [Tacos], entities)).toMatchSnapshot();

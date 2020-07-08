@@ -1,4 +1,5 @@
 import PolymorphicSchema from './Polymorphic';
+import { DELETED } from '../special';
 import { isImmutable } from './ImmutableUtils';
 
 const validateSchema = definition => {
@@ -14,6 +15,8 @@ const validateSchema = definition => {
 
 const getValues = input =>
   Array.isArray(input) ? input : Object.keys(input).map(key => input[key]);
+
+const filterEmpty = ([, foundItem, deletedItem]) => foundItem && !deletedItem;
 
 export const normalize = (
   schema,
@@ -37,18 +40,20 @@ export const normalize = (
 
 export const denormalize = (schema, input, unvisit) => {
   schema = validateSchema(schema);
+  let deleted = false;
   let found = true;
   if (input === undefined && schema) {
-    [, found] = unvisit(undefined, schema);
+    [, found, deleted] = unvisit(undefined, schema);
   }
   return [
     input && input.map
       ? input
           .map(entityOrId => unvisit(entityOrId, schema))
-          .filter(([, foundItem]) => foundItem)
+          .filter(filterEmpty)
           .map(([value]) => value)
       : input,
     found,
+    deleted,
   ];
 };
 
@@ -71,18 +76,20 @@ export default class ArraySchema extends PolymorphicSchema {
   }
 
   denormalize(input, unvisit) {
+    let deleted = false;
     let found = true;
     if (input === undefined && this.schema) {
-      [, found] = unvisit(undefined, this.schema);
+      [, found, deleted] = unvisit(undefined, this.schema);
     }
     return [
       input && input.map
         ? input
             .map(entityOrId => this.denormalizeValue(entityOrId, unvisit))
-            .filter(([, foundItem]) => foundItem)
+            .filter(filterEmpty)
             .map(([value]) => value)
         : input,
       found,
+      deleted,
     ];
   }
 }

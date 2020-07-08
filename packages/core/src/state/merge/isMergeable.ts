@@ -1,7 +1,9 @@
 // copied from https://github.com/TehShrike/is-mergeable-object
 
 export default function isMergeableObject(value: any) {
-  return isNonNullObject(value) && !isSpecial(value);
+  return (
+    isNonNullObject(value) && !isSpecial(value) && typeof value !== 'symbol'
+  );
 }
 
 function isNonNullObject(value: any) {

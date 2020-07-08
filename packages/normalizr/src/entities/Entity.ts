@@ -6,6 +6,13 @@ import { AbstractInstanceType, Schema } from '../types';
 
 /** Represents data that should be deduped by specifying a primary key. */
 export default abstract class Entity extends SimpleRecord {
+  static toJSON() {
+    return {
+      ...super.toJSON(),
+      key: this.key,
+    };
+  }
+
   /**
    * A unique identifier for each Entity
    *
@@ -163,19 +170,20 @@ export default abstract class Entity extends SimpleRecord {
     this: T,
     entity: AbstractInstanceType<T>,
     unvisit: schema.UnvisitFunction,
-  ): [AbstractInstanceType<T>, boolean] {
+  ): [AbstractInstanceType<T>, boolean, boolean] {
     // TODO: this entire function is redundant with SimpleRecord, however right now we're storing the Entity instance
     // itself in cache. Once we offer full memoization, we will store raw objects and this can be consolidated with SimpleRecord
     if (isImmutable(entity)) {
-      const [denormEntity, found] = denormalizeImmutable(
+      const [denormEntity, found, deleted] = denormalizeImmutable(
         this.schema,
         entity,
         unvisit,
       );
-      return [this.fromJS(denormEntity.toObject()), found];
+      return [this.fromJS(denormEntity.toObject()), found, deleted];
     }
     // TODO: This creates unneeded memory pressure
     const instance = new (this as any)();
+    let deleted = false;
     let found = true;
     const denormEntity = entity;
 
@@ -184,22 +192,24 @@ export default abstract class Entity extends SimpleRecord {
       const input = this.hasDefined(entity, key as any)
         ? entity[key]
         : undefined;
-      const [value, foundItem] = unvisit(input, schema);
+      const [value, foundItem, deletedItem] = unvisit(input, schema);
       // members who default to falsy values are considered 'optional'
       // if falsy value, and default is actually set then it is optional so pass through
       if (!foundItem && !(key in instance && !instance[key])) {
         found = false;
+      }
+      if (deletedItem && !(key in instance && !instance[key])) {
+        deleted = true;
       }
       if (this.hasDefined(entity, key as any) && denormEntity[key] !== value) {
         denormEntity[key] = value;
       }
     });
 
-    return [denormEntity as any, found];
+    return [denormEntity as any, found, deleted];
   }
 }
 
-/* istanbul ignore next */
 if (process.env.NODE_ENV !== 'production') {
   // for those not using TypeScript this is a good catch to ensure they are defining
   // the abstract members

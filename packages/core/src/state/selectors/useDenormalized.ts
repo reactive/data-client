@@ -6,7 +6,6 @@ import {
 } from '@rest-hooks/core/endpoint';
 import { isEntity, Schema, denormalize } from '@rest-hooks/normalizr';
 import { useMemo } from 'react';
-import hasUsableData from '@rest-hooks/core/react-integration/hooks/hasUsableData';
 
 import buildInferredResults from './buildInferredResults';
 
@@ -25,10 +24,10 @@ export default function useDenormalized<
   { schema, getFetchKey, options }: Shape,
   params: ParamsFromShape<Shape> | null,
   state: State<any>,
-  expired = false,
 ): [
   DenormalizeNullable<Shape['schema']>,
   typeof params extends null ? false : boolean,
+  boolean,
 ] {
   let entities = state.entities;
   const cacheResults = params && state.results[getFetchKey(params)];
@@ -48,11 +47,17 @@ export default function useDenormalized<
   const needsDenormalization = useMemo(() => schemaHasEntity(schema), [schema]);
 
   // Compute denormalized value
-  const [denormalized, entitiesFound, entitiesList] = useMemo(() => {
+  const [
+    denormalized,
+    entitiesFound,
+    entitiesDeleted,
+    entitiesList,
+  ] = useMemo(() => {
     if (!needsDenormalization)
-      return [cacheResults, cacheResults !== undefined, ''] as [
+      return [cacheResults, cacheResults !== undefined, false, ''] as [
         DenormalizeNullable<Shape['schema']>,
         any,
+        boolean,
         string,
       ];
     // Warn users with bad configurations
@@ -76,7 +81,7 @@ export default function useDenormalized<
 
     // second argument is false if any entities are missing
     // eslint-disable-next-line prefer-const
-    let [denormalized, entitiesFound, cache] = denormalize(
+    let [denormalized, entitiesFound, entitiesDeleted, cache] = denormalize(
       results,
       schema,
       entities,
@@ -88,13 +93,10 @@ export default function useDenormalized<
       .reduce((a: any[], b: any[]) => a.concat(b), [])
       .join(',');
 
-    if (!hasUsableData(entitiesFound, { options }) && expired) {
-      denormalized = denormalize(results, schema, {})[0];
-    }
-
-    return [denormalized, entitiesFound, entitiesList] as [
+    return [denormalized, entitiesFound, entitiesDeleted, entitiesList] as [
       DenormalizeNullable<Shape['schema']>,
-      any,
+      boolean,
+      boolean,
       string,
     ];
     // TODO: would be nice to make this only recompute on the entity types that are in schema
@@ -103,14 +105,15 @@ export default function useDenormalized<
     entities,
     serializedParams,
     results,
-    expired,
+    cacheResults,
     needsDenormalization,
     options && options.invalidIfStale,
   ]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => [denormalized, entitiesFound], [
+  return useMemo(() => [denormalized, entitiesFound, entitiesDeleted], [
     entitiesFound,
+    entitiesDeleted,
     results,
     entitiesList,
   ]);

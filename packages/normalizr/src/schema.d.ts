@@ -10,6 +10,9 @@ import {
   NormalizeObject,
   NormalizedNullableObject,
 } from './types';
+import { default as Delete } from './schemas/Delete';
+
+export { Delete };
 
 export type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
 export type SchemaFunction<K = string> = (
@@ -24,7 +27,10 @@ export type SchemaAttributeFunction<S extends Schema> = (
   key: string,
 ) => S;
 export type EntityMap<T = any> = Record<string, EntityInterface<T>>;
-export type UnvisitFunction = (input: any, schema: any) => [any, boolean];
+export type UnvisitFunction = (
+  input: any,
+  schema: any,
+) => [any, boolean, boolean];
 export type UnionResult<Choices extends EntityMap> = {
   id: string;
   schema: keyof Choices;
@@ -45,17 +51,17 @@ export interface SchemaSimple {
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
   ): any;
-  denormalize(input: any, unvisit: UnvisitFunction): [any, boolean];
+  denormalize(input: any, unvisit: UnvisitFunction): [any, boolean, boolean];
 }
 
 export interface SchemaClass extends SchemaSimple {
   // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
   _normalizeNullable(): any;
   // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo
-  _denormalizeNullable(): [any, boolean];
+  _denormalizeNullable(): [any, boolean, boolean];
 }
 
-interface EntityInterface<T = any> extends SchemaSimple {
+export interface EntityInterface<T = any> extends SchemaSimple {
   pk(params: any, parent?: any, key?: string): string | undefined;
   readonly key: string;
   merge(existing: any, incoming: any): any;
@@ -81,9 +87,9 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
   denormalize(
     input: any,
     unvisit: UnvisitFunction,
-  ): [Denormalize<S>[], boolean];
+  ): [Denormalize<S>[], boolean, boolean];
 
-  _denormalizeNullable(): [Denormalize<S>[] | undefined, false];
+  _denormalizeNullable(): [Denormalize<S>[] | undefined, false, boolean];
 }
 
 export class Object<O extends Record<string, any> = Record<string, Schema>>
@@ -105,9 +111,9 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
   denormalize(
     input: any,
     unvisit: UnvisitFunction,
-  ): [DenormalizeObject<O>, boolean];
+  ): [DenormalizeObject<O>, boolean, boolean];
 
-  _denormalizeNullable(): [DenormalizeNullableObject<O>, false];
+  _denormalizeNullable(): [DenormalizeNullableObject<O>, false, boolean];
 }
 
 export class Union<Choices extends EntityMap = any> implements SchemaClass {
@@ -136,11 +142,12 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
   denormalize(
     input: any,
     unvisit: UnvisitFunction,
-  ): [AbstractInstanceType<Choices[keyof Choices]>, boolean];
+  ): [AbstractInstanceType<Choices[keyof Choices]>, boolean, boolean];
 
   _denormalizeNullable(): [
     AbstractInstanceType<Choices[keyof Choices]> | undefined,
     false,
+    boolean,
   ];
 }
 
@@ -193,6 +200,7 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
       Choices extends EntityMap<infer T> ? T : Denormalize<Choices>
     >,
     boolean,
+    boolean,
   ];
 
   _denormalizeNullable(): [
@@ -203,5 +211,6 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
         : DenormalizeNullable<Choices>
     >,
     false,
+    boolean,
   ];
 }

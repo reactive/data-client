@@ -3,10 +3,8 @@ import {
   FetchAction,
   ReceiveAction,
   FetchOptions,
-  PurgeAction,
 } from '@rest-hooks/core/types';
-
-import SHAPE_TYPE_TO_RESPONSE_TYPE from './responseTypeMapping';
+import { RECEIVE_TYPE } from '@rest-hooks/core/actionTypes';
 
 interface Options<S extends Schema = any>
   extends Pick<FetchAction<any, S>['meta'], 'schema' | 'key' | 'type'> {
@@ -14,16 +12,16 @@ interface Options<S extends Schema = any>
 }
 
 export default function createReceiveError<S extends Schema = any>(
-  error: any,
-  { schema, key, type, errorExpiryLength }: Options<S>,
-): typeof type extends 'delete' ? PurgeAction : ReceiveAction {
+  error: Error,
+  { schema, key, errorExpiryLength }: Options<S>,
+): ReceiveAction {
   /* istanbul ignore next */
   if (process.env.NODE_ENV === 'development' && errorExpiryLength < 0) {
     throw new Error('Negative errorExpiryLength are not allowed.');
   }
   const now = Date.now();
   return {
-    type: (SHAPE_TYPE_TO_RESPONSE_TYPE[type] as any) || type,
+    type: RECEIVE_TYPE,
     payload: error,
     meta: {
       schema,

@@ -1,6 +1,5 @@
 import {
   FetchShape,
-  DeleteShape,
   SchemaFromShape,
   ParamsFromShape,
   BodyFromShape,
@@ -12,6 +11,8 @@ import { DispatchContext } from '@rest-hooks/core/react-integration/context';
 import createFetch from '@rest-hooks/core/state/actions/createFetch';
 import { useContext, useRef, useCallback } from 'react';
 
+type IfExact<T, Cond, A, B> = Cond extends T ? (T extends Cond ? A : B) : B;
+
 /** Build an imperative dispatcher to issue network requests. */
 export default function useFetcher<
   Shape extends FetchShape<
@@ -22,21 +23,21 @@ export default function useFetcher<
 >(
   fetchShape: Shape,
   throttle = false,
-): Shape extends DeleteShape<any, any, any>
-  ? (
-      params: ParamsFromShape<Shape>,
-      body: BodyFromShape<Shape>,
-    ) => ReturnFromShape<typeof fetchShape>
-  : <
-      UpdateParams extends OptimisticUpdateParams<
-        SchemaFromShape<Shape>,
-        FetchShape<any, any, any>
-      >[]
-    >(
-      params: ParamsFromShape<Shape>,
-      body: BodyFromShape<Shape>,
-      updateParams?: UpdateParams | undefined,
-    ) => ReturnFromShape<typeof fetchShape> {
+): IfExact<
+  BodyFromShape<Shape>,
+  undefined,
+  (params: ParamsFromShape<Shape>) => ReturnFromShape<typeof fetchShape>,
+  <
+    UpdateParams extends OptimisticUpdateParams<
+      SchemaFromShape<Shape>,
+      FetchShape<any, any, any>
+    >[]
+  >(
+    params: ParamsFromShape<Shape>,
+    body: BodyFromShape<Shape>,
+    updateParams?: UpdateParams | undefined,
+  ) => ReturnFromShape<typeof fetchShape>
+> {
   const dispatch = useContext(DispatchContext);
 
   // we just want the current values when we dispatch, so
