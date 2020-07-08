@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 6.0.0-delta.0 (2020-07-08)
+
+* feat: Deletes and invalidates trigger suspense always (#360) ([96175ba](https://github.com/coinbase/rest-hooks/commit/96175ba)), closes [#360](https://github.com/coinbase/rest-hooks/issues/360)
+
+
+### BREAKING CHANGE
+
+* - denormalize has third boolean value to track deletion
+- deletes no long remove entities, but replace them with DELETE symbol (exported from normalizr)
+- schema of delete shape should be the `new schemas.Delete()`
+- useInvalidator()'s function calls will always suspend - even without invalidIfStale
+- deleted entities that are required by a useResource() will now cause it to suspend rather than throwing `404`
+- required entities missing from network response will now throw error in useResource() just like other unexpected deserializations
+- FetchShape type is now just 'read' | 'mutate'. No more 'delete'. (use schema.Delete())
+
+
+
+
 ## 6.0.0-gamma.2 (2020-06-13)
 
 * docs: Fix normalizr docs links ([11c2995](https://github.com/coinbase/rest-hooks/commit/11c2995))

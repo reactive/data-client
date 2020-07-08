@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.0-delta.0 (2020-07-08)
+
+* feat: Deletes and invalidates trigger suspense always (#360) ([96175ba](https://github.com/coinbase/rest-hooks/commit/96175ba)), closes [#360](https://github.com/coinbase/rest-hooks/issues/360)
+* internal: Prepare tests to run in React Native env (#309) ([64efd70](https://github.com/coinbase/rest-hooks/commit/64efd70)), closes [#309](https://github.com/coinbase/rest-hooks/issues/309)
+
+
+### BREAKING CHANGE
+
+* - denormalize has third boolean value to track deletion
+- deletes no long remove entities, but replace them with DELETE symbol (exported from normalizr)
+- schema of delete shape should be the `new schemas.Delete()`
+- useInvalidator()'s function calls will always suspend - even without invalidIfStale
+- deleted entities that are required by a useResource() will now cause it to suspend rather than throwing `404`
+- required entities missing from network response will now throw error in useResource() just like other unexpected deserializations
+- FetchShape type is now just 'read' | 'mutate'. No more 'delete'. (use schema.Delete())
+
+
+
+
 ## [2.0.0-beta.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@2.0.0-beta.3...@rest-hooks/legacy@2.0.0-beta.4) (2020-05-13)
 
 **Note:** Version bump only for package @rest-hooks/legacy

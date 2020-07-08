@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-delta.0 (2020-07-08)
+
+* feat: Deletes and invalidates trigger suspense always (#360) ([96175ba](https://github.com/coinbase/rest-hooks/commit/96175ba)), closes [#360](https://github.com/coinbase/rest-hooks/issues/360)
+* feat: Resource.fetch() arguments reflect browser fetch() (#362) ([1d19421](https://github.com/coinbase/rest-hooks/commit/1d19421)), closes [#362](https://github.com/coinbase/rest-hooks/issues/362)
+
+
+### BREAKING CHANGE
+
+* - denormalize has third boolean value to track deletion
+- deletes no long remove entities, but replace them with DELETE symbol (exported from normalizr)
+- schema of delete shape should be the `new schemas.Delete()`
+- useInvalidator()'s function calls will always suspend - even without invalidIfStale
+- deleted entities that are required by a useResource() will now cause it to suspend rather than throwing `404`
+- required entities missing from network response will now throw error in useResource() just like other unexpected deserializations
+- FetchShape type is now just 'read' | 'mutate'. No more 'delete'. (use schema.Delete())
+* - Removed Resource.fetchOptionsPlugin()
+- Added Resource.getFetchInit() which is called in shape generators
+- Resourece.fetch() interface changed to match browser fetch()
+
+
+
+
 ## 1.0.0-gamma.0 (2020-06-13)
 
 **Note:** Version bump only for package @rest-hooks/core
