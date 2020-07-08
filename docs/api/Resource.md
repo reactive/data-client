@@ -198,18 +198,22 @@ parameters.
 
 Used in [listShape()](#listshape-readshape) and [createShape()](#createshape-mutateshape)
 
-### static fetch(method: "get" | "post" | "put" | "patch" | "delete" | "options", url: string, body?: Readonly\<object | string>) => Promise\<any>
+### static fetch(input: RequestInfo, init: RequestInit) => Promise\<any>
 
 Performs the actual network fetch returning a promise that resolves to the network response or rejects
 on network error. This can be useful to override to really customize your transport.
 
-### static fetchResponse(method: "get" | "post" | "put" | "patch" | "delete" | "options", url: string, body?: Readonly\<object | string>) => Promise\<Response>
+### static fetchResponse(input: RequestInfo, init: RequestInit) => Promise\<Response>
 
 Used in `fetch()`. Resolves the HTTP [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response).
 
-### static getFetchOptions() => [FetchOptions](../api/FetchShape.md#FetchOptions) | undefined
+### static getFetchInit(init: RequestInit): RequestInit
 
-Returns the default request options for this resource. By default this returns undefined
+Allows simple overrides to extend [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) sent to fetch.
+
+### static getFetchOptions() => FetchOptions | undefined
+
+[Returns](../api/FetchShape.md#FetchOptions) the default request options for this resource. By default this returns undefined
 
 ## [Fetch shapes](../api/FetchShape)
 

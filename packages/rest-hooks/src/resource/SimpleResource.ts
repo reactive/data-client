@@ -2,7 +2,6 @@ import { FlatEntity } from '@rest-hooks/core';
 import type {
   FetchOptions,
   AbstractInstanceType,
-  Method,
   ReadShape,
   MutateShape,
 } from '@rest-hooks/core';
@@ -79,23 +78,23 @@ export default abstract class SimpleResource extends FlatEntity {
   }
 
   /** Perform network request and resolve with json body */
-  static fetch(
-    method: Method,
-    url: string,
-    body?: Readonly<object | string>,
-  ): Promise<any> {
+  static fetch(input: RequestInfo, init: RequestInit): Promise<any> {
     // typescript currently doesn't allow abstract static methods
     throw new NotImplementedError();
   }
 
   /** Perform network request and resolve with HTTP Response */
   static fetchResponse(
-    method: Method,
-    url: string,
-    body?: Readonly<object | string>,
+    input: RequestInfo,
+    init: RequestInit,
   ): Promise<Response> {
     // typescript currently doesn't allow abstract static methods
     throw new NotImplementedError();
+  }
+
+  /** Init options for fetch */
+  static getFetchInit(init: RequestInit): RequestInit {
+    return init;
   }
 
   /** Get the request options for this SimpleResource  */
@@ -112,13 +111,14 @@ export default abstract class SimpleResource extends FlatEntity {
       return 'GET ' + this.url(params);
     };
     const options = this.getFetchOptions();
+    const init = this.getFetchInit({ method: 'GET' });
     return {
       type: 'read',
       schema: this,
       options,
       getFetchKey,
       fetch: (params: Readonly<object>) => {
-        return this.fetch('get', this.url(params));
+        return this.fetch(this.url(params), init);
       },
     };
   }
@@ -131,13 +131,14 @@ export default abstract class SimpleResource extends FlatEntity {
       return 'GET ' + this.listUrl(params);
     };
     const options = this.getFetchOptions();
+    const init = this.getFetchInit({ method: 'GET' });
     return {
       type: 'read',
       schema: [this],
       options,
       getFetchKey,
       fetch: (params: Readonly<Record<string, string | number>>) => {
-        return this.fetch('get', this.listUrl(params));
+        return this.fetch(this.listUrl(params), init);
       },
     };
   }
@@ -151,6 +152,7 @@ export default abstract class SimpleResource extends FlatEntity {
     Partial<AbstractInstanceType<T>>
   > {
     const options = this.getFetchOptions();
+    const init = this.getFetchInit({ method: 'POST' });
     return {
       type: 'mutate',
       schema: this,
@@ -162,7 +164,10 @@ export default abstract class SimpleResource extends FlatEntity {
         params: Readonly<Record<string, string | number>>,
         body: Partial<AbstractInstanceType<T>>,
       ) => {
-        return this.fetch('post', this.listUrl(params), body);
+        return this.fetch(this.listUrl(params), {
+          ...init,
+          body: JSON.stringify(body),
+        });
       },
     };
   }
@@ -176,6 +181,7 @@ export default abstract class SimpleResource extends FlatEntity {
     Partial<AbstractInstanceType<T>>
   > {
     const options = this.getFetchOptions();
+    const init = this.getFetchInit({ method: 'PUT' });
     return {
       type: 'mutate',
       schema: this,
@@ -187,7 +193,10 @@ export default abstract class SimpleResource extends FlatEntity {
         params: Readonly<object>,
         body: Partial<AbstractInstanceType<T>>,
       ) => {
-        return this.fetch('put', this.url(params), body);
+        return this.fetch(this.url(params), {
+          ...init,
+          body: JSON.stringify(body),
+        });
       },
     };
   }
@@ -201,6 +210,7 @@ export default abstract class SimpleResource extends FlatEntity {
     Partial<AbstractInstanceType<T>>
   > {
     const options = this.getFetchOptions();
+    const init = this.getFetchInit({ method: 'PATCH' });
     return {
       type: 'mutate',
       schema: this,
@@ -212,7 +222,10 @@ export default abstract class SimpleResource extends FlatEntity {
         params: Readonly<object>,
         body: Partial<AbstractInstanceType<T>>,
       ) => {
-        return this.fetch('patch', this.url(params), body);
+        return this.fetch(this.url(params), {
+          ...init,
+          body: JSON.stringify(body),
+        });
       },
     };
   }
@@ -222,6 +235,7 @@ export default abstract class SimpleResource extends FlatEntity {
     this: T,
   ): MutateShape<schemas.Delete<T>, Readonly<object>, undefined> {
     const options = this.getFetchOptions();
+    const init = this.getFetchInit({ method: 'DELETE' });
     return {
       type: 'mutate',
       schema: new schemas.Delete(this),
@@ -230,7 +244,7 @@ export default abstract class SimpleResource extends FlatEntity {
         return 'DELETE ' + this.url(params);
       },
       fetch: (params: Readonly<object>) => {
-        return this.fetch('delete', this.url(params)).then(() => params);
+        return this.fetch(this.url(params), init).then(() => params);
       },
     };
   }

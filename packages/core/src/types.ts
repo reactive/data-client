@@ -20,8 +20,6 @@ import {
 
 export type { AbstractInstanceType };
 
-export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';
-
 export type ReceiveTypes = typeof RECEIVE_TYPE;
 
 export type PK = string;

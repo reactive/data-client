@@ -79,7 +79,9 @@ export class ArticleResource extends Resource {
       getFetchKey: (params: Readonly<Record<string, string>>) =>
         baseShape.getFetchKey({ ...params, includeUser: true }),
       fetch: (params: object) =>
-        this.fetch('get', this.url({ ...params, includeUser: true })),
+        this.fetch(this.url({ ...params, includeUser: true }), {
+          method: 'get',
+        }),
       schema: this,
     };
   }
@@ -93,7 +95,9 @@ export class ArticleResource extends Resource {
       getFetchKey: (params: Readonly<Record<string, string>>) =>
         baseShape.getFetchKey({ ...params, includeUser: true }),
       fetch: (params: object) =>
-        this.fetch('get', this.listUrl({ ...params, includeUser: 'true' })),
+        this.fetch(this.listUrl({ ...params, includeUser: 'true' }), {
+          method: 'get',
+        }),
       schema: [this],
     };
   }
@@ -153,7 +157,10 @@ export class ArticleResourceWithOtherListUrl extends ArticleResource {
     return {
       ...this.listShape(),
       getFetchKey,
-      fetch: (_params: object) => this.fetch('get', getFetchKey()),
+      fetch: (_params: object) =>
+        this.fetch(getFetchKey(), {
+          method: 'get',
+        }),
     };
   }
 
