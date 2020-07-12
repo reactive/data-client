@@ -1,8 +1,8 @@
 import nock from 'nock';
-import { Schema } from '@rest-hooks/normalizr';
+import { Schema, Entity } from '@rest-hooks/normalizr';
 import { camelCase, snakeCase } from 'lodash';
 
-import Endpoint, { FetchFunction, EndpointOptions } from '../endpoint';
+import Endpoint from '../endpoint';
 import { EndpointInterface } from '../interface';
 
 describe('Endpoint', () => {
@@ -87,6 +87,7 @@ describe('Endpoint', () => {
   });
 
   it('should work when extended', async () => {
+    const BaseFetch = new Endpoint(fetchUsers);
     const UserDetail = new Endpoint(fetchUsers).extend({
       sideEffect: true,
       key: ({ id }: { id: string }) => `fetch my user ${id}`,
@@ -97,7 +98,7 @@ describe('Endpoint', () => {
     function t(a: EndpointInterface<typeof fetchUsers>) {}
     // @ts-expect-error
     t(UserDetail);
-    t(new Endpoint(fetchUsers));
+    t(BaseFetch);
 
     expect(UserDetail.key({ id: '500' })).toMatchInlineSnapshot(
       `"fetch my user 500"`,
@@ -137,6 +138,33 @@ describe('Endpoint', () => {
     expect(AssetDetail.key({ symbol: 'doge' })).toMatchInlineSnapshot(
       `"fetchAsset {\\"symbol\\":\\"doge\\"}"`,
     );
+  });
+
+  it('should infer return type when schema is specified but fetch function has no typing', async () => {
+    class User extends Entity {
+      readonly id: string = '';
+      readonly username: string = '';
+      pk() {
+        return this.id;
+      }
+    }
+    class User2 extends User {
+      readonly extra: number = 0;
+    }
+    const UserDetail = new Endpoint(
+      ({ id }: { id: string }) => fetch(`/users/${id}`).then(res => res.json()),
+      { schema: User },
+    );
+    const user = await UserDetail({ id: payload.id });
+    expect(user).toEqual(payload);
+    expect(user.username).toBe(payload.username);
+
+    // extends
+    const Extended = UserDetail.extend({ schema: User2 });
+    const user2 = await Extended({ id: payload.id });
+    expect(user2).toEqual(payload);
+    // doesn't actually generate class
+    expect(user2.extra).toBe(undefined);
   });
 
   describe('auth patterns (usage with `this`)', () => {

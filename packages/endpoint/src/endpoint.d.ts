@@ -100,14 +100,14 @@ interface EndpointInstance<
     'sideEffect' extends keyof typeof options
       ? typeof options['sideEffect']
       : E['sideEffect']
-  > & { prototype: E };
+  >;
 }
 
 interface EndpointConstructor {
   new <
     F extends (params?: any, body?: any) => Promise<any>,
     S extends Schema | undefined = undefined,
-    M extends true | undefined
+    M extends true | undefined = undefined
   >(
     fetchFunction: F,
     options?: EndpointOptions<

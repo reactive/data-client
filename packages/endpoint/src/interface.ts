@@ -1,14 +1,15 @@
 import { Schema, Entity } from '@rest-hooks/normalizr';
 
-import type { EndpointExtraOptions } from './types';
+import type { EndpointExtraOptions, FetchFunction } from './types';
+import { InferReturn } from './utility';
 
 /** Defines a networking endpoint */
 export interface EndpointInterface<
-  F extends (params?: any, body?: any) => Promise<any>,
+  F extends (params?: any, body?: any) => Promise<any> = FetchFunction,
   S extends Schema | undefined = undefined,
   M extends true | undefined = undefined
 > extends EndpointExtraOptions {
-  (...args: Parameters<F>): ReturnType<F>;
+  (...args: Parameters<F>): InferReturn<F, S>;
   key(parmas?: Readonly<Parameters<F>[0]>): string;
   readonly sideEffect?: M;
   readonly schema?: S;
@@ -16,7 +17,7 @@ export interface EndpointInterface<
 
 /** To change values on the server */
 export interface MutateEndpoint<
-  F extends (params?: any, body?: any) => Promise<any>,
+  F extends (params?: any, body?: any) => Promise<any> = FetchFunction,
   S extends Schema | undefined = undefined
 > extends EndpointInterface<F, S, true> {
   fetch(
@@ -27,7 +28,7 @@ export interface MutateEndpoint<
 
 /** For retrieval requests */
 export interface ReadEndpoint<
-  F extends (params?: any) => Promise<any>,
+  F extends (params?: any) => Promise<any> = FetchFunction,
   S extends Schema | undefined = undefined
 > extends EndpointInterface<F, S> {
   fetch(params: Readonly<Parameters<F>[0]>): ReturnType<F>;

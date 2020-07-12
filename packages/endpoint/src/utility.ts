@@ -1,0 +1,19 @@
+import { Denormalize, Schema } from '@rest-hooks/normalizr';
+
+import { EndpointInterface } from './interface';
+import { FetchFunction } from './types';
+
+/** What the function's promise resolves to */
+export type ResolveType<
+  E extends EndpointInterface<any, any, any>
+> = ReturnType<E> extends Promise<infer R> ? R : never;
+
+/** Fallback to schema if fetch function isn't defined */
+export type InferReturn<
+  F extends FetchFunction,
+  S extends Schema | undefined
+> = S extends undefined
+  ? ReturnType<F>
+  : ReturnType<F> extends unknown
+  ? Promise<Denormalize<S>>
+  : ReturnType<F>;

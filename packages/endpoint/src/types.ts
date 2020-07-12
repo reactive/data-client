@@ -1,3 +1,7 @@
+import { Schema, Normalize } from '@rest-hooks/normalizr';
+
+import { EndpointInterface } from './interface';
+
 export interface EndpointExtraOptions {
   /** Default data expiry length, will fall back to NetworkManager default if not defined */
   readonly dataExpiryLength?: number;
@@ -15,3 +19,21 @@ export interface EndpointExtraOptions {
   /** User-land extra data to send */
   readonly extra?: any;
 }
+export type FetchFunction<P = any> = (params?: P, body?: any) => Promise<any>;
+
+export type OptimisticUpdateParams<
+  SourceSchema extends Schema,
+  Dest extends EndpointInterface<FetchFunction, Schema, any>
+> = [
+  Dest,
+  Parameters<Dest>[0],
+  UpdateFunction<SourceSchema, Exclude<Dest['schema'], undefined>>,
+];
+
+export type UpdateFunction<
+  SourceSchema extends Schema,
+  DestSchema extends Schema
+> = (
+  sourceResults: Normalize<SourceSchema>,
+  destResults: Normalize<DestSchema> | undefined,
+) => Normalize<DestSchema>;
