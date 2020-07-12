@@ -6,10 +6,8 @@ export type {
   IndexParams,
   ArrayElement,
 } from './interface';
-export type {
-  EndpointOptions,
-  EndpointExtraOptions,
-  FetchFunction,
-} from './endpoint';
+export type { EndpointOptions, FetchFunction } from './endpoint';
+export type { EndpointExtraOptions } from './types';
+
 export { default as Endpoint } from './endpoint';
 export { default as Index } from './indexEndpoint';

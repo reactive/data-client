@@ -1,25 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { Schema } from '@rest-hooks/normalizr';
+import type { Schema } from '@rest-hooks/normalizr';
 
-import { EndpointInterface } from './interface';
-
-export interface EndpointExtraOptions {
-  /** Default data expiry length, will fall back to NetworkManager default if not defined */
-  readonly dataExpiryLength?: number;
-  /** Default error expiry length, will fall back to NetworkManager default if not defined */
-  readonly errorExpiryLength?: number;
-  /** Poll with at least this frequency in miliseconds */
-  readonly pollFrequency?: number;
-  /** Marks cached resources as invalid if they are stale */
-  readonly invalidIfStale?: boolean;
-  /** Enables optimistic updates for this request - uses return value as assumed network response */
-  readonly optimisticUpdate?: (
-    params: Readonly<object>,
-    body: Readonly<object | string> | void,
-  ) => any;
-  /** User-land extra data to send */
-  readonly extra?: any;
-}
+import type { EndpointInterface } from './interface';
+import type { EndpointExtraOptions } from './types';
 
 export interface EndpointOptions<
   K extends (params: any) => string,

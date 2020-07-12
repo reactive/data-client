@@ -1,6 +1,6 @@
-import { Entity } from '@rest-hooks/normalizr/src';
+import { Entity } from '@rest-hooks/normalizr';
 
-import { IndexInterface, IndexParams } from './interface';
+import type { IndexInterface, IndexParams } from './interface';
 
 export default class Index<E extends typeof Entity>
   implements IndexInterface<E> {
@@ -9,7 +9,7 @@ export default class Index<E extends typeof Entity>
     this.schema = entity;
   }
 
-  key(params?: Readonly<IndexParams<S>>) {
+  key(params?: Readonly<IndexParams<E>>) {
     return JSON.stringify(params);
   }
 }

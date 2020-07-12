@@ -1,14 +1,13 @@
 import { Schema, Entity } from '@rest-hooks/normalizr';
-import { EntityInterface } from 'packages/normalizr/src/schema';
 
-import { FetchOptions } from './types';
+import type { EndpointExtraOptions } from './types';
 
 /** Defines a networking endpoint */
 export interface EndpointInterface<
   F extends (params?: any, body?: any) => Promise<any>,
   S extends Schema | undefined = undefined,
   M extends true | undefined = undefined
-> extends FetchOptions {
+> extends EndpointExtraOptions {
   (...args: Parameters<F>): ReturnType<F>;
   key(parmas?: Readonly<Parameters<F>[0]>): string;
   readonly sideEffect?: M;
