@@ -42,7 +42,26 @@ console.log(user);
 
 ## Why
 
-Storing the results of networking calls in a cache like Rest Hooks requires
+There is a distinction between
+
+- What are networking API is
+  - How to make a request, expected response fields, etc.
+- How it is used
+  - Binding data, polling, triggering imperative fetch, etc.
+
+Thus, there are many benefits to creating a distinct seperation of concerns between
+these two concepts.
+
+With `TypeScript Standard Endpoints`, we define a standard for declaring in
+TypeScript the definition of a networking API.
+
+- Allows API authors to publish npm packages containing their API interfaces
+- Definitions can be consumed by any supporting library, allowing easy consumption across libraries like Vue, React, Angular
+- Writing codegen pipelines becomes much easier as the output is minimal
+- Product developers can use the definitions in a multitude of contexts where behaviors vary
+- Product developers can easily share code across platforms with distinct behaviors needs like React Native and React Web
+
+### What's in an Endpoint
 
 - A function that resolves the results
 - A function to uniquely store those results
@@ -152,9 +171,21 @@ export interface IndexInterface<S extends typeof Entity> {
 ```
 
 ```typescript
+import { Entity } from '@rest-hooks/normalizr';
 import { Index } from '@rest-hooks/endpoint';
+
+class User extends Entity {
+  readonly id: string = '';
+  readonly username: string = '';
+
+  pk() { return this.id;}
+  static indexes = ['username'] as const;
+}
 
 const UserIndex = new Index(User)
 
 const bob = useCache(UserIndex, { username: 'bob' });
+
+// @ts-expect-error Indexes don't fetch, they just retrieve already existing data
+const bob = useResource(UserIndex, { username: 'bob' });
 ```
