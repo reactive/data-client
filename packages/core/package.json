@@ -30,16 +30,21 @@
     "test:coverage": "yarn test -- --coverage"
   },
   "keywords": [
+    "react",
+    "flux",
     "ajax",
     "networking",
+    "suspense",
+    "concurrent mode",
     "fetch",
+    "hook",
     "typescript",
     "data fetching",
     "data cache",
     "api",
     "api call",
     "normalized cache",
-    "subject pattern"
+    "swr"
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
