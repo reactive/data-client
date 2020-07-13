@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-h.0 (2020-07-13)
+
+* pkg: Bump babel runtime ([c6bf844](https://github.com/coinbase/rest-hooks/commit/c6bf844))
+* docs: Fix tags ([987f0ed](https://github.com/coinbase/rest-hooks/commit/987f0ed))
+* docs: Remove irrelevant tags ([ff137da](https://github.com/coinbase/rest-hooks/commit/ff137da))
+
+
+
+
+
 ## 1.0.0-delta.0 (2020-07-08)
 
 * feat: Deletes and invalidates trigger suspense always (#360) ([96175ba](https://github.com/coinbase/rest-hooks/commit/96175ba)), closes [#360](https://github.com/coinbase/rest-hooks/issues/360)

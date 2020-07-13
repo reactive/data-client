@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-h.0 (2020-07-13)
+
+* fix: Fix schema.Delete import ([6106447](https://github.com/coinbase/rest-hooks/commit/6106447))
+
+
+
+
+
 ## 5.0.0-delta.0 (2020-07-08)
 
 * feat: Deletes and invalidates trigger suspense always (#360) ([96175ba](https://github.com/coinbase/rest-hooks/commit/96175ba)), closes [#360](https://github.com/coinbase/rest-hooks/issues/360)
