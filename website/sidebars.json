@@ -83,7 +83,9 @@
           "api/resource",
           "api/Entity",
           "api/SimpleRecord",
-          "api/FetchShape"
+          "api/FetchShape",
+          "api/Endpoint",
+          "api/Index"
         ]
       },
       {

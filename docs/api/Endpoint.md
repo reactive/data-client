@@ -1,18 +1,6 @@
-# TypeScript Standard Endpoints
-[![CircleCI](https://circleci.com/gh/coinbase/rest-hooks.svg?style=shield)](https://circleci.com/gh/coinbase/rest-hooks)
-[![Coverage Status](https://img.shields.io/coveralls/coinbase/rest-hooks.svg?style=flat-square)](https://coveralls.io/github/coinbase/rest-hooks?branch=master)
-[![npm downloads](https://img.shields.io/npm/dm/@rest-hooks/endpoint.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/endpoint)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/@rest-hooks/endpoint?style=flat-square)](https://bundlephobia.com/result?p=@rest-hooks/endpoint)
-[![npm version](https://img.shields.io/npm/v/@rest-hooks/endpoint.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/endpoint)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-
-Declarative, strongly typed, reusable network definitions for networking libraries.
-
-<div align="center">
-
-**[📖Read The Docs](https://resthooks.io/docs/next/api/Endpoint)**
-
-</div>
+---
+title: Endpoint
+---
 
 ### 1) Define the function
 
@@ -106,7 +94,10 @@ export interface EndpointOptions extends EndpointExtraOptions {
 }
 ```
 
-### EndpointOptions
+### Members
+
+Members double as options (second constructor arg). While none are required, the first few
+have defaults.
 
 #### key: (params) => string
 
@@ -148,8 +139,6 @@ const UserDetail = new Endpoint(
 );
 ```
 
-### Endpoint
-
 #### extend(EndpointOptions): Endpoint
 
 Can be used to further customize the endpoint definition
@@ -161,31 +150,26 @@ const UserDetail = new Endpoint(({ id }) ⇒ fetch(`/users/${id}`));
 const UserDetailNormalized = UserDetail.extend({ schema: User });
 ```
 
-### Index
+#### dataExpiryLength?: number
 
-```typescript
-export interface IndexInterface<S extends typeof Entity> {
-  key(parmas?: Readonly<IndexParams<S>>): string;
-  readonly schema: S;
-}
-```
+Custom data cache lifetime for the fetched resource. Will override the value set in NetworkManager.
 
-```typescript
-import { Entity } from '@rest-hooks/normalizr';
-import { Index } from '@rest-hooks/endpoint';
+#### errorExpiryLength?: number
 
-class User extends Entity {
-  readonly id: string = '';
-  readonly username: string = '';
+Custom data error lifetime for the fetched resource. Will override the value set in NetworkManager.
 
-  pk() { return this.id;}
-  static indexes = ['username'] as const;
-}
+#### pollFrequency: number
 
-const UserIndex = new Index(User)
+Frequency in millisecond to poll at. Requires using [useSubscription()](./useSubscription.md) to have
+an effect.
 
-const bob = useCache(UserIndex, { username: 'bob' });
+#### invalidIfStale: boolean
 
-// @ts-expect-error Indexes don't fetch, they just retrieve already existing data
-const bob = useResource(UserIndex, { username: 'bob' });
-```
+Indicates stale data should be considered unusable and thus not be returned from the cache. This means
+that useResource() will suspend when data is stale even if it already exists in cache.
+
+#### optimisticUpdate: (params, body) => fakePayload
+
+When provided, any fetches with this shape will behave as though the `fakePayload` return value
+from this function was a succesful network response. When the actual fetch completes (regardless
+of failure or success), the optimistic update will be replaced with the actual network response.
