@@ -2,78 +2,18 @@
 title: Endpoint
 ---
 
-### 1) Define the function
-
-```typescript
-import { Endpoint } from '@rest-hooks/endpoint';
-
-const UserDetail = new Endpoint(({ id }) ⇒ fetch(`/users/${id}`).then(res => res.json()));
-```
-
-### 2) Reuse with different hooks
-
-```tsx
-function UserProfile() {
-  const user = useResource(UserDetail, { id });
-  const updateUser = useFetcher(UserDetail);
-
-  return <UserForm user={user} onSubmit={updateUser} />
-}
-```
-
-### 3) Or call directly
-
-```typescript
-const user = await UserDetail({ id: '5' });
-console.log(user);
-```
-
-### Why
-
-There is a distinction between
-
-- What are networking API is
-  - How to make a request, expected response fields, etc.
-- How it is used
-  - Binding data, polling, triggering imperative fetch, etc.
-
-Thus, there are many benefits to creating a distinct seperation of concerns between
-these two concepts.
-
-With `TypeScript Standard Endpoints`, we define a standard for declaring in
-TypeScript the definition of a networking API.
-
-- Allows API authors to publish npm packages containing their API interfaces
-- Definitions can be consumed by any supporting library, allowing easy consumption across libraries like Vue, React, Angular
-- Writing codegen pipelines becomes much easier as the output is minimal
-- Product developers can use the definitions in a multitude of contexts where behaviors vary
-- Product developers can easily share code across platforms with distinct behaviors needs like React Native and React Web
-
-#### What's in an Endpoint
-
-- A function that resolves the results
-- A function to uniquely store those results
-- Optional: information about how to store the data in a normalized cache
-- Optional: whether the request could have side effects - to prevent repeat calls
-
-### Interface
-
-`@rest-hooks/endpoint` defines a standard `interface`
-
 ```typescript
 interface EndpointInterface {
-    (params?: any, body?: any): Promise<any>;
-    key(parmas?: any): string;
-    schema?: Readonly<S>;
-    sideEffects?: true;
-    // other optionals like 'optimistic'
+  (params?: any, body?: any): Promise<any>;
+  key(parmas?: any): string;
+  schema?: Readonly<S>;
+  sideEffects?: true;
+  // other optionals like 'optimistic'
 }
 ```
 
-as well as a helper `class` to make construction easier.
-
 ```typescript
-class Endpoint<F extends () => Promise<any>> {
+class Endpoint<F extends () => Promise<any>> implements EndpointInterface {
   constructor(fetchFunction: F, options: EndpointOptions);
 
   key(...args: Parameters<F>): string;
@@ -92,9 +32,27 @@ export interface EndpointOptions extends EndpointExtraOptions {
   sideEffect?: true | undefined;
   schema?: Schema;
 }
+
+export interface EndpointExtraOptions {
+  /** Default data expiry length, will fall back to NetworkManager default if not defined */
+  readonly dataExpiryLength?: number;
+  /** Default error expiry length, will fall back to NetworkManager default if not defined */
+  readonly errorExpiryLength?: number;
+  /** Poll with at least this frequency in miliseconds */
+  readonly pollFrequency?: number;
+  /** Marks cached resources as invalid if they are stale */
+  readonly invalidIfStale?: boolean;
+  /** Enables optimistic updates for this request - uses return value as assumed network response */
+  readonly optimisticUpdate?: (
+    params: Readonly<object>,
+    body: Readonly<object | string> | void,
+  ) => any;
+  /** User-land extra data to send */
+  readonly extra?: any;
+}
 ```
 
-### Members
+### Endpoint Members
 
 Members double as options (second constructor arg). While none are required, the first few
 have defaults.
@@ -106,7 +64,7 @@ Serializes the parameters. This is used to build a lookup key in global stores.
 Default:
 
 ```typescript
-`${this.fetch.name} ${JSON.stringify(params)}`
+`${this.fetch.name} ${JSON.stringify(params)}`;
 ```
 
 #### sideEffect: true | undefined
@@ -173,3 +131,65 @@ that useResource() will suspend when data is stale even if it already exists in 
 When provided, any fetches with this shape will behave as though the `fakePayload` return value
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
+
+### Examples
+
+#### 1) Define the function
+
+```typescript
+import { Endpoint } from '@rest-hooks/endpoint';
+
+const UserDetail = new Endpoint(
+  ({ id }) ⇒ fetch(`/users/${id}`).then(res => res.json())
+);
+```
+
+#### 2) Reuse with different hooks
+
+```tsx
+function UserProfile() {
+  const user = useResource(UserDetail, { id });
+  const updateUser = useFetcher(UserDetail);
+
+  return <UserForm user={user} onSubmit={updateUser} />;
+}
+```
+
+#### 3) Or call directly
+
+```typescript
+const user = await UserDetail({ id: '5' });
+console.log(user);
+```
+
+### Motivation
+
+There is a distinction between
+
+- What are networking API is
+  - How to make a request, expected response fields, etc.
+- How it is used
+  - Binding data, polling, triggering imperative fetch, etc.
+
+Thus, there are many benefits to creating a distinct seperation of concerns between
+these two concepts.
+
+With `TypeScript Standard Endpoints`, we define a standard for declaring in
+TypeScript the definition of a networking API.
+
+- Allows API authors to publish npm packages containing their API interfaces
+- Definitions can be consumed by any supporting library, allowing easy consumption across libraries like Vue, React, Angular
+- Writing codegen pipelines becomes much easier as the output is minimal
+- Product developers can use the definitions in a multitude of contexts where behaviors vary
+- Product developers can easily share code across platforms with distinct behaviors needs like React Native and React Web
+
+#### What's in an Endpoint
+
+- A function that resolves the results
+- A function to uniquely store those results
+- Optional: information about how to store the data in a normalized cache
+- Optional: whether the request could have side effects - to prevent repeat calls
+
+### See also
+
+- [Index](./Index)

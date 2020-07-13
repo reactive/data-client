@@ -3,8 +3,8 @@ title: Index
 ---
 
 ```typescript
-export interface IndexInterface<S extends typeof Entity> {
-  key(parmas?: Readonly<IndexParams<S>>): string;
+export interface IndexInterface<S extends Schema = Schema, P = object> {
+  key(params?: P): string;
   readonly schema: S;
 }
 ```
