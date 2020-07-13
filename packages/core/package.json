@@ -61,7 +61,7 @@
     "@rest-hooks/test": "^2.0.0-beta.2"
   },
   "dependencies": {
-    "@babel/runtime": "^7.7.2",
+    "@babel/runtime": "^7.10.4",
     "@rest-hooks/normalizr": "^6.0.0-delta.0",
     "@rest-hooks/use-enhanced-reducer": "^1.0.4",
     "flux-standard-action": "^2.1.1"
