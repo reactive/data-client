@@ -3,6 +3,8 @@ export default class Endpoint extends Function {
     super('return arguments.callee.fetch.apply(arguments.callee, arguments)');
     this.fetch = fetchFunction;
     Object.assign(this, options);
+    /** The following is for compatibility with FetchShape */
+    this.type = this.sideEffect ? 'mutate' : 'read';
   }
 
   key(params) {
@@ -16,4 +18,10 @@ export default class Endpoint extends Function {
     };
     return new this.constructor(options.fetch ?? this.fetch, optionsToPass);
   }
+
+  /** The following is for compatibility with FetchShape */
+  schema = null;
+  getFetchKey = params => {
+    return this.key(params);
+  };
 }

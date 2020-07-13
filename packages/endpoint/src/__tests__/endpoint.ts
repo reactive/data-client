@@ -67,7 +67,7 @@ describe('Endpoint', () => {
 
       // check additional properties defaults
       expect(UserDetail.sideEffect).toBe(undefined);
-      expect(UserDetail.schema).toBeUndefined();
+      //expect(UserDetail.schema).toBeUndefined(); TODO: re-enable once we don't care about FetchShape compatibility
       expect(UserDetail.key({ id: payload.id })).toMatchInlineSnapshot(
         `"fetchUsers {\\"id\\":\\"5\\"}"`,
       );

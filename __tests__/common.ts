@@ -11,6 +11,7 @@ import {
   MutateShape,
   SimpleRecord,
 } from '@rest-hooks/core';
+import { Endpoint } from '@rest-hooks/endpoint';
 import React from 'react';
 
 export class UserResource extends Resource {
@@ -189,6 +190,14 @@ export class CoolerArticleResource extends ArticleResource {
   }
 }
 
+export const CoolerArticleDetail = new Endpoint(({ id }: { id: number }) => {
+  return fetch(`http://test.com/article-cooler/${id}`).then(res =>
+    res.json(),
+  ) as Promise<
+    { [k in keyof CoolerArticleResource]: CoolerArticleResource[k] }
+  >;
+});
+
 export class IndexedUserResource extends UserResource {
   static indexes = ['username' as const];
 }
@@ -269,6 +278,18 @@ export class PaginatedArticleResource extends OtherArticleResource {
     };
   }
 }
+
+export const ListPaginatedArticle = new Endpoint(
+  (params: Readonly<Record<string, string | number>>) => {
+    return PaginatedArticleResource.fetch(
+      PaginatedArticleResource.listUrl(params),
+      PaginatedArticleResource.getFetchInit({ method: 'GET' }),
+    );
+  },
+  {
+    schema: makePaginatedRecord(PaginatedArticleResource),
+  },
+);
 
 export class UnionResource extends Resource {
   readonly id: string = '';

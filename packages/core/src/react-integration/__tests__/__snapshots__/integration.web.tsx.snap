@@ -1,5 +1,28 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[` => <Provider /> Endpoint should resolve useResource() with SimpleRecords 1`] = `
+Array [
+  PaginatedArticleResource {
+    "author": "23",
+    "content": "whatever",
+    "id": 5,
+    "tags": Array [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+  PaginatedArticleResource {
+    "author": "23",
+    "content": "whatever",
+    "id": 3,
+    "tags": Array [],
+    "title": "the next time",
+  },
+]
+`;
+
 exports[` => <Provider /> should resolve useResource() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
@@ -36,6 +59,29 @@ exports[` => <Provider /> useResource() should throw errors on malformed respons
   Value: {
   "0": 1
 }]
+`;
+
+exports[`makeCacheProvider => <Provider /> Endpoint should resolve useResource() with SimpleRecords 1`] = `
+Array [
+  PaginatedArticleResource {
+    "author": "23",
+    "content": "whatever",
+    "id": 5,
+    "tags": Array [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+  PaginatedArticleResource {
+    "author": "23",
+    "content": "whatever",
+    "id": 3,
+    "tags": Array [],
+    "title": "the next time",
+  },
+]
 `;
 
 exports[`makeCacheProvider => <Provider /> should resolve useResource() with SimpleRecords 1`] = `

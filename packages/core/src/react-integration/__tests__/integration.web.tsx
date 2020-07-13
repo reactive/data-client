@@ -4,6 +4,8 @@ import {
   PaginatedArticleResource,
   UserResource,
   ArticleResourceWithOtherListUrl,
+  ListPaginatedArticle,
+  CoolerArticleDetail,
 } from '__tests__/common';
 import React from 'react';
 import nock from 'nock';
@@ -86,6 +88,42 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     });
     afterEach(() => {
       renderRestHook.cleanup();
+    });
+
+    describe('Endpoint', () => {
+      it('should resolve await', async () => {
+        const result = await CoolerArticleDetail(payload);
+        expect(result.title).toBe(payload.title);
+        // @ts-expect-error
+        expect(result.lafsjlfd).toBeUndefined();
+      });
+
+      it('should resolve useResource()', async () => {
+        const { result, waitForNextUpdate } = renderRestHook(() => {
+          return useResource(CoolerArticleDetail, payload);
+        });
+        expect(result.current).toBeNull();
+        await waitForNextUpdate();
+        expect(result.current.title).toBe(payload.title);
+        // @ts-expect-error
+        expect(result.current.lafsjlfd).toBeUndefined();
+      });
+
+      it('should resolve useResource() with SimpleRecords', async () => {
+        mynock.get(`/article-paginated/`).reply(200, paginatedFirstPage);
+
+        const { result, waitForNextUpdate } = renderRestHook(() => {
+          return useResource(ListPaginatedArticle, {});
+        });
+        expect(result.current).toBeNull();
+        await waitForNextUpdate();
+        expect(result.current).toBeInstanceOf(SimpleRecord);
+        expect(result.current.nextPage).toBe('');
+        expect(result.current.prevPage).toBe('');
+        expect(result.current.results).toMatchSnapshot();
+        // @ts-expect-error
+        expect(result.current.lafsjlfd).toBeUndefined();
+      });
     });
 
     it('should resolve useResource()', async () => {

@@ -3,6 +3,7 @@ import type { Schema } from '@rest-hooks/normalizr';
 
 import type { EndpointInterface } from './interface';
 import type { EndpointExtraOptions, FetchFunction } from './types';
+import type { ResolveType } from './utility';
 
 export interface EndpointOptions<
   K extends (params: any) => string,
@@ -38,7 +39,7 @@ export type ExtendEndpoint<
   'fetch' extends keyof typeof options ? typeof options['fetch'] : E['fetch'],
   'schema' extends keyof typeof options
     ? typeof options['schema']
-    : E['schema'],
+    : E['_schema'],
   'sideEffect' extends keyof typeof options
     ? typeof options['sideEffect']
     : E['sideEffect']
@@ -90,19 +91,21 @@ export interface EndpointInstance<
 
   readonly sideEffect?: M;
 
-  readonly schema?: S;
+  readonly schema: S extends undefined ? ResolveType<F> : S;
+  private _schema: S; // TODO: remove once we don't care about FetchShape compatibility
 
   fetch: F;
 
   extend<
-    E extends EndpointInstance<any, any, any>,
+    E extends EndpointInstance<any, S, any>,
     O extends EndpointExtendOptions<K, any, any>,
     K extends (
       this: ThisParameterType<
         'fetch' extends keyof O ? O['fetch'] : E['fetch']
       >,
       params: ParamFromFetch<'fetch' extends keyof O ? O['fetch'] : E['fetch']>,
-    ) => string
+    ) => string,
+    S
   >(
     this: E,
     options: O,
@@ -110,11 +113,15 @@ export interface EndpointInstance<
     'fetch' extends keyof typeof options ? typeof options['fetch'] : E['fetch'],
     'schema' extends keyof typeof options
       ? typeof options['schema']
-      : E['schema'],
+      : E['_schema'],
     'sideEffect' extends keyof typeof options
       ? typeof options['sideEffect']
       : E['sideEffect']
   >;
+
+  /** The following is for compatibility with FetchShape */
+  readonly type: M extends undefined ? 'read' : 'mutate';
+  getFetchKey(...args: Parameters<F>): string;
 }
 
 interface EndpointConstructor {
