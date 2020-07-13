@@ -52,12 +52,12 @@ export interface EndpointExtraOptions {
 }
 ```
 
-### Endpoint Members
+## Endpoint Members
 
 Members double as options (second constructor arg). While none are required, the first few
 have defaults.
 
-#### key: (params) => string
+### key: (params) => string
 
 Serializes the parameters. This is used to build a lookup key in global stores.
 
@@ -67,14 +67,14 @@ Default:
 `${this.fetch.name} ${JSON.stringify(params)}`;
 ```
 
-#### sideEffect: true | undefined
+### sideEffect: true | undefined
 
 Disallows usage in hooks like `useResource()` since they might call fetch
 an unpredictable number of times. Use this for APIs with mutation side-effects like update, create, deletes.
 
 Defaults to undefined meaning no side effects.
 
-#### schema: Schema
+### schema: Schema
 
 Declarative definition of where `Entities` appear in the fetch response.
 
@@ -97,7 +97,7 @@ const UserDetail = new Endpoint(
 );
 ```
 
-#### extend(EndpointOptions): Endpoint
+### extend(EndpointOptions): Endpoint
 
 Can be used to further customize the endpoint definition
 
@@ -108,33 +108,33 @@ const UserDetail = new Endpoint(({ id }) ⇒ fetch(`/users/${id}`));
 const UserDetailNormalized = UserDetail.extend({ schema: User });
 ```
 
-#### dataExpiryLength?: number
+### dataExpiryLength?: number
 
 Custom data cache lifetime for the fetched resource. Will override the value set in NetworkManager.
 
-#### errorExpiryLength?: number
+### errorExpiryLength?: number
 
 Custom data error lifetime for the fetched resource. Will override the value set in NetworkManager.
 
-#### pollFrequency: number
+### pollFrequency: number
 
 Frequency in millisecond to poll at. Requires using [useSubscription()](./useSubscription.md) to have
 an effect.
 
-#### invalidIfStale: boolean
+### invalidIfStale: boolean
 
 Indicates stale data should be considered unusable and thus not be returned from the cache. This means
 that useResource() will suspend when data is stale even if it already exists in cache.
 
-#### optimisticUpdate: (params, body) => fakePayload
+### optimisticUpdate: (params, body) => fakePayload
 
 When provided, any fetches with this shape will behave as though the `fakePayload` return value
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
 
-### Examples
+## Examples
 
-#### 1) Define the function
+### 1) Define the function
 
 ```typescript
 import { Endpoint } from '@rest-hooks/endpoint';
@@ -144,7 +144,7 @@ const UserDetail = new Endpoint(
 );
 ```
 
-#### 2) Reuse with different hooks
+### 2) Reuse with different hooks
 
 ```tsx
 function UserProfile() {
@@ -155,14 +155,14 @@ function UserProfile() {
 }
 ```
 
-#### 3) Or call directly
+### 3) Or call directly
 
 ```typescript
 const user = await UserDetail({ id: '5' });
 console.log(user);
 ```
 
-### Motivation
+## Motivation
 
 There is a distinction between
 
@@ -183,13 +183,13 @@ TypeScript the definition of a networking API.
 - Product developers can use the definitions in a multitude of contexts where behaviors vary
 - Product developers can easily share code across platforms with distinct behaviors needs like React Native and React Web
 
-#### What's in an Endpoint
+### What's in an Endpoint
 
 - A function that resolves the results
 - A function to uniquely store those results
 - Optional: information about how to store the data in a normalized cache
 - Optional: whether the request could have side effects - to prevent repeat calls
 
-### See also
+## See also
 
 - [Index](./Index)
