@@ -28,7 +28,7 @@ const user = await UserDetail({ id: '5' });
 console.log(user);
 ```
 
-## Why
+### Why
 
 There is a distinction between
 
@@ -49,14 +49,14 @@ TypeScript the definition of a networking API.
 - Product developers can use the definitions in a multitude of contexts where behaviors vary
 - Product developers can easily share code across platforms with distinct behaviors needs like React Native and React Web
 
-### What's in an Endpoint
+#### What's in an Endpoint
 
 - A function that resolves the results
 - A function to uniquely store those results
 - Optional: information about how to store the data in a normalized cache
 - Optional: whether the request could have side effects - to prevent repeat calls
 
-## API
+### Interface
 
 `@rest-hooks/endpoint` defines a standard `interface`
 
@@ -109,14 +109,14 @@ Default:
 `${this.fetch.name} ${JSON.stringify(params)}`
 ```
 
-### sideEffect: true | undefined
+#### sideEffect: true | undefined
 
 Disallows usage in hooks like `useResource()` since they might call fetch
 an unpredictable number of times. Use this for APIs with mutation side-effects like update, create, deletes.
 
 Defaults to undefined meaning no side effects.
 
-### schema: Schema
+#### schema: Schema
 
 Declarative definition of where `Entities` appear in the fetch response.
 
