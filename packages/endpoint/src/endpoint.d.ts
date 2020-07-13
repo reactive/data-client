@@ -2,7 +2,7 @@
 import type { Schema } from '@rest-hooks/normalizr';
 
 import type { EndpointInterface } from './interface';
-import type { EndpointExtraOptions } from './types';
+import type { EndpointExtraOptions, FetchFunction } from './types';
 
 export interface EndpointOptions<
   K extends (params: any) => string,
@@ -30,16 +30,30 @@ export type ParamFromFetch<F> = F extends (
   : never;
 
 type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;
-export type FetchFunction<P = any> = (params?: P, body?: any) => Promise<any>;
+
+export type ExtendEndpoint<
+  E extends EndpointInstance<any, any, any>,
+  O extends EndpointExtendOptions<K, any, any>
+> = EndpointInstance<
+  'fetch' extends keyof typeof options ? typeof options['fetch'] : E['fetch'],
+  'schema' extends keyof typeof options
+    ? typeof options['schema']
+    : E['schema'],
+  'sideEffect' extends keyof typeof options
+    ? typeof options['sideEffect']
+    : E['sideEffect']
+>;
 
 /**
  * Creates a new function.
  */
-interface EndpointInstance<
+export interface EndpointInstance<
   F extends FetchFunction,
   S extends Schema | undefined = undefined,
   M extends true | undefined = undefined
 > extends EndpointInterface<F, S, M> {
+  constructor: EndpointConstructor;
+
   /**
    * Calls the function, substituting the specified object for the this value of the function, and the specified array for the arguments of the function.
    * @param thisArg The object to be used as the this object.

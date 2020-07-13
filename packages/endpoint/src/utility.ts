@@ -17,3 +17,10 @@ export type InferReturn<
   : ReturnType<F> extends unknown
   ? Promise<Denormalize<S>>
   : ReturnType<F>;
+
+/** Get the Params type for a given Shape */
+export type EndpointParam<E> = E extends (first: infer A, ...rest: any) => any
+  ? A
+  : E extends { key: (first: infer A, ...rest: any) => any }
+  ? A
+  : never;
