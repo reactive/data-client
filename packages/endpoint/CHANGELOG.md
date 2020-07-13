@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.3.1 (2020-07-13)</small>
+
+* docs: Add Endpoint to API section ([73428b0](https://github.com/coinbase/rest-hooks/commit/73428b0))
+* enhance: Improve endpoint (#364) ([503dd29](https://github.com/coinbase/rest-hooks/commit/503dd29)), closes [#364](https://github.com/coinbase/rest-hooks/issues/364)
+* enhance: Make Endpoint compatible with FetchShape ([caa967c](https://github.com/coinbase/rest-hooks/commit/caa967c))
+
+
+
+
+
 ## 0.3.0 (2020-07-13)
 
 * feat: Infer return type from schema ([2dccff4](https://github.com/coinbase/rest-hooks/commit/2dccff4))
