@@ -8,6 +8,9 @@
       "api/CacheProvider": {
         "title": "<CacheProvider />"
       },
+      "api/Endpoint": {
+        "title": "Endpoint"
+      },
       "api/Entity": {
         "title": "Entity"
       },
@@ -16,6 +19,9 @@
       },
       "api/FetchShape": {
         "title": "FetchShape"
+      },
+      "api/Index": {
+        "title": "Index"
       },
       "api/makeCacheProvider": {
         "title": "makeCacheProvider()"
