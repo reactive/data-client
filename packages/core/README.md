@@ -19,29 +19,23 @@ Making dynamic sites performant, scalable, simple to build with any API design.
 
 ```typescript
 class Article extends Entity {
-  readonly id: number | undefined = undefined;
+  readonly id: string = '';
   readonly title: string = '';
   readonly body: string = '';
 
   pk() { return this.id; }
 }
 
-const ArticleEndpoint = {
-  fetch: async ({ id }: { id: string }) => {
-    return await (await fetch(`http://test.com/articles/${id}`)).json();
-  },
-  getFetchKey({ id }: { id: string }) {
-    return `GET /articles/${userId}`;
-  },
+const ArticleDetail = new Endpoint(
+  ({ id }: { id: string }) => fetch(`http://test.com/articles/${id}`)).then(res => res.json()),
   schema: Article,
-  type: 'read' as const,
 }
 ```
 
 ### One line data hookup
 
 ```tsx
-const article = useResource(ArticleEndpoint, { id });
+const article = useResource(ArticleDetail, { id });
 return (
   <>
     <h2>{article.title}</h2>
@@ -53,15 +47,15 @@ return (
 ### Mutation
 
 ```tsx
-const update = useFetcher(ArticleEndpoint);
+const update = useFetcher(ArticleDetail);
 return <ArticleForm onSubmit={data => update({ id }, data)} />;
 ```
 
 ### And subscriptions
 
 ```tsx
-const price = useResource(PriceEndpoint, { symbol });
-useSubscription(PriceEndpoint, { symbol });+
+const price = useResource(PriceDetail, { symbol });
+useSubscription(PriceDetail, { symbol });+
 return price.value;
 ```
 
