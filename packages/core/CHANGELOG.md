@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-i.1 (2020-07-14)
+
+* fix: Export Endpoint through core ([8b60dea](https://github.com/coinbase/rest-hooks/commit/8b60dea))
+
+
+
+
+
 ## 1.0.0-i.0 (2020-07-14)
 
 * docs: Update readme examples ([68c69ab](https://github.com/coinbase/rest-hooks/commit/68c69ab))
