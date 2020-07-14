@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-i.0 (2020-07-14)
+
+* docs: Update readme examples ([68c69ab](https://github.com/coinbase/rest-hooks/commit/68c69ab))
+* enhance: Make Endpoint compatible with FetchShape ([caa967c](https://github.com/coinbase/rest-hooks/commit/caa967c))
+* enhance: Resource uses endpoint (#365) ([4472106](https://github.com/coinbase/rest-hooks/commit/4472106)), closes [#365](https://github.com/coinbase/rest-hooks/issues/365)
+
+
+### BREAKING CHANGE
+
+* getFetchOptions() -> getEndpointExtra()
+
+
+
+
 ## 1.0.0-h.0 (2020-07-13)
 
 * pkg: Bump babel runtime ([c6bf844](https://github.com/coinbase/rest-hooks/commit/c6bf844))

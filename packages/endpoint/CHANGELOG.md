@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.4.0 (2020-07-14)
+
+* enhance: Resource uses endpoint (#365) ([4472106](https://github.com/coinbase/rest-hooks/commit/4472106)), closes [#365](https://github.com/coinbase/rest-hooks/issues/365)
+
+
+### BREAKING CHANGE
+
+* getFetchOptions() -> getEndpointExtra()
+
+
+
+
 ## <small>0.3.2 (2020-07-14)</small>
 
 * fix: Publish endpoint ambient typescript declarations ([2e982ca](https://github.com/coinbase/rest-hooks/commit/2e982ca))

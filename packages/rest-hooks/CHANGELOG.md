@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-i.0 (2020-07-14)
+
+* docs: Update readme examples ([68c69ab](https://github.com/coinbase/rest-hooks/commit/68c69ab))
+* enhance: Resource uses endpoint (#365) ([4472106](https://github.com/coinbase/rest-hooks/commit/4472106)), closes [#365](https://github.com/coinbase/rest-hooks/issues/365)
+
+
+### BREAKING CHANGE
+
+* getFetchOptions() -> getEndpointExtra()
+
+
+
+
 ## 5.0.0-h.0 (2020-07-13)
 
 * fix: Fix schema.Delete import ([6106447](https://github.com/coinbase/rest-hooks/commit/6106447))
