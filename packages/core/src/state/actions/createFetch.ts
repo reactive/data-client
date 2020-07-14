@@ -1,61 +1,41 @@
 import { FetchAction } from '@rest-hooks/core/types';
 import { FETCH_TYPE } from '@rest-hooks/core/actionTypes';
-import { Schema } from '@rest-hooks/normalizr';
 import {
-  FetchShape,
-  SchemaFromShape,
-  ParamsFromShape,
-  BodyFromShape,
+  EndpointInterface,
+  FetchFunction,
   OptimisticUpdateParams,
-} from '@rest-hooks/core/endpoint';
+} from '@rest-hooks/endpoint';
 
-interface Options<
-  Shape extends FetchShape<
-    Schema,
-    Readonly<object>,
-    Readonly<object | string> | void
-  >
-> {
-  params: ParamsFromShape<Shape>;
-  body?: BodyFromShape<Shape>;
+interface Options<E extends EndpointInterface<FetchFunction, any, any>> {
+  params: Parameters<E>[0];
+  body?: Parameters<E>[1];
   throttle: boolean;
   updateParams?:
     | OptimisticUpdateParams<
-        SchemaFromShape<Shape>,
-        FetchShape<any, any, any>
+        E['schema'],
+        EndpointInterface<FetchFunction, any, any>
       >[]
     | undefined;
 }
 
 /** Requesting a fetch to begin
  *
- * @param fetchShape
- * @param param1 { params, body, throttle, updateParams }
+ * @param endpoint
+ * @param options { params, body, throttle, updateParams }
  */
 export default function createFetch<
-  Shape extends FetchShape<
-    Schema,
-    Readonly<object>,
-    Readonly<object | string> | void
-  >
+  E extends EndpointInterface<FetchFunction, any, any>
 >(
-  fetchShape: Shape,
-  { params, body, throttle, updateParams }: Options<Shape>,
-): FetchAction {
-  const { fetch, schema, type, getFetchKey, options } = fetchShape;
-
-  const key = getFetchKey(params);
+  endpoint: E,
+  { params, body, throttle, updateParams }: Options<E>,
+): FetchAction<E> {
   let resolve: (value?: any | PromiseLike<any>) => void = 0 as any;
   let reject: (reason?: any) => void = 0 as any;
   const promise = new Promise<any>((a, b) => {
     [resolve, reject] = [a, b];
   });
   const meta: FetchAction['meta'] = {
-    schema,
-    type,
-    key,
     throttle,
-    options,
     resolve,
     reject,
     promise,
@@ -64,20 +44,21 @@ export default function createFetch<
   if (updateParams) {
     meta.updaters = updateParams.reduce(
       (accumulator: object, [toShape, toParams, updateFn]) => ({
-        [toShape.getFetchKey(toParams)]: updateFn,
+        [toShape.key(toParams)]: updateFn,
         ...accumulator,
       }),
       {},
     );
   }
 
-  if (options && options.optimisticUpdate) {
-    meta.optimisticResponse = options.optimisticUpdate(params, body);
+  if (endpoint.optimisticUpdate) {
+    meta.optimisticResponse = endpoint.optimisticUpdate(params, body);
   }
 
   return {
     type: FETCH_TYPE,
-    payload: () => fetch(params, body),
+    endpoint,
+    args: [params, body] as any,
     meta,
   };
 }

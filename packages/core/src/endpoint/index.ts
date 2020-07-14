@@ -13,4 +13,4 @@ export type {
   Denormalize,
   DenormalizeNullable,
   NormalizeNullable,
-} from './normal';
+} from '../normal';

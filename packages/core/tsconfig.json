@@ -8,6 +8,7 @@
   "references": [
     { "path": "../../__tests__" },
     { "path": "../normalizr" },
-    { "path": "../use-enhanced-reducer" }
+    { "path": "../use-enhanced-reducer" },
+    { "path": "../endpoint" }
   ]
 }

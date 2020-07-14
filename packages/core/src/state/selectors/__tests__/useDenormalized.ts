@@ -6,10 +6,15 @@ import {
   IndexedUserResource,
   photoShape,
 } from '__tests__/common';
-import { normalize, NormalizedIndex } from '@rest-hooks/normalizr';
+import {
+  normalize,
+  NormalizedIndex,
+  AbstractInstanceType,
+} from '@rest-hooks/normalizr';
 import { initialState } from '@rest-hooks/core/state/reducer';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useState } from 'react';
+import { Index, IndexParams, ArrayElement } from '@rest-hooks/endpoint';
 
 import useDenormalized from '../useDenormalized';
 
@@ -173,7 +178,7 @@ describe('useDenormalized()', () => {
           current: [value, found, deleted],
         },
       } = renderHook(() =>
-        useDenormalized(PaginatedArticleResource.detailShape(), params, state),
+        useDenormalized(PaginatedArticleResource.detail(), params, state),
       );
 
       it('found should be true', () => {
@@ -195,16 +200,10 @@ describe('useDenormalized()', () => {
         author: 23,
       });
       const user = IndexedUserResource.fromJS({ id: 23, username: 'anne' });
-      const IndexShape = {
-        type: 'read' as const,
-        getFetchKey({ username }: { username: string }) {
-          return username;
-        },
-        schema: {
-          pagination: { next: '', previous: '' },
-          data: IndexedUserResource,
-        },
-      };
+      const UserByUsername = new Index({
+        pagination: { next: '', previous: '' },
+        data: IndexedUserResource,
+      });
 
       it('should find value on index updates', () => {
         let localstate = {
@@ -219,7 +218,7 @@ describe('useDenormalized()', () => {
 
         const { result, rerender } = renderHook(
           ({ state }) =>
-            useDenormalized(IndexShape, { username: user.username }, state),
+            useDenormalized(UserByUsername, { username: 5 }, state),
           { initialProps: { state: localstate } },
         );
         expect(result.current[1]).toBe(false);
@@ -250,9 +249,7 @@ describe('useDenormalized()', () => {
           },
         },
         results: {
-          [CoolerArticleResource.detailShape().getFetchKey(
-            urlParams,
-          )]: params.id,
+          [CoolerArticleResource.detail().key(urlParams)]: params.id,
         },
       };
       const {
@@ -260,7 +257,7 @@ describe('useDenormalized()', () => {
           current: [value, found],
         },
       } = renderHook(() =>
-        useDenormalized(CoolerArticleResource.detailShape(), params, state),
+        useDenormalized(CoolerArticleResource.detail(), params, state),
       );
 
       it('found should be true', () => {
@@ -276,11 +273,11 @@ describe('useDenormalized()', () => {
       const state = {
         ...initialState,
         results: {
-          [CoolerArticleResource.detailShape().getFetchKey(params)]: [5, 6, 7],
+          [CoolerArticleResource.detail().key(params)]: [5, 6, 7],
         },
       };
       const { result } = renderHook(() =>
-        useDenormalized(CoolerArticleResource.detailShape(), params, state),
+        useDenormalized(CoolerArticleResource.detail(), params, state),
       );
       expect(result.error).toBeDefined();
     });
@@ -289,13 +286,13 @@ describe('useDenormalized()', () => {
       const state = {
         ...initialState,
         results: {
-          [CoolerArticleResource.detailShape().getFetchKey(params)]: {
+          [CoolerArticleResource.detail().key(params)]: {
             results: [5, 6, 7],
           },
         },
       };
       const { result } = renderHook(() =>
-        useDenormalized(CoolerArticleResource.detailShape(), params, state),
+        useDenormalized(CoolerArticleResource.detail(), params, state),
       );
       expect(result.error).toBeDefined();
     });
@@ -320,7 +317,7 @@ describe('useDenormalized()', () => {
           current: [value, found],
         },
       } = renderHook(() =>
-        useDenormalized(NestedArticleResource.detailShape(), params, state),
+        useDenormalized(NestedArticleResource.detail(), params, state),
       );
       it('found should be true', () => {
         expect(found).toBe(true);
@@ -355,7 +352,7 @@ describe('useDenormalized()', () => {
           current: [value, found],
         },
       } = renderHook(() =>
-        useDenormalized(PaginatedArticleResource.listShape(), {}, state),
+        useDenormalized(PaginatedArticleResource.list(), {}, state),
       );
 
       it('found should be false', () => {
@@ -375,7 +372,7 @@ describe('useDenormalized()', () => {
     describe('state is partial', () => {
       const { entities } = normalize(
         articles,
-        CoolerArticleResource.listShape().schema,
+        CoolerArticleResource.list().schema,
       );
       const state = initialState;
       const {

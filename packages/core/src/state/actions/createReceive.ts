@@ -1,52 +1,45 @@
-import { Schema } from '@rest-hooks/normalizr';
-import {
-  FetchAction,
-  ReceiveAction,
-  FetchOptions,
-} from '@rest-hooks/core/types';
+import { FetchAction, ReceiveAction } from '@rest-hooks/core/types';
 import { RECEIVE_TYPE } from '@rest-hooks/core/actionTypes';
-
-interface Options<
-  Payload extends object | string | number | null =
-    | object
-    | string
-    | number
-    | null,
-  S extends Schema = any
->
-  extends Pick<
-    FetchAction<Payload, S>['meta'],
-    'schema' | 'key' | 'type' | 'updaters'
-  > {
-  dataExpiryLength: NonNullable<FetchOptions['dataExpiryLength']>;
-}
+import { EndpointInterface, FetchFunction } from '@rest-hooks/endpoint';
 
 /** Update state with data
  *
  * @param data
- * @param param1 { schema, key, type, updaters, dataExpiryLength }
+ * @param fetchAction { endpoint, args, meta }
  */
 export default function createReceive<
+  E extends EndpointInterface<FetchFunction, any, any> = EndpointInterface<
+    FetchFunction,
+    any,
+    any
+  >,
   Payload extends object | string | number | null =
     | object
     | string
     | number
-    | null,
-  S extends Schema = any
+    | null
 >(
   data: Payload,
-  { schema, key, updaters, dataExpiryLength }: Options<Payload, S>,
-): ReceiveAction<Payload, S> {
+  {
+    endpoint,
+    args,
+    meta: { updaters },
+  }: Pick<FetchAction<E>, 'args' | 'meta'> & {
+    endpoint: Pick<FetchAction<E>['endpoint'], 'schema' | 'key'> & {
+      dataExpiryLength: number;
+    };
+  },
+): ReceiveAction<Payload, E['schema']> {
   /* istanbul ignore next */
-  if (process.env.NODE_ENV === 'development' && dataExpiryLength < 0) {
+  if (process.env.NODE_ENV === 'development' && endpoint.dataExpiryLength < 0) {
     throw new Error('Negative dataExpiryLength are not allowed.');
   }
   const now = Date.now();
   const meta: ReceiveAction['meta'] = {
-    schema,
-    key,
+    schema: endpoint.schema,
+    key: endpoint.key(args[0]),
     date: now,
-    expiresAt: now + dataExpiryLength,
+    expiresAt: now + endpoint.dataExpiryLength,
   };
   meta.updaters = updaters;
   return {

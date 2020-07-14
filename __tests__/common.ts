@@ -12,6 +12,13 @@ import {
 } from '@rest-hooks/core';
 import { Endpoint, EndpointExtraOptions } from '@rest-hooks/endpoint';
 import React from 'react';
+import {
+  Endpoint,
+  EndpointInterface,
+  FetchFunction,
+  EndpointInstance,
+} from '@rest-hooks/endpoint';
+import { EntityInterface } from 'packages/normalizr/src/schema';
 
 export class UserResource extends Resource {
   readonly id: number | undefined = undefined;
@@ -48,89 +55,53 @@ export class ArticleResource extends Resource {
     return super.url(urlParams);
   }
 
-  static longLivingRequest<T extends typeof Resource>(this: T) {
-    const single = this.detailShape();
-    return {
-      ...single,
-      options: {
-        ...single.options,
-        dataExpiryLength: 1000 * 60 * 60,
-      },
-    };
+  static longLiving<T extends typeof Resource>(this: T) {
+    return this.detail().extend({ dataExpiryLength: 1000 * 60 * 60 });
   }
 
-  static neverRetryOnErrorRequest<T extends typeof Resource>(this: T) {
-    const single = this.detailShape();
-    return {
-      ...single,
-      options: {
-        ...single.options,
-        errorExpiryLength: Infinity,
-      },
-    };
+  static neverRetryOnError<T extends typeof Resource>(this: T) {
+    return this.detail().extend({ errorExpiryLength: Infinity });
   }
 
-  static singleWithUserRequest<T extends typeof ArticleResource>(
-    this: T,
-  ): ReadShape<SchemaDetail<AbstractInstanceType<T>>> {
-    const baseShape = this.detailShape();
-    return {
-      ...baseShape,
-      getFetchKey: (params: Readonly<Record<string, string>>) =>
-        baseShape.getFetchKey({ ...params, includeUser: true }),
+  static singleWithUser<T extends typeof ArticleResource>(this: T) {
+    const endpoint = this.detail();
+    return endpoint.extend({
+      key: (params: Readonly<object>) =>
+        endpoint.key({ ...params, includeUser: true }),
       fetch: (params: object) =>
         this.fetch(this.url({ ...params, includeUser: true }), {
           method: 'get',
         }),
       schema: this,
-    };
+    });
   }
 
-  static listWithUserRequest<T extends typeof ArticleResource>(
-    this: T,
-  ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
-    const baseShape = this.listShape();
-    return {
-      ...baseShape,
-      getFetchKey: (params: Readonly<Record<string, string>>) =>
-        baseShape.getFetchKey({ ...params, includeUser: true }),
+  static listWithUser<T extends typeof ArticleResource>(this: T) {
+    const endpoint = this.list();
+    return endpoint.extend({
+      key: (params: Readonly<object>) =>
+        endpoint.key({ ...params, includeUser: true }),
       fetch: (params: object) =>
-        this.fetch(this.listUrl({ ...params, includeUser: 'true' }), {
-          method: 'get',
-        }),
+        this.fetch(this.listUrl({ ...params, includeUser: 'true' }), {}),
       schema: [this],
-    };
+    });
   }
 
-  static partialUpdateShape<T extends typeof Resource>(
-    this: T,
-  ): MutateShape<
-    SchemaDetail<Readonly<AbstractInstanceType<T>>>,
-    Readonly<object>,
-    Partial<AbstractInstanceType<T>>
-  > {
-    return {
-      ...super.partialUpdateShape(),
-      options: {
-        ...this.getEndpointExtra(),
-        optimisticUpdate: (params: any, body: any) => ({
-          id: params.id,
-          ...body,
-        }),
-      },
-    };
+  static partialUpdate<T extends typeof Resource>(this: T) {
+    return super.partialUpdateShape().extend({
+      optimisticUpdate: (params: any, body: any) => ({
+        id: params.id,
+        ...body,
+      }),
+    });
   }
 
-  static deleteShape<T extends typeof Resource>(
+  static delete<T extends typeof Resource>(
     this: T,
-  ): MutateShape<schemas.Delete<T>, Readonly<object>, undefined> {
-    return {
-      ...(super.deleteShape() as any),
-      options: {
-        ...this.getEndpointExtra(),
-        optimisticUpdate: (params: any, _body: any) => params,
-      },
-    };
+  ): EndpointInstance<FetchFunction, schemas.Delete<T>, true> {
+    return super.deleteShape().extend({
+      optimisticUpdate: (params: any, _body: any) => params,
+    });
   }
 }
 
@@ -152,33 +123,30 @@ export class UrlArticleResource extends ArticleResource {
 export class ArticleResourceWithOtherListUrl extends ArticleResource {
   static otherListShape<T extends typeof ArticleResourceWithOtherListUrl>(
     this: T,
-  ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
-    const getFetchKey = () => this.otherListUrl();
-    return {
-      ...this.listShape(),
-      getFetchKey,
+  ) {
+    const key = () => this.otherListUrl();
+    return this.list().extend({
+      key,
       fetch: (_params: object) =>
-        this.fetch(getFetchKey(), {
+        this.fetch(key(), {
           method: 'get',
         }),
-    };
+    });
   }
 
   static otherListUrl<T extends typeof ArticleResource>(this: T): string {
     return this.urlRoot + 'some-list-url';
   }
 
-  static createShape<T extends typeof Resource>(this: T) {
-    return {
-      ...super.createShape(),
-      options: {
-        ...this.getEndpointExtra(),
-        optimisticUpdate: (
-          params: Readonly<object>,
-          body: Readonly<object | string> | void,
-        ) => body,
-      },
-    };
+  static create<T extends typeof Resource>(
+    this: T,
+  ): EndpointInstance<FetchFunction, T, true> {
+    return super.create().extend({
+      optimisticUpdate: (
+        params: Readonly<object>,
+        body: Readonly<object | string> | void,
+      ) => body,
+    }) as any;
   }
 }
 
@@ -198,7 +166,7 @@ export const CoolerArticleDetail = new Endpoint(({ id }: { id: number }) => {
 });
 
 export class IndexedUserResource extends UserResource {
-  static indexes = ['username' as const];
+  static indexes = ['username'] as const;
 }
 
 export class InvalidIfStaleArticleResource extends CoolerArticleResource {
@@ -220,15 +188,12 @@ export class PollingArticleResource extends ArticleResource {
     };
   }
 
-  static pusherShape<T extends typeof PollingArticleResource>(this: T) {
-    return {
-      ...this.detailShape(),
-      options: {
-        extra: {
-          eventType: 'PollingArticleResource:fetch',
-        },
+  static pusher<T extends typeof PollingArticleResource>(this: T) {
+    return this.detail().extend({
+      extra: {
+        eventType: 'PollingArticleResource:fetch',
       },
-    };
+    });
   }
 }
 
@@ -256,25 +221,22 @@ function makePaginatedRecord<T>(entity: T) {
 
 export class PaginatedArticleResource extends OtherArticleResource {
   static urlRoot = 'http://test.com/article-paginated/';
-  static listShape<T extends typeof Resource>(this: T) {
-    return {
-      ...super.listShape(),
+  static list<T extends typeof Resource>(this: T) {
+    return super.list().extend({
       schema: { results: [this], prevPage: '', nextPage: '' },
-    };
+    });
   }
 
-  static listDefaultsShape<T extends typeof Resource>(this: T) {
-    return {
-      ...super.listShape(),
+  static listDefaults<T extends typeof Resource>(this: T) {
+    return this.list().extend({
       schema: makePaginatedRecord(this),
-    };
+    });
   }
 
-  static detailShape<T extends typeof Resource>(this: T) {
-    return {
-      ...super.listShape(),
+  static detail<T extends typeof Resource>(this: T) {
+    return super.list().extend({
       schema: { data: this },
-    };
+    });
   }
 }
 
@@ -301,38 +263,30 @@ export class UnionResource extends Resource {
 
   static urlRoot = '/union/';
 
-  static detailShape<T extends typeof Resource>(
-    this: T,
-  ): ReadShape<SchemaDetail<AbstractInstanceType<T>>> {
-    const schema = new schemas.Union(
-      {
-        first: FirstUnionResource,
-        second: SecondUnionResource,
-      },
-      'type',
-    );
-    return {
-      ...super.detailShape(),
-      schema,
-    };
-  }
-
-  static listShape<T extends typeof Resource>(
-    this: T,
-  ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
-    const schema = [
-      new schemas.Union(
+  static detail<T extends typeof Resource>(this: T) {
+    return super.detail().extend({
+      schema: new schemas.Union(
         {
           first: FirstUnionResource,
           second: SecondUnionResource,
         },
-        (input: FirstUnionResource | SecondUnionResource) => input['type'],
+        'type',
       ),
-    ];
-    return {
-      ...super.detailShape(),
-      schema,
-    };
+    });
+  }
+
+  static list<T extends typeof Resource>(this: T) {
+    return super.detail().extend({
+      schema: [
+        new schemas.Union(
+          {
+            first: FirstUnionResource,
+            second: SecondUnionResource,
+          },
+          (input: FirstUnionResource | SecondUnionResource) => input['type'],
+        ),
+      ],
+    });
   }
 }
 export class FirstUnionResource extends UnionResource {

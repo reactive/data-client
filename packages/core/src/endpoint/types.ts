@@ -1,7 +1,7 @@
 import { UpdateFunction } from '@rest-hooks/core/types';
 import { Schema } from '@rest-hooks/normalizr';
 
-import type { Denormalize } from './normal';
+import type { Denormalize } from '../normal';
 import { FetchShape } from './shapes';
 
 export type ResultShape<RS> = RS extends { schema: infer U } ? U : never;

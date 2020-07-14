@@ -4,7 +4,7 @@ import {
   Schema,
   schema as schemas,
 } from '@rest-hooks/normalizr';
-import { NormalizeNullable } from '@rest-hooks/core/endpoint/normal';
+import { NormalizeNullable } from '@rest-hooks/core/normal';
 
 /**
  * Build the result parameter to denormalize from schema alone.
@@ -15,7 +15,7 @@ export default function buildInferredResults<
   S extends Schema
 >(
   schema: S,
-  params: Params | null,
+  params: Params | null | undefined,
   indexes: NormalizedIndex,
 ): NormalizeNullable<S> {
   if (!isSchema(schema)) {

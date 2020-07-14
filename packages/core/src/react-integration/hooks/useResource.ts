@@ -7,6 +7,7 @@ import {
 import { useDenormalized } from '@rest-hooks/core/state/selectors';
 import { StateContext } from '@rest-hooks/core/react-integration/context';
 import { useMemo, useContext } from 'react';
+import { ReadEndpoint } from '@rest-hooks/endpoint';
 
 import useRetrieve from './useRetrieve';
 import useError from './useError';
@@ -20,34 +21,34 @@ type ResourceArgs<
 
 /** single form resource */
 function useOneResource<
-  Shape extends ReadShape<any, any>,
-  Params extends ParamsFromShape<Shape> | null
+  E extends ReadEndpoint<any, any>,
+  Params extends Parameters<E>[0] | null
 >(
-  fetchShape: Shape,
+  endpoint: E,
   params: Params,
 ): CondNull<
   Params,
-  DenormalizeNullable<Shape['schema']>,
-  Denormalize<Shape['schema']>
+  CondNull<E['schema'], undefined, DenormalizeNullable<E['schema']>>,
+  CondNull<E['schema'], ReturnType<E>, Denormalize<E['schema']>>
 > {
   const state = useContext(StateContext);
   const [denormalized, ready, deleted] = useDenormalized(
-    fetchShape,
+    endpoint,
     params,
     state,
   );
-  const error = useError(fetchShape, params, ready);
+  const error = useError(endpoint, params, ready);
 
-  const maybePromise = useRetrieve(fetchShape, params, deleted && !error);
+  const maybePromise = useRetrieve(endpoint, params, deleted && !error);
 
   if (error) throw error;
 
   if (
     !hasUsableData(
-      fetchShape,
+      endpoint,
       ready,
       deleted,
-      useMeta(fetchShape, params)?.invalidated,
+      useMeta(endpoint, params)?.invalidated,
     ) &&
     maybePromise
   ) {
@@ -124,7 +125,7 @@ type CondNull<P, A, B> = P extends null ? A : B;
 
 /** Ensure a resource is available; suspending to React until it is. */
 export default function useResource<
-  S1 extends ReadShape<any, any>,
+  S1 extends ReadEndpoint<any, any>,
   P1 extends ParamsFromShape<S1> | null
 >(
   v1: readonly [S1, P1],

@@ -1,11 +1,12 @@
 import { State } from '@rest-hooks/core/types';
-import {
-  ReadShape,
-  DenormalizeNullable,
-  ParamsFromShape,
-} from '@rest-hooks/core/endpoint';
+import { DenormalizeNullable } from '@rest-hooks/core/endpoint';
 import { isEntity, Schema, denormalize } from '@rest-hooks/normalizr';
 import { useMemo } from 'react';
+import {
+  EndpointInterface,
+  FetchFunction,
+  EndpointParam,
+} from '@rest-hooks/endpoint';
 
 import buildInferredResults from './buildInferredResults';
 
@@ -19,32 +20,35 @@ import buildInferredResults from './buildInferredResults';
  * @returns [denormalizedValue, ready]
  */
 export default function useDenormalized<
-  Shape extends Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>
+  E extends Omit<EndpointInterface, 'fetch'>
 >(
-  { schema, getFetchKey, options }: Shape,
-  params: ParamsFromShape<Shape> | null,
+  { schema, key, invalidIfStale }: E,
+  params: EndpointParam<E> | null,
   state: State<any>,
 ): [
-  DenormalizeNullable<Shape['schema']>,
+  DenormalizeNullable<E['schema']>,
   typeof params extends null ? false : boolean,
   boolean,
 ] {
   let entities = state.entities;
-  const cacheResults = params && state.results[getFetchKey(params)];
-  const serializedParams = params && getFetchKey(params);
+  const cacheResults = params && state.results[key(params)];
+  const serializedParams = params && key(params);
 
   // We can grab entities without actual results if the params compute a primary key
   const results = useMemo(() => {
-    if (cacheResults) return cacheResults;
+    if (cacheResults || !schema) return cacheResults;
 
     // in case we don't even have entities for a model yet, denormalize() will throw
     // entities[entitySchema.key] === undefined
-    return buildInferredResults(schema, params, state.indexes);
+    return buildInferredResults(schema, params ?? {}, state.indexes);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cacheResults, state.indexes, serializedParams]);
   // TODO: only update when relevant indexes change
 
-  const needsDenormalization = useMemo(() => schemaHasEntity(schema), [schema]);
+  const needsDenormalization = useMemo(
+    () => schema && schemaHasEntity(schema),
+    [schema],
+  );
 
   // Compute denormalized value
   const [
@@ -53,9 +57,9 @@ export default function useDenormalized<
     entitiesDeleted,
     entitiesList,
   ] = useMemo(() => {
-    if (!needsDenormalization)
+    if (!needsDenormalization || !schema)
       return [cacheResults, cacheResults !== undefined, false, ''] as [
-        DenormalizeNullable<Shape['schema']>,
+        DenormalizeNullable<typeof schema>,
         any,
         boolean,
         string,
@@ -77,7 +81,7 @@ export default function useDenormalized<
     }
 
     // inferred results are considered stale
-    if (options && options.invalidIfStale && !cacheResults) entities = {};
+    if (invalidIfStale && !cacheResults) entities = {};
 
     // second argument is false if any entities are missing
     // eslint-disable-next-line prefer-const
@@ -94,7 +98,7 @@ export default function useDenormalized<
       .join(',');
 
     return [denormalized, entitiesFound, entitiesDeleted, entitiesList] as [
-      DenormalizeNullable<Shape['schema']>,
+      DenormalizeNullable<typeof schema>,
       boolean,
       boolean,
       string,
@@ -107,7 +111,7 @@ export default function useDenormalized<
     results,
     cacheResults,
     needsDenormalization,
-    options && options.invalidIfStale,
+    invalidIfStale,
   ]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -116,7 +120,7 @@ export default function useDenormalized<
     entitiesDeleted,
     results,
     entitiesList,
-  ]);
+  ]) as any;
 }
 
 /** Determine whether the schema has any entities.

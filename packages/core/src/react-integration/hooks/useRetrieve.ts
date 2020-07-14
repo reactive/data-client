@@ -1,30 +1,30 @@
-import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
 import { useMemo, useEffect, useContext } from 'react';
+import { EndpointInterface, EndpointParam } from '@rest-hooks/endpoint';
 
 import useFetcher from './useFetcher';
 import useExpiresAt from './useExpiresAt';
 import { DispatchContext } from '../context';
 
 /** Request a resource if it is not in cache. */
-export default function useRetrieve<Shape extends ReadShape<any, any>>(
-  fetchShape: Shape,
-  params: ParamsFromShape<Shape> | null,
+export default function useRetrieve<E extends EndpointInterface>(
+  endpoint: E,
+  params: EndpointParam<E> | null,
   triggerFetch = false,
 ) {
-  const fetch = useFetcher(fetchShape, true) as (
-    params: ParamsFromShape<Shape>,
+  const fetch = useFetcher(endpoint, true) as (
+    params: EndpointParam<E>,
   ) => Promise<any>;
-  const expiresAt = useExpiresAt(fetchShape, params);
+  const expiresAt = useExpiresAt(endpoint, params);
 
   // Clears invalidIfStale loop blocking mechanism
   const dispatch = useContext(DispatchContext);
   useEffect(() => {
-    if (params && fetchShape.options?.invalidIfStale)
+    if (params && endpoint.invalidIfStale)
       dispatch({
         type: 'rest-hook/mounted',
-        payload: fetchShape.getFetchKey(params),
+        payload: endpoint.key(params),
       }); // set expiry
-  }, [params && fetchShape.getFetchKey(params)]);
+  }, [params && endpoint.key(params)]);
 
   return useMemo(() => {
     // null params mean don't do anything
@@ -32,10 +32,5 @@ export default function useRetrieve<Shape extends ReadShape<any, any>>(
     return fetch(params);
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    expiresAt,
-    fetch,
-    params && fetchShape.getFetchKey(params),
-    triggerFetch,
-  ]);
+  }, [expiresAt, fetch, params && endpoint.key(params), triggerFetch]);
 }

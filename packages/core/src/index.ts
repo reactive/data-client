@@ -41,7 +41,7 @@ export type {
   NormalizeNullable,
   Denormalize,
   DenormalizeNullable,
-} from './endpoint/normal';
+} from './normal';
 
 export * from './state/actions';
 export * as actionTypes from './actionTypes';

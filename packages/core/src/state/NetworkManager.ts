@@ -100,17 +100,22 @@ export default class NetworkManager implements Manager {
    * for ensures mutation requests always go through.
    */
   protected handleFetch(action: FetchAction, dispatch: Dispatch<any>) {
-    const fetch = action.payload;
-    const { key, throttle, resolve, reject } = action.meta;
+    const {
+      endpoint,
+      args,
+      meta: { throttle, resolve, reject },
+    } = action;
     const deferedFetch = () =>
-      fetch()
+      endpoint(...args)
         .then(data => {
           // does this throw if the reducer fails?
           dispatch(
             createReceive(data, {
-              ...action.meta,
-              dataExpiryLength:
-                action.meta.options?.dataExpiryLength ?? this.dataExpiryLength,
+              ...action,
+              endpoint: {
+                dataExpiryLength: this.dataExpiryLength,
+                ...action.endpoint,
+              },
             }),
           );
           return data;
@@ -119,17 +124,18 @@ export default class NetworkManager implements Manager {
           if (error instanceof CleanupError) return;
           dispatch(
             createReceiveError(error, {
-              ...action.meta,
-              errorExpiryLength:
-                action.meta.options?.errorExpiryLength ??
-                this.errorExpiryLength,
+              ...action,
+              endpoint: {
+                errorExpiryLength: this.errorExpiryLength,
+                ...action.endpoint,
+              },
             }),
           );
           throw error;
         });
     let promise;
     if (throttle) {
-      promise = this.throttle(key, deferedFetch);
+      promise = this.throttle(endpoint.key(args[0]), deferedFetch);
     } else {
       promise = deferedFetch();
     }

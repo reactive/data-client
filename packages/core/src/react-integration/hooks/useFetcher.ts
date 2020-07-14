@@ -1,60 +1,58 @@
-import {
-  FetchShape,
-  SchemaFromShape,
-  ParamsFromShape,
-  BodyFromShape,
-  OptimisticUpdateParams,
-  ReturnFromShape,
-} from '@rest-hooks/core/endpoint';
-import { Schema } from '@rest-hooks/normalizr';
 import { DispatchContext } from '@rest-hooks/core/react-integration/context';
 import createFetch from '@rest-hooks/core/state/actions/createFetch';
 import { useContext, useRef, useCallback } from 'react';
+import {
+  EndpointInterface,
+  OptimisticUpdateParams,
+  FetchFunction,
+} from '@rest-hooks/endpoint';
 
 type IfExact<T, Cond, A, B> = Cond extends T ? (T extends Cond ? A : B) : B;
 
-/** Build an imperative dispatcher to issue network requests. */
-export default function useFetcher<
-  Shape extends FetchShape<
-    Schema,
-    Readonly<object>,
-    Readonly<object | string> | void
-  >
->(
-  fetchShape: Shape,
-  throttle = false,
-): IfExact<
-  BodyFromShape<Shape>,
+type UserFetcherFunction<
+  E extends EndpointInterface<FetchFunction, any, any>
+> = IfExact<
+  Parameters<E>[1],
   undefined,
-  (params: ParamsFromShape<Shape>) => ReturnFromShape<typeof fetchShape>,
-  <
-    UpdateParams extends OptimisticUpdateParams<
-      SchemaFromShape<Shape>,
-      FetchShape<any, any, any>
-    >[]
-  >(
-    params: ParamsFromShape<Shape>,
-    body: BodyFromShape<Shape>,
-    updateParams?: UpdateParams | undefined,
-  ) => ReturnFromShape<typeof fetchShape>
-> {
+  (params: Parameters<E>[0]) => ReturnType<E>,
+  E['schema'] extends undefined
+    ? (params: Parameters<E>[0], body: Parameters<E>[1]) => ReturnType<E>
+    : <
+        UpdateParams extends OptimisticUpdateParams<
+          E['schema'],
+          EndpointInterface<any, any, any>
+        >[]
+      >(
+        params: Parameters<E>[0],
+        body: Parameters<E>[1],
+        updateParams?: UpdateParams | undefined,
+      ) => ReturnType<E>
+>;
+
+/** Build an imperative dispatcher to issue network requests. */
+export default function useFetcher<E extends EndpointInterface>(
+  endpoint: E,
+  throttle = false,
+): UserFetcherFunction<E> {
   const dispatch = useContext(DispatchContext);
 
   // we just want the current values when we dispatch, so
   // box the shape in a ref to make react-hooks/exhaustive-deps happy
-  const shapeRef = useRef(fetchShape);
-  shapeRef.current = fetchShape;
+  const shapeRef = useRef(endpoint);
+  shapeRef.current = endpoint;
 
   const fetchDispatcher = useCallback(
     (
-      params: ParamsFromShape<Shape>,
-      body: BodyFromShape<Shape>,
-      updateParams?:
-        | OptimisticUpdateParams<
-            SchemaFromShape<Shape>,
-            FetchShape<any, any, any>
-          >[]
-        | undefined,
+      params: Parameters<E>[0],
+      body: Parameters<E>[1],
+      updateParams?: E['schema'] extends undefined
+        ? undefined
+        :
+            | OptimisticUpdateParams<
+                E['schema'],
+                EndpointInterface<any, any, any>
+              >[]
+            | undefined,
     ) => {
       const action = createFetch(shapeRef.current, {
         params,
@@ -62,7 +60,7 @@ export default function useFetcher<
         throttle,
         updateParams,
       });
-      dispatch(action);
+      dispatch(action as any);
       return action.meta.promise;
     },
     [dispatch, throttle],

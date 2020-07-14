@@ -46,8 +46,12 @@ export default function reducer(
         optimistic: [
           ...state.optimistic,
           createReceive(optimisticResponse, {
-            ...action.meta,
-            dataExpiryLength: 9999999999999,
+            ...action,
+            endpoint: {
+              ...action.endpoint,
+
+              dataExpiryLength: 9999999999999,
+            },
           }),
         ],
       };

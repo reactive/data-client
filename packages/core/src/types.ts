@@ -3,9 +3,13 @@ import { UpdateFunction } from '@rest-hooks/endpoint';
 import type { AbstractInstanceType, Schema } from '@rest-hooks/normalizr';
 import { Middleware } from '@rest-hooks/use-enhanced-reducer';
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
+import {
+  EndpointInterface,
+  ResolveType,
+  FetchFunction,
+} from '@rest-hooks/endpoint';
 
 import { ErrorableFSAWithPayloadAndMeta } from './fsa';
-import { FetchShape } from './endpoint';
 import {
   RECEIVE_TYPE,
   RESET_TYPE,
@@ -57,10 +61,12 @@ export interface FetchOptions {
   readonly extra?: any;
 }
 
-export interface ReceiveMeta<S extends Schema> {
+export interface ReceiveMeta<S extends Schema | undefined> {
   schema: S;
   key: string;
-  updaters?: Record<string, UpdateFunction<S, any>>;
+  updaters?: S extends undefined
+    ? undefined
+    : Record<string, UpdateFunction<Exclude<S, undefined>, any>>;
   date: number;
   expiresAt: number;
 }
@@ -81,41 +87,35 @@ export type ReceiveAction<
 export type ResetAction = FSA<typeof RESET_TYPE>;
 
 interface FetchMeta<
-  Payload extends object | string | number | null =
-    | object
-    | string
-    | number
-    | null,
-  S extends Schema = any
+  E extends EndpointInterface<FetchFunction, any, any> = EndpointInterface<
+    FetchFunction,
+    any,
+    any
+  >
 > {
-  type: FetchShape<any, any>['type'];
-  schema: S;
-  key: string;
-  updaters?: Record<string, UpdateFunction<S, any>>;
-  options?: FetchOptions;
   throttle: boolean;
   resolve: (value?: any | PromiseLike<any>) => void;
   reject: (reason?: any) => void;
   promise: PromiseLike<any>;
-  optimisticResponse?: Payload;
+  updaters?: E['schema'] extends undefined
+    ? undefined
+    : Record<string, UpdateFunction<E['schema'], any>>;
+  optimisticResponse?: ResolveType<E>;
   // indicates whether network manager processed it
   nm?: boolean;
 }
 
 export interface FetchAction<
-  Payload extends object | string | number | null =
-    | object
-    | string
-    | number
-    | null,
-  S extends Schema = any
->
-  extends FSAWithPayloadAndMeta<
-    typeof FETCH_TYPE,
-    () => Promise<Payload>,
-    FetchMeta<any, any>
-  > {
-  meta: FetchMeta<Payload, S>;
+  E extends EndpointInterface<FetchFunction, any, any> = EndpointInterface<
+    FetchFunction,
+    any,
+    any
+  >
+> {
+  type: typeof FETCH_TYPE;
+  endpoint: E;
+  args: Readonly<Parameters<E>>;
+  meta: FetchMeta<E>;
 }
 
 export interface SubscribeAction
