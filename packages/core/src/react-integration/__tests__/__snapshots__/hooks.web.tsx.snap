@@ -144,7 +144,6 @@ Object {
   "meta": Object {
     "key": "GET http://test.com/article-static/5",
     "options": Object {
-      "dataExpiryLength": Infinity,
       "errorExpiryLength": Infinity,
     },
     "promise": Promise {},
@@ -163,9 +162,7 @@ exports[`useRetrieve should dispatch with resource defined dataExpiryLength 1`] 
 Object {
   "meta": Object {
     "key": "GET http://test.com/article-static/5",
-    "options": Object {
-      "dataExpiryLength": Infinity,
-    },
+    "options": undefined,
     "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],

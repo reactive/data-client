@@ -38,7 +38,7 @@ the request. Every `getFetchInit()` takes in the existing [init options](https:/
 
 ## Auth Headers from React Context
 
-Here we use a context variable to set headers. Note - this means any fetch shape functions can only be
+Here we use a context variable to set headers. Note - this means any endpoint functions can only be
 called from a React Component. (However, this should be fine since the context will only exist in React anyway.)
 
 ```typescript

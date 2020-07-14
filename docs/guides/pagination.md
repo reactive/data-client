@@ -30,19 +30,14 @@ and the Array of results as another member.
 }
 ```
 
-To deal with our specific shape, we'll need to customize the [FetchShape](../api/FetchShape.md) of lists to
+To deal with our specific endpoint, we'll need to customize the [Endpoint](api/Endpoint.md) of lists to
 understand how to normalize the results (via schema). Be sure to provide defaults in your schema for any members
 that aren't entities.
 
 `resources/ArticleResource.ts`
 
 ```typescript
-import {
-  Resource,
-  SchemaList,
-  ReadShape,
-  AbstractInstanceType,
-} from 'rest-hooks';
+import { Resource, SchemaList, AbstractInstanceType } from 'rest-hooks';
 import { UserResource } from 'resources';
 
 export default class ArticleResource extends Resource {
@@ -56,16 +51,15 @@ export default class ArticleResource extends Resource {
   }
   static urlRoot = 'http://test.com/article/';
 
-  static listShape<T extends typeof Resource>(this: T) {
-    return {
-      ...super.listShape(),
+  static list<T extends typeof Resource>(this: T) {
+    return super.list().extend({
       schema: { results: [this], nextPage: '', prevPage: '' },
-    };
+    });
   }
 }
 ```
 
-Now we can use `listShape()` to get not only the articles, but also our `nextPage`
+Now we can use `list()` to get not only the articles, but also our `nextPage`
 and `prevPage` values. We can use those tokens to define our pagination buttons.
 
 `ArticleList.tsx`
@@ -76,7 +70,7 @@ import ArticleResource from 'resources/ArticleResource';
 
 export default function ArticleList() {
   const { results: articles, nextPage, prevPage } = useResource(
-    ArticleResource.listShape(),
+    ArticleResource.list(),
     {},
   );
   return (
@@ -96,10 +90,10 @@ export default function ArticleList() {
 ## Tokens in HTTP Headers
 
 In some cases the pagination tokens will be embeded in HTTP headers, rather than part of the payload. In this
-case you'll need to customize the [fetch()](../api/FetchShape#fetchurl-string-body-payload-promise-any) function
-for [listShape()](../api/resource#listshape-readshape) so the pagination headers are included fetch object.
+case you'll need to customize the [fetch()](../api/Endpoint) function
+for [list()](../api/resource#list-endpoint) so the pagination headers are included fetch object.
 
-We show the custom listShape() below. All other parts of the above example remain the same.
+We show the custom list() below. All other parts of the above example remain the same.
 
 Pagination token is stored in the header `link` for this example.
 
@@ -112,8 +106,8 @@ import { Resource } from 'rest-hooks';
 export default class ArticleResource extends Resource {
   // same as above....
 
-  /** Shape to get a list of entities */
-  static listShape<T extends typeof Resource>(this: T) {
+  /** Endpoint to get a list of entities */
+  static list<T extends typeof Resource>(this: T) {
     const fetch = async (params: Readonly<Record<string, string | number>>) => {
       const response = await this.fetchResponse('get', this.listUrl(params));
       return {
@@ -124,11 +118,10 @@ export default class ArticleResource extends Resource {
         }),
       };
     };
-    return {
-      ...super.listShape(),
+    return super.list().extend({
       fetch,
       schema: { results: [this], link: '' },
-    };
+    });
   }
 }
 ```
@@ -137,18 +130,13 @@ export default class ArticleResource extends Resource {
 
 ```typescript
 import request from 'superagent';
-import {
-  Resource,
-  ReadShape,
-  SchemaList,
-  AbstractInstanceType,
-} from 'rest-hooks';
+import { Resource, SchemaList, AbstractInstanceType } from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
   // same as above....
 
-  /** Shape to get a list of entities */
-  static listShape<T extends typeof Resource>(this: T) {
+  /** Endpoint to get a list of entities */
+  static list<T extends typeof Resource>(this: T) {
     const fetch = async (
       params: Readonly<object>,
       body?: Readonly<object | string>,
@@ -167,11 +155,10 @@ export default class ArticleResource extends Resource {
       return jsonResponse;
     };
 
-    return {
-      ...super.listShape(),
+    return super.list().extend({
       fetch,
       schema: { results: [this], link: '' },
-    };
+    });
   }
 }
 ```

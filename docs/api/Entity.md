@@ -186,7 +186,7 @@ export class UserResource extends Resource {
 ```
 
 ```tsx
-const user = useResource(UserResource.detailShape(), { username: 'bob' });
+const user = useResource(UserResource.detail(), { username: 'bob' });
 ```
 
 #### useCache()
@@ -216,7 +216,7 @@ class AssetResource extends Resource {
 Some top level component:
 
 ```tsx
-const assets = useResource(AssetResource.listShape(), {});
+const assets = useResource(AssetResource.list(), {});
 ```
 
 Nested below:

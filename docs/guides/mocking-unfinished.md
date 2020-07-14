@@ -10,7 +10,7 @@ you won't need to make major changes to your code.
 `resource/RatingResource.ts`
 
 ```typescript
-import { Resource, FetchOptions } from 'rest-hooks';
+import { Resource, EndpointExtraOptions } from 'rest-hooks';
 
 export default class RatingResource extends Resource {
   readonly id: string = '';
@@ -24,15 +24,14 @@ export default class RatingResource extends Resource {
 
   static urlRoot = '/ratings';
 
-  static getFetchOptions(): FetchOptions {
+  static getEndpointExtra(): EndpointExtraOptions {
     return {
       dataExpiryLength: 10 * 60 * 1000, // 10 minutes
     };
   }
 
-  static listShape<T extends typeof Resource>(this: T) {
-    return {
-      ...super.listShape(),
+  static list<T extends typeof Resource>(this: T) {
+    return super.list().extend({
       fetch(params: Readonly<object>, body?: Readonly<object | string>) {
         return Promise.resolve(
           ['Morningstar', 'Seekingalpha', 'Morningstar', 'CNBC'].map(
@@ -45,16 +44,16 @@ export default class RatingResource extends Resource {
           ),
         );
       },
-    };
+    });
   }
 }
 ```
 
-By mocking the [fetch](../api/FetchShape.md#fetchurl-string-body-payload-promiseany) part of
-[FetchShape](../api/FetchShape.md) we can easily fake the data the server will return. Doing
+By mocking the
+[Endpoint](api/Endpoint.md) we can easily fake the data the server will return. Doing
 this allows free use of the strongly typed RatingResource as normal throughout the codebase.
 
-Once the API is implemented you can simply remove the custom fetch (and the entire listShape()
+Once the API is implemented you can simply remove the custom fetch (and the entire list()
 override if that's all it's doing).
 
 In this example we also set the dataExpiryLength to a longer time so the random values generated

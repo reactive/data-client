@@ -9,11 +9,10 @@ to a base class can make adding pagination behavior to any of your endpoints qui
 
 ```typescript
 abstract class BaseResource extends Resource {
-  static listShape<T extends typeof Resource>(this: T) {
-    return {
-      ...super.listShape(),
+  static list<T extends typeof Resource>(this: T) {
+    return super.list().extend({
       schema: { results: [this], cursor: null as string | null },
-    };
+    });
   }
 
   static appendList(
@@ -41,26 +40,26 @@ This can then be used for any Resources that conform to this schema. Most likely
 that is the same as those extending from BaseResource.
 
 ```typescript
-import { ReadShape, ParamsFromShape, useFetcher } from 'rest-hooks';
+import { ReadEndpoint, EndpointParam, useFetcher } from 'rest-hooks';
 import BaseResource from 'resources/BaseResource';
 
 function usePaginator<
-  S extends ReadShape<any, any>,
-  P extends Omit<ParamsFromShape<S>, 'cursor'> | null
->(fetchShape: Shape, params: Params) {
+  E extends ReadEndpoint<any, any>,
+  P extends Omit<EndpointParam<E>, 'cursor'> | null
+>(endpoint: E, params: P) {
   // the second argument here is really important - it indicates that requests should be deduped!
-  const getNextPage = useFetcher(fetchShape, true);
+  const getNextPage = useFetcher(endpoint, true);
 
   return useCallback(
     (cursor: string) => {
       return getNextPage({ ...params, cursor }, undefined, [
         // this instructs Rest Hooks to update the cache results specified by the first two members
         // with the merge algorithm of the third.
-        [fetchShape, params, BaseResource.appendList],
+        [endpoint, params, BaseResource.appendList],
       ]);
-      // "params && fetchShape.getFetchKey(params)" is a method to serialize params
+      // "params && endpoint.key(params)" is a method to serialize params
     },
-    [getNextPage, params && fetchShape.getFetchKey(params)],
+    [getNextPage, params && endpoint.key(params)],
   );
 }
 ```
@@ -68,7 +67,7 @@ function usePaginator<
 ## NewsList example
 
 We'll extend the `BaseResource` created above, to define the correct
-schema for listShape().
+schema for list().
 
 ```typescript
 class NewsResource extends BaseResource {
@@ -101,8 +100,8 @@ import NewsResource from 'resources/NewsResource';
 import usePaginator from 'resources/basePaginator';
 
 function NewsList() {
-  const { results, cursor } = useResource(NewsResource.listShape(), {});
-  const getNextPage = usePaginator(NewsResource.listShape(), {});
+  const { results, cursor } = useResource(NewsResource.list(), {});
+  const getNextPage = usePaginator(NewsResource.list(), {});
 
   return (
     <Pagination onPaginate={getNextPage} nextCursor={cursor}>

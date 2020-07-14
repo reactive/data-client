@@ -7,11 +7,11 @@ title: useResource()
 <!--Type-->
 
 ```typescript
-function useResource(fetchShape: ReadShape, params: object | null):
-  Denormalize<typeof fetchShape.schema>;
+function useResource(endpoint: ReadEndpoint, params: object | null):
+  Denormalize<typeof endpoint.schema>;
 
-function useResource(...[fetchShape: ReadShape, params: object | null]):
-  Denormalize<typeof fetchShape.schema>[];
+function useResource(...[endpoint: ReadEndpoint, params: object | null]):
+  Denormalize<typeof endpoint.schema>[];
 ```
 
 <!--With Generics-->
@@ -20,12 +20,12 @@ function useResource(...[fetchShape: ReadShape, params: object | null]):
 function useResource<
   Params extends Readonly<object>,
   S extends Schema
->(fetchShape: ReadShape<S, Params>, params: Params | null): Denormalize<S>;
+>(endpoint: ReadEndpoint<(p:Params) => Promise<any>, S>, params: Params | null): Denormalize<S>;
 
 function useResource<
   Params extends Readonly<object>,
   S extends Schema
->(...[fetchShape: ReadShape<S, Params>, params: Params | null]): Denormalize<S>[];
+>(...[endpoint: ReadEndpoint<(p:Params) => Promise<any>, S>, params: Params | null]): Denormalize<S>[];
 ```
 
 <!--END_DOCUSAURUS_CODE_TABS-->
@@ -52,7 +52,7 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
 
 ```tsx
 function Post({ id }: { id: number }) {
-  const post = useResource(PostResource.detailShape(), { id });
+  const post = useResource(PostResource.detail(), { id });
   // post as PostResource
 }
 ```
@@ -61,7 +61,7 @@ function Post({ id }: { id: number }) {
 
 ```tsx
 function Posts() {
-  const posts = useResource(PostResource.listShape(), {});
+  const posts = useResource(PostResource.list(), {});
   // posts as PostResource[]
 }
 ```
@@ -71,8 +71,8 @@ function Posts() {
 ```tsx
 function Posts() {
   const [user, posts] = useResource(
-    [UserResource.detailShape(), { id: userId }],
-    [PostResource.listShape(), { userId }],
+    [UserResource.detail(), { id: userId }],
+    [PostResource.list(), { userId }],
   );
   // user as UserResource
   // posts as PostResource[]
@@ -83,9 +83,9 @@ function Posts() {
 
 ```tsx
 function PostWithAuthor() {
-  const post = useResource(PostResource.detailShape(), { id });
+  const post = useResource(PostResource.detail(), { id });
   // post as PostResource
-  const author = useResource(UserResource.detailShape(), {
+  const author = useResource(UserResource.detail(), {
     id: post.userId,
   });
   // author as UserResource
@@ -104,11 +104,10 @@ export class PaginatedPostResource extends Resource {
 
   static urlRoot = 'http://test.com/post/';
 
-  static listShape<T extends typeof Resource>(this: T) {
-    return {
-      ...super.listShape(),
+  static list<T extends typeof Resource>(this: T) {
+    return super.list().extend({
       schema: { results: [this], nextPage: '', lastPage: '' },
-    };
+    });
   }
 }
 ```
@@ -116,18 +115,18 @@ export class PaginatedPostResource extends Resource {
 ```tsx
 function ArticleList({ page }: { page: string }) {
   const { results: posts, nextPage, lastPage } = useResource(
-    PaginatedPostResource.listShape(),
+    PaginatedPostResource.list(),
     { page },
   );
   // posts as PaginatedPostResource[]
 }
 ```
 
-## Useful `FetchShape`s to send
+## Useful `Endpoint`s to send
 
 [Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
 
-- detailShape()
-- listShape()
+- detail()
+- list()
 
-Feel free to add your own [FetchShape](./FetchShape.md) as well.
+Feel free to add your own [Endpoint](api/Endpoint.md) as well.

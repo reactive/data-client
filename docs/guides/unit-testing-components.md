@@ -14,7 +14,7 @@ with said results.
 export default {
   full: [
     {
-      request: ArticleResource.listShape(),
+      request: ArticleResource.list(),
       params: { maxResults: 10 },
       result: [
         {
@@ -34,7 +34,7 @@ export default {
   ],
   empty: [
     {
-      request: ArticleResource.listShape(),
+      request: ArticleResource.list(),
       params: { maxResults: 10 },
       result: [],
     },

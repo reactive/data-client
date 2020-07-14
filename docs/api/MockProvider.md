@@ -21,14 +21,14 @@ can be tested. This is useful for [storybook](../guides/storybook.md) as well as
 
 ```typescript
 interface Fixture {
-  request: ReadShape<Schema, object>;
+  request: ReadEndpoint;
   params: object;
   result: object | string | number;
 }
 ```
 
 This prop specifies the fixtures to use data from. Each item represents a fetch defined by the
-[FetchShape](./FetchShape.md) and params. `Result` contains the JSON response expected from said fetch.
+[Endpoint](api/Endpoint.md) and params. `Result` contains the JSON response expected from said fetch.
 
 ## Returns
 
@@ -48,7 +48,7 @@ import MyComponentToTest from 'components/MyComponentToTest';
 
 const results = [
   {
-    request: ArticleResource.listShape(),
+    request: ArticleResource.list(),
     params: { maxResults: 10 },
     result: [
       {

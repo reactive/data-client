@@ -7,7 +7,7 @@ title: useFetcher()
 
 ```typescript
 function useFetcher(
-  fetchShape: FetchShape,
+  endpoint: Endpoint,
   throttle?: boolean = false,
 ): FetchFunction;
 
@@ -18,7 +18,7 @@ type FetchFunction = (
 ) => Promise<any>;
 
 type OptimisticUpdateParams = [
-  destShape: FetchShape,
+  destShape: Endpoint,
   destParams: object,
   updateFunction: (sourceResults: object, destResults: object) => object,
 ];
@@ -32,18 +32,18 @@ function useFetcher<
   Body extends Readonly<object | string> | void,
   S extends Schema
 >(
-  fetchShape: FetchShape<S, Params, Body>,
+  endpoint: Endpoint<(p: Params, b: Body) => Promise<any>, S>,
   throttle?: boolean = false,
 ): <
-      UpdateParams extends OptimisticUpdateParams<
-        SchemaFromShape<Shape>,
-        FetchShape<any, any, any>
-      >[]
-    >(
-      params: ParamsFromShape<Shape>,
-      body: BodyFromShape<Shape>,
-      updateParams?: UpdateParams | undefined,
-    ) => Promise<any>;
+  UpdateParams extends OptimisticUpdateParams<
+    SchemaFromShape<Shape>,
+    FetchShape<any, any, any>
+  >[]
+>(
+  params: ParamsFromShape<Shape>,
+  body: BodyFromShape<Shape>,
+  updateParams?: UpdateParams | undefined,
+) => Promise<any>;
 
 type OptimisticUpdateParams<
   SourceSchema extends Schema,
@@ -65,7 +65,7 @@ type UpdateFunction<SourceSchema extends Schema, DestSchema extends Schema> = (
 Mostly useful for imperatively triggering mutation effects.
 
 However, this hook is actually used by the retrieval hooks (useRetrieve(), useCache(), useResource()). Using
-it with a `ReadShape` like `detailShape()` can be done to force a refresh imperatively.
+it with a side-effect free `Endpoint` like `detail()` can be done to force a refresh imperatively.
 
 ## throttle?: boolean = false
 
@@ -76,7 +76,7 @@ in-flight requests will be deduped.
 
 ```tsx
 function CreatePost() {
-  const create = useFetcher(PostResource.createShape());
+  const create = useFetcher(PostResource.create());
   // create as (body: Readonly<Partial<PostResource>>, params?: Readonly<object>) => Promise<any>
 
   return (
@@ -87,7 +87,7 @@ function CreatePost() {
 
 ```tsx
 function UpdatePost({ id }: { id: string }) {
-  const update = useFetcher(PostResource.updateShape());
+  const update = useFetcher(PostResource.update());
   // update as (body: Readonly<Partial<PostResource>>, params?: Readonly<object>) => Promise<any>
 
   return (
@@ -100,7 +100,7 @@ function UpdatePost({ id }: { id: string }) {
 
 ```tsx
 function PostListItem({ post }: { post: PostResource }) {
-  const del = useFetcher(PostResource.deleteShape());
+  const del = useFetcher(PostResource.delete());
   // del as (body: any, params: Readonly<object>) => Promise<any>
 
   return (
@@ -112,13 +112,13 @@ function PostListItem({ post }: { post: PostResource }) {
 }
 ```
 
-## updateParams: [destShape, destParams, updateFunction][]
+## updateParams: [destEndpoint, destParams, updateFunction][]
 
 The optional third argument to the fetch function returned by `useFetcher()` is a
 list of tuples that tell Rest Hooks additional updates that should take place.
 
-The result cache will be updated based on the destShape with destParams applied.
-(e.g., `destShape.getFetchKey(destParams)` would find the location in the cache.)
+The result cache will be updated based on the destEndpoint with destParams applied.
+(e.g., `destEndpoint.key(destParams)` would find the location in the cache.)
 
 The third argument is a function to run on that result cache.
 
@@ -132,14 +132,14 @@ The second argument is the existing result state of the destination.
 
 ### Example
 
-This will insert the newly created article id onto the end of the listshape with `{}` params.
+This will insert the newly created article id onto the end of the list endpoint with `{}` params.
 
 ```typescript
-const createArticle = useFetcher(ArticleResource.createShape());
+const createArticle = useFetcher(ArticleResource.create());
 
 createArticle({}, { id: 1 }, [
   [
-    ArticleResource.listShape(),
+    ArticleResource.list(),
     {},
     (newArticleID: string, articleIDs: string[] | undefined) => [
       ...(articleIDs || []),
@@ -149,44 +149,43 @@ createArticle({}, { id: 1 }, [
 ]);
 ```
 
-This shows the same concept, but for a custom listShape.
+This shows the same concept, but for a custom list endpoint.
 
 ```typescript
 class ArticlePaginatedResource extends Resource {
-  static listShape<T extends Resource>() {
-    return {
-      ...super.listShape(),
-      shape: { results: this[], nextPage: '' },
-    }
+  static list<T extends Resource>() {
+    return super.list().extend({
+      schema: { results: this[], nextPage: '' },
+    });
   }
 }
 ```
 
 ```typescript
-const createArticle = useFetcher(ArticleResource.createShape());
+const createArticle = useFetcher(ArticleResource.create());
 
 createArticle({}, { id: 1 }, [
   [
-    ArticlePaginatedResource.listShape(),
+    ArticlePaginatedResource.list(),
     {},
     (newArticleID: string, articleIDs: { results: string[] } | undefined) => ({
       ...articleIDs,
-      results: [...(articleIDs?.results), newArticleID],
+      results: [...articleIDs?.results, newArticleID],
     }),
   ],
 ]);
 ```
 
-## Useful `FetchShape`s to send
+## Useful `Endpoint`s to send
 
 [Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
 
-- createShape()
-- updateShape()
-- partialUpdateShape()
-- deleteShape()
+- create()
+- update()
+- partialUpdate()
+- delete()
 
-Feel free to add your own [FetchShape](./FetchShape.md) as well.
+Feel free to add your own [Endpoint](api/Endpoint.md) as well.
 
 > ### Notes
 >

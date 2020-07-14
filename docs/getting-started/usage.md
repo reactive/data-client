@@ -91,7 +91,7 @@ import { useResource } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function ArticleDetail({ id }: { id: number }) {
-  const article = useResource(ArticleResource.detailShape(), { id });
+  const article = useResource(ArticleResource.detail(), { id });
   return (
     <article>
       <h2>{article.title}</h2>
@@ -109,7 +109,7 @@ import ArticleResource from 'resources/article';
 import ArticleSummary from './ArticleSummary';
 
 export default function ArticleList({ sortBy }: { sortBy: string }) {
-  const articles = useResource(ArticleResource.listShape(), { sortBy });
+  const articles = useResource(ArticleResource.list(), { sortBy });
   return (
     <section>
       {articles.map(article => (
@@ -122,13 +122,13 @@ export default function ArticleList({ sortBy }: { sortBy: string }) {
 
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-[useResource()](../api/useResource.md) guarantees access to data with sufficient [freshness](../api/FetchShape#dataexpirylength-number).
+[useResource()](../api/useResource.md) guarantees access to data with sufficient [freshness](../api/Endpoint#dataexpirylength-number).
 This means it may issue network calls, and it may [suspend](../guides/loading-state) until the the fetch completes.
 Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
 suspends.
 
 - Fetches are centrally controlled, and thus automatically deduplicated
-- Data is centralized and normalized guaranteeing consistency across uses, even with different [shapes](../api/FetchShape).
+- Data is centralized and normalized guaranteeing consistency across uses, even with different [endpoints](../api/Endpoint).
   - (For example: navigating to a detail page with a single entry from a list view will instantly show the same data as the list without
     requiring a refetch.)
 
@@ -144,7 +144,7 @@ import { useFetcher } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function NewArticleForm() {
-  const create = useFetcher(ArticleResource.createShape());
+  const create = useFetcher(ArticleResource.create());
   // create as (body: Readonly<Partial<ArticleResource>>, params?: Readonly<object>) => Promise<any>
   return (
     <Form onSubmit={e => create({}, new FormData(e.target))}>
@@ -166,8 +166,8 @@ import { useFetcher } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function UpdateArticleForm({ id }: { id: number }) {
-  const article = useResource(ArticleResource.detailShape(), { id });
-  const update = useFetcher(ArticleResource.updateShape());
+  const article = useResource(ArticleResource.detail(), { id });
+  const update = useFetcher(ArticleResource.update());
   // update as (body: Readonly<Partial<ArticleResource>>, params?: Readonly<object>) => Promise<any>
   return (
     <Form
@@ -192,7 +192,7 @@ import { useFetcher } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function ArticleWithDelete({ article }: { article: ArticleResource }) {
-  const del = useFetcher(ArticleResource.deleteShape());
+  const del = useFetcher(ArticleResource.delete());
   // del as (body: any, params?: Readonly<object>) => Promise<any>
   return (
     <article>

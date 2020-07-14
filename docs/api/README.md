@@ -6,7 +6,7 @@ title: API Reference
 - [Resource](Resource.md)
 - [Entity](Entity.md)
 - [SimpleRecord](SimpleRecord.md)
-- [FetchShape](FetchShape.md)
+- [Endpoint](Endpoint.md)
 
 ### Hierarchy
 

@@ -14,7 +14,7 @@
         "label": "Network Interface",
         "ids": [
           "guides/url",
-          "guides/endpoints",
+          "guides/extending-endpoints",
           "guides/pagination",
           "guides/auth",
           "guides/network-transform",
@@ -80,12 +80,17 @@
         "type": "subcategory",
         "label": "Interface Definitions",
         "ids": [
-          "api/resource",
-          "api/Entity",
-          "api/SimpleRecord",
-          "api/FetchShape",
           "api/Endpoint",
+          "api/resource",
           "api/Index"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Schemas",
+        "ids": [
+          "api/Entity",
+          "api/SimpleRecord"
         ]
       },
       {

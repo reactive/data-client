@@ -87,7 +87,7 @@ describe('useResource()', () => {
 
   it('should throw errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useResource(ArticleResource.detailShape(), {
+      return useResource(ArticleResource.detail(), {
         title: '0',
       });
     });
@@ -129,7 +129,7 @@ describe('useResource()', () => {
 
   it('should throw errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useResource(ArticleResource.detailShape(), {
+      return useResource(ArticleResource.detail(), {
         title: '0',
       });
     });

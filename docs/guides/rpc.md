@@ -8,8 +8,8 @@ If you have an endpoint that updates many resources on your server,
 there is a straightforward mechanism to get all those updates
 to your client in one request.
 
-By defining a custom [FetchShape](../api/FetchShape.md) method on your resource,
-you'll be able to use custom response shapes that still
+By defining a custom [Endpoint](api/Endpoint.md) method on your resource,
+you'll be able to use custom response endpoints that still
 updated `rest-hooks`' normalized cache.
 
 ### Example:
@@ -41,7 +41,7 @@ created.
 ```
 
 To handle this, we just need to update the `schema` to include the custom
-shape.
+endpoint.
 
 `TradeResource.ts`
 
@@ -50,19 +50,18 @@ import { Resource } from 'rest-hooks';
 
 class TradeResource extends Resource {
   // ...
-  static createShape<T extends typeof Resource>(this: T) {
-    return {
-      ...super.createShape(),
+  static create<T extends typeof Resource>(this: T) {
+    return super.create().extend({
       schema: {
         trade: this,
         account: AccountResource,
       },
-    };
+    });
   }
 }
 ```
 
-Now if when we use the [createShape()](../api/Resource.md#createshape) FetchShape generator method,
+Now if when we use the [create()](../api/Resource.md#create-endpoint) Endpoint generator method,
 we will be happy knowing both the trade and account information will
 be updated in the cache after the `POST` request is complete.
 
@@ -70,13 +69,13 @@ be updated in the cache after the `POST` request is complete.
 
 ```typescript
 export default function CreateTrade() {
-  const create = useFetcher(TradeResource.createShape());
+  const create = useFetcher(TradeResource.create());
   //...
 }
 ```
 
 > #### Note:
 >
-> Feel free to create completely new [FetchShape](../api/FetchShape.md) methods for any custom
-> endpoints you have. This shape tells `rest-hooks` how to process any
+> Feel free to create completely new [Endpoint](api/Endpoint.md) methods for any custom
+> endpoints you have. This endpoint tells `rest-hooks` how to process any
 > request.

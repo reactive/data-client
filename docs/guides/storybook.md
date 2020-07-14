@@ -34,7 +34,7 @@ import ArticleResource from 'resources/ArticleResource';
 import ArticleSummary from './ArticleSummary';
 
 export default function ArticleList({ maxResults }: { maxResults: number }) {
-  const articles = useResource(ArticleResource.listShape(), { maxResults });
+  const articles = useResource(ArticleResource.list(), { maxResults });
   return (
     <div>
       {articles.map(article => (
@@ -58,7 +58,7 @@ existing so loading fallback is shown.
 export default {
   full: [
     {
-      request: ArticleResource.listShape(),
+      request: ArticleResource.list(),
       params: { maxResults: 10 },
       result: [
         {
@@ -78,7 +78,7 @@ export default {
   ],
   empty: [
     {
-      request: ArticleResource.listShape(),
+      request: ArticleResource.list(),
       params: { maxResults: 10 },
       result: [],
     },

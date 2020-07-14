@@ -71,7 +71,7 @@ class MyResource extends Resource {
 ```
 
 ```typescript
-const resource = useResource(MyResouce.detailShape(), { id });
+const resource = useResource(MyResouce.detail(), { id });
 resource.createdAt.getDay(); // createAt is a Date object
 ```
 
@@ -135,18 +135,18 @@ abstract class StreamResource extends CamelResource {
     return this.username;
   }
 
-  static detailShape<T extends typeof Resource>(
+  static detail<T extends typeof Resource>(
     this: T,
-  ): ReadShape<SchemaDetail<AbstractInstanceType<T>>, { username: string }> {
-    const superShape = super.detailShape();
-    return {
-      ...superShape,
-      fetch: async (params: { username: string }, body?: Readonly<object | string>) => {
-        const response = await superShape.fetch(params, body);
+  ) {
+    // calling super with generics is broken in TypeScript, so we must cast using `as`
+    const superEndpoint = super.detail() as ReadEndpoint<FetchFunction, T>;
+    return superEndpoint.extend({
+      fetch: async (params: { username: string }) => {
+        const response = await superEndpoint.fetch(params, body);
         response.username = params.username;
         return response;
       },
-    };
+    });
   }
 }
 ```
@@ -154,8 +154,8 @@ abstract class StreamResource extends CamelResource {
 ## Using HTTP Headers
 
 HTTP [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers) are accessible in the fetch
-[Response](https://developer.mozilla.org/en-US/docs/Web/API/Response). [Resource.fetchResponse()](../api/resource#static-fetchresponsemethod-get--post--put--patch--delete--options-url-string-body-readonlyobject--string--promiseresponse)
-can be used to construct [FetchShape.fetch()](../api/FetchShape#fetchparams-param-body-payload-promiseany).
+[Response](https://developer.mozilla.org/en-US/docs/Web/API/Response). [Resource.fetchResponse()](../api/resource#static-fetchresponseinput-requestinfo-init-requestinit--promiseresponse)
+can be used to construct [Endpoint](../api/Endpoint).
 
 Sometimes this is used for cursor based [pagination](./pagination.md#tokens-in-http-headers).
 
@@ -165,8 +165,8 @@ import { Resource } from 'rest-hooks';
 export default class ArticleResource extends Resource {
   // same as above....
 
-  /** Shape to get a list of entities */
-  static listShape<T extends typeof Resource>(this: T) {
+  /** Endpoint to get a list of entities */
+  static list<T extends typeof Resource>(this: T) {
     const init = this.getFetchInit({ method: 'GET' });
     const fetch = async (params: Readonly<Record<string, string | number>>) => {
       const response = await this.fetchResponse(this.listUrl(params), init);
@@ -178,11 +178,10 @@ export default class ArticleResource extends Resource {
         }),
       };
     };
-    return {
-      ...super.listShape(),
+    return super.list().extend({
       fetch,
       schema: { results: [this], link: '' },
-    };
+    });
   }
 }
 ```
