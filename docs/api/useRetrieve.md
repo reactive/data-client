@@ -7,7 +7,7 @@ title: useRetrieve()
 
 ```typescript
 function useRetrieve(
-  fetchShape: ReadShape,
+  endpoint: ReadEndpoint,
   params: object | null,
 ): Promise<any> | undefined;
 ```
@@ -19,7 +19,7 @@ function useRetrieve<
   Params extends Readonly<object>,
   S extends Schema
 >(
-  fetchShape: ReadShape<S, Params>,
+  endpoint: ReadEndpoint<(p:Params) => Promise<any>, S>,
   params: Params | null,
 ): Promise<any> | undefined;
 ```
@@ -45,7 +45,7 @@ This can be useful for ensuring resources early in a render tree before they are
 
 ```tsx
 function MasterPost({ id }: { id: number }) {
-  useRetrieve(PostResource.detailShape(), { id });
+  useRetrieve(PostResource.detail(), { id });
   // ...
 }
 ```
@@ -54,16 +54,16 @@ function MasterPost({ id }: { id: number }) {
 
 ```tsx
 function MasterPost({ id, doNotFetch }: { id: number, doNotFetch: boolean }) {
-  useRetrieve(PostResource.detailShape(), doNotFetch ? null : { id });
+  useRetrieve(PostResource.detail(), doNotFetch ? null : { id });
   // ...
 }
 ```
 
-## Useful `FetchShape`s to send
+## Useful `Endpoint`s to send
 
 [Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
 
-- detailShape()
-- listShape()
+- detail()
+- list()
 
-Feel free to add your own [FetchShape](./FetchShape.md) as well.
+Feel free to add your own [Endpoint](api/Endpoint.md) as well.

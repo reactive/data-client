@@ -121,7 +121,8 @@ export interface EndpointInstance<
 
   /** The following is for compatibility with FetchShape */
   readonly type: M extends undefined ? 'read' : 'mutate';
-  getFetchKey(...args: Parameters<F>): string;
+  getFetchKey(params: Parameters<F>[0]): string;
+  options?: EndpointExtraOptions;
 }
 
 interface EndpointConstructor {

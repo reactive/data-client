@@ -1,9 +1,6 @@
 import { NormalizedIndex } from '@rest-hooks/normalizr';
-import type {
-  AbstractInstanceType,
-  Schema,
-  Normalize,
-} from '@rest-hooks/normalizr';
+import { UpdateFunction } from '@rest-hooks/endpoint';
+import type { AbstractInstanceType, Schema } from '@rest-hooks/normalizr';
 import { Middleware } from '@rest-hooks/use-enhanced-reducer';
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
 
@@ -18,7 +15,7 @@ import {
   INVALIDATE_TYPE,
 } from './actionTypes';
 
-export type { AbstractInstanceType };
+export type { AbstractInstanceType, UpdateFunction };
 
 export type ReceiveTypes = typeof RECEIVE_TYPE;
 
@@ -82,14 +79,6 @@ export type ReceiveAction<
 >;
 
 export type ResetAction = FSA<typeof RESET_TYPE>;
-
-export type UpdateFunction<
-  SourceSchema extends Schema,
-  DestSchema extends Schema
-> = (
-  sourceResults: Normalize<SourceSchema>,
-  destResults: Normalize<DestSchema> | undefined,
-) => Normalize<DestSchema>;
 
 interface FetchMeta<
   Payload extends object | string | number | null =

@@ -62,7 +62,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       renderRestHook.cleanup();
     });
 
-    it('useSubscription() + useCache()', async () => {
+    it.only('useSubscription() + useCache()', async () => {
       jest.useFakeTimers();
       const frequency: number = (PollingArticleResource.detailShape()
         .options as any).pollFrequency;

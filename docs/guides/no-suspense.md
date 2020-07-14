@@ -50,7 +50,7 @@ const { Meta } = Card;
 
 function ProfileList() {
   const { data, loading, error } = useStatefulResource(
-    ProfileResource.detailShape(),
+    ProfileResource.detail(),
     {},
   );
   if (error) return <div>Error {error.status}</div>
@@ -71,7 +71,9 @@ function ProfileList() {
 ## API
 
 ```typescript
-function useStatefulResource<Params extends Readonly<object>, S extends Schema>(fetchShape: ReadShape<S, Params>, params: Params | null): {
+function useStatefulResource<Params extends Readonly<object>, S extends Schema>(
+  endpoint: ReadEndpoint<(p:Params) => Promise<any>, S>, params: Params | null
+  ): {
     data: DenormalizeNullable<S>;
     loading: boolean;
     error: (Params extends null ? undefined : Error) | undefined;

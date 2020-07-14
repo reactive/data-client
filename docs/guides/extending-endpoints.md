@@ -4,16 +4,16 @@ title: Custom endpoints
 
 [Previously we saw how we could use](../getting-started/usage#use-resource-docs-api-useresource)
 the [useResource()](../api/useResource) and [useFetcher()](../api/useFetcher) hooks to read and mutate
-data. The first argument of these hooks is known as a [FetchShape](../api/FetchShape).
-FetchShapes are the minimal definition of instructions needed to tell Rest Hooks how to handle
+data. The first argument of these hooks is known as a [Endpoint](../api/Endpoint).
+Endpoints are the minimal definition of instructions needed to tell Rest Hooks how to handle
 those types of requests.
 
-Resource comes with a [small handleful FetchShapes](../api/resource#fetch-shapes-docs-next-api-fetchshape)
+Resource comes with a [small handleful Endpoints](../api/resource#static-network-methods-and-properties)
 for each of the typical [CRUD operations](https://restfulapi.net/http-methods/). This is often not enough.
 
 ## Overriding endpoints
 
-By default the listShape() assumes an array of entities returned while detailShape() assumes
+By default the list() assumes an array of entities returned while detail() assumes
 just the entity returned.
 
 ### Default schema
@@ -125,29 +125,29 @@ key of an object:
 
 ### Resource definition
 
-In this case, you'll need to override your detailShape() and listShape() definitions to reflect
+In this case, you'll need to override your detail() and list() definitions to reflect
 the structure of your data. This is known as a 'schema' definition.
 
 ```typescript
 import { Resource } from 'rest-hooks';
 
 export default class CommentResource extends Resource {
-  static detailShape<T extends typeof Resource>(this: T) {
+  static detail<T extends typeof Resource>(this: T) {
     return {
-      ...super.detailShape(),
+      ...super.detail(),
       schema: { data: this },
     };
   }
-  static listShape<T extends typeof Resource>(this: T) {
+  static list<T extends typeof Resource>(this: T) {
     return {
-      ...super.listShape(),
+      ...super.list(),
       schema: { data: [this] },
     };
   }
 }
 ```
 
-Here we only overrode the 'schema' part of the [FetchShape](../api/FetchShape) - taking advantage
+Here we only overrode the 'schema' part of the [Endpoint](../api/Endpoint) - taking advantage
 of [super](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/super) to keep
 the other pieces the same. See [pagination](./pagination), [nested resources](./nested-response)
 and [mutation side-effects](./rpc) guide for more examples of custom schemas and overriding
@@ -157,29 +157,28 @@ endpoints.
 
 In many cases there are more means of interacting with a given resource than the basic CRUD
 operations. Often this means a custom RPC call, or even a custom retrieval endpoint. We'll demonstrate
-a few examples here, but be sure to learn more about [FetchShape](../api/FetchShape)s to
+a few examples here, but be sure to learn more about [Endpoint](../api/Endpoint)s to
 define exactly what your endpoint needs.
 
 ### RPC
 
 In this example, we have an RPC endpoint located at `/users/[id]/make_manager`. This endpoint
-doesn't expect any body, but is a POST request. Because it is so similar to a [createShape()](../api/resource#createshape-mutateshape)
+doesn't expect any body, but is a POST request. Because it is so similar to a [create()](../api/resource#create-endpoint)
 we'll be extended that schema definition.
 
 ```typescript
 import { Resource } from 'rest-hooks';
 
 export default class UserResource extends Resource {
-  static makeManagerShape<T extends typeof Resource>(this: T) {
-    return {
-      ...this.createShape(),
-      getFetchKey: ({ id }: { id: number }) => {
+  static makeManager<T extends typeof Resource>(this: T) {
+    return this.create().extend({
+      key: ({ id }: { id: number }) => {
         return `/users/${id}/make_manager`;
       },
       fetch: ({ id }: { id: number }, body?: Readonly<object | string>) => {
         return this.fetch('post', `/users/${id}/make_manager`, body);
       },
-    };
+    });
   }
 }
 ```
@@ -203,16 +202,12 @@ import { Resource } from 'rest-hooks';
 
 export default class UserResource extends Resource {
   /** Retrieves current logged in user */
-  static currentShape<T extends typeof Resource>(this: T) {
-    return {
-      ...this.detailShape(),
-      getFetchKey: () => {
-        return '/current_user/';
-      },
-      fetch: (params: {}, body?: Readonly<object | string>) => {
-        return this.fetch('post', `/current_user/`, body);
-      },
-    };
+  static current<T extends typeof Resource>(this: T) {
+    const init = this.getFetchInit({ method: 'GET' });
+    return this.detail().extend({
+      key: () => '/current_user/';
+      fetch: () => this.fetch(`/current_user/`, init),
+    })
   }
 }
 ```
@@ -220,7 +215,7 @@ export default class UserResource extends Resource {
 We customized the following:
 
 - Custom type:
-  - Params of {}
+  - No params
 - Custom url
 
 #### Usage
@@ -231,18 +226,18 @@ import { useResource } from 'rest-hooks';
 import UserResource from 'resources/user';
 
 export default function CurrentUserProfilePage() {
-  const loggedInUser = useResource(UserResource.currentShape(), {});
+  const loggedInUser = useResource(UserResource.current(), {});
 
   return <ProfileDetail user={loggedInUser} />;
 }
 ```
 
-### Custom List Shapes
+### Custom List Endpoints
 
 Sometimes we have endpoints that select particular results. We set the url
-in our custom [fetch](../api/FetchShape#fetchparams-param-body-payload-promiseany) function,
+in our custom [Endpoint](../api/Endpoint) function,
 and ensure the data is normalized and typed
-correctly via the [schema](../api/FetchShape#schema-schema) definition.
+correctly via the [schema](../api/Endpoint#schema-schema) definition.
 
 ```typescript
 import { Resource } from 'rest-hooks';
@@ -261,20 +256,16 @@ export default class BirthdayResource extends BaseResource {
   static urlRoot = '/api/birthdays/';
 
   /** Lists all upcoming birthdays */
-  static upcomingShape<T extends typeof Resource>(this: T) {
-    return {
-      ...this.listShape(),
-      getFetchKey: () => {
-        return '/api/birthdays/upcoming/';
-      },
-      fetch: (params = {}) => {
-        return this.fetch('post', `/api/birthdays/upcoming/`);
-      },
+  static upcoming<T extends typeof Resource>(this: T) {
+    const init = this.getFetchInit({ method: 'GET' });
+    return this.list().extend({
+      key: () => '/api/birthdays/upcoming/',
+      fetch: () => this.fetch('/api/birthdays/upcoming/', init),
       schema: {
         withinSevenDays: [this],
         withinThirtyDays: [this],
       },
-    };
+    });
   }
 }
 ```
@@ -288,7 +279,7 @@ import BirthdayResource from 'resources/user';
 
 export default function UpcomingBirthdays() {
   const { withinSevenDays, withinThirtyDays } = useResource(
-    BirthdayResource.upcomingShape(),
+    BirthdayResource.upcoming(),
     {},
   );
 

@@ -7,7 +7,7 @@ title: useInvalidator()
 
 ```typescript
 function useInvalidator(
-  fetchShape: ReadShape,
+  endpoint: ReadEndpoint,
 ): (params: object | null) => void;
 ```
 
@@ -15,7 +15,7 @@ function useInvalidator(
 
 ```typescript
 function useInvalidator<Params extends Readonly<object>, S extends Schema>(
-  fetchShape: ReadShape<S, Params>,
+  endpoint: ReadEndpoint<(p:Params) => Promise<any>, S>,
 ): (params: Params | null) => void;
 ```
 
@@ -26,15 +26,15 @@ Mostly useful for imperatively invalidating the cache, with a similar signature 
 
 Sending a `null` to params results in a no-op.
 
-Forces refetching and suspense on [useResource](./useResource.md) with the same FetchShape
+Forces refetching and suspense on [useResource](./useResource.md) with the same Endpoint
 and parameters.
 
 ## Example
 
 ```tsx
 function ArticleName({ id }: { id: string }) {
-  const article = useResource(ArticleResource.detailShape(), { id });
-  const invalidateArticle = useInvalidator(ArticleResource.detailShape());
+  const article = useResource(ArticleResource.detail(), { id });
+  const invalidateArticle = useInvalidator(ArticleResource.detail());
 
   return (
     <div>

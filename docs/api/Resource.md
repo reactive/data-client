@@ -64,15 +64,15 @@ export default class ArticleResource extends Resource {
 
 `Resource` is an abstract class that will help you define the data you are working with.
 `Resource` aids in defining REST-like APIs - to implement other patterns, try building
-[FetchShape](./FetchShape)s with [Entity](./Entity).
+[Endpoint](./Endpoint)s with [Entity](./Entity).
 
 There are two sides to `Resource` definition - the static and instance side.
 
 ### Static
 
 Is used to define how you retrieve and mutate data across the network. There are several
-static methods that do this, but their ultimate purpose is to build [FetchShapes](./FetchShape.md), which
-tell the [hooks](./useResource.md) how to process requests. Shapes are provided for the
+static methods that do this, but their ultimate purpose is to build [Endpoint](./Endpoint.md)s, which
+tell the [hooks](./useResource.md) how to process requests. Endpoints are provided for the
 common `REST` request types. However, it is encouraged to build your own or override the
 provided ones to fit the needs of your API.
 
@@ -109,7 +109,7 @@ Can be useful to override to:
 
 ## Be sure to always provide:
 
-### pk: (parent?: any, key?: string) => string | number | undefined
+### pk: (parent?: any, key?: string) => string
 
 > Inherited from [Entity](./Entity)
 
@@ -128,7 +128,7 @@ pk(parent?: any, key?: string) {
 #### undefined value
 
 A `undefined` can be used as a default to indicate the resource has not been created yet.
-This is useful when initializing a creation form using [Resource.fromJS()](./api/resource#static-fromjs-t-extends-typeof-resource-this-t-props-partial-abstractinstancetype-t-abstractinstancetype-t)
+This is useful when initializing a creation form using [Resource.fromJS()](./api/resource#static-fromjst-extends-typeof-resourcethis-t-props-partialabstractinstancetypet-abstractinstancetypet)
 directly. If `pk()` resolves to null it is considered not persisted to the server,
 and thus will not be kept in the cache.
 
@@ -182,21 +182,21 @@ static get key(): string {
 
 ## Static network methods and properties
 
-These are the basic building blocks used to compile the [Fetch shapes](../api/FetchShape.md) below.
+These are the basic building blocks used to compile the [Endpoint](../api/Endpoint.md) below.
 
 ### static url\<T extends typeof Resource>(urlParams: Partial<AbstractInstanceType\<T>>) => string
 
 Computes the url based on the parameters. Default implementation follows `/urlRoot/[pk]` pattern.
 
-Used in [detailShape()](#detailshape-readshape), [updateShape()](#updateshape-mutateshape)
-[partialUpdateShape()](#partialupdateshape-mutateshape), and [deleteShape()](#deleteshape-deleteshape)
+Used in [detail()](#detail-endpoint), [update()](#update-endpoint),
+[partialUpdate()](#partialupdate-endpoint), and [delete()](#delete-endpoint)
 
 ### static listUrl(searchParams: Readonly\<Record\<string, string>>) => string
 
 Computes url for retrieving list items. Defaults to urlRoot with `searchParams` being sent as GET
 parameters.
 
-Used in [listShape()](#listshape-readshape) and [createShape()](#createshape-mutateshape)
+Used in [list()](#list-endpoint) and [create()](#create-endpoint)
 
 ### static fetch(input: RequestInfo, init: RequestInit) => Promise\<any>
 
@@ -210,43 +210,80 @@ Used in `fetch()`. Resolves the HTTP [Response](https://developer.mozilla.org/en
 ### static getFetchInit(init: RequestInit): RequestInit
 
 Allows simple overrides to extend [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) sent to fetch.
+This is often useful for [authentication](../guides/auth)
 
-### static getFetchOptions() => FetchOptions | undefined
+### static getEndpointExtra() => EndpointExtraOptions | undefined
 
-[Returns](../api/FetchShape.md#FetchOptions) the default request options for this resource. By default this returns undefined
+[Returns](../api/Endpoint.md#dataexpirylength-number) the default request options for this resource. By default this returns undefined
 
-## [Fetch shapes](../api/FetchShape)
+## Endpoints
 
 These provide the standard [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
-shapes common in [REST](https://www.restapitutorial.com/) APIs. Feel free to customize or add
-new shapes based to match your API.
+[endpoints](../api/Endpoint)s common in [REST](https://www.restapitutorial.com/) APIs. Feel free to customize or add
+new endpoints based to match your API.
 
-### detailShape(): ReadShape
+### detail(): Endpoint
 
 A GET request using standard `url()` that receives a detail body.
 Mostly useful with [useResource](../api/useResource.md)
 
-### listShape(): ReadShape
+Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
+
+Compatible with all hooks
+
+### list(): Endpoint
 
 A GET request using `listUrl()` that receives a list of entities.
 Mostly useful with [useResource](../api/useResource.md)
 
-### createShape(): MutateShape
+Uses [listUrl()](#static-listurlsearchparams-readonlyrecordstring-string--string)
+
+Compatible with all hooks
+
+### create(): Endpoint
 
 A POST request sending a payload to `listUrl()` with empty params, and expecting a detail body response.
 Mostly useful with [useFetcher](../api/useFetcher.md)
 
-### updateShape(): MutateShape
+Uses [listUrl()](#static-listurlsearchparams-readonlyrecordstring-string--string)
+
+Not compatible with:
+- [useResource()](../api/useResource.md)
+- [useRetrieve()](../api/useRetrieve.md)
+- [useCache()](../api/useCache.md)
+
+### update(): Endpoint
 
 A PUT request sending a payload to a `url()` expecting a detail body response.
 Mostly useful with [useFetcher](../api/useFetcher.md)
 
-### partialUpdateShape(): MutateShape
+Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
+
+Not compatible with:
+- [useResource()](../api/useResource.md)
+- [useRetrieve()](../api/useRetrieve.md)
+- [useCache()](../api/useCache.md)
+
+### partialUpdate(): Endpoint
 
 A PATCH request sending a partial payload to `url()` expecting a detail body response.
 Mostly useful with [useFetcher](../api/useFetcher.md)
 
-### deleteShape(): MutateShape
+Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
+
+Not compatible with:
+- [useResource()](../api/useResource.md)
+- [useRetrieve()](../api/useRetrieve.md)
+- [useCache()](../api/useCache.md)
+
+### delete(): Endpoint
 
 A DELETE request sent to `url()`
 Mostly useful with [useFetcher](../api/useFetcher.md)
+
+Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
+
+Not compatible with:
+- [useResource()](../api/useResource.md)
+- [useRetrieve()](../api/useRetrieve.md)
+- [useCache()](../api/useCache.md)

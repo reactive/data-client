@@ -55,6 +55,20 @@ export type {
   Denormalize,
   DenormalizeNullable,
 } from '@rest-hooks/core';
+export { Endpoint, Index } from '@rest-hooks/endpoint';
+export type {
+  EndpointExtraOptions,
+  FetchFunction,
+  ResolveType,
+  EndpointParam,
+  InferReturn,
+  EndpointInterface,
+  ReadEndpoint,
+  MutateEndpoint,
+  IndexInterface,
+  IndexParams,
+  ArrayElement,
+} from '@rest-hooks/endpoint';
 export { Resource, SimpleResource } from './resource';
 export type { SchemaDetail, SchemaList } from './resource/types';
 export {

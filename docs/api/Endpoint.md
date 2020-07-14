@@ -2,8 +2,14 @@
 title: Endpoint
 ---
 
+Endpoint defines a standard interface that describes the nature of an networking endpoint.
+It is both strongly typed, and encapsulates runtime-relevant information.
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Interface-->
+
 ```typescript
-interface EndpointInterface {
+interface EndpointInterface extends EndpointExtraOptions   {
   (params?: any, body?: any): Promise<any>;
   key(parmas?: any): string;
   schema?: Readonly<S>;
@@ -12,8 +18,10 @@ interface EndpointInterface {
 }
 ```
 
+<!--Class-->
+
 ```typescript
-class Endpoint<F extends () => Promise<any>> implements EndpointInterface {
+class Endpoint<F extends (...args: any) => Promise<any>> implements EndpointInterface {
   constructor(fetchFunction: F, options: EndpointOptions);
 
   key(...args: Parameters<F>): string;
@@ -32,7 +40,11 @@ export interface EndpointOptions extends EndpointExtraOptions {
   sideEffect?: true | undefined;
   schema?: Schema;
 }
+```
 
+<!--EndpointExtraOptions-->
+
+```typescript
 export interface EndpointExtraOptions {
   /** Default data expiry length, will fall back to NetworkManager default if not defined */
   readonly dataExpiryLength?: number;
@@ -52,6 +64,8 @@ export interface EndpointExtraOptions {
 }
 ```
 
+<!--END_DOCUSAURUS_CODE_TABS-->
+
 ## Endpoint Members
 
 Members double as options (second constructor arg). While none are required, the first few
@@ -69,10 +83,9 @@ Default:
 
 ### sideEffect: true | undefined
 
-Disallows usage in hooks like `useResource()` since they might call fetch
-an unpredictable number of times. Use this for APIs with mutation side-effects like update, create, deletes.
-
-Defaults to undefined meaning no side effects.
+Used to indicate endpoint might have side-effects (non-idempotent). This restricts it
+from being used with [useResource()](./useresource) or [useRetrieve()](useRetrieve) as those can hit the
+endpoint an unpredictable number of times.
 
 ### schema: Schema
 
@@ -108,33 +121,36 @@ const UserDetail = new Endpoint(({ id }) ⇒ fetch(`/users/${id}`));
 const UserDetailNormalized = UserDetail.extend({ schema: User });
 ```
 
-### dataExpiryLength?: number
+### EndpointExtraOptions
+
+#### dataExpiryLength?: number
 
 Custom data cache lifetime for the fetched resource. Will override the value set in NetworkManager.
 
-### errorExpiryLength?: number
+#### errorExpiryLength?: number
 
 Custom data error lifetime for the fetched resource. Will override the value set in NetworkManager.
 
-### pollFrequency: number
+#### pollFrequency: number
 
 Frequency in millisecond to poll at. Requires using [useSubscription()](./useSubscription.md) to have
 an effect.
 
-### invalidIfStale: boolean
+#### invalidIfStale: boolean
 
 Indicates stale data should be considered unusable and thus not be returned from the cache. This means
 that useResource() will suspend when data is stale even if it already exists in cache.
 
-### optimisticUpdate: (params, body) => fakePayload
+#### optimisticUpdate: (params, body) => fakePayload
 
-When provided, any fetches with this shape will behave as though the `fakePayload` return value
+When provided, any fetches with this endpoint will behave as though the `fakePayload` return value
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
 
 ## Examples
 
-### 1) Define the function
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Basic-->
 
 ```typescript
 import { Endpoint } from '@rest-hooks/endpoint';
@@ -144,7 +160,47 @@ const UserDetail = new Endpoint(
 );
 ```
 
-### 2) Reuse with different hooks
+<!--With Schema-->
+
+```typescript
+import { Endpoint } from '@rest-hooks/endpoint';
+import { Entity } from 'rest-hooks';
+
+class User extends Entity {
+  readonly id: string = '';
+  readonly username: string = '';
+
+  pk() { return this.id; }
+}
+
+const UserDetail = new Endpoint(
+  ({ id }) ⇒ fetch(`/users/${id}`).then(res => res.json()),
+  { schema: User }
+);
+```
+
+<!--List-->
+```typescript
+import { Endpoint } from '@rest-hooks/endpoint';
+import { Entity } from 'rest-hooks';
+
+class User extends Entity {
+  readonly id: string = '';
+  readonly username: string = '';
+
+  pk() { return this.id; }
+}
+
+const UserList = new Endpoint(
+  () ⇒ fetch(`/users/`).then(res => res.json()),
+  { schema: [User] }
+);
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--React-->
+
 
 ```tsx
 function UserProfile() {
@@ -155,12 +211,21 @@ function UserProfile() {
 }
 ```
 
-### 3) Or call directly
+<!--JS/Node-->
 
 ```typescript
 const user = await UserDetail({ id: '5' });
 console.log(user);
 ```
+<!--END_DOCUSAURUS_CODE_TABS-->
+
+### Additional
+
+- [Custom endpoints](../guides/extending-endpoints)
+- [Pagination](../guides/pagination)
+- [Mocking unfinished endpoints](../guides/mocking-unfinished)
+- [Optimistic updates](../guides/optimistic-updates)
+
 
 ## Motivation
 

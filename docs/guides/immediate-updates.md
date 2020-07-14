@@ -15,17 +15,17 @@ any refetches.
 
 Rest Hooks uses your schema definitions to understand how to normalize response data into
 an `entity table` and `result table`. Of course, this means that there is only ever one copy
-of a given `entity`. Aside from providing consistency when using different response shapes,
+of a given `entity`. Aside from providing consistency when using different response endpoints,
 this means that by providing an accurate schema definition, Rest Hooks can automatically keep
-all data uses consistent and fresh. The default update shapes [Resource.updateShape()]() and
-[Resource.partialUpdate()]() both do this automatically. [Read more about defining other
-update fetch shapes](./rpc)
+all data uses consistent and fresh. The default update endpoints [Resource.update()](../api/resource#update-endpoint) and
+[Resource.partialUpdate()](../api/resource#partialupdate-endpoint) both do this automatically. [Read more about defining other
+update endpoints](./rpc)
 
 ## Delete
 
-Rest Hooks automatically deletes entity entries when any [Fetch Shape](../api/FetchShape)
-of type `delete` is resolved. [Resource.deleteShape()](../api/resource#deleteshape-deleteshape)
-provides such a shape.
+Rest Hooks automatically deletes entity entries when any [Endpoint](../api/Endpoint)
+of type `delete` is resolved. [Resource.delete()](../api/resource#delete-endpoint)
+provides such an endpoint.
 
 ## Create
 

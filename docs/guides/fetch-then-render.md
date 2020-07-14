@@ -89,8 +89,8 @@ import { useFetcher } from 'rest-hooks';
 import { UserResource, PostResource } from 'resources';
 
 function useFriendPreloader() {
-  const fetchUser = useFetcher(UserResource.detailShape(), true);
-  const fetchPosts = useFetcher(PostResource.listShape(), true);
+  const fetchUser = useFetcher(UserResource.detail(), true);
+  const fetchPosts = useFetcher(PostResource.list(), true);
   // ideally we could also fetch the comments for each post at this point
   // however, the API has no solution to this, so we have to have one cascade
   // waterfall here.
@@ -116,7 +116,7 @@ function useFriendPreloader() {
 const FriendCard = () => {
   // useData gets the route context
   const { friendId } = useData();
-  const friend = useResource(UserResource.detailShape(), { id: friendId });
+  const friend = useResource(UserResource.detail(), { id: friendId });
   // render some JSX
 };
 ```
@@ -129,7 +129,7 @@ Here we use [\<SuspenseList />](https://reactjs.org/docs/concurrent-mode-referen
 const Posts = () => {
   // useData gets the route context
   const { friendId } = useData();
-  const posts = useResource(PostResource.listShape(), { userId: friendId });
+  const posts = useResource(PostResource.list(), { userId: friendId });
 
   // By using a SuspenseList here, we can guarantee that posts
   // appear in the optimal viewing order, despite separately loading comments.

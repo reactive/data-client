@@ -117,7 +117,7 @@ afterEach(() => {
 
 it('should resolve useResource()', async () => {
   const { result, waitForNextUpdate } = renderRestHook(() => {
-    return useResource(ArticleResource.detailShape(), payload);
+    return useResource(ArticleResource.detail(), payload);
   });
   expect(result.current).toBe(null);
   await waitForNextUpdate();

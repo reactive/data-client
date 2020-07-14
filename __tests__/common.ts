@@ -7,11 +7,10 @@ import {
 } from 'rest-hooks';
 import {
   AbstractInstanceType,
-  FetchOptions,
   MutateShape,
   SimpleRecord,
 } from '@rest-hooks/core';
-import { Endpoint } from '@rest-hooks/endpoint';
+import { Endpoint, EndpointExtraOptions } from '@rest-hooks/endpoint';
 import React from 'react';
 
 export class UserResource extends Resource {
@@ -113,7 +112,7 @@ export class ArticleResource extends Resource {
     return {
       ...super.partialUpdateShape(),
       options: {
-        ...this.getFetchOptions(),
+        ...this.getEndpointExtra(),
         optimisticUpdate: (params: any, body: any) => ({
           id: params.id,
           ...body,
@@ -128,7 +127,7 @@ export class ArticleResource extends Resource {
     return {
       ...(super.deleteShape() as any),
       options: {
-        ...this.getFetchOptions(),
+        ...this.getEndpointExtra(),
         optimisticUpdate: (params: any, _body: any) => params,
       },
     };
@@ -173,7 +172,7 @@ export class ArticleResourceWithOtherListUrl extends ArticleResource {
     return {
       ...super.createShape(),
       options: {
-        ...this.getFetchOptions(),
+        ...this.getEndpointExtra(),
         optimisticUpdate: (
           params: Readonly<object>,
           body: Readonly<object | string> | void,
@@ -203,9 +202,9 @@ export class IndexedUserResource extends UserResource {
 }
 
 export class InvalidIfStaleArticleResource extends CoolerArticleResource {
-  static getFetchOptions(): FetchOptions {
+  static getEndpointExtra(): EndpointExtraOptions {
     return {
-      ...super.getFetchOptions(),
+      ...super.getEndpointExtra(),
       dataExpiryLength: 5000,
       errorExpiryLength: 5000,
       invalidIfStale: true,
@@ -214,9 +213,9 @@ export class InvalidIfStaleArticleResource extends CoolerArticleResource {
 }
 
 export class PollingArticleResource extends ArticleResource {
-  static getFetchOptions(): FetchOptions {
+  static getEndpointExtra(): EndpointExtraOptions {
     return {
-      ...super.getFetchOptions(),
+      ...super.getEndpointExtra(),
       pollFrequency: 5000,
     };
   }
@@ -236,9 +235,9 @@ export class PollingArticleResource extends ArticleResource {
 export class StaticArticleResource extends ArticleResource {
   static urlRoot = 'http://test.com/article-static/';
 
-  static getFetchOptions() {
+  static EndpointExtraOptions() {
     return {
-      ...super.getFetchOptions(),
+      ...super.getEndpointExtra(),
       dataExpiryLength: Infinity,
     };
   }

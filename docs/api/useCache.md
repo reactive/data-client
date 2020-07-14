@@ -7,16 +7,16 @@ title: useCache()
 
 ```typescript
 function useCache(
-  fetchShape: ReadShape,
+  endpoint: ReadEndpoint,
   params: object | null,
-): Denormalize<typeof fetchShape.schema> | null;
+): Denormalize<typeof endpoint.schema> | null;
 ```
 
 <!--With Generics-->
 
 ```typescript
 function useCache<Params extends Readonly<object>, S extends Schema>(
-  fetchShape: Pick<ReadShape<S, Params>, 'schema' | 'getFetchKey'>,
+  endpoint: Pick<ReadEndpoint<(p:Params) => Promise<any>, S>, 'schema' | 'key'>,
   params: Params | null,
 ): Denormalize<S> | null;
 ```
@@ -38,7 +38,7 @@ Excellent to use data in the normalized cache without fetching.
 
 ```tsx
 function Post({ id }: { id: number }) {
-  const post = useCache(PostResource.detailShape(), { id });
+  const post = useCache(PostResource.detail(), { id });
   // post as PostResource | null
   if (!post) return null;
   // post as PostResource (typeguarded)
@@ -58,11 +58,10 @@ export class PaginatedPostResource extends Resource {
 
   static urlRoot = 'http://test.com/post/';
 
-  static listShape<T extends typeof Resource>(this: T) {
-    return {
-      ...super.listShape(),
+  static list<T extends typeof Resource>(this: T) {
+    return super.list().extend({
       schema: { results: [this], nextPage: '', lastPage: '' },
-    };
+    });
   }
 }
 ```
@@ -70,7 +69,7 @@ export class PaginatedPostResource extends Resource {
 ```tsx
 function ArticleList({ page }: { page: string }) {
   const { results: posts, nextPage, lastPage } = useCache(
-    PaginatedPostResource.listShape(),
+    PaginatedPostResource.list(),
     { page },
   );
   // posts as PaginatedPostResource[] | null
@@ -80,11 +79,11 @@ function ArticleList({ page }: { page: string }) {
 }
 ```
 
-## Useful `FetchShape`s to send
+## Useful `Endpoint`s to send
 
 [Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
 
-- detailShape()
-- listShape()
+- detail()
+- list()
 
-Feel free to add your own [FetchShape](./FetchShape.md) as well.
+Feel free to add your own [Endpoint](api/Endpoint.md) as well.

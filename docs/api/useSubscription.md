@@ -7,7 +7,7 @@ title: useSubscription()
 
 ```typescript
 function useSubscription(
-  fetchShape: ReadShape,
+  endpoint: ReadEndpoint,
   params: object | null,
 ): void;
 ```
@@ -19,7 +19,7 @@ function useSubscription<
   Params extends Readonly<object>,
   S extends Schema
 >(
-  fetchShape: ReadShape<S, Params>,
+  endpoint: ReadEndpoint<(p:Params) => Promise<any>, S>,
   params: Params | null,
 ): void;
 ```
@@ -29,7 +29,7 @@ function useSubscription<
 Great for keeping resources up-to-date with frequent changes.
 
 When using the default [polling subscriptions](./PollingSubscription), frequency must be set in
-[FetchShape](./FetchShape.md), otherwise will have no effect.
+[Endpoint](api/Endpoint.md), otherwise will have no effect.
 
 > Send `null` to params to unsubscribe.
 
@@ -38,7 +38,7 @@ When using the default [polling subscriptions](./PollingSubscription), frequency
 `PriceResource.ts`
 
 ```typescript
-import { Resource, FetchOptions } from 'rest-hooks';
+import { Resource, EndpointExtraOptions } from 'rest-hooks';
 
 export default class PriceResource extends Resource {
   readonly symbol: string | undefined = undefined;
@@ -50,8 +50,8 @@ export default class PriceResource extends Resource {
   }
   static urlRoot = 'http://test.com/price/';
 
-  /** Used as default options for every FetchShape */
-  static getFetchOptions(): FetchOptions {
+  /** Used as default options for every Endpoint */
+  static getEndpointExtra(): EndpointExtraOptions {
     return {
       pollFrequency: 5000, // every 5 seconds
     };
@@ -66,8 +66,8 @@ import { useResource, useSubscription } from 'rest-hooks';
 import PriceResource from 'resources/PriceResource';
 
 function MasterPrice({ symbol }: { symbol: string }) {
-  const price = useResource(PriceResource.detailShape(), { symbol });
-  useSubscription(PriceResource.detailShape(), { symbol });
+  const price = useResource(PriceResource.detail(), { symbol });
+  useSubscription(PriceResource.detail(), { symbol });
   // ...
 }
 ```
@@ -82,11 +82,11 @@ import { useResource, useSubscription } from 'rest-hooks';
 import PriceResource from 'resources/PriceResource';
 
 function MasterPrice({ symbol }: { symbol: string }) {
-  const price = useResource(PriceResource.detailShape(), { symbol });
+  const price = useResource(PriceResource.detail(), { symbol });
   const ref = useRef();
   const onScreen = useOnScreen(ref);
   // null params means don't subscribe
-  useSubscription(PriceResource.detailShape(), onScreen ? null : { symbol });
+  useSubscription(PriceResource.detail(), onScreen ? null : { symbol });
 
   return (
     <div ref={ref}>{price.value.toLocaleString('en', { currency: 'USD' })}</div>
@@ -99,12 +99,12 @@ based on whether the element rendered is [visible on screen](https://usehooks.co
 
 [useOnScreen()](https://usehooks.com/useOnScreen/) uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant.
 
-## Useful `FetchShape`s to send
+## Useful `Endpoint`s to send
 
 [Resource](./Resource.md#provided-and-overridable-methods) provides these built-in:
 
-- detailShape()
-- listShape()
+- detail()
+- list()
 
-Be sure to extend these [FetchShape](./FetchShape.md)s with a pollFrequency to set
+Be sure to extend these [Endpoint](api/Endpoint.md)s with a pollFrequency to set
 the polling-rate.

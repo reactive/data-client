@@ -45,8 +45,8 @@ class Profile extends React.PureComponent<{
 
 export default withHook(({ id }: { id: number }) => {
   const [user, friends] = useResource(
-    [UserResource.detailShape(), { id }],
-    [UserResource.listShape(), { friendid: id }],
+    [UserResource.detail(), { id }],
+    [UserResource.list(), { friendid: id }],
   );
   return { user, friends };
 })(Profile);
@@ -69,8 +69,8 @@ import UserResource from 'resources/user';
 
 function useProfile({ id }: { id: number }) {
   const [user, friends] = useResource(
-    [UserResource.detailShape(), { id }],
-    [UserResource.listShape(), { friendid: id }],
+    [UserResource.detail(), { id }],
+    [UserResource.list(), { friendid: id }],
   );
   return { user, friends };
 }
@@ -103,8 +103,8 @@ function useProfile({ id }: { id: number }) {
   const debouncedId = useDebounce(id, 150);
 
   const [user, friends] = useResource(
-    [UserResource.detailShape(), { id }],
-    [UserResource.listShape(), { friendid: id }],
+    [UserResource.detail(), { id }],
+    [UserResource.list(), { friendid: id }],
   );
   const realFriends = friends.filter(friend => friend.isReal);
 

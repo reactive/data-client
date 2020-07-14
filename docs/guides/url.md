@@ -30,9 +30,9 @@ export default ArticleResource extends Resource {
 It does this by using that `urlRoot` static property in two static methods:
 
 - [url(urlParams)](../api/resource#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
-  - handles most Fetch Shapes
+  - handles most Endpoints
 - [listUrl(searchParams)](../api/resource#static-listurlsearchparams-readonlyrecordstring-string--string)
-  - used in createShape() and listShape()
+  - used in create() and list()
 
 ```typescript
 ArticleResource.listUrl();
@@ -44,8 +44,8 @@ ArticleResource.url({ id: 5 });
 ```
 
 Customizing the url patterns is typically as easy as overriding either of these
-methods. However, in more extreme scenarios, [getFetchKey()](../api/FetchShape#fetchkeyparams-param-string)
-can be set in a custom FetchShape definition.
+methods. However, in more extreme scenarios, [key()](../api/Endpoint#key-params--string)
+can be set in a custom Endpoint definition.
 
 ## Example
 

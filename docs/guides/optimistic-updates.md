@@ -15,7 +15,12 @@ body to ensure the normalized cache gets updated correctly.
 ### ArticleResource.ts
 
 ```typescript
-import { Resource, MutateShape, SchemaDetail, AbstractInstanceType } from 'rest-hooks';
+import {
+  Resource,
+  MutateEndpoint,
+  SchemaDetail,
+  AbstractInstanceType,
+} from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
   readonly id: string | undefined = undefined;
@@ -27,25 +32,20 @@ export default class ArticleResource extends Resource {
     return this.id;
   }
 
-  static partialUpdateShape<T extends typeof Resource>(
+  static partialUpdate<T extends typeof Resource>(
     this: T,
-  ): MutateShape<
-    SchemaDetail<Readonly<AbstractInstanceType<T>>>,
-    Readonly<object>,
-    Partial<AbstractInstanceType<T>>
+  ): MutateEndpoint<
+    (p: Readonly<object>, b: Partial<AbstractInstanceType<T>>) => Promise<any>,
+    SchemaDetail<Readonly<AbstractInstanceType<T>>>
   > {
-    return {
-      ...super.partialUpdateShape(),
-      options: {
-        ...this.getFetchOptions(),
-        optimisticUpdate: (params: any, body: any) => ({
-          // we absolutely need the primary key here,
-          // but won't be sent in a partial update
-          id: params.id,
-          ...body,
-        }),
-      },
-    };
+    return super.partialUpdate().extend({
+      optimisticUpdate: (params: any, body: any) => ({
+        // we absolutely need the primary key here,
+        // but won't be sent in a partial update
+        id: params.id,
+        ...body,
+      }),
+    });
   }
 }
 ```
@@ -57,7 +57,7 @@ import { useFetcher } from 'rest-hooks';
 import ArticleResource from 'ArticleResource';
 
 export default function PublishButton({ id }: { id: string }) {
-  const update = useFetcher(ArticleResource.partialUpdateShape());
+  const update = useFetcher(ArticleResource.partialUpdate());
 
   return (
     <button onClick={() => update({ id }, { published: true })}>Publish</button>
@@ -78,7 +78,12 @@ add to the list of articles the newly created article - without waiting on a net
 ### ArticleResource.ts
 
 ```typescript
-import { Resource, MutateShape, SchemaDetail, AbstractInstanceType } from 'rest-hooks';
+import {
+  Resource,
+  MutateEndpoint,
+  SchemaDetail,
+  AbstractInstanceType,
+} from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
   readonly id: string | undefined = undefined;
@@ -90,23 +95,18 @@ export default class ArticleResource extends Resource {
     return this.id;
   }
 
-  static createShape<T extends typeof SimpleResource>(
+  static create<T extends typeof Resource>(
     this: T,
-  ): MutateShape<
-    SchemaDetail<Readonly<AbstractInstanceType<T>>>,
-    Readonly<object>,
-    Partial<AbstractInstanceType<T>>
+  ): MutateEndpoint<
+    (p: Readonly<object>, b: Partial<AbstractInstanceType<T>>) => Promise<any>,
+    SchemaDetail<Readonly<AbstractInstanceType<T>>>
   > {
-    return {
-      ...super.createShape(),
-      options: {
-        ...this.getFetchOptions(),
-        optimisticUpdate: (
-          params: Readonly<object>,
-          body: Readonly<object | string> | void,
-        ) => body,
-      },
-    };
+    return super.create().extend({
+      optimisticUpdate: (
+        params: Readonly<object>,
+        body: Readonly<object | string> | void,
+      ) => body,
+    });
   }
 }
 
@@ -133,12 +133,12 @@ import uuid from 'uuid/v4';
 import ArticleResource from 'ArticleResource';
 
 export default function CreateArticle() {
-  const create = useFetcher(ArticleResource.createShape());
+  const create = useFetcher(ArticleResource.create());
   const submitHandler = useCallback(
     data =>
       // note the fake id we create.
       create({}, { id: uuid(), ...data }, [
-        [ArticleResource.listShape(), {}, appendUpdater],
+        [ArticleResource.list(), {}, appendUpdater],
       ]),
     [create],
   );
@@ -150,14 +150,14 @@ export default function CreateArticle() {
 ## Optimistic Deletes
 
 Since deletes [automatically update the cache correctly](./immediate-updates#delete) upon fetch success,
-making your delete endpoint do this optimistically is as easy as adding the [optimisticUpdate](../api/FetchShape#optimisticupdate-params-body--fakepayload)
+making your delete endpoint do this optimistically is as easy as adding the [optimisticUpdate](../api/Endpoint#optimisticupdate-params-body--fakepayload)
 function to your options.
 
 We return an empty string because that's the response we expect from the server. Although by
 default, the server response is ignored.
 
 ```ts
-import { Resource, MutateShape, SimpleResource } from 'rest-hooks';
+import { Resource, MutateEndpoint, SimpleResource } from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
   readonly id: string | undefined = undefined;
@@ -169,16 +169,12 @@ export default class ArticleResource extends Resource {
     return this.id;
   }
 
-  static deleteShape<T extends typeof SimpleResource>(
+  static delete<T extends typeof Resource>(
     this: T,
-  ): MutateShape<schemas.Delete<T>, Readonly<object>, undefined> {
-    return {
-      ...(super.deleteShape() as any),
-      options: {
-        ...this.getFetchOptions(),
-        optimisticUpdate: (params: any, body: any) => params,
-      },
-    };
+  ): MutateEndpoint<(p: Readonly<object>) => Promise<any>, schemas.Delete<T>> {
+    return super.delete().extend({
+      optimisticUpdate: (params: any, body: any) => params,
+    });
   }
 }
 ```
