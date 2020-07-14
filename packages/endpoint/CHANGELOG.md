@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.3.2 (2020-07-14)</small>
+
+* fix: Publish endpoint ambient typescript declarations ([2e982ca](https://github.com/coinbase/rest-hooks/commit/2e982ca))
+
+
+
+
+
 ## <small>0.3.1 (2020-07-13)</small>
 
 * docs: Add Endpoint to API section ([73428b0](https://github.com/coinbase/rest-hooks/commit/73428b0))
