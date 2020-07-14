@@ -15,7 +15,7 @@
     "README.md"
   ],
   "scripts": {
-    "build:lib": "cross-env NODE_ENV=production ROOT_PATH_PREFIX='@rest-hooks/core' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:lib": "cp src/endpoint.d.ts lib/endpoint.d.ts && cross-env NODE_ENV=production ROOT_PATH_PREFIX='@rest-hooks/core' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
     "build:bundle": "rollup -c",
     "build:clean": "rimraf lib dist *.tsbuildinfo",
     "build": "yarn run build:lib && yarn run build:bundle",
