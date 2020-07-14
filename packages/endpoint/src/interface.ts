@@ -1,13 +1,13 @@
-import { Schema, Entity } from '@rest-hooks/normalizr';
+import { Schema, AbstractInstanceType } from '@rest-hooks/normalizr';
 
 import type { EndpointExtraOptions, FetchFunction } from './types';
 import { InferReturn } from './utility';
 
 /** Defines a networking endpoint */
 export interface EndpointInterface<
-  F extends (params?: any, body?: any) => Promise<any> = FetchFunction,
-  S extends Schema | undefined = undefined,
-  M extends true | undefined = undefined
+  F extends FetchFunction = FetchFunction,
+  S extends Schema | undefined = Schema | undefined,
+  M extends true | undefined = true | undefined
 > extends EndpointExtraOptions {
   (...args: Parameters<F>): InferReturn<F, S>;
   key(parmas?: Readonly<Parameters<F>[0]>): string;
@@ -18,34 +18,33 @@ export interface EndpointInterface<
 /** To change values on the server */
 export interface MutateEndpoint<
   F extends (params?: any, body?: any) => Promise<any> = FetchFunction,
-  S extends Schema | undefined = undefined
+  S extends Schema | undefined = Schema | undefined
 > extends EndpointInterface<F, S, true> {
-  fetch(
-    params: Readonly<Parameters<F>[0]>,
-    body: Readonly<Parameters<F>[1]>,
-  ): ReturnType<F>;
+  sideEffect: true;
 }
 
 /** For retrieval requests */
-export interface ReadEndpoint<
-  F extends (params?: any) => Promise<any> = FetchFunction,
-  S extends Schema | undefined = undefined
-> extends EndpointInterface<F, S> {
-  fetch(params: Readonly<Parameters<F>[0]>): ReturnType<F>;
-}
+export type ReadEndpoint<
+  F extends (params?: any) => Promise<any> = (params?: any) => Promise<any>,
+  S extends Schema | undefined = Schema | undefined
+> = EndpointInterface<F, S, undefined>;
 
 export type ArrayElement<
   ArrayType extends unknown[] | readonly unknown[]
 > = ArrayType[number];
 
-export type IndexParams<E extends typeof Entity> = {
-  [K in Extract<
-    ArrayElement<Exclude<E['indexes'], undefined>>,
-    keyof E
-  >]?: E[K];
-};
+export type IndexParams<S extends Schema> = S extends {
+  indexes: readonly string[];
+}
+  ? {
+      [K in Extract<
+        ArrayElement<S['indexes']>,
+        keyof AbstractInstanceType<S>
+      >]?: AbstractInstanceType<S>[K];
+    }
+  : Readonly<object>;
 
-export interface IndexInterface<S extends typeof Entity> {
-  key(params?: Readonly<IndexParams<S>>): string;
+export interface IndexInterface<S extends Schema = Schema, P = object> {
+  key(params?: P): string;
   readonly schema: S;
 }

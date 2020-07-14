@@ -1,15 +1,16 @@
-import { Entity } from '@rest-hooks/normalizr';
+import { Schema } from '@rest-hooks/normalizr';
 
 import type { IndexInterface, IndexParams } from './interface';
 
-export default class Index<E extends typeof Entity>
-  implements IndexInterface<E> {
-  declare schema: E;
-  constructor(entity: E) {
-    this.schema = entity;
+export default class Index<S extends Schema, P = Readonly<IndexParams<S>>>
+  implements IndexInterface<S, P> {
+  declare schema: S;
+  constructor(schema: S, key?: (params: P) => string) {
+    this.schema = schema;
+    if (key) this.key = key;
   }
 
-  key(params?: Readonly<IndexParams<E>>) {
+  key(params?: P) {
     return JSON.stringify(params);
   }
 }

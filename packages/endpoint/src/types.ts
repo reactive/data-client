@@ -19,7 +19,10 @@ export interface EndpointExtraOptions {
   /** User-land extra data to send */
   readonly extra?: any;
 }
-export type FetchFunction<P = any> = (params?: P, body?: any) => Promise<any>;
+export type FetchFunction<P = any, B = any, R = any> = (
+  params?: P,
+  body?: B,
+) => Promise<R>;
 
 export type OptimisticUpdateParams<
   SourceSchema extends Schema,
