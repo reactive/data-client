@@ -1,6 +1,14 @@
-import { FlatEntity, schema, ReadShape, MutateShape } from '@rest-hooks/core';
-import type { AbstractInstanceType } from '@rest-hooks/core';
-import { Endpoint, EndpointExtraOptions } from '@rest-hooks/endpoint';
+import {
+  FlatEntity,
+  schema,
+  ReadShape,
+  MutateShape,
+  Endpoint,
+} from '@rest-hooks/core';
+import type {
+  AbstractInstanceType,
+  EndpointExtraOptions,
+} from '@rest-hooks/core';
 
 import { SchemaDetail, SchemaList } from './types';
 import { NotImplementedError } from './errors';

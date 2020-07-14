@@ -24,6 +24,8 @@ export {
   schema as schemas,
   // TODO: get rid of these exports once core has been out for a while
   usePromisifiedDispatch,
+  Endpoint,
+  Index,
 } from '@rest-hooks/core';
 export type {
   FetchShape,
@@ -54,9 +56,6 @@ export type {
   NormalizeNullable,
   Denormalize,
   DenormalizeNullable,
-} from '@rest-hooks/core';
-export { Endpoint, Index } from '@rest-hooks/endpoint';
-export type {
   EndpointExtraOptions,
   FetchFunction,
   ResolveType,
@@ -68,7 +67,8 @@ export type {
   IndexInterface,
   IndexParams,
   ArrayElement,
-} from '@rest-hooks/endpoint';
+} from '@rest-hooks/core';
+
 export { Resource, SimpleResource } from './resource';
 export type { SchemaDetail, SchemaList } from './resource/types';
 export {

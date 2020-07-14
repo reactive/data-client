@@ -291,7 +291,7 @@ describe('Endpoint', () => {
         );
       });
 
-      it.only('should use extended token', async () => {
+      it('should use extended token', async () => {
         //sdf @ts-expect-error
         const UserCurrent = new AuthEndpoint(fetchAuthd, {
           token: 'password3',

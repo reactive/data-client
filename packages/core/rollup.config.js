@@ -15,6 +15,7 @@ const dependencies = Object.keys(pkg.dependencies)
       ![
         '@rest-hooks/normalizr',
         '@rest-hooks/use-enhanced-reducer',
+        '@rest-hooks/endpoint',
         '@babel/runtime',
       ].includes(dep),
   );
