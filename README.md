@@ -19,7 +19,7 @@ Making dynamic sites performant, scalable, simple to build with any API design.
 
 ```typescript
 class ArticleResource extends Resource {
-  readonly id: number | undefined = undefined;
+  readonly id: string = '';
   readonly title: string = '';
   readonly body: string = '';
 
@@ -31,7 +31,7 @@ class ArticleResource extends Resource {
 ### One line data hookup
 
 ```tsx
-const article = useResource(ArticleResource.detailShape(), { id });
+const article = useResource(ArticleResource.detail(), { id });
 return (
   <>
     <h2>{article.title}</h2>
@@ -43,15 +43,15 @@ return (
 ### Mutation
 
 ```tsx
-const update = useFetcher(ArticleResource.updateShape());
+const update = useFetcher(ArticleResource.update());
 return <ArticleForm onSubmit={data => update({ id }, data)} />;
 ```
 
 ### And subscriptions
 
 ```tsx
-const price = useResource(PriceResource.detailShape(), { symbol });
-useSubscription(PriceResource.detailShape(), { symbol });
+const price = useResource(PriceResource.detail(), { symbol });
+useSubscription(PriceResource.detail(), { symbol });
 return price.value;
 ```
 
