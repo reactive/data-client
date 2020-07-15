@@ -86,7 +86,9 @@
           "api/useSubscription",
           "api/useRetrieve",
           "api/useInvalidator",
-          "api/useResetter"
+          "api/useResetter",
+          "api/useMeta",
+          "api/useError"
         ]
       },
       {

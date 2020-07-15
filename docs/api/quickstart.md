@@ -1,5 +1,6 @@
 ---
 title: Schema Quick Start
+sidebar_label: Quick Start
 ---
 
 

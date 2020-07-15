@@ -56,7 +56,8 @@
         "sidebar_label": "PollingSubscription"
       },
       "api/quickstart": {
-        "title": "Schema Quick Start"
+        "title": "Schema Quick Start",
+        "sidebar_label": "Quick Start"
       },
       "api/README": {
         "title": "API Reference"
@@ -77,11 +78,17 @@
       "api/useCache": {
         "title": "useCache()"
       },
+      "api/useError": {
+        "title": "useError()"
+      },
       "api/useFetcher": {
         "title": "useFetcher()"
       },
       "api/useInvalidator": {
         "title": "useInvalidator()"
+      },
+      "api/useMeta": {
+        "title": "useMeta()"
       },
       "api/useResetter": {
         "title": "useResetter()"

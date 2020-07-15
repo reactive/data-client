@@ -250,7 +250,6 @@ Uses [listUrl()](#static-listurlsearchparams-readonlyrecordstring-string--string
 Not compatible with:
 - [useResource()](../api/useResource.md)
 - [useRetrieve()](../api/useRetrieve.md)
-- [useCache()](../api/useCache.md)
 
 ### update(): Endpoint
 
@@ -262,7 +261,6 @@ Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstan
 Not compatible with:
 - [useResource()](../api/useResource.md)
 - [useRetrieve()](../api/useRetrieve.md)
-- [useCache()](../api/useCache.md)
 
 ### partialUpdate(): Endpoint
 
@@ -274,7 +272,6 @@ Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstan
 Not compatible with:
 - [useResource()](../api/useResource.md)
 - [useRetrieve()](../api/useRetrieve.md)
-- [useCache()](../api/useCache.md)
 
 ### delete(): Endpoint
 
@@ -286,4 +283,3 @@ Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstan
 Not compatible with:
 - [useResource()](../api/useResource.md)
 - [useRetrieve()](../api/useRetrieve.md)
-- [useCache()](../api/useCache.md)
