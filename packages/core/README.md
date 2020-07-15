@@ -28,7 +28,7 @@ class Article extends Entity {
 
 const ArticleDetail = new Endpoint(
   ({ id }: { id: string }) => fetch(`http://test.com/articles/${id}`)).then(res => res.json()),
-  schema: Article,
+  { schema: Article },
 }
 ```
 

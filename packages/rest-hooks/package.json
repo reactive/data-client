@@ -1,7 +1,7 @@
 {
   "name": "rest-hooks",
   "version": "5.0.0-i.1",
-  "description": "Delightful data fetching for React",
+  "description": "Dynamic data fetching for React",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
   "module": "lib/index.js",
