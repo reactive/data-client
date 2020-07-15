@@ -6,7 +6,7 @@
 [![npm version](https://img.shields.io/npm/v/@rest-hooks/core.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/core)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-Making dynamic sites performant, scalable, simple to build with any API design.
+Dynamic data at scale. Performance, consistency, typing for REST, proto, GraphQL, websockets and more.
 
 <div align="center">
 
@@ -73,7 +73,7 @@ For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination
 - [x] ✨ Optimistic updates
-- [x] 🧘 [Flexible](https://resthooks.io/docs/api/FetchShape) to fit any API design (one size fits all)
+- [x] 🧘 [Flexible](https://resthooks.io/docs/api/Endpoint) to fit any API design (one size fits all)
 - [x] 🌳 Tree-shakable (only use what you need)
 - [x] 🔁 [Subscriptions](https://resthooks.io/docs/api/useSubscription)
 - [x] ♻️ Optional [redux integration](https://resthooks.io/docs/guides/redux)
