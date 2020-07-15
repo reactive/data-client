@@ -78,6 +78,19 @@
       "api/README",
       {
         "type": "subcategory",
+        "label": "Hooks",
+        "ids": [
+          "api/useresource",
+          "api/useFetcher",
+          "api/useCache",
+          "api/useSubscription",
+          "api/useRetrieve",
+          "api/useInvalidator",
+          "api/useResetter"
+        ]
+      },
+      {
+        "type": "subcategory",
         "label": "Interface Definitions",
         "ids": [
           "api/Endpoint",
@@ -89,21 +102,14 @@
         "type": "subcategory",
         "label": "Schemas",
         "ids": [
+          "api/quickstart",
           "api/Entity",
-          "api/SimpleRecord"
-        ]
-      },
-      {
-        "type": "subcategory",
-        "label": "Hooks",
-        "ids": [
-          "api/useresource",
-          "api/useFetcher",
-          "api/useCache",
-          "api/useSubscription",
-          "api/useRetrieve",
-          "api/useInvalidator",
-          "api/useResetter"
+          "api/SimpleRecord",
+          "api/Object",
+          "api/Array",
+          "api/Union",
+          "api/Values",
+          "api/Delete"
         ]
       },
       {

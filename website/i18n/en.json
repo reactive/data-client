@@ -5,8 +5,14 @@
     "previous": "Previous",
     "tagline": "Delightful data fetching",
     "docs": {
+      "api/Array": {
+        "title": "Array"
+      },
       "api/CacheProvider": {
         "title": "<CacheProvider />"
+      },
+      "api/Delete": {
+        "title": "Delete"
       },
       "api/Endpoint": {
         "title": "Endpoint"
@@ -42,9 +48,15 @@
         "title": "NetworkManager implements Manager",
         "sidebar_label": "NetworkManager"
       },
+      "api/Object": {
+        "title": "Object"
+      },
       "api/PollingSubscription": {
         "title": "PollingSubscription implements Subscription",
         "sidebar_label": "PollingSubscription"
+      },
+      "api/quickstart": {
+        "title": "Schema Quick Start"
       },
       "api/README": {
         "title": "API Reference"
@@ -58,6 +70,9 @@
       "api/SubscriptionManager": {
         "title": "SubscriptionManager<S extends SubscriptionConstructable> implements Manager",
         "sidebar_label": "SubscriptionManager"
+      },
+      "api/Union": {
+        "title": "Union"
       },
       "api/useCache": {
         "title": "useCache()"
@@ -79,6 +94,9 @@
       },
       "api/useSubscription": {
         "title": "useSubscription()"
+      },
+      "api/Values": {
+        "title": "Values"
       },
       "getting-started/installation": {
         "title": "Installation"

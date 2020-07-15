@@ -89,7 +89,7 @@ endpoint an unpredictable number of times.
 
 ### schema: Schema
 
-Declarative definition of where `Entities` appear in the fetch response.
+Declarative definition of how to [process responses](./quickstart) - including where to expect [Entities](./Entity)
 
 Not providing this option means no entities will be extracted.
 
