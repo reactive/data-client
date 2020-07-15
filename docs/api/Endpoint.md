@@ -124,6 +124,8 @@ const UserDetail = new Endpoint(({ id }) ⇒ fetch(`/users/${id}`));
 const UserDetailNormalized = UserDetail.extend({ schema: User });
 ```
 
+In addition to the members, `fetch` can be sent to override the fetch function.
+
 ### EndpointExtraOptions
 
 #### dataExpiryLength?: number

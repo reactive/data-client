@@ -32,7 +32,7 @@ Output
   entities: {
     User: { '123': DELETED, '543': DELETED }
   },
-  result: { User: [ '123' ] }
+  result: { User: [ '123', '543' ] }
 }
 ```
 
