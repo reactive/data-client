@@ -2,10 +2,6 @@ scanner_configs:
   YarnAudit:
     exclude_groups:
     - devDependencies
-    exceptions:
-    - advisory_id: 1523
-      changed_by: ntucker
-      notes: Currently no patch exists and determined that this package is only included by devdeps or in website dir
 active_scanners:
   - RepoNotEmpty
   - Brakeman
