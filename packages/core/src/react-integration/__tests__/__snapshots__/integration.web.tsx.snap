@@ -47,7 +47,22 @@ Array [
 `;
 
 exports[` => <Provider /> useResource() should throw errors on malformed response 1`] = `
-[Error: Attempted to initialize CoolerArticleResource with substantially different than expected keys
+[Error: Error processing GET http://test.com/article-cooler/878
+
+Full Schema: {
+  "name": "CoolerArticleResource",
+  "schema": {
+    "author": {
+      "name": "UserResource",
+      "schema": {},
+      "key": "http://test.com/user/"
+    }
+  },
+  "key": "http://test.com/article-cooler/"
+}
+
+Error:
+Attempted to initialize CoolerArticleResource with substantially different than expected keys
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
@@ -108,7 +123,22 @@ Array [
 `;
 
 exports[`makeCacheProvider => <Provider /> useResource() should throw errors on malformed response 1`] = `
-[Error: Attempted to initialize CoolerArticleResource with substantially different than expected keys
+[Error: Error processing GET http://test.com/article-cooler/878
+
+Full Schema: {
+  "name": "CoolerArticleResource",
+  "schema": {
+    "author": {
+      "name": "UserResource",
+      "schema": {},
+      "key": "http://test.com/user/"
+    }
+  },
+  "key": "http://test.com/article-cooler/"
+}
+
+Error:
+Attempted to initialize CoolerArticleResource with substantially different than expected keys
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.

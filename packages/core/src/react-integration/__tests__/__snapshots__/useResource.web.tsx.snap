@@ -54,7 +54,22 @@ Object {
 `;
 
 exports[`useResource() should throw error when response is {} when expecting entity 1`] = `
-[Error: Attempted to initialize CoolerArticleResource with substantially different than expected keys
+[Error: Error processing GET http://test.com/article-cooler/400
+
+Full Schema: {
+  "name": "CoolerArticleResource",
+  "schema": {
+    "author": {
+      "name": "UserResource",
+      "schema": {},
+      "key": "http://test.com/user/"
+    }
+  },
+  "key": "http://test.com/article-cooler/"
+}
+
+Error:
+Attempted to initialize CoolerArticleResource with substantially different than expected keys
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
@@ -67,7 +82,22 @@ exports[`useResource() should throw error when response is {} when expecting ent
 `;
 
 exports[`useResource() should throw error when response is array when expecting entity 1`] = `
-[Error: Attempted to initialize CoolerArticleResource with substantially different than expected keys
+[Error: Error processing GET http://test.com/article-cooler/400
+
+Full Schema: {
+  "name": "CoolerArticleResource",
+  "schema": {
+    "author": {
+      "name": "UserResource",
+      "schema": {},
+      "key": "http://test.com/user/"
+    }
+  },
+  "key": "http://test.com/article-cooler/"
+}
+
+Error:
+Attempted to initialize CoolerArticleResource with substantially different than expected keys
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
@@ -151,7 +181,22 @@ exports[`useResource() should throw error when response is nested string when ex
 `;
 
 exports[`useResource() should throw error when response is number when expecting entity 1`] = `
-[Error: Attempted to initialize CoolerArticleResource with substantially different than expected keys
+[Error: Error processing GET http://test.com/article-cooler/400
+
+Full Schema: {
+  "name": "CoolerArticleResource",
+  "schema": {
+    "author": {
+      "name": "UserResource",
+      "schema": {},
+      "key": "http://test.com/user/"
+    }
+  },
+  "key": "http://test.com/article-cooler/"
+}
+
+Error:
+Attempted to initialize CoolerArticleResource with substantially different than expected keys
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
@@ -164,7 +209,22 @@ exports[`useResource() should throw error when response is number when expecting
 `;
 
 exports[`useResource() should throw error when response is string when expecting entity 1`] = `
-[Error: Attempted to initialize CoolerArticleResource with substantially different than expected keys
+[Error: Error processing GET http://test.com/article-cooler/400
+
+Full Schema: {
+  "name": "CoolerArticleResource",
+  "schema": {
+    "author": {
+      "name": "UserResource",
+      "schema": {},
+      "key": "http://test.com/user/"
+    }
+  },
+  "key": "http://test.com/article-cooler/"
+}
+
+Error:
+Attempted to initialize CoolerArticleResource with substantially different than expected keys
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.

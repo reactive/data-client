@@ -82,6 +82,13 @@ export default function reducer(
         };
         // reducer must update the state, so in case of processing errors we simply compute the results inline
       } catch (error) {
+        error.message = `Error processing ${
+          action.meta.key
+        }\n\nFull Schema: ${JSON.stringify(
+          action.meta.schema,
+          undefined,
+          2,
+        )}\n\nError:\n${error.message}`;
         error.payload = action.payload;
         error.status = 400;
         return reduceError(state, action, error);
