@@ -53,6 +53,7 @@ import {
   ExternalCacheProvider,
   PromiseifyMiddleware,
 } from 'rest-hooks';
+import { initialState } from '@rest-hooks/core';
 import { createStore, applyMiddleware } from 'redux';
 import ReactDOM from 'react-dom';
 
@@ -61,6 +62,7 @@ const subscriptionManager = new SubscriptionManager(PollingSubscription);
 
 const store = createStore(
   reducer,
+  initialState,
   applyMiddleware(
     manager.getMiddleware(),
     subscriptionManager.getMiddleware(),
@@ -115,6 +117,7 @@ import {
   ExternalCacheProvider,
   PromiseifyMiddleware,
 } from 'rest-hooks';
+import { initialState } from '@rest-hooks/core';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom';
@@ -124,6 +127,7 @@ const subscriptionManager = new SubscriptionManager(PollingSubscription);
 
 const store = createStore(
   reducer,
+  initialState,
   applyMiddleware(
     manager.getMiddleware(),
     subscriptionManager.getMiddleware(),
@@ -166,6 +170,35 @@ const store = createStore(
 const selector = state => state.restHooks;
 // ...
 ```
+
 <!--END_DOCUSAURUS_CODE_TABS-->
 
 Here we store rest-hooks state information in the 'restHooks' part of the tree.
+
+## Redux devtools
+
+[Redux DevTools](https://github.com/reduxjs/redux-devtools) allows easy inspection of current
+state and transitions in the Rest Hooks store.
+
+Simply wrap the return value of `applyMiddleware()` with `composeWithDevTools()`
+
+```typescript
+import { composeWithDevTools } from 'redux-devtools-extension';
+
+const store = createStore(
+  reducer,
+  initialState,
+  // The next three lines are added
+  composeWithDevTools({
+    trace: true,
+  })(
+    applyMiddleware(
+      manager.getMiddleware(),
+      subscriptionManager.getMiddleware(),
+      // place Rest Hooks built middlewares before PromiseifyMiddleware
+      PromiseifyMiddleware,
+      // place redux middlewares after PromiseifyMiddleware
+    ),
+  ),
+);
+```
