@@ -133,16 +133,14 @@ import { Resource } from 'rest-hooks';
 
 export default class CommentResource extends Resource {
   static detail<T extends typeof Resource>(this: T) {
-    return {
-      ...super.detail(),
+    return super.detail.extend({
       schema: { data: this },
-    };
+    });
   }
   static list<T extends typeof Resource>(this: T) {
-    return {
-      ...super.list(),
+    return super.list().extend({
       schema: { data: [this] },
-    };
+    });
   }
 }
 ```
