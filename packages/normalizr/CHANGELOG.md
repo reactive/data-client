@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 6.0.0-i.0 (2020-07-20)
+
+* build(deps): bump lodash in /packages/normalizr/examples/redux (#367) ([7e8c191](https://github.com/coinbase/rest-hooks/commit/7e8c191)), closes [#367](https://github.com/coinbase/rest-hooks/issues/367)
+
+
+
+
+
 ## 6.0.0-h.0 (2020-07-13)
 
 * pkg: Bump babel runtime ([c6bf844](https://github.com/coinbase/rest-hooks/commit/c6bf844))

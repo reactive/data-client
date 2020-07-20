@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-i.2 (2020-07-20)
+
+* feat: Add DevToolsManager to integrate with redux-devtools (#371) ([aa171bc](https://github.com/coinbase/rest-hooks/commit/aa171bc)), closes [#371](https://github.com/coinbase/rest-hooks/issues/371)
+* docs: Fix Endpoint def in readme example ([125ad57](https://github.com/coinbase/rest-hooks/commit/125ad57))
+* docs: Update readme tagline ([fe39b16](https://github.com/coinbase/rest-hooks/commit/fe39b16))
+
+
+
+
+
 ## 5.0.0-i.1 (2020-07-14)
 
 * fix: Export Endpoint through core ([8b60dea](https://github.com/coinbase/rest-hooks/commit/8b60dea))
