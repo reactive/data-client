@@ -160,4 +160,5 @@ export type ActionTypes =
 export interface Manager {
   getMiddleware(): Middleware;
   cleanup(): void;
+  init?: (state: State<any>) => void;
 }

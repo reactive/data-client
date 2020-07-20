@@ -26,6 +26,7 @@ type Middleware = <R extends React.Reducer<any, A>, A extends Actions>({
 interface Manager {
   getMiddleware<T extends Manager>(this: T): Middleware;
   cleanup(): void;
+  init?: (state: State<any>) => void;
 }
 ```
 
@@ -46,6 +47,11 @@ To read more about middlewares, see the [redux documentation](https://redux.js.o
 ## cleanup()
 
 Provides any cleanup of dangling resources after manager is no longer in use.
+
+## init()
+
+Called with initial state after provider is mounted. Can be useful to run setup at start that
+relies on state actually existing.
 
 ## Provided managers:
 
