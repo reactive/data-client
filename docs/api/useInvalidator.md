@@ -61,7 +61,7 @@ const InvalidateArticle = new Endpoint(
 
 function ArticleName({ id }: { id: string }) {
   const article = useResource(ArticleResource.detail(), { id });
-  const invalidateAllWithArticle = useFetcher(ArticleResource.detail());
+  const invalidateAllWithArticle = useFetcher(InvalidateArticle);
 
   return (
     <div>
