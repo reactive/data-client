@@ -130,7 +130,8 @@
           "api/Manager",
           "api/NetworkManager",
           "api/SubscriptionManager",
-          "api/PollingSubscription"
+          "api/PollingSubscription",
+          "api/DevToolsManager"
         ]
       },
       {

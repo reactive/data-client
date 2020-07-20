@@ -1,5 +1,9 @@
 import { CacheProvider as CoreCacheProvider } from '@rest-hooks/core';
-import { SubscriptionManager, PollingSubscription } from 'rest-hooks/manager';
+import {
+  SubscriptionManager,
+  PollingSubscription,
+  DevToolsManager,
+} from 'rest-hooks/manager';
 
 import PromiseifyMiddleware from './PromiseifyMiddleware';
 import ExternalCacheProvider from './ExternalCacheProvider';
@@ -11,6 +15,7 @@ CacheProvider.defaultProps = {
   managers: [
     ...CoreCacheProvider.defaultProps.managers,
     new SubscriptionManager(PollingSubscription),
+    new DevToolsManager(),
   ],
 };
 

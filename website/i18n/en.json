@@ -14,6 +14,10 @@
       "api/Delete": {
         "title": "Delete"
       },
+      "api/DevToolsManager": {
+        "title": "DevToolsManager implements Manager",
+        "sidebar_label": "DevToolsManager"
+      },
       "api/Endpoint": {
         "title": "Endpoint"
       },

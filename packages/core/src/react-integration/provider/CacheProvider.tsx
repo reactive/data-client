@@ -33,6 +33,9 @@ export default function CacheProvider({
 
   // if we change out the manager we need to make sure it has no hanging async
   useEffect(() => {
+    for (let i = 0; i < managers.length; ++i) {
+      managers[i].init?.(state);
+    }
     return () => {
       for (let i = 0; i < managers.length; ++i) {
         managers[i].cleanup();
