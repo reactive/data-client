@@ -13,9 +13,9 @@ const CacheProvider: typeof CoreCacheProvider = props =>
 CacheProvider.defaultProps = {
   ...CoreCacheProvider.defaultProps,
   managers: [
+    new DevToolsManager(),
     ...CoreCacheProvider.defaultProps.managers,
     new SubscriptionManager(PollingSubscription),
-    new DevToolsManager(),
   ],
 };
 
