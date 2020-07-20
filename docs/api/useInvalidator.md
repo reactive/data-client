@@ -45,6 +45,34 @@ function ArticleName({ id }: { id: string }) {
 }
 ```
 
+## Invalidate an entity
+
+`useInvalidator()` invalidates a particular response. If you're looking to invalidate *every*
+response containing a particular entity, use the [Delete](./Delete)
+Schema. This causes all responses with that entity marked as required to suspend.
+
+In case this isn't an actual endpoint, simply fake the `fetch`:
+
+```tsx
+const InvalidateArticle = new Endpoint(
+  (params) => Promise.resolve(params),
+  { schema: new schemas.Delete(ArticleResource) }
+);
+
+function ArticleName({ id }: { id: string }) {
+  const article = useResource(ArticleResource.detail(), { id });
+  const invalidateAllWithArticle = useFetcher(ArticleResource.detail());
+
+  return (
+    <div>
+      <h1>{article.title}<h1>
+      <button onClick={() => invalidateAllWithArticle({ id })}>Fetch &amp; suspend</button>
+    </div>
+  );
+}
+```
+
+
 ## Internals
 
 - set expiresAt to 0.
