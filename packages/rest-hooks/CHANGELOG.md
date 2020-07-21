@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-i.3 (2020-07-21)
+
+* fix: Put DevToolsManager at front so it captures all actions ([ec2169b](https://github.com/coinbase/rest-hooks/commit/ec2169b))
+
+
+
+
+
 ## 5.0.0-i.2 (2020-07-20)
 
 * feat: Add DevToolsManager to integrate with redux-devtools (#371) ([aa171bc](https://github.com/coinbase/rest-hooks/commit/aa171bc)), closes [#371](https://github.com/coinbase/rest-hooks/issues/371)
