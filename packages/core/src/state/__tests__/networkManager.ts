@@ -335,6 +335,7 @@ describe('NetworkManager', () => {
           resolve,
           reject,
           promise: new Promise((v: any) => null),
+          createdAt: new Date(0),
         },
       };
 

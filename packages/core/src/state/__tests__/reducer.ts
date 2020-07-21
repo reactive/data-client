@@ -436,6 +436,7 @@ describe('reducer', () => {
         reject: (v: any) => null,
         resolve: (v: any) => null,
         promise: new Promise((v: any) => null),
+        createdAt: new Date(0),
       },
     };
     const iniState = {
