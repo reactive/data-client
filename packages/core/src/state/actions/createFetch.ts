@@ -59,7 +59,7 @@ export default function createFetch<
     resolve,
     reject,
     promise,
-    createdAt: new Date(),
+    createdAt: process.env.NODE_ENV === 'test' ? new Date(0) : new Date(),
   };
 
   if (updateParams) {
