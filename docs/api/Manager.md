@@ -57,3 +57,10 @@ relies on state actually existing.
 
 - [NetworkManager](./NetworkManager.md)
 - [SubscriptionManager](./SubscriptionManager.md)
+
+## Control flow
+
+Managers live in the CacheProvider centralized store. They orchestrate complex control flows by interfacing
+via intercepting and dispatching actions, as well as reading the internal state.
+
+![Manager flux flow](/img/managers.png)
