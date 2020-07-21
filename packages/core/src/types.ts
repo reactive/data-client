@@ -97,6 +97,7 @@ interface FetchMeta<
   resolve: (value?: any | PromiseLike<any>) => void;
   reject: (reason?: any) => void;
   promise: PromiseLike<any>;
+  createdAt: Date;
   optimisticResponse?: Payload;
   // indicates whether network manager processed it
   nm?: boolean;

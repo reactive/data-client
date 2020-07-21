@@ -59,6 +59,7 @@ export default function createFetch<
     resolve,
     reject,
     promise,
+    createdAt: new Date(),
   };
 
   if (updateParams) {

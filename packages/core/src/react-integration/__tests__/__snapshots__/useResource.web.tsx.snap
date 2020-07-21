@@ -3,6 +3,7 @@
 exports[`useResource() should dispatch an action that fetches 1`] = `
 Object {
   "meta": Object {
+    "createdAt": 2020-07-21T01:04:02.576Z,
     "key": "GET http://test.com/article-cooler/5",
     "options": undefined,
     "promise": Promise {},
@@ -20,6 +21,7 @@ Object {
 exports[`useResource() should dispatch fetch when sent multiple arguments 1`] = `
 Object {
   "meta": Object {
+    "createdAt": 2020-07-21T01:04:02.635Z,
     "key": "GET http://test.com/article-cooler/5",
     "options": undefined,
     "promise": Promise {},
@@ -37,6 +39,7 @@ Object {
 exports[`useResource() should dispatch fetch when sent multiple arguments 2`] = `
 Object {
   "meta": Object {
+    "createdAt": 2020-07-21T01:04:02.635Z,
     "key": "GET http://test.com/user/",
     "options": undefined,
     "promise": Promise {},
