@@ -49,6 +49,7 @@
         "type": "subcategory",
         "label": "Testing",
         "ids": [
+          "guides/debugging",
           "guides/storybook",
           "guides/unit-testing-hooks",
           "guides/unit-testing-components"

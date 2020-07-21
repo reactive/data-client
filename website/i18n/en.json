@@ -134,6 +134,10 @@
         "title": "Using a custom networking library",
         "sidebar_label": "Custom networking library"
       },
+      "guides/debugging": {
+        "title": "Debugging and Inspection",
+        "sidebar_label": "Debugging"
+      },
       "guides/extending-endpoints": {
         "title": "Custom endpoints"
       },
