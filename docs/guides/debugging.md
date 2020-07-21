@@ -57,7 +57,44 @@ If [schema](../api/quickstart)s are used, API responses are split into two piece
 This ensures consistency and alows allows for automatic as well as novel performances optimizations, especially
 key if the data ever changes or is repeated.
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--State-->
 ![Entities cache](/img/entities.png)
+<!--Response-->
+```json
+[
+  {"id": 1, "title": "this is an entity"},
+  {"id": 2, "title": "this is the second entity"}
+]
+```
+<!--Endpoint-->
+```typescript
+const PresentationList = new Endpoint(
+  () => fetch(`/presentations`).then(res => res.json()),
+  { schema: [PresentationEntity] },
+);
+```
+<!--Entity-->
+```typescript
+class PresentationEntity extends Entity {
+  readonly id: string = '';
+  readonly title: string = '';
+
+  pk() {
+    return this.id;
+  }
+}
+```
+<!--React-->
+```tsx
+export function PresentationsPage() {
+  const presentation = useResource(PresentationList, {});
+  return presentation.map(presentation => (
+    <div key={presentation.pk()}>{presentation.title}</div>
+  ));
+}
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 Once normalized, these entities and results are merged with the larger cache. Click on the 'state'
 tab in devtools to see the entire state. This can be useful to determine exactly where data is. There is
