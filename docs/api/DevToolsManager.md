@@ -18,3 +18,7 @@ browser to get started.
 
 [Arguments](https://github.com/zalmoxisus/redux-devtools-extension/blob/master/docs/API/Arguments.md)
 to send to redux devtools.
+
+## More info
+
+Using this Manager allows [debugging](../guides/debugging) with redux-devtools.
