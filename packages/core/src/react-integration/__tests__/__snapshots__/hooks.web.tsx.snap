@@ -3,7 +3,7 @@
 exports[`useFetcher should dispatch an action that fetches a create 1`] = `
 Object {
   "meta": Object {
-    "createdAt": 2020-07-21T01:04:02.739Z,
+    "createdAt": 2020-07-21T01:46:27.471Z,
     "key": "POST http://test.com/article-cooler/",
     "options": undefined,
     "promise": Promise {},
@@ -21,7 +21,7 @@ Object {
 exports[`useFetcher should dispatch an action that fetches a full update 1`] = `
 Object {
   "meta": Object {
-    "createdAt": 2020-07-21T01:04:02.849Z,
+    "createdAt": 2020-07-21T01:46:27.620Z,
     "key": "PUT http://test.com/article-cooler/1",
     "options": undefined,
     "promise": Promise {},
@@ -39,7 +39,7 @@ Object {
 exports[`useFetcher should dispatch an action that fetches a partial update 1`] = `
 Object {
   "meta": Object {
-    "createdAt": 2020-07-21T01:04:02.829Z,
+    "createdAt": 2020-07-21T01:46:27.601Z,
     "key": "PATCH http://test.com/article-cooler/1",
     "optimisticResponse": Object {
       "content": "changed",
@@ -63,7 +63,7 @@ Object {
 exports[`useFetcher should dispatch an action with multiple updaters in the meta if update shapes params are passed in 1`] = `
 Object {
   "meta": Object {
-    "createdAt": 2020-07-21T01:04:02.803Z,
+    "createdAt": 2020-07-21T01:46:27.572Z,
     "key": "POST http://test.com/article/",
     "optimisticResponse": Object {
       "content": "hi",
@@ -90,7 +90,7 @@ Object {
 exports[`useFetcher should dispatch an action with updater in the meta if update shapes params are passed in 1`] = `
 Object {
   "meta": Object {
-    "createdAt": 2020-07-21T01:04:02.791Z,
+    "createdAt": 2020-07-21T01:46:27.556Z,
     "key": "POST http://test.com/article-cooler/",
     "options": undefined,
     "promise": Promise {},
@@ -111,7 +111,7 @@ Object {
 exports[`useRetrieve should dispatch singles 1`] = `
 Object {
   "meta": Object {
-    "createdAt": 2020-07-21T01:04:02.891Z,
+    "createdAt": 2020-07-21T01:46:27.657Z,
     "key": "GET http://test.com/article-cooler/5",
     "options": undefined,
     "promise": Promise {},
@@ -129,7 +129,7 @@ Object {
 exports[`useRetrieve should dispatch with fetch shape defined dataExpiryLength 1`] = `
 Object {
   "meta": Object {
-    "createdAt": 2020-07-21T01:04:02.928Z,
+    "createdAt": 2020-07-21T01:46:27.686Z,
     "key": "GET http://test.com/article-static/5",
     "options": Object {
       "dataExpiryLength": 3600000,
@@ -149,7 +149,7 @@ Object {
 exports[`useRetrieve should dispatch with fetch shape defined errorExpiryLength 1`] = `
 Object {
   "meta": Object {
-    "createdAt": 2020-07-21T01:04:02.940Z,
+    "createdAt": 2020-07-21T01:46:27.698Z,
     "key": "GET http://test.com/article-static/5",
     "options": Object {
       "errorExpiryLength": Infinity,
@@ -169,7 +169,7 @@ Object {
 exports[`useRetrieve should dispatch with resource defined dataExpiryLength 1`] = `
 Object {
   "meta": Object {
-    "createdAt": 2020-07-21T01:04:02.920Z,
+    "createdAt": 2020-07-21T01:46:27.675Z,
     "key": "GET http://test.com/article-static/5",
     "options": undefined,
     "promise": Promise {},
