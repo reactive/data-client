@@ -64,3 +64,28 @@ Managers live in the CacheProvider centralized store. They orchestrate complex c
 via intercepting and dispatching actions, as well as reading the internal state.
 
 ![Manager flux flow](/img/managers.png)
+
+### Middleware logging
+
+```typescript
+this.middleware = ({ dispatch, getState }) => (next) => async (action) => {
+  console.log('before', action, getState());
+  await next(action);
+  console.log('after', action, getState())
+}
+```
+
+### Middleware data stream
+
+```typescript
+import { createReceive } from '@rest-hooks/core';
+
+this.middleware = ({ dispatch, getState }) => {
+  this.websocket.onmessage = (event) => {
+    dispatch(
+      createReceive(event.data, { schema: this.Schemas[event.type] })
+    );
+  }
+  return (next) => async (action) => next(action);
+}
+```
