@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-i.3 (2020-07-21)
+
+* internal: Fix - in test make date of fetch consistent ([d9b5970](https://github.com/coinbase/rest-hooks/commit/d9b5970))
+* internal: Fix remaining types in test ([b599927](https://github.com/coinbase/rest-hooks/commit/b599927))
+* internal: Fix tests ([78332b3](https://github.com/coinbase/rest-hooks/commit/78332b3))
+* feat: Add fetch request creation time to meta ([1a6242f](https://github.com/coinbase/rest-hooks/commit/1a6242f))
+
+
+
+
+
 ## 1.0.0-i.2 (2020-07-20)
 
 * feat: Add DevToolsManager to integrate with redux-devtools (#371) ([aa171bc](https://github.com/coinbase/rest-hooks/commit/aa171bc)), closes [#371](https://github.com/coinbase/rest-hooks/issues/371)

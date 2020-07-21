@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/core",
-  "version": "1.0.0-i.2",
+  "version": "1.0.0-i.3",
   "description": "Dynamic data fetching for React",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
