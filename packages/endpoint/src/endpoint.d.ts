@@ -32,19 +32,6 @@ export type ParamFromFetch<F> = F extends (
 
 type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;
 
-export type ExtendEndpoint<
-  E extends EndpointInstance<any, any, any>,
-  O extends EndpointExtendOptions<K, any, any>
-> = EndpointInstance<
-  'fetch' extends keyof typeof options ? typeof options['fetch'] : E['fetch'],
-  'schema' extends keyof typeof options
-    ? typeof options['schema']
-    : E['_schema'],
-  'sideEffect' extends keyof typeof options
-    ? typeof options['sideEffect']
-    : E['sideEffect']
->;
-
 /**
  * Creates a new function.
  */
