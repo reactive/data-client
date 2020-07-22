@@ -6,11 +6,7 @@ export type {
   IndexParams,
   ArrayElement,
 } from './interface';
-export type {
-  EndpointOptions,
-  EndpointInstance,
-  ExtendEndpoint,
-} from './endpoint';
+export type { EndpointOptions, EndpointInstance } from './endpoint';
 export type {
   EndpointExtraOptions,
   FetchFunction,
