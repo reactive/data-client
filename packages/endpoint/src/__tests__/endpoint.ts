@@ -251,6 +251,33 @@ describe('Endpoint', () => {
     });
   });
 
+  describe('helper members', () => {
+    it('url helper', async () => {
+      const url = ({ id }: { id: string }) => `/users/${id}`;
+      const fetchUsers = function (
+        this: { url: (params: { id: string }) => string },
+        { id }: { id: string },
+      ) {
+        return fetch(this.url({ id })).then(res => res.json()) as Promise<
+          typeof payload
+        >;
+      };
+      // @ts-expect-error
+      new Endpoint(fetchUsers, { url: '' });
+      // @ts-expect-error
+      new Endpoint(fetchUsers, { url }).extend({ url: 'hi' });
+
+      const UserDetail = new Endpoint(fetchUsers, { url }).extend({ url });
+
+      // check return type and call params
+      const response = await UserDetail({ id: payload.id });
+      expect(response).toEqual(payload);
+      expect(response.username).toBe(payload.username);
+      // @ts-expect-error
+      expect(response.notexist).toBeUndefined();
+    });
+  });
+
   /*describe('class', () => {
     describe('auth patterns', () => {
       class AuthEndpoint<

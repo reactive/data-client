@@ -90,7 +90,8 @@ export interface EndpointInstance<
 
   extend<
     E extends EndpointInstance<any, S, any>,
-    O extends EndpointExtendOptions<K, any, any>,
+    O extends EndpointExtendOptions<K, any, any> &
+      Partial<ThisParameterType<E['fetch']>>,
     K extends (
       this: ThisParameterType<
         'fetch' extends keyof O ? O['fetch'] : E['fetch']
