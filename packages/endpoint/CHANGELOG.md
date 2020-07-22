@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.4.3 (2020-07-22)</small>
+
+* fix: Ambient files now typechecked, fixed some types there (#372) ([223d4a4](https://github.com/coinbase/rest-hooks/commit/223d4a4)), closes [#372](https://github.com/coinbase/rest-hooks/issues/372)
+
+
+
+
+
 ## <small>0.4.2 (2020-07-22)</small>
 
 * fix: Remove broken type ([09e8268](https://github.com/coinbase/rest-hooks/commit/09e8268))

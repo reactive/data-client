@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 6.0.0-i.1 (2020-07-22)
+
+* fix: Ambient files now typechecked, fixed some types there (#372) ([223d4a4](https://github.com/coinbase/rest-hooks/commit/223d4a4)), closes [#372](https://github.com/coinbase/rest-hooks/issues/372)
+
+
+
+
+
 ## 6.0.0-i.0 (2020-07-20)
 
 * build(deps): bump lodash in /packages/normalizr/examples/redux (#367) ([7e8c191](https://github.com/coinbase/rest-hooks/commit/7e8c191)), closes [#367](https://github.com/coinbase/rest-hooks/issues/367)
