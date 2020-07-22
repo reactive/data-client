@@ -533,6 +533,7 @@ describe('useDenormalized()', () => {
           })),
         );
         expect(result.current.ret[0]).toBe(prevValue);
+        expect(result.current.ret[0].results).toBe(prevValue.results);
 
         act(() =>
           result.current.setState((state: any) => ({
@@ -540,6 +541,7 @@ describe('useDenormalized()', () => {
             entities: {
               ...state.entities,
               [PaginatedArticleResource.key]: {
+                1430: 'fake2',
                 ...state.entities[PaginatedArticleResource.key],
                 100000: 'fake',
               },
@@ -547,6 +549,7 @@ describe('useDenormalized()', () => {
           })),
         );
         expect(result.current.ret[0]).toBe(prevValue);
+        expect(result.current.ret[0].results).toBe(prevValue.results);
       });
 
       it('should referentially change when an entity changes', () => {
