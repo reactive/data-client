@@ -10,7 +10,7 @@ export interface EndpointInterface<
   M extends true | undefined = true | undefined
 > extends EndpointExtraOptions {
   (...args: Parameters<F>): InferReturn<F, S>;
-  key(parmas?: Readonly<Parameters<F>[0]>): string;
+  key(...args: Parameters<F>): string;
   readonly sideEffect?: M;
   readonly schema?: S;
 }
