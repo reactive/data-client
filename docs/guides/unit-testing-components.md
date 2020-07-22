@@ -46,6 +46,7 @@ export default {
 #### `__tests__/ArticleList.tsx`
 
 ```tsx
+import { CacheProvider } from 'rest-hooks';
 import { render } from '@testing-library/react';
 import { MockProvider } from '@rest-hooks/test';
 
@@ -63,5 +64,29 @@ describe('<ArticleList />', () => {
     const content = queryByText(results.full.result[0].content);
     expect(content).toBeDefined();
   });
+
+  it('is stale while revalidates', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
+      .options(/.*/)
+      .get(`/article/?maxResults=10`).reply(200, results.full[0].result);
+
+    const tree = (
+      <CacheProvider initialState={mockInitialState(results.full)}>
+        <ArticleList maxResults={10} />
+      </CacheProvider>
+    );
+    const { queryByText, waitForNextUpdate } = render(tree);
+    const content = queryByText(results.full.result[0].content);
+    expect(content).toBeDefined();
+
+    await waitForNextUpdate();
+    // verify we hit the endpoint
+    expect(nock.isDone()).toBeTrue();
+    expect(queryByText(results.full.result[0].content)).toBeDefined();
+  })
 });
 ```

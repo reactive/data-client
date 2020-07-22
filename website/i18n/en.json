@@ -42,6 +42,9 @@
       "api/Manager": {
         "title": "Manager"
       },
+      "api/mockInitialState": {
+        "title": "mockInitialState()"
+      },
       "api/MockProvider": {
         "title": "<MockProvider />"
       },

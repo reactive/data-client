@@ -1,22 +1,15 @@
 ---
-title: <MockProvider />
+title: mockInitialState()
 ---
 
 ```typescript
-function MockProvider({
-  children,
-  results,
-}: {
-  children: React.ReactChild;
-  results: Fixture[];
-}): JSX.Element;
+function mockInitialState(results: Fixture[]): State;
 ```
 
-\<MockProvider /> is a simple substitute provider to prefill the cache with fixtures so the 'happy path'
-can be tested. This is useful for [storybook](../guides/storybook.md) as well as component testing.
-
-> Note: \<MockProvider /> disables dispatches, thus no fetches will occur. To simply initalize the
-> cache, use [mockInitialState()](./mockInitialState) to construct initialState for the normal [\<CacheProvider />](./CacheProvider)
+`mockInitialState()` makes it easy to construct prefill the cache with fixtures. It's
+used in [\<MockProvider />](./MockProvider) to process the results prop. However, this
+can also be useful to send into a normal provider when testing more complete flows
+that need to handle `dispatches` (and thus fetch).
 
 ## Arguments
 
@@ -36,15 +29,16 @@ This prop specifies the fixtures to use data from. Each item represents a fetch 
 ## Returns
 
 ```typescript
-JSX.Element
+State
 ```
 
-Renders the children prop.
+This can be used as the initialState prop for [\<CacheProvider />](./CacheProvider)
 
 ## Example
 
 ```typescript
-import { MockProvider } from '@rest-hooks/test';
+import { CacheProvider } from 'rest-hooks';
+import { mockInitialState } from '@rest-hooks/test';
 
 import ArticleResource from 'resources/ArticleResource';
 import MyComponentToTest from 'components/MyComponentToTest';
@@ -70,7 +64,7 @@ const results = [
   },
 ];
 
-<MockProvider results={results}>
+<CacheProvider initialState={mockInitialState(results)}>
   <MyComponentToTest />
-</MockProvider>
+</CacheProvider>
 ```
