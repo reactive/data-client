@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.4.2 (2020-07-22)</small>
+
+* fix: Remove broken type ([09e8268](https://github.com/coinbase/rest-hooks/commit/09e8268))
+* fix: Remove broken type ([316e5a0](https://github.com/coinbase/rest-hooks/commit/316e5a0))
+
+
+
+
+
 ## <small>0.4.1 (2020-07-20)</small>
 
 * fix: Export Endpoint through core ([8b60dea](https://github.com/coinbase/rest-hooks/commit/8b60dea))

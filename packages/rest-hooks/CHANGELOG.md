@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-i.5 (2020-07-22)
+
+* docs: Add link to debugging docs from readme ([d75cbe8](https://github.com/coinbase/rest-hooks/commit/d75cbe8))
+
+
+
+
+
 ## 5.0.0-i.4 (2020-07-21)
 
 **Note:** Version bump only for package rest-hooks
