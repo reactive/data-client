@@ -42,7 +42,7 @@ export type Serializable<
   prototype: T;
 };
 
-export interface SchemaSimple {
+export interface SchemaSimple<T = any> {
   normalize(
     input: any,
     parent: any,
@@ -51,14 +51,15 @@ export interface SchemaSimple {
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
   ): any;
-  denormalize(input: any, unvisit: UnvisitFunction): [any, boolean, boolean];
+  denormalize(input: any, unvisit: UnvisitFunction): [T, boolean, boolean];
 }
 
-export interface SchemaClass extends SchemaSimple {
+export interface SchemaClass<T = any, N = T | undefined>
+  extends SchemaSimple<T> {
   // this is not an actual member, but is needed for the recursive NormalizeNullable<> type algo
   _normalizeNullable(): any;
   // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo
-  _denormalizeNullable(): [any, boolean, boolean];
+  _denormalizeNullable(): [N, boolean, boolean];
 }
 
 export interface EntityInterface<T = any> extends SchemaSimple {

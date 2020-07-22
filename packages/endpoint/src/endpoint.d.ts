@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import type { Schema } from '@rest-hooks/normalizr';
+import type { Schema, schema } from '@rest-hooks/normalizr';
 
 import type { EndpointInterface } from './interface';
 import type { EndpointExtraOptions, FetchFunction } from './types';
 import type { ResolveType } from './utility';
 
 export interface EndpointOptions<
-  K extends (params: any) => string,
+  K extends (...args: any) => string,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = undefined
 > extends EndpointExtraOptions {
@@ -16,7 +16,7 @@ export interface EndpointOptions<
 }
 
 export interface EndpointExtendOptions<
-  K extends (params: any) => string,
+  K extends (...args: any) => string,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = undefined
 > extends EndpointOptions<K, S, M> {
@@ -39,7 +39,12 @@ export interface EndpointInstance<
   F extends FetchFunction,
   S extends Schema | undefined = undefined,
   M extends true | undefined = undefined
-> extends EndpointInterface<F, S, M> {
+>
+  extends EndpointInterface<
+    F,
+    S extends undefined ? schema.SchemaClass<ResolveType<F>> : S,
+    M
+  > {
   constructor: EndpointConstructor;
 
   /**
@@ -78,8 +83,8 @@ export interface EndpointInstance<
 
   readonly sideEffect?: M;
 
-  readonly schema: S extends undefined ? ResolveType<F> : S;
-  private _schema: S; // TODO: remove once we don't care about FetchShape compatibility
+  readonly schema: S extends undefined ? schema.SchemaClass<ResolveType<F>> : S;
+  readonly _schema: S; // TODO: remove once we don't care about FetchShape compatibility
 
   fetch: F;
 
@@ -97,7 +102,9 @@ export interface EndpointInstance<
     this: E,
     options: O,
   ): EndpointInstance<
-    'fetch' extends keyof typeof options ? typeof options['fetch'] : E['fetch'],
+    'fetch' extends keyof typeof options
+      ? Exclude<typeof options['fetch'], undefined>
+      : E['fetch'],
     'schema' extends keyof typeof options
       ? typeof options['schema']
       : E['_schema'],

@@ -2,7 +2,8 @@
   "extends": "../../tsconfig-base",
   "compilerOptions": {
     "outDir": "lib",
-    "rootDir": "src"
+    "rootDir": "src",
+    "skipLibCheck": false
   },
   "include": ["src"],
   "references": [
