@@ -33,6 +33,10 @@ export function useStatefulResource<
     deleted && !error,
   );
 
+  if (maybePromise) {
+    maybePromise.catch(() => {});
+  }
+
   const loading =
     !hasUsableData(
       fetchShape,
