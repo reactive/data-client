@@ -6,7 +6,10 @@ import mockState, { Fixture } from './mockState';
 
 const mockDispatch = (value: ActionTypes) => {
   console.error(
-    `MockProvider received a dispatch: ${JSON.stringify(value, undefined, 2)}, for which there is no matching fixture.
+    `MockProvider received a dispatch:
+${JSON.stringify(value, undefined, 2)}
+for which there is no matching fixture.
+
 If you were expecting to see results, it is likely due to data not being found in fixtures.
 Double check your params and FetchShape match. For example:
 
