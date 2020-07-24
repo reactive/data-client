@@ -6,9 +6,12 @@ import mockState, { Fixture } from './mockState';
 
 const mockDispatch = (value: ActionTypes) => {
   console.error(
-    `MockProvider does not implement dispatch.
+    `MockProvider received a dispatch:
+${JSON.stringify(value, undefined, 2)}
+for which there is no matching fixture.
+
 If you were expecting to see results, it is likely due to data not being found in fixtures.
-Double check your params and FetchShape match:
+Double check your params and FetchShape match. For example:
 
 useResource(ArticleResource.listShape(), { maxResults: 10 });
 
