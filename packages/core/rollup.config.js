@@ -12,12 +12,7 @@ const dependencies = Object.keys(pkg.dependencies)
   .concat(Object.keys(pkg.peerDependencies))
   .filter(
     dep =>
-      ![
-        '@rest-hooks/normalizr',
-        '@rest-hooks/use-enhanced-reducer',
-        '@rest-hooks/endpoint',
-        '@babel/runtime',
-      ].includes(dep),
+      !['@rest-hooks/use-enhanced-reducer', '@babel/runtime'].includes(dep),
   );
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
