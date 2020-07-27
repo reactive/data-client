@@ -30,8 +30,8 @@
   "sideEffects": false,
   "scripts": {
     "build": "run-p build:js:*",
-    "build:js:development": "NODE_ENV=development rollup -c",
-    "build:js:production": "NODE_ENV=production rollup -c",
+    "build:js:development": "BROWSERSLIST_ENV=legacy NODE_ENV=development rollup -c",
+    "build:js:production": "BROWSERSLIST_ENV=legacy NODE_ENV=production rollup -c",
     "build:js:es_development": "BROWSERSLIST_ENV=production NODE_ENV=development rollup -c",
     "build:js:bundle": "BROWSERSLIST_ENV=production NODE_ENV=production rollup -c",
     "build:clean": "rimraf dist *.tsbuildinfo",
@@ -46,6 +46,9 @@
     "tsc:ci": "ttsc --project tsconfig.test.json ",
     "typecheck": "yarn run tsc:ci"
   },
+  "browserslist": [
+    "extends @anansi/browserslist-config"
+  ],
   "author": "Nathaniel Tucker",
   "contributors": [
     "Paul Armstrong",
