@@ -6,6 +6,7 @@
   "include": ["."],
   "references": [
     { "path": "../packages/endpoint" },
+    { "path": "../packages/rest" },
     { "path": "../packages/core" },
     { "path": "../packages/rest-hooks" }
   ]

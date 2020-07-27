@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 export default function paramsToString(
   searchParams: Readonly<Record<string, string | number | boolean>>,
 ) {

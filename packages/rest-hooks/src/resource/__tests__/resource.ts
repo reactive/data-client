@@ -274,10 +274,10 @@ describe('Resource', () => {
     it('should throw with SimpleResource', () => {
       expect(() =>
         SimpleResource.fetch(
+          'get',
           CoolerArticleResource.url({
             id: payload.id,
           }),
-          { method: 'GET' },
         ),
       ).toThrow();
     });
@@ -285,10 +285,10 @@ describe('Resource', () => {
     it('fetchResponse() should throw with SimpleResource', () => {
       expect(() =>
         SimpleResource.fetchResponse(
+          'get',
           CoolerArticleResource.url({
             id: payload.id,
           }),
-          { method: 'GET' },
         ),
       ).toThrow();
     });

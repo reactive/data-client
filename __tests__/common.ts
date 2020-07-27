@@ -1,16 +1,11 @@
-import {
-  Resource,
-  SchemaList,
-  schemas,
-  ReadShape,
-  SchemaDetail,
-} from 'rest-hooks';
+import { SchemaList, schemas, ReadShape, SchemaDetail } from 'rest-hooks';
 import {
   AbstractInstanceType,
   MutateShape,
   SimpleRecord,
 } from '@rest-hooks/core';
 import { Endpoint, EndpointExtraOptions } from '@rest-hooks/endpoint';
+import { Resource } from '@rest-hooks/rest';
 import React from 'react';
 
 export class UserResource extends Resource {
