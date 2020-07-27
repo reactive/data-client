@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-j.3 (2020-07-27)
+
+* enhance: Export DevToolsManager from rest-hooks ([b8082ca](https://github.com/coinbase/rest-hooks/commit/b8082ca))
+
+
+
+
+
 ## 5.0.0-j.2 (2020-07-27)
 
 **Note:** Version bump only for package rest-hooks
