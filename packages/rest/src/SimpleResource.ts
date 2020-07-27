@@ -3,6 +3,7 @@ import type { AbstractInstanceType } from '@rest-hooks/normalizr';
 import { Endpoint } from '@rest-hooks/endpoint';
 import type { EndpointExtraOptions } from '@rest-hooks/endpoint';
 
+import { ReadShape, MutateShape } from './legacy';
 import { SchemaDetail, SchemaList } from './types';
 import { NotImplementedError } from './errors';
 import paramsToString from './paramsToString';
@@ -107,6 +108,20 @@ export default abstract class SimpleResource extends FlatEntity {
   /** Endpoint to get a single entity */
   static detail<T extends typeof SimpleResource>(this: T) {
     const init = this.getFetchInit({ method: 'GET' });
+
+    return new Endpoint(
+      (params: Readonly<Record<string, string | number | boolean>>) => {
+        return this.fetch(this.url(params), init);
+      },
+      {
+        ...this.getEndpointExtra(),
+        key: (params: Readonly<Record<string, string | number | boolean>>) => {
+          return 'GET ' + this.url(params);
+        },
+        schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+      },
+    );
+    /*const init = this.getFetchInit({ method: 'GET' });
     const fetch = this.fetch.bind(this);
 
     return new Endpoint(
@@ -125,7 +140,7 @@ export default abstract class SimpleResource extends FlatEntity {
         url: this.url.bind(this),
         init,
       },
-    );
+    );*/
   }
 
   /** Endpoint to get a list of entities */
@@ -232,6 +247,60 @@ export default abstract class SimpleResource extends FlatEntity {
         sideEffect: true,
       },
     );
+  }
+
+  /** @deprecated */
+  static detailShape<T extends typeof SimpleResource>(
+    this: T,
+  ): ReadShape<SchemaDetail<Readonly<AbstractInstanceType<T>>>> {
+    return this.detail();
+  }
+
+  /** @deprecated */
+  static listShape<T extends typeof SimpleResource>(
+    this: T,
+  ): ReadShape<SchemaList<Readonly<AbstractInstanceType<T>>>> {
+    return this.list();
+  }
+
+  /** @deprecated */
+  static createShape<T extends typeof SimpleResource>(
+    this: T,
+  ): MutateShape<
+    SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+    Readonly<object>,
+    Partial<AbstractInstanceType<T>>
+  > {
+    return this.create();
+  }
+
+  /** @deprecated */
+  static updateShape<T extends typeof SimpleResource>(
+    this: T,
+  ): MutateShape<
+    SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+    Readonly<object>,
+    Partial<AbstractInstanceType<T>>
+  > {
+    return this.update();
+  }
+
+  /** @deprecated */
+  static partialUpdateShape<T extends typeof SimpleResource>(
+    this: T,
+  ): MutateShape<
+    SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+    Readonly<object>,
+    Partial<AbstractInstanceType<T>>
+  > {
+    return this.partialUpdate();
+  }
+
+  /** @deprecated */
+  static deleteShape<T extends typeof SimpleResource>(
+    this: T,
+  ): MutateShape<schema.Delete<T>, Readonly<object>, undefined> {
+    return this.delete();
   }
 }
 

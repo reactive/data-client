@@ -10,3 +10,5 @@ export type SchemaList<T> =
   | { [K: string]: any }
   | Schema[]
   | schemas.SchemaClass;
+
+export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options';

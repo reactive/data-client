@@ -70,7 +70,7 @@ export type {
 } from '@rest-hooks/core';
 
 export { Resource, SimpleResource } from './resource';
-export type { SchemaDetail, SchemaList } from './resource/types';
+export type { SchemaDetail, SchemaList, Method } from './resource/types';
 export {
   CacheProvider,
   ExternalCacheProvider,

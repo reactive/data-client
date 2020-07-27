@@ -51,6 +51,7 @@ const baseConfig = {
 const packages = [
   'legacy',
   'endpoint',
+  'rest',
   'core',
   'rest-hooks',
   'normalizr',
