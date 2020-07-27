@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.0-j.0 (2020-07-27)
+
+* fix: Catch maybePromise errors. (#374) ([786b6cc](https://github.com/coinbase/rest-hooks/commit/786b6cc)), closes [#374](https://github.com/coinbase/rest-hooks/issues/374)
+
+
+
+
+
 ## 2.0.0-h.0 (2020-07-13)
 
 * pkg: Bump babel runtime ([c6bf844](https://github.com/coinbase/rest-hooks/commit/c6bf844))

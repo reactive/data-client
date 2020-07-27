@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.0-j.0 (2020-07-27)
+
+* enhance: Print the action in mockDispatch, so users know what they need to mock. (#373) ([18a7628](https://github.com/coinbase/rest-hooks/commit/18a7628)), closes [#373](https://github.com/coinbase/rest-hooks/issues/373)
+
+
+
+
+
 ## [2.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@2.0.0-beta.1...@rest-hooks/test@2.0.0-beta.2) (2020-05-13)
 
 

@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-j.0 (2020-07-27)
+
+* feat: Add @rest-hooks/rest package (#375) ([5e5c125](https://github.com/coinbase/rest-hooks/commit/5e5c125)), closes [#375](https://github.com/coinbase/rest-hooks/issues/375)
+
+
+
+
+
 ## 1.0.0-i.4 (2020-07-22)
 
 * internal: Add add more disruption to referntial test ([f249b40](https://github.com/coinbase/rest-hooks/commit/f249b40))
