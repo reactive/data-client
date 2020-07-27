@@ -81,6 +81,7 @@ export type { NetworkError } from './react-integration';
 
 export {
   PollingSubscription,
+  DevToolsManager,
   SubscriptionManager,
   DefaultConnectionListener,
 } from './manager';
