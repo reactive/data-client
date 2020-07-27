@@ -24,6 +24,8 @@ describe('useCache()', () => {
     const { result } = renderRestHook(() => {
       return useCache(CoolerArticleResource.detailShape(), payload);
     }, {});
+    // @ts-expect-error
+    result.current?.doesnotexist;
     expect(result.current).toBe(undefined);
   });
 

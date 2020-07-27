@@ -423,6 +423,8 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
               CoolerArticleResource.detailShape(),
               params,
             );
+            // @ts-expect-error
+            article.doesnotexist;
             return { put, article };
           },
           {

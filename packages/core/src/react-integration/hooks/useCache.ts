@@ -1,4 +1,8 @@
-import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
+import {
+  ReadShape,
+  ParamsFromShape,
+  DenormalizeNullable,
+} from '@rest-hooks/core/endpoint';
 import { useDenormalized } from '@rest-hooks/core/state/selectors';
 import { useContext, useMemo } from 'react';
 import { StateContext } from '@rest-hooks/core/react-integration/context';
@@ -15,7 +19,10 @@ import useExpiresAt from './useExpiresAt';
 /** Access a resource if it is available. */
 export default function useCache<
   Shape extends Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>
->(fetchShape: Shape, params: ParamsFromShape<Shape> | null) {
+>(
+  fetchShape: Shape,
+  params: ParamsFromShape<Shape> | null,
+): DenormalizeNullable<Shape['schema']> {
   const expiresAt = useExpiresAt(fetchShape, params);
 
   const state = useContext(StateContext);
