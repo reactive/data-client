@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 6.0.0-j.0 (2020-07-27)
+
+* fix: Make normalizr commonjs bundle transpile classes ([6812990](https://github.com/coinbase/rest-hooks/commit/6812990))
+
+
+
+
+
 ## 6.0.0-i.1 (2020-07-22)
 
 * fix: Ambient files now typechecked, fixed some types there (#372) ([223d4a4](https://github.com/coinbase/rest-hooks/commit/223d4a4)), closes [#372](https://github.com/coinbase/rest-hooks/issues/372)

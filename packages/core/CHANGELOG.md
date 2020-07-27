@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-j.2 (2020-07-27)
+
+**Note:** Version bump only for package @rest-hooks/core
+
+
+
+
+
 ## 1.0.0-j.1 (2020-07-27)
 
 * fix: Inferred return of useCache() (#377) ([ce7a4f7](https://github.com/coinbase/rest-hooks/commit/ce7a4f7)), closes [#377](https://github.com/coinbase/rest-hooks/issues/377)
