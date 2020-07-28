@@ -16,7 +16,6 @@ export default class DevToolsManager implements Manager {
 
   constructor(config: any = {}) {
     this.devTools =
-      process.env.NODE_ENV !== 'production' &&
       typeof window !== 'undefined' &&
       (window as any).__REDUX_DEVTOOLS_EXTENSION__ &&
       (window as any).__REDUX_DEVTOOLS_EXTENSION__.connect(config);
