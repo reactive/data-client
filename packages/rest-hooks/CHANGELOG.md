@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-j.5 (2020-07-31)
+
+* fix: DevToolsManager export in prod mode ([7f419cb](https://github.com/coinbase/rest-hooks/commit/7f419cb))
+
+
+
+
+
 ## 5.0.0-j.4 (2020-07-28)
 
 * fix: DevToolsManager being removed in production making exports not work ([024c27e](https://github.com/coinbase/rest-hooks/commit/024c27e))
