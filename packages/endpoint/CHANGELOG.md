@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.5.2 (2020-07-31)</small>
+
+**Note:** Version bump only for package @rest-hooks/endpoint
+
+
+
+
+
 ## <small>0.5.1 (2020-07-27)</small>
 
 **Note:** Version bump only for package @rest-hooks/endpoint

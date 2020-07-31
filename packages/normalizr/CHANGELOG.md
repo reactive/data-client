@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 6.0.0-j.1 (2020-07-31)
+
+* enhance: Normalizr ES build should be split into modules for code splitting (#381) ([c543a31](https://github.com/coinbase/rest-hooks/commit/c543a31)), closes [#381](https://github.com/coinbase/rest-hooks/issues/381)
+
+
+
+
+
 ## 6.0.0-j.0 (2020-07-27)
 
 * fix: Make normalizr commonjs bundle transpile classes ([6812990](https://github.com/coinbase/rest-hooks/commit/6812990))

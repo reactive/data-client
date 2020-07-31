@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.0-j.1 (2020-07-31)
+
+* fix: Test types ([17fe727](https://github.com/coinbase/rest-hooks/commit/17fe727))
+* fix: Test types (#379) ([f4353d9](https://github.com/coinbase/rest-hooks/commit/f4353d9)), closes [#379](https://github.com/coinbase/rest-hooks/issues/379)
+
+
+
+
+
 ## 2.0.0-j.0 (2020-07-27)
 
 * enhance: Print the action in mockDispatch, so users know what they need to mock. (#373) ([18a7628](https://github.com/coinbase/rest-hooks/commit/18a7628)), closes [#373](https://github.com/coinbase/rest-hooks/issues/373)
