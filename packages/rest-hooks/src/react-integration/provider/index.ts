@@ -13,10 +13,12 @@ const CacheProvider: typeof CoreCacheProvider = props =>
 CacheProvider.defaultProps = {
   ...CoreCacheProvider.defaultProps,
   managers: [
-    new DevToolsManager(),
     ...CoreCacheProvider.defaultProps.managers,
     new SubscriptionManager(PollingSubscription),
   ],
 };
+/* istanbul ignore next */
+if (process.env.NODE_ENV !== 'production')
+  CacheProvider.defaultProps.managers.unshift(new DevToolsManager());
 
 export { CacheProvider, ExternalCacheProvider, PromiseifyMiddleware };
