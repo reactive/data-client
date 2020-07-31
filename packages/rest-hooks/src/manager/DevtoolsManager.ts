@@ -20,7 +20,7 @@ export default class DevToolsManager implements Manager {
       (window as any).__REDUX_DEVTOOLS_EXTENSION__ &&
       (window as any).__REDUX_DEVTOOLS_EXTENSION__.connect(config);
 
-    if (this.devTools) {
+    if (process.env.NODE_ENV === 'development' && this.devTools) {
       this.middleware = <R extends React.Reducer<any, any>>({
         getState,
       }: MiddlewareAPI<R>) => {
