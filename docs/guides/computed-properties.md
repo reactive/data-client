@@ -5,7 +5,7 @@ title: Computed Properties
 getters to the class itself.
 
 ```typescript
-import { Resource } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
 
 class User extends Resource {
   readonly id: number | undefined = undefined;
@@ -30,7 +30,7 @@ If the computations are expensive feel free to add some
 memoization.
 
 ```typescript
-import { Resource } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
 import { memoize } from 'lodash';
 
 class User extends Resource {

@@ -15,7 +15,7 @@ Next we'll provide a definition of nested members in the [schema][3] member.
 #### `resources/ArticleResource.ts`
 
 ```tsx
-import { Resource, schemas, AbstractInstanceType } from 'rest-hooks';
+import { Resource, AbstractInstanceType } from '@rest-hooks/rest';
 import { UserResource } from 'resources';
 
 export default class ArticleResource extends Resource {
@@ -70,7 +70,7 @@ one of their [schema][3] to avoid circular imports.
 #### `resources/ArticleResource.ts`
 
 ```typescript
-import { Resource, schemas, AbstractInstanceType } from 'rest-hooks';
+import { Resource, AbstractInstanceType } from '@rest-hooks/rest';
 import { UserResource } from 'resources';
 
 export default class ArticleResource extends Resource {
@@ -98,7 +98,7 @@ UserResource.schema = {
 #### `resources/UserResource.ts`
 
 ```typescript
-import { Resource } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
 // no need to import ArticleResource as the schema override happens there.
 
 export default class UserResource extends Resource {

@@ -129,7 +129,7 @@ In this case, you'll need to override your detail() and list() definitions to re
 the structure of your data. This is known as a 'schema' definition.
 
 ```typescript
-import { Resource } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
 
 export default class CommentResource extends Resource {
   static detail<T extends typeof Resource>(this: T) {
@@ -165,7 +165,7 @@ doesn't expect any body, but is a POST request. Because it is so similar to a [c
 we'll be extended that schema definition.
 
 ```typescript
-import { Resource } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
 
 export default class UserResource extends Resource {
   static makeManager<T extends typeof Resource>(this: T) {
@@ -196,7 +196,7 @@ just for retrieving the current user. In this case - `/current_user/`. Since the
 is only one - we won't need to send any params.
 
 ```typescript
-import { Resource } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
 
 export default class UserResource extends Resource {
   /** Retrieves current logged in user */

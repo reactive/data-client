@@ -14,7 +14,7 @@ prefer `camelCase`. This snippet lets us make the transform needed.
 
 ```typescript
 import { camelCase, snakeCase } from 'lodash';
-import { Resource } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
 
 function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
   const ret: Record<string, any> = Array.isArray(obj) ? [] : {};
@@ -160,7 +160,7 @@ can be used to construct [Endpoint](../api/Endpoint).
 Sometimes this is used for cursor based [pagination](./pagination.md#tokens-in-http-headers).
 
 ```typescript
-import { Resource } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
 
 export default class ArticleResource extends Resource {
   // same as above....

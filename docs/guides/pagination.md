@@ -37,7 +37,7 @@ that aren't entities.
 `resources/ArticleResource.ts`
 
 ```typescript
-import { Resource, SchemaList, AbstractInstanceType } from 'rest-hooks';
+import { Resource, SchemaList, AbstractInstanceType } from '@rest-hooks/rest';
 import { UserResource } from 'resources';
 
 export default class ArticleResource extends Resource {
@@ -101,7 +101,7 @@ Pagination token is stored in the header `link` for this example.
 <!--fetch (default)-->
 
 ```typescript
-import { Resource } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
 
 export default class ArticleResource extends Resource {
   // same as above....
@@ -130,7 +130,7 @@ export default class ArticleResource extends Resource {
 
 ```typescript
 import request from 'superagent';
-import { Resource, SchemaList, AbstractInstanceType } from 'rest-hooks';
+import { Resource, SchemaList, AbstractInstanceType } from '@rest-hooks/rest';
 
 export default class ArticleResource extends Resource {
   // same as above....

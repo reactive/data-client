@@ -38,7 +38,8 @@ When using the default [polling subscriptions](./PollingSubscription), frequency
 `PriceResource.ts`
 
 ```typescript
-import { Resource, EndpointExtraOptions } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
+import { EndpointExtraOptions } from '@rest-hooks/endpoint';
 
 export default class PriceResource extends Resource {
   readonly symbol: string | undefined = undefined;

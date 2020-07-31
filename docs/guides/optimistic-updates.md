@@ -16,11 +16,11 @@ body to ensure the normalized cache gets updated correctly.
 
 ```typescript
 import {
-  Resource,
   MutateEndpoint,
   SchemaDetail,
   AbstractInstanceType,
 } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
 
 export default class ArticleResource extends Resource {
   readonly id: string | undefined = undefined;
@@ -79,11 +79,10 @@ add to the list of articles the newly created article - without waiting on a net
 
 ```typescript
 import {
-  Resource,
   MutateEndpoint,
-  SchemaDetail,
   AbstractInstanceType,
 } from 'rest-hooks';
+import { SchemaDetail, Resource } from '@rest-hooks/rest';
 
 export default class ArticleResource extends Resource {
   readonly id: string | undefined = undefined;
@@ -157,7 +156,8 @@ We return an empty string because that's the response we expect from the server.
 default, the server response is ignored.
 
 ```ts
-import { Resource, MutateEndpoint, SimpleResource } from 'rest-hooks';
+import { Resource, SimpleResource } from '@rest-hooks/rest';
+import { MutateEndpoint } from 'rest-hooks';
 
 export default class ArticleResource extends Resource {
   readonly id: string | undefined = undefined;

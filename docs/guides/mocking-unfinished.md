@@ -10,7 +10,8 @@ you won't need to make major changes to your code.
 `resource/RatingResource.ts`
 
 ```typescript
-import { Resource, EndpointExtraOptions } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
+import { EndpointExtraOptions } from '@rest-hooks/endpoint';
 
 export default class RatingResource extends Resource {
   readonly id: string = '';

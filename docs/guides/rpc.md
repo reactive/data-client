@@ -46,7 +46,7 @@ endpoint.
 `TradeResource.ts`
 
 ```typescript
-import { Resource } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
 
 class TradeResource extends Resource {
   // ...

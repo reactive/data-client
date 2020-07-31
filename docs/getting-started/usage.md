@@ -11,7 +11,7 @@ title: Usage
 <!--TypeScript-->
 
 ```typescript
-import { Resource } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
 
 export default class ArticleResource extends Resource {
   readonly id: number | undefined = undefined;
@@ -31,7 +31,7 @@ export default class ArticleResource extends Resource {
 <!--Javascript-->
 
 ```js
-import { Resource } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
 
 export default class ArticleResource extends Resource {
   id = undefined;
@@ -51,7 +51,7 @@ export default class ArticleResource extends Resource {
 <!--FlowType-->
 
 ```jsx
-import { Resource } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
 
 export default class ArticleResource extends Resource {
   +id: ?number = undefined;
