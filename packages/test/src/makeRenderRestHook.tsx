@@ -19,7 +19,7 @@ export default function makeRenderRestHook(
     options?: {
       initialProps?: P;
       results?: Fixture[];
-    } & RenderHookOptions<P>,
+    } & RenderHookOptions<{ children: React.ReactChild }>,
   ) {
     const initialState =
       options && options.results && mockInitialState(options.results);
