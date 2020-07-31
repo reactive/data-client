@@ -19,7 +19,8 @@ export default function makeRenderRestHook(
     options?: {
       initialProps?: P;
       results?: Fixture[];
-    } & RenderHookOptions<{ children: React.ReactChild }>,
+      wrapper?: React.ComponentType<P>;
+    },
   ) {
     const initialState =
       options && options.results && mockInitialState(options.results);
@@ -29,10 +30,10 @@ export default function makeRenderRestHook(
     );
     const Wrapper = options && options.wrapper;
     const wrapper: React.ComponentType<any> = Wrapper
-      ? function ProviderWrapped({ children }: { children: React.ReactChild }) {
+      ? function ProviderWrapped(props: P) {
           return (
             <Provider>
-              <Wrapper>{children}</Wrapper>
+              <Wrapper {...props} />
             </Provider>
           );
         }
