@@ -1,6 +1,6 @@
-import * as ImmutableUtils from './schemas/ImmutableUtils';
-import * as ArrayUtils from './schemas/Array';
-import * as ObjectUtils from './schemas/Object';
+import { isImmutable } from './schemas/ImmutableUtils';
+import { denormalize as arrayDenormalize } from './schemas/Array';
+import { denormalize as objectDenormalize } from './schemas/Object';
 import { Denormalize, DenormalizeNullable, Schema } from './types';
 import Entity, { isEntity } from './entities/Entity';
 import FlatEntity from './entities/FlatEntity';
@@ -30,7 +30,7 @@ const unvisitEntity = (
   if (!cache[schema.key][id]) {
     // Ensure we don't mutate it non-immutable objects
     const entityCopy =
-      ImmutableUtils.isImmutable(entity) || entity instanceof FlatEntity
+      isImmutable(entity) || entity instanceof FlatEntity
         ? entity
         : schema.fromJS(entity);
 
@@ -60,8 +60,8 @@ const getUnvisit = (entities: Record<string, any>) => {
           return [new schema(input), true, false];
         } else if (typeof schema === 'object') {
           const method = Array.isArray(schema)
-            ? ArrayUtils.denormalize
-            : ObjectUtils.denormalize;
+            ? arrayDenormalize
+            : objectDenormalize;
           return method(schema, input, unvisit);
         }
       }
@@ -90,7 +90,7 @@ const getUnvisit = (entities: Record<string, any>) => {
 };
 
 const getEntities = (entities: Record<string, any>) => {
-  const isImmutable = ImmutableUtils.isImmutable(entities);
+  const entityIsImmutable = isImmutable(entities);
 
   return (entityOrId: Record<string, any> | string, schema: typeof Entity) => {
     const schemaKey = schema.key;
@@ -99,7 +99,7 @@ const getEntities = (entities: Record<string, any>) => {
       return entityOrId;
     }
 
-    if (isImmutable) {
+    if (entityIsImmutable) {
       return entities.getIn([schemaKey, entityOrId]);
     }
 

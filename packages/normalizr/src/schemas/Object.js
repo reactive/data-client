@@ -1,4 +1,4 @@
-import * as ImmutableUtils from './ImmutableUtils';
+import { isImmutable, denormalizeImmutable } from './ImmutableUtils';
 
 export const normalize = (
   schema,
@@ -30,8 +30,8 @@ export const normalize = (
 };
 
 export const denormalize = (schema, input, unvisit) => {
-  if (ImmutableUtils.isImmutable(input)) {
-    return ImmutableUtils.denormalizeImmutable(schema, input, unvisit);
+  if (isImmutable(input)) {
+    return denormalizeImmutable(schema, input, unvisit);
   }
 
   const object = { ...input };

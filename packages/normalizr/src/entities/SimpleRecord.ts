@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { AbstractInstanceType, Schema, NormalizedEntity } from '../types';
-import { normalize, denormalize } from '../schemas/Object';
+import { normalize } from '../schemas/Object';
 
 const DefinedMembersKey = Symbol('Defined Members');
 const UniqueIdentifierKey = Symbol('unq');

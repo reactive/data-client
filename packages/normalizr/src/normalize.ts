@@ -1,6 +1,6 @@
-import * as ArrayUtils from './schemas/Array';
-import * as ObjectUtils from './schemas/Object';
-import {
+import { normalize as arrayNormalize } from './schemas/Array';
+import { normalize as objectNormalize } from './schemas/Object';
+import type {
   NormalizeNullable,
   NormalizedSchema,
   Schema,
@@ -24,9 +24,7 @@ const visit = (
     if (typeof schema === 'function') {
       return new schema(value);
     }
-    const method = Array.isArray(schema)
-      ? ArrayUtils.normalize
-      : ObjectUtils.normalize;
+    const method = Array.isArray(schema) ? arrayNormalize : objectNormalize;
     return method(
       schema,
       value,
