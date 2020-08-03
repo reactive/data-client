@@ -118,7 +118,7 @@ export class ArticleResource extends Resource {
 
   static deleteShape<T extends typeof Resource>(
     this: T,
-  ): MutateShape<schemas.Delete<T>, Readonly<object>, undefined> {
+  ): MutateShape<schemas.Delete<T>, Readonly<object>, unknown> {
     return {
       ...(super.deleteShape() as any),
       options: {

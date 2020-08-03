@@ -5,7 +5,7 @@ import { Schema } from '@rest-hooks/normalizr';
 export interface FetchShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
-  Body extends Readonly<object | string> | void =
+  Body extends Readonly<object | string> | void | unknown =
     | Readonly<object | string>
     | undefined,
   Response = any
@@ -21,7 +21,7 @@ export interface FetchShape<
 export interface MutateShape<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
-  Body extends Readonly<object | string> | void =
+  Body extends Readonly<object | string> | void | unknown =
     | Readonly<object | string>
     | undefined,
   Response extends object | string | number | boolean | null = any

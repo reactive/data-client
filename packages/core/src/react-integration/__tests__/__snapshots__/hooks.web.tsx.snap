@@ -108,6 +108,24 @@ Object {
 }
 `;
 
+exports[`useFetcher should refresh get details 1`] = `
+Object {
+  "meta": Object {
+    "createdAt": 1970-01-01T00:00:00.000Z,
+    "key": "GET http://test.com/article-cooler/1",
+    "options": undefined,
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": false,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
 exports[`useRetrieve should dispatch singles 1`] = `
 Object {
   "meta": Object {

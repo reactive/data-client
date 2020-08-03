@@ -300,7 +300,7 @@ export default abstract class SimpleResource extends FlatEntity {
   /** @deprecated */
   static deleteShape<T extends typeof SimpleResource>(
     this: T,
-  ): MutateShape<schema.Delete<T>, Readonly<object>, undefined> {
+  ): MutateShape<schema.Delete<T>, Readonly<object>, unknown> {
     return this.delete();
   }
 }

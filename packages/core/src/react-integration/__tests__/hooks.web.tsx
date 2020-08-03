@@ -10,6 +10,9 @@ import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
 
 // relative imports to avoid circular dependency in tsconfig references
+import { BodyFromShape } from '@rest-hooks/core/endpoint';
+import { Endpoint } from '@rest-hooks/endpoint/src';
+
 import {
   makeRenderRestHook,
   makeCacheProvider,
@@ -116,6 +119,23 @@ describe('useFetcher', () => {
           (article: any, articles: any) => [...articles, article],
         ],
       ]).then(v => {
+        v.title;
+        // @ts-expect-error
+        v.doesnotexist;
+      });
+      return null;
+    }
+    await testDispatchFetch(DispatchTester, [payload]);
+  });
+
+  it('should refresh get details', async () => {
+    mynock.get(`/article-cooler/${payload.id}`).reply(200, payload);
+
+    function DispatchTester() {
+      const refresh = useFetcher(CoolerArticleResource.detailShape());
+      // @ts-expect-error
+      () => refresh({}, { content: 'hi' });
+      refresh({ id: payload.id }).then(v => {
         v.title;
         // @ts-expect-error
         v.doesnotexist;

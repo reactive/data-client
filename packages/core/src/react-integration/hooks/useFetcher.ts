@@ -25,7 +25,7 @@ export default function useFetcher<
   throttle = false,
 ): IfExact<
   BodyFromShape<Shape>,
-  undefined,
+  unknown,
   (params: ParamsFromShape<Shape>) => ReturnFromShape<typeof fetchShape>,
   <
     UpdateParams extends OptimisticUpdateParams<
