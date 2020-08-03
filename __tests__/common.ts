@@ -194,6 +194,16 @@ export const CoolerArticleDetail = new Endpoint(({ id }: { id: number }) => {
 
 export class IndexedUserResource extends UserResource {
   static indexes = ['username' as const];
+
+  static indexShape<T extends typeof IndexedUserResource>(this: T) {
+    return {
+      type: 'read',
+      schema: this,
+      getFetchKey({ username }: { username: string }) {
+        return username;
+      },
+    };
+  }
 }
 
 export class InvalidIfStaleArticleResource extends CoolerArticleResource {

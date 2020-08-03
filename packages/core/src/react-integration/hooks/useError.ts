@@ -23,6 +23,7 @@ export default function useError<
     // this means the response is missing an expected entity
     if (!meta.error && !meta.invalidated) {
       let error: Error & { status?: number };
+      /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production') {
         error = new Error(
           `Entity from "${fetchShape.getFetchKey(params)}" not found in cache.
@@ -32,7 +33,7 @@ export default function useError<
 
         Schema: ${JSON.stringify(fetchShape.schema, null, 2)}`,
         );
-      } else {
+      } /* istanbul ignore next */ else {
         error = new Error(
           `Missing required entity in "${fetchShape.getFetchKey(
             params,
