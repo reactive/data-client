@@ -23,6 +23,24 @@ Array [
 ]
 `;
 
+exports[` => <Provider /> Optimistic Updates indexes should resolve parallel useResource() request 1`] = `
+IndexedUserResource {
+  "email": "bob@bob.com",
+  "id": 23,
+  "isAdmin": false,
+  "username": "bob",
+}
+`;
+
+exports[` => <Provider /> Optimistic Updates indexes should resolve parallel useResource() request 2`] = `
+IndexedUserResource {
+  "email": "bob@bob.com",
+  "id": 23,
+  "isAdmin": false,
+  "username": "charlie",
+}
+`;
+
 exports[` => <Provider /> should resolve useResource() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
@@ -97,6 +115,24 @@ Array [
     "title": "the next time",
   },
 ]
+`;
+
+exports[`makeCacheProvider => <Provider /> Optimistic Updates indexes should resolve parallel useResource() request 1`] = `
+IndexedUserResource {
+  "email": "bob@bob.com",
+  "id": 23,
+  "isAdmin": false,
+  "username": "bob",
+}
+`;
+
+exports[`makeCacheProvider => <Provider /> Optimistic Updates indexes should resolve parallel useResource() request 2`] = `
+IndexedUserResource {
+  "email": "bob@bob.com",
+  "id": 23,
+  "isAdmin": false,
+  "username": "charlie",
+}
 `;
 
 exports[`makeCacheProvider => <Provider /> should resolve useResource() with SimpleRecords 1`] = `

@@ -101,6 +101,7 @@ export default abstract class SimpleResource extends FlatEntity {
 
   /** @deprecated */
   static getFetchOptions() {
+    /* istanbul ignore next */
     return this.getEndpointExtra();
   }
 

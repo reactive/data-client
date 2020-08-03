@@ -6,6 +6,7 @@ import {
   ArticleResourceWithOtherListUrl,
   ListPaginatedArticle,
   CoolerArticleDetail,
+  IndexedUserResource,
 } from '__tests__/common';
 import React from 'react';
 import nock from 'nock';
@@ -669,6 +670,44 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
             title: 'second',
           }),
         );
+      });
+
+      describe('indexes', () => {
+        it('should resolve parallel useResource() request', async () => {
+          const { result, waitForNextUpdate } = renderRestHook(() => {
+            useResource(IndexedUserResource.listShape(), {});
+            return {
+              bob: useCache(IndexedUserResource.indexShape(), {
+                username: 'bob',
+              }),
+              charlie: useCache(IndexedUserResource.indexShape(), {
+                username: 'charlie',
+              }),
+              fetch: useFetcher(IndexedUserResource.detailShape()),
+            };
+          });
+          expect(result.current).toBeNull();
+          await waitForNextUpdate();
+          const bob = result.current.bob;
+          expect(bob).toBeDefined();
+          expect(bob instanceof UserResource).toBe(true);
+          expect(bob?.username).toBe('bob');
+          expect(bob).toMatchSnapshot();
+          expect(result.current.charlie).toBeUndefined();
+
+          const renamed = { ...users[0] };
+          renamed.username = 'charlie';
+          mynock.get(`/user/23`).reply(200, renamed);
+          result.current.fetch({ id: '23' });
+          await waitForNextUpdate();
+
+          const charlie = result.current.charlie;
+          expect(charlie).toBeDefined();
+          expect(charlie instanceof UserResource).toBe(true);
+          expect(charlie?.username).toBe('charlie');
+          expect(charlie).toMatchSnapshot();
+          expect(result.current.bob).toBeUndefined();
+        });
       });
     });
   });

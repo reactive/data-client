@@ -6,6 +6,7 @@ import type {
   Schema,
   NormalizedIndex,
 } from './types';
+import { DELETED } from './special';
 
 const visit = (
   value: any,
@@ -46,7 +47,12 @@ const visit = (
   );
 };
 
-const addEntities = (entities: Record<string, any>, indexes: any) => (
+const addEntities = (
+  entities: Record<string, any>,
+  indexes: any,
+  existingEntities: Record<string, any>,
+  existingIndexes: any,
+) => (
   schema: any,
   processedEntity: any,
   value: any,
@@ -79,6 +85,14 @@ const addEntities = (entities: Record<string, any>, indexes: any) => (
       if (existingEntity) {
         delete indexMap[existingEntity[index]];
       }
+      // entity already in cache but the index changed
+      if (
+        existingEntities[schemaKey] &&
+        existingEntities[schemaKey][id] &&
+        existingEntities[schemaKey][id][index] !== entity[index]
+      ) {
+        indexMap[existingEntities[schemaKey][id][index]] = DELETED;
+      }
       if (index in entity) {
         indexMap[entity[index]] = id;
       } /* istanbul ignore next */ else if (
@@ -102,7 +116,7 @@ function expectedSchemaType(schema: Schema) {
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const normalize = <
   S extends Schema = Schema,
-  E extends Record<string, Record<string, any>> = Record<
+  E extends Record<string, Record<string, any> | undefined> = Record<
     string,
     Record<string, any>
   >,
@@ -110,6 +124,8 @@ export const normalize = <
 >(
   input: any,
   schema: S,
+  existingEntities: Readonly<E> = {} as any,
+  existingIndexes: Readonly<NormalizedIndex> = {},
 ): NormalizedSchema<E, R> => {
   const schemaType = expectedSchemaType(schema);
   if (input === null || typeof input !== schemaType) {
@@ -152,7 +168,12 @@ See https://resthooks.io/docs/guides/custom-networking for more information
 
   const entities: E = {} as any;
   const indexes: NormalizedIndex = {};
-  const addEntity = addEntities(entities, indexes);
+  const addEntity = addEntities(
+    entities,
+    indexes,
+    existingEntities,
+    existingIndexes,
+  );
   const visitedEntities = {};
 
   const result = visit(

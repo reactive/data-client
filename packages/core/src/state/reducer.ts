@@ -60,6 +60,8 @@ export default function reducer(
         const { result, entities, indexes } = normalize(
           action.payload,
           action.meta.schema,
+          state.entities,
+          state.indexes,
         );
         let results = {
           ...state.results,
