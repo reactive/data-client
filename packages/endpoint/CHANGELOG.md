@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.5.3 (2020-08-04)</small>
+
+* fix: Infer useFetcher() has no body when not present in fetch (#385) ([22dd399](https://github.com/coinbase/rest-hooks/commit/22dd399)), closes [#385](https://github.com/coinbase/rest-hooks/issues/385)
+
+
+
+
+
 ## <small>0.5.2 (2020-07-31)</small>
 
 **Note:** Version bump only for package @rest-hooks/endpoint

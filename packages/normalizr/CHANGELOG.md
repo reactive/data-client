@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 6.0.0-j.2 (2020-08-04)
+
+* fix: Handle entities updated with new indexes (#384) ([2ee3bb6](https://github.com/coinbase/rest-hooks/commit/2ee3bb6)), closes [#384](https://github.com/coinbase/rest-hooks/issues/384)
+* internal: Only import what is used (#383) ([10fef0c](https://github.com/coinbase/rest-hooks/commit/10fef0c)), closes [#383](https://github.com/coinbase/rest-hooks/issues/383)
+
+
+
+
+
 ## 6.0.0-j.1 (2020-07-31)
 
 * enhance: Normalizr ES build should be split into modules for code splitting (#381) ([c543a31](https://github.com/coinbase/rest-hooks/commit/c543a31)), closes [#381](https://github.com/coinbase/rest-hooks/issues/381)

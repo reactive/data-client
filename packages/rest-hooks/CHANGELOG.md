@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-j.7 (2020-08-04)
+
+* fix: Infer useFetcher() has no body when not present in fetch (#385) ([22dd399](https://github.com/coinbase/rest-hooks/commit/22dd399)), closes [#385](https://github.com/coinbase/rest-hooks/issues/385)
+
+
+
+
+
 ## 5.0.0-j.6 (2020-07-31)
 
 * enhance: Only include DevToolsManager in dev mode (#382) ([5dbfbeb](https://github.com/coinbase/rest-hooks/commit/5dbfbeb)), closes [#382](https://github.com/coinbase/rest-hooks/issues/382)
