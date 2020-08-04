@@ -28,20 +28,7 @@ export {
 } from './react-integration';
 export { StateContext, DispatchContext } from './react-integration/context';
 
-export {
-  SimpleRecord,
-  Entity,
-  isEntity,
-  FlatEntity,
-  schema,
-} from '@rest-hooks/normalizr';
-export type { Schema } from '@rest-hooks/normalizr';
-export type {
-  Normalize,
-  NormalizeNullable,
-  Denormalize,
-  DenormalizeNullable,
-} from './endpoint/normal';
+export { FlatEntity } from '@rest-hooks/normalizr';
 
 export * from './state/actions';
 export * as actionTypes from './actionTypes';

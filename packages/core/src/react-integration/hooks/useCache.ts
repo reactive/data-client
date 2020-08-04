@@ -1,8 +1,5 @@
-import {
-  ReadShape,
-  ParamsFromShape,
-  DenormalizeNullable,
-} from '@rest-hooks/core/endpoint';
+import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
+import { DenormalizeNullable } from '@rest-hooks/endpoint';
 import { useDenormalized } from '@rest-hooks/core/state/selectors';
 import { useContext, useMemo } from 'react';
 import { StateContext } from '@rest-hooks/core/react-integration/context';

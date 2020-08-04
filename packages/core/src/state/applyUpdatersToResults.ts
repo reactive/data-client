@@ -1,5 +1,5 @@
-import { UpdateFunction } from '@rest-hooks/core/types';
-import { Normalize, Schema } from '@rest-hooks/normalizr';
+import { Schema } from '@rest-hooks/normalizr';
+import { Normalize, UpdateFunction } from '@rest-hooks/endpoint';
 
 type ResultStateFromUpdateFunctions<
   SourceSchema extends Schema,

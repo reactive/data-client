@@ -389,7 +389,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         return { articles, getNextPage };
       });
       await waitForNextUpdate();
-      await result.current.getNextPage({ cursor: 2 }, {}, [
+      await result.current.getNextPage({ cursor: 2 }, undefined, [
         [
           PaginatedArticleResource.listShape(),
           {},

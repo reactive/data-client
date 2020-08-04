@@ -1,10 +1,13 @@
 import { FlatEntity, schema } from '@rest-hooks/normalizr';
 import type { AbstractInstanceType } from '@rest-hooks/normalizr';
 import { Endpoint } from '@rest-hooks/endpoint';
-import type { EndpointExtraOptions } from '@rest-hooks/endpoint';
+import type {
+  EndpointExtraOptions,
+  SchemaDetail,
+  SchemaList,
+} from '@rest-hooks/endpoint';
 
 import { ReadShape, MutateShape } from './legacy';
-import { SchemaDetail, SchemaList } from './types';
 import { NotImplementedError } from './errors';
 import paramsToString from './paramsToString';
 
@@ -300,7 +303,7 @@ export default abstract class SimpleResource extends FlatEntity {
   /** @deprecated */
   static deleteShape<T extends typeof SimpleResource>(
     this: T,
-  ): MutateShape<schema.Delete<T>, Readonly<object>, undefined> {
+  ): MutateShape<schema.Delete<T>, Readonly<object>, unknown> {
     return this.delete();
   }
 }

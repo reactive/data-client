@@ -1,5 +1,6 @@
-import { Schema, Normalize } from '@rest-hooks/normalizr';
+import { schema, Schema } from '@rest-hooks/normalizr';
 
+import { Normalize } from './normal';
 import { EndpointInterface } from './interface';
 
 export interface EndpointExtraOptions {
@@ -40,3 +41,14 @@ export type UpdateFunction<
   sourceResults: Normalize<SourceSchema>,
   destResults: Normalize<DestSchema> | undefined,
 ) => Normalize<DestSchema>;
+
+export type SchemaDetail<T> =
+  | schema.EntityInterface<T>
+  | { [K: string]: any }
+  | schema.SchemaClass;
+
+export type SchemaList<T> =
+  | schema.EntityInterface<T>[]
+  | { [K: string]: any }
+  | Schema[]
+  | schema.SchemaClass;
