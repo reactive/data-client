@@ -4,7 +4,7 @@ import {
   Schema,
   schema as schemas,
 } from '@rest-hooks/normalizr';
-import { NormalizeNullable } from '@rest-hooks/core/endpoint/normal';
+import { NormalizeNullable } from '@rest-hooks/endpoint';
 
 /**
  * Build the result parameter to denormalize from schema alone.

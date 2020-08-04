@@ -7,10 +7,3 @@ export type {
   BodyFromShape,
   ReturnFromShape,
 } from './types';
-
-export type {
-  Normalize,
-  Denormalize,
-  DenormalizeNullable,
-  NormalizeNullable,
-} from './normal';

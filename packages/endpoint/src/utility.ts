@@ -1,5 +1,6 @@
-import { Denormalize, Schema } from '@rest-hooks/normalizr';
+import { Schema } from '@rest-hooks/normalizr';
 
+import { Denormalize } from './normal';
 import { FetchFunction } from './types';
 
 /** What the function's promise resolves to */
