@@ -135,17 +135,18 @@ abstract class StreamResource extends CamelResource {
     return this.username;
   }
 
-  static detail<T extends typeof Resource>(
+  static detail<T extends typeof SimpleResource>(
     this: T,
   ) {
-    // calling super with generics is broken in TypeScript, so we must cast using `as`
     const superEndpoint = super.detail() as ReadEndpoint<FetchFunction, T>;
-    return superEndpoint.extend({
+    return super.detail().extend({
       fetch: async (params: { username: string }) => {
-        const response = await superEndpoint.fetch(params, body);
+        const response = await this.constructor.prototype.fetch.call(this, params);
         response.username = params.username;
         return response;
       },
+      // calling super with generics is broken in TypeScript, so re-defining schema ensures correct typing
+      schema: this,
     });
   }
 }
@@ -167,19 +168,18 @@ export default class ArticleResource extends Resource {
 
   /** Endpoint to get a list of entities */
   static list<T extends typeof Resource>(this: T) {
-    const init = this.getFetchInit({ method: 'GET' });
-    const fetch = async (params: Readonly<Record<string, string | number>>) => {
-      const response = await this.fetchResponse(this.listUrl(params), init);
-      return {
-        link: response.headers.get('link'),
-        results: await response.json().catch((error: any) => {
-          error.status = 400;
-          throw error;
-        }),
-      };
-    };
+    const instanceFetchResponse = this.fetchResponse.bind(this);
+
     return super.list().extend({
-      fetch,
+      fetch: async function (params: Readonly<Record<string, string | number>>) {
+        const response = await instanceFetchResponse(this.url(params), this.init);
+        return {
+          link: response.headers.get('link'),
+          results: await response.json().catch((error: any) => {
+            error.status = 400;
+            throw error;
+        };
+      },
       schema: { results: [this], link: '' },
     });
   }
