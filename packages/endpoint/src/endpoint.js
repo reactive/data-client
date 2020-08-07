@@ -1,17 +1,24 @@
+function runCompat(endpoint, options) {
+  endpoint.type = endpoint.sideEffect ? 'mutate' : 'read';
+  endpoint.options = { ...options };
+  delete endpoint.options.key;
+  delete endpoint.options.schema;
+  delete endpoint.options.sideEffect;
+  delete endpoint.options.fetch;
+  delete endpoint.options.getFetchKey;
+  delete endpoint.options.options;
+  if (Object.keys(endpoint.options).length === 0) {
+    delete endpoint.options;
+  }
+}
+
 export default class Endpoint extends Function {
   constructor(fetchFunction, options) {
     super('return arguments.callee.fetch.apply(arguments.callee, arguments)');
-    this.fetch = fetchFunction;
+    if (fetchFunction) this.fetch = fetchFunction;
     Object.assign(this, options);
     /** The following is for compatibility with FetchShape */
-    this.type = this.sideEffect ? 'mutate' : 'read';
-    this.options = { ...options };
-    delete this.options.key;
-    delete this.options.schema;
-    delete this.options.sideEffect;
-    if (Object.keys(this.options).length === 0) {
-      delete this.options;
-    }
+    runCompat(this, options);
   }
 
   key(params) {
@@ -19,22 +26,16 @@ export default class Endpoint extends Function {
   }
 
   extend(options) {
-    /** The following is for compatibility with FetchShape */
-    const optionsCopy = { ...options };
-    delete optionsCopy.key;
-    delete optionsCopy.schema;
-    delete optionsCopy.sideEffect;
+    // make a constructor/prototype based off this
+    // extend from it and init with options sent
+    class E extends this.constructor {}
+    Object.assign(E.prototype, this);
+    const instance = new E(options.fetch, options);
 
-    const optionsToPass = {
-      ...this,
-      ...options,
-      /** The following is for compatibility with FetchShape */
-      options: {
-        ...this.options,
-        optionsCopy,
-      },
-    };
-    return new this.constructor(options.fetch ?? this.fetch, optionsToPass);
+    /** The following is for compatibility with FetchShape */
+    runCompat(instance, { ...this, ...options });
+
+    return instance;
   }
 
   /** The following is for compatibility with FetchShape */

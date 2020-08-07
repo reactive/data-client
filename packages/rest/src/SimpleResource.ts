@@ -102,169 +102,120 @@ export default abstract class SimpleResource extends FlatEntity {
     return;
   }
 
+  protected static endpoint() {
+    const init = this.getFetchInit({ method: 'GET' });
+    const instanceFetch = this.fetch.bind(this);
+    const url = this.url.bind(this);
+
+    return new Endpoint(
+      function (params: Readonly<object>) {
+        return instanceFetch(this.url(params), this.init);
+      },
+      {
+        ...this.getEndpointExtra(),
+        key: function (this: any, params: Readonly<object>) {
+          return `${this.init.method} ${this.url(params)}`;
+        },
+        url,
+        init,
+      },
+    );
+  }
+
+  protected static endpointMutate() {
+    const instanceFetch = this.fetch.bind(this);
+    return this.endpoint().extend({
+      fetch(
+        this: any,
+        params: Readonly<object>,
+        body: RequestInit['body'] | Record<string, any>,
+      ) {
+        if (isPojo(body)) {
+          body = JSON.stringify(body);
+        }
+        return instanceFetch(this.url(params), { ...this.init, body });
+      },
+      sideEffect: true,
+    });
+  }
+
+  // TODO: memoize these so they can be referentially compared
+  /** Endpoint to get a single entity */
+  static detail<T extends typeof SimpleResource>(this: T) {
+    return this.endpoint().extend({
+      schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+    });
+  }
+
+  /** Endpoint to get a list of entities */
+  static list<T extends typeof SimpleResource>(this: T) {
+    return this.endpoint().extend({
+      schema: [this] as SchemaList<Readonly<AbstractInstanceType<T>>>,
+      url: this.listUrl.bind(this),
+    });
+  }
+
+  /** Endpoint to create a new entity (post) */
+  static create<T extends typeof SimpleResource>(this: T) {
+    //Partial<AbstractInstanceType<T>>
+    return this.endpointMutate().extend({
+      init: this.getFetchInit({ method: 'POST' }),
+      schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+      url: this.listUrl.bind(this),
+    });
+  }
+
+  /** Endpoint to update an existing entity (put) */
+  static update<T extends typeof SimpleResource>(this: T) {
+    return this.endpointMutate().extend({
+      init: this.getFetchInit({ method: 'PUT' }),
+      schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+    });
+  }
+
+  /** Endpoint to update a subset of fields of an existing entity (patch) */
+  static partialUpdate<T extends typeof SimpleResource>(this: T) {
+    return this.endpointMutate().extend({
+      init: this.getFetchInit({ method: 'PATCH' }),
+      schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+    });
+  }
+
+  /** Endpoint to delete an entity (delete) */
+  static delete<T extends typeof SimpleResource>(this: T) {
+    return this.endpointMutate().extend({
+      fetch(params: Readonly<object>) {
+        return this.constructor.prototype.fetch
+          .call(this, params)
+          .then(() => params);
+      },
+      init: this.getFetchInit({ method: 'DELETE' }),
+      schema: new schema.Delete(this),
+    });
+  }
+
   /** @deprecated */
   static getFetchOptions() {
     /* istanbul ignore next */
     return this.getEndpointExtra();
   }
 
-  // TODO: memoize these so they can be referentially compared
-  /** Endpoint to get a single entity */
-  static detail<T extends typeof SimpleResource>(this: T) {
-    const init = this.getFetchInit({ method: 'GET' });
-
-    return new Endpoint(
-      (params: Readonly<Record<string, string | number | boolean>>) => {
-        return this.fetch(this.url(params), init);
-      },
-      {
-        ...this.getEndpointExtra(),
-        key: (params: Readonly<Record<string, string | number | boolean>>) => {
-          return 'GET ' + this.url(params);
-        },
-        schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
-      },
-    );
-    /*const init = this.getFetchInit({ method: 'GET' });
-    const fetch = this.fetch.bind(this);
-
-    return new Endpoint(
-      function (
-        this: { url: (p: object) => string; init: RequestInit },
-        params: Readonly<object>,
-      ) {
-        return fetch(this.url(params), this.init);
-      },
-      {
-        ...this.getEndpointExtra(),
-        key: (params: Readonly<object>) => {
-          return 'GET ' + this.url(params);
-        },
-        schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
-        url: this.url.bind(this),
-        init,
-      },
-    );*/
-  }
-
-  /** Endpoint to get a list of entities */
-  static list<T extends typeof SimpleResource>(this: T) {
-    const init = this.getFetchInit({ method: 'GET' });
-
-    return new Endpoint(
-      (params: Readonly<Record<string, string | number | boolean>>) => {
-        return this.fetch(this.listUrl(params), init);
-      },
-      {
-        ...this.getEndpointExtra(),
-        key: (params: Readonly<Record<string, string | number | boolean>>) => {
-          return 'GET ' + this.listUrl(params);
-        },
-        schema: [this] as SchemaList<Readonly<AbstractInstanceType<T>>>,
-      },
-    );
-  }
-
-  /** Endpoint to create a new entity (post) */
-  static create<T extends typeof SimpleResource>(this: T) {
-    const init = this.getFetchInit({ method: 'POST' });
-
-    return new Endpoint(
-      (
-        params: Readonly<Record<string, string | number | boolean>>,
-        body: Partial<AbstractInstanceType<T>>,
-      ) => {
-        return this.fetch(this.listUrl(params), {
-          ...init,
-          body: JSON.stringify(body),
-        });
-      },
-      {
-        ...this.getEndpointExtra(),
-        key: (params: Readonly<Record<string, string | number | boolean>>) => {
-          return 'POST ' + this.listUrl(params);
-        },
-        schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
-        sideEffect: true,
-      },
-    );
-  }
-
-  /** Endpoint to update an existing entity (put) */
-  static update<T extends typeof SimpleResource>(this: T) {
-    const init = this.getFetchInit({ method: 'PUT' });
-
-    return new Endpoint(
-      (params: Readonly<object>, body: Partial<AbstractInstanceType<T>>) => {
-        return this.fetch(this.url(params), {
-          ...init,
-          body: JSON.stringify(body),
-        });
-      },
-      {
-        ...this.getEndpointExtra(),
-        key: (params: Readonly<object>) => {
-          return 'PUT ' + this.url(params);
-        },
-        schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
-        sideEffect: true,
-      },
-    );
-  }
-
-  /** Endpoint to update a subset of fields of an existing entity (patch) */
-  static partialUpdate<T extends typeof SimpleResource>(this: T) {
-    const init = this.getFetchInit({ method: 'PATCH' });
-
-    return new Endpoint(
-      (params: Readonly<object>, body: Partial<AbstractInstanceType<T>>) => {
-        return this.fetch(this.url(params), {
-          ...init,
-          body: JSON.stringify(body),
-        });
-      },
-      {
-        ...this.getEndpointExtra(),
-        key: (params: Readonly<object>) => {
-          return 'PATCH ' + this.url(params);
-        },
-        schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
-        sideEffect: true,
-      },
-    );
-  }
-
-  /** Endpoint to delete an entity (delete) */
-  static delete<T extends typeof SimpleResource>(this: T) {
-    const init = this.getFetchInit({ method: 'DELETE' });
-
-    return new Endpoint(
-      (params: Readonly<object>) => {
-        return this.fetch(this.url(params), init).then(() => params);
-      },
-      {
-        ...this.getEndpointExtra(),
-        key: (params: Readonly<object>) => {
-          return 'DELETE ' + this.url(params);
-        },
-        schema: new schema.Delete(this),
-        sideEffect: true,
-      },
-    );
-  }
-
   /** @deprecated */
   static detailShape<T extends typeof SimpleResource>(
     this: T,
   ): ReadShape<SchemaDetail<Readonly<AbstractInstanceType<T>>>> {
-    return this.detail();
+    const endpoint = this.detail();
+    const fetch = endpoint.fetch.bind(endpoint as any);
+    return { ...endpoint, fetch };
   }
 
   /** @deprecated */
   static listShape<T extends typeof SimpleResource>(
     this: T,
   ): ReadShape<SchemaList<Readonly<AbstractInstanceType<T>>>> {
-    return this.list();
+    const endpoint = this.list();
+    const fetch = endpoint.fetch.bind(endpoint as any);
+    return { ...endpoint, fetch };
   }
 
   /** @deprecated */
@@ -275,7 +226,9 @@ export default abstract class SimpleResource extends FlatEntity {
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
-    return this.create();
+    const endpoint = this.create();
+    const fetch = endpoint.fetch.bind(endpoint as any);
+    return { ...endpoint, fetch };
   }
 
   /** @deprecated */
@@ -286,7 +239,9 @@ export default abstract class SimpleResource extends FlatEntity {
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
-    return this.update();
+    const endpoint = this.update();
+    const fetch = endpoint.fetch.bind(endpoint as any);
+    return { ...endpoint, fetch };
   }
 
   /** @deprecated */
@@ -297,14 +252,18 @@ export default abstract class SimpleResource extends FlatEntity {
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
-    return this.partialUpdate();
+    const endpoint = this.partialUpdate();
+    const fetch = endpoint.fetch.bind(endpoint as any);
+    return { ...endpoint, fetch };
   }
 
   /** @deprecated */
   static deleteShape<T extends typeof SimpleResource>(
     this: T,
   ): MutateShape<schema.Delete<T>, Readonly<object>, unknown> {
-    return this.delete();
+    const endpoint = this.delete();
+    const fetch = endpoint.fetch.bind(endpoint as any);
+    return { ...endpoint, fetch };
   }
 }
 
@@ -315,3 +274,13 @@ Object.defineProperty(SimpleResource.prototype, 'url', {
     this.__url = url;
   },
 });
+
+const proto = Object.prototype;
+const gpo = Object.getPrototypeOf;
+
+function isPojo(obj: unknown): obj is Record<string, any> {
+  if (obj === null || typeof obj !== 'object') {
+    return false;
+  }
+  return gpo(obj) === proto;
+}

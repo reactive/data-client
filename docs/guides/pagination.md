@@ -97,9 +97,6 @@ We show the custom list() below. All other parts of the above example remain the
 
 Pagination token is stored in the header `link` for this example.
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--fetch (default)-->
-
 ```typescript
 import { Resource } from '@rest-hooks/rest';
 
@@ -108,62 +105,23 @@ export default class ArticleResource extends Resource {
 
   /** Endpoint to get a list of entities */
   static list<T extends typeof Resource>(this: T) {
-    const fetch = async (params: Readonly<Record<string, string | number>>) => {
-      const response = await this.fetchResponse('get', this.listUrl(params));
-      return {
-        link: response.headers.get('link'),
-        results: await response.json().catch((error: any) => {
-          error.status = 400;
-          throw error;
-        }),
-      };
-    };
+    const instanceFetchResponse = this.fetchResponse.bind(this);
+
     return super.list().extend({
-      fetch,
+      fetch: async function (params: Readonly<Record<string, string | number>>) {
+        const response = await instanceFetchResponse(this.url(params), this.init);
+        return {
+          link: response.headers.get('link'),
+          results: await response.json().catch((error: any) => {
+            error.status = 400;
+            throw error;
+        };
+      },
       schema: { results: [this], link: '' },
     });
   }
 }
 ```
-
-<!--superagent-->
-
-```typescript
-import request from 'superagent';
-import { Resource, SchemaList, AbstractInstanceType } from '@rest-hooks/rest';
-
-export default class ArticleResource extends Resource {
-  // same as above....
-
-  /** Endpoint to get a list of entities */
-  static list<T extends typeof Resource>(this: T) {
-    const fetch = async (
-      params: Readonly<object>,
-      body?: Readonly<object | string>,
-    ) => {
-      const url = this.listUrl(params);
-      let req = request['get'](url).on('error', () => {});
-      if (this.fetchPlugin) req = req.use(this.fetchPlugin);
-      if (body) req = req.send(body);
-      const res = await req;
-      let jsonResponse = res.body;
-      // include both the body and the link header
-      jsonResponse = {
-        link: res.headers.link,
-        results: jsonResponse,
-      };
-      return jsonResponse;
-    };
-
-    return super.list().extend({
-      fetch,
-      schema: { results: [this], link: '' },
-    });
-  }
-}
-```
-
-<!--END_DOCUSAURUS_CODE_TABS-->
 
 ## Code organization
 

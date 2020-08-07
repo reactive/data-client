@@ -170,12 +170,10 @@ import { Resource } from '@rest-hooks/rest';
 export default class UserResource extends Resource {
   static makeManager<T extends typeof Resource>(this: T) {
     return this.create().extend({
-      key: ({ id }: { id: number }) => {
-        return `/users/${id}/make_manager`;
-      },
-      fetch: ({ id }: { id: number }, body?: Readonly<object | string>) => {
-        return this.fetch('post', `/users/${id}/make_manager`, body);
-      },
+      url({ id }: { id: number }) { return `/users/${id}/make_manager` },
+      fetch({ id }: { id: number }) {
+        return this.constructor.prototype.fetch.call(this, { id });
+      }
     });
   }
 }
@@ -185,7 +183,7 @@ We customized the following:
 
 - Custom type:
   - Params of { id: number }
-  - Body (payload) of {}
+  - No Body
 - Custom url
 
 ### Custom GET
@@ -201,10 +199,9 @@ import { Resource } from '@rest-hooks/rest';
 export default class UserResource extends Resource {
   /** Retrieves current logged in user */
   static current<T extends typeof Resource>(this: T) {
-    const init = this.getFetchInit({ method: 'GET' });
     return this.detail().extend({
-      key: () => '/current_user/';
-      fetch: () => this.fetch(`/current_user/`, init),
+      fetch() { return this.constructor.prototype.call(this); }
+      url() { return '/current_user/' },
     })
   }
 }
@@ -255,10 +252,9 @@ export default class BirthdayResource extends BaseResource {
 
   /** Lists all upcoming birthdays */
   static upcoming<T extends typeof Resource>(this: T) {
-    const init = this.getFetchInit({ method: 'GET' });
     return this.list().extend({
-      key: () => '/api/birthdays/upcoming/',
-      fetch: () => this.fetch('/api/birthdays/upcoming/', init),
+      fetch() { return this.constructor.prototype.call(this); }
+      url() { return '/current_user/' },
       schema: {
         withinSevenDays: [this],
         withinThirtyDays: [this],

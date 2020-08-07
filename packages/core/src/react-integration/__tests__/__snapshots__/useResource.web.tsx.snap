@@ -5,7 +5,13 @@ Object {
   "meta": Object {
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-cooler/5",
-    "options": undefined,
+    "options": Object {
+      "init": Object {
+        "method": "GET",
+      },
+      "type": "read",
+      "url": [Function],
+    },
     "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
@@ -23,7 +29,13 @@ Object {
   "meta": Object {
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-cooler/5",
-    "options": undefined,
+    "options": Object {
+      "init": Object {
+        "method": "GET",
+      },
+      "type": "read",
+      "url": [Function],
+    },
     "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
@@ -41,7 +53,13 @@ Object {
   "meta": Object {
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/user/",
-    "options": undefined,
+    "options": Object {
+      "init": Object {
+        "method": "GET",
+      },
+      "type": "read",
+      "url": [Function],
+    },
     "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
