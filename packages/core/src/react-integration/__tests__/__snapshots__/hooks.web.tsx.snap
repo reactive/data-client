@@ -5,7 +5,13 @@ Object {
   "meta": Object {
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "POST http://test.com/article-cooler/",
-    "options": undefined,
+    "options": Object {
+      "init": Object {
+        "method": "POST",
+      },
+      "type": "mutate",
+      "url": [Function],
+    },
     "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
@@ -23,7 +29,12 @@ Object {
   "meta": Object {
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "PUT http://test.com/article-cooler/1",
-    "options": undefined,
+    "options": Object {
+      "init": Object {
+        "method": "PUT",
+      },
+      "type": "mutate",
+    },
     "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
@@ -92,7 +103,13 @@ Object {
   "meta": Object {
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "POST http://test.com/article-cooler/",
-    "options": undefined,
+    "options": Object {
+      "init": Object {
+        "method": "POST",
+      },
+      "type": "mutate",
+      "url": [Function],
+    },
     "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
@@ -113,7 +130,13 @@ Object {
   "meta": Object {
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-cooler/1",
-    "options": undefined,
+    "options": Object {
+      "init": Object {
+        "method": "GET",
+      },
+      "type": "read",
+      "url": [Function],
+    },
     "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
@@ -131,7 +154,13 @@ Object {
   "meta": Object {
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-cooler/5",
-    "options": undefined,
+    "options": Object {
+      "init": Object {
+        "method": "GET",
+      },
+      "type": "read",
+      "url": [Function],
+    },
     "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
@@ -151,6 +180,11 @@ Object {
     "key": "GET http://test.com/article-static/5",
     "options": Object {
       "dataExpiryLength": 3600000,
+      "init": Object {
+        "method": "GET",
+      },
+      "type": "read",
+      "url": [Function],
     },
     "promise": Promise {},
     "reject": [Function],
@@ -171,6 +205,11 @@ Object {
     "key": "GET http://test.com/article-static/5",
     "options": Object {
       "errorExpiryLength": Infinity,
+      "init": Object {
+        "method": "GET",
+      },
+      "type": "read",
+      "url": [Function],
     },
     "promise": Promise {},
     "reject": [Function],
@@ -189,7 +228,13 @@ Object {
   "meta": Object {
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-static/5",
-    "options": undefined,
+    "options": Object {
+      "init": Object {
+        "method": "GET",
+      },
+      "type": "read",
+      "url": [Function],
+    },
     "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],

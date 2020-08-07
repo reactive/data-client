@@ -2,7 +2,7 @@ import nock from 'nock';
 import { Schema, Entity } from '@rest-hooks/normalizr';
 import { camelCase, snakeCase } from 'lodash';
 
-import Endpoint from '../endpoint';
+import Endpoint, { EndpointOptions, Make } from '../endpoint';
 import { EndpointInterface } from '../interface';
 
 describe('Endpoint', () => {
@@ -88,14 +88,22 @@ describe('Endpoint', () => {
 
   it('should work when extended', async () => {
     const BaseFetch = new Endpoint(fetchUsers);
+    // @ts-expect-error
+    const aa: true = BaseFetch.sideEffect;
+    const bb: undefined = BaseFetch.sideEffect;
     const UserDetail = new Endpoint(fetchUsers).extend({
       sideEffect: true,
       key: ({ id }: { id: string }) => `fetch my user ${id}`,
     });
     // @ts-expect-error
     const a: undefined = UserDetail.sideEffect;
+    const b: true = UserDetail.sideEffect;
 
-    function t(a: EndpointInterface<typeof fetchUsers>) {}
+    // ts-expect-error
+    //const c: undefined = UserDetail.extend({ dataExpiryLength: 5 }).sideEffect;
+    //const d: true = UserDetail.extend({ dataExpiryLength: 5 }).sideEffect;
+
+    function t(a: EndpointInterface<typeof fetchUsers, any, undefined>) {}
     // @ts-expect-error
     t(UserDetail);
     t(BaseFetch);
@@ -121,7 +129,7 @@ describe('Endpoint', () => {
     new Endpoint(fetchUsers).extend({
       sideEffect: true,
       fetch: fetchAsset,
-      // @ts-expect-error
+      // TODO: ts-expect-error
       key: ({ id }: { id: string }) => `fetch my user ${id}`,
     });
 
@@ -160,7 +168,9 @@ describe('Endpoint', () => {
     expect(user.username).toBe(payload.username);
 
     // extends
-    const Extended = UserDetail.extend({ schema: User2 });
+    const Extended = UserDetail.extend({
+      schema: User2,
+    });
     const user2 = await Extended({ id: payload.id });
     expect(user2).toEqual(payload);
     // doesn't actually generate class
@@ -176,6 +186,22 @@ describe('Endpoint', () => {
     function key(this: { token: string }) {
       return `current user ${this.token}`;
     }
+
+    it('makes', async () => {
+      const UserCurrent = new Endpoint(fetchAuthd, { token: 'password', key });
+
+      const response = await UserCurrent();
+      expect(response).toEqual(payload);
+      expect(response.username).toBe(payload.username);
+
+      expect(UserCurrent.key()).toMatchInlineSnapshot(
+        `"current user password"`,
+      );
+
+      UserCurrent.key = function () {
+        return Object.getPrototypeOf(UserCurrent).key.call(this) + 'never';
+      };
+    });
 
     it('should use provided context in fetch and key', async () => {
       const UserCurrent = new Endpoint(fetchAuthd, { token: 'password', key });
@@ -209,8 +235,7 @@ describe('Endpoint', () => {
     }
 
     it('should not allow mismatched key', () => {
-      // @ts-expect-error
-      new Endpoint(fetchAuthd, { token: 'hi', key2 });
+      // TODO: ts-expect-error new Endpoint(fetchAuthd, { token: 'hi', key: key2 });
 
       // @ts-expect-error
       new Endpoint(fetchAuthd, { token: 'hi', key: key3 });
@@ -221,8 +246,7 @@ describe('Endpoint', () => {
     it('should not allow mismatched key when extending', () => {
       const UserCurrent = new Endpoint(fetchAuthd, { token: 'password', key });
 
-      // @ts-expect-error
-      UserCurrent.extend({ key: key2 });
+      // TODO: ts-expect-error UserCurrent.extend({ key: key2 });
 
       // @ts-expect-error
       UserCurrent.extend({ key: key3 });
@@ -263,23 +287,164 @@ describe('Endpoint', () => {
         >;
       };
       // @ts-expect-error
-      new Endpoint(fetchUsers, { url: '' });
+      new Endpoint(fetchUsers, { url: '', random: 5 });
       // @ts-expect-error
       new Endpoint(fetchUsers, { url }).extend({ url: 'hi' });
 
-      const UserDetail = new Endpoint(fetchUsers, { url }).extend({ url });
+      const UserDetail = new Endpoint(
+        function ({ id }: { id: string }) {
+          this.random;
+          // @ts-expect-error
+          this.notexistant;
+          return fetch(this.url({ id })).then(res => res.json()) as Promise<
+            typeof payload
+          >;
+        },
+        {
+          url,
+          random: 599,
+          dataExpiryLength: 5000,
+        },
+      );
+      const a: undefined = UserDetail.sideEffect;
+      // @ts-expect-error
+      const b: true = UserDetail.sideEffect;
+      UserDetail.schema;
+      UserDetail.random;
+      // @ts-expect-error
+      UserDetail.nonexistant;
+      UserDetail.key({ id: 'hi' });
+      // @ts-expect-error
+      () => UserDetail.key({ nonexistant: 5 });
+      // @ts-expect-error
+      () => UserDetail.key({ id: 5 });
+
+      let res = await UserDetail({ id: payload.id });
+      expect(res).toEqual(payload);
+      expect(res.username).toBe(payload.username);
+      // @ts-expect-error
+      expect(res.notexist).toBeUndefined();
+
+      // test extending parts that aren't used in this
+      const Extended = UserDetail.extend({ random: 100 });
+      res = await Extended({ id: payload.id });
+      expect(res).toEqual(payload);
+      expect(res.username).toBe(payload.username);
+      // @ts-expect-error
+      expect(res.notexist).toBeUndefined();
+
+      UserDetail.extend({
+        url: function (params: { id: string }) {
+          return this.constructor.prototype.url(params) + '/more';
+        },
+        // @ts-expect-error
+        random: '600',
+      });
+      const Test = UserDetail.extend({
+        random: 600,
+      });
 
       // check return type and call params
-      const response = await UserDetail({ id: payload.id });
+      const response = await Test({ id: payload.id });
       expect(response).toEqual(payload);
       expect(response.username).toBe(payload.username);
       // @ts-expect-error
       expect(response.notexist).toBeUndefined();
     });
+
+    it('should work with key', () => {
+      const url = ({ id }: { id: string }) => `/users/${id}`;
+      class User extends Entity {
+        readonly id: string = '';
+        pk() {
+          return this.id;
+        }
+      }
+      const UserDetail = new Endpoint(
+        function ({ id }: { id: string }) {
+          this.schema;
+          this.random;
+          // @ts-expect-error
+          this.notexistant;
+          return fetch(this.url({ id })).then(res => res.json()) as Promise<
+            typeof payload
+          >;
+        },
+        {
+          url,
+          random: 599,
+          schema: [User],
+          key: function (this: any, { id }: { id: string }) {
+            this.random;
+            this.schema;
+            return id + 'hi';
+          },
+        },
+      );
+      const sch: typeof User[] = UserDetail.schema;
+      const s: undefined = UserDetail.sideEffect;
+      UserDetail.random;
+      // @ts-expect-error
+      UserDetail.nonexistant;
+      UserDetail.key({ id: 'hi' });
+      // @ts-expect-error
+      () => UserDetail.key({ nonexistant: 5 });
+      // @ts-expect-error
+      () => UserDetail.key({ id: 5 });
+    });
   });
 
-  /*describe('class', () => {
-    describe('auth patterns', () => {
+  describe('class', () => {
+    /*class ResourceEndpoint<
+      F extends (params?: any, body?: any) => Promise<any>,
+      S extends Schema | undefined = undefined,
+      M extends true | undefined = undefined
+    > extends Endpoint<F, S, M> {
+      constructor(
+        fetchFunction: F,
+        options?: EndpointOptions<
+          (this: ThisParameterType<F>, ...args: Parameters<F>) => string,
+          S,
+          M
+        > &
+          ThisParameterType<F>,
+      ) {
+        super(fetchFunction, options);
+      }
+
+      fetch(...args: Parameters<F>) {
+        return fetch(this.url(args[0]), this.init).then(res => res.json());
+      }
+
+      init: RequestInit = { method: 'GET' };
+      key(params: { id: string }) {
+        return `${this.init.method} ${this.url(params)}`;
+      }
+    }
+
+    const init = this.getFetchInit({ method: 'GET' });
+    const fetch = this.fetch.bind(this);
+
+    return new Endpoint(
+      function (
+        this: { url: (p: any) => string; init: RequestInit },
+        params: Readonly<object>,
+      ) {
+        return fetch(this.url(params), this.init);
+      },
+      {
+        ...this.getEndpointExtra(),
+        key: function (
+          this: { url: (p: any) => string; init: RequestInit },
+          params: Readonly<object>,
+        ) {
+          return `${this.init.method} ${this.url(params)}`;
+        },
+        url: this.url.bind(this),
+        init,
+      },
+    );*/
+    /* describe('auth patterns', () => {
       class AuthEndpoint<
         F extends (
           this: AuthEndpoint<any, any, any>,
@@ -340,8 +505,7 @@ describe('Endpoint', () => {
       });
     });
   });*/
-
-  /*describe('custom fetch for snakeCase', () => {
+    /*describe('custom fetch for snakeCase', () => {
     function deeplyApplyKeyTransform(
       obj: any,
       transform: (key: string) => string,
@@ -372,6 +536,6 @@ describe('Endpoint', () => {
 
     it('should extends', () => {
       BaseEndpoint.extend({ fetch: })
-    })
-  });*/
+    })*/
+  });
 });

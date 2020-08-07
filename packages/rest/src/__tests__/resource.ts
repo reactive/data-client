@@ -2,12 +2,14 @@ import {
   CoolerArticleResource,
   UserResource,
   UrlArticleResource,
+  ArticleResource,
 } from '__tests__/common';
 import nock from 'nock';
-import { normalize } from '@rest-hooks/normalizr';
+import { normalize, Schema } from '@rest-hooks/normalizr';
 
 import Resource from '../Resource';
 import SimpleResource from '../SimpleResource';
+import { FetchShape } from '../legacy';
 
 function onError(e: any) {
   e.preventDefault();
@@ -501,6 +503,75 @@ describe('Resource', () => {
         normalize({ content: 'hi' }, schema);
       }
       expect(normalizeBad).toThrowErrorMatchingSnapshot();
+    });
+  });
+
+  describe('legacy shapes', () => {
+    const expectFetchShape = (shape: FetchShape<Schema>, type = 'read') => {
+      expect(shape.fetch).toBeDefined();
+      expect(shape.getFetchKey).toBeDefined();
+      expect(shape.schema).toBeDefined();
+      expect(shape.type).toBe(type);
+    };
+
+    it('detailShape should have correct members', () => {
+      const shape = ArticleResource.detailShape();
+      const copy = { ...shape };
+
+      expectFetchShape(copy);
+      expect(copy.getFetchKey({ id: '5' })).toMatchInlineSnapshot(
+        `"GET http://test.com/article/5"`,
+      );
+    });
+
+    it('listShape should have correct members', () => {
+      const shape = ArticleResource.listShape();
+      const copy = { ...shape };
+
+      expectFetchShape(copy);
+      expect(copy.getFetchKey({})).toMatchInlineSnapshot(
+        `"GET http://test.com/article/"`,
+      );
+    });
+
+    it('createShape should have correct members', () => {
+      const shape = ArticleResource.createShape();
+      const copy = { ...shape };
+
+      expectFetchShape(copy, 'mutate');
+      expect(copy.getFetchKey({})).toMatchInlineSnapshot(
+        `"POST http://test.com/article/"`,
+      );
+    });
+
+    it('updateShape should have correct members', () => {
+      const shape = ArticleResource.updateShape();
+      const copy = { ...shape };
+
+      expectFetchShape(copy, 'mutate');
+      expect(copy.getFetchKey({ id: '6' })).toMatchInlineSnapshot(
+        `"PUT http://test.com/article/6"`,
+      );
+    });
+
+    it('partialUpdateShape should have correct members', () => {
+      const shape = ArticleResource.partialUpdateShape();
+      const copy = { ...shape };
+
+      expectFetchShape(copy, 'mutate');
+      expect(copy.getFetchKey({ id: '6' })).toMatchInlineSnapshot(
+        `"PATCH http://test.com/article/6"`,
+      );
+    });
+
+    it('deleteShape should have correct members', () => {
+      const shape = ArticleResource.deleteShape();
+      const copy = { ...shape };
+
+      expectFetchShape(copy, 'mutate');
+      expect(copy.getFetchKey({ id: '6' })).toMatchInlineSnapshot(
+        `"DELETE http://test.com/article/6"`,
+      );
     });
   });
 });

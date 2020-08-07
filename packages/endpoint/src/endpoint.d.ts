@@ -6,19 +6,22 @@ import type { EndpointExtraOptions, FetchFunction } from './types';
 import type { ResolveType } from './utility';
 
 export interface EndpointOptions<
-  K extends (...args: any) => string,
-  S extends Schema | undefined = Schema | undefined,
+  K extends ((...args: any) => string) | undefined = undefined,
+  S extends Schema | undefined = undefined,
   M extends true | undefined = undefined
 > extends EndpointExtraOptions {
   key?: K;
   sideEffect?: M;
   schema?: S;
+  [k: string]: any;
 }
 
 export interface EndpointExtendOptions<
-  K extends (...args: any) => string,
+  K extends ((...args: any) => string) | undefined =
+    | ((...args: any) => string)
+    | undefined,
   S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = undefined
+  M extends true | undefined = true | undefined
 > extends EndpointOptions<K, S, M> {
   fetch?: FetchFunction;
 }
@@ -32,11 +35,13 @@ export type ParamFromFetch<F> = F extends (
 
 type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;
 
+export function Make(...args: any[]): EndpointInstance<FetchFunction>;
+
 /**
  * Creates a new function.
  */
 export interface EndpointInstance<
-  F extends FetchFunction,
+  F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = undefined,
   M extends true | undefined = undefined
 >
@@ -81,7 +86,7 @@ export interface EndpointInstance<
 
   key(...args: Parameters<F>): string;
 
-  readonly sideEffect?: M;
+  readonly sideEffect: M;
 
   readonly schema: S extends undefined ? schema.SchemaClass<ResolveType<F>> : S;
   readonly _schema: S; // TODO: remove once we don't care about FetchShape compatibility
@@ -89,54 +94,52 @@ export interface EndpointInstance<
   fetch: F;
 
   extend<
-    E extends EndpointInstance<any, S, any>,
-    O extends EndpointExtendOptions<K, any, any> &
-      Partial<ThisParameterType<E['fetch']>>,
-    K extends (
-      this: ThisParameterType<
-        'fetch' extends keyof O ? O['fetch'] : E['fetch']
-      >,
-      params: ParamFromFetch<'fetch' extends keyof O ? O['fetch'] : E['fetch']>,
-    ) => string,
-    S
+    E extends EndpointInstance<
+      FetchFunction,
+      Schema | undefined,
+      true | undefined
+    >,
+    O extends EndpointExtendOptions<EndpointInstance<F>['key']> &
+      Partial<Omit<E, keyof EndpointInstance<FetchFunction>>>
   >(
     this: E,
     options: O,
-  ): EndpointInstance<
-    'fetch' extends keyof typeof options
-      ? Exclude<typeof options['fetch'], undefined>
-      : E['fetch'],
-    'schema' extends keyof typeof options
-      ? typeof options['schema']
-      : E['_schema'],
-    'sideEffect' extends keyof typeof options
-      ? typeof options['sideEffect']
-      : E['sideEffect']
-  >;
+  ): Omit<O, keyof EndpointInstance<FetchFunction>> &
+    Omit<E, keyof EndpointInstance<FetchFunction>> &
+    EndpointInstance<
+      'fetch' extends keyof typeof options
+        ? Exclude<typeof options['fetch'], undefined>
+        : E['fetch'],
+      'schema' extends keyof typeof options
+        ? typeof options['schema']
+        : E['_schema'],
+      'sideEffect' extends keyof typeof options
+        ? typeof options['sideEffect']
+        : E['sideEffect']
+    >;
 
   /** The following is for compatibility with FetchShape */
-  readonly type: M extends undefined ? 'read' : 'mutate';
+  readonly type: M extends true ? 'mutate' : 'read';
   getFetchKey(params: Parameters<F>[0]): string;
   options?: EndpointExtraOptions;
 }
 
 interface EndpointConstructor {
   new <
-    F extends (params?: any, body?: any) => Promise<any>,
+    F extends (
+      this: EndpointInstance<FetchFunction> & E,
+      params?: any,
+      body?: any,
+    ) => Promise<any>,
     S extends Schema | undefined = undefined,
-    M extends true | undefined = undefined
+    M extends true | undefined = undefined,
+    E extends Record<string, any> = {}
   >(
     fetchFunction: F,
-    options?: EndpointOptions<
-      (this: ThisParameterType<F>, ...args: Parameters<F>) => string,
-      S,
-      M
-    > &
-      ThisParameterType<F>,
-  ): EndpointInstance<F, S, M>;
+    options?: EndpointOptions<EndpointInstance<F>['key'], S, M> & E,
+  ): EndpointInstance<F, S, M> & E;
   readonly prototype: Function;
 }
-
 declare let Endpoint: EndpointConstructor;
 
 export default Endpoint;
