@@ -10,6 +10,7 @@ function runCompat(endpoint, options) {
   if (Object.keys(endpoint.options).length === 0) {
     delete endpoint.options;
   }
+  if (endpoint.schema === undefined) endpoint.schema = null;
 }
 
 export default class Endpoint extends Function {
@@ -39,7 +40,6 @@ export default class Endpoint extends Function {
   }
 
   /** The following is for compatibility with FetchShape */
-  schema = null;
   getFetchKey = params => {
     return this.key(params);
   };

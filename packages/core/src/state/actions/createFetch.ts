@@ -42,7 +42,7 @@ export default function createFetch<
   fetchShape: Shape,
   { params, body, throttle, updateParams }: Options<Shape>,
 ): FetchAction {
-  const { fetch, schema, type, getFetchKey, options } = fetchShape;
+  const { schema, type, getFetchKey, options } = fetchShape;
 
   const key = getFetchKey(params);
   let resolve: (value?: any | PromiseLike<any>) => void = 0 as any;
@@ -81,7 +81,7 @@ export default function createFetch<
 
   return {
     type: FETCH_TYPE,
-    payload: () => fetch(params, body),
+    payload: () => fetchShape.fetch(params, body),
     meta,
   };
 }

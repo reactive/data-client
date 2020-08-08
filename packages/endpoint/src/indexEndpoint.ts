@@ -13,4 +13,9 @@ export default class Index<S extends Schema, P = Readonly<IndexParams<S>>>
   key(params?: P) {
     return JSON.stringify(params);
   }
+
+  /** The following is for compatibility with FetchShape */
+  getFetchKey = (params: P) => {
+    return this.key(params);
+  };
 }

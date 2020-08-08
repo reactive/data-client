@@ -15,11 +15,7 @@ type IfExact<T, Cond, A, B> = Cond extends T ? (T extends Cond ? A : B) : B;
 
 /** Build an imperative dispatcher to issue network requests. */
 export default function useFetcher<
-  Shape extends FetchShape<
-    Schema,
-    Readonly<object>,
-    Readonly<object | string> | void
-  >
+  Shape extends FetchShape<Schema, Readonly<object>, any>
 >(
   fetchShape: Shape,
   throttle = false,

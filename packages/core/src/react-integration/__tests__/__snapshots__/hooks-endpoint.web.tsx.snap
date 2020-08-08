@@ -1,0 +1,249 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`useFetcher should dispatch an action that fetches a create 1`] = `
+Object {
+  "meta": Object {
+    "createdAt": 1970-01-01T00:00:00.000Z,
+    "key": "POST http://test.com/article-cooler/",
+    "options": Object {
+      "init": Object {
+        "method": "POST",
+      },
+      "type": "mutate",
+      "url": [Function],
+    },
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": false,
+    "type": "mutate",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetcher should dispatch an action that fetches a full update 1`] = `
+Object {
+  "meta": Object {
+    "createdAt": 1970-01-01T00:00:00.000Z,
+    "key": "PUT http://test.com/article-cooler/1",
+    "options": Object {
+      "init": Object {
+        "method": "PUT",
+      },
+      "type": "mutate",
+    },
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": false,
+    "type": "mutate",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetcher should dispatch an action that fetches a partial update 1`] = `
+Object {
+  "meta": Object {
+    "createdAt": 1970-01-01T00:00:00.000Z,
+    "key": "PATCH http://test.com/article-cooler/1",
+    "optimisticResponse": Object {
+      "content": "changed",
+      "id": 1,
+    },
+    "options": Object {
+      "init": Object {
+        "method": "PATCH",
+      },
+      "optimisticUpdate": [Function],
+      "type": "mutate",
+    },
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": false,
+    "type": "mutate",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetcher should dispatch an action with multiple updaters in the meta if update shapes params are passed in 1`] = `
+Object {
+  "meta": Object {
+    "createdAt": 1970-01-01T00:00:00.000Z,
+    "key": "POST http://test.com/article/",
+    "optimisticResponse": Object {
+      "content": "hi",
+    },
+    "options": Object {
+      "init": Object {
+        "method": "POST",
+      },
+      "optimisticUpdate": [Function],
+      "type": "mutate",
+      "url": [Function],
+    },
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": false,
+    "type": "mutate",
+    "updaters": Object {
+      "GET http://test.com/article/": [Function],
+      "GET http://test.com/article/some-list-url": [Function],
+    },
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetcher should dispatch an action with updater in the meta if update shapes params are passed in 1`] = `
+Object {
+  "meta": Object {
+    "createdAt": 1970-01-01T00:00:00.000Z,
+    "key": "POST http://test.com/article-cooler/",
+    "options": Object {
+      "init": Object {
+        "method": "POST",
+      },
+      "type": "mutate",
+      "url": [Function],
+    },
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": false,
+    "type": "mutate",
+    "updaters": Object {
+      "GET http://test.com/article-cooler/": [Function],
+    },
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetcher should refresh get details 1`] = `
+Object {
+  "meta": Object {
+    "createdAt": 1970-01-01T00:00:00.000Z,
+    "key": "GET http://test.com/article-cooler/1",
+    "options": Object {
+      "init": Object {
+        "method": "GET",
+      },
+      "type": "read",
+      "url": [Function],
+    },
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": false,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useRetrieve should dispatch singles 1`] = `
+Object {
+  "meta": Object {
+    "createdAt": 1970-01-01T00:00:00.000Z,
+    "key": "GET http://test.com/article-cooler/5",
+    "options": Object {
+      "init": Object {
+        "method": "GET",
+      },
+      "type": "read",
+      "url": [Function],
+    },
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useRetrieve should dispatch with fetch shape defined dataExpiryLength 1`] = `
+Object {
+  "meta": Object {
+    "createdAt": 1970-01-01T00:00:00.000Z,
+    "key": "GET http://test.com/article-static/5",
+    "options": Object {
+      "dataExpiryLength": 3600000,
+      "type": "read",
+    },
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useRetrieve should dispatch with fetch shape defined errorExpiryLength 1`] = `
+Object {
+  "meta": Object {
+    "createdAt": 1970-01-01T00:00:00.000Z,
+    "key": "GET http://test.com/article-static/5",
+    "options": Object {
+      "errorExpiryLength": Infinity,
+      "type": "read",
+    },
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useRetrieve should dispatch with resource defined dataExpiryLength 1`] = `
+Object {
+  "meta": Object {
+    "createdAt": 1970-01-01T00:00:00.000Z,
+    "key": "GET http://test.com/article-static/5",
+    "options": Object {
+      "init": Object {
+        "method": "GET",
+      },
+      "type": "read",
+      "url": [Function],
+    },
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
