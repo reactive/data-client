@@ -128,12 +128,13 @@ export default abstract class SimpleResource extends FlatEntity {
       fetch(
         this: any,
         params: Readonly<object>,
-        body: RequestInit['body'] | Record<string, any>,
+        body?: RequestInit['body'] | Record<string, any>,
       ) {
         if (isPojo(body)) {
           body = JSON.stringify(body);
         }
-        return instanceFetch(this.url(params), { ...this.init, body });
+        const init = body ? { ...this.init, body } : this.init;
+        return instanceFetch(this.url(params), init);
       },
       sideEffect: true,
     });
@@ -183,11 +184,10 @@ export default abstract class SimpleResource extends FlatEntity {
 
   /** Endpoint to delete an entity (delete) */
   static delete<T extends typeof SimpleResource>(this: T) {
-    return this.endpointMutate().extend({
+    const endpoint = this.endpointMutate();
+    return endpoint.extend({
       fetch(params: Readonly<object>) {
-        return this.constructor.prototype.fetch
-          .call(this, params)
-          .then(() => params);
+        return endpoint.fetch.call(this, params).then(() => params);
       },
       init: this.getFetchInit({ method: 'DELETE' }),
       schema: new schema.Delete(this),

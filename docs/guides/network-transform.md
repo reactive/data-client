@@ -139,9 +139,9 @@ abstract class StreamResource extends CamelResource {
     this: T,
   ) {
     const superEndpoint = super.detail() as ReadEndpoint<FetchFunction, T>;
-    return super.detail().extend({
+    return superEndpoint.extend({
       fetch: async (params: { username: string }) => {
-        const response = await this.constructor.prototype.fetch.call(this, params);
+        const response = await superEndpoint.fetch.call(this, params);
         response.username = params.username;
         return response;
       },
