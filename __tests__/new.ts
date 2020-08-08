@@ -202,6 +202,7 @@ function makePaginatedRecord<T>(entity: T) {
 
 export class PaginatedArticleResource extends OtherArticleResource {
   static urlRoot = 'http://test.com/article-paginated/';
+
   static list<T extends typeof Resource>(this: T) {
     return super.list().extend({
       schema: { results: [this], prevPage: '', nextPage: '' },
