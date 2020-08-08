@@ -107,91 +107,109 @@ export default abstract class SimpleResource extends FlatEntity {
     const instanceFetch = this.fetch.bind(this);
     const url = this.url.bind(this);
 
-    return new Endpoint(
-      function (params: Readonly<object>) {
-        return instanceFetch(this.url(params), this.init);
-      },
-      {
-        ...this.getEndpointExtra(),
-        key: function (this: any, params: Readonly<object>) {
-          return `${this.init.method} ${this.url(params)}`;
-        },
-        url,
-        init,
-      },
+    return memoThis(
+      '#endpoint',
+      () =>
+        new Endpoint(
+          function (params: Readonly<object>) {
+            return instanceFetch(this.url(params), this.init);
+          },
+          {
+            ...this.getEndpointExtra(),
+            key: function (this: any, params: Readonly<object>) {
+              return `${this.init.method} ${this.url(params)}`;
+            },
+            url,
+            init,
+          },
+        ),
     );
   }
 
   protected static endpointMutate() {
     const instanceFetch = this.fetch.bind(this);
-    return this.endpoint().extend({
-      fetch(
-        this: any,
-        params: Readonly<object>,
-        body?: RequestInit['body'] | Record<string, any>,
-      ) {
-        if (isPojo(body)) {
-          body = JSON.stringify(body);
-        }
-        const init = body ? { ...this.init, body } : this.init;
-        return instanceFetch(this.url(params), init);
-      },
-      sideEffect: true,
-    });
+    return memoThis('#endpointMutate', () =>
+      this.endpoint().extend({
+        fetch(
+          this: any,
+          params: Readonly<object>,
+          body?: RequestInit['body'] | Record<string, any>,
+        ) {
+          if (isPojo(body)) {
+            body = JSON.stringify(body);
+          }
+          const init = body ? { ...this.init, body } : this.init;
+          return instanceFetch(this.url(params), init);
+        },
+        sideEffect: true,
+      }),
+    );
   }
 
   // TODO: memoize these so they can be referentially compared
   /** Endpoint to get a single entity */
   static detail<T extends typeof SimpleResource>(this: T) {
-    return this.endpoint().extend({
-      schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
-    });
+    return memoThis('#detail', () =>
+      this.endpoint().extend({
+        schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+      }),
+    );
   }
 
   /** Endpoint to get a list of entities */
   static list<T extends typeof SimpleResource>(this: T) {
-    return this.endpoint().extend({
-      schema: [this] as SchemaList<Readonly<AbstractInstanceType<T>>>,
-      url: this.listUrl.bind(this),
-    });
+    return memoThis('#list', () =>
+      this.endpoint().extend({
+        schema: [this] as SchemaList<Readonly<AbstractInstanceType<T>>>,
+        url: this.listUrl.bind(this),
+      }),
+    );
   }
 
   /** Endpoint to create a new entity (post) */
   static create<T extends typeof SimpleResource>(this: T) {
     //Partial<AbstractInstanceType<T>>
-    return this.endpointMutate().extend({
-      init: this.getFetchInit({ method: 'POST' }),
-      schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
-      url: this.listUrl.bind(this),
-    });
+    return memoThis('#create', () =>
+      this.endpointMutate().extend({
+        init: this.getFetchInit({ method: 'POST' }),
+        schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+        url: this.listUrl.bind(this),
+      }),
+    );
   }
 
   /** Endpoint to update an existing entity (put) */
   static update<T extends typeof SimpleResource>(this: T) {
-    return this.endpointMutate().extend({
-      init: this.getFetchInit({ method: 'PUT' }),
-      schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
-    });
+    return memoThis('#update', () =>
+      this.endpointMutate().extend({
+        init: this.getFetchInit({ method: 'PUT' }),
+        schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+      }),
+    );
   }
 
   /** Endpoint to update a subset of fields of an existing entity (patch) */
   static partialUpdate<T extends typeof SimpleResource>(this: T) {
-    return this.endpointMutate().extend({
-      init: this.getFetchInit({ method: 'PATCH' }),
-      schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
-    });
+    return memoThis('#partialUpdate', () =>
+      this.endpointMutate().extend({
+        init: this.getFetchInit({ method: 'PATCH' }),
+        schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+      }),
+    );
   }
 
   /** Endpoint to delete an entity (delete) */
   static delete<T extends typeof SimpleResource>(this: T) {
     const endpoint = this.endpointMutate();
-    return endpoint.extend({
-      fetch(params: Readonly<object>) {
-        return endpoint.fetch.call(this, params).then(() => params);
-      },
-      init: this.getFetchInit({ method: 'DELETE' }),
-      schema: new schema.Delete(this),
-    });
+    return memoThis('#delete', () =>
+      endpoint.extend({
+        fetch(params: Readonly<object>) {
+          return endpoint.fetch.call(this, params).then(() => params);
+        },
+        init: this.getFetchInit({ method: 'DELETE' }),
+        schema: new schema.Delete(this),
+      }),
+    );
   }
 
   /** @deprecated */
@@ -283,4 +301,11 @@ function isPojo(obj: unknown): obj is Record<string, any> {
     return false;
   }
   return gpo(obj) === proto;
+}
+
+function memoThis<T>(name: string, value: () => T): T {
+  if (!(name in self)) {
+    (SimpleResource as any)[name] = value();
+  }
+  return (SimpleResource as any)[name] as T;
 }
