@@ -108,6 +108,7 @@ export default abstract class SimpleResource extends FlatEntity {
     const url = this.url.bind(this);
 
     return memoThis(
+      this,
       '#endpoint',
       () =>
         new Endpoint(
@@ -128,7 +129,7 @@ export default abstract class SimpleResource extends FlatEntity {
 
   protected static endpointMutate() {
     const instanceFetch = this.fetch.bind(this);
-    return memoThis('#endpointMutate', () =>
+    return memoThis(this, '#endpointMutate', () =>
       this.endpoint().extend({
         fetch(
           this: any,
@@ -149,7 +150,7 @@ export default abstract class SimpleResource extends FlatEntity {
   // TODO: memoize these so they can be referentially compared
   /** Endpoint to get a single entity */
   static detail<T extends typeof SimpleResource>(this: T) {
-    return memoThis('#detail', () =>
+    return memoThis(this, '#detail', () =>
       this.endpoint().extend({
         schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
       }),
@@ -158,7 +159,7 @@ export default abstract class SimpleResource extends FlatEntity {
 
   /** Endpoint to get a list of entities */
   static list<T extends typeof SimpleResource>(this: T) {
-    return memoThis('#list', () =>
+    return memoThis(this, '#list', () =>
       this.endpoint().extend({
         schema: [this] as SchemaList<Readonly<AbstractInstanceType<T>>>,
         url: this.listUrl.bind(this),
@@ -169,7 +170,7 @@ export default abstract class SimpleResource extends FlatEntity {
   /** Endpoint to create a new entity (post) */
   static create<T extends typeof SimpleResource>(this: T) {
     //Partial<AbstractInstanceType<T>>
-    return memoThis('#create', () =>
+    return memoThis(this, '#create', () =>
       this.endpointMutate().extend({
         init: this.getFetchInit({ method: 'POST' }),
         schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
@@ -180,7 +181,7 @@ export default abstract class SimpleResource extends FlatEntity {
 
   /** Endpoint to update an existing entity (put) */
   static update<T extends typeof SimpleResource>(this: T) {
-    return memoThis('#update', () =>
+    return memoThis(this, '#update', () =>
       this.endpointMutate().extend({
         init: this.getFetchInit({ method: 'PUT' }),
         schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
@@ -190,7 +191,7 @@ export default abstract class SimpleResource extends FlatEntity {
 
   /** Endpoint to update a subset of fields of an existing entity (patch) */
   static partialUpdate<T extends typeof SimpleResource>(this: T) {
-    return memoThis('#partialUpdate', () =>
+    return memoThis(this, '#partialUpdate', () =>
       this.endpointMutate().extend({
         init: this.getFetchInit({ method: 'PATCH' }),
         schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
@@ -201,7 +202,7 @@ export default abstract class SimpleResource extends FlatEntity {
   /** Endpoint to delete an entity (delete) */
   static delete<T extends typeof SimpleResource>(this: T) {
     const endpoint = this.endpointMutate();
-    return memoThis('#delete', () =>
+    return memoThis(this, '#delete', () =>
       endpoint.extend({
         fetch(params: Readonly<object>) {
           return endpoint.fetch.call(this, params).then(() => params);
@@ -303,9 +304,9 @@ function isPojo(obj: unknown): obj is Record<string, any> {
   return gpo(obj) === proto;
 }
 
-function memoThis<T>(name: string, value: () => T): T {
-  if (!(name in self)) {
-    (SimpleResource as any)[name] = value();
+function memoThis<T>(self: any, name: string, value: () => T): T {
+  if (!Object.hasOwnProperty.call(self, name)) {
+    (self as any)[name] = value();
   }
-  return (SimpleResource as any)[name] as T;
+  return (self as any)[name] as T;
 }

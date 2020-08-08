@@ -1,9 +1,11 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
-import { PollingArticleResource } from '__tests__/new';
+import { PollingArticleResource, ArticleResource } from '__tests__/new';
 
 // relative imports to avoid circular dependency in tsconfig references
+import { Resource } from 'rest-hooks/resource';
+
 import {
   makeCacheProvider,
   makeExternalCacheProvider,
@@ -36,6 +38,11 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         removeEventListener('error', onError);
     });
 
+    beforeAll(() => {
+      ArticleResource.detail().pollFrequency;
+      PollingArticleResource.detail().pollFrequency;
+    });
+
     beforeEach(() => {
       nock(/.*/)
         .persist()
@@ -64,9 +71,9 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
 
     it('useSubscription() + useCache()', async () => {
       jest.useFakeTimers();
-      const frequency: number = (PollingArticleResource.detail().options as any)
-        .pollFrequency;
       let active = true;
+      const frequency = PollingArticleResource.detail().pollFrequency as number;
+      expect(frequency).toBeDefined();
 
       const { result, waitForNextUpdate, rerender } = renderRestHook(() => {
         useSubscription(
@@ -95,8 +102,8 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
 
     it('useSubscription() without active arg', async () => {
       jest.useFakeTimers();
-      const frequency: number = (PollingArticleResource.detail().options as any)
-        .pollFrequency;
+      const frequency = PollingArticleResource.detail().pollFrequency as number;
+      expect(frequency).toBeDefined();
 
       const { result, waitForNextUpdate } = renderRestHook(() => {
         useSubscription(PollingArticleResource.detail(), articlePayload);
