@@ -5,6 +5,8 @@ import {
   GetPhoto,
   GetNoEntities,
   ArticleTimedResource,
+  ContextAuthdArticle,
+  AuthContext,
 } from '__tests__/new';
 import { State } from '@rest-hooks/core';
 import { initialState } from '@rest-hooks/core/state/reducer';
@@ -23,7 +25,7 @@ import {
   mockInitialState,
 } from '../../../../test';
 import { DispatchContext, StateContext } from '../context';
-import { useResource } from '../hooks';
+import { useResource, useFetcher } from '../hooks';
 import { payload, users, nested } from '../test-fixtures';
 
 async function testDispatchFetch(
@@ -78,6 +80,7 @@ describe('useResource()', () => {
       .persist()
       .defaultReplyHeaders({
         'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': '*',
         'Content-Type': 'application/json',
       })
       .get(`/article-cooler/400`)
@@ -105,6 +108,7 @@ describe('useResource()', () => {
       .persist()
       .defaultReplyHeaders({
         'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Access-Token',
         'Content-Type': 'application/json',
       })
       .options(/.*/)
@@ -511,5 +515,60 @@ describe('useResource()', () => {
     );
     expect(result.current.id).toEqual(payload.id);
     expect(result.current).toBeInstanceOf(ArticleTimedResource);
+  });
+
+  describe('context authentication', () => {
+    beforeAll(() => {
+      const mynock = nock(/.*/)
+        .persist()
+        .defaultReplyHeaders({
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Access-Token',
+          'Content-Type': 'application/json',
+        })
+        .options(/.*/)
+        .reply(200);
+
+      mynock
+        .get(`/article/${payload.id}`)
+        .matchHeader('access-token', '')
+        .reply(200, { ...payload, title: 'unauthorized' })
+        .get(`/article/${payload.id}`)
+        .matchHeader('access-token', 'thepassword')
+        .reply(200, payload);
+    });
+
+    it('should use latest context when making requests', async () => {
+      const wrapper = ({
+        children,
+        authToken,
+      }: React.PropsWithChildren<{
+        authToken: string;
+      }>) => (
+        <AuthContext.Provider value={authToken}>
+          {children}
+        </AuthContext.Provider>
+      );
+      const { result, waitForNextUpdate, rerender } = renderRestHook(
+        () => {
+          return {
+            data: useResource(ContextAuthdArticle.detail(), payload),
+            fetch: useFetcher(ContextAuthdArticle.detail()),
+          };
+        },
+        {
+          wrapper,
+          initialProps: { authToken: '' },
+        },
+      );
+      // null means it threw (suspended)
+      expect(result.current).toBe(null);
+      await waitForNextUpdate();
+      expect(result.current.data.title).toBe('unauthorized');
+      rerender({ authToken: 'thepassword' });
+      const data = await result.current.fetch(payload);
+      expect(data).toEqual(payload);
+      expect(result.current.data.title).toEqual(payload.title);
+    });
   });
 });

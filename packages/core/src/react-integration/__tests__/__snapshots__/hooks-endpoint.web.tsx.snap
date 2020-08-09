@@ -9,6 +9,7 @@ Object {
       "init": Object {
         "method": "POST",
       },
+      "method": "POST",
       "type": "mutate",
       "url": [Function],
     },
@@ -31,8 +32,9 @@ Object {
     "key": "PUT http://test.com/article-cooler/1",
     "options": Object {
       "init": Object {
-        "method": "PUT",
+        "method": "POST",
       },
+      "method": "PUT",
       "type": "mutate",
     },
     "promise": Promise {},
@@ -60,6 +62,7 @@ Object {
       "init": Object {
         "method": "PATCH",
       },
+      "method": "PATCH",
       "optimisticUpdate": [Function],
       "type": "mutate",
     },
@@ -116,6 +119,7 @@ Object {
       "init": Object {
         "method": "POST",
       },
+      "method": "POST",
       "type": "mutate",
       "url": [Function],
     },
@@ -143,6 +147,8 @@ Object {
       "init": Object {
         "method": "GET",
       },
+      "method": "GET",
+      "runInit": [Function],
       "type": "read",
       "url": [Function],
     },
@@ -167,6 +173,8 @@ Object {
       "init": Object {
         "method": "GET",
       },
+      "method": "GET",
+      "runInit": [Function],
       "type": "read",
       "url": [Function],
     },
@@ -189,6 +197,9 @@ Object {
     "key": "GET http://test.com/article-static/5",
     "options": Object {
       "dataExpiryLength": 3600000,
+      "init": Object {
+        "method": "GET",
+      },
       "type": "read",
     },
     "promise": Promise {},
@@ -210,6 +221,9 @@ Object {
     "key": "GET http://test.com/article-static/5",
     "options": Object {
       "errorExpiryLength": Infinity,
+      "init": Object {
+        "method": "GET",
+      },
       "type": "read",
     },
     "promise": Promise {},
@@ -233,6 +247,8 @@ Object {
       "init": Object {
         "method": "GET",
       },
+      "method": "GET",
+      "runInit": [Function],
       "type": "read",
       "url": [Function],
     },

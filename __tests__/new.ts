@@ -13,7 +13,7 @@ import {
   Index,
 } from '@rest-hooks/endpoint';
 import { Resource, SchemaList, SchemaDetail } from '@rest-hooks/rest';
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 
 export class UserResource extends Resource {
   readonly id: number | undefined = undefined;
@@ -91,6 +91,23 @@ export class ArticleResource extends Resource {
       optimisticUpdate: (params: any) => params,
       schema: new schema.Delete(this),
     });
+  }
+}
+
+export const AuthContext = createContext('');
+
+export class ContextAuthdArticle extends ArticleResource {
+  /** Init options for fetch */
+  static getFetchInit(init: RequestInit): RequestInit {
+    /* eslint-disable-next-line */
+    const accessToken = useContext(AuthContext);
+    return {
+      ...init,
+      headers: {
+        ...init.headers,
+        'Access-Token': accessToken,
+      },
+    };
   }
 }
 

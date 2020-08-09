@@ -11,6 +11,9 @@ those types of requests.
 Resource comes with a [small handleful Endpoints](../api/resource#static-network-methods-and-properties)
 for each of the typical [CRUD operations](https://restfulapi.net/http-methods/). This is often not enough.
 
+> A note about TypeScript: When using `super` to override an endpoint, be sure to include the schema.
+> TypeScript will not infer `super` calls correctly in this case.
+
 ## Overriding endpoints
 
 By default the list() assumes an array of entities returned while detail() assumes
