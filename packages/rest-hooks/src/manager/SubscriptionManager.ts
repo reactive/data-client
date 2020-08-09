@@ -56,7 +56,11 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
       return (next: Dispatch<R>) => (action: React.ReducerAction<R>) => {
         switch (action.type) {
           case SUBSCRIBE_TYPE:
-            this.handleSubscribe(action, dispatch);
+            try {
+              this.handleSubscribe(action, dispatch);
+            } catch (e) {
+              console.error(e);
+            }
             return Promise.resolve();
           case UNSUBSCRIBE_TYPE:
             this.handleUnsubscribe(action, dispatch);

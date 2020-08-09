@@ -100,6 +100,19 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       expect((result.current as any).title).toBe('fiver');
     });
 
+    it('should console.error() with no frequency specified', async () => {
+      const oldError = console.error;
+      const spy = (console.error = jest.fn());
+
+      const { result, waitForNextUpdate } = renderRestHook(() => {
+        useSubscription(ArticleResource.detail(), articlePayload);
+      });
+      expect(result.error).toBeUndefined();
+      expect(spy.mock.calls[0]).toMatchSnapshot();
+
+      console.error = oldError;
+    });
+
     it('useSubscription() without active arg', async () => {
       jest.useFakeTimers();
       const frequency = PollingArticleResource.detail().pollFrequency as number;
