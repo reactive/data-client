@@ -394,6 +394,41 @@ describe('Endpoint', () => {
     });
   });
 
+  describe('AbortController', () => {
+    const url = ({ id }: { id: string }) => `/users/${id}`;
+
+    const UserDetail = new Endpoint(
+      function ({ id }: { id: string }) {
+        const init: RequestInit = {};
+        if (this.signal) {
+          init.signal = this.signal;
+        }
+        return fetch(this.url({ id }), init).then(res => res.json()) as Promise<
+          typeof payload
+        >;
+      },
+      {
+        url,
+        signal: undefined as AbortSignal | undefined,
+      },
+    );
+
+    it('should work without signal', async () => {
+      const user = await UserDetail({ id: payload.id });
+      expect(user.username).toBe(payload.username);
+    });
+
+    it('should reject when aborted', () => {
+      const abort = new AbortController();
+      const AbortUser = UserDetail.extend({ signal: abort.signal });
+      expect(async () => {
+        const promise = AbortUser({ id: payload.id });
+        abort.abort();
+        return await promise;
+      }).rejects.toMatchInlineSnapshot(`[AbortError: Aborted]`);
+    });
+  });
+
   describe('class', () => {
     /*class ResourceEndpoint<
       F extends (params?: any, body?: any) => Promise<any>,

@@ -61,7 +61,8 @@
         "ids": [
           "guides/fetch-then-render",
           "guides/immediate-updates",
-          "guides/optimistic-updates"
+          "guides/optimistic-updates",
+          "guides/abort"
         ]
       },
       {
