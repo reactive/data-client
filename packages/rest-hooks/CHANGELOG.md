@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-j.9 (2020-08-09)
+
+* fix: Resource endpoint memoization ([744431e](https://github.com/coinbase/rest-hooks/commit/744431e))
+
+
+
+
+
 ## 5.0.0-j.8 (2020-08-08)
 
 **Note:** Version bump only for package rest-hooks

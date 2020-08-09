@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.0-j.2 (2020-08-09)
+
+* fix: Improve Wrapper types ([b30321d](https://github.com/coinbase/rest-hooks/commit/b30321d))
+
+
+
+
+
 ## 2.0.0-j.1 (2020-07-31)
 
 * fix: Test types ([17fe727](https://github.com/coinbase/rest-hooks/commit/17fe727))
