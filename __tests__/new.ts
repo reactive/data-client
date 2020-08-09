@@ -193,6 +193,13 @@ export class PollingArticleResource extends ArticleResource {
       },
     });
   }
+
+  static anotherDetail<T extends typeof PollingArticleResource>(this: T) {
+    return this.detail().extend({
+      method: 'GET',
+      schema: this,
+    });
+  }
 }
 
 export class StaticArticleResource extends ArticleResource {

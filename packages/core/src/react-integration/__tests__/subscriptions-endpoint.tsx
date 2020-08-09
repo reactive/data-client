@@ -104,6 +104,12 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       jest.useFakeTimers();
       const frequency = PollingArticleResource.detail().pollFrequency as number;
       expect(frequency).toBeDefined();
+      expect(
+        PollingArticleResource.detail().options?.pollFrequency,
+      ).toBeDefined();
+      expect(
+        PollingArticleResource.anotherDetail().options?.pollFrequency,
+      ).toBeDefined();
 
       const { result, waitForNextUpdate } = renderRestHook(() => {
         useSubscription(PollingArticleResource.detail(), articlePayload);

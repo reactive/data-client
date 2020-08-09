@@ -34,7 +34,7 @@ export default class Endpoint extends Function {
     const instance = new E(options.fetch, options);
 
     /** The following is for compatibility with FetchShape */
-    runCompat(instance, { ...this, ...options });
+    runCompat(instance, { ...this.options, ...options });
 
     return instance;
   }

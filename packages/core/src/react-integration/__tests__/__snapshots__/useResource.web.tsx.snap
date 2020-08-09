@@ -6,12 +6,9 @@ Object {
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-cooler/5",
     "options": Object {
-      "init": Object {
-        "method": "GET",
-      },
+      "init": Object {},
       "method": "GET",
       "runInit": [Function],
-      "type": "read",
       "url": [Function],
     },
     "promise": Promise {},
@@ -32,12 +29,9 @@ Object {
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-cooler/5",
     "options": Object {
-      "init": Object {
-        "method": "GET",
-      },
+      "init": Object {},
       "method": "GET",
       "runInit": [Function],
-      "type": "read",
       "url": [Function],
     },
     "promise": Promise {},
@@ -58,12 +52,9 @@ Object {
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/user/",
     "options": Object {
-      "init": Object {
-        "method": "GET",
-      },
+      "init": Object {},
       "method": "GET",
       "runInit": [Function],
-      "type": "read",
       "url": [Function],
     },
     "promise": Promise {},
