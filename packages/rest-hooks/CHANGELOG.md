@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-k.0 (2020-08-09)
+
+**Note:** Version bump only for package rest-hooks
+
+
+
+
+
 ## 5.0.0-j.10 (2020-08-09)
 
 * enhance: console instead of throw when missing frequency ([8708b1f](https://github.com/coinbase/rest-hooks/commit/8708b1f))
