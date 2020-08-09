@@ -93,7 +93,7 @@ export default abstract class SimpleResource extends FlatEntity {
   }
 
   /** Init options for fetch */
-  static getFetchInit(init: RequestInit): RequestInit {
+  static getFetchInit(init: Readonly<RequestInit>): RequestInit {
     return init;
   }
 
@@ -115,9 +115,9 @@ export default abstract class SimpleResource extends FlatEntity {
     }
     const cache = (this as any)[this.cacheSymbol];
     if (!(name in cache)) {
-      (this as any)[this.cacheSymbol][name] = construct();
+      cache[name] = construct();
     }
-    return (this as any)[this.cacheSymbol][name].runInit() as T;
+    return cache[name].useFetchInit() as T;
   }
 
   /** Base endpoint that uses all the hooks provided by Resource  */
@@ -130,20 +130,35 @@ export default abstract class SimpleResource extends FlatEntity {
 
       return new Endpoint(
         function (params: Readonly<object>) {
-          return instanceFetch(this.url(params), this.init);
+          return instanceFetch(this.url(params), this.getFetchInit());
         },
         {
           ...this.getEndpointExtra(),
           key: function (this: any, params: Readonly<object>) {
-            return `${this.init.method} ${this.url(params)}`;
+            return `${this.method} ${this.url(params)}`;
           },
           url,
-          init: {},
-          runInit(this: any) {
-            this.init = self.getFetchInit({ method: this.method });
+          fetchInit: {} as RequestInit,
+          useFetchInit(this: any) {
+            this.fetchInit = self.getFetchInit(this.fetchInit);
             return this;
           },
+          getFetchInit(
+            this: any,
+            body?: RequestInit['body'] | Record<string, any>,
+          ) {
+            if (isPojo(body)) {
+              body = JSON.stringify(body);
+            }
+            return {
+              ...this.fetchInit,
+              method: this.method,
+              signal: this.signal,
+              body,
+            };
+          },
           method: 'GET',
+          signal: undefined as AbortSignal | undefined,
         },
       );
     });
@@ -159,11 +174,7 @@ export default abstract class SimpleResource extends FlatEntity {
           params: Readonly<object>,
           body?: RequestInit['body'] | Record<string, any>,
         ) {
-          if (isPojo(body)) {
-            body = JSON.stringify(body);
-          }
-          const init = body ? { ...this.init, body } : this.init;
-          return instanceFetch(this.url(params), init);
+          return instanceFetch(this.url(params), this.getFetchInit(body));
         },
         sideEffect: true,
         method: 'POST',

@@ -110,6 +110,30 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         expect(result.current.lafsjlfd).toBeUndefined();
       });
 
+      it('should gracefully abort in useResource()', async () => {
+        const abort = new AbortController();
+        const AbortableArticle = CoolerArticleResource.detail().extend({
+          signal: abort.signal,
+        });
+
+        const { result, waitForNextUpdate } = renderRestHook(() => {
+          return {
+            data: useResource(AbortableArticle, payload),
+            fetch: useFetcher(AbortableArticle),
+          };
+        });
+        expect(result.current).toBeNull();
+        await waitForNextUpdate();
+        expect(result.current.data.title).toBe(payload.title);
+        // @ts-expect-error
+        expect(result.current.data.lafsjlfd).toBeUndefined();
+        const promise = result.current.fetch(payload);
+        abort.abort();
+        await expect(promise).rejects.toMatchSnapshot();
+        expect(result.error).toBeUndefined();
+        expect(result.current.data.title).toBe(payload.title);
+      });
+
       it('should resolve useResource() with SimpleRecords', async () => {
         mynock.get(`/article-paginated/`).reply(200, paginatedFirstPage);
 

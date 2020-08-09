@@ -121,6 +121,9 @@
       "getting-started/usage": {
         "title": "Usage"
       },
+      "guides/abort": {
+        "title": "Aborting Fetch"
+      },
       "guides/auth": {
         "title": "Authentication"
       },
