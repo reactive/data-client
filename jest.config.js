@@ -56,6 +56,7 @@ const packages = [
   'rest-hooks',
   'normalizr',
   'use-enhanced-reducer',
+  'hooks',
 ];
 
 const projects = [

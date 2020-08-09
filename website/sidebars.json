@@ -80,7 +80,7 @@
       "api/README",
       {
         "type": "subcategory",
-        "label": "Hooks",
+        "label": "Core Hooks",
         "ids": [
           "api/useresource",
           "api/useFetcher",
@@ -91,6 +91,14 @@
           "api/useResetter",
           "api/useMeta",
           "api/useError"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Extra Hooks",
+        "ids": [
+          "api/useDebounce",
+          "api/useCancelling"
         ]
       },
       {

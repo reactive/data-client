@@ -50,3 +50,18 @@ const AbortableUserDetail = UserDetail.extend({
 // ...somewhere later trigger cancellation
 abort.abort();
 ```
+
+## Cancelling on params change
+
+Sometimes a user has the opportunity to fill out a field that is used to affect the results of a network call.
+If this is a text input, they could potentially type quite quickly, thus creating a lot of network requests.
+
+Using `@rest-hooks/hooks` package with [useCancelling()](../api/useCancelling) will automatically cancel in-flight requests if the parameters
+change before the request is resolved.
+
+```tsx
+import { useCancelling } from '@rest-hooks/hooks';
+
+const CancelingUserList = useCancelling(UserList, { query });
+const users = useResource(CancelingUserList, { query });
+```
