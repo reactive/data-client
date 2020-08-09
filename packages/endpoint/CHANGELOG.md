@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.6.1 (2020-08-09)</small>
+
+* fix: extend() correctly keeps options for FetchShape compat ([bf522a2](https://github.com/coinbase/rest-hooks/commit/bf522a2))
+
+
+
+
+
 ## 0.6.0 (2020-08-08)
 
 * internal: Test using endpoints directly (#389) ([bb0e8fd](https://github.com/coinbase/rest-hooks/commit/bb0e8fd)), closes [#389](https://github.com/coinbase/rest-hooks/issues/389)

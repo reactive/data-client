@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-j.7 (2020-08-09)
+
+* enhance: console instead of throw when missing frequency ([8708b1f](https://github.com/coinbase/rest-hooks/commit/8708b1f))
+* fix: extend() correctly keeps options for FetchShape compat ([bf522a2](https://github.com/coinbase/rest-hooks/commit/bf522a2))
+
+
+
+
+
 ## 1.0.0-j.6 (2020-08-09)
 
 * enhance: Simplify endpoint memoization and provide new extensions (#391) ([d874d0b](https://github.com/coinbase/rest-hooks/commit/d874d0b)), closes [#391](https://github.com/coinbase/rest-hooks/issues/391)
