@@ -142,7 +142,7 @@ function reduceError(
   action: ReceiveAction,
   error: any,
 ): State<unknown> {
-  if (error.message === 'Aborted') {
+  if (error.name === 'AbortError') {
     // In case we abort simply undo the optimistic update and act like no fetch even occured
     // We still want those watching promises from fetch directly to observed the abort, but we don't want to
     // Trigger errors in this case. This means theoretically improperly built abortes useResource() could suspend forever.

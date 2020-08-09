@@ -85,6 +85,12 @@
       "api/useCache": {
         "title": "useCache()"
       },
+      "api/useCancelling": {
+        "title": "useCancelling()"
+      },
+      "api/useDebounce": {
+        "title": "useDebounce()"
+      },
       "api/useError": {
         "title": "useError()"
       },
