@@ -9,6 +9,8 @@ Object {
       "init": Object {
         "method": "GET",
       },
+      "method": "GET",
+      "runInit": [Function],
       "type": "read",
       "url": [Function],
     },
@@ -33,6 +35,8 @@ Object {
       "init": Object {
         "method": "GET",
       },
+      "method": "GET",
+      "runInit": [Function],
       "type": "read",
       "url": [Function],
     },
@@ -57,6 +61,8 @@ Object {
       "init": Object {
         "method": "GET",
       },
+      "method": "GET",
+      "runInit": [Function],
       "type": "read",
       "url": [Function],
     },

@@ -44,12 +44,12 @@ called from a React Component. (However, this should be fine since the context w
 ```typescript
 class AuthdResource extends Resource {
   static getFetchInit = (init: RequestInit) => {
-    const { session } = useAuthContext();
+    const accessToken = useAuthContext();
     return {
-    ...options,
+    ...init,
       headers: {
-        ...options.headers,
-        'Access-Token': session,
+        ...init.headers,
+        'Access-Token': accessToken,
       },
     }
   };

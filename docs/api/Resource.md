@@ -227,18 +227,41 @@ new endpoints based to match your API.
 A GET request using standard `url()` that receives a detail body.
 Mostly useful with [useResource](../api/useResource.md)
 
-Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
+- Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
+- Compatible with all hooks
 
-Compatible with all hooks
+#### Implementation:
+
+```typescript
+static detail<T extends typeof SimpleResource>(this: T) {
+  return this.memo('#detail', () =>
+    this.endpoint().extend({
+      schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+    }),
+  );
+}
+```
 
 ### list(): Endpoint
 
 A GET request using `listUrl()` that receives a list of entities.
 Mostly useful with [useResource](../api/useResource.md)
 
-Uses [listUrl()](#static-listurlsearchparams-readonlyrecordstring-string--string)
+- Uses [listUrl()](#static-listurlsearchparams-readonlyrecordstring-string--string)
+- Compatible with all hooks
 
-Compatible with all hooks
+#### Implementation:
+
+```typescript
+static list<T extends typeof SimpleResource>(this: T) {
+  return this.memo('#list', () =>
+    this.endpoint().extend({
+      schema: [this] as SchemaList<Readonly<AbstractInstanceType<T>>>,
+      url: this.listUrl.bind(this),
+    }),
+  );
+}
+```
 
 ### create(): Endpoint
 
@@ -251,6 +274,20 @@ Not compatible with:
 - [useResource()](../api/useResource.md)
 - [useRetrieve()](../api/useRetrieve.md)
 
+
+#### Implementation:
+
+```typescript
+static create<T extends typeof SimpleResource>(this: T) {
+  return this.memo('#create', () =>
+    this.endpointMutate().extend({
+      schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+      url: this.listUrl.bind(this),
+    }),
+  );
+}
+```
+
 ### update(): Endpoint
 
 A PUT request sending a payload to a `url()` expecting a detail body response.
@@ -261,6 +298,19 @@ Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstan
 Not compatible with:
 - [useResource()](../api/useResource.md)
 - [useRetrieve()](../api/useRetrieve.md)
+
+#### Implementation:
+
+```typescript
+static update<T extends typeof SimpleResource>(this: T) {
+  return this.memo('#update', () =>
+    this.endpointMutate().extend({
+      method: 'PUT',
+      schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+    }),
+  );
+}
+```
 
 ### partialUpdate(): Endpoint
 
@@ -273,6 +323,19 @@ Not compatible with:
 - [useResource()](../api/useResource.md)
 - [useRetrieve()](../api/useRetrieve.md)
 
+#### Implementation:
+
+```typescript
+static partialUpdate<T extends typeof SimpleResource>(this: T) {
+  return this.memo('#partialUpdate', () =>
+    this.endpointMutate().extend({
+      method: 'PATCH',
+      schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+    }),
+  );
+}
+```
+
 ### delete(): Endpoint
 
 A DELETE request sent to `url()`
@@ -283,3 +346,20 @@ Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstan
 Not compatible with:
 - [useResource()](../api/useResource.md)
 - [useRetrieve()](../api/useRetrieve.md)
+
+#### Implementation:
+
+```typescript
+static delete<T extends typeof SimpleResource>(this: T) {
+  const endpoint = this.endpointMutate();
+  return this.memo('#delete', () =>
+    endpoint.extend({
+      fetch(params: Readonly<object>) {
+        return endpoint.fetch.call(this, params).then(() => params);
+      },
+      method: 'DELETE',
+      schema: new schema.Delete(this),
+    }),
+  );
+}
+```
