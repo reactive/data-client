@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.7.0 (2020-08-12)
+
+* fix: Only export AbstractInstanceType in type-world (#396) ([131fa45](https://github.com/coinbase/rest-hooks/commit/131fa45)), closes [#396](https://github.com/coinbase/rest-hooks/issues/396)
+* feat: Simple AbortController integration (#392) ([899563d](https://github.com/coinbase/rest-hooks/commit/899563d)), closes [#392](https://github.com/coinbase/rest-hooks/issues/392)
+
+
+
+
+
 ## <small>0.6.1 (2020-08-09)</small>
 
 * fix: extend() correctly keeps options for FetchShape compat ([bf522a2](https://github.com/coinbase/rest-hooks/commit/bf522a2))

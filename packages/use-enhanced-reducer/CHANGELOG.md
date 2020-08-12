@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>1.0.5 (2020-08-12)</small>
+
+* enhance: Support React 17 (#397) ([a833f07](https://github.com/coinbase/rest-hooks/commit/a833f07)), closes [#397](https://github.com/coinbase/rest-hooks/issues/397)
+
+
+
+
+
 ## <small>1.0.4 (2020-06-06)</small>
 
 * internal: eslint major, plugin minor ([1532f7a](https://github.com/coinbase/rest-hooks/commit/1532f7a))
