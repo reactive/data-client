@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.7.1 (2020-08-13)</small>
+
+* fix: Export type correctly in endpoint (#401) ([f2b033a](https://github.com/coinbase/rest-hooks/commit/f2b033a)), closes [#401](https://github.com/coinbase/rest-hooks/issues/401)
+
+
+
+
+
 ## 0.7.0 (2020-08-12)
 
 * fix: Only export AbstractInstanceType in type-world (#396) ([131fa45](https://github.com/coinbase/rest-hooks/commit/131fa45)), closes [#396](https://github.com/coinbase/rest-hooks/issues/396)
