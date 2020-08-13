@@ -42,8 +42,8 @@ export function Make(...args: any[]): EndpointInstance<FetchFunction>;
  */
 export interface EndpointInstance<
   F extends FetchFunction = FetchFunction,
-  S extends Schema | undefined = undefined,
-  M extends true | undefined = undefined
+  S extends Schema | undefined = Schema | undefined,
+  M extends true | undefined = true | undefined
 >
   extends EndpointInterface<
     F,
