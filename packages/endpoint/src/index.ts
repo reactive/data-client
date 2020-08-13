@@ -17,13 +17,12 @@ export {
   normalize,
   denormalize,
   schema,
-  Schema,
   Entity,
   isEntity,
   SimpleRecord,
   DELETED,
 } from '@rest-hooks/normalizr';
-export type { AbstractInstanceType } from '@rest-hooks/normalizr';
+export type { AbstractInstanceType, Schema } from '@rest-hooks/normalizr';
 export type {
   EndpointExtraOptions,
   FetchFunction,
