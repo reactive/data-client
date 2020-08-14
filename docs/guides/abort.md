@@ -65,3 +65,7 @@ import { useCancelling } from '@rest-hooks/hooks';
 const CancelingUserList = useCancelling(UserList, { query });
 const users = useResource(CancelingUserList, { query });
 ```
+
+> Warning: Be careful when using this with many disjoint components fetching the same
+> arguments (Endpoint/params pair) to useResource(). This solution aborts fetches per-component,
+> which means you might end up canceling a fetch that another component still cares about.
