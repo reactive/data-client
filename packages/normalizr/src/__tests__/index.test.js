@@ -352,8 +352,8 @@ describe('denormalize', () => {
   test('denormalizes entities', () => {
     const entities = {
       Tacos: {
-        '1': { id: '1', type: 'foo' },
-        '2': { id: '2', type: 'bar' },
+        1: { id: '1', type: 'foo' },
+        2: { id: '2', type: 'bar' },
       },
     };
     expect(denormalize(['1', '2'], [Tacos], entities)[0]).toMatchSnapshot();
@@ -370,7 +370,7 @@ describe('denormalize', () => {
   test('denormalizes ignoring unfound entities in arrays', () => {
     const entities = {
       Tacos: {
-        '1': { id: '1', type: 'foo' },
+        1: { id: '1', type: 'foo' },
       },
     };
     expect(denormalize(['1', '2'], [Tacos], entities)).toMatchSnapshot();
@@ -382,8 +382,8 @@ describe('denormalize', () => {
   test('denormalizes ignoring deleted entities in arrays', () => {
     const entities = {
       Tacos: {
-        '1': { id: '1', type: 'foo' },
-        '2': DELETED,
+        1: { id: '1', type: 'foo' },
+        2: DELETED,
       },
     };
     expect(denormalize(['1', '2'], [Tacos], entities)).toMatchSnapshot();
@@ -395,7 +395,7 @@ describe('denormalize', () => {
   test('denormalizes arrays with objects inside', () => {
     const entities = {
       Tacos: {
-        '1': { id: '1', type: 'foo' },
+        1: { id: '1', type: 'foo' },
       },
     };
     expect(
@@ -409,8 +409,8 @@ describe('denormalize', () => {
   test('denormalizes schema with extra members', () => {
     const entities = {
       Tacos: {
-        '1': { id: '1', type: 'foo' },
-        '2': { id: '2', type: 'bar' },
+        1: { id: '1', type: 'foo' },
+        2: { id: '2', type: 'bar' },
       },
     };
     expect(
@@ -443,8 +443,8 @@ describe('denormalize', () => {
   test('denormalizes schema with extra members but not set', () => {
     const entities = {
       Tacos: {
-        '1': { id: '1', type: 'foo' },
-        '2': { id: '2', type: 'bar' },
+        1: { id: '1', type: 'foo' },
+        2: { id: '2', type: 'bar' },
       },
     };
     expect(
@@ -486,7 +486,7 @@ describe('denormalize', () => {
 
     const entities = {
       Article: {
-        '123': {
+        123: {
           author: '8472',
           body: 'This article is great.',
           comments: ['comment-123-4738'],
@@ -502,11 +502,11 @@ describe('denormalize', () => {
         },
       },
       User: {
-        '10293': {
+        10293: {
           id: '10293',
           name: 'Jane',
         },
-        '8472': {
+        8472: {
           id: '8472',
           name: 'Paul',
         },
@@ -534,14 +534,14 @@ describe('denormalize', () => {
 
     const entities = {
       Article: {
-        '123': {
+        123: {
           id: '123',
           author: '8472',
           comments: ['1'],
         },
       },
       Comment: {
-        '1': {
+        1: {
           user: '123',
         },
       },
@@ -558,14 +558,14 @@ describe('denormalize', () => {
     }
     const entities = Object.freeze({
       Article: Object.freeze({
-        '123': Object.freeze({
+        123: Object.freeze({
           id: '123',
           title: 'A Great Article',
           author: '8472',
         }),
       }),
       User: Object.freeze({
-        '8472': Object.freeze({
+        8472: Object.freeze({
           id: '8472',
           name: 'Paul',
         }),
@@ -589,8 +589,8 @@ describe('denormalize', () => {
     const normalizedData = {
       entities: {
         Patron: {
-          '1': { id: '1', guest: null, name: 'Esther' },
-          '2': { id: '2', guest: 'guest-2-1', name: 'Tom' },
+          1: { id: '1', guest: null, name: 'Esther' },
+          2: { id: '2', guest: 'guest-2-1', name: 'Tom' },
         },
         Guest: { 'guest-2-1': { guestId: 1 } },
       },

@@ -137,8 +137,8 @@ describe(`${schema.Array.name} denormalization`, () => {
       class Cat extends IDEntity {}
       const entities = {
         Cat: {
-          '1': { id: '1', name: 'Milo' },
-          '2': { id: '2', name: 'Jake' },
+          1: { id: '1', name: 'Milo' },
+          2: { id: '2', name: 'Jake' },
         },
       };
       expect(denormalize(['1', '2'], [Cat], entities)).toMatchSnapshot();
@@ -151,7 +151,7 @@ describe(`${schema.Array.name} denormalization`, () => {
       class User extends IDEntity {}
       const entities = {
         User: {
-          '1': { id: '1', name: 'Jane' },
+          1: { id: '1', name: 'Jane' },
         },
       };
       expect(
@@ -195,7 +195,7 @@ describe(`${schema.Array.name} denormalization`, () => {
       class User extends IDEntity {}
       const entities = {
         User: {
-          '1': { id: '1', name: 'Jane' },
+          1: { id: '1', name: 'Jane' },
         },
       };
       expect(
@@ -248,8 +248,8 @@ describe(`${schema.Array.name} denormalization`, () => {
       const catSchema = { results: [Cat] };
       const entities = {
         Cat: {
-          '1': { id: '1', name: 'Milo' },
-          '2': { id: '2', name: 'Jake' },
+          1: { id: '1', name: 'Milo' },
+          2: { id: '2', name: 'Jake' },
         },
       };
       expect(
@@ -265,8 +265,8 @@ describe(`${schema.Array.name} denormalization`, () => {
       const catSchema = { results: [Cat], nextPage: '' };
       const entities = {
         Cat: {
-          '1': { id: '1', name: 'Milo' },
-          '2': { id: '2', name: 'Jake' },
+          1: { id: '1', name: 'Milo' },
+          2: { id: '2', name: 'Jake' },
         },
       };
       let [value, found] = denormalize(
@@ -290,8 +290,8 @@ describe(`${schema.Array.name} denormalization`, () => {
       const catSchema = { results: [Cat] };
       const entities = {
         Cat: {
-          '1': { id: '1', name: 'Milo' },
-          '2': { id: '2', name: 'Jake' },
+          1: { id: '1', name: 'Milo' },
+          2: { id: '2', name: 'Jake' },
         },
       };
       let [value, found] = denormalize(
@@ -314,8 +314,8 @@ describe(`${schema.Array.name} denormalization`, () => {
       class Cat extends IDEntity {}
       const entities = {
         Cat: {
-          '1': { id: '1', name: 'Milo' },
-          '2': { id: '2', name: 'Jake' },
+          1: { id: '1', name: 'Milo' },
+          2: { id: '2', name: 'Jake' },
         },
       };
       let [value, foundEntities] = denormalize(
@@ -341,7 +341,7 @@ describe(`${schema.Array.name} denormalization`, () => {
       }
       const entities = {
         Taco: {
-          '123': {
+          123: {
             id: '123',
             fillings: null,
           },
@@ -358,8 +358,8 @@ describe(`${schema.Array.name} denormalization`, () => {
       class Cat extends IDEntity {}
       const entities = {
         Cat: {
-          '1': { id: '1', name: 'Milo' },
-          '2': { id: '2', name: 'Jake' },
+          1: { id: '1', name: 'Milo' },
+          2: { id: '2', name: 'Jake' },
         },
       };
       const catList = new schema.Array(Cat);
@@ -373,7 +373,7 @@ describe(`${schema.Array.name} denormalization`, () => {
       class User extends IDEntity {}
       const entities = {
         User: {
-          '1': { id: '1', name: 'Jane' },
+          1: { id: '1', name: 'Jane' },
         },
       };
       expect(
@@ -425,7 +425,7 @@ describe(`${schema.Array.name} denormalization`, () => {
       class User extends IDEntity {}
       const entities = {
         User: {
-          '1': { id: '1', name: 'Jane' },
+          1: { id: '1', name: 'Jane' },
         },
       };
       expect(
@@ -478,8 +478,8 @@ describe(`${schema.Array.name} denormalization`, () => {
       const catSchema = { results: new schema.Array(Cat) };
       const entities = {
         Cat: {
-          '1': { id: '1', name: 'Milo' },
-          '2': { id: '2', name: 'Jake' },
+          1: { id: '1', name: 'Milo' },
+          2: { id: '2', name: 'Jake' },
         },
       };
       expect(
@@ -495,8 +495,8 @@ describe(`${schema.Array.name} denormalization`, () => {
       const catSchema = { results: new schema.Array(Cat), nextPage: '' };
       const entities = {
         Cat: {
-          '1': { id: '1', name: 'Milo' },
-          '2': { id: '2', name: 'Jake' },
+          1: { id: '1', name: 'Milo' },
+          2: { id: '2', name: 'Jake' },
         },
       };
       let [value, found] = denormalize(
@@ -520,8 +520,8 @@ describe(`${schema.Array.name} denormalization`, () => {
       const catSchema = { results: new schema.Array(Cat) };
       const entities = {
         Cat: {
-          '1': { id: '1', name: 'Milo' },
-          '2': { id: '2', name: 'Jake' },
+          1: { id: '1', name: 'Milo' },
+          2: { id: '2', name: 'Jake' },
         },
       };
       let [value, found] = denormalize(
@@ -544,8 +544,8 @@ describe(`${schema.Array.name} denormalization`, () => {
       class Cat extends IDEntity {}
       const entities = {
         Cat: {
-          '1': { id: '1', name: 'Milo' },
-          '2': { id: '2', name: 'Jake' },
+          1: { id: '1', name: 'Milo' },
+          2: { id: '2', name: 'Jake' },
         },
       };
       const catList = new schema.Array(Cat);
@@ -569,17 +569,17 @@ describe(`${schema.Array.name} denormalization`, () => {
 
       const entities = {
         Cat: {
-          '123': {
+          123: {
             id: '123',
             type: 'Cat',
           },
-          '456': {
+          456: {
             id: '456',
             type: 'Cat',
           },
         },
         Person: {
-          '123': {
+          123: {
             id: '123',
             type: 'people',
           },
@@ -607,7 +607,7 @@ describe(`${schema.Array.name} denormalization`, () => {
       }
       const entities = {
         Taco: {
-          '123': {
+          123: {
             id: '123',
             fillings: {},
           },

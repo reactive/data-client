@@ -174,8 +174,8 @@ describe(`${schema.Values.name} denormalization`, () => {
     );
 
     const entities = {
-      Cat: { '1': { id: '1', type: 'cats' } },
-      Dog: { '1': { id: '1', type: 'dogs' } },
+      Cat: { 1: { id: '1', type: 'cats' } },
+      Dog: { 1: { id: '1', type: 'dogs' } },
     };
 
     expect(
@@ -211,8 +211,8 @@ describe(`${schema.Values.name} denormalization`, () => {
     );
 
     const entities = {
-      Cat: { '1': { id: '1', type: 'cats' } },
-      Dog: { '1': { id: '1', type: 'dogs' } },
+      Cat: { 1: { id: '1', type: 'cats' } },
+      Dog: { 1: { id: '1', type: 'dogs' } },
     };
 
     expect(
@@ -250,8 +250,8 @@ describe(`${schema.Values.name} denormalization`, () => {
     );
 
     const entities = {
-      Cat: { '1': { id: '1', type: 'cats' }, '5': DELETED },
-      Dog: { '1': { id: '1', type: 'dogs' } },
+      Cat: { 1: { id: '1', type: 'cats' }, 5: DELETED },
+      Dog: { 1: { id: '1', type: 'dogs' } },
     };
 
     expect(

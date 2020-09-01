@@ -44,8 +44,7 @@ export interface EndpointInstance<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined
->
-  extends EndpointInterface<
+> extends EndpointInterface<
     F,
     S extends undefined ? schema.SchemaClass<ResolveType<F>> : S,
     M

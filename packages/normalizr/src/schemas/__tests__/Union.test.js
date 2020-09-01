@@ -51,7 +51,7 @@ describe(`${schema.Union.name} denormalization`, () => {
   class Group extends IDEntity {}
   const entities = {
     User: {
-      '1': { id: '1', username: 'Janey', type: 'users' },
+      1: { id: '1', username: 'Janey', type: 'users' },
     },
     Group: {
       2: { id: '2', groupname: 'People', type: 'groups' },
