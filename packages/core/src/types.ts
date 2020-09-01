@@ -110,8 +110,7 @@ export interface FetchAction<
     | number
     | null,
   S extends Schema = any
->
-  extends FSAWithPayloadAndMeta<
+> extends FSAWithPayloadAndMeta<
     typeof FETCH_TYPE,
     () => Promise<Payload>,
     FetchMeta<any, any>

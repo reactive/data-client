@@ -81,7 +81,7 @@ describe(`${schema.Object.name} denormalization`, () => {
     });
     const entities = {
       User: {
-        '1': { id: '1', name: 'Nacho' },
+        1: { id: '1', name: 'Nacho' },
       },
     };
     expect(denormalize({ user: '1' }, object, entities)).toMatchSnapshot();
@@ -101,7 +101,7 @@ describe(`${schema.Object.name} denormalization`, () => {
     });
     const entities = {
       User: {
-        '1': { id: '1', name: 'Nacho' },
+        1: { id: '1', name: 'Nacho' },
       },
     };
     expect(denormalize({ user: '1' }, object, entities)).toMatchSnapshot();
@@ -122,7 +122,7 @@ describe(`${schema.Object.name} denormalization`, () => {
     };
     const entities = {
       User: {
-        '1': { id: '1', name: 'Nacho' },
+        1: { id: '1', name: 'Nacho' },
       },
     };
     let [value, found] = denormalize({ item: null }, object, entities);
@@ -144,7 +144,7 @@ describe(`${schema.Object.name} denormalization`, () => {
     class User extends IDEntity {}
     const entities = {
       User: {
-        '1': { id: '1', name: 'Jane' },
+        1: { id: '1', name: 'Jane' },
       },
     };
     expect(
@@ -191,7 +191,7 @@ describe(`${schema.Object.name} denormalization`, () => {
     });
     const entities = {
       User: {
-        '0': { id: '0', name: 'Chancho' },
+        0: { id: '0', name: 'Chancho' },
       },
     };
     expect(denormalize({ user: '0' }, object, entities)).toMatchSnapshot();

@@ -13,8 +13,7 @@ interface Options<
     | number
     | null,
   S extends Schema = any
->
-  extends Pick<
+> extends Pick<
     FetchAction<Payload, S>['meta'],
     'schema' | 'key' | 'type' | 'updaters'
   > {
