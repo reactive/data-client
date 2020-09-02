@@ -15,7 +15,7 @@ function useInvalidator(
 
 ```typescript
 function useInvalidator<Params extends Readonly<object>, S extends Schema>(
-  endpoint: ReadEndpoint<(p:Params) => Promise<any>, S>,
+  endpoint: ReadEndpoint<(p: Params) => Promise<any>, S>,
 ): (params: Params | null) => void;
 ```
 
@@ -26,10 +26,12 @@ Mostly useful for imperatively invalidating the cache, with a similar signature 
 
 Sending a `null` to params results in a no-op.
 
-Forces refetching and suspense on [useResource](./useResource.md) with the same Endpoint
-and parameters.
+> Forces refetching and suspense on [useResource](./useResource.md) with the same Endpoint
+> and parameters.
+>
+> To refresh while continuing to display stale data - [useFetcher](./useFetcher.md) instead.
 
-## Example
+### Example
 
 ```tsx
 function ArticleName({ id }: { id: string }) {
@@ -45,9 +47,18 @@ function ArticleName({ id }: { id: string }) {
 }
 ```
 
+### Internals
+
+- set expiresAt to 0.
+  - This triggers useRetrieve.
+- deletes results entry.
+  - This only allows direct read from the cache if inferred results.
+- sets meta.invalidated to true.
+  - This is used to determine whether to throw promise (trigger suspense)
+
 ## Invalidate an entity
 
-`useInvalidator()` invalidates a particular response. If you're looking to invalidate *every*
+`useInvalidator()` invalidates a particular response. If you're looking to invalidate _every_
 response containing a particular entity, use the [Delete](./Delete)
 Schema. This causes all responses with that entity marked as required to suspend.
 
@@ -72,12 +83,21 @@ function ArticleName({ id }: { id: string }) {
 }
 ```
 
+The fetch should resolve to an object that can compute the `pk()` (like 'id')
+of the entity. This is needed so Rest Hooks knows which entity is being deleted.
 
-## Internals
+If the actual server response does not include this information, typically
+you can pass through relevant information from the params themselves.
 
-- set expiresAt to 0.
-  - This triggers useRetrieve.
-- deletes results entry.
-  - This only allows direct read from the cache if inferred results.
-- sets meta.invalidated to true.
-  - This is used to determine whether to throw promise
+```tsx
+const InvalidateArticle = new Endpoint(
+  ({ id }) => {
+    // disregard response from API since it's just an empty string
+    await fetch(`/article/${id}`, { method: 'DELETE' });
+    return { id };
+  },
+  { schema: new schemas.Delete(ArticleResource) },
+);
+```
+
+This is actually what the default [Resource.delete()](./resource#delete-endpoint) does.
