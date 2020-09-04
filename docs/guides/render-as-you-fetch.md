@@ -1,5 +1,5 @@
 ---
-title: Fetch then Render
+title: Render as you Fetch
 ---
 
 A core design feature of Rest Hooks is decoupling actual data retrieval from data
@@ -21,7 +21,7 @@ These are some scenarios where this pattern is especially useful:
   - [useTransition()](https://reactjs.org/docs/concurrent-mode-reference.html#usetransition)
 
 Fetch-then-render can be adopted incrementally. Components using data can [useResource()](../api/useresource)
-and be assured they will get their data when it's ready. And when fetch-then-render optimizations
+and be assured they will get their data when it's ready. And when render-as-you-fetch optimizations
 are added later - _those components don't need to change_. This makes data usage _tightly coupled_,
 and fetch optimization _loosely coupled_.
 

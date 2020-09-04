@@ -156,9 +156,6 @@
       "guides/fetch-multiple": {
         "title": "Fetching multiple resources at once"
       },
-      "guides/fetch-then-render": {
-        "title": "Fetch then Render"
-      },
       "guides/immediate-updates": {
         "title": "Immediate Mutation Updates"
       },
@@ -202,6 +199,9 @@
       },
       "guides/redux": {
         "title": "Redux integration"
+      },
+      "guides/render-as-you-fetch": {
+        "title": "Render as you Fetch"
       },
       "guides/resource-lifetime": {
         "title": "Custom Resource cache lifetime",

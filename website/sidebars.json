@@ -59,7 +59,7 @@
         "type": "subcategory",
         "label": "Performance",
         "ids": [
-          "guides/fetch-then-render",
+          "guides/render-as-you-fetch",
           "guides/immediate-updates",
           "guides/optimistic-updates",
           "guides/abort"
