@@ -31,12 +31,7 @@ export default abstract class SimpleResource extends FlatEntity {
   }
 
   /** URL to find this SimpleResource */
-  get url(): string {
-    if (this.__url !== undefined) return this.__url;
-    // typescript thinks constructor is just a function
-    const Static = this.constructor as typeof SimpleResource;
-    return Static.url(this);
-  }
+  declare readonly url: string;
 
   private declare __url?: string;
 
@@ -322,6 +317,12 @@ export default abstract class SimpleResource extends FlatEntity {
 // We're only allowing this to get set for descendants but
 // by default we want Typescript to treat it as readonly.
 Object.defineProperty(SimpleResource.prototype, 'url', {
+  get(): string {
+    if (this.__url !== undefined) return this.__url;
+    // typescript thinks constructor is just a function
+    const Static = this.constructor as typeof SimpleResource;
+    return Static.url(this);
+  },
   set(url: string) {
     this.__url = url;
   },
