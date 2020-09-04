@@ -7,10 +7,12 @@ import useMeta from './useMeta';
 import useError from './useError';
 import useInvalidator from './useInvalidator';
 import useResetter from './useResetter';
+import useFetchDispatcher from './useFetchDispatcher';
 export { default as hasUsableData } from './hasUsableData';
 
 export {
   useFetcher,
+  useFetchDispatcher,
   useCache,
   useError,
   useRetrieve,
