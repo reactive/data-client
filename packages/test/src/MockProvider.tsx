@@ -1,12 +1,13 @@
-import { StateContext, DispatchContext } from '@rest-hooks/core';
+import { StateContext, DispatchContext, actionTypes } from '@rest-hooks/core';
 import type { ActionTypes } from '@rest-hooks/core';
 import React from 'react';
 
 import mockState, { Fixture } from './mockState';
 
 const mockDispatch = (value: ActionTypes) => {
-  console.error(
-    `MockProvider received a dispatch:
+  if (actionTypes.FETCH_TYPE === value.type) {
+    console.error(
+      `MockProvider received a dispatch:
 ${JSON.stringify(value, undefined, 2)}
 for which there is no matching fixture.
 
@@ -22,7 +23,8 @@ request: ArticleResource.listShape(),
 params: { maxResults: 10 },
 result: [],
 }`,
-  );
+    );
+  }
 
   return Promise.resolve();
 };
