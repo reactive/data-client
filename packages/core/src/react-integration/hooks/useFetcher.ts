@@ -7,9 +7,9 @@ import {
   ReturnFromShape,
 } from '@rest-hooks/core/endpoint';
 import { Schema } from '@rest-hooks/normalizr';
-import { DispatchContext } from '@rest-hooks/core/react-integration/context';
-import createFetch from '@rest-hooks/core/state/actions/createFetch';
-import { useContext, useRef, useCallback } from 'react';
+import { useRef, useCallback } from 'react';
+
+import useFetchDispatcher from './useFetchDispatcher';
 
 type IfExact<T, Cond, A, B> = Cond extends T ? (T extends Cond ? A : B) : B;
 
@@ -43,7 +43,7 @@ export default function useFetcher<
     updateParams?: UpdateParams | undefined,
   ) => ReturnFromShape<typeof fetchShape>
 > {
-  const dispatch = useContext(DispatchContext);
+  const dispatchFetcher: any = useFetchDispatcher(throttle);
 
   // we just want the current values when we dispatch, so
   // box the shape in a ref to make react-hooks/exhaustive-deps happy
@@ -51,26 +51,8 @@ export default function useFetcher<
   shapeRef.current = fetchShape;
 
   const fetchDispatcher = useCallback(
-    (
-      params: ParamsFromShape<Shape>,
-      body: BodyFromShape<Shape>,
-      updateParams?:
-        | OptimisticUpdateParams<
-            SchemaFromShape<Shape>,
-            FetchShape<any, any, any>
-          >[]
-        | undefined,
-    ) => {
-      const action = createFetch(shapeRef.current, {
-        params,
-        body,
-        throttle,
-        updateParams,
-      });
-      dispatch(action);
-      return action.meta.promise;
-    },
-    [dispatch, throttle],
+    (...args: any) => dispatchFetcher(shapeRef.current, ...args),
+    [dispatchFetcher],
   );
   // any is due to the ternary that we don't want to deal with in our implementation
   return fetchDispatcher as any;

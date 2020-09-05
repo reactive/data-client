@@ -16,6 +16,7 @@ export { useDenormalized } from './state/selectors';
 export {
   useCache,
   useFetcher,
+  useFetchDispatcher,
   useRetrieve,
   useResource,
   useSubscription,
