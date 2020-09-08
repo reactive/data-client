@@ -5,7 +5,7 @@ import useMeta from './useMeta';
 
 type UseErrorReturn<P> = P extends null
   ? undefined
-  : Error & { status?: number };
+  : Error & { status?: number; synthetic?: boolean };
 
 /** Access a resource or error if failed to get it */
 export default function useError<
@@ -22,7 +22,7 @@ export default function useError<
     if (!meta) return;
     // this means the response is missing an expected entity
     if (!meta.error && !meta.invalidated) {
-      let error: Error & { status?: number };
+      let error: Error & { status?: number; synthetic?: boolean };
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production') {
         error = new Error(
@@ -41,6 +41,7 @@ export default function useError<
         );
       }
       error.status = 400;
+      error.synthetic = true;
       return error as any;
     } else {
       return meta.error as any;
