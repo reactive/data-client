@@ -7,7 +7,7 @@ import {
 import { RECEIVE_TYPE } from '@rest-hooks/core/actionTypes';
 
 interface Options<S extends Schema = any>
-  extends Pick<FetchAction<any, S>['meta'], 'schema' | 'key' | 'type'> {
+  extends Pick<FetchAction<any, S>['meta'], 'schema' | 'key'> {
   errorExpiryLength: NonNullable<FetchOptions['errorExpiryLength']>;
 }
 

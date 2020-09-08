@@ -36,7 +36,8 @@ function useOneResource<
 
   const maybePromise = useRetrieve(fetchShape, params, deleted && !error);
 
-  if (error) throw error;
+  // refetching won't ever save us if the network response is bad.
+  if (error && error.synthetic) throw error;
 
   if (
     !hasUsableData(
@@ -49,6 +50,8 @@ function useOneResource<
   ) {
     throw maybePromise;
   }
+
+  if (error) throw error;
 
   return denormalized as any;
 }
@@ -100,7 +103,10 @@ function useManyResources<A extends ResourceArgs<any, any>[]>(
 
   // throw first valid error
   for (let i = 0; i < resourceList.length; i++) {
-    if (errorValues[i] && !promises[i]) throw errorValues[i];
+    const err = errorValues[i];
+    // either the error is synthetic (not from network), or we aren't fetching at all
+    // then throw that error
+    if (err && (err.synthetic || !promises[i])) throw err;
   }
 
   const promise = useMemo(() => {

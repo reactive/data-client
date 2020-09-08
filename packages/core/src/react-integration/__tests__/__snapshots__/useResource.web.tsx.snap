@@ -133,6 +133,35 @@ Attempted to initialize CoolerArticleResource with substantially different than 
   Value: {}]
 `;
 
+exports[`useResource() should throw error when response is bad (on mount) 1`] = `
+[Error: Entity from "GET http://test.com/article-cooler/4000" not found in cache.
+
+        This is likely due to a malformed response.
+        Try inspecting the network response or fetch() return value.
+
+        Schema: {
+  "name": "Scheme",
+  "schema": {
+    "data": {
+      "name": "CoolerArticleResource",
+      "schema": {
+        "author": {
+          "name": "UserResource",
+          "schema": {},
+          "key": "http://test.com/user/"
+        }
+      },
+      "key": "http://test.com/article-cooler/"
+    },
+    "optional": {
+      "name": "UserResource",
+      "schema": {},
+      "key": "http://test.com/user/"
+    }
+  }
+}]
+`;
+
 exports[`useResource() should throw error when response is expected Resource inside Record 1`] = `
 [Error: Entity from "GET http://test.com/article-cooler/400" not found in cache.
 

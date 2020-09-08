@@ -119,6 +119,7 @@ export default function reducer(
           ...state.meta,
           [action.meta.key]: {
             ...state.meta[action.meta.key],
+            error: undefined,
             expiresAt: 0,
             invalidated: true,
           },
