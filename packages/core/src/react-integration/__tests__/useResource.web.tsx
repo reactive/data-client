@@ -384,14 +384,16 @@ describe('useResource()', () => {
     const { result, waitForNextUpdate } = renderRestHook(
       () => {
         return useResource(CoolerArticleResource.detailShape(), {
-          title: '0',
+          id: '0',
         });
       },
       {
         results: [
           {
             request: FS,
-            params: { title: '0' },
+            params: {
+              id: '0',
+            },
             result: error,
             error: true,
           },
@@ -407,22 +409,24 @@ describe('useResource()', () => {
 
   it('should suspend when already has a network error (multiarg)', async () => {
     const error: any = { message: 'network error', status: 400 };
-    const FS = { ...CoolerArticleResource.detailShape() };
-    FS.options = { ...FS.options, errorExpiryLength: -100 };
+    const expiredShape = { ...CoolerArticleResource.detailShape() };
+    expiredShape.options = { ...expiredShape.options, errorExpiryLength: -100 };
     const { result, waitForNextUpdate } = renderRestHook(
       () => {
         return useResource([
           CoolerArticleResource.detailShape(),
           {
-            title: '0',
+            id: '0',
           },
         ]);
       },
       {
         results: [
           {
-            request: FS,
-            params: { title: '0' },
+            request: expiredShape,
+            params: {
+              id: '0',
+            },
             result: error,
             error: true,
           },
@@ -434,6 +438,61 @@ describe('useResource()', () => {
     await waitForNextUpdate();
     expect(result.error).toBeDefined();
     expect((result.error as any).status).toBe(403);
+  });
+
+  // We need to ensure we don't suspend when error is based on network response
+  // as we don't expect another network call to fix it.
+  // (fixes infinite loop with badly defined schemas)
+  it('should throw error when response is bad (on mount)', async () => {
+    nock(/.*/)
+      .persist()
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
+      .get(`/article-cooler/4000`)
+      .reply(200, { data: null });
+
+    class Scheme extends SimpleRecord {
+      data: CoolerArticleResource = CoolerArticleResource.fromJS();
+      optional: UserResource | null = null;
+      static schema = {
+        data: CoolerArticleResource,
+        optional: UserResource,
+      };
+    }
+    const shape = {
+      ...CoolerArticleResource.detailShape(),
+      schema: Scheme,
+    };
+    const expiredShape = { ...shape };
+    expiredShape.options = { ...expiredShape.options, dataExpiryLength: -100 };
+
+    const { result, waitForNextUpdate } = renderRestHook(
+      () => {
+        return useResource(shape, {
+          id: '4000',
+        });
+      },
+      {
+        results: [
+          {
+            request: expiredShape,
+            params: {
+              id: '4000',
+            },
+            result: { data: null },
+          },
+        ],
+      },
+    );
+
+    expect(result.error).not.toBe(null);
+    expect((result.error as any).status).toBe(400);
+    expect(result.error).toMatchSnapshot();
+    await waitForNextUpdate();
+    expect(result.error).not.toBe(null);
+    expect((result.error as any).status).toBe(400);
   });
 
   it('should throw error when response is array when expecting entity', async () => {
