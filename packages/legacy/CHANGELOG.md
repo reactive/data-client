@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.0-k.1 (2020-09-08)
+
+**Note:** Version bump only for package @rest-hooks/legacy
+
+
+
+
+
 ## 2.0.0-k.0 (2020-08-12)
 
 * enhance: Support React 17 (#397) ([a833f07](https://github.com/coinbase/rest-hooks/commit/a833f07)), closes [#397](https://github.com/coinbase/rest-hooks/issues/397)

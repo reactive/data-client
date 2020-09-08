@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.7.2 (2020-09-08)</small>
+
+* internal: Upgrade build pkgs (#404) ([dc56530](https://github.com/coinbase/rest-hooks/commit/dc56530)), closes [#404](https://github.com/coinbase/rest-hooks/issues/404)
+* enhance: EndpointInstance defaults should match everything ([d7067ba](https://github.com/coinbase/rest-hooks/commit/d7067ba))
+
+
+
+
+
 ## <small>0.7.1 (2020-08-13)</small>
 
 * fix: Export type correctly in endpoint (#401) ([f2b033a](https://github.com/coinbase/rest-hooks/commit/f2b033a)), closes [#401](https://github.com/coinbase/rest-hooks/issues/401)

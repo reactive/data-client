@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-k.3 (2020-09-08)
+
+* fix: Only block suspense if errors are synthetic (#410) ([af8ab26](https://github.com/coinbase/rest-hooks/commit/af8ab26)), closes [#410](https://github.com/coinbase/rest-hooks/issues/410)
+* feat: useFetchDispatcher() (#407) ([f4e45be](https://github.com/coinbase/rest-hooks/commit/f4e45be)), closes [#407](https://github.com/coinbase/rest-hooks/issues/407)
+* internal: Upgrade build pkgs (#404) ([dc56530](https://github.com/coinbase/rest-hooks/commit/dc56530)), closes [#404](https://github.com/coinbase/rest-hooks/issues/404)
+
+
+
+
+
 ## 1.0.0-k.2 (2020-08-13)
 
 **Note:** Version bump only for package @rest-hooks/core
