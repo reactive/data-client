@@ -83,6 +83,14 @@ export default {
       result: [],
     },
   ],
+  error: [
+    {
+      request: ArticleResource.list(),
+      params: { maxResults: 10 },
+      result: { message: 'Bad request', status: 400 },
+      error: true,
+    },
+  ],
   loading: [],
 };
 ```
