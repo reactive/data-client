@@ -377,6 +377,65 @@ describe('useResource()', () => {
     expect((result.error as any).status).toBe(403);
   });
 
+  it('should suspend when already has a network error', async () => {
+    const error: any = { message: 'network error', status: 400 };
+    const FS = { ...CoolerArticleResource.detailShape() };
+    FS.options = { ...FS.options, errorExpiryLength: -100 };
+    const { result, waitForNextUpdate } = renderRestHook(
+      () => {
+        return useResource(CoolerArticleResource.detailShape(), {
+          title: '0',
+        });
+      },
+      {
+        results: [
+          {
+            request: FS,
+            params: { title: '0' },
+            result: error,
+            error: true,
+          },
+        ],
+      },
+    );
+    expect(result.current).toBe(null);
+    expect(result.error).toBe(null);
+    await waitForNextUpdate();
+    expect(result.error).toBeDefined();
+    expect((result.error as any).status).toBe(403);
+  });
+
+  it('should suspend when already has a network error (multiarg)', async () => {
+    const error: any = { message: 'network error', status: 400 };
+    const FS = { ...CoolerArticleResource.detailShape() };
+    FS.options = { ...FS.options, errorExpiryLength: -100 };
+    const { result, waitForNextUpdate } = renderRestHook(
+      () => {
+        return useResource([
+          CoolerArticleResource.detailShape(),
+          {
+            title: '0',
+          },
+        ]);
+      },
+      {
+        results: [
+          {
+            request: FS,
+            params: { title: '0' },
+            result: error,
+            error: true,
+          },
+        ],
+      },
+    );
+    expect(result.current).toBe(null);
+    expect(result.error).toBe(null);
+    await waitForNextUpdate();
+    expect(result.error).toBeDefined();
+    expect((result.error as any).status).toBe(403);
+  });
+
   it('should throw error when response is array when expecting entity', async () => {
     await testMalformedResponse([]);
   });
