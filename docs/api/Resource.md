@@ -76,6 +76,10 @@ tell the [hooks](./useResource.md) how to process requests. Endpoints are provid
 common `REST` request types. However, it is encouraged to build your own or override the
 provided ones to fit the needs of your API.
 
+Resource extends from [Entity](./Entity), which includes many static methods defining how to process
+network data to ensure performance and consistency. [Deserilization](../guides/network-transform#deserializing-fields)
+for instance can be done using the [static schema](./Entity#static-schema--k-keyof-this-schema-).
+
 ### Instance
 
 Instances are mostly for you to define how you want to interact with your data. This means
@@ -98,14 +102,7 @@ don't use constructors.
 
 > Inherited from [SimpleRecord](./SimpleRecord)
 
-This is used to create instances of the `Resource` you defined. Will copy over props provided to
-the instance in construction, among other things. *Be sure to always call `super.fromJS()` when
-overriding.*
-
-Can be useful to override to:
-
-* [Deserialize fields](../guides/network-transform#deserializing-fields)
-* Add runtime field validation
+This is used to create new entities when normalizing data. These are stored in the entities cache.
 
 ## Be sure to always provide:
 
