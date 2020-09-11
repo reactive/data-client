@@ -8,6 +8,7 @@ import useError from './useError';
 import useInvalidator from './useInvalidator';
 import useResetter from './useResetter';
 import useFetchDispatcher from './useFetchDispatcher';
+import useInvalidateDispatcher from './useInvalidateDispatcher';
 export { default as hasUsableData } from './hasUsableData';
 
 export {
@@ -20,5 +21,6 @@ export {
   useSubscription,
   useMeta,
   useInvalidator,
+  useInvalidateDispatcher,
   useResetter,
 };

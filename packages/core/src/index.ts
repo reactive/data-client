@@ -24,6 +24,7 @@ export {
   useError,
   CacheProvider,
   useInvalidator,
+  useInvalidateDispatcher,
   useResetter,
   hasUsableData,
 } from './react-integration';
