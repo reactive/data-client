@@ -51,6 +51,8 @@ For example, when a useResource() hook is first mounted it might
 - When the network call resolves, a receive action is sent to the store's reducer, updating the state.
 - The component is re-rendered with the updated state, resolving the suspense.
 
+> [More about control flow](../api/Manager#control-flow)
+
 ### Normalized Cache
 
 If [schema](../api/quickstart)s are used, API responses are split into two pieces - entities, and results.
