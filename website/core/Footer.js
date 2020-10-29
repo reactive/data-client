@@ -43,19 +43,16 @@ class Footer extends React.Component {
             <a href={this.docUrl('guides/resource-types')}>
               Resource Definitions
             </a>
-            <a href={this.docUrl('api/README')}>
-              API Reference
-            </a>
+            <a href={this.docUrl('api/README')}>API Reference</a>
           </div>
           <div>
             <h5>Community</h5>
-            <a href={this.pageUrl('users.html')}>
-              User Showcase
-            </a>
+            <a href={this.pageUrl('users.html')}>User Showcase</a>
             <a
               href="http://stackoverflow.com/questions/tagged/rest-hooks"
               target="_blank"
-              rel="noreferrer noopener">
+              rel="noreferrer noopener"
+            >
               Stack Overflow
             </a>
           </div>
@@ -69,13 +66,25 @@ class Footer extends React.Component {
               data-count-href="/coinbase/rest-hooks/stargazers"
               data-show-count="true"
               data-count-aria-label="# stargazers on GitHub"
-              aria-label="Star this project on GitHub">
+              aria-label="Star this project on GitHub"
+            >
               Star
+            </a>
+            <a href="https://discord.gg/35nb8Mz">
+              <img
+                src="https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3"
+                alt="Chat"
+              />
             </a>
           </div>
         </section>
 
-        <section className="copyright">{this.props.config.copyright}<br/>Some icons copyright Font Awesome and Noun Project (Hassan ali, ProSymbols)</section>
+        <section className="copyright">
+          {this.props.config.copyright}
+          <br />
+          Some icons copyright Font Awesome and Noun Project (Hassan ali,
+          ProSymbols)
+        </section>
       </footer>
     );
   }
