@@ -354,6 +354,9 @@ describe('NetworkManager', () => {
 
       expect(dispatch).not.toHaveBeenCalled();
 
+      // promises should be removed
+      expect(Object.keys((manager as any).fetched).length).toBe(0);
+
       manager.cleanup();
     });
   });

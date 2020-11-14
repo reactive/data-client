@@ -81,6 +81,7 @@ export default class NetworkManager implements Manager {
   cleanup() {
     for (const k in this.rejectors) {
       this.rejectors[k](new CleanupError());
+      this.clear(k);
     }
   }
 
@@ -116,7 +117,11 @@ export default class NetworkManager implements Manager {
           return data;
         })
         .catch(error => {
-          if (error instanceof CleanupError) return;
+          if (error instanceof CleanupError) {
+            // if we don't receive, we need to clear
+            this.clear(key);
+            return;
+          }
           dispatch(
             createReceiveError(error, {
               ...action.meta,
