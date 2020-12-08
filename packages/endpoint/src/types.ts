@@ -21,7 +21,7 @@ export interface EndpointExtraOptions {
   readonly extra?: any;
 }
 export type FetchFunction<P = any, B = any, R = any> = (
-  params: P,
+  params?: P,
   body?: B,
 ) => Promise<R>;
 
