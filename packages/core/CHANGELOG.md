@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-k.4 (2020-12-08)
+
+* fix: Clear promises on cleanup (#422) ([bcb236e](https://github.com/coinbase/rest-hooks/commit/bcb236e)), closes [#422](https://github.com/coinbase/rest-hooks/issues/422)
+* feat: Add useInvalidateDispatcher() (#413) ([e416c5f](https://github.com/coinbase/rest-hooks/commit/e416c5f)), closes [#413](https://github.com/coinbase/rest-hooks/issues/413)
+
+
+
+
+
 ## 1.0.0-k.3 (2020-09-08)
 
 * fix: Only block suspense if errors are synthetic (#410) ([af8ab26](https://github.com/coinbase/rest-hooks/commit/af8ab26)), closes [#410](https://github.com/coinbase/rest-hooks/issues/410)

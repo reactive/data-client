@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-k.4 (2020-12-08)
+
+**Note:** Version bump only for package rest-hooks
+
+
+
+
+
 ## 5.0.0-k.3 (2020-09-08)
 
 * fix: TypeScript 4 compatibility (#406) ([5d82e24](https://github.com/coinbase/rest-hooks/commit/5d82e24)), closes [#406](https://github.com/coinbase/rest-hooks/issues/406)
