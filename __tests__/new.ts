@@ -5,7 +5,7 @@ import {
   FetchFunction,
   Index,
 } from '@rest-hooks/endpoint';
-import { Resource, RestEndpoint } from '@rest-hooks/rest';
+import { Resource, SimpleResource, RestEndpoint } from '@rest-hooks/rest';
 import React, { createContext, useContext } from 'react';
 
 export class UserResource extends Resource {
@@ -69,9 +69,13 @@ export class ArticleResource extends Resource {
     });
   }
 
-  static partialUpdate<T extends typeof Resource>(
+  static partialUpdate<T extends typeof SimpleResource>(
     this: T,
-  ): RestEndpoint<FetchFunction, T, true> {
+  ): RestEndpoint<
+    FetchFunction<object, RequestInit['body'] | Record<string, any>>,
+    T,
+    true
+  > {
     return super.partialUpdate().extend({
       optimisticUpdate: (params: any, body: any) => ({
         id: params.id,
