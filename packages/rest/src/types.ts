@@ -1,12 +1,18 @@
 import { Schema } from '@rest-hooks/normalizr';
 import { EndpointInstance, FetchFunction } from '@rest-hooks/endpoint';
 
+export type RestFetch<
+  P = object,
+  B = RequestInit['body'] | Record<string, any>,
+  R = any
+> = (params: P, body?: B) => Promise<R>;
+
 /** Endpoint from a Resource
  *
  * Includes additional properties provided by Resource.endpoint()
  */
 export interface RestEndpoint<
-  F extends FetchFunction = FetchFunction,
+  F extends FetchFunction = RestFetch,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined
 > extends EndpointInstance<F, S, M> {

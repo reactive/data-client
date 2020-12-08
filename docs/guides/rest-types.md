@@ -20,25 +20,25 @@ Here's an example of each endpoint's return typed followed by usage. For
 a full explanation, continue reading below.
 
 ```typescript
-import { Resource, RestEndpoint, FetchFunction } from '@rest-hooks/rest';
+import { Resource, RestEndpoint, RestFetch } from '@rest-hooks/rest';
 
 class MyResource extends Resource {
   static list<T extends typeof Resource>(
     this: T,
-  ): RestEndpoint<FetchFunction, T[], undefined> {
+  ): RestEndpoint<RestFetch, T[], undefined> {
     return super.list();
   }
 
   static create<T extends typeof Resource>(
     this: T,
-  ): RestEndpoint<FetchFunction, T, true> {
+  ): RestEndpoint<RestFetch, T, true> {
     return super.create();
   }
 
   static filteredAndPaginatedList<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    FetchFunction<{ filterA: boolean; sortby: string }>,
+    RestFetch<{ filterA: boolean; sortby: string }>,
     { results: T[]; nextPage: string },
     undefined
   > {
@@ -284,7 +284,7 @@ import { RestEndpoint, Resource } from '@rest-hooks/rest';
 class User extends Resource {
   static detail<T extends typeof Resource>(
     this: T,
-  ): RestEndpoint<FetchFunction, { data: T }, undefined> {
+  ): RestEndpoint<RestFetch, { data: T }, undefined> {
     return super.detail().extend({ schema: { data: this } });
   }
 }
@@ -300,7 +300,7 @@ import { RestEndpoint, Resource } from '@rest-hooks/rest';
 class User extends Resource {
   static detail<T extends typeof Resource>(
     this: T,
-  ): RestEndpoint<FetchFunction<{ id: string }>, T, undefined> {
+  ): RestEndpoint<RestFetch<{ id: string }>, T, undefined> {
     return super.detail();
   }
 }

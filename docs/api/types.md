@@ -128,7 +128,7 @@ for easy customization.
 
 ```typescript
 export interface RestEndpoint<
-  F extends FetchFunction = FetchFunction,
+  F extends FetchFunction = RestFetch,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined
 > extends EndpointInstance<F, S, M> {
@@ -142,4 +142,17 @@ export interface RestEndpoint<
   method: string;
   signal: AbortSignal | undefined;
 }
+```
+
+### RestFetch
+
+Fetch function for Resources. Unlike [FetchFunction](#fetchfunction), these require the params variable
+as [Resource](./resource) expects it
+
+```typescript
+export type RestFetch<
+  P = object,
+  B = RequestInit['body'] | Record<string, any>,
+  R = any
+> = (params: P, body?: B) => Promise<R>;
 ```
