@@ -1,18 +1,16 @@
-import {
-  AbstractInstanceType,
-  MutateShape,
-  SimpleRecord,
-  schema,
-} from '@rest-hooks/core';
+import { AbstractInstanceType, SimpleRecord, schema } from '@rest-hooks/core';
 import {
   Endpoint,
   EndpointExtraOptions,
-  MutateEndpoint,
   FetchFunction,
-  ReadEndpoint,
   Index,
 } from '@rest-hooks/endpoint';
-import { Resource, SchemaList, SchemaDetail } from '@rest-hooks/rest';
+import {
+  Resource,
+  SimpleResource,
+  RestEndpoint,
+  RestFetch,
+} from '@rest-hooks/rest';
 import React, { createContext, useContext } from 'react';
 
 export class UserResource extends Resource {
@@ -76,7 +74,9 @@ export class ArticleResource extends Resource {
     });
   }
 
-  static partialUpdate<T extends typeof Resource>(this: T) {
+  static partialUpdate<T extends typeof SimpleResource>(
+    this: T,
+  ): RestEndpoint<RestFetch, T, true> {
     return super.partialUpdate().extend({
       optimisticUpdate: (params: any, body: any) => ({
         id: params.id,
@@ -227,7 +227,13 @@ function makePaginatedRecord<T>(entity: T) {
 export class PaginatedArticleResource extends OtherArticleResource {
   static urlRoot = 'http://test.com/article-paginated/';
 
-  static list<T extends typeof Resource>(this: T) {
+  static list<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    FetchFunction,
+    { results: T[]; prevPage: string; nextPage: string },
+    undefined
+  > {
     return super.list().extend({
       schema: { results: [this], prevPage: '', nextPage: '' },
     });

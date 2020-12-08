@@ -1,0 +1,319 @@
+---
+title: Typing REST Endpoints
+---
+
+In REST design, many operations can be performed on a given type of data.
+
+Attaching these operations to the type via static methods allows
+
+- A singular import for both class usage, typing, and endpoints
+- Reducing code duplication by extracting common patterns into base classes
+
+[Resource](../api/Resource) provides one such pattern, which makes getting started
+fast. However, even if the pattern generally matches your API design, there
+are often special operations or one-off cases where additional endpoints must
+be extended or added.
+
+## TL;DR
+
+Here's an example of each endpoint's return typed followed by usage. For
+a full explanation, continue reading below.
+
+```typescript
+import { Resource, RestEndpoint, RestFetch } from '@rest-hooks/rest';
+
+class MyResource extends Resource {
+  static list<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<RestFetch, T[], undefined> {
+    return super.list();
+  }
+
+  static create<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<RestFetch, T, true> {
+    return super.create();
+  }
+
+  static filteredAndPaginatedList<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    RestFetch<{ filterA: boolean; sortby: string }>,
+    { results: T[]; nextPage: string },
+    undefined
+  > {
+    return super.list();
+  }
+}
+```
+
+```typescript
+import MyResource from 'resources/MyResource';
+import { useResource } from 'rest-hooks';
+
+const items = useResource(MyResource.list(), {});
+const createMy = useFetcher(MyResource.create());
+const { results, nextPage } = useResource(
+  MyResource.filteredAndPaginatedList(),
+  { filterA: true, sortby: 'first' },
+);
+```
+
+## Problem
+
+To reduce code bloat, make development faster, reducing maintenance costs and reduce errors it is recommended
+to share common patterns in parent classes, and only specify what is specific to a given
+resource in that resource's class. Oftentimes this looks like simply its expected members
+and a pk() definition (though if you use a common field for pk() - you can also pull that up).
+
+[Resource](../api/Resource) is an example attempt that is useful for many common REST patterns that
+can be further extended and easily customized like so:
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Bloat -->
+
+```typescript
+class User {
+  readonly id: string = '';
+  readonly username: string = '';
+  readonly createdAt: Date = new Date();
+
+  pk() {
+    return this.id;
+  }
+
+  static schema = {
+    createdAt: Date,
+  };
+
+  static detail() {
+    return new Endpoint(
+      ({ id }: { id: string }) => fetch(`/user/${id}`).then(res => res.json()),
+      { schema: User },
+    );
+  }
+
+  static list() {
+    return new Endpoint(() => fetch(`/user`).then(res => res.json()), {
+      schema: [User],
+    });
+  }
+
+  // ...even more endpoints for this Resource defined below
+}
+
+class Post extends Resource {
+  readonly id: string = '';
+  readonly title: string = '';
+  readonly content: string = '';
+
+  pk() {
+    return this.id;
+  }
+
+  static detail() {
+    return new Endpoint(
+      ({ id }: { id: string }) => fetch(`/post/${id}`).then(res => res.json()),
+      { schema: Post },
+    );
+  }
+
+  static list() {
+    return new Endpoint(() => fetch(`/post`).then(res => res.json()), {
+      schema: [Post],
+    });
+  }
+
+  // ...even more endpoints for this Resource defined below
+}
+```
+
+<!--Gets reduced to-->
+
+```typescript
+class User extends Resource {
+  readonly id: string = '';
+  readonly username: string = '';
+  readonly createdAt: Date = new Date();
+
+  pk() {
+    return this.id;
+  }
+
+  static schema = {
+    createdAt: Date,
+  };
+
+  static urlRoot = '/user';
+}
+
+class Post extends Resource {
+  readonly id: string = '';
+  readonly title: string = '';
+  readonly content: string = '';
+
+  pk() {
+    return this.id;
+  }
+
+  static urlRoot = '/post';
+}
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
+
+Even in this overly simplistic case we're more than halving the lines of code.
+Once the complexities of the real world kick in, this improvement expands.
+
+However, we now have a problem. Before we were explictily specifying the [Endpoint](../api/Endpoint)s'
+expected shape via the [schema](../api/quickstart). Now it if we use the common methods like .detail()
+we lose our typing information.
+
+## Generics, static methods, and this
+
+To explain the solution - generic `this` - let's simplify the example.
+
+Here we'll define a static method that returns the type of the class - `Base`.
+
+```typescript
+class Base {
+  static factory(): Base {
+    const obj = new this();
+    obj.extra = 5;
+    return obj;
+  }
+}
+```
+
+If we inspect the runtime value, it says the type is `Base`.
+
+```typescript
+// type is Base
+const obj = Base.factory();
+// print Base
+console.log(typeof obj);
+```
+
+Now we extend that class
+
+```typescript
+class Child extends Base {
+  another = 5;
+}
+```
+
+And call the same static method
+
+```typescript
+// type is Base
+const obj = Child.factory();
+// print Child
+console.log(typeof obj);
+```
+
+TypeScript will implicitly type `obj` as `Base`, but at runtime, we can see it's really `Child`
+
+## Solution: generics
+
+Generics in TypeScript can be attached to parameters in any function and automatically inferred.
+Since `this` is implicit, TypeScript allows you to explictly bind `this` if you want a method's
+return type based on it:
+
+```typescript
+class Base {
+  static factory<T extends Base>(this: T): T {
+    const obj = new this();
+    obj.extra = 5;
+    return obj;
+  }
+}
+```
+
+```typescript
+// type is Child
+const obj = Child.factory();
+// print Child
+console.log(typeof obj);
+```
+
+Now when we call the method defined in `Base` on any descendant, it is typed appropriately!
+
+## As Resource
+
+Applying this to our original example, we get something along the lines of:
+
+```typescript
+class Resource {
+  static detail<T extends typeof Resource>(this: T) {
+    return new Endpoint(
+      props => fetch(this.url(props)).then(res => res.json()),
+      { schema: this },
+    );
+  }
+
+  static list<T extends typeof Resource>(this: T) {
+    return new Endpoint(
+      props => fetch(this.listUrl(props)).then(res => res.json()),
+      { schema: [this] },
+    );
+  }
+}
+```
+
+## Extending and adding endpoints
+
+This means any time we define our own [custom endpoints](./extending-endpoints) we should
+be sure to include generics so the types are alwalys correct.
+
+For instance, we can change the expected response of the API to have the resource
+inside the 'data' attribute:
+
+```typescript
+class User extends Resource {
+  static detail<T extends typeof Resource>(this: T) {
+    return super.detail().extend({ schema: { data: this } });
+  }
+}
+```
+
+If we were to explicitly type thing, we could use `RestEndpoint`
+
+```typescript
+import { RestEndpoint, Resource } from '@rest-hooks/rest';
+
+class User extends Resource {
+  static detail<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<RestFetch, { data: T }, undefined> {
+    return super.detail().extend({ schema: { data: this } });
+  }
+}
+
+const { data: user } = useResource(User.detail(), { id: '5' });
+```
+
+Or if we simply want to be specific about what arguments are allowed:
+
+```typescript
+import { RestEndpoint, Resource } from '@rest-hooks/rest';
+
+class User extends Resource {
+  static detail<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<RestFetch<{ id: string }>, T, undefined> {
+    return super.detail();
+  }
+}
+
+const { data: user } = useResource(User.detail(), { id: '5' });
+```
+
+## Typing rules of thumb
+
+Generally you want to type return values as specific as possible, but accept
+function arguments as loose as possible (like in hooks). To follow this principal:
+
+- [RestEndpoint](../api/types#restendpoint) for endpoints in [Resource](../api/Resource)s
+- [EndpointInstance](../api/types#endpointinstance) for anything that uses the [Endpoint](../api/Endpoint) class.
+- [EndpointInterface](../api/types#endpointinterface) for any hook arguments
+

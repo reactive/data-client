@@ -15,6 +15,7 @@
         "ids": [
           "guides/url",
           "guides/extending-endpoints",
+          "guides/rest-types",
           "guides/pagination",
           "guides/auth",
           "guides/network-transform",
@@ -78,6 +79,7 @@
     ],
     "API": [
       "api/README",
+      "api/types",
       {
         "type": "subcategory",
         "label": "Core Hooks",
