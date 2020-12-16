@@ -73,8 +73,70 @@ describe('reducer', () => {
 
       expect(nextEntity.content).toBe(prevEntity.content);
       expect(nextEntity.content).not.toBe(undefined);
+
+      expect(
+        nextState.entityMeta[ArticleResource.key][
+          `${ArticleResource.pk(action.payload)}`
+        ],
+      ).toBeDefined();
+      expect(
+        nextState.entityMeta[ArticleResource.key][
+          `${ArticleResource.pk(action.payload)}`
+        ].date,
+      ).toBe(action.meta.date);
+    });
+
+    it('should have the latest entity date', () => {
+      const localAction = {
+        ...partialResultAction,
+        meta: {
+          ...partialResultAction.meta,
+          date: partialResultAction.meta.date * 2,
+        },
+      };
+      const getMeta = (state: any): { date: number } =>
+        state.entityMeta[ArticleResource.key][
+          `${ArticleResource.pk(action.payload)}`
+        ];
+      const prevMeta = getMeta(newState);
+      expect(prevMeta).toBeDefined();
+      const nextState = reducer(newState, localAction);
+      const nextMeta = getMeta(nextState);
+
+      expect(nextMeta).toBeDefined();
+      expect(nextMeta.date).toBe(localAction.meta.date);
+    });
+
+    it('should use existing entity with older date', () => {
+      const localAction = {
+        ...partialResultAction,
+        meta: {
+          ...partialResultAction.meta,
+          date: partialResultAction.meta.date / 2,
+        },
+      };
+      const getMeta = (state: any): { date: number } =>
+        state.entityMeta[ArticleResource.key][
+          `${ArticleResource.pk(action.payload)}`
+        ];
+      const getEntity = (state: any): ArticleResource =>
+        state.entities[ArticleResource.key][
+          `${ArticleResource.pk(action.payload)}`
+        ];
+      const prevEntity = getEntity(newState);
+      const prevMeta = getMeta(newState);
+      expect(prevMeta).toBeDefined();
+      const nextState = reducer(newState, localAction);
+      const nextMeta = getMeta(nextState);
+      const nextEntity = getEntity(nextState);
+
+      expect(prevEntity).toEqual(nextEntity);
+
+      expect(nextMeta).toBeDefined();
+      expect(nextMeta.date).toBe(action.meta.date);
     });
   });
+
   it('mutate should never change results', () => {
     const id = 20;
     const payload = { id, title: 'hi', content: 'this is the content' };

@@ -5,7 +5,12 @@ import isMergeableObject from './isMergeable';
 /**
  * Deep merge two objects or arrays. Uses static merge function if exists.
  */
-export default function mergeDeepCopy<T1, T2>(target: T1, source: T2): T1 & T2 {
+export default function mergeDeepCopy<T1, T2>(
+  target: T1,
+  source: T2,
+  targetMeta?: any,
+  sourceDate?: any,
+): T1 & T2 {
   const sourceIsArray = Array.isArray(source);
   const targetIsArray = Array.isArray(target);
   const sourceAndTargetTypesMatch = sourceIsArray === targetIsArray;
@@ -13,7 +18,12 @@ export default function mergeDeepCopy<T1, T2>(target: T1, source: T2): T1 & T2 {
 
   if (target && Static && isMergeable(Static)) {
     if (isMergeable((target as any).constructor)) {
-      return Static.merge(target, source) as any;
+      // second argument takes priority over first
+      // if either of these is undefined, it resolves to 'false' which
+      // means we fallback to 'newer' (source) takes priority
+      return (targetMeta?.date > sourceDate
+        ? Static.merge(source, target)
+        : Static.merge(target, source)) as any;
     } else {
       return source as any;
     }
@@ -27,6 +37,8 @@ export default function mergeDeepCopy<T1, T2>(target: T1, source: T2): T1 & T2 {
         destination[key] = mergeDeepCopy(
           destination[key],
           (source as any)[key],
+          targetMeta?.[key],
+          sourceDate,
         );
       });
       return destination;

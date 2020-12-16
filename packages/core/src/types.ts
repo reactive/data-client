@@ -36,6 +36,11 @@ export type State<T> = Readonly<{
       readonly invalidated?: boolean;
     };
   };
+  entityMeta: {
+    readonly [entityKey: string]: {
+      readonly [pk: string]: { readonly date: number };
+    };
+  };
   optimistic: ReceiveAction[];
 }>;
 
