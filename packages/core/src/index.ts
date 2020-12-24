@@ -42,5 +42,6 @@ export type { FetchShape, ReadShape, MutateShape } from './endpoint/shapes';
 export type {
   SetShapeParams,
   ParamsFromShape,
+  BodyFromShape,
   ReturnFromShape,
 } from './endpoint/types';
