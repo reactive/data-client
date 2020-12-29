@@ -32,9 +32,12 @@ export default class FixtureManager implements Manager {
               // All updates must be async or React will complain about re-rendering in same pass
               setTimeout(() => {
                 const action: any = this.mockResults[key];
-                dispatch(action);
-                const complete = action.error ? reject : resolve;
-                complete(action.payload);
+                try {
+                  dispatch(action);
+                } finally {
+                  const complete = action.error ? reject : resolve;
+                  complete(action.payload);
+                }
               }, 0);
               return Promise.resolve();
             }
