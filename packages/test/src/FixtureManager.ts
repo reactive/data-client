@@ -26,10 +26,19 @@ export default class FixtureManager implements Manager {
       ): Promise<void> => {
         switch (action.type) {
           case actionTypes.FETCH_TYPE: {
-            const { key } = action.meta;
+            const { key, resolve, reject } = action.meta;
 
             if (key in this.mockResults) {
-              dispatch(this.mockResults[key] as any);
+              // All updates must be async or React will complain about re-rendering in same pass
+              setTimeout(() => {
+                const action: any = this.mockResults[key];
+                try {
+                  dispatch(action);
+                } finally {
+                  const complete = action.error ? reject : resolve;
+                  complete(action.payload);
+                }
+              }, 0);
               return Promise.resolve();
             }
             console.warn(
