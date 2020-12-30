@@ -41,6 +41,8 @@ export default function MockResolver({ children, fixtures }: Props) {
             const receiveAction = fetchToReceiveAction[key];
             try {
               dispatch(receiveAction);
+              // dispatch goes through user-code that can sometimes fail.
+              // let's ensure we always complete the promise
             } finally {
               const complete = receiveAction.error ? reject : resolve;
               complete(receiveAction.payload);
@@ -48,6 +50,7 @@ export default function MockResolver({ children, fixtures }: Props) {
           }, 0);
           return Promise.resolve();
         }
+        // This is only a warn because sometimes this is intentional
         console.warn(
           `<MockResolver/> received a dispatch:
   ${JSON.stringify(action, undefined, 2)}
