@@ -11,6 +11,8 @@ assignees: ''
 
 **Concurrent mode** yes/no
 
+**Rest Hooks version** (e.g., 4.5.9)
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 
