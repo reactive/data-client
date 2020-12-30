@@ -35,7 +35,7 @@ export default function MockResolver({ children, fixtures }: Props) {
     (action: ActionTypes) => {
       if (action.type === actionTypes.FETCH_TYPE) {
         const { key, resolve, reject } = action.meta;
-        if (key in fetchToReceiveAction) {
+        if (Object.prototype.hasOwnProperty.call(fetchToReceiveAction, key)) {
           // All updates must be async or React will complain about re-rendering in same pass
           setTimeout(() => {
             const receiveAction = fetchToReceiveAction[key];
