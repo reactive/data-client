@@ -1,35 +1,41 @@
 ---
-title: <MockProvider />
+title: <MockResolver />
 ---
 
 ```typescript
-function MockProvider({
+function MockResolver({
   children,
   results,
 }: {
-  children: React.ReactChild;
+  children: React.ReactNode;
   results: Fixture[];
 }): JSX.Element;
 ```
 
-\<MockProvider /> is a simple substitute provider to prefill the cache with fixtures so the 'happy path'
-can be tested. This is useful for [storybook](../guides/storybook.md) as well as component testing.
+\<MockResolver /> enables easy loading of fixtures to see what different network responses might look like.
+This is useful for [storybook](../guides/storybook.md) as well as component testing.
 
-> Deprecated: Use [<MockResolver />](./mockResolver) instead as it also supports [imperative fetches](../api/useFetcher) like [create](../api/resource#create-endpoint) and [update](../api/resource#update-endpoint).
-
-> Note: \<MockProvider /> disables dispatches, thus no fetches will occur. To simply initalize the
-> cache, use [mockInitialState()](./mockInitialState) to construct initialState for the normal [\<CacheProvider />](./CacheProvider)
 
 ## Arguments
 
-### results
+### fixtures
 
 ```typescript
-interface Fixture {
-  request: ReadEndpoint;
+export interface SuccessFixture {
+  request: ReadShape<Schema, object>;
   params: object;
   result: object | string | number;
+  error?: false;
 }
+
+export interface ErrorFixture {
+  request: ReadShape<Schema, object>;
+  params: object;
+  result: Error;
+  error: true;
+}
+
+export type Fixture = SuccessFixture | ErrorFixture;
 ```
 
 This prop specifies the fixtures to use data from. Each item represents a fetch defined by the
@@ -45,8 +51,8 @@ Renders the children prop.
 
 ## Example
 
-```typescript
-import { MockProvider } from '@rest-hooks/test';
+```tsx
+import { MockResolver } from '@rest-hooks/test';
 
 import ArticleResource from 'resources/ArticleResource';
 import MyComponentToTest from 'components/MyComponentToTest';
@@ -72,7 +78,9 @@ const results = [
   },
 ];
 
-<MockProvider results={results}>
-  <MyComponentToTest />
-</MockProvider>
+const Template: Story = () => (
+  <MockResolver fixtures={results}><MyComponentToTest /></MockResolver>
+);
+
+export const MyStory = Template.bind({});
 ```

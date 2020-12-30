@@ -48,6 +48,9 @@
       "api/MockProvider": {
         "title": "<MockProvider />"
       },
+      "api/MockResolver": {
+        "title": "<MockResolver />"
+      },
       "api/NetworkErrorBoundary": {
         "title": "<NetworkErrorBoundary />"
       },
