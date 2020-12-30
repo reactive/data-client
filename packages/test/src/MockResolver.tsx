@@ -69,10 +69,8 @@ export default function MockResolver({ children, fixtures }: Props) {
   result: [],
   }`,
         );
-        return dispatch(action);
-      } else {
-        return dispatch(action);
       }
+      return dispatch(action);
     },
     [fetchToReceiveAction, dispatch],
   );
