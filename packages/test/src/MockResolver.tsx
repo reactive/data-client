@@ -21,24 +21,24 @@ type Props = {
  * Place below <CacheProvider /> and above any components you want to mock.
  */
 export default function MockResolver({ children, fixtures }: Props) {
-  const actionMap = useMemo(() => {
-    const mockResults: Record<string, ReceiveAction> = {};
+  const fetchToReceiveAction = useMemo(() => {
+    const actionMap: Record<string, ReceiveAction> = {};
     for (const fixture of fixtures) {
       const { key, action } = actionFromFixture(fixture);
-      mockResults[key] = action;
+      actionMap[key] = action;
     }
-    return mockResults;
+    return actionMap;
   }, [fixtures]);
 
   const dispatch = useContext(DispatchContext);
-  const dispatchIntercept = useCallback(
+  const dispatchInterceptor = useCallback(
     (action: ActionTypes) => {
       if (action.type === actionTypes.FETCH_TYPE) {
         const { key, resolve, reject } = action.meta;
-        if (key in actionMap) {
+        if (key in fetchToReceiveAction) {
           // All updates must be async or React will complain about re-rendering in same pass
           setTimeout(() => {
-            const receiveAction = actionMap[key];
+            const receiveAction = fetchToReceiveAction[key];
             try {
               dispatch(receiveAction);
             } finally {
@@ -49,7 +49,7 @@ export default function MockResolver({ children, fixtures }: Props) {
           return Promise.resolve();
         }
         console.warn(
-          `MockResolver received a dispatch:
+          `<MockResolver/> received a dispatch:
   ${JSON.stringify(action, undefined, 2)}
   for which there is no matching fixture.
 
@@ -71,11 +71,11 @@ export default function MockResolver({ children, fixtures }: Props) {
         return dispatch(action);
       }
     },
-    [actionMap, dispatch],
+    [fetchToReceiveAction, dispatch],
   );
 
   return (
-    <DispatchContext.Provider value={dispatchIntercept}>
+    <DispatchContext.Provider value={dispatchInterceptor}>
       {children}
     </DispatchContext.Provider>
   );
