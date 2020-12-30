@@ -127,3 +127,9 @@ export default class ArticleResource extends Resource {
 
 If much of your `Resources` share a similar pagination, you might
 try extending from a base class that defines such common customizations.
+
+
+## Infinite Scrolling
+
+Sometimes pagination results are presented as an infinite scrolling list.
+[Infinite scrolling pagination](./infinite-scrolling-pagination) guide explains more about this.
