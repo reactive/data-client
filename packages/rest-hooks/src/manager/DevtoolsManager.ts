@@ -15,11 +15,13 @@ export default class DevToolsManager implements Manager {
   protected declare devTools: undefined | any;
 
   constructor(config: any = {}) {
+    /* istanbul ignore next */
     this.devTools =
       typeof window !== 'undefined' &&
       (window as any).__REDUX_DEVTOOLS_EXTENSION__ &&
       (window as any).__REDUX_DEVTOOLS_EXTENSION__.connect(config);
 
+    /* istanbul ignore if */
     if (process.env.NODE_ENV === 'development' && this.devTools) {
       this.middleware = <R extends React.Reducer<any, any>>({
         getState,
