@@ -76,6 +76,16 @@ export default {
         },
       ],
     },
+    {
+      request: ArticleResource.update(),
+      params: { id: 532 },
+      result: {
+        id: 532,
+        content: 'updated "never again"',
+        author: 23,
+        contributors: [5],
+      },
+    },
   ],
   empty: [
     {
@@ -154,7 +164,9 @@ export default {
 };
 
 const Template: Story<{ result: keyof typeof options }> = ({ result }) => (
-  <MockResolver fixtures={options[result]}><ArticleList maxResults={10} /></MockResolver>
+  <MockResolver fixtures={options[result]}>
+    <ArticleList maxResults={10} />
+  </MockResolver>
 );
 
 export const FullArticleList = Template.bind({});
@@ -162,5 +174,4 @@ export const FullArticleList = Template.bind({});
 FullArticleList.args = {
   result: 'full',
 };
-
 ```
