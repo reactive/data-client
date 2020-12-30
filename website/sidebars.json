@@ -150,11 +150,12 @@
         "type": "subcategory",
         "label": "Testing",
         "ids": [
-          "api/MockProvider",
+          "api/MockResolver",
           "api/makeRenderRestHook",
           "api/makeCacheProvider",
           "api/makeExternalCacheProvider",
-          "api/mockInitialState"
+          "api/mockInitialState",
+          "api/MockProvider"
         ]
       }
     ]

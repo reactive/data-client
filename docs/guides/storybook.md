@@ -5,8 +5,9 @@ title: Mocking data for Storybook
 [Storybook](https://storybook.js.org/) is a great utility to do isolated development and
 testing, potentially speeding up development time greatly.
 
-[\<MockProvider />](../api/MockProvider.md) enables easy loading of fixtures to test the
-happy path of components. Loading state is bypassed by initializing the cache ahead of time.
+[\<MockResolver />](../api/MockResolver.md) enables easy loading of fixtures to see what
+different network responses might look like. It can be layered, composed, and even used
+for [imperative fetches](../api/useFetcher) like [create](../api/resource#create-endpoint) and [update](../api/resource#update-endpoint).
 
 ## Setup
 
@@ -75,6 +76,16 @@ export default {
         },
       ],
     },
+    {
+      request: ArticleResource.update(),
+      params: { id: 532 },
+      result: {
+        id: 532,
+        content: 'updated "never again"',
+        author: 23,
+        contributors: [5],
+      },
+    },
   ],
   empty: [
     {
@@ -87,7 +98,7 @@ export default {
     {
       request: ArticleResource.list(),
       params: { maxResults: 10 },
-      result: { message: 'Bad request', status: 400 },
+      result: { message: 'Bad request', status: 400, name: 'Not Found' },
       error: true,
     },
   ],
@@ -95,29 +106,72 @@ export default {
 };
 ```
 
-## Story
+## Decorators
 
-We use a [storybook knob](https://www.npmjs.com/package/@storybook/addon-knobs)
-to make it easy for the user to select between each dataset to compare how it looks.
+You'll need to add the appropriate [global decorators](https://storybook.js.org/docs/react/writing-stories/decorators#global-decorators) to establish the correct context.
 
-#### `ArticleListStory.tsx`
+This should resemble what you have added in [initial setup](../getting-started/installation#add-provider-at-top-level-component)
+
+#### `.storybook/preview.tsx`
 
 ```tsx
-import { select } from '@storybook/addon-knobs';
-import { MockProvider } from '@rest-hooks/test';
+import { Suspense } from 'react';
+import { CacheProvider, NetworkErrorBoundary } from 'rest-hooks';
+
+export const decorators = [
+  Story => (
+    <CacheProvider>
+      <Suspense fallback="loading">
+        <NetworkErrorBoundary>
+          <Story />
+        </NetworkErrorBoundary>
+      </Suspense>
+    </CacheProvider>
+  ),
+];
+```
+
+## Story
+
+Wrapping our component with <MockResolver /> enables us to declaratively
+control how Rest Hooks' fetches are resolved.
+
+Here we select which fixtures should be used by [storybook controls](https://storybook.js.org/docs/react/essentials/controls).
+
+#### `ArticleList.stories.tsx`
+
+```tsx
+import { MockResolver } from '@rest-hooks/test';
+import type { Fixture } from '@rest-hooks/test';
+import { Story } from '@storybook/react/types-6-0';
+
 import ArticleList from 'ArticleList';
 import options from './fixtures';
 
-const label = 'Data';
-const defaultValue = options.full;
-const groupId = 'GROUP-ID1';
+export default {
+  title: 'Pages/ArticleList',
+  component: ArticleList,
+  argTypes: {
+    result: {
+      description: 'Results',
+      defaultValue: 'full',
+      control: {
+        type: 'select',
+        options: Object.keys(options),
+      },
+    },
+  },
+};
 
-storiesOf('name', module).add('Name', () => {
-  const results = select(label, options, defaultValue, groupId);
-  return (
-    <MockProvider results={results}>
-      <ArticleList maxResults={10} />
-    </MockProvider>
-  );
-});
+const Template: Story<{ result: keyof typeof options }> = ({ result }) => (
+  <MockResolver fixtures={options[result]}>
+    <ArticleList maxResults={10} />
+  </MockResolver>
+);
+
+export const FullArticleList = Template.bind({});
+
+FullArticleList.args = {
+  result: 'full',
+};
 ```
