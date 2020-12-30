@@ -74,7 +74,7 @@
       {
         "type": "subcategory",
         "label": "Legacy",
-        "ids": ["guides/class-components", "guides/no-suspense"]
+        "ids": ["guides/class-components", "guides/no-suspense", "guides/legacy-browser"]
       }
     ],
     "API": [
