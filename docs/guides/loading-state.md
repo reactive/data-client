@@ -86,7 +86,7 @@ function useLoadingFunction<F extends Function>(
       if (isMountedRef.current) setLoading(false);
       return ret;
     },
-    [onError],
+    [onError, func],
   );
   return [wrappedClick, loading];
 }
