@@ -16,6 +16,21 @@ be extended or added.
 
 ## TL;DR
 
+### RestEndpoint
+
+[RestEndpoint](../api/types#restendpoint) type is provided to conveniently declare
+[Resource](../api/Resource) [Endpoint](../api/Endpoint)s.
+
+```typescript
+RestEndpoint<
+  F extends FetchFunction = RestFetch,
+  S extends Schema | undefined = Schema | undefined,
+  M extends true | undefined = true | undefined
+>
+```
+
+### Usage
+
 Here's an example of each endpoint's return typed followed by usage. For
 a full explanation, continue reading below.
 
