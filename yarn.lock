@@ -11559,6 +11559,11 @@ run-async@^2.2.0:
   dependencies:
     is-promise "^2.1.0"
 
+run-p@^0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/run-p/-/run-p-0.0.0.tgz#716a55bd120277a9d90da5f82333b70b918088f2"
+  integrity sha1-cWpVvRICd6nZDaX4IzO3C5GAiPI=
+
 run-parallel@^1.1.9:
   version "1.1.9"
   resolved "https://registry.yarnpkg.com/run-parallel/-/run-parallel-1.1.9.tgz#c9dd3a7cf9f4b2c4b6244e173a6ed866e61dd679"
