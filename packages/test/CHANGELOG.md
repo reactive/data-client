@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.0-k.2 (2021-01-06)
+
+* enhance: Remove FixtureManager in favor of MockResolver (#447) ([4aa1617](https://github.com/coinbase/rest-hooks/commit/4aa1617)), closes [#447](https://github.com/coinbase/rest-hooks/issues/447)
+* feat: Add <MockResolver /> (#446) ([614576a](https://github.com/coinbase/rest-hooks/commit/614576a)), closes [#446](https://github.com/coinbase/rest-hooks/issues/446)
+* feat: Add FixtureNetworkManager to provide fixtures for imperative fetch ([0d015dc](https://github.com/coinbase/rest-hooks/commit/0d015dc))
+* fix: FixtureManager should dispatch receive async to not break react (#445) ([e1645cb](https://github.com/coinbase/rest-hooks/commit/e1645cb)), closes [#445](https://github.com/coinbase/rest-hooks/issues/445)
+
+
+
+
+
 ## 2.0.0-k.1 (2020-09-08)
 
 * fix: Only block suspense if errors are synthetic (#410) ([af8ab26](https://github.com/coinbase/rest-hooks/commit/af8ab26)), closes [#410](https://github.com/coinbase/rest-hooks/issues/410)

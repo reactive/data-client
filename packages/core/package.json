@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/core",
-  "version": "1.0.0-k.4",
+  "version": "1.0.0-k.5",
   "description": "Dynamic data fetching for React",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
@@ -58,12 +58,12 @@
     "url": "https://github.com/coinbase/rest-hooks/issues"
   },
   "devDependencies": {
-    "@rest-hooks/test": "^2.0.0-k.1"
+    "@rest-hooks/test": "^2.0.0-k.2"
   },
   "dependencies": {
     "@babel/runtime": "^7.12.0",
-    "@rest-hooks/endpoint": "^0.7.2",
-    "@rest-hooks/normalizr": "^6.0.0-j.2",
+    "@rest-hooks/endpoint": "^0.7.3",
+    "@rest-hooks/normalizr": "^6.0.0-k.0",
     "@rest-hooks/use-enhanced-reducer": "^1.0.5",
     "flux-standard-action": "^2.1.1"
   },

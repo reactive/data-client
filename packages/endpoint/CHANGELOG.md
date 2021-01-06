@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.7.3 (2021-01-06)</small>
+
+* pkg: Use @babel/runtime @ 7.12 ([e631f6a](https://github.com/coinbase/rest-hooks/commit/e631f6a))
+
+
+
+
+
 ## <small>0.7.2 (2020-09-08)</small>
 
 * internal: Upgrade build pkgs (#404) ([dc56530](https://github.com/coinbase/rest-hooks/commit/dc56530)), closes [#404](https://github.com/coinbase/rest-hooks/issues/404)

@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 5.0.0-k.5 (2021-01-06)
+
+* internal: Ignore dev env only paths for code coverage ([d425dfd](https://github.com/coinbase/rest-hooks/commit/d425dfd))
+* pkg: Use @babel/runtime @ 7.12 ([e631f6a](https://github.com/coinbase/rest-hooks/commit/e631f6a))
+
+
+
+
+
 ## 5.0.0-k.4 (2020-12-08)
 
 **Note:** Version bump only for package rest-hooks

@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/normalizr",
-  "version": "6.0.0-j.2",
+  "version": "6.0.0-k.0",
   "description": "Normalizes and denormalizes JSON according to schema for Redux and Flux applications",
   "homepage": "https://github.com/coinbase/rest-hooks/tree/master/packages/normalizr#readme",
   "bugs": {

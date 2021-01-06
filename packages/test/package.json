@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/test",
-  "version": "2.0.0-k.1",
+  "version": "2.0.0-k.2",
   "description": "Testing utilities for Rest Hooks",
   "sideEffects": false,
   "main": "dist/index.cjs.js",

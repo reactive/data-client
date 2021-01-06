@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-k.5 (2021-01-06)
+
+* Expose BodyFromShape from core library ([060dcd3](https://github.com/coinbase/rest-hooks/commit/060dcd3))
+* feat: Track and use entity resolution time ([54203f9](https://github.com/coinbase/rest-hooks/commit/54203f9))
+* pkg: Use @babel/runtime @ 7.12 ([e631f6a](https://github.com/coinbase/rest-hooks/commit/e631f6a))
+
+
+
+
+
 ## 1.0.0-k.4 (2020-12-08)
 
 * fix: Clear promises on cleanup (#422) ([bcb236e](https://github.com/coinbase/rest-hooks/commit/bcb236e)), closes [#422](https://github.com/coinbase/rest-hooks/issues/422)
