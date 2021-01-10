@@ -10,7 +10,7 @@
       "preDistTag": "beta",
       "changelogPreset": "anansi",
       "createRelease": "github",
-      "message": "internal: publish %s",
+      "message": "internal: publish",
       "ignoreChanges": ["**/__tests__/**", "**/*.md"]
     },
     "version": {
@@ -18,7 +18,7 @@
       "preid": "beta",
       "changelogPreset": "anansi",
       "createRelease": "github",
-      "message": "internal: publish %s",
+      "message": "internal: publish",
       "ignoreChanges": ["**/__tests__/**", "**/*.md"]
     }
   }

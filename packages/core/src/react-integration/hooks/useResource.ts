@@ -2,7 +2,9 @@ import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
 import { Denormalize, DenormalizeNullable } from '@rest-hooks/endpoint';
 import { useDenormalized } from '@rest-hooks/core/state/selectors';
 import { StateContext } from '@rest-hooks/core/react-integration/context';
-import { useMemo, useContext } from 'react';
+import { useMemo, useContext, useEffect } from 'react';
+import { subtract } from 'lodash';
+import { resolveConfig } from 'prettier';
 
 import useRetrieve from './useRetrieve';
 import useError from './useError';
