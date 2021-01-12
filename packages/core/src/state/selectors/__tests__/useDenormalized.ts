@@ -6,10 +6,10 @@ import {
   IndexedUserResource,
   photoShape,
 } from '__tests__/common';
-import { normalize, NormalizedIndex } from '@rest-hooks/normalizr';
+import { denormalize, normalize, NormalizedIndex } from '@rest-hooks/normalizr';
 import { initialState } from '@rest-hooks/core/state/reducer';
 import { renderHook, act } from '@testing-library/react-hooks';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import useDenormalized from '../useDenormalized';
 
@@ -98,7 +98,8 @@ describe('useDenormalized()', () => {
       });
 
       it('should provide inferred results', () => {
-        expect(value).toBe(article);
+        expect(value).toStrictEqual(article);
+        expect(value).toBeInstanceOf(CoolerArticleResource);
       });
     });
     describe('without entity with defined results', () => {
@@ -155,7 +156,8 @@ describe('useDenormalized()', () => {
       });
 
       it('should provide inferred results', () => {
-        expect(value).toBe(article);
+        expect(value).toStrictEqual(article);
+        expect(value).toBeInstanceOf(CoolerArticleResource);
       });
     });
     describe('no result exists but primary key is used when using nested schema', () => {
@@ -185,7 +187,8 @@ describe('useDenormalized()', () => {
       });
 
       it('should provide inferred results', () => {
-        expect(value.data).toBe(pageArticle);
+        expect(value.data).toStrictEqual(pageArticle);
+        expect(value.data).toBeInstanceOf(PaginatedArticleResource);
       });
     });
 
@@ -236,7 +239,7 @@ describe('useDenormalized()', () => {
         rerender({ state: localstate });
         expect(result.current[1]).toBe(true);
         expect(result.current[2]).toBe(false);
-        expect(result.current[0].data).toBe(user);
+        expect(result.current[0].data).toStrictEqual(user);
       });
     });
 
@@ -268,7 +271,8 @@ describe('useDenormalized()', () => {
       });
 
       it('should provide inferred results', () => {
-        expect(value).toBe(article);
+        expect(value).toStrictEqual(article);
+        expect(value).toBeInstanceOf(CoolerArticleResource);
       });
     });
     it('should throw when results are Array', () => {
@@ -419,7 +423,7 @@ describe('useDenormalized()', () => {
       });
 
       it('should provide inferred results', () => {
-        expect(value).toEqual(articles);
+        expect(value).toStrictEqual(articles);
       });
     });
     describe('missing some ids in entities table', () => {
@@ -500,6 +504,10 @@ describe('useDenormalized()', () => {
         },
       };
       let result: any;
+      const denormalizeCache = {
+        entities: {},
+        results: {},
+      };
 
       beforeEach(() => {
         const v = renderHook(() => {
@@ -509,6 +517,7 @@ describe('useDenormalized()', () => {
               PaginatedArticleResource.listShape(),
               params,
               usedState,
+              denormalizeCache,
             ),
             setState,
           };

@@ -2,7 +2,10 @@ import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
 import { DenormalizeNullable } from '@rest-hooks/endpoint';
 import { useDenormalized } from '@rest-hooks/core/state/selectors';
 import { useContext, useMemo } from 'react';
-import { StateContext } from '@rest-hooks/core/react-integration/context';
+import {
+  DenormalizeCacheContext,
+  StateContext,
+} from '@rest-hooks/core/react-integration/context';
 import {
   hasUsableData,
   useMeta,
@@ -23,10 +26,13 @@ export default function useCache<
   const expiresAt = useExpiresAt(fetchShape, params);
 
   const state = useContext(StateContext);
+  const denormalizeCache = useContext(DenormalizeCacheContext);
+
   const [denormalized, ready, deleted] = useDenormalized(
     fetchShape,
     params,
     state,
+    denormalizeCache,
   );
   const error = useError(fetchShape, params, ready);
   const trigger = deleted && !error;

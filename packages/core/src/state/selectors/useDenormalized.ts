@@ -1,7 +1,13 @@
 import { State } from '@rest-hooks/core/types';
 import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
 import { DenormalizeNullable } from '@rest-hooks/endpoint';
-import { isEntity, Schema, denormalize } from '@rest-hooks/normalizr';
+import {
+  isEntity,
+  Schema,
+  denormalize,
+  DenormalizeCache,
+  WeakListMap,
+} from '@rest-hooks/normalizr';
 import { useMemo } from 'react';
 
 import buildInferredResults from './buildInferredResults';
@@ -13,6 +19,7 @@ import buildInferredResults from './buildInferredResults';
  * using params and schema. This increases cache hit rate for many
  * detail shapes.
  *
+ *
  * @returns [denormalizedValue, ready]
  */
 export default function useDenormalized<
@@ -21,6 +28,7 @@ export default function useDenormalized<
   { schema, getFetchKey, options }: Shape,
   params: ParamsFromShape<Shape> | null,
   state: State<any>,
+  denormalizeCache: DenormalizeCache = { entities: {}, results: {} },
 ): [
   DenormalizeNullable<Shape['schema']>,
   typeof params extends null ? false : boolean,
@@ -44,18 +52,12 @@ export default function useDenormalized<
   const needsDenormalization = useMemo(() => schemaHasEntity(schema), [schema]);
 
   // Compute denormalized value
-  const [
-    denormalized,
-    entitiesFound,
-    entitiesDeleted,
-    entitiesList,
-  ] = useMemo(() => {
+  return useMemo(() => {
     if (!needsDenormalization)
-      return [cacheResults, cacheResults !== undefined, false, ''] as [
+      return [cacheResults, cacheResults !== undefined, false] as [
         DenormalizeNullable<Shape['schema']>,
         any,
         boolean,
-        string,
       ];
     // Warn users with bad configurations
     /* istanbul ignore next */
@@ -76,26 +78,19 @@ export default function useDenormalized<
     // inferred results are considered stale
     if (options && options.invalidIfStale && !cacheResults) entities = {};
 
+    if (params && !denormalizeCache.results[getFetchKey(params)])
+      denormalizeCache.results[getFetchKey(params)] = new WeakListMap();
+
     // second argument is false if any entities are missing
     // eslint-disable-next-line prefer-const
-    let [denormalized, entitiesFound, entitiesDeleted, cache] = denormalize(
+    return denormalize(
       results,
       schema,
       entities,
-    );
+      denormalizeCache.entities,
+      params ? denormalizeCache.results[getFetchKey(params)] : undefined,
+    ) as [DenormalizeNullable<Shape['schema']>, boolean, boolean];
 
-    // this enables us to keep referential equality based on entities contained within
-    const entitiesList = Object.values(cache)
-      .map(Object.values)
-      .reduce((a: any[], b: any[]) => a.concat(b), [])
-      .join(',');
-
-    return [denormalized, entitiesFound, entitiesDeleted, entitiesList] as [
-      DenormalizeNullable<Shape['schema']>,
-      boolean,
-      boolean,
-      string,
-    ];
     // TODO: would be nice to make this only recompute on the entity types that are in schema
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -105,14 +100,6 @@ export default function useDenormalized<
     cacheResults,
     needsDenormalization,
     options && options.invalidIfStale,
-  ]);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => [denormalized, entitiesFound, entitiesDeleted], [
-    entitiesFound,
-    entitiesDeleted,
-    results,
-    entitiesList,
   ]);
 }
 
