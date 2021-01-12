@@ -1,5 +1,5 @@
 // eslint-env jest
-import { denormalizeSimple as denormalize } from '../../denormalize';
+import { denormalize } from '../../denormalize';
 import { normalize } from '../../';
 import IDEntity from '../../entities/IDEntity';
 

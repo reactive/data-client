@@ -1,11 +1,12 @@
 // eslint-env jest
 import { fromJS } from 'immutable';
 
-import { denormalizeSimple as denormalize } from '../denormalize';
+import { denormalize } from '../denormalize';
 import { normalize, schema } from '../';
 import Entity from '../entities/Entity';
 import IDEntity from '../entities/IDEntity';
 import { DELETED } from '../special';
+import WeakListMap from '../WeakListMap';
 
 class Tacos extends IDEntity {
   type = '';
@@ -600,5 +601,173 @@ describe('denormalize', () => {
     expect(
       denormalize(normalizedData.result, [Patron], normalizedData.entities),
     ).toMatchSnapshot();
+  });
+});
+
+describe('denormalize with global cache', () => {
+  test('maintains referential equality with same results', () => {
+    const entityCache = {};
+    const resultCache = new WeakListMap();
+    const entities = {
+      Tacos: {
+        1: { id: '1', type: 'foo' },
+        2: { id: '2', type: 'bar' },
+      },
+    };
+    const result = ['1', '2'];
+    const first = denormalize(
+      result,
+      [Tacos],
+      entities,
+      entityCache,
+      resultCache,
+    )[0];
+    const second = denormalize(
+      result,
+      [Tacos],
+      entities,
+      entityCache,
+      resultCache,
+    )[0];
+    expect(first).toBe(second);
+
+    const third = denormalize(
+      [...result],
+      [Tacos],
+      entities,
+      entityCache,
+      resultCache,
+    )[0];
+    expect(first).not.toBe(third);
+    expect(first).toEqual(third);
+
+    const fourth = denormalize(
+      result,
+      [Tacos],
+      { Tacos: { ...entities.Tacos, 2: { id: '2', type: 'bar' } } },
+      entityCache,
+      resultCache,
+    )[0];
+    expect(first).not.toBe(fourth);
+    expect(first).toEqual(fourth);
+  });
+
+  describe('nested entities', () => {
+    class User extends IDEntity {}
+    class Comment extends IDEntity {
+      comment = '';
+      static schema = {
+        user: User,
+      };
+    }
+    class Article extends IDEntity {
+      title = '';
+      body = '';
+      static schema = {
+        author: User,
+        comments: [Comment],
+      };
+    }
+
+    const entities = {
+      Article: {
+        123: {
+          author: '8472',
+          body: 'This article is great.',
+          comments: ['comment-123-4738'],
+          id: '123',
+          title: 'A Great Article',
+        },
+      },
+      Comment: {
+        'comment-123-4738': {
+          comment: 'I like it!',
+          id: 'comment-123-4738',
+          user: '10293',
+        },
+      },
+      User: {
+        10293: {
+          id: '10293',
+          name: 'Jane',
+        },
+        8472: {
+          id: '8472',
+          name: 'Paul',
+        },
+      },
+    };
+
+    test('maintains referential equality with nested entities', () => {
+      const entityCache = {};
+      const resultCache = new WeakListMap();
+
+      const result = { data: '123' };
+      const first = denormalize(
+        result,
+        { data: Article },
+        entities,
+        entityCache,
+        resultCache,
+      )[0];
+      const second = denormalize(
+        result,
+        { data: Article },
+        entities,
+        entityCache,
+        resultCache,
+      )[0];
+      expect(first).toBe(second);
+      const third = denormalize(
+        '123',
+        Article,
+        entities,
+        entityCache,
+        resultCache,
+      )[0];
+      const fourth = denormalize(
+        '123',
+        Article,
+        entities,
+        entityCache,
+        resultCache,
+      )[0];
+      expect(third).toBe(fourth);
+    });
+
+    test('entity equality changes', () => {
+      const entityCache = {};
+      const resultCache = new WeakListMap();
+
+      const result = { data: '123' };
+      const first = denormalize(
+        result,
+        { data: Article },
+        entities,
+        entityCache,
+        resultCache,
+      )[0];
+      const second = denormalize(
+        result,
+        { data: Article },
+        {
+          ...entities,
+          Article: {
+            123: {
+              author: '8472',
+              body: 'This article is great.',
+              comments: ['comment-123-4738'],
+              id: '123',
+              title: 'A Great Article',
+            },
+          },
+        },
+        entityCache,
+        resultCache,
+      )[0];
+      expect(first).not.toBe(second);
+      expect(first.data.author).toBe(second.data.author);
+      expect(first.data.comments[0]).toBe(second.data.comments[0]);
+    });
   });
 });

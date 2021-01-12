@@ -2,11 +2,12 @@
 import { fromJS, Record } from 'immutable';
 import { first } from 'lodash';
 
-import { denormalizeSimple as denormalize } from '../../denormalize';
+import { denormalize } from '../../denormalize';
 import { normalize, schema, SimpleRecord, AbstractInstanceType } from '../../';
 import Entity from '../Entity';
 import IDEntity from '../IDEntity';
 import { DELETED } from '../../special';
+import WeakListMap from '../../WeakListMap';
 
 const values = obj => Object.keys(obj).map(key => obj[key]);
 
@@ -445,6 +446,31 @@ describe(`${Entity.name} denormalization`, () => {
     expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
   });
 
+  test('denormalizes deep entities while maintaining referntial equality', () => {
+    const entities = {
+      Menu: {
+        '1': { id: '1', food: '1' },
+        '2': { id: '2' },
+      },
+      Food: {
+        '1': { id: '1' },
+      },
+    };
+    const entityCache = {};
+    const resultCache = new WeakListMap();
+
+    const first = denormalize('1', Menu, entities, entityCache, resultCache)[0];
+    const second = denormalize(
+      '1',
+      Menu,
+      entities,
+      entityCache,
+      resultCache,
+    )[0];
+    expect(first).toBe(second);
+    expect(first?.food).toBe(second?.food);
+  });
+
   test('denormalizes to undefined for missing data', () => {
     const entities = {
       Menu: {
@@ -576,16 +602,42 @@ describe(`${Entity.name} denormalization`, () => {
           role: 'manager',
           reports: ['123'],
         },
+        '457': {
+          id: '457',
+          role: 'servant',
+          reports: ['123'],
+        },
       },
     };
+    const entityCache: any = {};
+    const resultCache = new WeakListMap();
 
-    const [denormalizedReport] = denormalize('123', Report, entities);
+    const [denormalizedReport] = denormalize(
+      '123',
+      Report,
+      entities,
+      entityCache,
+      resultCache,
+    );
 
     expect(denormalizedReport).toBeDefined();
     // This is just for TypeScript, the above line actually determines this
     if (!denormalizedReport) throw new Error('expected to be defined');
     expect(denormalizedReport).toBe(denormalizedReport.draftedBy?.reports[0]);
     expect(denormalizedReport.publishedBy).toBe(denormalizedReport.draftedBy);
+    expect(denormalizedReport.draftedBy?.reports[0].draftedBy).toBe(
+      denormalizedReport.draftedBy,
+    );
+
+    const [denormalizedReport2] = denormalize(
+      '123',
+      Report,
+      entities,
+      entityCache,
+      resultCache,
+    );
+
+    expect(denormalizedReport2).toBe(denormalizedReport);
 
     // NOTE: Given how immutable data works, referential equality can't be
     // maintained with nested denormalization.

@@ -1,4 +1,5 @@
 import type { default as schema, EntityInterface } from './schema';
+import WeakListMap from './WeakListMap';
 
 export type AbstractInstanceType<T> = T extends { prototype: infer U }
   ? U
@@ -34,6 +35,22 @@ interface NestedSchemaClass<T = any> {
 
 export interface RecordClass<T = any> extends NestedSchemaClass<T> {
   fromJS: (...args: any) => AbstractInstanceType<T>;
+}
+
+export interface UnvisitFunction {
+  (input: any, schema: any): [any, boolean, boolean];
+  original?: UnvisitFunction;
+}
+
+export interface DenormalizeCache {
+  entities: {
+    [key: string]: {
+      [pk: string]: WeakListMap<object, EntityInterface>;
+    };
+  };
+  results: {
+    [key: string]: WeakListMap<object, any>;
+  };
 }
 
 export type DenormalizeNullableNestedSchema<
