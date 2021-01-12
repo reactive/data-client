@@ -43,7 +43,7 @@ const unvisitEntity = (
     const globalKey: EntityInterface[] = [entity];
     // every time we nest, we want to unwrap back to the top.
     // this is due to only needed the next level of nested entities for lookup
-    const originalUnvisit = unvisit.original ? unvisit.original : unvisit;
+    const originalUnvisit = unvisit.original || unvisit;
     const wrappedUnvisit = (input: any, schema: any) => {
       const ret: [any, boolean, boolean] = originalUnvisit(input, schema);
       // pass over undefined in key
