@@ -23,7 +23,11 @@ const unvisitEntity = (
   ) => any,
   localCache: Record<string, Record<string, any>>,
   entityCache: DenormalizeCache['entities'],
-): [denormalized: any, found: boolean, deleted: boolean] => {
+): [
+  denormalized: EntityInterface | undefined,
+  found: boolean,
+  deleted: boolean,
+] => {
   const entity = getEntity(id, schema);
   if (entity === DELETED) {
     return [undefined, true, true];
