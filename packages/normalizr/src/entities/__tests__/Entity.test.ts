@@ -459,14 +459,14 @@ describe(`${Entity.name} denormalization`, () => {
     const entityCache = {};
     const resultCache = new WeakListMap();
 
-    const first = denormalize('1', Menu, entities, entityCache, resultCache)[0];
-    const second = denormalize(
+    const [first] = denormalize('1', Menu, entities, entityCache, resultCache);
+    const [second] = denormalize(
       '1',
       Menu,
       entities,
       entityCache,
       resultCache,
-    )[0];
+    );
     expect(first).toBe(second);
     expect(first?.food).toBe(second?.food);
   });
