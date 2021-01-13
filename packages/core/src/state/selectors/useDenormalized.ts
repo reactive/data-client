@@ -19,7 +19,6 @@ import buildInferredResults from './buildInferredResults';
  * using params and schema. This increases cache hit rate for many
  * detail shapes.
  *
- *
  * @returns [denormalizedValue, ready]
  */
 export default function useDenormalized<
