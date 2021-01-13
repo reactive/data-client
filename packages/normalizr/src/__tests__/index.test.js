@@ -615,20 +615,20 @@ describe('denormalize with global cache', () => {
       },
     };
     const result = ['1', '2'];
-    const first = denormalize(
+    const [first] = denormalize(
       result,
       [Tacos],
       entities,
       entityCache,
       resultCache,
-    )[0];
-    const second = denormalize(
+    );
+    const [second] = denormalize(
       result,
       [Tacos],
       entities,
       entityCache,
       resultCache,
-    )[0];
+    );
     expect(first).toBe(second);
 
     const third = denormalize(
