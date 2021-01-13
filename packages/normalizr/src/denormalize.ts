@@ -43,18 +43,8 @@ const unvisitEntity = (
   let found = true;
   let deleted = false;
   if (!localCache[schema.key][id]) {
-    // make unvisit that tracks entity list here
     const globalKey: EntityInterface[] = [entity];
-    // every time we nest, we want to unwrap back to the top.
-    // this is due to only needed the next level of nested entities for lookup
-    const originalUnvisit = unvisit.original || unvisit;
-    const wrappedUnvisit = (input: any, schema: any) => {
-      const ret: [any, boolean, boolean] = originalUnvisit(input, schema);
-      // pass over undefined in key
-      if (ret[0] && schema && isEntity(schema)) globalKey.push(ret[0]);
-      return ret;
-    };
-    wrappedUnvisit.original = unvisit;
+    const wrappedUnvisit = withTrackedEntities(unvisit, globalKey);
 
     if (!entityCache[schema.key]) entityCache[schema.key] = {};
     if (!entityCache[schema.key][id])
@@ -136,15 +126,8 @@ const getUnvisit = (
     return [input, true, false];
   }
 
-  // make unvisit that tracks entity list here
   const globalKey: EntityInterface[] = [];
-  const wrappedUnvisit = (input: any, schema: any) => {
-    const ret: [any, boolean, boolean] = unvisit(input, schema);
-    // pass over undefined in key
-    if (ret[0] && schema && isEntity(schema)) globalKey.push(ret[0]);
-    return ret;
-  };
-  wrappedUnvisit.original = unvisit;
+  const wrappedUnvisit = withTrackedEntities(unvisit, globalKey);
 
   return (
     input: any,
@@ -202,3 +185,20 @@ export const denormalize = <S extends Schema>(
   const unvisit = getUnvisit(entities, entityCache, resultCache);
   return unvisit(input, schema) as [any, boolean, boolean];
 };
+
+function withTrackedEntities(
+  unvisit: UnvisitFunction,
+  globalKey: EntityInterface<any>[],
+) {
+  // every time we nest, we want to unwrap back to the top.
+  // this is due to only needed the next level of nested entities for lookup
+  const originalUnvisit = unvisit.og || unvisit;
+  const wrappedUnvisit = (input: any, schema: any) => {
+    const ret: [any, boolean, boolean] = originalUnvisit(input, schema);
+    // pass over undefined in key
+    if (ret[0] && schema && isEntity(schema)) globalKey.push(ret[0]);
+    return ret;
+  };
+  wrappedUnvisit.og = unvisit;
+  return wrappedUnvisit;
+}
