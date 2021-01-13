@@ -36,7 +36,7 @@ const unvisitEntity = (
     return [entity, false, false];
   }
 
-  if (!localCache[schema.key]) {
+  if (localCache[schema.key] === undefined) {
     localCache[schema.key] = {};
   }
 
