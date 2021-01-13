@@ -1,7 +1,7 @@
 // eslint-env jest
 import { fromJS } from 'immutable';
 
-import { denormalizeSimple as denormalize } from '../../denormalize';
+import { denormalize } from '../../denormalize';
 import { normalize, schema } from '../../';
 import IDEntity from '../../entities/IDEntity';
 import { DELETED } from '../../special';

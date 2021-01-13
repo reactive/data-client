@@ -1,5 +1,6 @@
 import { denormalize } from './denormalize';
 import { normalize } from './normalize';
+import WeakListMap from './WeakListMap';
 import * as schema from './schema';
 import Entity, { isEntity } from './entities/Entity';
 import SimpleRecord from './entities/SimpleRecord';
@@ -17,6 +18,15 @@ export type {
   Denormalize,
   DenormalizeNullable,
   DenormalizeReturnType,
+  DenormalizeCache,
 } from './types';
 
-export { denormalize, schema, normalize, SimpleRecord, Entity, isEntity };
+export {
+  denormalize,
+  schema,
+  normalize,
+  SimpleRecord,
+  Entity,
+  isEntity,
+  WeakListMap,
+};

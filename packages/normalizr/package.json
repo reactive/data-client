@@ -29,6 +29,9 @@
   "module": "lib/index.js",
   "typings": "lib/index.d.ts",
   "sideEffects": false,
+  "engines": {
+    "node": ">=0.12"
+  },
   "scripts": {
     "build": "yarn run build:lib && yarn run build:bundle",
     "build:bundle": "run-p build:js:*",

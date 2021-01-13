@@ -1,5 +1,6 @@
 import { createContext } from 'react';
-import { ActionTypes } from '@rest-hooks/core/types';
+import type { DenormalizeCache } from '@rest-hooks/normalizr';
+import type { ActionTypes } from '@rest-hooks/core/types';
 import { initialState } from '@rest-hooks/core/state/reducer';
 
 export const StateContext = createContext(initialState);
@@ -18,4 +19,9 @@ export const DispatchContext = createContext((value: ActionTypes) => {
     }
   }
   return Promise.resolve();
+});
+
+export const DenormalizeCacheContext = createContext<DenormalizeCache>({
+  entities: {},
+  results: {},
 });

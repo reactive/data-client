@@ -5,8 +5,13 @@ import NetworkManager from '@rest-hooks/core/state/NetworkManager';
 import { State, Manager } from '@rest-hooks/core/types';
 import useEnhancedReducer from '@rest-hooks/use-enhanced-reducer';
 import React, { ReactNode, useEffect, useMemo } from 'react';
+import { useRef } from 'react';
 
-import { StateContext, DispatchContext } from '../context';
+import {
+  StateContext,
+  DispatchContext,
+  DenormalizeCacheContext,
+} from '../context';
 
 interface ProviderProps {
   children: ReactNode;
@@ -20,6 +25,10 @@ export default function CacheProvider({
   managers,
   initialState,
 }: ProviderProps) {
+  const denormalizeCache = useRef({
+    entities: {},
+    results: {},
+  });
   const [state, dispatch] = useEnhancedReducer(
     masterReducer,
     initialState,
@@ -47,7 +56,9 @@ export default function CacheProvider({
   return (
     <DispatchContext.Provider value={dispatch}>
       <StateContext.Provider value={optimisticState}>
-        {children}
+        <DenormalizeCacheContext.Provider value={denormalizeCache.current}>
+          {children}
+        </DenormalizeCacheContext.Provider>
       </StateContext.Provider>
     </DispatchContext.Provider>
   );

@@ -28,7 +28,11 @@ export {
   useResetter,
   hasUsableData,
 } from './react-integration';
-export { StateContext, DispatchContext } from './react-integration/context';
+export {
+  StateContext,
+  DispatchContext,
+  DenormalizeCacheContext,
+} from './react-integration/context';
 
 export { FlatEntity } from '@rest-hooks/normalizr';
 

@@ -168,15 +168,15 @@ export default abstract class Entity extends SimpleRecord {
 
   static denormalize<T extends typeof SimpleRecord>(
     this: T,
-    entity: AbstractInstanceType<T>,
+    input: AbstractInstanceType<T>,
     unvisit: schema.UnvisitFunction,
   ): [AbstractInstanceType<T>, boolean, boolean] {
     // TODO: this entire function is redundant with SimpleRecord, however right now we're storing the Entity instance
     // itself in cache. Once we offer full memoization, we will store raw objects and this can be consolidated with SimpleRecord
-    if (isImmutable(entity)) {
+    if (isImmutable(input)) {
       const [denormEntity, found, deleted] = denormalizeImmutable(
         this.schema,
-        entity,
+        input,
         unvisit,
       );
       return [this.fromJS(denormEntity.toObject()), found, deleted];
@@ -185,14 +185,15 @@ export default abstract class Entity extends SimpleRecord {
     const instance = new (this as any)();
     let deleted = false;
     let found = true;
-    const denormEntity = entity;
+    const denormEntity = input;
 
+    // note: iteration order must be stable
     Object.keys(this.schema).forEach(key => {
       const schema = this.schema[key];
-      const input = this.hasDefined(entity, key as any)
-        ? entity[key]
+      const nextInput = this.hasDefined(input, key as any)
+        ? input[key]
         : undefined;
-      const [value, foundItem, deletedItem] = unvisit(input, schema);
+      const [value, foundItem, deletedItem] = unvisit(nextInput, schema);
       // members who default to falsy values are considered 'optional'
       // if falsy value, and default is actually set then it is optional so pass through
       if (!foundItem && !(key in instance && !instance[key])) {
@@ -201,7 +202,7 @@ export default abstract class Entity extends SimpleRecord {
       if (deletedItem && !(key in instance && !instance[key])) {
         deleted = true;
       }
-      if (this.hasDefined(entity, key as any) && denormEntity[key] !== value) {
+      if (this.hasDefined(input, key as any) && denormEntity[key] !== value) {
         denormEntity[key] = value;
       }
     });
