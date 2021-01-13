@@ -631,13 +631,13 @@ describe('denormalize with global cache', () => {
     );
     expect(first).toBe(second);
 
-    const third = denormalize(
+    const [third] = denormalize(
       [...result],
       [Tacos],
       entities,
       entityCache,
       resultCache,
-    )[0];
+    );
     expect(first).not.toBe(third);
     expect(first).toEqual(third);
 
