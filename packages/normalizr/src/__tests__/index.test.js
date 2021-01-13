@@ -740,14 +740,14 @@ describe('denormalize with global cache', () => {
       const resultCache = new WeakListMap();
 
       const result = { data: '123' };
-      const first = denormalize(
+      const [first] = denormalize(
         result,
         { data: Article },
         entities,
         entityCache,
         resultCache,
-      )[0];
-      const second = denormalize(
+      );
+      const [second] = denormalize(
         result,
         { data: Article },
         {
@@ -764,7 +764,7 @@ describe('denormalize with global cache', () => {
         },
         entityCache,
         resultCache,
-      )[0];
+      );
       expect(first).not.toBe(second);
       expect(first.data.author).toBe(second.data.author);
       expect(first.data.comments[0]).toBe(second.data.comments[0]);
