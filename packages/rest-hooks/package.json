@@ -17,7 +17,7 @@
     "./rest_hooks_logo_and_text.svg"
   ],
   "engines": {
-    "node": ">=6.17.1"
+    "node": ">=0.12"
   },
   "scripts": {
     "build:lib": "cross-env NODE_ENV=production ROOT_PATH_PREFIX='rest-hooks' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",

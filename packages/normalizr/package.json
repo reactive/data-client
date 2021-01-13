@@ -30,7 +30,7 @@
   "typings": "lib/index.d.ts",
   "sideEffects": false,
   "engines": {
-    "node": ">=6.17.1"
+    "node": ">=0.12"
   },
   "scripts": {
     "build": "yarn run build:lib && yarn run build:bundle",
