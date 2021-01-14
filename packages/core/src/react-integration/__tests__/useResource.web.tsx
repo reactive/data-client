@@ -6,6 +6,7 @@ import {
   noEntitiesShape,
   ArticleTimedResource,
 } from '__tests__/common';
+import { createEntityMeta } from '__tests__/utils';
 import { State, ReadShape } from '@rest-hooks/core';
 import { initialState } from '@rest-hooks/core/state/reducer';
 import React, { Suspense } from 'react';
@@ -250,17 +251,10 @@ describe('useResource()', () => {
   it('should NOT suspend even when result is stale and options.invalidIfStale is false', () => {
     const { entities, result } = normalize(payload, CoolerArticleResource);
     const fetchKey = CoolerArticleResource.detailShape().getFetchKey(payload);
-    const entityMeta: any = {};
-    for (const k in entities) {
-      entityMeta[k] = {};
-      for (const pk in entities[k]) {
-        entityMeta[k][pk] = { date: 0, expiresAt: 0 };
-      }
-    }
     const state = {
       ...initialState,
       entities,
-      entityMeta,
+      entityMeta: createEntityMeta(entities),
       results: {
         [fetchKey]: result,
       },
@@ -295,20 +289,14 @@ describe('useResource()', () => {
     const fetchKey = InvalidIfStaleArticleResource.detailShape().getFetchKey(
       payload,
     );
-    const entityMeta: any = {};
-    for (const k in entities) {
-      entityMeta[k] = {};
-      for (const pk in entities[k]) {
-        entityMeta[k][pk] = { date: 0, expiresAt: 0 };
-      }
-    }
+
     const state = {
       ...initialState,
       entities,
       results: {
         [fetchKey]: result,
       },
-      entityMeta,
+      entityMeta: createEntityMeta(entities),
       meta: {
         [fetchKey]: {
           date: Infinity,
@@ -338,20 +326,13 @@ describe('useResource()', () => {
     const fetchKey = InvalidIfStaleArticleResource.detailShape().getFetchKey(
       payload,
     );
-    const entityMeta: any = {};
-    for (const k in entities) {
-      entityMeta[k] = {};
-      for (const pk in entities[k]) {
-        entityMeta[k][pk] = { date: 0, expiresAt: 0 };
-      }
-    }
     const state = {
       ...initialState,
       entities,
       results: {
         [fetchKey]: result,
       },
-      entityMeta,
+      entityMeta: createEntityMeta(entities),
       meta: {
         [fetchKey]: {
           date: 0,

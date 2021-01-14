@@ -6,6 +6,7 @@ import {
   IndexedUserResource,
   photoShape,
 } from '__tests__/common';
+import { createEntityMeta } from '__tests__/utils';
 import { denormalize, normalize, NormalizedIndex } from '@rest-hooks/normalizr';
 import { initialState } from '@rest-hooks/core/state/reducer';
 import { renderHook, act } from '@testing-library/react-hooks';
@@ -81,6 +82,7 @@ describe('useDenormalized()', () => {
           [CoolerArticleResource.detailShape().getFetchKey(params)]: params.id,
         },
       };
+      state.entityMeta = createEntityMeta(state.entities);
       const {
         result: {
           current: [value, found, deleted],
@@ -139,6 +141,7 @@ describe('useDenormalized()', () => {
           },
         },
       };
+      state.entityMeta = createEntityMeta(state.entities);
       const {
         result: {
           current: [value, found, deleted],
@@ -170,6 +173,7 @@ describe('useDenormalized()', () => {
           },
         },
       };
+      state.entityMeta = createEntityMeta(state.entities);
       const {
         result: {
           current: [value, found, deleted],
@@ -219,6 +223,7 @@ describe('useDenormalized()', () => {
             [UserResource.key]: { [`${user.pk()}`]: user },
           },
         };
+        localstate.entityMeta = createEntityMeta(localstate.entities);
 
         const { result, rerender } = renderHook(
           ({ state }) =>
@@ -258,6 +263,7 @@ describe('useDenormalized()', () => {
           )]: params.id,
         },
       };
+      state.entityMeta = createEntityMeta(state.entities);
       const {
         result: {
           current: [value, found],
@@ -319,6 +325,7 @@ describe('useDenormalized()', () => {
           [UserResource.key]: { [`${user.pk()}`]: user },
         },
       };
+      state.entityMeta = createEntityMeta(state.entities);
       const {
         result: {
           current: [value, found],
@@ -670,13 +677,3 @@ describe('useDenormalized()', () => {
     });
   });
 });
-function createEntityMeta(entities: Record<string, Record<string, any>>) {
-  const entityMeta: any = {};
-  for (const k in entities) {
-    entityMeta[k] = {};
-    for (const pk in entities[k]) {
-      entityMeta[k][pk] = { date: 0, expiresAt: 0 };
-    }
-  }
-  return entityMeta;
-}
