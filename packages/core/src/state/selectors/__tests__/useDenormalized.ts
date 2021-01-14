@@ -406,6 +406,7 @@ describe('useDenormalized()', () => {
       const state = {
         ...initialState,
         entities,
+        entityMeta: createEntityMeta(entities),
         results: {
           [CoolerArticleResource.listShape().getFetchKey(params)]: resultState,
         },
@@ -435,6 +436,7 @@ describe('useDenormalized()', () => {
       const state = {
         ...initialState,
         entities,
+        entityMeta: createEntityMeta(entities),
         results: {
           [CoolerArticleResource.listShape().getFetchKey(params)]: resultState,
         },
@@ -466,6 +468,7 @@ describe('useDenormalized()', () => {
       const state = {
         ...initialState,
         entities,
+        entityMeta: createEntityMeta(entities),
         results: {
           [PaginatedArticleResource.listShape().getFetchKey(
             params,
@@ -497,6 +500,7 @@ describe('useDenormalized()', () => {
       const state = {
         ...initialState,
         entities,
+        entityMeta: createEntityMeta(entities),
         results: {
           [PaginatedArticleResource.listShape().getFetchKey(
             params,
@@ -545,17 +549,20 @@ describe('useDenormalized()', () => {
         expect(result.current.ret[0].results).toBe(prevValue.results);
 
         act(() =>
-          result.current.setState((state: any) => ({
-            ...state,
-            entities: {
-              ...state.entities,
-              [PaginatedArticleResource.key]: {
-                1430: 'fake2',
-                ...state.entities[PaginatedArticleResource.key],
-                100000: 'fake',
+          result.current.setState((state: any) => {
+            const ret = {
+              ...state,
+              entities: {
+                ...state.entities,
+                [PaginatedArticleResource.key]: {
+                  1430: 'fake2',
+                  ...state.entities[PaginatedArticleResource.key],
+                  100000: 'fake',
+                },
               },
-            },
-          })),
+            };
+            return { ...ret, entityMeta: createEntityMeta(state.entities) };
+          }),
         );
         expect(result.current.ret[0]).toBe(prevValue);
         expect(result.current.ret[0].results).toBe(prevValue.results);
@@ -604,6 +611,7 @@ describe('useDenormalized()', () => {
       const state = {
         ...initialState,
         entities,
+        entityMeta: createEntityMeta(entities),
       };
       const {
         result: {
@@ -633,7 +641,7 @@ describe('useDenormalized()', () => {
       const { result } = renderHook(() => {
         return useDenormalized(photoShape, { userId }, initialState as any);
       });
-      expect(result.current).toStrictEqual([undefined, false, false]);
+      expect(result.current).toStrictEqual([null, false, false, 0]);
     });
 
     it('should return results as-is for schemas with no entities', () => {
@@ -649,7 +657,7 @@ describe('useDenormalized()', () => {
       const { result } = renderHook(() => {
         return useDenormalized(photoShape, { userId }, state);
       });
-      expect(result.current).toStrictEqual([results, true, false]);
+      expect(result.current).toStrictEqual([results, true, false, 0]);
     });
 
     it('should throw with invalid schemas', () => {
@@ -662,3 +670,13 @@ describe('useDenormalized()', () => {
     });
   });
 });
+function createEntityMeta(entities: Record<string, Record<string, any>>) {
+  const entityMeta: any = {};
+  for (const k in entities) {
+    entityMeta[k] = {};
+    for (const pk in entities[k]) {
+      entityMeta[k][pk] = { date: 0, expiresAt: 0 };
+    }
+  }
+  return entityMeta;
+}

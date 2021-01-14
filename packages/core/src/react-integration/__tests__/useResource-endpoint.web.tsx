@@ -254,10 +254,18 @@ describe('useResource()', () => {
   });
   it('should NOT suspend even when result is stale and options.invalidIfStale is false', () => {
     const { entities, result } = normalize(payload, CoolerArticleResource);
+    const entityMeta: any = {};
+    for (const k in entities) {
+      entityMeta[k] = {};
+      for (const pk in entities[k]) {
+        entityMeta[k][pk] = { date: 0, expiresAt: 0 };
+      }
+    }
     const fetchKey = CoolerArticleResource.detail().getFetchKey(payload);
     const state = {
       ...initialState,
       entities,
+      entityMeta,
       results: {
         [fetchKey]: result,
       },
@@ -292,12 +300,20 @@ describe('useResource()', () => {
     const fetchKey = InvalidIfStaleArticleResource.detail().getFetchKey(
       payload,
     );
+    const entityMeta: any = {};
+    for (const k in entities) {
+      entityMeta[k] = {};
+      for (const pk in entities[k]) {
+        entityMeta[k][pk] = { date: 0, expiresAt: 0 };
+      }
+    }
     const state = {
       ...initialState,
       entities,
       results: {
         [fetchKey]: result,
       },
+      entityMeta,
       meta: {
         [fetchKey]: {
           date: Infinity,
@@ -327,12 +343,20 @@ describe('useResource()', () => {
     const fetchKey = InvalidIfStaleArticleResource.detail().getFetchKey(
       payload,
     );
+    const entityMeta: any = {};
+    for (const k in entities) {
+      entityMeta[k] = {};
+      for (const pk in entities[k]) {
+        entityMeta[k][pk] = { date: 0, expiresAt: 0 };
+      }
+    }
     const state = {
       ...initialState,
       entities,
       results: {
         [fetchKey]: result,
       },
+      entityMeta,
       meta: {
         [fetchKey]: {
           date: 0,

@@ -20,7 +20,7 @@ export function useStatefulResource<
   S extends Schema
 >(fetchShape: ReadShape<S, Params>, params: Params | null) {
   const state = useContext(StateContext);
-  const [denormalized, ready, deleted] = useDenormalized(
+  const [denormalized, ready, deleted, entitiesExpireAt] = useDenormalized(
     fetchShape,
     params,
     state,
@@ -31,6 +31,7 @@ export function useStatefulResource<
     fetchShape,
     params,
     deleted && !error,
+    entitiesExpireAt,
   );
 
   if (maybePromise) {

@@ -34,6 +34,7 @@ Object {
     "http://test.com/article/": Object {
       "20": Object {
         "date": 5000000000,
+        "expiresAt": 5000500000,
       },
     },
   },

@@ -31,7 +31,7 @@ function useOneResource<
 > {
   const state = useContext(StateContext);
   const denormalizeCache = useContext(DenormalizeCacheContext);
-  const [denormalized, ready, deleted] = useDenormalized(
+  const [denormalized, ready, deleted, entitiesExpireAt] = useDenormalized(
     fetchShape,
     params,
     state,
@@ -39,7 +39,12 @@ function useOneResource<
   );
   const error = useError(fetchShape, params, ready);
 
-  const maybePromise = useRetrieve(fetchShape, params, deleted && !error);
+  const maybePromise = useRetrieve(
+    fetchShape,
+    params,
+    deleted && !error,
+    entitiesExpireAt,
+  );
 
   // refetching won't ever save us if the network response is bad.
   if (error && error.synthetic) throw error;
@@ -93,6 +98,7 @@ function useManyResources<A extends ResourceArgs<any, any>[]>(
         fetchShape,
         params,
         denormalizedValues[i][2] && !errorValues[i],
+        denormalizedValues[i][3],
       ),
     )
     // only wait on promises without results

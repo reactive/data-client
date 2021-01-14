@@ -23,17 +23,16 @@ export default function useCache<
   fetchShape: Shape,
   params: ParamsFromShape<Shape> | null,
 ): DenormalizeNullable<Shape['schema']> {
-  const expiresAt = useExpiresAt(fetchShape, params);
-
   const state = useContext(StateContext);
   const denormalizeCache = useContext(DenormalizeCacheContext);
 
-  const [denormalized, ready, deleted] = useDenormalized(
+  const [denormalized, ready, deleted, entitiesExpireAt] = useDenormalized(
     fetchShape,
     params,
     state,
     denormalizeCache,
   );
+  const expiresAt = useExpiresAt(fetchShape, params, entitiesExpireAt);
   const error = useError(fetchShape, params, ready);
   const trigger = deleted && !error;
 

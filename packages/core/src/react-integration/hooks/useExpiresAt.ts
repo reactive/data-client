@@ -6,11 +6,14 @@ import useMeta from './useMeta';
 export default function useExpiresAt<Params extends Readonly<object>>(
   fetchShape: Pick<ReadShape<any, Params>, 'getFetchKey' | 'options'>,
   params: Params | null,
+  entitiesExpireAt = 0,
 ): number {
   const meta = useMeta(fetchShape, params);
+
   if (!meta) {
-    return 0;
+    return entitiesExpireAt;
   }
+
   // Temporarily prevent infinite loops until invalidIfStale is revised
   if (
     fetchShape.options?.invalidIfStale &&
@@ -19,5 +22,6 @@ export default function useExpiresAt<Params extends Readonly<object>>(
   ) {
     return meta.expiresAt + 2000;
   }
+
   return meta.expiresAt;
 }

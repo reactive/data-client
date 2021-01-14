@@ -59,7 +59,7 @@
     "@rest-hooks/test": "^2.0.0-k.2"
   },
   "peerDependencies": {
-    "@rest-hooks/core": "^1.0.0-delta.0",
+    "@rest-hooks/core": "^1.0.0-k.6",
     "@types/react": "^16.8.4 || ^17.0.0",
     "react": "^16.8.4 || ^17.0.0"
   },
