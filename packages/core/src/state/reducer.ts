@@ -91,11 +91,7 @@ export default function reducer(
               prevExpiresAt: state.meta[action.meta.key]?.expiresAt,
             },
           },
-          entityMeta: updateEntityMeta(
-            state.entityMeta,
-            entities,
-            action.meta.date,
-          ),
+          entityMeta: updateEntityMeta(state.entityMeta, entities, action.meta),
           optimistic: filterOptimistic(state, action),
         };
         // reducer must update the state, so in case of processing errors we simply compute the results inline
@@ -198,13 +194,14 @@ function filterOptimistic(
 function updateEntityMeta(
   entityMeta: State<unknown>['entityMeta'],
   entities: State<unknown>['entities'],
-  date: number, // we may have to update with different times in the future
+  { expiresAt, date }: { expiresAt: number; date: number },
 ): State<unknown>['entityMeta'] {
   const meta: any = { ...entityMeta };
   for (const k in entities) {
     meta[k] = { ...entityMeta[k] };
     for (const pk in entities[k]) {
-      meta[k][pk] = meta[k][pk]?.date >= date ? meta[k][pk] : { date };
+      meta[k][pk] =
+        meta[k][pk]?.expiresAt >= expiresAt ? meta[k][pk] : { expiresAt, date };
     }
   }
   return meta;

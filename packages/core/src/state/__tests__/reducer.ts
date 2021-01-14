@@ -91,10 +91,11 @@ describe('reducer', () => {
         ...partialResultAction,
         meta: {
           ...partialResultAction.meta,
+          expiresAt: partialResultAction.meta.expiresAt * 2,
           date: partialResultAction.meta.date * 2,
         },
       };
-      const getMeta = (state: any): { date: number } =>
+      const getMeta = (state: any): { expiresAt: number } =>
         state.entityMeta[ArticleResource.key][
           `${ArticleResource.pk(action.payload)}`
         ];
@@ -104,7 +105,7 @@ describe('reducer', () => {
       const nextMeta = getMeta(nextState);
 
       expect(nextMeta).toBeDefined();
-      expect(nextMeta.date).toBe(localAction.meta.date);
+      expect(nextMeta.expiresAt).toBe(localAction.meta.expiresAt);
     });
 
     it('should use existing entity with older date', () => {
@@ -113,6 +114,7 @@ describe('reducer', () => {
         meta: {
           ...partialResultAction.meta,
           date: partialResultAction.meta.date / 2,
+          expiresAt: partialResultAction.meta.expiresAt / 2,
         },
       };
       const getMeta = (state: any): { date: number } =>

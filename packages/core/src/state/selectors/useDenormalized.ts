@@ -24,16 +24,18 @@ import buildInferredResults from './buildInferredResults';
 export default function useDenormalized<
   Shape extends Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>
 >(
-  { schema, getFetchKey, options }: Shape,
+  { schema, getFetchKey }: Shape,
   params: ParamsFromShape<Shape> | null,
   state: State<any>,
   denormalizeCache: DenormalizeCache = { entities: {}, results: {} },
 ): [
-  DenormalizeNullable<Shape['schema']>,
-  typeof params extends null ? false : boolean,
-  boolean,
+  denormalized: DenormalizeNullable<Shape['schema']>,
+  found: typeof params extends null ? false : boolean,
+  deleted: boolean,
+  entitiesExpireAt: number,
 ] {
-  let entities = state.entities;
+  const entities = state.entities;
+  const entityMeta = state.entityMeta;
   const cacheResults = params && state.results[getFetchKey(params)];
   const serializedParams = params && getFetchKey(params);
 
@@ -52,12 +54,14 @@ export default function useDenormalized<
 
   // Compute denormalized value
   return useMemo(() => {
-    if (!needsDenormalization)
-      return [cacheResults, cacheResults !== undefined, false] as [
+    if (!needsDenormalization) {
+      return [results, cacheResults !== undefined, false, 0] as [
         DenormalizeNullable<Shape['schema']>,
         any,
         boolean,
+        number,
       ];
+    }
     // Warn users with bad configurations
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'production' && isEntity(schema)) {
@@ -74,31 +78,47 @@ export default function useDenormalized<
       }
     }
 
-    // inferred results are considered stale
-    if (options && options.invalidIfStale && !cacheResults) entities = {};
-
     if (params && !denormalizeCache.results[getFetchKey(params)])
       denormalizeCache.results[getFetchKey(params)] = new WeakListMap();
 
     // second argument is false if any entities are missing
     // eslint-disable-next-line prefer-const
-    return denormalize(
+    const [value, found, deleted, resolvedEntities] = denormalize(
       results,
       schema,
       entities,
       denormalizeCache.entities,
       params ? denormalizeCache.results[getFetchKey(params)] : undefined,
-    ) as [DenormalizeNullable<Shape['schema']>, boolean, boolean];
+    ) as [
+      DenormalizeNullable<Shape['schema']>,
+      boolean,
+      boolean,
+      Record<string, Record<string, any>>,
+    ];
 
+    // oldest entity dictates age
+    let expiresAt = Infinity;
+    if (found) {
+      // using Object.keys ensures we don't hit `toString` type members
+      Object.keys(resolvedEntities).forEach(key =>
+        Object.keys(resolvedEntities[key]).forEach(pk => {
+          expiresAt = Math.min(expiresAt, entityMeta[key][pk].expiresAt);
+        }),
+      );
+    } else {
+      expiresAt = 0;
+    }
+
+    return [value, found, deleted, expiresAt];
     // TODO: would be nice to make this only recompute on the entity types that are in schema
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     entities,
+    entityMeta,
     serializedParams,
     results,
     cacheResults,
     needsDenormalization,
-    options && options.invalidIfStale,
   ]);
 }
 

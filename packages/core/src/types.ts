@@ -38,7 +38,10 @@ export type State<T> = Readonly<{
   };
   entityMeta: {
     readonly [entityKey: string]: {
-      readonly [pk: string]: { readonly date: number };
+      readonly [pk: string]: {
+        readonly date: number;
+        readonly expiresAt: number;
+      };
     };
   };
   optimistic: ReceiveAction[];

@@ -21,3 +21,16 @@ export function mockEventHandlers() {
   };
   return triggerEvent;
 }
+
+export function createEntityMeta(
+  entities: Record<string, Record<string, any>>,
+) {
+  const entityMeta: any = {};
+  for (const k in entities) {
+    entityMeta[k] = {};
+    for (const pk in entities[k]) {
+      entityMeta[k][pk] = { date: 0, expiresAt: 0 };
+    }
+  }
+  return entityMeta;
+}

@@ -17,6 +17,7 @@ Object {
     "http://test.com/article-cooler/": Object {
       "5": Object {
         "date": 50,
+        "expiresAt": 55,
       },
     },
   },

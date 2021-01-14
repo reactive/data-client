@@ -5,6 +5,7 @@ import useResource from './useResource';
 import useSubscription from './useSubscription';
 import useMeta from './useMeta';
 import useError from './useError';
+import useExpiresAt from './useExpiresAt';
 import useInvalidator from './useInvalidator';
 import useResetter from './useResetter';
 import useFetchDispatcher from './useFetchDispatcher';
@@ -20,6 +21,7 @@ export {
   useResource,
   useSubscription,
   useMeta,
+  useExpiresAt,
   useInvalidator,
   useInvalidateDispatcher,
   useResetter,

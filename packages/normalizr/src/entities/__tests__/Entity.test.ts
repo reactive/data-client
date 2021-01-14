@@ -2,7 +2,7 @@
 import { fromJS, Record } from 'immutable';
 import { first } from 'lodash';
 
-import { denormalize } from '../../denormalize';
+import { denormalizeSimple as denormalize } from '../../denormalize';
 import { normalize, schema, SimpleRecord, AbstractInstanceType } from '../../';
 import Entity from '../Entity';
 import IDEntity from '../IDEntity';

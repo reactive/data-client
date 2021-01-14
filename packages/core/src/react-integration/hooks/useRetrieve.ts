@@ -10,9 +10,10 @@ export default function useRetrieve<Shape extends ReadShape<any, any>>(
   fetchShape: Shape,
   params: ParamsFromShape<Shape> | null,
   triggerFetch = false,
+  entitiesExpireAt = 0,
 ) {
   const dispatchFetch: any = useFetchDispatcher(true);
-  const expiresAt = useExpiresAt(fetchShape, params);
+  const expiresAt = useExpiresAt(fetchShape, params, entitiesExpireAt);
 
   // Clears invalidIfStale loop blocking mechanism
   const dispatch = useContext(DispatchContext);

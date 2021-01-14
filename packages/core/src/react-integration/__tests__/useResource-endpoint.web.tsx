@@ -8,6 +8,7 @@ import {
   ContextAuthdArticle,
   AuthContext,
 } from '__tests__/new';
+import { createEntityMeta } from '__tests__/utils';
 import { State } from '@rest-hooks/core';
 import { initialState } from '@rest-hooks/core/state/reducer';
 import React, { Suspense } from 'react';
@@ -258,6 +259,7 @@ describe('useResource()', () => {
     const state = {
       ...initialState,
       entities,
+      entityMeta: createEntityMeta(entities),
       results: {
         [fetchKey]: result,
       },
@@ -298,6 +300,7 @@ describe('useResource()', () => {
       results: {
         [fetchKey]: result,
       },
+      entityMeta: createEntityMeta(entities),
       meta: {
         [fetchKey]: {
           date: Infinity,
@@ -333,6 +336,7 @@ describe('useResource()', () => {
       results: {
         [fetchKey]: result,
       },
+      entityMeta: createEntityMeta(entities),
       meta: {
         [fetchKey]: {
           date: 0,

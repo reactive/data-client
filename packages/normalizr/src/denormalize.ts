@@ -69,7 +69,6 @@ const unvisitEntity = (
       localCache[schema.key][id] = globalCacheEntry.get(globalKey);
     }
   }
-
   return [localCache[schema.key][id], found, deleted];
 };
 
@@ -77,8 +76,8 @@ const getUnvisit = (
   entities: Record<string, Record<string, any>>,
   entityCache: DenormalizeCache['entities'],
   resultCache: WeakListMap<object, any>,
+  localCache: Record<string, Record<string, any>>,
 ) => {
-  const localCache = {};
   const getEntity = getEntities(entities);
 
   function unvisit(
@@ -164,8 +163,57 @@ const getEntities = (entities: Record<string, any>) => {
   };
 };
 
+type DenormalizeReturn<S extends Schema> =
+  | [
+      denormalized: Denormalize<S>,
+      found: true,
+      deleted: false,
+      resolvedEntities: Record<string, Record<string, any>>,
+    ]
+  | [
+      denormalized: DenormalizeNullable<S>,
+      found: boolean,
+      deleted: true,
+      resolvedEntities: Record<string, Record<string, any>>,
+    ]
+  | [
+      denormalized: DenormalizeNullable<S>,
+      found: false,
+      deleted: boolean,
+      resolvedEntities: Record<string, Record<string, any>>,
+    ];
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const denormalize = <S extends Schema>(
+  input: any,
+  schema: S,
+  entities: any,
+  entityCache: DenormalizeCache['entities'] = {},
+  resultCache: WeakListMap<object, any> = new WeakListMap(),
+): DenormalizeReturn<S> => {
+  /* istanbul ignore next */
+  if (process.env.NODE_ENV !== 'production' && schema === undefined) {
+    throw new Error('schema needed');
+  }
+  if (typeof input === 'undefined') {
+    return [undefined, false, false, {}] as [any, boolean, boolean, any];
+  }
+  const resolvedEntities: Record<string, Record<string, any>> = {};
+  const unvisit = getUnvisit(
+    entities,
+    entityCache,
+    resultCache,
+    resolvedEntities,
+  );
+  return [...unvisit(input, schema), resolvedEntities] as [
+    any,
+    boolean,
+    boolean,
+    any,
+  ];
+};
+
+export const denormalizeSimple = <S extends Schema>(
   input: any,
   schema: S,
   entities: any,
@@ -174,17 +222,11 @@ export const denormalize = <S extends Schema>(
 ):
   | [Denormalize<S>, true, false]
   | [DenormalizeNullable<S>, boolean, true]
-  | [DenormalizeNullable<S>, false, boolean] => {
-  /* istanbul ignore next */
-  if (process.env.NODE_ENV !== 'production' && schema === undefined) {
-    throw new Error('schema needed');
-  }
-  if (typeof input === 'undefined') {
-    return [undefined, false, false] as [any, boolean, boolean];
-  }
-  const unvisit = getUnvisit(entities, entityCache, resultCache);
-  return unvisit(input, schema) as [any, boolean, boolean];
-};
+  | [DenormalizeNullable<S>, false, boolean] =>
+  denormalize(input, schema, entities, entityCache, resultCache).slice(
+    0,
+    3,
+  ) as any;
 
 function withTrackedEntities(
   unvisit: UnvisitFunction,
