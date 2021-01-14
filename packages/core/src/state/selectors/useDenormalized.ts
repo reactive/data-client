@@ -100,11 +100,11 @@ export default function useDenormalized<
     let expiresAt = Infinity;
     if (found) {
       // using Object.keys ensures we don't hit `toString` type members
-      for (const key of Object.keys(resolvedEntities)) {
-        for (const pk of Object.keys(resolvedEntities[key])) {
+      Object.keys(resolvedEntities).forEach(key =>
+        Object.keys(resolvedEntities[key]).forEach(pk => {
           expiresAt = Math.min(expiresAt, entityMeta?.[key]?.[pk].expiresAt);
-        }
-      }
+        }),
+      );
     } else {
       expiresAt = 0;
     }
