@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 6.0.0-rc.0 (2021-01-14)
+
+* enhance: Inferred endpoints expiry based on entities (#464) ([975e0d8](https://github.com/coinbase/rest-hooks/commit/975e0d8)), closes [#464](https://github.com/coinbase/rest-hooks/issues/464)
+* enhance: Maintain referential equality globally (#403) ([e1e353d](https://github.com/coinbase/rest-hooks/commit/e1e353d)), closes [#403](https://github.com/coinbase/rest-hooks/issues/403)
+* internal: add missing dev dep ([51fc222](https://github.com/coinbase/rest-hooks/commit/51fc222))
+
+
+### BREAKING CHANGE
+
+* Node engine requirement of >=0.12
+* useResource() inferred endpoint will sometimes
+not trigger a fetch if entities are fresh enough
+
+
+
+
 ## 6.0.0-k.0 (2021-01-06)
 
 * pkg: Use @babel/runtime @ 7.12 ([e631f6a](https://github.com/coinbase/rest-hooks/commit/e631f6a))

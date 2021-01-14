@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.7.4 (2021-01-14)</small>
+
+**Note:** Version bump only for package @rest-hooks/endpoint
+
+
+
+
+
 ## <small>0.7.3 (2021-01-06)</small>
 
 * pkg: Use @babel/runtime @ 7.12 ([e631f6a](https://github.com/coinbase/rest-hooks/commit/e631f6a))

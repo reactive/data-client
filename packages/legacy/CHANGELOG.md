@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.0-rc.0 (2021-01-14)
+
+* enhance: Inferred endpoints expiry based on entities (#464) ([975e0d8](https://github.com/coinbase/rest-hooks/commit/975e0d8)), closes [#464](https://github.com/coinbase/rest-hooks/issues/464)
+
+
+### BREAKING CHANGE
+
+* useResource() inferred endpoint will sometimes
+not trigger a fetch if entities are fresh enough
+
+
+
+
 ## 2.0.0-k.2 (2021-01-06)
 
 **Note:** Version bump only for package @rest-hooks/legacy
