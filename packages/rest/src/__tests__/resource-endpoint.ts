@@ -39,17 +39,19 @@ describe('Resource', () => {
   });
 
   it('should init', () => {
+    const author = UserResource.fromJS({ id: 5 });
     const resource = CoolerArticleResource.fromJS({
       id: 5,
       title: 'happy',
-      author: 5,
+      author,
     });
     expect(resource.pk()).toBe('5');
     expect(CoolerArticleResource.pk(resource)).toBe('5');
     expect(resource.title).toBe('happy');
     expect(resource.things).toBe('happy five');
     expect(resource.url).toBe('http://test.com/article-cooler/5');
-    expect(resource.author).toBe(5);
+    expect(resource.author).toBe(author);
+    expect(resource.author?.pk()).toBe('5');
   });
 
   it('should not init Resource itself', () => {
@@ -74,7 +76,7 @@ describe('Resource', () => {
     const article = CoolerArticleResource.fromJS({
       id: 5,
       title: 'happy',
-      author: 5,
+      author: UserResource.fromJS({ id: 5 }),
     });
     expect(article.url).toBe('http://test.com/article-cooler/5');
   });
@@ -85,7 +87,7 @@ describe('Resource', () => {
     const article = CoolerArticleResource.fromJS({
       id: 5,
       title: 'happy',
-      author: 5,
+      author: UserResource.fromJS({ id: 5 }),
     });
     expect(article.url).toBe('http://test.com/article-cooler/5');
     // Reset for future tests
@@ -215,7 +217,7 @@ describe('Resource', () => {
     const payload = {
       id,
       title: 'happy',
-      author: 5,
+      author: UserResource.fromJS({ id: 5 }),
     };
     const putResponseBody = {
       id,
