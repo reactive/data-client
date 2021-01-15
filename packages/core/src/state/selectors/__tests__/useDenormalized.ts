@@ -345,7 +345,12 @@ describe('useDenormalized()', () => {
             "id": 5,
             "tags": Array [],
             "title": "bob",
-            "user": 23,
+            "user": UserResource {
+              "email": "",
+              "id": 23,
+              "isAdmin": false,
+              "username": "anne",
+            },
           }
         `);
       });
