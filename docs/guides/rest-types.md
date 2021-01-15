@@ -293,8 +293,17 @@ class User extends Resource {
 
 If we were to explicitly type thing, we could use `RestEndpoint`
 
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Schema-->
+
 ```typescript
-import { RestEndpoint, Resource } from '@rest-hooks/rest';
+// typeof result is { data: User }
+const result = useResource(User.detail(), { id });
+```
+
+```typescript
+import { RestEndpoint, RestFetch, Resource } from '@rest-hooks/rest';
 
 class User extends Resource {
   static detail<T extends typeof Resource>(
@@ -307,10 +316,14 @@ class User extends Resource {
 const { data: user } = useResource(User.detail(), { id: '5' });
 ```
 
-Or if we simply want to be specific about what arguments are allowed:
+<!--Parameters-->
+```typescript
+// typeof id is string
+const result = useResource(User.detail(), { id });
+```
 
 ```typescript
-import { RestEndpoint, Resource } from '@rest-hooks/rest';
+import { RestEndpoint, RestFetch, Resource } from '@rest-hooks/rest';
 
 class User extends Resource {
   static detail<T extends typeof Resource>(
@@ -322,6 +335,58 @@ class User extends Resource {
 
 const { data: user } = useResource(User.detail(), { id: '5' });
 ```
+
+<!--Mutate-->
+```typescript
+// works
+const updateUser = useFetcher(User.update());
+// typeerror - protected against mutable operations
+const user = useResource(User.update());
+```
+
+```typescript
+import { RestEndpoint, RestFetch, Resource } from '@rest-hooks/rest';
+
+class User extends Resource {
+  static update<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<RestFetch, T, true> {
+    return super.update();
+  }
+}
+
+const { data: user } = useResource(User.detail(), { id: '5' });
+```
+
+<!--Payload/Body-->
+```typescript
+const updateUser = useFetcher(User.update());
+
+const handleClick = useCallback(() => {
+  // works
+  const response = await updateUser({ id }, { username: 'bob' });
+  // typeerror
+  const failed = await updateUser({ id }, { username: 5 });
+  // typeerror
+  const failed = await updateUser({ id }, { usernme: 'bob' });
+}, [updateUser]);
+```
+
+```typescript
+import { RestEndpoint, RestFetch, Resource } from '@rest-hooks/rest';
+
+class User extends Resource {
+  static update<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<RestFetch<object, { username: string }>, T, true> {
+    return super.update();
+  }
+}
+
+const { data: user } = useResource(User.detail(), { id: '5' });
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 ## Typing rules of thumb
 
