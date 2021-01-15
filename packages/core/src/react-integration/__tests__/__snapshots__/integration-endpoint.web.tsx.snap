@@ -5,7 +5,12 @@ exports[` => <Provider /> Endpoint should gracefully abort in useResource() 1`] 
 exports[` => <Provider /> Endpoint should resolve useResource() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
-    "author": "23",
+    "author": UserResource {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
     "content": "whatever",
     "id": 5,
     "tags": Array [
@@ -16,7 +21,12 @@ Array [
     "title": "hi ho",
   },
   PaginatedArticleResource {
-    "author": "23",
+    "author": UserResource {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
     "content": "whatever",
     "id": 3,
     "tags": Array [],
@@ -46,7 +56,12 @@ IndexedUserResource {
 exports[` => <Provider /> should resolve useResource() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
-    "author": "23",
+    "author": UserResource {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
     "content": "whatever",
     "id": 5,
     "tags": Array [
@@ -57,7 +72,12 @@ Array [
     "title": "hi ho",
   },
   PaginatedArticleResource {
-    "author": "23",
+    "author": UserResource {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
     "content": "whatever",
     "id": 3,
     "tags": Array [],
@@ -101,7 +121,12 @@ exports[`makeCacheProvider => <Provider /> Endpoint should gracefully abort in u
 exports[`makeCacheProvider => <Provider /> Endpoint should resolve useResource() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
-    "author": "23",
+    "author": UserResource {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
     "content": "whatever",
     "id": 5,
     "tags": Array [
@@ -112,7 +137,12 @@ Array [
     "title": "hi ho",
   },
   PaginatedArticleResource {
-    "author": "23",
+    "author": UserResource {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
     "content": "whatever",
     "id": 3,
     "tags": Array [],
@@ -142,7 +172,12 @@ IndexedUserResource {
 exports[`makeCacheProvider => <Provider /> should resolve useResource() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
-    "author": "23",
+    "author": UserResource {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
     "content": "whatever",
     "id": 5,
     "tags": Array [
@@ -153,7 +188,12 @@ Array [
     "title": "hi ho",
   },
   PaginatedArticleResource {
-    "author": "23",
+    "author": UserResource {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
     "content": "whatever",
     "id": 3,
     "tags": Array [],
