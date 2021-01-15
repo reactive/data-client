@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0-rc.0 (2021-01-14)
+
+* enhance: Inferred endpoints expiry based on entities (#464) ([975e0d8](https://github.com/coinbase/rest-hooks/commit/975e0d8)), closes [#464](https://github.com/coinbase/rest-hooks/issues/464)
+* enhance: Maintain referential equality globally (#403) ([e1e353d](https://github.com/coinbase/rest-hooks/commit/e1e353d)), closes [#403](https://github.com/coinbase/rest-hooks/issues/403)
+* internal: Fix publish message (#461) ([e1691f5](https://github.com/coinbase/rest-hooks/commit/e1691f5)), closes [#461](https://github.com/coinbase/rest-hooks/issues/461)
+
+
+### BREAKING CHANGE
+
+* Node engine requirement of >=0.12
+* useResource() inferred endpoint will sometimes
+not trigger a fetch if entities are fresh enough
+
+
+
+
 ## 1.0.0-k.5 (2021-01-06)
 
 * Expose BodyFromShape from core library ([060dcd3](https://github.com/coinbase/rest-hooks/commit/060dcd3))
