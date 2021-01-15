@@ -1,4 +1,4 @@
-import { FlatEntity, schema } from '@rest-hooks/normalizr';
+import { Entity, schema } from '@rest-hooks/normalizr';
 import type { AbstractInstanceType } from '@rest-hooks/normalizr';
 import { Endpoint } from '@rest-hooks/endpoint';
 import type {
@@ -16,7 +16,7 @@ import paramsToString from './paramsToString';
  *
  * This can be a useful organization for many REST-like API patterns.
  */
-export default abstract class SimpleResource extends FlatEntity {
+export default abstract class SimpleResource extends Entity {
   // typescript todo: require subclasses to implement
   /** Used as base of url construction */
   static readonly urlRoot: string;
@@ -181,7 +181,7 @@ export default abstract class SimpleResource extends FlatEntity {
   static detail<T extends typeof SimpleResource>(this: T) {
     return this.memo('#detail', () =>
       this.endpoint().extend({
-        schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+        schema: this as SchemaDetail<AbstractInstanceType<T>>,
       }),
     );
   }
@@ -190,7 +190,7 @@ export default abstract class SimpleResource extends FlatEntity {
   static list<T extends typeof SimpleResource>(this: T) {
     return this.memo('#list', () =>
       this.endpoint().extend({
-        schema: [this] as SchemaList<Readonly<AbstractInstanceType<T>>>,
+        schema: [this] as SchemaList<AbstractInstanceType<T>>,
         url: this.listUrl.bind(this),
       }),
     );
@@ -201,7 +201,7 @@ export default abstract class SimpleResource extends FlatEntity {
     //Partial<AbstractInstanceType<T>>
     return this.memo('#create', () =>
       this.endpointMutate().extend({
-        schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+        schema: this as SchemaDetail<AbstractInstanceType<T>>,
         url: this.listUrl.bind(this),
       }),
     );
@@ -212,7 +212,7 @@ export default abstract class SimpleResource extends FlatEntity {
     return this.memo('#update', () =>
       this.endpointMutate().extend({
         method: 'PUT',
-        schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+        schema: this as SchemaDetail<AbstractInstanceType<T>>,
       }),
     );
   }
@@ -222,7 +222,7 @@ export default abstract class SimpleResource extends FlatEntity {
     return this.memo('#partialUpdate', () =>
       this.endpointMutate().extend({
         method: 'PATCH',
-        schema: this as SchemaDetail<Readonly<AbstractInstanceType<T>>>,
+        schema: this as SchemaDetail<AbstractInstanceType<T>>,
       }),
     );
   }
