@@ -21,7 +21,7 @@ import { UserResource } from 'resources';
 export default class ArticleResource extends Resource {
   readonly id: number | undefined = undefined;
   readonly content: string = '';
-  readonly author: number | null = null;
+  readonly author: UserResource = UserResource.fromJS({});
   readonly contributors: number[] = [];
 
   pk() {
@@ -35,8 +35,6 @@ export default class ArticleResource extends Resource {
   };
 }
 ```
-
-Upon fetching the nested items will end up in the cache so they can be retrieved with [useCache()][2]
 
 #### `ArticleList.tsx`
 
@@ -50,19 +48,23 @@ export default function ArticleList({ id }: { id: number }) {
   return (
     <React.Fragment>
       {articles.map(article => (
-        <ArticleInline key={article.pk()} article={article} />
+        <>
+          <ArticleInline key={article.pk()} article={article} />
+          <UserPreview user={article.user} />
+        </>
       ))}
     </React.Fragment>
   );
 }
 
-function ArticleInline({ article }: { article: ArticleResource }) {
-  const author = useCache(UserResource.detail(), { id: article.author });
-  // some jsx here
+function UserPreview({ user }: { user: UserResource }) {
+  return <span>{user.username} {user.email}</span>
 }
 ```
 
 ## Circular dependencies
+
+If both [Resources][1] are in distinct files, this must be handled with care.
 
 If two or more [Resources][1] include each other in their schema, you can dynamically override
 one of their [schema][3] to avoid circular imports.
@@ -76,7 +78,7 @@ import { UserResource } from 'resources';
 export default class ArticleResource extends Resource {
   readonly id: number | undefined = undefined;
   readonly content: string = '';
-  readonly author: number | null = null;
+  readonly author: UserResource = UserResource.fromJS({});
   readonly contributors: number[] = [];
 
   pk() {
@@ -90,6 +92,7 @@ export default class ArticleResource extends Resource {
   };
 }
 
+// we set the schema here since we can correctly reference ArticleResource
 UserResource.schema = {
   posts: [ArticleResource],
 };
@@ -99,12 +102,14 @@ UserResource.schema = {
 
 ```typescript
 import { Resource } from '@rest-hooks/rest';
-// no need to import ArticleResource as the schema override happens there.
+import type { ArticleResource } from 'resources';
+// we can only import the type else we break javascript imports
+// thus we change the schema of UserResource above
 
 export default class UserResource extends Resource {
   readonly id: number | undefined = undefined;
   readonly name: string = '';
-  readonly posts: number[] = [];
+  readonly posts: ArticleResource[] = [];
 
   pk() {
     return this.id?.toString();

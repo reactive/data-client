@@ -29,7 +29,7 @@ export class ArticleResource extends Resource {
   readonly id: number | undefined = undefined;
   readonly title: string = '';
   readonly content: string = '';
-  readonly author: number | null = null;
+  readonly author: UserResource | null = null;
   readonly tags: string[] = [];
 
   pk() {
