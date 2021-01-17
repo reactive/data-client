@@ -1,4 +1,4 @@
-import { DELETED } from '@rest-hooks/normalizr';
+import { DELETED } from '@rest-hooks/endpoint';
 
 import buildInferredResults from './state/selectors/buildInferredResults';
 import RIC from './state/RIC';

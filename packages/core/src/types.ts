@@ -1,6 +1,9 @@
 import { NormalizedIndex } from '@rest-hooks/normalizr';
-import { UpdateFunction } from '@rest-hooks/endpoint';
-import type { AbstractInstanceType, Schema } from '@rest-hooks/normalizr';
+import type {
+  UpdateFunction,
+  AbstractInstanceType,
+  Schema,
+} from '@rest-hooks/endpoint';
 import { Middleware } from '@rest-hooks/use-enhanced-reducer';
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
 

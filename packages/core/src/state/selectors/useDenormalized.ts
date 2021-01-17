@@ -1,12 +1,11 @@
 import { State } from '@rest-hooks/core/types';
 import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
 import { DenormalizeNullable } from '@rest-hooks/endpoint';
+import { isEntity, Schema } from '@rest-hooks/endpoint';
 import {
-  isEntity,
-  Schema,
-  denormalize,
   DenormalizeCache,
   WeakListMap,
+  denormalize,
 } from '@rest-hooks/normalizr';
 import { useMemo } from 'react';
 

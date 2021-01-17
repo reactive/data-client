@@ -1,4 +1,4 @@
-import { Schema } from '@rest-hooks/normalizr';
+import { Schema } from '@rest-hooks/endpoint';
 import {
   FetchAction,
   ReceiveAction,

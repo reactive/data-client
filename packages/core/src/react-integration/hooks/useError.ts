@@ -1,5 +1,5 @@
 import { ReadShape } from '@rest-hooks/core/endpoint';
-import { Schema } from '@rest-hooks/normalizr';
+import { Schema } from '@rest-hooks/endpoint';
 
 import useMeta from './useMeta';
 

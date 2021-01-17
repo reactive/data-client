@@ -1,5 +1,5 @@
 import { FetchOptions } from '@rest-hooks/core/types';
-import { Schema } from '@rest-hooks/normalizr';
+import { Schema } from '@rest-hooks/endpoint';
 
 /** Defines the shape of a network request */
 export interface FetchShape<

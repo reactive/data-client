@@ -1,4 +1,4 @@
-import { isEntity, Schema, schema as schemas } from '@rest-hooks/normalizr';
+import { isEntity, Schema, schema as schemas } from '@rest-hooks/endpoint';
 
 export default function getEntityPath(schema: Schema): string[] | false {
   if (

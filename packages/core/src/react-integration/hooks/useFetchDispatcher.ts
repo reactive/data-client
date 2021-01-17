@@ -6,7 +6,7 @@ import {
   OptimisticUpdateParams,
   ReturnFromShape,
 } from '@rest-hooks/core/endpoint';
-import { Schema } from '@rest-hooks/normalizr';
+import { Schema } from '@rest-hooks/endpoint';
 import { DispatchContext } from '@rest-hooks/core/react-integration/context';
 import createFetch from '@rest-hooks/core/state/actions/createFetch';
 import { useContext, useCallback } from 'react';
