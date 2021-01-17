@@ -1,6 +1,6 @@
 import { FetchAction } from '@rest-hooks/core/types';
 import { FETCH_TYPE } from '@rest-hooks/core/actionTypes';
-import { Schema } from '@rest-hooks/normalizr';
+import { Schema } from '@rest-hooks/endpoint';
 import {
   FetchShape,
   SchemaFromShape,

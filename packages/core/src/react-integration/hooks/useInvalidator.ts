@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { ReadShape } from '@rest-hooks/core/endpoint';
-import { Schema } from '@rest-hooks/normalizr';
+import { Schema } from '@rest-hooks/endpoint';
 
 import useInvalidateDispatcher from './useInvalidateDispatcher';
 
