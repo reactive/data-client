@@ -4,6 +4,8 @@ import {
   EndpointExtraOptions,
   FetchFunction,
   Index,
+  SchemaDetail,
+  SchemaList,
 } from '@rest-hooks/endpoint';
 import {
   Resource,
@@ -148,6 +150,46 @@ export class CoolerArticleResource extends ArticleResource {
   static urlRoot = 'http://test.com/article-cooler/';
   get things() {
     return `${this.title} five`;
+  }
+}
+
+export class TypedArticleResource extends CoolerArticleResource {
+  get tagString() {
+    return this.tags.join(', ');
+  }
+
+  static update<T extends typeof SimpleResource>(
+    this: T,
+  ): RestEndpoint<
+    RestFetch<
+      { id: number },
+      Partial<AbstractInstanceType<T>>,
+      Partial<AbstractInstanceType<T>>
+    >,
+    SchemaDetail<AbstractInstanceType<T>>,
+    true
+  > {
+    return super.update();
+  }
+
+  static detail<T extends typeof SimpleResource>(
+    this: T,
+  ): RestEndpoint<
+    RestFetch<{ id: number }, undefined, Partial<AbstractInstanceType<T>>>,
+    SchemaDetail<AbstractInstanceType<T>>,
+    undefined
+  > {
+    return super.detail();
+  }
+
+  static list<T extends typeof SimpleResource>(
+    this: T,
+  ): RestEndpoint<
+    RestFetch<any, undefined, Partial<AbstractInstanceType<T>>[]>,
+    SchemaList<AbstractInstanceType<T>>,
+    undefined
+  > {
+    return super.list();
   }
 }
 

@@ -40,13 +40,17 @@ import { Resource, RestEndpoint, RestFetch } from '@rest-hooks/rest';
 class MyResource extends Resource {
   static list<T extends typeof Resource>(
     this: T,
-  ): RestEndpoint<RestFetch, T[], undefined> {
+  ): RestEndpoint<RestFetch, SchemaList<AbstractInstanceType<T>>, undefined> {
     return super.list();
   }
 
   static create<T extends typeof Resource>(
     this: T,
-  ): RestEndpoint<RestFetch, T, true> {
+  ): RestEndpoint<
+      RestFetch<{}, Partial<AbstractInstanceType<T>>>,
+      SchemaDetail<AbstractInstanceType<T>>,
+      true
+  > {
     return super.create();
   }
 
@@ -57,7 +61,7 @@ class MyResource extends Resource {
     { results: T[]; nextPage: string },
     undefined
   > {
-    return super.list();
+    return super.list().extend({ schema: { results: this[]; nextPage: string } });
   }
 }
 ```
@@ -293,7 +297,6 @@ class User extends Resource {
 
 If we were to explicitly type thing, we could use `RestEndpoint`
 
-
 <!--DOCUSAURUS_CODE_TABS-->
 <!--Schema-->
 
@@ -317,6 +320,7 @@ const { data: user } = useResource(User.detail(), { id: '5' });
 ```
 
 <!--Parameters-->
+
 ```typescript
 // typeof id is string
 const result = useResource(User.detail(), { id });
@@ -328,7 +332,7 @@ import { RestEndpoint, RestFetch, Resource } from '@rest-hooks/rest';
 class User extends Resource {
   static detail<T extends typeof Resource>(
     this: T,
-  ): RestEndpoint<RestFetch<{ id: string }>, T, undefined> {
+  ): RestEndpoint<RestFetch<{ id: string }>, SchemaDetail<AbstractInstanceType<T>>, undefined> {
     return super.detail();
   }
 }
@@ -337,6 +341,7 @@ const { data: user } = useResource(User.detail(), { id: '5' });
 ```
 
 <!--Mutate-->
+
 ```typescript
 // works
 const updateUser = useFetcher(User.update());
@@ -359,6 +364,7 @@ const { data: user } = useResource(User.detail(), { id: '5' });
 ```
 
 <!--Payload/Body-->
+
 ```typescript
 const updateUser = useFetcher(User.update());
 
@@ -396,4 +402,3 @@ function arguments as loose as possible (like in hooks). To follow this principa
 - [RestEndpoint](../api/types#restendpoint) for endpoints in [Resource](../api/Resource)s
 - [EndpointInstance](../api/types#endpointinstance) for anything that uses the [Endpoint](../api/Endpoint) class.
 - [EndpointInterface](../api/types#endpointinterface) for any hook arguments
-

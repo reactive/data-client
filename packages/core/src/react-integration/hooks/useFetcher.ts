@@ -11,7 +11,12 @@ import { useRef, useCallback } from 'react';
 
 import useFetchDispatcher from './useFetchDispatcher';
 
-type IfExact<T, Cond, A, B> = Cond extends T ? (T extends Cond ? A : B) : B;
+type IfAny<T, Y, N> = 0 extends 1 & T ? Y : N;
+type IfExact<T, Cond, A, B> = IfAny<
+  T,
+  B,
+  Cond extends T ? (T extends Cond ? A : B) : B
+>;
 
 /** Build an imperative dispatcher to issue network requests. */
 export default function useFetcher<

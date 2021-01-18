@@ -6,6 +6,7 @@ import {
   ArticleResourceWithOtherListUrl,
   ListPaginatedArticle,
   CoolerArticleDetail,
+  TypedArticleResource,
   IndexedUserResource,
 } from '__tests__/new';
 import React from 'react';
@@ -74,6 +75,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         .reply(200, createPayload)
         .get(`/user/`)
         .reply(200, users);
+
       mynock = nock(/.*/).defaultReplyHeaders({
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
@@ -108,6 +110,19 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         expect(result.current.title).toBe(payload.title);
         // @ts-expect-error
         expect(result.current.lafsjlfd).toBeUndefined();
+      });
+
+      it('should maintain global referential equality', async () => {
+        const { result, waitForNextUpdate } = renderRestHook(() => {
+          return [
+            useResource(CoolerArticleDetail, payload),
+            useCache(CoolerArticleDetail, payload),
+          ];
+        });
+        expect(result.current).toBeNull();
+        await waitForNextUpdate();
+        expect(result.current[0]?.title).toBe(payload.title);
+        expect(result.current[0]).toBe(result.current[1]);
       });
 
       it('should gracefully abort in useResource()', async () => {
@@ -300,7 +315,8 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
 
     it('useResource() should throw errors on bad network', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        return useResource(CoolerArticleResource.detail(), {
+        // @ts-expect-error
+        return useResource(TypedArticleResource.detail(), {
           title: '0',
         });
       });

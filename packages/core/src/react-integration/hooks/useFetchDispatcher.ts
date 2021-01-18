@@ -11,8 +11,6 @@ import { DispatchContext } from '@rest-hooks/core/react-integration/context';
 import createFetch from '@rest-hooks/core/state/actions/createFetch';
 import { useContext, useCallback } from 'react';
 
-type IfExact<T, Cond, A, B> = Cond extends T ? (T extends Cond ? A : B) : B;
-
 /** Build an imperative dispatcher to issue network requests. */
 export default function useFetchDispatcher(
   throttle = false,
