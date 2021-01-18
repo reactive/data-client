@@ -172,6 +172,9 @@
       "guides/infinite-scrolling-pagination": {
         "title": "Infinite Scrolling"
       },
+      "guides/legacy-browser": {
+        "title": "Legacy browser support"
+      },
       "guides/loading-state": {
         "title": "Handling loading state"
       },
