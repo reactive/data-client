@@ -61,6 +61,9 @@
       "api/Object": {
         "title": "Object"
       },
+      "api/packages": {
+        "title": "Packages"
+      },
       "api/PollingSubscription": {
         "title": "PollingSubscription implements Subscription",
         "sidebar_label": "PollingSubscription"

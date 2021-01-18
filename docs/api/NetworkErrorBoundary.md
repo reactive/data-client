@@ -4,6 +4,8 @@ title: <NetworkErrorBoundary />
 
 Displays a fallback component when a network error happens in its subtree.
 
+> Catches any error with `status` member.
+
 ```tsx
 interface Props {
   children: React.ReactNode;
