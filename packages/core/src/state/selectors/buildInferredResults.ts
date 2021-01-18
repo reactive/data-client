@@ -1,9 +1,5 @@
-import {
-  NormalizedIndex,
-  isEntity,
-  Schema,
-  schema as schemas,
-} from '@rest-hooks/normalizr';
+import { isEntity, Schema, schema as schemas } from '@rest-hooks/endpoint';
+import { NormalizedIndex } from '@rest-hooks/normalizr';
 import { NormalizeNullable } from '@rest-hooks/endpoint';
 
 /**

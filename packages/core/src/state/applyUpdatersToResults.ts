@@ -1,4 +1,4 @@
-import { Schema } from '@rest-hooks/normalizr';
+import type { Schema } from '@rest-hooks/endpoint';
 import { Normalize, UpdateFunction } from '@rest-hooks/endpoint';
 
 type ResultStateFromUpdateFunctions<

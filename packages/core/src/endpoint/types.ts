@@ -1,5 +1,5 @@
 import { UpdateFunction } from '@rest-hooks/core/types';
-import { Schema } from '@rest-hooks/normalizr';
+import { Schema } from '@rest-hooks/endpoint';
 import type { Denormalize } from '@rest-hooks/endpoint';
 
 import { FetchShape } from './shapes';

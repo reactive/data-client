@@ -1,6 +1,6 @@
 import { DispatchContext } from '@rest-hooks/core/react-integration/context';
 import { ReadShape } from '@rest-hooks/core/endpoint';
-import { Schema } from '@rest-hooks/normalizr';
+import { Schema } from '@rest-hooks/endpoint';
 import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '@rest-hooks/core/actionTypes';
 import { useContext, useEffect, useRef } from 'react';
 
