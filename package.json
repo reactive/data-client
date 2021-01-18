@@ -23,7 +23,7 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
-  "engines": {"node": ">=0.12"},
+  "engines": {"node": ">=10.0"},
   "browserslist": [
     "extends @anansi/browserslist-config"
   ],
