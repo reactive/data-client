@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-rc.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-rc.0...@rest-hooks/core@1.0.0-rc.1) (2021-01-19)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Remove `normalize`, `denormalize`; use
+`normalizr` package for those
+* Resources will resolve with any nested
+entities from their schemas, rather than the `pk` of those
+entities
+
+### 🚀 Features
+
+* Resources can have nested entities ([#469](https://github.com/coinbase/rest-hooks/issues/469)) ([4eeeaae](https://github.com/coinbase/rest-hooks/commit/4eeeaae1026715be4e72a66cd94d81934f2b0ce7))
+
+
+### 💅 Enhancement
+
+* `endpoint` package only exports definitions ([#473](https://github.com/coinbase/rest-hooks/issues/473)) ([51dcafe](https://github.com/coinbase/rest-hooks/commit/51dcafe98631998a1db1959f2796d7122d96960b))
+* Widen RestFetch types to make overriding not break ([#479](https://github.com/coinbase/rest-hooks/issues/479)) ([2bccf12](https://github.com/coinbase/rest-hooks/commit/2bccf12f7892ccbc1d342bd529b3659c2935fb71))
+
+
+
 ## 1.0.0-rc.0 (2021-01-14)
 
 * enhance: Inferred endpoints expiry based on entities (#464) ([975e0d8](https://github.com/coinbase/rest-hooks/commit/975e0d8)), closes [#464](https://github.com/coinbase/rest-hooks/issues/464)

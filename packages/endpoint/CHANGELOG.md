@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@0.7.4...@rest-hooks/endpoint@0.8.0) (2021-01-19)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Remove `normalize`, `denormalize`; use
+`normalizr` package for those
+
+### 💅 Enhancement
+
+* `endpoint` package only exports definitions ([#473](https://github.com/coinbase/rest-hooks/issues/473)) ([51dcafe](https://github.com/coinbase/rest-hooks/commit/51dcafe98631998a1db1959f2796d7122d96960b))
+
+
+
 ## <small>0.7.4 (2021-01-14)</small>
 
 **Note:** Version bump only for package @rest-hooks/endpoint
