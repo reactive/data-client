@@ -3,6 +3,106 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.0 (2021-01-19)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Remove `normalize`, `denormalize`; use
+`normalizr` package for those
+* Resources will resolve with any nested
+entities from their schemas, rather than the `pk` of those
+entities
+* useResource() inferred endpoint will sometimes
+not trigger a fetch if entities are fresh enough
+* Node engine requirement of >=0.12
+* getFetchOptions() -> getEndpointExtra()
+* - Removed Resource.fetchOptionsPlugin()
+- Added Resource.getFetchInit() which is called in shape generators
+- Resourece.fetch() interface changed to match browser fetch()
+* - denormalize has third boolean value to track deletion
+- deletes no long remove entities, but replace them with DELETE symbol (exported from normalizr)
+- schema of delete shape should be the `new schemas.Delete()`
+- useInvalidator()'s function calls will always suspend - even without invalidIfStale
+- deleted entities that are required by a useResource() will now cause it to suspend rather than throwing `404`
+- required entities missing from network response will now throw error in useResource() just like other unexpected deserializations
+- FetchShape type is now just 'read' | 'mutate'. No more 'delete'. (use schema.Delete())
+
+### 🚀 Features
+
+* Add @rest-hooks/hooks for composable utilities ([#393](https://github.com/coinbase/rest-hooks/issues/393)) ([b225a2a](https://github.com/coinbase/rest-hooks/commit/b225a2a80d68a94a3e0a68cf6f5289220373f022))
+* Add @rest-hooks/rest package ([#375](https://github.com/coinbase/rest-hooks/issues/375)) ([5e5c125](https://github.com/coinbase/rest-hooks/commit/5e5c125d3396ebbb8514aea6fc80b4dfceb0da27))
+* Add DevToolsManager to integrate with redux-devtools ([#371](https://github.com/coinbase/rest-hooks/issues/371)) ([aa171bc](https://github.com/coinbase/rest-hooks/commit/aa171bc0b3eb07d6715869fde0142023dbdde2e6))
+* Add fetch request creation time to meta ([1a6242f](https://github.com/coinbase/rest-hooks/commit/1a6242f3fae175ed555de43a1b93162674994692))
+* Add useInvalidateDispatcher() ([#413](https://github.com/coinbase/rest-hooks/issues/413)) ([e416c5f](https://github.com/coinbase/rest-hooks/commit/e416c5f2087fc13f6d810edd8a105db58a737ad6))
+* Declarative schema deserialization ([#355](https://github.com/coinbase/rest-hooks/issues/355)) ([9dbb019](https://github.com/coinbase/rest-hooks/commit/9dbb01990d7082af2b06f61e3d2deead2a747f76))
+* Deletes and invalidates trigger suspense always ([#360](https://github.com/coinbase/rest-hooks/issues/360)) ([96175ba](https://github.com/coinbase/rest-hooks/commit/96175ba24d6670d866b315794b039d21fd3ef081))
+* Resource.fetch() arguments reflect browser fetch() ([#362](https://github.com/coinbase/rest-hooks/issues/362)) ([1d19421](https://github.com/coinbase/rest-hooks/commit/1d194211c99f2d47cf858d54fd49f06e1fd32eb1))
+* Resources can have nested entities ([#469](https://github.com/coinbase/rest-hooks/issues/469)) ([4eeeaae](https://github.com/coinbase/rest-hooks/commit/4eeeaae1026715be4e72a66cd94d81934f2b0ce7))
+* Simple AbortController integration ([#392](https://github.com/coinbase/rest-hooks/issues/392)) ([899563d](https://github.com/coinbase/rest-hooks/commit/899563deccaccc214c3504b91b96e1460ddfab2f))
+* Support extra endpoint members and inheritance ([#387](https://github.com/coinbase/rest-hooks/issues/387)) ([6ad5486](https://github.com/coinbase/rest-hooks/commit/6ad5486b6e333d8721b74fd4fb1b7ed783461435))
+* Track and use entity resolution time ([54203f9](https://github.com/coinbase/rest-hooks/commit/54203f994a166a4ed786328c2ef85b20749a8d6b))
+* useFetchDispatcher() ([#407](https://github.com/coinbase/rest-hooks/issues/407)) ([f4e45be](https://github.com/coinbase/rest-hooks/commit/f4e45be370b99bdaf31b5f9dba77fbd55da2f1ea))
+
+
+### 💅 Enhancement
+
+* `endpoint` package only exports definitions ([#473](https://github.com/coinbase/rest-hooks/issues/473)) ([51dcafe](https://github.com/coinbase/rest-hooks/commit/51dcafe98631998a1db1959f2796d7122d96960b))
+* Add back remaining normalizr exports to rest-hooks ([b6878ee](https://github.com/coinbase/rest-hooks/commit/b6878eebbf1572a4b859828da81a058bc5c118e3))
+* Add more information when network receive fails ([67ead66](https://github.com/coinbase/rest-hooks/commit/67ead6689247fbded88893acc83c711b1af75997))
+* console instead of throw when missing frequency ([8708b1f](https://github.com/coinbase/rest-hooks/commit/8708b1f92a4a782bb0094471943f10541377a94b))
+* Infer a reasonble type for fetch responses by default ([9d8c44c](https://github.com/coinbase/rest-hooks/commit/9d8c44cf2dfc085a8d5ad16fcc14095849283c68))
+* Inferred endpoints expiry based on entities ([#464](https://github.com/coinbase/rest-hooks/issues/464)) ([975e0d8](https://github.com/coinbase/rest-hooks/commit/975e0d8ce1516d9cd62c00de7f1cce331fd4560a))
+* Maintain referential equality globally ([#403](https://github.com/coinbase/rest-hooks/issues/403)) ([e1e353d](https://github.com/coinbase/rest-hooks/commit/e1e353dfc64725c79ab99bb6a0c85114399c6dfc))
+* Make Endpoint compatible with FetchShape ([caa967c](https://github.com/coinbase/rest-hooks/commit/caa967ceaa0c1288b15711b0c18b132689b94cc1))
+* New package @rest-hooks/core ([#336](https://github.com/coinbase/rest-hooks/issues/336)) ([bf490c0](https://github.com/coinbase/rest-hooks/commit/bf490c030feb8a0e35e96c6dd7d180e45ac8bfd0))
+* Resource uses endpoint ([#365](https://github.com/coinbase/rest-hooks/issues/365)) ([4472106](https://github.com/coinbase/rest-hooks/commit/4472106afd05ad060399f0cd3a872ed07e3350ec))
+* Simplify endpoint memoization and provide new extensions ([#391](https://github.com/coinbase/rest-hooks/issues/391)) ([d874d0b](https://github.com/coinbase/rest-hooks/commit/d874d0b3e6433a616d2dbecd8076715f5caefaeb))
+* Support React 17 ([#397](https://github.com/coinbase/rest-hooks/issues/397)) ([a833f07](https://github.com/coinbase/rest-hooks/commit/a833f0724c60fbb2dd3ff6d7d791ee53c3eff694))
+* Widen RestFetch types to make overriding not break ([#479](https://github.com/coinbase/rest-hooks/issues/479)) ([2bccf12](https://github.com/coinbase/rest-hooks/commit/2bccf12f7892ccbc1d342bd529b3659c2935fb71))
+
+
+### 🐛 Bug Fix
+
+* Accept null as payload of fetch ([4ff4d06](https://github.com/coinbase/rest-hooks/commit/4ff4d0662e73e053746e7491cf946c55d71baf52))
+* Clear invalidIfStale protections on mount ([#357](https://github.com/coinbase/rest-hooks/issues/357)) ([b9a89dc](https://github.com/coinbase/rest-hooks/commit/b9a89dc0ca7f64c0082db7a6a7ef3ec5f4d05779))
+* Clear promises on cleanup ([#422](https://github.com/coinbase/rest-hooks/issues/422)) ([bcb236e](https://github.com/coinbase/rest-hooks/commit/bcb236e3baae8ea348a8e49aade5bc0ffedf1ffc))
+* Export Endpoint through core ([8b60dea](https://github.com/coinbase/rest-hooks/commit/8b60dea6c85518bbd32b088440e591614d3a11f0))
+* extend() correctly keeps options for FetchShape compat ([bf522a2](https://github.com/coinbase/rest-hooks/commit/bf522a2d138dc6bc700e9e5b7f9c9bc1dfd9e148))
+* Handle entities updated with new indexes ([#384](https://github.com/coinbase/rest-hooks/issues/384)) ([2ee3bb6](https://github.com/coinbase/rest-hooks/commit/2ee3bb60217bed1f91a6d3d086b354ce151b8e0c))
+* Infer useFetcher() has no body when not present in fetch ([#385](https://github.com/coinbase/rest-hooks/issues/385)) ([22dd399](https://github.com/coinbase/rest-hooks/commit/22dd3995c519e1990f2388b6365494cec873d04a))
+* Inferred return of useCache() ([#377](https://github.com/coinbase/rest-hooks/issues/377)) ([ce7a4f7](https://github.com/coinbase/rest-hooks/commit/ce7a4f7de2fb22a09d2db57696233a99058f30ea))
+* Inferred return type of useFetcher() should be promise ([18f5654](https://github.com/coinbase/rest-hooks/commit/18f565491eecd69aa4b76774937e7dfd82822788))
+* Looping fetches should still expire at some point ([ef560a9](https://github.com/coinbase/rest-hooks/commit/ef560a93c0f5b4f0aed97bc6c52e75e0229c8fc7))
+* No entity schemas should suspend when they have no results ([#344](https://github.com/coinbase/rest-hooks/issues/344)) ([d3cd45e](https://github.com/coinbase/rest-hooks/commit/d3cd45e03bd639c49bf010ff848d4a158f0e6bf9))
+* Normalizr errors reject and throw in useResource() ([#352](https://github.com/coinbase/rest-hooks/issues/352)) ([1596b22](https://github.com/coinbase/rest-hooks/commit/1596b22ae0d7e453a189b508fd821ff506d4f823))
+* Only block suspense if errors are synthetic ([#410](https://github.com/coinbase/rest-hooks/issues/410)) ([af8ab26](https://github.com/coinbase/rest-hooks/commit/af8ab267e4fab27e714e38e0ff9bc4cbf17069ad))
+* Protect against invalidIfStale with || request ([#354](https://github.com/coinbase/rest-hooks/issues/354)) ([13f91d3](https://github.com/coinbase/rest-hooks/commit/13f91d327e9ee66eacdbb264e5d9d20f79788d15))
+* Resource endpoint memoization ([744431e](https://github.com/coinbase/rest-hooks/commit/744431ef435dfab1969cd883f01b6a4b50b6c75d))
+* SimpleRecord as schema in useDenormalized() ([#346](https://github.com/coinbase/rest-hooks/issues/346)) ([2b96335](https://github.com/coinbase/rest-hooks/commit/2b96335d2758b67fa5616fdafb6b338c8128c9a2))
+* useFetcher() return types ([#347](https://github.com/coinbase/rest-hooks/issues/347)) ([d921cbe](https://github.com/coinbase/rest-hooks/commit/d921cbe41dc4b0d3f2c80bb9b6ef99dc71a8a86d))
+
+
+### 📦 Package
+
+* Add type exports: Normalize, Denormalize, and their nullables ([378078f](https://github.com/coinbase/rest-hooks/commit/378078f543526047ad76251e1ef73ae5899eaaf5))
+* Bump babel runtime ([c6bf844](https://github.com/coinbase/rest-hooks/commit/c6bf844fcf1a483988d34b5f09faa03ceff179ec))
+* Use @babel/runtime @ 7.12 ([e631f6a](https://github.com/coinbase/rest-hooks/commit/e631f6a8c435c5ef74b3809c8950a2caceca8763))
+
+
+### 📝 Documentation
+
+* Add link to debugging docs from readme ([d75cbe8](https://github.com/coinbase/rest-hooks/commit/d75cbe8983263835ba81befc87fc0579b0b1dc3b))
+* Fix Endpoint def in readme example ([125ad57](https://github.com/coinbase/rest-hooks/commit/125ad57a1450d9b167b0d7172a2e836f83aae5e2))
+* Fix tags ([987f0ed](https://github.com/coinbase/rest-hooks/commit/987f0ed7d4980c3276bb8c9701f606364dad93d8))
+* Get rid of all references to asSchema() ([#339](https://github.com/coinbase/rest-hooks/issues/339)) ([01b878b](https://github.com/coinbase/rest-hooks/commit/01b878b85f7469a12e19912efc696a424663e5f5))
+* Remove irrelevant tags ([ff137da](https://github.com/coinbase/rest-hooks/commit/ff137daac8c94cf9ab75259954714160ea142d79))
+* Update @rest-hooks/core readme with Entity ([21e9d2e](https://github.com/coinbase/rest-hooks/commit/21e9d2e9e2c0a4d59630d9bb9e513586f02547f7))
+* Update readme examples ([68c69ab](https://github.com/coinbase/rest-hooks/commit/68c69ab4f4aebadb93ac30a6c37672dc585683fd))
+* Update readme tagline ([fe39b16](https://github.com/coinbase/rest-hooks/commit/fe39b1634535c265afe9a00fe44a3fea29773522))
+
+
+
 ## [1.0.0-rc.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-rc.0...@rest-hooks/core@1.0.0-rc.1) (2021-01-19)
 
 

@@ -3,6 +3,46 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.0 (2021-01-19)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Action creator arguments changed
+Mutates produce the same action type as 'read's
+* url -> key on all action.meta
+Testing lib now relies on new export in rest-hooks 5
+
+### 🚀 Features
+
+* Add <MockResolver /> ([#446](https://github.com/coinbase/rest-hooks/issues/446)) ([614576a](https://github.com/coinbase/rest-hooks/commit/614576ac051b1d82e4181bd4278d4f6a16b82ab8))
+
+
+### 💅 Enhancement
+
+* New package @rest-hooks/core ([#336](https://github.com/coinbase/rest-hooks/issues/336)) ([bf490c0](https://github.com/coinbase/rest-hooks/commit/bf490c030feb8a0e35e96c6dd7d180e45ac8bfd0))
+* Print the action in mockDispatch, so users know what they need to mock. ([#373](https://github.com/coinbase/rest-hooks/issues/373)) ([18a7628](https://github.com/coinbase/rest-hooks/commit/18a7628ddf252f8372bc93764391c2fc8719b832))
+* Refine action creator interface ([#327](https://github.com/coinbase/rest-hooks/issues/327)) ([8cdc119](https://github.com/coinbase/rest-hooks/commit/8cdc1198a37d1a253e1b7a9a54aec2ab76eddaaa))
+* Rename action.meta.url to 'key' ([#325](https://github.com/coinbase/rest-hooks/issues/325)) ([5a06fe4](https://github.com/coinbase/rest-hooks/commit/5a06fe4d1799f0d8806b57d6929813e00a23cffd))
+* Support React 17 ([#397](https://github.com/coinbase/rest-hooks/issues/397)) ([a833f07](https://github.com/coinbase/rest-hooks/commit/a833f0724c60fbb2dd3ff6d7d791ee53c3eff694))
+
+
+### 🐛 Bug Fix
+
+* Improve Wrapper types ([b30321d](https://github.com/coinbase/rest-hooks/commit/b30321dc3d06ae548aeaebcc797ab6fe64eaee40))
+* Only block suspense if errors are synthetic ([#410](https://github.com/coinbase/rest-hooks/issues/410)) ([af8ab26](https://github.com/coinbase/rest-hooks/commit/af8ab267e4fab27e714e38e0ff9bc4cbf17069ad))
+* Only console fetch dispatches ([4b3e046](https://github.com/coinbase/rest-hooks/commit/4b3e04662309e2cd9dc636e80337e0f15bc1f95a))
+* Rest Hooks beta peerdep ([43ef2a1](https://github.com/coinbase/rest-hooks/commit/43ef2a16043207d7e52ae31b008b87d28fac0151))
+* Test types ([17fe727](https://github.com/coinbase/rest-hooks/commit/17fe72731506713a28361b126527a6f3a08d3194))
+* Test types ([#379](https://github.com/coinbase/rest-hooks/issues/379)) ([f4353d9](https://github.com/coinbase/rest-hooks/commit/f4353d964e41acd51e75e016d910448a7613990e))
+* Testing should be using context from @rest-hooks/core in cjs ([cf84798](https://github.com/coinbase/rest-hooks/commit/cf8479888638b78f36bd2ba1396ba372f4df70a5))
+
+
+### 📝 Documentation
+
+* Improve readme for new packages ([2406f2c](https://github.com/coinbase/rest-hooks/commit/2406f2c78a10e41f6aa1e7deeb4c957a3c94314d))
+
+
 ## 2.0.0-k.2 (2021-01-06)
 
 * enhance: Remove FixtureManager in favor of MockResolver (#447) ([4aa1617](https://github.com/coinbase/rest-hooks/commit/4aa1617)), closes [#447](https://github.com/coinbase/rest-hooks/issues/447)
