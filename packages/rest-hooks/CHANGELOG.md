@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0-rc.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.0-rc.0...rest-hooks@5.0.0-rc.1) (2021-01-19)
+
+**Note:** Version bump only for package rest-hooks
+
+
+
+
+
 ## 5.0.0-rc.0 (2021-01-14)
 
 * enhance: Maintain referential equality globally (#403) ([e1e353d](https://github.com/coinbase/rest-hooks/commit/e1e353d)), closes [#403](https://github.com/coinbase/rest-hooks/issues/403)
