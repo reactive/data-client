@@ -2,7 +2,7 @@ import { Schema } from '@rest-hooks/normalizr';
 import { EndpointInstance, FetchFunction } from '@rest-hooks/endpoint';
 
 export type RestFetch<
-  P = object,
+  P = any,
   B = RequestInit['body'] | Record<string, any>,
   R = any
 > = (params: P, body?: B) => Promise<R>;

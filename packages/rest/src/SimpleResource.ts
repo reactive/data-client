@@ -124,12 +124,12 @@ export default abstract class SimpleResource extends Entity {
       const url = this.url.bind(this);
 
       return new Endpoint(
-        function (params: Readonly<object>) {
+        function (params: any) {
           return instanceFetch(this.url(params), this.getFetchInit());
         },
         {
           ...this.getEndpointExtra(),
-          key: function (this: any, params: Readonly<object>) {
+          key: function (this: any, params: any) {
             return `${this.method} ${this.url(params)}`;
           },
           url,
@@ -138,10 +138,7 @@ export default abstract class SimpleResource extends Entity {
             this.fetchInit = self.getFetchInit(this.fetchInit);
             return this;
           },
-          getFetchInit(
-            this: any,
-            body?: RequestInit['body'] | Record<string, any>,
-          ) {
+          getFetchInit(this: any, body?: any) {
             if (isPojo(body)) {
               body = JSON.stringify(body);
             }
@@ -164,11 +161,7 @@ export default abstract class SimpleResource extends Entity {
     const instanceFetch = this.fetch.bind(this);
     return this.memo('#endpointMutate', () =>
       this.endpoint().extend({
-        fetch(
-          this: any,
-          params: Readonly<object>,
-          body?: RequestInit['body'] | Record<string, any>,
-        ) {
+        fetch(this: any, params: any, body?: any) {
           return instanceFetch(this.url(params), this.getFetchInit(body));
         },
         sideEffect: true,
