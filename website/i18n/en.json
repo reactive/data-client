@@ -860,6 +860,192 @@
       },
       "version-4.5/guides/version-4.5-storybook": {
         "title": "Mocking data for Storybook"
+      },
+      "version-5.0.0/api/version-5.0.0-Array": {
+        "title": "Array"
+      },
+      "version-5.0.0/api/version-5.0.0-Delete": {
+        "title": "Delete"
+      },
+      "version-5.0.0/api/version-5.0.0-DevToolsManager": {
+        "title": "DevToolsManager implements Manager",
+        "sidebar_label": "DevToolsManager"
+      },
+      "version-5.0.0/api/version-5.0.0-Endpoint": {
+        "title": "Endpoint"
+      },
+      "version-5.0.0/api/version-5.0.0-Entity": {
+        "title": "Entity"
+      },
+      "version-5.0.0/api/version-5.0.0-Index": {
+        "title": "Index"
+      },
+      "version-5.0.0/api/version-5.0.0-makeRenderRestHook": {
+        "title": "makeRenderRestHook()"
+      },
+      "version-5.0.0/api/version-5.0.0-Manager": {
+        "title": "Manager"
+      },
+      "version-5.0.0/api/version-5.0.0-mockInitialState": {
+        "title": "mockInitialState()"
+      },
+      "version-5.0.0/api/version-5.0.0-MockProvider": {
+        "title": "<MockProvider />"
+      },
+      "version-5.0.0/api/version-5.0.0-MockResolver": {
+        "title": "<MockResolver />"
+      },
+      "version-5.0.0/api/version-5.0.0-Object": {
+        "title": "Object"
+      },
+      "version-5.0.0/api/version-5.0.0-quickstart": {
+        "title": "Schema Quick Start",
+        "sidebar_label": "Quick Start"
+      },
+      "version-5.0.0/api/version-5.0.0-README": {
+        "title": "API Reference"
+      },
+      "version-5.0.0/api/version-5.0.0-resource": {
+        "title": "Resource"
+      },
+      "version-5.0.0/api/version-5.0.0-SimpleRecord": {
+        "title": "SimpleRecord"
+      },
+      "version-5.0.0/api/version-5.0.0-types": {
+        "title": "Types"
+      },
+      "version-5.0.0/api/version-5.0.0-Union": {
+        "title": "Union"
+      },
+      "version-5.0.0/api/version-5.0.0-useCache": {
+        "title": "useCache()"
+      },
+      "version-5.0.0/api/version-5.0.0-useCancelling": {
+        "title": "useCancelling()"
+      },
+      "version-5.0.0/api/version-5.0.0-useDebounce": {
+        "title": "useDebounce()"
+      },
+      "version-5.0.0/api/version-5.0.0-useError": {
+        "title": "useError()"
+      },
+      "version-5.0.0/api/version-5.0.0-useFetcher": {
+        "title": "useFetcher()"
+      },
+      "version-5.0.0/api/version-5.0.0-useInvalidator": {
+        "title": "useInvalidator()"
+      },
+      "version-5.0.0/api/version-5.0.0-useMeta": {
+        "title": "useMeta()"
+      },
+      "version-5.0.0/api/version-5.0.0-useResetter": {
+        "title": "useResetter()"
+      },
+      "version-5.0.0/api/version-5.0.0-useresource": {
+        "title": "useResource()"
+      },
+      "version-5.0.0/api/version-5.0.0-useRetrieve": {
+        "title": "useRetrieve()"
+      },
+      "version-5.0.0/api/version-5.0.0-useSubscription": {
+        "title": "useSubscription()"
+      },
+      "version-5.0.0/api/version-5.0.0-Values": {
+        "title": "Values"
+      },
+      "version-5.0.0/getting-started/version-5.0.0-installation": {
+        "title": "Installation"
+      },
+      "version-5.0.0/getting-started/version-5.0.0-usage": {
+        "title": "Usage"
+      },
+      "version-5.0.0/guides/version-5.0.0-abort": {
+        "title": "Aborting Fetch"
+      },
+      "version-5.0.0/guides/version-5.0.0-auth": {
+        "title": "Authentication"
+      },
+      "version-5.0.0/guides/version-5.0.0-binary-fetches": {
+        "title": "Fetching Media"
+      },
+      "version-5.0.0/guides/version-5.0.0-class-components": {
+        "title": "Usage with class components"
+      },
+      "version-5.0.0/guides/version-5.0.0-computed-properties": {
+        "title": "Computed Properties"
+      },
+      "version-5.0.0/guides/version-5.0.0-custom-networking": {
+        "title": "Using a custom networking library",
+        "sidebar_label": "Custom networking library"
+      },
+      "version-5.0.0/guides/version-5.0.0-debugging": {
+        "title": "Debugging and Inspection",
+        "sidebar_label": "Debugging"
+      },
+      "version-5.0.0/guides/version-5.0.0-extending-endpoints": {
+        "title": "Custom endpoints"
+      },
+      "version-5.0.0/guides/version-5.0.0-fetch-multiple": {
+        "title": "Fetching multiple resources at once"
+      },
+      "version-5.0.0/guides/version-5.0.0-immediate-updates": {
+        "title": "Immediate Mutation Updates"
+      },
+      "version-5.0.0/guides/version-5.0.0-infinite-scrolling-pagination": {
+        "title": "Infinite Scrolling"
+      },
+      "version-5.0.0/guides/version-5.0.0-legacy-browser": {
+        "title": "Legacy browser support"
+      },
+      "version-5.0.0/guides/version-5.0.0-mocking-unfinished": {
+        "title": "Mocking unfinished endpoints"
+      },
+      "version-5.0.0/guides/version-5.0.0-nested-response": {
+        "title": "Resources with nested structure",
+        "sidebar_label": "Nesting related resources (server-side join)"
+      },
+      "version-5.0.0/guides/version-5.0.0-network-errors": {
+        "title": "Dealing with network errors"
+      },
+      "version-5.0.0/guides/version-5.0.0-network-transform": {
+        "title": "Transforming data on fetch"
+      },
+      "version-5.0.0/guides/version-5.0.0-no-suspense": {
+        "title": "Usage without Suspense"
+      },
+      "version-5.0.0/guides/version-5.0.0-optimistic-updates": {
+        "title": "Optimistic Updates"
+      },
+      "version-5.0.0/guides/version-5.0.0-pagination": {
+        "title": "Pagination"
+      },
+      "version-5.0.0/guides/version-5.0.0-redux": {
+        "title": "Redux integration"
+      },
+      "version-5.0.0/guides/version-5.0.0-render-as-you-fetch": {
+        "title": "Render as you Fetch"
+      },
+      "version-5.0.0/guides/version-5.0.0-resource-lifetime": {
+        "title": "Custom Resource cache lifetime",
+        "sidebar_label": "Custom cache lifetime"
+      },
+      "version-5.0.0/guides/version-5.0.0-rest-types": {
+        "title": "Typing REST Endpoints"
+      },
+      "version-5.0.0/guides/version-5.0.0-rpc": {
+        "title": "Capturing Mutation Side-Effects"
+      },
+      "version-5.0.0/guides/version-5.0.0-storybook": {
+        "title": "Mocking data for Storybook"
+      },
+      "version-5.0.0/guides/version-5.0.0-unit-testing-components": {
+        "title": "Unit testing components"
+      },
+      "version-5.0.0/guides/version-5.0.0-unit-testing-hooks": {
+        "title": "Unit testing hooks"
+      },
+      "version-5.0.0/guides/version-5.0.0-url": {
+        "title": "URL Patterns"
       }
     },
     "links": {
