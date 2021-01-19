@@ -3,6 +3,92 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 6.0.0 (2021-01-19)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* useResource() inferred endpoint will sometimes
+not trigger a fetch if entities are fresh enough
+* Node engine requirement of >=0.12
+* - denormalize has third boolean value to track deletion
+- deletes no long remove entities, but replace them with DELETE symbol (exported from normalizr)
+- schema of delete shape should be the `new schemas.Delete()`
+- useInvalidator()'s function calls will always suspend - even without invalidIfStale
+- deleted entities that are required by a useResource() will now cause it to suspend rather than throwing `404`
+- required entities missing from network response will now throw error in useResource() just like other unexpected deserializations
+- FetchShape type is now just 'read' | 'mutate'. No more 'delete'. (use schema.Delete())
+* TypeScript 3.7 or higher is required. This uses type
+recursion.
+* Remove denormalizeAndTracked
+
+### 🚀 Features
+
+* Add indexes to Entity for improved performance ([#237](https://github.com/coinbase/rest-hooks/issues/237)) ([a2339f0](https://github.com/coinbase/rest-hooks/commit/a2339f0e61e9446da87af85440061b060ad0f444))
+* Allow SimpleRecords to be schemas ([#334](https://github.com/coinbase/rest-hooks/issues/334)) ([924c257](https://github.com/coinbase/rest-hooks/commit/924c2579f740434f62e3597503b2d4fb53b76916))
+* Declarative schema deserialization ([#355](https://github.com/coinbase/rest-hooks/issues/355)) ([9dbb019](https://github.com/coinbase/rest-hooks/commit/9dbb01990d7082af2b06f61e3d2deead2a747f76))
+* Deletes and invalidates trigger suspense always ([#360](https://github.com/coinbase/rest-hooks/issues/360)) ([96175ba](https://github.com/coinbase/rest-hooks/commit/96175ba24d6670d866b315794b039d21fd3ef081))
+* Entity class added to Resource hierarchy ([#226](https://github.com/coinbase/rest-hooks/issues/226)) ([7c4efb7](https://github.com/coinbase/rest-hooks/commit/7c4efb7a55efbffa8a0cab3dab1b39e69535df49))
+* Entity fully denormalizes & Entity -> FlatEntity for non-nested ([#328](https://github.com/coinbase/rest-hooks/issues/328)) ([dd5e513](https://github.com/coinbase/rest-hooks/commit/dd5e5130e317bec5572f00e0d2a192ba2f1ea8cb))
+* SimpleRecord can have optional entities by setting default to null ([#350](https://github.com/coinbase/rest-hooks/issues/350)) ([b656185](https://github.com/coinbase/rest-hooks/commit/b65618559b01c7f47ea61c5224ec25a24db2c550))
+* Simplified Entity class ([#315](https://github.com/coinbase/rest-hooks/issues/315)) ([0e6bfcb](https://github.com/coinbase/rest-hooks/commit/0e6bfcb3620006e285510d4e5121fce743214d55))
+* Support string schemas ([#222](https://github.com/coinbase/rest-hooks/issues/222)) ([3f025de](https://github.com/coinbase/rest-hooks/commit/3f025def8de1d949962f99c4411bca86a2e22b1f))
+
+
+### 💅 Enhancement
+
+* Better dev error messaging with unexpected string to normalize ([#342](https://github.com/coinbase/rest-hooks/issues/342)) ([efc1b60](https://github.com/coinbase/rest-hooks/commit/efc1b609dc6e3b61b48f69a6bcb51c268cd39ef1))
+* Catch Entity key on node 14 ([2a99cd3](https://github.com/coinbase/rest-hooks/commit/2a99cd328960529c593d042320e70155b810cb81))
+* Detect more cases of network mismatching schema ([#331](https://github.com/coinbase/rest-hooks/issues/331)) ([2af464f](https://github.com/coinbase/rest-hooks/commit/2af464f54318c5f099899150371c911133a717cb))
+* Improve malformed entity normalization algorithm ([#338](https://github.com/coinbase/rest-hooks/issues/338)) ([b6032b2](https://github.com/coinbase/rest-hooks/commit/b6032b21aec1e982b4b1abcbddbd28593b86c91b))
+* Include merge() in EntityInterface ([709cb38](https://github.com/coinbase/rest-hooks/commit/709cb380fa765c459a2b3edb72f7b7187c968f29))
+* Inferred endpoints expiry based on entities ([#464](https://github.com/coinbase/rest-hooks/issues/464)) ([975e0d8](https://github.com/coinbase/rest-hooks/commit/975e0d8ce1516d9cd62c00de7f1cce331fd4560a))
+* Keep referential equality in list views ([#251](https://github.com/coinbase/rest-hooks/issues/251)) ([caf2bf7](https://github.com/coinbase/rest-hooks/commit/caf2bf78e6c48af8a32b080291ae60615ad05b34))
+* Maintain referential equality globally ([#403](https://github.com/coinbase/rest-hooks/issues/403)) ([e1e353d](https://github.com/coinbase/rest-hooks/commit/e1e353dfc64725c79ab99bb6a0c85114399c6dfc))
+* More readable array return types ([#314](https://github.com/coinbase/rest-hooks/issues/314)) ([4ac8918](https://github.com/coinbase/rest-hooks/commit/4ac8918df19a4d386ff717c3ceef40e151c60c1f))
+* No longer require 'asSchema()' ([#335](https://github.com/coinbase/rest-hooks/issues/335)) ([a29c41b](https://github.com/coinbase/rest-hooks/commit/a29c41b4449741e0e589d513261186e1a1cbe98a))
+* Normalizr ES build should be split into modules for code splitting ([#381](https://github.com/coinbase/rest-hooks/issues/381)) ([c543a31](https://github.com/coinbase/rest-hooks/commit/c543a3157927773ebf8cdfbd6064c4fc3bfb9567))
+* Only export one denormalize ([3f77da2](https://github.com/coinbase/rest-hooks/commit/3f77da206c1e4bc4065b98c8bdcfcfa3693586b7))
+* Remove extraneous logic - schema is not allowed to be null ([775cc8a](https://github.com/coinbase/rest-hooks/commit/775cc8a47a7d016f3f33766aee83a0154b7385ac))
+* Rename merge variables to (existing, incoming) ([#340](https://github.com/coinbase/rest-hooks/issues/340)) ([1d68c30](https://github.com/coinbase/rest-hooks/commit/1d68c30c4b07204d20782f257c9bf0b0fd594c7c))
+* Use minified build for es modules ([a1a760c](https://github.com/coinbase/rest-hooks/commit/a1a760c74f5f389951ec1c827403e02bf5fb2442))
+* Warn about using asSchema() in dev-mode ([35b680e](https://github.com/coinbase/rest-hooks/commit/35b680e4d6ecea309d62a140941042fa2b0d1f0b))
+
+
+### 🐛 Bug Fix
+
+* Allow for multiple pk methods ([#333](https://github.com/coinbase/rest-hooks/issues/333)) ([7ea9ed9](https://github.com/coinbase/rest-hooks/commit/7ea9ed9ee4701b2ba1bb1cf29743ae755ed909e8))
+* Ambient files now typechecked, fixed some types there ([#372](https://github.com/coinbase/rest-hooks/issues/372)) ([223d4a4](https://github.com/coinbase/rest-hooks/commit/223d4a478ae4b6ba7d42f9d1c2b9deca5b228c8d))
+* ES export is non-min version ([#256](https://github.com/coinbase/rest-hooks/issues/256)) ([f06f57f](https://github.com/coinbase/rest-hooks/commit/f06f57f463e3e32eb897c9ea176919dbc80e70fc))
+* Handle entities updated with new indexes ([#384](https://github.com/coinbase/rest-hooks/issues/384)) ([2ee3bb6](https://github.com/coinbase/rest-hooks/commit/2ee3bb60217bed1f91a6d3d086b354ce151b8e0c))
+* Import types properly into schema.d.ts ([2d95f55](https://github.com/coinbase/rest-hooks/commit/2d95f554702c1d882f38448ff339528333ef58ad))
+* Make normalizr commonjs bundle transpile classes ([6812990](https://github.com/coinbase/rest-hooks/commit/681299017a5b9cc983a2fccf335b649faf404942))
+* Schema can be null (for media) ([#293](https://github.com/coinbase/rest-hooks/issues/293)) ([003b3ca](https://github.com/coinbase/rest-hooks/commit/003b3ca53703174b66c5fc9d546d2b340e293e86))
+* Support extra members of schema that are empty in denormalize ([#244](https://github.com/coinbase/rest-hooks/issues/244)) ([86b1e0a](https://github.com/coinbase/rest-hooks/commit/86b1e0a30b87156f144629df8e24933a7f90ba66))
+* Support extra members of schema that are only sometimes empty ([#243](https://github.com/coinbase/rest-hooks/issues/243)) ([74916a3](https://github.com/coinbase/rest-hooks/commit/74916a3f9c5a0e5a9843a6211517dfeff1b86eb6))
+* Types for nested nullable Record or Entity account for not finding nested pieces ([#345](https://github.com/coinbase/rest-hooks/issues/345)) ([f822b53](https://github.com/coinbase/rest-hooks/commit/f822b53487deedf5ae85909584ed5d8343a9cef8))
+* Types need to be exported ([0bf5aac](https://github.com/coinbase/rest-hooks/commit/0bf5aac7d41ec8f4795d77f03eba2d426765aff7))
+* TypeScript 4 compatibility ([#406](https://github.com/coinbase/rest-hooks/issues/406)) ([5d82e24](https://github.com/coinbase/rest-hooks/commit/5d82e2416b68992f6efccb63f694010ef1ea28e8))
+* **schemas:** don't use schema to attribute mapping on singular array schemas ([a39d3e5](https://github.com/coinbase/rest-hooks/commit/a39d3e5402adfaef4651e0e8efeea0f1587186d5))
+
+
+### 📦 Package
+
+* Build things ([9d386aa](https://github.com/coinbase/rest-hooks/commit/9d386aa1ab944159f5ed4576b81d8d5e5f67847b))
+* Bump babel runtime ([c6bf844](https://github.com/coinbase/rest-hooks/commit/c6bf844fcf1a483988d34b5f09faa03ceff179ec))
+* Bump internal pkgs ([#306](https://github.com/coinbase/rest-hooks/issues/306)) ([46bebad](https://github.com/coinbase/rest-hooks/commit/46bebad79d848404d02423fd2a3e2d647ee5bbbb))
+* Use @babel/runtime @ 7.12 ([e631f6a](https://github.com/coinbase/rest-hooks/commit/e631f6a8c435c5ef74b3809c8950a2caceca8763))
+
+
+### 📝 Documentation
+
+* Add field deserialization ([05686cb](https://github.com/coinbase/rest-hooks/commit/05686cbd5897748777f72b001b6d7e2233d81db5))
+* Fix normalizr docs links ([11c2995](https://github.com/coinbase/rest-hooks/commit/11c2995ec83337a57aaeadf8d21ff2e2cc5fcb6d))
+* Get rid of all references to asSchema() ([#339](https://github.com/coinbase/rest-hooks/issues/339)) ([01b878b](https://github.com/coinbase/rest-hooks/commit/01b878b85f7469a12e19912efc696a424663e5f5))
+* Switch to 'gamma' channel ([f932659](https://github.com/coinbase/rest-hooks/commit/f93265924bedf66c2f5ef6958f2f850849b5186a))
+
+
+
 ## 6.0.0-rc.0 (2021-01-14)
 
 * enhance: Inferred endpoints expiry based on entities (#464) ([975e0d8](https://github.com/coinbase/rest-hooks/commit/975e0d8)), closes [#464](https://github.com/coinbase/rest-hooks/issues/464)

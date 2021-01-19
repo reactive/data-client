@@ -3,6 +3,50 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.0 (2021-01-19)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* useResource() inferred endpoint will sometimes
+not trigger a fetch if entities are fresh enough
+* - denormalize has third boolean value to track deletion
+- deletes no long remove entities, but replace them with DELETE symbol (exported from normalizr)
+- schema of delete shape should be the `new schemas.Delete()`
+- useInvalidator()'s function calls will always suspend - even without invalidIfStale
+- deleted entities that are required by a useResource() will now cause it to suspend rather than throwing `404`
+- required entities missing from network response will now throw error in useResource() just like other unexpected deserializations
+- FetchShape type is now just 'read' | 'mutate'. No more 'delete'. (use schema.Delete())
+* When invalidIfStale is true, useCache() and
+useStatefulResource() will no longer return entities, even if they
+are in the cache
+
+### 🚀 Features
+
+* Deletes and invalidates trigger suspense always ([#360](https://github.com/coinbase/rest-hooks/issues/360)) ([96175ba](https://github.com/coinbase/rest-hooks/commit/96175ba24d6670d866b315794b039d21fd3ef081))
+
+
+### 💅 Enhancement
+
+* Inferred endpoints expiry based on entities ([#464](https://github.com/coinbase/rest-hooks/issues/464)) ([975e0d8](https://github.com/coinbase/rest-hooks/commit/975e0d8ce1516d9cd62c00de7f1cce331fd4560a))
+* New package @rest-hooks/core ([#336](https://github.com/coinbase/rest-hooks/issues/336)) ([bf490c0](https://github.com/coinbase/rest-hooks/commit/bf490c030feb8a0e35e96c6dd7d180e45ac8bfd0))
+* Support React 17 ([#397](https://github.com/coinbase/rest-hooks/issues/397)) ([a833f07](https://github.com/coinbase/rest-hooks/commit/a833f0724c60fbb2dd3ff6d7d791ee53c3eff694))
+* useCache() and useStatefulResource() respect invalidIfStale ([#307](https://github.com/coinbase/rest-hooks/issues/307)) ([58f2c40](https://github.com/coinbase/rest-hooks/commit/58f2c40a66fb0d0c1f900840160e17ce87beace2))
+
+
+### 🐛 Bug Fix
+
+* Catch maybePromise errors. ([#374](https://github.com/coinbase/rest-hooks/issues/374)) ([786b6cc](https://github.com/coinbase/rest-hooks/commit/786b6cc22166d180415a9fb9aa4e8f49d093ad78))
+* Rest Hooks beta peerdep ([43ef2a1](https://github.com/coinbase/rest-hooks/commit/43ef2a16043207d7e52ae31b008b87d28fac0151))
+* Update rest-hooks peerDep to 5 ([526df3c](https://github.com/coinbase/rest-hooks/commit/526df3c23d7a8be2b3c1ac603d165db26efa0f1b))
+
+
+### 📦 Package
+
+* Bump babel runtime ([c6bf844](https://github.com/coinbase/rest-hooks/commit/c6bf844fcf1a483988d34b5f09faa03ceff179ec))
+* Bump internal pkgs ([#306](https://github.com/coinbase/rest-hooks/issues/306)) ([46bebad](https://github.com/coinbase/rest-hooks/commit/46bebad79d848404d02423fd2a3e2d647ee5bbbb))
+
+
 ## 2.0.0-rc.0 (2021-01-14)
 
 * enhance: Inferred endpoints expiry based on entities (#464) ([975e0d8](https://github.com/coinbase/rest-hooks/commit/975e0d8)), closes [#464](https://github.com/coinbase/rest-hooks/issues/464)
