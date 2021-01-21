@@ -68,9 +68,9 @@ For the small price of 8kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 - [x] 💰 Normalized response [configurable](https://resthooks.io/docs/guides/resource-lifetime) caching
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination
-- [x] ✨ Optimistic updates
+- [x] ✨ [Optimistic updates](https://resthooks.io/docs/guides/optimistic-updates)
 - [x] 🧘 [Flexible](https://resthooks.io/docs/api/Endpoint) to fit any API design (one size fits all)
-- [x] 🔧 [Debugging and inspection](https://resthooks.io/docs/next/guides/debugging) via browser extension
+- [x] 🔧 [Debugging and inspection](https://resthooks.io/docs/guides/debugging) via browser extension
 - [x] 🌳 Tree-shakable (only use what you need)
 - [x] 🔁 [Subscriptions](https://resthooks.io/docs/api/useSubscription)
 - [x] ♻️ Optional [redux integration](https://resthooks.io/docs/guides/redux)
