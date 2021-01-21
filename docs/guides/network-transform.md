@@ -5,6 +5,13 @@ title: Transforming data on fetch
 All network requests flow through the `fetch()` method, so any transforms needed can simply
 be done by overriding it with a call to super.
 
+> Note: If you retain control over the API design, generally it's preferred to
+> update the data sent over the network. Keeping the client as `thin` as possible
+> is helpful to both performance and complexity.
+>
+> That said, in many cases you want to consume APIs you don't have control over -
+> be they public APIs, or due to internal organizational structure.
+
 ## Snakes to camels
 
 Commonly APIs are designed with keys using `snake_case`, but many in typescript/javascript
