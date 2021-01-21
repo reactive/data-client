@@ -4,7 +4,8 @@ import {
   UrlArticleResource,
 } from '__tests__/common';
 import nock from 'nock';
-import { normalize } from '@rest-hooks/normalizr';
+import { normalize, schema, Entity } from '@rest-hooks/normalizr';
+import { AbstractInstanceType } from '@rest-hooks/core';
 
 import Resource from '../Resource';
 import SimpleResource from '../SimpleResource';
@@ -35,6 +36,16 @@ describe('Resource', () => {
 
   afterAll(() => {
     nock.cleanAll();
+  });
+
+  it('should implement schema.EntityInterface', () => {
+    class A extends Resource {
+      readonly id: string = '';
+      pk() {
+        return this.id;
+      }
+    }
+    const a: schema.EntityInterface = A;
   });
 
   it('should init', () => {

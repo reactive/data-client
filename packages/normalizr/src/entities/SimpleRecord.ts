@@ -145,6 +145,7 @@ export default abstract class SimpleRecord {
     return [this.fromJS(object) as any, found, deleted];
   }
 
+  /** @deprecated */
   /* istanbul ignore next */
   static asSchema<T extends typeof SimpleRecord>(this: T) {
     /* istanbul ignore next */
