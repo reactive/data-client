@@ -5,7 +5,7 @@ import {
 import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 import nock from 'nock';
 
-import { payload, users, nested } from './fixtures';
+import { payload, payload2, users, nested } from './fixtures';
 import { useStatefulResource } from '..';
 
 function onError(e: any) {
@@ -34,6 +34,8 @@ describe('useStatefulResource()', () => {
       .reply(200)
       .get(`/article-cooler/${payload.id}`)
       .reply(200, payload)
+      .get(`/article-cooler/${payload2.id}`)
+      .reply(200, payload2)
       .delete(`/article-cooler/${payload.id}`)
       .reply(204, '')
       .delete(`/article/${payload.id}`)
@@ -62,7 +64,7 @@ describe('useStatefulResource()', () => {
 
   it('should work on good network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useStatefulResource(CoolerArticleResource.detailShape(), {
+      return useStatefulResource(CoolerArticleResource.detail(), {
         id: payload.id,
       });
     });
@@ -75,10 +77,9 @@ describe('useStatefulResource()', () => {
     expect(result.current.data).toEqual(CoolerArticleResource.fromJS(payload));
   });
 
-  /* TODO: figure out why this fails test suite even tho the expects all pass. maybe has to do with console.error?
   it('should return errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useStatefulResource(CoolerArticleResource.detailShape(), {
+      return useStatefulResource(CoolerArticleResource.detail(), {
         title: '0',
       });
     });
@@ -89,11 +90,37 @@ describe('useStatefulResource()', () => {
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBeDefined();
     expect((result.current.error as any).status).toBe(403);
-  });*/
+  });
+
+  it('should fetch anew with param changes', async () => {
+    const { result, waitForNextUpdate, rerender } = renderRestHook(
+      ({ id }) => {
+        return useStatefulResource(CoolerArticleResource.detail(), {
+          id,
+        });
+      },
+      { initialProps: { id: payload.id } },
+    );
+    expect(result.current.data).toBe(undefined);
+    expect(result.current.error).toBe(undefined);
+    expect(result.current.loading).toBe(true);
+    await waitForNextUpdate();
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeUndefined();
+    expect(result.current.data).toEqual(CoolerArticleResource.fromJS(payload));
+    await rerender({ id: payload2.id });
+    expect(result.current.data).toBe(undefined);
+    expect(result.current.error).toBe(undefined);
+    expect(result.current.loading).toBe(true);
+    await waitForNextUpdate();
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeUndefined();
+    expect(result.current.data).toEqual(CoolerArticleResource.fromJS(payload2));
+  });
 
   it('should not be loading with no params to useResource()', () => {
     const { result } = renderRestHook(() => {
-      return useStatefulResource(CoolerArticleResource.detailShape(), null);
+      return useStatefulResource(CoolerArticleResource.detail(), null);
     });
     expect(result.current.loading).toBe(false);
   });
