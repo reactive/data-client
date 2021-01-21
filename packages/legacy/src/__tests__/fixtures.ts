@@ -4,6 +4,12 @@ export const payload = {
   content: 'whatever',
   tags: ['a', 'best', 'react'],
 };
+export const payload2 = {
+  id: 6,
+  title: 'next',
+  content: 'my best content yet',
+  tags: ['b'],
+};
 
 export const createPayload = {
   id: 1,

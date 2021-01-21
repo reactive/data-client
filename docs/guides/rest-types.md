@@ -257,6 +257,46 @@ console.log(typeof obj);
 
 Now when we call the method defined in `Base` on any descendant, it is typed appropriately!
 
+## A limitation
+
+While generic `this` is powerful in allowing correct typing even for inherited classes, it
+has one annoying bug: `super` calls incorrectly resolve to the constraint, rather than the generic.
+
+```typescript
+class Child extends Base {
+  extra: number = 0;
+
+  static factory<T extends Base>(this: T): T {
+    const obj = super.factory();
+    obj.extra = 2;
+    // @ts-expect-error - typescript says obj is not compatible with T
+    return obj;
+  }
+}
+```
+
+### Workaround
+
+`any` is mostly to be avoided, but since we are careful to type our return
+type correctly in the method, we can be confident the rest of our code will
+still be protected.
+
+```typescript
+class Child extends Base {
+  extra: number = 0;
+
+  static factory<T extends Base>(this: T): T {
+    const obj = super.factory();
+    obj.extra = 2;
+    return obj as any;
+  }
+}
+```
+
+This is only needed if we are setting the type directly from the super call.
+We'll see below we only need to do this when we retain the schema from the super call.
+This is also not necessary if `this.method()` is called as this bug *only* affects `super`
+
 ## As Resource
 
 Applying this to our original example, we get something along the lines of:
@@ -333,7 +373,9 @@ class User extends Resource {
   static detail<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<RestFetch<{ id: string }>, SchemaDetail<AbstractInstanceType<T>>, undefined> {
-    return super.detail();
+    // super.detail() resolves the Schema to be based on `typeof Resource`, rather than `T`
+    // which makes it incompatible with the return type correctly specified.
+    return super.detail() as any;
   }
 }
 
@@ -356,7 +398,9 @@ class User extends Resource {
   static update<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<RestFetch, T, true> {
-    return super.update();
+    // super.update() resolves the Schema to be based on `typeof Resource`, rather than `T`
+    // which makes it incompatible with the return type correctly specified.
+    return super.update() as any;
   }
 }
 
@@ -385,7 +429,9 @@ class User extends Resource {
   static update<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<RestFetch<object, { username: string }>, T, true> {
-    return super.update();
+    // super.update() resolves the Schema to be based on `typeof Resource`, rather than `T`
+    // which makes it incompatible with the return type correctly specified.
+    return super.update() as any;
   }
 }
 
