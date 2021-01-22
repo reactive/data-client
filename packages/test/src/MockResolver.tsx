@@ -69,6 +69,11 @@ export default function MockResolver({ children, fixtures }: Props) {
   result: [],
   }`,
         );
+      } else if (action.type === actionTypes.SUBSCRIBE_TYPE) {
+        const { key } = action.meta;
+        if (Object.prototype.hasOwnProperty.call(fetchToReceiveAction, key)) {
+          return Promise.resolve();
+        }
       }
       return dispatch(action);
     },
