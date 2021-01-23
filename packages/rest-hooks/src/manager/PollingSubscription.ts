@@ -1,4 +1,4 @@
-import { actionTypes, Dispatch, Schema } from '@rest-hooks/core';
+import { actionTypes, Dispatch, Schema, State } from '@rest-hooks/core';
 
 import { Subscription, SubscriptionInit } from './SubscriptionManager';
 import DefaultConnectionListener from './DefaultConnectionListener';
@@ -18,12 +18,14 @@ export default class PollingSubscription implements Subscription {
   protected declare frequency: number;
   protected frequencyHistogram: Map<number, number> = new Map();
   protected declare dispatch: Dispatch<any>;
+  protected declare getState: () => State<unknown>;
   protected declare intervalId?: NodeJS.Timeout;
   protected declare lastIntervalId?: NodeJS.Timeout;
+  protected declare startId?: NodeJS.Timeout;
   private declare connectionListener: ConnectionListener;
 
   constructor(
-    { key, schema, fetch, frequency }: SubscriptionInit,
+    { key, schema, fetch, frequency, getState }: SubscriptionInit,
     dispatch: Dispatch<any>,
     connectionListener?: ConnectionListener,
   ) {
@@ -35,6 +37,7 @@ export default class PollingSubscription implements Subscription {
     this.key = key;
     this.frequencyHistogram.set(this.frequency, 1);
     this.dispatch = dispatch;
+    this.getState = getState;
     this.connectionListener =
       connectionListener || new DefaultConnectionListener();
 
@@ -108,6 +111,10 @@ export default class PollingSubscription implements Subscription {
       clearInterval(this.lastIntervalId);
       this.lastIntervalId = undefined;
     }
+    if (this.startId) {
+      clearTimeout(this.startId);
+      delete this.startId;
+    }
     this.connectionListener.removeOnlineListener(this.onlineListener);
     this.connectionListener.removeOfflineListener(this.offlineListener);
   }
@@ -142,8 +149,12 @@ export default class PollingSubscription implements Subscription {
   /** What happens when browser comes online */
   protected onlineListener = () => {
     this.connectionListener.removeOnlineListener(this.onlineListener);
-    this.update();
-    this.run();
+    const now = Date.now();
+    this.startId = setTimeout(() => {
+      delete this.startId;
+      this.update();
+      this.run();
+    }, Math.max(0, this.lastFetchTime() - now + this.frequency));
     this.connectionListener.addOfflineListener(this.offlineListener);
   };
 
@@ -152,6 +163,7 @@ export default class PollingSubscription implements Subscription {
    * Will clean up old poll interval on next run
    */
   protected run() {
+    if (this.startId) return;
     this.lastIntervalId = this.intervalId;
     this.intervalId = setInterval(() => {
       // since we don't know how long into the last poll it was before resetting
@@ -162,5 +174,10 @@ export default class PollingSubscription implements Subscription {
       }
       this.update();
     }, this.frequency);
+  }
+
+  /** Last fetch time */
+  protected lastFetchTime() {
+    return this.getState().meta[this.key]?.date ?? 0;
   }
 }

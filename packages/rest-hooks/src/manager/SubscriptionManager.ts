@@ -7,6 +7,7 @@ import {
   Manager,
   actionTypes,
   Schema,
+  State,
 } from '@rest-hooks/core';
 
 const { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } = actionTypes;
@@ -18,6 +19,7 @@ export interface SubscriptionInit {
   schema: Schema;
   fetch: () => Promise<any>;
   key: string;
+  getState: () => State<unknown>;
   frequency?: number;
 }
 
@@ -52,12 +54,13 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
 
     this.middleware = <R extends React.Reducer<any, any>>({
       dispatch,
+      getState,
     }: MiddlewareAPI<R>) => {
       return (next: Dispatch<R>) => (action: React.ReducerAction<R>) => {
         switch (action.type) {
           case SUBSCRIBE_TYPE:
             try {
-              this.handleSubscribe(action, dispatch);
+              this.handleSubscribe(action, dispatch, getState);
             } catch (e) {
               console.error(e);
             }
@@ -82,7 +85,11 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
   /** Called when middleware intercepts 'rest-hooks/subscribe' action.
    *
    */
-  protected handleSubscribe(action: SubscribeAction, dispatch: Dispatch<any>) {
+  protected handleSubscribe(
+    action: SubscribeAction,
+    dispatch: Dispatch<any>,
+    getState: () => State<unknown>,
+  ) {
     const key = action.meta.key;
     const frequency = action.meta.options?.pollFrequency;
 
@@ -95,6 +102,7 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
           fetch: action.meta.fetch,
           frequency,
           key,
+          getState,
         },
         dispatch,
       ) as InstanceType<S>;

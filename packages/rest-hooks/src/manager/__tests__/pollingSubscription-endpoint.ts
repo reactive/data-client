@@ -1,4 +1,5 @@
 import { PollingArticleResource } from '__tests__/new';
+import { initialState } from '@rest-hooks/core';
 
 import PollingSubscription from '../PollingSubscription';
 import DefaultConnectionListener from '../DefaultConnectionListener';
@@ -54,6 +55,11 @@ class MockConnectionListener implements ConnectionListener {
   }
 }
 
+const makeState = (key: string, time: number) => () => ({
+  ...initialState,
+  meta: { [key]: { date: time, expiresAt: Infinity } },
+});
+
 function onError(e: any) {
   e.preventDefault();
 }
@@ -67,162 +73,233 @@ afterEach(() => {
 });
 
 describe('PollingSubscription', () => {
-  const dispatch = jest.fn();
   const a = () => Promise.resolve({ id: 5, title: 'hi' });
   const fetch = jest.fn(a);
-  jest.useFakeTimers();
 
-  const sub = new PollingSubscription(
-    {
-      key: 'test.com',
-      schema: PollingArticleResource,
-      fetch,
-      frequency: 5000,
-    },
-    dispatch,
-  );
-
-  afterAll(() => {
-    sub.cleanup();
-  });
-
-  it('should throw on undefined frequency in construction', () => {
-    expect(
-      () =>
-        new PollingSubscription(
-          {
-            key: 'test.com',
-            schema: PollingArticleResource,
-            fetch,
-          },
-          dispatch,
-        ),
-    ).toThrow();
-  });
-
-  it('should call immediately', () => {
-    expect(dispatch.mock.calls.length).toBe(1);
-  });
-
-  it('should call after period', () => {
-    dispatch.mockReset();
-    jest.advanceTimersByTime(5000);
-    expect(dispatch.mock.calls.length).toBe(1);
-    expect(dispatch.mock.calls[0]).toMatchSnapshot();
-    jest.advanceTimersByTime(5000);
-    expect(dispatch.mock.calls.length).toBe(2);
-    expect(dispatch.mock.calls[1]).toMatchSnapshot();
-  });
-
-  describe('add()', () => {
-    it('should take smaller frequency when another is added', () => {
-      sub.add(1000);
-      jest.advanceTimersByTime(1000 * 4);
-      expect(dispatch.mock.calls.length).toBe(2 + 4);
-    });
-
-    it('should not change frequency if same is added', () => {
-      dispatch.mockClear();
-      sub.add(1000);
-      jest.advanceTimersByTime(1000 * 13);
-      expect(dispatch.mock.calls.length).toBe(13);
-    });
-
-    it('should not change frequency if larger is added', () => {
-      dispatch.mockClear();
-      sub.add(7000);
-      sub.add(8000);
-      jest.advanceTimersByTime(1000 * 13);
-      expect(dispatch.mock.calls.length).toBe(13);
-    });
-
-    it('should do nothing if frequency is undefined', () => {
-      dispatch.mockClear();
-      sub.add(undefined);
-      jest.advanceTimersByTime(1000 * 13);
-      expect(dispatch.mock.calls.length).toBe(13);
-    });
-  });
-
-  describe('remove()', () => {
-    it('should not change frequency if only partially removed', () => {
-      dispatch.mockClear();
-      sub.remove(1000);
-      jest.advanceTimersByTime(1000 * 13);
-      expect(dispatch.mock.calls.length).toBe(13);
-    });
-
-    it('should not change frequency if only larger removed', () => {
-      dispatch.mockClear();
-      sub.remove(7000);
-      jest.advanceTimersByTime(1000 * 13);
-      expect(dispatch.mock.calls.length).toBe(13);
-    });
-
-    it('should go back to fastest if smallest frequency is removed completely', () => {
-      sub.remove(1000);
-      jest.advanceTimersByTime(1000);
-      dispatch.mockClear();
-      jest.advanceTimersByTime(5000 * 13);
-      expect(dispatch.mock.calls.length).toBe(13);
-    });
-
-    it('should do nothing if frequency is not registered', () => {
-      const oldError = console.error;
-      const spy = (console.error = jest.fn());
-
-      sub.remove(1000);
-      dispatch.mockClear();
-      jest.advanceTimersByTime(5000 * 13);
-      expect(dispatch.mock.calls.length).toBe(13);
-
-      expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
-        Array [
-          "Mismatched remove: 1000 is not subscribed for test.com",
-        ]
-      `);
-      console.error = oldError;
-    });
-
-    it('should do nothing if frequency is undefined', () => {
-      sub.remove(undefined);
-      dispatch.mockClear();
-      jest.advanceTimersByTime(5000 * 13);
-      expect(dispatch.mock.calls.length).toBe(13);
-    });
-
-    it('should return false until completely empty, then return true', () => {
-      const sub = new PollingSubscription(
+  describe('existing data', () => {
+    it('should wait to call for fresh data', () => {
+      const dispatch = jest.fn();
+      jest.useFakeTimers();
+      const sub2 = new PollingSubscription(
         {
           key: 'test.com',
           schema: PollingArticleResource,
           fetch,
           frequency: 5000,
+          getState: makeState('test.com', Date.now()),
         },
         dispatch,
       );
-      sub.add(5000);
-      sub.add(7000);
-      expect(sub.remove(5000)).toBe(false);
-      expect(sub.remove(5000)).toBe(false);
-      expect(sub.remove(7000)).toBe(true);
+      expect(dispatch.mock.calls.length).toBe(0);
+      jest.advanceTimersByTime(4998);
+      expect(dispatch.mock.calls.length).toBe(0);
+      jest.advanceTimersByTime(4);
+      expect(dispatch.mock.calls.length).toBe(1);
+      jest.advanceTimersByTime(5000);
+      expect(dispatch.mock.calls.length).toBe(2);
+      jest.advanceTimersByTime(2000);
+      expect(dispatch.mock.calls.length).toBe(2);
+      sub2.cleanup();
+      jest.useRealTimers();
+    });
+
+    it('should only run once with multiple simultaneous starts', () => {
+      const dispatch = jest.fn();
+      jest.useFakeTimers();
+      const sub2 = new PollingSubscription(
+        {
+          key: 'test.com',
+          schema: PollingArticleResource,
+          fetch,
+          frequency: 5000,
+          getState: () => initialState,
+        },
+        dispatch,
+      );
+      sub2.add(1000);
+      sub2.add(1000);
+      sub2.add(1000);
+      jest.advanceTimersByTime(1);
+      expect(dispatch.mock.calls.length).toBe(1);
+      jest.advanceTimersByTime(999);
+      expect(dispatch.mock.calls.length).toBe(2);
+      jest.advanceTimersByTime(10);
+      sub2.remove(1000);
+      sub2.remove(1000);
+      sub2.remove(1000);
+      sub2.cleanup();
+      jest.useRealTimers();
     });
   });
 
-  describe('cleanup()', () => {
-    it('should stop all timers', () => {
-      dispatch.mockClear();
-      sub.cleanup();
-      jest.advanceTimersByTime(5000 * 13);
-      expect(dispatch.mock.calls.length).toBe(0);
+  describe('fresh data', () => {
+    const dispatch = jest.fn();
+    let sub: PollingSubscription;
+
+    beforeAll(() => {
+      jest.useFakeTimers();
+      sub = new PollingSubscription(
+        {
+          key: 'test.com',
+          schema: PollingArticleResource,
+          fetch,
+          frequency: 5000,
+          getState: makeState('test.com', 0),
+        },
+        dispatch,
+      );
     });
-    it('should be idempotent', () => {
+    afterAll(() => {
       sub.cleanup();
+      jest.useRealTimers();
+    });
+
+    it('should throw on undefined frequency in construction', () => {
+      expect(
+        () =>
+          new PollingSubscription(
+            {
+              key: 'test.com',
+              schema: PollingArticleResource,
+              fetch,
+              getState: makeState('test.com', 0),
+            },
+            dispatch,
+          ),
+      ).toThrow();
+    });
+
+    it('should call immediately', () => {
+      jest.advanceTimersByTime(1);
+      expect(dispatch.mock.calls.length).toBe(1);
+    });
+
+    it('should call after period', () => {
+      dispatch.mockReset();
+      jest.advanceTimersByTime(5000);
+      expect(dispatch.mock.calls.length).toBe(1);
+      expect(dispatch.mock.calls[0]).toMatchSnapshot();
+      jest.advanceTimersByTime(5000);
+      expect(dispatch.mock.calls.length).toBe(2);
+      expect(dispatch.mock.calls[1]).toMatchSnapshot();
+    });
+
+    describe('add()', () => {
+      it('should take smaller frequency when another is added', () => {
+        sub.add(1000);
+        jest.advanceTimersByTime(1000 * 4);
+        expect(dispatch.mock.calls.length).toBe(2 + 4);
+      });
+
+      it('should not change frequency if same is added', () => {
+        dispatch.mockClear();
+        sub.add(1000);
+        jest.advanceTimersByTime(1000 * 13);
+        expect(dispatch.mock.calls.length).toBe(13);
+      });
+
+      it('should not change frequency if larger is added', () => {
+        dispatch.mockClear();
+        sub.add(7000);
+        sub.add(8000);
+        jest.advanceTimersByTime(1000 * 13);
+        expect(dispatch.mock.calls.length).toBe(13);
+      });
+
+      it('should do nothing if frequency is undefined', () => {
+        dispatch.mockClear();
+        sub.add(undefined);
+        jest.advanceTimersByTime(1000 * 13);
+        expect(dispatch.mock.calls.length).toBe(13);
+      });
+    });
+
+    describe('remove()', () => {
+      it('should not change frequency if only partially removed', () => {
+        dispatch.mockClear();
+        sub.remove(1000);
+        jest.advanceTimersByTime(1000 * 13);
+        expect(dispatch.mock.calls.length).toBe(13);
+      });
+
+      it('should not change frequency if only larger removed', () => {
+        dispatch.mockClear();
+        sub.remove(7000);
+        jest.advanceTimersByTime(1000 * 13);
+        expect(dispatch.mock.calls.length).toBe(13);
+      });
+
+      it('should go back to fastest if smallest frequency is removed completely', () => {
+        sub.remove(1000);
+        jest.advanceTimersByTime(1000);
+        dispatch.mockClear();
+        jest.advanceTimersByTime(5000 * 13);
+        expect(dispatch.mock.calls.length).toBe(13);
+      });
+
+      it('should do nothing if frequency is not registered', () => {
+        const oldError = console.error;
+        const spy = (console.error = jest.fn());
+
+        sub.remove(1000);
+        dispatch.mockClear();
+        jest.advanceTimersByTime(5000 * 13);
+        expect(dispatch.mock.calls.length).toBe(13);
+
+        expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
+          Array [
+            "Mismatched remove: 1000 is not subscribed for test.com",
+          ]
+        `);
+        console.error = oldError;
+      });
+
+      it('should do nothing if frequency is undefined', () => {
+        sub.remove(undefined);
+        dispatch.mockClear();
+        jest.advanceTimersByTime(5000 * 13);
+        expect(dispatch.mock.calls.length).toBe(13);
+      });
+
+      it('should return false until completely empty, then return true', () => {
+        const sub = new PollingSubscription(
+          {
+            key: 'test.com',
+            schema: PollingArticleResource,
+            fetch,
+            frequency: 5000,
+            getState: makeState('test.com', 0),
+          },
+          dispatch,
+        );
+        sub.add(5000);
+        sub.add(7000);
+        expect(sub.remove(5000)).toBe(false);
+        expect(sub.remove(5000)).toBe(false);
+        expect(sub.remove(7000)).toBe(true);
+      });
+    });
+
+    describe('cleanup()', () => {
+      it('should stop all timers', () => {
+        dispatch.mockClear();
+        sub.cleanup();
+        jest.advanceTimersByTime(5000 * 13);
+        expect(dispatch.mock.calls.length).toBe(0);
+      });
+      it('should be idempotent', () => {
+        sub.cleanup();
+      });
     });
   });
 
   describe('offline support', () => {
-    jest.useFakeTimers();
+    beforeAll(() => {
+      jest.useFakeTimers();
+    });
+    afterAll(() => {
+      jest.useRealTimers();
+    });
 
     function createMocks(listener: ConnectionListener) {
       const dispatch = jest.fn();
@@ -235,10 +312,12 @@ describe('PollingSubscription', () => {
           schema: PollingArticleResource,
           fetch,
           frequency: 5000,
+          getState: makeState('test.com', 0),
         },
         dispatch,
         listener,
       );
+      jest.advanceTimersByTime(1);
       return { dispatch, fetch, pollingSubscription };
     }
 
@@ -272,6 +351,7 @@ describe('PollingSubscription', () => {
       expect(dispatch.mock.calls.length).toBe(0);
 
       listener.trigger('online');
+      jest.advanceTimersByTime(1);
       expect(dispatch.mock.calls.length).toBe(1);
       jest.advanceTimersByTime(5000);
       expect(dispatch.mock.calls.length).toBe(2);
