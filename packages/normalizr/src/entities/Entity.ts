@@ -108,8 +108,12 @@ export default abstract class Entity extends SimpleRecord {
         }
 
         const tooManyUnexpected =
+          // unexpected compared to members in response
           Math.max(keysOfProps.length / 2, 1) <= unexpected.length &&
-          keysOfRecord.size > Math.max(unexpected.length, 2);
+          // unexpected compared to what we specified
+          keysOfRecord.size > Math.max(unexpected.length, 2) &&
+          // as we find more and more be more easily assured it is correct
+          found.length ** 1.5 / 2 <= unexpected.length;
         const foundNothing = found.length < Math.min(1, keysOfRecord.size / 2);
         // if we find nothing (we expect at least one member for a pk)
         // or we find too many unexpected members
