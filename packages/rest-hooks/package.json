@@ -49,7 +49,9 @@
     "api",
     "api call",
     "normalized cache",
-    "swr"
+    "swr",
+    "declarative",
+    "scalable"
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
