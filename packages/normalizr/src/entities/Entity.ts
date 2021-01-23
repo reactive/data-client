@@ -104,6 +104,7 @@ export default abstract class Entity extends SimpleRecord {
   Missing: ${missing}
   First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`,
           );
+          (error as any).status = 400;
           throw error;
         }
 
