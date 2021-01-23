@@ -1,4 +1,5 @@
 import { PollingArticleResource } from '__tests__/common';
+import { initialState } from '@rest-hooks/core';
 
 import PollingSubscription from '../PollingSubscription';
 import DefaultConnectionListener from '../DefaultConnectionListener';
@@ -78,6 +79,7 @@ describe('PollingSubscription', () => {
       schema: PollingArticleResource,
       fetch,
       frequency: 5000,
+      getState: () => initialState,
     },
     dispatch,
   );
@@ -94,6 +96,7 @@ describe('PollingSubscription', () => {
             key: 'test.com',
             schema: PollingArticleResource,
             fetch,
+            getState: () => initialState,
           },
           dispatch,
         ),
@@ -101,6 +104,7 @@ describe('PollingSubscription', () => {
   });
 
   it('should call immediately', () => {
+    jest.advanceTimersByTime(1);
     expect(dispatch.mock.calls.length).toBe(1);
   });
 
@@ -198,6 +202,7 @@ describe('PollingSubscription', () => {
           schema: PollingArticleResource,
           fetch,
           frequency: 5000,
+          getState: () => initialState,
         },
         dispatch,
       );
@@ -235,10 +240,12 @@ describe('PollingSubscription', () => {
           schema: PollingArticleResource,
           fetch,
           frequency: 5000,
+          getState: () => initialState,
         },
         dispatch,
         listener,
       );
+      jest.advanceTimersByTime(1);
       return { dispatch, fetch, pollingSubscription };
     }
 
@@ -272,6 +279,7 @@ describe('PollingSubscription', () => {
       expect(dispatch.mock.calls.length).toBe(0);
 
       listener.trigger('online');
+      jest.advanceTimersByTime(1);
       expect(dispatch.mock.calls.length).toBe(1);
       jest.advanceTimersByTime(5000);
       expect(dispatch.mock.calls.length).toBe(2);
