@@ -4,11 +4,9 @@ import { Denormalize } from './normal';
 import { FetchFunction } from './types';
 
 /** What the function's promise resolves to */
-export type ResolveType<E extends (...args: any) => any> = ReturnType<
-  E
-> extends Promise<infer R>
-  ? R
-  : never;
+export type ResolveType<
+  E extends (...args: any) => any
+> = ReturnType<E> extends Promise<infer R> ? R : never;
 
 /** Fallback to schema if fetch function isn't defined */
 export type InferReturn<
