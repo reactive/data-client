@@ -1,0 +1,179 @@
+{
+  "version-5.0-docs": {
+    "Getting Started": [
+      "version-5.0-getting-started/installation",
+      "version-5.0-getting-started/usage",
+      "version-5.0-guides/loading-state",
+      "version-5.0-guides/network-errors",
+      "version-5.0-guides/fetch-multiple"
+    ],
+    "Resource Definitions": [
+      "version-5.0-guides/resource-types",
+      {
+        "type": "subcategory",
+        "label": "Network Interface",
+        "ids": [
+          "version-5.0-guides/url",
+          "version-5.0-guides/extending-endpoints",
+          "version-5.0-guides/rest-types",
+          "version-5.0-guides/pagination",
+          "version-5.0-guides/auth",
+          "version-5.0-guides/network-transform",
+          "version-5.0-guides/mocking-unfinished"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Entity Interface",
+        "ids": [
+          "version-5.0-guides/computed-properties",
+          "version-5.0-guides/multi-pk"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Performance Optimizations",
+        "ids": [
+          "version-5.0-guides/nested-response",
+          "version-5.0-guides/rpc"
+        ]
+      }
+    ],
+    "Advanced": [
+      {
+        "type": "subcategory",
+        "label": "Resource Definitions",
+        "ids": [
+          "version-5.0-guides/custom-networking",
+          "version-5.0-guides/resource-lifetime",
+          "version-5.0-guides/binary-fetches"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Components",
+        "ids": [
+          "version-5.0-guides/infinite-scrolling-pagination"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Testing",
+        "ids": [
+          "version-5.0-guides/debugging",
+          "version-5.0-guides/storybook",
+          "version-5.0-guides/unit-testing-hooks",
+          "version-5.0-guides/unit-testing-components"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Performance",
+        "ids": [
+          "version-5.0-guides/render-as-you-fetch",
+          "version-5.0-guides/immediate-updates",
+          "version-5.0-guides/optimistic-updates",
+          "version-5.0-guides/abort"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Integrations",
+        "ids": [
+          "version-5.0-guides/redux"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Legacy",
+        "ids": [
+          "version-5.0-guides/class-components",
+          "version-5.0-guides/no-suspense",
+          "version-5.0-guides/legacy-browser"
+        ]
+      }
+    ],
+    "API": [
+      "version-5.0-api/README",
+      "version-5.0-api/types",
+      {
+        "type": "subcategory",
+        "label": "Core Hooks",
+        "ids": [
+          "version-5.0-api/useresource",
+          "version-5.0-api/useFetcher",
+          "version-5.0-api/useCache",
+          "version-5.0-api/useSubscription",
+          "version-5.0-api/useRetrieve",
+          "version-5.0-api/useInvalidator",
+          "version-5.0-api/useResetter",
+          "version-5.0-api/useMeta",
+          "version-5.0-api/useError"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Extra Hooks",
+        "ids": [
+          "version-5.0-api/useDebounce",
+          "version-5.0-api/useCancelling"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Interface Definitions",
+        "ids": [
+          "version-5.0-api/Endpoint",
+          "version-5.0-api/resource",
+          "version-5.0-api/Index"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Schemas",
+        "ids": [
+          "version-5.0-api/schema",
+          "version-5.0-api/Entity",
+          "version-5.0-api/SimpleRecord",
+          "version-5.0-api/Object",
+          "version-5.0-api/Array",
+          "version-5.0-api/Union",
+          "version-5.0-api/Values",
+          "version-5.0-api/Delete"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Components",
+        "ids": [
+          "version-5.0-api/CacheProvider",
+          "version-5.0-api/ExternalCacheProvider",
+          "version-5.0-api/NetworkErrorBoundary"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Managers",
+        "ids": [
+          "version-5.0-api/Manager",
+          "version-5.0-api/NetworkManager",
+          "version-5.0-api/SubscriptionManager",
+          "version-5.0-api/PollingSubscription",
+          "version-5.0-api/DevToolsManager"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Testing",
+        "ids": [
+          "version-5.0-api/MockResolver",
+          "version-5.0-api/makeRenderRestHook",
+          "version-5.0-api/makeCacheProvider",
+          "version-5.0-api/makeExternalCacheProvider",
+          "version-5.0-api/mockInitialState",
+          "version-5.0-api/MockProvider"
+        ]
+      }
+    ]
+  }
+}

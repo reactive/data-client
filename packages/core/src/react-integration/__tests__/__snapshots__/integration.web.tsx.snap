@@ -100,18 +100,17 @@ Full Schema: {
 }
 
 Error:
-Attempted to initialize CoolerArticleResource with substantially different than expected keys
+Attempted to initialize CoolerArticleResource with an array, but named members were expected
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
 
-  Expected keys:
-    Found: 
-    Missing: id,title,content,author,tags
-  Unexpected keys: 0
-  Value: {
-  "0": 1
-}]
+  Missing: id,title,content,author,tags
+  First three members: [
+  1
+]]
 `;
 
 exports[`makeCacheProvider => <Provider /> Endpoint should resolve useResource() with SimpleRecords 1`] = `
@@ -214,16 +213,15 @@ Full Schema: {
 }
 
 Error:
-Attempted to initialize CoolerArticleResource with substantially different than expected keys
+Attempted to initialize CoolerArticleResource with an array, but named members were expected
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
 
-  Expected keys:
-    Found: 
-    Missing: id,title,content,author,tags
-  Unexpected keys: 0
-  Value: {
-  "0": 1
-}]
+  Missing: id,title,content,author,tags
+  First three members: [
+  1
+]]
 `;

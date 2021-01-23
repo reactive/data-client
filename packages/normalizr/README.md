@@ -25,7 +25,7 @@ Normalizr is a small, but powerful utility for taking JSON with a schema definit
 
 * [Introduction](/docs/introduction.md)
   * [Build Files](/docs/introduction.md#build-files)
-* [Quick Start](/docs/quickstart.md)
+* [Quick Start](/docs/schema.md)
 * [API](/docs/api.md)
   * [normalize](/docs/api.md#normalizedata-schema)
   * [denormalize](/docs/api.md#denormalizeinput-schema-entities)

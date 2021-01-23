@@ -185,7 +185,7 @@ Even in this overly simplistic case we're more than halving the lines of code.
 Once the complexities of the real world kick in, this improvement expands.
 
 However, we now have a problem. Before we were explictily specifying the [Endpoint](../api/Endpoint)s'
-expected shape via the [schema](../api/quickstart). Now it if we use the common methods like .detail()
+expected shape via the [schema](../api/schema). Now it if we use the common methods like .detail()
 we lose our typing information.
 
 ## Generics, static methods, and this

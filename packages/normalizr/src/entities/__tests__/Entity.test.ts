@@ -43,6 +43,18 @@ class WithOptional extends Entity {
 }
 
 describe(`${Entity.name} normalization`, () => {
+  const originalWarn = console.warn;
+  afterEach(() => {
+    console.warn = originalWarn;
+    consoleOutput = [];
+  });
+  let consoleOutput: string[] = [];
+  const mockedWarn = (output: string) => {
+    console.log('ahhh');
+    consoleOutput.push(output);
+  };
+  beforeEach(() => (console.warn = mockedWarn));
+
   test('normalizes an entity', () => {
     class MyEntity extends IDEntity {}
     expect(normalize({ id: '1' }, MyEntity)).toMatchSnapshot();
@@ -74,6 +86,28 @@ describe(`${Entity.name} normalization`, () => {
     const schema = MyEntity;
     function normalizeBad() {
       normalize({}, schema);
+    }
+    expect(normalizeBad).toThrowErrorMatchingSnapshot();
+  });
+
+  it('should throw a custom error loads with array', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      pk() {
+        return this.name;
+      }
+    }
+    const schema = MyEntity;
+    function normalizeBad() {
+      normalize(
+        [
+          { name: 'hi', secondthing: 'ho' },
+          { name: 'hi', secondthing: 'ho' },
+          { name: 'hi', secondthing: 'ho' },
+        ],
+        schema,
+      );
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });

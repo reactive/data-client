@@ -88,29 +88,57 @@ export default abstract class Entity extends SimpleRecord {
         }
       }
 
-      // if we find nothing, or we find too many unexpected members
-      if (
-        ((Math.max(keysOfProps.length / 2, 1) <= unexpected.length &&
-          keysOfRecord.size > Math.max(unexpected.length, 2)) ||
-          found.length < Math.min(1, keysOfRecord.size / 2)) &&
-        keysOfRecord.size
-      ) {
-        const error = new Error(
-          `Attempted to initialize ${
-            this.name
-          } with substantially different than expected keys
+      // only bother with this if they used *any* defaults
+      if (keysOfRecord.size) {
+        if (Array.isArray(input) && unexpected.length) {
+          const error = new Error(
+            `Attempted to initialize ${
+              this.name
+            } with an array, but named members were expected
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
+
+  Missing: ${missing}
+  First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`,
+          );
+          throw error;
+        }
+
+        const tooManyUnexpected =
+          Math.max(keysOfProps.length / 2, 1) <= unexpected.length &&
+          keysOfRecord.size > Math.max(unexpected.length, 2);
+        const foundNothing = found.length < Math.min(1, keysOfRecord.size / 2);
+        // if we find nothing (we expect at least one member for a pk)
+        // or we find too many unexpected members
+        if (tooManyUnexpected || foundNothing) {
+          let extra = '';
+          let reason = 'substantially different than expected keys';
+          if (foundNothing) {
+            extra += `\n    Missing: ${missing}`;
+            reason = 'no matching keys found';
+          }
+          if (tooManyUnexpected) {
+            extra += `\n    Unexpected keys: ${unexpected}`;
+            reason = 'a large number of unexpected keys found';
+          }
+          const error = new Error(
+            `Attempted to initialize ${this.name} with ${reason}
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
 
   Expected keys:
-    Found: ${found}
-    Missing: ${missing}
-  Unexpected keys: ${unexpected}
+    Found: ${found}${extra}
   Value: ${JSON.stringify(this.toObjectDefined(processedEntity), null, 2)}`,
-        );
-        (error as any).status = 400;
-        throw error;
+          );
+          (error as any).status = 400;
+          throw error;
+        }
       }
     }
     const id = processedEntity.pk(parent, key);
@@ -121,6 +149,8 @@ export default abstract class Entity extends SimpleRecord {
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
 
   Entity: ${this.name}
   Value: ${input && JSON.stringify(input, null, 2)}

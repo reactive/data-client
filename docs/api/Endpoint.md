@@ -89,9 +89,9 @@ endpoint an unpredictable number of times.
 
 ### schema: Schema
 
-Declarative definition of how to [process responses](./quickstart)
+Declarative definition of how to [process responses](./schema)
 
-- [where](./quickstart) to expect [Entities](./Entity)
+- [where](./schema) to expect [Entities](./Entity)
 - Classes to [deserialize fields](../guides/network-transform#deserializing-fields)
 
 Not providing this option means no entities will be extracted.
