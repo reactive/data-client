@@ -111,6 +111,31 @@ describe(`${Entity.name} normalization`, () => {
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 
+  it('should warn when automaticValidation === "warn"', () => {
+    class MyEntity extends Entity {
+      readonly '0': string = '';
+      readonly secondthing: string = '';
+      static automaticValidation = 'warn' as const;
+      pk() {
+        return this[0];
+      }
+    }
+    const schema = MyEntity;
+    function normalizeBad() {
+      normalize(
+        [
+          { name: 'hi', secondthing: 'ho' },
+          { name: 'hi', secondthing: 'ho' },
+          { name: 'hi', secondthing: 'ho' },
+        ],
+        schema,
+      );
+    }
+    expect(normalizeBad).not.toThrow();
+    expect(consoleOutput.length).toBe(1);
+    expect(consoleOutput).toMatchSnapshot();
+  });
+
   it('should only warn if at least four members are found with unexpected', () => {
     class MyEntity extends Entity {
       readonly name: string = '';
@@ -310,6 +335,43 @@ describe(`${Entity.name} normalization`, () => {
       normalize({ name: 'hoho', nonexistantthing: 'hi' }, schema);
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
+  });
+
+  it('should warn when automaticValidation === "warn"', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      readonly thirdthing: number = 0;
+      static automaticValidation = 'warn' as const;
+      pk() {
+        return this.name;
+      }
+    }
+    const schema = MyEntity;
+    function normalizeBad() {
+      normalize({ name: 'hoho', nonexistantthing: 'hi' }, schema);
+    }
+    expect(normalizeBad).not.toThrow();
+    expect(consoleOutput.length).toBe(1);
+    expect(consoleOutput).toMatchSnapshot();
+  });
+
+  it('should do nothing when automaticValidation === "silent"', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      readonly thirdthing: number = 0;
+      static automaticValidation = 'silent' as const;
+      pk() {
+        return this.name;
+      }
+    }
+    const schema = MyEntity;
+    function normalizeBad() {
+      normalize({ name: 'hoho', nonexistantthing: 'hi' }, schema);
+    }
+    expect(normalizeBad).not.toThrow();
+    expect(consoleOutput.length).toBe(0);
   });
 
   it('should throw a custom error if data loads with string', () => {
