@@ -2,7 +2,7 @@
 
 - [Read Me](./README.md)
 - [Introduction](./docs/introduction.md)
-- [Quick Start](./docs/quickstart.md)
+- [Quick Start](./docs/schema.md)
 - [API](./docs/api.md)
   - [normalize](./docs/api.md#normalizedata-schema)
   - [denormalize](./docs/api.md#denormalizeinput-schema-entities)

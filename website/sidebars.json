@@ -116,7 +116,7 @@
         "type": "subcategory",
         "label": "Schemas",
         "ids": [
-          "api/quickstart",
+          "api/schema",
           "api/Entity",
           "api/SimpleRecord",
           "api/Object",

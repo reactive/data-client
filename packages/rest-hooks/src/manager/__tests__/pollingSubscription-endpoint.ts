@@ -91,9 +91,9 @@ describe('PollingSubscription', () => {
         dispatch,
       );
       expect(dispatch.mock.calls.length).toBe(0);
-      jest.advanceTimersByTime(4998);
+      jest.advanceTimersByTime(4990);
       expect(dispatch.mock.calls.length).toBe(0);
-      jest.advanceTimersByTime(4);
+      jest.advanceTimersByTime(20);
       expect(dispatch.mock.calls.length).toBe(1);
       jest.advanceTimersByTime(5000);
       expect(dispatch.mock.calls.length).toBe(2);

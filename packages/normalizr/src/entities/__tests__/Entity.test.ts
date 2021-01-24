@@ -43,6 +43,17 @@ class WithOptional extends Entity {
 }
 
 describe(`${Entity.name} normalization`, () => {
+  const originalWarn = console.warn;
+  afterEach(() => {
+    console.warn = originalWarn;
+    consoleOutput = [];
+  });
+  let consoleOutput: string[] = [];
+  const mockedWarn = (output: string) => {
+    consoleOutput.push(output);
+  };
+  beforeEach(() => (console.warn = mockedWarn));
+
   test('normalizes an entity', () => {
     class MyEntity extends IDEntity {}
     expect(normalize({ id: '1' }, MyEntity)).toMatchSnapshot();
@@ -78,6 +89,126 @@ describe(`${Entity.name} normalization`, () => {
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 
+  it('should throw a custom error loads with array', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      pk() {
+        return this.name;
+      }
+    }
+    const schema = MyEntity;
+    function normalizeBad() {
+      normalize(
+        [
+          { name: 'hi', secondthing: 'ho' },
+          { name: 'hi', secondthing: 'ho' },
+          { name: 'hi', secondthing: 'ho' },
+        ],
+        schema,
+      );
+    }
+    expect(normalizeBad).toThrowErrorMatchingSnapshot();
+  });
+
+  it('should only warn if at least four members are found with unexpected', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly a: string = '';
+      readonly b: string = '';
+      readonly c: string = '';
+      readonly missinga: string = '';
+      readonly missingb: string = '';
+      readonly missingc: string = '';
+      readonly missingd: string = '';
+      readonly missinge: string = '';
+      readonly missingf: string = '';
+      readonly missingg: string = '';
+      readonly missingh: string = '';
+      readonly missingi: string = '';
+      readonly missingj: string = '';
+      readonly missingk: string = '';
+      readonly missingl: string = '';
+      readonly missingm: string = '';
+      readonly missingn: string = '';
+      readonly missingo: string = '';
+      readonly missingp: string = '';
+      pk() {
+        return this.name;
+      }
+    }
+    const schema = MyEntity;
+
+    expect(
+      normalize(
+        {
+          name: 'hi',
+          a: 'a',
+          b: 'b',
+          c: 'c',
+          d: 'e',
+          e: 0,
+          f: 0,
+          g: 0,
+          h: 0,
+          i: 0,
+          j: 0,
+          k: 0,
+          l: 0,
+          m: 0,
+          n: 0,
+          o: 0,
+          p: 0,
+        },
+        schema,
+      ),
+    ).toMatchSnapshot();
+    expect(consoleOutput.length).toBe(1);
+    expect(consoleOutput).toMatchSnapshot();
+  });
+
+  it('should allow many unexpected as long as none are missing', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly a: string = '';
+      pk() {
+        return this.name;
+      }
+    }
+    const schema = MyEntity;
+
+    expect(
+      normalize(
+        {
+          name: 'hi',
+          a: 'a',
+          b: 'b',
+          c: 'c',
+          d: 'e',
+          e: 0,
+          f: 0,
+          g: 0,
+          h: 0,
+          i: 0,
+          j: 0,
+          k: 0,
+          l: 0,
+          m: 0,
+          n: 0,
+          o: 0,
+          p: 0,
+          q: 0,
+          r: 0,
+          s: 0,
+          t: 0,
+          u: 0,
+        },
+        schema,
+      ),
+    ).toMatchSnapshot();
+    expect(consoleOutput.length).toBe(0);
+  });
+
   it('should not expect getters returned', () => {
     class MyEntity extends Entity {
       readonly name: string = '';
@@ -101,6 +232,7 @@ describe(`${Entity.name} normalization`, () => {
       normalize({ name: 'bob' }, MyEntity);
     }
     expect(normalizeBad).not.toThrow();
+    expect(consoleOutput.length).toBe(0);
   });
 
   it('should throw if data loads with unexpected prop that is a getter', () => {

@@ -82,7 +82,7 @@ const resource = useResource(MyResouce.detail(), { id });
 resource.createdAt.getDay(); // createAt is a Date object
 ```
 
-This also works with [SimpleRecord](../api/SimpleRecord#static-schema--k-keyof-this-schema-) and other [schemas](../api/quickstart)
+This also works with [SimpleRecord](../api/SimpleRecord#static-schema--k-keyof-this-schema-) and other [schemas](../api/schema)
 
 ```typescript
 import BigNumber from 'bignumber.js';

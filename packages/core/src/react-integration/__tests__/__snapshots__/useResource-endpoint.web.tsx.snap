@@ -93,15 +93,16 @@ Full Schema: {
 }
 
 Error:
-Attempted to initialize CoolerArticleResource with substantially different than expected keys
+Attempted to initialize CoolerArticleResource with no matching keys found
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
 
   Expected keys:
     Found: 
     Missing: id,title,content,author,tags
-  Unexpected keys: 
   Value: {}]
 `;
 
@@ -121,15 +122,16 @@ Full Schema: {
 }
 
 Error:
-Attempted to initialize CoolerArticleResource with substantially different than expected keys
+Attempted to initialize CoolerArticleResource with no matching keys found
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
 
   Expected keys:
     Found: 
     Missing: id,title,content,author,tags
-  Unexpected keys: 
   Value: {}]
 `;
 
@@ -220,15 +222,16 @@ Full Schema: {
 }
 
 Error:
-Attempted to initialize CoolerArticleResource with substantially different than expected keys
+Attempted to initialize CoolerArticleResource with no matching keys found
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
 
   Expected keys:
     Found: 
     Missing: id,title,content,author,tags
-  Unexpected keys: 
   Value: {}]
 `;
 
@@ -248,15 +251,16 @@ Full Schema: {
 }
 
 Error:
-Attempted to initialize CoolerArticleResource with substantially different than expected keys
+Attempted to initialize CoolerArticleResource with no matching keys found
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
 
   Expected keys:
     Found: 
     Missing: id,title,content,author,tags
-  Unexpected keys: 
   Value: {}]
 `;
 

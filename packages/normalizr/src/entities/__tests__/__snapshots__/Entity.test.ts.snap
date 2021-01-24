@@ -513,11 +513,128 @@ Object {
 }
 `;
 
+exports[`Entity normalization should allow many unexpected as long as none are missing 1`] = `
+Object {
+  "entities": Object {
+    "MyEntity": Object {
+      "hi": MyEntity {
+        "a": "a",
+        "b": "b",
+        "c": "c",
+        "d": "e",
+        "e": 0,
+        "f": 0,
+        "g": 0,
+        "h": 0,
+        "i": 0,
+        "j": 0,
+        "k": 0,
+        "l": 0,
+        "m": 0,
+        "n": 0,
+        "name": "hi",
+        "o": 0,
+        "p": 0,
+        "q": 0,
+        "r": 0,
+        "s": 0,
+        "t": 0,
+        "u": 0,
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": "hi",
+}
+`;
+
+exports[`Entity normalization should only warn if at least four members are found with unexpected 1`] = `
+Object {
+  "entities": Object {
+    "MyEntity": Object {
+      "hi": MyEntity {
+        "a": "a",
+        "b": "b",
+        "c": "c",
+        "d": "e",
+        "e": 0,
+        "f": 0,
+        "g": 0,
+        "h": 0,
+        "i": 0,
+        "j": 0,
+        "k": 0,
+        "l": 0,
+        "m": 0,
+        "missinga": "",
+        "missingb": "",
+        "missingc": "",
+        "missingd": "",
+        "missinge": "",
+        "missingf": "",
+        "missingg": "",
+        "missingh": "",
+        "missingi": "",
+        "missingj": "",
+        "missingk": "",
+        "missingl": "",
+        "missingm": "",
+        "missingn": "",
+        "missingo": "",
+        "missingp": "",
+        "n": 0,
+        "name": "hi",
+        "o": 0,
+        "p": 0,
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": "hi",
+}
+`;
+
+exports[`Entity normalization should only warn if at least four members are found with unexpected 2`] = `
+Array [
+  "Attempted to initialize MyEntity with a large number of unexpected keys found
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
+
+  Expected keys:
+    Found: name,a,b,c
+    Unexpected keys: d,e,f,g,h,i,j,k,l,m,n,o,p
+  Value: {
+  \\"name\\": \\"hi\\",
+  \\"a\\": \\"a\\",
+  \\"b\\": \\"b\\",
+  \\"c\\": \\"c\\",
+  \\"d\\": \\"e\\",
+  \\"e\\": 0,
+  \\"f\\": 0,
+  \\"g\\": 0,
+  \\"h\\": 0,
+  \\"i\\": 0,
+  \\"j\\": 0,
+  \\"k\\": 0,
+  \\"l\\": 0,
+  \\"m\\": 0,
+  \\"n\\": 0,
+  \\"o\\": 0,
+  \\"p\\": 0
+}",
+]
+`;
+
 exports[`Entity normalization should throw a custom error if data does not include pk 1`] = `
 "Missing usable resource key when normalizing response.
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
 
   Entity: MyEntity
   Value: {
@@ -527,15 +644,16 @@ exports[`Entity normalization should throw a custom error if data does not inclu
 `;
 
 exports[`Entity normalization should throw a custom error if data loads with half unexpected props 1`] = `
-"Attempted to initialize MyEntity with substantially different than expected keys
+"Attempted to initialize MyEntity with a large number of unexpected keys found
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
 
   Expected keys:
     Found: name
-    Missing: secondthing,thirdthing
-  Unexpected keys: nonexistantthing
+    Unexpected keys: nonexistantthing
   Value: {
   \\"name\\": \\"hoho\\",
   \\"nonexistantthing\\": \\"hi\\"
@@ -543,15 +661,16 @@ exports[`Entity normalization should throw a custom error if data loads with hal
 `;
 
 exports[`Entity normalization should throw a custom error if data loads with no matching props 1`] = `
-"Attempted to initialize MyEntity with substantially different than expected keys
+"Attempted to initialize MyEntity with no matching keys found
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
 
   Expected keys:
     Found: 
     Missing: name,secondthing
-  Unexpected keys: 
   Value: {}"
 `;
 
@@ -564,4 +683,29 @@ exports[`Entity normalization should throw a custom error if data loads with str
   \\"key\\": \\"MyEntity\\"
 }
           Input: \\"hibho\\""
+`;
+
+exports[`Entity normalization should throw a custom error loads with array 1`] = `
+"Attempted to initialize MyEntity with an array, but named members were expected
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
+
+  Missing: name,secondthing
+  First three members: [
+  {
+    \\"name\\": \\"hi\\",
+    \\"secondthing\\": \\"ho\\"
+  },
+  {
+    \\"name\\": \\"hi\\",
+    \\"secondthing\\": \\"ho\\"
+  },
+  {
+    \\"name\\": \\"hi\\",
+    \\"secondthing\\": \\"ho\\"
+  }
+]"
 `;

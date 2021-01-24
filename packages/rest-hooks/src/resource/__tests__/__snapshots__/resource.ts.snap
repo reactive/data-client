@@ -45,6 +45,8 @@ exports[`Resource nested schema should throw a custom error if data does not inc
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
 
   Entity: CoolerArticleResource
   Value: {
