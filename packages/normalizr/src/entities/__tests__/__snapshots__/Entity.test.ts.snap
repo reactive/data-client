@@ -602,6 +602,7 @@ Array [
   Try inspecting the network response or fetch() return value.
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
   Learn more about schemas: https://resthooks.io/docs/api/schema
+  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
   Expected keys:
     Found: name,a,b,c
@@ -650,6 +651,7 @@ exports[`Entity normalization should throw a custom error if data loads with hal
   Try inspecting the network response or fetch() return value.
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
   Learn more about schemas: https://resthooks.io/docs/api/schema
+  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
   Expected keys:
     Found: name
@@ -667,6 +669,7 @@ exports[`Entity normalization should throw a custom error if data loads with no 
   Try inspecting the network response or fetch() return value.
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
   Learn more about schemas: https://resthooks.io/docs/api/schema
+  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
   Expected keys:
     Found: 
@@ -688,13 +691,14 @@ exports[`Entity normalization should throw a custom error if data loads with str
 exports[`Entity normalization should throw a custom error loads with array 1`] = `
 "Attempted to initialize MyEntity with an array, but named members were expected
 
-  This is likely due to a malformed response.
-  Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about schemas: https://resthooks.io/docs/api/schema
+This is likely due to a malformed response.
+Try inspecting the network response or fetch() return value.
+Or use debugging tools: https://resthooks.io/docs/guides/debugging
+Learn more about schemas: https://resthooks.io/docs/api/schema
+If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
-  Missing: name,secondthing
-  First three members: [
+Missing: name,secondthing
+First three members: [
   {
     \\"name\\": \\"hi\\",
     \\"secondthing\\": \\"ho\\"
@@ -708,4 +712,52 @@ exports[`Entity normalization should throw a custom error loads with array 1`] =
     \\"secondthing\\": \\"ho\\"
   }
 ]"
+`;
+
+exports[`Entity normalization should warn when automaticValidation === "warn" 1`] = `
+Array [
+  "Attempted to initialize MyEntity with an array, but named members were expected
+
+This is likely due to a malformed response.
+Try inspecting the network response or fetch() return value.
+Or use debugging tools: https://resthooks.io/docs/guides/debugging
+Learn more about schemas: https://resthooks.io/docs/api/schema
+If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
+
+Missing: secondthing
+First three members: [
+  {
+    \\"name\\": \\"hi\\",
+    \\"secondthing\\": \\"ho\\"
+  },
+  {
+    \\"name\\": \\"hi\\",
+    \\"secondthing\\": \\"ho\\"
+  },
+  {
+    \\"name\\": \\"hi\\",
+    \\"secondthing\\": \\"ho\\"
+  }
+]",
+]
+`;
+
+exports[`Entity normalization should warn when automaticValidation === "warn" 2`] = `
+Array [
+  "Attempted to initialize MyEntity with a large number of unexpected keys found
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
+  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
+
+  Expected keys:
+    Found: name
+    Unexpected keys: nonexistantthing
+  Value: {
+  \\"name\\": \\"hoho\\",
+  \\"nonexistantthing\\": \\"hi\\"
+}",
+]
 `;

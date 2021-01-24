@@ -37,6 +37,16 @@ export default abstract class Entity extends SimpleRecord {
   /** Defines indexes to enable lookup by */
   declare static indexes?: readonly string[];
 
+  /** Control how automatic schema validation is handled
+   *
+   * `undefined`: Defaults - throw error in worst offense
+   * 'warn': only ever warn
+   * 'silent': Don't bother with processing at all
+   *
+   * Note: this only applies to non-nested members.
+   */
+  protected declare static automaticValidation?: 'warn' | 'silent';
+
   /**
    * A unique identifier for each Entity
    *
@@ -66,7 +76,10 @@ export default abstract class Entity extends SimpleRecord {
     // TODO: what's store needs to be a differing type from fromJS
     const processedEntity = this.fromJS(input, parent, key);
     /* istanbul ignore else */
-    if (process.env.NODE_ENV !== 'production') {
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      this.automaticValidation !== 'silent'
+    ) {
       const instanceSample = new (this as any)();
       const keysOfRecord = new Set(Object.keys(instanceSample));
       const keysOfProps = this.keysDefined(processedEntity);
@@ -91,21 +104,24 @@ export default abstract class Entity extends SimpleRecord {
       // only bother with this if they used *any* defaults
       if (keysOfRecord.size) {
         if (Array.isArray(input) && unexpected.length) {
-          const error = new Error(
-            `Attempted to initialize ${
-              this.name
-            } with an array, but named members were expected
+          const errorMessage = `Attempted to initialize ${
+            this.name
+          } with an array, but named members were expected
 
-  This is likely due to a malformed response.
-  Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about schemas: https://resthooks.io/docs/api/schema
+This is likely due to a malformed response.
+Try inspecting the network response or fetch() return value.
+Or use debugging tools: https://resthooks.io/docs/guides/debugging
+Learn more about schemas: https://resthooks.io/docs/api/schema
+If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
-  Missing: ${missing}
-  First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`,
-          );
-          (error as any).status = 400;
-          throw error;
+Missing: ${missing}
+First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
+          if (this.automaticValidation !== 'warn') {
+            const error = new Error(errorMessage);
+            (error as any).status = 400;
+            throw error;
+          }
+          console.warn(errorMessage);
         }
 
         const tooManyUnexpected =
@@ -137,11 +153,15 @@ export default abstract class Entity extends SimpleRecord {
   Try inspecting the network response or fetch() return value.
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
   Learn more about schemas: https://resthooks.io/docs/api/schema
+  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
   Expected keys:
     Found: ${found}${extra}
   Value: ${JSON.stringify(this.toObjectDefined(processedEntity), null, 2)}`;
-          if (found.length >= 4 && tooManyUnexpected) {
+          if (
+            (found.length >= 4 && tooManyUnexpected) ||
+            this.automaticValidation === 'warn'
+          ) {
             console.warn(errorMessage);
           } else {
             const error = new Error(errorMessage);
