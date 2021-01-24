@@ -50,7 +50,6 @@ describe(`${Entity.name} normalization`, () => {
   });
   let consoleOutput: string[] = [];
   const mockedWarn = (output: string) => {
-    console.log('ahhh');
     consoleOutput.push(output);
   };
   beforeEach(() => (console.warn = mockedWarn));
@@ -110,6 +109,62 @@ describe(`${Entity.name} normalization`, () => {
       );
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
+  });
+
+  it('should only warn if at least four members are found with unexpected', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly a: string = '';
+      readonly b: string = '';
+      readonly c: string = '';
+      readonly missinga: string = '';
+      readonly missingb: string = '';
+      readonly missingc: string = '';
+      readonly missingd: string = '';
+      readonly missinge: string = '';
+      readonly missingf: string = '';
+      readonly missingg: string = '';
+      readonly missingh: string = '';
+      readonly missingi: string = '';
+      readonly missingj: string = '';
+      readonly missingk: string = '';
+      readonly missingl: string = '';
+      readonly missingm: string = '';
+      readonly missingn: string = '';
+      readonly missingo: string = '';
+      readonly missingp: string = '';
+      pk() {
+        return this.name;
+      }
+    }
+    const schema = MyEntity;
+
+    expect(
+      normalize(
+        {
+          name: 'hi',
+          a: 'a',
+          b: 'b',
+          c: 'c',
+          d: 'e',
+          e: 0,
+          f: 0,
+          g: 0,
+          h: 0,
+          i: 0,
+          j: 0,
+          k: 0,
+          l: 0,
+          m: 0,
+          n: 0,
+          o: 0,
+          p: 0,
+        },
+        schema,
+      ),
+    ).toMatchSnapshot();
+    expect(consoleOutput.length).toBe(1);
+    expect(consoleOutput).toMatchSnapshot();
   });
 
   it('should not expect getters returned', () => {

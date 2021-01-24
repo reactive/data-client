@@ -129,8 +129,9 @@ export default abstract class Entity extends SimpleRecord {
             extra += `\n    Unexpected keys: ${unexpected}`;
             reason = 'a large number of unexpected keys found';
           }
-          const error = new Error(
-            `Attempted to initialize ${this.name} with ${reason}
+          const errorMessage = `Attempted to initialize ${
+            this.name
+          } with ${reason}
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
@@ -139,10 +140,14 @@ export default abstract class Entity extends SimpleRecord {
 
   Expected keys:
     Found: ${found}${extra}
-  Value: ${JSON.stringify(this.toObjectDefined(processedEntity), null, 2)}`,
-          );
-          (error as any).status = 400;
-          throw error;
+  Value: ${JSON.stringify(this.toObjectDefined(processedEntity), null, 2)}`;
+          if (found.length >= 4 && tooManyUnexpected) {
+            console.warn(errorMessage);
+          } else {
+            const error = new Error(errorMessage);
+            (error as any).status = 400;
+            throw error;
+          }
         }
       }
     }
