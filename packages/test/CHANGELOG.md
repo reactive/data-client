@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [2.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@2.0.0...@rest-hooks/test@2.0.1) (2021-01-24)
+
+
+### 🐛 Bug Fix
+
+* Disallow breaking 3.6 version of @testing-library/react-hooks ([#498](https://github.com/coinbase/rest-hooks/issues/498)) ([b3b057b](https://github.com/coinbase/rest-hooks/commit/b3b057bdbe5f2da6ce2a55a7129989e3f9d7b30b))
+* MockResolver intercepts subscriptions matching fixtures ([#490](https://github.com/coinbase/rest-hooks/issues/490)) ([63e631f](https://github.com/coinbase/rest-hooks/commit/63e631ffa66505cba290723ce4dd773fe9be4a26))
+
+
+
 ## 2.0.0 (2021-01-19)
 
 

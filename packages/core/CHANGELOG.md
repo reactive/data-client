@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0...@rest-hooks/core@1.0.1) (2021-01-24)
+
+
+### 💅 Enhancement
+
+* Add `static automaticValidation` to Entity ([#495](https://github.com/coinbase/rest-hooks/issues/495)) ([034450d](https://github.com/coinbase/rest-hooks/commit/034450d2eb00fab636ca4db5138b6a0573620db6))
+* Improve malformed entity detection ([#494](https://github.com/coinbase/rest-hooks/issues/494)) ([b8bb07f](https://github.com/coinbase/rest-hooks/commit/b8bb07f480549a97254a4fdf6b00acd9cb89a9eb))
+
+
+### 🐛 Bug Fix
+
+* Support TypeScript <4 ([#489](https://github.com/coinbase/rest-hooks/issues/489)) ([267b541](https://github.com/coinbase/rest-hooks/commit/267b5412cf4e65f6e523aad764203b91a92cc427))
+
+
+### 📝 Documentation
+
+* Improve rest-types and network transform ([#486](https://github.com/coinbase/rest-hooks/issues/486)) ([e61342a](https://github.com/coinbase/rest-hooks/commit/e61342acc920288ecb98f36e9aa8ecb13dd6fe44))
+* Update wording for 'cache lifetime' in feature list ([#483](https://github.com/coinbase/rest-hooks/issues/483)) ([5a62b73](https://github.com/coinbase/rest-hooks/commit/5a62b73d66cc232e21f5f8792e8d6f63d094b9f2))
+
+
+
 ## 1.0.0 (2021-01-19)
 
 

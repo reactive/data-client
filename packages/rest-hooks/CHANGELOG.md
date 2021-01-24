@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.0...rest-hooks@5.0.1) (2021-01-24)
+
+
+### 💅 Enhancement
+
+* Add jsdocs deprecations to deprecated methods ([#487](https://github.com/coinbase/rest-hooks/issues/487)) ([cc7d626](https://github.com/coinbase/rest-hooks/commit/cc7d6269e752335e6502b7ada0da21a881c2afb6))
+* Improve malformed entity detection ([#494](https://github.com/coinbase/rest-hooks/issues/494)) ([b8bb07f](https://github.com/coinbase/rest-hooks/commit/b8bb07f480549a97254a4fdf6b00acd9cb89a9eb))
+
+
+### 🐛 Bug Fix
+
+* Wait til data is stale for first poll ([#491](https://github.com/coinbase/rest-hooks/issues/491)) ([82f7b5c](https://github.com/coinbase/rest-hooks/commit/82f7b5c7e50b44273867e10489d0631db9e64aa9))
+
+
+### 📝 Documentation
+
+* Improve rest-types and network transform ([#486](https://github.com/coinbase/rest-hooks/issues/486)) ([e61342a](https://github.com/coinbase/rest-hooks/commit/e61342acc920288ecb98f36e9aa8ecb13dd6fe44))
+* Update wording for 'cache lifetime' in feature list ([#483](https://github.com/coinbase/rest-hooks/issues/483)) ([5a62b73](https://github.com/coinbase/rest-hooks/commit/5a62b73d66cc232e21f5f8792e8d6f63d094b9f2))
+
+
+
 ## 5.0.0 (2021-01-19)
 
 
