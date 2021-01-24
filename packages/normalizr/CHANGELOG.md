@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.0...@rest-hooks/normalizr@6.0.1) (2021-01-24)
+
+
+### 💅 Enhancement
+
+* Add `static automaticValidation` to Entity ([#495](https://github.com/coinbase/rest-hooks/issues/495)) ([034450d](https://github.com/coinbase/rest-hooks/commit/034450d2eb00fab636ca4db5138b6a0573620db6))
+* Add jsdocs deprecations to deprecated methods ([#487](https://github.com/coinbase/rest-hooks/issues/487)) ([cc7d626](https://github.com/coinbase/rest-hooks/commit/cc7d6269e752335e6502b7ada0da21a881c2afb6))
+* Improve malformed entity detection ([#494](https://github.com/coinbase/rest-hooks/issues/494)) ([b8bb07f](https://github.com/coinbase/rest-hooks/commit/b8bb07f480549a97254a4fdf6b00acd9cb89a9eb))
+
+
+### 🐛 Bug Fix
+
+* Support TypeScript <4 ([#489](https://github.com/coinbase/rest-hooks/issues/489)) ([267b541](https://github.com/coinbase/rest-hooks/commit/267b5412cf4e65f6e523aad764203b91a92cc427))
+
+
+
 ## 6.0.0 (2021-01-19)
 
 
