@@ -105,7 +105,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         const { result, waitForNextUpdate } = renderRestHook(() => {
           return useResource(CoolerArticleDetail, payload);
         });
-        expect(result.current).toBeNull();
+        expect(result.current).toBeUndefined();
         await waitForNextUpdate();
         expect(result.current.title).toBe(payload.title);
         // @ts-expect-error
@@ -119,7 +119,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
             useCache(CoolerArticleDetail, payload),
           ];
         });
-        expect(result.current).toBeNull();
+        expect(result.current).toBeUndefined();
         await waitForNextUpdate();
         expect(result.current[0]?.title).toBe(payload.title);
         expect(result.current[0]).toBe(result.current[1]);
@@ -137,7 +137,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
             fetch: useFetcher(AbortableArticle),
           };
         });
-        expect(result.current).toBeNull();
+        expect(result.current).toBeUndefined();
         await waitForNextUpdate();
         expect(result.current.data.title).toBe(payload.title);
         // @ts-expect-error
@@ -155,7 +155,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         const { result, waitForNextUpdate } = renderRestHook(() => {
           return useResource(ListPaginatedArticle, {});
         });
-        expect(result.current).toBeNull();
+        expect(result.current).toBeUndefined();
         await waitForNextUpdate();
         expect(result.current).toBeInstanceOf(SimpleRecord);
         expect(result.current.nextPage).toBe('');
@@ -170,7 +170,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       const { result, waitForNextUpdate } = renderRestHook(() => {
         return useResource(CoolerArticleResource.detail(), payload);
       });
-      expect(result.current).toBeNull();
+      expect(result.current).toBeUndefined();
       await waitForNextUpdate();
       expect(result.current instanceof CoolerArticleResource).toBe(true);
       expect(result.current.title).toBe(payload.title);
@@ -182,7 +182,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       const { result, waitForNextUpdate } = renderRestHook(() => {
         return useResource(PaginatedArticleResource.listDefaults(), {});
       });
-      expect(result.current).toBeNull();
+      expect(result.current).toBeUndefined();
       await waitForNextUpdate();
       expect(result.current).toBeInstanceOf(SimpleRecord);
       expect(result.current.nextPage).toBe('');
@@ -218,7 +218,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           throw e;
         }
       });
-      expect(result.current).toBeNull();
+      expect(result.current).toBeUndefined();
       await waitForNextUpdate();
       let [data, del] = result.current;
       expect(data).toBeInstanceOf(CoolerArticleResource);
@@ -269,7 +269,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           throw e;
         }
       });
-      expect(result.current).toBeNull();
+      expect(result.current).toBeUndefined();
       await waitForNextUpdate();
       let [data, invalidate] = result.current;
       expect(data).toBeInstanceOf(CoolerArticleResource);
@@ -320,7 +320,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           title: '0',
         });
       });
-      expect(result.current).toBeNull();
+      expect(result.current).toBeUndefined();
       await waitForNextUpdate();
       expect(result.error).toBeDefined();
       expect((result.error as any).status).toBe(403);
@@ -335,7 +335,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           },
         ]);
       });
-      expect(result.current).toBeNull();
+      expect(result.current).toBeUndefined();
       await waitForNextUpdate();
       expect(result.error).toBeDefined();
       expect((result.error as any).status).toBe(403);
@@ -349,7 +349,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           id: 878,
         });
       });
-      expect(result.current).toBeNull();
+      expect(result.current).toBeUndefined();
       await waitForNextUpdate();
       expect(result.error).toBeDefined();
       expect((result.error as any).status).toBe(400);
@@ -368,7 +368,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           [UserResource.list(), {}],
         );
       });
-      expect(result.current).toBeNull();
+      expect(result.current).toBeUndefined();
       await waitForNextUpdate();
       const [article, users] = result.current;
       expect(article instanceof CoolerArticleResource).toBe(true);
@@ -715,7 +715,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
               fetch: useFetcher(IndexedUserResource.detail()),
             };
           });
-          expect(result.current).toBeNull();
+          expect(result.current).toBeUndefined();
           await waitForNextUpdate();
           const bob = result.current.bob;
           expect(bob).toBeDefined();

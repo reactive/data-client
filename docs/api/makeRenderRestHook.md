@@ -119,7 +119,7 @@ it('should resolve useResource()', async () => {
   const { result, waitForNextUpdate } = renderRestHook(() => {
     return useResource(ArticleResource.detail(), payload);
   });
-  expect(result.current).toBe(null);
+  expect(result.current).toBeUndefined();
   await waitForNextUpdate();
   expect(result.current instanceof ArticleResource).toBe(true);
   expect(result.current.title).toBe(payload.title);

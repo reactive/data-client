@@ -218,6 +218,6 @@ describe('createEnhancedReducerHook', () => {
       useEnhancedReducer(state => state, {}, [dispatchingMiddleware]);
     });
     expect(result.error).toBeDefined();
-    expect(result.error.message).toMatchSnapshot();
+    expect(result.error?.message).toMatchSnapshot();
   });
 });

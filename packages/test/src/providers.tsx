@@ -19,10 +19,10 @@ let makeExternalCacheProvider: (
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { createStore, applyMiddleware } = require('redux');
-  makeExternalCacheProvider = (
+  makeExternalCacheProvider = function makeExternal(
     managers: Manager[],
     initialState?: DeepPartialWithUnknown<State<any>>,
-  ) => {
+  ) {
     const store = createStore(
       reducer,
       initialState,
@@ -45,10 +45,10 @@ try {
     };
   };
 } catch (e) {
-  makeExternalCacheProvider = (
+  makeExternalCacheProvider = function makeExternal(
     managers: Manager[],
     initialState?: DeepPartialWithUnknown<State<any>>,
-  ): ((props: { children: React.ReactNode }) => JSX.Element) => {
+  ): (props: { children: React.ReactNode }) => JSX.Element {
     throw new Error(
       'Using makeExternalCacheProvider() requires redux to be installed as a peerDependency to rest-hooks',
     );
