@@ -513,6 +513,41 @@ Object {
 }
 `;
 
+exports[`Entity normalization should allow many unexpected as long as none are missing 1`] = `
+Object {
+  "entities": Object {
+    "MyEntity": Object {
+      "hi": MyEntity {
+        "a": "a",
+        "b": "b",
+        "c": "c",
+        "d": "e",
+        "e": 0,
+        "f": 0,
+        "g": 0,
+        "h": 0,
+        "i": 0,
+        "j": 0,
+        "k": 0,
+        "l": 0,
+        "m": 0,
+        "n": 0,
+        "name": "hi",
+        "o": 0,
+        "p": 0,
+        "q": 0,
+        "r": 0,
+        "s": 0,
+        "t": 0,
+        "u": 0,
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": "hi",
+}
+`;
+
 exports[`Entity normalization should only warn if at least four members are found with unexpected 1`] = `
 Object {
   "entities": Object {

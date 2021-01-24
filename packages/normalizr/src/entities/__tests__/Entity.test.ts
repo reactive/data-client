@@ -167,6 +167,48 @@ describe(`${Entity.name} normalization`, () => {
     expect(consoleOutput).toMatchSnapshot();
   });
 
+  it('should allow many unexpected as long as none are missing', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly a: string = '';
+      pk() {
+        return this.name;
+      }
+    }
+    const schema = MyEntity;
+
+    expect(
+      normalize(
+        {
+          name: 'hi',
+          a: 'a',
+          b: 'b',
+          c: 'c',
+          d: 'e',
+          e: 0,
+          f: 0,
+          g: 0,
+          h: 0,
+          i: 0,
+          j: 0,
+          k: 0,
+          l: 0,
+          m: 0,
+          n: 0,
+          o: 0,
+          p: 0,
+          q: 0,
+          r: 0,
+          s: 0,
+          t: 0,
+          u: 0,
+        },
+        schema,
+      ),
+    ).toMatchSnapshot();
+    expect(consoleOutput.length).toBe(0);
+  });
+
   it('should not expect getters returned', () => {
     class MyEntity extends Entity {
       readonly name: string = '';
@@ -190,6 +232,7 @@ describe(`${Entity.name} normalization`, () => {
       normalize({ name: 'bob' }, MyEntity);
     }
     expect(normalizeBad).not.toThrow();
+    expect(consoleOutput.length).toBe(0);
   });
 
   it('should throw if data loads with unexpected prop that is a getter', () => {
