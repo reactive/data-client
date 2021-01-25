@@ -135,7 +135,11 @@ describe('useResource()', () => {
     renderRestHook = makeRenderRestHook(makeCacheProvider);
   });
   afterEach(() => {
-    renderRestHook.cleanup();
+    try {
+      renderRestHook.cleanup();
+    } catch (e) {
+      console.log('error in cleanup');
+    }
   });
 
   it('should dispatch an action that fetches', async () => {
@@ -473,7 +477,7 @@ describe('useResource()', () => {
     const expiredShape = { ...shape };
     expiredShape.options = { ...expiredShape.options, dataExpiryLength: -100 };
 
-    const { result, waitForNextUpdate } = renderRestHook(
+    const { result, rerender } = renderRestHook(
       () => {
         return useResource(shape, {
           id: '4000',
@@ -492,12 +496,14 @@ describe('useResource()', () => {
       },
     );
 
+    const firsterror = result.error;
     expect(result.error).not.toBe(null);
     expect((result.error as any).status).toBe(400);
     expect(result.error).toMatchSnapshot();
-    await waitForNextUpdate();
+    rerender();
     expect(result.error).not.toBe(null);
     expect((result.error as any).status).toBe(400);
+    expect(result.error).not.toBe(firsterror);
   });
 
   it('should throw error when response is array when expecting entity', async () => {
