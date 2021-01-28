@@ -24,11 +24,11 @@ Install the rest-hooks package into your project using [yarn](https://yarnpkg.co
 <!--DOCUSAURUS_CODE_TABS-->
 <!--yarn-->
 ```bash
-yarn add rest-hooks
+yarn add rest-hooks @rest-hooks/rest
 ```
 <!--npm-->
 ```bash
-npm install rest-hooks
+npm install rest-hooks @rest-hooks/rest
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
