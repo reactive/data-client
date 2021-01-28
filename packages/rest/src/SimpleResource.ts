@@ -225,7 +225,7 @@ export default abstract class SimpleResource extends Entity {
     const endpoint = this.endpointMutate();
     return this.memo('#delete', () =>
       endpoint.extend({
-        fetch(params: Readonly<object>) {
+        fetch(params: any) {
           return endpoint.fetch.call(this, params).then(() => params);
         },
         method: 'DELETE',
