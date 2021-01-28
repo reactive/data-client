@@ -138,7 +138,7 @@ import { Resource } from '@rest-hooks/rest';
 
 export default class CommentResource extends Resource {
   static detail<T extends typeof Resource>(this: T) {
-    return super.detail.extend({
+    return super.detail().extend({
       schema: { data: this },
     });
   }
