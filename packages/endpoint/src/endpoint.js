@@ -13,15 +13,28 @@ function runCompat(endpoint, options) {
   if (endpoint.schema === undefined) endpoint.schema = null;
 }
 
+let CSP = false;
+try {
+  Function();
+} catch (e) {
+  CSP = true;
+}
+
 export default class Endpoint extends Function {
   constructor(fetchFunction, options) {
-    const self = (...args) => self.fetch(...args);
+    let self;
+    if (CSP) {
+      self = (...args) => self.fetch(...args);
+      Object.setPrototypeOf(self, new.target.prototype);
+    } else {
+      super('return arguments.callee.fetch.apply(arguments.callee, arguments)');
+      self = this;
+    }
     /** The following is for compatibility with FetchShape */
     self.getFetchKey = params => self.key(params);
 
     if (fetchFunction) self.fetch = fetchFunction;
     Object.assign(self, options);
-    Object.setPrototypeOf(self, new.target.prototype);
 
     /** The following is for compatibility with FetchShape */
     runCompat(self, options);
