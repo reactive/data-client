@@ -13,13 +13,32 @@ function runCompat(endpoint, options) {
   if (endpoint.schema === undefined) endpoint.schema = null;
 }
 
+let CSP = false;
+try {
+  Function();
+} catch (e) {
+  CSP = true;
+}
+
 export default class Endpoint extends Function {
   constructor(fetchFunction, options) {
-    super('return arguments.callee.fetch.apply(arguments.callee, arguments)');
-    if (fetchFunction) this.fetch = fetchFunction;
-    Object.assign(this, options);
+    let self;
+    if (CSP) {
+      self = (...args) => self.fetch(...args);
+      Object.setPrototypeOf(self, new.target.prototype);
+    } else {
+      super('return arguments.callee.fetch.apply(arguments.callee, arguments)');
+      self = this;
+    }
     /** The following is for compatibility with FetchShape */
-    runCompat(this, options);
+    self.getFetchKey = params => self.key(params);
+
+    if (fetchFunction) self.fetch = fetchFunction;
+    Object.assign(self, options);
+
+    /** The following is for compatibility with FetchShape */
+    runCompat(self, options);
+    return self;
   }
 
   key(params) {
@@ -30,6 +49,7 @@ export default class Endpoint extends Function {
     // make a constructor/prototype based off this
     // extend from it and init with options sent
     class E extends this.constructor {}
+
     Object.assign(E.prototype, this);
     const instance = new E(options.fetch, options);
 
@@ -38,9 +58,4 @@ export default class Endpoint extends Function {
 
     return instance;
   }
-
-  /** The following is for compatibility with FetchShape */
-  getFetchKey = params => {
-    return this.key(params);
-  };
 }
