@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@1.0.0...@rest-hooks/rest@1.0.1) (2021-01-30)
+
+
+### 💅 Enhancement
+
+* Add jsdocs deprecations to deprecated methods ([#487](https://github.com/coinbase/rest-hooks/issues/487)) ([cc7d626](https://github.com/coinbase/rest-hooks/commit/cc7d6269e752335e6502b7ada0da21a881c2afb6))
+* Expand matches peerdeps for endpoint ([#504](https://github.com/coinbase/rest-hooks/issues/504)) ([9682b7c](https://github.com/coinbase/rest-hooks/commit/9682b7ce955419fa7e1095c377b45400758fd101))
+* Improve malformed entity detection ([#494](https://github.com/coinbase/rest-hooks/issues/494)) ([b8bb07f](https://github.com/coinbase/rest-hooks/commit/b8bb07f480549a97254a4fdf6b00acd9cb89a9eb))
+
+
+### 🐛 Bug Fix
+
+* Widen Resource.delete() just like other endpoints ([#503](https://github.com/coinbase/rest-hooks/issues/503)) ([2aaa882](https://github.com/coinbase/rest-hooks/commit/2aaa8829487574ca05d71163af44053f52b304d8))
+
+
+### 📝 Documentation
+
+* Add chat badge ([#501](https://github.com/coinbase/rest-hooks/issues/501)) ([787e250](https://github.com/coinbase/rest-hooks/commit/787e25022f8a8949e5dfb818c63fd1574dbd2787))
+
+
+
 ## 1.0.0 (2021-01-19)
 
 
