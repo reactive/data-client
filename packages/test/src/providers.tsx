@@ -44,7 +44,6 @@ try {
           managers[i].init?.(store.getState());
         }
         return () => {
-          console.log('unmount external');
           for (let i = 0; i < managers.length; ++i) {
             managers[i].cleanup();
           }
