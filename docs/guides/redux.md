@@ -57,14 +57,14 @@ import { initialState } from '@rest-hooks/core';
 import { createStore, applyMiddleware } from 'redux';
 import ReactDOM from 'react-dom';
 
-const manager = new NetworkManager();
+const networkManager = new NetworkManager();
 const subscriptionManager = new SubscriptionManager(PollingSubscription);
 
 const store = createStore(
   reducer,
   initialState,
   applyMiddleware(
-    manager.getMiddleware(),
+    networkManager.getMiddleware(),
     subscriptionManager.getMiddleware(),
     // place Rest Hooks built middlewares before PromiseifyMiddleware
     PromiseifyMiddleware,
@@ -72,6 +72,11 @@ const store = createStore(
   ),
 );
 const selector = state => state;
+
+// managers optionally provide initialization subroutine
+for (const manager of [networkManager, subscriptionManager]) {
+  managers[i].init?.(selector(store.getState()));
+}
 
 ReactDOM.render(
   <ExternalCacheProvider store={store} selector={selector}>

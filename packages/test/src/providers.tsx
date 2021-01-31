@@ -1,6 +1,6 @@
 import { State, reducer, CacheProvider, Manager } from '@rest-hooks/core';
 import { ExternalCacheProvider, PromiseifyMiddleware } from 'rest-hooks';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 // Extension of the DeepPartial type defined by Redux which handles unknown
 type DeepPartialWithUnknown<T> = {
@@ -37,6 +37,20 @@ try {
     }: {
       children: React.ReactNode;
     }) {
+      // this is not handled in ExternalCacheProvider as it doesn't
+      // own its managers. Since we are owning them here, we should ensure it happens
+      useEffect(() => {
+        for (let i = 0; i < managers.length; ++i) {
+          managers[i].init?.(store.getState());
+        }
+        return () => {
+          console.log('unmount external');
+          for (let i = 0; i < managers.length; ++i) {
+            managers[i].cleanup();
+          }
+        };
+      }, []);
+
       return (
         <ExternalCacheProvider store={store} selector={(s: State<any>) => s}>
           {children}
