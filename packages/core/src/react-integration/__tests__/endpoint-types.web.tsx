@@ -115,11 +115,15 @@ describe('endpoint types', () => {
       });
 
       it('should error on invalid params', async () => {
+        console.log('last test start');
         const { result, waitForNextUpdate } = renderRestHook(() => {
           return useFetcher(TypedArticleResource.update());
         });
         // @ts-expect-error
         await expect(result.current({ id: 'hi' }, { title: 'hi' })).rejects;
+        console.log('post reject');
+        await waitForNextUpdate();
+        console.log('post update');
       });
     });
   }
