@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@2.0.1...@rest-hooks/test@3.0.0) (2021-01-31)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* - result.current, result.error is now `undefined` after suspense, rather than `null`
+-  interval will now default to 50ms in async utils
+-  timeout will now default to 1000ms in async utils
+-  suppressErrors has been removed from async utils
+- Adjust types so that react renderer exports don't required extra generic parameter
+- Importing from renderHook and act from @testing-library/react-hooks will now auto-detect which renderer to used based on the project's dependencies
+    - peerDependencies are now optional to support different dependencies being required
+    - This means there will be no warning if the dependency is not installed at all, but it will still warn if an incompatible version is installed
+    - Auto-detection won't work with bundlers (e.g. Webpack). Please use as specific renderer import instead
+(see https://github.com/testing-library/react-hooks-testing-library/releases/tag/v5.0.0)
+
+### 📦 Package
+
+* react-hooks-testing-library major ([#497](https://github.com/coinbase/rest-hooks/issues/497)) ([e6a5210](https://github.com/coinbase/rest-hooks/commit/e6a5210f066dddcad065c3737dbfb9ac8f9e8d89))
+
+
+### 📝 Documentation
+
+* Update readme for test pkg ([#509](https://github.com/coinbase/rest-hooks/issues/509)) ([55afd72](https://github.com/coinbase/rest-hooks/commit/55afd72a1a859bdac2139589a3e4f061d06bea0e))
+
+
+
 ### [2.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@2.0.0...@rest-hooks/test@2.0.1) (2021-01-24)
 
 
