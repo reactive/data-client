@@ -82,7 +82,6 @@ describe('useResource()', () => {
 
   afterEach(() => {
     nock.cleanAll();
-    renderRestHook.cleanup();
   });
 
   it('should throw errors on bad network', async () => {
@@ -91,7 +90,7 @@ describe('useResource()', () => {
         title: '0',
       });
     });
-    expect(result.current).toBe(null);
+    expect(result.current).toBeUndefined();
     await waitForNextUpdate();
     expect(result.error).toBeDefined();
     expect((result.error as any).status).toBe(403);
@@ -124,7 +123,6 @@ describe('useResource()', () => {
 
   afterEach(() => {
     nock.cleanAll();
-    renderRestHook.cleanup();
   });
 
   it('should throw errors on bad network', async () => {
@@ -133,7 +131,7 @@ describe('useResource()', () => {
         title: '0',
       });
     });
-    expect(result.current).toBe(null);
+    expect(result.current).toBeUndefined();
     await waitForNextUpdate();
     expect(result.error).toBeDefined();
     expect((result.error as any).status).toBe(403);

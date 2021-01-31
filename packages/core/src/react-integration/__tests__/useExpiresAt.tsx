@@ -35,9 +35,6 @@ describe('useExpiresAt()', () => {
   beforeEach(() => {
     renderRestHook = makeRenderRestHook(makeCacheProvider);
   });
-  afterEach(() => {
-    renderRestHook.cleanup();
-  });
 
   it('age is minimum of entities', () => {
     const ListTaco = new Endpoint(

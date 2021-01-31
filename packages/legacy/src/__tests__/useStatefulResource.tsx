@@ -58,10 +58,6 @@ describe('useStatefulResource()', () => {
     renderRestHook = makeRenderRestHook(makeCacheProvider);
   });
 
-  afterEach(() => {
-    renderRestHook.cleanup();
-  });
-
   it('should work on good network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useStatefulResource(CoolerArticleResource.detail(), {

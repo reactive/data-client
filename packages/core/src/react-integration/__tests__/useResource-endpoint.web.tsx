@@ -92,7 +92,7 @@ describe('useResource()', () => {
         id: 400,
       });
     });
-    expect(result.current).toBe(null);
+    expect(result.current).toBeUndefined();
     await waitForNextUpdate();
     expect(result.error).toBeDefined();
     expect((result.error as any).status).toBeGreaterThan(399);
@@ -138,9 +138,6 @@ describe('useResource()', () => {
 
   beforeEach(() => {
     renderRestHook = makeRenderRestHook(makeCacheProvider);
-  });
-  afterEach(() => {
-    renderRestHook.cleanup();
   });
 
   it('should dispatch an action that fetches', async () => {
@@ -362,10 +359,10 @@ describe('useResource()', () => {
   it('should throw errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useResource(CoolerArticleResource.detail(), {
-        title: '0',
+        id: '0',
       });
     });
-    expect(result.current).toBe(null);
+    expect(result.current).toBeUndefined();
     await waitForNextUpdate();
     expect(result.error).toBeDefined();
     expect((result.error as any).status).toBe(403);
@@ -376,11 +373,11 @@ describe('useResource()', () => {
       return useResource([
         CoolerArticleResource.detail(),
         {
-          title: '0',
+          id: '0',
         },
       ]);
     });
-    expect(result.current).toBe(null);
+    expect(result.current).toBeUndefined();
     await waitForNextUpdate();
     expect(result.error).toBeDefined();
     expect((result.error as any).status).toBe(403);
@@ -482,8 +479,8 @@ describe('useResource()', () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useResource(GetNoEntities, { userId });
     });
-    // null means it threw
-    expect(result.current).toBe(null);
+    // undefined means it threw
+    expect(result.current).toBeUndefined();
     await waitForNextUpdate();
     expect(result.current).toStrictEqual(response);
   });
@@ -498,8 +495,8 @@ describe('useResource()', () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useResource(GetPhoto, { userId });
     });
-    // null means it threw
-    expect(result.current).toBe(null);
+    // undefined means it threw
+    expect(result.current).toBeUndefined();
     await waitForNextUpdate();
     expect(result.current).toStrictEqual(response);
   });
@@ -508,8 +505,8 @@ describe('useResource()', () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useResource(ArticleTimedResource.detail(), payload);
     });
-    // null means it threw
-    expect(result.current).toBe(null);
+    // undefined means it threw
+    expect(result.current).toBeUndefined();
     await waitForNextUpdate();
     expect(result.current.createdAt.getDate()).toBe(
       result.current.createdAt.getDate(),
@@ -565,8 +562,8 @@ describe('useResource()', () => {
           initialProps: { authToken: '' },
         },
       );
-      // null means it threw (suspended)
-      expect(result.current).toBe(null);
+      // undefined means it threw (suspended)
+      expect(result.current).toBeUndefined();
       await waitForNextUpdate();
       expect(result.current.data.title).toBe('unauthorized');
       rerender({ authToken: 'thepassword' });

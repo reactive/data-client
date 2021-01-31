@@ -1,6 +1,6 @@
 import { State, reducer, CacheProvider, Manager } from '@rest-hooks/core';
 import { ExternalCacheProvider, PromiseifyMiddleware } from 'rest-hooks';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 // Extension of the DeepPartial type defined by Redux which handles unknown
 type DeepPartialWithUnknown<T> = {
@@ -19,10 +19,10 @@ let makeExternalCacheProvider: (
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { createStore, applyMiddleware } = require('redux');
-  makeExternalCacheProvider = (
+  makeExternalCacheProvider = function makeExternal(
     managers: Manager[],
     initialState?: DeepPartialWithUnknown<State<any>>,
-  ) => {
+  ) {
     const store = createStore(
       reducer,
       initialState,
@@ -37,6 +37,19 @@ try {
     }: {
       children: React.ReactNode;
     }) {
+      // this is not handled in ExternalCacheProvider as it doesn't
+      // own its managers. Since we are owning them here, we should ensure it happens
+      useEffect(() => {
+        for (let i = 0; i < managers.length; ++i) {
+          managers[i].init?.(store.getState());
+        }
+        return () => {
+          for (let i = 0; i < managers.length; ++i) {
+            managers[i].cleanup();
+          }
+        };
+      }, []);
+
       return (
         <ExternalCacheProvider store={store} selector={(s: State<any>) => s}>
           {children}
@@ -45,10 +58,10 @@ try {
     };
   };
 } catch (e) {
-  makeExternalCacheProvider = (
+  makeExternalCacheProvider = function makeExternal(
     managers: Manager[],
     initialState?: DeepPartialWithUnknown<State<any>>,
-  ): ((props: { children: React.ReactNode }) => JSX.Element) => {
+  ): (props: { children: React.ReactNode }) => JSX.Element {
     throw new Error(
       'Using makeExternalCacheProvider() requires redux to be installed as a peerDependency to rest-hooks',
     );

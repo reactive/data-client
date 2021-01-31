@@ -316,7 +316,6 @@ describe('useRetrieve', () => {
   });
   afterEach(() => {
     nock.cleanAll();
-    renderRestHook.cleanup();
   });
 
   it('should dispatch singles', async () => {

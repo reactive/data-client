@@ -58,8 +58,6 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     });
     afterEach(() => {
       nock.cleanAll();
-
-      renderRestHook.cleanup();
     });
 
     it('useSubscription() + useCache()', async () => {
@@ -164,7 +162,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
 async function validateSubscription(
   result: {
     readonly current: PollingArticleResource | undefined;
-    readonly error: Error;
+    readonly error?: Error;
   },
   frequency: number,
   waitForNextUpdate: () => Promise<void>,

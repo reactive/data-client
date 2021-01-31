@@ -2,6 +2,7 @@ import { CoolerArticleResource } from '__tests__/common';
 import { RECEIVE_TYPE } from '@rest-hooks/core/actionTypes';
 import React, { useContext } from 'react';
 import { act, render } from '@testing-library/react';
+import { NetworkManager } from '@rest-hooks/core';
 
 import { DispatchContext, StateContext } from '../../context';
 import CacheProvider from '../CacheProvider';
@@ -26,19 +27,20 @@ describe('<CacheProvider />', () => {
     rerender(<CacheProvider>{chil}</CacheProvider>);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
-    const managers: any[] = [];
+    const managers: any[] = [new NetworkManager()];
     rerender(<CacheProvider managers={managers}>{chil}</CacheProvider>);
+    expect(count).toBe(2);
     curDisp = dispatch;
     rerender(<CacheProvider managers={managers}>{chil}</CacheProvider>);
     expect(curDisp).toBe(dispatch);
-    expect(count).toBe(1);
+    expect(count).toBe(2);
     rerender(
       <DispatchContext.Provider value={() => Promise.resolve()}>
         {chil}
       </DispatchContext.Provider>,
     );
     expect(curDisp).not.toBe(dispatch);
-    expect(count).toBe(2);
+    expect(count).toBe(3);
   });
   it('should change state', () => {
     let dispatch: any, state;

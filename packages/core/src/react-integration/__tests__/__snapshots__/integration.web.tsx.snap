@@ -1,119 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[` => <Provider /> Endpoint should resolve useResource() with SimpleRecords 1`] = `
-Array [
-  PaginatedArticleResource {
-    "author": UserResource {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 5,
-    "tags": Array [
-      "a",
-      "best",
-      "react",
-    ],
-    "title": "hi ho",
-  },
-  PaginatedArticleResource {
-    "author": UserResource {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 3,
-    "tags": Array [],
-    "title": "the next time",
-  },
-]
-`;
-
-exports[` => <Provider /> Optimistic Updates indexes should resolve parallel useResource() request 1`] = `
-IndexedUserResource {
-  "email": "bob@bob.com",
-  "id": 23,
-  "isAdmin": false,
-  "username": "bob",
-}
-`;
-
-exports[` => <Provider /> Optimistic Updates indexes should resolve parallel useResource() request 2`] = `
-IndexedUserResource {
-  "email": "bob@bob.com",
-  "id": 23,
-  "isAdmin": false,
-  "username": "charlie",
-}
-`;
-
-exports[` => <Provider /> should resolve useResource() with SimpleRecords 1`] = `
-Array [
-  PaginatedArticleResource {
-    "author": UserResource {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 5,
-    "tags": Array [
-      "a",
-      "best",
-      "react",
-    ],
-    "title": "hi ho",
-  },
-  PaginatedArticleResource {
-    "author": UserResource {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 3,
-    "tags": Array [],
-    "title": "the next time",
-  },
-]
-`;
-
-exports[` => <Provider /> useResource() should throw errors on malformed response 1`] = `
-[Error: Error processing GET http://test.com/article-cooler/878
-
-Full Schema: {
-  "name": "CoolerArticleResource",
-  "schema": {
-    "author": {
-      "name": "UserResource",
-      "schema": {},
-      "key": "http://test.com/user/"
-    }
-  },
-  "key": "http://test.com/article-cooler/"
-}
-
-Error:
-Attempted to initialize CoolerArticleResource with an array, but named members were expected
-
-This is likely due to a malformed response.
-Try inspecting the network response or fetch() return value.
-Or use debugging tools: https://resthooks.io/docs/guides/debugging
-Learn more about schemas: https://resthooks.io/docs/api/schema
-If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
-
-Missing: id,title,content,author,tags
-First three members: [
-  1
-]]
-`;
-
 exports[`makeCacheProvider => <Provider /> Endpoint should resolve useResource() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
@@ -199,6 +85,120 @@ Array [
 `;
 
 exports[`makeCacheProvider => <Provider /> useResource() should throw errors on malformed response 1`] = `
+[Error: Error processing GET http://test.com/article-cooler/878
+
+Full Schema: {
+  "name": "CoolerArticleResource",
+  "schema": {
+    "author": {
+      "name": "UserResource",
+      "schema": {},
+      "key": "http://test.com/user/"
+    }
+  },
+  "key": "http://test.com/article-cooler/"
+}
+
+Error:
+Attempted to initialize CoolerArticleResource with an array, but named members were expected
+
+This is likely due to a malformed response.
+Try inspecting the network response or fetch() return value.
+Or use debugging tools: https://resthooks.io/docs/guides/debugging
+Learn more about schemas: https://resthooks.io/docs/api/schema
+If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
+
+Missing: id,title,content,author,tags
+First three members: [
+  1
+]]
+`;
+
+exports[`makeExternal => <Provider /> Endpoint should resolve useResource() with SimpleRecords 1`] = `
+Array [
+  PaginatedArticleResource {
+    "author": UserResource {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 5,
+    "tags": Array [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+  PaginatedArticleResource {
+    "author": UserResource {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 3,
+    "tags": Array [],
+    "title": "the next time",
+  },
+]
+`;
+
+exports[`makeExternal => <Provider /> Optimistic Updates indexes should resolve parallel useResource() request 1`] = `
+IndexedUserResource {
+  "email": "bob@bob.com",
+  "id": 23,
+  "isAdmin": false,
+  "username": "bob",
+}
+`;
+
+exports[`makeExternal => <Provider /> Optimistic Updates indexes should resolve parallel useResource() request 2`] = `
+IndexedUserResource {
+  "email": "bob@bob.com",
+  "id": 23,
+  "isAdmin": false,
+  "username": "charlie",
+}
+`;
+
+exports[`makeExternal => <Provider /> should resolve useResource() with SimpleRecords 1`] = `
+Array [
+  PaginatedArticleResource {
+    "author": UserResource {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 5,
+    "tags": Array [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+  PaginatedArticleResource {
+    "author": UserResource {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
+    },
+    "content": "whatever",
+    "id": 3,
+    "tags": Array [],
+    "title": "the next time",
+  },
+]
+`;
+
+exports[`makeExternal => <Provider /> useResource() should throw errors on malformed response 1`] = `
 [Error: Error processing GET http://test.com/article-cooler/878
 
 Full Schema: {

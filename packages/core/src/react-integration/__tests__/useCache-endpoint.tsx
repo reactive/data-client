@@ -16,9 +16,6 @@ describe('useCache()', () => {
   beforeEach(() => {
     renderRestHook = makeRenderRestHook(makeCacheProvider);
   });
-  afterEach(() => {
-    renderRestHook.cleanup();
-  });
 
   it('should be null with empty state', () => {
     const { result } = renderRestHook(() => {

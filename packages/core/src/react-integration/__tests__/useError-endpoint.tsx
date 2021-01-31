@@ -10,9 +10,6 @@ describe('useError()', () => {
   beforeEach(() => {
     renderRestHook = makeRenderRestHook(makeCacheProvider);
   });
-  afterEach(() => {
-    renderRestHook.cleanup();
-  });
 
   it('should return 404 when cache not ready and no error in meta', () => {
     const results = [

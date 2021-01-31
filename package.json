@@ -31,7 +31,7 @@
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
     "@testing-library/react": "^11.2.3",
-    "@testing-library/react-hooks": "^3.4.1",
+    "@testing-library/react-hooks": "^5.0.3",
     "@testing-library/react-native": "^7.1.0",
     "@types/jest": "^26.0.20",
     "@types/lodash": "^4.14.166",
