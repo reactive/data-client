@@ -72,7 +72,6 @@ describe('endpoint types', () => {
       });
       afterEach(() => {
         nock.cleanAll();
-        renderRestHook.cleanup();
       });
 
       it('should pass with exact params', async () => {

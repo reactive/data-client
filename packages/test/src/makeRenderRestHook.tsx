@@ -43,9 +43,9 @@ export default function makeRenderRestHook(
       wrapper,
     });
   }
+  /** @deprecated */
   renderRestHook.cleanup = () => {
-    manager.cleanup();
-    subManager.cleanup();
+    console.warn('cleanup() now happened automatically on unmount');
   };
   return renderRestHook;
 }

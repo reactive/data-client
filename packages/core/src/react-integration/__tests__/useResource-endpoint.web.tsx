@@ -139,9 +139,6 @@ describe('useResource()', () => {
   beforeEach(() => {
     renderRestHook = makeRenderRestHook(makeCacheProvider);
   });
-  afterEach(() => {
-    renderRestHook.cleanup();
-  });
 
   it('should dispatch an action that fetches', async () => {
     await testDispatchFetch(ArticleComponentTester, [payload]);
@@ -362,7 +359,7 @@ describe('useResource()', () => {
   it('should throw errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useResource(CoolerArticleResource.detail(), {
-        title: '0',
+        id: '0',
       });
     });
     expect(result.current).toBeUndefined();
@@ -376,7 +373,7 @@ describe('useResource()', () => {
       return useResource([
         CoolerArticleResource.detail(),
         {
-          title: '0',
+          id: '0',
         },
       ]);
     });

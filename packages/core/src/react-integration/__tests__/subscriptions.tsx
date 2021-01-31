@@ -58,8 +58,6 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     });
     afterEach(() => {
       nock.cleanAll();
-
-      renderRestHook.cleanup();
     });
 
     it('useSubscription() + useCache()', async () => {

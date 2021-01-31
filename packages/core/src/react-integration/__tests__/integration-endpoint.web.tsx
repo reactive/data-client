@@ -89,9 +89,6 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     beforeEach(() => {
       renderRestHook = makeRenderRestHook(makeProvider);
     });
-    afterEach(() => {
-      renderRestHook.cleanup();
-    });
 
     describe('Endpoint', () => {
       it('should resolve await', async () => {

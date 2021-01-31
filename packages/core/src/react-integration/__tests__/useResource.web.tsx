@@ -78,6 +78,7 @@ describe('useResource()', () => {
       .persist()
       .defaultReplyHeaders({
         'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': '*',
         'Content-Type': 'application/json',
       })
       .get(`/article-cooler/400`)
@@ -105,6 +106,7 @@ describe('useResource()', () => {
       .persist()
       .defaultReplyHeaders({
         'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Access-Token',
         'Content-Type': 'application/json',
       })
       .options(/.*/)
@@ -133,13 +135,6 @@ describe('useResource()', () => {
 
   beforeEach(() => {
     renderRestHook = makeRenderRestHook(makeCacheProvider);
-  });
-  afterEach(() => {
-    try {
-      renderRestHook.cleanup();
-    } catch (e) {
-      console.log('error in cleanup');
-    }
   });
 
   it('should dispatch an action that fetches', async () => {
@@ -362,7 +357,7 @@ describe('useResource()', () => {
   it('should throw errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useResource(CoolerArticleResource.detailShape(), {
-        title: '0',
+        id: '0',
       });
     });
     expect(result.current).toBeUndefined();
@@ -376,7 +371,7 @@ describe('useResource()', () => {
       return useResource([
         CoolerArticleResource.detailShape(),
         {
-          title: '0',
+          id: '0',
         },
       ]);
     });

@@ -82,7 +82,6 @@ describe('useResource()', () => {
 
   afterEach(() => {
     nock.cleanAll();
-    renderRestHook.cleanup();
   });
 
   it('should throw errors on bad network', async () => {
@@ -124,7 +123,6 @@ describe('useResource()', () => {
 
   afterEach(() => {
     nock.cleanAll();
-    renderRestHook.cleanup();
   });
 
   it('should throw errors on bad network', async () => {
