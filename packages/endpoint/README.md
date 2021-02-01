@@ -10,7 +10,7 @@ Declarative, strongly typed, reusable network definitions for networking librari
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io/docs/next/api/Endpoint)**
+**[📖Read The Docs](https://resthooks.io/docs/api/Endpoint)**
 
 </div>
 
