@@ -10,7 +10,7 @@ Composable hooks for networking data
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io/docs/next/api/Endpoint)**
+**[📖Read The Docs](https://resthooks.io/docs/api/Endpoint)**
 
 </div>
 
