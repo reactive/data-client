@@ -47,9 +47,9 @@ class MyResource extends Resource {
   static create<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-      RestFetch<{}, Partial<AbstractInstanceType<T>>>,
-      SchemaDetail<AbstractInstanceType<T>>,
-      true
+    RestFetch<{}, Partial<AbstractInstanceType<T>>>,
+    SchemaDetail<AbstractInstanceType<T>>,
+    true
   > {
     return super.create();
   }
@@ -61,7 +61,7 @@ class MyResource extends Resource {
     { results: T[]; nextPage: string },
     undefined
   > {
-    return super.list().extend({ schema: { results: this[]; nextPage: string } });
+    return super.list().extend({ schema: { results: [this], nextPage: '' } });
   }
 }
 ```
@@ -295,7 +295,7 @@ class Child extends Base {
 
 This is only needed if we are setting the type directly from the super call.
 We'll see below we only need to do this when we retain the schema from the super call.
-This is also not necessary if `this.method()` is called as this bug *only* affects `super`
+This is also not necessary if `this.method()` is called as this bug _only_ affects `super`
 
 ## As Resource
 
@@ -372,7 +372,11 @@ import { RestEndpoint, RestFetch, Resource } from '@rest-hooks/rest';
 class User extends Resource {
   static detail<T extends typeof Resource>(
     this: T,
-  ): RestEndpoint<RestFetch<{ id: string }>, SchemaDetail<AbstractInstanceType<T>>, undefined> {
+  ): RestEndpoint<
+    RestFetch<{ id: string }>,
+    SchemaDetail<AbstractInstanceType<T>>,
+    undefined
+  > {
     // super.detail() resolves the Schema to be based on `typeof Resource`, rather than `T`
     // which makes it incompatible with the return type correctly specified.
     return super.detail() as any;
