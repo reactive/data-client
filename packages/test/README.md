@@ -118,11 +118,19 @@ it('should resolve list', async () => {
       maxResults: 10,
     });
   }, { results: options.full });
-  expect(result.current).toBe(null);
-  await waitForNextUpdate();
   expect(result.current).toBeDefined();
   expect(result.current.length).toBe(2);
   expect(result.current[0]).toBeInstanceOf(ArticleResource);
+});
+
+it('should throw errors on bad network', async () => {
+  const { result, waitForNextUpdate } = renderRestHook(() => {
+    return useResource(ArticleResource.list(), {
+      maxResults: 10,
+    });
+  }, { results: options.error });
+    expect(result.error).toBeDefined();
+    expect((result.error as any).status).toBe(400);
 });
 ```
 
