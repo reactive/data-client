@@ -49,7 +49,7 @@
     "url": "https://github.com/coinbase/rest-hooks/issues"
   },
   "dependencies": {
-    "@babel/runtime": "^7.12.0"
+    "@babel/runtime": "^7.7.2"
   },
   "peerDependencies": {
     "@rest-hooks/endpoint": "^0.6.1",
