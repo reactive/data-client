@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@1.0.1...@rest-hooks/rest@1.0.2) (2021-02-04)
+
+
+### 📦 Package
+
+* Relax @babel/runtime requirement to ^7.7.2 ([#513](https://github.com/coinbase/rest-hooks/issues/513)) ([cc95b21](https://github.com/coinbase/rest-hooks/commit/cc95b219fbddebfbf334728887ca6d2fa070fce1))
+
+
+### 📝 Documentation
+
+* Link improvements, flesh out test readme ([#511](https://github.com/coinbase/rest-hooks/issues/511)) ([9cab431](https://github.com/coinbase/rest-hooks/commit/9cab431803a8b7d9c18e02b3e9cb7e336215ccdb))
+
+
+
 ### [1.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@1.0.0...@rest-hooks/rest@1.0.1) (2021-01-30)
 
 
