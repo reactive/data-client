@@ -18,14 +18,16 @@
     "test:coverage": "yarn test -- --coverage",
     "prepare": "yarn run build:types"
   },
-  "engines": {"node": ">=10.0"},
+  "engines": {
+    "node": ">=10.0"
+  },
   "browserslist": [
     "extends @anansi/browserslist-config"
   ],
   "devDependencies": {
     "@anansi/babel-preset": "^2.1.5",
     "@anansi/browserslist-config": "^1.0.1",
-    "@anansi/eslint-plugin": "^0.9.17",
+    "@anansi/eslint-plugin": "^0.9.18",
     "@babel/cli": "^7.12.10",
     "@babel/core": "^7.12.10",
     "@commitlint/cli": "^11.0.0",
@@ -39,13 +41,16 @@
     "@zerollup/ts-transform-paths": "^1.7.18",
     "babel-jest": "^26.6.3",
     "conventional-changelog-anansi": "^0.2.0",
-    "coveralls": "^3.1.0",
     "core-js": "^3.8.1",
+    "coveralls": "^3.1.0",
     "cpy-cli": "^3.1.1",
     "cross-env": "^7.0.2",
     "cross-fetch": "^3.0.6",
-    "eslint": "^7.18.0",
+    "eslint": "^7.19.0",
+    "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-react": "^7.22.0",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "husky": "^4.2.5",
     "ignore-styles": "^5.0.1",
     "jest": "^26.6.3",
