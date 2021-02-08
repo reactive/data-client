@@ -34,9 +34,9 @@
     stable "^0.1.8"
 
 "@anansi/browserslist-config@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@anansi/browserslist-config/-/browserslist-config-1.0.1.tgz#facc39a4fde4f8550f802be4cca2d5ce2aa92c7a"
-  integrity sha512-L3OZHylUuBBzI0L7Iwl3gKKOfHE8P2NRZ6lRBscp7jRJvs/SNeg4ettzJXn5yXSWa9KPC/JvbPltpmUH+u1m7g==
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@anansi/browserslist-config/-/browserslist-config-1.1.0.tgz#04bd7f1493f1b79718bdc5eca17d19353d6b1474"
+  integrity sha512-RgNFSXecr0AFUIhMfaPtok57+H1Qp2xpEdBRX8I2bfoLSxzdztUUcQF78bOv0cgLH6mKp/XbLm/UXhX1J6G3Vw==
 
 "@anansi/eslint-plugin@^0.9.18":
   version "0.9.18"
