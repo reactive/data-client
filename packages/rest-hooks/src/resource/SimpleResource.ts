@@ -32,6 +32,12 @@ export default abstract class SimpleResource extends FlatEntity {
     return this.urlRoot;
   }
 
+  /** Warning level for probable malformed responses
+   *
+   * We only 'warn' here since this is the upgrade path
+   */
+  static automaticValidation = 'warn' as const;
+
   /** URL to find this SimpleResource */
   declare readonly url: string;
 
