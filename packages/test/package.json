@@ -4,18 +4,23 @@
   "description": "Testing utilities for Rest Hooks",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
-  "types": "dist/index.d.ts",
+  "module": "lib/index.js",
+  "types": "lib/index.d.ts",
   "files": [
     "src",
     "dist",
+    "lib",
     "LICENSE",
     "README.md"
   ],
   "scripts": {
+    "build:lib": "cross-env NODE_ENV=production ROOT_PATH_PREFIX='@rest-hooks/test' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
     "build:bundle": "rollup -c",
     "build:clean": "rimraf dist *.tsbuildinfo",
-    "build": "yarn run build:bundle",
-    "prepublishOnly": "yarn run build"
+    "build": "yarn run build:lib && yarn run build:bundle",
+    "dev": "yarn run build:lib -w",
+    "prepare": "yarn run build:lib",
+    "prepublishOnly": "yarn run build:bundle"
   },
   "keywords": [
     "test",
@@ -57,6 +62,9 @@
   },
   "peerDependenciesMeta": {
     "redux": {
+      "optional": true
+    },
+    "@types/react": {
       "optional": true
     }
   }
