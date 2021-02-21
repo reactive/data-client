@@ -30,7 +30,7 @@ export default [
     plugins: [
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
-        rootMode: "upward",
+        rootMode: 'upward',
         extensions,
         runtimeHelpers: true,
       }),
