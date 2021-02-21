@@ -30,13 +30,15 @@ export default abstract class Resource extends SimpleResource {
   ) {
     let options: RequestInit = {
       method: method.toUpperCase(),
-      headers: {
-        'Content-Type': 'application/json',
-        // "Content-Type": "application/x-www-form-urlencoded",  -- maybe use this if typeof body is FormData ?
-      },
     };
     if (this.fetchOptionsPlugin) options = this.fetchOptionsPlugin(options);
     if (body) options.body = JSON.stringify(body);
+    if (!(body instanceof FormData)) {
+      options.headers = {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      };
+    }
     return fetch(url, options)
       .then(response => {
         if (!response.ok) {

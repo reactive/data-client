@@ -18,14 +18,16 @@ class NetworkError extends Error {
 export default abstract class Resource extends SimpleResource {
   /** Perform network request and resolve with HTTP Response */
   static fetchResponse(input: RequestInfo, init: RequestInit) {
-    const options: RequestInit = {
-      ...init,
-      headers: {
-        'Content-Type': 'application/json',
-        // "Content-Type": "application/x-www-form-urlencoded",  -- maybe use this if typeof body is FormData ?
-        ...init.headers,
-      },
-    };
+    let options: RequestInit = init;
+    if (!(options.body instanceof FormData)) {
+      options = {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+      };
+    }
     return fetch(input, options)
       .then(response => {
         if (!response.ok) {
