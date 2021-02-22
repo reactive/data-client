@@ -1,25 +1,16 @@
 {
-  "lerna": "0.0.1",
   "npmClient": "yarn",
   "useWorkspaces": true,
   "version": "independent",
+  "ignoreChanges": ["**/__tests__/**", "**/*.md"],
+  "conventionalCommits": true,
+  "preid": "beta",
+  "changelogPreset": "anansi",
+  "createRelease": "github",
+  "message": "internal: publish",
   "command": {
     "publish": {
-      "conventionalCommits": true,
-      "preid": "beta",
-      "preDistTag": "beta",
-      "changelogPreset": "anansi",
-      "createRelease": "github",
-      "message": "internal: publish",
-      "ignoreChanges": ["**/__tests__/**", "**/*.md"]
-    },
-    "version": {
-      "conventionalCommits": true,
-      "preid": "beta",
-      "changelogPreset": "anansi",
-      "createRelease": "github",
-      "message": "internal: publish",
-      "ignoreChanges": ["**/__tests__/**", "**/*.md"]
+      "preDistTag": "beta"
     }
   }
 }
