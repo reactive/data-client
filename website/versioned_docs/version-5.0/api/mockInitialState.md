@@ -9,7 +9,7 @@ function mockInitialState(results: Fixture[]): State;
 ```
 
 `mockInitialState()` makes it easy to construct prefill the cache with fixtures. It's
-used in [\<MockProvider />](./MockProvider) to process the results prop. However, this
+used in [\<MockResolver />](./MockResolver) to process the results prop. However, this
 can also be useful to send into a normal provider when testing more complete flows
 that need to handle `dispatches` (and thus fetch).
 
@@ -18,11 +18,21 @@ that need to handle `dispatches` (and thus fetch).
 ### results
 
 ```typescript
-interface Fixture {
-  request: ReadEndpoint;
+export interface SuccessFixture {
+  request: ReadShape<Schema, object>;
   params: object;
   result: object | string | number;
+  error?: false;
 }
+
+export interface ErrorFixture {
+  request: ReadShape<Schema, object>;
+  params: object;
+  result: Error;
+  error: true;
+}
+
+export type Fixture = SuccessFixture | ErrorFixture;
 ```
 
 This prop specifies the fixtures to use data from. Each item represents a fetch defined by the
