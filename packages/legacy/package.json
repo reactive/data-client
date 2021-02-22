@@ -55,9 +55,6 @@
   "bugs": {
     "url": "https://github.com/coinbase/rest-hooks/issues"
   },
-  "devDependencies": {
-    "@rest-hooks/test": "^3.0.0"
-  },
   "peerDependencies": {
     "@rest-hooks/core": "^1.0.0-k.6",
     "@types/react": "^16.8.4 || ^17.0.0",

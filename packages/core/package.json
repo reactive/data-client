@@ -62,9 +62,6 @@
   "bugs": {
     "url": "https://github.com/coinbase/rest-hooks/issues"
   },
-  "devDependencies": {
-    "@rest-hooks/test": "^3.0.0"
-  },
   "dependencies": {
     "@babel/runtime": "^7.7.2",
     "@rest-hooks/endpoint": "^1.0.3",
