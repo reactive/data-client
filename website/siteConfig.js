@@ -35,7 +35,7 @@ const siteConfig = {
     apiKey: '52e661c10738fd114bcf68d537358c16',
     indexName: 'coinbase-rest-hooks',
     algoliaOptions: {
-      facetFilters: [ "version:VERSION" ],
+      facetFilters: ['version:VERSION'],
     },
   },
   gaTrackingId: 'UA-138752992-1',
@@ -54,7 +54,11 @@ const siteConfig = {
     { doc: 'guides/resource-types', label: 'Resource Definitions' },
     { blog: true, label: 'Blog' },
     { href: 'https://www.github.com/coinbase/rest-hooks', label: 'Github' },
-    { href: 'https://codesandbox.io/s/rest-hooks-hinux?fontsize=14&module=%2Fsrc%2Fpages%2FIssueList.tsx', label: '🎮 Demo' },
+    {
+      href:
+        'https://codesandbox.io/s/rest-hooks-hinux?fontsize=14&module=%2Fsrc%2Fpages%2FIssueList.tsx',
+      label: '🎮 Demo',
+    },
     //{ page: 'help', label: 'Help' },
     { search: true },
   ],
@@ -96,7 +100,6 @@ const siteConfig = {
   // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
   copyright: `Copyright © ${new Date().getFullYear()} Coinbase`,
 
-
   usePrism: true,
 
   // Add custom scripts here that would be placed in <script> tags.
@@ -112,24 +115,28 @@ const siteConfig = {
       href: '/font/Graphik-Regular-Web.woff2',
       as: 'font',
       type: 'font/woff2',
+      crossOrigin: 'anonymous',
     },
     {
       rel: 'preload',
       href: '/font/Graphik-RegularItalic-Web.woff2',
       as: 'font',
       type: 'font/woff2',
+      crossOrigin: 'anonymous',
     },
     {
       rel: 'preload',
       href: '/font/Graphik-Semibold-Web.woff2',
       as: 'font',
       type: 'font/woff2',
+      crossOrigin: 'anonymous',
     },
     {
       rel: 'preload',
       href: '/font/Graphik-SemiboldItalic-Web.woff2',
       as: 'font',
       type: 'font/woff2',
+      crossOrigin: 'anonymous',
     },
   ],
 

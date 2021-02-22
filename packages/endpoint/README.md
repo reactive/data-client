@@ -19,7 +19,8 @@ Declarative, strongly typed, reusable network definitions for networking librari
 ```typescript
 import { Endpoint } from '@rest-hooks/endpoint';
 
-const UserDetail = new Endpoint(({ id }) ⇒ fetch(`/users/${id}`).then(res => res.json()));
+const fetchUser = ({ id }) ⇒ fetch(`/users/${id}`).then(res => res.json());
+const UserDetail = new Endpoint(fetchUser);
 ```
 
 ### 2) Reuse with different hooks

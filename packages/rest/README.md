@@ -78,3 +78,8 @@ export default class UserResource extends AuthdResource {
   }
 }
 ```
+
+### Prior Art
+
+- [Backbone Model](https://backbonejs.org/#Model)
+- [ImmutableJS Record](https://immutable-js.github.io/immutable-js/docs/#/Record)
