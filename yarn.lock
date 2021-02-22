@@ -39,9 +39,9 @@
   integrity sha512-RgNFSXecr0AFUIhMfaPtok57+H1Qp2xpEdBRX8I2bfoLSxzdztUUcQF78bOv0cgLH6mKp/XbLm/UXhX1J6G3Vw==
 
 "@anansi/eslint-plugin@^0.9.18":
-  version "0.9.20"
-  resolved "https://registry.yarnpkg.com/@anansi/eslint-plugin/-/eslint-plugin-0.9.20.tgz#8cff00d976f0a06ed1b999e1a90e1167069d1ae0"
-  integrity sha512-bVMC8iBG/oOt9ScF69C1/uAjds7IUCSTqasMWeBREK9R7LZ0bFW9gHObA6WaQNjTQZQI34igs8AAd6ZX2Bu52A==
+  version "0.9.21"
+  resolved "https://registry.yarnpkg.com/@anansi/eslint-plugin/-/eslint-plugin-0.9.21.tgz#971f9fe80ff7f99348cc050a6ef003a0532f1153"
+  integrity sha512-nGvVPA90ZRJs+LtC1bTCPcTbdyS6vaj5Yga1FCyPBMhbDtitq70bBq9DrJFjAJ08AxzhjQMUTqZbUbcWYgTCeA==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^4.15.0"
     "@typescript-eslint/parser" "^4.15.0"
