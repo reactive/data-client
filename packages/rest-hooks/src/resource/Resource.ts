@@ -33,7 +33,7 @@ export default abstract class Resource extends SimpleResource {
     };
     if (this.fetchOptionsPlugin) options = this.fetchOptionsPlugin(options);
     if (body) options.body = JSON.stringify(body);
-    if (!(body instanceof FormData)) {
+    if (!options.body || typeof options.body === 'string') {
       options.headers = {
         'Content-Type': 'application/json',
         ...options.headers,

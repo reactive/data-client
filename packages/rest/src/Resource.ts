@@ -19,7 +19,7 @@ export default abstract class Resource extends SimpleResource {
   /** Perform network request and resolve with HTTP Response */
   static fetchResponse(input: RequestInfo, init: RequestInit) {
     let options: RequestInit = init;
-    if (!(options.body instanceof FormData)) {
+    if (!options.body || typeof options.body === 'string') {
       options = {
         ...options,
         headers: {
