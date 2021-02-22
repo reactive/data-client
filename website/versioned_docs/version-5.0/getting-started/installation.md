@@ -33,6 +33,8 @@ npm install rest-hooks @rest-hooks/rest
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
+TypeScript is optional, but requires at least version [3.7](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#more-recursive-type-aliases) for full type enforcement.
+
 ## Legacy (IE) browser support
 
 If you see `Uncaught TypeError: Class constructor Resource cannot be invoked without 'new'`,
