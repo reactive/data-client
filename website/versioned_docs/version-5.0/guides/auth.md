@@ -17,7 +17,7 @@ Here's an example using simple cookie auth:
 ```typescript
 class AuthdResource extends Resource {
   static getFetchInit = (init: RequestInit) => ({
-    ...options,
+    ...init,
     credentials: 'same-origin',
   });
 }
