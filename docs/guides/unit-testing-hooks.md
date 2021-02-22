@@ -30,11 +30,11 @@ Node doesn't come with fetch out of the box, so we need to be sure to polyfill i
 <!--DOCUSAURUS_CODE_TABS-->
 <!--yarn-->
 ```bash
-yarn add whatwg-fetch
+yarn add --dev whatwg-fetch
 ```
 <!--npm-->
 ```bash
-npm install whatwg-fetch
+npm install --save-dev whatwg-fetch
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
