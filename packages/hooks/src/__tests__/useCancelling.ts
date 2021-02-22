@@ -34,6 +34,10 @@ describe('useCancelling()', () => {
       .delay(2000)
       .reply(200, payload2);
   });
+  afterAll(() => {
+    jest.useRealTimers();
+    nock.cleanAll();
+  });
 
   it('should abort when props change and resolve when kept the same', async () => {
     const { result, rerender } = renderHook(
@@ -50,7 +54,7 @@ describe('useCancelling()', () => {
     expect(ogPromise).rejects.toMatchInlineSnapshot(`[AbortError: Aborted]`);
     const nextPromise = result.current({ id: '7' });
     jest.advanceTimersByTime(2000);
-    await expect(nextPromise).resolves.toMatchInlineSnapshot(`
+    expect(nextPromise).resolves.toMatchInlineSnapshot(`
             Object {
               "id": "7",
               "title": "second one",

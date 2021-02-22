@@ -586,10 +586,10 @@ describe('Endpoint', () => {
       expect(user.username).toBe(payload.username);
     });
 
-    it('should reject when aborted', () => {
+    it('should reject when aborted', async () => {
       const abort = new AbortController();
       const AbortUser = UserDetail.extend({ signal: abort.signal });
-      expect(async () => {
+      await expect(async () => {
         const promise = AbortUser({ id: payload.id });
         abort.abort();
         return await promise;

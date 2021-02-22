@@ -810,7 +810,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           }),
         );
 
-        // second optimistic
+        // third optimistic
         mynock
           .patch('/article-cooler/5')
           .delay(500)
