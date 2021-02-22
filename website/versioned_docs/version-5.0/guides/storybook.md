@@ -55,7 +55,7 @@ export default function ArticleList({ maxResults }: { maxResults: number }) {
 We'll test three cases: some interesting results in the list, an empty list, and data not
 existing so loading fallback is shown.
 
-#### `fixtures.ts`
+<details open><summary><b>fixtures.ts</b></summary>
 
 ```typescript
 export default {
@@ -108,6 +108,8 @@ export default {
 };
 ```
 
+</details>
+
 ## Decorators
 
 You'll need to add the appropriate [global decorators](https://storybook.js.org/docs/react/writing-stories/decorators#global-decorators) to establish the correct context.
@@ -135,7 +137,7 @@ export const decorators = [
 
 ## Story
 
-Wrapping our component with <MockResolver /> enables us to declaratively
+Wrapping our component with \<MockResolver /> enables us to declaratively
 control how Rest Hooks' fetches are resolved.
 
 Here we select which fixtures should be used by [storybook controls](https://storybook.js.org/docs/react/essentials/controls).

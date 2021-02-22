@@ -6,11 +6,11 @@ original_id: unit-testing-components
 
 If you need to add unit tests to your components to check some behavior you might want
 avoid dealing with network fetch cycle as that is probably orthogonal to what your are
-trying to test. Using [\<MockProvider />](../api/MockProvider.md) in our tests allow
+trying to test. Using [\<MockResolver />](../api/MockResolver) in our tests allow
 us to prime the cache with provided fixtures so the components will immediately render
 with said results.
 
-#### `__tests__/fixtures.ts`
+<details open><summary><b>__tests__/fixtures.ts</b></summary>
 
 ```typescript
 export default {
@@ -33,6 +33,16 @@ export default {
         },
       ],
     },
+    {
+      request: ArticleResource.update(),
+      params: { id: 532 },
+      result: {
+        id: 532,
+        content: 'updated "never again"',
+        author: 23,
+        contributors: [5],
+      },
+    },
   ],
   empty: [
     {
@@ -41,16 +51,26 @@ export default {
       result: [],
     },
   ],
+  error: [
+    {
+      request: ArticleResource.list(),
+      params: { maxResults: 10 },
+      result: { message: 'Bad request', status: 400, name: 'Not Found' },
+      error: true,
+    },
+  ],
   loading: [],
 };
 ```
 
-#### `__tests__/ArticleList.tsx`
+</details>
+
+<details open><summary><b>__tests__/ArticleList.tsx</b></summary>
 
 ```tsx
 import { CacheProvider } from 'rest-hooks';
 import { render } from '@testing-library/react';
-import { MockProvider } from '@rest-hooks/test';
+import { MockResolver } from '@rest-hooks/test';
 
 import ArticleList from 'components/ArticleList';
 import results from './fixtures';
@@ -58,37 +78,32 @@ import results from './fixtures';
 describe('<ArticleList />', () => {
   it('renders', () => {
     const tree = (
-      <MockProvider results={results.full}>
+      <CacheProvider initialState={mockInitialState(results.full)}>
         <ArticleList maxResults={10} />
-      </MockProvider>
+      </CacheProvider>
     );
     const { queryByText } = render(tree);
     const content = queryByText(results.full.result[0].content);
     expect(content).toBeDefined();
   });
 
-  it('is stale while revalidates', async () => {
-    nock(/.*/)
-      .defaultReplyHeaders({
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-      })
-      .options(/.*/)
-      .get(`/article/?maxResults=10`).reply(200, results.full[0].result);
-
+  it('suspends then resolves', async () => {
     const tree = (
-      <CacheProvider initialState={mockInitialState(results.full)}>
-        <ArticleList maxResults={10} />
+      <CacheProvider>
+        <MockResolver fixtures={results.full}>
+          <Suspense fallback="loading">
+            <ArticleList maxResults={10} />
+          </Suspense>
+        </MockResolver>
       </CacheProvider>
     );
     const { queryByText, waitForNextUpdate } = render(tree);
-    const content = queryByText(results.full.result[0].content);
-    expect(content).toBeDefined();
+    expect(queryByText('loading')).toBeDefined();
 
     await waitForNextUpdate();
-    // verify we hit the endpoint
-    expect(nock.isDone()).toBeTrue();
     expect(queryByText(results.full.result[0].content)).toBeDefined();
   })
 });
 ```
+
+</details>
