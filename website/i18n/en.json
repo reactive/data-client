@@ -124,9 +124,6 @@
       "api/Values": {
         "title": "Values"
       },
-      "getting-started/endpoint": {
-        "title": "getting-started/endpoint"
-      },
       "getting-started/installation": {
         "title": "Installation"
       },
@@ -246,6 +243,12 @@
       },
       "ROADMAP": {
         "title": "ROADMAP"
+      },
+      "upgrade/upgrading-test-to-two": {
+        "title": "Upgrading @rest-hooks/test to 3"
+      },
+      "upgrade/upgrading-to-5": {
+        "title": "Upgrading from 4 to 5"
       },
       "version-1.6.9/api/version-1.6.9-ExternalCacheProvider": {
         "title": "<ExternalCacheProvider />"
@@ -1066,7 +1069,8 @@
       "Getting Started": "Getting Started",
       "Resource Definitions": "Resource Definitions",
       "Advanced": "Advanced",
-      "API": "API"
+      "API": "API",
+      "Upgrade Guide": "Upgrade Guide"
     }
   },
   "pages-strings": {
