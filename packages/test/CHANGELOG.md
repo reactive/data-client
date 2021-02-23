@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@3.0.0...@rest-hooks/test@3.0.1) (2021-02-23)
+
+
+### 🐛 Bug Fix
+
+* Gracefully handle webpack builds ([#551](https://github.com/coinbase/rest-hooks/issues/551)) ([d53a2a1](https://github.com/coinbase/rest-hooks/commit/d53a2a181d27077e4da9cd6152bbee116fbca1ad))
+
+
+### 📝 Documentation
+
+* Link improvements, flesh out test readme ([#511](https://github.com/coinbase/rest-hooks/issues/511)) ([9cab431](https://github.com/coinbase/rest-hooks/commit/9cab431803a8b7d9c18e02b3e9cb7e336215ccdb))
+* Typo fix + better test example ([#512](https://github.com/coinbase/rest-hooks/issues/512)) ([70c29ac](https://github.com/coinbase/rest-hooks/commit/70c29ac472ee88227da32ea6ffdddebfff813b99))
+
+
+
 ## [3.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@2.0.1...@rest-hooks/test@3.0.0) (2021-01-31)
 
 

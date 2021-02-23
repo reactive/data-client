@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.5](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.4...rest-hooks@5.0.5) (2021-02-23)
+
+
+### 🐛 Bug Fix
+
+* Support non-JSON payloads (like FormData) ([#552](https://github.com/coinbase/rest-hooks/issues/552)) ([82e68ac](https://github.com/coinbase/rest-hooks/commit/82e68ac8975fc4fa8ba468fe525662b6cbd627c1))
+
+
+
 ### [5.0.4](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.3...rest-hooks@5.0.4) (2021-02-18)
 
 
