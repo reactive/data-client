@@ -327,6 +327,32 @@ describe('Resource', () => {
       expect(article).toMatchObject(payload2);
     });
 
+    it('should PUT with multipart form data', async () => {
+      const payload2 = { id: 500, content: 'another' };
+      let lastRequest: any;
+      nock(/.*/)
+        .defaultReplyHeaders({
+          'Access-Control-Allow-Origin': '*',
+        })
+        .put('/article-cooler/500')
+        .reply(function (uri, requestBody) {
+          lastRequest = this.req;
+          return [201, payload2, { 'Content-Type': 'application/json' }];
+        });
+      const newPhoto = new Blob();
+      const body = new FormData();
+      body.append('photo', newPhoto);
+
+      const article = await CoolerArticleResource.fetch(
+        CoolerArticleResource.url({ id: '500' }),
+        { method: 'PUT', body },
+      );
+      expect(lastRequest.headers['content-type']).toContain(
+        'multipart/form-data',
+      );
+      expect(article).toMatchObject(payload2);
+    });
+
     it('should DELETE', async () => {
       const res = await CoolerArticleResource.fetch(
         CoolerArticleResource.url({
