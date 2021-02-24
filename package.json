@@ -25,11 +25,11 @@
     "extends @anansi/browserslist-config"
   ],
   "devDependencies": {
-    "@anansi/babel-preset": "^2.1.5",
-    "@anansi/browserslist-config": "^1.0.1",
-    "@anansi/eslint-plugin": "^0.9.18",
-    "@babel/cli": "^7.12.10",
-    "@babel/core": "^7.12.10",
+    "@anansi/babel-preset": "2.1.11",
+    "@anansi/browserslist-config": "1.1.0",
+    "@anansi/eslint-plugin": "0.9.22",
+    "@babel/cli": "7.13.0",
+    "@babel/core": "7.13.1",
     "@commitlint/cli": "^12.0.0",
     "@commitlint/config-conventional": "^12.0.0",
     "@rest-hooks/test": "^3.0.0",
