@@ -160,8 +160,8 @@ as [Resource](./resource) expects it
 
 ```typescript
 export type RestFetch<
-  P = object,
+  P = any,
   B = RequestInit['body'] | Record<string, any>,
   R = any
-> = (params: P, body?: B) => Promise<R>;
+> = (this: RestEndpoint, params: P, body?: B) => Promise<R>;
 ```

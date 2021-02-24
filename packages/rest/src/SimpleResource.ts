@@ -1,5 +1,5 @@
 import { Entity, schema } from '@rest-hooks/normalizr';
-import type { AbstractInstanceType } from '@rest-hooks/normalizr';
+import type { AbstractInstanceType, Schema } from '@rest-hooks/normalizr';
 import { Endpoint } from '@rest-hooks/endpoint';
 import type {
   EndpointExtraOptions,
@@ -10,6 +10,7 @@ import type {
 import { ReadShape, MutateShape } from './legacy';
 import { NotImplementedError } from './errors';
 import paramsToString from './paramsToString';
+import { RestEndpoint } from './types';
 
 /** Represents an entity to be retrieved from a server.
  * Typically 1:1 with a url endpoint.
@@ -116,7 +117,11 @@ export default abstract class SimpleResource extends Entity {
   }
 
   /** Base endpoint that uses all the hooks provided by Resource  */
-  protected static endpoint() {
+  protected static endpoint(): RestEndpoint<
+    (this: RestEndpoint, params: any) => Promise<any>,
+    Schema | undefined,
+    undefined
+  > {
     return this.memo('#endpoint', () => {
       // eslint-disable-next-line
       const self = this;
@@ -157,11 +162,15 @@ export default abstract class SimpleResource extends Entity {
   }
 
   /** Base endpoint but for sideEffects */
-  protected static endpointMutate() {
+  protected static endpointMutate(): RestEndpoint<
+    (this: RestEndpoint, params: any, body?: any) => Promise<any>,
+    Schema | undefined,
+    true
+  > {
     const instanceFetch = this.fetch.bind(this);
     return this.memo('#endpointMutate', () =>
       this.endpoint().extend({
-        fetch(this: any, params: any, body?: any) {
+        fetch(this: RestEndpoint, params: any, body?: any) {
           return instanceFetch(this.url(params), this.getFetchInit(body));
         },
         sideEffect: true,
@@ -171,61 +180,97 @@ export default abstract class SimpleResource extends Entity {
   }
 
   /** Endpoint to get a single entity */
-  static detail<T extends typeof SimpleResource>(this: T) {
+  static detail<T extends typeof SimpleResource>(
+    this: T,
+  ): RestEndpoint<
+    (this: RestEndpoint, params: any) => Promise<any>,
+    SchemaDetail<AbstractInstanceType<T>>,
+    undefined
+  > {
     return this.memo('#detail', () =>
       this.endpoint().extend({
-        schema: this as SchemaDetail<AbstractInstanceType<T>>,
+        schema: this,
       }),
     );
   }
 
   /** Endpoint to get a list of entities */
-  static list<T extends typeof SimpleResource>(this: T) {
+  static list<T extends typeof SimpleResource>(
+    this: T,
+  ): RestEndpoint<
+    (this: RestEndpoint, params: any) => Promise<any>,
+    SchemaList<AbstractInstanceType<T>>,
+    undefined
+  > {
     return this.memo('#list', () =>
       this.endpoint().extend({
-        schema: [this] as SchemaList<AbstractInstanceType<T>>,
+        schema: [this],
         url: this.listUrl.bind(this),
       }),
     );
   }
 
   /** Endpoint to create a new entity (post) */
-  static create<T extends typeof SimpleResource>(this: T) {
+  static create<T extends typeof SimpleResource>(
+    this: T,
+  ): RestEndpoint<
+    (this: RestEndpoint, params: any, body?: any) => Promise<any>,
+    SchemaDetail<AbstractInstanceType<T>>,
+    true
+  > {
     //Partial<AbstractInstanceType<T>>
     return this.memo('#create', () =>
       this.endpointMutate().extend({
-        schema: this as SchemaDetail<AbstractInstanceType<T>>,
+        schema: this,
         url: this.listUrl.bind(this),
       }),
     );
   }
 
   /** Endpoint to update an existing entity (put) */
-  static update<T extends typeof SimpleResource>(this: T) {
+  static update<T extends typeof SimpleResource>(
+    this: T,
+  ): RestEndpoint<
+    (this: RestEndpoint, params: any, body?: any) => Promise<any>,
+    SchemaDetail<AbstractInstanceType<T>>,
+    true
+  > {
     return this.memo('#update', () =>
       this.endpointMutate().extend({
         method: 'PUT',
-        schema: this as SchemaDetail<AbstractInstanceType<T>>,
+        schema: this,
       }),
     );
   }
 
   /** Endpoint to update a subset of fields of an existing entity (patch) */
-  static partialUpdate<T extends typeof SimpleResource>(this: T) {
+  static partialUpdate<T extends typeof SimpleResource>(
+    this: T,
+  ): RestEndpoint<
+    (this: RestEndpoint, params: any, body?: any) => Promise<any>,
+    SchemaDetail<AbstractInstanceType<T>>,
+    true
+  > {
     return this.memo('#partialUpdate', () =>
       this.endpointMutate().extend({
         method: 'PATCH',
-        schema: this as SchemaDetail<AbstractInstanceType<T>>,
+        schema: this,
       }),
     );
   }
 
   /** Endpoint to delete an entity (delete) */
-  static delete<T extends typeof SimpleResource>(this: T) {
+  static delete<T extends typeof SimpleResource>(
+    this: T,
+  ): RestEndpoint<
+    (this: RestEndpoint, params: any) => Promise<any>,
+    schema.Delete<T>,
+    true
+  > {
     const endpoint = this.endpointMutate();
     return this.memo('#delete', () =>
       endpoint.extend({
-        fetch(params: any) {
+        fetch(this: RestEndpoint, params: any) {
           return endpoint.fetch.call(this, params).then(() => params);
         },
         method: 'DELETE',
