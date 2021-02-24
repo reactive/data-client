@@ -1,9 +1,5 @@
 import React from 'react';
-
-export interface NetworkError extends Error {
-  status: number | undefined;
-  response?: { statusText?: string; body?: any };
-}
+import type { NetworkError } from '@rest-hooks/core';
 
 function isNetworkError(error: NetworkError | unknown): error is NetworkError {
   return Object.prototype.hasOwnProperty.call(error, 'status');

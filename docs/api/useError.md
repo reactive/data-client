@@ -3,11 +3,18 @@ title: useError()
 ---
 
 ```typescript
+interface SyntheticError extends Error {
+  status: number;
+  synthetic: boolean;
+}
+
 function useError(
-  endpoint: ReadEndpoint,
+  endpoint: Endpoint,
   params: object | null,
-): Error & { status?: number };
+): NetworkError | Error | SyntheticError | undefined;
 ```
+
+[NetworkError](./types#networkerror)
 
 Provides error information about a request. This builds on [useMeta()](./useMeta),
 but adds some additional logic.

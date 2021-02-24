@@ -1,11 +1,23 @@
 import { ReadShape } from '@rest-hooks/core/endpoint';
+import { NetworkError } from '@rest-hooks/core/types';
 import { Schema } from '@rest-hooks/endpoint';
 
 import useMeta from './useMeta';
 
+export interface SyntheticError extends Error {
+  status: number;
+  synthetic: boolean;
+}
+
+export function isSyntheticError(
+  error: SyntheticError | unknown,
+): error is SyntheticError {
+  return error && (error as any).synthetic;
+}
+
 type UseErrorReturn<P> = P extends null
   ? undefined
-  : Error & { status?: number; synthetic?: boolean };
+  : NetworkError | Error | SyntheticError | undefined;
 
 /** Access a resource or error if failed to get it */
 export default function useError<

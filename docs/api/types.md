@@ -16,6 +16,15 @@ interface Manager {
 
 [More](./Manager)
 
+### NetworkError
+
+```typescript
+interface NetworkError extends Error {
+  status: number | undefined;
+  response?: Response;
+}
+```
+
 ## @rest-hooks/endpoint
 
 ### EndpointInterface
