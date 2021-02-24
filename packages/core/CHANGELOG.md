@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.3...@rest-hooks/core@1.0.4) (2021-02-24)
+
+
+### 💅 Enhancement
+
+* Improve error type preciseness ([#571](https://github.com/coinbase/rest-hooks/issues/571)) ([6f760be](https://github.com/coinbase/rest-hooks/commit/6f760be7149f04eb26727730e0ec0d67f2215ed5))
+* legacy Resource should only warn on validation problems ([#540](https://github.com/coinbase/rest-hooks/issues/540)) ([eb83a51](https://github.com/coinbase/rest-hooks/commit/eb83a511d41c0b18ea3f5ecd6696e1013ed8e1c3))
+
+
+
 ### [1.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.2...@rest-hooks/core@1.0.3) (2021-02-04)
 
 
