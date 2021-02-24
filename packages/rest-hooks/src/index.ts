@@ -67,6 +67,7 @@ export type {
   IndexInterface,
   IndexParams,
   ArrayElement,
+  NetworkError,
 } from '@rest-hooks/core';
 
 export { Resource, SimpleResource } from './resource';
@@ -77,7 +78,6 @@ export {
   PromiseifyMiddleware,
   NetworkErrorBoundary,
 } from './react-integration';
-export type { NetworkError } from './react-integration';
 
 export {
   PollingSubscription,

@@ -24,6 +24,11 @@ export type ReceiveTypes = typeof RECEIVE_TYPE;
 
 export type PK = string;
 
+export interface NetworkError extends Error {
+  status: number | undefined;
+  response?: Response;
+}
+
 export type State<T> = Readonly<{
   entities: {
     readonly [entityKey: string]: { readonly [pk: string]: T } | undefined;
@@ -33,7 +38,7 @@ export type State<T> = Readonly<{
   meta: {
     readonly [key: string]: {
       readonly date: number;
-      readonly error?: Error;
+      readonly error?: NetworkError | Error;
       readonly expiresAt: number;
       readonly prevExpiresAt?: number;
       readonly invalidated?: boolean;

@@ -28,6 +28,7 @@ export {
   useResetter,
   hasUsableData,
 } from './react-integration';
+export type { SyntheticError } from './react-integration';
 export {
   StateContext,
   DispatchContext,
