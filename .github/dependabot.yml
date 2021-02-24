@@ -8,7 +8,7 @@ updates:
     schedule:
       interval: "daily"
     labels:
-      - "packages"
+      - "dependencies"
     allow:
       - dependency-type: "development"
     ignore:
