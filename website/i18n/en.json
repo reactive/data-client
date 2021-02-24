@@ -124,6 +124,9 @@
       "api/Values": {
         "title": "Values"
       },
+      "getting-started/endpoint": {
+        "title": "getting-started/endpoint"
+      },
       "getting-started/installation": {
         "title": "Installation"
       },
@@ -1055,6 +1058,12 @@
       },
       "version-5.0/guides/version-5.0-url": {
         "title": "URL Patterns"
+      },
+      "version-5.0/upgrade/version-5.0-upgrading-test-to-two": {
+        "title": "Upgrading @rest-hooks/test to 3"
+      },
+      "version-5.0/upgrade/version-5.0-upgrading-to-5": {
+        "title": "Upgrading from 4 to 5"
       }
     },
     "links": {
