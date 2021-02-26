@@ -8,14 +8,14 @@ function useMeta(
   params: object | null,
 ): {
     readonly date: number;
-    readonly error?: NetworkError | Error | undefined;
+    readonly error?: NetworkError | UnknownError;
     readonly expiresAt: number;
     readonly prevExpiresAt?: number | undefined;
     readonly invalidated?: boolean | undefined;
 } | null;
 ```
 
-[NetworkError](./types#networkerror)
+[NetworkError](./types#networkerror) [UnknownError](./types#unknownerror)
 
 Retrieves metadata about a request from the cache.
 

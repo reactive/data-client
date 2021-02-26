@@ -5,15 +5,16 @@ original_id: useError
 ---
 
 ```typescript
-interface SyntheticError extends Error {
+export interface SyntheticError extends Error {
   status: number;
-  synthetic: boolean;
+  response?: undefined;
+  synthetic: true;
 }
 
 function useError(
   endpoint: Endpoint,
   params: object | null,
-): NetworkError | Error | SyntheticError | undefined;
+): NetworkError | Unknown | SyntheticError | undefined;
 ```
 
 [NetworkError](./types#networkerror)
