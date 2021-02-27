@@ -20,9 +20,18 @@ interface Manager {
 
 ```typescript
 interface NetworkError extends Error {
-  status: number | undefined;
+  status: number;
   response?: Response;
 }
+```
+
+### UnknownError
+
+This is a catch-all for errors thrown in fetch functions. It is recommended
+to try to conform to the `NetworkError` interface above
+
+```typescript
+type UnknownError = Error & { status?: unknown; response?: unknown };
 ```
 
 ## @rest-hooks/endpoint

@@ -8,7 +8,7 @@ import {
 import { useMemo, useContext } from 'react';
 
 import useRetrieve from './useRetrieve';
-import useError, { isSyntheticError } from './useError';
+import useError from './useError';
 import hasUsableData from './hasUsableData';
 import useMeta from './useMeta';
 
@@ -47,7 +47,7 @@ function useOneResource<
   );
 
   // refetching won't ever save us if the network response is bad.
-  if (isSyntheticError(error)) throw error;
+  if (error && error.synthetic) throw error;
 
   if (
     !hasUsableData(
@@ -118,7 +118,7 @@ function useManyResources<A extends ResourceArgs<any, any>[]>(
     const err = errorValues[i];
     // either the error is synthetic (not from network), or we aren't fetching at all
     // then throw that error
-    if (err && (isSyntheticError(err) || !promises[i])) throw err;
+    if (err && (err.synthetic || !promises[i])) throw err;
   }
 
   const promise = useMemo(() => {
