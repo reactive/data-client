@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.4...@rest-hooks/core@1.0.5) (2021-02-27)
+
+
+### 💅 Enhancement
+
+* Make type discrimination easier in error types ([#581](https://github.com/coinbase/rest-hooks/issues/581)) ([cd105f3](https://github.com/coinbase/rest-hooks/commit/cd105f378e3c97b6accd127a61759287fb8bb3b5))
+
+
+
 ### [1.0.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.3...@rest-hooks/core@1.0.4) (2021-02-24)
 
 
