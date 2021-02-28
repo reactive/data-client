@@ -3,7 +3,7 @@ import { Schema } from '@rest-hooks/endpoint';
 
 /** Defines the shape of a network request */
 export interface FetchShape<
-  S extends Schema,
+  S extends Schema | undefined,
   Params extends Readonly<object> = Readonly<object>,
   Body extends Readonly<object | string> | void | unknown =
     | Readonly<object | string>
@@ -19,7 +19,7 @@ export interface FetchShape<
 
 /** To change values on the server */
 export interface MutateShape<
-  S extends Schema,
+  S extends Schema | undefined,
   Params extends Readonly<object> = Readonly<object>,
   Body extends Readonly<object | string> | void | unknown =
     | Readonly<object | string>
@@ -32,7 +32,7 @@ export interface MutateShape<
 
 /** For retrieval requests */
 export interface ReadShape<
-  S extends Schema,
+  S extends Schema | undefined,
   Params extends Readonly<object> = Readonly<object>,
   Response extends object | string | number | boolean | null = any
 > extends FetchShape<S, Params, undefined, Response> {

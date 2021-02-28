@@ -16,7 +16,7 @@ type Actions = UnsubscribeAction | SubscribeAction;
 
 /** Properties sent to Subscription constructor */
 export interface SubscriptionInit {
-  schema: Schema;
+  schema?: Schema;
   fetch: () => Promise<any>;
   key: string;
   getState: () => State<unknown>;

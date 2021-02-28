@@ -48,7 +48,9 @@ export type ParamsFromShape<S> = S extends {
   : never;
 
 /** Get the Schema type for a given Shape */
-export type SchemaFromShape<F extends FetchShape<any, any, any>> = F['schema'];
+export type SchemaFromShape<
+  F extends FetchShape<Schema | undefined, any, any>
+> = F['schema'];
 
 /** Get the Body type for a given Shape */
 export type BodyFromShape<F extends FetchShape<any, any, any>> = F extends {
@@ -58,7 +60,7 @@ export type BodyFromShape<F extends FetchShape<any, any, any>> = F extends {
   : never;
 
 export type OptimisticUpdateParams<
-  SourceSchema extends Schema,
+  SourceSchema extends Schema | undefined,
   DestShape extends FetchShape<any, any, any>
 > = [
   DestShape,
