@@ -688,6 +688,18 @@ exports[`Entity normalization should throw a custom error if data loads with str
           Input: \\"hibho\\""
 `;
 
+exports[`Entity normalization should throw a custom error if schema key is missing from Entity 1`] = `
+"Schema key is missing in Entity
+
+  Be sure all schema members are also part of the entity
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about nesting schemas: https://resthooks.io/docs/guides/nested-response
+
+  Entity keys: name,secondthing
+  Schema key(missing): blarb
+  "
+`;
+
 exports[`Entity normalization should throw a custom error loads with array 1`] = `
 "Attempted to initialize MyEntity with an array, but named members were expected
 
