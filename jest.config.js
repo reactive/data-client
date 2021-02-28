@@ -67,6 +67,24 @@ const projects = [
     roots: packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
     displayName: 'ReactDOM',
     setupFiles: ['<rootDir>/scripts/testSetup.js'],
+    testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(j|t)sx?$',
+  },
+  {
+    ...baseConfig,
+    rootDir: __dirname,
+    roots: packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
+    displayName: 'Node',
+    setupFiles: ['<rootDir>/scripts/testSetupNode.js'],
+    testEnvironment: 'node',
+    transform: {
+      ...baseConfig.transform,
+      '^.+\\.(j)sx?$': [
+        'babel-jest',
+        { rootMode: 'upward', targets: { node: 'current' } },
+      ],
+    },
+    transformIgnorePatterns: ['<rootDir>/.*__tests__/[^/]+\\.web\\.(j|t)sx?$'],
+    testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.node\\.(j|t)sx?$',
   },
   /*{
     ...baseConfig,
