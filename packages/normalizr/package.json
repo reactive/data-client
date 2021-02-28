@@ -50,9 +50,6 @@
     "tsc:ci": "ttsc --project tsconfig.test.json ",
     "typecheck": "yarn run tsc:ci"
   },
-  "browserslist": [
-    "extends @anansi/browserslist-config"
-  ],
   "author": "Nathaniel Tucker",
   "contributors": [
     "Paul Armstrong",
