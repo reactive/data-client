@@ -3,6 +3,7 @@ import {
   UserResource,
   InvalidIfStaleArticleResource,
   GetPhoto,
+  GetPhotoUndefined,
   GetNoEntities,
   ArticleTimedResource,
   ContextAuthdArticle,
@@ -494,6 +495,24 @@ describe('useResource()', () => {
       .reply(200, response);
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useResource(GetPhoto, { userId });
+    });
+    // undefined means it threw
+    expect(result.current).toBeUndefined();
+    await waitForNextUpdate();
+    expect(result.current).toStrictEqual(response);
+  });
+
+  it('should work with ArrayBuffer endpoint with undefined schema', async () => {
+    const userId = '5';
+    const response = new ArrayBuffer(99);
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'access-control-allow-origin': '*',
+      })
+      .get(`/users/${userId}/photo2`)
+      .reply(200, response);
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      return useResource(GetPhotoUndefined, { userId });
     });
     // undefined means it threw
     expect(result.current).toBeUndefined();

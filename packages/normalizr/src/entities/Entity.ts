@@ -298,6 +298,6 @@ if (process.env.NODE_ENV !== 'production') {
   };
 }
 
-export function isEntity(schema: Schema | null): schema is typeof Entity {
+export function isEntity(schema: Schema): schema is typeof Entity {
   return schema !== null && (schema as any).pk !== undefined;
 }

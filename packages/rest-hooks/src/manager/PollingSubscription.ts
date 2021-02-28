@@ -12,7 +12,7 @@ const { FETCH_TYPE } = actionTypes;
  * interval requested.
  */
 export default class PollingSubscription implements Subscription {
-  protected declare readonly schema: Schema;
+  protected declare readonly schema: Schema | undefined;
   protected declare readonly fetch: () => Promise<any>;
   protected declare readonly key: string;
   protected declare frequency: number;

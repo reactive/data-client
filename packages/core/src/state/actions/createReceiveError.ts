@@ -6,12 +6,12 @@ import {
 } from '@rest-hooks/core/types';
 import { RECEIVE_TYPE } from '@rest-hooks/core/actionTypes';
 
-interface Options<S extends Schema = any>
+interface Options<S extends Schema | undefined = any>
   extends Pick<FetchAction<any, S>['meta'], 'schema' | 'key'> {
   errorExpiryLength: NonNullable<FetchOptions['errorExpiryLength']>;
 }
 
-export default function createReceiveError<S extends Schema = any>(
+export default function createReceiveError<S extends Schema | undefined = any>(
   error: Error,
   { schema, key, errorExpiryLength }: Options<S>,
 ): ReceiveAction {

@@ -176,16 +176,16 @@ type DenormalizeReturn<S extends Schema> =
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const denormalize = <S extends Schema>(
   input: any,
-  schema: S,
+  schema: S | undefined,
   entities: any,
   entityCache: DenormalizeCache['entities'] = {},
   resultCache: WeakListMap<object, any> = new WeakListMap(),
 ): DenormalizeReturn<S> => {
-  /* istanbul ignore next */
-  if (process.env.NODE_ENV !== 'production' && schema === undefined) {
-    throw new Error('schema needed');
+  // undefined mean don't do anything
+  if (schema === undefined) {
+    return [input, true, false, {}] as [any, boolean, boolean, any];
   }
-  if (typeof input === 'undefined') {
+  if (input === undefined) {
     return [undefined, false, false, {}] as [any, boolean, boolean, any];
   }
   const resolvedEntities: Record<string, Record<string, any>> = {};
@@ -205,7 +205,7 @@ export const denormalize = <S extends Schema>(
 
 export const denormalizeSimple = <S extends Schema>(
   input: any,
-  schema: S,
+  schema: S | undefined,
   entities: any,
   entityCache: DenormalizeCache['entities'] = {},
   resultCache: WeakListMap<object, any> = new WeakListMap(),

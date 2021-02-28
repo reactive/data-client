@@ -21,7 +21,10 @@ import buildInferredResults from './buildInferredResults';
  * @returns [denormalizedValue, ready]
  */
 export default function useDenormalized<
-  Shape extends Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>
+  Shape extends Pick<
+    ReadShape<Schema | undefined, any>,
+    'getFetchKey' | 'schema' | 'options'
+  >
 >(
   { schema, getFetchKey }: Shape,
   params: ParamsFromShape<Shape> | null,
@@ -40,7 +43,7 @@ export default function useDenormalized<
 
   // We can grab entities without actual results if the params compute a primary key
   const results = useMemo(() => {
-    if (cacheResults) return cacheResults;
+    if (cacheResults || schema === undefined) return cacheResults;
 
     // in case we don't even have entities for a model yet, denormalize() will throw
     // entities[entitySchema.key] === undefined
@@ -49,7 +52,10 @@ export default function useDenormalized<
   }, [cacheResults, state.indexes, serializedParams]);
   // TODO: only update when relevant indexes change
 
-  const needsDenormalization = useMemo(() => schemaHasEntity(schema), [schema]);
+  const needsDenormalization = useMemo(
+    () => schema && schemaHasEntity(schema),
+    [schema],
+  );
 
   // Compute denormalized value
   return useMemo(() => {
@@ -63,7 +69,7 @@ export default function useDenormalized<
     }
     // Warn users with bad configurations
     /* istanbul ignore next */
-    if (process.env.NODE_ENV !== 'production' && isEntity(schema)) {
+    if (process.env.NODE_ENV !== 'production' && schema && isEntity(schema)) {
       const paramEncoding = serializedParams || '';
       if (Array.isArray(results)) {
         throw new Error(
