@@ -75,7 +75,7 @@ export interface FetchOptions {
   readonly extra?: any;
 }
 
-export interface ReceiveMeta<S extends Schema> {
+export interface ReceiveMeta<S extends Schema | undefined> {
   schema: S;
   key: string;
   updaters?: Record<string, UpdateFunction<S, any>>;
@@ -89,7 +89,7 @@ export type ReceiveAction<
     | string
     | number
     | null,
-  S extends Schema = any
+  S extends Schema | undefined = any
 > = ErrorableFSAWithPayloadAndMeta<
   typeof RECEIVE_TYPE,
   Payload,
@@ -104,7 +104,7 @@ interface FetchMeta<
     | string
     | number
     | null,
-  S extends Schema = any
+  S extends Schema | undefined = any
 > {
   type: FetchShape<any, any>['type'];
   schema: S;
@@ -127,7 +127,7 @@ export interface FetchAction<
     | string
     | number
     | null,
-  S extends Schema = any
+  S extends Schema | undefined = any
 > extends FSAWithPayloadAndMeta<
     typeof FETCH_TYPE,
     () => Promise<Payload>,
@@ -139,7 +139,7 @@ export interface FetchAction<
 export interface SubscribeAction
   extends FSAWithMeta<typeof SUBSCRIBE_TYPE, undefined, any> {
   meta: {
-    schema: Schema;
+    schema: Schema | undefined;
     fetch: () => Promise<any>;
     key: string;
     options: FetchOptions | undefined;

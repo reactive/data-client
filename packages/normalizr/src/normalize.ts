@@ -123,10 +123,18 @@ export const normalize = <
   R = NormalizeNullable<S>
 >(
   input: any,
-  schema: S,
+  schema?: S,
   existingEntities: Readonly<E> = {} as any,
   existingIndexes: Readonly<NormalizedIndex> = {},
 ): NormalizedSchema<E, R> => {
+  // no schema means we don't process at all
+  if (schema === undefined)
+    return {
+      entities: existingEntities,
+      indexes: existingIndexes,
+      result: input,
+    };
+
   const schemaType = expectedSchemaType(schema);
   if (input === null || typeof input !== schemaType) {
     /* istanbul ignore else */

@@ -362,7 +362,7 @@ export class NestedArticleResource extends OtherArticleResource {
 }
 
 export const GetPhoto = new Endpoint(
-  async function ({ userId }: { userId: string }) {
+  async function ({ userId }: { userId: string }): Promise<ArrayBuffer> {
     const response = await fetch(this.key({ userId }));
     const photoArrayBuffer = await response.arrayBuffer();
     return photoArrayBuffer;
@@ -373,6 +373,17 @@ export const GetPhoto = new Endpoint(
     },
   },
 );
+
+export const GetPhotoUndefined = GetPhoto.extend({
+  key({ userId }: { userId: string }) {
+    return `/users/${userId}/photo2`;
+  },
+});
+// Currently Endpoint sets schema to null for backwards compat
+// However, we explicitly want to test undefined here to support non-backcompat endpoints
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+GetPhotoUndefined.schema = undefined;
 
 export const GetNoEntities = new Endpoint(
   async function ({ userId }: { userId: string }) {
