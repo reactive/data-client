@@ -12,7 +12,7 @@ interface Options<
     | string
     | number
     | null,
-  S extends Schema = any
+  S extends Schema | undefined = any
 > extends Pick<
     FetchAction<Payload, S>['meta'],
     'schema' | 'key' | 'type' | 'updaters'
@@ -31,7 +31,7 @@ export default function createReceive<
     | string
     | number
     | null,
-  S extends Schema = any
+  S extends Schema | undefined = any
 >(
   data: Payload,
   { schema, key, updaters, dataExpiryLength }: Options<Payload, S>,

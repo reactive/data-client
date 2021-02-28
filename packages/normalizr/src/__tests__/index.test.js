@@ -20,8 +20,9 @@ describe('normalize', () => {
     });
   });
 
-  test('cannot normalize without a schema', () => {
-    expect(() => normalize({})).toThrow();
+  test('passthrough with undefined schema', () => {
+    const input = {};
+    expect(normalize(input).result).toBe(input);
   });
 
   test('cannot normalize with null input', () => {
@@ -338,8 +339,9 @@ describe('normalize', () => {
 });
 
 describe('denormalize', () => {
-  test('cannot denormalize without a schema', () => {
-    expect(() => denormalize({})).toThrow();
+  test('passthrough with undefined schema', () => {
+    const input = {};
+    expect(denormalize(input)).toStrictEqual([input, true, false]);
   });
 
   test('returns the input if undefined', () => {

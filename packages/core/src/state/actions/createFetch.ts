@@ -11,7 +11,7 @@ import {
 
 interface Options<
   Shape extends FetchShape<
-    Schema,
+    Schema | undefined,
     Readonly<object>,
     Readonly<object | string> | void
   >
@@ -22,7 +22,7 @@ interface Options<
   updateParams?:
     | OptimisticUpdateParams<
         SchemaFromShape<Shape>,
-        FetchShape<any, any, any>
+        FetchShape<Schema | undefined, any, any>
       >[]
     | undefined;
 }
@@ -34,7 +34,7 @@ interface Options<
  */
 export default function createFetch<
   Shape extends FetchShape<
-    Schema,
+    Schema | undefined,
     Readonly<object>,
     Readonly<object | string> | void
   >
