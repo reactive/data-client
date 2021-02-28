@@ -57,6 +57,7 @@ const packages = [
   'normalizr',
   'use-enhanced-reducer',
   'hooks',
+  'img',
 ];
 
 const projects = [

@@ -55,60 +55,28 @@ Here, we build an endpoint for images using [Image](https://developer.mozilla.or
 
 Here, Rest Hooks is simply used to track resource loading - only storing the `src` in its store.
 
-<details open><summary><b>endpoint.ts</b></summary>
+## Installation
 
-```typescript
-export const getImage = new Endpoint(
-  async function ({ src }: { src: string }) {
-    return new Promise(resolve => {
-      const img = new Image();
-      img.onload = () => {
-        resolve(src);
-      };
-      img.onerror = error => {
-        console.warn(`Failed to load ${src}: ${error}`);
-        // in case we fail to load we actually don't want to error out but
-        // let the browser display the normal image fallback
-        resolve(src);
-      };
-      img.src = src;
-    });
-  },
-  {
-    key({ src }: { src: string }) {
-      return `GET ${src}`;
-    },
-    schema: '',
-  },
-);
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--yarn-->
+```bash
+yarn add @rest-hooks/img
 ```
-
-</details>
-
-<details open><summary><b>Img.tsx</b></summary>
-
-```tsx
-import React, { ImgHTMLAttributes } from 'react';
-import { useResource } from 'rest-hooks';
-
-import { getImage } from './endpoint';
-
-export default function Img(props: ImgHTMLAttributes<HTMLImageElement>) {
-  const { src } = props;
-  useResource(getImage, src ? { src } : null);
-  return <img alt={props.alt} {...props} />;
-}
+<!--npm-->
+```bash
+npm install  @rest-hooks/img
 ```
+<!--END_DOCUSAURUS_CODE_TABS-->
 
-</details>
+## Usage
 
 <details open><summary><b>Profile.tsx</b></summary>
 
 ```tsx
 import React, { ImgHTMLAttributes } from 'react';
 import { useResource } from 'rest-hooks';
-
-import { Img } from './Img';
+import { Img } from '@rest-hooks/img';
 
 export default function Profile({ username }: { username: string }) {
   const user = useResource(UseResource.detail(), { username });
@@ -127,18 +95,17 @@ export default function Profile({ username }: { username: string }) {
 
 </details>
 
+#### Prefetching
+
 Note this will cascade the requests, waiting for user to resolve before
-the image request can start. If the image url is deterministic based on the same parameters,
-we can start that request at the same time as the user request:
+the image request can start. If the image url is deterministic based on the same parameters, we can start that request at the same time as the user request:
 
 <details open><summary><b>Profile.tsx</b></summary>
 
 ```tsx
 import React, { ImgHTMLAttributes } from 'react';
 import { useResource, useRetrieve } from 'rest-hooks';
-
-import { getImage } from './endpoint';
-import { Img } from './Img';
+import { Img, getImage } from '@rest-hooks/img';
 
 export default function Profile({ username }: { username: string }) {
   const imageSrc = `/profile_images/${username}}`;
@@ -158,3 +125,7 @@ export default function Profile({ username }: { username: string }) {
 ```
 
 </details>
+
+
+When using the [fetch as you render](../guides/render-as-you-fetch) pattern in concurrent mode, [useFetcher](../api/useFetcher) with the `getImage`
+[Endpoint](../api/Endpoint) to preload the image.
