@@ -74,6 +74,25 @@ describe(`${Entity.name} normalization`, () => {
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 
+  it('should throw a custom error if schema key is missing from Entity', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      pk() {
+        return this.name;
+      }
+
+      static schema = {
+        blarb: Date,
+      };
+    }
+    const schema = MyEntity;
+    function normalizeBad() {
+      normalize({ name: 'bob', secondthing: 'hi' }, schema);
+    }
+    expect(normalizeBad).toThrowErrorMatchingSnapshot();
+  });
+
   it('should throw a custom error if data loads with no matching props', () => {
     class MyEntity extends Entity {
       readonly name: string = '';

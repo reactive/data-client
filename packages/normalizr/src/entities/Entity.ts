@@ -219,6 +219,20 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
           addEntity,
           visitedEntities,
         );
+      } else if (process.env.NODE_ENV !== 'production') {
+        const error = new Error(
+          `Schema key is missing in Entity
+
+  Be sure all schema members are also part of the entity
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about nesting schemas: https://resthooks.io/docs/guides/nested-response
+
+  Entity keys: ${Object.keys(processedEntity)}
+  Schema key(missing): ${key}
+  `,
+        );
+        (error as any).status = 400;
+        throw error;
       }
     });
 
