@@ -17,12 +17,16 @@ let CSP = false;
 try {
   Function();
 } catch (e) {
+  /* istanbul ignore next */
   CSP = true;
 }
 
 export default class Endpoint extends Function {
   constructor(fetchFunction, options) {
     let self;
+    // TODO: Test the fallback?
+    /* istanbul ignore if */
+    /* istanbul ignore next */
     if (CSP) {
       self = (...args) => self.fetch(...args);
       Object.setPrototypeOf(self, new.target.prototype);
