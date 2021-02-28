@@ -20,7 +20,7 @@ const unvisitEntity = (
   getEntity: (
     entityOrId: Record<string, any> | string,
     schema: typeof Entity,
-  ) => any,
+  ) => EntityInterface | typeof DELETED,
   localCache: Record<string, Record<string, any>>,
   entityCache: DenormalizeCache['entities'],
 ): [
@@ -175,7 +175,7 @@ type DenormalizeReturn<S extends Schema> =
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const denormalize = <S extends Schema>(
-  input: any,
+  input: unknown,
   schema: S | undefined,
   entities: any,
   entityCache: DenormalizeCache['entities'] = {},
@@ -228,7 +228,17 @@ function withTrackedEntities(
   const wrappedUnvisit = (input: any, schema: any) => {
     const ret: [any, boolean, boolean] = originalUnvisit(input, schema);
     // pass over undefined in key
-    if (ret[0] && schema && isEntity(schema)) globalKey.push(ret[0]);
+    if (ret[0] && schema && isEntity(schema)) {
+      /* istanbul ignore else */
+      if (typeof ret[0] === 'object') {
+        globalKey.push(ret[0]);
+      } else if (process.env.NODE_ENV !== 'production') {
+        throw new Error(
+          `Unexpected primitive found during denormalization\nFound: ${ret[0]}\nExpected entity: ${schema}`,
+        );
+      }
+    }
+
     return ret;
   };
   wrappedUnvisit.og = unvisit;

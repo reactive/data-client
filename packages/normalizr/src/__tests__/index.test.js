@@ -518,6 +518,52 @@ describe('denormalize', () => {
     expect(denormalize('123', Article, entities)).toMatchSnapshot();
   });
 
+  test('throws when nested entities are primitives', () => {
+    class User extends IDEntity {}
+    class Comment extends IDEntity {
+      comment = '';
+      static schema = {
+        user: User,
+      };
+    }
+    class Article extends IDEntity {
+      title = '';
+      body = '';
+      static schema = {
+        author: User,
+        comments: [Comment],
+      };
+    }
+
+    const entities = {
+      Article: {
+        123: {
+          author: '8472',
+          body: 'This article is great.',
+          comments: ['comment-123-4738'],
+          id: '123',
+          title: 'A Great Article',
+        },
+      },
+      Comment: {
+        'comment-123-4738': 4,
+      },
+      User: {
+        10293: {
+          id: '10293',
+          name: 'Jane',
+        },
+        8472: {
+          id: '8472',
+          name: 'Paul',
+        },
+      },
+    };
+    expect(() =>
+      denormalize('123', Article, entities),
+    ).toThrowErrorMatchingSnapshot();
+  });
+
   test('set to undefined if schema key is not in entities', () => {
     class User extends IDEntity {}
     class Comment extends IDEntity {
