@@ -8,14 +8,20 @@
   "types": "lib/index.d.ts",
   "type": "module",
   "exports": {
-    "node": {
-      "module": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./lib/index.d.ts"
-    },
-    "types": "./lib/browser.d.ts",
-    "default": "./lib/browser.js"
-  },
+    ".": [
+      {
+        "node": {
+          "module": "./dist/index.js",
+          "require": "./dist/index.cjs",
+          "types": "./lib/index.d.ts"
+        },
+        "types": "./lib/browser.d.ts",
+        "default": "./lib/browser.js"
+      },
+      "./lib/browser.js",
+    ],
+    "./package.json": "./package.json"
+  }
   "engines": {
     "node": ">=10.0"
   },
