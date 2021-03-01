@@ -67,7 +67,9 @@ const projects = [
     roots: packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
     displayName: 'ReactDOM',
     setupFiles: ['<rootDir>/scripts/testSetup.js'],
-    testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(j|t)sx?$',
+    testRegex: [
+      '((/__tests__/(?!.*\\.node).*)|(\\.|/)(test|spec))\\.(j|t)sx?$',
+    ],
   },
   {
     ...baseConfig,
