@@ -6,6 +6,11 @@ import {
   State,
 } from '@rest-hooks/core';
 
+export type DevToolsConfig = {
+  [k: string]: unknown;
+  name: string;
+};
+
 /** Integrates with https://github.com/zalmoxisus/redux-devtools-extension
  *
  * Options: https://github.com/zalmoxisus/redux-devtools-extension/blob/master/docs/API/Arguments.md
@@ -14,7 +19,11 @@ export default class DevToolsManager implements Manager {
   protected declare middleware: Middleware;
   protected declare devTools: undefined | any;
 
-  constructor(config: any = {}) {
+  constructor(
+    config: DevToolsConfig = {
+      name: `Rest Hooks: ${globalThis.document?.title}`,
+    },
+  ) {
     /* istanbul ignore next */
     this.devTools =
       typeof window !== 'undefined' &&
@@ -29,7 +38,7 @@ export default class DevToolsManager implements Manager {
       }: MiddlewareAPI<R>) => {
         return (next: Dispatch<R>) => (action: React.ReducerAction<R>) => {
           return next(action).then(() => {
-            this.devTools.send(action, getState(), {}, 'REST_HOOKS');
+            this.devTools.send(action, getState(), undefined, 'REST_HOOKS');
           });
         };
       };
