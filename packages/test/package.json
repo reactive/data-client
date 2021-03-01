@@ -23,7 +23,7 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=10.0"
+    "node": ">=10 <13 || ^13.7 || >=14"
   },
   "files": [
     "src",
