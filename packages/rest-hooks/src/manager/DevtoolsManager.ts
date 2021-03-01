@@ -4,6 +4,7 @@ import {
   Dispatch,
   Manager,
   State,
+  reducer,
 } from '@rest-hooks/core';
 
 export type DevToolsConfig = {
@@ -38,7 +39,13 @@ export default class DevToolsManager implements Manager {
       }: MiddlewareAPI<R>) => {
         return (next: Dispatch<R>) => (action: React.ReducerAction<R>) => {
           return next(action).then(() => {
-            this.devTools.send(action, getState(), undefined, 'REST_HOOKS');
+            const state = getState();
+            this.devTools.send(
+              action,
+              getState(),
+              state.optimistic.reduce(reducer, state),
+              'REST_HOOKS',
+            );
           });
         };
       };
