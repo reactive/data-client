@@ -177,7 +177,8 @@
     ],
     "Upgrade Guide": [
       "version-5.0-upgrade/upgrading-to-5",
-      "version-5.0-upgrade/upgrading-test-to-two"
+      "version-5.0-upgrade/upgrading-test-to-three",
+      "version-5.0-upgrade/upgrading-test-to-four"
     ]
   }
 }

@@ -10,6 +10,7 @@ const dependencies = Object.keys(pkg.dependencies)
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
 process.env.NODE_ENV = 'production';
+process.env.BROWSERSLIST_ENV = 'node10';
 
 function isExternal(id) {
   const ret = dependencies.includes(id);
@@ -26,7 +27,7 @@ export default [
   {
     input: 'src/index.ts',
     external: id => id === '..' || isExternal(id),
-    output: [{ file: 'dist/index.cjs.js', format: 'cjs' }],
+    output: [{ file: 'dist/index.cjs', format: 'cjs' }],
     plugins: [
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
