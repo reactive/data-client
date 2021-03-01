@@ -6,7 +6,7 @@ original_id: upgrading-test-to-four
 
 ## Breaking Changes
 
-- Requires node 10+
+- Requires node 10+ (and not node 13 less than 13.7)
 - No nested exports - only allowed usage:
   - `import { /* something */ } from '@rest-hooks/test';`
   - `import packageJson from '@rest-hooks/test/package.json';`
