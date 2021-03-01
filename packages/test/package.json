@@ -18,10 +18,10 @@
         "types": "./lib/browser.d.ts",
         "default": "./lib/browser.js"
       },
-      "./lib/browser.js",
+      "./lib/browser.js"
     ],
     "./package.json": "./package.json"
-  }
+  },
   "engines": {
     "node": ">=10.0"
   },
