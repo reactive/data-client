@@ -10,7 +10,7 @@
     ".": [
       {
         "node": {
-          "module": "./dist/index.js",
+          "import": "./dist/index.js",
           "require": "./dist/index.cjs",
           "types": "./lib/index.d.ts"
         },
