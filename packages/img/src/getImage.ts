@@ -11,7 +11,8 @@ const getImage: EndpointInstance<
   ): Promise<string> {
     return new Promise(resolve => {
       // even if we polyfill, on server we don't want to actually wait to resolve the Image
-      if (typeof window === 'undefined' || !Image) resolve(src);
+      if (typeof window === 'undefined' || typeof Image !== 'function')
+        resolve(src);
       const img = new Image();
       img.onload = () => {
         resolve(src);
