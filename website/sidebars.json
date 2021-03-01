@@ -161,7 +161,8 @@
     ],
     "Upgrade Guide": [
       "upgrade/upgrading-to-5",
-      "upgrade/upgrading-test-to-two"
+      "upgrade/upgrading-test-to-three",
+      "upgrade/upgrading-test-to-four"
     ]
   }
 }
