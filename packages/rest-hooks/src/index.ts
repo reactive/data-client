@@ -85,7 +85,7 @@ export {
   SubscriptionManager,
   DefaultConnectionListener,
 } from './manager';
-export type { ConnectionListener } from './manager';
+export type { ConnectionListener, DevToolsConfig } from './manager';
 export { default as useSelectionUnstable } from './react-integration/hooks/useSelection';
 
 const { buildInferredResults, RIC } = _INT_;
