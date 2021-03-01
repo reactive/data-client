@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [2.0.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@2.0.3...@rest-hooks/legacy@2.0.4) (2021-03-01)
+
+
+### 🐛 Bug Fix
+
+* Rollup name for @rest-hooks/legacy ([#587](https://github.com/coinbase/rest-hooks/issues/587)) ([299c53e](https://github.com/coinbase/rest-hooks/commit/299c53e8eab427d209b6f74babc3602744ea5212))
+
+
+
 ### [2.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@2.0.2...@rest-hooks/legacy@2.0.3) (2021-02-27)
 
 

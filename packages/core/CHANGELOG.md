@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.5...@rest-hooks/core@1.0.6) (2021-03-01)
+
+
+### 💅 Enhancement
+
+* Support 'undefined' as schema ([#583](https://github.com/coinbase/rest-hooks/issues/583)) ([1e81470](https://github.com/coinbase/rest-hooks/commit/7ef172a3d8469b182cc7a19055920a308841b59e))
+
+
+
 ### [1.0.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.4...@rest-hooks/core@1.0.5) (2021-02-27)
 
 

@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.2...@rest-hooks/normalizr@6.0.3) (2021-03-01)
+
+
+### 💅 Enhancement
+
+* Support 'undefined' as schema ([#583](https://github.com/coinbase/rest-hooks/issues/583)) ([1e81470](https://github.com/coinbase/rest-hooks/commit/7ef172a3d8469b182cc7a19055920a308841b59e))
+* Throw useful error when schema key is missing from Entity ([#585](https://github.com/coinbase/rest-hooks/issues/585)) ([b5ed83a](https://github.com/coinbase/rest-hooks/commit/b5ed83a8e9e4b3a20b50f8f0b5d1d1a1e876fa81))
+
+
+### 🐛 Bug Fix
+
+* Exclude browserslist config from published package ([#589](https://github.com/coinbase/rest-hooks/issues/589)) ([2e14d30](https://github.com/coinbase/rest-hooks/commit/2e14d300d24d21ced6d8f24004881396023dc722))
+* Gracefully handle primitive entity responses ([#584](https://github.com/coinbase/rest-hooks/issues/584)) ([322b4c6](https://github.com/coinbase/rest-hooks/commit/322b4c6615ea02b09baf0bcfc9b214bb8be1ba4f))
+
+
+
 ### [6.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.1...@rest-hooks/normalizr@6.0.2) (2021-02-04)
 
 

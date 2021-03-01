@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.8](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.7...rest-hooks@5.0.8) (2021-03-01)
+
+
+### 💅 Enhancement
+
+* Provide name to devtools to make it easier to find ([#601](https://github.com/coinbase/rest-hooks/issues/601)) ([518b983](https://github.com/coinbase/rest-hooks/commit/518b9832065126feb7f9b5f9d2299753763b1472))
+* Report optimistic state to devtools ([#603](https://github.com/coinbase/rest-hooks/issues/603)) ([5a1fa89](https://github.com/coinbase/rest-hooks/commit/5a1fa8998ffbfb5f04a1384076f406547293479d))
+* Support 'undefined' as schema ([#583](https://github.com/coinbase/rest-hooks/issues/583)) ([1e81470](https://github.com/coinbase/rest-hooks/commit/7ef172a3d8469b182cc7a19055920a308841b59e))
+
+
+### 🐛 Bug Fix
+
+* Gracefully handle primitive entity responses ([#584](https://github.com/coinbase/rest-hooks/issues/584)) ([322b4c6](https://github.com/coinbase/rest-hooks/commit/322b4c6615ea02b09baf0bcfc9b214bb8be1ba4f))
+
+
+
 ### [5.0.7](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.6...rest-hooks@5.0.7) (2021-02-27)
 
 **Note:** Version bump only for package rest-hooks

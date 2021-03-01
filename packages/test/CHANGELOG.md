@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@3.0.1...@rest-hooks/test@4.0.0) (2021-03-01)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* - Requires node 10+ (and not node 13 less than 13.7)
+- No nested exports - only allowed usage:
+  - `import { /* something */ } from '@rest-hooks/test';`
+  - `import packageJson from '@rest-hooks/test/package.json';`
+
+### 💅 Enhancement
+
+* Define package exports for modern tooling ([#590](https://github.com/coinbase/rest-hooks/issues/590)) ([5a3e00b](https://github.com/coinbase/rest-hooks/commit/5a3e00b26451c6d0a480925f5f1ab7099a7aedeb))
+
+
+
 ### [3.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@3.0.0...@rest-hooks/test@3.0.1) (2021-02-23)
 
 

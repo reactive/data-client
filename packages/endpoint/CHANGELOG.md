@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@1.0.3...@rest-hooks/endpoint@1.0.4) (2021-03-01)
+
+
+### 💅 Enhancement
+
+* Support 'undefined' as schema ([#583](https://github.com/coinbase/rest-hooks/issues/583)) ([1e81470](https://github.com/coinbase/rest-hooks/commit/7ef172a3d8469b182cc7a19055920a308841b59e))
+
+
+### 🐛 Bug Fix
+
+* Gracefully handle primitive entity responses ([#584](https://github.com/coinbase/rest-hooks/issues/584)) ([322b4c6](https://github.com/coinbase/rest-hooks/commit/322b4c6615ea02b09baf0bcfc9b214bb8be1ba4f))
+
+
+### 📝 Documentation
+
+* Typos and minor improvements ([#561](https://github.com/coinbase/rest-hooks/issues/561)) ([aed902a](https://github.com/coinbase/rest-hooks/commit/aed902a7ee8a50f7f08fab261efa528a82c52b19))
+
+
+
 ### [1.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@1.0.2...@rest-hooks/endpoint@1.0.3) (2021-02-04)
 
 
