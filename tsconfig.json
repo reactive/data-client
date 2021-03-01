@@ -7,6 +7,7 @@
     { "path": "./packages/endpoint/tsconfig.compile.json" },
     { "path": "./packages/rest/tsconfig.compile.json" },
     { "path": "./packages/core/tsconfig.compile.json" },
+    { "path": "./packages/img/tsconfig.compile.json" },
     { "path": "./packages/hooks/tsconfig.compile.json" },
     { "path": "./packages/rest-hooks/tsconfig.compile.json" },
     { "path": "./packages/test/tsconfig.compile.json" },
