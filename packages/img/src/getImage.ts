@@ -1,7 +1,7 @@
 import { Endpoint, EndpointInstance } from '@rest-hooks/endpoint';
 
 function isNode() {
-  return process !== undefined && process.release.name === 'node';
+  return typeof process !== 'undefined' && process.release.name === 'node';
 }
 
 const getImage: EndpointInstance<
