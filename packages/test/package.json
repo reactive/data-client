@@ -21,6 +21,7 @@
     ],
     "./package.json": "./package.json"
   },
+  "type": "module",
   "engines": {
     "node": ">=10.0"
   },
