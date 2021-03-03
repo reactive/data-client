@@ -11,7 +11,7 @@ import useResetter from './useResetter';
 import useFetchDispatcher from './useFetchDispatcher';
 import useInvalidateDispatcher from './useInvalidateDispatcher';
 export { default as hasUsableData } from './hasUsableData';
-export type { SyntheticError } from './useError';
+export type { SyntheticError, ErrorTypes } from './useError';
 
 export {
   useFetcher,
