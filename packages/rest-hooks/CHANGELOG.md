@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.9](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.8...rest-hooks@5.0.9) (2021-03-03)
+
+
+### 🐛 Bug Fix
+
+* Actually send optimistic updates to devtool ([#616](https://github.com/coinbase/rest-hooks/issues/616)) ([6a96c63](https://github.com/coinbase/rest-hooks/commit/6a96c634dc63b56804b0055f33c2983d2212d323))
+
+
+
 ### [5.0.8](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.7...rest-hooks@5.0.8) (2021-03-01)
 
 

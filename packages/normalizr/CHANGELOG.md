@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.0.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.3...@rest-hooks/normalizr@6.0.4) (2021-03-03)
+
+
+### 🐛 Bug Fix
+
+* Handle nulls when schema expects something ([#615](https://github.com/coinbase/rest-hooks/issues/615)) ([0afd813](https://github.com/coinbase/rest-hooks/commit/0afd813a5aa71683590fbbc97bbbc96c9c2bdf12))
+
+
+
 ### [6.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.2...@rest-hooks/normalizr@6.0.3) (2021-03-01)
 
 

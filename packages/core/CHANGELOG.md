@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.6...@rest-hooks/core@1.0.7) (2021-03-03)
+
+
+### 🐛 Bug Fix
+
+* useStatefulResource() return type ([#613](https://github.com/coinbase/rest-hooks/issues/613)) ([05a4995](https://github.com/coinbase/rest-hooks/commit/05a49954c61f47deef18bc5d58d045ac79efd78e))
+
+
+
 ### [1.0.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.5...@rest-hooks/core@1.0.6) (2021-03-01)
 
 
