@@ -1,7 +1,7 @@
 import {
   CoolerArticleResource,
   InvalidIfStaleArticleResource,
-} from '__tests__/common';
+} from '__tests__/new';
 import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 import nock from 'nock';
 
@@ -90,7 +90,7 @@ describe('useStatefulResource()', () => {
 
   it('should fetch anew with param changes', async () => {
     const { result, waitForNextUpdate, rerender } = renderRestHook(
-      ({ id }) => {
+      ({ id }: { id: number }) => {
         return useStatefulResource(CoolerArticleResource.detail(), {
           id,
         });
@@ -127,7 +127,7 @@ describe('useStatefulResource()', () => {
     const { result, rerender, waitForNextUpdate } = renderRestHook(
       props => {
         return useStatefulResource(
-          InvalidIfStaleArticleResource.detailShape(),
+          InvalidIfStaleArticleResource.detail(),
           props,
         );
       },
