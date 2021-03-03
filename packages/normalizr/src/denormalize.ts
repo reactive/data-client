@@ -134,7 +134,9 @@ const getUnvisit = (
   ): [denormalized: any, found: boolean, deleted: boolean] => {
     globalKey.push(input);
     const ret = unvisit(input, schema);
-    if (typeof input !== 'object') return ret;
+    // in the case where WeakMap cannot be used
+    // this test ensures null is properly excluded from WeakMap
+    if (Object(input) !== input) return ret;
 
     if (!resultCache.has(globalKey)) {
       resultCache.set(globalKey, ret[0]);
@@ -230,7 +232,7 @@ function withTrackedEntities(
     // pass over undefined in key
     if (ret[0] && schema && isEntity(schema)) {
       /* istanbul ignore else */
-      if (typeof ret[0] === 'object') {
+      if (Object(ret[0]) === ret[0]) {
         globalKey.push(ret[0]);
       } else if (process.env.NODE_ENV !== 'production') {
         throw new Error(
