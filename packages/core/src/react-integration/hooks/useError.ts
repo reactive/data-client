@@ -10,12 +10,11 @@ export interface SyntheticError extends Error {
   synthetic: true;
 }
 
-type UseErrorReturn<P> = P extends null
-  ? undefined
-  :
-      | ((NetworkError | UnknownError) & { synthetic?: undefined | false })
-      | SyntheticError
-      | undefined;
+export type ErrorTypes =
+  | ((NetworkError | UnknownError) & { synthetic?: undefined | false })
+  | SyntheticError;
+
+type UseErrorReturn<P> = P extends null ? undefined : ErrorTypes | undefined;
 
 /** Access a resource or error if failed to get it */
 export default function useError<
