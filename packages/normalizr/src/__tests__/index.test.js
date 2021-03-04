@@ -818,4 +818,161 @@ describe('denormalize with global cache', () => {
       expect(first.data.comments[0]).toBe(second.data.comments[0]);
     });
   });
+
+  test('denormalizes plain object with no entities', () => {
+    const entityCache = {};
+    const resultCache = new WeakListMap();
+
+    const input = {
+      firstThing: { five: 5, seven: 42 },
+      secondThing: { cars: 'fifo' },
+    };
+    const [first, found, deleted] = denormalize(
+      input,
+      {
+        firstThing: { five: 0, seven: 0 },
+        secondThing: { cars: '' },
+      },
+      {},
+      entityCache,
+      resultCache,
+    );
+    expect(first).toEqual(input);
+    expect(found).toBe(true);
+    expect(deleted).toBe(false);
+    // should maintain referential equality
+    const [second] = denormalize(
+      input,
+      {
+        firstThing: { five: 0, seven: 0 },
+        secondThing: { cars: '' },
+      },
+      {},
+      {},
+      resultCache,
+    );
+    expect(second).toBe(first);
+  });
+
+  test('passthrough for null schema and an object input', () => {
+    const entityCache = {};
+    const resultCache = new WeakListMap();
+
+    const input = {
+      firstThing: { five: 5, seven: 42 },
+      secondThing: { cars: 'never' },
+    };
+    const [denorm, found, deleted] = denormalize(
+      input,
+      null,
+      {},
+      entityCache,
+      resultCache,
+    );
+    expect(denorm).toBe(input);
+    expect(found).toBe(true);
+    expect(deleted).toBe(false);
+  });
+
+  test('passthrough for null schema and an number input', () => {
+    const entityCache = {};
+    const resultCache = new WeakListMap();
+
+    const input = 5;
+    const [denorm, found, deleted] = denormalize(
+      input,
+      null,
+      {},
+      entityCache,
+      resultCache,
+    );
+    expect(denorm).toBe(input);
+    expect(found).toBe(true);
+    expect(deleted).toBe(false);
+  });
+
+  test('passthrough for undefined schema and an object input', () => {
+    const entityCache = {};
+    const resultCache = new WeakListMap();
+
+    const input = {
+      firstThing: { five: 5, seven: 42 },
+      secondThing: { cars: 'never' },
+    };
+    const [denorm, found, deleted] = denormalize(
+      input,
+      undefined,
+      {},
+      entityCache,
+      resultCache,
+    );
+    expect(denorm).toBe(input);
+    expect(found).toBe(true);
+    expect(deleted).toBe(false);
+  });
+
+  describe('null inputs when expecting entities', () => {
+    class User extends IDEntity {}
+    class Comment extends IDEntity {
+      comment = '';
+      static schema = {
+        user: User,
+      };
+    }
+    class Article extends IDEntity {
+      title = '';
+      body = '';
+      author = User.fromJS({});
+      comments = [];
+      static schema = {
+        author: User,
+        comments: [Comment],
+      };
+    }
+
+    test('handles null at top level', () => {
+      const entityCache = {};
+      const resultCache = new WeakListMap();
+
+      const [denorm, found, deleted] = denormalize(
+        null,
+        { data: Article },
+        {},
+        entityCache,
+        resultCache,
+      );
+      expect(denorm).toEqual({});
+      expect(found).toBe(false);
+      expect(deleted).toBe(false);
+    });
+
+    test('handles null in nested place', () => {
+      const entityCache = {};
+      const resultCache = new WeakListMap();
+
+      const input = {
+        data: { id: '5', title: 'hehe', author: null, comments: [] },
+      };
+      const [denorm, found, deleted] = denormalize(
+        input,
+        { data: Article },
+        {},
+        entityCache,
+        resultCache,
+      );
+      expect(denorm).toMatchInlineSnapshot(`
+        Object {
+          "data": Article {
+            "author": null,
+            "body": "",
+            "comments": Array [],
+            "id": "5",
+            "title": "hehe",
+          },
+        }
+      `);
+      expect(found).toBe(true);
+      expect(deleted).toBe(false);
+    });
+  });
 });

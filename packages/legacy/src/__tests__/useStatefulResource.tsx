@@ -1,7 +1,8 @@
 import {
   CoolerArticleResource,
   InvalidIfStaleArticleResource,
-} from '__tests__/common';
+  TypedArticleResource,
+} from '__tests__/new';
 import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 import nock from 'nock';
 
@@ -46,6 +47,10 @@ describe('useStatefulResource()', () => {
       .reply(200, '')
       .get(`/article-cooler/`)
       .reply(200, nested)
+      .get(/article-cooler\/.*/)
+      .reply(404, 'not found')
+      .put(/article-cooler\/[^5].*/)
+      .reply(404, 'not found')
       .get(`/user/`)
       .reply(200, users);
   });
@@ -88,9 +93,43 @@ describe('useStatefulResource()', () => {
     expect((result.current.error as any).status).toBe(403);
   });
 
+  it('should pass with exact params', async () => {
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      return useStatefulResource(TypedArticleResource.detail(), {
+        id: payload.id,
+      });
+    });
+    expect(result.current.data).toBeUndefined();
+    await waitForNextUpdate();
+    // type discrimination forces it to be resolved
+    if (!result.current.loading && !result.current.error) {
+      expect(result.current.data.title).toBe(payload.title);
+      // @ts-expect-error ensure this isn't "any"
+      result.current.data.doesnotexist;
+    }
+  });
+
+  it('should fail with improperly typed param', async () => {
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      return useStatefulResource(TypedArticleResource.detail(), {
+        // @ts-expect-error
+        id: { a: 'five' },
+      });
+    });
+    expect(result.current.data).toBeUndefined();
+    expect(result.current.error).toBeUndefined();
+    expect(result.current.loading).toBe(true);
+    await waitForNextUpdate();
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeDefined();
+    if (result.current.error) {
+      expect(result.current.error.status).toBe(404);
+    }
+  });
+
   it('should fetch anew with param changes', async () => {
     const { result, waitForNextUpdate, rerender } = renderRestHook(
-      ({ id }) => {
+      ({ id }: { id: number }) => {
         return useStatefulResource(CoolerArticleResource.detail(), {
           id,
         });
@@ -127,7 +166,7 @@ describe('useStatefulResource()', () => {
     const { result, rerender, waitForNextUpdate } = renderRestHook(
       props => {
         return useStatefulResource(
-          InvalidIfStaleArticleResource.detailShape(),
+          InvalidIfStaleArticleResource.detail(),
           props,
         );
       },

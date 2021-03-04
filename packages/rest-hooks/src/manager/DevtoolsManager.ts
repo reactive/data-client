@@ -42,8 +42,8 @@ export default class DevToolsManager implements Manager {
             const state = getState();
             this.devTools.send(
               action,
-              getState(),
               state.optimistic.reduce(reducer, state),
+              undefined,
               'REST_HOOKS',
             );
           });
