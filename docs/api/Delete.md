@@ -57,7 +57,7 @@ class MyResource extends Resource {
         this.fetch(this.url(params).then(() => params.map(id => ({ id })))),
       {
         ...this.getEndpointExtra(),
-        schema: new schemas.Delete(this),
+        schema: [new schemas.Delete(this)],
       },
     );
   }

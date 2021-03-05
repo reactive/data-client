@@ -31,7 +31,10 @@ Great for retrieving resources optimistically before they are needed.
 This can be useful for ensuring resources early in a render tree before they are needed.
 
 - Triggers fetch:
-  - On first-render and when parameters change
+  - On first-render
+    - or parameters change
+    - or required entity is deleted
+    - or imperative [invalidation](./useInvalidator) triggered
   - and When not in cache or result is considered stale
   - and When no identical requests are in flight
   - and when params are not null
