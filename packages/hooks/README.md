@@ -10,7 +10,7 @@ Composable hooks for networking data
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io/docs/api/Endpoint)**
+**[📖Read The Docs](https://resthooks.io/docs/api/useDebounce)**
 
 </div>
 
@@ -25,4 +25,17 @@ const data = useResource(useCancelling(MyEndpoint, { filter }), { filter });
 ```typescript
 const debouncedFilter = useDebounce(filter, 200);
 const data = useResource(MyEndpoint, { filter: debouncedFilter });
+```
+
+### useLoading()
+
+```tsx
+function Button({ onClick, children, ...props }) {
+  const [clickHandler, loading] = useLoading(onClick);
+  return (
+    <button onClick={clickHandler} {...props}>
+      {loading ? 'Loading...' : children}
+    </button>
+  );
+}
 ```

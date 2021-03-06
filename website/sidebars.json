@@ -100,7 +100,8 @@
         "label": "Extra Hooks",
         "ids": [
           "api/useDebounce",
-          "api/useCancelling"
+          "api/useCancelling",
+          "api/useLoading"
         ]
       },
       {

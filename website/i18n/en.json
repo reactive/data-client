@@ -106,6 +106,9 @@
       "api/useInvalidator": {
         "title": "useInvalidator()"
       },
+      "api/useLoading": {
+        "title": "useLoading()"
+      },
       "api/useMeta": {
         "title": "useMeta()"
       },
@@ -247,7 +250,10 @@
       "ROADMAP": {
         "title": "ROADMAP"
       },
-      "upgrade/upgrading-test-to-two": {
+      "upgrade/upgrading-test-to-four": {
+        "title": "Upgrading @rest-hooks/test to 4"
+      },
+      "upgrade/upgrading-test-to-three": {
         "title": "Upgrading @rest-hooks/test to 3"
       },
       "upgrade/upgrading-to-5": {
@@ -725,6 +731,12 @@
       "version-4.0/api/version-4.0-SimpleRecord": {
         "title": "SimpleRecord"
       },
+      "version-4.0/api/version-4.0-useresource": {
+        "title": "useResource()"
+      },
+      "version-4.0/api/version-4.0-useRetrieve": {
+        "title": "useRetrieve()"
+      },
       "version-4.0/getting-started/version-4.0-installation": {
         "title": "Installation"
       },
@@ -780,9 +792,6 @@
       },
       "version-4.1/api/version-4.1-useFetcher": {
         "title": "useFetcher()"
-      },
-      "version-4.1/api/version-4.1-useresource": {
-        "title": "useResource()"
       },
       "version-4.1/getting-started/version-4.1-usage": {
         "title": "Usage"
@@ -1059,7 +1068,10 @@
       "version-5.0/guides/version-5.0-url": {
         "title": "URL Patterns"
       },
-      "version-5.0/upgrade/version-5.0-upgrading-test-to-two": {
+      "version-5.0/upgrade/version-5.0-upgrading-test-to-four": {
+        "title": "Upgrading @rest-hooks/test to 4"
+      },
+      "version-5.0/upgrade/version-5.0-upgrading-test-to-three": {
         "title": "Upgrading @rest-hooks/test to 3"
       },
       "version-5.0/upgrade/version-5.0-upgrading-to-5": {
