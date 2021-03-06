@@ -27,7 +27,7 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
     },
     [],
   );
-  const wrappedClick = useCallback(
+  const wrappedFunc = useCallback(
     async (...args: any) => {
       setLoading(true);
       let ret;
@@ -45,5 +45,5 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
     },
     [onError, func],
   );
-  return [wrappedClick as any, loading];
+  return [wrappedFunc as any, loading];
 }
