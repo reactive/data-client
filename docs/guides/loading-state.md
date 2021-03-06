@@ -54,51 +54,17 @@ loading state manually you can adapt the [useStatefulResource()](./no-suspense.m
 When performing mutations you'll often want an indicator that the request is still in flight.
 Sometimes form libraries will handling the loading state themselves. However, in the case you're
 making a standalone button or simply using a form library that doesn't track loading state of
-submitters, you can use the following hook.
-
-### Hook
-
-```typescript
-/** Takes an async function and tracks resolution as a boolean.
- *
- */
-function useLoadingFunction<F extends Function>(
-  func: F,
-  onError?: (error: Error) => void,
-): [F, boolean] {
-  const [loading, setLoading] = useState(false);
-  const isMountedRef = useRef(true);
-  useEffect(
-    () => () => {
-      isMountedRef.current = false;
-    },
-    [],
-  );
-  const wrappedClick = useCallback(
-    async (...args: any[]) => {
-      setLoading(true);
-      try {
-        const ret = await func(...args);
-      } catch (e) {
-        if (onError) onError(e);
-        else throw e;
-      }
-      if (isMountedRef.current) setLoading(false);
-      return ret;
-    },
-    [onError, func],
-  );
-  return [wrappedClick, loading];
-}
-```
+submitters, you can use [useLoading()](../api/useLoading) from `@rest-hooks/hooks`.
 
 ### Usage
 
 ```tsx
+import { useLoading } from '@rest-hooks/hooks';
+
 function Button({ onClick, children, ...props }) {
-  const [clicker, loading] = useLoadingFunction(onClick);
+  const [clickHandler, loading] = useLoading(onClick);
   return (
-    <button onClick={clicker} {...props}>
+    <button onClick={clickHandler} {...props}>
       {loading ? 'Loading...' : children}
     </button>
   );
