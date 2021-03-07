@@ -16,8 +16,7 @@ Composable hooks for networking data
 
 ### useCancelling()
 
-[Aborts](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) inflight request is the parameters
-change.
+[Aborts](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) inflight request if the parameters change.
 
 ```typescript
 const data = useResource(useCancelling(MyEndpoint, { filter }), { filter });
