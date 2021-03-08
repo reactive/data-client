@@ -28,7 +28,7 @@ export class ArticleResource extends Resource {
   };
 
   static urlRoot = 'http://test.com/article/';
-  static url<T extends typeof Resource>(this: T, urlParams?: any): string {
+  static url(urlParams?: any): string {
     if (urlParams && !urlParams.id) {
       return `${this.urlRoot}${urlParams.title}`;
     }
