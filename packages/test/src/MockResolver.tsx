@@ -6,8 +6,7 @@ import {
 } from '@rest-hooks/core';
 import { useCallback, useContext, useMemo } from 'react';
 import React from 'react';
-
-import { Fixture, actionFromFixture } from './mockState';
+import { Fixture, actionFromFixture } from '@rest-hooks/test/mockState';
 
 type Props = {
   children: React.ReactNode;

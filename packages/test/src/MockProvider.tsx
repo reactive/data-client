@@ -1,8 +1,7 @@
 import { StateContext, DispatchContext, actionTypes } from '@rest-hooks/core';
 import type { ActionTypes } from '@rest-hooks/core';
 import React from 'react';
-
-import mockState, { Fixture } from './mockState';
+import mockState, { Fixture } from '@rest-hooks/test/mockState';
 
 const mockDispatch = (value: ActionTypes) => {
   if (actionTypes.FETCH_TYPE === value.type) {

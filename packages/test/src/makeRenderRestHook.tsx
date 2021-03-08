@@ -1,10 +1,12 @@
 import { State, Manager } from '@rest-hooks/core';
 import { SubscriptionManager } from 'rest-hooks';
 import React from 'react';
-import { renderHook, RenderHookOptions } from '@testing-library/react-hooks';
-
-import { MockNetworkManager, MockPollingSubscription } from './managers';
-import mockInitialState, { Fixture } from './mockState';
+import { renderHook } from '@testing-library/react-hooks';
+import mockInitialState, { Fixture } from '@rest-hooks/test/mockState';
+import {
+  MockNetworkManager,
+  MockPollingSubscription,
+} from '@rest-hooks/test/managers';
 
 export default function makeRenderRestHook(
   makeProvider: (
