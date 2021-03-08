@@ -58,6 +58,7 @@ const packages = [
   'use-enhanced-reducer',
   'hooks',
   'img',
+  'test',
 ];
 
 const projects = [

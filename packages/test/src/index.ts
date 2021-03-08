@@ -1,10 +1,17 @@
-import makeRenderRestHook from './makeRenderRestHook';
-import { makeExternalCacheProvider, makeCacheProvider } from './providers';
-import MockProvider from './MockProvider';
-import mockInitialState from './mockState';
-export * from './managers';
-export { default as MockResolver } from './MockResolver';
-export type { Fixture, SuccessFixture, ErrorFixture } from './mockState';
+import makeRenderRestHook from '@rest-hooks/test/makeRenderRestHook';
+import {
+  makeExternalCacheProvider,
+  makeCacheProvider,
+} from '@rest-hooks/test/providers';
+import MockProvider from '@rest-hooks/test/MockProvider';
+import mockInitialState from '@rest-hooks/test/mockState';
+export * from '@rest-hooks/test/managers';
+export { default as MockResolver } from '@rest-hooks/test/MockResolver';
+export type {
+  Fixture,
+  SuccessFixture,
+  ErrorFixture,
+} from '@rest-hooks/test/mockState';
 
 export {
   makeRenderRestHook,
