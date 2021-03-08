@@ -46,14 +46,12 @@ the rest-hooks specific part of the state.
 
 ```tsx
 import {
-  reducer,
-  NetworkManager,
   SubscriptionManager,
   PollingSubscription,
   ExternalCacheProvider,
   PromiseifyMiddleware,
 } from 'rest-hooks';
-import { initialState } from '@rest-hooks/core';
+import { initialState, reducer, NetworkManager } from '@rest-hooks/core';
 import { createStore, applyMiddleware } from 'redux';
 import ReactDOM from 'react-dom';
 
@@ -115,14 +113,12 @@ const selector = state => state.restHooks;
 
 ```tsx
 import {
-  reducer,
-  NetworkManager,
   SubscriptionManager,
   PollingSubscription,
   ExternalCacheProvider,
   PromiseifyMiddleware,
 } from 'rest-hooks';
-import { initialState } from '@rest-hooks/core';
+import { initialState, reducer, NetworkManager } from '@rest-hooks/core';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom';
