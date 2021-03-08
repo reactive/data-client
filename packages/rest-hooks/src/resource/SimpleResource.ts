@@ -107,7 +107,7 @@ export default abstract class SimpleResource extends FlatEntity {
   }
 
   /** Get the request options for this SimpleResource  */
-  static getFetchInit(): FetchOptions | undefined {
+  static getEndpointExtra(): FetchOptions | undefined {
     return this.getFetchOptions();
   }
 
@@ -119,7 +119,7 @@ export default abstract class SimpleResource extends FlatEntity {
     const getFetchKey = (params: Readonly<object>) => {
       return 'GET ' + this.url(params);
     };
-    const options = this.getFetchOptions();
+    const options = this.getEndpointExtra();
     return {
       type: 'read',
       schema: this,
@@ -138,7 +138,7 @@ export default abstract class SimpleResource extends FlatEntity {
     const getFetchKey = (params: Readonly<Record<string, string>>) => {
       return 'GET ' + this.listUrl(params);
     };
-    const options = this.getFetchOptions();
+    const options = this.getEndpointExtra();
     return {
       type: 'read',
       schema: [this],
@@ -158,7 +158,7 @@ export default abstract class SimpleResource extends FlatEntity {
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
-    const options = this.getFetchOptions();
+    const options = this.getEndpointExtra();
     return {
       type: 'mutate',
       schema: this,
@@ -183,7 +183,7 @@ export default abstract class SimpleResource extends FlatEntity {
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
-    const options = this.getFetchOptions();
+    const options = this.getEndpointExtra();
     return {
       type: 'mutate',
       schema: this,
@@ -208,7 +208,7 @@ export default abstract class SimpleResource extends FlatEntity {
     Readonly<object>,
     Partial<AbstractInstanceType<T>>
   > {
-    const options = this.getFetchOptions();
+    const options = this.getEndpointExtra();
     return {
       type: 'mutate',
       schema: this,
@@ -229,7 +229,7 @@ export default abstract class SimpleResource extends FlatEntity {
   static deleteShape<T extends typeof SimpleResource>(
     this: T,
   ): MutateShape<schemas.Delete<T>, Readonly<object>, unknown> {
-    const options = this.getFetchOptions();
+    const options = this.getEndpointExtra();
     return {
       type: 'mutate',
       schema: new schemas.Delete(this),

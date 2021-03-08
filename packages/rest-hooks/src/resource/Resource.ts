@@ -22,6 +22,12 @@ export default abstract class Resource extends SimpleResource {
   /** A function to mutate all request options for fetch */
   static fetchOptionsPlugin?: (options: RequestInit) => RequestInit;
 
+  /** Init options for fetch - run at fetch */
+  static getFetchInit(init: Readonly<RequestInit>): RequestInit {
+    if (this.fetchOptionsPlugin) return this.fetchOptionsPlugin(init);
+    return init;
+  }
+
   /** Perform network request and resolve with HTTP Response */
   static fetchResponse(
     method: Method,
@@ -31,7 +37,7 @@ export default abstract class Resource extends SimpleResource {
     let options: RequestInit = {
       method: method.toUpperCase(),
     };
-    if (this.fetchOptionsPlugin) options = this.fetchOptionsPlugin(options);
+    options = this.getFetchInit(options);
     if (body) options.body = JSON.stringify(body);
     if (!options.body || typeof options.body === 'string') {
       options.headers = {

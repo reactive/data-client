@@ -244,7 +244,8 @@ If this is not the case, please [report a bug](https://github.com/coinbase/rest-
 
 After a successful upgrade, it is recommended to adopt the modern practices.
 
-<details><summary>Resource.getFetchOptions() -> Resource.getFetchInit()</summary>
+
+<details><summary>Resource.fetchOptionsPlugin() -> Resource.getFetchInit()</summary>
 
 
 <!--DOCUSAURUS_CODE_TABS-->
@@ -252,7 +253,7 @@ After a successful upgrade, it is recommended to adopt the modern practices.
 
 ```typescript
 class AuthdResource extends Resource {
-  static getFetchOptions = (options: RequestInit) => ({
+  static fetchOptionsPlugin = (options: RequestInit) => ({
     ...options,
     credentials: 'same-origin',
   });
@@ -273,6 +274,40 @@ class AuthdResource extends Resource {
 <!--END_DOCUSAURUS_CODE_TABS-->
 
 (Resource.getFetchInit())../api/resource#static-getfetchinitinit-requestinit-requestinit)
+</details>
+
+
+<details><summary>Resource.getFetchOptions() -> Resource.getEndpointExtra()</summary>
+
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--before-->
+
+```typescript
+class PollingResource extends Resource {
+  static getFetchOptions(): FetchOptions {
+    return {
+      pollFrequency: 5000, // every 5 seconds
+    };
+  }
+}
+```
+
+<!--after-->
+
+```typescript
+class PollingResource extends Resource {
+  static getEndpointExtra(): FetchOptions {
+    return {
+      pollFrequency: 5000, // every 5 seconds
+    };
+  }
+}
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
+
+(Resource.getEndpointExtra())../api/resource#static-getendpointextra--endpointextraoptions--undefined)
 </details>
 
 <details><summary>Resource.asSchema() -> Resource</summary>
