@@ -204,9 +204,19 @@ on network error. This can be useful to override to really customize your transp
 
 Used in `fetch()`. Resolves the HTTP [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response).
 
+### static useFetchInit(init: RequestInit): RequestInit
+
+Allows simple overrides to extend [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) sent to fetch.
+This is called in endpoint methods ([list()](#list-endpoint), [detail()](#detail-endpoint)), which allows for hooks that
+use React context.
+
+This is often useful for [authentication](../guides/auth)
+
 ### static getFetchInit(init: RequestInit): RequestInit
 
 Allows simple overrides to extend [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) sent to fetch.
+This is called during the fetch callback. Don't use hooks here.
+
 This is often useful for [authentication](../guides/auth)
 
 ### static getEndpointExtra() => EndpointExtraOptions | undefined

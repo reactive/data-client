@@ -3,7 +3,7 @@ import {
   UserResource,
   UrlArticleResource,
   ArticleResource,
-} from '__tests__/common';
+} from '__tests__/new';
 import nock from 'nock';
 import { normalize, Schema } from '@rest-hooks/normalizr';
 
@@ -43,14 +43,14 @@ describe('Resource', () => {
     const resource = CoolerArticleResource.fromJS({
       id: 5,
       title: 'happy',
-      author: 5,
+      author: UserResource.fromJS({ id: 5 }),
     });
     expect(resource.pk()).toBe('5');
     expect(CoolerArticleResource.pk(resource)).toBe('5');
     expect(resource.title).toBe('happy');
     expect(resource.things).toBe('happy five');
     expect(resource.url).toBe('http://test.com/article-cooler/5');
-    expect(resource.author).toBe(5);
+    expect(resource.author?.pk()).toBe('5');
   });
 
   it('should not init Resource itself', () => {
@@ -75,7 +75,7 @@ describe('Resource', () => {
     const article = CoolerArticleResource.fromJS({
       id: 5,
       title: 'happy',
-      author: 5,
+      author: UserResource.fromJS({ id: 5 }),
     });
     expect(article.url).toBe('http://test.com/article-cooler/5');
   });
@@ -86,7 +86,7 @@ describe('Resource', () => {
     const article = CoolerArticleResource.fromJS({
       id: 5,
       title: 'happy',
-      author: 5,
+      author: UserResource.fromJS({ id: 5 }),
     });
     expect(article.url).toBe('http://test.com/article-cooler/5');
     // Reset for future tests
@@ -216,7 +216,7 @@ describe('Resource', () => {
     const payload = {
       id,
       title: 'happy',
-      author: 5,
+      author: UserResource.fromJS({ id: 5 }),
     };
     const putResponseBody = {
       id,
@@ -438,11 +438,24 @@ describe('Resource', () => {
       expect(res).toBe(text);
     });
 
-    it('should use getFetchInit if defined', async () => {
+    it('should use useFetchInit if defined (in endpoint method)', async () => {
+      class FetchResource extends CoolerArticleResource {
+        static useFetchInit = jest.fn(a => a);
+      }
+      const articleDetail = FetchResource.detailShape();
+      expect(articleDetail).toBeDefined();
+      expect(FetchResource.useFetchInit.mock.calls.length).toBeGreaterThan(0);
+    });
+
+    it('should use getFetchInit if defined (upon fetch)', async () => {
       class FetchResource extends CoolerArticleResource {
         static getFetchInit = jest.fn(a => a);
       }
-      const article = await FetchResource.detailShape();
+      const articleDetail = FetchResource.detailShape();
+      expect(articleDetail).toBeDefined();
+      expect(FetchResource.getFetchInit.mock.calls.length).toBe(0);
+
+      const article = await articleDetail.fetch(payload);
       expect(article).toBeDefined();
       expect(FetchResource.getFetchInit.mock.calls.length).toBeGreaterThan(0);
     });
@@ -472,7 +485,7 @@ describe('Resource', () => {
           },
         },
       ];
-      const { schema } = CoolerArticleResource.listWithUserRequest();
+      const { schema } = CoolerArticleResource.listWithUser();
       const normalized = normalize(nested, schema);
 
       // TODO: fix normalize types so we know this is actuaally multiple things

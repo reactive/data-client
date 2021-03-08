@@ -472,15 +472,6 @@ describe('Resource', () => {
       );
       expect(res).toBe(text);
     });
-
-    it('should use getFetchInit if defined', async () => {
-      class FetchResource extends CoolerArticleResource {
-        static getFetchInit = jest.fn(a => a);
-      }
-      const article = await FetchResource.detailShape();
-      expect(article).toBeDefined();
-      expect(FetchResource.getFetchInit.mock.calls.length).toBeGreaterThan(0);
-    });
   });
 
   describe('nested schema', () => {

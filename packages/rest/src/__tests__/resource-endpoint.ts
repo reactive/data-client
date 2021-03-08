@@ -475,11 +475,24 @@ describe('Resource', () => {
       expect(res).toBe(text);
     });
 
-    it('should use getFetchInit if defined', async () => {
+    it('should use useFetchInit if defined (in endpoint method)', async () => {
+      class FetchResource extends CoolerArticleResource {
+        static useFetchInit = jest.fn(a => a);
+      }
+      const articleDetail = FetchResource.detail();
+      expect(articleDetail).toBeDefined();
+      expect(FetchResource.useFetchInit.mock.calls.length).toBeGreaterThan(0);
+    });
+
+    it('should use getFetchInit if defined (upon fetch)', async () => {
       class FetchResource extends CoolerArticleResource {
         static getFetchInit = jest.fn(a => a);
       }
-      const article = await FetchResource.detail();
+      const articleDetail = FetchResource.detail();
+      expect(articleDetail).toBeDefined();
+      expect(FetchResource.getFetchInit.mock.calls.length).toBe(0);
+
+      const article = await articleDetail(payload);
       expect(article).toBeDefined();
       expect(FetchResource.getFetchInit.mock.calls.length).toBeGreaterThan(0);
     });

@@ -88,12 +88,17 @@ export default abstract class SimpleResource extends Entity {
     throw new NotImplementedError();
   }
 
-  /** Init options for fetch */
+  /** Init options for fetch - run at fetch */
   static getFetchInit(init: Readonly<RequestInit>): RequestInit {
     return init;
   }
 
-  /** Get the request options for this SimpleResource  */
+  /** Init options for fetch - run at render */
+  static useFetchInit(init: Readonly<RequestInit>): RequestInit {
+    return init;
+  }
+
+  /** Get the request options for this SimpleResource */
   static getEndpointExtra(): EndpointExtraOptions | undefined {
     return;
   }
@@ -124,7 +129,7 @@ export default abstract class SimpleResource extends Entity {
   > {
     return this.memo('#endpoint', () => {
       // eslint-disable-next-line
-      const self = this;
+      const resource = this;
       const instanceFetch = this.fetch.bind(this);
       const url = this.url.bind(this);
 
@@ -140,19 +145,19 @@ export default abstract class SimpleResource extends Entity {
           url,
           fetchInit: {} as RequestInit,
           useFetchInit(this: any) {
-            this.fetchInit = self.getFetchInit(this.fetchInit);
+            this.fetchInit = resource.useFetchInit(this.fetchInit);
             return this;
           },
           getFetchInit(this: any, body?: any) {
             if (isPojo(body)) {
               body = JSON.stringify(body);
             }
-            return {
+            return resource.getFetchInit({
               ...this.fetchInit,
               method: this.method,
               signal: this.signal,
               body,
-            };
+            });
           },
           method: 'GET',
           signal: undefined as AbortSignal | undefined,
@@ -277,6 +282,12 @@ export default abstract class SimpleResource extends Entity {
         schema: new schema.Delete(this),
       }),
     );
+  }
+
+  /** @deprecated */
+  static fetchOptionsPlugin(options: RequestInit): RequestInit {
+    /* istanbul ignore next */
+    return this.getFetchInit(options);
   }
 
   /** @deprecated */

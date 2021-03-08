@@ -100,7 +100,7 @@ export const AuthContext = createContext('');
 
 export class ContextAuthdArticle extends ArticleResource {
   /** Init options for fetch */
-  static getFetchInit(init: RequestInit): RequestInit {
+  static useFetchInit(init: RequestInit): RequestInit {
     /* eslint-disable-next-line */
     const accessToken = useContext(AuthContext);
     return {

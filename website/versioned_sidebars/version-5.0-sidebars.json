@@ -116,7 +116,8 @@
         "label": "Extra Hooks",
         "ids": [
           "version-5.0-api/useDebounce",
-          "version-5.0-api/useCancelling"
+          "version-5.0-api/useCancelling",
+          "version-5.0-api/useLoading"
         ]
       },
       {
