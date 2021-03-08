@@ -154,6 +154,21 @@ Silent removes the check completely.
 
 </details>
 
+### Imports
+
+<details><summary>import { reducer, NetworkManager } from '@rest-hooks/core'</summary>
+
+Many 'advanced' features of rest-hooks are not longer exported by 'rest-hooks' package itself, but require importing from [@rest-hooks/core](https://www.npmjs.com/package/@rest-hooks/core)
+
+- reducer
+- NetworkManager
+- action creators:
+  - createFetch
+  - createReceive
+  - createReceiveError
+
+</details>
+
 ### Managers
 
 These only apply if you have a custom [Manager](../api/Manager)
