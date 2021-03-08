@@ -34,7 +34,7 @@ class AuthdResource extends Resource {
 <!--END_DOCUSAURUS_CODE_TABS-->
 
 You can also do more complex flows (like adding arbitrary headers) to
-the request. Every `getFetchInit()` takes in the existing [init options](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) of fetch, and returns new init options to be used.
+the request. Every [getFetchInit()](api/resource#static-getfetchinitinit-requestinit-requestinit) takes in the existing [init options](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) of fetch, and returns new init options to be used.
 
 ## Auth Headers from React Context
 
@@ -43,7 +43,7 @@ called from a React Component. (However, this should be fine since the context w
 
 ```typescript
 class AuthdResource extends Resource {
-  static getFetchInit = (init: RequestInit) => {
+  static useFetchInit = (init: RequestInit) => {
     const accessToken = useAuthContext();
     return {
     ...init,
