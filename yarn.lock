@@ -38,10 +38,10 @@
   resolved "https://registry.yarnpkg.com/@anansi/browserslist-config/-/browserslist-config-1.2.0.tgz#60d58a9caf93d730f093084ae8e51fa01310d4e7"
   integrity sha512-5dssJtY7DAa674IzR//vZ4Jk9Ey/OmwExDuxcvYQ3ob6mKybvt/65lk9dL0ORUJn4+tjxOq5lV/OChPbelP3dg==
 
-"@anansi/eslint-plugin@0.9.23":
-  version "0.9.23"
-  resolved "https://registry.yarnpkg.com/@anansi/eslint-plugin/-/eslint-plugin-0.9.23.tgz#f49003ac9df9ea603024315abd4bce3f9093596e"
-  integrity sha512-BjdvAfEEz/CmgfWyPhfYWATDWvTZeBdTDTZrRN9ZC//p7480SD5Xw/XS6SHi2o+KF5DF66Es3Vs4vDNE3pF+Gw==
+"@anansi/eslint-plugin@0.9.24":
+  version "0.9.24"
+  resolved "https://registry.yarnpkg.com/@anansi/eslint-plugin/-/eslint-plugin-0.9.24.tgz#e1655d726c1d86005c52df88b31e47aa66ae0b86"
+  integrity sha512-hkCJvCZc/PiIfQqDawaBTdL4USH9QQ9LN2nSwnSwDvMdp9T95azN+lypOY3aPPhu7Xf6Bvnh/jakKGXYGcHw7w==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^4.16.1"
     "@typescript-eslint/parser" "^4.16.1"
