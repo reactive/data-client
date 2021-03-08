@@ -11,15 +11,10 @@ const dependencies = Object.keys(pkg.dependencies)
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
 process.env.NODE_ENV = 'production';
 process.env.BROWSERSLIST_ENV = 'node10';
+process.env.RESOLVER_ALIAS = '{"@rest-hooks/test":"./src"}';
 
 function isExternal(id) {
-  const ret = dependencies.includes(id);
-  if (!ret) {
-    for (const dep of dependencies) {
-      if (id.startsWith(dep)) return true;
-    }
-  }
-  return ret;
+  return dependencies.some(dep => dep === id || id.startsWith(dep));
 }
 
 export default [
