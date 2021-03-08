@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.7...@rest-hooks/core@1.0.8) (2021-03-08)
+
+
+### 💅 Enhancement
+
+* Don't use global for rIC def ([#617](https://github.com/coinbase/rest-hooks/issues/617)) ([ed33203](https://github.com/coinbase/rest-hooks/commit/ed33203aa8685953e0d09c831343480e0e2e6051))
+
+
+
 ### [1.0.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.6...@rest-hooks/core@1.0.7) (2021-03-03)
 
 

@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.10](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.9...rest-hooks@5.0.10) (2021-03-08)
+
+### 🐛 Bug Fix
+
+* Add getEndpointExtra(), getFetchInit() to legacy Resource ([#634](https://github.com/coinbase/rest-hooks/issues/634)) ([d6463ce](https://github.com/coinbase/rest-hooks/commit/d6463ce9940e0f96c49c0186bb84be9c54d657a6))
+* DevToolsConfig is type export ([#619](https://github.com/coinbase/rest-hooks/issues/619)) ([b8d9f7e](https://github.com/coinbase/rest-hooks/commit/b8d9f7e488ac5cbbd0c49ff678b689e008f0d34b))
+
+
+
 ### [5.0.9](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.8...rest-hooks@5.0.9) (2021-03-03)
 
 
