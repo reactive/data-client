@@ -29,7 +29,7 @@
     "@anansi/browserslist-config": "1.2.0",
     "@anansi/eslint-plugin": "0.9.24",
     "@babel/cli": "7.13.0",
-    "@babel/core": "7.13.8",
+    "@babel/core": "7.13.10",
     "@commitlint/cli": "^12.0.0",
     "@commitlint/config-conventional": "^12.0.0",
     "@rest-hooks/test": "^4.0.0",
