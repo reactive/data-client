@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.0.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.4...@rest-hooks/normalizr@6.0.5) (2021-03-08)
+
+
+### 🐛 Bug Fix
+
+* **pkg:** Fix build scripts on windows ([#622](https://github.com/coinbase/rest-hooks/issues/622)) ([c86f00e](https://github.com/coinbase/rest-hooks/commit/c86f00e4529d2bcc53652f40aa17bd7839b9b1c7))
+
+
+
 ### [6.0.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.3...@rest-hooks/normalizr@6.0.4) (2021-03-03)
 
 

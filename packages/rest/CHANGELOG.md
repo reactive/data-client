@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@1.0.4...@rest-hooks/rest@2.0.0) (2021-03-08)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* getFetchInit() -> useFetchInit()
+- getFetchInit() is called during fetch
+- useFetchInit() should be used for hooks
+
+### 🚀 Features
+
+* Add Resource.useFetchInit() ([#635](https://github.com/coinbase/rest-hooks/issues/635)) ([9571870](https://github.com/coinbase/rest-hooks/commit/957187071bc5b654e2f8273b7527f44f27cf0139))
+
+
+
 ### [1.0.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@1.0.3...@rest-hooks/rest@1.0.4) (2021-02-24)
 
 

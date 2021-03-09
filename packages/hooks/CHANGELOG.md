@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/hooks@1.0.1...@rest-hooks/hooks@1.1.0) (2021-03-08)
+
+
+### 🚀 Features
+
+* Add useLoading() hook ([#626](https://github.com/coinbase/rest-hooks/issues/626)) ([caeccd2](https://github.com/coinbase/rest-hooks/commit/caeccd2b5be5806e5ebcdba2493f3f03420eb184))
+
+
+### 📝 Documentation
+
+* Improve @rest-hooks/hooks README ([#627](https://github.com/coinbase/rest-hooks/issues/627)) ([0ccac81](https://github.com/coinbase/rest-hooks/commit/0ccac8154e43962a6636ea837009bdab236299b8))
+
+
+
 ### [1.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/hooks@1.0.0...@rest-hooks/hooks@1.0.1) (2021-02-04)
 
 
