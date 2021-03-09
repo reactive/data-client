@@ -77,6 +77,7 @@ export {
   ExternalCacheProvider,
   PromiseifyMiddleware,
   NetworkErrorBoundary,
+  mapMiddleware,
 } from './react-integration';
 
 export {

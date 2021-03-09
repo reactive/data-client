@@ -1,5 +1,9 @@
 import { State, reducer, CacheProvider, Manager } from '@rest-hooks/core';
-import { ExternalCacheProvider, PromiseifyMiddleware } from 'rest-hooks';
+import {
+  ExternalCacheProvider,
+  PromiseifyMiddleware,
+  mapMiddleware,
+} from 'rest-hooks';
 import React, { useEffect } from 'react';
 
 // Extension of the DeepPartial type defined by Redux which handles unknown
@@ -18,16 +22,19 @@ let makeExternalCacheProvider: (
 
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { createStore, applyMiddleware } = require('redux');
+  const { createStore, applyMiddleware, combineReducers } = require('redux');
   makeExternalCacheProvider = function makeExternal(
     managers: Manager[],
     initialState?: DeepPartialWithUnknown<State<any>>,
   ) {
+    const selector = (s: { restHooks: State<unknown> }) => s.restHooks;
     const store = createStore(
-      reducer,
-      initialState,
+      combineReducers({ restHooks: reducer }),
+      { restHooks: initialState },
       applyMiddleware(
-        ...managers.map(manager => manager.getMiddleware()),
+        ...mapMiddleware(selector)(
+          ...managers.map(manager => manager.getMiddleware()),
+        ),
         PromiseifyMiddleware,
       ),
     );
@@ -41,7 +48,7 @@ try {
       // own its managers. Since we are owning them here, we should ensure it happens
       useEffect(() => {
         for (let i = 0; i < managers.length; ++i) {
-          managers[i].init?.(store.getState());
+          managers[i].init?.(selector(store.getState()));
         }
         return () => {
           for (let i = 0; i < managers.length; ++i) {
@@ -51,7 +58,7 @@ try {
       }, []);
 
       return (
-        <ExternalCacheProvider store={store} selector={(s: State<any>) => s}>
+        <ExternalCacheProvider store={store} selector={selector}>
           {children}
         </ExternalCacheProvider>
       );

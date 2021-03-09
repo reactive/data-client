@@ -22,3 +22,4 @@ if (process.env.NODE_ENV !== 'production')
   CacheProvider.defaultProps.managers.unshift(new DevToolsManager());
 
 export { CacheProvider, ExternalCacheProvider, PromiseifyMiddleware };
+export { default as mapMiddleware } from './mapMiddleware';
