@@ -53,9 +53,7 @@ const photo = await getPhoto({ userId });
 In many cases, it would be useful to suspend loading of expensive items like
 images using suspense. This becomes especially powerful [with the fetch as you render](https://resthooks.io/docs/guides/render-as-you-fetch) pattern in concurrent mode.
 
-Here, we build an endpoint for images using [Image](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/Image)
-
-Here, Rest Hooks is simply used to track resource loading - only storing the `src` in its store.
+[@rest-hooks/img](https://www.npmjs.com/package/@rest-hooks/img) provides use with `<Img />` component that suspends, as well as `getImage` endpoint to prefetch.
 
 ## Installation
 

@@ -9,7 +9,7 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
 ): [F, boolean];
 ```
 
-Tracking promise resolution of a function.
+Helps track loading state of imperative async functions.
 
 ```tsx
 import { useLoading } from '@rest-hooks/hooks';
@@ -23,6 +23,8 @@ function Button({ onClick, children, ...props }) {
   );
 }
 ```
+
+Part of [@rest-hooks/hooks](https://www.npmjs.com/package/@rest-hooks/hooks)
 
 ### Todo toggle example
 
