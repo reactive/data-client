@@ -92,6 +92,8 @@ where in the state tree the rest-hooks information is.
 
 ```typescript
 // ...
+const selector = state => state.restHooks;
+
 const store = createStore(
   // Now we have other reducers
   combineReducers({
@@ -99,12 +101,13 @@ const store = createStore(
     myOtherState: otherReducer,
   }),
   applyMiddleware(
-    manager.getMiddleware(),
-    subscriptionManager.getMiddleware(),
+    ...mapMiddleware(selector)(
+      manager.getMiddleware(),
+      subscriptionManager.getMiddleware(),
+    ),
     PromiseifyMiddleware,
   ),
 );
-const selector = state => state.restHooks;
 // ...
 ```
 
@@ -131,7 +134,7 @@ const store = createStore(
   reducer,
   initialState,
   applyMiddleware(
-    manager.getMiddleware(),
+    networkManager.getMiddleware(),
     subscriptionManager.getMiddleware(),
     // place Rest Hooks built middlewares before PromiseifyMiddleware
     PromiseifyMiddleware,
@@ -157,6 +160,8 @@ where in the state tree the rest-hooks information is.
 
 ```typescript
 // ...
+const selector = state => state.restHooks;
+
 const store = createStore(
   // Now we have other reducers
   combineReducers({
@@ -164,12 +169,13 @@ const store = createStore(
     myOtherState: otherReducer,
   }),
   applyMiddleware(
-    manager.getMiddleware(),
-    subscriptionManager.getMiddleware(),
+    ...mapMiddleware(selector)(
+      manager.getMiddleware(),
+      subscriptionManager.getMiddleware(),
+    ),
     PromiseifyMiddleware,
   ),
 );
-const selector = state => state.restHooks;
 // ...
 ```
 
