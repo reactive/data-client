@@ -14,6 +14,8 @@ function useCancelling<E extends EndpointInterface & {
 
 Builds an Endpoint that cancels fetch everytime params change
 
+[Aborts](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) inflight request if the parameters change.
+
 ```tsx
 import { useCancelling } from '@rest-hooks/hooks';
 import { useResource } from 'rest-hooks';
@@ -21,3 +23,5 @@ import { useResource } from 'rest-hooks';
 const CancelingUserList = useCancelling(UserList, { query });
 const users = useResource(CancelingUserList, { query });
 ```
+
+Part of [@rest-hooks/hooks](https://www.npmjs.com/package/@rest-hooks/hooks)

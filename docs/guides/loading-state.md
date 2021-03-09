@@ -54,7 +54,7 @@ loading state manually you can adapt the [useStatefulResource()](./no-suspense.m
 When performing mutations you'll often want an indicator that the request is still in flight.
 Sometimes form libraries will handling the loading state themselves. However, in the case you're
 making a standalone button or simply using a form library that doesn't track loading state of
-submitters, you can use [useLoading()](../api/useLoading) from `@rest-hooks/hooks`.
+submitters, you can use [useLoading()](../api/useLoading) from [@rest-hooks/hooks](https://www.npmjs.com/package/@rest-hooks/hooks).
 
 ### Usage
 
