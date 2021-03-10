@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@4.0.1...@rest-hooks/test@4.1.0) (2021-03-10)
+
+
+### 🚀 Features
+
+* Rely on mapMiddleware for redux testing ([#648](https://github.com/coinbase/rest-hooks/issues/648)) ([43dca21](https://github.com/coinbase/rest-hooks/commit/43dca21dedd8e7379c5a8305a48001ee80db3d7c))
+
+
+### 🐛 Bug Fix
+
+* Redux-integration needs state selection in middlewares: mapMiddleware() ([#643](https://github.com/coinbase/rest-hooks/issues/643)) ([a0f92eb](https://github.com/coinbase/rest-hooks/commit/a0f92eb5bd62a04bf92214c6cf3b6282048e723e))
+
+
+
 ### [4.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@4.0.0...@rest-hooks/test@4.0.1) (2021-03-08)
 
 

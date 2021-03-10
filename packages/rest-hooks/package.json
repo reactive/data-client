@@ -1,6 +1,6 @@
 {
   "name": "rest-hooks",
-  "version": "5.0.10",
+  "version": "5.0.11",
   "description": "Dynamic data fetching for React",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
