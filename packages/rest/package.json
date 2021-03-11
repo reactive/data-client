@@ -30,17 +30,20 @@
   "keywords": [
     "REST",
     "CRUD",
-    "ajax",
     "networking",
     "fetch",
+    "data",
+    "cache",
+    "model",
+    "resource",
     "typescript",
     "data fetching",
     "data cache",
     "api",
-    "api call",
     "normalized cache",
     "subject pattern",
-    "endpoint"
+    "endpoint",
+    "json"
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",

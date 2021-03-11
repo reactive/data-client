@@ -29,10 +29,13 @@
   },
   "keywords": [
     "react",
+    "suspense",
+    "prefetch",
+    "cache",
     "image",
     "img",
-    "suspense",
     "hook",
+    "async",
     "typescript"
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",

@@ -16,6 +16,8 @@
     "redux",
     "normalize",
     "denormalize",
+    "data",
+    "cache",
     "api",
     "json"
   ],
