@@ -28,16 +28,22 @@
     "test:coverage": "yarn test -- --coverage"
   },
   "keywords": [
-    "ajax",
+    "data",
+    "cache",
     "networking",
     "fetch",
     "typescript",
     "data fetching",
     "data cache",
     "api",
-    "api call",
     "normalized cache",
-    "subject pattern"
+    "subject pattern",
+    "declarative",
+    "definition",
+    "schema",
+    "async",
+    "ajax",
+    "react"
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",

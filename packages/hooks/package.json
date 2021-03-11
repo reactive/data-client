@@ -29,13 +29,14 @@
   },
   "keywords": [
     "hooks",
+    "data",
     "data layer",
-    "ajax",
     "networking",
     "fetch",
     "typescript",
     "data fetching",
-    "data cache"
+    "data cache",
+    "declarative"
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
