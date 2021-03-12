@@ -3,6 +3,10 @@ id: resource
 title: Resource
 ---
 
+`Resource` is an [Entity](./Entity) with multiple [Endpoint](./Endpoint)s that operate on the data. All additional members are provided to make CRUD or other REST-like API definitions easy and terse.
+
+For other patterns, feel free to use [Endpoint](./Endpoint)s on their own or in any other way you see fit.
+
 <!--DOCUSAURUS_CODE_TABS-->
 <!--TypeScript-->
 ```typescript
@@ -62,9 +66,7 @@ export default class ArticleResource extends Resource {
 
 `Resource` extends [Entity](./Entity)
 
-`Resource` is an abstract class that will help you define the data you are working with.
-`Resource` aids in defining REST-like APIs - to implement other patterns, try building
-[Endpoint](./Endpoint)s with [Entity](./Entity).
+Package: [@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest)
 
 There are two sides to `Resource` definition - the static and instance side.
 

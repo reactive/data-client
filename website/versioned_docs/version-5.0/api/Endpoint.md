@@ -68,6 +68,8 @@ export interface EndpointExtraOptions {
 
 <!--END_DOCUSAURUS_CODE_TABS-->
 
+Package: [@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint)
+
 ## Endpoint Members
 
 Members double as options (second constructor arg). While none are required, the first few
