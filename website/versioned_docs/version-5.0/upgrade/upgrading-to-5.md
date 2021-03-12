@@ -364,20 +364,16 @@ class MyResource extends Resource {
 
 </details>
 
-<details><summary>FetchShape -> Endpoint</summary>
-</details>
-
-
 ### @rest-hooks/rest
-
-
-<details><summary>yarn add @rest-hooks/rest</summary>
 
 Rest Hooks is protocol agnostic, so the REST/CRUD specific class [Resource](../api/resource)
 will eventually be fully deprecated and removed. `@rest-hooks/rest` is intended as its
 replacement. Other supplementary libraries like `@rest-hooks/graphql` could be
 added in the future, for intance. This is also beneficial as these libraries
 change more frequently than the core of rest hooks.
+
+<details><summary>yarn add @rest-hooks/rest</summary>
+
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--before-->
@@ -408,7 +404,131 @@ class MyResource extends Resource {
 
 <details><summary>static schema</summary>
 
-../guides/nested-response
+[Nesting](../guides/nested-response) entities inside a schema will now denormalize those nested items.
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--before-->
+
+```typescript
+import { Resource } from 'rest-hooks';
+
+class ArticleResource extends Resource {
+  // other stuff omitted
+  readonly user: string = '';
+
+  static schema = {
+    user: UserResource,
+  }
+}
+```
+
+```typescript
+const article = useResource(ArticleResource.detail(), { id });
+const user = useCache(UserResource.detail(), { id: article.user });
+```
+
+<!--after-->
+
+```typescript
+import { Resource } from '@rest-hooks/rest';
+
+class ArticleResource extends Resource {
+  // other stuff omitted
+  readonly user: UserResource = UserResource.fromJS({});
+
+  static schema = {
+    user: UserResource,
+  }
+}
+```
+
+```typescript
+const article = useResource(ArticleResource.detail(), { id });
+const user = article.user;
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
+
+</details>
+
+<details><summary>FetchShape -> Endpoint</summary>
+
+[Endpoints](../api/Endpoint) use the builder pattern to make customization easy. Use [extend()](../api/Endpoint#extendendpointoptions-endpoint) to customize.
+
+[@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint) is also its own package. This empowers you to publish interfaces for public APIs by marking [@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint) as a peerDependency in the package.
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--before-->
+
+```typescript
+import { Resource } from 'rest-hooks';
+
+export default class UserResource extends Resource {
+  /** Retrieves current logged in user */
+  static currentShape<T extends typeof Resource>(this: T) {
+    return {
+      ...this.detailShape(),
+      getFetchKey: () => {
+        return '/current_user/';
+      },
+      fetch: (params: {}, body?: Readonly<object | string>) => {
+        return this.fetch('post', `/current_user/`, body);
+      },
+    };
+  }
+}
+```
+
+<!--after-->
+
+```typescript
+import { Resource } from '@rest-hooks/rest';
+
+export default class UserResource extends Resource {
+  /** Retrieves current logged in user */
+  static current<T extends typeof Resource>(this: T) {
+    const endpoint = this.detail();
+    return endpoint.extend({
+      fetch() { return endpoint(this); }
+      url() { return '/current_user/' },
+    })
+  }
+}
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
+
+Currently all [Endpoints](../api/Endpoint) also implement the `FetchShape` interface, so feel free to incrementally migrate. This means using Endpoint and extended via object spreads will still work:
+
+```typescript
+import { Resource } from 'rest-hooks';
+
+export default class UserResource extends Resource {
+  static currentShape<T extends typeof Resource>(this: T) {
+    return {
+      // this is an Endpoint, but can be spread the same way
+      ...this.detail(),
+      getFetchKey: () => {
+        return '/current_user/';
+      },
+      fetch: (params: {}, body?: Readonly<object | string>) => {
+        return this.fetch('post', `/current_user/`, body);
+      },
+    };
+  }
+}
+```
+
+Eventually support for FetchShape will be deprecated, and then removed.
+
+#### Summary of interface differences
+
+- schema is optional
+- type removed in favor of sideEffect
+  - type = 'read' -> sideEffect = undefined
+  - type = 'mutate' -> sideEffect = true
+- options members elevated to top
+- top level object should be the actual fetch
 
 </details>
 
