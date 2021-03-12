@@ -2,6 +2,8 @@
 title: PollingSubscription implements Subscription
 sidebar_label: PollingSubscription
 hide_title: true
+id: version-5.0-PollingSubscription
+original_id: PollingSubscription
 ---
 
 # PollingSubscription implements [Subscription](./SubscriptionManager.md)
