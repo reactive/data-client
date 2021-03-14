@@ -38,7 +38,7 @@ export default abstract class Resource extends SimpleResource {
       method: method.toUpperCase(),
     };
     options = this.getFetchInit(options);
-    if (body) options.body = JSON.stringify(body);
+    if (body && isPojo(body)) options.body = JSON.stringify(body);
     if (!options.body || typeof options.body === 'string') {
       options.headers = {
         'Content-Type': 'application/json',
@@ -75,4 +75,14 @@ export default abstract class Resource extends SimpleResource {
       });
     });
   }
+}
+
+const proto = Object.prototype;
+const gpo = Object.getPrototypeOf;
+
+function isPojo(obj: unknown): obj is Record<string, any> {
+  if (obj === null || typeof obj !== 'object') {
+    return false;
+  }
+  return gpo(obj) === proto;
 }
