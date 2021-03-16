@@ -40,10 +40,7 @@ export default abstract class SimpleResource extends Entity {
    *
    * Default implementation conforms to common REST patterns
    */
-  static url<T extends typeof SimpleResource>(
-    this: T,
-    urlParams: Readonly<Record<string, any>>,
-  ): string {
+  static url(urlParams: Readonly<Record<string, any>>): string {
     if (
       Object.prototype.hasOwnProperty.call(urlParams, 'url') &&
       urlParams.url &&

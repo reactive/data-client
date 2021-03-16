@@ -47,10 +47,7 @@ export default abstract class SimpleResource extends FlatEntity {
    *
    * Default implementation conforms to common REST patterns
    */
-  static url<T extends typeof SimpleResource>(
-    this: T,
-    urlParams: Readonly<Record<string, any>>,
-  ): string {
+  static url(urlParams: Readonly<Record<string, any>>): string {
     if (
       Object.prototype.hasOwnProperty.call(urlParams, 'url') &&
       urlParams.url &&
@@ -104,6 +101,11 @@ export default abstract class SimpleResource extends FlatEntity {
   /** Get the request options for this SimpleResource  */
   static getFetchOptions(): FetchOptions | undefined {
     return;
+  }
+
+  /** Init options for fetch - run at fetch */
+  static getFetchInit(init: Readonly<RequestInit>): RequestInit {
+    return init;
   }
 
   /** Get the request options for this SimpleResource  */
