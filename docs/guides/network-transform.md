@@ -142,7 +142,7 @@ abstract class StreamResource extends CamelResource {
     return this.username;
   }
 
-  static detail<T extends typeof SimpleResource>(
+  static detail<T extends typeof Resource>(
     this: T,
   ) {
     const superEndpoint = super.detail() as ReadEndpoint<FetchFunction, T>;

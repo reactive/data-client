@@ -77,7 +77,7 @@ you defined some custom shapes with type: 'delete'
 
 ```typescript
 class MyResource extends Resource {
-  static someOtherDeleteShape<T extends typeof SimpleResource>(
+  static someOtherDeleteShape<T extends typeof Resource>(
     this: T,
   ): DeleteShape<any, Readonly<object>> {
     const options = this.getFetchOptions();
@@ -103,7 +103,7 @@ class MyResource extends Resource {
 ```typescript
 import { schemas } from 'rest-hooks';
 class MyResource extends Resource {
-  static someOtherDeleteShape<T extends typeof SimpleResource>(
+  static someOtherDeleteShape<T extends typeof Resource>(
     this: T,
   ): DeleteShape<any, Readonly<object>> {
     const options = this.getFetchInit();

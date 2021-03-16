@@ -76,7 +76,7 @@ export class ArticleResource extends Resource {
     });
   }
 
-  static partialUpdate<T extends typeof SimpleResource>(
+  static partialUpdate<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<RestFetch, T, true> {
     return super.partialUpdate().extend({
@@ -158,7 +158,7 @@ export class TypedArticleResource extends CoolerArticleResource {
     return this.tags.join(', ');
   }
 
-  static update<T extends typeof SimpleResource>(
+  static update<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
     RestFetch<
@@ -172,7 +172,7 @@ export class TypedArticleResource extends CoolerArticleResource {
     return super.update();
   }
 
-  static detail<T extends typeof SimpleResource>(
+  static detail<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
     RestFetch<{ id: number }, undefined, Partial<AbstractInstanceType<T>>>,
@@ -182,7 +182,7 @@ export class TypedArticleResource extends CoolerArticleResource {
     return super.detail();
   }
 
-  static list<T extends typeof SimpleResource>(
+  static list<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
     RestFetch<any, undefined, Partial<AbstractInstanceType<T>>[]>,
