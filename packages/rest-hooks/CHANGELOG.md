@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.13](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.12...rest-hooks@5.0.13) (2021-03-16)
+
+
+### 🐛 Bug Fix
+
+* typeof Resource === typeof SimpleResource ([#662](https://github.com/coinbase/rest-hooks/issues/662)) ([4174149](https://github.com/coinbase/rest-hooks/commit/417414947a8a470ee84d3d98ee47646d6ca12798))
+
+
+
 ### [5.0.12](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.11...rest-hooks@5.0.12) (2021-03-14)
 
 
