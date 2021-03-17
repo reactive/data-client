@@ -88,6 +88,7 @@ export interface EndpointInstance<
   readonly sideEffect: M;
 
   readonly schema: S extends undefined ? schema.SchemaClass<ResolveType<F>> : S;
+  /** @deprecated */
   readonly _schema: S; // TODO: remove once we don't care about FetchShape compatibility
 
   fetch: F;
@@ -118,8 +119,11 @@ export interface EndpointInstance<
     >;
 
   /** The following is for compatibility with FetchShape */
+  /** @deprecated */
   readonly type: M extends true ? 'mutate' : 'read';
+  /** @deprecated */
   getFetchKey(params: Parameters<F>[0]): string;
+  /** @deprecated */
   options?: EndpointExtraOptions;
 }
 
