@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@1.0.7...@rest-hooks/endpoint@1.0.8) (2021-03-24)
+
+
+### 💅 Enhancement
+
+* Mark Endpoint's back-compat members as 'deprecated' ([#665](https://github.com/coinbase/rest-hooks/issues/665)) ([6feade0](https://github.com/coinbase/rest-hooks/commit/6feade0ad28eb96c7906793b05d49991294ce858))
+
+
+### 🐛 Bug Fix
+
+* 'type' inferred from 'sideEffects' correct in union case ([#678](https://github.com/coinbase/rest-hooks/issues/678)) ([2cda690](https://github.com/coinbase/rest-hooks/commit/2cda6900cc3c653637452772ec5439a60354b140))
+
+
+
 ### [1.0.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@1.0.6...@rest-hooks/endpoint@1.0.7) (2021-03-14)
 
 
