@@ -120,7 +120,11 @@ export interface EndpointInstance<
 
   /** The following is for compatibility with FetchShape */
   /** @deprecated */
-  readonly type: M extends true ? 'mutate' : 'read';
+  readonly type: M extends undefined
+    ? M extends true
+      ? 'read' | 'mutate'
+      : 'read'
+    : 'mutate';
   /** @deprecated */
   getFetchKey(params: Parameters<F>[0]): string;
   /** @deprecated */
