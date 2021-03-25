@@ -1,7 +1,7 @@
 {
   "name": "@rest-hooks/core",
   "version": "1.0.10",
-  "description": "Dynamic data fetching for React",
+  "description": "Asynchronous data framework for React",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
   "module": "lib/index.js",
