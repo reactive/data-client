@@ -1,7 +1,6 @@
 import { TypedArticleResource } from '__tests__/new';
 import React from 'react';
 import nock from 'nock';
-import { cleanup } from '@testing-library/react-hooks';
 
 import {
   makeRenderRestHook,
@@ -104,6 +103,27 @@ describe('endpoint types', () => {
         });
         const a = await result.current({ id: payload.id }, { title: 'hi' });
       });
+
+      it('types should strictly enforce with parameters that are any', async () => {
+        const { result } = renderRestHook(() => {
+          return useFetcher(TypedArticleResource.anyparam());
+        });
+        // @ts-expect-error
+        () => result.current({ id: payload.id }, { title: 'hi' });
+        () => result.current({ id: payload.id });
+      });
+
+      it('types should strictly enforce with body that are any', async () => {
+        const { result } = renderRestHook(() => {
+          return useFetcher(TypedArticleResource.anybody());
+        });
+        () => result.current({ id: payload.id }, { title: 'hi' });
+        /* TODO: Re-enable for new fetch dispatcher
+        // @ts-expect-error
+        () => result.current({ id: payload.id });
+        */
+      });
+
       it('should error on invalid payload', async () => {
         const { result } = renderRestHook(() => {
           return useFetcher(TypedArticleResource.update());
