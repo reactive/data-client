@@ -9,9 +9,9 @@ import {
 } from '@rest-hooks/endpoint';
 import {
   Resource,
-  SimpleResource,
   RestEndpoint,
   RestFetch,
+  FetchMutate,
 } from '@rest-hooks/rest';
 import React, { createContext, useContext } from 'react';
 
@@ -78,7 +78,7 @@ export class ArticleResource extends Resource {
 
   static partialUpdate<T extends typeof Resource>(
     this: T,
-  ): RestEndpoint<RestFetch, T, true> {
+  ): RestEndpoint<FetchMutate, T, true> {
     return super.partialUpdate().extend({
       optimisticUpdate: (params: any, body: any) => ({
         id: params.id,
@@ -161,7 +161,7 @@ export class TypedArticleResource extends CoolerArticleResource {
   static update<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    RestFetch<
+    FetchMutate<
       { id: number },
       Partial<AbstractInstanceType<T>>,
       Partial<AbstractInstanceType<T>>
@@ -190,6 +190,18 @@ export class TypedArticleResource extends CoolerArticleResource {
     undefined
   > {
     return super.list();
+  }
+
+  static anyparam<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<(a: any) => Promise<any>> {
+    return super.detail() as any;
+  }
+
+  static anybody<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<(a: any, b: any) => Promise<any>> {
+    return super.detail() as any;
   }
 }
 

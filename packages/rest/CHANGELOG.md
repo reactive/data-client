@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [2.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.0.2...@rest-hooks/rest@2.0.3) (2021-03-26)
+
+
+### 🐛 Bug Fix
+
+* Compatibility with TypeScript strict: false ([#683](https://github.com/coinbase/rest-hooks/issues/683)) ([8a6e7ed](https://github.com/coinbase/rest-hooks/commit/8a6e7ed4d179555c4ba5cb8957b1c63697a1ce1a))
+
+
+
 ### [2.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.0.1...@rest-hooks/rest@2.0.2) (2021-03-16)
 
 

@@ -1,7 +1,7 @@
 {
   "name": "rest-hooks",
-  "version": "5.0.14",
-  "description": "Dynamic data fetching for React",
+  "version": "5.0.15",
+  "description": "Asynchronous data framework for React",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
   "module": "lib/index.js",
@@ -67,8 +67,8 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.2",
-    "@rest-hooks/core": "^1.0.10",
-    "@rest-hooks/endpoint": "^1.0.8"
+    "@rest-hooks/core": "^1.0.11",
+    "@rest-hooks/endpoint": "^1.0.9"
   },
   "peerDependencies": {
     "@types/react": "^16.8.4 || ^17.0.0",
