@@ -172,7 +172,7 @@ export default abstract class SimpleResource extends Entity {
     const instanceFetch = this.fetch.bind(this);
     return this.memo('#endpointMutate', () =>
       this.endpoint().extend({
-        fetch(this: RestEndpoint, params: any, body?: any) {
+        fetch(this: RestEndpoint, params: any, body: any) {
           return instanceFetch(this.url(params), this.getFetchInit(body));
         },
         sideEffect: true,
@@ -216,7 +216,7 @@ export default abstract class SimpleResource extends Entity {
   static create<T extends typeof SimpleResource>(
     this: T,
   ): RestEndpoint<
-    (this: RestEndpoint, params: any, body?: any) => Promise<any>,
+    (this: RestEndpoint, params: any, body: any) => Promise<any>,
     SchemaDetail<AbstractInstanceType<T>>,
     true
   > {
@@ -233,7 +233,7 @@ export default abstract class SimpleResource extends Entity {
   static update<T extends typeof SimpleResource>(
     this: T,
   ): RestEndpoint<
-    (this: RestEndpoint, params: any, body?: any) => Promise<any>,
+    (this: RestEndpoint, params: any, body: any) => Promise<any>,
     SchemaDetail<AbstractInstanceType<T>>,
     true
   > {
@@ -249,7 +249,7 @@ export default abstract class SimpleResource extends Entity {
   static partialUpdate<T extends typeof SimpleResource>(
     this: T,
   ): RestEndpoint<
-    (this: RestEndpoint, params: any, body?: any) => Promise<any>,
+    (this: RestEndpoint, params: any, body: any) => Promise<any>,
     SchemaDetail<AbstractInstanceType<T>>,
     true
   > {
