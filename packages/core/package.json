@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/core",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Asynchronous data framework for React",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
@@ -66,7 +66,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.2",
-    "@rest-hooks/endpoint": "^1.0.8",
+    "@rest-hooks/endpoint": "^1.0.9",
     "@rest-hooks/normalizr": "^6.0.6",
     "@rest-hooks/use-enhanced-reducer": "^1.0.5",
     "flux-standard-action": "^2.1.1"
