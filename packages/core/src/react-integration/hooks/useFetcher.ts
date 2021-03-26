@@ -1,8 +1,6 @@
 import {
   FetchShape,
   SchemaFromShape,
-  ParamsFromShape,
-  BodyFromShape,
   OptimisticUpdateParams,
   ReturnFromShape,
 } from '@rest-hooks/core/endpoint';
@@ -11,43 +9,22 @@ import { useRef, useCallback } from 'react';
 
 import useFetchDispatcher from './useFetchDispatcher';
 
-type IfAny<T, Y, N> = 0 extends 1 & T ? Y : N;
-type IfExact<T, Cond, A, B> = IfAny<
-  T,
-  B,
-  Cond extends T ? (T extends Cond ? A : B) : B
->;
-
 /** Build an imperative dispatcher to issue network requests. */
 export default function useFetcher<
   Shape extends FetchShape<Schema, Readonly<object>, any>
 >(
   fetchShape: Shape,
   throttle = false,
-): IfExact<
-  BodyFromShape<Shape>,
-  unknown,
-  <
-    UpdateParams extends OptimisticUpdateParams<
-      SchemaFromShape<Shape>,
-      FetchShape<any, any, any>
-    >[]
-  >(
-    params: ParamsFromShape<Shape>,
-    body?: undefined,
-    updateParams?: UpdateParams | undefined,
-  ) => ReturnFromShape<typeof fetchShape>,
-  <
-    UpdateParams extends OptimisticUpdateParams<
-      SchemaFromShape<Shape>,
-      FetchShape<any, any, any>
-    >[]
-  >(
-    params: ParamsFromShape<Shape>,
-    body: BodyFromShape<Shape>,
-    updateParams?: UpdateParams | undefined,
-  ) => ReturnFromShape<typeof fetchShape>
-> {
+): <
+  UpdateParams extends OptimisticUpdateParams<
+    SchemaFromShape<Shape>,
+    FetchShape<any, any, any>
+  >[]
+>(
+  a: Parameters<Shape['fetch']>[0],
+  b?: Parameters<Shape['fetch']>[1],
+  updateParams?: UpdateParams | undefined,
+) => ReturnFromShape<typeof fetchShape> {
   const dispatchFetcher: any = useFetchDispatcher(throttle);
 
   // we just want the current values when we dispatch, so

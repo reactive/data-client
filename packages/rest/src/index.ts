@@ -3,6 +3,6 @@ import SimpleResource from './SimpleResource';
 
 export { Resource, SimpleResource };
 
-export type { RestEndpoint, RestFetch } from './types';
+export type { RestEndpoint, RestFetch, FetchMutate, FetchGet } from './types';
 
 export * from '@rest-hooks/endpoint';

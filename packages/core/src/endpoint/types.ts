@@ -53,11 +53,9 @@ export type SchemaFromShape<
 > = F['schema'];
 
 /** Get the Body type for a given Shape */
-export type BodyFromShape<F extends FetchShape<any, any, any>> = F extends {
-  fetch: (p: any, b: infer B) => any;
-}
-  ? B
-  : never;
+export type BodyFromShape<F extends FetchShape<any, any, any>> = Parameters<
+  F['fetch']
+>[1];
 
 export type OptimisticUpdateParams<
   SourceSchema extends Schema | undefined,
