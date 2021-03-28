@@ -57,6 +57,22 @@ describe('Resource', () => {
     expect(() => Resource.fromJS({})).toThrow();
   });
 
+  it('should throw with no urlRoot defined', () => {
+    class NoUrlResource extends Resource {
+      readonly id: string = '';
+      pk() {
+        return this.id;
+      }
+    }
+    expect(() => NoUrlResource.key).toThrowErrorMatchingInlineSnapshot(`
+      "urlRoot is not defined for Resource \\"NoUrlResource\\"
+
+        Resources require a 'static urlRoot' or 'static get key()' defined.
+        (See https://resthooks.io/docs/api/resource#static-urlroot-string)
+      "
+    `);
+  });
+
   it('should work with `url` member', () => {
     expect(() => UrlArticleResource.fromJS({})).not.toThrow();
     expect(() => UrlArticleResource.fromJS({ url: 'five' })).not.toThrow();
