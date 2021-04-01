@@ -16,6 +16,7 @@
     "test": "cross-env NODE_ENV=test jest",
     "test:ci": "yarn test -- --ci",
     "test:coverage": "yarn test -- --coverage",
+    "bench": "cross-env NODE_ENV=production BROWSERSLIST_ENV=modern ROOT_PATH_PREFIX='@rest-hooks/normalizr' babel-node --root-mode upward packages/normalizr/src/__benchmarks__/benchmark.js --extensions '.ts,.tsx,.js'",
     "prepare": "yarn run build:types"
   },
   "engines": {
@@ -25,11 +26,12 @@
     "extends @anansi/browserslist-config"
   ],
   "devDependencies": {
-    "@anansi/babel-preset": "2.2.5",
+    "@anansi/babel-preset": "2.2.6",
     "@anansi/browserslist-config": "1.2.0",
     "@anansi/eslint-plugin": "0.10.4",
     "@babel/cli": "7.13.14",
     "@babel/core": "7.13.14",
+    "@babel/node": "^7.13.13",
     "@commitlint/cli": "^12.0.0",
     "@commitlint/config-conventional": "^12.0.0",
     "@rest-hooks/test": "^4.0.0",
@@ -41,6 +43,7 @@
     "@types/react": "^17.0.0",
     "@zerollup/ts-transform-paths": "^1.7.18",
     "babel-jest": "^26.6.3",
+    "benchmark": "^2.1.4",
     "conventional-changelog-anansi": "^0.2.0",
     "copyfiles": "^2.4.1",
     "core-js": "^3.8.1",
