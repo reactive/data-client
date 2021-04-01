@@ -1,6 +1,6 @@
 import Benchmark from 'benchmark';
 
-import { normalize, Entity } from '..';
+import { normalize, denormalize, Entity } from '..';
 import data from './data.json';
 const suite = new Benchmark.Suite();
 
@@ -20,9 +20,16 @@ class ProjectWithBuildTypesDescription extends Entity {
   };
 }
 
+const sch = { project: [ProjectWithBuildTypesDescription] };
+
+const { result, entities } = normalize(data, sch);
+
 suite
   .add('normalizeLong', () => {
-    return normalize(data.project, [ProjectWithBuildTypesDescription]);
+    return normalize(data, sch);
+  })
+  .add('denormalizeLong', () => {
+    return denormalize(result, sch, entities);
   })
   .on('cycle', event => {
     // Output benchmark result by converting benchmark result to string
