@@ -1,0 +1,69 @@
+{
+  "name": "@rest-hooks/normalizr",
+  "version": "6.0.6",
+  "description": "Normalizes and denormalizes JSON according to schema for Redux and Flux applications",
+  "homepage": "https://github.com/coinbase/rest-hooks/tree/master/packages/normalizr#readme",
+  "bugs": {
+    "url": "https://github.com/coinbase/rest-hooks/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:coinbase/rest-hooks.git",
+    "directory": "packages/normalizr"
+  },
+  "keywords": [
+    "flux",
+    "redux",
+    "normalize",
+    "denormalize",
+    "data",
+    "cache",
+    "api",
+    "json"
+  ],
+  "files": [
+    "dist/",
+    "lib/",
+    "LICENSE",
+    "README.md"
+  ],
+  "main": "dist/normalizr.js",
+  "module": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=0.12"
+  },
+  "scripts": {
+    "build": "yarn run build:lib && yarn run build:bundle",
+    "build:bundle": "run-p build:js:*",
+    "build:js:development": "cross-env BROWSERSLIST_ENV=legacy NODE_ENV=development rollup -c",
+    "build:js:production": "cross-env BROWSERSLIST_ENV=legacy NODE_ENV=production rollup -c",
+    "build:lib": "cross-env NODE_ENV=production ROOT_PATH_PREFIX='@rest-hooks/normalizr' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/__benchmarks__/**' --ignore '**/*.d.ts'",
+    "build:clean": "rimraf dist lib *.tsbuildinfo",
+    "lint": "yarn lint:cmd --fix",
+    "lint:ci": "yarn lint:cmd",
+    "lint:cmd": "eslint . --ext '.js,.json,.snap' --cache",
+    "precommit": "flow check && lint-staged",
+    "prepublishOnly": "npm run build",
+    "test": "jest",
+    "test:ci": "jest --ci",
+    "test:coverage": "npm run test -- --coverage",
+    "tsc:ci": "ttsc --project tsconfig.test.json ",
+    "typecheck": "yarn run tsc:ci"
+  },
+  "author": "Nathaniel Tucker",
+  "contributors": [
+    "Paul Armstrong",
+    "Dan Abramov"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "immutable": "^3.8.1",
+    "npm-run-all": "^4.1.5",
+    "run-p": "^0.0.0"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.7.2"
+  }
+}

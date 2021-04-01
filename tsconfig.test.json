@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig-base",
+  "compilerOptions": {
+    "noImplicitAny": false   // this is for normalizr
+  },
+  "include": ["packages/*/src", "__tests__"]
+}

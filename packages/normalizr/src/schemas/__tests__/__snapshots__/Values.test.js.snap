@@ -1,0 +1,350 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ValuesSchema denormalization denormalizes the values of an object with the given schema 1`] = `
+Array [
+  Object {
+    "fido": Dog {
+      "id": "1",
+      "type": "dogs",
+    },
+    "fluffy": Cat {
+      "id": "1",
+      "type": "cats",
+    },
+  },
+  true,
+  false,
+]
+`;
+
+exports[`ValuesSchema denormalization denormalizes the values of an object with the given schema 2`] = `
+Array [
+  Object {
+    "fido": Dog {
+      "id": "1",
+      "type": "dogs",
+    },
+    "fluffy": Cat {
+      "id": "1",
+      "type": "cats",
+    },
+  },
+  true,
+  false,
+]
+`;
+
+exports[`ValuesSchema denormalization denormalizes with deleted entity should have false third value 1`] = `
+Array [
+  Object {
+    "fido": Dog {
+      "id": "1",
+      "type": "dogs",
+    },
+    "fluffy": Cat {
+      "id": "1",
+      "type": "cats",
+    },
+  },
+  true,
+  true,
+]
+`;
+
+exports[`ValuesSchema denormalization denormalizes with deleted entity should have false third value 2`] = `
+Array [
+  Object {
+    "fido": Dog {
+      "id": "1",
+      "type": "dogs",
+    },
+    "fluffy": Cat {
+      "id": "1",
+      "type": "cats",
+    },
+  },
+  true,
+  true,
+]
+`;
+
+exports[`ValuesSchema denormalization denormalizes with missing entity should have false second value 1`] = `
+Array [
+  Object {
+    "fido": Dog {
+      "id": "1",
+      "type": "dogs",
+    },
+    "fluffy": Cat {
+      "id": "1",
+      "type": "cats",
+    },
+  },
+  false,
+  false,
+]
+`;
+
+exports[`ValuesSchema denormalization denormalizes with missing entity should have false second value 2`] = `
+Array [
+  Object {
+    "fido": Dog {
+      "id": "1",
+      "type": "dogs",
+    },
+    "fluffy": Cat {
+      "id": "1",
+      "type": "cats",
+    },
+  },
+  false,
+  false,
+]
+`;
+
+exports[`ValuesSchema denormalization works on complex object 1`] = `
+Object {
+  "data": Object {
+    "estimates": Object {
+      "BTC": Estimate {
+        "coinbase_fees": Object {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "confirmation_duration": 900,
+        "exchange": Object {
+          "crypto": "BTC",
+          "local": "USD",
+          "rate": "6820.07",
+        },
+        "exchange_to_proceeds": Object {
+          "crypto": "BTC",
+          "local": "EUR",
+          "rate": "6820.07",
+        },
+        "fee": Object {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "fee_per_kb": Object {
+          "amount": "0.00016566",
+          "currency": "BTC",
+        },
+        "min_order_size": Object {
+          "amount": "0.001",
+          "currency": "BTC",
+        },
+        "priority": "fast",
+        "recipient_value": Object {
+          "amount": "0.00054147",
+          "currency": "BTC",
+        },
+      },
+      "ETH": Estimate {
+        "coinbase_fees": Object {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "confirmation_duration": 900,
+        "exchange": Object {
+          "crypto": "ETH",
+          "local": "USD",
+          "rate": "197.07",
+        },
+        "exchange_to_proceeds": Object {
+          "crypto": "BTC",
+          "local": "EUR",
+          "rate": "6820.07",
+        },
+        "fee": Object {
+          "amount": "0.03795",
+          "currency": "ETH",
+        },
+        "fee_per_kb": Object {
+          "amount": "0.00086",
+          "currency": "ETH",
+        },
+        "min_order_size": Object {
+          "amount": "0.001",
+          "currency": "BTC",
+        },
+        "priority": "fast",
+        "recipient_value": Object {
+          "amount": "2.53",
+          "currency": "ETH",
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`ValuesSchema normalization can use a function to determine the schema when normalizing 1`] = `
+Object {
+  "entities": Object {
+    "Cat": Object {
+      "1": Cat {
+        "id": "1",
+        "type": "cat",
+      },
+    },
+    "Dog": Object {
+      "1": Dog {
+        "id": "1",
+        "type": "dog",
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": Object {
+    "fido": Object {
+      "id": "1",
+      "schema": "dogs",
+    },
+    "fluffy": Object {
+      "id": "1",
+      "schema": "cats",
+    },
+    "jim": Object {
+      "id": "2",
+      "type": "lizard",
+    },
+  },
+}
+`;
+
+exports[`ValuesSchema normalization filters out null and undefined values 1`] = `
+Object {
+  "entities": Object {
+    "Cat": Object {
+      "1": Cat {
+        "id": "1",
+        "type": "cats",
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": Object {
+    "fluffy": Object {
+      "id": "1",
+      "schema": "cats",
+    },
+  },
+}
+`;
+
+exports[`ValuesSchema normalization normalizes the values of an object with the given schema 1`] = `
+Object {
+  "entities": Object {
+    "Cat": Object {
+      "1": Cat {
+        "id": "1",
+        "type": "cats",
+      },
+    },
+    "Dog": Object {
+      "1": Dog {
+        "id": "1",
+        "type": "dogs",
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": Object {
+    "fido": Object {
+      "id": "1",
+      "schema": "dogs",
+    },
+    "fluffy": Object {
+      "id": "1",
+      "schema": "cats",
+    },
+  },
+}
+`;
+
+exports[`ValuesSchema normalization works on complex object 1`] = `
+Object {
+  "entities": Object {
+    "Estimate": Object {
+      "BTC": Estimate {
+        "coinbase_fees": Object {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "confirmation_duration": 900,
+        "exchange": Object {
+          "crypto": "BTC",
+          "local": "USD",
+          "rate": "6820.07",
+        },
+        "exchange_to_proceeds": Object {
+          "crypto": "BTC",
+          "local": "EUR",
+          "rate": "6820.07",
+        },
+        "fee": Object {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "fee_per_kb": Object {
+          "amount": "0.00016566",
+          "currency": "BTC",
+        },
+        "min_order_size": Object {
+          "amount": "0.001",
+          "currency": "BTC",
+        },
+        "priority": "fast",
+        "recipient_value": Object {
+          "amount": "0.00054147",
+          "currency": "BTC",
+        },
+      },
+      "ETH": Estimate {
+        "coinbase_fees": Object {
+          "amount": "0.00002270",
+          "currency": "BTC",
+        },
+        "confirmation_duration": 900,
+        "exchange": Object {
+          "crypto": "ETH",
+          "local": "USD",
+          "rate": "197.07",
+        },
+        "exchange_to_proceeds": Object {
+          "crypto": "BTC",
+          "local": "EUR",
+          "rate": "6820.07",
+        },
+        "fee": Object {
+          "amount": "0.03795",
+          "currency": "ETH",
+        },
+        "fee_per_kb": Object {
+          "amount": "0.00086",
+          "currency": "ETH",
+        },
+        "min_order_size": Object {
+          "amount": "0.001",
+          "currency": "BTC",
+        },
+        "priority": "fast",
+        "recipient_value": Object {
+          "amount": "2.53",
+          "currency": "ETH",
+        },
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": Object {
+    "data": Object {
+      "estimates": Object {
+        "BTC": "BTC",
+        "ETH": "ETH",
+      },
+    },
+  },
+}
+`;

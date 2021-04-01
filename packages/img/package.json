@@ -1,0 +1,66 @@
+{
+  "name": "@rest-hooks/img",
+  "version": "0.2.1",
+  "description": "Suspenseful images",
+  "sideEffects": false,
+  "main": "dist/index.cjs.js",
+  "module": "lib/index.js",
+  "unpkg": "dist/index.umd.min.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "src",
+    "dist",
+    "lib",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build:lib": "cross-env NODE_ENV=production babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:bundle": "rollup -c",
+    "build:clean": "rimraf lib dist *.tsbuildinfo",
+    "build": "yarn run build:lib && yarn run build:bundle",
+    "dev": "yarn run build:lib -w",
+    "prepare": "yarn run build:lib",
+    "prepublishOnly": "yarn run build:bundle",
+    "test": "cross-env NODE_ENV=test jest",
+    "test:ci": "yarn test -- --ci",
+    "test:watch": "yarn test -- --watch",
+    "test:coverage": "yarn test -- --coverage"
+  },
+  "keywords": [
+    "react",
+    "suspense",
+    "prefetch",
+    "cache",
+    "image",
+    "img",
+    "hook",
+    "async",
+    "typescript"
+  ],
+  "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
+  "license": "Apache-2.0",
+  "homepage": "https://resthooks.io/docs/guides/binary-fetches#just-images",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:coinbase/rest-hooks.git",
+    "directory": "packages/img"
+  },
+  "bugs": {
+    "url": "https://github.com/coinbase/rest-hooks/issues"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.7.2"
+  },
+  "peerDependencies": {
+    "@rest-hooks/core": "^1.0.5",
+    "@rest-hooks/endpoint": "^1.0.3",
+    "@types/react": "^16.8.4 || ^17.0.0",
+    "react": "^16.8.4 || ^17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    }
+  }
+}

@@ -1,0 +1,319 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`useResource() should dispatch an action that fetches 1`] = `
+Object {
+  "meta": Object {
+    "createdAt": 1970-01-01T00:00:00.000Z,
+    "key": "GET http://test.com/article-cooler/5",
+    "options": Object {
+      "fetchInit": Object {},
+      "getFetchInit": [Function],
+      "method": "GET",
+      "signal": undefined,
+      "url": [Function],
+      "useFetchInit": [Function],
+    },
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useResource() should dispatch fetch when sent multiple arguments 1`] = `
+Object {
+  "meta": Object {
+    "createdAt": 1970-01-01T00:00:00.000Z,
+    "key": "GET http://test.com/article-cooler/5",
+    "options": Object {
+      "fetchInit": Object {},
+      "getFetchInit": [Function],
+      "method": "GET",
+      "signal": undefined,
+      "url": [Function],
+      "useFetchInit": [Function],
+    },
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useResource() should dispatch fetch when sent multiple arguments 2`] = `
+Object {
+  "meta": Object {
+    "createdAt": 1970-01-01T00:00:00.000Z,
+    "key": "GET http://test.com/user/",
+    "options": Object {
+      "fetchInit": Object {},
+      "getFetchInit": [Function],
+      "method": "GET",
+      "signal": undefined,
+      "url": [Function],
+      "useFetchInit": [Function],
+    },
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": Array [
+      [Function],
+    ],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useResource() should throw error when response is {} when expecting entity 1`] = `
+[Error: Error processing GET http://test.com/article-cooler/400
+
+Full Schema: {
+  "name": "CoolerArticleResource",
+  "schema": {
+    "author": {
+      "name": "UserResource",
+      "schema": {},
+      "key": "http://test.com/user/"
+    }
+  },
+  "key": "http://test.com/article-cooler/"
+}
+
+Error:
+Attempted to initialize CoolerArticleResource with no matching keys found
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
+  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
+
+  Expected keys:
+    Found: 
+    Missing: id,title,content,author,tags
+  Value: {}]
+`;
+
+exports[`useResource() should throw error when response is array when expecting entity 1`] = `
+[Error: Error processing GET http://test.com/article-cooler/400
+
+Full Schema: {
+  "name": "CoolerArticleResource",
+  "schema": {
+    "author": {
+      "name": "UserResource",
+      "schema": {},
+      "key": "http://test.com/user/"
+    }
+  },
+  "key": "http://test.com/article-cooler/"
+}
+
+Error:
+Attempted to initialize CoolerArticleResource with no matching keys found
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
+  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
+
+  Expected keys:
+    Found: 
+    Missing: id,title,content,author,tags
+  Value: {}]
+`;
+
+exports[`useResource() should throw error when response is bad (on mount) 1`] = `
+[Error: Entity from "GET http://test.com/article-cooler/4000" not found in cache.
+
+        This is likely due to a malformed response.
+        Try inspecting the network response or fetch() return value.
+
+        Schema: {
+  "name": "Scheme",
+  "schema": {
+    "data": {
+      "name": "CoolerArticleResource",
+      "schema": {
+        "author": {
+          "name": "UserResource",
+          "schema": {},
+          "key": "http://test.com/user/"
+        }
+      },
+      "key": "http://test.com/article-cooler/"
+    },
+    "optional": {
+      "name": "UserResource",
+      "schema": {},
+      "key": "http://test.com/user/"
+    }
+  }
+}]
+`;
+
+exports[`useResource() should throw error when response is expected Resource inside Record 1`] = `
+[Error: Entity from "GET http://test.com/article-cooler/400" not found in cache.
+
+        This is likely due to a malformed response.
+        Try inspecting the network response or fetch() return value.
+
+        Schema: {
+  "name": "Scheme",
+  "schema": {
+    "data": {
+      "name": "CoolerArticleResource",
+      "schema": {
+        "author": {
+          "name": "UserResource",
+          "schema": {},
+          "key": "http://test.com/user/"
+        }
+      },
+      "key": "http://test.com/article-cooler/"
+    },
+    "optional": {
+      "name": "UserResource",
+      "schema": {},
+      "key": "http://test.com/user/"
+    }
+  }
+}]
+`;
+
+exports[`useResource() should throw error when response is nested missing id when expecting nested entity 1`] = `
+[Error: Entity from "GET http://test.com/article-cooler/400" not found in cache.
+
+        This is likely due to a malformed response.
+        Try inspecting the network response or fetch() return value.
+
+        Schema: {
+  "data": {
+    "name": "CoolerArticleResource",
+    "schema": {
+      "author": {
+        "name": "UserResource",
+        "schema": {},
+        "key": "http://test.com/user/"
+      }
+    },
+    "key": "http://test.com/article-cooler/"
+  }
+}]
+`;
+
+exports[`useResource() should throw error when response is nested string when expecting nested entity 1`] = `
+[Error: Entity from "GET http://test.com/article-cooler/400" not found in cache.
+
+        This is likely due to a malformed response.
+        Try inspecting the network response or fetch() return value.
+
+        Schema: {
+  "data": {
+    "name": "CoolerArticleResource",
+    "schema": {
+      "author": {
+        "name": "UserResource",
+        "schema": {},
+        "key": "http://test.com/user/"
+      }
+    },
+    "key": "http://test.com/article-cooler/"
+  }
+}]
+`;
+
+exports[`useResource() should throw error when response is number when expecting entity 1`] = `
+[Error: Error processing GET http://test.com/article-cooler/400
+
+Full Schema: {
+  "name": "CoolerArticleResource",
+  "schema": {
+    "author": {
+      "name": "UserResource",
+      "schema": {},
+      "key": "http://test.com/user/"
+    }
+  },
+  "key": "http://test.com/article-cooler/"
+}
+
+Error:
+Attempted to initialize CoolerArticleResource with no matching keys found
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
+  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
+
+  Expected keys:
+    Found: 
+    Missing: id,title,content,author,tags
+  Value: {}]
+`;
+
+exports[`useResource() should throw error when response is string when expecting entity 1`] = `
+[Error: Error processing GET http://test.com/article-cooler/400
+
+Full Schema: {
+  "name": "CoolerArticleResource",
+  "schema": {
+    "author": {
+      "name": "UserResource",
+      "schema": {},
+      "key": "http://test.com/user/"
+    }
+  },
+  "key": "http://test.com/article-cooler/"
+}
+
+Error:
+Attempted to initialize CoolerArticleResource with no matching keys found
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
+  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
+
+  Expected keys:
+    Found: 
+    Missing: id,title,content,author,tags
+  Value: {}]
+`;
+
+exports[`useResource() should throw error when response is string when expecting nested entity 1`] = `
+[Error: Entity from "GET http://test.com/article-cooler/400" not found in cache.
+
+        This is likely due to a malformed response.
+        Try inspecting the network response or fetch() return value.
+
+        Schema: {
+  "data": {
+    "name": "CoolerArticleResource",
+    "schema": {
+      "author": {
+        "name": "UserResource",
+        "schema": {},
+        "key": "http://test.com/user/"
+      }
+    },
+    "key": "http://test.com/article-cooler/"
+  }
+}]
+`;

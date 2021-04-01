@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig-base",
+  "compilerOptions": {
+    "outDir": "lib",
+    "rootDir": "src"
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../core" },
+    { "path": "../rest-hooks" }
+  ]
+}

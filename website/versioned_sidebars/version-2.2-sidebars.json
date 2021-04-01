@@ -1,0 +1,133 @@
+{
+  "version-2.2-docs": {
+    "Getting Started": [
+      "version-2.2-getting-started/installation",
+      "version-2.2-getting-started/usage",
+      "version-2.2-guides/loading-state",
+      "version-2.2-guides/network-errors",
+      "version-2.2-guides/fetch-multiple"
+    ],
+    "Resource Definitions": [
+      "version-2.2-guides/resource-types",
+      {
+        "type": "subcategory",
+        "label": "Network Interface",
+        "ids": [
+          "version-2.2-guides/url",
+          "version-2.2-guides/endpoints",
+          "version-2.2-guides/pagination",
+          "version-2.2-guides/auth",
+          "version-2.2-guides/network-transform",
+          "version-2.2-guides/mocking-unfinished"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Entity Interface",
+        "ids": [
+          "version-2.2-guides/computed-properties",
+          "version-2.2-guides/multi-pk"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Performance Optimizations",
+        "ids": [
+          "version-2.2-guides/nested-response",
+          "version-2.2-guides/rpc"
+        ]
+      }
+    ],
+    "Advanced": [
+      {
+        "type": "subcategory",
+        "label": "Resource Definitions",
+        "ids": [
+          "version-2.2-guides/custom-networking",
+          "version-2.2-guides/resource-lifetime",
+          "version-2.2-guides/jsonp"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Testing",
+        "ids": [
+          "version-2.2-guides/storybook",
+          "version-2.2-guides/unit-testing-hooks",
+          "version-2.2-guides/unit-testing-components"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Integrations",
+        "ids": [
+          "version-2.2-guides/redux"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Legacy",
+        "ids": [
+          "version-2.2-guides/class-components",
+          "version-2.2-guides/no-suspense"
+        ]
+      }
+    ],
+    "API": [
+      "version-2.2-api/README",
+      {
+        "type": "subcategory",
+        "label": "Interface Definitions",
+        "ids": [
+          "version-2.2-api/resource",
+          "version-2.2-api/FetchShape"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Hooks",
+        "ids": [
+          "version-2.2-api/useresource",
+          "version-2.2-api/useresourcenew",
+          "version-2.2-api/useFetcher",
+          "version-2.2-api/useCache",
+          "version-2.2-api/useCacheNew",
+          "version-2.2-api/useResultCache",
+          "version-2.2-api/useSubscription",
+          "version-2.2-api/useRetrieve",
+          "version-2.2-api/useInvalidator",
+          "version-2.2-api/useResetter"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Components",
+        "ids": [
+          "version-2.2-api/CacheProvider",
+          "version-2.2-api/ExternalCacheProvider",
+          "version-2.2-api/NetworkErrorBoundary"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Managers",
+        "ids": [
+          "version-2.2-api/Manager",
+          "version-2.2-api/NetworkManager",
+          "version-2.2-api/SubscriptionManager",
+          "version-2.2-api/PollingSubscription"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Testing",
+        "ids": [
+          "version-2.2-api/MockProvider",
+          "version-2.2-api/makeRenderRestHook",
+          "version-2.2-api/makeCacheProvider",
+          "version-2.2-api/makeExternalCacheProvider"
+        ]
+      }
+    ]
+  }
+}

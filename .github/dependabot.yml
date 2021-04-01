@@ -1,0 +1,27 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    # Look for `package.json` and `lock` files in the `root` directory
+    directory: "/"
+    # Check the npm registry for updates every day (weekdays)
+    schedule:
+      interval: "daily"
+    labels:
+      - "dependencies"
+    allow:
+      - dependency-type: "development"
+    ignore:
+      - dependency-name: "whatwg-fetch"
+    commit-message:
+      prefix: "internal(pkg): "
+  - package-ecosystem: "npm"
+    # Look for `package.json` and `lock` files in the `root` directory
+    directory: "/website/"
+    # Check the npm registry for updates every day (weekdays)
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "internal: "

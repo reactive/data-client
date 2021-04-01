@@ -1,0 +1,145 @@
+{
+  "version-4.0-docs": {
+    "Getting Started": [
+      "version-4.0-getting-started/installation",
+      "version-4.0-getting-started/usage",
+      "version-4.0-guides/loading-state",
+      "version-4.0-guides/network-errors",
+      "version-4.0-guides/fetch-multiple"
+    ],
+    "Resource Definitions": [
+      "version-4.0-guides/resource-types",
+      {
+        "type": "subcategory",
+        "label": "Network Interface",
+        "ids": [
+          "version-4.0-guides/url",
+          "version-4.0-guides/endpoints",
+          "version-4.0-guides/pagination",
+          "version-4.0-guides/auth",
+          "version-4.0-guides/network-transform",
+          "version-4.0-guides/mocking-unfinished"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Entity Interface",
+        "ids": [
+          "version-4.0-guides/computed-properties",
+          "version-4.0-guides/multi-pk"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Performance Optimizations",
+        "ids": [
+          "version-4.0-guides/nested-response",
+          "version-4.0-guides/rpc"
+        ]
+      }
+    ],
+    "Advanced": [
+      {
+        "type": "subcategory",
+        "label": "Resource Definitions",
+        "ids": [
+          "version-4.0-guides/custom-networking",
+          "version-4.0-guides/resource-lifetime"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Components",
+        "ids": [
+          "version-4.0-guides/infinite-scrolling-pagination"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Testing",
+        "ids": [
+          "version-4.0-guides/storybook",
+          "version-4.0-guides/unit-testing-hooks",
+          "version-4.0-guides/unit-testing-components"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Performance",
+        "ids": [
+          "version-4.0-guides/fetch-then-render",
+          "version-4.0-guides/eager-updates"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Integrations",
+        "ids": [
+          "version-4.0-guides/redux"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Legacy",
+        "ids": [
+          "version-4.0-guides/class-components",
+          "version-4.0-guides/no-suspense"
+        ]
+      }
+    ],
+    "API": [
+      "version-4.0-api/README",
+      {
+        "type": "subcategory",
+        "label": "Interface Definitions",
+        "ids": [
+          "version-4.0-api/resource",
+          "version-4.0-api/SimpleRecord",
+          "version-4.0-api/FetchShape"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Hooks",
+        "ids": [
+          "version-4.0-api/useresource",
+          "version-4.0-api/useFetcher",
+          "version-4.0-api/useCache",
+          "version-4.0-api/useSubscription",
+          "version-4.0-api/useRetrieve",
+          "version-4.0-api/useInvalidator",
+          "version-4.0-api/useResetter"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Components",
+        "ids": [
+          "version-4.0-api/CacheProvider",
+          "version-4.0-api/ExternalCacheProvider",
+          "version-4.0-api/NetworkErrorBoundary"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Managers",
+        "ids": [
+          "version-4.0-api/Manager",
+          "version-4.0-api/NetworkManager",
+          "version-4.0-api/SubscriptionManager",
+          "version-4.0-api/PollingSubscription"
+        ]
+      },
+      {
+        "type": "subcategory",
+        "label": "Testing",
+        "ids": [
+          "version-4.0-api/MockProvider",
+          "version-4.0-api/makeRenderRestHook",
+          "version-4.0-api/makeCacheProvider",
+          "version-4.0-api/makeExternalCacheProvider"
+        ]
+      }
+    ]
+  }
+}

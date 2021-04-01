@@ -1,0 +1,40 @@
+import React from 'react';
+import type { NetworkError } from '@rest-hooks/core';
+
+function isNetworkError(error: NetworkError | unknown): error is NetworkError {
+  return Object.prototype.hasOwnProperty.call(error, 'status');
+}
+
+interface Props<E extends NetworkError> {
+  children: React.ReactNode;
+  fallbackComponent: React.ComponentType<{ error: E }>;
+}
+interface State<E extends NetworkError> {
+  error?: E;
+}
+export default class NetworkErrorBoundary<
+  E extends NetworkError
+> extends React.Component<Props<E>, State<E>> {
+  static defaultProps = {
+    fallbackComponent: ({ error }: { error: NetworkError }) => (
+      <div>
+        {error.status} {error.response && error.response.statusText}
+      </div>
+    ),
+  };
+
+  static getDerivedStateFromError(error: NetworkError | any) {
+    if (isNetworkError(error)) {
+      return { error };
+    }
+  }
+
+  state: State<E> = {};
+
+  render() {
+    if (!this.state.error) {
+      return this.props.children;
+    }
+    return <this.props.fallbackComponent error={this.state.error} />;
+  }
+}
