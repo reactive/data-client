@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1617344627235,
+  "lastUpdate": 1617360841842,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -114,6 +114,44 @@ window.BENCHMARK_DATA = {
             "range": "±3.06%",
             "unit": "ops/sec",
             "extra": "51 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "eef19ee0d11d013bd3271bdeec72af007c168285",
+          "message": "internal(pkg): bump @commitlint/cli from 12.0.1 to 12.1.1 (#709)\n\nBumps [@commitlint/cli](https://github.com/conventional-changelog/commitlint) from 12.0.1 to 12.1.1.\n- [Release notes](https://github.com/conventional-changelog/commitlint/releases)\n- [Changelog](https://github.com/conventional-changelog/commitlint/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/conventional-changelog/commitlint/compare/v12.0.1...v12.1.1)\n\nSigned-off-by: dependabot[bot] <support@github.com>\n\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2021-04-02T05:52:09-05:00",
+          "tree_id": "3512602e7816c2d2710e8906a6613395e491becc",
+          "url": "https://github.com/coinbase/rest-hooks/commit/eef19ee0d11d013bd3271bdeec72af007c168285"
+        },
+        "date": 1617360840517,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 78.8,
+            "range": "±1.36%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 27.34,
+            "range": "±2.07%",
+            "unit": "ops/sec",
+            "extra": "49 samples"
           }
         ]
       }
