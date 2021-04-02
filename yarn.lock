@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@anansi/babel-preset@2.2.6":
-  version "2.2.6"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.2.6.tgz#681c17d37003b9ae7b23f899327d48875da73ea6"
-  integrity sha512-fLoikiUq5VXUAAL/u7IDidSrZ1k35Z0ywNe20TXnAFjp2EczGscpgQDrHoj5WAetLCG57r+WTP1kZzChyJvpSw==
+"@anansi/babel-preset@2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.3.0.tgz#a093f1141c93a3d3ebcba15ea908d9368c21f149"
+  integrity sha512-rvrNaslv5qltJ6q15E+wR737OtDi3ASyqjTcjLRTxykqG1khq7wSzbhialwcF3Ghr+BEg/AzTGay8iuY8cOzMw==
   dependencies:
     "@babel/plugin-proposal-class-properties" "^7.13.0"
     "@babel/plugin-proposal-class-static-block" "^7.13.11"
@@ -13,6 +13,7 @@
     "@babel/plugin-proposal-export-default-from" "^7.12.13"
     "@babel/plugin-proposal-export-namespace-from" "^7.12.13"
     "@babel/plugin-proposal-private-methods" "^7.13.0"
+    "@babel/plugin-proposal-record-and-tuple" "^7.13.0"
     "@babel/plugin-syntax-function-bind" "^7.12.13"
     "@babel/plugin-syntax-top-level-await" "^7.12.13"
     "@babel/plugin-transform-flow-strip-types" "^7.13.0"
@@ -32,6 +33,7 @@
     babel-plugin-transform-react-remove-prop-types "^0.4.24"
     core-js-compat "^3.10.0"
     path "^0.12.7"
+    semver "^7.3.5"
     stable "^0.1.8"
 
 "@anansi/browserslist-config@1.2.0":
@@ -723,6 +725,16 @@
     "@babel/helper-create-class-features-plugin" "^7.13.0"
     "@babel/helper-plugin-utils" "^7.13.0"
 
+"@babel/plugin-proposal-record-and-tuple@^7.13.0":
+  version "7.13.0"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-record-and-tuple/-/plugin-proposal-record-and-tuple-7.13.0.tgz#5d0ea03545b3b1c58a01f982d269e48a328c20fa"
+  integrity sha512-bJ2mPg2brftAgeziEiM5X1DNMGrgbkpj9hJm+fRqjSKrqybrBE8YfNStdubD2EVr4HSebL82mh/RDpIkc9Xlww==
+  dependencies:
+    "@babel/helper-module-imports" "^7.12.13"
+    "@babel/helper-plugin-utils" "^7.13.0"
+    "@babel/helper-validator-option" "^7.12.17"
+    "@babel/plugin-syntax-record-and-tuple" "^7.12.1"
+
 "@babel/plugin-proposal-unicode-property-regex@^7.12.13":
   version "7.12.13"
   resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-unicode-property-regex/-/plugin-proposal-unicode-property-regex-7.12.13.tgz#bebde51339be829c17aaaaced18641deb62b39ba"
@@ -899,6 +911,13 @@
   integrity sha512-KoK9ErH1MBlCPxV0VANkXW2/dw4vlbGDrFgz8bmUsBGYkFRcbRwMh6cIJubdPrkxRwuGdtCk0v/wPTKbQgBjkg==
   dependencies:
     "@babel/helper-plugin-utils" "^7.8.0"
+
+"@babel/plugin-syntax-record-and-tuple@^7.12.1":
+  version "7.12.1"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-record-and-tuple/-/plugin-syntax-record-and-tuple-7.12.1.tgz#b9d32ee859b69d0135b682d3b615291a90ad1c2a"
+  integrity sha512-X7aQYqfLN4/6Gb9J1w7GIoRi0Ckr4fsaE47cYLt0JlQlPu0cO3edXT4HF8rmCX0qbpHIrlQEJg/WqqClUK1qkg==
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.10.4"
 
 "@babel/plugin-syntax-top-level-await@^7.12.13", "@babel/plugin-syntax-top-level-await@^7.8.3":
   version "7.12.13"
@@ -11419,10 +11438,17 @@ semver@7.0.0:
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.0.0.tgz#5f3ca35761e47e05b206c6daff2cf814f0316b8e"
   integrity sha512-+GB6zVA9LWh6zovYQLALHwv5rb2PHGlJi3lfiqIHxR0uuwCgefcOJc59v9fv1w8GbStwxuuqqAjI9NMAOOgq1A==
 
-semver@7.3.4, semver@7.x, semver@^7.0.0, semver@^7.1.1, semver@^7.1.3, semver@^7.2.1, semver@^7.3.2, semver@^7.3.4:
+semver@7.3.4:
   version "7.3.4"
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.3.4.tgz#27aaa7d2e4ca76452f98d3add093a72c943edc97"
   integrity sha512-tCfb2WLjqFAtXn4KEdxIhalnRtoKFN7nAwj0B3ZXCbQloV2tq5eDbcTmT68JJD3nRJq24/XgxtQKFIpQdtvmVw==
+  dependencies:
+    lru-cache "^6.0.0"
+
+semver@7.x, semver@^7.0.0, semver@^7.1.1, semver@^7.1.3, semver@^7.2.1, semver@^7.3.2, semver@^7.3.4, semver@^7.3.5:
+  version "7.3.5"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.3.5.tgz#0b621c879348d8998e4b0e4be94b3f12e6018ef7"
+  integrity sha512-PoeGJYh8HK4BTO/a9Tf6ZG3veo/A7ZVsYrSA6J8ny9nb3B1VrpkuN+z9OE5wfE5p6H4LchYZsegiQgbJD94ZFQ==
   dependencies:
     lru-cache "^6.0.0"
 
