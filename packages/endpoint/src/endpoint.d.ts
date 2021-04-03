@@ -121,8 +121,9 @@ export interface EndpointInstance<
   /** The following is for compatibility with FetchShape */
   /** @deprecated */
   readonly type: M extends undefined
-    ? IfAny<M, any, M extends true ? 'read' | 'mutate' : 'read'>
-    : 'mutate';
+    ? 'read'
+    : IfAny<M, any, IfTypeScriptLooseNull<'read', 'mutate'>>;
+
   /** @deprecated */
   getFetchKey(params: Parameters<F>[0]): string;
   /** @deprecated */
@@ -150,3 +151,4 @@ declare let Endpoint: EndpointConstructor;
 export default Endpoint;
 
 type IfAny<T, Y, N> = 0 extends 1 & T ? Y : N;
+type IfTypeScriptLooseNull<Y, N> = 1 | undefined extends 1 ? Y : N;

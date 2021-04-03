@@ -2,7 +2,7 @@ import nock from 'nock';
 import { Schema, Entity } from '@rest-hooks/normalizr';
 import { camelCase, snakeCase } from 'lodash';
 
-import Endpoint, { EndpointOptions, Make } from '../endpoint';
+import Endpoint, { EndpointInstance } from '../endpoint';
 import { EndpointInterface } from '../interface';
 
 describe('Endpoint', () => {
@@ -84,6 +84,48 @@ describe('Endpoint', () => {
         UserDetail();
       }).toThrow();
     });
+  });
+
+  it('should infer mutate types', () => {
+    type T = undefined | 1;
+    type B = NonNullable<T>;
+    type A = undefined | 1 extends undefined ? true : false;
+    const e = new Endpoint(() => Promise.resolve() as any, {
+      sideEffect: undefined as any,
+    });
+    // should infer any
+    const a: 'mutate' = e.type;
+    const b: 'read' = e.type;
+
+    const e2: EndpointInstance<any, any, undefined | true> = new Endpoint(
+      () => Promise.resolve() as any,
+      {
+        sideEffect: undefined as undefined | true,
+      },
+    );
+    const a2 = (a: 'mutate') => {};
+    const b2 = (a: 'read') => {};
+    const type2 = e2.type;
+    // type descrimination to validate that this is union
+    if (type2 !== ('mutate' as const)) {
+      b2(type2);
+    } else {
+      a2(type2);
+    }
+
+    const e3 = new Endpoint(() => Promise.resolve() as any, {
+      sideEffect: undefined,
+    });
+    // @ts-expect-error
+    const a3: 'mutate' = e3.type;
+    const b3: 'read' = e3.type;
+
+    const e4 = new Endpoint(() => Promise.resolve() as any, {
+      sideEffect: true,
+    });
+    const a4: 'mutate' = e4.type;
+    // @ts-expect-error
+    const b4: 'read' = e4.type;
   });
 
   it('should work when extended', async () => {
