@@ -444,11 +444,15 @@ describe('useResource()', () => {
     expect((result.error as any).status).toBe(403);
   });
 
+  // Disabled due to: const ready = !!cacheResults || found;
+  // Since we will not not error if we have any cacheResults, it's not only not possible to trigger
+  // this loop - it required contrived state that cannot be naturally arrived at
+
   // We need to ensure we don't suspend when error is based on network response
   // as we don't expect another network call to fix it.
   // (fixes infinite loop with badly defined schemas)
-  it('should throw error when response is bad (on mount)', async () => {
-    nock(/.*/)
+  /*it('should throw error when response is bad (on mount)', async () => {
+    nock(/.*)
       .persist()
       .defaultReplyHeaders({
         'Access-Control-Allow-Origin': '*',
@@ -457,17 +461,9 @@ describe('useResource()', () => {
       .get(`/article-cooler/4000`)
       .reply(200, { data: null });
 
-    class Scheme extends SimpleRecord {
-      data: CoolerArticleResource = CoolerArticleResource.fromJS();
-      optional: UserResource | null = null;
-      static schema = {
-        data: CoolerArticleResource,
-        optional: UserResource,
-      };
-    }
     const shape = {
       ...CoolerArticleResource.detailShape(),
-      schema: Scheme,
+      schema: { data: CoolerArticleResource },
     };
     const expiredShape = { ...shape };
     expiredShape.options = { ...expiredShape.options, dataExpiryLength: -100 };
@@ -499,7 +495,7 @@ describe('useResource()', () => {
     expect(result.error).not.toBe(null);
     expect((result.error as any).status).toBe(400);
     expect(result.error).not.toBe(firsterror);
-  });
+  });*/
 
   it('should throw error when response is array when expecting entity', async () => {
     await testMalformedResponse([]);
@@ -517,6 +513,7 @@ describe('useResource()', () => {
     await testMalformedResponse('hi');
   });
 
+  /* TODO: Add these back when we have opt-in required
   it('should throw error when response is string when expecting nested entity', async () => {
     const shape = {
       ...CoolerArticleResource.detailShape(),
@@ -558,7 +555,7 @@ describe('useResource()', () => {
       schema: Scheme,
     };
     await testMalformedResponse({ data: null }, shape);
-  });
+  });*/
 
   it('should resolve parallel useResource() request', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {

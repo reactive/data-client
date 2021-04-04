@@ -401,9 +401,9 @@ describe('denormalize', () => {
         1: { id: '1', type: 'foo' },
       },
     };
-    expect(
+    /*expect(
       denormalize([{ data: 1 }, { data: 2 }], [{ data: Tacos }], {})[0],
-    ).toEqual([]);
+    ).toEqual([]);*/
     expect(
       denormalize([{ data: 1 }, { data: 2 }], [{ data: Tacos }], entities)[0],
     ).toMatchSnapshot();
@@ -591,6 +591,7 @@ describe('denormalize', () => {
       },
       Comment: {
         1: {
+          id: '1',
           user: '123',
         },
       },

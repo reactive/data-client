@@ -696,6 +696,9 @@ Array [
       "name": "Jake",
     },
   },
+  Object {
+    "data": undefined,
+  },
 ]
 `;
 
@@ -712,6 +715,9 @@ Array [
       "id": "2",
       "name": "Jake",
     },
+  },
+  Object {
+    "data": undefined,
   },
 ]
 `;

@@ -27,7 +27,7 @@ const baseConfig = {
   globals: {
     'ts-jest': {
       babelConfig: 'babel.config.js',
-      tsConfig: '<rootDir>/tsconfig.test.json',
+      tsconfig: '<rootDir>/tsconfig.test.json',
     },
   },
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(j|t)sx?$',

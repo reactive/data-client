@@ -258,7 +258,6 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     // TODO: This creates unneeded memory pressure
     const instance = new (this as any)();
     let deleted = false;
-    let found = true;
     const denormEntity = input;
 
     // note: iteration order must be stable
@@ -267,12 +266,8 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
       const nextInput = this.hasDefined(input, key as any)
         ? input[key]
         : undefined;
-      const [value, foundItem, deletedItem] = unvisit(nextInput, schema);
-      // members who default to falsy values are considered 'optional'
-      // if falsy value, and default is actually set then it is optional so pass through
-      if (!foundItem && !(key in instance && !instance[key])) {
-        found = false;
-      }
+      const [value, , deletedItem] = unvisit(nextInput, schema);
+
       if (deletedItem && !(key in instance && !instance[key])) {
         deleted = true;
       }
@@ -281,7 +276,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
       }
     });
 
-    return [denormEntity as any, found, deleted];
+    return [denormEntity as any, true, deleted];
   }
 }
 

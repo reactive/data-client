@@ -877,7 +877,7 @@ describe(`${Entity.name} denormalization`, () => {
       });
     });
 
-    it('should be marked as not found when required entity is missing', () => {
+    it('should be marked as found when nested entity is missing', () => {
       const denormalized = denormalize('abc', WithOptional, {
         [WithOptional.key]: {
           abc: WithOptional.fromJS({
@@ -891,7 +891,7 @@ describe(`${Entity.name} denormalization`, () => {
           ['5']: ArticleEntity.fromJS({ id: '5' }),
         },
       });
-      expect(denormalized[1]).toBe(false);
+      expect(denormalized[1]).toBe(true);
       expect(denormalized[2]).toBe(false);
       const response = denormalized[0];
       expect(response).toBeDefined();
