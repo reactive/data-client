@@ -19,13 +19,16 @@ jobs:
         node-version: '14'
     - name: Run benchmark
       run: yarn install && yarn bench | tee output.txt
+
+
+    # PR comments on changes
     - name: Download previous benchmark data
+      if: ${{ github.event_name == 'pull_request' }}
       uses: actions/cache@v2
       with:
         path: ./cache
-        key: ${{ runner.os }}-benchmark
-
-    # PR comments on changes
+        restore-keys:
+          - ${{ runner.os }}-benchmark
     - name: Store benchmark result
       if: ${{ github.event_name == 'pull_request' }}
       uses: rhysd/github-action-benchmark@v1
@@ -43,6 +46,12 @@ jobs:
         save-data-file: false
 
     # master reports to history
+    - name: Download previous benchmark data
+      if: ${{ github.event_name == 'push' }}
+      uses: actions/cache@v2
+      with:
+        path: ./cache
+        key: ${{ runner.os }}-benchmark
     - name: Store benchmark result
       if: ${{ github.event_name == 'push' }}
       uses: rhysd/github-action-benchmark@v1
