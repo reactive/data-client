@@ -27,8 +27,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ./cache
-        restore-keys:
-          - ${{ runner.os }}-benchmark
+        key: ${{ runner.os }}-benchmark-pr
+        restore-keys: |
+          ${{ runner.os }}-benchmark
     - name: Store benchmark result
       if: ${{ github.event_name == 'pull_request' }}
       uses: rhysd/github-action-benchmark@v1
