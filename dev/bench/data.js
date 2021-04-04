@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1617360841842,
+  "lastUpdate": 1617499330512,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -150,6 +150,44 @@ window.BENCHMARK_DATA = {
             "name": "denormalizeLong",
             "value": 27.34,
             "range": "±2.07%",
+            "unit": "ops/sec",
+            "extra": "49 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d13535147464f011aa761130fd3596a37c8ba266",
+          "message": "internal(fix): Fix github action syntax for benchmark (#717)",
+          "timestamp": "2021-04-03T18:20:21-07:00",
+          "tree_id": "cf8093ce4144b9eff145a40fbf6e168f4283872a",
+          "url": "https://github.com/coinbase/rest-hooks/commit/d13535147464f011aa761130fd3596a37c8ba266"
+        },
+        "date": 1617499329509,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 68.04,
+            "range": "±1.63%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 27.29,
+            "range": "±2.71%",
             "unit": "ops/sec",
             "extra": "49 samples"
           }
