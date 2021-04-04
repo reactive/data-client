@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [2.0.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.0.3...@rest-hooks/rest@2.0.4) (2021-04-04)
+
+
+### 💅 Enhancement
+
+* Throw error when urlRoot is not defined ([#688](https://github.com/coinbase/rest-hooks/issues/688)) ([038bfcf](https://github.com/coinbase/rest-hooks/commit/038bfcf79963043f1f991b54dc1badfa5d70775c))
+
+
+
 ### [2.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.0.2...@rest-hooks/rest@2.0.3) (2021-03-26)
 
 
