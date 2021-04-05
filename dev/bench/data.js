@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1617499330512,
+  "lastUpdate": 1617594059754,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -190,6 +190,44 @@ window.BENCHMARK_DATA = {
             "range": "±2.71%",
             "unit": "ops/sec",
             "extra": "49 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b8c64438bb34bc1f9e9bc1461bd7e4d3bb4e330e",
+          "message": "enhance: All schema members are optional by default (#716)\n\nPreviously failing or deleting results will\r\nnow work:\r\n- Arrays no longer delete items where members are missing\r\n- Results missing members will return what they have\r\n\r\nAlso:\r\n- Results in cache are always 'ready', and thus ignore found\r\n- We only infer results, and not entities, thus entities' nested members are always 'found'",
+          "timestamp": "2021-04-04T20:38:36-07:00",
+          "tree_id": "2221639ae749508807dd828c848b6161c0f8721a",
+          "url": "https://github.com/coinbase/rest-hooks/commit/b8c64438bb34bc1f9e9bc1461bd7e4d3bb4e330e"
+        },
+        "date": 1617594058704,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 61.93,
+            "range": "±4.14%",
+            "unit": "ops/sec",
+            "extra": "64 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 26.45,
+            "range": "±5.38%",
+            "unit": "ops/sec",
+            "extra": "48 samples"
           }
         ]
       }
