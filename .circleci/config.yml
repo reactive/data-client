@@ -1,0 +1,14 @@
+version: 2.1
+
+jobs:
+  noop:
+    docker:
+      - image: circleci/node:14
+    steps:
+      - run:
+          command: echo "nothing"
+
+workflows:
+  noop:
+    jobs:
+      - noop
