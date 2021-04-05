@@ -86,7 +86,7 @@ Array [
     },
     "id": "2",
   },
-  false,
+  true,
   false,
 ]
 `;
@@ -306,7 +306,7 @@ Array [
     "food": undefined,
     "id": "1",
   },
-  false,
+  true,
   false,
 ]
 `;

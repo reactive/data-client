@@ -14,7 +14,8 @@ const validateSchema = definition => {
 const getValues = input =>
   Array.isArray(input) ? input : Object.keys(input).map(key => input[key]);
 
-const filterEmpty = ([, foundItem, deletedItem]) => foundItem && !deletedItem;
+const filterEmpty = ([item, , deletedItem]) =>
+  item !== undefined && !deletedItem;
 
 export const normalize = (
   schema,

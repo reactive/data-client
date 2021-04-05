@@ -120,8 +120,8 @@ describe('useDenormalized()', () => {
         useDenormalized(CoolerArticleResource.detailShape(), params, state),
       );
 
-      it('found should be false', () => {
-        expect(found).toBe(false);
+      it('found should be true', () => {
+        expect(found).toBe(true);
       });
 
       it('deleted should be false', () => {

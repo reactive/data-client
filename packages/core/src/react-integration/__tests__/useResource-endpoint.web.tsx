@@ -400,6 +400,7 @@ describe('useResource()', () => {
     await testMalformedResponse('hi');
   });
 
+  /* TODO: Add these back when we have opt-in required
   it('should throw error when response is string when expecting nested entity', async () => {
     const endpoint = CoolerArticleResource.detail().extend({
       schema: { data: CoolerArticleResource },
@@ -437,7 +438,7 @@ describe('useResource()', () => {
       schema: Scheme,
     });
     await testMalformedResponse({ data: null }, endpoint);
-  });
+  });*/
 
   it('should resolve parallel useResource() request', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {

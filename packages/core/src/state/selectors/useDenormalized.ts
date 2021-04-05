@@ -101,9 +101,15 @@ export default function useDenormalized<
       Record<string, Record<string, any>>,
     ];
 
+    // only require finding all entities if we are inferring results
+    // deletion is separate count, and thus will still trigger
+    // if we remove cacheResults escape here, we need to validate we don't infinite loop
+    // in packages/core/src/react-integration/__tests__/useResource.web.tsx
+    const ready = !!cacheResults || found;
+
     // oldest entity dictates age
     let expiresAt = Infinity;
-    if (found) {
+    if (ready) {
       // using Object.keys ensures we don't hit `toString` type members
       Object.keys(resolvedEntities).forEach(key =>
         Object.keys(resolvedEntities[key]).forEach(pk => {
@@ -114,7 +120,7 @@ export default function useDenormalized<
       expiresAt = 0;
     }
 
-    return [value, found, deleted, expiresAt];
+    return [value, ready, deleted, expiresAt];
     // TODO: would be nice to make this only recompute on the entity types that are in schema
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [

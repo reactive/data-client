@@ -8,6 +8,9 @@ Array [
       "type": "foo",
     },
   },
+  Object {
+    "data": undefined,
+  },
 ]
 `;
 
@@ -202,11 +205,17 @@ Array [
   Article {
     "author": undefined,
     "body": "",
-    "comments": Array [],
+    "comments": Array [
+      Comment {
+        "comment": "",
+        "id": "1",
+        "user": undefined,
+      },
+    ],
     "id": "123",
     "title": "",
   },
-  false,
+  true,
   false,
 ]
 `;
