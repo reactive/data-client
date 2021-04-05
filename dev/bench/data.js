@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1617594059754,
+  "lastUpdate": 1617601684139,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -228,6 +228,44 @@ window.BENCHMARK_DATA = {
             "range": "±5.38%",
             "unit": "ops/sec",
             "extra": "48 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f0964dfce749e830a11721f80c8c8b825ad715f5",
+          "message": "internal(pkg): bump cross-fetch from 3.1.3 to 3.1.4 (#718)\n\nBumps [cross-fetch](https://github.com/lquixada/cross-fetch) from 3.1.3 to 3.1.4.\n- [Release notes](https://github.com/lquixada/cross-fetch/releases)\n- [Commits](https://github.com/lquixada/cross-fetch/compare/v3.1.3...v3.1.4)\n\nSigned-off-by: dependabot[bot] <support@github.com>\n\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2021-04-05T00:46:07-05:00",
+          "tree_id": "8bb746658341941731fe83fde0de532d44eaaf3a",
+          "url": "https://github.com/coinbase/rest-hooks/commit/f0964dfce749e830a11721f80c8c8b825ad715f5"
+        },
+        "date": 1617601683008,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 63.73,
+            "range": "±2.13%",
+            "unit": "ops/sec",
+            "extra": "65 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 25.66,
+            "range": "±4.04%",
+            "unit": "ops/sec",
+            "extra": "47 samples"
           }
         ]
       }
