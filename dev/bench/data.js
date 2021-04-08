@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1617860193274,
+  "lastUpdate": 1617878853770,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -304,6 +304,44 @@ window.BENCHMARK_DATA = {
             "range": "±1.67%",
             "unit": "ops/sec",
             "extra": "54 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "92a3d6cb190a08d543ef825b6c9dd426a4e3ea02",
+          "message": "internal(pkg): bump core-js from 3.10.0 to 3.10.1 (#721)\n\nBumps [core-js](https://github.com/zloirock/core-js/tree/HEAD/packages/core-js) from 3.10.0 to 3.10.1.\n- [Release notes](https://github.com/zloirock/core-js/releases)\n- [Changelog](https://github.com/zloirock/core-js/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/zloirock/core-js/commits/v3.10.1/packages/core-js)\n\nSigned-off-by: dependabot[bot] <support@github.com>\n\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2021-04-08T05:45:43-05:00",
+          "tree_id": "11abbdfb592450d53da76bacb968c1777e3f61fb",
+          "url": "https://github.com/coinbase/rest-hooks/commit/92a3d6cb190a08d543ef825b6c9dd426a4e3ea02"
+        },
+        "date": 1617878852705,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 71.89,
+            "range": "±1.37%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 28.56,
+            "range": "±2.13%",
+            "unit": "ops/sec",
+            "extra": "51 samples"
           }
         ]
       }
