@@ -22,15 +22,15 @@ jobs:
 
 
     # PR comments on changes
-    - name: Download previous benchmark data
+    - name: Download previous benchmark data (PR)
       if: ${{ github.event_name == 'pull_request' }}
       uses: actions/cache@v2
       with:
         path: ./cache
-        key: ${{ runner.os }}-benchmark-pr
+        key: ${{ runner.os }}-benchmark-pr-${{ env.GITHUB_RUN_NUMBER }}
         restore-keys: |
           ${{ runner.os }}-benchmark
-    - name: Store benchmark result
+    - name: Store benchmark result (PR)
       if: ${{ github.event_name == 'pull_request' }}
       uses: rhysd/github-action-benchmark@v1
       with:
@@ -47,18 +47,19 @@ jobs:
         save-data-file: false
 
     # master reports to history
-    - name: Download previous benchmark data
+    - name: Download previous benchmark data (main)
       if: ${{ github.event_name == 'push' }}
       uses: actions/cache@v2
       with:
         path: ./cache
         key: ${{ runner.os }}-benchmark
-    - name: Store benchmark result
+    - name: Store benchmark result (main)
       if: ${{ github.event_name == 'push' }}
       uses: rhysd/github-action-benchmark@v1
       with:
         tool: 'benchmarkjs'
         output-file-path: output.txt
+        external-data-json-path: ./cache/benchmark-data.json
         github-token: "${{ secrets.GITHUB_TOKEN }}"
         gh-pages-branch: 'gh-pages-bench'
         auto-push: true
