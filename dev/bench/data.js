@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1617601684139,
+  "lastUpdate": 1617860193274,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -266,6 +266,44 @@ window.BENCHMARK_DATA = {
             "range": "±4.04%",
             "unit": "ops/sec",
             "extra": "47 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d5c706cd20986cffc117515ad25df617fa3a7fbe",
+          "message": "internal(pkg): bump typescript from 4.2.3 to 4.2.4 (#720)\n\nBumps [typescript](https://github.com/Microsoft/TypeScript) from 4.2.3 to 4.2.4.\r\n- [Release notes](https://github.com/Microsoft/TypeScript/releases)\r\n- [Commits](https://github.com/Microsoft/TypeScript/commits)\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\n\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2021-04-07T22:34:44-07:00",
+          "tree_id": "d56993b1099c97ec0334a5e454ff1d2f6cbde0bf",
+          "url": "https://github.com/coinbase/rest-hooks/commit/d5c706cd20986cffc117515ad25df617fa3a7fbe"
+        },
+        "date": 1617860192283,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 77.27,
+            "range": "±2.04%",
+            "unit": "ops/sec",
+            "extra": "66 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 30.62,
+            "range": "±1.67%",
+            "unit": "ops/sec",
+            "extra": "54 samples"
           }
         ]
       }
