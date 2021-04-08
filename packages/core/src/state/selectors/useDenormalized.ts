@@ -144,6 +144,9 @@ function schemaHasEntity(schema: Schema): boolean {
   if (schema && (typeof schema === 'object' || typeof schema === 'function')) {
     const nestedSchema =
       'schema' in schema ? (schema.schema as Record<string, Schema>) : schema;
+    if (typeof nestedSchema === 'function') {
+      return schemaHasEntity(nestedSchema);
+    }
     return Object.values(nestedSchema).reduce(
       (prev, cur) => prev || schemaHasEntity(cur),
       false,
