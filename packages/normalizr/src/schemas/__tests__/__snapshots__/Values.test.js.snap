@@ -102,6 +102,23 @@ Array [
 ]
 `;
 
+exports[`ValuesSchema denormalization denormalizes without schemaAttribute 1`] = `
+Array [
+  Object {
+    "first": MyEntity {
+      "id": "1",
+      "name": "first thing",
+    },
+    "second": MyEntity {
+      "id": "2",
+      "name": "second thing",
+    },
+  },
+  true,
+  false,
+]
+`;
+
 exports[`ValuesSchema denormalization works on complex object 1`] = `
 Object {
   "data": Object {
@@ -259,6 +276,28 @@ Object {
       "id": "1",
       "schema": "cats",
     },
+  },
+}
+`;
+
+exports[`ValuesSchema normalization normalizes without schemaAttribute 1`] = `
+Object {
+  "entities": Object {
+    "MyEntity": Object {
+      "1": MyEntity {
+        "id": "1",
+        "name": "first thing",
+      },
+      "2": MyEntity {
+        "id": "2",
+        "name": "second thing",
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": Object {
+    "first": "1",
+    "second": "2",
   },
 }
 `;

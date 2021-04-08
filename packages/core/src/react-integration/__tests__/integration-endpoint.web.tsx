@@ -9,12 +9,12 @@ import {
   TypedArticleResource,
   IndexedUserResource,
 } from '__tests__/new';
-import React from 'react';
 import nock from 'nock';
 import { act } from '@testing-library/react-hooks';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { SimpleRecord } from '@rest-hooks/normalizr';
+import { SimpleRecord, schema, Entity } from '@rest-hooks/normalizr';
+import { Endpoint } from '@rest-hooks/endpoint';
 
 import {
   makeRenderRestHook,
@@ -171,6 +171,117 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       await waitForNextUpdate();
       expect(result.current instanceof CoolerArticleResource).toBe(true);
       expect(result.current.title).toBe(payload.title);
+    });
+
+    it('should denormalize schema.Values()', async () => {
+      class ValuesResource extends CoolerArticleResource {
+        static values() {
+          const urlRoot = this.urlRoot;
+          return this.detail().extend({
+            schema: new schema.Values(this),
+            url() {
+              return `${urlRoot}/values`;
+            },
+          });
+        }
+      }
+      const { result } = renderRestHook(
+        () => {
+          return useResource(ValuesResource.values(), {});
+        },
+        {
+          results: [
+            {
+              request: ValuesResource.values(),
+              params: {},
+              result: {
+                first: {
+                  id: 1,
+                  title: 'first thing',
+                  content: 'blah',
+                  tags: [],
+                },
+                second: {
+                  id: 2,
+                  name: 'second thing',
+                  content: 'blah',
+                  tags: [],
+                },
+              },
+            },
+          ],
+        },
+      );
+      Object.keys(result.current).forEach(k => {
+        expect(result.current[k] instanceof ValuesResource).toBe(true);
+        expect(result.current[k].title).toBeDefined();
+        // @ts-expect-error
+        expect(result.current[k].doesnotexist).toBeUndefined();
+      });
+    });
+
+    it('should denormalize schema.Union()', async () => {
+      class IDEntity extends Entity {
+        readonly id: string = '';
+        pk() {
+          return this.id;
+        }
+      }
+      class User extends IDEntity {
+        readonly type = 'user';
+        readonly username: string = '';
+      }
+      class Group extends IDEntity {
+        readonly type = 'group';
+        readonly groupname: string = '';
+        readonly memberCount = 0;
+      }
+      const unionEndpoint = new Endpoint((a: any) => Promise.resolve(), {
+        schema: [
+          new schema.Union(
+            {
+              users: User,
+              groups: Group,
+            },
+            'type',
+          ),
+        ],
+      });
+
+      const { result } = renderRestHook(
+        () => {
+          return useResource(unionEndpoint, {});
+        },
+        {
+          results: [
+            {
+              request: unionEndpoint,
+              params: {},
+              result: [
+                { id: '1', type: 'users', username: 'bob' },
+                { id: '2', type: 'groups', grouname: 'fast', memberCount: 5 },
+              ],
+            },
+          ],
+        },
+      );
+      result.current.forEach(item => {
+        expect(item instanceof IDEntity).toBe(true);
+        expect(item.type).toBeDefined();
+        // @ts-expect-error
+        expect(item.doesnotexist).toBeUndefined();
+
+        // test union discrimination
+        if ('username' in item) {
+          expect(item.username).toBeDefined();
+          // @ts-expect-error
+          expect(item.memberCount).toBeUndefined();
+        } else {
+          expect(item.memberCount).toBeDefined();
+          // @ts-expect-error
+          expect(item.username).toBeUndefined();
+        }
+      });
     });
 
     it('should resolve useResource() with SimpleRecords', async () => {

@@ -15,6 +15,29 @@ class Dog extends IDEntity {
 }
 
 describe(`${schema.Values.name} normalization`, () => {
+  test('normalizes without schemaAttribute', () => {
+    class MyEntity extends IDEntity {
+      name = '';
+    }
+    const valuesSchema = new schema.Values(MyEntity);
+
+    expect(
+      normalize(
+        {
+          first: {
+            id: '1',
+            name: 'first thing',
+          },
+          second: {
+            id: '2',
+            name: 'second thing',
+          },
+        },
+        valuesSchema,
+      ),
+    ).toMatchSnapshot();
+  });
+
   test('normalizes the values of an object with the given schema', () => {
     const valuesSchema = new schema.Values(
       {
@@ -164,6 +187,37 @@ describe(`${schema.Values.name} normalization`, () => {
 });
 
 describe(`${schema.Values.name} denormalization`, () => {
+  test('denormalizes without schemaAttribute', () => {
+    class MyEntity extends IDEntity {
+      name = '';
+    }
+    const valuesSchema = new schema.Values(MyEntity);
+
+    const entities = {
+      MyEntity: {
+        1: {
+          id: '1',
+          name: 'first thing',
+        },
+        2: {
+          id: '2',
+          name: 'second thing',
+        },
+      },
+    };
+
+    expect(
+      denormalize(
+        {
+          first: '1',
+          second: '2',
+        },
+        valuesSchema,
+        entities,
+      ),
+    ).toMatchSnapshot();
+  });
+
   test('denormalizes the values of an object with the given schema', () => {
     const valuesSchema = new schema.Values(
       {
