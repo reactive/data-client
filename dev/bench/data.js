@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1617937468378,
+  "lastUpdate": 1617947777329,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -418,6 +418,44 @@ window.BENCHMARK_DATA = {
             "range": "±2.67%",
             "unit": "ops/sec",
             "extra": "50 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4db2522b9060a7f7aaba4a93c3cf1694eb3d5364",
+          "message": "enhance: Support TypeScript 3, while using TypeScript 4 features (#726)",
+          "timestamp": "2021-04-08T22:54:18-07:00",
+          "tree_id": "b1239a3967a7cb930edab8c57d2f2dfd3764df84",
+          "url": "https://github.com/coinbase/rest-hooks/commit/4db2522b9060a7f7aaba4a93c3cf1694eb3d5364"
+        },
+        "date": 1617947773490,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 69.3,
+            "range": "±2.42%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 27.03,
+            "range": "±3.19%",
+            "unit": "ops/sec",
+            "extra": "48 samples"
           }
         ]
       }
