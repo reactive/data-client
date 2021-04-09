@@ -7,6 +7,10 @@
   "module": "lib/index.js",
   "unpkg": "dist/index.umd.min.js",
   "types": "lib/index.d.ts",
+  "typesVersions": {
+    ">=4.0": { "*": ["lib/index.d.ts"] },
+    ">=3.4": { "*": ["ts3.4/index.d.ts"] }
+  },
   "files": [
     "src",
     "dist",
@@ -22,7 +26,8 @@
   "scripts": {
     "build:lib": "cross-env NODE_ENV=production ROOT_PATH_PREFIX='@rest-hooks/core' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
     "build:bundle": "rollup -c",
-    "build:clean": "rimraf lib dist *.tsbuildinfo",
+    "build:clean": "rimraf lib ts3.4 dist *.tsbuildinfo",
+    "build:legacy-types": "yarn run downlevel-dts lib ts3.4 && copyfiles --up 1 ./src-legacy-types/**/*.d.ts ./ts3.4/",
     "build": "yarn run build:lib && yarn run build:bundle",
     "dev": "yarn run build:lib -w",
     "prepare": "yarn run build:lib",
