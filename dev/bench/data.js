@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1617949103650,
+  "lastUpdate": 1617972318120,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -532,6 +532,44 @@ window.BENCHMARK_DATA = {
             "range": "±2.91%",
             "unit": "ops/sec",
             "extra": "50 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5f3e727b76a41577f46510c113210bd487744936",
+          "message": "internal(pkg): bump @babel/core from 7.13.14 to 7.13.15 (#728)\n\nBumps [@babel/core](https://github.com/babel/babel/tree/HEAD/packages/babel-core) from 7.13.14 to 7.13.15.\n- [Release notes](https://github.com/babel/babel/releases)\n- [Changelog](https://github.com/babel/babel/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/babel/babel/commits/v7.13.15/packages/babel-core)\n\nSigned-off-by: dependabot[bot] <support@github.com>\n\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2021-04-09T07:43:43-05:00",
+          "tree_id": "8f389977a0fe3d5df7e3d2d7508919cf6d8deb1a",
+          "url": "https://github.com/coinbase/rest-hooks/commit/5f3e727b76a41577f46510c113210bd487744936"
+        },
+        "date": 1617972317506,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 87.18,
+            "range": "±0.97%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 33.48,
+            "range": "±1.13%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
           }
         ]
       }
