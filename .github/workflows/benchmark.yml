@@ -37,6 +37,7 @@ jobs:
         tool: 'benchmarkjs'
         output-file-path: output.txt
         github-token: "${{ secrets.GITHUB_TOKEN }}"
+        gh-pages-branch: 'gh-pages-bench'
         # Show alert with commit comment on detecting possible performance regression
         alert-threshold: '150%'
         comment-always: true
