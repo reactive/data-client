@@ -61,6 +61,7 @@ typings/
 # build directory
 **/lib
 **/dist
+**/ts3.4
 
 # build info
 **/tsconfig*.tsbuildinfo
