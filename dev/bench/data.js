@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1617948755548,
+  "lastUpdate": 1617949103650,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -494,6 +494,44 @@ window.BENCHMARK_DATA = {
             "range": "±1.70%",
             "unit": "ops/sec",
             "extra": "56 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7ff0996dc19e86ac3b3d0b2c205ff8ec189963ec",
+          "message": "internal(pkg): bump rollup from 2.44.0 to 2.45.0 (#729)\n\nBumps [rollup](https://github.com/rollup/rollup) from 2.44.0 to 2.45.0.\n- [Release notes](https://github.com/rollup/rollup/releases)\n- [Changelog](https://github.com/rollup/rollup/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/rollup/rollup/compare/v2.44.0...v2.45.0)\n\nSigned-off-by: dependabot[bot] <support@github.com>\n\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2021-04-09T01:16:18-05:00",
+          "tree_id": "e032106835117a7f56b8235f9263521872b62121",
+          "url": "https://github.com/coinbase/rest-hooks/commit/7ff0996dc19e86ac3b3d0b2c205ff8ec189963ec"
+        },
+        "date": 1617949099734,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 70.43,
+            "range": "±1.84%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 28.41,
+            "range": "±2.91%",
+            "unit": "ops/sec",
+            "extra": "50 samples"
           }
         ]
       }
