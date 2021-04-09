@@ -36,7 +36,6 @@ jobs:
       with:
         tool: 'benchmarkjs'
         output-file-path: output.txt
-        external-data-json-path: ./cache/benchmark-data.json
         github-token: "${{ secrets.GITHUB_TOKEN }}"
         # Show alert with commit comment on detecting possible performance regression
         alert-threshold: '150%'
@@ -45,6 +44,7 @@ jobs:
         alert-comment-cc-users: '@ntucker'
         # we only want to compare against master, so do not save for PR
         save-data-file: false
+        auto-push: false
 
     # master reports to history
     - name: Download previous benchmark data (main)
@@ -59,7 +59,6 @@ jobs:
       with:
         tool: 'benchmarkjs'
         output-file-path: output.txt
-        external-data-json-path: ./cache/benchmark-data.json
         github-token: "${{ secrets.GITHUB_TOKEN }}"
         gh-pages-branch: 'gh-pages-bench'
         auto-push: true
