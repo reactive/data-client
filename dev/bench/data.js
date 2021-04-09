@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1617972318120,
+  "lastUpdate": 1617972598013,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -570,6 +570,44 @@ window.BENCHMARK_DATA = {
             "range": "±1.13%",
             "unit": "ops/sec",
             "extra": "59 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "848e63f3f600ee639a7d941d855eb91047f51881",
+          "message": "internal(pkg): bump eslint-plugin-react from 7.23.1 to 7.23.2 (#727)\n\nBumps [eslint-plugin-react](https://github.com/yannickcr/eslint-plugin-react) from 7.23.1 to 7.23.2.\n- [Release notes](https://github.com/yannickcr/eslint-plugin-react/releases)\n- [Changelog](https://github.com/yannickcr/eslint-plugin-react/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/yannickcr/eslint-plugin-react/compare/v7.23.1...v7.23.2)\n\nSigned-off-by: dependabot[bot] <support@github.com>\n\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2021-04-09T07:48:08-05:00",
+          "tree_id": "993435baf91decec36791bf73631fd33fdbf4d7e",
+          "url": "https://github.com/coinbase/rest-hooks/commit/848e63f3f600ee639a7d941d855eb91047f51881"
+        },
+        "date": 1617972595612,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 68.87,
+            "range": "±2.07%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 28.02,
+            "range": "±1.70%",
+            "unit": "ops/sec",
+            "extra": "50 samples"
           }
         ]
       }
