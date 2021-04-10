@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1618093322834,
+  "lastUpdate": 1618093611456,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -684,6 +684,44 @@ window.BENCHMARK_DATA = {
             "range": "±2.23%",
             "unit": "ops/sec",
             "extra": "50 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e34526d5dde5a2cc317cd9428ededc6a9893dc41",
+          "message": "enhance: Refined deleteShape() definition (#734)",
+          "timestamp": "2021-04-10T15:24:49-07:00",
+          "tree_id": "95c8601a4bfadb295f74d0b9a7d10d2872e94877",
+          "url": "https://github.com/coinbase/rest-hooks/commit/e34526d5dde5a2cc317cd9428ededc6a9893dc41"
+        },
+        "date": 1618093610474,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 71.62,
+            "range": "±3.28%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 26.82,
+            "range": "±2.47%",
+            "unit": "ops/sec",
+            "extra": "48 samples"
           }
         ]
       }
