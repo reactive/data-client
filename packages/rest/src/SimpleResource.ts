@@ -7,7 +7,7 @@ import type {
   SchemaList,
 } from '@rest-hooks/endpoint';
 
-import { ReadShape, MutateShape } from './legacy';
+import { ReadShape, MutateShape, DeleteShape } from './legacy';
 import { NotImplementedError } from './errors';
 import paramsToString from './paramsToString';
 import { RestEndpoint } from './types';
@@ -363,7 +363,7 @@ export default abstract class SimpleResource extends Entity {
   /** @deprecated */
   static deleteShape<T extends typeof SimpleResource>(
     this: T,
-  ): MutateShape<schema.Delete<T>, Readonly<object>, unknown> {
+  ): DeleteShape<schema.Delete<T>, Readonly<object>> {
     const endpoint = this.delete();
     const fetch = endpoint.fetch.bind(endpoint as any);
     return { ...endpoint, fetch };

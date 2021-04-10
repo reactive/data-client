@@ -11,7 +11,7 @@ export interface FetchShape<
   Response = any
 > {
   readonly type: 'read' | 'mutate' | 'delete';
-  fetch(params: Params, body: Body): Promise<Response>;
+  fetch(params: Params, body?: Body): Promise<Response>;
   getFetchKey(params: Params): string;
   readonly schema: S;
   readonly options?: FetchOptions;
@@ -28,6 +28,16 @@ export interface MutateShape<
 > extends FetchShape<S, Params, Body, Response> {
   readonly type: 'mutate';
   fetch(params: Params, body: Body): Promise<Response>;
+}
+
+/** Removes entities */
+export interface DeleteShape<
+  S extends Schema | undefined,
+  Params extends Readonly<object> = Readonly<object>,
+  Response extends object | string | number | boolean | null = any
+> extends FetchShape<S, Params, undefined, Response> {
+  readonly type: 'mutate';
+  fetch(params: Params): Promise<Response>;
 }
 
 /** For retrieval requests */

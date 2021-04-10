@@ -203,6 +203,12 @@ export class TypedArticleResource extends CoolerArticleResource {
   ): RestEndpoint<(a: any, b: any) => Promise<any>> {
     return super.detail() as any;
   }
+
+  static noparams<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<() => Promise<any>, T[], undefined> {
+    return super.list() as any;
+  }
 }
 
 export const CoolerArticleDetail = new Endpoint(({ id }: { id: number }) => {

@@ -6,6 +6,7 @@ import type {
   AbstractInstanceType,
   ReadShape,
   MutateShape,
+  DeleteShape,
 } from '@rest-hooks/core';
 
 import { SchemaDetail, Method, SchemaList } from './types';
@@ -230,7 +231,7 @@ export default abstract class SimpleResource extends FlatEntity {
   /** Shape to delete an entity (delete) */
   static deleteShape<T extends typeof SimpleResource>(
     this: T,
-  ): MutateShape<schemas.Delete<T>, Readonly<object>, unknown> {
+  ): DeleteShape<schemas.Delete<T>, Readonly<object>> {
     const options = this.getEndpointExtra();
     return {
       type: 'mutate',

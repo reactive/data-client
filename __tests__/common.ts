@@ -1,6 +1,7 @@
 import { SchemaList, schemas, ReadShape, SchemaDetail } from 'rest-hooks';
 import {
   AbstractInstanceType,
+  DeleteShape,
   MutateShape,
   SimpleRecord,
 } from '@rest-hooks/core';
@@ -118,12 +119,12 @@ export class ArticleResource extends Resource {
 
   static deleteShape<T extends typeof Resource>(
     this: T,
-  ): MutateShape<schemas.Delete<T>, Readonly<object>, unknown> {
+  ): DeleteShape<schemas.Delete<T>, Readonly<object>> {
     return {
       ...(super.deleteShape() as any),
       options: {
         ...this.getEndpointExtra(),
-        optimisticUpdate: (params: any, _body: any) => params,
+        optimisticUpdate: (params: any) => params,
       },
     };
   }
