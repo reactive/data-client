@@ -103,6 +103,21 @@ const moreNested = [
   },
 ];
 
+export const valuesFixture = {
+  first: {
+    id: 1,
+    title: 'first thing',
+    content: 'blah',
+    tags: [],
+  },
+  second: {
+    id: 2,
+    name: 'second thing',
+    content: 'blah',
+    tags: [],
+  },
+};
+
 export const paginatedFirstPage = {
   results: nested,
 };
