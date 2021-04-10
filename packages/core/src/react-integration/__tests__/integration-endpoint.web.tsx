@@ -29,6 +29,7 @@ import {
   nested,
   paginatedFirstPage,
   paginatedSecondPage,
+  valuesFixture,
 } from '../test-fixtures';
 
 function onError(e: any) {
@@ -71,6 +72,8 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         .reply(200, '')
         .get(`/article-cooler/`)
         .reply(200, nested)
+        .get(`/article-cooler/values`)
+        .reply(200, valuesFixture)
         .post(`/article-cooler/`)
         .reply(200, createPayload)
         .get(`/user/`)
@@ -180,38 +183,16 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           return this.detail().extend({
             schema: new schema.Values(this),
             url() {
-              return `${urlRoot}/values`;
+              return `${urlRoot}values`;
             },
           });
         }
       }
-      const { result } = renderRestHook(
-        () => {
-          return useResource(ValuesResource.values(), {});
-        },
-        {
-          results: [
-            {
-              request: ValuesResource.values(),
-              params: {},
-              result: {
-                first: {
-                  id: 1,
-                  title: 'first thing',
-                  content: 'blah',
-                  tags: [],
-                },
-                second: {
-                  id: 2,
-                  name: 'second thing',
-                  content: 'blah',
-                  tags: [],
-                },
-              },
-            },
-          ],
-        },
-      );
+      const { result, waitForNextUpdate } = renderRestHook(() => {
+        return useResource(ValuesResource.values(), {});
+      });
+      expect(result.current).toBeUndefined();
+      await waitForNextUpdate();
       Object.keys(result.current).forEach(k => {
         expect(result.current[k] instanceof ValuesResource).toBe(true);
         expect(result.current[k].title).toBeDefined();
