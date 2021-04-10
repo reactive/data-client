@@ -45,7 +45,7 @@ export default function buildInferredResults<
     return undefined as any;
   }
   if (schema instanceof schemas.Values) {
-    return {} as any;
+    return undefined as any;
   }
   const o = 'schema' in schema ? (schema as any).schema : schema;
   let resultObject = {} as any;
