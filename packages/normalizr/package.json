@@ -30,6 +30,10 @@
   "main": "dist/normalizr.js",
   "module": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "typesVersions": {
+    ">=4.0": { "*": ["lib/index.d.ts"] },
+    ">=3.4": { "*": ["ts3.4/index.d.ts"] }
+  },
   "sideEffects": false,
   "engines": {
     "node": ">=0.12"
@@ -40,7 +44,8 @@
     "build:js:development": "cross-env BROWSERSLIST_ENV=legacy NODE_ENV=development rollup -c",
     "build:js:production": "cross-env BROWSERSLIST_ENV=legacy NODE_ENV=production rollup -c",
     "build:lib": "cross-env NODE_ENV=production ROOT_PATH_PREFIX='@rest-hooks/normalizr' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/__benchmarks__/**' --ignore '**/*.d.ts'",
-    "build:clean": "rimraf dist lib *.tsbuildinfo",
+    "build:clean": "rimraf dist lib ts3.4 *.tsbuildinfo",
+    "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
     "lint": "yarn lint:cmd --fix",
     "lint:ci": "yarn lint:cmd",
     "lint:cmd": "eslint . --ext '.js,.json,.snap' --cache",

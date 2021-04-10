@@ -166,13 +166,23 @@ const getEntities = (entities: Record<string, any>) => {
 };
 
 type DenormalizeReturn<S extends Schema> =
-  | [Denormalize<S>, true, false, Record<string, Record<string, any>>]
-  | [DenormalizeNullable<S>, boolean, true, Record<string, Record<string, any>>]
   | [
-      DenormalizeNullable<S>,
-      false,
-      boolean,
-      Record<string, Record<string, any>>,
+      denormalized: Denormalize<S>,
+      found: true,
+      deleted: false,
+      resolvedEntities: Record<string, Record<string, any>>,
+    ]
+  | [
+      denormalized: DenormalizeNullable<S>,
+      found: boolean,
+      deleted: true,
+      resolvedEntities: Record<string, Record<string, any>>,
+    ]
+  | [
+      denormalized: DenormalizeNullable<S>,
+      found: false,
+      deleted: boolean,
+      resolvedEntities: Record<string, Record<string, any>>,
     ];
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -212,9 +222,9 @@ export const denormalizeSimple = <S extends Schema>(
   entityCache: DenormalizeCache['entities'] = {},
   resultCache: WeakListMap<object, any> = new WeakListMap(),
 ):
-  | [Denormalize<S>, true, false]
-  | [DenormalizeNullable<S>, boolean, true]
-  | [DenormalizeNullable<S>, false, boolean] =>
+  | [denormalized: Denormalize<S>, found: true, deleted: false]
+  | [denormalized: DenormalizeNullable<S>, found: boolean, deleted: true]
+  | [denormalized: DenormalizeNullable<S>, found: false, deleted: boolean] =>
   denormalize(input, schema, entities, entityCache, resultCache).slice(
     0,
     3,

@@ -31,10 +31,10 @@ export default function useDenormalized<
   state: State<any>,
   denormalizeCache: DenormalizeCache = { entities: {}, results: {} },
 ): [
-  DenormalizeNullable<Shape['schema']>,
-  typeof params extends null ? false : boolean,
-  boolean,
-  number,
+  denormalized: DenormalizeNullable<Shape['schema']>,
+  found: typeof params extends null ? false : boolean,
+  deleted: boolean,
+  entitiesExpireAt: number,
 ] {
   const entities = state.entities;
   const entityMeta = state.entityMeta;
