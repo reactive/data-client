@@ -57,12 +57,12 @@ describe('buildInferredResults()', () => {
     });
   });
 
-  it('should be {} with Values', () => {
+  it('should be undefined with Values', () => {
     const schema = {
       data: new schemas.Values(CoolerArticleResource),
     };
     expect(buildInferredResults(schema, { id: 5 }, {})).toStrictEqual({
-      data: {},
+      data: undefined,
     });
   });
 
