@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1617972598013,
+  "lastUpdate": 1618092885775,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -608,6 +608,44 @@ window.BENCHMARK_DATA = {
             "range": "±1.70%",
             "unit": "ops/sec",
             "extra": "50 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1a77a03a5c06b352feb467958be2e6e3f8f91003",
+          "message": "fix: Inferring schema.Values() (#732)",
+          "timestamp": "2021-04-10T15:12:48-07:00",
+          "tree_id": "b6f628918f35c1d0c34783855f09ea52a7c10ad6",
+          "url": "https://github.com/coinbase/rest-hooks/commit/1a77a03a5c06b352feb467958be2e6e3f8f91003"
+        },
+        "date": 1618092885157,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 68.75,
+            "range": "±1.56%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 26.97,
+            "range": "±3.09%",
+            "unit": "ops/sec",
+            "extra": "49 samples"
           }
         ]
       }
