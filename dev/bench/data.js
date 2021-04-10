@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1618092885775,
+  "lastUpdate": 1618093322834,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -646,6 +646,44 @@ window.BENCHMARK_DATA = {
             "range": "±3.09%",
             "unit": "ops/sec",
             "extra": "49 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "83382cce716ec22949127cc0f190bbeddf5a3722",
+          "message": "enhance: Use namedtuples for denormalize (#733)",
+          "timestamp": "2021-04-10T15:20:18-07:00",
+          "tree_id": "dba2c94fa79ac9558f8452bb7abe09edf068aab6",
+          "url": "https://github.com/coinbase/rest-hooks/commit/83382cce716ec22949127cc0f190bbeddf5a3722"
+        },
+        "date": 1618093322020,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 70.2,
+            "range": "±1.54%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 27.89,
+            "range": "±2.23%",
+            "unit": "ops/sec",
+            "extra": "50 samples"
           }
         ]
       }
