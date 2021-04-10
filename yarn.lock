@@ -2,11 +2,12 @@
 # yarn lockfile v1
 
 
-"@anansi/babel-preset@2.3.0":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.3.0.tgz#a093f1141c93a3d3ebcba15ea908d9368c21f149"
-  integrity sha512-rvrNaslv5qltJ6q15E+wR737OtDi3ASyqjTcjLRTxykqG1khq7wSzbhialwcF3Ghr+BEg/AzTGay8iuY8cOzMw==
+"@anansi/babel-preset@2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.4.0.tgz#01fa087a11685236f9755fb2c347cfb71561b9b4"
+  integrity sha512-FBbnz1sHZkIN4vI9TqC2G7EhVs0uS06v9uyifLh8XS4YXb/SjzE/Zaodg6S6VORK+FwnNbDygkX0X2BmW+evTA==
   dependencies:
+    "@anansi/ts-utils" "^0.2.0"
     "@babel/plugin-proposal-class-properties" "^7.13.0"
     "@babel/plugin-proposal-class-static-block" "^7.13.11"
     "@babel/plugin-proposal-decorators" "^7.13.5"
@@ -54,6 +55,11 @@
     eslint-plugin-babel "^5.3.1"
     eslint-plugin-flowtype "^5.2.0"
     eslint-plugin-jsx-a11y "^6.4.1"
+
+"@anansi/ts-utils@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@anansi/ts-utils/-/ts-utils-0.2.0.tgz#f9703ace17dc0e3750b939b1e1f9f747ca814a42"
+  integrity sha512-oBIlFqo62sjj4STDfqaVBE45Nj+oKroVkGCoYOW32KnwqtW5y+ybIG98iOtn2DXWU4CsITYnbOxEzDCOVb9jpQ==
 
 "@babel/cli@7.13.14":
   version "7.13.14"
