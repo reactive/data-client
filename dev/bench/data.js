@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1618232732779,
+  "lastUpdate": 1618233112673,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -874,6 +874,44 @@ window.BENCHMARK_DATA = {
             "range": "±1.10%",
             "unit": "ops/sec",
             "extra": "57 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "81fe1e688864ca557e23f426dc15f555b76642cd",
+          "message": "internal(pkg): bump @anansi/eslint-plugin from 0.10.4 to 0.10.5 (#736)\n\nBumps [@anansi/eslint-plugin](https://github.com/ntucker/anansi/tree/HEAD/packages/eslint-plugin) from 0.10.4 to 0.10.5.\r\n- [Release notes](https://github.com/ntucker/anansi/releases)\r\n- [Changelog](https://github.com/ntucker/anansi/blob/master/packages/eslint-plugin/CHANGELOG.md)\r\n- [Commits](https://github.com/ntucker/anansi/commits/@anansi/eslint-plugin@0.10.5/packages/eslint-plugin)\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\n\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\r\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2021-04-12T06:08:38-07:00",
+          "tree_id": "f3056f5771646222c75fa88bb11523627a666a9c",
+          "url": "https://github.com/coinbase/rest-hooks/commit/81fe1e688864ca557e23f426dc15f555b76642cd"
+        },
+        "date": 1618233111348,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 33.18,
+            "range": "±17.21%",
+            "unit": "ops/sec",
+            "extra": "45 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 17.65,
+            "range": "±16.17%",
+            "unit": "ops/sec",
+            "extra": "35 samples"
           }
         ]
       }
