@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1618231980110,
+  "lastUpdate": 1618232240456,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -798,6 +798,44 @@ window.BENCHMARK_DATA = {
             "range": "±3.18%",
             "unit": "ops/sec",
             "extra": "49 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b9373fda639f9a2b1fb33635f7a3acde01e4b5c6",
+          "message": "internal(pkg): bump rollup from 2.45.0 to 2.45.1 (#737)\n\nBumps [rollup](https://github.com/rollup/rollup) from 2.45.0 to 2.45.1.\r\n- [Release notes](https://github.com/rollup/rollup/releases)\r\n- [Changelog](https://github.com/rollup/rollup/blob/master/CHANGELOG.md)\r\n- [Commits](https://github.com/rollup/rollup/compare/v2.45.0...v2.45.1)\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\n\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\r\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2021-04-12T05:55:31-07:00",
+          "tree_id": "98b0a2d2cdbcc662269316396e62189efcccee9b",
+          "url": "https://github.com/coinbase/rest-hooks/commit/b9373fda639f9a2b1fb33635f7a3acde01e4b5c6"
+        },
+        "date": 1618232239784,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 73.51,
+            "range": "±1.42%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 28.64,
+            "range": "±2.55%",
+            "unit": "ops/sec",
+            "extra": "52 samples"
           }
         ]
       }
