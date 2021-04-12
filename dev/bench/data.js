@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1618240017688,
+  "lastUpdate": 1618240834881,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -950,6 +950,44 @@ window.BENCHMARK_DATA = {
             "range": "±3.09%",
             "unit": "ops/sec",
             "extra": "50 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "bbae8bd44d9870e7f6ed599b0751ad264f9f2313",
+          "message": "fix: Publish legacy type files (#741)",
+          "timestamp": "2021-04-12T08:18:36-07:00",
+          "tree_id": "81b16645afbc9d3246fe36809b262c6677172fa5",
+          "url": "https://github.com/coinbase/rest-hooks/commit/bbae8bd44d9870e7f6ed599b0751ad264f9f2313"
+        },
+        "date": 1618240833747,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 69.23,
+            "range": "±1.82%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 28.96,
+            "range": "±2.52%",
+            "unit": "ops/sec",
+            "extra": "52 samples"
           }
         ]
       }
