@@ -31,6 +31,7 @@ export type {
   FetchShape,
   ReadShape,
   MutateShape,
+  DeleteShape,
   SetShapeParams,
   ParamsFromShape,
   AbstractInstanceType,
