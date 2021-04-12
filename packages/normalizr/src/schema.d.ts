@@ -49,7 +49,11 @@ export interface SchemaSimple<T = any> {
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
   ): any;
-  denormalize(input: any, unvisit: UnvisitFunction): [T, boolean, boolean];
+  denormalize(
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    input: {} | undefined,
+    unvisit: UnvisitFunction,
+  ): [T, boolean, boolean];
 }
 
 export interface SchemaClass<T = any, N = T | undefined>
@@ -84,7 +88,8 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
   _normalizeNullable(): Normalize<S>[] | undefined;
 
   denormalize(
-    input: any,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    input: {} | undefined,
     unvisit: UnvisitFunction,
   ): [Denormalize<S>[], boolean, boolean];
 
@@ -108,7 +113,8 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
   _normalizeNullable(): NormalizedNullableObject<O>;
 
   denormalize(
-    input: any,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    input: {} | undefined,
     unvisit: UnvisitFunction,
   ): [DenormalizeObject<O>, boolean, boolean];
 
@@ -139,7 +145,8 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
   _normalizeNullable(): UnionResult<Choices> | undefined;
 
   denormalize(
-    input: any,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    input: {} | undefined,
     unvisit: UnvisitFunction,
   ): [AbstractInstanceType<Choices[keyof Choices]>, boolean, boolean];
 
@@ -191,7 +198,8 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
     | undefined;
 
   denormalize(
-    input: any,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    input: {} | undefined,
     unvisit: UnvisitFunction,
   ): [
     Record<
