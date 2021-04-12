@@ -37,7 +37,7 @@ export interface DeleteShape<
   Response extends object | string | number | boolean | null = any
 > extends FetchShape<S, Params, undefined, Response> {
   readonly type: 'mutate';
-  fetch(params: Params): Promise<Response>;
+  fetch(params: Params, ...args: any): Promise<Response>;
 }
 
 /** For retrieval requests */
