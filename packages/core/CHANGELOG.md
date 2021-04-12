@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.15](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.14...@rest-hooks/core@1.0.15) (2021-04-12)
+
+
+### 🐛 Bug Fix
+
+* Relax DeleteShape def to be back-compat ([#743](https://github.com/coinbase/rest-hooks/issues/743)) ([20aa3a0](https://github.com/coinbase/rest-hooks/commit/20aa3a09bbe4419c23e37b331ca3208349f0e07c))
+
+
+
 ### [1.0.14](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.13...@rest-hooks/core@1.0.14) (2021-04-12)
 
 
