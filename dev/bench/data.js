@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1618241429498,
+  "lastUpdate": 1618249965652,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -1026,6 +1026,44 @@ window.BENCHMARK_DATA = {
             "range": "±3.36%",
             "unit": "ops/sec",
             "extra": "45 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "20aa3a09bbe4419c23e37b331ca3208349f0e07c",
+          "message": "fix: Relax DeleteShape def to be back-compat (#743)",
+          "timestamp": "2021-04-12T10:51:09-07:00",
+          "tree_id": "8a1f4192bd5a957f8d216e753cf714b4c0286942",
+          "url": "https://github.com/coinbase/rest-hooks/commit/20aa3a09bbe4419c23e37b331ca3208349f0e07c"
+        },
+        "date": 1618249965036,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 86.62,
+            "range": "±1.11%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 33.08,
+            "range": "±1.20%",
+            "unit": "ops/sec",
+            "extra": "58 samples"
           }
         ]
       }
