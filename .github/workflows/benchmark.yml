@@ -2,9 +2,15 @@ name: Benchmark
 
 on:
   pull_request:
+    branches:
+      - master
+    paths:
+      - 'packages/normalizr/**'
   push:
     branches:
       - master
+    paths:
+      - 'packages/normalizr/**'
 jobs:
   benchmark:
 
