@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/core",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Asynchronous data framework for React",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
@@ -8,8 +8,16 @@
   "unpkg": "dist/index.umd.min.js",
   "types": "lib/index.d.ts",
   "typesVersions": {
-    ">=4.0": { "*": ["lib/index.d.ts"] },
-    ">=3.4": { "*": ["ts3.4/index.d.ts"] }
+    ">=4.0": {
+      "*": [
+        "lib/index.d.ts"
+      ]
+    },
+    ">=3.4": {
+      "*": [
+        "ts3.4/index.d.ts"
+      ]
+    }
   },
   "files": [
     "src",
@@ -71,8 +79,8 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.2",
-    "@rest-hooks/endpoint": "^1.0.10",
-    "@rest-hooks/normalizr": "^6.0.7",
+    "@rest-hooks/endpoint": "^1.0.11",
+    "@rest-hooks/normalizr": "^6.0.8",
     "@rest-hooks/use-enhanced-reducer": "^1.0.5",
     "flux-standard-action": "^2.1.1"
   },

@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.0.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.7...@rest-hooks/normalizr@6.0.8) (2021-04-12)
+
+
+### 💅 Enhancement
+
+* All schema members are optional by default ([#716](https://github.com/coinbase/rest-hooks/issues/716)) ([b8c6443](https://github.com/coinbase/rest-hooks/commit/b8c64438bb34bc1f9e9bc1461bd7e4d3bb4e330e))
+* Use namedtuples for denormalize ([#733](https://github.com/coinbase/rest-hooks/issues/733)) ([83382cc](https://github.com/coinbase/rest-hooks/commit/83382cce716ec22949127cc0f190bbeddf5a3722))
+
+
+### 🐛 Bug Fix
+
+* Denormalizing polymoprhic with undefined no longer crashes ([#735](https://github.com/coinbase/rest-hooks/issues/735)) ([5fc380a](https://github.com/coinbase/rest-hooks/commit/5fc380a941e2af32b4ed4730cd006d38ffacd02a))
+* schema.Values singleSchema denormalization ([#723](https://github.com/coinbase/rest-hooks/issues/723)) ([99317d1](https://github.com/coinbase/rest-hooks/commit/99317d17db8293d6bf987d1cbfa99691cf58903e))
+
+
+
 ### [6.0.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.6...@rest-hooks/normalizr@6.0.7) (2021-04-04)
 
 **Note:** Version bump only for package @rest-hooks/normalizr

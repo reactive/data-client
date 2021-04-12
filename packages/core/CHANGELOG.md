@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.13](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.12...@rest-hooks/core@1.0.13) (2021-04-12)
+
+
+### 💅 Enhancement
+
+* All schema members are optional by default ([#716](https://github.com/coinbase/rest-hooks/issues/716)) ([b8c6443](https://github.com/coinbase/rest-hooks/commit/b8c64438bb34bc1f9e9bc1461bd7e4d3bb4e330e))
+* Refined deleteShape() definition ([#734](https://github.com/coinbase/rest-hooks/issues/734)) ([e34526d](https://github.com/coinbase/rest-hooks/commit/e34526d5dde5a2cc317cd9428ededc6a9893dc41))
+* Support TypeScript 3, while using TypeScript 4 features ([#726](https://github.com/coinbase/rest-hooks/issues/726)) ([4db2522](https://github.com/coinbase/rest-hooks/commit/4db2522b9060a7f7aaba4a93c3cf1694eb3d5364))
+* Use namedtuples for denormalize ([#733](https://github.com/coinbase/rest-hooks/issues/733)) ([83382cc](https://github.com/coinbase/rest-hooks/commit/83382cce716ec22949127cc0f190bbeddf5a3722))
+
+
+### 🐛 Bug Fix
+
+* Inferring schema.Values() ([#732](https://github.com/coinbase/rest-hooks/issues/732)) ([1a77a03](https://github.com/coinbase/rest-hooks/commit/1a77a03a5c06b352feb467958be2e6e3f8f91003))
+* schema.Values singleSchema denormalization ([#723](https://github.com/coinbase/rest-hooks/issues/723)) ([99317d1](https://github.com/coinbase/rest-hooks/commit/99317d17db8293d6bf987d1cbfa99691cf58903e))
+
+
+
 ### [1.0.12](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.11...@rest-hooks/core@1.0.12) (2021-04-04)
 
 **Note:** Version bump only for package @rest-hooks/core

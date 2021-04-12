@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [2.0.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.0.4...@rest-hooks/rest@2.0.5) (2021-04-12)
+
+
+### 💅 Enhancement
+
+* Refined deleteShape() definition ([#734](https://github.com/coinbase/rest-hooks/issues/734)) ([e34526d](https://github.com/coinbase/rest-hooks/commit/e34526d5dde5a2cc317cd9428ededc6a9893dc41))
+
+
+
 ### [2.0.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.0.3...@rest-hooks/rest@2.0.4) (2021-04-04)
 
 
