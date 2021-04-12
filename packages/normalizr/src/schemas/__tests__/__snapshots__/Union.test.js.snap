@@ -198,3 +198,369 @@ Object {
   },
 }
 `;
+
+exports[`complex case works with undefined 1`] = `
+Object {
+  "entities": Object {
+    "ContinuousSequence": Object {
+      "22": ContinuousSequence {
+        "group_a_stats": Object {
+          "count": 79557,
+          "sum": 3727219.2099861577,
+        },
+        "group_b_stats": Object {
+          "count": 66794,
+          "sum": 2999496.370384956,
+        },
+        "sequence_id": 22,
+        "sequence_type": "temporal_mean_shift",
+        "subpops_group_a_incremental_stats": Array [
+          Object {
+            "count": 19302,
+            "sum": 909835.9502538516,
+          },
+          Object {
+            "count": 12452,
+            "sum": 468902.2598208785,
+          },
+          Object {
+            "count": 29674,
+            "sum": 1533126.7700431347,
+          },
+          Object {
+            "count": 3979,
+            "sum": 123931.08003079893,
+          },
+          Object {
+            "count": 3501,
+            "sum": 173706.13005542755,
+          },
+        ],
+        "subpops_group_a_stats": Array [
+          Object {
+            "count": 19302,
+            "sum": 909835.9502538516,
+          },
+          Object {
+            "count": 15550,
+            "sum": 656345.8200406507,
+          },
+          Object {
+            "count": 38523,
+            "sum": 1767670.8099250195,
+          },
+          Object {
+            "count": 15778,
+            "sum": 549563.3501347005,
+          },
+          Object {
+            "count": 20194,
+            "sum": 951307.5302157328,
+          },
+        ],
+        "subpops_group_b_incremental_stats": Array [
+          Object {
+            "count": 16022,
+            "sum": 686623.8400082085,
+          },
+          Object {
+            "count": 10427,
+            "sum": 632778.0701571181,
+          },
+          Object {
+            "count": 25270,
+            "sum": 1002223.6299012974,
+          },
+          Object {
+            "count": 3386,
+            "sum": 104987.2500332594,
+          },
+          Object {
+            "count": 2893,
+            "sum": 139013.64997577667,
+          },
+        ],
+        "subpops_group_b_stats": Array [
+          Object {
+            "count": 16022,
+            "sum": 686623.8400082085,
+          },
+          Object {
+            "count": 12964,
+            "sum": 713309.7901891638,
+          },
+          Object {
+            "count": 32773,
+            "sum": 1542281.990038909,
+          },
+          Object {
+            "count": 12722,
+            "sum": 423195.7500065565,
+          },
+          Object {
+            "count": 17110,
+            "sum": 768182.7200815715,
+          },
+        ],
+        "subpopulations": Array [
+          Array [
+            Object {
+              "absolute_range": null,
+              "factor_type": "value",
+              "keyword": null,
+              "percentile_range": null,
+              "value": Object {
+                "column": "loyalty_program",
+                "data_type": "string",
+                "value": "none",
+              },
+            },
+          ],
+          Array [
+            Object {
+              "absolute_range": null,
+              "factor_type": "value",
+              "keyword": null,
+              "percentile_range": null,
+              "value": Object {
+                "column": "coupon_code",
+                "data_type": "string",
+                "value": "01DEC2019PROMO",
+              },
+            },
+          ],
+          Array [
+            Object {
+              "absolute_range": null,
+              "factor_type": "value",
+              "keyword": null,
+              "percentile_range": null,
+              "value": Object {
+                "column": "loyalty_program",
+                "data_type": "string",
+                "value": "silver",
+              },
+            },
+          ],
+          Array [
+            Object {
+              "absolute_range": null,
+              "factor_type": "value",
+              "keyword": null,
+              "percentile_range": null,
+              "value": Object {
+                "column": "ad_shown",
+                "data_type": "string",
+                "value": "week52_20",
+              },
+            },
+          ],
+          Array [
+            Object {
+              "absolute_range": null,
+              "factor_type": "value",
+              "keyword": null,
+              "percentile_range": null,
+              "value": Object {
+                "column": "day_part",
+                "data_type": "string",
+                "value": "afternoon",
+              },
+            },
+          ],
+        ],
+      },
+    },
+  },
+  "indexes": Object {},
+  "result": Object {
+    "sequences": Array [
+      null,
+      undefined,
+      Object {
+        "id": "22",
+        "schema": "temporal_mean_shift",
+      },
+    ],
+  },
+}
+`;
+
+exports[`complex case works with undefined 2`] = `
+Array [
+  Object {
+    "sequences": Array [
+      null,
+      ContinuousSequence {
+        "group_a_stats": Object {
+          "count": 79557,
+          "sum": 3727219.2099861577,
+        },
+        "group_b_stats": Object {
+          "count": 66794,
+          "sum": 2999496.370384956,
+        },
+        "sequence_id": 22,
+        "sequence_type": "temporal_mean_shift",
+        "subpops_group_a_incremental_stats": Array [
+          Object {
+            "count": 19302,
+            "sum": 909835.9502538516,
+          },
+          Object {
+            "count": 12452,
+            "sum": 468902.2598208785,
+          },
+          Object {
+            "count": 29674,
+            "sum": 1533126.7700431347,
+          },
+          Object {
+            "count": 3979,
+            "sum": 123931.08003079893,
+          },
+          Object {
+            "count": 3501,
+            "sum": 173706.13005542755,
+          },
+        ],
+        "subpops_group_a_stats": Array [
+          Object {
+            "count": 19302,
+            "sum": 909835.9502538516,
+          },
+          Object {
+            "count": 15550,
+            "sum": 656345.8200406507,
+          },
+          Object {
+            "count": 38523,
+            "sum": 1767670.8099250195,
+          },
+          Object {
+            "count": 15778,
+            "sum": 549563.3501347005,
+          },
+          Object {
+            "count": 20194,
+            "sum": 951307.5302157328,
+          },
+        ],
+        "subpops_group_b_incremental_stats": Array [
+          Object {
+            "count": 16022,
+            "sum": 686623.8400082085,
+          },
+          Object {
+            "count": 10427,
+            "sum": 632778.0701571181,
+          },
+          Object {
+            "count": 25270,
+            "sum": 1002223.6299012974,
+          },
+          Object {
+            "count": 3386,
+            "sum": 104987.2500332594,
+          },
+          Object {
+            "count": 2893,
+            "sum": 139013.64997577667,
+          },
+        ],
+        "subpops_group_b_stats": Array [
+          Object {
+            "count": 16022,
+            "sum": 686623.8400082085,
+          },
+          Object {
+            "count": 12964,
+            "sum": 713309.7901891638,
+          },
+          Object {
+            "count": 32773,
+            "sum": 1542281.990038909,
+          },
+          Object {
+            "count": 12722,
+            "sum": 423195.7500065565,
+          },
+          Object {
+            "count": 17110,
+            "sum": 768182.7200815715,
+          },
+        ],
+        "subpopulations": Array [
+          Array [
+            Object {
+              "absolute_range": null,
+              "factor_type": "value",
+              "keyword": null,
+              "percentile_range": null,
+              "value": Object {
+                "column": "loyalty_program",
+                "data_type": "string",
+                "value": "none",
+              },
+            },
+          ],
+          Array [
+            Object {
+              "absolute_range": null,
+              "factor_type": "value",
+              "keyword": null,
+              "percentile_range": null,
+              "value": Object {
+                "column": "coupon_code",
+                "data_type": "string",
+                "value": "01DEC2019PROMO",
+              },
+            },
+          ],
+          Array [
+            Object {
+              "absolute_range": null,
+              "factor_type": "value",
+              "keyword": null,
+              "percentile_range": null,
+              "value": Object {
+                "column": "loyalty_program",
+                "data_type": "string",
+                "value": "silver",
+              },
+            },
+          ],
+          Array [
+            Object {
+              "absolute_range": null,
+              "factor_type": "value",
+              "keyword": null,
+              "percentile_range": null,
+              "value": Object {
+                "column": "ad_shown",
+                "data_type": "string",
+                "value": "week52_20",
+              },
+            },
+          ],
+          Array [
+            Object {
+              "absolute_range": null,
+              "factor_type": "value",
+              "keyword": null,
+              "percentile_range": null,
+              "value": Object {
+                "column": "day_part",
+                "data_type": "string",
+                "value": "afternoon",
+              },
+            },
+          ],
+        ],
+      },
+    ],
+  },
+  true,
+  false,
+]
+`;
