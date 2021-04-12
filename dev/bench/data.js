@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1618231733805,
+  "lastUpdate": 1618231980110,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -760,6 +760,44 @@ window.BENCHMARK_DATA = {
             "range": "±2.22%",
             "unit": "ops/sec",
             "extra": "57 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "541e633972b3e286a480f0a5a43db702194e9ac7",
+          "message": "internal(pkg): bump @anansi/babel-preset from 2.3.0 to 2.5.1 (#739)\n\nBumps [@anansi/babel-preset](https://github.com/ntucker/anansi/tree/HEAD/packages/babel-preset-anansi) from 2.3.0 to 2.5.1.\r\n- [Release notes](https://github.com/ntucker/anansi/releases)\r\n- [Changelog](https://github.com/ntucker/anansi/blob/master/packages/babel-preset-anansi/CHANGELOG.md)\r\n- [Commits](https://github.com/ntucker/anansi/commits/@anansi/babel-preset@2.5.1/packages/babel-preset-anansi)\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\n\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\r\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2021-04-12T05:50:51-07:00",
+          "tree_id": "c0cee30ed1c7509ae0cf52d77df6b1dd9ac54296",
+          "url": "https://github.com/coinbase/rest-hooks/commit/541e633972b3e286a480f0a5a43db702194e9ac7"
+        },
+        "date": 1618231979486,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 66.5,
+            "range": "±1.72%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 26.77,
+            "range": "±3.18%",
+            "unit": "ops/sec",
+            "extra": "49 samples"
           }
         ]
       }
