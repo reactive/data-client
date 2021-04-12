@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1618232240456,
+  "lastUpdate": 1618232732779,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -836,6 +836,44 @@ window.BENCHMARK_DATA = {
             "range": "±2.55%",
             "unit": "ops/sec",
             "extra": "52 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0029a7b8729f7106ab4c3e6d9f7346add4105218",
+          "message": "internal(pkg): bump eslint from 7.23.0 to 7.24.0 (#738)\n\nBumps [eslint](https://github.com/eslint/eslint) from 7.23.0 to 7.24.0.\r\n- [Release notes](https://github.com/eslint/eslint/releases)\r\n- [Changelog](https://github.com/eslint/eslint/blob/master/CHANGELOG.md)\r\n- [Commits](https://github.com/eslint/eslint/compare/v7.23.0...v7.24.0)\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\n\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\r\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2021-04-12T06:03:53-07:00",
+          "tree_id": "e40ac5f964eecfb1510d34daeefc8106400f363e",
+          "url": "https://github.com/coinbase/rest-hooks/commit/0029a7b8729f7106ab4c3e6d9f7346add4105218"
+        },
+        "date": 1618232731755,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 85.61,
+            "range": "±0.85%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 32.49,
+            "range": "±1.10%",
+            "unit": "ops/sec",
+            "extra": "57 samples"
           }
         ]
       }
