@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1618093611456,
+  "lastUpdate": 1618231733805,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -722,6 +722,44 @@ window.BENCHMARK_DATA = {
             "range": "±2.47%",
             "unit": "ops/sec",
             "extra": "48 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5fc380a941e2af32b4ed4730cd006d38ffacd02a",
+          "message": "fix: Denormalizing polymoprhic with undefined no longer crashes (#735)",
+          "timestamp": "2021-04-12T05:46:57-07:00",
+          "tree_id": "7d6b3e34caca8de04fef2f321b8e2a8a40f9d790",
+          "url": "https://github.com/coinbase/rest-hooks/commit/5fc380a941e2af32b4ed4730cd006d38ffacd02a"
+        },
+        "date": 1618231732721,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 87.25,
+            "range": "±1.40%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 32.34,
+            "range": "±2.22%",
+            "unit": "ops/sec",
+            "extra": "57 samples"
           }
         ]
       }
