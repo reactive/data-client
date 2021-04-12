@@ -23,6 +23,7 @@
     "src",
     "dist",
     "lib",
+    "ts3.4",
     "LICENSE",
     "README.md",
     "./typescript.svg",
