@@ -9,7 +9,7 @@ on:
       - 'yarn.lock'
 
 jobs:
-  build:
+  compressed-size-build:
     runs-on: ubuntu-latest
 
     steps:
