@@ -108,19 +108,6 @@ export default function reducer(
         return reduceError(state, action, error);
       }
     }
-    case 'rest-hook/mounted': {
-      if (!state.meta || !(action.payload in state.meta)) return state;
-      return {
-        ...state,
-        meta: {
-          ...state.meta,
-          [action.payload]: {
-            ...state.meta[action.payload],
-            prevExpiresAt: undefined,
-          },
-        },
-      };
-    }
     case INVALIDATE_TYPE: {
       const results = { ...state.results };
       delete results[action.meta.key];
