@@ -5,5 +5,5 @@
       "@rest-hooks/test/*": ["packages/test/src/*"]
     }
   },
-  "exclude": ["node_modules", "dist", "lib", "legacy", "**/__tests__"]
+  "exclude": ["node_modules", "dist", "lib", "ts3.4", "legacy", "**/__tests__"]
 }
