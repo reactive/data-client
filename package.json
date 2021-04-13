@@ -12,7 +12,7 @@
     "build:bundle": "lerna run build:bundle --stream",
     "build:clean": "lerna run build:clean --stream",
     "build:types": "yarn build:copy:ambient && ttsc --build && lerna run build:legacy-types --stream",
-    "build:copy:ambient": "mkdirp ./packages/normalizr/lib && copyfiles --flat ./packages/normalizr/src/schema.d.ts ./packages/normalizr/lib/ && mkdirp ./packages/endpoint/lib && copyfiles --flat ./packages/endpoint/src/endpoint.d.ts ./packages/endpoint/lib/",
+    "build:copy:ambient": "mkdirp ./packages/normalizr/lib && copyfiles --flat ./packages/normalizr/src/schema.d.ts ./packages/normalizr/lib/ && mkdirp ./packages/endpoint/lib && copyfiles --flat ./packages/endpoint/src/endpoint.d.ts ./packages/endpoint/lib/&& mkdirp ./packages/core/lib && copyfiles --flat ./packages/core/src/state/RIC.d.ts ./packages/core/lib/state",
     "test": "cross-env NODE_ENV=test jest",
     "test:ci": "yarn test -- --ci",
     "test:coverage": "yarn test -- --coverage",

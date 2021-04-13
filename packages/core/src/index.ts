@@ -1,15 +1,4 @@
-import { DELETED } from '@rest-hooks/endpoint';
-
-import buildInferredResults from './state/selectors/buildInferredResults';
-import RIC from './state/RIC';
-
-const __INTERNAL__ = {
-  buildInferredResults,
-  RIC,
-  DELETED,
-};
-
-export { __INTERNAL__ };
+export * as __INTERNAL__ from './internal';
 export { default as NetworkManager } from './state/NetworkManager';
 export { default as reducer, initialState } from './state/reducer';
 export { useDenormalized } from './state/selectors';
