@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.20](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.19...rest-hooks@5.0.20) (2021-04-13)
+
+
+### 🐛 Bug Fix
+
+* Generate types that do not refer internally to other packages ([#749](https://github.com/coinbase/rest-hooks/issues/749)) ([2e55e32](https://github.com/coinbase/rest-hooks/commit/2e55e3229f23ba1d0d6eb15faf3dd5ba3de838c4))
+
+
+
 ### [5.0.19](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.18...rest-hooks@5.0.19) (2021-04-12)
 
 

@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.16](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.15...@rest-hooks/core@1.0.16) (2021-04-13)
+
+
+### 💅 Enhancement
+
+* Remove extraneous outdated hack ([#750](https://github.com/coinbase/rest-hooks/issues/750)) ([da7e7cb](https://github.com/coinbase/rest-hooks/commit/da7e7cbedd6264b26f6158079d9224f52fe2f829))
+
+
+### 🐛 Bug Fix
+
+* Generate types that do not refer internally to other packages ([#749](https://github.com/coinbase/rest-hooks/issues/749)) ([2e55e32](https://github.com/coinbase/rest-hooks/commit/2e55e3229f23ba1d0d6eb15faf3dd5ba3de838c4))
+
+
+
 ### [1.0.15](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.14...@rest-hooks/core@1.0.15) (2021-04-12)
 
 
