@@ -1,11 +1,3 @@
-import {
-  initialState,
-  StateContext,
-  DispatchContext,
-  hasUsableData,
-  __INTERNAL__ as _INT_,
-} from '@rest-hooks/core';
-
 export {
   useCache,
   useFetcher,
@@ -89,13 +81,4 @@ export {
 } from './manager';
 export type { ConnectionListener, DevToolsConfig } from './manager';
 export { default as useSelectionUnstable } from './react-integration/hooks/useSelection';
-
-const { buildInferredResults, RIC } = _INT_;
-export const __INTERNAL__ = {
-  initialState,
-  StateContext,
-  DispatchContext,
-  RIC,
-  hasUsableData,
-  buildInferredResults,
-};
+export * as __INTERNAL__ from './internal';
