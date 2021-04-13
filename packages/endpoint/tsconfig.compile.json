@@ -5,5 +5,5 @@
       "@rest-hooks/endpoint/*": ["packages/endpoint/src/*"]
     }
   },
-  "exclude": ["node_modules", "dist", "lib", "**/__tests__"]
+  "exclude": ["node_modules", "dist", "lib", "lib3.4", "**/__tests__"]
 }

@@ -6,15 +6,25 @@
   "main": "dist/index.cjs",
   "module": "legacy/browser.js",
   "types": "lib/index.d.ts",
+  "typesVersions": {
+    ">=4.0": {
+      "*": [
+        "lib/index.d.ts"
+      ]
+    },
+    ">=3.4": {
+      "*": [
+        "ts3.4/index.d.ts"
+      ]
+    }
+  },
   "exports": {
     ".": [
       {
         "node": {
           "import": "./node.mjs",
-          "require": "./dist/index.cjs",
-          "types": "./lib/index.d.ts"
+          "require": "./dist/index.cjs"
         },
-        "types": "./lib/browser.d.ts",
         "default": "./lib/browser.js"
       },
       "./lib/browser.js"
@@ -29,6 +39,7 @@
     "src",
     "dist",
     "lib",
+    "ts3.4",
     "node.mjs",
     "legacy",
     "LICENSE",
@@ -38,7 +49,8 @@
     "build:lib": "cross-env NODE_ENV=production BROWSERSLIST_ENV='modern' RESOLVER_ALIAS='{\"^@rest-hooks/test(.+)$\":\"./src/\\\\1.js\"}' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
     "build:legacy:lib": "cross-env NODE_ENV=production RESOLVER_ALIAS='{\"^@rest-hooks/test(.+)$\":\"./src/\\\\1.js\"}' babel --root-mode upward src --out-dir legacy --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
     "build:bundle": "rollup -c",
-    "build:clean": "rimraf dist lib legacy *.tsbuildinfo",
+    "build:clean": "rimraf lib dist ts3.4 legacy *.tsbuildinfo",
+    "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
     "build": "yarn run build:lib && yarn run build:legacy:lib && yarn run build:bundle",
     "dev": "yarn run build:lib -w",
     "prepare": "yarn run build:lib",
