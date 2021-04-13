@@ -161,8 +161,6 @@ export interface InvalidateAction
   };
 }
 
-export type MountedAction = { type: 'rest-hook/mounted'; payload: string };
-
 export type ResponseActions = ReceiveAction;
 
 // put other actions here in union
@@ -172,8 +170,7 @@ export type ActionTypes =
   | SubscribeAction
   | UnsubscribeAction
   | InvalidateAction
-  | ResetAction
-  | MountedAction;
+  | ResetAction;
 
 export interface Manager {
   getMiddleware(): Middleware;
