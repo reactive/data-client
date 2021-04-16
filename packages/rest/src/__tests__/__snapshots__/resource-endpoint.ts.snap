@@ -41,7 +41,7 @@ Object {
 `;
 
 exports[`Resource nested schema should throw a custom error if data does not include pk 1`] = `
-"Missing usable resource key when normalizing response.
+"Missing usable primary key when normalizing response.
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
