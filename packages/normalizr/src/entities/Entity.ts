@@ -175,7 +175,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     if (id === undefined || id === '') {
       if (process.env.NODE_ENV !== 'production') {
         const error = new Error(
-          `Missing usable resource key when normalizing response.
+          `Missing usable primary key when normalizing response.
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.

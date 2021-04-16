@@ -27,6 +27,25 @@ export default class Delete<E extends EntityInterface & { fromJS: any }>
     // TODO: what's store needs to be a differing type from fromJS
     const processedEntity = this._entity.fromJS(input, parent, key);
     const id = processedEntity.pk(parent, key);
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      (id === undefined || id === '')
+    ) {
+      const error = new Error(
+        `Missing usable primary key when normalizing response.
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
+
+  Delete(Entity): Delete(${(this._entity as any).name ?? this._entity})
+  Value: ${input && JSON.stringify(input, null, 2)}
+  `,
+      );
+      (error as any).status = 400;
+      throw error;
+    }
     addEntity(this._entity, DELETED, processedEntity, parent, key);
     return id;
   }

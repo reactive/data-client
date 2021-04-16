@@ -4,6 +4,7 @@ import { fromJS } from 'immutable';
 import { denormalizeSimple as denormalize } from '../../denormalize';
 import { normalize, schema } from '../../';
 import IDEntity from '../../entities/IDEntity';
+import Entity from '../../entities/Entity';
 import { DELETED } from '../../special';
 
 describe(`${schema.Delete.name} normalization`, () => {
@@ -18,6 +19,20 @@ describe(`${schema.Delete.name} normalization`, () => {
     expect(
       normalize({ id: '1', type: 'users' }, new schema.Delete(User)),
     ).toMatchSnapshot();
+  });
+
+  it('should throw a custom error if data does not include pk', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      pk() {
+        return this.name;
+      }
+    }
+    function normalizeBad() {
+      normalize({ secondthing: 'hi' }, new schema.Delete(MyEntity));
+    }
+    expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 });
 
