@@ -9,8 +9,11 @@ describe('Endpoint', () => {
   const payload = { id: '5', username: 'bobber' };
   const payload2 = { id: '6', username: 'tomm' };
   const assetPayload = { symbol: 'btc', price: '5.0' };
-  const fetchUsers = ({ id }: { id: string }) =>
-    fetch(`/users/${id}`).then(res => res.json()) as Promise<typeof payload>;
+  const fetchUsers = function (this: any, { id }: { id: string }) {
+    return fetch(`/${this.root || 'users'}/${id}`).then(res =>
+      res.json(),
+    ) as Promise<typeof payload>;
+  };
   const fetchAsset = ({ symbol }: { symbol: string }) =>
     fetch(`/asset/${symbol}`).then(res => res.json()) as Promise<
       typeof assetPayload
@@ -27,6 +30,8 @@ describe('Endpoint', () => {
       .reply(200)
       .get(`/users/${payload.id}`)
       .reply(200, payload)
+      .get(`/moreusers/${payload.id}`)
+      .reply(200, { ...payload, username: 'moreusers' })
       .get(`/asset/${assetPayload.symbol}`)
       .reply(200, assetPayload);
     nock(/.*/, { reqheaders: { Auth: 'password' } })
@@ -83,6 +88,35 @@ describe('Endpoint', () => {
         // @ts-expect-error
         UserDetail();
       }).toThrow();
+    });
+  });
+
+  describe('Function.bind', () => {
+    it('should work when called as function', async () => {
+      const UserDetail = new Endpoint(fetchUsers, { root: 'moreusers' });
+
+      // @ts-expect-error
+      UserDetail.bind(undefined, { id: { fiver: 5 } });
+
+      const boundDetail = UserDetail.bind(undefined, { id: payload.id });
+
+      // @ts-expect-error
+      boundDetail({ id: payload.id });
+
+      const response = await boundDetail();
+      expect(response).toEqual({ ...payload, username: 'moreusers' });
+      expect(response.username).toBe('moreusers');
+      // @ts-expect-error
+      expect(response.notexist).toBeUndefined();
+
+      // check additional properties defaults
+      expect(boundDetail.sideEffect).toBe(undefined);
+      expect(boundDetail.key()).toMatchInlineSnapshot(
+        `"fetch {\\"id\\":\\"5\\"}"`,
+      );
+      expect(boundDetail.root).toBe('moreusers');
+      // @ts-expect-error
+      expect(boundDetail.notexist).toBeUndefined();
     });
   });
 

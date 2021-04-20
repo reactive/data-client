@@ -32,7 +32,7 @@
     "build:bundle": "rollup -c",
     "build:clean": "rimraf lib dist ts3.4 *.tsbuildinfo",
     "build": "yarn run build:lib && yarn run build:bundle",
-    "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
+    "build:legacy-types": "yarn run downlevel-dts lib ts3.4 && copyfiles --up 1 ./src-legacy-types/**/*.d.ts ./ts3.4/",
     "dev": "yarn run build:lib -w",
     "prepare": "yarn run build:lib",
     "prepublishOnly": "yarn run build:bundle",
