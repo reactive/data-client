@@ -2,7 +2,6 @@ import { schema, Schema } from '@rest-hooks/normalizr';
 
 import { Normalize } from './normal';
 import { EndpointInterface } from './interface';
-
 export interface EndpointExtraOptions {
   /** Default data expiry length, will fall back to NetworkManager default if not defined */
   readonly dataExpiryLength?: number;
@@ -20,12 +19,11 @@ export interface EndpointExtraOptions {
   /** User-land extra data to send */
   readonly extra?: any;
 }
-
-export type FetchFunction<P = any, B = any, R = any> = (
-  ...args: readonly [params?: P, body?: B, ...rest: any]
+export declare type FetchFunction<P = any, B = any, R = any> = (
+  params?: P,
+  body?: B,
 ) => Promise<R>;
-
-export type OptimisticUpdateParams<
+export declare type OptimisticUpdateParams<
   SourceSchema extends Schema | undefined,
   Dest extends EndpointInterface<FetchFunction, Schema, any>
 > = [
@@ -33,22 +31,24 @@ export type OptimisticUpdateParams<
   Parameters<Dest>[0],
   UpdateFunction<SourceSchema, Exclude<Dest['schema'], undefined>>,
 ];
-
-export type UpdateFunction<
+export declare type UpdateFunction<
   SourceSchema extends Schema | undefined,
   DestSchema extends Schema
 > = (
   sourceResults: Normalize<SourceSchema>,
   destResults: Normalize<DestSchema> | undefined,
 ) => Normalize<DestSchema>;
-
-export type SchemaDetail<T> =
+export declare type SchemaDetail<T> =
   | schema.EntityInterface<T>
-  | { [K: string]: any }
+  | {
+      [K: string]: any;
+    }
   | schema.SchemaClass;
-
-export type SchemaList<T> =
+export declare type SchemaList<T> =
   | schema.EntityInterface<T>[]
-  | { [K: string]: any }
+  | {
+      [K: string]: any;
+    }
   | Schema[]
   | schema.SchemaClass;
+//# sourceMappingURL=types.d.ts.map

@@ -89,7 +89,7 @@ export interface EndpointInstance<
   >(
     this: E,
     thisArg: ThisParameterType<E>,
-    ...args: readonly [...P]
+    ...args: P
   ): EndpointInstance<() => ReturnType<E>, S, M> &
     Omit<E, keyof EndpointInstance<FetchFunction>>;
 

@@ -49,6 +49,19 @@ export default class Endpoint extends Function {
     return `${this.fetch.name} ${JSON.stringify(params)}`;
   }
 
+  bind(thisArg, ...args) {
+    const fetchFunc = this.fetch;
+    const keyFunc = this.key;
+    return this.extend({
+      fetch() {
+        return fetchFunc.apply(thisArg ?? this, args);
+      },
+      key() {
+        return keyFunc.apply(this, args);
+      },
+    });
+  }
+
   extend(options) {
     // make a constructor/prototype based off this
     // extend from it and init with options sent
