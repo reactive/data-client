@@ -14,6 +14,16 @@ describe('Endpoint', () => {
       res.json(),
     ) as Promise<typeof payload>;
   };
+  const fetchUsersIdParam = function (this: any, id: string) {
+    return fetch(`/${this.root || 'users'}/${id}`).then(res =>
+      res.json(),
+    ) as Promise<typeof payload>;
+  };
+  const fetchUserList = function (this: any) {
+    return fetch(`/${this.root || 'users'}/`).then(res =>
+      res.json(),
+    ) as Promise<typeof payload[]>;
+  };
   const fetchAsset = ({ symbol }: { symbol: string }) =>
     fetch(`/asset/${symbol}`).then(res => res.json()) as Promise<
       typeof assetPayload
@@ -30,6 +40,8 @@ describe('Endpoint', () => {
       .reply(200)
       .get(`/users/${payload.id}`)
       .reply(200, payload)
+      .get(`/users/`)
+      .reply(200, [payload])
       .get(`/moreusers/${payload.id}`)
       .reply(200, { ...payload, username: 'moreusers' })
       .get(`/asset/${assetPayload.symbol}`)
@@ -74,7 +86,7 @@ describe('Endpoint', () => {
       expect(UserDetail.sideEffect).toBe(undefined);
       //expect(UserDetail.schema).toBeUndefined(); TODO: re-enable once we don't care about FetchShape compatibility
       expect(UserDetail.key({ id: payload.id })).toMatchInlineSnapshot(
-        `"fetchUsers {\\"id\\":\\"5\\"}"`,
+        `"fetchUsers [{\\"id\\":\\"5\\"}]"`,
       );
       // @ts-expect-error
       expect(UserDetail.notexist).toBeUndefined();
@@ -82,12 +94,76 @@ describe('Endpoint', () => {
       const a: 'mutate' = UserDetail.type;
 
       // these are all meant to fail - are typescript tests
-      expect(() => {
+      expect(async () => {
         // @ts-expect-error
-        UserDetail({ id: 5 });
+        await UserDetail({ id: 5 });
         // @ts-expect-error
-        UserDetail();
-      }).toThrow();
+        await UserDetail();
+      }).rejects.toBeDefined();
+    });
+
+    it('should work when called with string parameter', async () => {
+      const UserDetail = new Endpoint(fetchUsersIdParam);
+
+      // check return type and call params
+      const response = await UserDetail(payload.id);
+      expect(response).toEqual(payload);
+      expect(response.username).toBe(payload.username);
+      // @ts-expect-error
+      expect(response.notexist).toBeUndefined();
+
+      // check additional properties defaults
+      expect(UserDetail.sideEffect).toBe(undefined);
+      //expect(UserDetail.schema).toBeUndefined(); TODO: re-enable once we don't care about FetchShape compatibility
+      expect(UserDetail.key(payload.id)).toMatchInlineSnapshot(
+        `"fetchUsersIdParam [\\"5\\"]"`,
+      );
+      // @ts-expect-error
+      expect(UserDetail.notexist).toBeUndefined();
+      // @ts-expect-error
+      const a: 'mutate' = UserDetail.type;
+
+      // these are all meant to fail - are typescript tests
+      expect(async () => {
+        // @ts-expect-error
+        await UserDetail({ id: payload.id });
+        // @ts-expect-error
+        UserDetail.key({ id: payload.id });
+        // @ts-expect-error
+        await UserDetail(5);
+        // @ts-expect-error
+        await UserDetail();
+      }).rejects.toBeDefined();
+    });
+
+    it('should work when called with zero parameters', async () => {
+      const UserList = new Endpoint(fetchUserList);
+
+      // check return type and call params
+      const response = await UserList();
+      expect(response).toEqual([payload]);
+      expect(response[0].username).toBe(payload.username);
+      // @ts-expect-error
+      expect(response.notexist).toBeUndefined();
+
+      // check additional properties defaults
+      expect(UserList.sideEffect).toBe(undefined);
+      //expect(UserList.schema).toBeUndefined(); TODO: re-enable once we don't care about FetchShape compatibility
+      expect(UserList.key()).toMatchInlineSnapshot(`"fetchUserList []"`);
+      // @ts-expect-error
+      expect(UserList.notexist).toBeUndefined();
+      // @ts-expect-error
+      const a: 'mutate' = UserList.type;
+
+      // these are all meant to fail - are typescript tests
+      expect(async () => {
+        // @ts-expect-error
+        await UserList({ id: payload.id });
+        // @ts-expect-error
+        UserList.key({ id: payload.id });
+        // @ts-expect-error
+        await UserList(5);
+      }).resolves;
     });
   });
 
@@ -112,7 +188,7 @@ describe('Endpoint', () => {
       // check additional properties defaults
       expect(boundDetail.sideEffect).toBe(undefined);
       expect(boundDetail.key()).toMatchInlineSnapshot(
-        `"fetch {\\"id\\":\\"5\\"}"`,
+        `"fetch [{\\"id\\":\\"5\\"}]"`,
       );
       expect(boundDetail.root).toBe('moreusers');
       // @ts-expect-error
@@ -220,7 +296,7 @@ describe('Endpoint', () => {
     expect(response.notexist).toBeUndefined();
 
     expect(AssetDetail.key({ symbol: 'doge' })).toMatchInlineSnapshot(
-      `"fetchAsset {\\"symbol\\":\\"doge\\"}"`,
+      `"fetchAsset [{\\"symbol\\":\\"doge\\"}]"`,
     );
   });
 

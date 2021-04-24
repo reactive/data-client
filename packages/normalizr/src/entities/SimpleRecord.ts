@@ -108,7 +108,14 @@ export default abstract class SimpleRecord {
 
   static normalize<T extends typeof SimpleRecord>(
     this: T,
-    ...args: any[]
+    ...args: [
+      input: any,
+      parent: any,
+      key: any,
+      visit: (...args: any) => any,
+      addEntity: (...args: any) => any,
+      visitedEntities: Record<string, any>,
+    ]
   ): NormalizedEntity<T> {
     return normalize(this.schema, ...args) as any;
   }

@@ -6,23 +6,21 @@ import type { EndpointExtraOptions, FetchFunction } from './types';
 import type { ResolveType } from './utility';
 
 export interface EndpointOptions<
-  K extends ((...args: any) => string) | undefined = undefined,
+  F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = undefined,
   M extends true | undefined = undefined
-> extends EndpointExtraOptions {
-  key?: K;
+> extends EndpointExtraOptions<F> {
+  key?: (...args: Parameters<F>) => string;
   sideEffect?: M;
   schema?: S;
   [k: string]: any;
 }
 
 export interface EndpointExtendOptions<
-  K extends ((...args: any) => string) | undefined =
-    | ((...args: any) => string)
-    | undefined,
+  F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined
-> extends EndpointOptions<K, S, M> {
+> extends EndpointOptions<F, S, M> {
   fetch?: FetchFunction;
 }
 
@@ -119,7 +117,7 @@ export interface EndpointInstance<
       Schema | undefined,
       true | undefined
     >,
-    O extends EndpointExtendOptions<EndpointInstance<F>['key']> &
+    O extends EndpointExtendOptions<F> &
       Partial<Omit<E, keyof EndpointInstance<FetchFunction>>>
   >(
     this: E,
@@ -147,7 +145,7 @@ export interface EndpointInstance<
   /** @deprecated */
   getFetchKey(params: Parameters<F>[0]): string;
   /** @deprecated */
-  options?: EndpointExtraOptions;
+  options?: EndpointExtraOptions<F>;
 }
 
 interface EndpointConstructor {
@@ -162,7 +160,7 @@ interface EndpointConstructor {
     E extends Record<string, any> = {}
   >(
     fetchFunction: F,
-    options?: EndpointOptions<EndpointInstance<F>['key'], S, M> & E,
+    options?: EndpointOptions<F, S, M> & E,
   ): EndpointInstance<F, S, M> & E;
   readonly prototype: Function;
 }

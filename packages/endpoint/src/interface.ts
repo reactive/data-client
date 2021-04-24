@@ -8,7 +8,7 @@ export interface EndpointInterface<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined
-> extends EndpointExtraOptions {
+> extends EndpointExtraOptions<F> {
   (...args: Parameters<F>): InferReturn<F, S>;
   key(...args: Parameters<F>): string;
   readonly sideEffect?: M;

@@ -3,6 +3,8 @@ import type {
   UpdateFunction,
   AbstractInstanceType,
   Schema,
+  FetchFunction,
+  EndpointExtraOptions,
 } from '@rest-hooks/endpoint';
 import { Middleware } from '@rest-hooks/use-enhanced-reducer';
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
@@ -57,23 +59,9 @@ export type State<T> = Readonly<{
   optimistic: ReceiveAction[];
 }>;
 
-export interface FetchOptions {
-  /** Default data expiry length, will fall back to NetworkManager default if not defined */
-  readonly dataExpiryLength?: number;
-  /** Default error expiry length, will fall back to NetworkManager default if not defined */
-  readonly errorExpiryLength?: number;
-  /** Poll with at least this frequency in miliseconds */
-  readonly pollFrequency?: number;
-  /** Marks cached resources as invalid if they are stale */
-  readonly invalidIfStale?: boolean;
-  /** Enables optimistic updates for this request - uses return value as assumed network response */
-  readonly optimisticUpdate?: (
-    params: Readonly<object>,
-    body: Readonly<object | string> | void,
-  ) => any;
-  /** User-land extra data to send */
-  readonly extra?: any;
-}
+export type FetchOptions<
+  F extends FetchFunction = FetchFunction
+> = EndpointExtraOptions<F>;
 
 export interface ReceiveMeta<S extends Schema | undefined> {
   schema: S;
