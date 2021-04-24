@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.21](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.20...rest-hooks@5.0.21) (2021-04-24)
+
+
+### 💅 Enhancement
+
+* Schema assistance for Delete ([#756](https://github.com/coinbase/rest-hooks/issues/756)) ([4dd6a5a](https://github.com/coinbase/rest-hooks/commit/4dd6a5a3f6f0f6bf024731a082dc48afa74cb327))
+* Support TypeScript 3.7 ([#752](https://github.com/coinbase/rest-hooks/issues/752)) ([68a10e0](https://github.com/coinbase/rest-hooks/commit/68a10e06dc0718f5e480097e6056a7a7954d1161))
+
+
+
 ### [5.0.20](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.19...rest-hooks@5.0.20) (2021-04-13)
 
 

@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.0.6...@rest-hooks/use-enhanced-reducer@1.0.6) (2021-04-24)
+
+
+### 💅 Enhancement
+
+* Support TypeScript 3.7 ([#752](https://github.com/coinbase/rest-hooks/issues/752)) ([68a10e0](https://github.com/coinbase/rest-hooks/commit/68a10e06dc0718f5e480097e6056a7a7954d1161))
+
+
+
 ## <small>1.0.5 (2020-08-12)</small>
 
 * enhance: Support React 17 (#397) ([a833f07](https://github.com/coinbase/rest-hooks/commit/a833f07)), closes [#397](https://github.com/coinbase/rest-hooks/issues/397)

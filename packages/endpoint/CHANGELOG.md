@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@1.0.12...@rest-hooks/endpoint@1.1.0) (2021-04-24)
+
+
+### 🚀 Features
+
+* Endpoint parameters can be of any length ([#767](https://github.com/coinbase/rest-hooks/issues/767)) ([552f837](https://github.com/coinbase/rest-hooks/commit/552f83740279376288879a661ff487c5c6f1d469))
+* Endpoint.bind() ([#762](https://github.com/coinbase/rest-hooks/issues/762)) ([b5ad3dd](https://github.com/coinbase/rest-hooks/commit/b5ad3dd8478bc8edbdfe752080e72024bc1686da))
+
+
+### 💅 Enhancement
+
+* Support TypeScript 3.7 ([#752](https://github.com/coinbase/rest-hooks/issues/752)) ([68a10e0](https://github.com/coinbase/rest-hooks/commit/68a10e06dc0718f5e480097e6056a7a7954d1161))
+
+
+
 ### [1.0.12](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@1.0.11...@rest-hooks/endpoint@1.0.12) (2021-04-12)
 
 **Note:** Version bump only for package @rest-hooks/endpoint

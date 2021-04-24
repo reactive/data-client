@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.0.6...@rest-hooks/rest@2.1.0) (2021-04-24)
+
+
+### 🚀 Features
+
+* Endpoint parameters can be of any length ([#767](https://github.com/coinbase/rest-hooks/issues/767)) ([552f837](https://github.com/coinbase/rest-hooks/commit/552f83740279376288879a661ff487c5c6f1d469))
+
+
+### 💅 Enhancement
+
+* Schema assistance for Delete ([#756](https://github.com/coinbase/rest-hooks/issues/756)) ([4dd6a5a](https://github.com/coinbase/rest-hooks/commit/4dd6a5a3f6f0f6bf024731a082dc48afa74cb327))
+* Support TypeScript 3.7 ([#752](https://github.com/coinbase/rest-hooks/issues/752)) ([68a10e0](https://github.com/coinbase/rest-hooks/commit/68a10e06dc0718f5e480097e6056a7a7954d1161))
+
+
+
 ### [2.0.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.0.5...@rest-hooks/rest@2.0.6) (2021-04-12)
 
 
