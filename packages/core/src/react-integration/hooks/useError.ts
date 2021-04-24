@@ -1,4 +1,4 @@
-import { ReadShape } from '@rest-hooks/core/endpoint';
+import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
 import { NetworkError, UnknownError } from '@rest-hooks/core/types';
 import { Schema } from '@rest-hooks/endpoint';
 
@@ -18,11 +18,10 @@ type UseErrorReturn<P> = P extends null ? undefined : ErrorTypes | undefined;
 
 /** Access a resource or error if failed to get it */
 export default function useError<
-  Params extends Readonly<object>,
-  S extends Schema
+  Shape extends Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>
 >(
-  fetchShape: Pick<ReadShape<S, Params>, 'getFetchKey' | 'schema' | 'options'>,
-  params: Params | null,
+  fetchShape: Shape,
+  params: ParamsFromShape<Shape> | null,
   cacheReady: boolean,
 ): UseErrorReturn<typeof params> {
   const meta = useMeta(fetchShape, params);
