@@ -5,7 +5,7 @@ export type RestFetch<
   P = any,
   B = RequestInit['body'] | Record<string, any>,
   R = any
-> = (this: RestEndpoint, params: P, body?: B) => Promise<R>;
+> = (this: RestEndpoint, params?: P, body?: B) => Promise<R>;
 
 export type FetchMutate<
   P = any,

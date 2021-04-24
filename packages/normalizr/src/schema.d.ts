@@ -10,10 +10,11 @@ import {
   NormalizeObject,
   NormalizedNullableObject,
   UnvisitFunction,
+  EntityMap,
 } from './types';
 import { default as Delete } from './schemas/Delete';
 
-export { Delete };
+export { Delete, EntityMap };
 
 export type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
 export type SchemaFunction<K = string> = (
@@ -27,7 +28,6 @@ export type SchemaAttributeFunction<S extends Schema> = (
   parent: any,
   key: string,
 ) => S;
-export type EntityMap<T = any> = Record<string, EntityInterface<T>>;
 export type { UnvisitFunction };
 export type UnionResult<Choices extends EntityMap> = {
   id: string;

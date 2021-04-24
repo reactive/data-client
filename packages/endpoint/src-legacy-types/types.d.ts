@@ -2,7 +2,8 @@ import { schema, Schema } from '@rest-hooks/normalizr';
 
 import { Normalize } from './normal';
 import { EndpointInterface } from './interface';
-export interface EndpointExtraOptions {
+import { ResolveType } from './utility';
+export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   /** Default data expiry length, will fall back to NetworkManager default if not defined */
   readonly dataExpiryLength?: number;
   /** Default error expiry length, will fall back to NetworkManager default if not defined */
@@ -12,10 +13,7 @@ export interface EndpointExtraOptions {
   /** Marks cached resources as invalid if they are stale */
   readonly invalidIfStale?: boolean;
   /** Enables optimistic updates for this request - uses return value as assumed network response */
-  readonly optimisticUpdate?: (
-    params: Readonly<object>,
-    body: Readonly<object | string> | void,
-  ) => any;
+  readonly optimisticUpdate?: (...args: Parameters<F>) => ResolveType<F>;
   /** User-land extra data to send */
   readonly extra?: any;
 }

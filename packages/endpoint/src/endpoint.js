@@ -45,8 +45,8 @@ export default class Endpoint extends Function {
     return self;
   }
 
-  key(params) {
-    return `${this.fetch.name} ${JSON.stringify(params)}`;
+  key(...args) {
+    return `${this.fetch.name} ${JSON.stringify(args)}`;
   }
 
   bind(thisArg, ...args) {

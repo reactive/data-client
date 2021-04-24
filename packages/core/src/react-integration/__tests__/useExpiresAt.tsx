@@ -102,13 +102,10 @@ describe('useExpiresAt()', () => {
         key: () => 'listtaco',
       },
     );
-    const DetailTaco = new Endpoint(
-      (a: Record<string, unknown>) => Promise.resolve({}),
-      {
-        schema: Tacos,
-        key: ({ id }: { id: any }) => `detailtaco ${id}`,
-      },
-    );
+    const DetailTaco = new Endpoint((a: { id: any }) => Promise.resolve({}), {
+      schema: Tacos,
+      key: ({ id }: { id: any }) => `detailtaco ${id}`,
+    });
     const state = {
       entities: {
         Tacos: {

@@ -415,6 +415,23 @@ export const GetNoEntities = new Endpoint(
   },
 );
 
+export const Post = new Endpoint(
+  async function ({ userId }: { userId: string }, body: BodyInit) {
+    return await (
+      await fetch(`http://test.com/users/${userId}/simple`, {
+        method: 'POST',
+        body,
+      })
+    ).json();
+  },
+  {
+    key({ userId }: { userId: string }) {
+      return `/users/${userId}/simple`;
+    },
+    schema: { firstThing: '', someItems: [] as { a: number }[] },
+  },
+);
+
 export function makeErrorBoundary(cb: (error: any) => void) {
   return class ErrorInterceptor extends React.Component<any, { error: any }> {
     state = { error: null };

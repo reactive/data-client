@@ -150,3 +150,5 @@ export type NormalizedSchema<E, R> = {
   result: R;
   indexes: NormalizedIndex;
 };
+
+export type EntityMap<T = any> = Record<string, EntityInterface<T>>;
