@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1618548857559,
+  "lastUpdate": 1619297202119,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -1102,6 +1102,44 @@ window.BENCHMARK_DATA = {
             "range": "±2.64%",
             "unit": "ops/sec",
             "extra": "48 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "552f83740279376288879a661ff487c5c6f1d469",
+          "message": "feat: Endpoint parameters can be of any length (#767)",
+          "timestamp": "2021-04-24T13:44:42-07:00",
+          "tree_id": "752bbe4f59835d40d35b39992ab620fc4df4248a",
+          "url": "https://github.com/coinbase/rest-hooks/commit/552f83740279376288879a661ff487c5c6f1d469"
+        },
+        "date": 1619297199696,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 86.86,
+            "range": "±1.58%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 33.13,
+            "range": "±2.58%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
           }
         ]
       }
