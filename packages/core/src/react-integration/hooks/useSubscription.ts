@@ -1,14 +1,13 @@
 import { DispatchContext } from '@rest-hooks/core/react-integration/context';
-import { ReadShape } from '@rest-hooks/core/endpoint';
-import { Schema } from '@rest-hooks/endpoint';
+import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
 import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '@rest-hooks/core/actionTypes';
 import { useContext, useEffect, useRef } from 'react';
 
 /** Keeps a resource fresh by subscribing to updates. */
-export default function useSubscription<
-  Params extends Readonly<object>,
-  S extends Schema
->(fetchShape: ReadShape<S, Params>, params: Params | null) {
+export default function useSubscription<Shape extends ReadShape<any, any>>(
+  fetchShape: Shape,
+  params: ParamsFromShape<Shape> | null,
+) {
   const dispatch = useContext(DispatchContext);
   /*
   we just want the current values when we dispatch, so
