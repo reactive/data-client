@@ -8,6 +8,7 @@ import {
   CoolerArticleDetail,
   TypedArticleResource,
   IndexedUserResource,
+  UnionResource,
 } from '__tests__/new';
 import nock from 'nock';
 import { act } from '@testing-library/react-hooks';
@@ -263,6 +264,38 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           expect(item.username).toBeUndefined();
         }
       });
+    });
+
+    it('should passthrough union with unexpected schema attribute', () => {
+      const prevWarn = global.console.warn;
+      global.console.warn = jest.fn();
+
+      const { result } = renderRestHook(
+        () => {
+          return useResource(UnionResource.list(), {});
+        },
+        {
+          results: [
+            {
+              request: UnionResource.list(),
+              params: {},
+              result: [
+                null,
+                { id: '5', body: 'hi', type: 'first' },
+                { id: '5', body: 'hi', type: 'another' },
+                { id: '5', body: 'hi' },
+              ],
+            },
+          ],
+        },
+      );
+      expect(result.current).toBeDefined();
+      expect(result.current[0]).toBeNull();
+      expect(result.current[1]).toBeInstanceOf(UnionResource);
+      expect(result.current[2]).not.toBeInstanceOf(UnionResource);
+      expect(result.current[3]).not.toBeInstanceOf(UnionResource);
+      expect((global.console.warn as jest.Mock).mock.calls).toMatchSnapshot();
+      global.console.warn = prevWarn;
     });
 
     it('should resolve useResource() with SimpleRecords', async () => {
