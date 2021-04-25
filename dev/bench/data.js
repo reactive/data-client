@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1619303240147,
+  "lastUpdate": 1619326665511,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -1178,6 +1178,44 @@ window.BENCHMARK_DATA = {
             "range": "±2.88%",
             "unit": "ops/sec",
             "extra": "53 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "20886f65cba2e741e1496990123f97f38852aaf4",
+          "message": "fix: Delete should only be triggered on finding DELETE symbol (#770)",
+          "timestamp": "2021-04-24T21:55:31-07:00",
+          "tree_id": "c3ed03c8ba52390d905e91720a762aa51c775321",
+          "url": "https://github.com/coinbase/rest-hooks/commit/20886f65cba2e741e1496990123f97f38852aaf4"
+        },
+        "date": 1619326664410,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 76.4,
+            "range": "±1.32%",
+            "unit": "ops/sec",
+            "extra": "65 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 27.07,
+            "range": "±2.38%",
+            "unit": "ops/sec",
+            "extra": "49 samples"
           }
         ]
       }
