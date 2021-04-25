@@ -1,6 +1,6 @@
 {
   "name": "rest-hooks",
-  "version": "5.0.21",
+  "version": "5.0.22",
   "description": "Asynchronous data framework for React",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
@@ -81,8 +81,8 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.2",
-    "@rest-hooks/core": "^1.1.0",
-    "@rest-hooks/endpoint": "^1.1.0"
+    "@rest-hooks/core": "^1.1.1",
+    "@rest-hooks/endpoint": "^1.1.1"
   },
   "peerDependencies": {
     "@types/react": "^16.8.4 || ^17.0.0",

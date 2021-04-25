@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.1.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.1.0...@rest-hooks/normalizr@6.1.1) (2021-04-25)
+
+
+### 🐛 Bug Fix
+
+* Delete should only be triggered on finding DELETE symbol ([#770](https://github.com/coinbase/rest-hooks/issues/770)) ([20886f6](https://github.com/coinbase/rest-hooks/commit/20886f65cba2e741e1496990123f97f38852aaf4))
+
+
+
 ## [6.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.0.9...@rest-hooks/normalizr@6.1.0) (2021-04-24)
 
 
