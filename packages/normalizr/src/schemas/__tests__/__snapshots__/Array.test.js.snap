@@ -971,6 +971,31 @@ Array [
   ],
   Array [
     Object {
+      "id": "789",
+      "name": "fido",
+    },
+    Array [
+      Object {
+        "id": "123",
+        "type": "Cat",
+      },
+      Object {
+        "id": "123",
+        "type": "people",
+      },
+      Object {
+        "id": "789",
+        "name": "fido",
+      },
+      Object {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  Array [
+    Object {
       "id": "456",
       "type": "Cat",
     },

@@ -53,6 +53,30 @@ IndexedUserResource {
 }
 `;
 
+exports[`makeCacheProvider => <Provider /> should passthrough union with unexpected schema attribute 1`] = `
+Array [
+  Array [
+    "Schema attribute \\"another\\" is not expected.
+Expected one of: \\"first\\", \\"second\\"
+
+Value: {
+  \\"id\\": \\"5\\",
+  \\"body\\": \\"hi\\",
+  \\"type\\": \\"another\\"
+}",
+  ],
+  Array [
+    "Schema attribute undefined is not expected.
+Expected one of: \\"first\\", \\"second\\"
+
+Value: {
+  \\"id\\": \\"5\\",
+  \\"body\\": \\"hi\\"
+}",
+  ],
+]
+`;
+
 exports[`makeCacheProvider => <Provider /> should resolve useResource() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
@@ -167,6 +191,30 @@ IndexedUserResource {
   "isAdmin": false,
   "username": "charlie",
 }
+`;
+
+exports[`makeExternal => <Provider /> should passthrough union with unexpected schema attribute 1`] = `
+Array [
+  Array [
+    "Schema attribute \\"another\\" is not expected.
+Expected one of: \\"first\\", \\"second\\"
+
+Value: {
+  \\"id\\": \\"5\\",
+  \\"body\\": \\"hi\\",
+  \\"type\\": \\"another\\"
+}",
+  ],
+  Array [
+    "Schema attribute undefined is not expected.
+Expected one of: \\"first\\", \\"second\\"
+
+Value: {
+  \\"id\\": \\"5\\",
+  \\"body\\": \\"hi\\"
+}",
+  ],
+]
 `;
 
 exports[`makeExternal => <Provider /> should resolve useResource() with SimpleRecords 1`] = `

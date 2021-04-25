@@ -35,6 +35,21 @@ export default class PolymorphicSchema {
   normalizeValue(value, parent, key, visit, addEntity, visitedEntities) {
     const schema = this.inferSchema(value, parent, key);
     if (!schema) {
+      if (process.env.NODE_ENV !== 'production') {
+        const attr = this.getSchemaAttribute(value, parent, key);
+        console.warn(
+          `Schema attribute ${JSON.stringify(
+            attr,
+            undefined,
+            2,
+          )} is not expected.
+Expected one of: ${Object.keys(this.schema)
+            .map(k => `"${k}"`)
+            .join(', ')}
+
+Value: ${JSON.stringify(value, undefined, 2)}`,
+        );
+      }
       return value;
     }
     const normalizedValue = visit(
@@ -61,7 +76,7 @@ export default class PolymorphicSchema {
     }
     const schemaKey = isImmutable(value) ? value.get('schema') : value.schema;
     if (!this.isSingleSchema && !schemaKey) {
-      return [value, true, true];
+      return [value, true, false];
     }
     const id = this.isSingleSchema
       ? undefined
