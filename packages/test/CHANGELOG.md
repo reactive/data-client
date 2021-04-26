@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.1.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@4.1.2...@rest-hooks/test@4.1.3) (2021-04-26)
+
+
+### 🐛 Bug Fix
+
+* useMeta() parameters type ([#775](https://github.com/coinbase/rest-hooks/issues/775)) ([9f7fae4](https://github.com/coinbase/rest-hooks/commit/9f7fae4dba0d797fdfac114e52cdd5ea90f4d61f))
+
+
+
 ### [4.1.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@4.1.1...@rest-hooks/test@4.1.2) (2021-04-24)
 
 

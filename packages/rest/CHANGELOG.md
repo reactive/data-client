@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [2.1.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.1.0...@rest-hooks/rest@2.1.1) (2021-04-26)
+
+
+### 💅 Enhancement
+
+* Flexible url parameters for RestEndpoint ([#776](https://github.com/coinbase/rest-hooks/issues/776)) ([382d3b1](https://github.com/coinbase/rest-hooks/commit/382d3b112ebee0141260b0a41600568a02fda3fb))
+
+
+
 ## [2.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.0.6...@rest-hooks/rest@2.1.0) (2021-04-24)
 
 
