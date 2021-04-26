@@ -1,0 +1,54 @@
+import type { FetchAction } from '@rest-hooks/core';
+import { actionTypes } from '@rest-hooks/core';
+import type { EndpointInterface } from '@rest-hooks/endpoint';
+
+/** Requesting a fetch to begin
+ *
+ * @param endpoint
+ * @param options { args, throttle }
+ */
+export default function createFetch<E extends EndpointInterface>(
+  endpoint: E,
+  { args, throttle }: { args: readonly [...Parameters<E>]; throttle: boolean },
+): FetchAction {
+  const key = endpoint.key(...args);
+  let resolve: (value?: any | PromiseLike<any>) => void = 0 as any;
+  let reject: (reason?: any) => void = 0 as any;
+  const promise = new Promise<any>((a, b) => {
+    [resolve, reject] = [a, b];
+  });
+  const meta: FetchAction['meta'] = {
+    schema: endpoint.schema,
+    type: endpoint.sideEffect ? ('mutate' as const) : ('read' as const),
+    key,
+    throttle,
+    options: endpoint,
+    resolve,
+    reject,
+    promise,
+    createdAt:
+      process.env.NODE_ENV === 'test'
+        ? new Date(0)
+        : /* istanbul ignore next */ new Date(),
+  };
+
+  /*if (endpoint.update) {
+    meta.updaters = updateParams.reduce(
+      (accumulator: object, [toShape, toParams, updateFn]) => ({
+        [toShape.getFetchKey(toParams)]: updateFn,
+        ...accumulator,
+      }),
+      {},
+    );
+  }*/
+
+  if (endpoint.optimisticUpdate) {
+    meta.optimisticResponse = endpoint.optimisticUpdate(...args);
+  }
+
+  return {
+    type: actionTypes.FETCH_TYPE,
+    payload: () => endpoint(...args),
+    meta,
+  };
+}
