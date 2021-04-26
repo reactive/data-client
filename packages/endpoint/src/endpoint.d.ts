@@ -143,7 +143,7 @@ export interface EndpointInstance<
     : IfAny<M, any, IfTypeScriptLooseNull<'read', 'mutate'>>;
 
   /** @deprecated */
-  getFetchKey(...args: Parameters<F>): string;
+  getFetchKey(params: Parameters<F>[0]): string;
   /** @deprecated */
   options?: EndpointExtraOptions<F>;
 }

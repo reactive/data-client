@@ -118,9 +118,6 @@ describe('Endpoint', () => {
       expect(UserDetail.key(payload.id)).toMatchInlineSnapshot(
         `"fetchUsersIdParam [\\"5\\"]"`,
       );
-      expect(UserDetail.getFetchKey(payload.id)).toMatchInlineSnapshot(
-        `"fetchUsersIdParam [\\"5\\"]"`,
-      );
       // @ts-expect-error
       expect(UserDetail.notexist).toBeUndefined();
       // @ts-expect-error
@@ -132,8 +129,6 @@ describe('Endpoint', () => {
         await UserDetail({ id: payload.id });
         // @ts-expect-error
         UserDetail.key({ id: payload.id });
-        // @ts-expect-error
-        UserDetail.getFetchKey({ id: payload.id });
         // @ts-expect-error
         await UserDetail(5);
         // @ts-expect-error
