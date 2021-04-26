@@ -5,7 +5,7 @@ export type RestFetch<
   P = any,
   B = RequestInit['body'] | Record<string, any>,
   R = any
-> = (this: RestEndpoint, params?: P, body?: B) => Promise<R>;
+> = (this: RestEndpoint, params?: P, body?: B, ...rest: any) => Promise<R>;
 
 export type FetchMutate<
   P = any,
@@ -25,9 +25,10 @@ export type FetchGet<P = any, R = any> = (
 export interface RestEndpoint<
   F extends FetchFunction = RestFetch,
   S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined
+  M extends true | undefined = true | undefined,
+  U extends any[] = any
 > extends EndpointInstance<F, S, M> {
-  url: (urlParams: Readonly<Record<string, any>>) => string;
+  url: (...args: U) => string;
   fetchInit: RequestInit;
   useFetchInit: (this: any) => any;
   getFetchInit: (

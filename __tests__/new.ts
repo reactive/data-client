@@ -211,6 +211,63 @@ export class TypedArticleResource extends CoolerArticleResource {
   }
 }
 
+export class FutureArticleResource extends CoolerArticleResource {
+  static update<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    FetchMutate<
+      { id: number },
+      Partial<AbstractInstanceType<T>>,
+      Partial<AbstractInstanceType<T>>
+    >,
+    SchemaDetail<AbstractInstanceType<T>>,
+    true
+  > {
+    return super.update();
+  }
+
+  static create<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    (
+      body: Partial<AbstractInstanceType<T>>,
+    ) => Promise<Partial<AbstractInstanceType<T>>>,
+    SchemaDetail<AbstractInstanceType<T>>,
+    true,
+    Parameters<T['listUrl']>
+  > {
+    const instanceFetch = this.fetch.bind(this);
+    return super.create().extend({
+      fetch(body: Partial<AbstractInstanceType<T>>) {
+        return instanceFetch(this.url(), this.getFetchInit(body));
+      },
+      url: this.listUrl.bind(this),
+    });
+  }
+
+  static detail<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    (id: number) => Promise<Partial<AbstractInstanceType<T>>>,
+    T,
+    undefined
+  > {
+    return super.detail().extend({ schema: this });
+  }
+
+  /*static list<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    (
+      options?: Record<string, any>,
+    ) => Promise<Partial<AbstractInstanceType<T>>[]>,
+    T[],
+    undefined
+  > {
+    return super.detail().extend({ schema: [this] });
+  } - once useResource() takes variable params*/
+}
+
 export const CoolerArticleDetail = new Endpoint(({ id }: { id: number }) => {
   return fetch(`http://test.com/article-cooler/${id}`).then(res =>
     res.json(),
