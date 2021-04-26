@@ -1,4 +1,4 @@
-import { FetchShape } from '@rest-hooks/core/endpoint';
+import { FetchShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
 import { StateContext } from '@rest-hooks/core/react-integration/context';
 import { selectMeta } from '@rest-hooks/core/state/selectors';
 import { useContext, useMemo } from 'react';
@@ -6,7 +6,7 @@ import { useContext, useMemo } from 'react';
 /** Gets meta for a fetch key. */
 export default function useMeta<
   Shape extends Pick<FetchShape<any, any>, 'getFetchKey'>
->({ getFetchKey }: Shape, params: FetchShape<Shape> | null) {
+>({ getFetchKey }: Shape, params: ParamsFromShape<Shape> | null) {
   const state = useContext(StateContext);
   const key = params ? getFetchKey(params) : '';
 
