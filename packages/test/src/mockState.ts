@@ -1,5 +1,5 @@
 import {
-  ReadShape,
+  FetchShape,
   Schema,
   reducer,
   createReceive,
@@ -9,15 +9,15 @@ import {
 } from '@rest-hooks/core';
 
 export interface SuccessFixture {
-  request: ReadShape<Schema, object>;
-  params: object;
+  request: FetchShape<Schema, any>;
+  params?: any;
   result: object | string | number;
   error?: false;
 }
 
 export interface ErrorFixture {
-  request: ReadShape<Schema, object>;
-  params: object;
+  request: FetchShape<Schema, any>;
+  params?: any;
   result: Error;
   error: true;
 }
