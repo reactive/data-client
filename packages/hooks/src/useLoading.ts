@@ -15,11 +15,12 @@ import { useEffect, useState, useRef, useCallback } from 'react';
  *   );
  * }
  */
-export default function useLoading<F extends (...args: any) => Promise<any>>(
-  func: F,
-  onError?: (error: Error) => void,
-): [F, boolean] {
+export default function useLoading<
+  F extends (...args: any) => Promise<any>,
+  E extends Error
+>(func: F, onError?: (error: E) => void): [F, boolean, E | undefined] {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<undefined | E>(undefined);
   const isMountedRef = useRef(true);
   useEffect(
     () => () => {
@@ -35,6 +36,7 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
         ret = await func(...args);
       } catch (e) {
         if (onError) onError(e);
+        setError(e);
         throw e;
       } finally {
         if (isMountedRef.current) {
@@ -45,5 +47,5 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
     },
     [onError, func],
   );
-  return [wrappedFunc as any, loading];
+  return [wrappedFunc as any, loading, error];
 }

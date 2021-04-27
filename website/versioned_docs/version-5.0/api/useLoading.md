@@ -17,7 +17,7 @@ Helps track loading state of imperative async functions.
 import { useLoading } from '@rest-hooks/hooks';
 
 function Button({ onClick, children, ...props }) {
-  const [clickHandler, loading] = useLoading(onClick);
+  const [clickHandler, loading, error] = useLoading(onClick);
   return (
     <button onClick={clickHandler} {...props}>
       {loading ? 'Loading...' : children}
@@ -50,7 +50,7 @@ function TodoListItem({ todo }) {
     [partialUpdate],
   );
 
-  const [toggleHandler, loading] = useLoading(toggle);
+  const [toggleHandler, loading, error] = useLoading(toggle);
 
   return (
     <div>
@@ -60,6 +60,7 @@ function TodoListItem({ todo }) {
         onChange={toggleHandler}
       />
       {loading ? <Spinner /> : null}
+      {error ? <Error>{error}</Error> : null}
       {todo.title}
     </div>
   );
