@@ -101,6 +101,7 @@ describe('useLoading()', () => {
     });
     await waitForNextUpdate();
     expect(result.current[1]).toBe(false);
+    expect(result.current[2]).toBeDefined();
     expect(errcb).toHaveBeenCalledWith(error);
     expect(rejectedError).toBe(error);
     // maintain referential equality
@@ -132,6 +133,8 @@ describe('useLoading()', () => {
     await waitForNextUpdate();
     expect(result.current[1]).toBe(false);
     expect(rejectedError).toBe(error);
+    expect(result.current[2]).toBeDefined();
+    expect(result.current[2]).toBe(error);
     // maintain referential equality
     expect(result.current[0]).toBe(wrappedFunc);
   });

@@ -38,7 +38,7 @@ Helps track loading state of imperative async functions.
 
 ```tsx
 function Button({ onClick, children, ...props }) {
-  const [clickHandler, loading] = useLoading(onClick);
+  const [clickHandler, loading, error] = useLoading(onClick);
   return (
     <button onClick={clickHandler} {...props}>
       {loading ? 'Loading...' : children}
