@@ -44,15 +44,15 @@
   resolved "https://registry.yarnpkg.com/@anansi/browserslist-config/-/browserslist-config-1.2.0.tgz#60d58a9caf93d730f093084ae8e51fa01310d4e7"
   integrity sha512-5dssJtY7DAa674IzR//vZ4Jk9Ey/OmwExDuxcvYQ3ob6mKybvt/65lk9dL0ORUJn4+tjxOq5lV/OChPbelP3dg==
 
-"@anansi/eslint-plugin@0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@anansi/eslint-plugin/-/eslint-plugin-0.11.0.tgz#b1c278054d45cc7fc3c53b4ac2629d35922dcf2d"
-  integrity sha512-E3OlP1reTZymjoBMbouT3nSRZXbCdQbY9a0v/kMs9p+2byoqBo0+mIWOfnprMN23Nw+Ck7wPu9Aoc0OnVveFYQ==
+"@anansi/eslint-plugin@0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@anansi/eslint-plugin/-/eslint-plugin-0.11.1.tgz#bd9b0f23bb501210306d5c232498a3e0c7aaf39f"
+  integrity sha512-/qzwL7H9rmVCXdVJGu5ztJ1SPp+ckKxl9UO1VHYDr887v0g0z3VwT8+UXOnwoBg/iQt47a01DRvnwcPO/1m/hg==
   dependencies:
     "@babel/eslint-parser" "^7.13.14"
     "@typescript-eslint/eslint-plugin" "^4.22.0"
     "@typescript-eslint/parser" "^4.22.0"
-    eslint-config-prettier "^8.2.0"
+    eslint-config-prettier "^8.3.0"
     eslint-import-resolver-typescript "^2.4.0"
     eslint-import-resolver-webpack "^0.13.0"
     eslint-plugin-babel "^5.3.1"
@@ -5800,10 +5800,10 @@ escodegen@^1.14.1:
   optionalDependencies:
     source-map "~0.6.1"
 
-eslint-config-prettier@^8.2.0:
-  version "8.2.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-8.2.0.tgz#78de77d63bca8e9e59dae75a614b5299925bb7b3"
-  integrity sha512-dWV9EVeSo2qodOPi1iBYU/x6F6diHv8uujxbxr77xExs3zTAlNXvVZKiyLsQGNz7yPV2K49JY5WjPzNIuDc2Bw==
+eslint-config-prettier@^8.3.0:
+  version "8.3.0"
+  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-8.3.0.tgz#f7471b20b6fe8a9a9254cc684454202886a2dd7a"
+  integrity sha512-BgZuLUSeKzvlL/VUjx/Yb787VQ26RU3gGjA3iiFvdsp/2bMfVIWUVP7tjxtjS0e+HP409cPlPvNkQloz8C91ew==
 
 eslint-import-resolver-node@^0.3.4:
   version "0.3.4"
