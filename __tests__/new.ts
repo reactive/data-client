@@ -212,6 +212,13 @@ export class TypedArticleResource extends CoolerArticleResource {
 }
 
 export class FutureArticleResource extends CoolerArticleResource {
+  static url(id: any): string {
+    if (this.pk({ id }) !== undefined) {
+      return `${this.urlRoot.replace(/\/$/, '')}/${this.pk({ id })}`;
+    }
+    return this.urlRoot;
+  }
+
   static update<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
