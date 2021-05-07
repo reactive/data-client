@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1619330662136,
+  "lastUpdate": 1620416429036,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -1254,6 +1254,44 @@ window.BENCHMARK_DATA = {
             "range": "±2.52%",
             "unit": "ops/sec",
             "extra": "48 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7978a77ee87ebc929ccdef3bbbf73f1bd8a74cb5",
+          "message": "internal: bump redux in /packages/normalizr/examples/redux (#802)\n\nBumps [redux](https://github.com/reduxjs/redux) from 4.0.5 to 4.1.0.\r\n- [Release notes](https://github.com/reduxjs/redux/releases)\r\n- [Changelog](https://github.com/reduxjs/redux/blob/master/CHANGELOG.md)\r\n- [Commits](https://github.com/reduxjs/redux/compare/v4.0.5...v4.1.0)\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\n\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2021-05-07T12:38:11-07:00",
+          "tree_id": "be07f7ca867a250949654ab225c323288a836e00",
+          "url": "https://github.com/coinbase/rest-hooks/commit/7978a77ee87ebc929ccdef3bbbf73f1bd8a74cb5"
+        },
+        "date": 1620416427897,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 74.46,
+            "range": "±1.52%",
+            "unit": "ops/sec",
+            "extra": "65 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 28.03,
+            "range": "±2.27%",
+            "unit": "ops/sec",
+            "extra": "50 samples"
           }
         ]
       }
