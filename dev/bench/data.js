@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1620420394184,
+  "lastUpdate": 1620533390184,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -1330,6 +1330,44 @@ window.BENCHMARK_DATA = {
             "range": "±1.27%",
             "unit": "ops/sec",
             "extra": "55 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4387aeb8f050b54a2059bc21f1060a49f539e4f6",
+          "message": "enhance: Remove dependency on fromJS() from denormalize (#805)\n\n* enhance: Remove dependency on fromJS() from denormalize\r\n\r\n* fix: hasOwnProperty",
+          "timestamp": "2021-05-08T21:07:28-07:00",
+          "tree_id": "9f31aba810f6b4376f700d5eda7d28685b1cb64b",
+          "url": "https://github.com/coinbase/rest-hooks/commit/4387aeb8f050b54a2059bc21f1060a49f539e4f6"
+        },
+        "date": 1620533389074,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 66.03,
+            "range": "±1.03%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 26.65,
+            "range": "±2.37%",
+            "unit": "ops/sec",
+            "extra": "48 samples"
           }
         ]
       }
