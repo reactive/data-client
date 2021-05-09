@@ -242,9 +242,21 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
 
   static denormalize<T extends typeof SimpleRecord>(
     this: T,
-    input: AbstractInstanceType<T>,
+    input: Readonly<Partial<AbstractInstanceType<T>>>,
     unvisit: schema.UnvisitFunction,
   ): [AbstractInstanceType<T>, boolean, boolean] {
+    // TODO: remove immutable case once we stop storing instances in normalized cache
+    const entityCopy: AbstractInstanceType<T> = isImmutable(input)
+      ? (input as any)
+      : this.fromJS(
+          input instanceof SimpleRecord
+            ? this.toObjectDefined(input as any)
+            : input,
+        );
+    // Need to set this first so that if it is referenced further within the
+    // denormalization the reference will already exist.
+    unvisit.setLocal?.(entityCopy);
+
     // TODO: this entire function is redundant with SimpleRecord, however right now we're storing the Entity instance
     // itself in cache. Once we offer full memoization, we will store raw objects and this can be consolidated with SimpleRecord
     if (isImmutable(input)) {
@@ -258,25 +270,27 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     // TODO: This creates unneeded memory pressure
     const instance = new (this as any)();
     let deleted = false;
-    const denormEntity = input;
 
     // note: iteration order must be stable
     Object.keys(this.schema).forEach(key => {
       const schema = this.schema[key];
-      const nextInput = this.hasDefined(input, key as any)
+      const nextInput = Object.hasOwnProperty.call(input, key)
         ? input[key]
         : undefined;
       const [value, , deletedItem] = unvisit(nextInput, schema);
 
-      if (deletedItem && !(key in instance && !instance[key])) {
+      if (
+        deletedItem &&
+        !(Object.hasOwnProperty.call(input, key) && !instance[key])
+      ) {
         deleted = true;
       }
-      if (this.hasDefined(input, key as any) && denormEntity[key] !== value) {
-        denormEntity[key] = value;
+      if (Object.hasOwnProperty.call(input, key) && input[key] !== value) {
+        entityCopy[key] = value;
       }
     });
 
-    return [denormEntity as any, true, deleted];
+    return [entityCopy, true, deleted];
   }
 }
 

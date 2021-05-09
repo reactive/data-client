@@ -12,6 +12,7 @@ import Entity, { isEntity } from './entities/Entity';
 import { DELETED } from './special';
 import { EntityInterface } from './schema';
 import WeakListMap from './WeakListMap';
+import { schema } from '.';
 
 const unvisitEntity = (
   id: any,
@@ -45,18 +46,16 @@ const unvisitEntity = (
   if (!localCache[schema.key][id]) {
     const globalKey: EntityInterface[] = [entity];
     const wrappedUnvisit = withTrackedEntities(unvisit, globalKey);
+    wrappedUnvisit.setLocal = entityCopy =>
+      (localCache[schema.key][id] = entityCopy);
 
     if (!entityCache[schema.key]) entityCache[schema.key] = {};
     if (!entityCache[schema.key][id])
       entityCache[schema.key][id] = new WeakListMap();
     const globalCacheEntry = entityCache[schema.key][id];
 
-    const entityCopy = isImmutable(entity) ? entity : schema.fromJS(entity);
-    // Need to set this first so that if it is referenced further within the
-    // denormalization the reference will already exist.
-    localCache[schema.key][id] = entityCopy;
     [localCache[schema.key][id], found, deleted] = schema.denormalize(
-      entityCopy,
+      entity,
       wrappedUnvisit,
     );
 
@@ -233,7 +232,7 @@ export const denormalizeSimple = <S extends Schema>(
 function withTrackedEntities(
   unvisit: UnvisitFunction,
   globalKey: EntityInterface<any>[],
-) {
+): schema.UnvisitFunction {
   // every time we nest, we want to unwrap back to the top.
   // this is due to only needed the next level of nested entities for lookup
   const originalUnvisit = unvisit.og || unvisit;
