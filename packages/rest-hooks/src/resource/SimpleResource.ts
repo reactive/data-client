@@ -57,10 +57,7 @@ export default abstract class SimpleResource extends FlatEntity {
       return urlParams.url;
     }
     if (this.pk(urlParams as any) !== undefined) {
-      if (this.urlRoot.endsWith('/')) {
-        return `${this.urlRoot}${this.pk(urlParams as any)}`;
-      }
-      return `${this.urlRoot}/${this.pk(urlParams as any)}`;
+      return `${this.urlRoot.replace(/\/$/, '')}/${this.pk(urlParams as any)}`;
     }
     return this.urlRoot;
   }
