@@ -274,13 +274,18 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     // note: iteration order must be stable
     Object.keys(this.schema).forEach(key => {
       const schema = this.schema[key];
-      const nextInput = key in input ? input[key] : undefined;
+      const nextInput = Object.hasOwnProperty.call(input, key)
+        ? input[key]
+        : undefined;
       const [value, , deletedItem] = unvisit(nextInput, schema);
 
-      if (deletedItem && !(key in instance && !instance[key])) {
+      if (
+        deletedItem &&
+        !(Object.hasOwnProperty.call(input, key) && !instance[key])
+      ) {
         deleted = true;
       }
-      if (key in input && input[key] !== value) {
+      if (Object.hasOwnProperty.call(input, key) && input[key] !== value) {
         entityCopy[key] = value;
       }
     });
