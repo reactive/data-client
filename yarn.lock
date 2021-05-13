@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@anansi/babel-preset@2.5.12":
-  version "2.5.12"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.5.12.tgz#289aecebe1c314c91d60476675ef0c4bcd01b94d"
-  integrity sha512-Pw3309Os8w4IXPQs1tDte5fG7fjce0j+3EC5Ee0awiC9X516UOcZ+SUq0O0yjVEJcXFAs3NVUGbaNrRxsGiw0g==
+"@anansi/babel-preset@2.5.13":
+  version "2.5.13"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.5.13.tgz#685a58fd7c9a889f1708cb0b4162fe23fcdb8d79"
+  integrity sha512-ozH4yOU1sVJn3NsBm7yALcW4UCnEmCAlwulg7Y0d7ya13QAbdHGLaGt2IdJ5kG6ugZfS0JL4QzBkiTiWGn+3jA==
   dependencies:
     "@anansi/ts-utils" "^0.2.4"
     "@babel/plugin-proposal-class-properties" "^7.13.0"
