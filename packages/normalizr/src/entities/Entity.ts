@@ -236,7 +236,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
       }
     });
 
-    addEntity(this, processedEntity, processedEntity, parent, key);
+    addEntity(this, processedEntity, id);
     return id;
   }
 
