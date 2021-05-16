@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1620533390184,
+  "lastUpdate": 1621131663740,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -1368,6 +1368,44 @@ window.BENCHMARK_DATA = {
             "range": "±2.37%",
             "unit": "ops/sec",
             "extra": "48 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b86d1031e0d9f3935a6f38d2b38ffc1c1078cbf9",
+          "message": "internal(pkg): bump prettier from 2.2.1 to 2.3.0 (#808)\n\n* internal(pkg): bump prettier from 2.2.1 to 2.3.0\r\n\r\nBumps [prettier](https://github.com/prettier/prettier) from 2.2.1 to 2.3.0.\r\n- [Release notes](https://github.com/prettier/prettier/releases)\r\n- [Changelog](https://github.com/prettier/prettier/blob/main/CHANGELOG.md)\r\n- [Commits](https://github.com/prettier/prettier/compare/2.2.1...2.3.0)\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\n\r\n* internal: lint updates\r\n\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\r\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2021-05-15T19:17:17-07:00",
+          "tree_id": "24e6b16c7747a09e4a0f0df3b9ef8b16a229f392",
+          "url": "https://github.com/coinbase/rest-hooks/commit/b86d1031e0d9f3935a6f38d2b38ffc1c1078cbf9"
+        },
+        "date": 1621131662469,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 72.36,
+            "range": "±1.89%",
+            "unit": "ops/sec",
+            "extra": "61 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 26.32,
+            "range": "±2.03%",
+            "unit": "ops/sec",
+            "extra": "47 samples"
           }
         ]
       }
