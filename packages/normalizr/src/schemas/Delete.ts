@@ -47,7 +47,7 @@ export default class Delete<E extends EntityInterface & { fromJS: any }>
       (error as any).status = 400;
       throw error;
     }
-    addEntity(this._entity, DELETED, processedEntity, parent, key);
+    addEntity(this._entity, DELETED, id);
     return id;
   }
 

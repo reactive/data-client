@@ -262,7 +262,7 @@ describe('normalize', () => {
             visitedEntities,
           );
         });
-        addEntity(this, entity, parent, key);
+        addEntity(this, entity, this.pk(entity));
         return {
           uuid: this.pk(entity),
           schema: this.key,
