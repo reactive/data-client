@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1621131663740,
+  "lastUpdate": 1621206485704,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -1406,6 +1406,44 @@ window.BENCHMARK_DATA = {
             "range": "±2.03%",
             "unit": "ops/sec",
             "extra": "47 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "18a805d3b6990beadf5426ce28448fd9ee47ad9a",
+          "message": "enhance: Simplify normalize addEntity function (#820)\n\nBREAKING CHANGE: normalize arg addEntity is now addEntity(schema,\r\nprocessed, id)",
+          "timestamp": "2021-05-16T16:05:34-07:00",
+          "tree_id": "aa37b11a0381778093a84e0ad4ff9ded9aed97b3",
+          "url": "https://github.com/coinbase/rest-hooks/commit/18a805d3b6990beadf5426ce28448fd9ee47ad9a"
+        },
+        "date": 1621206484570,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 71.52,
+            "range": "±1.50%",
+            "unit": "ops/sec",
+            "extra": "60 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 26.69,
+            "range": "±2.57%",
+            "unit": "ops/sec",
+            "extra": "48 samples"
           }
         ]
       }
