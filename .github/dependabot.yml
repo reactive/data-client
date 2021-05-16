@@ -21,6 +21,8 @@ updates:
     # Check the npm registry for updates every day (weekdays)
     schedule:
       interval: "weekly"
+      time: "21:00"
+      timezone: "America/Chicago"
     labels:
       - "dependencies"
     commit-message:
