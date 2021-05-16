@@ -1,17 +1,21 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import SimpleRecord from './SimpleRecord';
-import { isImmutable, denormalizeImmutable } from '../schemas/ImmutableUtils';
-import * as schema from '../schema';
-import { AbstractInstanceType, Schema } from '../types';
+import { schema } from '@rest-hooks/endpoint';
+import type { AbstractInstanceType, Schema } from '@rest-hooks/endpoint';
+
+import { isImmutable, denormalizeImmutable } from './ImmutableUtils';
 
 /** Represents data that should be deduped by specifying a primary key. */
-export default abstract class Entity extends SimpleRecord {
+export default abstract class Entity {
   static toJSON() {
     return {
-      ...super.toJSON(),
+      name: this.name,
+      schema: this.schema,
       key: this.key,
     };
   }
+
+  /** Defines nested entities */
+  static schema: { [k: string]: Schema } = {};
 
   /**
    * A unique identifier for each Entity
@@ -63,6 +67,39 @@ export default abstract class Entity extends SimpleRecord {
     return this.prototype.pk.call(value, parent, key) || key;
   }
 
+  /** Creates new instance copying over defined values of arguments */
+  static merge<T extends typeof Entity>(
+    this: T,
+    existing: Partial<AbstractInstanceType<T>>,
+    incoming: Partial<AbstractInstanceType<T>>,
+  ) {
+    return Object.assign(existing, incoming);
+  }
+
+  /** Factory method to convert from Plain JS Objects.
+   *
+   * @param [props] Plain Object of properties to assign.
+   * @param [parent] When normalizing, the object which included the record
+   * @param [key] When normalizing, the key where this record was found
+   */
+  static fromJS<T extends typeof Entity>(
+    this: T,
+    // TODO: this should only accept members that are not functions
+    props: Partial<AbstractInstanceType<T>> = {},
+  ): AbstractInstanceType<T> {
+    // we type guarded abstract case above, so ok to force typescript to allow constructor call
+    const instance = new (this as any)(props) as AbstractInstanceType<T>;
+    // we can't rely on constructors and override the defaults provided as property assignments
+    // all occur after the constructor
+    Object.assign(instance, props);
+    return instance;
+  }
+
+  /** Do any transformations when first receiving input */
+  static process(input: any, parent: any, key: string | undefined): any {
+    return input;
+  }
+
   static normalize(
     input: any,
     parent: any,
@@ -73,8 +110,7 @@ export default abstract class Entity extends SimpleRecord {
   ): any {
     // pass over already processed entities
     if (typeof input === 'string') return input;
-    // TODO: what's store needs to be a differing type from fromJS
-    const processedEntity = this.fromJS(input, parent, key);
+    const processedEntity = this.process(input, parent, key);
     /* istanbul ignore else */
     if (
       process.env.NODE_ENV !== 'production' &&
@@ -82,7 +118,7 @@ export default abstract class Entity extends SimpleRecord {
     ) {
       const instanceSample = new (this as any)();
       const keysOfRecord = new Set(Object.keys(instanceSample));
-      const keysOfProps = this.keysDefined(processedEntity);
+      const keysOfProps = Object.keys(processedEntity);
       const [found, missing, unexpected] = [[], [], []] as [
         string[],
         string[],
@@ -103,7 +139,7 @@ export default abstract class Entity extends SimpleRecord {
 
       // only bother with this if they used *any* defaults
       if (keysOfRecord.size) {
-        if (Array.isArray(input) && unexpected.length) {
+        if (Array.isArray(processedEntity) && unexpected.length) {
           const errorMessage = `Attempted to initialize ${
             this.name
           } with an array, but named members were expected
@@ -115,7 +151,7 @@ Learn more about schemas: https://resthooks.io/docs/api/schema
 If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
 Missing: ${missing}
-First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
+First three members: ${JSON.stringify(processedEntity.slice(0, 3), null, 2)}`;
           if (this.automaticValidation !== 'warn') {
             const error = new Error(errorMessage);
             (error as any).status = 400;
@@ -157,7 +193,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
 
   Expected keys:
     Found: ${found}${extra}
-  Value: ${JSON.stringify(this.toObjectDefined(processedEntity), null, 2)}`;
+  Value (processed): ${JSON.stringify(processedEntity, null, 2)}`;
           if (
             (found.length >= 4 && tooManyUnexpected) ||
             this.automaticValidation === 'warn'
@@ -171,7 +207,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
         }
       }
     }
-    const id = processedEntity.pk(parent, key);
+    const id = this.pk(processedEntity, parent, key);
     if (id === undefined || id === '') {
       if (process.env.NODE_ENV !== 'production') {
         const error = new Error(
@@ -183,7 +219,9 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
   Learn more about schemas: https://resthooks.io/docs/api/schema
 
   Entity: ${this.name}
-  Value: ${input && JSON.stringify(input, null, 2)}
+  Value (processed): ${
+    processedEntity && JSON.stringify(processedEntity, null, 2)
+  }
   `,
         );
         (error as any).status = 400;
@@ -220,19 +258,22 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
           visitedEntities,
         );
       } else if (process.env.NODE_ENV !== 'production') {
-        const error = new Error(
-          `Schema key is missing in Entity
+        const instanceSample = new (this as any)();
+        if (!Object.hasOwnProperty.call(instanceSample, key)) {
+          const error = new Error(
+            `Schema key is missing in Entity
 
   Be sure all schema members are also part of the entity
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
   Learn more about nesting schemas: https://resthooks.io/docs/guides/nested-response
 
-  Entity keys: ${Object.keys(processedEntity)}
+  Entity keys: ${Object.keys(instanceSample)}
   Schema key(missing): ${key}
   `,
-        );
-        (error as any).status = 400;
-        throw error;
+          );
+          (error as any).status = 400;
+          throw error;
+        }
       }
     });
 
@@ -240,26 +281,15 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     return id;
   }
 
-  static denormalize<T extends typeof SimpleRecord>(
+  static denormalize<T extends typeof Entity>(
     this: T,
     input: Readonly<Partial<AbstractInstanceType<T>>>,
     unvisit: schema.UnvisitFunction,
   ): [AbstractInstanceType<T>, boolean, boolean] {
-    // TODO: remove immutable case once we stop storing instances in normalized cache
-    const entityCopy: AbstractInstanceType<T> = isImmutable(input)
-      ? (input as any)
-      : this.fromJS(
-          input instanceof SimpleRecord
-            ? this.toObjectDefined(input as any)
-            : input,
-        );
-    // Need to set this first so that if it is referenced further within the
-    // denormalization the reference will already exist.
-    unvisit.setLocal?.(entityCopy);
-
-    // TODO: this entire function is redundant with SimpleRecord, however right now we're storing the Entity instance
-    // itself in cache. Once we offer full memoization, we will store raw objects and this can be consolidated with SimpleRecord
     if (isImmutable(input)) {
+      // Need to set this first so that if it is referenced further within the
+      // denormalization the reference will already exist.
+      unvisit.setLocal?.(input);
       const [denormEntity, found, deleted] = denormalizeImmutable(
         this.schema,
         input,
@@ -267,6 +297,11 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
       );
       return [this.fromJS(denormEntity.toObject()), found, deleted];
     }
+    const entityCopy: any = this.fromJS(input);
+    // Need to set this first so that if it is referenced further within the
+    // denormalization the reference will already exist.
+    unvisit.setLocal?.(entityCopy);
+
     // TODO: This creates unneeded memory pressure
     const instance = new (this as any)();
     let deleted = false;
@@ -275,7 +310,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     Object.keys(this.schema).forEach(key => {
       const schema = this.schema[key];
       const nextInput = Object.hasOwnProperty.call(input, key)
-        ? input[key]
+        ? (input as any)[key]
         : undefined;
       const [value, , deletedItem] = unvisit(nextInput, schema);
 
@@ -285,25 +320,34 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
       ) {
         deleted = true;
       }
-      if (Object.hasOwnProperty.call(input, key) && input[key] !== value) {
-        entityCopy[key] = value;
+      if (
+        Object.hasOwnProperty.call(input, key) &&
+        (input as any)[key] !== value
+      ) {
+        this.set(entityCopy, key, value);
       }
     });
 
     return [entityCopy, true, deleted];
   }
+
+  /** Used by denormalize to set nested members */
+  protected static set(entity: any, key: string, value: any) {
+    entity[key] = value;
+  }
 }
 
 if (process.env.NODE_ENV !== 'production') {
+  const superFrom = Entity.fromJS;
   // for those not using TypeScript this is a good catch to ensure they are defining
   // the abstract members
-  Entity.fromJS = function fromJS<T extends typeof SimpleRecord>(
+  Entity.fromJS = function fromJS<T extends typeof Entity>(
     this: T,
     props: Partial<AbstractInstanceType<T>>,
   ): AbstractInstanceType<T> {
     if ((this as any).prototype.pk === undefined)
       throw new Error('cannot construct on abstract types');
-    return SimpleRecord.fromJS.call(this, props) as any;
+    return superFrom.call(this, props) as any;
   };
 }
 

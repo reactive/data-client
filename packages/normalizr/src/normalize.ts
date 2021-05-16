@@ -54,9 +54,8 @@ const addEntities =
     existingEntities: Record<string, any>,
     existingIndexes: any,
   ) =>
-  (schema: any, processedEntity: any, value: any, parent: any, key: string) => {
+  (schema: any, processedEntity: any, id: any) => {
     const schemaKey = schema.key;
-    const id = schema.pk(value, parent, key);
     if (!(schemaKey in entities)) {
       entities[schemaKey] = {};
     }

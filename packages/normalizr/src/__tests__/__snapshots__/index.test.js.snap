@@ -543,16 +543,5 @@ Array [
     },
     undefined,
   ],
-  Array [
-    Recommendations {
-      "user": "456",
-    },
-    Object {
-      "user": Object {
-        "id": "456",
-      },
-    },
-    undefined,
-  ],
 ]
 `;

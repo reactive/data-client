@@ -7,6 +7,7 @@ const baseConfig = {
     'node_modules',
     'react-integration/hooks/useSelection',
     'packages/test',
+    'packages/experimental',
   ],
   testURL: 'http://localhost',
 };
