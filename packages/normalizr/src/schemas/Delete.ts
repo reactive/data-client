@@ -4,7 +4,8 @@ import { DELETED } from '../special';
 import type { AbstractInstanceType } from '..';
 
 export default class Delete<E extends EntityInterface & { fromJS: any }>
-  implements SchemaClass {
+  implements SchemaClass
+{
   private declare _entity: E;
 
   constructor(entity: E) {

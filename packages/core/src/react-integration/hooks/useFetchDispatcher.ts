@@ -19,7 +19,7 @@ export default function useFetchDispatcher(
   UpdateParams extends OptimisticUpdateParams<
     SchemaFromShape<Shape>,
     FetchShape<any, any, any>
-  >[]
+  >[],
 >(
   fetchShape: Shape,
   params: ParamsFromShape<Shape>,

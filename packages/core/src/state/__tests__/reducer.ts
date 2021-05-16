@@ -231,7 +231,7 @@ describe('reducer', () => {
       });
 
       const insertBeforeUpdater = <
-        T extends { results?: string[] } | undefined
+        T extends { results?: string[] } | undefined,
       >(
         newPage: { results: string[] },
         oldResults: T,
@@ -370,7 +370,8 @@ describe('reducer', () => {
             { id: 11 },
             {
               [ArticleResourceWithOtherListUrl.listUrl()]: insertAfterUpdater,
-              [ArticleResourceWithOtherListUrl.otherListUrl()]: insertAfterUpdater,
+              [ArticleResourceWithOtherListUrl.otherListUrl()]:
+                insertAfterUpdater,
             },
           ),
         );

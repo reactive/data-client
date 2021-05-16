@@ -62,8 +62,9 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
 
     it('useSubscription() + useCache()', async () => {
       jest.useFakeTimers();
-      const frequency: number = (PollingArticleResource.detailShape()
-        .options as any).pollFrequency;
+      const frequency: number = (
+        PollingArticleResource.detailShape().options as any
+      ).pollFrequency;
       let active = true;
 
       const { result, waitForNextUpdate, rerender } = renderRestHook(() => {
@@ -93,8 +94,9 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
 
     it('useSubscription() without active arg', async () => {
       jest.useFakeTimers();
-      const frequency: number = (PollingArticleResource.detailShape()
-        .options as any).pollFrequency;
+      const frequency: number = (
+        PollingArticleResource.detailShape().options as any
+      ).pollFrequency;
 
       const { result, waitForNextUpdate } = renderRestHook(() => {
         useSubscription(PollingArticleResource.detailShape(), articlePayload);

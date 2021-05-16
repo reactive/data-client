@@ -11,7 +11,7 @@ import useFetchDispatcher from './useFetchDispatcher';
 
 /** Build an imperative dispatcher to issue network requests. */
 export default function useFetcher<
-  Shape extends FetchShape<Schema, Readonly<object>, any>
+  Shape extends FetchShape<Schema, Readonly<object>, any>,
 >(
   fetchShape: Shape,
   throttle = false,
@@ -19,7 +19,7 @@ export default function useFetcher<
   UpdateParams extends OptimisticUpdateParams<
     SchemaFromShape<Shape>,
     FetchShape<any, any, any>
-  >[]
+  >[],
 >(
   a: Parameters<Shape['fetch']>[0],
   b?: Parameters<Shape['fetch']>[1],

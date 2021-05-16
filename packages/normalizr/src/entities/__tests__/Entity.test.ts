@@ -544,7 +544,7 @@ describe(`${Entity.name} normalization`, () => {
         ) {
           return super.fromJS({
             ...props,
-            slug: `thing-${((props as unknown) as ProcessTaco).id}`,
+            slug: `thing-${(props as unknown as ProcessTaco).id}`,
           }) as AbstractInstanceType<T>;
         }
       }

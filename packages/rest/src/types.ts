@@ -4,13 +4,13 @@ import { EndpointInstance, FetchFunction } from '@rest-hooks/endpoint';
 export type RestFetch<
   P = any,
   B = RequestInit['body'] | Record<string, any>,
-  R = any
+  R = any,
 > = (this: RestEndpoint, params?: P, body?: B, ...rest: any) => Promise<R>;
 
 export type FetchMutate<
   P = any,
   B = RequestInit['body'] | Record<string, any>,
-  R = any
+  R = any,
 > = (this: RestEndpoint, params: P, body: B) => Promise<R>;
 
 export type FetchGet<P = any, R = any> = (
@@ -26,7 +26,7 @@ export interface RestEndpoint<
   F extends FetchFunction = RestFetch,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined,
-  U extends any[] = any
+  U extends any[] = any,
 > extends EndpointInstance<F, S, M> {
   url: (...args: U) => string;
   fetchInit: RequestInit;

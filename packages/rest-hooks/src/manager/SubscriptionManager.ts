@@ -41,7 +41,8 @@ export interface SubscriptionConstructable {
  * subscriptions are handled. (e.g., polling, websockets)
  */
 export default class SubscriptionManager<S extends SubscriptionConstructable>
-  implements Manager {
+  implements Manager
+{
   protected subscriptions: {
     [key: string]: InstanceType<S>;
   } = {};

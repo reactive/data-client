@@ -5,7 +5,7 @@ import { useContext, useMemo } from 'react';
 
 /** Gets meta for a fetch key. */
 export default function useMeta<
-  Shape extends Pick<FetchShape<any, any>, 'getFetchKey'>
+  Shape extends Pick<FetchShape<any, any>, 'getFetchKey'>,
 >({ getFetchKey }: Shape, params: ParamsFromShape<Shape> | null) {
   const state = useContext(StateContext);
   const key = params ? getFetchKey(params) : '';

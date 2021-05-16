@@ -40,40 +40,39 @@ export default class NetworkManager implements Manager {
       dispatch,
       getState,
     }: MiddlewareAPI<R>) => {
-      return (next: Dispatch<R>) => (
-        action: React.ReducerAction<R>,
-      ): Promise<void> => {
-        switch (action.type) {
-          case FETCH_TYPE:
-            this.handleFetch(action, dispatch);
-            // This is the only case that causes any state change
-            // It's important to intercept other fetches as we don't want to trigger reducers during
-            // render - so we need to stop 'readonly' fetches which can be triggered in render
-            if (action.meta.optimisticResponse !== undefined) {
-              return next(action);
-            }
-            return Promise.resolve();
-          case RECEIVE_TYPE:
-            // only receive after new state is computed
-            return next(action).then(() => {
-              if (action.meta.key in this.fetched) {
-                // Note: meta *must* be set by reducer so this should be safe
-                const error = getState().meta[action.meta.key]?.error;
-                // processing errors result in state meta having error, so we should reject the promise
-                if (error) {
-                  this.handleReceive(createReceiveError(error, action.meta));
-                } else {
-                  this.handleReceive(action);
-                }
+      return (next: Dispatch<R>) =>
+        (action: React.ReducerAction<R>): Promise<void> => {
+          switch (action.type) {
+            case FETCH_TYPE:
+              this.handleFetch(action, dispatch);
+              // This is the only case that causes any state change
+              // It's important to intercept other fetches as we don't want to trigger reducers during
+              // render - so we need to stop 'readonly' fetches which can be triggered in render
+              if (action.meta.optimisticResponse !== undefined) {
+                return next(action);
               }
-            });
-          case RESET_TYPE:
-            this.cleanup();
-            return next(action);
-          default:
-            return next(action);
-        }
-      };
+              return Promise.resolve();
+            case RECEIVE_TYPE:
+              // only receive after new state is computed
+              return next(action).then(() => {
+                if (action.meta.key in this.fetched) {
+                  // Note: meta *must* be set by reducer so this should be safe
+                  const error = getState().meta[action.meta.key]?.error;
+                  // processing errors result in state meta having error, so we should reject the promise
+                  if (error) {
+                    this.handleReceive(createReceiveError(error, action.meta));
+                  } else {
+                    this.handleReceive(action);
+                  }
+                }
+              });
+            case RESET_TYPE:
+              this.cleanup();
+              return next(action);
+            default:
+              return next(action);
+          }
+        };
     };
   }
 

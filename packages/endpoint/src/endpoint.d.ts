@@ -8,7 +8,7 @@ import type { ResolveType } from './utility';
 export interface EndpointOptions<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = undefined,
-  M extends true | undefined = undefined
+  M extends true | undefined = undefined,
 > extends EndpointExtraOptions<F> {
   key?: (...args: Parameters<F>) => string;
   sideEffect?: M;
@@ -19,7 +19,7 @@ export interface EndpointOptions<
 export interface EndpointExtendOptions<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined
+  M extends true | undefined = true | undefined,
 > extends EndpointOptions<F, S, M> {
   fetch?: FetchFunction;
 }
@@ -41,7 +41,7 @@ export function Make(...args: any[]): EndpointInstance<FetchFunction>;
 export interface EndpointInstance<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined
+  M extends true | undefined = true | undefined,
 > extends EndpointInterface<
     F,
     S extends undefined ? schema.SchemaClass<ResolveType<F>> : S,
@@ -83,7 +83,7 @@ export interface EndpointInstance<
       Schema | undefined,
       true | undefined
     >,
-    P extends Parameters<F>
+    P extends Parameters<F>,
   >(
     this: E,
     thisArg: ThisParameterType<E>,
@@ -118,7 +118,7 @@ export interface EndpointInstance<
       true | undefined
     >,
     O extends EndpointExtendOptions<F> &
-      Partial<Omit<E, keyof EndpointInstance<FetchFunction>>>
+      Partial<Omit<E, keyof EndpointInstance<FetchFunction>>>,
   >(
     this: E,
     options: O,
@@ -157,7 +157,7 @@ interface EndpointConstructor {
     ) => Promise<any>,
     S extends Schema | undefined = undefined,
     M extends true | undefined = undefined,
-    E extends Record<string, any> = {}
+    E extends Record<string, any> = {},
   >(
     fetchFunction: F,
     options?: EndpointOptions<F, S, M> & E,

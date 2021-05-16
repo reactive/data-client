@@ -30,7 +30,7 @@ export type BodyArg<RS> = RS extends {
  */
 export type SetShapeParams<
   Shape extends FetchShape<any, any, any>,
-  Params extends Readonly<object>
+  Params extends Readonly<object>,
 > = {
   [K in keyof Shape]: Shape[K];
 } &
@@ -49,7 +49,7 @@ export type ParamsFromShape<S> = S extends {
 
 /** Get the Schema type for a given Shape */
 export type SchemaFromShape<
-  F extends FetchShape<Schema | undefined, any, any>
+  F extends FetchShape<Schema | undefined, any, any>,
 > = F['schema'];
 
 /** Get the Body type for a given Shape */
@@ -59,7 +59,7 @@ export type BodyFromShape<F extends FetchShape<any, any, any>> = Parameters<
 
 export type OptimisticUpdateParams<
   SourceSchema extends Schema | undefined,
-  DestShape extends FetchShape<any, any, any>
+  DestShape extends FetchShape<any, any, any>,
 > = [
   DestShape,
   ParamsFromShape<DestShape>,

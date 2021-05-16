@@ -6,7 +6,7 @@ import { INVALIDATE_TYPE } from '@rest-hooks/core/actionTypes';
 
 /** Invalidate a certain item within the cache */
 export default function useInvalidateDispatcher(): <
-  Shape extends ReadShape<any, any>
+  Shape extends ReadShape<any, any>,
 >(
   fetchShape: Shape,
   params: ParamsFromShape<Shape>,

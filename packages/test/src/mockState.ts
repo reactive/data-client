@@ -49,7 +49,7 @@ export function actionFromFixture(fixture: Fixture) {
 export default function mockInitialState<
   S extends Schema,
   Params extends Readonly<object> = Readonly<object>,
-  Body extends Readonly<object | string> | void = Readonly<object> | undefined
+  Body extends Readonly<object | string> | void = Readonly<object> | undefined,
 >(results: Fixture[]) {
   const mockState = results.reduce((acc, fixture) => {
     const { action } = actionFromFixture(fixture);

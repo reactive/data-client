@@ -35,7 +35,7 @@ export type UnionResult<Choices extends EntityMap> = {
 };
 
 export type Serializable<
-  T extends { toJSON(): string } = { toJSON(): string }
+  T extends { toJSON(): string } = { toJSON(): string },
 > = {
   prototype: T;
 };
@@ -97,7 +97,8 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
 }
 
 export class Object<O extends Record<string, any> = Record<string, Schema>>
-  implements SchemaClass {
+  implements SchemaClass
+{
   constructor(definition: O);
   define(definition: Schema): void;
   readonly schema: O;

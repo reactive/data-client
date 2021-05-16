@@ -23,12 +23,11 @@ describe('createEnhancedReducerHook', () => {
       return next(action);
     };
   };
-  const makeTestMiddleware = (spy: (...args: any) => any) => (
-    methods: MiddlewareAPI,
-  ) => {
-    spy(methods);
-    return (next: any) => (action: any) => next(action);
-  };
+  const makeTestMiddleware =
+    (spy: (...args: any) => any) => (methods: MiddlewareAPI) => {
+      spy(methods);
+      return (next: any) => (action: any) => next(action);
+    };
   const dispatchingMiddleware = ({ dispatch }: MiddlewareAPI) => {
     return (next: any) => (action: any) => {
       if (action.type === 'dispatch') {
@@ -37,19 +36,21 @@ describe('createEnhancedReducerHook', () => {
       return next(action);
     };
   };
-  const makeStatefulMiddleware = ({
-    callBefore,
-    callAfter,
-  }: {
-    callBefore: (...args: any) => any;
-    callAfter: (...args: any) => any;
-  }) => ({ getState }: MiddlewareAPI) => {
-    return (next: any) => async (action: any) => {
-      callBefore(getState());
-      await next(action);
-      callAfter(getState());
+  const makeStatefulMiddleware =
+    ({
+      callBefore,
+      callAfter,
+    }: {
+      callBefore: (...args: any) => any;
+      callAfter: (...args: any) => any;
+    }) =>
+    ({ getState }: MiddlewareAPI) => {
+      return (next: any) => async (action: any) => {
+        callBefore(getState());
+        await next(action);
+        callAfter(getState());
+      };
     };
-  };
 
   test('runs through zero middlewares', () => {
     const { result } = renderHook(() => {
