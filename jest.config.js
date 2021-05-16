@@ -1,51 +1,14 @@
-const { pathsToModuleNameMapper } = require('ts-jest/utils');
-const ts = require('typescript');
-
-function readTsConfig(path = './', configName = 'tsconfig.json') {
-  const parseConfigHost = {
-    fileExists: ts.sys.fileExists,
-    readFile: ts.sys.readFile,
-    readDirectory: ts.sys.readDirectory,
-    useCaseSensitiveFileNames: true,
-  };
-
-  const configFileName = ts.findConfigFile(path, ts.sys.fileExists, configName);
-  const configFile = ts.readConfigFile(configFileName, ts.sys.readFile);
-  const compilerOptions = ts.parseJsonConfigFileContent(
-    configFile.config,
-    parseConfigHost,
-    path,
-  );
-  return compilerOptions;
-}
+process.env.ANANSI_JEST_BABELCONFIG = 'babel.config.js';
+process.env.ANANSI_JEST_TSCONFIG = 'tsconfig.test.json';
 
 const baseConfig = {
-  transform: {
-    '^.+\\.tsx?$': 'ts-jest',
-    '^.+\\.(j)sx?$': ['babel-jest', { rootMode: 'upward' }],
-  },
-  globals: {
-    'ts-jest': {
-      babelConfig: 'babel.config.js',
-      tsconfig: '<rootDir>/tsconfig.test.json',
-    },
-  },
-  testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(j|t)sx?$',
+  preset: '@anansi/jest-preset',
   coveragePathIgnorePatterns: [
     'node_modules',
     'react-integration/hooks/useSelection',
     'packages/test',
     'packages/experimental',
   ],
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
-  moduleNameMapper: {
-    ...pathsToModuleNameMapper(
-      readTsConfig('./', 'tsconfig.test.json').options.paths,
-      {
-        prefix: '<rootDir>/',
-      },
-    ),
-  },
   testURL: 'http://localhost',
 };
 
