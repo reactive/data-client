@@ -8,7 +8,7 @@ import { useMemo, useRef } from 'react';
 export default function useCancelling<
   E extends EndpointInterface & {
     extend: (o: { signal?: AbortSignal | undefined }) => any;
-  }
+  },
 >(endpoint: E, params: EndpointParam<E> | null): E {
   const abortRef = useRef<AbortController>();
 

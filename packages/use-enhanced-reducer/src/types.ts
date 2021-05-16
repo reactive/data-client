@@ -1,7 +1,7 @@
 import React from 'react';
 
 export interface MiddlewareAPI<
-  R extends React.Reducer<any, any> = React.Reducer<any, any>
+  R extends React.Reducer<any, any> = React.Reducer<any, any>,
 > {
   getState: () => React.ReducerState<R>;
   dispatch: Dispatch<R>;

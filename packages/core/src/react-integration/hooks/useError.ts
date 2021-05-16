@@ -18,7 +18,7 @@ type UseErrorReturn<P> = P extends null ? undefined : ErrorTypes | undefined;
 
 /** Access a resource or error if failed to get it */
 export default function useError<
-  Shape extends Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>
+  Shape extends Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>,
 >(
   fetchShape: Shape,
   params: ParamsFromShape<Shape> | null,

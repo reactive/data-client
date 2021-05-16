@@ -21,9 +21,11 @@ export default function mergeDeepCopy<T1, T2>(
       // second argument takes priority over first
       // if either of these is undefined, it resolves to 'false' which
       // means we fallback to 'newer' (source) takes priority
-      return (targetMeta?.date > sourceDate
-        ? Static.merge(source, target)
-        : Static.merge(target, source)) as any;
+      return (
+        targetMeta?.date > sourceDate
+          ? Static.merge(source, target)
+          : Static.merge(target, source)
+      ) as any;
     } else {
       return source as any;
     }

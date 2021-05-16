@@ -79,7 +79,7 @@ export default abstract class SimpleRecord {
     instance: AbstractInstanceType<T>,
     key: Filter<keyof AbstractInstanceType<T>, string>,
   ) {
-    return ((instance as any) as SimpleResourceMembers<T>)[
+    return (instance as any as SimpleResourceMembers<T>)[
       DefinedMembersKey
     ].includes(key);
   }
@@ -90,7 +90,7 @@ export default abstract class SimpleRecord {
     instance: AbstractInstanceType<T>,
   ) {
     const defined: Partial<AbstractInstanceType<T>> = {};
-    for (const member of ((instance as any) as SimpleResourceMembers<T>)[
+    for (const member of (instance as any as SimpleResourceMembers<T>)[
       DefinedMembersKey
     ]) {
       defined[member] = instance[member];
@@ -103,7 +103,7 @@ export default abstract class SimpleRecord {
     this: T,
     instance: AbstractInstanceType<T>,
   ) {
-    return ((instance as any) as SimpleResourceMembers<T>)[DefinedMembersKey];
+    return (instance as any as SimpleResourceMembers<T>)[DefinedMembersKey];
   }
 
   static normalize<T extends typeof SimpleRecord>(

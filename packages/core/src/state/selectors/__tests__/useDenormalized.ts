@@ -258,9 +258,8 @@ describe('useDenormalized()', () => {
           },
         },
         results: {
-          [CoolerArticleResource.detailShape().getFetchKey(
-            urlParams,
-          )]: params.id,
+          [CoolerArticleResource.detailShape().getFetchKey(urlParams)]:
+            params.id,
         },
       };
       state.entityMeta = createEntityMeta(state.entities);
@@ -482,9 +481,8 @@ describe('useDenormalized()', () => {
         entities,
         entityMeta: createEntityMeta(entities),
         results: {
-          [PaginatedArticleResource.listShape().getFetchKey(
-            params,
-          )]: resultState,
+          [PaginatedArticleResource.listShape().getFetchKey(params)]:
+            resultState,
         },
       };
       const {
@@ -514,9 +512,8 @@ describe('useDenormalized()', () => {
         entities,
         entityMeta: createEntityMeta(entities),
         results: {
-          [PaginatedArticleResource.listShape().getFetchKey(
-            params,
-          )]: resultState,
+          [PaginatedArticleResource.listShape().getFetchKey(params)]:
+            resultState,
         },
       };
       let result: any;

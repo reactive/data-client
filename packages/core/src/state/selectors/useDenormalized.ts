@@ -24,7 +24,7 @@ export default function useDenormalized<
   Shape extends Pick<
     ReadShape<Schema | undefined, any>,
     'getFetchKey' | 'schema' | 'options'
-  >
+  >,
 >(
   { schema, getFetchKey }: Shape,
   params: ParamsFromShape<Shape> | null,

@@ -14,7 +14,7 @@ interface Options<
     Schema | undefined,
     Readonly<object>,
     Readonly<object | string> | void
-  >
+  >,
 > {
   params: ParamsFromShape<Shape>;
   body?: BodyFromShape<Shape>;
@@ -37,7 +37,7 @@ export default function createFetch<
     Schema | undefined,
     Readonly<object>,
     Readonly<object | string> | void
-  >
+  >,
 >(
   fetchShape: Shape,
   { params, body, throttle, updateParams }: Options<Shape>,

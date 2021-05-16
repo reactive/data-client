@@ -47,65 +47,61 @@ const visit = (
   );
 };
 
-const addEntities = (
-  entities: Record<string, any>,
-  indexes: any,
-  existingEntities: Record<string, any>,
-  existingIndexes: any,
-) => (
-  schema: any,
-  processedEntity: any,
-  value: any,
-  parent: any,
-  key: string,
-) => {
-  const schemaKey = schema.key;
-  const id = schema.pk(value, parent, key);
-  if (!(schemaKey in entities)) {
-    entities[schemaKey] = {};
-  }
-
-  const existingEntity = entities[schemaKey][id];
-  if (existingEntity) {
-    entities[schemaKey][id] = schema.merge(existingEntity, processedEntity);
-  } else {
-    entities[schemaKey][id] = processedEntity;
-  }
-  // update index
-  if (Array.isArray(schema.indexes)) {
-    const entity = entities[schemaKey][id];
-    if (!(schemaKey in indexes)) {
-      indexes[schemaKey] = {};
+const addEntities =
+  (
+    entities: Record<string, any>,
+    indexes: any,
+    existingEntities: Record<string, any>,
+    existingIndexes: any,
+  ) =>
+  (schema: any, processedEntity: any, value: any, parent: any, key: string) => {
+    const schemaKey = schema.key;
+    const id = schema.pk(value, parent, key);
+    if (!(schemaKey in entities)) {
+      entities[schemaKey] = {};
     }
-    for (const index of schema.indexes) {
-      if (!(index in indexes[schemaKey])) {
-        indexes[schemaKey][index] = {};
+
+    const existingEntity = entities[schemaKey][id];
+    if (existingEntity) {
+      entities[schemaKey][id] = schema.merge(existingEntity, processedEntity);
+    } else {
+      entities[schemaKey][id] = processedEntity;
+    }
+    // update index
+    if (Array.isArray(schema.indexes)) {
+      const entity = entities[schemaKey][id];
+      if (!(schemaKey in indexes)) {
+        indexes[schemaKey] = {};
       }
-      const indexMap = indexes[schemaKey][index];
-      if (existingEntity) {
-        delete indexMap[existingEntity[index]];
-      }
-      // entity already in cache but the index changed
-      if (
-        existingEntities[schemaKey] &&
-        existingEntities[schemaKey][id] &&
-        existingEntities[schemaKey][id][index] !== entity[index]
-      ) {
-        indexMap[existingEntities[schemaKey][id][index]] = DELETED;
-      }
-      if (index in entity) {
-        indexMap[entity[index]] = id;
-      } /* istanbul ignore next */ else if (
-        // eslint-disable-next-line no-undef
-        process.env.NODE_ENV !== 'production'
-      ) {
-        console.warn(`Index not found in entity. Indexes must be top-level members of your entity.
+      for (const index of schema.indexes) {
+        if (!(index in indexes[schemaKey])) {
+          indexes[schemaKey][index] = {};
+        }
+        const indexMap = indexes[schemaKey][index];
+        if (existingEntity) {
+          delete indexMap[existingEntity[index]];
+        }
+        // entity already in cache but the index changed
+        if (
+          existingEntities[schemaKey] &&
+          existingEntities[schemaKey][id] &&
+          existingEntities[schemaKey][id][index] !== entity[index]
+        ) {
+          indexMap[existingEntities[schemaKey][id][index]] = DELETED;
+        }
+        if (index in entity) {
+          indexMap[entity[index]] = id;
+        } /* istanbul ignore next */ else if (
+          // eslint-disable-next-line no-undef
+          process.env.NODE_ENV !== 'production'
+        ) {
+          console.warn(`Index not found in entity. Indexes must be top-level members of your entity.
 Index: ${index}
 Entity: ${JSON.stringify(entity, undefined, 2)}`);
+        }
       }
     }
-  }
-};
+  };
 
 function expectedSchemaType(schema: Schema) {
   return ['object', 'function'].includes(typeof schema)
@@ -120,7 +116,7 @@ export const normalize = <
     string,
     Record<string, any>
   >,
-  R = NormalizeNullable<S>
+  R = NormalizeNullable<S>,
 >(
   input: any,
   schema?: S,

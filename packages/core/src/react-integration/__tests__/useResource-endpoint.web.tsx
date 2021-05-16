@@ -289,9 +289,8 @@ describe('useResource()', () => {
       payload,
       InvalidIfStaleArticleResource,
     );
-    const fetchKey = InvalidIfStaleArticleResource.detail().getFetchKey(
-      payload,
-    );
+    const fetchKey =
+      InvalidIfStaleArticleResource.detail().getFetchKey(payload);
     const state = {
       ...initialState,
       entities,
@@ -325,9 +324,8 @@ describe('useResource()', () => {
       payload,
       InvalidIfStaleArticleResource,
     );
-    const fetchKey = InvalidIfStaleArticleResource.detail().getFetchKey(
-      payload,
-    );
+    const fetchKey =
+      InvalidIfStaleArticleResource.detail().getFetchKey(payload);
     const state = {
       ...initialState,
       entities,

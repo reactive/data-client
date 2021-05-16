@@ -17,7 +17,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
  */
 export default function useLoading<
   F extends (...args: any) => Promise<any>,
-  E extends Error
+  E extends Error,
 >(func: F, onError?: (error: E) => void): [F, boolean, E | undefined] {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<undefined | E>(undefined);

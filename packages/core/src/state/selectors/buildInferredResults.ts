@@ -8,7 +8,7 @@ import { NormalizeNullable } from '@rest-hooks/endpoint';
  */
 export default function buildInferredResults<
   Params extends Readonly<object>,
-  S extends Schema
+  S extends Schema,
 >(
   schema: S,
   params: Params | null,

@@ -41,9 +41,8 @@ describe('SubscriptionManager', () => {
   describe('cleanup()', () => {
     it('should cleanup all Subcription members', () => {
       const sub = new TestSubscription();
-      (manager as any).subscriptions[
-        PollingArticleResource.url({ id: 5 })
-      ] = sub;
+      (manager as any).subscriptions[PollingArticleResource.url({ id: 5 })] =
+        sub;
       manager.cleanup();
       expect(sub.cleanup.mock.calls.length).toBe(1);
     });

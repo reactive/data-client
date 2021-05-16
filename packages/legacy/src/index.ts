@@ -41,7 +41,7 @@ type StatefulReturn<S extends Schema, P> = CondNull<
 /** Ensure a resource is available; loading and error returned explicitly. */
 export function useStatefulResource<
   Shape extends ReadShape<any, any>,
-  Params extends ParamsFromShape<Shape> | null
+  Params extends ParamsFromShape<Shape> | null,
 >(fetchShape: Shape, params: Params): StatefulReturn<Shape['schema'], Params> {
   const state = useContext(StateContext);
   const [denormalized, ready, deleted, entitiesExpireAt] = useDenormalized(

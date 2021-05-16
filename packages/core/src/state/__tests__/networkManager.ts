@@ -59,10 +59,9 @@ describe('NetworkManager', () => {
     });
 
     const updaters = {
-      [ArticleResource.listShape().getFetchKey({})]: () => (
-        result: string[],
-        oldResults: string[] | undefined,
-      ) => [...(oldResults || []), result] as any,
+      [ArticleResource.listShape().getFetchKey({})]:
+        () => (result: string[], oldResults: string[] | undefined) =>
+          [...(oldResults || []), result] as any,
     };
     const fetchReceiveWithUpdatersAction: FetchAction = {
       ...fetchResolveAction,
@@ -82,10 +81,8 @@ describe('NetworkManager', () => {
         [
           ArticleResource.listShape(),
           {},
-          () => (result: string[], oldResults: string[] | undefined) => [
-            ...(oldResults || []),
-            result,
-          ],
+          () => (result: string[], oldResults: string[] | undefined) =>
+            [...(oldResults || []), result],
         ],
       ],
     });
@@ -101,10 +98,8 @@ describe('NetworkManager', () => {
           [
             ArticleResource.listShape(),
             {},
-            () => (result: string[], oldResults: string[] | undefined) => [
-              ...(oldResults || []),
-              result,
-            ],
+            () => (result: string[], oldResults: string[] | undefined) =>
+              [...(oldResults || []), result],
           ],
         ],
       },

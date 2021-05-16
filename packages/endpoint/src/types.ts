@@ -25,7 +25,7 @@ export type FetchFunction<P = any, B = any, R = any> = (
 
 export type OptimisticUpdateParams<
   SourceSchema extends Schema | undefined,
-  Dest extends EndpointInterface<FetchFunction, Schema, any>
+  Dest extends EndpointInterface<FetchFunction, Schema, any>,
 > = [
   Dest,
   Parameters<Dest>[0],
@@ -34,7 +34,7 @@ export type OptimisticUpdateParams<
 
 export type UpdateFunction<
   SourceSchema extends Schema | undefined,
-  DestSchema extends Schema
+  DestSchema extends Schema,
 > = (
   sourceResults: Normalize<SourceSchema>,
   destResults: Normalize<DestSchema> | undefined,

@@ -8,7 +8,7 @@ export type ErrorableFSAWithPayloadAndMeta<
   Type extends string = string,
   Payload = undefined,
   Meta = undefined,
-  CustomError extends Error = Error
+  CustomError extends Error = Error,
 > =
   | ErrorFluxStandardActionWithPayloadAndMeta<Type, CustomError, Meta>
   | NoErrorFluxStandardActionWithPayloadAndMeta<Type, Payload, Meta>;
@@ -17,7 +17,7 @@ export type ErrorableFSAWithMeta<
   Type extends string = string,
   Payload = undefined,
   Meta = undefined,
-  CustomError extends Error = Error
+  CustomError extends Error = Error,
 > =
   | ErrorFluxStandardActionWithPayloadAndMeta<Type, CustomError, Meta>
   | NoErrorFluxStandardActionWithMeta<Type, Payload, Meta>;
@@ -26,7 +26,7 @@ export type ErrorableFSAWithPayload<
   Type extends string = string,
   Payload = undefined,
   Meta = undefined,
-  CustomError extends Error = Error
+  CustomError extends Error = Error,
 > =
   | ErrorFluxStandardActionWithPayload<Type, CustomError, Meta>
   | NoErrorFluxStandardActionWithPayload<Type, Payload, Meta>;
@@ -34,7 +34,7 @@ export type ErrorableFSAWithPayload<
 export interface NoErrorFluxStandardAction<
   Type extends string = string,
   Payload = undefined,
-  Meta = undefined
+  Meta = undefined,
 > extends FSA<Type, Payload, Meta> {
   error?: false;
 }
@@ -45,7 +45,7 @@ export interface NoErrorFluxStandardAction<
 export interface NoErrorFluxStandardActionWithPayload<
   Type extends string = string,
   Payload = undefined,
-  Meta = undefined
+  Meta = undefined,
 > extends NoErrorFluxStandardAction<Type, Payload, Meta> {
   /**
    * The required `payload` property MAY be any type of value.
@@ -63,7 +63,7 @@ export interface NoErrorFluxStandardActionWithPayload<
 export interface NoErrorFluxStandardActionWithMeta<
   Type extends string = string,
   Payload = undefined,
-  Meta = undefined
+  Meta = undefined,
 > extends NoErrorFluxStandardAction<Type, Payload, Meta> {
   /**
    * The required `meta` property MAY be any type of value.
@@ -77,7 +77,7 @@ export interface NoErrorFluxStandardActionWithMeta<
 export type NoErrorFluxStandardActionWithPayloadAndMeta<
   Type extends string = string,
   Payload = undefined,
-  Meta = undefined
+  Meta = undefined,
 > = NoErrorFluxStandardActionWithPayload<Type, Payload, Meta> &
   NoErrorFluxStandardActionWithMeta<Type, Payload, Meta>;
 
@@ -89,7 +89,7 @@ export type NoErrorFluxStandardActionWithPayloadAndMeta<
 export type NoErrorFluxStandardActionAuto<
   Type extends string = string,
   Payload = undefined,
-  Meta = undefined
+  Meta = undefined,
 > = Payload extends undefined
   ? Meta extends undefined
     ? NoErrorFluxStandardAction<Type, Payload, Meta>

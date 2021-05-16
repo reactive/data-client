@@ -81,12 +81,8 @@ describe('useExpiresAt()', () => {
 
     const { result } = renderHook(
       () => {
-        const [
-          denormalized,
-          ready,
-          deleted,
-          resolvedEntities,
-        ] = useDenormalized(ListTaco, {}, state);
+        const [denormalized, ready, deleted, resolvedEntities] =
+          useDenormalized(ListTaco, {}, state);
         return useExpiresAt(ListTaco, {}, resolvedEntities);
       },
       { wrapper },
@@ -147,12 +143,8 @@ describe('useExpiresAt()', () => {
 
     const { result } = renderHook(
       () => {
-        const [
-          denormalized,
-          ready,
-          deleted,
-          resolvedEntities,
-        ] = useDenormalized(ListTaco, {}, state);
+        const [denormalized, ready, deleted, resolvedEntities] =
+          useDenormalized(ListTaco, {}, state);
         return useExpiresAt(ListTaco, {}, resolvedEntities);
       },
       { wrapper },
@@ -161,12 +153,8 @@ describe('useExpiresAt()', () => {
 
     const { result: result2 } = renderHook(
       () => {
-        const [
-          denormalized,
-          ready,
-          deleted,
-          resolvedEntities,
-        ] = useDenormalized(DetailTaco, { id: '2' }, state);
+        const [denormalized, ready, deleted, resolvedEntities] =
+          useDenormalized(DetailTaco, { id: '2' }, state);
         return useExpiresAt(DetailTaco, { id: '2' }, resolvedEntities);
       },
       { wrapper },

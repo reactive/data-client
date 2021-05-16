@@ -59,9 +59,8 @@ export type State<T> = Readonly<{
   optimistic: ReceiveAction[];
 }>;
 
-export type FetchOptions<
-  F extends FetchFunction = FetchFunction
-> = EndpointExtraOptions<F>;
+export type FetchOptions<F extends FetchFunction = FetchFunction> =
+  EndpointExtraOptions<F>;
 
 export interface ReceiveMeta<S extends Schema | undefined> {
   schema: S;
@@ -77,7 +76,7 @@ export type ReceiveAction<
     | string
     | number
     | null,
-  S extends Schema | undefined = any
+  S extends Schema | undefined = any,
 > = ErrorableFSAWithPayloadAndMeta<
   typeof RECEIVE_TYPE,
   Payload,
@@ -92,7 +91,7 @@ interface FetchMeta<
     | string
     | number
     | null,
-  S extends Schema | undefined = any
+  S extends Schema | undefined = any,
 > {
   type: FetchShape<any, any>['type'];
   schema: S;
@@ -115,7 +114,7 @@ export interface FetchAction<
     | string
     | number
     | null,
-  S extends Schema | undefined = any
+  S extends Schema | undefined = any,
 > extends FSAWithPayloadAndMeta<
     typeof FETCH_TYPE,
     () => Promise<Payload>,

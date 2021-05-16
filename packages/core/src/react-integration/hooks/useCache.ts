@@ -18,7 +18,7 @@ import useExpiresAt from './useExpiresAt';
 
 /** Access a resource if it is available. */
 export default function useCache<
-  Shape extends Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>
+  Shape extends Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>,
 >(
   fetchShape: Shape,
   params: ParamsFromShape<Shape> | null,

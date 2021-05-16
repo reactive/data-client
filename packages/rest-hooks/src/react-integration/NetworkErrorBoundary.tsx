@@ -13,7 +13,7 @@ interface State<E extends NetworkError> {
   error?: E;
 }
 export default class NetworkErrorBoundary<
-  E extends NetworkError
+  E extends NetworkError,
 > extends React.Component<Props<E>, State<E>> {
   static defaultProps = {
     fallbackComponent: ({ error }: { error: NetworkError }) => (
