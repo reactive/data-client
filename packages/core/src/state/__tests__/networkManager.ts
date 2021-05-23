@@ -30,26 +30,6 @@ describe('NetworkManager', () => {
     });
   });
 
-  describe('cleanup()', () => {
-    it('should reject current promises', async () => {
-      let rejection: any;
-      const promise = (manager as any)
-        .throttle(
-          'a',
-          () =>
-            new Promise(resolve => {
-              setTimeout(resolve, 1000);
-            }),
-        )
-        .catch((e: any) => {
-          rejection = e;
-        });
-      manager.cleanup();
-      await promise;
-      expect(rejection).toBeDefined();
-    });
-  });
-
   describe('middleware', () => {
     const detailShape = ArticleResource.detailShape();
     detailShape.fetch = () => Promise.resolve({ id: 5, title: 'hi' });
@@ -302,57 +282,6 @@ describe('NetworkManager', () => {
         const { meta } = dispatch.mock.calls[0][0];
         expect(meta.expiresAt - meta.date).toBe(7);
       }
-    });
-    it('should reject current promises on rest-hooks/reset', async () => {
-      const resetAction: ResetAction = { type: RESET_TYPE };
-      const manager = new NetworkManager(42, 7);
-      const middleware = manager.getMiddleware();
-      let rejection: any;
-
-      let resolve: any, reject: any;
-      const promise: Promise<any> = new Promise((res, rej) => {
-        setTimeout(() => res({ id: 5, title: 'hi' }), 10000);
-        resolve = res;
-        reject = rej;
-      }).catch((e: any) => {
-        rejection = e;
-        throw e;
-      });
-
-      const fetchResolveAction: FetchAction = {
-        type: FETCH_TYPE,
-        payload: () => promise,
-        meta: {
-          schema: ArticleResource,
-          key: ArticleResource.url({ id: 5 }),
-          type: ArticleResource.detailShape().type,
-          throttle: true,
-          resolve,
-          reject,
-          promise: new Promise((v: any) => null),
-          createdAt: new Date(0),
-        },
-      };
-
-      const next = jest.fn();
-      const dispatch = jest.fn();
-
-      expect(Object.keys((manager as any).rejectors).length).toBe(0);
-      (manager as any).handleFetch(fetchResolveAction, dispatch);
-      expect(Object.keys((manager as any).rejectors).length).toBe(1);
-      middleware({ dispatch, getState })(next)(resetAction);
-
-      expect(next).toHaveBeenCalled();
-
-      await expect(promise).rejects.toBeDefined();
-      expect(rejection).toBeDefined();
-
-      expect(dispatch).not.toHaveBeenCalled();
-
-      // promises should be removed
-      expect(Object.keys((manager as any).fetched).length).toBe(0);
-
-      manager.cleanup();
     });
   });
 });
