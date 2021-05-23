@@ -25,7 +25,7 @@ This implementation is provided as a useful reference for building your own.
 For the most up-to-date implementation, see the [source on master](https://github.com/coinbase/rest-hooks/blob/master/packages/rest-hooks/src/resource/Resource.ts)
 
 ```typescript
-import SimpleResource from './SimpleResource';
+import { SimpleResource } from '@rest-hooks/rest';
 
 class NetworkError extends Error {
   declare status: number;
@@ -90,10 +90,8 @@ export default abstract class Resource extends SimpleResource {
 [Superagent](http://visionmedia.github.io/superagent/)
 
 ```typescript
+import { SimpleResource, Method } from '@rest-hooks/rest';
 import request from 'superagent';
-import { Method } from '~/types';
-
-import SimpleResource from './SimpleResource';
 
 const ResourceError = `JSON expected but not returned from API`;
 
@@ -106,14 +104,12 @@ export default abstract class Resource extends SimpleResource {
   static fetchPlugin?: request.Plugin;
 
   /** Perform network request and resolve with json body */
-  static fetch(
-    method: Method,
-    url: string,
-    body?: Readonly<object | string>,
+  static async fetch(
+    input: RequestInfo, init: RequestInit
   ) {
-    let req = request[method](url).on('error', () => {});
+    let req = request[init.method](input).on('error', () => {});
     if (this.fetchPlugin) req = req.use(this.fetchPlugin);
-    if (body) req = req.send(body);
+    if (init.body) req = req.send(init.body);
     return req.then(res => {
       if (isInvalidResponse(res)) {
         throw new Error(ResourceError);
@@ -136,17 +132,15 @@ export const isInvalidResponse = (res: request.Response): boolean => {
 [Axios](https://github.com/axios/axios)
 
 ```typescript
-import { SimpleResource, Method } from 'rest-hooks';
+import { SimpleResource, Method } from '@rest-hooks/rest';
 import axios from 'axios';
 
 export default abstract class AxiosResource extends SimpleResource {
   /** Perform network request and resolve with json body */
   static async fetch(
-    method: Method,
-    url: string,
-    body?: Readonly<object | string>
+    input: RequestInfo, init: RequestInit
   ) {
-    return await axios[method](url, body);
+    return await axios[init.method](input, init.body);
   }
 }
 ```
