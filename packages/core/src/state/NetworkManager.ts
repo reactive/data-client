@@ -13,10 +13,6 @@ import {
 import RIC from './RIC';
 import { createReceive, createReceiveError } from './actions';
 
-class CleanupError extends Error {
-  message = 'Cleaning up Network Manager';
-}
-
 /** Handles all async network dispatches
  *
  * Dedupes concurrent requests by keeping track of all fetches in flight
@@ -79,7 +75,6 @@ export default class NetworkManager implements Manager {
   /** Ensures all promises are completed by rejecting remaining. */
   cleanup() {
     for (const k in this.rejectors) {
-      this.rejectors[k](new CleanupError());
       this.clear(k);
     }
   }
@@ -116,11 +111,6 @@ export default class NetworkManager implements Manager {
           return data;
         })
         .catch(error => {
-          if (error instanceof CleanupError) {
-            // if we don't receive, we need to clear
-            this.clear(key);
-            return;
-          }
           dispatch(
             createReceiveError(error, {
               ...action.meta,
