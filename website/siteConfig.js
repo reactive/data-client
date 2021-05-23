@@ -56,7 +56,7 @@ const siteConfig = {
     { href: 'https://www.github.com/coinbase/rest-hooks', label: 'Github' },
     {
       href:
-        'https://codesandbox.io/s/rest-hooks-hinux?fontsize=14&module=%2Fsrc%2Fpages%2FIssueList.tsx',
+        'https://github.com/Rest-Hooks/todo-example',
       label: '🎮 Demo',
     },
     //{ page: 'help', label: 'Help' },
