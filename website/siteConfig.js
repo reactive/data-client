@@ -57,6 +57,7 @@ const siteConfig = {
     {
       href: 'https://github.com/Rest-Hooks/todo-example',
       label: '🎮 Demo',
+      external: true,
     },
     //{ page: 'help', label: 'Help' },
     { search: true },

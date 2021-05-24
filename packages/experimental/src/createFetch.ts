@@ -1,9 +1,8 @@
 import { actionTypes } from '@rest-hooks/core';
-
-import { UpdateFunction } from './types';
-
 import type { FetchAction } from '@rest-hooks/core';
 import type { EndpointInterface } from '@rest-hooks/endpoint';
+
+import { UpdateFunction } from './types';
 
 /** Requesting a fetch to begin
  *
@@ -25,6 +24,7 @@ export default function createFetch<
   const meta: FetchAction['meta'] = {
     schema: endpoint.schema,
     type: endpoint.sideEffect ? ('mutate' as const) : ('read' as const),
+    args,
     key,
     throttle,
     options: endpoint,
@@ -51,3 +51,17 @@ export default function createFetch<
     meta,
   };
 }
+
+/** Future action shape
+{
+  type: actionTypes.FETCH_TYPE,
+  endpoint,
+  meta: {
+    args,
+    throttle,
+    createdAt,
+    promise,
+    resolve,
+    reject,
+  }
+} */

@@ -1,6 +1,13 @@
 import { NormalizedIndex } from '@rest-hooks/normalizr';
 import { Middleware } from '@rest-hooks/use-enhanced-reducer';
 import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
+import type {
+  UpdateFunction,
+  AbstractInstanceType,
+  Schema,
+  FetchFunction,
+  EndpointExtraOptions,
+} from '@rest-hooks/endpoint';
 
 import { ErrorableFSAWithPayloadAndMeta } from './fsa';
 import { FetchShape } from './endpoint';
@@ -12,14 +19,6 @@ import {
   UNSUBSCRIBE_TYPE,
   INVALIDATE_TYPE,
 } from './actionTypes';
-
-import type {
-  UpdateFunction,
-  AbstractInstanceType,
-  Schema,
-  FetchFunction,
-  EndpointExtraOptions,
-} from '@rest-hooks/endpoint';
 
 export type { AbstractInstanceType, UpdateFunction };
 
@@ -66,8 +65,9 @@ export type FetchOptions<F extends FetchFunction = FetchFunction> =
 export interface ReceiveMeta<S extends Schema | undefined> {
   schema: S;
   key: string;
+  args?: readonly any[];
   updaters?: Record<string, UpdateFunction<S, any>>;
-  update?: (result: any) => Record<string, (...args: any) => any>;
+  update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
   date: number;
   expiresAt: number;
 }
@@ -98,8 +98,9 @@ interface FetchMeta<
   type: FetchShape<any, any>['type'];
   schema: S;
   key: string;
+  args?: readonly any[];
   updaters?: Record<string, UpdateFunction<S, any>>;
-  update?: (result: any) => Record<string, (...args: any) => any>;
+  update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
   options?: FetchOptions;
   throttle: boolean;
   resolve: (value?: any | PromiseLike<any>) => void;
