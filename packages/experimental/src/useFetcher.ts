@@ -3,11 +3,12 @@ import { DispatchContext } from '@rest-hooks/core';
 import { useContext, useCallback } from 'react';
 
 import createFetch from './createFetch';
+import { UpdateFunction } from './types';
 
 /** Build an imperative dispatcher to issue network requests. */
 export default function useFetcher(
   throttle = false,
-): <E extends EndpointInterface>(
+): <E extends EndpointInterface & { update?: UpdateFunction<E> }>(
   endpoint: E,
   ...args: readonly [...Parameters<E>]
 ) => ReturnType<E> {

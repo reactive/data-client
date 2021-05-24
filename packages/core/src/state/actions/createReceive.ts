@@ -15,7 +15,7 @@ interface Options<
   S extends Schema | undefined = any,
 > extends Pick<
     FetchAction<Payload, S>['meta'],
-    'schema' | 'key' | 'type' | 'updaters'
+    'schema' | 'key' | 'type' | 'updaters' | 'update'
   > {
   dataExpiryLength: NonNullable<FetchOptions['dataExpiryLength']>;
 }
@@ -34,7 +34,7 @@ export default function createReceive<
   S extends Schema | undefined = any,
 >(
   data: Payload,
-  { schema, key, updaters, dataExpiryLength }: Options<Payload, S>,
+  { schema, key, updaters, update, dataExpiryLength }: Options<Payload, S>,
 ): ReceiveAction<Payload, S> {
   /* istanbul ignore next */
   if (process.env.NODE_ENV === 'development' && dataExpiryLength < 0) {
@@ -48,6 +48,7 @@ export default function createReceive<
     expiresAt: now + dataExpiryLength,
   };
   meta.updaters = updaters;
+  meta.update = update;
   return {
     type: RECEIVE_TYPE,
     payload: data,

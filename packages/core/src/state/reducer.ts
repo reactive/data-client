@@ -69,6 +69,12 @@ export default function reducer(
           [action.meta.key]: result,
         };
         results = applyUpdatersToResults(results, result, action.meta.updaters);
+        if (action.meta.update) {
+          const updaters = action.meta.update(result);
+          Object.keys(updaters).forEach(
+            key => (results[key] = updaters[key](results[key])),
+          );
+        }
         return {
           entities: mergeDeepCopy(
             state.entities,
