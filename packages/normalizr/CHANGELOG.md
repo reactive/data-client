@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@7.0.0...@rest-hooks/normalizr@7.0.1) (2021-05-24)
+
+**Note:** Version bump only for package @rest-hooks/normalizr
+
+
+
+
+
 ## [7.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.1.1...@rest-hooks/normalizr@7.0.0) (2021-05-24)
 
 

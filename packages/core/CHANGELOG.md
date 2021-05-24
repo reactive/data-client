@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.2.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.2.0...@rest-hooks/core@1.2.1) (2021-05-24)
+
+
+### 💅 Enhancement
+
+* Provide args to update method ([#852](https://github.com/coinbase/rest-hooks/issues/852)) ([a552977](https://github.com/coinbase/rest-hooks/commit/a552977752c0f89852e0814cebd3956f0e1338bd))
+* Support endpoint.update in existing useFetcher ([#853](https://github.com/coinbase/rest-hooks/issues/853)) ([2436f3b](https://github.com/coinbase/rest-hooks/commit/2436f3b9e6f91fc73178476d3ca88605349bba33))
+* Transform updateParams to 'update' function ([#854](https://github.com/coinbase/rest-hooks/issues/854)) ([7ef3e2a](https://github.com/coinbase/rest-hooks/commit/7ef3e2a646421356029294e440e1a2e000b05f05))
+
+
+
 ## [1.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.1.2...@rest-hooks/core@1.2.0) (2021-05-24)
 
 
