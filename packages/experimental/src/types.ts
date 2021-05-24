@@ -1,5 +1,4 @@
 import { Normalize } from '@rest-hooks/endpoint';
-
 import type { EndpointInterface, ResolveType } from '@rest-hooks/endpoint';
 
 type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined
