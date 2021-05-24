@@ -3,6 +3,12 @@
 exports[`useFetcher should dispatch an action that fetches a create 1`] = `
 Object {
   "meta": Object {
+    "args": Array [
+      Object {},
+      Object {
+        "content": "hi",
+      },
+    ],
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "POST http://test.com/article-cooler/",
     "options": Object {
@@ -28,6 +34,14 @@ Object {
 exports[`useFetcher should dispatch an action that fetches a full update 1`] = `
 Object {
   "meta": Object {
+    "args": Array [
+      Object {
+        "id": 1,
+      },
+      Object {
+        "content": "changed",
+      },
+    ],
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "PUT http://test.com/article-cooler/1",
     "options": Object {
@@ -53,6 +67,14 @@ Object {
 exports[`useFetcher should dispatch an action that fetches a partial update 1`] = `
 Object {
   "meta": Object {
+    "args": Array [
+      Object {
+        "id": 1,
+      },
+      Object {
+        "content": "changed",
+      },
+    ],
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "PATCH http://test.com/article-cooler/1",
     "optimisticResponse": Object {
@@ -77,6 +99,12 @@ Object {
 exports[`useFetcher should dispatch an action with multiple updaters in the meta if update shapes params are passed in 1`] = `
 Object {
   "meta": Object {
+    "args": Array [
+      Object {},
+      Object {
+        "content": "hi",
+      },
+    ],
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "POST http://test.com/article/",
     "optimisticResponse": Object {
@@ -104,6 +132,12 @@ Object {
 exports[`useFetcher should dispatch an action with updater in the meta if update shapes params are passed in 1`] = `
 Object {
   "meta": Object {
+    "args": Array [
+      Object {},
+      Object {
+        "content": "hi",
+      },
+    ],
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "POST http://test.com/article-cooler/",
     "options": Object {
@@ -132,6 +166,12 @@ Object {
 exports[`useFetcher should refresh get details 1`] = `
 Object {
   "meta": Object {
+    "args": Array [
+      Object {
+        "id": 1,
+      },
+      undefined,
+    ],
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-cooler/1",
     "options": Object {
@@ -157,6 +197,19 @@ Object {
 exports[`useRetrieve should dispatch singles 1`] = `
 Object {
   "meta": Object {
+    "args": Array [
+      Object {
+        "content": "whatever",
+        "id": 5,
+        "tags": Array [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      },
+      undefined,
+    ],
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-cooler/5",
     "options": Object {
@@ -182,6 +235,19 @@ Object {
 exports[`useRetrieve should dispatch with fetch shape defined dataExpiryLength 1`] = `
 Object {
   "meta": Object {
+    "args": Array [
+      Object {
+        "content": "whatever",
+        "id": 5,
+        "tags": Array [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      },
+      undefined,
+    ],
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-static/5",
     "options": Object {
@@ -208,6 +274,19 @@ Object {
 exports[`useRetrieve should dispatch with fetch shape defined errorExpiryLength 1`] = `
 Object {
   "meta": Object {
+    "args": Array [
+      Object {
+        "content": "whatever",
+        "id": 5,
+        "tags": Array [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      },
+      undefined,
+    ],
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-static/5",
     "options": Object {
@@ -234,6 +313,19 @@ Object {
 exports[`useRetrieve should dispatch with resource defined dataExpiryLength 1`] = `
 Object {
   "meta": Object {
+    "args": Array [
+      Object {
+        "content": "whatever",
+        "id": 5,
+        "tags": Array [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      },
+      undefined,
+    ],
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-static/5",
     "options": Object {

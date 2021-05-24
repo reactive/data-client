@@ -13,7 +13,9 @@ import useFetchDispatcher from './useFetchDispatcher';
 export default function useFetcher<
   Shape extends FetchShape<Schema, Readonly<object>, any>,
 >(
-  fetchShape: Shape,
+  fetchShape: Shape & {
+    update?: (...args: any) => Record<string, (...args: any) => any>;
+  },
   throttle = false,
 ): <
   UpdateParams extends OptimisticUpdateParams<
