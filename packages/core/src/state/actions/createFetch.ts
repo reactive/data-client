@@ -68,18 +68,20 @@ export default function createFetch<
         : /* istanbul ignore next */ new Date(),
   };
 
-  if (updateParams) {
-    meta.updaters = updateParams.reduce(
-      (accumulator: object, [toShape, toParams, updateFn]) => ({
-        [toShape.getFetchKey(toParams)]: updateFn,
-        ...accumulator,
-      }),
-      {},
-    );
-  }
-
   if (fetchShape.update) {
     meta.update = fetchShape.update;
+  }
+
+  // for simplicity we simply override if updateParams are defined - usage together is silly to support as we are migrating
+  if (updateParams) {
+    meta.update = (newresult: any): Record<string, (...args: any) => any> => {
+      const updateMap: any = {};
+      updateParams.forEach(([toShape, toParams, updateFn]) => {
+        updateMap[toShape.getFetchKey(toParams)] = (existing: any) =>
+          updateFn(newresult, existing);
+      });
+      return updateMap;
+    };
   }
 
   if (options && options.optimisticUpdate) {
