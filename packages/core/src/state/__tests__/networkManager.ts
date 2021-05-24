@@ -163,11 +163,9 @@ describe('NetworkManager', () => {
         type: RECEIVE_TYPE,
         payload: data,
         meta: {
-          updaters: {
-            [ArticleResource.listShape().getFetchKey({})]: expect.any(Function),
-          },
+          updaters: undefined,
           args: fetchRpcWithUpdatersAction.meta.args,
-          update: fetchRpcWithUpdatersAction.meta.update,
+          update: expect.any(Function),
           schema: fetchRpcWithUpdatersAction.meta.schema,
           key: fetchRpcWithUpdatersAction.meta.key,
           date: expect.any(Number),
@@ -190,11 +188,9 @@ describe('NetworkManager', () => {
         type: RECEIVE_TYPE,
         payload: data,
         meta: {
-          updaters: {
-            [ArticleResource.listShape().getFetchKey({})]: expect.any(Function),
-          },
+          updaters: undefined,
           args: fetchRpcWithUpdatersAndOptimisticAction.meta.args,
-          update: fetchRpcWithUpdatersAndOptimisticAction.meta.update,
+          update: expect.any(Function),
           schema: fetchRpcWithUpdatersAndOptimisticAction.meta.schema,
           key: fetchRpcWithUpdatersAndOptimisticAction.meta.key,
           date: expect.any(Number),

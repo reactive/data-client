@@ -131,10 +131,7 @@ Object {
     "schema": [Function],
     "throttle": false,
     "type": "mutate",
-    "updaters": Object {
-      "GET http://test.com/article/": [Function],
-      "GET http://test.com/article/some-list-url": [Function],
-    },
+    "update": [Function],
   },
   "payload": [Function],
   "type": "rest-hooks/fetch",
@@ -166,9 +163,7 @@ Object {
     "schema": [Function],
     "throttle": false,
     "type": "mutate",
-    "updaters": Object {
-      "GET http://test.com/article-cooler/": [Function],
-    },
+    "update": [Function],
   },
   "payload": [Function],
   "type": "rest-hooks/fetch",
