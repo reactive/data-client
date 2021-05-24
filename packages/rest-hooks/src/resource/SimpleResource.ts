@@ -1,6 +1,12 @@
 /* istanbul ignore file */
 
 import { FlatEntity } from '@rest-hooks/core';
+
+import { SchemaDetail, Method, SchemaList } from './types';
+import { NotImplementedError } from './errors';
+import paramsToString from './paramsToString';
+import { schemas } from '..';
+
 import type {
   FetchOptions,
   AbstractInstanceType,
@@ -9,16 +15,12 @@ import type {
   DeleteShape,
 } from '@rest-hooks/core';
 
-import { SchemaDetail, Method, SchemaList } from './types';
-import { NotImplementedError } from './errors';
-import paramsToString from './paramsToString';
-import { schemas } from '..';
-
 /** Represents an entity to be retrieved from a server.
  * Typically 1:1 with a url endpoint.
  *
  * This can be a useful organization for many REST-like API patterns.
  */
+/** @deprecated in favor of @rest-hooks/rest */
 export default abstract class SimpleResource extends FlatEntity {
   // typescript todo: require subclasses to implement
   /** Used as base of url construction */

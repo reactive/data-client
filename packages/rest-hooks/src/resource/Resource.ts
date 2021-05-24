@@ -1,7 +1,8 @@
 /* istanbul ignore file */
 
-import type { Method } from './types';
 import SimpleResource from './SimpleResource';
+
+import type { Method } from './types';
 
 class NetworkError extends Error {
   declare status: number;
@@ -18,6 +19,7 @@ class NetworkError extends Error {
  * Represents an entity to be retrieved from a server.
  * Typically 1:1 with a url endpoint.
  */
+/** @deprecated in favor of @rest-hooks/rest */
 export default abstract class Resource extends SimpleResource {
   /** A function to mutate all request options for fetch */
   static fetchOptionsPlugin?: (options: RequestInit) => RequestInit;
