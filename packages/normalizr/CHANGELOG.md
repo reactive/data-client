@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.1.1...@rest-hooks/normalizr@7.0.0) (2021-05-24)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* normalize arg addEntity is now addEntity(schema,
+processed, id)
+
+### 💅 Enhancement
+
+* Remove dependency on fromJS() from denormalize ([#805](https://github.com/coinbase/rest-hooks/issues/805)) ([4387aeb](https://github.com/coinbase/rest-hooks/commit/4387aeb8f050b54a2059bc21f1060a49f539e4f6))
+* Simplify normalize addEntity function ([#820](https://github.com/coinbase/rest-hooks/issues/820)) ([18a805d](https://github.com/coinbase/rest-hooks/commit/18a805d3b6990beadf5426ce28448fd9ee47ad9a))
+
+
+
 ### [6.1.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@6.1.0...@rest-hooks/normalizr@6.1.1) (2021-04-25)
 
 

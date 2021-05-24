@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.1.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.23...rest-hooks@5.1.0) (2021-05-24)
+
+
+### 🚀 Features
+
+* Deprecate Resource in main 'rest-hooks' package ([#842](https://github.com/coinbase/rest-hooks/issues/842)) ([54cc007](https://github.com/coinbase/rest-hooks/commit/54cc00759babc40f60460fba9f0dff4cf8db5d17))
+
+
+### 💅 Enhancement
+
+* Simplify url logic for Resource ([#806](https://github.com/coinbase/rest-hooks/issues/806)) ([8f1bb8a](https://github.com/coinbase/rest-hooks/commit/8f1bb8a2ea1eec3e24a5f9e7e2d534cd818d05ab))
+
+
+### 📝 Documentation
+
+* Change demo to todolist ([#839](https://github.com/coinbase/rest-hooks/issues/839)) ([924b992](https://github.com/coinbase/rest-hooks/commit/924b992ecc3479f0e0cbe1c3904248ec9718fabc))
+
+
+
 ### [5.0.23](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.0.22...rest-hooks@5.0.23) (2021-04-26)
 
 **Note:** Version bump only for package rest-hooks

@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/hooks@1.1.3...@rest-hooks/hooks@1.2.0) (2021-05-24)
+
+
+### 🚀 Features
+
+* Add error state to useLoading() ([#778](https://github.com/coinbase/rest-hooks/issues/778)) ([cee4159](https://github.com/coinbase/rest-hooks/commit/cee4159bc50de78b3cce2ff815da82602abd1c8c))
+
+
+
 ### [1.1.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/hooks@1.1.2...@rest-hooks/hooks@1.1.3) (2021-04-24)
 
 

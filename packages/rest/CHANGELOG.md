@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [2.1.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.1.1...@rest-hooks/rest@2.1.2) (2021-05-24)
+
+
+### 💅 Enhancement
+
+* Simplify url logic for Resource ([#806](https://github.com/coinbase/rest-hooks/issues/806)) ([8f1bb8a](https://github.com/coinbase/rest-hooks/commit/8f1bb8a2ea1eec3e24a5f9e7e2d534cd818d05ab))
+
+
+
 ### [2.1.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.1.0...@rest-hooks/rest@2.1.1) (2021-04-26)
 
 

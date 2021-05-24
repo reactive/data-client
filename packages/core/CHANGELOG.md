@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.1.2...@rest-hooks/core@1.2.0) (2021-05-24)
+
+
+### 🚀 Features
+
+* Endpoint.update programmable sideeffects ([#843](https://github.com/coinbase/rest-hooks/issues/843)) ([3b011b2](https://github.com/coinbase/rest-hooks/commit/3b011b2ab7d3f2fd6588bd26c566bf542beeba49))
+
+
+### 💅 Enhancement
+
+* Do not throw on unmount of CacheProvider ([#837](https://github.com/coinbase/rest-hooks/issues/837)) ([f7dcf24](https://github.com/coinbase/rest-hooks/commit/f7dcf24d2b6123ab84470263d505a975591bd9b4))
+
+
+
 ### [1.1.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.1.1...@rest-hooks/core@1.1.2) (2021-04-26)
 
 
