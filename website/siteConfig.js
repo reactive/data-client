@@ -55,8 +55,7 @@ const siteConfig = {
     { blog: true, label: 'Blog' },
     { href: 'https://www.github.com/coinbase/rest-hooks', label: 'Github' },
     {
-      href:
-        'https://github.com/Rest-Hooks/todo-example',
+      href: 'https://github.com/Rest-Hooks/todo-example',
       label: '🎮 Demo',
     },
     //{ page: 'help', label: 'Help' },
