@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1621830219078,
+  "lastUpdate": 1621865572357,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -1482,6 +1482,44 @@ window.BENCHMARK_DATA = {
             "range": "±2.44%",
             "unit": "ops/sec",
             "extra": "52 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "79484679a7ae522e56f60d3710ffd23e27ca7108",
+          "message": "internal: bump inquirer in /packages/normalizr/examples/redux (#851)\n\nBumps [inquirer](https://github.com/SBoudrias/Inquirer.js) from 8.0.0 to 8.1.0.\r\n- [Release notes](https://github.com/SBoudrias/Inquirer.js/releases)\r\n- [Commits](https://github.com/SBoudrias/Inquirer.js/compare/inquirer@8.0.0...inquirer@8.1.0)\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\n\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2021-05-24T07:10:37-07:00",
+          "tree_id": "c16ca631ce30d58aa7b2d32f3c268669599e49c3",
+          "url": "https://github.com/coinbase/rest-hooks/commit/79484679a7ae522e56f60d3710ffd23e27ca7108"
+        },
+        "date": 1621865571173,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 70.59,
+            "range": "±0.98%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 27.27,
+            "range": "±2.63%",
+            "unit": "ops/sec",
+            "extra": "49 samples"
           }
         ]
       }
