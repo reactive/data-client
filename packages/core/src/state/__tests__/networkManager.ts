@@ -117,6 +117,8 @@ describe('NetworkManager', () => {
         payload: data,
         meta: {
           schema: fetchResolveAction.meta.schema,
+          args: fetchResolveAction.meta.args,
+          update: fetchResolveAction.meta.update,
           key: fetchResolveAction.meta.key,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
@@ -139,6 +141,8 @@ describe('NetworkManager', () => {
           updaters: {
             [ArticleResource.listShape().getFetchKey({})]: expect.any(Function),
           },
+          args: fetchReceiveWithUpdatersAction.meta.args,
+          update: fetchReceiveWithUpdatersAction.meta.update,
           schema: fetchReceiveWithUpdatersAction.meta.schema,
           key: fetchReceiveWithUpdatersAction.meta.key,
           date: expect.any(Number),
@@ -162,6 +166,8 @@ describe('NetworkManager', () => {
           updaters: {
             [ArticleResource.listShape().getFetchKey({})]: expect.any(Function),
           },
+          args: fetchRpcWithUpdatersAction.meta.args,
+          update: fetchRpcWithUpdatersAction.meta.update,
           schema: fetchRpcWithUpdatersAction.meta.schema,
           key: fetchRpcWithUpdatersAction.meta.key,
           date: expect.any(Number),
@@ -187,6 +193,8 @@ describe('NetworkManager', () => {
           updaters: {
             [ArticleResource.listShape().getFetchKey({})]: expect.any(Function),
           },
+          args: fetchRpcWithUpdatersAndOptimisticAction.meta.args,
+          update: fetchRpcWithUpdatersAndOptimisticAction.meta.update,
           schema: fetchRpcWithUpdatersAndOptimisticAction.meta.schema,
           key: fetchRpcWithUpdatersAndOptimisticAction.meta.key,
           date: expect.any(Number),

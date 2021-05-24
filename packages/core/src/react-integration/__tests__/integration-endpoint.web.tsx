@@ -9,6 +9,7 @@ import {
   TypedArticleResource,
   IndexedUserResource,
   UnionResource,
+  FutureArticleResource,
 } from '__tests__/new';
 import nock from 'nock';
 import { act } from '@testing-library/react-hooks';
@@ -726,6 +727,22 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
             content: 'real response',
           }),
         ]);
+      });
+
+      it('should update on create', async () => {
+        const { result, waitForNextUpdate } = renderRestHook(() => {
+          const articles = useResource(FutureArticleResource.list(), {});
+          const create = useFetcher(FutureArticleResource.create());
+          return { articles, create };
+        });
+
+        await waitForNextUpdate();
+        expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3]);
+
+        await result.current.create({
+          id: 1,
+        });
+        expect(result.current.articles.map(({ id }) => id)).toEqual([1, 5, 3]);
       });
 
       it('should clear only earlier optimistic updates when a promise resolves', async () => {

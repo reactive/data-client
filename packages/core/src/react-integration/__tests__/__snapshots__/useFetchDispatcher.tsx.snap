@@ -3,6 +3,12 @@
 exports[`useFetchDispatcher should dispatch an action that fetches a create 1`] = `
 Object {
   "meta": Object {
+    "args": Array [
+      Object {},
+      Object {
+        "content": "hi",
+      },
+    ],
     "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "POST http://test.com/article-cooler/",
     "options": Object {

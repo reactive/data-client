@@ -39,7 +39,9 @@ export default function createFetch<
     Readonly<object | string> | void
   >,
 >(
-  fetchShape: Shape,
+  fetchShape: Shape & {
+    update?: (...args: any) => Record<string, (...args: any) => any>;
+  },
   { params, body, throttle, updateParams }: Options<Shape>,
 ): FetchAction {
   const { schema, type, getFetchKey, options } = fetchShape;
@@ -53,6 +55,7 @@ export default function createFetch<
   const meta: FetchAction['meta'] = {
     schema,
     type,
+    args: [params, body],
     key,
     throttle,
     options,
@@ -73,6 +76,10 @@ export default function createFetch<
       }),
       {},
     );
+  }
+
+  if (fetchShape.update) {
+    meta.update = fetchShape.update;
   }
 
   if (options && options.optimisticUpdate) {

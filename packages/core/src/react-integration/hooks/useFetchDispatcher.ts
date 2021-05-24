@@ -12,16 +12,16 @@ import createFetch from '@rest-hooks/core/state/actions/createFetch';
 import { useContext, useCallback } from 'react';
 
 /** Build an imperative dispatcher to issue network requests. */
-export default function useFetchDispatcher(
-  throttle = false,
-): <
+export default function useFetchDispatcher(throttle = false): <
   Shape extends FetchShape<Schema, Readonly<object>, any>,
   UpdateParams extends OptimisticUpdateParams<
     SchemaFromShape<Shape>,
     FetchShape<any, any, any>
   >[],
 >(
-  fetchShape: Shape,
+  fetchShape: Shape & {
+    update?: (...args: any) => Record<string, (...args: any) => any>;
+  },
   params: ParamsFromShape<Shape>,
   body: BodyFromShape<Shape>,
   updateParams?: UpdateParams | undefined,
