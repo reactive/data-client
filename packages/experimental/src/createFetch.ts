@@ -1,5 +1,8 @@
-import type { FetchAction } from '@rest-hooks/core';
 import { actionTypes } from '@rest-hooks/core';
+
+import { UpdateFunction } from './types';
+
+import type { FetchAction } from '@rest-hooks/core';
 import type { EndpointInterface } from '@rest-hooks/endpoint';
 
 /** Requesting a fetch to begin
@@ -7,7 +10,9 @@ import type { EndpointInterface } from '@rest-hooks/endpoint';
  * @param endpoint
  * @param options { args, throttle }
  */
-export default function createFetch<E extends EndpointInterface>(
+export default function createFetch<
+  E extends EndpointInterface & { update?: UpdateFunction<E> },
+>(
   endpoint: E,
   { args, throttle }: { args: readonly [...Parameters<E>]; throttle: boolean },
 ): FetchAction {
@@ -32,15 +37,9 @@ export default function createFetch<E extends EndpointInterface>(
         : /* istanbul ignore next */ new Date(),
   };
 
-  /*if (endpoint.update) {
-    meta.updaters = updateParams.reduce(
-      (accumulator: object, [toShape, toParams, updateFn]) => ({
-        [toShape.getFetchKey(toParams)]: updateFn,
-        ...accumulator,
-      }),
-      {},
-    );
-  }*/
+  if (endpoint.update) {
+    meta.update = endpoint.update;
+  }
 
   if (endpoint.optimisticUpdate) {
     meta.optimisticResponse = endpoint.optimisticUpdate(...args);

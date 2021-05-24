@@ -3,6 +3,7 @@ import {
   ArticleResourceWithOtherListUrl,
   PaginatedArticleResource,
 } from '__tests__/common';
+import { PaginatedArticleResource as PaginatedArticle } from '__tests__/new';
 import { DELETED, schema } from '@rest-hooks/normalizr';
 
 import reducer, { initialState } from '../reducer';
@@ -19,7 +20,7 @@ import {
   FETCH_TYPE,
   RESET_TYPE,
 } from '../../actionTypes';
-import createFetch from '../actions/createFetch';
+import { createReceive } from '../actions';
 
 describe('reducer', () => {
   describe('singles', () => {
@@ -40,8 +41,9 @@ describe('reducer', () => {
       payload: { id, title: 'hello' },
     };
     const iniState = initialState;
-    const newState = reducer(iniState, action);
+    let newState = initialState;
     it('should update state correctly', () => {
+      newState = reducer(iniState, action);
       expect(newState).toMatchSnapshot();
     });
     it('should overwrite existing entity', () => {
@@ -193,7 +195,7 @@ describe('reducer', () => {
     expect(newState.entities[ArticleResource.key]).toEqual(expectedEntities);
   });
 
-  describe('optimistic update', () => {
+  describe('updaters', () => {
     describe('Update on get (pagination use case)', () => {
       const shape = PaginatedArticleResource.listShape();
       function makeOptimisticAction(
@@ -381,6 +383,76 @@ describe('reducer', () => {
         expect(
           newState.results[ArticleResourceWithOtherListUrl.otherListUrl()],
         ).toStrictEqual(['21', '11']);
+      });
+    });
+  });
+
+  describe('endpoint.update', () => {
+    describe('Update on get (pagination use case)', () => {
+      const endpoint = PaginatedArticle.list();
+
+      const iniState: any = {
+        ...initialState,
+        entities: {
+          [PaginatedArticle.key]: {
+            '10': PaginatedArticle.fromJS({ id: 10 }),
+          },
+        },
+        results: {
+          [PaginatedArticle.list().key({})]: { results: ['10'] },
+        },
+      };
+
+      it('should insert a new page of resources into a list request', () => {
+        const action = createReceive(
+          { results: [{ id: 11 }, { id: 12 }] },
+          {
+            ...endpoint,
+            key: endpoint.key({ cursor: 2 }),
+            update: (nextpage: { results: string[] }) => ({
+              [PaginatedArticle.list().key({})]: (
+                existing: { results: string[] } = { results: [] },
+              ) => ({
+                ...existing,
+                results: [...existing.results, ...nextpage.results],
+              }),
+            }),
+            dataExpiryLength: 600000,
+          },
+        );
+        const newState = reducer(iniState, action);
+        expect(newState.results[PaginatedArticle.list().key({})]).toStrictEqual(
+          {
+            results: ['10', '11', '12'],
+          },
+        );
+      });
+
+      it('should insert correctly into the beginning of the list request', () => {
+        const newState = reducer(
+          iniState,
+          createReceive(
+            { results: [{ id: 11 }, { id: 12 }] },
+            {
+              ...endpoint,
+              key: endpoint.key({ cursor: 2 }),
+              update: (nextpage: { results: string[] }) => ({
+                [PaginatedArticle.list().key({})]: (
+                  existing: { results: string[] } = { results: [] },
+                ) => ({
+                  ...existing,
+                  results: [...nextpage.results, ...existing.results],
+                }),
+              }),
+              dataExpiryLength: 600000,
+            },
+          ),
+        );
+        expect(newState.results[PaginatedArticle.list().key({})]).toStrictEqual(
+          {
+            results: ['11', '12', '10'],
+          },
+        );
       });
     });
   });

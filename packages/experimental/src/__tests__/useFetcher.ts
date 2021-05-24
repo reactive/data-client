@@ -1,6 +1,6 @@
 import { FutureArticleResource } from '__tests__/new';
 import nock from 'nock';
-import { useCache } from '@rest-hooks/core';
+import { useCache, useResource } from '@rest-hooks/core';
 
 // relative imports to avoid circular dependency in tsconfig references
 import {
@@ -23,6 +23,29 @@ export const createPayload = {
   content: 'whatever',
   tags: ['a', 'best', 'react'],
 };
+
+export const nested = [
+  {
+    id: 5,
+    title: 'hi ho',
+    content: 'whatever',
+    tags: ['a', 'best', 'react'],
+    author: {
+      id: 23,
+      username: 'bob',
+    },
+  },
+  {
+    id: 3,
+    title: 'the next time',
+    content: 'whatever',
+    author: {
+      id: 23,
+      username: 'charles',
+      email: 'bob@bob.com',
+    },
+  },
+];
 
 for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
   describe(`${makeProvider.name} => <Provider />`, () => {
@@ -50,6 +73,9 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         .reply(403, {})
         .get(`/article-cooler/666`)
         .reply(200, '')
+        .get(`/article-cooler/`)
+        .reply(200, nested)
+
         .post(`/article-cooler/`)
         .reply(200, createPayload);
 
@@ -105,7 +131,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       };
     });
 
-    /*it('should update on create', async () => {
+    it('should update on create', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
         const articles = useResource(FutureArticleResource.list(), {});
         const fetch = useFetcher();
@@ -115,7 +141,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       await result.current.fetch(FutureArticleResource.create(), {
         id: 1,
       });
-      expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3, 1]);
-    });*/
+      expect(result.current.articles.map(({ id }) => id)).toEqual([1, 5, 3]);
+    });
   });
 }

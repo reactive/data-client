@@ -249,6 +249,12 @@ export class FutureArticleResource extends CoolerArticleResource {
         return instanceFetch(this.url(), this.getFetchInit(body));
       },
       url: this.listUrl.bind(this),
+      update: (newid: string) => ({
+        [this.list().key({})]: (existing: string[] = []) => [
+          newid,
+          ...existing,
+        ],
+      }),
     });
   }
 
