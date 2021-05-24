@@ -44,10 +44,10 @@
   resolved "https://registry.yarnpkg.com/@anansi/browserslist-config/-/browserslist-config-1.2.0.tgz#60d58a9caf93d730f093084ae8e51fa01310d4e7"
   integrity sha512-5dssJtY7DAa674IzR//vZ4Jk9Ey/OmwExDuxcvYQ3ob6mKybvt/65lk9dL0ORUJn4+tjxOq5lV/OChPbelP3dg==
 
-"@anansi/eslint-plugin@0.11.7":
-  version "0.11.7"
-  resolved "https://registry.yarnpkg.com/@anansi/eslint-plugin/-/eslint-plugin-0.11.7.tgz#a643d01c90b257ed8b604aa96b653d37e847c7bf"
-  integrity sha512-0LZ7fqY6qyY5PaN9H7B1KrIXeN6et8OFmdNbZ/GNRqLYVMWtrhar1mjRyLj38u2//L+luy4LU1nk4zjei3hzaQ==
+"@anansi/eslint-plugin@0.11.8":
+  version "0.11.8"
+  resolved "https://registry.yarnpkg.com/@anansi/eslint-plugin/-/eslint-plugin-0.11.8.tgz#d43e7fc354236d08d80373ebc3fed91a10fd8e93"
+  integrity sha512-izudXAMrnreaMMoa9pIQDwjGW8Z4v7mQ4qT28HWltlM+LWRn3LyjIBE05nyNJoptELvRGb+BYOcpNfIHioQwhA==
   dependencies:
     "@babel/eslint-parser" "^7.14.3"
     "@typescript-eslint/eslint-plugin" "^4.24.0"
