@@ -72,7 +72,7 @@ export default function reducer(
         if (action.meta.update) {
           const updaters = action.meta.update(result);
           Object.keys(updaters).forEach(
-            key => (results[key] = updaters[key](results[key])),
+            key => { results[key] = updaters[key](results[key]); },
           );
         }
         return {
