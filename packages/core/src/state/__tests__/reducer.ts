@@ -454,6 +454,45 @@ describe('reducer', () => {
           },
         );
       });
+
+      it('should account for args', () => {
+        const iniState: any = {
+          ...initialState,
+          entities: {
+            [PaginatedArticle.key]: {
+              '10': PaginatedArticle.fromJS({ id: 10 }),
+            },
+          },
+          results: {
+            [PaginatedArticle.list().key({ admin: true })]: { results: ['10'] },
+          },
+        };
+        const newState = reducer(
+          iniState,
+          createReceive(
+            { results: [{ id: 11 }, { id: 12 }] },
+            {
+              ...endpoint,
+              key: endpoint.key({ cursor: 2, admin: true }),
+              args: [{ cursor: 2, admin: true }],
+              update: (nextpage: { results: string[] }, { admin }) => ({
+                [PaginatedArticle.list().key({ admin })]: (
+                  existing: { results: string[] } = { results: [] },
+                ) => ({
+                  ...existing,
+                  results: [...nextpage.results, ...existing.results],
+                }),
+              }),
+              dataExpiryLength: 600000,
+            },
+          ),
+        );
+        expect(
+          newState.results[PaginatedArticle.list().key({ admin: true })],
+        ).toStrictEqual({
+          results: ['11', '12', '10'],
+        });
+      });
     });
   });
 

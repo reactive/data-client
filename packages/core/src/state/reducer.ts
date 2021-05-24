@@ -70,7 +70,10 @@ export default function reducer(
         };
         results = applyUpdatersToResults(results, result, action.meta.updaters);
         if (action.meta.update) {
-          const updaters = action.meta.update(result);
+          const updaters = action.meta.update(
+            result,
+            ...(action.meta.args || []),
+          );
           Object.keys(updaters).forEach(key => {
             results[key] = updaters[key](results[key]);
           });

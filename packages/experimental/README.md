@@ -13,7 +13,13 @@
 
 </div>
 
-## useFetcher()
+## Motivation
+
+Field application of designs help smooth edges of a theoretical design. New designs can be iterated on here, breaking freely without worry of legacy support plans.
+
+## Usage
+
+### useFetcher()
 
 ```tsx
 const fetch = useFetcher();
@@ -25,7 +31,7 @@ return (
 );
 ```
 
-## Endpoint.update
+### Endpoint.update
 
 <details open><summary><b>Simple</b></summary>
 
@@ -65,7 +71,7 @@ const createUser = new Endpoint(postToUserFunction, {
 </details>
 
 
-## Entity, EntityRecord, Resource, BaseResource
+### Entity, EntityRecord, Resource, BaseResource
 
 - Normalizes to pojo
 - Faster
