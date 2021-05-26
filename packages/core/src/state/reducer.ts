@@ -6,6 +6,7 @@ import {
   INVALIDATE_TYPE,
   RESET_TYPE,
   FETCH_TYPE,
+  GC_TYPE,
 } from '@rest-hooks/core/actionTypes';
 
 import applyUpdatersToResults from './applyUpdatersToResults';
@@ -26,6 +27,17 @@ export default function reducer(
 ): State<unknown> {
   if (!state) state = initialState;
   switch (action.type) {
+    case GC_TYPE:
+      // inline deletes are fine as these should have 0 refcounts
+      action.entities.forEach(([key, pk]) => {
+        delete (state as any).entities[key]?.[pk];
+        delete (state as any).entityMeta[key]?.[pk];
+      });
+      action.results.forEach(fetchKey => {
+        delete (state as any).results[fetchKey];
+        delete (state as any).meta[fetchKey];
+      });
+      return state;
     case FETCH_TYPE: {
       const optimisticResponse = action.meta.optimisticResponse;
       if (optimisticResponse === undefined) {
