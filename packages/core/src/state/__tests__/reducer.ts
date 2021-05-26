@@ -13,12 +13,15 @@ import {
   ResetAction,
   InvalidateAction,
   UpdateFunction,
+  GCAction,
+  State,
 } from '../../types';
 import {
   RECEIVE_TYPE,
   INVALIDATE_TYPE,
   FETCH_TYPE,
   RESET_TYPE,
+  GC_TYPE,
 } from '../../actionTypes';
 import { createReceive } from '../actions';
 
@@ -657,5 +660,90 @@ describe('reducer', () => {
     expect(newState.results).toEqual({});
     expect(newState.meta).toEqual({});
     expect(newState.entities).toEqual({});
+  });
+
+  describe('GC action', () => {
+    let iniState: State<unknown>;
+
+    beforeEach(() => {
+      iniState = {
+        ...initialState,
+        entities: {
+          [ArticleResource.key]: {
+            '10': ArticleResource.fromJS({ id: 10 }),
+            '20': ArticleResource.fromJS({ id: 20 }),
+            '25': ArticleResource.fromJS({ id: 25 }),
+            '250': ArticleResource.fromJS({ id: 250 }),
+          },
+          [PaginatedArticleResource.key]: {
+            hi: PaginatedArticleResource.fromJS({ id: 5 }),
+          },
+          '5': undefined,
+        },
+        entityMeta: {
+          [ArticleResource.key]: {
+            '10': { date: 0, expiresAt: 10000 },
+            '20': { date: 0, expiresAt: 10000 },
+            '25': { date: 0, expiresAt: 10000 },
+            '250': { date: 0, expiresAt: 10000 },
+          },
+        },
+        results: { abc: '20' },
+      };
+    });
+
+    it('empty targets should do nothing', () => {
+      const action: GCAction = {
+        type: GC_TYPE,
+        entities: [],
+        results: [],
+      };
+
+      const newState = reducer(iniState, action);
+      expect(newState).toBe(iniState);
+      expect(
+        Object.keys(newState.entities[ArticleResource.key] ?? {}).length,
+      ).toBe(4);
+      expect(Object.keys(newState.results).length).toBe(1);
+    });
+
+    it('empty deleting entities should work', () => {
+      const action: GCAction = {
+        type: GC_TYPE,
+        entities: [
+          [ArticleResource.key, '10'],
+          [ArticleResource.key, '250'],
+        ],
+        results: ['abc'],
+      };
+
+      const newState = reducer(iniState, action);
+      expect(newState).toBe(iniState);
+      expect(
+        Object.keys(newState.entities[ArticleResource.key] ?? {}).length,
+      ).toBe(2);
+      expect(
+        Object.keys(newState.entityMeta[ArticleResource.key] ?? {}).length,
+      ).toBe(2);
+      expect(Object.keys(newState.results).length).toBe(0);
+    });
+
+    it('empty deleting nonexistant things should passthrough', () => {
+      const action: GCAction = {
+        type: GC_TYPE,
+        entities: [
+          [ArticleResource.key, '100000000'],
+          ['sillythings', '10'],
+        ],
+        results: [],
+      };
+
+      const newState = reducer(iniState, action);
+      expect(newState).toBe(iniState);
+      expect(
+        Object.keys(newState.entities[ArticleResource.key] ?? {}).length,
+      ).toBe(4);
+      expect(Object.keys(newState.results).length).toBe(1);
+    });
   });
 });

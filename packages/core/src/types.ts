@@ -18,6 +18,7 @@ import {
   SUBSCRIBE_TYPE,
   UNSUBSCRIBE_TYPE,
   INVALIDATE_TYPE,
+  GC_TYPE,
 } from './actionTypes';
 
 export type { AbstractInstanceType, UpdateFunction };
@@ -152,6 +153,12 @@ export interface InvalidateAction
   };
 }
 
+export interface GCAction {
+  type: typeof GC_TYPE;
+  entities: [string, string][];
+  results: string[];
+}
+
 export type ResponseActions = ReceiveAction;
 
 // put other actions here in union
@@ -161,7 +168,8 @@ export type ActionTypes =
   | SubscribeAction
   | UnsubscribeAction
   | InvalidateAction
-  | ResetAction;
+  | ResetAction
+  | GCAction;
 
 export interface Manager {
   getMiddleware(): Middleware;
