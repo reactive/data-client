@@ -6,7 +6,7 @@ import {
   ActionTypes,
   usePromisifiedDispatch,
 } from '@rest-hooks/core';
-import React, { ReactNode, useEffect, useState, useMemo } from 'react';
+import React, { ReactNode, useEffect, useState, useMemo, useRef } from 'react';
 
 interface Store<S> {
   subscribe(listener: () => void): () => void;
@@ -31,9 +31,17 @@ export default function ExternalCacheProvider<S>({
     [state],
   );
 
+  const isMounted = useRef(true);
+  useEffect(
+    () => () => {
+      isMounted.current = false;
+    },
+    [],
+  );
+
   useEffect(() => {
     const unsubscribe = store.subscribe(() => {
-      setState(selector(store.getState()));
+      if (isMounted.current) setState(selector(store.getState()));
     });
     return unsubscribe;
     // we don't care to recompute if they change selector - only when store updates

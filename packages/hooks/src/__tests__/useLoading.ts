@@ -6,6 +6,9 @@ describe('useLoading()', () => {
   beforeAll(() => {
     jest.useFakeTimers();
   });
+  afterAll(() => {
+    jest.useRealTimers();
+  });
 
   it('should not update until delay has passed', async () => {
     function fun(value: string) {

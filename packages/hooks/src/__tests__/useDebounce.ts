@@ -6,6 +6,9 @@ describe('useDebounce()', () => {
   beforeAll(() => {
     jest.useFakeTimers();
   });
+  afterAll(() => {
+    jest.useRealTimers();
+  });
 
   it('should not update until delay has passed', () => {
     const { result, rerender } = renderHook(

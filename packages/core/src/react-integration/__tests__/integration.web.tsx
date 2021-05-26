@@ -571,7 +571,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       });
 
       it('should clear only earlier optimistic updates when a promise resolves', async () => {
-        jest.useFakeTimers();
+        jest.useFakeTimers('legacy');
 
         const params = { id: payload.id };
         const { result, waitForNextUpdate } = renderRestHook(
@@ -666,6 +666,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
             title: 'second',
           }),
         );
+        jest.useRealTimers();
       });
 
       describe('indexes', () => {

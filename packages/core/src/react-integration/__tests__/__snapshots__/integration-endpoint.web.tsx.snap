@@ -35,24 +35,6 @@ Array [
 ]
 `;
 
-exports[`makeCacheProvider => <Provider /> Optimistic Updates indexes should resolve parallel useResource() request 1`] = `
-IndexedUserResource {
-  "email": "bob@bob.com",
-  "id": 23,
-  "isAdmin": false,
-  "username": "bob",
-}
-`;
-
-exports[`makeCacheProvider => <Provider /> Optimistic Updates indexes should resolve parallel useResource() request 2`] = `
-IndexedUserResource {
-  "email": "bob@bob.com",
-  "id": 23,
-  "isAdmin": false,
-  "username": "charlie",
-}
-`;
-
 exports[`makeCacheProvider => <Provider /> should passthrough union with unexpected schema attribute 1`] = `
 Array [
   Array [
@@ -172,24 +154,6 @@ Array [
     "title": "the next time",
   },
 ]
-`;
-
-exports[`makeExternal => <Provider /> Optimistic Updates indexes should resolve parallel useResource() request 1`] = `
-IndexedUserResource {
-  "email": "bob@bob.com",
-  "id": 23,
-  "isAdmin": false,
-  "username": "bob",
-}
-`;
-
-exports[`makeExternal => <Provider /> Optimistic Updates indexes should resolve parallel useResource() request 2`] = `
-IndexedUserResource {
-  "email": "bob@bob.com",
-  "id": 23,
-  "isAdmin": false,
-  "username": "charlie",
-}
 `;
 
 exports[`makeExternal => <Provider /> should passthrough union with unexpected schema attribute 1`] = `

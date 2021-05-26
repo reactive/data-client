@@ -228,6 +228,7 @@ describe('useResource()', () => {
     `);
     // eslint-disable-next-line require-atomic-updates
     console.error = oldError;
+    jest.useRealTimers();
   });
   it('should NOT suspend if result already in cache and options.invalidIfStale is false', () => {
     const state: State<unknown> = mockInitialState([

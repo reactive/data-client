@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`indexes should resolve parallel useResource() request 1`] = `
+IndexedUserResource {
+  "email": "bob@bob.com",
+  "id": 23,
+  "isAdmin": false,
+  "username": "bob",
+}
+`;
+
+exports[`indexes should resolve parallel useResource() request 2`] = `
+IndexedUserResource {
+  "email": "bob@bob.com",
+  "id": 23,
+  "isAdmin": false,
+  "username": "charlie",
+}
+`;

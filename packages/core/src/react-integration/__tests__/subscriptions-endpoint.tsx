@@ -93,6 +93,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         .reply(200, { ...articlePayload, title: 'sixer' });
       jest.advanceTimersByTime(frequency);
       expect((result.current as any).title).toBe('fiver');
+      jest.useRealTimers();
     });
 
     it('should console.error() with no frequency specified', async () => {
@@ -130,6 +131,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         waitForNextUpdate,
         articlePayload,
       );
+      jest.useRealTimers();
     });
 
     it('useSubscription() should dispatch rest-hooks/subscribe only once even with rerender', () => {
