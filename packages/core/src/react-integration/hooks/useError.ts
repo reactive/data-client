@@ -1,6 +1,5 @@
 import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
 import { NetworkError, UnknownError } from '@rest-hooks/core/types';
-import { Schema } from '@rest-hooks/endpoint';
 
 import useMeta from './useMeta';
 
@@ -10,9 +9,15 @@ export interface SyntheticError extends Error {
   synthetic: true;
 }
 
-export type ErrorTypes =
-  | ((NetworkError | UnknownError) & { synthetic?: undefined | false })
-  | SyntheticError;
+interface NSNetworkError extends NetworkError {
+  synthetic?: undefined | false;
+}
+
+interface NSUnknownError extends UnknownError {
+  synthetic?: undefined | false;
+}
+
+export type ErrorTypes = (NSNetworkError | NSUnknownError) | SyntheticError;
 
 type UseErrorReturn<P> = P extends null ? undefined : ErrorTypes | undefined;
 

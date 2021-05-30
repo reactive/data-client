@@ -102,7 +102,7 @@ describe('useStatefulResource()', () => {
     expect(result.current.data).toBeUndefined();
     await waitForNextUpdate();
     // type discrimination forces it to be resolved
-    if (!result.current.loading && !result.current.error) {
+    if (!result.current.loading && result.current.error === undefined) {
       expect(result.current.data.title).toBe(payload.title);
       // @ts-expect-error ensure this isn't "any"
       result.current.data.doesnotexist;
