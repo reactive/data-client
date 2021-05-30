@@ -32,7 +32,10 @@ export interface NetworkError extends Error {
   response?: Response;
 }
 
-export type UnknownError = Error & { status?: unknown; response?: unknown };
+export interface UnknownError extends Error {
+  status?: unknown;
+  response?: unknown;
+}
 
 export type State<T> = Readonly<{
   entities: {
