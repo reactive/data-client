@@ -26,7 +26,7 @@ export default abstract class Entity extends SimpleRecord {
     /* istanbul ignore next */
     if (
       process.env.NODE_ENV !== 'production' &&
-      (this.name === '' || this.name === 'Entity')
+      (this.name === '' || this.name === 'Entity' || this.name === '_temp')
     )
       throw new Error(
         'Entity classes without a name must define `static get key()`',
