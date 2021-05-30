@@ -1,10 +1,15 @@
 import { schema } from '@rest-hooks/normalizr';
-
-import BaseResource from './BaseResource';
-
-import type { RestEndpoint } from './types';
-import type { SchemaDetail, SchemaList } from '@rest-hooks/endpoint';
+import type {
+  EndpointInstance,
+  SchemaDetail,
+  SchemaList,
+} from '@rest-hooks/endpoint';
 import type { AbstractInstanceType } from '@rest-hooks/normalizr';
+import { FetchFunction, Schema } from '@rest-hooks/endpoint';
+
+import getArrayPath from './getArrayPath';
+import BaseResource from './BaseResource';
+import type { RestEndpoint } from './types';
 
 /**
  * Represents an entity to be retrieved from a server.
@@ -29,15 +34,38 @@ export default abstract class Resource extends BaseResource {
   /** Endpoint to get a list of entities */
   static list<T extends typeof Resource>(
     this: T,
-  ): RestEndpoint<
-    (this: RestEndpoint, params: any) => Promise<any>,
-    SchemaList<AbstractInstanceType<T>>,
-    undefined
+  ): Paginatable<
+    RestEndpoint<
+      (this: RestEndpoint, params: any) => Promise<any>,
+      SchemaList<AbstractInstanceType<T>>,
+      undefined
+    >
   > {
     return this.memo('#list', () =>
       this.endpoint().extend({
         schema: [this],
         url: this.listUrl.bind(this),
+        paginated(
+          this: any,
+          removeCursor: (...args: Parameters<typeof this>) => any,
+        ) {
+          // infer path from schema. if schema is undefined assume array is top level
+          const path = getArrayPath(this.schema);
+          if (path === false) throw new Error('schema has no array');
+
+          return this.extend({
+            update: (newPage: any, ...args: any) => ({
+              [this.key(...removeCursor(...args))]: (existing: any) => {
+                const set = new Set([
+                  ...getIn(existing, path),
+                  ...getIn(newPage, path),
+                ]);
+                // sorted?
+                return setIn(newPage, path, [...set.values()]);
+              },
+            }),
+          });
+        },
       }),
     );
   }
@@ -111,3 +139,36 @@ export default abstract class Resource extends BaseResource {
     );
   }
 }
+
+export type Paginatable<
+  E extends EndpointInstance<
+    FetchFunction,
+    Schema | undefined,
+    true | undefined
+  >,
+> = E & {
+  paginated(
+    this: E,
+    removeCursor: (...args: Parameters<E>) => any,
+  ): Paginatable<E>;
+};
+
+const getIn = (results: any, path: string[]) => {
+  let cur = results;
+  for (const p of path) {
+    cur = cur[p];
+  }
+  return cur;
+};
+
+const setIn = (results: any, path: string[], values: any[]) => {
+  if (path.length === 0) return values;
+  const newResults = { ...results };
+  let cur = newResults;
+  for (let i = 0; i < path.length - 1; i++) {
+    const p = path[i];
+    cur = cur[p] = { ...cur[p] };
+  }
+  cur[path[path.length - 1]] = values;
+  return newResults;
+};

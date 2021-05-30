@@ -1,11 +1,10 @@
 import { Endpoint } from '@rest-hooks/endpoint';
+import type { EndpointExtraOptions } from '@rest-hooks/endpoint';
+import type { Schema } from '@rest-hooks/normalizr';
 
 import Entity from '../entity/EntityRecord';
 import paramsToString from './paramsToString';
 import { RestEndpoint } from './types';
-
-import type { EndpointExtraOptions } from '@rest-hooks/endpoint';
-import type { Schema } from '@rest-hooks/normalizr';
 
 class NetworkError extends Error {
   declare status: number;

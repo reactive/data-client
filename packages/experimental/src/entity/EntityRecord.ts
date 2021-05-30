@@ -38,7 +38,7 @@ export default abstract class EntityRecord extends Entity {
     const instance: any = super.fromJS(props);
 
     Object.defineProperty(instance, DefinedMembersKey, {
-      value: props,
+      value: { ...props },
       writable: false,
     });
 
