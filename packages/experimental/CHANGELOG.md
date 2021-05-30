@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@0.2.1...@rest-hooks/experimental@0.3.0) (2021-05-30)
+
+
+### 🚀 Features
+
+* Resource.list().paginate() ([#868](https://github.com/coinbase/rest-hooks/issues/868)) ([cecdd7d](https://github.com/coinbase/rest-hooks/commit/cecdd7dd0fc5d4bbffd7f7cf7fa1344be3807697))
+
+
+
 ### [0.2.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@0.2.0...@rest-hooks/experimental@0.2.1) (2021-05-24)
 
 
