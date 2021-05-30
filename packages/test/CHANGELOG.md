@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@4.1.4...@rest-hooks/test@5.0.0) (2021-05-30)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* - requires node 12
+- 'suppressErrorOutput will now work when explicitly called, even if the
+    RHTL_DISABLE_ERROR_FILTERING env variable has been set' (from
+    react-hooks-testing-library)
+
+### 📦 Package
+
+* react-hooks-testing-library v7 ([#866](https://github.com/coinbase/rest-hooks/issues/866)) ([249883b](https://github.com/coinbase/rest-hooks/commit/249883b11624d1adbd440fbbb96f597a81162857))
+
+
+### 🏠 Internal
+
+* Major version bump ([#874](https://github.com/coinbase/rest-hooks/issues/874)) ([37931f3](https://github.com/coinbase/rest-hooks/commit/37931f331a08268fb12f752f26f3281b0cb11adf))
+
+
+
 ### [4.1.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@4.1.3...@rest-hooks/test@4.1.4) (2021-05-24)
 
 **Note:** Version bump only for package @rest-hooks/test
