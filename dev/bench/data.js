@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1621887281009,
+  "lastUpdate": 1622349025378,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -1558,6 +1558,44 @@ window.BENCHMARK_DATA = {
             "range": "±2.16%",
             "unit": "ops/sec",
             "extra": "49 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2c1e5cc4d61f4a7a06352fd64250ff7447b7291b",
+          "message": "internal(pkg): bump typescript from 4.2.4 to 4.3.2 (#870)\n\n* internal(pkg): bump typescript from 4.2.4 to 4.3.2\n\nBumps [typescript](https://github.com/Microsoft/TypeScript) from 4.2.4 to 4.3.2.\n- [Release notes](https://github.com/Microsoft/TypeScript/releases)\n- [Commits](https://github.com/Microsoft/TypeScript/compare/v4.2.4...v4.3.2)\n\nSigned-off-by: dependabot[bot] <support@github.com>\n\n* fix: changes\n\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2021-05-29T21:28:08-07:00",
+          "tree_id": "512e7a94384845333be743b522cd3ffd0509d9e8",
+          "url": "https://github.com/coinbase/rest-hooks/commit/2c1e5cc4d61f4a7a06352fd64250ff7447b7291b"
+        },
+        "date": 1622349024125,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 68.99,
+            "range": "±1.06%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 26.31,
+            "range": "±1.62%",
+            "unit": "ops/sec",
+            "extra": "47 samples"
           }
         ]
       }
