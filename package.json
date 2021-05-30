@@ -29,7 +29,7 @@
     "@anansi/babel-preset": "2.5.16",
     "@anansi/browserslist-config": "1.2.0",
     "@anansi/eslint-plugin": "0.11.9",
-    "@anansi/jest-preset": "^0.2.2",
+    "@anansi/jest-preset": "^0.4.4",
     "@babel/cli": "7.14.3",
     "@babel/core": "7.14.3",
     "@babel/node": "^7.13.13",
