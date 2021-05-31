@@ -80,8 +80,7 @@ export default abstract class Entity extends SimpleRecord {
       process.env.NODE_ENV !== 'production' &&
       this.automaticValidation !== 'silent'
     ) {
-      const instanceSample = new (this as any)();
-      const keysOfRecord = new Set(Object.keys(instanceSample));
+      const keysOfRecord = new Set(Object.keys(this.defaults));
       const keysOfProps = this.keysDefined(processedEntity);
       const [found, missing, unexpected] = [[], [], []] as [
         string[],
@@ -267,8 +266,6 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
       );
       return [this.fromJS(denormEntity.toObject()), found, deleted];
     }
-    // TODO: This creates unneeded memory pressure
-    const instance = new (this as any)();
     let deleted = false;
 
     // note: iteration order must be stable
@@ -281,7 +278,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
 
       if (
         deletedItem &&
-        !(Object.hasOwnProperty.call(input, key) && !instance[key])
+        !(Object.hasOwnProperty.call(input, key) && !this.defaults[key])
       ) {
         deleted = true;
       }

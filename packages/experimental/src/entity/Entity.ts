@@ -116,8 +116,7 @@ export default abstract class Entity {
       process.env.NODE_ENV !== 'production' &&
       this.automaticValidation !== 'silent'
     ) {
-      const instanceSample = new (this as any)();
-      const keysOfRecord = new Set(Object.keys(instanceSample));
+      const keysOfRecord = new Set(Object.keys(this.defaults));
       const keysOfProps = Object.keys(processedEntity);
       const [found, missing, unexpected] = [[], [], []] as [
         string[],
@@ -258,8 +257,7 @@ First three members: ${JSON.stringify(processedEntity.slice(0, 3), null, 2)}`;
           visitedEntities,
         );
       } else if (process.env.NODE_ENV !== 'production') {
-        const instanceSample = new (this as any)();
-        if (!Object.hasOwnProperty.call(instanceSample, key)) {
+        if (!Object.hasOwnProperty.call(this.defaults, key)) {
           const error = new Error(
             `Schema key is missing in Entity
 
@@ -267,7 +265,7 @@ First three members: ${JSON.stringify(processedEntity.slice(0, 3), null, 2)}`;
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
   Learn more about nesting schemas: https://resthooks.io/docs/guides/nested-response
 
-  Entity keys: ${Object.keys(instanceSample)}
+  Entity keys: ${Object.keys(this.defaults)}
   Schema key(missing): ${key}
   `,
           );
@@ -302,8 +300,6 @@ First three members: ${JSON.stringify(processedEntity.slice(0, 3), null, 2)}`;
     // denormalization the reference will already exist.
     unvisit.setLocal?.(entityCopy);
 
-    // TODO: This creates unneeded memory pressure
-    const instance = new (this as any)();
     let deleted = false;
 
     // note: iteration order must be stable
@@ -316,7 +312,7 @@ First three members: ${JSON.stringify(processedEntity.slice(0, 3), null, 2)}`;
 
       if (
         deletedItem &&
-        !(Object.hasOwnProperty.call(input, key) && !instance[key])
+        !(Object.hasOwnProperty.call(input, key) && !this.defaults[key])
       ) {
         deleted = true;
       }
@@ -329,6 +325,14 @@ First three members: ${JSON.stringify(processedEntity.slice(0, 3), null, 2)}`;
     });
 
     return [entityCopy, true, deleted];
+  }
+
+  private declare static __defaults: any;
+  /** All instance defaults set */
+  protected static get defaults() {
+    if (!Object.prototype.hasOwnProperty.call(this, '__defaults'))
+      this.__defaults = new (this as any)();
+    return this.__defaults;
   }
 
   /** Used by denormalize to set nested members */

@@ -125,8 +125,6 @@ export default abstract class SimpleRecord {
     input: any,
     unvisit: any,
   ): [AbstractInstanceType<T>, boolean, boolean] {
-    // TODO: This creates unneeded memory pressure
-    const instance = new (this as any)();
     const object = { ...input };
     let deleted = false;
     let found = true;
@@ -140,16 +138,24 @@ export default abstract class SimpleRecord {
       }
       // members who default to falsy values are considered 'optional'
       // if falsy value, and default is actually set then it is optional so pass through
-      if (!foundItem && !(key in instance && !instance[key])) {
+      if (!foundItem && !(key in this.defaults && !this.defaults[key])) {
         found = false;
       }
-      if (deletedItem && !(key in instance && !instance[key])) {
+      if (deletedItem && !(key in this.defaults && !this.defaults[key])) {
         deleted = true;
       }
     });
 
     // useDenormalized will memo based on entities, so creating a new object each time is fine
     return [this.fromJS(object) as any, found, deleted];
+  }
+
+  private declare static __defaults: any;
+  /** All instance defaults set */
+  protected static get defaults() {
+    if (!Object.prototype.hasOwnProperty.call(this, '__defaults'))
+      this.__defaults = new (this as any)();
+    return this.__defaults;
   }
 
   /** @deprecated */
