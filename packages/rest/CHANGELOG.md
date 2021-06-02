@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [2.1.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.1.2...@rest-hooks/rest@2.1.3) (2021-06-02)
+
+
+### 💅 Enhancement
+
+* Improve autoimport handling in vscode ([#890](https://github.com/coinbase/rest-hooks/issues/890)) ([f8f2bef](https://github.com/coinbase/rest-hooks/commit/f8f2bef411183676009c6a9df24a26d147c6d9f6))
+
+
+
 ### [2.1.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.1.1...@rest-hooks/rest@2.1.2) (2021-05-24)
 
 

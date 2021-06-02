@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@7.0.1...@rest-hooks/normalizr@7.0.3) (2021-06-02)
+
+
+### 💅 Enhancement
+
+* Cache entity default instances ([#883](https://github.com/coinbase/rest-hooks/issues/883)) ([842f6c8](https://github.com/coinbase/rest-hooks/commit/842f6c8e3dfc27e2946f5adc1bdbef849e8794ab))
+* Improve autoimport handling in vscode ([#890](https://github.com/coinbase/rest-hooks/issues/890)) ([f8f2bef](https://github.com/coinbase/rest-hooks/commit/f8f2bef411183676009c6a9df24a26d147c6d9f6))
+
+
+
 ### [7.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@7.0.1...@rest-hooks/normalizr@7.0.2) (2021-05-30)
 
 **Note:** Version bump only for package @rest-hooks/normalizr

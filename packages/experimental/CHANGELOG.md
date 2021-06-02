@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@0.2.1...@rest-hooks/experimental@0.4.0) (2021-06-02)
+
+
+### 🚀 Features
+
+* Export types for Resource ([#889](https://github.com/coinbase/rest-hooks/issues/889)) ([c2766ae](https://github.com/coinbase/rest-hooks/commit/c2766aefa2f1bd736d635c9b5bd51170d9fe104c))
+* Resource.list().paginate() ([#868](https://github.com/coinbase/rest-hooks/issues/868)) ([cecdd7d](https://github.com/coinbase/rest-hooks/commit/cecdd7dd0fc5d4bbffd7f7cf7fa1344be3807697))
+
+
+### 💅 Enhancement
+
+* Cache entity default instances ([#883](https://github.com/coinbase/rest-hooks/issues/883)) ([842f6c8](https://github.com/coinbase/rest-hooks/commit/842f6c8e3dfc27e2946f5adc1bdbef849e8794ab))
+* Improve autoimport handling in vscode ([#890](https://github.com/coinbase/rest-hooks/issues/890)) ([f8f2bef](https://github.com/coinbase/rest-hooks/commit/f8f2bef411183676009c6a9df24a26d147c6d9f6))
+
+
+### 📝 Documentation
+
+* Add paginated() to readme ([#891](https://github.com/coinbase/rest-hooks/issues/891)) ([44b85ed](https://github.com/coinbase/rest-hooks/commit/44b85edc6d3a4273a46a8e0f771ca281af25e254))
+
+
+
 ## [0.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@0.2.1...@rest-hooks/experimental@0.3.0) (2021-05-30)
 
 
