@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1622497169785,
+  "lastUpdate": 1622676023127,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -1672,6 +1672,44 @@ window.BENCHMARK_DATA = {
             "range": "±1.07%",
             "unit": "ops/sec",
             "extra": "60 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f8f2bef411183676009c6a9df24a26d147c6d9f6",
+          "message": "enhance: Improve autoimport handling in vscode (#890)",
+          "timestamp": "2021-06-02T16:18:22-07:00",
+          "tree_id": "2ae7364eac9c8ca0cfaa05c1b1a4ef77efb0ac73",
+          "url": "https://github.com/coinbase/rest-hooks/commit/f8f2bef411183676009c6a9df24a26d147c6d9f6"
+        },
+        "date": 1622676022001,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 77.89,
+            "range": "±2.22%",
+            "unit": "ops/sec",
+            "extra": "67 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 32.52,
+            "range": "±1.18%",
+            "unit": "ops/sec",
+            "extra": "58 samples"
           }
         ]
       }
