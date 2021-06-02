@@ -1,15 +1,10 @@
 import { schema } from '@rest-hooks/normalizr';
-import type {
-  EndpointInstance,
-  SchemaDetail,
-  SchemaList,
-} from '@rest-hooks/endpoint';
+import type { SchemaDetail, SchemaList } from '@rest-hooks/endpoint';
 import type { AbstractInstanceType } from '@rest-hooks/normalizr';
-import { FetchFunction, Schema } from '@rest-hooks/endpoint';
 
 import getArrayPath from './getArrayPath';
 import BaseResource from './BaseResource';
-import type { RestEndpoint } from './types';
+import type { RestEndpoint, Paginatable } from './types';
 
 /**
  * Represents an entity to be retrieved from a server.
@@ -139,19 +134,6 @@ export default abstract class Resource extends BaseResource {
     );
   }
 }
-
-export type Paginatable<
-  E extends EndpointInstance<
-    FetchFunction,
-    Schema | undefined,
-    true | undefined
-  >,
-> = E & {
-  paginated(
-    this: E,
-    removeCursor: (...args: Parameters<E>) => any,
-  ): Paginatable<E>;
-};
 
 const getIn = (results: any, path: string[]) => {
   let cur = results;

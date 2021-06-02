@@ -37,4 +37,18 @@ export interface RestEndpoint<
   ) => any;
   method: string;
   signal: AbortSignal | undefined;
+  paginated?: <T>(this: T, ...args: any) => T;
 }
+
+export type Paginatable<
+  E extends EndpointInstance<
+    FetchFunction,
+    Schema | undefined,
+    true | undefined
+  >,
+> = E & {
+  paginated(
+    this: E,
+    removeCursor: (...args: Parameters<E>) => any,
+  ): Paginatable<E>;
+};
