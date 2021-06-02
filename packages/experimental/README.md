@@ -77,3 +77,41 @@ const createUser = new Endpoint(postToUserFunction, {
 - Faster
 - Entity has no defined key lookups - but EntityRecord does.
 - BaseResource is missing predefined endpoints (list, detail, etc), but has everything else
+
+
+### Resource.list() declarative pagination
+
+Addition of `paginated()`.
+
+
+```ts
+class NewsResource extends Resource {
+  static listPage<T extends typeof NewsResource>(this: T) {
+    return this.list().paginated(({ cursor, ...rest }) => [rest]);
+  }
+}
+
+```
+
+
+```tsx
+import { useResource } from 'rest-hooks';
+import NewsResource from 'resources/NewsResource';
+
+function NewsList() {
+  const { results, cursor } = useResource(NewsResource.list(), {});
+  const curRef = useRef(cursor);
+  curRef.current = cursor;
+  const fetch = useFetcher();
+  const getNextPage = useCallback(
+    () => fetch(NewsResource.listPage(), { cursor: curRef.current }),
+    []
+  );
+
+  return (
+    <Pagination onPaginate={getNextPage} nextCursor={cursor}>
+      <NewsList data={results} />
+    </Pagination>
+  );
+}
+```
