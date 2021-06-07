@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { schema } from '@rest-hooks/endpoint';
 import type { AbstractInstanceType, Schema } from '@rest-hooks/endpoint';
+import { NormalizedIndex } from '@rest-hooks/normalizr';
 
 import { isImmutable, denormalizeImmutable } from './ImmutableUtils';
 
@@ -279,6 +280,24 @@ First three members: ${JSON.stringify(processedEntity.slice(0, 3), null, 2)}`;
     return id;
   }
 
+  static infer(args: any[], indexes: NormalizedIndex, recurse: any): any {
+    if (!args[0]) return undefined;
+    const id = this.pk(args[0], undefined, '');
+    // Was able to infer the entity's primary key from params
+    if (id !== undefined && id !== '') return id;
+    // now attempt lookup in indexes
+    const indexName = indexFromParams(args[0], this.indexes);
+    if (indexName && indexes[this.key]) {
+      // 'as Record<string, any>': indexName can only be found if params is a string key'd object
+      const id =
+        indexes[this.key][indexName][
+          (args[0] as Record<string, any>)[indexName]
+        ];
+      return id;
+    }
+    return undefined;
+  }
+
   static denormalize<T extends typeof Entity>(
     this: T,
     input: Readonly<Partial<AbstractInstanceType<T>>>,
@@ -357,4 +376,15 @@ if (process.env.NODE_ENV !== 'production') {
 
 export function isEntity(schema: Schema): schema is typeof Entity {
   return schema !== null && (schema as any).pk !== undefined;
+}
+
+function indexFromParams<I extends string>(
+  params: Readonly<object>,
+  indexes?: Readonly<I[]>,
+) {
+  if (!indexes) return undefined;
+  for (const index of indexes) {
+    if (index in params) return index;
+  }
+  return undefined;
 }

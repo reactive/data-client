@@ -51,6 +51,10 @@ export default class Delete<E extends EntityInterface & { fromJS: any }>
     return id;
   }
 
+  infer(args: any, indexes: any, recurse: any): any {
+    return undefined;
+  }
+
   denormalize(
     id: string,
     unvisit: UnvisitFunction,

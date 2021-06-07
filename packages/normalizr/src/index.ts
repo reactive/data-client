@@ -5,6 +5,7 @@ import * as schema from './schema';
 import Entity, { isEntity } from './entities/Entity';
 import SimpleRecord from './entities/SimpleRecord';
 export { default as FlatEntity } from './entities/FlatEntity';
+export { default as inferResults } from './inferResults';
 export { DELETED } from './special';
 
 export type {
