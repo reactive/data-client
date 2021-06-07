@@ -1,7 +1,6 @@
 /* istanbul ignore file */
 
 import SimpleResource from './SimpleResource';
-
 import type { Method } from './types';
 
 class NetworkError extends Error {
