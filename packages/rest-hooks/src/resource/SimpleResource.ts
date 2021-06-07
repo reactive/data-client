@@ -1,12 +1,6 @@
 /* istanbul ignore file */
 
 import { FlatEntity } from '@rest-hooks/core';
-
-import { SchemaDetail, Method, SchemaList } from './types';
-import { NotImplementedError } from './errors';
-import paramsToString from './paramsToString';
-import { schemas } from '..';
-
 import type {
   FetchOptions,
   AbstractInstanceType,
@@ -14,6 +8,11 @@ import type {
   MutateShape,
   DeleteShape,
 } from '@rest-hooks/core';
+
+import { SchemaDetail, Method, SchemaList } from './types';
+import { NotImplementedError } from './errors';
+import paramsToString from './paramsToString';
+import { schemas } from '..';
 
 /** Represents an entity to be retrieved from a server.
  * Typically 1:1 with a url endpoint.
