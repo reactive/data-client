@@ -56,6 +56,10 @@ export const denormalize = (schema, input, unvisit) => {
   ];
 };
 
+export function infer(schema, args, indexes, recurse) {
+  return undefined;
+}
+
 export default class ArraySchema extends PolymorphicSchema {
   normalize(input, parent, key, visit, addEntity, visitedEntities) {
     const values = getValues(input);
@@ -90,5 +94,9 @@ export default class ArraySchema extends PolymorphicSchema {
       found,
       deleted,
     ];
+  }
+
+  infer(args, indexes, recurse) {
+    return infer(this.schema, args, indexes, recurse);
   }
 }

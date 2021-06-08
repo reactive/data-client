@@ -239,6 +239,22 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     return id;
   }
 
+  static infer(args, indexes, infer): any {
+    if (!args[0]) return undefined as any;
+    const id = this.pk(args[0], undefined, '');
+    // Was able to infer the entity's primary key from params
+    if (id !== undefined && id !== '') return id as any;
+    // now attempt lookup in indexes
+    const indexName = indexFromParams(args[0], this.indexes);
+    if (indexName && indexes[this.key]) {
+      // 'as Record<string, any>': indexName can only be found if params is a string key'd object
+      return indexes[this.key][indexName][
+        (args[0] as Record<string, any>)[indexName]
+      ] as any;
+    }
+    return undefined as any;
+  }
+
   static denormalize<T extends typeof SimpleRecord>(
     this: T,
     input: Readonly<Partial<AbstractInstanceType<T>>>,
@@ -306,4 +322,14 @@ if (process.env.NODE_ENV !== 'production') {
 
 export function isEntity(schema: Schema): schema is typeof Entity {
   return schema !== null && (schema as any).pk !== undefined;
+}
+
+function indexFromParams<I extends string>(
+  params: Readonly<object>,
+  indexes?: Readonly<I[]>,
+) {
+  if (!indexes) return undefined;
+  return indexes.find(index =>
+    Object.prototype.hasOwnProperty.call(params, index),
+  );
 }

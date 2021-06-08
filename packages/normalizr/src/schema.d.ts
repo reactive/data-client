@@ -11,6 +11,7 @@ import {
   NormalizedNullableObject,
   UnvisitFunction,
   EntityMap,
+  NormalizedIndex,
 } from './types';
 import { default as Delete } from './schemas/Delete';
 
@@ -54,6 +55,11 @@ export interface SchemaSimple<T = any> {
     input: {} | undefined,
     unvisit: UnvisitFunction,
   ): [T, boolean, boolean];
+  infer(
+    args: any[],
+    indexes: NormalizedIndex,
+    recurse: (...args: any) => any,
+  ): any;
 }
 
 export interface SchemaClass<T = any, N = T | undefined>
@@ -94,6 +100,12 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
   ): [Denormalize<S>[], boolean, boolean];
 
   _denormalizeNullable(): [Denormalize<S>[] | undefined, false, boolean];
+
+  infer(
+    args: any[],
+    indexes: NormalizedIndex,
+    recurse: (...args: any) => any,
+  ): any;
 }
 
 export class Object<O extends Record<string, any> = Record<string, Schema>>
@@ -120,6 +132,12 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
   ): [DenormalizeObject<O>, boolean, boolean];
 
   _denormalizeNullable(): [DenormalizeNullableObject<O>, false, boolean];
+
+  infer(
+    args: any[],
+    indexes: NormalizedIndex,
+    recurse: (...args: any) => any,
+  ): any;
 }
 
 export class Union<Choices extends EntityMap = any> implements SchemaClass {
@@ -156,6 +174,12 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
     false,
     boolean,
   ];
+
+  infer(
+    args: any[],
+    indexes: NormalizedIndex,
+    recurse: (...args: any) => any,
+  ): any;
 }
 
 export class Values<Choices extends Schema = any> implements SchemaClass {
@@ -221,4 +245,10 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
     false,
     boolean,
   ];
+
+  infer(
+    args: any[],
+    indexes: NormalizedIndex,
+    recurse: (...args: any) => any,
+  ): any;
 }

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { AbstractInstanceType, Schema, NormalizedEntity } from '../types';
-import { normalize } from '../schemas/Object';
+import { normalize, infer } from '../schemas/Object';
 
 const DefinedMembersKey = Symbol('Defined Members');
 const UniqueIdentifierKey = Symbol('unq');
@@ -118,6 +118,15 @@ export default abstract class SimpleRecord {
     ]
   ): NormalizedEntity<T> {
     return normalize(this.schema, ...args) as any;
+  }
+
+  static infer<T extends typeof SimpleRecord>(
+    this: T,
+    args,
+    indexes,
+    recurse,
+  ): NormalizedEntity<T> {
+    return infer(this.schema, args, indexes, recurse);
   }
 
   static denormalize<T extends typeof SimpleRecord>(

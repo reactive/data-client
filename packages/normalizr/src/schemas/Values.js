@@ -46,4 +46,8 @@ export default class ValuesSchema extends PolymorphicSchema {
       deleted,
     ];
   }
+
+  infer(args, indexes, recurse) {
+    return undefined;
+  }
 }
