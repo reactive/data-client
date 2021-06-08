@@ -12,15 +12,18 @@ export default function inferResults<S extends Schema>(
   args: any[],
   indexes: NormalizedIndex,
 ): NormalizeNullable<S> {
+  // schema classes
   if (canInfer(schema)) {
     return schema.infer(args, indexes, inferResults);
   }
 
+  // plain case
   if (typeof schema === 'object' && schema) {
     const method = Array.isArray(schema) ? arrayInfer : objectInfer;
     return method(schema, args, indexes, inferResults);
   }
 
+  // fallback for things like null or undefined
   return schema as any;
 }
 

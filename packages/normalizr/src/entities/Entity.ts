@@ -329,8 +329,7 @@ function indexFromParams<I extends string>(
   indexes?: Readonly<I[]>,
 ) {
   if (!indexes) return undefined;
-  for (const index of indexes) {
-    if (index in params) return index;
-  }
-  return undefined;
+  return indexes.find(index =>
+    Object.prototype.hasOwnProperty.call(params, index),
+  );
 }
