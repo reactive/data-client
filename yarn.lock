@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@anansi/babel-preset@2.6.3":
-  version "2.6.3"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.6.3.tgz#d2f2a804415f9f4ef09376a4896d341d0279743f"
-  integrity sha512-9CAJeqSbarrERzZPjYEHBE/eolvhUxrR4d8rkvcMtxzWG3H1HFTWZmydP+bVnbDEvD+QKT+q0a0Z2l+RjbXrxQ==
+"@anansi/babel-preset@2.6.4":
+  version "2.6.4"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.6.4.tgz#37ac5dc92d1d13df5f42f7761661952a2ded8f3a"
+  integrity sha512-DJNdR/AuML36mwGy3sVgcFiI1AbJPUUPWHLaqIzXGSX7UR+2jaaIm6hOqwanO2lZORFPZ+fhXtMtLZF1Slaktw==
   dependencies:
     "@anansi/ts-utils" "^0.2.4"
     "@babel/plugin-proposal-class-properties" "^7.13.0"
@@ -32,16 +32,16 @@
     babel-plugin-react-require "^3.1.3"
     babel-plugin-root-import "^6.6.0"
     babel-plugin-transform-react-remove-prop-types "^0.4.24"
-    core-js-compat "^3.13.0"
+    core-js-compat "^3.14.0"
     glob-to-regexp "^0.4.1"
     path "^0.12.7"
     semver "^7.3.5"
     stable "^0.1.8"
 
-"@anansi/browserslist-config@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@anansi/browserslist-config/-/browserslist-config-1.2.0.tgz#60d58a9caf93d730f093084ae8e51fa01310d4e7"
-  integrity sha512-5dssJtY7DAa674IzR//vZ4Jk9Ey/OmwExDuxcvYQ3ob6mKybvt/65lk9dL0ORUJn4+tjxOq5lV/OChPbelP3dg==
+"@anansi/browserslist-config@1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@anansi/browserslist-config/-/browserslist-config-1.3.0.tgz#2612e93139fa324021cc7fe56d8c640935b2d3c0"
+  integrity sha512-UhuQUOrS1+EciTavdAPwDEB8RAkSxcGnJ+wi/4WqsuXPggCaG0vK6ZMHmtYccOxip3HUv4NdZEIaA2FvYc1VQQ==
 
 "@anansi/eslint-plugin@0.11.11":
   version "0.11.11"
@@ -5031,10 +5031,10 @@ copyfiles@^2.4.1:
     untildify "^4.0.0"
     yargs "^16.1.0"
 
-core-js-compat@^3.13.0, core-js-compat@^3.9.0, core-js-compat@^3.9.1:
-  version "3.13.0"
-  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.13.0.tgz#a88f5fa81d8e9b15d7f98abc4447a4dfca2a358f"
-  integrity sha512-jhbI2zpVskgfDC9mGRaDo1gagd0E0i/kYW0+WvibL/rafEHKAHO653hEXIxJHqRlRLITluXtRH3AGTL5qJmifQ==
+core-js-compat@^3.14.0, core-js-compat@^3.9.0, core-js-compat@^3.9.1:
+  version "3.14.0"
+  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.14.0.tgz#b574dabf29184681d5b16357bd33d104df3d29a5"
+  integrity sha512-R4NS2eupxtiJU+VwgkF9WTpnSfZW4pogwKHd8bclWU2sp93Pr5S1uYJI84cMOubJRou7bcfL0vmwtLslWN5p3A==
   dependencies:
     browserslist "^4.16.6"
     semver "7.0.0"

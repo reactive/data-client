@@ -10,6 +10,13 @@ module.exports = function (api) {
         },
       ],
     ],
+    assumptions: {
+      noDocumentAll: true,
+      noClassCalls: true,
+      constantReexports: true,
+      objectRestNoSymbols: true,
+      pureGetters: true,
+    },
     // allows us to load .babelrc in addition to this
     babelrcRoots: ['packages/*', '__tests__'],
   };
