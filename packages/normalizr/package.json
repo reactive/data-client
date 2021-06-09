@@ -58,7 +58,7 @@
     "build:bundle": "run-p build:js:*",
     "build:js:development": "cross-env BROWSERSLIST_ENV=legacy NODE_ENV=development rollup -c",
     "build:js:production": "cross-env BROWSERSLIST_ENV=legacy NODE_ENV=production rollup -c",
-    "build:lib": "cross-env NODE_ENV=production ROOT_PATH_PREFIX='@rest-hooks/normalizr' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/__benchmarks__/**' --ignore '**/*.d.ts'",
+    "build:lib": "cross-env NODE_ENV=production  BROWSERSLIST_ENV=2019 ROOT_PATH_PREFIX='@rest-hooks/normalizr' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/__benchmarks__/**' --ignore '**/*.d.ts'",
     "build:clean": "rimraf dist lib ts3.4 *.tsbuildinfo",
     "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
     "lint": "yarn lint:cmd --fix",
