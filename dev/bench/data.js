@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1623166766323,
+  "lastUpdate": 1623271387920,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -1786,6 +1786,44 @@ window.BENCHMARK_DATA = {
             "range": "±4.29%",
             "unit": "ops/sec",
             "extra": "49 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d988abe063fc67c74fce12e234c9c3ffdb7cc230",
+          "message": "enhance: 'module' entrypoint targets 2019 browsers (#905)",
+          "timestamp": "2021-06-09T13:40:41-07:00",
+          "tree_id": "5b78c44d480dab373d9f077fdda1a723e4c1ca49",
+          "url": "https://github.com/coinbase/rest-hooks/commit/d988abe063fc67c74fce12e234c9c3ffdb7cc230"
+        },
+        "date": 1623271386746,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 63.92,
+            "range": "±1.75%",
+            "unit": "ops/sec",
+            "extra": "66 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 25.44,
+            "range": "±3.56%",
+            "unit": "ops/sec",
+            "extra": "47 samples"
           }
         ]
       }
