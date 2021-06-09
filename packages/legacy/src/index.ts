@@ -18,7 +18,7 @@ import type {
 import { denormalize } from '@rest-hooks/normalizr';
 import { useContext } from 'react';
 
-const { buildInferredResults } = __INTERNAL__;
+const { inferResults } = __INTERNAL__;
 
 type CondNull<P, A, B> = P extends null ? A : B;
 
@@ -71,7 +71,7 @@ export function useStatefulResource<
     ) && !!maybePromise;
   const data = loading
     ? denormalize(
-        buildInferredResults(fetchShape.schema, params, state.indexes),
+        inferResults(fetchShape.schema, [params], state.indexes),
         fetchShape.schema,
         {},
       )[0]
