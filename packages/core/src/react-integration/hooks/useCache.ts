@@ -11,8 +11,7 @@ import {
   useMeta,
   useError,
 } from '@rest-hooks/core/react-integration/hooks';
-import { denormalize } from '@rest-hooks/normalizr';
-import buildInferredResults from '@rest-hooks/core/state/selectors/buildInferredResults';
+import { denormalize, inferResults } from '@rest-hooks/normalizr';
 
 import useExpiresAt from './useExpiresAt';
 
@@ -59,7 +58,7 @@ export default function useCache<
     expired
   ) {
     return denormalize(
-      buildInferredResults(fetchShape.schema, params, state.indexes),
+      inferResults(fetchShape.schema, [params], state.indexes),
       fetchShape.schema,
       {},
     )[0];

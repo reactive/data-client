@@ -5,5 +5,7 @@ export {
   DispatchContext,
   hasUsableData,
 } from '@rest-hooks/core';
+// TODO: Delete next line for v6
 export const buildInferredResults = __INTERNAL__.buildInferredResults;
+export const inferResults = __INTERNAL__.inferResults;
 export const RIC = __INTERNAL__.RIC;

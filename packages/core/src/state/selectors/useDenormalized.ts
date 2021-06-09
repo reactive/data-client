@@ -6,10 +6,9 @@ import {
   DenormalizeCache,
   WeakListMap,
   denormalize,
+  inferResults,
 } from '@rest-hooks/normalizr';
 import { useMemo } from 'react';
-
-import buildInferredResults from './buildInferredResults';
 
 /**
  * Selects the denormalized form from `state` cache.
@@ -47,7 +46,7 @@ export default function useDenormalized<
 
     // in case we don't even have entities for a model yet, denormalize() will throw
     // entities[entitySchema.key] === undefined
-    return buildInferredResults(schema, params, state.indexes);
+    return inferResults(schema, [params], state.indexes);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cacheResults, state.indexes, serializedParams]);
   // TODO: only update when relevant indexes change
@@ -107,6 +106,7 @@ export default function useDenormalized<
     // in packages/core/src/react-integration/__tests__/useResource.web.tsx
     const ready = !!cacheResults || found;
 
+    // TODO: move this to the .infer() method
     // oldest entity dictates age
     let expiresAt = Infinity;
     if (ready) {
