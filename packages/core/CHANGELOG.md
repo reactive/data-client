@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.4.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.4.0...@rest-hooks/core@1.4.1) (2021-06-09)
+
+
+### 💅 Enhancement
+
+* 'module' entrypoint targets 2019 browsers ([#905](https://github.com/coinbase/rest-hooks/issues/905)) ([d988abe](https://github.com/coinbase/rest-hooks/commit/d988abe063fc67c74fce12e234c9c3ffdb7cc230))
+
+
+
 ## [1.4.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.2.1...@rest-hooks/core@1.4.0) (2021-06-02)
 
 

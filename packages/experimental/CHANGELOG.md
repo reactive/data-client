@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@0.4.0...@rest-hooks/experimental@0.5.0) (2021-06-09)
+
+
+### 🚀 Features
+
+* Add inferResults() ([#900](https://github.com/coinbase/rest-hooks/issues/900)) ([5ad8287](https://github.com/coinbase/rest-hooks/commit/5ad8287fefd50637670c07252b01ea63ea05333a))
+
+
+### 💅 Enhancement
+
+* 'module' entrypoint targets 2019 browsers ([#905](https://github.com/coinbase/rest-hooks/issues/905)) ([d988abe](https://github.com/coinbase/rest-hooks/commit/d988abe063fc67c74fce12e234c9c3ffdb7cc230))
+
+
+
 ## [0.4.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@0.2.1...@rest-hooks/experimental@0.4.0) (2021-06-02)
 
 
