@@ -75,8 +75,8 @@
   "peerDependencies": {
     "@rest-hooks/core": "^1.0.5",
     "@rest-hooks/endpoint": "^1.0.3",
-    "@types/react": "^16.8.4 || ^17.0.0",
-    "react": "^16.8.4 || ^17.0.0"
+    "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
+    "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0"
   },
   "peerDependenciesMeta": {
     "@types/react": {
