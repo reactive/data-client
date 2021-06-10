@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@anansi/babel-preset@2.6.4":
-  version "2.6.4"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.6.4.tgz#37ac5dc92d1d13df5f42f7761661952a2ded8f3a"
-  integrity sha512-DJNdR/AuML36mwGy3sVgcFiI1AbJPUUPWHLaqIzXGSX7UR+2jaaIm6hOqwanO2lZORFPZ+fhXtMtLZF1Slaktw==
+"@anansi/babel-preset@2.7.0":
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.7.0.tgz#cae5f28f4522f2c0aa324265553470e20955876d"
+  integrity sha512-IqnrPspdOMgi6XqC7PpERCIhO+r/W/EFLP6a7176dVYENPYAdpUj9z6y5GpfbqXa0Qlj0sRuvjTD3QytuYPGlw==
   dependencies:
     "@anansi/ts-utils" "^0.2.4"
     "@babel/plugin-proposal-class-properties" "^7.13.0"
@@ -1634,16 +1634,7 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.12.13"
 
-"@babel/plugin-transform-typescript@^7.13.0", "@babel/plugin-transform-typescript@^7.5.0":
-  version "7.14.3"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-typescript/-/plugin-transform-typescript-7.14.3.tgz#44f67f725a60cccee33d9d6fee5e4f338258f34f"
-  integrity sha512-G5Bb5pY6tJRTC4ag1visSgiDoGgJ1u1fMUgmc2ijLkcIdzP83Q1qyZX4ggFQ/SkR+PNOatkaYC+nKcTlpsX4ag==
-  dependencies:
-    "@babel/helper-create-class-features-plugin" "^7.14.3"
-    "@babel/helper-plugin-utils" "^7.13.0"
-    "@babel/plugin-syntax-typescript" "^7.12.13"
-
-"@babel/plugin-transform-typescript@^7.14.4":
+"@babel/plugin-transform-typescript@^7.13.0", "@babel/plugin-transform-typescript@^7.14.4", "@babel/plugin-transform-typescript@^7.5.0":
   version "7.14.4"
   resolved "https://registry.yarnpkg.com/@babel/plugin-transform-typescript/-/plugin-transform-typescript-7.14.4.tgz#1c48829fa6d5f2de646060cd08abb6cda4b521a7"
   integrity sha512-WYdcGNEO7mCCZ2XzRlxwGj3PgeAr50ifkofOUC/+IN/GzKLB+biDPVBUAQN2C/dVZTvEXCp80kfQ1FFZPrwykQ==
