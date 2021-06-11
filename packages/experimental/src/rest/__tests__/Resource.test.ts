@@ -96,6 +96,21 @@ describe('Resource', () => {
     nock.cleanAll();
   });
 
+  it('should automatically name methods', () => {
+    expect(PaginatedArticleResource.detail().name).toBe(
+      'PaginatedArticleResource.detail',
+    );
+    expect(PaginatedArticleResource.list().name).toBe(
+      'PaginatedArticleResource.list',
+    );
+    expect(PaginatedArticleResource.create().name).toBe(
+      'PaginatedArticleResource.create',
+    );
+    expect(PaginatedArticleResource.delete().name).toBe(
+      'PaginatedArticleResource.delete',
+    );
+  });
+
   it('should update on get for a paginated resource', async () => {
     mynock.get(`/article-paginated/`).reply(200, paginatedFirstPage);
     mynock.get(`/article-paginated/?cursor=2`).reply(200, paginatedSecondPage);

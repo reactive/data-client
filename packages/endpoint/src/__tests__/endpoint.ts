@@ -102,6 +102,22 @@ describe('Endpoint', () => {
       }).rejects.toBeDefined();
     });
 
+    it('should have a name', () => {
+      const UserDetail = new Endpoint(fetchUsersIdParam);
+      expect(UserDetail.name).toBe('fetchUsersIdParam');
+      const Next = new Endpoint(fetchUsersIdParam, { name: 'specialName' });
+      expect(Next.name).toBe('specialName');
+      const Another = Next.extend({ name: 'new' });
+      expect(Another.name).toBe('new');
+      const Third = Another.extend({ method: 'POST' }).extend({ extra: 5 });
+      expect(Third.name).toBe('new');
+      expect(Third.key('5')).toMatchInlineSnapshot(`"new [\\"5\\"]"`);
+      const Fourth = Third.extend({ fetch: fetchUserList });
+      expect(Fourth.name).toBe('fetchUserList');
+      const Weird = new Endpoint(fetchUsersIdParam, { fetch: fetchUserList });
+      expect(Weird.name).toBe(`fetchUsersIdParam`);
+    });
+
     it('should work when called with string parameter', async () => {
       const UserDetail = new Endpoint(fetchUsersIdParam);
 

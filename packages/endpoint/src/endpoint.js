@@ -38,7 +38,19 @@ export default class Endpoint extends Function {
     self.getFetchKey = params => self.key(params);
 
     if (fetchFunction) self.fetch = fetchFunction;
+
+    if (options && 'name' in options) {
+      self.__name = options.name;
+      delete options.name;
+    } else if (fetchFunction) {
+      self.__name = fetchFunction.name;
+    }
     Object.assign(self, options);
+    Object.defineProperty(self, 'name', {
+      get: function () {
+        return this.__name;
+      },
+    });
 
     /** The following is for compatibility with FetchShape */
     runCompat(self, options);
@@ -46,7 +58,7 @@ export default class Endpoint extends Function {
   }
 
   key(...args) {
-    return `${this.fetch.name} ${JSON.stringify(args)}`;
+    return `${this.name} ${JSON.stringify(args)}`;
   }
 
   bind(thisArg, ...args) {
