@@ -19,10 +19,6 @@ export default class Delete<E extends EntityInterface & { fromJS: any }>
     return this._entity.key;
   }
 
-  get indexes() {
-    return (this._entity as any).indexes;
-  }
-
   normalize(
     input: any,
     parent: any,

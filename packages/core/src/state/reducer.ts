@@ -10,7 +10,6 @@ import {
 } from '@rest-hooks/core/actionTypes';
 
 import applyUpdatersToResults from './applyUpdatersToResults';
-import mergeDeepCopy from './merge/mergeDeepCopy';
 
 export const initialState: State<unknown> = {
   entities: {},
