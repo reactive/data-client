@@ -147,13 +147,22 @@ export default abstract class BaseResource extends Entity {
    *
    * Relies on existance of runInit() member.
    */
-  protected static memo<T>(name: string, construct: () => T): T {
+  protected static memo<T extends { extend: (...args: any) => any }>(
+    name: string,
+    construct: () => T,
+  ): T {
     if (!Object.hasOwnProperty.call(this, this.cacheSymbol)) {
       (this as any)[this.cacheSymbol] = {};
     }
     const cache = (this as any)[this.cacheSymbol];
     if (!(name in cache)) {
-      cache[name] = construct();
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      const resource: any = this;
+      cache[name] = construct().extend({
+        get name() {
+          return `${resource.name}.${name.replace(/#/, '')}`;
+        },
+      });
     }
     return cache[name].useFetchInit() as T;
   }
