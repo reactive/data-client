@@ -6,6 +6,17 @@ import { denormalizeSimple as denormalize } from '../../denormalize';
 import { normalize, schema } from '../../';
 import IDEntity from '../../entities/IDEntity';
 
+let dateSpy;
+beforeAll(() => {
+  dateSpy = jest
+    // eslint-disable-next-line no-undef
+    .spyOn(global.Date, 'now')
+    .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
+});
+afterAll(() => {
+  dateSpy.mockRestore();
+});
+
 describe(`${schema.Union.name} normalization`, () => {
   test('throws if not given a schemaAttribute', () => {
     expect(() => new schema.Union({})).toThrow();

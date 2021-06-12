@@ -349,6 +349,14 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "MergeTaco": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": Array [
     "1",
@@ -365,6 +373,14 @@ Object {
         "alias": "bar",
         "id": "1",
         "name": "bar",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "Tacos": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -385,6 +401,14 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "MyEntity": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": "1",
 }
@@ -397,6 +421,14 @@ Object {
       "tacos-user-4": User {
         "id": "4",
         "name": "Jimmy",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "User": Object {
+      "tacos-user-4": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -417,6 +449,18 @@ Object {
       },
       "56": User {
         "name": "burrito",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "User": Object {
+      "4": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+      "56": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -444,6 +488,14 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "User": Object {
+      "134351": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": "134351",
 }
@@ -458,6 +510,14 @@ Object {
         "id": "1",
         "name": "foo",
         "slug": "thing-1",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "ProcessTaco": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -485,6 +545,20 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "ChildEntity": Object {
+      "4": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+    "ParentEntity": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": "1",
 }
@@ -505,6 +579,20 @@ Object {
         },
         "id": "123",
         "type": "message",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "AttachmentsEntity": Object {
+      "456": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+    "EntriesEntity": Object {
+      "123": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -540,6 +628,14 @@ Object {
         "s": 0,
         "t": 0,
         "u": 0,
+      },
+    },
+  },
+  "entityMeta": Object {
+    "MyEntity": Object {
+      "hi": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -586,6 +682,14 @@ Object {
         "name": "hi",
         "o": 0,
         "p": 0,
+      },
+    },
+  },
+  "entityMeta": Object {
+    "MyEntity": Object {
+      "hi": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },

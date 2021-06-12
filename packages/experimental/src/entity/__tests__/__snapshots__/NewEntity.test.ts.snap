@@ -515,6 +515,14 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "MergeTaco": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": Array [
     "1",
@@ -531,6 +539,14 @@ Object {
         "alias": "bar",
         "id": "1",
         "name": "bar",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "Tacos": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -551,6 +567,14 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "MyEntity": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": "1",
 }
@@ -563,6 +587,14 @@ Object {
       "tacos-user-4": Object {
         "id": "4",
         "name": "Jimmy",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "User": Object {
+      "tacos-user-4": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -583,6 +615,18 @@ Object {
       },
       "56": Object {
         "name": "burrito",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "User": Object {
+      "4": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+      "56": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -607,6 +651,14 @@ Object {
       "134351": Object {
         "idStr": "134351",
         "name": "Kathy",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "User": Object {
+      "134351": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -645,6 +697,14 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "MyEntity": Object {
+      "hi": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": "hi",
 }
@@ -672,6 +732,14 @@ Object {
         "name": "hi",
         "o": 0,
         "p": 0,
+      },
+    },
+  },
+  "entityMeta": Object {
+    "MyEntity": Object {
+      "hi": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },

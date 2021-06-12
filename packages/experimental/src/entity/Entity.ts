@@ -74,7 +74,7 @@ export default abstract class Entity {
     existing: Partial<AbstractInstanceType<T>>,
     incoming: Partial<AbstractInstanceType<T>>,
   ) {
-    return Object.assign(existing, incoming);
+    return { ...existing, ...incoming };
   }
 
   /** Factory method to convert from Plain JS Objects.

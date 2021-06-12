@@ -356,7 +356,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       await act(async () => {
         await del({ id: temppayload.id });
       });
-      //expect(throws.length).toBe(2);   TODO: delete seems to have receive process multiple times. we suspect this is because of test+act integration.
+      expect(throws.length).toBeGreaterThanOrEqual(2); //TODO: delete seems to have receive process multiple times. we suspect this is because of test+act integration.
       await waitForNextUpdate();
       await throws[throws.length - 1];
       [data, del] = result.current;

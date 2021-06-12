@@ -15,6 +15,14 @@ export default class Delete<E extends EntityInterface & { fromJS: any }>
     this._entity = entity;
   }
 
+  get key() {
+    return this._entity.key;
+  }
+
+  get indexes() {
+    return (this._entity as any).indexes;
+  }
+
   normalize(
     input: any,
     parent: any,
@@ -47,7 +55,7 @@ export default class Delete<E extends EntityInterface & { fromJS: any }>
       (error as any).status = 400;
       throw error;
     }
-    addEntity(this._entity, DELETED, id);
+    addEntity(this, DELETED, id);
     return id;
   }
 

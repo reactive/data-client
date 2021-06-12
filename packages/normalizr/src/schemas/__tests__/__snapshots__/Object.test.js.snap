@@ -225,6 +225,14 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "User": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": Object {
     "bar": "1",
@@ -238,6 +246,14 @@ Object {
     "User": Object {
       "1": User {
         "id": "1",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "User": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -257,6 +273,14 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "User": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": Object {
     "user": "1",
@@ -270,6 +294,14 @@ Object {
     "User": Object {
       "5": User {
         "id": "5",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "User": Object {
+      "5": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -288,6 +320,14 @@ Object {
     "User": Object {
       "5": User {
         "id": "5",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "User": Object {
+      "5": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },

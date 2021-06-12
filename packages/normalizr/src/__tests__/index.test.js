@@ -1,5 +1,6 @@
 // eslint-env jest
 import { fromJS } from 'immutable';
+import { after } from 'lodash';
 
 import { denormalizeSimple as denormalize } from '../denormalize';
 import { normalize, schema } from '../';
@@ -11,6 +12,17 @@ import WeakListMap from '../WeakListMap';
 class Tacos extends IDEntity {
   type = '';
 }
+
+let dateSpy;
+beforeAll(() => {
+  dateSpy = jest
+    // eslint-disable-next-line no-undef
+    .spyOn(global.Date, 'now')
+    .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
+});
+afterAll(() => {
+  dateSpy.mockRestore();
+});
 
 describe('normalize', () => {
   [42, null, undefined, '42', () => {}].forEach(input => {
@@ -34,6 +46,7 @@ describe('normalize', () => {
     expect(normalize('bob', mySchema)).toMatchInlineSnapshot(`
       Object {
         "entities": Object {},
+        "entityMeta": Object {},
         "indexes": Object {},
         "result": "bob",
       }

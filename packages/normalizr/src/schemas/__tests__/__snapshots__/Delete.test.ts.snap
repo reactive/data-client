@@ -7,6 +7,14 @@ Object {
       "1": Symbol(ENTITY WAS DELETED),
     },
   },
+  "entityMeta": Object {
+    "User": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": "1",
 }

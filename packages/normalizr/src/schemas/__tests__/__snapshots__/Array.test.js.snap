@@ -370,6 +370,18 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "Cat": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+      "2": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": Array [
     Object {
@@ -753,6 +765,14 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "User": Object {
+      "123": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": Array [
     "123",
@@ -769,6 +789,18 @@ Object {
       },
       "2": User {
         "id": "2",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "User": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+      "2": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -789,6 +821,18 @@ Object {
       },
       "2": Cats {
         "id": "2",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "Cats": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+      "2": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -817,6 +861,24 @@ Object {
       "123": Person {
         "id": "123",
         "type": "people",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "Cats": Object {
+      "123": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+      "456": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+    "Person": Object {
+      "123": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -1059,6 +1121,18 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "User": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+      "2": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": Array [
     "1",
@@ -1076,6 +1150,18 @@ Object {
       },
       "2": User {
         "id": "2",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "User": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+      "2": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -1105,6 +1191,20 @@ Object {
         ],
         "content": "parent",
         "id": "1",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "Child": Object {
+      "4": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+    "Parent": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
