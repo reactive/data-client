@@ -71,27 +71,31 @@ const addEntities =
       entityMeta[schemaKey] = { ...entityMeta[schemaKey] };
     }
 
-    const inStoreEntity = existingEntities[schemaKey]?.[id];
     const existingEntity = entities[schemaKey][id];
     if (existingEntity) {
       // TODO: maybe have distinct merge function for this case
       entities[schemaKey][id] = schema.merge(existingEntity, processedEntity);
-    } else if (inStoreEntity) {
-      // this case we already have this entity in store
-
-      const merge =
-        typeof processedEntity === typeof inStoreEntity
-          ? schema.merge.bind(schema)
-          : (existing, incoming) => incoming;
-      // second argument takes priority over first
-      // if either of these is undefined, it resolves to 'false' which
-      // means we fallback to 'newer' (processedEntity) takes priority
-      entities[schemaKey][id] =
-        entityMeta?.[schemaKey]?.[id]?.date > date
-          ? merge(processedEntity, inStoreEntity)
-          : merge(inStoreEntity, processedEntity);
     } else {
-      entities[schemaKey][id] = processedEntity;
+      const inStoreEntity = existingEntities[schemaKey][id];
+      if (inStoreEntity) {
+        // this case we already have this entity in store
+
+        // if either of these is undefined, it resolves to 'false' which
+        // means we fallback to 'newer' (processedEntity) takes priority
+        const preferExisting = entityMeta[schemaKey][id]?.date > date;
+        if (typeof processedEntity !== typeof inStoreEntity) {
+          entities[schemaKey][id] = preferExisting
+            ? inStoreEntity
+            : processedEntity;
+        } else {
+          // second argument takes priority over first
+          entities[schemaKey][id] = preferExisting
+            ? schema.merge(processedEntity, inStoreEntity)
+            : schema.merge(inStoreEntity, processedEntity);
+        }
+      } else {
+        entities[schemaKey][id] = processedEntity;
+      }
     }
 
     // update index
