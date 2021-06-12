@@ -92,8 +92,8 @@
     "flux-standard-action": "^2.1.1"
   },
   "peerDependencies": {
-    "@types/react": "^16.8.4 || ^17.0.0",
-    "react": "^16.8.4 || ^17.0.0"
+    "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
+    "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0"
   },
   "peerDependenciesMeta": {
     "@types/react": {

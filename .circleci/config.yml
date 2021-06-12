@@ -52,10 +52,16 @@ jobs:
             yarn run typecheck
 
   unit_tests:
+    parameters:
+      react-version:
+        type: string
     docker: *docker
     steps:
       - attach_workspace:
           at: ~/
+      - run:
+          command: |
+            yarn add -W --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
       - run:
           command: |
             yarn test:ci --maxWorkers=4
@@ -77,10 +83,13 @@ jobs:
 
 workflows:
   version: 2
-  build:
+  all-tests:
     jobs:
       - setup
       - unit_tests:
+          matrix:
+            parameters:
+              react-version: ["^17.0.0", "^18.0.0-0"]
           requires:
             - setup
       - test_coverage:

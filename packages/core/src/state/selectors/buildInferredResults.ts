@@ -2,7 +2,9 @@ import { isEntity, Schema, schema as schemas } from '@rest-hooks/endpoint';
 import { NormalizedIndex } from '@rest-hooks/normalizr';
 import { NormalizeNullable } from '@rest-hooks/endpoint';
 
-/**
+/** @deprecated
+ * use inferResults from \@rest-hooks/normalizr
+ *
  * Build the result parameter to denormalize from schema alone.
  * Tries to compute the entity ids from params.
  */
