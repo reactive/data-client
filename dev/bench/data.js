@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1623272310036,
+  "lastUpdate": 1623543209777,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -1862,6 +1862,44 @@ window.BENCHMARK_DATA = {
             "range": "±1.72%",
             "unit": "ops/sec",
             "extra": "59 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "bd21d8ce0d004a56e6853918d9fb9ecaa2c730a8",
+          "message": "feat: Normalize merges entities, entitymeta, indexes (#915)",
+          "timestamp": "2021-06-12T17:10:51-07:00",
+          "tree_id": "46b8316acc383a96d2e429e8318854aec056d412",
+          "url": "https://github.com/coinbase/rest-hooks/commit/bd21d8ce0d004a56e6853918d9fb9ecaa2c730a8"
+        },
+        "date": 1623543208686,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 51.67,
+            "range": "±5.09%",
+            "unit": "ops/sec",
+            "extra": "53 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 23.43,
+            "range": "±3.81%",
+            "unit": "ops/sec",
+            "extra": "43 samples"
           }
         ]
       }
