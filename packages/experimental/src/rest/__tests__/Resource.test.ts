@@ -133,4 +133,56 @@ describe('Resource', () => {
       ),
     ).toEqual([5, 3, 7, 8]);
   });
+
+  it('should not deep-merge deeply defined entities', async () => {
+    interface Complex {
+      firstvalue: number;
+      secondthing: {
+        arg?: number;
+        other?: string;
+      };
+    }
+    class ComplexResource extends Resource {
+      readonly id: string = '';
+      readonly complexThing?: Complex = undefined;
+      readonly extra: string = '';
+
+      pk() {
+        return this.id;
+      }
+
+      static urlRoot = '/complex-thing/';
+    }
+    const firstResponse = {
+      id: '5',
+      complexThing: {
+        firstvalue: 233,
+        secondthing: { arg: 88 },
+      },
+      extra: 'hi',
+    };
+    mynock.get(`/complex-thing/5`).reply(200, firstResponse);
+
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      const fetch = useFetcher();
+      const article = useResource(ComplexResource.detail(), { id: '5' });
+      return { article, fetch };
+    });
+    await waitForNextUpdate();
+    expect(result.current.article).toEqual(firstResponse);
+
+    const secondResponse = {
+      id: '5',
+      complexThing: {
+        firstvalue: 5,
+        secondthing: { other: 'hi' },
+      },
+    };
+
+    mynock.get(`/complex-thing/5`).reply(200, secondResponse);
+    await result.current.fetch(ComplexResource.detail(), {
+      id: '5',
+    });
+    expect(result.current.article).toEqual({ ...secondResponse, extra: 'hi' });
+  });
 });
