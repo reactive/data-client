@@ -212,6 +212,20 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "Cat": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+    "Dog": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": Object {
     "fido": Object {
@@ -237,6 +251,14 @@ Object {
       "1": Cat {
         "id": "1",
         "type": "cats",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "Cat": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -266,6 +288,20 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "Cat": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+    "Dog": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": Object {
     "fido": Object {
@@ -291,6 +327,18 @@ Object {
       "2": MyEntity {
         "id": "2",
         "name": "second thing",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "MyEntity": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+      "2": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -373,6 +421,18 @@ Object {
           "amount": "2.53",
           "currency": "ETH",
         },
+      },
+    },
+  },
+  "entityMeta": Object {
+    "Estimate": Object {
+      "BTC": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+      "ETH": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },

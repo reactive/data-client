@@ -543,7 +543,7 @@ describe('Resource', () => {
         expect(UserResource.hasDefined(user, 'isAdmin')).toBe(false);
       });
       it('should match snapshot', () => {
-        expect(normalized).toMatchSnapshot();
+        expect(normalized).toMatchSnapshot({ entityMeta: expect.any(Object) });
       });
     });
 

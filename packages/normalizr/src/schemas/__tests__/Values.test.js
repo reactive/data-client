@@ -7,6 +7,17 @@ import IDEntity from '../../entities/IDEntity';
 import Entity from '../../entities/Entity';
 import { DELETED } from '../../special';
 
+let dateSpy;
+beforeAll(() => {
+  dateSpy = jest
+    // eslint-disable-next-line no-undef
+    .spyOn(global.Date, 'now')
+    .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
+});
+afterAll(() => {
+  dateSpy.mockRestore();
+});
+
 class Cat extends IDEntity {
   type = '';
 }

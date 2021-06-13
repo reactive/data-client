@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { SchemaClass, UnvisitFunction, EntityInterface } from '../schema';
-import { DELETED } from '../special';
-import type { AbstractInstanceType } from '..';
+import type { AbstractInstanceType } from '@rest-hooks/normalizr';
+import { schema, DELETED } from '@rest-hooks/normalizr';
 
-export default class Delete<E extends EntityInterface & { fromJS: any }>
-  implements SchemaClass
+export default class Delete<E extends schema.EntityInterface & { process: any }>
+  implements schema.SchemaClass
 {
   private declare _entity: E;
 
@@ -30,8 +29,9 @@ export default class Delete<E extends EntityInterface & { fromJS: any }>
     // pass over already processed entities
     if (typeof input === 'string') return input;
     // TODO: what's store needs to be a differing type from fromJS
-    const processedEntity = this._entity.fromJS(input, parent, key);
-    const id = processedEntity.pk(parent, key);
+    const processedEntity = this._entity.process(input, parent, key);
+    const id = this._entity.pk(processedEntity, parent, key);
+
     if (
       process.env.NODE_ENV !== 'production' &&
       (id === undefined || id === '')
@@ -61,7 +61,7 @@ export default class Delete<E extends EntityInterface & { fromJS: any }>
 
   denormalize(
     id: string,
-    unvisit: UnvisitFunction,
+    unvisit: schema.UnvisitFunction,
   ): [AbstractInstanceType<E>, boolean, boolean] {
     return unvisit(id, this._entity) as any;
   }

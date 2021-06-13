@@ -50,31 +50,64 @@ const visit = (
 const addEntities =
   (
     entities: Record<string, any>,
-    indexes: any,
+    indexes: Record<string, any>,
     existingEntities: Record<string, any>,
-    existingIndexes: any,
+    existingIndexes: Record<string, any>,
+    entityMeta: {
+      [entityKey: string]: {
+        [pk: string]: {
+          date: number;
+          expiresAt: number;
+        };
+      };
+    },
+    { expiresAt, date }: { expiresAt: number; date: number },
   ) =>
   (schema: any, processedEntity: any, id: any) => {
     const schemaKey = schema.key;
     if (!(schemaKey in entities)) {
       entities[schemaKey] = {};
+      existingEntities[schemaKey] = { ...existingEntities[schemaKey] };
+      entityMeta[schemaKey] = { ...entityMeta[schemaKey] };
     }
 
     const existingEntity = entities[schemaKey][id];
     if (existingEntity) {
+      // TODO: maybe have distinct merge function for this case
       entities[schemaKey][id] = schema.merge(existingEntity, processedEntity);
     } else {
-      entities[schemaKey][id] = processedEntity;
+      const inStoreEntity = existingEntities[schemaKey][id];
+      if (inStoreEntity) {
+        // this case we already have this entity in store
+
+        // if either of these is undefined, it resolves to 'false' which
+        // means we fallback to 'newer' (processedEntity) takes priority
+        const preferExisting = entityMeta[schemaKey][id]?.date > date;
+        if (typeof processedEntity !== typeof inStoreEntity) {
+          entities[schemaKey][id] = preferExisting
+            ? inStoreEntity
+            : processedEntity;
+        } else {
+          // second argument takes priority over first
+          entities[schemaKey][id] = preferExisting
+            ? schema.merge(processedEntity, inStoreEntity)
+            : schema.merge(inStoreEntity, processedEntity);
+        }
+      } else {
+        entities[schemaKey][id] = processedEntity;
+      }
     }
+
     // update index
     if (Array.isArray(schema.indexes)) {
       const entity = entities[schemaKey][id];
       if (!(schemaKey in indexes)) {
         indexes[schemaKey] = {};
+        existingIndexes[schemaKey] = { ...existingIndexes[schemaKey] };
       }
       for (const index of schema.indexes) {
         if (!(index in indexes[schemaKey])) {
-          indexes[schemaKey][index] = {};
+          existingIndexes[schemaKey][index] = indexes[schemaKey][index] = {};
         }
         const indexMap = indexes[schemaKey][index];
         if (existingEntity) {
@@ -100,6 +133,12 @@ Entity: ${JSON.stringify(entity, undefined, 2)}`);
         }
       }
     }
+    // set this after index updates so we know what indexes to remove from
+    existingEntities[schemaKey][id] = entities[schemaKey][id];
+    entityMeta[schemaKey][id] =
+      entityMeta[schemaKey][id]?.expiresAt >= expiresAt
+        ? entityMeta[schemaKey][id]
+        : { expiresAt, date };
   };
 
 function expectedSchemaType(schema: Schema) {
@@ -121,6 +160,18 @@ export const normalize = <
   schema?: S,
   existingEntities: Readonly<E> = {} as any,
   existingIndexes: Readonly<NormalizedIndex> = {},
+  existingEntityMeta: {
+    readonly [entityKey: string]: {
+      readonly [pk: string]: {
+        readonly date: number;
+        readonly expiresAt: number;
+      };
+    };
+  } = {},
+  meta: { expiresAt: number; date: number } = {
+    date: Date.now(),
+    expiresAt: Infinity,
+  },
 ): NormalizedSchema<E, R> => {
   // no schema means we don't process at all
   if (schema === undefined)
@@ -128,6 +179,7 @@ export const normalize = <
       entities: existingEntities,
       indexes: existingIndexes,
       result: input,
+      entityMeta: existingEntityMeta,
     };
 
   const schemaType = expectedSchemaType(schema);
@@ -169,13 +221,18 @@ See https://resthooks.io/docs/guides/custom-networking for more information
     }
   }
 
-  const entities: E = {} as any;
-  const indexes: NormalizedIndex = {};
+  const newEntities: E = {} as any;
+  const newIndexes: NormalizedIndex = {} as any;
+  const entities: E = { ...existingEntities } as any;
+  const indexes: NormalizedIndex = { ...existingIndexes };
+  const entityMeta: any = { ...existingEntityMeta };
   const addEntity = addEntities(
+    newEntities,
+    newIndexes,
     entities,
     indexes,
-    existingEntities,
-    existingIndexes,
+    entityMeta,
+    meta,
   );
   const visitedEntities = {};
 
@@ -187,5 +244,5 @@ See https://resthooks.io/docs/guides/custom-networking for more information
     addEntity,
     visitedEntities,
   );
-  return { entities, indexes, result };
+  return { entities, indexes, result, entityMeta };
 };

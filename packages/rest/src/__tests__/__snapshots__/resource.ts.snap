@@ -32,6 +32,7 @@ Object {
       },
     },
   },
+  "entityMeta": Any<Object>,
   "indexes": Object {},
   "result": Array [
     "5",

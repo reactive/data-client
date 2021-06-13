@@ -17,6 +17,7 @@ import { act } from '@testing-library/react-hooks';
 // relative imports to avoid circular dependency in tsconfig references
 import { SimpleRecord, schema, Entity } from '@rest-hooks/normalizr';
 import { Endpoint } from '@rest-hooks/endpoint';
+import { useContext } from 'react';
 
 import {
   makeRenderRestHook,
@@ -33,6 +34,7 @@ import {
   paginatedSecondPage,
   valuesFixture,
 } from '../test-fixtures';
+import { StateContext } from '../context';
 
 function onError(e: any) {
   e.preventDefault();
@@ -68,6 +70,8 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         .reply(204, '')
         .delete(`/article/${payload.id}`)
         .reply(200, {})
+        .delete(`/user/23`)
+        .reply(204, '')
         .get(`/article-cooler/0`)
         .reply(403, {})
         .get(`/article-cooler/666`)
@@ -356,7 +360,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       await act(async () => {
         await del({ id: temppayload.id });
       });
-      //expect(throws.length).toBe(2);   TODO: delete seems to have receive process multiple times. we suspect this is because of test+act integration.
+      expect(throws.length).toBeGreaterThanOrEqual(2); //TODO: delete seems to have receive process multiple times. we suspect this is because of test+act integration.
       await waitForNextUpdate();
       await throws[throws.length - 1];
       [data, del] = result.current;
@@ -852,6 +856,8 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
                 username: 'charlie',
               }),
               fetch: useFetcher(IndexedUserResource.detail()),
+              del: useFetcher(IndexedUserResource.delete()),
+              state: useContext(StateContext),
             };
           });
           expect(result.current).toBeUndefined();
@@ -875,6 +881,10 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           expect(charlie?.username).toBe('charlie');
           expect(charlie).toMatchSnapshot();
           expect(result.current.bob).toBeUndefined();
+
+          // deletes should roll through to indexes
+          await result.current.del({ id: '23' });
+          expect(result.current.charlie).toBeUndefined();
         });
       });
     });

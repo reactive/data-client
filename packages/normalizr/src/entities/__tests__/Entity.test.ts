@@ -9,6 +9,17 @@ import IDEntity from '../IDEntity';
 import { DELETED } from '../../special';
 import WeakListMap from '../../WeakListMap';
 
+let dateSpy;
+beforeAll(() => {
+  dateSpy = jest
+    // eslint-disable-next-line no-undef
+    .spyOn(global.Date, 'now')
+    .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
+});
+afterAll(() => {
+  dateSpy.mockRestore();
+});
+
 const values = obj => Object.keys(obj).map(key => obj[key]);
 
 class Tacos extends IDEntity {

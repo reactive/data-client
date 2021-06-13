@@ -6,6 +6,17 @@ import { normalize, schema } from '../../';
 import Entity from '../../entities/Entity';
 import IDEntity from '../../entities/IDEntity';
 
+let dateSpy;
+beforeAll(() => {
+  dateSpy = jest
+    // eslint-disable-next-line no-undef
+    .spyOn(global.Date, 'now')
+    .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
+});
+afterAll(() => {
+  dateSpy.mockRestore();
+});
+
 describe(`${schema.Object.name} normalization`, () => {
   test('normalizes an object', () => {
     class User extends IDEntity {}

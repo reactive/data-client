@@ -149,6 +149,14 @@ export type NormalizedSchema<E, R> = {
   entities: E;
   result: R;
   indexes: NormalizedIndex;
+  entityMeta: {
+    readonly [entityKey: string]: {
+      readonly [pk: string]: {
+        readonly date: number;
+        readonly expiresAt: number;
+      };
+    };
+  };
 };
 
 export type EntityMap<T = any> = Record<string, EntityInterface<T>>;

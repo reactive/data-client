@@ -5,6 +5,16 @@ import { denormalizeSimple as denormalize } from '../../denormalize';
 import { normalize, schema } from '../../';
 import IDEntity from '../../entities/IDEntity';
 
+let dateSpy;
+beforeAll(() => {
+  dateSpy = jest
+    // eslint-disable-next-line no-undef
+    .spyOn(global.Date, 'now')
+    .mockImplementation(() => new Date('2019-05-14T11:01:58.135Z').valueOf());
+});
+afterAll(() => {
+  dateSpy.mockRestore();
+});
 describe(`${schema.Array.name} normalization`, () => {
   describe('Object', () => {
     test('should throw a custom error if data loads with string unexpected value', () => {

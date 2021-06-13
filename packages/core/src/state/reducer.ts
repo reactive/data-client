@@ -10,7 +10,6 @@ import {
 } from '@rest-hooks/core/actionTypes';
 
 import applyUpdatersToResults from './applyUpdatersToResults';
-import mergeDeepCopy from './merge/mergeDeepCopy';
 
 export const initialState: State<unknown> = {
   entities: {},
@@ -70,11 +69,13 @@ export default function reducer(
         return reduceError(state, action, action.payload);
       }
       try {
-        const { result, entities, indexes } = normalize(
+        const { result, entities, indexes, entityMeta } = normalize(
           action.payload,
           action.meta.schema,
           state.entities,
           state.indexes,
+          state.entityMeta,
+          action.meta,
         );
         let results = {
           ...state.results,
@@ -91,19 +92,10 @@ export default function reducer(
           });
         }
         return {
-          entities: mergeDeepCopy(
-            state.entities,
-            entities,
-            state.entityMeta,
-            action.meta.date,
-          ),
-          indexes: mergeDeepCopy(
-            state.indexes,
-            indexes,
-            state.entityMeta,
-            action.meta.date,
-          ),
+          entities,
+          indexes,
           results,
+          entityMeta,
           meta: {
             ...state.meta,
             [action.meta.key]: {
@@ -112,7 +104,6 @@ export default function reducer(
               prevExpiresAt: state.meta[action.meta.key]?.expiresAt,
             },
           },
-          entityMeta: updateEntityMeta(state.entityMeta, entities, action.meta),
           optimistic: filterOptimistic(state, action),
         };
         // reducer must update the state, so in case of processing errors we simply compute the results inline
@@ -196,21 +187,4 @@ function filterOptimistic(
       optimisticAction.meta.key !== resolvingAction.meta.key ||
       optimisticAction.meta.date > resolvingAction.meta.date,
   );
-}
-
-/** Updates dates of entities for all those processed in a request */
-function updateEntityMeta(
-  entityMeta: State<unknown>['entityMeta'],
-  entities: State<unknown>['entities'],
-  { expiresAt, date }: { expiresAt: number; date: number },
-): State<unknown>['entityMeta'] {
-  const meta: any = { ...entityMeta };
-  for (const k in entities) {
-    meta[k] = { ...entityMeta[k] };
-    for (const pk in entities[k]) {
-      meta[k][pk] =
-        meta[k][pk]?.expiresAt >= expiresAt ? meta[k][pk] : { expiresAt, date };
-    }
-  }
-  return meta;
 }

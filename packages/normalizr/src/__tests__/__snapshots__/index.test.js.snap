@@ -251,6 +251,20 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "Children": Object {
+      "4": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+    "Food": Object {
+      "1234": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": Object {
     "schema": "Food",
@@ -262,6 +276,7 @@ Object {
 exports[`normalize ignores null values 1`] = `
 Object {
   "entities": Object {},
+  "entityMeta": Object {},
   "indexes": Object {},
   "result": Array [
     null,
@@ -272,6 +287,7 @@ Object {
 exports[`normalize ignores null values 2`] = `
 Object {
   "entities": Object {},
+  "entityMeta": Object {},
   "indexes": Object {},
   "result": Array [
     undefined,
@@ -282,6 +298,7 @@ Object {
 exports[`normalize ignores null values 3`] = `
 Object {
   "entities": Object {},
+  "entityMeta": Object {},
   "indexes": Object {},
   "result": Array [
     false,
@@ -303,6 +320,18 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "Tacos": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+      "2": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": Array [
     "1",
@@ -320,6 +349,14 @@ Object {
           "123",
         ],
         "id": "123",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "User": Object {
+      "123": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -360,6 +397,30 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "Article": Object {
+      "123": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+    "Comment": Object {
+      "comment-123-4738": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+    "User": Object {
+      "10293": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+      "8472": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": "123",
 }
@@ -376,6 +437,18 @@ Object {
       "2": Tacos {
         "id": "2",
         "type": "bar",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "Tacos": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+      "2": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
@@ -414,6 +487,18 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "Tacos": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+      "2": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": Object {
     "data": Array [
@@ -438,9 +523,22 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "MyTaco": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+      "2": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {
     "MyTaco": Object {
       "type": Object {
+        "bar": Symbol(ENTITY WAS DELETED),
         "bar2": "2",
         "foo": "1",
       },
@@ -470,6 +568,18 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "MyTaco": Object {
+      "1": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+      "2": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {
     "MyTaco": Object {
       "notfound": Object {},
@@ -496,6 +606,14 @@ Object {
       },
     },
   },
+  "entityMeta": Object {
+    "Article": Object {
+      "123": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+  },
   "indexes": Object {},
   "result": "123",
 }
@@ -504,6 +622,7 @@ Object {
 exports[`normalize passes over pre-normalized values 2`] = `
 Object {
   "entities": Object {},
+  "entityMeta": Object {},
   "indexes": Object {},
   "result": Object {
     "user": "1",
@@ -522,6 +641,20 @@ Object {
     "User": Object {
       "456": User {
         "id": "456",
+      },
+    },
+  },
+  "entityMeta": Object {
+    "Recommendations": Object {
+      "456": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+      },
+    },
+    "User": Object {
+      "456": Object {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
       },
     },
   },
