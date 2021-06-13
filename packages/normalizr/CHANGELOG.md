@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@7.1.0...@rest-hooks/normalizr@7.2.0) (2021-06-13)
+
+
+### 🚀 Features
+
+* Normalize merges entities, entitymeta, indexes ([#915](https://github.com/coinbase/rest-hooks/issues/915)) ([bd21d8c](https://github.com/coinbase/rest-hooks/commit/bd21d8ce0d004a56e6853918d9fb9ecaa2c730a8))
+
+
+
 ## [7.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@7.0.3...@rest-hooks/normalizr@7.1.0) (2021-06-09)
 
 

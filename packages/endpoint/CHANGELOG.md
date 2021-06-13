@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@1.1.6...@rest-hooks/endpoint@1.2.0) (2021-06-13)
+
+
+### 🚀 Features
+
+* Endpoint.name ([#914](https://github.com/coinbase/rest-hooks/issues/914)) ([aa5f80d](https://github.com/coinbase/rest-hooks/commit/aa5f80db6c47ff975b1d257352315a57b87addce))
+
+
+
 ### [1.1.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@1.1.5...@rest-hooks/endpoint@1.1.6) (2021-06-09)
 
 

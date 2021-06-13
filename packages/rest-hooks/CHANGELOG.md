@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.2.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.1.4...rest-hooks@5.2.0) (2021-06-13)
+
+
+### 🚀 Features
+
+* Normalize merges entities, entitymeta, indexes ([#915](https://github.com/coinbase/rest-hooks/issues/915)) ([bd21d8c](https://github.com/coinbase/rest-hooks/commit/bd21d8ce0d004a56e6853918d9fb9ecaa2c730a8))
+* Support React 18 ([#907](https://github.com/coinbase/rest-hooks/issues/907)) ([63e8bc9](https://github.com/coinbase/rest-hooks/commit/63e8bc9887a080e1aa510d972645c037dfc96128))
+
+
+### 💅 Enhancement
+
+* Use inferResults() from normalizr ([#901](https://github.com/coinbase/rest-hooks/issues/901)) ([875cb6a](https://github.com/coinbase/rest-hooks/commit/875cb6acf31055e37e2d1faf4414bcbf31f5700f))
+
+
+
 ### [5.1.4](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.1.3...rest-hooks@5.1.4) (2021-06-09)
 
 

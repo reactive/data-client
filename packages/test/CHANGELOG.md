@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@6.0.1...@rest-hooks/test@6.1.0) (2021-06-13)
+
+
+### 🚀 Features
+
+* Support React 18 ([#907](https://github.com/coinbase/rest-hooks/issues/907)) ([63e8bc9](https://github.com/coinbase/rest-hooks/commit/63e8bc9887a080e1aa510d972645c037dfc96128))
+
+
+
 ### [6.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@6.0.0...@rest-hooks/test@6.0.1) (2021-06-09)
 
 
