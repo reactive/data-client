@@ -298,6 +298,13 @@ First three members: ${JSON.stringify(processedEntity.slice(0, 3), null, 2)}`;
     return undefined;
   }
 
+  static expiresAt(
+    { expiresAt }: { expiresAt: number; date: number },
+    input: any,
+  ): number {
+    return expiresAt;
+  }
+
   static denormalize<T extends typeof Entity>(
     this: T,
     input: Readonly<Partial<AbstractInstanceType<T>>>,
