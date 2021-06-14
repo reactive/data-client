@@ -142,6 +142,46 @@ describe('reducer', () => {
       expect(nextMeta).toBeDefined();
       expect(nextMeta.date).toBe(action.meta.date);
     });
+
+    it('should use entity.expiresAt()', () => {
+      class ExpiresSoon extends ArticleResource {
+        static expiresAt(
+          { expiresAt, date }: { expiresAt: number; date: number },
+          input: any,
+        ): number {
+          return input.content ? expiresAt : 0;
+        }
+      }
+      const spy = jest.spyOn(ExpiresSoon, 'expiresAt');
+      const localAction = {
+        ...partialResultAction,
+        meta: {
+          ...partialResultAction.meta,
+          schema: ExpiresSoon,
+          date: partialResultAction.meta.date * 2,
+          expiresAt: partialResultAction.meta.expiresAt * 2,
+        },
+      };
+      const getMeta = (state: any): { date: number; expiresAt: number } =>
+        state.entityMeta[ExpiresSoon.key][`${ExpiresSoon.pk(action.payload)}`];
+      const getEntity = (state: any): ExpiresSoon =>
+        state.entities[ExpiresSoon.key][`${ExpiresSoon.pk(action.payload)}`];
+
+      const prevEntity = getEntity(newState);
+      const prevMeta = getMeta(newState);
+      expect(prevMeta).toBeDefined();
+      const nextState = reducer(newState, localAction);
+      expect(spy.mock.calls.length).toBeGreaterThanOrEqual(1);
+
+      const nextMeta = getMeta(nextState);
+      const nextEntity = getEntity(nextState);
+
+      expect(nextMeta).toBeDefined();
+      // our new expires was larger, but custom function returned 0, so we keep old expires
+      expect(nextMeta.expiresAt).toBe(prevMeta.expiresAt);
+
+      expect(nextEntity.title).toBe('hello');
+    });
   });
 
   it('mutate should never change results', () => {
