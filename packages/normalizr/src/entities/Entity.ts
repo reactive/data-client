@@ -239,6 +239,13 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     return id;
   }
 
+  static expiresAt(
+    { expiresAt }: { expiresAt: number; date: number },
+    input: any,
+  ): number {
+    return expiresAt;
+  }
+
   static infer(args, indexes, infer): any {
     if (!args[0]) return undefined as any;
     const id = this.pk(args[0], undefined, '');

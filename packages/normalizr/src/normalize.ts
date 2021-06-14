@@ -61,7 +61,7 @@ const addEntities =
         };
       };
     },
-    { expiresAt, date }: { expiresAt: number; date: number },
+    meta: { expiresAt: number; date: number },
   ) =>
   (schema: any, processedEntity: any, id: any) => {
     const schemaKey = schema.key;
@@ -82,7 +82,7 @@ const addEntities =
 
         // if either of these is undefined, it resolves to 'false' which
         // means we fallback to 'newer' (processedEntity) takes priority
-        const preferExisting = entityMeta[schemaKey][id]?.date > date;
+        const preferExisting = entityMeta[schemaKey][id]?.date > meta.date;
         if (typeof processedEntity !== typeof inStoreEntity) {
           entities[schemaKey][id] = preferExisting
             ? inStoreEntity
@@ -135,10 +135,14 @@ Entity: ${JSON.stringify(entity, undefined, 2)}`);
     }
     // set this after index updates so we know what indexes to remove from
     existingEntities[schemaKey][id] = entities[schemaKey][id];
+    // TODO: eventually assume this exists and don't check for conditional. probably early 2022
+    const entityExpiresAt = schema.expiresAt
+      ? schema.expiresAt(meta, processedEntity)
+      : meta.expiresAt;
     entityMeta[schemaKey][id] =
-      entityMeta[schemaKey][id]?.expiresAt >= expiresAt
+      entityMeta[schemaKey][id]?.expiresAt >= entityExpiresAt
         ? entityMeta[schemaKey][id]
-        : { expiresAt, date };
+        : { expiresAt: entityExpiresAt, date: meta.date };
   };
 
 function expectedSchemaType(schema: Schema) {
