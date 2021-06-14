@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1623555885723,
+  "lastUpdate": 1623709686237,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -1938,6 +1938,44 @@ window.BENCHMARK_DATA = {
             "range": "±5.24%",
             "unit": "ops/sec",
             "extra": "42 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e0919c2aa523e0a2fc8c6935dcf38953d723527e",
+          "message": "feat: Add Entity.expiresAt() - entity TTL configuration  (#920)",
+          "timestamp": "2021-06-14T15:26:07-07:00",
+          "tree_id": "79f280eccbb3addcc9b8b448a245257ce1b4a05d",
+          "url": "https://github.com/coinbase/rest-hooks/commit/e0919c2aa523e0a2fc8c6935dcf38953d723527e"
+        },
+        "date": 1623709685538,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 62.71,
+            "range": "±1.10%",
+            "unit": "ops/sec",
+            "extra": "65 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 32.26,
+            "range": "±1.42%",
+            "unit": "ops/sec",
+            "extra": "57 samples"
           }
         ]
       }
