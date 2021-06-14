@@ -106,7 +106,6 @@ export default function useDenormalized<
     // in packages/core/src/react-integration/__tests__/useResource.web.tsx
     const ready = !!cacheResults || found;
 
-    // TODO: move this to the .infer() method
     // oldest entity dictates age
     let expiresAt = Infinity;
     if (ready) {
