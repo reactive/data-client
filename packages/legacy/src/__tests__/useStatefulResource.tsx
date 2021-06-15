@@ -7,7 +7,7 @@ import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 import nock from 'nock';
 
 import { payload, payload2, users, nested } from './fixtures';
-import { useStatefulResource } from '..';
+import useStatefulResource from '../useStatefulResource';
 
 function onError(e: any) {
   e.preventDefault();

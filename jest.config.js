@@ -8,6 +8,7 @@ const baseConfig = {
     'react-integration/hooks/useSelection',
     'packages/test',
     'packages/experimental',
+    'packages/legacy/src/resource',
   ],
   testURL: 'http://localhost',
 };

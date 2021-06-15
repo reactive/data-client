@@ -1,4 +1,4 @@
-import { MutateShape, Resource, schemas } from 'rest-hooks';
+import { MutateShape, Resource, Delete } from '@rest-hooks/legacy';
 
 export class UserResource extends Resource {
   readonly id: number | undefined = undefined;
@@ -66,7 +66,7 @@ export class CoolerArticleResource extends ArticleResource {
 
   static deleteShape<T extends typeof Resource>(
     this: T,
-  ): MutateShape<schemas.Delete<T>, Readonly<object>, unknown> {
+  ): MutateShape<Delete<T>, Readonly<object>, unknown> {
     return super.deleteShape() as any;
   }
 }

@@ -10,5 +10,6 @@
     { "path": "../use-enhanced-reducer" },
     { "path": "../endpoint" },
     { "path": "../core" },
+    { "path": "../legacy" },
   ]
 }

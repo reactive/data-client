@@ -63,8 +63,8 @@ export type {
   NetworkError,
 } from '@rest-hooks/core';
 
-export { Resource, SimpleResource } from './resource';
-export type { SchemaDetail, SchemaList, Method } from './resource/types';
+export { Resource, SimpleResource } from '@rest-hooks/legacy';
+export type { SchemaDetail, SchemaList, Method } from '@rest-hooks/legacy';
 export {
   CacheProvider,
   ExternalCacheProvider,
