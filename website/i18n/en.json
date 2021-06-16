@@ -253,6 +253,9 @@
       "upgrade/upgrading-test-to-four": {
         "title": "Upgrading @rest-hooks/test to 4"
       },
+      "upgrade/upgrading-test-to-six": {
+        "title": "Upgrading @rest-hooks/test to 6"
+      },
       "upgrade/upgrading-test-to-three": {
         "title": "Upgrading @rest-hooks/test to 3"
       },
@@ -1080,6 +1083,9 @@
       },
       "version-5.0/upgrade/version-5.0-upgrading-test-to-four": {
         "title": "Upgrading @rest-hooks/test to 4"
+      },
+      "version-5.0/upgrade/version-5.0-upgrading-test-to-six": {
+        "title": "Upgrading @rest-hooks/test to 6"
       },
       "version-5.0/upgrade/version-5.0-upgrading-test-to-three": {
         "title": "Upgrading @rest-hooks/test to 3"

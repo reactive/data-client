@@ -362,6 +362,43 @@ class MyResource extends Resource {
 
 </details>
 
+### @rest-hooks/legacy
+
+For v5 of Rest Hooks, the existing `Resource` and `SimpleResource` classes will
+be exported.
+
+In v6, this will no longer be the case. However, they will continue to live in `@rest-hooks/legacy`, allowing
+easy safe upgrade to v6 by simply changing the import path. However, it is still recommended to
+try to migrate to `@rest-hooks/rest` as this is the future. v1 of @rest-hooks/rest will be the easiest to
+start with.
+
+
+<details><summary>yarn add @rest-hooks/legacy</summary>
+
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--before-->
+
+```typescript
+import { Resource } from 'rest-hooks';
+
+class MyResource extends Resource {
+}
+```
+
+<!--after-->
+
+```typescript
+import { Resource } from '@rest-hooks/legacy';
+
+class MyResource extends Resource {
+}
+```
+
+<!--END_DOCUSAURUS_CODE_TABS-->
+
+</details>
+
 ### @rest-hooks/rest
 
 Rest Hooks is protocol agnostic, so the REST/CRUD specific class [Resource](../api/resource)
