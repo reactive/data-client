@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@0.6.0...@rest-hooks/experimental@0.7.0) (2021-06-16)
+
+
+### 🚀 Features
+
+* Add Entity.expiresAt() - entity TTL configuration  ([#920](https://github.com/coinbase/rest-hooks/issues/920)) ([e0919c2](https://github.com/coinbase/rest-hooks/commit/e0919c2aa523e0a2fc8c6935dcf38953d723527e))
+* Support deletes with responses ([#919](https://github.com/coinbase/rest-hooks/issues/919)) ([a8129cd](https://github.com/coinbase/rest-hooks/commit/a8129cd432a39d26fd7bb0ad7a9cec5094665ee5))
+
+
+
 ## [0.6.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@0.5.0...@rest-hooks/experimental@0.6.0) (2021-06-13)
 
 

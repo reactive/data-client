@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.3.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.2.0...rest-hooks@5.3.0) (2021-06-16)
+
+
+### 🚀 Features
+
+* Add Resource+Entity to legacy ([#924](https://github.com/coinbase/rest-hooks/issues/924)) ([0c7ac83](https://github.com/coinbase/rest-hooks/commit/0c7ac834fa1c4fc07665601441422d5170313640))
+
+
+
 ## [5.2.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@5.1.4...rest-hooks@5.2.0) (2021-06-13)
 
 

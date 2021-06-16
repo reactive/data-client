@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@7.2.0...@rest-hooks/normalizr@7.3.0) (2021-06-16)
+
+
+### 🚀 Features
+
+* Add Entity.expiresAt() - entity TTL configuration  ([#920](https://github.com/coinbase/rest-hooks/issues/920)) ([e0919c2](https://github.com/coinbase/rest-hooks/commit/e0919c2aa523e0a2fc8c6935dcf38953d723527e))
+
+
+
 ## [7.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@7.1.0...@rest-hooks/normalizr@7.2.0) (2021-06-13)
 
 
