@@ -9,10 +9,10 @@ import type {
   DeleteShape,
 } from '@rest-hooks/core';
 
+import Delete from './Delete';
 import { SchemaDetail, Method, SchemaList } from './types';
 import { NotImplementedError } from './errors';
 import paramsToString from './paramsToString';
-import { schemas } from '..';
 
 /** Represents an entity to be retrieved from a server.
  * Typically 1:1 with a url endpoint.
@@ -229,11 +229,11 @@ export default abstract class SimpleResource extends FlatEntity {
   /** Shape to delete an entity (delete) */
   static deleteShape<T extends typeof SimpleResource>(
     this: T,
-  ): DeleteShape<schemas.Delete<T>, Readonly<object>> {
+  ): DeleteShape<Delete<T>, Readonly<object>> {
     const options = this.getEndpointExtra();
     return {
       type: 'mutate',
-      schema: new schemas.Delete(this),
+      schema: new Delete(this),
       options,
       getFetchKey: (params: object) => {
         return 'DELETE ' + this.url(params);

@@ -88,7 +88,8 @@
   "dependencies": {
     "@babel/runtime": "^7.7.2",
     "@rest-hooks/core": "^1.5.0",
-    "@rest-hooks/endpoint": "^1.2.0"
+    "@rest-hooks/endpoint": "^1.2.0",
+    "@rest-hooks/legacy": "^2.1.0"
   },
   "peerDependencies": {
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
