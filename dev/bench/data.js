@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1623709686237,
+  "lastUpdate": 1623810384297,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -1976,6 +1976,44 @@ window.BENCHMARK_DATA = {
             "range": "±1.42%",
             "unit": "ops/sec",
             "extra": "57 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": false,
+          "id": "ed74cd84ffa8883cc87230da2f6a7afb6875115d",
+          "message": "internal: publish\n\n - @rest-hooks/core@1.5.1\n - @rest-hooks/endpoint@1.2.1\n - @rest-hooks/experimental@0.7.0\n - @rest-hooks/legacy@2.2.0\n - @rest-hooks/normalizr@7.3.0\n - rest-hooks@5.3.0",
+          "timestamp": "2021-06-15T21:18:50-05:00",
+          "tree_id": "c928187271e6269bd7baf7f22acccfef2c709f5f",
+          "url": "https://github.com/coinbase/rest-hooks/commit/ed74cd84ffa8883cc87230da2f6a7afb6875115d"
+        },
+        "date": 1623810383143,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 58.32,
+            "range": "±2.31%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 34.66,
+            "range": "±1.67%",
+            "unit": "ops/sec",
+            "extra": "61 samples"
           }
         ]
       }
