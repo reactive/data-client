@@ -1,17 +1,19 @@
 import { Schema } from '@rest-hooks/normalizr';
 import { EndpointInstance, FetchFunction } from '@rest-hooks/endpoint';
 
-export type RestFetch<
-  P = any,
-  B = RequestInit['body'] | Record<string, any>,
-  R = any,
-> = (this: RestEndpoint, params?: P, body?: B, ...rest: any) => Promise<R>;
+export type RestFetch<P = any, B = any, R = any> = (
+  this: RestEndpoint,
+  params?: P,
+  body?: B,
+  ...rest: any
+) => Promise<R>;
 
-export type FetchMutate<
-  P = any,
-  B = RequestInit['body'] | Record<string, any>,
-  R = any,
-> = (this: RestEndpoint, params: P, body: B) => Promise<R>;
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type FetchMutate<P = any, B = {}, R = any> = (
+  this: RestEndpoint,
+  params: P,
+  body: B,
+) => Promise<R>;
 
 export type FetchGet<P = any, R = any> = (
   this: RestEndpoint,
