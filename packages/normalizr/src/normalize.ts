@@ -76,6 +76,11 @@ const addEntities =
       // TODO: maybe have distinct merge function for this case
       entities[schemaKey][id] = schema.merge(existingEntity, processedEntity);
     } else {
+      // TODO: eventually assume this exists and don't check for conditional. probably early 2022
+      const entityExpiresAt = schema.expiresAt
+        ? schema.expiresAt(meta, processedEntity)
+        : meta.expiresAt;
+
       const inStoreEntity = existingEntities[schemaKey][id];
       if (inStoreEntity) {
         // this case we already have this entity in store
@@ -93,8 +98,17 @@ const addEntities =
             ? schema.merge(processedEntity, inStoreEntity)
             : schema.merge(inStoreEntity, processedEntity);
         }
+
+        entityMeta[schemaKey][id] =
+          entityMeta[schemaKey][id]?.expiresAt >= entityExpiresAt
+            ? entityMeta[schemaKey][id]
+            : { expiresAt: entityExpiresAt, date: meta.date };
       } else {
         entities[schemaKey][id] = processedEntity;
+        entityMeta[schemaKey][id] = {
+          expiresAt: entityExpiresAt,
+          date: meta.date,
+        };
       }
     }
 
@@ -135,14 +149,6 @@ Entity: ${JSON.stringify(entity, undefined, 2)}`);
     }
     // set this after index updates so we know what indexes to remove from
     existingEntities[schemaKey][id] = entities[schemaKey][id];
-    // TODO: eventually assume this exists and don't check for conditional. probably early 2022
-    const entityExpiresAt = schema.expiresAt
-      ? schema.expiresAt(meta, processedEntity)
-      : meta.expiresAt;
-    entityMeta[schemaKey][id] =
-      entityMeta[schemaKey][id]?.expiresAt >= entityExpiresAt
-        ? entityMeta[schemaKey][id]
-        : { expiresAt: entityExpiresAt, date: meta.date };
   };
 
 function expectedSchemaType(schema: Schema) {
