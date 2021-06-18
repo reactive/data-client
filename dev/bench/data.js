@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1623810384297,
+  "lastUpdate": 1623994998556,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -2014,6 +2014,44 @@ window.BENCHMARK_DATA = {
             "range": "±1.67%",
             "unit": "ops/sec",
             "extra": "61 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e68b0f955e6fab5a84b07012a84cfd6aef9d35dd",
+          "message": "enhance: Improve normalization speed (#933)",
+          "timestamp": "2021-06-18T00:41:01-05:00",
+          "tree_id": "f489b93af1559c5b46860e91c27f3a7c0e6b8676",
+          "url": "https://github.com/coinbase/rest-hooks/commit/e68b0f955e6fab5a84b07012a84cfd6aef9d35dd"
+        },
+        "date": 1623994997843,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 66.09,
+            "range": "±1.72%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 27.07,
+            "range": "±2.45%",
+            "unit": "ops/sec",
+            "extra": "49 samples"
           }
         ]
       }
