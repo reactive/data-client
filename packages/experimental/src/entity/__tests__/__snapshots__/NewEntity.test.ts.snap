@@ -817,18 +817,16 @@ exports[`Entity normalization should throw a custom error if data loads with hal
 `;
 
 exports[`Entity normalization should throw a custom error if data loads with no matching props 1`] = `
-"Attempted to initialize MyEntity with no matching keys found
+"Missing usable primary key when normalizing response.
 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
   Learn more about schemas: https://resthooks.io/docs/api/schema
-  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
-  Expected keys:
-    Found: 
-    Missing: name,secondthing
-  Value (processed): {}"
+  Entity: MyEntity
+  Value (processed): {}
+  "
 `;
 
 exports[`Entity normalization should throw a custom error if data loads with string 1`] = `
@@ -855,16 +853,15 @@ exports[`Entity normalization should throw a custom error if schema key is missi
 `;
 
 exports[`Entity normalization should throw a custom error loads with array 1`] = `
-"Attempted to initialize MyEntity with an array, but named members were expected
+"Missing usable primary key when normalizing response.
 
-This is likely due to a malformed response.
-Try inspecting the network response or fetch() return value.
-Or use debugging tools: https://resthooks.io/docs/guides/debugging
-Learn more about schemas: https://resthooks.io/docs/api/schema
-If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
 
-Missing: name,secondthing
-First three members: [
+  Entity: MyEntity
+  Value (processed): [
   {
     \\"name\\": \\"hi\\",
     \\"secondthing\\": \\"ho\\"
@@ -877,7 +874,8 @@ First three members: [
     \\"name\\": \\"hi\\",
     \\"secondthing\\": \\"ho\\"
   }
-]"
+]
+  "
 `;
 
 exports[`Entity normalization should warn when automaticValidation === "warn" 1`] = `
