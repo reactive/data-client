@@ -3,9 +3,6 @@ import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
 import { PollingArticleResource, ArticleResource } from '__tests__/new';
 
-// relative imports to avoid circular dependency in tsconfig references
-import { Resource } from 'rest-hooks/resource';
-
 import {
   makeCacheProvider,
   makeExternalCacheProvider,
