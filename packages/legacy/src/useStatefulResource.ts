@@ -49,7 +49,7 @@ export default function useStatefulResource<
     params,
     state,
   );
-  const error = useError(fetchShape, params, ready);
+  const error = useError(fetchShape, params);
 
   const maybePromise: Promise<any> | undefined = useRetrieve(
     fetchShape,
