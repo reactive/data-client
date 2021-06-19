@@ -1,15 +1,14 @@
 // eslint-env jest
 import { fromJS, Record } from 'immutable';
-import { first } from 'lodash';
 
 import { denormalizeSimple as denormalize } from '../../denormalize';
-import { normalize, schema, SimpleRecord, AbstractInstanceType } from '../../';
+import { normalize, schema, AbstractInstanceType } from '../../';
 import Entity from '../Entity';
 import IDEntity from '../IDEntity';
 import { DELETED } from '../../special';
 import WeakListMap from '../../WeakListMap';
 
-let dateSpy;
+let dateSpy: jest.SpyInstance;
 beforeAll(() => {
   dateSpy = jest
     // eslint-disable-next-line no-undef
@@ -20,7 +19,8 @@ afterAll(() => {
   dateSpy.mockRestore();
 });
 
-const values = obj => Object.keys(obj).map(key => obj[key]);
+const values = <T extends Record<string, any>>(obj: T) =>
+  Object.keys(obj).map(key => obj[key]);
 
 class Tacos extends IDEntity {
   readonly name: string = '';
@@ -54,16 +54,11 @@ class WithOptional extends Entity {
 }
 
 describe(`${Entity.name} normalization`, () => {
-  const originalWarn = console.warn;
+  let warnSpy: jest.SpyInstance;
   afterEach(() => {
-    console.warn = originalWarn;
-    consoleOutput = [];
+    warnSpy.mockRestore();
   });
-  let consoleOutput: string[] = [];
-  const mockedWarn = (output: string) => {
-    consoleOutput.push(output);
-  };
-  beforeEach(() => (console.warn = mockedWarn));
+  beforeEach(() => (warnSpy = jest.spyOn(console, 'warn')));
 
   test('normalizes an entity', () => {
     class MyEntity extends IDEntity {}
@@ -162,8 +157,8 @@ describe(`${Entity.name} normalization`, () => {
       );
     }
     expect(normalizeBad).not.toThrow();
-    expect(consoleOutput.length).toBe(1);
-    expect(consoleOutput).toMatchSnapshot();
+    expect(warnSpy.mock.calls.length).toBe(1);
+    expect(warnSpy.mock.calls).toMatchSnapshot();
   });
 
   it('should only warn if at least four members are found with unexpected', () => {
@@ -218,8 +213,8 @@ describe(`${Entity.name} normalization`, () => {
         schema,
       ),
     ).toMatchSnapshot();
-    expect(consoleOutput.length).toBe(1);
-    expect(consoleOutput).toMatchSnapshot();
+    expect(warnSpy.mock.calls.length).toBe(1);
+    expect(warnSpy.mock.calls).toMatchSnapshot();
   });
 
   it('should allow many unexpected as long as none are missing', () => {
@@ -261,7 +256,7 @@ describe(`${Entity.name} normalization`, () => {
         schema,
       ),
     ).toMatchSnapshot();
-    expect(consoleOutput.length).toBe(0);
+    expect(warnSpy.mock.calls.length).toBe(0);
   });
 
   it('should not expect getters returned', () => {
@@ -287,7 +282,7 @@ describe(`${Entity.name} normalization`, () => {
       normalize({ name: 'bob' }, MyEntity);
     }
     expect(normalizeBad).not.toThrow();
-    expect(consoleOutput.length).toBe(0);
+    expect(warnSpy.mock.calls.length).toBe(0);
   });
 
   it('should throw if data loads with unexpected prop that is a getter', () => {
@@ -382,8 +377,8 @@ describe(`${Entity.name} normalization`, () => {
       normalize({ name: 'hoho', nonexistantthing: 'hi' }, schema);
     }
     expect(normalizeBad).not.toThrow();
-    expect(consoleOutput.length).toBe(1);
-    expect(consoleOutput).toMatchSnapshot();
+    expect(warnSpy.mock.calls.length).toBe(1);
+    expect(warnSpy.mock.calls).toMatchSnapshot();
   });
 
   it('should do nothing when automaticValidation === "silent"', () => {
@@ -401,7 +396,7 @@ describe(`${Entity.name} normalization`, () => {
       normalize({ name: 'hoho', nonexistantthing: 'hi' }, schema);
     }
     expect(normalizeBad).not.toThrow();
-    expect(consoleOutput.length).toBe(0);
+    expect(warnSpy.mock.calls.length).toBe(0);
   });
 
   it('should throw a custom error if data loads with string', () => {
@@ -517,17 +512,14 @@ describe(`${Entity.name} normalization`, () => {
 
     test('can use a custom merging strategy', () => {
       class MergeTaco extends Tacos {
-        static merge<T extends typeof SimpleRecord>(
+        static merge<T extends typeof Entity>(
           this: T,
           existing: AbstractInstanceType<T>,
           incoming: AbstractInstanceType<T>,
         ) {
-          const props = Object.assign(
-            {},
-            this.toObjectDefined(existing),
-            this.toObjectDefined(incoming),
-            { name: (existing as MergeTaco).name },
-          );
+          const props = Object.assign({}, existing, incoming, {
+            name: (existing as MergeTaco).name,
+          });
           return this.fromJS(props);
         }
       }
@@ -544,25 +536,24 @@ describe(`${Entity.name} normalization`, () => {
     });
   });
 
-  describe('processStrategy', () => {
+  describe('process', () => {
     test('can use a custom processing strategy', () => {
       class ProcessTaco extends Tacos {
-        static fromJS<T extends typeof SimpleRecord>(
-          this: T,
-          props: Partial<AbstractInstanceType<T>>,
-          parent?: any,
-          key?: string,
-        ) {
-          return super.fromJS({
-            ...props,
-            slug: `thing-${(props as unknown as ProcessTaco).id}`,
-          }) as AbstractInstanceType<T>;
+        readonly slug: string = '';
+        static process(input: any, parent: any, key: string | undefined): any {
+          return {
+            ...input,
+            slug: `thing-${(input as unknown as ProcessTaco).id}`,
+          };
         }
       }
-
-      expect(
-        normalize({ id: '1', name: 'foo' }, ProcessTaco),
-      ).toMatchSnapshot();
+      const { entities, result } = normalize(
+        { id: '1', name: 'foo' },
+        ProcessTaco,
+      );
+      const [final] = denormalize(result, ProcessTaco, entities);
+      expect(final?.slug).toEqual('thing-1');
+      expect(final).toMatchSnapshot();
     });
 
     test('can use information from the parent in the process strategy', () => {
@@ -571,38 +562,35 @@ describe(`${Entity.name} normalization`, () => {
         readonly parentId: string = '';
         readonly parentKey: string = '';
 
-        static fromJS<T extends typeof SimpleRecord>(
-          this: T,
-          props: Partial<AbstractInstanceType<T>>,
-          parent?: any,
-          key?: string,
-        ) {
-          return super.fromJS({
-            ...props,
-            parentId: parent.id,
+        static process(input: any, parent: any, key: string | undefined): any {
+          return {
+            ...input,
+            parentId: parent?.id,
             parentKey: key,
-          }) as AbstractInstanceType<T>;
+          };
         }
       }
       class ParentEntity extends IDEntity {
         readonly content: string = '';
+        readonly child: ChildEntity = ChildEntity.fromJS({});
 
         static schema = { child: ChildEntity };
       }
 
-      expect(
-        normalize(
-          {
-            id: '1',
-            content: 'parent',
-            child: { id: '4', content: 'child' },
-          },
-          ParentEntity,
-        ),
-      ).toMatchSnapshot();
+      const { entities, result } = normalize(
+        {
+          id: '1',
+          content: 'parent',
+          child: { id: '4', content: 'child' },
+        },
+        ParentEntity,
+      );
+      const [final] = denormalize(result, ParentEntity, entities);
+      expect(final?.child?.parentId).toEqual('1');
+      expect(final).toMatchSnapshot();
     });
 
-    test('is run before and passed to the schema normalization', () => {
+    test('is run before and passed to the schema denormalization', () => {
       class AttachmentsEntity extends IDEntity {}
       class EntriesEntity extends IDEntity {
         readonly type: string = '';
@@ -611,25 +599,21 @@ describe(`${Entity.name} normalization`, () => {
           data: { attachment: AttachmentsEntity },
         };
 
-        static fromJS<T extends typeof SimpleRecord>(
-          this: T,
-          props: Partial<AbstractInstanceType<T>>,
-          parent?: any,
-          key?: string,
-        ) {
-          return super.fromJS({
-            ...values(props)[0],
-            type: Object.keys(props)[0],
-          }) as AbstractInstanceType<T>;
+        static process(input: any, parent: any, key: string | undefined): any {
+          return {
+            ...values(input)[0],
+            type: Object.keys(input)[0],
+          };
         }
       }
 
-      expect(
-        normalize(
-          { message: { id: '123', data: { attachment: { id: '456' } } } },
-          EntriesEntity,
-        ),
-      ).toMatchSnapshot();
+      const { entities, result } = normalize(
+        { message: { id: '123', data: { attachment: { id: '456' } } } },
+        EntriesEntity,
+      );
+      const [final] = denormalize(result, EntriesEntity, entities);
+      expect(final?.type).toEqual('message');
+      expect(final).toMatchSnapshot();
     });
   });
 });
@@ -797,11 +781,11 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
 
-    expect(denormalize('123', Report, entities)).toMatchSnapshot();
-    expect(denormalize('123', Report, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize('123', Report, entities)[0]).toMatchSnapshot();
+    expect(denormalize('123', Report, fromJS(entities))[0]).toMatchSnapshot();
 
-    expect(denormalize('456', User, entities)).toMatchSnapshot();
-    expect(denormalize('456', User, fromJS(entities))).toMatchSnapshot();
+    expect(denormalize('456', User, entities)[0]).toMatchSnapshot();
+    expect(denormalize('456', User, fromJS(entities))[0]).toMatchSnapshot();
   });
 
   test('denormalizes entities with referential equality', () => {
@@ -863,7 +847,7 @@ describe(`${Entity.name} denormalization`, () => {
 
   describe('optional entities', () => {
     it('should be marked as found even when optional is not there', () => {
-      const denormalized = denormalize('abc', WithOptional, {
+      const [denormalized, found] = denormalize('abc', WithOptional, {
         [WithOptional.key]: {
           abc: WithOptional.fromJS({
             id: 'abc',
@@ -876,8 +860,8 @@ describe(`${Entity.name} denormalization`, () => {
           ['5']: ArticleEntity.fromJS({ id: '5' }),
         },
       });
-      expect(denormalized[1]).toBe(true);
-      const response = denormalized[0];
+      expect(found).toBe(true);
+      const response = denormalized;
       expect(response).toBeDefined();
       expect(response).toBeInstanceOf(WithOptional);
       expect(response).toEqual({
@@ -889,7 +873,7 @@ describe(`${Entity.name} denormalization`, () => {
     });
 
     it('should be marked as found when nested entity is missing', () => {
-      const denormalized = denormalize('abc', WithOptional, {
+      const [denormalized, found, deleted] = denormalize('abc', WithOptional, {
         [WithOptional.key]: {
           abc: WithOptional.fromJS({
             id: 'abc',
@@ -902,9 +886,9 @@ describe(`${Entity.name} denormalization`, () => {
           ['5']: ArticleEntity.fromJS({ id: '5' }),
         },
       });
-      expect(denormalized[1]).toBe(true);
-      expect(denormalized[2]).toBe(false);
-      const response = denormalized[0];
+      expect(found).toBe(true);
+      expect(deleted).toBe(false);
+      const response = denormalized;
       expect(response).toBeDefined();
       expect(response).toBeInstanceOf(WithOptional);
       expect(response).toEqual({
@@ -916,7 +900,7 @@ describe(`${Entity.name} denormalization`, () => {
     });
 
     it('should be marked as deleted when required entity is deleted symbol', () => {
-      const denormalized = denormalize('abc', WithOptional, {
+      const [denormalized, found, deleted] = denormalize('abc', WithOptional, {
         [WithOptional.key]: {
           abc: WithOptional.fromJS({
             id: 'abc',
@@ -929,9 +913,9 @@ describe(`${Entity.name} denormalization`, () => {
           ['5']: DELETED,
         },
       });
-      expect(denormalized[1]).toBe(true);
-      expect(denormalized[2]).toBe(true);
-      const response = denormalized[0];
+      expect(found).toBe(true);
+      expect(deleted).toBe(true);
+      const response = denormalized;
       expect(response).toBeDefined();
       expect(response).toBeInstanceOf(WithOptional);
       expect(response).toEqual({
@@ -943,7 +927,7 @@ describe(`${Entity.name} denormalization`, () => {
     });
 
     it('should be non-required deleted members should not result in deleted indicator', () => {
-      const denormalized = denormalize('abc', WithOptional, {
+      const [denormalized, found, deleted] = denormalize('abc', WithOptional, {
         [WithOptional.key]: {
           abc: WithOptional.fromJS({
             id: 'abc',
@@ -958,9 +942,9 @@ describe(`${Entity.name} denormalization`, () => {
           ['6']: ArticleEntity.fromJS({ id: '6' }),
         },
       });
-      expect(denormalized[1]).toBe(true);
-      expect(denormalized[2]).toBe(false);
-      const response = denormalized[0];
+      expect(found).toBe(true);
+      expect(deleted).toBe(false);
+      const response = denormalized;
       expect(response).toBeDefined();
       expect(response).toBeInstanceOf(WithOptional);
       expect(response).toEqual({
@@ -972,7 +956,7 @@ describe(`${Entity.name} denormalization`, () => {
     });
 
     it('should be both deleted and not found when both are true in different parts of schema', () => {
-      const denormalized = denormalize(
+      const [denormalized, found, deleted] = denormalize(
         { data: 'abc' },
         { data: WithOptional, other: ArticleEntity },
         {
@@ -991,9 +975,9 @@ describe(`${Entity.name} denormalization`, () => {
           },
         },
       );
-      expect(denormalized[1]).toBe(false);
-      expect(denormalized[2]).toBe(true);
-      const response = denormalized[0];
+      expect(found).toBe(false);
+      expect(deleted).toBe(true);
+      const response = denormalized;
       expect(response).toBeDefined();
       expect(response).toEqual({
         data: {

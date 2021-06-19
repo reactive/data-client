@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import type { AbstractInstanceType } from '@rest-hooks/endpoint';
-
-import Entity from './Entity';
-
-export { isEntity } from './Entity';
+import { Entity } from '@rest-hooks/normalizr';
+import type { AbstractInstanceType } from '@rest-hooks/normalizr';
 
 const DefinedMembersKey = Symbol('Defined Members');
 const UniqueIdentifierKey = Symbol('unq');
@@ -14,8 +11,6 @@ interface SimpleResourceMembers<T extends typeof EntityRecord> {
 
 /** Immutable record that keeps track of which members are defined vs defaults. */
 export default abstract class EntityRecord extends Entity {
-  private declare [DefinedMembersKey]: Record<string, any>;
-
   toString(): string {
     // we don't make _unq a member so it doesn't play a role in type compatibility
     return (this as any)[UniqueIdentifierKey];

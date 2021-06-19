@@ -40,6 +40,7 @@ export default abstract class Resource extends SimpleResource {
     };
     options = this.getFetchInit(options);
     if (body && isPojo(body)) options.body = JSON.stringify(body);
+    else if (body) options.body = body;
     if (!options.body || typeof options.body === 'string') {
       options.headers = {
         'Content-Type': 'application/json',

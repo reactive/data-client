@@ -110,8 +110,8 @@ describe('Resource', () => {
     CoolerArticleResource.fromJS({}),
   ];
 
-  describe('merge()', () => {
-    const c = CoolerArticleResource.merge(coolA, coolB);
+  describe('mergeRecord()', () => {
+    const c = CoolerArticleResource.mergeRecord(coolA, coolB);
     it('works with partial', () => {
       expect(c.things).toBeDefined();
       expect(c.id).toBe(5);
@@ -139,7 +139,7 @@ describe('Resource', () => {
       `);
     });
     it('does nothing with empty arg', () => {
-      expect(CoolerArticleResource.merge(c, coolC)).toEqual(c);
+      expect(CoolerArticleResource.mergeRecord(c, coolC)).toEqual(c);
     });
   });
 
@@ -155,6 +155,7 @@ describe('Resource', () => {
       expect(CoolerArticleResource.toObjectDefined(coolA))
         .toMatchInlineSnapshot(`
         Object {
+          "id": 5,
           "title": "great",
         }
       `);
@@ -172,6 +173,7 @@ describe('Resource', () => {
       expect(CoolerArticleResource.keysDefined(coolA)).toMatchInlineSnapshot(`
         Array [
           "title",
+          "id",
         ]
       `);
       expect(CoolerArticleResource.keysDefined(coolB)).toMatchInlineSnapshot(`
@@ -530,18 +532,14 @@ describe('Resource', () => {
       it('should include nested user', () => {
         expect(user).toBeDefined();
       });
-      it('should have user be UserResource type', () => {
-        expect(user).toBeInstanceOf(UserResource);
-      });
+
       it('should take property of first if not set in second', () => {
         expect(user.email).toBe('bob@bob.com');
       });
       it('should overwrite second properties over first', () => {
         expect(user.username).toBe('charles');
       });
-      it('should use default for unset propreties', () => {
-        expect(UserResource.hasDefined(user, 'isAdmin')).toBe(false);
-      });
+
       it('should match snapshot', () => {
         expect(normalized).toMatchSnapshot({ entityMeta: expect.any(Object) });
       });

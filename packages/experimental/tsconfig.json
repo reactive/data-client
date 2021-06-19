@@ -9,6 +9,7 @@
   "references": [
     { "path": "../../__tests__" },
     { "path": "../endpoint" },
-    { "path": "../core" }
+    { "path": "../core" },
+    { "path": "../rest" }
   ]
 }

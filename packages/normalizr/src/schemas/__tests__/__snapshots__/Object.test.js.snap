@@ -220,7 +220,7 @@ exports[`ObjectSchema normalization filters out undefined and null values 1`] = 
 Object {
   "entities": Object {
     "User": Object {
-      "1": User {
+      "1": Object {
         "id": "1",
       },
     },
@@ -244,7 +244,7 @@ exports[`ObjectSchema normalization normalizes an object 1`] = `
 Object {
   "entities": Object {
     "User": Object {
-      "1": User {
+      "1": Object {
         "id": "1",
       },
     },
@@ -268,7 +268,7 @@ exports[`ObjectSchema normalization normalizes plain objects as shorthand for Ob
 Object {
   "entities": Object {
     "User": Object {
-      "1": User {
+      "1": Object {
         "id": "1",
       },
     },
@@ -292,7 +292,7 @@ exports[`ObjectSchema normalization should deserialize Date 1`] = `
 Object {
   "entities": Object {
     "User": Object {
-      "5": User {
+      "5": Object {
         "id": "5",
       },
     },
@@ -318,7 +318,7 @@ exports[`ObjectSchema normalization should pass over when Date not provided 1`] 
 Object {
   "entities": Object {
     "User": Object {
-      "5": User {
+      "5": Object {
         "id": "5",
       },
     },

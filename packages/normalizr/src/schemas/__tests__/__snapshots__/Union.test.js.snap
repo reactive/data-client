@@ -120,7 +120,7 @@ exports[`UnionSchema normalization normalizes an array of multiple entities usin
 Object {
   "entities": Object {
     "User": Object {
-      "1": User {
+      "1": Object {
         "id": "1",
         "username": "Janey",
       },
@@ -146,7 +146,7 @@ exports[`UnionSchema normalization normalizes an array of multiple entities usin
 Object {
   "entities": Object {
     "Group": Object {
-      "2": Group {
+      "2": Object {
         "groupname": "People",
         "id": "2",
       },
@@ -184,7 +184,7 @@ exports[`UnionSchema normalization normalizes an object using string schemaAttri
 Object {
   "entities": Object {
     "User": Object {
-      "1": User {
+      "1": Object {
         "id": "1",
         "type": "users",
       },
@@ -210,7 +210,7 @@ exports[`UnionSchema normalization normalizes an object using string schemaAttri
 Object {
   "entities": Object {
     "Group": Object {
-      "2": Group {
+      "2": Object {
         "id": "2",
         "type": "groups",
       },
@@ -236,7 +236,7 @@ exports[`complex case works with undefined 1`] = `
 Object {
   "entities": Object {
     "ContinuousSequence": Object {
-      "22": ContinuousSequence {
+      "22": Object {
         "group_a_stats": Object {
           "count": 79557,
           "sum": 3727219.2099861577,

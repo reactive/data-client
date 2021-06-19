@@ -1,4 +1,4 @@
-import { Entity, schema } from '@rest-hooks/normalizr';
+import { schema } from '@rest-hooks/normalizr';
 import type { AbstractInstanceType, Schema } from '@rest-hooks/normalizr';
 import { Endpoint } from '@rest-hooks/endpoint';
 import type {
@@ -7,6 +7,7 @@ import type {
   SchemaList,
 } from '@rest-hooks/endpoint';
 
+import EntityRecord from './EntityRecord';
 import { ReadShape, MutateShape, DeleteShape } from './legacy';
 import { NotImplementedError } from './errors';
 import paramsToString from './paramsToString';
@@ -17,7 +18,7 @@ import { RestEndpoint } from './types';
  *
  * This can be a useful organization for many REST-like API patterns.
  */
-export default abstract class SimpleResource extends Entity {
+export default abstract class SimpleResource extends EntityRecord {
   // typescript todo: require subclasses to implement
   /** Used as base of url construction */
   static readonly urlRoot: string;

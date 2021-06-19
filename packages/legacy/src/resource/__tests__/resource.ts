@@ -2,10 +2,9 @@ import {
   CoolerArticleResource,
   UserResource,
   UrlArticleResource,
-} from '__tests__/common';
+} from '__tests__/legacy';
 import nock from 'nock';
-import { normalize, schema, Entity } from '@rest-hooks/normalizr';
-import { AbstractInstanceType } from '@rest-hooks/core';
+import { normalize, schema } from '@rest-hooks/normalizr';
 
 import Resource from '../Resource';
 import SimpleResource from '../SimpleResource';
@@ -306,10 +305,10 @@ describe('Resource', () => {
 
     it('should GET', async () => {
       const article = await CoolerArticleResource.fetch(
+        'get',
         CoolerArticleResource.url({
           id: payload.id,
         }),
-        { method: 'GET' },
       );
       expect(article).toBeDefined();
       if (!article) {
@@ -321,8 +320,9 @@ describe('Resource', () => {
     it('should POST', async () => {
       const payload2 = { id: 20, content: 'better task' };
       const article = await CoolerArticleResource.fetch(
+        'post',
         CoolerArticleResource.listUrl(),
-        { method: 'POST', body: JSON.stringify(payload2) },
+        JSON.stringify(payload2),
       );
       expect(article).toMatchObject(payload2);
     });
@@ -344,8 +344,9 @@ describe('Resource', () => {
       body.append('photo', newPhoto);
 
       const article = await CoolerArticleResource.fetch(
+        'put',
         CoolerArticleResource.url({ id: '500' }),
-        { method: 'PUT', body },
+        body,
       );
       expect(lastRequest.headers['content-type']).toContain(
         'multipart/form-data',
@@ -355,32 +356,28 @@ describe('Resource', () => {
 
     it('should DELETE', async () => {
       const res = await CoolerArticleResource.fetch(
+        'delete',
         CoolerArticleResource.url({
           id: payload.id,
         }),
-        { method: 'DELETE' },
       );
       expect(res).toEqual({});
     });
 
     it('should PUT', async () => {
       const response = await CoolerArticleResource.fetch(
+        'put',
         CoolerArticleResource.url(payload),
-        {
-          method: 'PUT',
-          body: JSON.stringify(CoolerArticleResource.fromJS(payload)),
-        },
+        { ...CoolerArticleResource.fromJS(payload) },
       );
       expect(response).toEqual(putResponseBody);
     });
 
     it('should PATCH', async () => {
       const response = await CoolerArticleResource.fetch(
+        'patch',
         CoolerArticleResource.url({ id }),
-        {
-          method: 'PATCH',
-          body: JSON.stringify(patchPayload),
-        },
+        JSON.stringify(patchPayload),
       );
       expect(response).toEqual(patchResponseBody);
     });
@@ -389,8 +386,8 @@ describe('Resource', () => {
       let error: any;
       try {
         await CoolerArticleResource.fetch(
+          'get',
           CoolerArticleResource.url({ id: idHtml }),
-          { method: 'GET' },
         );
       } catch (e) {
         error = e;
@@ -417,9 +414,10 @@ describe('Resource', () => {
 
       let error: any;
       try {
-        await CoolerArticleResource.fetch(CoolerArticleResource.url({ id }), {
-          method: 'GET',
-        });
+        await CoolerArticleResource.fetch(
+          'get',
+          CoolerArticleResource.url({ id }),
+        );
       } catch (e) {
         error = e;
       }
@@ -432,8 +430,8 @@ describe('Resource', () => {
 
     it('should return raw response if status is 204 No Content', async () => {
       const res = await CoolerArticleResource.fetch(
+        'get',
         CoolerArticleResource.url({ id: idNoContent }),
-        { method: 'GET' },
       );
       expect(res).toBe('');
     });
@@ -450,8 +448,8 @@ describe('Resource', () => {
         .reply(200, text, { 'content-type': 'html/text' });
 
       const res = await CoolerArticleResource.fetch(
+        'get',
         CoolerArticleResource.url({ id }),
-        { method: 'GET' },
       );
       expect(res).toBe('<body>this is html</body>');
     });
@@ -467,8 +465,8 @@ describe('Resource', () => {
         .reply(200, text, {});
 
       const res = await CoolerArticleResource.fetch(
+        'get',
         CoolerArticleResource.url({ id }),
-        { method: 'GET' },
       );
       expect(res).toBe(text);
     });

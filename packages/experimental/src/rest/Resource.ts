@@ -1,10 +1,10 @@
 import type { SchemaDetail, SchemaList } from '@rest-hooks/endpoint';
 import type { AbstractInstanceType } from '@rest-hooks/normalizr';
+import { schema } from '@rest-hooks/normalizr';
 
 import getArrayPath from './getArrayPath';
 import BaseResource from './BaseResource';
 import type { RestEndpoint, Paginatable } from './types';
-import Delete from '../entity/Delete';
 
 /**
  * Represents an entity to be retrieved from a server.
@@ -119,7 +119,7 @@ export default abstract class Resource extends BaseResource {
     this: T,
   ): RestEndpoint<
     (this: RestEndpoint, params: any) => Promise<any>,
-    Delete<T>,
+    schema.Delete<T>,
     true
   > {
     const endpoint = this.endpointMutate();
@@ -131,7 +131,7 @@ export default abstract class Resource extends BaseResource {
             .then(res => (res ? res : params));
         },
         method: 'DELETE',
-        schema: new Delete(this),
+        schema: new schema.Delete(this),
       }),
     );
   }

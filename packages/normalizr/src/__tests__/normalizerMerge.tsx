@@ -127,11 +127,8 @@ describe('normalizer() merging', () => {
       expect(entities).toMatchInlineSnapshot(`
         Object {
           "http://test.com/article/": Object {
-            "20": ArticleResource {
-              "author": null,
-              "content": "",
+            "20": Object {
               "id": 20,
-              "tags": Array [],
               "title": "hello",
             },
           },

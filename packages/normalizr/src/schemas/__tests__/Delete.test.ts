@@ -7,7 +7,7 @@ import IDEntity from '../../entities/IDEntity';
 import Entity from '../../entities/Entity';
 import { DELETED } from '../../special';
 
-let dateSpy;
+let dateSpy: jest.SpyInstance;
 beforeAll(() => {
   dateSpy = jest
     // eslint-disable-next-line no-undef

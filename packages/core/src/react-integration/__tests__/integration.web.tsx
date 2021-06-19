@@ -8,12 +8,11 @@ import {
   CoolerArticleDetail,
   IndexedUserResource,
 } from '__tests__/common';
-import React from 'react';
 import nock from 'nock';
 import { act } from '@testing-library/react-hooks';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { SimpleRecord } from '@rest-hooks/normalizr';
+import { SimpleRecord } from '@rest-hooks/legacy';
 
 import {
   makeRenderRestHook,

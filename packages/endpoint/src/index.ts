@@ -13,13 +13,7 @@ export type {
   Denormalize,
   DenormalizeNullable,
 } from './normal';
-export {
-  schema,
-  SimpleRecord,
-  Entity,
-  isEntity,
-  DELETED,
-} from '@rest-hooks/normalizr';
+export { schema, Entity, isEntity, DELETED } from '@rest-hooks/normalizr';
 export type { AbstractInstanceType, Schema } from '@rest-hooks/normalizr';
 export type {
   EndpointExtraOptions,

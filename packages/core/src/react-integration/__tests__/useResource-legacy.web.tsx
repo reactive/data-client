@@ -1,12 +1,8 @@
-import { CoolerArticleResource, UserResource } from '__tests__/legacy';
+import { CoolerArticleResource } from '__tests__/legacy';
 import { ReadShape } from '@rest-hooks/core';
-import React, { Suspense } from 'react';
 import nock from 'nock';
 
 // relative imports to avoid circular dependency in tsconfig references
-
-import { SimpleRecord } from '@rest-hooks/normalizr';
-
 import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import { useResource } from '../hooks';
 import { payload, users, nested } from '../test-fixtures';

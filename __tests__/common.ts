@@ -2,13 +2,13 @@ import {
   AbstractInstanceType,
   DeleteShape,
   MutateShape,
-  SimpleRecord,
   ReadShape,
 } from '@rest-hooks/core';
 import { schema } from '@rest-hooks/normalizr';
 import { Endpoint, EndpointExtraOptions } from '@rest-hooks/endpoint';
 import { Resource, SchemaList, SchemaDetail } from '@rest-hooks/rest';
 import React from 'react';
+import { SimpleRecord } from '@rest-hooks/legacy';
 
 export class UserResource extends Resource {
   readonly id: number | undefined = undefined;

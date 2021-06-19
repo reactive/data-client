@@ -9,7 +9,6 @@ export {
   useInvalidator,
   useResetter,
   useDenormalized,
-  SimpleRecord,
   // TODO: get rid of these exports once core has been out for a while
   usePromisifiedDispatch,
   Endpoint,

@@ -1,7 +1,8 @@
 // eslint-env jest
 import { fromJS } from 'immutable';
-import { normalize, schema, denormalize, DELETED } from '@rest-hooks/normalizr';
+import { normalize, denormalize, schema, DELETED } from '@rest-hooks/normalizr';
 
+import Delete from '../Delete';
 import IDEntity from '../IDEntity';
 import Entity from '../Entity';
 
@@ -16,17 +17,17 @@ afterAll(() => {
   dateSpy.mockRestore();
 });
 
-describe(`${schema.Delete.name} normalization`, () => {
+describe(`${Delete.name} normalization`, () => {
   test('throws if not given an entity', () => {
     // @ts-expect-error
-    expect(() => new schema.Delete()).toThrow();
+    expect(() => new Delete()).toThrow();
   });
 
   test('normalizes an object', () => {
     class User extends IDEntity {}
 
     expect(
-      normalize({ id: '1', type: 'users' }, new schema.Delete(User)),
+      normalize({ id: '1', type: 'users' }, new Delete(User)),
     ).toMatchSnapshot();
   });
 
@@ -39,7 +40,7 @@ describe(`${schema.Delete.name} normalization`, () => {
       }
     }
     function normalizeBad() {
-      normalize({ secondthing: 'hi' }, new schema.Delete(MyEntity));
+      normalize({ secondthing: 'hi' }, new Delete(MyEntity));
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
@@ -57,11 +58,7 @@ describe(`${schema.Union.name} denormalization`, () => {
   };
 
   test('denormalizes an object in the same manner as the Entity', () => {
-    const [user, ready, deleted] = denormalize(
-      '1',
-      new schema.Delete(User),
-      entities,
-    );
+    const [user, ready, deleted] = denormalize('1', new Delete(User), entities);
     expect(user).toBeDefined();
     expect(user).toBeInstanceOf(User);
     expect(user?.username).toBe('Janey');
@@ -70,7 +67,7 @@ describe(`${schema.Union.name} denormalization`, () => {
   });
 
   test('denormalizes deleted entities as undefined', () => {
-    const [user, ready, deleted] = denormalize('1', new schema.Delete(User), {
+    const [user, ready, deleted] = denormalize('1', new Delete(User), {
       User: { '1': DELETED },
     });
     expect(user).toBe(undefined);
@@ -80,7 +77,7 @@ describe(`${schema.Union.name} denormalization`, () => {
     expect(
       denormalize(
         { data: '1' },
-        { data: new schema.Delete(User) },
+        { data: new Delete(User) },
         fromJS({ User: { '1': DELETED } }),
       ),
     ).toMatchSnapshot();
