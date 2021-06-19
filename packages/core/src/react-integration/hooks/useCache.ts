@@ -32,7 +32,7 @@ export default function useCache<
     denormalizeCache,
   );
   const expiresAt = useExpiresAt(fetchShape, params, entitiesExpireAt);
-  const error = useError(fetchShape, params, ready);
+  const error = useError(fetchShape, params);
   const trigger = deleted && !error;
 
   /*********** This block is to ensure results are only filled when they would not suspend **************/

@@ -37,7 +37,7 @@ function useOneResource<
     state,
     denormalizeCache,
   );
-  const error = useError(fetchShape, params, ready);
+  const error = useError(fetchShape, params);
 
   const maybePromise = useRetrieve(
     fetchShape,
@@ -89,7 +89,7 @@ function useManyResources<A extends ResourceArgs<any, any>[]>(
       i: number,
     ) =>
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      useError(fetchShape, params, denormalizedValues[i][1]),
+      useError(fetchShape, params),
   );
   const promises = resourceList
     .map(([fetchShape, params], i) =>
