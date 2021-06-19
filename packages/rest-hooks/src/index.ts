@@ -10,10 +10,6 @@ export {
   useResetter,
   useDenormalized,
   SimpleRecord,
-  Entity as NestedEntity,
-  isEntity,
-  FlatEntity as Entity,
-  schema as schemas,
   // TODO: get rid of these exports once core has been out for a while
   usePromisifiedDispatch,
   Endpoint,
@@ -63,8 +59,6 @@ export type {
   NetworkError,
 } from '@rest-hooks/core';
 
-export { Resource, SimpleResource } from '@rest-hooks/legacy';
-export type { SchemaDetail, SchemaList, Method } from '@rest-hooks/legacy';
 export {
   CacheProvider,
   ExternalCacheProvider,

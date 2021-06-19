@@ -1,12 +1,13 @@
-import { SchemaList, schemas, ReadShape, SchemaDetail } from 'rest-hooks';
 import {
   AbstractInstanceType,
   DeleteShape,
   MutateShape,
   SimpleRecord,
+  ReadShape,
 } from '@rest-hooks/core';
+import { schema } from '@rest-hooks/normalizr';
 import { Endpoint, EndpointExtraOptions } from '@rest-hooks/endpoint';
-import { Resource } from '@rest-hooks/rest';
+import { Resource, SchemaList, SchemaDetail } from '@rest-hooks/rest';
 import React from 'react';
 
 export class UserResource extends Resource {
@@ -119,7 +120,7 @@ export class ArticleResource extends Resource {
 
   static deleteShape<T extends typeof Resource>(
     this: T,
-  ): DeleteShape<schemas.Delete<T>, Readonly<object>> {
+  ): DeleteShape<schema.Delete<T>, Readonly<object>> {
     return {
       ...(super.deleteShape() as any),
       options: {
@@ -310,7 +311,7 @@ export class UnionResource extends Resource {
   static detailShape<T extends typeof Resource>(
     this: T,
   ): ReadShape<SchemaDetail<AbstractInstanceType<T>>> {
-    const schema = new schemas.Union(
+    const sch = new schema.Union(
       {
         first: FirstUnionResource,
         second: SecondUnionResource,
@@ -319,15 +320,15 @@ export class UnionResource extends Resource {
     );
     return {
       ...super.detailShape(),
-      schema,
+      schema: sch,
     };
   }
 
   static listShape<T extends typeof Resource>(
     this: T,
   ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
-    const schema = [
-      new schemas.Union(
+    const sch = [
+      new schema.Union(
         {
           first: FirstUnionResource,
           second: SecondUnionResource,
@@ -337,7 +338,7 @@ export class UnionResource extends Resource {
     ];
     return {
       ...super.detailShape(),
-      schema,
+      schema: sch,
     };
   }
 }
