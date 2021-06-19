@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.4.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@7.3.0...@rest-hooks/normalizr@7.4.0) (2021-06-19)
+
+
+### 🚀 Features
+
+* Add Entity.validate() ([#934](https://github.com/coinbase/rest-hooks/issues/934)) ([b236b91](https://github.com/coinbase/rest-hooks/commit/b236b9137043d12de5a07bfd5583b5cb2d15f6cd))
+
+
+### 💅 Enhancement
+
+* Improve normalization speed ([#933](https://github.com/coinbase/rest-hooks/issues/933)) ([e68b0f9](https://github.com/coinbase/rest-hooks/commit/e68b0f955e6fab5a84b07012a84cfd6aef9d35dd))
+
+
+
 ## [7.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@7.2.0...@rest-hooks/normalizr@7.3.0) (2021-06-16)
 
 

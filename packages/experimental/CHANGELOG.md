@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@0.7.0...@rest-hooks/experimental@0.8.0) (2021-06-19)
+
+
+### 🚀 Features
+
+* Add Entity.validate() ([#934](https://github.com/coinbase/rest-hooks/issues/934)) ([b236b91](https://github.com/coinbase/rest-hooks/commit/b236b9137043d12de5a07bfd5583b5cb2d15f6cd))
+
+
+### 💅 Enhancement
+
+* More flexible fetch types to help with inheritance ([#932](https://github.com/coinbase/rest-hooks/issues/932)) ([3ff23cf](https://github.com/coinbase/rest-hooks/commit/3ff23cfbe67be4ce2bf314418bb865b05b94c352))
+
+
+
 ## [0.7.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@0.6.0...@rest-hooks/experimental@0.7.0) (2021-06-16)
 
 
