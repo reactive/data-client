@@ -112,6 +112,65 @@ export default abstract class Entity {
     // pass over already processed entities
     if (typeof input === 'string') return input;
     const processedEntity = this.process(input, parent, key);
+    const id = this.pk(processedEntity, parent, key);
+    if (id === undefined || id === '') {
+      if (process.env.NODE_ENV !== 'production') {
+        const error = new Error(
+          `Missing usable primary key when normalizing response.
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
+
+  Entity: ${this.name}
+  Value (processed): ${
+    processedEntity && JSON.stringify(processedEntity, null, 2)
+  }
+  `,
+        );
+        (error as any).status = 400;
+        throw error;
+      } else {
+        // these make the keys get deleted
+        return undefined;
+      }
+    }
+    const entityType = this.key;
+
+    if (!(entityType in visitedEntities)) {
+      visitedEntities[entityType] = {};
+    }
+    if (!(id in visitedEntities[entityType])) {
+      visitedEntities[entityType][id] = [];
+    }
+    if (
+      visitedEntities[entityType][id].some((entity: any) => entity === input)
+    ) {
+      return id;
+    }
+    this.validate(processedEntity);
+    visitedEntities[entityType][id].push(input);
+
+    Object.keys(this.schema).forEach(key => {
+      if (Object.prototype.hasOwnProperty.call(processedEntity, key)) {
+        const schema = this.schema[key];
+        processedEntity[key] = visit(
+          processedEntity[key],
+          processedEntity,
+          key,
+          schema,
+          addEntity,
+          visitedEntities,
+        );
+      }
+    });
+
+    addEntity(this, processedEntity, id);
+    return id;
+  }
+
+  protected static validate(processedEntity: any) {
     /* istanbul ignore else */
     if (
       process.env.NODE_ENV !== 'production' &&
@@ -207,60 +266,12 @@ First three members: ${JSON.stringify(processedEntity.slice(0, 3), null, 2)}`;
         }
       }
     }
-    const id = this.pk(processedEntity, parent, key);
-    if (id === undefined || id === '') {
-      if (process.env.NODE_ENV !== 'production') {
-        const error = new Error(
-          `Missing usable primary key when normalizing response.
-
-  This is likely due to a malformed response.
-  Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about schemas: https://resthooks.io/docs/api/schema
-
-  Entity: ${this.name}
-  Value (processed): ${
-    processedEntity && JSON.stringify(processedEntity, null, 2)
-  }
-  `,
-        );
-        (error as any).status = 400;
-        throw error;
-      } else {
-        // these make the keys get deleted
-        return undefined;
-      }
-    }
-    const entityType = this.key;
-
-    if (!(entityType in visitedEntities)) {
-      visitedEntities[entityType] = {};
-    }
-    if (!(id in visitedEntities[entityType])) {
-      visitedEntities[entityType][id] = [];
-    }
-    if (
-      visitedEntities[entityType][id].some((entity: any) => entity === input)
-    ) {
-      return id;
-    }
-    visitedEntities[entityType][id].push(input);
-
-    Object.keys(this.schema).forEach(key => {
-      if (Object.hasOwnProperty.call(processedEntity, key)) {
-        const schema = this.schema[key];
-        processedEntity[key] = visit(
-          processedEntity[key],
-          processedEntity,
-          key,
-          schema,
-          addEntity,
-          visitedEntities,
-        );
-      } else if (process.env.NODE_ENV !== 'production') {
-        if (!Object.hasOwnProperty.call(this.defaults, key)) {
-          const error = new Error(
-            `Schema key is missing in Entity
+    if (process.env.NODE_ENV !== 'production') {
+      Object.keys(this.schema).forEach(key => {
+        if (!Object.prototype.hasOwnProperty.call(processedEntity, key)) {
+          if (!Object.prototype.hasOwnProperty.call(this.defaults, key)) {
+            const error = new Error(
+              `Schema key is missing in Entity
 
   Be sure all schema members are also part of the entity
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
@@ -269,15 +280,13 @@ First three members: ${JSON.stringify(processedEntity.slice(0, 3), null, 2)}`;
   Entity keys: ${Object.keys(this.defaults)}
   Schema key(missing): ${key}
   `,
-          );
-          (error as any).status = 400;
-          throw error;
+            );
+            (error as any).status = 400;
+            throw error;
+          }
         }
-      }
-    });
-
-    addEntity(this, processedEntity, id);
-    return id;
+      });
+    }
   }
 
   static infer(args: any[], indexes: NormalizedIndex, recurse: any): any {
@@ -299,10 +308,10 @@ First three members: ${JSON.stringify(processedEntity.slice(0, 3), null, 2)}`;
   }
 
   static expiresAt(
-    { expiresAt }: { expiresAt: number; date: number },
+    meta: { expiresAt: number; date: number },
     input: any,
   ): number {
-    return expiresAt;
+    return meta.expiresAt;
   }
 
   static denormalize<T extends typeof Entity>(
@@ -331,19 +340,22 @@ First three members: ${JSON.stringify(processedEntity.slice(0, 3), null, 2)}`;
     // note: iteration order must be stable
     Object.keys(this.schema).forEach(key => {
       const schema = this.schema[key];
-      const nextInput = Object.hasOwnProperty.call(input, key)
+      const nextInput = Object.prototype.hasOwnProperty.call(input, key)
         ? (input as any)[key]
         : undefined;
       const [value, , deletedItem] = unvisit(nextInput, schema);
 
       if (
         deletedItem &&
-        !(Object.hasOwnProperty.call(input, key) && !this.defaults[key])
+        !(
+          Object.prototype.hasOwnProperty.call(input, key) &&
+          !this.defaults[key]
+        )
       ) {
         deleted = true;
       }
       if (
-        Object.hasOwnProperty.call(input, key) &&
+        Object.prototype.hasOwnProperty.call(input, key) &&
         (input as any)[key] !== value
       ) {
         this.set(entityCopy, key, value);
