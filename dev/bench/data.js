@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1624129847535,
+  "lastUpdate": 1624223454304,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -2128,6 +2128,44 @@ window.BENCHMARK_DATA = {
             "range": "±3.25%",
             "unit": "ops/sec",
             "extra": "43 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "75ebdfe641ccf57fca35c44a94077e4a314e44d7",
+          "message": "enhance: Entities normalize to POJO (#940)\n\nBREAKING CHANGE:\r\n- fromJS() -> process() to customize init\r\n- normalize results in POJO rather than instances\r\n- FlatEntity, SimpleRecord removed (use @rest-hooks/legacy)\r\n- peerDep @rest-hooks/endpoint > 2",
+          "timestamp": "2021-06-20T14:08:21-07:00",
+          "tree_id": "a4085fc8c7028a0e88ad9cc108ac1648a9ec3123",
+          "url": "https://github.com/coinbase/rest-hooks/commit/75ebdfe641ccf57fca35c44a94077e4a314e44d7"
+        },
+        "date": 1624223453642,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 71.84,
+            "range": "±2.28%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 35.92,
+            "range": "±2.03%",
+            "unit": "ops/sec",
+            "extra": "48 samples"
           }
         ]
       }
