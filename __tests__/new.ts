@@ -1,4 +1,5 @@
-import { AbstractInstanceType, SimpleRecord, schema } from '@rest-hooks/core';
+import { AbstractInstanceType, schema } from '@rest-hooks/core';
+import { SimpleRecord } from '@rest-hooks/legacy';
 import {
   Endpoint,
   EndpointExtraOptions,

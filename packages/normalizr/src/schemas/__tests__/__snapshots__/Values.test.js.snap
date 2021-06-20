@@ -200,13 +200,13 @@ exports[`ValuesSchema normalization can use a function to determine the schema w
 Object {
   "entities": Object {
     "Cat": Object {
-      "1": Cat {
+      "1": Object {
         "id": "1",
         "type": "cat",
       },
     },
     "Dog": Object {
-      "1": Dog {
+      "1": Object {
         "id": "1",
         "type": "dog",
       },
@@ -248,7 +248,7 @@ exports[`ValuesSchema normalization filters out null and undefined values 1`] = 
 Object {
   "entities": Object {
     "Cat": Object {
-      "1": Cat {
+      "1": Object {
         "id": "1",
         "type": "cats",
       },
@@ -276,13 +276,13 @@ exports[`ValuesSchema normalization normalizes the values of an object with the 
 Object {
   "entities": Object {
     "Cat": Object {
-      "1": Cat {
+      "1": Object {
         "id": "1",
         "type": "cats",
       },
     },
     "Dog": Object {
-      "1": Dog {
+      "1": Object {
         "id": "1",
         "type": "dogs",
       },
@@ -320,11 +320,11 @@ exports[`ValuesSchema normalization normalizes without schemaAttribute 1`] = `
 Object {
   "entities": Object {
     "MyEntity": Object {
-      "1": MyEntity {
+      "1": Object {
         "id": "1",
         "name": "first thing",
       },
-      "2": MyEntity {
+      "2": Object {
         "id": "2",
         "name": "second thing",
       },
@@ -354,7 +354,7 @@ exports[`ValuesSchema normalization works on complex object 1`] = `
 Object {
   "entities": Object {
     "Estimate": Object {
-      "BTC": Estimate {
+      "BTC": Object {
         "coinbase_fees": Object {
           "amount": "0.00002270",
           "currency": "BTC",
@@ -388,7 +388,7 @@ Object {
           "currency": "BTC",
         },
       },
-      "ETH": Estimate {
+      "ETH": Object {
         "coinbase_fees": Object {
           "amount": "0.00002270",
           "currency": "BTC",

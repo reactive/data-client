@@ -15,7 +15,7 @@ import nock from 'nock';
 
 // relative imports to avoid circular dependency in tsconfig references
 
-import { normalize, SimpleRecord } from '@rest-hooks/normalizr';
+import { normalize } from '@rest-hooks/normalizr';
 
 import {
   makeRenderRestHook,

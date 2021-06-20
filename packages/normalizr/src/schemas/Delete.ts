@@ -3,7 +3,7 @@ import { SchemaClass, UnvisitFunction, EntityInterface } from '../schema';
 import { DELETED } from '../special';
 import type { AbstractInstanceType } from '..';
 
-export default class Delete<E extends EntityInterface & { fromJS: any }>
+export default class Delete<E extends EntityInterface & { process: any }>
   implements SchemaClass
 {
   private declare _entity: E;
@@ -30,8 +30,9 @@ export default class Delete<E extends EntityInterface & { fromJS: any }>
     // pass over already processed entities
     if (typeof input === 'string') return input;
     // TODO: what's store needs to be a differing type from fromJS
-    const processedEntity = this._entity.fromJS(input, parent, key);
-    const id = processedEntity.pk(parent, key);
+    const processedEntity = this._entity.process(input, parent, key);
+    const id = this._entity.pk(processedEntity, parent, key);
+
     if (
       process.env.NODE_ENV !== 'production' &&
       (id === undefined || id === '')

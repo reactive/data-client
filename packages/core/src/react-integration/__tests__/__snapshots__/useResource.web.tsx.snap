@@ -109,18 +109,15 @@ Full Schema: {
 }
 
 Error:
-Attempted to initialize CoolerArticleResource with no matching keys found
+Attempted to initialize CoolerArticleResource with an array, but named members were expected
 
-  This is likely due to a malformed response.
-  Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about schemas: https://resthooks.io/docs/api/schema
-  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
+This is likely due to a malformed response.
+Try inspecting the network response or fetch() return value.
+Or use debugging tools: https://resthooks.io/docs/guides/debugging
+Learn more about schemas: https://resthooks.io/docs/api/schema
+If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
-  Expected keys:
-    Found: 
-    Missing: id,title,content,author,tags
-  Value: {}]
+First three members: []]
 `;
 
 exports[`useResource() should throw error when response is array when expecting entity 1`] = `
@@ -139,18 +136,15 @@ Full Schema: {
 }
 
 Error:
-Attempted to initialize CoolerArticleResource with no matching keys found
+Attempted to initialize CoolerArticleResource with an array, but named members were expected
 
-  This is likely due to a malformed response.
-  Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about schemas: https://resthooks.io/docs/api/schema
-  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
+This is likely due to a malformed response.
+Try inspecting the network response or fetch() return value.
+Or use debugging tools: https://resthooks.io/docs/guides/debugging
+Learn more about schemas: https://resthooks.io/docs/api/schema
+If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
-  Expected keys:
-    Found: 
-    Missing: id,title,content,author,tags
-  Value: {}]
+First three members: []]
 `;
 
 exports[`useResource() should throw error when response is number when expecting entity 1`] = `
@@ -169,18 +163,15 @@ Full Schema: {
 }
 
 Error:
-Attempted to initialize CoolerArticleResource with no matching keys found
+Attempted to initialize CoolerArticleResource with an array, but named members were expected
 
-  This is likely due to a malformed response.
-  Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about schemas: https://resthooks.io/docs/api/schema
-  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
+This is likely due to a malformed response.
+Try inspecting the network response or fetch() return value.
+Or use debugging tools: https://resthooks.io/docs/guides/debugging
+Learn more about schemas: https://resthooks.io/docs/api/schema
+If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
-  Expected keys:
-    Found: 
-    Missing: id,title,content,author,tags
-  Value: {}]
+First three members: []]
 `;
 
 exports[`useResource() should throw error when response is string when expecting entity 1`] = `
@@ -199,16 +190,13 @@ Full Schema: {
 }
 
 Error:
-Attempted to initialize CoolerArticleResource with no matching keys found
+Attempted to initialize CoolerArticleResource with an array, but named members were expected
 
-  This is likely due to a malformed response.
-  Try inspecting the network response or fetch() return value.
-  Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about schemas: https://resthooks.io/docs/api/schema
-  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
+This is likely due to a malformed response.
+Try inspecting the network response or fetch() return value.
+Or use debugging tools: https://resthooks.io/docs/guides/debugging
+Learn more about schemas: https://resthooks.io/docs/api/schema
+If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
-  Expected keys:
-    Found: 
-    Missing: id,title,content,author,tags
-  Value: {}]
+First three members: []]
 `;

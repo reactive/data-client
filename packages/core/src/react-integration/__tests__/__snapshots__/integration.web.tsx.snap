@@ -108,7 +108,6 @@ Or use debugging tools: https://resthooks.io/docs/guides/debugging
 Learn more about schemas: https://resthooks.io/docs/api/schema
 If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
-Missing: id,title,content,author,tags
 First three members: [
   1
 ]]
@@ -222,7 +221,6 @@ Or use debugging tools: https://resthooks.io/docs/guides/debugging
 Learn more about schemas: https://resthooks.io/docs/api/schema
 If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
 
-Missing: id,title,content,author,tags
 First three members: [
   1
 ]]

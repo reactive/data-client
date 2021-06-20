@@ -15,7 +15,8 @@ import nock from 'nock';
 import { act } from '@testing-library/react-hooks';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { SimpleRecord, schema, Entity } from '@rest-hooks/normalizr';
+import { schema, Entity } from '@rest-hooks/normalizr';
+import { SimpleRecord } from '@rest-hooks/legacy';
 import { Endpoint } from '@rest-hooks/endpoint';
 import { useContext } from 'react';
 

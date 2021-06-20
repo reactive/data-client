@@ -80,6 +80,6 @@
     "@babel/runtime": "^7.7.2"
   },
   "peerDependencies": {
-    "@rest-hooks/endpoint": "^0.6.1 || ^1.0.0"
+    "@rest-hooks/endpoint": "^2.0.0"
   }
 }

@@ -3,8 +3,6 @@ import { normalize } from './normalize';
 import WeakListMap from './WeakListMap';
 import * as schema from './schema';
 import Entity, { isEntity } from './entities/Entity';
-import SimpleRecord from './entities/SimpleRecord';
-export { default as FlatEntity } from './entities/FlatEntity';
 export { default as inferResults } from './inferResults';
 export { DELETED } from './special';
 
@@ -22,12 +20,4 @@ export type {
   DenormalizeCache,
 } from './types';
 
-export {
-  denormalize,
-  schema,
-  normalize,
-  SimpleRecord,
-  Entity,
-  isEntity,
-  WeakListMap,
-};
+export { denormalize, schema, normalize, Entity, isEntity, WeakListMap };

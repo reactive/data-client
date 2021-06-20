@@ -236,7 +236,7 @@ exports[`normalize can use fully custom entity classes 1`] = `
 Object {
   "entities": Object {
     "Children": Object {
-      "4": Children {
+      "4": Object {
         "id": 4,
         "name": "lettuce",
       },
@@ -310,11 +310,11 @@ exports[`normalize normalizes entities 1`] = `
 Object {
   "entities": Object {
     "Tacos": Object {
-      "1": Tacos {
+      "1": Object {
         "id": "1",
         "type": "foo",
       },
-      "2": Tacos {
+      "2": Object {
         "id": "2",
         "type": "bar",
       },
@@ -344,7 +344,7 @@ exports[`normalize normalizes entities with circular references 1`] = `
 Object {
   "entities": Object {
     "User": Object {
-      "123": User {
+      "123": Object {
         "friends": Array [
           "123",
         ],
@@ -369,7 +369,7 @@ exports[`normalize normalizes nested entities 1`] = `
 Object {
   "entities": Object {
     "Article": Object {
-      "123": Article {
+      "123": Object {
         "author": "8472",
         "body": "This article is great.",
         "comments": Array [
@@ -380,18 +380,18 @@ Object {
       },
     },
     "Comment": Object {
-      "comment-123-4738": Comment {
+      "comment-123-4738": Object {
         "comment": "I like it!",
         "id": "comment-123-4738",
         "user": "10293",
       },
     },
     "User": Object {
-      "10293": User {
+      "10293": Object {
         "id": "10293",
         "name": "Jane",
       },
-      "8472": User {
+      "8472": Object {
         "id": "8472",
         "name": "Paul",
       },
@@ -430,11 +430,11 @@ exports[`normalize normalizes schema with extra members 1`] = `
 Object {
   "entities": Object {
     "Tacos": Object {
-      "1": Tacos {
+      "1": Object {
         "id": "1",
         "type": "foo",
       },
-      "2": Tacos {
+      "2": Object {
         "id": "2",
         "type": "bar",
       },
@@ -477,11 +477,11 @@ exports[`normalize normalizes schema with extra members but not set 1`] = `
 Object {
   "entities": Object {
     "Tacos": Object {
-      "1": Tacos {
+      "1": Object {
         "id": "1",
         "type": "foo",
       },
-      "2": Tacos {
+      "2": Object {
         "id": "2",
         "type": "bar",
       },
@@ -513,11 +513,11 @@ exports[`normalize normalizes schema with indexes 1`] = `
 Object {
   "entities": Object {
     "MyTaco": Object {
-      "1": MyTaco {
+      "1": Object {
         "id": "1",
         "type": "foo",
       },
-      "2": MyTaco {
+      "2": Object {
         "id": "2",
         "type": "bar2",
       },
@@ -558,11 +558,11 @@ exports[`normalize normalizes warns on schemas with unfound indexes 1`] = `
 Object {
   "entities": Object {
     "MyTaco": Object {
-      "1": MyTaco {
+      "1": Object {
         "id": "1",
         "type": "foo",
       },
-      "2": MyTaco {
+      "2": Object {
         "id": "2",
         "type": "bar2",
       },
@@ -599,7 +599,7 @@ exports[`normalize passes over pre-normalized values 1`] = `
 Object {
   "entities": Object {
     "Article": Object {
-      "123": Article {
+      "123": Object {
         "author": "1",
         "id": "123",
         "title": "normalizr is great!",
@@ -634,12 +634,12 @@ exports[`normalize uses the non-normalized input when getting the ID for an enti
 Object {
   "entities": Object {
     "Recommendations": Object {
-      "456": Recommendations {
+      "456": Object {
         "user": "456",
       },
     },
     "User": Object {
-      "456": User {
+      "456": Object {
         "id": "456",
       },
     },
@@ -666,7 +666,7 @@ Object {
 exports[`normalize uses the non-normalized input when getting the ID for an entity 2`] = `
 Array [
   Array [
-    Recommendations {
+    Object {
       "user": "456",
     },
     Object {

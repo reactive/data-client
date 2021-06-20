@@ -3,7 +3,6 @@ import {
   normalize,
   schema,
   Entity,
-  SimpleRecord,
   AbstractInstanceType,
 } from '../src';
 
@@ -28,7 +27,7 @@ class Tweet extends Entity {
 
   static schema = { user: User };
 
-  static fromJS<T extends typeof SimpleRecord>(
+  static fromJS<T extends typeof Entity>(
     this: T,
     // TODO: this should only accept members that are not functions
     props: Partial<AbstractInstanceType<T>> = {},
@@ -40,18 +39,13 @@ class Tweet extends Entity {
     return super.fromJS(entityWithoutUrl) as any;
   }
 
-  static merge<T extends typeof SimpleRecord>(
-    this: T,
-    existing: AbstractInstanceType<T>,
-    incoming: AbstractInstanceType<T>,
-  ) {
+  static merge<T extends typeof Entity>(this: T, existing: any, incoming: any) {
     // Apply everything from entityB over entityA, except for "favorites"
-    const props = Object.assign(
-      this.toObjectDefined(existing),
-      this.toObjectDefined(incoming),
-      { favorites: (existing as Tweet).favorites },
-    );
-    return this.fromJS(props);
+    return {
+      ...existing,
+      ...incoming,
+      favorites: (existing as Tweet).favorites,
+    };
   }
 }
 

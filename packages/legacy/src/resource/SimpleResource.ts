@@ -1,6 +1,5 @@
 /* istanbul ignore file */
 
-import { FlatEntity } from '@rest-hooks/core';
 import type {
   FetchOptions,
   AbstractInstanceType,
@@ -9,6 +8,7 @@ import type {
   DeleteShape,
 } from '@rest-hooks/core';
 
+import FlatEntity from './FlatEntity';
 import Delete from './Delete';
 import { SchemaDetail, Method, SchemaList } from './types';
 import { NotImplementedError } from './errors';

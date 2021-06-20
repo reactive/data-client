@@ -7,10 +7,10 @@ import {
   photoShape,
 } from '__tests__/common';
 import { createEntityMeta } from '__tests__/utils';
-import { denormalize, normalize, NormalizedIndex } from '@rest-hooks/normalizr';
+import { normalize, NormalizedIndex } from '@rest-hooks/normalizr';
 import { initialState } from '@rest-hooks/core/state/reducer';
 import { renderHook, act } from '@testing-library/react-hooks';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 import useDenormalized from '../useDenormalized';
 

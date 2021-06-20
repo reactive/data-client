@@ -1,8 +1,8 @@
 import { Endpoint } from '@rest-hooks/endpoint';
 import type { EndpointExtraOptions } from '@rest-hooks/endpoint';
 import type { Schema } from '@rest-hooks/normalizr';
+import { EntityRecord } from '@rest-hooks/rest';
 
-import Entity from '../entity/EntityRecord';
 import paramsToString from './paramsToString';
 import { RestEndpoint } from './types';
 
@@ -22,7 +22,7 @@ class NetworkError extends Error {
  *
  * This can be a useful organization for many REST-like API patterns.
  */
-export default abstract class BaseResource extends Entity {
+export default abstract class BaseResource extends EntityRecord {
   // typescript todo: require subclasses to implement
   /** Used as base of url construction */
   static readonly urlRoot: string;

@@ -362,10 +362,10 @@ exports[`ArraySchema denormalization Class does not assume mapping of schema to 
 Object {
   "entities": Object {
     "Cat": Object {
-      "1": Cat {
+      "1": Object {
         "id": "1",
       },
-      "2": Cat {
+      "2": Object {
         "id": "2",
       },
     },
@@ -760,7 +760,7 @@ exports[`ArraySchema normalization Class filters out undefined and null normaliz
 Object {
   "entities": Object {
     "User": Object {
-      "123": User {
+      "123": Object {
         "id": "123",
       },
     },
@@ -784,10 +784,10 @@ exports[`ArraySchema normalization Class normalizes Objects using their values 1
 Object {
   "entities": Object {
     "User": Object {
-      "1": User {
+      "1": Object {
         "id": "1",
       },
-      "2": User {
+      "2": Object {
         "id": "2",
       },
     },
@@ -816,10 +816,10 @@ exports[`ArraySchema normalization Class normalizes a single entity 1`] = `
 Object {
   "entities": Object {
     "Cats": Object {
-      "1": Cats {
+      "1": Object {
         "id": "1",
       },
-      "2": Cats {
+      "2": Object {
         "id": "2",
       },
     },
@@ -848,17 +848,17 @@ exports[`ArraySchema normalization Class normalizes multiple entities 1`] = `
 Object {
   "entities": Object {
     "Cats": Object {
-      "123": Cats {
+      "123": Object {
         "id": "123",
         "type": "Cat",
       },
-      "456": Cats {
+      "456": Object {
         "id": "456",
         "type": "Cat",
       },
     },
     "Person": Object {
-      "123": Person {
+      "123": Object {
         "id": "123",
         "type": "people",
       },
@@ -1113,10 +1113,10 @@ exports[`ArraySchema normalization Object normalizes Objects using their values 
 Object {
   "entities": Object {
     "User": Object {
-      "1": User {
+      "1": Object {
         "id": "1",
       },
-      "2": User {
+      "2": Object {
         "id": "2",
       },
     },
@@ -1145,10 +1145,10 @@ exports[`ArraySchema normalization Object normalizes plain arrays as shorthand f
 Object {
   "entities": Object {
     "User": Object {
-      "1": User {
+      "1": Object {
         "id": "1",
       },
-      "2": User {
+      "2": Object {
         "id": "2",
       },
     },
@@ -1177,15 +1177,13 @@ exports[`ArraySchema normalization Object passes its parent to its children when
 Object {
   "entities": Object {
     "Child": Object {
-      "4": Child {
+      "4": Object {
         "content": "child",
         "id": 4,
-        "parentId": "1",
-        "parentKey": "children",
       },
     },
     "Parent": Object {
-      "1": Parent {
+      "1": Object {
         "children": Array [
           "4",
         ],

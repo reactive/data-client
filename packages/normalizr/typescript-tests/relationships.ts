@@ -1,11 +1,11 @@
-import { normalize, schema, SimpleRecord, AbstractInstanceType } from '../src';
+import { normalize, schema, Entity, AbstractInstanceType } from '../src';
 import IDEntity from '../src/entities/IDEntity';
 
 class User extends IDEntity {
   readonly posts: string[] = [];
   readonly comments: string[] = [];
 
-  static fromJS<T extends typeof SimpleRecord>(
+  static fromJS<T extends typeof Entity>(
     this: T,
     props: Partial<AbstractInstanceType<T>> = {},
     parent?: any,
@@ -27,28 +27,21 @@ class User extends IDEntity {
     }
   }
 
-  static merge<T extends typeof SimpleRecord>(
-    this: T,
-    existing: any,
-    incoming: any,
-  ) {
+  static merge<T extends typeof Entity>(this: T, existing: any, incoming: any) {
     // Apply everything from entityB over entityA, except for "favorites"
-    const props = Object.assign(
-      this.toObjectDefined(existing),
-      this.toObjectDefined(incoming),
-      {
-        posts: [...(existing.posts || []), ...(incoming.posts || [])],
-        comments: [...(existing.comments || []), ...(incoming.comments || [])],
-      },
-    );
-    return this.fromJS(props);
+    return {
+      ...existing,
+      ...incoming,
+      posts: [...(existing.posts || []), ...(incoming.posts || [])],
+      comments: [...(existing.comments || []), ...(incoming.comments || [])],
+    };
   }
 }
 
 class Comment extends IDEntity {
   static schema = { commenter: User };
 
-  static fromJS<T extends typeof SimpleRecord>(
+  static fromJS<T extends typeof Entity>(
     this: T,
     props: Partial<AbstractInstanceType<T>> = {},
     parent?: any,

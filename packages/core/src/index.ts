@@ -24,8 +24,6 @@ export {
   DenormalizeCacheContext,
 } from './react-integration/context';
 
-export { FlatEntity } from '@rest-hooks/normalizr';
-
 export * from './state/actions';
 export * as actionTypes from './actionTypes';
 export * from '@rest-hooks/use-enhanced-reducer';
