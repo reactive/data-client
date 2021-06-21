@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1624223454304,
+  "lastUpdate": 1624260836299,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -2166,6 +2166,44 @@ window.BENCHMARK_DATA = {
             "range": "±2.03%",
             "unit": "ops/sec",
             "extra": "48 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "43f687eb72b982eb95d1bf115f74103c9a286963",
+          "message": "internal: bump inquirer in /packages/normalizr/examples/redux (#946)\n\nBumps [inquirer](https://github.com/SBoudrias/Inquirer.js) from 8.1.0 to 8.1.1.\n- [Release notes](https://github.com/SBoudrias/Inquirer.js/releases)\n- [Commits](https://github.com/SBoudrias/Inquirer.js/compare/inquirer@8.1.0...inquirer@8.1.1)\n\n---\nupdated-dependencies:\n- dependency-name: inquirer\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\n\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2021-06-21T02:23:10-05:00",
+          "tree_id": "6ae192bcc51807fb661ef91c9f6960adc25d3e80",
+          "url": "https://github.com/coinbase/rest-hooks/commit/43f687eb72b982eb95d1bf115f74103c9a286963"
+        },
+        "date": 1624260835453,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 67.28,
+            "range": "±1.75%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 33.31,
+            "range": "±3.27%",
+            "unit": "ops/sec",
+            "extra": "60 samples"
           }
         ]
       }
