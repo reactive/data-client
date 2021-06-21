@@ -1,0 +1,883 @@
+{
+  "entities": {
+    "User": {
+      "123916": {
+        "login": "lucasdidur",
+        "id": 123916,
+        "node_id": "MDQ6VXNlcjEyMzkxNg==",
+        "avatar_url": "https://avatars.githubusercontent.com/u/123916?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/lucasdidur",
+        "html_url": "https://github.com/lucasdidur",
+        "followers_url": "https://api.github.com/users/lucasdidur/followers",
+        "following_url": "https://api.github.com/users/lucasdidur/following{/other_user}",
+        "gists_url": "https://api.github.com/users/lucasdidur/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/lucasdidur/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/lucasdidur/subscriptions",
+        "organizations_url": "https://api.github.com/users/lucasdidur/orgs",
+        "repos_url": "https://api.github.com/users/lucasdidur/repos",
+        "events_url": "https://api.github.com/users/lucasdidur/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/lucasdidur/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "866147": {
+        "login": "ntucker",
+        "id": 866147,
+        "node_id": "MDQ6VXNlcjg2NjE0Nw==",
+        "avatar_url": "https://avatars.githubusercontent.com/u/866147?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/ntucker",
+        "html_url": "https://github.com/ntucker",
+        "followers_url": "https://api.github.com/users/ntucker/followers",
+        "following_url": "https://api.github.com/users/ntucker/following{/other_user}",
+        "gists_url": "https://api.github.com/users/ntucker/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/ntucker/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/ntucker/subscriptions",
+        "organizations_url": "https://api.github.com/users/ntucker/orgs",
+        "repos_url": "https://api.github.com/users/ntucker/repos",
+        "events_url": "https://api.github.com/users/ntucker/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/ntucker/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "2991360": {
+        "login": "AndrewPrifer",
+        "id": 2991360,
+        "node_id": "MDQ6VXNlcjI5OTEzNjA=",
+        "avatar_url": "https://avatars.githubusercontent.com/u/2991360?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/AndrewPrifer",
+        "html_url": "https://github.com/AndrewPrifer",
+        "followers_url": "https://api.github.com/users/AndrewPrifer/followers",
+        "following_url": "https://api.github.com/users/AndrewPrifer/following{/other_user}",
+        "gists_url": "https://api.github.com/users/AndrewPrifer/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/AndrewPrifer/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/AndrewPrifer/subscriptions",
+        "organizations_url": "https://api.github.com/users/AndrewPrifer/orgs",
+        "repos_url": "https://api.github.com/users/AndrewPrifer/repos",
+        "events_url": "https://api.github.com/users/AndrewPrifer/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/AndrewPrifer/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "3153380": {
+        "login": "uxxman",
+        "id": 3153380,
+        "node_id": "MDQ6VXNlcjMxNTMzODA=",
+        "avatar_url": "https://avatars.githubusercontent.com/u/3153380?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/uxxman",
+        "html_url": "https://github.com/uxxman",
+        "followers_url": "https://api.github.com/users/uxxman/followers",
+        "following_url": "https://api.github.com/users/uxxman/following{/other_user}",
+        "gists_url": "https://api.github.com/users/uxxman/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/uxxman/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/uxxman/subscriptions",
+        "organizations_url": "https://api.github.com/users/uxxman/orgs",
+        "repos_url": "https://api.github.com/users/uxxman/repos",
+        "events_url": "https://api.github.com/users/uxxman/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/uxxman/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "6308123": {
+        "login": "kmartinezmedia",
+        "id": 6308123,
+        "node_id": "MDQ6VXNlcjYzMDgxMjM=",
+        "avatar_url": "https://avatars.githubusercontent.com/u/6308123?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/kmartinezmedia",
+        "html_url": "https://github.com/kmartinezmedia",
+        "followers_url": "https://api.github.com/users/kmartinezmedia/followers",
+        "following_url": "https://api.github.com/users/kmartinezmedia/following{/other_user}",
+        "gists_url": "https://api.github.com/users/kmartinezmedia/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/kmartinezmedia/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/kmartinezmedia/subscriptions",
+        "organizations_url": "https://api.github.com/users/kmartinezmedia/orgs",
+        "repos_url": "https://api.github.com/users/kmartinezmedia/repos",
+        "events_url": "https://api.github.com/users/kmartinezmedia/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/kmartinezmedia/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "11815707": {
+        "login": "Murray2015",
+        "id": 11815707,
+        "node_id": "MDQ6VXNlcjExODE1NzA3",
+        "avatar_url": "https://avatars.githubusercontent.com/u/11815707?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/Murray2015",
+        "html_url": "https://github.com/Murray2015",
+        "followers_url": "https://api.github.com/users/Murray2015/followers",
+        "following_url": "https://api.github.com/users/Murray2015/following{/other_user}",
+        "gists_url": "https://api.github.com/users/Murray2015/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/Murray2015/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/Murray2015/subscriptions",
+        "organizations_url": "https://api.github.com/users/Murray2015/orgs",
+        "repos_url": "https://api.github.com/users/Murray2015/repos",
+        "events_url": "https://api.github.com/users/Murray2015/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/Murray2015/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "17429390": {
+        "login": "resolritter",
+        "id": 17429390,
+        "node_id": "MDQ6VXNlcjE3NDI5Mzkw",
+        "avatar_url": "https://avatars.githubusercontent.com/u/17429390?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/resolritter",
+        "html_url": "https://github.com/resolritter",
+        "followers_url": "https://api.github.com/users/resolritter/followers",
+        "following_url": "https://api.github.com/users/resolritter/following{/other_user}",
+        "gists_url": "https://api.github.com/users/resolritter/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/resolritter/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/resolritter/subscriptions",
+        "organizations_url": "https://api.github.com/users/resolritter/orgs",
+        "repos_url": "https://api.github.com/users/resolritter/repos",
+        "events_url": "https://api.github.com/users/resolritter/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/resolritter/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "38386724": {
+        "login": "SalttySugar",
+        "id": 38386724,
+        "node_id": "MDQ6VXNlcjM4Mzg2NzI0",
+        "avatar_url": "https://avatars.githubusercontent.com/u/38386724?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/SalttySugar",
+        "html_url": "https://github.com/SalttySugar",
+        "followers_url": "https://api.github.com/users/SalttySugar/followers",
+        "following_url": "https://api.github.com/users/SalttySugar/following{/other_user}",
+        "gists_url": "https://api.github.com/users/SalttySugar/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/SalttySugar/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/SalttySugar/subscriptions",
+        "organizations_url": "https://api.github.com/users/SalttySugar/orgs",
+        "repos_url": "https://api.github.com/users/SalttySugar/repos",
+        "events_url": "https://api.github.com/users/SalttySugar/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/SalttySugar/received_events",
+        "type": "User",
+        "site_admin": false
+      }
+    },
+    "PullRequest": {
+      "660408392": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/issues/369",
+        "repository_url": "https://api.github.com/repos/coinbase/rest-hooks",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/369/labels{/name}",
+        "comments_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/369/comments",
+        "events_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/369/events",
+        "html_url": "https://github.com/coinbase/rest-hooks/pull/369",
+        "id": 660408392,
+        "node_id": "MDExOlB1bGxSZXF1ZXN0NDUyMTY3NTg0",
+        "number": 369,
+        "title": "feat: Use Endpoint in rest hoooks",
+        "user": "866147",
+        "labels": [],
+        "state": "open",
+        "locked": false,
+        "assignee": null,
+        "assignees": [],
+        "milestone": null,
+        "comments": 0,
+        "created_at": "2020-07-18T22:03:29Z",
+        "updated_at": "2021-02-05T05:18:12Z",
+        "closed_at": null,
+        "author_association": "COLLABORATOR",
+        "active_lock_reason": null,
+        "pull_request": {
+          "url": "https://api.github.com/repos/coinbase/rest-hooks/pulls/369",
+          "html_url": "https://github.com/coinbase/rest-hooks/pull/369",
+          "diff_url": "https://github.com/coinbase/rest-hooks/pull/369.diff",
+          "patch_url": "https://github.com/coinbase/rest-hooks/pull/369.patch"
+        },
+        "body": "BREAKING CHANGE: internals all use Endpoint\r\n\r\n<!--\r\nMake sure to run yarn test:coverage to ensure coverage doesn't decrease\r\n-->\r\n\r\nFixes # .\r\n\r\n### Motivation\r\n<!--\r\nDoes this solve a bug? Enable a new use-case? Improve an existing behavior? Concrete examples are helpful here.\r\n-->\r\n\r\n### Solution\r\n<!--\r\nWhat is the solution here from a high level. What are the key technical decisions and why were they made?\r\n-->\r\n\r\n### Open questions\r\n<!--\r\n(optional) Any open questions or feedback on design desired?\r\n-->\r\n",
+        "performed_via_github_app": null
+      },
+      "787883024": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/issues/477",
+        "repository_url": "https://api.github.com/repos/coinbase/rest-hooks",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/477/labels{/name}",
+        "comments_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/477/comments",
+        "events_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/477/events",
+        "html_url": "https://github.com/coinbase/rest-hooks/pull/477",
+        "id": 787883024,
+        "node_id": "MDExOlB1bGxSZXF1ZXN0NTU2NDgxOTU2",
+        "number": 477,
+        "title": "docs: Add packages docs page",
+        "user": "866147",
+        "labels": [],
+        "state": "open",
+        "locked": false,
+        "assignee": null,
+        "assignees": [],
+        "milestone": null,
+        "comments": 1,
+        "created_at": "2021-01-18T03:22:57Z",
+        "updated_at": "2021-01-18T03:26:14Z",
+        "closed_at": null,
+        "author_association": "COLLABORATOR",
+        "active_lock_reason": null,
+        "pull_request": {
+          "url": "https://api.github.com/repos/coinbase/rest-hooks/pulls/477",
+          "html_url": "https://github.com/coinbase/rest-hooks/pull/477",
+          "diff_url": "https://github.com/coinbase/rest-hooks/pull/477.diff",
+          "patch_url": "https://github.com/coinbase/rest-hooks/pull/477.patch"
+        },
+        "body": "<!--\r\nMake sure to run yarn test:coverage to ensure coverage doesn't decrease\r\n-->\r\n\r\nFixes # .\r\n\r\n### Motivation\r\n<!--\r\nDoes this solve a bug? Enable a new use-case? Improve an existing behavior? Concrete examples are helpful here.\r\n-->\r\n\r\n### Solution\r\n<!--\r\nWhat is the solution here from a high level. What are the key technical decisions and why were they made?\r\n-->\r\n\r\n### Open questions\r\n<!--\r\n(optional) Any open questions or feedback on design desired?\r\n-->\r\n",
+        "performed_via_github_app": null
+      },
+      "813074012": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/issues/553",
+        "repository_url": "https://api.github.com/repos/coinbase/rest-hooks",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/553/labels{/name}",
+        "comments_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/553/comments",
+        "events_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/553/events",
+        "html_url": "https://github.com/coinbase/rest-hooks/pull/553",
+        "id": 813074012,
+        "node_id": "MDExOlB1bGxSZXF1ZXN0NTc3Mjc5MTE2",
+        "number": 553,
+        "title": "internal(fix): Update fetch polyfill for tests and fix some tests",
+        "user": "866147",
+        "labels": [],
+        "state": "open",
+        "locked": false,
+        "assignee": null,
+        "assignees": [],
+        "milestone": null,
+        "comments": 2,
+        "created_at": "2021-02-22T03:18:33Z",
+        "updated_at": "2021-06-16T14:02:27Z",
+        "closed_at": null,
+        "author_association": "COLLABORATOR",
+        "active_lock_reason": null,
+        "pull_request": {
+          "url": "https://api.github.com/repos/coinbase/rest-hooks/pulls/553",
+          "html_url": "https://github.com/coinbase/rest-hooks/pull/553",
+          "diff_url": "https://github.com/coinbase/rest-hooks/pull/553.diff",
+          "patch_url": "https://github.com/coinbase/rest-hooks/pull/553.patch"
+        },
+        "body": "<!--\r\nMake sure to run yarn test:coverage to ensure coverage doesn't decrease\r\n-->\r\n\r\nFixes # .\r\n\r\n### Motivation\r\n<!--\r\nDoes this solve a bug? Enable a new use-case? Improve an existing behavior? Concrete examples are helpful here.\r\n-->\r\n\r\n### Solution\r\n<!--\r\nWhat is the solution here from a high level. What are the key technical decisions and why were they made?\r\n-->\r\n\r\n### Open questions\r\n<!--\r\n(optional) Any open questions or feedback on design desired?\r\n-->\r\n",
+        "performed_via_github_app": null
+      },
+      "821318384": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/issues/614",
+        "repository_url": "https://api.github.com/repos/coinbase/rest-hooks",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/614/labels{/name}",
+        "comments_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/614/comments",
+        "events_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/614/events",
+        "html_url": "https://github.com/coinbase/rest-hooks/pull/614",
+        "id": 821318384,
+        "node_id": "MDExOlB1bGxSZXF1ZXN0NTg0MTMwNjQ3",
+        "number": 614,
+        "title": "docs: Add endpoint introduction",
+        "user": "866147",
+        "labels": [],
+        "state": "open",
+        "locked": false,
+        "assignee": null,
+        "assignees": [],
+        "milestone": null,
+        "comments": 1,
+        "created_at": "2021-03-03T17:20:19Z",
+        "updated_at": "2021-06-17T18:34:15Z",
+        "closed_at": null,
+        "author_association": "COLLABORATOR",
+        "active_lock_reason": null,
+        "pull_request": {
+          "url": "https://api.github.com/repos/coinbase/rest-hooks/pulls/614",
+          "html_url": "https://github.com/coinbase/rest-hooks/pull/614",
+          "diff_url": "https://github.com/coinbase/rest-hooks/pull/614.diff",
+          "patch_url": "https://github.com/coinbase/rest-hooks/pull/614.patch"
+        },
+        "body": "<!--\r\nMake sure to run yarn test:coverage to ensure coverage doesn't decrease\r\n-->\r\n\r\nFixes # .\r\n\r\n### Motivation\r\n<!--\r\nDoes this solve a bug? Enable a new use-case? Improve an existing behavior? Concrete examples are helpful here.\r\n-->\r\n\r\n### Solution\r\n<!--\r\nWhat is the solution here from a high level. What are the key technical decisions and why were they made?\r\n-->\r\n\r\n### Open questions\r\n<!--\r\n(optional) Any open questions or feedback on design desired?\r\n-->\r\n",
+        "performed_via_github_app": null
+      },
+      "903017025": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/issues/867",
+        "repository_url": "https://api.github.com/repos/coinbase/rest-hooks",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/867/labels{/name}",
+        "comments_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/867/comments",
+        "events_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/867/events",
+        "html_url": "https://github.com/coinbase/rest-hooks/pull/867",
+        "id": 903017025,
+        "node_id": "MDExOlB1bGxSZXF1ZXN0NjU0MzIyMzE2",
+        "number": 867,
+        "title": "pkg: Upgrade jest to 27",
+        "user": "866147",
+        "labels": [],
+        "state": "open",
+        "locked": false,
+        "assignee": null,
+        "assignees": [],
+        "milestone": null,
+        "comments": 1,
+        "created_at": "2021-05-26T23:22:51Z",
+        "updated_at": "2021-05-30T05:00:24Z",
+        "closed_at": null,
+        "author_association": "COLLABORATOR",
+        "active_lock_reason": null,
+        "pull_request": {
+          "url": "https://api.github.com/repos/coinbase/rest-hooks/pulls/867",
+          "html_url": "https://github.com/coinbase/rest-hooks/pull/867",
+          "diff_url": "https://github.com/coinbase/rest-hooks/pull/867.diff",
+          "patch_url": "https://github.com/coinbase/rest-hooks/pull/867.patch"
+        },
+        "body": "### Motivation\r\n<!--\r\nDoes this solve a bug? Enable a new use-case? Improve an existing behavior? Concrete examples are helpful here.\r\n-->\r\n\r\n### Solution\r\n<!--\r\nWhat is the solution here from a high level. What are the key technical decisions and why were they made?\r\n-->\r\n\r\n### Open questions\r\n<!--\r\n(optional) Any open questions or feedback on design desired?\r\n-->\r\n",
+        "performed_via_github_app": null
+      },
+      "925514970": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/issues/941",
+        "repository_url": "https://api.github.com/repos/coinbase/rest-hooks",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/941/labels{/name}",
+        "comments_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/941/comments",
+        "events_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/941/events",
+        "html_url": "https://github.com/coinbase/rest-hooks/pull/941",
+        "id": 925514970,
+        "node_id": "MDExOlB1bGxSZXF1ZXN0NjczOTcwNTQ2",
+        "number": 941,
+        "title": "enhance: Remove buildInferredResult()",
+        "user": "866147",
+        "labels": [],
+        "state": "open",
+        "locked": false,
+        "assignee": null,
+        "assignees": [],
+        "milestone": null,
+        "comments": 0,
+        "created_at": "2021-06-20T04:02:39Z",
+        "updated_at": "2021-06-21T14:31:31Z",
+        "closed_at": null,
+        "author_association": "COLLABORATOR",
+        "active_lock_reason": null,
+        "pull_request": {
+          "url": "https://api.github.com/repos/coinbase/rest-hooks/pulls/941",
+          "html_url": "https://github.com/coinbase/rest-hooks/pull/941",
+          "diff_url": "https://github.com/coinbase/rest-hooks/pull/941.diff",
+          "patch_url": "https://github.com/coinbase/rest-hooks/pull/941.patch"
+        },
+        "body": "BREAKING CHANGE: buildInferredResult removed\r\n",
+        "performed_via_github_app": null
+      }
+    },
+    "Issue": {
+      "538704403": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/issues/201",
+        "repository_url": "https://api.github.com/repos/coinbase/rest-hooks",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/201/labels{/name}",
+        "comments_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/201/comments",
+        "events_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/201/events",
+        "html_url": "https://github.com/coinbase/rest-hooks/issues/201",
+        "id": 538704403,
+        "node_id": "MDU6SXNzdWU1Mzg3MDQ0MDM=",
+        "number": 201,
+        "title": "[docs] Websockets example",
+        "user": "866147",
+        "labels": [
+          "1234058918"
+        ],
+        "state": "open",
+        "locked": false,
+        "assignee": null,
+        "assignees": [],
+        "milestone": null,
+        "comments": 0,
+        "created_at": "2019-12-16T22:20:44Z",
+        "updated_at": "2019-12-16T22:20:44Z",
+        "closed_at": null,
+        "author_association": "COLLABORATOR",
+        "active_lock_reason": null,
+        "body": "**Describe the solution you'd like**\r\n\r\n* Custom manager.\r\n* Shows connection, disconnection lifecycles.\r\n* Shows intercepting sub/unsub actions\r\n* Shows dispatching receives on message pushes\r\n",
+        "performed_via_github_app": null
+      },
+      "578842273": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/issues/288",
+        "repository_url": "https://api.github.com/repos/coinbase/rest-hooks",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/288/labels{/name}",
+        "comments_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/288/comments",
+        "events_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/288/events",
+        "html_url": "https://github.com/coinbase/rest-hooks/issues/288",
+        "id": 578842273,
+        "node_id": "MDU6SXNzdWU1Nzg4NDIyNzM=",
+        "number": 288,
+        "title": "Network Error Boundary for already rendered and cached resource.",
+        "user": "3153380",
+        "labels": [
+          "1234058916"
+        ],
+        "state": "open",
+        "locked": false,
+        "assignee": null,
+        "assignees": [],
+        "milestone": "5199998",
+        "comments": 9,
+        "created_at": "2020-03-10T20:29:09Z",
+        "updated_at": "2021-06-16T15:36:39Z",
+        "closed_at": null,
+        "author_association": "NONE",
+        "active_lock_reason": null,
+        "body": "**React version** 16.12.0\r\n\r\n**Concurrent mode** no\r\n\r\n**Describe the bug**\r\nNetworkErrorBoundary doesn't catch exceptions for already rendered resources. E.g. my API uses JWT tokens for authentication and they expire after one hour.  So, if I have a posts page already rendered when the JWT was valid, when it expires after sometime and I go back to posts pages again later, previously cached posts are shown and a request is also being sent which gets 403 (FORBIDDEN) rejected but the error is not thrown to NetworkErrorBoundary, instead an uncaught exception is raised by Resource.ts.\r\n\r\nThe exception is thrown properly to NetworkErrorBoundary for uncached endpoints.\r\n\r\n**To Reproduce**\r\nSteps to reproduce the behavior:\r\n1. Go to ArticleList resource page with valid JWT. List gets rendered\r\n2. After sometime, go to ArticleList resource page again with invalid JWT. uncaught exception raises.\r\n\r\n**Expected behavior**\r\nException should be thrown to NetworkErrorBoundary in case of cached data as well, so that I can handle logging user out.\r\n\r\n**Additional context**\r\n<img width=\"615\" alt=\"Screen Shot 2020-03-10 at 21 20 30\" src=\"https://user-images.githubusercontent.com/3153380/76356380-24706f00-6316-11ea-8e23-aa6e8b7f3007.png\">\r\n\r\n",
+        "performed_via_github_app": null
+      },
+      "580918647": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/issues/297",
+        "repository_url": "https://api.github.com/repos/coinbase/rest-hooks",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/297/labels{/name}",
+        "comments_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/297/comments",
+        "events_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/297/events",
+        "html_url": "https://github.com/coinbase/rest-hooks/issues/297",
+        "id": 580918647,
+        "node_id": "MDU6SXNzdWU1ODA5MTg2NDc=",
+        "number": 297,
+        "title": "useFetcher should infer deduplication from FetchShape 'type'",
+        "user": "866147",
+        "labels": [
+          "1234058918"
+        ],
+        "state": "open",
+        "locked": false,
+        "assignee": "6308123",
+        "assignees": [
+          "6308123"
+        ],
+        "milestone": "5199998",
+        "comments": 0,
+        "created_at": "2020-03-13T23:03:40Z",
+        "updated_at": "2020-03-13T23:03:54Z",
+        "closed_at": null,
+        "author_association": "COLLABORATOR",
+        "active_lock_reason": null,
+        "body": "two reasons that i see for imperative fetching on 'read' shapes:\r\n\r\n1. Ensure data exists imperatively (for instance for fetch-then-render pattern)\r\n2. Explicitly revalidating after something happened\r\n\r\nFor case one, we want to dedupe requests. For case two, we want to abort existing requests and retry them.\r\n\r\nBy default, I think case 2 is probably the more obvious way to useFetcher() with a read, so I'm inclined to default to case 2, and provide an override to get case 1. And of course, case 1 is configured for the declarative wrappers useRetrieve() and useResource().\r\n\r\nFor mutates, we should by default neither abort or dedupe. Instead we should additionally fetch, and then give the OPTION to abort by the caller - they can control that by themselves.",
+        "performed_via_github_app": null
+      },
+      "593325556": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/issues/312",
+        "repository_url": "https://api.github.com/repos/coinbase/rest-hooks",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/312/labels{/name}",
+        "comments_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/312/comments",
+        "events_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/312/events",
+        "html_url": "https://github.com/coinbase/rest-hooks/issues/312",
+        "id": 593325556,
+        "node_id": "MDU6SXNzdWU1OTMzMjU1NTY=",
+        "number": 312,
+        "title": "OpenAPI generator for rest hooks?",
+        "user": "2991360",
+        "labels": [
+          "1234058918"
+        ],
+        "state": "open",
+        "locked": false,
+        "assignee": null,
+        "assignees": [],
+        "milestone": null,
+        "comments": 4,
+        "created_at": "2020-04-03T11:47:44Z",
+        "updated_at": "2020-04-16T08:26:51Z",
+        "closed_at": null,
+        "author_association": "NONE",
+        "active_lock_reason": null,
+        "body": "Hi, I’m evaluating rest-hooks for a new project. We already use OpenAPI/Swagger. Does it sound like a good idea to write an OpenAPI generator to transform the OpenAPI definitions into rest-hooks resource definitions? That way there’d be a single source of truth for all things API. Has anyone had a similar setup? Did it work? Do you think it could work? Thank you for your answers!",
+        "performed_via_github_app": null
+      },
+      "651306300": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/issues/361",
+        "repository_url": "https://api.github.com/repos/coinbase/rest-hooks",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/361/labels{/name}",
+        "comments_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/361/comments",
+        "events_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/361/events",
+        "html_url": "https://github.com/coinbase/rest-hooks/issues/361",
+        "id": 651306300,
+        "node_id": "MDU6SXNzdWU2NTEzMDYzMDA=",
+        "number": 361,
+        "title": "Roadmap for GraphQL",
+        "user": "17429390",
+        "labels": [
+          "1234058918"
+        ],
+        "state": "open",
+        "locked": false,
+        "assignee": null,
+        "assignees": [],
+        "milestone": null,
+        "comments": 4,
+        "created_at": "2020-07-06T07:14:48Z",
+        "updated_at": "2021-01-22T16:26:00Z",
+        "closed_at": null,
+        "author_association": "NONE",
+        "active_lock_reason": null,
+        "body": "I've seen mentions of GraphQL in the issue tracker and some other places throughout this repository.\r\n\r\nI'd like to know what would take to get **rest-hooks** to an architecture/API which would support GraphQL as a first-class citizen, e.g.\r\n\r\n- Do the internal components (e.g. the caching mechanism) need to change?\r\n- Does the API surface need to change?\r\n\r\nAnother pertaining question would be if you're planning to implement a client directly or use an existing third-party library. I infer the latter might be possible since I've seen https://github.com/coinbase/rest-hooks/issues/201, or maybe it already is possible currently through some user-land implementation and I'm not aware of it.\r\n\r\nOverall, the point of this issue is to\r\n\r\n- List what's missing and what is the timeline for it\r\n- Point at some modules of interest in the code base\r\n- What good ideas for an implementation would be\r\n- What the community could contribute to make GraphQL viable\r\n\r\nI'm personally interested in using rest-hooks for everything (REST, WebSockets, ...) since I really like the design and how modern it is.",
+        "performed_via_github_app": null
+      },
+      "707420800": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/issues/416",
+        "repository_url": "https://api.github.com/repos/coinbase/rest-hooks",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/416/labels{/name}",
+        "comments_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/416/comments",
+        "events_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/416/events",
+        "html_url": "https://github.com/coinbase/rest-hooks/issues/416",
+        "id": 707420800,
+        "node_id": "MDU6SXNzdWU3MDc0MjA4MDA=",
+        "number": 416,
+        "title": "Use an existing class for a resource",
+        "user": "123916",
+        "labels": [
+          "1234058918"
+        ],
+        "state": "open",
+        "locked": false,
+        "assignee": null,
+        "assignees": [],
+        "milestone": null,
+        "comments": 1,
+        "created_at": "2020-09-23T14:33:18Z",
+        "updated_at": "2021-01-24T06:08:41Z",
+        "closed_at": null,
+        "author_association": "NONE",
+        "active_lock_reason": null,
+        "body": "Hello,\r\n\r\nI have a normal class, can I use it to create a resource? Something like this?\r\n\r\n```typescript\r\nexport class Demo {\r\n  id: number,\r\n  value: string\r\n}\r\n```\r\n\r\n```typescript\r\nexport default class DemoResource extends Resource<Demo> {\r\n \r\n  pk() {\r\n    return this.id?.toString();\r\n  }\r\n\r\n  static urlRoot = 'http://test.com/demo/';\r\n}\r\n```",
+        "performed_via_github_app": null
+      },
+      "785921355": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/issues/465",
+        "repository_url": "https://api.github.com/repos/coinbase/rest-hooks",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/465/labels{/name}",
+        "comments_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/465/comments",
+        "events_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/465/events",
+        "html_url": "https://github.com/coinbase/rest-hooks/issues/465",
+        "id": 785921355,
+        "node_id": "MDU6SXNzdWU3ODU5MjEzNTU=",
+        "number": 465,
+        "title": "Handling poor / no internet connection ",
+        "user": "11815707",
+        "labels": [],
+        "state": "open",
+        "locked": false,
+        "assignee": null,
+        "assignees": [],
+        "milestone": null,
+        "comments": 2,
+        "created_at": "2021-01-14T11:42:22Z",
+        "updated_at": "2021-01-17T17:05:12Z",
+        "closed_at": null,
+        "author_association": "NONE",
+        "active_lock_reason": null,
+        "body": "Hi all, \r\n\r\nNot marking this as a bug as potentially just my own misunderstanding of the docs. In brief, I’m struggling gracefully failing if internet connection drops out and an update is triggered. \r\n\r\nI have a resource as such: \r\n\r\n```\r\nimport request from \"superagent\";\r\n\r\nexport default class EntryResource extends Resource {\r\n  readonly UserCode: string | undefined = undefined;\r\n\r\n  static async fetch<T extends typeof Resource>(\r\n    this: T,\r\n    method: Method = \"get\",\r\n    url: string,\r\n    body?: Readonly<object | string>\r\n  ) {\r\n    const req = request[method](url);\r\n    return req\r\n      .then((res) => {\r\n        if (res.body.items) return res.body.items;\r\n        if (res.body.status === \"fail\") return [];\r\n        else return res.body.codes;\r\n      })\r\n  }\r\n\r\n  static update<T extends typeof Resource>(this: T) {\r\n    return {\r\n      ...this.updateShape(),\r\n      options: {\r\n        ...this.getFetchOptions(),\r\n        optimisticUpdate: (params: any, body: any) => ({\r\n          ...body,\r\n          otherKeys: etc,\r\n        }),\r\n      },\r\n    };\r\n  }\r\n\r\n  pk() {\r\n    return this.etc;\r\n  }\r\n\r\n  static urlRoot = `etc`;\r\n}; \r\n```\r\n\r\nAnd I’m wrapping the various components in suspense and NetworkErrorBoundarys. \r\n\r\n```\r\n<Suspense fallback={<Loading />}>\r\n                <NetworkErrorBoundary fallbackComponent={ErrorPage}>\r\n\t\t\t<Component /> (which uses the resource above)\r\n                </NetworkErrorBoundary>\r\n </Suspense>\r\n```\r\n\r\nThe resource works fine until there is an internet connection dropout. At this point the NetwrokErrorBoundary seems to be missed, leading to displaying the suspense’s loading spinner infinitely. \r\n\r\nThe behaviour I’d preferably like would be to cache the update data and try to send it again when there is an internet connection. Failing that, I’d like to stop attempting the update/PUT and display a no internet connection popup, keeping displaying the data before the update call. I’ve had no joy catching the error in the fetch and returning something to trigger an error as this breaks the expected data shape. Overall, I’m unsure if this behaviour (specifically missing the NetworkErrorBoundary) is expected and therefore is or isn’t a bug. Can anyone please advise on this or on my wider aims of handling this specific error? ",
+        "performed_via_github_app": null
+      },
+      "854715707": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/issues/731",
+        "repository_url": "https://api.github.com/repos/coinbase/rest-hooks",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/731/labels{/name}",
+        "comments_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/731/comments",
+        "events_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/731/events",
+        "html_url": "https://github.com/coinbase/rest-hooks/issues/731",
+        "id": 854715707,
+        "node_id": "MDU6SXNzdWU4NTQ3MTU3MDc=",
+        "number": 731,
+        "title": "Compositional parallel suspense",
+        "user": "866147",
+        "labels": [
+          "1234058918"
+        ],
+        "state": "open",
+        "locked": false,
+        "assignee": null,
+        "assignees": [],
+        "milestone": null,
+        "comments": 23,
+        "created_at": "2021-04-09T17:19:17Z",
+        "updated_at": "2021-04-09T23:17:39Z",
+        "closed_at": null,
+        "author_association": "COLLABORATOR",
+        "active_lock_reason": null,
+        "body": "## useAll() - like Promise.all() for suspense\r\n\r\n```ts\r\nconst [article, users, post] = useAll(\r\n  () => useResource(CoolerArticleResource.detail(), id),\r\n  () => useResource(UserResource.list()),\r\n  () => useResource(Post.detail(), { id }),\r\n);\r\n```\r\n\r\n### Why\r\n\r\nCurrently one can do parallel requests with useResource() by sending variable tuples of normal useResource() arguments.\r\n\r\n```ts\r\nconst [article, users, post] = useResource(\r\n  [CoolerArticleResource.detail(), id],\r\n  [UserResource.list()],\r\n  [Post.detail(), { id }],\r\n);\r\n```\r\n\r\nThis is problematic for various reasons\r\n- Not very discoverable\r\n- Makes typing arguments very complicated and obfuscates the errors when types are enforced\r\n- Makes composition of useResource() very challenging\r\n- Doesn't integrate with other suspense hooks one could potentially use - thereby reducing parallelism potential\r\n- Isn't obvious that changing the number of arguments is not supported\r\n- Polymorphic function calls can be confusing to developers, as well as compilers - potentially limiting optimizations.\r\n\r\n### Legacy\r\n\r\nWe can continue supporting useResource() with multiargs, and simply update docs to suggest using this method instead until some long later date where we remove it.\r\n\r\nUpgrading should be trivial since it can be fully done with a regex. Should be publish regex?\r\n\r\n## Alternatives\r\n\r\nInstead of wrapping suspending hooks, we could turn any promise into suspense:\r\n\r\n```ts\r\nconst [article, users, post] = useAwait(\r\n  useResource(CoolerArticleResource.detail(), id),\r\n  useResource(UserResource.list()),\r\n  useResource(Post.detail(), { id }),\r\n);\r\n```\r\n\r\nBut useResource() will only return a promise, so to use it in singular case:\r\n\r\n```ts\r\nconst article = useAwait(useResource(CoolerArticleResource.detail(), id));\r\n```\r\nAlso allows suspending useRetrieve():\r\n\r\n```ts\r\nconst article = useAwait(useRetrieve(CoolerArticleResource.detail(), id));\r\n```\r\n\r\nThis could be specialized, but then can't have variable args:\r\n\r\n```ts\r\nconst awaitResource = (...args) => useAwait(useResource(...args));\r\n\r\nconst article = awaitResource(CoolerArticleResource.detail(), id));\r\n```\r\n\r\n'await' prefix can be added to eslint rules of hooks so they are enforced\r\n\r\nPros:\r\n- Allows easy usage with useRetrieve() to not subscribe to state\r\n- Distinguishes suspense in a clear manner\r\n- Interops with anything that can return a promise\r\n\r\nCons:\r\n- Common case is more verbose\r\n- Legacy is not as easy to support\r\n- Doesn't interop with other suspending libraries",
+        "performed_via_github_app": null
+      },
+      "860450447": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/issues/760",
+        "repository_url": "https://api.github.com/repos/coinbase/rest-hooks",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/760/labels{/name}",
+        "comments_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/760/comments",
+        "events_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/760/events",
+        "html_url": "https://github.com/coinbase/rest-hooks/issues/760",
+        "id": 860450447,
+        "node_id": "MDU6SXNzdWU4NjA0NTA0NDc=",
+        "number": 760,
+        "title": "RFC: useNewFetcher()",
+        "user": "866147",
+        "labels": [
+          "1234058918"
+        ],
+        "state": "open",
+        "locked": false,
+        "assignee": null,
+        "assignees": [],
+        "milestone": null,
+        "comments": 4,
+        "created_at": "2021-04-17T16:41:32Z",
+        "updated_at": "2021-05-17T01:47:35Z",
+        "closed_at": null,
+        "author_association": "COLLABORATOR",
+        "active_lock_reason": null,
+        "body": "Would love feedback @dair-targ, @smith-it @Jamakase @Secretmapper @Jsarihan @yunyu @praxxis @zacharyfmarion @kmartinezmedia\r\n\r\n## Motivation\r\n\r\nFixes #463, #458, #428, #316, #358\r\n\r\nLots of improvements can be made to useFetcher() design - both based on understanding of use cases, as well as evolution of interfaces like [Endpoint](https://resthooks.io/docs/api/Endpoint).\r\n\r\nProviding a new hook allows for incremental adoption of a complete redesign of many of the concepts incorporating 2 years of learnings and experience across many companies.\r\n\r\nThere are two major areas of change here\r\n- The hook and fetch itself\r\n- Programmable side-effects\r\n\r\nReferences:\r\n- [Endpoint](https://resthooks.io/docs/api/Endpoint) (these replace FetchShape in [5.0](https://resthooks.io/docs/upgrade/upgrading-to-5))\r\n- [UpdateParams](https://resthooks.io/docs/api/useFetcher#updateparams-destendpoint-destparams-updatefunction)\r\n\r\n<details><summary><b>class User</b></summary>\r\n\r\n```typescript\r\nclass User extends Entity {\r\n  readonly username: string = '';\r\n  readonly firstName: string = '';\r\n  readonly lastName: string = '';\r\n  readonly isAdmin: boolean = false;\r\n  pk() { retulrn this.username }\r\n\r\n  get getterValue() { return this.username.toUpperCase(); }\r\n  get fullName() { return `${this.firstName} ${this.lastName}`; }\r\n}\r\n```\r\n\r\n</details>\r\n\r\nSummary:\r\n\r\n- One hook, many endpoints\r\n- Completely flexible, variable arguments\r\n- Resolve/return value\r\n- Endpoint definition - new updater\r\n\r\n## Details\r\n\r\n### One hook, many endpoints\r\n\r\nThe rules of hooks are very restrictive, so the less hooks you have to call, the more flexible. This also benefits render performance. In many cases you might want to fetch many different endpoints. What's worse is if you don't know which endpoints you might want to fetch upfront. With old design you'd have to hook up every *possible* one. This really destroys fetch-as-render pattern, as you want to be able to prefetch based on possible routes.\r\n\r\n#### Before\r\n\r\n```tsx\r\nconst createUser = useFetcher(User.create());\r\nconst refreshUsers = useFetcher(User.list());\r\n\r\n\r\nreturn (\r\n<form onSubmit={() => createUser({}, userPayload)}>\r\n  <button onClick={() => refreshUsers({})}>Refresh list</button>\r\n</form>\r\n);\r\n```\r\n\r\n### After\r\n\r\n```tsx\r\nconst fetch = useNewFetcher();\r\n\r\nreturn (\r\n<form onSubmit={() => fetch(User.create(), {}, userPayload)}>\r\n  <button onClick={() => fetch(User.list(), {})}>Refresh list</button>\r\n</form>\r\n);\r\n```\r\n\r\n\r\n### Completely flexible, variable arguments\r\n\r\nThe concept of params + body for arguments was introduced to try to provide the most flexible approach in a world where type enforcement wasn't that flexible. With TypeScript 4's variadic tuples, it's now possible to strongly type arbitrary arguments to a function in a *generic* way. Furthermore, stumbling upon package.json's typeVersions, rest hooks can now publish multiple type versions to be compatible with different versions of typescript. This allows us to eagerly adopt TypeScript 4 features, while providing a usable TypeScript 3 experience.\r\n\r\nSome common annoyances with the current parameter limitations are single-variable arguments like detail endpoints with an id, as well as no-argument case like a list endpoint or create endpoint.\r\n\r\n```tsx\r\nconst fetch = useNewFetcher();\r\n\r\nreturn <form onSubmit={() => fetch(User.create(), userPayload)}><button onClick={() => fetch(User.list())}>Refresh list</button></form>\r\n```\r\n\r\nWe'll also eventually bring this to the 'read' hooks like so:\r\n\r\n```tsx\r\n// notice username is just a string, rather than object\r\nconst user = useResource(User.detail(), username);\r\n// here we don't need arguments\r\nconst posts = useResource(Post.list());\r\n// but list() has it being optional, which means this also works:\r\nconst goodPosts = useResource(Post.list(), { good: true });\r\n// postId is a number in this case\r\nconst thePost = useResource(Post.detail(), postId);\r\n```\r\n\r\n### Resolve/return value\r\n\r\n#### Before\r\n\r\nCurrently the promise from a useFetcher() resolves with exactly the data from the endpoint's fetch.\r\n\r\nThis is problematic for a few reasons:\r\n- These are typically typed with the `Denormalize<Scheam>` of the endpoint, which often deviates from the value by having classes instead of pojos.\r\n- In some cases having access to the classes itself is useful - for instance using class methods, getters, etc. Or even using the value to compare with what comes out of useCache/useResource\r\n\r\nCurrently the resolution of the promise happens upon commit of the updates to the cache state. This guarantees any updates from the fetch exist in the current react render/DOM before processing the next step.\r\n\r\n#### After\r\n\r\n<details open><summary><b>Idea 1) Just change resolution to denormalized value</b></summary>\r\n\r\n```typescript\r\nconst fetch = useNewFetcher();\r\n\r\nconst onClick = async () => {\r\n  const userEntity  = await fetch(createUser, userPayload);\r\n  assert(userEntity instanceof User);\r\n  assert(data.getterValue !== undefined);\r\n  return userEntity;\r\n}\r\n```\r\n\r\nPros:\r\n\r\n- simple revision, easy to use\r\n\r\nCons:\r\n\r\n- normalize+demoralize computation must be called for every fetch.\r\n  - in practice, I've found that the majority of cases, the actual resolved value is not needed so this is some amount of extra CPU work that is wasted\r\n  - We could provide two hooks - one that does this and one that doesn't. However, this introduces a larger API surface area.\r\n\r\n</details>\r\n\r\n<details open><summary><b>Idea 2) Two stage promises</b></summary>\r\n\r\nThis sort of matches the fetch pattern - where the headers like `status` are available immediately, but `json()` returns another promise.\r\n\r\nThis also enables distinguishing the stages of a fetch - the resolution of fetch itself, and the commit of the updates to the DOM and react tree.\r\n\r\n```typescript\r\nconst fetch = useNewFetcher();\r\n\r\nconst onClick = async () => {\r\n  const { data, commit } = await fetch(createUser, userPayload);\r\n  assert(isPojo(data));\r\n  assert(data.getterValue === undefined);\r\n  // no DOM updates - react is still rendering previous value\r\n  const userEntity = await commit();\r\n  // now any DOM operations based on this resolution are complete\r\n  assert(userEntity instanceof User);\r\n  assert(data.getterValue !== undefined);\r\n  return userEntity;\r\n}\r\n```\r\n\r\nPros\r\n- we can also distinguish between different phases of resolution\r\n  - tho it's questionable the utility of doing anything *before* commit in what will always be react-land code. this might introduce more bugs\r\n- Only do computation when needed\r\n\r\nCons\r\n- common case slightly more complicated as you have to index into `.data`.\r\n  - This is another thing to know, however it is quite discoverable in typescript so not super terrible.\r\n\r\n</details>\r\n\r\n### Endpoint definition - new updater\r\n\r\nBy normalizing [Entities](https://resthooks.io/docs/api/Entity), Rest Hooks guarantees data integrity and consistency even down to the referential equality level. However, there are still some cases where side effects result in changes to the actual results themselves. The most common reason for this is creation of new entities. While 'creation' is almost universally the cause for this (as deletion is handled more simply by delete schemas), the structure of data and where created elements go is not universal.\r\n\r\n#### Before\r\n\r\nPreviously this was enabled by an optional third argument to the fetch [UpdateParams](https://resthooks.io/docs/api/useFetcher#updateparams-destendpoint-destparams-updatefunction) enabling programmatic changes that are also strictly type enforced to ensure the data integrity of the Rest Hooks store.\r\n\r\n```typescript\r\nconst createArticle = useFetcher(ArticleResource.create());\r\n\r\ncreateArticle({}, { id: 1 }, [\r\n  [\r\n    ArticleResource.list(),\r\n    {},\r\n    (newArticleID: string, articleIDs: string[] | undefined) => [\r\n      ...(articleIDs || []),\r\n      newArticleID,\r\n    ],\r\n  ],\r\n]);\r\n```\r\n\r\nWhile simple, this design had several shortcomings\r\n\r\n- Only operates on the normalized results, often arrays of strings\r\n  - This is non-intuitive as this doesn't relate directly to the data's form and requires understanding of internals\r\n  - Code is confusing with two ordered args and necessary default handling\r\n  - Lack of access to entities means sorting is not possible\r\n  - Can only update top level results, which means lists nested inside entities cannot be updated\r\n- Is provided as an argument to the fetch rather than endpoint\r\n  - Makes variable arguments impossible, and hard to reason about\r\n  - Makes pattern reuse still require explicit wiring\r\n  - Was thought to be more flexible than in 'fetchshape', as it has access to local variables in its event handler. However, Endpoints's can easily use `.extend()` to contextually override so this feature is moot.\r\n  - Encourages antipatterns like writing hooks for specific endpoints\r\n\r\n#### After\r\n\r\n- Operate on the actual denormalized form - that is the same shape that is consumsed with a useResource()\r\n- Move to Endpoint\r\n- Take the denormalized response as arg to first function\r\n- builder pattern to make updater definition easy\r\n  - typeahead\r\n  - strong type enforcement\r\n  - much more readable than a size 3 tuple\r\n\r\nSimplest case:\r\n\r\n```typescript\r\ntype UserList = Denormalized<typeof userList['schema']>\r\n\r\nconst createUser = new Endpoint(postToUserFunction, {\r\n  schema: User,\r\n  update: (newUser: Denormalize<S>)  => [ userList.bind().updater((users: UserList = []) => [newUser, ...users]) ],\r\n});\r\n```\r\n\r\nMore updates:\r\n\r\n<details open><summary><b>Component.tsx</b></summary>\r\n\r\n```typescript\r\nconst allusers = useResource(userList);\r\nconst adminUsers = useResource(userList, { admin: true });\r\nconst sortedUsers = useResource(userList, { sortBy: 'createdAt' });\r\n```\r\n\r\n</details>\r\n\r\nThe endpoint below ensures the new user shows up immediately in the usages above.\r\n\r\n<details open><summary><b>userEndpoint.ts</b></summary>\r\n\r\n```typescript\r\nconst createUser = new Endpoint(postToUserFunction, {\r\n  schema: User,\r\n  update: (newUser: Denormalize<S>)  => {\r\n    const updates = [\r\n      userList.bind().updater((users = []) => [newUser, ...users]),\r\n      userList.bind({ sortBy: 'createdAt' }).updater((users = [], { sortBy }) => {\r\n        const ret = [createdUser, ...users];\r\n        ret.sortBy(sortBy);\r\n        return ret;\r\n      },\r\n    ];\r\n    if (newUser.isAdmin) {\r\n      updates.push(userList.bind({ admin: true }).updater((users = []) => [newUser, ...users]));\r\n    }\r\n    return updates;\r\n  },\r\n});\r\n```\r\n\r\n</details>\r\n\r\n#### Extracting patterns\r\n\r\nIn case more than one other endpoint might result in updating our list endpoint, we can centralize the logic of how that should work in our updated endpoint. \r\n\r\n```typescript\r\nconst userList = new Endpoint(getUsers, {\r\n  schema: User[],\r\n  addUserUpdater: (this: Endpoint, newUser: User) => this.updater((users = []) => [newUser, ...users]),\r\n});\r\n```\r\n\r\n```typescript\r\nconst createUser = new Endpoint(postToUserFunction, {\r\n  schema: User,\r\n  update: (newUser: Denormalize<S>) => [\r\n    userList.bind({ admin: true }).addUserUpate(newUser),\r\n    userList.bind({ }).addUserUpate(newUser),\r\n  ]\r\n});\r\n```\r\n\r\n\r\n<details open><summary><b>Alternate Ideas - The programmatic approach</b></summary>\r\n\r\n#### The no guarantees\r\n\r\n```typescript\r\nconst createUser = new Endpoint(postToUserFunction, {\r\n  schema: User,\r\n  update: (newUser: Denormalize<S>, state: State<unknown>) => {\r\n    return {\r\n      ...state,\r\n      results: {\r\n        ...state.results,\r\n       [userList.key({ admin: true })]: [newUser.pk(), ...state.results[userList.key({ admin: true })]],\r\n       [userList.key({ })]: [newUser.pk(), ...state.results[userList.key({ })]],\r\n     }\r\n    }\r\n  }\r\n}\r\n```\r\n\r\n#### Store Adapter\r\n\r\n```typescript\r\nconst createUser = new Endpoint(postToUserFunction, {\r\n  schema: User,\r\n  update: (newUser: Denormalize<S>, store: Store) => {\r\n    const prependUser = (users = []) => [newUser, ...users]\r\n    if (newUser.isAdmin) {\r\n      store = store.set(\r\n         userList.bind({admin: true}),\r\n         prependUser \r\n      );\r\n    }\r\n    store = store.set(\r\n       userList.bind({}),\r\n       prependUser\r\n    );\r\n    return store;\r\n  }\r\n}\r\n```\r\n\r\n```typescript\r\nconst createUser = new Endpoint(postToUserFunction, {\r\n  schema: User,\r\n  update: (newUser: Denormalize<S>, store: Store) => {\r\n    // this actually goes through every current result based on this endpoint\r\n    // however it does not update extremely stale results for performance reasons\r\n    store.get(userList).mapItems((key: string, users: User[]) => {\r\n      if (!key.includes('admin') || newUser.isAdmin) {\r\n        return [newUser, ...users];\r\n      }\r\n    });\r\n  }\r\n}\r\n```\r\n\r\nAnother idea is to make an updater callback with identical API to [manager middleware](https://resthooks.io/docs/api/Manager#getmiddleware). We would probably want to minimize chaining actions, so some way of consolidating into one action would be preferable. Adding an adapter to raw state might be good for Manager's as well, so designing this interface could be beneficial to optionally improving middleware interfaces.\r\n\r\n</details>\r\n",
+        "performed_via_github_app": null
+      },
+      "909716806": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/issues/888",
+        "repository_url": "https://api.github.com/repos/coinbase/rest-hooks",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/888/labels{/name}",
+        "comments_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/888/comments",
+        "events_url": "https://api.github.com/repos/coinbase/rest-hooks/issues/888/events",
+        "html_url": "https://github.com/coinbase/rest-hooks/issues/888",
+        "id": 909716806,
+        "node_id": "MDU6SXNzdWU5MDk3MTY4MDY=",
+        "number": 888,
+        "title": "question:  how to use immediate mutations in more DRY way?",
+        "user": "38386724",
+        "labels": [],
+        "state": "open",
+        "locked": false,
+        "assignee": null,
+        "assignees": [],
+        "milestone": null,
+        "comments": 0,
+        "created_at": "2021-06-02T17:17:54Z",
+        "updated_at": "2021-06-02T17:17:54Z",
+        "closed_at": null,
+        "author_association": "NONE",
+        "active_lock_reason": null,
+        "body": "Hello everyone!\r\nI have specific endpoint for entities amount retrieval and i am struggling to make immediate mutation changes in DRY way.\r\nI have read the documentation and i know about updateParams but it in my case i will be forced to write it after every mutation\r\n\r\nmaybe there is a way to extend/override endpoints and make them reflect changes the way updateParams does?\r\n\r\n\r\n\r\n",
+        "performed_via_github_app": null
+      }
+    },
+    "Label": {
+      "1234058916": {
+        "id": 1234058916,
+        "node_id": "MDU6TGFiZWwxMjM0MDU4OTE2",
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/labels/bug",
+        "name": "bug",
+        "color": "d73a4a",
+        "default": true,
+        "description": "Something isn't working"
+      },
+      "1234058918": {
+        "id": 1234058918,
+        "node_id": "MDU6TGFiZWwxMjM0MDU4OTE4",
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/labels/enhancement",
+        "name": "enhancement",
+        "color": "a2eeef",
+        "default": true,
+        "description": "New feature or request"
+      }
+    },
+    "Milestone": {
+      "5199998": {
+        "url": "https://api.github.com/repos/coinbase/rest-hooks/milestones/4",
+        "html_url": "https://github.com/coinbase/rest-hooks/milestone/4",
+        "labels_url": "https://api.github.com/repos/coinbase/rest-hooks/milestones/4/labels",
+        "id": 5199998,
+        "node_id": "MDk6TWlsZXN0b25lNTE5OTk5OA==",
+        "number": 4,
+        "title": "5.0",
+        "description": "",
+        "creator": "866147",
+        "open_issues": 2,
+        "closed_issues": 7,
+        "state": "open",
+        "created_at": "2020-03-13T18:13:32Z",
+        "updated_at": "2021-04-17T17:15:19Z",
+        "due_on": null,
+        "closed_at": null
+      }
+    }
+  },
+  "indexes": {},
+  "result": [
+    {
+      "id": "925514970",
+      "schema": "pullRequests"
+    },
+    {
+      "id": "909716806",
+      "schema": "issues"
+    },
+    {
+      "id": "903017025",
+      "schema": "pullRequests"
+    },
+    {
+      "id": "860450447",
+      "schema": "issues"
+    },
+    {
+      "id": "854715707",
+      "schema": "issues"
+    },
+    {
+      "id": "821318384",
+      "schema": "pullRequests"
+    },
+    {
+      "id": "813074012",
+      "schema": "pullRequests"
+    },
+    {
+      "id": "787883024",
+      "schema": "pullRequests"
+    },
+    {
+      "id": "785921355",
+      "schema": "issues"
+    },
+    {
+      "id": "707420800",
+      "schema": "issues"
+    },
+    {
+      "id": "660408392",
+      "schema": "pullRequests"
+    },
+    {
+      "id": "651306300",
+      "schema": "issues"
+    },
+    {
+      "id": "593325556",
+      "schema": "issues"
+    },
+    {
+      "id": "580918647",
+      "schema": "issues"
+    },
+    {
+      "id": "578842273",
+      "schema": "issues"
+    },
+    {
+      "id": "538704403",
+      "schema": "issues"
+    }
+  ],
+  "entityMeta": {
+    "User": {
+      "123916": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "866147": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "2991360": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "3153380": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "6308123": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "11815707": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "17429390": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "38386724": {
+        "expiresAt": null,
+        "date": 1624312015772
+      }
+    },
+    "PullRequest": {
+      "660408392": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "787883024": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "813074012": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "821318384": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "903017025": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "925514970": {
+        "expiresAt": null,
+        "date": 1624312015772
+      }
+    },
+    "Issue": {
+      "538704403": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "578842273": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "580918647": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "593325556": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "651306300": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "707420800": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "785921355": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "854715707": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "860450447": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "909716806": {
+        "expiresAt": null,
+        "date": 1624312015772
+      }
+    },
+    "Label": {
+      "1234058916": {
+        "expiresAt": null,
+        "date": 1624312015772
+      },
+      "1234058918": {
+        "expiresAt": null,
+        "date": 1624312015772
+      }
+    },
+    "Milestone": {
+      "5199998": {
+        "expiresAt": null,
+        "date": 1624312015772
+      }
+    }
+  }
+}
