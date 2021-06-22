@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1624260836299,
+  "lastUpdate": 1624334183833,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -2204,6 +2204,44 @@ window.BENCHMARK_DATA = {
             "range": "±3.27%",
             "unit": "ops/sec",
             "extra": "60 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6d614f94c0f9d3159074faca569cdaac4dce6d44",
+          "message": "internal: Hoist and fix normalizr examples (#948)",
+          "timestamp": "2021-06-21T20:53:49-07:00",
+          "tree_id": "60b752f58abded556fdcbe1ac125bc5890ed543a",
+          "url": "https://github.com/coinbase/rest-hooks/commit/6d614f94c0f9d3159074faca569cdaac4dce6d44"
+        },
+        "date": 1624334182712,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 68.64,
+            "range": "±2.04%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 31.38,
+            "range": "±2.70%",
+            "unit": "ops/sec",
+            "extra": "56 samples"
           }
         ]
       }
