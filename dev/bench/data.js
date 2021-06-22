@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1624334183833,
+  "lastUpdate": 1624338076808,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -2242,6 +2242,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.70%",
             "unit": "ops/sec",
             "extra": "56 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7bb49c754ba22434c268a53aaabba0911aa63d91",
+          "message": "internal: Move benchmark to /examples in workspace (#949)",
+          "timestamp": "2021-06-21T21:58:00-07:00",
+          "tree_id": "29b3f65c6677a9eef826759f0a792dc1f1eda090",
+          "url": "https://github.com/coinbase/rest-hooks/commit/7bb49c754ba22434c268a53aaabba0911aa63d91"
+        },
+        "date": 1624338075636,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 73.97,
+            "range": "±1.79%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 38.22,
+            "range": "±1.25%",
+            "unit": "ops/sec",
+            "extra": "50 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 41.12,
+            "range": "±1.03%",
+            "unit": "ops/sec",
+            "extra": "54 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 74.22,
+            "range": "±1.28%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
           }
         ]
       }
