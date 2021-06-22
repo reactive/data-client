@@ -81,6 +81,16 @@ jobs:
       - checkout
       - run: docker run -t -v $(pwd):/home/repo coinbase/salus
 
+  examples:
+    docker: *docker
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          command: |
+            cd examples/normalizr-relationships
+            yarn run start
+
 workflows:
   version: 2
   all-tests:
@@ -99,6 +109,9 @@ workflows:
           requires:
             - setup
       - typecheck:
+          requires:
+            - setup
+      - examples:
           requires:
             - setup
       - salus
