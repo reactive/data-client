@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import type { Schema, schema } from '@rest-hooks/normalizr';
-
-import type { EndpointInterface } from './interface';
-import type { EndpointExtraOptions, FetchFunction } from './types';
-import type { ResolveType } from './utility';
+import type { EndpointInterface } from '@rest-hooks/endpoint/interface';
+import type {
+  EndpointExtraOptions,
+  FetchFunction,
+} from '@rest-hooks/endpoint/types';
+import type { ResolveType } from '@rest-hooks/endpoint/utility';
 
 export interface EndpointOptions<
   F extends FetchFunction = FetchFunction,

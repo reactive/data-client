@@ -1,7 +1,6 @@
 import { Schema } from '@rest-hooks/normalizr';
-
-import { Denormalize } from './normal';
-import { FetchFunction } from './types';
+import { Denormalize } from '@rest-hooks/endpoint/normal';
+import { FetchFunction } from '@rest-hooks/endpoint/types';
 
 /** What the function's promise resolves to */
 export type ResolveType<E extends (...args: any) => any> =
