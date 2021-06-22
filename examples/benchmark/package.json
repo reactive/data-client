@@ -1,0 +1,15 @@
+{
+  "name": "benchmark",
+  "version": "0.0.0",
+  "description": "Benchmark for normalizr",
+  "main": "index.js",
+  "author": "Nathaniel Tucker",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "cross-env NODE_ENV=production BROWSERSLIST_ENV=modern babel-node --root-mode upward ./ --extensions '.ts,.tsx,.js'"
+  },
+  "devDependencies": {
+    "@rest-hooks/normalizr": "^7.4.0"
+  }
+}
