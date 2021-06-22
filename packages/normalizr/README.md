@@ -23,20 +23,19 @@ Normalizr is a small, but powerful utility for taking JSON with a schema definit
 
 ## Documentation
 
-* [Introduction](/docs/introduction.md)
-  * [Build Files](/docs/introduction.md#build-files)
-* [Quick Start](/docs/schema.md)
-* [API](/docs/api.md)
-  * [normalize](/docs/api.md#normalizedata-schema)
-  * [denormalize](/docs/api.md#denormalizeinput-schema-entities)
-  * [schema](/docs/api.md#schema)
-* [Using with JSONAPI](/docs/jsonapi.md)
+* [Introduction](./docs/introduction.md)
+  * [Build Files](./docs/introduction.md#build-files)
+* [Quick Start](https://resthooks.io/docs/api/schema)
+* [API](https://resthooks.io/docs/api/Entity)
+  * [normalize](./docs/api.md#normalizedata-schema)
+  * [denormalize](./docs/api.md#denormalizeinput-schema-entities)
+  * [schema](https://resthooks.io/docs/api/schema)
 
 ## Examples
 
-* [Normalizing GitHub Issues](/examples/github)
-* [Relational Data](/examples/relationships)
-* [Interactive Redux](/examples/redux)
+* [Normalizing GitHub Issues](/examples/normalizr-github)
+* [Relational Data](/examples/normalizr-relationships)
+* [Interactive Redux](/examples/normalizr-redux)
 
 ## Quick Start
 
@@ -65,23 +64,33 @@ Consider a typical blog post. The API response for a single post might look some
 We have two nested entity types within our `article`: `users` and `comments`. Using various `schema`, we can normalize all three entity types down:
 
 ```js
-import { normalize, schema } from '@rest-hooks/normalizr';
+import { normalize, schema, Entity } from '@rest-hooks/normalizr';
 
 // Define a users schema
-const user = new schema.Entity('users');
+class User extends Entity {
+  pk() { return this.id }
+}
 
 // Define your comments schema
-const comment = new schema.Entity('comments', {
-  commenter: user
-});
+class Comment extends Entity {
+  pk() { return this.id }
+
+  static schema = {
+    commenter: User,
+  }
+}
 
 // Define your article
-const article = new schema.Entity('articles', {
-  author: user,
-  comments: [comment]
-});
+class Article extends Entity {
+  pk() { return this.id }
 
-const normalizedData = normalize(originalData, article);
+  static schema = {
+  author: User,
+  comments: [Comment]
+  }
+}
+
+const normalizedData = normalize(originalData, Article);
 ```
 
 Now, `normalizedData` will be:
@@ -90,7 +99,7 @@ Now, `normalizedData` will be:
 {
   result: "123",
   entities: {
-    "articles": {
+    "Article": {
       "123": {
         id: "123",
         author: "1",
@@ -98,11 +107,11 @@ Now, `normalizedData` will be:
         comments: [ "324" ]
       }
     },
-    "users": {
+    "User": {
       "1": { "id": "1", "name": "Paul" },
       "2": { "id": "2", "name": "Nicole" }
     },
-    "comments": {
+    "Comment": {
       "324": { id: "324", "commenter": "2" }
     }
   }
