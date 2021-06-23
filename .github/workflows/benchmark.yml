@@ -6,11 +6,13 @@ on:
       - master
     paths:
       - 'packages/normalizr/**'
+      - 'packages/core/**'
   push:
     branches:
       - master
     paths:
       - 'packages/normalizr/**'
+      - 'packages/core/**'
 jobs:
   benchmark:
 
