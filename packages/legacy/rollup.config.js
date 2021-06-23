@@ -14,6 +14,7 @@ const dependencies = Object.keys(pkg.peerDependencies).filter(
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
 process.env.NODE_ENV = 'production';
+process.env.BROWSERSLIST_ENV = 'legacy';
 
 function isExternal(id) {
   const ret = dependencies.includes(id);
