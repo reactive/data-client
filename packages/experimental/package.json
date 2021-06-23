@@ -79,7 +79,7 @@
     "@babel/runtime": "^7.7.2"
   },
   "peerDependencies": {
-    "@rest-hooks/core": "^1.2.1",
+    "@rest-hooks/core": "^1.2.1 || ^2.0.0-0",
     "@rest-hooks/endpoint": "^2.0.0",
     "@rest-hooks/rest": "^3.0.0",
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
