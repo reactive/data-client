@@ -1,5 +1,9 @@
 import PolymorphicSchema from './Polymorphic';
 
+/**
+ * Represents variably sized objects
+ * @see https://resthooks.io/docs/api/Values
+ */
 export default class ValuesSchema extends PolymorphicSchema {
   normalize(input, parent, key, visit, addEntity, visitedEntities) {
     return Object.keys(input).reduce((output, key, index) => {

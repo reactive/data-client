@@ -60,6 +60,10 @@ export function infer(schema, args, indexes, recurse) {
   return undefined;
 }
 
+/**
+ * Represents arrays
+ * @see https://resthooks.io/docs/api/Array
+ */
 export default class ArraySchema extends PolymorphicSchema {
   normalize(input, parent, key, visit, addEntity, visitedEntities) {
     const values = getValues(input);

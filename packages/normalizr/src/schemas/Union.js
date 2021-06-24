@@ -1,5 +1,9 @@
 import PolymorphicSchema from './Polymorphic';
 
+/**
+ * Represents polymorphic values.
+ * @see https://resthooks.io/docs/api/Union
+ */
 export default class UnionSchema extends PolymorphicSchema {
   constructor(definition, schemaAttribute) {
     if (!schemaAttribute) {

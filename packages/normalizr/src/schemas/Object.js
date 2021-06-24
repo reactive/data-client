@@ -60,6 +60,10 @@ export function infer(schema, args, indexes, recurse) {
   return resultObject;
 }
 
+/**
+ * Represents fixed objects
+ * @see https://resthooks.io/docs/api/Object
+ */
 export default class ObjectSchema {
   constructor(definition) {
     this.define(definition);

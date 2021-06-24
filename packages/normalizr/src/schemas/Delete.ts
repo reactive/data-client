@@ -3,6 +3,10 @@ import { SchemaClass, UnvisitFunction, EntityInterface } from '../schema';
 import { DELETED } from '../special';
 import type { AbstractInstanceType } from '..';
 
+/**
+ * Marks entity as deleted.
+ * @see https://resthooks.io/docs/api/Delete
+ */
 export default class Delete<E extends EntityInterface & { process: any }>
   implements SchemaClass
 {

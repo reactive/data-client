@@ -15,7 +15,12 @@ import { denormalize, inferResults } from '@rest-hooks/normalizr';
 
 import useExpiresAt from './useExpiresAt';
 
-/** Access a resource if it is available. */
+/**
+ * Access a resource if it is available.
+ *
+ * `useCache` guarantees referential equality globally.
+ * @see https://resthooks.io/docs/api/useCache
+ */
 export default function useCache<
   Shape extends Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>,
 >(

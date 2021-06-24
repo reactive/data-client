@@ -19,7 +19,10 @@ interface ProviderProps {
   initialState: State<unknown>;
 }
 
-/** Controller managing state of the REST cache and coordinating network requests. */
+/**
+ * Controller managing state of the REST cache and coordinating network requests.
+ * @see https://resthooks.io/docs/api/CacheProvider
+ */
 export default function CacheProvider({
   children,
   managers,

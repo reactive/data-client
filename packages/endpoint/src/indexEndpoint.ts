@@ -2,6 +2,10 @@ import { Schema } from '@rest-hooks/normalizr';
 
 import type { IndexInterface, IndexParams } from './interface';
 
+/**
+ * Performant lookups by secondary indexes
+ * @see https://resthooks.io/docs/api/Index
+ */
 export default class Index<S extends Schema, P = Readonly<IndexParams<S>>>
   implements IndexInterface<S, P>
 {

@@ -1,10 +1,12 @@
 import { useCallback, useRef } from 'react';
 import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
-import { Schema } from '@rest-hooks/endpoint';
 
 import useInvalidateDispatcher from './useInvalidateDispatcher';
 
-/** Invalidate a certain item within the cache */
+/**
+ * Invalidate a certain item within the cache
+ * @see https://resthooks.io/docs/api/useInvalidator
+ */
 export default function useInvalidator<Shape extends ReadShape<any, any>>(
   fetchShape: Shape,
 ): (params: ParamsFromShape<Shape> | null) => void {

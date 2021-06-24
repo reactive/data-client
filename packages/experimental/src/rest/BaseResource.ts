@@ -21,6 +21,7 @@ class NetworkError extends Error {
  * Typically 1:1 with a url endpoint.
  *
  * This can be a useful organization for many REST-like API patterns.
+ * @see https://resthooks.io/docs/api/resource
  */
 export default abstract class BaseResource extends EntityRecord {
   // typescript todo: require subclasses to implement

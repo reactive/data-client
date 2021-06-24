@@ -3,7 +3,10 @@ import { isImmutable, denormalizeImmutable } from '../schemas/ImmutableUtils';
 import * as schema from '../schema';
 import { AbstractInstanceType, Schema, NormalizedIndex } from '../types';
 
-/** Represents data that should be deduped by specifying a primary key. */
+/**
+ * Represents data that should be deduped by specifying a primary key.
+ * @see https://resthooks.io/docs/api/Entity
+ */
 export default abstract class Entity {
   static toJSON() {
     return {

@@ -12,6 +12,10 @@ interface Props<E extends NetworkError> {
 interface State<E extends NetworkError> {
   error?: E;
 }
+/**
+ * Handles any networking errors from useResource()
+ * @see https://resthooks.io/docs/api/NetworkErrorBoundary
+ */
 export default class NetworkErrorBoundary<
   E extends NetworkError,
 > extends React.Component<Props<E>, State<E>> {

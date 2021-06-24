@@ -1,19 +1,22 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 
-/** Takes an async function and tracks resolution as a boolean.
+/**
+ * Takes an async function and tracks resolution as a boolean.
  *
+ * @see https://resthooks.io/docs/api/useLoading
  * @param func A function returning a promise
  * @param onError Callback in case of error (optional)
- *
- * Usage:
- * function Button({ onClick, children, ...props }) {
- *   const [clickHandler, loading] = useLoading(onClick);
- *   return (
- *     <button onClick={clickHandler} {...props}>
- *       {loading ? 'Loading...' : children}
- *     </button>
- *   );
- * }
+ * @example
+ ```
+ function Button({ onClick, children, ...props }) {
+   const [clickHandler, loading] = useLoading(onClick);
+   return (
+     <button onClick={clickHandler} {...props}>
+       {loading ? 'Loading...' : children}
+     </button>
+   );
+ }
+ ```
  */
 export default function useLoading<
   F extends (...args: any) => Promise<any>,

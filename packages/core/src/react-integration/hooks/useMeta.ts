@@ -3,7 +3,10 @@ import { StateContext } from '@rest-hooks/core/react-integration/context';
 import { selectMeta } from '@rest-hooks/core/state/selectors';
 import { useContext, useMemo } from 'react';
 
-/** Gets meta for a fetch key. */
+/**
+ * Gets meta for a fetch key.
+ * @see https://resthooks.io/docs/api/useMeta
+ */
 export default function useMeta<
   Shape extends Pick<FetchShape<any, any>, 'getFetchKey'>,
 >({ getFetchKey }: Shape, params: ParamsFromShape<Shape> | null) {

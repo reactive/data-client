@@ -21,6 +21,10 @@ try {
   CSP = true;
 }
 
+/**
+ * Defines an async data source.
+ * @see https://resthooks.io/docs/api/Endpoint
+ */
 export default class Endpoint extends Function {
   constructor(fetchFunction, options) {
     let self;

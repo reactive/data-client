@@ -4,7 +4,10 @@ import { useMemo } from 'react';
 import useFetchDispatcher from './useFetchDispatcher';
 import useExpiresAt from './useExpiresAt';
 
-/** Request a resource if it is not in cache. */
+/**
+ * Request a resource if it is not in cache.\
+ * @see https://resthooks.io/docs/api/useRetrieve
+ */
 export default function useRetrieve<Shape extends ReadShape<any, any>>(
   fetchShape: Shape,
   params: ParamsFromShape<Shape> | null,

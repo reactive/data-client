@@ -3,7 +3,10 @@ import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
 import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '@rest-hooks/core/actionTypes';
 import { useContext, useEffect, useRef } from 'react';
 
-/** Keeps a resource fresh by subscribing to updates. */
+/**
+ * Keeps a resource fresh by subscribing to updates.
+ * @see https://resthooks.io/docs/api/useSubscription
+ */
 export default function useSubscription<Shape extends ReadShape<any, any>>(
   fetchShape: Shape,
   params: ParamsFromShape<Shape> | null,
