@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@2.2.0...@rest-hooks/legacy@2.3.0) (2021-06-25)
+
+
+### 🚀 Features
+
+* Mark compatibility with upcoming versions ([#959](https://github.com/coinbase/rest-hooks/issues/959)) ([72da158](https://github.com/coinbase/rest-hooks/commit/72da158c19acf4c76b8b86eb37e063956b7347fd))
+
+
+### 🐛 Bug Fix
+
+* Legacy cjs and unpkg should target 'legacy' ([31b6893](https://github.com/coinbase/rest-hooks/commit/31b68933245bfc6234ecea603618f43af8387729))
+
+
+
 ## [2.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@2.1.0...@rest-hooks/legacy@2.2.0) (2021-06-16)
 
 
