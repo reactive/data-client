@@ -4,10 +4,8 @@ import type { EndpointInterface } from '@rest-hooks/endpoint';
 
 import { UpdateFunction } from './types';
 
-/** Requesting a fetch to begin
- *
- * @param endpoint
- * @param options { args, throttle }
+/**
+ * Requesting a fetch to begin
  */
 export default function createFetch<
   E extends EndpointInterface & { update?: UpdateFunction<E> },

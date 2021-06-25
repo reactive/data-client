@@ -36,7 +36,8 @@ type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;
 export function Make(...args: any[]): EndpointInstance<FetchFunction>;
 
 /**
- * Creates a new function.
+ * Defines an async data source.
+ * @see https://resthooks.io/docs/api/Endpoint
  */
 export interface EndpointInstance<
   F extends FetchFunction = FetchFunction,

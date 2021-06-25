@@ -38,7 +38,10 @@ type StatefulReturn<S extends Schema, P> = CondNull<
   | { data: DenormalizeNullable<S>; loading: false; error: ErrorTypes }
 >;
 
-/** Ensure a resource is available; loading and error returned explicitly. */
+/**
+ * Ensure a resource is available; loading and error returned explicitly.
+ * @see https://resthooks.io/docs/guides/no-suspense
+ */
 export default function useStatefulResource<
   Shape extends ReadShape<any, any>,
   Params extends ParamsFromShape<Shape> | null,

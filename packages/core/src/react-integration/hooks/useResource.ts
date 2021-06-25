@@ -6,6 +6,7 @@ import {
   StateContext,
 } from '@rest-hooks/core/react-integration/context';
 import { useMemo, useContext } from 'react';
+import { NetworkError } from '@rest-hooks/core/types';
 
 import useRetrieve from './useRetrieve';
 import useError from './useError';
@@ -136,7 +137,16 @@ function useManyResources<A extends ResourceArgs<any, any>[]>(
 
 type CondNull<P, A, B> = P extends null ? A : B;
 
-/** Ensure a resource is available; suspending to React until it is. */
+/**
+ * Ensure a resource is available.
+ * Suspends until it is.
+ *
+ * `useResource` guarantees referential equality globally.
+ * @see https://resthooks.io/docs/api/useresource
+ * @throws {Promise} If data is not yet available.
+ * @throws {NetworkError} If fetch fails.
+ */
+
 export default function useResource<
   S1 extends ReadShape<any, any>,
   P1 extends ParamsFromShape<S1> | null,
@@ -766,7 +776,6 @@ export default function useResource<
   CondNull<P15, DenormalizeNullable<S15['schema']>, Denormalize<S15['schema']>>,
   CondNull<P16, DenormalizeNullable<S16['schema']>, Denormalize<S16['schema']>>,
 ];
-
 export default function useResource<
   Shape extends ReadShape<any, any>,
   Params extends ParamsFromShape<Shape> | null,

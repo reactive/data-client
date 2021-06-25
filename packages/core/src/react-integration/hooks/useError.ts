@@ -21,7 +21,10 @@ export type ErrorTypes = (NSNetworkError | NSUnknownError) | SyntheticError;
 
 type UseErrorReturn<P> = P extends null ? undefined : ErrorTypes | undefined;
 
-/** Access a resource or error if failed to get it */
+/**
+ * Get any errors for a given request
+ * @see https://resthooks.io/docs/api/useError
+ */
 export default function useError<
   Shape extends Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>,
 >(

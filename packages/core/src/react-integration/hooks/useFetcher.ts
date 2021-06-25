@@ -9,7 +9,10 @@ import { useRef, useCallback } from 'react';
 
 import useFetchDispatcher from './useFetchDispatcher';
 
-/** Build an imperative dispatcher to issue network requests. */
+/**
+ * Build an imperative dispatcher to issue network requests.
+ * @see https://resthooks.io/docs/api/useFetcher
+ */
 export default function useFetcher<
   Shape extends FetchShape<Schema, Readonly<object>, any>,
 >(

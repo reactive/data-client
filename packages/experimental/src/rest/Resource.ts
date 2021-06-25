@@ -9,6 +9,7 @@ import type { RestEndpoint, Paginatable } from './types';
 /**
  * Represents an entity to be retrieved from a server.
  * Typically 1:1 with a url endpoint.
+ * @see https://resthooks.io/docs/api/resource
  */
 export default abstract class Resource extends BaseResource {
   /** Endpoint to get a single entity */
