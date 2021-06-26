@@ -19,9 +19,9 @@ export default class PollingSubscription implements Subscription {
   protected frequencyHistogram: Map<number, number> = new Map();
   protected declare dispatch: Dispatch<any>;
   protected declare getState: () => State<unknown>;
-  protected declare intervalId?: NodeJS.Timeout;
-  protected declare lastIntervalId?: NodeJS.Timeout;
-  protected declare startId?: NodeJS.Timeout;
+  protected declare intervalId?: ReturnType<typeof setInterval>;
+  protected declare lastIntervalId?: ReturnType<typeof setInterval>;
+  protected declare startId?: ReturnType<typeof setTimeout>;
   private declare connectionListener: ConnectionListener;
 
   constructor(
