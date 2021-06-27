@@ -17,7 +17,7 @@ export {
   useResetter,
   hasUsableData,
 } from './react-integration';
-export type { SyntheticError, ErrorTypes } from './react-integration';
+export type { ErrorTypes } from './react-integration';
 export {
   StateContext,
   DispatchContext,

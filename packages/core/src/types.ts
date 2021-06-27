@@ -50,6 +50,7 @@ export type State<T> = Readonly<{
       readonly expiresAt: number;
       readonly prevExpiresAt?: number;
       readonly invalidated?: boolean;
+      readonly errorPolicy?: 'soft' | undefined;
     };
   };
   entityMeta: {
@@ -74,6 +75,7 @@ export interface ReceiveMeta<S extends Schema | undefined> {
   update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
   date: number;
   expiresAt: number;
+  errorPolicy?: (error: any) => 'soft' | undefined;
 }
 
 export type ReceiveAction<

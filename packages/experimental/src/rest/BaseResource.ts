@@ -138,7 +138,10 @@ export default abstract class BaseResource extends EntityRecord {
 
   /** Get the request options for this SimpleResource */
   static getEndpointExtra(): EndpointExtraOptions | undefined {
-    return;
+    return {
+      errorPolicy: error =>
+        error.status >= 500 ? ('soft' as const) : undefined,
+    };
   }
 
   /** Field where endpoint cache is stored */

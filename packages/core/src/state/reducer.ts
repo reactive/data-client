@@ -171,6 +171,7 @@ function reduceError(
         date: action.meta.date,
         error,
         expiresAt: action.meta.expiresAt,
+        errorPolicy: action.meta.errorPolicy?.(error),
       },
     },
     optimistic: filterOptimistic(state, action),

@@ -15,6 +15,8 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   readonly invalidIfStale?: boolean;
   /** Enables optimistic updates for this request - uses return value as assumed network response */
   readonly optimisticUpdate?: (...args: Parameters<F>) => ResolveType<F>;
+  /** Determines whether to throw or fallback to */
+  readonly errorPolicy?: (error: any) => 'soft' | undefined;
   /** User-land extra data to send */
   readonly extra?: any;
 }

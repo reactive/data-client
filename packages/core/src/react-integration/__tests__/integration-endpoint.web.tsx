@@ -25,7 +25,13 @@ import {
   makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../../../test';
-import { useResource, useFetcher, useCache, useInvalidator } from '../hooks';
+import {
+  useResource,
+  useFetcher,
+  useCache,
+  useInvalidator,
+  useInvalidateDispatcher,
+} from '../hooks';
 import {
   payload,
   createPayload,
@@ -75,6 +81,8 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         .reply(204, '')
         .get(`/article-cooler/0`)
         .reply(403, {})
+        .get(`/article-cooler/500`)
+        .reply(500, { message: 'server failure' })
         .get(`/article-cooler/666`)
         .reply(200, '')
         .get(`/article-cooler/`)
@@ -467,6 +475,71 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       await waitForNextUpdate();
       expect(result.error).toBeDefined();
       expect((result.error as any).status).toBe(403);
+    });
+
+    it('useResource() should throw 500 errors', async () => {
+      const { result, waitForNextUpdate } = renderRestHook(() => {
+        return useResource(TypedArticleResource.detail(), {
+          id: 500,
+        });
+      });
+      expect(result.current).toBeUndefined();
+      await waitForNextUpdate();
+      expect(result.error).toBeDefined();
+      expect((result.error as any).status).toBe(500);
+    });
+
+    it('useResource() should not throw 500 if data already available', async () => {
+      const { result, waitForNextUpdate } = renderRestHook(
+        () => {
+          return [
+            useResource(TypedArticleResource.detail(), {
+              id: 500,
+            }),
+            useFetcher(CoolerArticleResource.detail()),
+            useInvalidateDispatcher(),
+          ] as const;
+        },
+        {
+          results: [
+            {
+              request: TypedArticleResource.detail().extend({
+                dataExpiryLength: 1000,
+              }),
+              params: {
+                id: 500,
+              },
+              result: { id: 500, title: 'hi' },
+            },
+          ],
+        },
+      );
+      // initially data is defined
+      expect(result.current).toBeDefined();
+      expect(result.current[0].title).toBe('hi');
+
+      // force fetch
+      try {
+        // this will 500
+        await result.current[1]({ id: 500 });
+        // eslint-disable-next-line no-empty
+      } catch (e) {}
+      expect(result.current).toBeDefined();
+      expect(result.current[0].title).toBe('hi');
+
+      // invalidate will clear this possibility though
+      /*try {
+        act(() =>
+          result.current[2](TypedArticleResource.detail(), { id: 500 }),
+        );
+        await waitForNextUpdate();
+        // eslint-disable-next-line no-empty
+      } catch (e) {
+      } finally {
+        expect(result.current).toBeUndefined();
+        expect(result.error).toBeDefined();
+        expect((result.error as any).status).toBe(500);
+      }*/
     });
 
     it('useResource() should throw errors on malformed response', async () => {
