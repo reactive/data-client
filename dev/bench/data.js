@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1624589925185,
+  "lastUpdate": 1624812308220,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -2398,6 +2398,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.25%",
             "unit": "ops/sec",
             "extra": "81 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "06023760266ed572697605c45bd7e271406badd3",
+          "message": "enhance: Remove extraneous hack for expiresAt (#970)\n\nBREAKING CHANGE: Rest Hooks 4 invalidIfStale behavior completely removed",
+          "timestamp": "2021-06-27T09:42:05-07:00",
+          "tree_id": "3fde4c5c810eda367165ef13f0a7f3d08cf1dc75",
+          "url": "https://github.com/coinbase/rest-hooks/commit/06023760266ed572697605c45bd7e271406badd3"
+        },
+        "date": 1624812307028,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 75.9,
+            "range": "±2.41%",
+            "unit": "ops/sec",
+            "extra": "64 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 37.64,
+            "range": "±1.32%",
+            "unit": "ops/sec",
+            "extra": "49 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 42.93,
+            "range": "±0.93%",
+            "unit": "ops/sec",
+            "extra": "56 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 74.18,
+            "range": "±1.79%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
           }
         ]
       }
