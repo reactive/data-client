@@ -16,14 +16,5 @@ export default function useExpiresAt<
     return entitiesExpireAt;
   }
 
-  // Temporarily prevent infinite loops until invalidIfStale is revised
-  if (
-    fetchShape.options?.invalidIfStale &&
-    meta.prevExpiresAt &&
-    meta.expiresAt - meta.prevExpiresAt < 1000
-  ) {
-    return meta.expiresAt + 2000;
-  }
-
   return meta.expiresAt;
 }
