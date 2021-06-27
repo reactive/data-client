@@ -33,6 +33,22 @@ export type ParamFromFetch<F> = F extends (
 
 type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;
 
+export type ExtendedEndpoint<
+  O extends EndpointExtendOptions<F>,
+  E extends EndpointInstance<
+    FetchFunction,
+    Schema | undefined,
+    true | undefined
+  >,
+  F extends FetchFunction,
+> = Omit<O, keyof EndpointInstance<FetchFunction>> &
+  Omit<E, keyof EndpointInstance<FetchFunction>> &
+  EndpointInstance<
+    'fetch' extends keyof O ? Exclude<O['fetch'], undefined> : E['fetch'],
+    'schema' extends keyof O ? O['schema'] : E['_schema'],
+    'sideEffect' extends keyof O ? O['sideEffect'] : E['sideEffect']
+  >;
+
 export function Make(...args: any[]): EndpointInstance<FetchFunction>;
 
 /**
@@ -123,19 +139,7 @@ export interface EndpointInstance<
   >(
     this: E,
     options: O,
-  ): Omit<O, keyof EndpointInstance<FetchFunction>> &
-    Omit<E, keyof EndpointInstance<FetchFunction>> &
-    EndpointInstance<
-      'fetch' extends keyof typeof options
-        ? Exclude<typeof options['fetch'], undefined>
-        : E['fetch'],
-      'schema' extends keyof typeof options
-        ? typeof options['schema']
-        : E['_schema'],
-      'sideEffect' extends keyof typeof options
-        ? typeof options['sideEffect']
-        : E['sideEffect']
-    >;
+  ): ExtendedEndpoint<typeof options, E, F>;
 
   /** The following is for compatibility with FetchShape */
   /** @deprecated */
