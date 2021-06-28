@@ -34,6 +34,10 @@ describe('useCancelling()', () => {
       .delay(2000)
       .reply(200, payload2);
   });
+  afterAll(() => {
+    jest.useRealTimers();
+    nock.cleanAll();
+  });
 
   it('should abort when props change and resolve when kept the same', async () => {
     const { result, rerender } = renderHook(

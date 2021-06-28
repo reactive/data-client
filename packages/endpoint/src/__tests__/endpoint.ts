@@ -94,7 +94,7 @@ describe('Endpoint', () => {
       const a: 'mutate' = UserDetail.type;
 
       // these are all meant to fail - are typescript tests
-      expect(async () => {
+      await expect(async () => {
         // @ts-expect-error
         await UserDetail({ id: 5 });
         // @ts-expect-error
@@ -140,7 +140,7 @@ describe('Endpoint', () => {
       const a: 'mutate' = UserDetail.type;
 
       // these are all meant to fail - are typescript tests
-      expect(async () => {
+      await expect(async () => {
         // @ts-expect-error
         await UserDetail({ id: payload.id });
         // @ts-expect-error
@@ -172,7 +172,7 @@ describe('Endpoint', () => {
       const a: 'mutate' = UserList.type;
 
       // these are all meant to fail - are typescript tests
-      expect(async () => {
+      await expect(async () => {
         // @ts-expect-error
         await UserList({ id: payload.id });
         // @ts-expect-error
@@ -586,10 +586,10 @@ describe('Endpoint', () => {
       expect(user.username).toBe(payload.username);
     });
 
-    it('should reject when aborted', () => {
+    it('should reject when aborted', async () => {
       const abort = new AbortController();
       const AbortUser = UserDetail.extend({ signal: abort.signal });
-      expect(async () => {
+      await expect(async () => {
         const promise = AbortUser({ id: payload.id });
         abort.abort();
         return await promise;

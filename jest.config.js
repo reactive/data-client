@@ -10,6 +10,7 @@ const baseConfig = {
     'packages/experimental',
     'packages/legacy/src/resource',
   ],
+  testEnvironment: 'jsdom',
   testURL: 'http://localhost',
 };
 
