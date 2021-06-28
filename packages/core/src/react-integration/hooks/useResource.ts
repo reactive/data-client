@@ -6,7 +6,6 @@ import {
   StateContext,
 } from '@rest-hooks/core/react-integration/context';
 import { useMemo, useContext } from 'react';
-import { NetworkError } from '@rest-hooks/core/types';
 
 import useRetrieve from './useRetrieve';
 import useError from './useError';
@@ -46,9 +45,6 @@ function useOneResource<
     deleted && !error,
     entitiesExpireAt,
   );
-
-  // refetching won't ever save us if the network response is bad.
-  if (error && error.synthetic) throw error;
 
   if (
     !hasUsableData(
@@ -117,11 +113,10 @@ function useManyResources<A extends ResourceArgs<any, any>[]>(
   // throw first valid error
   for (let i = 0; i < resourceList.length; i++) {
     const err = errorValues[i];
-    // either the error is synthetic (not from network), or we aren't fetching at all
+    // we aren't fetching at all
     // then throw that error
-    if (err && (err.synthetic || !promises[i])) throw err;
+    if (err && !promises[i]) throw err;
   }
-
   const promise = useMemo(() => {
     const activePromises = promises.filter(p => p);
     if (activePromises.length) {

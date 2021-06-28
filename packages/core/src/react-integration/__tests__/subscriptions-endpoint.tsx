@@ -66,17 +66,19 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
 
     it('useSubscription() + useCache()', async () => {
       jest.useFakeTimers();
-      let active = true;
       const frequency = PollingArticleResource.detail().pollFrequency as number;
       expect(frequency).toBeDefined();
 
-      const { result, waitForNextUpdate, rerender } = renderRestHook(() => {
-        useSubscription(
-          PollingArticleResource.detail(),
-          active ? articlePayload : null,
-        );
-        return useCache(PollingArticleResource.detail(), articlePayload);
-      });
+      const { result, waitForNextUpdate, rerender } = renderRestHook(
+        ({ active }) => {
+          useSubscription(
+            PollingArticleResource.detail(),
+            active ? articlePayload : null,
+          );
+          return useCache(PollingArticleResource.detail(), articlePayload);
+        },
+        { initialProps: { active: true } },
+      );
 
       await validateSubscription(
         result,
@@ -86,11 +88,19 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       );
 
       // should not update if active is false
-      active = false;
-      rerender();
+      rerender({ active: false });
       mynock
         .get(`/article/${articlePayload.id}`)
         .reply(200, { ...articlePayload, title: 'sixer' });
+      jest.advanceTimersByTime(frequency);
+      expect((result.current as any).title).toBe('fiver');
+
+      // errors should not fail when data already exists
+      nock.cleanAll();
+      mynock.get(`/article/${articlePayload.id}`).reply(403, () => {
+        return { message: 'you fail' };
+      });
+      rerender({ active: true });
       jest.advanceTimersByTime(frequency);
       expect((result.current as any).title).toBe('fiver');
       jest.useRealTimers();

@@ -1,23 +1,10 @@
 import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
 import { NetworkError, UnknownError } from '@rest-hooks/core/types';
+import { StateContext } from '@rest-hooks/core/react-integration/context';
+import { useContext } from 'react';
+import { selectMeta } from '@rest-hooks/core/state/selectors';
 
-import useMeta from './useMeta';
-
-export interface SyntheticError extends Error {
-  status: number;
-  response?: undefined;
-  synthetic: true;
-}
-
-interface NSNetworkError extends NetworkError {
-  synthetic?: undefined | false;
-}
-
-interface NSUnknownError extends UnknownError {
-  synthetic?: undefined | false;
-}
-
-export type ErrorTypes = (NSNetworkError | NSUnknownError) | SyntheticError;
+export type ErrorTypes = NetworkError | UnknownError;
 
 type UseErrorReturn<P> = P extends null ? undefined : ErrorTypes | undefined;
 
@@ -31,7 +18,15 @@ export default function useError<
   fetchShape: Shape,
   params: ParamsFromShape<Shape> | null,
 ): UseErrorReturn<typeof params> {
-  const meta = useMeta(fetchShape, params);
-  if (!params) return;
+  const state = useContext(StateContext);
+  const key = params ? fetchShape.getFetchKey(params) : '';
+
+  if (!key) return;
+
+  const meta = selectMeta(state, key);
+  const results = state.results[key];
+
+  if (results !== undefined && meta?.errorPolicy === 'soft') return;
+
   return meta?.error as any;
 }

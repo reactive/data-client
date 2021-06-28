@@ -8,6 +8,7 @@ Array [
       "options": Object {
         "dataExpiryLength": 2500,
         "errorExpiryLength": 500,
+        "errorPolicy": [Function],
       },
       "reject": [Function],
       "resolve": [Function],
@@ -29,6 +30,7 @@ Array [
       "options": Object {
         "dataExpiryLength": 2500,
         "errorExpiryLength": 500,
+        "errorPolicy": [Function],
       },
       "reject": [Function],
       "resolve": [Function],

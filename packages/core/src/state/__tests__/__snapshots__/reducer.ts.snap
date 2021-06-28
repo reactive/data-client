@@ -9,6 +9,7 @@ Object {
     "http://test.com/article/20": Object {
       "date": 5000000000,
       "error": [Error: hi],
+      "errorPolicy": undefined,
       "expiresAt": 5000500000,
     },
   },

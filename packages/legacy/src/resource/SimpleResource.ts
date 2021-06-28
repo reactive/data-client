@@ -99,7 +99,9 @@ export default abstract class SimpleResource extends FlatEntity {
   /** @deprecated */
   /** Get the request options for this SimpleResource  */
   static getFetchOptions(): FetchOptions | undefined {
-    return;
+    return {
+      errorPolicy: () => 'soft' as const,
+    };
   }
 
   /** Init options for fetch - run at fetch */

@@ -132,6 +132,8 @@ export default class PollingSubscription implements Subscription {
         options: {
           dataExpiryLength: this.frequency / 2,
           errorExpiryLength: this.frequency / 10,
+          // never break when data already exists
+          errorPolicy: () => 'soft' as const,
         },
         resolve: () => {},
         reject: () => {},

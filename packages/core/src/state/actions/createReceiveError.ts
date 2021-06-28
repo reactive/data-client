@@ -7,13 +7,13 @@ import {
 import { RECEIVE_TYPE } from '@rest-hooks/core/actionTypes';
 
 interface Options<S extends Schema | undefined = any>
-  extends Pick<FetchAction<any, S>['meta'], 'schema' | 'key'> {
+  extends Pick<FetchAction<any, S>['meta'], 'schema' | 'key' | 'options'> {
   errorExpiryLength: NonNullable<FetchOptions['errorExpiryLength']>;
 }
 
 export default function createReceiveError<S extends Schema | undefined = any>(
   error: Error,
-  { schema, key, errorExpiryLength }: Options<S>,
+  { schema, key, options, errorExpiryLength }: Options<S>,
 ): ReceiveAction {
   /* istanbul ignore next */
   if (process.env.NODE_ENV === 'development' && errorExpiryLength < 0) {
@@ -28,6 +28,7 @@ export default function createReceiveError<S extends Schema | undefined = any>(
       key,
       date: now,
       expiresAt: now + errorExpiryLength,
+      errorPolicy: options?.errorPolicy,
     },
     error: true,
   };
