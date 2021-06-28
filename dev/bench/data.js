@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1624862495318,
+  "lastUpdate": 1624863184265,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -2502,6 +2502,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.62%",
             "unit": "ops/sec",
             "extra": "64 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d0047af65c1afe3ac0ce88689f7673bad633b08e",
+          "message": "internal(pkg): Upgrade jest to 27 (#867)",
+          "timestamp": "2021-06-27T23:50:16-07:00",
+          "tree_id": "a19e6f9e546e1441bf8973b1251875e778554208",
+          "url": "https://github.com/coinbase/rest-hooks/commit/d0047af65c1afe3ac0ce88689f7673bad633b08e"
+        },
+        "date": 1624863182443,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 74.37,
+            "range": "±2.34%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 37.61,
+            "range": "±0.69%",
+            "unit": "ops/sec",
+            "extra": "64 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 42.5,
+            "range": "±0.46%",
+            "unit": "ops/sec",
+            "extra": "56 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 74.99,
+            "range": "±1.60%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
           }
         ]
       }
