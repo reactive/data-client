@@ -11,5 +11,6 @@ describe('RequestIdleCallback', () => {
     jest.runAllTimers();
     expect(fn).toBeCalled();
     (global as any).requestIdleCallback = requestIdle;
+    jest.useRealTimers();
   });
 });

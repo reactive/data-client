@@ -71,18 +71,24 @@ describe('PollingSubscription', () => {
   const dispatch = jest.fn();
   const a = () => Promise.resolve({ id: 5, title: 'hi' });
   const fetch = jest.fn(a);
-  jest.useFakeTimers();
+  let sub: PollingSubscription;
 
-  const sub = new PollingSubscription(
-    {
-      key: 'test.com',
-      schema: PollingArticleResource,
-      fetch,
-      frequency: 5000,
-      getState: () => initialState,
-    },
-    dispatch,
-  );
+  beforeAll(() => {
+    jest.useFakeTimers();
+    sub = new PollingSubscription(
+      {
+        key: 'test.com',
+        schema: PollingArticleResource,
+        fetch,
+        frequency: 5000,
+        getState: () => initialState,
+      },
+      dispatch,
+    );
+  });
+  afterAll(() => {
+    jest.useRealTimers();
+  });
 
   afterAll(() => {
     sub.cleanup();
@@ -227,8 +233,6 @@ describe('PollingSubscription', () => {
   });
 
   describe('offline support', () => {
-    jest.useFakeTimers();
-
     function createMocks(listener: ConnectionListener) {
       const dispatch = jest.fn();
       const a = () => Promise.resolve({ id: 5, title: 'hi' });

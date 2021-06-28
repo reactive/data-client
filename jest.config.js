@@ -10,7 +10,6 @@ const baseConfig = {
     'packages/experimental',
     'packages/legacy/src/resource',
   ],
-  testEnvironment: 'jsdom',
   testURL: 'http://localhost',
 };
 
@@ -35,6 +34,7 @@ const projects = [
     roots: packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
     displayName: 'ReactDOM',
     setupFiles: ['<rootDir>/scripts/testSetup.js'],
+    testEnvironment: 'jsdom',
     testRegex: [
       '((/__tests__/(?!.*\\.node).*)|(\\.|/)(test|spec))\\.(j|t)sx?$',
     ],
