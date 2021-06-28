@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1624863184265,
+  "lastUpdate": 1624863614012,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -2554,6 +2554,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.60%",
             "unit": "ops/sec",
             "extra": "76 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "836f05b407b5ac96c8f094e652221aa5a95300b0",
+          "message": "feat: Add errorPolicy to endpoint options (#971)\n\nBREAKING CHANGE:\r\n- Removed: SyntheticError (untriggerable since https://github.com/coinbase/rest-hooks/pull/938)\r\n- @rest-hooks/rest: 500s are 'soft', else 'hard'\r\n- PollingSubscription: any errors are 'soft'\r\n- @rest-hooks/endpoint: no default errorPolicy, therefore all errors are\r\n'hard'",
+          "timestamp": "2021-06-27T23:57:01-07:00",
+          "tree_id": "24c25532a12df1ffa3321e2667b95a645720df8b",
+          "url": "https://github.com/coinbase/rest-hooks/commit/836f05b407b5ac96c8f094e652221aa5a95300b0"
+        },
+        "date": 1624863612450,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 71.04,
+            "range": "±2.12%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 37.72,
+            "range": "±2.20%",
+            "unit": "ops/sec",
+            "extra": "50 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 42.58,
+            "range": "±1.81%",
+            "unit": "ops/sec",
+            "extra": "55 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 70.66,
+            "range": "±3.39%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
           }
         ]
       }
