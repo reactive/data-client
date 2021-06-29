@@ -1,3 +1,3 @@
-export { default as createFetch } from './createFetch';
-export { default as createReceive } from './createReceive';
-export { default as createReceiveError } from './createReceiveError';
+export { default as createFetch } from '@rest-hooks/core/state/actions/createFetch';
+export { default as createReceive } from '@rest-hooks/core/state/actions/createReceive';
+export { default as createReceiveError } from '@rest-hooks/core/state/actions/createReceiveError';

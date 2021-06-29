@@ -9,9 +9,11 @@ import {
   FETCH_TYPE,
   RESET_TYPE,
 } from '@rest-hooks/core/actionTypes';
-
-import RIC from './RIC';
-import { createReceive, createReceiveError } from './actions';
+import RIC from '@rest-hooks/core/state/RIC';
+import {
+  createReceive,
+  createReceiveError,
+} from '@rest-hooks/core/state/actions';
 
 /** Handles all async network dispatches
  *

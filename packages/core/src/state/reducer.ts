@@ -8,8 +8,7 @@ import {
   FETCH_TYPE,
   GC_TYPE,
 } from '@rest-hooks/core/actionTypes';
-
-import applyUpdatersToResults from './applyUpdatersToResults';
+import applyUpdatersToResults from '@rest-hooks/core/state/applyUpdatersToResults';
 
 export const initialState: State<unknown> = {
   entities: {},

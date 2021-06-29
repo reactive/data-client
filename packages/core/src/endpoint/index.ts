@@ -1,4 +1,9 @@
-export type { FetchShape, ReadShape, MutateShape, DeleteShape } from './shapes';
+export type {
+  FetchShape,
+  ReadShape,
+  MutateShape,
+  DeleteShape,
+} from '@rest-hooks/core/endpoint/shapes';
 export type {
   SetShapeParams,
   ParamsFromShape,
@@ -6,4 +11,4 @@ export type {
   SchemaFromShape,
   BodyFromShape,
   ReturnFromShape,
-} from './types';
+} from '@rest-hooks/core/endpoint/types';
