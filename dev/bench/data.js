@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1625085718687,
+  "lastUpdate": 1625086704729,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -2866,6 +2866,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.37%",
             "unit": "ops/sec",
             "extra": "65 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": false,
+          "id": "dc7229f6f020b09a8f28449bfeb3074ba18a8cb6",
+          "message": "internal: publish\n\n - @rest-hooks/core@2.0.0-beta.1\n - @rest-hooks/legacy@3.0.0-beta.1\n - rest-hooks@6.0.0-beta.1",
+          "timestamp": "2021-06-30T15:45:34-05:00",
+          "tree_id": "12bbbbdd7bdeb8cfd7a7149ff690a3c2981f7cd0",
+          "url": "https://github.com/coinbase/rest-hooks/commit/dc7229f6f020b09a8f28449bfeb3074ba18a8cb6"
+        },
+        "date": 1625086703497,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 86.53,
+            "range": "±2.06%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 43.8,
+            "range": "±1.95%",
+            "unit": "ops/sec",
+            "extra": "58 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 48.98,
+            "range": "±1.51%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 88.14,
+            "range": "±2.07%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
           }
         ]
       }
