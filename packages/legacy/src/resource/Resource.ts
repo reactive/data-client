@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 
-import SimpleResource from './SimpleResource';
-import type { Method } from './types';
+import SimpleResource from '@rest-hooks/legacy/resource/SimpleResource';
+import type { Method } from '@rest-hooks/legacy/resource/types';
 
 class NetworkError extends Error {
   declare status: number;

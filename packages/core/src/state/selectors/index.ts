@@ -1,6 +1,5 @@
 import { State } from '@rest-hooks/core/types';
-
-import useDenormalized from './useDenormalized';
+import useDenormalized from '@rest-hooks/core/state/selectors/useDenormalized';
 
 export { useDenormalized };
 

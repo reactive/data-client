@@ -8,9 +8,8 @@ import type {
   FetchFunction,
   EndpointExtraOptions,
 } from '@rest-hooks/endpoint';
-
-import { ErrorableFSAWithPayloadAndMeta } from './fsa';
-import { FetchShape } from './endpoint';
+import { ErrorableFSAWithPayloadAndMeta } from '@rest-hooks/core/fsa';
+import { FetchShape } from '@rest-hooks/core/endpoint';
 import {
   RECEIVE_TYPE,
   RESET_TYPE,
@@ -19,7 +18,7 @@ import {
   UNSUBSCRIBE_TYPE,
   INVALIDATE_TYPE,
   GC_TYPE,
-} from './actionTypes';
+} from '@rest-hooks/core/actionTypes';
 
 export type { AbstractInstanceType, UpdateFunction };
 

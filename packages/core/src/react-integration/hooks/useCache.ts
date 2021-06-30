@@ -12,8 +12,7 @@ import {
   useError,
 } from '@rest-hooks/core/react-integration/hooks';
 import { denormalize, inferResults } from '@rest-hooks/normalizr';
-
-import useExpiresAt from './useExpiresAt';
+import useExpiresAt from '@rest-hooks/core/react-integration/hooks/useExpiresAt';
 
 /**
  * Access a resource if it is available.

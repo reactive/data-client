@@ -1,13 +1,16 @@
-import { isImmutable, denormalizeImmutable } from './ImmutableUtils';
+import {
+  isImmutable,
+  denormalizeImmutable,
+} from '@rest-hooks/normalizr/schemas/ImmutableUtils';
 
 export const normalize = (
-  schema,
-  input,
-  parent,
-  key,
-  visit,
-  addEntity,
-  visitedEntities,
+  schema: any,
+  input: any,
+  parent: any,
+  key: any,
+  visit: any,
+  addEntity: any,
+  visitedEntities: any,
 ) => {
   const object = { ...input };
   Object.keys(schema).forEach(key => {
@@ -29,7 +32,11 @@ export const normalize = (
   return object;
 };
 
-export const denormalize = (schema, input, unvisit) => {
+export const denormalize = (
+  schema: any,
+  input: any,
+  unvisit: any,
+): [denormalized: any, found: boolean, deleted: boolean] => {
   if (isImmutable(input)) {
     return denormalizeImmutable(schema, input, unvisit);
   }
@@ -52,8 +59,8 @@ export const denormalize = (schema, input, unvisit) => {
   return [object, found, deleted];
 };
 
-export function infer(schema, args, indexes, recurse) {
-  let resultObject = {};
+export function infer(schema: any, args: any, indexes: any, recurse: any) {
+  const resultObject: any = {};
   for (const k of Object.keys(schema)) {
     resultObject[k] = recurse(schema[k], args, indexes);
   }
@@ -65,6 +72,8 @@ export function infer(schema, args, indexes, recurse) {
  * @see https://resthooks.io/docs/api/Object
  */
 export default class ObjectSchema {
+  protected schema: any;
+
   constructor(definition) {
     this.define(definition);
   }
@@ -76,15 +85,24 @@ export default class ObjectSchema {
     }, this.schema || {});
   }
 
-  normalize(...args) {
+  normalize(
+    ...args: readonly [
+      input: any,
+      parent: any,
+      key: any,
+      visit: any,
+      addEntity: any,
+      visitedEntities: any,
+    ]
+  ) {
     return normalize(this.schema, ...args);
   }
 
-  denormalize(...args) {
+  denormalize(...args: readonly [input: any, unvisit: any]) {
     return denormalize(this.schema, ...args);
   }
 
-  infer(args, indexes, recurse) {
+  infer(args: any, indexes: any, recurse: any) {
     return infer(this.schema, args, indexes, recurse);
   }
 }

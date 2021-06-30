@@ -6,12 +6,11 @@ import { State, Manager } from '@rest-hooks/core/types';
 import useEnhancedReducer from '@rest-hooks/use-enhanced-reducer';
 import React, { ReactNode, useEffect, useMemo } from 'react';
 import { useRef } from 'react';
-
 import {
   StateContext,
   DispatchContext,
   DenormalizeCacheContext,
-} from '../context';
+} from '@rest-hooks/core/react-integration/context';
 
 interface ProviderProps {
   children: ReactNode;

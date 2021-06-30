@@ -1,12 +1,12 @@
-import { normalize as arrayNormalize } from './schemas/Array';
-import { normalize as objectNormalize } from './schemas/Object';
 import type {
   NormalizeNullable,
   NormalizedSchema,
   Schema,
   NormalizedIndex,
-} from './types';
-import { DELETED } from './special';
+} from '@rest-hooks/normalizr/types';
+import { DELETED } from '@rest-hooks/normalizr/special';
+import { normalize as arrayNormalize } from '@rest-hooks/normalizr/schemas/Array';
+import { normalize as objectNormalize } from '@rest-hooks/normalizr/schemas/Object';
 
 const visit = (
   value: any,

@@ -1,18 +1,18 @@
-import { isImmutable } from './schemas/ImmutableUtils';
-import { denormalize as arrayDenormalize } from './schemas/Array';
-import { denormalize as objectDenormalize } from './schemas/Object';
+import { EntityInterface } from '@rest-hooks/normalizr/schema';
+import * as schema from '@rest-hooks/normalizr/schema';
 import {
   Denormalize,
   DenormalizeNullable,
   Schema,
   DenormalizeCache,
   UnvisitFunction,
-} from './types';
-import Entity, { isEntity } from './entities/Entity';
-import { DELETED } from './special';
-import { EntityInterface } from './schema';
-import WeakListMap from './WeakListMap';
-import { schema } from '.';
+} from '@rest-hooks/normalizr/types';
+import Entity, { isEntity } from '@rest-hooks/normalizr/entities/Entity';
+import { DELETED } from '@rest-hooks/normalizr/special';
+import WeakListMap from '@rest-hooks/normalizr/WeakListMap';
+import { denormalize as arrayDenormalize } from '@rest-hooks/normalizr/schemas/Array';
+import { denormalize as objectDenormalize } from '@rest-hooks/normalizr/schemas/Object';
+import { isImmutable } from '@rest-hooks/normalizr/schemas/ImmutableUtils';
 
 const unvisitEntity = (
   id: any,
