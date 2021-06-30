@@ -17,7 +17,6 @@
     "test": "cross-env NODE_ENV=test jest",
     "test:ci": "yarn test -- --ci",
     "test:coverage": "yarn test -- --coverage",
-    "bench": "cross-env NODE_ENV=production BROWSERSLIST_ENV=modern ROOT_PATH_PREFIX='@rest-hooks/normalizr' babel-node --root-mode upward packages/normalizr/src/__benchmarks__/benchmark.js --extensions '.ts,.tsx,.js'",
     "prepare": "yarn run build:types"
   },
   "engines": {
