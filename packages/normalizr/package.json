@@ -24,13 +24,15 @@
   "files": [
     "dist/",
     "lib/",
+    "node.mjs",
+    "legacy",
     "ts3.4",
     "LICENSE",
     "README.md"
   ],
   "main": "dist/normalizr.js",
-  "module": "lib/index.js",
-  "typings": "lib/index.d.ts",
+  "module": "legacy/index.js",
+  "types": "lib/index.d.ts",
   "typesVersions": {
     ">=4.0": {
       "": [
@@ -49,17 +51,32 @@
       ]
     }
   },
-  "sideEffects": false,
-  "engines": {
-    "node": ">=0.12"
+  "exports": {
+    ".": [
+      {
+        "node": {
+          "import": "./node.mjs",
+          "require": "./dist/normalizr.js"
+        },
+        "default": "./lib/index.js"
+      },
+      "./lib/index.js"
+    ],
+    "./package.json": "./package.json"
   },
+  "type": "module",
+  "engines": {
+    "node": "^12.17 || ^13.7 || >=14"
+  },
+  "sideEffects": false,
   "scripts": {
-    "build": "yarn run build:lib && yarn run build:bundle",
-    "build:bundle": "run-p build:js:*",
+    "build": "yarn run build:lib && yarn run build:legacy:lib && yarn run build:bundle",
     "build:js:development": "cross-env BROWSERSLIST_ENV=legacy NODE_ENV=development rollup -c",
     "build:js:production": "cross-env BROWSERSLIST_ENV=legacy NODE_ENV=production rollup -c",
-    "build:lib": "cross-env NODE_ENV=production  BROWSERSLIST_ENV=2019 ROOT_PATH_PREFIX='@rest-hooks/normalizr' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/__benchmarks__/**' --ignore '**/*.d.ts'",
-    "build:clean": "rimraf dist lib ts3.4 *.tsbuildinfo",
+    "build:lib": "cross-env NODE_ENV=production BROWSERSLIST_ENV='2020' RESOLVER_ALIAS='{\"^@rest-hooks/normalizr(.+)$\":\"./src/\\\\1.js\"}' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:legacy:lib": "cross-env NODE_ENV=production BROWSERSLIST_ENV='2018' RESOLVER_ALIAS='{\"^@rest-hooks/normalizr(.+)$\":\"./src/\\\\1.js\"}' babel --root-mode upward src --out-dir legacy --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:bundle": "run-p build:js:* && echo '{\"type\":\"commonjs\"}' > dist/package.json",
+    "build:clean": "rimraf lib ts3.4 legacy dist *.tsbuildinfo",
     "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
     "lint": "yarn lint:cmd --fix",
     "lint:ci": "yarn lint:cmd",

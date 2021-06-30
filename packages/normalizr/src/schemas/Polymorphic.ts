@@ -1,6 +1,9 @@
-import { isImmutable } from './ImmutableUtils';
+import { isImmutable } from '@rest-hooks/normalizr/schemas/ImmutableUtils';
 
 export default class PolymorphicSchema {
+  private declare _schemaAttribute: any;
+  protected schema: any;
+
   constructor(definition, schemaAttribute) {
     if (schemaAttribute) {
       this._schemaAttribute =
@@ -15,15 +18,15 @@ export default class PolymorphicSchema {
     return !this._schemaAttribute;
   }
 
-  define(definition) {
+  define(definition: any) {
     this.schema = definition;
   }
 
-  getSchemaAttribute(input, parent, key) {
+  getSchemaAttribute(input: any, parent: any, key: any) {
     return !this.isSingleSchema && this._schemaAttribute(input, parent, key);
   }
 
-  inferSchema(input, parent, key) {
+  inferSchema(input: any, parent: any, key: any) {
     if (this.isSingleSchema) {
       return this.schema;
     }
@@ -32,7 +35,14 @@ export default class PolymorphicSchema {
     return this.schema[attr];
   }
 
-  normalizeValue(value, parent, key, visit, addEntity, visitedEntities) {
+  normalizeValue(
+    value: any,
+    parent: any,
+    key: any,
+    visit: any,
+    addEntity: any,
+    visitedEntities: any,
+  ) {
     const schema = this.inferSchema(value, parent, key);
     if (!schema) {
       if (process.env.NODE_ENV !== 'production') {
@@ -70,7 +80,7 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
         };
   }
 
-  denormalizeValue(value, unvisit) {
+  denormalizeValue(value: any, unvisit: any) {
     if (value === undefined) {
       return [value, false, false];
     }

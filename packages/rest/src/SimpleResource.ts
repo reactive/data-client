@@ -6,12 +6,11 @@ import type {
   SchemaDetail,
   SchemaList,
 } from '@rest-hooks/endpoint';
-
-import EntityRecord from './EntityRecord';
-import { ReadShape, MutateShape, DeleteShape } from './legacy';
-import { NotImplementedError } from './errors';
-import paramsToString from './paramsToString';
-import { RestEndpoint } from './types';
+import EntityRecord from '@rest-hooks/rest/EntityRecord';
+import { ReadShape, MutateShape, DeleteShape } from '@rest-hooks/rest/legacy';
+import { NotImplementedError } from '@rest-hooks/rest/errors';
+import paramsToString from '@rest-hooks/rest/paramsToString';
+import { RestEndpoint } from '@rest-hooks/rest/types';
 
 /** Represents an entity to be retrieved from a server.
  * Typically 1:1 with a url endpoint.

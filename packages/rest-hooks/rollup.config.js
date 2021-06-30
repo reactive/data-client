@@ -15,8 +15,8 @@ const dependencies = Object.keys(pkg.dependencies)
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
 const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
-process.env.BROWSERSLIST_ENV = 'legacy';
-process.env.ROOT_PATH_PREFIX = 'rest-hooks';
+process.env.BROWSERSLIST_ENV = 'node12';
+process.env.RESOLVER_ALIAS = '{"rest-hooks":"./src"}';
 
 function isExternal(id) {
   const ret = dependencies.includes(id);

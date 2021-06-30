@@ -1,4 +1,4 @@
-import PolymorphicSchema from './Polymorphic';
+import PolymorphicSchema from '@rest-hooks/normalizr/schemas/Polymorphic';
 
 const validateSchema = definition => {
   const isArray = Array.isArray(definition);
@@ -18,13 +18,13 @@ const filterEmpty = ([item, , deletedItem]) =>
   item !== undefined && !deletedItem;
 
 export const normalize = (
-  schema,
-  input,
-  parent,
-  key,
-  visit,
-  addEntity,
-  visitedEntities,
+  schema: any,
+  input: any,
+  parent: any,
+  key: any,
+  visit: any,
+  addEntity: any,
+  visitedEntities: any,
 ) => {
   schema = validateSchema(schema);
 
@@ -37,7 +37,11 @@ export const normalize = (
   );
 };
 
-export const denormalize = (schema, input, unvisit) => {
+export const denormalize = (
+  schema: any,
+  input: any,
+  unvisit: any,
+): [denormalized: any, found: boolean, deleted: boolean] => {
   schema = validateSchema(schema);
   let deleted = false;
   let found = true;
@@ -56,7 +60,7 @@ export const denormalize = (schema, input, unvisit) => {
   ];
 };
 
-export function infer(schema, args, indexes, recurse) {
+export function infer(schema: any, args: any, indexes: any, recurse: any) {
   return undefined;
 }
 
@@ -65,7 +69,14 @@ export function infer(schema, args, indexes, recurse) {
  * @see https://resthooks.io/docs/api/Array
  */
 export default class ArraySchema extends PolymorphicSchema {
-  normalize(input, parent, key, visit, addEntity, visitedEntities) {
+  normalize(
+    input: any,
+    parent: any,
+    key: any,
+    visit: any,
+    addEntity: any,
+    visitedEntities: any,
+  ) {
     const values = getValues(input);
 
     return values
@@ -82,7 +93,7 @@ export default class ArraySchema extends PolymorphicSchema {
       .filter(value => value !== undefined && value !== null);
   }
 
-  denormalize(input, unvisit) {
+  denormalize(input: any, unvisit: any) {
     let deleted = false;
     let found = true;
     if (input === undefined && this.schema) {
@@ -100,7 +111,7 @@ export default class ArraySchema extends PolymorphicSchema {
     ];
   }
 
-  infer(args, indexes, recurse) {
+  infer(args: any, indexes: any, recurse: any) {
     return infer(this.schema, args, indexes, recurse);
   }
 }
