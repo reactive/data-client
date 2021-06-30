@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@0.8.0...@rest-hooks/experimental@1.0.0-beta.0) (2021-06-30)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* - Removed: SyntheticError (untriggerable since https://github.com/coinbase/rest-hooks/pull/938)
+- @rest-hooks/rest: 500s are 'soft', else 'hard'
+- PollingSubscription: any errors are 'soft'
+- @rest-hooks/endpoint: no default errorPolicy, therefore all errors are
+'hard'
+* - fromJS() -> process() to customize init
+- normalize results in POJO rather than instances
+- FlatEntity, SimpleRecord removed (use @rest-hooks/legacy)
+- peerDep @rest-hooks/endpoint > 2
+
+### 🚀 Features
+
+* Add errorPolicy to endpoint options ([#971](https://github.com/coinbase/rest-hooks/issues/971)) ([836f05b](https://github.com/coinbase/rest-hooks/commit/836f05b407b5ac96c8f094e652221aa5a95300b0))
+* Mark compatibility with upcoming versions ([#959](https://github.com/coinbase/rest-hooks/issues/959)) ([a30fe4c](https://github.com/coinbase/rest-hooks/commit/a30fe4c000878aafe724915f653594aa67c5c336))
+
+
+### 💅 Enhancement
+
+* Entities normalize to POJO ([#940](https://github.com/coinbase/rest-hooks/issues/940)) ([75ebdfe](https://github.com/coinbase/rest-hooks/commit/75ebdfe641ccf57fca35c44a94077e4a314e44d7))
+
+
+### 📝 Documentation
+
+* Add doc links to jsdocs ([#966](https://github.com/coinbase/rest-hooks/issues/966)) ([dc7fcfe](https://github.com/coinbase/rest-hooks/commit/dc7fcfec24c30d5f405d24ccc1828620d837ea6b))
+
+
+
 ## [0.8.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@0.7.0...@rest-hooks/experimental@0.8.0) (2021-06-19)
 
 

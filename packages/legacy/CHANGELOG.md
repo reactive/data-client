@@ -3,6 +3,51 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@2.2.0...@rest-hooks/legacy@3.0.0-beta.0) (2021-06-30)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* * Importing directly from hidden files is no longer supported
+* Node>=12
+* - Removed: SyntheticError (untriggerable since https://github.com/coinbase/rest-hooks/pull/938)
+- @rest-hooks/rest: 500s are 'soft', else 'hard'
+- PollingSubscription: any errors are 'soft'
+- @rest-hooks/endpoint: no default errorPolicy, therefore all errors are
+'hard'
+* - fromJS() -> process() to customize init
+- normalize results in POJO rather than instances
+- FlatEntity, SimpleRecord removed (use @rest-hooks/legacy)
+- peerDep @rest-hooks/endpoint > 2
+* useError() will no longer create synthetic
+errors for missing entities
+
+### 🚀 Features
+
+* Add errorPolicy to endpoint options ([#971](https://github.com/coinbase/rest-hooks/issues/971)) ([836f05b](https://github.com/coinbase/rest-hooks/commit/836f05b407b5ac96c8f094e652221aa5a95300b0))
+* Mark compatibility with upcoming versions ([#959](https://github.com/coinbase/rest-hooks/issues/959)) ([a30fe4c](https://github.com/coinbase/rest-hooks/commit/a30fe4c000878aafe724915f653594aa67c5c336))
+* Use 'exports' package.json member ([#955](https://github.com/coinbase/rest-hooks/issues/955)) ([7e9d39f](https://github.com/coinbase/rest-hooks/commit/7e9d39f15b4b321352ece0caddb93e2c414df8ae))
+
+
+### 💅 Enhancement
+
+* Different babel targets for cjs and umd builds ([#989](https://github.com/coinbase/rest-hooks/issues/989)) ([f054814](https://github.com/coinbase/rest-hooks/commit/f05481410cf8daa2101d4dbda826e56ad10ec723))
+* Entities normalize to POJO ([#940](https://github.com/coinbase/rest-hooks/issues/940)) ([75ebdfe](https://github.com/coinbase/rest-hooks/commit/75ebdfe641ccf57fca35c44a94077e4a314e44d7))
+* Remove 'fallback' package.json exports ([#992](https://github.com/coinbase/rest-hooks/issues/992)) ([dc95f9d](https://github.com/coinbase/rest-hooks/commit/dc95f9dbad20d5740218c52c906596b6a3d6eae4))
+* useError() only checks meta error ([#938](https://github.com/coinbase/rest-hooks/issues/938)) ([b08d708](https://github.com/coinbase/rest-hooks/commit/b08d708ea50170de0dd25340aec84b86a7687f48))
+
+
+### 🐛 Bug Fix
+
+* Legacy cjs and unpkg should target 'legacy' ([#961](https://github.com/coinbase/rest-hooks/issues/961)) ([ba76f35](https://github.com/coinbase/rest-hooks/commit/ba76f3501ae46b6d9d9162e52b76c96fa1fbca1d))
+
+
+### 📝 Documentation
+
+* Add doc links to jsdocs ([#966](https://github.com/coinbase/rest-hooks/issues/966)) ([dc7fcfe](https://github.com/coinbase/rest-hooks/commit/dc7fcfec24c30d5f405d24ccc1828620d837ea6b))
+
+
+
 ## [2.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@2.1.0...@rest-hooks/legacy@2.2.0) (2021-06-16)
 
 

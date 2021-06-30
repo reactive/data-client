@@ -3,6 +3,52 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.5.2...@rest-hooks/core@2.0.0-beta.0) (2021-06-30)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* * Importing directly from hidden files is no longer supported
+* Node>=12
+* - Removed: SyntheticError (untriggerable since https://github.com/coinbase/rest-hooks/pull/938)
+- @rest-hooks/rest: 500s are 'soft', else 'hard'
+- PollingSubscription: any errors are 'soft'
+- @rest-hooks/endpoint: no default errorPolicy, therefore all errors are
+'hard'
+* Rest Hooks 4 invalidIfStale behavior completely removed
+* buildInferredResult removed. use inferResults instead
+* - fromJS() -> process() to customize init
+- normalize results in POJO rather than instances
+- FlatEntity, SimpleRecord removed (use @rest-hooks/legacy)
+- peerDep @rest-hooks/endpoint > 2
+* - Removed exports from 'rest-hooks': NestedEntity, schemas, isEntity, Entity, Resource, SimpleResource, SchemaDetail, SchemaList, Method
+- use @rest-hooks/legacy, or @rest-hooks/rest instead
+* useError() will no longer create synthetic
+errors for missing entities
+
+### 🚀 Features
+
+* Add errorPolicy to endpoint options ([#971](https://github.com/coinbase/rest-hooks/issues/971)) ([836f05b](https://github.com/coinbase/rest-hooks/commit/836f05b407b5ac96c8f094e652221aa5a95300b0))
+* Use 'exports' package.json member ([#955](https://github.com/coinbase/rest-hooks/issues/955)) ([7e9d39f](https://github.com/coinbase/rest-hooks/commit/7e9d39f15b4b321352ece0caddb93e2c414df8ae))
+
+
+### 💅 Enhancement
+
+* Different babel targets for cjs and umd builds ([#989](https://github.com/coinbase/rest-hooks/issues/989)) ([f054814](https://github.com/coinbase/rest-hooks/commit/f05481410cf8daa2101d4dbda826e56ad10ec723))
+* Entities normalize to POJO ([#940](https://github.com/coinbase/rest-hooks/issues/940)) ([75ebdfe](https://github.com/coinbase/rest-hooks/commit/75ebdfe641ccf57fca35c44a94077e4a314e44d7))
+* Remove 'fallback' package.json exports ([#992](https://github.com/coinbase/rest-hooks/issues/992)) ([dc95f9d](https://github.com/coinbase/rest-hooks/commit/dc95f9dbad20d5740218c52c906596b6a3d6eae4))
+* Remove buildInferredResult() ([#941](https://github.com/coinbase/rest-hooks/issues/941)) ([c137aa7](https://github.com/coinbase/rest-hooks/commit/c137aa78302541f0167c2cfd32c30b34a3ba971f))
+* Remove extraneous hack for expiresAt ([#970](https://github.com/coinbase/rest-hooks/issues/970)) ([0602376](https://github.com/coinbase/rest-hooks/commit/06023760266ed572697605c45bd7e271406badd3))
+* Remove Resource export from 'rest-hooks' package ([#939](https://github.com/coinbase/rest-hooks/issues/939)) ([0707920](https://github.com/coinbase/rest-hooks/commit/0707920bd9de70112b5287d101dcd4f6962f21d1))
+* useError() only checks meta error ([#938](https://github.com/coinbase/rest-hooks/issues/938)) ([b08d708](https://github.com/coinbase/rest-hooks/commit/b08d708ea50170de0dd25340aec84b86a7687f48))
+
+
+### 📝 Documentation
+
+* Add doc links to jsdocs ([#966](https://github.com/coinbase/rest-hooks/issues/966)) ([dc7fcfe](https://github.com/coinbase/rest-hooks/commit/dc7fcfec24c30d5f405d24ccc1828620d837ea6b))
+
+
+
 ### [1.5.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.5.1...@rest-hooks/core@1.5.2) (2021-06-19)
 
 **Note:** Version bump only for package @rest-hooks/core

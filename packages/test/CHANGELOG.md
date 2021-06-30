@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@6.1.0...@rest-hooks/test@7.0.0-beta.0) (2021-06-30)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* * Importing directly from hidden files is no longer supported
+* Node>=12
+
+### 🚀 Features
+
+* Mark compatibility with upcoming versions ([#959](https://github.com/coinbase/rest-hooks/issues/959)) ([a30fe4c](https://github.com/coinbase/rest-hooks/commit/a30fe4c000878aafe724915f653594aa67c5c336))
+* Use 'exports' package.json member ([#955](https://github.com/coinbase/rest-hooks/issues/955)) ([7e9d39f](https://github.com/coinbase/rest-hooks/commit/7e9d39f15b4b321352ece0caddb93e2c414df8ae))
+
+
+### 💅 Enhancement
+
+* Remove 'fallback' package.json exports ([#992](https://github.com/coinbase/rest-hooks/issues/992)) ([dc95f9d](https://github.com/coinbase/rest-hooks/commit/dc95f9dbad20d5740218c52c906596b6a3d6eae4))
+* Use .js for cjs like other packages ([#988](https://github.com/coinbase/rest-hooks/issues/988)) ([2320ef7](https://github.com/coinbase/rest-hooks/commit/2320ef7777bcd991c3ca3d3fc8873f433e04fcfd))
+
+
+
 ## [6.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@6.0.1...@rest-hooks/test@6.1.0) (2021-06-13)
 
 

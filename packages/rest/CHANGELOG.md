@@ -3,6 +3,44 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.1.4...@rest-hooks/rest@3.0.0-beta.0) (2021-06-30)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* * Importing directly from hidden files is no longer supported
+* Node>=12
+* - Removed: SyntheticError (untriggerable since https://github.com/coinbase/rest-hooks/pull/938)
+- @rest-hooks/rest: 500s are 'soft', else 'hard'
+- PollingSubscription: any errors are 'soft'
+- @rest-hooks/endpoint: no default errorPolicy, therefore all errors are
+'hard'
+* - fromJS() -> process() to customize init
+- normalize results in POJO rather than instances
+- FlatEntity, SimpleRecord removed (use @rest-hooks/legacy)
+- peerDep @rest-hooks/endpoint > 2
+
+### 🚀 Features
+
+* Add errorPolicy to endpoint options ([#971](https://github.com/coinbase/rest-hooks/issues/971)) ([836f05b](https://github.com/coinbase/rest-hooks/commit/836f05b407b5ac96c8f094e652221aa5a95300b0))
+* Normalize merges entities, entitymeta, indexes ([#915](https://github.com/coinbase/rest-hooks/issues/915)) ([bd21d8c](https://github.com/coinbase/rest-hooks/commit/bd21d8ce0d004a56e6853918d9fb9ecaa2c730a8))
+* Use 'exports' package.json member ([#955](https://github.com/coinbase/rest-hooks/issues/955)) ([7e9d39f](https://github.com/coinbase/rest-hooks/commit/7e9d39f15b4b321352ece0caddb93e2c414df8ae))
+
+
+### 💅 Enhancement
+
+* Different babel targets for cjs and umd builds ([#989](https://github.com/coinbase/rest-hooks/issues/989)) ([f054814](https://github.com/coinbase/rest-hooks/commit/f05481410cf8daa2101d4dbda826e56ad10ec723))
+* Entities normalize to POJO ([#940](https://github.com/coinbase/rest-hooks/issues/940)) ([75ebdfe](https://github.com/coinbase/rest-hooks/commit/75ebdfe641ccf57fca35c44a94077e4a314e44d7))
+* Remove 'fallback' package.json exports ([#992](https://github.com/coinbase/rest-hooks/issues/992)) ([dc95f9d](https://github.com/coinbase/rest-hooks/commit/dc95f9dbad20d5740218c52c906596b6a3d6eae4))
+* SimpleResource is deprecated ([#991](https://github.com/coinbase/rest-hooks/issues/991)) ([cf5c0bf](https://github.com/coinbase/rest-hooks/commit/cf5c0bfb5f732b9dd80945cf670d1ffbf9913942))
+
+
+### 📝 Documentation
+
+* Add doc links to jsdocs ([#966](https://github.com/coinbase/rest-hooks/issues/966)) ([dc7fcfe](https://github.com/coinbase/rest-hooks/commit/dc7fcfec24c30d5f405d24ccc1828620d837ea6b))
+
+
+
 ### [2.1.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.1.3...@rest-hooks/rest@2.1.4) (2021-06-09)
 
 
