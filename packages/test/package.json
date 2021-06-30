@@ -25,16 +25,13 @@
     }
   },
   "exports": {
-    ".": [
-      {
-        "node": {
-          "import": "./node.mjs",
-          "require": "./dist/index.cjs"
-        },
-        "default": "./lib/browser.js"
+    ".": {
+      "node": {
+        "import": "./node.mjs",
+        "require": "./dist/index.cjs"
       },
-      "./lib/browser.js"
-    ],
+      "default": "./lib/browser.js"
+    },
     "./package.json": "./package.json"
   },
   "type": "module",
