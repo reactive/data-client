@@ -26,16 +26,13 @@
     }
   },
   "exports": {
-    ".": [
-      {
-        "node": {
-          "import": "./node.mjs",
-          "require": "./dist/index.js"
-        },
-        "default": "./lib/index.js"
+    ".": {
+      "node": {
+        "import": "./node.mjs",
+        "require": "./dist/index.js"
       },
-      "./lib/index.js"
-    ],
+      "default": "./lib/index.js"
+    },
     "./package.json": "./package.json"
   },
   "type": "module",
