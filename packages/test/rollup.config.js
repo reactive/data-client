@@ -22,7 +22,7 @@ export default [
   {
     input: 'src/index.ts',
     external: id => id === '..' || isExternal(id),
-    output: [{ file: 'dist/index.cjs', format: 'cjs' }],
+    output: [{ file: pkg.main, format: 'cjs' }],
     plugins: [
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
