@@ -19,44 +19,63 @@ function snakeCase(id) {
 
 const configs = [];
 
-if (process.env.BROWSERSLIST_ENV === 'production') {
-  configs.push({
-    input: 'src/index.ts',
-    output: [{ file: `${destBase}.es${destExtension}`, format: 'es' }],
-    plugins: [
-      babel({
-        exclude: ['node_modules/**', '/**__tests__/**'],
-        extensions,
-        runtimeHelpers: true,
-        rootMode: 'upward',
-      }),
-      resolve({ extensions }),
-      commonjs({ extensions }),
-      isProduction && terser(),
-      filesize(),
-    ].filter(Boolean),
-  });
+if (process.env.BROWSERSLIST_ENV !== 'node12') {
+  if (process.env.NODE_ENV === 'production') {
+    configs.push({
+      input: 'src/index.ts',
+      output: [{ file: `${destBase}.es${destExtension}`, format: 'es' }],
+      plugins: [
+        babel({
+          exclude: ['node_modules/**', '/**__tests__/**'],
+          extensions,
+          runtimeHelpers: true,
+          rootMode: 'upward',
+        }),
+        resolve({ extensions }),
+        commonjs({ extensions }),
+        isProduction && terser(),
+        filesize(),
+      ].filter(Boolean),
+    });
+  } else {
+    configs.push({
+      input: 'src/index.ts',
+      output: [
+        {
+          file: `${destBase}.umd${destExtension}`,
+          format: 'umd',
+          name: snakeCase(name),
+        },
+        {
+          file: `${destBase}.amd${destExtension}`,
+          format: 'amd',
+          name: snakeCase(name),
+        },
+        {
+          file: `${destBase}.browser${destExtension}`,
+          format: 'iife',
+          name: snakeCase(name),
+        },
+      ],
+      plugins: [
+        babel({
+          exclude: ['node_modules/**', '/**__tests__/**'],
+          extensions,
+          runtimeHelpers: true,
+          rootMode: 'upward',
+        }),
+        resolve({ extensions }),
+        commonjs({ extensions }),
+        isProduction && terser(),
+        filesize(),
+      ].filter(Boolean),
+    });
+  }
 } else {
+  // node-friendly commonjs build
   configs.push({
     input: 'src/index.ts',
-    output: [
-      { file: `${destBase}${destExtension}`, format: 'cjs' },
-      {
-        file: `${destBase}.umd${destExtension}`,
-        format: 'umd',
-        name: snakeCase(name),
-      },
-      {
-        file: `${destBase}.amd${destExtension}`,
-        format: 'amd',
-        name: snakeCase(name),
-      },
-      {
-        file: `${destBase}.browser${destExtension}`,
-        format: 'iife',
-        name: snakeCase(name),
-      },
-    ],
+    output: [{ file: `${destBase}${destExtension}`, format: 'cjs' }],
     plugins: [
       babel({
         exclude: ['node_modules/**', '/**__tests__/**'],
