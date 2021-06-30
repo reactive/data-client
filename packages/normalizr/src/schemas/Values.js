@@ -1,4 +1,4 @@
-import PolymorphicSchema from './Polymorphic';
+import PolymorphicSchema from '@rest-hooks/normalizr/schemas/Polymorphic';
 
 /**
  * Represents variably sized objects

@@ -11,6 +11,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 const destBase = 'dist/normalizr';
 const destExtension = `${isProduction ? '.min' : ''}.js`;
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
+process.env.RESOLVER_ALIAS = '{"@rest-hooks/normalizr":"./src"}';
 
 function snakeCase(id) {
   return id.replace(/(-|\/)/g, '_').replace(/@/g, '');

@@ -1,8 +1,7 @@
 import { UpdateFunction } from '@rest-hooks/core/types';
 import { Schema } from '@rest-hooks/endpoint';
 import type { Denormalize } from '@rest-hooks/endpoint';
-
-import { FetchShape } from './shapes';
+import { FetchShape } from '@rest-hooks/core/endpoint/shapes';
 
 export type ResultShape<RS> = RS extends { schema: infer U } ? U : never;
 export type SelectReturn<RS> = RS extends {

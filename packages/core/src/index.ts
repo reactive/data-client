@@ -1,7 +1,10 @@
-export * as __INTERNAL__ from './internal';
-export { default as NetworkManager } from './state/NetworkManager';
-export { default as reducer, initialState } from './state/reducer';
-export { useDenormalized } from './state/selectors';
+export * as __INTERNAL__ from '@rest-hooks/core/internal';
+export { default as NetworkManager } from '@rest-hooks/core/state/NetworkManager';
+export {
+  default as reducer,
+  initialState,
+} from '@rest-hooks/core/state/reducer';
+export { useDenormalized } from '@rest-hooks/core/state/selectors';
 export {
   useCache,
   useFetcher,
@@ -16,29 +19,29 @@ export {
   useInvalidateDispatcher,
   useResetter,
   hasUsableData,
-} from './react-integration';
-export type { ErrorTypes } from './react-integration';
+} from '@rest-hooks/core/react-integration';
+export type { ErrorTypes } from '@rest-hooks/core/react-integration';
 export {
   StateContext,
   DispatchContext,
   DenormalizeCacheContext,
-} from './react-integration/context';
+} from '@rest-hooks/core/react-integration/context';
 
-export * from './state/actions';
-export * as actionTypes from './actionTypes';
+export * from '@rest-hooks/core/state/actions';
+export * as actionTypes from '@rest-hooks/core/actionTypes';
 export * from '@rest-hooks/use-enhanced-reducer';
 export * from '@rest-hooks/endpoint';
 /* istanbul ignore next */
-export * from './types';
+export * from '@rest-hooks/core/types';
 export type {
   FetchShape,
   ReadShape,
   MutateShape,
   DeleteShape,
-} from './endpoint/shapes';
+} from '@rest-hooks/core/endpoint/shapes';
 export type {
   SetShapeParams,
   ParamsFromShape,
   BodyFromShape,
   ReturnFromShape,
-} from './endpoint/types';
+} from '@rest-hooks/core/endpoint/types';

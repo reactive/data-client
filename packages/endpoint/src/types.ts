@@ -1,8 +1,7 @@
 import { schema, Schema } from '@rest-hooks/normalizr';
-
-import { Normalize } from './normal';
-import { EndpointInterface } from './interface';
-import { ResolveType } from './utility';
+import { Normalize } from '@rest-hooks/endpoint/normal';
+import { EndpointInterface } from '@rest-hooks/endpoint/interface';
+import { ResolveType } from '@rest-hooks/endpoint/utility';
 
 export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   /** Default data expiry length, will fall back to NetworkManager default if not defined */

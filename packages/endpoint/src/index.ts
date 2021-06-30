@@ -5,14 +5,17 @@ export type {
   IndexInterface,
   IndexParams,
   ArrayElement,
-} from './interface';
-export type { EndpointOptions, EndpointInstance } from './endpoint';
+} from '@rest-hooks/endpoint/interface';
+export type {
+  EndpointOptions,
+  EndpointInstance,
+} from '@rest-hooks/endpoint/endpoint';
 export type {
   Normalize,
   NormalizeNullable,
   Denormalize,
   DenormalizeNullable,
-} from './normal';
+} from '@rest-hooks/endpoint/normal';
 export { schema, Entity, isEntity, DELETED } from '@rest-hooks/normalizr';
 export type { AbstractInstanceType, Schema } from '@rest-hooks/normalizr';
 export type {
@@ -22,8 +25,12 @@ export type {
   UpdateFunction,
   SchemaDetail,
   SchemaList,
-} from './types';
-export type { ResolveType, EndpointParam, InferReturn } from './utility';
+} from '@rest-hooks/endpoint/types';
+export type {
+  ResolveType,
+  EndpointParam,
+  InferReturn,
+} from '@rest-hooks/endpoint/utility';
 
-export { default as Endpoint } from './endpoint';
-export { default as Index } from './indexEndpoint';
+export { default as Endpoint } from '@rest-hooks/endpoint/endpoint';
+export { default as Index } from '@rest-hooks/endpoint/indexEndpoint';

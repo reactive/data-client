@@ -1,6 +1,8 @@
 import { Schema } from '@rest-hooks/normalizr';
-
-import type { IndexInterface, IndexParams } from './interface';
+import type {
+  IndexInterface,
+  IndexParams,
+} from '@rest-hooks/endpoint/interface';
 
 /**
  * Performant lookups by secondary indexes

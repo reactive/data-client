@@ -1,7 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
-
-import useInvalidateDispatcher from './useInvalidateDispatcher';
+import useInvalidateDispatcher from '@rest-hooks/core/react-integration/hooks/useInvalidateDispatcher';
 
 /**
  * Invalidate a certain item within the cache

@@ -10,7 +10,7 @@
  * @param  {any} object
  * @return {bool}
  */
-export function isImmutable(object) {
+export function isImmutable(object: any) {
   return !!(
     object &&
     typeof object.hasOwnProperty === 'function' &&
@@ -28,7 +28,11 @@ export function isImmutable(object) {
  * @param  {function} getDenormalizedEntity
  * @return {Immutable.Map|Immutable.Record}
  */
-export function denormalizeImmutable(schema, input, unvisit) {
+export function denormalizeImmutable(
+  schema: any,
+  input: any,
+  unvisit: any,
+): [denormalized: any, found: boolean, deleted: boolean] {
   let found = true;
   let deleted = false;
   return [

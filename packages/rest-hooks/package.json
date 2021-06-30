@@ -3,8 +3,8 @@
   "version": "5.3.1",
   "description": "Asynchronous data framework for React",
   "sideEffects": false,
-  "main": "dist/index.cjs.js",
-  "module": "lib/index.js",
+  "main": "dist/index.js",
+  "module": "legacy/index.js",
   "unpkg": "dist/index.umd.min.js",
   "types": "lib/index.d.ts",
   "typesVersions": {
@@ -25,28 +25,45 @@
       ]
     }
   },
+  "exports": {
+    ".": [
+      {
+        "node": {
+          "import": "./node.mjs",
+          "require": "./dist/index.js"
+        },
+        "default": "./lib/index.js"
+      },
+      "./lib/index.js"
+    ],
+    "./package.json": "./package.json"
+  },
+  "type": "module",
+  "engines": {
+    "node": "^12.17 || ^13.7 || >=14"
+  },
   "files": [
     "src",
     "dist",
     "lib",
+    "node.mjs",
+    "legacy",
     "ts3.4",
     "LICENSE",
     "README.md",
     "./typescript.svg",
     "./rest_hooks_logo_and_text.svg"
   ],
-  "engines": {
-    "node": ">=0.12"
-  },
   "scripts": {
-    "build:lib": "cross-env NODE_ENV=production  BROWSERSLIST_ENV=2019 ROOT_PATH_PREFIX='rest-hooks' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
-    "build:bundle": "rollup -c",
-    "build:clean": "rimraf lib dist ts3.4 *.tsbuildinfo",
+    "build:lib": "cross-env NODE_ENV=production BROWSERSLIST_ENV='2020' RESOLVER_ALIAS='{\"^rest-hooks(.+)$\":\"./src/\\\\1.js\"}'  babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:legacy:lib": "cross-env NODE_ENV=production BROWSERSLIST_ENV='2018' RESOLVER_ALIAS='{\"^rest-hooks(.+)$\":\"./src/\\\\1.js\"}' babel --root-mode upward src --out-dir legacy --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:bundle": "rollup -c && echo '{\"type\":\"commonjs\"}' > dist/package.json",
+    "build:clean": "rimraf lib ts3.4 legacy dist *.tsbuildinfo",
     "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
-    "build": "yarn run build:lib && yarn run build:bundle",
+    "build": "yarn run build:lib && yarn run build:legacy:lib && yarn run build:bundle",
     "dev": "yarn run build:lib -w",
     "prepare": "yarn run build:lib",
-    "prepublishOnly": "yarn run build:bundle",
+    "prepublishOnly": "yarn run build:bundle && yarn run build:legacy:lib",
     "test": "cross-env NODE_ENV=test jest",
     "test:ci": "yarn test -- --ci",
     "test:watch": "yarn test -- --watch",

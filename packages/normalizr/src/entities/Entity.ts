@@ -1,7 +1,14 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { isImmutable, denormalizeImmutable } from '../schemas/ImmutableUtils';
-import * as schema from '../schema';
-import { AbstractInstanceType, Schema, NormalizedIndex } from '../types';
+import * as schema from '@rest-hooks/normalizr/schema';
+import {
+  AbstractInstanceType,
+  Schema,
+  NormalizedIndex,
+} from '@rest-hooks/normalizr/types';
+import {
+  isImmutable,
+  denormalizeImmutable,
+} from '@rest-hooks/normalizr/schemas/ImmutableUtils';
 
 /**
  * Represents data that should be deduped by specifying a primary key.

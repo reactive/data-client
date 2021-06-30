@@ -1,5 +1,9 @@
 {
   "extends": "./tsconfig",
-  "compilerOptions": { "paths": {} },
-  "exclude": ["node_modules", "dist", "lib", "ts3.4", "**/__tests__"]
+  "compilerOptions": {
+    "paths": {
+      "@rest-hooks/legacy/*": ["packages/legacy/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "lib", "legacy", "ts3.4", "**/__tests__"]
 }

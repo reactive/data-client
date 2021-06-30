@@ -6,11 +6,10 @@ import {
   StateContext,
 } from '@rest-hooks/core/react-integration/context';
 import { useMemo, useContext } from 'react';
-
-import useRetrieve from './useRetrieve';
-import useError from './useError';
-import hasUsableData from './hasUsableData';
-import useMeta from './useMeta';
+import useRetrieve from '@rest-hooks/core/react-integration/hooks/useRetrieve';
+import useError from '@rest-hooks/core/react-integration/hooks/useError';
+import hasUsableData from '@rest-hooks/core/react-integration/hooks/hasUsableData';
+import useMeta from '@rest-hooks/core/react-integration/hooks/useMeta';
 
 type ResourceArgs<
   S extends ReadShape<any, any>,

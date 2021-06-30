@@ -6,8 +6,7 @@ import {
 } from '@rest-hooks/core/endpoint';
 import { Schema } from '@rest-hooks/endpoint';
 import { useRef, useCallback } from 'react';
-
-import useFetchDispatcher from './useFetchDispatcher';
+import useFetchDispatcher from '@rest-hooks/core/react-integration/hooks/useFetchDispatcher';
 
 /**
  * Build an imperative dispatcher to issue network requests.

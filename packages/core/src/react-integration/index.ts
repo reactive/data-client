@@ -1,2 +1,2 @@
-export * from './provider';
-export * from './hooks';
+export * from '@rest-hooks/core/react-integration/provider';
+export * from '@rest-hooks/core/react-integration/hooks';

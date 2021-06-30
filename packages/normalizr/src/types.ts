@@ -1,5 +1,8 @@
-import type { default as schema, EntityInterface } from './schema';
-import WeakListMap from './WeakListMap';
+import type {
+  default as schema,
+  EntityInterface,
+} from '@rest-hooks/normalizr/schema';
+import WeakListMap from '@rest-hooks/normalizr/WeakListMap';
 
 export type AbstractInstanceType<T> = T extends { prototype: infer U }
   ? U

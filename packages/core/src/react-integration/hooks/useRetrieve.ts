@@ -1,8 +1,7 @@
 import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
 import { useMemo } from 'react';
-
-import useFetchDispatcher from './useFetchDispatcher';
-import useExpiresAt from './useExpiresAt';
+import useFetchDispatcher from '@rest-hooks/core/react-integration/hooks/useFetchDispatcher';
+import useExpiresAt from '@rest-hooks/core/react-integration/hooks/useExpiresAt';
 
 /**
  * Request a resource if it is not in cache.\

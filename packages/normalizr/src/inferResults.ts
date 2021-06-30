@@ -1,7 +1,11 @@
-import { NormalizedIndex, NormalizeNullable, Schema } from './types';
-import { infer as objectInfer } from './schemas/Object';
-import { infer as arrayInfer } from './schemas/Array';
-import { SchemaSimple } from './schema';
+import {
+  NormalizedIndex,
+  NormalizeNullable,
+  Schema,
+} from '@rest-hooks/normalizr/types';
+import { SchemaSimple } from '@rest-hooks/normalizr/schema';
+import { infer as objectInfer } from '@rest-hooks/normalizr/schemas/Object';
+import { infer as arrayInfer } from '@rest-hooks/normalizr/schemas/Array';
 
 /**
  * Build the result parameter to denormalize from schema alone.

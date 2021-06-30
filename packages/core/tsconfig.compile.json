@@ -5,5 +5,5 @@
       "@rest-hooks/core/*": ["packages/core/src/*"]
     }
   },
-  "exclude": ["node_modules", "dist", "lib", "ts3.4", "src-legacy-types", "**/__tests__"]
+  "exclude": ["node_modules", "dist", "lib", "legacy", "ts3.4", "src-legacy-types", "**/__tests__"]
 }

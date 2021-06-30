@@ -1,5 +1,5 @@
-export * from './resource';
-export { default as useStatefulResource } from './useStatefulResource';
+export * from '@rest-hooks/legacy/resource';
+export { default as useStatefulResource } from '@rest-hooks/legacy/useStatefulResource';
 export type {
   FetchShape,
   ReadShape,
