@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@3.0.0-beta.0...@rest-hooks/legacy@3.0.0-beta.1) (2021-06-30)
+
+
+### 🐛 Bug Fix
+
+* module build import path ([#994](https://github.com/coinbase/rest-hooks/issues/994)) ([1f84f51](https://github.com/coinbase/rest-hooks/commit/1f84f51e0f3b62832945e75d0e241dba59b6623c))
+
+
+
 ## [3.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@2.2.0...@rest-hooks/legacy@3.0.0-beta.0) (2021-06-30)
 
 
