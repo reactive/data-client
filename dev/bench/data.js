@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1625062790042,
+  "lastUpdate": 1625067818959,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -2658,6 +2658,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.80%",
             "unit": "ops/sec",
             "extra": "74 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f05481410cf8daa2101d4dbda826e56ad10ec723",
+          "message": "enhance: Different babel targets for cjs and umd builds (#989)",
+          "timestamp": "2021-06-30T08:40:17-07:00",
+          "tree_id": "748c54f542d60ae821c733334ae1cd9dca9a88bb",
+          "url": "https://github.com/coinbase/rest-hooks/commit/f05481410cf8daa2101d4dbda826e56ad10ec723"
+        },
+        "date": 1625067817780,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 84.18,
+            "range": "±1.87%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 42.88,
+            "range": "±1.74%",
+            "unit": "ops/sec",
+            "extra": "56 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 49.79,
+            "range": "±1.40%",
+            "unit": "ops/sec",
+            "extra": "64 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 86,
+            "range": "±2.97%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
           }
         ]
       }
