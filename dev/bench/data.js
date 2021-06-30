@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1625069974147,
+  "lastUpdate": 1625085718687,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -2814,6 +2814,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.51%",
             "unit": "ops/sec",
             "extra": "69 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1f84f51e0f3b62832945e75d0e241dba59b6623c",
+          "message": "fix: module build import path (#994)",
+          "timestamp": "2021-06-30T13:38:52-07:00",
+          "tree_id": "1f05be45fb1f3049403e247fb74cb8b0a100db6e",
+          "url": "https://github.com/coinbase/rest-hooks/commit/1f84f51e0f3b62832945e75d0e241dba59b6623c"
+        },
+        "date": 1625085717459,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 88.66,
+            "range": "±1.83%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 43.98,
+            "range": "±1.67%",
+            "unit": "ops/sec",
+            "extra": "58 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 51.68,
+            "range": "±1.24%",
+            "unit": "ops/sec",
+            "extra": "66 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 88.57,
+            "range": "±2.37%",
+            "unit": "ops/sec",
+            "extra": "65 samples"
           }
         ]
       }
