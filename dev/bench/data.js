@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1624863614012,
+  "lastUpdate": 1625062790042,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -2606,6 +2606,58 @@ window.BENCHMARK_DATA = {
             "range": "±3.39%",
             "unit": "ops/sec",
             "extra": "63 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7e9d39f15b4b321352ece0caddb93e2c414df8ae",
+          "message": "feat: Use 'exports' package.json member (#955)\n\nBREAKING CHANGE:\r\n* Importing directly from hidden files is no longer supported\r\n* Node>=12",
+          "timestamp": "2021-06-30T07:16:49-07:00",
+          "tree_id": "27bae22eb9d631217496a96a6a9cb9943910ce1d",
+          "url": "https://github.com/coinbase/rest-hooks/commit/7e9d39f15b4b321352ece0caddb93e2c414df8ae"
+        },
+        "date": 1625062788815,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 70.97,
+            "range": "±2.13%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 37.96,
+            "range": "±2.95%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 44.93,
+            "range": "±0.50%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 72.22,
+            "range": "±1.80%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
           }
         ]
       }
