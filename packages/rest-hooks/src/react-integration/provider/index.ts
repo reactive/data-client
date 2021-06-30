@@ -3,10 +3,9 @@ import {
   SubscriptionManager,
   PollingSubscription,
   DevToolsManager,
-} from 'rest-hooks/manager';
-
-import PromiseifyMiddleware from './PromiseifyMiddleware';
-import ExternalCacheProvider from './ExternalCacheProvider';
+} from 'rest-hooks/manager/index';
+import PromiseifyMiddleware from 'rest-hooks/react-integration/provider/PromiseifyMiddleware';
+import ExternalCacheProvider from 'rest-hooks/react-integration/provider/ExternalCacheProvider';
 
 const CacheProvider: typeof CoreCacheProvider = props =>
   CoreCacheProvider(props);
@@ -22,4 +21,4 @@ if (process.env.NODE_ENV !== 'production')
   CacheProvider.defaultProps.managers.unshift(new DevToolsManager());
 
 export { CacheProvider, ExternalCacheProvider, PromiseifyMiddleware };
-export { default as mapMiddleware } from './mapMiddleware';
+export { default as mapMiddleware } from 'rest-hooks/react-integration/provider/mapMiddleware';

@@ -1,8 +1,8 @@
-import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
+import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
 import { NetworkError, UnknownError } from '@rest-hooks/core/types';
 import { StateContext } from '@rest-hooks/core/react-integration/context';
 import { useContext } from 'react';
-import { selectMeta } from '@rest-hooks/core/state/selectors';
+import { selectMeta } from '@rest-hooks/core/state/selectors/index';
 
 export type ErrorTypes = NetworkError | UnknownError;
 

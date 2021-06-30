@@ -1,6 +1,6 @@
-import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
+import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
 import { Denormalize, DenormalizeNullable } from '@rest-hooks/endpoint';
-import { useDenormalized } from '@rest-hooks/core/state/selectors';
+import { useDenormalized } from '@rest-hooks/core/state/selectors/index';
 import {
   DenormalizeCacheContext,
   StateContext,

@@ -7,7 +7,7 @@ import {
   ParamsFromShape,
   BodyFromShape,
   OptimisticUpdateParams,
-} from '@rest-hooks/core/endpoint';
+} from '@rest-hooks/core/endpoint/index';
 
 interface Options<
   Shape extends FetchShape<

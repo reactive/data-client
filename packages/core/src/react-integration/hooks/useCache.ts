@@ -1,6 +1,6 @@
-import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
+import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
 import { DenormalizeNullable } from '@rest-hooks/endpoint';
-import { useDenormalized } from '@rest-hooks/core/state/selectors';
+import { useDenormalized } from '@rest-hooks/core/state/selectors/index';
 import { useContext, useMemo } from 'react';
 import {
   DenormalizeCacheContext,
@@ -10,7 +10,7 @@ import {
   hasUsableData,
   useMeta,
   useError,
-} from '@rest-hooks/core/react-integration/hooks';
+} from '@rest-hooks/core/react-integration/hooks/index';
 import { denormalize, inferResults } from '@rest-hooks/normalizr';
 import useExpiresAt from '@rest-hooks/core/react-integration/hooks/useExpiresAt';
 

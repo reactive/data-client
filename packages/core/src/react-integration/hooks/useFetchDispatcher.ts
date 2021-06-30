@@ -5,7 +5,7 @@ import {
   BodyFromShape,
   OptimisticUpdateParams,
   ReturnFromShape,
-} from '@rest-hooks/core/endpoint';
+} from '@rest-hooks/core/endpoint/index';
 import { Schema } from '@rest-hooks/endpoint';
 import { DispatchContext } from '@rest-hooks/core/react-integration/context';
 import createFetch from '@rest-hooks/core/state/actions/createFetch';

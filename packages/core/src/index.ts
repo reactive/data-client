@@ -4,7 +4,7 @@ export {
   default as reducer,
   initialState,
 } from '@rest-hooks/core/state/reducer';
-export { useDenormalized } from '@rest-hooks/core/state/selectors';
+export { useDenormalized } from '@rest-hooks/core/state/selectors/index';
 export {
   useCache,
   useFetcher,
@@ -19,15 +19,15 @@ export {
   useInvalidateDispatcher,
   useResetter,
   hasUsableData,
-} from '@rest-hooks/core/react-integration';
-export type { ErrorTypes } from '@rest-hooks/core/react-integration';
+} from '@rest-hooks/core/react-integration/index';
+export type { ErrorTypes } from '@rest-hooks/core/react-integration/index';
 export {
   StateContext,
   DispatchContext,
   DenormalizeCacheContext,
 } from '@rest-hooks/core/react-integration/context';
 
-export * from '@rest-hooks/core/state/actions';
+export * from '@rest-hooks/core/state/actions/index';
 export * as actionTypes from '@rest-hooks/core/actionTypes';
 export * from '@rest-hooks/use-enhanced-reducer';
 export * from '@rest-hooks/endpoint';

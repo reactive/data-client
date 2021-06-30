@@ -3,7 +3,7 @@ import {
   SchemaFromShape,
   OptimisticUpdateParams,
   ReturnFromShape,
-} from '@rest-hooks/core/endpoint';
+} from '@rest-hooks/core/endpoint/index';
 import { Schema } from '@rest-hooks/endpoint';
 import { useRef, useCallback } from 'react';
 import useFetchDispatcher from '@rest-hooks/core/react-integration/hooks/useFetchDispatcher';

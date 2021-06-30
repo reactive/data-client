@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
+import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
 import useInvalidateDispatcher from '@rest-hooks/core/react-integration/hooks/useInvalidateDispatcher';
 
 /**
