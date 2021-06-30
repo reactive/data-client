@@ -13,8 +13,8 @@ const dependencies = Object.keys(pkg.peerDependencies).filter(
 );
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
+const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
-process.env.BROWSERSLIST_ENV = 'node12';
 process.env.RESOLVER_ALIAS = '{"@rest-hooks/legacy":"./src"}';
 
 function isExternal(id) {
@@ -27,17 +27,18 @@ function isExternal(id) {
   return ret;
 }
 
-export default [
+const configs = [];
+if (process.env.BROWSERSLIST_ENV !== 'node12') {
   // browser-friendly UMD build
-  {
+  configs.push({
     input: 'src/index.ts',
     external: isExternal,
     output: [{ file: pkg.unpkg, format: 'umd', name: 'restHooksLegacy' }],
     plugins: [
       babel({
-        exclude: ['node_modules/**', '**/__tests__/**'],
-        rootMode: 'upward',
+        exclude: ['node_modules/**', '/**__tests__/**'],
         extensions,
+        rootMode: 'upward',
         runtimeHelpers: true,
       }),
       replace({ 'process.env.NODE_ENV': JSON.stringify('production') }),
@@ -45,23 +46,26 @@ export default [
       commonjs({ extensions }),
       json(),
       terser({}),
-      filesize(),
+      filesize({ showBrotliSize: true }),
     ],
-  },
+  });
+} else {
   // node-friendly commonjs build
-  {
+  configs.push({
     input: 'src/index.ts',
     external: isExternal,
     output: [{ file: pkg.main, format: 'cjs' }],
     plugins: [
       babel({
         exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
+        extensions: nativeExtensions,
         rootMode: 'upward',
-        extensions,
         runtimeHelpers: true,
       }),
-      resolve({ extensions }),
-      commonjs({ extensions }),
+      replace({ 'process.env.CJS': 'true' }),
+      resolve({ extensions: nativeExtensions }),
+      commonjs({ extensions: nativeExtensions }),
     ],
-  },
-];
+  });
+}
+export default configs;

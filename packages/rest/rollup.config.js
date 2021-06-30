@@ -16,7 +16,6 @@ const dependencies = Object.keys(pkg.dependencies)
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
 const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
-process.env.BROWSERSLIST_ENV = 'node12';
 process.env.RESOLVER_ALIAS = '{"@rest-hooks/rest":"./src"}';
 
 function isExternal(id) {
@@ -29,12 +28,13 @@ function isExternal(id) {
   return ret;
 }
 
-export default [
+const configs = [];
+if (process.env.BROWSERSLIST_ENV !== 'node12') {
   // browser-friendly UMD build
-  {
+  configs.push({
     input: 'src/index.ts',
     external: isExternal,
-    output: [{ file: pkg.unpkg, format: 'umd', name: 'restHookCore' }],
+    output: [{ file: pkg.unpkg, format: 'umd', name: 'restHookRest' }],
     plugins: [
       babel({
         exclude: ['node_modules/**', '/**__tests__/**'],
@@ -49,9 +49,10 @@ export default [
       terser({}),
       filesize({ showBrotliSize: true }),
     ],
-  },
+  });
+} else {
   // node-friendly commonjs build
-  {
+  configs.push({
     input: 'src/index.ts',
     external: isExternal,
     output: [{ file: pkg.main, format: 'cjs' }],
@@ -66,5 +67,6 @@ export default [
       resolve({ extensions: nativeExtensions }),
       commonjs({ extensions: nativeExtensions }),
     ],
-  },
-];
+  });
+}
+export default configs;
