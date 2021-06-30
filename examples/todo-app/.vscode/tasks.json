@@ -1,0 +1,42 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "build",
+      "group": "build",
+      "problemMatcher": [],
+      "label": "npm: build",
+      "detail": "webpack --mode=production"
+    },
+    {
+      "type": "npm",
+      "label": "npm: start",
+      "script": "start",
+      "promptOnClose": true,
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "webpack",
+        "severity": "error",
+        "fileLocation": "absolute",
+        "pattern": [
+          {
+            "regexp": "ERROR in (.*)",
+            "file": 1
+          },
+          {
+            "regexp": "\\((\\d+),(\\d+)\\):(.*)",
+            "line": 1,
+            "column": 2,
+            "message": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Compiling\\.\\.\\.",
+          "endsPattern": "Compiled successfully\\."
+        }
+      }
+    }
+  ]
+}
