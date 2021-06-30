@@ -1,4 +1,4 @@
-import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
+import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
 import useMeta from '@rest-hooks/core/react-integration/hooks/useMeta';
 
 /** Returns whether the data at this url is fresh or stale */

@@ -13,7 +13,7 @@ import RIC from '@rest-hooks/core/state/RIC';
 import {
   createReceive,
   createReceiveError,
-} from '@rest-hooks/core/state/actions';
+} from '@rest-hooks/core/state/actions/index';
 
 /** Handles all async network dispatches
  *

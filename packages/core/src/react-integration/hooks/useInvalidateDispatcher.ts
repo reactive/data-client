@@ -1,5 +1,5 @@
 import { useContext, useCallback } from 'react';
-import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
+import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
 import { DispatchContext } from '@rest-hooks/core/react-integration/context';
 import { INVALIDATE_TYPE } from '@rest-hooks/core/actionTypes';
 

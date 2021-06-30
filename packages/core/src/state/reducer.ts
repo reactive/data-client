@@ -1,6 +1,6 @@
 import { normalize } from '@rest-hooks/normalizr';
 import { ActionTypes, State, ReceiveAction } from '@rest-hooks/core/types';
-import { createReceive } from '@rest-hooks/core/state/actions';
+import { createReceive } from '@rest-hooks/core/state/actions/index';
 import {
   RECEIVE_TYPE,
   INVALIDATE_TYPE,

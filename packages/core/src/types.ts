@@ -9,7 +9,7 @@ import type {
   EndpointExtraOptions,
 } from '@rest-hooks/endpoint';
 import { ErrorableFSAWithPayloadAndMeta } from '@rest-hooks/core/fsa';
-import { FetchShape } from '@rest-hooks/core/endpoint';
+import { FetchShape } from '@rest-hooks/core/endpoint/index';
 import {
   RECEIVE_TYPE,
   RESET_TYPE,

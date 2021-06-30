@@ -1,6 +1,6 @@
-import { FetchShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
+import { FetchShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
 import { StateContext } from '@rest-hooks/core/react-integration/context';
-import { selectMeta } from '@rest-hooks/core/state/selectors';
+import { selectMeta } from '@rest-hooks/core/state/selectors/index';
 import { useContext, useMemo } from 'react';
 
 /**

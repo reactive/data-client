@@ -1,5 +1,5 @@
 import { State } from '@rest-hooks/core/types';
-import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint';
+import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
 import { DenormalizeNullable } from '@rest-hooks/endpoint';
 import { isEntity, Schema } from '@rest-hooks/endpoint';
 import {

@@ -1,5 +1,5 @@
-import NetworkErrorBoundary from './NetworkErrorBoundary';
+import NetworkErrorBoundary from 'rest-hooks/react-integration/NetworkErrorBoundary';
 
-export * from './provider';
-export { default as useSelectionUnstable } from './hooks/useSelection';
+export * from 'rest-hooks/react-integration/provider/index';
+export { default as useSelectionUnstable } from 'rest-hooks/react-integration/hooks/useSelection';
 export { NetworkErrorBoundary };
