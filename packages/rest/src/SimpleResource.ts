@@ -12,10 +12,13 @@ import { NotImplementedError } from '@rest-hooks/rest/errors';
 import paramsToString from '@rest-hooks/rest/paramsToString';
 import { RestEndpoint } from '@rest-hooks/rest/types';
 
-/** Represents an entity to be retrieved from a server.
+/**
+ * Represents an entity to be retrieved from a server.
  * Typically 1:1 with a url endpoint.
  *
  * This can be a useful organization for many REST-like API patterns.
+ *
+ * @deprecated Use Resource directly in the future
  */
 export default abstract class SimpleResource extends EntityRecord {
   // typescript todo: require subclasses to implement
