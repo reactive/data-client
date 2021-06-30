@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1625067818959,
+  "lastUpdate": 1625068916314,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -2710,6 +2710,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.97%",
             "unit": "ops/sec",
             "extra": "73 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "dc95f9dbad20d5740218c52c906596b6a3d6eae4",
+          "message": "enhance: Remove 'fallback' package.json exports (#992)",
+          "timestamp": "2021-06-30T08:58:52-07:00",
+          "tree_id": "aa051620e96d04411d0cf7ca74058e872ef67877",
+          "url": "https://github.com/coinbase/rest-hooks/commit/dc95f9dbad20d5740218c52c906596b6a3d6eae4"
+        },
+        "date": 1625068914978,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 88.19,
+            "range": "±1.57%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 39.27,
+            "range": "±1.95%",
+            "unit": "ops/sec",
+            "extra": "52 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 46.16,
+            "range": "±0.24%",
+            "unit": "ops/sec",
+            "extra": "60 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 88.28,
+            "range": "±2.20%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
           }
         ]
       }
