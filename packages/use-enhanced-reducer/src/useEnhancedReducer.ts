@@ -1,6 +1,6 @@
 import React, { useReducer, useMemo, useRef, useEffect } from 'react';
 
-import { Middleware, Dispatch } from './types';
+import { Middleware, MiddlewareAPI } from './types';
 import usePromisifiedDispatch from './usePromisifiedDispatch';
 
 /** Similar to useReducer(), but with redux-like middleware
@@ -23,20 +23,18 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
   const dispatchWithPromise = usePromisifiedDispatch(realDispatch, state);
 
   const outerDispatch = useMemo(() => {
-    let dispatch: Dispatch<R> = () => {
-      throw new Error(
-        `Dispatching while constructing your middleware is not allowed. ` +
-          `Other middleware would not be applied to this dispatch.`,
-      );
-    };
     // closure here around dispatch allows us to change it after middleware is constructed
-    const middlewareAPI = {
+    const middlewareAPI: MiddlewareAPI<R> = {
       getState: () => stateRef.current,
-      dispatch: (action: React.ReducerAction<R>) => dispatch(action),
+      dispatch: () => {
+        throw new Error(
+          `Dispatching while constructing your middleware is not allowed. ` +
+            `Other middleware would not be applied to this dispatch.`,
+        );
+      },
     };
     const chain = middlewares.map(middleware => middleware(middlewareAPI));
-    dispatch = compose(chain)(dispatchWithPromise);
-    return dispatch;
+    return (middlewareAPI.dispatch = compose(chain)(dispatchWithPromise));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatchWithPromise, ...middlewares]);
   return [state, outerDispatch];
