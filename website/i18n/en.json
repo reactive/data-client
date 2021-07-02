@@ -262,6 +262,9 @@
       "upgrade/upgrading-to-5": {
         "title": "Upgrading from 4 to 5"
       },
+      "upgrade/upgrading-to-6": {
+        "title": "Upgrading from 5 to 6"
+      },
       "version-1.6.9/api/version-1.6.9-ExternalCacheProvider": {
         "title": "<ExternalCacheProvider />"
       },
