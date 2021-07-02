@@ -69,7 +69,7 @@ const schemeValuesSimple = new schema.Values(Magic);
 const [valueValues, foundValues] = denormalize({}, schemeValues, {});
 Object.keys(schemeValues).forEach(k => {
   const v = valueValues[k];
-  if (v && v.a === 'second') {
+  if (v?.a === 'second') {
     const b: Magic2 = v;
   }
 });

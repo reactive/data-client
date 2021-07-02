@@ -22,7 +22,7 @@ export default class NetworkErrorBoundary<
   static defaultProps = {
     fallbackComponent: ({ error }: { error: NetworkError }) => (
       <div>
-        {error.status} {error.response && error.response.statusText}
+        {error.status} {error.response?.statusText}
       </div>
     ),
   };
