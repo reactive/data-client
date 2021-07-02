@@ -58,13 +58,13 @@
     eslint-plugin-jsx-a11y "^6.4.1"
 
 "@anansi/jest-preset@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.5.0.tgz#759c2986a057c0442edd1519ecd53605e6f689a3"
-  integrity sha512-gTuSuoHNtYkCU9cyZmGeE/e5l106qiXIoqZ8EqG8pNzTAb68tkJYn3GPIO3+b02RAWJuE0sXTMdXNQ+0/9YbIw==
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.5.1.tgz#5322924f03920f6b86ac5734fa586dc1ac2056b9"
+  integrity sha512-V8bk4nfw5Y/HbVwl1wm+wH28ZBTN+v0x7bdt2/wlSz7pWM9N67CvM2Wxqf91Uc28JsFCzeBCAGyeRCFdfxW/lQ==
   dependencies:
     "@anansi/ts-utils" "^0.2.4"
-    babel-jest "^27.0.5"
-    core-js "^3.15.1"
+    babel-jest "^27.0.6"
+    core-js "^3.15.2"
     identity-obj-proxy "^3.0.0"
     mitt "^3.0.0"
     semver "^7.3.5"
@@ -4307,7 +4307,7 @@ babel-core@^7.0.0-bridge.0:
   resolved "https://registry.yarnpkg.com/babel-core/-/babel-core-7.0.0-bridge.0.tgz#95a492ddd90f9b4e9a4a1da14eb335b87b634ece"
   integrity sha512-poPX9mZH/5CSanm50Q+1toVci6pv5KSRv/5TWCwtzQS5XEwn40BcCrgIeMFWP9CKKIniKXNxoIOnOq4VVlGXhg==
 
-babel-jest@^27.0.5, babel-jest@^27.0.6:
+babel-jest@^27.0.6:
   version "27.0.6"
   resolved "https://registry.yarnpkg.com/babel-jest/-/babel-jest-27.0.6.tgz#e99c6e0577da2655118e3608b68761a5a69bd0d8"
   integrity sha512-iTJyYLNc4wRofASmofpOc5NK9QunwMk+TLFgGXsTFS8uEqmd8wdI7sga0FPe2oVH3b5Agt/EAK1QjPEuKL8VfA==
@@ -5751,7 +5751,7 @@ core-js-pure@^3.8.1:
   resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.15.2.tgz#c8e0874822705f3385d3197af9348f7c9ae2e3ce"
   integrity sha512-D42L7RYh1J2grW8ttxoY1+17Y4wXZeKe7uyplAI3FkNQyI5OgBIAjUfFiTPfL1rs0qLpxaabITNbjKl1Sp82tA==
 
-core-js@^3.15.0, core-js@^3.15.1, core-js@^3.8.1:
+core-js@^3.15.0, core-js@^3.15.1, core-js@^3.15.2, core-js@^3.8.1:
   version "3.15.2"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.15.2.tgz#740660d2ff55ef34ce664d7e2455119c5bdd3d61"
   integrity sha512-tKs41J7NJVuaya8DxIOCnl8QuPHx5/ZVbFo1oKgVl1qHFBBrDctzQGtuLjPpRdNTWmKPH6oEvgN/MUID+l485Q==
