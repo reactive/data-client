@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1625200843624,
+  "lastUpdate": 1625237526154,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -2970,6 +2970,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.31%",
             "unit": "ops/sec",
             "extra": "73 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "377391fa31ffe651f67e547aef13c5aa7bd5e702",
+          "message": "feat: Allow normalizing entities that are just ids (#1002)",
+          "timestamp": "2021-07-02T09:48:55-05:00",
+          "tree_id": "05d644ce82332cf23c79948685ddb65111dd3e43",
+          "url": "https://github.com/coinbase/rest-hooks/commit/377391fa31ffe651f67e547aef13c5aa7bd5e702"
+        },
+        "date": 1625237525322,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 84.59,
+            "range": "±1.59%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 40.37,
+            "range": "±1.21%",
+            "unit": "ops/sec",
+            "extra": "53 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 45.15,
+            "range": "±0.55%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 83.48,
+            "range": "±2.55%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
           }
         ]
       }
