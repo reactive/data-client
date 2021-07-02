@@ -1,6 +1,5 @@
 // eslint-env jest
 import { fromJS } from 'immutable';
-import { after } from 'lodash';
 
 import { denormalizeSimple as denormalize } from '../denormalize';
 import { normalize, schema } from '../';
@@ -37,8 +36,21 @@ describe('normalize', () => {
     expect(normalize(input).result).toBe(input);
   });
 
+  test('passthrough with id in place of entity', () => {
+    const input = { taco: 5 };
+    expect(normalize(input, { taco: Tacos }).result).toStrictEqual(input);
+  });
+
   test('cannot normalize with null input', () => {
     expect(() => normalize(null, Tacos)).toThrow(/null/);
+  });
+
+  test('passthrough primitive schema', () => {
+    expect(normalize({ happy: { bob: 5 } }, { happy: 5 }).result).toStrictEqual(
+      {
+        happy: { bob: 5 },
+      },
+    );
   });
 
   test('can normalize string', () => {
