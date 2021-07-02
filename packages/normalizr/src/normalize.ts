@@ -16,18 +16,13 @@ const visit = (
   addEntity: any,
   visitedEntities: any,
 ) => {
-  if (!value || !schema || !['function', 'object'].includes(typeof schema)) {
+  if (!value || !schema) {
     return value;
   }
 
-  if (!schema.normalize || typeof schema.normalize !== 'function') {
-    // serializable
-    if (typeof schema === 'function') {
-      return new schema(value);
-    }
-    const method = Array.isArray(schema) ? arrayNormalize : objectNormalize;
-    return method(
-      schema,
+  if (schema.normalize && typeof schema.normalize === 'function') {
+    if (typeof value !== 'object') return value;
+    return schema.normalize(
       value,
       parent,
       key,
@@ -37,14 +32,15 @@ const visit = (
     );
   }
 
-  return schema.normalize(
-    value,
-    parent,
-    key,
-    visit,
-    addEntity,
-    visitedEntities,
-  );
+  // serializable
+  if (typeof schema === 'function') {
+    return new schema(value);
+  }
+
+  if (typeof value !== 'object' || typeof schema !== 'object') return value;
+
+  const method = Array.isArray(schema) ? arrayNormalize : objectNormalize;
+  return method(schema, value, parent, key, visit, addEntity, visitedEntities);
 };
 
 const addEntities =
