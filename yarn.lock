@@ -38,10 +38,10 @@
     semver "^7.3.5"
     stable "^0.1.8"
 
-"@anansi/browserslist-config@1.3.2":
-  version "1.3.2"
-  resolved "https://registry.yarnpkg.com/@anansi/browserslist-config/-/browserslist-config-1.3.2.tgz#c474974cdf76cde3555be0814c831511e3cb6ef2"
-  integrity sha512-kdc6L3sAWBlkeQkMYDwrUJUljpcAt6Kf3hTlqTHlOYlOiJxWsP1sonXq4ekRq7fPytBuY1LM4bcZDP7NylODiQ==
+"@anansi/browserslist-config@1.3.3":
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/@anansi/browserslist-config/-/browserslist-config-1.3.3.tgz#caedf9fa4ffdc5175e88e4596192eb57bbd91c0a"
+  integrity sha512-BBI9vaQWgHJ1EZxGRdWdUVqX3BTsfta08rrGwEbQ5AfY3sC2SoIRaFOmKDaBM+4X7KuUanID92MKO2gXS8a2mA==
 
 "@anansi/eslint-plugin@0.11.16":
   version "0.11.16"
@@ -13594,10 +13594,10 @@ react-native@^0.64.0:
     whatwg-fetch "^3.0.0"
     ws "^6.1.4"
 
-react-refresh@^0.11.0-0:
-  version "0.11.0-alpha-e6be2d531"
-  resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.11.0-alpha-e6be2d531.tgz#470e56e20f9308d1e06d2c16e655d8af3e052c16"
-  integrity sha512-lVCo8AJ4j9pcNiL0GMBB53/JjhQw48ZKVaX6yAlmc6HETGProrD6B/Nfof5jtHRy6CkSnbSlVUoDs6Q4WqOebw==
+react-refresh@^0.11.0-alpha-9212d994b:
+  version "0.11.0-alpha-9212d994b"
+  resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.11.0-alpha-9212d994b.tgz#a7d6955c1fb0b7c04fe7fb9655faec201902a469"
+  integrity sha512-qwHtqjda0DVDYvyaPiT+49s2sFQe7eoKoKPQ6tLP/RMG238JCb5I6RMdTU4pAj7FRtN7j4p1AbliFVVsNmElYQ==
 
 react-refresh@^0.4.0:
   version "0.4.3"
