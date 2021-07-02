@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@anansi/babel-preset@2.7.4":
-  version "2.7.4"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.7.4.tgz#62045c8c0d4e83c0adc216e9e925c39892567934"
-  integrity sha512-qx/3bPtT6UB/V0Nqly6vjpH0G4NnXDhTtrMxFWdde1qtMlkAFGbkuI5EDuagZXIB+U12BHdP4AD7SMags41dRA==
+"@anansi/babel-preset@2.7.5":
+  version "2.7.5"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.7.5.tgz#d7b1a96991f0f53ac8f3d1f5f77ad784c6c39745"
+  integrity sha512-rKmlrEgoBXZNA3D1mt7wokKnUS6fraGYyUnPM/8wBa5R7foGaxj22wDREg17DkdvT5XMQiRkBGqKIOQjzptZSg==
   dependencies:
     "@anansi/ts-utils" "^0.2.4"
     "@babel/plugin-proposal-class-properties" "^7.13.0"
@@ -32,7 +32,7 @@
     babel-plugin-react-require "^3.1.3"
     babel-plugin-root-import "^6.6.0"
     babel-plugin-transform-react-remove-prop-types "^0.4.24"
-    core-js-compat "^3.15.1"
+    core-js-compat "^3.15.2"
     glob-to-regexp "^0.4.1"
     path "^0.12.7"
     semver "^7.3.5"
@@ -5726,10 +5726,10 @@ copyfiles@^2.4.1:
     untildify "^4.0.0"
     yargs "^16.1.0"
 
-core-js-compat@^3.15.0, core-js-compat@^3.15.1, core-js-compat@^3.9.1:
-  version "3.15.1"
-  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.15.1.tgz#1afe233716d37ee021956ef097594071b2b585a7"
-  integrity sha512-xGhzYMX6y7oEGQGAJmP2TmtBLvR4nZmRGEcFa3ubHOq5YEp51gGN9AovVa0AoujGZIq+Wm6dISiYyGNfdflYww==
+core-js-compat@^3.15.0, core-js-compat@^3.15.2, core-js-compat@^3.9.1:
+  version "3.15.2"
+  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.15.2.tgz#47272fbb479880de14b4e6081f71f3492f5bd3cb"
+  integrity sha512-Wp+BJVvwopjI+A1EFqm2dwUmWYXrvucmtIB2LgXn/Rb+gWPKYxtmb4GKHGKG/KGF1eK9jfjzT38DITbTOCX/SQ==
   dependencies:
     browserslist "^4.16.6"
     semver "7.0.0"
