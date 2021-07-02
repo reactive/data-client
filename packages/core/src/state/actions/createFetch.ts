@@ -84,7 +84,7 @@ export default function createFetch<
     };
   }
 
-  if (options && options.optimisticUpdate) {
+  if (options?.optimisticUpdate) {
     meta.optimisticResponse = options.optimisticUpdate(params, body);
   }
 

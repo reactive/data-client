@@ -160,7 +160,7 @@ const getEntities = (entities: Record<string, any>) => {
       return entities.getIn([schemaKey, entityOrId]);
     }
 
-    return entities[schemaKey] && entities[schemaKey][entityOrId];
+    return entities[schemaKey]?.[entityOrId];
   };
 };
 

@@ -24,13 +24,12 @@ export default function makeRenderRestHook(
       wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
     },
   ) {
-    const initialState =
-      options && options.results && mockInitialState(options.results);
+    const initialState = options?.results && mockInitialState(options.results);
     const Provider: React.ComponentType<any> = makeProvider(
       [manager, subManager],
       initialState,
     );
-    const Wrapper = options && options.wrapper;
+    const Wrapper = options?.wrapper;
     const wrapper: React.ComponentType<any> = Wrapper
       ? function ProviderWrapped(props: React.PropsWithChildren<P>) {
           return (

@@ -9,7 +9,7 @@ export default function hasUsableData(
 ) {
   return (
     !deleted &&
-    !(fetchShape.options && fetchShape.options.invalidIfStale) &&
+    !fetchShape.options?.invalidIfStale &&
     cacheReady &&
     !invalidated
   );
