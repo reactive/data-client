@@ -35,7 +35,7 @@
     "@linaria/react": "3.0.0-beta.7",
     "@linaria/babel-preset": "3.0.0-beta.4",
     "@linaria/shaker": "3.0.0-beta.7",
-    "webpack": "5.42.0",
+    "webpack": "5.42.1",
     "@anansi/webpack-config": "7.4.3",
     "rest-hooks": "^6.0.0-beta.0",
     "@rest-hooks/rest": "^3.0.0-beta.0"
