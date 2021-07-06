@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.5.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@7.4.0...@rest-hooks/normalizr@7.5.0) (2021-07-06)
+
+
+### 🚀 Features
+
+* Allow normalizing entities that are just ids ([#1002](https://github.com/coinbase/rest-hooks/issues/1002)) ([489e1ad](https://github.com/coinbase/rest-hooks/commit/489e1ad3e5e8943ddc3cb24c08947d67379a04c4))
+
+
+
 ## [7.4.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@7.3.0...@rest-hooks/normalizr@7.4.0) (2021-06-19)
 
 
