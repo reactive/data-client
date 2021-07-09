@@ -13521,10 +13521,10 @@ react-native@^0.64.0:
     whatwg-fetch "^3.0.0"
     ws "^6.1.4"
 
-react-refresh@^0.11.0-0:
-  version "0.11.0-alpha-e6be2d531"
-  resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.11.0-alpha-e6be2d531.tgz#470e56e20f9308d1e06d2c16e655d8af3e052c16"
-  integrity sha512-lVCo8AJ4j9pcNiL0GMBB53/JjhQw48ZKVaX6yAlmc6HETGProrD6B/Nfof5jtHRy6CkSnbSlVUoDs6Q4WqOebw==
+react-refresh@^0.11.0-alpha-241485a2c-20210708:
+  version "0.11.0-alpha-241485a2c-20210708"
+  resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.11.0-alpha-241485a2c-20210708.tgz#59fdee77f99876582e038cd1a5ac885ac574ef6c"
+  integrity sha512-D0VL73RxyHqJVPcu5/NtLLLHX4wDELTXH7K+DreCh1rjvfMpkCzjuPmzQxUL1qspLOOzWQKy5rDucMDTvn/RgQ==
 
 react-refresh@^0.4.0:
   version "0.4.3"
