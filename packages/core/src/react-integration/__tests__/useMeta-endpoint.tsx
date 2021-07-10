@@ -16,7 +16,7 @@ describe('useMeta()', () => {
   });
 
   it('should contain error', () => {
-    const results = [
+    const results: Fixture[] = [
       {
         request: TypedArticleResource.detail().bind(undefined, payload),
         result: new Error('broken'),

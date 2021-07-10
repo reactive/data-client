@@ -1,8 +1,12 @@
 import { State, Manager } from '@rest-hooks/core';
 import { SubscriptionManager } from 'rest-hooks';
-import React from 'react';
+import React, { memo } from 'react';
 import { renderHook } from '@testing-library/react-hooks';
-import mockInitialState, { Fixture } from '@rest-hooks/test/mockState';
+import mockInitialState, {
+  Fixture,
+  FixtureEndpoint,
+} from '@rest-hooks/test/mockState';
+import MockResolver from '@rest-hooks/test/MockResolver';
 import {
   MockNetworkManager,
   MockPollingSubscription,
@@ -20,25 +24,48 @@ export default function makeRenderRestHook(
     callback: (props: P) => R,
     options?: {
       initialProps?: P;
+      /** @deprecated */
       results?: Fixture[];
+      initialFixtures?: FixtureEndpoint[];
+      resolverFixtures?: FixtureEndpoint[];
       wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
     },
   ) {
-    const initialState = options?.results && mockInitialState(options.results);
+    const initialState = options?.initialFixtures
+      ? mockInitialState(options.initialFixtures)
+      : options?.results && mockInitialState(options.results);
     const Provider: React.ComponentType<any> = makeProvider(
       [manager, subManager],
       initialState,
     );
+    const ProviderWithResolver: React.ComponentType<any> =
+      options?.resolverFixtures
+        ? memo(function ProviderWithResolver({
+            children,
+          }: React.PropsWithChildren<P>) {
+            return (
+              <Provider>
+                <MockResolver
+                  fixtures={options.resolverFixtures as FixtureEndpoint[]}
+                >
+                  {children}
+                </MockResolver>
+              </Provider>
+            );
+          })
+        : Provider;
+
     const Wrapper = options?.wrapper;
-    const wrapper: React.ComponentType<any> = Wrapper
+    const wrapper = Wrapper
       ? function ProviderWrapped(props: React.PropsWithChildren<P>) {
           return (
-            <Provider>
+            <ProviderWithResolver>
               <Wrapper {...props} />
-            </Provider>
+            </ProviderWithResolver>
           );
         }
-      : Provider;
+      : ProviderWithResolver;
+
     return renderHook(callback, {
       ...options,
       wrapper,

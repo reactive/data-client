@@ -59,9 +59,9 @@ existing so loading fallback is shown.
 export default {
   full: [
     {
-      request: ArticleResource.list(),
-      params: { maxResults: 10 },
-      result: [
+      endpoint: ArticleResource.list(),
+      args: [{ maxResults: 10 }] as const,
+      response: [
         {
           id: 5,
           content: 'have a merry christmas',
@@ -77,9 +77,9 @@ export default {
       ],
     },
     {
-      request: ArticleResource.update(),
-      params: { id: 532 },
-      result: {
+      endpoint: ArticleResource.update(),
+      args: [{ id: 532 }] as const,
+      response: {
         id: 532,
         content: 'updated "never again"',
         author: 23,
@@ -89,16 +89,16 @@ export default {
   ],
   empty: [
     {
-      request: ArticleResource.list(),
-      params: { maxResults: 10 },
-      result: [],
+      endpoint: ArticleResource.list(),
+      args: [{ maxResults: 10 }] as const,
+      response: [],
     },
   ],
   error: [
     {
-      request: ArticleResource.list(),
-      params: { maxResults: 10 },
-      result: { message: 'Bad request', status: 400, name: 'Not Found' },
+      endpoint: ArticleResource.list(),
+      args: [{ maxResults: 10 }] as const,
+      response: { message: 'Bad request', status: 400, name: 'Not Found' },
       error: true,
     },
   ],

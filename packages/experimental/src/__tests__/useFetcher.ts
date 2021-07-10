@@ -1,12 +1,13 @@
 import { FutureArticleResource } from '__tests__/new';
 import nock from 'nock';
-import { useCache, useResource } from '@rest-hooks/core';
+import { useCache, useResource, ResolveType } from '@rest-hooks/core';
 
 // relative imports to avoid circular dependency in tsconfig references
 import {
   makeRenderRestHook,
   makeCacheProvider,
   makeExternalCacheProvider,
+  FixtureEndpoint,
 } from '../../../test';
 import useFetcher from '../useFetcher';
 
@@ -132,16 +133,31 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
     });
 
     it('should update on create', async () => {
-      const { result, waitForNextUpdate } = renderRestHook(() => {
-        const articles = useResource(FutureArticleResource.list(), {});
-        const fetch = useFetcher();
-        return { articles, fetch };
-      });
-      await waitForNextUpdate();
-      await result.current.fetch(FutureArticleResource.create(), {
-        id: 1,
-      });
-      expect(result.current.articles.map(({ id }) => id)).toEqual([1, 5, 3]);
+      const endpoint = FutureArticleResource.create();
+      const response: ResolveType<typeof endpoint> = createPayload;
+      const fixtures: FixtureEndpoint[] = [
+        {
+          endpoint,
+          args: [{ id: 1 }],
+          response,
+        },
+      ];
+      // use nock, and use resolver
+      for (const resolverFixtures of [undefined, fixtures]) {
+        const { result, waitForNextUpdate } = renderRestHook(
+          () => {
+            const articles = useResource(FutureArticleResource.list(), {});
+            const fetch = useFetcher();
+            return { articles, fetch };
+          },
+          { resolverFixtures },
+        );
+        await waitForNextUpdate();
+        await result.current.fetch(FutureArticleResource.create(), {
+          id: 1,
+        });
+        expect(result.current.articles.map(({ id }) => id)).toEqual([1, 5, 3]);
+      }
     });
   });
 }
