@@ -38,6 +38,12 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * Add doc links to jsdocs ([#966](https://github.com/coinbase/rest-hooks/issues/966)) ([dc7fcfe](https://github.com/coinbase/rest-hooks/commit/dc7fcfec24c30d5f405d24ccc1828620d837ea6b))
 
+### [1.2.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@1.2.2...@rest-hooks/endpoint@1.2.3) (2021-07-06)
+
+**Note:** Version bump only for package @rest-hooks/endpoint
+
+
+
 
 
 ### [1.2.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@1.2.1...@rest-hooks/endpoint@1.2.2) (2021-06-19)

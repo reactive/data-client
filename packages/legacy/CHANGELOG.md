@@ -56,6 +56,19 @@ errors for missing entities
 * Add doc links to jsdocs ([#966](https://github.com/coinbase/rest-hooks/issues/966)) ([dc7fcfe](https://github.com/coinbase/rest-hooks/commit/dc7fcfec24c30d5f405d24ccc1828620d837ea6b))
 
 
+## [2.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@2.2.0...@rest-hooks/legacy@2.3.0) (2021-06-25)
+
+
+### 🚀 Features
+
+* Mark compatibility with upcoming versions ([#959](https://github.com/coinbase/rest-hooks/issues/959)) ([72da158](https://github.com/coinbase/rest-hooks/commit/72da158c19acf4c76b8b86eb37e063956b7347fd))
+
+
+### 🐛 Bug Fix
+
+* Legacy cjs and unpkg should target 'legacy' ([31b6893](https://github.com/coinbase/rest-hooks/commit/31b68933245bfc6234ecea603618f43af8387729))
+
+
 
 ## [2.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@2.1.0...@rest-hooks/legacy@2.2.0) (2021-06-16)
 

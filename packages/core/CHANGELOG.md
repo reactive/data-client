@@ -56,6 +56,12 @@ errors for missing entities
 
 * Add doc links to jsdocs ([#966](https://github.com/coinbase/rest-hooks/issues/966)) ([dc7fcfe](https://github.com/coinbase/rest-hooks/commit/dc7fcfec24c30d5f405d24ccc1828620d837ea6b))
 
+### [1.5.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.5.2...@rest-hooks/core@1.5.3) (2021-07-06)
+
+**Note:** Version bump only for package @rest-hooks/core
+
+
+
 
 
 ### [1.5.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.5.1...@rest-hooks/core@1.5.2) (2021-06-19)
