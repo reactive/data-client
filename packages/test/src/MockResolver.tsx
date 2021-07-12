@@ -11,6 +11,7 @@ import { Fixture, actionFromFixture } from '@rest-hooks/test/mockState';
 type Props = {
   children: React.ReactNode;
   fixtures: Fixture[];
+  silenceMissing: boolean;
 };
 
 /** Can be used to mock responses based on fixtures provided.
@@ -19,7 +20,11 @@ type Props = {
  *
  * Place below <CacheProvider /> and above any components you want to mock.
  */
-export default function MockResolver({ children, fixtures }: Props) {
+export default function MockResolver({
+  children,
+  fixtures,
+  silenceMissing,
+}: Props) {
   const fetchToReceiveAction = useMemo(() => {
     const actionMap: Record<string, ReceiveAction> = {};
     for (const fixture of fixtures) {
@@ -49,9 +54,10 @@ export default function MockResolver({ children, fixtures }: Props) {
           }, 0);
           return Promise.resolve();
         }
-        // This is only a warn because sometimes this is intentional
-        console.warn(
-          `<MockResolver/> received a dispatch:
+        if (!silenceMissing) {
+          // This is only a warn because sometimes this is intentional
+          console.warn(
+            `<MockResolver/> received a dispatch:
   ${JSON.stringify(action, undefined, 2)}
   for which there is no matching fixture.
 
@@ -67,7 +73,8 @@ export default function MockResolver({ children, fixtures }: Props) {
   params: { maxResults: 10 },
   result: [],
   }`,
-        );
+          );
+        }
       } else if (action.type === actionTypes.SUBSCRIBE_TYPE) {
         const { key } = action.meta;
         if (Object.prototype.hasOwnProperty.call(fetchToReceiveAction, key)) {
@@ -76,7 +83,7 @@ export default function MockResolver({ children, fixtures }: Props) {
       }
       return dispatch(action);
     },
-    [fetchToReceiveAction, dispatch],
+    [dispatch, fetchToReceiveAction, silenceMissing],
   );
 
   return (
@@ -85,3 +92,7 @@ export default function MockResolver({ children, fixtures }: Props) {
     </DispatchContext.Provider>
   );
 }
+
+MockResolver.defaultProps = {
+  silenceMissing: false,
+};

@@ -249,7 +249,7 @@ export class FutureArticleResource extends CoolerArticleResource {
       fetch(body: Partial<AbstractInstanceType<T>>) {
         return instanceFetch(this.url(), this.getFetchInit(body));
       },
-      url: this.listUrl.bind(this),
+      url: () => this.listUrl({}),
       update: (newid: string) => ({
         [this.list().key({})]: (existing: string[] = []) => [
           newid,

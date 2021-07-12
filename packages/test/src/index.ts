@@ -8,6 +8,9 @@ import mockInitialState from '@rest-hooks/test/mockState';
 export * from '@rest-hooks/test/managers';
 export { default as MockResolver } from '@rest-hooks/test/MockResolver';
 export type {
+  FixtureEndpoint,
+  SuccessFixtureEndpoint,
+  ErrorFixtureEndpoint,
   Fixture,
   SuccessFixture,
   ErrorFixture,
