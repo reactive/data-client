@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.0.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.0.0-beta.0...@rest-hooks/test@7.0.0-beta.1) (2021-07-12)
+
+
+### 🚀 Features
+
+* FixtureEndpoint & renderRestHook resolverFixtures ([#1027](https://github.com/coinbase/rest-hooks/issues/1027)) ([bbb69e9](https://github.com/coinbase/rest-hooks/commit/bbb69e9faaa523c46a0e309a44e0fd52f0ce91aa))
+* Mark compatibility with upcoming versions ([#959](https://github.com/coinbase/rest-hooks/issues/959)) ([72da158](https://github.com/coinbase/rest-hooks/commit/72da158c19acf4c76b8b86eb37e063956b7347fd))
+
+
+### 💅 Enhancement
+
+* Use optional chaining ([#1003](https://github.com/coinbase/rest-hooks/issues/1003)) ([6e45937](https://github.com/coinbase/rest-hooks/commit/6e459377e3f0d90d1832c0173358c3c73f253831))
+
+
+
 ## [7.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@6.1.0...@rest-hooks/test@7.0.0-beta.0) (2021-06-30)
 
 

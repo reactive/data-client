@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.0.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@7.5.0...@rest-hooks/normalizr@8.0.0-beta.1) (2021-07-12)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* * Importing directly from hidden files is no longer supported
+* Node>=12
+* - fromJS() -> process() to customize init
+- normalize results in POJO rather than instances
+- FlatEntity, SimpleRecord removed (use @rest-hooks/legacy)
+- peerDep @rest-hooks/endpoint > 2
+
+### 🚀 Features
+
+* Allow normalizing entities that are just ids ([#1002](https://github.com/coinbase/rest-hooks/issues/1002)) ([377391f](https://github.com/coinbase/rest-hooks/commit/377391fa31ffe651f67e547aef13c5aa7bd5e702))
+* Use 'exports' package.json member ([#955](https://github.com/coinbase/rest-hooks/issues/955)) ([7e9d39f](https://github.com/coinbase/rest-hooks/commit/7e9d39f15b4b321352ece0caddb93e2c414df8ae))
+
+
+### 💅 Enhancement
+
+* Different babel targets for cjs and umd builds ([#989](https://github.com/coinbase/rest-hooks/issues/989)) ([f054814](https://github.com/coinbase/rest-hooks/commit/f05481410cf8daa2101d4dbda826e56ad10ec723))
+* Entities normalize to POJO ([#940](https://github.com/coinbase/rest-hooks/issues/940)) ([75ebdfe](https://github.com/coinbase/rest-hooks/commit/75ebdfe641ccf57fca35c44a94077e4a314e44d7))
+* Remove 'fallback' package.json exports ([#992](https://github.com/coinbase/rest-hooks/issues/992)) ([dc95f9d](https://github.com/coinbase/rest-hooks/commit/dc95f9dbad20d5740218c52c906596b6a3d6eae4))
+* Use optional chaining ([#1003](https://github.com/coinbase/rest-hooks/issues/1003)) ([6e45937](https://github.com/coinbase/rest-hooks/commit/6e459377e3f0d90d1832c0173358c3c73f253831))
+
+
+### 📝 Documentation
+
+* Add doc links to jsdocs ([#966](https://github.com/coinbase/rest-hooks/issues/966)) ([dc7fcfe](https://github.com/coinbase/rest-hooks/commit/dc7fcfec24c30d5f405d24ccc1828620d837ea6b))
+* Update links ([#954](https://github.com/coinbase/rest-hooks/issues/954)) ([80c4f90](https://github.com/coinbase/rest-hooks/commit/80c4f90cc36e26297751fa8d5ee710f819d169b3))
+
+
+
 ## [8.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@7.4.0...@rest-hooks/normalizr@8.0.0-beta.0) (2021-06-30)
 
 
