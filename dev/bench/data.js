@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1626068079492,
+  "lastUpdate": 1626068514522,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -3126,6 +3126,58 @@ window.BENCHMARK_DATA = {
             "range": "±3.50%",
             "unit": "ops/sec",
             "extra": "65 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "bbb69e9faaa523c46a0e309a44e0fd52f0ce91aa",
+          "message": "feat: FixtureEndpoint & renderRestHook resolverFixtures (#1027)",
+          "timestamp": "2021-07-11T22:38:28-07:00",
+          "tree_id": "51e98d6b1be461cb80c18f1c228a6b2c48788e0c",
+          "url": "https://github.com/coinbase/rest-hooks/commit/bbb69e9faaa523c46a0e309a44e0fd52f0ce91aa"
+        },
+        "date": 1626068513311,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 84.56,
+            "range": "±0.76%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 37.81,
+            "range": "±1.38%",
+            "unit": "ops/sec",
+            "extra": "57 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 43.85,
+            "range": "±0.92%",
+            "unit": "ops/sec",
+            "extra": "57 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 80.37,
+            "range": "±1.89%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
           }
         ]
       }
