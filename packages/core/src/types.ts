@@ -67,7 +67,7 @@ export type FetchOptions<F extends FetchFunction = FetchFunction> =
   EndpointExtraOptions<F>;
 
 export interface ReceiveMeta<S extends Schema | undefined> {
-  schema: S;
+  schema?: S;
   key: string;
   args?: readonly any[];
   updaters?: Record<string, UpdateFunction<S, any>>;
@@ -101,7 +101,7 @@ interface FetchMeta<
   S extends Schema | undefined = any,
 > {
   type: FetchShape<any, any>['type'];
-  schema: S;
+  schema?: S;
   key: string;
   args?: readonly any[];
   updaters?: Record<string, UpdateFunction<S, any>>;
