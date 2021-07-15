@@ -76,19 +76,19 @@
   resolved "https://registry.yarnpkg.com/@anansi/ts-utils/-/ts-utils-0.2.4.tgz#ffb0ce7ad3a0a0b74db581443c5bb70fe6330652"
   integrity sha512-0injZU3d7z2spk0RMzm17Y10IQtZSv8s9Y5VX7Q6DQ0x6q90exXC6hGq6Xmmn9wu+u9wyIUw5GfCOTWIRJK5vg==
 
-"@anansi/webpack-config@7.4.5":
-  version "7.4.5"
-  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-7.4.5.tgz#b89edc057393ebfe7bb40b31a11cdf8dc50ccf17"
-  integrity sha512-/HKf6b6se3pfIAq2uZLgpSCXi2VYG/4VsOxlZSHynw2Xc0VooUqQYRh4R3IftvHanwQRLpdRvu5AAW1EEtjVGA==
+"@anansi/webpack-config@7.4.6":
+  version "7.4.6"
+  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-7.4.6.tgz#b8537a556deeeab0870c92a583f7c8c435828244"
+  integrity sha512-phnwv+JZfo7oy2luP3Ca0C2MypVv9V6QwllRgLbbQq7Piu+5Auf62rhklPLlShL37q7OTU7lyg+pshCBACgsqQ==
   dependencies:
     "@babel/runtime" "^7.14.6"
     "@linaria/webpack-loader" "^3.0.0-beta.7"
-    "@pmmmwh/react-refresh-webpack-plugin" "^0.5.0-rc.1"
+    "@pmmmwh/react-refresh-webpack-plugin" "^0.5.0-rc.2"
     "@svgr/webpack" "^5.5.0"
     "@types/webpack-bundle-analyzer" "^4.4.1"
     "@vue/preload-webpack-plugin" "^2.0.0"
     assert "^2.0.0"
-    autoprefixer "^10.3.0"
+    autoprefixer "^10.3.1"
     babel-loader "^8.2.2"
     browserify-zlib "^0.2.0"
     buffer "^6.0.3"
@@ -98,7 +98,7 @@
     constants-browserify "^1.0.0"
     core-js "^3.15.2"
     crypto-browserify "^3.12.0"
-    css-loader "^5.2.5"
+    css-loader "^5.2.7"
     css-minimizer-webpack-plugin "^3.0.2"
     domain-browser "^4.19.0"
     duplicate-package-checker-webpack-plugin "^3.0.0"
@@ -1932,6 +1932,7 @@
 
 "@lerna/conventional-commits@4.0.0", "@lerna/conventional-commits@https://github.com/ntucker/lerna-conventional-commits.git":
   version "3.16.4"
+  uid "4389120475a4f80ac8e4fbe766fa4c9644c6b1c7"
   resolved "https://github.com/ntucker/lerna-conventional-commits.git#4389120475a4f80ac8e4fbe766fa4c9644c6b1c7"
   dependencies:
     "@lerna/validation-error" "^4.0"
@@ -2843,10 +2844,10 @@
   dependencies:
     "@octokit/openapi-types" "^8.2.1"
 
-"@pmmmwh/react-refresh-webpack-plugin@^0.5.0-rc.1":
-  version "0.5.0-rc.1"
-  resolved "https://registry.yarnpkg.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.5.0-rc.1.tgz#3b51d5a3a1818afc20b7c887631db8698d68d00e"
-  integrity sha512-zwuSpdEr1PVfPntc+0+D2nacSXDJuYsx2Ie8twOyjjiJObxlGjc52ez7U/8p0/e3IkgzdqKrvmo2jmMKOFGI6Q==
+"@pmmmwh/react-refresh-webpack-plugin@^0.5.0-rc.2":
+  version "0.5.0-rc.2"
+  resolved "https://registry.yarnpkg.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.5.0-rc.2.tgz#7f1049150d8474cd8bfe21ae0efec581238dc924"
+  integrity sha512-LTZK5rAAiog7FvsDKX7mJBifV9yyzhIXHqlHA8E978Z0iFLsW40j6OVJFZ/AzV3wBIvN3+iPVYvhVGckkoy8OQ==
   dependencies:
     ansi-html "^0.0.7"
     core-js-pure "^3.8.1"
@@ -4238,10 +4239,10 @@ atob@^2.1.1:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-autoprefixer@^10.3.0:
-  version "10.3.0"
-  resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-10.3.0.tgz#c60803dce9268f7fe0a5e5c1fe48a74356d7b864"
-  integrity sha512-BzVzdjs47nT3MphTddr8eSsPVEIUCF96X6iC8V5iEB8RtxrU+ybtdhHV5rsqRqOsoyh/acQaYs7YupHPUECgmg==
+autoprefixer@^10.3.1:
+  version "10.3.1"
+  resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-10.3.1.tgz#954214821d3aa06692406c6a0a9e9d401eafbed2"
+  integrity sha512-L8AmtKzdiRyYg7BUXJTzigmhbQRCXFKz6SA1Lqo0+AR2FBbQ4aTAPFSDlOutnFkjhiz8my4agGXog1xlMjPJ6A==
   dependencies:
     browserslist "^4.16.6"
     caniuse-lite "^1.0.30001243"
@@ -5935,10 +5936,10 @@ css-has-pseudo@^0.10.0:
     postcss "^7.0.6"
     postcss-selector-parser "^5.0.0-rc.4"
 
-css-loader@^5.2.5:
-  version "5.2.6"
-  resolved "https://registry.yarnpkg.com/css-loader/-/css-loader-5.2.6.tgz#c3c82ab77fea1f360e587d871a6811f4450cc8d1"
-  integrity sha512-0wyN5vXMQZu6BvjbrPdUJvkCzGEO24HC7IS7nW4llc6BBFC+zwR9CKtYGv63Puzsg10L/o12inMY5/2ByzfD6w==
+css-loader@^5.2.7:
+  version "5.2.7"
+  resolved "https://registry.yarnpkg.com/css-loader/-/css-loader-5.2.7.tgz#9b9f111edf6fb2be5dc62525644cbc9c232064ae"
+  integrity sha512-Q7mOvpBNBG7YrVGMxRxcBJZFL75o+cH2abNASdibkj/fffYD8qWbInZrD0S9ccI6vZclF3DsHE7njGlLtaHbhg==
   dependencies:
     icss-utils "^5.1.0"
     loader-utils "^2.0.0"
