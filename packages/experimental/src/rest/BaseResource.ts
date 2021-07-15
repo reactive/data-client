@@ -1,6 +1,5 @@
 import { Endpoint } from '@rest-hooks/endpoint';
-import type { EndpointExtraOptions } from '@rest-hooks/endpoint';
-import type { Schema } from '@rest-hooks/normalizr';
+import type { EndpointExtraOptions, Schema } from '@rest-hooks/endpoint';
 import { EntityRecord } from '@rest-hooks/rest';
 
 import paramsToString from './paramsToString';

@@ -1,6 +1,9 @@
-import type { SchemaDetail, SchemaList } from '@rest-hooks/endpoint';
-import type { AbstractInstanceType } from '@rest-hooks/normalizr';
-import { schema } from '@rest-hooks/normalizr';
+import type {
+  SchemaDetail,
+  SchemaList,
+  AbstractInstanceType,
+} from '@rest-hooks/endpoint';
+import { schema } from '@rest-hooks/endpoint';
 
 import getArrayPath from './getArrayPath';
 import BaseResource from './BaseResource';

@@ -17,6 +17,7 @@ const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
 process.env.BROWSERSLIST_ENV = 'legacy';
 process.env.ROOT_PATH_PREFIX = '@rest-hooks/experimental';
+process.env.BROWSERSLIST_ENV = 'node12';
 
 function isExternal(id) {
   return dependencies.some(dep => dep === id || id.startsWith(dep));

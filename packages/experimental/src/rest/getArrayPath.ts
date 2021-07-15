@@ -1,4 +1,4 @@
-import { Schema, schema } from '@rest-hooks/normalizr';
+import { Schema, schema } from '@rest-hooks/endpoint';
 
 export default function getArrayPath(s: Schema | undefined): string[] | false {
   if (s === undefined || s instanceof schema.Array || Array.isArray(s)) {

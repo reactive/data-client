@@ -1,5 +1,8 @@
-import { Schema } from '@rest-hooks/normalizr';
-import { EndpointInstance, FetchFunction } from '@rest-hooks/endpoint';
+import type {
+  EndpointInstance,
+  FetchFunction,
+  Schema,
+} from '@rest-hooks/endpoint';
 
 export type RestFetch<P = any, B = any, R = any> = (
   this: RestEndpoint,
