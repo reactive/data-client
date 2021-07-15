@@ -103,6 +103,28 @@ const moreNested = [
   },
 ];
 
+export const coAuthored = {
+  id: 5,
+  title: 'hi ho',
+  content: 'whatever',
+  tags: ['a', 'best', 'react'],
+  author: {
+    id: 23,
+    username: 'bob',
+  },
+  coAuthors: [
+    {
+      id: 42,
+      username: 'charles',
+      email: 'charles@gmail.com',
+    },
+    {
+      id: 51,
+      username: 'xavier',
+    },
+  ],
+};
+
 export const valuesFixture = {
   first: {
     id: 1,
