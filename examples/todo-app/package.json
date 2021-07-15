@@ -32,7 +32,7 @@
     "@linaria/shaker": "3.0.0-beta.7",
     "@rest-hooks/rest": "^3.0.0-beta.0",
     "@types/react-dom": "17.0.9",
-    "react-refresh": "^0.11.0-0",
+    "react-refresh": "^0.11.0-alpha-81346764b-20210714",
     "rest-hooks": "^6.0.0-beta.2",
     "serve": "12.0.0",
     "webpack": "5.44.0",
