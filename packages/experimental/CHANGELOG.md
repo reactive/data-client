@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@1.0.0-beta.0...@rest-hooks/experimental@1.0.0-beta.1) (2021-07-15)
+
+
+### 🚀 Features
+
+* FixtureEndpoint & renderRestHook resolverFixtures ([#1027](https://github.com/coinbase/rest-hooks/issues/1027)) ([bbb69e9](https://github.com/coinbase/rest-hooks/commit/bbb69e9faaa523c46a0e309a44e0fd52f0ce91aa))
+* Mark compatibility with upcoming versions ([#959](https://github.com/coinbase/rest-hooks/issues/959)) ([72da158](https://github.com/coinbase/rest-hooks/commit/72da158c19acf4c76b8b86eb37e063956b7347fd))
+
+
+### 🐛 Bug Fix
+
+* Don't inline normalizr into cjs ([#1038](https://github.com/coinbase/rest-hooks/issues/1038)) ([f7c0822](https://github.com/coinbase/rest-hooks/commit/f7c08225180aa2284294982482105c119383df6d))
+
+
+
 ## [1.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@0.8.0...@rest-hooks/experimental@1.0.0-beta.0) (2021-06-30)
 
 
