@@ -92,6 +92,7 @@ describe('NetworkManager', () => {
       body: { id: 5, title: 'hi' },
       throttle: false,
     });
+    (fetchRejectAction.meta.promise as any).catch(e => {});
 
     let NM: NetworkManager;
     let middleware: Middleware;
@@ -278,7 +279,10 @@ describe('NetworkManager', () => {
           ...fetchRejectAction,
           meta: {
             ...fetchRejectAction.meta,
-            options: { errorExpiryLength: undefined },
+            options: {
+              ...fetchRejectAction.meta.options,
+              errorExpiryLength: undefined,
+            },
           },
         });
       } catch (error) {

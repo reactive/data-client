@@ -99,8 +99,28 @@ export default class NetworkManager implements Manager {
   protected handleFetch(action: FetchAction, dispatch: Dispatch<any>) {
     const fetch = action.payload;
     const { key, throttle, resolve, reject } = action.meta;
-    const deferedFetch = () =>
-      fetch()
+
+    const deferedFetch = () => {
+      let promise = fetch();
+      const resolvePromise = (
+        promise: Promise<string | number | object | null>,
+      ) =>
+        promise
+          .then(data => {
+            resolve(data);
+            return data;
+          })
+          .catch(error => {
+            reject(error);
+            throw error;
+          });
+      // schedule non-throttled resolutions in a microtask before receive
+      // this enables users awaiting their fetch to trigger any react updates needed to deal
+      // with upcoming changes because of the fetch (for instance avoiding suspense if something is deleted)
+      if (!throttle && action.endpoint) {
+        promise = resolvePromise(promise);
+      }
+      promise = promise
         .then(data => {
           // does this throw if the reducer fails?
           dispatch(
@@ -123,14 +143,20 @@ export default class NetworkManager implements Manager {
           );
           throw error;
         });
-    let promise;
+      // legacy behavior schedules resolution after dispatch
+      if (!throttle && !action.endpoint) {
+        promise = resolvePromise(promise);
+      }
+      return promise;
+    };
+
     if (throttle) {
-      promise = this.throttle(key, deferedFetch);
+      return this.throttle(key, deferedFetch)
+        .then(data => resolve(data))
+        .catch(error => reject(error));
     } else {
-      promise = deferedFetch();
+      return deferedFetch().catch(() => {});
     }
-    promise.then(data => resolve(data)).catch(error => reject(error));
-    return promise;
   }
 
   /** Called when middleware intercepts a receive action.

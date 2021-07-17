@@ -47,6 +47,7 @@ export default function createFetch<
     type: actionTypes.FETCH_TYPE,
     payload: () => endpoint(...args),
     meta,
+    endpoint,
   };
 }
 

@@ -1,5 +1,6 @@
 import nock from 'nock';
 import { useResource } from '@rest-hooks/core';
+import { act } from '@testing-library/react-hooks';
 
 import Resource from '../Resource';
 import useFetcher from '../../useFetcher';
@@ -124,8 +125,10 @@ describe('Resource', () => {
       return { articles, nextPage, fetch };
     });
     await waitForNextUpdate();
-    await result.current.fetch(PaginatedArticleResource.listPage(), {
-      cursor: 2,
+    await act(async () => {
+      await result.current.fetch(PaginatedArticleResource.listPage(), {
+        cursor: 2,
+      });
     });
     expect(
       result.current.articles.map(
@@ -180,8 +183,10 @@ describe('Resource', () => {
     };
 
     mynock.get(`/complex-thing/5`).reply(200, secondResponse);
-    await result.current.fetch(ComplexResource.detail(), {
-      id: '5',
+    await act(async () => {
+      await result.current.fetch(ComplexResource.detail(), {
+        id: '5',
+      });
     });
     expect(result.current.article).toEqual({ ...secondResponse, extra: 'hi' });
   });
