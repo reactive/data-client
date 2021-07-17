@@ -3,6 +3,8 @@ import nock from 'nock';
 import { useCache, useResource, ResolveType } from '@rest-hooks/core';
 
 // relative imports to avoid circular dependency in tsconfig references
+import { act } from '@testing-library/react-hooks';
+
 import {
   makeRenderRestHook,
   makeCacheProvider,
@@ -102,10 +104,13 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         };
       });
       expect(result.current.data).toBeUndefined();
-      const response = await result.current.fetch(
-        FutureArticleResource.detail(),
-        payload.id,
-      );
+      let response;
+      await act(async () => {
+        response = await result.current.fetch(
+          FutureArticleResource.detail(),
+          payload.id,
+        );
+      });
       expect(result.current.data).toBeDefined();
       expect(result.current.data?.content).toEqual(payload.content);
       expect(response).toEqual(payload);
@@ -153,11 +158,64 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           { resolverFixtures },
         );
         await waitForNextUpdate();
-        await result.current.fetch(FutureArticleResource.create(), {
-          id: 1,
+        await act(async () => {
+          await result.current.fetch(FutureArticleResource.create(), {
+            id: 1,
+          });
         });
+
         expect(result.current.articles.map(({ id }) => id)).toEqual([1, 5, 3]);
       }
+    });
+
+    it('should not suspend once deleted and redirected at same time', async () => {
+      const temppayload = {
+        ...payload,
+        id: 1234,
+      };
+      mynock
+        .get(`/article-cooler/${temppayload.id}`)
+        .reply(200, temppayload)
+        .delete(`/article-cooler/${temppayload.id}`)
+        .reply(204, '');
+      const throws: Promise<any>[] = [];
+      const { result, waitForNextUpdate, rerender } = renderRestHook(
+        ({ id }) => {
+          try {
+            return [
+              useResource(FutureArticleResource.detail(), id) ?? null,
+              useFetcher(),
+            ] as const;
+          } catch (e) {
+            if (typeof e.then === 'function') {
+              if (e !== throws[throws.length - 1]) {
+                throws.push(e);
+              }
+            }
+            throw e;
+          }
+        },
+        { initialProps: { id: temppayload.id as number | null } },
+      );
+      expect(result.current).toBeUndefined();
+      await waitForNextUpdate();
+      const [data, fetch] = result.current;
+      expect(data).toBeInstanceOf(FutureArticleResource);
+      expect(data?.title).toBe(temppayload.title);
+      expect(throws.length).toBe(1);
+
+      mynock
+        .persist()
+        .get(`/article-cooler/${temppayload.id}`)
+        .reply(200, { ...temppayload, title: 'othertitle' });
+
+      expect(throws.length).toBe(1);
+      await act(async () => {
+        await fetch(FutureArticleResource.delete(), temppayload.id);
+        rerender({ id: null });
+      });
+      expect(throws.length).toBe(1);
+      expect(result.current[0]).toBe(null);
     });
   });
 }

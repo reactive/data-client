@@ -7,6 +7,7 @@ import type {
   Schema,
   FetchFunction,
   EndpointExtraOptions,
+  EndpointInterface,
 } from '@rest-hooks/endpoint';
 import { ErrorableFSAWithPayloadAndMeta } from '@rest-hooks/core/fsa';
 import { FetchShape } from '@rest-hooks/core/endpoint/index';
@@ -130,6 +131,7 @@ export interface FetchAction<
     FetchMeta<any, any>
   > {
   meta: FetchMeta<Payload, S>;
+  endpoint?: EndpointInterface;
 }
 
 export interface SubscribeAction
