@@ -35,7 +35,7 @@ export default function useController(throttle = false): Controller {
       endpoint: E,
       ...args: readonly [...Parameters<E>] | readonly [null]
     ) =>
-      args?.[0] !== null
+      args[0] !== null
         ? dispatch({
             type: actionTypes.INVALIDATE_TYPE,
             meta: {
