@@ -7,7 +7,7 @@ jobs:
   setup:
     docker: &docker
       # specify the version you desire here
-      - image: circleci/node:14
+      - image: circleci/node:16
     steps:
       - checkout
       - restore_cache:
