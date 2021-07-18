@@ -1,4 +1,6 @@
 export { default as useFetcher } from './useFetcher';
+export { default as useController } from './useController';
+export type { Controller } from './useController';
 export { default as createFetch } from './createFetch';
 export { default as Resource } from './rest/Resource';
 export { default as BaseResource } from './rest/BaseResource';
