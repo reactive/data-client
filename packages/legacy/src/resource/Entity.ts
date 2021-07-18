@@ -268,6 +268,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     this: T,
     input: Readonly<Partial<AbstractInstanceType<T>>> & { [k: string]: any },
     unvisit: schema.UnvisitFunction,
+    globalKey: object[],
   ): [AbstractInstanceType<T>, boolean, boolean] {
     // TODO: remove immutable case once we stop storing instances in normalized cache
     const entityCopy: any = isImmutable(input)
@@ -288,6 +289,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
         this.schema,
         input,
         unvisit,
+        globalKey,
       );
       return [this.fromJS(denormEntity.toObject()), found, deleted];
     }
@@ -299,7 +301,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
       const nextInput = Object.hasOwnProperty.call(input, key)
         ? input[key]
         : undefined;
-      const [value, , deletedItem] = unvisit(nextInput, schema);
+      const [value, , deletedItem] = unvisit(nextInput, schema, globalKey);
 
       if (
         deletedItem &&

@@ -788,7 +788,7 @@ describe(`${Entity.name} denormalization`, () => {
     expect(denormalize('456', User, fromJS(entities))[0]).toMatchSnapshot();
   });
 
-  test('denormalizes entities with referential equality', () => {
+  test.only('denormalizes recursive entities with referential equality', () => {
     const entities = {
       Report: {
         '123': {
@@ -822,6 +822,8 @@ describe(`${Entity.name} denormalization`, () => {
       resultCache,
     );
 
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+    console.log();
     expect(denormalizedReport).toBeDefined();
     // This is just for TypeScript, the above line actually determines this
     if (!denormalizedReport) throw new Error('expected to be defined');
@@ -839,6 +841,7 @@ describe(`${Entity.name} denormalization`, () => {
       resultCache,
     );
 
+    expect(denormalizedReport2).toStrictEqual(denormalizedReport);
     expect(denormalizedReport2).toBe(denormalizedReport);
 
     // NOTE: Given how immutable data works, referential equality can't be

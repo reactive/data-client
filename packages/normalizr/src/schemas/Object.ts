@@ -36,16 +36,21 @@ export const denormalize = (
   schema: any,
   input: any,
   unvisit: any,
+  globalKey: object[],
 ): [denormalized: any, found: boolean, deleted: boolean] => {
   if (isImmutable(input)) {
-    return denormalizeImmutable(schema, input, unvisit);
+    return denormalizeImmutable(schema, input, unvisit, globalKey);
   }
 
   const object = { ...input };
   let found = true;
   let deleted = false;
   Object.keys(schema).forEach(key => {
-    const [item, foundItem, deletedItem] = unvisit(object[key], schema[key]);
+    const [item, foundItem, deletedItem] = unvisit(
+      object[key],
+      schema[key],
+      globalKey,
+    );
     if (object[key] !== undefined) {
       object[key] = item;
     }
@@ -98,7 +103,7 @@ export default class ObjectSchema {
     return normalize(this.schema, ...args);
   }
 
-  denormalize(...args: readonly [input: any, unvisit: any]) {
+  denormalize(...args: readonly [input: any, unvisit: any, globalKey: any]) {
     return denormalize(this.schema, ...args);
   }
 

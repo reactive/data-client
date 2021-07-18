@@ -80,7 +80,7 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
         };
   }
 
-  denormalizeValue(value: any, unvisit: any) {
+  denormalizeValue(value: any, unvisit: any, globalKey: any) {
     if (value === undefined) {
       return [value, false, false];
     }
@@ -94,6 +94,6 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
       ? value.get('id')
       : value.id;
     const schema = this.isSingleSchema ? this.schema : this.schema[schemaKey];
-    return unvisit(id || value, schema);
+    return unvisit(id || value, schema, globalKey);
   }
 }

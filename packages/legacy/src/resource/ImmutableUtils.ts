@@ -28,7 +28,12 @@ export function isImmutable(object: any) {
  * @param  {function} getDenormalizedEntity
  * @return {Immutable.Map|Immutable.Record}
  */
-export function denormalizeImmutable(schema: any, input: any, unvisit: any) {
+export function denormalizeImmutable(
+  schema: any,
+  input: any,
+  unvisit: any,
+  globalKey: object[],
+) {
   let found = true;
   let deleted = false;
   return [
@@ -40,6 +45,7 @@ export function denormalizeImmutable(schema: any, input: any, unvisit: any) {
       const [item, foundItem, deletedItem] = unvisit(
         object.get(stringKey),
         schema[stringKey],
+        globalKey,
       );
       if (!foundItem) {
         found = false;

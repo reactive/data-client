@@ -41,7 +41,7 @@ export interface RecordClass<T = any> extends NestedSchemaClass<T> {
 }
 
 export interface UnvisitFunction {
-  (input: any, schema: any): [any, boolean, boolean];
+  (input: any, schema: any, globalKey: object[]): [any, boolean, boolean];
   og?: UnvisitFunction;
   setLocal?: (entity: any) => void;
 }

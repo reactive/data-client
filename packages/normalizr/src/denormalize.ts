@@ -24,16 +24,19 @@ const unvisitEntity = (
   ) => EntityInterface | typeof DELETED,
   localCache: Record<string, Record<string, any>>,
   entityCache: DenormalizeCache['entities'],
+  globalKey: object[],
 ): [
   denormalized: EntityInterface | undefined,
   found: boolean,
   deleted: boolean,
 ] => {
   const entity = getEntity(id, schema);
+  console.log('entity', entity);
   if (entity === DELETED) {
     return [undefined, true, true];
   }
   if (typeof entity !== 'object' || entity === null) {
+    //globalKey.push(entity);
     return [entity, false, false];
   }
 
@@ -43,9 +46,14 @@ const unvisitEntity = (
 
   let found = true;
   let deleted = false;
+  if ((entity as any) === 4) {
+    console.log('makde it', localCache[schema.key][id], schema, globalKey);
+  }
+
   if (!localCache[schema.key][id]) {
-    const globalKey: EntityInterface[] = [entity];
-    const wrappedUnvisit = withTrackedEntities(unvisit, globalKey);
+    console.log('not already found', schema.key, id);
+    const localKey: object[] = [entity];
+    const wrappedUnvisit = withTrackedEntities(unvisit);
     wrappedUnvisit.setLocal = entityCopy =>
       (localCache[schema.key][id] = entityCopy);
 
@@ -54,20 +62,43 @@ const unvisitEntity = (
       entityCache[schema.key][id] = new WeakListMap();
     const globalCacheEntry = entityCache[schema.key][id];
 
+    const before = localCache[schema.key][id];
     [localCache[schema.key][id], found, deleted] = schema.denormalize(
       entity,
       wrappedUnvisit,
+      localKey,
     );
+    if (localCache[schema.key][id] !== before) {
+      console.log('circle found', schema.key, id);
+    }
 
-    if (!globalCacheEntry.has(globalKey)) {
-      globalCacheEntry.set(globalKey, localCache[schema.key][id]);
+    console.log('lookup>', id, schema, globalCacheEntry.has(localKey));
+    console.log(localKey);
+    if (id === '123') {
+      console.log(localKey[1] === localKey[2]);
+    }
+    if (!globalCacheEntry.has(localKey)) {
+      globalCacheEntry.set(localKey, localCache[schema.key][id]);
     } else {
       // localCache is only used before this point for recursive relationships
       // since recursive relationships must all referentially change if *any* do, we either
       // get the correct one here, or will never find the same version in the cache
-      localCache[schema.key][id] = globalCacheEntry.get(globalKey);
+      localCache[schema.key][id] = globalCacheEntry.get(localKey);
     }
+    globalKey.push(localCache[schema.key][id]);
+  } else {
+    console.log('already found', schema.key, id);
+    console.log('val', localCache[schema.key][id]);
+    globalKey.push(localCache[schema.key][id]);
   }
+  if ((entity as any) === 4) {
+    console.log('makde it', localCache[schema.key][id], schema, globalKey);
+  }
+  //addEntityToKey(localCache[schema.key][id], schema, globalKey);
+  if (!globalKey) {
+    console.log('ahh', globalKey);
+  }
+  //console.log('pushing', localCache[schema.key][id], 'on', globalKey);
   return [localCache[schema.key][id], found, deleted];
 };
 
@@ -82,6 +113,7 @@ const getUnvisit = (
   function unvisit(
     input: any,
     schema: any,
+    globalKey: object[],
   ): [denormalized: any, found: boolean, deleted: boolean] {
     if (!schema) return [input, true, false];
 
@@ -93,7 +125,7 @@ const getUnvisit = (
         const method = Array.isArray(schema)
           ? arrayDenormalize
           : objectDenormalize;
-        return method(schema, input, wrappedUnvisit);
+        return method(schema, input, unvisit, globalKey);
       }
     }
 
@@ -110,29 +142,30 @@ const getUnvisit = (
       return unvisitEntity(
         input,
         schema,
-        wrappedUnvisit,
+        unvisit,
         getEntity,
         localCache,
         entityCache,
+        globalKey,
       );
     }
 
     if (typeof schema.denormalize === 'function') {
-      return schema.denormalize(input, wrappedUnvisit);
+      return schema.denormalize(input, unvisit, globalKey);
     }
 
     return [input, true, false];
   }
 
-  const globalKey: EntityInterface[] = [];
-  const wrappedUnvisit = withTrackedEntities(unvisit, globalKey);
+  //const wrappedUnvisit = withTrackedEntities(unvisit, globalKey);
 
   return (
     input: any,
     schema: any,
   ): [denormalized: any, found: boolean, deleted: boolean] => {
+    const globalKey: object[] = [];
     globalKey.push(input);
-    const ret = unvisit(input, schema);
+    const ret = unvisit(input, schema, globalKey);
     // in the case where WeakMap cannot be used
     // this test ensures null is properly excluded from WeakMap
     if (Object(input) !== input) return ret;
@@ -229,29 +262,27 @@ export const denormalizeSimple = <S extends Schema>(
     3,
   ) as any;
 
-function withTrackedEntities(
-  unvisit: UnvisitFunction,
-  globalKey: EntityInterface<any>[],
-): schema.UnvisitFunction {
+function withTrackedEntities(unvisit: UnvisitFunction): schema.UnvisitFunction {
   // every time we nest, we want to unwrap back to the top.
   // this is due to only needed the next level of nested entities for lookup
   const originalUnvisit = unvisit.og || unvisit;
-  const wrappedUnvisit = (input: any, schema: any) => {
-    const ret: [any, boolean, boolean] = originalUnvisit(input, schema);
-    // pass over undefined in key
-    if (ret[0] && schema && isEntity(schema)) {
-      /* istanbul ignore else */
-      if (Object(ret[0]) === ret[0]) {
-        globalKey.push(ret[0]);
-      } else if (process.env.NODE_ENV !== 'production') {
-        throw new Error(
-          `Unexpected primitive found during denormalization\nFound: ${ret[0]}\nExpected entity: ${schema}`,
-        );
-      }
-    }
-
-    return ret;
-  };
+  const wrappedUnvisit = (input: any, schema: any, globalKey: object[]) =>
+    originalUnvisit(input, schema, globalKey);
   wrappedUnvisit.og = unvisit;
   return wrappedUnvisit;
 }
+/*function addEntityToKey(value: any, schema: any, globalKey: object[]) {
+  // pass over undefined in key
+  if (value && schema && isEntity(schema)) {
+    /* istanbul ignore else *
+    if (Object(value) === value) {
+      console.log('pushing', value, 'on', globalKey);
+      globalKey.push(value);
+    } else if (process.env.NODE_ENV !== 'production') {
+      throw new Error(
+        `Unexpected primitive found during denormalization\nFound: ${value}\nExpected entity: ${schema}`,
+      );
+    }
+  }
+}
+*/

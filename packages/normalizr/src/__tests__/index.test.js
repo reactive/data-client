@@ -543,7 +543,7 @@ describe('denormalize', () => {
     expect(denormalize('123', Article, entities)).toMatchSnapshot();
   });
 
-  test('throws when nested entities are primitives', () => {
+  test('gracefully handles when nested entities are primitives', () => {
     class User extends IDEntity {}
     class Comment extends IDEntity {
       comment = '';
@@ -584,9 +584,7 @@ describe('denormalize', () => {
         },
       },
     };
-    expect(() =>
-      denormalize('123', Article, entities),
-    ).toThrowErrorMatchingSnapshot();
+    expect(() => denormalize('123', Article, entities)).toMatchSnapshot();
   });
 
   test('set to undefined if schema key is not in entities', () => {
@@ -858,6 +856,7 @@ describe('denormalize with global cache', () => {
         entityCache,
         resultCache,
       );
+      console.log('>>>>>>>>>>>>>');
       const [second] = denormalize(
         result,
         { data: Article },
@@ -874,7 +873,9 @@ describe('denormalize with global cache', () => {
         entityCache,
         resultCache,
       );
+      console.log(resultCache);
       expect(first).not.toBe(second);
+      expect(first.title).toBe(second.title);
       expect(first.data.author).toBe(second.data.author);
       expect(second.data.comments[0].comment).toEqual('Updated comment!');
       expect(first.data.comments[0]).not.toBe(second.data.comments[0]);

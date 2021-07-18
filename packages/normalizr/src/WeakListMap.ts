@@ -33,6 +33,7 @@ export default class WeakListMap<K extends object, V> {
   }
 
   set(key: K[], value: V): WeakListMap<K, V> {
+    console.log('setting', key, value);
     if (key.length < 1) throw new KeySize();
     let cur = this.first;
     let link: Link<K, V>;
@@ -55,8 +56,10 @@ export default class WeakListMap<K extends object, V> {
   protected traverse(key: K[]): Link<K, V> | undefined {
     let cur = this.first;
     let link: Link<K, V> | undefined;
+    console.log('traverse:', key);
     for (let i = 0; i < key.length; i++) {
       link = cur.get(key[i]);
+      console.log(link ? 'found' : 'not found', key[i]);
       if (!link) return;
       cur = link.children;
     }

@@ -134,6 +134,7 @@ export default abstract class SimpleRecord {
     this: T,
     input: any,
     unvisit: any,
+    globalKey: object[],
   ): [AbstractInstanceType<T>, boolean, boolean] {
     const object = { ...input };
     let deleted = false;
@@ -142,6 +143,7 @@ export default abstract class SimpleRecord {
       const [item, foundItem, deletedItem] = unvisit(
         object[key],
         this.schema[key],
+        globalKey,
       );
       if (object[key] !== undefined) {
         object[key] = item;

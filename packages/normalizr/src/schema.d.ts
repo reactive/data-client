@@ -54,6 +54,7 @@ export interface SchemaSimple<T = any> {
     // eslint-disable-next-line @typescript-eslint/ban-types
     input: {} | undefined,
     unvisit: UnvisitFunction,
+    globalKey: object[],
   ): [denormalized: T, found: boolean, suspend: boolean];
   infer(
     args: any[],
