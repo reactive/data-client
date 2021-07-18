@@ -1,10 +1,9 @@
 import { FutureArticleResource } from '__tests__/new';
 import nock from 'nock';
 import { useCache, useResource, ResolveType } from '@rest-hooks/core';
-
-// relative imports to avoid circular dependency in tsconfig references
 import { act } from '@testing-library/react-hooks';
 
+// relative imports to avoid circular dependency in tsconfig references
 import {
   makeRenderRestHook,
   makeCacheProvider,
