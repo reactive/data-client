@@ -76,12 +76,12 @@
   resolved "https://registry.yarnpkg.com/@anansi/ts-utils/-/ts-utils-0.2.4.tgz#ffb0ce7ad3a0a0b74db581443c5bb70fe6330652"
   integrity sha512-0injZU3d7z2spk0RMzm17Y10IQtZSv8s9Y5VX7Q6DQ0x6q90exXC6hGq6Xmmn9wu+u9wyIUw5GfCOTWIRJK5vg==
 
-"@anansi/webpack-config@7.4.6":
-  version "7.4.6"
-  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-7.4.6.tgz#b8537a556deeeab0870c92a583f7c8c435828244"
-  integrity sha512-phnwv+JZfo7oy2luP3Ca0C2MypVv9V6QwllRgLbbQq7Piu+5Auf62rhklPLlShL37q7OTU7lyg+pshCBACgsqQ==
+"@anansi/webpack-config@8.0.0":
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-8.0.0.tgz#f8575d068c1ae054be7294d64937c6d66ec993e2"
+  integrity sha512-CcxV+hQ80TxkJ0ePZ5E5z31sgFEUAJTLd4wTH/DJobARqio3XzP5tlz5smRG8yHTwM8/UUKcqLWuxAnEDbUvkQ==
   dependencies:
-    "@babel/runtime" "^7.14.6"
+    "@babel/runtime" "^7.14.8"
     "@linaria/webpack-loader" "^3.0.0-beta.7"
     "@pmmmwh/react-refresh-webpack-plugin" "^0.5.0-rc.2"
     "@svgr/webpack" "^5.5.0"
@@ -98,7 +98,7 @@
     constants-browserify "^1.0.0"
     core-js "^3.15.2"
     crypto-browserify "^3.12.0"
-    css-loader "^5.2.7"
+    css-loader "^6.2.0"
     css-minimizer-webpack-plugin "^3.0.2"
     domain-browser "^4.19.0"
     duplicate-package-checker-webpack-plugin "^3.0.0"
@@ -1318,10 +1318,10 @@
     core-js-pure "^3.14.0"
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.13.8", "@babel/runtime@^7.14.6", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.2":
-  version "7.14.6"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.14.6.tgz#535203bc0892efc7dec60bdc27b2ecf6e409062d"
-  integrity sha512-/PCB2uJ7oM44tz8YhC4Z/6PeOKXp4K588f+5M3clr1M4zbqztlo0XEfJ2LEzj/FgwfgGcIdl8n7YYjTCI0BYwg==
+"@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.13.8", "@babel/runtime@^7.14.8", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.2":
+  version "7.14.8"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.14.8.tgz#7119a56f421018852694290b9f9148097391b446"
+  integrity sha512-twj3L8Og5SaCRCErB4x4ajbvBIVV77CGeFglHpeg5WC5FF8TZzBWXtTJ4MqaD9QszLYTtr+IsaAL2rEUevb+eg==
   dependencies:
     regenerator-runtime "^0.13.4"
 
@@ -5936,20 +5936,18 @@ css-has-pseudo@^0.10.0:
     postcss "^7.0.6"
     postcss-selector-parser "^5.0.0-rc.4"
 
-css-loader@^5.2.7:
-  version "5.2.7"
-  resolved "https://registry.yarnpkg.com/css-loader/-/css-loader-5.2.7.tgz#9b9f111edf6fb2be5dc62525644cbc9c232064ae"
-  integrity sha512-Q7mOvpBNBG7YrVGMxRxcBJZFL75o+cH2abNASdibkj/fffYD8qWbInZrD0S9ccI6vZclF3DsHE7njGlLtaHbhg==
+css-loader@^6.2.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/css-loader/-/css-loader-6.2.0.tgz#9663d9443841de957a3cb9bcea2eda65b3377071"
+  integrity sha512-/rvHfYRjIpymZblf49w8jYcRo2y9gj6rV8UroHGmBxKrIyGLokpycyKzp9OkitvqT29ZSpzJ0Ic7SpnJX3sC8g==
   dependencies:
     icss-utils "^5.1.0"
-    loader-utils "^2.0.0"
     postcss "^8.2.15"
     postcss-modules-extract-imports "^3.0.0"
     postcss-modules-local-by-default "^4.0.0"
     postcss-modules-scope "^3.0.0"
     postcss-modules-values "^4.0.0"
     postcss-value-parser "^4.1.0"
-    schema-utils "^3.0.0"
     semver "^7.3.5"
 
 css-minimizer-webpack-plugin@^3.0.2:
