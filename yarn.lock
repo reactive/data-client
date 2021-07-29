@@ -58,9 +58,9 @@
     eslint-plugin-jsx-a11y "^6.4.1"
 
 "@anansi/jest-preset@^0.5.2":
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.5.3.tgz#df45b949978a2fb6cedb113d638551fea83d82fe"
-  integrity sha512-Xay6lQQZhEiV9sIL83EuigJJLvun9UzNJDDg64ZAuTwDcNugNn2GFzXBCxOBneqml66taXAtL0iwDlGc93ltKA==
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.5.4.tgz#4700ae4f31c66c627883facefde336bb85795045"
+  integrity sha512-cd5AMY72yqmE9a3c007T4cKOySpSqeEe0q7EnR+66p1xYcQeqSIx7Ham58sZmfT1gd1WYGScJ++bCqMqDEX2kw==
   dependencies:
     "@anansi/ts-utils" "^0.2.4"
     babel-jest "^27.0.6"
@@ -68,7 +68,7 @@
     identity-obj-proxy "^3.0.0"
     mitt "^3.0.0"
     semver "^7.3.5"
-    ts-jest "^27.0.3"
+    ts-jest "^27.0.4"
     whatwg-fetch "^3.0.0"
 
 "@anansi/ts-utils@^0.2.4":
@@ -15634,10 +15634,10 @@ trim-off-newlines@^1.0.0:
   dependencies:
     glob "^7.1.2"
 
-ts-jest@^27.0.3:
-  version "27.0.3"
-  resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-27.0.3.tgz#808492f022296cde19390bb6ad627c8126bf93f8"
-  integrity sha512-U5rdMjnYam9Ucw+h0QvtNDbc5+88nxt7tbIvqaZUhFrfG4+SkWhMXjejCLVGcpILTPuV+H3W/GZDZrnZFpPeXw==
+ts-jest@^27.0.4:
+  version "27.0.4"
+  resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-27.0.4.tgz#df49683535831560ccb58f94c023d831b1b80df0"
+  integrity sha512-c4E1ECy9Xz2WGfTMyHbSaArlIva7Wi2p43QOMmCqjSSjHP06KXv+aT+eSY+yZMuqsMi3k7pyGsGj2q5oSl5WfQ==
   dependencies:
     bs-logger "0.x"
     buffer-from "1.x"
