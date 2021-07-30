@@ -16310,20 +16310,20 @@ webpack-remove-empty-scripts@^0.7.1:
   resolved "https://registry.yarnpkg.com/webpack-remove-empty-scripts/-/webpack-remove-empty-scripts-0.7.1.tgz#486aeb618ee778e8951d1c086a8318be92230b98"
   integrity sha512-9GWBe8TxKUYMalR84L99QjME6W0ptd/pupNqB4Ad4NazouwT+9QJLcfJjl7PDhR/L+qY9JHlzIGdgj0Vv1f3zA==
 
-webpack-sources@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/webpack-sources/-/webpack-sources-3.0.1.tgz#518cfabdbde3962f75bbecbacd11d88ab3205252"
-  integrity sha512-LkBxiXJ3tTuhLaS5gz6D6l77Et8mPWlghAe7bbnmi2PyN1CtkiL/YitR+I0pn9PtBC88Irqgg6F9dBJh8+sJRQ==
+webpack-sources@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/webpack-sources/-/webpack-sources-3.1.1.tgz#586d15bc9a9723765f6a735f672357d6402f9c57"
+  integrity sha512-ztUmIWq0LWaw+1YyR3bXtUPjt8vQedtI9WxGn/q1V1ASHsombnaso7MN9S25lzKS/OuC9Q8lEg3GsZexjDbdlQ==
 
 webpack-stats-plugin@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/webpack-stats-plugin/-/webpack-stats-plugin-1.0.3.tgz#0f64551a0b984b48a9e7acdee32e3cfda556fe51"
   integrity sha512-tV/SQHl6lKfBahJcNDmz8JG1rpWPB9NEDQSMIoL74oVAotdxYljpgIsgLzgc1N9QrtA9KEA0moJVwQtNZv2aDA==
 
-webpack@5.47.0, webpack@^5:
-  version "5.47.0"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.47.0.tgz#3c13862b5d7b428792bfe76c5f67a0f43ba685f8"
-  integrity sha512-soKLGwcUM1R3YEbJhJNiZzy7T43TnI7ENda/ywfDp9G1mDlDTpO+qfc8I5b0AzMr9xM3jyvQ0n7ctJyiXuXW6Q==
+webpack@5.47.1, webpack@^5:
+  version "5.47.1"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.47.1.tgz#20fb7d76f68912a2249a6dd7ff16faa178049ad2"
+  integrity sha512-cW+Mzy9SCDapFV4OrkHuP6EFV2mAsiQd+gOa3PKtHNoKg6qPqQXZzBlHH+CnQG1osplBCqwsJZ8CfGO6XWah0g==
   dependencies:
     "@types/eslint-scope" "^3.7.0"
     "@types/estree" "^0.0.50"
@@ -16347,7 +16347,7 @@ webpack@5.47.0, webpack@^5:
     tapable "^2.1.1"
     terser-webpack-plugin "^5.1.3"
     watchpack "^2.2.0"
-    webpack-sources "^3.0.1"
+    webpack-sources "^3.1.1"
 
 websocket-driver@>=0.5.1, websocket-driver@^0.7.4:
   version "0.7.4"
