@@ -43,13 +43,16 @@ export default class NetworkManager implements Manager {
           switch (action.type) {
             case FETCH_TYPE:
               this.handleFetch(action, dispatch);
-              // This is the only case that causes any state change
-              // It's important to intercept other fetches as we don't want to trigger reducers during
-              // render - so we need to stop 'readonly' fetches which can be triggered in render
-              if (action.meta.optimisticResponse !== undefined) {
-                return next(action);
+              // Eliminate throttled fetches from future middlewares + reducer
+              // TODO: Maybe make throttling its own middleware?
+              if (action.meta.throttle && action.key in this.fetched) {
+                return Promise.resolve();
               }
-              return Promise.resolve();
+              // helps detect missing NetworkManager when using redux
+              if (process.env.NODE_ENV !== 'production') {
+                action.meta.nm = true;
+              }
+              return next(action);
             case RECEIVE_TYPE:
               // only receive after new state is computed
               return next(action).then(() => {
