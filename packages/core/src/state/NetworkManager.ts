@@ -3,7 +3,12 @@ import {
   Middleware,
   Dispatch,
 } from '@rest-hooks/use-enhanced-reducer';
-import { FetchAction, ReceiveAction, Manager } from '@rest-hooks/core/types';
+import {
+  FetchAction,
+  ReceiveAction,
+  Manager,
+  State,
+} from '@rest-hooks/core/types';
 import {
   RECEIVE_TYPE,
   FETCH_TYPE,
@@ -29,6 +34,7 @@ export default class NetworkManager implements Manager {
   declare readonly dataExpiryLength: number;
   declare readonly errorExpiryLength: number;
   protected declare middleware: Middleware;
+  private lastClear: Date | number = -Infinity;
 
   constructor(dataExpiryLength = 60000, errorExpiryLength = 1000) {
     this.dataExpiryLength = dataExpiryLength;
@@ -68,6 +74,9 @@ export default class NetworkManager implements Manager {
                 }
               });
             case RESET_TYPE:
+              for (const k in this.rejectors) {
+                this.rejectors[k](new Error('Reset'));
+              }
               this.cleanup();
               return next(action);
             default:
@@ -77,8 +86,19 @@ export default class NetworkManager implements Manager {
     };
   }
 
+  /** Called when initial state is ready */
+  init(state: State<any>) {
+    console.log('initializing');
+    // In case NetworkManager is not newly created, but the provider re-initializes,
+    // it's necessary to reset state like this, since cleanup sets it to most recent time
+    // This means there is potential issue with reusing NetworkManager as once this init() runs again, the protection agains
+    // previous resolutions will be gone
+    this.lastClear = -Infinity;
+  }
+
   /** Ensures all promises are completed by rejecting remaining. */
   cleanup() {
+    this.lastClear = new Date();
     for (const k in this.rejectors) {
       this.clear(k);
     }
@@ -125,25 +145,32 @@ export default class NetworkManager implements Manager {
       }
       promise = promise
         .then(data => {
-          // does this throw if the reducer fails?
-          dispatch(
-            createReceive(data, {
-              ...action.meta,
-              dataExpiryLength:
-                action.meta.options?.dataExpiryLength ?? this.dataExpiryLength,
-            }),
-          );
+          // don't update state with promises started before last clear
+          if (!(action.meta.createdAt < this.lastClear)) {
+            // does this throw if the reducer fails?
+            dispatch(
+              createReceive(data, {
+                ...action.meta,
+                dataExpiryLength:
+                  action.meta.options?.dataExpiryLength ??
+                  this.dataExpiryLength,
+              }),
+            );
+          }
           return data;
         })
         .catch(error => {
-          dispatch(
-            createReceiveError(error, {
-              ...action.meta,
-              errorExpiryLength:
-                action.meta.options?.errorExpiryLength ??
-                this.errorExpiryLength,
-            }),
-          );
+          // don't update state with promises started before last clear
+          if (!(action.meta.createdAt < this.lastClear)) {
+            dispatch(
+              createReceiveError(error, {
+                ...action.meta,
+                errorExpiryLength:
+                  action.meta.options?.errorExpiryLength ??
+                  this.errorExpiryLength,
+              }),
+            );
+          }
           throw error;
         });
       // legacy behavior schedules resolution after dispatch
