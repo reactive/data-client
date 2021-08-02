@@ -1,5 +1,10 @@
 import { normalize } from '@rest-hooks/normalizr';
-import { ActionTypes, State, ReceiveAction } from '@rest-hooks/core/types';
+import {
+  ActionTypes,
+  State,
+  ReceiveAction,
+  ReceiveMeta,
+} from '@rest-hooks/core/types';
 import { createReceive } from '@rest-hooks/core/state/actions/index';
 import {
   RECEIVE_TYPE,
@@ -9,6 +14,8 @@ import {
   GC_TYPE,
 } from '@rest-hooks/core/actionTypes';
 import applyUpdatersToResults from '@rest-hooks/core/state/applyUpdatersToResults';
+
+import { NoErrorFluxStandardActionWithPayloadAndMeta } from '../fsa';
 
 export const initialState: State<unknown> = {
   entities: {},
@@ -80,15 +87,28 @@ export default function reducer(
           ...state.results,
           [action.meta.key]: result,
         };
-        results = applyUpdatersToResults(results, result, action.meta.updaters);
-        if (action.meta.update) {
-          const updaters = action.meta.update(
+        try {
+          results = applyUpdatersToResults(
+            results,
             result,
-            ...(action.meta.args || []),
+            action.meta.updaters,
           );
-          Object.keys(updaters).forEach(key => {
-            results[key] = updaters[key](results[key]);
-          });
+          if (action.meta.update) {
+            const updaters = action.meta.update(
+              result,
+              ...(action.meta.args || []),
+            );
+            Object.keys(updaters).forEach(key => {
+              results[key] = updaters[key](results[key]);
+            });
+          }
+          // no reason to completely fail because of user-code error
+          // integrity of this state update is still guaranteed
+        } catch (error) {
+          console.log(
+            `The following error occured during Endpoint.update() for ${action.meta.key}`,
+          );
+          console.error(error);
         }
         return {
           entities,
@@ -116,6 +136,10 @@ export default function reducer(
         )}\n\nError:\n${error.message}`;
         error.payload = action.payload;
         error.status = 400;
+        // this is not always bubbled up, so let's double sure this doesn't fail silently
+        if (process.env.NODE_ENV !== 'production') {
+          console.error(error);
+        }
         return reduceError(state, action, error);
       }
     }
