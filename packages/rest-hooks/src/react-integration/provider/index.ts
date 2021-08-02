@@ -17,8 +17,16 @@ CacheProvider.defaultProps = {
   ],
 };
 /* istanbul ignore next */
-if (process.env.NODE_ENV !== 'production')
+if (process.env.NODE_ENV !== 'production') {
   CacheProvider.defaultProps.managers.unshift(new DevToolsManager());
+  if (CacheProvider.defaultProps.managers.length > 1) {
+    // swap so devtools is right after networkmanager
+    [
+      CacheProvider.defaultProps.managers[1],
+      CacheProvider.defaultProps.managers[0],
+    ] = CacheProvider.defaultProps.managers.slice(0, 2);
+  }
+}
 
 export { CacheProvider, ExternalCacheProvider, PromiseifyMiddleware };
 export { default as mapMiddleware } from 'rest-hooks/react-integration/provider/mapMiddleware';

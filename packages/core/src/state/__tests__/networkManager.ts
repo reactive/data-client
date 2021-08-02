@@ -112,8 +112,7 @@ describe('NetworkManager', () => {
 
       const data = await fetchResolveAction.payload();
 
-      expect(next).not.toHaveBeenCalled();
-      expect(dispatch).toHaveBeenCalledWith({
+      const action = {
         type: RECEIVE_TYPE,
         payload: data,
         meta: {
@@ -124,7 +123,9 @@ describe('NetworkManager', () => {
           date: expect.any(Number),
           expiresAt: expect.any(Number),
         },
-      });
+      };
+      expect(dispatch).toHaveBeenCalledWith(action);
+      expect(next).not.toHaveBeenCalledWith(action);
     });
     it('should handle fetch receive action and dispatch on success with updaters', async () => {
       const next = jest.fn();
@@ -134,8 +135,7 @@ describe('NetworkManager', () => {
 
       const data = await fetchReceiveWithUpdatersAction.payload();
 
-      expect(next).not.toHaveBeenCalled();
-      expect(dispatch).toHaveBeenCalledWith({
+      const action = {
         type: RECEIVE_TYPE,
         payload: data,
         meta: {
@@ -149,7 +149,9 @@ describe('NetworkManager', () => {
           date: expect.any(Number),
           expiresAt: expect.any(Number),
         },
-      });
+      };
+      expect(dispatch).toHaveBeenCalledWith(action);
+      expect(next).not.toHaveBeenCalledWith(action);
     });
     it('should handle fetch rpc action and dispatch on success with updaters', async () => {
       const next = jest.fn();
@@ -159,8 +161,7 @@ describe('NetworkManager', () => {
 
       const data = await fetchRpcWithUpdatersAction.payload();
 
-      expect(next).not.toHaveBeenCalled();
-      expect(dispatch).toHaveBeenCalledWith({
+      const action = {
         type: RECEIVE_TYPE,
         payload: data,
         meta: {
@@ -172,7 +173,9 @@ describe('NetworkManager', () => {
           date: expect.any(Number),
           expiresAt: expect.any(Number),
         },
-      });
+      };
+      expect(dispatch).toHaveBeenCalledWith(action);
+      expect(next).not.toHaveBeenCalledWith(action);
     });
     it('should handle fetch rpc action with optimistic response and dispatch on success with updaters', async () => {
       const next = jest.fn();
