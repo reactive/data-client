@@ -5,7 +5,7 @@ sidebar_label: Nesting related resources (server-side join)
 
 Say you have a foreignkey author, and an array of foreign keys to contributors.
 
-First we need to model what this will look like by adding members to our [Resource][1] defintion.
+First we need to model what this will look like by adding members to our [Resource][1] definition.
 These should be the primary keys of the entities we care about.
 
 Next we'll provide a definition of nested members in the [schema][3] member.
