@@ -31,7 +31,7 @@
     "@anansi/eslint-plugin": "0.11.20",
     "@anansi/jest-preset": "^0.5.2",
     "@babel/cli": "7.14.8",
-    "@babel/core": "7.14.8",
+    "@babel/core": "7.15.0",
     "@babel/node": "^7.14.2",
     "@commitlint/cli": "^13.1.0",
     "@commitlint/config-conventional": "^13.1.0",
