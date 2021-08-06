@@ -76,10 +76,10 @@
   resolved "https://registry.yarnpkg.com/@anansi/ts-utils/-/ts-utils-0.2.4.tgz#ffb0ce7ad3a0a0b74db581443c5bb70fe6330652"
   integrity sha512-0injZU3d7z2spk0RMzm17Y10IQtZSv8s9Y5VX7Q6DQ0x6q90exXC6hGq6Xmmn9wu+u9wyIUw5GfCOTWIRJK5vg==
 
-"@anansi/webpack-config@8.0.2":
-  version "8.0.2"
-  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-8.0.2.tgz#a636747f2502615add3f2809695bf53982924fcb"
-  integrity sha512-89+aDKIPk3hs5TZqJfgi2JFKifiZ3BYO5oQZfjM8LoONxcEhubwrqm0p/4rzdwZ7btwvlbaeiNp52kZOTZgSVA==
+"@anansi/webpack-config@8.0.3":
+  version "8.0.3"
+  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-8.0.3.tgz#08132ab3ecde4a995d1bf30f419c5d0d2d0ab104"
+  integrity sha512-NpHdArQw0QnPfFm9BQnDGBcKUmNgQEFY2XuqXzU9vQLSTkCG2jFC0O7RjFDwswp/lPo+ohkgYlpjRDNNGDz5xw==
   dependencies:
     "@babel/runtime" "^7.14.8"
     "@linaria/webpack-loader" "^3.0.0-beta.7"
@@ -96,11 +96,11 @@
     clean-webpack-plugin "^4.0.0-alpha.0"
     console-browserify "^1.2.0"
     constants-browserify "^1.0.0"
-    core-js "^3.15.2"
+    core-js "^3.16.0"
     crypto-browserify "^3.12.0"
     css-loader "^6.2.0"
     css-minimizer-webpack-plugin "^3.0.2"
-    domain-browser "^4.20.0"
+    domain-browser "^4.22.0"
     duplicate-package-checker-webpack-plugin "^3.0.0"
     events "^3.2.0"
     file-loader "^6.2.0"
@@ -109,7 +109,7 @@
     https-browserify "^1.0.0"
     is-wsl "^2.2.0"
     markdown-loader "^6.0.0"
-    mini-css-extract-plugin "^2.1.0"
+    mini-css-extract-plugin "^2.2.0"
     node-sass "^6.0.1"
     os-browserify "^0.3.0"
     path "^0.12.7"
@@ -125,7 +125,7 @@
     react-dev-utils "^11.0.4"
     readable-stream "^3.6.0"
     sass-loader "^12.1.0"
-    sass-resources-loader "^2.2.3"
+    sass-resources-loader "^2.2.4"
     semver "^7.3.5"
     stream-browserify "^3.0.0"
     stream-http "^3.2.0"
@@ -6521,10 +6521,10 @@ dom-serializer@^1.0.1:
     domhandler "^4.2.0"
     entities "^2.0.0"
 
-domain-browser@^4.20.0:
-  version "4.21.0"
-  resolved "https://registry.yarnpkg.com/domain-browser/-/domain-browser-4.21.0.tgz#0498e6a7bd09037c98d3070320078f515c94dfbc"
-  integrity sha512-5719DgPuTVGUDGQ8t9wiYgNxx1HEwHj/RWDDQNfzUx6WTJemFlUVeBZ4iSsSs+MIo5RgiwXSjDbGdXEPjvpqPQ==
+domain-browser@^4.22.0:
+  version "4.22.0"
+  resolved "https://registry.yarnpkg.com/domain-browser/-/domain-browser-4.22.0.tgz#6ddd34220ec281f9a65d3386d267ddd35c491f9f"
+  integrity sha512-IGBwjF7tNk3cwypFNH/7bfzBcgSCbaMOD3GsaY1AU/JRrnHnYgEM0+9kQt52iZxjNsjBtJYtao146V+f8jFZNw==
 
 domelementtype@1:
   version "1.3.1"
@@ -11086,12 +11086,12 @@ min-indent@^1.0.0:
   resolved "https://registry.yarnpkg.com/min-indent/-/min-indent-1.0.0.tgz#cfc45c37e9ec0d8f0a0ec3dd4ef7f7c3abe39256"
   integrity sha1-z8RcN+nsDY8KDsPdTvf3w6vjklY=
 
-mini-css-extract-plugin@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/mini-css-extract-plugin/-/mini-css-extract-plugin-2.1.0.tgz#4aa6558b527ad4c168fee4a20b6092ebe9f98309"
-  integrity sha512-SV1GgjMcfqy6hW07rAniUbQE4qS3inh3v4rZEUySkPRWy3vMbS3jUCjMOvNI4lUnDlQYJEmuUqKktTCNY5koFQ==
+mini-css-extract-plugin@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/mini-css-extract-plugin/-/mini-css-extract-plugin-2.2.0.tgz#48cb6d2bea8fa9eb36709856e003662eebb3eb92"
+  integrity sha512-91HeVHbq7PUJ4TwOuMTlFWfVWrLqf3SF0PlEDPV+wtgsfxrMebN9LLzflyQqdKLp4/H3PexRB1WLKsCqpWKkxQ==
   dependencies:
-    schema-utils "^3.0.0"
+    schema-utils "^3.1.0"
 
 minimalistic-assert@^1.0.0, minimalistic-assert@^1.0.1:
   version "1.0.1"
@@ -14290,10 +14290,10 @@ sass-loader@^12.1.0:
     klona "^2.0.4"
     neo-async "^2.6.2"
 
-sass-resources-loader@^2.2.3:
-  version "2.2.3"
-  resolved "https://registry.yarnpkg.com/sass-resources-loader/-/sass-resources-loader-2.2.3.tgz#1be92ea326a4a2d8d7c3483a01577a70df7d7fa1"
-  integrity sha512-QHyhf1euMF16qC5R24felQYkg7NvSlsNkidUpgrga27hMLqNP5TfmQ6K0iVn7BurKmUU/CDuygZh0py9lXeYPQ==
+sass-resources-loader@^2.2.4:
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/sass-resources-loader/-/sass-resources-loader-2.2.4.tgz#1a86fba499e74a88cb7ce95f0c98449f348d360e"
+  integrity sha512-hIQhBygYky+rLf+4cuoGYONZ623CEH4Swo1fs1WRJkukbqdvN1VIu2KCL59du6vX92bNELzNkGPLx+NorN73xA==
   dependencies:
     async "^3.2.0"
     chalk "^4.1.0"
