@@ -46,6 +46,7 @@ export default function useFetchDispatcher(throttle = false): <
         throttle,
         updateParams,
       });
+      console.log('dispatching', action);
       dispatch(action);
       return action.meta.promise;
     },

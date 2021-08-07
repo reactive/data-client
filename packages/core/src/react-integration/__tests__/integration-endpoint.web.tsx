@@ -31,6 +31,7 @@ import {
   useCache,
   useInvalidator,
   useInvalidateDispatcher,
+  useResetter,
 } from '../hooks';
 import {
   payload,
@@ -55,7 +56,7 @@ afterEach(() => {
     removeEventListener('error', onError);
 });
 
-for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
+for (const makeProvider of [makeCacheProvider]) {
   describe(`${makeProvider.name} => <Provider />`, () => {
     // TODO: add nested resource test case that has multiple partials to test merge functionality
 
@@ -647,6 +648,45 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           ({ id }: Partial<PaginatedArticleResource>) => id,
         ),
       ).toEqual([5, 3, 7, 8]);
+    });
+
+    describe.only('useResetter()', () => {
+      beforeEach(() => {
+        jest.useFakeTimers();
+        renderRestHook = makeRenderRestHook(makeProvider);
+      });
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      it('should refetch useResource() ', async () => {
+        mynock
+          .get(`/article-cooler/${9999}`)
+          .delay(2000)
+          .reply(200, { ...payload, id: 9999 });
+
+        let reset: any;
+
+        const { result, waitForNextUpdate, rerender } = renderRestHook(() => {
+          // cheating result since useResource will suspend
+          reset = useResetter();
+          console.log('render', reset);
+          return useResource(CoolerArticleDetail, { id: 9999 });
+        });
+        expect(result.current).toBeUndefined();
+        jest.advanceTimersByTime(1000);
+        // should not be resolved
+        expect(result.current).toBeUndefined();
+        console.log('reset');
+        reset();
+        jest.advanceTimersByTime(5000);
+        act(() => rerender());
+        jest.advanceTimersByTime(5000);
+
+        console.log(result.error, result.current);
+        await waitForNextUpdate();
+        expect(result.current).toBeDefined();
+      });
     });
   });
 }

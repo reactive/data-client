@@ -18,7 +18,13 @@ import {
   mockInitialState,
 } from '../../../../test';
 import { DispatchContext, StateContext } from '../context';
-import { useFetcher, useRetrieve, useInvalidator, useResetter } from '../hooks';
+import {
+  useFetcher,
+  useRetrieve,
+  useInvalidator,
+  useResetter,
+  useResource,
+} from '../hooks';
 import { initialState } from '../../state/reducer';
 import { State, ActionTypes } from '../../types';
 import { INVALIDATE_TYPE, RESET_TYPE } from '../../actionTypes';

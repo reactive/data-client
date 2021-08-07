@@ -48,6 +48,7 @@ export default class NetworkManager implements Manager {
         (action: React.ReducerAction<R>): Promise<void> => {
           switch (action.type) {
             case FETCH_TYPE:
+              console.log('taking', action);
               this.handleFetch(action, dispatch);
               // Eliminate throttled fetches from future middlewares + reducer
               // TODO: Maybe make throttling its own middleware?
@@ -75,9 +76,11 @@ export default class NetworkManager implements Manager {
               });
             case RESET_TYPE:
               for (const k in this.rejectors) {
+                //console.log('rejecting', k);
                 this.rejectors[k](new Error('Reset'));
               }
               this.cleanup();
+              this.lastClear = action.date;
               return next(action);
             default:
               return next(action);
@@ -121,7 +124,7 @@ export default class NetworkManager implements Manager {
    */
   protected handleFetch(action: FetchAction, dispatch: Dispatch<any>) {
     const fetch = action.payload;
-    const { key, throttle, resolve, reject } = action.meta;
+    const { key, throttle, resolve, reject, createdAt } = action.meta;
 
     const deferedFetch = () => {
       let promise = fetch();
@@ -145,8 +148,9 @@ export default class NetworkManager implements Manager {
       }
       promise = promise
         .then(data => {
+          console.log(createdAt, this.lastClear);
           // don't update state with promises started before last clear
-          if (!(action.meta.createdAt < this.lastClear)) {
+          if (!(createdAt < this.lastClear)) {
             // does this throw if the reducer fails?
             dispatch(
               createReceive(data, {
@@ -161,7 +165,7 @@ export default class NetworkManager implements Manager {
         })
         .catch(error => {
           // don't update state with promises started before last clear
-          if (!(action.meta.createdAt < this.lastClear)) {
+          if (!(createdAt < this.lastClear)) {
             dispatch(
               createReceiveError(error, {
                 ...action.meta,
@@ -232,6 +236,7 @@ export default class NetworkManager implements Manager {
   protected throttle(key: string, fetch: () => Promise<any>) {
     // we're already fetching so reuse the promise
     if (key in this.fetched) {
+      console.log('already found', key);
       return this.fetched[key];
     }
 

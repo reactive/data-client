@@ -45,6 +45,7 @@ function useOneResource<
     entitiesExpireAt,
   );
 
+  console.log('promise', maybePromise);
   if (
     !hasUsableData(
       fetchShape,
@@ -54,6 +55,7 @@ function useOneResource<
     ) &&
     maybePromise
   ) {
+    console.log('to thorw');
     throw maybePromise;
   }
 

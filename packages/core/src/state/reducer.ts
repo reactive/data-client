@@ -15,8 +15,6 @@ import {
 } from '@rest-hooks/core/actionTypes';
 import applyUpdatersToResults from '@rest-hooks/core/state/applyUpdatersToResults';
 
-import { NoErrorFluxStandardActionWithPayloadAndMeta } from '../fsa';
-
 export const initialState: State<unknown> = {
   entities: {},
   indexes: {},
@@ -24,6 +22,7 @@ export const initialState: State<unknown> = {
   meta: {},
   entityMeta: {},
   optimistic: [],
+  lastReset: -Infinity,
 };
 
 export default function reducer(
@@ -124,6 +123,7 @@ export default function reducer(
             },
           },
           optimistic: filterOptimistic(state, action),
+          lastReset: state.lastReset,
         };
         // reducer must update the state, so in case of processing errors we simply compute the results inline
       } catch (error) {
@@ -161,7 +161,7 @@ export default function reducer(
       };
     }
     case RESET_TYPE:
-      return initialState;
+      return { ...initialState, lastReset: action.date };
 
     default:
       // A reducer must always return a valid state.
