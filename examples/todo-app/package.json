@@ -35,7 +35,7 @@
     "react-refresh": "^0.11.0-0",
     "rest-hooks": "^6.0.0-beta.2",
     "serve": "12.0.0",
-    "webpack": "5.49.0",
+    "webpack": "5.50.0",
     "webpack-cli": "4.7.2",
     "webpack-dev-server": "3.11.2"
   },
