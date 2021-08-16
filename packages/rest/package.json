@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/rest",
-  "version": "2.1.4",
+  "version": "2.2.0",
   "description": "Endpoints for REST APIs",
   "sideEffects": false,
   "main": "dist/index.cjs.js",

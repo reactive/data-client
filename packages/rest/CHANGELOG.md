@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.1.4...@rest-hooks/rest@2.2.0) (2021-08-16)
+
+
+### 🚀 Features
+
+* Normalize merges entities, entitymeta, indexes ([#915](https://github.com/coinbase/rest-hooks/issues/915)) ([bd21d8c](https://github.com/coinbase/rest-hooks/commit/bd21d8ce0d004a56e6853918d9fb9ecaa2c730a8))
+
+
+### 🐛 Bug Fix
+
+* useFetchInit() hook calls same amount every render ([#1123](https://github.com/coinbase/rest-hooks/issues/1123)) ([04deed1](https://github.com/coinbase/rest-hooks/commit/04deed14e659b16b7d752d1a337f7cb80139806a))
+
+
+
 ### [2.1.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@2.1.3...@rest-hooks/rest@2.1.4) (2021-06-09)
 
 

@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.9.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@0.9.0...@rest-hooks/experimental@0.9.1) (2021-08-16)
+
+
+### 🐛 Bug Fix
+
+* useFetchInit() hook calls same amount every render ([#1123](https://github.com/coinbase/rest-hooks/issues/1123)) ([04deed1](https://github.com/coinbase/rest-hooks/commit/04deed14e659b16b7d752d1a337f7cb80139806a))
+
+
+
 ## [0.9.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@0.8.0...@rest-hooks/experimental@0.9.0) (2021-06-25)
 
 
