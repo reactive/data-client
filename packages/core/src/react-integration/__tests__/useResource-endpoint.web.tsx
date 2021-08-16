@@ -559,6 +559,7 @@ describe('useResource()', () => {
     });
 
     it('should use latest context when making requests', async () => {
+      const consoleSpy = jest.spyOn(console, 'error');
       const wrapper = ({
         children,
         authToken,
@@ -574,6 +575,7 @@ describe('useResource()', () => {
           return {
             data: useResource(ContextAuthdArticle.detail(), payload),
             fetch: useFetcher(ContextAuthdArticle.detail()),
+            create: useFetcher(ContextAuthdArticle.create()),
           };
         },
         {
@@ -589,6 +591,8 @@ describe('useResource()', () => {
       const data = await result.current.fetch(payload);
       expect(data).toEqual(payload);
       expect(result.current.data.title).toEqual(payload.title);
+      // ensure we don't violate call-order changes
+      expect(consoleSpy.mock.calls.length).toBeLessThan(1);
     });
   });
 });
