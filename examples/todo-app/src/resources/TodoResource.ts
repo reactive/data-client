@@ -17,11 +17,12 @@ export default class TodoResource extends PlaceholderBaseResource {
   }
 
   static create<T extends typeof Resource>(this: T) {
+    const listkey = this.list().key({});
     return super.create().extend({
       schema: this,
       optimisticUpdate: optimisticCreate,
       update: (newResourceId: string) => ({
-        [this.list().key({})]: (resourceIds: string[] = []) => [
+        [listkey]: (resourceIds: string[] = []) => [
           ...resourceIds,
           newResourceId,
         ],
