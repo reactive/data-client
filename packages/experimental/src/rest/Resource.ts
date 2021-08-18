@@ -23,8 +23,9 @@ export default abstract class Resource extends BaseResource {
     SchemaDetail<AbstractInstanceType<T>>,
     undefined
   > {
+    const endpoint = this.endpoint();
     return this.memo('#detail', () =>
-      this.endpoint().extend({
+      endpoint.extend({
         schema: this,
       }),
     );
@@ -40,8 +41,9 @@ export default abstract class Resource extends BaseResource {
       undefined
     >
   > {
+    const endpoint = this.endpoint();
     return this.memo('#list', () =>
-      this.endpoint().extend({
+      endpoint.extend({
         schema: [this],
         url: this.listUrl.bind(this),
         paginated(
@@ -78,8 +80,9 @@ export default abstract class Resource extends BaseResource {
     true
   > {
     //Partial<AbstractInstanceType<T>>
+    const endpoint = this.endpointMutate();
     return this.memo('#create', () =>
-      this.endpointMutate().extend({
+      endpoint.extend({
         schema: this,
         url: this.listUrl.bind(this),
       }),
@@ -94,8 +97,9 @@ export default abstract class Resource extends BaseResource {
     SchemaDetail<AbstractInstanceType<T>>,
     true
   > {
+    const endpoint = this.endpointMutate();
     return this.memo('#update', () =>
-      this.endpointMutate().extend({
+      endpoint.extend({
         method: 'PUT',
         schema: this,
       }),
@@ -110,8 +114,9 @@ export default abstract class Resource extends BaseResource {
     SchemaDetail<AbstractInstanceType<T>>,
     true
   > {
+    const endpoint = this.endpointMutate();
     return this.memo('#partialUpdate', () =>
-      this.endpointMutate().extend({
+      endpoint.extend({
         method: 'PATCH',
         schema: this,
       }),
