@@ -219,8 +219,9 @@ export default abstract class BaseResource extends Entity {
     true
   > {
     const instanceFetch = this.fetch.bind(this);
+    const endpoint = this.endpoint();
     return this.memo('#endpointMutate', () =>
-      this.endpoint().extend({
+      endpoint.extend({
         fetch(this: RestEndpoint, params: any, body: any) {
           return instanceFetch(this.url(params), this.getFetchInit(body));
         },
