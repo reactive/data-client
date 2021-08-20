@@ -137,10 +137,7 @@ export default class PollingSubscription implements Subscription {
           // never break when data already exists
           errorPolicy: () => 'soft' as const,
         },
-        createdAt:
-          process.env.NODE_ENV === 'test'
-            ? new Date(0)
-            : /* istanbul ignore next */ new Date(),
+        createdAt: new Date(),
         resolve: () => {},
         reject: () => {},
       },

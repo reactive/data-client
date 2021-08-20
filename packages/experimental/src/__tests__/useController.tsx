@@ -1,12 +1,19 @@
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
+import { render } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
-import { FutureArticleResource } from '__tests__/new';
+import { CoolerArticleDetail, FutureArticleResource } from '__tests__/new';
 import { FixtureEndpoint } from '@rest-hooks/test/mockState';
 import { act } from '@testing-library/react-hooks';
-import { useCache } from '@rest-hooks/core';
+import { useCache, useResource } from '@rest-hooks/core';
+import React from 'react';
+import { useRetrieve } from '@rest-hooks/core';
 
-import { makeRenderRestHook, makeCacheProvider } from '../../../test';
+import {
+  makeRenderRestHook,
+  makeCacheProvider,
+  MockNetworkManager,
+} from '../../../test';
 import useController from '../useController';
 
 export const payload = {
@@ -56,9 +63,17 @@ export const nested: FixtureEndpoint = {
   ],
 };
 let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+let mynock: nock.Scope;
 
 beforeEach(() => {
   renderRestHook = makeRenderRestHook(makeCacheProvider);
+  mynock = nock(/.*/).defaultReplyHeaders({
+    'Access-Control-Allow-Origin': '*',
+    'Content-Type': 'application/json',
+  });
+});
+afterEach(() => {
+  nock.cleanAll();
 });
 
 describe('invalidate', () => {
@@ -147,5 +162,68 @@ describe('resetEntireStore', () => {
       rerender();
     }
     expect(track.mock.calls.length).toBe(1);
+  });
+
+  describe('integration', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      renderRestHook = makeRenderRestHook(makeCacheProvider);
+    });
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('should refetch useResource() after reset', async () => {
+      mynock
+        .get(`/article-cooler/${9999}`)
+        .delay(2000)
+        .reply(200, { ...payload, id: 9999 })
+        .persist();
+
+      let resetEntireStore: any;
+
+      const { result, waitForNextUpdate, rerender } = renderRestHook(() => {
+        // cheating result since useResource will suspend
+        ({ resetEntireStore } = useController());
+        return useResource(CoolerArticleDetail, { id: 9999 });
+      });
+      expect(result.current).toBeUndefined();
+      jest.advanceTimersByTime(1000);
+      act(() => rerender());
+      // should not be resolved
+      expect(result.current).toBeUndefined();
+      await act(resetEntireStore);
+      jest.advanceTimersByTime(5000);
+      act(() => rerender());
+      jest.advanceTimersByTime(5000);
+
+      await waitForNextUpdate();
+      expect(result.current).toBeDefined();
+      expect(result.current.title).toEqual(payload.title);
+    });
+
+    it('should not dispatch resolutions after CacheProvider unmounts', async () => {
+      mynock
+        .get(`/article-cooler/${9999}`)
+        .reply(200, () => {
+          return { ...payload, id: 9999 };
+        })
+        .persist();
+
+      const { unmount, result } = renderRestHook(() => {
+        return useRetrieve(CoolerArticleDetail, { id: 9999 });
+      });
+
+      expect(result.current.resolved).toBe(undefined);
+      const consoleSpy = jest.spyOn(console, 'error');
+      act(() => unmount());
+      jest.advanceTimersByTime(5000);
+      jest.useRealTimers();
+      // TODO: Figure out a way to wait until fetch chain resolution instead of waiting on time
+      await act(() => new Promise(resolve => setTimeout(resolve, 100)));
+
+      // when trying to dispatch on unmounted this will trigger console errors
+      expect(consoleSpy.mock.calls.length).toBeLessThan(1);
+    });
   });
 });

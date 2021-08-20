@@ -19,6 +19,7 @@ import {
   createReceive,
   createReceiveError,
 } from '@rest-hooks/core/state/actions/index';
+import { initialState } from '@rest-hooks/core/state/reducer';
 
 /** Handles all async network dispatches
  *
@@ -34,7 +35,7 @@ export default class NetworkManager implements Manager {
   declare readonly dataExpiryLength: number;
   declare readonly errorExpiryLength: number;
   protected declare middleware: Middleware;
-  private lastClear: Date | number = -Infinity;
+  protected getState: () => State<unknown> = () => initialState;
 
   constructor(dataExpiryLength = 60000, errorExpiryLength = 1000) {
     this.dataExpiryLength = dataExpiryLength;
@@ -44,6 +45,7 @@ export default class NetworkManager implements Manager {
       dispatch,
       getState,
     }: MiddlewareAPI<R>) => {
+      this.getState = getState;
       return (next: Dispatch<R>) =>
         (action: React.ReducerAction<R>): Promise<void> => {
           switch (action.type) {
@@ -64,7 +66,7 @@ export default class NetworkManager implements Manager {
               return next(action).then(() => {
                 if (action.meta.key in this.fetched) {
                   // Note: meta *must* be set by reducer so this should be safe
-                  const error = getState().meta[action.meta.key]?.error;
+                  const error = this.getState().meta[action.meta.key]?.error;
                   // processing errors result in state meta having error, so we should reject the promise
                   if (error) {
                     this.handleReceive(createReceiveError(error, action.meta));
@@ -73,12 +75,18 @@ export default class NetworkManager implements Manager {
                   }
                 }
               });
-            case RESET_TYPE:
-              for (const k in this.rejectors) {
-                this.rejectors[k](new Error('Reset'));
-              }
-              this.cleanup();
-              return next(action);
+            case RESET_TYPE: {
+              const rejectors = { ...this.rejectors };
+
+              this.clearAll();
+              return next(action).then(() => {
+                // there could be external listeners to the promise
+                // this must happen after commit so our own rejector knows not to dispatch an error based on this
+                for (const k in rejectors) {
+                  rejectors[k](new Error('Aborted due to RESET'));
+                }
+              });
+            }
             default:
               return next(action);
           }
@@ -86,19 +94,19 @@ export default class NetworkManager implements Manager {
     };
   }
 
-  /** Called when initial state is ready */
-  init(state: State<any>) {
-    console.log('initializing');
-    // In case NetworkManager is not newly created, but the provider re-initializes,
-    // it's necessary to reset state like this, since cleanup sets it to most recent time
-    // This means there is potential issue with reusing NetworkManager as once this init() runs again, the protection agains
-    // previous resolutions will be gone
-    this.lastClear = -Infinity;
-  }
-
   /** Ensures all promises are completed by rejecting remaining. */
   cleanup() {
-    this.lastClear = new Date();
+    // ensure no dispatches after unmount
+    const state = this.getState();
+    this.getState = () => ({
+      ...state,
+      lastReset: new Date(),
+    });
+    this.clearAll();
+  }
+
+  /** Clear all promise state */
+  protected clearAll() {
     for (const k in this.rejectors) {
       this.clear(k);
     }
@@ -121,7 +129,7 @@ export default class NetworkManager implements Manager {
    */
   protected handleFetch(action: FetchAction, dispatch: Dispatch<any>) {
     const fetch = action.payload;
-    const { key, throttle, resolve, reject } = action.meta;
+    const { key, throttle, resolve, reject, createdAt } = action.meta;
 
     const deferedFetch = () => {
       let promise = fetch();
@@ -145,8 +153,10 @@ export default class NetworkManager implements Manager {
       }
       promise = promise
         .then(data => {
+          const { lastReset } = this.getState();
+
           // don't update state with promises started before last clear
-          if (!(action.meta.createdAt < this.lastClear)) {
+          if (!(createdAt < lastReset)) {
             // does this throw if the reducer fails?
             dispatch(
               createReceive(data, {
@@ -160,8 +170,9 @@ export default class NetworkManager implements Manager {
           return data;
         })
         .catch(error => {
+          const { lastReset } = this.getState();
           // don't update state with promises started before last clear
-          if (!(action.meta.createdAt < this.lastClear)) {
+          if (!(createdAt < lastReset)) {
             dispatch(
               createReceiveError(error, {
                 ...action.meta,

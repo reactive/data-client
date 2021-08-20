@@ -62,10 +62,7 @@ export default function createFetch<
     resolve,
     reject,
     promise,
-    createdAt:
-      process.env.NODE_ENV === 'test'
-        ? new Date(0)
-        : /* istanbul ignore next */ new Date(),
+    createdAt: new Date(),
   };
 
   if (fetchShape.update) {

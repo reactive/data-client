@@ -9,7 +9,6 @@ Object {
         "content": "hi",
       },
     ],
-    "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "POST http://test.com/article-cooler/",
     "options": Object {
       "errorPolicy": [Function],
@@ -43,7 +42,6 @@ Object {
         "content": "changed",
       },
     ],
-    "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "PUT http://test.com/article-cooler/1",
     "options": Object {
       "errorPolicy": [Function],
@@ -77,7 +75,6 @@ Object {
         "content": "changed",
       },
     ],
-    "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "PATCH http://test.com/article-cooler/1",
     "optimisticResponse": Object {
       "content": "changed",
@@ -108,7 +105,6 @@ Object {
         "content": "hi",
       },
     ],
-    "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "POST http://test.com/article/",
     "optimisticResponse": Object {
       "content": "hi",
@@ -139,7 +135,6 @@ Object {
         "content": "hi",
       },
     ],
-    "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "POST http://test.com/article-cooler/",
     "options": Object {
       "errorPolicy": [Function],
@@ -172,7 +167,6 @@ Object {
       },
       undefined,
     ],
-    "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-cooler/1",
     "options": Object {
       "errorPolicy": [Function],
@@ -211,7 +205,6 @@ Object {
       },
       undefined,
     ],
-    "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-cooler/5",
     "options": Object {
       "errorPolicy": [Function],
@@ -250,7 +243,6 @@ Object {
       },
       undefined,
     ],
-    "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-static/5",
     "options": Object {
       "dataExpiryLength": 3600000,
@@ -290,7 +282,6 @@ Object {
       },
       undefined,
     ],
-    "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-static/5",
     "options": Object {
       "errorExpiryLength": Infinity,
@@ -330,7 +321,6 @@ Object {
       },
       undefined,
     ],
-    "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-static/5",
     "options": Object {
       "errorPolicy": [Function],

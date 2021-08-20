@@ -4,7 +4,6 @@ exports[`PollingSubscription fresh data should call after period 1`] = `
 Array [
   Object {
     "meta": Object {
-      "createdAt": 1970-01-01T00:00:00.000Z,
       "key": "test.com",
       "options": Object {
         "dataExpiryLength": 2500,
@@ -27,7 +26,6 @@ exports[`PollingSubscription fresh data should call after period 2`] = `
 Array [
   Object {
     "meta": Object {
-      "createdAt": 1970-01-01T00:00:00.000Z,
       "key": "test.com",
       "options": Object {
         "dataExpiryLength": 2500,

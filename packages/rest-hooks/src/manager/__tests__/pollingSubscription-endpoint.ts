@@ -178,9 +178,16 @@ describe('PollingSubscription', () => {
       dispatch.mockReset();
       jest.advanceTimersByTime(5000);
       expect(dispatch.mock.calls.length).toBe(1);
+      dispatch.mock.calls[0].forEach((element: any) => {
+        delete element?.meta?.createdAt;
+      });
       expect(dispatch.mock.calls[0]).toMatchSnapshot();
       jest.advanceTimersByTime(5000);
       expect(dispatch.mock.calls.length).toBe(2);
+      dispatch.mock.calls[1].forEach((element: any) => {
+        delete element?.meta?.createdAt;
+      });
+
       expect(dispatch.mock.calls[1]).toMatchSnapshot();
     });
 
