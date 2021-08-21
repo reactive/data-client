@@ -9,7 +9,6 @@ Object {
       },
       undefined,
     ],
-    "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-cooler/5",
     "options": Object {
       "errorPolicy": [Function],
@@ -41,7 +40,6 @@ Object {
       },
       undefined,
     ],
-    "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/article-cooler/5",
     "options": Object {
       "errorPolicy": [Function],
@@ -71,7 +69,6 @@ Object {
       Object {},
       undefined,
     ],
-    "createdAt": 1970-01-01T00:00:00.000Z,
     "key": "GET http://test.com/user/",
     "options": Object {
       "errorPolicy": [Function],

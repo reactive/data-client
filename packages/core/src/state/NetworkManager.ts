@@ -3,7 +3,12 @@ import {
   Middleware,
   Dispatch,
 } from '@rest-hooks/use-enhanced-reducer';
-import { FetchAction, ReceiveAction, Manager } from '@rest-hooks/core/types';
+import {
+  FetchAction,
+  ReceiveAction,
+  Manager,
+  State,
+} from '@rest-hooks/core/types';
 import {
   RECEIVE_TYPE,
   FETCH_TYPE,
@@ -14,6 +19,7 @@ import {
   createReceive,
   createReceiveError,
 } from '@rest-hooks/core/state/actions/index';
+import { initialState } from '@rest-hooks/core/state/reducer';
 
 /** Handles all async network dispatches
  *
@@ -29,6 +35,7 @@ export default class NetworkManager implements Manager {
   declare readonly dataExpiryLength: number;
   declare readonly errorExpiryLength: number;
   protected declare middleware: Middleware;
+  protected getState: () => State<unknown> = () => initialState;
 
   constructor(dataExpiryLength = 60000, errorExpiryLength = 1000) {
     this.dataExpiryLength = dataExpiryLength;
@@ -38,6 +45,7 @@ export default class NetworkManager implements Manager {
       dispatch,
       getState,
     }: MiddlewareAPI<R>) => {
+      this.getState = getState;
       return (next: Dispatch<R>) =>
         (action: React.ReducerAction<R>): Promise<void> => {
           switch (action.type) {
@@ -67,9 +75,18 @@ export default class NetworkManager implements Manager {
                   }
                 }
               });
-            case RESET_TYPE:
-              this.cleanup();
-              return next(action);
+            case RESET_TYPE: {
+              const rejectors = { ...this.rejectors };
+
+              this.clearAll();
+              return next(action).then(() => {
+                // there could be external listeners to the promise
+                // this must happen after commit so our own rejector knows not to dispatch an error based on this
+                for (const k in rejectors) {
+                  rejectors[k](new Error('Aborted due to RESET'));
+                }
+              });
+            }
             default:
               return next(action);
           }
@@ -79,6 +96,14 @@ export default class NetworkManager implements Manager {
 
   /** Ensures all promises are completed by rejecting remaining. */
   cleanup() {
+    // ensure no dispatches after unmount
+    const cleanupDate = new Date();
+    this.getLastReset = () => cleanupDate;
+    this.clearAll();
+  }
+
+  /** Clear all promise state */
+  protected clearAll() {
     for (const k in this.rejectors) {
       this.clear(k);
     }
@@ -91,6 +116,10 @@ export default class NetworkManager implements Manager {
     delete this.fetched[key];
   }
 
+  protected getLastReset() {
+    return this.getState().lastReset;
+  }
+
   /** Called when middleware intercepts 'rest-hooks/fetch' action.
    *
    * Will then start a promise for a key and potentially start the network
@@ -101,7 +130,7 @@ export default class NetworkManager implements Manager {
    */
   protected handleFetch(action: FetchAction, dispatch: Dispatch<any>) {
     const fetch = action.payload;
-    const { key, throttle, resolve, reject } = action.meta;
+    const { key, throttle, resolve, reject, createdAt } = action.meta;
 
     const deferedFetch = () => {
       let promise = fetch();
@@ -125,25 +154,35 @@ export default class NetworkManager implements Manager {
       }
       promise = promise
         .then(data => {
-          // does this throw if the reducer fails?
-          dispatch(
-            createReceive(data, {
-              ...action.meta,
-              dataExpiryLength:
-                action.meta.options?.dataExpiryLength ?? this.dataExpiryLength,
-            }),
-          );
+          const lastReset = this.getLastReset();
+
+          // don't update state with promises started before last clear
+          if (createdAt >= lastReset) {
+            // does this throw if the reducer fails?
+            dispatch(
+              createReceive(data, {
+                ...action.meta,
+                dataExpiryLength:
+                  action.meta.options?.dataExpiryLength ??
+                  this.dataExpiryLength,
+              }),
+            );
+          }
           return data;
         })
         .catch(error => {
-          dispatch(
-            createReceiveError(error, {
-              ...action.meta,
-              errorExpiryLength:
-                action.meta.options?.errorExpiryLength ??
-                this.errorExpiryLength,
-            }),
-          );
+          const lastReset = this.getLastReset();
+          // don't update state with promises started before last clear
+          if (createdAt >= lastReset) {
+            dispatch(
+              createReceiveError(error, {
+                ...action.meta,
+                errorExpiryLength:
+                  action.meta.options?.errorExpiryLength ??
+                  this.errorExpiryLength,
+              }),
+            );
+          }
           throw error;
         });
       // legacy behavior schedules resolution after dispatch

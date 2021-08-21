@@ -3,13 +3,10 @@ import {
   ArticleResource,
   PaginatedArticleResource,
   UserResource,
-  ArticleResourceWithOtherListUrl,
   ListPaginatedArticle,
   CoolerArticleDetail,
   TypedArticleResource,
-  IndexedUserResource,
   UnionResource,
-  FutureArticleResource,
 } from '__tests__/new';
 import nock from 'nock';
 import { act } from '@testing-library/react-hooks';
@@ -18,7 +15,6 @@ import { act } from '@testing-library/react-hooks';
 import { schema, Entity } from '@rest-hooks/normalizr';
 import { SimpleRecord } from '@rest-hooks/legacy';
 import { Endpoint } from '@rest-hooks/endpoint';
-import { useContext } from 'react';
 
 import {
   makeRenderRestHook,
@@ -41,7 +37,6 @@ import {
   paginatedSecondPage,
   valuesFixture,
 } from '../test-fixtures';
-import { StateContext } from '../context';
 
 function onError(e: any) {
   e.preventDefault();

@@ -50,6 +50,7 @@ export default function useController(throttle = false): Controller {
     () =>
       dispatch({
         type: actionTypes.RESET_TYPE,
+        date: new Date(),
       }),
     [dispatch],
   );

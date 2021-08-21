@@ -1,7 +1,8 @@
 import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import useFetchDispatcher from '@rest-hooks/core/react-integration/hooks/useFetchDispatcher';
 import useExpiresAt from '@rest-hooks/core/react-integration/hooks/useExpiresAt';
+import { StateContext } from '@rest-hooks/core/react-integration/context';
 
 /**
  * Request a resource if it is not in cache.\
@@ -15,6 +16,7 @@ export default function useRetrieve<Shape extends ReadShape<any, any>>(
 ) {
   const dispatchFetch: any = useFetchDispatcher(true);
   const expiresAt = useExpiresAt(fetchShape, params, entitiesExpireAt);
+  const { lastReset } = useContext(StateContext);
 
   return useMemo(() => {
     // null params mean don't do anything
@@ -27,5 +29,6 @@ export default function useRetrieve<Shape extends ReadShape<any, any>>(
     dispatchFetch,
     params && fetchShape.getFetchKey(params),
     triggerFetch,
+    lastReset,
   ]);
 }

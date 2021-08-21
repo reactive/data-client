@@ -18,7 +18,13 @@ import {
   mockInitialState,
 } from '../../../../test';
 import { DispatchContext, StateContext } from '../context';
-import { useFetcher, useRetrieve, useInvalidator, useResetter } from '../hooks';
+import {
+  useFetcher,
+  useRetrieve,
+  useInvalidator,
+  useResetter,
+  useResource,
+} from '../hooks';
 import { initialState } from '../../state/reducer';
 import { State, ActionTypes } from '../../types';
 import { INVALIDATE_TYPE, RESET_TYPE } from '../../actionTypes';
@@ -40,6 +46,7 @@ async function testDispatchFetch(
   expect(dispatch).toHaveBeenCalledTimes(payloads.length);
   let i = 0;
   for (const call of dispatch.mock.calls) {
+    delete call[0]?.meta?.createdAt;
     expect(call[0]).toMatchSnapshot();
     const action = call[0];
     const res = await action.payload();
@@ -269,7 +276,11 @@ describe('useInvalidate', () => {
 });
 
 describe('useResetter', () => {
+  afterEach(() => {
+    jest.useRealTimers();
+  });
   it('should return a function that dispatches an action to reset the cache', () => {
+    jest.useFakeTimers();
     const state = mockInitialState([
       {
         request: PaginatedArticleResource.list(),
@@ -289,6 +300,7 @@ describe('useResetter', () => {
     reset({});
     expect(dispatch).toHaveBeenCalledWith({
       type: RESET_TYPE,
+      date: new Date(),
     });
   });
   it('should return the same === function each time', () => {

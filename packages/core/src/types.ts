@@ -62,6 +62,7 @@ export type State<T> = Readonly<{
     };
   };
   optimistic: ReceiveAction[];
+  lastReset: Date | number;
 }>;
 
 export type FetchOptions<F extends FetchFunction = FetchFunction> =
@@ -91,7 +92,10 @@ export type ReceiveAction<
   ReceiveMeta<S>
 >;
 
-export type ResetAction = FSA<typeof RESET_TYPE>;
+export interface ResetAction {
+  type: typeof RESET_TYPE;
+  date: Date;
+}
 
 interface FetchMeta<
   Payload extends object | string | number | null =

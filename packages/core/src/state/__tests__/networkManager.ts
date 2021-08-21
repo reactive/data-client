@@ -5,10 +5,11 @@ import NetworkManager from '../NetworkManager';
 import { FetchAction, ResetAction } from '../../types';
 import { FETCH_TYPE, RECEIVE_TYPE, RESET_TYPE } from '../../actionTypes';
 import { createFetch } from '../actions';
+import { initialState } from '../reducer';
 
 describe('NetworkManager', () => {
   const manager = new NetworkManager();
-  const getState = () => {};
+  const getState = () => initialState;
 
   afterAll(() => {
     manager.cleanup();

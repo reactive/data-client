@@ -67,6 +67,7 @@ describe('useExpiresAt()', () => {
       results: { [ListTaco.key({})]: ['1', '2'] },
       meta: {},
       optimistic: [],
+      lastReset: -Infinity,
     };
 
     const wrapper = function ConfiguredCacheProvider({
@@ -102,7 +103,7 @@ describe('useExpiresAt()', () => {
       schema: Tacos,
       key: ({ id }: { id: any }) => `detailtaco ${id}`,
     });
-    const state = {
+    const state: State<unknown> = {
       entities: {
         Tacos: {
           1: { id: '1', type: 'foo', ingredients: ['1'] },
@@ -129,6 +130,7 @@ describe('useExpiresAt()', () => {
       results: { [ListTaco.key({})]: ['1', '2'] },
       meta: {},
       optimistic: [],
+      lastReset: -Infinity,
     };
 
     const wrapper = function ConfiguredCacheProvider({

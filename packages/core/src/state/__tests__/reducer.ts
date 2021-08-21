@@ -680,6 +680,7 @@ describe('reducer', () => {
   it('reset should delete all entries', () => {
     const action: ResetAction = {
       type: RESET_TYPE,
+      date: new Date(0),
     };
     const iniState: any = {
       ...initialState,
