@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.0.0-beta.1...@rest-hooks/test@7.0.0-beta.2) (2021-08-21)
+
+
+### 🐛 Bug Fix
+
+* RESET clears inflight fetches ([#1085](https://github.com/coinbase/rest-hooks/issues/1085)) ([02fa0d5](https://github.com/coinbase/rest-hooks/commit/02fa0d527ef138961ba6dc2509648337c01e604d))
+
+
+
 ## [7.0.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.0.0-beta.0...@rest-hooks/test@7.0.0-beta.1) (2021-07-12)
 
 

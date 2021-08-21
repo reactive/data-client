@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0-beta.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.0-beta.2...@rest-hooks/core@2.0.0-beta.3) (2021-08-21)
+
+
+### 💅 Enhancement
+
+* Experimental fetcher resolves before react render ([#1046](https://github.com/coinbase/rest-hooks/issues/1046)) ([1ec90e5](https://github.com/coinbase/rest-hooks/commit/1ec90e5bb8d69bb47a4099a137c0935cd001c4fb))
+* Hide throttled fetches from devtools ([#1083](https://github.com/coinbase/rest-hooks/issues/1083)) ([2f09c22](https://github.com/coinbase/rest-hooks/commit/2f09c227ef9dcc056a4e9f1c76b725aa063964d6))
+* Improve reducer error visibility ([#1084](https://github.com/coinbase/rest-hooks/issues/1084)) ([b69a50d](https://github.com/coinbase/rest-hooks/commit/b69a50d7b3d658c0b4c7f6c198fe8e2a76ec8aa9))
+
+
+### 🐛 Bug Fix
+
+* RESET clears inflight fetches ([#1085](https://github.com/coinbase/rest-hooks/issues/1085)) ([02fa0d5](https://github.com/coinbase/rest-hooks/commit/02fa0d527ef138961ba6dc2509648337c01e604d))
+* useFetchInit() hook calls same amount every render ([#1123](https://github.com/coinbase/rest-hooks/issues/1123)) ([6cd0b7c](https://github.com/coinbase/rest-hooks/commit/6cd0b7cc57de59b5f394942dfa9a3a08d9f2e912))
+
+
+
 ## [2.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.5.3...@rest-hooks/core@2.0.0-beta.2) (2021-07-12)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "rest-hooks",
-  "version": "6.0.0-beta.2",
+  "version": "6.0.0-beta.3",
   "description": "Asynchronous data framework for React",
   "sideEffects": false,
   "main": "dist/index.js",
@@ -103,7 +103,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.2",
-    "@rest-hooks/core": "^2.0.0-beta.2",
+    "@rest-hooks/core": "^2.0.0-beta.3",
     "@rest-hooks/endpoint": "^2.0.0-beta.1"
   },
   "peerDependencies": {

@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@1.0.0-beta.1...@rest-hooks/experimental@1.0.0-beta.2) (2021-08-21)
+
+
+### 🚀 Features
+
+* useController() ([#1048](https://github.com/coinbase/rest-hooks/issues/1048)) ([a485782](https://github.com/coinbase/rest-hooks/commit/a4857820ee37f2be467ab85b477f083f7f3f737c))
+
+
+### 💅 Enhancement
+
+* Experimental fetcher resolves before react render ([#1046](https://github.com/coinbase/rest-hooks/issues/1046)) ([1ec90e5](https://github.com/coinbase/rest-hooks/commit/1ec90e5bb8d69bb47a4099a137c0935cd001c4fb))
+
+
+### 🐛 Bug Fix
+
+* RESET clears inflight fetches ([#1085](https://github.com/coinbase/rest-hooks/issues/1085)) ([02fa0d5](https://github.com/coinbase/rest-hooks/commit/02fa0d527ef138961ba6dc2509648337c01e604d))
+* useFetchInit() hook calls same amount every render ([#1123](https://github.com/coinbase/rest-hooks/issues/1123)) ([6cd0b7c](https://github.com/coinbase/rest-hooks/commit/6cd0b7cc57de59b5f394942dfa9a3a08d9f2e912))
+
+
+
 ## [1.0.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@1.0.0-beta.0...@rest-hooks/experimental@1.0.0-beta.1) (2021-07-15)
 
 

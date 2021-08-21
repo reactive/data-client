@@ -1,6 +1,6 @@
 {
   "name": "todo-app",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "todo-app - A rest hooks example",
   "scripts": {
     "lint": "eslint src --ext .ts,.tsx",
@@ -30,10 +30,10 @@
     "@linaria/core": "3.0.0-beta.4",
     "@linaria/react": "3.0.0-beta.7",
     "@linaria/shaker": "3.0.0-beta.7",
-    "@rest-hooks/rest": "^3.0.0-beta.0",
+    "@rest-hooks/rest": "^3.0.0-beta.1",
     "@types/react-dom": "17.0.9",
     "react-refresh": "^0.11.0-0",
-    "rest-hooks": "^6.0.0-beta.2",
+    "rest-hooks": "^6.0.0-beta.3",
     "serve": "12.0.0",
     "webpack": "5.51.1",
     "webpack-cli": "4.7.2",
