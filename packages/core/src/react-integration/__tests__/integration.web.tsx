@@ -459,7 +459,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         const params = { id: payload.id };
         mynock.delete('/article-cooler/5').reply(200, '');
 
-        const { result, waitForNextUpdate } = renderRestHook(
+        const { result } = renderRestHook(
           () => {
             const del = useFetcher(CoolerArticleResource.deleteShape());
             const articles = useCache(CoolerArticleResource.listShape(), {});
@@ -478,7 +478,9 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         expect(result.current.articles).toEqual([
           CoolerArticleResource.fromJS(payload),
         ]);
-        const promise = result.current.del(params);
+        const promise = act(async () => {
+          await result.current.del(params);
+        });
         expect(result.current.articles).toEqual([]);
         await promise;
         expect(result.current.articles).toEqual([]);
