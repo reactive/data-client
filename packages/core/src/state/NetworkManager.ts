@@ -66,7 +66,7 @@ export default class NetworkManager implements Manager {
               return next(action).then(() => {
                 if (action.meta.key in this.fetched) {
                   // Note: meta *must* be set by reducer so this should be safe
-                  const error = this.getState().meta[action.meta.key]?.error;
+                  const error = getState().meta[action.meta.key]?.error;
                   // processing errors result in state meta having error, so we should reject the promise
                   if (error) {
                     this.handleReceive(createReceiveError(error, action.meta));
@@ -97,11 +97,8 @@ export default class NetworkManager implements Manager {
   /** Ensures all promises are completed by rejecting remaining. */
   cleanup() {
     // ensure no dispatches after unmount
-    const state = this.getState();
-    this.getState = () => ({
-      ...state,
-      lastReset: new Date(),
-    });
+    const cleanupDate = new Date();
+    this.getLastReset = () => cleanupDate;
     this.clearAll();
   }
 
@@ -117,6 +114,10 @@ export default class NetworkManager implements Manager {
     delete this.resolvers[key];
     delete this.rejectors[key];
     delete this.fetched[key];
+  }
+
+  protected getLastReset() {
+    return this.getState().lastReset;
   }
 
   /** Called when middleware intercepts 'rest-hooks/fetch' action.
@@ -153,10 +154,10 @@ export default class NetworkManager implements Manager {
       }
       promise = promise
         .then(data => {
-          const { lastReset } = this.getState();
+          const lastReset = this.getLastReset();
 
           // don't update state with promises started before last clear
-          if (!(createdAt < lastReset)) {
+          if (createdAt >= lastReset) {
             // does this throw if the reducer fails?
             dispatch(
               createReceive(data, {
@@ -170,9 +171,9 @@ export default class NetworkManager implements Manager {
           return data;
         })
         .catch(error => {
-          const { lastReset } = this.getState();
+          const lastReset = this.getLastReset();
           // don't update state with promises started before last clear
-          if (!(createdAt < lastReset)) {
+          if (createdAt >= lastReset) {
             dispatch(
               createReceiveError(error, {
                 ...action.meta,

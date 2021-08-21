@@ -173,6 +173,10 @@ describe('resetEntireStore', () => {
       jest.useRealTimers();
     });
 
+    /**
+     * useResource(), useRetrive() will re-issue needed fetches upon reset so they never end up loading infinitely
+     *    this only triggers after commit of reset action so users have a chance to unmount those components if they are no longer relevant (like doing a url redirect from an unauthorized page)
+     */
     it('should refetch useResource() after reset', async () => {
       mynock
         .get(`/article-cooler/${9999}`)
@@ -192,7 +196,9 @@ describe('resetEntireStore', () => {
       act(() => rerender());
       // should not be resolved
       expect(result.current).toBeUndefined();
-      await act(resetEntireStore);
+      act(() => {
+        resetEntireStore();
+      });
       jest.advanceTimersByTime(5000);
       act(() => rerender());
       jest.advanceTimersByTime(5000);
@@ -202,6 +208,66 @@ describe('resetEntireStore', () => {
       expect(result.current.title).toEqual(payload.title);
     });
 
+    /**
+     * upon reset, all inflight requests will not dispatch receives
+     *    promises still reject so external listeners know (abort signals do this as well)
+     */
+    it('should not receive fetches that started before RESET', async () => {
+      const detail: FixtureEndpoint = {
+        endpoint: FutureArticleResource.detail(),
+        args: [9999],
+        response: { ...payload, id: 9999 },
+      };
+      mynock
+        .get(`/article-cooler/${9999}`)
+        //.delay(2000)
+        .reply(200, {
+          ...payload,
+          id: 9999,
+          title: 'latest and greatest title',
+        })
+        .persist();
+
+      let resetEntireStore: any;
+      let fetch: any;
+
+      const { result, rerender } = renderRestHook(
+        () => {
+          // cheating result since useResource will suspend
+          ({ resetEntireStore, fetch } = useController());
+          return useCache(CoolerArticleDetail, { id: 9999 });
+        },
+        { initialFixtures: [detail] },
+      );
+      expect(result.current).toBeDefined();
+      expect(result.current?.title).not.toEqual('latest and greatest title');
+      fetch(CoolerArticleDetail, { id: 9999 });
+      jest.advanceTimersByTime(1000);
+      act(() => rerender());
+      // should not be resolved
+      expect(result.current?.title).not.toEqual('latest and greatest title');
+      act(() => {
+        resetEntireStore();
+      });
+
+      jest.advanceTimersByTime(5000);
+      act(() => rerender());
+      jest.advanceTimersByTime(5000);
+      jest.runAllTimers();
+      jest.runAllTicks();
+
+      // TODO: Figure out a way to wait until fetch chain resolution instead of waiting on time
+      jest.useRealTimers();
+      await act(() => new Promise(resolve => setTimeout(resolve, 100)));
+
+      // should still not be resolved
+      expect(result.current?.title).not.toEqual('latest and greatest title');
+    });
+
+    /**
+     * unmounting CacheProvider with inflight requests will not attempt to dispatch after unmount causing react error
+     *    promises are neither resolved nor rejected
+     */
     it('should not dispatch resolutions after CacheProvider unmounts', async () => {
       mynock
         .get(`/article-cooler/${9999}`)
@@ -209,6 +275,7 @@ describe('resetEntireStore', () => {
           return { ...payload, id: 9999 };
         })
         .persist();
+      jest.useRealTimers();
 
       const { unmount, result } = renderRestHook(() => {
         return useRetrieve(CoolerArticleDetail, { id: 9999 });
@@ -217,8 +284,7 @@ describe('resetEntireStore', () => {
       expect(result.current.resolved).toBe(undefined);
       const consoleSpy = jest.spyOn(console, 'error');
       act(() => unmount());
-      jest.advanceTimersByTime(5000);
-      jest.useRealTimers();
+
       // TODO: Figure out a way to wait until fetch chain resolution instead of waiting on time
       await act(() => new Promise(resolve => setTimeout(resolve, 100)));
 
