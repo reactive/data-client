@@ -73,7 +73,7 @@ jobs:
           at: ~/
       - run:
           command: |
-            yarn add -W --dev react@^18.0.0-0 react-dom@^18.0.0-0 react-test-renderer@^18.0.0-0
+            yarn add -W --dev react@next react-dom@next react-test-renderer@next
       - run:
           command: |
             if [ "$COVERALLS_REPO_TOKEN" != "" ]; then yarn run test:coverage --maxWorkers=4 --coverageReporters=text-lcov | yarn run coveralls; fi
@@ -112,7 +112,7 @@ workflows:
       - unit_tests:
           matrix:
             parameters:
-              react-version: ["^17.0.0", "^18.0.0-0"]
+              react-version: ["^17.0.0", "next"]
           requires:
             - setup
       - test_coverage:
