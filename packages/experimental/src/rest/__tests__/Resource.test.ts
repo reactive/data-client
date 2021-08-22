@@ -190,4 +190,16 @@ describe('Resource', () => {
     });
     expect(result.current.article).toEqual({ ...secondResponse, extra: 'hi' });
   });
+
+  it('delete() should fallback to params when response is empty object', async () => {
+    mynock.delete(`/article-paginated/500`).reply(200, {});
+    const res = await PaginatedArticleResource.delete()({ id: 500 });
+    expect(res).toEqual({ id: 500 });
+  });
+
+  it('delete() should fallback to params when response is undefined', async () => {
+    mynock.delete(`/article-paginated/500`).reply(204, undefined);
+    const res = await PaginatedArticleResource.delete()({ id: 500 });
+    expect(res).toEqual({ id: 500 });
+  });
 });

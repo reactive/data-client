@@ -137,7 +137,7 @@ export default abstract class Resource extends BaseResource {
         fetch(this: RestEndpoint, params: any) {
           return endpoint.fetch
             .call(this, params)
-            .then(res => (res ? res : params));
+            .then(res => (res && Object.keys(res).length ? res : params));
         },
         method: 'DELETE',
         schema: new schema.Delete(this),
