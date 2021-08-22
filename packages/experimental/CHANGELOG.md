@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@1.0.0-beta.2...@rest-hooks/experimental@1.0.0-beta.3) (2021-08-22)
+
+
+### 💅 Enhancement
+
+* Resource.delete() handles empty object response ([#1131](https://github.com/coinbase/rest-hooks/issues/1131)) ([450127a](https://github.com/coinbase/rest-hooks/commit/450127a256d9e2d4fa20b7bd38768681c5f5412e))
+
+
+### 🐛 Bug Fix
+
+* Cannot update a component while rendering a different component ([#1130](https://github.com/coinbase/rest-hooks/issues/1130)) ([0003388](https://github.com/coinbase/rest-hooks/commit/00033882ec88338b94bd78c8a7a5ad2954af40d6))
+
+
+
 ## [1.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@1.0.0-beta.1...@rest-hooks/experimental@1.0.0-beta.2) (2021-08-21)
 
 

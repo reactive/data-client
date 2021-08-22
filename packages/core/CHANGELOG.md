@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0-beta.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.0-beta.3...@rest-hooks/core@2.0.0-beta.4) (2021-08-22)
+
+
+### 🐛 Bug Fix
+
+* Cannot update a component while rendering a different component ([#1130](https://github.com/coinbase/rest-hooks/issues/1130)) ([0003388](https://github.com/coinbase/rest-hooks/commit/00033882ec88338b94bd78c8a7a5ad2954af40d6))
+
+
+
 ## [2.0.0-beta.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.0-beta.2...@rest-hooks/core@2.0.0-beta.3) (2021-08-21)
 
 

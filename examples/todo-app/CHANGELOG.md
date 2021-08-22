@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.1.2](https://github.com/coinbase/rest-hooks/compare/todo-app@0.1.1...todo-app@0.1.2) (2021-08-22)
+
+
+### 📦 Package
+
+* Bump anansi - compat with webpack-dev-server@4 ([#1133](https://github.com/coinbase/rest-hooks/issues/1133)) ([474aae6](https://github.com/coinbase/rest-hooks/commit/474aae607351f045b1284ba7f1d7c80a08933314))
+* Latest react 18 prerelease ([#1132](https://github.com/coinbase/rest-hooks/issues/1132)) ([4865557](https://github.com/coinbase/rest-hooks/commit/48655577418e68803873734f77b95c36fbf216ad))
+
+
+
 ### [0.1.1](https://github.com/coinbase/rest-hooks/compare/todo-app@0.1.0...todo-app@0.1.1) (2021-08-21)
 
 
