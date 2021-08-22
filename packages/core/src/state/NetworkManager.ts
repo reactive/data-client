@@ -60,7 +60,14 @@ export default class NetworkManager implements Manager {
               if (process.env.NODE_ENV !== 'production') {
                 action.meta.nm = true;
               }
-              return next(action);
+              // prevent "Cannot update a component (`CacheProvider`) while rendering a different component"
+              // schedule next as a macro-task
+              // TODO: is there a cleaner way to run other middlewares but not hit reducer so we don't need to schedule this?
+              return action.meta.throttle
+                ? new Promise(resolve =>
+                    setTimeout(() => next(action).then(resolve), 0),
+                  )
+                : next(action);
             case RECEIVE_TYPE:
               // only receive after new state is computed
               return next(action).then(() => {
