@@ -178,6 +178,8 @@ describe('resetEntireStore', () => {
      *    this only triggers after commit of reset action so users have a chance to unmount those components if they are no longer relevant (like doing a url redirect from an unauthorized page)
      */
     it('should refetch useResource() after reset', async () => {
+      const consoleSpy = jest.spyOn(console, 'error');
+
       mynock
         .get(`/article-cooler/${9999}`)
         .delay(2000)
@@ -199,13 +201,18 @@ describe('resetEntireStore', () => {
       act(() => {
         resetEntireStore();
       });
-      jest.advanceTimersByTime(5000);
+      act(() => {
+        jest.advanceTimersByTime(5000);
+      });
       act(() => rerender());
       jest.advanceTimersByTime(5000);
-
       await waitForNextUpdate();
+
       expect(result.current).toBeDefined();
       expect(result.current.title).toEqual(payload.title);
+
+      // ensure it doesn't try to setstate during render (dispatching during fetch - which is called from memo)
+      expect(consoleSpy.mock.calls.length).toBeLessThan(1);
     });
 
     /**
