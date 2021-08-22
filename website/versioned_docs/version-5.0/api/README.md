@@ -36,7 +36,7 @@ SimpleResource
 - [ExternalCacheProvider](ExternalCacheProvider.md)
 - [NetworkErrorBoundary](NetworkErrorBoundary.md)
 
-## [Manager](Manager.md)s
+## [Managers](Manager.md)
 
 Extended the networking/state layer works through [managers](Manager.md).
 

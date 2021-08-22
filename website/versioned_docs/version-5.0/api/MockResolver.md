@@ -7,10 +7,10 @@ original_id: MockResolver
 ```typescript
 function MockResolver({
   children,
-  results,
+  fixtures,
 }: {
   children: React.ReactNode;
-  results: Fixture[];
+  fixtures: Fixture[];
 }): JSX.Element;
 ```
 
@@ -23,21 +23,44 @@ This is useful for [storybook](../guides/storybook.md) as well as component test
 ### fixtures
 
 ```typescript
+export interface SuccessFixtureEndpoint<
+  E extends EndpointInterface = EndpointInterface,
+> {
+  endpoint: E;
+  args: Parameters<E>;
+  response: ResolveType<E>;
+  error?: false;
+}
+
+/** @deprecated */
 export interface SuccessFixture {
-  request: ReadShape<Schema, object>;
-  params: object;
+  request: FetchShape<Schema, any>;
+  params?: any;
+  body?: any;
   result: object | string | number;
   error?: false;
 }
 
+export interface ErrorFixtureEndpoint<
+  E extends EndpointInterface = EndpointInterface,
+> {
+  endpoint: E;
+  args: Parameters<E>;
+  response: any;
+  error: true;
+}
+
+/** @deprecated */
 export interface ErrorFixture {
-  request: ReadShape<Schema, object>;
-  params: object;
+  request: FetchShape<Schema, any>;
+  params?: any;
+  body?: any;
   result: Error;
   error: true;
 }
 
-export type Fixture = SuccessFixture | ErrorFixture;
+export type FixtureEndpoint = SuccessFixtureEndpoint | ErrorFixtureEndpoint;
+export type Fixture = SuccessFixture | ErrorFixture | FixtureEndpoint;
 ```
 
 This prop specifies the fixtures to use data from. Each item represents a fetch defined by the
@@ -61,9 +84,9 @@ import MyComponentToTest from 'components/MyComponentToTest';
 
 const results = [
   {
-    request: ArticleResource.list(),
-    params: { maxResults: 10 },
-    result: [
+    endpoint: ArticleResource.list(),
+    args: [{ maxResults: 10 }] as const,
+    response: [
       {
         id: 5,
         content: 'have a merry christmas',

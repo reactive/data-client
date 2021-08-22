@@ -41,8 +41,11 @@ type RenderRestHookFunction = {
     callback: (props: P) => R,
     options?: {
       initialProps?: P;
-      results?: Fixture[];
+      initialFixtures?: FixtureEndpoint[];
+      resolverFixtures?: FixtureEndpoint[];
       wrapper?: React.ComponentType;
+      // @deprecated
+      results?: Fixture[];
     },
   ): {
     readonly result: {
@@ -66,12 +69,18 @@ to `renderRestHook()` will result in a completely fresh cache state as well as m
 
 Hooks to run inside React. Return value will become available in `result`
 
-#### options.results
+#### options.initialFixtures
 
 Can be used to prime the cache if test expects cache values to already be filled. Takes same
 [array of fixtures as MockResolver](../api/MockResolver#fixtures)
 
 This has the same effect as initializing [<CacheProvider />](../api/CacheProvider) with [mockInitialState()](../api/mockInitialState)
+
+### options.resolverFixtures
+
+These fixtures are used to resolve any new requests. This is most useful for mocking imperative fetches like mutations, but can also allow testing suspending states or transitions.
+
+Wrrks by adding [MockResolver](../api/MockResolver) as a wrapper.
 
 #### options.initialProps
 
