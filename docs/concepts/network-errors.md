@@ -1,7 +1,5 @@
 ---
 title: Dealing with network errors
-id: version-5.0-network-errors
-original_id: network-errors
 ---
 
 When you use the `useResource()` hook, React will suspend rendering while the network
@@ -42,7 +40,7 @@ type and handle network errors there.
 
 Error boundaries provide elegant ways to reduce complexity by handling many
 errors in the react tree in one location. However, if you find yourself wanting to handle
-error state manually you can adapt the [useStatefulResource()](./no-suspense.md) hook.
+error state manually you can adapt the [useStatefulResource()](../guides/no-suspense.md) hook.
 
 ## Errors from Mutates (imperative)
 

@@ -1,14 +1,15 @@
 {
   "docs": {
     "Getting Started": [
+      "getting-started/introduction",
       "getting-started/installation",
-      "getting-started/usage",
-      "guides/loading-state",
-      "guides/network-errors",
-      "guides/fetch-multiple"
+      "getting-started/endpoint",
+      "getting-started/data-dependency",
+      "getting-started/schema"
     ],
-    "Resource Definitions": [
+    "REST / CRUD": [
       "guides/resource-types",
+      "rest/usage",
       {
         "type": "subcategory",
         "label": "Network Interface",
@@ -32,6 +33,10 @@
         "label": "Performance Optimizations",
         "ids": ["guides/nested-response", "guides/rpc"]
       }
+    ],
+    "Concepts": [
+      "concepts/loading-state",
+      "concepts/network-errors"
     ],
     "Advanced": [
       {
@@ -60,6 +65,7 @@
         "type": "subcategory",
         "label": "Performance",
         "ids": [
+          "guides/fetch-multiple",
           "guides/render-as-you-fetch",
           "guides/immediate-updates",
           "guides/optimistic-updates",
