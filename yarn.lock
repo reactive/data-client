@@ -13435,10 +13435,10 @@ react-error-overlay@^6.0.9:
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-6.0.9.tgz#3c743010c9359608c375ecd6bc76f35d93995b0a"
   integrity sha512-nQTTcUu+ATDbrSD1BZHr5kgSD4oF8OFjxun8uAaL8RwPBacGBNPf/yAuVVdx17N8XNzRDMrZ9XcKZHCjPW+9ew==
 
-react-is@18.0.0-alpha-b6ff9ad16-20210820:
-  version "18.0.0-alpha-b6ff9ad16-20210820"
-  resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.0.0-alpha-b6ff9ad16-20210820.tgz#332f7f0009fe1358a3c8d2bad6cf2e688db44693"
-  integrity sha512-4vOCSg6uSDkzjg9Nc8CEXBm2jn8So7ZzxZSWUsIcSJEmjUz8pRJo9ukrP/HVBDO+NzQSxjP48zCz+mHrpNnxDQ==
+react-is@18.0.0-alpha-bd5bf555e-20210823:
+  version "18.0.0-alpha-bd5bf555e-20210823"
+  resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.0.0-alpha-bd5bf555e-20210823.tgz#6580035a8385d4596f6980d89d8a5afdf3755f0c"
+  integrity sha512-348ah/TphsHmg8f6Awi5DbNKyGPznJxUaY0pLKosnXLXwGNSV0kqXdMzlA2gkXLGnWMVb59cdacZ34pcqMqUxA==
 
 "react-is@^16.12.0 || ^17.0.0", react-is@^17.0.1:
   version "17.0.2"
@@ -13505,14 +13505,14 @@ react-shallow-renderer@^16.13.1:
     react-is "^16.12.0 || ^17.0.0"
 
 react-test-renderer@next:
-  version "18.0.0-alpha-b6ff9ad16-20210820"
-  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-18.0.0-alpha-b6ff9ad16-20210820.tgz#aed7ca6d91a58684cbecd8cdd56c4dab3615e1f2"
-  integrity sha512-P77+oaRYKrK7xcG3XZqpkJuoqskWxLRSWL4tzymbSPs5o/l9BDpp+jMhLbqqF6qujJ/7zByGtLdeCIdEN8n4ow==
+  version "18.0.0-alpha-bd5bf555e-20210823"
+  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-18.0.0-alpha-bd5bf555e-20210823.tgz#2d62937a558c91416cf83ad3445970254a0fd58c"
+  integrity sha512-o8asvOPT06r/eZ9a3pEQfuJtLK9dwUVlz8ACQl9GIzgmpqqqVwYghmpDIQ5thnFmO9Yw0volLGjLxxtP9BRX2A==
   dependencies:
     object-assign "^4.1.1"
-    react-is "18.0.0-alpha-b6ff9ad16-20210820"
+    react-is "18.0.0-alpha-bd5bf555e-20210823"
     react-shallow-renderer "^16.13.1"
-    scheduler "0.21.0-alpha-b6ff9ad16-20210820"
+    scheduler "0.21.0-alpha-bd5bf555e-20210823"
 
 react@next:
   version "18.0.0-alpha-b6ff9ad16-20210820"
@@ -14253,6 +14253,14 @@ scheduler@0.21.0-alpha-b6ff9ad16-20210820:
   version "0.21.0-alpha-b6ff9ad16-20210820"
   resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.21.0-alpha-b6ff9ad16-20210820.tgz#acf746492c65f6b863d798266696f6db5b8a59fd"
   integrity sha512-twUEzcrn3i6XNQ4Na26+VVQDBMpjCziidVbVUsadk/ZxQGPIYDFUgms0xlK08/63D8KiAmusOmGe9fh+xfB0sw==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+
+scheduler@0.21.0-alpha-bd5bf555e-20210823:
+  version "0.21.0-alpha-bd5bf555e-20210823"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.21.0-alpha-bd5bf555e-20210823.tgz#c944924300699654508782bacdd3c2b847881228"
+  integrity sha512-+qSCaypT3k+MJH6XtUDXdGGaloMORoHw+h6fG9Crx+ZeLDNDwmFBj3PmRh/q5Qtz3+W/WHKhQM0nUe0bH0WhSw==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
