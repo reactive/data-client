@@ -1957,6 +1957,7 @@
 
 "@lerna/conventional-commits@4.0.0", "@lerna/conventional-commits@https://github.com/ntucker/lerna-conventional-commits.git":
   version "3.16.4"
+  uid "4389120475a4f80ac8e4fbe766fa4c9644c6b1c7"
   resolved "https://github.com/ntucker/lerna-conventional-commits.git#4389120475a4f80ac8e4fbe766fa4c9644c6b1c7"
   dependencies:
     "@lerna/validation-error" "^4.0"
@@ -13492,9 +13493,9 @@ react-refresh@^0.4.0:
   integrity sha512-Hwln1VNuGl/6bVwnd0Xdn1e84gT/8T9aYNL+HAKDArLCS7LWjwr7StE30IEYbIkx0Vi3vs+coQxe+SQDbGbbpA==
 
 react-refresh@next:
-  version "0.11.0-alpha-b6ff9ad16-20210820"
-  resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.11.0-alpha-b6ff9ad16-20210820.tgz#9fe8262c37a434aee654768932a8da5b8e9888e6"
-  integrity sha512-tchBqfISYxQ+3yQG60b6JbzZKtA3ppQ/jCAXQKGonzvYGdTPx4umtD5R6MYLZ/9OaQF84OSVPLR+80p+Y4Luog==
+  version "0.11.0-alpha-bd5bf555e-20210823"
+  resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.11.0-alpha-bd5bf555e-20210823.tgz#1c0753124db37e54196a784c96c4cdef629162c3"
+  integrity sha512-JwPPnfYFH1sHmaMd0HSWLwp35A2hJ8HY5YKuD4BWxgrgxgg5r0ONeyyKP6pq8JdR2C8YUuPbYGnR/IrDONPKgg==
 
 react-shallow-renderer@^16.13.1:
   version "16.14.1"
