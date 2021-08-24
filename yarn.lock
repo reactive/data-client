@@ -13515,9 +13515,9 @@ react-test-renderer@next:
     scheduler "0.21.0-alpha-b6ff9ad16-20210820"
 
 react@next:
-  version "18.0.0-alpha-b6ff9ad16-20210820"
-  resolved "https://registry.yarnpkg.com/react/-/react-18.0.0-alpha-b6ff9ad16-20210820.tgz#5a88c5da916d3400d215f9cd1e18f3244bde527d"
-  integrity sha512-AmPpBOUx4jM8caT7WtCnlVirGVSPkEzyrZyqY4ShLsx5mGPRAU20Y3IWMnEIM2OqldHIxWtzs4XXrVtfjTU3mg==
+  version "18.0.0-alpha-bd5bf555e-20210823"
+  resolved "https://registry.yarnpkg.com/react/-/react-18.0.0-alpha-bd5bf555e-20210823.tgz#deb2304184a276ca8a13310ea497e057e617bcb1"
+  integrity sha512-br63l0zy59xKWHq30TDdWjB2SuuUikSh9URfirMxVuLV/E7gfeg1PUOxP+hWhXORB6KKFZhDc76aYhB8Foas1A==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
