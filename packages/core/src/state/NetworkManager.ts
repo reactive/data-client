@@ -8,6 +8,7 @@ import {
   ReceiveAction,
   Manager,
   State,
+  ActionTypes,
 } from '@rest-hooks/core/types';
 import {
   RECEIVE_TYPE,
@@ -51,23 +52,13 @@ export default class NetworkManager implements Manager {
           switch (action.type) {
             case FETCH_TYPE:
               this.handleFetch(action, dispatch);
-              // Eliminate throttled fetches from future middlewares + reducer
-              // TODO: Maybe make throttling its own middleware?
-              if (action.meta.throttle && action.key in this.fetched) {
-                return Promise.resolve();
+              // This is the only case that causes any state change
+              // It's important to intercept other fetches as we don't want to trigger reducers during
+              // render - so we need to stop 'readonly' fetches which can be triggered in render
+              if (action.meta.optimisticResponse !== undefined) {
+                return next(action);
               }
-              // helps detect missing NetworkManager when using redux
-              if (process.env.NODE_ENV !== 'production') {
-                action.meta.nm = true;
-              }
-              // prevent "Cannot update a component (`CacheProvider`) while rendering a different component"
-              // schedule next as a macro-task
-              // TODO: is there a cleaner way to run other middlewares but not hit reducer so we don't need to schedule this?
-              return action.meta.throttle
-                ? new Promise(resolve =>
-                    setTimeout(() => next(action).then(resolve), 0),
-                  )
-                : next(action);
+              return Promise.resolve();
             case RECEIVE_TYPE:
               // only receive after new state is computed
               return next(action).then(() => {
@@ -99,6 +90,13 @@ export default class NetworkManager implements Manager {
           }
         };
     };
+  }
+
+  skipLogging(action: ActionTypes) {
+    return (
+      action.type === FETCH_TYPE &&
+      Object.prototype.hasOwnProperty.call(this.fetched, action.meta.key)
+    );
   }
 
   /** Ensures all promises are completed by rejecting remaining. */
@@ -214,7 +212,7 @@ export default class NetworkManager implements Manager {
    */
   protected handleReceive(action: ReceiveAction) {
     // this can still turn out to be untrue since this is async
-    if (action.meta.key in this.fetched) {
+    if (Object.prototype.hasOwnProperty.call(this.fetched, action.meta.key)) {
       let promiseHandler: (value?: any) => void;
       if (action.error) {
         promiseHandler = this.rejectors[action.meta.key];
