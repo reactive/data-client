@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0-beta.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.0-beta.4...@rest-hooks/core@2.0.0-beta.5) (2021-08-25)
+
+
+### 💅 Enhancement
+
+* Back to avoiding reducer for fetch ([#1149](https://github.com/coinbase/rest-hooks/issues/1149)) ([06ae6a4](https://github.com/coinbase/rest-hooks/commit/06ae6a450f65f0344a44e2c8d162b62e7461bfe8))
+
+
+
 ## [2.0.0-beta.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.0-beta.3...@rest-hooks/core@2.0.0-beta.4) (2021-08-22)
 
 
