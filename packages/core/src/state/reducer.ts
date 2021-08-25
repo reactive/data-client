@@ -43,18 +43,18 @@ export default function reducer(
       });
       return state;
     case FETCH_TYPE: {
-      // If 'fetch' action reaches the reducer there are no middlewares installed to handle it
-      /* istanbul ignore next */
-      if (process.env.NODE_ENV !== 'production' && !action.meta.nm) {
-        console.warn(
-          'Fetch appears unhandled - you are likely missing the NetworkManager middleware',
-        );
-        console.warn(
-          'See https://resthooks.io/docs/guides/redux#indextsx for hooking up redux',
-        );
-      }
       const optimisticResponse = action.meta.optimisticResponse;
       if (optimisticResponse === undefined) {
+        // If 'fetch' action reaches the reducer there are no middlewares installed to handle it
+        /* istanbul ignore next */
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn(
+            'Fetch appears unhandled - you are likely missing the NetworkManager middleware',
+          );
+          console.warn(
+            'See https://resthooks.io/docs/guides/redux#indextsx for hooking up redux',
+          );
+        }
         return state;
       }
 
