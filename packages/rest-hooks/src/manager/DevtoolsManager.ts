@@ -5,6 +5,7 @@ import {
   Manager,
   State,
   reducer,
+  ActionTypes,
 } from '@rest-hooks/core';
 
 export type DevToolsConfig = {
@@ -24,6 +25,7 @@ export default class DevToolsManager implements Manager {
     config: DevToolsConfig = {
       name: `Rest Hooks: ${globalThis.document?.title}`,
     },
+    skipLogging?: (action: ActionTypes) => boolean,
   ) {
     /* istanbul ignore next */
     this.devTools =
@@ -39,6 +41,7 @@ export default class DevToolsManager implements Manager {
       }: MiddlewareAPI<R>) => {
         return (next: Dispatch<R>) => (action: React.ReducerAction<R>) => {
           return next(action).then(() => {
+            if (skipLogging?.(action)) return;
             const state = getState();
             this.devTools.send(
               action,

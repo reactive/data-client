@@ -1,4 +1,7 @@
-import { CacheProvider as CoreCacheProvider } from '@rest-hooks/core';
+import {
+  CacheProvider as CoreCacheProvider,
+  NetworkManager,
+} from '@rest-hooks/core';
 import {
   SubscriptionManager,
   PollingSubscription,
@@ -18,14 +21,16 @@ CacheProvider.defaultProps = {
 };
 /* istanbul ignore next */
 if (process.env.NODE_ENV !== 'production') {
-  CacheProvider.defaultProps.managers.unshift(new DevToolsManager());
-  if (CacheProvider.defaultProps.managers.length > 1) {
-    // swap so devtools is right after networkmanager
-    [
-      CacheProvider.defaultProps.managers[1],
-      CacheProvider.defaultProps.managers[0],
-    ] = CacheProvider.defaultProps.managers.slice(0, 2);
-  }
+  const networkManager: NetworkManager | undefined =
+    CacheProvider.defaultProps.managers.find(
+      manager => manager instanceof NetworkManager,
+    ) as any;
+  CacheProvider.defaultProps.managers.unshift(
+    new DevToolsManager(
+      undefined,
+      networkManager && networkManager.skipLogging.bind(networkManager),
+    ),
+  );
 }
 
 export { CacheProvider, ExternalCacheProvider, PromiseifyMiddleware };
