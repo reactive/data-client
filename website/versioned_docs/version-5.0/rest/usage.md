@@ -1,6 +1,7 @@
 ---
-id: usage
+id: version-5.0-usage
 title: Usage
+original_id: usage
 ---
 
 ## Define a Resource
@@ -122,7 +123,7 @@ export default function ArticleList({ sortBy }: { sortBy: string }) {
 
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-[useResource()](../api/useResource.md) guarantees access to data with sufficient [freshness](../api/Endpoint#dataexpirylength-number).
+[useResource()](../api/useresource) guarantees access to data with sufficient [freshness](../api/Endpoint#dataexpirylength-number).
 This means it may issue network calls, and it may [suspend](../guides/loading-state) until the the fetch completes.
 Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
 suspends.

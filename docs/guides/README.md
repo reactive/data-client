@@ -3,8 +3,8 @@ title: Guides
 ---
 
 - 🔰 Basics
-  - [Handling loading state](guides/loading-state.md)
-  - [Dealing with network errors](guides/network-errors.md)
+  - [Handling loading state](getting-started/data-dependency#async-fallbacks-loadingerror)
+  - [Dealing with network errors](getting-started/data-dependency#async-fallbacks-loadingerror)
   - [Fetching multiple resources at once](guides/fetch-multiple.md)
   - [Pagination](guides/pagination.md)
   - [Understanding Immutability](guides/immutability.md)
@@ -15,7 +15,6 @@ title: Guides
   - [Multicolumn primary keys](guides/multi-pk.md)
   - [Transforming data on network load](guides/network-transform.md)
   - [Authentication](guides/auth.md)
-  - [Cross-orgin requests with JSONP](guides/jsonp.md)
   - [Custom networking library](guides/custom-networking.md)
   - [Custom cache lifetime](guides/resource-lifetime.md)
 - 💨 Performance Optimizations (optional)

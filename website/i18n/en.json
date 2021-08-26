@@ -127,17 +127,34 @@
       "api/Values": {
         "title": "Values"
       },
+      "concepts/loading-state": {
+        "title": "Handling loading state"
+      },
+      "concepts/network-errors": {
+        "title": "Dealing with network errors"
+      },
+      "getting-started/data-dependency": {
+        "title": "Colocate Data Dependencies",
+        "sidebar_label": "Data Dependencies"
+      },
       "getting-started/endpoint": {
-        "title": "getting-started/endpoint"
+        "title": "Endpoint"
       },
       "getting-started/installation": {
         "title": "Installation"
       },
+      "getting-started/introduction": {
+        "title": "Introduction"
+      },
+      "getting-started/protocols": {
+        "title": "Protocol Specific Extensions"
+      },
       "getting-started/README": {
         "title": "getting-started/README"
       },
-      "getting-started/usage": {
-        "title": "Usage"
+      "getting-started/schema": {
+        "title": "Schemas and Normalized data",
+        "sidebar_label": "Schema"
       },
       "guides/abort": {
         "title": "Aborting Fetch"
@@ -181,9 +198,6 @@
       "guides/legacy-browser": {
         "title": "Legacy browser support"
       },
-      "guides/loading-state": {
-        "title": "Handling loading state"
-      },
       "guides/mocking-unfinished": {
         "title": "Mocking unfinished endpoints"
       },
@@ -193,9 +207,6 @@
       "guides/nested-response": {
         "title": "Resources with nested structure",
         "sidebar_label": "Nesting related resources (server-side join)"
-      },
-      "guides/network-errors": {
-        "title": "Dealing with network errors"
       },
       "guides/network-transform": {
         "title": "Transforming data on fetch"
@@ -246,6 +257,9 @@
       },
       "README": {
         "title": "README"
+      },
+      "rest/usage": {
+        "title": "Usage"
       },
       "ROADMAP": {
         "title": "ROADMAP"
@@ -987,11 +1001,31 @@
       "version-5.0/api/version-5.0-Values": {
         "title": "Values"
       },
+      "version-5.0/concepts/version-5.0-loading-state": {
+        "title": "Handling loading state"
+      },
+      "version-5.0/concepts/version-5.0-network-errors": {
+        "title": "Dealing with network errors"
+      },
+      "version-5.0/getting-started/version-5.0-data-dependency": {
+        "title": "Colocate Data Dependencies",
+        "sidebar_label": "Data Dependencies"
+      },
+      "version-5.0/getting-started/version-5.0-endpoint": {
+        "title": "Endpoint"
+      },
       "version-5.0/getting-started/version-5.0-installation": {
         "title": "Installation"
       },
-      "version-5.0/getting-started/version-5.0-usage": {
-        "title": "Usage"
+      "version-5.0/getting-started/version-5.0-introduction": {
+        "title": "Introduction"
+      },
+      "version-5.0/getting-started/version-5.0-protocols": {
+        "title": "Protocol Specific Extensions"
+      },
+      "version-5.0/getting-started/version-5.0-schema": {
+        "title": "Schemas and Normalized data",
+        "sidebar_label": "Schema"
       },
       "version-5.0/guides/version-5.0-abort": {
         "title": "Aborting Fetch"
@@ -1031,18 +1065,12 @@
       "version-5.0/guides/version-5.0-legacy-browser": {
         "title": "Legacy browser support"
       },
-      "version-5.0/guides/version-5.0-loading-state": {
-        "title": "Handling loading state"
-      },
       "version-5.0/guides/version-5.0-mocking-unfinished": {
         "title": "Mocking unfinished endpoints"
       },
       "version-5.0/guides/version-5.0-nested-response": {
         "title": "Resources with nested structure",
         "sidebar_label": "Nesting related resources (server-side join)"
-      },
-      "version-5.0/guides/version-5.0-network-errors": {
-        "title": "Dealing with network errors"
       },
       "version-5.0/guides/version-5.0-network-transform": {
         "title": "Transforming data on fetch"
@@ -1055,6 +1083,9 @@
       },
       "version-5.0/guides/version-5.0-pagination": {
         "title": "Pagination"
+      },
+      "version-5.0/guides/version-5.0-README": {
+        "title": "Guides"
       },
       "version-5.0/guides/version-5.0-redux": {
         "title": "Redux integration"
@@ -1084,6 +1115,9 @@
       "version-5.0/guides/version-5.0-url": {
         "title": "URL Patterns"
       },
+      "version-5.0/rest/version-5.0-usage": {
+        "title": "Usage"
+      },
       "version-5.0/upgrade/version-5.0-upgrading-test-to-four": {
         "title": "Upgrading @rest-hooks/test to 4"
       },
@@ -1095,6 +1129,9 @@
       },
       "version-5.0/upgrade/version-5.0-upgrading-to-5": {
         "title": "Upgrading from 4 to 5"
+      },
+      "version-5.0/upgrade/version-5.0-upgrading-to-6": {
+        "title": "Upgrading from 5 to 6"
       }
     },
     "links": {
@@ -1107,10 +1144,12 @@
     },
     "categories": {
       "Getting Started": "Getting Started",
-      "Resource Definitions": "Resource Definitions",
+      "REST / CRUD": "REST / CRUD",
+      "Concepts": "Concepts",
       "Advanced": "Advanced",
       "API": "API",
-      "Upgrade Guide": "Upgrade Guide"
+      "Upgrade Guide": "Upgrade Guide",
+      "Resource Definitions": "Resource Definitions"
     }
   },
   "pages-strings": {
