@@ -26,7 +26,7 @@ export default function Post({ name }: { name: string }) {
 
 ## Sequential
 
-Each [useResource()](../api/useResource.md) call ensures the resource returned is available. That means
+Each [useResource()](../api/useresource) call ensures the resource returned is available. That means
 that until that point it will yield running the rest of the component function
 when it is loading or errored.
 

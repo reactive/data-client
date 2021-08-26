@@ -1,5 +1,7 @@
 ---
 title: Endpoint
+id: version-5.0-endpoint
+original_id: endpoint
 ---
 
 [Endpoints](../api/Endpoint) describe an asynchronous [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/). This includes both runtime behavior as well as (optionally) typing.

@@ -53,7 +53,7 @@ import { Resource } from '@rest-hooks/rest';
 import { useAuth } from 'my-auth-lib';
 
 abstract class AuthdResource extends Resource {
-  static getFetchInit = (init: RequestInit) => {
+  static useFetchInit = (init: RequestInit) => {
     const { session } = useAuth();
     return {
     ...options,

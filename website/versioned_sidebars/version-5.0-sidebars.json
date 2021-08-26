@@ -1,14 +1,15 @@
 {
   "version-5.0-docs": {
     "Getting Started": [
+      "version-5.0-getting-started/introduction",
       "version-5.0-getting-started/installation",
-      "version-5.0-getting-started/usage",
-      "version-5.0-guides/loading-state",
-      "version-5.0-guides/network-errors",
-      "version-5.0-guides/fetch-multiple"
+      "version-5.0-getting-started/endpoint",
+      "version-5.0-getting-started/data-dependency",
+      "version-5.0-getting-started/schema"
     ],
-    "Resource Definitions": [
+    "REST / CRUD": [
       "version-5.0-guides/resource-types",
+      "version-5.0-rest/usage",
       {
         "type": "subcategory",
         "label": "Network Interface",
@@ -38,6 +39,10 @@
           "version-5.0-guides/rpc"
         ]
       }
+    ],
+    "Concepts": [
+      "version-5.0-concepts/loading-state",
+      "version-5.0-concepts/network-errors"
     ],
     "Advanced": [
       {
@@ -70,6 +75,7 @@
         "type": "subcategory",
         "label": "Performance",
         "ids": [
+          "version-5.0-guides/fetch-multiple",
           "version-5.0-guides/render-as-you-fetch",
           "version-5.0-guides/immediate-updates",
           "version-5.0-guides/optimistic-updates",

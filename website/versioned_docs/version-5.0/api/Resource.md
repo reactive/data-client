@@ -235,7 +235,7 @@ new endpoints based to match your API.
 ### detail(): Endpoint
 
 A GET request using standard `url()` that receives a detail body.
-Mostly useful with [useResource](../api/useResource.md)
+Mostly useful with [useResource](../api/useresource)
 
 - Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
 - Compatible with all hooks
@@ -255,7 +255,7 @@ static detail<T extends typeof SimpleResource>(this: T) {
 ### list(): Endpoint
 
 A GET request using `listUrl()` that receives a list of entities.
-Mostly useful with [useResource](../api/useResource.md)
+Mostly useful with [useResource](../api/useresource)
 
 - Uses [listUrl()](#static-listurlsearchparams-readonlyrecordstring-string--string)
 - Compatible with all hooks
@@ -281,7 +281,7 @@ Mostly useful with [useFetcher](../api/useFetcher.md)
 Uses [listUrl()](#static-listurlsearchparams-readonlyrecordstring-string--string)
 
 Not compatible with:
-- [useResource()](../api/useResource.md)
+- [useResource()](../api/useresource)
 - [useRetrieve()](../api/useRetrieve.md)
 
 
@@ -306,7 +306,7 @@ Mostly useful with [useFetcher](../api/useFetcher.md)
 Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
 
 Not compatible with:
-- [useResource()](../api/useResource.md)
+- [useResource()](../api/useresource)
 - [useRetrieve()](../api/useRetrieve.md)
 
 #### Implementation:
@@ -330,7 +330,7 @@ Mostly useful with [useFetcher](../api/useFetcher.md)
 Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
 
 Not compatible with:
-- [useResource()](../api/useResource.md)
+- [useResource()](../api/useresource)
 - [useRetrieve()](../api/useRetrieve.md)
 
 #### Implementation:
@@ -354,7 +354,7 @@ Mostly useful with [useFetcher](../api/useFetcher.md)
 Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
 
 Not compatible with:
-- [useResource()](../api/useResource.md)
+- [useResource()](../api/useresource)
 - [useRetrieve()](../api/useRetrieve.md)
 
 #### Implementation:
