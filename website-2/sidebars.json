@@ -1,0 +1,466 @@
+{
+  "docs": [
+    {
+      "type": "doc",
+      "id": "introduction"
+    },
+    {
+      "type": "category",
+      "collapsed": false,
+      "label": "Getting Started",
+      "items": [
+        {
+          "type": "doc",
+          "id": "getting-started/installation"
+        },
+        {
+          "type": "doc",
+          "id": "getting-started/endpoint"
+        },
+        {
+          "type": "doc",
+          "id": "getting-started/data-dependency"
+        },
+        {
+          "type": "doc",
+          "id": "getting-started/schema"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "REST / CRUD",
+      "items": [
+        {
+          "type": "doc",
+          "id": "guides/resource-types"
+        },
+        {
+          "type": "doc",
+          "id": "rest/usage"
+        },
+        {
+          "type": "category",
+          "collapsible": false,
+          "label": "Network Interface",
+          "items": [
+            {
+              "type": "doc",
+              "id": "guides/url"
+            },
+            {
+              "type": "doc",
+              "id": "guides/extending-endpoints"
+            },
+            {
+              "type": "doc",
+              "id": "guides/rest-types"
+            },
+            {
+              "type": "doc",
+              "id": "guides/pagination"
+            },
+            {
+              "type": "doc",
+              "id": "guides/auth"
+            },
+            {
+              "type": "doc",
+              "id": "guides/network-transform"
+            },
+            {
+              "type": "doc",
+              "id": "guides/mocking-unfinished"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "collapsible": false,
+          "label": "Entity Interface",
+          "items": [
+            {
+              "type": "doc",
+              "id": "guides/computed-properties"
+            },
+            {
+              "type": "doc",
+              "id": "guides/multi-pk"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "collapsible": false,
+          "label": "Performance Optimizations",
+          "items": [
+            {
+              "type": "doc",
+              "id": "guides/nested-response"
+            },
+            {
+              "type": "doc",
+              "id": "guides/rpc"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Concepts",
+      "items": [
+        {
+          "type": "doc",
+          "id": "concepts/loading-state"
+        },
+        {
+          "type": "doc",
+          "id": "concepts/network-errors"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Advanced",
+      "items": [
+        {
+          "type": "category",
+          "collapsible": false,
+          "label": "Resource Definitions",
+          "items": [
+            {
+              "type": "doc",
+              "id": "guides/custom-networking"
+            },
+            {
+              "type": "doc",
+              "id": "guides/resource-lifetime"
+            },
+            {
+              "type": "doc",
+              "id": "guides/binary-fetches"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "collapsible": false,
+          "label": "Components",
+          "items": [
+            {
+              "type": "doc",
+              "id": "guides/infinite-scrolling-pagination"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "collapsible": false,
+          "label": "Testing",
+          "items": [
+            {
+              "type": "doc",
+              "id": "guides/debugging"
+            },
+            {
+              "type": "doc",
+              "id": "guides/storybook"
+            },
+            {
+              "type": "doc",
+              "id": "guides/unit-testing-hooks"
+            },
+            {
+              "type": "doc",
+              "id": "guides/unit-testing-components"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "collapsible": false,
+          "label": "Performance",
+          "items": [
+            {
+              "type": "doc",
+              "id": "guides/fetch-multiple"
+            },
+            {
+              "type": "doc",
+              "id": "guides/render-as-you-fetch"
+            },
+            {
+              "type": "doc",
+              "id": "guides/immediate-updates"
+            },
+            {
+              "type": "doc",
+              "id": "guides/optimistic-updates"
+            },
+            {
+              "type": "doc",
+              "id": "guides/abort"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "collapsible": false,
+          "label": "Integrations",
+          "items": [
+            {
+              "type": "doc",
+              "id": "guides/redux"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "collapsible": false,
+          "label": "Legacy",
+          "items": [
+            {
+              "type": "doc",
+              "id": "guides/class-components"
+            },
+            {
+              "type": "doc",
+              "id": "guides/no-suspense"
+            },
+            {
+              "type": "doc",
+              "id": "guides/legacy-browser"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "API",
+      "items": [
+        {
+          "type": "doc",
+          "id": "api/README"
+        },
+        {
+          "type": "doc",
+          "id": "api/types"
+        },
+        {
+          "type": "category",
+          "label": "Core Hooks",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/useresource"
+            },
+            {
+              "type": "doc",
+              "id": "api/useFetcher"
+            },
+            {
+              "type": "doc",
+              "id": "api/useCache"
+            },
+            {
+              "type": "doc",
+              "id": "api/useSubscription"
+            },
+            {
+              "type": "doc",
+              "id": "api/useRetrieve"
+            },
+            {
+              "type": "doc",
+              "id": "api/useInvalidator"
+            },
+            {
+              "type": "doc",
+              "id": "api/useResetter"
+            },
+            {
+              "type": "doc",
+              "id": "api/useMeta"
+            },
+            {
+              "type": "doc",
+              "id": "api/useError"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Extra Hooks",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/useDebounce"
+            },
+            {
+              "type": "doc",
+              "id": "api/useCancelling"
+            },
+            {
+              "type": "doc",
+              "id": "api/useLoading"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Interface Definitions",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/Endpoint"
+            },
+            {
+              "type": "doc",
+              "id": "api/resource"
+            },
+            {
+              "type": "doc",
+              "id": "api/Index"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Schemas",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/schema"
+            },
+            {
+              "type": "doc",
+              "id": "api/Entity"
+            },
+            {
+              "type": "doc",
+              "id": "api/SimpleRecord"
+            },
+            {
+              "type": "doc",
+              "id": "api/Object"
+            },
+            {
+              "type": "doc",
+              "id": "api/Array"
+            },
+            {
+              "type": "doc",
+              "id": "api/Union"
+            },
+            {
+              "type": "doc",
+              "id": "api/Values"
+            },
+            {
+              "type": "doc",
+              "id": "api/Delete"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Components",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/CacheProvider"
+            },
+            {
+              "type": "doc",
+              "id": "api/ExternalCacheProvider"
+            },
+            {
+              "type": "doc",
+              "id": "api/NetworkErrorBoundary"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Managers",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/Manager"
+            },
+            {
+              "type": "doc",
+              "id": "api/NetworkManager"
+            },
+            {
+              "type": "doc",
+              "id": "api/SubscriptionManager"
+            },
+            {
+              "type": "doc",
+              "id": "api/PollingSubscription"
+            },
+            {
+              "type": "doc",
+              "id": "api/DevToolsManager"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Testing",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/MockResolver"
+            },
+            {
+              "type": "doc",
+              "id": "api/makeRenderRestHook"
+            },
+            {
+              "type": "doc",
+              "id": "api/makeCacheProvider"
+            },
+            {
+              "type": "doc",
+              "id": "api/makeExternalCacheProvider"
+            },
+            {
+              "type": "doc",
+              "id": "api/mockInitialState"
+            },
+            {
+              "type": "doc",
+              "id": "api/MockProvider"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Upgrade Guide",
+      "items": [
+        {
+          "type": "doc",
+          "id": "upgrade/upgrading-to-5"
+        },
+        {
+          "type": "doc",
+          "id": "upgrade/upgrading-test-to-three"
+        },
+        {
+          "type": "doc",
+          "id": "upgrade/upgrading-test-to-four"
+        },
+        {
+          "type": "doc",
+          "id": "upgrade/upgrading-test-to-six"
+        }
+      ]
+    }
+  ]
+}
