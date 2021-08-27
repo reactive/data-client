@@ -6,6 +6,7 @@ module.exports = {
   baseUrl: '/',
   organizationName: 'coinbase',
   projectName: 'rest-hooks',
+  trailingSlash: false,
   scripts: ['https://buttons.github.io/buttons.js'],
   stylesheets: [
     {
@@ -274,9 +275,6 @@ module.exports = {
     algolia: {
       apiKey: '52e661c10738fd114bcf68d537358c16',
       indexName: 'coinbase-rest-hooks',
-      algoliaOptions: {
-        facetFilters: ['version:VERSION'],
-      },
       contextualSearch: true,
     },
     gtag: {

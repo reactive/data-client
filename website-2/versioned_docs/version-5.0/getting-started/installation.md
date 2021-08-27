@@ -11,7 +11,7 @@ import PkgTabs from '@site/src/components/PkgTabs';
 
 TypeScript is optional, but requires at least version [3.7](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#more-recursive-type-aliases) for full type enforcement.
 
-## Add provider at top-level components
+## Add provider at top-level component
 
 
 <Tabs
@@ -24,7 +24,7 @@ values={[
 ]}>
 <TabItem value="web">
 
-```tsx
+```tsx title="/index.tsx"
 import { CacheProvider } from 'rest-hooks';
 import ReactDOM from 'react-dom';
 
@@ -40,7 +40,7 @@ ReactDOM.render(
 
   <TabItem value="concurrent">
 
-```tsx
+```tsx title="/index.tsx"
 import { CacheProvider } from 'rest-hooks';
 import ReactDOM from 'react-dom';
 
@@ -55,7 +55,7 @@ ReactDOM.createRoot(document.body).render(
 
   <TabItem value="native">
 
-```tsx
+```tsx title="/index.tsx"
 import { CacheProvider } from 'rest-hooks';
 import { AppRegistry } from 'react-native';
 

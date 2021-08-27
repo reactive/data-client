@@ -2,8 +2,10 @@
 title: Colocate Data Dependencies
 sidebar_label: Data Dependencies
 ---
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import LanguageTabs from '@site/src/components/LanguageTabs';
 
 Colocating data dependencies means we only use data-binding hooks like [useResource()](../api/useresource)
 in components where we display/use their data directly.
@@ -16,13 +18,13 @@ values={[
 ]}>
 <TabItem value="Single">
 
-
 ```tsx
 import { useResource } from 'rest-hooks';
 // local directory for API definitions
 import { todoDetail } from 'endpoints/todo';
 
 export default function TodoDetail({ id }: { id: number }) {
+  // highlight-next-line
   const todo = useResource(todoDetail, { id });
   return <div>{todo.title}</div>;
 }
@@ -37,6 +39,7 @@ import { useResource } from 'rest-hooks';
 import { todoList } from 'endpoints/todo';
 
 export default function TodoList() {
+  // highlight-next-line
   const todos = useResource(todoList, {});
   return (
     <section>
@@ -61,7 +64,7 @@ suspends.
   - (For example: navigating to a detail page with a single entry from a list view will instantly show the same data as the list without
     requiring a refetch.)
 
-## Async Fallbacks (loading/error)
+## Async Fallbacks (loading/error) {#async-fallbacks}
 
 This works great if the client already has the data. But while it's waiting on a response from the server,
 we need some kind of loading indication. Similarly if there is an error in the fetch, we should indicate such.
@@ -74,27 +77,71 @@ In React 18, the best way to achieve this is with boundaries. ([React 16.3+ supp
 are wrapper components which show fallback [elements](https://reactjs.org/docs/rendering-elements.html)
 when any component rendered as a descendent is loading or errored while loading their data dependency.
 
-```tsx
-import { Suspense } from 'react';
+<LanguageTabs>
+
+```tsx {6,12,23-25}
+import React, { Suspense } from 'react';
 import { NetworkErrorBoundary } from 'rest-hooks';
 
 export default function TodoPage({ id }: { id: number }) {
   return (
-    <Suspense fallback="loading">
-      <NetworkErrorBoundary>
-        <section>
-          <TodoDetail id={1} />
-          <TodoDetail id={5} />
-          <TodoDetail id={10} />
-        </section>
-      </NetworkErrorBoundary>
+    <AsyncBoundary>
+      <section>
+        <TodoDetail id={1} />
+        <TodoDetail id={5} />
+        <TodoDetail id={10} />
+      </section>
+    </AsyncBoundary>
+  );
+}
+
+interface Props {
+  fallback: React.ReactElement;
+  children: React.ReactNode;
+}
+
+function AsyncBoundary({ children, fallback = 'loading' }: Props) {
+  return (
+    <Suspense fallback={fallback}>
+      <NetworkErrorBoundary>{children}</NetworkErrorBoundary>
     </Suspense>
   );
 }
 ```
 
-> This greatly simplifies complex orchestrations of data dependencies by decoupling where to show fallbacks
-> from the components using the data.
+```jsx {6,12,18-20}
+import React, { Suspense } from 'react';
+import { NetworkErrorBoundary } from 'rest-hooks';
+
+export default function TodoPage({ id }: { id: number }) {
+  return (
+    <AsyncBoundary>
+      <section>
+        <TodoDetail id={1} />
+        <TodoDetail id={5} />
+        <TodoDetail id={10} />
+      </section>
+    </AsyncBoundary>
+  );
+}
+
+function AsyncBoundary({ children, fallback = 'loading' }: Props) {
+  return (
+    <Suspense fallback={fallback}>
+      <NetworkErrorBoundary>{children}</NetworkErrorBoundary>
+    </Suspense>
+  );
+}
+```
+
+</LanguageTabs>
+
+:::note
+
+This greatly simplifies complex orchestrations of data dependencies by decoupling where to show fallbacks
+from the components using the data.
+
+:::
 
 For instance, here we have three different components requesting different todo data. These will all loading in
 parallel and only show one loading indicator instead of filling the screen with them. Although this case

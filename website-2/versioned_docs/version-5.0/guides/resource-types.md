@@ -14,6 +14,8 @@ Here we have an example [Resource](../api/Resource.md) for a User typed in types
 <LanguageTabs>
 
 ```typescript
+import { Resource } from '@rest-hooks/rest';
+
 export interface Address {
   readonly street: string;
   readonly suite: string;
@@ -45,6 +47,8 @@ export class UserResource extends Resource {
 ```
 
 ```js
+import { Resource } from '@rest-hooks/rest';
+
 export class UserResource extends Resource {
   id = undefined;
   name = '';

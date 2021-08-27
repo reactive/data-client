@@ -24,7 +24,7 @@ values={[
 ]}>
 <TabItem value="web">
 
-```tsx
+```tsx title="/index.tsx"
 import { CacheProvider } from 'rest-hooks';
 import ReactDOM from 'react-dom';
 
@@ -40,7 +40,7 @@ ReactDOM.render(
 
   <TabItem value="concurrent">
 
-```tsx
+```tsx title="/index.tsx"
 import { CacheProvider } from 'rest-hooks';
 import ReactDOM from 'react-dom';
 
@@ -55,7 +55,7 @@ ReactDOM.createRoot(document.body).render(
 
   <TabItem value="native">
 
-```tsx
+```tsx title="/index.tsx"
 import { CacheProvider } from 'rest-hooks';
 import { AppRegistry } from 'react-native';
 

@@ -10,8 +10,13 @@ and is used in the [NetworkManager](../api/NetworkManager).
 `SimpleResource` can be used as an abstract class to implement custom fetch methods
 without including the default.
 
-> Note: If you plan on using [NetworkErrorBoundary](../api/NetworkErrorBoundary) make sure
-> to add a `status` member to errors, as it catches only errors with a `status` member.
+
+:::caution
+
+If you plan on using [NetworkErrorBoundary](../api/NetworkErrorBoundary) make sure
+to add a `status` member to errors, as it catches only errors with a `status` member.
+
+:::
 
 ## Fetch (default)
 
