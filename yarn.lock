@@ -13512,9 +13512,9 @@ react-refresh@^0.4.0:
   integrity sha512-Hwln1VNuGl/6bVwnd0Xdn1e84gT/8T9aYNL+HAKDArLCS7LWjwr7StE30IEYbIkx0Vi3vs+coQxe+SQDbGbbpA==
 
 react-refresh@next:
-  version "0.11.0-alpha-b9964684b-20210824"
-  resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.11.0-alpha-b9964684b-20210824.tgz#de85eabb95e63576aa4d8ef441425c04d6e2da44"
-  integrity sha512-HjouxRJXsHl/hV9Z0ypXr1clR8Xq7j85CCo0t0TV9b1jQjEpFaXiBeky9e86WAoMGGOHd8OtJDqk1TPiaSYz/g==
+  version "0.11.0-alpha-2bf2e76d3-20210826"
+  resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.11.0-alpha-2bf2e76d3-20210826.tgz#da14913be1d2bfbdf4d1ccd7847b2b8624e2db8e"
+  integrity sha512-Ucv2MmViOC06zYw7gxv2q+ttzV74mselHKJ6J88hJ5Hd6AUA06ZI7Vdi06mp9fDYeAcqJMDl7Sr46vIUHWlCUQ==
 
 react-shallow-renderer@^16.13.1:
   version "16.14.1"
