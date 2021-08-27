@@ -1,13 +1,57 @@
+// eslint-env jest
 import { CoolerArticleResource } from '__tests__/common';
 import { RECEIVE_TYPE } from '@rest-hooks/core/actionTypes';
-import React, { useContext } from 'react';
+import React, { useContext, Suspense } from 'react';
 import { act, render } from '@testing-library/react';
-import { NetworkManager } from '@rest-hooks/core';
+import { NetworkManager, useResource } from '@rest-hooks/core';
 
 import { DispatchContext, StateContext } from '../../context';
 import CacheProvider from '../CacheProvider';
 
 describe('<CacheProvider />', () => {
+  let warnspy: jest.SpyInstance;
+  beforeEach(() => {
+    warnspy = jest.spyOn(global.console, 'warn');
+  });
+  afterEach(() => {
+    warnspy.mockRestore();
+  });
+
+  it('should warn users about missing Suspense', () => {
+    const Component = () => {
+      const article = useResource(CoolerArticleResource.detail(), { id: 5 });
+      return <div>{article.title}</div>;
+    };
+    const tree = (
+      <CacheProvider>
+        <Component />
+      </CacheProvider>
+    );
+    const { getByText } = render(tree);
+    const msg = getByText('Uncaught Suspense.');
+    expect(msg).toBeDefined();
+    expect(warnspy).toHaveBeenCalled();
+    expect(warnspy.mock.calls).toMatchSnapshot();
+  });
+
+  it('should not warn if Suspense is provided', () => {
+    const Component = () => {
+      const article = useResource(CoolerArticleResource.detail(), { id: 5 });
+      return <div>{article.title}</div>;
+    };
+    const tree = (
+      <CacheProvider>
+        <Suspense fallback="loading">
+          <Component />
+        </Suspense>
+      </CacheProvider>
+    );
+    const { getByText } = render(tree);
+    const msg = getByText('loading');
+    expect(msg).toBeDefined();
+    expect(warnspy).not.toHaveBeenCalled();
+  });
+
   it('should not change dispatch function on re-render', () => {
     let dispatch;
     let count = 0;

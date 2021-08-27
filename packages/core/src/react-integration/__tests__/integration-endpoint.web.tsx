@@ -176,14 +176,25 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
       });
     });
 
-    it('should resolve useResource()', async () => {
-      const { result, waitForNextUpdate } = renderRestHook(() => {
-        return useResource(CoolerArticleResource.detail(), payload);
+    describe('renderRestHook()', () => {
+      let warnspy: jest.SpyInstance;
+      beforeEach(() => {
+        warnspy = jest.spyOn(global.console, 'warn');
       });
-      expect(result.current).toBeUndefined();
-      await waitForNextUpdate();
-      expect(result.current instanceof CoolerArticleResource).toBe(true);
-      expect(result.current.title).toBe(payload.title);
+      afterEach(() => {
+        warnspy.mockRestore();
+      });
+
+      it('should resolve useResource()', async () => {
+        const { result, waitForNextUpdate } = renderRestHook(() => {
+          return useResource(CoolerArticleResource.detail(), payload);
+        });
+        expect(result.current).toBeUndefined();
+        await waitForNextUpdate();
+        expect(result.current instanceof CoolerArticleResource).toBe(true);
+        expect(result.current.title).toBe(payload.title);
+        expect(warnspy).not.toHaveBeenCalled();
+      });
     });
 
     it('should denormalize schema.Values()', async () => {

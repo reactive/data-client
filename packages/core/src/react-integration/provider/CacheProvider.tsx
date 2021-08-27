@@ -11,6 +11,7 @@ import {
   DispatchContext,
   DenormalizeCacheContext,
 } from '@rest-hooks/core/react-integration/context';
+import BackupBoundary from '@rest-hooks/core/react-integration/provider/BackupBoundary';
 
 interface ProviderProps {
   children: ReactNode;
@@ -59,7 +60,7 @@ export default function CacheProvider({
     <DispatchContext.Provider value={dispatch}>
       <StateContext.Provider value={optimisticState}>
         <DenormalizeCacheContext.Provider value={denormalizeCache.current}>
-          {children}
+          <BackupBoundary>{children}</BackupBoundary>
         </DenormalizeCacheContext.Provider>
       </StateContext.Provider>
     </DispatchContext.Provider>
