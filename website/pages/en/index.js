@@ -1,3 +1,4 @@
+/* eslint-disable react/prefer-stateless-function */
 /**
  * Copyright (c) 2017-present, Facebook, Inc.
  *
