@@ -61,13 +61,13 @@ by increasing cache hit rates.
 
 ## Methods
 
-### static fromJS\<T extends typeof SimpleRecord\>(this: T, props: Partial\<AbstractInstanceType\<T\>\>): AbstractInstanceType\<T\>
+### static fromJS\<T extends typeof SimpleRecord\>(this: T, props: Partial\<AbstractInstanceType\<T\>\>): AbstractInstanceType\<T\> {#fromJS}
 
 > Inherited from [SimpleRecord](./SimpleRecord)
 
 This is used to create new entities when normalizing data. These are stored in the entities cache.
 
-### abstract pk: (parent?: any, key?: string): string | number | undefined
+### abstract pk: (parent?: any, key?: string): string | number | undefined {#pk}
 
 PK stands for _primary key_ and is intended to provide a standard means of retrieving
 a key identifier for any `Entity`. In many cases there will simply be an 'id' field

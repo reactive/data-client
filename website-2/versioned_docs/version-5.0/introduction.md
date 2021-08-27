@@ -13,7 +13,7 @@ it is not a networking stack for things like minecraft game servers.
 A good way to tell if this could be useful is if you use something similar to **any** of the following to build data-driven applications:
 
 - API protocols like [REST](https://restfulapi.net/), [GraphQL](https://graphql.org/), [gRPC](https://grpc.io/), [JSON:API](https://jsonapi.org/)
-- Transport protocols like [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview), [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API), [local](../guides/mocking-unfinished)
+- Transport protocols like [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview), [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API), [local](./guides/mocking-unfinished.md)
 - Async storage engines like [IndexedDb](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API), [AsyncStorage](https://reactnative.dev/docs/asyncstorage)
 
 Rest Hooks focuses on solving the following challenges in a declarative composable manner
@@ -24,13 +24,13 @@ Rest Hooks focuses on solving the following challenges in a declarative composab
 
 ## Endpoint
 
-[Endpoints](./getting-started/endpoint) describe an asynchronous [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/).
+[Endpoints](./getting-started/endpoint.md) describe an asynchronous [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/).
 
 These define both `runtime` behaviors, as well as (optionally) `typing`.
 
 <LanguageTabs>
 
-```typescript
+```typescript {18}
 import { Endpoint } from '@rest-hooks/endpoint';
 
 interface Todo {
@@ -51,7 +51,7 @@ const fetchTodoDetail = ({ id }: Params): Promise<Todo> =>
 const todoDetail = new Endpoint(fetchTodoDetail);
 ```
 
-```js
+```js {8}
 import { Endpoint } from '@rest-hooks/endpoint';
 
 const fetchTodoDetail = ({ id }) =>
@@ -74,7 +74,7 @@ By _decoupling_ endpoint definitions from their usage, we are able to reuse them
 
 ## Colocate data dependencies
 
-Add one-line [data hookup](./getting-started/data-dependency) in the components that need it with [useResource()](../api/useresource)
+Add one-line [data hookup](./getting-started/data-dependency.md) in the components that need it with [useResource()](./api/useResource.md)
 
 ```tsx {4}
 import { useResource } from 'rest-hooks';
@@ -91,9 +91,9 @@ export default function TodoDetail({ id }: { id: number }) {
 
 ## Async Fallbacks with Boundaries
 
-Unify and reuse [loading and error fallbacks](./getting-started/data-dependency#async-fallbacks-loadingerror) with [Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html) and [NetworkErrorBoundary](../api/NetworkErrorBoundary)
+Unify and reuse [loading and error fallbacks](./getting-started/data-dependency.md#async-fallbacks-loadingerror) with [Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html) and [NetworkErrorBoundary](./api/NetworkErrorBoundary.md)
 
-```tsx
+```tsx {6-7,10-11}
 import { Suspense } from 'react';
 import { NetworkErrorBoundary } from 'rest-hooks';
 
@@ -109,7 +109,7 @@ function App() {
 }
 ```
 
-[Non-Suspense fallback handling](./getting-started/data-dependency#stateful)
+[Non-Suspense fallback handling](./getting-started/data-dependency.md#stateful)
 
 ## Mutations
 
@@ -160,7 +160,7 @@ Instead of just calling the `todoUpdate` endpoint with our data, we want to ensu
 **all** colocated usages of the todo being edited are updated. This avoid both the complexity and performance
 problems of attempting to cascade endpoint refreshes.
 
-[useFetcher](../api/useFetcher) enhances our function, integrating the Rest Hooks store.
+[useFetcher](./api/useFetcher.md) enhances our function, integrating the Rest Hooks store.
 
 ```tsx
 import { useFetcher } from 'rest-hooks';
@@ -168,9 +168,10 @@ import { useFetcher } from 'rest-hooks';
 const update = useFetcher(todoUpdate);
 return <ArticleForm onSubmit={data => update({ id }, data)} />;
 ```
-<details><summary><b>Tracking imperative loading/error</b></summary>
 
-[useLoading()](../api/useLoading) enhances async functions by tracking their loading and error states.
+<details><summary><b>Tracking imperative loading/error state</b></summary>
+
+[useLoading()](./api/useLoading.md) enhances async functions by tracking their loading and error states.
 
 ```tsx
 import { useLoading } from '@rest-hooks/hooks';
@@ -185,8 +186,8 @@ so how can Rest Hooks know to update todoDetail with this data?
 
 ### Entities
 
-Adding [Entities](./getting-started/schema#entities) to our endpoint definition tells Rest Hooks
-how to extract and find a given piece of data no matter where it is used. The [pk()](../api/Entity#abstract-pk-parent-any-key-string-string--number--undefined) (primary key)
+Adding [Entities](./getting-started/schema.md#entities) to our endpoint definition tells Rest Hooks
+how to extract and find a given piece of data no matter where it is used. The [pk()](./api/Entity.md#pk) (primary key)
 method is used as a key in a lookup table.
 
 <Tabs
@@ -216,7 +217,7 @@ export class Todo extends Entity {
 </TabItem>
 <TabItem value="todoDetail">
 
-```typescript
+```typescript {13}
 import { Endpoint } from '@rest-hooks/endpoint';
 
 interface Params {
@@ -237,7 +238,7 @@ const todoDetail = new Endpoint(fetchTodoDetail, {
 </TabItem>
 <TabItem value="todoUpdate">
 
-```typescript
+```typescript {14}
 import { Endpoint } from '@rest-hooks/endpoint';
 
 interface Params {
@@ -266,7 +267,7 @@ endpoint with `[Todo]` as its schema. [Schemas](./getting-started/schema) tell R
 the Entities. By placing inside a list, Rest Hooks knows to expect a response
 where each item of the list is the entity specified.
 
-```typescript
+```typescript {7}
 import { Endpoint } from '@rest-hooks/endpoint';
 
 const fetchTodoList = (params: any) =>
@@ -278,11 +279,11 @@ const todoList = new Endpoint(fetchTodoList, {
 });
 ```
 
-[Schemas](./getting-started/schema) also automatically infer and enforce the response type, ensuring
+[Schemas](./getting-started/schema.md) also automatically infer and enforce the response type, ensuring
 the variable `todos` will be typed precisely. If the API responds in another manner
-the hook with throw instead, triggering the `error fallback` specified in [\<NetworkErrorBoundary />](../api/NetworkErrorBoundary)
+the hook with throw instead, triggering the `error fallback` specified in [\<NetworkErrorBoundary />](./api/NetworkErrorBoundary.md)
 
-```tsx
+```tsx {4}
 import { useResource } from 'rest-hooks';
 
 export default function TodoListComponent() {
@@ -306,7 +307,7 @@ as any mutations that occur.
 By using the response of the mutation call to update the Rest Hooks store, we were able to
 keep our components updated automatically and only after one request.
 
-However, after toggling todo.completed, this is just too slow! No worries, [optimisticUpdate](../guides/optimistic-updates) tells
+However, after toggling todo.completed, this is just too slow! No worries, [optimisticUpdate](./guides/optimistic-updates.md) tells
 Rest Hooks what response it _expects_ to receive from the mutation call, Rest Hooks
 can **immediately** update **all** components using the relevant entity.
 
@@ -326,7 +327,7 @@ problems in asynchronous programming.
 
 <details><summary><b>todoUpdate</b></summary>
 
-```typescript
+```typescript {16}
 import { Endpoint } from '@rest-hooks/endpoint';
 
 interface Params {
@@ -360,12 +361,12 @@ that these endpoint definitions share some logic and information. For this reaso
 encourages extracting shared logic among endpoints.
 
 One common pattern is having endpoints Create Read Update Delete (CRUD) for a given resource.
-Using [@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest) ([docs](../guides/resource-types)) simplifies these patterns.
+Using [@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest) ([docs](./guides/resource-types.md)) simplifies these patterns.
 
-Instead of defining an [Entity](../api/Entity), we define a [Resource](../api/resource). `Resource`
+Instead of defining an [Entity](./api/Entity.md), we define a [Resource](./api/Resource.md). `Resource`
 extends from `Entity`, so we still need the `pk()` definiton.
 
-In addition, providing [static urlRoot](../api/resource#static-urlroot-string) enable [6 Endpoints](../api/resource#endpoints)
+In addition, providing [static urlRoot](./api/Resource.md#static-urlroot-string) enable [6 Endpoints](./api/Resource.md#endpoints)
 with easy logic sharing and overrides.
 
 ```typescript
@@ -385,7 +386,7 @@ class TodoResource extends Resource {
 }
 ```
 
-[Introduction to Resource](../guides/resource-types)
+[Introduction to Resource](./guides/resource-types.md)
 
 <details><summary><b>Resource Endpoints</b></summary>
 
@@ -429,7 +430,7 @@ After installing and running your site, a new icon should appear in your locatio
 ![redux-devtools button](/img/redux-devtools.png)
 
 Clicking that will open the inspector, which allows you to observe dispatched actions,
-their effect on the cache state as well as [current cache state](../guides/debugging).
+their effect on the cache state as well as [current cache state](./guides/debugging.md).
 
 ## Demo
 
