@@ -10,7 +10,9 @@ class NetworkError extends Error {
   declare response: Response;
 
   constructor(response: Response) {
-    super(response.statusText);
+    super(
+      response.statusText || `Network response not 'ok': ${response.status}`,
+    );
     this.status = response.status;
     this.response = response;
   }
