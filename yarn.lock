@@ -13435,13 +13435,13 @@ react-devtools-core@^4.6.0:
     ws "^7"
 
 react-dom@next:
-  version "18.0.0-alpha-b9964684b-20210824"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-18.0.0-alpha-b9964684b-20210824.tgz#b1107502c5a451d5de914b8b92605c37af1fecd2"
-  integrity sha512-GQ2aVy16HykICgoCZD4Nl5o7SnX3p9z5ayK9Dtzw14Psn7jO1mSBzpe1/GSICVMdhSk2m54mkqMhV+VJtzQqfw==
+  version "18.0.0-alpha-8723e772b-20210826"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-18.0.0-alpha-8723e772b-20210826.tgz#a5907b0f93d9f28a866edce669eae146e723d03c"
+  integrity sha512-cIS4jDW5Sjc/cKuFdYiriMk/SMwe0e0DEusxiuM8/vDwGv7q6ka18mnFJUj3WS+pmQ3oDXlmfFfwvVrttxpMCA==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
-    scheduler "0.21.0-alpha-b9964684b-20210824"
+    scheduler "0.21.0-alpha-8723e772b-20210826"
 
 react-error-boundary@^3.1.0:
   version "3.1.0"
@@ -14268,6 +14268,14 @@ saxes@^5.0.1:
   integrity sha512-5LBh1Tls8c9xgGjw3QrMwETmTMVk0oFgvrFSvWx62llR2hcEInrKNZ2GZCCuuy2lvWrdl5jhbpeqc5hRYKFOcw==
   dependencies:
     xmlchars "^2.2.0"
+
+scheduler@0.21.0-alpha-8723e772b-20210826:
+  version "0.21.0-alpha-8723e772b-20210826"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.21.0-alpha-8723e772b-20210826.tgz#dcdcca58f581b986d3e114a4b1ce1080f8a2297b"
+  integrity sha512-p4kVi+Wc6onPTMsrL2orrUcIbcM5GMNzbm1HS4u4vb9rZZQp/3qAWO6rSIU1JQIsej7dtIcbo/q8QdI1ezn3bw==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
 
 scheduler@0.21.0-alpha-b9964684b-20210824:
   version "0.21.0-alpha-b9964684b-20210824"
