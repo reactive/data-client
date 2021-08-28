@@ -37,7 +37,7 @@ export default function useLoading<
       let ret;
       try {
         ret = await func(...args);
-      } catch (e) {
+      } catch (e: any) {
         if (onError) onError(e);
         setError(e);
         throw e;

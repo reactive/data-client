@@ -185,7 +185,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
               useResource(FutureArticleResource.detail(), id) ?? null,
               useFetcher(),
             ] as const;
-          } catch (e) {
+          } catch (e: any) {
             if (typeof e.then === 'function') {
               if (e !== throws[throws.length - 1]) {
                 throws.push(e);

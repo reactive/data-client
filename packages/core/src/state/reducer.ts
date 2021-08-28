@@ -1,10 +1,5 @@
 import { normalize } from '@rest-hooks/normalizr';
-import {
-  ActionTypes,
-  State,
-  ReceiveAction,
-  ReceiveMeta,
-} from '@rest-hooks/core/types';
+import { ActionTypes, State, ReceiveAction } from '@rest-hooks/core/types';
 import { createReceive } from '@rest-hooks/core/state/actions/index';
 import {
   RECEIVE_TYPE,
@@ -126,7 +121,7 @@ export default function reducer(
           lastReset: state.lastReset,
         };
         // reducer must update the state, so in case of processing errors we simply compute the results inline
-      } catch (error) {
+      } catch (error: any) {
         error.message = `Error processing ${
           action.meta.key
         }\n\nFull Schema: ${JSON.stringify(
