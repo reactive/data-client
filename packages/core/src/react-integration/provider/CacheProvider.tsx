@@ -6,12 +6,12 @@ import { State, Manager } from '@rest-hooks/core/types';
 import useEnhancedReducer from '@rest-hooks/use-enhanced-reducer';
 import React, { ReactNode, useEffect, useMemo } from 'react';
 import { useRef } from 'react';
-
 import {
   StateContext,
   DispatchContext,
   DenormalizeCacheContext,
-} from '../context';
+} from '@rest-hooks/core/react-integration/context';
+import BackupBoundary from '@rest-hooks/core/react-integration/provider/BackupBoundary';
 
 interface ProviderProps {
   children: ReactNode;
@@ -57,7 +57,7 @@ export default function CacheProvider({
     <DispatchContext.Provider value={dispatch}>
       <StateContext.Provider value={optimisticState}>
         <DenormalizeCacheContext.Provider value={denormalizeCache.current}>
-          {children}
+          <BackupBoundary>{children}</BackupBoundary>
         </DenormalizeCacheContext.Provider>
       </StateContext.Provider>
     </DispatchContext.Provider>

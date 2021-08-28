@@ -1,6 +1,6 @@
 import { State, Manager } from '@rest-hooks/core';
 import { SubscriptionManager } from 'rest-hooks';
-import React from 'react';
+import React, { memo, Suspense } from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import mockInitialState, { Fixture } from '@rest-hooks/test/mockState';
 import {
@@ -31,7 +31,7 @@ export default function makeRenderRestHook(
       initialState,
     );
     const Wrapper = options && options.wrapper;
-    const wrapper: React.ComponentType<any> = Wrapper
+    const ProviderWithWrapper: React.ComponentType<any> = Wrapper
       ? function ProviderWrapped(props: React.PropsWithChildren<P>) {
           return (
             <Provider>
@@ -40,6 +40,16 @@ export default function makeRenderRestHook(
           );
         }
       : Provider;
+
+    const wrapper: React.ComponentType<any> = ({
+      children,
+      ...props
+    }: React.PropsWithChildren<P>) => (
+      <ProviderWithWrapper {...(props as any)}>
+        <Suspense fallback={null}>{children}</Suspense>
+      </ProviderWithWrapper>
+    );
+
     return renderHook(callback, {
       ...options,
       wrapper,
