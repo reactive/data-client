@@ -13,6 +13,10 @@ updates:
       - dependency-type: "development"
     ignore:
       - dependency-name: "whatwg-fetch"
+      - dependency-name: "react"
+      - dependency-name: "react-dom"
+      - dependency-name: "react-test-renderer"
+      - dependency-name: "react-refresh"
     commit-message:
       prefix: "internal(pkg): "
   - package-ecosystem: "npm"
