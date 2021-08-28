@@ -123,6 +123,10 @@ module.exports = {
             to: '/docs/concepts/network-errors',
             from: ['/docs/getting-started/network-errors'],
           },
+          {
+            to: '/docs/getting-started/entity',
+            from: ['/docs/getting-started/schema'],
+          },
         ],
       },
     ],

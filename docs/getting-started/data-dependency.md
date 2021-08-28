@@ -1,5 +1,5 @@
 ---
-title: Colocate Data Dependencies
+title: Co-locate Data Dependencies
 sidebar_label: Data Dependencies
 ---
 
@@ -7,7 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 
-Colocating data dependencies means we only use data-binding hooks like [useResource()](../api/useresource)
+Co-locating data dependencies means we only use data-binding hooks like [useResource()](../api/useresource)
 in components where we display/use their data directly.
 
 <Tabs
@@ -63,6 +63,17 @@ suspends.
 - Data is centralized and normalized guaranteeing consistency across uses, even with different [endpoints](../api/Endpoint).
   - (For example: navigating to a detail page with a single entry from a list view will instantly show the same data as the list without
     requiring a refetch.)
+
+:::tip Conditional Dependencies
+
+Use `null` as the second argument on any rest hooks to indicate "do nothing."
+
+```typescript
+// todo could be undefined if id is undefined
+const todo = useResource(todoDetail, id ? { id } : null);
+```
+
+:::
 
 ## Async Fallbacks (loading/error) {#async-fallbacks}
 

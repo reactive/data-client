@@ -1,17 +1,20 @@
 ---
-title: Schemas and Normalized data
-sidebar_label: Schema
+title: Entity and Data Normalization
+sidebar_label: Entity
 ---
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import LanguageTabs from '@site/src/components/LanguageTabs';
 
-Schemas are a declarative definition of how to [process responses](./schema)
+[Entities](./Entity) have a primary key. This enables easy access via a lookup table.
+This makes it easy to find, update, create, or delete the same data - no matter what
+endpoint it was used in.
 
-- [where](./schema) to expect [Entities](./Entity)
-- Classes to [deserialize fields](../guides/network-transform#deserializing-fields)
+<!--
+<LanguageTabs>
 
-```typescript
-import { Endpoint, Entity } from '@rest-hooks/endpoint';
+```ts
+import { Entity } from '@rest-hooks/endpoint';
 
 class Todo extends Entity {
   readonly id: number = 0;
@@ -23,18 +26,20 @@ class Todo extends Entity {
     return `${this.id}`;
   }
 }
-
-const TodoDetail = new Endpoint(
-    ({ id }) ⇒ fetch(`https://jsonplaceholder.typicode.com/todos/${id}`),
-    { schema: Todo }
-);
 ```
 
-## Entities
+```js
+import { Entity } from '@rest-hooks/endpoint';
 
-[Entities](./Entity) have a primary key. This enables easy access via a lookup table.
-This makes it easy to find, update, create, or delete the same data - no matter what
-endpoint it was used in.
+class Todo extends Entity {
+  pk() {
+    return `${this.id}`;
+  }
+}
+```
+
+</LanguageTabs>
+-->
 
 <Tabs
 defaultValue="State"
@@ -98,7 +103,12 @@ export function PresentationsPage() {
 </TabItem>
 </Tabs>
 
+Using entities expands Rest Hooks' global referential equality guarantee beyond the granularity of
+an entire endpoint response.
+
 ## Mutations and Dynamic Data
+
+Be sure to include *any* data that has changed in your response.
 
 <Tabs
 defaultValue="Create"
@@ -214,3 +224,34 @@ export default function TodoWithDelete({ todo }: { todo: Todo }) {
 </Tabs>
 
 Mutations automatically update the normalized cache, resulting in consistent and fresh data.
+
+
+## Schema
+
+Schemas are a declarative definition of how to [process responses](./schema)
+
+- [where](./schema) to expect [Entities](../api/Entity.md)
+- Classes to [deserialize fields](../guides/network-transform#deserializing-fields)
+
+```typescript
+import { Endpoint, Entity } from '@rest-hooks/endpoint';
+
+class Todo extends Entity {
+  readonly id: number = 0;
+  readonly userId: number = 0;
+  readonly title: string = '';
+  readonly completed: boolean = false;
+
+  pk() {
+    return `${this.id}`;
+  }
+}
+
+const TodoDetail = new Endpoint(
+    ({ id }) ⇒ fetch(`https://jsonplaceholder.typicode.com/todos/${id}`),
+    { schema: Todo }
+);
+```
+
+
+<!-- nesting -->
