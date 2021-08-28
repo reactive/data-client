@@ -19,7 +19,7 @@ A good way to tell if this could be useful is if you use something similar to **
 Rest Hooks focuses on solving the following challenges in a declarative composable manner
 
 - **Asynchronous** behavior and race conditions
-- Dynamic (changing) data **consistency and integrity**
+- <abbr title="changing">Dynamic</abbr> data **consistency and integrity**
 - High **performance** at scale
 
 ## Endpoint
@@ -420,17 +420,15 @@ del({ id: 5 });
 
 ## Debugging
 
+<img src={require('@site/static/img/redux-devtools-logo.jpg').default} width="75" height="75" alt="redux-devtools" style={{ float: 'left', "margin-right": "var(--ifm-paragraph-margin-bottom)" }} />
+
 Add the Redux DevTools for
 [chrome extension](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
 or
 [firefox extension](https://addons.mozilla.org/en-US/firefox/addon/reduxdevtools/)
 
-After installing and running your site, a new icon should appear in your location bar
-
-![redux-devtools button](/img/redux-devtools.png)
-
-Clicking that will open the inspector, which allows you to observe dispatched actions,
-their effect on the cache state as well as [current cache state](./guides/debugging.md).
+Click the icon to open the [inspector](./guides/debugging.md), which allows you to observe dispatched actions,
+their effect on the cache state as well as current cache state.
 
 ## Demo
 

@@ -7,12 +7,12 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
-Dynamic data at scale. Performance, consistency, typing for REST, proto, GraphQL, websockets and more.
+Asynchronous dynamic data at scale. Performance, data integrity, and typing for REST, proto, GraphQL, websockets and more.
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io)** &nbsp;|&nbsp; [🏁Getting Started](https://resthooks.io/docs/getting-started/installation) &nbsp;|&nbsp;
-[🎮Demo](https://github.com/Rest-Hooks/todo-example)
+**[📖Read The Docs](https://resthooks.io/docs)** &nbsp;|&nbsp; [🏁Getting Started](https://resthooks.io/docs/getting-started/installation) &nbsp;|&nbsp;
+[🎮Demo](https://github.com/coinbase/rest-hooks/tree/master/examples/todo-app)
 
 </div>
 
@@ -64,8 +64,9 @@ For the small price of 8kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 
 - [x] ![TS](./packages/rest-hooks/typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) types
 - [x] 🛌 React [Suspense](https://resthooks.io/docs/guides/loading-state) support
-- [x] ⛓️ React [Concurrent mode](https://reactjs.org/docs/concurrent-mode-patterns.html) compatible
-- [x] 🎣 Simple declarative API
+- [x] 🧵 React 18 [Concurrent mode](https://reactjs.org/docs/concurrent-mode-patterns.html) compatible
+- [x] 🎣 [Declarative API](https://resthooks.io/docs/getting-started/data-dependency)
+- [x] 📝 Composition over configuration
 - [x] 💰 Normalized response [configurable](https://resthooks.io/docs/guides/resource-lifetime) caching
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination

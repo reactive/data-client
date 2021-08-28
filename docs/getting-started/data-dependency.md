@@ -70,7 +70,7 @@ This works great if the client already has the data. But while it's waiting on a
 we need some kind of loading indication. Similarly if there is an error in the fetch, we should indicate such.
 These are called 'fallbacks'.
 
-### Boundaries (Suspense/NetworkErrorBoundary)
+### Boundaries (Suspense/NetworkErrorBoundary) {#boundaries}
 
 In React 18, the best way to achieve this is with boundaries. ([React 16.3+ supported](#stateful), but less powerful.)
 `<Suspense />` and `<NetworkErrorBoundary />`
