@@ -166,7 +166,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
             }),
             useFetcher(CoolerArticleResource.deleteShape()),
           ] as const;
-        } catch (e) {
+        } catch (e: any) {
           if (typeof e.then === 'function') {
             if (e !== throws[throws.length - 1]) {
               throws.push(e);
@@ -217,7 +217,7 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
             }),
             useInvalidator(CoolerArticleResource.detailShape()),
           ] as const;
-        } catch (e) {
+        } catch (e: any) {
           if (typeof e.then === 'function') {
             if (e !== throws[throws.length - 1]) {
               throws.push(e);

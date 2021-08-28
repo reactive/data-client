@@ -182,7 +182,7 @@ describe('useResource()', () => {
           [UserResource.list(), {}],
         );
         return article;
-      } catch (e) {
+      } catch (e: any) {
         // TODO: we're not handling suspense properly so react complains
         // When upgrading test util we should be able to fix this as we'll suspense ourselves.
         if (typeof e.then === 'function') {
