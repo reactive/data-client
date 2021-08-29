@@ -182,3 +182,70 @@ export default function TodoDetail({ id }: { id: number }) {
 ```
 
 Read more about [useStatefulResource](../guides/no-suspense)
+
+## Subscriptions
+
+When data is likely to change due to external factor; [useSubscription()](../api/useSubscription.md)
+ensures continual updates while a component is mounted.
+
+<Tabs
+defaultValue="Single"
+values={[
+{ label: 'Single', value: 'Single' },
+{ label: 'List', value: 'List' },
+]}>
+<TabItem value="Single">
+
+```tsx
+import { useResource } from 'rest-hooks';
+// local directory for API definitions
+import { todoDetail } from 'endpoints/todo';
+
+export default function TodoDetail({ id }: { id: number }) {
+  const todo = useResource(todoDetail, { id });
+  // highlight-next-line
+  useSubscription(todoDetail, { id });
+  return <div>{todo.title}</div>;
+}
+```
+
+</TabItem>
+<TabItem value="List">
+
+```tsx
+import { useResource } from 'rest-hooks';
+// local directory for API definitions
+import { todoList } from 'endpoints/todo';
+
+export default function TodoList() {
+  const todos = useResource(todoList, {});
+  // highlight-next-line
+  useSubscription(todoList, {});
+  return (
+    <section>
+      {todos.map(todo => (
+        <div key={todo.id}>{todo.title}</div>
+      ))}
+    </section>
+  );
+}
+```
+
+</TabItem>
+</Tabs>
+
+Subscriptions are orchestrated by [Managers](../api/Manager.md). Out of the box,
+polling based subscriptions can be used by adding [pollFrequency](../api/Endpoint.md#pollfrequency-number) to an endpoint.
+For pushed based networking protocols like websockets, see the [example websocket stream manager](../api/Manager.md#middleware-data-stream).
+
+```typescript
+const fetchTodoDetail = ({ id }) =>
+  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res =>
+    res.json(),
+  );
+const todoDetail = new Endpoint(
+  fetchTodoDetail,
+  // highlight-next-line
+  { pollFrequency: 1000 },
+);
+```

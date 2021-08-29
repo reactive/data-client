@@ -33,10 +33,6 @@
       "items": [
         {
           "type": "doc",
-          "id": "guides/resource-types"
-        },
-        {
-          "type": "doc",
           "id": "rest/usage"
         },
         {
@@ -44,6 +40,10 @@
           "collapsible": false,
           "label": "Network Interface",
           "items": [
+            {
+              "type": "doc",
+              "id": "guides/resource-types"
+            },
             {
               "type": "doc",
               "id": "guides/url"
@@ -103,6 +103,21 @@
               "id": "guides/rpc"
             }
           ]
+        },
+        {
+          "type": "category",
+          "collapsible": false,
+          "label": "Advanced",
+          "items": [
+            {
+              "type": "doc",
+              "id": "guides/custom-networking"
+            },
+            {
+              "type": "doc",
+              "id": "guides/resource-lifetime"
+            }
+          ]
         }
       ]
     },
@@ -124,25 +139,11 @@
       "type": "category",
       "label": "Advanced",
       "items": [
-        {
-          "type": "category",
-          "collapsible": false,
-          "label": "Resource Definitions",
-          "items": [
-            {
-              "type": "doc",
-              "id": "guides/custom-networking"
-            },
-            {
-              "type": "doc",
-              "id": "guides/resource-lifetime"
-            },
+
             {
               "type": "doc",
               "id": "guides/binary-fetches"
-            }
-          ]
-        },
+            },
         {
           "type": "category",
           "collapsible": false,

@@ -1,6 +1,7 @@
 ---
 title: Authentication
 ---
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
@@ -21,7 +22,7 @@ values={[
 
 ```typescript
 class AuthdResource extends Resource {
-  static getFetchInit = (init: RequestInit) => ({
+  static getFetchInit = (init: RequestInit): RequestInit => ({
     ...init,
     credentials: 'same-origin',
   });
@@ -32,10 +33,12 @@ class AuthdResource extends Resource {
 <TabItem value="superagent">
 
 ```typescript
-import { Request } from 'rest-hooks';
+import { Resource } from 'rest-hooks';
+import type { SuperAgentRequest } from 'superagent';
 
 class AuthdResource extends Resource {
-  static fetchPlugin = (request: Request) => request.withCredentials();
+  static fetchPlugin = (request: SuperAgentRequest) =>
+    request.withCredentials();
 }
 ```
 
@@ -55,16 +58,15 @@ class AuthdResource extends Resource {
   static useFetchInit = (init: RequestInit) => {
     const accessToken = useAuthContext();
     return {
-    ...init,
+      ...init,
       headers: {
         ...init.headers,
         'Access-Token': accessToken,
       },
-    }
+    };
   };
 }
 ```
-
 
 ## Code organization
 

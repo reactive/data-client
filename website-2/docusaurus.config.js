@@ -162,7 +162,7 @@ module.exports = {
           position: 'left',
         },
         {
-          to: 'docs/guides/resource-types',
+          to: 'docs/rest/usage',
           label: 'REST / CRUD',
           position: 'left',
         },
@@ -210,11 +210,11 @@ module.exports = {
               label: '2.2',
               to: 'docs/2.2/',
             },
-            {
+            /*{
               label: 'Master/Unreleased',
               to: 'docs/next/',
               activeBaseRegex: 'docs/next/(?!support|team|resources)',
-            },
+            },*/
           ],
         },
         {
@@ -236,7 +236,7 @@ module.exports = {
             },
             {
               label: 'REST / CRUD',
-              to: '/docs/guides/resource-types',
+              to: '/docs/rest/usage',
             },
             {
               label: 'API',
