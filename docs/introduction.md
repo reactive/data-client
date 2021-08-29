@@ -2,10 +2,10 @@
 title: Introduction
 slug: /
 ---
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
-
 
 Rest Hooks is an asynchronous data framework for TypeScript and JavaScript. While it is completely protocol and platform agnostic,
 it is not a networking stack for things like minecraft game servers.
@@ -19,7 +19,7 @@ A good way to tell if this could be useful is if you use something similar to **
 Rest Hooks focuses on solving the following challenges in a declarative composable manner
 
 - **Asynchronous** behavior and race conditions
-- <abbr title="changing">Dynamic</abbr> data **consistency and integrity**
+- Global <strong>consistency and integrity</strong> of <abbr title="changing">dynamic</abbr> data
 - High **performance** at scale
 
 ## Endpoint
@@ -62,17 +62,16 @@ const fetchTodoDetail = ({ id }) =>
 const todoDetail = new Endpoint(fetchTodoDetail);
 ```
 
-
 </LanguageTabs>
 
 By _decoupling_ endpoint definitions from their usage, we are able to reuse them in many contexts.
 
-- Easy reuse in different **components** eases colocating data dependencies
+- Easy reuse in different **components** eases co-locating data dependencies
 - Reuse with different **hooks** allows different behaviors with the same endpoint
 - Reuse across different **platforms** like React Native, React web, or even beyond React in Angular, Svelte, Vue, or Node
 - Published as **packages** independent of their consumption
 
-## Colocate data dependencies
+## Co-locate data dependencies
 
 Add one-line [data hookup](./getting-started/data-dependency.md) in the components that need it with [useResource()](./api/useResource.md)
 
@@ -151,13 +150,12 @@ const fetchTodoUpdate = ({ id }, body) =>
 const todoUpdate = new Endpoint(fetchTodoUpdate, { sideEffect: true });
 ```
 
-
 </LanguageTabs>
 
 </details>
 
 Instead of just calling the `todoUpdate` endpoint with our data, we want to ensure
-**all** colocated usages of the todo being edited are updated. This avoid both the complexity and performance
+**all** co-located usages of the todo being edited are updated. This avoid both the complexity and performance
 problems of attempting to cascade endpoint refreshes.
 
 [useFetcher](./api/useFetcher.md) enhances our function, integrating the Rest Hooks store.
@@ -186,7 +184,7 @@ so how can Rest Hooks know to update todoDetail with this data?
 
 ### Entities
 
-Adding [Entities](./getting-started/schema.md#entities) to our endpoint definition tells Rest Hooks
+Adding [Entities](./getting-started/entity.md#entities) to our endpoint definition tells Rest Hooks
 how to extract and find a given piece of data no matter where it is used. The [pk()](./api/Entity.md#pk) (primary key)
 method is used as a key in a lookup table.
 
@@ -263,7 +261,7 @@ const todoUpdate = new Endpoint(fetchTodoUpdate, {
 ### Schema
 
 What if our entity is not the top level item? Here we define the `todoList`
-endpoint with `[Todo]` as its schema. [Schemas](./getting-started/schema) tell Rest Hooks _where_ to find
+endpoint with `[Todo]` as its schema. [Schemas](./getting-started/entity) tell Rest Hooks _where_ to find
 the Entities. By placing inside a list, Rest Hooks knows to expect a response
 where each item of the list is the entity specified.
 
@@ -279,7 +277,7 @@ const todoList = new Endpoint(fetchTodoList, {
 });
 ```
 
-[Schemas](./getting-started/schema.md) also automatically infer and enforce the response type, ensuring
+[Schemas](./getting-started/entity.md) also automatically infer and enforce the response type, ensuring
 the variable `todos` will be typed precisely. If the API responds in another manner
 the hook with throw instead, triggering the `error fallback` specified in [\<NetworkErrorBoundary />](./api/NetworkErrorBoundary.md)
 
@@ -429,6 +427,76 @@ or
 
 Click the icon to open the [inspector](./guides/debugging.md), which allows you to observe dispatched actions,
 their effect on the cache state as well as current cache state.
+
+## Mock data
+
+Writing `FixtureEndpoint`s is a standard format that can be used across all `@rest-hooks/test` helpers as well as your own uses.
+
+<Tabs
+defaultValue="detail"
+values={[
+{ label: 'Detail', value: 'detail' },
+{ label: 'Update', value: 'update' },
+{ label: '404 error', value: 'detail404' },
+]}>
+<TabItem value="detail">
+
+```typescript
+import type { FixtureEndpoint } from '@rest-hooks/test';
+import { todoDetail } from './todo';
+
+const todoDetailFixture: FixtureEndpoint = {
+  endpoint: todoDetail,
+  args: [{ id: 5 }] as const,
+  response: {
+    id: 5,
+    title: 'Star Rest Hooks on Github',
+    userId: 11,
+    completed: false,
+  },
+};
+```
+
+</TabItem>
+<TabItem value="update">
+
+```typescript
+import type { FixtureEndpoint } from '@rest-hooks/test';
+import { todoUpdate } from './todo';
+
+const todoUpdateFixture: FixtureEndpoint = {
+  endpoint: todoUpdate,
+  args: [{ id: 5 }, { completed: true }] as const,
+  response: {
+    id: 5,
+    title: 'Star Rest Hooks on Github',
+    userId: 11,
+    completed: true,
+  },
+};
+```
+
+</TabItem>
+<TabItem value="detail404">
+
+```typescript
+import type { FixtureEndpoint } from '@rest-hooks/test';
+import { todoDetail } from './todo';
+
+const todoDetail404Fixture: FixtureEndpoint = {
+  endpoint: todoDetail,
+  args: [{ id: 9001 }] as const,
+  response: { status: 404, response: 'Not found' },
+  error: true,
+};
+```
+
+</TabItem>
+</Tabs>
+
+- [Mock data for storybook](./guides/storybook.md) with [MockResolver](./api/MockResolver.md)
+- [Test hooks](./guides/unit-testing-hooks.md) with [makeRenderRestHook()](./api/makeRenderRestHook.md)
+- [Test components](./guides/unit-testing-components.md) with [MockResolver](./api/MockResolver.md) and [mockInitialState()](api/mockInitialState)
 
 ## Demo
 

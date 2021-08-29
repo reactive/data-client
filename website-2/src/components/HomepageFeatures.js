@@ -1,5 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
+import ThemedImage from '@theme/ThemedImage';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import styles from './HomepageFeatures.module.css';
 
@@ -12,7 +14,8 @@ const FeatureList = [
         results means <b>no surprises</b> at runtime.
       </>
     ),
-    Svg: require(`../../static/img/typescript.svg`).default,
+    light: '/img/typescript.svg',
+    dark: '/img/typescript.dark.svg',
     title: 'Strongly Typed',
   },
   {
@@ -48,11 +51,23 @@ const FeatureList = [
   },
 ];
 
-function Feature({ Svg, title, description }) {
+function Feature({ Svg, light, dark, title, description }) {
+  const sources = {
+    light: useBaseUrl(light),
+    dark: useBaseUrl(dark),
+  };
   return (
     <div className={clsx('col col--3')}>
       <div className="text--center">
-        <Svg className={styles.featureSvg} alt={title} />
+        {Svg ? (
+          <Svg className={styles.featureSvg} alt={title} />
+        ) : (
+          <ThemedImage
+            className={styles.featureSvg}
+            alt={title}
+            sources={sources}
+          />
+        )}
       </div>
       <div className="text--center padding-horiz--md">
         <h3>{title}</h3>

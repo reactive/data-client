@@ -2,7 +2,6 @@ import React from 'react';
 import clsx from 'clsx';
 
 import styles from './Demo.module.css';
-console.log(styles);
 
 const Demo = props => (
   <div className="container">
