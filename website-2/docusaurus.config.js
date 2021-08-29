@@ -85,9 +85,13 @@ module.exports = {
             // We want users to submit doc updates to the upstream/next version!
             // Otherwise we risk losing the update on the next release.
             const nextVersionDocsDirPath = 'docs';
-            return `https://github.com/coinbase/rest-hooks/edit/main/website-2/${nextVersionDocsDirPath}/${docPath}`;
+            return `https://github.com/coinbase/rest-hooks/edit/master/${nextVersionDocsDirPath}/${docPath}`;
           },
           path: '../docs',
+          lastVersion: 'current',
+          versions: {
+            current: { label: '5.0', path: '' },
+          },
         },
         blog: {
           showReadingTime: true,
@@ -119,11 +123,28 @@ module.exports = {
             to: '/docs/concepts/network-errors',
             from: ['/docs/getting-started/network-errors'],
           },
+          {
+            to: '/docs/getting-started/entity',
+            from: ['/docs/getting-started/schema'],
+          },
         ],
       },
     ],
   ],
   themeConfig: {
+    colorMode: {
+      defaultMode: 'light',
+      disableSwitch: false,
+      respectPrefersColorScheme: true,
+    },
+    image: 'img/rest_hooks_logo.png',
+    // Open Graph and Twitter card images.
+    ogImage: 'img/rest_hooks_logo.png',
+    twitterImage: 'img/rest_hooks_logo.png',
+    announcementBar: {
+      id: 'announcementBar-2', // Increment on change
+      content: `If you like Rest Hooks, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/coinbase/rest-hooks">GitHub</a>`,
+    },
     navbar: {
       title: 'Rest Hooks',
       logo: {
@@ -204,10 +225,6 @@ module.exports = {
         },
       ],
     },
-    image: 'img/rest_hooks_logo.png',
-    // Open Graph and Twitter card images.
-    ogImage: 'img/rest_hooks_logo.png',
-    twitterImage: 'img/rest_hooks_logo.png',
     footer: {
       links: [
         {
@@ -255,12 +272,12 @@ module.exports = {
               html: `<a
               className="github-button"
               href="https://github.com/coinbase/rest-hooks"
+              target="_blank"
               data-icon="octicon-star"
               data-count-href="/coinbase/rest-hooks/stargazers"
               data-show-count="true"
               data-count-aria-label="# stargazers on GitHub"
-              aria-label="Star this project on GitHub"
-            >
+              aria-label="Star this project on GitHub">
               Github
             </a>`,
             },

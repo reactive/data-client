@@ -1,5 +1,5 @@
 ---
-title: Colocate Data Dependencies
+title: Co-locate Data Dependencies
 sidebar_label: Data Dependencies
 ---
 
@@ -7,7 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 
-Colocating data dependencies means we only use data-binding hooks like [useResource()](../api/useresource)
+Co-locating data dependencies means we only use data-binding hooks like [useResource()](../api/useresource)
 in components where we display/use their data directly.
 
 <Tabs
@@ -64,13 +64,24 @@ suspends.
   - (For example: navigating to a detail page with a single entry from a list view will instantly show the same data as the list without
     requiring a refetch.)
 
+:::tip Conditional Dependencies
+
+Use `null` as the second argument on any rest hooks to indicate "do nothing."
+
+```typescript
+// todo could be undefined if id is undefined
+const todo = useResource(todoDetail, id ? { id } : null);
+```
+
+:::
+
 ## Async Fallbacks (loading/error) {#async-fallbacks}
 
 This works great if the client already has the data. But while it's waiting on a response from the server,
 we need some kind of loading indication. Similarly if there is an error in the fetch, we should indicate such.
 These are called 'fallbacks'.
 
-### Boundaries (Suspense/NetworkErrorBoundary)
+### Boundaries (Suspense/NetworkErrorBoundary) {#boundaries}
 
 In React 18, the best way to achieve this is with boundaries. ([React 16.3+ supported](#stateful), but less powerful.)
 `<Suspense />` and `<NetworkErrorBoundary />`

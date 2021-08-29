@@ -6,12 +6,12 @@
 [![npm version](https://img.shields.io/npm/v/rest-hooks.svg?style=flat-square)](https://www.npmjs.com/package/rest-hooks)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-Dynamic data at scale. Performance, consistency, typing for REST, proto, GraphQL, websockets and more.
+Asynchronous dynamic data at scale. Performance, data integrity, and typing for REST, proto, GraphQL, websockets and more.
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io)** &nbsp;|&nbsp; [🏁Getting Started](https://resthooks.io/docs/getting-started/installation) &nbsp;|&nbsp;
-[🎮Demo](https://github.com/Rest-Hooks/todo-example)
+**[📖Read The Docs](https://resthooks.io/docs)** &nbsp;|&nbsp; [🏁Getting Started](https://resthooks.io/docs/getting-started/installation) &nbsp;|&nbsp;
+[🎮Demo](https://github.com/coinbase/rest-hooks/tree/master/examples/todo-app)
 
 </div>
 
@@ -19,7 +19,7 @@ Dynamic data at scale. Performance, consistency, typing for REST, proto, GraphQL
 
 ```typescript
 class ArticleResource extends Resource {
-  readonly id: number | undefined = undefined;
+  readonly id: string = '';
   readonly title: string = '';
   readonly body: string = '';
 
@@ -57,14 +57,15 @@ return price.value;
 
 ### ...all typed ...fast ...and consistent
 
-For the small price of 10kb gziped. &nbsp;&nbsp; [🏁Get started now](https://resthooks.io/docs/getting-started/installation)
+For the small price of 8kb gziped. &nbsp;&nbsp; [🏁Get started now](https://resthooks.io/docs/getting-started/installation)
 
 ## Features
 
 - [x] ![TS](./typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) types
 - [x] 🛌 React [Suspense](https://resthooks.io/docs/guides/loading-state) support
-- [x] ⛓️ React [Concurrent mode](https://reactjs.org/docs/concurrent-mode-patterns.html) compatible
-- [x] 🎣 Simple declarative API
+- [x] 🧵 React 18 [Concurrent mode](https://reactjs.org/docs/concurrent-mode-patterns.html) compatible
+- [x] 🎣 [Declarative API](https://resthooks.io/docs/getting-started/data-dependency)
+- [x] 📝 Composition over configuration
 - [x] 💰 Normalized response [configurable](https://resthooks.io/docs/guides/resource-lifetime) caching
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination
