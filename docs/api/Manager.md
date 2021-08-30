@@ -78,14 +78,35 @@ this.middleware = ({ dispatch, getState }) => (next) => async (action) => {
 ### Middleware data stream
 
 ```typescript
+import type { Manager } from '@rest-hooks/core';
 import { createReceive } from '@rest-hooks/core';
 
-this.middleware = ({ dispatch, getState }) => {
-  this.websocket.onmessage = (event) => {
-    dispatch(
-      createReceive(event.data, { schema: this.Schemas[event.type] })
-    );
+export default class StreamManager implements Manager
+{
+  protected declare middleware: Middleware;
+  protected declare websocket: Websocket;
+
+  constructor(url: string) {
+    this.websocket = new Websocket(url);
+
+    // highlight-start
+    this.middleware = ({ dispatch, getState }) => {
+      this.websocket.onmessage = (event) => {
+        dispatch(
+          createReceive(event.data, { schema: this.Schemas[event.type] })
+        );
+      }
+      return (next) => async (action) => next(action);
+    }
+    // highlight-end
   }
-  return (next) => async (action) => next(action);
+
+  cleanup() {
+    this.websocket.close();
+  }
+
+  getMiddleware<T extends StreamManager>(this: T) {
+    return this.middleware;
+  }
 }
 ```

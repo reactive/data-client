@@ -359,7 +359,7 @@ that these endpoint definitions share some logic and information. For this reaso
 encourages extracting shared logic among endpoints.
 
 One common pattern is having endpoints Create Read Update Delete (CRUD) for a given resource.
-Using [@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest) ([docs](./guides/resource-types.md)) simplifies these patterns.
+Using [@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest) ([docs](./rest/usage.md)) simplifies these patterns.
 
 Instead of defining an [Entity](./api/Entity.md), we define a [Resource](./api/Resource.md). `Resource`
 extends from `Entity`, so we still need the `pk()` definiton.
@@ -384,7 +384,7 @@ class TodoResource extends Resource {
 }
 ```
 
-[Introduction to Resource](./guides/resource-types.md)
+[Introduction to Resource](./rest/usage.md)
 
 <details><summary><b>Resource Endpoints</b></summary>
 

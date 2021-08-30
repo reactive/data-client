@@ -84,7 +84,7 @@ Package: [@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoi
 Members double as options (second constructor arg). While none are required, the first few
 have defaults.
 
-### key: (params) => string
+### key: (params) => string {#key}
 
 Serializes the parameters. This is used to build a lookup key in global stores.
 
@@ -94,13 +94,13 @@ Default:
 `${this.fetch.name} ${JSON.stringify(params)}`;
 ```
 
-### sideEffect: true | undefined
+### sideEffect: true | undefined {#sideeffect}
 
 Used to indicate endpoint might have side-effects (non-idempotent). This restricts it
 from being used with [useResource()](./useresource) or [useRetrieve()](useRetrieve) as those can hit the
 endpoint an unpredictable number of times.
 
-### schema: Schema
+### schema: Schema {#schema}
 
 Declarative definition of how to [process responses](./schema)
 
@@ -126,7 +126,7 @@ const UserDetail = new Endpoint(
 );
 ```
 
-### extend(EndpointOptions): Endpoint
+### extend(EndpointOptions): Endpoint {#extend}
 
 Can be used to further customize the endpoint definition
 

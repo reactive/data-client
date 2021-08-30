@@ -2,6 +2,7 @@
 title: Entity and Data Normalization
 sidebar_label: Entity
 ---
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
@@ -103,12 +104,24 @@ export function PresentationsPage() {
 </TabItem>
 </Tabs>
 
+Extracting entities from a response is known as `normalization`. Accessing a response reverses
+the process via `denormalization`.
+
+:::info Global Referential Equality
+
 Using entities expands Rest Hooks' global referential equality guarantee beyond the granularity of
 an entire endpoint response.
 
+:::
+
 ## Mutations and Dynamic Data
 
-Be sure to include *any* data that has changed in your response.
+When an endpoint changes data, this is known as a [side effect](../guides/rpc.md). Marking an endpoint with [sideEffect: true](../api/Endpoint.md#sideeffect)
+tells Rest Hooks that this endpoint is not idempotent, and thus should not be allowed in hooks
+that may call the endpoint an arbitrary number of times like [useResource()](../api/useResource.md) or [useRetrieve()](../api/useRetrieve.md)
+
+By including the changed data in the endpoint's response, Rest Hooks is able to able to update
+any entities it extracts by specifying the schema.
 
 <Tabs
 defaultValue="Create"
@@ -223,8 +236,11 @@ export default function TodoWithDelete({ todo }: { todo: Todo }) {
 </TabItem>
 </Tabs>
 
+:::info
+
 Mutations automatically update the normalized cache, resulting in consistent and fresh data.
 
+:::
 
 ## Schema
 
@@ -234,24 +250,100 @@ Schemas are a declarative definition of how to [process responses](./schema)
 - Classes to [deserialize fields](../guides/network-transform#deserializing-fields)
 
 ```typescript
-import { Endpoint, Entity } from '@rest-hooks/endpoint';
+import { Endpoint } from '@rest-hooks/endpoint';
+
+const fetchTodoList = (params: any) =>
+  fetch(`https://jsonplaceholder.typicode.com/todos/`).then(res => res.json());
+
+const todoList = new Endpoint(fetchTodoList, {
+  // highlight-next-line
+  schema: [Todo],
+  sideEffect: true,
+});
+```
+
+Placing our [Entity](../api/Entity.md) `Todo` in an array, tells Rest Hooks to expect
+an array of `Todos`.
+
+Aside from array, there are a few more 'schemas' provided for various patterns. The first two (Object and Array)
+have shorthands of using object and array literals.
+
+- [Object](../api/Object.md): maps with known keys
+- [Array](../api/Array.md): variably sized arrays
+- [Union](../api/Union.md): select from many different types
+- [Value](../api/Value.md): maps with any keys - variably sized
+- [Delete](../api/Delete.md): remove an entity
+
+[Learn more](../api/schema.md)
+
+### Nesting
+
+Additionally, [Entities](../api/Entity.md) themselves can specify [nested](../guides/nested-response.md) [Entities](../api/Entity.md)
+by specifying a [static schema](../api/Entity.md#schema) member.
+
+```typescript
+import { Entity } from '@rest-hooks/endpoint';
 
 class Todo extends Entity {
   readonly id: number = 0;
-  readonly userId: number = 0;
+  readonly user: User = User.fromJS({});
   readonly title: string = '';
   readonly completed: boolean = false;
 
   pk() {
     return `${this.id}`;
   }
+
+  // highlight-start
+  static schema = {
+    user: User,
+  };
+  // highlight-end
 }
 
-const TodoDetail = new Endpoint(
-    ({ id }) ⇒ fetch(`https://jsonplaceholder.typicode.com/todos/${id}`),
-    { schema: Todo }
-);
+class User extends Entity {
+  readonly id: number = 0;
+  readonly username: string = '';
+
+  pk() {
+    return `${this.id}`;
+  }
+}
 ```
 
+[Learn more](../guides/nested-response.md)
 
-<!-- nesting -->
+### Data Representations
+
+Additionally, any `newable` class that has a toJSON() method, can be [used as a schema](../guides/network-transform#deserializing-fields). This will simply construct the object during denormalization.
+This might be useful with representations like [bignumber](https://mikemcl.github.io/bignumber.js/)
+
+```ts
+import { Entity } from '@rest-hooks/endpoint';
+
+class Todo extends Entity {
+  readonly id: number = 0;
+  readonly user: User = User.fromJS({});
+  readonly title: string = '';
+  readonly completed: boolean = false;
+  // highlight-next-line
+  readonly createdAt: Date = new Date(0);
+
+  pk() {
+    return `${this.id}`;
+  }
+
+  static schema = {
+    user: User,
+    // highlight-next-line
+    createdAt: Date,
+  };
+}
+```
+
+:::info
+
+Due to the global referential equality guarantee - construction of members only occurs once
+per update.
+
+:::
