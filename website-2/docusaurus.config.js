@@ -295,6 +295,7 @@ module.exports = {
       contextualSearch: true,
       algoliaOptions: {
         debug: process.env.NODE_ENV === 'development',
+        facetFilters: ['docusaurus_tag:docs-default-current'],
       },
     },
     gtag: {
