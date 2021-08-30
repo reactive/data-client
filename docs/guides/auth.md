@@ -21,7 +21,9 @@ values={[
 <TabItem value="fetch">
 
 ```typescript
-class AuthdResource extends Resource {
+import { Resource } from '@rest-hooks/rest';
+
+abstract class AuthdResource extends Resource {
   static getFetchInit = (init: RequestInit): RequestInit => ({
     ...init,
     credentials: 'same-origin',
@@ -33,14 +35,16 @@ class AuthdResource extends Resource {
 <TabItem value="superagent">
 
 ```typescript
-import { Resource } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
 import type { SuperAgentRequest } from 'superagent';
 
-class AuthdResource extends Resource {
+abstract class AuthdResource extends Resource {
   static fetchPlugin = (request: SuperAgentRequest) =>
     request.withCredentials();
 }
 ```
+
+If you used the [custom superagent fetch](../guides/custom-networking#superagent)
 
 </TabItem>
 </Tabs>

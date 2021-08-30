@@ -254,7 +254,7 @@ and ensure the data is normalized and typed
 correctly via the [schema](../api/Endpoint#schema-schema) definition.
 
 ```typescript
-import { Resource } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
 
 export default class BirthdayResource extends BaseResource {
   readonly id: string | undefined = undefined;

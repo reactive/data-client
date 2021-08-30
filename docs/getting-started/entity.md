@@ -281,6 +281,14 @@ have shorthands of using object and array literals.
 Additionally, [Entities](../api/Entity.md) themselves can specify [nested](../guides/nested-response.md) [Entities](../api/Entity.md)
 by specifying a [static schema](../api/Entity.md#schema) member.
 
+<Tabs
+defaultValue="Entity"
+values={[
+{ label: 'Entity', value: 'Entity' },
+{ label: 'Response', value: 'Response' },
+]}>
+<TabItem value="Entity">
+
 ```typescript
 import { Entity } from '@rest-hooks/endpoint';
 
@@ -310,6 +318,25 @@ class User extends Entity {
   }
 }
 ```
+
+</TabItem>
+<TabItem value="Response">
+
+```json
+{
+  "id": 5,
+  "user": {
+    "id": 10,
+    "username": "bob",
+  },
+  "title": "Write some Entities",
+  "completed": false
+}
+```
+
+</TabItem>
+</Tabs>
+
 
 [Learn more](../guides/nested-response.md)
 

@@ -18,7 +18,7 @@
 #### `resources/ProfileResource.ts`
 
 ```typescript
-import { Resource } from 'rest-hooks';
+import { Resource } from '@rest-hooks/legacy';
 
 export default class ProfileResource extends Resource {
   readonly id: number | undefined = undefined;
