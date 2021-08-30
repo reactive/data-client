@@ -1,16 +1,21 @@
 import { EndpointInterface } from '@rest-hooks/endpoint';
 import { DispatchContext } from '@rest-hooks/core';
 import { useContext, useCallback } from 'react';
-import { actionTypes } from '@rest-hooks/core';
 
 import createFetch from './createFetch';
+import createInvalidate from './createInvalidate';
+import createReset from './createReset';
 import { UpdateFunction } from './types';
 
 /**
  * Imperative control of Rest Hooks store
  * @see https://resthooks.io/docs/api/useController
  */
-export default function useController(throttle = false): Controller {
+export default function useController({
+  throttle = false,
+}: {
+  throttle?: boolean;
+} = {}): Controller {
   const dispatch = useContext(DispatchContext);
 
   // TODO: elevate into CacheProvider and simply useContext
@@ -36,22 +41,17 @@ export default function useController(throttle = false): Controller {
       ...args: readonly [...Parameters<E>] | readonly [null]
     ) =>
       args[0] !== null
-        ? dispatch({
-            type: actionTypes.INVALIDATE_TYPE,
-            meta: {
-              key: endpoint.key(...args),
-            },
-          })
+        ? dispatch(
+            createInvalidate(endpoint, {
+              args: args as readonly [...Parameters<E>],
+            }),
+          )
         : Promise.resolve(),
     [dispatch],
   );
 
   const resetEntireStore = useCallback(
-    () =>
-      dispatch({
-        type: actionTypes.RESET_TYPE,
-        date: new Date(),
-      }),
+    () => dispatch(createReset()),
     [dispatch],
   );
 

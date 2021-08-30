@@ -13,5 +13,5 @@ export default function useFetcher(
   endpoint: E,
   ...args: readonly [...Parameters<E>]
 ) => ReturnType<E> {
-  return useController(throttle).fetch;
+  return useController({ throttle }).fetch;
 }
