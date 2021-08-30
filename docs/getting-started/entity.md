@@ -271,7 +271,7 @@ have shorthands of using object and array literals.
 - [Object](../api/Object.md): maps with known keys
 - [Array](../api/Array.md): variably sized arrays
 - [Union](../api/Union.md): select from many different types
-- [Value](../api/Value.md): maps with any keys - variably sized
+- [Values](../api/Values.md): maps with any keys - variably sized
 - [Delete](../api/Delete.md): remove an entity
 
 [Learn more](../api/schema.md)
