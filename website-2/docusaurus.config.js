@@ -290,9 +290,12 @@ module.exports = {
       },
     },
     algolia: {
-      apiKey: '52e661c10738fd114bcf68d537358c16',
-      indexName: 'coinbase-rest-hooks',
+      apiKey: '937e8e00950173761eede8a9c5ed77ac',
+      indexName: 'resthooks',
       contextualSearch: true,
+      algoliaOptions: {
+        debug: process.env.NODE_ENV === 'development',
+      },
     },
     gtag: {
       trackingID: 'UA-138752992-1',
