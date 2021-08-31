@@ -15,7 +15,7 @@ yarn build
 
 ```bash
 cd ./examples/todo-app
-NO_HOT_RELOAD='true' yarn start
+yarn start
 ```
 
 ### Production build
