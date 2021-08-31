@@ -52,7 +52,7 @@ const createUser = new Endpoint(postToUserFunction, {
 ```typescript
 const createUser = new Endpoint(postToUserFunction, {
   schema: User,
-  update: (newUserId: string)  => {
+  update: (newUserId: string, newUser: User)  => {
     const updates = {
       [userList.key()]: (users = []) => [newUserId, ...users],
       [userList.key({ sortBy: 'createdAt' })]: (users = [], { sortBy }) => {
