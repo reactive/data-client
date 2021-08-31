@@ -58,7 +58,7 @@ Here we use a context variable to set headers. Note - this means any endpoint fu
 called from a React Component. (However, this should be fine since the context will only exist in React anyway.)
 
 ```typescript
-class AuthdResource extends Resource {
+abstract class AuthdResource extends Resource {
   static useFetchInit = (init: RequestInit) => {
     const accessToken = useAuthContext();
     return {

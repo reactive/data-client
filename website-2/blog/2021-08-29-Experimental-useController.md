@@ -8,21 +8,22 @@ tags: [releases, rest-hooks, packages, usecontroller, resource, fetch]
 package that allows us to quickly iterate on new designs by using them in production, which provides
 feedback in ways not possible at design and testing phase.
 
-This package is **not** api stable. However, it is tested with the same rigor we expect with Rest Hooks
+This package is **not** api stable; it does follow semver, so it will never reach 1.0.
+However, it is tested with the same rigor we expect with Rest Hooks
 as we use it in production. It is recommend to use this for providing feedback or playing with designs,
 unless you are willing to put in extra work to make migrations. Detailed migration guides will only be
 provided upon upstreaming to the mainline packages.
 
 Today this package comes with two new features:
 
-**[useController()](#usecontroller)**
+**[useController()](./2021-08-29-Experimental-useController.md#usecontroller)**
 
 ```ts
 const { fetch, invalidate, resetEntireStore } = useController();
 fetch(MyResource.detail(), { id });
 ```
 
-**[Resource.list().paginated()](#resourcelistpaginated)**
+**[Resource.list().paginated()](./2021-08-29-Experimental-useController.md#static-listpaginated)**
 
 ```ts
 class NewsResource extends Resource {
@@ -213,7 +214,7 @@ The endpoint below ensures the new user shows up immediately in the usages above
 ```ts title="userEndpoint.ts"
 const createUser = new Endpoint(postToUserFunction, {
   schema: User,
-  update: (newUserId: string)  => {
+  update: (newUserId, newUser)  => {
     const updates = {
       [userList.key()]: (users = []) => [newUserId, ...users],
     ];
@@ -405,3 +406,5 @@ abstract class Resource extends BaseResource {
 
 This should make it much easier to get started quickly, while allowing for a powerful yet flexible
 options in `BaseResource`. We expect most medium-to-large applications to mostly use this class.
+
+[PR](https://github.com/coinbase/rest-hooks/pull/841)
