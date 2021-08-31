@@ -19,14 +19,15 @@ Field application of designs help smooth edges of a theoretical design. New desi
 
 ## Usage
 
-### useFetcher()
+### useController()
 
 ```tsx
-const fetch = useFetcher();
+const controller = useController();
 
 return (
-  <form onSubmit={() => fetch(User.create(), userPayload)}>
-    <button onClick={() => fetch(User.list())}>Refresh list</button>
+  <form onSubmit={() => controller.fetch(User.create(), userPayload)}>
+    <button onClick={() => controller.fetch(User.list())}>Refresh list</button>
+    <button onClick={() => controller.invalidate(User.list())}>Suspend list</button>
   </form>
 );
 ```

@@ -79,7 +79,6 @@ function MyComponent({ id }) {
 - Icing on cake: ez migration to EndpointInterface and flexible args support for hooks
 - Future breaking changes can allow ez migration with version strings sent to `useController({version: 'v2'})`
 
-
 ### One hook, many endpoints
 
 The rules of hooks are very restrictive, so the less hooks you have to call, the more flexible. This also benefits render performance. In many cases you might want to fetch many different endpoints. What's worse is if you don't know which endpoints you might want to fetch upfront. With old design you'd have to hook up every _possible_ one. This really destroys fetch-as-render pattern, as you want to be able to prefetch based on possible routes.
@@ -154,15 +153,19 @@ endpoints with `update` work with the old [useFetcher()](https://resthooks.io/do
 Previously this was enabled by an optional third argument to the fetch [UpdateParams](https://resthooks.io/docs/api/useFetcher#updateparams-destendpoint-destparams-updatefunction) enabling programmatic changes that are also strictly type enforced to ensure the data integrity of the Rest Hooks store.
 
 ```typescript
-const createArticle = useFetcher(ArticleResource.create());
+const createUser = new Endpoint(postToUserFunction, {
+  schema: User,
+});
 
-createArticle({}, { id: 1 }, [
+const createUser = useFetcher(createUser);
+
+createUser({}, { id: 1 }, [
   [
-    ArticleResource.list(),
+    userList,
     {},
-    (newArticleID: string, articleIDs: string[] | undefined) => [
-      ...(articleIDs || []),
-      newArticleID,
+    (newUserID: string, userIDs: string[] | undefined) => [
+      ...(userIDs || []),
+      newUserID,
     ],
   ],
 ]);
@@ -173,8 +176,6 @@ While simple, this design had several shortcomings
 - Only operates on the normalized results, often arrays of strings
   - This is non-intuitive as this doesn't relate directly to the data's form and requires understanding of internals
   - Code is confusing with two ordered args and necessary default handling
-  - Lack of access to entities means sorting is not possible
-  - Can only update top level results, which means lists nested inside entities cannot be updated
 - Is provided as an argument to the fetch rather than endpoint
   - Makes variable arguments impossible, and hard to reason about
   - Makes pattern reuse still require explicit wiring
@@ -183,9 +184,7 @@ While simple, this design had several shortcomings
 
 #### After
 
-- Operate on the actual denormalized form - that is the same shape that is consumsed with a useResource()
 - Move to Endpoint
-- Take the denormalized response as arg to first function
 - builder pattern to make updater definition easy
   - typeahead
   - strong type enforcement
@@ -193,136 +192,72 @@ While simple, this design had several shortcomings
 
 Simplest case:
 
-```typescript
-type UserList = Denormalized<typeof userList['schema']>;
-
+```ts title="userEndpoint.ts"
 const createUser = new Endpoint(postToUserFunction, {
   schema: User,
-  update: (newUser: Denormalize<S>) => [
-    userList.bind().updater((users: UserList = []) => [newUser, ...users]),
-  ],
+  update: (newUserId: string) => ({
+    [userList.key()]: (users = []) => [newUserId, ...users],
+  }),
 });
 ```
 
 More updates:
 
-<details open><summary><b>Component.tsx</b></summary>
-
-```typescript
+```typescript title="Component.tsx"
 const allusers = useResource(userList);
 const adminUsers = useResource(userList, { admin: true });
-const sortedUsers = useResource(userList, { sortBy: 'createdAt' });
 ```
-
-</details>
 
 The endpoint below ensures the new user shows up immediately in the usages above.
 
-<details open><summary><b>userEndpoint.ts</b></summary>
-
-```typescript
+```ts title="userEndpoint.ts"
 const createUser = new Endpoint(postToUserFunction, {
   schema: User,
-  update: (newUser: Denormalize<S>)  => {
-    const updates = [
-      userList.bind().updater((users = []) => [newUser, ...users]),
-      userList.bind({ sortBy: 'createdAt' }).updater((users = [], { sortBy }) => {
-        const ret = [createdUser, ...users];
-        ret.sortBy(sortBy);
-        return ret;
-      },
+  update: (newUserId: string)  => {
+    const updates = {
+      [userList.key()]: (users = []) => [newUserId, ...users],
     ];
     if (newUser.isAdmin) {
-      updates.push(userList.bind({ admin: true }).updater((users = []) => [newUser, ...users]));
+      updates[userList.key({ admin: true })] = (users = []) => [newUserId, ...users];
     }
     return updates;
   },
 });
 ```
 
-</details>
+This is usage with a [Resource](https://resthooks.io/docs/api/Resource)
 
-#### Extracting patterns
+```typescript title="TodoResource.ts"
+import { Resource } from '@rest-hooks/rest';
 
-In case more than one other endpoint might result in updating our list endpoint, we can centralize the logic of how that should work in our updated endpoint.
+export default class TodoResource extends Resource {
+  readonly id: number = 0;
+  readonly userId: number = 0;
+  readonly title: string = '';
+  readonly completed: boolean = false;
 
-```typescript
-const userList = new Endpoint(getUsers, {
-  schema: User[],
-  addUserUpdater: (this: Endpoint, newUser: User) => this.updater((users = []) => [newUser, ...users]),
-});
-```
-
-```typescript
-const createUser = new Endpoint(postToUserFunction, {
-  schema: User,
-  update: (newUser: Denormalize<S>) => [
-    userList.bind({ admin: true }).addUserUpate(newUser),
-    userList.bind({}).addUserUpate(newUser),
-  ],
-});
-```
-
-<details open><summary><b>Alternate Ideas - The programmatic approach</b></summary>
-
-#### The no guarantees
-
-```typescript
-const createUser = new Endpoint(postToUserFunction, {
-  schema: User,
-  update: (newUser: Denormalize<S>, state: State<unknown>) => {
-    return {
-      ...state,
-      results: {
-        ...state.results,
-       [userList.key({ admin: true })]: [newUser.pk(), ...state.results[userList.key({ admin: true })]],
-       [userList.key({ })]: [newUser.pk(), ...state.results[userList.key({ })]],
-     }
-    }
+  pk() {
+    return `${this.id}`;
   }
-}
-```
 
-#### Store Adapter
+  static urlRoot = 'https://jsonplaceholder.typicode.com/todos';
 
-```typescript
-const createUser = new Endpoint(postToUserFunction, {
-  schema: User,
-  update: (newUser: Denormalize<S>, store: Store) => {
-    const prependUser = (users = []) => [newUser, ...users]
-    if (newUser.isAdmin) {
-      store = store.set(
-         userList.bind({admin: true}),
-         prependUser
-      );
-    }
-    store = store.set(
-       userList.bind({}),
-       prependUser
-    );
-    return store;
-  }
-}
-```
-
-```typescript
-const createUser = new Endpoint(postToUserFunction, {
-  schema: User,
-  update: (newUser: Denormalize<S>, store: Store) => {
-    // this actually goes through every current result based on this endpoint
-    // however it does not update extremely stale results for performance reasons
-    store.get(userList).mapItems((key: string, users: User[]) => {
-      if (!key.includes('admin') || newUser.isAdmin) {
-        return [newUser, ...users];
-      }
+  static create<T extends typeof Resource>(this: T) {
+    const todoList = this.list();
+    return super.create().extend({
+      schema: this,
+      // highlight-start
+      update: (newResourceId: string) => ({
+        [todoList.key({})]: (resourceIds: string[] = []) => [
+          ...resourceIds,
+          newResourceId,
+        ],
+      }),
+      // highlight-end
     });
   }
 }
 ```
-
-Another idea is to make an updater callback with identical API to [manager middleware](https://resthooks.io/docs/api/Manager#getmiddleware). We would probably want to minimize chaining actions, so some way of consolidating into one action would be preferable. Adding an adapter to raw state might be good for Manager's as well, so designing this interface could be beneficial to optionally improving middleware interfaces.
-
-</details>
 
 ### Resolution order
 
@@ -343,26 +278,60 @@ const handleDelete = useCallback(
 It's now recommended to wrap all fetches in act when testing like so:
 
 ```ts
-    await act(async () => {
-      await result.current.fetch(ComplexResource.detail(), {
-        id: '5',
-      });
-    });
+await act(async () => {
+  await result.current.fetch(ComplexResource.detail(), {
+    id: '5',
+  });
+});
 ```
 
 :::
 
 [PR](https://github.com/coinbase/rest-hooks/pull/1046)
 
-## Resource.list().paginated()
+### What's Next
 
-### Motivation
+Tentative plans look something like this:
+
+```ts
+const controller = useController();
+
+// actions
+controller.fetch(UserResource.detail(), { id }); // sideEffects means no throttle, otherwise throttle
+controller.receive(payload, UserResource.detail(), { id });
+controller.invalidate(UserResource.detail(), { id });
+controller.resetEntireStore();
+controller.subscribe(UserResource.detail(), { id });
+controller.unsubscribe(UserResource.detail(), { id });
+// posisble new
+controller.abort(UserResource.detail(), { id }); // only aborts if in flight
+// note: to force fetch of sideEffect: undefined - call abort first
+// this should enable good offline/online managers
+
+// retrieval
+const state = useContext(StateContext);
+const [value, expiresAt] = controller.getResponse(
+  state,
+  UserResource.detail(),
+  { id },
+);
+const error = controller.getError(state, UserResource.detail(), { id });
+```
+
+## Resource changes
+
+### static list().paginated()
+
+#### Motivation
+
 <!--
 Does this solve a bug? Enable a new use-case? Improve an existing behavior? Concrete examples are helpful here.
 -->
+
 Pagination is a common scenario, that would benefit from minimal specification.
 
-### Solution
+#### Solution
+
 <!--
 What is the solution here from a high level. What are the key technical decisions and why were they made?
 -->
@@ -377,7 +346,6 @@ class NewsResource extends Resource {
 }
 ```
 
-
 ```tsx
 import { useResource } from 'rest-hooks';
 import NewsResource from 'resources/NewsResource';
@@ -389,7 +357,7 @@ function NewsList() {
   const fetch = useFetcher();
   const getNextPage = useCallback(
     () => fetch(NewsResource.listPage(), { cursor: curRef.current }),
-    []
+    [],
   );
 
   return (
@@ -401,3 +369,39 @@ function NewsList() {
 ```
 
 [PR](https://github.com/coinbase/rest-hooks/pull/868)
+
+### New Hiearchy
+
+Not every Resource has the same endpoints. It may have additional methods to CRUD, or
+it could only support some operations. Furthermore, the exact nature and typings of endpoints
+could vary widely making it hard to define a good base class, while also providing very specific types.
+
+That's why there is a new `BaseResource` that includes everything Resource had, but with
+absolutely no endpoints. Instead it comes with an extensible 'abstract endpoint' BaseResource.endpoint()
+for side-effect free endpoints, as well as BaseResource.endpointMutate().
+
+`Resource` is still provided, by simplying extending one of these endpoints like so
+
+```typescript
+abstract class Resource extends BaseResource {
+  /** Endpoint to get a single entity */
+  static detail<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    (this: RestEndpoint, params: any) => Promise<any>,
+    SchemaDetail<AbstractInstanceType<T>>,
+    undefined
+  > {
+    const endpoint = this.endpoint();
+    return this.memo('#detail', () =>
+      endpoint.extend({
+        schema: this,
+      }),
+    );
+  }
+  // etc
+}
+```
+
+This should make it much easier to get started quickly, while allowing for a powerful yet flexible
+options in `BaseResource`. We expect most medium-to-large applications to mostly use this class.
