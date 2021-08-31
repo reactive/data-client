@@ -54,7 +54,7 @@ export interface SchemaSimple<T = any> {
     // eslint-disable-next-line @typescript-eslint/ban-types
     input: {} | undefined,
     unvisit: UnvisitFunction,
-  ): [T, boolean, boolean];
+  ): [denormalized: T, found: boolean, suspend: boolean];
   infer(
     args: any[],
     indexes: NormalizedIndex,
@@ -97,7 +97,7 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
     // eslint-disable-next-line @typescript-eslint/ban-types
     input: {} | undefined,
     unvisit: UnvisitFunction,
-  ): [Denormalize<S>[], boolean, boolean];
+  ): [denormalized: Denormalize<S>[], found: boolean, suspend: boolean];
 
   _denormalizeNullable(): [Denormalize<S>[] | undefined, false, boolean];
 
@@ -129,7 +129,7 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
     // eslint-disable-next-line @typescript-eslint/ban-types
     input: {} | undefined,
     unvisit: UnvisitFunction,
-  ): [DenormalizeObject<O>, boolean, boolean];
+  ): [denormalized: DenormalizeObject<O>, found: boolean, suspend: boolean];
 
   _denormalizeNullable(): [DenormalizeNullableObject<O>, false, boolean];
 
@@ -167,7 +167,11 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
     // eslint-disable-next-line @typescript-eslint/ban-types
     input: {} | undefined,
     unvisit: UnvisitFunction,
-  ): [AbstractInstanceType<Choices[keyof Choices]>, boolean, boolean];
+  ): [
+    denormalized: AbstractInstanceType<Choices[keyof Choices]>,
+    found: boolean,
+    suspend: boolean,
+  ];
 
   _denormalizeNullable(): [
     AbstractInstanceType<Choices[keyof Choices]> | undefined,
@@ -227,12 +231,12 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
     input: {} | undefined,
     unvisit: UnvisitFunction,
   ): [
-    Record<
+    denormalized: Record<
       string,
       Choices extends EntityMap<infer T> ? T : Denormalize<Choices>
     >,
-    boolean,
-    boolean,
+    found: boolean,
+    suspend: boolean,
   ];
 
   _denormalizeNullable(): [

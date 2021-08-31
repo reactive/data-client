@@ -622,7 +622,7 @@ describe(`${Entity.name} denormalization`, () => {
   test('denormalizes an entity', () => {
     const entities = {
       Tacos: {
-        '1': { id: '1', type: 'foo' },
+        '1': { id: '1', name: 'foo' },
       },
     };
     expect(denormalize('1', Tacos, entities)).toMatchSnapshot();

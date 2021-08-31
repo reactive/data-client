@@ -31,8 +31,7 @@ Array [
   Tacos {
     "alias": undefined,
     "id": "1",
-    "name": "",
-    "type": "foo",
+    "name": "foo",
   },
   true,
   false,
@@ -44,8 +43,7 @@ Array [
   Tacos {
     "alias": undefined,
     "id": "1",
-    "name": "",
-    "type": "foo",
+    "name": "foo",
   },
   true,
   false,
