@@ -604,6 +604,8 @@ describe('denormalize', () => {
         author: User,
         comments: [Comment],
       };
+
+      static validate() {}
     }
 
     const entities = {
