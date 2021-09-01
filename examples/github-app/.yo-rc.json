@@ -1,0 +1,16 @@
+{
+  "@anansi/generator-js": {
+    "githubOrg": "coinbase",
+    "rootPath": "src",
+    "assetPath": "dist",
+    "appName": "github-app",
+    "githubDomain": "github.com",
+    "testing": false,
+    "features": [],
+    "badges": "",
+    "spa": true,
+    "webpack": true,
+    "reactMode": "concurrent",
+    "style": "linaria"
+  }
+}

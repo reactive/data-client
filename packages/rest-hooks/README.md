@@ -11,7 +11,8 @@ Asynchronous dynamic data at scale. Performance, data integrity, and typing for 
 <div align="center">
 
 **[📖Read The Docs](https://resthooks.io/docs)** &nbsp;|&nbsp; [🏁Getting Started](https://resthooks.io/docs/getting-started/installation) &nbsp;|&nbsp;
-[🎮Demo](https://github.com/coinbase/rest-hooks/tree/master/examples/todo-app)
+[🎮Todo Demo](https://github.com/coinbase/rest-hooks/tree/master/examples/todo-app) &nbsp;|&nbsp;
+[🎮Github Demo](https://github.com/coinbase/rest-hooks/tree/master/examples/github-app)
 
 </div>
 
