@@ -10,8 +10,8 @@ Dynamic data at scale. Performance, consistency, typing for REST, proto, GraphQL
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io)** &nbsp;|&nbsp; [🏁Getting Started](https://resthooks.io/docs/getting-started/installation) &nbsp;|&nbsp;
-[🎮Demo](https://codesandbox.io/s/rest-hooks-hinux?fontsize=14&module=%2Fsrc%2Fpages%2FIssueList.tsx)
+**[📖Read The Docs](https://resthooks.io/docs)** &nbsp;|&nbsp; [🏁Getting Started](https://resthooks.io/docs/getting-started/installation) &nbsp;|&nbsp;
+[🎮Demo](https://github.com/coinbase/rest-hooks/tree/master/examples/todo-app)
 
 </div>
 
@@ -67,8 +67,9 @@ For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 
 - [x] ![TS](./typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) types
 - [x] 🛌 React [Suspense](https://resthooks.io/docs/guides/loading-state) support
-- [x] ⛓️ React [Concurrent mode](https://reactjs.org/docs/concurrent-mode-patterns.html) compatible
-- [x] 🎣 Simple declarative API
+- [x] 🧵 React 18 [Concurrent mode](https://reactjs.org/docs/concurrent-mode-patterns.html) compatible
+- [x] 🎣 [Declarative API](https://resthooks.io/docs/getting-started/data-dependency)
+- [x] 📝 Composition over configuration
 - [x] 💰 Normalized response [configurable](https://resthooks.io/docs/guides/resource-lifetime) caching
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination

@@ -183,7 +183,12 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     ) {
       return id;
     }
-    this.validate(processedEntity);
+    const errorMessage = this.validate(processedEntity);
+    if (errorMessage) {
+      const error = new Error(errorMessage);
+      (error as any).status = 400;
+      throw error;
+    }
     visitedEntities[entityType][id].push(input);
 
     Object.keys(this.schema).forEach(key => {
@@ -204,7 +209,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     return id;
   }
 
-  protected static validate(processedEntity: any) {
+  protected static validate(processedEntity: any): string | undefined {
     /* istanbul ignore else */
     if (
       process.env.NODE_ENV !== 'production' &&
@@ -272,19 +277,16 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
           ) {
             console.warn(errorMessage);
           } else {
-            const error = new Error(errorMessage);
-            (error as any).status = 400;
-            throw error;
+            return errorMessage;
           }
         }
       }
     }
     if (process.env.NODE_ENV !== 'production') {
-      Object.keys(this.schema).forEach(key => {
+      for (const key of Object.keys(this.schema)) {
         if (!Object.prototype.hasOwnProperty.call(processedEntity, key)) {
           if (!Object.prototype.hasOwnProperty.call(this.defaults, key)) {
-            const error = new Error(
-              `Schema key is missing in Entity
+            return `Schema key is missing in Entity
 
   Be sure all schema members are also part of the entity
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
@@ -292,13 +294,10 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
 
   Entity keys: ${Object.keys(this.defaults)}
   Schema key(missing): ${key}
-  `,
-            );
-            (error as any).status = 400;
-            throw error;
+  `;
           }
         }
-      });
+      }
     }
   }
 
@@ -331,8 +330,9 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     this: T,
     input: Readonly<Partial<AbstractInstanceType<T>>>,
     unvisit: schema.UnvisitFunction,
-  ): [AbstractInstanceType<T>, boolean, boolean] {
+  ): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean] {
     if (isImmutable(input)) {
+      this.validate((input as any).toJS());
       // Need to set this first so that if it is referenced further within the
       // denormalization the reference will already exist.
       unvisit.setLocal?.(input);
@@ -342,6 +342,9 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
         unvisit,
       );
       return [this.fromJS(denormEntity.toObject()), found, deleted];
+    }
+    if (this.validate(input)) {
+      return [undefined as any, false, true];
     }
     const entityCopy: any = this.fromJS(input);
     // Need to set this first so that if it is referenced further within the

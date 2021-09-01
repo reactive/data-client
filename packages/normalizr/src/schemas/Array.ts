@@ -41,7 +41,7 @@ export const denormalize = (
   schema: any,
   input: any,
   unvisit: any,
-): [denormalized: any, found: boolean, deleted: boolean] => {
+): [denormalized: any, found: boolean, suspend: boolean] => {
   schema = validateSchema(schema);
   let deleted = false;
   let found = true;
