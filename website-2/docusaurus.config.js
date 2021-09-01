@@ -169,7 +169,12 @@ module.exports = {
         { to: '/blog', label: 'News', position: 'left' },
         {
           href: 'https://github.com/coinbase/rest-hooks/tree/master/examples/todo-app',
-          label: '🎮 Demo',
+          label: '🎮 Todo',
+          position: 'right',
+        },
+        {
+          href: 'https://github.com/coinbase/rest-hooks/tree/master/examples/github-app',
+          label: '🎮 Github',
           position: 'right',
         },
         {

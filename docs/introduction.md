@@ -496,8 +496,10 @@ const todoDetail404Fixture: FixtureEndpoint = {
 
 - [Mock data for storybook](./guides/storybook.md) with [MockResolver](./api/MockResolver.md)
 - [Test hooks](./guides/unit-testing-hooks.md) with [makeRenderRestHook()](./api/makeRenderRestHook.md)
-- [Test components](./guides/unit-testing-components.md) with [MockResolver](./api/MockResolver.md) and [mockInitialState()](api/mockInitialState)
+- [Test components](./guides/unit-testing-components.md) with [MockResolver](./api/MockResolver.md) and [mockInitialState()](./api/mockInitialState.md)
 
 ## Demo
 
 See this all in action in [examples/todo-app](https://github.com/coinbase/rest-hooks/tree/master/examples/todo-app)
+
+Or a [github api demo](https://github.com/coinbase/rest-hooks/tree/master/examples/github-app)

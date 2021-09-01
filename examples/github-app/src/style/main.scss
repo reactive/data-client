@@ -1,0 +1,14 @@
+@font-face {
+  font-display: swap;
+  font-family: 'Graphik';
+  font-style: normal;
+  font-stretch: normal;
+  src: url('../fonts/Graphik-Regular.woff') format('woff');
+}
+
+body {
+  font-family: 'Graphik', 'Avenir Next', 'Helvetica Nueue', Helvetica,
+    sans-serif;
+  background-color: #4516f0;
+  color: white;
+}

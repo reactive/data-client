@@ -278,7 +278,7 @@ have shorthands of using object and array literals.
 
 ### Nesting
 
-Additionally, [Entities](../api/Entity.md) themselves can specify [nested](../guides/nested-response.md) [Entities](../api/Entity.md)
+Additionally, [Entities](../api/Entity.md) themselves can specify [nested](../guides/nested-response.md) [schemas](../api/schema.md)
 by specifying a [static schema](../api/Entity.md#schema) member.
 
 <Tabs
