@@ -58,13 +58,13 @@
     eslint-plugin-jsx-a11y "^6.4.1"
 
 "@anansi/jest-preset@^0.5.7":
-  version "0.5.8"
-  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.5.8.tgz#459dcc41f17662ba9038ee5c7b00d863aae366ba"
-  integrity sha512-SfuPj58dwRRtAezHKiZyW6NW5AhmPHDDJzjPGMbhtqs3LvNUv8zSDopqZ7EULBLGNFbIr9au8wEeTza969xHsA==
+  version "0.5.9"
+  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.5.9.tgz#96990547405ee0ad5c08efeaa4e0a743e99bb98c"
+  integrity sha512-V4PJubK6/nETkAM8ldJ/GCUi0Tft7NYsl84qj25NfNke30HCspdk0a9QTzLfLEbMZCYrlUn8YbizDaK/WI5zmA==
   dependencies:
     "@anansi/ts-utils" "^0.2.4"
     babel-jest "^27.1.0"
-    core-js "^3.16.3"
+    core-js "^3.16.4"
     identity-obj-proxy "^3.0.0"
     mitt "^3.0.0"
     semver "^7.3.5"
@@ -5945,10 +5945,10 @@ core-js-pure@^3.8.1:
   resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.15.2.tgz#c8e0874822705f3385d3197af9348f7c9ae2e3ce"
   integrity sha512-D42L7RYh1J2grW8ttxoY1+17Y4wXZeKe7uyplAI3FkNQyI5OgBIAjUfFiTPfL1rs0qLpxaabITNbjKl1Sp82tA==
 
-core-js@^3.16.0, core-js@^3.16.3, core-js@^3.8.1:
-  version "3.16.4"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.16.4.tgz#0fb1029a554fc2688c0963d7c900e188188a78e0"
-  integrity sha512-Tq4GVE6XCjE+hcyW6hPy0ofN3hwtLudz5ZRdrlCnsnD/xkm/PWQRudzYHiKgZKUcefV6Q57fhDHjZHJP5dpfSg==
+core-js@^3.16.0, core-js@^3.16.3, core-js@^3.16.4, core-js@^3.8.1:
+  version "3.17.1"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.17.1.tgz#b39e086f413789cf2ca4680c4ecd1b36a50ba277"
+  integrity sha512-C8i/FNpVN2Ti89QIJcFn9ZQmnM+HaAQr2OpE+ja3TRM9Q34FigsGlAVuwPGkIgydSVClo/1l1D1grP8LVt9IYA==
 
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
