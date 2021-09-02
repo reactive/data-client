@@ -3,6 +3,7 @@ import SimpleResource from '@rest-hooks/rest/SimpleResource';
 class NetworkError extends Error {
   declare status: number;
   declare response: Response;
+  name = 'NetworkError';
 
   constructor(response: Response) {
     super(

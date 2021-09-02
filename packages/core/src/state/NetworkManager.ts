@@ -22,6 +22,14 @@ import {
 } from '@rest-hooks/core/state/actions/index';
 import { initialState } from '@rest-hooks/core/state/reducer';
 
+export class ResetError extends Error {
+  name = 'ResetError';
+
+  constructor() {
+    super('Aborted due to RESET');
+  }
+}
+
 /** Handles all async network dispatches
  *
  * Dedupes concurrent requests by keeping track of all fetches in flight
@@ -81,7 +89,7 @@ export default class NetworkManager implements Manager {
                 // there could be external listeners to the promise
                 // this must happen after commit so our own rejector knows not to dispatch an error based on this
                 for (const k in rejectors) {
-                  rejectors[k](new Error('Aborted due to RESET'));
+                  rejectors[k](new ResetError());
                 }
               });
             }
