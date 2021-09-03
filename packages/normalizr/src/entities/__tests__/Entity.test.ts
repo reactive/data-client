@@ -761,6 +761,14 @@ describe(`${Entity.name} denormalization`, () => {
   User.schema = {
     reports: [Report],
   };
+  class Comment extends IDEntity {
+    readonly body: string = '';
+    readonly author: User = User.fromJS();
+
+    static schema = {
+      author: User,
+    };
+  }
 
   test('denormalizes recursive dependencies', () => {
     const entities = {
@@ -788,7 +796,7 @@ describe(`${Entity.name} denormalization`, () => {
     expect(denormalize('456', User, fromJS(entities))[0]).toMatchSnapshot();
   });
 
-  test.only('denormalizes recursive entities with referential equality', () => {
+  test('denormalizes recursive entities with referential equality', () => {
     const entities = {
       Report: {
         '123': {
@@ -796,6 +804,13 @@ describe(`${Entity.name} denormalization`, () => {
           title: 'Weekly report',
           draftedBy: '456',
           publishedBy: '456',
+        },
+      },
+      Comment: {
+        '999': {
+          id: '999',
+          body: 'Good morning',
+          author: '456',
         },
       },
       User: {
@@ -822,8 +837,6 @@ describe(`${Entity.name} denormalization`, () => {
       resultCache,
     );
 
-    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-    console.log();
     expect(denormalizedReport).toBeDefined();
     // This is just for TypeScript, the above line actually determines this
     if (!denormalizedReport) throw new Error('expected to be defined');
@@ -832,6 +845,8 @@ describe(`${Entity.name} denormalization`, () => {
     expect(denormalizedReport.draftedBy?.reports[0].draftedBy).toBe(
       denormalizedReport.draftedBy,
     );
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+    console.log();
 
     const [denormalizedReport2] = denormalize(
       '123',
@@ -843,7 +858,100 @@ describe(`${Entity.name} denormalization`, () => {
 
     expect(denormalizedReport2).toStrictEqual(denormalizedReport);
     expect(denormalizedReport2).toBe(denormalizedReport);
+    // NOTE: Given how immutable data works, referential equality can't be
+    // maintained with nested denormalization.
+  });
 
+  test.only('denormalizes maintain referential equality when appropriate', () => {
+    const entities = {
+      Report: {
+        '123': {
+          id: '123',
+          title: 'Weekly report',
+          draftedBy: '456',
+          publishedBy: '456',
+        },
+      },
+      Comment: {
+        '999': {
+          id: '999',
+          body: 'Good morning',
+          author: '456',
+        },
+      },
+      User: {
+        '456': {
+          id: '456',
+          role: 'manager',
+          reports: ['123'],
+        },
+        '457': {
+          id: '457',
+          role: 'servant',
+          reports: ['123'],
+        },
+      },
+    };
+    const entityCache: any = {};
+    const resultCache = new WeakListMap();
+
+    const input = { report: '123', comment: '999' };
+    const schema = {
+      report: Report,
+      comment: Comment,
+    };
+
+    const [denormalizedReport] = denormalize(
+      input,
+      schema,
+      entities,
+      entityCache,
+      resultCache,
+    );
+
+    expect(denormalizedReport.report).toBeDefined();
+    expect(denormalizedReport.comment).toBeDefined();
+    // This is just for TypeScript, the above line actually determines this
+    if (!denormalizedReport.report || !denormalizedReport.comment)
+      throw new Error('expected to be defined');
+    expect(denormalizedReport.report.publishedBy).toBe(
+      denormalizedReport.comment.author,
+    );
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+    console.log();
+
+    const [denormalizedReport2] = denormalize(
+      input,
+      schema,
+      entities,
+      entityCache,
+      resultCache,
+    );
+
+    expect(denormalizedReport2).toStrictEqual(denormalizedReport);
+    expect(denormalizedReport2).toBe(denormalizedReport);
+
+    // should update all uses of user
+    const nextEntities = {
+      ...entities,
+      User: {
+        ...entities.User,
+        '456': {
+          ...entities.User[456],
+          role: 'supervisor',
+        },
+      },
+    };
+
+    const [denormalizedReport3] = denormalize(
+      input,
+      schema,
+      nextEntities,
+      entityCache,
+      resultCache,
+    );
+    expect(denormalizedReport3.comment?.author?.role).toBe('supervisor');
+    expect(denormalizedReport3.report?.draftedBy?.role).toBe('supervisor');
     // NOTE: Given how immutable data works, referential equality can't be
     // maintained with nested denormalization.
   });

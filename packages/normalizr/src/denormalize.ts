@@ -47,7 +47,7 @@ const unvisitEntity = (
   let found = true;
   let deleted = false;
   if ((entity as any) === 4) {
-    console.log('makde it', localCache[schema.key][id], schema, globalKey);
+    console.log('made it', localCache[schema.key][id], schema, globalKey);
   }
 
   if (!localCache[schema.key][id]) {
@@ -62,15 +62,11 @@ const unvisitEntity = (
       entityCache[schema.key][id] = new WeakListMap();
     const globalCacheEntry = entityCache[schema.key][id];
 
-    const before = localCache[schema.key][id];
     [localCache[schema.key][id], found, deleted] = schema.denormalize(
       entity,
       wrappedUnvisit,
       localKey,
     );
-    if (localCache[schema.key][id] !== before) {
-      console.log('circle found', schema.key, id);
-    }
 
     console.log('lookup>', id, schema, globalCacheEntry.has(localKey));
     console.log(localKey);
@@ -89,7 +85,7 @@ const unvisitEntity = (
   } else {
     console.log('already found', schema.key, id);
     console.log('val', localCache[schema.key][id]);
-    globalKey.push(localCache[schema.key][id]);
+    //globalKey.push(localCache[schema.key][id]);
   }
   if ((entity as any) === 4) {
     console.log('makde it', localCache[schema.key][id], schema, globalKey);
