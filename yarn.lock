@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@anansi/babel-preset@2.7.11":
-  version "2.7.11"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.7.11.tgz#cc011ee939f4159b05721e41b800683c866added"
-  integrity sha512-pvbJXJn6bwn2i7lVDRElmqdEjI8o6yKkxXD9AkoM6Bke2Ag9ihXoHH6dGw/zVNemeAysikbaJ2IouRAuigLXBA==
+"@anansi/babel-preset@2.7.13":
+  version "2.7.13"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.7.13.tgz#0a8b6e6d65e6edef7fbd2b83d67fedac80d66369"
+  integrity sha512-41axysoY81DTlCMsdzL6iyANOzyVOQKRDa3a8rU57Jy+W77WitCBLZFFbzd8B4Nie9Lcbf87DtcKHU8ezyfDMA==
   dependencies:
     "@anansi/ts-utils" "^0.2.4"
     "@babel/plugin-proposal-class-properties" "^7.14.5"
@@ -32,7 +32,7 @@
     babel-plugin-react-require "^3.1.3"
     babel-plugin-root-import "^6.6.0"
     babel-plugin-transform-react-remove-prop-types "^0.4.24"
-    core-js-compat "^3.16.3"
+    core-js-compat "^3.17.1"
     glob-to-regexp "^0.4.1"
     path "^0.12.7"
     semver "^7.3.5"
@@ -2007,6 +2007,7 @@
 
 "@lerna/conventional-commits@4.0.0", "@lerna/conventional-commits@https://github.com/ntucker/lerna-conventional-commits.git":
   version "3.16.4"
+  uid "4389120475a4f80ac8e4fbe766fa4c9644c6b1c7"
   resolved "https://github.com/ntucker/lerna-conventional-commits.git#4389120475a4f80ac8e4fbe766fa4c9644c6b1c7"
   dependencies:
     "@lerna/validation-error" "^4.0"
@@ -5927,10 +5928,10 @@ copyfiles@^2.4.1:
     untildify "^4.0.0"
     yargs "^16.1.0"
 
-core-js-compat@^3.16.0, core-js-compat@^3.16.3, core-js-compat@^3.9.1:
-  version "3.16.4"
-  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.16.4.tgz#cf28abe0e45a43645b04b2c1a073efa03d0b3b26"
-  integrity sha512-IzCSomxRdahCYb6G3HiN6pl3JCiM0NMunRcNa1pIeC7g17Vd6Ue3AT9anQiENPIm/svThUVer1pIbLMDERIsFw==
+core-js-compat@^3.16.0, core-js-compat@^3.17.1, core-js-compat@^3.9.1:
+  version "3.17.2"
+  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.17.2.tgz#f461ab950c0a0ffedfc327debf28b7e518950936"
+  integrity sha512-lHnt7A1Oqplebl5i0MrQyFv/yyEzr9p29OjlkcsFRDDgHwwQyVckfRGJ790qzXhkwM8ba4SFHHa2sO+T5f1zGg==
   dependencies:
     browserslist "^4.16.8"
     semver "7.0.0"
