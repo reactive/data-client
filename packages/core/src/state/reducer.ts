@@ -156,7 +156,12 @@ export default function reducer(
       };
     }
     case RESET_TYPE:
-      return { ...initialState, lastReset: action.date };
+      if (process.env.NODE_ENV !== 'production' && action.date === undefined) {
+        console.warn(
+          `${RESET_TYPE} sent without 'date' member. This is deprecated. Please use createReset() action creator to ensure correct action shape.`,
+        );
+      }
+      return { ...initialState, lastReset: action.date ?? new Date() };
 
     default:
       // A reducer must always return a valid state.

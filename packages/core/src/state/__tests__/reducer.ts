@@ -677,30 +677,74 @@ describe('reducer', () => {
     const newState = reducer(iniState, action);
     expect(newState).toBe(iniState);
   });
-  it('reset should delete all entries', () => {
-    const action: ResetAction = {
-      type: RESET_TYPE,
-      date: new Date(0),
-    };
-    const iniState: any = {
-      ...initialState,
-      entities: {
-        [ArticleResource.key]: {
-          '10': ArticleResource.fromJS({ id: 10 }),
-          '20': ArticleResource.fromJS({ id: 20 }),
-          '25': ArticleResource.fromJS({ id: 25 }),
+  describe('RESET', () => {
+    let warnspy: jest.SpyInstance;
+    beforeEach(() => {
+      warnspy = jest.spyOn(global.console, 'warn');
+    });
+    afterEach(() => {
+      warnspy.mockRestore();
+    });
+
+    it('reset should delete all entries', () => {
+      const action: ResetAction = {
+        type: RESET_TYPE,
+        date: new Date(0),
+      };
+      const iniState: any = {
+        ...initialState,
+        entities: {
+          [ArticleResource.key]: {
+            '10': ArticleResource.fromJS({ id: 10 }),
+            '20': ArticleResource.fromJS({ id: 20 }),
+            '25': ArticleResource.fromJS({ id: 25 }),
+          },
+          [PaginatedArticleResource.key]: {
+            hi: PaginatedArticleResource.fromJS({ id: 5 }),
+          },
+          '5': undefined,
         },
-        [PaginatedArticleResource.key]: {
-          hi: PaginatedArticleResource.fromJS({ id: 5 }),
+        results: { abc: '20' },
+      };
+      const newState = reducer(iniState, action);
+      expect(newState.results).toEqual({});
+      expect(newState.meta).toEqual({});
+      expect(newState.entities).toEqual({});
+    });
+
+    it('reset without date should warn about deprecation', () => {
+      const action: any = {
+        type: RESET_TYPE,
+      };
+      const iniState: any = {
+        ...initialState,
+        entities: {
+          [ArticleResource.key]: {
+            '10': ArticleResource.fromJS({ id: 10 }),
+            '20': ArticleResource.fromJS({ id: 20 }),
+            '25': ArticleResource.fromJS({ id: 25 }),
+          },
+          [PaginatedArticleResource.key]: {
+            hi: PaginatedArticleResource.fromJS({ id: 5 }),
+          },
+          '5': undefined,
         },
-        '5': undefined,
-      },
-      results: { abc: '20' },
-    };
-    const newState = reducer(iniState, action);
-    expect(newState.results).toEqual({});
-    expect(newState.meta).toEqual({});
-    expect(newState.entities).toEqual({});
+        results: { abc: '20' },
+      };
+      const newState = reducer(iniState, action);
+      expect(newState.results).toEqual({});
+      expect(newState.meta).toEqual({});
+      expect(newState.entities).toEqual({});
+      expect(newState.lastReset).toBeDefined();
+      expect(newState.lastReset).toBeInstanceOf(Date);
+      expect(warnspy.mock.calls).toMatchInlineSnapshot(`
+Array [
+  Array [
+    "rest-hooks/reset sent without 'date' member. This is deprecated. Please use createReset() action creator to ensure correct action shape.",
+  ],
+]
+`);
+    });
   });
 
   describe('GC action', () => {
