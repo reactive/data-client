@@ -8,6 +8,7 @@ import { RestEndpoint } from './types';
 class NetworkError extends Error {
   declare status: number;
   declare response: Response;
+  name = 'NetworkError';
 
   constructor(response: Response) {
     super(

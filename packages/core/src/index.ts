@@ -1,5 +1,8 @@
 export * as __INTERNAL__ from '@rest-hooks/core/internal';
-export { default as NetworkManager } from '@rest-hooks/core/state/NetworkManager';
+export {
+  default as NetworkManager,
+  ResetError,
+} from '@rest-hooks/core/state/NetworkManager';
 export {
   default as reducer,
   initialState,
