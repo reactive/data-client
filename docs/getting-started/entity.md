@@ -354,7 +354,7 @@ class Todo extends Entity {
   readonly title: string = '';
   readonly completed: boolean = false;
   // highlight-next-line
-  readonly createdAt: Date = new Date(0);
+  readonly dueDate: Date = new Date(0);
 
   pk() {
     return `${this.id}`;
@@ -363,7 +363,7 @@ class Todo extends Entity {
   static schema = {
     user: User,
     // highlight-next-line
-    createdAt: Date,
+    dueDate: Date,
   };
 }
 ```

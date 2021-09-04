@@ -261,7 +261,7 @@ const todoUpdate = new Endpoint(fetchTodoUpdate, {
 ### Schema
 
 What if our entity is not the top level item? Here we define the `todoList`
-endpoint with `[Todo]` as its schema. [Schemas](./getting-started/entity) tell Rest Hooks _where_ to find
+endpoint with `[Todo]` as its schema. [Schemas](./getting-started/entity.md) tell Rest Hooks _where_ to find
 the Entities. By placing inside a list, Rest Hooks knows to expect a response
 where each item of the list is the entity specified.
 

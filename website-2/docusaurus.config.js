@@ -289,7 +289,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Coinbase`,
+      copyright: `Copyright © ${new Date().getFullYear()} Nathaniel Tucker`,
       logo: {
         src: 'img/rest_hooks_logo.svg',
       },
