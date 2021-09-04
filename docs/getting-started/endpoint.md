@@ -26,6 +26,7 @@ const fetchTodoDetail = ({ id }: Params): Promise<Todo> =>
     res.json(),
   );
 
+// highlight-next-line
 const todoDetail = new Endpoint(fetchTodoDetail);
 ```
 
@@ -35,6 +36,7 @@ const fetchTodoDetail = ({ id }) =>
     res.json(),
   );
 
+// highlight-next-line
 const todoDetail = new Endpoint(fetchTodoDetail);
 ```
 
