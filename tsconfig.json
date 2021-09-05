@@ -6,6 +6,7 @@
     { "path": "./packages/use-enhanced-reducer/tsconfig.compile.json" },
     { "path": "./packages/endpoint/tsconfig.compile.json" },
     { "path": "./packages/rest/tsconfig.compile.json" },
+    { "path": "./packages/graphql/tsconfig.compile.json" },
     { "path": "./packages/core/tsconfig.compile.json" },
     { "path": "./packages/img/tsconfig.compile.json" },
     { "path": "./packages/hooks/tsconfig.compile.json" },

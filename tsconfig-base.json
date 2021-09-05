@@ -57,6 +57,7 @@
       "@rest-hooks/test/*": ["packages/test/src/*"],
       "@rest-hooks/legacy/*": ["packages/legacy/src/*"],
       "@rest-hooks/rest/*": ["packages/rest/src/*"],
+      "@rest-hooks/graphql/*": ["packages/graphql/src/*"],
       "@rest-hooks/normalizr/*": ["packages/normalizr/src/*"],
       "@rest-hooks/*": ["packages/*/src"],
       "rest-hooks": ["packages/rest-hooks/src"],
