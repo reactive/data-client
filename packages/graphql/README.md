@@ -45,7 +45,7 @@ const userList = gql.query(
   { users: [User] },
 );
 
-const userDetail = gql.query<{ name: string }>(
+const userDetail = gql.query(
   `query UserDetail($name: String!) {
     user(name: $name) {
       id
@@ -74,10 +74,7 @@ return (
 ```ts
 const gql = new GQLEndpoint('https://graphql.org/swapi-graphql');
 
-const createReview = gql.mutation<{
-  ep: string;
-  review: { stars: number; commentary: string };
-}>(
+const createReview = gql.mutation(
   `mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
     createReview(episode: $ep, review: $review) {
       stars

@@ -19,6 +19,7 @@ const packages = [
   'experimental',
   'endpoint',
   'rest',
+  'graphql',
   'core',
   'rest-hooks',
   'normalizr',

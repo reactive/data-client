@@ -54,8 +54,8 @@ import { useResource } from 'rest-hooks';
 import User from 'schema/User';
 import gql from 'schema/endpoint';
 
-export const userDetail = gql.query<{ name: string }>(
-  `query UserDetail($name: String!) {
+export const userDetail = gql.query(
+  (v: { name: string }) => `query UserDetail($name: String!) {
     user(name: $name) {
       id
       name
@@ -120,7 +120,7 @@ suspends.
   - (For example: navigating to a detail page with a single entry from a list view will instantly show the same data as the list without
     requiring a refetch.)
 
-## Mutations
+## Mutate the Graph
 
 We're using [SWAPI](https://graphql.org/swapi-graphql) as our example, since it offers mutations.
 
@@ -135,11 +135,11 @@ class Review extends GQLEntity {
   readonly commentary: string = '';
 }
 
-const createReview = gql.mutation<{
-  ep: string;
-  review: { stars: number; commentary: string };
-}>(
-  `mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
+const createReview = gql.mutation(
+  (v: {
+    ep: string;
+    review: { stars: number; commentary: string };
+  }) => `mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
     createReview(episode: $ep, review: $review) {
       stars
       commentary
@@ -158,3 +158,7 @@ export default function NewReviewForm() {
   );
 }
 ```
+
+The first argument to GQLEndpoint.query or GQLEndpoint.mutate is either the query string
+*or* a function that returns the query string. The main value of using the latter is enforcing
+the function argument types.

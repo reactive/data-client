@@ -433,7 +433,7 @@ class User extends GQLEntity {
 
 const gql = new GQLEndpoint('https://nosy-baritone.glitch.me');
 
-const userDetail = gql.query<{ name: string }>(
+const userDetail = gql.query(
   `query UserDetail($name: String!) {
     user(name: $name) {
       id

@@ -19,13 +19,8 @@ process.env.NODE_ENV = 'production';
 process.env.RESOLVER_ALIAS = '{"@rest-hooks/graphql":"./src"}';
 
 function isExternal(id) {
-  const ret = dependencies.includes(id);
-  if (!ret) {
-    return dependencies.some(dep => id.startsWith(dep));
-  }
-  return ret;
+  return dependencies.some(dep => dep === id || id.startsWith(dep));
 }
-
 const configs = [];
 if (process.env.BROWSERSLIST_ENV !== 'node12') {
   // browser-friendly UMD build
