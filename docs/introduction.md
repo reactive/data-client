@@ -358,6 +358,8 @@ At this point we've defined `todoDetail`, `todoList` and `todoUpdate`. You might
 that these endpoint definitions share some logic and information. For this reason Rest Hooks
 encourages extracting shared logic among endpoints.
 
+### @rest-hooks/rest
+
 One common pattern is having endpoints Create Read Update Delete (CRUD) for a given resource.
 Using [@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest) ([docs](./rest/usage.md)) simplifies these patterns.
 
@@ -415,6 +417,37 @@ del({ id: 5 });
 ```
 
 </details>
+
+### @rest-hooks/graphql
+
+[GraphQL](https://graphql.org) support ships in the [@rest-hooks/graphql](https://www.npmjs.com/package/@rest-hooks/graphql)
+([docs](./graphql/usage.md)) package.
+
+```typescript
+import { GQLEntity, GQLEndpoint } from '@rest-hooks/graphql';
+
+class User extends GQLEntity {
+  readonly name: string = '';
+  readonly email: string = '';
+}
+
+const gql = new GQLEndpoint('https://nosy-baritone.glitch.me');
+
+const userDetail = gql.query<{ name: string }>(
+  `query UserDetail($name: String!) {
+    user(name: $name) {
+      id
+      name
+      email
+    }
+  }`,
+  { user: User },
+);
+```
+
+```tsx
+const { user } = useResource(userDetail, { name: 'Fong' });
+```
 
 ## Debugging
 

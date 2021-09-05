@@ -1,5 +1,6 @@
 import { Endpoint } from '@rest-hooks/endpoint';
 import type { Schema } from '@rest-hooks/normalizr';
+import GQLNetworkError from '@rest-hooks/graphql/GQLNetworkError';
 
 export default class GQLEndpoint<
   Variables,
@@ -21,7 +22,9 @@ export default class GQLEndpoint<
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       }).then(async res => {
-        return (await res.json()).data;
+        const { data, errors } = await res.json();
+        if (errors) throw new GQLNetworkError(errors);
+        return data;
       });
     }, args);
     return this;

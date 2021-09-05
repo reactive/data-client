@@ -22,40 +22,49 @@
 const gql = new GQLEndpoint('https://nosy-baritone.glitch.me');
 ```
 
+### Simple TypeScript definition
+
+```typescript
+class User extends GQLEntity {
+  readonly name: string = '';
+  readonly email: string = '';
+}
+```
+
 ### Write type-safe queries
 
 ```typescript
 const userList = gql.query(
   `{
-	users {
-		id
-		name
-		email
-	}
-}`,
+    users {
+      id
+      name
+      email
+      }
+    }`,
   { users: [User] },
 );
 
-const userDetail = gql.query<{ id: string }>(
-  `query UserDetail($id: ID) {
-	users(id: $id) {
-		id
-		name
-		email
-	}
-}`,
-  { users: User },
+const userDetail = gql.query<{ name: string }>(
+  `query UserDetail($name: String!) {
+    user(name: $name) {
+      id
+      name
+      email
+    }
+  }`,
+  { user: User },
 );
 ```
 
 ### One line data-hookup
 
 ```tsx
-const { users } = useResource(userDetail, { id });
+const { user } = useResource(userDetail, { name: 'Fong' });
 return (
   <>
-    <h2>{users.name}</h2>
-    <p>{users.email}</p>
+    <h2>{user.name}</h2>
+    <p>{user.email}</p>
   </>
 );
 ```
@@ -63,17 +72,19 @@ return (
 ### Mutations
 
 ```ts
+const gql = new GQLEndpoint('https://graphql.org/swapi-graphql');
+
 const createReview = gql.mutation<{
   ep: string;
   review: { stars: number; commentary: string };
 }>(
   `mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
-  createReview(episode: $ep, review: $review) {
-    stars
-    commentary
-  }
-}`,
-{ createReview: Review }
+    createReview(episode: $ep, review: $review) {
+      stars
+      commentary
+    }
+  }`,
+  { createReview: Review },
 );
 ```
 
