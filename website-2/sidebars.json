@@ -123,6 +123,20 @@
     },
     {
       "type": "category",
+      "label": "GraphQL",
+      "items": [
+        {
+          "type": "doc",
+          "id": "graphql/usage"
+        },
+        {
+          "type": "doc",
+          "id": "graphql/auth"
+        }
+      ]
+    },
+    {
+      "type": "category",
       "label": "Concepts",
       "items": [
         {

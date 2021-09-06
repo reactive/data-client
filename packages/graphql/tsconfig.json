@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig-base",
+  "compilerOptions": {
+    "outDir": "lib",
+    "rootDir": "src",
+    "skipLibCheck": false
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../../__tests__" },
+    { "path": "../normalizr" },
+    { "path": "../endpoint" }
+  ]
+}
