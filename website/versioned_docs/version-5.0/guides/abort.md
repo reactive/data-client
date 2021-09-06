@@ -1,7 +1,5 @@
 ---
 title: Aborting Fetch
-id: version-5.0-abort
-original_id: abort
 ---
 
 [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) provides a new way of cancelling

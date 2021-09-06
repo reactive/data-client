@@ -1,7 +1,5 @@
 ---
 title: Guides
-id: version-5.0-README
-original_id: README
 ---
 
 - 🔰 Basics

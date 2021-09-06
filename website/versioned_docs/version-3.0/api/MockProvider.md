@@ -1,6 +1,6 @@
 ---
-title: <MockProvider />
-id: version-3.0-MockProvider
+title: "<MockProvider />"
+id: MockProvider
 original_id: MockProvider
 ---
 

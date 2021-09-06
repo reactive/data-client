@@ -1,6 +1,6 @@
 ---
 title: Typing REST Endpoints
-id: version-4.5-rest-types
+id: rest-types
 original_id: rest-types
 ---
 

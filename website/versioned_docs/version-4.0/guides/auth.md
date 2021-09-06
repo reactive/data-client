@@ -1,6 +1,6 @@
 ---
 title: Authentication
-id: version-4.0-auth
+id: auth
 original_id: auth
 ---
 

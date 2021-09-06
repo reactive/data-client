@@ -1,7 +1,5 @@
 ---
 title: Protocol Specific Extensions
-id: version-5.0-protocols
-original_id: protocols
 ---
 
 ## REST / CRUD

@@ -1,11 +1,9 @@
 ---
 title: useCache()
-id: version-5.0-useCache
-original_id: useCache
 ---
+import GenericsTabs from '@site/src/components/GenericsTabs';
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Type-->
+<GenericsTabs>
 
 ```typescript
 function useCache(
@@ -14,8 +12,6 @@ function useCache(
 ): Denormalize<typeof endpoint.schema> | null;
 ```
 
-<!--With Generics-->
-
 ```typescript
 function useCache<Params extends Readonly<object>, S extends Schema>(
   endpoint: Pick<ReadEndpoint<(p:Params) => Promise<any>, S>, 'schema' | 'key'>,
@@ -23,7 +19,7 @@ function useCache<Params extends Readonly<object>, S extends Schema>(
 ): Denormalize<S> | null;
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</GenericsTabs>
 
 Excellent to use data in the normalized cache without fetching.
 

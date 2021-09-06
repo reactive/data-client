@@ -1,6 +1,6 @@
 ---
 title: URL Patterns
-id: version-4.1-url
+id: url
 original_id: url
 ---
 

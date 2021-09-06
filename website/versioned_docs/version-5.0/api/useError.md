@@ -1,7 +1,5 @@
 ---
 title: useError()
-id: version-5.0-useError
-original_id: useError
 ---
 
 ```typescript

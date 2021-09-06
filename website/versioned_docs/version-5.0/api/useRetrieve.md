@@ -1,11 +1,10 @@
 ---
 title: useRetrieve()
-id: version-5.0-useRetrieve
-original_id: useRetrieve
 ---
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Type-->
+import GenericsTabs from '@site/src/components/GenericsTabs';
+
+<GenericsTabs>
 
 ```typescript
 function useRetrieve(
@@ -14,7 +13,7 @@ function useRetrieve(
 ): Promise<any> | undefined;
 ```
 
-<!--With Generics-->
+
 
 ```typescript
 function useRetrieve<
@@ -26,7 +25,7 @@ function useRetrieve<
 ): Promise<any> | undefined;
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</GenericsTabs>
 
 Great for retrieving resources optimistically before they are needed.
 

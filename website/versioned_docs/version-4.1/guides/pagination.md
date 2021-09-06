@@ -1,6 +1,6 @@
 ---
 title: Pagination
-id: version-4.1-pagination
+id: pagination
 original_id: pagination
 ---
 

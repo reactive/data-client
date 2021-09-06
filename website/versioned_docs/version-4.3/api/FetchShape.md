@@ -1,6 +1,6 @@
 ---
 title: FetchShape
-id: version-4.3-FetchShape
+id: FetchShape
 original_id: FetchShape
 ---
 
@@ -64,7 +64,7 @@ mutation update properly in the cache without having to do another request.
 It sends a request and represents a success response to mean that entity is deleted.
 Upon success it will purge that entity from the cache.
 
-## fetch(params: Param, body: Payload): Promise\<any>
+## fetch(params: Param, body: Payload): Promise\<any\>
 
 Handles performing an actual network request. This usually just proxies to the `Resource`
 fetch method with a defined `method`.

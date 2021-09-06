@@ -1,7 +1,5 @@
 ---
 title: Render as you Fetch
-id: version-5.0-render-as-you-fetch
-original_id: render-as-you-fetch
 ---
 
 A core design feature of Rest Hooks is decoupling actual data retrieval from data

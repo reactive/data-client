@@ -1,7 +1,5 @@
 ---
 title: useDebounce()
-id: version-5.0-useDebounce
-original_id: useDebounce
 ---
 
 ```typescript

@@ -1,9 +1,9 @@
 ---
 title: Schemas and Normalized data
 sidebar_label: Schema
-id: version-5.0-schema
-original_id: schema
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 Schemas are a declarative definition of how to [process responses](./schema)
 
@@ -36,12 +36,21 @@ const TodoDetail = new Endpoint(
 This makes it easy to find, update, create, or delete the same data - no matter what
 endpoint it was used in.
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--State-->
+<Tabs
+defaultValue="State"
+values={[
+{ label: 'State', value: 'State' },
+{ label: 'Response', value: 'Response' },
+{ label: 'Endpoint', value: 'Endpoint' },
+{ label: 'Entity', value: 'Entity' },
+{ label: 'React', value: 'React' },
+]}>
+<TabItem value="State">
 
 ![Entities cache](/img/entities.png)
 
-<!--Response-->
+</TabItem>
+<TabItem value="Response">
 
 ```json
 [
@@ -50,7 +59,8 @@ endpoint it was used in.
 ]
 ```
 
-<!--Endpoint-->
+</TabItem>
+<TabItem value="Endpoint">
 
 ```typescript
 const PresentationList = new Endpoint(
@@ -59,7 +69,8 @@ const PresentationList = new Endpoint(
 );
 ```
 
-<!--Entity-->
+</TabItem>
+<TabItem value="Entity">
 
 ```typescript
 class PresentationEntity extends Entity {
@@ -72,7 +83,8 @@ class PresentationEntity extends Entity {
 }
 ```
 
-<!--React-->
+</TabItem>
+<TabItem value="React">
 
 ```tsx
 export function PresentationsPage() {
@@ -83,12 +95,19 @@ export function PresentationsPage() {
 }
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</TabItem>
+</Tabs>
 
 ## Mutations and Dynamic Data
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Create-->
+<Tabs
+defaultValue="Create"
+values={[
+{ label: 'Create', value: 'Create' },
+{ label: 'Update', value: 'Update' },
+{ label: 'Delete', value: 'Delete' },
+]}>
+<TabItem value="Create">
 
 ```typescript
 import { schema, Endpoint } from '@rest-hooks/endpoint';
@@ -120,7 +139,8 @@ export default function NewTodoForm() {
 
 </details>
 
-<!--Update-->
+</TabItem>
+<TabItem value="Update">
 
 ```typescript
 import { schema, Endpoint } from '@rest-hooks/endpoint';
@@ -156,7 +176,8 @@ export default function UpdateTodoForm({ id }: { id: number }) {
 
 </details>
 
-<!--Delete-->
+</TabItem>
+<TabItem value="Delete">
 
 ```typescript
 import { schema, Endpoint } from '@rest-hooks/endpoint';
@@ -189,6 +210,7 @@ export default function TodoWithDelete({ todo }: { todo: Todo }) {
 
 </details>
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</TabItem>
+</Tabs>
 
 Mutations automatically update the normalized cache, resulting in consistent and fresh data.

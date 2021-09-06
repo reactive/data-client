@@ -1,5 +1,5 @@
 ---
-id: version-3.0-useresourcelegacy
+id: useresourcelegacy
 title: useResourceLegacy()
 original_id: useresourcelegacy
 ---

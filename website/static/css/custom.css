@@ -87,7 +87,8 @@
   background: #1e1e1e;
   margin-bottom: 40px;
 }
-.blockImageFull img, .blockImageFull video {
+.blockImageFull img,
+.blockImageFull video {
   border-radius: 6px;
 }
 .blockImageFull video {

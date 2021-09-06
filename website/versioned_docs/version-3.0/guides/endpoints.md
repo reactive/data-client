@@ -1,6 +1,6 @@
 ---
 title: Custom endpoints
-id: version-3.0-endpoints
+id: endpoints
 original_id: endpoints
 ---
 

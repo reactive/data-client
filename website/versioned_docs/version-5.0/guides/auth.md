@@ -1,8 +1,8 @@
 ---
 title: Authentication
-id: version-5.0-auth
-original_id: auth
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 All network requests are run through the `static getFetchInit` optionally
 defined in your `Resource`.
@@ -11,8 +11,13 @@ defined in your `Resource`.
 
 Here's an example using simple cookie auth:
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--fetch-->
+<Tabs
+defaultValue="fetch"
+values={[
+{ label: 'fetch', value: 'fetch' },
+{ label: 'superagent', value: 'superagent' },
+]}>
+<TabItem value="fetch">
 
 ```typescript
 class AuthdResource extends Resource {
@@ -23,7 +28,8 @@ class AuthdResource extends Resource {
 }
 ```
 
-<!--superagent-->
+</TabItem>
+<TabItem value="superagent">
 
 ```typescript
 import { Request } from 'rest-hooks';
@@ -33,7 +39,8 @@ class AuthdResource extends Resource {
 }
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</TabItem>
+</Tabs>
 
 You can also do more complex flows (like adding arbitrary headers) to
 the request. Every [getFetchInit()](api/resource#static-getfetchinitinit-requestinit-requestinit) takes in the existing [init options](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) of fetch, and returns new init options to be used.

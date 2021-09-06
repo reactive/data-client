@@ -1,5 +1,5 @@
 ---
-id: version-4.1-resource
+id: resource
 title: Resource
 original_id: resource
 ---
@@ -185,7 +185,7 @@ static get key(): string {
 
 These are the basic building blocks used to compile the [Fetch shapes](../api/FetchShape.md) below.
 
-### static url\<T extends typeof Resource>(urlParams: Partial<AbstractInstanceType\<T>>) => string
+### static url\<T extends typeof Resource\>(urlParams: Partial<AbstractInstanceType\<T\>\>) => string
 
 Computes the url based on the parameters. Default implementation follows `/urlRoot/[pk]` pattern.
 
@@ -199,12 +199,12 @@ parameters.
 
 Used in [listShape()](#listshape-readshape) and [createShape()](#createshape-mutateshape)
 
-### static fetch(method: "get" | "post" | "put" | "patch" | "delete" | "options", url: string, body?: Readonly\<object | string>) => Promise\<any>
+### static fetch(method: "get" | "post" | "put" | "patch" | "delete" | "options", url: string, body?: Readonly\<object | string>) => Promise\<any\>
 
 Performs the actual network fetch returning a promise that resolves to the network response or rejects
 on network error. This can be useful to override to really customize your transport.
 
-### static fetchResponse(method: "get" | "post" | "put" | "patch" | "delete" | "options", url: string, body?: Readonly\<object | string>) => Promise\<Response>
+### static fetchResponse(method: "get" | "post" | "put" | "patch" | "delete" | "options", url: string, body?: Readonly\<object | string\>) => Promise\<Response\>
 
 Used in `fetch()`. Resolves the HTTP [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response).
 

@@ -1,8 +1,10 @@
 ---
-id: version-5.0-redux
+id: redux
 title: Redux integration
-original_id: redux
 ---
+import PkgTabs from '@site/src/components/PkgTabs';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 Using [redux](https://redux.js.org/) is completely optional. However, for many it means easy integration or migration
 with existing projects, or just a nice centralized state management abstraction.
@@ -13,20 +15,7 @@ or it won't work as expected.
 
 First make sure you have redux installed:
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--yarn-->
-
-```bash
-yarn add redux
-```
-
-<!--npm-->
-
-```bash
-npm install redux
-```
-
-<!--END_DOCUSAURUS_CODE_TABS-->
+<PkgTabs pkgs="redux" />
 
 Note: react-redux is _not_ needed for this integration (though you will need it if you want to use redux directly as well).
 
@@ -40,8 +29,13 @@ the rest-hooks specific part of the state.
 > Because of this, if you want to integrate both, you'll need to place all redux middlewares
 > after the `PromiseifyMiddleware` adapter, and place all Rest Hooks manager middlewares before.
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--just Rest Hooks-->
+<Tabs
+defaultValue="rest-hooks"
+values={[
+{ label: 'just Rest Hooks', value: 'rest-hooks' },
+{ label: 'with React-Redux', value: 'react-redux' },
+]}>
+<TabItem value="rest-hooks">
 
 #### `index.tsx`
 
@@ -111,7 +105,8 @@ const store = createStore(
 // ...
 ```
 
-<!--with React-Redux-->
+</TabItem>
+<TabItem value="react-redux">
 
 #### `index.tsx`
 
@@ -179,7 +174,8 @@ const store = createStore(
 // ...
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</TabItem>
+</Tabs>
 
 Here we store rest-hooks state information in the 'restHooks' part of the tree.
 

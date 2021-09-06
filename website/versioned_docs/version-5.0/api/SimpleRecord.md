@@ -1,16 +1,14 @@
 ---
 title: SimpleRecord
-id: version-5.0-SimpleRecord
-original_id: SimpleRecord
 ---
+import LanguageTabs from '@site/src/components/LanguageTabs';
 
 `SimpleRecord` provides a simple immutable interface to store values that have
 defaults. When constructed it distinguishes between actually set values and ones
 only provided by defaults. This is useful to produce accurate merging algorithms
 when dealing with partial data definitions.
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--TypeScript-->
+<LanguageTabs>
 
 ```typescript
 import { SimpleRecord } from 'rest-hooks';
@@ -24,8 +22,6 @@ export default class Article extends SimpleRecord {
 }
 ```
 
-<!--Javascript-->
-
 ```js
 import { SimpleRecord } from 'rest-hooks';
 
@@ -38,7 +34,7 @@ export default class Article extends SimpleRecord {
 }
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</LanguageTabs>
 
 ## Factory method
 

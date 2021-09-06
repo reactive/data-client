@@ -1,7 +1,5 @@
 ---
-title: <MockProvider />
-id: version-5.0-MockProvider
-original_id: MockProvider
+title: "<MockProvider />"
 ---
 
 ```typescript

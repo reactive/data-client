@@ -1,7 +1,5 @@
 ---
 title: URL Patterns
-id: version-5.0-url
-original_id: url
 ---
 
 Common REST urls resemble the following:

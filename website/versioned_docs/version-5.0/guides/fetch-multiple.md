@@ -1,7 +1,5 @@
 ---
 title: Fetching multiple resources at once
-id: version-5.0-fetch-multiple
-original_id: fetch-multiple
 ---
 ## Parallel
 

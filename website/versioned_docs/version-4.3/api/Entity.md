@@ -1,6 +1,6 @@
 ---
 title: Entity
-id: version-4.3-Entity
+id: Entity
 original_id: Entity
 ---
 

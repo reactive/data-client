@@ -1,6 +1,6 @@
 ---
 title: useCacheNew()
-id: version-2.2-useCacheNew
+id: useCacheNew
 original_id: useCacheNew
 ---
 

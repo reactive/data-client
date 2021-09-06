@@ -1,6 +1,6 @@
 ---
 title: API Reference
-id: version-4.0-README
+id: README
 original_id: README
 ---
 

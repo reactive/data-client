@@ -1,7 +1,5 @@
 ---
 title: Pagination
-id: version-5.0-pagination
-original_id: pagination
 ---
 
 ## Tokens in Body

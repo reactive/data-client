@@ -1,6 +1,6 @@
 ---
 title: Multi-column primary key
-id: version-3.0-multi-pk
+id: multi-pk
 original_id: multi-pk
 ---
 Sometimes you have a resource that doesn't have its own primary key. This is typically

@@ -1,7 +1,5 @@
 ---
 title: useResetter()
-id: version-5.0-useResetter
-original_id: useResetter
 ---
 
 ```typescript

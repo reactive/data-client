@@ -1,6 +1,6 @@
 ---
 title: Mocking unfinished endpoints
-id: version-3.0-mocking-unfinished
+id: mocking-unfinished
 original_id: mocking-unfinished
 ---
 

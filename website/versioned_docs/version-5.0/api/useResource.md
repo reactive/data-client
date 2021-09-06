@@ -1,11 +1,11 @@
 ---
-id: version-5.0-useresource
+id: useresource
 title: useResource()
-original_id: useresource
 ---
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Type-->
+import GenericsTabs from '@site/src/components/GenericsTabs';
+
+<GenericsTabs>
 
 ```typescript
 function useResource(endpoint: ReadEndpoint, params: object | null):
@@ -15,7 +15,6 @@ function useResource(...[endpoint: ReadEndpoint, params: object | null]):
   Denormalize<typeof endpoint.schema>[];
 ```
 
-<!--With Generics-->
 
 ```typescript
 function useResource<
@@ -29,7 +28,7 @@ function useResource<
 >(...[endpoint: ReadEndpoint<(p:Params) => Promise<any>, S>, params: Params | null]): Denormalize<S>[];
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</GenericsTabs>
 
 Excellent for retrieving the data you need.
 

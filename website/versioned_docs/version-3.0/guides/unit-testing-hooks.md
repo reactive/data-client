@@ -1,5 +1,5 @@
 ---
-id: version-3.0-unit-testing-hooks
+id: unit-testing-hooks
 title: Unit testing hooks
 original_id: unit-testing-hooks
 ---

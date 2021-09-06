@@ -1,6 +1,6 @@
 ---
 title: Fetch then Render
-id: version-3.0-fetch-then-render
+id: fetch-then-render
 original_id: fetch-then-render
 ---
 

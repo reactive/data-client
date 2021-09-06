@@ -1,8 +1,8 @@
 ---
 title: Mocking data for Storybook
-id: version-5.0-storybook
-original_id: storybook
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 [Storybook](https://storybook.js.org/) is a great utility to do isolated development and
 testing, potentially speeding up development time greatly.
@@ -13,8 +13,13 @@ for [imperative fetches](../api/useFetcher) like [create](../api/resource#create
 
 ## Setup
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--ArticleResource.ts-->
+<Tabs
+defaultValue="ArticleResource.ts"
+values={[
+{ label: 'ArticleResource.ts', value: 'ArticleResource.ts' },
+{ label: 'ArticleList.tsx', value: 'ArticleList.tsx' },
+]}>
+<TabItem value="ArticleResource.ts">
 
 ```typescript
 export default class ArticleResource extends Resource {
@@ -30,7 +35,8 @@ export default class ArticleResource extends Resource {
 }
 ```
 
-<!--ArticleList.tsx-->
+</TabItem>
+<TabItem value="ArticleList.tsx">
 
 ```tsx
 import ArticleResource from 'resources/ArticleResource';
@@ -48,7 +54,8 @@ export default function ArticleList({ maxResults }: { maxResults: number }) {
 }
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</TabItem>
+</Tabs>
 
 ## Fixtures
 

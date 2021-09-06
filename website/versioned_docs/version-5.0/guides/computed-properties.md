@@ -1,7 +1,5 @@
 ---
 title: Computed Properties
-id: version-5.0-computed-properties
-original_id: computed-properties
 ---
 `Resource` classes are just normal classes, so any common derived data can just be added as
 getters to the class itself.

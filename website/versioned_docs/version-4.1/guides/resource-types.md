@@ -1,7 +1,7 @@
 ---
 title: Defining your Resource types
 sidebar_label: Resource types
-id: version-4.1-resource-types
+id: resource-types
 original_id: resource-types
 ---
 

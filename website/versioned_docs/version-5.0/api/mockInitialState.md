@@ -1,7 +1,5 @@
 ---
 title: mockInitialState()
-id: version-5.0-mockInitialState
-original_id: mockInitialState
 ---
 
 ```typescript

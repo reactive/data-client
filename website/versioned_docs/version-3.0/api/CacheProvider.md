@@ -1,6 +1,6 @@
 ---
-title: <CacheProvider />
-id: version-3.0-CacheProvider
+title: "<CacheProvider />"
+id: CacheProvider
 original_id: CacheProvider
 ---
 
@@ -30,7 +30,7 @@ ReactDOM.render(
 );
 ```
 
-## initialState: State<unknown>
+## initialState: State\<unknown\>
 
 ```typescript
 type State<T> = Readonly<{

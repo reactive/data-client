@@ -1,7 +1,5 @@
 ---
-title: <MockResolver />
-id: version-5.0-MockResolver
-original_id: MockResolver
+title: "<MockResolver />"
 ---
 
 ```typescript

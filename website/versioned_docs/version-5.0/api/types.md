@@ -1,7 +1,5 @@
 ---
 title: Types
-id: version-5.0-types
-original_id: types
 ---
 
 ## @rest-hooks/core

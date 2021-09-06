@@ -1,15 +1,15 @@
 ---
-id: version-5.0-resource
+id: resource
 title: Resource
-original_id: resource
 ---
+import LanguageTabs from '@site/src/components/LanguageTabs';
 
 `Resource` is an [Entity](./Entity) with multiple [Endpoint](./Endpoint)s that operate on the data. All additional members are provided to make CRUD or other REST-like API definitions easy and terse.
 
 For other patterns, feel free to use [Endpoint](./Endpoint)s on their own or in any other way you see fit.
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--TypeScript-->
+<LanguageTabs>
+
 ```typescript
 import { Resource } from '@rest-hooks/rest';
 
@@ -27,7 +27,7 @@ export default class ArticleResource extends Resource {
   static urlRoot = 'http://test.com/article/';
 }
 ```
-<!--Javascript-->
+
 ```js
 import { Resource } from '@rest-hooks/rest';
 
@@ -45,25 +45,8 @@ export default class ArticleResource extends Resource {
   static urlRoot = 'http://test.com/article/';
 }
 ```
-<!--FlowType-->
-```jsx
-import { Resource } from '@rest-hooks/rest';
 
-export default class ArticleResource extends Resource {
-  +id: ?number = undefined;
-  +title: string = '';
-  +content: string = '';
-  +author: ?number = null;
-  +tags: string[] = [];
-
-  pk() {
-    return this.id;
-  }
-
-  static urlRoot = 'http://test.com/article/';
-}
-```
-<!--END_DOCUSAURUS_CODE_TABS-->
+</LanguageTabs>
 
 `Resource` extends [Entity](./Entity)
 
@@ -184,7 +167,7 @@ static get key(): string {
 
 These are the basic building blocks used to compile the [Endpoint](../api/Endpoint.md) below.
 
-### static url\<T extends typeof Resource>(urlParams: Partial<AbstractInstanceType\<T>>) => string
+### static url\<T extends typeof Resource\>(urlParams: Partial\<AbstractInstanceType\<T\>\>) => string
 
 Computes the url based on the parameters. Default implementation follows `/urlRoot/[pk]` pattern.
 
@@ -198,12 +181,12 @@ parameters.
 
 Used in [list()](#list-endpoint) and [create()](#create-endpoint)
 
-### static fetch(input: RequestInfo, init: RequestInit) => Promise\<any>
+### static fetch(input: RequestInfo, init: RequestInit) => Promise\<any\>
 
 Performs the actual network fetch returning a promise that resolves to the network response or rejects
 on network error. This can be useful to override to really customize your transport.
 
-### static fetchResponse(input: RequestInfo, init: RequestInit) => Promise\<Response>
+### static fetchResponse(input: RequestInfo, init: RequestInit) => Promise\<Response\>
 
 Used in `fetch()`. Resolves the HTTP [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response).
 

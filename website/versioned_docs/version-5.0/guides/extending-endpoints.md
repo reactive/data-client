@@ -1,8 +1,8 @@
 ---
 title: Custom endpoints
-id: version-5.0-extending-endpoints
-original_id: extending-endpoints
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 [Previously we saw how we could use](../getting-started/usage#use-resource-docs-api-useresource)
 the [useResource()](../api/useresource) and [useFetcher()](../api/useFetcher) hooks to read and mutate
@@ -23,9 +23,13 @@ just the entity returned.
 
 ### Default schema
 
-<!--DOCUSAURUS_CODE_TABS-->
-
-<!--Single-->
+<Tabs
+defaultValue="Single"
+values={[
+{ label: 'Single', value: 'Single' },
+{ label: 'List', value: 'List' },
+]}>
+<TabItem value="Single">
 
 ```json
 {
@@ -39,7 +43,8 @@ just the entity returned.
 
 `GET /comments/1`
 
-<!--List-->
+</TabItem>
+<TabItem value="List">
 
 ```json
 [
@@ -69,16 +74,21 @@ just the entity returned.
 
 `GET /comments`
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</TabItem>
+</Tabs>
 
 ### Example schema
 
 However, often the data is not returned quite so simply. For instance, maybe it can be found in a 'data'
 key of an object:
 
-<!--DOCUSAURUS_CODE_TABS-->
-
-<!--Single-->
+<Tabs
+defaultValue="Single"
+values={[
+{ label: 'Single', value: 'Single' },
+{ label: 'List', value: 'List' },
+]}>
+<TabItem value="Single">
 
 ```json
 {
@@ -94,7 +104,8 @@ key of an object:
 
 `GET /comments/1`
 
-<!--List-->
+</TabItem>
+<TabItem value="List">
 
 ```json
 {
@@ -126,7 +137,8 @@ key of an object:
 
 `GET /comments`
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</TabItem>
+</Tabs>
 
 ### Resource definition
 

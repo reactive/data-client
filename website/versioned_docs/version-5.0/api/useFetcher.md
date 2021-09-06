@@ -1,11 +1,9 @@
 ---
 title: useFetcher()
-id: version-5.0-useFetcher
-original_id: useFetcher
 ---
+import GenericsTabs from '@site/src/components/GenericsTabs';
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Type-->
+<GenericsTabs>
 
 ```typescript
 function useFetcher(
@@ -25,8 +23,6 @@ type OptimisticUpdateParams = [
   updateFunction: (sourceResults: object, destResults: object) => object,
 ];
 ```
-
-<!--With Generics-->
 
 ```typescript
 function useFetcher<
@@ -62,7 +58,7 @@ type UpdateFunction<SourceSchema extends Schema, DestSchema extends Schema> = (
 ) => Normalize<DestSchema>;
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</GenericsTabs>
 
 Mostly useful for imperatively triggering mutation effects.
 

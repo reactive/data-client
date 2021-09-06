@@ -1,8 +1,9 @@
 ---
 title: Fetching Media
-id: version-5.0-binary-fetches
-original_id: binary-fetches
 ---
+import PkgTabs from '@site/src/components/PkgTabs';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 After setting up Rest Hooks for structured data fetching, you might want to incorporate
 some media fetches as well to take advantage of suspense and [concurrent mode support](https://resthooks.io/docs/guides/render-as-you-fetch).
@@ -23,15 +24,22 @@ export const getPhoto = new Endpoint(async ({ userId }: { userId: string }) => {
 });
 ```
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--useResource-->
+<Tabs
+defaultValue="useResource"
+values={[
+{ label: 'useResource', value: 'useResource' },
+{ label: 'useCache', value: 'useCache' },
+{ label: 'JS/Node', value: 'JS/Node' },
+]}>
+<TabItem value="useResource">
 
 ```tsx
 // photo is typed as ArrayBuffer
 const photo = useResource(getPhoto, { userId });
 ```
 
-<!--useCache-->
+</TabItem>
+<TabItem value="useCache">
 
 ```tsx
 // photo will be undefined if the fetch hasn't completed
@@ -39,14 +47,16 @@ const photo = useResource(getPhoto, { userId });
 const photo = useCache(getPhoto, { userId });
 ```
 
-<!--JS/Node-->
+</TabItem>
+<TabItem value="JS/Node">
 
 ```tsx
 // photo is typed as ArrayBuffer
 const photo = await getPhoto({ userId });
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</TabItem>
+</Tabs>
 
 ## Just Images
 
@@ -57,17 +67,7 @@ images using suspense. This becomes especially powerful [with the fetch as you r
 
 ## Installation
 
-
-<!--DOCUSAURUS_CODE_TABS-->
-<!--yarn-->
-```bash
-yarn add @rest-hooks/img
-```
-<!--npm-->
-```bash
-npm install  @rest-hooks/img
-```
-<!--END_DOCUSAURUS_CODE_TABS-->
+<PkgTabs pkgs="@rest-hooks/img" />
 
 ## Usage
 

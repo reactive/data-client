@@ -1,7 +1,7 @@
 ---
 title: Using a custom networking library
 sidebar_label: Custom networking library
-id: version-4.0-custom-networking
+id: custom-networking
 original_id: custom-networking
 ---
 `Resource.fetch()` wraps the standard [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).

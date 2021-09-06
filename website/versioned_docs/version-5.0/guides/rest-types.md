@@ -1,8 +1,8 @@
 ---
 title: Typing REST Endpoints
-id: version-5.0-rest-types
-original_id: rest-types
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 In REST design, many operations can be performed on a given type of data.
 
@@ -90,8 +90,13 @@ and a pk() definition (though if you use a common field for pk() - you can also 
 [Resource](../api/Resource) is an example attempt that is useful for many common REST patterns that
 can be further extended and easily customized like so:
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Bloat -->
+<Tabs
+defaultValue="bloat"
+values={[
+{ label: 'Bloat', value: 'bloat' },
+{ label: 'Gets reduced to', value: 'reduced' },
+]}>
+<TabItem value="bloat">
 
 ```typescript
 class User {
@@ -149,7 +154,8 @@ class Post extends Resource {
 }
 ```
 
-<!--Gets reduced to-->
+</TabItem>
+<TabItem value="reduced">
 
 ```typescript
 class User extends Resource {
@@ -181,7 +187,8 @@ class Post extends Resource {
 }
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</TabItem>
+</Tabs>
 
 Even in this overly simplistic case we're more than halving the lines of code.
 Once the complexities of the real world kick in, this improvement expands.
@@ -339,8 +346,15 @@ class User extends Resource {
 
 If we were to explicitly type thing, we could use `RestEndpoint`
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Schema-->
+<Tabs
+defaultValue="Schema"
+values={[
+{ label: 'Schema', value: 'Schema' },
+{ label: 'Parameters', value: 'Parameters' },
+{ label: 'Mutate', value: 'Mutate' },
+{ label: 'Payload/Body', value: 'Payload/Body' },
+]}>
+<TabItem value="Schema">
 
 ```typescript
 // typeof result is { data: User }
@@ -361,7 +375,8 @@ class User extends Resource {
 const { data: user } = useResource(User.detail(), { id: '5' });
 ```
 
-<!--Parameters-->
+</TabItem>
+<TabItem value="Parameters">
 
 ```typescript
 // typeof id is string
@@ -388,7 +403,8 @@ class User extends Resource {
 const { data: user } = useResource(User.detail(), { id: '5' });
 ```
 
-<!--Mutate-->
+</TabItem>
+<TabItem value="Mutate">
 
 ```typescript
 // works
@@ -413,7 +429,8 @@ class User extends Resource {
 const { data: user } = useResource(User.detail(), { id: '5' });
 ```
 
-<!--Payload/Body-->
+</TabItem>
+<TabItem value="Payload/Body">
 
 ```typescript
 const updateUser = useFetcher(User.update());
@@ -444,7 +461,8 @@ class User extends Resource {
 const { data: user } = useResource(User.detail(), { id: '5' });
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</TabItem>
+</Tabs>
 
 ## Typing rules of thumb
 

@@ -1,7 +1,5 @@
 ---
 title: Handling loading state
-id: version-5.0-loading-state
-original_id: loading-state
 ---
 
 Network resources take an unknown amount of time so it's important to be able

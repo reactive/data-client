@@ -1,7 +1,5 @@
 ---
 title: useCancelling()
-id: version-5.0-useCancelling
-original_id: useCancelling
 ---
 
 ```typescript

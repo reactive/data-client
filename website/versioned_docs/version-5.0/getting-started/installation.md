@@ -1,29 +1,30 @@
 ---
-id: version-5.0-installation
+id: installation
 title: Installation
-original_id: installation
 ---
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--yarn-->
-```bash
-yarn add rest-hooks @rest-hooks/rest @rest-hooks/test
-```
-<!--npm-->
-```bash
-npm install rest-hooks @rest-hooks/rest @rest-hooks/test
-```
-<!--END_DOCUSAURUS_CODE_TABS-->
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import PkgTabs from '@site/src/components/PkgTabs';
+
+<PkgTabs pkgs="rest-hooks @rest-hooks/rest @rest-hooks/test" />
 
 TypeScript is optional, but requires at least version [3.7](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#more-recursive-type-aliases) for full type enforcement.
 
 ## Add provider at top-level component
 
-#### `index.tsx`
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Web-->
-```tsx
+<Tabs
+defaultValue="web"
+groupId="platform"
+values={[
+{ label: 'Web', value: 'web' },
+{ label: 'Concurrent mode', value: 'concurrent' },
+{ label: 'React Native', value: 'native' },
+]}>
+<TabItem value="web">
+
+```tsx title="/index.tsx"
 import { CacheProvider } from 'rest-hooks';
 import ReactDOM from 'react-dom';
 
@@ -31,22 +32,30 @@ ReactDOM.render(
   <CacheProvider>
     <App />
   </CacheProvider>,
-  document.body
+  document.body,
 );
 ```
-<!--Concurrent mode-->
-```tsx
+
+</TabItem>
+
+  <TabItem value="concurrent">
+
+```tsx title="/index.tsx"
 import { CacheProvider } from 'rest-hooks';
 import ReactDOM from 'react-dom';
 
 ReactDOM.createRoot(document.body).render(
   <CacheProvider>
     <App />
-  </CacheProvider>
+  </CacheProvider>,
 );
 ```
-<!--React Native-->
-```tsx
+
+</TabItem>
+
+  <TabItem value="native">
+
+```tsx title="/index.tsx"
 import { CacheProvider } from 'rest-hooks';
 import { AppRegistry } from 'react-native';
 
@@ -55,9 +64,11 @@ const Root = () => (
     <App />
   </CacheProvider>
 );
-AppRegistry.registerComponent('MyApp', () => Root)
+AppRegistry.registerComponent('MyApp', () => Root);
 ```
-<!--END_DOCUSAURUS_CODE_TABS-->
+
+</TabItem>
+</Tabs>
 
 Alternatively [integrate state with redux](../guides/redux.md)
 

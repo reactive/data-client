@@ -1,11 +1,10 @@
 ---
 title: useSubscription()
-id: version-5.0-useSubscription
-original_id: useSubscription
 ---
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Type-->
+import GenericsTabs from '@site/src/components/GenericsTabs';
+
+<GenericsTabs>
 
 ```typescript
 function useSubscription(
@@ -14,7 +13,6 @@ function useSubscription(
 ): void;
 ```
 
-<!--With Generics-->
 
 ```typescript
 function useSubscription<
@@ -26,7 +24,7 @@ function useSubscription<
 ): void;
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</GenericsTabs>
 
 Great for keeping resources up-to-date with frequent changes.
 

@@ -1,8 +1,7 @@
 ---
 title: Legacy browser support
-id: version-5.0-legacy-browser
-original_id: legacy-browser
 ---
+import PkgTabs from '@site/src/components/PkgTabs';
 
 Rest Hooks is designed to work out of the box with most tooling.
 
@@ -18,16 +17,8 @@ In this case, follow the instructions below to ensure compatibility.
 Adding [webpack-plugin-modern-npm](https://www.npmjs.com/package/webpack-plugin-modern-npm) will ensure compatibility of all installed
 packages with legacy browsers.
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--yarn-->
-```bash
-yarn add --dev webpack-plugin-modern-npm
-```
-<!--npm-->
-```bash
-npm install webpack-plugin-modern-npm
-```
-<!--END_DOCUSAURUS_CODE_TABS-->
+<PkgTabs pkgs="webpack-plugin-modern-npm" dev />
+
 
 Then install the plugin by adding to webpack config.
 
@@ -48,16 +39,7 @@ module.exports = {
 Use [CRA polyfill](https://github.com/facebook/create-react-app/tree/master/packages/react-app-polyfill)
 or follow instructions below.
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--yarn-->
-```bash
-yarn add core-js whatwg-fetch
-```
-<!--npm-->
-```bash
-npm install core-js whatwg-fetch
-```
-<!--END_DOCUSAURUS_CODE_TABS-->
+<PkgTabs pkgs="core-js whatwg-fetch" />
 
 #### `index.tsx`
 

@@ -1,8 +1,7 @@
 ---
 title: Union
-id: version-5.0-Union
-original_id: Union
 ---
+import LanguageTabs from '@site/src/components/LanguageTabs';
 
 Describe a schema which is a union of multiple schemas. This is useful if you need the polymorphic behavior provided by `schema.Array` or `schema.Values` but for non-collection fields.
 
@@ -21,8 +20,8 @@ Describe a schema which is a union of multiple schemas. This is useful if you ne
 
 _Note: If your data returns an object that you did not provide a mapping for, the original object will be returned in the result and an entity will not be created._
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--TypeScript-->
+<LanguageTabs>
+
 ```typescript
 const data = { owner: { id: 1, type: 'user', name: 'Anne' } };
 
@@ -48,7 +47,6 @@ const unionSchema = new schema.Union(
 const normalizedData = normalize(data, { owner: unionSchema });
 ```
 
-<!--Javascript-->
 ```js
 const data = { owner: { id: 1, type: 'user', name: 'Anne' } };
 
@@ -68,7 +66,7 @@ const unionSchema = new schema.Union(
 
 const normalizedData = normalize(data, { owner: unionSchema });
 ```
-<!--END_DOCUSAURUS_CODE_TABS-->
+</LanguageTabs>
 
 #### Output
 

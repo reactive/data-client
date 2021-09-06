@@ -1,5 +1,5 @@
 ---
-id: version-3.0-redux
+id: redux
 title: Redux integration
 original_id: redux
 ---

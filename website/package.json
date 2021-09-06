@@ -1,14 +1,26 @@
 {
   "scripts": {
     "examples": "docusaurus-examples",
-    "start": "docusaurus-start",
-    "build": "docusaurus-build",
+    "start": "docusaurus start",
+    "build": "docusaurus build",
     "publish-gh-pages": "docusaurus-publish",
     "write-translations": "docusaurus-write-translations",
-    "version": "docusaurus-version",
-    "rename-version": "docusaurus-rename-version"
+    "version": "docusaurus docs:version",
+    "rename-version": "docusaurus-rename-version",
+    "swizzle": "docusaurus swizzle",
+    "deploy": "USE_SSH=true docusaurus deploy",
+    "docusaurus": "docusaurus"
   },
-  "devDependencies": {
-    "docusaurus": "1.14.7"
+  "devDependencies": {},
+  "dependencies": {
+    "@docusaurus/core": "^2.0.0-beta.6",
+    "@docusaurus/plugin-client-redirects": "^2.0.0-beta.6",
+    "@docusaurus/preset-classic": "^2.0.0-beta.6",
+    "@docusaurus/theme-live-codeblock": "^2.0.0-beta.6",
+    "@rest-hooks/endpoint": "^1.2.3",
+    "clsx": "^1.1.1",
+    "raw-loader": "^4.0.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   }
 }

@@ -1,6 +1,6 @@
 ---
 title: Transforming data on fetch
-id: version-4.5-network-transform
+id: network-transform
 original_id: network-transform
 ---
 

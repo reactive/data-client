@@ -1,6 +1,6 @@
 ---
 title: useRetrieve()
-id: version-4.0-useRetrieve
+id: useRetrieve
 original_id: useRetrieve
 ---
 

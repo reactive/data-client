@@ -1,8 +1,6 @@
 ---
 title: Schema Quick Start
 sidebar_label: Quick Start
-id: version-5.0-schema
-original_id: schema
 ---
 
 

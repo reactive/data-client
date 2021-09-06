@@ -1,6 +1,6 @@
 ---
 title: useResetter()
-id: version-2.2-useResetter
+id: useResetter
 original_id: useResetter
 ---
 
