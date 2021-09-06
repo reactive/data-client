@@ -12,12 +12,22 @@ export default class GQLEndpoint<
 
   constructor(
     url: string,
-    options?: EndpointOptions<(v: Variables) => Promise<any>, S, M> &
-      GQLEndpoint<any>,
+    options?: EndpointOptions<(v: Variables) => Promise<any>, S, M>,
   ) {
     const args = url ? { ...options, url } : options;
     super(async function (this: GQLEndpoint<Variables, S>, variables: any) {
-      return fetch(this.url, this.getFetchInit(variables)).then(async res => {
+      return fetch(
+        this.url,
+        this.getFetchInit({
+          body: JSON.stringify({
+            query: this.getQuery(variables),
+            variables,
+          }),
+          method: 'POST',
+          signal: this.signal,
+          headers: this.getHeaders({ 'Content-Type': 'application/json' }),
+        }),
+      ).then(async res => {
         const { data, errors } = await res.json();
         if (errors) throw new GQLNetworkError(errors);
         return data;
@@ -31,24 +41,16 @@ export default class GQLEndpoint<
     return `${this.getQuery(variables)} ${JSON.stringify(variables)}`;
   }
 
-  getFetchInit(variables: Variables): RequestInit {
-    return {
-      body: JSON.stringify({
-        query: this.getQuery(variables),
-        variables,
-      }),
-      method: 'POST',
-      signal: this.signal,
-      headers: this.getHeaders(variables),
-    };
+  getFetchInit(init: RequestInit): RequestInit {
+    return init;
   }
 
   getQuery(variables: Variables): string {
     throw new Error('You must include a query');
   }
 
-  getHeaders(variables: Variables): HeadersInit {
-    return { 'Content-Type': 'application/json' };
+  getHeaders(headers: HeadersInit): HeadersInit {
+    return headers;
   }
 
   query<

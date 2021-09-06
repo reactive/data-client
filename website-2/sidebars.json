@@ -128,6 +128,10 @@
         {
           "type": "doc",
           "id": "graphql/usage"
+        },
+        {
+          "type": "doc",
+          "id": "graphql/auth"
         }
       ]
     },
