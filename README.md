@@ -7,7 +7,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
-Asynchronous dynamic data at scale. Performance, data integrity, and typing for REST, proto, GraphQL, websockets and more.
+Asynchronous dynamic data at scale. Performance, data integrity, and typing for [REST](https://resthooks.io/docs/rest/usage), proto, [GraphQL](https://resthooks.io/docs/graphql/usage), websockets and more.
 
 <div align="center">
 
