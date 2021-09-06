@@ -1,5 +1,5 @@
 ---
-id: version-4.0-usage
+id: usage
 title: Usage
 original_id: usage
 ---

@@ -1,8 +1,7 @@
 ---
 title: Object
-id: version-5.0-Object
-original_id: Object
 ---
+import LanguageTabs from '@site/src/components/LanguageTabs';
 
 Define a plain object mapping that has values needing to be normalized into Entities. _Note: The same behavior can be defined with shorthand syntax: `{ ... }`_
 
@@ -15,8 +14,8 @@ Define a plain object mapping that has values needing to be normalized into Enti
 
 #### Usage
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--TypeScript-->
+<LanguageTabs>
+
 ```typescript
 // Example data response
 const data = { users: [{ id: '123', name: 'Beth' }] };
@@ -34,7 +33,6 @@ const responseSchema = { users: new schema.Array(User) };
 const normalizedData = normalize(data, responseSchema);
 ```
 
-<!--Javascript-->
 ```js
 // Example data response
 const data = { users: [{ id: '123', name: 'Beth' }] };
@@ -50,7 +48,8 @@ const responseSchema = { users: [User] };
 
 const normalizedData = normalize(data, responseSchema);
 ```
-<!--END_DOCUSAURUS_CODE_TABS-->
+
+</LanguageTabs>
 
 #### Output
 

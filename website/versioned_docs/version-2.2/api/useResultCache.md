@@ -1,6 +1,6 @@
 ---
 title: useResultCache()
-id: version-2.2-useResultCache
+id: useResultCache
 original_id: useResultCache
 ---
 

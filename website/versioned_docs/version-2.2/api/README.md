@@ -1,6 +1,6 @@
 ---
 title: API Reference
-id: version-2.2-README
+id: README
 original_id: README
 ---
 

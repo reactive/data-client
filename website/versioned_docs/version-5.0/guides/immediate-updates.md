@@ -1,7 +1,5 @@
 ---
 title: Immediate Mutation Updates
-id: version-5.0-immediate-updates
-original_id: immediate-updates
 ---
 
 When a user causes mutations like creating, updating, or deleting resources, it's important

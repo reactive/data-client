@@ -1,6 +1,6 @@
 ---
 title: useSubscription()
-id: version-3.0-useSubscription
+id: useSubscription
 original_id: useSubscription
 ---
 

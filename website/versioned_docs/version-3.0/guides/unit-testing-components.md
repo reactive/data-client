@@ -1,5 +1,5 @@
 ---
-id: version-3.0-unit-testing-components
+id: unit-testing-components
 title: Unit testing components
 original_id: unit-testing-components
 ---

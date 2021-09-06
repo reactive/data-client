@@ -1,6 +1,6 @@
 ---
 title: Eager Updates
-id: version-4.0-eager-updates
+id: eager-updates
 original_id: eager-updates
 ---
 
@@ -19,8 +19,8 @@ Rest Hooks uses your schema definitions to understand how to normalize response 
 an `entity table` and `result table`. Of course, this means that there is only ever one copy
 of a given `entity`. Aside from providing consistency when using different response shapes,
 this means that by providing an accurate schema definition, Rest Hooks can automatically keep
-all data uses consistent and fresh. The default update shapes [Resource.updateShape()]() and
-[Resource.partialUpdate()]() both do this automatically. [Read more about defining other
+all data uses consistent and fresh. The default update shapes [Resource.updateShape()](../api/resource) and
+[Resource.partialUpdate()](../api/resource) both do this automatically. [Read more about defining other
 update fetch shapes](./rpc)
 
 ## Delete

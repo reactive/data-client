@@ -1,5 +1,5 @@
 ---
-id: version-2.2-useresource
+id: useresource
 title: useResource()
 original_id: useresource
 ---

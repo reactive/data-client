@@ -1,6 +1,6 @@
 ---
 title: Usage without Suspense
-id: version-4.1-no-suspense
+id: no-suspense
 original_id: no-suspense
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: Cross-orgin requests with JSONP
-id: version-3.0-jsonp
+id: jsonp
 original_id: jsonp
 ---
 

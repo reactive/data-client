@@ -1,7 +1,5 @@
 ---
 title: Index
-id: version-5.0-Index
-original_id: Index
 ---
 
 ```typescript

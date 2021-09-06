@@ -1,6 +1,6 @@
 ---
 title: useCacheLegacy()
-id: version-3.0-useCacheLegacy
+id: useCacheLegacy
 original_id: useCacheLegacy
 ---
 

@@ -1,8 +1,7 @@
 ---
 title: Usage without Suspense
-id: version-5.0-no-suspense
-original_id: no-suspense
 ---
+import PkgTabs from '@site/src/components/PkgTabs';
 
 Some libraries you work with may take a [loading](https://ant.design/components/card/#components-card-demo-loading) or error state.
 In these cases you might want a boolean `loading` instead of yielding to Suspense.
@@ -12,16 +11,7 @@ for this purpose.
 
 ## Installation
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--yarn-->
-```bash
-yarn add @rest-hooks/legacy
-```
-<!--npm-->
-```bash
-npm install @rest-hooks/legacy
-```
-<!--END_DOCUSAURUS_CODE_TABS-->
+<PkgTabs pkgs="@rest-hooks/legacy" />
 
 ## Hook usage
 

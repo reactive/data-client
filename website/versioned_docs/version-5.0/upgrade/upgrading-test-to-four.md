@@ -1,7 +1,5 @@
 ---
-title: Upgrading @rest-hooks/test to 4
-id: version-5.0-upgrading-test-to-four
-original_id: upgrading-test-to-four
+title: "Upgrading @rest-hooks/test to 4"
 ---
 
 ## Breaking Changes

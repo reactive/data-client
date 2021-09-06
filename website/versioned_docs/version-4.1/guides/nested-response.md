@@ -1,7 +1,7 @@
 ---
 title: Resources with nested structure
 sidebar_label: Nesting related resources (server-side join)
-id: version-4.1-nested-response
+id: nested-response
 original_id: nested-response
 ---
 

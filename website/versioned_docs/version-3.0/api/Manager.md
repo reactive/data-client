@@ -1,6 +1,6 @@
 ---
 title: Manager
-id: version-3.0-Manager
+id: Manager
 original_id: Manager
 ---
 

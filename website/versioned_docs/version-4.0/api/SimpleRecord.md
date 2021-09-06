@@ -1,6 +1,6 @@
 ---
 title: SimpleRecord
-id: version-4.0-SimpleRecord
+id: SimpleRecord
 original_id: SimpleRecord
 ---
 

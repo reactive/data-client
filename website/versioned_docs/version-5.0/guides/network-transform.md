@@ -1,7 +1,5 @@
 ---
 title: Transforming data on fetch
-id: version-5.0-network-transform
-original_id: network-transform
 ---
 
 All network requests flow through the `fetch()` method, so any transforms needed can simply

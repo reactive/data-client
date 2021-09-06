@@ -1,7 +1,5 @@
 ---
 title: useMeta()
-id: version-5.0-useMeta
-original_id: useMeta
 ---
 
 ```typescript

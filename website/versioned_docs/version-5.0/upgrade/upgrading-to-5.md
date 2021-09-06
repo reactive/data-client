@@ -1,8 +1,8 @@
 ---
 title: Upgrading from 4 to 5
-id: version-5.0-upgrading-to-5
-original_id: upgrading-to-5
 ---
+import BeforeAfterTabs from '@site/src/components/BeforeAfterTabs';
+
 
 ## Deprecation Removals
 
@@ -18,8 +18,7 @@ Simply rename this to `get key()`
 
 This has been simplified to simply use the Resource itself:
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--before-->
+<BeforeAfterTabs>
 
 ```typescript
 class MyResource extends Resource {
@@ -33,8 +32,6 @@ class MyResource extends Resource {
 }
 ```
 
-<!--after-->
-
 ```typescript
 class MyResource extends Resource {
   static customEndpoint<T extends typeof MyResource>(this: T) {
@@ -47,7 +44,8 @@ class MyResource extends Resource {
 }
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</BeforeAfterTabs>
+
 </details>
 
 ## Other breaking changes
@@ -67,13 +65,12 @@ at least v2.
 
 ### Network Definitions (Resource/FetchShape, etc)
 
-<details><summary>FetchShape: {type: 'delete'} -> { type: 'mutate', schema: new schemas.Delete(this) }</summary>
+<details><summary>FetchShape: &#123;type: 'delete'&#125; -> &#123; type: 'mutate', schema: new schemas.Delete(this) &#125;</summary>
 
 `Resource.deleteShape()` will continue to work as expected. However, if
 you defined some custom shapes with type: 'delete'
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--before-->
+<BeforeAfterTabs>
 
 ```typescript
 class MyResource extends Resource {
@@ -98,7 +95,6 @@ class MyResource extends Resource {
 }
 ```
 
-<!--after-->
 
 ```typescript
 import { schemas } from 'rest-hooks';
@@ -124,7 +120,7 @@ class MyResource extends Resource {
 }
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</BeforeAfterTabs>
 
 </details>
 
@@ -158,7 +154,7 @@ Silent removes the check completely.
 
 ### Imports
 
-<details><summary>import { reducer, NetworkManager } from '@rest-hooks/core'</summary>
+<details><summary>{`import { reducer, NetworkManager } from '@rest-hooks/core'`}</summary>
 
 Many 'advanced' features of rest-hooks are not longer exported by 'rest-hooks' package itself, but require importing from [@rest-hooks/core](https://www.npmjs.com/package/@rest-hooks/core)
 
@@ -183,6 +179,7 @@ exported from `@rest-hooks/core`
 - [createFetch](../api/createFetch)
 - [createReceive](../api/createReceive)
 - [createReceiveError](../api/createReceiveError)
+
 </details>
 
 <details><summary>getState()</summary>
@@ -218,16 +215,13 @@ Required entities missing from network response will now throw error in useResou
 
 Use [SimpleRecord](../api/SimpleRecord) for [optional entities](../api/SimpleRecord#optional-members).
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--before-->
+<BeforeAfterTabs>
 
 ```typescript
 const schema = {
   data: MyEntity,
 };
 ```
-
-<!--after-->
 
 ```typescript
 class OptionalSchema extends SimpleRecord {
@@ -240,13 +234,15 @@ class OptionalSchema extends SimpleRecord {
 const schema = OptionalSchema;
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</BeforeAfterTabs>
+
 </details>
 
 <details><summary>invalidIfStale</summary>
 
 When [invalidIfStale](../api/Endpoint#invalidifstale-boolean) is true, useCache() and useStatefulResource() will no longer return entities, even if they are in the cache.
 This matches the expected behavior that any `loading` data should not be usable.
+
 </details>
 
 ## Upgrading from beta versions to final
@@ -261,12 +257,9 @@ If this is not the case, please [report a bug](https://github.com/coinbase/rest-
 
 After a successful upgrade, it is recommended to adopt the modern practices.
 
-
 <details><summary>Resource.fetchOptionsPlugin() -> Resource.getFetchInit()</summary>
 
-
-<!--DOCUSAURUS_CODE_TABS-->
-<!--before-->
+<BeforeAfterTabs>
 
 ```typescript
 class AuthdResource extends Resource {
@@ -288,17 +281,15 @@ class AuthdResource extends Resource {
 }
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</BeforeAfterTabs>
 
 (Resource.getFetchInit())../api/resource#static-getfetchinitinit-requestinit-requestinit)
-</details>
 
+</details>
 
 <details><summary>Resource.getFetchOptions() -> Resource.getEndpointExtra()</summary>
 
-
-<!--DOCUSAURUS_CODE_TABS-->
-<!--before-->
+<BeforeAfterTabs>
 
 ```typescript
 class PollingResource extends Resource {
@@ -322,17 +313,17 @@ class PollingResource extends Resource {
 }
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</BeforeAfterTabs>
 
 (Resource.getEndpointExtra())../api/resource#static-getendpointextra--endpointextraoptions--undefined)
+
 </details>
 
 <details><summary>Resource.asSchema() -> Resource</summary>
 
 This has been simplified to simply use the Resource itself:
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--before-->
+<BeforeAfterTabs>
 
 ```typescript
 class MyResource extends Resource {
@@ -360,7 +351,7 @@ class MyResource extends Resource {
 }
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</BeforeAfterTabs>
 
 </details>
 
@@ -374,18 +365,14 @@ easy safe upgrade to v6 by simply changing the import path. However, it is still
 try to migrate to `@rest-hooks/rest` as this is the future. v1 of @rest-hooks/rest will be the easiest to
 start with.
 
-
 <details><summary>yarn add @rest-hooks/legacy</summary>
 
-
-<!--DOCUSAURUS_CODE_TABS-->
-<!--before-->
+<BeforeAfterTabs>
 
 ```typescript
 import { Resource } from 'rest-hooks';
 
-class MyResource extends Resource {
-}
+class MyResource extends Resource {}
 ```
 
 <!--after-->
@@ -393,11 +380,10 @@ class MyResource extends Resource {
 ```typescript
 import { Resource } from '@rest-hooks/legacy';
 
-class MyResource extends Resource {
-}
+class MyResource extends Resource {}
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</BeforeAfterTabs>
 
 </details>
 
@@ -411,15 +397,12 @@ change more frequently than the core of rest hooks.
 
 <details><summary>yarn add @rest-hooks/rest</summary>
 
-
-<!--DOCUSAURUS_CODE_TABS-->
-<!--before-->
+<BeforeAfterTabs>
 
 ```typescript
 import { Resource } from 'rest-hooks';
 
-class MyResource extends Resource {
-}
+class MyResource extends Resource {}
 ```
 
 <!--after-->
@@ -427,11 +410,10 @@ class MyResource extends Resource {
 ```typescript
 import { Resource } from '@rest-hooks/rest';
 
-class MyResource extends Resource {
-}
+class MyResource extends Resource {}
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</BeforeAfterTabs>
 
 > Breaking change:
 >
@@ -443,8 +425,7 @@ class MyResource extends Resource {
 
 [Nesting](../guides/nested-response) entities inside a schema will now denormalize those nested items.
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--before-->
+<BeforeAfterTabs>
 
 ```typescript
 import { Resource } from 'rest-hooks';
@@ -455,7 +436,7 @@ class ArticleResource extends Resource {
 
   static schema = {
     user: UserResource,
-  }
+  };
 }
 ```
 
@@ -475,7 +456,7 @@ class ArticleResource extends Resource {
 
   static schema = {
     user: UserResource,
-  }
+  };
 }
 ```
 
@@ -484,7 +465,7 @@ const article = useResource(ArticleResource.detail(), { id });
 const user = article.user;
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</BeforeAfterTabs>
 
 </details>
 
@@ -494,8 +475,7 @@ const user = article.user;
 
 [@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint) is also its own package. This empowers you to publish interfaces for public APIs by marking [@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint) as a peerDependency in the package.
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--before-->
+<BeforeAfterTabs>
 
 ```typescript
 import { Resource } from 'rest-hooks';
@@ -533,7 +513,7 @@ export default class UserResource extends Resource {
 }
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</BeforeAfterTabs>
 
 Currently all [Endpoints](../api/Endpoint) also implement the `FetchShape` interface, so feel free to incrementally migrate. This means using Endpoint and extended via object spreads will still work:
 
@@ -568,6 +548,5 @@ Eventually support for FetchShape will be deprecated, and then removed.
 - top level object should be the actual fetch
 
 </details>
-
 
 [Full Release notes](https://github.com/coinbase/rest-hooks/releases/tag/rest-hooks%405.0.0)

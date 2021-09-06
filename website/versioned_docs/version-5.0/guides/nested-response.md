@@ -1,8 +1,6 @@
 ---
 title: Resources with nested structure
 sidebar_label: Nesting related resources (server-side join)
-id: version-5.0-nested-response
-original_id: nested-response
 ---
 
 Say you have a foreignkey author, and an array of foreign keys to contributors.

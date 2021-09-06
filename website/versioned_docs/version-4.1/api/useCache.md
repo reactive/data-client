@@ -1,6 +1,6 @@
 ---
 title: useCache()
-id: version-4.1-useCache
+id: useCache
 original_id: useCache
 ---
 

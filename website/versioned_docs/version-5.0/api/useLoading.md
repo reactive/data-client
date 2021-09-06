@@ -1,7 +1,5 @@
 ---
 title: useLoading()
-id: version-5.0-useLoading
-original_id: useLoading
 ---
 
 ```typescript

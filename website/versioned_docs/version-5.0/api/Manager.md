@@ -1,7 +1,5 @@
 ---
 title: Manager
-id: version-5.0-Manager
-original_id: Manager
 ---
 
 Managers are singletons that orchestrate the complex asynchronous behavior of `rest-hooks`.

@@ -1,25 +1,14 @@
 ---
 title: Endpoint
-id: version-5.0-endpoint
-original_id: endpoint
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import LanguageTabs from '@site/src/components/LanguageTabs';
 
 [Endpoints](../api/Endpoint) describe an asynchronous [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/). This includes both runtime behavior as well as (optionally) typing.
 
-<!--DOCUSAURUS_CODE_TABS-->
-
-<!--JavaScript-->
-
-```js
-const fetchTodoDetail = ({ id }) =>
-  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res =>
-    res.json(),
-  );
-
-const todoDetail = new Endpoint(fetchTodoDetail);
-```
-
-<!--TypeScript-->
+<LanguageTabs>
 
 ```typescript
 interface Todo {
@@ -40,12 +29,24 @@ const fetchTodoDetail = ({ id }: Params): Promise<Todo> =>
 const todoDetail = new Endpoint(fetchTodoDetail);
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+```js
+const fetchTodoDetail = ({ id }) =>
+  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res =>
+    res.json(),
+  );
+
+const todoDetail = new Endpoint(fetchTodoDetail);
+```
+
+</LanguageTabs>
+
 
 <details><summary><b>Example Usage</b></summary>
+
 ```js
 console.log(await todoDetail({ id: '1' }));
 ```
+
 ```json
 {
   "userId": 1,
@@ -54,6 +55,7 @@ console.log(await todoDetail({ id: '1' }));
   "completed": false
 }
 ```
+
 </details>
 
 We will likely want to use this endpoint in many places with differing needs.

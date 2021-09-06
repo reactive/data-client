@@ -1,9 +1,9 @@
 ---
 title: Debugging and Inspection
 sidebar_label: Debugging
-id: version-5.0-debugging
-original_id: debugging
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 By default [CacheProvider](../api/CacheProvider) includes the [DevToolsManager](../api/DevToolsManager),
 which means in development mode (`process.env.NODE_ENV !== 'production'`) it will send state and actions
@@ -61,24 +61,41 @@ If [schema](../api/schema)s are used, API responses are split into two pieces - 
 This ensures consistency and alows allows for automatic as well as novel performances optimizations, especially
 key if the data ever changes or is repeated.
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--State-->
+<Tabs
+defaultValue="State"
+values={[
+{ label: 'State', value: 'State' },
+{ label: 'Response', value: 'Response' },
+{ label: 'Endpoint', value: 'Endpoint' },
+{ label: 'Entity', value: 'Entity' },
+]}>
+<TabItem value="State">
+
 ![Entities cache](/img/entities.png)
-<!--Response-->
+
+</TabItem>
+<TabItem value="Response">
+
 ```json
 [
   {"id": 1, "title": "this is an entity"},
   {"id": 2, "title": "this is the second entity"}
 ]
 ```
-<!--Endpoint-->
+
+</TabItem>
+<TabItem value="Endpoint">
+
 ```typescript
 const PresentationList = new Endpoint(
   () => fetch(`/presentations`).then(res => res.json()),
   { schema: [PresentationEntity] },
 );
 ```
-<!--Entity-->
+
+</TabItem>
+<TabItem value="Entity">
+
 ```typescript
 class PresentationEntity extends Entity {
   readonly id: string = '';
@@ -89,7 +106,10 @@ class PresentationEntity extends Entity {
   }
 }
 ```
-<!--React-->
+
+</TabItem>
+<TabItem value="React">
+
 ```tsx
 export function PresentationsPage() {
   const presentation = useResource(PresentationList, {});
@@ -98,7 +118,9 @@ export function PresentationsPage() {
   ));
 }
 ```
-<!--END_DOCUSAURUS_CODE_TABS-->
+
+</TabItem>
+</Tabs>
 
 Once normalized, these entities and results are merged with the larger cache. Click on the 'state'
 tab in devtools to see the entire state. This can be useful to determine exactly where data is. There is

@@ -1,8 +1,9 @@
 ---
 title: Unit testing hooks
-id: version-5.0-unit-testing-hooks
-original_id: unit-testing-hooks
 ---
+import PkgTabs from '@site/src/components/PkgTabs';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 Hooks allow you to pull complex behaviors out of your components into succinct,
 composable functions. This makes testing component behavior potentially much
@@ -29,19 +30,16 @@ upon test completion.
 
 Node doesn't come with fetch out of the box, so we need to be sure to polyfill it.
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--yarn-->
-```bash
-yarn add --dev whatwg-fetch
-```
-<!--npm-->
-```bash
-npm install --save-dev whatwg-fetch
-```
-<!--END_DOCUSAURUS_CODE_TABS-->
+<PkgTabs pkgs="whatwg-fetch" dev />
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--jest-->
+<Tabs
+defaultValue="jest"
+values={[
+{ label: 'jest', value: 'jest' },
+]}>
+<TabItem value="jest">
+
+
 ```js
 // jest.config.js
 module.exports = {
@@ -53,13 +51,19 @@ module.exports = {
 // testSetup.js
 require('whatwg-fetch');
 ```
-<!--END_DOCUSAURUS_CODE_TABS-->
+
+</TabItem>
+</Tabs>
 
 ### Example:
 
-<!--DOCUSAURUS_CODE_TABS-->
-
-<!--CacheProvider-->
+<Tabs
+defaultValue="CacheProvider"
+values={[
+{ label: 'CacheProvider', value: 'CacheProvider' },
+{ label: 'ExternalCacheProvider', value: 'ExternalCacheProvider' },
+]}>
+<TabItem value="CacheProvider">
 
 ```typescript
 import nock from 'nock';
@@ -100,7 +104,8 @@ describe('useResource()', () => {
 });
 ```
 
-<!--ExternalCacheProvider-->
+</TabItem>
+<TabItem value="ExternalCacheProvider">
 
 ```typescript
 import nock from 'nock';
@@ -141,4 +146,5 @@ describe('useResource()', () => {
 });
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</TabItem>
+</Tabs>

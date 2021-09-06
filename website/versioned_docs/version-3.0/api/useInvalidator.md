@@ -1,6 +1,6 @@
 ---
 title: useInvalidator()
-id: version-3.0-useInvalidator
+id: useInvalidator
 original_id: useInvalidator
 ---
 

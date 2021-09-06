@@ -1,7 +1,5 @@
 ---
 title: Dealing with network errors
-id: version-5.0-network-errors
-original_id: network-errors
 ---
 
 When you use the `useResource()` hook, React will suspend rendering while the network

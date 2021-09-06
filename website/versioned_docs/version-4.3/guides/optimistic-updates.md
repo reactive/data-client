@@ -1,6 +1,6 @@
 ---
 title: Optimistic Updates
-id: version-4.3-optimistic-updates
+id: optimistic-updates
 original_id: optimistic-updates
 ---
 

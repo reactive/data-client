@@ -2,7 +2,7 @@
 title: PollingSubscription implements Subscription
 sidebar_label: PollingSubscription
 hide_title: true
-id: version-4.0-PollingSubscription
+id: PollingSubscription
 original_id: PollingSubscription
 ---
 

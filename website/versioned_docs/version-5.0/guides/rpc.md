@@ -1,7 +1,5 @@
 ---
 title: Capturing Mutation Side-Effects
-id: version-5.0-rpc
-original_id: rpc
 ---
 
 ## How to deal with side-effects

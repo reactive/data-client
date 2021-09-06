@@ -1,15 +1,16 @@
 ---
-id: version-5.0-usage
+id: usage
 title: Usage
-original_id: usage
 ---
+import LanguageTabs from '@site/src/components/LanguageTabs';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 ## Define a Resource
 
 #### `resources/article.ts`
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--TypeScript-->
+<LanguageTabs>
 
 ```typescript
 import { Resource } from '@rest-hooks/rest';
@@ -29,8 +30,6 @@ export default class ArticleResource extends Resource {
 }
 ```
 
-<!--Javascript-->
-
 ```js
 import { Resource } from '@rest-hooks/rest';
 
@@ -49,27 +48,7 @@ export default class ArticleResource extends Resource {
 }
 ```
 
-<!--FlowType-->
-
-```jsx
-import { Resource } from '@rest-hooks/rest';
-
-export default class ArticleResource extends Resource {
-  +id: ?number = undefined;
-  +title: string = '';
-  +content: string = '';
-  +author: ?number = null;
-  +tags: string[] = [];
-
-  pk() {
-    return this.id?.toString();
-  }
-
-  static urlRoot = 'http://test.com/article/';
-}
-```
-
-<!--END_DOCUSAURUS_CODE_TABS-->
+</LanguageTabs>
 
 [Resource](../api/Resource)s are immutable. Use `readonly` in typescript to enforce this.
 
@@ -84,8 +63,13 @@ APIs quickly get much more complicated! [Customizing Resources to fit your API](
 
 ## Use the Resource
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Single-->
+<Tabs
+defaultValue="Single"
+values={[
+{ label: 'Single', value: 'Single' },
+{ label: 'List', value: 'List' },
+]}>
+<TabItem value="Single">
 
 ```tsx
 import { useResource } from 'rest-hooks';
@@ -102,7 +86,8 @@ export default function ArticleDetail({ id }: { id: number }) {
 }
 ```
 
-<!--List-->
+</TabItem>
+<TabItem value="List">
 
 ```tsx
 import { useResource } from 'rest-hooks';
@@ -121,7 +106,8 @@ export default function ArticleList({ sortBy }: { sortBy: string }) {
 }
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</TabItem>
+</Tabs>
 
 [useResource()](../api/useresource) guarantees access to data with sufficient [freshness](../api/Endpoint#dataexpirylength-number).
 This means it may issue network calls, and it may [suspend](../guides/loading-state) until the the fetch completes.
@@ -137,8 +123,14 @@ suspends.
 
 #### `article.tsx`
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Create-->
+<Tabs
+defaultValue="Create"
+values={[
+{ label: 'Create', value: 'Create' },
+{ label: 'Update', value: 'Update' },
+{ label: 'Delete', value: 'Delete' },
+]}>
+<TabItem value="Create">
 
 ```tsx
 import { useFetcher } from 'rest-hooks';
@@ -160,7 +152,8 @@ export default function NewArticleForm() {
 `create()` then takes any `keyable` body to send as the payload and then returns a promise that
 resolves to the new Resource created by the API. It will automatically be added in the cache for any consumers to display.
 
-<!--Update-->
+</TabItem>
+<TabItem value="Update">
 
 ```tsx
 import { useFetcher } from 'rest-hooks';
@@ -186,7 +179,8 @@ export default function UpdateArticleForm({ id }: { id: number }) {
 `update()` then takes any `keyable` body to send as the payload and then returns a promise that
 resolves to the new Resource created by the API. It will automatically be added in the cache for any consumers to display.
 
-<!--Delete-->
+</TabItem>
+<TabItem value="Delete">
 
 ```tsx
 import { useFetcher } from 'rest-hooks';
@@ -205,7 +199,8 @@ export default function ArticleWithDelete({ article }: { article: ArticleResourc
 }
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</TabItem>
+</Tabs>
 
 We use [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData/FormData) in
 the example since it doesn't require any opinionated form state management solution.

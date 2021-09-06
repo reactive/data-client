@@ -1,6 +1,6 @@
 ---
 title: makeRenderRestHook()
-id: version-3.0-makeRenderRestHook
+id: makeRenderRestHook
 original_id: makeRenderRestHook
 ---
 

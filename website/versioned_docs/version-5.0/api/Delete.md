@@ -1,7 +1,5 @@
 ---
 title: Delete
-id: version-5.0-Delete
-original_id: Delete
 ---
 
 Describes entities to be marked as `DELETED`. This is a special symbol.

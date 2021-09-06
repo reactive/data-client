@@ -1,6 +1,6 @@
 ---
 title: Handling loading state
-id: version-4.0-loading-state
+id: loading-state
 original_id: loading-state
 ---
 

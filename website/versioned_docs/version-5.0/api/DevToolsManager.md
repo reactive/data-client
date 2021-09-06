@@ -1,8 +1,6 @@
 ---
 title: DevToolsManager implements Manager
 sidebar_label: DevToolsManager
-id: version-5.0-DevToolsManager
-original_id: DevToolsManager
 ---
 
 ```typescript

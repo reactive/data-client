@@ -1,14 +1,20 @@
 ---
 title: Endpoint
-id: version-5.0-Endpoint
-original_id: Endpoint
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 Endpoint defines a standard interface that describes the nature of an networking endpoint.
 It is both strongly typed, and encapsulates runtime-relevant information.
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Interface-->
+<Tabs
+defaultValue="Interface"
+values={[
+{ label: 'Interface', value: 'Interface' },
+{ label: 'Class', value: 'Class' },
+{ label: 'EndpointExtraOptions', value: 'EndpointExtraOptions' },
+]}>
+<TabItem value="Interface">
 
 ```typescript
 interface EndpointInterface extends EndpointExtraOptions   {
@@ -20,7 +26,8 @@ interface EndpointInterface extends EndpointExtraOptions   {
 }
 ```
 
-<!--Class-->
+</TabItem>
+<TabItem value="Class">
 
 ```typescript
 class Endpoint<F extends (...args: any) => Promise<any>> implements EndpointInterface {
@@ -44,7 +51,8 @@ export interface EndpointOptions extends EndpointExtraOptions {
 }
 ```
 
-<!--EndpointExtraOptions-->
+</TabItem>
+<TabItem value="EndpointExtraOptions">
 
 ```typescript
 export interface EndpointExtraOptions {
@@ -66,7 +74,8 @@ export interface EndpointExtraOptions {
 }
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</TabItem>
+</Tabs>
 
 Package: [@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint)
 
@@ -158,8 +167,14 @@ of failure or success), the optimistic update will be replaced with the actual n
 
 ## Examples
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Basic-->
+<Tabs
+defaultValue="Basic"
+values={[
+{ label: 'Basic', value: 'Basic' },
+{ label: 'With Schema', value: 'With Schema' },
+{ label: 'List', value: 'List' },
+]}>
+<TabItem value="Basic">
 
 ```typescript
 import { Endpoint } from '@rest-hooks/endpoint';
@@ -169,7 +184,9 @@ const UserDetail = new Endpoint(
 );
 ```
 
-<!--With Schema-->
+</TabItem>
+<TabItem value="With Schema">
+
 
 ```typescript
 import { Endpoint } from '@rest-hooks/endpoint';
@@ -188,7 +205,9 @@ const UserDetail = new Endpoint(
 );
 ```
 
-<!--List-->
+</TabItem>
+<TabItem value="List">
+
 ```typescript
 import { Endpoint } from '@rest-hooks/endpoint';
 import { Entity } from 'rest-hooks';
@@ -205,11 +224,17 @@ const UserList = new Endpoint(
   { schema: [User] }
 );
 ```
-<!--END_DOCUSAURUS_CODE_TABS-->
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--React-->
+</TabItem>
+</Tabs>
 
+<Tabs
+defaultValue="React"
+values={[
+{ label: 'React', value: 'React' },
+{ label: 'JS/Node Schema', value: 'JS/Node' },
+]}>
+<TabItem value="React">
 
 ```tsx
 function UserProfile() {
@@ -220,13 +245,16 @@ function UserProfile() {
 }
 ```
 
-<!--JS/Node-->
+</TabItem>
+<TabItem value="JS/Node">
 
 ```typescript
 const user = await UserDetail({ id: '5' });
 console.log(user);
 ```
-<!--END_DOCUSAURUS_CODE_TABS-->
+
+</TabItem>
+</Tabs>
 
 ### Additional
 

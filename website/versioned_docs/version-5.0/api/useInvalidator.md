@@ -1,11 +1,9 @@
 ---
 title: useInvalidator()
-id: version-5.0-useInvalidator
-original_id: useInvalidator
 ---
+import GenericsTabs from '@site/src/components/GenericsTabs';
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Type-->
+<GenericsTabs>
 
 ```typescript
 function useInvalidator(
@@ -13,15 +11,13 @@ function useInvalidator(
 ): (params: object | null) => void;
 ```
 
-<!--With Generics-->
-
 ```typescript
 function useInvalidator<Params extends Readonly<object>, S extends Schema>(
   endpoint: ReadEndpoint<(p: Params) => Promise<any>, S>,
 ): (params: Params | null) => void;
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</GenericsTabs>
 
 Mostly useful for imperatively invalidating the cache, with a similar signature to
 [useFetcher](./useFetcher.md).

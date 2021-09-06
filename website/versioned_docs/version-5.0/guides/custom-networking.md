@@ -1,9 +1,10 @@
 ---
 title: Using a custom networking library
 sidebar_label: Custom networking library
-id: version-5.0-custom-networking
-original_id: custom-networking
 ---
+import CodeBlock from '@theme/CodeBlock';
+import ResourceSource from '!!raw-loader!@site/../packages/rest/src/Resource.ts';
+
 `Resource.fetch()` wraps the standard [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 One key customization is ensuring every network related error thrown has a
 status member. This is useful in distinguishing code errors from networking errors,
@@ -12,8 +13,13 @@ and is used in the [NetworkManager](../api/NetworkManager).
 `SimpleResource` can be used as an abstract class to implement custom fetch methods
 without including the default.
 
-> Note: If you plan on using [NetworkErrorBoundary](../api/NetworkErrorBoundary) make sure
-> to add a `status` member to errors, as it catches only errors with a `status` member.
+
+:::caution
+
+If you plan on using [NetworkErrorBoundary](../api/NetworkErrorBoundary) make sure
+to add a `status` member to errors, as it catches only errors with a `status` member.
+
+:::
 
 ## Fetch (default)
 
@@ -26,66 +32,7 @@ useful in environments that don't support it, like node and older browsers
 This implementation is provided as a useful reference for building your own.
 For the most up-to-date implementation, see the [source on master](https://github.com/coinbase/rest-hooks/blob/master/packages/rest-hooks/src/resource/Resource.ts)
 
-```typescript
-import { SimpleResource } from '@rest-hooks/rest';
-
-class NetworkError extends Error {
-  declare status: number;
-  declare response: Response;
-
-  constructor(response: Response) {
-    super(response.statusText);
-    this.status = response.status;
-    this.response = response;
-  }
-}
-
-/**
- * Represents an entity to be retrieved from a server.
- * Typically 1:1 with a url endpoint.
- */
-export default abstract class Resource extends SimpleResource {
-  /** Perform network request and resolve with HTTP Response */
-  static fetchResponse(input: RequestInfo, init: RequestInit) {
-    const options: RequestInit = {
-      ...init,
-      headers: {
-        'Content-Type': 'application/json',
-        // "Content-Type": "application/x-www-form-urlencoded",  -- maybe use this if typeof body is FormData ?
-        ...init.headers,
-      },
-    };
-    return fetch(input, options)
-      .then(response => {
-        if (!response.ok) {
-          throw new NetworkError(response);
-        }
-        return response;
-      })
-      .catch(error => {
-        // ensure CORS, network down, and parse errors are still caught by NetworkErrorBoundary
-        if (error instanceof TypeError) {
-          (error as any).status = 400;
-        }
-        throw error;
-      });
-  }
-
-  /** Perform network request and resolve with json body */
-  static fetch(input: RequestInfo, init: RequestInit) {
-    return this.fetchResponse(input, init).then((response: Response) => {
-      if (
-        !response.headers.get('content-type')?.includes('json') ||
-        response.status === 204
-      )
-        return response.text();
-      return response.json().catch(error => {
-        error.status = 400;
-        throw error;
-      });
-    });
-  }
-```
+<CodeBlock className="language-typescript">{ResourceSource}</CodeBlock>
 
 ## Superagent
 

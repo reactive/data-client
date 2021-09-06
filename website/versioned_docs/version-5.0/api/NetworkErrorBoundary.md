@@ -1,7 +1,5 @@
 ---
-title: <NetworkErrorBoundary />
-id: version-5.0-NetworkErrorBoundary
-original_id: NetworkErrorBoundary
+title: "<NetworkErrorBoundary />"
 ---
 
 Displays a fallback component when a network error happens in its subtree.

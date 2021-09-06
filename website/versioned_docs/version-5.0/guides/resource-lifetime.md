@@ -1,8 +1,6 @@
 ---
 title: Custom Resource cache lifetime
 sidebar_label: Custom cache lifetime
-id: version-5.0-resource-lifetime
-original_id: resource-lifetime
 ---
 
 By default the NetworkManager specifies the lifetime of data and errors in the cache.

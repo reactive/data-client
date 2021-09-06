@@ -1,6 +1,6 @@
 ---
 title: Infinite Scrolling
-id: version-3.0-infinite-scrolling-pagination
+id: infinite-scrolling-pagination
 original_id: infinite-scrolling-pagination
 ---
 

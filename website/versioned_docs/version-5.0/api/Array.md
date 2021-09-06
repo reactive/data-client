@@ -1,8 +1,9 @@
 ---
 title: Array
-id: version-5.0-Array
-original_id: Array
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import LanguageTabs from '@site/src/components/LanguageTabs';
 
 Creates a schema to normalize an array of schemas. If the input value is an `Object` instead of an `Array`,
 the normalized result will be an `Array` of the `Object`'s values.
@@ -23,8 +24,7 @@ _Note: The same behavior can be defined with shorthand syntax: `[ mySchema ]`_
 
 To describe a simple array of a singular entity type:
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--TypeScript-->
+<LanguageTabs>
 
 ```typescript
 const data = [
@@ -45,7 +45,6 @@ const userListSchema = [User];
 const normalizedData = normalize(data, userListSchema);
 ```
 
-<!--Javascript-->
 
 ```js
 const data = [
@@ -65,7 +64,7 @@ const userListSchema = [User];
 const normalizedData = normalize(data, userListSchema);
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</LanguageTabs>
 
 #### Output
 
@@ -123,8 +122,7 @@ const normalizedData = normalize(data, myArray);
 The return values should match a key in the `definition`. Here we'll show the same behavior as the 'string'
 case, except we'll append an 's'.
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--TypeScript-->
+<LanguageTabs>
 
 ```typescript
 const data = [
@@ -155,8 +153,6 @@ const myArray = new schema.Array(
 const normalizedData = normalize(data, myArray);
 ```
 
-<!--Javascript-->
-
 ```js
 const data = [{ id: 1, type: 'admin' }, { id: 2, type: 'user' }];
 
@@ -181,7 +177,7 @@ const myArray = new schema.Array(
 const normalizedData = normalize(data, myArray);
 ```
 
-<!--END_DOCUSAURUS_CODE_TABS-->
+</LanguageTabs>
 
 #### Output
 

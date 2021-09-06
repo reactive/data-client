@@ -1,6 +1,6 @@
 ---
 title: Mocking data for Storybook
-id: version-4.5-storybook
+id: storybook
 original_id: storybook
 ---
 

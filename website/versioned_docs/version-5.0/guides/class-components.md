@@ -1,8 +1,7 @@
 ---
 title: Usage with class components
-id: version-5.0-class-components
-original_id: class-components
 ---
+import PkgTabs from '@site/src/components/PkgTabs';
 
 Hooks are great, but many of us are working with existing codebases or libraries
 with class based components. Some might be easy to migrate but others might be
@@ -14,20 +13,7 @@ to easily replace any existing HOC with ease.
 
 ## Install [hook-hoc](https://github.com/ntucker/hook-hoc)
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--yarn-->
-
-```bash
-yarn add hook-hoc
-```
-
-<!--npm-->
-
-```bash
-npm install hook-hoc
-```
-
-<!--END_DOCUSAURUS_CODE_TABS-->
+<PkgTabs pkgs="hook-hoc" />
 
 ## Use with class
 

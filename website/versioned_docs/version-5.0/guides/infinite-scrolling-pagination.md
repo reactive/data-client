@@ -1,7 +1,5 @@
 ---
 title: Infinite Scrolling
-id: version-5.0-infinite-scrolling-pagination
-original_id: infinite-scrolling-pagination
 ---
 
 ## Add Update Function matching network schema

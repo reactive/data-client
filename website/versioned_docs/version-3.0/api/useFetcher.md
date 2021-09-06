@@ -1,6 +1,6 @@
 ---
 title: useFetcher()
-id: version-3.0-useFetcher
+id: useFetcher
 original_id: useFetcher
 ---
 

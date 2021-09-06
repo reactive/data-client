@@ -1,7 +1,8 @@
 ---
-id: version-4.5-installation
+id: installation
 title: Installation
 original_id: installation
+slug: /
 ---
 
 Rest Hooks is a library for fetching structured data in a performant way with no boilerplate.

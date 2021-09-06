@@ -1,8 +1,7 @@
 ---
 title: Values
-id: version-5.0-Values
-original_id: Values
 ---
+import LanguageTabs from '@site/src/components/LanguageTabs';
 
 Like [Array](./Array), `Values` are unbounded in size. The definition here describes the types of values to expect,
 with keys being any string.
@@ -22,8 +21,8 @@ Describes a map whose values follow the given schema.
 
 ## Usage
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--TypeScript-->
+<LanguageTabs>
+
 ```js
 const data = { firstThing: { id: 1 }, secondThing: { id: 2 } };
 
@@ -36,7 +35,6 @@ const valuesSchema = new schema.Values(Item);
 const normalizedData = normalize(data, valuesSchema);
 ```
 
-<!--Javascript-->
 ```js
 const data = { firstThing: { id: 1 }, secondThing: { id: 2 } };
 
@@ -47,7 +45,8 @@ const valuesSchema = new schema.Values(Item);
 
 const normalizedData = normalize(data, valuesSchema);
 ```
-<!--END_DOCUSAURUS_CODE_TABS-->
+
+</LanguageTabs>
 
 #### Output
 
@@ -100,8 +99,8 @@ const normalizedData = normalize(data, valuesSchema);
 The return values should match a key in the `definition`. Here we'll show the same behavior as the 'string'
 case, except we'll append an 's'.
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--TypeScript-->
+<LanguageTabs>
+
 ```typescript
 const data = {
   '1': { id: 1, type: 'admin' },
@@ -129,7 +128,6 @@ const valuesSchema = new schema.Values(
 const normalizedData = normalize(data, valuesSchema);
 ```
 
-<!--Javascript-->
 ```js
 const data = {
   '1': { id: 1, type: 'admin' },
@@ -152,7 +150,8 @@ const valuesSchema = new schema.Values(
 
 const normalizedData = normalize(data, valuesSchema);
 ```
-<!--END_DOCUSAURUS_CODE_TABS-->
+
+</LanguageTabs>
 
 #### Output
 

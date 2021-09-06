@@ -1,7 +1,5 @@
 ---
 title: Mocking unfinished endpoints
-id: version-5.0-mocking-unfinished
-original_id: mocking-unfinished
 ---
 
 You have agreed to an API schema with a backend engineer who will implement it;

@@ -1,7 +1,5 @@
 ---
-title: Upgrading @rest-hooks/test to 3
-id: version-5.0-upgrading-test-to-three
-original_id: upgrading-test-to-three
+title: "Upgrading @rest-hooks/test to 3"
 ---
 
 `@rest-hooks/test` uses `react-hooks-testing-library` internally. Version 3

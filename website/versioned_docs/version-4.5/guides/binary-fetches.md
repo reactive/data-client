@@ -1,6 +1,6 @@
 ---
 title: Fetching Media
-id: version-4.5-binary-fetches
+id: binary-fetches
 original_id: binary-fetches
 ---
 

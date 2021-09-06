@@ -1,6 +1,6 @@
 ---
 title: Capturing Mutation Side-Effects
-id: version-4.1-rpc
+id: rpc
 original_id: rpc
 ---
 

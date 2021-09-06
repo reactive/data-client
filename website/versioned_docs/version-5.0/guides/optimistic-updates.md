@@ -1,7 +1,5 @@
 ---
 title: Optimistic Updates
-id: version-5.0-optimistic-updates
-original_id: optimistic-updates
 ---
 
 Optimistic updates enable highly responsive and fast interfaces by avoiding network wait times.

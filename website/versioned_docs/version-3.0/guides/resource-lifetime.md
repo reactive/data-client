@@ -1,7 +1,7 @@
 ---
 title: Custom Resource cache lifetime
 sidebar_label: Custom cache lifetime
-id: version-3.0-resource-lifetime
+id: resource-lifetime
 original_id: resource-lifetime
 ---
 
