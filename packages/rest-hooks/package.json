@@ -86,6 +86,8 @@
     "normalized cache",
     "swr",
     "rest",
+    "GraphQL",
+    "query",
     "async",
     "declarative",
     "scalable"

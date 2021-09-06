@@ -86,6 +86,9 @@
     "api",
     "normalized cache",
     "swr",
+    "GraphQL",
+    "query",
+    "middleware",
     "declarative",
     "scalable"
   ],
