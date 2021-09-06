@@ -18,13 +18,7 @@ process.env.NODE_ENV = 'production';
 process.env.RESOLVER_ALIAS = '{"@rest-hooks/endpoint":"./src"}';
 
 function isExternal(id) {
-  const ret = dependencies.includes(id);
-  if (!ret) {
-    for (const dep of dependencies) {
-      if (id.startsWith(dep)) return true;
-    }
-  }
-  return ret;
+  return dependencies.some(dep => dep === id || id.startsWith(dep));
 }
 
 const configs = [];
