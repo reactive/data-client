@@ -39,6 +39,13 @@ export default class User extends GQLEntity {}
 
 [Entity](../api/Entity)s are immutable. Use `readonly` in typescript to enforce this.
 
+:::tip
+
+Using GQLEntities is not required, but is important to achieve data consistency.
+
+:::
+
+
 ## Query the Graph
 
 <Tabs
@@ -66,7 +73,7 @@ export const userDetail = gql.query(
 );
 
 export default function UserDetail({ name }: { name: string }) {
-  const user = useResource(userDetail, { name });
+  const { user } = useResource(userDetail, { name });
   return (
     <article>
       <h2>{user.name}</h2>
@@ -96,7 +103,7 @@ const userList = gql.query(
 );
 
 export default function UserList() {
-  const users = useResource(userList, {});
+  const { users } = useResource(userList, {});
   return (
     <section>
       {users.map(user => (
@@ -160,5 +167,5 @@ export default function NewReviewForm() {
 ```
 
 The first argument to GQLEndpoint.query or GQLEndpoint.mutate is either the query string
-*or* a function that returns the query string. The main value of using the latter is enforcing
+_or_ a function that returns the query string. The main value of using the latter is enforcing
 the function argument types.

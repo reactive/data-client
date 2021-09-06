@@ -166,6 +166,11 @@ module.exports = {
           label: 'REST / CRUD',
           position: 'left',
         },
+        {
+          to: 'docs/graphql/usage',
+          label: 'GraphQL',
+          position: 'left',
+        },
         { to: '/blog', label: 'News', position: 'left' },
         {
           href: 'https://github.com/coinbase/rest-hooks/tree/master/examples/todo-app',
@@ -242,6 +247,10 @@ module.exports = {
             {
               label: 'REST / CRUD',
               to: '/docs/rest/usage',
+            },
+            {
+              label: 'GraphQL',
+              to: '/docs/graphql/usage',
             },
             {
               label: 'API',
