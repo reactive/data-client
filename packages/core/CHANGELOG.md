@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0-beta.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.0-beta.5...@rest-hooks/core@2.0.0-beta.6) (2021-09-06)
+
+
+### 💅 Enhancement
+
+* Give errors a name ([#1195](https://github.com/coinbase/rest-hooks/issues/1195)) ([caa1cd4](https://github.com/coinbase/rest-hooks/commit/caa1cd4c365eedc0e6bc8df6b00b9bfdf6492c63))
+* Improve robustness for legacy RESET actions ([#1213](https://github.com/coinbase/rest-hooks/issues/1213)) ([da6ee6c](https://github.com/coinbase/rest-hooks/commit/da6ee6c21d37b8ea5fa75ff15284c79bd9eb1269))
+* validate during denormalization ([#1183](https://github.com/coinbase/rest-hooks/issues/1183)) ([bca1e4a](https://github.com/coinbase/rest-hooks/commit/bca1e4a9158a294ee82745107e04e43564ccd5a0))
+* Warn users if they are missing Suspense boundary ([#1169](https://github.com/coinbase/rest-hooks/issues/1169)) ([ccf819a](https://github.com/coinbase/rest-hooks/commit/ccf819ab65163aa056a3317e1c1eca17c003ecf6))
+
+
+
 ## [2.0.0-beta.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.0-beta.4...@rest-hooks/core@2.0.0-beta.5) (2021-08-25)
 
 

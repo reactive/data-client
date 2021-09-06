@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@3.0.0-beta.1...@rest-hooks/rest@3.0.0-beta.2) (2021-09-06)
+
+
+### 💅 Enhancement
+
+* Give errors a name ([#1195](https://github.com/coinbase/rest-hooks/issues/1195)) ([caa1cd4](https://github.com/coinbase/rest-hooks/commit/caa1cd4c365eedc0e6bc8df6b00b9bfdf6492c63))
+* Improve NetworkError debuggability ([#1172](https://github.com/coinbase/rest-hooks/issues/1172)) ([9fb64bb](https://github.com/coinbase/rest-hooks/commit/9fb64bbf31827c65eaa1e6b0617e46f685d9ea58))
+
+
+### 📝 Documentation
+
+* Add subscriptions to colocate ([#1175](https://github.com/coinbase/rest-hooks/issues/1175)) ([b311a61](https://github.com/coinbase/rest-hooks/commit/b311a6143d9b9087bae56591e531ff9030d6b704))
+* Rework introduction ([#614](https://github.com/coinbase/rest-hooks/issues/614)) ([85bc2a9](https://github.com/coinbase/rest-hooks/commit/85bc2a9a53ec751ca64b18894012167f6fb8e609))
+
+
+
 ## [3.0.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@3.0.0-beta.0...@rest-hooks/rest@3.0.0-beta.1) (2021-08-21)
 
 

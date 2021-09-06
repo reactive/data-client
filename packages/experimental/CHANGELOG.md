@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@1.0.0-beta.3...@rest-hooks/experimental@1.0.0-beta.4) (2021-09-06)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* useController(true) -> useController({ throttle: true
+})
+
+### 💅 Enhancement
+
+* Give errors a name ([#1195](https://github.com/coinbase/rest-hooks/issues/1195)) ([caa1cd4](https://github.com/coinbase/rest-hooks/commit/caa1cd4c365eedc0e6bc8df6b00b9bfdf6492c63))
+* Improve NetworkError debuggability ([#1172](https://github.com/coinbase/rest-hooks/issues/1172)) ([9fb64bb](https://github.com/coinbase/rest-hooks/commit/9fb64bbf31827c65eaa1e6b0617e46f685d9ea58))
+
+
+### 📝 Documentation
+
+* Minor typos ([#1188](https://github.com/coinbase/rest-hooks/issues/1188)) ([9fe6c0d](https://github.com/coinbase/rest-hooks/commit/9fe6c0d82f9b6f5922a8f2977609e0ff6e7c9551))
+* Some fixups for the usecontroller blog ([#1182](https://github.com/coinbase/rest-hooks/issues/1182)) ([9179c2e](https://github.com/coinbase/rest-hooks/commit/9179c2e8d867c84d92ca28475c82f77c8be356b3))
+
+
+* useController() takes configuration options (#1179) ([4847848](https://github.com/coinbase/rest-hooks/commit/4847848a2778b54488e66dd265e076d9fb140161)), closes [#1179](https://github.com/coinbase/rest-hooks/issues/1179)
+
+
+
 ## [1.0.0-beta.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@1.0.0-beta.2...@rest-hooks/experimental@1.0.0-beta.3) (2021-08-22)
 
 

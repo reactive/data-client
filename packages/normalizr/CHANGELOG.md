@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.0.0-beta.1...@rest-hooks/normalizr@8.0.0-beta.2) (2021-09-06)
+
+
+### 💅 Enhancement
+
+* validate during denormalization ([#1183](https://github.com/coinbase/rest-hooks/issues/1183)) ([bca1e4a](https://github.com/coinbase/rest-hooks/commit/bca1e4a9158a294ee82745107e04e43564ccd5a0))
+
+
+
 ## [8.0.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@7.5.0...@rest-hooks/normalizr@8.0.0-beta.1) (2021-07-12)
 
 

@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@3.0.0-beta.1...@rest-hooks/legacy@3.0.0-beta.2) (2021-09-06)
+
+
+### 🚀 Features
+
+* Mark compatibility with upcoming versions ([#959](https://github.com/coinbase/rest-hooks/issues/959)) ([72da158](https://github.com/coinbase/rest-hooks/commit/72da158c19acf4c76b8b86eb37e063956b7347fd))
+
+
+### 💅 Enhancement
+
+* Give errors a name ([#1195](https://github.com/coinbase/rest-hooks/issues/1195)) ([caa1cd4](https://github.com/coinbase/rest-hooks/commit/caa1cd4c365eedc0e6bc8df6b00b9bfdf6492c63))
+* Improve NetworkError debuggability ([#1172](https://github.com/coinbase/rest-hooks/issues/1172)) ([9fb64bb](https://github.com/coinbase/rest-hooks/commit/9fb64bbf31827c65eaa1e6b0617e46f685d9ea58))
+
+
+### 🐛 Bug Fix
+
+* Legacy cjs and unpkg should target 'legacy' ([31b6893](https://github.com/coinbase/rest-hooks/commit/31b68933245bfc6234ecea603618f43af8387729))
+
+
+### 📝 Documentation
+
+* More udpates ([#1176](https://github.com/coinbase/rest-hooks/issues/1176)) ([e11b59c](https://github.com/coinbase/rest-hooks/commit/e11b59c26ee26eaeacf65a9ceaba74f35c27b66b))
+
+
+
 ## [3.0.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@3.0.0-beta.0...@rest-hooks/legacy@3.0.0-beta.1) (2021-06-30)
 
 

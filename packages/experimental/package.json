@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/experimental",
-  "version": "1.0.0-beta.3",
+  "version": "1.0.0-beta.4",
   "description": "Experimental extensions for Rest Hooks",
   "sideEffects": false,
   "main": "dist/index.cjs.js",

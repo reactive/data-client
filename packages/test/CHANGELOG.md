@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.0.0-beta.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.0.0-beta.2...@rest-hooks/test@7.0.0-beta.3) (2021-09-06)
+
+
+### 💅 Enhancement
+
+* Warn users if they are missing Suspense boundary ([#1169](https://github.com/coinbase/rest-hooks/issues/1169)) ([ccf819a](https://github.com/coinbase/rest-hooks/commit/ccf819ab65163aa056a3317e1c1eca17c003ecf6))
+
+
+
 ## [7.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.0.0-beta.1...@rest-hooks/test@7.0.0-beta.2) (2021-08-21)
 
 
