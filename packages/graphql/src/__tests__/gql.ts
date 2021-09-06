@@ -1,10 +1,5 @@
-import {
-  CoolerArticleResource,
-  UserResource,
-  UrlArticleResource,
-} from '__tests__/new';
 import nock from 'nock';
-import { normalize, schema } from '@rest-hooks/normalizr';
+import { schema } from '@rest-hooks/normalizr';
 
 import GQLEndpoint from '../GQLEndpoint';
 import GQLEntity from '../GQLEntity';
