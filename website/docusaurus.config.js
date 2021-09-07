@@ -1,3 +1,5 @@
+const path = require('path');
+
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'Rest Hooks',
@@ -130,6 +132,7 @@ module.exports = {
         ],
       },
     ],
+    path.resolve(__dirname, './node-plugin'),
   ],
   themeConfig: {
     colorMode: {

@@ -6,7 +6,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
 import styles from './index.module.css';
 import HomepageFeatures from '../components/HomepageFeatures';
-import Demo from '../components/Demo';
+import Demo from '../components/Demo/index';
 
 const ProjectTitle = () => (
   <React.Fragment>

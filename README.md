@@ -88,7 +88,39 @@ For the small price of 8kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 - [x] 📱 [React Native](https://facebook.github.io/react-native/) support
 - [x] 🚯 Declarative cache lifetime policy
 
-### Special thanks
+## Principals of Rest Hooks
+
+### Integrity
+
+- Strong inferred types
+- Global referential equality guarantees
+- Normalized store creates a single source of truth
+- Strong invariants robust against race conditions
+- Validation
+
+### Performance
+
+- Stale While Revalidate configurable cache
+- Only re-render
+
+### Composition over configuration
+
+- Declarative data definitions
+- Decoupled API definitions from usage
+- Co-located data dependencies
+    - Centralized orchestration
+- Extensible orchestration through Managers (middleware)
+- Composable hooks
+    - subject pattern
+- Suspense + concurrent mode async orchestration
+
+### Incremental Adoption
+
+- Simple case is simple
+- Scale as your app scales
+
+## Special thanks
+
 
 Thanks to [@0xcaff](https://github.com/0xcaff), [@melissafzhang](https://github.com/melissafzhang)
 and [@alexiswolfish](https://github.com/alexiswolfish) for their valuable feedback.
