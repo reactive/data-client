@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.0.0-beta.3...@rest-hooks/test@7.0.0) (2021-09-08)
+
+**Note:** Version bump only for package @rest-hooks/test
+
+
+
+
+
 ## [7.0.0-beta.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.0.0-beta.2...@rest-hooks/test@7.0.0-beta.3) (2021-09-06)
 
 
