@@ -110,12 +110,12 @@ pk() {
 }
 ```
 
-### static get key(): string
+### static get key(): string {#key}
 
 This defines the key for the Entity itself, rather than an instance. This needs to be a globally
 unique value.
 
-### static merge(existing, incoming): mergedValue
+### static merge(existing, incoming): mergedValue {#merge}
 
 ```typescript
 static merge<T extends typeof SimpleRecord>(existing: InstanceType<T>, incoming: InstanceType<T>) => InstanceType<T>
@@ -149,7 +149,7 @@ class LatestPriceEntity extends Entity {
 }
 ```
 
-### static indexes?: (keyof this)[]
+### static indexes?: (keyof this)[]  {#indexes}
 
 Indexes enable increased performance when doing lookups based on those parameters. Add
 fieldnames (like `slug`, `username`) to the list that you want to send as params to lookup
@@ -223,7 +223,7 @@ Nested below:
 const price = useCache(LatestPrice, { symbol: 'BTC' });
 ```
 
-### static schema: { [k: keyof this]: Schema }
+### static schema: { [k: keyof this]: Schema }  {#schema}
 
 Set this to [define entities nested](../guides/nested-response) inside this one.
 

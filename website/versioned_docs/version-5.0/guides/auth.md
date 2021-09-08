@@ -1,6 +1,7 @@
 ---
 title: Authentication
 ---
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
@@ -20,8 +21,10 @@ values={[
 <TabItem value="fetch">
 
 ```typescript
-class AuthdResource extends Resource {
-  static getFetchInit = (init: RequestInit) => ({
+import { Resource } from '@rest-hooks/rest';
+
+abstract class AuthdResource extends Resource {
+  static getFetchInit = (init: RequestInit): RequestInit => ({
     ...init,
     credentials: 'same-origin',
   });
@@ -32,12 +35,16 @@ class AuthdResource extends Resource {
 <TabItem value="superagent">
 
 ```typescript
-import { Request } from 'rest-hooks';
+import { Resource } from '@rest-hooks/rest';
+import type { SuperAgentRequest } from 'superagent';
 
-class AuthdResource extends Resource {
-  static fetchPlugin = (request: Request) => request.withCredentials();
+abstract class AuthdResource extends Resource {
+  static fetchPlugin = (request: SuperAgentRequest) =>
+    request.withCredentials();
 }
 ```
+
+If you used the [custom superagent fetch](../guides/custom-networking#superagent)
 
 </TabItem>
 </Tabs>
@@ -51,20 +58,19 @@ Here we use a context variable to set headers. Note - this means any endpoint fu
 called from a React Component. (However, this should be fine since the context will only exist in React anyway.)
 
 ```typescript
-class AuthdResource extends Resource {
+abstract class AuthdResource extends Resource {
   static useFetchInit = (init: RequestInit) => {
     const accessToken = useAuthContext();
     return {
-    ...init,
+      ...init,
       headers: {
         ...init.headers,
         'Access-Token': accessToken,
       },
-    }
+    };
   };
 }
 ```
-
 
 ## Code organization
 

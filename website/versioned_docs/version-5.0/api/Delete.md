@@ -82,7 +82,7 @@ function MyTable() {
 }
 ```
 
-### Usage with useResource()
+### Impact on useResource()
 
 When entities are deleted in a result currently being presented in React, useResource()
 will consider them invalid
