@@ -26,6 +26,7 @@ const fetchTodoDetail = ({ id }: Params): Promise<Todo> =>
     res.json(),
   );
 
+// highlight-next-line
 const todoDetail = new Endpoint(fetchTodoDetail);
 ```
 
@@ -35,6 +36,7 @@ const fetchTodoDetail = ({ id }) =>
     res.json(),
   );
 
+// highlight-next-line
 const todoDetail = new Endpoint(fetchTodoDetail);
 ```
 
@@ -47,6 +49,8 @@ const todoDetail = new Endpoint(fetchTodoDetail);
 console.log(await todoDetail({ id: '1' }));
 ```
 
+<samp>
+
 ```json
 {
   "userId": 1,
@@ -55,6 +59,8 @@ console.log(await todoDetail({ id: '1' }));
   "completed": false
 }
 ```
+
+</samp>
 
 </details>
 

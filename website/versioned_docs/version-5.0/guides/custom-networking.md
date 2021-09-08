@@ -40,7 +40,7 @@ For the most up-to-date implementation, see the [source on master](https://githu
 
 ```typescript
 import { SimpleResource, Method } from '@rest-hooks/rest';
-import request from 'superagent';
+import type { SuperAgentRequest } from 'superagent';
 
 const ResourceError = `JSON expected but not returned from API`;
 
@@ -50,7 +50,7 @@ const ResourceError = `JSON expected but not returned from API`;
  */
 export default abstract class Resource extends SimpleResource {
   /** A function to mutate all requests for fetch */
-  static fetchPlugin?: request.Plugin;
+  static fetchPlugin?: (request: SuperAgentRequest) => SuperAgentRequest;
 
   /** Perform network request and resolve with json body */
   static async fetch(

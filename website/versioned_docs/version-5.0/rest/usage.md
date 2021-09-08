@@ -5,6 +5,9 @@ title: Usage
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import PkgTabs from '@site/src/components/PkgTabs';
+
+<PkgTabs pkgs="@rest-hooks/rest" />
 
 ## Define a Resource
 
@@ -110,7 +113,7 @@ export default function ArticleList({ sortBy }: { sortBy: string }) {
 </Tabs>
 
 [useResource()](../api/useresource) guarantees access to data with sufficient [freshness](../api/Endpoint#dataexpirylength-number).
-This means it may issue network calls, and it may [suspend](../guides/loading-state) until the the fetch completes.
+This means it may issue network calls, and it may [suspend](../guides/loading-state) until the fetch completes.
 Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
 suspends.
 

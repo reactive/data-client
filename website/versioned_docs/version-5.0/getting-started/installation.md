@@ -7,7 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
 
-<PkgTabs pkgs="rest-hooks @rest-hooks/rest @rest-hooks/test" />
+<PkgTabs pkgs="rest-hooks @rest-hooks/test @rest-hooks/hooks @rest-hooks/rest" />
 
 TypeScript is optional, but requires at least version [3.7](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#more-recursive-type-aliases) for full type enforcement.
 
@@ -18,8 +18,8 @@ TypeScript is optional, but requires at least version [3.7](https://www.typescri
 defaultValue="web"
 groupId="platform"
 values={[
-{ label: 'Web', value: 'web' },
-{ label: 'Concurrent mode', value: 'concurrent' },
+{ label: 'React Web 16+', value: 'web' },
+{ label: 'React Web 18+', value: '18-web' },
 { label: 'React Native', value: 'native' },
 ]}>
 <TabItem value="web">
@@ -38,7 +38,7 @@ ReactDOM.render(
 
 </TabItem>
 
-  <TabItem value="concurrent">
+  <TabItem value="18-web">
 
 ```tsx title="/index.tsx"
 import { CacheProvider } from 'rest-hooks';
