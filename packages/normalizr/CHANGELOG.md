@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.5.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@7.5.0...@rest-hooks/normalizr@7.5.1) (2021-09-08)
+
+
+### 🐛 Bug Fix
+
+* Updating nesting under arrays ([#1047](https://github.com/coinbase/rest-hooks/issues/1047)) ([e7addd2](https://github.com/coinbase/rest-hooks/commit/e7addd287bda4c73c93abd38880902d00c28f76d))
+
+
+
 ## [7.5.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@7.4.0...@rest-hooks/normalizr@7.5.0) (2021-07-06)
 
 

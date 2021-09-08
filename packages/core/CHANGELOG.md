@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.5.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.5.3...@rest-hooks/core@1.5.4) (2021-09-08)
+
+
+### 💅 Enhancement
+
+* Warn users if they are missing Suspense boundary ([#1169](https://github.com/coinbase/rest-hooks/issues/1169)) ([4e83a48](https://github.com/coinbase/rest-hooks/commit/4e83a488798920c7b841ca2b4a9a92e88f6039c9))
+
+
+### 🐛 Bug Fix
+
+* Updating nesting under arrays ([#1047](https://github.com/coinbase/rest-hooks/issues/1047)) ([e7addd2](https://github.com/coinbase/rest-hooks/commit/e7addd287bda4c73c93abd38880902d00c28f76d))
+* useFetchInit() hook calls same amount every render ([#1123](https://github.com/coinbase/rest-hooks/issues/1123)) ([04deed1](https://github.com/coinbase/rest-hooks/commit/04deed14e659b16b7d752d1a337f7cb80139806a))
+
+
+
 ### [1.5.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.5.2...@rest-hooks/core@1.5.3) (2021-07-06)
 
 **Note:** Version bump only for package @rest-hooks/core
