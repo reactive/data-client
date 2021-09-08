@@ -845,8 +845,6 @@ describe(`${Entity.name} denormalization`, () => {
     expect(denormalizedReport.draftedBy?.reports[0].draftedBy).toBe(
       denormalizedReport.draftedBy,
     );
-    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-    console.log();
 
     const [denormalizedReport2] = denormalize(
       '123',
@@ -862,7 +860,7 @@ describe(`${Entity.name} denormalization`, () => {
     // maintained with nested denormalization.
   });
 
-  test.only('denormalizes maintain referential equality when appropriate', () => {
+  test('denormalizes maintain referential equality when appropriate', () => {
     const entities = {
       Report: {
         '123': {
@@ -917,8 +915,6 @@ describe(`${Entity.name} denormalization`, () => {
     expect(denormalizedReport.report.publishedBy).toBe(
       denormalizedReport.comment.author,
     );
-    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-    console.log();
 
     const [denormalizedReport2] = denormalize(
       input,
@@ -950,6 +946,7 @@ describe(`${Entity.name} denormalization`, () => {
       entityCache,
       resultCache,
     );
+
     expect(denormalizedReport3.comment?.author?.role).toBe('supervisor');
     expect(denormalizedReport3.report?.draftedBy?.role).toBe('supervisor');
     // NOTE: Given how immutable data works, referential equality can't be

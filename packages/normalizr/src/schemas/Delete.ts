@@ -71,9 +71,8 @@ export default class Delete<E extends EntityInterface & { process: any }>
   denormalize(
     id: string,
     unvisit: UnvisitFunction,
-    globalKey: object[],
   ): [denormalized: AbstractInstanceType<E>, found: boolean, suspend: boolean] {
-    return unvisit(id, this._entity, globalKey) as any;
+    return unvisit(id, this._entity) as any;
   }
 
   /* istanbul ignore next */

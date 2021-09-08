@@ -24,7 +24,7 @@ export default class ValuesSchema extends PolymorphicSchema {
     }, {});
   }
 
-  denormalize(input, unvisit, globalKey) {
+  denormalize(input, unvisit) {
     let found = true;
     let deleted = false;
     return [
@@ -33,7 +33,6 @@ export default class ValuesSchema extends PolymorphicSchema {
         const [value, foundItem, deletedItem] = this.denormalizeValue(
           entityOrId,
           unvisit,
-          globalKey,
         );
         if (!foundItem) {
           found = false;

@@ -856,7 +856,7 @@ describe('denormalize with global cache', () => {
         entityCache,
         resultCache,
       );
-      console.log('>>>>>>>>>>>>>');
+
       const [second] = denormalize(
         result,
         { data: Article },
@@ -873,7 +873,7 @@ describe('denormalize with global cache', () => {
         entityCache,
         resultCache,
       );
-      console.log(resultCache);
+
       expect(first).not.toBe(second);
       expect(first.title).toBe(second.title);
       expect(first.data.author).toBe(second.data.author);

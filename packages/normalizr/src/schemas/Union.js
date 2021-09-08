@@ -25,8 +25,8 @@ export default class UnionSchema extends PolymorphicSchema {
     );
   }
 
-  denormalize(input, unvisit, globalKey) {
-    return this.denormalizeValue(input, unvisit, globalKey);
+  denormalize(input, unvisit) {
+    return this.denormalizeValue(input, unvisit);
   }
 
   infer(args, indexes, recurse) {

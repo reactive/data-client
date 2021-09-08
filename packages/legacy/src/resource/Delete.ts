@@ -60,9 +60,8 @@ export default class Delete<E extends schema.EntityInterface & { fromJS: any }>
   denormalize(
     id: string,
     unvisit: schema.UnvisitFunction,
-    globalKey: object[],
   ): [AbstractInstanceType<E>, boolean, boolean] {
-    return unvisit(id, this._entity, globalKey) as any;
+    return unvisit(id, this._entity) as any;
   }
 
   /* istanbul ignore next */
