@@ -366,18 +366,6 @@ Array [
 ]
 `;
 
-exports[`denormalize throws when nested entities are primitives 1`] = `
-"Unexpected primitive found during denormalization
-Found: 4
-Expected entity: class Comment extends _IDEntity.default {
-      constructor(...args) {
-        super(...args);
-        this.comment = '';
-      }
-
-    }"
-`;
-
 exports[`normalize can use fully custom entity classes 1`] = `
 Object {
   "entities": Object {
