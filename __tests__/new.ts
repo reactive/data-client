@@ -282,6 +282,14 @@ export class FutureArticleResource extends CoolerArticleResource {
   } - once useResource() takes variable params*/
 }
 
+export class CoauthoredArticleResource extends FutureArticleResource {
+  readonly coAuthors: UserResource[] = [];
+  static schema = {
+    ...FutureArticleResource.schema,
+    coAuthors: [UserResource],
+  };
+}
+
 export const CoolerArticleDetail = new Endpoint(({ id }: { id: number }) => {
   return fetch(`http://test.com/article-cooler/${id}`).then(res =>
     res.json(),
