@@ -165,6 +165,86 @@ When provided, any fetches with this endpoint will behave as though the `fakePay
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
 
+#### update(normalizedResponseOfThis) => ({ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
+
+```ts title="UpdateType.ts"
+type UpdateFunction<
+  Source extends EndpointInterface,
+  Updaters extends Record<string, any> = Record<string, any>,
+> = (
+  source: ResultEntry<Source>,
+) => { [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K] };
+```
+
+Simplest case:
+
+```ts title="userEndpoint.ts"
+const createUser = new Endpoint(postToUserFunction, {
+  schema: User,
+  update: (newUserId: string) => ({
+    [userList.key()]: (users = []) => [newUserId, ...users],
+  }),
+});
+```
+
+More updates:
+
+```typescript title="Component.tsx"
+const allusers = useResource(userList);
+const adminUsers = useResource(userList, { admin: true });
+```
+
+The endpoint below ensures the new user shows up immediately in the usages above.
+
+```ts title="userEndpoint.ts"
+const createUser = new Endpoint(postToUserFunction, {
+  schema: User,
+  update: (newUserId, newUser)  => {
+    const updates = {
+      [userList.key()]: (users = []) => [newUserId, ...users],
+    ];
+    if (newUser.isAdmin) {
+      updates[userList.key({ admin: true })] = (users = []) => [newUserId, ...users];
+    }
+    return updates;
+  },
+});
+```
+
+This is usage with a [Resource](./Resource.md)
+
+```typescript title="TodoResource.ts"
+import { Resource } from '@rest-hooks/rest';
+
+export default class TodoResource extends Resource {
+  readonly id: number = 0;
+  readonly userId: number = 0;
+  readonly title: string = '';
+  readonly completed: boolean = false;
+
+  pk() {
+    return `${this.id}`;
+  }
+
+  static urlRoot = 'https://jsonplaceholder.typicode.com/todos';
+
+  static create<T extends typeof Resource>(this: T) {
+    const todoList = this.list();
+    return super.create().extend({
+      schema: this,
+      // highlight-start
+      update: (newResourceId: string) => ({
+        [todoList.key({})]: (resourceIds: string[] = []) => [
+          ...resourceIds,
+          newResourceId,
+        ],
+      }),
+      // highlight-end
+    });
+  }
+}
+```
+
 ## Examples
 
 <Tabs
