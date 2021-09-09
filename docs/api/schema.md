@@ -2,6 +2,7 @@
 title: Schema Quick Start
 sidebar_label: Quick Start
 ---
+import LanguageTabs from '@site/src/components/LanguageTabs';
 
 
 Consider a typical blog post. The API response for a single post might look something like this:
@@ -28,6 +29,8 @@ Consider a typical blog post. The API response for a single post might look some
 ```
 
 We have two nested entity types within our `article`: `users` and `comments`. Using various `schema`, we can normalize all three entity types down:
+
+<LanguageTabs>
 
 ```typescript
 import { normalize, schema, Entity } from '@rest-hooks/normalizr';
@@ -71,6 +74,39 @@ class Article extends Entity {
 
 const normalizedData = normalize(originalData, article);
 ```
+
+```javascript
+import { normalize, schema, Entity } from '@rest-hooks/normalizr';
+
+// Define a users schema
+class User extends Entity {
+  pk() { return this.id; }
+}
+
+// Define your comments schema
+class Comment extends Entity {
+  pk() { return this.id; }
+
+  static schema = {
+    commenter: User,
+    createdAt: Date,
+  }
+}
+
+// Define your article
+class Article extends Entity {
+  pk() { return this.id; }
+
+  static schema = {
+    author: User,
+    comments: [Comment],
+  }
+}
+
+const normalizedData = normalize(originalData, article);
+```
+
+</LanguageTabs>
 
 Now, `normalizedData` will be:
 

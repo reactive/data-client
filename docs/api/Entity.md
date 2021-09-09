@@ -47,8 +47,6 @@ export default class Article extends Entity {
 
 </LanguageTabs>
 
-`Entity` extends [SimpleRecord](./SimpleRecord)
-
 `Entity` is an abstract base class used to define data with some form of primary key (or `pk` for short).
 When representing data from a relational database, this makes an Entity roughly map 1:1 with a table, where
 each row represents an instance of the Entity.
@@ -125,8 +123,6 @@ unique value.
 ```typescript
 static merge<T extends typeof SimpleRecord>(existing: InstanceType<T>, incoming: InstanceType<T>) => InstanceType<T>
 ```
-
-> Inherited from [SimpleRecord](./SimpleRecord)
 
 Merge is used to resolve the same entity. This can be because it was previously put in the cache,
 or it was found in multiple places nested in one response. By default it is the SimpleRecord merge, which
