@@ -84,11 +84,9 @@ don't use constructors.
 
 ## Factory method
 
-### static fromJS\<T extends typeof Resource\>(this: T, props: Partial\<AbstractInstanceType\<T\>\>): AbstractInstanceType\<T\>
+### static fromJS<T extends typeof SimpleRecord\>(this: T, props: Partial<AbstractInstanceType<T\>\>): AbstractInstanceType<T\> {#fromJS}
 
-> Inherited from [SimpleRecord](./SimpleRecord)
-
-This is used to create new entities when normalizing data. These are stored in the entities cache.
+Factory method called during denormalization. Use this instead of `new MyEntity()`
 
 ## Be sure to always provide:
 

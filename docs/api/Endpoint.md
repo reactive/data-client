@@ -17,12 +17,15 @@ values={[
 <TabItem value="Interface">
 
 ```typescript
-interface EndpointInterface extends EndpointExtraOptions   {
-  (params?: any, body?: any): Promise<any>;
-  key(parmas?: any): string;
-  schema?: Readonly<S>;
-  sideEffects?: true;
-  // other optionals like 'optimistic'
+export interface EndpointInterface<
+  F extends FetchFunction = FetchFunction,
+  S extends Schema | undefined = Schema | undefined,
+  M extends true | undefined = true | undefined,
+> extends EndpointExtraOptions<F> {
+  (...args: Parameters<F>): InferReturn<F, S>;
+  key(...args: Parameters<F>): string;
+  readonly sideEffect?: M;
+  readonly schema?: S;
 }
 ```
 
@@ -55,7 +58,7 @@ export interface EndpointOptions extends EndpointExtraOptions {
 <TabItem value="EndpointExtraOptions">
 
 ```typescript
-export interface EndpointExtraOptions {
+export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   /** Default data expiry length, will fall back to NetworkManager default if not defined */
   readonly dataExpiryLength?: number;
   /** Default error expiry length, will fall back to NetworkManager default if not defined */
@@ -65,10 +68,9 @@ export interface EndpointExtraOptions {
   /** Marks cached resources as invalid if they are stale */
   readonly invalidIfStale?: boolean;
   /** Enables optimistic updates for this request - uses return value as assumed network response */
-  readonly optimisticUpdate?: (
-    params: Readonly<object>,
-    body: Readonly<object | string> | void,
-  ) => any;
+  readonly optimisticUpdate?: (...args: Parameters<F>) => ResolveType<F>;
+  /** Determines whether to throw or fallback to */
+  readonly errorPolicy?: (error: any) => 'soft' | undefined;
   /** User-land extra data to send */
   readonly extra?: any;
 }
@@ -141,29 +143,114 @@ In addition to the members, `fetch` can be sent to override the fetch function.
 
 ### EndpointExtraOptions
 
-#### dataExpiryLength?: number
+#### dataExpiryLength?: number {#dataexpirylength}
 
 Custom data cache lifetime for the fetched resource. Will override the value set in NetworkManager.
 
-#### errorExpiryLength?: number
+#### errorExpiryLength?: number {#errorexpirylength}
 
 Custom data error lifetime for the fetched resource. Will override the value set in NetworkManager.
 
-#### pollFrequency: number
+#### errorPolicy?: (error: any) => 'soft' | undefined {#errorpolicy}
 
-Frequency in millisecond to poll at. Requires using [useSubscription()](./useSubscription.md) to have
-an effect.
+'soft' will use stale data (if exists) in case of error; undefined or not providing option will result
+in error.
 
-#### invalidIfStale: boolean
+#### invalidIfStale: boolean {#invalidifstale}
 
 Indicates stale data should be considered unusable and thus not be returned from the cache. This means
 that useResource() will suspend when data is stale even if it already exists in cache.
 
-#### optimisticUpdate: (params, body) => fakePayload
+#### pollFrequency: number {#pollfrequency}
+
+Frequency in millisecond to poll at. Requires using [useSubscription()](./useSubscription.md) to have
+an effect.
+
+#### optimisticUpdate: (...args) => fakePayload {#optimisticupdate}
 
 When provided, any fetches with this endpoint will behave as though the `fakePayload` return value
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
+
+#### update(normalizedResponseOfThis) => ({ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
+
+```ts title="UpdateType.ts"
+type UpdateFunction<
+  Source extends EndpointInterface,
+  Updaters extends Record<string, any> = Record<string, any>,
+> = (
+  source: ResultEntry<Source>,
+) => { [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K] };
+```
+
+Simplest case:
+
+```ts title="userEndpoint.ts"
+const createUser = new Endpoint(postToUserFunction, {
+  schema: User,
+  update: (newUserId: string) => ({
+    [userList.key()]: (users = []) => [newUserId, ...users],
+  }),
+});
+```
+
+More updates:
+
+```typescript title="Component.tsx"
+const allusers = useResource(userList);
+const adminUsers = useResource(userList, { admin: true });
+```
+
+The endpoint below ensures the new user shows up immediately in the usages above.
+
+```ts title="userEndpoint.ts"
+const createUser = new Endpoint(postToUserFunction, {
+  schema: User,
+  update: (newUserId, newUser)  => {
+    const updates = {
+      [userList.key()]: (users = []) => [newUserId, ...users],
+    ];
+    if (newUser.isAdmin) {
+      updates[userList.key({ admin: true })] = (users = []) => [newUserId, ...users];
+    }
+    return updates;
+  },
+});
+```
+
+This is usage with a [Resource](./Resource.md)
+
+```typescript title="TodoResource.ts"
+import { Resource } from '@rest-hooks/rest';
+
+export default class TodoResource extends Resource {
+  readonly id: number = 0;
+  readonly userId: number = 0;
+  readonly title: string = '';
+  readonly completed: boolean = false;
+
+  pk() {
+    return `${this.id}`;
+  }
+
+  static urlRoot = 'https://jsonplaceholder.typicode.com/todos';
+
+  static create<T extends typeof Resource>(this: T) {
+    const todoList = this.list();
+    return super.create().extend({
+      schema: this,
+      // highlight-start
+      update: (newResourceId: string) => ({
+        [todoList.key({})]: (resourceIds: string[] = []) => [
+          ...resourceIds,
+          newResourceId,
+        ],
+      }),
+      // highlight-end
+    });
+  }
+}
+```
 
 ## Examples
 

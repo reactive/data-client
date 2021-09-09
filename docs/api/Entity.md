@@ -61,13 +61,18 @@ by increasing cache hit rates.
 
 ## Methods
 
-### static fromJS\<T extends typeof SimpleRecord\>(this: T, props: Partial\<AbstractInstanceType\<T\>\>): AbstractInstanceType\<T\> {#fromJS}
+### static fromJS<T extends typeof SimpleRecord\>(this: T, props: Partial<AbstractInstanceType<T\>\>): AbstractInstanceType<T\> {#fromJS}
 
-> Inherited from [SimpleRecord](./SimpleRecord)
+Factory method called during denormalization. Use this instead of `new MyEntity()`
 
-This is used to create new entities when normalizing data. These are stored in the entities cache.
+### process(input, parent, key): processedEntity
 
-### abstract pk: (parent?: any, key?: string): string | number | undefined {#pk}
+Run at the start of normalization for this entity. Return value is saved in store
+and sent to [pk()](#pk).
+
+**Defaults** to simply copying the response (`{...input}`)
+
+### abstract pk: (parent?, key?): pk? {#pk}
 
 PK stands for _primary key_ and is intended to provide a standard means of retrieving
 a key identifier for any `Entity`. In many cases there will simply be an 'id' field
@@ -148,6 +153,36 @@ class LatestPriceEntity extends Entity {
   }
 }
 ```
+
+### static validate(processedEntity): errorMessage? {#validate}
+
+Runs during both normalize and denormalize. Returning a string indicates an error (the string is the message).
+
+During normalization a validation failure will result in an error for that fetch.
+
+During denormalization a validation failure will mark that result as 'invalid' and thus
+will block on fetching a result.
+
+By **default** does some basic field existance checks in development mode only. Override to
+disable or customize.
+
+### static infer(args, indexes, recurse): pk? {#infer}
+
+Allows Rest Hooks to build a response without having to fetch if its entities can be found.
+
+Returning `undefined` will not infer this entity
+
+Returning `pk` string will attempt to lookup this entity and use in the response.
+
+When inferring a response, this entity's expiresAt is used to compute the expiry policy.
+
+By **default** uses the first argument to lookup in [pk()](#pk) and [indexes](#indexes)
+
+### static expiresAt(meta: { expiresAt: number; date: number }, input: any): expiresAt {#expiresat}
+
+This determines expiry time when entity is part of a result that is inferred.
+
+Overriding can be used to change TTL policy specifically for inferred responses.
 
 ### static indexes?: (keyof this)[]  {#indexes}
 

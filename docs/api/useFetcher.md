@@ -112,6 +112,12 @@ function PostListItem({ post }: { post: PostResource }) {
 
 ## updateParams: [destEndpoint, destParams, updateFunction][]
 
+:::caution
+
+Deprecated - use [Endpoint.update](./Endpoint.md#update) instead
+
+:::
+
 The optional third argument to the fetch function returned by `useFetcher()` is a
 list of tuples that tell Rest Hooks additional updates that should take place.
 

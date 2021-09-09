@@ -23,8 +23,8 @@ update endpoints](./rpc)
 
 ## Delete
 
-Rest Hooks automatically deletes entity entries when any [Endpoint](../api/Endpoint)
-of type `delete` is resolved. [Resource.delete()](../api/resource#delete-endpoint)
+Rest Hooks automatically deletes entity entries [schema.Delete](../api/Delete.md) is used.
+[Resource.delete()](../api/resource#delete-endpoint)
 provides such an endpoint.
 
 ## Create
@@ -35,9 +35,110 @@ not have to wait for an additional retrieval request. However, often new items a
 when viewing an entire list of items, and the create should result in that list - any maybe others -
 displaying the newly created entry.
 
-In the case list views are expected to include newly created items, a third argument to
-the fetch function [updateParams](../api/useFetcher#updateparams-destshape-destparams-updatefunction)
-can be added.
+[Endpoint.update](../api/Endpoint.md#update) handles this case
 
-See [updateParams](../api/useFetcher#updateparams-destshape-destparams-updatefunction) for more information,
-but it essentially specifies which lists to update.
+Simplest case:
+
+```ts title="userEndpoint.ts"
+const createUser = new Endpoint(postToUserFunction, {
+  schema: User,
+  update: (newUserId: string) => ({
+    [userList.key()]: (users = []) => [newUserId, ...users],
+  }),
+});
+```
+
+More updates:
+
+```typescript title="Component.tsx"
+const allusers = useResource(userList);
+const adminUsers = useResource(userList, { admin: true });
+```
+
+The endpoint below ensures the new user shows up immediately in the usages above.
+
+```ts title="userEndpoint.ts"
+const createUser = new Endpoint(postToUserFunction, {
+  schema: User,
+  update: (newUserId, newUser)  => {
+    const updates = {
+      [userList.key()]: (users = []) => [newUserId, ...users],
+    ];
+    if (newUser.isAdmin) {
+      updates[userList.key({ admin: true })] = (users = []) => [newUserId, ...users];
+    }
+    return updates;
+  },
+});
+```
+
+This is usage with a [Resource](../api/Resource.md)
+
+```typescript title="TodoResource.ts"
+import { Resource } from '@rest-hooks/rest';
+
+export default class TodoResource extends Resource {
+  readonly id: number = 0;
+  readonly userId: number = 0;
+  readonly title: string = '';
+  readonly completed: boolean = false;
+
+  pk() {
+    return `${this.id}`;
+  }
+
+  static urlRoot = 'https://jsonplaceholder.typicode.com/todos';
+
+  static create<T extends typeof Resource>(this: T) {
+    const todoList = this.list();
+    return super.create().extend({
+      schema: this,
+      // highlight-start
+      update: (newResourcePk: string) => ({
+        [todoList.key({})]: (resourcePks: string[] = []) => [
+          ...resourcePks,
+          newResourcePk,
+        ],
+      }),
+      // highlight-end
+    });
+  }
+}
+```
+
+Extract the core logic for reuse
+
+```typescript title="TodoResource.ts"
+import { Resource } from '@rest-hooks/rest';
+
+export default class TodoResource extends Resource {
+  readonly id: number = 0;
+  readonly userId: number = 0;
+  readonly title: string = '';
+  readonly completed: boolean = false;
+
+  pk() {
+    return `${this.id}`;
+  }
+
+  static urlRoot = 'https://jsonplaceholder.typicode.com/todos';
+
+  static create<T extends typeof Resource>(this: T) {
+    const todoList = this.list();
+    return super.create().extend({
+      schema: this,
+      update: (newResourcePk: string) => ({
+        // highlight-next-line
+        [todoList.key({})]: this.appendList.bind(newResourcePk),
+      }),
+    });
+  }
+
+  // highlight-start
+  static appendList(newResourcePk: string, resourcePks: string[] = []) {
+    if (resourcePks.includes(newResourcePk)) return resourcePks;
+    return [...resourcePks, newResourcePk];
+  }
+  // highlight-end
+}
+```

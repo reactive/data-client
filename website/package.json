@@ -17,7 +17,7 @@
     "@docusaurus/plugin-client-redirects": "^2.0.0-beta.6",
     "@docusaurus/preset-classic": "^2.0.0-beta.6",
     "@docusaurus/theme-live-codeblock": "^2.0.0-beta.6",
-    "@rest-hooks/endpoint": "^1.2.3",
+    "@rest-hooks/endpoint": "^2.0.0",
     "clsx": "^1.1.1",
     "raw-loader": "^4.0.2",
     "react": "^17.0.2",

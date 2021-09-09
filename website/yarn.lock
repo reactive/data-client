@@ -1631,18 +1631,18 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.19.tgz#2c94db828794aa53e7a420809dac870348819233"
   integrity sha512-kHR9OHwP9WLpyC0i/WCAQCgf5hXkR9C+/21qxmrn+YwRlDRnBlqrcrFpXxhJTA9LDHJWa/FjoO2LJ12q8iWlEQ==
 
-"@rest-hooks/endpoint@^1.2.3":
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/endpoint/-/endpoint-1.2.3.tgz#36225d5fed234ce5968d1bf1a3a48a3cd3a907ff"
-  integrity sha512-XCeTYIZTJHEGIutmiHFhb9eNXPUkNg0KNQ/NvvMocwnpqMssBh4v3H4XA1ijgW7Lt+1X48QFvnZvkda2uK0dJA==
+"@rest-hooks/endpoint@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@rest-hooks/endpoint/-/endpoint-2.0.0.tgz#85f30b77cfa105d8b42ffc35334dec498a59e5b2"
+  integrity sha512-Uy9E+LeUjQlJlQnLU44FobchLhnGY6i7MHpe11zBQ3Eww3YRhJAM2JP4ABMdRUhSYwTPyMolBt5DDSK5ux9gkw==
   dependencies:
     "@babel/runtime" "^7.7.2"
-    "@rest-hooks/normalizr" "^7.5.0"
+    "@rest-hooks/normalizr" "^8.0.0"
 
-"@rest-hooks/normalizr@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/normalizr/-/normalizr-7.5.0.tgz#24acb25c31343a49f943537dec17244405a8c40f"
-  integrity sha512-V0DQ+GlU7HKQCvtc3GXkTyZGJYu0jYxT2KG4MPZauhnFSmNBqHBJalVJzR8O22jjTCHPI41QHRqYKyeTfuNl0A==
+"@rest-hooks/normalizr@^8.0.0":
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/@rest-hooks/normalizr/-/normalizr-8.0.0.tgz#f54bcfaf8056bd15f97bf3280a48073c1ebfb21e"
+  integrity sha512-7yVDk1psrNdPxLWytDCNvFD4oCZEbIIklKut42FEuX2Wz63ZxC6CBwtFH5HPhQnG1Ygagb4uQUBUMuL/1shKOA==
   dependencies:
     "@babel/runtime" "^7.7.2"
 
