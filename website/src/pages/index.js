@@ -36,7 +36,10 @@ function HomepageHeader() {
       <div className="container">
         <ProjectTitle />
         <div className={styles.buttons}>
-          <Link className="button button--primary " to="/docs">
+          <Link
+            className="button button--primary "
+            to="/docs/getting-started/installation"
+          >
             Get Started
           </Link>
         </div>

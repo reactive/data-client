@@ -3,6 +3,12 @@ title: SimpleRecord
 ---
 import LanguageTabs from '@site/src/components/LanguageTabs';
 
+:::caution
+
+Deprecated. Used [schema.Object](./Object) instead.
+
+:::
+
 `SimpleRecord` provides a simple immutable interface to store values that have
 defaults. When constructed it distinguishes between actually set values and ones
 only provided by defaults. This is useful to produce accurate merging algorithms
@@ -11,7 +17,7 @@ when dealing with partial data definitions.
 <LanguageTabs>
 
 ```typescript
-import { SimpleRecord } from 'rest-hooks';
+import { SimpleRecord } from '@rest-hooks/legacy';
 
 export default class Article extends SimpleRecord {
   readonly id: number | undefined = undefined;
@@ -23,7 +29,7 @@ export default class Article extends SimpleRecord {
 ```
 
 ```js
-import { SimpleRecord } from 'rest-hooks';
+import { SimpleRecord } from '@rest-hooks/legacy';
 
 export default class Article extends SimpleRecord {
   id = undefined;

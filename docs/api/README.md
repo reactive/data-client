@@ -5,14 +5,12 @@ title: API Reference
 ## Interface Definitions
 - [Resource](Resource.md)
 - [Entity](Entity.md)
-- [SimpleRecord](SimpleRecord.md)
 - [Endpoint](Endpoint.md)
+- [Index](Index.md)
 
 ### Hierarchy
 
 ```
- SimpleRecord
-      |
    Entity
       |
 SimpleResource
@@ -34,7 +32,7 @@ SimpleResource
 - [ExternalCacheProvider](ExternalCacheProvider.md)
 - [NetworkErrorBoundary](NetworkErrorBoundary.md)
 
-## [Managers](Manager.md)
+## Managers
 
 Extended the networking/state layer works through [managers](Manager.md).
 
@@ -48,7 +46,7 @@ Testing utilities are imported from `@rest-hooks/test`. These are useful
 helpers to ensure your code works as intended and are not meant to be shipped
 to production themselves.
 
-- [\<MockProvider />](MockProvider)
+- [<MockProvider /\>](MockProvider)
 - [makeRenderRestHook()](makeRenderRestHook)
 - [makeCacheProvider()](makeCacheProvider)
 - [makeExternalCacheProvider()](makeExternalCacheProvider)
