@@ -32,10 +32,9 @@ export type SetShapeParams<
   Params extends Readonly<object>,
 > = {
   [K in keyof Shape]: Shape[K];
-} &
-  (Shape['fetch'] extends (first: any, ...rest: infer Args) => infer Return
-    ? { fetch: (first: Params, ...rest: Args) => Return }
-    : never);
+} & (Shape['fetch'] extends (first: any, ...rest: infer Args) => infer Return
+  ? { fetch: (first: Params, ...rest: Args) => Return }
+  : never);
 
 /** Get the Params type for a given Shape */
 export type ParamsFromShape<S> = S extends {
