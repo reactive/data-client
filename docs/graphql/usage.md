@@ -1,6 +1,7 @@
 ---
 id: usage
-title: Usage
+title: GraphQL
+sidebar_label: Usage
 ---
 
 import LanguageTabs from '@site/src/components/LanguageTabs';

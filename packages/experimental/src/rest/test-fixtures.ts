@@ -80,7 +80,7 @@ export const nested = [
   },
 ];
 
-const moreNested = [
+export const moreNested = [
   {
     id: 7,
     title: 'article 7',

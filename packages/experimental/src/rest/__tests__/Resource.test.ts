@@ -10,6 +10,7 @@ import {
   createPayload,
   users,
   nested,
+  moreNested,
   paginatedFirstPage,
   paginatedSecondPage,
 } from '../test-fixtures';
@@ -115,6 +116,34 @@ describe('Resource', () => {
   it('should update on get for a paginated resource', async () => {
     mynock.get(`/article-paginated/`).reply(200, paginatedFirstPage);
     mynock.get(`/article-paginated/?cursor=2`).reply(200, paginatedSecondPage);
+
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      const fetch = useFetcher();
+      const { results: articles, nextPage } = useResource(
+        PaginatedArticleResource.list(),
+        {},
+      );
+      return { articles, nextPage, fetch };
+    });
+    await waitForNextUpdate();
+    await act(async () => {
+      await result.current.fetch(PaginatedArticleResource.listPage(), {
+        cursor: 2,
+      });
+    });
+    expect(
+      result.current.articles.map(
+        ({ id }: Partial<PaginatedArticleResource>) => id,
+      ),
+    ).toEqual([5, 3, 7, 8]);
+  });
+
+  it('should deduplicate results', async () => {
+    mynock.get(`/article-paginated/`).reply(200, paginatedFirstPage);
+    mynock.get(`/article-paginated/?cursor=2`).reply(200, {
+      ...paginatedSecondPage,
+      results: [nested[nested.length - 1], ...moreNested],
+    });
 
     const { result, waitForNextUpdate } = renderRestHook(() => {
       const fetch = useFetcher();
