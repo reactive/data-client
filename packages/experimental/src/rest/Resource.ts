@@ -48,7 +48,7 @@ export default abstract class Resource extends BaseResource {
         url: this.listUrl.bind(this),
         paginated(
           this: any,
-          removeCursor: (...args: Parameters<typeof this>) => any,
+          removeCursor: (...args: Parameters<typeof this>) => any[],
         ) {
           // infer path from schema. if schema is undefined assume array is top level
           const path = getArrayPath(this.schema);
@@ -57,12 +57,14 @@ export default abstract class Resource extends BaseResource {
           return this.extend({
             update: (newPage: any, ...args: any) => ({
               [this.key(...removeCursor(...args))]: (existing: any) => {
-                const set = new Set([
-                  ...getIn(existing, path),
-                  ...getIn(newPage, path),
-                ]);
-                // sorted?
-                return setIn(newPage, path, [...set.values()]);
+                const existingList = getIn(existing, path);
+                // using set so our lookups are O(1) in case this is large
+                const existingSet: Set<string> = new Set(existingList);
+                const addedList = getIn(newPage, path).filter(
+                  (pk: string) => !existingSet.has(pk),
+                );
+                const mergedResults: string[] = [...existingList, ...addedList];
+                return setIn(existing, path, mergedResults);
               },
             }),
           });
@@ -154,10 +156,10 @@ const getIn = (results: any, path: string[]) => {
   return cur;
 };
 
-const setIn = (results: any, path: string[], values: any[]) => {
-  if (path.length === 0) return values;
+const setIn = <T>(results: T, path: string[], values: any[]): T => {
+  if (path.length === 0) return values as any;
   const newResults = { ...results };
-  let cur = newResults;
+  let cur: any = newResults;
   for (let i = 0; i < path.length - 1; i++) {
     const p = path[i];
     cur = cur[p] = { ...cur[p] };

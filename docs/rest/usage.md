@@ -1,6 +1,7 @@
 ---
 id: usage
-title: Usage
+title: REST / CRUD
+sidebar_label: Usage
 ---
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';

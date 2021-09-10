@@ -1,5 +1,6 @@
 ---
-title: Authentication
+title: Resource Authentication
+sidebar_label: Authentication
 ---
 
 import Tabs from '@theme/Tabs';
