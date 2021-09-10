@@ -4,6 +4,7 @@ import { act } from '@testing-library/react-hooks';
 
 import Resource from '../Resource';
 import useFetcher from '../../useFetcher';
+import type { Paginatable, RestEndpoint, RestFetch } from '../types';
 import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import {
   payload,
@@ -44,7 +45,15 @@ export class PaginatedArticleResource extends Resource {
 
   static urlRoot = 'http://test.com/article-paginated/';
 
-  static list<T extends typeof Resource>(this: T) {
+  static list<T extends typeof Resource>(
+    this: T,
+  ): Paginatable<
+    RestEndpoint<
+      RestFetch<[{ cursor?: number }]>,
+      { nextPage: string; results: T[] },
+      undefined
+    >
+  > {
     return super.list().extend({
       schema: {
         nextPage: '',
@@ -126,6 +135,11 @@ describe('Resource', () => {
       return { articles, nextPage, fetch };
     });
     await waitForNextUpdate();
+    () =>
+      result.current.fetch(PaginatedArticleResource.listPage(), {
+        // @ts-expect-error
+        cursor: 'five',
+      });
     await act(async () => {
       await result.current.fetch(PaginatedArticleResource.listPage(), {
         cursor: 2,

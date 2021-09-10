@@ -4,23 +4,20 @@ import type {
   Schema,
 } from '@rest-hooks/endpoint';
 
-export type RestFetch<P = any, B = any, R = any> = (
+export type RestFetch<A extends readonly any[] = any, R = any> = (
   this: RestEndpoint,
-  params?: P,
-  body?: B,
-  ...rest: any
+  ...args: A
 ) => Promise<R>;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export type FetchMutate<P = any, B = {}, R = any> = (
+export type FetchMutate<A extends readonly any[] = [any, {}], R = any> = (
   this: RestEndpoint,
-  params: P,
-  body: B,
+  ...args: A
 ) => Promise<R>;
 
-export type FetchGet<P = any, R = any> = (
+export type FetchGet<A extends readonly any[] = [any], R = any> = (
   this: RestEndpoint,
-  params: P,
+  ...args: A
 ) => Promise<R>;
 
 /** Endpoint from a Resource
@@ -42,7 +39,7 @@ export interface RestEndpoint<
   ) => any;
   method: string;
   signal: AbortSignal | undefined;
-  paginated?: <T>(this: T, ...args: any) => T;
+  paginated?: (this: any, ...args: Parameters<F>) => any;
 }
 
 export type Paginatable<
@@ -52,8 +49,8 @@ export type Paginatable<
     true | undefined
   >,
 > = E & {
-  paginated(
-    this: E,
+  paginated<T extends Paginatable<E>>(
+    this: T,
     removeCursor: (...args: Parameters<E>) => any,
-  ): Paginatable<E>;
+  ): T;
 };

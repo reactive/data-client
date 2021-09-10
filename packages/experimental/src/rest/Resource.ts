@@ -48,7 +48,9 @@ export default abstract class Resource extends BaseResource {
         url: this.listUrl.bind(this),
         paginated(
           this: any,
-          removeCursor: (...args: Parameters<typeof this>) => any[],
+          removeCursor: (...args: Parameters<typeof this>) => {
+            [k in keyof Parameters<typeof this>]: any;
+          },
         ) {
           // infer path from schema. if schema is undefined assume array is top level
           const path = getArrayPath(this.schema);
