@@ -293,9 +293,9 @@ export class CoauthoredArticleResource extends FutureArticleResource {
 export const CoolerArticleDetail = new Endpoint(({ id }: { id: number }) => {
   return fetch(`http://test.com/article-cooler/${id}`).then(res =>
     res.json(),
-  ) as Promise<
-    { [k in keyof CoolerArticleResource]: CoolerArticleResource[k] }
-  >;
+  ) as Promise<{
+    [k in keyof CoolerArticleResource]: CoolerArticleResource[k];
+  }>;
 });
 
 export class IndexedUserResource extends UserResource {

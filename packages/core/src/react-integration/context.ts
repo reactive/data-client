@@ -2,10 +2,11 @@ import { createContext } from 'react';
 import type { DenormalizeCache } from '@rest-hooks/normalizr';
 import type { ActionTypes } from '@rest-hooks/core/types';
 import { initialState } from '@rest-hooks/core/state/reducer';
+import Controller from '@rest-hooks/core/controller/Controller';
 
 export const StateContext = createContext(initialState);
 
-export const DispatchContext = createContext((value: ActionTypes) => {
+const dispatch = (value: ActionTypes) => {
   /* istanbul ignore next */
   if (process.env.NODE_ENV !== 'production') {
     console.error(
@@ -19,9 +20,21 @@ export const DispatchContext = createContext((value: ActionTypes) => {
     }
   }
   return Promise.resolve();
-});
+};
+export const DispatchContext = createContext(dispatch);
 
+// this is not needed anymore, but keeping around for backcompatibility
 export const DenormalizeCacheContext = createContext<DenormalizeCache>({
   entities: {},
   results: {},
 });
+
+export const ControllerContext = createContext<Controller>(
+  new Controller({
+    dispatch,
+    globalCache: {
+      entities: {},
+      results: {},
+    },
+  }),
+);

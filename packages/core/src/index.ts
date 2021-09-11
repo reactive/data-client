@@ -11,6 +11,7 @@ export { useDenormalized } from '@rest-hooks/core/state/selectors/index';
 export {
   useCache,
   useFetcher,
+  useController,
   useFetchDispatcher,
   useRetrieve,
   useResource,
@@ -28,8 +29,11 @@ export {
   StateContext,
   DispatchContext,
   DenormalizeCacheContext,
+  ControllerContext,
 } from '@rest-hooks/core/react-integration/context';
+export { default as Controller } from '@rest-hooks/core/controller/Controller';
 
+export * from '@rest-hooks/core/controller/types';
 export * from '@rest-hooks/core/state/actions/index';
 export * as actionTypes from '@rest-hooks/core/actionTypes';
 export * from '@rest-hooks/use-enhanced-reducer';

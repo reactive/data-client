@@ -1,13 +1,10 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, memo } from 'react';
 import { useMemo } from 'react';
 
-export default function BackupBoundary({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function BackupBoundary({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<Loading />}>{children}</Suspense>;
 }
+export default memo(BackupBoundary);
 
 function Loading() {
   let message: React.ReactNode = 'loading...';
