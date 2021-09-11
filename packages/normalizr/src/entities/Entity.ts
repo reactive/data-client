@@ -88,8 +88,6 @@ export default abstract class Entity {
   /** Factory method to convert from Plain JS Objects.
    *
    * @param [props] Plain Object of properties to assign.
-   * @param [parent] When normalizing, the object which included the record
-   * @param [key] When normalizing, the key where this record was found
    */
   static fromJS<T extends typeof Entity>(
     this: T,
@@ -381,17 +379,16 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     return [entityCopy, true, deleted];
   }
 
-  private declare static __defaults: any;
   /** All instance defaults set */
-  protected static get defaults() {
-    if (!Object.prototype.hasOwnProperty.call(this, '__defaults'))
-      this.__defaults = new (this as any)();
-    return this.__defaults;
-  }
+  protected declare static defaults: any;
 
   /** Used by denormalize to set nested members */
   protected static set(entity: any, key: string, value: any) {
     entity[key] = value;
+  }
+
+  static {
+    this.defaults = new (this as any)();
   }
 }
 
