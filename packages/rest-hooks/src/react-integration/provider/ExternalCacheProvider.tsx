@@ -5,6 +5,7 @@ import {
   State,
   ActionTypes,
   usePromisifiedDispatch,
+  DenormalizeCacheContext,
 } from '@rest-hooks/core';
 import React, { ReactNode, useEffect, useState, useMemo, useRef } from 'react';
 
@@ -24,6 +25,10 @@ export default function ExternalCacheProvider<S>({
   store,
   selector,
 }: Props<S>) {
+  const denormalizeCache = useRef({
+    entities: {},
+    results: {},
+  });
   const [state, setState] = useState(() => selector(store.getState()));
 
   const optimisticState = useMemo(
@@ -53,7 +58,9 @@ export default function ExternalCacheProvider<S>({
   return (
     <DispatchContext.Provider value={dispatch}>
       <StateContext.Provider value={optimisticState}>
-        {children}
+        <DenormalizeCacheContext.Provider value={denormalizeCache.current}>
+          {children}
+        </DenormalizeCacheContext.Provider>
       </StateContext.Provider>
     </DispatchContext.Provider>
   );
