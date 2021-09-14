@@ -133,7 +133,7 @@ suspends.
 We're using [SWAPI](https://graphql.org/swapi-graphql) as our example, since it offers mutations.
 
 ```tsx title="pages/CreateReview.tsx"
-import { useFetcher } from 'rest-hooks';
+import { useController } from 'rest-hooks';
 import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
 
 const gql = new GQLEndpoint('https://graphql.org/swapi-graphql');
@@ -157,9 +157,9 @@ const createReview = gql.mutation(
 );
 
 export default function NewReviewForm() {
-  const create = useFetcher(createReview);
+  const { fetch } = useController();
   return (
-    <Form onSubmit={e => create({}, new FormData(e.target))}>
+    <Form onSubmit={e => fetch(createReview, new FormData(e.target))}>
       <FormField name="ep" />
       <FormField name="review" type="compound" />
     </Form>

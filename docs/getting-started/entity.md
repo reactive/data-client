@@ -148,12 +148,12 @@ const todoCreate = new Endpoint(
 <details><summary><b>Example Usage</b></summary>
 
 ```tsx
-import { useFetcher } from 'rest-hooks';
+import { useController } from 'rest-hooks';
 
 export default function NewTodoForm() {
-  const create = useFetcher(todoCreate);
+  const { fetch } = useController();
   return (
-    <Form onSubmit={e => create(new FormData(e.target))}>
+    <Form onSubmit={e => fetch(todoCreate, new FormData(e.target))}>
       <FormField name="title" />
     </Form>
   );
@@ -181,14 +181,14 @@ const todoUpdate = new Endpoint(
 <details><summary><b>Example Usage</b></summary>
 
 ```tsx
-import { useFetcher } from 'rest-hooks';
+import { useController } from 'rest-hooks';
 
 export default function UpdateTodoForm({ id }: { id: number }) {
   const todo = useResource(todoDetail, { id });
-  const update = useFetcher(todoUpdate);
+  const { fetch } = useController();
   return (
     <Form
-      onSubmit={e => update({ id }, new FormData(e.target))}
+      onSubmit={e => fetch(todoUpdate, { id }, new FormData(e.target))}
       initialValues={todo}
     >
       <FormField name="title" />
@@ -217,15 +217,15 @@ const todoDelete = new Endpoint(
 <details><summary><b>Example Usage</b></summary>
 
 ```tsx
-import { useFetcher } from 'rest-hooks';
+import { useController } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function TodoWithDelete({ todo }: { todo: Todo }) {
-  const del = useFetcher(todoDelete);
+  const { fetch } = useController();
   return (
     <div>
       {todo.title}
-      <button onClick={() => del({ id: todo.id })}>Delete</button>
+      <button onClick={() => del(todoDelete, { id: todo.id })}>Delete</button>
     </div>
   );
 }

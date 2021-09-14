@@ -30,7 +30,7 @@ Part of [@rest-hooks/hooks](https://www.npmjs.com/package/@rest-hooks/hooks)
 
 ```tsx
 import { useCallback } from 'react';
-import { useFetcher } from 'rest-hooks';
+import { useController } from 'rest-hooks';
 import { useLoading } from '@rest-hooks/hooks';
 
 import TodoResource from 'resources/TodoResource';
@@ -40,11 +40,11 @@ interface Props {
 }
 
 function TodoListItem({ todo }) {
-  const partialUpdate = useFetcher(TodoResource.partialUpdate());
+  const { fetch } = useController();
 
   const toggle = useCallback(
     (e: ChangeEvent<HTMLInputElement>) =>
-      partialUpdate({ id }, { completed: e.currentTarget.checked }),
+      fetch(TodoResource.partialUpdate(), { id }, { completed: e.currentTarget.checked }),
     [partialUpdate],
   );
 

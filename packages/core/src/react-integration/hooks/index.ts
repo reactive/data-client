@@ -1,4 +1,5 @@
 import useFetcher from '@rest-hooks/core/react-integration/hooks/useFetcher';
+import useController from '@rest-hooks/core/react-integration/hooks/useController';
 import useCache from '@rest-hooks/core/react-integration/hooks/useCache';
 import useRetrieve from '@rest-hooks/core/react-integration/hooks/useRetrieve';
 import useResource from '@rest-hooks/core/react-integration/hooks/useResource';
@@ -15,6 +16,7 @@ export type { ErrorTypes } from '@rest-hooks/core/react-integration/hooks/useErr
 
 export {
   useFetcher,
+  useController,
   useFetchDispatcher,
   useCache,
   useError,

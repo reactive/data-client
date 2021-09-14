@@ -158,13 +158,13 @@ Instead of just calling the `todoUpdate` endpoint with our data, we want to ensu
 **all** co-located usages of the todo being edited are updated. This avoid both the complexity and performance
 problems of attempting to cascade endpoint refreshes.
 
-[useFetcher](./api/useFetcher.md) enhances our function, integrating the Rest Hooks store.
+[useController](./api/useController.md) gives us access to the Rest Hooks [Controller](./api/Controller.md).
 
 ```tsx
-import { useFetcher } from 'rest-hooks';
+import { useController } from 'rest-hooks';
 
-const update = useFetcher(todoUpdate);
-return <ArticleForm onSubmit={data => update({ id }, data)} />;
+const { fetch } = useController();
+return <ArticleForm onSubmit={data => fetch(todoUpdate, { id }, data)} />;
 ```
 
 <details><summary><b>Tracking imperative loading/error state</b></summary>
@@ -174,7 +174,10 @@ return <ArticleForm onSubmit={data => update({ id }, data)} />;
 ```tsx
 import { useLoading } from '@rest-hooks/hooks';
 
-const [update, loading, error] = useLoading(useFetcher(todoUpdate));
+const { fetch } = useController();
+// highlight-next-line
+const [update, loading, error] = useLoading(data => fetch(todoUpdate, { id }, data));
+return <ArticleForm onSubmit={update} />;
 ```
 
 </details>
@@ -400,20 +403,20 @@ const todos = useResource(TodoResource.list(), {});
 
 // mutate
 // POST https://jsonplaceholder.typicode.com/todos
-const create = useFetcher(TodoResource.create());
-create({}, { title: 'my todo' });
+const controller = useController();
+controller.fetch(TodoResource.create(), {}, { title: 'my todo' });
 
 // PUT https://jsonplaceholder.typicode.com/todos/5
-const update = useFetcher(TodoResource.update());
-update({ id: 5 }, { title: 'my todo' });
+const controller = useController();
+controller.fetch(TodoResource.update(), { id: 5 }, { title: 'my todo' });
 
 // PATCH https://jsonplaceholder.typicode.com/todos/5
-const partialUpdate = useFetcher(TodoResource.partialUpdate());
-partialUpdate({ id: 5 }, { title: 'my todo' });
+const controller = useController();
+controller.fetch(TodoResource.partialUpdate(), { id: 5 }, { title: 'my todo' });
 
 // DELETE https://jsonplaceholder.typicode.com/todos/5
-const del = useFetcher(TodoResource.delete());
-del({ id: 5 });
+const controller = useController();
+controller.fetch(TodoResource.delete(), { id: 5 });
 ```
 
 </details>

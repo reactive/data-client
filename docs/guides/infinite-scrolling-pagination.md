@@ -4,7 +4,7 @@ title: Infinite Scrolling
 
 ## Add Update Function matching network schema
 
-If your API follows a common pattern, adding the [update function](../api/useFetcher#updatefunction-sourceresults-destresults--destresults)
+If your API follows a common pattern, adding the [Endpoint.update](../api/Endpoint#update)
 to a base class can make adding pagination behavior to any of your endpoints quite easy.
 
 ```typescript
@@ -12,6 +12,9 @@ abstract class BaseResource extends Resource {
   static list<T extends typeof Resource>(this: T) {
     return super.list().extend({
       schema: { results: [this], cursor: null as string | null },
+      update: (newResults: any, { cursor, ...rest }) => ({
+        [this.key(...rest)]: this.appendList.bind(newResults),
+      }),
     });
   }
 
@@ -19,14 +22,14 @@ abstract class BaseResource extends Resource {
     newResults: { results: string[] },
     existingResults: { results: string[] } | undefined,
   ) {
-    // In case there are duplicates, Set will eliminate them.
-    const set = new Set([
-      ...(existingResults?.results ?? []),
-      ...newResults.results,
-    ]);
+    const existingSet: Set<string> = new Set(existingResults?.results ?? []);
+    const addedList = newResults.results.filter(
+      (pk: string) => !existingSet.has(pk),
+    );
+    const mergedResults: string[] = [...existingList, ...addedList];
     return {
       ...newResults,
-      results: [...set.values()],
+      results: mergedResults,
     };
   }
 }
@@ -35,31 +38,24 @@ abstract class BaseResource extends Resource {
 ## Create pagination hook
 
 Here we'll define a helper hook for pagination that uses the BaseResource
-[update function](../api/useFetcher#updatefunction-sourceresults-destresults--destresults).
+[Endpoint.update](../api/Endpoint#update).
 This can then be used for any Resources that conform to this schema. Most likely
 that is the same as those extending from BaseResource.
 
 ```typescript
-import { ReadEndpoint, EndpointParam, useFetcher } from 'rest-hooks';
+import { ReadEndpoint, EndpointParam, useController } from 'rest-hooks';
 import BaseResource from 'resources/BaseResource';
 
 function usePaginator<
   E extends ReadEndpoint<any, any>,
-  P extends Omit<EndpointParam<E>, 'cursor'> | null
+  P extends Omit<EndpointParam<E>, 'cursor'> | null,
 >(endpoint: E, params: P) {
-  // the second argument here is really important - it indicates that requests should be deduped!
-  const getNextPage = useFetcher(endpoint, true);
+  const { fetch } = useController();
 
   return useCallback(
-    (cursor: string) => {
-      return getNextPage({ ...params, cursor }, undefined, [
-        // this instructs Rest Hooks to update the cache results specified by the first two members
-        // with the merge algorithm of the third.
-        [endpoint, params, BaseResource.appendList],
-      ]);
-      // "params && endpoint.key(params)" is a method to serialize params
-    },
-    [getNextPage, params && endpoint.key(params)],
+    (cursor: string) => fetch(endpoint, { ...params, cursor }),
+    // "params && endpoint.key(params)" is a method to serialize params
+    [fetch, params && endpoint.key(params)],
   );
 }
 ```

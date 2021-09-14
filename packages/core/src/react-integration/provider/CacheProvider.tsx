@@ -10,8 +10,10 @@ import {
   StateContext,
   DispatchContext,
   DenormalizeCacheContext,
+  ControllerContext,
 } from '@rest-hooks/core/react-integration/context';
 import BackupBoundary from '@rest-hooks/core/react-integration/provider/BackupBoundary';
+import Controller from '@rest-hooks/core/controller/Controller';
 
 interface ProviderProps {
   children: ReactNode;
@@ -28,15 +30,16 @@ export default function CacheProvider({
   managers,
   initialState,
 }: ProviderProps) {
-  const denormalizeCache = useRef({
-    entities: {},
-    results: {},
-  });
   const [state, dispatch] = useEnhancedReducer(
     masterReducer,
     initialState,
     managers.map(manager => manager.getMiddleware()),
   );
+  const controller = useRef<Controller>();
+  if (!controller.current)
+    controller.current = new Controller({
+      dispatch,
+    });
 
   const optimisticState = useMemo(
     () => state.optimistic.reduce(masterReducer, state),
@@ -59,9 +62,13 @@ export default function CacheProvider({
   return (
     <DispatchContext.Provider value={dispatch}>
       <StateContext.Provider value={optimisticState}>
-        <DenormalizeCacheContext.Provider value={denormalizeCache.current}>
-          <BackupBoundary>{children}</BackupBoundary>
-        </DenormalizeCacheContext.Provider>
+        <ControllerContext.Provider value={controller.current}>
+          <DenormalizeCacheContext.Provider
+            value={controller.current.globalCache}
+          >
+            <BackupBoundary>{children}</BackupBoundary>
+          </DenormalizeCacheContext.Provider>
+        </ControllerContext.Provider>
       </StateContext.Provider>
     </DispatchContext.Provider>
   );

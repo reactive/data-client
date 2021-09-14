@@ -26,7 +26,7 @@ const App = ({ location }: RouteChildrenProps) => (
       <Routes />
     </NetworkErrorBoundary>
   </Suspense>
-)
+);
 ```
 
 Alternatively you could create your own error boundary where you might
@@ -50,16 +50,18 @@ is a network error like 400 because the form values were invalid.
 Let's look at the update form example from the introduction.
 
 ```tsx
-import { useFetcher } from 'rest-hooks';
+import { useController } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function UpdateArticleForm({ id }: { id: number }) {
   const article = useResource(ArticleResource.detail(), { id });
-  const update = useFetcher(ArticleResource.update());
-  // update as (body: Readonly<Partial<ArticleResource>>, params?: Readonly<object>) => Promise<any>
+  const { fetch } = useController();
+
   return (
     <Form
-      onSubmit={e => update({ id }, new FormData(e.target))}
+      onSubmit={e =>
+        fetch(ArticleResource.update(), { id }, new FormData(e.target))
+      }
       initialValues={article}
     >
       <FormField name="title" />
@@ -83,7 +85,7 @@ function Form({ onSubmit, initialValues, children }: FormState) {
   const handleSubmit = useCallback(() => {
     try {
       return onSubmit(formData);
-    } catch(e) {
+    } catch (e) {
       // We set the form error state when we catch an error from our network call
       setErrors(e);
     }
@@ -95,6 +97,6 @@ function Form({ onSubmit, initialValues, children }: FormState) {
       <FormError error={error} />
       {children}
     </form>
-  )
+  );
 }
 ```

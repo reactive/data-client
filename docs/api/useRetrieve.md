@@ -35,7 +35,7 @@ This can be useful for ensuring resources early in a render tree before they are
   - On first-render
     - or parameters change
     - or required entity is deleted
-    - or imperative [invalidation](./useInvalidator) triggered
+    - or imperative [invalidation](./Controller.md#invalidate) triggered
   - and When not in cache or result is considered stale
   - and When no identical requests are in flight
   - and when params are not null

@@ -1,11 +1,13 @@
 import {
   StateContext,
   DispatchContext,
+  ControllerContext,
   reducer,
   State,
   ActionTypes,
   usePromisifiedDispatch,
   DenormalizeCacheContext,
+  Controller,
 } from '@rest-hooks/core';
 import React, { ReactNode, useEffect, useState, useMemo, useRef } from 'react';
 
@@ -55,12 +57,22 @@ export default function ExternalCacheProvider<S>({
 
   const dispatch = usePromisifiedDispatch(store.dispatch, state);
 
+  const controller = useRef<Controller>();
+  if (!controller.current)
+    controller.current = new Controller({
+      dispatch,
+    });
+
   return (
     <DispatchContext.Provider value={dispatch}>
       <StateContext.Provider value={optimisticState}>
-        <DenormalizeCacheContext.Provider value={denormalizeCache.current}>
-          {children}
-        </DenormalizeCacheContext.Provider>
+        <ControllerContext.Provider value={controller.current}>
+          <DenormalizeCacheContext.Provider
+            value={controller.current.globalCache}
+          >
+            {children}
+          </DenormalizeCacheContext.Provider>
+        </ControllerContext.Provider>
       </StateContext.Provider>
     </DispatchContext.Provider>
   );

@@ -3,6 +3,12 @@ title: useInvalidator()
 ---
 import GenericsTabs from '@site/src/components/GenericsTabs';
 
+:::tip
+
+Use [Controller.invalidate()](./Controller.md#invalidate) instead
+
+:::
+
 <GenericsTabs>
 
 ```typescript

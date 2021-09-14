@@ -1,4 +1,5 @@
 # ![🛌🎣 Rest hooks](./packages/rest-hooks/rest_hooks_logo_and_text.svg?sanitize=true)
+
 [![CircleCI](https://circleci.com/gh/coinbase/rest-hooks.svg?style=shield)](https://circleci.com/gh/coinbase/rest-hooks)
 [![Coverage Status](https://img.shields.io/coveralls/coinbase/rest-hooks.svg?style=flat-square)](https://coveralls.io/github/coinbase/rest-hooks?branch=master)
 [![npm downloads](https://img.shields.io/npm/dm/rest-hooks.svg?style=flat-square)](https://www.npmjs.com/package/rest-hooks)
@@ -25,7 +26,9 @@ class ArticleResource extends Resource {
   readonly title: string = '';
   readonly body: string = '';
 
-  pk() { return this.id; }
+  pk() {
+    return this.id;
+  }
   static urlRoot = '/articles/';
 }
 ```
@@ -45,8 +48,12 @@ return (
 ### Mutation
 
 ```tsx
-const update = useFetcher(ArticleResource.update());
-return <ArticleForm onSubmit={data => update({ id }, data)} />;
+const { fetch } = useController();
+return (
+  <ArticleForm
+    onSubmit={data => fetch(ArticleResource.update(), { id }, data)}
+  />
+);
 ```
 
 ### And subscriptions

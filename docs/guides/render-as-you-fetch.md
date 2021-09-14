@@ -8,7 +8,7 @@ or [useResource()](../api/useresource) actually only dispatch the request to fet
 then uses its global awareness to determine whether to fetch. This means, for instance, that
 duplicate requests for data can be deduped into one fetch, with one promise to resolve.
 
-Another interesting implication is that fetches started imperatively via [useFetcher](../api/useFetcher)
+Another interesting implication is that fetches started imperatively via [Controller.fetch()](../api/Controller.md#fetch)
 won't result in redundant fetches. This is known as 'fetch then render,' and often results
 in an improved user experience.
 
@@ -85,12 +85,11 @@ the data needed for that route.
 
 ```tsx
 import { useCallback } from 'react';
-import { useFetcher } from 'rest-hooks';
+import { useController } from 'rest-hooks';
 import { UserResource, PostResource } from 'resources';
 
 function useFriendPreloader() {
-  const fetchUser = useFetcher(UserResource.detail(), true);
-  const fetchPosts = useFetcher(PostResource.list(), true);
+  const { fetch } = useController();
   // ideally we could also fetch the comments for each post at this point
   // however, the API has no solution to this, so we have to have one cascade
   // waterfall here.
@@ -100,10 +99,10 @@ function useFriendPreloader() {
 
   return useCallback(
     (friendId: number) => {
-      fetchUser({ id: friendId });
-      fetchPosts({ id: friendId });
+      fetch(UserResource.detail(), { id: friendId });
+      fetch(PostResource.list(), { id: friendId });
     },
-    [fetchUser, fetchPosts],
+    [fetch],
   );
 }
 ```
@@ -123,7 +122,7 @@ const FriendCard = () => {
 
 #### Posts
 
-Here we use [\<SuspenseList />](https://reactjs.org/docs/concurrent-mode-reference.html#suspenselist) and [useResource()](../api/useresource)
+Here we use [<SuspenseList /\>](https://reactjs.org/docs/concurrent-mode-reference.html#suspenselist) and [useResource()](../api/useresource)
 
 ```tsx
 const Posts = () => {

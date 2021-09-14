@@ -123,7 +123,7 @@ suspends.
   - (For example: navigating to a detail page with a single entry from a list view will instantly show the same data as the list without
     requiring a refetch.)
 
-## [Dispatch mutation](../api/useFetcher.md)
+## Dispatch mutation
 
 #### `article.tsx`
 
@@ -137,14 +137,13 @@ values={[
 <TabItem value="Create">
 
 ```tsx
-import { useFetcher } from 'rest-hooks';
+import { useController } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function NewArticleForm() {
-  const create = useFetcher(ArticleResource.create());
-  // create as (body: Readonly<Partial<ArticleResource>>, params?: Readonly<object>) => Promise<any>
+  const { fetch } = useController();
   return (
-    <Form onSubmit={e => create({}, new FormData(e.target))}>
+    <Form onSubmit={e => fetch(ArticleResource.create(), {}, new FormData(e.target))}>
       <FormField name="title" />
       <FormField name="content" type="textarea" />
       <FormField name="tags" type="tag" />
@@ -160,16 +159,15 @@ resolves to the new Resource created by the API. It will automatically be added 
 <TabItem value="Update">
 
 ```tsx
-import { useFetcher } from 'rest-hooks';
+import { useController } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function UpdateArticleForm({ id }: { id: number }) {
   const article = useResource(ArticleResource.detail(), { id });
-  const update = useFetcher(ArticleResource.update());
-  // update as (body: Readonly<Partial<ArticleResource>>, params?: Readonly<object>) => Promise<any>
+  const { fetch } = useController();
   return (
     <Form
-      onSubmit={e => update({ id }, new FormData(e.target))}
+      onSubmit={e => fetch(ArticleResource.update(), { id }, new FormData(e.target))}
       initialValues={article}
     >
       <FormField name="title" />
@@ -187,17 +185,16 @@ resolves to the new Resource created by the API. It will automatically be added 
 <TabItem value="Delete">
 
 ```tsx
-import { useFetcher } from 'rest-hooks';
+import { useController } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function ArticleWithDelete({ article }: { article: ArticleResource }) {
-  const del = useFetcher(ArticleResource.delete());
-  // del as (body: any, params?: Readonly<object>) => Promise<any>
+  const { fetch } = useController();
   return (
     <article>
       <h2>{article.title}</h2>
       <div>{article.content}</div>
-      <button onClick={() => del({ id: article.id })}>Delete</button>
+      <button onClick={() => fetch(ArticleResource.delete(), { id: article.id })}>Delete</button>
     </article>
   );
 }

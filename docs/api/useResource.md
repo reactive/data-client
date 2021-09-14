@@ -40,7 +40,7 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
   - On first-render
     - or parameters change
     - or required entity is deleted
-    - or imperative [invalidation](./useInvalidator) triggered
+    - or imperative [invalidation](./Controller.md#invalidate) triggered
   - and When not in cache or result is considered stale
   - and When no identical requests are in flight
   - and when params are not null
@@ -48,7 +48,7 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
   - Throws error to be [caught](../getting-started/data-dependency#async-fallbacks-loadingerror) by [Error Boundaries](https://reactjs.org/docs/error-boundaries.html)
 - While Loading:
   - Returns previously cached if exists (even if stale)
-    - except in case of delete or [invalidation](./useInvalidator)
+    - except in case of delete or [invalidation](./Controller.md#invalidate)
   - [Suspend rendering](../getting-started/data-dependency#async-fallbacks-loadingerror) otherwise
 
 ## Single
