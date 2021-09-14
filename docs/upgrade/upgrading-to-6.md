@@ -3,9 +3,9 @@ title: Upgrading from 5 to 6
 ---
 import BeforeAfterTabs from '@site/src/components/BeforeAfterTabs';
 
-# Highlights
+## Highlights
 
-## Deprecated networking definitions were removed from `rest-hooks` exports, and moved to [@rest-hooks/legacy](https://www.npmjs.com/package/@rest-hooks/legacy).
+### Exports moved to [@rest-hooks/legacy](https://www.npmjs.com/package/@rest-hooks/legacy).
 
 FlatEntity, SimpleRecord, NestedEntity, schemas, isEntity, Entity, Resource, SimpleResource, SchemaDetail, SchemaList, Method
 
@@ -13,16 +13,33 @@ These are still supported! They are simply moved to [@rest-hooks/legacy](https:/
 
 1. `yarn add @rest-hooks/legacy@2.2.0`
 
-- has all of these, and is compatible with both `rest-hooks` 5 and 6.
-
-2. Upgrade `rest-hooks` & `@rest-hooks/legacy` to 6.
+    has all of these, and is compatible with both `rest-hooks` 5 and 6.
+2. Upgrade `rest-hooks` to 6 & `@rest-hooks/legacy` to 3.
 3. [Gradually migrate](https://resthooks.io/docs/upgrade/upgrading-to-5#rest-hooksrest) to [@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest)
 
-## @rest-hooks/endpoint changes
+### Importing directly from hidden files is no longer supported
 
-<details><summary>SimpleRecord -> [Object](https://resthooks.io/docs/api/Object)</summary>
+All packages now use [package exports](https://webpack.js.org/guides/package-exports/), which if
+supported disallow importing directly from any sub path like `rest-hooks/lib/react-integration/hooks/useResource`
+
+Doing this was never supported as file locations would change without announcement. However, now
+with tooling that supports package exports, it will not work at all.
+
+### Store state internals
+
+Entities no longer normalize to their class. Class construction is now done during denormalization step.
+This means the internal state of Rest Hooks is a [POJO](https://en.wikipedia.org/wiki/Plain_old_Java_object). This
+improves serialization. However, it does mean relying on the internal state in a [Manager](https://resthooks.io/docs/api/Manager)
+to be a class will break. Additionally the expected serialization of Rest Hooks store will be slightly different, which
+could affect snapshot tests or persistance efforts like using IndexedDB.
+
+### @rest-hooks/endpoint changes
+
+<details><summary>SimpleRecord -> Object</summary>
 
 SimpleRecord was removed (though available in [@rest-hooks/legacy](https://www.npmjs.com/package/@rest-hooks/legacy))
+
+[Object](https://resthooks.io/docs/api/Object) can be used instead
 
 <BeforeAfterTabs>
 
@@ -56,13 +73,13 @@ export const Address = {
 
 </details>
 
-## @rest-hooks/rest changes from 2 -> 3
+### @rest-hooks/rest changes from 2 -> 3
 
 These add on to the [existing changes](https://resthooks.io/docs/upgrade/upgrading-to-5#rest-hooksrest) of @rest-hooks/rest from @rest-hooks/legacy
 
 - If `Resource.fromJS()` was used to customize normalization process, use `process()` instead.
 
-  - ```ts
+   ```ts
     class MyResource extends Resource {
       static process(input: any, parent: any, key: string | undefined): any {
         return {
@@ -74,8 +91,7 @@ These add on to the [existing changes](https://resthooks.io/docs/upgrade/upgradi
     ```
 
 - New default [error behavior](#rest-hookscore)
-  - To keep existing:
-    ```ts
+    ```ts title="To keep existing"
     class MyResource extends Resource {
       static getEndpointExtra(): EndpointExtraOptions | undefined {
         return {
@@ -85,22 +101,27 @@ These add on to the [existing changes](https://resthooks.io/docs/upgrade/upgradi
     }
     ```
 
-# Full list of changes
+## Full list of changes
 
-## @rest-hooks/endpoint
+### Node >=12
 
-### Entity
+Node 12 is now the minimum version required. This only applies if Rest Hooks
+is actually used within node. (SSR or testing are likely cases.)
+
+### @rest-hooks/endpoint
+
+#### Entity
 
 - fromJS() -> process() to customize init
 - normalize results in POJO rather than instances
   - This is only meaningful for those inspecting the rest hooks state directly
 - FlatEntity, SimpleRecord removed (use @rest-hooks/legacy)
 
-## @rest-hooks/rest
+### @rest-hooks/rest
 
 - peerDep @rest-hooks/endpoint > 2
 
-## @rest-hooks/core
+### @rest-hooks/core
 
 - buildInferredResult -> inferResults
 - Error behavior
@@ -170,13 +191,13 @@ These add on to the [existing changes](https://resthooks.io/docs/upgrade/upgradi
 
 - peerDep @rest-hooks/endpoint > 2
 
-## rest-hooks
+### rest-hooks
 
 Removed exports from 'rest-hooks': NestedEntity, schemas, isEntity, Entity, Resource, SimpleResource, SchemaDetail, SchemaList, Method
 
 - use @rest-hooks/legacy, or @rest-hooks/rest instead
 
-## @rest-hooks/legacy
+### @rest-hooks/legacy
 
 - peerDep @rest-hooks/endpoint > 2
 
