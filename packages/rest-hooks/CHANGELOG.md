@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.0.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.0.0...rest-hooks@6.0.1) (2021-09-14)
+
+
+### 🐛 Bug Fix
+
+* Provide same referential guarantees when using redux ([#1240](https://github.com/coinbase/rest-hooks/issues/1240)) ([a4db2ed](https://github.com/coinbase/rest-hooks/commit/a4db2eda51d730fbdd835285aa06b5970197f7eb))
+
+
+
 ## [6.0.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.0.0-beta.6...rest-hooks@6.0.0) (2021-09-08)
 
 

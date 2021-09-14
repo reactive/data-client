@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@1.0.0...@rest-hooks/experimental@1.0.1) (2021-09-14)
+
+
+### 💅 Enhancement
+
+* Improve list().paginated() types ([#1237](https://github.com/coinbase/rest-hooks/issues/1237)) ([94acf71](https://github.com/coinbase/rest-hooks/commit/94acf71fb735958473cfd8d4089176888c085f82))
+* Maintain order during pagination ([#1232](https://github.com/coinbase/rest-hooks/issues/1232)) ([b9b0973](https://github.com/coinbase/rest-hooks/commit/b9b0973a87dabb43b8e2cf50c92b3034c2086453))
+
+
+
 ## [1.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@1.0.0-beta.4...@rest-hooks/experimental@1.0.0) (2021-09-08)
 
 **Note:** Version bump only for package @rest-hooks/experimental
