@@ -14,7 +14,7 @@ import {
   makeCacheProvider,
   MockNetworkManager,
 } from '../../../test';
-import useController from '../useController';
+import { useController } from '..';
 
 export const payload = {
   id: 5,
@@ -248,7 +248,9 @@ describe('resetEntireStore', () => {
       );
       expect(result.current).toBeDefined();
       expect(result.current?.title).not.toEqual('latest and greatest title');
-      fetch(CoolerArticleDetail, { id: 9999 });
+      fetch(CoolerArticleDetail, { id: 9999 }).catch(e => {
+        console.log('...', e);
+      });
       jest.advanceTimersByTime(1000);
       act(() => rerender());
       // should not be resolved
