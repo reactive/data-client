@@ -1,9 +1,5 @@
 export { default as useFetcher } from './useFetcher';
-export { default as useController } from './useController';
-export type { Controller } from './useController';
-export { default as createFetch } from './createFetch';
-export { default as createInvalidate } from './createFetch';
-export { default as createReset } from './createFetch';
+export { Controller, useController } from '@rest-hooks/core';
 export { default as Resource } from './rest/Resource';
 export { default as BaseResource } from './rest/BaseResource';
 import { schema, Entity } from '@rest-hooks/endpoint';

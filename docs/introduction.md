@@ -158,7 +158,8 @@ Instead of just calling the `todoUpdate` endpoint with our data, we want to ensu
 **all** co-located usages of the todo being edited are updated. This avoid both the complexity and performance
 problems of attempting to cascade endpoint refreshes.
 
-[useController](./api/useController.md) gives us access to the Rest Hooks [Controller](./api/Controller.md).
+[useController](./api/useController.md) gives us access to the Rest Hooks [Controller](./api/Controller.md), which
+is used to trigger imperative actions like [fetch](./api/Controller.md#fetch).
 
 ```tsx
 import { useController } from 'rest-hooks';
