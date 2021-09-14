@@ -3,6 +3,12 @@ title: useFetcher()
 ---
 import GenericsTabs from '@site/src/components/GenericsTabs';
 
+:::tip
+
+Use [Controller.fetch()](./Controller.md#fetch) instead
+
+:::
+
 <GenericsTabs>
 
 ```typescript

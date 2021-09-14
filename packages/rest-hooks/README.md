@@ -44,8 +44,12 @@ return (
 ### Mutation
 
 ```tsx
-const update = useFetcher(ArticleResource.update());
-return <ArticleForm onSubmit={data => update({ id }, data)} />;
+const { fetch } = useController();
+return (
+  <ArticleForm
+    onSubmit={data => fetch(ArticleResource.update(), { id }, data)}
+  />
+);
 ```
 
 ### And subscriptions

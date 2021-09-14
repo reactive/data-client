@@ -69,7 +69,8 @@ be updated in the cache after the `POST` request is complete.
 
 ```typescript
 export default function CreateTrade() {
-  const create = useFetcher(TradeResource.create());
+  const { fetch } = useController();
+  const create = (payload) => fetch(TradeResource.create(), {}, payload)
   //...
 }
 ```

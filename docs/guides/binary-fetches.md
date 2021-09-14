@@ -127,5 +127,5 @@ export default function Profile({ username }: { username: string }) {
 </details>
 
 
-When using the [fetch as you render](../guides/render-as-you-fetch) pattern in concurrent mode, [useFetcher](../api/useFetcher) with the `getImage`
+When using the [fetch as you render](../guides/render-as-you-fetch) pattern in concurrent mode, [Controller.fetch()](../api/Controller.md#fetch) with the `getImage`
 [Endpoint](../api/Endpoint) to preload the image.

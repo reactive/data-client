@@ -2,6 +2,12 @@
 title: useResetter()
 ---
 
+:::tip
+
+Use [Controller.resetEntireStore()](./Controller.md#resetEntireStore) instead
+
+:::
+
 ```typescript
 function useResetter(): () => void;
 ```

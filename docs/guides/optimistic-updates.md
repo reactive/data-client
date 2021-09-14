@@ -15,11 +15,7 @@ body to ensure the normalized cache gets updated correctly.
 ### ArticleResource.ts
 
 ```typescript
-import {
-  MutateEndpoint,
-  SchemaDetail,
-  AbstractInstanceType,
-} from 'rest-hooks';
+import { MutateEndpoint, SchemaDetail, AbstractInstanceType } from 'rest-hooks';
 import { Resource } from '@rest-hooks/rest';
 
 export default class ArticleResource extends Resource {
@@ -53,14 +49,20 @@ export default class ArticleResource extends Resource {
 ### PublishButton.tsx
 
 ```typescript
-import { useFetcher } from 'rest-hooks';
+import { useController } from 'rest-hooks';
 import ArticleResource from 'ArticleResource';
 
 export default function PublishButton({ id }: { id: string }) {
-  const update = useFetcher(ArticleResource.partialUpdate());
+  const { fetch } = useController();
 
   return (
-    <button onClick={() => update({ id }, { published: true })}>Publish</button>
+    <button
+      onClick={() =>
+        update(ArticleResource.partialUpdate(), { id }, { published: true })
+      }
+    >
+      Publish
+    </button>
   );
 }
 ```
@@ -78,10 +80,7 @@ add to the list of articles the newly created article - without waiting on a net
 ### ArticleResource.ts
 
 ```typescript
-import {
-  MutateEndpoint,
-  AbstractInstanceType,
-} from 'rest-hooks';
+import { MutateEndpoint, AbstractInstanceType } from 'rest-hooks';
 import { SchemaDetail, Resource } from '@rest-hooks/rest';
 
 export default class ArticleResource extends Resource {
@@ -127,16 +126,16 @@ renders - like to issue subsequent requests. We recommend disabling `edit` type 
 that rely on the `primary key` until the network fetch completes.
 
 ```typescript
-import { useFetcher } from 'rest-hooks';
+import { useController } from 'rest-hooks';
 import uuid from 'uuid/v4';
 import ArticleResource from 'ArticleResource';
 
 export default function CreateArticle() {
-  const create = useFetcher(ArticleResource.create());
+  const { fetch } = useController();
   const submitHandler = useCallback(
     data =>
       // note the fake id we create.
-      create({}, { id: uuid(), ...data }, [
+      fetch(ArticleResource.create(), {}, { id: uuid(), ...data }, [
         [ArticleResource.list(), {}, appendUpdater],
       ]),
     [create],

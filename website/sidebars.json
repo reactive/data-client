@@ -264,6 +264,10 @@
           "id": "api/types"
         },
         {
+          "type": "doc",
+          "id": "api/Controller"
+        },
+        {
           "type": "category",
           "label": "Core Hooks",
           "items": [
@@ -273,7 +277,7 @@
             },
             {
               "type": "doc",
-              "id": "api/useFetcher"
+              "id": "api/useController"
             },
             {
               "type": "doc",
@@ -286,14 +290,6 @@
             {
               "type": "doc",
               "id": "api/useRetrieve"
-            },
-            {
-              "type": "doc",
-              "id": "api/useInvalidator"
-            },
-            {
-              "type": "doc",
-              "id": "api/useResetter"
             },
             {
               "type": "doc",
@@ -320,6 +316,24 @@
             {
               "type": "doc",
               "id": "api/useLoading"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Legacy Hooks",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/useFetcher"
+            },
+            {
+              "type": "doc",
+              "id": "api/useInvalidator"
+            },
+            {
+              "type": "doc",
+              "id": "api/useResetter"
             }
           ]
         },

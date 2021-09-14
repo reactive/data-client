@@ -1,6 +1,7 @@
 ---
 title: Typing REST Endpoints
 ---
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
@@ -70,10 +71,11 @@ class MyResource extends Resource {
 
 ```typescript
 import MyResource from 'resources/MyResource';
-import { useResource } from 'rest-hooks';
+import { useResource, useController } from 'rest-hooks';
 
 const items = useResource(MyResource.list(), {});
-const createMy = useFetcher(MyResource.create());
+const { fetch } = useController();
+const createMy = payload => fetch(MyResource.create(), {}, payload);
 const { results, nextPage } = useResource(
   MyResource.filteredAndPaginatedList(),
   { filterA: true, sortby: 'first' },
@@ -408,7 +410,8 @@ const { data: user } = useResource(User.detail(), { id: '5' });
 
 ```typescript
 // works
-const updateUser = useFetcher(User.update());
+const { fetch } = useController();
+const updateUser = (id, payload) => fetch(User.update(), { id }, payload);
 // typeerror - protected against mutable operations
 const user = useResource(User.update());
 ```
@@ -433,16 +436,16 @@ const { data: user } = useResource(User.detail(), { id: '5' });
 <TabItem value="Payload/Body">
 
 ```typescript
-const updateUser = useFetcher(User.update());
+const { fetch } = useController();
 
 const handleClick = useCallback(() => {
   // works
-  const response = await updateUser({ id }, { username: 'bob' });
+  const response = await fetch(User.update(), { id }, { username: 'bob' });
   // typeerror
-  const failed = await updateUser({ id }, { username: 5 });
+  const failed = await fetch(User.update(), { id }, { username: 5 });
   // typeerror
-  const failed = await updateUser({ id }, { usernme: 'bob' });
-}, [updateUser]);
+  const failed = await fetch(User.update(), { id }, { usernme: 'bob' });
+}, [fetch]);
 ```
 
 ```typescript

@@ -68,13 +68,13 @@ class MyResource extends Resource {
 function MyTable() {
   const { selectedIds } = useFields(TableForm);
   const list = useResource(MyResource.list(), {});
-  const delMany = useFetcher(MyResource.deleteList());
+  const { fetch } = useController();
 
   return (
     <div>
       <header>
         <span>My Table</span>
-        <button onClick={() => delMany(selectedIds)}>Delete</button>
+        <button onClick={() => fetch(MyResource.deleteList(), selectedIds)}>Delete</button>
       </header>
       <TableBody data={list} form={TableForm} />
     </div>

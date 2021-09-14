@@ -326,9 +326,9 @@ values={[
 ```tsx
 function UserProfile() {
   const user = useResource(UserDetail, { id });
-  const updateUser = useFetcher(UserDetail);
+  const { fetch } = useController();
 
-  return <UserForm user={user} onSubmit={updateUser} />;
+  return <UserForm user={user} onSubmit={() => fetch(UserDetail)} />;
 }
 ```
 

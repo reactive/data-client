@@ -257,7 +257,7 @@ static list<T extends typeof SimpleResource>(this: T) {
 ### create(): Endpoint
 
 A POST request sending a payload to `listUrl()` with empty params, and expecting a detail body response.
-Mostly useful with [useFetcher](../api/useFetcher.md)
+Mostly useful with [Controller.fetch](../api/Controller.md#fetch)
 
 Uses [listUrl()](#static-listurlsearchparams-readonlyrecordstring-string--string)
 
@@ -282,7 +282,7 @@ static create<T extends typeof SimpleResource>(this: T) {
 ### update(): Endpoint
 
 A PUT request sending a payload to a `url()` expecting a detail body response.
-Mostly useful with [useFetcher](../api/useFetcher.md)
+Mostly useful with [Controller.fetch](../api/Controller.md#fetch)
 
 Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
 
@@ -306,7 +306,7 @@ static update<T extends typeof SimpleResource>(this: T) {
 ### partialUpdate(): Endpoint
 
 A PATCH request sending a partial payload to `url()` expecting a detail body response.
-Mostly useful with [useFetcher](../api/useFetcher.md)
+Mostly useful with [Controller.fetch](../api/Controller.md#fetch)
 
 Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
 
@@ -330,7 +330,7 @@ static partialUpdate<T extends typeof SimpleResource>(this: T) {
 ### delete(): Endpoint
 
 A DELETE request sent to `url()`
-Mostly useful with [useFetcher](../api/useFetcher.md)
+Mostly useful with [Controller.fetch](../api/Controller.md#fetch)
 
 Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
 
