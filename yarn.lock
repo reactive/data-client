@@ -2654,7 +2654,7 @@
     npmlog "^4.1.2"
     write-file-atomic "^3.0.3"
 
-"@linaria/babel-preset@3.0.0-beta.13", "@linaria/babel-preset@^3.0.0-beta.12":
+"@linaria/babel-preset@3.0.0-beta.13", "@linaria/babel-preset@^3.0.0-beta.12", "@linaria/babel-preset@^3.0.0-beta.13":
   version "3.0.0-beta.13"
   resolved "https://registry.yarnpkg.com/@linaria/babel-preset/-/babel-preset-3.0.0-beta.13.tgz#bce5c199bfd72f754fb962dc72c292f076150b72"
   integrity sha512-UeurIwmORp1lG+f69bKquRug7ZFVSrQha6TJWvHmGQIFwFx5qpMCXJLhOp2dUpM4y7/NhbKYXqj58RtG3wi4ZQ==
@@ -2685,12 +2685,12 @@
   dependencies:
     debug "^4.1.1"
 
-"@linaria/preeval@^3.0.0-beta.12":
-  version "3.0.0-beta.12"
-  resolved "https://registry.yarnpkg.com/@linaria/preeval/-/preeval-3.0.0-beta.12.tgz#a0ac3bc5ed67d60b8327481456361a9e9e786180"
-  integrity sha512-cgiB3hQwyyoTvJQuw5J0f1JsJRmNfdO2otA8dmhdrc3+8PLFdqf6hphmCil0db809frnt4woE5fE6EQJioC6bw==
+"@linaria/preeval@^3.0.0-beta.13":
+  version "3.0.0-beta.13"
+  resolved "https://registry.yarnpkg.com/@linaria/preeval/-/preeval-3.0.0-beta.13.tgz#360220c7d46db814d6278c2b6c1d09f856b17eb4"
+  integrity sha512-0tia6DHxJ9h3/9LWWxseZw8z2wuB0OHwakQrDFV138m3ym3LwHnRalk9VUpIESnnFOiATya20+drUSx0GRxq/Q==
   dependencies:
-    "@linaria/babel-preset" "^3.0.0-beta.12"
+    "@linaria/babel-preset" "^3.0.0-beta.13"
 
 "@linaria/react@3.0.0-beta.7":
   version "3.0.0-beta.7"
@@ -2700,18 +2700,18 @@
     "@emotion/is-prop-valid" "^0.8.8"
     "@linaria/core" "^3.0.0-beta.4"
 
-"@linaria/shaker@3.0.0-beta.12":
-  version "3.0.0-beta.12"
-  resolved "https://registry.yarnpkg.com/@linaria/shaker/-/shaker-3.0.0-beta.12.tgz#770c52078bae346a19bf755641b6e2f1b9705ad7"
-  integrity sha512-/6wR1E/1fHX9zkgYmwLPiB6x+QWelqPkanyeWzbgKsVCHI9gtIhDPwXUlSFJwFMgjBWLBf6ffZYaDQ0+sZKcfw==
+"@linaria/shaker@3.0.0-beta.13":
+  version "3.0.0-beta.13"
+  resolved "https://registry.yarnpkg.com/@linaria/shaker/-/shaker-3.0.0-beta.13.tgz#df01ae1c182dfac984a04d05e56cab3e9411b5ab"
+  integrity sha512-/ejyBA63pY5OnGK4VxrcD7FxYdQ/weRuPZyy8YEWgh0vVkyeXegwrfupfn+Nt7Lodnej+hrMexloKjxe2NTKfA==
   dependencies:
     "@babel/generator" ">=7"
     "@babel/plugin-transform-runtime" ">=7"
     "@babel/plugin-transform-template-literals" ">=7"
     "@babel/preset-env" ">=7"
-    "@linaria/babel-preset" "^3.0.0-beta.12"
+    "@linaria/babel-preset" "^3.0.0-beta.13"
     "@linaria/logger" "^3.0.0-beta.3"
-    "@linaria/preeval" "^3.0.0-beta.12"
+    "@linaria/preeval" "^3.0.0-beta.13"
     babel-plugin-transform-react-remove-prop-types "^0.4.24"
     ts-invariant "^0.9.0"
 
