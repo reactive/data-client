@@ -80,7 +80,6 @@ describe('useLoading()', () => {
   });
 
   it('should call error callback when rejected', async () => {
-    const errcb = jest.fn();
     const error = new Error('ack');
     function fun(value: string) {
       return new Promise<string>((resolve, reject) =>
@@ -89,7 +88,7 @@ describe('useLoading()', () => {
     }
     let rejectedError: Error | null = null;
     const { result, waitForNextUpdate } = renderHook(() => {
-      return useLoading(fun, errcb);
+      return useLoading(fun);
     });
     const wrappedFunc = result.current[0];
     expect(result.current[1]).toBe(false);
@@ -105,7 +104,6 @@ describe('useLoading()', () => {
     await waitForNextUpdate();
     expect(result.current[1]).toBe(false);
     expect(result.current[2]).toBeDefined();
-    expect(errcb).toHaveBeenCalledWith(error);
     expect(rejectedError).toBe(error);
     // maintain referential equality
     expect(result.current[0]).toBe(wrappedFunc);
