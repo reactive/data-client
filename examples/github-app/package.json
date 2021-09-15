@@ -27,7 +27,7 @@
     "@anansi/webpack-config": "9.0.6",
     "@babel/core": "7.15.5",
     "@linaria/babel-preset": "3.0.0-beta.13",
-    "@linaria/core": "3.0.0-beta.4",
+    "@linaria/core": "3.0.0-beta.13",
     "@linaria/react": "3.0.0-beta.13",
     "@linaria/shaker": "3.0.0-beta.13",
     "@types/parse-link-header": "^1.0.0",
