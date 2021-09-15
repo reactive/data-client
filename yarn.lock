@@ -2633,24 +2633,29 @@
     npmlog "^4.1.2"
     write-file-atomic "^3.0.3"
 
-"@linaria/babel-preset@3.0.0-beta.12", "@linaria/babel-preset@^3.0.0-beta.12":
-  version "3.0.0-beta.12"
-  resolved "https://registry.yarnpkg.com/@linaria/babel-preset/-/babel-preset-3.0.0-beta.12.tgz#008db6be156204d55b89e9914d989062b9e280ab"
-  integrity sha512-QMl/f4j18VllyqpANFZkF32Tc1ESFhOo+J71g/0ZyqaMniEyXpk7eizX3eauYYhpJtxjF9BTnGHs3HG7CrlkXw==
+"@linaria/babel-preset@3.0.0-beta.13", "@linaria/babel-preset@^3.0.0-beta.12":
+  version "3.0.0-beta.13"
+  resolved "https://registry.yarnpkg.com/@linaria/babel-preset/-/babel-preset-3.0.0-beta.13.tgz#bce5c199bfd72f754fb962dc72c292f076150b72"
+  integrity sha512-UeurIwmORp1lG+f69bKquRug7ZFVSrQha6TJWvHmGQIFwFx5qpMCXJLhOp2dUpM4y7/NhbKYXqj58RtG3wi4ZQ==
   dependencies:
     "@babel/generator" ">=7"
     "@babel/plugin-syntax-dynamic-import" ">=7"
     "@babel/template" ">=7"
-    "@linaria/core" "^3.0.0-beta.4"
+    "@linaria/core" "^3.0.0-beta.13"
     "@linaria/logger" "^3.0.0-beta.3"
     cosmiconfig "^5.1.0"
     source-map "^0.7.3"
     stylis "^3.5.4"
 
-"@linaria/core@3.0.0-beta.4", "@linaria/core@^3.0.0-beta.4":
+"@linaria/core@3.0.0-beta.4":
   version "3.0.0-beta.4"
   resolved "https://registry.yarnpkg.com/@linaria/core/-/core-3.0.0-beta.4.tgz#ae878874773c15b189792e277771f68fef18019a"
   integrity sha512-NzxeMDxRt57nR6tLFZ8xIstp5ld9JQPIyp9+TKtQZhoX3oJuUru+S4vXPr1Gach6VaqKKKT5T6fmJgJl9MMprw==
+
+"@linaria/core@^3.0.0-beta.13", "@linaria/core@^3.0.0-beta.4":
+  version "3.0.0-beta.13"
+  resolved "https://registry.yarnpkg.com/@linaria/core/-/core-3.0.0-beta.13.tgz#049c5be5faa67e341e413a0f6b641d5d78d91056"
+  integrity sha512-3zEi5plBCOsEzUneRVuQb+2SAx3qaC1dj0FfFAI6zIJQoDWu0dlSwKijMRack7oO9tUWrchfj3OkKQAd1LBdVg==
 
 "@linaria/logger@^3.0.0-beta.3":
   version "3.0.0-beta.3"
