@@ -42,13 +42,15 @@ interface Props {
 function TodoListItem({ todo }) {
   const { fetch } = useController();
 
-  const toggle = useCallback(
+  const [toggleHandler, loading, error] = useLoading(
     (e: ChangeEvent<HTMLInputElement>) =>
-      fetch(TodoResource.partialUpdate(), { id }, { completed: e.currentTarget.checked }),
-    [partialUpdate],
+      fetch(
+        TodoResource.partialUpdate(),
+        { id },
+        { completed: e.currentTarget.checked },
+      ),
+    [fetch],
   );
-
-  const [toggleHandler, loading, error] = useLoading(toggle);
 
   return (
     <div>
@@ -64,3 +66,21 @@ function TodoListItem({ todo }) {
   );
 }
 ```
+
+:::tip Eslint configuration
+
+Since we use the deps list, be sure to add useLoading to the 'additionalHooks' configuration
+of [react-hooks/exhaustive-deps](https://www.npmjs.com/package/eslint-plugin-react-hooks) rule if you use it.
+
+```js
+{
+  "rules": {
+    // ...
+    "react-hooks/exhaustive-deps": ["warn", {
+      "additionalHooks": "(useLoading)"
+    }]
+  }
+}
+```
+
+:::

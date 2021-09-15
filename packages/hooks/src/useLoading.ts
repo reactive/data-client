@@ -5,7 +5,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
  *
  * @see https://resthooks.io/docs/api/useLoading
  * @param func A function returning a promise
- * @param onError Callback in case of error (optional)
+ * @param deps Deps list sent to useCallback()
  * @example
  ```
  function Button({ onClick, children, ...props }) {
@@ -21,7 +21,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 export default function useLoading<
   F extends (...args: any) => Promise<any>,
   E extends Error,
->(func: F, onError?: (error: E) => void): [F, boolean, E | undefined] {
+>(func: F, deps: readonly any[] = []): [F, boolean, E | undefined] {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<undefined | E>(undefined);
   const isMountedRef = useRef(true);
@@ -38,7 +38,6 @@ export default function useLoading<
       try {
         ret = await func(...args);
       } catch (e: any) {
-        if (onError) onError(e);
         setError(e);
         throw e;
       } finally {
@@ -48,7 +47,7 @@ export default function useLoading<
       }
       return ret;
     },
-    [onError, func],
+    [func, ...deps],
   );
   return [wrappedFunc as any, loading, error];
 }

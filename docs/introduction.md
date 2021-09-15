@@ -177,7 +177,10 @@ import { useLoading } from '@rest-hooks/hooks';
 
 const { fetch } = useController();
 // highlight-next-line
-const [update, loading, error] = useLoading(data => fetch(todoUpdate, { id }, data));
+const [update, loading, error] = useLoading(
+  data => fetch(todoUpdate, { id }, data),
+  [fetch],
+);
 return <ArticleForm onSubmit={update} />;
 ```
 
