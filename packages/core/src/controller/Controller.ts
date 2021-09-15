@@ -39,6 +39,10 @@ export default class Controller {
 
   /*************** Action Dispatchers ***************/
 
+  /**
+   * Fetches the endpoint with given args, updating the Rest Hooks cache with the response or error upon completion.
+   * @see https://resthooks.io/docs/api/Controller#fetch
+   */
   fetch = <
     E extends EndpointInterface & { update?: EndpointUpdateFunction<E> },
   >(
@@ -53,6 +57,10 @@ export default class Controller {
     return action.meta.promise as ReturnType<E>;
   };
 
+  /**
+   * Forces refetching and suspense on useResource with the same Endpoint and parameters.
+   * @see https://resthooks.io/docs/api/Controller#invalidate
+   */
   invalidate = <E extends EndpointInterface>(
     endpoint: E,
     ...args: readonly [...Parameters<E>] | readonly [null]
@@ -65,8 +73,16 @@ export default class Controller {
         )
       : Promise.resolve();
 
+  /**
+   * Resets the entire Rest Hooks cache. All inflight requests will not resolve.
+   * @see https://resthooks.io/docs/api/Controller#resetEntireStore
+   */
   resetEntireStore = (): Promise<void> => this.dispatch(createReset());
 
+  /**
+   * Stores response in cache for given Endpoint and args.
+   * @see https://resthooks.io/docs/api/Controller#receive
+   */
   receive = <
     E extends EndpointInterface & {
       update?: EndpointUpdateFunction<E>;
@@ -83,6 +99,10 @@ export default class Controller {
     return this.dispatch(action);
   };
 
+  /**
+   * Stores the result of Endpoint and args as the error provided.
+   * @see https://resthooks.io/docs/api/Controller#receiveError
+   */
   receiveError = <
     E extends EndpointInterface & {
       update?: EndpointUpdateFunction<E>;
@@ -100,6 +120,10 @@ export default class Controller {
     return this.dispatch(action);
   };
 
+  /**
+   * Marks a new subscription to a given Endpoint.
+   * @see https://resthooks.io/docs/api/Controller#subscribe
+   */
   subscribe = <E extends EndpointInterface & { sideEffect: undefined }>(
     endpoint: E,
     ...args: readonly [...Parameters<E>] | readonly [null]
@@ -112,6 +136,10 @@ export default class Controller {
         )
       : Promise.resolve();
 
+  /**
+   * Marks completion of subscription to a given Endpoint.
+   * @see https://resthooks.io/docs/api/Controller#unsubscribe
+   */
   unsubscribe = <E extends EndpointInterface & { sideEffect: undefined }>(
     endpoint: E,
     ...args: readonly [...Parameters<E>] | readonly [null]
@@ -125,4 +153,22 @@ export default class Controller {
       : Promise.resolve();
 
   /*************** More ***************/
+
+  /* TODO:
+  abort = <E extends EndpointInterface>(
+    endpoint: E,
+    ...args: readonly [...Parameters<E>] | readonly [null]
+  ): Promise<void>
+
+  getResponse = <E extends EndpointInterface>(
+    endpoint: E,
+    ...args: readonly [...Parameters<E>, State<unknown>]
+  ): [value, expiresAt]
+
+  getError = <E extends EndpointInterface>(
+    endpoint: E,
+    ...args: readonly [...Parameters<E>, State<unknown>]
+  ): error
+
+  */
 }

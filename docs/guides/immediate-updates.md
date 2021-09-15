@@ -129,7 +129,7 @@ export default class TodoResource extends Resource {
       schema: this,
       update: (newResourcePk: string) => ({
         // highlight-next-line
-        [todoList.key({})]: this.appendList.bind(newResourcePk),
+        [todoList.key({})]: this.appendList.bind(this, newResourcePk),
       }),
     });
   }
