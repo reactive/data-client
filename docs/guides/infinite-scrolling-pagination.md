@@ -13,7 +13,7 @@ abstract class BaseResource extends Resource {
     return super.list().extend({
       schema: { results: [this], cursor: null as string | null },
       update: (newResults: any, { cursor, ...rest }) => ({
-        [this.key(...rest)]: this.appendList.bind(newResults),
+        [this.key(...rest)]: this.appendList.bind(this, newResults),
       }),
     });
   }
