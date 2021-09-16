@@ -76,14 +76,14 @@
   resolved "https://registry.yarnpkg.com/@anansi/ts-utils/-/ts-utils-0.2.4.tgz#ffb0ce7ad3a0a0b74db581443c5bb70fe6330652"
   integrity sha512-0injZU3d7z2spk0RMzm17Y10IQtZSv8s9Y5VX7Q6DQ0x6q90exXC6hGq6Xmmn9wu+u9wyIUw5GfCOTWIRJK5vg==
 
-"@anansi/webpack-config@9.0.6":
-  version "9.0.6"
-  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-9.0.6.tgz#0bba536aaad7add2414e42022df9ef2705425165"
-  integrity sha512-yBgWfdwlNl6olQhi642QCVb/UwajqJUZGIK6Okg7wgXtNRC29/1EFdKviKaseM0g/YNtq18DpowkuWXWqbOs8A==
+"@anansi/webpack-config@9.0.7":
+  version "9.0.7"
+  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-9.0.7.tgz#a855698c0faf9fef79aa2f75562c4ad04392c3e2"
+  integrity sha512-PL8ssriNTtXcW0TH8S0ye/mMqZEpzYrW8Ocsz2PrJlqHO7mvvl4idWnzPDcs6XX+3FYY/GVhcRVoQWhqlTLSmw==
   dependencies:
     "@babel/runtime" "^7.15.4"
-    "@linaria/webpack-loader" "^3.0.0-beta.12"
-    "@pmmmwh/react-refresh-webpack-plugin" "^0.5.0-rc.6"
+    "@linaria/webpack-loader" "^3.0.0-beta.13"
+    "@pmmmwh/react-refresh-webpack-plugin" "^0.5.0"
     "@svgr/webpack" "^5.5.0"
     "@types/webpack-bundle-analyzer" "^4.4.1"
     "@vue/preload-webpack-plugin" "^2.0.0"
@@ -130,7 +130,7 @@
     stream-browserify "^3.0.0"
     stream-http "^3.2.0"
     string_decoder "^1.3.0"
-    svgo "^2.5.0"
+    svgo "^2.6.0"
     svgo-loader "^3.0.0"
     terser-webpack-plugin "^5.2.2"
     thread-loader "^3.0.4"
@@ -2654,7 +2654,7 @@
     npmlog "^4.1.2"
     write-file-atomic "^3.0.3"
 
-"@linaria/babel-preset@3.0.0-beta.13", "@linaria/babel-preset@^3.0.0-beta.12", "@linaria/babel-preset@^3.0.0-beta.13":
+"@linaria/babel-preset@3.0.0-beta.13", "@linaria/babel-preset@^3.0.0-beta.13":
   version "3.0.0-beta.13"
   resolved "https://registry.yarnpkg.com/@linaria/babel-preset/-/babel-preset-3.0.0-beta.13.tgz#bce5c199bfd72f754fb962dc72c292f076150b72"
   integrity sha512-UeurIwmORp1lG+f69bKquRug7ZFVSrQha6TJWvHmGQIFwFx5qpMCXJLhOp2dUpM4y7/NhbKYXqj58RtG3wi4ZQ==
@@ -2710,20 +2710,20 @@
     babel-plugin-transform-react-remove-prop-types "^0.4.24"
     ts-invariant "^0.9.0"
 
-"@linaria/webpack-loader@^3.0.0-beta.12":
-  version "3.0.0-beta.12"
-  resolved "https://registry.yarnpkg.com/@linaria/webpack-loader/-/webpack-loader-3.0.0-beta.12.tgz#20f59339c54bd30bba031696a34482b11ca0b0de"
-  integrity sha512-IpWFQdetYGUNWngfiQsCwZJFhbaGQGwpXVOehLFvummCU4tYkupR1tD3koO/0KrzwdqhljDsUoCcmgJQIJ+bsQ==
+"@linaria/webpack-loader@^3.0.0-beta.13":
+  version "3.0.0-beta.13"
+  resolved "https://registry.yarnpkg.com/@linaria/webpack-loader/-/webpack-loader-3.0.0-beta.13.tgz#766a9445386ee4a2b5e1e7f9cce9239a66292a3e"
+  integrity sha512-c05FzE3aQLWDrCHnvBUU7tIdkbfrOCWdm5GTuF+pcK+TBZ2kF8qXO6InEEqyXeol5HWp5fuwC6WnWGFKAcUqRQ==
   dependencies:
-    "@linaria/webpack4-loader" "^3.0.0-beta.12"
-    "@linaria/webpack5-loader" "^3.0.0-beta.12"
+    "@linaria/webpack4-loader" "^3.0.0-beta.13"
+    "@linaria/webpack5-loader" "^3.0.0-beta.13"
 
-"@linaria/webpack4-loader@^3.0.0-beta.12":
-  version "3.0.0-beta.12"
-  resolved "https://registry.yarnpkg.com/@linaria/webpack4-loader/-/webpack4-loader-3.0.0-beta.12.tgz#06b5bf6bccdf7c0b703feaaff39da8ad3b0d064b"
-  integrity sha512-ci7mrGJNO3hqwsgDLr8bfIFt82XzbIrZ8yyOqkFyPw28beexqgoh1V215HyZvs0GClCZlywzQuw8IDNIfh0QGg==
+"@linaria/webpack4-loader@^3.0.0-beta.13":
+  version "3.0.0-beta.13"
+  resolved "https://registry.yarnpkg.com/@linaria/webpack4-loader/-/webpack4-loader-3.0.0-beta.13.tgz#2fa680f6affe482d80acd9cdf4a7d8c5c21764d0"
+  integrity sha512-I/Pv5Xa+NKPEMBGX6V5o6/xgFnjXoR5iG7bKlomqDC5yJR4mirke5QFBGvTqr4+J+i27N5xg9TbUBS96WEFzOA==
   dependencies:
-    "@linaria/babel-preset" "^3.0.0-beta.12"
+    "@linaria/babel-preset" "^3.0.0-beta.13"
     "@linaria/logger" "^3.0.0-beta.3"
     cosmiconfig "^5.1.0"
     enhanced-resolve "^4.1.0"
@@ -2732,12 +2732,12 @@
     mkdirp "^0.5.1"
     normalize-path "^3.0.0"
 
-"@linaria/webpack5-loader@^3.0.0-beta.12":
-  version "3.0.0-beta.12"
-  resolved "https://registry.yarnpkg.com/@linaria/webpack5-loader/-/webpack5-loader-3.0.0-beta.12.tgz#7149516711ec088f2b15d0a19d697e28a678e51a"
-  integrity sha512-8sNh32q9vStD2fMGRLpyEnRvPaExyBFnrXzRkS2ElK2KAZNeDjEgSxB3/n0V2A7o2Q+YXSMcGk+IVIXMqUq+YA==
+"@linaria/webpack5-loader@^3.0.0-beta.13":
+  version "3.0.0-beta.13"
+  resolved "https://registry.yarnpkg.com/@linaria/webpack5-loader/-/webpack5-loader-3.0.0-beta.13.tgz#2c6332780739cf793be7cf9d4b26c591e66cb879"
+  integrity sha512-SQ4Y+vKQLYMbNz3frZZHSYvegL50gS3bj9+6KRGv9pP6SfQCuy+2hsuoVpaF3yWTAaT31sH20OpR4+EergT9Rw==
   dependencies:
-    "@linaria/babel-preset" "^3.0.0-beta.12"
+    "@linaria/babel-preset" "^3.0.0-beta.13"
     "@linaria/logger" "^3.0.0-beta.3"
     cosmiconfig "^5.1.0"
     enhanced-resolve "^5.3.1"
@@ -3016,12 +3016,12 @@
   dependencies:
     "@octokit/openapi-types" "^10.0.0"
 
-"@pmmmwh/react-refresh-webpack-plugin@^0.5.0-rc.6":
-  version "0.5.0-rc.6"
-  resolved "https://registry.yarnpkg.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.5.0-rc.6.tgz#6c44da4a63655ed4c52f1336bb5b050d6bc6285e"
-  integrity sha512-EU+iDjTp5oFTK2Rw7SgBD8RdKTUpcUcLFCeHZG7/5shkKRMuHTMOzigaf5/C9oLRfWDeCo0mW67dovP03V7SgA==
+"@pmmmwh/react-refresh-webpack-plugin@^0.5.0":
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.5.1.tgz#7e98d6f22c360e1dd00909f5fa9d0f6ecc263292"
+  integrity sha512-ccap6o7+y5L8cnvkZ9h8UXCGyy2DqtwCD+/N3Yru6lxMvcdkPKtdx13qd7sAC9s5qZktOmWf9lfUjsGOvSdYhg==
   dependencies:
-    ansi-html "^0.0.7"
+    ansi-html-community "^0.0.8"
     common-path-prefix "^3.0.0"
     core-js-pure "^3.8.1"
     error-stack-parser "^2.0.6"
@@ -3354,10 +3354,10 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
   integrity sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==
 
-"@trysound/sax@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@trysound/sax/-/sax-0.1.1.tgz#3348564048e7a2d7398c935d466c0414ebb6a669"
-  integrity sha512-Z6DoceYb/1xSg5+e+ZlPZ9v0N16ZvZ+wYMraFue4HYrE4ttONKtsvruIRf6t9TBR0YvSOfi1hUU0fJfBLCDYow==
+"@trysound/sax@0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@trysound/sax/-/sax-0.2.0.tgz#cccaab758af56761eb7bf37af6f03f326dd798ad"
+  integrity sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==
 
 "@types/aria-query@^4.2.0":
   version "4.2.0"
@@ -4142,11 +4142,6 @@ ansi-html-community@^0.0.8:
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/ansi-html-community/-/ansi-html-community-0.0.8.tgz#69fbc4d6ccbe383f9736934ae34c3f8290f1bf41"
   integrity sha512-1APHAyr3+PCamwNw3bXCPp4HFLONZt/yIH0sZp0/469KWNTEy+qN5jQ3GVX6DMZ1UXAi34yVwtTeaG/HpBuuzw==
-
-ansi-html@^0.0.7:
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/ansi-html/-/ansi-html-0.0.7.tgz#813584021962a9e9e6fd039f940d12f56ca7859e"
-  integrity sha1-gTWEAhliqenm/QOflA0S9WynhZ4=
 
 ansi-regex@^2.0.0:
   version "2.1.1"
@@ -5724,6 +5719,11 @@ colorette@^1.0.7, colorette@^1.2.1, colorette@^1.2.2, colorette@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/colorette/-/colorette-1.3.0.tgz#ff45d2f0edb244069d3b772adeb04fed38d0a0af"
   integrity sha512-ecORCqbSFP7Wm8Y6lyqMJjexBQqXSF7SSeaTyGGphogUjBlFP9m9o08wy86HL2uB7fMTxtOUzLMk7ogKcxMg1w==
+
+colorette@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/colorette/-/colorette-1.4.0.tgz#5190fbb87276259a86ad700bff2c6d6faa3fca40"
+  integrity sha512-Y2oEozpomLn7Q3HFP7dpww7AtMJplbM9lGZP6RDfHqmbeRjiwRg4n6VM6j4KLmRke85uWEI7JqF17f3pqdRA0g==
 
 colors@^1.4.0:
   version "1.4.0"
@@ -16430,13 +16430,13 @@ svgo@^1.2.2:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-svgo@^2.2.0, svgo@^2.3.0, svgo@^2.5.0:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/svgo/-/svgo-2.5.0.tgz#3c9051b606d85a02fcb59f459b19970d2cc2c9bf"
-  integrity sha512-FSdBOOo271VyF/qZnOn1PgwCdt1v4Dx0Sey+U1jgqm1vqRYjPGdip0RGrFW6ItwtkBB8rHgHk26dlVr0uCs82Q==
+svgo@^2.2.0, svgo@^2.3.0, svgo@^2.6.0:
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/svgo/-/svgo-2.6.1.tgz#60b613937e0081028cffc2369090e366b08f1f0e"
+  integrity sha512-SDo274ymyG1jJ3HtCr3hkfwS8NqWdF0fMr6xPlrJ5y2QMofsQxIEFWgR1epwb197teKGgnZbzozxvJyIeJpE2Q==
   dependencies:
-    "@trysound/sax" "0.1.1"
-    colorette "^1.3.0"
+    "@trysound/sax" "0.2.0"
+    colorette "^1.4.0"
     commander "^7.2.0"
     css-select "^4.1.3"
     css-tree "^1.1.3"
