@@ -1,5 +1,4 @@
 import { useResource } from 'rest-hooks';
-
 import TodoResource from 'resources/TodoResource';
 
 import TodoListItem from './TodoListItem';
