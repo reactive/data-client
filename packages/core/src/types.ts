@@ -1,6 +1,6 @@
 import { NormalizedIndex } from '@rest-hooks/normalizr';
-import { Middleware } from '@rest-hooks/use-enhanced-reducer';
-import { FSAWithPayloadAndMeta, FSAWithMeta, FSA } from 'flux-standard-action';
+import { Dispatch } from '@rest-hooks/use-enhanced-reducer';
+import { FSAWithPayloadAndMeta, FSAWithMeta } from 'flux-standard-action';
 import type {
   UpdateFunction,
   AbstractInstanceType,
@@ -20,6 +20,7 @@ import {
   INVALIDATE_TYPE,
   GC_TYPE,
 } from '@rest-hooks/core/actionTypes';
+import type Controller from '@rest-hooks/core/controller/Controller';
 
 export type { AbstractInstanceType, UpdateFunction };
 
@@ -90,7 +91,7 @@ export type ReceiveAction<
   typeof RECEIVE_TYPE,
   Payload,
   ReceiveMeta<S>
->;
+> & { endpoint?: EndpointInterface };
 
 export interface ResetAction {
   type: typeof RESET_TYPE;
@@ -140,7 +141,9 @@ export interface FetchAction<
 
 export interface SubscribeAction
   extends FSAWithMeta<typeof SUBSCRIBE_TYPE, undefined, any> {
+  endpoint?: EndpointInterface;
   meta: {
+    args?: readonly any[];
     schema: Schema | undefined;
     fetch: () => Promise<any>;
     key: string;
@@ -150,7 +153,9 @@ export interface SubscribeAction
 
 export interface UnsubscribeAction
   extends FSAWithMeta<typeof UNSUBSCRIBE_TYPE, undefined, any> {
+  endpoint?: EndpointInterface;
   meta: {
+    args?: readonly any[];
     key: string;
     options: FetchOptions | undefined;
   };
@@ -186,3 +191,17 @@ export interface Manager {
   cleanup(): void;
   init?: (state: State<any>) => void;
 }
+
+export type Middleware = <R extends React.Reducer<any, any>>(
+  options: MiddlewareAPI<R>,
+) => (next: Dispatch<R>) => Dispatch<R>;
+
+export interface MiddlewareAPI<
+  R extends React.Reducer<any, any> = React.Reducer<any, any>,
+> {
+  getState: () => React.ReducerState<R>;
+  dispatch: Dispatch<R>;
+  controller: Controller;
+}
+
+export type { Dispatch };

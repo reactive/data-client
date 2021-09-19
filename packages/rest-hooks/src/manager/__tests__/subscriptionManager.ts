@@ -3,6 +3,7 @@ import {
   SubscribeAction,
   UnsubscribeAction,
   actionTypes,
+  Controller,
 } from '@rest-hooks/core';
 
 import SubscriptionManager, { Subscription } from '../SubscriptionManager';
@@ -82,10 +83,11 @@ describe('SubscriptionManager', () => {
     const middleware = manager.getMiddleware();
     const next = jest.fn();
     const dispatch = () => Promise.resolve();
+    const controller = new Controller({ dispatch });
 
     it('subscribe should add a subscription', () => {
       const action = createSubscribeAction({ id: 5 });
-      middleware({ dispatch, getState })(next)(action);
+      middleware({ dispatch, getState, controller })(next)(action);
 
       expect(next).not.toHaveBeenCalled();
       expect((manager as any).subscriptions[action.meta.key]).toBeDefined();
@@ -93,7 +95,7 @@ describe('SubscriptionManager', () => {
     it('subscribe should add a subscription (no frequency)', () => {
       const action = createSubscribeAction({ id: 597 });
       delete action.meta.options;
-      middleware({ dispatch, getState })(next)(action);
+      middleware({ dispatch, getState, controller })(next)(action);
 
       expect(next).not.toHaveBeenCalled();
       expect((manager as any).subscriptions[action.meta.key]).toBeDefined();
@@ -101,19 +103,19 @@ describe('SubscriptionManager', () => {
 
     it('subscribe with same should call subscription.add', () => {
       const action = createSubscribeAction({ id: 5, title: 'four' });
-      middleware({ dispatch, getState })(next)(action);
+      middleware({ dispatch, getState, controller })(next)(action);
 
       expect(
         (manager as any).subscriptions[action.meta.key].add.mock.calls.length,
       ).toBe(1);
-      middleware({ dispatch, getState })(next)(action);
+      middleware({ dispatch, getState, controller })(next)(action);
       expect(
         (manager as any).subscriptions[action.meta.key].add.mock.calls.length,
       ).toBe(2);
     });
     it('subscribe with another should create another', () => {
       const action = createSubscribeAction({ id: 7, title: 'four cakes' });
-      middleware({ dispatch, getState })(next)(action);
+      middleware({ dispatch, getState, controller })(next)(action);
 
       expect((manager as any).subscriptions[action.meta.key]).toBeDefined();
       expect(
@@ -133,13 +135,13 @@ describe('SubscriptionManager', () => {
         () => true,
       );
 
-      middleware({ dispatch, getState })(next)(action);
+      middleware({ dispatch, getState, controller })(next)(action);
 
       expect((manager as any).subscriptions[action.meta.key]).not.toBeDefined();
     });
 
     it('unsubscribe should delete when remove returns true (no frequency)', () => {
-      middleware({ dispatch, getState })(next)(
+      middleware({ dispatch, getState, controller })(next)(
         createSubscribeAction({ id: 50, title: 'four cakes' }),
       );
 
@@ -149,7 +151,7 @@ describe('SubscriptionManager', () => {
         () => true,
       );
 
-      middleware({ dispatch, getState })(next)(action);
+      middleware({ dispatch, getState, controller })(next)(action);
 
       expect((manager as any).subscriptions[action.meta.key]).not.toBeDefined();
     });
@@ -160,7 +162,7 @@ describe('SubscriptionManager', () => {
         () => false,
       );
 
-      middleware({ dispatch, getState })(next)(action);
+      middleware({ dispatch, getState, controller })(next)(action);
 
       expect((manager as any).subscriptions[action.meta.key]).toBeDefined();
       expect(
@@ -175,7 +177,7 @@ describe('SubscriptionManager', () => {
 
       const action = createUnsubscribeAction({ id: 25 });
 
-      middleware({ dispatch, getState })(next)(action);
+      middleware({ dispatch, getState, controller })(next)(action);
 
       expect((manager as any).subscriptions[action.meta.key]).not.toBeDefined();
 
@@ -191,7 +193,7 @@ describe('SubscriptionManager', () => {
       const action = { type: RECEIVE_TYPE };
       next.mockReset();
 
-      middleware({ dispatch, getState })(next)(action as any);
+      middleware({ dispatch, getState, controller })(next)(action as any);
 
       expect(next.mock.calls.length).toBe(1);
     });

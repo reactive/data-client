@@ -11,7 +11,9 @@ export function createSubscription<E extends EndpointInterface>(
 ): SubscribeAction {
   return {
     type: SUBSCRIBE_TYPE,
+    endpoint,
     meta: {
+      args,
       key: endpoint.key(...args),
       fetch: () => endpoint(...args),
       schema: endpoint.schema,
@@ -19,6 +21,14 @@ export function createSubscription<E extends EndpointInterface>(
     },
   };
 }
+/** Future action shape
+{
+  type: SUBSCRIBE_TYPE,
+  endpoint,
+  meta: {
+    args,
+  },
+} */
 
 export function createUnsubscription<E extends EndpointInterface>(
   endpoint: E,
@@ -26,9 +36,19 @@ export function createUnsubscription<E extends EndpointInterface>(
 ): UnsubscribeAction {
   return {
     type: UNSUBSCRIBE_TYPE,
+    endpoint,
     meta: {
+      args,
       key: endpoint.key(...args),
       options: endpoint,
     },
   };
 }
+/** Future action shape
+{
+  type: UNSUBSCRIBE_TYPE,
+  endpoint,
+  meta: {
+    args,
+  },
+} */

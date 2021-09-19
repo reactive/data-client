@@ -1,14 +1,12 @@
 import {
-  MiddlewareAPI,
-  Middleware,
-  Dispatch,
-} from '@rest-hooks/use-enhanced-reducer';
-import {
   FetchAction,
   ReceiveAction,
   Manager,
   State,
   ActionTypes,
+  MiddlewareAPI,
+  Middleware,
+  Dispatch,
 } from '@rest-hooks/core/types';
 import {
   RECEIVE_TYPE,
@@ -21,6 +19,7 @@ import {
   createReceiveError,
 } from '@rest-hooks/core/state/actions/index';
 import { initialState } from '@rest-hooks/core/state/reducer';
+import Controller from '@rest-hooks/core/controller/Controller';
 
 export class ResetError extends Error {
   name = 'ResetError';
@@ -53,13 +52,14 @@ export default class NetworkManager implements Manager {
     this.middleware = <R extends React.Reducer<any, any>>({
       dispatch,
       getState,
+      controller,
     }: MiddlewareAPI<R>) => {
       this.getState = getState;
       return (next: Dispatch<R>) =>
         (action: React.ReducerAction<R>): Promise<void> => {
           switch (action.type) {
             case FETCH_TYPE:
-              this.handleFetch(action, dispatch);
+              this.handleFetch(action, dispatch, controller);
               // This is the only case that causes any state change
               // It's important to intercept other fetches as we don't want to trigger reducers during
               // render - so we need to stop 'readonly' fetches which can be triggered in render
@@ -141,7 +141,11 @@ export default class NetworkManager implements Manager {
    * Uses throttle only when instructed by action meta. This is valuable
    * for ensures mutation requests always go through.
    */
-  protected handleFetch(action: FetchAction, dispatch: Dispatch<any>) {
+  protected handleFetch(
+    action: FetchAction,
+    dispatch: Dispatch<any>,
+    controller: Controller,
+  ) {
     const fetch = action.payload;
     const { key, throttle, resolve, reject, createdAt } = action.meta;
 
@@ -171,7 +175,15 @@ export default class NetworkManager implements Manager {
 
           // don't update state with promises started before last clear
           if (createdAt >= lastReset) {
-            // does this throw if the reducer fails?
+            /*if (action.endpoint) {
+              controller.receive(
+                action.endpoint,
+                ...(action.meta.args as Parameters<typeof action.endpoint>),
+                data,
+              );
+            } TODO - once we reliably get controller */
+
+            // does this throw if the reducer fails? - no because reducer is wrapped in try/catch
             dispatch(
               createReceive(data, {
                 ...action.meta,

@@ -45,8 +45,9 @@ export default function createReceive<
     error?: boolean;
   },
 ): ReceiveAction {
-  const expiryLength: number =
-    (error ? endpoint.errorExpiryLength : endpoint.dataExpiryLength) ?? 1000;
+  const expiryLength: number = error
+    ? endpoint.errorExpiryLength ?? 60000
+    : endpoint.dataExpiryLength ?? 1000;
   /* istanbul ignore next */
   if (process.env.NODE_ENV === 'development' && expiryLength < 0) {
     throw new Error('Negative expiry length are not allowed.');
@@ -61,10 +62,26 @@ export default function createReceive<
     errorPolicy: endpoint.errorPolicy,
   };
   meta.update = endpoint.update;
-  return {
+
+  const action: ReceiveAction = {
     type: RECEIVE_TYPE,
     payload: response,
+    endpoint: endpoint,
     meta,
-    error,
   };
+  if (error) (action as any).error = true;
+  return action;
 }
+
+/** Future action shape
+{
+  type: RECEIVE_TYPE,
+  endpoint,
+  payload,
+  meta: {
+    args,
+    date,
+    expiresAt,
+  },
+  error?: true,
+} */

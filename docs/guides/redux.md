@@ -2,6 +2,7 @@
 id: redux
 title: Redux integration
 ---
+
 import PkgTabs from '@site/src/components/PkgTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
@@ -19,8 +20,8 @@ First make sure you have redux installed:
 
 Note: react-redux is _not_ needed for this integration (though you will need it if you want to use redux directly as well).
 
-Then you'll want to use the [\<ExternalCacheProvider />](../api/ExternalCacheProvider.md) instead of
-[\<CacheProvider />](../api/CacheProvider.md) and pass in the store and a selector function to grab
+Then you'll want to use the [<ExternalCacheProvider /\>](../api/ExternalCacheProvider.md) instead of
+[<CacheProvider /\>](../api/CacheProvider.md) and pass in the store and a selector function to grab
 the rest-hooks specific part of the state.
 
 > Note: You should only use ONE provider; nested another provider will override the previous.
@@ -46,19 +47,24 @@ import {
   ExternalCacheProvider,
   PromiseifyMiddleware,
 } from 'rest-hooks';
-import { initialState, reducer, NetworkManager } from '@rest-hooks/core';
+import {
+  initialState,
+  reducer,
+  NetworkManager,
+  Controller,
+} from '@rest-hooks/core';
 import { createStore, applyMiddleware } from 'redux';
 import ReactDOM from 'react-dom';
 
 const networkManager = new NetworkManager();
 const subscriptionManager = new SubscriptionManager(PollingSubscription);
+const controller = new Controller();
 
 const store = createStore(
   reducer,
   initialState,
   applyMiddleware(
-    networkManager.getMiddleware(),
-    subscriptionManager.getMiddleware(),
+    ...applyManager([networkManager, subscriptionManager], controller),
     // place Rest Hooks built middlewares before PromiseifyMiddleware
     PromiseifyMiddleware,
     // place redux middlewares after PromiseifyMiddleware
@@ -96,8 +102,7 @@ const store = createStore(
   }),
   applyMiddleware(
     ...mapMiddleware(selector)(
-      manager.getMiddleware(),
-      subscriptionManager.getMiddleware(),
+      ...applyManager([networkManager, subscriptionManager], controller),
     ),
     PromiseifyMiddleware,
   ),
@@ -117,20 +122,25 @@ import {
   ExternalCacheProvider,
   PromiseifyMiddleware,
 } from 'rest-hooks';
-import { initialState, reducer, NetworkManager } from '@rest-hooks/core';
+import {
+  initialState,
+  reducer,
+  NetworkManager,
+  Controller,
+} from '@rest-hooks/core';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom';
 
 const manager = new NetworkManager();
 const subscriptionManager = new SubscriptionManager(PollingSubscription);
+const controller = new Controller();
 
 const store = createStore(
   reducer,
   initialState,
   applyMiddleware(
-    networkManager.getMiddleware(),
-    subscriptionManager.getMiddleware(),
+    ...applyManager([networkManager, subscriptionManager], controller),
     // place Rest Hooks built middlewares before PromiseifyMiddleware
     PromiseifyMiddleware,
     // place redux middlewares after PromiseifyMiddleware
@@ -165,8 +175,7 @@ const store = createStore(
   }),
   applyMiddleware(
     ...mapMiddleware(selector)(
-      manager.getMiddleware(),
-      subscriptionManager.getMiddleware(),
+      ...applyManager([networkManager, subscriptionManager], controller),
     ),
     PromiseifyMiddleware,
   ),
@@ -197,8 +206,7 @@ const store = createStore(
     trace: true,
   })(
     applyMiddleware(
-      manager.getMiddleware(),
-      subscriptionManager.getMiddleware(),
+      ...applyManager([networkManager, subscriptionManager], controller),
       // place Rest Hooks built middlewares before PromiseifyMiddleware
       PromiseifyMiddleware,
       // place redux middlewares after PromiseifyMiddleware
