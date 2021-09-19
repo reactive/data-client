@@ -50,7 +50,6 @@ export default function createFetch<
   endpoint,
   meta: {
     args,
-    throttle,
     createdAt,
     promise,
     resolve,

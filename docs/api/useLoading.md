@@ -5,7 +5,7 @@ title: useLoading()
 ```typescript
 export default function useLoading<F extends (...args: any) => Promise<any>>(
   func: F,
-  onError?: (error: Error) => void,
+  deps: readonly any[] = [],
 ): [F, boolean];
 ```
 

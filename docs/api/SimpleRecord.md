@@ -3,9 +3,9 @@ title: SimpleRecord
 ---
 import LanguageTabs from '@site/src/components/LanguageTabs';
 
-:::caution
+:::caution Deprecated
 
-Deprecated. Used [schema.Object](./Object) instead.
+Use [schema.Object](./Object) instead.
 
 :::
 

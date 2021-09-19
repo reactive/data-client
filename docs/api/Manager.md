@@ -19,6 +19,8 @@ type Dispatch<R extends React.Reducer<any, any>> = (action: React.ReducerAction<
 
 type Middleware = <R extends React.Reducer<any, A>, A extends Actions>({
   dispatch,
+  getState,
+  controller,
 }: MiddlewareAPI<R>) => (
   next: Dispatch<R>,
 ) => Dispatch<R>;
@@ -68,7 +70,7 @@ via intercepting and dispatching actions, as well as reading the internal state.
 ### Middleware logging
 
 ```typescript
-this.middleware = ({ dispatch, getState }) => (next) => async (action) => {
+this.middleware = ({ getState }) => (next) => async (action) => {
   console.log('before', action, getState());
   await next(action);
   console.log('after', action, getState())
@@ -78,23 +80,23 @@ this.middleware = ({ dispatch, getState }) => (next) => async (action) => {
 ### Middleware data stream
 
 ```typescript
-import type { Manager } from '@rest-hooks/core';
-import { createReceive } from '@rest-hooks/core';
+import type { Manager, Middleware } from '@rest-hooks/core';
+import type { EndpointInterface } from '@rest-hooks/endpoint';
 
 export default class StreamManager implements Manager
 {
   protected declare middleware: Middleware;
   protected declare websocket: Websocket;
+  protected declare endpoints: Record<string, EndpointInterface>;
 
-  constructor(url: string) {
+  constructor(url: string, endpoints: Record<string, EndpointInterface>) {
     this.websocket = new Websocket(url);
+    this.endpoints = endpoints;
 
     // highlight-start
-    this.middleware = ({ dispatch, getState }) => {
+    this.middleware = ({ controller, getState }) => {
       this.websocket.onmessage = (event) => {
-        dispatch(
-          createReceive(event.data, { schema: this.Schemas[event.type] })
-        );
+        controller.receive(this.endpoints[event.type], ...event.args, event.data);
       }
       return (next) => async (action) => next(action);
     }
@@ -110,3 +112,6 @@ export default class StreamManager implements Manager
   }
 }
 ```
+
+[Controller.receive()](./Controller.md#receive) updates the Rest Hooks store
+with `event.data`.

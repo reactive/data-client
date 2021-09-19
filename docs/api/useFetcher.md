@@ -118,9 +118,9 @@ function PostListItem({ post }: { post: PostResource }) {
 
 ## updateParams: [destEndpoint, destParams, updateFunction][]
 
-:::caution
+:::caution Deprecated
 
-Deprecated - use [Endpoint.update](./Endpoint.md#update) instead
+Use [Endpoint.update](./Endpoint.md#update) instead
 
 :::
 

@@ -7,12 +7,14 @@ export class MockNetworkManager extends NetworkManager {
   handleFetch(
     ...[action, dispatch, ...rest]: Parameters<NetworkManager['handleFetch']>
   ) {
+    // TODO: we should make dispatch always 'act' instead
     const mockDispatch: typeof dispatch = (v: any) => {
       act(() => {
         dispatch(v);
       });
       return Promise.resolve();
     };
+    if (rest[0]) (rest[0] as any).dispatch = mockDispatch;
     return super.handleFetch(action, mockDispatch, ...rest);
   }
 

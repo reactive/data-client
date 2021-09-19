@@ -1,4 +1,10 @@
-import { State, reducer, CacheProvider, Manager } from '@rest-hooks/core';
+import {
+  State,
+  reducer,
+  CacheProvider,
+  Manager,
+  Controller,
+} from '@rest-hooks/core';
 import {
   ExternalCacheProvider,
   PromiseifyMiddleware,
@@ -23,18 +29,21 @@ let makeExternalCacheProvider: (
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { createStore, applyMiddleware, combineReducers } = require('redux');
+  const applyManager =
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require('@rest-hooks/core').applyManager ??
+    ((managers: Manager[]) => managers.map(manager => manager.getMiddleware()));
   makeExternalCacheProvider = function makeExternal(
     managers: Manager[],
     initialState?: DeepPartialWithUnknown<State<any>>,
   ) {
     const selector = (s: { restHooks: State<unknown> }) => s.restHooks;
+    const controller = new Controller();
     const store = createStore(
       combineReducers({ restHooks: reducer }),
       { restHooks: initialState },
       applyMiddleware(
-        ...mapMiddleware(selector)(
-          ...managers.map(manager => manager.getMiddleware()),
-        ),
+        ...mapMiddleware(selector)(...applyManager(managers, controller)),
         PromiseifyMiddleware,
       ),
     );

@@ -14,7 +14,7 @@ import type { DenormalizeCache } from '@rest-hooks/normalizr';
 type RHDispatch = (value: ActionTypes) => Promise<void>;
 
 interface ConstructorProps {
-  dispatch: RHDispatch;
+  dispatch?: RHDispatch;
   globalCache?: DenormalizeCache;
 }
 
@@ -27,12 +27,12 @@ export default class Controller {
   declare readonly globalCache: DenormalizeCache;
 
   constructor({
-    dispatch,
+    dispatch = () => Promise.reject('dispatch not set'),
     globalCache = {
       entities: {},
       results: {},
     },
-  }: ConstructorProps) {
+  }: ConstructorProps = {}) {
     this.dispatch = dispatch;
     this.globalCache = globalCache;
   }

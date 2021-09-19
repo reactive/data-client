@@ -1,19 +1,15 @@
-import masterReducer, {
-  initialState as defaultState,
-} from '@rest-hooks/core/state/reducer';
+import { initialState as defaultState } from '@rest-hooks/core/state/reducer';
 import NetworkManager from '@rest-hooks/core/state/NetworkManager';
 import { State, Manager } from '@rest-hooks/core/types';
-import useEnhancedReducer from '@rest-hooks/use-enhanced-reducer';
-import React, { ReactNode, useEffect, useMemo } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import { useRef } from 'react';
 import {
-  StateContext,
-  DispatchContext,
   DenormalizeCacheContext,
   ControllerContext,
 } from '@rest-hooks/core/react-integration/context';
-import BackupBoundary from '@rest-hooks/core/react-integration/provider/BackupBoundary';
 import Controller from '@rest-hooks/core/controller/Controller';
+import applyManager from '@rest-hooks/core/state/applyManager';
+import CacheStore from '@rest-hooks/core/react-integration/provider/CacheStore';
 
 interface ProviderProps {
   children: ReactNode;
@@ -30,47 +26,34 @@ export default function CacheProvider({
   managers,
   initialState,
 }: ProviderProps) {
-  const [state, dispatch] = useEnhancedReducer(
-    masterReducer,
-    initialState,
-    managers.map(manager => manager.getMiddleware()),
-  );
-  const controller = useRef<Controller>();
-  if (!controller.current)
-    controller.current = new Controller({
-      dispatch,
-    });
+  // contents of this component expected to be relatively stable
 
-  const optimisticState = useMemo(
-    () => state.optimistic.reduce(masterReducer, state),
-    [state],
-  );
+  const controllerRef: React.MutableRefObject<Controller> = useRef<any>();
+  if (!controllerRef.current) controllerRef.current = new Controller();
 
-  // if we change out the manager we need to make sure it has no hanging async
-  useEffect(() => {
-    for (let i = 0; i < managers.length; ++i) {
-      managers[i].init?.(state);
-    }
-    return () => {
-      for (let i = 0; i < managers.length; ++i) {
-        managers[i].cleanup();
-      }
-    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const memodManagers = useMemo(() => managers, managers);
+
+  const middlewares = useMemo(
+    () => applyManager(managers, controllerRef.current),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, managers);
+    managers,
+  );
 
   return (
-    <DispatchContext.Provider value={dispatch}>
-      <StateContext.Provider value={optimisticState}>
-        <ControllerContext.Provider value={controller.current}>
-          <DenormalizeCacheContext.Provider
-            value={controller.current.globalCache}
-          >
-            <BackupBoundary>{children}</BackupBoundary>
-          </DenormalizeCacheContext.Provider>
-        </ControllerContext.Provider>
-      </StateContext.Provider>
-    </DispatchContext.Provider>
+    <ControllerContext.Provider value={controllerRef.current}>
+      <DenormalizeCacheContext.Provider
+        value={controllerRef.current.globalCache}
+      >
+        <CacheStore
+          managers={memodManagers}
+          middlewares={middlewares}
+          initialState={initialState}
+        >
+          {children}
+        </CacheStore>{' '}
+      </DenormalizeCacheContext.Provider>
+    </ControllerContext.Provider>
   );
 }
 CacheProvider.defaultProps = {

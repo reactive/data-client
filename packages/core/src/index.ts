@@ -7,6 +7,7 @@ export {
   default as reducer,
   initialState,
 } from '@rest-hooks/core/state/reducer';
+export { default as applyManager } from '@rest-hooks/core/state/applyManager';
 export { useDenormalized } from '@rest-hooks/core/state/selectors/index';
 export {
   useCache,
@@ -36,7 +37,7 @@ export { default as Controller } from '@rest-hooks/core/controller/Controller';
 export * from '@rest-hooks/core/controller/types';
 export * from '@rest-hooks/core/state/actions/index';
 export * as actionTypes from '@rest-hooks/core/actionTypes';
-export * from '@rest-hooks/use-enhanced-reducer';
+export { usePromisifiedDispatch } from '@rest-hooks/use-enhanced-reducer';
 export * from '@rest-hooks/endpoint';
 /* istanbul ignore next */
 export * from '@rest-hooks/core/types';

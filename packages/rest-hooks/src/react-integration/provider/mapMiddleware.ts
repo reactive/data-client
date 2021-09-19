@@ -1,4 +1,5 @@
-import { Middleware, MiddlewareAPI, State } from '@rest-hooks/core';
+import { Middleware, MiddlewareAPI } from '@rest-hooks/use-enhanced-reducer';
+import { State } from '@rest-hooks/core';
 
 const mapMiddleware =
   <M extends Middleware[]>(selector: (state: any) => State<unknown>) =>
