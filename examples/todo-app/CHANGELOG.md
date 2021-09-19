@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.1.7](https://github.com/coinbase/rest-hooks/compare/todo-app@0.1.6...todo-app@0.1.7) (2021-09-19)
+
+
+### 💅 Enhancement
+
+* useController() in examples ([#1270](https://github.com/coinbase/rest-hooks/issues/1270)) ([9f0e874](https://github.com/coinbase/rest-hooks/commit/9f0e87401856c0b51f12cd4cfc672aecb1f9a24e))
+
+
+
 ### [0.1.6](https://github.com/coinbase/rest-hooks/compare/todo-app@0.1.5...todo-app@0.1.6) (2021-09-14)
 
 **Note:** Version bump only for package todo-app

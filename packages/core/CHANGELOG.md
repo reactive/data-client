@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.1...@rest-hooks/core@2.1.0) (2021-09-19)
+
+
+### 🚀 Features
+
+* Add Controller ([#1239](https://github.com/coinbase/rest-hooks/issues/1239)) ([321dbaa](https://github.com/coinbase/rest-hooks/commit/321dbaa905744b5d331a163d4a0f219809f740ee))
+* Send controller to middlewares ([#1271](https://github.com/coinbase/rest-hooks/issues/1271)) ([29db53c](https://github.com/coinbase/rest-hooks/commit/29db53c8ee7f5d770dd43b6e3d97346bc77f76d7))
+
+
+### 📝 Documentation
+
+* Random fixes ([#1261](https://github.com/coinbase/rest-hooks/issues/1261)) ([ec90154](https://github.com/coinbase/rest-hooks/commit/ec901542a5157b35e20a346b7794f986f775138c))
+
+
+
 ### [2.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.0...@rest-hooks/core@2.0.1) (2021-09-14)
 
 **Note:** Version bump only for package @rest-hooks/core

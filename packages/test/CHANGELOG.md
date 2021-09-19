@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.0.0...@rest-hooks/test@7.1.0) (2021-09-19)
+
+
+### 🚀 Features
+
+* Send controller to middlewares ([#1271](https://github.com/coinbase/rest-hooks/issues/1271)) ([29db53c](https://github.com/coinbase/rest-hooks/commit/29db53c8ee7f5d770dd43b6e3d97346bc77f76d7))
+
+
+
 ## [7.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.0.0-beta.3...@rest-hooks/test@7.0.0) (2021-09-08)
 
 **Note:** Version bump only for package @rest-hooks/test

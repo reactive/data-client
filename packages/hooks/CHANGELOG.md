@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/hooks@1.5.0...@rest-hooks/hooks@2.0.0) (2021-09-19)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* onError() is no longer second argument;
+To handle this case, simply .catch() yourself.
+
+### 🚀 Features
+
+* useLoading() second argument is deps list ([#1250](https://github.com/coinbase/rest-hooks/issues/1250)) ([898599a](https://github.com/coinbase/rest-hooks/commit/898599a878e83f3435c0006f53fb64db8f8b38af))
+
+
+
 ## [1.5.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/hooks@1.5.0-beta.1...@rest-hooks/hooks@1.5.0) (2021-09-08)
 
 **Note:** Version bump only for package @rest-hooks/hooks

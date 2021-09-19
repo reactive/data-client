@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@1.0.1...@rest-hooks/experimental@2.0.0) (2021-09-19)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Requires @rest-hooks/core>=2.1
+Throttle is inferred from Endpoint.sideEffect
+
+### 💅 Enhancement
+
+* Use @rest-hooks/core controller ([#1249](https://github.com/coinbase/rest-hooks/issues/1249)) ([3cd40f1](https://github.com/coinbase/rest-hooks/commit/3cd40f179f91c08d5720cb0337e11c58263abf38))
+
+
+
 ### [1.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@1.0.0...@rest-hooks/experimental@1.0.1) (2021-09-14)
 
 

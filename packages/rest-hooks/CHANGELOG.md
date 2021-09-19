@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.1.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.0.1...rest-hooks@6.1.0) (2021-09-19)
+
+
+### 🚀 Features
+
+* Add Controller ([#1239](https://github.com/coinbase/rest-hooks/issues/1239)) ([321dbaa](https://github.com/coinbase/rest-hooks/commit/321dbaa905744b5d331a163d4a0f219809f740ee))
+* Export useController() ([#1269](https://github.com/coinbase/rest-hooks/issues/1269)) ([baa31d8](https://github.com/coinbase/rest-hooks/commit/baa31d8c78aa26cd8da88b93804f8a014fbbe63c))
+* Send controller to middlewares ([#1271](https://github.com/coinbase/rest-hooks/issues/1271)) ([29db53c](https://github.com/coinbase/rest-hooks/commit/29db53c8ee7f5d770dd43b6e3d97346bc77f76d7))
+
+
+
 ### [6.0.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.0.0...rest-hooks@6.0.1) (2021-09-14)
 
 
