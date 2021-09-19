@@ -1,5 +1,6 @@
 export {
   useCache,
+  useController,
   useFetcher,
   useRetrieve,
   useResource,
