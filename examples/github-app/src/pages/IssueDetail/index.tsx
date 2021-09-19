@@ -1,4 +1,4 @@
-import { useResource, useFetcher, useRetrieve, useCache } from 'rest-hooks';
+import { useResource, useController, useRetrieve, useCache } from 'rest-hooks';
 import { Card, Avatar } from 'antd';
 import { groupBy } from 'lodash';
 import React, { useMemo, memo } from 'react';
@@ -21,9 +21,10 @@ function ReactionSpan({
   reactions: ReactionResource[];
   issue: IssueResource;
 }) {
-  const create = useFetcher(ReactionResource.create());
+  const { fetch } = useController();
   const handleClick = () => {
-    create(
+    fetch(
+      ReactionResource.create(),
       { repositoryUrl: issue.repositoryUrl, number: issue.number },
       { content: reactions[0].content },
     );

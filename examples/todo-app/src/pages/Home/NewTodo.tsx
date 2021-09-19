@@ -1,11 +1,10 @@
-import { useFetcher } from 'rest-hooks';
+import { useController } from 'rest-hooks';
 import { useCallback, useRef, useState } from 'react';
 import { styled } from '@linaria/react';
-
 import TodoResource from 'resources/TodoResource';
 
 export default function NewTodo({ lastId }: { lastId: number }) {
-  const create = useFetcher(TodoResource.create());
+  const { fetch } = useController();
   const [title, setTitle] = useState('');
   const handleChange = useCallback((e) => {
     setTitle(e.currentTarget.value);
@@ -18,11 +17,11 @@ export default function NewTodo({ lastId }: { lastId: number }) {
   const handlePress = useCallback(
     async (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
-        create({}, payload.current);
+        fetch(TodoResource.create(), {}, payload.current);
         setTitle('');
       }
     },
-    [create],
+    [fetch],
   );
 
   return (
