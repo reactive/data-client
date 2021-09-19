@@ -76,7 +76,10 @@ jobs:
             yarn add -W --dev react@next react-dom@next react-test-renderer@next
       - run:
           command: |
-            if [ "$COVERALLS_REPO_TOKEN" != "" ]; then yarn run test:coverage --maxWorkers=4 --coverageReporters=text-lcov | yarn run coveralls; fi
+            if [ "$COVERALLS_REPO_TOKEN" != "" ]; then
+            yarn run test:coverage --maxWorkers=4 --coverageReporters=text-lcov > ./lcov.info;
+            yarn run coveralls < ./lcov.info || true;
+            fi
 
   salus:
     machine: true
