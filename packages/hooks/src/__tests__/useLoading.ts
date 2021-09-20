@@ -139,4 +139,36 @@ describe('useLoading()', () => {
     // maintain referential equality
     expect(result.current[0]).toBe(wrappedFunc);
   });
+
+  it('should maintain referential equality if function does', async () => {
+    function fun(value: string) {
+      return new Promise<string>((resolve, reject) =>
+        setTimeout(() => resolve(value), 1000),
+      );
+    }
+    const { result, rerender } = renderHook(() => {
+      return useLoading(fun);
+    });
+    const [cb] = result.current;
+    rerender();
+    expect(result.current[0]).toBe(cb);
+  });
+
+  it('should maintain referential equality based on deps', async () => {
+    const { result, rerender } = renderHook(
+      ({ value }: { value: string }) => {
+        return useLoading(() => {
+          return new Promise<string>((resolve, reject) =>
+            setTimeout(() => resolve(value), 1000),
+          );
+        }, [value]);
+      },
+      { initialProps: { value: 'a' } },
+    );
+    const [cb] = result.current;
+    rerender({ value: 'a' });
+    expect(result.current[0]).toBe(cb);
+    rerender({ value: 'b' });
+    expect(result.current[0]).not.toBe(cb);
+  });
 });
