@@ -18,12 +18,12 @@ import { useEffect, useState, useRef, useCallback } from 'react';
  }
  ```
  */
-export default function useLoading<
-  F extends (...args: any) => Promise<any>,
-  E extends Error,
->(func: F, deps: readonly any[] = []): [F, boolean, E | undefined] {
+export default function useLoading<F extends (...args: any) => Promise<any>>(
+  func: F,
+  deps?: readonly any[],
+): [F, boolean, Error | undefined] {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<undefined | E>(undefined);
+  const [error, setError] = useState<undefined | Error>(undefined);
   const isMountedRef = useRef(true);
   useEffect(
     () => () => {
@@ -31,23 +31,22 @@ export default function useLoading<
     },
     [],
   );
-  const wrappedFunc = useCallback(
-    async (...args: any) => {
-      setLoading(true);
-      let ret;
-      try {
-        ret = await func(...args);
-      } catch (e: any) {
-        setError(e);
-        throw e;
-      } finally {
-        if (isMountedRef.current) {
-          setLoading(false);
-        }
+  const depsList = deps || [func];
+  const wrappedFunc = useCallback(async (...args: any) => {
+    setLoading(true);
+    let ret;
+    try {
+      ret = await func(...args);
+    } catch (e: any) {
+      setError(e);
+      throw e;
+    } finally {
+      if (isMountedRef.current) {
+        setLoading(false);
       }
-      return ret;
-    },
-    [func, ...deps],
-  );
+    }
+    return ret;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, depsList);
   return [wrappedFunc as any, loading, error];
 }
