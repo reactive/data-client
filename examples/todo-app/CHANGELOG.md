@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.1.8](https://github.com/coinbase/rest-hooks/compare/todo-app@0.1.7...todo-app@0.1.8) (2021-09-20)
+
+**Note:** Version bump only for package todo-app
+
+
+
+
+
 ### [0.1.7](https://github.com/coinbase/rest-hooks/compare/todo-app@0.1.6...todo-app@0.1.7) (2021-09-19)
 
 

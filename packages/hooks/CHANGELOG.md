@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/hooks@2.0.0...@rest-hooks/hooks@2.1.0) (2021-09-20)
+
+
+### 🚀 Features
+
+* Maintain referential stability when deps are used ([#1278](https://github.com/coinbase/rest-hooks/issues/1278)) ([09481c0](https://github.com/coinbase/rest-hooks/commit/09481c04a45d7280fd4fde08bfeca99a087f3813))
+
+
+
 ## [2.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/hooks@1.5.0...@rest-hooks/hooks@2.0.0) (2021-09-19)
 
 

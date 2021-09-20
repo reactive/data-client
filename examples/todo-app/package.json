@@ -1,6 +1,6 @@
 {
   "name": "todo-app",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "todo-app - A rest hooks example",
   "scripts": {
     "lint": "eslint src --ext .ts,.tsx",
