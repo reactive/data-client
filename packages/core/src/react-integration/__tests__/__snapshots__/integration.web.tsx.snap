@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`makeCacheProvider => <Provider /> Endpoint should resolve useResource() with SimpleRecords 1`] = `
+exports[`CacheProvider Endpoint should resolve useResource() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
     "author": UserResource {
@@ -33,7 +33,7 @@ Array [
 ]
 `;
 
-exports[`makeCacheProvider => <Provider /> Optimistic Updates indexes should resolve parallel useResource() request 1`] = `
+exports[`CacheProvider Optimistic Updates indexes should resolve parallel useResource() request 1`] = `
 IndexedUserResource {
   "email": "bob@bob.com",
   "id": 23,
@@ -42,7 +42,7 @@ IndexedUserResource {
 }
 `;
 
-exports[`makeCacheProvider => <Provider /> Optimistic Updates indexes should resolve parallel useResource() request 2`] = `
+exports[`CacheProvider Optimistic Updates indexes should resolve parallel useResource() request 2`] = `
 IndexedUserResource {
   "email": "bob@bob.com",
   "id": 23,
@@ -51,7 +51,7 @@ IndexedUserResource {
 }
 `;
 
-exports[`makeCacheProvider => <Provider /> should resolve useResource() with SimpleRecords 1`] = `
+exports[`CacheProvider should resolve useResource() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
     "author": UserResource {
@@ -84,7 +84,7 @@ Array [
 ]
 `;
 
-exports[`makeCacheProvider => <Provider /> useResource() should throw errors on malformed response 1`] = `
+exports[`CacheProvider useResource() should throw errors on malformed response 1`] = `
 [Error: Error processing GET http://test.com/article-cooler/878
 
 Full Schema: {
@@ -113,7 +113,7 @@ First three members: [
 ]]
 `;
 
-exports[`makeExternal => <Provider /> Endpoint should resolve useResource() with SimpleRecords 1`] = `
+exports[`ExternalCacheProvider Endpoint should resolve useResource() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
     "author": UserResource {
@@ -146,7 +146,7 @@ Array [
 ]
 `;
 
-exports[`makeExternal => <Provider /> Optimistic Updates indexes should resolve parallel useResource() request 1`] = `
+exports[`ExternalCacheProvider Optimistic Updates indexes should resolve parallel useResource() request 1`] = `
 IndexedUserResource {
   "email": "bob@bob.com",
   "id": 23,
@@ -155,7 +155,7 @@ IndexedUserResource {
 }
 `;
 
-exports[`makeExternal => <Provider /> Optimistic Updates indexes should resolve parallel useResource() request 2`] = `
+exports[`ExternalCacheProvider Optimistic Updates indexes should resolve parallel useResource() request 2`] = `
 IndexedUserResource {
   "email": "bob@bob.com",
   "id": 23,
@@ -164,7 +164,7 @@ IndexedUserResource {
 }
 `;
 
-exports[`makeExternal => <Provider /> should resolve useResource() with SimpleRecords 1`] = `
+exports[`ExternalCacheProvider should resolve useResource() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
     "author": UserResource {
@@ -197,7 +197,7 @@ Array [
 ]
 `;
 
-exports[`makeExternal => <Provider /> useResource() should throw errors on malformed response 1`] = `
+exports[`ExternalCacheProvider useResource() should throw errors on malformed response 1`] = `
 [Error: Error processing GET http://test.com/article-cooler/878
 
 Full Schema: {

@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`makeCacheProvider => <Provider /> Endpoint should gracefully abort in useResource() 1`] = `[AbortError: Aborted]`;
+exports[`CacheProvider Endpoint should gracefully abort in useResource() 1`] = `[AbortError: Aborted]`;
 
-exports[`makeCacheProvider => <Provider /> Endpoint should resolve useResource() with SimpleRecords 1`] = `
+exports[`CacheProvider Endpoint should resolve useResource() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
     "author": UserResource {
@@ -35,7 +35,7 @@ Array [
 ]
 `;
 
-exports[`makeCacheProvider => <Provider /> should passthrough union with unexpected schema attribute 1`] = `
+exports[`CacheProvider should passthrough union with unexpected schema attribute 1`] = `
 Array [
   Array [
     "Schema attribute \\"another\\" is not expected.
@@ -59,7 +59,7 @@ Value: {
 ]
 `;
 
-exports[`makeCacheProvider => <Provider /> should resolve useResource() with SimpleRecords 1`] = `
+exports[`CacheProvider should resolve useResource() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
     "author": UserResource {
@@ -92,7 +92,7 @@ Array [
 ]
 `;
 
-exports[`makeCacheProvider => <Provider /> useResource() should throw errors on malformed response 1`] = `
+exports[`CacheProvider useResource() should throw errors on malformed response 1`] = `
 [Error: Error processing GET http://test.com/article-cooler/878
 
 Full Schema: {
@@ -121,9 +121,9 @@ First three members: [
 ]]
 `;
 
-exports[`makeExternal => <Provider /> Endpoint should gracefully abort in useResource() 1`] = `[AbortError: Aborted]`;
+exports[`ExternalCacheProvider Endpoint should gracefully abort in useResource() 1`] = `[AbortError: Aborted]`;
 
-exports[`makeExternal => <Provider /> Endpoint should resolve useResource() with SimpleRecords 1`] = `
+exports[`ExternalCacheProvider Endpoint should resolve useResource() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
     "author": UserResource {
@@ -156,7 +156,7 @@ Array [
 ]
 `;
 
-exports[`makeExternal => <Provider /> should passthrough union with unexpected schema attribute 1`] = `
+exports[`ExternalCacheProvider should passthrough union with unexpected schema attribute 1`] = `
 Array [
   Array [
     "Schema attribute \\"another\\" is not expected.
@@ -180,7 +180,7 @@ Value: {
 ]
 `;
 
-exports[`makeExternal => <Provider /> should resolve useResource() with SimpleRecords 1`] = `
+exports[`ExternalCacheProvider should resolve useResource() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
     "author": UserResource {
@@ -213,7 +213,7 @@ Array [
 ]
 `;
 
-exports[`makeExternal => <Provider /> useResource() should throw errors on malformed response 1`] = `
+exports[`ExternalCacheProvider useResource() should throw errors on malformed response 1`] = `
 [Error: Error processing GET http://test.com/article-cooler/878
 
 Full Schema: {

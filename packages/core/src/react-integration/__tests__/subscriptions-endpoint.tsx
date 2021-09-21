@@ -13,168 +13,145 @@ import { DispatchContext } from '../context';
 
 let mynock: nock.Scope;
 
-for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
-  describe(`${makeProvider.name} with subscriptions`, () => {
-    const articlePayload = {
-      id: 5,
-      title: 'hi ho',
-      content: 'whatever',
-      tags: ['a', 'best', 'react'],
-    };
-    let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+describe.each([
+  ['CacheProvider', makeCacheProvider],
+  ['ExternalCacheProvider', makeExternalCacheProvider],
+] as const)(`%s with subscriptions`, (_, makeProvider) => {
+  const articlePayload = {
+    id: 5,
+    title: 'hi ho',
+    content: 'whatever',
+    tags: ['a', 'best', 'react'],
+  };
+  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
 
-    function onError(e: any) {
-      e.preventDefault();
-    }
-    beforeEach(() => {
-      if (typeof addEventListener === 'function')
-        addEventListener('error', onError);
-    });
-    afterEach(() => {
-      if (typeof removeEventListener === 'function')
-        removeEventListener('error', onError);
-    });
-
-    beforeAll(() => {
-      ArticleResource.detail().pollFrequency;
-      PollingArticleResource.detail().pollFrequency;
-    });
-
-    beforeEach(() => {
-      nock(/.*/)
-        .persist()
-        .defaultReplyHeaders({
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        })
-        .options(/.*/)
-        .reply(200);
-      mynock = nock(/.*/).defaultReplyHeaders({
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-      });
-      mynock
-        .get(`/article-cooler/${articlePayload.id}`)
-        .reply(200, articlePayload)
-        .get(`/article/${articlePayload.id}`)
-        .reply(200, articlePayload);
-      renderRestHook = makeRenderRestHook(makeProvider);
-    });
-    afterEach(() => {
-      nock.cleanAll();
-    });
-
-    it('useSubscription() + useCache()', async () => {
-      jest.useFakeTimers();
-      const frequency = PollingArticleResource.detail().pollFrequency as number;
-      expect(frequency).toBeDefined();
-
-      const { result, waitForNextUpdate, rerender } = renderRestHook(
-        ({ active }) => {
-          useSubscription(
-            PollingArticleResource.detail(),
-            active ? articlePayload : null,
-          );
-          return useCache(PollingArticleResource.detail(), articlePayload);
-        },
-        { initialProps: { active: true } },
-      );
-
-      await validateSubscription(
-        result,
-        frequency,
-        waitForNextUpdate,
-        articlePayload,
-      );
-
-      // should not update if active is false
-      rerender({ active: false });
-      mynock
-        .get(`/article/${articlePayload.id}`)
-        .reply(200, { ...articlePayload, title: 'sixer' });
-      jest.advanceTimersByTime(frequency);
-      expect((result.current as any).title).toBe('fiver');
-
-      // errors should not fail when data already exists
-      nock.cleanAll();
-      mynock.get(`/article/${articlePayload.id}`).reply(403, () => {
-        return { message: 'you fail' };
-      });
-      rerender({ active: true });
-      jest.advanceTimersByTime(frequency);
-      expect((result.current as any).title).toBe('fiver');
-      jest.useRealTimers();
-    });
-
-    it('should console.error() with no frequency specified', async () => {
-      const oldError = console.error;
-      const spy = (console.error = jest.fn());
-
-      const { result, waitForNextUpdate } = renderRestHook(() => {
-        useSubscription(ArticleResource.detail(), articlePayload);
-      });
-      expect(result.error).toBeUndefined();
-      expect(spy.mock.calls[0]).toMatchSnapshot();
-
-      console.error = oldError;
-    });
-
-    it('useSubscription() without active arg', async () => {
-      jest.useFakeTimers();
-      const frequency = PollingArticleResource.detail().pollFrequency as number;
-      expect(frequency).toBeDefined();
-      expect(
-        PollingArticleResource.detail().options?.pollFrequency,
-      ).toBeDefined();
-      expect(
-        PollingArticleResource.anotherDetail().options?.pollFrequency,
-      ).toBeDefined();
-
-      const { result, waitForNextUpdate } = renderRestHook(() => {
-        useSubscription(PollingArticleResource.detail(), articlePayload);
-        return useCache(PollingArticleResource.detail(), articlePayload);
-      });
-
-      await validateSubscription(
-        result,
-        frequency,
-        waitForNextUpdate,
-        articlePayload,
-      );
-      jest.useRealTimers();
-    });
-
-    it('useSubscription() should dispatch rest-hooks/subscribe only once even with rerender', () => {
-      const fakeDispatch = jest.fn();
-
-      const { rerender } = renderHook(
-        () => {
-          useSubscription(PollingArticleResource.list(), { id: 5 });
-        },
-        {
-          wrapper: function Wrapper({ children }: any) {
-            return (
-              <DispatchContext.Provider value={fakeDispatch}>
-                {children}
-              </DispatchContext.Provider>
-            );
-          },
-        },
-      );
-      expect(fakeDispatch.mock.calls.length).toBe(1);
-      for (let i = 0; i < 2; ++i) {
-        rerender();
-      }
-      expect(fakeDispatch.mock.calls.length).toBe(1);
-    });
+  function onError(e: any) {
+    e.preventDefault();
+  }
+  beforeEach(() => {
+    if (typeof addEventListener === 'function')
+      addEventListener('error', onError);
+  });
+  afterEach(() => {
+    if (typeof removeEventListener === 'function')
+      removeEventListener('error', onError);
   });
 
-  it('useSubscription() should include extra options in dispatched meta', () => {
+  beforeAll(() => {
+    ArticleResource.detail().pollFrequency;
+    PollingArticleResource.detail().pollFrequency;
+  });
+
+  beforeEach(() => {
+    nock(/.*/)
+      .persist()
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
+      .options(/.*/)
+      .reply(200);
+    mynock = nock(/.*/).defaultReplyHeaders({
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'application/json',
+    });
+    mynock
+      .get(`/article-cooler/${articlePayload.id}`)
+      .reply(200, articlePayload)
+      .get(`/article/${articlePayload.id}`)
+      .reply(200, articlePayload);
+    renderRestHook = makeRenderRestHook(makeProvider);
+  });
+  afterEach(() => {
+    nock.cleanAll();
+  });
+
+  it('useSubscription() + useCache()', async () => {
+    jest.useFakeTimers();
+    const frequency = PollingArticleResource.detail().pollFrequency as number;
+    expect(frequency).toBeDefined();
+
+    const { result, waitForNextUpdate, rerender } = renderRestHook(
+      ({ active }) => {
+        useSubscription(
+          PollingArticleResource.detail(),
+          active ? articlePayload : null,
+        );
+        return useCache(PollingArticleResource.detail(), articlePayload);
+      },
+      { initialProps: { active: true } },
+    );
+
+    await validateSubscription(
+      result,
+      frequency,
+      waitForNextUpdate,
+      articlePayload,
+    );
+
+    // should not update if active is false
+    rerender({ active: false });
+    mynock
+      .get(`/article/${articlePayload.id}`)
+      .reply(200, { ...articlePayload, title: 'sixer' });
+    jest.advanceTimersByTime(frequency);
+    expect((result.current as any).title).toBe('fiver');
+
+    // errors should not fail when data already exists
+    nock.cleanAll();
+    mynock.get(`/article/${articlePayload.id}`).reply(403, () => {
+      return { message: 'you fail' };
+    });
+    rerender({ active: true });
+    jest.advanceTimersByTime(frequency);
+    expect((result.current as any).title).toBe('fiver');
+    jest.useRealTimers();
+  });
+
+  it('should console.error() with no frequency specified', async () => {
+    const oldError = console.error;
+    const spy = (console.error = jest.fn());
+
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      useSubscription(ArticleResource.detail(), articlePayload);
+    });
+    expect(result.error).toBeUndefined();
+    expect(spy.mock.calls[0]).toMatchSnapshot();
+
+    console.error = oldError;
+  });
+
+  it('useSubscription() without active arg', async () => {
+    jest.useFakeTimers();
+    const frequency = PollingArticleResource.detail().pollFrequency as number;
+    expect(frequency).toBeDefined();
+    expect(
+      PollingArticleResource.detail().options?.pollFrequency,
+    ).toBeDefined();
+    expect(
+      PollingArticleResource.anotherDetail().options?.pollFrequency,
+    ).toBeDefined();
+
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      useSubscription(PollingArticleResource.detail(), articlePayload);
+      return useCache(PollingArticleResource.detail(), articlePayload);
+    });
+
+    await validateSubscription(
+      result,
+      frequency,
+      waitForNextUpdate,
+      articlePayload,
+    );
+    jest.useRealTimers();
+  });
+
+  it('useSubscription() should dispatch rest-hooks/subscribe only once even with rerender', () => {
     const fakeDispatch = jest.fn();
 
-    renderHook(
+    const { rerender } = renderHook(
       () => {
-        useSubscription(PollingArticleResource.pusher(), {});
+        useSubscription(PollingArticleResource.list(), { id: 5 });
       },
       {
         wrapper: function Wrapper({ children }: any) {
@@ -186,13 +163,37 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         },
       },
     );
-
-    const spy = fakeDispatch.mock.calls[0][0];
-    expect(spy.meta.options.extra.eventType).toEqual(
-      'PollingArticleResource:fetch',
-    );
+    expect(fakeDispatch.mock.calls.length).toBe(1);
+    for (let i = 0; i < 2; ++i) {
+      rerender();
+    }
+    expect(fakeDispatch.mock.calls.length).toBe(1);
   });
-}
+});
+
+it('useSubscription() should include extra options in dispatched meta', () => {
+  const fakeDispatch = jest.fn();
+
+  renderHook(
+    () => {
+      useSubscription(PollingArticleResource.pusher(), {});
+    },
+    {
+      wrapper: function Wrapper({ children }: any) {
+        return (
+          <DispatchContext.Provider value={fakeDispatch}>
+            {children}
+          </DispatchContext.Provider>
+        );
+      },
+    },
+  );
+
+  const spy = fakeDispatch.mock.calls[0][0];
+  expect(spy.meta.options.extra.eventType).toEqual(
+    'PollingArticleResource:fetch',
+  );
+});
 
 async function validateSubscription(
   result: {
