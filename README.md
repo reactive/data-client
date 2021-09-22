@@ -90,5 +90,5 @@ For the small price of 8kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 
 ### Special thanks
 
-Thanks to [@0xcaff](https://github.com/0xcaff), [@melissafzhang](https://github.com/melissafzhang)
+Thanks to [@0xcaff](https://github.com/0xcaff), [@melissafzhang](https://github.com/melissafzhang), [@arisaripin](https://github.com/arisaripin)
 and [@alexiswolfish](https://github.com/alexiswolfish) for their valuable feedback.
