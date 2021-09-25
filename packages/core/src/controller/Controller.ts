@@ -270,7 +270,7 @@ export default class Controller {
         expiresAt = Infinity;
         // using Object.keys ensures we don't hit `toString` type members
         Object.entries(resolvedEntities).forEach(([key, entities]) =>
-          entities.forEach(pk => {
+          Object.keys(entities).forEach(pk => {
             expiresAt = Math.min(
               expiresAt,
               state.entityMeta[key][pk].expiresAt,
