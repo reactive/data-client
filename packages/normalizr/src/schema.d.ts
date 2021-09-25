@@ -56,7 +56,7 @@ export interface SchemaSimple<T = any> {
     unvisit: UnvisitFunction,
   ): [denormalized: T, found: boolean, suspend: boolean];
   infer(
-    args: any[],
+    args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
   ): any;
@@ -102,7 +102,7 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
   _denormalizeNullable(): [Denormalize<S>[] | undefined, false, boolean];
 
   infer(
-    args: any[],
+    args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
   ): any;
@@ -134,7 +134,7 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
   _denormalizeNullable(): [DenormalizeNullableObject<O>, false, boolean];
 
   infer(
-    args: any[],
+    args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
   ): any;
@@ -180,7 +180,7 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
   ];
 
   infer(
-    args: any[],
+    args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
   ): any;
@@ -251,7 +251,7 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
   ];
 
   infer(
-    args: any[],
+    args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
   ): any;
