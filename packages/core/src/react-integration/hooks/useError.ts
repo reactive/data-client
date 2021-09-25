@@ -1,8 +1,9 @@
 import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
 import { NetworkError, UnknownError } from '@rest-hooks/core/types';
 import { StateContext } from '@rest-hooks/core/react-integration/context';
-import { useContext } from 'react';
-import { selectMeta } from '@rest-hooks/core/state/selectors/index';
+import { useContext, useMemo } from 'react';
+import useController from '@rest-hooks/core/react-integration/hooks/useController';
+import shapeToEndpoint from '@rest-hooks/core/endpoint/adapter';
 
 export type ErrorTypes = NetworkError | UnknownError;
 
@@ -19,14 +20,14 @@ export default function useError<
   params: ParamsFromShape<Shape> | null,
 ): UseErrorReturn<typeof params> {
   const state = useContext(StateContext);
-  const key = params ? fetchShape.getFetchKey(params) : '';
 
-  if (!key) return;
+  const controller = useController();
 
-  const meta = selectMeta(state, key);
-  const results = state.results[key];
+  const endpoint = useMemo(() => {
+    return shapeToEndpoint(fetchShape);
+    // we currently don't support shape changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  if (results !== undefined && meta?.errorPolicy === 'soft') return;
-
-  return meta?.error as any;
+  return controller.getError(endpoint, params, state) as any;
 }

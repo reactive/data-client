@@ -97,6 +97,14 @@ describe.each([
     renderRestHook = makeRenderRestHook(makeProvider);
   });
 
+  let errorspy: jest.SpyInstance;
+  beforeEach(() => {
+    errorspy = jest.spyOn(global.console, 'error');
+  });
+  afterEach(() => {
+    errorspy.mockRestore();
+  });
+
   it('should fetch', async () => {
     const { result } = renderRestHook(() => {
       return {
@@ -170,6 +178,40 @@ describe.each([
 
       expect(result.current.articles.map(({ id }) => id)).toEqual([1, 5, 3]);
     }
+  });
+
+  it('should log error message when user update method throws', async () => {
+    const endpoint = FutureArticleResource.create().extend({
+      update: () => {
+        throw new Error('usererror');
+      },
+    });
+    const response: ResolveType<typeof endpoint> = createPayload;
+    const fixtures: FixtureEndpoint[] = [
+      {
+        endpoint,
+        args: [{ id: 1 }],
+        response,
+      },
+    ];
+    const { result, waitForNextUpdate } = renderRestHook(
+      () => {
+        const articles = useResource(FutureArticleResource.list(), {});
+        const fetch = useController().fetch;
+        return { articles, fetch };
+      },
+      { resolverFixtures: fixtures },
+    );
+    await waitForNextUpdate();
+    await act(async () => {
+      await result.current.fetch(endpoint, {
+        id: 1,
+      });
+    }),
+      // still keeps old list
+      expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3]);
+
+    expect(errorspy.mock.calls).toMatchSnapshot();
   });
 
   it('should not suspend once deleted and redirected at same time', async () => {

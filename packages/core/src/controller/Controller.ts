@@ -1,15 +1,25 @@
-import type { ActionTypes } from '@rest-hooks/core/types';
+import type { ActionTypes, State } from '@rest-hooks/core/types';
 import type { EndpointInterface, ResolveType } from '@rest-hooks/endpoint';
 import createInvalidate from '@rest-hooks/core/controller/createInvalidate';
 import createFetch from '@rest-hooks/core/controller/createFetch';
 import createReset from '@rest-hooks/core/controller/createReset';
+import { selectMeta } from '@rest-hooks/core/state/selectors/index';
 import createReceive from '@rest-hooks/core/controller/createReceive';
+import { NetworkError, UnknownError } from '@rest-hooks/core/types';
 import {
   createUnsubscription,
   createSubscription,
 } from '@rest-hooks/core/controller/createSubscription';
 import type { EndpointUpdateFunction } from '@rest-hooks/core/controller/types';
-import type { DenormalizeCache } from '@rest-hooks/normalizr';
+import {
+  denormalize,
+  DenormalizeCache,
+  DenormalizeNullable,
+  isEntity,
+  Schema,
+  WeakListMap,
+} from '@rest-hooks/normalizr';
+import { inferResults } from '@rest-hooks/normalizr';
 
 type RHDispatch = (value: ActionTypes) => Promise<void>;
 
@@ -159,16 +169,158 @@ export default class Controller {
     endpoint: E,
     ...args: readonly [...Parameters<E>] | readonly [null]
   ): Promise<void>
-
-  getResponse = <E extends EndpointInterface>(
-    endpoint: E,
-    ...args: readonly [...Parameters<E>, State<unknown>]
-  ): [value, expiresAt]
-
-  getError = <E extends EndpointInterface>(
-    endpoint: E,
-    ...args: readonly [...Parameters<E>, State<unknown>]
-  ): error
-
   */
+
+  getError = <E extends Pick<EndpointInterface, 'key'>>(
+    endpoint: E,
+    ...rest:
+      | readonly [...Parameters<E['key']>, State<unknown>]
+      | readonly [null, State<unknown>]
+  ): ErrorTypes | undefined => {
+    const state = rest[rest.length - 1] as State<unknown>;
+    const args = rest.slice(0, rest.length - 1) as Parameters<E['key']>;
+    if (args?.[0] === null) return;
+    const key = endpoint.key(...args);
+
+    const meta = selectMeta(state, key);
+    const results = state.results[key];
+
+    if (results !== undefined && meta?.errorPolicy === 'soft') return;
+
+    return meta?.error as any;
+  };
+
+  getResponse = <E extends Pick<EndpointInterface, 'key' | 'schema'>>(
+    endpoint: E,
+    ...rest:
+      | readonly [...Parameters<E['key']>, State<unknown>]
+      | readonly [null, State<unknown>]
+  ): {
+    data: DenormalizeNullable<E['schema']>;
+    suspend: boolean;
+    found: boolean;
+    expiresAt: number;
+  } => {
+    const state = rest[rest.length - 1] as State<unknown>;
+    const args = rest.slice(0, rest.length - 1) as Parameters<E['key']>;
+    const activeArgs = args?.[0] !== null;
+    const key = activeArgs ? endpoint.key(...args) : '';
+    const cacheResults = activeArgs && state.results[key];
+    const schema = endpoint.schema;
+
+    const results = this.getResults(
+      endpoint.schema,
+      cacheResults,
+      args,
+      state.indexes,
+    );
+
+    if (!endpoint.schema || !schemaHasEntity(endpoint.schema)) {
+      return {
+        data: results,
+        suspend: false,
+        found: cacheResults !== undefined,
+        expiresAt: selectMeta(state, key)?.expiresAt || 0,
+      } as {
+        data: DenormalizeNullable<E['schema']>;
+        suspend: boolean;
+        found: boolean;
+        expiresAt: number;
+      };
+    }
+    // Warn users with bad configurations
+    /* istanbul ignore next */
+    if (process.env.NODE_ENV !== 'production' && schema && isEntity(schema)) {
+      if (Array.isArray(results)) {
+        throw new Error(
+          `fetch key ${key} has list results when single result is expected`,
+        );
+      }
+      if (typeof results === 'object') {
+        throw new Error(
+          `fetch key ${key} has object results when single result is expected`,
+        );
+      }
+    }
+
+    if (activeArgs && !this.globalCache.results[key])
+      this.globalCache.results[key] = new WeakListMap();
+
+    // second argument is false if any entities are missing
+    // eslint-disable-next-line prefer-const
+    const [data, found, suspend, resolvedEntities] = denormalize(
+      results,
+      schema,
+      state.entities,
+      this.globalCache.entities,
+      activeArgs ? this.globalCache.results[key] : undefined,
+    ) as [
+      DenormalizeNullable<E['schema']>,
+      boolean,
+      boolean,
+      Record<string, Record<string, any>>,
+    ];
+
+    let expiresAt = selectMeta(state, key)?.expiresAt;
+    // fallback to entity expiry time
+    if (!expiresAt) {
+      // expiresAt existance is equivalent to cacheResults
+      if (found) {
+        // oldest entity dictates age
+        expiresAt = Infinity;
+        // using Object.keys ensures we don't hit `toString` type members
+        Object.keys(resolvedEntities).forEach(key =>
+          Object.keys(resolvedEntities[key]).forEach(pk => {
+            expiresAt = Math.min(
+              expiresAt,
+              state.entityMeta[key][pk].expiresAt,
+            );
+          }),
+        );
+      } else {
+        expiresAt = 0;
+      }
+    }
+
+    // only require finding all entities if we are inferring results
+    // deletion is separate count, and thus will still trigger
+    // only require finding all entities if we are inferring results
+    // deletion is separate count, and thus will still trigger
+    return { data, suspend, found: !!cacheResults || found, expiresAt };
+  };
+
+  private getResults = (
+    schema: Schema | undefined,
+    cacheResults: any,
+    args: any[],
+    indexes: any,
+  ) => {
+    if (cacheResults || schema === undefined) return cacheResults;
+
+    return inferResults(schema, args, indexes);
+  };
 }
+
+/** Determine whether the schema has any entities.
+ *
+ * Without entities, denormalization is not needed, and results should not be inferred.
+ */
+function schemaHasEntity(schema: Schema): boolean {
+  if (isEntity(schema)) return true;
+  if (Array.isArray(schema))
+    return schema.length !== 0 && schemaHasEntity(schema[0]);
+  if (schema && (typeof schema === 'object' || typeof schema === 'function')) {
+    const nestedSchema =
+      'schema' in schema ? (schema.schema as Record<string, Schema>) : schema;
+    if (typeof nestedSchema === 'function') {
+      return schemaHasEntity(nestedSchema);
+    }
+    return Object.values(nestedSchema).reduce(
+      (prev, cur) => prev || schemaHasEntity(cur),
+      false,
+    );
+  }
+  return false;
+}
+
+export type ErrorTypes = NetworkError | UnknownError;

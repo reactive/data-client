@@ -2,17 +2,13 @@ import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
 import { DenormalizeNullable } from '@rest-hooks/endpoint';
 import { useDenormalized } from '@rest-hooks/core/state/selectors/index';
 import { useContext, useMemo } from 'react';
-import {
-  DenormalizeCacheContext,
-  StateContext,
-} from '@rest-hooks/core/react-integration/context';
+import { StateContext } from '@rest-hooks/core/react-integration/context';
 import {
   hasUsableData,
   useMeta,
   useError,
 } from '@rest-hooks/core/react-integration/hooks/index';
 import { denormalize, inferResults } from '@rest-hooks/normalizr';
-import useExpiresAt from '@rest-hooks/core/react-integration/hooks/useExpiresAt';
 
 /**
  * Access a resource if it is available.
@@ -27,15 +23,12 @@ export default function useCache<
   params: ParamsFromShape<Shape> | null,
 ): DenormalizeNullable<Shape['schema']> {
   const state = useContext(StateContext);
-  const denormalizeCache = useContext(DenormalizeCacheContext);
 
-  const [denormalized, ready, deleted, entitiesExpireAt] = useDenormalized(
+  const [denormalized, ready, deleted, expiresAt] = useDenormalized(
     fetchShape,
     params,
     state,
-    denormalizeCache,
   );
-  const expiresAt = useExpiresAt(fetchShape, params, entitiesExpireAt);
   const error = useError(fetchShape, params);
   const trigger = deleted && !error;
 
