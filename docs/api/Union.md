@@ -33,7 +33,7 @@ class User extends Entity {
 }
 class Group extends Entity {
   readonly id: number = 0;
-  readonly type = 'admin' as const;
+  readonly type = 'group' as const;
   pk() { return `${this.id}`; }
 }
 const unionSchema = new schema.Union(
