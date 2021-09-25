@@ -269,8 +269,8 @@ export default class Controller {
         // oldest entity dictates age
         expiresAt = Infinity;
         // using Object.keys ensures we don't hit `toString` type members
-        Object.keys(resolvedEntities).forEach(key =>
-          Object.keys(resolvedEntities[key]).forEach(pk => {
+        Object.entries(resolvedEntities).forEach(([key, entities]) =>
+          entities.forEach(pk => {
             expiresAt = Math.min(
               expiresAt,
               state.entityMeta[key][pk].expiresAt,
@@ -315,10 +315,7 @@ function schemaHasEntity(schema: Schema): boolean {
     if (typeof nestedSchema === 'function') {
       return schemaHasEntity(nestedSchema);
     }
-    return Object.values(nestedSchema).reduce(
-      (prev, cur) => prev || schemaHasEntity(cur),
-      false,
-    );
+    return Object.values(nestedSchema).some(x => schemaHasEntity(x));
   }
   return false;
 }
