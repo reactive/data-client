@@ -248,7 +248,11 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     return expiresAt;
   }
 
-  static infer(args: any[], indexes: Record<string, any>, infer: any): any {
+  static infer(
+    args: readonly any[],
+    indexes: Record<string, any>,
+    infer: any,
+  ): any {
     if (!args[0]) return undefined as any;
     const id = this.pk(args[0], undefined, '');
     // Was able to infer the entity's primary key from params

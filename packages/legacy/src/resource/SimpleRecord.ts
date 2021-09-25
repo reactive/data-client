@@ -123,7 +123,7 @@ export default abstract class SimpleRecord {
 
   static infer<T extends typeof SimpleRecord>(
     this: T,
-    args: any[],
+    args: readonly any[],
     indexes: any,
     recurse: any,
   ): NormalizedEntity<T> {

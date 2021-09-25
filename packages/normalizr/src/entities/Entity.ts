@@ -301,7 +301,11 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     }
   }
 
-  static infer(args: any[], indexes: NormalizedIndex, recurse: any): any {
+  static infer(
+    args: readonly any[],
+    indexes: NormalizedIndex,
+    recurse: any,
+  ): any {
     if (!args[0]) return undefined;
     const id = this.pk(args[0], undefined, '');
     // Was able to infer the entity's primary key from params

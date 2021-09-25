@@ -55,7 +55,12 @@ export const denormalize = (schema: any, input: any, unvisit: any) => {
   return [object, found, deleted];
 };
 
-export function infer(schema: any, args: any[], indexes: any, recurse: any) {
+export function infer(
+  schema: any,
+  args: readonly any[],
+  indexes: any,
+  recurse: any,
+) {
   const resultObject: any = {};
   for (const k of Object.keys(schema)) {
     resultObject[k] = recurse(schema[k], args, indexes);
@@ -93,7 +98,7 @@ export default class ObjectSchema {
     return denormalize(this.schema, ...args);
   }
 
-  infer(args: any, indexes: any, recurse: any) {
+  infer(args: readonly any[], indexes: any, recurse: any) {
     return infer(this.schema, args, indexes, recurse);
   }
 }
