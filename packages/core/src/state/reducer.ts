@@ -99,7 +99,7 @@ export default function reducer(
           // no reason to completely fail because of user-code error
           // integrity of this state update is still guaranteed
         } catch (error) {
-          console.log(
+          console.error(
             `The following error occured during Endpoint.update() for ${action.meta.key}`,
           );
           console.error(error);
@@ -132,6 +132,7 @@ export default function reducer(
         error.payload = action.payload;
         error.status = 400;
         // this is not always bubbled up, so let's double sure this doesn't fail silently
+        /* istanbul ignore else */
         if (process.env.NODE_ENV !== 'production') {
           console.error(error);
         }

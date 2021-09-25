@@ -9,6 +9,8 @@ import {
   inferResults,
 } from '@rest-hooks/normalizr';
 import { useMemo } from 'react';
+import useController from '@rest-hooks/core/react-integration/hooks/useController';
+import shapeToEndpoint from '@rest-hooks/core/endpoint/adapter';
 
 /**
  * Selects the denormalized form from `state` cache.
@@ -25,131 +27,44 @@ export default function useDenormalized<
     'getFetchKey' | 'schema' | 'options'
   >,
 >(
-  { schema, getFetchKey }: Shape,
+  shape: Shape,
   params: ParamsFromShape<Shape> | null,
   state: State<any>,
-  denormalizeCache: DenormalizeCache = { entities: {}, results: {} },
+  /** @deprecated */
+  denormalizeCache?: any,
 ): [
   denormalized: DenormalizeNullable<Shape['schema']>,
   found: typeof params extends null ? false : boolean,
   deleted: boolean,
-  entitiesExpireAt: number,
+  expiresAt: number,
 ] {
-  const entities = state.entities;
-  const entityMeta = state.entityMeta;
-  const cacheResults = params && state.results[getFetchKey(params)];
-  const serializedParams = params && getFetchKey(params);
+  const controller = useController();
 
-  // We can grab entities without actual results if the params compute a primary key
-  const results = useMemo(() => {
-    if (cacheResults || schema === undefined) return cacheResults;
-
-    // in case we don't even have entities for a model yet, denormalize() will throw
-    // entities[entitySchema.key] === undefined
-    return inferResults(schema, [params], state.indexes);
+  const endpoint = useMemo(() => {
+    return shapeToEndpoint(shape);
+    // we currently don't support shape changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cacheResults, state.indexes, serializedParams]);
-  // TODO: only update when relevant indexes change
+  }, []);
 
-  const needsDenormalization = useMemo(
-    () => schema && schemaHasEntity(schema),
-    [schema],
-  );
+  const key = params !== null ? endpoint.key(params) : '';
+  const cacheResults = params && state.results[key];
 
   // Compute denormalized value
-  return useMemo(() => {
-    if (!needsDenormalization) {
-      return [results, cacheResults !== undefined, false, 0] as [
-        DenormalizeNullable<Shape['schema']>,
-        any,
-        boolean,
-        number,
-      ];
-    }
-    // Warn users with bad configurations
-    /* istanbul ignore next */
-    if (process.env.NODE_ENV !== 'production' && schema && isEntity(schema)) {
-      const paramEncoding = serializedParams || '';
-      if (Array.isArray(results)) {
-        throw new Error(
-          `fetch key ${paramEncoding} has list results when single result is expected`,
-        );
-      }
-      if (typeof results === 'object') {
-        throw new Error(
-          `fetch key ${paramEncoding} has object results when single result is expected`,
-        );
-      }
-    }
-
-    if (params && !denormalizeCache.results[getFetchKey(params)])
-      denormalizeCache.results[getFetchKey(params)] = new WeakListMap();
-
-    // second argument is false if any entities are missing
-    // eslint-disable-next-line prefer-const
-    const [value, found, deleted, resolvedEntities] = denormalize(
-      results,
-      schema,
-      entities,
-      denormalizeCache.entities,
-      params ? denormalizeCache.results[getFetchKey(params)] : undefined,
-    ) as [
-      DenormalizeNullable<Shape['schema']>,
-      boolean,
-      boolean,
-      Record<string, Record<string, any>>,
-    ];
-
-    // only require finding all entities if we are inferring results
-    // deletion is separate count, and thus will still trigger
-    // if we remove cacheResults escape here, we need to validate we don't infinite loop
-    // in packages/core/src/react-integration/__tests__/useResource.web.tsx
-    const ready = !!cacheResults || found;
-
-    // oldest entity dictates age
-    let expiresAt = Infinity;
-    if (ready) {
-      // using Object.keys ensures we don't hit `toString` type members
-      Object.keys(resolvedEntities).forEach(key =>
-        Object.keys(resolvedEntities[key]).forEach(pk => {
-          expiresAt = Math.min(expiresAt, entityMeta[key][pk].expiresAt);
-        }),
-      );
-    } else {
-      expiresAt = 0;
-    }
-
-    return [value, ready, deleted, expiresAt];
-    // TODO: would be nice to make this only recompute on the entity types that are in schema
+  const { data, found, suspend, expiresAt } = useMemo(() => {
+    return controller.getResponse(endpoint, params, state) as {
+      data: DenormalizeNullable<Shape['schema']>;
+      found: boolean;
+      suspend: boolean;
+      expiresAt: number;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    entities,
-    entityMeta,
-    serializedParams,
-    results,
     cacheResults,
-    needsDenormalization,
+    state.indexes,
+    state.entities,
+    state.entityMeta,
+    key,
+    cacheResults,
   ]);
-}
-
-/** Determine whether the schema has any entities.
- *
- * Without entities, denormalization is not needed, and results should not be inferred.
- */
-function schemaHasEntity(schema: Schema): boolean {
-  if (isEntity(schema)) return true;
-  if (Array.isArray(schema))
-    return schema.length !== 0 && schemaHasEntity(schema[0]);
-  if (schema && (typeof schema === 'object' || typeof schema === 'function')) {
-    const nestedSchema =
-      'schema' in schema ? (schema.schema as Record<string, Schema>) : schema;
-    if (typeof nestedSchema === 'function') {
-      return schemaHasEntity(nestedSchema);
-    }
-    return Object.values(nestedSchema).reduce(
-      (prev, cur) => prev || schemaHasEntity(cur),
-      false,
-    );
-  }
-  return false;
+  return [data, found as any, suspend, expiresAt];
 }
