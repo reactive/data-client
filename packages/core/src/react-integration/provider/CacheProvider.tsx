@@ -51,7 +51,7 @@ export default function CacheProvider({
           initialState={initialState}
         >
           {children}
-        </CacheStore>{' '}
+        </CacheStore>
       </DenormalizeCacheContext.Provider>
     </ControllerContext.Provider>
   );
