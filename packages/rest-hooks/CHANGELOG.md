@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.1.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.1.0...rest-hooks@6.1.1) (2021-09-29)
+
+
+### 📝 Documentation
+
+* Homepage has live code preview ([#1225](https://github.com/coinbase/rest-hooks/issues/1225)) ([1263430](https://github.com/coinbase/rest-hooks/commit/12634308d513fd252b5f33ba3255cc548028b889))
+
+
+
 ## [6.1.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.0.1...rest-hooks@6.1.0) (2021-09-19)
 
 

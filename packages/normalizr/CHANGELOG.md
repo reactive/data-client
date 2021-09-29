@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [8.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.0.0...@rest-hooks/normalizr@8.0.1) (2021-09-29)
+
+
+### 💅 Enhancement
+
+* infer() args are readonly ([#1293](https://github.com/coinbase/rest-hooks/issues/1293)) ([2dd880f](https://github.com/coinbase/rest-hooks/commit/2dd880f2815ca43ecb9bba70a10464133da8f88b))
+
+
+
 ## [8.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.0.0-beta.2...@rest-hooks/normalizr@8.0.0) (2021-09-08)
 
 

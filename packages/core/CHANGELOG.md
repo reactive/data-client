@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.1.0...@rest-hooks/core@2.2.0) (2021-09-29)
+
+
+### 🚀 Features
+
+* Add controller.getResponse() & controller.getError() ([#1290](https://github.com/coinbase/rest-hooks/issues/1290)) ([2434d95](https://github.com/coinbase/rest-hooks/commit/2434d95d6d3a546b448790058c3fd8e779a1da4d))
+
+
+### 💅 Enhancement
+
+* Improve compatibility with SSR and React Native ([#1308](https://github.com/coinbase/rest-hooks/issues/1308)) ([de4c1a4](https://github.com/coinbase/rest-hooks/commit/de4c1a4def0bf05236ce4138e3ab96cc24ace568))
+
+
+### 🐛 Bug Fix
+
+* Compatibility with React Native in CacheProvider ([#1307](https://github.com/coinbase/rest-hooks/issues/1307)) ([f021905](https://github.com/coinbase/rest-hooks/commit/f021905e3f31fadc68f6b27a6219db8b232a74f8)), closes [#1306](https://github.com/coinbase/rest-hooks/issues/1306)
+
+
+
 ## [2.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.1...@rest-hooks/core@2.1.0) (2021-09-19)
 
 

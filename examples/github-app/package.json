@@ -1,6 +1,6 @@
 {
   "name": "github-app",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "github-app - A rest hooks example",
   "scripts": {
     "lint": "eslint src --ext .ts,.tsx",
@@ -47,6 +47,6 @@
     "react-error-boundary": "^3.1.3",
     "react-markdown": "^7.0.1",
     "react-router-dom": "^5.2.1",
-    "rest-hooks": "^6.1.0"
+    "rest-hooks": "^6.1.1"
   }
 }
