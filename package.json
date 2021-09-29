@@ -84,6 +84,5 @@
   },
   "resolutions": {
     "@lerna/conventional-commits": "https://github.com/ntucker/lerna-conventional-commits.git"
-  },
-  "version": "0.0.0"
+  }
 }
