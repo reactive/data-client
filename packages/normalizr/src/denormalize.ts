@@ -37,6 +37,16 @@ const unvisitEntity = (
   if (entity === DELETED) {
     return [undefined, true, true];
   }
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    typeof entity === 'symbol' &&
+    (entity as symbol).toString().includes('DELETED')
+  ) {
+    throw new Error(
+      `Unrecognized symbol detected.
+Make sure you do not have multiple versions of @rest-hooks/normalizr installed.`,
+    );
+  }
   if (typeof entity !== 'object' || entity === null) {
     return [entity, false, false];
   }
