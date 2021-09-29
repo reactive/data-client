@@ -407,6 +407,19 @@ describe('denormalize', () => {
     ).toMatchSnapshot();
   });
 
+  test('denormalizes throws when unknown symbol is found as entity', () => {
+    const entities = {
+      Tacos: {
+        1: Symbol('ENTITY WAS DELETED'),
+      },
+    };
+    expect(() => denormalize(['1', '2'], [Tacos], entities))
+      .toThrowErrorMatchingInlineSnapshot(`
+      "Unrecognized symbol detected.
+      Make sure you do not have multiple versions of @rest-hooks/normalizr installed."
+    `);
+  });
+
   test('denormalizes ignoring deleted entities in arrays', () => {
     const entities = {
       Tacos: {
