@@ -112,14 +112,10 @@
   },
   "peerDependencies": {
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
-    "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
-    "react-native": ">=0.59"
+    "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0"
   },
   "peerDependenciesMeta": {
     "@types/react": {
-      "optional": true
-    },
-    "react-native": {
       "optional": true
     }
   }
