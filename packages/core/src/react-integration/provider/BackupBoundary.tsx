@@ -1,7 +1,16 @@
-import React, { Suspense, memo } from 'react';
-import { useMemo } from 'react';
+import React, { Suspense, memo, useMemo, version } from 'react';
 
-function BackupBoundary({ children }: { children: React.ReactNode }) {
+function BackupBoundary({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element {
+  // since Suspense does not introduce DOM elements, this should not affect rehydration.
+  if (
+    (version.startsWith('16') || version.startsWith('17')) &&
+    typeof window === 'undefined'
+  )
+    return children as JSX.Element;
   return <Suspense fallback={<Loading />}>{children}</Suspense>;
 }
 export default memo(BackupBoundary);
@@ -22,7 +31,7 @@ Make sure to add your own Suspense boundaries: https://resthooks.io/docs/getting
     message = (
       <>
         <span>Uncaught Suspense.</span>
-        Try{' '}
+        Try
         <a href="https://resthooks.io/docs/getting-started/data-dependency#async-fallbacks">
           adding a suspense boundary
         </a>

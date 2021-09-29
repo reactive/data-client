@@ -15,7 +15,7 @@ const dependencies = Object.keys(pkg.dependencies)
       !['@rest-hooks/use-enhanced-reducer', '@babel/runtime'].includes(dep),
   );
 
-const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
+const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node', '.jsx'];
 const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
 process.env.RESOLVER_ALIAS = '{"@rest-hooks/core":"./src"}';
