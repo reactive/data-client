@@ -1,6 +1,6 @@
 {
   "name": "normalizr-github-example",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "And example of using Normalizr with github",
   "main": "index.js",
   "author": "Paul Armstrong",
@@ -10,6 +10,6 @@
     "start": "babel-node ./ --root-mode upward --extensions '.ts,.tsx,.js'"
   },
   "dependencies": {
-    "@rest-hooks/normalizr": "^8.0.1"
+    "@rest-hooks/normalizr": "^8.0.2"
   }
 }

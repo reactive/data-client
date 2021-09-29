@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [8.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.0.1...@rest-hooks/normalizr@8.0.2) (2021-09-29)
+
+
+### 💅 Enhancement
+
+* Detect multiple normalizr copies installed ([#1314](https://github.com/coinbase/rest-hooks/issues/1314)) ([f16ea01](https://github.com/coinbase/rest-hooks/commit/f16ea013938f7069c408ef0483fc58c09965479d))
+
+
+
 ### [8.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.0.0...@rest-hooks/normalizr@8.0.1) (2021-09-29)
 
 
