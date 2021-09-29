@@ -1,18 +1,15 @@
 import React, { Suspense, memo, useMemo, version } from 'react';
 
-function BackupBoundary({
-  children,
-}: {
-  children: React.ReactNode;
-}): JSX.Element {
-  // since Suspense does not introduce DOM elements, this should not affect rehydration.
-  if (
-    (version.startsWith('16') || version.startsWith('17')) &&
-    typeof window === 'undefined'
-  )
-    return children as JSX.Element;
-  return <Suspense fallback={<Loading />}>{children}</Suspense>;
-}
+const NoSuspense =
+  (version.startsWith('16') || version.startsWith('17')) &&
+  typeof window === 'undefined';
+
+// since Suspense does not introduce DOM elements, this should not affect rehydration.
+const BackupBoundary: React.FunctionComponent<{ children: React.ReactNode }> =
+  NoSuspense
+    ? ({ children }) => children as JSX.Element
+    : ({ children }) => <Suspense fallback={<Loading />}>{children}</Suspense>;
+
 export default memo(BackupBoundary);
 
 function Loading() {
