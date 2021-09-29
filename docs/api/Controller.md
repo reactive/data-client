@@ -218,3 +218,66 @@ Marks completion of subscription to a given [Endpoint](./Endpoint.md). This shou
 decrement the subscription and if the count reaches 0, more updates won't be received automatically.
 
 [useSubscription](./useSubscription.md) calls this on unmount.
+
+## getResponse(endpoint, ...args, state) {#getResponse}
+
+Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
+
+This is used in [useCache](./useCache.md), [useResource](./useResource.md) and can be used in
+[Managers](./Manager.md) to lookup a response with the state provided.
+
+```tsx title="useCache.ts"
+import {
+  useController,
+  StateContext,
+  EndpointInterface,
+} from '@rest-hooks/core';
+
+/** Oversimplified useCache */
+function useCache<E extends EntityInterface>(
+  endpoint: E,
+  ...args: readonly [...Parameters<E>]
+) {
+  const state = useContext(StateContext);
+  const controller = useController();
+  return controller.getResponse(endpoint, ...args, state);
+}
+```
+
+```tsx title="MyManager.ts"
+import type { Manager, Middleware, actionTypes } from '@rest-hooks/core';
+import type { EndpointInterface } from '@rest-hooks/endpoint';
+
+export default class MyManager implements Manager {
+  protected declare middleware: Middleware;
+  constructor() {
+    this.middleware = ({ controller, getState }) => {
+      return next => async action => {
+        if (action.type === actionTypes.FETCH_TYPE) {
+          console.log('The existing response of the requested fetch');
+          console.log(
+            controller.getResponse(
+              action.endpoint,
+              ...(action.meta.args as Parameters<typeof action.endpoint>),
+              getState(),
+            ),
+          );
+        }
+        next(action);
+      };
+    };
+  }
+
+  cleanup() {
+    this.websocket.close();
+  }
+
+  getMiddleware<T extends StreamManager>(this: T) {
+    return this.middleware;
+  }
+}
+```
+
+## getError(endpoint, ...args, state) {#getError}
+
+Gets the error, if any, for a given endpoint. Returns undefined for no errors.
