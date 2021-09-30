@@ -617,7 +617,7 @@ describe('useResource()', () => {
     // undefined means it threw
     expect(result.current).toBeUndefined();
     await waitForNextUpdate();
-    expect(result.current).toStrictEqual(response);
+    expect(result.current).toEqual(response);
   });
 
   it('should work with Serializable shapes', async () => {
