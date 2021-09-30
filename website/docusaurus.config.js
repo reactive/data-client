@@ -119,11 +119,11 @@ module.exports = {
           },
           {
             to: '/docs/concepts/loading-state',
-            from: ['/docs/getting-started/loading-state'],
+            from: ['/docs/guides/loading-state'],
           },
           {
             to: '/docs/concepts/network-errors',
-            from: ['/docs/getting-started/network-errors'],
+            from: ['/docs/guides/network-errors'],
           },
           {
             to: '/docs/getting-started/entity',
