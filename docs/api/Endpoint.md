@@ -172,6 +172,8 @@ When provided, any fetches with this endpoint will behave as though the `fakePay
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
 
+[Optimistic update guide](../guides/optimistic-updates.md)
+
 #### update(normalizedResponseOfThis) => ({ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
 
 ```ts title="UpdateType.ts"
