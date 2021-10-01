@@ -1,6 +1,7 @@
 ---
 title: Mocking data for Storybook
 ---
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
@@ -9,19 +10,19 @@ testing, potentially speeding up development time greatly.
 
 [<MockResolver /\>](../api/MockResolver.md) enables easy loading of fixtures to see what
 different network responses might look like. It can be layered, composed, and even used
-for [imperative fetches](../api/Controller.md) like [create](../api/resource#create-endpoint) and [update](../api/resource#update-endpoint).
+for [imperative fetches](../api/Controller.md#fetch) usually used with side-effect endpoints like [create](../api/resource#create-endpoint) and [update](../api/resource#update-endpoint).
 
 ## Setup
 
 <Tabs
 defaultValue="ArticleResource.ts"
 values={[
-{ label: 'ArticleResource.ts', value: 'ArticleResource.ts' },
-{ label: 'ArticleList.tsx', value: 'ArticleList.tsx' },
+{ label: 'Resource', value: 'ArticleResource.ts' },
+{ label: 'Component', value: 'ArticleList.tsx' },
 ]}>
 <TabItem value="ArticleResource.ts">
 
-```typescript
+```typescript title="ArticleResource.ts"
 export default class ArticleResource extends Resource {
   readonly id: number | undefined = undefined;
   readonly content: string = '';
@@ -32,13 +33,14 @@ export default class ArticleResource extends Resource {
     return this.id?.toString();
   }
   static urlRoot = 'http://test.com/article/';
+  declare static fixtures: Record<string, FixtureEndpoint>;
 }
 ```
 
 </TabItem>
 <TabItem value="ArticleList.tsx">
 
-```tsx
+```tsx title="ArticleList.tsx"
 import ArticleResource from 'resources/ArticleResource';
 import ArticleSummary from './ArticleSummary';
 
@@ -62,60 +64,59 @@ export default function ArticleList({ maxResults }: { maxResults: number }) {
 We'll test three cases: some interesting results in the list, an empty list, and data not
 existing so loading fallback is shown.
 
-<details open><summary><b>fixtures.ts</b></summary>
-
-```typescript
-export default {
-  full: [
-    {
-      endpoint: ArticleResource.list(),
-      args: [{ maxResults: 10 }] as const,
-      response: [
-        {
-          id: 5,
-          content: 'have a merry christmas',
-          author: 2,
-          contributors: [],
-        },
-        {
+```typescript title="ArticleResource.ts"
+// leave out in production so we don't bloat the bundle
+if (process.env.NODE_ENV !== 'production') {
+  ArticleResource.fixtures = {
+    full: [
+      {
+        endpoint: ArticleResource.list(),
+        args: [{ maxResults: 10 }] as const,
+        response: [
+          {
+            id: 5,
+            content: 'have a merry christmas',
+            author: 2,
+            contributors: [],
+          },
+          {
+            id: 532,
+            content: 'never again',
+            author: 23,
+            contributors: [5],
+          },
+        ],
+      },
+      {
+        endpoint: ArticleResource.update(),
+        args: [{ id: 532 }] as const,
+        response: {
           id: 532,
-          content: 'never again',
+          content: 'updated "never again"',
           author: 23,
           contributors: [5],
         },
-      ],
-    },
-    {
-      endpoint: ArticleResource.update(),
-      args: [{ id: 532 }] as const,
-      response: {
-        id: 532,
-        content: 'updated "never again"',
-        author: 23,
-        contributors: [5],
       },
-    },
-  ],
-  empty: [
-    {
-      endpoint: ArticleResource.list(),
-      args: [{ maxResults: 10 }] as const,
-      response: [],
-    },
-  ],
-  error: [
-    {
-      endpoint: ArticleResource.list(),
-      args: [{ maxResults: 10 }] as const,
-      response: { message: 'Bad request', status: 400, name: 'Not Found' },
-      error: true,
-    },
-  ],
-  loading: [],
-};
+    ],
+    empty: [
+      {
+        endpoint: ArticleResource.list(),
+        args: [{ maxResults: 10 }] as const,
+        response: [],
+      },
+    ],
+    error: [
+      {
+        endpoint: ArticleResource.list(),
+        args: [{ maxResults: 10 }] as const,
+        response: { message: 'Bad request', status: 400, name: 'Not Found' },
+        error: true,
+      },
+    ],
+    loading: [],
+  };
+}
 ```
-
-</details>
 
 ## Decorators
 
@@ -144,7 +145,7 @@ export const decorators = [
 
 ## Story
 
-Wrapping our component with \<MockResolver /> enables us to declaratively
+Wrapping our component with [<MockResolver /\>](../api/MockResolver.md) enables us to declaratively
 control how Rest Hooks' fetches are resolved.
 
 Here we select which fixtures should be used by [storybook controls](https://storybook.js.org/docs/react/essentials/controls).
