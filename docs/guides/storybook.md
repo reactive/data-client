@@ -158,7 +158,7 @@ import type { Fixture } from '@rest-hooks/test';
 import { Story } from '@storybook/react/types-6-0';
 
 import ArticleList from 'ArticleList';
-import options from './fixtures';
+import ArticleResource from 'resources/ArticleResource';
 
 export default {
   title: 'Pages/ArticleList',
@@ -169,7 +169,7 @@ export default {
       defaultValue: 'full',
       control: {
         type: 'select',
-        options: Object.keys(options),
+        options: Object.keys(ArticleResource.fixtures),
       },
     },
   },

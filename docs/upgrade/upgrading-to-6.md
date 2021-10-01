@@ -5,6 +5,34 @@ import BeforeAfterTabs from '@site/src/components/BeforeAfterTabs';
 
 ## Highlights
 
+### Package compatibility
+
+Be sure to upgrade these packages prior to upgrading Rest Hooks itself. They maintain compatibility
+with rest hooks 5.
+
+- [@rest-hooks/test](https://www.npmjs.com/package/@rest-hooks/test) >= 6.2
+- [@rest-hooks/legacy](https://www.npmjs.com/package/@rest-hooks/legacy) >= 2.3.0
+- [@rest-hooks/hooks](https://www.npmjs.com/package/@rest-hooks/hooks) >= 1.4
+- [@rest-hooks/img](https://www.npmjs.com/package/@rest-hooks/img) >= 0.4.0
+
+Upgrade at the same time:
+
+[@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest) 3.0 drops compatibility with
+older versions, so this will have to be upgraded in unison. All breaking changes [are listed below](#rest-hooksrest-changes-from-2---3)
+
+:::caution
+
+npm 7 is buggy and installs multiple versions when peerDeps are specified.
+
+Due to this it is recommended to either use [yarn](https://yarnpkg.com/) or try the following:
+
+```bash
+npm uninstall rest-hooks @rest-hooks/rest
+npm install --save rest-hooks @rest-hooks/rest
+```
+
+:::
+
 ### Exports moved to [@rest-hooks/legacy](https://www.npmjs.com/package/@rest-hooks/legacy).
 
 FlatEntity, SimpleRecord, NestedEntity, schemas, isEntity, Entity, Resource, SimpleResource, SchemaDetail, SchemaList, Method
