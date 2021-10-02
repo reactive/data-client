@@ -483,7 +483,11 @@
         },
         {
           "type": "doc",
-          "id": "upgrade/upgrading-test-to-three"
+          "id": "upgrade/upgrading-test-to-seven"
+        },
+        {
+          "type": "doc",
+          "id": "upgrade/upgrading-test-to-six"
         },
         {
           "type": "doc",
@@ -491,7 +495,7 @@
         },
         {
           "type": "doc",
-          "id": "upgrade/upgrading-test-to-six"
+          "id": "upgrade/upgrading-test-to-three"
         }
       ]
     }

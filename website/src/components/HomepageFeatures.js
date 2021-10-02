@@ -2,6 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import Link from '@docusaurus/Link';
 
 import styles from './HomepageFeatures.module.css';
 
@@ -9,14 +10,14 @@ const FeatureList = [
   {
     description: (
       <>
-        Rest hooks&apos; TypeScript definitions will infer <b>specific</b> and{' '}
-        <b>accurate</b> types based on your definition of the data. Predictable
-        results means <b>no surprises</b> at runtime.
+        Strong <b>inferred</b> types; single source of truth that is
+        referentially stable ensures consistency; <b>asynchronous invariants</b>{' '}
+        make it easy to avoid race conditions
       </>
     ),
     light: '/img/typescript.svg',
     dark: '/img/typescript.dark.svg',
-    title: 'Strongly Typed',
+    title: 'Data Integrity',
   },
   {
     description: (
@@ -26,28 +27,34 @@ const FeatureList = [
         over the network.
       </>
     ),
-    Svg: require(`../../static/img/space-shuttle-solid.svg`).default,
-    title: 'Fast',
+    Svg: require(`../../static/img/fast-car.svg`).default,
+    title: 'Performance',
   },
   {
     description: (
       <>
-        <b>Declare</b> what you need <b>where</b> you need it, while maintaining
-        optimal efficiency. Say goodbye to unnecessary tight couplings.
+        <b>Declare</b> what you need <b>where</b> you need it. <b>Share</b> data
+        definitions <b>across platforms</b>, components,{' '}
+        <Link to="/docs#protocol-specific-patterns">protocols</Link>, and
+        behaviors.
       </>
     ),
-    Svg: require(`../../static/img/dice-d6-solid.svg`).default,
-    title: 'Simple',
+    Svg: require(`../../static/img/chemical-composition.svg`).default,
+    title: 'Composition over configuration',
   },
   {
     description: (
       <>
-        Rest hooks is <b>protocol agnostic</b>. REST out of the box, with
-        GraphQL, GRPC, and websockets all possible.
+        Get started fast with <b>one line</b>{' '}
+        <Link to="/docs#endpoint">data definition</Link> and one line{' '}
+        <Link to="/docs#co-locate-data-dependencies">data binding</Link>. Then{' '}
+        <b>add</b> TypeScript, normalized cache with{' '}
+        <Link to="/docs#entities">Schemas</Link>,{' '}
+        <Link to="/docs#optimistic-updates">optimistic updates</Link> and more.
       </>
     ),
-    Svg: require(`../../static/img/spa-solid.svg`).default,
-    title: 'Flexible',
+    Svg: require(`../../static/img/growing-bar-chart.svg`).default,
+    title: 'Incremental Adoption',
   },
 ];
 

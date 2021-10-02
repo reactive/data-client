@@ -310,7 +310,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Nathaniel Tucker`,
+      copyright: `Copyright © ${new Date().getFullYear()} Nathaniel Tucker. Some icons by <a href="https://www.freepik.com" title="Freepik">Freepik</a>`,
       logo: {
         src: 'img/rest_hooks_logo.svg',
       },
