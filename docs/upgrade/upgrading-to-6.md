@@ -2,6 +2,9 @@
 title: Upgrading from 5 to 6
 ---
 import BeforeAfterTabs from '@site/src/components/BeforeAfterTabs';
+import PkgTabs from '@site/src/components/PkgTabs';
+
+<PkgTabs pkgs="rest-hooks@6 @rest-hooks/rest@3" upgrade />
 
 ## Highlights
 
@@ -22,13 +25,12 @@ older versions, so this will have to be upgraded in unison. All breaking changes
 
 :::caution
 
-npm 7 is buggy and installs multiple versions when peerDeps are specified.
-
-Due to this it is recommended to either use [yarn](https://yarnpkg.com/) or try the following:
+Due to a bug in npm 7, it might install multiple peerDeps (@rest-hooks/normalizr). If
+this happens, you can fix by completely uninstalling rest hooks packages and then reininstalling:
 
 ```bash
 npm uninstall rest-hooks @rest-hooks/rest
-npm install --save rest-hooks @rest-hooks/rest
+npm install --save rest-hooks@6 @rest-hooks/rest@3
 ```
 
 :::
