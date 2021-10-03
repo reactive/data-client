@@ -13,7 +13,6 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 import usePrismTheme from '@theme/hooks/usePrismTheme';
 import { CacheProvider } from 'rest-hooks';
-import ExecutionEnvironment from 'exenv';
 import * as ts from 'typescript';
 
 import StoreInspector from './StoreInspector';
@@ -35,8 +34,10 @@ function Header({ children }) {
   return <div className={clsx(styles.playgroundHeader)}>{children}</div>;
 }
 
-function ResultWithHeader() {
-  const child = ExecutionEnvironment.canUseDOM ? (
+function ResultWithHeader({ groupId, defaultOpen }) {
+  const isBrowser = useIsBrowser();
+
+  const child = isBrowser ? (
     <Suspense fallback="loading...">
       <LivePreview />
       <LiveError />
@@ -55,7 +56,7 @@ function ResultWithHeader() {
       <div className={styles.playgroundResult}>
         <CacheProvider>
           <div className={styles.playgroundPreview}>{child}</div>
-          <StoreInspector />
+          <StoreInspector groupId={groupId} defaultOpen={defaultOpen} />
         </CacheProvider>
       </div>
     </>
@@ -81,7 +82,13 @@ EditorWithHeader.defaultProps = {
   ),
 };
 
-export default function Playground({ children, transformCode, ...props }) {
+export default function Playground({
+  children,
+  transformCode,
+  groupId,
+  defaultOpen,
+  ...props
+}) {
   const isBrowser = useIsBrowser();
   const {
     siteConfig: {
@@ -127,13 +134,13 @@ export default function Playground({ children, transformCode, ...props }) {
       >
         {playgroundPosition === 'top' ? (
           <>
-            <ResultWithHeader />
+            <ResultWithHeader groupId={groupId} defaultOpen={defaultOpen} />
             <EditorWithHeader />
           </>
         ) : (
           <>
             <EditorWithHeader />
-            <ResultWithHeader />
+            <ResultWithHeader groupId={groupId} defaultOpen={defaultOpen} />
           </>
         )}
       </LiveProvider>

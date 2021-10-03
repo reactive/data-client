@@ -1,7 +1,9 @@
 ---
 title: Union
 ---
+
 import LanguageTabs from '@site/src/components/LanguageTabs';
+import HooksPlayground from '@site/src/components/HooksPlayground';
 
 Describe a schema which is a union of multiple schemas. This is useful if you need the polymorphic behavior provided by `schema.Array` or `schema.Values` but for non-collection fields.
 
@@ -16,66 +18,69 @@ Describe a schema which is a union of multiple schemas. This is useful if you ne
 
 - `define(definition)`: When used, the `definition` passed in will be merged with the original definition passed to the `Union` constructor. This method tends to be useful for creating circular references in schema.
 
-#### Usage
+## Usage
 
 _Note: If your data returns an object that you did not provide a mapping for, the original object will be returned in the result and an entity will not be created._
 
-<LanguageTabs>
+<HooksPlayground groupId="schema" defaultOpen="y">
 
-```typescript
-const data = { owner: { id: 1, type: 'user', name: 'Anne' } };
+```tsx
+const sampleData = () =>
+  Promise.resolve([
+    { id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
+    { id: 10, type: 'post', content: 'good day!' },
+  ]);
 
-class User extends Entity {
+abstract class FeedItem extends Entity {
   readonly id: number = 0;
-  readonly type = 'user' as const;
-  readonly name: string = '';
-  pk() { return `${this.id}`; }
+  declare readonly type: 'link' | 'post';
+  pk() {
+    return `${this.id}`;
+  }
 }
-class Group extends Entity {
-  readonly id: number = 0;
-  readonly type = 'group' as const;
-  pk() { return `${this.id}`; }
+class Link extends FeedItem {
+  readonly type = 'link' as const;
+  readonly url: string = '';
+  readonly title: string = '';
 }
-const unionSchema = new schema.Union(
-  {
-    user: User,
-    group: Group
-  },
-  'type'
-);
+class Post extends FeedItem {
+  readonly type = 'post' as const;
+  readonly content: string = '';
+}
 
-const normalizedData = normalize(data, { owner: unionSchema });
+const feed = new Endpoint(sampleData, {
+  schema: [
+    new schema.Union(
+      {
+        link: Link,
+        post: Post,
+      },
+      'type',
+    ),
+  ],
+});
+
+function FeedList() {
+  const feedItems = useResource(feed, {});
+  return (
+    <div>
+      {feedItems.map(item =>
+        item.type === 'link' ? (
+          <LinkItem link={item} key={item.pk()} />
+        ) : (
+          <PostItem post={item} key={item.pk()} />
+        ),
+      )}
+    </div>
+  );
+}
+function LinkItem({ link }: { link: Link }) {
+  return <a href={link.url}>{link.title}</a>;
+}
+function PostItem({ post }: { post: Post }) {
+  return <div>{post.content}</div>;
+}
+render(<FeedList />);
 ```
 
-```js
-const data = { owner: { id: 1, type: 'user', name: 'Anne' } };
-
-class User extends Entity {
-  pk() { return `${this.id}`; }
-}
-class Group extends Entity {
-  pk() { return `${this.id}`; }
-}
-const unionSchema = new schema.Union(
-  {
-    user: User,
-    group: Group
-  },
-  'type'
-);
-
-const normalizedData = normalize(data, { owner: unionSchema });
-```
-</LanguageTabs>
-
-#### Output
-
-```js
-{
-  entities: {
-    User: { '1': { id: 1, type: 'user', name: 'Anne' } }
-  },
-  result: { owner: { id: 1, schema: 'User' } }
-}
-```
-
+</HooksPlayground>

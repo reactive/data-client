@@ -2,17 +2,24 @@
 title: Delete
 ---
 
+import HooksPlayground from '@site/src/components/HooksPlayground';
+
 Describes entities to be marked as `DELETED`. This is a special symbol.
 
 - `entity` which entity to delete. The input is used to compute the pk() for lookup.
 
 ## Usage
 
-### Normalize
+<HooksPlayground groupId="schema" defaultOpen="y">
 
-```typescript
-// Example data response
-const data = { users: [{ id: '123' }, { id: '543' }] };
+```tsx
+const sampleData = () =>
+  Promise.resolve([
+    { id: '123', name: 'Jim' },
+    { id: '456', name: 'Jane' },
+    { id: '555', name: 'Phone' },
+  ]);
+const sampleDelete = ({ id }) => Promise.resolve({ id });
 
 class User extends Entity {
   readonly name: string = '';
@@ -20,22 +27,30 @@ class User extends Entity {
     return this.id;
   }
 }
-const deleteSchema = { users: [new schema.Delete(User)] };
-
-const normalizedData = normalize(data, deleteSchema);
-```
-
-Output
-
-```js
-{
-  entities: {
-    User: { '123': DELETED, '543': DELETED }
-  },
-  result: { User: [ '123', '543' ] }
+const userList = new Endpoint(sampleData, {
+  schema: [User],
+});
+const userDelete = new Endpoint(sampleDelete, {
+  schema: new schema.Delete(User),
+});
+function UsersPage() {
+  const users = useResource(userList, {});
+  const { fetch } = useController();
+  return (
+    <div>
+      {users.map(user => (
+        <div key={user.pk()}>
+          {user.name}{' '}
+          <a href="#" onClick={() => fetch(userDelete, { id: user.id })}>❌</a>
+        </div>
+      ))}
+    </div>
+  );
 }
+render(<UsersPage />);
 ```
 
+</HooksPlayground>
 
 ### Batch Deletes
 
@@ -74,7 +89,9 @@ function MyTable() {
     <div>
       <header>
         <span>My Table</span>
-        <button onClick={() => fetch(MyResource.deleteList(), selectedIds)}>Delete</button>
+        <button onClick={() => fetch(MyResource.deleteList(), selectedIds)}>
+          Delete
+        </button>
       </header>
       <TableBody data={list} form={TableForm} />
     </div>

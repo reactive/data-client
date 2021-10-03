@@ -7,9 +7,16 @@ import Playground from './Playground';
 
 const scope = { ...restHooks, ...rest, ...graphql };
 
-const HooksPlayground = ({ children }) => (
-  <Playground scope={scope} noInline>
-    {children}
+const HooksPlayground = ({ children, groupId = 'playground', defaultOpen }) => (
+  <Playground
+    scope={scope}
+    noInline
+    groupId={groupId}
+    defaultOpen={defaultOpen}
+  >
+    {typeof children === 'string'
+      ? children
+      : children.props.children.props.children}
   </Playground>
 );
 export default HooksPlayground;

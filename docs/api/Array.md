@@ -1,9 +1,11 @@
 ---
 title: Array
 ---
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
+import HooksPlayground from '@site/src/components/HooksPlayground';
 
 Creates a schema to normalize an array of schemas. If the input value is an `Object` instead of an `Array`,
 the normalized result will be an `Array` of the `Object`'s values.
@@ -24,61 +26,38 @@ _Note: The same behavior can be defined with shorthand syntax: `[ mySchema ]`_
 
 To describe a simple array of a singular entity type:
 
-<LanguageTabs>
+<HooksPlayground groupId="schema" defaultOpen="y">
 
-```typescript
-const data = [
+```tsx
+const sampleData = () =>
+  Promise.resolve([
   { id: '123', name: 'Jim' },
   { id: '456', name: 'Jane' },
-];
+]);
+
 class User extends Entity {
   readonly name: string = '';
   pk() {
     return this.id;
   }
 }
-
-const userListSchema = new schema.Array(User);
-// or use shorthand syntax:
-const userListSchema = [User];
-
-const normalizedData = normalize(data, userListSchema);
-```
-
-
-```js
-const data = [
-  { id: '123', name: 'Jim' },
-  { id: '456', name: 'Jane' },
-];
-class User extends Entity {
-  pk() {
-    return this.id;
-  }
+const userList = new Endpoint(sampleData, {
+  schema:
+    new schema.Array(User),
+  ,
+});
+function UsersPage() {
+  const users = useResource(userList, {});
+  return (
+    <div>
+      {users.map(user => <div key={user.pk()}>{user.name}</div>)}
+    </div>
+  );
 }
-
-const userListSchema = new schema.Array(User);
-// or use shorthand syntax:
-const userListSchema = [User];
-
-const normalizedData = normalize(data, userListSchema);
+render(<UsersPage />);
 ```
 
-</LanguageTabs>
-
-#### Output
-
-```js
-{
-  entities: {
-    User: {
-      '123': { id: '123', name: 'Jim' },
-      '456': { id: '456', name: 'Jane' }
-    }
-  },
-  result: [ '123', '456' ]
-}
-```
+</HooksPlayground>
 
 ### Dynamic entity types
 
@@ -88,108 +67,129 @@ _Note: If your data returns an object that you did not provide a mapping for, th
 
 #### string schemaAttribute
 
-```typescript
-const data = [
-  { id: 1, type: 'admin' },
-  { id: 2, type: 'user' },
-];
+<HooksPlayground groupId="schema" defaultOpen="y">
 
-class User extends Entity {
-  readonly type = 'user' as const;
+```tsx
+const sampleData = () =>
+  Promise.resolve([
+    { id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
+    { id: 10, type: 'post', content: 'good day!' },
+  ]);
+
+abstract class FeedItem extends Entity {
+  readonly id: number = 0;
+  declare readonly type: 'link' | 'post';
   pk() {
-    return this.id;
+    return `${this.id}`;
   }
 }
-class Admin extends Entity {
-  readonly type = 'admin' as const;
-  pk() {
-    return this.id;
-  }
+class Link extends FeedItem {
+  readonly type = 'link' as const;
+  readonly url: string = '';
+  readonly title: string = '';
 }
-const myArray = new schema.Array(
-  {
-    admin: Admin,
-    user: User,
-  },
-  'type'
-);
-
-const normalizedData = normalize(data, myArray);
+class Post extends FeedItem {
+  readonly type = 'post' as const;
+  readonly content: string = '';
+}
+const feed = new Endpoint(sampleData, {
+  schema:
+    new schema.Array(
+      {
+        link: Link,
+        post: Post,
+      },
+      'type',
+    ),
+  ,
+});
+function FeedList() {
+  const feedItems = useResource(feed, {});
+  return (
+    <div>
+      {feedItems.map(item =>
+        item.type === 'link' ? (
+          <LinkItem link={item} key={item.pk()} />
+        ) : (
+          <PostItem post={item} key={item.pk()} />
+        ),
+      )}
+    </div>
+  );
+}
+function LinkItem({ link }: { link: Link }) {
+  return <a href={link.url}>{link.title}</a>;
+}
+function PostItem({ post }: { post: Post }) {
+  return <div>{post.content}</div>;
+}
+render(<FeedList />);
 ```
+
+</HooksPlayground>
 
 #### function schemaAttribute
 
 The return values should match a key in the `definition`. Here we'll show the same behavior as the 'string'
 case, except we'll append an 's'.
 
-<LanguageTabs>
+<HooksPlayground groupId="schema" defaultOpen="y">
 
-```typescript
-const data = [
-  { id: 1, type: 'admin' },
-  { id: 2, type: 'user' },
-];
+```tsx
+const sampleData = () =>
+  Promise.resolve([
+    { id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
+    { id: 10, type: 'post', content: 'good day!' },
+  ]);
 
-class User extends Entity {
-  readonly type = 'user' as const;
+abstract class FeedItem extends Entity {
+  readonly id: number = 0;
+  declare readonly type: 'link' | 'post';
   pk() {
-    return this.id;
+    return `${this.id}`;
   }
 }
-class Admin extends Entity {
-  readonly type = 'admin' as const;
-  pk() {
-    return this.id;
-  }
+class Link extends FeedItem {
+  readonly type = 'link' as const;
+  readonly url: string = '';
+  readonly title: string = '';
 }
-const myArray = new schema.Array(
-  {
-    admins: Admin,
-    users: User,
-  },
-  (input, parent, key) => `${input.type}s`,
-);
-
-const normalizedData = normalize(data, myArray);
+class Post extends FeedItem {
+  readonly type = 'post' as const;
+  readonly content: string = '';
+}
+const feed = new Endpoint(sampleData, {
+  schema:
+    new schema.Array(
+      {
+        links: Link,
+        posts: Post,
+      },
+      (input, parent, key) => `${input.type}s`,
+    ),
+  ,
+});
+function FeedList() {
+  const feedItems = useResource(feed, {});
+  return (
+    <div>
+      {feedItems.map(item =>
+        item.type === 'link' ? (
+          <LinkItem link={item} key={item.pk()} />
+        ) : (
+          <PostItem post={item} key={item.pk()} />
+        ),
+      )}
+    </div>
+  );
+}
+function LinkItem({ link }: { link: Link }) {
+  return <a href={link.url}>{link.title}</a>;
+}
+function PostItem({ post }: { post: Post }) {
+  return <div>{post.content}</div>;
+}
+render(<FeedList />);
 ```
 
-```js
-const data = [{ id: 1, type: 'admin' }, { id: 2, type: 'user' }];
-
-class User extends Entity {
-  pk() {
-    return this.id;
-  }
-}
-class Admin extends Entity {
-  pk() {
-    return this.id;
-  }
-}
-const myArray = new schema.Array(
-  {
-    admins: Admin,
-    users: User,
-  },
-  (input, parent, key) => `${input.type}s`,
-);
-
-const normalizedData = normalize(data, myArray);
-```
-
-</LanguageTabs>
-
-#### Output
-
-```js
-{
-  entities: {
-    Admin: { '1': { id: 1, type: 'admin' } },
-    User: { '2': { id: 2, type: 'user' } }
-  },
-  result: [
-    { id: 1, schema: 'Admin' },
-    { id: 2, schema: 'User' }
-  ]
-}
-```
+</HooksPlayground>
