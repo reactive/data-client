@@ -34,7 +34,12 @@
   direction: ltr;
 }
 
-.playgroundPreview {
+:global(.col) .playgroundPreview  {
   padding: 1rem;
   background-color: var(--ifm-pre-background);
+  flex: 1 4 20%;
+}
+
+.playgroundResult {
+  display: flex;
 }

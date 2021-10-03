@@ -4,7 +4,7 @@
  */
 
 .heroBanner {
-  padding: 4rem 0;
+  padding: 3rem 0;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -24,8 +24,8 @@
   justify-content: center;
 }
 .buttons :global(.button.button--primary) {
-  font-size: 30px;
-  padding: 0.6em 1.5em;
+  font-size: 25px;
+  padding: 0.4em 1.3em;
   font-weight: bold;
   border-radius: 10px;
   letter-spacing: 1px;

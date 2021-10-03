@@ -21,7 +21,7 @@ const ProjectTitle = () => (
       <img
         src={'img/rest_hooks_logo_and_text_subtitle.svg'}
         alt="Rest Hooks - Delightful Data Fetching"
-        height={140}
+        height={110}
       />
     </div>
 

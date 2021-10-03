@@ -16,6 +16,7 @@ import { CacheProvider } from 'rest-hooks';
 import ExecutionEnvironment from 'exenv';
 import * as ts from 'typescript';
 
+import StoreInspector from './StoreInspector';
 import styles from './styles.module.css';
 
 const babelTransform = code => {
@@ -36,12 +37,10 @@ function Header({ children }) {
 
 function ResultWithHeader() {
   const child = ExecutionEnvironment.canUseDOM ? (
-    <CacheProvider>
-      <Suspense fallback="loading...">
-        <LivePreview />
-        <LiveError />
-      </Suspense>
-    </CacheProvider>
+    <Suspense fallback="loading...">
+      <LivePreview />
+      <LiveError />
+    </Suspense>
   ) : null;
   return (
     <>
@@ -53,7 +52,12 @@ function ResultWithHeader() {
           Result
         </Translate>
       </Header>
-      <div className={styles.playgroundPreview}>{child}</div>
+      <div className={styles.playgroundResult}>
+        <CacheProvider>
+          <div className={styles.playgroundPreview}>{child}</div>
+          <StoreInspector />
+        </CacheProvider>
+      </div>
     </>
   );
 }

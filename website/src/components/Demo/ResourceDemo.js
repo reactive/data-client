@@ -4,8 +4,6 @@ import * as rest from '@rest-hooks/rest';
 
 import Playground from '../Playground';
 
-console.log(rest.Resource);
-
 const endpointCode = `class TodoResource extends Resource {
   pk() { return this.id }
   static urlRoot = 'https://jsonplaceholder.typicode.com/todos';
