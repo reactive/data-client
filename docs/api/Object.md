@@ -1,7 +1,9 @@
 ---
 title: Object
 ---
+
 import LanguageTabs from '@site/src/components/LanguageTabs';
+import HooksPlayground from '@site/src/components/HooksPlayground';
 
 Define a plain object mapping that has values needing to be normalized into Entities. _Note: The same behavior can be defined with shorthand syntax: `{ ... }`_
 
@@ -14,11 +16,11 @@ Define a plain object mapping that has values needing to be normalized into Enti
 
 #### Usage
 
-<LanguageTabs>
+<HooksPlayground groupId="schema" defaultOpen="y">
 
-```typescript
-// Example data response
-const data = { users: [{ id: '123', name: 'Beth' }] };
+```tsx
+const sampleData = () =>
+  Promise.resolve({ users: [{ id: '123', name: 'Beth' }] });
 
 class User extends Entity {
   readonly name: string = '';
@@ -26,38 +28,20 @@ class User extends Entity {
     return this.id;
   }
 }
-const responseSchema = new schema.Object({ users: new schema.Array(User) });
-// or shorthand
-const responseSchema = { users: new schema.Array(User) };
-
-const normalizedData = normalize(data, responseSchema);
-```
-
-```js
-// Example data response
-const data = { users: [{ id: '123', name: 'Beth' }] };
-
-class User extends Entity {
-  pk() {
-    return this.id;
-  }
+const userList = new Endpoint(sampleData, {
+  schema:
+    new schema.Object({ users: new schema.Array(User) }),
+  ,
+});
+function UsersPage() {
+  const { users } = useResource(userList, {});
+  return (
+    <div>
+      {users.map(user => <div key={user.pk()}>{user.name}</div>)}
+    </div>
+  );
 }
-const responseSchema = new schema.Object({ users: new schema.Array(User) });
-// or shorthand
-const responseSchema = { users: [User] };
-
-const normalizedData = normalize(data, responseSchema);
+render(<UsersPage />);
 ```
 
-</LanguageTabs>
-
-#### Output
-
-```js
-{
-  entities: {
-    User: { '123': { id: '123', name: 'Beth' } }
-  },
-  result: { User: [ '123' ] }
-}
-```
+</HooksPlayground>

@@ -67,5 +67,6 @@ function shouldExpandNode(keyName, data, level) {
   if (level === 2 && keyName[1] === 'entities') return true;
   if (level === 2 && keyName[1] === 'results') return true;
   if (level === 3 && keyName[2] === 'entities') return true;
+  if (level === 3 && keyName[2] === 'results') return true;
   return false;
 }

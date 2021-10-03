@@ -5,14 +5,19 @@ import useUserPreferencesContext from '@theme/hooks/useUserPreferencesContext';
 import Tree from './Tree';
 import styles from './store.module.css';
 
-const GROUP_ID = 'Playground-Store';
-
-function StoreInspector() {
+function StoreInspector({
+  groupId,
+  defaultOpen = 'n',
+}: {
+  groupId: string;
+  defaultOpen: 'y' | 'n';
+}) {
+  const group = `store-open-${groupId}`;
   const { tabGroupChoices, setTabGroupChoices } = useUserPreferencesContext();
-  const open = tabGroupChoices[GROUP_ID] ?? 'n';
+  const open = tabGroupChoices[group] ?? defaultOpen;
   const toggle = useCallback(() => {
-    setTabGroupChoices(GROUP_ID, open === 'y' ? 'n' : 'y');
-  }, [open, setTabGroupChoices]);
+    setTabGroupChoices(group, open === 'y' ? 'n' : 'y');
+  }, [group, open, setTabGroupChoices]);
 
   return (
     <>

@@ -3,6 +3,8 @@ title: Resources with nested structure
 sidebar_label: Nesting related resources (server-side join)
 ---
 
+import HooksPlayground from '@site/src/components/HooksPlayground';
+
 Say you have a foreignkey author, and an array of foreign keys to contributors.
 
 First we need to model what this will look like by adding members to our [Resource][1] definition.
@@ -12,55 +14,59 @@ Next we'll provide a definition of nested members in the [schema][3] member.
 
 ## static schema
 
-#### `resources/ArticleResource.ts`
+<HooksPlayground groupId="schema" defaultOpen="y">
 
 ```tsx
-import { Resource, AbstractInstanceType } from '@rest-hooks/rest';
-import { UserResource } from 'resources';
-
-export default class ArticleResource extends Resource {
+class UserResource extends Resource {
+  readonly name: string = '';
+  pk() {
+    return this.id;
+  }
+  static urlRoot = 'http://fakeapi.com/user/';
+}
+class PostResource extends Resource {
   readonly id: number | undefined = undefined;
-  readonly content: string = '';
   readonly author: UserResource = UserResource.fromJS({});
   readonly contributors: number[] = [];
-
-  pk() {
-    return this.id?.toString();
-  }
-  static urlRoot = 'http://test.com/article/';
 
   static schema = {
     author: UserResource,
     contributors: [UserResource],
   };
+  pk() {
+    return this.id;
+  }
+  static urlRoot = 'http://fakeapi.com/article/';
+
+  // this override is purely to fake a response
+  static detail<T extends typeof Resource>(this: T) {
+    return super.detail().extend({
+      fetch({ id }) {
+        return Promise.resolve({
+          id,
+          author: { id: '123', name: 'Jim' },
+          content: 'Happy day',
+          contributors: [{ id: '100', name: 'Eliza' }],
+        });
+      },
+      schema: this,
+    });
+  }
 }
-```
 
-#### `ArticleList.tsx`
-
-```tsx
-import { useResource } from 'rest-hooks';
-import ArticleResource from 'resources/ArticleResource';
-
-export default function ArticleList({ id }: { id: number }) {
-  const articles = useResource(ArticleResource.list(), { id });
-
+function PostPage() {
+  const post = useResource(PostResource.detail(), { id: '5' });
   return (
-    <React.Fragment>
-      {articles.map(article => (
-        <>
-          <ArticleInline key={article.pk()} article={article} />
-          <UserPreview user={article.user} />
-        </>
-      ))}
-    </React.Fragment>
+    <div>
+      <p>{post.content} - <cite>{post.author.name}</cite></p>
+      <div>Contributors: {post.contributors.map(user => user.name)}</div>
+    </div>
   );
 }
-
-function UserPreview({ user }: { user: UserResource }) {
-  return <span>{user.username} {user.email}</span>
-}
+render(<PostPage />);
 ```
+
+</HooksPlayground>
 
 ## Circular dependencies
 
@@ -69,9 +75,7 @@ If both [Resources][1] are in distinct files, this must be handled with care.
 If two or more [Resources][1] include each other in their schema, you can dynamically override
 one of their [schema][3] to avoid circular imports.
 
-#### `resources/ArticleResource.ts`
-
-```typescript
+```typescript title="resources/ArticleResource.ts"
 import { Resource, AbstractInstanceType } from '@rest-hooks/rest';
 import { UserResource } from 'resources';
 
@@ -98,9 +102,7 @@ UserResource.schema = {
 };
 ```
 
-#### `resources/UserResource.ts`
-
-```typescript
+```typescript title="resources/UserResource.ts"
 import { Resource } from '@rest-hooks/rest';
 import type { ArticleResource } from 'resources';
 // we can only import the type else we break javascript imports

@@ -130,7 +130,10 @@ suspends.
 
 <details><summary><b>SWAPI Demo</b></summary>
 
-<HooksPlayground children={`const gql = new GQLEndpoint(
+<HooksPlayground>
+
+```tsx
+const gql = new GQLEndpoint(
   'https://swapi-graphql.netlify.app/.netlify/functions/index',
 );
 class Person extends GQLEntity {
@@ -144,7 +147,7 @@ const PageInfo = {
   endCursor: '',
 }
 const allPeople = gql.query(
-  (v: { first?: number; after?: string }) => \x60
+  (v: { first?: number; after?: string }) => `
 query People($first: Int, $after:String) {
   allPeople(first: $first, after:$after) {
     people{
@@ -157,7 +160,7 @@ query People($first: Int, $after:String) {
     }
   }
 }
-\x60,
+`,
 { allPeople: { people: [Person], pageInfo: PageInfo } },
 );
 function StarPeople() {
@@ -173,7 +176,9 @@ function StarPeople() {
   );
 }
 render(<StarPeople/>);
-`} />
+```
+
+</HooksPlayground>
 
 </details>
 

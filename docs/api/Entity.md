@@ -1,6 +1,8 @@
 ---
 title: Entity
 ---
+
+import HooksPlayground from '@site/src/components/HooksPlayground';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 
 <LanguageTabs>
@@ -180,7 +182,7 @@ This determines expiry time when entity is part of a result that is inferred.
 
 Overriding can be used to change TTL policy specifically for inferred responses.
 
-### static indexes?: (keyof this)[]  {#indexes}
+### static indexes?: (keyof this)[] {#indexes}
 
 Indexes enable increased performance when doing lookups based on those parameters. Add
 fieldnames (like `slug`, `username`) to the list that you want to send as params to lookup
@@ -254,11 +256,52 @@ Nested below:
 const price = useCache(LatestPrice, { symbol: 'BTC' });
 ```
 
-### static schema: { [k: keyof this]: Schema }  {#schema}
+### static schema: { [k: keyof this]: Schema } {#schema}
 
 Set this to [define entities nested](../guides/nested-response) inside this one.
 
 Additionally can be used to [declare field deserialization](../guides/network-transform#deserializing-fields)
+
+<HooksPlayground groupId="schema" defaultOpen="y">
+
+```tsx
+const postSample = () =>
+  Promise.resolve({
+    id: '5',
+    author: { id: '123', name: 'Jim' },
+    content: 'Happy day',
+  });
+
+class User extends Entity {
+  readonly name: string = '';
+  pk() {
+    return this.id;
+  }
+}
+class Post extends Entity {
+  readonly author: User = User.fromJS({});
+  static schema = {
+    author: User,
+  };
+  pk() {
+    return this.id;
+  }
+}
+const postDetail = new Endpoint(postSample, {
+  schema: Post,
+});
+function PostPage() {
+  const post = useResource(postDetail, { id: '123' });
+  return (
+    <div>
+      {post.content} - <cite>{post.author.name}</cite>
+    </div>
+  );
+}
+render(<PostPage />);
+```
+
+</HooksPlayground>
 
 #### Optional members
 
@@ -273,6 +316,6 @@ class User extends Entity {
   static schema = {
     friend: User,
     lastUpdated: Date,
-  }
+  };
 }
 ```
