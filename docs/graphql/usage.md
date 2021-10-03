@@ -8,6 +8,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
+import HooksPlayground from '@site/src/components/HooksPlayground';
 
 <PkgTabs pkgs="@rest-hooks/graphql" />
 
@@ -45,7 +46,6 @@ export default class User extends GQLEntity {}
 Using GQLEntities is not required, but is important to achieve data consistency.
 
 :::
-
 
 ## Query the Graph
 
@@ -128,6 +128,55 @@ suspends.
   - (For example: navigating to a detail page with a single entry from a list view will instantly show the same data as the list without
     requiring a refetch.)
 
+<details><summary><b>SWAPI Demo</b></summary>
+
+<HooksPlayground children={`const gql = new GQLEndpoint(
+  'https://swapi-graphql.netlify.app/.netlify/functions/index',
+);
+class Person extends GQLEntity {
+  readonly id: string = '';
+  readonly name: string = '';
+  readonly height: string = '';
+}
+const PageInfo = {
+  hasNextPage: false,
+  startCursor: '',
+  endCursor: '',
+}
+const allPeople = gql.query(
+  (v: { first?: number; after?: string }) => \x60
+query People($first: Int, $after:String) {
+  allPeople(first: $first, after:$after) {
+    people{
+      id,name,height
+    },
+    pageInfo {
+      hasNextPage,
+      startCursor,
+      endCursor
+    }
+  }
+}
+\x60,
+{ allPeople: { people: [Person], pageInfo: PageInfo } },
+);
+function StarPeople() {
+  const { people, pageInfo } = useResource(allPeople, { first: 5 }).allPeople;
+  return (
+    <div>
+      {people.map(person => (
+        <div key={person.id}>
+          name: {person.name} height: {person.height}
+        </div>
+      ))}
+    </div>
+  );
+}
+render(<StarPeople/>);
+`} />
+
+</details>
+
 ## Mutate the Graph
 
 We're using [SWAPI](https://graphql.org/swapi-graphql) as our example, since it offers mutations.
@@ -136,7 +185,9 @@ We're using [SWAPI](https://graphql.org/swapi-graphql) as our example, since it 
 import { useController } from 'rest-hooks';
 import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
 
-const gql = new GQLEndpoint('https://graphql.org/swapi-graphql');
+const gql = new GQLEndpoint(
+  'https://swapi-graphql.netlify.app/.netlify/functions/index',
+);
 
 class Review extends GQLEntity {
   readonly stars: number = 0;
@@ -170,3 +221,4 @@ export default function NewReviewForm() {
 The first argument to GQLEndpoint.query or GQLEndpoint.mutate is either the query string
 _or_ a function that returns the query string. The main value of using the latter is enforcing
 the function argument types.
+

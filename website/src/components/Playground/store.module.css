@@ -1,0 +1,17 @@
+.debugToggle {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.08rem;
+  text-transform: uppercase;
+  font-weight: 500;
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-content);
+  font-size: var(--ifm-code-font-size);
+  padding: .7em .1em 1em .1em;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.debugToggle:hover {
+  background-color: var(--ifm-color-emphasis-300);
+}
