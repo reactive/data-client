@@ -270,6 +270,7 @@ const postSample = () =>
     id: '5',
     author: { id: '123', name: 'Jim' },
     content: 'Happy day',
+    createdAt: '2019-01-23T06:07:48.311Z',
   });
 
 class User extends Entity {
@@ -280,8 +281,10 @@ class User extends Entity {
 }
 class Post extends Entity {
   readonly author: User = User.fromJS({});
+  readonly createdAt: Date = new Date(0);
   static schema = {
     author: User,
+    createdAt: Date,
   };
   pk() {
     return this.id;
@@ -294,7 +297,14 @@ function PostPage() {
   const post = useResource(postDetail, { id: '123' });
   return (
     <div>
-      {post.content} - <cite>{post.author.name}</cite>
+      <p>
+        {post.content} - <cite>{post.author.name}</cite>
+      </p>
+      <time>
+        {Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
+          post.createdAt,
+        )}
+      </time>
     </div>
   );
 }

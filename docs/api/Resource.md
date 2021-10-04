@@ -64,7 +64,7 @@ provided ones to fit the needs of your API.
 
 Resource extends from [Entity](./Entity), which includes many static methods defining how to process
 network data to ensure performance and consistency. [Deserilization](../guides/network-transform#deserializing-fields)
-for instance can be done using the [static schema](./Entity#static-schema--k-keyof-this-schema-).
+for instance can be done using the [static schema](./Entity#schema).
 
 ### Instance
 

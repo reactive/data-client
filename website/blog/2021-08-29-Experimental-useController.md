@@ -37,6 +37,13 @@ class NewsResource extends Resource {
 
 ## useController()
 
+:::tip Update
+
+As of 6.1 [useController()](https://resthooks.io/docs/api/useController) is now upstreamed into
+Rest Hooks core packages
+
+:::
+
 ### Usage
 
 ```tsx
