@@ -122,4 +122,4 @@ export default class UserResource extends Resource {
 
 [1]: ../api/Resource.md
 [2]: ../api/useCache.md
-[3]: ../api/Entity#static-schema--k-keyof-this-schema-
+[3]: ../api/Entity#schema

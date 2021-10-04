@@ -2,6 +2,8 @@
 title: Transforming data on fetch
 ---
 
+import HooksPlayground from '@site/src/components/HooksPlayground';
+
 All network requests flow through the `fetch()` method, so any transforms needed can simply
 be done by overriding it with a call to super.
 
@@ -60,49 +62,50 @@ Keeping data in the serialized form is often fine, especially if it is only bein
 be displayed. However, this can be problematic when derived data is computed like adding time to a date
 or multiplying two numbers.
 
-In this case, simply use the [static schema](../api/Entity#static-schema--k-keyof-this-schema-)
+In this case, simply use the [static schema](../api/Entity#schema) with [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) and [BigNumber](https://github.com/MikeMcl/bignumber.js)
 
-```typescript
-import BigNumber from 'bignumber.js';
+<HooksPlayground groupId="schema" defaultOpen="y">
 
-class MyResource extends Resource {
-  readonly createdAt: Date | null = new Date(0);
+```tsx
+const exchangeMock = ({ exchangePair }) =>
+  Promise.resolve({
+    exchangePair,
+    price: '32982389239823983298329832.238923982389328932893298',
+    updatedAt: new Date().toISOString(),
+  });
+
+class ExchangePrice extends Entity {
+  readonly exchangePair = '';
+  readonly updatedAt = new Date(0);
   readonly price = new BigNumber(0);
-  // other fields here
-
-  static schema = {
-    createdAt: Date,
-    price: BigNumber,
-  }
-}
-```
-
-```typescript
-const resource = useResource(MyResouce.detail(), { id });
-resource.createdAt.getDay(); // createAt is a Date object
-```
-
-This also works with [SimpleRecord](../api/SimpleRecord#static-schema--k-keyof-this-schema-) and other [schemas](../api/schema)
-
-```typescript
-import BigNumber from 'bignumber.js';
-
-class PaginatedWithDefaults extends SimpleRecord {
-  readonly updatedAt: Date | null = new Date(0);
-  readonly nextPage: string = '';
-  readonly data: MyResource[] = [];
-
   static schema = {
     updatedAt: Date,
-    data: [MyResource],
+    price: BigNumber,
+  };
+  pk() {
+    return this.exchangePair;
   }
 }
-
-const Paginated = {
-  updatedAt: Date,
-  data: [MyResource],
-};
+const getPrice = new Endpoint(exchangeMock, {
+  schema: ExchangePrice,
+});
+function PricePage() {
+  const currentPrice = useResource(getPrice, { exchangePair: 'btc-usd' });
+  return (
+    <div>
+      {currentPrice.price.toPrecision(2)} as of{' '}
+      <time>
+        {Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
+          currentPrice.updatedAt,
+        )}
+      </time>
+    </div>
+  );
+}
+render(<PricePage />);
 ```
+
+</HooksPlayground>
 
 ## Case of the missing `Id`
 
@@ -142,9 +145,7 @@ abstract class StreamResource extends CamelResource {
     return this.username;
   }
 
-  static detail<T extends typeof Resource>(
-    this: T,
-  ) {
+  static detail<T extends typeof Resource>(this: T) {
     const superEndpoint = super.detail() as ReadEndpoint<FetchFunction, T>;
     return superEndpoint.extend({
       fetch: async (params: { username: string }) => {
@@ -212,7 +213,7 @@ class ArticleResource extends CamelResource {
     // we'll need to do the inverse operation when sending data back to the server
     if (init.body && 'carrotsUsed' in init.body) {
       // caller should manage init & body, so we don't want to modify it
-      init = { ...init, body: {...init.body} };
+      init = { ...init, body: { ...init.body } };
       init.body.carrotsUsedIsThisNameTooLong = init.body.carrotsUsed;
       delete init.body.carrotsUsed;
     }

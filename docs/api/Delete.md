@@ -41,7 +41,12 @@ function UsersPage() {
       {users.map(user => (
         <div key={user.pk()}>
           {user.name}{' '}
-          <a href="#" onClick={() => fetch(userDelete, { id: user.id })}>❌</a>
+          <a
+            style={{ cursor: 'pointer' }}
+            onClick={() => fetch(userDelete, { id: user.id })}
+          >
+            ❌
+          </a>
         </div>
       ))}
     </div>
