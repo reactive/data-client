@@ -86,7 +86,7 @@ For the small price of 8kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 - [x] ♻️ Optional [redux integration](https://resthooks.io/docs/guides/redux)
 - [x] 📙 [Storybook mocking](https://resthooks.io/docs/guides/storybook)
 - [x] 📱 [React Native](https://facebook.github.io/react-native/) support
-- [x] 🚯 Declarative cache lifetime policy
+- [x] 🚯 [Declarative cache lifetime policy](https://resthooks.io/docs/getting-started/expiry-policy)
 
 ## Principals of Rest Hooks
 

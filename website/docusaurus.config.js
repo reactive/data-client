@@ -35,6 +35,12 @@ module.exports = {
       href: 'https://fonts.googleapis.com',
       crossOrigin: true,
     },
+    {
+      rel: 'preload',
+      href: 'https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&family=Rubik:ital,wght@1,300..900&family=Roboto+Mono:wght@100..700&family=Roboto+Mono:ital,wght@1,100..700',
+      as: 'style',
+      crossOrigin: true,
+    },
   ],
   favicon: 'img/favicon/favicon.ico',
   themes: ['@docusaurus/theme-live-codeblock'],

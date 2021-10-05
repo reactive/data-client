@@ -24,6 +24,10 @@
         {
           "type": "doc",
           "id": "version-5.0/getting-started/entity"
+        },
+        {
+          "type": "doc",
+          "id": "version-5.0/getting-started/expiry-policy"
         }
       ],
       "collapsible": true
