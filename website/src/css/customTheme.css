@@ -1,12 +1,30 @@
-:root{
+:root {
   --ifm-color-primary-lightest: #b09dff;
   --ifm-color-primary-lighter: #896eff;
   --ifm-color-primary-light: #7d5eff;
-  --ifm-color-primary: #633EFF;
+  --ifm-color-primary: #633eff;
   --ifm-color-primary-dark: #491eff;
   --ifm-color-primary-darker: #3d0eff;
   --ifm-color-primary-darkest: #2b00de;
+  --ifm-font-family-base: 'Rubik', 'Avenir Next', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --ifm-font-family-monospace: 'Roboto Mono', SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
+/*@font-face {
+  font-family: 'Rubik';
+  src: url('../../static/font/Rubik-VariableFont_wght.ttf')
+      format('ttf supports variations'),
+    url('../../static/font/Rubik-VariableFont_wght.ttf')
+      format('ttf-variations');
+  font-weight: 100 900;
+}
+
+@font-face {
+  font-family: 'Rubik';
+  src: url('../../static/font/Rubik-Italic-VariableFont_wght.ttf')
+    format('ttf supports variations');
+  font-style: italic;
+}*/
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&family=Rubik:ital,wght@1,300..900&family=Roboto+Mono:wght@100..700&family=Roboto+Mono:ital,wght@1,100..700');
 
 .docusaurus-highlight-code-line {
   background-color: rgb(72, 77, 91);
@@ -19,7 +37,6 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
   /* Color which works with dark mode syntax highlighting theme */
   background-color: rgb(100, 100, 100);
 }
-
 
 .header-github-link:hover {
   opacity: 0.6;
@@ -34,4 +51,19 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
     no-repeat;
 }
 
+.navbar .navbar__link {
+  font-family: 'Rubik', 'Times New Roman', Tahoma, Geneva, Verdana, sans-serif;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
 
+.navbar .navbar__brand .navbar__title {
+  font-family: 'Rubik', 'Times New Roman', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+  font-weight: 450;
+}
+.navbar .navbar__brand img {
+  width: 32px;
+  height: 32px;
+}
