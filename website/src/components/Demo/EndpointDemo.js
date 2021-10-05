@@ -20,7 +20,7 @@ render(<TodoDetail/>);
 `;
 
 const EndpointDemo = props => (
-  <Playground scope={scope} noInline>
+  <Playground scope={scope} noInline groupId="homepage-demo">
     {code}
   </Playground>
 );

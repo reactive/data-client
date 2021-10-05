@@ -24,6 +24,10 @@
         {
           "type": "doc",
           "id": "getting-started/entity"
+        },
+        {
+          "type": "doc",
+          "id": "getting-started/expiry-policy"
         }
       ]
     },

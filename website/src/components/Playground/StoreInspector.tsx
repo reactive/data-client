@@ -1,5 +1,5 @@
 import { StateContext } from '@rest-hooks/core';
-import React, { useContext, memo, useCallback, useMemo } from 'react';
+import React, { useContext, memo, useCallback, useMemo, useState } from 'react';
 import useUserPreferencesContext from '@theme/hooks/useUserPreferencesContext';
 
 import Tree from './Tree';
@@ -12,19 +12,27 @@ function StoreInspector({
   groupId: string;
   defaultOpen: 'y' | 'n';
 }) {
-  const group = `store-open-${groupId}`;
   const { tabGroupChoices, setTabGroupChoices } = useUserPreferencesContext();
-  const open = tabGroupChoices[group] ?? defaultOpen;
+  const [selectedValue, setSelectedValue] = useState(defaultOpen);
+
+  if (groupId != null) {
+    const choice = tabGroupChoices[groupId];
+    if (choice != null && choice !== selectedValue) {
+      setSelectedValue(choice);
+    }
+  }
+
   const toggle = useCallback(() => {
-    setTabGroupChoices(group, open === 'y' ? 'n' : 'y');
-  }, [group, open, setTabGroupChoices]);
+    setSelectedValue(open => (open === 'y' ? 'n' : 'y'));
+    setTabGroupChoices(groupId, selectedValue === 'y' ? 'n' : 'y');
+  }, [groupId, selectedValue, setTabGroupChoices]);
 
   return (
     <>
       <div className={styles.debugToggle} onClick={toggle}>
         Store
       </div>
-      {open === 'y' ? <StoreTreeM /> : null}
+      {selectedValue === 'y' ? <StoreTreeM /> : null}
     </>
   );
 }
