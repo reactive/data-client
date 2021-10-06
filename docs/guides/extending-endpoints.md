@@ -13,8 +13,12 @@ those types of requests.
 Resource comes with a [small handleful Endpoints](../api/resource#static-network-methods-and-properties)
 for each of the typical [CRUD operations](https://restfulapi.net/http-methods/). This is often not enough.
 
-> A note about TypeScript: When using `super` to override an endpoint, be sure to include the schema.
-> TypeScript will not infer `super` calls correctly in this case.
+:::caution
+
+TypeScript does not infer `super` properly. When overriding you can either include
+the schema, or explicitly specify the [return type](./rest-types) of the endpoint.
+
+:::
 
 ## Overriding endpoints
 

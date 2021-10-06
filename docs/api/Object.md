@@ -1,6 +1,9 @@
 ---
-title: Object
+title: schema.Object
 ---
+<head>
+  <title>schema.Values - Representing Objects with known keys | Rest Hooks</title>
+</head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';

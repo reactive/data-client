@@ -3,6 +3,10 @@ title: Introduction
 slug: /
 ---
 
+<head>
+  <title>Rest Hooks Introduction - Asynchronous Data for React ✨</title>
+</head>
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
@@ -286,7 +290,7 @@ const todoList = new Endpoint(fetchTodoList, {
 
 [Schemas](./getting-started/entity.md) also automatically infer and enforce the response type, ensuring
 the variable `todos` will be typed precisely. If the API responds in another manner
-the hook with throw instead, triggering the `error fallback` specified in [\<NetworkErrorBoundary />](./api/NetworkErrorBoundary.md)
+the hook with throw instead, triggering the `error fallback` specified in [<NetworkErrorBoundary /\>](./api/NetworkErrorBoundary.md)
 
 ```tsx {4}
 import { useResource } from 'rest-hooks';
@@ -455,6 +459,26 @@ const userDetail = gql.query(
 ```tsx
 const { user } = useResource(userDetail, { name: 'Fong' });
 ```
+
+### @rest-hooks/img
+
+A simple ArrayBuffer can be easily achieved using @rest-hooks/endpoint directly
+
+```tsx
+import { Endpoint } from '@rest-hooks/endpoint';
+
+export const getPhoto = new Endpoint(async ({ userId }: { userId: string }) => {
+  const response = await fetch(`/users/${userId}/photo`);
+  const photoArrayBuffer = await response.arrayBuffer();
+
+  return photoArrayBuffer;
+});
+```
+
+[@rest-hooks/img](./guides/img-media.md) integrates images with
+[Suspense](./getting-started/data-dependency.md#async-fallbacks) as well as the [render as you fetch](./guides/render-as-you-fetch.md)
+pattern for improved user experience.
+
 
 ## Debugging
 

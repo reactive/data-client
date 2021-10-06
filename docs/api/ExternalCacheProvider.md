@@ -5,11 +5,9 @@ Integrates external stores with `rest-hooks`. Should be placed as high as possib
 in application tree as any usage of the hooks is only possible for components below the provider
 in the React tree.
 
-**Is a replacement for \<CacheProvider /> - do _NOT_ use both at once**
+**Is a replacement for [<CacheProvider /\>](./CacheProvider.md) - do _NOT_ use both at once**
 
-`index.tsx`
-
-```tsx
+```tsx title="index.tsx"
 import { ExternalCacheProvider } from 'rest-hooks';
 import ReactDOM from 'react-dom';
 

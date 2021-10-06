@@ -114,6 +114,18 @@ module.exports = {
             to: '/docs/getting-started/entity',
             from: ['/docs/getting-started/schema'],
           },
+          {
+            to: '/docs/api/types',
+            from: ['/docs/api/README'],
+          },
+          {
+            to: '/docs/guides/img-media',
+            from: ['/docs/guides/binary-fetches'],
+          },
+          {
+            to: '/docs/api/resource',
+            from: ['/docs/guides/resource-types'],
+          },
         ],
       },
     ],

@@ -3,6 +3,10 @@ id: useresource
 title: useResource()
 ---
 
+<head>
+  <title>useResource() - Data fetching with Suspense</title>
+</head>
+
 import GenericsTabs from '@site/src/components/GenericsTabs';
 
 <GenericsTabs>

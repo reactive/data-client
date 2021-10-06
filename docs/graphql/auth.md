@@ -2,6 +2,9 @@
 title: GraphQL Authentication
 sidebar_label: Authentication
 ---
+<head>
+  <title>GraphQL Authentication patterns for Rest Hooks</title>
+</head>
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';

@@ -10,7 +10,7 @@ Suspenseful image component: `<Img />`.
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io/docs/guides/binary-fetches#just-images)**
+**[📖Read The Docs](https://resthooks.io/docs/guides/img-media#just-images)**
 
 </div>
 

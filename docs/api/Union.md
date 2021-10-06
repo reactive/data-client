@@ -1,6 +1,9 @@
 ---
-title: Union
+title: schema.Union
 ---
+<head>
+  <title>schema.Union - Representing a Union of possible types | Rest Hooks</title>
+</head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';

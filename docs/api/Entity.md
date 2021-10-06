@@ -1,6 +1,9 @@
 ---
 title: Entity
 ---
+<head>
+  <title>Entity - Declarative Data Normalization | Rest Hooks</title>
+</head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import LanguageTabs from '@site/src/components/LanguageTabs';

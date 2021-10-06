@@ -1,8 +1,12 @@
 ---
 id: usage
-title: GraphQL
+title: GraphQL Usage
 sidebar_label: Usage
 ---
+<head>
+  <title>GraphQL Usage with Rest Hooks</title>
+</head>
+
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';

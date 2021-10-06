@@ -2,6 +2,10 @@
 title: useController()
 ---
 
+<head>
+  <title>useController() - Imperative Controls for Rest Hooks</title>
+</head>
+
 ```typescript
 function useController(): Controller;
 ```

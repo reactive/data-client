@@ -3,9 +3,8 @@ title: Custom Resource cache lifetime
 sidebar_label: Custom cache lifetime
 ---
 
-By default the NetworkManager specifies the lifetime of data and errors in the cache.
-If some resources are longer living, or shorter living than other, you can specify their own expiry length values,
-which will be passed on to all [Endpoint](../api/Endpoint.md) creator functions of [Resource](../api/Resource.md).
+Customizing [Expiry Policy](../getting-started/expiry-policy.md) for can be done for all of
+a [Resource's endpoints](../api/resource#detail) by using [getEndpointExtra](../api/resource#getEndpointExtra)
 
 ## Examples
 

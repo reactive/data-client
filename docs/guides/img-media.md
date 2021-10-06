@@ -1,6 +1,10 @@
 ---
-title: Fetching Media
+title: Images and other Media
 ---
+<head>
+  <title>Using React Suspense with Images and other Media | Rest Hooks</title>
+</head>
+
 import PkgTabs from '@site/src/components/PkgTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
