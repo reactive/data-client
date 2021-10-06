@@ -1,6 +1,10 @@
 ---
 title: useCache()
 ---
+<head>
+  <title>useCache() - Accessing Rest Hooks data without fetching</title>
+</head>
+
 import GenericsTabs from '@site/src/components/GenericsTabs';
 
 <GenericsTabs>

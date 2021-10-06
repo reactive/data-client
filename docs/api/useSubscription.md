@@ -1,6 +1,10 @@
 ---
 title: useSubscription()
 ---
+<head>
+  <title>useSubscription() - Fresh data for Rest Hooks</title>
+</head>
+
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 

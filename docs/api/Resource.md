@@ -90,7 +90,7 @@ Factory method called during denormalization. Use this instead of `new MyEntity(
 
 ## Be sure to always provide:
 
-### pk: (parent?: any, key?: string) => string
+### pk: (parent?: any, key?: string) => string {#pk}
 
 > Inherited from [Entity](./Entity)
 
@@ -141,12 +141,12 @@ pk() {
 }
 ```
 
-### static urlRoot: string
+### static urlRoot: string {#urlRoot}
 
 Used to build url patterns in `url()` and `listUrl()`. Used as the default in
 [key](#static-get-key-string) so typically you'll want this to be globally unique per Resource.
 
-### static get key(): string
+### static get key(): string {#key}
 
 > Inherited from [Entity](./Entity)
 
@@ -165,30 +165,30 @@ static get key(): string {
 
 These are the basic building blocks used to compile the [Endpoint](../api/Endpoint.md) below.
 
-### static url\<T extends typeof Resource\>(urlParams: Partial\<AbstractInstanceType\<T\>\>) => string
+### static url<T extends typeof Resource\>(urlParams: Partial<AbstractInstanceType<T\>\>) => string {#url}
 
 Computes the url based on the parameters. Default implementation follows `/urlRoot/[pk]` pattern.
 
 Used in [detail()](#detail-endpoint), [update()](#update-endpoint),
 [partialUpdate()](#partialupdate-endpoint), and [delete()](#delete-endpoint)
 
-### static listUrl(searchParams: Readonly\<Record\<string, string>>) => string
+### static listUrl(searchParams: Readonly<Record<string, string\>\>) => string {#listUrl}
 
 Computes url for retrieving list items. Defaults to urlRoot with `searchParams` being sent as GET
 parameters.
 
 Used in [list()](#list-endpoint) and [create()](#create-endpoint)
 
-### static fetch(input: RequestInfo, init: RequestInit) => Promise\<any\>
+### static fetch(input: RequestInfo, init: RequestInit) => Promise<any\> {#fetch}
 
 Performs the actual network fetch returning a promise that resolves to the network response or rejects
 on network error. This can be useful to override to really customize your transport.
 
-### static fetchResponse(input: RequestInfo, init: RequestInit) => Promise\<Response\>
+### static fetchResponse(input: RequestInfo, init: RequestInit) => Promise<Response\> {#fetchResponse}
 
 Used in `fetch()`. Resolves the HTTP [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response).
 
-### static useFetchInit(init: RequestInit): RequestInit
+### static useFetchInit(init: RequestInit): RequestInit {#useFetchInit}
 
 Allows simple overrides to extend [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) sent to fetch.
 This is called in endpoint methods ([list()](#list-endpoint), [detail()](#detail-endpoint)), which allows for hooks that
@@ -196,14 +196,14 @@ use React context.
 
 This is often useful for [authentication](../guides/auth)
 
-### static getFetchInit(init: RequestInit): RequestInit
+### static getFetchInit(init: RequestInit): RequestInit {#getFetchInit}
 
 Allows simple overrides to extend [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) sent to fetch.
 This is called during the fetch callback. Don't use hooks here.
 
 This is often useful for [authentication](../guides/auth)
 
-### static getEndpointExtra() => EndpointExtraOptions | undefined
+### static getEndpointExtra() => EndpointExtraOptions | undefined {#getEndpointExtra}
 
 [Returns](../api/Endpoint.md#dataexpirylength-number) the default request options for this resource. By default this returns undefined
 
@@ -213,7 +213,7 @@ These provide the standard [CRUD](https://en.wikipedia.org/wiki/Create,_read,_up
 [endpoints](../api/Endpoint)s common in [REST](https://www.restapitutorial.com/) APIs. Feel free to customize or add
 new endpoints based to match your API.
 
-### detail(): Endpoint
+### detail(): Endpoint {#detail}
 
 A GET request using standard `url()` that receives a detail body.
 Mostly useful with [useResource](../api/useresource)
@@ -233,7 +233,7 @@ static detail<T extends typeof SimpleResource>(this: T) {
 }
 ```
 
-### list(): Endpoint
+### list(): Endpoint {#list}
 
 A GET request using `listUrl()` that receives a list of entities.
 Mostly useful with [useResource](../api/useresource)
@@ -254,7 +254,7 @@ static list<T extends typeof SimpleResource>(this: T) {
 }
 ```
 
-### create(): Endpoint
+### create(): Endpoint {#create}
 
 A POST request sending a payload to `listUrl()` with empty params, and expecting a detail body response.
 Mostly useful with [Controller.fetch](../api/Controller.md#fetch)
@@ -279,7 +279,7 @@ static create<T extends typeof SimpleResource>(this: T) {
 }
 ```
 
-### update(): Endpoint
+### update(): Endpoint {#update}
 
 A PUT request sending a payload to a `url()` expecting a detail body response.
 Mostly useful with [Controller.fetch](../api/Controller.md#fetch)
@@ -303,7 +303,7 @@ static update<T extends typeof SimpleResource>(this: T) {
 }
 ```
 
-### partialUpdate(): Endpoint
+### partialUpdate(): Endpoint {#partialUpdate}
 
 A PATCH request sending a partial payload to `url()` expecting a detail body response.
 Mostly useful with [Controller.fetch](../api/Controller.md#fetch)
@@ -327,7 +327,7 @@ static partialUpdate<T extends typeof SimpleResource>(this: T) {
 }
 ```
 
-### delete(): Endpoint
+### delete(): Endpoint {#delete}
 
 A DELETE request sent to `url()`
 Mostly useful with [Controller.fetch](../api/Controller.md#fetch)

@@ -1,4 +1,4 @@
-# ![🛌🎣 Rest hooks](../../packages/rest-hooks/rest_hooks_logo_and_text.svg?sanitize=true)
+# [![🛌🎣 Rest hooks](../../packages/rest-hooks/rest_hooks_logo_and_text.svg?sanitize=true)](https://resthooks.io)
 
 [![CircleCI](https://circleci.com/gh/coinbase/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/coinbase/rest-hooks)
 [![Coverage Status](https://img.shields.io/coveralls/coinbase/rest-hooks.svg?style=flat-square)](https://coveralls.io/github/coinbase/rest-hooks?branch=master)
@@ -72,7 +72,7 @@ For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 - [x] 🧵 React 18 [Concurrent mode](https://reactjs.org/docs/concurrent-mode-patterns.html) compatible
 - [x] 🎣 [Declarative API](https://resthooks.io/docs/getting-started/data-dependency)
 - [x] 📝 Composition over configuration
-- [x] 💰 Normalized response [configurable](https://resthooks.io/docs/guides/resource-lifetime) caching
+- [x] 💰 [Normalized](https://resthooks.io/docs/getting-started/entity) caching
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination
 - [x] ✨ [Optimistic updates](https://resthooks.io/docs/guides/optimistic-updates)

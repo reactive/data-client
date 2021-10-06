@@ -1,6 +1,9 @@
 ---
 title: Controller
 ---
+<head>
+  <title>Controller - Imperative Controls for Rest Hooks</title>
+</head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';

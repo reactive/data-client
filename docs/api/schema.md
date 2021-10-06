@@ -1,6 +1,6 @@
 ---
 title: Schema Quick Start
-sidebar_label: Quick Start
+sidebar_label: Schema
 ---
 import LanguageTabs from '@site/src/components/LanguageTabs';
 

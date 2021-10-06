@@ -209,41 +209,79 @@ Hard errors always invalidate a response with the rejection - even when data has
 <HooksPlayground>
 
 ```tsx
+let FAKE_ERROR = undefined;
+const superFetch = lastUpdated;
+const mockFetch = (arg, error) =>
+  FAKE_ERROR !== undefined ? Promise.reject(FAKE_ERROR) : superFetch(arg);
+
 const lastUpdated = lastUpdated.extend({
+  fetch: mockFetch,
   errorPolicy: error =>
     error.status >= 500 ? ('hard' as const) : ('soft' as const),
-  // we need this to ignore 'status' sent in arguments
-  key({ id }) {
-    return `lastUpdated ${id}`;
-  },
 });
-const mockError = ({ status }) => {
+function createError(status) {
   const error = new Error('fake error');
   error.status = status;
-  return Promise.reject(error);
-};
-const alwaysError = lastUpdated.extend({ fetch: mockError });
+  return error;
+}
 
 function ShowTime() {
   const { updatedAt } = useResource(lastUpdated, { id: '1' });
-  const { fetch } = useController();
+  const { fetch, invalidate } = useController();
+  React.useEffect(
+    () => () => {
+      FAKE_ERROR = undefined;
+    },
+    [updatedAt],
+  );
   return (
     <div>
       <time>
         {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
       </time>{' '}
       <div>
-        <button onClick={() => fetch(alwaysError, { id: '1', status: 400 })}>
-          Soft Error
+        <button
+          onClick={() => {
+            FAKE_ERROR = createError(400);
+            fetch(lastUpdated, { id: '1' });
+          }}
+        >
+          Fetch Soft
         </button>
-        <button onClick={() => fetch(alwaysError, { id: '1', status: 500 })}>
-          Hard Error
+        <button
+          onClick={() => {
+            FAKE_ERROR = createError(500);
+            fetch(lastUpdated, { id: '1' });
+          }}
+        >
+          Fetch Hard
+        </button>
+        <button
+          onClick={() => {
+            FAKE_ERROR = createError(400);
+            invalidate(lastUpdated, { id: '1' });
+          }}
+        >
+          Invalidate Soft
+        </button>
+        <button
+          onClick={() => {
+            FAKE_ERROR = createError(500);
+            invalidate(lastUpdated, { id: '1' });
+          }}
+        >
+          Invalidate Hard
         </button>
       </div>
     </div>
   );
 }
-render(<ShowTime />);
+
+render(
+  <ResetableErrorBoundary>
+    <ShowTime />
+  </ResetableErrorBoundary>,
+);
 ```
 
 </HooksPlayground>

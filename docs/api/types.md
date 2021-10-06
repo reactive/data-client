@@ -1,5 +1,5 @@
 ---
-title: Types
+title: TypeScript Types
 ---
 
 ## @rest-hooks/core

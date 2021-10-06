@@ -42,12 +42,8 @@
         {
           "type": "category",
           "collapsible": false,
-          "label": "Network Interface",
+          "label": "Custom Endpoints",
           "items": [
-            {
-              "type": "doc",
-              "id": "guides/resource-types"
-            },
             {
               "type": "doc",
               "id": "guides/url"
@@ -75,13 +71,17 @@
             {
               "type": "doc",
               "id": "guides/mocking-unfinished"
+            },
+            {
+              "type": "doc",
+              "id": "guides/resource-lifetime"
             }
           ]
         },
         {
           "type": "category",
           "collapsible": false,
-          "label": "Entity Interface",
+          "label": "Resource Instance",
           "items": [
             {
               "type": "doc",
@@ -116,10 +116,6 @@
             {
               "type": "doc",
               "id": "guides/custom-networking"
-            },
-            {
-              "type": "doc",
-              "id": "guides/resource-lifetime"
             }
           ]
         }
@@ -141,6 +137,29 @@
     },
     {
       "type": "category",
+      "label": "Testing",
+      "items": [
+        {
+          "type": "doc",
+          "id": "guides/debugging"
+        },
+        {
+          "type": "doc",
+          "id": "guides/storybook"
+        },
+        {
+          "type": "doc",
+          "id": "guides/unit-testing-hooks"
+        },
+        {
+          "type": "doc",
+          "id": "guides/unit-testing-components"
+        }
+      ]
+    },
+
+    {
+      "type": "category",
       "label": "Concepts",
       "items": [
         {
@@ -160,7 +179,7 @@
 
             {
               "type": "doc",
-              "id": "guides/binary-fetches"
+              "id": "guides/img-media"
             },
         {
           "type": "category",
@@ -170,29 +189,6 @@
             {
               "type": "doc",
               "id": "guides/infinite-scrolling-pagination"
-            }
-          ]
-        },
-        {
-          "type": "category",
-          "collapsible": false,
-          "label": "Testing",
-          "items": [
-            {
-              "type": "doc",
-              "id": "guides/debugging"
-            },
-            {
-              "type": "doc",
-              "id": "guides/storybook"
-            },
-            {
-              "type": "doc",
-              "id": "guides/unit-testing-hooks"
-            },
-            {
-              "type": "doc",
-              "id": "guides/unit-testing-components"
             }
           ]
         },
@@ -261,20 +257,16 @@
       "items": [
         {
           "type": "doc",
-          "id": "api/README"
-        },
-        {
-          "type": "doc",
           "id": "api/types"
         },
         {
-          "type": "doc",
-          "id": "api/Controller"
-        },
-        {
           "type": "category",
-          "label": "Core Hooks",
+          "label": "@rest-hooks/core",
           "items": [
+            {
+              "type": "doc",
+              "id": "api/Controller"
+            },
             {
               "type": "doc",
               "id": "api/useresource"
@@ -302,12 +294,32 @@
             {
               "type": "doc",
               "id": "api/useError"
+            },
+            {
+              "type": "doc",
+              "id": "api/CacheProvider"
+            },
+            {
+              "type": "doc",
+              "id": "api/ExternalCacheProvider"
+            },
+            {
+              "type": "doc",
+              "id": "api/NetworkErrorBoundary"
+            },
+            {
+              "type": "doc",
+              "id": "api/Manager"
+            },
+            {
+              "type": "doc",
+              "id": "api/NetworkManager"
             }
           ]
         },
         {
           "type": "category",
-          "label": "Extra Hooks",
+          "label": "@rest-hooks/hooks",
           "items": [
             {
               "type": "doc",
@@ -325,44 +337,17 @@
         },
         {
           "type": "category",
-          "label": "Legacy Hooks",
-          "items": [
-            {
-              "type": "doc",
-              "id": "api/useFetcher"
-            },
-            {
-              "type": "doc",
-              "id": "api/useInvalidator"
-            },
-            {
-              "type": "doc",
-              "id": "api/useResetter"
-            }
-          ]
-        },
-        {
-          "type": "category",
-          "label": "Interface Definitions",
+          "label": "@rest-hooks/endpoint",
           "items": [
             {
               "type": "doc",
               "id": "api/Endpoint"
             },
-            {
-              "type": "doc",
-              "id": "api/resource"
-            },
+
             {
               "type": "doc",
               "id": "api/Index"
-            }
-          ]
-        },
-        {
-          "type": "category",
-          "label": "Schemas",
-          "items": [
+            },
             {
               "type": "doc",
               "id": "api/schema"
@@ -395,55 +380,22 @@
               "type": "doc",
               "id": "api/SimpleRecord"
             }
+
           ]
         },
         {
           "type": "category",
-          "label": "Components",
+          "label": "@rest-hooks/rest",
           "items": [
             {
               "type": "doc",
-              "id": "api/CacheProvider"
-            },
-            {
-              "type": "doc",
-              "id": "api/ExternalCacheProvider"
-            },
-            {
-              "type": "doc",
-              "id": "api/NetworkErrorBoundary"
+              "id": "api/resource"
             }
           ]
         },
         {
           "type": "category",
-          "label": "Managers",
-          "items": [
-            {
-              "type": "doc",
-              "id": "api/Manager"
-            },
-            {
-              "type": "doc",
-              "id": "api/NetworkManager"
-            },
-            {
-              "type": "doc",
-              "id": "api/SubscriptionManager"
-            },
-            {
-              "type": "doc",
-              "id": "api/PollingSubscription"
-            },
-            {
-              "type": "doc",
-              "id": "api/DevToolsManager"
-            }
-          ]
-        },
-        {
-          "type": "category",
-          "label": "Testing",
+          "label": "@rest-hooks/test",
           "items": [
             {
               "type": "doc",
@@ -468,6 +420,43 @@
             {
               "type": "doc",
               "id": "api/MockProvider"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Extra Managers",
+          "items": [
+
+            {
+              "type": "doc",
+              "id": "api/SubscriptionManager"
+            },
+            {
+              "type": "doc",
+              "id": "api/PollingSubscription"
+            },
+            {
+              "type": "doc",
+              "id": "api/DevToolsManager"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Legacy Hooks",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/useFetcher"
+            },
+            {
+              "type": "doc",
+              "id": "api/useInvalidator"
+            },
+            {
+              "type": "doc",
+              "id": "api/useResetter"
             }
           ]
         }

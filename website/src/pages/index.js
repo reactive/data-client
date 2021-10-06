@@ -8,26 +8,31 @@ import styles from './index.module.css';
 import HomepageFeatures from '../components/HomepageFeatures';
 import Demo from '../components/Demo/index';
 
-const ProjectTitle = () => (
-  <React.Fragment>
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: '30px',
-      }}
-    >
-      <img
-        src={'img/rest_hooks_logo_and_text_subtitle.svg'}
-        alt="Rest Hooks - Delightful Data Fetching"
-        height={110}
-      />
-    </div>
+const ProjectTitle = () => {
+  const { siteConfig } = useDocusaurusContext();
+  return (
+    <React.Fragment>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginBottom: '30px',
+        }}
+      >
+        <img
+          src={'img/rest_hooks_logo_and_text_subtitle.svg'}
+          alt="Rest Hooks - An API client for dynamic applications"
+          height={110}
+        />
+      </div>
 
-    {/*<h2 style={{ marginTop: '0.0', fontWeight: '500' }}>{siteConfig.tagline}</h2>*/}
-  </React.Fragment>
-);
+      {/*<h2 style={{ marginTop: '0.0', fontWeight: '500' }}>
+        {siteConfig.tagline}
+      </h2>*/}
+    </React.Fragment>
+  );
+};
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();

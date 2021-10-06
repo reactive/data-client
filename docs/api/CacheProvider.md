@@ -14,9 +14,7 @@ Manages state, providing all context needed to use the hooks. Should be placed a
 in application tree as any usage of the hooks is only possible for components below the provider
 in the React tree.
 
-`index.tsx`
-
-```tsx
+```tsx title="index.tsx"
 import { CacheProvider } from 'rest-hooks';
 import ReactDOM from 'react-dom';
 
@@ -28,7 +26,7 @@ ReactDOM.render(
 );
 ```
 
-## initialState: State\<unknown\>
+## initialState: State<unknown\> {#initialState}
 
 ```typescript
 type State<T> = Readonly<{

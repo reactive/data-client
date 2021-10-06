@@ -3,6 +3,10 @@ id: usage
 title: REST / CRUD
 sidebar_label: Usage
 ---
+<head>
+  <title>Using REST or CRUD APIs with Rest Hooks</title>
+</head>
+
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
@@ -12,11 +16,9 @@ import PkgTabs from '@site/src/components/PkgTabs';
 
 ## Define a Resource
 
-#### `resources/article.ts`
-
 <LanguageTabs>
 
-```typescript
+```typescript title="resources/article.ts"
 import { Resource } from '@rest-hooks/rest';
 
 export default class ArticleResource extends Resource {
@@ -34,7 +36,7 @@ export default class ArticleResource extends Resource {
 }
 ```
 
-```js
+```js title="resources/article.js"
 import { Resource } from '@rest-hooks/rest';
 
 export default class ArticleResource extends Resource {
@@ -125,8 +127,6 @@ suspends.
 
 ## Dispatch mutation
 
-#### `article.tsx`
-
 <Tabs
 defaultValue="Create"
 values={[
@@ -136,7 +136,7 @@ values={[
 ]}>
 <TabItem value="Create">
 
-```tsx
+```tsx title="article.tsx"
 import { useController } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
@@ -158,7 +158,7 @@ resolves to the new Resource created by the API. It will automatically be added 
 </TabItem>
 <TabItem value="Update">
 
-```tsx
+```tsx title="article.tsx"
 import { useController } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
@@ -184,7 +184,7 @@ resolves to the new Resource created by the API. It will automatically be added 
 </TabItem>
 <TabItem value="Delete">
 
-```tsx
+```tsx title="article.tsx"
 import { useController } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 

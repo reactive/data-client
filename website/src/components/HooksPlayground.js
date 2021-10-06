@@ -42,6 +42,34 @@ function CurrentTime() {
   );
 }
 
+function ResetableErrorBoundary({ children }) {
+  const [i, setI] = React.useState(0);
+  const { resetEntireStore } = restHooks.useController();
+
+  return (
+    <restHooks.NetworkErrorBoundary
+      key={i}
+      fallbackComponent={({ error }) => (
+        <>
+          <div>
+            {error.message} <i>{error.status}</i>
+          </div>
+          <button
+            onClick={() => {
+              resetEntireStore();
+              setI(i => i + 1);
+            }}
+          >
+            Reset
+          </button>
+        </>
+      )}
+    >
+      {children}
+    </restHooks.NetworkErrorBoundary>
+  );
+}
+
 const scope = {
   ...restHooks,
   ...rest,
@@ -50,6 +78,7 @@ const scope = {
   lastUpdated,
   TimedEntity,
   CurrentTime,
+  ResetableErrorBoundary,
 };
 
 const HooksPlayground = ({ children, groupId, defaultOpen }) => (

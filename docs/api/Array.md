@@ -1,6 +1,9 @@
 ---
-title: Array
+title: schema.Array
 ---
+<head>
+  <title>schema.Array - Representing Arrays | Rest Hooks</title>
+</head>
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';

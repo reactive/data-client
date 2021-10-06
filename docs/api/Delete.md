@@ -1,6 +1,9 @@
 ---
-title: Delete
+title: schema.Delete
 ---
+<head>
+  <title>schema.Delete - Invalidating Entities | Rest Hooks</title>
+</head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
