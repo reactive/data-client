@@ -82,6 +82,7 @@
     "redux",
     "data fetching",
     "data cache",
+    "api client",
     "api",
     "normalized cache",
     "swr",

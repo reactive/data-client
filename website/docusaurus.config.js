@@ -163,7 +163,7 @@ module.exports = {
         },
         {
           to: 'docs/rest/usage',
-          label: 'REST / CRUD',
+          label: 'REST',
           position: 'left',
         },
         {

@@ -12,7 +12,7 @@ it will still refresh the data if old enough.
 To explain these concepts we'll be faking an endpoint that gives us the current time so it is easy to tell how stale it is.
 
 ```tsx title="lastUpdated.ts"
-const mockFetch = ({ id, delay = 150 }) =>
+const mockLastUpdated = ({ id, delay = 150 }) =>
   new Promise(resolve =>
     setTimeout(
       () =>
@@ -32,7 +32,7 @@ class TimedEntity extends Entity {
   };
 }
 
-const lastUpdated = new Endpoint(mockFetch, { schema: TimedEntity });
+const lastUpdated = new Endpoint(mockLastUpdated, { schema: TimedEntity });
 ```
 
 ## Expiry status
@@ -55,6 +55,8 @@ no components care about this data no action will be taken.
 
 ## Expiry Time
 
+### Endpoint.dataExpiryTime
+
 [Endpoint.dataExpiryTime](../api/Endpoint#dataexpirylength) sets how long (in miliseconds) it takes for data
 to transition from 'fresh' to 'stale' status. Try setting it to a very low number like '50'
 to make it becomes stale almost instantly; or a very large number to stay around for a long time.
@@ -66,6 +68,59 @@ you will continue to see the old time without any refresh.
 
 ```tsx
 const lastUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
+
+function TimePage({ id }) {
+  const { updatedAt } = useResource(lastUpdated, { id });
+  return (
+    <div>
+      API Time:{' '}
+      <time>
+        {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
+      </time>
+    </div>
+  );
+}
+
+function Navigator() {
+  const [id, setId] = React.useState('1');
+  const handleChange = e => setId(e.currentTarget.value);
+  return (
+    <div>
+      <div>
+        <button value="1" onClick={handleChange}>
+          First
+        </button>
+        <button value="2" onClick={handleChange}>
+          Second
+        </button>
+      </div>
+      <TimePage id={id} />
+      <div>
+        Current Time: <CurrentTime />
+      </div>
+    </div>
+  );
+}
+render(<Navigator />);
+```
+
+</HooksPlayground>
+
+### Endpoint.invalidIfStale
+
+[Endpoint.invalidIfStale](../api/Endpoint#invalidifstale) eliminates the `stale` status, making data
+that expires immediately be considered 'invalid'.
+
+This is demonstrated by the component suspending once its data goes stale. If the data is still
+within the expiry time it just continues to display it.
+
+<HooksPlayground>
+
+```tsx
+const lastUpdated = lastUpdated.extend({
+  invalidIfStale: true,
+  dataExpiryLength: 5000,
+});
 
 function TimePage({ id }) {
   const { updatedAt } = useResource(lastUpdated, { id });

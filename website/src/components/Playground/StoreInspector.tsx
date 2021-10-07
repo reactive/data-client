@@ -1,32 +1,16 @@
 import { StateContext } from '@rest-hooks/core';
-import React, { useContext, memo, useCallback, useMemo, useState } from 'react';
-import useUserPreferencesContext from '@theme/hooks/useUserPreferencesContext';
+import React, { useContext, memo, useMemo } from 'react';
 
 import Tree from './Tree';
-import styles from './store.module.css';
+import styles from './styles.module.css';
 
 function StoreInspector({
-  groupId,
-  defaultOpen = 'n',
+  toggle,
+  selectedValue,
 }: {
-  groupId: string;
-  defaultOpen: 'y' | 'n';
+  selectedValue: 'y' | 'n';
+  toggle: () => void;
 }) {
-  const { tabGroupChoices, setTabGroupChoices } = useUserPreferencesContext();
-  const [selectedValue, setSelectedValue] = useState(defaultOpen);
-
-  if (groupId != null) {
-    const choice = tabGroupChoices[groupId];
-    if (choice != null && choice !== selectedValue) {
-      setSelectedValue(choice);
-    }
-  }
-
-  const toggle = useCallback(() => {
-    setSelectedValue(open => (open === 'y' ? 'n' : 'y'));
-    setTabGroupChoices(groupId, selectedValue === 'y' ? 'n' : 'y');
-  }, [groupId, selectedValue, setTabGroupChoices]);
-
   return (
     <>
       <div className={styles.debugToggle} onClick={toggle}>

@@ -5,11 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
- .playgroundContainer {
+.playgroundContainer {
   margin-bottom: var(--ifm-leading);
   border-radius: var(--ifm-global-radius);
   box-shadow: var(--ifm-global-shadow-lw);
   overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+}
+.playgroundContainer.row {
+  flex-direction: row;
+}
+.playgroundContainer > div {
+  flex: 1 1 auto;
+}
+.playgroundContainer > div:first-child {
+  flex: 0 0 70%;
 }
 
 .playgroundHeader {
@@ -22,7 +34,7 @@
   font-size: var(--ifm-code-font-size);
 }
 
-.playgroundHeader:first-of-type {
+div:first-of-type > .playgroundHeader {
   background: var(--ifm-color-emphasis-600);
   color: var(--ifm-color-content-inverse);
 }
@@ -32,9 +44,10 @@
     var(--ifm-font-family-monospace) !important;
   /*rtl:ignore*/
   direction: ltr;
+  height: 100%;
 }
 
-:global(.col) .playgroundPreview  {
+:global(.col) .playgroundPreview {
   padding: 1rem;
   background-color: var(--ifm-pre-background);
   flex: 1 4 20%;
@@ -42,4 +55,54 @@
 
 .playgroundResult {
   display: flex;
+  height: 100%;
+}
+
+.debugToggle {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.08rem;
+  text-transform: uppercase;
+  font-weight: 500;
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-content);
+  font-size: var(--ifm-code-font-size);
+  padding: 0.7em 0.1em 1em 0.1em;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.debugToggle:hover {
+  background-color: var(--ifm-color-emphasis-300);
+}
+
+.hidden {
+  display: none;
+}
+
+/* tabs */
+.playgroundHeader.tabControls {
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+}
+.playgroundHeader.tabControls div:first-child {
+  padding: 0.75rem;
+}
+
+.tabs {
+  display: flex;
+}
+
+.tab {
+  padding: 0.75rem;
+  cursor: pointer;
+}
+.tab:hover {
+  background-color: var(--ifm-color-emphasis-500);
+}
+
+.tab.selected {
+  background-color: var(--ifm-color-emphasis-400);
+  color: var(--ifm-color-content);
 }
