@@ -1,10 +1,3 @@
-/**
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 .playgroundContainer {
   margin-bottom: var(--ifm-leading);
   border-radius: var(--ifm-global-radius);
@@ -14,8 +7,10 @@
   align-items: stretch;
   flex-direction: column;
 }
-.playgroundContainer.row {
-  flex-direction: row;
+@media only screen and (min-width: 768px) {
+  .playgroundContainer.row {
+    flex-direction: row;
+  }
 }
 .playgroundContainer > div {
   flex: 1 1 auto;
@@ -76,7 +71,7 @@ div:first-of-type > .playgroundHeader {
   background-color: var(--ifm-color-emphasis-300);
 }
 
-.hidden {
+.playgroundContainer.row.hidden {
   display: none;
 }
 
@@ -95,8 +90,11 @@ div:first-of-type > .playgroundHeader {
 }
 
 .tab {
+  height: 100%;
   padding: 0.75rem;
   cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 .tab:hover {
   background-color: var(--ifm-color-emphasis-500);
