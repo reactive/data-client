@@ -9,6 +9,10 @@
   --ifm-font-family-base: 'Rubik', 'Avenir Next', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   --ifm-font-family-monospace: 'Roboto Mono', SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
+
+html[data-theme='light'] {
+  --ifm-hero-background-color: var(--ifm-footer-background-color);
+}
 /*@font-face {
   font-family: 'Rubik';
   src: url('../../static/font/Rubik-VariableFont_wght.ttf')
@@ -52,13 +56,13 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
 }
 
 .navbar .navbar__link {
-  font-family: 'Rubik', 'Times New Roman', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Rubik', 'Avenir Next', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   letter-spacing: -0.02em;
   font-weight: 400;
 }
 
 .navbar .navbar__brand .navbar__title {
-  font-family: 'Rubik', 'Times New Roman', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Rubik', 'Avenir Next', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-size: 20px;
   letter-spacing: -0.02em;
   font-weight: 450;
@@ -66,4 +70,8 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
 .navbar .navbar__brand img {
   width: 32px;
   height: 32px;
+}
+
+.button {
+  line-height: 2;
 }

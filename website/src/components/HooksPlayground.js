@@ -1,12 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import * as restHooks from 'rest-hooks';
 import * as rest from '@rest-hooks/rest';
 import * as graphql from '@rest-hooks/graphql';
 import BigNumber from 'bignumber.js';
+import { default as BaseTodoResource } from 'todo-app/src/resources/TodoResource';
 
 import Playground from './Playground';
 
-const mockFetch = ({ id, delay = 150 }) =>
+const mockFetch =
+  (getResponse, delay = 150) =>
+  (...args) =>
+    new Promise(resolve =>
+      setTimeout(() => resolve(getResponse(...args)), delay),
+    );
+
+const mockLastUpdated = ({ id, delay = 150 }) =>
   new Promise(resolve =>
     setTimeout(
       () =>
@@ -27,7 +35,9 @@ class TimedEntity extends rest.Entity {
   };
 }
 
-const lastUpdated = new restHooks.Endpoint(mockFetch, { schema: TimedEntity });
+const lastUpdated = new restHooks.Endpoint(mockLastUpdated, {
+  schema: TimedEntity,
+});
 
 function CurrentTime() {
   const [time, setTime] = useState(() => new Date());
@@ -60,7 +70,7 @@ function ResetableErrorBoundary({ children }) {
               setI(i => i + 1);
             }}
           >
-            Reset
+            Clear Error
           </button>
         </>
       )}
@@ -70,27 +80,48 @@ function ResetableErrorBoundary({ children }) {
   );
 }
 
+class TodoResource extends BaseTodoResource {
+  static list() {
+    const superEndpoint = super.list();
+    return superEndpoint.extend({
+      async fetch(...args) {
+        return (await superEndpoint(...args)).slice(0, 5);
+      },
+    });
+  }
+}
+
 const scope = {
   ...restHooks,
   ...rest,
   ...graphql,
+  mockFetch,
   BigNumber,
   lastUpdated,
   TimedEntity,
   CurrentTime,
   ResetableErrorBoundary,
+  TodoResource,
 };
 
-const HooksPlayground = ({ children, groupId, defaultOpen }) => (
+const HooksPlayground = ({
+  children,
+  groupId,
+  hidden = false,
+  defaultOpen = false,
+  row = false,
+}) => (
   <Playground
     scope={scope}
     noInline
     groupId={groupId}
     defaultOpen={defaultOpen}
+    row={row}
+    hidden={hidden}
   >
     {typeof children === 'string'
       ? children
       : children.props.children.props.children}
   </Playground>
 );
-export default HooksPlayground;
+export default memo(HooksPlayground);

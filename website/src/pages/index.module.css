@@ -8,7 +8,10 @@
   text-align: center;
   position: relative;
   overflow: hidden;
-  margin-bottom: 10px;
+  /*margin-bottom: 10px;*/
+
+  background: url('../../static/img/rest_hooks_logo_grayscale.svg') var(--ifm-hero-background-color) no-repeat;
+  background-position: 100% 20%;
 }
 
 
@@ -24,8 +27,8 @@
   justify-content: center;
 }
 .buttons :global(.button.button--primary) {
-  font-size: 25px;
-  padding: 0.4em 1.3em;
+  font-size: 23px;
+  padding: 0.2em 1.3em;
   font-weight: bold;
   border-radius: 10px;
   letter-spacing: 1px;

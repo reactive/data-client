@@ -5,17 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Suspense } from 'react';
-import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live';
+import React, { useContext } from 'react';
+import { LiveProvider, LiveEditor } from 'react-live';
 import clsx from 'clsx';
 import Translate from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 import usePrismTheme from '@theme/hooks/usePrismTheme';
-import { CacheProvider } from 'rest-hooks';
 import * as ts from 'typescript';
 
-import StoreInspector from './StoreInspector';
+import CodeTabContext from '../Demo/CodeTabContext';
+import Result from './Result';
 import styles from './styles.module.css';
 
 const babelTransform = code => {
@@ -30,21 +30,15 @@ const babelTransform = code => {
   return transformed.outputText;
 };
 
-function Header({ children }) {
-  return <div className={clsx(styles.playgroundHeader)}>{children}</div>;
+function Header({ children, className }) {
+  return (
+    <div className={clsx(styles.playgroundHeader, className)}>{children}</div>
+  );
 }
 
-function ResultWithHeader({ groupId, defaultOpen }) {
-  const isBrowser = useIsBrowser();
-
-  const child = isBrowser ? (
-    <Suspense fallback="loading...">
-      <LivePreview />
-      <LiveError />
-    </Suspense>
-  ) : null;
+function ResultWithHeader({ groupId, defaultOpen, row }) {
   return (
-    <>
+    <div>
       <Header>
         <Translate
           id="theme.Playground.result"
@@ -54,21 +48,53 @@ function ResultWithHeader({ groupId, defaultOpen }) {
         </Translate>
       </Header>
       <div className={styles.playgroundResult}>
-        <CacheProvider>
-          <div className={styles.playgroundPreview}>{child}</div>
-          <StoreInspector groupId={groupId} defaultOpen={defaultOpen} />
-        </CacheProvider>
+        <Result groupId={groupId} defaultOpen={defaultOpen} row={row} />
       </div>
-    </>
+    </div>
+  );
+}
+
+function HeaderTabs() {
+  const { selectedValue, setSelectedValue, values } =
+    useContext(CodeTabContext);
+  return (
+    <div className={styles.tabs}>
+      {values.map(({ value, label }) => (
+        <div
+          key={value}
+          className={clsx(styles.tab, {
+            [styles.selected]: selectedValue === value,
+          })}
+          onClick={() => setSelectedValue(value)}
+        >
+          {label}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function HeaderWithTabControls({ children }) {
+  return (
+    <Header className={styles.tabControls}>
+      <div>{children}</div>
+      <HeaderTabs />
+    </Header>
   );
 }
 
 function EditorWithHeader({ title }) {
+  const { values } = useContext(CodeTabContext);
+  const hasTabs = values.length > 0;
   return (
-    <>
-      <Header>{title}</Header>
+    <div>
+      {hasTabs ? (
+        <HeaderWithTabControls>{title}</HeaderWithTabControls>
+      ) : (
+        <Header>{title}</Header>
+      )}
       <LiveEditor className={styles.playgroundEditor} />
-    </>
+    </div>
   );
 }
 EditorWithHeader.defaultProps = {
@@ -87,6 +113,8 @@ export default function Playground({
   transformCode,
   groupId,
   defaultOpen,
+  row,
+  hidden = false,
   ...props
 }) {
   const isBrowser = useIsBrowser();
@@ -102,25 +130,12 @@ export default function Playground({
   const scope = { ...props.scope };
 
   return (
-    <div className={styles.playgroundContainer}>
-      {/*<LiveProvider
-        key={isBrowser}
-        code={isBrowser ? endpointCode.replace(/\n$/, '') : ''}
-        transformCode={transformCode || (code => `${code};`)}
-        theme={prismTheme}
-        {...props}
-      >
-        <EditorWithHeader
-          title={
-            <Translate
-              id="theme.Playground.liveEditor"
-              description="The live editor label of the live codeblocks"
-            >
-              Endpoint Editor
-            </Translate>
-          }
-        />
-        </LiveProvider>*/}
+    <div
+      className={clsx(styles.playgroundContainer, {
+        [styles.row]: row,
+        [styles.hidden]: hidden,
+      })}
+    >
       <LiveProvider
         key={isBrowser}
         code={isBrowser ? children.replace(/\n$/, '') : ''}
@@ -134,16 +149,27 @@ export default function Playground({
       >
         {playgroundPosition === 'top' ? (
           <>
-            <ResultWithHeader groupId={groupId} defaultOpen={defaultOpen} />
+            <ResultWithHeader
+              groupId={groupId}
+              defaultOpen={defaultOpen}
+              row={row}
+            />
             <EditorWithHeader />
           </>
         ) : (
           <>
             <EditorWithHeader />
-            <ResultWithHeader groupId={groupId} defaultOpen={defaultOpen} />
+            <ResultWithHeader
+              groupId={groupId}
+              defaultOpen={defaultOpen}
+              row={row}
+            />
           </>
         )}
       </LiveProvider>
     </div>
   );
 }
+Playground.defaultProps = {
+  row: false,
+};
