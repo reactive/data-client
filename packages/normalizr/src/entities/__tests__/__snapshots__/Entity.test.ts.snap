@@ -560,6 +560,23 @@ Object {
 }
 `;
 
+exports[`Entity normalization should error if no matching keys are found 1`] = `
+"Attempted to initialize MyEntity with no matching keys found
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
+  If this is a mistake, you can disable this check by setting static automaticValidation = 'silent'
+
+  Expected keys:
+    Found: 
+    Missing: name
+  Value (processed): {
+  \\"e\\": 0
+}"
+`;
+
 exports[`Entity normalization should only warn if at least four members are found with unexpected 1`] = `
 Object {
   "entities": Object {
