@@ -24,6 +24,7 @@ const ProjectTitle = () => {
           src={'img/rest_hooks_logo_and_text_subtitle.svg'}
           alt="Rest Hooks - An API client for dynamic applications"
           height={110}
+          width={512}
         />
       </div>
 

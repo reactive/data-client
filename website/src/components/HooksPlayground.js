@@ -7,12 +7,15 @@ import { default as BaseTodoResource } from 'todo-app/src/resources/TodoResource
 
 import Playground from './Playground';
 
-const mockFetch =
-  (getResponse, delay = 150) =>
-  (...args) =>
+const mockFetch = (getResponse, name, delay = 150) => {
+  const fetch = (...args) =>
     new Promise(resolve =>
       setTimeout(() => resolve(getResponse(...args)), delay),
     );
+  if (name)
+    Object.defineProperty(fetch, 'name', { value: name, writable: false });
+  return fetch;
+};
 
 const mockLastUpdated = ({ id, delay = 150 }) =>
   new Promise(resolve =>

@@ -21,8 +21,8 @@ import styles from './styles.module.css';
 const babelTransform = code => {
   const transformed = ts.transpileModule(code, {
     compilerOptions: {
-      module: ts.ModuleKind.CommonJS,
-      target: ts.ScriptTarget.ES2020,
+      module: ts.ModuleKind.ESNext,
+      target: ts.ScriptTarget.ES2017,
       jsx: 'react',
     },
   });
@@ -141,8 +141,16 @@ export default function Playground({
         code={isBrowser ? children.replace(/\n$/, '') : ''}
         transformCode={transformCode || (code => babelTransform(`${code};`))}
         transpileOptions={{
-          target: { chrome: 60 },
-          transforms: { classes: false, letConst: false },
+          target: { chrome: 71 },
+          transforms: {
+            classes: false,
+            letConst: false,
+            getterSetter: false,
+            generator: false,
+            asyncAwait: false,
+            moduleImport: false,
+            moduleExport: false,
+          },
         }}
         theme={prismTheme}
         {...props}

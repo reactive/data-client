@@ -188,6 +188,10 @@ module.exports = {
           position: 'right',
           items: [
             {
+              label: 'Upgrade Guide',
+              to: 'docs/upgrade/upgrading-to-6',
+            },
+            {
               label: '6.1',
               to: 'docs/',
               activeBaseRegex:
