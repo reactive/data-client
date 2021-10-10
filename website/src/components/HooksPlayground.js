@@ -102,7 +102,7 @@ const HooksPlayground = ({
   children,
   groupId,
   hidden = false,
-  defaultOpen = false,
+  defaultOpen = 'n',
   row = false,
 }) => (
   <Playground
