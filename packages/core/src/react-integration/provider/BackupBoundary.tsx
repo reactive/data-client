@@ -6,6 +6,7 @@ const NoSuspense =
 
 // since Suspense does not introduce DOM elements, this should not affect rehydration.
 const BackupBoundary: React.FunctionComponent<{ children: React.ReactNode }> =
+  /* istanbul ignore if */
   NoSuspense
     ? ({ children }) => children as JSX.Element
     : ({ children }) => <Suspense fallback={<Loading />}>{children}</Suspense>;

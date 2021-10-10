@@ -100,7 +100,9 @@ export default class NetworkManager implements Manager {
     };
   }
 
+  /** Used by DevtoolsManager to determine whether to log an action */
   skipLogging(action: ActionTypes) {
+    /* istanbul ignore next */
     return (
       action.type === FETCH_TYPE &&
       Object.prototype.hasOwnProperty.call(this.fetched, action.meta.key)
