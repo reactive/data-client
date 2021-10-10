@@ -32,6 +32,19 @@ describe(`${schema.Delete.name} normalization`, () => {
     ).toMatchSnapshot();
   });
 
+  test('normalizes already processed entities', () => {
+    class MyEntity extends IDEntity {}
+    expect(normalize('1', new schema.Delete(MyEntity))).toMatchSnapshot();
+  });
+
+  test('does not infer', () => {
+    class User extends IDEntity {}
+
+    expect(
+      new schema.Delete(User).infer([{ id: 5 }], {}, () => undefined),
+    ).toBeUndefined();
+  });
+
   it('should throw a custom error if data does not include pk', () => {
     class MyEntity extends Entity {
       readonly name: string = '';
