@@ -73,12 +73,16 @@ jobs:
           at: ~/
       - run:
           command: |
-            yarn add -W --dev react@next react-dom@next react-test-renderer@next
+            yarn add -W --dev react@^17.0.0 react-dom@^17.0.0 react-test-renderer@^17.0.0
       - run:
           command: |
-            if [ "$COVERALLS_REPO_TOKEN" != "" ]; then
+            curl -Os https://uploader.codecov.io/latest/linux/codecov;
+            chmod +x codecov;
             yarn run test:coverage --maxWorkers=4 --coverageReporters=text-lcov > ./lcov.info;
-            yarn run coveralls < ./lcov.info || true;
+            if [ "$CODECOV_TOKEN" != "" ]; then
+            ./codecov -t ${CODECOV_TOKEN} < ./lcov.info || true;
+            else
+            ./codecov < ./lcov.info || true;
             fi
 
   salus:
