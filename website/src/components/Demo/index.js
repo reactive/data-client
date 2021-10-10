@@ -53,7 +53,7 @@ const todoDetail = gql.query(\`
 \`);` +
       '\n\n' +
       `function TodoDetail() {
-    const todo = useResource(todoDetail, { id: 1 });
+    const { todo } = useResource(todoDetail, { id: 1 });
     return <div>{todo.title}</div>;
   }
   render(<TodoDetail/>);
@@ -216,10 +216,9 @@ const updateTodo = gql.mutation(
         type="checkbox"
         checked={todo.completed}
         onChange={e =>
-          controller.fetch(
-            updateTodo,
-            {todo:{ id: todo.id, completed: e.currentTarget.checked }},
-          )
+          controller.fetch(updateTodo, {
+            todo: { id: todo.id, completed: e.currentTarget.checked },
+          })
         }
       />
       {todo.completed ? <strike>{todo.title}</strike> : todo.title}
