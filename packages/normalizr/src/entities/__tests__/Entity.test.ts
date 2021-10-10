@@ -217,6 +217,25 @@ describe(`${Entity.name} normalization`, () => {
     expect(warnSpy.mock.calls).toMatchSnapshot();
   });
 
+  it('should error if no matching keys are found', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      pk() {
+        return (this as any).e;
+      }
+    }
+    const schema = MyEntity;
+
+    expect(() =>
+      normalize(
+        {
+          e: 0,
+        },
+        schema,
+      ),
+    ).toThrowErrorMatchingSnapshot();
+  });
+
   it('should allow many unexpected as long as none are missing', () => {
     class MyEntity extends Entity {
       readonly name: string = '';
@@ -654,7 +673,7 @@ describe(`${Entity.name} denormalization`, () => {
     expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
   });
 
-  test('denormalizes deep entities while maintaining referntial equality', () => {
+  test('denormalizes deep entities while maintaining referential equality', () => {
     const entities = {
       Menu: {
         '1': { id: '1', food: '1' },
@@ -671,6 +690,30 @@ describe(`${Entity.name} denormalization`, () => {
     const [second] = denormalize('1', Menu, entities, entityCache, resultCache);
     expect(first).toBe(second);
     expect(first?.food).toBe(second?.food);
+  });
+
+  test('denormalizes to undefined when validate() returns string', () => {
+    class MyTacos extends Tacos {
+      static validate(entity) {
+        if (!Object.prototype.hasOwnProperty.call(entity, 'name'))
+          return 'no name';
+      }
+    }
+    const entities = {
+      MyTacos: {
+        '1': { id: '1' },
+      },
+    };
+    expect(denormalize('1', MyTacos, entities)).toStrictEqual([
+      undefined,
+      false,
+      true,
+    ]);
+    expect(denormalize('1', MyTacos, fromJS(entities))).toStrictEqual([
+      undefined,
+      false,
+      true,
+    ]);
   });
 
   test('denormalizes to undefined for missing data', () => {
