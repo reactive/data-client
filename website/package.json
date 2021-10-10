@@ -29,6 +29,7 @@
     "@rest-hooks/rest": "^3.0.0",
     "bignumber.js": "^9.0.1",
     "clsx": "^1.1.1",
+    "msw": "^0.35.0",
     "raw-loader": "^4.0.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -38,5 +39,8 @@
   },
   "resolutions": {
     "buble": "0.20.0"
+  },
+  "msw": {
+    "workerDirectory": "static"
   }
 }

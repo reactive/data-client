@@ -1,7 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
 import { Link } from '@docusaurus/router';
-import TodoResource from 'todo-app/src/resources/TodoResource';
 
 import CodeEditor from './CodeEditor';
 import styles from './styles.module.css';
@@ -42,22 +41,22 @@ render(<TodoDetail/>);
     label: 'GraphQL',
     value: 'graphql',
     code:
-      `const gql = new GQLEndpoint('https://nosy-baritone.glitch.me');
-  const userDetail = gql.query(\`
-    query UserDetail($name: String!) {
-      user(name: $name) {
-        id
-        name
-        email
-      }
+      `const gql = new GQLEndpoint('/');
+const todoDetail = gql.query(\`
+  query GetTodo($id: ID!) {
+    todo(id: $id) {
+      id
+      title
+      completed
     }
-  \`);` +
-      '\n\n' +
-      `function UserDetail() {
-    const { user } = useResource(userDetail, { name: 'Fong' });
-    return <div>{user.email}</div>;
   }
-  render(<UserDetail/>);
+\`);` +
+      '\n\n' +
+      `function TodoDetail() {
+    const todo = useResource(todoDetail, { id: 1 });
+    return <div>{todo.title}</div>;
+  }
+  render(<TodoDetail/>);
   `,
   },
 ];
@@ -86,42 +85,57 @@ const mutationDemo = [
 render(<TodoDetail id={1} />);
 `,
   },
-  /*{
+  {
     label: 'GraphQL',
     value: 'graphql',
     code:
-      `const gql = new GQLEndpoint(
-  'https://swapi-graphql.netlify.app/.netlify/functions/index',
-);
+      `const gql = new GQLEndpoint('/');
 
-class Review extends GQLEntity {
-  readonly stars: number = 0;
-  readonly commentary: string = '';
+class Todo extends GQLEntity {
+  readonly title: string = '';
+  readonly completed: boolean = false;
 }
 
-const createReview = gql.mutation(
-  \`mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
-    createReview(episode: $ep, review: $review) {
-      stars
-      commentary
+const todoDetail = gql.query(\`
+  query GetTodo($id: ID!) {
+    todo(id: $id) {
+      id
+      title
+      completed
+    }
+  }
+\`, { todo: Todo });
+
+const updateTodo = gql.mutation(
+  \`mutation UpdateTodo($todo: Todo!) {
+    updateTodo(todo: $todo) {
+      id
+      title
+      completed
     }
   }\`,
-  { createReview: Review },
+  { updateTodo: Todo },
 );` +
       '\n\n' +
-      `function NewReviewForm() {
-  const { fetch } = useController();
+      `function TodoDetail({ id }) {
+  const { todo } = useResource(todoDetail, { id });
+  const controller = useController();
+  const updateWith = title => () =>
+    controller.fetch(
+      updateTodo,
+      { todo: { id, title } }
+    );
   return (
-    <form onSubmit={e => {e.preventDefault();fetch(createReview, new FormData(e.target))}}>
-      <input name="ep" />
-      <input name="review" type="compound" />
-      <input type="submit" value="submit" />
-    </form>
+    <div>
+      <div>{todo.title}</div>
+      <button onClick={updateWith('🥑')}>🥑</button>
+      <button onClick={updateWith('💖')}>💖</button>
+    </div>
   );
 }
-render(<NewReviewForm/>);
+render(<TodoDetail id={1} />);
   `,
-  },*/
+  },
 ];
 
 const appDemo = [
@@ -150,6 +164,71 @@ const appDemo = [
 
 function TodoList() {
   const todos = useResource(TodoResource.list(), {});
+  const controller = useController();
+  return (
+    <div>
+      {todos.map(todo => (
+        <TodoItem key={todo.pk()} todo={todo} />
+      ))}
+    </div>
+  );
+}
+render(<TodoList />);
+`,
+  },
+  {
+    label: 'GraphQL',
+    value: 'graphql',
+    code:
+      `const gql = new GQLEndpoint('/');
+
+class Todo extends GQLEntity {
+  readonly title: string = '';
+  readonly completed: boolean = false;
+}
+
+const todoList = gql.query(\`
+  query GetTodos {
+    todo {
+      id
+      title
+      completed
+    }
+  }
+\`, { todos: [Todo] });
+
+const updateTodo = gql.mutation(
+  \`mutation UpdateTodo($todo: Todo!) {
+    updateTodo(todo: $todo) {
+      id
+      title
+      completed
+    }
+  }\`,
+  { updateTodo: Todo },
+);` +
+      '\n\n' +
+      `function TodoItem({ todo }: { todo: TodoResource }) {
+  const controller = useController();
+  return (
+    <div>
+      <input
+        type="checkbox"
+        checked={todo.completed}
+        onChange={e =>
+          controller.fetch(
+            updateTodo,
+            {todo:{ id: todo.id, completed: e.currentTarget.checked }},
+          )
+        }
+      />
+      {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+    </div>
+  );
+}
+
+function TodoList() {
+  const { todos } = useResource(todoList, {});
   const controller = useController();
   return (
     <div>

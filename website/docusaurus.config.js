@@ -37,7 +37,7 @@ module.exports = {
     },
     {
       rel: 'preload',
-      href: 'https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&family=Rubik:ital,wght@1,300..900&family=Roboto+Mono:wght@100..700&family=Roboto+Mono:ital,wght@1,100..700',
+      href: 'https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&family=Rubik:ital,wght@1,300..900&family=Roboto+Mono:wght@100..700&family=Roboto+Mono:ital,wght@1,100..700&display=swap',
       as: 'style',
       crossOrigin: true,
     },
@@ -84,7 +84,7 @@ module.exports = {
           showReadingTime: true,
         },
         theme: {
-          customCss: '../src/css/customTheme.css',
+          customCss: ['../src/css/customTheme.css', '../src/mocks/init.js'],
         },
       },
     ],

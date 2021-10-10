@@ -12,17 +12,6 @@ it will still refresh the data if old enough.
 To explain these concepts we'll be faking an endpoint that gives us the current time so it is easy to tell how stale it is.
 
 ```tsx title="lastUpdated.ts"
-const mockLastUpdated = ({ id, delay = 150 }) =>
-  new Promise(resolve =>
-    setTimeout(
-      () =>
-        resolve({
-          id,
-          updatedAt: new Date().toISOString(),
-        }),
-      delay,
-    ),
-  );
 class TimedEntity extends Entity {
   pk() {
     return this.id;
@@ -31,7 +20,8 @@ class TimedEntity extends Entity {
     updatedAt: Date,
   };
 }
-
+const fetchLastUpdated = ({ id }) =>
+  fetch(`/api/currentTime/${id}`).then(res => res.json());
 const lastUpdated = new Endpoint(mockLastUpdated, { schema: TimedEntity });
 ```
 
