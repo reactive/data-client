@@ -11,6 +11,9 @@
   .playgroundContainer.row {
     flex-direction: row;
   }
+  .playgroundContainer.row .hidden {
+    display: none;
+  }
 }
 .playgroundContainer > div {
   flex: 1 1 auto;
@@ -46,7 +49,12 @@ div:first-of-type > .playgroundHeader {
   padding: 1rem;
   background-color: var(--ifm-pre-background);
   flex: 1 4 20%;
+  overflow: auto;
 }
+:global(.col) .playgroundPreview pre {
+  overflow: visible;
+}
+
 
 .playgroundResult {
   display: flex;

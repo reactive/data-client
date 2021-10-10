@@ -4,9 +4,136 @@ title: Validation
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
+[Entity.validate()](../api/Entity#validate) is called during normalization and denormalization.
+`undefined` indicates no error, and a string error message if there is an error.
+
+## Field check
+
+Validation happens after [Entity.process()](../api/Entity#process) but before [Entity.fromJS()](../api/Entity#fromJS),
+thus operates on POJOs rather than an instance of the class.
+
+Here we can make sure the title field is included, and of the expected type.
+
 <HooksPlayground>
 
 ```tsx
+class Article extends Entity {
+  readonly id: string = '';
+  readonly title: string = '';
+
+  pk() {
+    return this.id;
+  }
+
+  static validate(processedEntity) {
+    if (!Object.hasOwn(processedEntity, 'title')) return 'missing title field';
+    if (typeof processedEntity.title !== 'string') return 'title is wrong type';
+  }
+}
+
+const mockArticleDetail = mockFetch(
+  ({ id }) =>
+    ({
+      '1': { id: '1', title: 'first' },
+      '2': { id: '2' },
+      '3': { id: '3', title: { complex: 'second', object: 5 } },
+    }[id]),
+  'mockArticleDetail',
+);
+const articleDetail = new Endpoint(mockArticleDetail, {
+  schema: Article,
+});
+
+function ArticlePage({ id }: { id: string }) {
+  const article = useResource(articleDetail, { id });
+  return <div>{article.title}</div>;
+}
+
+render(<ArticlePage id="2" />);
+```
+
+</HooksPlayground>
+
+### All fields check
+
+Here's a recipe for checking that every defined field is present.
+
+<HooksPlayground>
+
+```tsx
+class Article extends Entity {
+  readonly id: string = '';
+  readonly title: string = '';
+
+  pk() {
+    return this.id;
+  }
+
+  static validate(processedEntity) {
+    if (
+      !Object.keys(this.defaults).every(key => Object.hasOwn(processedEntity, key))
+    )
+      return 'a field is missing';
+  }
+}
+
+const mockArticleDetail = mockFetch(
+  ({ id }) =>
+    ({
+      '1': { id: '1', title: 'first' },
+      '2': { id: '2' },
+    }[id]),
+  'mockArticleDetail',
+);
+const articleDetail = new Endpoint(mockArticleDetail, {
+  schema: Article,
+});
+
+function ArticlePage({ id }: { id: string }) {
+  const article = useResource(articleDetail, { id });
+  return <div>{article.title}</div>;
+}
+
+render(<ArticlePage id="2" />);
+```
+
+</HooksPlayground>
+
+<!---
+## Partial results
+
+Another great use of validation is mixing endpoints that return incomplete objects. This is often
+useful when some fields consume lots of bandwidth or are computationally expensive for the backend.
+
+<HooksPlayground>
+
+```tsx
+const mockArticleList = mockFetch(
+  () => [
+    { id: '1', title: 'first' },
+    { id: '2', title: 'second' },
+  ],
+  'mockArticleList',
+);
+const mockArticleDetail = mockFetch(
+  ({ id }) =>
+    ({
+      '1': {
+        id: '1',
+        title: 'first',
+        content: 'long',
+        createdAt: '2011-10-05T14:48:00.000Z',
+      },
+      '2': {
+        id: '2',
+        title: 'second',
+        content: 'short',
+        createdAt: '2011-10-05T14:48:00.000Z',
+      },
+    }[id]),
+  'mockArticleDetail',
+);
+
 class ArticlePreview extends Entity {
   readonly id: string = '';
   readonly title: string = '';
@@ -14,14 +141,10 @@ class ArticlePreview extends Entity {
   pk() {
     return this.id;
   }
-  static key() {
+  static get key() {
     return 'Article';
   }
 }
-const mockArticleList = mockFetch(() => [
-  { id: '1', title: 'first' },
-  { id: '2', title: 'second' },
-]);
 const articleList = new Endpoint(mockArticleList, { schema: [ArticlePreview] });
 
 class ArticleFull extends ArticlePreview {
@@ -36,26 +159,48 @@ class ArticleFull extends ArticlePreview {
     if (!Object.hasOwn(processedEntity, 'content')) return 'Missing content';
   }
 }
-const mockArticleDetail = mockFetch(
-  ({ id }) =>
-    ({
-      '1': { id: '1', title: 'first', content: 'long' },
-      '2': { id: '2', title: 'second', content: 'short' },
-    }[id]),
-);
 const articleDetail = new Endpoint(mockArticleDetail, {
   schema: ArticleFull,
-  key({ id }) {
-    return `article ${id}`;
-  },
 });
 
-function ArticlePage() {
-  const article = useResource(articleDetail, { id: '1' });
-  return <div>{article.title}</div>;
+function ArticleDetail({ id }: { id: string }) {
+  const article = useResource(articleDetail, { id });
+  return (
+    <div>
+      <h4>{article.title}</h4>
+      <div>
+        <p>{article.content}</p>
+        <div>
+          Created:{' '}
+          <time>
+            {Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
+              article.createdAt,
+            )}
+          </time>
+        </div>
+      </div>
+    </div>
+  );
+}
+function ArticleList() {
+  const [route, setRoute] = React.useState<string>();
+  const articles = useResource(articleList, {});
+  if (!route) {
+    return (
+      <div>
+        {articles.map(article => (
+          <div key={article.pk()} onClick={() => setRoute(article.id)}>
+            {article.title}
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return <ArticleDetail id={route} />;
 }
 
-render(<ArticlePage />);
+render(<ArticleList />);
 ```
 
 </HooksPlayground>
+-->

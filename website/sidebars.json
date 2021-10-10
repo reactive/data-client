@@ -28,6 +28,10 @@
         {
           "type": "doc",
           "id": "getting-started/expiry-policy"
+        },
+        {
+          "type": "doc",
+          "id": "getting-started/validation"
         }
       ]
     },
