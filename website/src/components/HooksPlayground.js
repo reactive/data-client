@@ -17,17 +17,8 @@ const mockFetch = (getResponse, name, delay = 150) => {
   return fetch;
 };
 
-const mockLastUpdated = ({ id, delay = 150 }) =>
-  new Promise(resolve =>
-    setTimeout(
-      () =>
-        resolve({
-          id,
-          updatedAt: new Date().toISOString(),
-        }),
-      delay,
-    ),
-  );
+const mockLastUpdated = ({ id }) =>
+  fetch(`/api/currentTime/${id}`).then(res => res.json());
 class TimedEntity extends rest.Entity {
   pk() {
     return this.id;
