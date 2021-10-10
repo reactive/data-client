@@ -24,11 +24,24 @@ afterAll(() => {
 });
 
 describe('normalize', () => {
-  [42, null, undefined, '42', () => {}].forEach(input => {
-    test(`cannot normalize input that == ${input}`, () => {
+  test.each([42, null, undefined, () => {}])(
+    `cannot normalize input that == %s`,
+    input => {
       class Test extends IDEntity {}
       expect(() => normalize(input, Test)).toThrow();
-    });
+    },
+  );
+  test.each([42, null, undefined, '42', () => {}])(
+    `cannot normalize input that == %s`,
+    input => {
+      class Test extends IDEntity {}
+      expect(() => normalize(input, { data: Test })).toThrow();
+    },
+  );
+
+  test('can normalize strings for entity (already processed)', () => {
+    class Test extends IDEntity {}
+    expect(normalize('42', Test).result).toEqual('42');
   });
 
   test('passthrough with undefined schema', () => {

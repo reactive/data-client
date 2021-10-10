@@ -143,8 +143,6 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
   ): any {
-    // pass over already processed entities
-    if (typeof input === 'string') return input;
     const processedEntity = this.process(input, parent, key);
     const id = this.pk(processedEntity, parent, key);
     if (id === undefined || id === '') {
