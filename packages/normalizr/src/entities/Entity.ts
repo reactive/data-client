@@ -336,7 +336,8 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     unvisit: schema.UnvisitFunction,
   ): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean] {
     if (isImmutable(input)) {
-      this.validate((input as any).toJS());
+      if (this.validate((input as any).toJS()))
+        return [undefined as any, false, true];
       // Need to set this first so that if it is referenced further within the
       // denormalization the reference will already exist.
       unvisit.setLocal?.(input);
@@ -399,6 +400,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
   }
 }
 
+/* istanbul ignore else */
 if (process.env.NODE_ENV !== 'production') {
   const superFrom = Entity.fromJS;
   // for those not using TypeScript this is a good catch to ensure they are defining
