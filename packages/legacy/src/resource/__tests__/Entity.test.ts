@@ -730,8 +730,11 @@ describe(`${Entity.name} denormalization`, () => {
   });
 
   test('denormalizes deep entities with records', () => {
-    const Food = Record({ id: null });
-    const MenuR = Record({ id: null, food: null });
+    const Food = Record<{ id: null | string }>({ id: null });
+    const MenuR = Record<{ id: null | string; food: null | string }>({
+      id: null,
+      food: null,
+    });
 
     const entities = {
       Menu: {

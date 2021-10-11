@@ -19,7 +19,7 @@ afterAll(() => {
   dateSpy.mockRestore();
 });
 
-const values = <T extends Record<string, any>>(obj: T) =>
+const values = <T extends { [k: string]: any }>(obj: T) =>
   Object.keys(obj).map(key => obj[key]);
 
 class Tacos extends IDEntity {
@@ -753,8 +753,11 @@ describe(`${Entity.name} denormalization`, () => {
   });
 
   test('denormalizes deep entities with records', () => {
-    const Food = Record({ id: null });
-    const MenuR = Record({ id: null, food: null });
+    const Food = Record<{ id: null | string }>({ id: null });
+    const MenuR = Record<{ id: null | string; food: null | string }>({
+      id: null,
+      food: null,
+    });
 
     const entities = {
       Menu: {
