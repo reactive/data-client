@@ -35,8 +35,6 @@ export default class Delete<E extends EntityInterface & { process: any }>
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
   ): string | undefined {
-    // pass over already processed entities
-    if (typeof input === 'string') return input;
     // TODO: what's store needs to be a differing type from fromJS
     const processedEntity = this._entity.process(input, parent, key);
     const id = this._entity.pk(processedEntity, parent, key);

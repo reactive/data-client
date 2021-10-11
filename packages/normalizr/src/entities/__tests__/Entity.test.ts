@@ -65,6 +65,11 @@ describe(`${Entity.name} normalization`, () => {
     expect(normalize({ id: '1' }, MyEntity)).toMatchSnapshot();
   });
 
+  test('normalizes already processed entities', () => {
+    class MyEntity extends IDEntity {}
+    expect(normalize('1', MyEntity)).toMatchSnapshot();
+  });
+
   it('should throw a custom error if data does not include pk', () => {
     class MyEntity extends Entity {
       readonly name: string = '';
@@ -427,7 +432,7 @@ describe(`${Entity.name} normalization`, () => {
         return this.name;
       }
     }
-    const schema = MyEntity;
+    const schema = { data: MyEntity };
     function normalizeBad() {
       normalize('hibho', schema);
     }

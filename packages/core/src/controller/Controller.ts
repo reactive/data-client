@@ -20,6 +20,7 @@ import {
   WeakListMap,
 } from '@rest-hooks/normalizr';
 import { inferResults } from '@rest-hooks/normalizr';
+import { unsetDispatch } from '@rest-hooks/use-enhanced-reducer';
 
 type RHDispatch = (value: ActionTypes) => Promise<void>;
 
@@ -37,7 +38,7 @@ export default class Controller {
   declare readonly globalCache: DenormalizeCache;
 
   constructor({
-    dispatch = () => Promise.reject('dispatch not set'),
+    dispatch = unsetDispatch,
     globalCache = {
       entities: {},
       results: {},

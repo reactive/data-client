@@ -7,6 +7,7 @@ import type {
 import { DELETED } from '@rest-hooks/normalizr/special';
 import { normalize as arrayNormalize } from '@rest-hooks/normalizr/schemas/Array';
 import { normalize as objectNormalize } from '@rest-hooks/normalizr/schemas/Object';
+import { isEntity } from '@rest-hooks/normalizr/entities/Entity';
 
 const visit = (
   value: any,
@@ -189,7 +190,11 @@ export const normalize = <
     };
 
   const schemaType = expectedSchemaType(schema);
-  if (input === null || typeof input !== schemaType) {
+  if (
+    input === null ||
+    (typeof input !== schemaType &&
+      !((schema as any).key !== undefined && typeof input === 'string'))
+  ) {
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
       const parseWorks = (input: string) => {

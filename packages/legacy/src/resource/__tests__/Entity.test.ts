@@ -417,7 +417,7 @@ describe(`${Entity.name} normalization`, () => {
         return this.name;
       }
     }
-    const schema = MyEntity;
+    const schema = { data: MyEntity };
     function normalizeBad() {
       normalize('hibho', schema);
     }

@@ -45,6 +45,7 @@ export default class PolymorphicSchema {
   ) {
     const schema = this.inferSchema(value, parent, key);
     if (!schema) {
+      /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production') {
         const attr = this.getSchemaAttribute(value, parent, key);
         console.warn(
