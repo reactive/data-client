@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [2.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.0.2...@rest-hooks/endpoint@2.0.3) (2021-10-11)
+
+
+### 📝 Documentation
+
+* Only validate circleCI badge against master ([#1322](https://github.com/coinbase/rest-hooks/issues/1322)) ([04e9642](https://github.com/coinbase/rest-hooks/commit/04e96426a865cbef362947da3a8f74f7347859e9))
+
+
+
 ### [2.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.0.1...@rest-hooks/endpoint@2.0.2) (2021-09-29)
 
 **Note:** Version bump only for package @rest-hooks/endpoint

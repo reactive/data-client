@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.0.2...@rest-hooks/normalizr@8.1.0) (2021-10-11)
+
+
+### 🚀 Features
+
+* Normalize strings for entities ([#1364](https://github.com/coinbase/rest-hooks/issues/1364)) ([cb31e1f](https://github.com/coinbase/rest-hooks/commit/cb31e1f425d4ef727186ac3c447cc8c46ddabb4e))
+
+
+### 🐛 Bug Fix
+
+* Validation with immutablejs ([#1363](https://github.com/coinbase/rest-hooks/issues/1363)) ([2fa3865](https://github.com/coinbase/rest-hooks/commit/2fa38655aa4a0684fa81d925159e6e913e4d655e))
+
+
+### 📝 Documentation
+
+* Only validate circleCI badge against master ([#1322](https://github.com/coinbase/rest-hooks/issues/1322)) ([04e9642](https://github.com/coinbase/rest-hooks/commit/04e96426a865cbef362947da3a8f74f7347859e9))
+
+
+
 ### [8.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.0.1...@rest-hooks/normalizr@8.0.2) (2021-09-29)
 
 

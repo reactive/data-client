@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.5.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/img@0.5.0...@rest-hooks/img@0.5.1) (2021-10-11)
+
+
+### 📝 Documentation
+
+* Only validate circleCI badge against master ([#1322](https://github.com/coinbase/rest-hooks/issues/1322)) ([04e9642](https://github.com/coinbase/rest-hooks/commit/04e96426a865cbef362947da3a8f74f7347859e9))
+* Reorganize docs ([#1345](https://github.com/coinbase/rest-hooks/issues/1345)) ([fa49b6b](https://github.com/coinbase/rest-hooks/commit/fa49b6bcf1d6838b85ce21e728f0630e2746e68f))
+
+
+
 ## [0.5.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/img@0.5.0-beta.0...@rest-hooks/img@0.5.0) (2021-09-08)
 
 

@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [2.2.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.2.1...@rest-hooks/core@2.2.2) (2021-10-11)
+
+
+### 💅 Enhancement
+
+* Unified unset dispatch function ([#1362](https://github.com/coinbase/rest-hooks/issues/1362)) ([1b6d718](https://github.com/coinbase/rest-hooks/commit/1b6d71850d5adf38de879181ba62115db73e4e45))
+
+
+### 📝 Documentation
+
+* Add expiry policy doc page ([#1344](https://github.com/coinbase/rest-hooks/issues/1344)) ([79c1a23](https://github.com/coinbase/rest-hooks/commit/79c1a234f51669070febfb5884e52a554997efbe))
+* Add icons to principals in readme ([#1330](https://github.com/coinbase/rest-hooks/issues/1330)) ([341e3ca](https://github.com/coinbase/rest-hooks/commit/341e3cabae700ae03e0d73ee80206ab3a606f870))
+* Only validate circleCI badge against master ([#1322](https://github.com/coinbase/rest-hooks/issues/1322)) ([04e9642](https://github.com/coinbase/rest-hooks/commit/04e96426a865cbef362947da3a8f74f7347859e9))
+* Rearrange homepage ([#1352](https://github.com/coinbase/rest-hooks/issues/1352)) ([404b2b0](https://github.com/coinbase/rest-hooks/commit/404b2b0eaeea9be71594e031f9763b09c6c8fee7))
+* Reorganize docs ([#1345](https://github.com/coinbase/rest-hooks/issues/1345)) ([fa49b6b](https://github.com/coinbase/rest-hooks/commit/fa49b6bcf1d6838b85ce21e728f0630e2746e68f))
+
+
+
 ### [2.2.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.2.0...@rest-hooks/core@2.2.1) (2021-09-29)
 
 

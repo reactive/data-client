@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.1.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.1.0...@rest-hooks/use-enhanced-reducer@1.1.1) (2021-10-11)
+
+
+### 💅 Enhancement
+
+* Unified unset dispatch function ([#1362](https://github.com/coinbase/rest-hooks/issues/1362)) ([1b6d718](https://github.com/coinbase/rest-hooks/commit/1b6d71850d5adf38de879181ba62115db73e4e45))
+
+
+### 📝 Documentation
+
+* Only validate circleCI badge against master ([#1322](https://github.com/coinbase/rest-hooks/issues/1322)) ([04e9642](https://github.com/coinbase/rest-hooks/commit/04e96426a865cbef362947da3a8f74f7347859e9))
+
+
+
 ## [1.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.0.9...@rest-hooks/use-enhanced-reducer@1.1.0) (2021-06-13)
 
 
