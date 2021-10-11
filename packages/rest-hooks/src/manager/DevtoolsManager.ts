@@ -59,6 +59,7 @@ export default class DevToolsManager implements Manager {
 
   /** Called when initial state is ready */
   init(state: State<any>) {
+    /* istanbul ignore if */
     if (this.devTools) this.devTools.init(state);
   }
 

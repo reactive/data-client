@@ -1,5 +1,6 @@
 import React, { Suspense, memo, useMemo, version } from 'react';
 
+/* istanbul ignore next  */
 const NoSuspense =
   (version.startsWith('16') || version.startsWith('17')) &&
   typeof window === 'undefined';
@@ -8,7 +9,7 @@ const NoSuspense =
 const BackupBoundary: React.FunctionComponent<{ children: React.ReactNode }> =
   /* istanbul ignore if */
   NoSuspense
-    ? ({ children }) => children as JSX.Element
+    ? /* istanbul ignore next  */ ({ children }) => children as JSX.Element
     : ({ children }) => <Suspense fallback={<Loading />}>{children}</Suspense>;
 
 export default memo(BackupBoundary);
