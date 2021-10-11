@@ -15,6 +15,16 @@ describe('NetworkManager', () => {
     manager.cleanup();
   });
 
+  it('getState() should have initialState before middleware run', () => {
+    class Hacked extends NetworkManager {
+      getHacked() {
+        return this.getState();
+      }
+    }
+    const hacked = new Hacked();
+    expect(hacked.getHacked()).toEqual(initialState);
+  });
+
   describe('getMiddleware()', () => {
     it('should return the same value every call', () => {
       const a = manager.getMiddleware();

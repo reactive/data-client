@@ -7,7 +7,8 @@ class NetworkError extends Error {
 
   constructor(response: Response) {
     super(
-      response.statusText || `Network response not 'ok': ${response.status}`,
+      response.statusText ||
+        /* istanbul ignore next */ `Network response not 'ok': ${response.status}`,
     );
     this.status = response.status;
     this.response = response;
