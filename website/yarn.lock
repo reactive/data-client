@@ -1994,10 +1994,10 @@
   dependencies:
     "@babel/runtime" "^7.7.2"
 
-"@rest-hooks/rest@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/rest/-/rest-3.0.0.tgz#51009fc016d8df42f694636750972d3be1293d63"
-  integrity sha512-JKUa19b/YKnbPj4fHfL1acRXenVdjTkI+lfSXKnr1+55mxTyb9rthQYWVGySTi/T6yqudTZF/tRGRaLezHltCA==
+"@rest-hooks/rest@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@rest-hooks/rest/-/rest-3.0.1.tgz#bb37cacdd421b7aa4e3dfc48de754dc9a44deb5a"
+  integrity sha512-05fQPlaYdRr3naTJEcv3+96P1Qdsm03WtJjCr/wBe3ByupTooZ2w7qpzczp0seabWTfDewqzy/0BadM3Z1hCPg==
   dependencies:
     "@babel/runtime" "^7.7.2"
 
