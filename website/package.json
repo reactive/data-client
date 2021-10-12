@@ -24,7 +24,7 @@
     "@docusaurus/plugin-client-redirects": "^2.0.0-beta.6",
     "@docusaurus/preset-classic": "^2.0.0-beta.6",
     "@docusaurus/theme-live-codeblock": "^2.0.0-beta.6",
-    "@rest-hooks/endpoint": "^2.0.2",
+    "@rest-hooks/endpoint": "^2.0.3",
     "@rest-hooks/graphql": "^0.1.1",
     "@rest-hooks/rest": "^3.0.0",
     "bignumber.js": "^9.0.1",

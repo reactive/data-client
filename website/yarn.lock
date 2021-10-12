@@ -1292,14 +1292,7 @@
     core-js-pure "^3.16.0"
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.1.2", "@babel/runtime@^7.10.2", "@babel/runtime@^7.10.3", "@babel/runtime@^7.12.1", "@babel/runtime@^7.12.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4":
-  version "7.15.3"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.15.3.tgz#2e1c2880ca118e5b2f9988322bd8a7656a32502b"
-  integrity sha512-OvwMLqNXkCXSz1kSm58sEsNuhqOx/fKpnUnKnFB5v8uDda5bLNEHNgKPvhDN6IU0LDcnHQ90LlJ0Q6jnyBSIBA==
-  dependencies:
-    regenerator-runtime "^0.13.4"
-
-"@babel/runtime@^7.15.4":
+"@babel/runtime@^7.1.2", "@babel/runtime@^7.10.2", "@babel/runtime@^7.10.3", "@babel/runtime@^7.12.1", "@babel/runtime@^7.12.5", "@babel/runtime@^7.15.4", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4":
   version "7.15.4"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.15.4.tgz#fd17d16bfdf878e6dd02d19753a39fa8a8d9c84a"
   integrity sha512-99catp6bHCaxr4sJ/DbTGgHS4+Rs2RVd2g7iOap6SLGPDknRK9ztKNsE/Fg6QhSeh1FGE5f6gHGQmvvn3I3xhw==
@@ -1979,13 +1972,13 @@
     "@rest-hooks/use-enhanced-reducer" "^1.1.0"
     flux-standard-action "^2.1.1"
 
-"@rest-hooks/endpoint@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/endpoint/-/endpoint-2.0.2.tgz#ce21b1124829015630ff6bb423538b3ea4e1b887"
-  integrity sha512-X66/c52fMNvafasf5D+ZDqkfgVnWhA3TH/Yjz2Y0l2uCoJzvMGSpa1q+GIBEqQTEe1RNBlwPa/H8O+W5PIuX+A==
+"@rest-hooks/endpoint@^2.0.2", "@rest-hooks/endpoint@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@rest-hooks/endpoint/-/endpoint-2.0.3.tgz#f3a29785b5a2f8c5bfaf44eaba2d2434b75487aa"
+  integrity sha512-AzrxL1mY6YQ3xx9Qm8ywS6OGKPQsZOnhG7ycML+bFEkM9yqKX6VS6WQ9BqYUPtRmPHfrQ9DnsF0eck6+ZwKQdg==
   dependencies:
     "@babel/runtime" "^7.7.2"
-    "@rest-hooks/normalizr" "^8.0.2"
+    "@rest-hooks/normalizr" "^8.1.0"
 
 "@rest-hooks/graphql@^0.1.1":
   version "0.1.1"
@@ -1994,10 +1987,10 @@
   dependencies:
     "@babel/runtime" "^7.7.2"
 
-"@rest-hooks/normalizr@^8.0.2":
-  version "8.0.2"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/normalizr/-/normalizr-8.0.2.tgz#5ffae1916cf79b783749b08fef61d7b9cc438b99"
-  integrity sha512-Yo82IUpH774CTe83XO7cZkcHbNNyeowpgLwi3Fr3UYu1De1th8OikfQ7xkR8HkNJT7BlxluYGhh5Ur+nNgJF1A==
+"@rest-hooks/normalizr@^8.0.2", "@rest-hooks/normalizr@^8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@rest-hooks/normalizr/-/normalizr-8.1.0.tgz#50946696720c8b132d1b1a6e23972da0901e6eac"
+  integrity sha512-/RXfeMWIKGx4hIgOxtTi9ERqtkMV1gP/Jd/kTTwbL8xWSOxdDKN4fSlADMfklqQa5jM1rTw7PR1SdIzEreHpsQ==
   dependencies:
     "@babel/runtime" "^7.7.2"
 
