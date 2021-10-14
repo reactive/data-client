@@ -97,9 +97,11 @@ export default function MockResolver({
     [dispatch, fetchToReceiveAction, silenceMissing],
   );
   const controllerInterceptor = useMemo(() => {
-    const newController = Object.create(controller);
-    newController.dispatch = dispatchInterceptor;
-    return newController;
+    if (!RestHooksCore.Controller) return controller;
+    return new RestHooksCore.Controller({
+      ...controller,
+      dispatch: dispatchInterceptor,
+    });
   }, [controller, dispatchInterceptor]);
 
   return (

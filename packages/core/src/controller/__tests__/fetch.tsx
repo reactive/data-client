@@ -149,6 +149,33 @@ describe.each([
     };
   });
 
+  it('should fetch with resolver', async () => {
+    // we use this id because it is not nock'd
+    const id = 10000;
+    const fixture = {
+      endpoint: FutureArticleResource.detail(),
+      args: [10000],
+      response: payload,
+    };
+    const { result } = renderRestHook(
+      () => {
+        return {
+          data: useCache(FutureArticleResource.detail(), id),
+          fetch: useController().fetch,
+        };
+      },
+      { resolverFixtures: [fixture] },
+    );
+    expect(result.current.data).toBeUndefined();
+    let response;
+    await act(async () => {
+      result.current.fetch(FutureArticleResource.detail(), id);
+      result.current.fetch(FutureArticleResource.detail(), id);
+      result.current.fetch(FutureArticleResource.detail(), id);
+      response = await result.current.fetch(FutureArticleResource.detail(), id);
+    });
+  });
+
   it('should update on create', async () => {
     const endpoint = FutureArticleResource.create();
     const response: ResolveType<typeof endpoint> = createPayload;
