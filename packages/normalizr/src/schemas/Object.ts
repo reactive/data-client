@@ -67,6 +67,13 @@ export function infer(schema: any, args: any, indexes: any, recurse: any) {
   return resultObject;
 }
 
+export function validate(schema: any, input: any, recurse: any) {
+  for (const k of Object.keys(schema)) {
+    const result = recurse(schema[k], input[k]);
+    if (result) return result;
+  }
+}
+
 /**
  * Represents fixed objects
  * @see https://resthooks.io/docs/api/Object
@@ -104,5 +111,9 @@ export default class ObjectSchema {
 
   infer(args: any, indexes: any, recurse: any) {
     return infer(this.schema, args, indexes, recurse);
+  }
+
+  validate(input: any, recurse: any) {
+    return validate(this.schema, input, recurse);
   }
 }

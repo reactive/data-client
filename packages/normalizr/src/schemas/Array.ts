@@ -64,6 +64,13 @@ export function infer(schema: any, args: any, indexes: any, recurse: any) {
   return undefined;
 }
 
+export function validate(schema: any, input: any, recurse: any) {
+  for (const k of Object.keys(schema)) {
+    const result = recurse(schema[k], input[k]);
+    if (result) return result;
+  }
+}
+
 /**
  * Represents arrays
  * @see https://resthooks.io/docs/api/Array
@@ -113,5 +120,9 @@ export default class ArraySchema extends PolymorphicSchema {
 
   infer(args: any, indexes: any, recurse: any) {
     return infer(this.schema, args, indexes, recurse);
+  }
+
+  validate(input: any, recurse: any) {
+    return validate(this.schema, input, recurse);
   }
 }
