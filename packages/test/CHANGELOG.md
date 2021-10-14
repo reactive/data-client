@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.1.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.1.1...@rest-hooks/test@7.1.2) (2021-10-14)
+
+
+### 🐛 Bug Fix
+
+* Correct controller override ([#1386](https://github.com/coinbase/rest-hooks/issues/1386)) ([c1d4a70](https://github.com/coinbase/rest-hooks/commit/c1d4a70d09f0bd501ea5c0112a48b377d553ca45))
+
+
+
 ### [7.1.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.1.0...@rest-hooks/test@7.1.1) (2021-10-14)
 
 
