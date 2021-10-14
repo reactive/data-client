@@ -2,6 +2,7 @@
 id: resource
 title: Resource
 ---
+
 import LanguageTabs from '@site/src/components/LanguageTabs';
 
 `Resource` is an [Entity](./Entity) with multiple [Endpoint](./Endpoint)s that operate on the data. All additional members are provided to make CRUD or other REST-like API definitions easy and terse.
@@ -84,17 +85,21 @@ don't use constructors.
 
 ## Factory method
 
-### static fromJS<T extends typeof SimpleRecord\>(this: T, props: Partial<AbstractInstanceType<T\>\>): AbstractInstanceType<T\> {#fromJS}
+### fromJS(props): Resource {#fromJS}
+
+```ts
+static fromJS<T extends typeof SimpleRecord>(this: T, props: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T>
+```
 
 Factory method called during denormalization. Use this instead of `new MyEntity()`
 
 ## Be sure to always provide:
 
-### pk: (parent?: any, key?: string) => string {#pk}
+### pk: (parent, key) => string {#pk}
 
 > Inherited from [Entity](./Entity)
 
-PK stands for *primary key* and is intended to provide a standard means of retrieving
+PK stands for _primary key_ and is intended to provide a standard means of retrieving
 a key identifier for any `Resource`. In many cases there will simply be an 'id' field
 member to return. In case of multicolumn you can simply join them together.
 
@@ -123,9 +128,11 @@ list results:
 //....
 return (
   <div>
-    {results.map(result => <TheThing key={result.pk()} thing={result} />)}
+    {results.map(result => (
+      <TheThing key={result.pk()} thing={result} />
+    ))}
   </div>
-)
+);
 ```
 
 #### Singleton Resources
@@ -165,33 +172,49 @@ static get key(): string {
 
 These are the basic building blocks used to compile the [Endpoint](../api/Endpoint.md) below.
 
-### static url<T extends typeof Resource\>(urlParams: Partial<AbstractInstanceType<T\>\>) => string {#url}
+### static url(urlParams) => string {#url}
+
+```ts
+static url<T extends typeof Resource>(urlParams: Partial<AbstractInstanceType<T>>) => string
+```
 
 Computes the url based on the parameters. Default implementation follows `/urlRoot/[pk]` pattern.
 
-Used in [detail()](#detail-endpoint), [update()](#update-endpoint),
-[partialUpdate()](#partialupdate-endpoint), and [delete()](#delete-endpoint)
+Used in [detail()](#detail), [update()](#update),
+[partialUpdate()](#partialUpdate), and [delete()](#delete)
 
-### static listUrl(searchParams: Readonly<Record<string, string\>\>) => string {#listUrl}
+### static listUrl(searchParams) => string {#listUrl}
+
+```ts
+static listUrl(searchParams: Readonly<Record<string, string>>) => string
+```
 
 Computes url for retrieving list items. Defaults to urlRoot with `searchParams` being sent as GET
 parameters.
 
-Used in [list()](#list-endpoint) and [create()](#create-endpoint)
+Used in [list()](#list) and [create()](#create)
 
-### static fetch(input: RequestInfo, init: RequestInit) => Promise<any\> {#fetch}
+### static fetch(requestInfo, requestInit) => Promise {#fetch}
+
+```ts
+static fetch(info: RequestInfo, init: RequestInit) => Promise<any>
+```
 
 Performs the actual network fetch returning a promise that resolves to the network response or rejects
 on network error. This can be useful to override to really customize your transport.
 
-### static fetchResponse(input: RequestInfo, init: RequestInit) => Promise<Response\> {#fetchResponse}
+### static fetchResponse(requestInfo, requestInit) => Promise {#fetchResponse}
+
+```ts
+static fetchResponse(info: RequestInfo, init: RequestInit) => Promise<any>
+```
 
 Used in `fetch()`. Resolves the HTTP [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response).
 
 ### static useFetchInit(init: RequestInit): RequestInit {#useFetchInit}
 
 Allows simple overrides to extend [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) sent to fetch.
-This is called in endpoint methods ([list()](#list-endpoint), [detail()](#detail-endpoint)), which allows for hooks that
+This is called in endpoint methods ([list()](#list), [detail()](#detail)), which allows for hooks that
 use React context.
 
 This is often useful for [authentication](../guides/auth)
@@ -218,7 +241,7 @@ new endpoints based to match your API.
 A GET request using standard `url()` that receives a detail body.
 Mostly useful with [useResource](../api/useresource)
 
-- Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
+- Uses [url()](#url)
 - Compatible with all hooks
 
 #### Implementation:
@@ -238,7 +261,7 @@ static detail<T extends typeof SimpleResource>(this: T) {
 A GET request using `listUrl()` that receives a list of entities.
 Mostly useful with [useResource](../api/useresource)
 
-- Uses [listUrl()](#static-listurlsearchparams-readonlyrecordstring-string--string)
+- Uses [listUrl()](#listUrl)
 - Compatible with all hooks
 
 #### Implementation:
@@ -259,12 +282,12 @@ static list<T extends typeof SimpleResource>(this: T) {
 A POST request sending a payload to `listUrl()` with empty params, and expecting a detail body response.
 Mostly useful with [Controller.fetch](../api/Controller.md#fetch)
 
-Uses [listUrl()](#static-listurlsearchparams-readonlyrecordstring-string--string)
+Uses [listUrl()](#listUrl)
 
 Not compatible with:
+
 - [useResource()](../api/useresource)
 - [useRetrieve()](../api/useRetrieve.md)
-
 
 #### Implementation:
 
@@ -284,9 +307,10 @@ static create<T extends typeof SimpleResource>(this: T) {
 A PUT request sending a payload to a `url()` expecting a detail body response.
 Mostly useful with [Controller.fetch](../api/Controller.md#fetch)
 
-Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
+Uses [url()](#url)
 
 Not compatible with:
+
 - [useResource()](../api/useresource)
 - [useRetrieve()](../api/useRetrieve.md)
 
@@ -308,9 +332,10 @@ static update<T extends typeof SimpleResource>(this: T) {
 A PATCH request sending a partial payload to `url()` expecting a detail body response.
 Mostly useful with [Controller.fetch](../api/Controller.md#fetch)
 
-Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
+Uses [url()](#url)
 
 Not compatible with:
+
 - [useResource()](../api/useresource)
 - [useRetrieve()](../api/useRetrieve.md)
 
@@ -332,9 +357,10 @@ static partialUpdate<T extends typeof SimpleResource>(this: T) {
 A DELETE request sent to `url()`
 Mostly useful with [Controller.fetch](../api/Controller.md#fetch)
 
-Uses [url()](#static-urlt-extends-typeof-resourceurlparams-partialabstractinstancetypet--string)
+Uses [url()](#url)
 
 Not compatible with:
+
 - [useResource()](../api/useresource)
 - [useRetrieve()](../api/useRetrieve.md)
 
