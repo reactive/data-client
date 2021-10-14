@@ -4,9 +4,19 @@ import {
   actionTypes,
   ActionTypes,
 } from '@rest-hooks/core';
-import { useCallback, useContext, useMemo } from 'react';
+import {
+  Context,
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+} from 'react';
 import React from 'react';
 import { Fixture, actionFromFixture } from '@rest-hooks/test/mockState';
+import * as RestHooksCore from '@rest-hooks/core';
+
+const ControllerContext: Context<any> =
+  RestHooksCore.ControllerContext ?? createContext({});
 
 type Props = {
   children: React.ReactNode;
@@ -34,6 +44,7 @@ export default function MockResolver({
     return actionMap;
   }, [fixtures]);
 
+  const controller = useContext(ControllerContext);
   const dispatch = useContext(DispatchContext);
   const dispatchInterceptor = useCallback(
     (action: ActionTypes) => {
@@ -85,10 +96,17 @@ export default function MockResolver({
     },
     [dispatch, fetchToReceiveAction, silenceMissing],
   );
+  const controllerInterceptor = useMemo(() => {
+    const newController = Object.create(controller);
+    newController.dispatch = dispatchInterceptor;
+    return newController;
+  }, [controller, dispatchInterceptor]);
 
   return (
     <DispatchContext.Provider value={dispatchInterceptor}>
-      {children}
+      <ControllerContext.Provider value={controllerInterceptor}>
+        {children}
+      </ControllerContext.Provider>
     </DispatchContext.Provider>
   );
 }
