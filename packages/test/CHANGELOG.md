@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.1.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.1.0...@rest-hooks/test@7.1.1) (2021-10-14)
+
+
+### 🐛 Bug Fix
+
+* MockResolver also overrides controller ([#1384](https://github.com/coinbase/rest-hooks/issues/1384)) ([362bb26](https://github.com/coinbase/rest-hooks/commit/362bb2600009e5b08f566442ea5073228607200b))
+
+
+
 ## [7.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.0.0...@rest-hooks/test@7.1.0) (2021-09-19)
 
 
