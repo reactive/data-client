@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import useThemeContext from '@theme/hooks/useThemeContext';
 
 import styles from './index.module.css';
 import HomepageFeatures from '../components/HomepageFeatures';
@@ -10,6 +11,7 @@ import Demo from '../components/Demo/index';
 
 const ProjectTitle = () => {
   const { siteConfig } = useDocusaurusContext();
+  const { isDarkTheme } = useThemeContext();
   return (
     <React.Fragment>
       <div
@@ -21,7 +23,11 @@ const ProjectTitle = () => {
         }}
       >
         <img
-          src={'img/rest_hooks_logo_and_text_subtitle.svg'}
+          src={
+            isDarkTheme
+              ? 'img/rest_hooks_logo_and_text_subtitle--dark.svg'
+              : 'img/rest_hooks_logo_and_text_subtitle--light.svg'
+          }
           alt="Rest Hooks - An API client for dynamic applications"
           height={110}
           width={512}
