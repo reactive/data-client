@@ -22,7 +22,7 @@ const babelTransform = code => {
   const transformed = ts.transpileModule(code, {
     compilerOptions: {
       module: ts.ModuleKind.ESNext,
-      target: ts.ScriptTarget.ES2017,
+      target: ts.ScriptTarget.ES5,
       jsx: 'react',
     },
   });

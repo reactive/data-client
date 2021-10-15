@@ -50,17 +50,22 @@ module.exports = function (context, options) {
                       {
                         bugfixes: true,
                         useBuiltIns: 'entry',
+                        loose: true,
                         corejs: 3,
-                        exclude: ['transform-typeof-symbol'],
-                        targets: 'safari>=10, not ie<12, > 0.5%',
+                        exclude: [
+                          'transform-typeof-symbol',
+                          'transform-async-to-generator',
+                        ],
+                        targets: 'since 2017, safari>=10.1',
                       },
                     ],
                   ],
                   plugins: [
+                    ['@babel/plugin-transform-classes', { loose: true }],
                     [
                       '@babel/plugin-transform-runtime',
                       {
-                        corejs: false,
+                        corejs: 3,
                         helpers: true,
                         regenerator: true,
                         useESModules: true,

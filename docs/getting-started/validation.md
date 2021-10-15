@@ -71,7 +71,9 @@ class Article extends Entity {
 
   static validate(processedEntity) {
     if (
-      !Object.keys(this.defaults).every(key => Object.hasOwn(processedEntity, key))
+      !Object.keys(this.defaults).every(key =>
+        Object.hasOwn(processedEntity, key),
+      )
     )
       return 'a field is missing';
   }
@@ -99,7 +101,6 @@ render(<ArticlePage id="2" />);
 
 </HooksPlayground>
 
-<!---
 ## Partial results
 
 Another great use of validation is mixing endpoints that return incomplete objects. This is often
@@ -163,11 +164,13 @@ const articleDetail = new Endpoint(mockArticleDetail, {
   schema: ArticleFull,
 });
 
-function ArticleDetail({ id }: { id: string }) {
+function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
   const article = useResource(articleDetail, { id });
   return (
     <div>
-      <h4>{article.title}</h4>
+      <h4>
+        <a onClick={onHome} style={{cursor: 'pointer'}}>&lt;</a> {article.title}
+      </h4>
       <div>
         <p>{article.content}</p>
         <div>
@@ -189,18 +192,17 @@ function ArticleList() {
     return (
       <div>
         {articles.map(article => (
-          <div key={article.pk()} onClick={() => setRoute(article.id)}>
+          <div key={article.pk()} onClick={() => setRoute(article.id)} style={{cursor: 'pointer'}}>
             {article.title}
           </div>
         ))}
       </div>
     );
   }
-  return <ArticleDetail id={route} />;
+  return <ArticleDetail id={route} onHome={() => setRoute()} />;
 }
 
 render(<ArticleList />);
 ```
 
 </HooksPlayground>
--->

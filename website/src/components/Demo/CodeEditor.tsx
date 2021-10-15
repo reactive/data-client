@@ -24,17 +24,17 @@ const DemoPlayground = memo(() => {
   );
 });
 
-interface Props {
-  codes: { label: string; value: string; code: string }[];
+interface Props<T extends string> {
+  codes: { label: string; value: T; code: string }[];
+  defaultValue: T;
 }
 
-export default function CodeEditor({ codes }: Props) {
+export default function CodeEditor<T extends string>({
+  codes,
+  defaultValue,
+}: Props<T>) {
   return (
-    <CodeProvider
-      defaultValue={codes[0].value}
-      groupId="protocol"
-      values={codes}
-    >
+    <CodeProvider defaultValue={defaultValue} groupId="protocol" values={codes}>
       <DemoPlayground />
     </CodeProvider>
   );
