@@ -2,7 +2,9 @@ import { createContext } from 'react';
 
 const CodeTabContext = createContext({
   selectedValue: '',
-  setSelectedValue: (value: string): void => {
+  setSelectedValue: (
+    event: React.FocusEvent<HTMLLIElement> | React.MouseEvent<HTMLLIElement>,
+  ): void => {
     throw new Error('No Tab provider');
   },
   values: [],
