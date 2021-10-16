@@ -1,5 +1,10 @@
-import { CacheProvider } from 'rest-hooks';
-import React, { memo, useCallback, useState, Suspense } from 'react';
+import {
+  CacheProvider,
+  PollingSubscription,
+  SubscriptionManager,
+} from 'rest-hooks';
+import { NetworkManager } from '@rest-hooks/core';
+import React, { memo, useCallback, useState, Suspense, useMemo } from 'react';
 import useUserPreferencesContext from '@theme/hooks/useUserPreferencesContext';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 import { LiveError, LivePreview } from 'react-live';
@@ -33,6 +38,11 @@ function Result({
     setTabGroupChoices(groupId, selectedValue === 'y' ? 'n' : 'y');
   }, [groupId, selectedValue, setTabGroupChoices]);
 
+  const managers = useMemo(
+    () => [new NetworkManager(), new SubscriptionManager(PollingSubscription)],
+    [],
+  );
+
   const child = isBrowser ? (
     <Suspense fallback="loading...">
       <LivePreview />
@@ -43,7 +53,7 @@ function Result({
   const hiddenResult = !(selectedValue === 'n' || !row);
 
   return (
-    <CacheProvider>
+    <CacheProvider managers={managers}>
       <div
         className={clsx(styles.playgroundPreview, {
           [styles.hidden]: hiddenResult,

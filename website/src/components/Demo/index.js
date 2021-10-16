@@ -267,7 +267,7 @@ const Demo = props => (
         </div>
       </div>
       <div className="col col--9">
-        <CodeEditor codes={simpleFetchDemo} />
+        <CodeEditor codes={simpleFetchDemo} defaultValue="rest" />
       </div>
     </div>
     <div className={clsx('row', styles.demoList)}>
@@ -287,7 +287,7 @@ const Demo = props => (
         </div>
       </div>
       <div className="col col--9">
-        <CodeEditor codes={mutationDemo} />
+        <CodeEditor codes={mutationDemo} defaultValue="rest" />
       </div>
     </div>
     <div className={clsx('row', styles.demoList)}>
@@ -312,7 +312,7 @@ const Demo = props => (
         </div>
       </div>
       <div className="col col--9">
-        <CodeEditor codes={appDemo} />
+        <CodeEditor codes={appDemo} defaultValue="rest" />
       </div>
     </div>
   </div>
