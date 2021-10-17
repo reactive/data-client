@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@3.0.1...@rest-hooks/legacy@4.0.0) (2021-10-17)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* useDenormalized() return type changed
+{
+  data: DenormalizeNullable<Shape['schema']>;
+  expiryStatus: ExpiryStatus;
+  expiresAt: number;
+}
+
+### 🚀 Features
+
+* Improve Controller.getResponse() interface ([#1396](https://github.com/coinbase/rest-hooks/issues/1396)) ([f57a909](https://github.com/coinbase/rest-hooks/commit/f57a909b98aa1c385a95f1dde437a0d6aa7ff916))
+* Normalize strings for entities ([#1364](https://github.com/coinbase/rest-hooks/issues/1364)) ([cb31e1f](https://github.com/coinbase/rest-hooks/commit/cb31e1f425d4ef727186ac3c447cc8c46ddabb4e))
+
+
+### 📝 Documentation
+
+* Only validate circleCI badge against master ([#1322](https://github.com/coinbase/rest-hooks/issues/1322)) ([04e9642](https://github.com/coinbase/rest-hooks/commit/04e96426a865cbef362947da3a8f74f7347859e9))
+
+
+
 ### [3.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@3.0.0...@rest-hooks/legacy@3.0.1) (2021-09-29)
 
 

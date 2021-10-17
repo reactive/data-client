@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.2.2...@rest-hooks/core@3.0.0) (2021-10-17)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* useDenormalized() return type changed
+{
+  data: DenormalizeNullable<Shape['schema']>;
+  expiryStatus: ExpiryStatus;
+  expiresAt: number;
+}
+
+### 🚀 Features
+
+* Improve Controller.getResponse() interface ([#1396](https://github.com/coinbase/rest-hooks/issues/1396)) ([f57a909](https://github.com/coinbase/rest-hooks/commit/f57a909b98aa1c385a95f1dde437a0d6aa7ff916))
+
+
+### 🐛 Bug Fix
+
+* Correct controller override ([#1386](https://github.com/coinbase/rest-hooks/issues/1386)) ([c1d4a70](https://github.com/coinbase/rest-hooks/commit/c1d4a70d09f0bd501ea5c0112a48b377d553ca45))
+
+
+
 ### [2.2.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.2.1...@rest-hooks/core@2.2.2) (2021-10-11)
 
 

@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@2.0.0...@rest-hooks/experimental@3.0.0) (2021-10-17)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Require @rest-hooks/core@3
+
+### 🚀 Features
+
+* Add useSuspense() ([#1397](https://github.com/coinbase/rest-hooks/issues/1397)) ([a43e695](https://github.com/coinbase/rest-hooks/commit/a43e695e331fbec2f9b7b7c576f9b2ed23d001c9))
+
+
+### 📝 Documentation
+
+* Only validate circleCI badge against master ([#1322](https://github.com/coinbase/rest-hooks/issues/1322)) ([04e9642](https://github.com/coinbase/rest-hooks/commit/04e96426a865cbef362947da3a8f74f7347859e9))
+
+
+
 ## [2.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@1.0.1...@rest-hooks/experimental@2.0.0) (2021-09-19)
 
 
