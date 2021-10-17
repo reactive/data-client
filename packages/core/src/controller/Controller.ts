@@ -1,5 +1,9 @@
 import type { ActionTypes, State } from '@rest-hooks/core/types';
-import type { EndpointInterface, ResolveType } from '@rest-hooks/endpoint';
+import type {
+  EndpointInterface,
+  FetchFunction,
+  ResolveType,
+} from '@rest-hooks/endpoint';
 import createInvalidate from '@rest-hooks/core/controller/createInvalidate';
 import createFetch from '@rest-hooks/core/controller/createFetch';
 import createReset from '@rest-hooks/core/controller/createReset';
@@ -136,7 +140,9 @@ export default class Controller {
    * Marks a new subscription to a given Endpoint.
    * @see https://resthooks.io/docs/api/Controller#subscribe
    */
-  subscribe = <E extends EndpointInterface & { sideEffect: undefined }>(
+  subscribe = <
+    E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  >(
     endpoint: E,
     ...args: readonly [...Parameters<E>] | readonly [null]
   ): Promise<void> =>
@@ -152,7 +158,9 @@ export default class Controller {
    * Marks completion of subscription to a given Endpoint.
    * @see https://resthooks.io/docs/api/Controller#unsubscribe
    */
-  unsubscribe = <E extends EndpointInterface & { sideEffect: undefined }>(
+  unsubscribe = <
+    E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  >(
     endpoint: E,
     ...args: readonly [...Parameters<E>] | readonly [null]
   ): Promise<void> =>
