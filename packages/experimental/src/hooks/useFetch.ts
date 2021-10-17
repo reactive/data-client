@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { StateContext, useController } from '@rest-hooks/core';
-import { ExpiryStatus } from '@rest-hooks/core/controller/Expiry';
+import { StateContext, useController, ExpiryStatus } from '@rest-hooks/core';
 import {
   EndpointInterface,
   Denormalize,
