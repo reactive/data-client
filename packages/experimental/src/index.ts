@@ -1,5 +1,7 @@
 export { default as useFetcher } from './useFetcher';
 export { Controller, useController } from '@rest-hooks/core';
+export { default as useSuspense } from './hooks/useSuspense';
+export { default as useFetch } from './hooks/useFetch';
 export { default as Resource } from './rest/Resource';
 export { default as BaseResource } from './rest/BaseResource';
 import { schema, Entity } from '@rest-hooks/endpoint';
