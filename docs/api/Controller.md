@@ -1,6 +1,7 @@
 ---
 title: Controller
 ---
+
 <head>
   <title>Controller - Imperative Controls for Rest Hooks</title>
 </head>
@@ -19,6 +20,9 @@ class Controller {
   receiveError(endpoint, ...args, error) => Promise<void>;
   subscribe(endpoint, ...args) => Promise<void>;
   unsubscribe(endpoint, ...args) => Promise<void>;
+  /*************** Data Access ***************/
+  getResponse(endpoint, ...args, state)​ => { data, expiryStatus, expiresAt };
+  getError(endpoint, ...args, state)​ => ErrorTypes | undefined;
 }
 ```
 
@@ -224,7 +228,50 @@ decrement the subscription and if the count reaches 0, more updates won't be rec
 
 ## getResponse(endpoint, ...args, state) {#getResponse}
 
+```ts title="returns"
+{
+  data: DenormalizeNullable<E['schema']>;
+  expiryStatus: ExpiryStatus;
+  expiresAt: number;
+}
+```
+
 Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
+
+### data
+
+The denormalize response data. Guarantees global referential stability for all members.
+
+### expiryStatus
+
+```ts
+export enum ExpiryStatus {
+  Invalid = 1,
+  InvalidIfStale,
+  Valid,
+}
+```
+
+#### Valid
+
+- Will never suspend.
+- Might fetch if data is stale
+
+#### InvalidIfStale
+
+- Will suspend if data is stale.
+- Might fetch if data is stale
+
+#### Invalid
+
+- Will always suspend
+- Will always fetch
+
+### expiresAt
+
+A number representing time when it expires. Compare to Date.now().
+
+### Example
 
 This is used in [useCache](./useCache.md), [useResource](./useResource.md) and can be used in
 [Managers](./Manager.md) to lookup a response with the state provided.
@@ -243,7 +290,7 @@ function useCache<E extends EntityInterface>(
 ) {
   const state = useContext(StateContext);
   const controller = useController();
-  return controller.getResponse(endpoint, ...args, state);
+  return controller.getResponse(endpoint, ...args, state).data;
 }
 ```
 
@@ -263,7 +310,7 @@ export default class MyManager implements Manager {
               action.endpoint,
               ...(action.meta.args as Parameters<typeof action.endpoint>),
               getState(),
-            ),
+            ).data,
           );
         }
         next(action);
@@ -280,6 +327,7 @@ export default class MyManager implements Manager {
   }
 }
 ```
+
 
 ## getError(endpoint, ...args, state) {#getError}
 

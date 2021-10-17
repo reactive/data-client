@@ -10,6 +10,7 @@ const baseConfig = {
     'packages/experimental',
     'packages/graphql',
     'packages/legacy/src/resource',
+    'packages/core/src/react-integration/hooks/hasUsableData',
   ],
   testURL: 'http://localhost',
 };

@@ -6,6 +6,7 @@ import createReset from '@rest-hooks/core/controller/createReset';
 import { selectMeta } from '@rest-hooks/core/state/selectors/index';
 import createReceive from '@rest-hooks/core/controller/createReceive';
 import { NetworkError, UnknownError } from '@rest-hooks/core/types';
+import { ExpiryStatus } from '@rest-hooks/core/controller/Expiry';
 import {
   createUnsubscription,
   createSubscription,
@@ -191,15 +192,16 @@ export default class Controller {
     return meta?.error as any;
   };
 
-  getResponse = <E extends Pick<EndpointInterface, 'key' | 'schema'>>(
+  getResponse = <
+    E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
+  >(
     endpoint: E,
     ...rest:
       | readonly [...Parameters<E['key']>, State<unknown>]
       | readonly [null, State<unknown>]
   ): {
     data: DenormalizeNullable<E['schema']>;
-    suspend: boolean;
-    found: boolean;
+    expiryStatus: ExpiryStatus;
     expiresAt: number;
   } => {
     const state = rest[rest.length - 1] as State<unknown>;
@@ -208,6 +210,8 @@ export default class Controller {
     const key = activeArgs ? endpoint.key(...args) : '';
     const cacheResults = activeArgs && state.results[key];
     const schema = endpoint.schema;
+    const meta = selectMeta(state, key);
+    let expiresAt = meta?.expiresAt;
 
     const results = this.getResults(
       endpoint.schema,
@@ -219,13 +223,15 @@ export default class Controller {
     if (!endpoint.schema || !schemaHasEntity(endpoint.schema)) {
       return {
         data: results,
-        suspend: false,
-        found: cacheResults !== undefined,
-        expiresAt: selectMeta(state, key)?.expiresAt || 0,
+        expiryStatus: meta?.invalidated
+          ? ExpiryStatus.Invalid
+          : cacheResults
+          ? ExpiryStatus.Valid
+          : ExpiryStatus.InvalidIfStale,
+        expiresAt: expiresAt || 0,
       } as {
         data: DenormalizeNullable<E['schema']>;
-        suspend: boolean;
-        found: boolean;
+        expiryStatus: ExpiryStatus;
         expiresAt: number;
       };
     }
@@ -262,7 +268,6 @@ export default class Controller {
       Record<string, Record<string, any>>,
     ];
 
-    let expiresAt = selectMeta(state, key)?.expiresAt;
     // fallback to entity expiry time
     if (!expiresAt) {
       // expiresAt existance is equivalent to cacheResults
@@ -283,11 +288,17 @@ export default class Controller {
       }
     }
 
-    // only require finding all entities if we are inferring results
-    // deletion is separate count, and thus will still trigger
-    // only require finding all entities if we are inferring results
-    // deletion is separate count, and thus will still trigger
-    return { data, suspend, found: !!cacheResults || found, expiresAt };
+    // https://resthooks.io/docs/getting-started/expiry-policy#expiry-status
+    // we don't track the difference between stale or fresh because that is tied to triggering
+    // conditions
+    const expiryStatus =
+      meta?.invalidated || (suspend && !meta?.error)
+        ? ExpiryStatus.Invalid
+        : suspend || endpoint.invalidIfStale || (!cacheResults && !found)
+        ? ExpiryStatus.InvalidIfStale
+        : ExpiryStatus.Valid;
+
+    return { data, expiryStatus, expiresAt };
   };
 
   private getResults = (

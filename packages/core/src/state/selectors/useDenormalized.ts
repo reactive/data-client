@@ -1,18 +1,15 @@
 import { State } from '@rest-hooks/core/types';
 import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
 import { DenormalizeNullable } from '@rest-hooks/endpoint';
-import { isEntity, Schema } from '@rest-hooks/endpoint';
-import {
-  DenormalizeCache,
-  WeakListMap,
-  denormalize,
-  inferResults,
-} from '@rest-hooks/normalizr';
+import { Schema } from '@rest-hooks/endpoint';
 import { useMemo } from 'react';
 import useController from '@rest-hooks/core/react-integration/hooks/useController';
 import shapeToEndpoint from '@rest-hooks/core/endpoint/adapter';
+import { ExpiryStatus } from '@rest-hooks/core/controller/Expiry';
 
 /**
+ * @deprecated use https://resthooks.io/docs/api/Controller#getResponse directly instead
+ *
  * Selects the denormalized form from `state` cache.
  *
  * If `result` is not found, will attempt to generate it naturally
@@ -32,12 +29,11 @@ export default function useDenormalized<
   state: State<any>,
   /** @deprecated */
   denormalizeCache?: any,
-): [
-  denormalized: DenormalizeNullable<Shape['schema']>,
-  found: typeof params extends null ? false : boolean,
-  deleted: boolean,
-  expiresAt: number,
-] {
+): {
+  data: DenormalizeNullable<Shape['schema']>;
+  expiryStatus: ExpiryStatus;
+  expiresAt: number;
+} {
   const controller = useController();
 
   const endpoint = useMemo(() => {
@@ -50,11 +46,10 @@ export default function useDenormalized<
   const cacheResults = params && state.results[key];
 
   // Compute denormalized value
-  const { data, found, suspend, expiresAt } = useMemo(() => {
+  return useMemo(() => {
     return controller.getResponse(endpoint, params, state) as {
       data: DenormalizeNullable<Shape['schema']>;
-      found: boolean;
-      suspend: boolean;
+      expiryStatus: ExpiryStatus;
       expiresAt: number;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,5 +61,4 @@ export default function useDenormalized<
     key,
     cacheResults,
   ]);
-  return [data, found as any, suspend, expiresAt];
 }

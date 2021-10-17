@@ -33,6 +33,7 @@ export {
   ControllerContext,
 } from '@rest-hooks/core/react-integration/context';
 export { default as Controller } from '@rest-hooks/core/controller/Controller';
+export { ExpiryStatus } from '@rest-hooks/core/controller/Expiry';
 
 export * from '@rest-hooks/core/controller/types';
 export * from '@rest-hooks/core/state/actions/index';

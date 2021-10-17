@@ -5,8 +5,7 @@ import { StateContext } from '@rest-hooks/core/react-integration/context';
 import { useMemo, useContext } from 'react';
 import useRetrieve from '@rest-hooks/core/react-integration/hooks/useRetrieve';
 import useError from '@rest-hooks/core/react-integration/hooks/useError';
-import hasUsableData from '@rest-hooks/core/react-integration/hooks/hasUsableData';
-import useMeta from '@rest-hooks/core/react-integration/hooks/useMeta';
+import { ExpiryStatus } from '@rest-hooks/core/controller/Expiry';
 
 type ResourceArgs<
   S extends ReadShape<any, any>,
@@ -26,7 +25,7 @@ function useOneResource<
   Denormalize<Shape['schema']>
 > {
   const state = useContext(StateContext);
-  const [data, ready, suspend, expiresAt] = useDenormalized(
+  const { data, expiryStatus, expiresAt } = useDenormalized(
     fetchShape,
     params,
     state,
@@ -36,19 +35,11 @@ function useOneResource<
   const maybePromise = useRetrieve(
     fetchShape,
     params,
-    suspend && !error,
+    expiryStatus === ExpiryStatus.Invalid,
     expiresAt,
   );
 
-  if (
-    !hasUsableData(
-      fetchShape,
-      ready,
-      suspend,
-      useMeta(fetchShape, params)?.invalidated,
-    ) &&
-    maybePromise
-  ) {
+  if (expiryStatus !== ExpiryStatus.Valid && maybePromise) {
     throw maybePromise;
   }
 
@@ -87,20 +78,13 @@ function useManyResources<A extends ResourceArgs<any, any>[]>(
       useRetrieve(
         fetchShape,
         params,
-        denormalizedValues[i][2] && !errorValues[i],
-        denormalizedValues[i][3],
+        denormalizedValues[i].expiryStatus === ExpiryStatus.Invalid,
+        denormalizedValues[i].expiresAt,
       ),
     )
     // only wait on promises without results
     .map(
-      (p, i) =>
-        !hasUsableData(
-          resourceList[i][0],
-          denormalizedValues[i][1],
-          denormalizedValues[i][2],
-          // eslint-disable-next-line react-hooks/rules-of-hooks
-          useMeta(...resourceList[i])?.invalidated,
-        ) && p,
+      (p, i) => denormalizedValues[i].expiryStatus !== ExpiryStatus.Valid && p,
     );
 
   // throw first valid error
@@ -120,7 +104,7 @@ function useManyResources<A extends ResourceArgs<any, any>[]>(
 
   if (promise) throw promise;
 
-  return denormalizedValues.map(([denormalized]) => denormalized);
+  return denormalizedValues.map(({ data }) => data);
 }
 
 type CondNull<P, A, B> = P extends null ? A : B;

@@ -11,6 +11,7 @@ import { normalize, NormalizedIndex } from '@rest-hooks/normalizr';
 import { initialState } from '@rest-hooks/core/state/reducer';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useState } from 'react';
+import { ExpiryStatus } from '@rest-hooks/core/';
 
 import useDenormalized from '../useDenormalized';
 
@@ -24,16 +25,12 @@ describe('useDenormalized()', () => {
         useDenormalized(CoolerArticleResource.detailShape(), { id: 5 }, state),
       );
 
-      it('found should be false', () => {
-        expect(result.current[1]).toBe(false);
-      });
-
-      it('deleted should be false', () => {
-        expect(result.current[2]).toBe(false);
+      it('expiryStatus should be InvalidIfStale', () => {
+        expect(result.current.expiryStatus).toBe(ExpiryStatus.InvalidIfStale);
       });
 
       it('should provide inferred results with undefined', () => {
-        expect(result.current[0]).toMatchInlineSnapshot(`undefined`);
+        expect(result.current.data).toMatchInlineSnapshot(`undefined`);
       });
     });
     describe('state is populated just not with our query', () => {
@@ -58,16 +55,12 @@ describe('useDenormalized()', () => {
         ),
       );
 
-      it('found should be false', () => {
-        expect(result.current[1]).toBe(false);
-      });
-
-      it('deleted should be false', () => {
-        expect(result.current[2]).toBe(false);
+      it('expiryStatus should be InvalidIfStale', () => {
+        expect(result.current.expiryStatus).toBe(ExpiryStatus.InvalidIfStale);
       });
 
       it('should provide inferred results with undefined', () => {
-        expect(result.current[0]).toMatchInlineSnapshot(`undefined`);
+        expect(result.current.data).toMatchInlineSnapshot(`undefined`);
       });
     });
     describe('when state exists', () => {
@@ -85,23 +78,19 @@ describe('useDenormalized()', () => {
       state.entityMeta = createEntityMeta(state.entities);
       const {
         result: {
-          current: [value, found, deleted],
+          current: { data, expiryStatus, expiresAt },
         },
       } = renderHook(() =>
         useDenormalized(CoolerArticleResource.detailShape(), params, state),
       );
 
-      it('found should be true', () => {
-        expect(found).toBe(true);
-      });
-
-      it('deleted should be false', () => {
-        expect(deleted).toBe(false);
+      it('expiryStatus should be Valid', () => {
+        expect(expiryStatus).toBe(ExpiryStatus.Valid);
       });
 
       it('should provide inferred results', () => {
-        expect(value).toStrictEqual(article);
-        expect(value).toBeInstanceOf(CoolerArticleResource);
+        expect(data).toStrictEqual(article);
+        expect(data).toBeInstanceOf(CoolerArticleResource);
       });
     });
     describe('without entity with defined results', () => {
@@ -114,22 +103,18 @@ describe('useDenormalized()', () => {
       };
       const {
         result: {
-          current: [value, found, deleted],
+          current: { data, expiryStatus, expiresAt },
         },
       } = renderHook(() =>
         useDenormalized(CoolerArticleResource.detailShape(), params, state),
       );
 
-      it('found should be true', () => {
-        expect(found).toBe(true);
-      });
-
-      it('deleted should be false', () => {
-        expect(deleted).toBe(false);
+      it('expiryStatus should be Valid', () => {
+        expect(expiryStatus).toBe(ExpiryStatus.Valid);
       });
 
       it('should provide inferred results with undefined', () => {
-        expect(value).toMatchInlineSnapshot(`undefined`);
+        expect(data).toMatchInlineSnapshot(`undefined`);
       });
     });
     describe('no result exists but primary key is used', () => {
@@ -144,23 +129,19 @@ describe('useDenormalized()', () => {
       state.entityMeta = createEntityMeta(state.entities);
       const {
         result: {
-          current: [value, found, deleted],
+          current: { data, expiryStatus, expiresAt },
         },
       } = renderHook(() =>
         useDenormalized(CoolerArticleResource.detailShape(), params, state),
       );
 
-      it('found should be true', () => {
-        expect(found).toBe(true);
-      });
-
-      it('deleted should be false', () => {
-        expect(deleted).toBe(false);
+      it('expiryStatus should be Valid', () => {
+        expect(expiryStatus).toBe(ExpiryStatus.Valid);
       });
 
       it('should provide inferred results', () => {
-        expect(value).toStrictEqual(article);
-        expect(value).toBeInstanceOf(CoolerArticleResource);
+        expect(data).toStrictEqual(article);
+        expect(data).toBeInstanceOf(CoolerArticleResource);
       });
     });
     describe('no result exists but primary key is used when using nested schema', () => {
@@ -176,23 +157,19 @@ describe('useDenormalized()', () => {
       state.entityMeta = createEntityMeta(state.entities);
       const {
         result: {
-          current: [value, found, deleted],
+          current: { data, expiryStatus, expiresAt },
         },
       } = renderHook(() =>
         useDenormalized(PaginatedArticleResource.detailShape(), params, state),
       );
 
-      it('found should be true', () => {
-        expect(found).toBe(true);
-      });
-
-      it('deleted should be false', () => {
-        expect(deleted).toBe(false);
+      it('expiryStatus should be Valid', () => {
+        expect(expiryStatus).toBe(ExpiryStatus.Valid);
       });
 
       it('should provide inferred results', () => {
-        expect(value.data).toStrictEqual(pageArticle);
-        expect(value.data).toBeInstanceOf(PaginatedArticleResource);
+        expect(data.data).toStrictEqual(pageArticle);
+        expect(data.data).toBeInstanceOf(PaginatedArticleResource);
       });
     });
 
@@ -230,7 +207,7 @@ describe('useDenormalized()', () => {
             useDenormalized(IndexShape, { username: user.username }, state),
           { initialProps: { state: localstate } },
         );
-        expect(result.current[1]).toBe(false);
+        expect(result.current.expiryStatus).toBe(ExpiryStatus.InvalidIfStale);
         localstate = {
           ...localstate,
           indexes: {
@@ -242,9 +219,8 @@ describe('useDenormalized()', () => {
           } as NormalizedIndex,
         };
         rerender({ state: localstate });
-        expect(result.current[1]).toBe(true);
-        expect(result.current[2]).toBe(false);
-        expect(result.current[0].data).toStrictEqual(user);
+        expect(result.current.expiryStatus).toBe(ExpiryStatus.Valid);
+        expect(result.current.data.data).toStrictEqual(user);
       });
     });
 
@@ -265,19 +241,19 @@ describe('useDenormalized()', () => {
       state.entityMeta = createEntityMeta(state.entities);
       const {
         result: {
-          current: [value, found],
+          current: { data, expiryStatus, expiresAt },
         },
       } = renderHook(() =>
         useDenormalized(CoolerArticleResource.detailShape(), params, state),
       );
 
-      it('found should be true', () => {
-        expect(found).toBe(true);
+      it('expiryStatus should be Valid', () => {
+        expect(expiryStatus).toBe(ExpiryStatus.Valid);
       });
 
       it('should provide inferred results', () => {
-        expect(value).toStrictEqual(article);
-        expect(value).toBeInstanceOf(CoolerArticleResource);
+        expect(data).toStrictEqual(article);
+        expect(data).toBeInstanceOf(CoolerArticleResource);
       });
     });
     it('should throw when results are Array', () => {
@@ -327,17 +303,17 @@ describe('useDenormalized()', () => {
       state.entityMeta = createEntityMeta(state.entities);
       const {
         result: {
-          current: [value, found],
+          current: { data, expiryStatus, expiresAt },
         },
       } = renderHook(() =>
         useDenormalized(NestedArticleResource.detailShape(), params, state),
       );
-      it('found should be true', () => {
-        expect(found).toBe(true);
+      it('expiryStatus should be Valid', () => {
+        expect(expiryStatus).toBe(ExpiryStatus.Valid);
       });
 
       it('should provide inferred results', () => {
-        expect(value).toMatchInlineSnapshot(`
+        expect(data).toMatchInlineSnapshot(`
           NestedArticleResource {
             "author": null,
             "content": "head",
@@ -367,18 +343,18 @@ describe('useDenormalized()', () => {
       const state = initialState;
       const {
         result: {
-          current: [value, found],
+          current: { data, expiryStatus, expiresAt },
         },
       } = renderHook(() =>
         useDenormalized(PaginatedArticleResource.listShape(), {}, state),
       );
 
-      it('found should be false', () => {
-        expect(found).toBe(false);
+      it('expiryStatus should be InvalidIfStale', () => {
+        expect(expiryStatus).toBe(ExpiryStatus.InvalidIfStale);
       });
 
       it('should provide inferred results with undefined for entity', () => {
-        expect(value).toMatchInlineSnapshot(`
+        expect(data).toMatchInlineSnapshot(`
           Object {
             "nextPage": "",
             "prevPage": "",
@@ -395,18 +371,18 @@ describe('useDenormalized()', () => {
       const state = initialState;
       const {
         result: {
-          current: [value, found],
+          current: { data, expiryStatus, expiresAt },
         },
       } = renderHook(() =>
         useDenormalized(CoolerArticleResource.listShape(), {}, state),
       );
 
-      it('found should be false', () => {
-        expect(found).toBe(false);
+      it('expiryStatus should be InvalidIfStale', () => {
+        expect(expiryStatus).toBe(ExpiryStatus.InvalidIfStale);
       });
 
       it('should provide inferred results with undefined for entity', () => {
-        expect(value).toMatchInlineSnapshot(`undefined`);
+        expect(data).toMatchInlineSnapshot(`undefined`);
       });
     });
     describe('state exists', () => {
@@ -424,18 +400,18 @@ describe('useDenormalized()', () => {
       };
       const {
         result: {
-          current: [value, found],
+          current: { data, expiryStatus, expiresAt },
         },
       } = renderHook(() =>
         useDenormalized(CoolerArticleResource.listShape(), params, state),
       );
 
       it('found should be true', () => {
-        expect(found).toBe(true);
+        expect(expiryStatus).toBe(ExpiryStatus.Valid);
       });
 
       it('should provide inferred results', () => {
-        expect(value).toStrictEqual(articles);
+        expect(data).toStrictEqual(articles);
       });
     });
     describe('missing some ids in entities table', () => {
@@ -454,7 +430,7 @@ describe('useDenormalized()', () => {
       };
       const {
         result: {
-          current: [value, found],
+          current: { data, expiryStatus, expiresAt },
         },
       } = renderHook(() =>
         useDenormalized(CoolerArticleResource.listShape(), params, state),
@@ -462,12 +438,12 @@ describe('useDenormalized()', () => {
 
       const expectedArticles = articles.slice(1);
 
-      it('found should be true', () => {
-        expect(found).toBe(true);
+      it('expiryStatus should be Valid', () => {
+        expect(expiryStatus).toBe(ExpiryStatus.Valid);
       });
 
       it('should simply ignore missing entities', () => {
-        expect(value).toEqual(expectedArticles);
+        expect(data).toEqual(expectedArticles);
       });
     });
     describe('paginated results + missing some ids in entities table', () => {
@@ -487,19 +463,19 @@ describe('useDenormalized()', () => {
       };
       const {
         result: {
-          current: [value, found],
+          current: { data, expiryStatus, expiresAt },
         },
       } = renderHook(() =>
         useDenormalized(PaginatedArticleResource.listShape(), params, state),
       );
 
-      it('found should be true', () => {
-        expect(found).toBe(true);
+      it('expiryStatus should be Valid', () => {
+        expect(expiryStatus).toBe(ExpiryStatus.Valid);
       });
 
       it('should match normalized articles', () => {
         const expectedArticles = articles.slice(1);
-        expect(value.results).toEqual(expectedArticles);
+        expect(data.results).toEqual(expectedArticles);
       });
     });
     describe('paginated results', () => {
@@ -538,24 +514,24 @@ describe('useDenormalized()', () => {
         result = v.result;
       });
 
-      it('found should be true', () => {
-        expect(result.current.ret[1]).toBe(true);
+      it('expiryStatus should be Valid', () => {
+        expect(result.current.ret.expiryStatus).toBe(ExpiryStatus.Valid);
       });
 
       it('should match normalized articles', () => {
-        expect(result.current.ret[0].results).toEqual(articles);
+        expect(result.current.ret.data.results).toEqual(articles);
       });
 
       it('should stay referentially equal with external entity changes', () => {
-        const prevValue = result.current.ret[0];
+        const prevValue = result.current.ret.data;
         act(() =>
           result.current.setState((state: any) => ({
             ...state,
             entities: { ...state.entities, whatever: {} },
           })),
         );
-        expect(result.current.ret[0]).toBe(prevValue);
-        expect(result.current.ret[0].results).toBe(prevValue.results);
+        expect(result.current.ret.data).toBe(prevValue);
+        expect(result.current.ret.data.results).toBe(prevValue.results);
 
         act(() =>
           result.current.setState((state: any) => {
@@ -573,12 +549,12 @@ describe('useDenormalized()', () => {
             return { ...ret, entityMeta: createEntityMeta(state.entities) };
           }),
         );
-        expect(result.current.ret[0]).toBe(prevValue);
-        expect(result.current.ret[0].results).toBe(prevValue.results);
+        expect(result.current.ret.data).toBe(prevValue);
+        expect(result.current.ret.data.results).toBe(prevValue.results);
       });
 
       it('should referentially change when an entity changes', () => {
-        const prevValue = result.current.ret[0];
+        const prevValue = result.current.ret.data;
         act(() =>
           result.current.setState((state: any) => ({
             ...state,
@@ -591,11 +567,11 @@ describe('useDenormalized()', () => {
             },
           })),
         );
-        expect(result.current.ret[0]).not.toBe(prevValue);
+        expect(result.current.ret.data).not.toBe(prevValue);
       });
 
       it('should referentially change when the result extends', () => {
-        const prevValue = result.current.ret[0];
+        const prevValue = result.current.ret.data;
         act(() =>
           result.current.setState((state: any) => ({
             ...state,
@@ -607,8 +583,8 @@ describe('useDenormalized()', () => {
             },
           })),
         );
-        expect(result.current.ret[0]).not.toBe(prevValue);
-        expect(result.current.ret[0]).toMatchSnapshot();
+        expect(result.current.ret.data).not.toBe(prevValue);
+        expect(result.current.ret.data).toMatchSnapshot();
       });
     });
 
@@ -624,18 +600,18 @@ describe('useDenormalized()', () => {
       };
       const {
         result: {
-          current: [value, found],
+          current: { data, expiryStatus, expiresAt },
         },
       } = renderHook(() =>
         useDenormalized(PaginatedArticleResource.listShape(), params, state),
       );
 
-      it('found should be false', () => {
-        expect(found).toBe(false);
+      it('expiryStatus should be InvalidIfStale', () => {
+        expect(expiryStatus).toBe(ExpiryStatus.InvalidIfStale);
       });
 
       it('value should be inferred for pagination primitives', () => {
-        expect(value).toMatchInlineSnapshot(`
+        expect(data).toMatchInlineSnapshot(`
           Object {
             "nextPage": "",
             "prevPage": "",
@@ -650,7 +626,11 @@ describe('useDenormalized()', () => {
       const { result } = renderHook(() => {
         return useDenormalized(photoShape, { userId }, initialState as any);
       });
-      expect(result.current).toStrictEqual([null, false, false, 0]);
+      expect(result.current).toStrictEqual({
+        data: null,
+        expiresAt: 0,
+        expiryStatus: ExpiryStatus.InvalidIfStale,
+      });
     });
 
     it('should return results as-is for schemas with no entities', () => {
@@ -666,7 +646,11 @@ describe('useDenormalized()', () => {
       const { result } = renderHook(() => {
         return useDenormalized(photoShape, { userId }, state);
       });
-      expect(result.current).toStrictEqual([results, true, false, 0]);
+      expect(result.current).toStrictEqual({
+        data: results,
+        expiresAt: 0,
+        expiryStatus: ExpiryStatus.Valid,
+      });
     });
 
     it('should throw with invalid schemas', () => {
