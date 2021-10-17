@@ -1,6 +1,6 @@
 import { FetchShape } from '@rest-hooks/core/endpoint/index';
 
-/** If the invalidIfStale option is set we suspend if resource has expired */
+/** @deprecated use https://resthooks.io/docs/api/Controller#getResponse */
 export default function hasUsableData(
   fetchShape: Pick<FetchShape<any>, 'options'>,
   cacheReady: boolean,

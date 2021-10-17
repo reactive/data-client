@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
-import { FutureArticleResource } from '__tests__/new';
+import { FutureArticleResource, GetPhoto } from '__tests__/new';
 import { FixtureEndpoint } from '@rest-hooks/test/mockState';
 import { act } from '@testing-library/react-hooks';
-import { useCache } from '@rest-hooks/core';
+import { useCache, useResource } from '@rest-hooks/core';
 
 import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import useController from '../../react-integration/hooks/useController';
@@ -122,5 +122,32 @@ describe('invalidate', () => {
       rerender();
     }
     expect(track.mock.calls.length).toBe(1);
+  });
+
+  it('should work with ArrayBuffer shapes', async () => {
+    const userId = '5';
+    const response = new ArrayBuffer(10);
+    const { result, waitForNextUpdate } = renderRestHook(
+      () => {
+        return {
+          data: useCache(GetPhoto, { userId }),
+          controller: useController(),
+        };
+      },
+      {
+        initialFixtures: [
+          {
+            endpoint: GetPhoto,
+            response,
+            args: [{ userId }],
+          },
+        ],
+      },
+    );
+    expect(result.current.data).toEqual(response);
+    await act(async () => {
+      await result.current.controller.invalidate(GetPhoto, { userId });
+    });
+    expect(result.current.data).toBeNull();
   });
 });
