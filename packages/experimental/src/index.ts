@@ -1,6 +1,7 @@
 export { default as useFetcher } from './useFetcher';
 export { Controller, useController } from '@rest-hooks/core';
 export { default as useSuspense } from './hooks/useSuspense';
+export { default as useCache } from './hooks/useCache';
 export { default as useSubscription } from './hooks/useSubscription';
 export { default as useFetch } from './hooks/useFetch';
 export { default as Resource } from './rest/Resource';
