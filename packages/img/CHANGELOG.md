@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.5.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/img@0.5.1...@rest-hooks/img@0.5.2) (2021-10-18)
+
+
+### 💅 Enhancement
+
+* Mark compatibility with latest @rest-hooks/core ([#1409](https://github.com/coinbase/rest-hooks/issues/1409)) ([57993f3](https://github.com/coinbase/rest-hooks/commit/57993f38ea7ee12cc9eefb562572fea6de63cb1d))
+
+
+
 ### [0.5.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/img@0.5.0...@rest-hooks/img@0.5.1) (2021-10-11)
 
 
