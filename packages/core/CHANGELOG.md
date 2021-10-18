@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.0.0...@rest-hooks/core@3.0.1) (2021-10-18)
+
+
+### 💅 Enhancement
+
+* Improve types of controller.sub/unsub ([#1401](https://github.com/coinbase/rest-hooks/issues/1401)) ([85f18b0](https://github.com/coinbase/rest-hooks/commit/85f18b0af0f11efcb240ac44c2d04ec6d115f72f))
+
+
+
 ## [3.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.2.2...@rest-hooks/core@3.0.0) (2021-10-17)
 
 
