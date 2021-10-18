@@ -3,8 +3,8 @@ import * as restHooks from 'rest-hooks';
 import * as rest from '@rest-hooks/rest';
 import * as graphql from '@rest-hooks/graphql';
 import BigNumber from 'bignumber.js';
-import { default as BaseTodoResource } from 'todo-app/src/resources/TodoResource';
 
+import { default as BaseTodoResource } from './Playground/resources/TodoResource';
 import Playground from './Playground';
 
 const mockFetch = (getResponse, name, delay = 150) => {
@@ -20,6 +20,7 @@ const mockFetch = (getResponse, name, delay = 150) => {
 const mockLastUpdated = ({ id }) =>
   fetch(`/api/currentTime/${id}`).then(res => res.json());
 class TimedEntity extends rest.Entity {
+  id = '';
   pk() {
     return this.id;
   }

@@ -2322,10 +2322,10 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.19.tgz#2c94db828794aa53e7a420809dac870348819233"
   integrity sha512-kHR9OHwP9WLpyC0i/WCAQCgf5hXkR9C+/21qxmrn+YwRlDRnBlqrcrFpXxhJTA9LDHJWa/FjoO2LJ12q8iWlEQ==
 
-"@rest-hooks/core@^2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/core/-/core-2.2.2.tgz#e8348dac81a22e7c381c064341a04b9b44c8c7fe"
-  integrity sha512-zB69LA4SuUePc+wZsEd9x3AfISAGh6I5BHtMC8rf395rbMlQymfwAOMAU7dWbt56e6lNkR1/18JixXB1F+v4lg==
+"@rest-hooks/core@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@rest-hooks/core/-/core-3.0.0.tgz#48f851178f4555e8577b48d24d801f42ad11e0d3"
+  integrity sha512-wPJMblzNsY39mQ6Xp8ZKd8gw41XHqUpfRRwlpeZRIx84VpJrjZCXdXxdShF9JG+k7v6mGmzjHdgI916ae3u54g==
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@rest-hooks/endpoint" "^2.0.3"
@@ -2333,7 +2333,7 @@
     "@rest-hooks/use-enhanced-reducer" "^1.1.1"
     flux-standard-action "^2.1.1"
 
-"@rest-hooks/endpoint@^2.0.2", "@rest-hooks/endpoint@^2.0.3":
+"@rest-hooks/endpoint@^2.0.3":
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/@rest-hooks/endpoint/-/endpoint-2.0.3.tgz#f3a29785b5a2f8c5bfaf44eaba2d2434b75487aa"
   integrity sha512-AzrxL1mY6YQ3xx9Qm8ywS6OGKPQsZOnhG7ycML+bFEkM9yqKX6VS6WQ9BqYUPtRmPHfrQ9DnsF0eck6+ZwKQdg==
@@ -10275,13 +10275,13 @@ responselike@^1.0.2:
   dependencies:
     lowercase-keys "^1.0.0"
 
-rest-hooks@^6.1.3:
-  version "6.1.3"
-  resolved "https://registry.yarnpkg.com/rest-hooks/-/rest-hooks-6.1.3.tgz#fd94742b6d9424b2f2588dc4b0c3dbbd3200baf8"
-  integrity sha512-CNMJgTnsaQrHMdtzmHh4Lt640yMRI+XksE41DiihOrrYKjPmr8V0qFgaOAGLIitYqE4uraMy06QuYd0fstcgOg==
+rest-hooks@^6.1.4:
+  version "6.1.4"
+  resolved "https://registry.yarnpkg.com/rest-hooks/-/rest-hooks-6.1.4.tgz#8c6489cb06a4e5657560d20ce132cff2c907c469"
+  integrity sha512-yJ4kQ6z1PArVexLodLcgK0rm2QhteOYgmiG498qarS9u8qtN4iV8SiALuLtPB0DcsujzWw8sg57Px3e4dbjniA==
   dependencies:
     "@babel/runtime" "^7.7.2"
-    "@rest-hooks/core" "^2.2.2"
+    "@rest-hooks/core" "^3.0.0"
     "@rest-hooks/endpoint" "^2.0.3"
 
 restore-cursor@^3.1.0:
