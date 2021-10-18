@@ -9,7 +9,9 @@ function StoreInspector({
   selectedValue,
 }: {
   selectedValue: 'y' | 'n';
-  toggle: () => void;
+  toggle: (
+    event: React.FocusEvent<HTMLLIElement> | React.MouseEvent<HTMLLIElement>,
+  ) => void;
 }) {
   return (
     <>

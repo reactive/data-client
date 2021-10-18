@@ -157,7 +157,21 @@ const appDemo = [
           )
         }
       />
-      {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+      {todo.completed ? (
+        <strike>{todo.title}</strike>
+      ) : (
+        todo.title
+      )}
+      <a
+        style={{ cursor: 'pointer' }}
+        onClick={() =>
+          controller.fetch(TodoResource.delete(), {
+            id: todo.id,
+          })
+        }
+      >
+        ❌
+      </a>
     </div>
   );
 }
@@ -256,9 +270,9 @@ const Demo = props => (
             call where you need its data.
           </p>
           <p>
-            Rest Hooks automatically optimizes performance by caching the
-            results, deduplicating fetches, efficient component render bindings
-            and more.
+            Rest Hooks automatically optimizes performance
+            by caching the results, deduplicating fetches,
+            efficient component render bindings and more.
           </p>
           {/*<p>
             Decoupling <em>how</em> to get data from <em>where</em> you use it
@@ -267,7 +281,10 @@ const Demo = props => (
         </div>
       </div>
       <div className="col col--9">
-        <CodeEditor codes={simpleFetchDemo} defaultValue="rest" />
+        <CodeEditor
+          codes={simpleFetchDemo}
+          defaultValue="rest"
+        />
       </div>
     </div>
     <div className={clsx('row', styles.demoList)}>
@@ -275,19 +292,27 @@ const Demo = props => (
         <h2>Stateful mutations</h2>
         <div>
           <p>
-            Use <Link to="/docs/api/Controller#fetch">Controller.fetch()</Link>{' '}
+            Use{' '}
+            <Link to="/docs/api/Controller#fetch">
+              Controller.fetch()
+            </Link>{' '}
             to update the store.
           </p>
           <p>
-            Rest Hooks ensures data consistency and integrity globally. Every
-            piece of data maintains referential stability unless it changes.
-            This ensures the most optimized render performance, as well as
-            predictable equality checks.
+            Rest Hooks ensures data consistency and
+            integrity globally. Every piece of data
+            maintains referential stability unless it
+            changes. This ensures the most optimized render
+            performance, as well as predictable equality
+            checks.
           </p>
         </div>
       </div>
       <div className="col col--9">
-        <CodeEditor codes={mutationDemo} defaultValue="rest" />
+        <CodeEditor
+          codes={mutationDemo}
+          defaultValue="rest"
+        />
       </div>
     </div>
     <div className={clsx('row', styles.demoList)}>
@@ -295,19 +320,31 @@ const Demo = props => (
         <h2>An application</h2>
         <div>
           <p>
-            Data can be consumed and controlled in many contexts, speeding up
-            development.
+            Data can be consumed and controlled in many
+            contexts, speeding up development.
           </p>
           <p>
             Rest Hooks uses{' '}
-            <Link to="/docs/getting-started/entity">data normalization</Link> to
-            maintain consistency no matter how and where the data is consumed.
+            <Link to="/docs/getting-started/entity">
+              data normalization
+            </Link>{' '}
+            to maintain consistency no matter how and where
+            the data is consumed.
           </p>
           <p>
             Rest easy with the help of{' '}
-            <Link to="/docs/guides/debugging">debugging</Link>,{' '}
-            <Link to="/docs/guides/unit-testing-hooks">unit testing</Link>, and{' '}
-            <Link to="/docs/guides/storybook">storybook integration</Link>.
+            <Link to="/docs/guides/debugging">
+              debugging
+            </Link>
+            ,{' '}
+            <Link to="/docs/guides/unit-testing-hooks">
+              unit testing
+            </Link>
+            , and{' '}
+            <Link to="/docs/guides/storybook">
+              storybook integration
+            </Link>
+            .
           </p>
         </div>
       </div>
