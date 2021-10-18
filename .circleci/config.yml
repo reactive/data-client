@@ -64,7 +64,7 @@ jobs:
             yarn add -W --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
       - run:
           command: |
-            yarn test:ci --maxWorkers=4
+            yarn test:ci --maxWorkers=3
 
   test_coverage:
     docker: *docker

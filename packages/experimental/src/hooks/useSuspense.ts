@@ -59,8 +59,8 @@ export default function useSuspense<
   const maybePromise = useMemo(() => {
     // null params mean don't do anything
     if ((Date.now() <= expiresAt && !forceFetch) || !key) return;
-    // @ts-ignore
-    return controller.fetch(endpoint, ...args);
+
+    return controller.fetch(endpoint, ...(args as readonly [...Parameters<E>]));
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expiresAt, controller, key, forceFetch, state.lastReset]);
