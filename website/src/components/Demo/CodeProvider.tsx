@@ -40,7 +40,6 @@ export function CodeProvider<V extends { label: string; value: string }[]>({
   ) => {
     const newTab = event.currentTarget;
     const newTabValue = newTab.getAttribute('value');
-    console.log(newTab);
 
     if (newTabValue !== selectedValue) {
       blockElementScrollPositionUntilNextRender(playgroundRef.current);

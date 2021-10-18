@@ -9,6 +9,7 @@ import useUserPreferencesContext from '@theme/hooks/useUserPreferencesContext';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 import { LiveError, LivePreview } from 'react-live';
 import clsx from 'clsx';
+import { useScrollPositionBlocker } from '@docusaurus/theme-common';
 
 import styles from './styles.module.css';
 import StoreInspector from './StoreInspector';
@@ -25,6 +26,8 @@ function Result({
   const isBrowser = useIsBrowser();
   const { tabGroupChoices, setTabGroupChoices } = useUserPreferencesContext();
   const [selectedValue, setSelectedValue] = useState(defaultOpen);
+  const { blockElementScrollPositionUntilNextRender } =
+    useScrollPositionBlocker();
 
   if (groupId != null) {
     const choice = tabGroupChoices[groupId];
@@ -33,10 +36,21 @@ function Result({
     }
   }
 
-  const toggle = useCallback(() => {
-    setSelectedValue(open => (open === 'y' ? 'n' : 'y'));
-    setTabGroupChoices(groupId, selectedValue === 'y' ? 'n' : 'y');
-  }, [groupId, selectedValue, setTabGroupChoices]);
+  const toggle = useCallback(
+    (
+      event: React.FocusEvent<HTMLLIElement> | React.MouseEvent<HTMLLIElement>,
+    ) => {
+      blockElementScrollPositionUntilNextRender(event.currentTarget);
+      setSelectedValue(open => (open === 'y' ? 'n' : 'y'));
+      setTabGroupChoices(groupId, selectedValue === 'y' ? 'n' : 'y');
+    },
+    [
+      blockElementScrollPositionUntilNextRender,
+      groupId,
+      selectedValue,
+      setTabGroupChoices,
+    ],
+  );
 
   const managers = useMemo(
     () => [new NetworkManager(), new SubscriptionManager(PollingSubscription)],
