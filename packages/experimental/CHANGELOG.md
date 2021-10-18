@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@3.0.0...@rest-hooks/experimental@3.1.0) (2021-10-18)
+
+
+### 🚀 Features
+
+* useSubscription, useCache, useError ([#1402](https://github.com/coinbase/rest-hooks/issues/1402)) ([da82acd](https://github.com/coinbase/rest-hooks/commit/da82acdbd9f811932ff68d42ff472721f91fe457))
+
+
+### 🐛 Bug Fix
+
+* Import ExpiryStatus correctly ([#1399](https://github.com/coinbase/rest-hooks/issues/1399)) ([3453764](https://github.com/coinbase/rest-hooks/commit/345376443c11f77a9c24a6d1c324518d6d524c27))
+
+
+
 ## [3.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@2.0.0...@rest-hooks/experimental@3.0.0) (2021-10-17)
 
 
