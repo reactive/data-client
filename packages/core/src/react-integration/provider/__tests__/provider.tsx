@@ -4,9 +4,11 @@ import { RECEIVE_TYPE } from '@rest-hooks/core/actionTypes';
 import React, { useContext, Suspense } from 'react';
 import { act, render } from '@testing-library/react';
 import { NetworkManager, useResource } from '@rest-hooks/core';
+import nock from 'nock';
 
 import { DispatchContext, StateContext } from '../../context';
 import CacheProvider from '../CacheProvider';
+import { payload } from '../../test-fixtures';
 
 describe('<CacheProvider />', () => {
   let warnspy: jest.SpyInstance;
@@ -15,6 +17,24 @@ describe('<CacheProvider />', () => {
   });
   afterEach(() => {
     warnspy.mockRestore();
+  });
+
+  beforeAll(() => {
+    nock(/.*/)
+      .persist()
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Access-Token',
+        'Content-Type': 'application/json',
+      })
+      .options(/.*/)
+      .reply(200)
+      .get(`/article-cooler/${payload.id}`)
+      .reply(200, payload);
+  });
+
+  afterAll(() => {
+    nock.cleanAll();
   });
 
   it('should warn users about missing Suspense', () => {
