@@ -2322,10 +2322,10 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.19.tgz#2c94db828794aa53e7a420809dac870348819233"
   integrity sha512-kHR9OHwP9WLpyC0i/WCAQCgf5hXkR9C+/21qxmrn+YwRlDRnBlqrcrFpXxhJTA9LDHJWa/FjoO2LJ12q8iWlEQ==
 
-"@rest-hooks/core@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/core/-/core-3.0.0.tgz#48f851178f4555e8577b48d24d801f42ad11e0d3"
-  integrity sha512-wPJMblzNsY39mQ6Xp8ZKd8gw41XHqUpfRRwlpeZRIx84VpJrjZCXdXxdShF9JG+k7v6mGmzjHdgI916ae3u54g==
+"@rest-hooks/core@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@rest-hooks/core/-/core-3.0.1.tgz#8e4d0456919a1bb732661bdef86fdc1f7774ef99"
+  integrity sha512-o2QkBgn70RP7xL8BrhzEypRet8ukop+0muesVYY+rlhq67zt8dFb+gUGfGh9k7R/6v8BZwLlfJqoMP7DDuUT3g==
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@rest-hooks/endpoint" "^2.0.3"
@@ -10217,13 +10217,13 @@ responselike@^1.0.2:
   dependencies:
     lowercase-keys "^1.0.0"
 
-rest-hooks@^6.1.4:
-  version "6.1.4"
-  resolved "https://registry.yarnpkg.com/rest-hooks/-/rest-hooks-6.1.4.tgz#8c6489cb06a4e5657560d20ce132cff2c907c469"
-  integrity sha512-yJ4kQ6z1PArVexLodLcgK0rm2QhteOYgmiG498qarS9u8qtN4iV8SiALuLtPB0DcsujzWw8sg57Px3e4dbjniA==
+rest-hooks@^6.1.5:
+  version "6.1.5"
+  resolved "https://registry.yarnpkg.com/rest-hooks/-/rest-hooks-6.1.5.tgz#f770954afd9ccc1b4980fe42f0c98a6266bdf680"
+  integrity sha512-bpl3oJPbcck8fP4M6qTbMjVaAg4E2PO1pdVFI65vu4rutTcV7dnFAhNdpZjnhUBtoBzBmBG9ACyzu1wSNyF04Q==
   dependencies:
     "@babel/runtime" "^7.7.2"
-    "@rest-hooks/core" "^3.0.0"
+    "@rest-hooks/core" "^3.0.1"
     "@rest-hooks/endpoint" "^2.0.3"
 
 restore-cursor@^3.1.0:
