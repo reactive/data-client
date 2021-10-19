@@ -24,7 +24,8 @@ import nock from 'nock';
 // relative imports to avoid circular dependency in tsconfig references
 
 import { normalize } from '@rest-hooks/normalizr';
-import { ReadEndpoint } from '@rest-hooks/endpoint';
+import { Endpoint, ReadEndpoint } from '@rest-hooks/endpoint';
+import { act } from '@testing-library/react-hooks';
 
 import {
   makeRenderRestHook,
@@ -277,36 +278,47 @@ describe('useSuspense()', () => {
     expect(fbmock).toHaveBeenCalled();
   });
 
-  // taken from integration
-  it('should throw errors on bad network', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useSuspense(CoolerArticleResource.detail(), {
-        id: '0',
-      });
+  describe('errors', () => {
+    let errorspy: jest.SpyInstance;
+    beforeEach(() => {
+      errorspy = jest
+        .spyOn(global.console, 'error')
+        .mockImplementation(() => {});
     });
-    expect(result.current).toBeUndefined();
-    await waitForNextUpdate();
-    expect(result.error).toBeDefined();
-    expect((result.error as any).status).toBe(403);
-  });
+    afterEach(() => {
+      errorspy.mockRestore();
+    });
 
-  it('should throw error when response is array when expecting entity', async () => {
-    await testMalformedResponse([]);
-  });
+    // taken from integration
+    it('should throw errors on bad network', async () => {
+      const { result, waitForNextUpdate } = renderRestHook(() => {
+        return useSuspense(CoolerArticleResource.detail(), {
+          id: '0',
+        });
+      });
+      expect(result.current).toBeUndefined();
+      await waitForNextUpdate();
+      expect(result.error).toBeDefined();
+      expect((result.error as any).status).toBe(403);
+    });
 
-  it('should throw error when response is {} when expecting entity', async () => {
-    await testMalformedResponse({});
-  });
+    it('should throw error when response is array when expecting entity', async () => {
+      await testMalformedResponse([]);
+    });
 
-  it('should throw error when response is number when expecting entity', async () => {
-    await testMalformedResponse(5);
-  });
+    it('should throw error when response is {} when expecting entity', async () => {
+      await testMalformedResponse({});
+    });
 
-  it('should throw error when response is string when expecting entity', async () => {
-    await testMalformedResponse('hi');
-  });
+    it('should throw error when response is number when expecting entity', async () => {
+      await testMalformedResponse(5);
+    });
 
-  /* TODO: Add these back when we have opt-in required
+    it('should throw error when response is string when expecting entity', async () => {
+      await testMalformedResponse('hi');
+    });
+
+    /* TODO: Add these back when we have opt-in required
   it('should throw error when response is string when expecting nested entity', async () => {
     const endpoint = CoolerArticleResource.detail().extend({
       schema: { data: CoolerArticleResource },
@@ -345,6 +357,7 @@ describe('useSuspense()', () => {
     });
     await testMalformedResponse({ data: null }, endpoint);
   });*/
+  });
 
   it('should not suspend with no params to useSuspense()', () => {
     let article: any;
@@ -421,6 +434,27 @@ describe('useSuspense()', () => {
     );
     expect(result.current.id).toEqual(payload.id);
     expect(result.current).toBeInstanceOf(ArticleTimedResource);
+  });
+
+  it('reset promises do not propagate', async () => {
+    let rejectIt: (reason?: any) => void = () => {};
+    const func = () => {
+      return new Promise((resolve, reject) => {
+        rejectIt = reject;
+      });
+    };
+    const MyEndpoint = new Endpoint(func, {
+      key() {
+        return 'MyEndpoint';
+      },
+    });
+    const { result, unmount } = renderRestHook(() => {
+      return useSuspense(MyEndpoint);
+    });
+    expect(result.current).toBeUndefined();
+    unmount();
+    act(() => rejectIt('failed'));
+    // the test will fail if promise is not caught
   });
 
   describe('context authentication', () => {
