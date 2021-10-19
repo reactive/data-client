@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1626103760674,
+  "lastUpdate": 1634616632798,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -3230,6 +3230,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.45%",
             "unit": "ops/sec",
             "extra": "72 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8c3b3956dee5a09f773faab6be1e85328a1e97bd",
+          "message": "internal: Don't leave hanging promise in test (#1411)",
+          "timestamp": "2021-10-18T21:06:52-07:00",
+          "tree_id": "e0aad86f7d73337d3274070b88a1eb9e6b66ee5e",
+          "url": "https://github.com/coinbase/rest-hooks/commit/8c3b3956dee5a09f773faab6be1e85328a1e97bd"
+        },
+        "date": 1634616631372,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 77.81,
+            "range": "±4.03%",
+            "unit": "ops/sec",
+            "extra": "67 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 34.31,
+            "range": "±1.05%",
+            "unit": "ops/sec",
+            "extra": "60 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 36.38,
+            "range": "±0.50%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 78.8,
+            "range": "±3.22%",
+            "unit": "ops/sec",
+            "extra": "67 samples"
           }
         ]
       }
