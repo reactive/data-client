@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.0.1...@rest-hooks/core@3.0.2) (2021-10-20)
+
+
+### 💅 Enhancement
+
+* Use const enums for ExpiryStatus ([#1417](https://github.com/coinbase/rest-hooks/issues/1417)) ([8d3f7f9](https://github.com/coinbase/rest-hooks/commit/8d3f7f973155680b2d52ed3f2e2758327b76d356))
+
+
+
 ### [3.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.0.0...@rest-hooks/core@3.0.1) (2021-10-18)
 
 
