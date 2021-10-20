@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1634616632798,
+  "lastUpdate": 1634689336525,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -3282,6 +3282,58 @@ window.BENCHMARK_DATA = {
             "range": "±3.22%",
             "unit": "ops/sec",
             "extra": "67 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8d3f7f973155680b2d52ed3f2e2758327b76d356",
+          "message": "enhance: Use const enums for ExpiryStatus (#1417)",
+          "timestamp": "2021-10-19T17:18:41-07:00",
+          "tree_id": "23f02de551c858b7574990f336591d1bf36bd8b3",
+          "url": "https://github.com/coinbase/rest-hooks/commit/8d3f7f973155680b2d52ed3f2e2758327b76d356"
+        },
+        "date": 1634689335253,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 81.84,
+            "range": "±4.04%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 37.4,
+            "range": "±1.54%",
+            "unit": "ops/sec",
+            "extra": "52 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 38.73,
+            "range": "±1.01%",
+            "unit": "ops/sec",
+            "extra": "51 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 82.54,
+            "range": "±3.85%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
           }
         ]
       }
