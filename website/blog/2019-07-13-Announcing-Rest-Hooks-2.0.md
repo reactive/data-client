@@ -30,7 +30,7 @@ but also didn't sufficiently express what the provider is actually _providing_.
 
 #### RequestShape -> FetchShape
 
-[FetchShape](/docs/api/FetchShape) is the core interface that enables Rest Hooks to be both
+[FetchShape](/docs/2.2/api/FetchShape) is the core interface that enables Rest Hooks to be both
 **declarative**, **performant** and **protocol agnostic**. The previous `Request` terminology
 only represented one-side of the entire request/response pattern in fetch. This did not comprehensively
 encapsulate the entirety of what it provided - thus we changed the name to `FetchShape` to capture
@@ -38,7 +38,7 @@ the full cycle of behavior - from request all the way to handling the response t
 
 #### Resource `FetchShape` generators
 
-Along the same lines, the provided static methods in [Resource](/docs/api/resource) that return `FetchShapes`
+Along the same lines, the provided static methods in [Resource](/docs/2.2/api/resource) that return `FetchShapes`
 need to accurately describe their return value. As such, the suffix has changed from `Request` to `Shape`. Also,
 the request for getting a singular entity - typically using a lookup id - has had its prefix changed
 from `single` to `detail` to better reflect common `REST` terminology.
@@ -65,14 +65,14 @@ empower the next wave of applications using Rest Hooks.
 
 #### CacheProvider and Managers
 
-The [Manager](/docs/api/Manager) abstraction has existed since the beginning of Rest Hooks. The first Manager - [NetworkManager](/docs/api/NetworkManager)
+The [Manager](/docs/2.2/api/Manager) abstraction has existed since the beginning of Rest Hooks. The first Manager - [NetworkManager](/docs/2.2/api/NetworkManager)
 orchestrated the complex world of fetching. It provided performance optimizations like fetch deduplication
 while providing Suspense promise resolution free of race conditions. This enabled the consistent bug-free behavior
-of Rest Hooks while maintaining its minimal bundle footprint. Later the [SubscriptionManager](/docs/api/SubscriptionManager) was added
+of Rest Hooks while maintaining its minimal bundle footprint. Later the [SubscriptionManager](/docs/2.2/api/SubscriptionManager) was added
 to enable keeping resources fresh.
 
 However, it quickly became clear that this was only the beginning. To enable the next generation of
-Managers, [CacheProvider](/docs/api/CacheProvider) now takes an [array of managers](/docs/api/CacheProvider#managers-manager)
+Managers, [CacheProvider](/docs/2.2/api/CacheProvider) now takes an [array of managers](/docs/2.2/api/CacheProvider#managers-manager)
 as a prop. As an undocumented behavior, the NetworkManager and SubscriptionManager
 could previously be passed as arguments to customize their configuration. Instead
 you can now override their defaults by sending both managers. Or build your own Managers
@@ -90,9 +90,9 @@ awkward. Additionally, manipulating the request/response based on fetch params [
 cumbersome when the fetch method had to parse the url](https://github.com/coinbase/rest-hooks/issues/87)
 instead of just access those params itself.
 
-- [getUrl() -> getFetchKey() + fetch()](/docs/guides/endpoints#rpc)
-  - If you were setting getUrl() before, you'll need to also override the [FetchShape.fetch()](/docs/api/FetchShape#fetchparams-param-body-payload-promise-any). getFetchKey() is only used as a lookup
-  key in the results table cache. [FetchShape.fetch()](/docs/api/FetchShape#fetchparams-param-body-payload-promise-any)
+- [getUrl() -> getFetchKey() + fetch()](/docs/2.2/guides/endpoints#rpc)
+  - If you were setting getUrl() before, you'll need to also override the [FetchShape.fetch()](/docs/2.2/api/FetchShape#fetchparams-param-body-payload-promise-any). getFetchKey() is only used as a lookup
+  key in the results table cache. [FetchShape.fetch()](/docs/2.2/api/FetchShape#fetchparams-param-body-payload-promise-any)
   is responsible for constructing the actual url.
 
 - fetch(url: string, body: Body) -> fetch(params: Params, body: Body)
@@ -107,7 +107,7 @@ sometimes crossed appropriate abstraction boundaries.
 One of these cases is the `useError()` hook, which now returns an error if one is found or
 undefined otherwise. Previously it had been throwing the error itself, which made it awkward
 to use outside the context of Error Boundaries
-(e.g., [useStatefulResource](/docs/guides/no-suspense#usestatefulresourcetsx)).
+(e.g., [useStatefulResource](/docs/2.2/guides/no-suspense#usestatefulresourcetsx)).
 
 ### Featherweight bundles
 
@@ -135,7 +135,7 @@ To summarize:
 - partialUpdateRequest() -> partialUpdateShape()
 - deleteRequest() -> deleteShape()
 - `<CacheProvider manager={myNetworkManager} subscriptionManager={mySubcriptionManager}>` -> `<CacheProvider managers={[myNetworkManager, mySubscriptionManager]}>`
-- [FetchShape.getUrl() -> FetchShape.getFetchKey() + FetchShape.fetch()](/docs/guides/endpoints#rpc)
+- [FetchShape.getUrl() -> FetchShape.getFetchKey() + FetchShape.fetch()](/docs/2.2/guides/endpoints#rpc)
 - FetchShape.fetch(url: string, body: Body) -> FetchShape.fetch(params: Params, body: Body)
 - SchemaBase -> SchemaDetail; SchemaArray -> SchemaList
 - useError() returns error instead of throwing
@@ -153,7 +153,7 @@ features planned to be released soon. Here's a sneak peak of the 'soon' lineup:
 - Server Side Rendering guide
 - Concurrent mode test suite
 
-We're also experimenting with a CLI to generate [Resource](/docs/api/resource) stubs from OpenAPI
+We're also experimenting with a CLI to generate [Resource](/docs/2.2/api/resource) stubs from OpenAPI
 schemas.
 
 If any of these ideas excite you, or you have ideas of your own for Rest Hooks, we encourage you

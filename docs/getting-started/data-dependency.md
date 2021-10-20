@@ -6,6 +6,7 @@ sidebar_label: Data Dependencies
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
+import HooksPlayground from '@site/src/components/HooksPlayground';
 
 Co-locating data dependencies means we only use data-binding hooks like [useResource()](../api/useresource)
 in components where we display/use their data directly.
@@ -55,7 +56,7 @@ export default function TodoList() {
 </Tabs>
 
 [useResource()](../api/useresource) guarantees access to data with sufficient [freshness](../api/Endpoint#dataexpirylength-number).
-This means it may issue network calls, and it may [suspend](../guides/loading-state) until the the fetch completes.
+This means it may issue network calls, and it may [suspend](#boundaries) until the the fetch completes.
 Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
 suspends.
 
@@ -249,3 +250,54 @@ const todoDetail = new Endpoint(
   { pollFrequency: 1000 },
 );
 ```
+
+### Live Crypto Price Example
+
+<HooksPlayground  defaultOpen="n">
+
+```tsx
+class ExchangeRatesResource extends Resource {
+  readonly currency: string = 'USD';
+  readonly rates: Record<string, string> = {};
+
+  pk(): string {
+    return this.currency;
+  }
+
+  static urlRoot = 'https://www.coinbase.com/api/v2/exchange-rates';
+
+  static getEndpointExtra() {
+    return { pollFrequency: 5000 };
+  }
+
+  static list<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<RestFetch<{ currency: string }>, { data: T }, undefined> {
+    return super.list().extend({
+      schema: { data: this },
+    });
+  }
+}
+
+function AssetPrice({ symbol }: { symbol: string }) {
+  const { data: price } = useResource(ExchangeRatesResource.list(), {
+    currency: 'USD',
+  });
+  useSubscription(ExchangeRatesResource.list(), {
+    currency: 'USD',
+  });
+  const displayPrice = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(1 / Number.parseFloat(price.rates[symbol]));
+  return (
+    <span>
+      {symbol} {displayPrice}
+    </span>
+  );
+}
+
+render(<AssetPrice symbol="BTC" />);
+```
+
+</HooksPlayground>
