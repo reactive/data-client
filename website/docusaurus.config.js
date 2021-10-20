@@ -9,7 +9,7 @@ module.exports = {
   organizationName: 'coinbase',
   projectName: 'rest-hooks',
   trailingSlash: false,
-  scripts: ['https://buttons.github.io/buttons.js'],
+  scripts: [],
   stylesheets: [
     /*{
       rel: 'preload',
@@ -296,17 +296,12 @@ module.exports = {
               to: '/blog',
             },
             {
-              html: `<a
-              className="github-button"
-              href="https://github.com/coinbase/rest-hooks"
-              target="_blank"
-              data-icon="octicon-star"
-              data-count-href="/coinbase/rest-hooks/stargazers"
-              data-show-count="true"
-              data-count-aria-label="# stargazers on GitHub"
-              aria-label="Star this project on GitHub">
-              Github
-            </a>`,
+              html: `<iframe
+              src="https://ghbtns.com/github-btn.html?user=coinbase&amp;repo=rest-hooks&amp;type=star&amp;count=true&amp;size=small"
+              width="110"
+              height="19.6"
+              title="GitHub Stars"
+            />`,
             },
           ],
         },
