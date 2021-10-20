@@ -200,38 +200,47 @@ module.exports = {
             {
               label: '6.0',
               to: 'docs/6.0/',
+              rel: 'nofollow',
             },
             {
               label: '5.0',
               to: 'docs/5.0/',
+              rel: 'nofollow',
             },
             {
               label: '4.5',
               to: 'docs/4.5/',
+              rel: 'nofollow',
             },
             {
               label: '4.3',
               to: 'docs/4.3/',
+              rel: 'nofollow',
             },
             {
               label: '4.2',
               to: 'docs/4.2/',
+              rel: 'nofollow',
             },
             {
               label: '4.1',
               to: 'docs/4.1/',
+              rel: 'nofollow',
             },
             {
               label: '4.0',
               to: 'docs/4.0/',
+              rel: 'nofollow',
             },
             {
               label: '3.0',
               to: 'docs/3.0/',
+              rel: 'nofollow',
             },
             {
               label: '2.2',
               to: 'docs/2.2/',
+              rel: 'nofollow',
             },
             /*{
               label: 'Master/Unreleased',
