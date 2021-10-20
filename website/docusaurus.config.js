@@ -295,14 +295,14 @@ module.exports = {
               label: 'Blog',
               to: '/blog',
             },
-            {
+            /*{
               html: `<iframe
               src="https://ghbtns.com/github-btn.html?user=coinbase&amp;repo=rest-hooks&amp;type=star&amp;count=true&amp;size=small"
               width="110"
               height="19.6"
               title="GitHub Stars"
             />`,
-            },
+            },*/
           ],
         },
       ],
