@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk=self.webpackChunk||[]).push([[87713],{88459:e=>{e.exports=JSON.parse('{"allTagsPath":"/blog/tags","slug":"/blog/tags/usecontroller","name":"usecontroller","count":1,"permalink":"/blog/tags/usecontroller"}')}}]);
