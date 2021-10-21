@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.1.7](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.1.6...rest-hooks@6.1.7) (2021-10-21)
+
+
+### 🐛 Bug Fix
+
+* passthrough error that are not NetworkError on NetworkErrorBoundary ([#1426](https://github.com/coinbase/rest-hooks/issues/1426)) ([34eb395](https://github.com/coinbase/rest-hooks/commit/34eb39531cc6fe2c24bc298000a368466773a5e6))
+
+
+
 ### [6.1.6](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.1.5...rest-hooks@6.1.6) (2021-10-20)
 
 **Note:** Version bump only for package rest-hooks
