@@ -6,10 +6,10 @@ import {
 import { NetworkManager } from '@rest-hooks/core';
 import React, { memo, useCallback, useState, Suspense, useMemo } from 'react';
 import useUserPreferencesContext from '@theme/hooks/useUserPreferencesContext';
-import useIsBrowser from '@docusaurus/useIsBrowser';
 import { LiveError, LivePreview } from 'react-live';
 import clsx from 'clsx';
 import { useScrollPositionBlocker } from '@docusaurus/theme-common';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 
 import styles from './styles.module.css';
 import StoreInspector from './StoreInspector';
@@ -23,7 +23,6 @@ function Result({
   row: boolean;
   defaultOpen: 'y' | 'n';
 }) {
-  const isBrowser = useIsBrowser();
   const { tabGroupChoices, setTabGroupChoices } = useUserPreferencesContext();
   const [selectedValue, setSelectedValue] = useState(defaultOpen);
   const { blockElementScrollPositionUntilNextRender } =
@@ -57,13 +56,6 @@ function Result({
     [],
   );
 
-  const child = isBrowser ? (
-    <Suspense fallback="loading...">
-      <LivePreview />
-      <LiveError />
-    </Suspense>
-  ) : null;
-
   const hiddenResult = !(selectedValue === 'n' || !row);
 
   return (
@@ -73,10 +65,21 @@ function Result({
           [styles.hidden]: hiddenResult,
         })}
       >
-        {child}
+        <BrowserOnly fallback={<LivePreviewLoader />}>
+          {() => (
+            <Suspense fallback={<LivePreviewLoader />}>
+              <LivePreview />
+              <LiveError />
+            </Suspense>
+          )}
+        </BrowserOnly>
       </div>
       <StoreInspector selectedValue={selectedValue} toggle={toggle} />
     </CacheProvider>
   );
 }
 export default memo(Result);
+
+function LivePreviewLoader() {
+  return <div>Loading...</div>;
+}

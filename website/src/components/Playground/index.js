@@ -91,6 +91,7 @@ function HeaderWithTabControls({ children }) {
 function EditorWithHeader({ title }) {
   const { values } = useContext(CodeTabContext);
   const hasTabs = values.length > 0;
+  const isBrowser = useIsBrowser();
   return (
     <div>
       {hasTabs ? (
@@ -98,7 +99,7 @@ function EditorWithHeader({ title }) {
       ) : (
         <Header>{title}</Header>
       )}
-      <LiveEditor className={styles.playgroundEditor} />
+      <LiveEditor key={isBrowser} className={styles.playgroundEditor} />
     </div>
   );
 }
@@ -122,7 +123,6 @@ export default function Playground({
   hidden = false,
   ...props
 }) {
-  const isBrowser = useIsBrowser();
   const {
     siteConfig: {
       themeConfig: {
