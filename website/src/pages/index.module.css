@@ -32,4 +32,13 @@
   font-weight: bold;
   border-radius: 10px;
   letter-spacing: 1px;
+  margin: 0 36px;
+}
+
+.GitHubButtonWrapper {
+  display: flex;
+}
+
+.GitHubButton {
+  overflow: hidden;
 }

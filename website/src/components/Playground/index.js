@@ -142,8 +142,7 @@ export default function Playground({
       })}
     >
       <LiveProvider
-        key={isBrowser}
-        code={isBrowser ? children.replace(/\n$/, '') : ''}
+        code={children.replace(/\n$/, '')}
         transformCode={transformCode || (code => babelTransform(`${code};`))}
         transpileOptions={{
           target: { chrome: 71 },

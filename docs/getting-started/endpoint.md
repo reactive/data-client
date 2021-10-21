@@ -113,7 +113,7 @@ console.log(todoDetailWithCustomizedKey.key({ id: '1' }));
 
 ### Endpoint.extend()
 
-For convenience, [extend()](.../api/Endpoint#extendendpointoptions-endpoint) allows type-correct
+For convenience, [extend()](../api/Endpoint.md#extend) allows type-correct
 prototypical inheritance extensions of an endpoint.
 
 This is greatly reduces boilerplate when strong patterns are established for an API like

@@ -36,7 +36,7 @@ For the most up-to-date implementation, see the [source on master](https://githu
 
 ## Superagent
 
-[Superagent](http://visionmedia.github.io/superagent/)
+[Superagent](https://visionmedia.github.io/superagent/)
 
 ```typescript
 import { SimpleResource, Method } from '@rest-hooks/rest';

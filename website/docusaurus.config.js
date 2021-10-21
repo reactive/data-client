@@ -9,7 +9,7 @@ module.exports = {
   organizationName: 'coinbase',
   projectName: 'rest-hooks',
   trailingSlash: false,
-  scripts: ['https://buttons.github.io/buttons.js'],
+  scripts: [],
   stylesheets: [
     /*{
       rel: 'preload',
@@ -200,38 +200,47 @@ module.exports = {
             {
               label: '6.0',
               to: 'docs/6.0/',
+              rel: 'nofollow',
             },
             {
               label: '5.0',
               to: 'docs/5.0/',
+              rel: 'nofollow',
             },
             {
               label: '4.5',
               to: 'docs/4.5/',
+              rel: 'nofollow',
             },
             {
               label: '4.3',
               to: 'docs/4.3/',
+              rel: 'nofollow',
             },
             {
               label: '4.2',
               to: 'docs/4.2/',
+              rel: 'nofollow',
             },
             {
               label: '4.1',
               to: 'docs/4.1/',
+              rel: 'nofollow',
             },
             {
               label: '4.0',
               to: 'docs/4.0/',
+              rel: 'nofollow',
             },
             {
               label: '3.0',
               to: 'docs/3.0/',
+              rel: 'nofollow',
             },
             {
               label: '2.2',
               to: 'docs/2.2/',
+              rel: 'nofollow',
             },
             /*{
               label: 'Master/Unreleased',
@@ -295,19 +304,14 @@ module.exports = {
               label: 'Blog',
               to: '/blog',
             },
-            {
-              html: `<a
-              className="github-button"
-              href="https://github.com/coinbase/rest-hooks"
-              target="_blank"
-              data-icon="octicon-star"
-              data-count-href="/coinbase/rest-hooks/stargazers"
-              data-show-count="true"
-              data-count-aria-label="# stargazers on GitHub"
-              aria-label="Star this project on GitHub">
-              Github
-            </a>`,
-            },
+            /*{
+              html: `<iframe
+              src="https://ghbtns.com/github-btn.html?user=coinbase&amp;repo=rest-hooks&amp;type=star&amp;count=true&amp;size=small"
+              width="110"
+              height="19.6"
+              title="GitHub Stars"
+            />`,
+            },*/
           ],
         },
       ],
