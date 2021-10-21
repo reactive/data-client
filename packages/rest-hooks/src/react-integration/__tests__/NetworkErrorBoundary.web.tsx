@@ -24,7 +24,9 @@ describe('<NetworkErrorBoundary />', () => {
   it('should fallthrough if status is not set', () => {
     const originalError = console.error;
     console.error = jest.fn();
+    let renderCount = 0;
     function Throw(): ReactElement {
+      renderCount++;
       throw new Error('you failed');
     }
     const tree = (
@@ -33,8 +35,9 @@ describe('<NetworkErrorBoundary />', () => {
         <div>hi</div>
       </NetworkErrorBoundary>
     );
-    expect(() => render(tree)).toThrow();
+    expect(() => render(tree)).toThrow('you failed');
     console.error = originalError;
+    expect(renderCount).toBeLessThan(5);
   });
   it('should render error case when thrown', () => {
     function Throw(): ReactElement {

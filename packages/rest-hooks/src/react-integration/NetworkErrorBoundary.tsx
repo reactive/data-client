@@ -30,6 +30,8 @@ export default class NetworkErrorBoundary<
   static getDerivedStateFromError(error: NetworkError | any) {
     if (isNetworkError(error)) {
       return { error };
+    } else {
+      throw error;
     }
   }
 
