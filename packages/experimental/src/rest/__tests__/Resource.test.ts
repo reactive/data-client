@@ -1,9 +1,9 @@
 import nock from 'nock';
-import { useResource } from '@rest-hooks/core';
+import { useController } from '@rest-hooks/core';
 import { act } from '@testing-library/react-hooks';
 
 import Resource from '../Resource';
-import useFetcher from '../../useFetcher';
+import useSuspense from '../../hooks/useSuspense';
 import type { Paginatable, RestEndpoint, RestFetch } from '../types';
 import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import {
@@ -127,8 +127,8 @@ describe('Resource', () => {
     mynock.get(`/article-paginated/?cursor=2`).reply(200, paginatedSecondPage);
 
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      const fetch = useFetcher();
-      const { results: articles, nextPage } = useResource(
+      const { fetch } = useController();
+      const { results: articles, nextPage } = useSuspense(
         PaginatedArticleResource.list(),
         {},
       );
@@ -160,8 +160,8 @@ describe('Resource', () => {
     });
 
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      const fetch = useFetcher();
-      const { results: articles, nextPage } = useResource(
+      const { fetch } = useController();
+      const { results: articles, nextPage } = useSuspense(
         PaginatedArticleResource.list(),
         {},
       );
@@ -210,8 +210,8 @@ describe('Resource', () => {
     mynock.get(`/complex-thing/5`).reply(200, firstResponse);
 
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      const fetch = useFetcher();
-      const article = useResource(ComplexResource.detail(), { id: '5' });
+      const { fetch } = useController();
+      const article = useSuspense(ComplexResource.detail(), { id: '5' });
       return { article, fetch };
     });
     await waitForNextUpdate();

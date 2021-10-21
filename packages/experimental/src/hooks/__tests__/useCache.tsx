@@ -9,7 +9,7 @@ import React, { useEffect } from 'react';
 // relative imports to avoid circular dependency in tsconfig references
 import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import useCache from '../useCache';
-import { articlesPages, payload } from '../test-fixtures';
+import { articlesPages, payload, nested } from '../test-fixtures';
 
 describe('useCache()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
@@ -24,6 +24,52 @@ describe('useCache()', () => {
     // @ts-expect-error
     result.current?.doesnotexist;
     expect(result.current).toBe(undefined);
+  });
+
+  it('should read with no params Endpoint', async () => {
+    const List = CoolerArticleResource.list().extend({
+      fetch() {
+        return CoolerArticleResource.list()({});
+      },
+    });
+    const { result } = renderRestHook(
+      () => {
+        return useCache(List);
+      },
+      { initialFixtures: [{ endpoint: List, args: [], response: nested }] },
+    );
+    expect(result.current?.length).toEqual(nested.length);
+
+    // @ts-expect-error
+    () => useCache(List, 5);
+    // @ts-expect-error
+    () => useCache(List, {});
+    // @ts-expect-error
+    () => useCache(List, '5');
+  });
+
+  it('should read with id params Endpoint', async () => {
+    const Detail = CoolerArticleResource.detail().extend({
+      fetch(id: number) {
+        return CoolerArticleResource.detail()({ id });
+      },
+    });
+    const { result } = renderRestHook(
+      () => {
+        return useCache(Detail, 5);
+      },
+      { initialFixtures: [{ endpoint: Detail, args: [5], response: payload }] },
+    );
+    expect(result.current).toEqual(CoolerArticleResource.fromJS(payload));
+
+    // @ts-expect-error
+    () => useCache(Detail);
+    // @ts-expect-error
+    () => useCache(Detail, 5, 10);
+    // @ts-expect-error
+    () => useCache(Detail, {});
+    // @ts-expect-error
+    () => useCache(Detail, '5');
   });
 
   it('should return undefined in entities slots when results are not found', async () => {

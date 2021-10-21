@@ -17,7 +17,7 @@ import {
   initialState,
   Controller,
 } from '@rest-hooks/core';
-import React, { Suspense, useContext, useMemo } from 'react';
+import React, { Suspense } from 'react';
 import { render } from '@testing-library/react';
 import nock from 'nock';
 
@@ -359,7 +359,7 @@ describe('useSuspense()', () => {
   });*/
   });
 
-  it('should not suspend with no params to useSuspense()', () => {
+  it('should not suspend with null params to useSuspense()', () => {
     let article: any;
     const { result } = renderRestHook(() => {
       article = useSuspense(CoolerArticleResource.detail(), null);
@@ -367,6 +367,50 @@ describe('useSuspense()', () => {
     });
     expect(result.current).toBe('done');
     expect(article).toBeUndefined();
+  });
+
+  it('should suspend with no params to useSuspense()', async () => {
+    const List = CoolerArticleResource.list().extend({
+      fetch() {
+        return CoolerArticleResource.list().fetch({});
+      },
+    });
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      return useSuspense(List);
+    });
+    expect(result.current).toBeUndefined();
+    await waitForNextUpdate();
+    expect(result.current.length).toEqual(nested.length);
+
+    // @ts-expect-error
+    () => useSuspense(List, 5);
+    // @ts-expect-error
+    () => useSuspense(List, {});
+    // @ts-expect-error
+    () => useSuspense(List, '5');
+  });
+
+  it('should read with id params Endpoint', async () => {
+    const Detail = CoolerArticleResource.detail().extend({
+      fetch(id: number) {
+        return CoolerArticleResource.detail()({ id });
+      },
+    });
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      return useSuspense(Detail, 5);
+    });
+    expect(result.current).toBeUndefined();
+    await waitForNextUpdate();
+    expect(result.current).toEqual(CoolerArticleResource.fromJS(payload));
+
+    // @ts-expect-error
+    () => useSuspense(Detail);
+    // @ts-expect-error
+    () => useSuspense(Detail, 5, 10);
+    // @ts-expect-error
+    () => useSuspense(Detail, {});
+    // @ts-expect-error
+    () => useSuspense(Detail, '5');
   });
 
   it('should work with shapes with no entities', async () => {
