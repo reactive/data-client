@@ -9,7 +9,8 @@ import {
   makeRenderRestHook,
 } from '../../../../test';
 import { useSubscription, useCache } from '../hooks';
-import { DispatchContext } from '../context';
+import { DispatchContext, ControllerContext } from '../context';
+import Controller from '../../controller/Controller';
 
 let mynock: nock.Scope;
 
@@ -148,6 +149,7 @@ describe.each([
 
   it('useSubscription() should dispatch rest-hooks/subscribe only once even with rerender', () => {
     const fakeDispatch = jest.fn();
+    const controller = new Controller({ dispatch: fakeDispatch });
 
     const { rerender } = renderHook(
       () => {
@@ -156,9 +158,9 @@ describe.each([
       {
         wrapper: function Wrapper({ children }: any) {
           return (
-            <DispatchContext.Provider value={fakeDispatch}>
+            <ControllerContext.Provider value={controller}>
               {children}
-            </DispatchContext.Provider>
+            </ControllerContext.Provider>
           );
         },
       },
@@ -173,6 +175,7 @@ describe.each([
 
 it('useSubscription() should include extra options in dispatched meta', () => {
   const fakeDispatch = jest.fn();
+  const controller = new Controller({ dispatch: fakeDispatch });
 
   renderHook(
     () => {
@@ -181,9 +184,9 @@ it('useSubscription() should include extra options in dispatched meta', () => {
     {
       wrapper: function Wrapper({ children }: any) {
         return (
-          <DispatchContext.Provider value={fakeDispatch}>
+          <ControllerContext.Provider value={controller}>
             {children}
-          </DispatchContext.Provider>
+          </ControllerContext.Provider>
         );
       },
     },

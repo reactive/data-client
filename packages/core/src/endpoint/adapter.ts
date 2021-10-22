@@ -19,6 +19,8 @@ export default function shapeToEndpoint<
     > &
       Shape['options']
   : Shape['options'] & { key: Shape['getFetchKey'] } {
+  // make this identity function for endpoints
+  if ((shape as any).key) return shape as any;
   const sideEffect = SIDEEFFECT_TYPES.includes(shape.type);
   const options = {
     ...shape.options,

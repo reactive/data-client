@@ -1,0 +1,121 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`useFetch should dispatch singles 1`] = `
+Object {
+  "endpoint": [Function],
+  "meta": Object {
+    "args": Array [
+      Object {
+        "content": "whatever",
+        "id": 5,
+        "tags": Array [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      },
+    ],
+    "key": "GET http://test.com/article-cooler/5",
+    "options": [Function],
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetch should dispatch with fetch shape defined dataExpiryLength 1`] = `
+Object {
+  "endpoint": [Function],
+  "meta": Object {
+    "args": Array [
+      Object {
+        "content": "whatever",
+        "id": 5,
+        "tags": Array [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      },
+    ],
+    "key": "GET http://test.com/article-static/5",
+    "options": [Function],
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetch should dispatch with fetch shape defined errorExpiryLength 1`] = `
+Object {
+  "endpoint": [Function],
+  "meta": Object {
+    "args": Array [
+      Object {
+        "content": "whatever",
+        "id": 5,
+        "tags": Array [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      },
+    ],
+    "key": "GET http://test.com/article-static/5",
+    "options": [Function],
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetch should dispatch with resource defined dataExpiryLength 1`] = `
+Object {
+  "endpoint": [Function],
+  "meta": Object {
+    "args": Array [
+      Object {
+        "content": "whatever",
+        "id": 5,
+        "tags": Array [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      },
+    ],
+    "key": "GET http://test.com/article-static/5",
+    "options": [Function],
+    "promise": Promise {},
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;

@@ -4,7 +4,7 @@ import { useContext, useCallback } from 'react';
 
 /**
  * Returns a function to completely clear the cache of all entries
- * @see https://resthooks.io/docs/api/useResetter
+ * @deprecated use https://resthooks.io/docs/api/Controller#resetEntireStore
  */
 export default function useResetter(): () => void {
   const dispatch = useContext(DispatchContext);

@@ -148,6 +148,6 @@ describe('invalidate', () => {
     await act(async () => {
       await result.current.controller.invalidate(GetPhoto, { userId });
     });
-    expect(result.current.data).toBeNull();
+    expect(result.current.data).toBeUndefined();
   });
 });

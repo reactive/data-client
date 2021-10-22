@@ -4,7 +4,7 @@ import useInvalidateDispatcher from '@rest-hooks/core/react-integration/hooks/us
 
 /**
  * Invalidate a certain item within the cache
- * @see https://resthooks.io/docs/api/useInvalidator
+ * @deprecated use https://resthooks.io/docs/api/Controller#invalidate
  */
 export default function useInvalidator<Shape extends ReadShape<any, any>>(
   fetchShape: Shape,

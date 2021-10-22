@@ -11,6 +11,8 @@ import useInvalidator from '@rest-hooks/core/react-integration/hooks/useInvalida
 import useResetter from '@rest-hooks/core/react-integration/hooks/useResetter';
 import useFetchDispatcher from '@rest-hooks/core/react-integration/hooks/useFetchDispatcher';
 import useInvalidateDispatcher from '@rest-hooks/core/react-integration/hooks/useInvalidateDispatcher';
+import useFetch from '@rest-hooks/core/react-integration/newhooks/useFetch';
+import useSuspense from '@rest-hooks/core/react-integration/newhooks/useSuspense';
 export { default as hasUsableData } from '@rest-hooks/core/react-integration/hooks/hasUsableData';
 export type { ErrorTypes } from '@rest-hooks/core/react-integration/hooks/useError';
 
@@ -28,4 +30,6 @@ export {
   useInvalidator,
   useInvalidateDispatcher,
   useResetter,
+  useFetch,
+  useSuspense,
 };
