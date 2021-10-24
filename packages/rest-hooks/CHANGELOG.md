@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.2.0-beta.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.1.7...rest-hooks@6.2.0-beta.0) (2021-10-24)
+
+
+### 🚀 Features
+
+* useSuspense, useFetch, remaining hooks typed for Endpoint ([#1440](https://github.com/coinbase/rest-hooks/issues/1440)) ([2039d2c](https://github.com/coinbase/rest-hooks/commit/2039d2c4bf280b5a3c570824c25af3a4cc39af0d))
+
+
+
 ### [6.1.7](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.1.6...rest-hooks@6.1.7) (2021-10-21)
 
 
