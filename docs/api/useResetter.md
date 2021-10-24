@@ -37,7 +37,7 @@ export default class CurrentUserResource extends Resource {
 const USER_NUMBER_ONE: string = "1111";
 
 function UserName() {
-  const user = useResource(CurrentUserResource.detail(), { });
+  const user = useSuspense(CurrentUserResource.detail(), { });
   const resetCache = useResetter();
 
   const becomeAdmin = useCallback(() => {

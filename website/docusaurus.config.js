@@ -192,10 +192,15 @@ module.exports = {
               to: 'docs/upgrade/upgrading-to-6',
             },
             {
-              label: '6.1',
+              label: '6.2',
               to: 'docs/',
               activeBaseRegex:
-                'docs/(?!2.2|3.0|4.0|4.1|4.2|4.3|4.5|5.0|6.0|6.1)',
+                'docs/(?!2.2|3.0|4.0|4.1|4.2|4.3|4.5|5.0|6.0|6.1|6.2)',
+            },
+            {
+              label: '6.1',
+              to: 'docs/6.1/',
+              rel: 'nofollow',
             },
             {
               label: '6.0',

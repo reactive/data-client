@@ -79,7 +79,7 @@ class NewsResource extends BaseResource {
 }
 ```
 
-Now we can declare our data depency to get list results with [useResource](../api/useresource),
+Now we can declare our data depency to get list results with [useSuspense](../api/useSuspense),
 and get an imperative handler `getNextPage` using our new hook.
 
 Since UI behaviors vary widely, and implementations vary from platform (react-native or web),
@@ -91,12 +91,12 @@ page fetching. On web, it is recommended to use something based on [Intersection
 `onPaginate`.
 
 ```tsx
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 import NewsResource from 'resources/NewsResource';
 import usePaginator from 'resources/basePaginator';
 
 function NewsList() {
-  const { results, cursor } = useResource(NewsResource.list(), {});
+  const { results, cursor } = useSuspense(NewsResource.list(), {});
   const getNextPage = usePaginator(NewsResource.list(), {});
 
   return (

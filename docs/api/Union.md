@@ -64,7 +64,7 @@ const feed = new Endpoint(sampleData, {
 });
 
 function FeedList() {
-  const feedItems = useResource(feed, {});
+  const feedItems = useSuspense(feed, {});
   return (
     <div>
       {feedItems.map(item =>

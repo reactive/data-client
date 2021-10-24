@@ -71,7 +71,7 @@ values={[
 import nock from 'nock';
 import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 
-describe('useResource()', () => {
+describe('useSuspense()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
 
   beforeEach(() => {
@@ -94,7 +94,7 @@ describe('useResource()', () => {
 
   it('should throw errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useResource(ArticleResource.detail(), {
+      return useSuspense(ArticleResource.detail(), {
         title: '0',
       });
     });
@@ -113,7 +113,7 @@ describe('useResource()', () => {
 import nock from 'nock';
 import { makeRenderRestHook, makeExternalCacheProvider } from '@rest-hooks/test';
 
-describe('useResource()', () => {
+describe('useSuspense()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
 
   beforeEach(() => {
@@ -136,7 +136,7 @@ describe('useResource()', () => {
 
   it('should throw errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useResource(ArticleResource.detail(), {
+      return useSuspense(ArticleResource.detail(), {
         title: '0',
       });
     });

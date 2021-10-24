@@ -62,7 +62,7 @@ values={[
 <TabItem value="Single">
 
 ```tsx title="pages/UserDetail.tsx"
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 import User from 'schema/User';
 import gql from 'schema/endpoint';
 
@@ -78,7 +78,7 @@ export const userDetail = gql.query(
 );
 
 export default function UserDetail({ name }: { name: string }) {
-  const { user } = useResource(userDetail, { name });
+  const { user } = useSuspense(userDetail, { name });
   return (
     <article>
       <h2>{user.name}</h2>
@@ -92,7 +92,7 @@ export default function UserDetail({ name }: { name: string }) {
 <TabItem value="List">
 
 ```tsx title="pages/UserList.tsx"
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 import User from 'schema/User';
 import gql from 'schema/endpoint';
 
@@ -108,7 +108,7 @@ const userList = gql.query(
 );
 
 export default function UserList() {
-  const { users } = useResource(userList, {});
+  const { users } = useSuspense(userList, {});
   return (
     <section>
       {users.map(user => (
@@ -122,7 +122,7 @@ export default function UserList() {
 </TabItem>
 </Tabs>
 
-[useResource()](../api/useresource) guarantees access to data with sufficient [freshness](../api/Endpoint#dataexpirylength-number).
+[useSuspense()](../api/useSuspense) guarantees access to data with sufficient [freshness](../api/Endpoint#dataexpirylength-number).
 This means it may issue network calls, and it may [suspend](../getting-started/data-dependency.md#boundaries) until the fetch completes.
 Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
 suspends.
@@ -168,7 +168,7 @@ query People($first: Int, $after:String) {
 { allPeople: { people: [Person], pageInfo: PageInfo } },
 );
 function StarPeople() {
-  const { people, pageInfo } = useResource(allPeople, { first: 5 }).allPeople;
+  const { people, pageInfo } = useSuspense(allPeople, { first: 5 }).allPeople;
   return (
     <div>
       {people.map(person => (

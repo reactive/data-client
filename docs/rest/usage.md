@@ -78,11 +78,11 @@ values={[
 <TabItem value="Single">
 
 ```tsx
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function ArticleDetail({ id }: { id: number }) {
-  const article = useResource(ArticleResource.detail(), { id });
+  const article = useSuspense(ArticleResource.detail(), { id });
   return (
     <article>
       <h2>{article.title}</h2>
@@ -96,12 +96,12 @@ export default function ArticleDetail({ id }: { id: number }) {
 <TabItem value="List">
 
 ```tsx
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 import ArticleSummary from './ArticleSummary';
 
 export default function ArticleList({ sortBy }: { sortBy: string }) {
-  const articles = useResource(ArticleResource.list(), { sortBy });
+  const articles = useSuspense(ArticleResource.list(), { sortBy });
   return (
     <section>
       {articles.map(article => (
@@ -115,7 +115,7 @@ export default function ArticleList({ sortBy }: { sortBy: string }) {
 </TabItem>
 </Tabs>
 
-[useResource()](../api/useresource) guarantees access to data with sufficient [freshness](../api/Endpoint#dataexpirylength-number).
+[useSuspense()](../api/useSuspense) guarantees access to data with sufficient [freshness](../api/Endpoint#dataexpirylength-number).
 This means it may issue network calls, and it may [suspend](../guides/loading-state) until the fetch completes.
 Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
 suspends.
@@ -163,7 +163,7 @@ import { useController } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function UpdateArticleForm({ id }: { id: number }) {
-  const article = useResource(ArticleResource.detail(), { id });
+  const article = useSuspense(ArticleResource.detail(), { id });
   const { fetch } = useController();
   return (
     <Form

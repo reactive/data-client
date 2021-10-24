@@ -90,7 +90,7 @@ const getPrice = new Endpoint(exchangeMock, {
   schema: ExchangePrice,
 });
 function PricePage() {
-  const currentPrice = useResource(getPrice, { exchangePair: 'btc-usd' });
+  const currentPrice = useSuspense(getPrice, { exchangePair: 'btc-usd' });
   return (
     <div>
       {currentPrice.price.toPrecision(2)} as of{' '}

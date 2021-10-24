@@ -68,7 +68,7 @@ type UpdateFunction<SourceSchema extends Schema, DestSchema extends Schema> = (
 
 Mostly useful for imperatively triggering mutation effects.
 
-However, this hook is actually used by the retrieval hooks (useRetrieve(), useCache(), useResource()). Using
+However, this hook is actually used by the retrieval hooks (useFetch(), useCache(), useSuspense()). Using
 it with a side-effect free `Endpoint` like `detail()` can be done to force a refresh imperatively.
 
 ## throttle?: boolean = false

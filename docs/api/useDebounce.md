@@ -11,10 +11,10 @@ Useful to avoid spamming network requests when parameters might change quickly (
 
 ```typescript
 import { useDebounce } from '@rest-hooks/hooks';
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 
 const debouncedFilter = useDebounce(filter, 200);
-const data = useResource(MyEndpoint, { filter: debouncedFilter });
+const data = useSuspense(MyEndpoint, { filter: debouncedFilter });
 ```
 
 Part of [@rest-hooks/hooks](https://www.npmjs.com/package/@rest-hooks/hooks)

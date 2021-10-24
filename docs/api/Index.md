@@ -26,5 +26,5 @@ const UserIndex = new Index(User)
 const bob = useCache(UserIndex, { username: 'bob' });
 
 // @ts-expect-error Indexes don't fetch, they just retrieve already existing data
-const bob = useResource(UserIndex, { username: 'bob' });
+const bob = useSuspense(UserIndex, { username: 'bob' });
 ```

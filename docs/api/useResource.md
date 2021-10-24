@@ -9,6 +9,12 @@ title: useResource()
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 
+:::tip
+
+Use [useSuspense()](./useSuspense.md) instead
+
+:::
+
 <GenericsTabs>
 
 ```typescript

@@ -11,7 +11,7 @@ export interface SyntheticError extends Error {
 
 function useError(
   endpoint: Endpoint,
-  params: object | null,
+  ...args: Parameters<typeof endpoint> | [null]
 ): NetworkError | Unknown | SyntheticError | undefined;
 ```
 
@@ -22,6 +22,6 @@ but adds some additional logic.
 
 Used in
 
-- [useRetrieve()](./useRetrieve)
-- [useResource()](./useResource)
+- [useFetch()](./useFetch)
+- [useSuspense()](./useSuspense)
 - [useCache()](./useCache)

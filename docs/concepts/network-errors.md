@@ -2,7 +2,7 @@
 title: Dealing with network errors
 ---
 
-When you use the `useResource()` hook, React will suspend rendering while the network
+When you use the `useSuspense()` hook, React will suspend rendering while the network
 request takes place. But what happens if there is a network failure? It will
 throw the network error. When this happens you'll want to have an
 [error boundary](https://reactjs.org/docs/error-boundaries.html) set up to handle it.
@@ -54,7 +54,7 @@ import { useController } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function UpdateArticleForm({ id }: { id: number }) {
-  const article = useResource(ArticleResource.detail(), { id });
+  const article = useSuspense(ArticleResource.detail(), { id });
   const { fetch } = useController();
 
   return (

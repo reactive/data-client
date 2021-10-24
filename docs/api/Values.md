@@ -42,7 +42,7 @@ const itemValues = new Endpoint(sampleData, {
   schema: new schema.Values(Item),
 });
 function ItemPage() {
-  const items = useResource(itemValues, {});
+  const items = useSuspense(itemValues, {});
   return <pre>{JSON.stringify(items, undefined, 2)}</pre>;
 }
 render(<ItemPage />);
@@ -95,7 +95,7 @@ const feed = new Endpoint(sampleData, {
   ,
 });
 function FeedList() {
-  const feedItems = useResource(feed, {});
+  const feedItems = useSuspense(feed, {});
   return (
     <div>
       {Object.entries(feedItems).map(([key, item]) =>
@@ -161,7 +161,7 @@ const feed = new Endpoint(sampleData, {
   ,
 });
 function FeedList() {
-  const feedItems = useResource(feed, {});
+  const feedItems = useSuspense(feed, {});
   return (
     <div>
       {Object.entries(feedItems).map(([key, item]) =>

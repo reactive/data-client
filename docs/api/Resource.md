@@ -59,7 +59,7 @@ There are two sides to `Resource` definition - the static and instance side.
 
 Is used to define how you retrieve and mutate data across the network. There are several
 static methods that do this, but their ultimate purpose is to build [Endpoint](./Endpoint.md)s, which
-tell the [hooks](./useResource.md) how to process requests. Endpoints are provided for the
+tell the [hooks](./useSuspense.md) how to process requests. Endpoints are provided for the
 common `REST` request types. However, it is encouraged to build your own or override the
 provided ones to fit the needs of your API.
 
@@ -239,7 +239,7 @@ new endpoints based to match your API.
 ### detail(): Endpoint {#detail}
 
 A GET request using standard `url()` that receives a detail body.
-Mostly useful with [useResource](../api/useresource)
+Mostly useful with [useSuspense](../api/useSuspense)
 
 - Uses [url()](#url)
 - Compatible with all hooks
@@ -259,7 +259,7 @@ static detail<T extends typeof SimpleResource>(this: T) {
 ### list(): Endpoint {#list}
 
 A GET request using `listUrl()` that receives a list of entities.
-Mostly useful with [useResource](../api/useresource)
+Mostly useful with [useSuspense](../api/useSuspense)
 
 - Uses [listUrl()](#listUrl)
 - Compatible with all hooks
@@ -286,8 +286,8 @@ Uses [listUrl()](#listUrl)
 
 Not compatible with:
 
-- [useResource()](../api/useresource)
-- [useRetrieve()](../api/useRetrieve.md)
+- [useSuspense()](../api/useSuspense)
+- [useFetch()](../api/useFetch.md)
 
 #### Implementation:
 
@@ -311,8 +311,8 @@ Uses [url()](#url)
 
 Not compatible with:
 
-- [useResource()](../api/useresource)
-- [useRetrieve()](../api/useRetrieve.md)
+- [useSuspense()](../api/useSuspense)
+- [useFetch()](../api/useFetch.md)
 
 #### Implementation:
 
@@ -336,8 +336,8 @@ Uses [url()](#url)
 
 Not compatible with:
 
-- [useResource()](../api/useresource)
-- [useRetrieve()](../api/useRetrieve.md)
+- [useSuspense()](../api/useSuspense)
+- [useFetch()](../api/useFetch.md)
 
 #### Implementation:
 
@@ -361,8 +361,8 @@ Uses [url()](#url)
 
 Not compatible with:
 
-- [useResource()](../api/useresource)
-- [useRetrieve()](../api/useRetrieve.md)
+- [useSuspense()](../api/useSuspense)
+- [useFetch()](../api/useFetch.md)
 
 #### Implementation:
 

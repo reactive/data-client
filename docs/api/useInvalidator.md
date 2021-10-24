@@ -30,7 +30,7 @@ Mostly useful for imperatively invalidating the cache, with a similar signature 
 
 Sending a `null` to params results in a no-op.
 
-> Forces refetching and suspense on [useResource](./useResource.md) with the same Endpoint
+> Forces refetching and suspense on [useSuspense](./useSuspense.md) with the same Endpoint
 > and parameters.
 >
 > To refresh while continuing to display stale data - [useFetcher](./useFetcher.md) instead.
@@ -39,7 +39,7 @@ Sending a `null` to params results in a no-op.
 
 ```tsx
 function ArticleName({ id }: { id: string }) {
-  const article = useResource(ArticleResource.detail(), { id });
+  const article = useSuspense(ArticleResource.detail(), { id });
   const invalidateArticle = useInvalidator(ArticleResource.detail());
 
   return (
@@ -54,7 +54,7 @@ function ArticleName({ id }: { id: string }) {
 ### Internals
 
 - set expiresAt to 0.
-  - This triggers useRetrieve.
+  - This triggers useFetch.
 - deletes results entry.
   - This only allows direct read from the cache if inferred results.
 - sets meta.invalidated to true.
@@ -75,7 +75,7 @@ const InvalidateArticle = new Endpoint(
 );
 
 function ArticleName({ id }: { id: string }) {
-  const article = useResource(ArticleResource.detail(), { id });
+  const article = useSuspense(ArticleResource.detail(), { id });
   const invalidateAllWithArticle = useFetcher(InvalidateArticle);
 
   return (

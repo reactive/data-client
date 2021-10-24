@@ -50,7 +50,7 @@ const userList = new Endpoint(sampleData, {
   ,
 });
 function UsersPage() {
-  const users = useResource(userList, {});
+  const users = useSuspense(userList, {});
   return (
     <div>
       {users.map(user => <div key={user.pk()}>{user.name}</div>)}
@@ -107,7 +107,7 @@ const feed = new Endpoint(sampleData, {
   ,
 });
 function FeedList() {
-  const feedItems = useResource(feed, {});
+  const feedItems = useSuspense(feed, {});
   return (
     <div>
       {feedItems.map(item =>
@@ -173,7 +173,7 @@ const feed = new Endpoint(sampleData, {
   ,
 });
 function FeedList() {
-  const feedItems = useResource(feed, {});
+  const feedItems = useSuspense(feed, {});
   return (
     <div>
       {feedItems.map(item =>

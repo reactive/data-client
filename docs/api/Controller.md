@@ -119,12 +119,12 @@ function PostListItem({ post }: { post: PostResource }) {
 
 ## invalidate(endpoint, ...args) {#invalidate}
 
-Forces refetching and suspense on [useResource](./useResource.md) with the same Endpoint
+Forces refetching and suspense on [useSuspense](./useSuspense.md) with the same Endpoint
 and parameters.
 
 ```tsx
 function ArticleName({ id }: { id: string }) {
-  const article = useResource(ArticleResource.detail(), { id });
+  const article = useSuspense(ArticleResource.detail(), { id });
   const { invalidate } = useController();
 
   return (
@@ -158,7 +158,7 @@ This is typically used when logging out or changing authenticated users.
 const USER_NUMBER_ONE: string = "1111";
 
 function UserName() {
-  const user = useResource(CurrentUserResource.detail(), { });
+  const user = useSuspense(CurrentUserResource.detail(), { });
   const { resetEntireStore } = useController();
 
   const becomeAdmin = useCallback(() => {
@@ -273,7 +273,7 @@ A number representing time when it expires. Compare to Date.now().
 
 ### Example
 
-This is used in [useCache](./useCache.md), [useResource](./useResource.md) and can be used in
+This is used in [useCache](./useCache.md), [useSuspense](./useSuspense.md) and can be used in
 [Managers](./Manager.md) to lookup a response with the state provided.
 
 ```tsx title="useCache.ts"

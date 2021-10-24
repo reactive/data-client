@@ -1,10 +1,10 @@
 ---
 title: useSubscription()
 ---
+
 <head>
   <title>useSubscription() - Fresh data for Rest Hooks</title>
 </head>
-
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 
@@ -13,19 +13,15 @@ import GenericsTabs from '@site/src/components/GenericsTabs';
 ```typescript
 function useSubscription(
   endpoint: ReadEndpoint,
-  params: object | null,
+  ...args: Parameters<typeof endpoint> | [null]
 ): void;
 ```
 
-
 ```typescript
 function useSubscription<
-  Params extends Readonly<object>,
-  S extends Schema
->(
-  endpoint: ReadEndpoint<(p:Params) => Promise<any>, S>,
-  params: Params | null,
-): void;
+  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  Args extends readonly [...Parameters<E>] | readonly [null],
+>(endpoint: E, ...args: Args): void;
 ```
 
 </GenericsTabs>
@@ -67,11 +63,11 @@ export default class PriceResource extends Resource {
 `MasterPrice.tsx`
 
 ```tsx
-import { useResource, useSubscription } from 'rest-hooks';
+import { useSuspense, useSubscription } from 'rest-hooks';
 import PriceResource from 'resources/PriceResource';
 
 function MasterPrice({ symbol }: { symbol: string }) {
-  const price = useResource(PriceResource.detail(), { symbol });
+  const price = useSuspense(PriceResource.detail(), { symbol });
   useSubscription(PriceResource.detail(), { symbol });
   // ...
 }
@@ -83,11 +79,11 @@ function MasterPrice({ symbol }: { symbol: string }) {
 
 ```tsx
 import { useRef } from 'react';
-import { useResource, useSubscription } from 'rest-hooks';
+import { useSuspense, useSubscription } from 'rest-hooks';
 import PriceResource from 'resources/PriceResource';
 
 function MasterPrice({ symbol }: { symbol: string }) {
-  const price = useResource(PriceResource.detail(), { symbol });
+  const price = useSuspense(PriceResource.detail(), { symbol });
   const ref = useRef();
   const onScreen = useOnScreen(ref);
   // null params means don't subscribe

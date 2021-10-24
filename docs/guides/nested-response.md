@@ -55,7 +55,7 @@ class PostResource extends Resource {
 }
 
 function PostPage() {
-  const post = useResource(PostResource.detail(), { id: '5' });
+  const post = useSuspense(PostResource.detail(), { id: '5' });
   return (
     <div>
       <p>{post.content} - <cite>{post.author.name}</cite></p>

@@ -19,7 +19,7 @@ to easily replace any existing HOC with ease.
 
 ```tsx
 import withHook from 'hook-hoc';
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 
 import UserResource from 'resources/user';
 
@@ -32,7 +32,7 @@ class Profile extends React.PureComponent<{
 }
 
 export default withHook(({ id }: { id: number }) => {
-  const [user, friends] = useResource(
+  const [user, friends] = useSuspense(
     [UserResource.detail(), { id }],
     [UserResource.list(), { friendid: id }],
   );
@@ -51,12 +51,12 @@ and also potentially reusable, let's move it out to a named function:
 
 ```tsx
 import withHook from 'hook-hoc';
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 
 import UserResource from 'resources/user';
 
 function useProfile({ id }: { id: number }) {
-  const [user, friends] = useResource(
+  const [user, friends] = useSuspense(
     [UserResource.detail(), { id }],
     [UserResource.list(), { friendid: id }],
   );
@@ -83,14 +83,14 @@ client-side filtering as well as [debouncing](https://usehooks.com/useDebounce/)
 You can combine any hooks here - the sky's the limit.
 
 ```tsx
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 
 import UserResource from 'resources/user';
 
 function useProfile({ id }: { id: number }) {
   const debouncedId = useDebounce(id, 150);
 
-  const [user, friends] = useResource(
+  const [user, friends] = useSuspense(
     [UserResource.detail(), { id }],
     [UserResource.list(), { friendid: id }],
   );

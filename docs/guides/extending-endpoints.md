@@ -5,7 +5,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 [Previously we saw how we could use](../rest/usage#use-the-resource)
-the [useResource()](../api/useresource) and [Controller.fetch()](../api/Controller.md#fetch) hooks to read and mutate
+the [useSuspense()](../api/useSuspense) and [Controller.fetch()](../api/Controller.md#fetch) hooks to read and mutate
 data. The first argument of these hooks is known as a [Endpoint](../api/Endpoint).
 Endpoints are the minimal definition of instructions needed to tell Rest Hooks how to handle
 those types of requests.
@@ -239,12 +239,12 @@ We customized the following:
 #### Usage
 
 ```tsx
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 
 import UserResource from 'resources/user';
 
 export default function CurrentUserProfilePage() {
-  const loggedInUser = useResource(UserResource.current(), {});
+  const loggedInUser = useSuspense(UserResource.current(), {});
 
   return <ProfileDetail user={loggedInUser} />;
 }
@@ -291,12 +291,12 @@ export default class BirthdayResource extends BaseResource {
 #### Usage
 
 ```tsx
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 
 import BirthdayResource from 'resources/user';
 
 export default function UpcomingBirthdays() {
-  const { withinSevenDays, withinThirtyDays } = useResource(
+  const { withinSevenDays, withinThirtyDays } = useSuspense(
     BirthdayResource.upcoming(),
     {},
   );
