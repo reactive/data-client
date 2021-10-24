@@ -3,8 +3,8 @@ title: Render as you Fetch
 ---
 
 A core design feature of Rest Hooks is decoupling actual data retrieval from data
-usage. This means hooks that want to ensure data availability like [useRetrieve()](../api/useRetrieve)
-or [useResource()](../api/useresource) actually only dispatch the request to fetch. [NetworkManager](../api/NetworkManager)
+usage. This means hooks that want to ensure data availability like [useFetch()](../api/useFetch)
+or [useSuspense()](../api/useSuspense) actually only dispatch the request to fetch. [NetworkManager](../api/NetworkManager)
 then uses its global awareness to determine whether to fetch. This means, for instance, that
 duplicate requests for data can be deduped into one fetch, with one promise to resolve.
 
@@ -20,7 +20,7 @@ These are some scenarios where this pattern is especially useful:
   - [SuspenseList](https://reactjs.org/docs/concurrent-mode-reference.html#suspenselist)
   - [useTransition()](https://reactjs.org/docs/concurrent-mode-reference.html#usetransition)
 
-Fetch-then-render can be adopted incrementally. Components using data can [useResource()](../api/useresource)
+Fetch-then-render can be adopted incrementally. Components using data can [useSuspense()](../api/useSuspense)
 and be assured they will get their data when it's ready. And when render-as-you-fetch optimizations
 are added later - _those components don't need to change_. This makes data usage _tightly coupled_,
 and fetch optimization _loosely coupled_.
@@ -115,20 +115,20 @@ function useFriendPreloader() {
 const FriendCard = () => {
   // useData gets the route context
   const { friendId } = useData();
-  const friend = useResource(UserResource.detail(), { id: friendId });
+  const friend = useSuspense(UserResource.detail(), { id: friendId });
   // render some JSX
 };
 ```
 
 #### Posts
 
-Here we use [<SuspenseList /\>](https://reactjs.org/docs/concurrent-mode-reference.html#suspenselist) and [useResource()](../api/useresource)
+Here we use [<SuspenseList /\>](https://reactjs.org/docs/concurrent-mode-reference.html#suspenselist) and [useSuspense()](../api/useSuspense)
 
 ```tsx
 const Posts = () => {
   // useData gets the route context
   const { friendId } = useData();
-  const posts = useResource(PostResource.list(), { userId: friendId });
+  const posts = useSuspense(PostResource.list(), { userId: friendId });
 
   // By using a SuspenseList here, we can guarantee that posts
   // appear in the optimal viewing order, despite separately loading comments.

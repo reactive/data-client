@@ -40,7 +40,7 @@ const App = () => (
 > #### Note:
 >
 > The `<Suspense/>` boundary must be placed in another component that is above the one
-> where `useResource()` and other hooks are used.
+> where `useSuspense()` and other hooks are used.
 
 ## Without Suspense
 

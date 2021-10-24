@@ -273,7 +273,7 @@
             },
             {
               "type": "doc",
-              "id": "api/useresource"
+              "id": "api/useSuspense"
             },
             {
               "type": "doc",
@@ -289,7 +289,7 @@
             },
             {
               "type": "doc",
-              "id": "api/useRetrieve"
+              "id": "api/useFetch"
             },
             {
               "type": "doc",
@@ -318,6 +318,14 @@
             {
               "type": "doc",
               "id": "api/NetworkManager"
+            },
+            {
+              "type": "doc",
+              "id": "api/useresource"
+            },
+            {
+              "type": "doc",
+              "id": "api/useRetrieve"
             }
           ]
         },

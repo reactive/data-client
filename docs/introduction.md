@@ -77,13 +77,13 @@ By _decoupling_ endpoint definitions from their usage, we are able to reuse them
 
 ## Co-locate data dependencies
 
-Add one-line [data hookup](./getting-started/data-dependency.md) in the components that need it with [useResource()](./api/useResource.md)
+Add one-line [data hookup](./getting-started/data-dependency.md) in the components that need it with [useSuspense()](./api/useSuspense.md)
 
 ```tsx {4}
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 
 export default function TodoDetail({ id }: { id: number }) {
-  const todo = useResource(todoDetail, { id });
+  const todo = useSuspense(todoDetail, { id });
 
   return <div>{todo.title}</div>;
 }
@@ -293,10 +293,10 @@ the variable `todos` will be typed precisely. If the API responds in another man
 the hook with throw instead, triggering the `error fallback` specified in [<NetworkErrorBoundary /\>](./api/NetworkErrorBoundary.md)
 
 ```tsx {4}
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 
 export default function TodoListComponent() {
-  const todos = useResource(todoList, {});
+  const todos = useSuspense(todoList, {});
 
   return (
     <div>
@@ -404,10 +404,10 @@ class TodoResource extends Resource {
 ```typescript
 // read
 // GET https://jsonplaceholder.typicode.com/todos/5
-const todo = useResource(TodoResource.detail(), { id: 5 });
+const todo = useSuspense(TodoResource.detail(), { id: 5 });
 
 // GET https://jsonplaceholder.typicode.com/todos
-const todos = useResource(TodoResource.list(), {});
+const todos = useSuspense(TodoResource.list(), {});
 
 // mutate
 // POST https://jsonplaceholder.typicode.com/todos
@@ -457,7 +457,7 @@ const userDetail = gql.query(
 ```
 
 ```tsx
-const { user } = useResource(userDetail, { name: 'Fong' });
+const { user } = useSuspense(userDetail, { name: 'Fong' });
 ```
 
 ### @rest-hooks/img

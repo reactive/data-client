@@ -99,7 +99,7 @@ Default:
 ### sideEffect: true | undefined {#sideeffect}
 
 Used to indicate endpoint might have side-effects (non-idempotent). This restricts it
-from being used with [useResource()](./useresource) or [useRetrieve()](useRetrieve) as those can hit the
+from being used with [useSuspense()](./useSuspense) or [useFetch()](useFetch) as those can hit the
 endpoint an unpredictable number of times.
 
 ### schema: Schema {#schema}
@@ -163,7 +163,7 @@ in error.
 #### invalidIfStale: boolean {#invalidifstale}
 
 Indicates stale data should be considered unusable and thus not be returned from the cache. This means
-that useResource() will suspend when data is stale even if it already exists in cache.
+that useSuspense() will suspend when data is stale even if it already exists in cache.
 
 #### pollFrequency: number {#pollfrequency}
 
@@ -203,8 +203,8 @@ const createUser = new Endpoint(postToUserFunction, {
 More updates:
 
 ```typescript title="Component.tsx"
-const allusers = useResource(userList);
-const adminUsers = useResource(userList, { admin: true });
+const allusers = useSuspense(userList);
+const adminUsers = useSuspense(userList, { admin: true });
 ```
 
 The endpoint below ensures the new user shows up immediately in the usages above.
@@ -331,7 +331,7 @@ values={[
 
 ```tsx
 function UserProfile() {
-  const user = useResource(UserDetail, { id });
+  const user = useSuspense(UserDetail, { id });
   const { fetch } = useController();
 
   return <UserForm user={user} onSubmit={() => fetch(UserDetail)} />;

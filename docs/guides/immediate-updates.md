@@ -30,7 +30,7 @@ provides such an endpoint.
 ## Create
 
 Like updates, created entities are automatically added to the entities table. This means
-any components useResource() for just that item will be able to access it immediately and
+any components useSuspense() for just that item will be able to access it immediately and
 not have to wait for an additional retrieval request. However, often new items are created
 when viewing an entire list of items, and the create should result in that list - any maybe others -
 displaying the newly created entry.
@@ -51,8 +51,8 @@ const createUser = new Endpoint(postToUserFunction, {
 More updates:
 
 ```typescript title="Component.tsx"
-const allusers = useResource(userList);
-const adminUsers = useResource(userList, { admin: true });
+const allusers = useSuspense(userList);
+const adminUsers = useSuspense(userList, { admin: true });
 ```
 
 The endpoint below ensures the new user shows up immediately in the usages above.

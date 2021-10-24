@@ -195,9 +195,9 @@ later.
 >
 > Don't add your primary key like `id` to the indexes list, as that will already be optimized.
 
-#### useResource()
+#### useSuspense()
 
-With [useResource()](./useResource) this will eagerly infer the results from entities table if possible,
+With [useSuspense()](./useSuspense) this will eagerly infer the results from entities table if possible,
 rendering without needing to complete the fetch. This is typically helpful when the entities
 cache has already been populated by another request like a list request.
 
@@ -220,7 +220,7 @@ export class UserResource extends Resource {
 ```
 
 ```tsx
-const user = useResource(UserResource.detail(), { username: 'bob' });
+const user = useSuspense(UserResource.detail(), { username: 'bob' });
 ```
 
 #### useCache()
@@ -250,7 +250,7 @@ class AssetResource extends Resource {
 Some top level component:
 
 ```tsx
-const assets = useResource(AssetResource.list(), {});
+const assets = useSuspense(AssetResource.list(), {});
 ```
 
 Nested below:
@@ -297,7 +297,7 @@ const postDetail = new Endpoint(postSample, {
   schema: Post,
 });
 function PostPage() {
-  const post = useResource(postDetail, { id: '123' });
+  const post = useSuspense(postDetail, { id: '123' });
   return (
     <div>
       <p>

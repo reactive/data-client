@@ -65,11 +65,11 @@ and `prevPage` values. We can use those tokens to define our pagination buttons.
 `ArticleList.tsx`
 
 ```tsx
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 import ArticleResource from 'resources/ArticleResource';
 
 export default function ArticleList() {
-  const { results: articles, nextPage, prevPage } = useResource(
+  const { results: articles, nextPage, prevPage } = useSuspense(
     ArticleResource.list(),
     {},
   );

@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
-Co-locating data dependencies means we only use data-binding hooks like [useResource()](../api/useresource)
+Co-locating data dependencies means we only use data-binding hooks like [useSuspense()](../api/useSuspense)
 in components where we display/use their data directly.
 
 <Tabs
@@ -20,13 +20,13 @@ values={[
 <TabItem value="Single">
 
 ```tsx
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 // local directory for API definitions
 import { todoDetail } from 'endpoints/todo';
 
 export default function TodoDetail({ id }: { id: number }) {
   // highlight-next-line
-  const todo = useResource(todoDetail, { id });
+  const todo = useSuspense(todoDetail, { id });
   return <div>{todo.title}</div>;
 }
 ```
@@ -35,13 +35,13 @@ export default function TodoDetail({ id }: { id: number }) {
 <TabItem value="List">
 
 ```tsx
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 // local directory for API definitions
 import { todoList } from 'endpoints/todo';
 
 export default function TodoList() {
   // highlight-next-line
-  const todos = useResource(todoList, {});
+  const todos = useSuspense(todoList, {});
   return (
     <section>
       {todos.map(todo => (
@@ -55,7 +55,7 @@ export default function TodoList() {
 </TabItem>
 </Tabs>
 
-[useResource()](../api/useresource) guarantees access to data with sufficient [freshness](../api/Endpoint#dataexpirylength-number).
+[useSuspense()](../api/useSuspense) guarantees access to data with sufficient [freshness](../api/Endpoint#dataexpirylength-number).
 This means it may issue network calls, and it may [suspend](#boundaries) until the the fetch completes.
 Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
 suspends.
@@ -71,7 +71,7 @@ Use `null` as the second argument on any rest hooks to indicate "do nothing."
 
 ```typescript
 // todo could be undefined if id is undefined
-const todo = useResource(todoDetail, id ? { id } : null);
+const todo = useSuspense(todoDetail, id ? { id } : null);
 ```
 
 :::
@@ -198,12 +198,12 @@ values={[
 <TabItem value="Single">
 
 ```tsx
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 // local directory for API definitions
 import { todoDetail } from 'endpoints/todo';
 
 export default function TodoDetail({ id }: { id: number }) {
-  const todo = useResource(todoDetail, { id });
+  const todo = useSuspense(todoDetail, { id });
   // highlight-next-line
   useSubscription(todoDetail, { id });
   return <div>{todo.title}</div>;
@@ -214,12 +214,12 @@ export default function TodoDetail({ id }: { id: number }) {
 <TabItem value="List">
 
 ```tsx
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 // local directory for API definitions
 import { todoList } from 'endpoints/todo';
 
 export default function TodoList() {
-  const todos = useResource(todoList, {});
+  const todos = useSuspense(todoList, {});
   // highlight-next-line
   useSubscription(todoList, {});
   return (
@@ -280,7 +280,7 @@ class ExchangeRatesResource extends Resource {
 }
 
 function AssetPrice({ symbol }: { symbol: string }) {
-  const { data: price } = useResource(ExchangeRatesResource.list(), {
+  const { data: price } = useSuspense(ExchangeRatesResource.list(), {
     currency: 'USD',
   });
   useSubscription(ExchangeRatesResource.list(), {

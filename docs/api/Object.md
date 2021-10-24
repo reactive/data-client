@@ -37,7 +37,7 @@ const userList = new Endpoint(sampleData, {
   ,
 });
 function UsersPage() {
-  const { users } = useResource(userList, {});
+  const { users } = useSuspense(userList, {});
   return (
     <div>
       {users.map(user => <div key={user.pk()}>{user.name}</div>)}

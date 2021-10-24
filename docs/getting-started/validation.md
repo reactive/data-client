@@ -45,7 +45,7 @@ const articleDetail = new Endpoint(mockArticleDetail, {
 });
 
 function ArticlePage({ id }: { id: string }) {
-  const article = useResource(articleDetail, { id });
+  const article = useSuspense(articleDetail, { id });
   return <div>{article.title}</div>;
 }
 
@@ -92,7 +92,7 @@ const articleDetail = new Endpoint(mockArticleDetail, {
 });
 
 function ArticlePage({ id }: { id: string }) {
-  const article = useResource(articleDetail, { id });
+  const article = useSuspense(articleDetail, { id });
   return <div>{article.title}</div>;
 }
 
@@ -165,7 +165,7 @@ const articleDetail = new Endpoint(mockArticleDetail, {
 });
 
 function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
-  const article = useResource(articleDetail, { id });
+  const article = useSuspense(articleDetail, { id });
   return (
     <div>
       <h4>
@@ -187,7 +187,7 @@ function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
 }
 function ArticleList() {
   const [route, setRoute] = React.useState<string>();
-  const articles = useResource(articleList, {});
+  const articles = useSuspense(articleList, {});
   if (!route) {
     return (
       <div>

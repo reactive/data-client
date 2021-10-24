@@ -4,6 +4,12 @@ title: useRetrieve()
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 
+:::tip
+
+Use [useFetch()](./useFetch.md) instead
+
+:::
+
 <GenericsTabs>
 
 ```typescript

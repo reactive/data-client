@@ -37,7 +37,7 @@ const userDelete = new Endpoint(sampleDelete, {
   schema: new schema.Delete(User),
 });
 function UsersPage() {
-  const users = useResource(userList, {});
+  const users = useSuspense(userList, {});
   const { fetch } = useController();
   return (
     <div>
@@ -90,7 +90,7 @@ class MyResource extends Resource {
 ```tsx
 function MyTable() {
   const { selectedIds } = useFields(TableForm);
-  const list = useResource(MyResource.list(), {});
+  const list = useSuspense(MyResource.list(), {});
   const { fetch } = useController();
 
   return (
@@ -107,9 +107,9 @@ function MyTable() {
 }
 ```
 
-### Impact on useResource()
+### Impact on useSuspense()
 
-When entities are deleted in a result currently being presented in React, useResource()
+When entities are deleted in a result currently being presented in React, useSuspense()
 will consider them invalid
 
 - For optional Entities, they are simply removed

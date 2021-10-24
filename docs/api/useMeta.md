@@ -5,13 +5,13 @@ title: useMeta()
 ```typescript
 function useMeta(
   endpoint: Endpoint,
-  params: object | null,
+  ...args: Parameters<typeof endpoint> | [null]
 ): {
-    readonly date: number;
-    readonly error?: NetworkError | UnknownError;
-    readonly expiresAt: number;
-    readonly prevExpiresAt?: number | undefined;
-    readonly invalidated?: boolean | undefined;
+  readonly date: number;
+  readonly error?: NetworkError | UnknownError;
+  readonly expiresAt: number;
+  readonly prevExpiresAt?: number | undefined;
+  readonly invalidated?: boolean | undefined;
 } | null;
 ```
 

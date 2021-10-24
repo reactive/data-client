@@ -16,10 +16,10 @@ Builds an Endpoint that cancels fetch everytime params change
 
 ```tsx
 import { useCancelling } from '@rest-hooks/hooks';
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 
 const CancelingUserList = useCancelling(UserList, { query });
-const users = useResource(CancelingUserList, { query });
+const users = useSuspense(CancelingUserList, { query });
 ```
 
 Part of [@rest-hooks/hooks](https://www.npmjs.com/package/@rest-hooks/hooks)

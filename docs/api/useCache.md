@@ -1,6 +1,7 @@
 ---
 title: useCache()
 ---
+
 <head>
   <title>useCache() - Accessing Rest Hooks data without fetching</title>
 </head>
@@ -12,15 +13,18 @@ import GenericsTabs from '@site/src/components/GenericsTabs';
 ```typescript
 function useCache(
   endpoint: ReadEndpoint,
-  params: object | null,
+  ...args: Parameters<typeof endpoint> | [null]
 ): Denormalize<typeof endpoint.schema> | null;
 ```
 
 ```typescript
-function useCache<Params extends Readonly<object>, S extends Schema>(
-  endpoint: Pick<ReadEndpoint<(p:Params) => Promise<any>, S>, 'schema' | 'key'>,
-  params: Params | null,
-): Denormalize<S> | null;
+function useCache<
+  E extends Pick<
+    EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+    'key' | 'schema' | 'invalidIfStale'
+  >,
+  Args extends readonly [...Parameters<E['key']>] | readonly [null],
+>(endpoint: E, ...args: Args): DenormalizeNullable<E['schema']>;
 ```
 
 </GenericsTabs>
@@ -70,10 +74,11 @@ export class PaginatedPostResource extends Resource {
 
 ```tsx
 function ArticleList({ page }: { page: string }) {
-  const { results: posts, nextPage, lastPage } = useCache(
-    PaginatedPostResource.list(),
-    { page },
-  );
+  const {
+    results: posts,
+    nextPage,
+    lastPage,
+  } = useCache(PaginatedPostResource.list(), { page });
   // posts as PaginatedPostResource[] | null
   if (!posts) return null;
   // posts as PaginatedPostResource[] (typeguarded)

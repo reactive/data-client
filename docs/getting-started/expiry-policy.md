@@ -35,7 +35,7 @@ Data in this state is considered new enough that it doesn't need to fetch.
 
 Data is still allowed to be shown, however Rest Hooks might attempt to revalidate by fetching again.
 
-[useResource()](../api/useResource.md) considers fetching on mount as well as when its parameters change.
+[useSuspense()](../api/useSuspense.md) considers fetching on mount as well as when its parameters change.
 In these cases it will fetch if the data is considered stale.
 
 ### Invalid
@@ -60,7 +60,7 @@ you will continue to see the old time without any refresh.
 const lastUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 
 function TimePage({ id }) {
-  const { updatedAt } = useResource(lastUpdated, { id });
+  const { updatedAt } = useSuspense(lastUpdated, { id });
   return (
     <div>
       API Time:{' '}
@@ -113,7 +113,7 @@ const lastUpdated = lastUpdated.extend({
 });
 
 function TimePage({ id }) {
-  const { updatedAt } = useResource(lastUpdated, { id });
+  const { updatedAt } = useSuspense(lastUpdated, { id });
   return (
     <div>
       API Time:{' '}
@@ -158,7 +158,7 @@ the previous data. This can be done even with 'fresh' data.
 
 ```tsx
 function ShowTime() {
-  const { updatedAt } = useResource(lastUpdated, { id: '1' });
+  const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
   const { fetch } = useController();
   return (
     <div>
@@ -186,7 +186,7 @@ In this example we can see invalidating the endpoint shows the loading fallback 
 
 ```tsx
 function ShowTime() {
-  const { updatedAt } = useResource(lastUpdated, { id: '1' });
+  const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
   const { invalidate } = useController();
   return (
     <div>
@@ -218,7 +218,7 @@ const deleteLastUpdated = new Endpoint(mockDelete, {
 });
 
 function ShowTime() {
-  const { updatedAt } = useResource(lastUpdated, { id: '1' });
+  const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
   const { fetch } = useController();
   return (
     <div>
@@ -244,7 +244,7 @@ It uses the rejection error to determine whether it should be treated as 'soft' 
 ### Soft
 
 Soft errors will not invalidate a response if it is already available. However, if there is currently
-no data available, it will mark that endpoint as rejected, causing [useResource()](../api/useResource.md) to throw an
+no data available, it will mark that endpoint as rejected, causing [useSuspense()](../api/useSuspense.md) to throw an
 error. This can be caught with [NetworkErrorBoundary](../api/NetworkErrorBoundary.md)
 
 ### Hard
@@ -271,7 +271,7 @@ function createError(status) {
 }
 
 function ShowTime() {
-  const { updatedAt } = useResource(lastUpdated, { id: '1' });
+  const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
   const { fetch, invalidate } = useController();
   React.useEffect(
     () => () => {

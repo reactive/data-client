@@ -7,11 +7,11 @@ If you have the parameters you needs to fetch, they will all happen in parallel!
 
 ```tsx
 import React from "react";
-import { useResource } from "rest-hooks";
+import { useSuspense } from "rest-hooks";
 import { PostResource, TaskResource } from "./resources";
 
 export default function Post({ name }: { name: string }) {
-  const [post, tasks] = useResource(
+  const [post, tasks] = useSuspense(
     [PostResource.detail(), { name }],
     [TaskResource.detail(), { name }],
   );
@@ -26,18 +26,18 @@ export default function Post({ name }: { name: string }) {
 
 ## Sequential
 
-Each [useResource()](../api/useresource) call ensures the resource returned is available. That means
+Each [useSuspense()](../api/useSuspense) call ensures the resource returned is available. That means
 that until that point it will yield running the rest of the component function
 when it is loading or errored.
 
 ```tsx
 import React from "react";
-import { useResource } from "rest-hooks";
+import { useSuspense } from "rest-hooks";
 import { PostResource, UserResource } from "./resources";
 
 export default function Post({ id }: { id: number }) {
-  const post = useResource(PostResource.detail(), { id });
-  const author = useResource(
+  const post = useSuspense(PostResource.detail(), { id });
+  const author = useSuspense(
     UserResource.detail(),
     {
       id: post.userId

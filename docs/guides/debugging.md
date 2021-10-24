@@ -46,7 +46,7 @@ to this store's design.
 
 Here we see the data flow.
 
-For example, when a useResource() hook is first mounted it might
+For example, when a useSuspense() hook is first mounted it might
 
 - Start by dispatching a fetch action
 - If no identical fetches are in-flight, the central store will then start the network call over HTTP
@@ -112,7 +112,7 @@ class PresentationEntity extends Entity {
 
 ```tsx
 export function PresentationsPage() {
-  const presentation = useResource(PresentationList, {});
+  const presentation = useSuspense(PresentationList, {});
   return presentation.map(presentation => (
     <div key={presentation.pk()}>{presentation.title}</div>
   ));

@@ -50,7 +50,7 @@ These are still supported! They are simply moved to [@rest-hooks/legacy](https:/
 ### Importing directly from hidden files is no longer supported
 
 All packages now use [package exports](https://webpack.js.org/guides/package-exports/), which if
-supported disallow importing directly from any sub path like `rest-hooks/lib/react-integration/hooks/useResource`
+supported disallow importing directly from any sub path like `rest-hooks/lib/react-integration/hooks/useSuspense`
 
 Doing this was never supported as file locations would change without announcement. However, now
 with tooling that supports package exports, it will not work at all.

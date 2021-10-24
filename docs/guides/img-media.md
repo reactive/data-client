@@ -29,17 +29,17 @@ export const getPhoto = new Endpoint(async ({ userId }: { userId: string }) => {
 ```
 
 <Tabs
-defaultValue="useResource"
+defaultValue="useSuspense"
 values={[
-{ label: 'useResource', value: 'useResource' },
+{ label: 'useSuspense', value: 'useSuspense' },
 { label: 'useCache', value: 'useCache' },
 { label: 'JS/Node', value: 'JS/Node' },
 ]}>
-<TabItem value="useResource">
+<TabItem value="useSuspense">
 
 ```tsx
 // photo is typed as ArrayBuffer
-const photo = useResource(getPhoto, { userId });
+const photo = useSuspense(getPhoto, { userId });
 ```
 
 </TabItem>
@@ -79,11 +79,11 @@ images using suspense. This becomes especially powerful [with the fetch as you r
 
 ```tsx
 import React, { ImgHTMLAttributes } from 'react';
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 import { Img } from '@rest-hooks/img';
 
 export default function Profile({ username }: { username: string }) {
-  const user = useResource(UseResource.detail(), { username });
+  const user = useSuspense(UseResource.detail(), { username });
   return (
     <div>
       <Img
@@ -108,13 +108,13 @@ the image request can start. If the image url is deterministic based on the same
 
 ```tsx
 import React, { ImgHTMLAttributes } from 'react';
-import { useResource, useRetrieve } from 'rest-hooks';
+import { useSuspense, useFetch } from 'rest-hooks';
 import { Img, getImage } from '@rest-hooks/img';
 
 export default function Profile({ username }: { username: string }) {
   const imageSrc = `/profile_images/${username}}`;
-  useRetrieve(getImage, { src: imageSrc });
-  const user = useResource(UseResource.detail(), { username });
+  useFetch(getImage, { src: imageSrc });
+  const user = useSuspense(UseResource.detail(), { username });
   return (
     <div>
       <Img

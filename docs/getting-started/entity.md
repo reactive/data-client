@@ -94,7 +94,7 @@ class PresentationEntity extends Entity {
 
 ```tsx
 export function PresentationsPage() {
-  const presentation = useResource(PresentationList, {});
+  const presentation = useSuspense(PresentationList, {});
   return presentation.map(presentation => (
     <div key={presentation.pk()}>{presentation.title}</div>
   ));
@@ -118,7 +118,7 @@ an entire endpoint response.
 
 When an endpoint changes data, this is known as a [side effect](../guides/rpc.md). Marking an endpoint with [sideEffect: true](../api/Endpoint.md#sideeffect)
 tells Rest Hooks that this endpoint is not idempotent, and thus should not be allowed in hooks
-that may call the endpoint an arbitrary number of times like [useResource()](../api/useResource.md) or [useRetrieve()](../api/useRetrieve.md)
+that may call the endpoint an arbitrary number of times like [useSuspense()](../api/useSuspense.md) or [useFetch()](../api/useFetch.md)
 
 By including the changed data in the endpoint's response, Rest Hooks is able to able to update
 any entities it extracts by specifying the schema.
@@ -184,7 +184,7 @@ const todoUpdate = new Endpoint(
 import { useController } from 'rest-hooks';
 
 export default function UpdateTodoForm({ id }: { id: number }) {
-  const todo = useResource(todoDetail, { id });
+  const todo = useSuspense(todoDetail, { id });
   const { fetch } = useController();
   return (
     <Form

@@ -45,7 +45,7 @@ import ArticleResource from 'resources/ArticleResource';
 import ArticleSummary from './ArticleSummary';
 
 export default function ArticleList({ maxResults }: { maxResults: number }) {
-  const articles = useResource(ArticleResource.list(), { maxResults });
+  const articles = useSuspense(ArticleResource.list(), { maxResults });
   return (
     <div>
       {articles.map(article => (

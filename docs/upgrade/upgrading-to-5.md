@@ -211,7 +211,7 @@ that entity will suspend. Previously it throw a 404 error.
 
 <details><summary>Missing entities suspend</summary>
 
-Required entities missing from network response will now throw error in useResource() just like other unexpected deserializations.
+Required entities missing from network response will now throw error in useSuspense() just like other unexpected deserializations.
 
 Use [SimpleRecord](../api/SimpleRecord) for [optional entities](../api/SimpleRecord#optional-members).
 
@@ -417,7 +417,7 @@ class MyResource extends Resource {}
 
 > Breaking change:
 >
-> Nested entities `static schema` will return from `useResource()`
+> Nested entities `static schema` will return from `useSuspense()`
 
 </details>
 
@@ -441,7 +441,7 @@ class ArticleResource extends Resource {
 ```
 
 ```typescript
-const article = useResource(ArticleResource.detail(), { id });
+const article = useSuspense(ArticleResource.detail(), { id });
 const user = useCache(UserResource.detail(), { id: article.user });
 ```
 
@@ -461,7 +461,7 @@ class ArticleResource extends Resource {
 ```
 
 ```typescript
-const article = useResource(ArticleResource.detail(), { id });
+const article = useSuspense(ArticleResource.detail(), { id });
 const user = article.user;
 ```
 

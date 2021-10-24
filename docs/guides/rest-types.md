@@ -71,12 +71,12 @@ class MyResource extends Resource {
 
 ```typescript
 import MyResource from 'resources/MyResource';
-import { useResource, useController } from 'rest-hooks';
+import { useSuspense, useController } from 'rest-hooks';
 
-const items = useResource(MyResource.list(), {});
+const items = useSuspense(MyResource.list(), {});
 const { fetch } = useController();
 const createMy = payload => fetch(MyResource.create(), {}, payload);
-const { results, nextPage } = useResource(
+const { results, nextPage } = useSuspense(
   MyResource.filteredAndPaginatedList(),
   { filterA: true, sortby: 'first' },
 );
@@ -360,7 +360,7 @@ values={[
 
 ```typescript
 // typeof result is { data: User }
-const result = useResource(User.detail(), { id });
+const result = useSuspense(User.detail(), { id });
 ```
 
 ```typescript
@@ -374,7 +374,7 @@ class User extends Resource {
   }
 }
 
-const { data: user } = useResource(User.detail(), { id: '5' });
+const { data: user } = useSuspense(User.detail(), { id: '5' });
 ```
 
 </TabItem>
@@ -382,7 +382,7 @@ const { data: user } = useResource(User.detail(), { id: '5' });
 
 ```typescript
 // typeof id is string
-const result = useResource(User.detail(), { id });
+const result = useSuspense(User.detail(), { id });
 ```
 
 ```typescript
@@ -402,7 +402,7 @@ class User extends Resource {
   }
 }
 
-const { data: user } = useResource(User.detail(), { id: '5' });
+const { data: user } = useSuspense(User.detail(), { id: '5' });
 ```
 
 </TabItem>
@@ -413,7 +413,7 @@ const { data: user } = useResource(User.detail(), { id: '5' });
 const { fetch } = useController();
 const updateUser = (id, payload) => fetch(User.update(), { id }, payload);
 // typeerror - protected against mutable operations
-const user = useResource(User.update());
+const user = useSuspense(User.update());
 ```
 
 ```typescript
@@ -429,7 +429,7 @@ class User extends Resource {
   }
 }
 
-const { data: user } = useResource(User.detail(), { id: '5' });
+const { data: user } = useSuspense(User.detail(), { id: '5' });
 ```
 
 </TabItem>
@@ -461,7 +461,7 @@ class User extends Resource {
   }
 }
 
-const { data: user } = useResource(User.detail(), { id: '5' });
+const { data: user } = useSuspense(User.detail(), { id: '5' });
 ```
 
 </TabItem>

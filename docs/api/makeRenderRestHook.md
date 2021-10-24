@@ -122,9 +122,9 @@ beforeEach(() => {
   renderRestHook = makeRenderRestHook(makeCacheProvider);
 });
 
-it('should resolve useResource()', async () => {
+it('should resolve useSuspense()', async () => {
   const { result, waitForNextUpdate } = renderRestHook(() => {
-    return useResource(ArticleResource.detail(), payload);
+    return useSuspense(ArticleResource.detail(), payload);
   });
   expect(result.current).toBeUndefined();
   await waitForNextUpdate();
