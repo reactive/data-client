@@ -37,7 +37,7 @@ const ArticleDetail = new Endpoint(
 ### One line data hookup
 
 ```tsx
-const article = useResource(ArticleDetail, { id });
+const article = useSuspense(ArticleDetail, { id });
 return (
   <>
     <h2>{article.title}</h2>
@@ -56,7 +56,7 @@ return <ArticleForm onSubmit={data => fetch(ArticleDetail, { id }, data)} />;
 ### And subscriptions
 
 ```tsx
-const price = useResource(PriceDetail, { symbol });
+const price = useSuspense(PriceDetail, { symbol });
 useSubscription(PriceDetail, { symbol });+
 return price.value;
 ```

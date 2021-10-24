@@ -1,17 +1,20 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
-import { PollingArticleResource } from '__tests__/common';
+import { PollingArticleResource, ArticleResource } from '__tests__/new';
+import {
+  actionTypes,
+  Controller,
+  ControllerContext,
+  useCache,
+} from '@rest-hooks/core';
 
-// relative imports to avoid circular dependency in tsconfig references
 import {
   makeCacheProvider,
   makeExternalCacheProvider,
   makeRenderRestHook,
-} from '../../../../test';
-import { useSubscription, useCache } from '../hooks';
-import { DispatchContext, ControllerContext } from '../context';
-import Controller from '../../controller/Controller';
+} from '../../../../../test';
+import useSubscription from '../useSubscription';
 
 let mynock: nock.Scope;
 
@@ -37,6 +40,11 @@ describe.each([
   afterEach(() => {
     if (typeof removeEventListener === 'function')
       removeEventListener('error', onError);
+  });
+
+  beforeAll(() => {
+    ArticleResource.detail().pollFrequency;
+    PollingArticleResource.detail().pollFrequency;
   });
 
   beforeEach(() => {
@@ -65,18 +73,19 @@ describe.each([
 
   it('useSubscription() + useCache()', async () => {
     jest.useFakeTimers();
-    const frequency: number = (
-      PollingArticleResource.detailShape().options as any
-    ).pollFrequency;
-    let active = true;
+    const frequency = PollingArticleResource.detail().pollFrequency as number;
+    expect(frequency).toBeDefined();
 
-    const { result, waitForNextUpdate, rerender } = renderRestHook(() => {
-      useSubscription(
-        PollingArticleResource.detailShape(),
-        active ? articlePayload : null,
-      );
-      return useCache(PollingArticleResource.detailShape(), articlePayload);
-    });
+    const { result, waitForNextUpdate, rerender } = renderRestHook(
+      ({ active }) => {
+        useSubscription(
+          PollingArticleResource.detail(),
+          active ? articlePayload : null,
+        );
+        return useCache(PollingArticleResource.detail(), articlePayload);
+      },
+      { initialProps: { active: true } },
+    );
 
     await validateSubscription(
       result,
@@ -86,25 +95,51 @@ describe.each([
     );
 
     // should not update if active is false
-    active = false;
-    rerender();
+    rerender({ active: false });
     mynock
       .get(`/article/${articlePayload.id}`)
       .reply(200, { ...articlePayload, title: 'sixer' });
     jest.advanceTimersByTime(frequency);
     expect((result.current as any).title).toBe('fiver');
+
+    // errors should not fail when data already exists
+    nock.cleanAll();
+    mynock.get(`/article/${articlePayload.id}`).reply(403, () => {
+      return { message: 'you fail' };
+    });
+    rerender({ active: true });
+    jest.advanceTimersByTime(frequency);
+    expect((result.current as any).title).toBe('fiver');
     jest.useRealTimers();
+  });
+
+  it('should console.error() with no frequency specified', async () => {
+    const oldError = console.error;
+    const spy = (console.error = jest.fn());
+
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      useSubscription(ArticleResource.detail(), articlePayload);
+    });
+    expect(result.error).toBeUndefined();
+    expect(spy.mock.calls[0]).toMatchSnapshot();
+
+    console.error = oldError;
   });
 
   it('useSubscription() without active arg', async () => {
     jest.useFakeTimers();
-    const frequency: number = (
-      PollingArticleResource.detailShape().options as any
-    ).pollFrequency;
+    const frequency = PollingArticleResource.detail().pollFrequency as number;
+    expect(frequency).toBeDefined();
+    expect(
+      PollingArticleResource.detail().options?.pollFrequency,
+    ).toBeDefined();
+    expect(
+      PollingArticleResource.anotherDetail().options?.pollFrequency,
+    ).toBeDefined();
 
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      useSubscription(PollingArticleResource.detailShape(), articlePayload);
-      return useCache(PollingArticleResource.detailShape(), articlePayload);
+      useSubscription(PollingArticleResource.detail(), articlePayload);
+      return useCache(PollingArticleResource.detail(), articlePayload);
     });
 
     await validateSubscription(
@@ -122,7 +157,7 @@ describe.each([
 
     const { rerender } = renderHook(
       () => {
-        useSubscription(PollingArticleResource.listShape(), { id: 5 });
+        useSubscription(PollingArticleResource.list(), { id: 5 });
       },
       {
         wrapper: function Wrapper({ children }: any) {
@@ -140,6 +175,39 @@ describe.each([
     }
     expect(fakeDispatch.mock.calls.length).toBe(1);
   });
+
+  it('useSubscription() should unsubscribe with null arguments', () => {
+    const fakeDispatch = jest.fn();
+    const controller = new Controller({ dispatch: fakeDispatch });
+
+    const { rerender } = renderHook(
+      ({ id }: { id: number | null }) => {
+        useSubscription(PollingArticleResource.list(), id ? { id } : null);
+      },
+      {
+        initialProps: { id: 5 } as { id: number | null },
+        wrapper: function Wrapper({ children }: any) {
+          return (
+            <ControllerContext.Provider value={controller}>
+              {children}
+            </ControllerContext.Provider>
+          );
+        },
+      },
+    );
+    expect(fakeDispatch.mock.calls.length).toBe(1);
+    for (let i = 0; i < 3; ++i) {
+      rerender({ id: null });
+    }
+    expect(fakeDispatch.mock.calls.length).toBe(2);
+    expect(fakeDispatch.mock.calls[0][0].type).toBe(actionTypes.SUBSCRIBE_TYPE);
+    expect(fakeDispatch.mock.calls[1][0].type).toBe(
+      actionTypes.UNSUBSCRIBE_TYPE,
+    );
+    expect(fakeDispatch.mock.calls[1][0].key).toBe(
+      fakeDispatch.mock.calls[0][0].key,
+    );
+  });
 });
 
 it('useSubscription() should include extra options in dispatched meta', () => {
@@ -148,7 +216,7 @@ it('useSubscription() should include extra options in dispatched meta', () => {
 
   renderHook(
     () => {
-      useSubscription(PollingArticleResource.pusherShape(), {});
+      useSubscription(PollingArticleResource.pusher(), {});
     },
     {
       wrapper: function Wrapper({ children }: any) {

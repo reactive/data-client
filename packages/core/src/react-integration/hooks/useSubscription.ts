@@ -1,51 +1,28 @@
-import { DispatchContext } from '@rest-hooks/core/react-integration/context';
 import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
-import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '@rest-hooks/core/actionTypes';
-import { useContext, useEffect, useRef } from 'react';
+import { useMemo } from 'react';
+import { EndpointInterface, Schema, FetchFunction } from '@rest-hooks/endpoint';
+import useSubscriptionNew from '@rest-hooks/core/react-integration/newhooks/useSubscription';
+import shapeToEndpoint from '@rest-hooks/core/endpoint/adapter';
 
 /**
  * Keeps a resource fresh by subscribing to updates.
  * @see https://resthooks.io/docs/api/useSubscription
  */
-export default function useSubscription<Shape extends ReadShape<any, any>>(
-  fetchShape: Shape,
-  params: ParamsFromShape<Shape> | null,
-) {
-  const dispatch = useContext(DispatchContext);
-  /*
-  we just want the current values when we dispatch, so
-  box the shape in a ref to make react-hooks/exhaustive-deps happy
-
-  "Although useEffect is deferred until after the browser has painted, it’s guaranteed to fire before any new renders.
-  React will always flush a previous render’s effects before starting a new update." - https://reactjs.org/docs/hooks-reference.html#useeffect
-  */
-  const shapeRef = useRef(fetchShape);
-  shapeRef.current = fetchShape;
-
-  useEffect(() => {
-    if (!params) return;
-    const { schema, getFetchKey, options } = shapeRef.current;
-    const key = getFetchKey(params);
-
-    dispatch({
-      type: SUBSCRIBE_TYPE,
-      meta: {
-        schema,
-        fetch: () => shapeRef.current.fetch(params),
-        key,
-        options,
-      },
-    });
-    return () => {
-      dispatch({
-        type: UNSUBSCRIBE_TYPE,
-        meta: {
-          key,
-          options,
-        },
-      });
-    };
-    // serialize params
+export default function useSubscription<
+  E extends
+    | EndpointInterface<FetchFunction, Schema | undefined, undefined>
+    | ReadShape<any, any>,
+  Args extends
+    | (E extends (...args: any) => any
+        ? readonly [...Parameters<E>]
+        : readonly [ParamsFromShape<E>])
+    | readonly [null],
+>(endpoint: E, ...args: Args) {
+  const adaptedEndpoint: any = useMemo(() => {
+    return shapeToEndpoint(endpoint);
+    // we currently don't support shape changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, params && fetchShape.getFetchKey(params)]);
+  }, []);
+
+  return useSubscriptionNew(adaptedEndpoint, ...args);
 }

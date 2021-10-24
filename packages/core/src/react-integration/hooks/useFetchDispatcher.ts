@@ -11,7 +11,9 @@ import { DispatchContext } from '@rest-hooks/core/react-integration/context';
 import createFetch from '@rest-hooks/core/state/actions/createFetch';
 import { useContext, useCallback } from 'react';
 
-/** Build an imperative dispatcher to issue network requests. */
+/** Build an imperative dispatcher to issue network requests.
+ * @deprecated use https://resthooks.io/docs/api/Controller#fetch
+ */
 export default function useFetchDispatcher(throttle = false): <
   Shape extends FetchShape<Schema, Readonly<object>, any>,
   UpdateParams extends OptimisticUpdateParams<

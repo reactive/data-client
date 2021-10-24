@@ -10,7 +10,7 @@ import useFetchDispatcher from '@rest-hooks/core/react-integration/hooks/useFetc
 
 /**
  * Build an imperative dispatcher to issue network requests.
- * @see https://resthooks.io/docs/api/useFetcher
+ * @deprecated use https://resthooks.io/docs/api/Controller#fetch
  */
 export default function useFetcher<
   Shape extends FetchShape<Schema, Readonly<object>, any>,

@@ -12,6 +12,7 @@ import {
   Resource,
   RestEndpoint,
   RestFetch,
+  FetchGet,
   FetchMutate,
 } from '@rest-hooks/rest';
 import React, { createContext, useContext } from 'react';
@@ -176,7 +177,7 @@ export class TypedArticleResource extends CoolerArticleResource {
   static detail<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    RestFetch<{ id: number }, undefined, Partial<AbstractInstanceType<T>>>,
+    FetchGet<{ id: number }, Partial<AbstractInstanceType<T>>>,
     SchemaDetail<AbstractInstanceType<T>>,
     undefined
   > {
@@ -290,13 +291,20 @@ export class CoauthoredArticleResource extends FutureArticleResource {
   };
 }
 
-export const CoolerArticleDetail = new Endpoint(({ id }: { id: number }) => {
-  return fetch(`http://test.com/article-cooler/${id}`).then(res =>
-    res.json(),
-  ) as Promise<{
-    [k in keyof CoolerArticleResource]: CoolerArticleResource[k];
-  }>;
-});
+export const CoolerArticleDetail = new Endpoint(
+  ({ id }: { id: number }) => {
+    return fetch(`http://test.com/article-cooler/${id}`).then(res =>
+      res.json(),
+    ) as Promise<{
+      [k in keyof CoolerArticleResource]: CoolerArticleResource[k];
+    }>;
+  },
+  {
+    key({ id }: { id: number }) {
+      return `article-cooler ${id}`;
+    },
+  },
+);
 
 export class IndexedUserResource extends UserResource {
   static indexes = ['username' as const];

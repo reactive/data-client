@@ -3,6 +3,7 @@ import {
   InvalidIfStaleArticleResource,
   TypedArticleResource,
 } from '__tests__/new';
+import { CoolerArticleResource as LegacyArticle } from '__tests__/legacy';
 import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 import nock from 'nock';
 
@@ -78,6 +79,36 @@ describe('useStatefulResource()', () => {
     expect(result.current.data).toEqual(CoolerArticleResource.fromJS(payload));
   });
 
+  it('should work on good network (legacy fetchshape)', async () => {
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      return useStatefulResource(LegacyArticle.detailShape(), {
+        id: payload.id,
+      });
+    });
+    expect(result.current.data).toBe(undefined);
+    expect(result.current.error).toBe(undefined);
+    expect(result.current.loading).toBe(true);
+    await waitForNextUpdate();
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeUndefined();
+    expect(result.current.data).toEqual(LegacyArticle.fromJS(payload));
+  });
+
+  it('should work on good network with endpoint', async () => {
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      return useStatefulResource(TypedArticleResource.detail(), {
+        id: payload.id,
+      });
+    });
+    expect(result.current.data).toBe(undefined);
+    expect(result.current.error).toBe(undefined);
+    expect(result.current.loading).toBe(true);
+    await waitForNextUpdate();
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeUndefined();
+    expect(result.current.data).toEqual(CoolerArticleResource.fromJS(payload));
+  });
+
   it('should return errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useStatefulResource(CoolerArticleResource.detail(), {
@@ -111,8 +142,8 @@ describe('useStatefulResource()', () => {
 
   it('should fail with improperly typed param', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
+      // @ts-expect-error
       return useStatefulResource(TypedArticleResource.detail(), {
-        // @ts-expect-error
         id: { a: 'five' },
       });
     });

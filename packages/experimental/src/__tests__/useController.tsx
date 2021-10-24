@@ -221,8 +221,8 @@ describe('resetEntireStore', () => {
      */
     it('should not receive fetches that started before RESET', async () => {
       const detail: FixtureEndpoint = {
-        endpoint: FutureArticleResource.detail(),
-        args: [9999],
+        endpoint: CoolerArticleDetail,
+        args: [{ id: 9999 }],
         response: { ...payload, id: 9999 },
       };
       mynock
