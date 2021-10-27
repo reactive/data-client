@@ -8,12 +8,22 @@ If your API follows a common pattern, adding the [Endpoint.update](../api/Endpoi
 to a base class can make adding pagination behavior to any of your endpoints quite easy.
 
 ```typescript
+type Params = { cursor: string; [k: string]: any };
 abstract class BaseResource extends Resource {
-  static list<T extends typeof Resource>(this: T) {
+  static list<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    FetchFunction<Params>,
+    { results: T[]; cursor: string | null },
+    undefined
+  > {
     return super.list().extend({
-      schema: { results: [this], cursor: null as string | null },
-      update: (newResults: any, { cursor, ...rest }) => ({
-        [this.key(...rest)]: this.appendList.bind(this, newResults),
+      schema: { results: [this], cursor: null },
+      update: (newResults: any, { cursor, ...rest }: Params) => ({
+        [this.list().key({ ...rest })]: BaseResource.appendList.bind(
+          BaseResource,
+          newResults,
+        ),
       }),
     });
   }
@@ -22,7 +32,8 @@ abstract class BaseResource extends Resource {
     newResults: { results: string[] },
     existingResults: { results: string[] } | undefined,
   ) {
-    const existingSet: Set<string> = new Set(existingResults?.results ?? []);
+    const existingList = existingResults?.results ?? [];
+    const existingSet: Set<string> = new Set(existingList);
     const addedList = newResults.results.filter(
       (pk: string) => !existingSet.has(pk),
     );
@@ -43,17 +54,22 @@ This can then be used for any Resources that conform to this schema. Most likely
 that is the same as those extending from BaseResource.
 
 ```typescript
-import { ReadEndpoint, EndpointParam, useController } from 'rest-hooks';
-import BaseResource from 'resources/BaseResource';
+import { useMemo } from 'react';
+import { ReadEndpoint, useController } from 'rest-hooks';
 
 function usePaginator<
-  E extends ReadEndpoint<any, any>,
-  P extends Omit<EndpointParam<E>, 'cursor'> | null,
->(endpoint: E, params: P) {
+  E extends ReadEndpoint<(params: any) => Promise<any>, any>,
+>(endpoint: E, params: Omit<Parameters<E>[0], 'cursor'> | null) {
   const { fetch } = useController();
 
-  return useCallback(
-    (cursor: string) => fetch(endpoint, { ...params, cursor }),
+  return useMemo(
+    () => {
+      if (!params) return null;
+      return (cursor: string) => {
+        const p: Parameters<E> = [{ ...params, cursor }] as any;
+        return fetch(endpoint, ...p);
+      };
+    },
     // "params && endpoint.key(params)" is a method to serialize params
     [fetch, params && endpoint.key(params)],
   );
@@ -66,6 +82,8 @@ We'll extend the `BaseResource` created above, to define the correct
 schema for list().
 
 ```typescript
+import BaseResource from 'resources/BaseResource';
+
 class NewsResource extends BaseResource {
   readonly id: string | undefined = undefined;
   readonly title = '';
