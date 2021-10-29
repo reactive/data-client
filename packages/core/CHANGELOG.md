@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.1.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.0.2...@rest-hooks/core@3.1.0-beta.1) (2021-10-29)
+
+### 💅 Enhancement
+
+* Dispatch new receive action if new fetch triggered it ([#1455](https://github.com/coinbase/rest-hooks/issues/1455)) ([99f9a6d](https://github.com/coinbase/rest-hooks/commit/99f9a6d13b970eba398d869acf60f6776e62939e))
+
+
+
 ## [3.1.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.0.2...@rest-hooks/core@3.1.0-beta.0) (2021-10-24)
 
 

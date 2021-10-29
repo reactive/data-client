@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@3.1.0...@rest-hooks/experimental@3.2.0) (2021-10-29)
+
+### 🐛 Bug Fix
+
+* Return type of useSuspense should factor in null params ([#1456](https://github.com/coinbase/rest-hooks/issues/1456)) ([831afff](https://github.com/coinbase/rest-hooks/commit/831afff0827648b3ae5ca125a34bfbe3418c8252))
+
+
+
 ## [3.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@3.0.0...@rest-hooks/experimental@3.1.0) (2021-10-18)
 
 
