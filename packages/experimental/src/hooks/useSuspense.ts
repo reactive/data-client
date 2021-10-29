@@ -3,6 +3,7 @@ import { StateContext, useController, ExpiryStatus } from '@rest-hooks/core';
 import {
   EndpointInterface,
   Denormalize,
+  DenormalizeNullable,
   Schema,
   FetchFunction,
 } from '@rest-hooks/endpoint';
@@ -24,8 +25,12 @@ export default function useSuspense<
   endpoint: E,
   ...args: Args
 ): E['schema'] extends Exclude<Schema, null>
-  ? Denormalize<E['schema']>
-  : ReturnType<E> {
+  ? CondNull<
+      Args[0],
+      DenormalizeNullable<E['schema']>,
+      Denormalize<E['schema']>
+    >
+  : CondNull<Args[0], undefined, ReturnType<E>> {
   const state = useContext(StateContext);
   const controller = useController();
 
@@ -72,5 +77,7 @@ export default function useSuspense<
 
   if (error) throw error;
 
-  return data;
+  return data as any;
 }
+
+type CondNull<P, A, B> = P extends null ? A : B;
