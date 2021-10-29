@@ -177,23 +177,24 @@ export default class NetworkManager implements Manager {
 
           // don't update state with promises started before last clear
           if (createdAt >= lastReset) {
-            /*if (action.endpoint) {
+            // we still check for controller in case someone didn't have type protection since this didn't always exist
+            if (action.endpoint && controller) {
               controller.receive(
                 action.endpoint,
                 ...(action.meta.args as Parameters<typeof action.endpoint>),
                 data,
               );
-            } TODO - once we reliably get controller */
-
-            // does this throw if the reducer fails? - no because reducer is wrapped in try/catch
-            dispatch(
-              createReceive(data, {
-                ...action.meta,
-                dataExpiryLength:
-                  action.meta.options?.dataExpiryLength ??
-                  this.dataExpiryLength,
-              }),
-            );
+            } else {
+              // does this throw if the reducer fails? - no because reducer is wrapped in try/catch
+              dispatch(
+                createReceive(data, {
+                  ...action.meta,
+                  dataExpiryLength:
+                    action.meta.options?.dataExpiryLength ??
+                    this.dataExpiryLength,
+                }),
+              );
+            }
           }
           return data;
         })
