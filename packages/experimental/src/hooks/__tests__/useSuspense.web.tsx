@@ -360,9 +360,13 @@ describe('useSuspense()', () => {
   });
 
   it('should not suspend with null params to useSuspense()', () => {
-    let article: any;
+    let article: undefined;
     const { result } = renderRestHook(() => {
-      article = useSuspense(CoolerArticleResource.detail(), null);
+      const a = useSuspense(CoolerArticleResource.detail(), null);
+      // this validates it must have void in its union type
+      // @ts-expect-error
+      () => a.pk();
+      if (!a) article = a;
       return 'done';
     });
     expect(result.current).toBe('done');
