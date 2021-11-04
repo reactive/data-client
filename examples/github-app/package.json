@@ -31,7 +31,7 @@
     "@linaria/react": "3.0.0-beta.13",
     "@linaria/shaker": "3.0.0-beta.13",
     "@types/parse-link-header": "^1.0.0",
-    "@types/react-dom": "17.0.10",
+    "@types/react-dom": "17.0.11",
     "@types/react-router-dom": "^5.1.8",
     "react-refresh": "next",
     "serve": "12.0.1",
