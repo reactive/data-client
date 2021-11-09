@@ -34,7 +34,7 @@
     "@babel/core": "7.16.0",
     "@babel/node": "^7.14.2",
     "@commitlint/cli": "^13.1.0",
-    "@commitlint/config-conventional": "^13.1.0",
+    "@commitlint/config-conventional": "^14.1.0",
     "@rest-hooks/test": "^7.0.0-beta.0",
     "@testing-library/react": "^12.0.0",
     "@testing-library/react-hooks": "~7.0.0",
