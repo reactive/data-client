@@ -105,6 +105,27 @@ describe('useFetcher', () => {
     await testDispatchFetch(DispatchTester, [payload]);
   });
 
+  it('should handle zero argument Endpoints', async () => {
+    const endpoint = CoolerArticleResource.list().extend({
+      fetch() {
+        return CoolerArticleResource.list().call(this as any, {});
+      },
+      url() {
+        return '';
+      },
+    });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function DispatchTester() {
+      const a = useFetcher(endpoint);
+      a(undefined).then(v => {
+        v[0].author;
+        //@ts-expect-error
+        v.jasfdasdf;
+      });
+      return null;
+    }
+  });
+
   it('should dispatch an action with updater in the meta if update shapes params are passed in', async () => {
     mynock.post(`/article-cooler/`).reply(201, payload);
 
