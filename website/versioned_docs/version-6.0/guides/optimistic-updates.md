@@ -149,7 +149,7 @@ export default function CreateArticle() {
 ## Optimistic Deletes
 
 Since deletes [automatically update the cache correctly](./immediate-updates#delete) upon fetch success,
-making your delete endpoint do this optimistically is as easy as adding the [optimisticUpdate](../api/Endpoint#optimisticupdate-params-body--fakepayload)
+making your delete endpoint do this optimistically is as easy as adding the [optimisticUpdate](../api/Endpoint#optimisticupdate)
 function to your options.
 
 We return an empty string because that's the response we expect from the server. Although by
