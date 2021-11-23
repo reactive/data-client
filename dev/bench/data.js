@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1635552317671,
+  "lastUpdate": 1637684820126,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -3594,6 +3594,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.04%",
             "unit": "ops/sec",
             "extra": "67 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c5ac9e7a1d66f57ddcee5c343b239cf2d6d5f782",
+          "message": "fix: useFetcher() work with zero argument Endpoint (#1514)",
+          "timestamp": "2021-11-23T08:23:18-08:00",
+          "tree_id": "265fbdeac13deb571a209e09b8dbf315b927ef58",
+          "url": "https://github.com/coinbase/rest-hooks/commit/c5ac9e7a1d66f57ddcee5c343b239cf2d6d5f782"
+        },
+        "date": 1637684819154,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 97.18,
+            "range": "±2.47%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 40.81,
+            "range": "±2.10%",
+            "unit": "ops/sec",
+            "extra": "54 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 45.07,
+            "range": "±1.24%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 95.45,
+            "range": "±2.62%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
           }
         ]
       }
