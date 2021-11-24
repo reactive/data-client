@@ -38,6 +38,7 @@ async function testDispatchFetch(
   let i = 0;
   for (const call of dispatch.mock.calls) {
     delete call[0]?.meta?.createdAt;
+    delete call[0]?.meta?.promise;
     expect(call[0]).toMatchSnapshot();
     const action = call[0];
     const res = await action.payload();
