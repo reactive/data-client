@@ -117,6 +117,28 @@ function PostListItem({ post }: { post: PostResource }) {
 - Identical requests are deduplicated globally; allowing only one inflight request at a time.
   - To ensure a _new_ request is started, make sure to abort any existing inflight requests.
 
+### useFetchInit()
+
+Overriding [Resource.useFetchInit()](../api/Resource.md#useFetchInit) makes it necessary to hoist all endpoint calls
+to the function render.
+
+```tsx
+function CreatePost() {
+  const { fetch } = useController();
+  // PostResource.create() calls useFetchInit()
+  //highlight-next-line
+  const createPost = PostResource.create();
+
+  return (
+    <form
+      onSubmit={e => fetch(createPost, {}, new FormData(e.target))}
+    >
+      {/* ... */}
+    </form>
+  );
+}
+```
+
 ## invalidate(endpoint, ...args) {#invalidate}
 
 Forces refetching and suspense on [useSuspense](./useSuspense.md) with the same Endpoint
