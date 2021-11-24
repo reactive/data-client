@@ -8,13 +8,14 @@ jobs:
     docker: &docker
       # specify the version you desire here
       - image: circleci/node:16
+    resource_class: large
     steps:
       - checkout
       - restore_cache:
           keys:
-            - v4-dependencies-{{ checksum "yarn.lock" }}
+            - v5-dependencies-{{ checksum "yarn.lock" }}
             # fallback to using the latest cache if no exact match is found
-            - v4-dependencies-
+            - v5-dependencies-
       - run:
           name: yarn install
           command: |
@@ -23,10 +24,28 @@ jobs:
       - save_cache:
           paths:
             - node_modules
-            - packages/*/node_modules
+            - packages/core/node_modules
+            - packages/endpoint/node_modules
+            - packages/experimental/node_modules
+            - packages/graphql/node_modules
+            - packages/hooks/node_modules
+            - packages/img/node_modules
+            - packages/legacy/node_modules
+            - packages/normalizr/node_modules
+            - packages/rest/node_modules
+            - packages/rest-hooks/node_modules
+            - packages/test/node_modules
+            - packages/use-enhanced-reducer/node_modules
+            - examples/benchmark/node_modules
+            - examples/normalizr-bench/node_modules
+            - examples/normalizr-github/node_modules
+            - examples/normalizr-redux/node_modules
+            - examples/normalizr-relationships/node_modules
+            - examples/todo-app/node_modules
+            - examples/github-app/node_modules
             - ~/.cache/yarn
-          key: v4-dependencies-{{ checksum "yarn.lock" }}
-      - run: yarn run build
+          key: v5-dependencies-{{ checksum "yarn.lock" }}
+      - run: yarn run lerna run build --stream
       - persist_to_workspace:
           root: ~/
           paths:
@@ -61,13 +80,16 @@ jobs:
           at: ~/
       - run:
           command: |
+            if [ "<< parameters.react-version >>" != "beta" ]; then
             yarn add -W --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
+            fi
       - run:
           command: |
             yarn test:ci --maxWorkers=3
 
   test_coverage:
     docker: *docker
+    resource_class: large
     steps:
       - attach_workspace:
           at: ~/
@@ -78,7 +100,7 @@ jobs:
           command: |
             curl -Os https://uploader.codecov.io/latest/linux/codecov;
             chmod +x codecov;
-            yarn run test:coverage --maxWorkers=3 --coverageReporters=text-lcov > ./lcov.info;
+            yarn run test:coverage --maxWorkers=4 --coverageReporters=text-lcov > ./lcov.info;
             if [ "$CODECOV_TOKEN" != "" ]; then
             ./codecov -t ${CODECOV_TOKEN} < ./lcov.info || true;
             else
@@ -119,7 +141,7 @@ workflows:
       - unit_tests:
           matrix:
             parameters:
-              react-version: ["^17.0.0", "next"]
+              react-version: ["^17.0.0", "beta"]
           requires:
             - setup
       - test_coverage:
