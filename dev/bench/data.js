@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1637684820126,
+  "lastUpdate": 1637795409173,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -3646,6 +3646,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.62%",
             "unit": "ops/sec",
             "extra": "70 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f30e4ec0264101d36c29e9f1715f8fb01309f287",
+          "message": "internal: Remove promise from action snapshots in tests (#1520)",
+          "timestamp": "2021-11-24T15:06:22-08:00",
+          "tree_id": "44560795fbb4bfc2a833f6dbfc6f2d16425168ba",
+          "url": "https://github.com/coinbase/rest-hooks/commit/f30e4ec0264101d36c29e9f1715f8fb01309f287"
+        },
+        "date": 1637795407548,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 70.31,
+            "range": "±2.14%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 30.45,
+            "range": "±2.02%",
+            "unit": "ops/sec",
+            "extra": "53 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 31.96,
+            "range": "±1.09%",
+            "unit": "ops/sec",
+            "extra": "55 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 70.34,
+            "range": "±3.94%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
           }
         ]
       }
