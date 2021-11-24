@@ -219,6 +219,39 @@ use React context.
 
 This is often useful for [authentication](../guides/auth)
 
+:::caution
+
+Using this means all endpoint calls must only occur during a function render.
+
+```tsx
+function CreatePost() {
+  const { fetch } = useController();
+  // PostResource.create() calls useFetchInit()
+  //highlight-next-line
+  const createPost = PostResource.create();
+
+  return (
+    <form
+      onSubmit={e => fetch(createPost, {}, new FormData(e.target))}
+    >
+      {/* ... */}
+    </form>
+  );
+}
+```
+
+It may be helpful to prefix with 'use' so the react hooks linter detects these cases.
+
+```ts
+class PostResource extends Resource {
+  static useCreate<T extends typeof Resource>(this: T) {
+    return this.create();
+  }
+}
+```
+
+:::
+
 ### static getFetchInit(init: RequestInit): RequestInit {#getFetchInit}
 
 Allows simple overrides to extend [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) sent to fetch.

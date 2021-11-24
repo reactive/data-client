@@ -170,6 +170,40 @@ abstract class AuthdResource extends Resource {
 }
 ```
 
+:::caution
+
+Using this means all endpoint calls must only occur during a function render.
+
+```tsx
+function CreatePost() {
+  const { fetch } = useController();
+  // PostResource.create() calls useFetchInit()
+  //highlight-next-line
+  const createPost = PostResource.create();
+
+  return (
+    <form
+      onSubmit={e => fetch(createPost, {}, new FormData(e.target))}
+    >
+      {/* ... */}
+    </form>
+  );
+}
+```
+
+It may be helpful to prefix with 'use' so the react hooks linter detects these cases.
+
+```ts
+class PostResource extends Resource {
+  static useCreate<T extends typeof Resource>(this: T) {
+    return this.create();
+  }
+}
+```
+
+:::
+
+
 
 ## Code organization
 
