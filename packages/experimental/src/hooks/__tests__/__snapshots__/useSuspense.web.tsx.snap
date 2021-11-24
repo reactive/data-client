@@ -119,7 +119,6 @@ Object {
     ],
     "key": "GET http://test.com/article-cooler/5",
     "options": [Function],
-    "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
     "schema": [Function],

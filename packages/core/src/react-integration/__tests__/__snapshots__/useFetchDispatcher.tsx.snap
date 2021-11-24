@@ -19,7 +19,6 @@ Object {
       "url": [Function],
       "useFetchInit": [Function],
     },
-    "promise": Promise {},
     "reject": [Function],
     "resolve": [Function],
     "schema": [Function],
