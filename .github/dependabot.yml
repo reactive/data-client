@@ -7,6 +7,8 @@ updates:
     # Check the npm registry for updates every day (weekdays)
     schedule:
       interval: "daily"
+    # Having many PRs at once resource starves CI
+    open-pull-requests-limit: 2
     labels:
       - "dependencies"
     allow:
@@ -31,13 +33,4 @@ updates:
       - "dependencies"
     commit-message:
       prefix: "internal: "
-  - package-ecosystem: "npm"
-    # Look for `package.json` and `lock` files in the `root` directory
-    directory: "/packages/normalizr/examples/redux"
-    # Check the npm registry for updates every day (weekdays)
-    schedule:
-      interval: "weekly"
-    labels:
-      - "dependencies"
-    commit-message:
-      prefix: "internal: "
+

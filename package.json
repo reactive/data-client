@@ -17,7 +17,8 @@
     "test": "cross-env NODE_ENV=test jest",
     "test:ci": "yarn test -- --ci",
     "test:coverage": "yarn test -- --coverage",
-    "prepare": "yarn run build:types"
+    "prepare": "yarn build:copy:ambient && ttsc --build",
+    "prepublishOnly": "lerna run build:legacy-types --stream"
   },
   "engines": {
     "node": ">=10.0"
@@ -63,10 +64,10 @@
     "mkdirp": "^1.0.4",
     "nock": "^13.1.0",
     "prettier": "^2.2.1",
-    "react": "next",
-    "react-dom": "next",
+    "react": "beta",
+    "react-dom": "beta",
     "react-native": "^0.66.0",
-    "react-test-renderer": "next",
+    "react-test-renderer": "beta",
     "redux": "^4.0.5",
     "rimraf": "^3.0.2",
     "rollup": "^2.35.1",
