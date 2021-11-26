@@ -35,7 +35,7 @@
     "@types/react-router-dom": "^5.1.8",
     "react-refresh": "next",
     "serve": "13.0.2",
-    "webpack": "5.64.3",
+    "webpack": "5.64.4",
     "webpack-cli": "4.8.0",
     "webpack-dev-server": "4.6.0"
   },
