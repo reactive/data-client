@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.0.3...@rest-hooks/endpoint@2.1.0) (2021-11-26)
+
+
+### 🚀 Features
+
+* useSuspense, useFetch, remaining hooks typed for Endpoint ([#1440](https://github.com/coinbase/rest-hooks/issues/1440)) ([2039d2c](https://github.com/coinbase/rest-hooks/commit/2039d2c4bf280b5a3c570824c25af3a4cc39af0d))
+
+
+### 🐛 Bug Fix
+
+* useFetcher() work with zero argument Endpoint ([#1514](https://github.com/coinbase/rest-hooks/issues/1514)) ([c5ac9e7](https://github.com/coinbase/rest-hooks/commit/c5ac9e7a1d66f57ddcee5c343b239cf2d6d5f782))
+
+
+
 ### [2.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.0.2...@rest-hooks/endpoint@2.0.3) (2021-10-11)
 
 

@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.1.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.1...@rest-hooks/core@3.1.0-beta.2) (2021-11-26)
+
+
+### 🐛 Bug Fix
+
+* useFetcher() work with zero argument Endpoint ([#1514](https://github.com/coinbase/rest-hooks/issues/1514)) ([c5ac9e7](https://github.com/coinbase/rest-hooks/commit/c5ac9e7a1d66f57ddcee5c343b239cf2d6d5f782))
+
+
+
 ## [3.1.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.0.2...@rest-hooks/core@3.1.0-beta.1) (2021-10-29)
 
 ### 💅 Enhancement
