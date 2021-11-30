@@ -34,7 +34,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-json-tree": "^0.15.1",
-    "rest-hooks": "^6.2.0-beta.1",
+    "rest-hooks": "^6.2.0-beta.2",
     "typescript": "^4.5.2"
   },
   "msw": {
