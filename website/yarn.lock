@@ -2354,10 +2354,10 @@
     "@rest-hooks/use-enhanced-reducer" "^1.1.1"
     flux-standard-action "^2.1.1"
 
-"@rest-hooks/endpoint@^2.0.3":
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/@rest-hooks/endpoint/-/endpoint-2.0.3.tgz#f3a29785b5a2f8c5bfaf44eaba2d2434b75487aa"
-  integrity sha512-AzrxL1mY6YQ3xx9Qm8ywS6OGKPQsZOnhG7ycML+bFEkM9yqKX6VS6WQ9BqYUPtRmPHfrQ9DnsF0eck6+ZwKQdg==
+"@rest-hooks/endpoint@^2.0.3", "@rest-hooks/endpoint@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@rest-hooks/endpoint/-/endpoint-2.1.0.tgz#33ae10c795ec4ada1d34bacca4b61b2d607aba5a"
+  integrity sha512-cS2k+Wy6JMx6oIEWaKWSewHSvXKN9vDn7DCMH1a8BclDTS3DiCt9N5+CEkV7ZKVI0pdWDJm136HADJnpQLmb8Q==
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@rest-hooks/normalizr" "^8.1.0"
