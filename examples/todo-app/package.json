@@ -26,7 +26,7 @@
     "@anansi/eslint-plugin": "0.12.0",
     "@anansi/webpack-config": "9.2.0",
     "@babel/core": "7.16.0",
-    "@linaria/babel-preset": "3.0.0-beta.13",
+    "@linaria/babel-preset": "3.0.0-beta.15",
     "@linaria/core": "3.0.0-beta.15",
     "@linaria/react": "3.0.0-beta.15",
     "@linaria/shaker": "3.0.0-beta.15",
