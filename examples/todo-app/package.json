@@ -29,7 +29,7 @@
     "@linaria/babel-preset": "3.0.0-beta.13",
     "@linaria/core": "3.0.0-beta.15",
     "@linaria/react": "3.0.0-beta.13",
-    "@linaria/shaker": "3.0.0-beta.13",
+    "@linaria/shaker": "3.0.0-beta.15",
     "@rest-hooks/rest": "^3.0.1",
     "@types/react-dom": "17.0.11",
     "react-refresh": "next",
