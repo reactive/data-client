@@ -2981,13 +2981,13 @@
   dependencies:
     "@linaria/babel-preset" "^3.0.0-beta.15"
 
-"@linaria/react@3.0.0-beta.13":
-  version "3.0.0-beta.13"
-  resolved "https://registry.yarnpkg.com/@linaria/react/-/react-3.0.0-beta.13.tgz#93a788d2792bd0d2f9f34acfc58e293c17c82d7f"
-  integrity sha512-N7+xnWHEPembwyGRKCKZDkN2O2N/WYp96ftScPezQuAacLEYYsDGFXNY0AV0c+38JUkpcj6J2BMn6vpIwPw/1A==
+"@linaria/react@3.0.0-beta.15":
+  version "3.0.0-beta.15"
+  resolved "https://registry.yarnpkg.com/@linaria/react/-/react-3.0.0-beta.15.tgz#dbd3d17dc6429d7ba46da492992547ce8ed8da39"
+  integrity sha512-1s/4DM+kAg3AdfAiK8vu6NBe3v+il7C3JjD0GBTUkZBJDOQ/4Vm543+PhlyL9t3tmmu9Xxg+in7PFNr7ODCTTQ==
   dependencies:
     "@emotion/is-prop-valid" "^0.8.8"
-    "@linaria/core" "^3.0.0-beta.13"
+    "@linaria/core" "^3.0.0-beta.15"
 
 "@linaria/shaker@3.0.0-beta.15":
   version "3.0.0-beta.15"
