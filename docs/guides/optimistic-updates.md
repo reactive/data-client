@@ -53,7 +53,7 @@ import { useController } from 'rest-hooks';
 import ArticleResource from 'ArticleResource';
 
 export default function PublishButton({ id }: { id: string }) {
-  const { fetch } = useController();
+  const { update } = useController();
 
   return (
     <button
