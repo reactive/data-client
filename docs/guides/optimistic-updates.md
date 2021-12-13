@@ -53,12 +53,12 @@ import { useController } from 'rest-hooks';
 import ArticleResource from 'ArticleResource';
 
 export default function PublishButton({ id }: { id: string }) {
-  const { update } = useController();
+  const { fetch } = useController();
 
   return (
     <button
       onClick={() =>
-        update(ArticleResource.partialUpdate(), { id }, { published: true })
+        fetch(ArticleResource.partialUpdate(), { id }, { published: true })
       }
     >
       Publish
