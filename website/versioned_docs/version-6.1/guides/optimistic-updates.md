@@ -58,7 +58,7 @@ export default function PublishButton({ id }: { id: string }) {
   return (
     <button
       onClick={() =>
-        update(ArticleResource.partialUpdate(), { id }, { published: true })
+        fetch(ArticleResource.partialUpdate(), { id }, { published: true })
       }
     >
       Publish
