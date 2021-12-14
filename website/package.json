@@ -22,7 +22,7 @@
     "@anansi/webpack-config": "^9.2.0",
     "@docusaurus/core": "^2.0.0-beta.13",
     "@docusaurus/plugin-client-redirects": "^2.0.0-beta.9",
-    "@docusaurus/preset-classic": "^2.0.0-beta.9",
+    "@docusaurus/preset-classic": "^2.0.0-beta.13",
     "@docusaurus/theme-live-codeblock": "^2.0.0-beta.9",
     "@rest-hooks/endpoint": "^2.1.0",
     "@rest-hooks/graphql": "^0.1.1",
