@@ -10,7 +10,7 @@
         <item>
             <title><![CDATA[Experimental useController()]]></title>
             <link>https://resthooks.io/blog/2021/08/29/Experimental-useController</link>
-            <guid>Experimental useController()</guid>
+            <guid>/2021/08/29/Experimental-useController</guid>
             <pubDate>Sun, 29 Aug 2021 00:00:00 GMT</pubDate>
             <description><![CDATA[@rest-hooks/experimental is a new]]></description>
             <content:encoded><![CDATA[<p><a href="https://www.npmjs.com/package/@rest-hooks/experimental">@rest-hooks/experimental</a> is a new
@@ -235,7 +235,7 @@ options in <code>BaseResource</code>. We expect most medium-to-large application
         <item>
             <title><![CDATA[Rest Hooks 4.2-4.5]]></title>
             <link>https://resthooks.io/blog/2020/02/18/Rest-Hooks-4.2-4.5</link>
-            <guid>Rest Hooks 4.2-4.5</guid>
+            <guid>/2020/02/18/Rest-Hooks-4.2-4.5</guid>
             <pubDate>Tue, 18 Feb 2020 00:00:00 GMT</pubDate>
             <description><![CDATA[A lot of exciting features have been developed recently, resulting in many feature releases.]]></description>
             <content:encoded><![CDATA[<p>A lot of exciting features have been developed recently, resulting in many feature releases.
@@ -249,7 +249,7 @@ a fix, but if you relied on the old behavior be careful!</p>]]></content:encoded
         <item>
             <title><![CDATA[Rest Hooks 4.1 Released]]></title>
             <link>https://resthooks.io/blog/2020/01/06/Rest-Hooks-4.1-Released</link>
-            <guid>Rest Hooks 4.1 Released</guid>
+            <guid>/2020/01/06/Rest-Hooks-4.1-Released</guid>
             <pubDate>Mon, 06 Jan 2020 00:00:00 GMT</pubDate>
             <description><![CDATA[4.1 comes with a more granular data definition hierarchy that will make it easier to]]></description>
             <content:encoded><![CDATA[<p>4.1 comes with a more granular data definition hierarchy that will make it easier to
@@ -267,7 +267,7 @@ SimpleResource
         <item>
             <title><![CDATA[Rest Hooks 4.0 Released]]></title>
             <link>https://resthooks.io/blog/2019/12/24/Rest-Hooks-4.0-Released</link>
-            <guid>Rest Hooks 4.0 Released</guid>
+            <guid>/2019/12/24/Rest-Hooks-4.0-Released</guid>
             <pubDate>Tue, 24 Dec 2019 00:00:00 GMT</pubDate>
             <description><![CDATA[4.0 marks the end of the migration to the new useCache() and useResource() implementations first]]></description>
             <content:encoded><![CDATA[<p>4.0 marks the end of the migration to the new useCache() and useResource() implementations first
@@ -307,7 +307,7 @@ coming down the pipeline and we hope to see your contributions as well. 😊</p>
         <item>
             <title><![CDATA[Rest Hooks 2.2 Released]]></title>
             <link>https://resthooks.io/blog/2019/10/28/Rest-Hooks-2.2-Released</link>
-            <guid>Rest Hooks 2.2 Released</guid>
+            <guid>/2019/10/28/Rest-Hooks-2.2-Released</guid>
             <pubDate>Mon, 28 Oct 2019 00:00:00 GMT</pubDate>
             <description><![CDATA[2.2 comes with the eagerly awaited programmable optimistic updates. This enables two very important use cases:]]></description>
             <content:encoded><![CDATA[<p>2.2 comes with the eagerly awaited programmable optimistic updates. This enables two very important use cases:
@@ -379,7 +379,7 @@ coming down the pipeline and we hope to see your contributions as well. 😊</p>
         <item>
             <title><![CDATA[Rest Hooks 2.1 Released]]></title>
             <link>https://resthooks.io/blog/2019/08/07/Rest-Hooks-2.1-Released</link>
-            <guid>Rest Hooks 2.1 Released</guid>
+            <guid>/2019/08/07/Rest-Hooks-2.1-Released</guid>
             <pubDate>Wed, 07 Aug 2019 00:00:00 GMT</pubDate>
             <description><![CDATA[New Features]]></description>
             <content:encoded><![CDATA[<h2>New Features</h2><h3>Reduced bundle size with custom networking library</h3><p>Resource comes with a default <code>fetch()</code> implementation to make getting started easy.
@@ -415,7 +415,7 @@ coming down the pipeline and we hope to see your contributions as well. 😊</p>
         <item>
             <title><![CDATA[Announcing Rest Hooks 2.0]]></title>
             <link>https://resthooks.io/blog/2019/07/13/Announcing-Rest-Hooks-2.0</link>
-            <guid>Announcing Rest Hooks 2.0</guid>
+            <guid>/2019/07/13/Announcing-Rest-Hooks-2.0</guid>
             <pubDate>Sat, 13 Jul 2019 00:00:00 GMT</pubDate>
             <description><![CDATA[We use SemVer for Rest Hooks - so 2.0 represents some breaking changes. To minimize disruption]]></description>
             <content:encoded><![CDATA[<p>We use <a href="https://semver.org/">SemVer</a> for Rest Hooks - so 2.0 represents some breaking changes. To minimize disruption

@@ -9,7 +9,7 @@
     <icon>https://resthooks.io/img/favicon/favicon.ico</icon>
     <entry>
         <title type="html"><![CDATA[Experimental useController()]]></title>
-        <id>Experimental useController()</id>
+        <id>/2021/08/29/Experimental-useController</id>
         <link href="https://resthooks.io/blog/2021/08/29/Experimental-useController"/>
         <updated>2021-08-29T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[@rest-hooks/experimental is a new]]></summary>
@@ -238,7 +238,7 @@ options in <code>BaseResource</code>. We expect most medium-to-large application
     </entry>
     <entry>
         <title type="html"><![CDATA[Rest Hooks 4.2-4.5]]></title>
-        <id>Rest Hooks 4.2-4.5</id>
+        <id>/2020/02/18/Rest-Hooks-4.2-4.5</id>
         <link href="https://resthooks.io/blog/2020/02/18/Rest-Hooks-4.2-4.5"/>
         <updated>2020-02-18T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[A lot of exciting features have been developed recently, resulting in many feature releases.]]></summary>
@@ -256,7 +256,7 @@ a fix, but if you relied on the old behavior be careful!</p>]]></content>
     </entry>
     <entry>
         <title type="html"><![CDATA[Rest Hooks 4.1 Released]]></title>
-        <id>Rest Hooks 4.1 Released</id>
+        <id>/2020/01/06/Rest-Hooks-4.1-Released</id>
         <link href="https://resthooks.io/blog/2020/01/06/Rest-Hooks-4.1-Released"/>
         <updated>2020-01-06T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[4.1 comes with a more granular data definition hierarchy that will make it easier to]]></summary>
@@ -278,7 +278,7 @@ SimpleResource
     </entry>
     <entry>
         <title type="html"><![CDATA[Rest Hooks 4.0 Released]]></title>
-        <id>Rest Hooks 4.0 Released</id>
+        <id>/2019/12/24/Rest-Hooks-4.0-Released</id>
         <link href="https://resthooks.io/blog/2019/12/24/Rest-Hooks-4.0-Released"/>
         <updated>2019-12-24T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[4.0 marks the end of the migration to the new useCache() and useResource() implementations first]]></summary>
@@ -322,7 +322,7 @@ coming down the pipeline and we hope to see your contributions as well. 😊</p>
     </entry>
     <entry>
         <title type="html"><![CDATA[Rest Hooks 2.2 Released]]></title>
-        <id>Rest Hooks 2.2 Released</id>
+        <id>/2019/10/28/Rest-Hooks-2.2-Released</id>
         <link href="https://resthooks.io/blog/2019/10/28/Rest-Hooks-2.2-Released"/>
         <updated>2019-10-28T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[2.2 comes with the eagerly awaited programmable optimistic updates. This enables two very important use cases:]]></summary>
@@ -398,7 +398,7 @@ coming down the pipeline and we hope to see your contributions as well. 😊</p>
     </entry>
     <entry>
         <title type="html"><![CDATA[Rest Hooks 2.1 Released]]></title>
-        <id>Rest Hooks 2.1 Released</id>
+        <id>/2019/08/07/Rest-Hooks-2.1-Released</id>
         <link href="https://resthooks.io/blog/2019/08/07/Rest-Hooks-2.1-Released"/>
         <updated>2019-08-07T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[New Features]]></summary>
@@ -438,7 +438,7 @@ coming down the pipeline and we hope to see your contributions as well. 😊</p>
     </entry>
     <entry>
         <title type="html"><![CDATA[Announcing Rest Hooks 2.0]]></title>
-        <id>Announcing Rest Hooks 2.0</id>
+        <id>/2019/07/13/Announcing-Rest-Hooks-2.0</id>
         <link href="https://resthooks.io/blog/2019/07/13/Announcing-Rest-Hooks-2.0"/>
         <updated>2019-07-13T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[We use SemVer for Rest Hooks - so 2.0 represents some breaking changes. To minimize disruption]]></summary>
