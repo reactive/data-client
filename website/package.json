@@ -27,7 +27,7 @@
     "@rest-hooks/endpoint": "^2.1.0",
     "@rest-hooks/graphql": "^0.1.1",
     "@rest-hooks/rest": "^3.0.1",
-    "bignumber.js": "^9.0.1",
+    "bignumber.js": "^9.0.2",
     "clsx": "^1.1.1",
     "msw": "^0.36.0",
     "raw-loader": "^4.0.2",
