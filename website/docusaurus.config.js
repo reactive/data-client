@@ -86,6 +86,9 @@ module.exports = {
         theme: {
           customCss: ['../src/css/customTheme.css', '../src/mocks/init.js'],
         },
+        gtag: {
+          trackingID: 'UA-138752992-1',
+        },
       },
     ],
   ],
@@ -333,9 +336,6 @@ module.exports = {
         debug: process.env.NODE_ENV === 'development',
         facetFilters: ['docusaurus_tag:docs-default-current'],
       },
-    },
-    gtag: {
-      trackingID: 'UA-138752992-1',
     },
   },
 };
