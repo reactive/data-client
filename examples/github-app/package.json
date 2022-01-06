@@ -33,7 +33,7 @@
     "@types/parse-link-header": "^1.0.0",
     "@types/react-dom": "17.0.11",
     "@types/react-router-dom": "^5.1.8",
-    "react-refresh": "next",
+    "react-refresh": "^0.11.0",
     "serve": "13.0.2",
     "webpack": "5.65.0",
     "webpack-cli": "4.8.0",
