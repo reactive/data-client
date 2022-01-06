@@ -2488,6 +2488,7 @@
 
 "@lerna/conventional-commits@4.0.0", "@lerna/conventional-commits@https://github.com/ntucker/lerna-conventional-commits.git":
   version "3.16.4"
+  uid "4389120475a4f80ac8e4fbe766fa4c9644c6b1c7"
   resolved "https://github.com/ntucker/lerna-conventional-commits.git#4389120475a4f80ac8e4fbe766fa4c9644c6b1c7"
   dependencies:
     "@lerna/validation-error" "^4.0"
@@ -9250,9 +9251,9 @@ hosted-git-info@^3.0.2, hosted-git-info@^3.0.6:
     lru-cache "^6.0.0"
 
 hosted-git-info@^4.0.1:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-4.0.2.tgz#5e425507eede4fea846b7262f0838456c4209961"
-  integrity sha512-c9OGXbZ3guC/xOlCg1Ci/VgWlwsqDv1yMQL1CWqXDL0hDjXuNcq0zuR4xqPSuasI3kqFDhqSyTjREz5gzq0fXg==
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-4.1.0.tgz#827b82867e9ff1c8d0c4d9d53880397d2c86d224"
+  integrity sha512-kyCuEOWjJqZuDbRHzL8V93NzQhwIB71oFWSyzVo+KPZI+pnQPPxucdkrOZvkLRnrf5URsQM+IJ09Dw29cRALIA==
   dependencies:
     lru-cache "^6.0.0"
 
@@ -13501,10 +13502,10 @@ parse-json@^5.0.0:
     json-parse-better-errors "^1.0.1"
     lines-and-columns "^1.1.6"
 
-parse-link-header@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/parse-link-header/-/parse-link-header-1.0.1.tgz#bedfe0d2118aeb84be75e7b025419ec8a61140a7"
-  integrity sha1-vt/g0hGK64S+deewJUGeyKYRQKc=
+parse-link-header@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/parse-link-header/-/parse-link-header-2.0.0.tgz#949353e284f8aa01f2ac857a98f692b57733f6b7"
+  integrity sha512-xjU87V0VyHZybn2RrCX5TIFGxTVZE6zqqZWMPlIKiSKuWh/X5WZdt+w1Ki1nXB+8L/KtL+nZ4iq+sfI6MrhhMw==
   dependencies:
     xtend "~4.0.1"
 
