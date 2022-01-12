@@ -6,7 +6,7 @@ import {
 import { PaginatedArticleResource as PaginatedArticle } from '__tests__/new';
 import { DELETED, schema } from '@rest-hooks/normalizr';
 
-import reducer, { initialState } from '../reducer';
+import createReducer, { initialState } from '../createReducer';
 import {
   FetchAction,
   ReceiveAction,
@@ -15,6 +15,7 @@ import {
   UpdateFunction,
   GCAction,
   State,
+  ActionTypes,
 } from '../../types';
 import {
   RECEIVE_TYPE,
@@ -24,8 +25,18 @@ import {
   GC_TYPE,
 } from '../../actionTypes';
 import { createReceive } from '../actions';
+import { Controller } from '../..';
 
 describe('reducer', () => {
+  let reducer: (
+    state: State<unknown> | undefined,
+    action: ActionTypes,
+  ) => State<unknown>;
+
+  beforeEach(() => {
+    reducer = createReducer(new Controller());
+  });
+
   describe('singles', () => {
     const id = 20;
     const payload = { id, title: 'hi', content: 'this is the content' };

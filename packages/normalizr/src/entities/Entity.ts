@@ -81,6 +81,8 @@ export default abstract class Entity {
     this: T,
     existing: Partial<AbstractInstanceType<T>>,
     incoming: Partial<AbstractInstanceType<T>>,
+    existingMeta?: { date: number },
+    incomingMeta?: { date: number },
   ) {
     return { ...existing, ...incoming };
   }

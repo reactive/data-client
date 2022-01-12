@@ -1,15 +1,15 @@
-import { initialState as defaultState } from '@rest-hooks/core/state/reducer';
+import { initialState as defaultState } from '@rest-hooks/core/state/createReducer';
 import NetworkManager from '@rest-hooks/core/state/NetworkManager';
 import { State, Manager } from '@rest-hooks/core/types';
 import React, { ReactNode, useMemo } from 'react';
-import { useRef } from 'react';
 import {
   DenormalizeCacheContext,
   ControllerContext,
 } from '@rest-hooks/core/react-integration/context';
-import Controller from '@rest-hooks/core/controller/Controller';
 import applyManager from '@rest-hooks/core/state/applyManager';
 import CacheStore from '@rest-hooks/core/react-integration/provider/CacheStore';
+import Controller from '@rest-hooks/core/controller/Controller';
+import { useRef } from 'react';
 
 interface ProviderProps {
   children: ReactNode;
@@ -49,6 +49,7 @@ export default function CacheProvider({
           managers={memodManagers}
           middlewares={middlewares}
           initialState={initialState}
+          controller={controllerRef.current}
         >
           {children}
         </CacheStore>

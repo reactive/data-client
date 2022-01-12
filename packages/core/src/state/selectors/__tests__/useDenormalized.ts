@@ -8,7 +8,7 @@ import {
 } from '__tests__/common';
 import { createEntityMeta } from '__tests__/utils';
 import { normalize, NormalizedIndex } from '@rest-hooks/normalizr';
-import { initialState } from '@rest-hooks/core/state/reducer';
+import { initialState } from '@rest-hooks/core/state/createReducer';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useState } from 'react';
 import { ExpiryStatus } from '@rest-hooks/core/';

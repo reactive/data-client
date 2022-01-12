@@ -1,23 +1,12 @@
 import {
   CoolerArticleResource,
-  ArticleResource,
-  PaginatedArticleResource,
-  UserResource,
   ArticleResourceWithOtherListUrl,
-  ListPaginatedArticle,
-  CoolerArticleDetail,
-  TypedArticleResource,
-  IndexedUserResource,
-  UnionResource,
   FutureArticleResource,
+  VisSettings,
 } from '__tests__/new';
 import nock from 'nock';
+import { AbortOptimistic } from '@rest-hooks/endpoint';
 import { act } from '@testing-library/react-hooks';
-
-// relative imports to avoid circular dependency in tsconfig references
-import { schema, Entity } from '@rest-hooks/normalizr';
-import { SimpleRecord } from '@rest-hooks/legacy';
-import { Endpoint } from '@rest-hooks/endpoint';
 import { useContext } from 'react';
 
 import {
@@ -25,16 +14,15 @@ import {
   makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../../../test';
-import { useResource, useFetcher, useCache, useInvalidator } from '../hooks';
+import { useResource, useCache, useController } from '../hooks';
 import {
   payload,
   createPayload,
   users,
   nested,
-  paginatedFirstPage,
-  paginatedSecondPage,
   valuesFixture,
 } from '../test-fixtures';
+import { Endpoint, Entity } from '../..';
 import { StateContext } from '../context';
 
 function onError(e: any) {
@@ -49,6 +37,9 @@ afterEach(() => {
     removeEventListener('error', onError);
 });
 
+/*
+  These tests cover 'optimisticUpdater' property
+*/
 describe.each([
   ['CacheProvider', makeCacheProvider],
   ['ExternalCacheProvider', makeExternalCacheProvider],
@@ -56,6 +47,7 @@ describe.each([
   describe('Optimistic Updates', () => {
     let renderRestHook: ReturnType<typeof makeRenderRestHook>;
     let mynock: nock.Scope;
+    const fetchSpy = jest.spyOn(VisSettings, 'fetch');
 
     beforeEach(() => {
       nock(/.*/)
@@ -95,6 +87,10 @@ describe.each([
 
     afterEach(() => {
       nock.cleanAll();
+      jest.useRealTimers().clearAllMocks();
+    });
+    afterAll(() => {
+      jest.restoreAllMocks();
     });
 
     beforeEach(() => {
@@ -111,18 +107,18 @@ describe.each([
 
       const { result, waitForNextUpdate } = renderRestHook(
         () => {
-          const put = useFetcher(CoolerArticleResource.partialUpdate());
+          const { fetch } = useController();
           const article = useCache(CoolerArticleResource.detail(), params);
           // @ts-expect-error
           article.doesnotexist;
-          return { put, article };
+          return { fetch, article };
         },
         {
           results: [
             {
-              request: CoolerArticleResource.detail(),
-              params,
-              result: payload,
+              endpoint: CoolerArticleResource.detail(),
+              args: [params],
+              response: payload,
             },
           ],
         },
@@ -130,7 +126,15 @@ describe.each([
       expect(result.current.article).toEqual(
         CoolerArticleResource.fromJS(payload),
       );
-      const promise = result.current.put(params, { content: 'changed' });
+      const promise = act(async () => {
+        await result.current.fetch(
+          CoolerArticleResource.partialUpdate(),
+          params,
+          {
+            content: 'changed',
+          },
+        );
+      });
       expect(result.current.article).toBeInstanceOf(CoolerArticleResource);
       expect(result.current.article).toEqual(
         CoolerArticleResource.fromJS({
@@ -154,16 +158,16 @@ describe.each([
 
       const { result, waitForNextUpdate } = renderRestHook(
         () => {
-          const del = useFetcher(CoolerArticleResource.delete());
+          const { fetch } = useController();
           const articles = useCache(CoolerArticleResource.list(), {});
-          return { del, articles };
+          return { fetch, articles };
         },
         {
           results: [
             {
-              request: CoolerArticleResource.list(),
-              params: {},
-              result: [payload],
+              endpoint: CoolerArticleResource.list(),
+              args: [{}],
+              response: [payload],
             },
           ],
         },
@@ -171,7 +175,9 @@ describe.each([
       expect(result.current.articles).toEqual([
         CoolerArticleResource.fromJS(payload),
       ]);
-      const promise = result.current.del(params);
+      const promise = act(async () => {
+        await result.current.fetch(CoolerArticleResource.delete(), params);
+      });
       expect(result.current.articles).toEqual([]);
       await promise;
       expect(result.current.articles).toEqual([]);
@@ -192,20 +198,20 @@ describe.each([
 
       const { result, waitForNextUpdate } = renderRestHook(
         () => {
-          const create = useFetcher(ArticleResourceWithOtherListUrl.create());
+          const { fetch } = useController();
           const listA = useCache(ArticleResourceWithOtherListUrl.list(), {});
           const listB = useCache(
             ArticleResourceWithOtherListUrl.otherList(),
             {},
           );
-          return { create, listA, listB };
+          return { fetch, listA, listB };
         },
         {
           results: [
             {
-              request: ArticleResourceWithOtherListUrl.otherList(),
-              params: {},
-              result: [{ id: 100, content: 'something' }],
+              endpoint: ArticleResourceWithOtherListUrl.otherList(),
+              args: [{}],
+              response: [{ id: 100, content: 'something' }],
             },
           ],
         },
@@ -214,24 +220,13 @@ describe.each([
       expect(result.current.listA).toEqual(undefined);
       expect(result.current.listB).toEqual([existingItem]);
 
-      const promise = result.current.create({}, body, [
-        [
-          ArticleResourceWithOtherListUrl.list(),
+      const promise = act(async () => {
+        await result.current.fetch(
+          ArticleResourceWithOtherListUrl.create(),
           {},
-          (newArticleID: string, articleIDs: string[] | undefined) => [
-            ...(articleIDs || []),
-            newArticleID,
-          ],
-        ],
-        [
-          ArticleResourceWithOtherListUrl.otherList(),
-          {},
-          (newArticleID: string, articleIDs: string[] | undefined) => [
-            ...(articleIDs || []),
-            newArticleID,
-          ],
-        ],
-      ]);
+          body,
+        );
+      });
 
       expect(result.current.listA).toEqual([
         CoolerArticleResource.fromJS(body),
@@ -261,15 +256,21 @@ describe.each([
     it('should update on create', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
         const articles = useResource(FutureArticleResource.list(), {});
-        const create = useFetcher(FutureArticleResource.create());
-        return { articles, create };
+        const { fetch } = useController();
+        return { articles, fetch };
       });
 
       await waitForNextUpdate();
       expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3]);
 
-      await result.current.create({
-        id: 1,
+      const createOptimistic = FutureArticleResource.create().extend({
+        optimisticUpdater: (snap, body) => ({ id: Math.random(), ...body }),
+      });
+      act(() => {
+        result.current.fetch(createOptimistic, {
+          id: 1,
+          title: 'whatever',
+        });
       });
       expect(result.current.articles.map(({ id }) => id)).toEqual([1, 5, 3]);
     });
@@ -280,16 +281,16 @@ describe.each([
       const params = { id: payload.id };
       const { result, waitForNextUpdate } = renderRestHook(
         () => {
-          const put = useFetcher(CoolerArticleResource.partialUpdate());
+          const { fetch } = useController();
           const article = useCache(CoolerArticleResource.detail(), params);
-          return { put, article };
+          return { fetch, article };
         },
         {
           results: [
             {
-              request: CoolerArticleResource.detail(),
-              params,
-              result: payload,
+              endpoint: CoolerArticleResource.detail(),
+              args: [params],
+              response: payload,
             },
           ],
         },
@@ -304,7 +305,7 @@ describe.each([
           title: 'first',
           content: 'first',
         });
-      result.current.put(params, {
+      result.current.fetch(CoolerArticleResource.partialUpdate(), params, {
         title: 'firstoptimistic',
         content: 'firstoptimistic',
       });
@@ -324,7 +325,7 @@ describe.each([
           ...payload,
           title: 'second',
         });
-      result.current.put(params, {
+      result.current.fetch(CoolerArticleResource.partialUpdate(), params, {
         title: 'secondoptimistic',
       });
       expect(result.current.article).toEqual(
@@ -343,7 +344,7 @@ describe.each([
           ...payload,
           tags: ['third'],
         });
-      result.current.put(params, {
+      result.current.fetch(CoolerArticleResource.partialUpdate(), params, {
         tags: ['thirdoptimistic'],
       });
       expect(result.current.article).toEqual(
@@ -367,6 +368,348 @@ describe.each([
           title: 'second',
         }),
       );
+    });
+
+    describe('race conditions', () => {
+      class Toggle extends Entity {
+        readonly id: number = 0;
+        readonly visible: boolean = true;
+
+        pk() {
+          return `${this.id}`;
+        }
+      }
+      const getbool = new Endpoint(
+        (id: number): Promise<{ id: number; visible: boolean }> =>
+          fetch(`/toggle/${id}`).then(res => res.json()),
+        {
+          name: 'gettoggle',
+          schema: Toggle,
+        },
+      );
+      const toggle = new Endpoint(
+        (id: number): Promise<{ id: number; visible: boolean }> =>
+          fetch(`/toggle/${id}`, { method: 'POST' }).then(res => res.json()),
+        {
+          name: 'toggle',
+          schema: Toggle,
+          sideEffect: true,
+          optimisticUpdater(snap, id) {
+            const { data } = snap.getResponse(getbool, id);
+            if (!data) throw new AbortOptimistic();
+            return {
+              id,
+              visible: data.visible ? false : true,
+            };
+          },
+        },
+      );
+
+      it('toggle should alternate with multiple optimistic updates', async () => {
+        jest.useFakeTimers('modern');
+
+        // keeping state here allows the requests to flip flop each time
+        let visible = false;
+        mynock.get('/toggle/5').reply(200, () => {
+          return { id: 5, visible };
+        });
+        mynock
+          .persist()
+          .post('/toggle/5')
+          .delay(2000)
+          .reply(200, () => {
+            visible = visible ? false : true;
+            return { id: 5, visible };
+          });
+
+        const { result, waitForNextUpdate } = renderRestHook(
+          () => {
+            const { fetch } = useController();
+            const tog = useCache(getbool, 5);
+            // @ts-expect-error
+            tog.doesnotexist;
+            return { fetch, tog };
+          },
+          {
+            results: [
+              {
+                endpoint: getbool,
+                args: [5],
+                response: { id: 5, visible },
+              },
+            ],
+          },
+        );
+
+        expect(result.current.tog).toEqual({ id: 5, visible: false });
+
+        const promises: Promise<any>[] = [];
+        const promises2: Promise<any>[] = [];
+
+        act(() => {
+          promises.push(result.current.fetch(toggle, 5));
+        });
+        expect(result.current.tog).toEqual({ id: 5, visible: true });
+
+        act(() => {
+          promises.push(result.current.fetch(toggle, 5));
+        });
+        expect(result.current.tog).toEqual({ id: 5, visible: false });
+
+        act(() => {
+          promises.push(result.current.fetch(toggle, 5));
+        });
+        expect(result.current.tog).toEqual({ id: 5, visible: true });
+
+        jest.advanceTimersByTime(300);
+
+        act(() => {
+          promises2.push(result.current.fetch(toggle, 5));
+        });
+        expect(result.current.tog).toEqual({ id: 5, visible: false });
+
+        jest.advanceTimersByTime(2001);
+        await act(async () => {
+          await Promise.all(promises);
+        });
+        // now 3 of these should have resolved
+        // we validate
+
+        // after resolution this should not change the result
+        expect(result.current.tog).toEqual({ id: 5, visible: false });
+
+        await act(async () => {
+          await Promise.all(promises2);
+        });
+
+        expect(result.current.tog).toEqual({ id: 5, visible: false });
+      });
+
+      it('toggle should handle when response is missing', async () => {
+        jest.useFakeTimers('modern');
+
+        // keeping state here allows the requests to flip flop each time
+        let visible = false;
+        mynock.get('/toggle/5').reply(200, () => {
+          return { id: 5, visible };
+        });
+        mynock
+          .persist()
+          .post('/toggle/5')
+          .reply(200, () => {
+            visible = visible ? false : true;
+            return { id: 5, visible };
+          });
+
+        const { result, waitForNextUpdate } = renderRestHook(() => {
+          const { fetch, getError } = useController();
+          const tog = useCache(getbool, 5);
+          const state = useContext(StateContext);
+          const toggleError = getError(toggle, 5, state);
+          return { fetch, tog, toggleError };
+        });
+
+        expect(result.current.tog).toBeUndefined();
+        expect(result.current.toggleError).toBeUndefined();
+
+        act(() => {
+          result.current.fetch(toggle, 5);
+        });
+        expect(result.current.tog).toBeUndefined();
+        expect(result.current.toggleError).toBeUndefined();
+      });
+
+      it('should error when user error happens', async () => {
+        jest.useFakeTimers('modern');
+
+        const toggleError = new Endpoint(
+          (id: number): Promise<{ id: number; visible: boolean }> =>
+            fetch(`/toggle/${id}`, { method: 'POST' }).then(res => res.json()),
+          {
+            name: 'toggle',
+            schema: Toggle,
+            sideEffect: true,
+            optimisticUpdater(snap, id) {
+              const getterError = snap.getError(getbool, id);
+              if (getterError) throw getterError;
+              throw new Error('this should fail');
+            },
+          },
+        );
+
+        // keeping state here allows the requests to flip flop each time
+        let visible = false;
+        mynock
+          .persist()
+          .post('/toggle/5')
+          .delay(2000)
+          .reply(200, () => {
+            visible = visible ? false : true;
+            return { id: 5, visible };
+          });
+
+        const { result } = renderRestHook(
+          () => {
+            const { fetch, getError } = useController();
+            const tog = useCache(getbool, 5);
+            const state = useContext(StateContext);
+            const fetchError = getError(toggleError, 5, state);
+            return { fetch, tog, fetchError };
+          },
+          {
+            results: [
+              {
+                endpoint: getbool,
+                args: [5],
+                response: { id: 5, visible },
+              },
+            ],
+          },
+        );
+
+        expect(result.current.tog).toBeDefined();
+        expect(result.current.fetchError).toBeUndefined();
+
+        act(() => {
+          result.current.fetch(toggleError, 5);
+        });
+        expect(result.current.tog).toBeDefined();
+        expect(result.current.fetchError).toBeDefined();
+        expect(result.current.fetchError).toMatchSnapshot();
+      });
+
+      describe('Vector Clocks', () => {
+        it('should handle out of order server responses', async () => {
+          jest.useFakeTimers('modern');
+
+          const initVis = {
+            id: 5,
+            visType: 'graph',
+            numCols: 0,
+            updatedAt: { client: Date.now(), server: Date.now() },
+          };
+
+          const { result } = renderRestHook(
+            () => {
+              const { fetch } = useController();
+              const vis = useCache(VisSettings.detail(), { id: 5 });
+              // @ts-expect-error
+              vis.doesnotexist;
+              return { fetch, vis };
+            },
+            {
+              results: [
+                {
+                  endpoint: VisSettings.detail(),
+                  args: [{ id: 5 }],
+                  response: initVis,
+                },
+              ],
+            },
+          );
+          expect(result.current.vis).toEqual(initVis);
+
+          let resolvePartial = (resolution: any) => {};
+          let partialPromise: Promise<any>;
+          fetchSpy.mockImplementationOnce(
+            () =>
+              (partialPromise = new Promise(resolve => {
+                resolvePartial = (resolution: any) => {
+                  resolve(resolution);
+                };
+              })),
+          );
+          jest.advanceTimersByTime(100);
+          act(() => {
+            result.current.fetch(
+              VisSettings.partialUpdate(),
+              { id: 5 },
+              { visType: 'line' },
+            );
+          });
+          expect(result.current.vis?.visType).toEqual('line');
+
+          let resolveIncrement = (resolution: any) => {};
+          let incrementPromise: Promise<any>;
+          fetchSpy.mockImplementationOnce(
+            () =>
+              (incrementPromise = new Promise(resolve => {
+                resolveIncrement = (resolution: any) => {
+                  resolve(resolution);
+                };
+              })),
+          );
+          jest.advanceTimersByTime(100);
+          act(() => {
+            result.current.fetch(VisSettings.incrementCols(), 5);
+          });
+          expect(result.current.vis?.visType).toEqual('line');
+          expect(result.current.vis?.numCols).toEqual(1);
+
+          const betweenDate = Date.now();
+
+          let resolveIncrement2 = (resolution: any) => {};
+          let incrementPromise2: Promise<any>;
+          fetchSpy.mockImplementationOnce(
+            () =>
+              (incrementPromise2 = new Promise(resolve => {
+                resolveIncrement2 = (resolution: any) => {
+                  resolve(resolution);
+                };
+              })),
+          );
+          jest.advanceTimersByTime(100);
+          act(() => {
+            result.current.fetch(VisSettings.incrementCols(), 5);
+          });
+          expect(result.current.vis?.visType).toEqual('line');
+          expect(result.current.vis?.numCols).toEqual(2);
+
+          const afterDate = Date.now();
+
+          jest.advanceTimersByTime(100);
+          await act(() => {
+            resolvePartial({
+              id: 5,
+              visType: 'line',
+              numCols: 5,
+              updatedAt: { client: betweenDate, server: Date.now() },
+            });
+            return partialPromise;
+          });
+
+          expect(result.current.vis?.visType).toEqual('line');
+          // the server is not aware of our client's last increment, so we +1 to response
+          expect(result.current.vis?.numCols).toEqual(6);
+
+          jest.advanceTimersByTime(100);
+          const finalObject = {
+            id: 5,
+            visType: 'graph',
+            numCols: 100,
+            updatedAt: { client: afterDate, server: Date.now() },
+          };
+          await act(() => {
+            resolveIncrement2(finalObject);
+            return incrementPromise2;
+          });
+
+          expect(result.current.vis).toEqual(finalObject);
+
+          await act(() => {
+            resolveIncrement({
+              id: 5,
+              visType: 'line',
+              numCols: 0,
+              updatedAt: { client: 0, server: 0 },
+            });
+            return incrementPromise;
+          });
+          expect(result.current.vis).toEqual(finalObject);
+
+          fetchSpy.mockClear();
+        });
+      });
     });
   });
 });

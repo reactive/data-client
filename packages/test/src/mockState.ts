@@ -1,14 +1,17 @@
 import {
   FetchShape,
   Schema,
-  reducer,
   createReceive,
   initialState,
   createReceiveError,
   ReceiveAction,
   EndpointInterface,
   ResolveType,
+  State,
+  ActionTypes,
 } from '@rest-hooks/core';
+// this allows us to support versions with different exports
+import * as RestHooks from '@rest-hooks/core';
 
 type Updater = (
   result: any,
@@ -108,6 +111,17 @@ export function actionFromFixture(fixture: Fixture) {
 }
 
 export default function mockInitialState(results: Fixture[]) {
+  let reducer: (
+    state: State<unknown> | undefined,
+    action: ActionTypes,
+  ) => State<unknown>;
+  // >=6.1 of Rest Hooks / >=3.1 of RH/core
+  if ('createReducer' in RestHooks) {
+    reducer = RestHooks.createReducer(new RestHooks.Controller());
+    // previous versions
+  } else {
+    reducer = (RestHooks as any).reducer;
+  }
   const mockState = results.reduce((acc, fixture) => {
     const { action } = actionFromFixture(fixture);
     return reducer(acc, action);

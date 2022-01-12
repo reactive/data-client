@@ -1,4 +1,4 @@
-import masterReducer from '@rest-hooks/core/state/reducer';
+import createReducer from '@rest-hooks/core/state/createReducer';
 import { State, Manager } from '@rest-hooks/core/types';
 import useEnhancedReducer from '@rest-hooks/use-enhanced-reducer';
 import React, { ReactNode, useEffect, useMemo, memo } from 'react';
@@ -8,12 +8,14 @@ import {
 } from '@rest-hooks/core/react-integration/context';
 import BackupBoundary from '@rest-hooks/core/react-integration/provider/BackupBoundary';
 import type { Middleware } from '@rest-hooks/use-enhanced-reducer';
+import Controller from '@rest-hooks/core/controller/Controller';
 
 interface StoreProps {
   children: ReactNode;
   managers: Manager[];
   middlewares: Middleware[];
   initialState: State<unknown>;
+  controller: Controller;
 }
 /**
  * This part of the provider concerns only the parts that matter for store changes
@@ -24,7 +26,10 @@ function CacheStore({
   managers,
   middlewares,
   initialState,
+  controller,
 }: StoreProps) {
+  const masterReducer = useMemo(() => createReducer(controller), [controller]);
+
   const [state, dispatch] = useEnhancedReducer(
     masterReducer,
     initialState,
@@ -32,7 +37,7 @@ function CacheStore({
   );
   const optimisticState = useMemo(
     () => state.optimistic.reduce(masterReducer, state),
-    [state],
+    [masterReducer, state],
   );
 
   // if we change out the manager we need to make sure it has no hanging async

@@ -5,7 +5,7 @@ import { Schema } from '@rest-hooks/endpoint';
 import { useMemo } from 'react';
 import useController from '@rest-hooks/core/react-integration/hooks/useController';
 import shapeToEndpoint from '@rest-hooks/core/endpoint/adapter';
-import { ExpiryStatus } from '@rest-hooks/core/controller/Expiry';
+import type { ExpiryStatus } from '@rest-hooks/endpoint';
 
 /**
  * @deprecated use https://resthooks.io/docs/api/Controller#getResponse directly instead

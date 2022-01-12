@@ -5,7 +5,7 @@ import { StateContext } from '@rest-hooks/core/react-integration/context';
 import { useMemo, useContext } from 'react';
 import useRetrieve from '@rest-hooks/core/react-integration/hooks/useRetrieve';
 import useError from '@rest-hooks/core/react-integration/hooks/useError';
-import { ExpiryStatus } from '@rest-hooks/core/controller/Expiry';
+import { ExpiryStatus } from '@rest-hooks/endpoint';
 
 type ResourceArgs<
   S extends ReadShape<any, any>,

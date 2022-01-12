@@ -2,14 +2,21 @@ import {
   StateContext,
   DispatchContext,
   ControllerContext,
-  reducer,
+  createReducer,
   State,
   ActionTypes,
   usePromisifiedDispatch,
   DenormalizeCacheContext,
   Controller,
 } from '@rest-hooks/core';
-import React, { ReactNode, useEffect, useState, useMemo, useRef } from 'react';
+import React, {
+  ReactNode,
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+  useCallback,
+} from 'react';
 
 interface Store<S> {
   subscribe(listener: () => void): () => void;
@@ -20,23 +27,22 @@ interface Props<S> {
   children: ReactNode;
   store: Store<S>;
   selector: (state: S) => State<unknown>;
+  controller: Controller;
 }
 
 export default function ExternalCacheProvider<S>({
   children,
   store,
   selector,
+  controller,
 }: Props<S>) {
-  const denormalizeCache = useRef({
-    entities: {},
-    results: {},
-  });
-  const [state, setState] = useState(() => selector(store.getState()));
+  const masterReducer = useMemo(() => createReducer(controller), [controller]);
+  const selectState = useCallback(() => {
+    const state = selector(store.getState());
+    return state.optimistic.reduce(masterReducer, state);
+  }, [masterReducer, selector, store]);
 
-  const optimisticState = useMemo(
-    () => state.optimistic.reduce(reducer, state),
-    [state],
-  );
+  const [state, setState] = useState(selectState);
 
   const isMounted = useRef(true);
   useEffect(
@@ -48,28 +54,18 @@ export default function ExternalCacheProvider<S>({
 
   useEffect(() => {
     const unsubscribe = store.subscribe(() => {
-      if (isMounted.current) setState(selector(store.getState()));
+      if (isMounted.current) setState(selectState());
     });
     return unsubscribe;
-    // we don't care to recompute if they change selector - only when store updates
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [store]);
+  }, [selectState, store]);
 
   const dispatch = usePromisifiedDispatch(store.dispatch, state);
 
-  const controller = useRef<Controller>();
-  if (!controller.current)
-    controller.current = new Controller({
-      dispatch,
-    });
-
   return (
     <DispatchContext.Provider value={dispatch}>
-      <StateContext.Provider value={optimisticState}>
-        <ControllerContext.Provider value={controller.current}>
-          <DenormalizeCacheContext.Provider
-            value={controller.current.globalCache}
-          >
+      <StateContext.Provider value={state}>
+        <ControllerContext.Provider value={controller}>
+          <DenormalizeCacheContext.Provider value={controller.globalCache}>
             {children}
           </DenormalizeCacheContext.Provider>
         </ControllerContext.Provider>

@@ -4,7 +4,7 @@ import {
   Dispatch,
   Manager,
   State,
-  reducer,
+  createReducer,
   ActionTypes,
 } from '@rest-hooks/core';
 
@@ -38,7 +38,9 @@ export default class DevToolsManager implements Manager {
     if (process.env.NODE_ENV === 'development' && this.devTools) {
       this.middleware = <R extends React.Reducer<any, any>>({
         getState,
+        controller,
       }: MiddlewareAPI<R>) => {
+        const reducer = createReducer(controller);
         return (next: Dispatch<R>) => (action: React.ReducerAction<R>) => {
           return next(action).then(() => {
             if (skipLogging?.(action)) return;

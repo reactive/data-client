@@ -8,7 +8,7 @@ import {
 } from '__tests__/common';
 import { createEntityMeta } from '__tests__/utils';
 import { State, ReadShape } from '@rest-hooks/core';
-import { initialState } from '@rest-hooks/core/state/reducer';
+import { initialState } from '@rest-hooks/core/state/createReducer';
 import React, { Suspense } from 'react';
 import { render } from '@testing-library/react';
 import nock from 'nock';
