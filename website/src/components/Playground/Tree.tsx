@@ -1,4 +1,4 @@
-import JSONTree from 'react-json-tree';
+import { JSONTree } from 'react-json-tree';
 import React, { useMemo } from 'react';
 import usePrismTheme from '@theme/hooks/usePrismTheme';
 import useThemeContext from '@theme/hooks/useThemeContext';
