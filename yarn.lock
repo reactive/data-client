@@ -58,9 +58,9 @@
     eslint-plugin-jsx-a11y "^6.5.1"
 
 "@anansi/jest-preset@^0.5.16":
-  version "0.5.19"
-  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.5.19.tgz#889afdbc94e84e0ba4454004c1dd36c8a68bb78c"
-  integrity sha512-3gAik2u1V33DsEgNOZENQV5DBJCjZvDXqUNR+9ydnhInzC7q5G7Xu24UCDpjdrOaI4M174K6G4/C2DrJ+WOi0w==
+  version "0.5.20"
+  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.5.20.tgz#bbfc0846512cda95cce6206303a1bd539f631f47"
+  integrity sha512-A6IfqqtgHptVkeZQqvIKjWCDxlaCMHdEtBJ0Q8VC32WYTnpAmH78kaO+R+Xqzb3kedUNZQmb6DNyIZf7n0V9iA==
   dependencies:
     "@anansi/ts-utils" "^0.2.4"
     babel-jest "^27.4.6"
