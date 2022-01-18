@@ -229,19 +229,19 @@
     "@algolia/logger-common" "4.10.5"
     "@algolia/requester-common" "4.10.5"
 
-"@anansi/webpack-config@^10.0.0":
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-10.0.0.tgz#d4e8a8f22ed54034e1788d9a99cda17c1ae803b9"
-  integrity sha512-EW6ha6wdQFyjn1nHOd2s2kA2r4/74YVJAsb4vZIKa2ML1M7ibRV1pwiId96Yiv6phFvHEISzA/N50LLqoVgYew==
+"@anansi/webpack-config@^10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-10.0.1.tgz#ef72dd62cd6c8d54ed45900902991c5932f59928"
+  integrity sha512-GbtZrBOpma3ZXIsJaXbpVHJwePkB3xs6cbfnMg+Pqmwr/wo4FAxfF2gvyhc0+05Jol1h3a5gdy/mf3mmjYAX7w==
   dependencies:
     "@babel/runtime" "^7.16.7"
     "@linaria/webpack5-loader" "3.0.0-beta.14"
     "@pmmmwh/react-refresh-webpack-plugin" "^0.5.4"
-    "@svgr/webpack" "^6.1.2"
+    "@svgr/webpack" "^6.2.0"
     "@types/webpack-bundle-analyzer" "^4.4.1"
     "@vue/preload-webpack-plugin" "^2.0.0"
     assert "^2.0.0"
-    autoprefixer "^10.4.1"
+    autoprefixer "^10.4.2"
     babel-loader "^8.2.3"
     browserify-zlib "^0.2.0"
     buffer "^6.0.3"
@@ -258,12 +258,12 @@
     duplicate-package-checker-webpack-plugin "^3.0.0"
     events "^3.2.0"
     file-loader "^6.2.0"
-    html-loader "^3.0.1"
+    html-loader "^3.1.0"
     html-webpack-plugin "^5.5.0"
     https-browserify "^1.0.0"
     is-wsl "^2.2.0"
     markdown-loader "^6.0.0"
-    mini-css-extract-plugin "^2.4.5"
+    mini-css-extract-plugin "^2.4.6"
     node-sass "^7.0.1"
     os-browserify "^0.3.0"
     path "^0.12.7"
@@ -274,7 +274,7 @@
     process "^0.11.10"
     punycode "^2.1.1"
     querystring-es3 "^0.2.1"
-    ramda "^0.27.1"
+    ramda "^0.27.2"
     raw-loader "4.0.2"
     react-dev-utils "^12.0.0"
     readable-stream "^3.6.0"
@@ -2339,7 +2339,7 @@
     deepmerge "^4.2.2"
     svgo "^2.5.0"
 
-"@svgr/webpack@^6.0.0", "@svgr/webpack@^6.1.2":
+"@svgr/webpack@^6.0.0", "@svgr/webpack@^6.2.0":
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/@svgr/webpack/-/webpack-6.2.0.tgz#00fafd32e1d59add7b554c40aa2e97e83f975686"
   integrity sha512-KlLdGe93A8GDs19g8kjEmHwArgMAP6cUfegr2Nx+yDAYY32IPtjzm3SoqNP+I+cnOF1CToJu1clWTPEmdd8dXg==
@@ -3121,7 +3121,7 @@ atob@^2.1.2:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-autoprefixer@^10.2.0, autoprefixer@^10.3.5, autoprefixer@^10.4.1:
+autoprefixer@^10.2.0, autoprefixer@^10.3.5, autoprefixer@^10.4.1, autoprefixer@^10.4.2:
   version "10.4.2"
   resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-10.4.2.tgz#25e1df09a31a9fba5c40b578936b90d35c9d4d3b"
   integrity sha512-9fOPpHKuDW1w/0EKfRmVnxTDt8166MAnLI3mgZ1JCnhNtYWxcJ6Ud5CO/AVOZi/AvFa8DY9RTy3h3+tFBlrrdQ==
@@ -6229,10 +6229,10 @@ html-entities@^2.1.0, html-entities@^2.3.2:
   resolved "https://registry.yarnpkg.com/html-entities/-/html-entities-2.3.2.tgz#760b404685cb1d794e4f4b744332e3b00dcfe488"
   integrity sha512-c3Ab/url5ksaT0WyleslpBEthOzWhrjQbg75y7XUsfSzi3Dgzt0l8w5e7DylRn15MTlMMD58dTfzddNS2kcAjQ==
 
-html-loader@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/html-loader/-/html-loader-3.0.1.tgz#84d9094d7fc2e3fcd871d1524736953742758585"
-  integrity sha512-90Sxg9FhTkQEzmmHT2KOAQniTZgC72aifcfR0fZsuo1PJz0K4EXiTwxejTUombF8XShLj5RaZKYsUJhxR6G2dA==
+html-loader@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/html-loader/-/html-loader-3.1.0.tgz#e5b9c1cf81b043786b15145eb30181575a22d9c8"
+  integrity sha512-ycMYFRiCF7YANcLDNP72kh3Po5pTcH+bROzdDwh00iVOAY/BwvpuZ1BKPziQ35Dk9D+UD84VGX1Lu/H4HpO4fw==
   dependencies:
     html-minifier-terser "^6.0.2"
     parse5 "^6.0.1"
@@ -7713,10 +7713,10 @@ mini-css-extract-plugin@^1.6.0:
     schema-utils "^3.0.0"
     webpack-sources "^1.1.0"
 
-mini-css-extract-plugin@^2.4.5:
-  version "2.4.5"
-  resolved "https://registry.yarnpkg.com/mini-css-extract-plugin/-/mini-css-extract-plugin-2.4.5.tgz#191d6c170226037212c483af1180b4010b7b9eef"
-  integrity sha512-oEIhRucyn1JbT/1tU2BhnwO6ft1jjH1iCX9Gc59WFMg0n5773rQU0oyQ0zzeYFFuBfONaRbQJyGoPtuNseMxjA==
+mini-css-extract-plugin@^2.4.6:
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/mini-css-extract-plugin/-/mini-css-extract-plugin-2.5.2.tgz#b3b9b98320c2c054d92c16f6a94ddfdbbba13755"
+  integrity sha512-Lwgq9qLNyBK6yNLgzssXnq4r2+mB9Mz3cJWlM8kseysHIvTicFhDNimFgY94jjqlwhNzLPsq8wv4X+vOHtMdYA==
   dependencies:
     schema-utils "^4.0.0"
 
@@ -9282,10 +9282,10 @@ quick-lru@^4.0.1:
   resolved "https://registry.yarnpkg.com/quick-lru/-/quick-lru-4.0.1.tgz#5b8878f113a58217848c6482026c73e1ba57727f"
   integrity sha512-ARhCpm70fzdcvNQfPoy49IaanKkTlRWF2JMzqhcJbhSFRZv7nPTvZJdcY7301IPmvW+/p0RgIWnQDLJxifsQ7g==
 
-ramda@^0.27.1:
-  version "0.27.1"
-  resolved "https://registry.yarnpkg.com/ramda/-/ramda-0.27.1.tgz#66fc2df3ef873874ffc2da6aa8984658abacf5c9"
-  integrity sha512-PgIdVpn5y5Yns8vqb8FzBUEYn98V3xcPgawAkkgj0YJ0qDsnHCiNmZYfOGMgOvoB0eWFLpYbhxUR3mxfDIMvpw==
+ramda@^0.27.2:
+  version "0.27.2"
+  resolved "https://registry.yarnpkg.com/ramda/-/ramda-0.27.2.tgz#84463226f7f36dc33592f6f4ed6374c48306c3f1"
+  integrity sha512-SbiLPU40JuJniHexQSAgad32hfwd+DRUdwF2PlVuI5RZD0/vahUco7R8vD86J/tcEKKF9vZrUVwgtmGCqlCKyA==
 
 randombytes@^2.0.0, randombytes@^2.0.1, randombytes@^2.0.5, randombytes@^2.1.0:
   version "2.1.0"
