@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1637967821931,
+  "lastUpdate": 1642979182380,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -3750,6 +3750,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.55%",
             "unit": "ops/sec",
             "extra": "63 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7a99fae20ee9abf5f2121c1f1719bdcce3e78d98",
+          "message": "feat: Add endpoint.optimisticUpdater (#1616)\n\nCo-authored-by: Jordan Harband <ljharb@gmail.com>",
+          "timestamp": "2022-01-23T15:03:34-08:00",
+          "tree_id": "bde8c7fbaa3607bf5781820c2dd3803d933eb3fd",
+          "url": "https://github.com/coinbase/rest-hooks/commit/7a99fae20ee9abf5f2121c1f1719bdcce3e78d98"
+        },
+        "date": 1642979181046,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 104,
+            "range": "±2.62%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 42.09,
+            "range": "±1.03%",
+            "unit": "ops/sec",
+            "extra": "55 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 46.21,
+            "range": "±0.25%",
+            "unit": "ops/sec",
+            "extra": "61 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 107,
+            "range": "±1.77%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
           }
         ]
       }
