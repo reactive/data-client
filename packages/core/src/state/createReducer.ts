@@ -59,7 +59,7 @@ export default function createReducer(controller: Controller) {
         } else if (optimisticResponse) {
           receiveAction = legacyCreateReceive(optimisticResponse, {
             ...action.meta,
-            dataExpiryLength: 9999999999999,
+            dataExpiryLength: Infinity,
           });
         } else {
           // If 'fetch' action reaches the reducer there are no middlewares installed to handle it
