@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.2.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.1.0...@rest-hooks/normalizr@8.2.0-beta.0) (2022-01-23)
+
+
+### 🚀 Features
+
+* Add endpoint.optimisticUpdater ([#1616](https://github.com/coinbase/rest-hooks/issues/1616)) ([7a99fae](https://github.com/coinbase/rest-hooks/commit/7a99fae20ee9abf5f2121c1f1719bdcce3e78d98))
+
+
+
 ## [8.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.0.2...@rest-hooks/normalizr@8.1.0) (2021-10-11)
 
 
