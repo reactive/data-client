@@ -35,7 +35,7 @@ export default class ArticleResource extends Resource {
     SchemaDetail<Readonly<AbstractInstanceType<T>>>
   > {
     return super.partialUpdate().extend({
-      optimisticUpdate: (params: any, body: any) => ({
+      optimisticUpdater: (snap, params, body) => ({
         // we absolutely need the primary key here,
         // but won't be sent in a partial update
         id: params.id,
@@ -100,9 +100,10 @@ export default class ArticleResource extends Resource {
     SchemaDetail<Readonly<AbstractInstanceType<T>>>
   > {
     return super.create().extend({
-      optimisticUpdate: (
-        params: Readonly<object>,
-        body: Readonly<object | string> | void,
+      optimisticUpdater: (
+        snap,
+        params,
+        body,
       ) => body,
     });
   }
@@ -148,7 +149,7 @@ export default function CreateArticle() {
 ## Optimistic Deletes
 
 Since deletes [automatically update the cache correctly](./immediate-updates#delete) upon fetch success,
-making your delete endpoint do this optimistically is as easy as adding the [optimisticUpdate](../api/Endpoint#optimisticupdate)
+making your delete endpoint do this optimistically is as easy as adding the [optimisticUpdater](../api/Endpoint#optimisticupdater)
 function to your options.
 
 We return an empty string because that's the response we expect from the server. Although by
@@ -172,7 +173,7 @@ export default class ArticleResource extends Resource {
     this: T,
   ): MutateEndpoint<(p: Readonly<object>) => Promise<any>, schemas.Delete<T>> {
     return super.delete().extend({
-      optimisticUpdate: (params: any, body: any) => params,
+      optimisticUpdater: (snap, params, body) => params,
     });
   }
 }

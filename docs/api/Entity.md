@@ -1,6 +1,7 @@
 ---
 title: Entity
 ---
+
 <head>
   <title>Entity - Declarative Data Normalization | Rest Hooks</title>
 </head>
@@ -123,10 +124,15 @@ pk() {
 This defines the key for the Entity itself, rather than an instance. This needs to be a globally
 unique value.
 
-### static merge(existing, incoming): mergedValue {#merge}
+### static merge(existing, incoming, existingMeta, incomingMeta): mergedValue {#merge}
 
 ```typescript
-static merge<T extends typeof SimpleRecord>(existing: InstanceType<T>, incoming: InstanceType<T>) => InstanceType<T>
+static merge<T extends typeof SimpleRecord>(
+  existing: InstanceType<T>,
+  incoming: InstanceType<T>,
+  existingMeta: { date: number },
+  incomingMeta: { date: number },
+  ) => InstanceType<T>
 ```
 
 Merge is used to resolve the same entity. This can be because it was previously put in the cache,
