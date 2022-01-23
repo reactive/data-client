@@ -3,7 +3,7 @@ title: Snapshot
 ---
 
 <head>
-  <title>Controller - Imperative Controls for Rest Hooks</title>
+  <title>Snapshot - Safe data access for Rest Hooks</title>
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
@@ -26,15 +26,14 @@ interface Snapshot {
 
 </GenericsTabs>
 
-
-
-
-
 :::tip
 
 Use [Controller.snapshot()](./Controller.md#snapshot) to construct a snapshot
 
 :::
+
+Snapshots passed to user-defined function that are used to compute state updates. These
+allow safe and performant access to the denormalized data based on the current state.
 
 ## getResponse(endpoint, ...args) {#getResponse}
 
