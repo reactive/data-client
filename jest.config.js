@@ -38,6 +38,7 @@ const projects = [
     displayName: 'ReactDOM',
     setupFiles: ['<rootDir>/scripts/testSetup.js'],
     testEnvironment: 'jsdom',
+    transformIgnorePatterns: ['/node_modules/(?!@babel/runtime)'],
     testRegex: [
       '((/__tests__/(?!.*\\.node).*)|(\\.|/)(test|spec))\\.(j|t)sx?$',
     ],
@@ -56,7 +57,10 @@ const projects = [
         { rootMode: 'upward', targets: { node: 'current' } },
       ],
     },
-    transformIgnorePatterns: ['<rootDir>/.*__tests__/[^/]+\\.web\\.(j|t)sx?$'],
+    transformIgnorePatterns: [
+      '/node_modules/(?!@babel/runtime)',
+      '<rootDir>/.*__tests__/[^/]+\\.web\\.(j|t)sx?$',
+    ],
     testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.node\\.(j|t)sx?$',
   },
   /*{

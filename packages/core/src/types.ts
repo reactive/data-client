@@ -19,24 +19,17 @@ import {
   UNSUBSCRIBE_TYPE,
   INVALIDATE_TYPE,
   GC_TYPE,
+  OPTIMISTIC_TYPE,
 } from '@rest-hooks/core/actionTypes';
 import type Controller from '@rest-hooks/core/controller/Controller';
+import type { ErrorTypes } from '@rest-hooks/endpoint';
+import type { EndpointUpdateFunction } from '@rest-hooks/core/controller/types';
 
 export type { AbstractInstanceType, UpdateFunction };
 
 export type ReceiveTypes = typeof RECEIVE_TYPE;
 
 export type PK = string;
-
-export interface NetworkError extends Error {
-  status: number;
-  response?: Response;
-}
-
-export interface UnknownError extends Error {
-  status?: unknown;
-  response?: unknown;
-}
 
 export type State<T> = Readonly<{
   entities: {
@@ -47,7 +40,7 @@ export type State<T> = Readonly<{
   meta: {
     readonly [key: string]: {
       readonly date: number;
-      readonly error?: NetworkError | UnknownError;
+      readonly error?: ErrorTypes;
       readonly expiresAt: number;
       readonly prevExpiresAt?: number;
       readonly invalidated?: boolean;
@@ -62,7 +55,7 @@ export type State<T> = Readonly<{
       };
     };
   };
-  optimistic: ReceiveAction[];
+  optimistic: (ReceiveAction | OptimisticAction)[];
   lastReset: Date | number;
 }>;
 
@@ -92,6 +85,30 @@ export type ReceiveAction<
   Payload,
   ReceiveMeta<S>
 > & { endpoint?: EndpointInterface };
+
+export type OptimisticAction<
+  E extends EndpointInterface & {
+    update?: EndpointUpdateFunction<E>;
+  } = EndpointInterface & {
+    update?: EndpointUpdateFunction<EndpointInterface>;
+  },
+> = {
+  type: typeof OPTIMISTIC_TYPE;
+  meta: {
+    schema: E['schema'];
+    key: string;
+    args: readonly any[];
+    update?: (
+      result: any,
+      ...args: any
+    ) => Record<string, (...args: any) => any>;
+    date: number;
+    expiresAt: number;
+    errorPolicy?: (error: any) => 'soft' | undefined;
+  };
+  endpoint: E;
+  error?: undefined;
+};
 
 export interface ResetAction {
   type: typeof RESET_TYPE;
@@ -179,6 +196,7 @@ export type ResponseActions = ReceiveAction;
 // put other actions here in union
 export type ActionTypes =
   | FetchAction
+  | OptimisticAction
   | ReceiveAction
   | SubscribeAction
   | UnsubscribeAction

@@ -244,9 +244,9 @@ Mutations automatically update the normalized cache, resulting in consistent and
 
 ## Schema
 
-Schemas are a declarative definition of how to [process responses](./schema)
+Schemas are a declarative definition of how to [process responses](../api/schema)
 
-- [where](./schema) to expect [Entities](../api/Entity.md)
+- [where](../api/schema) to expect [Entities](../api/Entity.md)
 - Classes to [deserialize fields](../guides/network-transform#deserializing-fields)
 
 ```typescript

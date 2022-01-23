@@ -25,7 +25,7 @@ import {
   useResetter,
   useResource,
 } from '../hooks';
-import { initialState } from '../../state/reducer';
+import { initialState } from '../../state/createReducer';
 import { State, ActionTypes } from '../../types';
 import { INVALIDATE_TYPE, RESET_TYPE } from '../../actionTypes';
 import { users, articlesPages, payload } from '../test-fixtures';

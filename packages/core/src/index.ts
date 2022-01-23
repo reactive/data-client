@@ -4,9 +4,10 @@ export {
   ResetError,
 } from '@rest-hooks/core/state/NetworkManager';
 export {
-  default as reducer,
+  default as createReducer,
   initialState,
-} from '@rest-hooks/core/state/reducer';
+} from '@rest-hooks/core/state/createReducer';
+export { default as reducer } from '@rest-hooks/core/state/reducerInstance';
 export { default as applyManager } from '@rest-hooks/core/state/applyManager';
 export { useDenormalized } from '@rest-hooks/core/state/selectors/index';
 export {
@@ -37,7 +38,7 @@ export {
   ControllerContext,
 } from '@rest-hooks/core/react-integration/context';
 export { default as Controller } from '@rest-hooks/core/controller/Controller';
-export { ExpiryStatus } from '@rest-hooks/core/controller/Expiry';
+export { ExpiryStatus } from '@rest-hooks/endpoint';
 
 export * from '@rest-hooks/core/controller/types';
 export * from '@rest-hooks/core/state/actions/index';

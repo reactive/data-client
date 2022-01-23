@@ -18,7 +18,7 @@ import {
   createReceive,
   createReceiveError,
 } from '@rest-hooks/core/state/actions/index';
-import { initialState } from '@rest-hooks/core/state/reducer';
+import { initialState } from '@rest-hooks/core/state/createReducer';
 import Controller from '@rest-hooks/core/controller/Controller';
 
 export class ResetError extends Error {
@@ -63,7 +63,10 @@ export default class NetworkManager implements Manager {
               // This is the only case that causes any state change
               // It's important to intercept other fetches as we don't want to trigger reducers during
               // render - so we need to stop 'readonly' fetches which can be triggered in render
-              if (action.meta.optimisticResponse !== undefined) {
+              if (
+                action.meta.optimisticResponse !== undefined ||
+                action.endpoint?.optimisticUpdater !== undefined
+              ) {
                 return next(action);
               }
               return Promise.resolve();

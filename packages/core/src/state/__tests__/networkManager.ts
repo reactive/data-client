@@ -5,7 +5,7 @@ import NetworkManager from '../NetworkManager';
 import { FetchAction } from '../../types';
 import { RECEIVE_TYPE } from '../../actionTypes';
 import { createFetch } from '../actions';
-import { initialState } from '../reducer';
+import { initialState } from '../createReducer';
 
 describe('NetworkManager', () => {
   const manager = new NetworkManager();

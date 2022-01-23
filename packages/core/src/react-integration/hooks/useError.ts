@@ -1,5 +1,5 @@
 import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
-import { NetworkError, UnknownError } from '@rest-hooks/core/types';
+import type { NetworkError, UnknownError } from '@rest-hooks/endpoint';
 import { useMemo } from 'react';
 import shapeToEndpoint from '@rest-hooks/core/endpoint/adapter';
 import useErrorNew from '@rest-hooks/core/react-integration/newhooks/useError';

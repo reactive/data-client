@@ -71,7 +71,12 @@ const addEntities =
     const existingEntity = entities[schemaKey][id];
     if (existingEntity) {
       // TODO: maybe have distinct merge function for this case
-      entities[schemaKey][id] = schema.merge(existingEntity, processedEntity);
+      entities[schemaKey][id] = schema.merge(
+        existingEntity,
+        processedEntity,
+        entityMeta[schemaKey][id],
+        meta,
+      );
     } else {
       // TODO: eventually assume this exists and don't check for conditional. probably early 2022
       const entityExpiresAt = schema.expiresAt
@@ -79,9 +84,10 @@ const addEntities =
         : meta.expiresAt;
 
       const inStoreEntity = existingEntities[schemaKey][id];
+      // this case we already have this entity in store
       if (inStoreEntity) {
-        // this case we already have this entity in store
-
+        const inStoreMeta = entityMeta[schemaKey][id];
+        const incomingMeta = meta;
         // if either of these is undefined, it resolves to 'false' which
         // means we fallback to 'newer' (processedEntity) takes priority
         const preferExisting = entityMeta[schemaKey][id]?.date > meta.date;
@@ -92,8 +98,18 @@ const addEntities =
         } else {
           // second argument takes priority over first
           entities[schemaKey][id] = preferExisting
-            ? schema.merge(processedEntity, inStoreEntity)
-            : schema.merge(inStoreEntity, processedEntity);
+            ? schema.merge(
+                processedEntity,
+                inStoreEntity,
+                incomingMeta,
+                inStoreMeta,
+              )
+            : schema.merge(
+                inStoreEntity,
+                processedEntity,
+                inStoreMeta,
+                incomingMeta,
+              );
         }
 
         entityMeta[schemaKey][id] =

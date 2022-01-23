@@ -7,7 +7,7 @@ import {
 } from '@rest-hooks/endpoint';
 import { useContext, useMemo } from 'react';
 import { StateContext } from '@rest-hooks/core/react-integration/context';
-import { ExpiryStatus } from '@rest-hooks/core/controller/Expiry';
+import { ExpiryStatus } from '@rest-hooks/endpoint';
 import useController from '@rest-hooks/core/react-integration/hooks/useController';
 
 /**

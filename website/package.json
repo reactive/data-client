@@ -25,6 +25,7 @@
     "@docusaurus/preset-classic": "^2.0.0-beta.14",
     "@docusaurus/theme-live-codeblock": "^2.0.0-beta.14",
     "@rest-hooks/endpoint": "^2.1.0",
+    "@rest-hooks/hooks": "^2.1.0",
     "@rest-hooks/graphql": "^0.1.1",
     "@rest-hooks/rest": "^3.0.1",
     "bignumber.js": "^9.0.2",

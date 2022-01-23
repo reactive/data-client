@@ -19,7 +19,7 @@ import {
 } from '../../../../test';
 import { DispatchContext, StateContext } from '../context';
 import { useFetcher, useRetrieve, useInvalidator, useResetter } from '../hooks';
-import { initialState } from '../../state/reducer';
+import { initialState } from '../../state/createReducer';
 import { State, ActionTypes } from '../../types';
 import { INVALIDATE_TYPE, RESET_TYPE } from '../../actionTypes';
 import { users, articlesPages, payload } from '../test-fixtures';

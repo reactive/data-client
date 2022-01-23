@@ -2,6 +2,8 @@
 title: Optimistic Updates
 ---
 
+import HooksPlayground from '@site/src/components/HooksPlayground';
+
 Optimistic updates enable highly responsive and fast interfaces by avoiding network wait times.
 An update is optimistic by assuming the network is successful. In the case of any errors, Rest
 Hooks will then roll back any changes in a way that deals with all possible race conditions.
@@ -35,7 +37,7 @@ export default class ArticleResource extends Resource {
     SchemaDetail<Readonly<AbstractInstanceType<T>>>
   > {
     return super.partialUpdate().extend({
-      optimisticUpdate: (params: any, body: any) => ({
+      optimisticUpdater: (snap, params, body) => ({
         // we absolutely need the primary key here,
         // but won't be sent in a partial update
         id: params.id,
@@ -100,10 +102,7 @@ export default class ArticleResource extends Resource {
     SchemaDetail<Readonly<AbstractInstanceType<T>>>
   > {
     return super.create().extend({
-      optimisticUpdate: (
-        params: Readonly<object>,
-        body: Readonly<object | string> | void,
-      ) => body,
+      optimisticUpdater: (snap, params, body) => body,
     });
   }
 }
@@ -148,7 +147,7 @@ export default function CreateArticle() {
 ## Optimistic Deletes
 
 Since deletes [automatically update the cache correctly](./immediate-updates#delete) upon fetch success,
-making your delete endpoint do this optimistically is as easy as adding the [optimisticUpdate](../api/Endpoint#optimisticupdate)
+making your delete endpoint do this optimistically is as easy as adding the [optimisticUpdater](../api/Endpoint#optimisticupdater)
 function to your options.
 
 We return an empty string because that's the response we expect from the server. Although by
@@ -172,8 +171,198 @@ export default class ArticleResource extends Resource {
     this: T,
   ): MutateEndpoint<(p: Readonly<object>) => Promise<any>, schemas.Delete<T>> {
     return super.delete().extend({
-      optimisticUpdate: (params: any, body: any) => params,
+      optimisticUpdater: (snap, params, body) => params,
     });
   }
 }
 ```
+
+## Optimistic Transforms
+
+Sometimes user actions should result in data transformations that are dependent on the previous state of data.
+The simplest examples of this are toggling a boolean, or incrementing a counter; but the same principal applies to
+more complicated transforms. To make it more obvious we're using a simple counter here.
+
+<HooksPlayground>
+
+```ts
+class CountEntity extends Entity {
+  readonly id = 0;
+  readonly count = 0;
+
+  pk() {
+    return `${this.id}`;
+  }
+}
+const simulatedServerStateCount = 0;
+const getCount = new Endpoint(
+  (id: number) => Promise.resolve({ id, count: simulatedServerStateCount }),
+  {
+    name: 'get',
+    schema: CountEntity,
+  },
+);
+const increment = new Endpoint(
+  (id: number) =>
+    new Promise(resolve => {
+      const serverState = { id, count: ++simulatedServerStateCount };
+      // resolve from 500ms -> 5 seconds. Represents network variance.
+      // making state computed before hand allows demonstrating out of order race conditions
+      setTimeout(() => resolve(serverState), 500 + Math.random() * 4500);
+    }),
+  {
+    name: 'increment',
+    schema: CountEntity,
+    sideEffect: true,
+    optimisticUpdater(snap, id) {
+      const { data } = snap.getResponse(increment, id);
+      if (!data) throw new AbortOptimistic();
+      return {
+        id,
+        count: data.count + 1,
+      };
+    },
+  },
+);
+
+function CounterPage() {
+  const { fetch } = useController();
+  const { count } = useSuspense(getCount, 1);
+  const [clickHandler, loading, error] = useLoading(() => fetch(increment, 1));
+  return (
+    <div>
+      <p>
+        Click the button multiple times quickly to trigger the race condition
+      </p>
+      <div>
+        {count} <button onClick={clickHandler}>+</button>
+        {loading ? ' ...loading' : ''}
+      </div>
+    </div>
+  );
+}
+render(<CounterPage />);
+```
+
+</HooksPlayground>
+
+Try removing `optimisticUpdater` from the increment [Endpoint](../api/Endpoint.md). Even without optimistic updates, this race condition can be a real problem. While it is less likely with fast endpoints;
+slower or less reliable internet connections means a slow response time no matter how fast the server is.
+
+The problem is that the responses come back in a different order than they are computed. If we can determine the
+correct 'total order', we would be able to solve this problem.
+
+Without optimistic updates, this can be achieved simply by having the server return a timestamp of when it was last updated.
+The client can then choose to ignore responses that are out of date by their time of resolution.
+
+### Vector Clocks
+
+However, when doing an optimistic update, we now have two distinct nodes computed derived data. Optimistic updates
+represent the client's computation and the server also computes derivations. Much like the [real world](https://en.wikipedia.org/wiki/Theory_of_relativity)
+agreeing on a total order of events is no longer possible. However, using [vector clocks](https://en.wikipedia.org/wiki/Vector_clock)
+allows us to maintain agreement on a *casual* order.
+
+The key things to observe in the code example is the added field `updatedAt`, which is our vector clock, as well
+as how it is used in our new [static merge()](../api/Entity#merge) as well as updates to [optimisticUpdater](../api/Endpoint.md#optimisticupdater).
+
+<HooksPlayground>
+
+```ts
+class CountEntity extends Entity {
+  readonly id = 0;
+  readonly count = 0;
+  readonly updatedAt = { client: 0, server: 0 };
+
+  pk() {
+    return `${this.id}`;
+  }
+
+  static merge(existing, incoming) {
+    if (
+      existing.updatedAt.client < incoming.updatedAt.client ||
+      existing.updatedAt.server < incoming.updatedAt.server
+    ) {
+      return {
+        ...existing,
+        ...incoming,
+        updatedAt: {
+          client: Math.max(
+            existing.updatedAt.client,
+            incoming.updatedAt.client,
+          ),
+          server: Math.max(
+            existing.updatedAt.server,
+            incoming.updatedAt.server,
+          ),
+        },
+      };
+    }
+    return existing;
+  }
+}
+const simulatedServerStateCount = 0;
+const getCount = new Endpoint(
+  (id: number) =>
+    Promise.resolve({
+      id,
+      count: simulatedServerStateCount,
+      updatedAt: { client: 0, server: Date.now() },
+    }),
+  {
+    name: 'get',
+    schema: CountEntity,
+  },
+);
+const increment = new Endpoint(
+  (id: number) =>
+    new Promise(resolve => {
+      const serverState = {
+        id,
+        count: ++simulatedServerStateCount,
+        updatedAt: { client: Date.now(), server: Date.now() + 200 },
+      };
+      // resolve from 500ms -> 5 seconds. Represents network variance.
+      // making state computed before hand allows demonstrating out of order race conditions
+      setTimeout(() => resolve(serverState), 500 + Math.random() * 4500);
+    }),
+  {
+    name: 'increment',
+    schema: CountEntity,
+    sideEffect: true,
+    optimisticUpdater(snap, id) {
+      const { data } = snap.getResponse(increment, id);
+      // server already has this optimistic computation then do nothing
+      if (!data || snap.date <= data.updatedAt.client) throw new AbortOptimistic();
+      return {
+        id,
+        count: data.count + 1,
+        updatedAt: {
+          client: snap.date,
+          server: data.updatedAt.server,
+        },
+      };
+    },
+  },
+);
+
+function CounterPage() {
+  const { fetch } = useController();
+  const { count } = useSuspense(getCount, 1);
+  const [clickHandler, loading, error] = useLoading(() => fetch(increment, 1));
+  return (
+    <div>
+      <p>
+        Click the button multiple times quickly to trigger the potential race condition.
+        This time our vector clock protects us.
+      </p>
+      <div>
+        {count} <button onClick={clickHandler}>+</button>
+        {loading ? ' ...loading' : ''}
+      </div>
+    </div>
+  );
+}
+render(<CounterPage />);
+```
+
+</HooksPlayground>

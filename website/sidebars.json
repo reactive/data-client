@@ -273,6 +273,10 @@
             },
             {
               "type": "doc",
+              "id": "api/Snapshot"
+            },
+            {
+              "type": "doc",
               "id": "api/useSuspense"
             },
             {

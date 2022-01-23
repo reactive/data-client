@@ -68,11 +68,18 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   /** Marks cached resources as invalid if they are stale */
   readonly invalidIfStale?: boolean;
   /** Enables optimistic updates for this request - uses return value as assumed network response */
-  readonly optimisticUpdate?: (...args: Parameters<F>) => ResolveType<F>;
+  readonly optimisticUpdater?: (
+    snap: SnapshotInterface,
+    ...args: Parameters<F>
+  ) => ResolveType<F>;
   /** Determines whether to throw or fallback to */
   readonly errorPolicy?: (error: any) => 'soft' | undefined;
   /** User-land extra data to send */
   readonly extra?: any;
+  /** Enables optimistic updates for this request - uses return value as assumed network response
+   * @deprecated use https://resthooks.io/docs/api/Endpoint#optimisticupdater instead
+   */
+  readonly optimisticUpdate?: (...args: Parameters<F>) => ResolveType<F>;
 }
 ```
 
@@ -170,13 +177,21 @@ that useSuspense() will suspend when data is stale even if it already exists in 
 Frequency in millisecond to poll at. Requires using [useSubscription()](./useSubscription.md) to have
 an effect.
 
-#### optimisticUpdate: (...args) => fakePayload {#optimisticupdate}
+#### optimisticUpdater: (snap, ...args) => fakePayload {#optimisticupdater}
 
 When provided, any fetches with this endpoint will behave as though the `fakePayload` return value
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
 
 [Optimistic update guide](../guides/optimistic-updates.md)
+
+#### optimisticUpdate: (...args) => fakePayload {#optimisticupdate}
+
+:::caution Deprecated
+
+Use [endpoint.optimisticUpdater](#optimisticUpdater) instead.
+
+:::
 
 #### update(normalizedResponseOfThis) => ({ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
 
@@ -387,4 +402,4 @@ TypeScript the definition of a networking API.
 
 ## See also
 
-- [Index](./Index)
+- [Index](./Index.md)

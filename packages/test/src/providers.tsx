@@ -1,6 +1,6 @@
 import {
   State,
-  reducer,
+  createReducer,
   CacheProvider,
   Manager,
   Controller,
@@ -39,6 +39,7 @@ try {
   ) {
     const selector = (s: { restHooks: State<unknown> }) => s.restHooks;
     const controller = new Controller();
+    const reducer = createReducer(controller);
     const store = createStore(
       combineReducers({ restHooks: reducer }),
       { restHooks: initialState },
@@ -67,7 +68,11 @@ try {
       }, []);
 
       return (
-        <ExternalCacheProvider store={store} selector={selector}>
+        <ExternalCacheProvider
+          store={store}
+          selector={selector}
+          controller={controller}
+        >
           {children}
         </ExternalCacheProvider>
       );

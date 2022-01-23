@@ -316,17 +316,17 @@ as any mutations that occur.
 By using the response of the mutation call to update the Rest Hooks store, we were able to
 keep our components updated automatically and only after one request.
 
-However, after toggling todo.completed, this is just too slow! No worries, [optimisticUpdate](./guides/optimistic-updates.md) tells
+However, after toggling todo.completed, this is just too slow! No worries, [optimisticUpdater](./guides/optimistic-updates.md) tells
 Rest Hooks what response it _expects_ to receive from the mutation call, Rest Hooks
 can **immediately** update **all** components using the relevant entity.
 
 ```typescript
-const optimisticUpdate = (params: Params, body: FormData) => ({
+const optimisticUpdater = (snap: SnapshotInterface, params: Params, body: FormData) => ({
   id: params.id,
   ...body,
 });
 todoUpdate = todoUpdate.extend({
-  optimisticUpdate,
+  optimisticUpdater,
 });
 ```
 
@@ -337,7 +337,7 @@ problems in asynchronous programming.
 <details><summary><b>todoUpdate</b></summary>
 
 ```typescript {16}
-import { Endpoint } from '@rest-hooks/endpoint';
+import { Endpoint, SnapshotInterface } from '@rest-hooks/endpoint';
 
 interface Params {
   id: number;
@@ -352,10 +352,10 @@ const fetchTodoUpdate = ({ id }: Params, body: FormData) =>
 const todoUpdate = new Endpoint(fetchTodoUpdate, {
   sideEffect: true,
   schema: Todo,
-  optimisticUpdate,
+  optimisticUpdater,
 });
 
-const optimisticUpdate = (params: Params, body: FormData) => ({
+const optimisticUpdater = (snap: SnapshotInterface, params: Params, body: FormData) => ({
   id: params.id,
   ...body,
 });

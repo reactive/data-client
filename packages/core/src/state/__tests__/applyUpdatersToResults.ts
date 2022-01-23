@@ -7,12 +7,6 @@ describe('applyUpdatersToResults', () => {
     [ArticleResourceWithOtherListUrl.listShape().getFetchKey({})]: ['1', '2'],
   };
 
-  it('returns results if updaters is not defined', () => {
-    expect(applyUpdatersToResults(results, '3', undefined)).toStrictEqual(
-      results,
-    );
-  });
-
   it('handles a single updater', () => {
     const newResults = applyUpdatersToResults(results, '3', {
       [ArticleResourceWithOtherListUrl.listShape().getFetchKey({})]: (

@@ -16,9 +16,8 @@ export default function applyUpdatersToResults<
 >(
   results: ResultStateFromUpdateFunctions<SourceSchema, UpdateFunctions>,
   result: Normalize<SourceSchema>,
-  updaters: UpdateFunctions | undefined,
+  updaters: UpdateFunctions,
 ) {
-  if (!updaters) return results;
   return {
     ...results,
     ...Object.fromEntries(

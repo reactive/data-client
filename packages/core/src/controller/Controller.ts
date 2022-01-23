@@ -3,14 +3,15 @@ import type {
   EndpointInterface,
   FetchFunction,
   ResolveType,
+  DenormalizeNullable,
 } from '@rest-hooks/endpoint';
 import createInvalidate from '@rest-hooks/core/controller/createInvalidate';
 import createFetch from '@rest-hooks/core/controller/createFetch';
 import createReset from '@rest-hooks/core/controller/createReset';
-import { selectMeta } from '@rest-hooks/core/state/selectors/index';
+import selectMeta from '@rest-hooks/core/state/selectors/selectMeta';
 import createReceive from '@rest-hooks/core/controller/createReceive';
-import { NetworkError, UnknownError } from '@rest-hooks/core/types';
-import { ExpiryStatus } from '@rest-hooks/core/controller/Expiry';
+import type { ErrorTypes, SnapshotInterface } from '@rest-hooks/endpoint';
+import { ExpiryStatus } from '@rest-hooks/endpoint';
 import {
   createUnsubscription,
   createSubscription,
@@ -19,7 +20,6 @@ import type { EndpointUpdateFunction } from '@rest-hooks/core/controller/types';
 import {
   denormalize,
   DenormalizeCache,
-  DenormalizeNullable,
   isEntity,
   Schema,
   WeakListMap,
@@ -181,6 +181,13 @@ export default class Controller {
   ): Promise<void>
   */
 
+  snapshot = (
+    state: State<unknown>,
+    fetchStart?: number,
+  ): SnapshotInterface => {
+    return new Snapshot(this, state, fetchStart);
+  };
+
   getError = <E extends Pick<EndpointInterface, 'key'>>(
     endpoint: E,
     ...rest:
@@ -253,7 +260,7 @@ export default class Controller {
       }
       if (typeof results === 'object') {
         throw new Error(
-          `fetch key ${key} has object results when single result is expected`,
+          `fetch key ${key} has object results when entity's primary key (string) result is expected`,
         );
       }
     }
@@ -340,4 +347,37 @@ function schemaHasEntity(schema: Schema): boolean {
   return false;
 }
 
-export type ErrorTypes = NetworkError | UnknownError;
+export type { ErrorTypes };
+
+class Snapshot<T = unknown> implements SnapshotInterface {
+  private state: State<T>;
+  private controller: Controller;
+  readonly fetchStart: number;
+
+  constructor(controller: Controller, state: State<T>, fetchStart = 0) {
+    this.state = state;
+    this.controller = controller;
+    this.fetchStart = fetchStart;
+  }
+
+  /*************** Data Access ***************/
+  getResponse = <
+    E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
+  >(
+    endpoint: E,
+    ...args: readonly [...Parameters<E['key']>] | readonly [null]
+  ): {
+    data: DenormalizeNullable<E['schema']>;
+    expiryStatus: ExpiryStatus;
+    expiresAt: number;
+  } => {
+    return this.controller.getResponse(endpoint, ...args, this.state);
+  };
+
+  getError = <E extends Pick<EndpointInterface, 'key'>>(
+    endpoint: E,
+    ...args: readonly [...Parameters<E['key']>] | readonly [null]
+  ): ErrorTypes | undefined => {
+    return this.controller.getError(endpoint, ...args, this.state);
+  };
+}

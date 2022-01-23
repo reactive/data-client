@@ -17,108 +17,6 @@ import {
 } from '@rest-hooks/rest';
 import React, { createContext, useContext } from 'react';
 
-interface Vis {
-  readonly id: number | undefined;
-  readonly visType: 'graph' | 'line';
-  readonly numCols: number;
-  readonly updatedAt: { client: number; server: number };
-}
-
-export class VisSettings extends Resource implements Vis {
-  readonly id: number | undefined = undefined;
-  readonly visType: 'graph' | 'line' = 'graph' as const;
-  readonly numCols: number = 0;
-  readonly updatedAt: { client: number; server: number } = {
-    client: 0,
-    server: 0,
-  };
-
-  pk() {
-    return `${this.id}`;
-  }
-
-  static urlRoot = 'http://test.com/vis-settings/';
-
-  static merge(
-    existing: any,
-    incoming: any, //Partial<Vis> & { updatedAt: { client: number; server: number } },
-  ) {
-    if (
-      existing.updatedAt.client < incoming.updatedAt.client ||
-      existing.updatedAt.server < incoming.updatedAt.server
-    ) {
-      return {
-        ...existing,
-        ...incoming,
-        updatedAt: {
-          client: Math.max(
-            existing.updatedAt.client,
-            incoming.updatedAt.client,
-          ),
-          server: Math.max(
-            existing.updatedAt.server,
-            incoming.updatedAt.server,
-          ),
-        },
-      };
-    }
-    return existing;
-  }
-
-  static partialUpdate<T extends typeof Resource>(
-    this: T,
-  ): RestEndpoint<
-    FetchMutate<{ id: number }, Partial<Exclude<Vis, 'updatedAt'>>>,
-    T,
-    true
-  > {
-    const detail: RestEndpoint<FetchGet, VisSettings> = this.detail() as any;
-    const partial = super.partialUpdate();
-    return partial.extend({
-      fetch(params, body) {
-        return partial(params, { ...body, updatedAt: Date.now() });
-      },
-      optimisticUpdater(snap, params, body) {
-        const { data } = snap.getResponse(detail, params);
-        return {
-          id: params.id,
-          ...body,
-          updatedAt: {
-            client: snap.fetchStart,
-            server: data.updatedAt.server,
-          },
-        };
-      },
-      schema: this,
-    });
-  }
-
-  static incrementCols(): RestEndpoint<
-    (id: number) => Promise<any>,
-    typeof VisSettings,
-    true
-  > {
-    const detail: RestEndpoint<FetchGet, VisSettings> = this.detail() as any;
-
-    return this.endpointMutate().extend({
-      name: 'incrementCols',
-      url: (id: number) => `${this.urlRoot}{id}/incCol`,
-      optimisticUpdater(snap, id: number) {
-        const { data } = snap.getResponse(detail, { id });
-        return {
-          ...data,
-          numCols: data.numCols + 1,
-          updatedAt: {
-            client: snap.fetchStart,
-            server: data.updatedAt.server,
-          },
-        };
-      },
-      schema: this,
-    });
-  }
-}
-
 export class UserResource extends Resource {
   readonly id: number | undefined = undefined;
   readonly username: string = '';
@@ -131,7 +29,6 @@ export class UserResource extends Resource {
 
   static urlRoot = 'http://test.com/user/';
 }
-
 export class ArticleResource extends Resource {
   readonly id: number | undefined = undefined;
   readonly title: string = '';
@@ -184,10 +81,8 @@ export class ArticleResource extends Resource {
   static partialUpdate<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<FetchMutate, T, true> {
-    const detail = this.detail();
     return super.partialUpdate().extend({
-      optimisticUpdater: (snap, params, body) => ({
-        //...snap.getResponse(detail, params),
+      optimisticUpdate: (params: any, body: any) => ({
         id: params.id,
         ...body,
       }),
@@ -197,7 +92,7 @@ export class ArticleResource extends Resource {
 
   static delete<T extends typeof Resource>(this: T) {
     return super.delete().extend({
-      optimisticUpdater: (snap, params) => params,
+      optimisticUpdate: (params: any) => params,
       schema: new schema.Delete(this),
     });
   }
@@ -243,44 +138,15 @@ export class ArticleResourceWithOtherListUrl extends ArticleResource {
   }
 
   static create<T extends typeof Resource>(this: T) {
-    const list = ArticleResourceWithOtherListUrl.list();
-    const otherList = ArticleResourceWithOtherListUrl.otherList();
     return super.create().extend({
-      optimisticUpdater: (snap, params, body) => body,
+      optimisticUpdate: (
+        params: Readonly<object>,
+        body: Readonly<object | string> | void,
+      ) => body,
       schema: this,
-      update: (newArticleID: string) => ({
-        [list.key({})]: (articleIDs: string[] | undefined) => [
-          ...(articleIDs || []),
-          newArticleID,
-        ],
-        [otherList.key({})]: (articleIDs: string[] | undefined) => [
-          ...(articleIDs || []),
-          newArticleID,
-        ],
-      }),
     });
   }
 }
-/*
-        [
-          [
-            ArticleResourceWithOtherListUrl.list(),
-            {},
-            (newArticleID: string, articleIDs: string[] | undefined) => [
-              ...(articleIDs || []),
-              newArticleID,
-            ],
-          ],
-          [
-            ArticleResourceWithOtherListUrl.otherList(),
-            {},
-            (newArticleID: string, articleIDs: string[] | undefined) => [
-              ...(articleIDs || []),
-              newArticleID,
-            ],
-          ],
-        ],
-        */
 
 export class CoolerArticleResource extends ArticleResource {
   static urlRoot = 'http://test.com/article-cooler/';
