@@ -51,7 +51,7 @@ If you used the [custom superagent fetch](../guides/custom-networking#superagent
 </Tabs>
 
 You can also do more complex flows (like adding arbitrary headers) to
-the request. Every [getFetchInit()](api/resource#getFetchInit) takes in the existing [init options](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) of fetch, and returns new init options to be used.
+the request. Every [getFetchInit()](../api/Resource.md#getFetchInit) takes in the existing [init options](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) of fetch, and returns new init options to be used.
 
 ## Access Tokens
 

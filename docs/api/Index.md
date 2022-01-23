@@ -1,5 +1,6 @@
 ---
 title: Index
+slug: Index
 ---
 
 ```typescript
