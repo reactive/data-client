@@ -2197,6 +2197,13 @@
   dependencies:
     "@babel/runtime" "^7.7.2"
 
+"@rest-hooks/hooks@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@rest-hooks/hooks/-/hooks-2.1.0.tgz#2dba91a17f7cae468c2bff80b457ff14cc1e553d"
+  integrity sha512-640qmK6e5rv5bBSshqIiAUXMVw9tLecpPhm5CaAoVoF0mCpH2DDPJFusYplc4iBWg1Tkrear7ldYxCScaJJPig==
+  dependencies:
+    "@babel/runtime" "^7.7.2"
+
 "@rest-hooks/normalizr@^8.1.0":
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/@rest-hooks/normalizr/-/normalizr-8.1.0.tgz#50946696720c8b132d1b1a6e23972da0901e6eac"

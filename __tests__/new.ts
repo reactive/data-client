@@ -84,7 +84,7 @@ export class VisSettings extends Resource implements Vis {
           id: params.id,
           ...body,
           updatedAt: {
-            client: snap.date,
+            client: snap.fetchStart,
             server: data.updatedAt.server,
           },
         };
@@ -109,7 +109,7 @@ export class VisSettings extends Resource implements Vis {
           ...data,
           numCols: data.numCols + 1,
           updatedAt: {
-            client: snap.date,
+            client: snap.fetchStart,
             server: data.updatedAt.server,
           },
         };

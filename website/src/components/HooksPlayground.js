@@ -1,6 +1,7 @@
 import React, { useEffect, useState, memo } from 'react';
 import * as restHooks from 'rest-hooks';
 import * as rest from '@rest-hooks/rest';
+import * as hooks from '@rest-hooks/hooks';
 import * as graphql from '@rest-hooks/graphql';
 import BigNumber from 'bignumber.js';
 
@@ -90,6 +91,7 @@ const scope = {
   ...restHooks,
   ...rest,
   ...graphql,
+  ...hooks,
   mockFetch,
   BigNumber,
   lastUpdated,

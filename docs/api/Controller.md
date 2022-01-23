@@ -23,7 +23,7 @@ class Controller {
   /*************** Data Access ***************/
   getResponse(endpoint, ...args, state)​ => { data, expiryStatus, expiresAt };
   getError(endpoint, ...args, state)​ => ErrorTypes | undefined;
-  snapshot(state: State<unknown>, date?: number): SnapshotInterface;
+  snapshot(state: State<unknown>, fetchStart?: number): SnapshotInterface;
 }
 ```
 
@@ -357,6 +357,6 @@ export default class MyManager implements Manager {
 Gets the error, if any, for a given endpoint. Returns undefined for no errors.
 
 
-## snapshot(state, date) {#snapshot}
+## snapshot(state, fetchStart) {#snapshot}
 
 Returns a [Snapshot](./Snapshot.md).

@@ -53,6 +53,7 @@ jobs:
 
   lint:
     docker: *docker
+    resource_class: large
     steps:
       - attach_workspace:
           at: ~/

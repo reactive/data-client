@@ -181,8 +181,11 @@ export default class Controller {
   ): Promise<void>
   */
 
-  snapshot = (state: State<unknown>, date?: number): SnapshotInterface => {
-    return new Snapshot(this, state, date);
+  snapshot = (
+    state: State<unknown>,
+    fetchStart?: number,
+  ): SnapshotInterface => {
+    return new Snapshot(this, state, fetchStart);
   };
 
   getError = <E extends Pick<EndpointInterface, 'key'>>(
@@ -349,12 +352,12 @@ export type { ErrorTypes };
 class Snapshot<T = unknown> implements SnapshotInterface {
   private state: State<T>;
   private controller: Controller;
-  readonly date: number;
+  readonly fetchStart: number;
 
-  constructor(controller: Controller, state: State<T>, date = 0) {
+  constructor(controller: Controller, state: State<T>, fetchStart = 0) {
     this.state = state;
     this.controller = controller;
-    this.date = date;
+    this.fetchStart = fetchStart;
   }
 
   /*************** Data Access ***************/

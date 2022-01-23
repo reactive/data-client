@@ -19,7 +19,7 @@ import GenericsTabs from '@site/src/components/GenericsTabs';
 interface Snapshot {
   getResponse(endpoint, ...args)​ => { data, expiryStatus, expiresAt };
   getError(endpoint, ...args)​ => ErrorTypes | undefined;
-  date: number;
+  fetchStart: number;
 }
 ```
 <CodeBlock className="language-typescript">{EndpointInterfaceSource}</CodeBlock>
@@ -86,6 +86,6 @@ A number representing time when it expires. Compare to Date.now().
 Gets the error, if any, for a given endpoint. Returns undefined for no errors.
 
 
-## date
+## fetchStart
 
 When the fetch was called that resulted in this snapshot.
