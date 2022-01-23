@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.2.0-beta.3](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.0-beta.2...rest-hooks@6.2.0-beta.3) (2022-01-23)
+
+
+### 🚀 Features
+
+* Add endpoint.optimisticUpdater ([#1616](https://github.com/coinbase/rest-hooks/issues/1616)) ([7a99fae](https://github.com/coinbase/rest-hooks/commit/7a99fae20ee9abf5f2121c1f1719bdcce3e78d98))
+
+
+
 ## [6.2.0-beta.2](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.0-beta.1...rest-hooks@6.2.0-beta.2) (2021-11-26)
 
 **Note:** Version bump only for package rest-hooks

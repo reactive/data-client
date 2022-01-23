@@ -5,7 +5,10 @@
     "examples/*"
   ],
   "scripts": {
-    "release": "lerna publish",
+    "release": "lerna publish --no-private",
+    "version": "lerna version --no-private",
+    "version:breaking": "lerna version",
+    "version:beta": "lerna version --no-git-tag-version --conventional-prerelease",
     "lint": "eslint --ext .ts,.tsx,.js",
     "format": "eslint --fix \"packages/*/src/**/*.{js,ts,tsx}\"",
     "clean": "lerna clean",
@@ -36,7 +39,7 @@
     "@babel/node": "^7.14.2",
     "@commitlint/cli": "^16.0.0",
     "@commitlint/config-conventional": "^16.0.0",
-    "@rest-hooks/test": "^7.0.0-beta.0",
+    "@rest-hooks/test": "^7.2.0-beta.0",
     "@testing-library/react": "^12.0.0",
     "@testing-library/react-hooks": "~7.0.0",
     "@testing-library/react-native": "^9.0.0",
