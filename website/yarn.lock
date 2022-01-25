@@ -9183,7 +9183,7 @@ prompts@^2.4.0, prompts@^2.4.1, prompts@^2.4.2:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
 
-prop-types@^15.5.8, prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.0:
+prop-types@^15.5.8, prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -9357,10 +9357,10 @@ react-base16-styling@^0.6.0:
     lodash.flow "^3.3.0"
     pure-color "^1.2.0"
 
-react-base16-styling@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/react-base16-styling/-/react-base16-styling-0.9.0.tgz#f76d078fa639c63dd9725a342cf88f7cce06db80"
-  integrity sha512-b8DfOEhLXVrVXqh0OcAUffPOEv6UDqnnos2ZGpw7eW4p2TNEXDvAzNqRRmsFVVVcfmfkyTu5/wjraorQ/Ntu1A==
+react-base16-styling@^0.9.1:
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/react-base16-styling/-/react-base16-styling-0.9.1.tgz#4906b4c0a51636f2dca2cea8b682175aa8bd0c92"
+  integrity sha512-1s0CY1zRBOQ5M3T61wetEpvQmsYSNtWEcdYzyZNxKa8t7oDvaOn9d21xrGezGAHFWLM7SHcktPuPTrvoqxSfKw==
   dependencies:
     "@babel/runtime" "^7.16.7"
     "@types/base16" "^1.0.2"
@@ -9474,15 +9474,15 @@ react-is@^16.13.1, react-is@^16.6.0, react-is@^16.7.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
-react-json-tree@^0.16.0:
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/react-json-tree/-/react-json-tree-0.16.0.tgz#11b91dcd08ef12cf559bae62b17a360f9bfa5032"
-  integrity sha512-FVa/cJFeFj2n1Rev89xjm77QrVlQQl0m/AH3SSM8NwS7RpNiYHmq58sz58Ad05H52FEVe4vOzxAXmQeR99MqLg==
+react-json-tree@^0.16.1:
+  version "0.16.1"
+  resolved "https://registry.yarnpkg.com/react-json-tree/-/react-json-tree-0.16.1.tgz#dd40a4f759c173873d28e51316c29150e2473de5"
+  integrity sha512-VYvU/tgekJUrPhEVR6ZC789b3x9QPO7LmRX1YMZfWpqbC8pvXb7D74S0+CE6RVk55bXOS2VH1+8ZWA2PioEyqg==
   dependencies:
     "@babel/runtime" "^7.16.7"
     "@types/prop-types" "^15.7.4"
-    prop-types "^15.8.0"
-    react-base16-styling "^0.9.0"
+    prop-types "^15.8.1"
+    react-base16-styling "^0.9.1"
 
 react-json-view@^1.21.3:
   version "1.21.3"
