@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1643609815993,
+  "lastUpdate": 1643611667845,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -3906,6 +3906,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.61%",
             "unit": "ops/sec",
             "extra": "74 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": false,
+          "id": "fbb71bd24b4230ac1e94ef6f6bec9bc856ef6306",
+          "message": "internal: publish\n\n - @rest-hooks/core: 3.1.0-beta.3 => 3.1.0-beta.4\n - @rest-hooks/endpoint: 2.2.0-beta.0 => 2.2.0-beta.1\n - rest-hooks: 6.2.0-beta.3 => 6.2.0-beta.4",
+          "timestamp": "2022-01-31T00:38:14-06:00",
+          "tree_id": "e0cf65c72390a6790220c9153f9fcff3fe8874b3",
+          "url": "https://github.com/coinbase/rest-hooks/commit/fbb71bd24b4230ac1e94ef6f6bec9bc856ef6306"
+        },
+        "date": 1643611667022,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 97.37,
+            "range": "±2.81%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 39.57,
+            "range": "±1.05%",
+            "unit": "ops/sec",
+            "extra": "53 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 44.72,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 97.88,
+            "range": "±2.58%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
           }
         ]
       }
