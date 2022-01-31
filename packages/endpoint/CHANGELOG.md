@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.2.0-beta.0...@rest-hooks/endpoint@2.2.0-beta.1) (2022-01-31)
+
+
+### 💅 Enhancement
+
+* Fetch resolution only removes the optimistic update corresponding to that fetch ([#1653](https://github.com/coinbase/rest-hooks/issues/1653)) ([2fd93f2](https://github.com/coinbase/rest-hooks/commit/2fd93f235074d134200e81ddb16792647b3cffad))
+
+
+
 ## [2.2.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.1.0...@rest-hooks/endpoint@2.2.0-beta.0) (2022-01-23)
 
 
