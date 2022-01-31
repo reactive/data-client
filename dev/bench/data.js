@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1642980849372,
+  "lastUpdate": 1643609815993,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -3854,6 +3854,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.64%",
             "unit": "ops/sec",
             "extra": "68 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2fd93f235074d134200e81ddb16792647b3cffad",
+          "message": "enhance: Fetch resolution only removes the optimistic update corresponding to that fetch (#1653)",
+          "timestamp": "2022-01-30T22:14:15-08:00",
+          "tree_id": "9bd022bdd0b6a516c3bc304e1e62ddc7b9e81ad3",
+          "url": "https://github.com/coinbase/rest-hooks/commit/2fd93f235074d134200e81ddb16792647b3cffad"
+        },
+        "date": 1643609815164,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 100,
+            "range": "±1.22%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 41.46,
+            "range": "±0.87%",
+            "unit": "ops/sec",
+            "extra": "55 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 44.86,
+            "range": "±0.40%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 102,
+            "range": "±1.61%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
           }
         ]
       }
