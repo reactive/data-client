@@ -20,5 +20,5 @@ export default interface SnapshotInterface {
     ...args: readonly [...Parameters<E['key']>] | readonly [null]
   ) => ErrorTypes | undefined;
 
-  readonly fetchStart: number;
+  readonly fetchedAt: number;
 }

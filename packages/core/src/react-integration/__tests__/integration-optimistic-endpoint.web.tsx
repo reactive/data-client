@@ -360,12 +360,14 @@ describe.each([
       jest.advanceTimersByTime(51);
       await waitForNextUpdate();
 
-      // first and second optimistic should be cleared with only third optimistic left to be layerd
+      // second optimistic should be cleared with the first and third optimistic left to be layerd
       // on top of second's network response
       expect(result.current.article).toEqual(
         CoolerArticleResource.fromJS({
           ...payload,
-          title: 'second',
+          title: 'firstoptimistic',
+          content: 'firstoptimistic',
+          tags: ['thirdoptimistic'],
         }),
       );
     });
@@ -578,7 +580,7 @@ describe.each([
         expect(result.current.fetchError).toMatchSnapshot();
       });
 
-      describe('Vector Clocks', () => {
+      describe('with timestamps', () => {
         it('should handle out of order server responses', async () => {
           jest.useFakeTimers('modern');
 
@@ -586,7 +588,7 @@ describe.each([
             id: 5,
             visType: 'graph',
             numCols: 0,
-            updatedAt: { client: Date.now(), server: Date.now() },
+            updatedAt: Date.now(),
           };
 
           const { result } = renderRestHook(
@@ -673,7 +675,7 @@ describe.each([
               id: 5,
               visType: 'line',
               numCols: 5,
-              updatedAt: { client: betweenDate, server: Date.now() },
+              updatedAt: betweenDate,
             });
             return partialPromise;
           });
@@ -687,7 +689,7 @@ describe.each([
             id: 5,
             visType: 'graph',
             numCols: 100,
-            updatedAt: { client: afterDate, server: Date.now() },
+            updatedAt: afterDate,
           };
           await act(() => {
             resolveIncrement2(finalObject);
@@ -701,7 +703,7 @@ describe.each([
               id: 5,
               visType: 'line',
               numCols: 0,
-              updatedAt: { client: 0, server: 0 },
+              updatedAt: 0,
             });
             return incrementPromise;
           });

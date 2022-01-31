@@ -187,38 +187,40 @@ more complicated transforms. To make it more obvious we're using a simple counte
 
 ```ts
 class CountEntity extends Entity {
-  readonly id = 0;
   readonly count = 0;
 
   pk() {
-    return `${this.id}`;
+    return `SINGLETON`;
   }
 }
-const simulatedServerStateCount = 0;
 const getCount = new Endpoint(
-  (id: number) => Promise.resolve({ id, count: simulatedServerStateCount }),
+  () => fetch('/api/count').then(res => res.json()),
   {
     name: 'get',
     schema: CountEntity,
   },
 );
 const increment = new Endpoint(
-  (id: number) =>
-    new Promise(resolve => {
-      const serverState = { id, count: ++simulatedServerStateCount };
-      // resolve from 500ms -> 5 seconds. Represents network variance.
-      // making state computed before hand allows demonstrating out of order race conditions
-      setTimeout(() => resolve(serverState), 500 + Math.random() * 4500);
-    }),
+  async () => {
+    const body = JSON.stringify({ updatedAt: Date.now() });
+    return await (
+      await fetch('/api/count/increment', {
+        method: 'post',
+        body,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+    ).json();
+  },
   {
     name: 'increment',
     schema: CountEntity,
     sideEffect: true,
-    optimisticUpdater(snap, id) {
-      const { data } = snap.getResponse(increment, id);
+    optimisticUpdater(snap) {
+      const { data } = snap.getResponse(getCount);
       if (!data) throw new AbortOptimistic();
       return {
-        id,
         count: data.count + 1,
       };
     },
@@ -227,8 +229,8 @@ const increment = new Endpoint(
 
 function CounterPage() {
   const { fetch } = useController();
-  const { count } = useSuspense(getCount, 1);
-  const [clickHandler, loading, error] = useLoading(() => fetch(increment, 1));
+  const { count } = useSuspense(getCount);
+  const [clickHandler, loading, error] = useLoading(() => fetch(increment));
   return (
     <div>
       <p>
@@ -255,6 +257,101 @@ correct 'total order', we would be able to solve this problem.
 Without optimistic updates, this can be achieved simply by having the server return a timestamp of when it was last updated.
 The client can then choose to ignore responses that are out of date by their time of resolution.
 
+### Tracking order with updatedAt
+
+To handle potential out of order resolutions, we can track the last update time in `updatedAt`.
+Overriding our [merge](../api/Entity.md#merge), we can check which data is newer, and disregard old data
+that resolves out of order.
+
+We use [snap.fetchedAt](../api/Snapshot.md#fetchedat) in our [optimisticUpdater](../api/Endpoint.md#optimisticupdater). This respresents the moment the fetch is triggered,
+which is when the optimistic update first applies.
+
+<HooksPlayground>
+
+```tsx
+class CountEntity extends Entity {
+  readonly count = 0;
+  readonly updatedAt = 0;
+
+  pk() {
+    return `SINGLETON`;
+  }
+
+  static merge(existing, incoming) {
+    if (existing.updatedAt < incoming.updatedAt) {
+      return {
+        ...existing,
+        ...incoming,
+      };
+    }
+    return existing;
+  }
+}
+const getCount = new Endpoint(
+  () => fetch('/api/count').then(res => res.json()),
+  {
+    name: 'get',
+    schema: CountEntity,
+  },
+);
+const increment = new Endpoint(
+  async () => {
+    const body = JSON.stringify({ updatedAt: Date.now() });
+    return await (
+      await fetch('/api/count/increment', {
+        method: 'post',
+        body,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+    ).json();
+  },
+  {
+    name: 'increment',
+    schema: CountEntity,
+    sideEffect: true,
+    optimisticUpdater(snap) {
+      const { data } = snap.getResponse(getCount);
+      // server already has this optimistic computation then do nothing
+      if (!data) throw new AbortOptimistic();
+      return {
+        count: data.count + 1,
+        updatedAt: snap.fetchedAt,
+      };
+    },
+  },
+);
+
+function CounterPage() {
+  const { fetch } = useController();
+  const { count } = useSuspense(getCount);
+  const [n, setN] = React.useState(count);
+  const [clickHandler, loading, error] = useLoading(() => {
+    fetch(increment);
+    setN(n => n + 1);
+  });
+  return (
+    <div>
+      <p>
+        Click the button multiple times quickly to trigger the potential race
+        condition. This time our vector clock protects us.
+      </p>
+      <div>
+        Network: {count} Should be: {n}
+        <br />
+        <button onClick={clickHandler}>+</button>
+        {loading ? ' ...loading' : ''}
+      </div>
+    </div>
+  );
+}
+render(<CounterPage />);
+```
+
+</HooksPlayground>
+
+<!---
 ### Vector Clocks
 
 However, when doing an optimistic update, we now have two distinct nodes computed derived data. Optimistic updates
@@ -330,14 +427,14 @@ const increment = new Endpoint(
     schema: CountEntity,
     sideEffect: true,
     optimisticUpdater(snap, id) {
-      const { data } = snap.getResponse(increment, id);
+      const { data } = snap.getResponse(getCount, id);
       // server already has this optimistic computation then do nothing
-      if (!data || snap.date <= data.updatedAt.client) throw new AbortOptimistic();
+      if (!data || snap.fetchedAt < data.updatedAt.client) throw new AbortOptimistic();
       return {
         id,
         count: data.count + 1,
         updatedAt: {
-          client: snap.date,
+          client: snap.fetchedAt,
           server: data.updatedAt.server,
         },
       };
@@ -348,7 +445,11 @@ const increment = new Endpoint(
 function CounterPage() {
   const { fetch } = useController();
   const { count } = useSuspense(getCount, 1);
-  const [clickHandler, loading, error] = useLoading(() => fetch(increment, 1));
+  const [n, setN] = React.useState(count);
+  const [clickHandler, loading, error] = useLoading(() => {
+    fetch(increment, 1);
+    setN(n => n+1);
+  });
   return (
     <div>
       <p>
@@ -356,7 +457,7 @@ function CounterPage() {
         This time our vector clock protects us.
       </p>
       <div>
-        {count} <button onClick={clickHandler}>+</button>
+        Network: {count} Should be: {n}<br/><button onClick={clickHandler}>+</button>
         {loading ? ' ...loading' : ''}
       </div>
     </div>
@@ -366,3 +467,5 @@ render(<CounterPage />);
 ```
 
 </HooksPlayground>
+
+-->

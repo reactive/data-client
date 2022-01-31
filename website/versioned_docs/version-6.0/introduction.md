@@ -451,7 +451,7 @@ const { user } = useResource(userDetail, { name: 'Fong' });
 
 ## Debugging
 
-<img src={require('@site/static/img/redux-devtools-logo.jpg').default} width="75" height="75" alt="redux-devtools" style={{ float: 'left', "margin-right": "var(--ifm-paragraph-margin-bottom)" }} />
+<img src={require('@site/static/img/redux-devtools-logo.jpg').default} width="75" height="75" alt="redux-devtools" style={{ float: 'left', "marginRight": "var(--ifm-paragraph-margin-bottom)" }} />
 
 Add the Redux DevTools for
 [chrome extension](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)

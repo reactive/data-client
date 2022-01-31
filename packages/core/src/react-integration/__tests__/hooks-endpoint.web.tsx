@@ -322,7 +322,7 @@ describe('useResetter', () => {
     reset({});
     expect(dispatch).toHaveBeenCalledWith({
       type: RESET_TYPE,
-      date: new Date(),
+      date: Date.now(),
     });
   });
   it('should return the same === function each time', () => {

@@ -55,6 +55,10 @@ export default function createReducer(controller: Controller) {
         if (optimisticUpdater && action.endpoint) {
           receiveAction = createOptimistic(action.endpoint, {
             args: action.meta.args as readonly any[],
+            fetchedAt:
+              typeof action.meta.createdAt !== 'number'
+                ? action.meta.createdAt.getTime()
+                : action.meta.createdAt,
           });
         } else if (optimisticResponse) {
           receiveAction = legacyCreateReceive(optimisticResponse, {
@@ -96,7 +100,7 @@ export default function createReducer(controller: Controller) {
               // compute optimistic response based on current state
               payload = action.endpoint.optimisticUpdater.call(
                 action.endpoint,
-                controller.snapshot(state, action.meta.date),
+                controller.snapshot(state, action.meta.fetchedAt),
                 // if endpoint exists, so must args; TODO: fix typing
                 ...(action.meta.args as any[]),
               );
@@ -208,7 +212,7 @@ export default function createReducer(controller: Controller) {
             `${RESET_TYPE} sent without 'date' member. This is deprecated. Please use createReset() action creator to ensure correct action shape.`,
           );
         }
-        return { ...initialState, lastReset: action.date ?? new Date() };
+        return { ...initialState, lastReset: action.date ?? Date.now() };
 
       default:
         // A reducer must always return a valid state.
@@ -258,7 +262,7 @@ function filterOptimistic(
     optimisticAction =>
       optimisticAction.meta.key !== resolvingAction.meta.key ||
       (optimisticAction.type === OPTIMISTIC_TYPE
-        ? optimisticAction.meta.date === resolvingAction.meta.date
+        ? optimisticAction.meta.fetchedAt !== resolvingAction.meta.fetchedAt
         : optimisticAction.meta.date > resolvingAction.meta.date),
   );
 }

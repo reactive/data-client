@@ -12,8 +12,10 @@ export default function createOptimistic<
   endpoint: E,
   {
     args,
+    fetchedAt,
   }: {
     args: readonly [...Parameters<E>];
+    fetchedAt: number;
   },
 ): OptimisticAction {
   const expiryLength: number = endpoint.dataExpiryLength ?? 1000;
@@ -26,6 +28,7 @@ export default function createOptimistic<
     schema: endpoint.schema,
     key: endpoint.key(...args),
     args,
+    fetchedAt,
     date: now,
     expiresAt: now + expiryLength,
     errorPolicy: endpoint.errorPolicy,

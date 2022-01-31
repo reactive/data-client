@@ -29,7 +29,7 @@ export default function Output({ value }: { value: any }) {
           flex: '4 1 70%',
           margin: 0,
           padding: '0 0.5rem',
-          'background-color': isDarkTheme
+          backgroundColor: isDarkTheme
             ? 'var(--ifm-pre-background)'
             : 'rgb(41, 45, 62)',
           font: 'var(--ifm-code-font-size) / var(--ifm-pre-line-height) var(--ifm-font-family-monospace) !important',
@@ -37,7 +37,7 @@ export default function Output({ value }: { value: any }) {
         arrowContainer: ({ style }, arrowStyle) => ({
           style: {
             ...style,
-            'font-family': 'arial',
+            fontFamily: 'arial',
           },
         }),
         arrowSign: {
