@@ -15,6 +15,7 @@ import {
   RestFetch,
   FetchGet,
   FetchMutate,
+  Schema,
 } from '@rest-hooks/rest';
 import React, { createContext, useContext } from 'react';
 
@@ -47,11 +48,20 @@ export class VisSettings extends Resource implements Vis {
     return existing;
   }
 
-  static getFetchInit(init: Readonly<RequestInit>): RequestInit {
-    if (init) {
-      return { ...init, updatedAt: Date.now() } as any;
-    }
-    return init;
+  protected static endpointMutate(): RestEndpoint<
+    (this: RestEndpoint, params: any, body?: any) => Promise<any>,
+    Schema | undefined,
+    true
+  > {
+    const sup = super.endpointMutate();
+    return sup.extend({
+      getFetchInit(this: RestEndpoint, body?: any) {
+        if (body) {
+          body = { ...body, updatedAt: Date.now() };
+        }
+        return sup.getFetchInit.call(this, body);
+      },
+    });
   }
 
   static partialUpdate<T extends typeof Resource>(
