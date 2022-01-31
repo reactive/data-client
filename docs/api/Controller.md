@@ -18,12 +18,13 @@ class Controller {
   resetEntireStore: () => Promise<void>;
   receive(endpoint, ...args, response) => Promise<void>;
   receiveError(endpoint, ...args, error) => Promise<void>;
+  resolve(endpoint, { args, response, fetchedAt, error }) => Promise<void>;
   subscribe(endpoint, ...args) => Promise<void>;
   unsubscribe(endpoint, ...args) => Promise<void>;
   /*************** Data Access ***************/
   getResponse(endpoint, ...args, state)​ => { data, expiryStatus, expiresAt };
   getError(endpoint, ...args, state)​ => ErrorTypes | undefined;
-  snapshot(state: State<unknown>, fetchStart?: number): SnapshotInterface;
+  snapshot(state: State<unknown>, fetchedAt?: number): SnapshotInterface;
 }
 ```
 
@@ -224,6 +225,17 @@ useEffect(() => {
 
 Stores the result of [Endpoint](./Endpoint.md) and args as the error provided.
 
+
+## resolve(endpoint, { args, response, fetchedAt, error }) {#resolve}
+
+Resolves a specific fetch, storing the `response` in cache.
+
+This is similar to receive, except it triggers resolution of an inflight fetch.
+This means the corresponding optimistic update will no longer be applies.
+
+This is used in [NetworkManager](./NetworkManager.md), and should be used when
+processing fetch requests.
+
 ## subscribe(endpoint, ...args) {#subscribe}
 
 Marks a new subscription to a given [Endpoint](./Endpoint.md). This should increment the subscription.
@@ -357,6 +369,6 @@ export default class MyManager implements Manager {
 Gets the error, if any, for a given endpoint. Returns undefined for no errors.
 
 
-## snapshot(state, fetchStart) {#snapshot}
+## snapshot(state, fetchedAt) {#snapshot}
 
 Returns a [Snapshot](./Snapshot.md).

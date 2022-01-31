@@ -115,7 +115,7 @@ export default class NetworkManager implements Manager {
   /** Ensures all promises are completed by rejecting remaining. */
   cleanup() {
     // ensure no dispatches after unmount
-    const cleanupDate = new Date();
+    const cleanupDate = Date.now();
     this.getLastReset = () => cleanupDate;
     this.clearAll();
   }
@@ -135,7 +135,9 @@ export default class NetworkManager implements Manager {
   }
 
   protected getLastReset() {
-    return this.getState().lastReset;
+    const lastReset = this.getState().lastReset;
+    if (typeof lastReset !== 'number') return lastReset.getTime();
+    return lastReset;
   }
 
   /** Called when middleware intercepts 'rest-hooks/fetch' action.
@@ -152,7 +154,12 @@ export default class NetworkManager implements Manager {
     controller: Controller,
   ) {
     const fetch = action.payload;
-    const { key, throttle, resolve, reject, createdAt } = action.meta;
+    const { key, throttle, resolve, reject } = action.meta;
+    // TODO(breaking): remove support for Date type in 'Receive' action
+    const createdAt =
+      typeof action.meta.createdAt !== 'number'
+        ? action.meta.createdAt.getTime()
+        : action.meta.createdAt;
 
     const deferedFetch = () => {
       let promise = fetch();
@@ -182,11 +189,11 @@ export default class NetworkManager implements Manager {
           if (createdAt >= lastReset) {
             // we still check for controller in case someone didn't have type protection since this didn't always exist
             if (action.endpoint && controller) {
-              controller.receive(
-                action.endpoint,
-                ...(action.meta.args as Parameters<typeof action.endpoint>),
-                data,
-              );
+              controller.resolve(action.endpoint, {
+                args: action.meta.args as any,
+                response: data,
+                fetchedAt: createdAt,
+              });
             } else {
               // does this throw if the reducer fails? - no because reducer is wrapped in try/catch
               dispatch(
@@ -205,14 +212,23 @@ export default class NetworkManager implements Manager {
           const lastReset = this.getLastReset();
           // don't update state with promises started before last clear
           if (createdAt >= lastReset) {
-            dispatch(
-              createReceiveError(error, {
-                ...action.meta,
-                errorExpiryLength:
-                  action.meta.options?.errorExpiryLength ??
-                  this.errorExpiryLength,
-              }),
-            );
+            if (action.endpoint && controller) {
+              controller.resolve(action.endpoint, {
+                args: action.meta.args as any,
+                response: error,
+                fetchedAt: createdAt,
+                error: true,
+              });
+            } else {
+              dispatch(
+                createReceiveError(error, {
+                  ...action.meta,
+                  errorExpiryLength:
+                    action.meta.options?.errorExpiryLength ??
+                    this.errorExpiryLength,
+                }),
+              );
+            }
           }
           throw error;
         });

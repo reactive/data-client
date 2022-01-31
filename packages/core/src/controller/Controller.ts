@@ -137,6 +137,33 @@ export default class Controller {
   };
 
   /**
+   * Resolves an inflight fetch. `fetchedAt` should `fetch`'s `createdAt`
+   * @see https://resthooks.io/docs/api/Controller#resolve
+   */
+  resolve = <
+    E extends EndpointInterface & {
+      update?: EndpointUpdateFunction<E>;
+    },
+  >(
+    endpoint: E,
+    meta:
+      | {
+          args: readonly [...Parameters<E>];
+          response: Error;
+          fetchedAt: number;
+          error: true;
+        }
+      | {
+          args: readonly [...Parameters<E>];
+          response: any;
+          fetchedAt: number;
+          error?: false;
+        },
+  ): Promise<void> => {
+    return this.dispatch(createReceive(endpoint, meta as any));
+  };
+
+  /**
    * Marks a new subscription to a given Endpoint.
    * @see https://resthooks.io/docs/api/Controller#subscribe
    */
@@ -181,11 +208,8 @@ export default class Controller {
   ): Promise<void>
   */
 
-  snapshot = (
-    state: State<unknown>,
-    fetchStart?: number,
-  ): SnapshotInterface => {
-    return new Snapshot(this, state, fetchStart);
+  snapshot = (state: State<unknown>, fetchedAt?: number): SnapshotInterface => {
+    return new Snapshot(this, state, fetchedAt);
   };
 
   getError = <E extends Pick<EndpointInterface, 'key'>>(
@@ -352,12 +376,12 @@ export type { ErrorTypes };
 class Snapshot<T = unknown> implements SnapshotInterface {
   private state: State<T>;
   private controller: Controller;
-  readonly fetchStart: number;
+  readonly fetchedAt: number;
 
-  constructor(controller: Controller, state: State<T>, fetchStart = 0) {
+  constructor(controller: Controller, state: State<T>, fetchedAt = 0) {
     this.state = state;
     this.controller = controller;
-    this.fetchStart = fetchStart;
+    this.fetchedAt = fetchedAt;
   }
 
   /*************** Data Access ***************/

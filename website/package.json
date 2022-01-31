@@ -24,10 +24,10 @@
     "@docusaurus/plugin-client-redirects": "^2.0.0-beta.14",
     "@docusaurus/preset-classic": "^2.0.0-beta.14",
     "@docusaurus/theme-live-codeblock": "^2.0.0-beta.14",
-    "@rest-hooks/endpoint": "^2.1.0",
-    "@rest-hooks/hooks": "^2.1.0",
-    "@rest-hooks/graphql": "^0.1.1",
-    "@rest-hooks/rest": "^3.0.1",
+    "@rest-hooks/endpoint": "file:../packages/endpoint",
+    "@rest-hooks/hooks": "file:../packages/hooks",
+    "@rest-hooks/graphql": "file:../packages/graphql",
+    "@rest-hooks/rest": "file:../packages/rest",
     "bignumber.js": "^9.0.2",
     "clsx": "^1.1.1",
     "msw": "^0.36.7",
@@ -35,8 +35,17 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-json-tree": "^0.16.1",
-    "rest-hooks": "^6.2.0-beta.2",
+    "rest-hooks": "file:../packages/rest-hooks",
     "typescript": "^4.5.5"
+  },
+  "resolutions": {
+    "@rest-hooks/core": "file:../packages/core",
+    "@rest-hooks/normalizr": "file:../packages/normalizr",
+    "@rest-hooks/use-enhanced-reducer": "file:../packages/use-enhanced-reducer",
+    "@rest-hooks/endpoint": "file:../packages/endpoint",
+    "@rest-hooks/hooks": "file:../packages/hooks",
+    "@rest-hooks/graphql": "file:../packages/graphql",
+    "@rest-hooks/rest": "file:../packages/rest"
   },
   "msw": {
     "workerDirectory": "static"

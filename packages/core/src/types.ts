@@ -68,6 +68,7 @@ export interface ReceiveMeta<S extends Schema | undefined> {
   args?: readonly any[];
   updaters?: Record<string, UpdateFunction<S, any>>;
   update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
+  fetchedAt?: number;
   date: number;
   expiresAt: number;
   errorPolicy?: (error: any) => 'soft' | undefined;
@@ -102,6 +103,7 @@ export type OptimisticAction<
       result: any,
       ...args: any
     ) => Record<string, (...args: any) => any>;
+    fetchedAt: number;
     date: number;
     expiresAt: number;
     errorPolicy?: (error: any) => 'soft' | undefined;
@@ -112,7 +114,7 @@ export type OptimisticAction<
 
 export interface ResetAction {
   type: typeof RESET_TYPE;
-  date: Date;
+  date: number | Date;
 }
 
 interface FetchMeta<
@@ -134,7 +136,7 @@ interface FetchMeta<
   resolve: (value?: any | PromiseLike<any>) => void;
   reject: (reason?: any) => void;
   promise: PromiseLike<any>;
-  createdAt: Date;
+  createdAt: number | Date;
   optimisticResponse?: Payload;
   // indicates whether network manager processed it
   nm?: boolean;

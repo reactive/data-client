@@ -12,6 +12,7 @@ export default function createReceive<
   options: {
     args: readonly [...Parameters<E>];
     response: Error;
+    fetchedAt?: number;
     error: true;
   },
 ): ReceiveAction;
@@ -25,6 +26,7 @@ export default function createReceive<
   options: {
     args: readonly [...Parameters<E>];
     response: ResolveType<E>;
+    fetchedAt?: number;
     error?: false;
   },
 ): ReceiveAction;
@@ -37,11 +39,13 @@ export default function createReceive<
   endpoint: E,
   {
     args,
+    fetchedAt = 0,
     response,
     error = false,
   }: {
     args: readonly [...Parameters<E>];
     response: any;
+    fetchedAt?: number;
     error?: boolean;
   },
 ): ReceiveAction {
@@ -57,6 +61,7 @@ export default function createReceive<
     schema: endpoint.schema,
     key: endpoint.key(...args),
     args,
+    fetchedAt,
     date: now,
     expiresAt: now + expiryLength,
     errorPolicy: endpoint.errorPolicy,

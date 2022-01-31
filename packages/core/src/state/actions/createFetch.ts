@@ -62,7 +62,7 @@ export default function createFetch<
     resolve,
     reject,
     promise,
-    createdAt: new Date(),
+    createdAt: Date.now(),
   };
 
   if (fetchShape.update) {

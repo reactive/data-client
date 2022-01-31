@@ -1,6 +1,7 @@
 import { AbstractInstanceType, schema } from '@rest-hooks/core';
 import { SimpleRecord } from '@rest-hooks/legacy';
 import {
+  AbortOptimistic,
   Endpoint,
   EndpointExtraOptions,
   FetchFunction,
@@ -21,17 +22,14 @@ interface Vis {
   readonly id: number | undefined;
   readonly visType: 'graph' | 'line';
   readonly numCols: number;
-  readonly updatedAt: { client: number; server: number };
+  readonly updatedAt: number;
 }
 
 export class VisSettings extends Resource implements Vis {
   readonly id: number | undefined = undefined;
   readonly visType: 'graph' | 'line' = 'graph' as const;
   readonly numCols: number = 0;
-  readonly updatedAt: { client: number; server: number } = {
-    client: 0,
-    server: 0,
-  };
+  readonly updatedAt = 0;
 
   pk() {
     return `${this.id}`;
@@ -39,30 +37,21 @@ export class VisSettings extends Resource implements Vis {
 
   static urlRoot = 'http://test.com/vis-settings/';
 
-  static merge(
-    existing: any,
-    incoming: any, //Partial<Vis> & { updatedAt: { client: number; server: number } },
-  ) {
-    if (
-      existing.updatedAt.client < incoming.updatedAt.client ||
-      existing.updatedAt.server < incoming.updatedAt.server
-    ) {
+  static merge(existing: any, incoming: any) {
+    if (existing.updatedAt < incoming.updatedAt) {
       return {
         ...existing,
         ...incoming,
-        updatedAt: {
-          client: Math.max(
-            existing.updatedAt.client,
-            incoming.updatedAt.client,
-          ),
-          server: Math.max(
-            existing.updatedAt.server,
-            incoming.updatedAt.server,
-          ),
-        },
       };
     }
     return existing;
+  }
+
+  static getFetchInit(init: Readonly<RequestInit>): RequestInit {
+    if (init) {
+      return { ...init, updatedAt: Date.now() } as any;
+    }
+    return init;
   }
 
   static partialUpdate<T extends typeof Resource>(
@@ -75,18 +64,13 @@ export class VisSettings extends Resource implements Vis {
     const detail: RestEndpoint<FetchGet, VisSettings> = this.detail() as any;
     const partial = super.partialUpdate();
     return partial.extend({
-      fetch(params, body) {
-        return partial(params, { ...body, updatedAt: Date.now() });
-      },
       optimisticUpdater(snap, params, body) {
         const { data } = snap.getResponse(detail, params);
+        if (!data) throw new AbortOptimistic();
         return {
-          id: params.id,
+          ...data,
           ...body,
-          updatedAt: {
-            client: snap.fetchStart,
-            server: data.updatedAt.server,
-          },
+          updatedAt: snap.fetchedAt,
         };
       },
       schema: this,
@@ -108,10 +92,7 @@ export class VisSettings extends Resource implements Vis {
         return {
           ...data,
           numCols: data.numCols + 1,
-          updatedAt: {
-            client: snap.fetchStart,
-            server: data.updatedAt.server,
-          },
+          updatedAt: snap.fetchedAt,
         };
       },
       schema: this,

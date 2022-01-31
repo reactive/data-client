@@ -12,7 +12,7 @@ export default function useResetter(): () => void {
   const resetDispatcher = useCallback(() => {
     dispatch({
       type: RESET_TYPE,
-      date: new Date(),
+      date: Date.now(),
     });
   }, [dispatch]);
 

@@ -666,7 +666,7 @@ describe('reducer', () => {
         reject: (v: any) => null,
         resolve: (v: any) => null,
         promise: new Promise((v: any) => null),
-        createdAt: new Date(0),
+        createdAt: 0,
       },
     };
     const iniState = {
@@ -700,7 +700,34 @@ describe('reducer', () => {
     it('reset should delete all entries', () => {
       const action: ResetAction = {
         type: RESET_TYPE,
-        date: new Date(0),
+        date: Date.now(),
+      };
+      const iniState: any = {
+        ...initialState,
+        entities: {
+          [ArticleResource.key]: {
+            '10': ArticleResource.fromJS({ id: 10 }),
+            '20': ArticleResource.fromJS({ id: 20 }),
+            '25': ArticleResource.fromJS({ id: 25 }),
+          },
+          [PaginatedArticleResource.key]: {
+            hi: PaginatedArticleResource.fromJS({ id: 5 }),
+          },
+          '5': undefined,
+        },
+        results: { abc: '20' },
+      };
+      const newState = reducer(iniState, action);
+      expect(newState.results).toEqual({});
+      expect(newState.meta).toEqual({});
+      expect(newState.entities).toEqual({});
+    });
+
+    // TODO(breaking): Remove once Date support is removed from action
+    it('reset should delete all entries (legacy format)', () => {
+      const action: ResetAction = {
+        type: RESET_TYPE,
+        date: new Date(),
       };
       const iniState: any = {
         ...initialState,
@@ -747,7 +774,7 @@ describe('reducer', () => {
       expect(newState.meta).toEqual({});
       expect(newState.entities).toEqual({});
       expect(newState.lastReset).toBeDefined();
-      expect(newState.lastReset).toBeInstanceOf(Date);
+      expect(newState.lastReset).toBeGreaterThan(0);
       expect(warnspy.mock.calls).toMatchInlineSnapshot(`
 Array [
   Array [
