@@ -23,7 +23,7 @@
     "@docusaurus/core": "^2.0.0-beta.14",
     "@docusaurus/plugin-client-redirects": "^2.0.0-beta.15",
     "@docusaurus/preset-classic": "^2.0.0-beta.15",
-    "@docusaurus/theme-live-codeblock": "^2.0.0-beta.14",
+    "@docusaurus/theme-live-codeblock": "^2.0.0-beta.15",
     "@rest-hooks/endpoint": "file:../packages/endpoint",
     "@rest-hooks/hooks": "file:../packages/hooks",
     "@rest-hooks/graphql": "file:../packages/graphql",
