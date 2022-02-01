@@ -1796,17 +1796,16 @@
     "@types/react-router-config" "*"
     "@types/react-router-dom" "*"
 
-"@docusaurus/plugin-client-redirects@^2.0.0-beta.14":
-  version "2.0.0-beta.14"
-  resolved "https://registry.yarnpkg.com/@docusaurus/plugin-client-redirects/-/plugin-client-redirects-2.0.0-beta.14.tgz#1646bf6bf99889747b7edfa3f1cb4dd3c1f2f471"
-  integrity sha512-CHxEZk20URQb3CU6l4egXYpSVMpgIQ3/niTrx8MCjyfQVnLl/yIKiLeYA1ja4i/wa8UmQnJwKUL7mZDbuP9qeg==
+"@docusaurus/plugin-client-redirects@^2.0.0-beta.15":
+  version "2.0.0-beta.15"
+  resolved "https://registry.yarnpkg.com/@docusaurus/plugin-client-redirects/-/plugin-client-redirects-2.0.0-beta.15.tgz#ccee67923e7e80ef76a995d7b495a42a1449ae2c"
+  integrity sha512-FcH1y+a+Bmc5x50kZn5RvLr2a6iPiGnRK4iUP7G1eNozJC+8+93OwyZYSCdEOf2LyoVOtEq06xlfORFP2mfQDQ==
   dependencies:
-    "@docusaurus/core" "2.0.0-beta.14"
-    "@docusaurus/logger" "2.0.0-beta.14"
-    "@docusaurus/utils" "2.0.0-beta.14"
-    "@docusaurus/utils-common" "2.0.0-beta.14"
-    "@docusaurus/utils-validation" "2.0.0-beta.14"
-    chalk "^4.1.2"
+    "@docusaurus/core" "2.0.0-beta.15"
+    "@docusaurus/logger" "2.0.0-beta.15"
+    "@docusaurus/utils" "2.0.0-beta.15"
+    "@docusaurus/utils-common" "2.0.0-beta.15"
+    "@docusaurus/utils-validation" "2.0.0-beta.15"
     eta "^1.12.3"
     fs-extra "^10.0.0"
     lodash "^4.17.20"
