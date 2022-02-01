@@ -22,7 +22,7 @@
     "@anansi/webpack-config": "^10.0.2",
     "@docusaurus/core": "^2.0.0-beta.14",
     "@docusaurus/plugin-client-redirects": "^2.0.0-beta.14",
-    "@docusaurus/preset-classic": "^2.0.0-beta.14",
+    "@docusaurus/preset-classic": "^2.0.0-beta.15",
     "@docusaurus/theme-live-codeblock": "^2.0.0-beta.14",
     "@rest-hooks/endpoint": "file:../packages/endpoint",
     "@rest-hooks/hooks": "file:../packages/hooks",
