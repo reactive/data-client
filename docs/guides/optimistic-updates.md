@@ -328,8 +328,8 @@ function CounterPage() {
   const { count } = useSuspense(getCount);
   const [n, setN] = React.useState(count);
   const [clickHandler, loading, error] = useLoading(() => {
-    fetch(increment);
     setN(n => n + 1);
+    return fetch(increment);
   });
   return (
     <div>

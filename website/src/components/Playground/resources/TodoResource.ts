@@ -3,7 +3,6 @@ import {
   SnapshotInterface,
   schema,
   RestEndpoint,
-  RestFetch,
   Schema,
 } from '@rest-hooks/rest';
 
@@ -27,11 +26,20 @@ export default class TodoResource extends PlaceholderBaseResource {
     return existing;
   }
 
-  static getFetchInit(init: Readonly<RequestInit>): RequestInit {
-    if (init) {
-      return { ...init, updatedAt: Date.now() } as any;
-    }
-    return init;
+  protected static endpointMutate(): RestEndpoint<
+    (this: RestEndpoint, params: any, body?: any) => Promise<any>,
+    Schema | undefined,
+    true
+  > {
+    const sup = super.endpointMutate();
+    return sup.extend({
+      getFetchInit(this: RestEndpoint, body?: any) {
+        if (body) {
+          body = { ...body, updatedAt: Date.now() };
+        }
+        return sup.getFetchInit.call(this, body);
+      },
+    });
   }
 
   static partialUpdate<T extends typeof Resource>(this: T) {
