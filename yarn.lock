@@ -58,13 +58,13 @@
     eslint-plugin-jsx-a11y "^6.5.1"
 
 "@anansi/jest-preset@^0.5.16":
-  version "0.5.21"
-  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.5.21.tgz#51672fde96500433d09f052a67a67c6403061dc6"
-  integrity sha512-tXoQg1/sWhY3K1/XZXN1bpLQ1nJaPmWwIRgJ/EDlfJYpUTcjlEXXSEwR37Wg9dO4u17iNteeFrmxYnpfsbjBfA==
+  version "0.5.24"
+  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.5.24.tgz#3d5c47ed979359c307919f997a9dfcb47360a44f"
+  integrity sha512-whllgY/3h4DizCs6c3VDSVIHyA+ifKlLLSBQEwWAw946EHKENh7n06ir3TGTvbH7k5WUV1Y/fbKEqXqrHg3Amw==
   dependencies:
     "@anansi/ts-utils" "^0.2.4"
     babel-jest "^27.4.6"
-    core-js "^3.20.3"
+    core-js "^3.21.0"
     identity-obj-proxy "^3.0.0"
     mitt "^3.0.0"
     semver "^7.3.5"
@@ -6462,7 +6462,7 @@ core-js-pure@^3.8.1:
   resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.15.2.tgz#c8e0874822705f3385d3197af9348f7c9ae2e3ce"
   integrity sha512-D42L7RYh1J2grW8ttxoY1+17Y4wXZeKe7uyplAI3FkNQyI5OgBIAjUfFiTPfL1rs0qLpxaabITNbjKl1Sp82tA==
 
-core-js@^3.20.2, core-js@^3.20.3, core-js@^3.8.1:
+core-js@^3.20.2, core-js@^3.20.3, core-js@^3.21.0, core-js@^3.8.1:
   version "3.21.0"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.21.0.tgz#f479dbfc3dffb035a0827602dd056839a774aa71"
   integrity sha512-YUdI3fFu4TF/2WykQ2xzSiTQdldLB4KVuL9WeAy5XONZYt5Cun/fpQvctoKbCgvPhmzADeesTk/j2Rdx77AcKQ==
@@ -15670,9 +15670,9 @@ rollup-pluginutils@^2.5.0, rollup-pluginutils@^2.6.0, rollup-pluginutils@^2.8.1:
     estree-walker "^0.6.1"
 
 rollup@^2.35.1:
-  version "2.66.1"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.66.1.tgz#366b0404de353c4331d538c3ad2963934fcb4937"
-  integrity sha512-crSgLhSkLMnKr4s9iZ/1qJCplgAgrRY+igWv8KhG/AjKOJ0YX/WpmANyn8oxrw+zenF3BXWDLa7Xl/QZISH+7w==
+  version "2.67.0"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.67.0.tgz#496de7e641dbe39f681c5a82419cb5013917d406"
+  integrity sha512-W83AaERwvDiHwHEF/dfAfS3z1Be5wf7n+pO3ZAO5IQadCT2lBTr7WQ2MwZZe+nodbD+n3HtC4OCOAdsOPPcKZQ==
   optionalDependencies:
     fsevents "~2.3.2"
 
