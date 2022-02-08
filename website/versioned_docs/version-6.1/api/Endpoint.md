@@ -178,7 +178,7 @@ of failure or success), the optimistic update will be replaced with the actual n
 
 [Optimistic update guide](../guides/optimistic-updates.md)
 
-#### update(normalizedResponseOfThis) => ({ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
+#### update(normalizedResponseOfThis, ...args) => ({ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) }) {#update}
 
 ```ts title="UpdateType.ts"
 type UpdateFunction<
