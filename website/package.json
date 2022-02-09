@@ -19,14 +19,14 @@
     "@types/react-router-dom": "^5.3.3"
   },
   "dependencies": {
-    "@anansi/webpack-config": "^10.0.2",
-    "@docusaurus/core": "^2.0.0-beta.14",
+    "@anansi/webpack-config": "^10.0.12",
+    "@docusaurus/core": "^2.0.0-beta.15",
     "@docusaurus/plugin-client-redirects": "^2.0.0-beta.15",
     "@docusaurus/preset-classic": "^2.0.0-beta.15",
     "@docusaurus/theme-live-codeblock": "^2.0.0-beta.15",
     "@rest-hooks/endpoint": "file:../packages/endpoint",
-    "@rest-hooks/hooks": "file:../packages/hooks",
     "@rest-hooks/graphql": "file:../packages/graphql",
+    "@rest-hooks/hooks": "file:../packages/hooks",
     "@rest-hooks/rest": "file:../packages/rest",
     "bignumber.js": "^9.0.2",
     "clsx": "^1.1.1",

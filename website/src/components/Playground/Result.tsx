@@ -5,10 +5,12 @@ import {
 } from 'rest-hooks';
 import { NetworkManager } from '@rest-hooks/core';
 import React, { memo, useCallback, useState, Suspense, useMemo } from 'react';
-import useUserPreferencesContext from '@theme/hooks/useUserPreferencesContext';
 import { LiveError, LivePreview } from 'react-live';
 import clsx from 'clsx';
-import { useScrollPositionBlocker } from '@docusaurus/theme-common';
+import {
+  useScrollPositionBlocker,
+  useTabGroupChoice,
+} from '@docusaurus/theme-common';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 
 import styles from './styles.module.css';
@@ -23,7 +25,7 @@ function Result({
   row: boolean;
   defaultOpen: 'y' | 'n';
 }) {
-  const { tabGroupChoices, setTabGroupChoices } = useUserPreferencesContext();
+  const { tabGroupChoices, setTabGroupChoices } = useTabGroupChoice();
   const [selectedValue, setSelectedValue] = useState(defaultOpen);
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();

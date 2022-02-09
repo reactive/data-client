@@ -11,7 +11,7 @@ import clsx from 'clsx';
 import Translate from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useIsBrowser from '@docusaurus/useIsBrowser';
-import usePrismTheme from '@theme/hooks/usePrismTheme';
+import { usePrismTheme } from '@docusaurus/theme-common';
 import * as ts from 'typescript';
 
 import CodeTabContext from '../Demo/CodeTabContext';
