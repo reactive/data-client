@@ -1,11 +1,10 @@
 import { JSONTree } from 'react-json-tree';
 import React, { useMemo } from 'react';
-import usePrismTheme from '@theme/hooks/usePrismTheme';
-import useThemeContext from '@theme/hooks/useThemeContext';
+import { useColorMode, usePrismTheme } from '@docusaurus/theme-common';
 
 export default function Output({ value }: { value: any }) {
   //const prismTheme = usePrismTheme();
-  const { isDarkTheme } = useThemeContext();
+  const { isDarkTheme } = useColorMode();
   const valueColorMap = useMemo(
     () => ({
       String: 'rgb(195, 232, 141)',
@@ -49,7 +48,7 @@ export default function Output({ value }: { value: any }) {
         itemRange: {
           color: 'rgb(105, 112, 152)',
         },
-        valueText: ({ style }, nodeType) => ({
+        valueText: ({ style }, nodeType: keyof typeof valueColorMap) => ({
           style: {
             ...style,
             color: valueColorMap[nodeType],

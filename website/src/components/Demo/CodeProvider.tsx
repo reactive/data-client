@@ -1,6 +1,8 @@
 import React, { memo, useState } from 'react';
-import useUserPreferencesContext from '@theme/hooks/useUserPreferencesContext';
-import { useScrollPositionBlocker } from '@docusaurus/theme-common';
+import {
+  useScrollPositionBlocker,
+  useTabGroupChoice,
+} from '@docusaurus/theme-common';
 
 import CodeTabContext from './CodeTabContext';
 
@@ -19,7 +21,7 @@ export function CodeProvider<V extends { label: string; value: string }[]>({
   playgroundRef,
   children,
 }: Props<V>) {
-  const { tabGroupChoices, setTabGroupChoices } = useUserPreferencesContext();
+  const { tabGroupChoices, setTabGroupChoices } = useTabGroupChoice();
   const [selectedValue, setLocalSelectedValue] = useState(defaultValue);
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
