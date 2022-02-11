@@ -76,10 +76,10 @@
   resolved "https://registry.yarnpkg.com/@anansi/ts-utils/-/ts-utils-0.2.4.tgz#ffb0ce7ad3a0a0b74db581443c5bb70fe6330652"
   integrity sha512-0injZU3d7z2spk0RMzm17Y10IQtZSv8s9Y5VX7Q6DQ0x6q90exXC6hGq6Xmmn9wu+u9wyIUw5GfCOTWIRJK5vg==
 
-"@anansi/webpack-config@11.1.5":
-  version "11.1.5"
-  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.1.5.tgz#d82cf3c3e23e0f422ef91bae62f009e93df1d757"
-  integrity sha512-Gsf2n5EzR5Y8R1yQztk3X9aNPsXMA5hf4clLhoEePR9sI948SxvXsY+YETBrWVUwMyIueoujFVaS8h0WQX90pA==
+"@anansi/webpack-config@11.1.6":
+  version "11.1.6"
+  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.1.6.tgz#8acf8c7d0026f5166f56b2c84e7ad4253ea563c6"
+  integrity sha512-dFbSeIdKV0RswyL3bVbeN08Ll+QtBQaSIHhLTANBmCWc0uxtr3c5D1b96HcKentCmsg4mkfqfxdK8FnPmivorQ==
   dependencies:
     "@babel/runtime" "^7.17.2"
     "@ntucker/linaria-webpack5-loader" "3.0.0-beta.17"
