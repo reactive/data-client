@@ -7,11 +7,13 @@ assignees: ''
 
 ---
 
-**React version** (e.g., 16.8.5)
+**React version** (e.g., 17.0.2)
 
-**Concurrent mode** yes/no
+**Package manager version** (e.g., yarn 2, npm 7)
 
-**Rest Hooks version** (e.g., 4.5.9)
+**Node version** (e.g., 16.13.2)
+
+**Rest Hooks version** (e.g., 6.2.0)
 
 **Describe the bug**
 A clear and concise description of what the bug is.
@@ -28,3 +30,8 @@ A clear and concise description of what you expected to happen.
 
 **Additional context**
 Any console errors? What does the networking inspector show?
+
+**Minimum reproducable example or test case**
+For many cases reproducing the bug is fairly straightforward. However, if
+this requires special conditions to trigger, an example can expedite resolution of the issue.
+Provide a github repo with usage, or fork rest hooks and add a test case that fails.
