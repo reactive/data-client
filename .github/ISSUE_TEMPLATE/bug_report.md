@@ -9,7 +9,7 @@ assignees: ''
 
 **React version** (e.g., 17.0.2)
 
-**Package manager version** (e.g., yarn 2, npm 7)
+**Package manager version** (e.g., yarn 2, npm 8)
 
 **Node version** (e.g., 16.13.2)
 
