@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1643611667845,
+  "lastUpdate": 1644864314737,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -3958,6 +3958,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.58%",
             "unit": "ops/sec",
             "extra": "76 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ee7b4ca6fbe5ccea4ea32a52885bf9fe64cbb947",
+          "message": "docs: Use stackblitz for demos (#1699)",
+          "timestamp": "2022-02-14T10:42:04-08:00",
+          "tree_id": "b239aad0228d2011663877b81ff1ab6507c01bfc",
+          "url": "https://github.com/coinbase/rest-hooks/commit/ee7b4ca6fbe5ccea4ea32a52885bf9fe64cbb947"
+        },
+        "date": 1644864313353,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 76.21,
+            "range": "±4.02%",
+            "unit": "ops/sec",
+            "extra": "64 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 33.35,
+            "range": "±2.94%",
+            "unit": "ops/sec",
+            "extra": "54 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 36.44,
+            "range": "±2.11%",
+            "unit": "ops/sec",
+            "extra": "48 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 77.7,
+            "range": "±3.78%",
+            "unit": "ops/sec",
+            "extra": "66 samples"
           }
         ]
       }
