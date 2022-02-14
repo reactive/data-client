@@ -176,12 +176,12 @@ module.exports = {
         },
         { to: '/blog', label: 'News', position: 'left' },
         {
-          href: 'https://github.com/coinbase/rest-hooks/tree/master/examples/todo-app',
+          href: 'https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2Findex.tsx',
           label: '🎮 Todo',
           position: 'right',
         },
         {
-          href: 'https://github.com/coinbase/rest-hooks/tree/master/examples/github-app',
+          href: 'https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx',
           label: '🎮 Github',
           position: 'right',
         },
