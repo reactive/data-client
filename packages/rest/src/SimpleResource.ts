@@ -1,7 +1,7 @@
-import { schema } from '@rest-hooks/normalizr';
-import type { AbstractInstanceType, Schema } from '@rest-hooks/normalizr';
-import { Endpoint } from '@rest-hooks/endpoint';
+import { Endpoint, schema } from '@rest-hooks/endpoint';
 import type {
+  AbstractInstanceType,
+  Schema,
   EndpointExtraOptions,
   SchemaDetail,
   SchemaList,
