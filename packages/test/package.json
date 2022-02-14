@@ -28,7 +28,7 @@
     ".": {
       "node": {
         "import": "./node.mjs",
-        "require": "./dist/index.cjs"
+        "require": "./dist/index.js"
       },
       "default": "./lib/browser.js"
     },
