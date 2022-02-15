@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.2.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.2.0...@rest-hooks/test@7.2.1) (2022-02-15)
+
+
+### 🐛 Bug Fix
+
+* Compatibility with webpack builds for test ([#1711](https://github.com/coinbase/rest-hooks/issues/1711)) ([a3990fd](https://github.com/coinbase/rest-hooks/commit/a3990fdcdec43a6997f62cf8e43e64b73ea38ca6))
+
+
+
 ## [7.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.1.3...@rest-hooks/test@7.2.0) (2022-02-15)
 
 
