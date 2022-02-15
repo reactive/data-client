@@ -84,7 +84,10 @@ describe('useLoading()', () => {
     function fun(value: string) {
       return new Promise<string>((resolve, reject) =>
         setTimeout(() => reject(error), 1000),
-      );
+      ).catch(err => {
+        rejectedError = err;
+        throw err;
+      });
     }
     let rejectedError: Error | null = null;
     const { result, waitForNextUpdate } = renderHook(() => {
@@ -93,9 +96,7 @@ describe('useLoading()', () => {
     const wrappedFunc = result.current[0];
     expect(result.current[1]).toBe(false);
     act(() => {
-      wrappedFunc('test string').catch(err => {
-        rejectedError = err;
-      });
+      wrappedFunc('test string');
     });
     expect(result.current[1]).toBe(true);
     act(() => {
@@ -114,7 +115,10 @@ describe('useLoading()', () => {
     function fun(value: string) {
       return new Promise<string>((resolve, reject) =>
         setTimeout(() => reject(error), 1000),
-      );
+      ).catch(err => {
+        rejectedError = err;
+        throw err;
+      });
     }
     let rejectedError: Error | null = null;
     const { result, waitForNextUpdate } = renderHook(() => {
@@ -123,9 +127,7 @@ describe('useLoading()', () => {
     const wrappedFunc = result.current[0];
     expect(result.current[1]).toBe(false);
     act(() => {
-      wrappedFunc('test string').catch(err => {
-        rejectedError = err;
-      });
+      wrappedFunc('test string');
     });
     expect(result.current[1]).toBe(true);
     act(() => {

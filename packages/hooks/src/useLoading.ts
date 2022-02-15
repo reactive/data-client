@@ -39,7 +39,6 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
       ret = await func(...args);
     } catch (e: any) {
       setError(e);
-      throw e;
     } finally {
       if (isMountedRef.current) {
         setLoading(false);
