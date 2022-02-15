@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/hooks@2.1.0...@rest-hooks/hooks@3.0.0) (2022-02-15)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* useLoading() consumes all promise rejections
+
+### 💅 Enhancement
+
+* useLoading() should consume rejections ([#1706](https://github.com/coinbase/rest-hooks/issues/1706)) ([e0ed328](https://github.com/coinbase/rest-hooks/commit/e0ed328ad386f268710ac92bda1fe259d93cb4ee))
+
+
+### 📝 Documentation
+
+* Only validate circleCI badge against master ([#1322](https://github.com/coinbase/rest-hooks/issues/1322)) ([04e9642](https://github.com/coinbase/rest-hooks/commit/04e96426a865cbef362947da3a8f74f7347859e9))
+
+
+
 ## [2.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/hooks@2.0.0...@rest-hooks/hooks@2.1.0) (2021-09-20)
 
 

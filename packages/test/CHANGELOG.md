@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.1.3...@rest-hooks/test@7.2.0) (2022-02-15)
+
+
+### 🚀 Features
+
+* Add endpoint.optimisticUpdater ([#1616](https://github.com/coinbase/rest-hooks/issues/1616)) ([7a99fae](https://github.com/coinbase/rest-hooks/commit/7a99fae20ee9abf5f2121c1f1719bdcce3e78d98))
+
+
+### 🐛 Bug Fix
+
+* exports.require filepath ([#1701](https://github.com/coinbase/rest-hooks/issues/1701)) ([a84d6fe](https://github.com/coinbase/rest-hooks/commit/a84d6fe2abdbb03e69f2356080d94a576387838b))
+
+
+
 ## [7.2.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.1.3...@rest-hooks/test@7.2.0-beta.0) (2022-01-23)
 
 

@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.2.0-beta.5](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.0-beta.3...rest-hooks@6.2.0-beta.5) (2022-02-15)
+
+
+### 📝 Documentation
+
+* Use stackblitz for demos ([#1699](https://github.com/coinbase/rest-hooks/issues/1699)) ([ee7b4ca](https://github.com/coinbase/rest-hooks/commit/ee7b4ca6fbe5ccea4ea32a52885bf9fe64cbb947))
+
+
+
 ## [6.2.0-beta.4](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.0-beta.3...rest-hooks@6.2.0-beta.4) (2022-01-31)
 
 **Note:** Version bump only for package rest-hooks

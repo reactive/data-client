@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.1.0-beta.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.3...@rest-hooks/core@3.1.0-beta.5) (2022-02-15)
+
+
+### 💅 Enhancement
+
+* Fetch resolution only removes the optimistic update corresponding to that fetch ([#1653](https://github.com/coinbase/rest-hooks/issues/1653)) ([2fd93f2](https://github.com/coinbase/rest-hooks/commit/2fd93f235074d134200e81ddb16792647b3cffad))
+
+
+### 📝 Documentation
+
+* Use stackblitz for demos ([#1699](https://github.com/coinbase/rest-hooks/issues/1699)) ([ee7b4ca](https://github.com/coinbase/rest-hooks/commit/ee7b4ca6fbe5ccea4ea32a52885bf9fe64cbb947))
+
+
+
 ## [3.1.0-beta.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.3...@rest-hooks/core@3.1.0-beta.4) (2022-01-31)
 
 
