@@ -117,11 +117,13 @@ export default function mockInitialState(results: Fixture[]) {
   ) => State<unknown>;
   // >=6.1 of Rest Hooks / >=3.1 of RH/core
   if ('createReducer' in RestHooks) {
-    reducer = RestHooks.createReducer(new RestHooks.Controller());
+    // `{...RestHooks}` blocks webpack from barfing during compilation if createReducer export isn't available
+    reducer = { ...RestHooks }.createReducer(new RestHooks.Controller());
     // previous versions
   } else {
     reducer = (RestHooks as any).reducer;
   }
+
   const mockState = results.reduce((acc, fixture) => {
     const { action } = actionFromFixture(fixture);
     return reducer(acc, action);
