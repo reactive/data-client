@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1644864314737,
+  "lastUpdate": 1644896404376,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -4010,6 +4010,58 @@ window.BENCHMARK_DATA = {
             "range": "±3.78%",
             "unit": "ops/sec",
             "extra": "66 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": false,
+          "id": "aced2c193d048d724a1ec09e7897edb45e483292",
+          "message": "internal: publish\n\n - @rest-hooks/core@3.1.0-beta.5\n - @rest-hooks/endpoint@2.2.0-beta.2\n - @rest-hooks/hooks@3.0.0\n - rest-hooks@6.2.0-beta.5\n - @rest-hooks/rest@3.0.2\n - @rest-hooks/test@7.2.0",
+          "timestamp": "2022-02-14T21:31:52-06:00",
+          "tree_id": "fad67213ef605b301079dd5ce58b9ca790e6143b",
+          "url": "https://github.com/coinbase/rest-hooks/commit/aced2c193d048d724a1ec09e7897edb45e483292"
+        },
+        "date": 1644896403376,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 66.71,
+            "range": "±2.64%",
+            "unit": "ops/sec",
+            "extra": "66 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 29.61,
+            "range": "±1.81%",
+            "unit": "ops/sec",
+            "extra": "52 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 31.65,
+            "range": "±1.91%",
+            "unit": "ops/sec",
+            "extra": "55 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 67.46,
+            "range": "±5.48%",
+            "unit": "ops/sec",
+            "extra": "64 samples"
           }
         ]
       }
