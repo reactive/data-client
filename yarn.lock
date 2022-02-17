@@ -58,24 +58,25 @@
     eslint-plugin-babel "^5.3.1"
     eslint-plugin-jsx-a11y "^6.5.1"
 
-"@anansi/jest-preset@^0.5.16":
-  version "0.5.26"
-  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.5.26.tgz#01826ac301196eae157a2eba89bf06961e5cc35f"
-  integrity sha512-94Ku5NCrZp7rYXfdiZ/nYJZZTkleaqwiBaKz0154a+fGNIBJ7oeD2sfGZPKpRV9GpMqPnb03DAWjrgRPe1jVRg==
+"@anansi/jest-preset@^0.6.1":
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.6.1.tgz#7409b10714aa3660c7e74bd00a8686f3f3a0190d"
+  integrity sha512-E4HN/Naig7Y8R74hOXFh04seYKXz21NVfUPeuc3rLk4aExz/X5dO/u/gZmK/u5DQ9OHZWFX5yB40acG4OBk5tg==
   dependencies:
-    "@anansi/ts-utils" "^0.2.4"
+    "@anansi/ts-utils" "^0.2.5"
     babel-jest "^27.5.1"
     core-js "^3.21.0"
     identity-obj-proxy "^3.0.0"
+    jest-pnp-resolver "^1.2.2"
     mitt "^3.0.0"
     semver "^7.3.5"
     ts-jest "^27.1.3"
     whatwg-fetch "^3.0.0"
 
-"@anansi/ts-utils@^0.2.4":
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/@anansi/ts-utils/-/ts-utils-0.2.4.tgz#ffb0ce7ad3a0a0b74db581443c5bb70fe6330652"
-  integrity sha512-0injZU3d7z2spk0RMzm17Y10IQtZSv8s9Y5VX7Q6DQ0x6q90exXC6hGq6Xmmn9wu+u9wyIUw5GfCOTWIRJK5vg==
+"@anansi/ts-utils@^0.2.4", "@anansi/ts-utils@^0.2.5":
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/@anansi/ts-utils/-/ts-utils-0.2.5.tgz#bd2270fb1f96a26dbcf3a9a61a6a6b36652e75c6"
+  integrity sha512-m6jFCF3Y6Tcd06hmq1pDqOCHGpe30QO9FcCblYD0ohhl5olcyq+f2DbKWPQSeddzHdHxDUpZ9OG7xwHv4xtmUw==
 
 "@anansi/webpack-config@11.2.3":
   version "11.2.3"
