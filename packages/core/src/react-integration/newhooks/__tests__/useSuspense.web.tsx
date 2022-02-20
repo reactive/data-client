@@ -64,11 +64,14 @@ async function testDispatchFetch(
   }
 }
 
-function ArticleComponentTester({ invalidIfStale = false }) {
-  const resource = invalidIfStale
-    ? InvalidIfStaleArticleResource
-    : CoolerArticleResource;
-  const article = useSuspense(resource.detail(), {
+function ArticleComponentTester({ invalidIfStale = false, schema = true }) {
+  let endpoint = invalidIfStale
+    ? InvalidIfStaleArticleResource.detail()
+    : CoolerArticleResource.detail();
+  if (!schema) {
+    endpoint = endpoint.extend({ schema: undefined }) as any;
+  }
+  const article = useSuspense(endpoint, {
     id: payload.id,
   });
   return (
@@ -271,6 +274,39 @@ describe('useSuspense()', () => {
         <ControllerContext.Provider value={controller}>
           <Suspense fallback={<Fallback />}>
             <ArticleComponentTester invalidIfStale />
+          </Suspense>
+        </ControllerContext.Provider>
+      </StateContext.Provider>
+    );
+    render(tree);
+    expect(fbmock).toHaveBeenCalled();
+  });
+  it('should suspend if result stale in cache and options.invalidIfStale is true and no schema', () => {
+    const endpoint = InvalidIfStaleArticleResource.detail().extend({
+      schema: undefined,
+    });
+    const fetchKey = endpoint.key(payload);
+    const state = {
+      ...initialState,
+      entities: {},
+      results: {
+        [fetchKey]: payload,
+      },
+      entityMeta: {},
+      meta: {
+        [fetchKey]: {
+          date: 0,
+          expiresAt: 0,
+        },
+      },
+    };
+    const controller = new Controller({ dispatch: () => Promise.resolve() });
+
+    const tree = (
+      <StateContext.Provider value={state}>
+        <ControllerContext.Provider value={controller}>
+          <Suspense fallback={<Fallback />}>
+            <ArticleComponentTester invalidIfStale schema={false} />
           </Suspense>
         </ControllerContext.Provider>
       </StateContext.Provider>
