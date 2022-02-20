@@ -1,5 +1,5 @@
 import { CacheProvider } from '@rest-hooks/core';
-import { render, waitFor } from '@testing-library/react';
+import { getByTestId, render, waitFor } from '@testing-library/react';
 import React, { Suspense } from 'react';
 
 import { Img } from '..';
@@ -37,6 +37,54 @@ describe('<Img />', () => {
     imgs.forEach(img => img.onload?.(new Event('img load')));
 
     await waitFor(() => expect(getByAltText('myimage')).toBeDefined());
+  });
+
+  it('suspends then resolves with custom component', async () => {
+    function MyComponent({
+      src,
+      size,
+    }: {
+      src: string;
+      size: 'large' | 'small';
+    }) {
+      return (
+        <div
+          style={{ fontSize: size === 'large' ? '36px' : '16px' }}
+          data-testid="mycomponent"
+        >
+          {src}
+        </div>
+      );
+    }
+    () => {
+      <Img
+        component={MyComponent}
+        src="http://test.com/myimage.png"
+        //@ts-expect-error
+        size={5}
+      />;
+      //@ts-expect-error
+      <Img component={MyComponent} src="http://test.com/myimage.png" />;
+      //@ts-expect-error
+      <Img component={MyComponent} size="large" />;
+    };
+    const tree = (
+      <CacheProvider>
+        <Suspense fallback="loading">
+          <Img
+            component={MyComponent}
+            src="http://test.com/myimage.png"
+            size="large"
+          />
+        </Suspense>
+      </CacheProvider>
+    );
+    const { queryByText, getByTestId } = render(tree);
+    expect(queryByText('loading')).toBeDefined();
+
+    imgs.forEach(img => img.onload?.(new Event('img load')));
+
+    await waitFor(() => expect(getByTestId('mycomponent')).toBeDefined());
   });
 
   it('still resolves even when network request fails', async () => {
