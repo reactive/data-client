@@ -264,7 +264,7 @@ export default class Controller {
         data: results,
         expiryStatus: meta?.invalidated
           ? ExpiryStatus.Invalid
-          : cacheResults
+          : cacheResults && !endpoint.invalidIfStale
           ? ExpiryStatus.Valid
           : ExpiryStatus.InvalidIfStale,
         expiresAt: expiresAt || 0,
