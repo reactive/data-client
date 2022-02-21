@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1644896404376,
+  "lastUpdate": 1645402750645,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -4062,6 +4062,58 @@ window.BENCHMARK_DATA = {
             "range": "±5.48%",
             "unit": "ops/sec",
             "extra": "64 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "28fab739952aae6819ddfcaafe9fcb3c893f8d2f",
+          "message": "fix: InvalidIfStale should be respected in no-schema endpoints (#1724)",
+          "timestamp": "2022-02-20T16:16:32-08:00",
+          "tree_id": "94be4e37c2b38583ca3084ecfaaeab14a81c016e",
+          "url": "https://github.com/coinbase/rest-hooks/commit/28fab739952aae6819ddfcaafe9fcb3c893f8d2f"
+        },
+        "date": 1645402749232,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 105,
+            "range": "±1.46%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 42.5,
+            "range": "±0.82%",
+            "unit": "ops/sec",
+            "extra": "57 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 46.69,
+            "range": "±0.29%",
+            "unit": "ops/sec",
+            "extra": "61 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 103,
+            "range": "±2.16%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
           }
         ]
       }
