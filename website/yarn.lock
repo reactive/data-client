@@ -229,10 +229,10 @@
     "@algolia/logger-common" "4.10.5"
     "@algolia/requester-common" "4.10.5"
 
-"@anansi/webpack-config@^11.2.3":
-  version "11.2.3"
-  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.2.3.tgz#f63946374ab57856be7b71f64ab4bbf86bc6bde4"
-  integrity sha512-Kxqtlc8X3S4DSJvIZTBbrbOOUBOhZyGsSMAQfF8YprJ2Js+b2Ht1Ehsz0rUEyMyTn8NkGRc2lphTDjZLS5FrFw==
+"@anansi/webpack-config@^11.3.0":
+  version "11.3.0"
+  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.3.0.tgz#97c49102f03114ef303bec8f0e962c4726943912"
+  integrity sha512-wviIn8ucZRSWZSz0fh16vrR24MlKffs8fSPIVCGyxrJxHq8gchOltefPRnTX4iPvi1SSPc4HrHGzjo6XAmqpqQ==
   dependencies:
     "@babel/runtime" "^7.17.2"
     "@ntucker/linaria-webpack5-loader" "3.0.0-beta.17"
@@ -291,7 +291,6 @@
     svgo "^2.8.0"
     svgo-loader "^3.0.0"
     terser-webpack-plugin "^5.3.1"
-    thread-loader "^3.0.4"
     timers-browserify "^2.0.12"
     tsconfig-paths-webpack-plugin "^3.5.2"
     tty-browserify "^0.0.1"
@@ -6854,7 +6853,7 @@ lines-and-columns@^1.1.6:
   resolved "https://registry.yarnpkg.com/lines-and-columns/-/lines-and-columns-1.1.6.tgz#1c00c743b433cd0a4e80758f7b64a57440d9ff00"
   integrity sha1-HADHQ7QzzQpOgHWPe2SldEDZ/wA=
 
-loader-runner@^4.1.0, loader-runner@^4.2.0:
+loader-runner@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/loader-runner/-/loader-runner-4.2.0.tgz#d7022380d66d14c5fb1d496b89864ebcfd478384"
   integrity sha512-92+huvxMvYlMzMt0iIOukcwYBFpkYJdpl2xsZ7LrlayO7E8SOv+JJUEK17B/dJIHAOLMfh2dZZ/Y18WgmGtYNw==
@@ -10116,17 +10115,6 @@ text-table@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
-
-thread-loader@^3.0.4:
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/thread-loader/-/thread-loader-3.0.4.tgz#c392e4c0241fbc80430eb680e4886819b504a31b"
-  integrity sha512-ByaL2TPb+m6yArpqQUZvP+5S1mZtXsEP7nWKKlAUTm7fCml8kB5s1uI3+eHRP2bk5mVYfRSBI7FFf+tWEyLZwA==
-  dependencies:
-    json-parse-better-errors "^1.0.2"
-    loader-runner "^4.1.0"
-    loader-utils "^2.0.0"
-    neo-async "^2.6.2"
-    schema-utils "^3.0.0"
 
 through@^2.3.6:
   version "2.3.8"
