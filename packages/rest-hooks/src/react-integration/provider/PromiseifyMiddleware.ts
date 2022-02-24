@@ -1,8 +1,8 @@
 import React from 'react';
-import { MiddlewareAPI, Dispatch } from '@rest-hooks/core';
+import { Dispatch } from '@rest-hooks/core';
 
 const PromiseifyMiddleware =
-  <R extends React.Reducer<any, any>>(_: MiddlewareAPI<R>) =>
+  <R extends React.Reducer<any, any>>(_: unknown) =>
   (next: Dispatch<R>) =>
   (action: React.ReducerAction<R>): Promise<void> => {
     next(action);
