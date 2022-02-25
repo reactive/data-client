@@ -24,6 +24,25 @@ export default class DevToolsManager implements Manager {
   constructor(
     config: DevToolsConfig = {
       name: `Rest Hooks: ${globalThis.document?.title}`,
+      serialize: {
+        replacer: (key: string, value: unknown) => {
+          if (
+            typeof value === 'number' &&
+            (key === 'date' || key.endsWith('At'))
+          ) {
+            if (typeof Intl !== 'undefined') {
+              return Intl.DateTimeFormat('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                fractionalSecondDigits: 3,
+              }).format(value);
+            }
+            return new Date(value);
+          }
+          return value;
+        },
+      },
     },
     skipLogging?: (action: ActionTypes) => boolean,
   ) {
