@@ -50,8 +50,8 @@ export default function createReceive<
   },
 ): ReceiveAction {
   const expiryLength: number = error
-    ? endpoint.errorExpiryLength ?? 60000
-    : endpoint.dataExpiryLength ?? 1000;
+    ? endpoint.errorExpiryLength ?? 1000
+    : endpoint.dataExpiryLength ?? 60000;
   /* istanbul ignore next */
   if (process.env.NODE_ENV === 'development' && expiryLength < 0) {
     throw new Error('Negative expiry length are not allowed.');
