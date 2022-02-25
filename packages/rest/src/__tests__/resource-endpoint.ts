@@ -75,6 +75,23 @@ describe('Resource', () => {
     expect(urlArticle.url).toBe('five');
   });
 
+  it('should spread `url` member', () => {
+    const entity = UrlArticleResource.fromJS({ url: 'five' });
+    const spread = { ...entity };
+    expect(spread.url).toBe('five');
+    expect(Object.prototype.hasOwnProperty.call(entity, 'url')).toBeTruthy();
+  });
+
+  it('should not spread `url` member if not a member', () => {
+    const entity = CoolerArticleResource.fromJS({ id: 5, title: 'five' });
+    expect(entity.url).toMatchInlineSnapshot(
+      `"http://test.com/article-cooler/5"`,
+    );
+    const spread = { ...entity };
+    expect(spread.url).toBeUndefined();
+    expect(Object.prototype.hasOwnProperty.call(entity, 'url')).toBeFalsy();
+  });
+
   it('should convert class to string', () => {
     expect(CoolerArticleResource.toString()).toBeDefined();
     expect(CoolerArticleResource.toString()).toMatchInlineSnapshot(

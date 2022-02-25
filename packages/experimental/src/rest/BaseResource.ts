@@ -52,8 +52,6 @@ export default abstract class BaseResource extends EntityRecord {
   /** URL to find this SimpleResource */
   declare readonly url: string;
 
-  private declare __url?: string;
-
   /** Get the url for a SimpleResource
    *
    * Default implementation conforms to common REST patterns
@@ -236,21 +234,24 @@ export default abstract class BaseResource extends EntityRecord {
       }),
     );
   }
-}
 
-// We're only allowing this to get set for descendants but
-// by default we want Typescript to treat it as readonly.
-Object.defineProperty(BaseResource.prototype, 'url', {
-  get(): string {
-    if (this.__url !== undefined) return this.__url;
-    // typescript thinks constructor is just a function
-    const Static = this.constructor as typeof BaseResource;
-    return Static.url(this);
-  },
-  set(url: string) {
-    this.__url = url;
-  },
-});
+  static {
+    Object.defineProperty(this.prototype, 'url', {
+      get(): string {
+        // typescript thinks constructor is just a function
+        const Static = this.constructor as typeof BaseResource;
+        return Static.url(this);
+      },
+      set(v: string) {
+        Object.defineProperty(this, 'url', {
+          value: v,
+          writable: true,
+          enumerable: true,
+        });
+      },
+    });
+  }
+}
 
 const proto = Object.prototype;
 const gpo = Object.getPrototypeOf;
