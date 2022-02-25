@@ -67,6 +67,10 @@ export class PaginatedArticleResource extends Resource {
   }
 }
 
+export class UrlArticleResource extends PaginatedArticleResource {
+  readonly url: string = 'happy.com';
+}
+
 describe('Resource', () => {
   const renderRestHook: ReturnType<typeof makeRenderRestHook> =
     makeRenderRestHook(makeCacheProvider);
@@ -244,5 +248,22 @@ describe('Resource', () => {
     mynock.delete(`/article-paginated/500`).reply(204, undefined);
     const res = await PaginatedArticleResource.delete()({ id: 500 });
     expect(res).toEqual({ id: 500 });
+  });
+
+  it('should spread `url` member', () => {
+    const entity = UrlArticleResource.fromJS({ url: 'five' });
+    const spread = { ...entity };
+    expect(spread.url).toBe('five');
+    expect(Object.prototype.hasOwnProperty.call(entity, 'url')).toBeTruthy();
+  });
+
+  it('should not spread `url` member if not a member', () => {
+    const entity = PaginatedArticleResource.fromJS({ id: 5, title: 'five' });
+    expect(entity.url).toMatchInlineSnapshot(
+      `"http://test.com/article-paginated/5"`,
+    );
+    const spread = { ...entity };
+    expect(spread.url).toBeUndefined();
+    expect(Object.prototype.hasOwnProperty.call(entity, 'url')).toBeFalsy();
   });
 });
