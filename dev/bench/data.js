@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1645402750645,
+  "lastUpdate": 1645830562204,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -4114,6 +4114,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.16%",
             "unit": "ops/sec",
             "extra": "76 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b98dcfdb56bfc947829e2eead4b6a785dfe3965d",
+          "message": "fix: Expiry defaults for useSuspense() should match useResource() (#1738)",
+          "timestamp": "2022-02-25T15:06:48-08:00",
+          "tree_id": "6a1be71c28fe0064838a2c5fc16c77a1f03212c3",
+          "url": "https://github.com/coinbase/rest-hooks/commit/b98dcfdb56bfc947829e2eead4b6a785dfe3965d"
+        },
+        "date": 1645830561330,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 95.62,
+            "range": "±1.26%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 38.56,
+            "range": "±1.05%",
+            "unit": "ops/sec",
+            "extra": "53 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 42.8,
+            "range": "±0.33%",
+            "unit": "ops/sec",
+            "extra": "57 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 95.13,
+            "range": "±0.83%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
           }
         ]
       }
