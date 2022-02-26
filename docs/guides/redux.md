@@ -49,7 +49,7 @@ import {
 } from 'rest-hooks';
 import {
   initialState,
-  reducer,
+  createReducer,
   NetworkManager,
   Controller,
 } from '@rest-hooks/core';
@@ -61,7 +61,7 @@ const subscriptionManager = new SubscriptionManager(PollingSubscription);
 const controller = new Controller();
 
 const store = createStore(
-  reducer,
+  createReducer(controller),
   initialState,
   applyMiddleware(
     ...applyManager([networkManager, subscriptionManager], controller),
@@ -78,7 +78,11 @@ for (const manager of [networkManager, subscriptionManager]) {
 }
 
 ReactDOM.render(
-  <ExternalCacheProvider store={store} selector={selector}>
+  <ExternalCacheProvider
+    store={store}
+    selector={selector}
+    controller={controller}
+  >
     <App />
   </ExternalCacheProvider>,
   document.body,
@@ -124,7 +128,7 @@ import {
 } from 'rest-hooks';
 import {
   initialState,
-  reducer,
+  createReducer,
   NetworkManager,
   Controller,
 } from '@rest-hooks/core';
@@ -137,7 +141,7 @@ const subscriptionManager = new SubscriptionManager(PollingSubscription);
 const controller = new Controller();
 
 const store = createStore(
-  reducer,
+  createReducer(controller),
   initialState,
   applyMiddleware(
     ...applyManager([networkManager, subscriptionManager], controller),
@@ -149,7 +153,7 @@ const store = createStore(
 const selector = state => state;
 
 ReactDOM.render(
-  <ExternalCacheProvider store={store} selector={selector}>
+  <ExternalCacheProvider store={store} selector={selector} controller={controller}>
     <Provider store={store}>
       <App />
     </Provider>
@@ -199,7 +203,7 @@ Simply wrap the return value of `applyMiddleware()` with `composeWithDevTools()`
 import { composeWithDevTools } from 'redux-devtools-extension';
 
 const store = createStore(
-  reducer,
+  createReducer(controller),
   initialState,
   // The next three lines are added
   composeWithDevTools({
