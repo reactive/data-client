@@ -2165,8 +2165,8 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.19.tgz#2c94db828794aa53e7a420809dac870348819233"
   integrity sha512-kHR9OHwP9WLpyC0i/WCAQCgf5hXkR9C+/21qxmrn+YwRlDRnBlqrcrFpXxhJTA9LDHJWa/FjoO2LJ12q8iWlEQ==
 
-"@rest-hooks/core@^3.1.0-beta.5", "@rest-hooks/core@file:../packages/core":
-  version "3.1.0-beta.5"
+"@rest-hooks/core@^3.1.0-beta.6", "@rest-hooks/core@file:../packages/core":
+  version "3.1.0-beta.6"
   dependencies:
     "@babel/runtime" "^7.7.2"
     "@rest-hooks/endpoint" "^2.2.0-beta.2"
@@ -2196,7 +2196,7 @@
     "@babel/runtime" "^7.7.2"
 
 "@rest-hooks/rest@file:../packages/rest":
-  version "3.0.2"
+  version "3.0.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
 
@@ -8527,9 +8527,9 @@ prism-react-renderer@^1.0.1, prism-react-renderer@^1.2.1:
   integrity sha512-w23ch4f75V1Tnz8DajsYKvY5lF7H1+WvzvLUcF0paFxkTHSp42RS0H5CttdN2Q8RR3DRGZ9v5xD/h3n8C8kGmg==
 
 prismjs@^1.23.0:
-  version "1.25.0"
-  resolved "https://registry.yarnpkg.com/prismjs/-/prismjs-1.25.0.tgz#6f822df1bdad965734b310b315a23315cf999756"
-  integrity sha512-WCjJHl1KEWbnkQom1+SzftbtXMKQoezOCYs5rECqMN+jP+apI7ftoflyqigqzopSO3hMhTEb0mFClA8lkolgEg==
+  version "1.27.0"
+  resolved "https://registry.yarnpkg.com/prismjs/-/prismjs-1.27.0.tgz#bb6ee3138a0b438a3653dd4d6ce0cc6510a45057"
+  integrity sha512-t13BGPUlFDR7wRB5kQDG4jjl7XeuH6jbJGt11JHPL96qwsEHNX2+68tFXqc1/k+/jALsbSWJKUOT/hcYAZ5LkA==
 
 process-nextick-args@~2.0.0:
   version "2.0.1"
@@ -9249,10 +9249,10 @@ responselike@^1.0.2:
     lowercase-keys "^1.0.0"
 
 "rest-hooks@file:../packages/rest-hooks":
-  version "6.2.0-beta.5"
+  version "6.2.0-beta.6"
   dependencies:
     "@babel/runtime" "^7.7.2"
-    "@rest-hooks/core" "^3.1.0-beta.5"
+    "@rest-hooks/core" "^3.1.0-beta.6"
     "@rest-hooks/endpoint" "^2.2.0-beta.2"
 
 restore-cursor@^3.1.0:
