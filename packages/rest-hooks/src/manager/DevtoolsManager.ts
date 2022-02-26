@@ -13,6 +13,8 @@ export type DevToolsConfig = {
   name: string;
 };
 
+const HASINTL = typeof Intl !== 'undefined';
+
 /** Integrates with https://github.com/zalmoxisus/redux-devtools-extension
  *
  * Options: https://github.com/zalmoxisus/redux-devtools-extension/blob/master/docs/API/Arguments.md
@@ -25,20 +27,26 @@ export default class DevToolsManager implements Manager {
     config: DevToolsConfig = {
       name: `Rest Hooks: ${globalThis.document?.title}`,
       serialize: {
-        replacer: (key: string, value: unknown) => {
+        // the default options are only used if serialize isn't specified, so we include the default here
+        options: {
+          circular: '[CIRCULAR]',
+          date: true,
+        },
+        /* istanbul ignore next */
+        replacer: (key: string | number | symbol, value: unknown) => {
           if (
+            HASINTL &&
             typeof value === 'number' &&
+            typeof key === 'string' &&
+            isFinite(value) &&
             (key === 'date' || key.endsWith('At'))
           ) {
-            if (typeof Intl !== 'undefined') {
-              return Intl.DateTimeFormat('en-US', {
-                hour: 'numeric',
-                minute: 'numeric',
-                second: 'numeric',
-                fractionalSecondDigits: 3,
-              }).format(value);
-            }
-            return new Date(value);
+            return Intl.DateTimeFormat('en-US', {
+              hour: 'numeric',
+              minute: 'numeric',
+              second: 'numeric',
+              fractionalSecondDigits: 3,
+            }).format(value);
           }
           return value;
         },
