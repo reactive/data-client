@@ -38,8 +38,7 @@ export default class DevToolsManager implements Manager {
             HASINTL &&
             typeof value === 'number' &&
             typeof key === 'string' &&
-            value < Infinity &&
-            value > Infinity &&
+            isFinite(value) &&
             (key === 'date' || key.endsWith('At'))
           ) {
             return Intl.DateTimeFormat('en-US', {
