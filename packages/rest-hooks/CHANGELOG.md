@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.2.0-beta.7](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.0-beta.6...rest-hooks@6.2.0-beta.7) (2022-02-26)
+
+
+### 💅 Enhancement
+
+* Devtools improvements ([#1743](https://github.com/coinbase/rest-hooks/issues/1743)) ([db2fd59](https://github.com/coinbase/rest-hooks/commit/db2fd590532c51f72165167c9e807ac2c26deab2))
+
+
+
 ## [6.2.0-beta.6](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.0-beta.5...rest-hooks@6.2.0-beta.6) (2022-02-26)
 
 
