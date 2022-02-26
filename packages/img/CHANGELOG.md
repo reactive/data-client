@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/img@0.5.2...@rest-hooks/img@0.6.0) (2022-02-26)
+
+
+### 🚀 Features
+
+* Add component prop to Img ([#1725](https://github.com/coinbase/rest-hooks/issues/1725)) ([e272198](https://github.com/coinbase/rest-hooks/commit/e2721987f0b01a45489373eae031b5b239bf653e))
+
+
+
 ### [0.5.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/img@0.5.1...@rest-hooks/img@0.5.2) (2021-10-18)
 
 

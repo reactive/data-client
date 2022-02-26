@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@3.0.2...@rest-hooks/rest@3.0.3) (2022-02-26)
+
+
+### 🐛 Bug Fix
+
+* Resource.url properties are enumerable when provided ([#1737](https://github.com/coinbase/rest-hooks/issues/1737)) ([500ab87](https://github.com/coinbase/rest-hooks/commit/500ab87ebc49d5d573c6ed5a79f6e9501537fa70))
+
+
+
 ### [3.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@3.0.1...@rest-hooks/rest@3.0.2) (2022-02-15)
 
 

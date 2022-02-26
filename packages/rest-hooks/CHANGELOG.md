@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.2.0-beta.6](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.0-beta.5...rest-hooks@6.2.0-beta.6) (2022-02-26)
+
+
+### 💅 Enhancement
+
+* Format timestamps in redux devtools for ease of reading ([#1739](https://github.com/coinbase/rest-hooks/issues/1739)) ([6169f84](https://github.com/coinbase/rest-hooks/commit/6169f8417c304b52954a166e8f3f60fb4ba70747))
+
+
+### 🐛 Bug Fix
+
+* Loosen PromiseifyMiddleware types to only what is needed ([#1735](https://github.com/coinbase/rest-hooks/issues/1735)) ([4831bd6](https://github.com/coinbase/rest-hooks/commit/4831bd64762554a7f46cff1699346200cecf4426))
+
+
+
 ## [6.2.0-beta.5](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.0-beta.3...rest-hooks@6.2.0-beta.5) (2022-02-15)
 
 

@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.1.0-beta.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.5...@rest-hooks/core@3.1.0-beta.6) (2022-02-26)
+
+
+### 🐛 Bug Fix
+
+* Expiry defaults for useSuspense() should match useResource() ([#1738](https://github.com/coinbase/rest-hooks/issues/1738)) ([b98dcfd](https://github.com/coinbase/rest-hooks/commit/b98dcfdb56bfc947829e2eead4b6a785dfe3965d))
+* InvalidIfStale should be respected in no-schema endpoints ([#1724](https://github.com/coinbase/rest-hooks/issues/1724)) ([28fab73](https://github.com/coinbase/rest-hooks/commit/28fab739952aae6819ddfcaafe9fcb3c893f8d2f))
+
+
+
 ## [3.1.0-beta.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.3...@rest-hooks/core@3.1.0-beta.5) (2022-02-15)
 
 

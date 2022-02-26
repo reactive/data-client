@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@3.1.0...@rest-hooks/experimental@3.3.0) (2022-02-26)
+
+
+### 🚀 Features
+
+* useSuspense, useFetch, remaining hooks typed for Endpoint ([#1440](https://github.com/coinbase/rest-hooks/issues/1440)) ([2039d2c](https://github.com/coinbase/rest-hooks/commit/2039d2c4bf280b5a3c570824c25af3a4cc39af0d))
+
+
+### 🐛 Bug Fix
+
+* Resource.url properties are enumerable when provided ([#1737](https://github.com/coinbase/rest-hooks/issues/1737)) ([500ab87](https://github.com/coinbase/rest-hooks/commit/500ab87ebc49d5d573c6ed5a79f6e9501537fa70))
+* Return type of useSuspense should factor in null params ([#1456](https://github.com/coinbase/rest-hooks/issues/1456)) ([831afff](https://github.com/coinbase/rest-hooks/commit/831afff0827648b3ae5ca125a34bfbe3418c8252))
+
+
+
 ## [3.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@3.1.0...@rest-hooks/experimental@3.2.0) (2021-10-29)
 
 ### 🐛 Bug Fix

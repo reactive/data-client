@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/core",
-  "version": "3.1.0-beta.5",
+  "version": "3.1.0-beta.6",
   "description": "Asynchronous data framework for React",
   "sideEffects": false,
   "main": "dist/index.js",
