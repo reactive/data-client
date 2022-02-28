@@ -5,7 +5,7 @@ Object {
   "entities": Object {},
   "entityMeta": Object {},
   "indexes": Object {},
-  "lastReset": -Infinity,
+  "lastReset": 0,
   "meta": Object {
     "http://test.com/article/20": Object {
       "date": 5000000000,
@@ -39,7 +39,7 @@ Object {
     },
   },
   "indexes": Object {},
-  "lastReset": -Infinity,
+  "lastReset": 0,
   "meta": Object {
     "http://test.com/article/20": Object {
       "date": 5000000000,
