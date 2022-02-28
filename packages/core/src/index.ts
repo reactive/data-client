@@ -21,6 +21,7 @@ export {
   useMeta,
   useError,
   CacheProvider,
+  BackupBoundary,
   useInvalidator,
   useInvalidateDispatcher,
   useResetter,
