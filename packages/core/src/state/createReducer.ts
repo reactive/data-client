@@ -26,7 +26,7 @@ export const initialState: State<unknown> = {
   meta: {},
   entityMeta: {},
   optimistic: [],
-  lastReset: -Infinity,
+  lastReset: 0,
 };
 
 export default function createReducer(controller: Controller) {

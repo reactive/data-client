@@ -8,6 +8,7 @@ import {
   usePromisifiedDispatch,
   DenormalizeCacheContext,
   Controller,
+  BackupBoundary,
 } from '@rest-hooks/core';
 import React, {
   ReactNode,
@@ -66,7 +67,7 @@ export default function ExternalCacheProvider<S>({
       <StateContext.Provider value={state}>
         <ControllerContext.Provider value={controller}>
           <DenormalizeCacheContext.Provider value={controller.globalCache}>
-            {children}
+            <BackupBoundary>{children}</BackupBoundary>
           </DenormalizeCacheContext.Provider>
         </ControllerContext.Provider>
       </StateContext.Provider>

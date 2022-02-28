@@ -18,7 +18,7 @@ import {
   Controller,
 } from '@rest-hooks/core';
 import React, { Suspense } from 'react';
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import nock from 'nock';
 
 // relative imports to avoid circular dependency in tsconfig references
@@ -34,6 +34,7 @@ import {
 } from '../../../../../test';
 import useSuspense from '../useSuspense';
 import { payload, users, nested } from '../test-fixtures';
+import { CacheProvider } from '../..';
 
 async function testDispatchFetch(
   Component: React.FunctionComponent<any>,
@@ -324,6 +325,29 @@ describe('useSuspense()', () => {
     });
     afterEach(() => {
       errorspy.mockRestore();
+    });
+
+    it('should console.error when lastReset is NaN', async () => {
+      const state: State<unknown> = {
+        ...initialState,
+        lastReset: NaN as any,
+      };
+
+      const tree = (
+        <CacheProvider initialState={state}>
+          <Suspense fallback={<Fallback />}>
+            <ArticleComponentTester />
+          </Suspense>
+        </CacheProvider>
+      );
+      const { findAllByText } = render(tree);
+      expect(fbmock).toHaveBeenCalled();
+      await act(async () => {
+        await findAllByText(payload.title);
+      });
+      expect(errorspy.mock.calls).toContainEqual([
+        'state.lastReset is NaN. Only positive timestamps are valid.',
+      ]);
     });
 
     // taken from integration

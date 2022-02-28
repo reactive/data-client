@@ -14,6 +14,13 @@ describe('NetworkManager', () => {
   afterAll(() => {
     manager.cleanup();
   });
+  let errorspy: jest.SpyInstance;
+  beforeEach(() => {
+    errorspy = jest.spyOn(global.console, 'error');
+  });
+  afterEach(() => {
+    errorspy.mockRestore();
+  });
 
   it('getState() should have initialState before middleware run', () => {
     class Hacked extends NetworkManager {
@@ -323,6 +330,26 @@ describe('NetworkManager', () => {
         const { meta } = dispatch.mock.calls[0][0];
         expect(meta.expiresAt - meta.date).toBe(7);
       }
+    });
+
+    it('getLastReset() should handle Date object', async () => {
+      const mgr = new NetworkManager();
+      jest.spyOn(mgr, 'getState' as any).mockImplementation((): any => ({
+        ...initialState,
+        lastReset: new Date(0),
+      }));
+
+      expect((mgr as any).getLastReset()).toBeLessThan(Date.now());
+    });
+
+    it('getLastReset() should handle null', async () => {
+      const mgr = new NetworkManager();
+      jest.spyOn(mgr, 'getState' as any).mockImplementation((): any => ({
+        ...initialState,
+        lastReset: null,
+      }));
+
+      expect((mgr as any).getLastReset()).toBeLessThan(Date.now());
     });
   });
 });
