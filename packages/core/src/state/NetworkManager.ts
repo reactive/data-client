@@ -136,7 +136,8 @@ export default class NetworkManager implements Manager {
 
   protected getLastReset() {
     const lastReset = this.getState().lastReset;
-    if (typeof lastReset !== 'number') return lastReset.getTime();
+    if (lastReset instanceof Date) return lastReset.valueOf();
+    if (typeof lastReset !== 'number') return -Infinity;
     return lastReset;
   }
 
@@ -183,7 +184,15 @@ export default class NetworkManager implements Manager {
       }
       promise = promise
         .then(data => {
-          const lastReset = this.getLastReset();
+          let lastReset = this.getLastReset();
+
+          /* istanbul ignore else */
+          if (process.env.NODE_ENV !== 'production' && isNaN(lastReset)) {
+            console.error(
+              'state.lastReset is NaN. Only positive timestamps are valid.',
+            );
+            lastReset = 0;
+          }
 
           // don't update state with promises started before last clear
           if (createdAt >= lastReset) {
