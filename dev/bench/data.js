@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1645834992376,
+  "lastUpdate": 1646028299834,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -4218,6 +4218,58 @@ window.BENCHMARK_DATA = {
             "range": "±0.91%",
             "unit": "ops/sec",
             "extra": "71 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "natmaster@gmail.com",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": true,
+          "id": "3a68907882f35c3806b05244e68d61e503b91d0f",
+          "message": "enhance: Use BackupBoundary to help debug setup issues",
+          "timestamp": "2022-02-28T00:02:26-06:00",
+          "tree_id": "91114238b04f4afcfe718f992497e0cf1425c7c2",
+          "url": "https://github.com/coinbase/rest-hooks/commit/3a68907882f35c3806b05244e68d61e503b91d0f"
+        },
+        "date": 1646028299029,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 102,
+            "range": "±0.85%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 40.93,
+            "range": "±1.00%",
+            "unit": "ops/sec",
+            "extra": "54 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 45.81,
+            "range": "±0.46%",
+            "unit": "ops/sec",
+            "extra": "60 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 102,
+            "range": "±1.20%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
           }
         ]
       }
