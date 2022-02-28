@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1646028299834,
+  "lastUpdate": 1646032062899,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -4270,6 +4270,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.20%",
             "unit": "ops/sec",
             "extra": "75 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e25158a28c5bdc90aeb7fa6e7ca2c43580f6f88f",
+          "message": "fix: lastReset should serialize (#1745)",
+          "timestamp": "2022-02-27T23:04:58-08:00",
+          "tree_id": "059fd6be89cb8cd13c19f725f593c83a50128af7",
+          "url": "https://github.com/coinbase/rest-hooks/commit/e25158a28c5bdc90aeb7fa6e7ca2c43580f6f88f"
+        },
+        "date": 1646032061543,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 96.57,
+            "range": "±1.01%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 39.07,
+            "range": "±0.92%",
+            "unit": "ops/sec",
+            "extra": "52 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 43.96,
+            "range": "±0.55%",
+            "unit": "ops/sec",
+            "extra": "58 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 97.19,
+            "range": "±0.29%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
           }
         ]
       }
