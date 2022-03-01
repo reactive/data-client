@@ -229,10 +229,10 @@
     "@algolia/logger-common" "4.10.5"
     "@algolia/requester-common" "4.10.5"
 
-"@anansi/webpack-config@^11.3.0":
-  version "11.3.0"
-  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.3.0.tgz#97c49102f03114ef303bec8f0e962c4726943912"
-  integrity sha512-wviIn8ucZRSWZSz0fh16vrR24MlKffs8fSPIVCGyxrJxHq8gchOltefPRnTX4iPvi1SSPc4HrHGzjo6XAmqpqQ==
+"@anansi/webpack-config@^11.3.1":
+  version "11.3.1"
+  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.3.1.tgz#97edc0997b671684e149da01997ddccd377c93f2"
+  integrity sha512-tZDqoR0nN+CXW8ncvJ27jH0rbNYXZi14kbmttZ8nVODiRfHWyTUzgL2F6eG8UZsdUPgT2OrXTUDxlaXZkHe2NA==
   dependencies:
     "@babel/runtime" "^7.17.2"
     "@ntucker/linaria-webpack5-loader" "3.0.0-beta.17"
