@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.2.0-beta.8](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.0-beta.7...rest-hooks@6.2.0-beta.8) (2022-03-01)
+
+
+### 💅 Enhancement
+
+* Use BackupBoundary to help debug setup issues ([3a68907](https://github.com/coinbase/rest-hooks/commit/3a68907882f35c3806b05244e68d61e503b91d0f))
+
+
+
 ## [6.2.0-beta.7](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.0-beta.6...rest-hooks@6.2.0-beta.7) (2022-02-26)
 
 
