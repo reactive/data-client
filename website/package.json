@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@anansi/webpack-config": "^11.3.1",
-    "@docusaurus/core": "^2.0.0-beta.15",
+    "@docusaurus/core": "^2.0.0-beta.16",
     "@docusaurus/plugin-client-redirects": "^2.0.0-beta.15",
     "@docusaurus/preset-classic": "^2.0.0-beta.15",
     "@docusaurus/theme-live-codeblock": "^2.0.0-beta.15",
