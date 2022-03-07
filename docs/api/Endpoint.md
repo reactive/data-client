@@ -68,7 +68,7 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   /** Marks cached resources as invalid if they are stale */
   readonly invalidIfStale?: boolean;
   /** Enables optimistic updates for this request - uses return value as assumed network response */
-  readonly optimisticUpdater?: (
+  readonly getOptimisticResponse?: (
     snap: SnapshotInterface,
     ...args: Parameters<F>
   ) => ResolveType<F>;
@@ -77,7 +77,7 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   /** User-land extra data to send */
   readonly extra?: any;
   /** Enables optimistic updates for this request - uses return value as assumed network response
-   * @deprecated use https://resthooks.io/docs/api/Endpoint#optimisticupdater instead
+   * @deprecated use https://resthooks.io/docs/api/Endpoint#getoptimisticresponse instead
    */
   readonly optimisticUpdate?: (...args: Parameters<F>) => ResolveType<F>;
 }
@@ -177,7 +177,7 @@ that useSuspense() will suspend when data is stale even if it already exists in 
 Frequency in millisecond to poll at. Requires using [useSubscription()](./useSubscription.md) to have
 an effect.
 
-#### optimisticUpdater: (snap, ...args) => fakePayload {#optimisticupdater}
+#### getOptimisticResponse: (snap, ...args) => fakePayload {#getoptimisticresponse}
 
 When provided, any fetches with this endpoint will behave as though the `fakePayload` return value
 from this function was a succesful network response. When the actual fetch completes (regardless
@@ -189,7 +189,7 @@ of failure or success), the optimistic update will be replaced with the actual n
 
 :::caution Deprecated
 
-Use [endpoint.optimisticUpdater](#optimisticUpdater) instead.
+Use [endpoint.getOptimisticResponse](#getOptimisticResponse) instead.
 
 :::
 
