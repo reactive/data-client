@@ -329,6 +329,7 @@ module.exports = {
       },
     },
     algolia: {
+      appId: 'BH4D9OD16A',
       apiKey: '937e8e00950173761eede8a9c5ed77ac',
       indexName: 'resthooks',
       contextualSearch: true,
