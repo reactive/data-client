@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { Link } from '@docusaurus/router';
+import { Link } from 'react-router-dom';
 
 import CodeEditor from './CodeEditor';
 import styles from './styles.module.css';
