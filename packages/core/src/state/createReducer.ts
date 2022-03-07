@@ -93,6 +93,7 @@ export default function createReducer(controller: Controller) {
         }
         try {
           let payload: any;
+          let meta: State<unknown>['meta'][string];
           // for true receives payload is contained in action
           if (action.type === OPTIMISTIC_TYPE) {
             if (!action.endpoint.getOptimisticResponse) return state;
@@ -113,6 +114,20 @@ export default function createReducer(controller: Controller) {
             }
           } else {
             payload = action.payload;
+          }
+          if (action.type === OPTIMISTIC_TYPE && state.meta[action.meta.key]) {
+            const prev = state.meta[action.meta.key];
+            meta = {
+              date: Math.max(action.meta.date, prev.date),
+              expiresAt: Math.max(action.meta.expiresAt, prev.expiresAt),
+              prevExpiresAt: prev.expiresAt,
+            };
+          } else {
+            meta = {
+              date: action.meta.date,
+              expiresAt: action.meta.expiresAt,
+              prevExpiresAt: state.meta[action.meta.key]?.expiresAt,
+            };
           }
           const { result, entities, indexes, entityMeta } = normalize(
             payload,
@@ -158,11 +173,7 @@ export default function createReducer(controller: Controller) {
             entityMeta,
             meta: {
               ...state.meta,
-              [action.meta.key]: {
-                date: action.meta.date,
-                expiresAt: action.meta.expiresAt,
-                prevExpiresAt: state.meta[action.meta.key]?.expiresAt,
-              },
+              [action.meta.key]: meta,
             },
             optimistic: filterOptimistic(state, action),
             lastReset: state.lastReset,

@@ -84,7 +84,17 @@ export default abstract class Entity {
     existingMeta?: { date: number },
     incomingMeta?: { date: number },
   ) {
-    return { ...existing, ...incoming };
+    if (
+      !existingMeta ||
+      !incomingMeta ||
+      existingMeta.date <= incomingMeta.date
+    ) {
+      return {
+        ...existing,
+        ...incoming,
+      };
+    }
+    return existing;
   }
 
   /** Factory method to convert from Plain JS Objects.

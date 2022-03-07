@@ -39,7 +39,7 @@ export class VisSettings extends Resource implements Vis {
   static urlRoot = 'http://test.com/vis-settings/';
 
   static merge(existing: any, incoming: any) {
-    if (existing.updatedAt < incoming.updatedAt) {
+    if (existing.updatedAt <= incoming.updatedAt) {
       return {
         ...existing,
         ...incoming,

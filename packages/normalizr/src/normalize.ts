@@ -112,10 +112,13 @@ const addEntities =
               );
         }
 
-        entityMeta[schemaKey][id] =
-          entityMeta[schemaKey][id]?.expiresAt >= entityExpiresAt
-            ? entityMeta[schemaKey][id]
-            : { expiresAt: entityExpiresAt, date: meta.date };
+        entityMeta[schemaKey][id] = {
+          expiresAt: Math.max(
+            entityExpiresAt,
+            entityMeta[schemaKey][id]?.expiresAt,
+          ),
+          date: Math.max(meta.date, entityMeta[schemaKey][id]?.date),
+        };
       } else {
         entities[schemaKey][id] = processedEntity;
         entityMeta[schemaKey][id] = {
