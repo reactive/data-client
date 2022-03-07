@@ -38,7 +38,7 @@ afterEach(() => {
 });
 
 /*
-  These tests cover 'optimisticUpdater' property
+  These tests cover 'getOptimisticResponse' property
 */
 describe.each([
   ['CacheProvider', makeCacheProvider],
@@ -264,7 +264,7 @@ describe.each([
       expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3]);
 
       const createOptimistic = FutureArticleResource.create().extend({
-        optimisticUpdater: (snap, body) => ({ id: Math.random(), ...body }),
+        getOptimisticResponse: (snap, body) => ({ id: Math.random(), ...body }),
       });
       act(() => {
         result.current.fetch(createOptimistic, {
@@ -396,7 +396,7 @@ describe.each([
           name: 'toggle',
           schema: Toggle,
           sideEffect: true,
-          optimisticUpdater(snap, id) {
+          getOptimisticResponse(snap, id) {
             const { data } = snap.getResponse(getbool, id);
             if (!data) throw new AbortOptimistic();
             return {
@@ -531,7 +531,7 @@ describe.each([
             name: 'toggle',
             schema: Toggle,
             sideEffect: true,
-            optimisticUpdater(snap, id) {
+            getOptimisticResponse(snap, id) {
               const getterError = snap.getError(getbool, id);
               if (getterError) throw getterError;
               throw new Error('this should fail');

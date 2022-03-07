@@ -15,11 +15,11 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   /** Marks cached resources as invalid if they are stale */
   readonly invalidIfStale?: boolean;
   /** Enables optimistic updates for this request - uses return value as assumed network response
-   * @deprecated use https://resthooks.io/docs/api/Endpoint#optimisticupdater instead
+   * @deprecated use https://resthooks.io/docs/api/Endpoint#getoptimisticresponse instead
    */
   readonly optimisticUpdate?: (...args: Parameters<F>) => ResolveType<F>;
   /** Enables optimistic updates for this request - uses return value as assumed network response */
-  readonly optimisticUpdater?: (
+  readonly getOptimisticResponse?: (
     snap: SnapshotInterface,
     ...args: Parameters<F>
   ) => ResolveType<F>;

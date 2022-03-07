@@ -49,10 +49,10 @@ export default function createReducer(controller: Controller) {
         return state;
       case FETCH_TYPE: {
         const optimisticResponse = action.meta.optimisticResponse;
-        const optimisticUpdater = action.endpoint?.optimisticUpdater;
+        const getOptimisticResponse = action.endpoint?.getOptimisticResponse;
         let receiveAction: ReceiveAction | OptimisticAction;
 
-        if (optimisticUpdater && action.endpoint) {
+        if (getOptimisticResponse && action.endpoint) {
           receiveAction = createOptimistic(action.endpoint, {
             args: action.meta.args as readonly any[],
             fetchedAt:
@@ -95,10 +95,10 @@ export default function createReducer(controller: Controller) {
           let payload: any;
           // for true receives payload is contained in action
           if (action.type === OPTIMISTIC_TYPE) {
-            if (!action.endpoint.optimisticUpdater) return state;
+            if (!action.endpoint.getOptimisticResponse) return state;
             try {
               // compute optimistic response based on current state
-              payload = action.endpoint.optimisticUpdater.call(
+              payload = action.endpoint.getOptimisticResponse.call(
                 action.endpoint,
                 controller.snapshot(state, action.meta.fetchedAt),
                 // if endpoint exists, so must args; TODO: fix typing

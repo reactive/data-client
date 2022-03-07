@@ -74,7 +74,7 @@ export class VisSettings extends Resource implements Vis {
     const detail: RestEndpoint<FetchGet, VisSettings> = this.detail() as any;
     const partial = super.partialUpdate();
     return partial.extend({
-      optimisticUpdater(snap, params, body) {
+      getOptimisticResponse(snap, params, body) {
         const { data } = snap.getResponse(detail, params);
         if (!data) throw new AbortOptimistic();
         return {
@@ -97,7 +97,7 @@ export class VisSettings extends Resource implements Vis {
     return this.endpointMutate().extend({
       name: 'incrementCols',
       url: (id: number) => `${this.urlRoot}{id}/incCol`,
-      optimisticUpdater(snap, id: number) {
+      getOptimisticResponse(snap, id: number) {
         const { data } = snap.getResponse(detail, { id });
         return {
           ...data,
@@ -177,7 +177,7 @@ export class ArticleResource extends Resource {
   ): RestEndpoint<FetchMutate, T, true> {
     const detail = this.detail();
     return super.partialUpdate().extend({
-      optimisticUpdater: (snap, params, body) => ({
+      getOptimisticResponse: (snap, params, body) => ({
         //...snap.getResponse(detail, params),
         id: params.id,
         ...body,
@@ -188,7 +188,7 @@ export class ArticleResource extends Resource {
 
   static delete<T extends typeof Resource>(this: T) {
     return super.delete().extend({
-      optimisticUpdater: (snap, params) => params,
+      getOptimisticResponse: (snap, params) => params,
       schema: new schema.Delete(this),
     });
   }
@@ -237,7 +237,7 @@ export class ArticleResourceWithOtherListUrl extends ArticleResource {
     const list = ArticleResourceWithOtherListUrl.list();
     const otherList = ArticleResourceWithOtherListUrl.otherList();
     return super.create().extend({
-      optimisticUpdater: (snap, params, body) => body,
+      getOptimisticResponse: (snap, params, body) => body,
       schema: this,
       update: (newArticleID: string) => ({
         [list.key({})]: (articleIDs: string[] | undefined) => [

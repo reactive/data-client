@@ -65,7 +65,7 @@ export default class NetworkManager implements Manager {
               // render - so we need to stop 'readonly' fetches which can be triggered in render
               if (
                 action.meta.optimisticResponse !== undefined ||
-                action.endpoint?.optimisticUpdater !== undefined
+                action.endpoint?.getOptimisticResponse !== undefined
               ) {
                 return next(action);
               }

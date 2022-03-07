@@ -37,7 +37,7 @@ export default class ArticleResource extends Resource {
     SchemaDetail<Readonly<AbstractInstanceType<T>>>
   > {
     return super.partialUpdate().extend({
-      optimisticUpdater: (snap, params, body) => ({
+      getOptimisticResponse: (snap, params, body) => ({
         // we absolutely need the primary key here,
         // but won't be sent in a partial update
         id: params.id,
@@ -102,7 +102,7 @@ export default class ArticleResource extends Resource {
     SchemaDetail<Readonly<AbstractInstanceType<T>>>
   > {
     return super.create().extend({
-      optimisticUpdater: (snap, params, body) => body,
+      getOptimisticResponse: (snap, params, body) => body,
     });
   }
 }
@@ -147,7 +147,7 @@ export default function CreateArticle() {
 ## Optimistic Deletes
 
 Since deletes [automatically update the cache correctly](./immediate-updates#delete) upon fetch success,
-making your delete endpoint do this optimistically is as easy as adding the [optimisticUpdater](../api/Endpoint#optimisticupdater)
+making your delete endpoint do this optimistically is as easy as adding the [getOptimisticResponse](../api/Endpoint#getoptimisticresponse)
 function to your options.
 
 We return an empty string because that's the response we expect from the server. Although by
@@ -171,7 +171,7 @@ export default class ArticleResource extends Resource {
     this: T,
   ): MutateEndpoint<(p: Readonly<object>) => Promise<any>, schemas.Delete<T>> {
     return super.delete().extend({
-      optimisticUpdater: (snap, params, body) => params,
+      getOptimisticResponse: (snap, params, body) => params,
     });
   }
 }
@@ -217,7 +217,7 @@ const increment = new Endpoint(
     name: 'increment',
     schema: CountEntity,
     sideEffect: true,
-    optimisticUpdater(snap) {
+    getOptimisticResponse(snap) {
       const { data } = snap.getResponse(getCount);
       if (!data) throw new AbortOptimistic();
       return {
@@ -248,7 +248,7 @@ render(<CounterPage />);
 
 </HooksPlayground>
 
-Try removing `optimisticUpdater` from the increment [Endpoint](../api/Endpoint.md). Even without optimistic updates, this race condition can be a real problem. While it is less likely with fast endpoints;
+Try removing `getOptimisticResponse` from the increment [Endpoint](../api/Endpoint.md). Even without optimistic updates, this race condition can be a real problem. While it is less likely with fast endpoints;
 slower or less reliable internet connections means a slow response time no matter how fast the server is.
 
 The problem is that the responses come back in a different order than they are computed. If we can determine the
@@ -263,7 +263,7 @@ To handle potential out of order resolutions, we can track the last update time 
 Overriding our [merge](../api/Entity.md#merge), we can check which data is newer, and disregard old data
 that resolves out of order.
 
-We use [snap.fetchedAt](../api/Snapshot.md#fetchedat) in our [optimisticUpdater](../api/Endpoint.md#optimisticupdater). This respresents the moment the fetch is triggered,
+We use [snap.fetchedAt](../api/Snapshot.md#fetchedat) in our [getOptimisticResponse](../api/Endpoint.md#getoptimisticresponse). This respresents the moment the fetch is triggered,
 which is when the optimistic update first applies.
 
 <HooksPlayground>
@@ -311,7 +311,7 @@ const increment = new Endpoint(
     name: 'increment',
     schema: CountEntity,
     sideEffect: true,
-    optimisticUpdater(snap) {
+    getOptimisticResponse(snap) {
       const { data } = snap.getResponse(getCount);
       // server already has this optimistic computation then do nothing
       if (!data) throw new AbortOptimistic();
@@ -360,7 +360,7 @@ agreeing on a total order of events is no longer possible. However, using [vecto
 allows us to maintain agreement on a *casual* order.
 
 The key things to observe in the code example is the added field `updatedAt`, which is our vector clock, as well
-as how it is used in our new [static merge()](../api/Entity#merge) as well as updates to [optimisticUpdater](../api/Endpoint.md#optimisticupdater).
+as how it is used in our new [static merge()](../api/Entity#merge) as well as updates to [getOptimisticResponse](../api/Endpoint.md#getoptimisticresponse).
 
 <HooksPlayground>
 
@@ -426,7 +426,7 @@ const increment = new Endpoint(
     name: 'increment',
     schema: CountEntity,
     sideEffect: true,
-    optimisticUpdater(snap, id) {
+    getOptimisticResponse(snap, id) {
       const { data } = snap.getResponse(getCount, id);
       // server already has this optimistic computation then do nothing
       if (!data || snap.fetchedAt < data.updatedAt.client) throw new AbortOptimistic();
