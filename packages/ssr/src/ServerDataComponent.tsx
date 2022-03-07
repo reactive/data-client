@@ -5,7 +5,7 @@ export const ServerDataComponent = ({ data }: { data: State<unknown> }) => {
   return (
     <script
       type="application/json"
-      id={`server-data`}
+      id="server-data"
       dangerouslySetInnerHTML={{
         __html: JSON.stringify(data),
       }}
