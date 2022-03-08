@@ -37,9 +37,9 @@ export default class NetworkErrorBoundary<
 
   state: State<E> = {};
 
-  render() {
+  render(): JSX.Element {
     if (!this.state.error) {
-      return this.props.children;
+      return this.props.children as any;
     }
     return <this.props.fallbackComponent error={this.state.error} />;
   }
