@@ -307,11 +307,6 @@ describe.each([
                 return new Promise(resolve => {
                   resolves.push(resolve);
                 });
-                /*return Promise.resolve({
-                ...payload,
-                title: 'first',
-                content: 'first',
-              })*/
               },
             }),
             params,
@@ -384,7 +379,9 @@ describe.each([
       );
 
       // resolve second request while first is in flight
-      act(() => resolves[1]({ ...payload, title: 'second' }));
+      act(() => {
+        setTimeout(() => resolves[1]({ ...payload, title: 'second' }), 1);
+      });
       await act(() => fetches[1]);
 
       // first and second optimistic should be cleared with only third optimistic left to be layerd
@@ -416,6 +413,16 @@ describe.each([
     });
 
     describe('race conditions', () => {
+      let errorspy: jest.SpyInstance;
+      beforeEach(() => {
+        errorspy = jest
+          .spyOn(global.console, 'error')
+          .mockImplementation(() => {});
+      });
+      afterEach(() => {
+        errorspy.mockRestore();
+      });
+
       class Toggle extends Entity {
         readonly id: number = 0;
         readonly visible: boolean = true;
@@ -725,7 +732,7 @@ describe.each([
 
           expect(result.current.vis?.visType).toEqual('line');
           // the server is not aware of our client's last increment, so we +1 to response
-          expect(result.current.vis?.numCols).toEqual(6);
+          expect(result.current.vis?.numCols).toEqual(7);
 
           jest.advanceTimersByTime(100);
           const finalObject = {

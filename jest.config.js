@@ -9,6 +9,7 @@ const baseConfig = {
     'packages/test',
     'packages/experimental',
     'packages/graphql',
+    'packages/ssr',
     'packages/legacy/src/resource',
     'packages/core/src/react-integration/hooks/hasUsableData',
   ],

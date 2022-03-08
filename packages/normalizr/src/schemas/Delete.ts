@@ -91,4 +91,13 @@ export default class Delete<E extends EntityInterface & { process: any }>
   merge(existing: any, incoming: any) {
     return incoming;
   }
+
+  useIncoming(
+    existingMeta: { date: number },
+    incomingMeta: { date: number },
+    existing: any,
+    incoming: any,
+  ) {
+    return existingMeta.date <= incomingMeta.date;
+  }
 }

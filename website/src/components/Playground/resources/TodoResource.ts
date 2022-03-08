@@ -16,14 +16,8 @@ export default class TodoResource extends PlaceholderBaseResource {
 
   static urlRoot = '/api/todos';
 
-  static merge(existing, incoming) {
-    if (existing.updatedAt < incoming.updatedAt) {
-      return {
-        ...existing,
-        ...incoming,
-      };
-    }
-    return existing;
+  static useIncoming(existing, incoming) {
+    return existing.updatedAt <= incoming.updatedAt;
   }
 
   protected static endpointMutate(): RestEndpoint<
