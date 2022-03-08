@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.0-beta.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.2.0-beta.2...@rest-hooks/endpoint@2.2.0-beta.3) (2022-03-08)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Rename optimisticUpdater -> getOptimisticResponse
+
+### 💅 Enhancement
+
+* optimisticUpdater -> getOptimisticResponse ([#1769](https://github.com/coinbase/rest-hooks/issues/1769)) ([4d1cd66](https://github.com/coinbase/rest-hooks/commit/4d1cd66ea2677868aba402d362b9896dffc24462))
+
+
+
 ## [2.2.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.2.0-beta.0...@rest-hooks/endpoint@2.2.0-beta.2) (2022-02-15)
 
 

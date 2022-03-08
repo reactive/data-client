@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.2.0-beta.9](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.0-beta.7...rest-hooks@6.2.0-beta.9) (2022-03-08)
+
+
+### 💅 Enhancement
+
+* Use BackupBoundary to help debug setup issues ([3a68907](https://github.com/coinbase/rest-hooks/commit/3a68907882f35c3806b05244e68d61e503b91d0f))
+
+
+### 🐛 Bug Fix
+
+* NetworkErrorBoundary should render Element ([#1775](https://github.com/coinbase/rest-hooks/issues/1775)) ([5e3cfd2](https://github.com/coinbase/rest-hooks/commit/5e3cfd28fda0e27319267e671500591f22f87d74))
+
+
+
 ## [6.2.0-beta.8](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.0-beta.7...rest-hooks@6.2.0-beta.8) (2022-03-01)
 
 

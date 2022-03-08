@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.1.0-beta.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.6...@rest-hooks/core@3.1.0-beta.8) (2022-03-08)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Rename optimisticUpdater -> getOptimisticResponse
+
+### 🚀 Features
+
+* Entity.useIncoming() for race condition handling ([#1771](https://github.com/coinbase/rest-hooks/issues/1771)) ([ffd70fe](https://github.com/coinbase/rest-hooks/commit/ffd70fe0aa12634d06d2e0d43a5b89d420e2220c))
+* export BackupBoundary ([7a7c398](https://github.com/coinbase/rest-hooks/commit/7a7c398d2db852ab6d3523f1a7ca20ef46e9d5f4))
+
+
+### 💅 Enhancement
+
+* optimisticUpdater -> getOptimisticResponse ([#1769](https://github.com/coinbase/rest-hooks/issues/1769)) ([4d1cd66](https://github.com/coinbase/rest-hooks/commit/4d1cd66ea2677868aba402d362b9896dffc24462))
+
+
+### 🐛 Bug Fix
+
+* lastReset should serialize ([#1745](https://github.com/coinbase/rest-hooks/issues/1745)) ([e25158a](https://github.com/coinbase/rest-hooks/commit/e25158a28c5bdc90aeb7fa6e7ca2c43580f6f88f))
+
+
+
 ## [3.1.0-beta.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.6...@rest-hooks/core@3.1.0-beta.7) (2022-03-01)
 
 
