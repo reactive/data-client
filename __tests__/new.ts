@@ -38,14 +38,13 @@ export class VisSettings extends Resource implements Vis {
 
   static urlRoot = 'http://test.com/vis-settings/';
 
-  static merge(existing: any, incoming: any) {
-    if (existing.updatedAt < incoming.updatedAt) {
-      return {
-        ...existing,
-        ...incoming,
-      };
-    }
-    return existing;
+  static useIncoming(
+    existingMeta: { date: number },
+    incomingMeta: { date: number },
+    existing: any,
+    incoming: any,
+  ) {
+    return existing.updatedAt <= incoming.updatedAt;
   }
 
   protected static endpointMutate(): RestEndpoint<

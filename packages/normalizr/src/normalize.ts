@@ -70,13 +70,7 @@ const addEntities =
 
     const existingEntity = entities[schemaKey][id];
     if (existingEntity) {
-      // TODO: maybe have distinct merge function for this case
-      entities[schemaKey][id] = schema.merge(
-        existingEntity,
-        processedEntity,
-        entityMeta[schemaKey][id],
-        meta,
-      );
+      entities[schemaKey][id] = schema.merge(existingEntity, processedEntity);
     } else {
       // TODO: eventually assume this exists and don't check for conditional. probably early 2022
       const entityExpiresAt = schema.expiresAt
@@ -87,35 +81,30 @@ const addEntities =
       // this case we already have this entity in store
       if (inStoreEntity) {
         const inStoreMeta = entityMeta[schemaKey][id];
-        const incomingMeta = meta;
-        // if either of these is undefined, it resolves to 'false' which
-        // means we fallback to 'newer' (processedEntity) takes priority
-        const preferExisting = entityMeta[schemaKey][id]?.date > meta.date;
-        if (typeof processedEntity !== typeof inStoreEntity) {
-          entities[schemaKey][id] = preferExisting
-            ? inStoreEntity
-            : processedEntity;
+        const useIncoming =
+          // we may have in store but not in meta; so this existance check is still important
+          !inStoreMeta ||
+          schema.useIncoming(inStoreMeta, meta, inStoreEntity, processedEntity);
+        if (useIncoming) {
+          if (typeof processedEntity !== typeof inStoreEntity) {
+            entities[schemaKey][id] = processedEntity;
+          } else {
+            entities[schemaKey][id] = schema.merge(
+              inStoreEntity,
+              processedEntity,
+            );
+          }
         } else {
-          // second argument takes priority over first
-          entities[schemaKey][id] = preferExisting
-            ? schema.merge(
-                processedEntity,
-                inStoreEntity,
-                incomingMeta,
-                inStoreMeta,
-              )
-            : schema.merge(
-                inStoreEntity,
-                processedEntity,
-                inStoreMeta,
-                incomingMeta,
-              );
+          entities[schemaKey][id] = inStoreEntity;
         }
 
-        entityMeta[schemaKey][id] =
-          entityMeta[schemaKey][id]?.expiresAt >= entityExpiresAt
-            ? entityMeta[schemaKey][id]
-            : { expiresAt: entityExpiresAt, date: meta.date };
+        entityMeta[schemaKey][id] = {
+          expiresAt: Math.max(
+            entityExpiresAt,
+            entityMeta[schemaKey][id]?.expiresAt,
+          ),
+          date: Math.max(meta.date, entityMeta[schemaKey][id]?.date),
+        };
       } else {
         entities[schemaKey][id] = processedEntity;
         entityMeta[schemaKey][id] = {

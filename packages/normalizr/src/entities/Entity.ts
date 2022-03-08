@@ -76,15 +76,22 @@ export default abstract class Entity {
     return this.prototype.pk.call(value, parent, key);
   }
 
-  /** Creates new instance copying over defined values of arguments */
-  static merge<T extends typeof Entity>(
-    this: T,
-    existing: Partial<AbstractInstanceType<T>>,
-    incoming: Partial<AbstractInstanceType<T>>,
-    existingMeta?: { date: number },
-    incomingMeta?: { date: number },
+  /** Return true to merge incoming data; false keeps existing entity */
+  static useIncoming(
+    existingMeta: { date: number },
+    incomingMeta: { date: number },
+    existing: any,
+    incoming: any,
   ) {
-    return { ...existing, ...incoming };
+    return existingMeta.date <= incomingMeta.date;
+  }
+
+  /** Creates new instance copying over defined values of arguments */
+  static merge(existing: any, incoming: any) {
+    return {
+      ...existing,
+      ...incoming,
+    };
   }
 
   /** Factory method to convert from Plain JS Objects.

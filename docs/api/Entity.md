@@ -124,20 +124,18 @@ pk() {
 This defines the key for the Entity itself, rather than an instance. This needs to be a globally
 unique value.
 
-### static merge(existing, incoming, existingMeta, incomingMeta): mergedValue {#merge}
+### static useIncoming(existingMeta, incomingMeta, existing, incoming): mergedValue {#useincoming}
 
 ```typescript
-static merge<T extends typeof SimpleRecord>(
-  existing: InstanceType<T>,
-  incoming: InstanceType<T>,
+static useIncoming(
   existingMeta: { date: number },
   incomingMeta: { date: number },
-  ) => InstanceType<T>
+  existing: any,
+  incoming: any,
+) {
+  return existingMeta.date <= incomingMeta.date;
+}
 ```
-
-Merge is used to resolve the same entity. This can be because it was previously put in the cache,
-or it was found in multiple places nested in one response. By default it is the SimpleRecord merge, which
-prefers values from the newer item but only if they are actually set.
 
 Override this to change the algorithm - for instance if having the absolutely correct latest value is important,
 adding a timestamp to the entity and then using it to select the return value will solve any race conditions.
@@ -151,15 +149,29 @@ class LatestPriceEntity extends Entity {
   readonly price: string = '0.0';
   readonly symbol: string = '';
 
-  static merge<T extends typeof SimpleRecord>(
-    existing: InstanceType<T>,
-    incoming: InstanceType<T>,
+  static useIncoming(
+    existingMeta: { date: number },
+    incomingMeta: { date: number },
+    existing: any,
+    incoming: any,
   ) {
-    if (existing.timestamp > incoming.timestamp) return existing;
-    return incoming;
+    return existing.timestamp <= incoming.timestamp;
   }
 }
 ```
+
+### static merge(existing, incoming): mergedValue {#merge}
+
+```typescript
+static merge<T extends typeof SimpleRecord>(
+  existing: InstanceType<T>,
+  incoming: InstanceType<T>,
+  ) => InstanceType<T>
+```
+
+Merge is used to resolve the same entity. This can be because it was previously put in the cache,
+or it was found in multiple places nested in one response. By default it is the SimpleRecord merge, which
+prefers values from the newer item but only if they are actually set.
 
 ### static validate(processedEntity): errorMessage? {#validate}
 
