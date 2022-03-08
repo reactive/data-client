@@ -276,8 +276,6 @@ describe.each([
     });
 
     it('should clear only earlier optimistic updates when a promise resolves', async () => {
-      jest.useFakeTimers('legacy');
-
       const params = { id: payload.id };
       const { result, waitForNextUpdate } = renderRestHook(
         () => {
@@ -296,18 +294,28 @@ describe.each([
         },
       );
 
+      const fetches: Promise<any>[] = [];
+      const resolves: ((v: any) => void)[] = [];
+
       // first optimistic
-      mynock
-        .patch('/article-cooler/5')
-        .delay(200)
-        .reply(200, {
-          ...payload,
-          title: 'first',
-          content: 'first',
-        });
-      result.current.fetch(CoolerArticleResource.partialUpdate(), params, {
-        title: 'firstoptimistic',
-        content: 'firstoptimistic',
+
+      act(() => {
+        fetches.push(
+          result.current.fetch(
+            CoolerArticleResource.partialUpdate().extend({
+              fetch(...args: any[]) {
+                return new Promise(resolve => {
+                  resolves.push(resolve);
+                });
+              },
+            }),
+            params,
+            {
+              title: 'firstoptimistic',
+              content: 'firstoptimistic',
+            },
+          ),
+        );
       });
       expect(result.current.article).toEqual(
         CoolerArticleResource.fromJS({
@@ -318,15 +326,22 @@ describe.each([
       );
 
       // second optimistic
-      mynock
-        .patch('/article-cooler/5')
-        .delay(50)
-        .reply(200, {
-          ...payload,
-          title: 'second',
-        });
-      result.current.fetch(CoolerArticleResource.partialUpdate(), params, {
-        title: 'secondoptimistic',
+      act(() => {
+        fetches.push(
+          result.current.fetch(
+            CoolerArticleResource.partialUpdate().extend({
+              fetch(...args: any[]) {
+                return new Promise(resolve => {
+                  resolves.push(resolve);
+                });
+              },
+            }),
+            params,
+            {
+              title: 'secondoptimistic',
+            },
+          ),
+        );
       });
       expect(result.current.article).toEqual(
         CoolerArticleResource.fromJS({
@@ -337,15 +352,22 @@ describe.each([
       );
 
       // third optimistic
-      mynock
-        .patch('/article-cooler/5')
-        .delay(500)
-        .reply(200, {
-          ...payload,
-          tags: ['third'],
-        });
-      result.current.fetch(CoolerArticleResource.partialUpdate(), params, {
-        tags: ['thirdoptimistic'],
+      act(() => {
+        fetches.push(
+          result.current.fetch(
+            CoolerArticleResource.partialUpdate().extend({
+              fetch(...args: any[]) {
+                return new Promise(resolve => {
+                  resolves.push(resolve);
+                });
+              },
+            }),
+            params,
+            {
+              tags: ['thirdoptimistic'],
+            },
+          ),
+        );
       });
       expect(result.current.article).toEqual(
         CoolerArticleResource.fromJS({
@@ -357,22 +379,50 @@ describe.each([
       );
 
       // resolve second request while first is in flight
-      jest.advanceTimersByTime(51);
-      await waitForNextUpdate();
+      act(() => {
+        setTimeout(() => resolves[1]({ ...payload, title: 'second' }), 1);
+      });
+      await act(() => fetches[1]);
 
-      // second optimistic should be cleared with the first and third optimistic left to be layerd
+      // first and second optimistic should be cleared with only third optimistic left to be layerd
       // on top of second's network response
       expect(result.current.article).toEqual(
         CoolerArticleResource.fromJS({
           ...payload,
-          title: 'firstoptimistic',
-          content: 'firstoptimistic',
-          tags: ['thirdoptimistic'],
+          title: 'second',
+        }),
+      );
+
+      // this resolved last; this is ambiguous so we want to bias towards expecting it
+      // this can be solved by either canceling requests or having server send the total order
+      act(() =>
+        resolves[0]({
+          ...payload,
+          title: 'first',
+          content: 'first',
+        }),
+      );
+      await act(() => fetches[0]);
+      expect(result.current.article).toEqual(
+        CoolerArticleResource.fromJS({
+          ...payload,
+          title: 'first',
+          content: 'first',
         }),
       );
     });
 
     describe('race conditions', () => {
+      let errorspy: jest.SpyInstance;
+      beforeEach(() => {
+        errorspy = jest
+          .spyOn(global.console, 'error')
+          .mockImplementation(() => {});
+      });
+      afterEach(() => {
+        errorspy.mockRestore();
+      });
+
       class Toggle extends Entity {
         readonly id: number = 0;
         readonly visible: boolean = true;
@@ -682,7 +732,7 @@ describe.each([
 
           expect(result.current.vis?.visType).toEqual('line');
           // the server is not aware of our client's last increment, so we +1 to response
-          expect(result.current.vis?.numCols).toEqual(6);
+          expect(result.current.vis?.numCols).toEqual(7);
 
           jest.advanceTimersByTime(100);
           const finalObject = {

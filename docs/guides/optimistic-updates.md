@@ -260,7 +260,7 @@ The client can then choose to ignore responses that are out of date by their tim
 ### Tracking order with updatedAt
 
 To handle potential out of order resolutions, we can track the last update time in `updatedAt`.
-Overriding our [merge](../api/Entity.md#merge), we can check which data is newer, and disregard old data
+Overriding our [useIncoming](../api/Entity.md#useincoming), we can check which data is newer, and disregard old data
 that resolves out of order.
 
 We use [snap.fetchedAt](../api/Snapshot.md#fetchedat) in our [getOptimisticResponse](../api/Endpoint.md#getoptimisticresponse). This respresents the moment the fetch is triggered,
@@ -277,14 +277,8 @@ class CountEntity extends Entity {
     return `SINGLETON`;
   }
 
-  static merge(existing, incoming) {
-    if (existing.updatedAt < incoming.updatedAt) {
-      return {
-        ...existing,
-        ...incoming,
-      };
-    }
-    return existing;
+  static useIncoming(existingMeta, incomingMeta, existing, incoming) {
+    return existing.updatedAt <= incoming.updatedAt;
   }
 }
 const getCount = new Endpoint(

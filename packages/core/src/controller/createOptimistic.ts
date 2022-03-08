@@ -18,7 +18,7 @@ export default function createOptimistic<
     fetchedAt: number;
   },
 ): OptimisticAction {
-  const expiryLength: number = endpoint.dataExpiryLength ?? 1000;
+  const expiryLength: number = endpoint.dataExpiryLength ?? 60000;
   /* istanbul ignore next */
   if (process.env.NODE_ENV === 'development' && expiryLength < 0) {
     throw new Error('Negative expiry length are not allowed.');
