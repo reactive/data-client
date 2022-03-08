@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1646727324616,
+  "lastUpdate": 1646766438094,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -4478,6 +4478,58 @@ window.BENCHMARK_DATA = {
             "range": "±0.51%",
             "unit": "ops/sec",
             "extra": "82 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": false,
+          "id": "e697b70e8bbeb0f9bac4ab50718141b0f11ee1e7",
+          "message": "internal: publish\n\n - @rest-hooks/core@3.1.0-beta.8\n - @rest-hooks/endpoint@2.2.0-beta.3\n - @rest-hooks/normalizr@8.2.0-beta.1\n - rest-hooks@6.2.0-beta.9\n - @rest-hooks/ssr@0.1.1-beta.0",
+          "timestamp": "2022-03-08T12:54:40-06:00",
+          "tree_id": "6f4026d8ed5145437c1fe4d29a1abb0bacabd946",
+          "url": "https://github.com/coinbase/rest-hooks/commit/e697b70e8bbeb0f9bac4ab50718141b0f11ee1e7"
+        },
+        "date": 1646766436294,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 76.42,
+            "range": "±1.70%",
+            "unit": "ops/sec",
+            "extra": "67 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 31.87,
+            "range": "±1.59%",
+            "unit": "ops/sec",
+            "extra": "55 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 32.71,
+            "range": "±1.29%",
+            "unit": "ops/sec",
+            "extra": "56 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 76.97,
+            "range": "±2.33%",
+            "unit": "ops/sec",
+            "extra": "66 samples"
           }
         ]
       }
