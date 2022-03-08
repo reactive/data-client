@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1646635535493,
+  "lastUpdate": 1646727324616,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -4426,6 +4426,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.01%",
             "unit": "ops/sec",
             "extra": "78 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ffd70fe0aa12634d06d2e0d43a5b89d420e2220c",
+          "message": "feat: Entity.useIncoming() for race condition handling (#1771)",
+          "timestamp": "2022-03-08T00:11:54-08:00",
+          "tree_id": "dda844c63e08184dabd902bae1434fe37865d364",
+          "url": "https://github.com/coinbase/rest-hooks/commit/ffd70fe0aa12634d06d2e0d43a5b89d420e2220c"
+        },
+        "date": 1646727323704,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 98.16,
+            "range": "±1.45%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 40.82,
+            "range": "±1.12%",
+            "unit": "ops/sec",
+            "extra": "54 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 43.16,
+            "range": "±0.47%",
+            "unit": "ops/sec",
+            "extra": "57 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 97.78,
+            "range": "±0.51%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
           }
         ]
       }
