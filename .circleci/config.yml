@@ -81,7 +81,7 @@ jobs:
           at: ~/
       - run:
           command: |
-            if [ "<< parameters.react-version >>" != "beta" ]; then
+            if [ "<< parameters.react-version >>" != "^18" ]; then
             yarn add -W --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
             fi
       - run:
@@ -142,7 +142,7 @@ workflows:
       - unit_tests:
           matrix:
             parameters:
-              react-version: ["^17.0.0", "beta"]
+              react-version: ["^17.0.0", "^18"]
           requires:
             - setup
       - test_coverage:
