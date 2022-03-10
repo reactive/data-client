@@ -85,10 +85,10 @@
   resolved "https://registry.yarnpkg.com/@anansi/ts-utils/-/ts-utils-0.2.5.tgz#bd2270fb1f96a26dbcf3a9a61a6a6b36652e75c6"
   integrity sha512-m6jFCF3Y6Tcd06hmq1pDqOCHGpe30QO9FcCblYD0ohhl5olcyq+f2DbKWPQSeddzHdHxDUpZ9OG7xwHv4xtmUw==
 
-"@anansi/webpack-config@11.3.1":
-  version "11.3.1"
-  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.3.1.tgz#97edc0997b671684e149da01997ddccd377c93f2"
-  integrity sha512-tZDqoR0nN+CXW8ncvJ27jH0rbNYXZi14kbmttZ8nVODiRfHWyTUzgL2F6eG8UZsdUPgT2OrXTUDxlaXZkHe2NA==
+"@anansi/webpack-config@11.3.2":
+  version "11.3.2"
+  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.3.2.tgz#bf734d02fa9a653f708e69bfa614b34ec793cfe2"
+  integrity sha512-RFhTKK4gbg0Gx7xarJeCDEuLeL6oLs0reE5rz+1cAOVbqdVvhb17TK3gEd4eicCGIC7mqT1oPMXy+vPPZ0Yexw==
   dependencies:
     "@babel/runtime" "^7.17.2"
     "@ntucker/linaria-webpack5-loader" "3.0.0-beta.17"
@@ -2477,6 +2477,7 @@
 
 "@lerna/conventional-commits@4.0.0", "@lerna/conventional-commits@https://github.com/ntucker/lerna-conventional-commits.git":
   version "3.16.4"
+  uid "4389120475a4f80ac8e4fbe766fa4c9644c6b1c7"
   resolved "https://github.com/ntucker/lerna-conventional-commits.git#4389120475a4f80ac8e4fbe766fa4c9644c6b1c7"
   dependencies:
     "@lerna/validation-error" "^4.0"
