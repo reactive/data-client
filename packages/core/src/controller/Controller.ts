@@ -346,6 +346,7 @@ export default class Controller {
     args: any[],
     indexes: any,
   ) => {
+    if (args[0] === null) return undefined;
     if (cacheResults || schema === undefined) return cacheResults;
 
     return inferResults(schema, args, indexes);

@@ -59,7 +59,12 @@ export const denormalize = (
   return [object, found, deleted];
 };
 
-export function infer(schema: any, args: any, indexes: any, recurse: any) {
+export function infer(
+  schema: any,
+  args: readonly any[],
+  indexes: any,
+  recurse: any,
+) {
   const resultObject: any = {};
   for (const k of Object.keys(schema)) {
     resultObject[k] = recurse(schema[k], args, indexes);

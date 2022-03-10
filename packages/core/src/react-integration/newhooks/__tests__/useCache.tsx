@@ -3,6 +3,7 @@ import {
   PaginatedArticleResource,
   InvalidIfStaleArticleResource,
   GetNoEntities,
+  UnionResource,
 } from '__tests__/new';
 import React, { useEffect } from 'react';
 
@@ -46,6 +47,33 @@ describe('useCache()', () => {
     () => useCache(List, {});
     // @ts-expect-error
     () => useCache(List, '5');
+  });
+
+  it.each([
+    ['Resource', CoolerArticleResource.detail()],
+    ['Union', UnionResource.detail()],
+  ] as const)(`should infer with no params Endpoint [%s]`, (_, endpoint) => {
+    const noargs = endpoint.extend({
+      fetch() {
+        return endpoint({});
+      },
+      key: () => 'noargs',
+    });
+    const { result } = renderRestHook(() => {
+      return useCache(noargs);
+    });
+    expect(result.current).toBeUndefined();
+  });
+
+  it.each([
+    ['Resource', CoolerArticleResource.detail()],
+    ['Union', UnionResource.detail()],
+    ['Array<Union>', UnionResource.list()],
+  ] as const)(`should be undefined when args is null [%s]`, (_, endpoint) => {
+    const { result } = renderRestHook(() => {
+      return useCache(endpoint, null);
+    });
+    expect(result.current).toBeUndefined();
   });
 
   it('should read with id params Endpoint', async () => {

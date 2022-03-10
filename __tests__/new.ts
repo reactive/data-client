@@ -394,7 +394,7 @@ export class FutureArticleResource extends CoolerArticleResource {
     return super.detail().extend({ schema: this });
   }
 
-  /*static list<T extends typeof Resource>(
+  static list<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
     (
@@ -403,8 +403,8 @@ export class FutureArticleResource extends CoolerArticleResource {
     T[],
     undefined
   > {
-    return super.detail().extend({ schema: [this] });
-  } - once useResource() takes variable params*/
+    return super.list().extend({ schema: [this] });
+  }
 }
 
 export class CoauthoredArticleResource extends FutureArticleResource {
