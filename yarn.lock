@@ -2477,7 +2477,6 @@
 
 "@lerna/conventional-commits@4.0.0", "@lerna/conventional-commits@https://github.com/ntucker/lerna-conventional-commits.git":
   version "3.16.4"
-  uid "4389120475a4f80ac8e4fbe766fa4c9644c6b1c7"
   resolved "https://github.com/ntucker/lerna-conventional-commits.git#4389120475a4f80ac8e4fbe766fa4c9644c6b1c7"
   dependencies:
     "@lerna/validation-error" "^4.0"
@@ -14772,7 +14771,7 @@ react-devtools-core@4.19.1:
     shell-quote "^1.6.1"
     ws "^7"
 
-react-dom@^18.0.0-rc.0, react-dom@^18.0.0-rc.2:
+react-dom@^18.0.0-rc.2:
   version "18.0.0-rc.2-next-b9de50d2f-20220308"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-18.0.0-rc.2-next-b9de50d2f-20220308.tgz#b8000dd5b86c77e0f2c4c069d01b279e34d6fcc2"
   integrity sha512-5BXlUQVqACNjYtDZAM8fM9/QOJRJBD+DZlILPQ+MLvFuOBhz16lxXBXZnHMB0kuZJrKDXp8DLUeTyNn2B9pCYQ==
@@ -14932,7 +14931,7 @@ react-test-renderer@18.0.0-rc.2:
     react-shallow-renderer "^16.13.1"
     scheduler "^0.21.0-rc.2"
 
-react@^18.0.0-rc.0, react@^18.0.0-rc.2:
+react@^18.0.0-rc.2:
   version "18.0.0-rc.2-next-b9de50d2f-20220308"
   resolved "https://registry.yarnpkg.com/react/-/react-18.0.0-rc.2-next-b9de50d2f-20220308.tgz#817d40520b76c3f3e8314eeda1abf85d9070465c"
   integrity sha512-1RpONBLI/vgKN/kdq0DtPxrgXHS5OXCHbzXWXk2RcLRjlbBiqmAPUIpCq7x+02WhYQkgA6D0iRJo4NJ9fZMCGQ==

@@ -588,15 +588,22 @@ describe.each([
     expect(users[0] instanceof UserResource).toBe(true);
   });
 
-  it('should not suspend with no params to useResource()', () => {
-    let article: any;
-    const { result } = renderRestHook(() => {
-      article = useResource(CoolerArticleResource.detail(), null);
-      return 'done';
-    });
-    expect(result.current).toBe('done');
-    expect(article).toBeUndefined();
-  });
+  it.each([
+    ['Resource', CoolerArticleResource.detail()],
+    ['Union', UnionResource.detail()],
+    ['Array<Union>', UnionResource.list()],
+  ] as const)(
+    `should not suspend with no params to useResource() [%s]`,
+    (_, endpoint) => {
+      let article: any;
+      const { result } = renderRestHook(() => {
+        article = useResource(endpoint, null);
+        return 'done';
+      });
+      expect(result.current).toBe('done');
+      expect(article).toBeUndefined();
+    },
+  );
 
   it('should update on create', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
