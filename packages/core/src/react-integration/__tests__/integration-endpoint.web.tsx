@@ -748,6 +748,23 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         ]);
       });
 
+      it.each([
+        ['Resource', CoolerArticleResource.detail()],
+        ['Union', UnionResource.detail()],
+        ['Array<Union>', UnionResource.list()],
+      ] as const)(
+        `should not suspend with no params to useResource() [%s]`,
+        (_, endpoint) => {
+          let article: any;
+          const { result } = renderRestHook(() => {
+            article = useResource(endpoint, null);
+            return 'done';
+          });
+          expect(result.current).toBe('done');
+          expect(article).toBeUndefined();
+        },
+      );
+
       it('should update on create', async () => {
         const { result, waitForNextUpdate } = renderRestHook(() => {
           const articles = useResource(FutureArticleResource.list(), {});

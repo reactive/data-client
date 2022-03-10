@@ -26,6 +26,7 @@ export default class UnionSchema extends PolymorphicSchema {
   }
 
   infer(args, indexes, recurse) {
+    if (!args[0]) return undefined;
     const attr = this.getSchemaAttribute(args[0], undefined, '');
     const discriminatedSchema = this.schema[attr];
 
