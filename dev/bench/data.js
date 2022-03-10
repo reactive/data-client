@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1646766438094,
+  "lastUpdate": 1646881568990,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -4530,6 +4530,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.33%",
             "unit": "ops/sec",
             "extra": "66 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "fcf70a92ef15531b7fd12feb117f29ad8c3de3d8",
+          "message": "fix: Union schemas with null args[0] hooks (#1779)",
+          "timestamp": "2022-03-09T19:02:21-08:00",
+          "tree_id": "07ee4fa0b7b0846429fe5862668439d4b061af9a",
+          "url": "https://github.com/coinbase/rest-hooks/commit/fcf70a92ef15531b7fd12feb117f29ad8c3de3d8"
+        },
+        "date": 1646881567436,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 81.36,
+            "range": "±1.32%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 32.6,
+            "range": "±0.94%",
+            "unit": "ops/sec",
+            "extra": "57 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 36.39,
+            "range": "±0.78%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 81.77,
+            "range": "±2.47%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
           }
         ]
       }
