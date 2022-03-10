@@ -5,7 +5,7 @@ import { Schema } from '@rest-hooks/endpoint';
 import { useMemo } from 'react';
 import useController from '@rest-hooks/core/react-integration/hooks/useController';
 import shapeToEndpoint from '@rest-hooks/core/endpoint/adapter';
-import type { ExpiryStatus } from '@rest-hooks/endpoint';
+import { ExpiryStatus } from '@rest-hooks/endpoint';
 
 /**
  * @deprecated use https://resthooks.io/docs/api/Controller#getResponse directly instead
@@ -47,6 +47,12 @@ export default function useDenormalized<
 
   // Compute denormalized value
   return useMemo(() => {
+    if (key === '')
+      return {
+        data: undefined as any,
+        expiryStatus: ExpiryStatus.Invalid,
+        expiresAt: 0,
+      };
     return controller.getResponse(endpoint, params, state) as {
       data: DenormalizeNullable<Shape['schema']>;
       expiryStatus: ExpiryStatus;

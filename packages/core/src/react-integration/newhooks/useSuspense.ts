@@ -9,6 +9,7 @@ import {
   FetchFunction,
 } from '@rest-hooks/endpoint';
 import { useContext, useMemo } from 'react';
+import { nullResponse } from '@rest-hooks/core/react-integration/newhooks/constants';
 
 /**
  * Ensure an endpoint is available.
@@ -25,18 +26,21 @@ export default function useSuspense<
 >(
   endpoint: E,
   ...args: Args
-): E['schema'] extends Exclude<Schema, null>
+): Args extends [null]
+  ? undefined
+  : E['schema'] extends Exclude<Schema, null>
   ? Denormalize<E['schema']>
   : ReturnType<E> {
   const state = useContext(StateContext);
   const controller = useController();
 
   const key = args[0] !== null ? endpoint.key(...args) : '';
-  const cacheResults = args[0] !== null && state.results[key];
+  const cacheResults = key && state.results[key];
   const meta = state.meta[key];
 
   // Compute denormalized value
   const { data, expiryStatus, expiresAt } = useMemo(() => {
+    if (!key) return nullResponse;
     // @ts-ignore
     return controller.getResponse(endpoint, ...args, state) as {
       data: Denormalize<E['schema']>;
@@ -54,7 +58,7 @@ export default function useSuspense<
   ]);
 
   // @ts-ignore
-  const error = controller.getError(endpoint, ...args, state);
+  const error = key ? controller.getError(endpoint, ...args, state) : undefined;
 
   // If we are hard invalid we must fetch regardless of triggering or staleness
   const forceFetch = expiryStatus === ExpiryStatus.Invalid;
@@ -75,5 +79,5 @@ export default function useSuspense<
 
   if (error) throw error;
 
-  return data;
+  return data as any;
 }

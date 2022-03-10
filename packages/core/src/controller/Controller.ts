@@ -26,6 +26,7 @@ import {
 } from '@rest-hooks/normalizr';
 import { inferResults } from '@rest-hooks/normalizr';
 import { unsetDispatch } from '@rest-hooks/use-enhanced-reducer';
+import { nullResponse } from '@rest-hooks/core/react-integration/newhooks/constants';
 
 type RHDispatch = (value: ActionTypes) => Promise<void>;
 
@@ -204,7 +205,7 @@ export default class Controller {
   /* TODO:
   abort = <E extends EndpointInterface>(
     endpoint: E,
-    ...args: readonly [...Parameters<E>] | readonly [null]
+    ...args: readonly [...Parameters<E>]
   ): Promise<void>
   */
 
@@ -212,15 +213,16 @@ export default class Controller {
     return new Snapshot(this, state, fetchedAt);
   };
 
-  getError = <E extends Pick<EndpointInterface, 'key'>>(
+  getError = <
+    E extends Pick<EndpointInterface, 'key'>,
+    Args extends readonly [...Parameters<E['key']>] | readonly [null],
+  >(
     endpoint: E,
-    ...rest:
-      | readonly [...Parameters<E['key']>, State<unknown>]
-      | readonly [null, State<unknown>]
+    ...rest: [...Args, State<unknown>]
   ): ErrorTypes | undefined => {
+    if (rest[0] === null) return;
     const state = rest[rest.length - 1] as State<unknown>;
     const args = rest.slice(0, rest.length - 1) as Parameters<E['key']>;
-    if (args?.[0] === null) return;
     const key = endpoint.key(...args);
 
     const meta = selectMeta(state, key);
@@ -233,21 +235,22 @@ export default class Controller {
 
   getResponse = <
     E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
+    Args extends readonly [...Parameters<E['key']>] | readonly [null],
   >(
     endpoint: E,
-    ...rest:
-      | readonly [...Parameters<E['key']>, State<unknown>]
-      | readonly [null, State<unknown>]
+    ...rest: [...Args, State<unknown>]
   ): {
     data: DenormalizeNullable<E['schema']>;
     expiryStatus: ExpiryStatus;
     expiresAt: number;
   } => {
+    if (rest[0] === null) {
+      return nullResponse;
+    }
     const state = rest[rest.length - 1] as State<unknown>;
     const args = rest.slice(0, rest.length - 1) as Parameters<E['key']>;
-    const activeArgs = args?.[0] !== null;
-    const key = activeArgs ? endpoint.key(...args) : '';
-    const cacheResults = activeArgs && state.results[key];
+    const key = endpoint.key(...args);
+    const cacheResults = state.results[key];
     const schema = endpoint.schema;
     const meta = selectMeta(state, key);
     let expiresAt = meta?.expiresAt;
@@ -289,7 +292,7 @@ export default class Controller {
       }
     }
 
-    if (activeArgs && !this.globalCache.results[key])
+    if (!this.globalCache.results[key])
       this.globalCache.results[key] = new WeakListMap();
 
     // second argument is false if any entities are missing
@@ -299,7 +302,7 @@ export default class Controller {
       schema,
       state.entities,
       this.globalCache.entities,
-      activeArgs ? this.globalCache.results[key] : undefined,
+      this.globalCache.results[key],
     ) as [
       DenormalizeNullable<E['schema']>,
       boolean,
@@ -346,7 +349,6 @@ export default class Controller {
     args: any[],
     indexes: any,
   ) => {
-    if (args[0] === null) return undefined;
     if (cacheResults || schema === undefined) return cacheResults;
 
     return inferResults(schema, args, indexes);
@@ -388,9 +390,10 @@ class Snapshot<T = unknown> implements SnapshotInterface {
   /*************** Data Access ***************/
   getResponse = <
     E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
+    Args extends readonly [...Parameters<E['key']>],
   >(
     endpoint: E,
-    ...args: readonly [...Parameters<E['key']>] | readonly [null]
+    ...args: Args
   ): {
     data: DenormalizeNullable<E['schema']>;
     expiryStatus: ExpiryStatus;
@@ -399,9 +402,12 @@ class Snapshot<T = unknown> implements SnapshotInterface {
     return this.controller.getResponse(endpoint, ...args, this.state);
   };
 
-  getError = <E extends Pick<EndpointInterface, 'key'>>(
+  getError = <
+    E extends Pick<EndpointInterface, 'key'>,
+    Args extends readonly [...Parameters<E['key']>],
+  >(
     endpoint: E,
-    ...args: readonly [...Parameters<E['key']>] | readonly [null]
+    ...args: Args
   ): ErrorTypes | undefined => {
     return this.controller.getError(endpoint, ...args, this.state);
   };
