@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.2.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.2.0-beta.1...@rest-hooks/normalizr@8.2.0-beta.2) (2022-03-10)
+
+
+### 🐛 Bug Fix
+
+* Union schemas with null args[0] hooks ([#1779](https://github.com/coinbase/rest-hooks/issues/1779)) ([fcf70a9](https://github.com/coinbase/rest-hooks/commit/fcf70a92ef15531b7fd12feb117f29ad8c3de3d8))
+
+
+
 ## [8.2.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.1.0...@rest-hooks/normalizr@8.2.0-beta.1) (2022-03-08)
 
 

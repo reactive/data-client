@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.1.0-beta.9](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.8...@rest-hooks/core@3.1.0-beta.9) (2022-03-10)
+
+
+### 🐛 Bug Fix
+
+* Union schemas with null args[0] hooks ([#1779](https://github.com/coinbase/rest-hooks/issues/1779)) ([fcf70a9](https://github.com/coinbase/rest-hooks/commit/fcf70a92ef15531b7fd12feb117f29ad8c3de3d8))
+
+
+
 ## [3.1.0-beta.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.6...@rest-hooks/core@3.1.0-beta.8) (2022-03-08)
 
 

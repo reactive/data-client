@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.2.0-beta.10](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.0-beta.9...rest-hooks@6.2.0-beta.10) (2022-03-10)
+
+**Note:** Version bump only for package rest-hooks
+
+
+
+
+
 ## [6.2.0-beta.9](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.0-beta.7...rest-hooks@6.2.0-beta.9) (2022-03-08)
 
 

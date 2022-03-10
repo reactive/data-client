@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.0-beta.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.2.0-beta.3...@rest-hooks/endpoint@2.2.0-beta.4) (2022-03-10)
+
+**Note:** Version bump only for package @rest-hooks/endpoint
+
+
+
+
+
 ## [2.2.0-beta.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.2.0-beta.2...@rest-hooks/endpoint@2.2.0-beta.3) (2022-03-08)
 
 

@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.1.12](https://github.com/coinbase/rest-hooks/compare/todo-app@0.1.11...todo-app@0.1.12) (2022-03-10)
+
+
+### 💅 Enhancement
+
+* Use const enums for ExpiryStatus ([#1417](https://github.com/coinbase/rest-hooks/issues/1417)) ([8d3f7f9](https://github.com/coinbase/rest-hooks/commit/8d3f7f973155680b2d52ed3f2e2758327b76d356))
+
+
+### 🐛 Bug Fix
+
+* Union schemas with null args[0] hooks ([#1779](https://github.com/coinbase/rest-hooks/issues/1779)) ([fcf70a9](https://github.com/coinbase/rest-hooks/commit/fcf70a92ef15531b7fd12feb117f29ad8c3de3d8))
+
+
+### 📦 Package
+
+* react 18-rc.0 ([#1598](https://github.com/coinbase/rest-hooks/issues/1598)) ([daa136a](https://github.com/coinbase/rest-hooks/commit/daa136a71dca2bbe13a08176bdae5bef59ad92d1))
+
+
+### 📝 Documentation
+
+* Use stackblitz for demos ([#1699](https://github.com/coinbase/rest-hooks/issues/1699)) ([ee7b4ca](https://github.com/coinbase/rest-hooks/commit/ee7b4ca6fbe5ccea4ea32a52885bf9fe64cbb947))
+
+
+
 ### [0.1.11](https://github.com/coinbase/rest-hooks/compare/todo-app@0.1.10...todo-app@0.1.11) (2021-10-11)
 
 **Note:** Version bump only for package todo-app
