@@ -1,4 +1,4 @@
-import { Entity } from '@rest-hooks/normalizr';
+import { Entity } from '@rest-hooks/endpoint';
 
 export default class GQLEntity extends Entity {
   readonly id: string = '';

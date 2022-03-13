@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { AbstractInstanceType, Schema, schema } from '@rest-hooks/normalizr';
+import { AbstractInstanceType, Schema, schema } from '@rest-hooks/core';
 import {
   isImmutable,
   denormalizeImmutable,
