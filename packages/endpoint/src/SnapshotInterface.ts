@@ -1,6 +1,6 @@
 import type { DenormalizeNullable } from '@rest-hooks/endpoint/normal';
 import type { EndpointInterface } from '@rest-hooks/endpoint/interface';
-import type { ExpiryStatus } from '@rest-hooks/endpoint/Expiry';
+import type { ExpiryStatusInterface } from '@rest-hooks/endpoint/Expiry';
 import type { ErrorTypes } from '@rest-hooks/endpoint/ErrorTypes';
 
 export default interface SnapshotInterface {
@@ -12,7 +12,7 @@ export default interface SnapshotInterface {
     ...args: Args
   ) => {
     data: DenormalizeNullable<E['schema']>;
-    expiryStatus: ExpiryStatus;
+    expiryStatus: ExpiryStatusInterface;
     expiresAt: number;
   };
 
