@@ -31,6 +31,7 @@ export type {
   ErrorTypes,
 } from '@rest-hooks/endpoint/types';
 export { ExpiryStatus } from '@rest-hooks/endpoint/Expiry';
+export type { ExpiryStatusInterface } from '@rest-hooks/endpoint/Expiry';
 export type {
   ResolveType,
   EndpointParam,

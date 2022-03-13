@@ -1,8 +1,7 @@
 import { schema, Schema } from '@rest-hooks/normalizr';
-import { Normalize, DenormalizeNullable } from '@rest-hooks/endpoint/normal';
+import { Normalize } from '@rest-hooks/endpoint/normal';
 import { EndpointInterface } from '@rest-hooks/endpoint/interface';
 import { ResolveType } from '@rest-hooks/endpoint/utility';
-import { ExpiryStatus } from '@rest-hooks/endpoint/Expiry';
 import SnapshotInterface from '@rest-hooks/endpoint/SnapshotInterface';
 
 export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
