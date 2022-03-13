@@ -1,5 +1,5 @@
 import { Endpoint, EndpointOptions } from '@rest-hooks/endpoint';
-import type { Schema } from '@rest-hooks/normalizr';
+import type { Schema } from '@rest-hooks/endpoint';
 import GQLNetworkError from '@rest-hooks/graphql/GQLNetworkError';
 
 export default class GQLEndpoint<
