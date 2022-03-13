@@ -1,6 +1,5 @@
-import { Endpoint } from '@rest-hooks/endpoint';
-import type { EndpointInstance } from '@rest-hooks/endpoint';
-import type { FetchShape } from '@rest-hooks/core';
+import { Endpoint } from '@rest-hooks/core';
+import type { FetchShape, EndpointInstance } from '@rest-hooks/core';
 
 type ShapeTypeToSideEffect<T extends 'read' | 'mutate' | 'delete' | undefined> =
   T extends 'read' | undefined ? undefined : true;
