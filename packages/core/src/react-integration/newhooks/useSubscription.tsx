@@ -16,10 +16,12 @@ export default function useSubscription<
 
   useEffect(() => {
     if (!key) return;
+    // typescript cannot infer truthy key means args is not null
+    const cleanedArgs = args as readonly [...Parameters<E>];
 
-    controller.subscribe(endpoint, ...args);
+    controller.subscribe(endpoint, ...cleanedArgs);
     return () => {
-      controller.unsubscribe(endpoint, ...args);
+      controller.unsubscribe(endpoint, ...cleanedArgs);
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

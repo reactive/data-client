@@ -9,6 +9,7 @@ import { useContext, useMemo } from 'react';
 import { StateContext } from '@rest-hooks/core/react-integration/context';
 import { ExpiryStatus } from '@rest-hooks/endpoint';
 import useController from '@rest-hooks/core/react-integration/hooks/useController';
+import { nullResponse } from '@rest-hooks/core/react-integration/newhooks/constants';
 
 /**
  * Access a response if it is available.
@@ -22,16 +23,20 @@ export default function useCache<
     'key' | 'schema' | 'invalidIfStale'
   >,
   Args extends readonly [...Parameters<E['key']>] | readonly [null],
->(endpoint: E, ...args: Args): DenormalizeNullable<E['schema']> {
+>(
+  endpoint: E,
+  ...args: Args
+): Args extends [null] ? undefined : DenormalizeNullable<E['schema']> {
   const state = useContext(StateContext);
   const controller = useController();
 
   const key = args[0] !== null ? endpoint.key(...args) : '';
-  const cacheResults = args[0] !== null && state.results[key];
+  const cacheResults = key && state.results[key];
   const meta = state.meta[key];
 
   // Compute denormalized value
   const { data, expiryStatus, expiresAt } = useMemo(() => {
+    if (!key) return nullResponse;
     // @ts-ignore
     return controller.getResponse(endpoint, ...args, state) as {
       data: DenormalizeNullable<E['schema']>;

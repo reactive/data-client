@@ -9,6 +9,7 @@ import {
   FetchFunction,
 } from '@rest-hooks/endpoint';
 import { useContext, useMemo } from 'react';
+import { nullResponse } from '@rest-hooks/core/react-integration/newhooks/constants';
 
 /**
  * Request a resource if it is not in cache.
@@ -22,11 +23,12 @@ export default function useFetch<
   const controller = useController();
 
   const key = args[0] !== null ? endpoint.key(...args) : '';
-  const cacheResults = args[0] !== null && state.results[key];
+  const cacheResults = key && state.results[key];
   const meta = state.meta[key];
 
   // Compute denormalized value
   const { expiryStatus, expiresAt } = useMemo(() => {
+    if (!key) return nullResponse;
     // @ts-ignore
     return controller.getResponse(endpoint, ...args, state) as {
       data: Denormalize<E['schema']>;

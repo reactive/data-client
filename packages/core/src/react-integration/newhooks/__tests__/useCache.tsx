@@ -73,6 +73,9 @@ describe('useCache()', () => {
     const { result } = renderRestHook(() => {
       return useCache(endpoint, null);
     });
+    const b: undefined = result.current;
+    // @ts-expect-error
+    const c: object = result.current;
     expect(result.current).toBeUndefined();
   });
 

@@ -27,7 +27,10 @@ export default function useCache<
         ? readonly [...Parameters<E['key']>]
         : readonly [ParamsFromShape<E>])
     | readonly [null],
->(endpoint: E, ...args: Args): DenormalizeNullable<E['schema']> {
+>(
+  endpoint: E,
+  ...args: Args
+): Args extends [null] ? undefined : DenormalizeNullable<E['schema']> {
   const adaptedEndpoint: any = useMemo(() => {
     return shapeToEndpoint(endpoint);
     // we currently don't support shape changes

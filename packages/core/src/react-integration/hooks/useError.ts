@@ -7,7 +7,7 @@ import { EndpointInterface, Schema, FetchFunction } from '@rest-hooks/endpoint';
 
 export type ErrorTypes = NetworkError | UnknownError;
 
-type UseErrorReturn<P> = P extends null ? undefined : ErrorTypes | undefined;
+type UseErrorReturn<P> = P extends [null] ? undefined : ErrorTypes | undefined;
 
 /**
  * Get any errors for a given request
@@ -25,7 +25,7 @@ export default function useError<
         ? readonly [...Parameters<E['key']>]
         : readonly [ParamsFromShape<E>])
     | readonly [null],
->(endpoint: E, ...args: Args): UseErrorReturn<typeof args[0]> {
+>(endpoint: E, ...args: Args): UseErrorReturn<typeof args> {
   const adaptedEndpoint: any = useMemo(() => {
     return shapeToEndpoint(endpoint);
     // we currently don't support shape changes
