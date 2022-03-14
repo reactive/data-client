@@ -6563,9 +6563,9 @@ cp-file@^9.1.0:
     p-event "^4.1.0"
 
 cpy-cli@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/cpy-cli/-/cpy-cli-4.0.0.tgz#e82c431ba73ecba2b68794971887b0524cb7edd1"
-  integrity sha512-jYrVFg9/ZAl3GRg8ambMoCgCZIGhNO2HNte5jdJXXMSEtM1ZFxw+qo8290LVtWWDrzu++eUyTXoqcqZZNuv8AQ==
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/cpy-cli/-/cpy-cli-4.1.0.tgz#64ce7e23e095a4961539f89da6413f5deb8a62f6"
+  integrity sha512-JA6bth6/mxPCa19SrWkIuPEBrea8vO9g1v0qhmCLnAKOfTcsNk5/X3W1o9aZuOHgugRcxdyR67rO4Gw/DA+4Qg==
   dependencies:
     cpy "^9.0.0"
     meow "^10.1.2"
@@ -7812,9 +7812,9 @@ eslint-plugin-react-hooks@^4.2.0:
   integrity sha512-XslZy0LnMn+84NEG9jSGR6eGqaZB3133L8xewQo3fQagbQuGt7a63gf+P1NGKZavEYEC3UXaWEAA/AqDkuN6xA==
 
 eslint-plugin-react@^7.22.0:
-  version "7.29.3"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-react/-/eslint-plugin-react-7.29.3.tgz#f4eab757f2756d25d6d4c2a58a9e20b004791f05"
-  integrity sha512-MzW6TuCnDOcta67CkpDyRfRsEVx9FNMDV8wZsDqe1luHPdGTrQIUaUXD27Ja3gHsdOIs/cXzNchWGlqm+qRVRg==
+  version "7.29.4"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-react/-/eslint-plugin-react-7.29.4.tgz#4717de5227f55f3801a5fd51a16a4fa22b5914d2"
+  integrity sha512-CVCXajliVh509PcZYRFyu/BoUEz452+jtQJq2b3Bae4v3xBUWPLCmtmBM+ZinG4MzwmxJgJ2M5rMqhqLVn7MtQ==
   dependencies:
     array-includes "^3.1.4"
     array.prototype.flatmap "^1.2.5"
