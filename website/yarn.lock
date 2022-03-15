@@ -3025,20 +3025,20 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.19.tgz#2c94db828794aa53e7a420809dac870348819233"
   integrity sha512-kHR9OHwP9WLpyC0i/WCAQCgf5hXkR9C+/21qxmrn+YwRlDRnBlqrcrFpXxhJTA9LDHJWa/FjoO2LJ12q8iWlEQ==
 
-"@rest-hooks/core@^3.1.0-beta.8", "@rest-hooks/core@file:../packages/core":
-  version "3.1.0-beta.8"
+"@rest-hooks/core@^3.1.0-beta.9", "@rest-hooks/core@file:../packages/core":
+  version "3.1.0-beta.9"
   dependencies:
     "@babel/runtime" "^7.7.2"
-    "@rest-hooks/endpoint" "^2.2.0-beta.3"
-    "@rest-hooks/normalizr" "^8.2.0-beta.1"
+    "@rest-hooks/endpoint" "^2.2.0-beta.4"
+    "@rest-hooks/normalizr" "^8.2.0-beta.2"
     "@rest-hooks/use-enhanced-reducer" "^1.1.1"
     flux-standard-action "^2.1.1"
 
-"@rest-hooks/endpoint@^2.2.0-beta.3", "@rest-hooks/endpoint@file:../packages/endpoint":
-  version "2.2.0-beta.3"
+"@rest-hooks/endpoint@^2.2.0-beta.4", "@rest-hooks/endpoint@file:../packages/endpoint":
+  version "2.2.0-beta.4"
   dependencies:
     "@babel/runtime" "^7.7.2"
-    "@rest-hooks/normalizr" "^8.2.0-beta.1"
+    "@rest-hooks/normalizr" "^8.2.0-beta.2"
 
 "@rest-hooks/graphql@file:../packages/graphql":
   version "0.1.1"
@@ -3050,8 +3050,8 @@
   dependencies:
     "@babel/runtime" "^7.7.2"
 
-"@rest-hooks/normalizr@^8.2.0-beta.1", "@rest-hooks/normalizr@file:../packages/normalizr":
-  version "8.2.0-beta.1"
+"@rest-hooks/normalizr@^8.2.0-beta.2", "@rest-hooks/normalizr@file:../packages/normalizr":
+  version "8.2.0-beta.2"
   dependencies:
     "@babel/runtime" "^7.7.2"
 
@@ -3212,10 +3212,10 @@
   resolved "https://registry.yarnpkg.com/@trysound/sax/-/sax-0.2.0.tgz#cccaab758af56761eb7bf37af6f03f326dd798ad"
   integrity sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==
 
-"@tsconfig/docusaurus@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@tsconfig/docusaurus/-/docusaurus-1.0.4.tgz#fc40f87a672568678d83533dd4031a09d75877ca"
-  integrity sha512-I6sziQAzLrrqj9r6S26c7aOAjfGVXIE7gWdNONPwnpDcHiMRMQut1s1YCi/APem3dOy23tAb2rvHfNtGCaWuUQ==
+"@tsconfig/docusaurus@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@tsconfig/docusaurus/-/docusaurus-1.0.5.tgz#5298c5b0333c6263f06c3149b38ebccc9f169a4e"
+  integrity sha512-KM/TuJa9fugo67dTGx+ktIqf3fVc077J6jwHu845Hex4EQf7LABlNonP/mohDKT0cmncdtlYVHHF74xR/YpThg==
 
 "@types/base16@^1.0.2":
   version "1.0.2"
@@ -10515,11 +10515,11 @@ responselike@^1.0.2:
     lowercase-keys "^1.0.0"
 
 "rest-hooks@file:../packages/rest-hooks":
-  version "6.2.0-beta.9"
+  version "6.2.0-beta.10"
   dependencies:
     "@babel/runtime" "^7.7.2"
-    "@rest-hooks/core" "^3.1.0-beta.8"
-    "@rest-hooks/endpoint" "^2.2.0-beta.3"
+    "@rest-hooks/core" "^3.1.0-beta.9"
+    "@rest-hooks/endpoint" "^2.2.0-beta.4"
 
 restore-cursor@^3.1.0:
   version "3.1.0"
