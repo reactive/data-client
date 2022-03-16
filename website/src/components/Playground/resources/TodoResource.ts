@@ -16,7 +16,12 @@ export default class TodoResource extends PlaceholderBaseResource {
 
   static urlRoot = '/api/todos';
 
-  static useIncoming(existing, incoming) {
+  static useIncoming(
+    existingMeta: { date: number },
+    incomingMeta: { date: number },
+    existing: { updatedAt: number },
+    incoming: { updatedAt: number },
+  ) {
     return existing.updatedAt <= incoming.updatedAt;
   }
 
@@ -39,7 +44,7 @@ export default class TodoResource extends PlaceholderBaseResource {
   static partialUpdate<T extends typeof Resource>(this: T) {
     return super.partialUpdate().extend({
       schema: this,
-      optimisticUpdater: optimisticPartial,
+      getOptimisticResponse: optimisticPartial,
     });
   }
 
@@ -47,7 +52,7 @@ export default class TodoResource extends PlaceholderBaseResource {
     const listkey = this.list().key({});
     return super.create().extend({
       schema: this,
-      optimisticUpdater: optimisticCreate,
+      getOptimisticResponse: optimisticCreate,
       update: (newResourceId: string) => ({
         [listkey]: (resourceIds: string[] = []) => [
           ...resourceIds,
@@ -60,7 +65,7 @@ export default class TodoResource extends PlaceholderBaseResource {
   static delete<T extends typeof Resource>(this: T) {
     return super.delete().extend({
       schema: new schema.Delete(this),
-      optimisticUpdater: optimisticDelete,
+      getOptimisticResponse: optimisticDelete,
     });
   }
 }
