@@ -75,7 +75,7 @@ module.exports = {
             return `https://github.com/coinbase/rest-hooks/edit/master/${nextVersionDocsDirPath}/${docPath}`;
           },
           path: '../docs',
-          lastVersion: '6.1',
+          lastVersion: 'current',
           versions: {
             current: { label: '6.2', path: '/' },
           },
