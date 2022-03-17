@@ -77,7 +77,7 @@ module.exports = {
           path: '../docs',
           lastVersion: '6.1',
           versions: {
-            current: { label: '6.2', path: '/next' },
+            current: { label: '6.2', path: '/' },
           },
         },
         blog: {
@@ -196,14 +196,14 @@ module.exports = {
             },
             {
               label: '6.2',
-              to: 'docs/next/',
-              rel: 'nofollow',
-            },
-            {
-              label: '6.1',
               to: 'docs/',
               activeBaseRegex:
                 'docs/(?!2.2|3.0|4.0|4.1|4.2|4.3|4.5|5.0|6.0|6.1|6.2)',
+            },
+            {
+              label: '6.1',
+              to: 'docs/6.1',
+              rel: 'nofollow',
             },
             {
               label: '6.0',

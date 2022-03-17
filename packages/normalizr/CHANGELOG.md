@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.1.0...@rest-hooks/normalizr@8.2.0) (2022-03-17)
+
+
+### 🚀 Features
+
+* Add endpoint.optimisticUpdater ([#1616](https://github.com/coinbase/rest-hooks/issues/1616)) ([7a99fae](https://github.com/coinbase/rest-hooks/commit/7a99fae20ee9abf5f2121c1f1719bdcce3e78d98))
+* Entity.useIncoming() for race condition handling ([#1771](https://github.com/coinbase/rest-hooks/issues/1771)) ([ffd70fe](https://github.com/coinbase/rest-hooks/commit/ffd70fe0aa12634d06d2e0d43a5b89d420e2220c))
+
+
+### 🐛 Bug Fix
+
+* Union schemas with null args[0] hooks ([#1779](https://github.com/coinbase/rest-hooks/issues/1779)) ([fcf70a9](https://github.com/coinbase/rest-hooks/commit/fcf70a92ef15531b7fd12feb117f29ad8c3de3d8))
+
+
+
 ## [8.2.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.2.0-beta.1...@rest-hooks/normalizr@8.2.0-beta.2) (2022-03-10)
 
 
