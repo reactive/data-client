@@ -22,6 +22,7 @@ export default function Output({ value }: { value: any }) {
     <JSONTree
       shouldExpandNode={shouldExpandNode}
       data={value}
+      valueRenderer={valueRenderer}
       theme={{
         tree: {
           overflow: 'auto',
@@ -68,4 +69,29 @@ function shouldExpandNode(keyName, data, level) {
   if (level === 3 && keyName[2] === 'entities') return true;
   if (level === 3 && keyName[2] === 'results') return true;
   return false;
+}
+
+const HASINTL = typeof Intl !== 'undefined';
+
+function valueRenderer(
+  valueAsString: string,
+  value: unknown,
+  ...keyPath: string[]
+) {
+  const key = keyPath[0];
+  if (
+    HASINTL &&
+    typeof value === 'number' &&
+    typeof key === 'string' &&
+    isFinite(value) &&
+    (key === 'date' || key.endsWith('At'))
+  ) {
+    return Intl.DateTimeFormat('en-US', {
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      fractionalSecondDigits: 3,
+    }).format(value);
+  }
+  return valueAsString;
 }
