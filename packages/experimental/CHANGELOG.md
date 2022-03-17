@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.3.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@3.3.0...@rest-hooks/experimental@3.3.1) (2022-03-17)
+
+
+### 💅 Enhancement
+
+* Only import from packages in package.json ([#1785](https://github.com/coinbase/rest-hooks/issues/1785)) ([02fb843](https://github.com/coinbase/rest-hooks/commit/02fb8435bfa7a87a51de680ae6aa69da156c9a71))
+
+
+
 ## [3.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@3.1.0...@rest-hooks/experimental@3.3.0) (2022-02-26)
 
 

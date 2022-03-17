@@ -3,6 +3,40 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.0.2...@rest-hooks/core@3.1.0) (2022-03-17)
+
+
+### 🚀 Features
+
+* Add endpoint.optimisticUpdater ([#1616](https://github.com/coinbase/rest-hooks/issues/1616)) ([7a99fae](https://github.com/coinbase/rest-hooks/commit/7a99fae20ee9abf5f2121c1f1719bdcce3e78d98))
+* Entity.useIncoming() for race condition handling ([#1771](https://github.com/coinbase/rest-hooks/issues/1771)) ([ffd70fe](https://github.com/coinbase/rest-hooks/commit/ffd70fe0aa12634d06d2e0d43a5b89d420e2220c))
+* export BackupBoundary ([7a7c398](https://github.com/coinbase/rest-hooks/commit/7a7c398d2db852ab6d3523f1a7ca20ef46e9d5f4))
+* useSuspense, useFetch, remaining hooks typed for Endpoint ([#1440](https://github.com/coinbase/rest-hooks/issues/1440)) ([2039d2c](https://github.com/coinbase/rest-hooks/commit/2039d2c4bf280b5a3c570824c25af3a4cc39af0d))
+
+
+### 💅 Enhancement
+
+* Dispatch new receive action if new fetch triggered it ([#1455](https://github.com/coinbase/rest-hooks/issues/1455)) ([99f9a6d](https://github.com/coinbase/rest-hooks/commit/99f9a6d13b970eba398d869acf60f6776e62939e))
+* Fetch resolution only removes the optimistic update corresponding to that fetch ([#1653](https://github.com/coinbase/rest-hooks/issues/1653)) ([2fd93f2](https://github.com/coinbase/rest-hooks/commit/2fd93f235074d134200e81ddb16792647b3cffad))
+* Hooks should type return value based on 'null' arg ([#1783](https://github.com/coinbase/rest-hooks/issues/1783)) ([d14673e](https://github.com/coinbase/rest-hooks/commit/d14673eab0dad3f02edb54f7bf37e6fed1c47a62))
+* optimisticUpdater -> getOptimisticResponse ([#1769](https://github.com/coinbase/rest-hooks/issues/1769)) ([4d1cd66](https://github.com/coinbase/rest-hooks/commit/4d1cd66ea2677868aba402d362b9896dffc24462))
+
+
+### 🐛 Bug Fix
+
+* Expiry defaults for useSuspense() should match useResource() ([#1738](https://github.com/coinbase/rest-hooks/issues/1738)) ([b98dcfd](https://github.com/coinbase/rest-hooks/commit/b98dcfdb56bfc947829e2eead4b6a785dfe3965d))
+* InvalidIfStale should be respected in no-schema endpoints ([#1724](https://github.com/coinbase/rest-hooks/issues/1724)) ([28fab73](https://github.com/coinbase/rest-hooks/commit/28fab739952aae6819ddfcaafe9fcb3c893f8d2f))
+* lastReset should serialize ([#1745](https://github.com/coinbase/rest-hooks/issues/1745)) ([e25158a](https://github.com/coinbase/rest-hooks/commit/e25158a28c5bdc90aeb7fa6e7ca2c43580f6f88f))
+* Union schemas with null args[0] hooks ([#1779](https://github.com/coinbase/rest-hooks/issues/1779)) ([fcf70a9](https://github.com/coinbase/rest-hooks/commit/fcf70a92ef15531b7fd12feb117f29ad8c3de3d8))
+* useFetcher() work with zero argument Endpoint ([#1514](https://github.com/coinbase/rest-hooks/issues/1514)) ([c5ac9e7](https://github.com/coinbase/rest-hooks/commit/c5ac9e7a1d66f57ddcee5c343b239cf2d6d5f782))
+
+
+### 📝 Documentation
+
+* Use stackblitz for demos ([#1699](https://github.com/coinbase/rest-hooks/issues/1699)) ([ee7b4ca](https://github.com/coinbase/rest-hooks/commit/ee7b4ca6fbe5ccea4ea32a52885bf9fe64cbb947))
+
+
+
 ## [3.1.0-beta.9](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.8...@rest-hooks/core@3.1.0-beta.9) (2022-03-10)
 
 

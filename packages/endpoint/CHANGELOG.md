@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.1.0...@rest-hooks/endpoint@2.2.0) (2022-03-17)
+
+
+### 🚀 Features
+
+* Add endpoint.optimisticUpdater ([#1616](https://github.com/coinbase/rest-hooks/issues/1616)) ([7a99fae](https://github.com/coinbase/rest-hooks/commit/7a99fae20ee9abf5f2121c1f1719bdcce3e78d98))
+
+
+### 💅 Enhancement
+
+* Fetch resolution only removes the optimistic update corresponding to that fetch ([#1653](https://github.com/coinbase/rest-hooks/issues/1653)) ([2fd93f2](https://github.com/coinbase/rest-hooks/commit/2fd93f235074d134200e81ddb16792647b3cffad))
+* Hooks should type return value based on 'null' arg ([#1783](https://github.com/coinbase/rest-hooks/issues/1783)) ([d14673e](https://github.com/coinbase/rest-hooks/commit/d14673eab0dad3f02edb54f7bf37e6fed1c47a62))
+* Loosen SnapshotInterface to allow compatible but distinct versions ([#1786](https://github.com/coinbase/rest-hooks/issues/1786)) ([7b31f4d](https://github.com/coinbase/rest-hooks/commit/7b31f4df787e4c0a838dc897a81755abbccf1984))
+* optimisticUpdater -> getOptimisticResponse ([#1769](https://github.com/coinbase/rest-hooks/issues/1769)) ([4d1cd66](https://github.com/coinbase/rest-hooks/commit/4d1cd66ea2677868aba402d362b9896dffc24462))
+
+
+
 ## [2.2.0-beta.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.2.0-beta.3...@rest-hooks/endpoint@2.2.0-beta.4) (2022-03-10)
 
 **Note:** Version bump only for package @rest-hooks/endpoint

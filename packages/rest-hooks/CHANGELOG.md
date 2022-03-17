@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.2.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.1.7...rest-hooks@6.2.0) (2022-03-17)
+
+
+### 🚀 Features
+
+* Add endpoint.getOptimisticResponse ([#1616](https://github.com/coinbase/rest-hooks/issues/1616)) ([7a99fae](https://github.com/coinbase/rest-hooks/commit/7a99fae20ee9abf5f2121c1f1719bdcce3e78d98)) ([#1769](https://github.com/coinbase/rest-hooks/issues/1769)) ([4d1cd66](https://github.com/coinbase/rest-hooks/commit/4d1cd66ea2677868aba402d362b9896dffc24462))
+* useSuspense, useFetch, remaining hooks typed for Endpoint ([#1440](https://github.com/coinbase/rest-hooks/issues/1440)) ([2039d2c](https://github.com/coinbase/rest-hooks/commit/2039d2c4bf280b5a3c570824c25af3a4cc39af0d))
+* Entity.useIncoming() for race condition handling ([#1771](https://github.com/coinbase/rest-hooks/issues/1771)) ([ffd70fe](https://github.com/coinbase/rest-hooks/commit/ffd70fe0aa12634d06d2e0d43a5b89d420e2220c))
+
+
+### 💅 Enhancement
+
+* Devtools improvements ([#1743](https://github.com/coinbase/rest-hooks/issues/1743)) ([db2fd59](https://github.com/coinbase/rest-hooks/commit/db2fd590532c51f72165167c9e807ac2c26deab2))
+* Format timestamps in redux devtools for ease of reading ([#1739](https://github.com/coinbase/rest-hooks/issues/1739)) ([6169f84](https://github.com/coinbase/rest-hooks/commit/6169f8417c304b52954a166e8f3f60fb4ba70747))
+* Use BackupBoundary to help debug setup issues ([3a68907](https://github.com/coinbase/rest-hooks/commit/3a68907882f35c3806b05244e68d61e503b91d0f))
+* Fetch resolution only removes the optimistic update corresponding to that fetch ([#1653](https://github.com/coinbase/rest-hooks/issues/1653)) ([2fd93f2](https://github.com/coinbase/rest-hooks/commit/2fd93f235074d134200e81ddb16792647b3cffad))
+
+### 🐛 Bug Fix
+
+* Loosen PromiseifyMiddleware types to only what is needed ([#1735](https://github.com/coinbase/rest-hooks/issues/1735)) ([4831bd6](https://github.com/coinbase/rest-hooks/commit/4831bd64762554a7f46cff1699346200cecf4426))
+* NetworkErrorBoundary should render Element ([#1775](https://github.com/coinbase/rest-hooks/issues/1775)) ([5e3cfd2](https://github.com/coinbase/rest-hooks/commit/5e3cfd28fda0e27319267e671500591f22f87d74))
+* Expiry defaults for useSuspense() should match useResource() ([#1738](https://github.com/coinbase/rest-hooks/issues/1738)) ([b98dcfd](https://github.com/coinbase/rest-hooks/commit/b98dcfdb56bfc947829e2eead4b6a785dfe3965d))
+* InvalidIfStale should be respected in no-schema endpoints ([#1724](https://github.com/coinbase/rest-hooks/issues/1724)) ([28fab73](https://github.com/coinbase/rest-hooks/commit/28fab739952aae6819ddfcaafe9fcb3c893f8d2f))
+* Union schemas with null args[0] hooks ([#1779](https://github.com/coinbase/rest-hooks/issues/1779)) ([fcf70a9](https://github.com/coinbase/rest-hooks/commit/fcf70a92ef15531b7fd12feb117f29ad8c3de3d8)
+
+
+### 📝 Documentation
+
+* Use stackblitz for demos ([#1699](https://github.com/coinbase/rest-hooks/issues/1699)) ([ee7b4ca](https://github.com/coinbase/rest-hooks/commit/ee7b4ca6fbe5ccea4ea32a52885bf9fe64cbb947))
+
+
+
 ## [6.2.0-beta.10](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.0-beta.9...rest-hooks@6.2.0-beta.10) (2022-03-10)
 
 **Note:** Version bump only for package rest-hooks
