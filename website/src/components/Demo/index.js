@@ -15,7 +15,7 @@ const simpleFetchDemo = [
 const todoDetail = new Endpoint(fetchTodoDetail);` +
       '\n\n' +
       `function TodoDetail() {
-  const todo = useResource(todoDetail, { id: 1 });
+  const todo = useSuspense(todoDetail, { id: 1 });
   return <div>{todo.title}</div>;
 }
 render(<TodoDetail/>);
@@ -31,7 +31,7 @@ render(<TodoDetail/>);
   }` +
       '\n\n' +
       `function TodoDetail() {
-  const todo = useResource(TodoResource.detail(), { id: 1 });
+  const todo = useSuspense(TodoResource.detail(), { id: 1 });
   return <div>{todo.title}</div>;
 }
 render(<TodoDetail/>);
@@ -53,7 +53,7 @@ const todoDetail = gql.query(\`
 \`);` +
       '\n\n' +
       `function TodoDetail() {
-    const { todo } = useResource(todoDetail, { id: 1 });
+    const { todo } = useSuspense(todoDetail, { id: 1 });
     return <div>{todo.title}</div>;
   }
   render(<TodoDetail/>);
@@ -66,7 +66,7 @@ const mutationDemo = [
     label: 'REST',
     value: 'rest',
     code: `function TodoDetail({ id }) {
-  const todo = useResource(TodoResource.detail(), { id });
+  const todo = useSuspense(TodoResource.detail(), { id });
   const controller = useController();
   const updateWith = title => () =>
     controller.fetch(
@@ -118,7 +118,7 @@ const updateTodo = gql.mutation(
 );` +
       '\n\n' +
       `function TodoDetail({ id }) {
-  const { todo } = useResource(todoDetail, { id });
+  const { todo } = useSuspense(todoDetail, { id });
   const controller = useController();
   const updateWith = title => () =>
     controller.fetch(
@@ -177,7 +177,7 @@ const appDemo = [
 }
 
 function TodoList() {
-  const todos = useResource(TodoResource.list(), {});
+  const todos = useSuspense(TodoResource.list(), {});
   const controller = useController();
   return (
     <div>
@@ -241,7 +241,7 @@ const updateTodo = gql.mutation(
 }
 
 function TodoList() {
-  const { todos } = useResource(todoList, {});
+  const { todos } = useSuspense(todoList, {});
   const controller = useController();
   return (
     <div>
@@ -265,7 +265,7 @@ const Demo = props => (
           <p>
             Add a single{' '}
             <Link to="/docs/getting-started/data-dependency">
-              useResource()
+              useSuspense()
             </Link>{' '}
             call where you need its data.
           </p>
