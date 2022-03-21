@@ -9,15 +9,15 @@
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.0"
 
-"@anansi/babel-preset@2.8.3", "@anansi/babel-preset@^2.8.3":
-  version "2.8.3"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.8.3.tgz#ec35c993d8b24972a8f8f81548114c8428132de9"
-  integrity sha512-XZUEnbYkvwVvDRUlyCspvbBxmEKULU+iYj9zXS89fZFFjvZYMm2JM9h/amSeXXKGVZwhcieH1xJG5OCT8Tg9iQ==
+"@anansi/babel-preset@2.8.5", "@anansi/babel-preset@^2.8.3":
+  version "2.8.5"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.8.5.tgz#f06d097d1ae4746476e5c383a240353532ca37f5"
+  integrity sha512-XBYKrb1xqU+fApjyNGpjPqKazlSLZ1pNT6uftJ6RjPXjFZFLHo0LltFVHg6agoGiRBdfiwJ0UdP5jNHoHzn3Hg==
   dependencies:
-    "@anansi/ts-utils" "^0.2.4"
+    "@anansi/ts-utils" "^0.2.5"
     "@babel/plugin-proposal-class-properties" "^7.16.7"
-    "@babel/plugin-proposal-class-static-block" "^7.16.7"
-    "@babel/plugin-proposal-decorators" "^7.17.2"
+    "@babel/plugin-proposal-class-static-block" "^7.17.6"
+    "@babel/plugin-proposal-decorators" "^7.17.8"
     "@babel/plugin-proposal-export-default-from" "^7.16.7"
     "@babel/plugin-proposal-export-namespace-from" "^7.16.7"
     "@babel/plugin-proposal-optional-chaining" "^7.16.7"
@@ -27,7 +27,7 @@
     "@babel/plugin-syntax-top-level-await" "^7.14.5"
     "@babel/plugin-transform-flow-strip-types" "^7.16.7"
     "@babel/plugin-transform-object-assign" "^7.16.7"
-    "@babel/plugin-transform-react-constant-elements" "^7.16.7"
+    "@babel/plugin-transform-react-constant-elements" "^7.17.6"
     "@babel/plugin-transform-react-inline-elements" "^7.16.7"
     "@babel/plugin-transform-runtime" "^7.17.0"
     "@babel/plugin-transform-typescript" "^7.16.8"
@@ -40,7 +40,7 @@
     babel-plugin-react-require "^3.1.3"
     babel-plugin-root-import "^6.6.0"
     babel-plugin-transform-react-remove-prop-types "^0.4.24"
-    core-js-compat "^3.21.0"
+    core-js-compat "^3.21.1"
     glob-to-regexp "^0.4.1"
     path "^0.12.7"
     semver "^7.3.5"
@@ -80,7 +80,7 @@
     ts-jest "^27.1.3"
     whatwg-fetch "^3.0.0"
 
-"@anansi/ts-utils@^0.2.4", "@anansi/ts-utils@^0.2.5":
+"@anansi/ts-utils@^0.2.5":
   version "0.2.5"
   resolved "https://registry.yarnpkg.com/@anansi/ts-utils/-/ts-utils-0.2.5.tgz#bd2270fb1f96a26dbcf3a9a61a6a6b36652e75c6"
   integrity sha512-m6jFCF3Y6Tcd06hmq1pDqOCHGpe30QO9FcCblYD0ohhl5olcyq+f2DbKWPQSeddzHdHxDUpZ9OG7xwHv4xtmUw==
@@ -358,10 +358,10 @@
     "@babel/helper-replace-supers" "^7.16.7"
     "@babel/helper-split-export-declaration" "^7.16.7"
 
-"@babel/helper-create-class-features-plugin@^7.17.1":
-  version "7.17.1"
-  resolved "https://registry.yarnpkg.com/@babel/helper-create-class-features-plugin/-/helper-create-class-features-plugin-7.17.1.tgz#9699f14a88833a7e055ce57dcd3ffdcd25186b21"
-  integrity sha512-JBdSr/LtyYIno/pNnJ75lBcqc3Z1XXujzPanHqjvvrhOA+DTceTFuJi8XjmWTZh4r3fsdfqaCMN0iZemdkxZHQ==
+"@babel/helper-create-class-features-plugin@^7.17.6":
+  version "7.17.6"
+  resolved "https://registry.yarnpkg.com/@babel/helper-create-class-features-plugin/-/helper-create-class-features-plugin-7.17.6.tgz#3778c1ed09a7f3e65e6d6e0f6fbfcc53809d92c9"
+  integrity sha512-SogLLSxXm2OkBbSsHZMM4tUi8fUzjs63AT/d0YQIzr6GSd8Hxsbk2KYDX0k0DweAzGMj/YWeiCsorIdtdcW8Eg==
   dependencies:
     "@babel/helper-annotate-as-pure" "^7.16.7"
     "@babel/helper-environment-visitor" "^7.16.7"
@@ -739,21 +739,21 @@
     "@babel/helper-create-class-features-plugin" "^7.16.7"
     "@babel/helper-plugin-utils" "^7.16.7"
 
-"@babel/plugin-proposal-class-static-block@^7.16.7":
-  version "7.16.7"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-class-static-block/-/plugin-proposal-class-static-block-7.16.7.tgz#712357570b612106ef5426d13dc433ce0f200c2a"
-  integrity sha512-dgqJJrcZoG/4CkMopzhPJjGxsIe9A8RlkQLnL/Vhhx8AA9ZuaRwGSlscSh42hazc7WSrya/IK7mTeoF0DP9tEw==
+"@babel/plugin-proposal-class-static-block@^7.16.7", "@babel/plugin-proposal-class-static-block@^7.17.6":
+  version "7.17.6"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-class-static-block/-/plugin-proposal-class-static-block-7.17.6.tgz#164e8fd25f0d80fa48c5a4d1438a6629325ad83c"
+  integrity sha512-X/tididvL2zbs7jZCeeRJ8167U/+Ac135AM6jCAx6gYXDUviZV5Ku9UDvWS2NCuWlFjIRXklYhwo6HhAC7ETnA==
   dependencies:
-    "@babel/helper-create-class-features-plugin" "^7.16.7"
+    "@babel/helper-create-class-features-plugin" "^7.17.6"
     "@babel/helper-plugin-utils" "^7.16.7"
     "@babel/plugin-syntax-class-static-block" "^7.14.5"
 
-"@babel/plugin-proposal-decorators@^7.17.2":
-  version "7.17.2"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-decorators/-/plugin-proposal-decorators-7.17.2.tgz#c36372ddfe0360cac1ee331a238310bddca11493"
-  integrity sha512-WH8Z95CwTq/W8rFbMqb9p3hicpt4RX4f0K659ax2VHxgOyT6qQmUaEVEjIh4WR9Eh9NymkVn5vwsrE68fAQNUw==
+"@babel/plugin-proposal-decorators@^7.17.8":
+  version "7.17.8"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-decorators/-/plugin-proposal-decorators-7.17.8.tgz#4f0444e896bee85d35cf714a006fc5418f87ff00"
+  integrity sha512-U69odN4Umyyx1xO1rTII0IDkAEC+RNlcKXtqOblfpzqy1C+aOplb76BQNq0+XdpVkOaPlpEDwd++joY8FNFJKA==
   dependencies:
-    "@babel/helper-create-class-features-plugin" "^7.17.1"
+    "@babel/helper-create-class-features-plugin" "^7.17.6"
     "@babel/helper-plugin-utils" "^7.16.7"
     "@babel/helper-replace-supers" "^7.16.7"
     "@babel/plugin-syntax-decorators" "^7.17.0"
@@ -1447,10 +1447,10 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.16.7"
 
-"@babel/plugin-transform-react-constant-elements@^7.14.5", "@babel/plugin-transform-react-constant-elements@^7.16.7":
-  version "7.16.7"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-react-constant-elements/-/plugin-transform-react-constant-elements-7.16.7.tgz#19e9e4c2df2f6c3e6b3aea11778297d81db8df62"
-  integrity sha512-lF+cfsyTgwWkcw715J88JhMYJ5GpysYNLhLP1PkvkhTRN7B3e74R/1KsDxFxhRpSn0UUD3IWM4GvdBR2PEbbQQ==
+"@babel/plugin-transform-react-constant-elements@^7.14.5", "@babel/plugin-transform-react-constant-elements@^7.17.6":
+  version "7.17.6"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-react-constant-elements/-/plugin-transform-react-constant-elements-7.17.6.tgz#6cc273c2f612a6a50cb657e63ee1303e5e68d10a"
+  integrity sha512-OBv9VkyyKtsHZiHLoSfCn+h6yU7YKX8nrs32xUmOa1SRSk+t03FosB6fBZ0Yz4BpD1WV7l73Nsad+2Tz7APpqw==
   dependencies:
     "@babel/helper-plugin-utils" "^7.16.7"
 
@@ -6523,10 +6523,10 @@ copyfiles@^2.4.1:
     untildify "^4.0.0"
     yargs "^16.1.0"
 
-core-js-compat@^3.20.0, core-js-compat@^3.20.2, core-js-compat@^3.21.0:
-  version "3.21.0"
-  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.21.0.tgz#bcc86aa5a589cee358e7a7fa0a4979d5a76c3885"
-  integrity sha512-OSXseNPSK2OPJa6GdtkMz/XxeXx8/CJvfhQWTqd6neuUraujcL4jVsjkLQz1OWnax8xVQJnRPe0V2jqNWORA+A==
+core-js-compat@^3.20.0, core-js-compat@^3.20.2, core-js-compat@^3.21.1:
+  version "3.21.1"
+  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.21.1.tgz#cac369f67c8d134ff8f9bd1623e3bc2c42068c82"
+  integrity sha512-gbgX5AUvMb8gwxC7FLVWYT7Kkgu/y7+h/h1X43yJkNqhlK2fuYyQimqvKGNZFAY6CKii/GFKJ2cp/1/42TN36g==
   dependencies:
     browserslist "^4.19.1"
     semver "7.0.0"
