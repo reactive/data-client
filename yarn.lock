@@ -9,10 +9,10 @@
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.0"
 
-"@anansi/babel-preset@2.8.5", "@anansi/babel-preset@^2.8.3":
-  version "2.8.5"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.8.5.tgz#f06d097d1ae4746476e5c383a240353532ca37f5"
-  integrity sha512-XBYKrb1xqU+fApjyNGpjPqKazlSLZ1pNT6uftJ6RjPXjFZFLHo0LltFVHg6agoGiRBdfiwJ0UdP5jNHoHzn3Hg==
+"@anansi/babel-preset@3.0.0", "@anansi/babel-preset@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-3.0.0.tgz#0cb4dd487d669b01d5a5f17726b55d22fcd2e360"
+  integrity sha512-rurQSOnJ4O+mPQ01DUibmdKbqo3bZyS03VCgAjaIdn8eHaEFA5n/mQJT+raEclhToLhyTYlfxm3GvryoxWk24A==
   dependencies:
     "@anansi/ts-utils" "^0.2.5"
     "@babel/plugin-proposal-class-properties" "^7.16.7"
@@ -4096,9 +4096,9 @@
     "@types/react" "*"
 
 "@types/react@*", "@types/react@>=16.9.0", "@types/react@^17.0.39":
-  version "17.0.41"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.41.tgz#6e179590d276394de1e357b3f89d05d7d3da8b85"
-  integrity sha512-chYZ9ogWUodyC7VUTRBfblysKLjnohhFY9bGLwvnUFFy48+vB9DikmB3lW0qTFmBcKSzmdglcvkHK71IioOlDA==
+  version "17.0.42"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.42.tgz#8242b9219bf8a911c47f248e327206fea3f4ee5a"
+  integrity sha512-nuab3x3CpJ7VFeNA+3HTUuEkvClYHXqWtWd7Ud6AZYW7Z3NH9WKtgU+tFB0ZLcHq+niB/HnzLcaZPqMJ95+k5Q==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
