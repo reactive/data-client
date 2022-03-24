@@ -9,10 +9,10 @@
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.0"
 
-"@anansi/babel-preset@2.8.5", "@anansi/babel-preset@^2.8.3":
-  version "2.8.5"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-2.8.5.tgz#f06d097d1ae4746476e5c383a240353532ca37f5"
-  integrity sha512-XBYKrb1xqU+fApjyNGpjPqKazlSLZ1pNT6uftJ6RjPXjFZFLHo0LltFVHg6agoGiRBdfiwJ0UdP5jNHoHzn3Hg==
+"@anansi/babel-preset@3.0.0", "@anansi/babel-preset@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-3.0.0.tgz#0cb4dd487d669b01d5a5f17726b55d22fcd2e360"
+  integrity sha512-rurQSOnJ4O+mPQ01DUibmdKbqo3bZyS03VCgAjaIdn8eHaEFA5n/mQJT+raEclhToLhyTYlfxm3GvryoxWk24A==
   dependencies:
     "@anansi/ts-utils" "^0.2.5"
     "@babel/plugin-proposal-class-properties" "^7.16.7"
