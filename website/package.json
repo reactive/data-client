@@ -14,7 +14,7 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^2.0.0-beta.17",
     "@tsconfig/docusaurus": "^1.0.5",
-    "@types/react": "^17.0.41",
+    "@types/react": "^17.0.43",
     "@types/react-helmet": "^6.1.5",
     "@types/react-router-dom": "^5.3.3"
   },
@@ -23,7 +23,7 @@
     "@docusaurus/core": "^2.0.0-beta.17",
     "@docusaurus/plugin-client-redirects": "^2.0.0-beta.17",
     "@docusaurus/preset-classic": "^2.0.0-beta.17",
-    "@docusaurus/theme-live-codeblock": "^2.0.0-beta.17",
+    "@docusaurus/theme-live-codeblock": "^2.0.0-beta.18",
     "@rest-hooks/endpoint": "file:../packages/endpoint",
     "@rest-hooks/graphql": "file:../packages/graphql",
     "@rest-hooks/hooks": "file:../packages/hooks",
