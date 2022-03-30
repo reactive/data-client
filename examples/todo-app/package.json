@@ -39,8 +39,8 @@
   },
   "dependencies": {
     "@rest-hooks/rest": "^3.0.1",
-    "react": "^18.0.0-rc.2",
-    "react-dom": "^18.0.0-rc.2",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
     "rest-hooks": "^6.2.0"
   }
 }
