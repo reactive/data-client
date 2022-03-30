@@ -9,10 +9,10 @@
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.0"
 
-"@anansi/babel-preset@3.0.0", "@anansi/babel-preset@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-3.0.0.tgz#0cb4dd487d669b01d5a5f17726b55d22fcd2e360"
-  integrity sha512-rurQSOnJ4O+mPQ01DUibmdKbqo3bZyS03VCgAjaIdn8eHaEFA5n/mQJT+raEclhToLhyTYlfxm3GvryoxWk24A==
+"@anansi/babel-preset@3.0.1", "@anansi/babel-preset@^3.0.0":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-3.0.1.tgz#6c8054699d59b64d42c6a528cfdf615a6b4f8f64"
+  integrity sha512-pH2GfR4NYJ3ssM4LdwHOqZtqsPUHHpBBN4jCD5xJknY0aDuCFS8ILfbSpHbSi5nfx/dvGZya67fr05lfmQQUJA==
   dependencies:
     "@anansi/ts-utils" "^0.2.5"
     "@babel/plugin-proposal-class-properties" "^7.16.7"
@@ -2521,6 +2521,7 @@
 
 "@lerna/conventional-commits@4.0.0", "@lerna/conventional-commits@https://github.com/ntucker/lerna-conventional-commits.git":
   version "3.16.4"
+  uid "4389120475a4f80ac8e4fbe766fa4c9644c6b1c7"
   resolved "https://github.com/ntucker/lerna-conventional-commits.git#4389120475a4f80ac8e4fbe766fa4c9644c6b1c7"
   dependencies:
     "@lerna/validation-error" "^4.0"
