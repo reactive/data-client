@@ -1,5 +1,9 @@
 const path = require('path');
 
+const versions = require('./versions.json');
+
+const isDev = process.env.NODE_ENV === 'development';
+
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'Rest Hooks',
@@ -76,15 +80,23 @@ module.exports = {
           },
           path: '../docs',
           lastVersion: 'current',
+          includeCurrentVersion: true,
           versions: {
-            current: { label: '6.2', path: '/' },
+            current: { label: '6.2', path: '', badge: false },
+            '5.0': { label: '5.0', path: '/5.0', banner: 'none' },
           },
+          onlyIncludeVersions: isDev
+            ? ['current', ...versions.slice(0, 4)]
+            : ['current', ...versions],
         },
         blog: {
           showReadingTime: true,
         },
         theme: {
-          customCss: ['../src/css/customTheme.css', '../src/mocks/init.js'],
+          customCss: [
+            require.resolve('./src/css/customTheme.css'),
+            require.resolve('./src/mocks/init.js'),
+          ],
         },
         gtag: {
           trackingID: 'UA-138752992-1',
@@ -200,56 +212,11 @@ module.exports = {
               activeBaseRegex:
                 'docs/(?!2.2|3.0|4.0|4.1|4.2|4.3|4.5|5.0|6.0|6.1|6.2)',
             },
-            {
-              label: '6.1',
-              to: 'docs/6.1',
+            ...versions.map(version => ({
+              label: version,
+              to: `docs/${version}`,
               rel: 'nofollow',
-            },
-            {
-              label: '6.0',
-              to: 'docs/6.0/',
-              rel: 'nofollow',
-            },
-            {
-              label: '5.0',
-              to: 'docs/5.0/',
-              rel: 'nofollow',
-            },
-            {
-              label: '4.5',
-              to: 'docs/4.5/',
-              rel: 'nofollow',
-            },
-            {
-              label: '4.3',
-              to: 'docs/4.3/',
-              rel: 'nofollow',
-            },
-            {
-              label: '4.2',
-              to: 'docs/4.2/',
-              rel: 'nofollow',
-            },
-            {
-              label: '4.1',
-              to: 'docs/4.1/',
-              rel: 'nofollow',
-            },
-            {
-              label: '4.0',
-              to: 'docs/4.0/',
-              rel: 'nofollow',
-            },
-            {
-              label: '3.0',
-              to: 'docs/3.0/',
-              rel: 'nofollow',
-            },
-            {
-              label: '2.2',
-              to: 'docs/2.2/',
-              rel: 'nofollow',
-            },
+            })),
             /*{
               label: 'Master/Unreleased',
               to: 'docs/next/',

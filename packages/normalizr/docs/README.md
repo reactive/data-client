@@ -1,7 +1,7 @@
 # Table of Contents
 
 - [Read Me](./README.md)
-- [Introduction](./docs/introduction.md)
+- [Introduction](./docs/README.md)
 - [Quick Start](./docs/schema.md)
 - [API](./docs/api.md)
   - [normalize](./docs/api.md#normalizedata-schema)
