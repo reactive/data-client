@@ -1,1 +1,0 @@
-"use strict";(globalThis.webpackChunk=globalThis.webpackChunk||[]).push([[87713],{88459:l=>{l.exports=JSON.parse('{"allTagsPath":"/blog/tags","slug":"/blog/tags/usecontroller","name":"usecontroller","count":1,"permalink":"/blog/tags/usecontroller"}')}}]);
