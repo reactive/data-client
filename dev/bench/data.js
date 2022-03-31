@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1647535600523,
+  "lastUpdate": 1648739496535,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -4738,6 +4738,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.33%",
             "unit": "ops/sec",
             "extra": "77 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "72d81cdfce7e20a0e583ff1f6cd854ca16801f9a",
+          "message": "docs(fix): Restore version routes (#1848)",
+          "timestamp": "2022-03-31T10:07:34-05:00",
+          "tree_id": "806a70df324e233924da69594e547bf892539604",
+          "url": "https://github.com/coinbase/rest-hooks/commit/72d81cdfce7e20a0e583ff1f6cd854ca16801f9a"
+        },
+        "date": 1648739494845,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 103,
+            "range": "±1.31%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 42.46,
+            "range": "±1.66%",
+            "unit": "ops/sec",
+            "extra": "56 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 45.01,
+            "range": "±1.44%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 107,
+            "range": "±1.98%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
           }
         ]
       }
