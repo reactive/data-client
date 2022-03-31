@@ -2,5 +2,5 @@
 ---
 ## Getting Started
 
-- [Introduction](./introduction.md)
+- [Introduction](../README.md)
 - [Installation](./installation.md)
