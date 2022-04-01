@@ -1,6 +1,7 @@
 import {
   CoolerArticleResource,
   InvalidIfStaleArticleResource,
+  PaginatedArticleResource,
   TypedArticleResource,
 } from '__tests__/new';
 import { CoolerArticleResource as LegacyArticle } from '__tests__/legacy';
@@ -184,11 +185,23 @@ describe('useStatefulResource()', () => {
     expect(result.current.data).toEqual(CoolerArticleResource.fromJS(payload2));
   });
 
-  it('should not be loading with no params to useResource()', () => {
+  it('should not be loading with null params to useStatefulResource()', () => {
     const { result } = renderRestHook(() => {
       return useStatefulResource(CoolerArticleResource.detail(), null);
     });
     expect(result.current.loading).toBe(false);
+  });
+
+  it('should maintain schema structure even with null params', () => {
+    const { result } = renderRestHook(() => {
+      return useStatefulResource(PaginatedArticleResource.list(), null);
+    });
+    expect(result.current.loading).toBe(false);
+    expect(result.current.data.results).toBeUndefined();
+    expect(result.current.data.nextPage).toBe('');
+    // ensure this isn't 'any'
+    // @ts-expect-error
+    const a: PaginatedArticleResource[] = result.current.data.results;
   });
 
   it('should not select when results are stale and invalidIfStale is true', async () => {

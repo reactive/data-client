@@ -21,7 +21,5 @@ export default function useError<
 
   const controller = useController();
 
-  if (args[0] === null) return;
-  // @ts-ignore
-  return controller.getError(endpoint, ...args, state);
+  return controller.getError(endpoint, ...args, state) as any;
 }

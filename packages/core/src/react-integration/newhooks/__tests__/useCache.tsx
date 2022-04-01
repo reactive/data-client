@@ -73,10 +73,21 @@ describe('useCache()', () => {
     const { result } = renderRestHook(() => {
       return useCache(endpoint, null);
     });
-    const b: undefined = result.current;
+    const b: CoolerArticleResource | undefined = result.current;
     // @ts-expect-error
     const c: object = result.current;
     expect(result.current).toBeUndefined();
+  });
+
+  it(`should maintain schema structure even with null params`, () => {
+    const { result } = renderRestHook(() => {
+      return useCache(PaginatedArticleResource.list(), null);
+    });
+    const b: PaginatedArticleResource[] | undefined = result.current.results;
+    // @ts-expect-error
+    const c: PaginatedArticleResource[] = result.current.results;
+    expect(result.current.results).toBeUndefined();
+    expect(result.current.nextPage).toBe('');
   });
 
   it('should read with id params Endpoint', async () => {

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { StateContext } from '@rest-hooks/core/react-integration/context';
-import { ExpiryStatus } from '@rest-hooks/endpoint';
+import { DenormalizeNullable, ExpiryStatus } from '@rest-hooks/endpoint';
 import useController from '@rest-hooks/core/react-integration/hooks/useController';
 import {
   EndpointInterface,
@@ -9,7 +9,6 @@ import {
   FetchFunction,
 } from '@rest-hooks/endpoint';
 import { useContext, useMemo } from 'react';
-import { nullResponse } from '@rest-hooks/core/react-integration/newhooks/constants';
 
 /**
  * Ensure an endpoint is available.
@@ -27,7 +26,9 @@ export default function useSuspense<
   endpoint: E,
   ...args: Args
 ): Args extends [null]
-  ? undefined
+  ? E['schema'] extends Exclude<Schema, null>
+    ? DenormalizeNullable<E['schema']>
+    : undefined
   : E['schema'] extends Exclude<Schema, null>
   ? Denormalize<E['schema']>
   : ReturnType<E> {
@@ -40,7 +41,6 @@ export default function useSuspense<
 
   // Compute denormalized value
   const { data, expiryStatus, expiresAt } = useMemo(() => {
-    if (!key) return nullResponse;
     // @ts-ignore
     return controller.getResponse(endpoint, ...args, state) as {
       data: Denormalize<E['schema']>;
@@ -58,7 +58,7 @@ export default function useSuspense<
   ]);
 
   // @ts-ignore
-  const error = key ? controller.getError(endpoint, ...args, state) : undefined;
+  const error = controller.getError(endpoint, ...args, state);
 
   // If we are hard invalid we must fetch regardless of triggering or staleness
   const forceFetch = expiryStatus === ExpiryStatus.Invalid;

@@ -7,6 +7,7 @@ import {
   ArticleTimedResource,
   ContextAuthdArticle,
   AuthContext,
+  PaginatedArticleResource,
 } from '__tests__/new';
 import { createEntityMeta } from '__tests__/utils';
 import {
@@ -33,7 +34,7 @@ import {
   mockInitialState,
 } from '../../../../../test';
 import useSuspense from '../useSuspense';
-import { payload, users, nested } from '../test-fixtures';
+import { articlesPages, payload, users, nested } from '../test-fixtures';
 import { CacheProvider } from '../..';
 
 async function testDispatchFetch(
@@ -421,7 +422,7 @@ describe('useSuspense()', () => {
   });
 
   it('should not suspend with null params to useSuspense()', () => {
-    let article: undefined;
+    let article: CoolerArticleResource | undefined;
     const { result } = renderRestHook(() => {
       const a = useSuspense(CoolerArticleResource.detail(), null);
       article = a;
@@ -431,6 +432,33 @@ describe('useSuspense()', () => {
     });
     expect(result.current).toBe('done');
     expect(article).toBeUndefined();
+  });
+
+  it('should maintain schema structure even with null params', () => {
+    let articles: PaginatedArticleResource[] | undefined;
+    const { result } = renderRestHook(
+      () => {
+        const { results, nextPage } = useSuspense(
+          PaginatedArticleResource.list(),
+          null,
+        );
+        articles = results;
+        // @ts-expect-error
+        const b: PaginatedArticleResource[] = results;
+        return nextPage;
+      },
+      {
+        results: [
+          {
+            request: PaginatedArticleResource.detail(),
+            params: {},
+            result: articlesPages,
+          },
+        ],
+      },
+    );
+    expect(result.current).toBe('');
+    expect(articles).toBeUndefined();
   });
 
   it('should suspend with no params to useSuspense()', async () => {

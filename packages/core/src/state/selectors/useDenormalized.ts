@@ -47,12 +47,6 @@ export default function useDenormalized<
 
   // Compute denormalized value
   return useMemo(() => {
-    if (key === '')
-      return {
-        data: undefined as any,
-        expiryStatus: ExpiryStatus.Invalid,
-        expiresAt: 0,
-      };
     return controller.getResponse(endpoint, params, state) as {
       data: DenormalizeNullable<Shape['schema']>;
       expiryStatus: ExpiryStatus;

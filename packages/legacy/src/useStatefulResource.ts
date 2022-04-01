@@ -72,13 +72,6 @@ export default function useStatefulResource<
   // Compute denormalized value
   // eslint-disable-next-line prefer-const
   let { data, expiryStatus, expiresAt } = useMemo(() => {
-    if (!key)
-      return {
-        data: undefined,
-        expiryStatus: ExpiryStatus.Invalid,
-        expiresAt: 0,
-      };
-    // @ts-ignore
     return controller.getResponse(adaptedEndpoint, ...args, state) as {
       data: DenormalizeNullable<E['schema']> | undefined;
       expiryStatus: ExpiryStatus;
@@ -94,9 +87,7 @@ export default function useStatefulResource<
     key,
   ]);
 
-  const error = key
-    ? controller.getError(adaptedEndpoint, ...args, state)
-    : undefined;
+  const error = controller.getError(adaptedEndpoint, ...args, state);
 
   // If we are hard invalid we must fetch regardless of triggering or staleness
   const forceFetch = expiryStatus === ExpiryStatus.Invalid;
