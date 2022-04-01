@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1648813127193,
+  "lastUpdate": 1648832830731,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -4842,6 +4842,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.25%",
             "unit": "ops/sec",
             "extra": "74 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0707e1a6ee8233b2d1b6590db137e298e264635c",
+          "message": "fix: Hooks with null param maintain basic schema structure (#1853)",
+          "timestamp": "2022-04-01T10:02:44-07:00",
+          "tree_id": "e42f6f8b1788094a4508cf254db440277f77fee8",
+          "url": "https://github.com/coinbase/rest-hooks/commit/0707e1a6ee8233b2d1b6590db137e298e264635c"
+        },
+        "date": 1648832829781,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 78.25,
+            "range": "±1.59%",
+            "unit": "ops/sec",
+            "extra": "66 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 32.36,
+            "range": "±1.40%",
+            "unit": "ops/sec",
+            "extra": "56 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 33.81,
+            "range": "±1.41%",
+            "unit": "ops/sec",
+            "extra": "58 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 77.75,
+            "range": "±1.32%",
+            "unit": "ops/sec",
+            "extra": "65 samples"
           }
         ]
       }
