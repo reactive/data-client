@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1648832830731,
+  "lastUpdate": 1648854202141,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -4892,6 +4892,58 @@ window.BENCHMARK_DATA = {
             "name": "receiveLong",
             "value": 77.75,
             "range": "±1.32%",
+            "unit": "ops/sec",
+            "extra": "65 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d559e95e7582e37d14d0cc6e2583b7158f8bfca9",
+          "message": "internal(pkg): bump @testing-library/react from 12.1.4 to 13.0.0 (#1850)\n\n* internal(pkg): bump @testing-library/react from 12.1.4 to 13.0.0\r\n\r\nBumps [@testing-library/react](https://github.com/testing-library/react-testing-library) from 12.1.4 to 13.0.0.\r\n- [Release notes](https://github.com/testing-library/react-testing-library/releases)\r\n- [Changelog](https://github.com/testing-library/react-testing-library/blob/main/CHANGELOG.md)\r\n- [Commits](https://github.com/testing-library/react-testing-library/compare/v12.1.4...v13.0.0)\r\n\r\n---\r\nupdated-dependencies:\r\n- dependency-name: \"@testing-library/react\"\r\n  dependency-type: direct:development\r\n  update-type: version-update:semver-major\r\n...\r\n\r\nSigned-off-by: dependabot[bot] <support@github.com>\r\n\r\n* internal: Fix running react 17 & 18 tests\r\n\r\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>\r\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2022-04-01T15:59:01-07:00",
+          "tree_id": "e8c62e535db995e9162a5e21fa4f668f13d1b4aa",
+          "url": "https://github.com/coinbase/rest-hooks/commit/d559e95e7582e37d14d0cc6e2583b7158f8bfca9"
+        },
+        "date": 1648854200560,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 76.5,
+            "range": "±1.80%",
+            "unit": "ops/sec",
+            "extra": "64 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 30.52,
+            "range": "±1.43%",
+            "unit": "ops/sec",
+            "extra": "54 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 33.69,
+            "range": "±0.91%",
+            "unit": "ops/sec",
+            "extra": "58 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 76.4,
+            "range": "±2.16%",
             "unit": "ops/sec",
             "extra": "65 samples"
           }
