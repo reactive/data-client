@@ -217,12 +217,14 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
     "Dog": Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -259,6 +261,7 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -293,12 +296,14 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
     "Dog": Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -335,10 +340,12 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
       "2": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -429,10 +436,12 @@ Object {
       "BTC": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
       "ETH": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },

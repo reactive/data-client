@@ -74,6 +74,14 @@ export interface EntityInterface<T = any> extends SchemaSimple {
   pk(params: any, parent?: any, key?: string): string | undefined;
   readonly key: string;
   merge(existing: any, incoming: any): any;
+  expiresAt?(meta: any, input: any): number;
+  useIncoming?(
+    existingMeta: any,
+    incomingMeta: any,
+    existing: any,
+    incoming: any,
+  ): boolean;
+  indexes?: any;
   schema: Record<string, Schema>;
   prototype: T;
 }

@@ -48,6 +48,7 @@ describe('reducer', () => {
         key: ArticleResource.url({ id }),
         date: 5000000000,
         expiresAt: 5000500000,
+        fetchedAt: 5000000000,
       },
     };
     const partialResultAction = {
@@ -131,6 +132,7 @@ describe('reducer', () => {
           ...partialResultAction.meta,
           date: partialResultAction.meta.date / 2,
           expiresAt: partialResultAction.meta.expiresAt / 2,
+          fetchedAt: partialResultAction.meta.date / 2,
         },
       };
       const getMeta = (state: any): { date: number } =>
@@ -171,6 +173,7 @@ describe('reducer', () => {
           schema: ExpiresSoon,
           date: partialResultAction.meta.date * 2,
           expiresAt: partialResultAction.meta.expiresAt * 2,
+          fetchedAt: partialResultAction.meta.date * 2,
         },
       };
       const getMeta = (state: any): { date: number; expiresAt: number } =>
@@ -805,10 +808,10 @@ Array [
         },
         entityMeta: {
           [ArticleResource.key]: {
-            '10': { date: 0, expiresAt: 10000 },
-            '20': { date: 0, expiresAt: 10000 },
-            '25': { date: 0, expiresAt: 10000 },
-            '250': { date: 0, expiresAt: 10000 },
+            '10': { date: 0, expiresAt: 10000, fetchedAt: 0 },
+            '20': { date: 0, expiresAt: 10000, fetchedAt: 0 },
+            '25': { date: 0, expiresAt: 10000, fetchedAt: 0 },
+            '250': { date: 0, expiresAt: 10000, fetchedAt: 0 },
           },
         },
         results: { abc: '20' },

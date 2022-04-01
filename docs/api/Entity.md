@@ -128,12 +128,12 @@ unique value.
 
 ```typescript
 static useIncoming(
-  existingMeta: { date: number },
-  incomingMeta: { date: number },
+  existingMeta: { date: number; fetchedAt: number },
+  incomingMeta: { date: number; fetchedAt: number },
   existing: any,
   incoming: any,
 ) {
-  return existingMeta.date <= incomingMeta.date;
+  return existingMeta.fetchedAt <= incomingMeta.fetchedAt;
 }
 ```
 
@@ -150,8 +150,8 @@ class LatestPriceEntity extends Entity {
   readonly symbol: string = '';
 
   static useIncoming(
-    existingMeta: { date: number },
-    incomingMeta: { date: number },
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
     existing: any,
     incoming: any,
   ) {

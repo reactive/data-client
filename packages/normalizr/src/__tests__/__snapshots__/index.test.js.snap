@@ -246,12 +246,14 @@ Object {
       "4": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
     "Food": Object {
       "1234": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -315,10 +317,12 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
       "2": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -347,6 +351,7 @@ Object {
       "123": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -392,22 +397,26 @@ Object {
       "123": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
     "Comment": Object {
       "comment-123-4738": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
     "User": Object {
       "10293": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
       "8472": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -435,10 +444,12 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
       "2": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -482,10 +493,12 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
       "2": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -518,10 +531,12 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
       "2": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -563,10 +578,12 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
       "2": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -601,6 +618,7 @@ Object {
       "123": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -639,12 +657,14 @@ Object {
       "456": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
     "User": Object {
       "456": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },

@@ -375,10 +375,12 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
       "2": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -770,6 +772,7 @@ Object {
       "123": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -797,10 +800,12 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
       "2": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -829,10 +834,12 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
       "2": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -869,16 +876,19 @@ Object {
       "123": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
       "456": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
     "Person": Object {
       "123": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -1126,10 +1136,12 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
       "2": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -1158,10 +1170,12 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
       "2": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -1197,12 +1211,14 @@ Object {
       "4": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
     "Parent": Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },

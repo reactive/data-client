@@ -93,8 +93,8 @@ export default class Delete<E extends EntityInterface & { process: any }>
   }
 
   useIncoming(
-    existingMeta: { date: number },
-    incomingMeta: { date: number },
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
     existing: any,
     incoming: any,
   ) {

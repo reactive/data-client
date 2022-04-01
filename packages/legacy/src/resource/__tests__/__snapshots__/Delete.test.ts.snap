@@ -12,6 +12,7 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },

@@ -208,6 +208,7 @@ export default class NetworkManager implements Manager {
               dispatch(
                 createReceive(data, {
                   ...action.meta,
+                  fetchedAt: createdAt,
                   dataExpiryLength:
                     action.meta.options?.dataExpiryLength ??
                     this.dataExpiryLength,
@@ -235,6 +236,7 @@ export default class NetworkManager implements Manager {
                   errorExpiryLength:
                     action.meta.options?.errorExpiryLength ??
                     this.errorExpiryLength,
+                  fetchedAt: createdAt,
                 }),
               );
             }

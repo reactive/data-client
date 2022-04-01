@@ -299,7 +299,7 @@ describe.each([
 
       // first optimistic
 
-      act(() => {
+      await act(async () => {
         fetches.push(
           result.current.fetch(
             CoolerArticleResource.partialUpdate().extend({
@@ -324,6 +324,7 @@ describe.each([
           content: 'firstoptimistic',
         }),
       );
+      await new Promise(resolve => setTimeout(resolve, 0));
 
       // second optimistic
       act(() => {
@@ -350,6 +351,7 @@ describe.each([
           content: 'firstoptimistic',
         }),
       );
+      await new Promise(resolve => setTimeout(resolve, 0));
 
       // third optimistic
       act(() => {
@@ -390,10 +392,11 @@ describe.each([
         CoolerArticleResource.fromJS({
           ...payload,
           title: 'second',
+          tags: ['thirdoptimistic'],
         }),
       );
 
-      // this resolved last; this is ambiguous so we want to bias towards expecting it
+      // resolve the first fetch; but the second fetch happened after so we use it first since this is default 'first fetchedAt' behavior
       // this can be solved by either canceling requests or having server send the total order
       act(() =>
         resolves[0]({
@@ -406,8 +409,167 @@ describe.each([
       expect(result.current.article).toEqual(
         CoolerArticleResource.fromJS({
           ...payload,
-          title: 'first',
+          title: 'second',
+          tags: ['thirdoptimistic'],
+        }),
+      );
+    });
+
+    it('should clear optimistic when server response resolves in order', async () => {
+      const params = { id: payload.id };
+      const { result, waitForNextUpdate } = renderRestHook(
+        () => {
+          const { fetch } = useController();
+          const article = useCache(CoolerArticleResource.detail(), params);
+          return { fetch, article };
+        },
+        {
+          results: [
+            {
+              endpoint: CoolerArticleResource.detail(),
+              args: [params],
+              response: payload,
+            },
+          ],
+        },
+      );
+
+      const fetches: Promise<any>[] = [];
+      const resolves: ((v: any) => void)[] = [];
+
+      // first optimistic
+
+      await act(async () => {
+        fetches.push(
+          result.current.fetch(
+            CoolerArticleResource.partialUpdate().extend({
+              fetch(...args: any[]) {
+                return new Promise(resolve => {
+                  resolves.push(resolve);
+                });
+              },
+            }),
+            params,
+            {
+              title: 'firstoptimistic',
+              content: 'firstoptimistic',
+            },
+          ),
+        );
+      });
+      expect(result.current.article).toEqual(
+        CoolerArticleResource.fromJS({
+          ...payload,
+          title: 'firstoptimistic',
+          content: 'firstoptimistic',
+        }),
+      );
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      // second optimistic
+      act(() => {
+        fetches.push(
+          result.current.fetch(
+            CoolerArticleResource.partialUpdate().extend({
+              fetch(...args: any[]) {
+                return new Promise(resolve => {
+                  resolves.push(resolve);
+                });
+              },
+            }),
+            params,
+            {
+              title: 'secondoptimistic',
+            },
+          ),
+        );
+      });
+      expect(result.current.article).toEqual(
+        CoolerArticleResource.fromJS({
+          ...payload,
+          title: 'secondoptimistic',
+          content: 'firstoptimistic',
+        }),
+      );
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      // third optimistic
+      act(() => {
+        fetches.push(
+          result.current.fetch(
+            CoolerArticleResource.partialUpdate().extend({
+              fetch(...args: any[]) {
+                return new Promise(resolve => {
+                  resolves.push(resolve);
+                });
+              },
+            }),
+            params,
+            {
+              tags: ['thirdoptimistic'],
+            },
+          ),
+        );
+      });
+      expect(result.current.article).toEqual(
+        CoolerArticleResource.fromJS({
+          ...payload,
+          title: 'secondoptimistic',
+          content: 'firstoptimistic',
+          tags: ['thirdoptimistic'],
+        }),
+      );
+
+      // resolve first request
+      act(() => {
+        setTimeout(() => resolves[0]({ ...payload, content: 'first' }), 1);
+      });
+      await act(() => fetches[0]);
+
+      // replace optimistic with response
+      expect(result.current.article).toEqual(
+        CoolerArticleResource.fromJS({
+          ...payload,
+          title: 'secondoptimistic',
           content: 'first',
+          tags: ['thirdoptimistic'],
+        }),
+      );
+
+      // resolve second request
+      act(() =>
+        resolves[1]({
+          ...payload,
+          title: 'second',
+          content: 'first',
+        }),
+      );
+      await act(() => fetches[0]);
+      expect(result.current.article).toEqual(
+        CoolerArticleResource.fromJS({
+          ...payload,
+          title: 'second',
+          content: 'first',
+          tags: ['thirdoptimistic'],
+        }),
+      );
+
+      // resolve third request
+      act(() =>
+        resolves[2]({
+          ...payload,
+          title: 'second',
+          content: 'first',
+          tags: ['third'],
+        }),
+      );
+      await act(() => fetches[0]);
+      expect(result.current.article).toEqual(
+        CoolerArticleResource.fromJS({
+          ...payload,
+          title: 'second',
+          content: 'first',
+          tags: ['third'],
         }),
       );
     });
