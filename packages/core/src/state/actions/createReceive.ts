@@ -18,6 +18,7 @@ interface Options<
     'schema' | 'key' | 'type' | 'updaters' | 'update' | 'args'
   > {
   dataExpiryLength: NonNullable<FetchOptions['dataExpiryLength']>;
+  fetchedAt?: number;
 }
 
 /** Update state with data
@@ -39,6 +40,7 @@ export default function createReceive<
     key,
     args,
     updaters,
+    fetchedAt = 0,
     update,
     dataExpiryLength,
   }: Options<Payload, S>,
@@ -53,6 +55,7 @@ export default function createReceive<
     key,
     args,
     date: now,
+    fetchedAt,
     expiresAt: now + dataExpiryLength,
   };
   meta.updaters = updaters;

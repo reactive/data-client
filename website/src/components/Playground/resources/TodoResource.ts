@@ -17,8 +17,8 @@ export default class TodoResource extends PlaceholderBaseResource {
   static urlRoot = '/api/todos';
 
   static useIncoming(
-    existingMeta: { date: number },
-    incomingMeta: { date: number },
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
     existing: { updatedAt: number },
     incoming: { updatedAt: number },
   ) {

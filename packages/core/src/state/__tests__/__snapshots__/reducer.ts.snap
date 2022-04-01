@@ -35,6 +35,7 @@ Object {
       "20": Object {
         "date": 5000000000,
         "expiresAt": 5000500000,
+        "fetchedAt": 5000000000,
       },
     },
   },

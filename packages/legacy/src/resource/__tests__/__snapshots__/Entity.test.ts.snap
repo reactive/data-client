@@ -702,6 +702,7 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -729,6 +730,7 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -754,6 +756,7 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -777,6 +780,7 @@ Object {
       "tacos-user-4": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -805,10 +809,12 @@ Object {
       "4": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
       "56": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -841,6 +847,7 @@ Object {
       "134351": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -866,6 +873,7 @@ Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -898,12 +906,14 @@ Object {
       "4": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
     "ParentEntity": Object {
       "1": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -935,12 +945,14 @@ Object {
       "456": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
     "EntriesEntity": Object {
       "123": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -984,6 +996,7 @@ Object {
       "hi": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },
@@ -1038,6 +1051,7 @@ Object {
       "hi": Object {
         "date": 1557831718135,
         "expiresAt": Infinity,
+        "fetchedAt": 0,
       },
     },
   },

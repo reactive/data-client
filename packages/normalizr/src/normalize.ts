@@ -7,14 +7,19 @@ import type {
 import { DELETED } from '@rest-hooks/normalizr/special';
 import { normalize as arrayNormalize } from '@rest-hooks/normalizr/schemas/Array';
 import { normalize as objectNormalize } from '@rest-hooks/normalizr/schemas/Object';
-import { isEntity } from '@rest-hooks/normalizr/entities/Entity';
+
+import { EntityInterface } from './schema';
 
 const visit = (
   value: any,
   parent: any,
   key: any,
   schema: any,
-  addEntity: any,
+  addEntity: (
+    schema: EntityInterface,
+    processedEntity: any,
+    id: string,
+  ) => void,
   visitedEntities: any,
 ) => {
   if (!value || !schema) {
@@ -55,12 +60,13 @@ const addEntities =
         [pk: string]: {
           date: number;
           expiresAt: number;
+          fetchedAt: number;
         };
       };
     },
-    meta: { expiresAt: number; date: number },
+    meta: { expiresAt: number; date: number; fetchedAt?: number },
   ) =>
-  (schema: any, processedEntity: any, id: any) => {
+  (schema: EntityInterface, processedEntity: any, id: string) => {
     const schemaKey = schema.key;
     if (!(schemaKey in entities)) {
       entities[schemaKey] = {};
@@ -84,7 +90,14 @@ const addEntities =
         const useIncoming =
           // we may have in store but not in meta; so this existance check is still important
           !inStoreMeta ||
-          schema.useIncoming(inStoreMeta, meta, inStoreEntity, processedEntity);
+          (schema.useIncoming
+            ? schema.useIncoming(
+                inStoreMeta,
+                meta,
+                inStoreEntity,
+                processedEntity,
+              )
+            : entityMeta[schemaKey][id].date <= meta.date);
         if (useIncoming) {
           if (typeof processedEntity !== typeof inStoreEntity) {
             entities[schemaKey][id] = processedEntity;
@@ -103,13 +116,18 @@ const addEntities =
             entityExpiresAt,
             entityMeta[schemaKey][id]?.expiresAt,
           ),
-          date: Math.max(meta.date, entityMeta[schemaKey][id]?.date),
+          date: Math.max(meta.date, entityMeta[schemaKey][id]?.date ?? 0),
+          fetchedAt: Math.max(
+            meta.fetchedAt ?? 0,
+            entityMeta[schemaKey][id]?.fetchedAt ?? 0,
+          ),
         };
       } else {
         entities[schemaKey][id] = processedEntity;
         entityMeta[schemaKey][id] = {
           expiresAt: entityExpiresAt,
           date: meta.date,
+          fetchedAt: meta.fetchedAt ?? meta.date,
         };
       }
     }
@@ -177,12 +195,14 @@ export const normalize = <
       readonly [pk: string]: {
         readonly date: number;
         readonly expiresAt: number;
+        readonly fetchedAt: number;
       };
     };
   } = {},
-  meta: { expiresAt: number; date: number } = {
+  meta: { expiresAt: number; date: number; fetchedAt?: number } = {
     date: Date.now(),
     expiresAt: Infinity,
+    fetchedAt: 0,
   },
 ): NormalizedSchema<E, R> => {
   // no schema means we don't process at all

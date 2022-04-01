@@ -56,11 +56,11 @@ describe('useExpiresAt()', () => {
       },
       entityMeta: {
         Tacos: {
-          '1': { date: 0, expiresAt: 1000 },
-          '2': { date: 0, expiresAt: 2000 },
+          '1': { date: 0, expiresAt: 1000, fetchedAt: 0 },
+          '2': { date: 0, expiresAt: 2000, fetchedAt: 0 },
         },
         Ingredients: {
-          '1': { date: 0, expiresAt: 500 },
+          '1': { date: 0, expiresAt: 500, fetchedAt: 0 },
         },
       },
       indexes: {},
@@ -116,13 +116,13 @@ describe('useExpiresAt()', () => {
       },
       entityMeta: {
         Tacos: {
-          1: { date: 0, expiresAt: 1000 },
-          2: { date: 0, expiresAt: 2000 },
-          3: { date: 0, expiresAt: 0 },
+          1: { date: 0, expiresAt: 1000, fetchedAt: 0 },
+          2: { date: 0, expiresAt: 2000, fetchedAt: 0 },
+          3: { date: 0, expiresAt: 0, fetchedAt: 0 },
         },
         Ingredients: {
-          1: { date: 0, expiresAt: 500 },
-          2: { date: 0, expiresAt: 0 },
+          1: { date: 0, expiresAt: 500, fetchedAt: 0 },
+          2: { date: 0, expiresAt: 0, fetchedAt: 0 },
         },
       },
       indexes: {},

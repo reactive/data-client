@@ -248,6 +248,16 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     return expiresAt;
   }
 
+  /** Return true to merge incoming data; false keeps existing entity */
+  static useIncoming(
+    existingMeta: { date: number; fetchedAt?: number },
+    incomingMeta: { date: number; fetchedAt?: number },
+    existing: any,
+    incoming: any,
+  ) {
+    return existingMeta.date <= incomingMeta.date;
+  }
+
   static infer(
     args: readonly any[],
     indexes: Record<string, any>,

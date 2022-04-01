@@ -157,6 +157,7 @@ export type NormalizedSchema<E, R> = {
       readonly [pk: string]: {
         readonly date: number;
         readonly expiresAt: number;
+        readonly fetchedAt: number;
       };
     };
   };

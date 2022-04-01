@@ -78,12 +78,12 @@ export default abstract class Entity {
 
   /** Return true to merge incoming data; false keeps existing entity */
   static useIncoming(
-    existingMeta: { date: number },
-    incomingMeta: { date: number },
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
     existing: any,
     incoming: any,
   ) {
-    return existingMeta.date <= incomingMeta.date;
+    return existingMeta.fetchedAt <= incomingMeta.fetchedAt;
   }
 
   /** Creates new instance copying over defined values of arguments */
@@ -331,7 +331,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
   }
 
   static expiresAt(
-    meta: { expiresAt: number; date: number },
+    meta: { expiresAt: number; date: number; fetchedAt: number },
     input: any,
   ): number {
     return meta.expiresAt;

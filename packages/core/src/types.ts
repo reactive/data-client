@@ -52,6 +52,7 @@ export type State<T> = Readonly<{
       readonly [pk: string]: {
         readonly date: number;
         readonly expiresAt: number;
+        readonly fetchedAt: number;
       };
     };
   };

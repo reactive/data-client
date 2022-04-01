@@ -141,6 +141,7 @@ describe('NetworkManager', () => {
           key: fetchResolveAction.meta.key,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
+          fetchedAt: expect.any(Number),
         },
       };
       expect(dispatch).toHaveBeenCalledWith(action);
@@ -170,6 +171,7 @@ describe('NetworkManager', () => {
           key: fetchReceiveWithUpdatersAction.meta.key,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
+          fetchedAt: expect.any(Number),
         },
       };
       expect(dispatch).toHaveBeenCalledWith(action);
@@ -197,6 +199,7 @@ describe('NetworkManager', () => {
           key: fetchRpcWithUpdatersAction.meta.key,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
+          fetchedAt: expect.any(Number),
         },
       };
       expect(dispatch).toHaveBeenCalledWith(action);
@@ -225,6 +228,7 @@ describe('NetworkManager', () => {
           key: fetchRpcWithUpdatersAndOptimisticAction.meta.key,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
+          fetchedAt: expect.any(Number),
         },
       });
     });
