@@ -1,11 +1,16 @@
 import React from 'react';
-import { useResource, useSubscription } from 'rest-hooks';
-import { Link } from 'react-router-dom';
+import { useSuspense, useSubscription } from 'rest-hooks';
+import { Link, useLocation } from '@anansi/router';
 import { List, Avatar } from 'antd';
-import moment from 'moment';
 
 import LinkPagination from '../navigation/LinkPagination';
 import IssueResource from '../resources/IssueResource';
+
+const REL = new Intl.RelativeTimeFormat(navigator.language || 'en-US', {
+  localeMatcher: 'best fit',
+  numeric: 'auto',
+  style: 'long',
+});
 
 type Props = Pick<IssueResource, 'repositoryUrl'> &
   (
@@ -17,9 +22,21 @@ type Props = Pick<IssueResource, 'repositoryUrl'> &
       }
   );
 
-export default function IssueList(props: Props) {
-  const { results: issues, link } = useResource(IssueResource.list(), props);
-  useSubscription(IssueResource.list(), props);
+export default function IssueList({ repositoryUrl }: Props) {
+  const location = useLocation();
+  const page = Number.parseInt(
+    new URLSearchParams(location && location.search.substring(1)).get('page') ||
+      '1',
+    10,
+  );
+  const { results: issues, link } = useSuspense(IssueResource.list(), {
+    repositoryUrl,
+    page,
+  });
+  useSubscription(IssueResource.list(), {
+    repositoryUrl,
+    page,
+  });
 
   return (
     <React.Fragment>
@@ -39,7 +56,7 @@ function IssueListItem({ issue }: { issue: IssueResource }) {
   const actions = [];
   if (issue.comments) {
     actions.push(
-      <Link to={`/issue/${issue.number}`}>
+      <Link name="IssueDetail" props={{ number: issue.number }}>
         <span role="img" aria-label="Comments">
           🗨️
         </span>
@@ -52,7 +69,7 @@ function IssueListItem({ issue }: { issue: IssueResource }) {
       <List.Item.Meta
         avatar={<Avatar src={issue.user.avatarUrl} />}
         title={
-          <Link to={`/issue/${issue.number}`}>
+          <Link name="IssueDetail" props={{ number: issue.number }}>
             {issue.stateIcon} {issue.title}
           </Link>
         }
@@ -61,14 +78,15 @@ function IssueListItem({ issue }: { issue: IssueResource }) {
             <a href={issue.htmlUrl} target="_blank" rel="noreferrer noopener">
               #{issue.number}
             </a>{' '}
-            opened {moment(issue.createdAt).fromNow()} by{' '}
-            <a
-              href={issue.user.htmlUrl}
-              target="_blank"
-              rel="noreferrer noopener"
-            >
+            opened{' '}
+            {REL.format(
+              Math.floor((issue.createdAt.getTime() - Date.now()) / 1000 / 60),
+              'minute',
+            )}{' '}
+            by{' '}
+            <Link name="ProfileDetail" props={{ login: issue.user.login }}>
               {issue.user.login}
-            </a>
+            </Link>
           </>
         }
       />

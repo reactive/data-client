@@ -1,18 +1,18 @@
 import React from 'react';
 import parseLink from 'parse-link-header';
 import { Pagination } from 'antd';
-import { withRouter, RouteComponentProps } from 'react-router-dom';
-import { History } from 'history';
-
+import type { History } from 'history';
+import { useController } from '@anansi/router';
 const handleChange =
-  (history: History<any>) => (page: number, pageSize?: number) => {
+  (history: History) => (page: number, pageSize?: number) => {
     history.push(history.location.pathname + `?page=${page}`);
   };
 
-interface PageProps extends RouteComponentProps {
+interface PageProps {
   link: string;
 }
-function LinkPagination({ link, history }: PageProps) {
+function LinkPagination({ link }: PageProps) {
+  const controller = useController();
   const parsed = parseLink(link);
   const curPage =
     parsed && parsed.next
@@ -36,9 +36,9 @@ function LinkPagination({ link, history }: PageProps) {
       defaultCurrent={curPage}
       total={total * pageSize}
       pageSize={pageSize}
-      onChange={handleChange(history)}
+      onChange={handleChange(controller.history)}
     />
   );
 }
 
-export default withRouter(LinkPagination);
+export default LinkPagination;

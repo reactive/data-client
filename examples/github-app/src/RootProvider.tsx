@@ -1,9 +1,9 @@
 import { CacheProvider } from 'rest-hooks';
 import type { ReactNode } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { BrowserRouter } from 'react-router-dom';
 import type { FallbackProps } from 'react-error-boundary';
 
+import { Router } from './routing';
 import Boundary from './Boundary';
 
 type ComponentProps<T> = T extends
@@ -18,11 +18,11 @@ export default function RootProvider({ children, ...rest }: Props) {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <CacheProvider {...rest}>
-        <BrowserRouter>
+        <Router>
           <ErrorBoundary FallbackComponent={ErrorFallback}>
             <Boundary>{children}</Boundary>
           </ErrorBoundary>
-        </BrowserRouter>
+        </Router>
       </CacheProvider>
     </ErrorBoundary>
   );

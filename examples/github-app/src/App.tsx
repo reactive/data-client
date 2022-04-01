@@ -1,10 +1,9 @@
 import React, { memo } from 'react';
-import { Link } from 'react-router-dom';
 import { Layout, Menu } from 'antd';
 import Boundary from 'Boundary';
-
+import { MatchedRoute, Link } from '@anansi/router';
 import 'antd/dist/antd.css';
-import Routes from './Routes';
+import NavBar from 'navigation/NavBar';
 
 const { Header, Content } = Layout;
 
@@ -12,20 +11,7 @@ const { Header, Content } = Layout;
 function App() {
   return (
     <Layout>
-      <Header className="header">
-        <div className="logo" />
-        <Menu theme="dark" mode="horizontal" selectable={false}>
-          <Menu.Item key={'0'}>
-            <Link to="/">React Issues</Link>
-          </Menu.Item>
-          <Menu.Item key={'1'}>
-            <Link to="/closed">Closed</Link>
-          </Menu.Item>
-          <Menu.Item key={'2'}>
-            <Link to="/open">Open</Link>
-          </Menu.Item>
-        </Menu>
-      </Header>{' '}
+      <NavBar />
       <Content
         style={{
           background: '#fff',
@@ -35,7 +21,7 @@ function App() {
         }}
       >
         <Boundary>
-          <Routes />
+          <MatchedRoute />
         </Boundary>
       </Content>
     </Layout>

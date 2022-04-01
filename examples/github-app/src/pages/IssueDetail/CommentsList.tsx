@@ -1,15 +1,15 @@
 import React from 'react';
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 import { Card, Avatar } from 'antd';
 import Markdown from 'react-markdown';
-import moment from 'moment';
+import { Link } from '@anansi/router';
 
 import CommentResource from '../../resources/CommentResource';
 
 const { Meta } = Card;
 
 export default function CommentsList({ issueUrl }: { issueUrl: string }) {
-  const { results: comments } = useResource(CommentResource.list(), {
+  const { results: comments } = useSuspense(CommentResource.list(), {
     issueUrl,
   });
 
@@ -26,17 +26,20 @@ function CommentInline({ comment }: { comment: CommentResource }) {
   return (
     <Card style={{ marginTop: 16 }}>
       <Meta
-        avatar={<Avatar src={comment.user.avatarUrl} />}
+        avatar={
+          <Link name="ProfileDetail" props={{ login: comment.user.login }}>
+            <Avatar src={comment.user.avatarUrl} />
+          </Link>
+        }
         title={
           <React.Fragment>
-            <a
-              href={comment.user.htmlUrl}
-              target="_blank"
-              rel="noreferrer noopener"
-            >
+            <Link name="ProfileDetail" props={{ login: comment.user.login }}>
               {comment.user.login}
-            </a>{' '}
-            commented on {moment(comment.createdAt).format('MMM Do YYYY')}
+            </Link>{' '}
+            commented on{' '}
+            {new Intl.DateTimeFormat(navigator.language).format(
+              comment.createdAt,
+            )}
           </React.Fragment>
         }
         description={<Markdown>{comment.body}</Markdown>}
