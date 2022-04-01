@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.0.7](https://github.com/coinbase/rest-hooks/compare/normalizr-github-example@0.0.5...normalizr-github-example@0.0.7) (2022-04-01)
+
+**Note:** Version bump only for package normalizr-github-example
+
+
+
+
+
 ### [0.0.6](https://github.com/coinbase/rest-hooks/compare/normalizr-github-example@0.0.1-beta.2...normalizr-github-example@0.0.6) (2022-03-17)
 
 **Note:** Version bump only for package normalizr-github-example

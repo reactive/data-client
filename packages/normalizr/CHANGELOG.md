@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [8.2.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.2.0-beta.2...@rest-hooks/normalizr@8.2.1) (2022-04-01)
+
+
+### 🐛 Bug Fix
+
+* Default optimistic race condition handling should assume in-order server response ([#1852](https://github.com/coinbase/rest-hooks/issues/1852)) ([cf38c3f](https://github.com/coinbase/rest-hooks/commit/cf38c3f67ff0041b528e9d8cf21d31704b76fc01))
+
+
+### 📝 Documentation
+
+* **fix:** Restore version routes ([#1848](https://github.com/coinbase/rest-hooks/issues/1848)) ([72d81cd](https://github.com/coinbase/rest-hooks/commit/72d81cdfce7e20a0e583ff1f6cd854ca16801f9a))
+
+
+
 ## [8.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.1.0...@rest-hooks/normalizr@8.2.0) (2022-03-17)
 
 

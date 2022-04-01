@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.1.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.9...@rest-hooks/core@3.1.1) (2022-04-01)
+
+
+### 💅 Enhancement
+
+* Hooks should type return value based on 'null' arg ([#1783](https://github.com/coinbase/rest-hooks/issues/1783)) ([d14673e](https://github.com/coinbase/rest-hooks/commit/d14673eab0dad3f02edb54f7bf37e6fed1c47a62))
+
+
+### 🐛 Bug Fix
+
+* Default optimistic race condition handling should assume in-order server response ([#1852](https://github.com/coinbase/rest-hooks/issues/1852)) ([cf38c3f](https://github.com/coinbase/rest-hooks/commit/cf38c3f67ff0041b528e9d8cf21d31704b76fc01))
+* Hooks with null param maintain basic schema structure ([#1853](https://github.com/coinbase/rest-hooks/issues/1853)) ([0707e1a](https://github.com/coinbase/rest-hooks/commit/0707e1a6ee8233b2d1b6590db137e298e264635c))
+
+
+
 ## [3.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.0.2...@rest-hooks/core@3.1.0) (2022-03-17)
 
 

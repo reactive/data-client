@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.0](https://github.com/coinbase/rest-hooks/compare/todo-app@0.1.12...todo-app@0.2.0) (2022-04-01)
+
+
+### 🚀 Features
+
+* Use @anansi/router and latest hooks ([#1854](https://github.com/coinbase/rest-hooks/issues/1854)) ([7202cc2](https://github.com/coinbase/rest-hooks/commit/7202cc269311c492ec0b2b883d961829a8a2e3f9))
+
+
+### 📦 Package
+
+* Upgrade react to 18 final ([#1845](https://github.com/coinbase/rest-hooks/issues/1845)) ([71d3d47](https://github.com/coinbase/rest-hooks/commit/71d3d47137949b988d6d26b714980f28c69ed629))
+
+
+
 ### [0.1.13](https://github.com/coinbase/rest-hooks/compare/todo-app@0.1.5...todo-app@0.1.13) (2022-03-17)
 
 

@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@4.0.0...@rest-hooks/legacy@4.2.0) (2022-04-01)
+
+
+### 🚀 Features
+
+* Add endpoint.optimisticUpdater ([#1616](https://github.com/coinbase/rest-hooks/issues/1616)) ([7a99fae](https://github.com/coinbase/rest-hooks/commit/7a99fae20ee9abf5f2121c1f1719bdcce3e78d98))
+* useSuspense, useFetch, remaining hooks typed for Endpoint ([#1440](https://github.com/coinbase/rest-hooks/issues/1440)) ([2039d2c](https://github.com/coinbase/rest-hooks/commit/2039d2c4bf280b5a3c570824c25af3a4cc39af0d))
+
+
+### 💅 Enhancement
+
+* Hooks should type return value based on 'null' arg ([#1783](https://github.com/coinbase/rest-hooks/issues/1783)) ([d14673e](https://github.com/coinbase/rest-hooks/commit/d14673eab0dad3f02edb54f7bf37e6fed1c47a62))
+* Only import from packages in package.json ([#1785](https://github.com/coinbase/rest-hooks/issues/1785)) ([02fb843](https://github.com/coinbase/rest-hooks/commit/02fb8435bfa7a87a51de680ae6aa69da156c9a71))
+
+
+### 🐛 Bug Fix
+
+* Default optimistic race condition handling should assume in-order server response ([#1852](https://github.com/coinbase/rest-hooks/issues/1852)) ([cf38c3f](https://github.com/coinbase/rest-hooks/commit/cf38c3f67ff0041b528e9d8cf21d31704b76fc01))
+* Hooks with null param maintain basic schema structure ([#1853](https://github.com/coinbase/rest-hooks/issues/1853)) ([0707e1a](https://github.com/coinbase/rest-hooks/commit/0707e1a6ee8233b2d1b6590db137e298e264635c))
+
+
+
 ## [4.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@4.0.0...@rest-hooks/legacy@4.1.0) (2022-03-17)
 
 

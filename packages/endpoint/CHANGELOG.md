@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [2.2.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.2.0-beta.4...@rest-hooks/endpoint@2.2.1) (2022-04-01)
+
+
+### 💅 Enhancement
+
+* Hooks should type return value based on 'null' arg ([#1783](https://github.com/coinbase/rest-hooks/issues/1783)) ([d14673e](https://github.com/coinbase/rest-hooks/commit/d14673eab0dad3f02edb54f7bf37e6fed1c47a62))
+* Loosen SnapshotInterface to allow compatible but distinct versions ([#1786](https://github.com/coinbase/rest-hooks/issues/1786)) ([7b31f4d](https://github.com/coinbase/rest-hooks/commit/7b31f4df787e4c0a838dc897a81755abbccf1984))
+
+
+
 ## [2.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.1.0...@rest-hooks/endpoint@2.2.0) (2022-03-17)
 
 
