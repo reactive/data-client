@@ -82,7 +82,7 @@ jobs:
       - run:
           command: |
             if [ "<< parameters.react-version >>" != "^18" ]; then
-            yarn add -W --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
+            yarn add -W --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >> @testing-library/react@^12.0.0
             fi
       - run:
           command: |
@@ -96,7 +96,7 @@ jobs:
           at: ~/
       - run:
           command: |
-            yarn add -W --dev react@^17.0.0 react-dom@^17.0.0 react-test-renderer@^17.0.0
+            yarn add -W --dev react@^17.0.0 react-dom@^17.0.0 react-test-renderer@^17.0.0 @testing-library/react@^12.0.0
       - run:
           command: |
             curl -Os https://uploader.codecov.io/latest/linux/codecov;

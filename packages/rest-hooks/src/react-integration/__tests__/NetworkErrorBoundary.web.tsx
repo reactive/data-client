@@ -37,7 +37,7 @@ describe('<NetworkErrorBoundary />', () => {
     );
     expect(() => render(tree)).toThrow('you failed');
     console.error = originalError;
-    expect(renderCount).toBeLessThan(5);
+    expect(renderCount).toBeLessThan(10);
   });
   it('should render error case when thrown', () => {
     function Throw(): ReactElement {
