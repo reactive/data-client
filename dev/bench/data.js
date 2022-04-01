@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1648739496535,
+  "lastUpdate": 1648813127193,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -4790,6 +4790,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.98%",
             "unit": "ops/sec",
             "extra": "78 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cf38c3f67ff0041b528e9d8cf21d31704b76fc01",
+          "message": "fix: Default optimistic race condition handling should assume in-order server response (#1852)",
+          "timestamp": "2022-04-01T06:35:23-05:00",
+          "tree_id": "866f4125e3ebcedde675286f6858561d2936d165",
+          "url": "https://github.com/coinbase/rest-hooks/commit/cf38c3f67ff0041b528e9d8cf21d31704b76fc01"
+        },
+        "date": 1648813126349,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 101,
+            "range": "±1.07%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 41.98,
+            "range": "±1.03%",
+            "unit": "ops/sec",
+            "extra": "55 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 46.55,
+            "range": "±0.25%",
+            "unit": "ops/sec",
+            "extra": "61 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 99.91,
+            "range": "±2.25%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
           }
         ]
       }
