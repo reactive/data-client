@@ -32,7 +32,6 @@
     "@linaria/shaker": "3.0.0-beta.17",
     "@types/parse-link-header": "^2.0.0",
     "@types/react-dom": "17.0.14",
-    "@types/react-router-dom": "^5.1.8",
     "react-refresh": "^0.11.0",
     "serve": "13.0.2",
     "webpack": "5.70.0",
@@ -40,6 +39,7 @@
     "webpack-dev-server": "4.7.4"
   },
   "dependencies": {
+    "@anansi/router": "^0.3.1",
     "@ant-design/icons": "^4.7.0",
     "@rest-hooks/rest": "^3.0.1",
     "antd": "^4.18.6",
@@ -48,7 +48,6 @@
     "react-dom": "^18.0.0",
     "react-error-boundary": "^3.1.3",
     "react-markdown": "^7.0.1",
-    "react-router-dom": "^5.2.1",
     "rest-hooks": "^6.2.0"
   }
 }

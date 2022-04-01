@@ -1,4 +1,4 @@
-import { Resource } from '@rest-hooks/rest';
+import { Resource, SnapshotInterface } from '@rest-hooks/rest';
 
 import PlaceholderBaseResource from './PlaceholderBaseResource';
 
@@ -12,7 +12,7 @@ export default class TodoResource extends PlaceholderBaseResource {
   static partialUpdate<T extends typeof Resource>(this: T) {
     return super.partialUpdate().extend({
       schema: this,
-      optimisticUpdate: optimisticPartial,
+      getOptimisticResponse: optimisticPartial,
     });
   }
 
@@ -20,7 +20,7 @@ export default class TodoResource extends PlaceholderBaseResource {
     const listkey = this.list().key({});
     return super.create().extend({
       schema: this,
-      optimisticUpdate: optimisticCreate,
+      getOptimisticResponse: optimisticCreate,
       update: (newResourceId: string) => ({
         [listkey]: (resourceIds: string[] = []) => [
           ...resourceIds,
@@ -31,9 +31,13 @@ export default class TodoResource extends PlaceholderBaseResource {
   }
 }
 
-const optimisticPartial = (params: any, body: any) => ({
+const optimisticPartial = (
+  snap: SnapshotInterface,
+  params: { id: string | number },
+  body: any,
+) => ({
   id: params.id,
   ...body,
 });
 
-const optimisticCreate = (_: any, body: any) => body;
+const optimisticCreate = (snap: SnapshotInterface, _: any, body: any) => body;

@@ -1,10 +1,10 @@
-import { useResource, useController, useRetrieve, useCache } from 'rest-hooks';
+import { useSuspense, useController, useFetch, useCache } from 'rest-hooks';
 import { Card, Avatar } from 'antd';
 import { groupBy } from 'lodash';
 import React, { useMemo, memo } from 'react';
-import { RouteChildrenProps } from 'react-router';
 import Markdown from 'react-markdown';
 import Boundary from 'Boundary';
+import { Link } from '@anansi/router';
 
 import IssueResource from '../../resources/IssueResource';
 import ReactionResource from '../../resources/ReactionResource';
@@ -36,22 +36,17 @@ function ReactionSpan({
   );
 }
 
-function IssueDetail({ match }: RouteChildrenProps<{ number: string }>) {
-  let number = 1;
-  if (match && match.params && match.params.number) {
-    number = Number.parseInt(match.params.number, 10);
-  }
-  useRetrieve(ReactionResource.list(), {
+function IssueDetail({ number: s }: { number: string }) {
+  const number = Number.parseInt(s, 10);
+
+  useFetch(ReactionResource.list(), {
     repositoryUrl: 'https://api.github.com/repos/facebook/react',
     number,
   });
-  const [issue] = useResource([
-    IssueResource.detail(),
-    {
-      repositoryUrl: 'https://api.github.com/repos/facebook/react',
-      number,
-    },
-  ]);
+  const issue = useSuspense(IssueResource.detail(), {
+    repositoryUrl: 'https://api.github.com/repos/facebook/react',
+    number,
+  });
   const { results: reactions } = useCache(ReactionResource.list(), {
     repositoryUrl: 'https://api.github.com/repos/facebook/react',
     number,
@@ -68,7 +63,11 @@ function IssueDetail({ match }: RouteChildrenProps<{ number: string }>) {
     <React.Fragment>
       <Card actions={actions}>
         <Meta
-          avatar={<Avatar src={issue.user.avatarUrl} />}
+          avatar={
+            <Link name="ProfileDetail" props={{ login: issue.user.login }}>
+              <Avatar src={issue.user.avatarUrl} />
+            </Link>
+          }
           title={issue.title}
           description={<Markdown>{issue.body}</Markdown>}
         />
