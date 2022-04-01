@@ -26,7 +26,6 @@ import {
 } from '@rest-hooks/normalizr';
 import { inferResults } from '@rest-hooks/normalizr';
 import { unsetDispatch } from '@rest-hooks/use-enhanced-reducer';
-import { nullResponse } from '@rest-hooks/core/react-integration/newhooks/constants';
 
 type RHDispatch = (value: ActionTypes) => Promise<void>;
 
@@ -244,13 +243,11 @@ export default class Controller {
     expiryStatus: ExpiryStatus;
     expiresAt: number;
   } => {
-    if (rest[0] === null) {
-      return nullResponse;
-    }
     const state = rest[rest.length - 1] as State<unknown>;
     const args = rest.slice(0, rest.length - 1) as Parameters<E['key']>;
-    const key = endpoint.key(...args);
-    const cacheResults = state.results[key];
+    const isActive = args.length !== 1 || args[0] !== null;
+    const key = isActive ? endpoint.key(...args) : '';
+    const cacheResults = isActive && state.results[key];
     const schema = endpoint.schema;
     const meta = selectMeta(state, key);
     let expiresAt = meta?.expiresAt;
@@ -292,7 +289,7 @@ export default class Controller {
       }
     }
 
-    if (!this.globalCache.results[key])
+    if (isActive && !this.globalCache.results[key])
       this.globalCache.results[key] = new WeakListMap();
 
     // second argument is false if any entities are missing
@@ -302,7 +299,7 @@ export default class Controller {
       schema,
       state.entities,
       this.globalCache.entities,
-      this.globalCache.results[key],
+      isActive ? this.globalCache.results[key] : undefined,
     ) as [
       DenormalizeNullable<E['schema']>,
       boolean,
