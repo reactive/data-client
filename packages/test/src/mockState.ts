@@ -110,7 +110,7 @@ export function actionFromFixture(fixture: Fixture) {
   return { key, action };
 }
 
-export default function mockInitialState(results: Fixture[]) {
+export default function mockInitialState(results: Fixture[]): State<unknown> {
   let reducer: (
     state: State<unknown> | undefined,
     action: ActionTypes,

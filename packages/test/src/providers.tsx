@@ -89,21 +89,25 @@ try {
   };
 }
 
-const makeCacheProvider = (
+function makeCacheProvider(
   managers: Manager[],
   initialState?: State<unknown>,
-) => {
+): (props: { children: React.ReactNode }) => JSX.Element {
   return function ConfiguredCacheProvider({
     children,
   }: {
     children: React.ReactNode;
   }) {
-    return (
-      <CacheProvider managers={managers} initialState={initialState}>
-        {children}
-      </CacheProvider>
-    );
+    if (initialState) {
+      return (
+        <CacheProvider managers={managers} initialState={initialState}>
+          {children}
+        </CacheProvider>
+      );
+    } else {
+      return <CacheProvider managers={managers}>{children}</CacheProvider>;
+    }
   };
-};
+}
 
 export { makeExternalCacheProvider, makeCacheProvider };
