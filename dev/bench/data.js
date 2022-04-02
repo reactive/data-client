@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1648855211284,
+  "lastUpdate": 1648929333376,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -4998,6 +4998,58 @@ window.BENCHMARK_DATA = {
             "range": "±3.66%",
             "unit": "ops/sec",
             "extra": "67 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0459dbdc3fe1555c5e6dc80290187ec8297d1aa6",
+          "message": "enhance: More exact optional type handling (#1858)",
+          "timestamp": "2022-04-02T12:51:58-07:00",
+          "tree_id": "9b288c4269455c179509860ab52dc1aa4c1e3dee",
+          "url": "https://github.com/coinbase/rest-hooks/commit/0459dbdc3fe1555c5e6dc80290187ec8297d1aa6"
+        },
+        "date": 1648929331829,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 95.64,
+            "range": "±2.32%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 40.58,
+            "range": "±1.69%",
+            "unit": "ops/sec",
+            "extra": "53 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 43.43,
+            "range": "±1.41%",
+            "unit": "ops/sec",
+            "extra": "57 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 93.8,
+            "range": "±2.71%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
           }
         ]
       }
