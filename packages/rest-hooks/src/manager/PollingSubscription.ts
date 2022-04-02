@@ -107,11 +107,11 @@ export default class PollingSubscription implements Subscription {
   cleanup() {
     if (this.intervalId) {
       clearInterval(this.intervalId);
-      this.intervalId = undefined;
+      delete this.intervalId;
     }
     if (this.lastIntervalId) {
       clearInterval(this.lastIntervalId);
-      this.lastIntervalId = undefined;
+      delete this.lastIntervalId;
     }
     if (this.startId) {
       clearTimeout(this.startId);
@@ -169,13 +169,13 @@ export default class PollingSubscription implements Subscription {
    */
   protected run() {
     if (this.startId) return;
-    this.lastIntervalId = this.intervalId;
+    if (this.intervalId) this.lastIntervalId = this.intervalId;
     this.intervalId = setInterval(() => {
       // since we don't know how long into the last poll it was before resetting
       // we wait til the next fetch to clear old intervals
       if (this.lastIntervalId) {
         clearInterval(this.lastIntervalId);
-        this.lastIntervalId = undefined;
+        delete this.lastIntervalId;
       }
       this.update();
     }, this.frequency);

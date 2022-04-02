@@ -58,15 +58,17 @@ export default function createReceive<
   }
   const now = Date.now();
   const meta: ReceiveAction['meta'] = {
-    schema: endpoint.schema,
-    key: endpoint.key(...args),
     args,
     fetchedAt,
     date: now,
     expiresAt: now + expiryLength,
-    errorPolicy: endpoint.errorPolicy,
+    // For legacy support; TODO: remove
+    schema: endpoint.schema,
+    key: endpoint.key(...args),
   };
-  meta.update = endpoint.update;
+  // For legacy support; TODO: remove
+  if (endpoint.update) meta.update = endpoint.update;
+  if (endpoint.errorPolicy) meta.errorPolicy = endpoint.errorPolicy;
 
   const action: ReceiveAction = {
     type: RECEIVE_TYPE,
@@ -87,6 +89,7 @@ export default function createReceive<
     args,
     date,
     expiresAt,
+    fetchedAt,
   },
   error?: true,
 } */
