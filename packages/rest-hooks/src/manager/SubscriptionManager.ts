@@ -16,11 +16,11 @@ type Actions = UnsubscribeAction | SubscribeAction;
 
 /** Properties sent to Subscription constructor */
 export interface SubscriptionInit {
-  schema?: Schema;
+  schema?: Schema | undefined;
   fetch: () => Promise<any>;
   key: string;
   getState: () => State<unknown>;
-  frequency?: number;
+  frequency?: number | undefined;
 }
 
 /** Interface handling a single resource subscription */

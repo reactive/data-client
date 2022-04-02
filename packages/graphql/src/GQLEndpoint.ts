@@ -24,7 +24,7 @@ export default class GQLEndpoint<
             variables,
           }),
           method: 'POST',
-          signal: this.signal,
+          signal: this.signal ?? null,
           headers: this.getHeaders({ 'Content-Type': 'application/json' }),
         }),
       ).then(async res => {

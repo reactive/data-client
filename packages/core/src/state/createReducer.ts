@@ -189,17 +189,19 @@ export default function createReducer(controller: Controller) {
       case INVALIDATE_TYPE: {
         const results = { ...state.results };
         delete results[action.meta.key];
+        const meta = {
+          ...state.meta[action.meta.key],
+          expiresAt: 0,
+          invalidated: true,
+        };
+        delete meta.error;
+
         return {
           ...state,
           results,
           meta: {
             ...state.meta,
-            [action.meta.key]: {
-              ...state.meta[action.meta.key],
-              error: undefined,
-              expiresAt: 0,
-              invalidated: true,
-            },
+            [action.meta.key]: meta,
           },
         };
       }

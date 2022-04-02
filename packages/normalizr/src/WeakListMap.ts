@@ -1,7 +1,7 @@
 /** Link in a chain */
 class Link<K extends object, V> {
   children = new WeakMap<K, Link<K, V>>();
-  declare value: V | undefined;
+  declare value?: V;
 }
 
 class KeySize extends Error {
