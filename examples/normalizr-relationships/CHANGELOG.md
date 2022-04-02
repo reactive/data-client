@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.0.8](https://github.com/coinbase/rest-hooks/compare/normalizr-relationships@0.0.7...normalizr-relationships@0.0.8) (2022-04-02)
+
+**Note:** Version bump only for package normalizr-relationships
+
+
+
+
+
 ### [0.0.7](https://github.com/coinbase/rest-hooks/compare/normalizr-relationships@0.0.5...normalizr-relationships@0.0.7) (2022-04-01)
 
 **Note:** Version bump only for package normalizr-relationships

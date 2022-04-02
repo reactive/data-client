@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.1.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/graphql@0.1.3...@rest-hooks/graphql@0.1.4) (2022-04-02)
+
+
+### 💅 Enhancement
+
+* More exact optional type handling ([#1858](https://github.com/coinbase/rest-hooks/issues/1858)) ([0459dbd](https://github.com/coinbase/rest-hooks/commit/0459dbdc3fe1555c5e6dc80290187ec8297d1aa6))
+
+
+
 ### [0.1.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/graphql@0.1.1...@rest-hooks/graphql@0.1.3) (2022-04-01)
 
 

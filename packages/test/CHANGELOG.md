@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.2.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.2.1...@rest-hooks/test@7.2.2) (2022-04-02)
+
+
+### 🐛 Bug Fix
+
+* Use imported State interface rather than a copy ([#1857](https://github.com/coinbase/rest-hooks/issues/1857)) ([c2535d4](https://github.com/coinbase/rest-hooks/commit/c2535d44a14118b169b701287e3a69f3fe9116e7))
+
+
+
 ### [7.2.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.2.0...@rest-hooks/test@7.2.1) (2022-02-15)
 
 
