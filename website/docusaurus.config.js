@@ -83,7 +83,7 @@ module.exports = {
           includeCurrentVersion: true,
           versions: {
             current: { label: '6.2', path: '', badge: false },
-            '5.0': { label: '5.0', path: '/5.0', banner: 'none' },
+            '5.0': { label: '5.0', path: '5.0', banner: 'none' },
           },
           onlyIncludeVersions: isDev
             ? ['current', ...versions.slice(0, 4)]
@@ -108,7 +108,6 @@ module.exports = {
     [
       '@docusaurus/plugin-client-redirects',
       {
-        fromExtensions: ['html'],
         redirects: [
           {
             to: '/docs/',
@@ -140,6 +139,10 @@ module.exports = {
           {
             to: '/docs/api/resource',
             from: ['/docs/guides/resource-types'],
+          },
+          {
+            to: '/docs/api/useSuspense',
+            from: ['/docs/next/api/useSuspense'],
           },
         ],
       },
