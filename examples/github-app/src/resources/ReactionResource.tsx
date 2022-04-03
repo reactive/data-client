@@ -1,5 +1,5 @@
 import React from 'react';
-import { Resource } from '@rest-hooks/rest';
+import { Resource } from '@rest-hooks/experimental';
 import { HeartOutlined } from '@ant-design/icons';
 
 import PreviewResource from './PreviewResource';

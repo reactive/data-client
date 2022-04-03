@@ -1,4 +1,4 @@
-import { Resource } from '@rest-hooks/rest';
+import { Resource } from '@rest-hooks/experimental';
 
 import BaseResource from './BaseResource';
 import UserResource from './UserResource';

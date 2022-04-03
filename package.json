@@ -12,6 +12,7 @@
     "lint": "eslint --ext .ts,.tsx,.js",
     "format": "eslint --fix \"packages/*/src/**/*.{js,ts,tsx}\"",
     "clean": "lerna clean",
+    "clean:types": "rimraf packages/*/*.tsbuildinfo",
     "build": "yarn build:types && lerna run build --stream",
     "build:bundle": "lerna run build:bundle --stream",
     "build:clean": "lerna run build:clean --stream",

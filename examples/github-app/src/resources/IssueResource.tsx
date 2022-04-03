@@ -1,11 +1,12 @@
 import {
   EndpointExtraOptions,
+  FetchGet,
   Resource,
   RestEndpoint,
-  RestFetch,
-} from '@rest-hooks/rest';
+} from '@rest-hooks/experimental';
 import React from 'react';
 import { InfoCircleOutlined, IssuesCloseOutlined } from '@ant-design/icons';
+import { Paginatable } from '@rest-hooks/experimental';
 
 import BaseResource from './BaseResource';
 import UserResource from './UserResource';
@@ -74,10 +75,12 @@ export default class IssueResource extends BaseResource {
 
   static list<T extends typeof Resource>(
     this: T,
-  ): RestEndpoint<
-    RestFetch<{ repositoryUrl: string; state?: string }>,
-    { results: T[]; link: string },
-    undefined
+  ): Paginatable<
+    RestEndpoint<
+      FetchGet<[{ repositoryUrl: string; state?: string; page?: number }]>,
+      { results: T[]; link: string },
+      undefined
+    >
   > {
     return super.list() as any;
   }
