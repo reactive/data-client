@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1648930828312,
+  "lastUpdate": 1649001025301,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -5102,6 +5102,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.73%",
             "unit": "ops/sec",
             "extra": "68 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2b3f70e318f168d3788303a4be6e7992fb2678e8",
+          "message": "feat: Add CacheProvider Controller prop to allow controller customization (#1868)",
+          "timestamp": "2022-04-03T08:46:28-07:00",
+          "tree_id": "259bfd8a4d6819382e7fd5db96ec0dbe8e57239b",
+          "url": "https://github.com/coinbase/rest-hooks/commit/2b3f70e318f168d3788303a4be6e7992fb2678e8"
+        },
+        "date": 1649001023709,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 86.53,
+            "range": "±2.24%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 36.43,
+            "range": "±1.70%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 38.72,
+            "range": "±2.02%",
+            "unit": "ops/sec",
+            "extra": "51 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 88.9,
+            "range": "±1.15%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
           }
         ]
       }
