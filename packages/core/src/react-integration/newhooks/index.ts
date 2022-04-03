@@ -3,3 +3,4 @@ export { default as useCache } from '@rest-hooks/core/react-integration/newhooks
 export { default as useError } from '@rest-hooks/core/react-integration/newhooks/useError';
 export { default as useFetch } from '@rest-hooks/core/react-integration/newhooks/useFetch';
 export { default as useSubscription } from '@rest-hooks/core/react-integration/newhooks/useSubscription';
+export { default as useDLE } from '@rest-hooks/core/react-integration/newhooks/useDLE';

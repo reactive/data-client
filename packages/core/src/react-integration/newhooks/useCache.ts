@@ -64,7 +64,7 @@ export default function useCache<
   const wouldSuspend = expiryStatus !== ExpiryStatus.Valid && expired;
 
   return useMemo(() => {
-    // if useResource() would suspend, don't include entities from cache
+    // if useSuspense() would suspend, don't include entities from cache
     if (wouldSuspend) {
       if (!endpoint.schema) return undefined;
       // @ts-ignore

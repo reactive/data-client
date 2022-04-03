@@ -30,6 +30,7 @@ export {
 export {
   useSuspense,
   useFetch,
+  useDLE,
 } from '@rest-hooks/core/react-integration/newhooks/index';
 export type { ErrorTypes } from '@rest-hooks/core/react-integration/index';
 export {
