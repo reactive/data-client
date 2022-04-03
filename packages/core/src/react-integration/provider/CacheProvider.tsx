@@ -15,16 +15,18 @@ interface ProviderProps {
   children: ReactNode;
   managers: Manager[];
   initialState: State<unknown>;
+  Controller: typeof Controller;
 }
 
 /**
- * Controller managing state of the REST cache and coordinating network requests.
+ * Controller managing state of the cache and coordinating network requests.
  * @see https://resthooks.io/docs/api/CacheProvider
  */
 export default function CacheProvider({
   children,
   managers,
   initialState,
+  Controller,
 }: ProviderProps) {
   // contents of this component expected to be relatively stable
 
@@ -60,4 +62,5 @@ export default function CacheProvider({
 CacheProvider.defaultProps = {
   managers: [new NetworkManager()] as Manager[],
   initialState: defaultState as State<unknown>,
+  Controller,
 };
