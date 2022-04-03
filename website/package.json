@@ -2,6 +2,7 @@
   "scripts": {
     "examples": "docusaurus-examples",
     "start": "docusaurus start",
+    "start:prod": "serve build",
     "build": "docusaurus build",
     "publish-gh-pages": "docusaurus-publish",
     "write-translations": "docusaurus-write-translations",
@@ -16,7 +17,8 @@
     "@tsconfig/docusaurus": "^1.0.5",
     "@types/react": "^17.0.43",
     "@types/react-helmet": "^6.1.5",
-    "@types/react-router-dom": "^5.3.3"
+    "@types/react-router-dom": "^5.3.3",
+    "serve": "^13.0.2"
   },
   "dependencies": {
     "@anansi/webpack-config": "^11.3.5",
