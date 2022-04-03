@@ -1,5 +1,10 @@
 import { camelCase, snakeCase } from 'lodash';
-import { Resource, RestEndpoint, RestFetch } from '@rest-hooks/rest';
+import {
+  Resource,
+  RestEndpoint,
+  Paginatable,
+  FetchGet,
+} from '@rest-hooks/experimental';
 
 function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
   const ret: any = Array.isArray(obj) ? [] : {};
@@ -35,7 +40,9 @@ export default abstract class BaseResource extends Resource {
   /** Shape to get a list of entities */
   static list<T extends typeof Resource>(
     this: T,
-  ): RestEndpoint<RestFetch, { results: T[]; link: string }, undefined> {
+  ): Paginatable<
+    RestEndpoint<FetchGet, { results: T[]; link: string }, undefined>
+  > {
     const instanceFetchResponse = this.fetchResponse.bind(this);
 
     return super.list().extend({
@@ -57,5 +64,17 @@ export default abstract class BaseResource extends Resource {
       },
       schema: { results: [this], link: '' },
     });
+  }
+
+  static listPage<T extends typeof BaseResource>(
+    this: T,
+  ): Paginatable<
+    RestEndpoint<
+      FetchGet<[{ page: number } & Parameters<ReturnType<T['list']>>[0]]>,
+      { results: T[]; link: string },
+      undefined
+    >
+  > {
+    return this.list().paginated(({ page, ...rest }) => [rest]);
   }
 }

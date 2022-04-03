@@ -1,5 +1,5 @@
-import React from 'react';
-import { useSuspense, useSubscription } from 'rest-hooks';
+import { useState } from 'react';
+import { useSuspense, useSubscription, useController } from 'rest-hooks';
 import { Link, useLocation } from '@anansi/router';
 import { List, Avatar } from 'antd';
 
@@ -39,7 +39,7 @@ export default function IssueList({ repositoryUrl }: Props) {
   });
 
   return (
-    <React.Fragment>
+    <>
       <List
         itemLayout="horizontal"
         dataSource={issues}
@@ -48,7 +48,27 @@ export default function IssueList({ repositoryUrl }: Props) {
       <div className="center">
         <LinkPagination link={link} />
       </div>
-    </React.Fragment>
+    </>
+  );
+}
+
+function NextPage({
+  repositoryUrl,
+  page,
+}: {
+  repositoryUrl: string;
+  page: number;
+}) {
+  const { fetch } = useController();
+  const [count, setCount] = useState(0);
+  const loadMore = () => {
+    fetch(IssueResource.listPage(), { page: page + count + 1, repositoryUrl });
+    setCount((count) => count + 1);
+  };
+  return (
+    <div>
+      <button onClick={loadMore}>Load more</button>
+    </div>
   );
 }
 

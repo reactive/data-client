@@ -1,10 +1,11 @@
 import type {
   EndpointInstance,
+  EndpointInterface,
   FetchFunction,
   Schema,
 } from '@rest-hooks/endpoint';
 
-export type RestFetch<A extends readonly any[] = any, R = any> = (
+export type RestFetch<A extends readonly any[] = any[], R = any> = (
   this: RestEndpoint,
   ...args: A
 ) => Promise<R>;
@@ -28,9 +29,8 @@ export interface RestEndpoint<
   F extends FetchFunction = RestFetch,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined,
-  U extends any[] = any,
 > extends EndpointInstance<F, S, M> {
-  url: (...args: U) => string;
+  url: (...args: Parameters<F>) => string;
   fetchInit: RequestInit;
   useFetchInit: (this: any) => any;
   getFetchInit: (
@@ -39,18 +39,13 @@ export interface RestEndpoint<
   ) => any;
   method: string;
   signal: AbortSignal | undefined;
-  paginated?: (this: any, ...args: Parameters<F>) => any;
 }
 
 export type Paginatable<
-  E extends EndpointInstance<
-    FetchFunction,
-    Schema | undefined,
-    true | undefined
-  >,
+  E extends EndpointInterface<RestFetch, Schema | undefined, true | undefined>,
 > = E & {
-  paginated<T extends Paginatable<E>>(
+  paginated<T extends E>(
     this: T,
-    removeCursor: (...args: Parameters<E>) => any,
+    removeCursor: (...args: Parameters<E>) => any[],
   ): T;
 };

@@ -1,4 +1,4 @@
-import { FetchGet, Resource, RestEndpoint } from '@rest-hooks/rest';
+import { FetchGet, Resource, RestEndpoint } from '@rest-hooks/experimental';
 
 import BaseResource from './BaseResource';
 
@@ -62,7 +62,7 @@ export default class UserResource extends BaseResource {
 
   static detail<T extends typeof Resource>(
     this: T,
-  ): RestEndpoint<FetchGet<{ login: string }>, T, undefined> {
+  ): RestEndpoint<FetchGet<[{ login: string }]>, T, undefined> {
     return super.detail().extend({ schema: this });
   }
 }

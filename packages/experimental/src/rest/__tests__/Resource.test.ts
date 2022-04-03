@@ -4,7 +4,7 @@ import { act } from '@testing-library/react-hooks';
 
 import Resource from '../Resource';
 import useSuspense from '../../hooks/useSuspense';
-import type { Paginatable, RestEndpoint, RestFetch } from '../types';
+import type { Paginatable, RestEndpoint, FetchGet } from '../types';
 import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import {
   payload,
@@ -49,7 +49,7 @@ export class PaginatedArticleResource extends Resource {
     this: T,
   ): Paginatable<
     RestEndpoint<
-      RestFetch<[{ cursor?: number }]>,
+      FetchGet<[{ cursor?: number }]>,
       { nextPage: string; results: T[] },
       undefined
     >

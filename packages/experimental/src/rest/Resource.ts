@@ -150,12 +150,13 @@ export default abstract class Resource extends BaseResource {
   }
 }
 
-const getIn = (results: any, path: string[]) => {
+const getIn = (results: any, path: string[]): any[] => {
   let cur = results;
   for (const p of path) {
+    if (!cur) return [];
     cur = cur[p];
   }
-  return cur;
+  return cur || [];
 };
 
 const setIn = <T>(results: T, path: string[], values: any[]): T => {
