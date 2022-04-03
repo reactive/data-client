@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1649001025301,
+  "lastUpdate": 1649001474495,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -5154,6 +5154,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.15%",
             "unit": "ops/sec",
             "extra": "74 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9efc21650bbe0c445ea61e0acb334391b996dd40",
+          "message": "feat: Add useDLE() to core (#1866)",
+          "timestamp": "2022-04-03T08:54:28-07:00",
+          "tree_id": "8a21648fd1ff95f7cc7bd94f972dd5b2da389887",
+          "url": "https://github.com/coinbase/rest-hooks/commit/9efc21650bbe0c445ea61e0acb334391b996dd40"
+        },
+        "date": 1649001472953,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 93.61,
+            "range": "±0.82%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 36.23,
+            "range": "±0.78%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 38.57,
+            "range": "±0.37%",
+            "unit": "ops/sec",
+            "extra": "67 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 92.78,
+            "range": "±1.08%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
           }
         ]
       }
