@@ -7,7 +7,7 @@ import {
   ListPaginatedArticle,
   CoolerArticleDetail,
   IndexedUserResource,
-} from '__tests__/common';
+} from '__tests__/legacy-3';
 import nock from 'nock';
 import { act } from '@testing-library/react-hooks';
 
@@ -18,7 +18,7 @@ import {
   makeRenderRestHook,
   makeCacheProvider,
   makeExternalCacheProvider,
-} from '../../../../test';
+} from '../../../../test/lib';
 import { useResource, useFetcher, useCache, useInvalidator } from '../hooks';
 import {
   payload,

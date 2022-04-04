@@ -67,12 +67,12 @@ describe('inferResults()', () => {
   });
 
   it('should be undefined with Union and type', () => {
-    const schema = UnionResource.detailShape().schema;
+    const schema = UnionResource.detail().schema;
     expect(buildInferredResults(schema, [{ id: 5 }], {})).toBe(undefined);
   });
 
   it('should work with Union', () => {
-    const schema = UnionResource.detailShape().schema;
+    const schema = UnionResource.detail().schema;
     expect(buildInferredResults(schema, [{ id: 5, type: 'first' }], {}))
       .toMatchInlineSnapshot(`
       Object {

@@ -3,7 +3,7 @@ import {
   PaginatedArticleResource,
   InvalidIfStaleArticleResource,
   noEntitiesShape,
-} from '__tests__/common';
+} from '__tests__/legacy-3';
 import React, { useEffect } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references

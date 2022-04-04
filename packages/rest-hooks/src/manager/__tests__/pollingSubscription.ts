@@ -1,4 +1,4 @@
-import { PollingArticleResource } from '__tests__/common';
+import { PollingArticleResource } from '__tests__/legacy-3';
 import { initialState } from '@rest-hooks/core';
 
 import PollingSubscription from '../PollingSubscription';

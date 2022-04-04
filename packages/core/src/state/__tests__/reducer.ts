@@ -225,7 +225,7 @@ describe('reducer', () => {
       payload: { id },
       meta: {
         schema: new schema.Delete(ArticleResource),
-        key: ArticleResource.deleteShape().getFetchKey({ id }),
+        key: ArticleResource.delete().key({ id }),
         date: 0,
         expiresAt: 0,
       },
@@ -254,7 +254,7 @@ describe('reducer', () => {
 
   describe('updaters', () => {
     describe('Update on get (pagination use case)', () => {
-      const shape = PaginatedArticleResource.listShape();
+      const shape = PaginatedArticleResource.list();
       function makeOptimisticAction(
         payload: {
           results: Partial<PaginatedArticleResource>[];
@@ -270,8 +270,8 @@ describe('reducer', () => {
           type: RECEIVE_TYPE,
           payload,
           meta: {
-            schema: PaginatedArticleResource.listShape().schema,
-            key: PaginatedArticleResource.listShape().getFetchKey({
+            schema: PaginatedArticleResource.list().schema,
+            key: PaginatedArticleResource.list().key({
               cursor: 2,
             }),
             updaters,
@@ -343,7 +343,7 @@ describe('reducer', () => {
     });
 
     describe('rpc update on create', () => {
-      const createShape = ArticleResource.createShape();
+      const createShape = ArticleResource.create();
       function makeOptimisticAction(
         payload: Partial<ArticleResource>,
         updaters: {
@@ -358,7 +358,7 @@ describe('reducer', () => {
           payload,
           meta: {
             schema: ArticleResource,
-            key: ArticleResource.createShape().getFetchKey({}),
+            key: ArticleResource.create().key({}, {}),
             updaters,
             date: 0,
             expiresAt: 100000000000,
@@ -386,7 +386,7 @@ describe('reducer', () => {
         },
         results: {
           [ArticleResourceWithOtherListUrl.listUrl()]: ['10'],
-          [ArticleResourceWithOtherListUrl.otherListUrl()]: ['21'],
+          [ArticleResourceWithOtherListUrl.otherList().url()]: ['21'],
         },
       };
 
@@ -429,7 +429,7 @@ describe('reducer', () => {
             { id: 11 },
             {
               [ArticleResourceWithOtherListUrl.listUrl()]: insertAfterUpdater,
-              [ArticleResourceWithOtherListUrl.otherListUrl()]:
+              [ArticleResourceWithOtherListUrl.otherList().url()]:
                 insertAfterUpdater,
             },
           ),
@@ -438,7 +438,7 @@ describe('reducer', () => {
           newState.results[ArticleResourceWithOtherListUrl.listUrl()],
         ).toStrictEqual(['10', '11']);
         expect(
-          newState.results[ArticleResourceWithOtherListUrl.otherListUrl()],
+          newState.results[ArticleResourceWithOtherListUrl.otherList().url()],
         ).toStrictEqual(['21', '11']);
       });
     });
@@ -636,7 +636,7 @@ describe('reducer', () => {
       payload: error,
       meta: {
         schema: new schema.Delete(ArticleResource),
-        key: ArticleResource.deleteShape().getFetchKey({ id }),
+        key: ArticleResource.delete().key({ id }),
         date: 0,
         expiresAt: 0,
       },

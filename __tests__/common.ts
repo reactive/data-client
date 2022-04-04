@@ -1,14 +1,112 @@
-import {
-  AbstractInstanceType,
-  DeleteShape,
-  MutateShape,
-  ReadShape,
-} from '@rest-hooks/core';
-import { schema } from '@rest-hooks/normalizr';
-import { Endpoint, EndpointExtraOptions } from '@rest-hooks/endpoint';
-import { Resource, SchemaList, SchemaDetail } from '@rest-hooks/rest';
-import React from 'react';
+import { AbstractInstanceType, schema } from '@rest-hooks/core';
 import { SimpleRecord } from '@rest-hooks/legacy';
+import {
+  AbortOptimistic,
+  Endpoint,
+  EndpointExtraOptions,
+  FetchFunction,
+  Index,
+  SchemaDetail,
+  SchemaList,
+} from '@rest-hooks/endpoint';
+import {
+  Resource,
+  RestEndpoint,
+  RestFetch,
+  FetchGet,
+  FetchMutate,
+  Schema,
+} from '@rest-hooks/rest';
+import React, { createContext, useContext } from 'react';
+
+interface Vis {
+  readonly id: number | undefined;
+  readonly visType: 'graph' | 'line';
+  readonly numCols: number;
+  readonly updatedAt: number;
+}
+
+export class VisSettings extends Resource implements Vis {
+  readonly id: number | undefined = undefined;
+  readonly visType: 'graph' | 'line' = 'graph' as const;
+  readonly numCols: number = 0;
+  readonly updatedAt = 0;
+
+  pk() {
+    return `${this.id}`;
+  }
+
+  static urlRoot = 'http://test.com/vis-settings/';
+
+  static useIncoming(
+    existingMeta: { date: number },
+    incomingMeta: { date: number },
+    existing: any,
+    incoming: any,
+  ) {
+    return existing.updatedAt <= incoming.updatedAt;
+  }
+
+  protected static endpointMutate(): RestEndpoint<
+    (this: RestEndpoint, params: any, body?: any) => Promise<any>,
+    Schema | undefined,
+    true
+  > {
+    const sup = super.endpointMutate();
+    return sup.extend({
+      getFetchInit(this: RestEndpoint, body?: any) {
+        if (body) {
+          body = { ...body, updatedAt: Date.now() };
+        }
+        return sup.getFetchInit.call(this, body);
+      },
+    });
+  }
+
+  static partialUpdate<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    FetchMutate<[{ id: number }, Partial<Exclude<Vis, 'updatedAt'>>]>,
+    T,
+    true
+  > {
+    const detail = (this as unknown as typeof VisSettings).detail();
+    const partial = super.partialUpdate();
+    return partial.extend({
+      getOptimisticResponse(snap, params, body) {
+        const { data } = snap.getResponse(detail, params);
+        if (!data) throw new AbortOptimistic();
+        return {
+          ...data,
+          ...body,
+          updatedAt: snap.fetchedAt,
+        };
+      },
+      schema: this,
+    });
+  }
+
+  static incrementCols<T extends typeof VisSettings>(
+    this: T,
+  ): RestEndpoint<(id: number) => Promise<any>, T, true> {
+    const detail = this.detail();
+
+    return this.endpointMutate().extend({
+      name: 'incrementCols',
+      url: (id: number) => `${this.urlRoot}{id}/incCol`,
+      getOptimisticResponse(snap, id: number) {
+        const { data } = snap.getResponse(detail, { id });
+        const numCols = data ? data.numCols + 1 : 0;
+        return {
+          ...data,
+          numCols,
+          updatedAt: snap.fetchedAt,
+        };
+      },
+      schema: this,
+    });
+  }
+}
 
 export class UserResource extends Resource {
   readonly id: number | undefined = undefined;
@@ -22,11 +120,12 @@ export class UserResource extends Resource {
 
   static urlRoot = 'http://test.com/user/';
 }
+
 export class ArticleResource extends Resource {
   readonly id: number | undefined = undefined;
   readonly title: string = '';
   readonly content: string = '';
-  readonly author: number | null = null;
+  readonly author: UserResource | null = null;
   readonly tags: string[] = [];
 
   pk() {
@@ -38,94 +137,72 @@ export class ArticleResource extends Resource {
   };
 
   static urlRoot = 'http://test.com/article/';
-  static url<T extends typeof Resource>(this: T, urlParams?: any): string {
+  static url(urlParams?: any): string {
     if (urlParams && !urlParams.id) {
       return `${this.urlRoot}${urlParams.title}`;
     }
     return super.url(urlParams);
   }
 
-  static longLivingRequest<T extends typeof Resource>(this: T) {
-    const single = this.detailShape();
-    return {
-      ...single,
-      options: {
-        ...single.options,
-        dataExpiryLength: 1000 * 60 * 60,
-      },
-    };
+  static longLiving<T extends typeof Resource>(this: T) {
+    return this.detail().extend({
+      dataExpiryLength: 1000 * 60 * 60,
+    });
   }
 
-  static neverRetryOnErrorRequest<T extends typeof Resource>(this: T) {
-    const single = this.detailShape();
-    return {
-      ...single,
-      options: {
-        ...single.options,
-        errorExpiryLength: Infinity,
-      },
-    };
+  static neverRetryOnError<T extends typeof Resource>(this: T) {
+    return this.detail().extend({
+      errorExpiryLength: Infinity,
+    });
   }
 
-  static singleWithUserRequest<T extends typeof ArticleResource>(
+  static singleWithUser<T extends typeof ArticleResource>(this: T) {
+    return this.detail().extend({
+      url: (params: object) => this.url({ ...params, includeUser: true }),
+    });
+  }
+
+  static listWithUser<T extends typeof ArticleResource>(this: T) {
+    return this.list().extend({
+      url: (
+        params: Readonly<Record<string, string | number | boolean>> | undefined,
+      ) => this.listUrl({ ...params, includeUser: true }),
+    });
+  }
+
+  static partialUpdate<T extends typeof Resource>(
     this: T,
-  ): ReadShape<SchemaDetail<AbstractInstanceType<T>>> {
-    const baseShape = this.detailShape();
-    return {
-      ...baseShape,
-      getFetchKey: (params: Readonly<Record<string, string>>) =>
-        baseShape.getFetchKey({ ...params, includeUser: true }),
-      fetch: (params: object) =>
-        this.fetch(this.url({ ...params, includeUser: true }), {
-          method: 'get',
-        }),
+  ): RestEndpoint<FetchMutate, T, true> {
+    const detail = this.detail();
+    return super.partialUpdate().extend({
+      getOptimisticResponse: (snap, params, body) => ({
+        id: params.id,
+        ...body,
+      }),
       schema: this,
-    };
+    });
   }
 
-  static listWithUserRequest<T extends typeof ArticleResource>(
-    this: T,
-  ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
-    const baseShape = this.listShape();
-    return {
-      ...baseShape,
-      getFetchKey: (params: Readonly<Record<string, string>>) =>
-        baseShape.getFetchKey({ ...params, includeUser: true }),
-      fetch: (params: object) =>
-        this.fetch(this.listUrl({ ...params, includeUser: 'true' }), {
-          method: 'get',
-        }),
-      schema: [this],
-    };
+  static delete<T extends typeof Resource>(this: T) {
+    return super.delete().extend({
+      getOptimisticResponse: (snap, params) => params,
+      schema: new schema.Delete(this),
+    });
   }
+}
 
-  static partialUpdateShape<T extends typeof Resource>(
-    this: T,
-  ): MutateShape<
-    SchemaDetail<Readonly<AbstractInstanceType<T>>>,
-    Readonly<object>,
-    Partial<AbstractInstanceType<T>>
-  > {
-    return {
-      ...super.partialUpdateShape(),
-      options: {
-        ...this.getEndpointExtra(),
-        optimisticUpdate: (params: any, body: any) => ({
-          id: params.id,
-          ...body,
-        }),
-      },
-    };
-  }
+export const AuthContext = createContext('');
 
-  static deleteShape<T extends typeof Resource>(
-    this: T,
-  ): DeleteShape<schema.Delete<T>, Readonly<object>> {
+export class ContextAuthdArticle extends ArticleResource {
+  /** Init options for fetch */
+  static useFetchInit(init: RequestInit): RequestInit {
+    /* eslint-disable-next-line */
+    const accessToken = useContext(AuthContext);
     return {
-      ...(super.deleteShape() as any),
-      options: {
-        ...this.getEndpointExtra(),
-        optimisticUpdate: (params: any) => params,
+      ...init,
+      headers: {
+        ...init.headers,
+        'Access-Token': accessToken,
       },
     };
   }
@@ -147,37 +224,51 @@ export class UrlArticleResource extends ArticleResource {
 }
 
 export class ArticleResourceWithOtherListUrl extends ArticleResource {
-  static otherListShape<T extends typeof ArticleResourceWithOtherListUrl>(
-    this: T,
-  ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
-    const getFetchKey = () => this.otherListUrl();
-    return {
-      ...this.listShape(),
-      getFetchKey,
-      fetch: (_params: object) =>
-        this.fetch(getFetchKey(), {
-          method: 'get',
-        }),
-    };
+  static otherList<T extends typeof ArticleResourceWithOtherListUrl>(this: T) {
+    return this.list().extend({
+      url: () => this.urlRoot + 'some-list-url',
+    });
   }
 
-  static otherListUrl<T extends typeof ArticleResource>(this: T): string {
-    return this.urlRoot + 'some-list-url';
-  }
-
-  static createShape<T extends typeof Resource>(this: T) {
-    return {
-      ...super.createShape(),
-      options: {
-        ...this.getEndpointExtra(),
-        optimisticUpdate: (
-          params: Readonly<object>,
-          body: Readonly<object | string> | void,
-        ) => body,
-      },
-    };
+  static create<T extends typeof Resource>(this: T) {
+    const list = ArticleResourceWithOtherListUrl.list();
+    const otherList = ArticleResourceWithOtherListUrl.otherList();
+    return super.create().extend({
+      getOptimisticResponse: (snap, params, body) => body,
+      schema: this,
+      update: (newArticleID: string) => ({
+        [list.key({})]: (articleIDs: string[] | undefined) => [
+          ...(articleIDs || []),
+          newArticleID,
+        ],
+        [otherList.key({})]: (articleIDs: string[] | undefined) => [
+          ...(articleIDs || []),
+          newArticleID,
+        ],
+      }),
+    });
   }
 }
+/*
+        [
+          [
+            ArticleResourceWithOtherListUrl.list(),
+            {},
+            (newArticleID: string, articleIDs: string[] | undefined) => [
+              ...(articleIDs || []),
+              newArticleID,
+            ],
+          ],
+          [
+            ArticleResourceWithOtherListUrl.otherList(),
+            {},
+            (newArticleID: string, articleIDs: string[] | undefined) => [
+              ...(articleIDs || []),
+              newArticleID,
+            ],
+          ],
+        ],
+        */
 
 export class CoolerArticleResource extends ArticleResource {
   static urlRoot = 'http://test.com/article-cooler/';
@@ -186,25 +277,160 @@ export class CoolerArticleResource extends ArticleResource {
   }
 }
 
-export const CoolerArticleDetail = new Endpoint(({ id }: { id: number }) => {
-  return fetch(`http://test.com/article-cooler/${id}`).then(res =>
-    res.json(),
-  ) as Promise<
-    { [k in keyof CoolerArticleResource]: CoolerArticleResource[k] }
-  >;
-});
+export class TypedArticleResource extends CoolerArticleResource {
+  get tagString() {
+    return this.tags.join(', ');
+  }
+
+  static update<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    FetchMutate<
+      [{ id: number }, Partial<AbstractInstanceType<T>>],
+      Partial<AbstractInstanceType<T>>
+    >,
+    SchemaDetail<AbstractInstanceType<T>>,
+    true
+  > {
+    return super.update();
+  }
+
+  static detail<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    FetchGet<[{ id: number }], Partial<AbstractInstanceType<T>>>,
+    SchemaDetail<AbstractInstanceType<T>>,
+    undefined
+  > {
+    return super.detail();
+  }
+
+  static list<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    FetchGet<[any], Partial<AbstractInstanceType<T>>[]>,
+    SchemaList<AbstractInstanceType<T>>,
+    undefined
+  > {
+    return super.list();
+  }
+
+  static anyparam<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<(a: any) => Promise<any>> {
+    return super.detail() as any;
+  }
+
+  static anybody<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<(a: any, b: any) => Promise<any>> {
+    return super.detail() as any;
+  }
+
+  static noparams<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<() => Promise<any>, T[], undefined> {
+    return super.list() as any;
+  }
+}
+
+export class FutureArticleResource extends CoolerArticleResource {
+  static url(id: any): string {
+    if (this.pk({ id }) !== undefined) {
+      return `${this.urlRoot.replace(/\/$/, '')}/${this.pk({ id })}`;
+    }
+    return this.urlRoot;
+  }
+
+  static update<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    FetchMutate<
+      [{ id: number }, Partial<AbstractInstanceType<T>>],
+      Partial<AbstractInstanceType<T>>
+    >,
+    SchemaDetail<AbstractInstanceType<T>>,
+    true
+  > {
+    return super.update();
+  }
+
+  static create<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    (
+      body: Partial<AbstractInstanceType<T>>,
+    ) => Promise<Partial<AbstractInstanceType<T>>>,
+    SchemaDetail<AbstractInstanceType<T>>,
+    true,
+    Parameters<T['listUrl']>
+  > {
+    const instanceFetch = this.fetch.bind(this);
+    return super.create().extend({
+      fetch(body: Partial<AbstractInstanceType<T>>) {
+        return instanceFetch(this.url(), this.getFetchInit(body));
+      },
+      url: () => this.listUrl({}),
+      update: (newid: string) => ({
+        [this.list().key({})]: (existing: string[] = []) => [
+          newid,
+          ...existing,
+        ],
+      }),
+    });
+  }
+
+  static detail<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    (id: number) => Promise<Partial<AbstractInstanceType<T>>>,
+    T,
+    undefined
+  > {
+    return super.detail().extend({ schema: this });
+  }
+
+  static list<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    (
+      options?: Record<string, any>,
+    ) => Promise<Partial<AbstractInstanceType<T>>[]>,
+    T[],
+    undefined
+  > {
+    return super.list().extend({ schema: [this] });
+  }
+}
+
+export class CoauthoredArticleResource extends FutureArticleResource {
+  readonly coAuthors: UserResource[] = [];
+  static schema = {
+    ...FutureArticleResource.schema,
+    coAuthors: [UserResource],
+  };
+}
+
+export const CoolerArticleDetail = new Endpoint(
+  ({ id }: { id: number }) => {
+    return fetch(`http://test.com/article-cooler/${id}`).then(res =>
+      res.json(),
+    ) as Promise<{
+      [k in keyof CoolerArticleResource]: CoolerArticleResource[k];
+    }>;
+  },
+  {
+    key({ id }: { id: number }) {
+      return `article-cooler ${id}`;
+    },
+  },
+);
 
 export class IndexedUserResource extends UserResource {
   static indexes = ['username' as const];
 
-  static indexShape<T extends typeof IndexedUserResource>(this: T) {
-    return {
-      type: 'read',
-      schema: this,
-      getFetchKey({ username }: { username: string }) {
-        return username;
-      },
-    };
+  static index() {
+    return new Index(this);
   }
 }
 
@@ -227,15 +453,19 @@ export class PollingArticleResource extends ArticleResource {
     };
   }
 
-  static pusherShape<T extends typeof PollingArticleResource>(this: T) {
-    return {
-      ...this.detailShape(),
-      options: {
-        extra: {
-          eventType: 'PollingArticleResource:fetch',
-        },
+  static pusher<T extends typeof PollingArticleResource>(this: T) {
+    return this.detail().extend({
+      extra: {
+        eventType: 'PollingArticleResource:fetch',
       },
-    };
+    });
+  }
+
+  static anotherDetail<T extends typeof PollingArticleResource>(this: T) {
+    return this.detail().extend({
+      method: 'GET',
+      schema: this,
+    });
   }
 }
 
@@ -263,25 +493,29 @@ function makePaginatedRecord<T>(entity: T) {
 
 export class PaginatedArticleResource extends OtherArticleResource {
   static urlRoot = 'http://test.com/article-paginated/';
-  static listShape<T extends typeof Resource>(this: T) {
-    return {
-      ...super.listShape(),
+
+  static list<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    FetchFunction,
+    { results: T[]; prevPage: string; nextPage: string },
+    undefined
+  > {
+    return super.list().extend({
       schema: { results: [this], prevPage: '', nextPage: '' },
-    };
+    });
   }
 
-  static listDefaultsShape<T extends typeof Resource>(this: T) {
-    return {
-      ...super.listShape(),
+  static listDefaults<T extends typeof Resource>(this: T) {
+    return super.list().extend({
       schema: makePaginatedRecord(this),
-    };
+    });
   }
 
-  static detailShape<T extends typeof Resource>(this: T) {
-    return {
-      ...super.listShape(),
+  static detail<T extends typeof Resource>(this: T) {
+    return super.detail().extend({
       schema: { data: this },
-    };
+    });
   }
 }
 
@@ -308,38 +542,30 @@ export class UnionResource extends Resource {
 
   static urlRoot = '/union/';
 
-  static detailShape<T extends typeof Resource>(
-    this: T,
-  ): ReadShape<SchemaDetail<AbstractInstanceType<T>>> {
-    const sch = new schema.Union(
-      {
-        first: FirstUnionResource,
-        second: SecondUnionResource,
-      },
-      'type',
-    );
-    return {
-      ...super.detailShape(),
-      schema: sch,
-    };
-  }
-
-  static listShape<T extends typeof Resource>(
-    this: T,
-  ): ReadShape<SchemaList<AbstractInstanceType<T>>> {
-    const sch = [
-      new schema.Union(
+  static detail<T extends typeof Resource>(this: T) {
+    return super.detail().extend({
+      schema: new schema.Union(
         {
           first: FirstUnionResource,
           second: SecondUnionResource,
         },
-        (input: FirstUnionResource | SecondUnionResource) => input['type'],
+        'type',
       ),
-    ];
-    return {
-      ...super.detailShape(),
-      schema: sch,
-    };
+    });
+  }
+
+  static list<T extends typeof Resource>(this: T) {
+    return super.list().extend({
+      schema: [
+        new schema.Union(
+          {
+            first: FirstUnionResource,
+            second: SecondUnionResource,
+          },
+          (input: FirstUnionResource | SecondUnionResource) => input['type'],
+        ),
+      ],
+    });
   }
 }
 export class FirstUnionResource extends UnionResource {
@@ -360,30 +586,58 @@ export class NestedArticleResource extends OtherArticleResource {
   };
 }
 
-export const photoShape = {
-  type: 'read' as const,
-  schema: null as ArrayBuffer | null,
-  getFetchKey({ userId }: { userId: string }) {
-    return `/users/${userId}/photo`;
-  },
-  fetch: async ({ userId }: { userId: string }) => {
-    const response = await fetch(`http://test.com/users/${userId}/photo`);
+export const GetPhoto = new Endpoint(
+  async function ({ userId }: { userId: string }): Promise<ArrayBuffer> {
+    const response = await fetch(this.key({ userId }));
     const photoArrayBuffer = await response.arrayBuffer();
-
     return photoArrayBuffer;
   },
-};
-
-export const noEntitiesShape = {
-  type: 'read' as const,
-  schema: { firstThing: '', someItems: [] as { a: number }[] },
-  getFetchKey({ userId }: { userId: string }) {
-    return `/users/${userId}/simple`;
+  {
+    key({ userId }: { userId: string }) {
+      return `/users/${userId}/photo`;
+    },
   },
-  fetch: async ({ userId }: { userId: string }) => {
+);
+
+export const GetPhotoUndefined = GetPhoto.extend({
+  key({ userId }: { userId: string }) {
+    return `/users/${userId}/photo2`;
+  },
+});
+// Currently Endpoint sets schema to null for backwards compat
+// However, we explicitly want to test undefined here to support non-backcompat endpoints
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+GetPhotoUndefined.schema = undefined;
+
+export const GetNoEntities = new Endpoint(
+  async function ({ userId }: { userId: string }) {
     return await (await fetch(`http://test.com/users/${userId}/simple`)).json();
   },
-};
+  {
+    key({ userId }: { userId: string }) {
+      return `/users/${userId}/simple`;
+    },
+    schema: { firstThing: '', someItems: [] as { a: number }[] },
+  },
+);
+
+export const Post = new Endpoint(
+  async function ({ userId }: { userId: string }, body: BodyInit) {
+    return await (
+      await fetch(`http://test.com/users/${userId}/simple`, {
+        method: 'POST',
+        body,
+      })
+    ).json();
+  },
+  {
+    key({ userId }: { userId: string }) {
+      return `/users/${userId}/simple`;
+    },
+    schema: { firstThing: '', someItems: [] as { a: number }[] },
+  },
+);
 
 export function makeErrorBoundary(cb: (error: any) => void) {
   return class ErrorInterceptor extends React.Component<any, { error: any }> {

@@ -1,4 +1,4 @@
-import { CoolerArticleResource } from '__tests__/common';
+import { CoolerArticleResource } from '__tests__/legacy-3';
 
 // relative imports to avoid circular dependency in tsconfig references
 import { makeRenderRestHook, makeCacheProvider } from '../../../../test';

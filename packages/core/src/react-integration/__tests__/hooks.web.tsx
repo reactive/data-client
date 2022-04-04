@@ -3,7 +3,7 @@ import {
   PaginatedArticleResource,
   ArticleResourceWithOtherListUrl,
   StaticArticleResource,
-} from '__tests__/common';
+} from '__tests__/legacy-3';
 import React, { Suspense, useEffect } from 'react';
 import { render } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
