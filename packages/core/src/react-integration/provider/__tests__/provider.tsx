@@ -3,7 +3,7 @@ import { CoolerArticleResource } from '__tests__/common';
 import { RECEIVE_TYPE } from '@rest-hooks/core/actionTypes';
 import React, { useContext, Suspense } from 'react';
 import { act, render } from '@testing-library/react';
-import { NetworkManager, useResource } from '@rest-hooks/core';
+import { NetworkManager, useSuspense } from '@rest-hooks/core';
 import nock from 'nock';
 
 import { DispatchContext, StateContext } from '../../context';
@@ -39,7 +39,7 @@ describe('<CacheProvider />', () => {
 
   it('should warn users about missing Suspense', () => {
     const Component = () => {
-      const article = useResource(CoolerArticleResource.detail(), { id: 5 });
+      const article = useSuspense(CoolerArticleResource.detail(), { id: 5 });
       return <div>{article.title}</div>;
     };
     const tree = (
@@ -56,7 +56,7 @@ describe('<CacheProvider />', () => {
 
   it('should not warn if Suspense is provided', () => {
     const Component = () => {
-      const article = useResource(CoolerArticleResource.detail(), { id: 5 });
+      const article = useSuspense(CoolerArticleResource.detail(), { id: 5 });
       return <div>{article.title}</div>;
     };
     const tree = (

@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
-import { PollingArticleResource } from '__tests__/common';
+import { PollingArticleResource } from '__tests__/legacy-3';
 
 // relative imports to avoid circular dependency in tsconfig references
 import {

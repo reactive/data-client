@@ -4,45 +4,37 @@ import applyUpdatersToResults from '../applyUpdatersToResults';
 
 describe('applyUpdatersToResults', () => {
   const results = {
-    [ArticleResourceWithOtherListUrl.listShape().getFetchKey({})]: ['1', '2'],
+    [ArticleResourceWithOtherListUrl.list().key({})]: ['1', '2'],
   };
 
   it('handles a single updater', () => {
     const newResults = applyUpdatersToResults(results, '3', {
-      [ArticleResourceWithOtherListUrl.listShape().getFetchKey({})]: (
+      [ArticleResourceWithOtherListUrl.list().key({})]: (
         article: string,
         articles: string[] | undefined,
       ) => [article, ...(articles || [])],
     });
     expect(newResults).toStrictEqual({
       ...results,
-      [ArticleResourceWithOtherListUrl.listShape().getFetchKey({})]: [
-        '3',
-        '1',
-        '2',
-      ],
+      [ArticleResourceWithOtherListUrl.list().key({})]: ['3', '1', '2'],
     });
   });
 
   it('handles multiple updaters sequentially', () => {
     const newResults = applyUpdatersToResults(results, '3', {
-      [ArticleResourceWithOtherListUrl.listShape().getFetchKey({})]: (
+      [ArticleResourceWithOtherListUrl.list().key({})]: (
         article: string,
         articles: string[] | undefined,
       ) => [article, ...(articles || [])],
-      [ArticleResourceWithOtherListUrl.otherListShape().getFetchKey({})]: (
+      [ArticleResourceWithOtherListUrl.otherList().key({})]: (
         article: string,
         articles: string[] | undefined,
       ) => [...(articles || []), article],
     });
     expect(newResults).toStrictEqual({
       ...results,
-      [ArticleResourceWithOtherListUrl.listShape().getFetchKey({})]: [
-        '3',
-        '1',
-        '2',
-      ],
-      [ArticleResourceWithOtherListUrl.otherListShape().getFetchKey({})]: ['3'],
+      [ArticleResourceWithOtherListUrl.list().key({})]: ['3', '1', '2'],
+      [ArticleResourceWithOtherListUrl.otherList().key({})]: ['3'],
     });
   });
 });

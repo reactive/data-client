@@ -5,7 +5,7 @@ import {
   UserResource,
   IndexedUserResource,
   photoShape,
-} from '__tests__/common';
+} from '__tests__/legacy-3';
 import { createEntityMeta } from '__tests__/utils';
 import { normalize, NormalizedIndex } from '@rest-hooks/normalizr';
 import { initialState } from '@rest-hooks/core/state/createReducer';
@@ -176,7 +176,7 @@ describe('useDenormalized()', () => {
     describe('no result exists but index is used when using nested schema', () => {
       const pageArticle = PaginatedArticleResource.fromJS({
         ...params,
-        author: 23,
+        author: IndexedUserResource.fromJS({ id: 23, username: 'anne' }),
       });
       const user = IndexedUserResource.fromJS({ id: 23, username: 'anne' });
       const IndexShape = {

@@ -164,8 +164,7 @@ export class TypedArticleResource extends CoolerArticleResource {
     this: T,
   ): RestEndpoint<
     FetchMutate<
-      { id: number },
-      Partial<AbstractInstanceType<T>>,
+      [{ id: number }, Partial<AbstractInstanceType<T>>],
       Partial<AbstractInstanceType<T>>
     >,
     SchemaDetail<AbstractInstanceType<T>>,
@@ -177,7 +176,7 @@ export class TypedArticleResource extends CoolerArticleResource {
   static detail<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    FetchGet<{ id: number }, Partial<AbstractInstanceType<T>>>,
+    FetchGet<[{ id: number }], Partial<AbstractInstanceType<T>>>,
     SchemaDetail<AbstractInstanceType<T>>,
     undefined
   > {
@@ -187,7 +186,7 @@ export class TypedArticleResource extends CoolerArticleResource {
   static list<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    RestFetch<any, undefined, Partial<AbstractInstanceType<T>>[]>,
+    RestFetch<[any], Partial<AbstractInstanceType<T>>[]>,
     SchemaList<AbstractInstanceType<T>>,
     undefined
   > {
@@ -225,8 +224,7 @@ export class FutureArticleResource extends CoolerArticleResource {
     this: T,
   ): RestEndpoint<
     FetchMutate<
-      { id: number },
-      Partial<AbstractInstanceType<T>>,
+      [{ id: number }, Partial<AbstractInstanceType<T>>],
       Partial<AbstractInstanceType<T>>
     >,
     SchemaDetail<AbstractInstanceType<T>>,

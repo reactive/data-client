@@ -5,7 +5,7 @@ import {
   photoShape,
   noEntitiesShape,
   ArticleTimedResource,
-} from '__tests__/common';
+} from '__tests__/legacy-3';
 import { createEntityMeta } from '__tests__/utils';
 import { State, ReadShape } from '@rest-hooks/core';
 import { initialState } from '@rest-hooks/core/state/createReducer';

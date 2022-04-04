@@ -66,11 +66,11 @@ export class VisSettings extends Resource implements Vis {
   static partialUpdate<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    FetchMutate<{ id: number }, Partial<Exclude<Vis, 'updatedAt'>>>,
+    FetchMutate<[{ id: number }, Partial<Exclude<Vis, 'updatedAt'>>]>,
     T,
     true
   > {
-    const detail: RestEndpoint<FetchGet, VisSettings> = this.detail() as any;
+    const detail = (this as unknown as typeof VisSettings).detail();
     const partial = super.partialUpdate();
     return partial.extend({
       getOptimisticResponse(snap, params, body) {
@@ -86,21 +86,20 @@ export class VisSettings extends Resource implements Vis {
     });
   }
 
-  static incrementCols(): RestEndpoint<
-    (id: number) => Promise<any>,
-    typeof VisSettings,
-    true
-  > {
-    const detail: RestEndpoint<FetchGet, VisSettings> = this.detail() as any;
+  static incrementCols<T extends typeof VisSettings>(
+    this: T,
+  ): RestEndpoint<(id: number) => Promise<any>, T, true> {
+    const detail = this.detail();
 
     return this.endpointMutate().extend({
       name: 'incrementCols',
       url: (id: number) => `${this.urlRoot}{id}/incCol`,
       getOptimisticResponse(snap, id: number) {
         const { data } = snap.getResponse(detail, { id });
+        const numCols = data ? data.numCols + 1 : 0;
         return {
           ...data,
-          numCols: data.numCols + 1,
+          numCols,
           updatedAt: snap.fetchedAt,
         };
       },
@@ -174,10 +173,8 @@ export class ArticleResource extends Resource {
   static partialUpdate<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<FetchMutate, T, true> {
-    const detail = this.detail();
     return super.partialUpdate().extend({
       getOptimisticResponse: (snap, params, body) => ({
-        //...snap.getResponse(detail, params),
         id: params.id,
         ...body,
       }),
@@ -288,8 +285,7 @@ export class TypedArticleResource extends CoolerArticleResource {
     this: T,
   ): RestEndpoint<
     FetchMutate<
-      { id: number },
-      Partial<AbstractInstanceType<T>>,
+      [{ id: number }, Partial<AbstractInstanceType<T>>],
       Partial<AbstractInstanceType<T>>
     >,
     SchemaDetail<AbstractInstanceType<T>>,
@@ -301,7 +297,7 @@ export class TypedArticleResource extends CoolerArticleResource {
   static detail<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    FetchGet<{ id: number }, Partial<AbstractInstanceType<T>>>,
+    FetchGet<[{ id: number }], Partial<AbstractInstanceType<T>>>,
     SchemaDetail<AbstractInstanceType<T>>,
     undefined
   > {
@@ -311,7 +307,7 @@ export class TypedArticleResource extends CoolerArticleResource {
   static list<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    RestFetch<any, undefined, Partial<AbstractInstanceType<T>>[]>,
+    FetchGet<[any], Partial<AbstractInstanceType<T>>[]>,
     SchemaList<AbstractInstanceType<T>>,
     undefined
   > {
@@ -349,8 +345,7 @@ export class FutureArticleResource extends CoolerArticleResource {
     this: T,
   ): RestEndpoint<
     FetchMutate<
-      { id: number },
-      Partial<AbstractInstanceType<T>>,
+      [{ id: number }, Partial<AbstractInstanceType<T>>],
       Partial<AbstractInstanceType<T>>
     >,
     SchemaDetail<AbstractInstanceType<T>>,

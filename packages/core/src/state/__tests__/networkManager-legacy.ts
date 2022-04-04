@@ -1,10 +1,10 @@
-import { ArticleResource } from '__tests__/common';
+import { ArticleResource } from '__tests__/legacy-3';
 import { Controller, Middleware } from '@rest-hooks/core';
 
 import NetworkManager from '../NetworkManager';
 import { FetchAction } from '../../types';
 import { RECEIVE_TYPE } from '../../actionTypes';
-import createFetch from '../../controller/createFetch';
+import { createFetch } from '../actions';
 import { initialState } from '../createReducer';
 
 describe('NetworkManager', () => {
@@ -49,71 +49,68 @@ describe('NetworkManager', () => {
   });
 
   describe('middleware', () => {
-    const detailEndpoint = ArticleResource.detail().extend({
-      fetch: (v: { id: number }) => Promise.resolve({ id: 5, title: 'hi' }),
-    });
-    const fetchResolveAction = createFetch(detailEndpoint, {
-      args: [{ id: 5 }],
+    const detailShape = ArticleResource.detailShape();
+    detailShape.fetch = () => Promise.resolve({ id: 5, title: 'hi' });
+    const fetchResolveAction = createFetch(detailShape, {
+      params: { id: 5 },
+      throttle: false,
     });
 
-    const detailWithUpdaterEndpoint = detailEndpoint.extend({
-      update(id: string, v: { id: number }) {
-        const updates = {
-          [ArticleResource.list().key({})]: (oldResults = []) => [
-            ...(oldResults || []),
-            id,
-          ],
-        };
-        return updates;
+    const updaters = {
+      [ArticleResource.listShape().getFetchKey({})]:
+        () => (result: string[], oldResults: string[] | undefined) =>
+          [...(oldResults || []), result] as any,
+    };
+    const fetchReceiveWithUpdatersAction: FetchAction = {
+      ...fetchResolveAction,
+      meta: {
+        ...fetchResolveAction.meta,
+        updaters,
       },
-    });
-    const fetchReceiveWithUpdatersAction: FetchAction = createFetch(
-      detailWithUpdaterEndpoint,
-      {
-        args: [{ id: 5 }],
-      },
-    );
+    };
 
-    const updateShape = ArticleResource.update().extend({
-      fetch: (params: any, body: any) => Promise.resolve(body),
-      update(id: string, params: any, body: any) {
-        const updates = {
-          [ArticleResource.list().key({})]: (oldResults = []) => [
-            ...(oldResults || []),
-            id,
-          ],
-        };
-        return updates;
-      },
-    });
+    const updateShape = ArticleResource.updateShape();
+    updateShape.fetch = (params, body) => Promise.resolve(body);
     const fetchRpcWithUpdatersAction = createFetch(updateShape, {
-      args: [{ id: 5 }, { id: 5, title: 'hi' }],
+      params: { id: 5 },
+      body: { id: 5, title: 'hi' },
+      throttle: false,
+      updateParams: [
+        [
+          ArticleResource.listShape(),
+          {},
+          () => (result: string[], oldResults: string[] | undefined) =>
+            [...(oldResults || []), result],
+        ],
+      ],
     });
-    const partialUpdateShape = ArticleResource.partialUpdate().extend({
-      fetch: (params, body) => Promise.resolve(body),
-      update(id: string, params: any, body: any) {
-        const updates = {
-          [ArticleResource.list().key({})]: (oldResults = []) => [
-            ...(oldResults || []),
-            id,
-          ],
-        };
-        return updates;
-      },
-    });
+    const partialUpdateShape = ArticleResource.partialUpdateShape();
+    partialUpdateShape.fetch = (params, body) => Promise.resolve(body);
     const fetchRpcWithUpdatersAndOptimisticAction = createFetch(
       partialUpdateShape,
       {
-        args: [{ id: 5 }, { id: 5, title: 'hi' }],
+        params: { id: 5 },
+        body: { id: 5, title: 'hi' },
+        throttle: false,
+        updateParams: [
+          [
+            ArticleResource.listShape(),
+            {},
+            () => (result: string[], oldResults: string[] | undefined) =>
+              [...(oldResults || []), result],
+          ],
+        ],
       },
     );
 
-    const errorUpdateShape = ArticleResource.update();
+    const errorUpdateShape = ArticleResource.updateShape();
     errorUpdateShape.fetch = () => Promise.reject(new Error('Failed'));
     const fetchRejectAction = createFetch(errorUpdateShape, {
-      args: [{ id: 5 }, { id: 5, title: 'hi' }],
+      params: { id: 5 },
+      body: { id: 5, title: 'hi' },
+      throttle: false,
     });
-    (fetchRejectAction.meta.promise as any).catch((e: unknown) => {});
+    (fetchRejectAction.meta.promise as any).catch(e => {});
 
     let NM: NetworkManager;
     let middleware: Middleware;
@@ -134,12 +131,8 @@ describe('NetworkManager', () => {
 
       const data = await fetchResolveAction.payload();
 
-      // mutations resolve before dispatch, so we must wait for next tick to see receive
-      await new Promise(resolve => setTimeout(resolve, 0));
-
       const action = {
         type: RECEIVE_TYPE,
-        endpoint: fetchResolveAction.endpoint,
         payload: data,
         meta: {
           schema: fetchResolveAction.meta.schema,
@@ -149,7 +142,6 @@ describe('NetworkManager', () => {
           date: expect.any(Number),
           expiresAt: expect.any(Number),
           fetchedAt: expect.any(Number),
-          errorPolicy: expect.any(Function),
         },
       };
       expect(dispatch).toHaveBeenCalledWith(action);
@@ -166,22 +158,20 @@ describe('NetworkManager', () => {
 
       const data = await fetchReceiveWithUpdatersAction.payload();
 
-      // mutations resolve before dispatch, so we must wait for next tick to see receive
-      await new Promise(resolve => setTimeout(resolve, 0));
-
       const action = {
         type: RECEIVE_TYPE,
-        endpoint: fetchReceiveWithUpdatersAction.endpoint,
         payload: data,
         meta: {
-          update: expect.any(Function),
+          updaters: {
+            [ArticleResource.listShape().getFetchKey({})]: expect.any(Function),
+          },
           args: fetchReceiveWithUpdatersAction.meta.args,
+          update: fetchReceiveWithUpdatersAction.meta.update,
           schema: fetchReceiveWithUpdatersAction.meta.schema,
           key: fetchReceiveWithUpdatersAction.meta.key,
           date: expect.any(Number),
           expiresAt: expect.any(Number),
           fetchedAt: expect.any(Number),
-          errorPolicy: expect.any(Function),
         },
       };
       expect(dispatch).toHaveBeenCalledWith(action);
@@ -198,14 +188,11 @@ describe('NetworkManager', () => {
 
       const data = await fetchRpcWithUpdatersAction.payload();
 
-      // mutations resolve before dispatch, so we must wait for next tick to see receive
-      await new Promise(resolve => setTimeout(resolve, 0));
-
       const action = {
         type: RECEIVE_TYPE,
-        endpoint: fetchRpcWithUpdatersAction.endpoint,
         payload: data,
         meta: {
+          updaters: undefined,
           args: fetchRpcWithUpdatersAction.meta.args,
           update: expect.any(Function),
           schema: fetchRpcWithUpdatersAction.meta.schema,
@@ -213,7 +200,6 @@ describe('NetworkManager', () => {
           date: expect.any(Number),
           expiresAt: expect.any(Number),
           fetchedAt: expect.any(Number),
-          errorPolicy: expect.any(Function),
         },
       };
       expect(dispatch).toHaveBeenCalledWith(action);
@@ -231,13 +217,11 @@ describe('NetworkManager', () => {
       const data = await fetchRpcWithUpdatersAndOptimisticAction.payload();
 
       expect(next).toHaveBeenCalled();
-      // mutations resolve before dispatch, so we must wait for next tick to see receive
-      await new Promise(resolve => setTimeout(resolve, 0));
       expect(dispatch).toHaveBeenCalledWith({
         type: RECEIVE_TYPE,
-        endpoint: fetchRpcWithUpdatersAndOptimisticAction.endpoint,
         payload: data,
         meta: {
+          updaters: undefined,
           args: fetchRpcWithUpdatersAndOptimisticAction.meta.args,
           update: expect.any(Function),
           schema: fetchRpcWithUpdatersAndOptimisticAction.meta.schema,
@@ -245,7 +229,6 @@ describe('NetworkManager', () => {
           date: expect.any(Number),
           expiresAt: expect.any(Number),
           fetchedAt: expect.any(Number),
-          errorPolicy: expect.any(Function),
         },
       });
     });
@@ -255,7 +238,10 @@ describe('NetworkManager', () => {
 
       middleware({ dispatch, getState, controller })(() => Promise.resolve())({
         ...fetchResolveAction,
-        endpoint: detailEndpoint.extend({ dataExpiryLength: 314 }),
+        meta: {
+          ...fetchResolveAction.meta,
+          options: { dataExpiryLength: 314 },
+        },
       });
 
       await fetchResolveAction.payload();
@@ -270,14 +256,17 @@ describe('NetworkManager', () => {
 
       middleware({ dispatch, getState, controller })(() => Promise.resolve())({
         ...fetchResolveAction,
-        endpoint: detailEndpoint.extend({ dataExpiryLength: undefined }),
+        meta: {
+          ...fetchResolveAction.meta,
+          options: { dataExpiryLength: undefined },
+        },
       });
 
       await fetchResolveAction.payload();
 
       expect(dispatch).toHaveBeenCalled();
       const { meta } = dispatch.mock.calls[0][0];
-      expect(meta.expiresAt - meta.date).toBe(60000);
+      expect(meta.expiresAt - meta.date).toBe(42);
     });
     it('should handle fetch actions and dispatch on error', async () => {
       const next = jest.fn();
