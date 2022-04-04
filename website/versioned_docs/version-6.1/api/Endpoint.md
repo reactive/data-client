@@ -1,6 +1,7 @@
 ---
 title: Endpoint
 ---
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
@@ -33,7 +34,9 @@ export interface EndpointInterface<
 <TabItem value="Class">
 
 ```typescript
-class Endpoint<F extends (...args: any) => Promise<any>> implements EndpointInterface {
+class Endpoint<F extends (...args: any) => Promise<any>>
+  implements EndpointInterface
+{
   constructor(fetchFunction: F, options: EndpointOptions);
 
   key(...args: Parameters<F>): string;
@@ -186,6 +189,7 @@ type UpdateFunction<
   Updaters extends Record<string, any> = Record<string, any>,
 > = (
   source: ResultEntry<Source>,
+  ...args: Parameters<Source>
 ) => { [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K] };
 ```
 
@@ -280,7 +284,6 @@ const UserDetail = new Endpoint(
 </TabItem>
 <TabItem value="With Schema">
 
-
 ```typescript
 import { Endpoint } from '@rest-hooks/endpoint';
 import { Entity } from 'rest-hooks';
@@ -355,7 +358,6 @@ console.log(user);
 - [Pagination](../guides/pagination)
 - [Mocking unfinished endpoints](../guides/mocking-unfinished.md)
 - [Optimistic updates](../guides/optimistic-updates)
-
 
 ## Motivation
 

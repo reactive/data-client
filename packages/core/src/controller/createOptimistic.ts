@@ -17,7 +17,7 @@ export default function createOptimistic<
     args: readonly [...Parameters<E>];
     fetchedAt: number;
   },
-): OptimisticAction {
+): OptimisticAction<E> {
   const expiryLength: number = endpoint.dataExpiryLength ?? 60000;
   /* istanbul ignore next */
   if (process.env.NODE_ENV === 'development' && expiryLength < 0) {
@@ -37,9 +37,9 @@ export default function createOptimistic<
   if (endpoint.update) meta.update = endpoint.update;
   if (endpoint.errorPolicy) meta.errorPolicy = endpoint.errorPolicy;
 
-  const action: OptimisticAction = {
+  const action: OptimisticAction<E> = {
     type: OPTIMISTIC_TYPE,
-    endpoint: endpoint,
+    endpoint,
     meta,
   };
   return action;
