@@ -7,8 +7,7 @@ import nock from 'nock';
 import { normalize, schema } from '@rest-hooks/normalizr';
 
 import Resource from '../Resource';
-import SimpleResource from '../SimpleResource';
-import { FetchShape } from '../legacy';
+import BaseResource from '../BaseResource';
 
 function onError(e: any) {
   e.preventDefault();
@@ -66,6 +65,22 @@ describe('Resource', () => {
 
   it('should not init Resource itself', () => {
     expect(() => Resource.fromJS({})).toThrow();
+  });
+
+  it('should throw with no urlRoot defined', () => {
+    class NoUrlResource extends Resource {
+      readonly id: string = '';
+      pk() {
+        return this.id;
+      }
+    }
+    expect(() => NoUrlResource.key).toThrowErrorMatchingInlineSnapshot(`
+      "urlRoot is not defined for Resource \\"NoUrlResource\\"
+
+        Resources require a 'static urlRoot' or 'static get key()' defined.
+        (See https://resthooks.io/docs/api/resource#static-urlroot-string)
+      "
+    `);
   });
 
   it('should work with `url` member', () => {
@@ -126,80 +141,6 @@ describe('Resource', () => {
     CoolerArticleResource.fromJS({ id: 5 }),
     CoolerArticleResource.fromJS({}),
   ];
-
-  describe('mergeRecord()', () => {
-    const c = CoolerArticleResource.mergeRecord(coolA, coolB);
-    it('works with partial', () => {
-      expect(c.things).toBeDefined();
-      expect(c.id).toBe(5);
-      expect(c.content).toBe('');
-      expect(c.title).toBe('great');
-      expect(c).toMatchInlineSnapshot(`
-        CoolerArticleResource {
-          "author": null,
-          "content": "",
-          "id": 5,
-          "tags": Array [],
-          "title": "great",
-        }
-      `);
-    });
-    it('works with definedObjects()', () => {
-      expect(c).toMatchInlineSnapshot(`
-        CoolerArticleResource {
-          "author": null,
-          "content": "",
-          "id": 5,
-          "tags": Array [],
-          "title": "great",
-        }
-      `);
-    });
-    it('does nothing with empty arg', () => {
-      expect(CoolerArticleResource.mergeRecord(c, coolC)).toEqual(c);
-    });
-  });
-
-  describe('hasDefined()', () => {
-    it('works ', () => {
-      expect(CoolerArticleResource.hasDefined(coolA, 'title')).toBe(true);
-      expect(CoolerArticleResource.hasDefined(coolA, 'author')).toBe(false);
-    });
-  });
-
-  describe('toObjectDefined()', () => {
-    it('works', () => {
-      expect(CoolerArticleResource.toObjectDefined(coolA))
-        .toMatchInlineSnapshot(`
-        Object {
-          "id": 5,
-          "title": "great",
-        }
-      `);
-      expect(CoolerArticleResource.toObjectDefined(coolB))
-        .toMatchInlineSnapshot(`
-        Object {
-          "id": 5,
-        }
-      `);
-    });
-  });
-
-  describe('keysDefined()', () => {
-    it('works', () => {
-      expect(CoolerArticleResource.keysDefined(coolA)).toMatchInlineSnapshot(`
-        Array [
-          "title",
-          "id",
-        ]
-      `);
-      expect(CoolerArticleResource.keysDefined(coolB)).toMatchInlineSnapshot(`
-        Array [
-          "id",
-        ]
-      `);
-    });
-  });
 
   describe('listUrl', () => {
     it('should listUrl with an arg', () => {
@@ -301,28 +242,6 @@ describe('Resource', () => {
         ])
         .intercept('/article-cooler/5', 'DELETE')
         .reply(200, {});
-    });
-
-    it('should throw with SimpleResource', () => {
-      expect(() =>
-        SimpleResource.fetch(
-          CoolerArticleResource.url({
-            id: payload.id,
-          }),
-          { method: 'GET' },
-        ),
-      ).toThrow();
-    });
-
-    it('fetchResponse() should throw with SimpleResource', () => {
-      expect(() =>
-        SimpleResource.fetchResponse(
-          CoolerArticleResource.url({
-            id: payload.id,
-          }),
-          { method: 'GET' },
-        ),
-      ).toThrow();
     });
 
     it('should GET', async () => {

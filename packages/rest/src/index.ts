@@ -1,8 +1,7 @@
 import Resource from '@rest-hooks/rest/Resource';
-import SimpleResource from '@rest-hooks/rest/SimpleResource';
+import BaseResource from '@rest-hooks/rest/BaseResource';
 
-export { Resource, SimpleResource };
-export { default as EntityRecord } from '@rest-hooks/rest/EntityRecord';
+export { Resource, BaseResource };
 
 export type {
   RestEndpoint,
