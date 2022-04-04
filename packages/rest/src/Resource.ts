@@ -1,66 +1,122 @@
-import SimpleResource from '@rest-hooks/rest/SimpleResource';
-
-class NetworkError extends Error {
-  declare status: number;
-  declare response: Response;
-  name = 'NetworkError';
-
-  constructor(response: Response) {
-    super(
-      response.statusText ||
-        /* istanbul ignore next */ `Network response not 'ok': ${response.status}`,
-    );
-    this.status = response.status;
-    this.response = response;
-  }
-}
+import type {
+  SchemaDetail,
+  SchemaList,
+  AbstractInstanceType,
+} from '@rest-hooks/endpoint';
+import { schema } from '@rest-hooks/endpoint';
+import BaseResource from '@rest-hooks/rest/BaseResource';
+import type { RestEndpoint } from '@rest-hooks/rest/types';
 
 /**
  * Represents an entity to be retrieved from a server.
  * Typically 1:1 with a url endpoint.
  * @see https://resthooks.io/docs/api/resource
  */
-export default abstract class Resource extends SimpleResource {
-  /** Perform network request and resolve with HTTP Response */
-  static fetchResponse(input: RequestInfo, init: RequestInit) {
-    let options: RequestInit = init;
-    if (!options.body || typeof options.body === 'string') {
-      options = {
-        ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
-      };
-    }
-    return fetch(input, options)
-      .then(response => {
-        if (!response.ok) {
-          throw new NetworkError(response);
-        }
-        return response;
-      })
-      .catch(error => {
-        // ensure CORS, network down, and parse errors are still caught by NetworkErrorBoundary
-        if (error instanceof TypeError) {
-          (error as any).status = 400;
-        }
-        throw error;
-      });
+export default abstract class Resource extends BaseResource {
+  /** Endpoint to get a single entity */
+  static detail<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    (this: RestEndpoint, params: any) => Promise<any>,
+    SchemaDetail<AbstractInstanceType<T>>,
+    undefined
+  > {
+    const endpoint = this.endpoint();
+    return this.memo('#detail', () =>
+      endpoint.extend({
+        schema: this,
+      }),
+    );
   }
 
-  /** Perform network request and resolve with json body */
-  static fetch(input: RequestInfo, init: RequestInit) {
-    return this.fetchResponse(input, init).then((response: Response) => {
-      if (
-        !response.headers.get('content-type')?.includes('json') ||
-        response.status === 204
-      )
-        return response.text();
-      return response.json().catch(error => {
-        error.status = 400;
-        throw error;
-      });
-    });
+  /** Endpoint to get a list of entities */
+  static list<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    (this: RestEndpoint, params: any) => Promise<any>,
+    SchemaList<AbstractInstanceType<T>>,
+    undefined
+  > {
+    const endpoint = this.endpoint();
+    return this.memo('#list', () =>
+      endpoint.extend({
+        schema: [this],
+        url: this.listUrl.bind(this),
+      }),
+    );
+  }
+
+  /** Endpoint to create a new entity (post) */
+  static create<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    (this: RestEndpoint, params: any, body: any) => Promise<any>,
+    SchemaDetail<AbstractInstanceType<T>>,
+    true
+  > {
+    //Partial<AbstractInstanceType<T>>
+    const endpoint = this.endpointMutate();
+    return this.memo('#create', () =>
+      endpoint.extend({
+        schema: this,
+        url: this.listUrl.bind(this),
+      }),
+    );
+  }
+
+  /** Endpoint to update an existing entity (put) */
+  static update<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    (this: RestEndpoint, params: any, body: any) => Promise<any>,
+    SchemaDetail<AbstractInstanceType<T>>,
+    true
+  > {
+    const endpoint = this.endpointMutate();
+    return this.memo('#update', () =>
+      endpoint.extend({
+        method: 'PUT',
+        schema: this,
+      }),
+    );
+  }
+
+  /** Endpoint to update a subset of fields of an existing entity (patch) */
+  static partialUpdate<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    (this: RestEndpoint, params: any, body: any) => Promise<any>,
+    SchemaDetail<AbstractInstanceType<T>>,
+    true
+  > {
+    const endpoint = this.endpointMutate();
+    return this.memo('#partialUpdate', () =>
+      endpoint.extend({
+        method: 'PATCH',
+        schema: this,
+      }),
+    );
+  }
+
+  /** Endpoint to delete an entity (delete) */
+  static delete<T extends typeof Resource>(
+    this: T,
+  ): RestEndpoint<
+    (this: RestEndpoint, params: any) => Promise<any>,
+    schema.Delete<T>,
+    true
+  > {
+    const endpoint = this.endpointMutate();
+    return this.memo('#delete', () =>
+      endpoint.extend({
+        fetch(this: RestEndpoint, params: any) {
+          return endpoint.fetch
+            .call(this, params)
+            .then(res => (res && Object.keys(res).length ? res : params));
+        },
+        method: 'DELETE',
+        schema: new schema.Delete(this),
+      }),
+    );
   }
 }
