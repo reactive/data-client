@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Resource nested schema merging should match snapshot 1`] = `
+Object {
+  "entities": Object {
+    "http://test.com/article-cooler/": Object {
+      "3": Object {
+        "author": "23",
+        "content": "whatever",
+        "id": 3,
+        "title": "the next time",
+      },
+      "5": Object {
+        "author": "23",
+        "content": "whatever",
+        "id": 5,
+        "tags": Array [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      },
+    },
+    "http://test.com/user/": Object {
+      "23": Object {
+        "email": "bob@bob.com",
+        "id": 23,
+        "username": "charles",
+      },
+    },
+  },
+  "entityMeta": Any<Object>,
+  "indexes": Object {},
+  "result": Array [
+    "5",
+    "3",
+  ],
+}
+`;
+
+exports[`Resource nested schema should throw a custom error if data does not include pk 1`] = `
+"Missing usable primary key when normalizing response.
+
+  This is likely due to a malformed response.
+  Try inspecting the network response or fetch() return value.
+  Or use debugging tools: https://resthooks.io/docs/guides/debugging
+  Learn more about schemas: https://resthooks.io/docs/api/schema
+
+  Entity: CoolerArticleResource
+  Value (processed): {
+  \\"content\\": \\"hi\\"
+}
+  "
+`;

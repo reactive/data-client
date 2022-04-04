@@ -11,6 +11,7 @@ const baseConfig = {
     'packages/graphql',
     'packages/ssr',
     'packages/legacy/src/resource',
+    'packages/legacy/src/rest-3',
     'packages/core/src/react-integration/hooks/hasUsableData',
   ],
   testURL: 'http://localhost',
