@@ -36,7 +36,7 @@
     "raw-loader": "^4.0.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-json-tree": "^0.16.1",
+    "react-json-tree": "^0.16.2",
     "rest-hooks": "file:../packages/rest-hooks",
     "typescript": "^4.6.3"
   },
