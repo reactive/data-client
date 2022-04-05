@@ -95,14 +95,14 @@
   resolved "https://registry.yarnpkg.com/@anansi/ts-utils/-/ts-utils-0.2.5.tgz#bd2270fb1f96a26dbcf3a9a61a6a6b36652e75c6"
   integrity sha512-m6jFCF3Y6Tcd06hmq1pDqOCHGpe30QO9FcCblYD0ohhl5olcyq+f2DbKWPQSeddzHdHxDUpZ9OG7xwHv4xtmUw==
 
-"@anansi/webpack-config@11.3.5":
-  version "11.3.5"
-  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.3.5.tgz#e76eb36be00e4677027e198470d3ac3666722bd6"
-  integrity sha512-r2u3/VRg5CVIoS951T10Sc5Wsiv1dEAygzbkjPlQSVZ4J9vhLZ9Yb16OSHtyuFG4zWInT7mO2S17GybxHkUsBA==
+"@anansi/webpack-config@11.3.7":
+  version "11.3.7"
+  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.3.7.tgz#b364b9786735afa6ab89d5b4a1ed5c9cd8a92cd8"
+  integrity sha512-OBd6in87sPYFugwFtlceIMLq7oRAIHKhWhmtu4PMOlNBw1eE1Gyc4+o4lOukVC8RU/Jdy/bLsIudNlqSY/3Zuw==
   dependencies:
     "@babel/runtime" "^7.17.2"
     "@ntucker/linaria-webpack5-loader" "3.0.0-beta.17"
-    "@pmmmwh/react-refresh-webpack-plugin" "^0.5.4"
+    "@pmmmwh/react-refresh-webpack-plugin" "^0.5.5"
     "@svgr/webpack" "^6.2.1"
     "@types/webpack-bundle-analyzer" "^4.4.1"
     "@vue/preload-webpack-plugin" "^2.0.0"
@@ -146,7 +146,7 @@
     react-dev-utils "^12.0.0"
     react-error-overlay "6.0.9"
     readable-stream "^3.6.0"
-    sass "^1.49.9"
+    sass "^1.49.11"
     sass-loader "^12.6.0"
     sass-resources-loader "^2.2.4"
     semver "^7.3.5"
@@ -166,7 +166,7 @@
     vm-browserify "^1.1.2"
     webpack-bundle-analyzer "^4.5.0"
     webpack-node-externals "^3.0.0"
-    webpack-remove-empty-scripts "^0.7.3"
+    webpack-remove-empty-scripts "^0.8.0"
     webpack-stats-plugin "^1.0.3"
     worker-loader "^3.0.8"
 
@@ -3374,10 +3374,10 @@
   dependencies:
     "@octokit/openapi-types" "^11.0.0"
 
-"@pmmmwh/react-refresh-webpack-plugin@^0.5.4":
-  version "0.5.4"
-  resolved "https://registry.yarnpkg.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.5.4.tgz#df0d0d855fc527db48aac93c218a0bf4ada41f99"
-  integrity sha512-zZbZeHQDnoTlt2AF+diQT0wsSXpvWiaIOZwBRdltNFhG1+I3ozyaw7U/nBiUwyJ0D+zwdXp0E3bWOl38Ag2BMw==
+"@pmmmwh/react-refresh-webpack-plugin@^0.5.5":
+  version "0.5.5"
+  resolved "https://registry.yarnpkg.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.5.5.tgz#e77aac783bd079f548daa0a7f080ab5b5a9741ca"
+  integrity sha512-RbG7h6TuP6nFFYKJwbcToA1rjC1FyPg25NR2noAZ0vKI+la01KTSRPkuVPE+U88jXv7javx2JHglUcL1MHcshQ==
   dependencies:
     ansi-html-community "^0.0.8"
     common-path-prefix "^3.0.0"
@@ -15655,10 +15655,10 @@ sass-resources-loader@^2.2.4:
     glob "^7.1.6"
     loader-utils "^2.0.0"
 
-sass@^1.49.9:
-  version "1.49.9"
-  resolved "https://registry.yarnpkg.com/sass/-/sass-1.49.9.tgz#b15a189ecb0ca9e24634bae5d1ebc191809712f9"
-  integrity sha512-YlYWkkHP9fbwaFRZQRXgDi3mXZShslVmmo+FVK3kHLUELHHEYrCmL1x6IUjC7wLS6VuJSAFXRQS/DxdsC4xL1A==
+sass@^1.49.11:
+  version "1.49.11"
+  resolved "https://registry.yarnpkg.com/sass/-/sass-1.49.11.tgz#1ffeb77faeed8b806a2a1e021d7c9fd3fc322cb7"
+  integrity sha512-wvS/geXgHUGs6A/4ud5BFIWKO1nKd7wYIGimDk4q4GFkJicILActpv9ueMT4eRGSsp1BdKHuw1WwAHXbhsJELQ==
   dependencies:
     chokidar ">=3.0.0 <4.0.0"
     immutable "^4.0.0"
@@ -17756,10 +17756,10 @@ webpack-node-externals@^3.0.0:
   resolved "https://registry.yarnpkg.com/webpack-node-externals/-/webpack-node-externals-3.0.0.tgz#1a3407c158d547a9feb4229a9e3385b7b60c9917"
   integrity sha512-LnL6Z3GGDPht/AigwRh2dvL9PQPFQ8skEpVrWZXLWBYmqcaojHNN0onvHzie6rq7EWKrrBfPYqNEzTJgiwEQDQ==
 
-webpack-remove-empty-scripts@^0.7.3:
-  version "0.7.3"
-  resolved "https://registry.yarnpkg.com/webpack-remove-empty-scripts/-/webpack-remove-empty-scripts-0.7.3.tgz#f57b9823f5bd7016b44a4990f9257defd018513d"
-  integrity sha512-yipqb25A0qtH7X9vKt6yihwyYkTtSlRiDdBb2QsyrkqGM3hpfAcfOO1lYDef9HQUNm3s8ojmorbNg32XXX6FYg==
+webpack-remove-empty-scripts@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/webpack-remove-empty-scripts/-/webpack-remove-empty-scripts-0.8.0.tgz#204f9db03fb0fcf09843be51340cb0d12b706bc6"
+  integrity sha512-B8hRdGtwaCaZzJj8t838oNTtSi+wLJ//74X1HHqrKW+LP8WK2KzGEEkW662XWik/jqUeM6XQZMmXS/pFt64cvg==
   dependencies:
     ansis "^1.3.4"
 
