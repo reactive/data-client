@@ -90,7 +90,8 @@ const addEntities =
         const useIncoming =
           // we may have in store but not in meta; so this existance check is still important
           !inStoreMeta ||
-          (schema.useIncoming
+          // useIncoming should not be used with legacy optimistic
+          (schema.useIncoming && meta.fetchedAt
             ? schema.useIncoming(
                 inStoreMeta,
                 meta,

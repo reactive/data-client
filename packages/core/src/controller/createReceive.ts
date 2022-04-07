@@ -39,7 +39,7 @@ export default function createReceive<
   endpoint: E,
   {
     args,
-    fetchedAt = 0,
+    fetchedAt,
     response,
     error = false,
   }: {
@@ -59,7 +59,7 @@ export default function createReceive<
   const now = Date.now();
   const meta: ReceiveAction['meta'] = {
     args,
-    fetchedAt,
+    fetchedAt: fetchedAt ?? now,
     date: now,
     expiresAt: now + expiryLength,
     // For legacy support; TODO: remove

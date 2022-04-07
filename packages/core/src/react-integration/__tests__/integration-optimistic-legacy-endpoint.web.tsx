@@ -271,11 +271,11 @@ describe.each([
           return { put, article };
         },
         {
-          results: [
+          initialFixtures: [
             {
-              request: CoolerArticleResource.detail(),
-              params,
-              result: payload,
+              endpoint: CoolerArticleResource.detail(),
+              args: [params],
+              response: payload,
             },
           ],
         },
