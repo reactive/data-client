@@ -1,9 +1,4 @@
-import {
-  DispatchContext,
-  ReceiveAction,
-  actionTypes,
-  ActionTypes,
-} from '@rest-hooks/core';
+import { DispatchContext, actionTypes, ActionTypes } from '@rest-hooks/core';
 import {
   Context,
   createContext,
@@ -12,7 +7,11 @@ import {
   useMemo,
 } from 'react';
 import React from 'react';
-import { Fixture, actionFromFixture } from '@rest-hooks/test/mockState';
+import {
+  Fixture,
+  actionFromFixture,
+  dispatchFixture,
+} from '@rest-hooks/test/mockState';
 import * as RestHooksCore from '@rest-hooks/core';
 
 const ControllerContext: Context<any> =
@@ -35,32 +34,49 @@ export default function MockResolver({
   fixtures,
   silenceMissing,
 }: Props) {
-  const fetchToReceiveAction = useMemo(() => {
-    const actionMap: Record<string, ReceiveAction> = {};
+  const controller = useContext(ControllerContext);
+  const dis = useContext(DispatchContext);
+  const dispatch = controller.dispatch ?? dis;
+
+  const fixtureMap = useMemo(() => {
+    const map: Record<string, Fixture> = {};
     for (const fixture of fixtures) {
-      const { key, action } = actionFromFixture(fixture);
-      actionMap[key] = action;
+      const key =
+        'endpoint' in fixture
+          ? fixture.endpoint.key(...fixture.args)
+          : fixture.request.getFetchKey(fixture.params);
+      map[key] = fixture;
     }
-    return actionMap;
+    return map;
   }, [fixtures]);
 
-  const controller = useContext(ControllerContext);
-  const dispatch = useContext(DispatchContext);
   const dispatchInterceptor = useCallback(
     (action: ActionTypes) => {
       if (action.type === actionTypes.FETCH_TYPE) {
         const { key, resolve, reject } = action.meta;
-        if (Object.prototype.hasOwnProperty.call(fetchToReceiveAction, key)) {
+        // TODO(breaking): remove support for Date type in 'Receive' action
+        const createdAt =
+          typeof action.meta.createdAt !== 'number'
+            ? action.meta.createdAt.getTime()
+            : action.meta.createdAt;
+        if (Object.prototype.hasOwnProperty.call(fixtureMap, key)) {
           // All updates must be async or React will complain about re-rendering in same pass
           setTimeout(() => {
-            const receiveAction = fetchToReceiveAction[key];
+            const fixture = fixtureMap[key];
             try {
-              dispatch(receiveAction);
+              if ('endpoint' in fixture) {
+                dispatchFixture(fixture, controller, createdAt);
+              } else {
+                const receiveAction = actionFromFixture(fixture);
+                dispatch(receiveAction);
+              }
               // dispatch goes through user-code that can sometimes fail.
               // let's ensure we always complete the promise
             } finally {
-              const complete = receiveAction.error ? reject : resolve;
-              complete(receiveAction.payload);
+              const complete = fixture.error ? reject : resolve;
+              complete(
+                'endpoint' in fixture ? fixture.response : fixture.result,
+              );
             }
           }, 0);
           return Promise.resolve();
@@ -80,21 +96,21 @@ export default function MockResolver({
   and
 
   {
-  request: ArticleResource.list(),
-  params: { maxResults: 10 },
-  result: [],
+    endpoint: ArticleResource.list(),
+    args: [{ maxResults: 10 }],
+    response: [],
   }`,
           );
         }
       } else if (action.type === actionTypes.SUBSCRIBE_TYPE) {
         const { key } = action.meta;
-        if (Object.prototype.hasOwnProperty.call(fetchToReceiveAction, key)) {
+        if (Object.prototype.hasOwnProperty.call(fixtureMap, key)) {
           return Promise.resolve();
         }
       }
       return dispatch(action);
     },
-    [dispatch, fetchToReceiveAction, silenceMissing],
+    [controller, dispatch, fixtureMap, silenceMissing],
   );
   const controllerInterceptor = useMemo(() => {
     if (!RestHooksCore.Controller) return controller;
