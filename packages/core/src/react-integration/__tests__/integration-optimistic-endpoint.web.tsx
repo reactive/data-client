@@ -284,7 +284,7 @@ describe.each([
           return { fetch, article };
         },
         {
-          results: [
+          initialFixtures: [
             {
               endpoint: CoolerArticleResource.detail(),
               args: [params],
