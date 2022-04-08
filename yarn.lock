@@ -9,15 +9,15 @@
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.0"
 
-"@anansi/babel-preset@3.0.1", "@anansi/babel-preset@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-3.0.1.tgz#6c8054699d59b64d42c6a528cfdf615a6b4f8f64"
-  integrity sha512-pH2GfR4NYJ3ssM4LdwHOqZtqsPUHHpBBN4jCD5xJknY0aDuCFS8ILfbSpHbSi5nfx/dvGZya67fr05lfmQQUJA==
+"@anansi/babel-preset@3.0.2", "@anansi/babel-preset@^3.0.1":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-3.0.2.tgz#ffd5f16486c47b869bbca41d6167ba4a051ce7e3"
+  integrity sha512-V72nj8/C9FyfnZ5y/4JPpg6jTK09JlJ4j21cDmzypBt4lXfncEKgxbz6xSE56XVZlD62jp6/SzUboOfSycLC5g==
   dependencies:
     "@anansi/ts-utils" "^0.2.5"
     "@babel/plugin-proposal-class-properties" "^7.16.7"
     "@babel/plugin-proposal-class-static-block" "^7.17.6"
-    "@babel/plugin-proposal-decorators" "^7.17.8"
+    "@babel/plugin-proposal-decorators" "^7.17.9"
     "@babel/plugin-proposal-export-default-from" "^7.16.7"
     "@babel/plugin-proposal-export-namespace-from" "^7.16.7"
     "@babel/plugin-proposal-optional-chaining" "^7.16.7"
@@ -43,7 +43,7 @@
     core-js-compat "^3.21.1"
     glob-to-regexp "^0.4.1"
     path "^0.12.7"
-    semver "^7.3.5"
+    semver "^7.3.6"
     stable "^0.1.8"
 
 "@anansi/browserslist-config@1.3.3":
@@ -66,9 +66,9 @@
     eslint-plugin-jsx-a11y "^6.5.1"
 
 "@anansi/jest-preset@^0.6.1":
-  version "0.6.4"
-  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.6.4.tgz#0bec538202a9fdd9391ee8ef71cc8bc84367d435"
-  integrity sha512-5/apZJLtQWSkyP7ErjAjyv8ZYWTVR5wCAJcYTEiqQIyEIeKi//j/7YwI0qyW2HzINdHZHZeuh3xIhzVMK/Yidg==
+  version "0.6.6"
+  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.6.6.tgz#1a820fcd8f5d84465f33877c510276a797b335d1"
+  integrity sha512-M/qv67veF++IpWmXH3e0rwnc/zP7YZnYbi6EJSwMfmuTf0azOM/yctBLAYR4nCAAgHm1wWEb9I3CXBB5OKVzjQ==
   dependencies:
     "@anansi/ts-utils" "^0.2.5"
     babel-jest "^27.5.1"
@@ -76,8 +76,8 @@
     identity-obj-proxy "^3.0.0"
     jest-pnp-resolver "^1.2.2"
     mitt "^3.0.0"
-    semver "^7.3.5"
-    ts-jest "^27.1.3"
+    semver "^7.3.6"
+    ts-jest "^27.1.4"
     whatwg-fetch "^3.0.0"
 
 "@anansi/router@^0.3.2":
@@ -381,6 +381,19 @@
     "@babel/helper-replace-supers" "^7.16.7"
     "@babel/helper-split-export-declaration" "^7.16.7"
 
+"@babel/helper-create-class-features-plugin@^7.17.9":
+  version "7.17.9"
+  resolved "https://registry.yarnpkg.com/@babel/helper-create-class-features-plugin/-/helper-create-class-features-plugin-7.17.9.tgz#71835d7fb9f38bd9f1378e40a4c0902fdc2ea49d"
+  integrity sha512-kUjip3gruz6AJKOq5i3nC6CoCEEF/oHH3cp6tOZhB+IyyyPyW0g1Gfsxn3mkk6S08pIA2y8GQh609v9G/5sHVQ==
+  dependencies:
+    "@babel/helper-annotate-as-pure" "^7.16.7"
+    "@babel/helper-environment-visitor" "^7.16.7"
+    "@babel/helper-function-name" "^7.17.9"
+    "@babel/helper-member-expression-to-functions" "^7.17.7"
+    "@babel/helper-optimise-call-expression" "^7.16.7"
+    "@babel/helper-replace-supers" "^7.16.7"
+    "@babel/helper-split-export-declaration" "^7.16.7"
+
 "@babel/helper-create-regexp-features-plugin@^7.14.5":
   version "7.14.5"
   resolved "https://registry.yarnpkg.com/@babel/helper-create-regexp-features-plugin/-/helper-create-regexp-features-plugin-7.14.5.tgz#c7d5ac5e9cf621c26057722fb7a8a4c5889358c4"
@@ -492,6 +505,13 @@
   integrity sha512-VtJ/65tYiU/6AbMTDwyoXGPKHgTsfRarivm+YbB5uAzKUyuPjgZSgAFeG87FCigc7KNHu2Pegh1XIT3lXjvz3Q==
   dependencies:
     "@babel/types" "^7.16.7"
+
+"@babel/helper-member-expression-to-functions@^7.17.7":
+  version "7.17.7"
+  resolved "https://registry.yarnpkg.com/@babel/helper-member-expression-to-functions/-/helper-member-expression-to-functions-7.17.7.tgz#a34013b57d8542a8c4ff8ba3f747c02452a4d8c4"
+  integrity sha512-thxXgnQ8qQ11W2wVUObIqDL4p148VMxkt5T/qpN5k2fboRyzFGFmKsTGViquyM5QHKUy48OZoca8kw4ajaDPyw==
+  dependencies:
+    "@babel/types" "^7.17.0"
 
 "@babel/helper-module-imports@^7.0.0", "@babel/helper-module-imports@^7.0.0-beta.49", "@babel/helper-module-imports@^7.12.13", "@babel/helper-module-imports@^7.14.5":
   version "7.14.5"
@@ -754,14 +774,15 @@
     "@babel/helper-plugin-utils" "^7.16.7"
     "@babel/plugin-syntax-class-static-block" "^7.14.5"
 
-"@babel/plugin-proposal-decorators@^7.17.8":
-  version "7.17.8"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-decorators/-/plugin-proposal-decorators-7.17.8.tgz#4f0444e896bee85d35cf714a006fc5418f87ff00"
-  integrity sha512-U69odN4Umyyx1xO1rTII0IDkAEC+RNlcKXtqOblfpzqy1C+aOplb76BQNq0+XdpVkOaPlpEDwd++joY8FNFJKA==
+"@babel/plugin-proposal-decorators@^7.17.9":
+  version "7.17.9"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-decorators/-/plugin-proposal-decorators-7.17.9.tgz#67a1653be9c77ce5b6c318aa90c8287b87831619"
+  integrity sha512-EfH2LZ/vPa2wuPwJ26j+kYRkaubf89UlwxKXtxqEm57HrgSEYDB8t4swFP+p8LcI9yiP9ZRJJjo/58hS6BnaDA==
   dependencies:
-    "@babel/helper-create-class-features-plugin" "^7.17.6"
+    "@babel/helper-create-class-features-plugin" "^7.17.9"
     "@babel/helper-plugin-utils" "^7.16.7"
     "@babel/helper-replace-supers" "^7.16.7"
+    "@babel/helper-split-export-declaration" "^7.16.7"
     "@babel/plugin-syntax-decorators" "^7.17.0"
     charcodes "^0.2.0"
 
@@ -11178,6 +11199,11 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
+lru-cache@^7.4.0:
+  version "7.8.0"
+  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-7.8.0.tgz#649aaeb294a56297b5cbc5d70f198dcc5ebe5747"
+  integrity sha512-AmXqneQZL3KZMIgBpaPTeI6pfwh+xQ2vutMsyqOu1TBdEXFZgpG/80wuJ531w2ZN7TI0/oc8CPxzh/DKQudZqg==
+
 lz-string@^1.4.4:
   version "1.4.4"
   resolved "https://registry.yarnpkg.com/lz-string/-/lz-string-1.4.4.tgz#c0d8eaf36059f705796e1e344811cf4c498d3a26"
@@ -15728,12 +15754,19 @@ semver@7.0.0:
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.0.0.tgz#5f3ca35761e47e05b206c6daff2cf814f0316b8e"
   integrity sha512-+GB6zVA9LWh6zovYQLALHwv5rb2PHGlJi3lfiqIHxR0uuwCgefcOJc59v9fv1w8GbStwxuuqqAjI9NMAOOgq1A==
 
-semver@7.3.5, semver@7.x, semver@^7.0.0, semver@^7.1.1, semver@^7.1.3, semver@^7.2.1, semver@^7.3.2, semver@^7.3.4, semver@^7.3.5:
+semver@7.3.5:
   version "7.3.5"
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.3.5.tgz#0b621c879348d8998e4b0e4be94b3f12e6018ef7"
   integrity sha512-PoeGJYh8HK4BTO/a9Tf6ZG3veo/A7ZVsYrSA6J8ny9nb3B1VrpkuN+z9OE5wfE5p6H4LchYZsegiQgbJD94ZFQ==
   dependencies:
     lru-cache "^6.0.0"
+
+semver@7.x, semver@^7.0.0, semver@^7.1.1, semver@^7.1.3, semver@^7.2.1, semver@^7.3.2, semver@^7.3.4, semver@^7.3.5, semver@^7.3.6:
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.3.6.tgz#5d73886fb9c0c6602e79440b97165c29581cbb2b"
+  integrity sha512-HZWqcgwLsjaX1HBD31msI/rXktuIhS+lWvdE4kN9z+8IVT4Itc7vqU2WvYsyD6/sjYCt4dEKH/m1M3dwI9CC5w==
+  dependencies:
+    lru-cache "^7.4.0"
 
 semver@^6.0.0, semver@^6.1.1, semver@^6.1.2, semver@^6.3.0:
   version "6.3.0"
@@ -17009,10 +17042,10 @@ ts-invariant@^0.9.0:
   dependencies:
     tslib "^2.1.0"
 
-ts-jest@^27.1.3:
-  version "27.1.3"
-  resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-27.1.3.tgz#1f723e7e74027c4da92c0ffbd73287e8af2b2957"
-  integrity sha512-6Nlura7s6uM9BVUAoqLH7JHyMXjz8gluryjpPXxr3IxZdAXnU6FhjvVLHFtfd1vsE1p8zD1OJfskkc0jhTSnkA==
+ts-jest@^27.1.4:
+  version "27.1.4"
+  resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-27.1.4.tgz#84d42cf0f4e7157a52e7c64b1492c46330943e00"
+  integrity sha512-qjkZlVPWVctAezwsOD1OPzbZ+k7zA5z3oxII4dGdZo5ggX/PL7kvwTM0pXTr10fAtbiVpJaL3bWd502zAhpgSQ==
   dependencies:
     bs-logger "0.x"
     fast-json-stable-stringify "2.x"
