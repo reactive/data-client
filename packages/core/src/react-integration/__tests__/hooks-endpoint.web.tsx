@@ -62,7 +62,7 @@ function testRestHook(
   dispatch = (v: ActionTypes) => Promise.resolve(),
 ) {
   return renderHook(callback, {
-    wrapper: function Wrapper({ children }) {
+    wrapper: function Wrapper({ children }: { children: React.ReactNode }) {
       return (
         <DispatchContext.Provider value={dispatch}>
           <StateContext.Provider value={state}>

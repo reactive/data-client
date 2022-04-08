@@ -55,7 +55,7 @@ function testRestHook(
   const controller = new Controller({ dispatch });
 
   return renderHook(callback, {
-    wrapper: function Wrapper({ children }) {
+    wrapper: function Wrapper({ children }: { children: React.ReactNode }) {
       return (
         <ControllerContext.Provider value={controller}>
           <StateContext.Provider value={state}>
