@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.2...@rest-hooks/core@3.2.0) (2022-04-08)
+
+
+### 🚀 Features
+
+* Add CacheProvider Controller prop to allow controller customization ([#1868](https://github.com/coinbase/rest-hooks/issues/1868)) ([2b3f70e](https://github.com/coinbase/rest-hooks/commit/2b3f70e318f168d3788303a4be6e7992fb2678e8))
+* Add useDLE() to core ([#1866](https://github.com/coinbase/rest-hooks/issues/1866)) ([9efc216](https://github.com/coinbase/rest-hooks/commit/9efc21650bbe0c445ea61e0acb334391b996dd40))
+
+
+### 💅 Enhancement
+
+* Improve update types ([b6b0334](https://github.com/coinbase/rest-hooks/commit/b6b033470c14bf9bed0e6b161570dde97b6390b4))
+
+
+### 🐛 Bug Fix
+
+* optimisticUpdate when used with controller.fetch or useSuspense ([e40f5ea](https://github.com/coinbase/rest-hooks/commit/e40f5ea75191ff5b4e170922744f1eaa95c09275))
+
+
+
 ### [3.1.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.1...@rest-hooks/core@3.1.2) (2022-04-02)
 
 

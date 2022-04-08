@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.2.2...@rest-hooks/test@7.3.0) (2022-04-08)
+
+
+### 🚀 Features
+
+* Support controller.fetch and useSuspense ([0c140ae](https://github.com/coinbase/rest-hooks/commit/0c140ae4ec0c214e699fd9c91d5d60a546a458ae))
+
+
+
 ### [7.2.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.2.1...@rest-hooks/test@7.2.2) (2022-04-02)
 
 

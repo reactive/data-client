@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@4.2.0...@rest-hooks/legacy@4.3.0) (2022-04-08)
+
+
+### 🚀 Features
+
+* Add @rest-hooks/rest@3 ([e5c82f7](https://github.com/coinbase/rest-hooks/commit/e5c82f75e00c2c88190a9266ac7cbb1f8174264a))
+
+
+
 ## [4.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@4.0.0...@rest-hooks/legacy@4.2.0) (2022-04-01)
 
 
