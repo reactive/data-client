@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.2.2](https://github.com/coinbase/rest-hooks/compare/todo-app@0.2.1...todo-app@0.2.2) (2022-04-08)
+
+
+### 📦 Package
+
+* babel, webpack configs, linaria, react-refresh ([#1873](https://github.com/coinbase/rest-hooks/issues/1873)) ([698332f](https://github.com/coinbase/rest-hooks/commit/698332ff7c95a2046fb6e861e5f9a37da409e26a))
+
+
+
 ### [0.2.1](https://github.com/coinbase/rest-hooks/compare/todo-app@0.2.0...todo-app@0.2.1) (2022-04-02)
 
 **Note:** Version bump only for package todo-app

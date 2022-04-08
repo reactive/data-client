@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [8.2.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.2.2...@rest-hooks/normalizr@8.2.3) (2022-04-08)
+
+
+### 🐛 Bug Fix
+
+* optimisticUpdate when used with controller.fetch or useSuspense ([e40f5ea](https://github.com/coinbase/rest-hooks/commit/e40f5ea75191ff5b4e170922744f1eaa95c09275))
+
+
+
 ### [8.2.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.2.1...@rest-hooks/normalizr@8.2.2) (2022-04-02)
 
 

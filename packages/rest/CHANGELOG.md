@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@3.0.3...@rest-hooks/rest@4.0.0) (2022-04-08)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* - Removed EntityRecord
+- Removed SimpleResource
+- New BaseResource
+- RestFetch, FetchMutate, FetchGet first arg is entire args instead of
+just params
+
+fix: imports
+
+### 🚀 Features
+
+* Improved Resource ([7d7c79c](https://github.com/coinbase/rest-hooks/commit/7d7c79cb062d564b6b591629c4e836eb00024d48))
+
+
+
 ### [3.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@3.0.2...@rest-hooks/rest@3.0.3) (2022-02-26)
 
 

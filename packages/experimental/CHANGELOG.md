@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@3.3.2...@rest-hooks/experimental@4.0.0) (2022-04-08)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Resource loses hasDefined, mergeRecord,
+toObjectDefined, keysDefined, set
+
+### 💅 Enhancement
+
+* Improve pagination types ([#1863](https://github.com/coinbase/rest-hooks/issues/1863)) ([12d1912](https://github.com/coinbase/rest-hooks/commit/12d1912bb9ee61d2a5fcf831d3a11e36c0e65c55))
+* Improve update types ([b6b0334](https://github.com/coinbase/rest-hooks/commit/b6b033470c14bf9bed0e6b161570dde97b6390b4))
+* Resource extends from Entity rather than EntityRecord ([#1867](https://github.com/coinbase/rest-hooks/issues/1867)) ([0678298](https://github.com/coinbase/rest-hooks/commit/0678298fb4a42c90fb57e876d753e0851a1482cc))
+
+
+
 ### [3.3.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@3.3.0...@rest-hooks/experimental@3.3.2) (2022-04-01)
 
 

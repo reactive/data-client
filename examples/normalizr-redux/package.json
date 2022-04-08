@@ -1,6 +1,6 @@
 {
   "name": "normalizr-redux-example",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "And example of using Normalizr with Redux",
   "main": "index.js",
   "author": "Paul Armstrong",
@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@octokit/rest": "^18.6.0",
-    "@rest-hooks/normalizr": "^8.2.2",
+    "@rest-hooks/normalizr": "^8.2.3",
     "inquirer": "^8.1.1",
     "redux": "^4.1.0",
     "redux-thunk": "^2.3.0"
