@@ -80,13 +80,13 @@
     ts-jest "^27.1.4"
     whatwg-fetch "^3.0.0"
 
-"@anansi/router@^0.3.2":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/@anansi/router/-/router-0.3.2.tgz#22476e15fba0e55b9f835e7164f2b06b7728600e"
-  integrity sha512-bFwYmvWNIpP7AOSMWQsHiZ5dFSI2V0B3PJWbUcJAep0QH8Yi5Fx863gRKXFQxIr235qOjAgbwkXsVwOI1kfr+w==
+"@anansi/router@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@anansi/router/-/router-0.3.3.tgz#f02cbb2192cd1846e4289117c5ba7dca0bca2bdb"
+  integrity sha512-y544Khq1SjA9qdrt8774+4ZAR7uZQc8VyQ5ruPa4/FVROMGRd3kI1gCeoI86HFtdvj86/XwvFbzT4LdE2N2YbA==
   dependencies:
     "@babel/runtime" "^7.10.5"
-    "@pojo-router/core" "^0.3.9"
+    "@pojo-router/core" "^0.3.10"
     history "^5.3.0"
     nano-memoize "^1.3.0"
 
@@ -95,10 +95,10 @@
   resolved "https://registry.yarnpkg.com/@anansi/ts-utils/-/ts-utils-0.2.5.tgz#bd2270fb1f96a26dbcf3a9a61a6a6b36652e75c6"
   integrity sha512-m6jFCF3Y6Tcd06hmq1pDqOCHGpe30QO9FcCblYD0ohhl5olcyq+f2DbKWPQSeddzHdHxDUpZ9OG7xwHv4xtmUw==
 
-"@anansi/webpack-config@11.3.7":
-  version "11.3.7"
-  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.3.7.tgz#b364b9786735afa6ab89d5b4a1ed5c9cd8a92cd8"
-  integrity sha512-OBd6in87sPYFugwFtlceIMLq7oRAIHKhWhmtu4PMOlNBw1eE1Gyc4+o4lOukVC8RU/Jdy/bLsIudNlqSY/3Zuw==
+"@anansi/webpack-config@11.3.8":
+  version "11.3.8"
+  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.3.8.tgz#c4354ac42ba88c44b3fe5a969f2dd2ef12af20d9"
+  integrity sha512-kGsYjTfKcPhmkiwI7WJFNGgTRxwTflCHR/3PZLG0KmPBebif6W0qAmWqEfaS/EJkL36li/HQwsndNw6IEPKiCQ==
   dependencies:
     "@babel/runtime" "^7.17.2"
     "@ntucker/linaria-webpack5-loader" "3.0.0-beta.17"
@@ -146,10 +146,10 @@
     react-dev-utils "^12.0.0"
     react-error-overlay "6.0.9"
     readable-stream "^3.6.0"
-    sass "^1.49.11"
+    sass "^1.50.0"
     sass-loader "^12.6.0"
     sass-resources-loader "^2.2.4"
-    semver "^7.3.5"
+    semver "^7.3.6"
     stream-browserify "^3.0.0"
     stream-http "^3.2.0"
     string_decoder "^1.3.0"
@@ -3422,10 +3422,10 @@
     schema-utils "^3.0.0"
     source-map "^0.7.3"
 
-"@pojo-router/core@^0.3.9":
-  version "0.3.9"
-  resolved "https://registry.yarnpkg.com/@pojo-router/core/-/core-0.3.9.tgz#a5161b8c7c9e64b67c8af453f21be102e4ec1232"
-  integrity sha512-0G6y+7cK/ExkquPhcj7y3pOCF80Rb1LMGTLWipnm70TDpVZOS0DMXxOT1VjAUl0nWF1fTzKwVAXR4Zkw+PPI5Q==
+"@pojo-router/core@^0.3.10":
+  version "0.3.10"
+  resolved "https://registry.yarnpkg.com/@pojo-router/core/-/core-0.3.10.tgz#4cb16ec9b4e2dc830b83e4067c873af0717ae8c8"
+  integrity sha512-v/zMBR9MXyYqyZwxumxd1WsT3IGYQI2YR9DfeFN/Vn6YO40KIesrwOl9z9Z6if+n+Usk7qip9IfIRv9FRY6HZQ==
   dependencies:
     "@babel/runtime" "^7.10.5"
     history "5.3.0"
@@ -3769,10 +3769,10 @@
     lz-string "^1.4.4"
     pretty-format "^27.0.2"
 
-"@testing-library/react-hooks@~7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/react-hooks/-/react-hooks-7.0.0.tgz#dd6d37a7e018f147a3b9153137f10e013be8472b"
-  integrity sha512-WFBGH8DWdIGGBHt6PBtQPe2v4Kbj9vQ1sQ9qLBTmwn1PNggngint4MTE/IiWCYhPbyTW3oc/7X62DObMn/AjQQ==
+"@testing-library/react-hooks@~7.0.0", "@testing-library/react-hooks@~7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@testing-library/react-hooks/-/react-hooks-7.0.2.tgz#3388d07f562d91e7f2431a4a21b5186062ecfee0"
+  integrity sha512-dYxpz8u9m4q1TuzfcUApqi8iFfR6R0FaMbr2hjZJy1uC8z+bO/K4v8Gs9eogGKYQop7QsrBTFkv/BCF7MzD2Cg==
   dependencies:
     "@babel/runtime" "^7.12.5"
     "@types/react" ">=16.9.0"
@@ -7861,10 +7861,10 @@ eslint-plugin-prettier@^4.0.0:
   dependencies:
     prettier-linter-helpers "^1.0.0"
 
-eslint-plugin-react-hooks@^4.2.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-react-hooks/-/eslint-plugin-react-hooks-4.3.0.tgz#318dbf312e06fab1c835a4abef00121751ac1172"
-  integrity sha512-XslZy0LnMn+84NEG9jSGR6eGqaZB3133L8xewQo3fQagbQuGt7a63gf+P1NGKZavEYEC3UXaWEAA/AqDkuN6xA==
+eslint-plugin-react-hooks@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-react-hooks/-/eslint-plugin-react-hooks-4.4.0.tgz#71c39e528764c848d8253e1aa2c7024ed505f6c4"
+  integrity sha512-U3RVIfdzJaeKDQKEJbz5p3NW8/L80PCATJAfuojwbaEL+gBjfGdhUcGde+WGUW46Q5sr/NgxevsIiDtNXrvZaQ==
 
 eslint-plugin-react@^7.22.0:
   version "7.29.4"
@@ -12209,9 +12209,9 @@ modify-values@^1.0.0:
   integrity sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==
 
 moment@^2.24.0, moment@^2.25.3:
-  version "2.29.1"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
-  integrity sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==
+  version "2.29.2"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.2.tgz#00910c60b20843bcba52d37d58c628b47b1f20e4"
+  integrity sha512-UgzG4rvxYpN15jgCmVJwac49h9ly9NurikMWGPdVxm8GZD6XjkKPxDTjQQ43gtGgnV3X0cAyWDdP2Wexoquifg==
 
 move-file@^2.0.0:
   version "2.0.0"
@@ -15651,10 +15651,10 @@ sass-resources-loader@^2.2.4:
     glob "^7.1.6"
     loader-utils "^2.0.0"
 
-sass@^1.49.11:
-  version "1.49.11"
-  resolved "https://registry.yarnpkg.com/sass/-/sass-1.49.11.tgz#1ffeb77faeed8b806a2a1e021d7c9fd3fc322cb7"
-  integrity sha512-wvS/geXgHUGs6A/4ud5BFIWKO1nKd7wYIGimDk4q4GFkJicILActpv9ueMT4eRGSsp1BdKHuw1WwAHXbhsJELQ==
+sass@^1.50.0:
+  version "1.50.0"
+  resolved "https://registry.yarnpkg.com/sass/-/sass-1.50.0.tgz#3e407e2ebc53b12f1e35ce45efb226ea6063c7c8"
+  integrity sha512-cLsD6MEZ5URXHStxApajEh7gW189kkjn4Rc8DQweMyF+o5HF5nfEz8QYLMlPsTOD88DknatTmBWkOcw5/LnJLQ==
   dependencies:
     chokidar ">=3.0.0 <4.0.0"
     immutable "^4.0.0"
@@ -17815,7 +17815,37 @@ webpack-stats-plugin@^1.0.3:
   resolved "https://registry.yarnpkg.com/webpack-stats-plugin/-/webpack-stats-plugin-1.0.3.tgz#0f64551a0b984b48a9e7acdee32e3cfda556fe51"
   integrity sha512-tV/SQHl6lKfBahJcNDmz8JG1rpWPB9NEDQSMIoL74oVAotdxYljpgIsgLzgc1N9QrtA9KEA0moJVwQtNZv2aDA==
 
-webpack@5.71.0, webpack@^5:
+webpack@5.72.0:
+  version "5.72.0"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.72.0.tgz#f8bc40d9c6bb489a4b7a8a685101d6022b8b6e28"
+  integrity sha512-qmSmbspI0Qo5ld49htys8GY9XhS9CGqFoHTsOVAnjBdg0Zn79y135R+k4IR4rKK6+eKaabMhJwiVB7xw0SJu5w==
+  dependencies:
+    "@types/eslint-scope" "^3.7.3"
+    "@types/estree" "^0.0.51"
+    "@webassemblyjs/ast" "1.11.1"
+    "@webassemblyjs/wasm-edit" "1.11.1"
+    "@webassemblyjs/wasm-parser" "1.11.1"
+    acorn "^8.4.1"
+    acorn-import-assertions "^1.7.6"
+    browserslist "^4.14.5"
+    chrome-trace-event "^1.0.2"
+    enhanced-resolve "^5.9.2"
+    es-module-lexer "^0.9.0"
+    eslint-scope "5.1.1"
+    events "^3.2.0"
+    glob-to-regexp "^0.4.1"
+    graceful-fs "^4.2.9"
+    json-parse-better-errors "^1.0.2"
+    loader-runner "^4.2.0"
+    mime-types "^2.1.27"
+    neo-async "^2.6.2"
+    schema-utils "^3.1.0"
+    tapable "^2.1.1"
+    terser-webpack-plugin "^5.1.3"
+    watchpack "^2.3.1"
+    webpack-sources "^3.2.3"
+
+webpack@^5:
   version "5.71.0"
   resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.71.0.tgz#b01fcf379570b8c5ee06ca06c829ca168c951884"
   integrity sha512-g4dFT7CFG8LY0iU5G8nBL6VlkT21Z7dcYDpJAEJV5Q1WLb9UwnFbrem1k7K52ILqEmomN7pnzWFxxE6SlDY56A==

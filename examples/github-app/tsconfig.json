@@ -13,7 +13,7 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "types": ["@anansi/webpack-config/types", "react-dom/next", "react/next"],
+    "types": ["@anansi/webpack-config/types"],
     "paths": {
       "resources/*": ["resources/*"]
     },
