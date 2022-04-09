@@ -183,7 +183,7 @@ describe('HookableResource', () => {
 
     it('useList', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() =>
-        useSuspense(CoolerArticleResource.useList(), {}),
+        useSuspense(CoolerArticleResource.useList()),
       );
       await waitForNextUpdate();
       expect(result.current).toBeDefined();
@@ -197,9 +197,10 @@ describe('HookableResource', () => {
       const payload2 = { id: 20, content: 'better task' };
       const article = await result.current.fetch(
         result.current.endpoint,
-        {},
         payload2,
       );
+      // @ts-expect-error
+      () => result.current.fetch(result.current.endpoint, {}, payload2);
       expect(article).toMatchObject(payload2);
     });
 

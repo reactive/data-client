@@ -72,7 +72,7 @@ export default abstract class HookableResource extends BaseResource {
   static useList<T extends typeof HookableResource>(
     this: T,
   ): RestEndpoint<
-    (this: RestEndpoint, params: any) => Promise<any>,
+    (this: RestEndpoint, params?: any) => Promise<any>,
     SchemaList<AbstractInstanceType<T>>,
     undefined
   > {
@@ -88,16 +88,20 @@ export default abstract class HookableResource extends BaseResource {
   static useCreate<T extends typeof HookableResource>(
     this: T,
   ): RestEndpoint<
-    (this: RestEndpoint, params: any, body: any) => Promise<any>,
+    (this: RestEndpoint, body: any) => Promise<any>,
     SchemaDetail<AbstractInstanceType<T>>,
     true
   > {
-    return this.useMemo('#create', () =>
-      this.endpointMutate().extend({
+    return this.useMemo('#create', () => {
+      const instanceFetch = this.fetch.bind(this);
+      return this.endpointMutate().extend({
+        fetch(this: RestEndpoint, body: any) {
+          return instanceFetch(this.url(), this.getFetchInit(body));
+        },
         schema: this,
         url: this.listUrl.bind(this),
-      }),
-    );
+      });
+    });
   }
 
   /** Endpoint to update an existing entity (put) */
