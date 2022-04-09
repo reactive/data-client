@@ -33,7 +33,7 @@ export default abstract class Resource extends BaseResource {
   static list<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    (this: RestEndpoint, params: any) => Promise<any>,
+    (this: RestEndpoint, params?: any) => Promise<any>,
     SchemaList<AbstractInstanceType<T>>,
     undefined
   > {
@@ -50,18 +50,21 @@ export default abstract class Resource extends BaseResource {
   static create<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    (this: RestEndpoint, params: any, body: any) => Promise<any>,
+    (this: RestEndpoint, body: any) => Promise<any>,
     SchemaDetail<AbstractInstanceType<T>>,
     true
   > {
-    //Partial<AbstractInstanceType<T>>
-    const endpoint = this.endpointMutate();
-    return this.memo('#create', () =>
-      endpoint.extend({
+    return this.memo('#create', () => {
+      const endpoint = this.endpointMutate();
+      const instanceFetch = this.fetch.bind(this);
+      return endpoint.extend({
+        fetch(this: RestEndpoint, body: any) {
+          return instanceFetch(this.url(), this.getFetchInit(body));
+        },
         schema: this,
         url: this.listUrl.bind(this),
-      }),
-    );
+      });
+    });
   }
 
   /** Endpoint to update an existing entity (put) */
