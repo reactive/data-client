@@ -358,7 +358,7 @@ describe('reducer', () => {
           payload,
           meta: {
             schema: ArticleResource,
-            key: ArticleResource.create().key({}, {}),
+            key: ArticleResource.create().key({}),
             updaters,
             date: 0,
             expiresAt: 100000000000,

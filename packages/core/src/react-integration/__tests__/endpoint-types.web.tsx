@@ -6,7 +6,7 @@ import {
   makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../../../test';
-import { useResource, useFetcher } from '../hooks';
+import { useResource, useController } from '../hooks';
 import { payload, createPayload, users, nested } from '../test-fixtures';
 
 function onError(e: any) {
@@ -100,49 +100,73 @@ describe('endpoint types', () => {
 
     it('should work with everything correct', async () => {
       const { result } = renderRestHook(() => {
-        return useFetcher(TypedArticleResource.update());
+        return useController().fetch;
       });
-      const a = await result.current({ id: payload.id }, { title: 'hi' });
+      const a = await result.current(
+        TypedArticleResource.update(),
+        { id: payload.id },
+        { title: 'hi' },
+      );
     });
 
     it('types should strictly enforce with parameters that are any', async () => {
       const { result } = renderRestHook(() => {
-        return useFetcher(TypedArticleResource.anyparam());
+        return useController().fetch;
       });
-      // @ts-expect-error
-      () => result.current({ id: payload.id }, { title: 'hi' });
-      () => result.current({ id: payload.id });
+      () =>
+        result.current(
+          TypedArticleResource.anyparam(),
+          { id: payload.id },
+          // @ts-expect-error
+          { title: 'hi' },
+        );
+      () => result.current(TypedArticleResource.anyparam(), { id: payload.id });
     });
 
     it('types should strictly enforce with body that are any', async () => {
       const { result } = renderRestHook(() => {
-        return useFetcher(TypedArticleResource.anybody());
+        return useController().fetch;
       });
-      () => result.current({ id: payload.id }, { title: 'hi' });
-      /* TODO: Re-enable for new fetch dispatcher
-        // @ts-expect-error
-        () => result.current({ id: payload.id });
-        */
+      () =>
+        result.current(
+          TypedArticleResource.anybody(),
+          { id: payload.id },
+          { title: 'hi' },
+        );
+      // @ts-expect-error
+      () => result.current(TypedArticleResource.anybody(), { id: payload.id });
     });
 
     it('should error on invalid payload', async () => {
       const { result } = renderRestHook(() => {
-        return useFetcher(TypedArticleResource.update());
+        return useController().fetch;
       });
-      // @ts-expect-error
-      await result.current({ id: payload.id }, { title2: 'hi' });
-      // @ts-expect-error
-      await result.current({ id: payload.id }, { title: 5 });
+      await result.current(
+        TypedArticleResource.update(),
+        { id: payload.id },
+        // @ts-expect-error
+        { title2: 'hi' },
+      );
+      await result.current(
+        TypedArticleResource.update(),
+        { id: payload.id },
+        // @ts-expect-error
+        { title: 5 },
+      );
     });
 
     it('should error on invalid params', async () => {
-      const { result, waitForNextUpdate } = renderRestHook(() => {
-        return useFetcher(TypedArticleResource.update());
+      const { result } = renderRestHook(() => {
+        return useController().fetch;
       });
 
       await expect(
-        // @ts-expect-error
-        result.current({ id: 'hi' }, { title: 'hi' }),
+        result.current(
+          TypedArticleResource.update(),
+          // @ts-expect-error
+          { id: 'hi' },
+          { title: 'hi' },
+        ),
       ).rejects.toEqual(expect.any(Error));
     });
   });

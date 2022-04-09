@@ -1,46 +1,36 @@
-import {
-  CoolerArticleResource,
-  PaginatedArticleResource,
-  ArticleResourceWithOtherListUrl,
-  StaticArticleResource,
-} from '__tests__/new';
+import { CoolerArticleResource, PaginatedArticleResource } from '__tests__/new';
 import React, { Suspense, useEffect } from 'react';
-import { render } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { Endpoint } from '@rest-hooks/endpoint';
-
 import {
   makeRenderRestHook,
   makeCacheProvider,
   mockInitialState,
 } from '../../../../test';
-import { DispatchContext, StateContext } from '../context';
-import {
-  useFetcher,
-  useRetrieve,
-  useInvalidator,
-  useResetter,
-  useResource,
-} from '../hooks';
-import { initialState } from '../../state/createReducer';
+import { ControllerContext, DispatchContext, StateContext } from '../context';
+import { useController } from '../hooks';
 import { State, ActionTypes } from '../../types';
 import { INVALIDATE_TYPE, RESET_TYPE } from '../../actionTypes';
-import { users, articlesPages, payload } from '../test-fixtures';
+import { articlesPages } from '../test-fixtures';
+import { Controller } from '../..';
 
 async function testDispatchFetch(
   Component: React.FunctionComponent<any>,
   payloads: any[],
 ) {
   const dispatch = jest.fn();
+  const controller = new Controller({ dispatch });
   const tree = (
-    <DispatchContext.Provider value={dispatch}>
-      <Suspense fallback={null}>
-        <Component />
-      </Suspense>
-    </DispatchContext.Provider>
+    <ControllerContext.Provider value={controller}>
+      <DispatchContext.Provider value={dispatch}>
+        <Suspense fallback={null}>
+          <Component />
+        </Suspense>
+      </DispatchContext.Provider>
+    </ControllerContext.Provider>
   );
   render(tree);
   expect(dispatch).toHaveBeenCalledTimes(payloads.length);
@@ -61,14 +51,17 @@ function testRestHook(
   state: State<unknown>,
   dispatch = (v: ActionTypes) => Promise.resolve(),
 ) {
+  const controller = new Controller({ dispatch });
   return renderHook(callback, {
     wrapper: function Wrapper({ children }: { children: React.ReactNode }) {
       return (
-        <DispatchContext.Provider value={dispatch}>
-          <StateContext.Provider value={state}>
-            {children}
-          </StateContext.Provider>
-        </DispatchContext.Provider>
+        <ControllerContext.Provider value={controller}>
+          <DispatchContext.Provider value={dispatch}>
+            <StateContext.Provider value={state}>
+              {children}
+            </StateContext.Provider>
+          </DispatchContext.Provider>
+        </ControllerContext.Provider>
       );
     },
   });
@@ -95,18 +88,19 @@ afterAll(() => {
   nock.cleanAll();
 });
 
-describe('useFetcher', () => {
+describe('useController.fetch', () => {
   const payload = { id: 1, content: 'hi' };
 
   it('should dispatch an action that fetches a create', async () => {
     mynock.post(`/article-cooler/`).reply(201, payload);
 
     function DispatchTester() {
-      const a = useFetcher(CoolerArticleResource.create());
-      a({}, { content: 'hi' }).then(v => {
+      const { fetch } = useController();
+      fetch(CoolerArticleResource.create(), { content: 'hi' }).then(v => {
         v.author;
-        //@ts-expect-error
-        v.jasfdasdf;
+        /*
+        // @ts-expect-error
+        v.doesnotexist;*/
       });
       return null;
     }
@@ -124,11 +118,12 @@ describe('useFetcher', () => {
     });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function DispatchTester() {
-      const a = useFetcher(endpoint);
-      a(undefined).then(v => {
+      const { fetch } = useController();
+      fetch(endpoint).then(v => {
         v[0].author;
-        //@ts-expect-error
-        v.jasfdasdf;
+        /*
+        // @ts-expect-error
+        v.doesnotexist;*/
       });
       return null;
     }
@@ -138,18 +133,13 @@ describe('useFetcher', () => {
     mynock.post(`/article-cooler/`).reply(201, payload);
 
     function DispatchTester() {
-      const create = useFetcher(CoolerArticleResource.create());
+      const { fetch } = useController();
       const params = { content: 'hi' };
-      create({}, params, [
-        [
-          CoolerArticleResource.list(),
-          {},
-          (article: any, articles: any) => [...articles, article],
-        ],
-      ]).then(v => {
+      fetch(CoolerArticleResource.create(), params).then(v => {
         v.title;
+        /*
         // @ts-expect-error
-        v.doesnotexist;
+        v.doesnotexist;*/
       });
       return null;
     }
@@ -160,37 +150,15 @@ describe('useFetcher', () => {
     mynock.get(`/article-cooler/${payload.id}`).reply(200, payload);
 
     function DispatchTester() {
-      const refresh = useFetcher(CoolerArticleResource.detail());
+      const { fetch } = useController();
       // @ts-expect-error
-      () => refresh({}, { content: 'hi' });
-      refresh({ id: payload.id }).then(v => {
+      () => fetch(CoolerArticleResource.detail(), {}, { content: 'hi' });
+      fetch(CoolerArticleResource.detail(), { id: payload.id }).then(v => {
         v.title;
+        /*
         // @ts-expect-error
-        v.doesnotexist;
+        v.doesnotexist;*/
       });
-      return null;
-    }
-    await testDispatchFetch(DispatchTester, [payload]);
-  });
-
-  it('should dispatch an action with multiple updaters in the meta if update shapes params are passed in', async () => {
-    mynock.post(`/article/`).reply(201, payload);
-
-    function DispatchTester() {
-      const create = useFetcher(ArticleResourceWithOtherListUrl.create());
-      const params = { content: 'hi' };
-      create({}, params, [
-        [
-          ArticleResourceWithOtherListUrl.list(),
-          {},
-          (article: any, articles: any) => [...articles, article],
-        ],
-        [
-          ArticleResourceWithOtherListUrl.otherList(),
-          {},
-          (article: any, articles: any) => [...articles, article],
-        ],
-      ]);
       return null;
     }
     await testDispatchFetch(DispatchTester, [payload]);
@@ -200,8 +168,8 @@ describe('useFetcher', () => {
     const oldError = console.error;
     const spy = (console.error = jest.fn());
     renderHook(() => {
-      const a = useFetcher(CoolerArticleResource.create());
-      a({}, { content: 'hi' });
+      const { fetch } = useController();
+      fetch(CoolerArticleResource.create(), { content: 'hi' });
       return null;
     });
     expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
@@ -217,8 +185,12 @@ describe('useFetcher', () => {
     mynock.patch(`/article-cooler/1`).reply(200, payload);
 
     function DispatchTester() {
-      const a = useFetcher(CoolerArticleResource.partialUpdate());
-      a({ id: payload.id }, { content: 'changed' });
+      const { fetch } = useController();
+      fetch(
+        CoolerArticleResource.partialUpdate(),
+        { id: payload.id },
+        { content: 'changed' },
+      );
       return null;
     }
     await testDispatchFetch(DispatchTester, [payload]);
@@ -228,15 +200,19 @@ describe('useFetcher', () => {
     mynock.put(`/article-cooler/1`).reply(200, payload);
 
     function DispatchTester() {
-      const a = useFetcher(CoolerArticleResource.update());
-      a({ id: payload.id }, { content: 'changed' });
+      const { fetch } = useController();
+      fetch(
+        CoolerArticleResource.update(),
+        { id: payload.id },
+        { content: 'changed' },
+      );
       return null;
     }
     await testDispatchFetch(DispatchTester, [payload]);
   });
 });
 
-describe('useInvalidate', () => {
+describe('useController().invalidate', () => {
   it('should not invalidate anything if params is null', () => {
     const state = mockInitialState([
       {
@@ -249,12 +225,12 @@ describe('useInvalidate', () => {
     let invalidate: any;
     testRestHook(
       () => {
-        invalidate = useInvalidator(PaginatedArticleResource.list());
+        invalidate = useController().invalidate;
       },
       state,
       dispatch,
     );
-    invalidate(null);
+    invalidate(PaginatedArticleResource.list(), null);
     expect(dispatch).not.toHaveBeenCalled();
   });
   it('should return a function that dispatches an action to invalidate a resource', () => {
@@ -269,12 +245,12 @@ describe('useInvalidate', () => {
     let invalidate: any;
     testRestHook(
       () => {
-        invalidate = useInvalidator(PaginatedArticleResource.list());
+        invalidate = useController().invalidate;
       },
       state,
       dispatch,
     );
-    invalidate({});
+    invalidate(PaginatedArticleResource.list(), {});
     expect(dispatch).toHaveBeenCalledWith({
       type: INVALIDATE_TYPE,
       meta: {
@@ -286,7 +262,7 @@ describe('useInvalidate', () => {
     const track = jest.fn();
 
     const { rerender } = renderHook(() => {
-      const invalidate = useInvalidator(PaginatedArticleResource.list());
+      const { invalidate } = useController();
       useEffect(track, [invalidate]);
     });
     expect(track.mock.calls.length).toBe(1);
@@ -297,29 +273,29 @@ describe('useInvalidate', () => {
   });
 });
 
-describe('useResetter', () => {
+describe('useController().reset', () => {
   afterEach(() => {
     jest.useRealTimers();
   });
-  it('should return a function that dispatches an action to reset the cache', () => {
+  it('should return a function that dispatches an action to reset the cache', async () => {
     jest.useFakeTimers();
     const state = mockInitialState([
       {
-        request: PaginatedArticleResource.list(),
-        params: {},
-        result: articlesPages,
+        endpoint: PaginatedArticleResource.list(),
+        args: [{}],
+        response: articlesPages,
       },
     ]);
     const dispatch = jest.fn();
-    let reset: any;
+    let reset: () => Promise<void> = () => Promise.resolve();
     testRestHook(
       () => {
-        reset = useResetter();
+        reset = useController().resetEntireStore;
       },
       state,
       dispatch,
     );
-    reset({});
+    await act(reset);
     expect(dispatch).toHaveBeenCalledWith({
       type: RESET_TYPE,
       date: Date.now(),
@@ -329,7 +305,7 @@ describe('useResetter', () => {
     const track = jest.fn();
 
     const { rerender } = renderHook(() => {
-      const reset = useResetter();
+      const reset = useController().resetEntireStore;
       useEffect(track, [reset]);
     });
     expect(track.mock.calls.length).toBe(1);
@@ -337,100 +313,5 @@ describe('useResetter', () => {
       rerender();
     }
     expect(track.mock.calls.length).toBe(1);
-  });
-});
-
-describe('useRetrieve', () => {
-  let renderRestHook: ReturnType<typeof makeRenderRestHook>;
-  beforeEach(() => {
-    mynock.get(`/article-cooler/${payload.id}`).reply(200, payload);
-    mynock.get(`/article-static/${payload.id}`).reply(200, payload);
-    mynock.get(`/user/`).reply(200, users);
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
-  });
-  afterEach(() => {
-    nock.cleanAll();
-  });
-
-  it('should dispatch singles', async () => {
-    function FetchTester() {
-      useRetrieve(CoolerArticleResource.detail(), payload);
-      return null;
-    }
-    await testDispatchFetch(FetchTester, [payload]);
-  });
-
-  it('should not dispatch will null params', () => {
-    const dispatch = jest.fn();
-    let params: any = null;
-    const { rerender } = testRestHook(
-      () => {
-        useRetrieve(CoolerArticleResource.detail(), params);
-      },
-      initialState,
-      dispatch,
-    );
-    expect(dispatch).toBeCalledTimes(0);
-    params = payload;
-    rerender();
-    expect(dispatch).toBeCalled();
-  });
-
-  it('should dispatch with resource defined dataExpiryLength', async () => {
-    function FetchTester() {
-      useRetrieve(StaticArticleResource.detail(), payload);
-      return null;
-    }
-    await testDispatchFetch(FetchTester, [payload]);
-  });
-
-  it('should dispatch with fetch shape defined dataExpiryLength', async () => {
-    function FetchTester() {
-      useRetrieve(StaticArticleResource.longLiving(), payload);
-      return null;
-    }
-    await testDispatchFetch(FetchTester, [payload]);
-  });
-
-  it('should dispatch with fetch shape defined errorExpiryLength', async () => {
-    function FetchTester() {
-      useRetrieve(StaticArticleResource.neverRetryOnError(), payload);
-      return null;
-    }
-    await testDispatchFetch(FetchTester, [payload]);
-  });
-
-  it('should not refetch after expiry and render', async () => {
-    let time = 1000;
-    global.Date.now = jest.fn(() => time);
-    nock.cleanAll();
-    const fetchMock = jest.fn(() => payload);
-    mynock.get(`/article-cooler/${payload.id}`).reply(200, fetchMock).persist();
-    const results: any[] = [
-      {
-        request: CoolerArticleResource.detail(),
-        params: payload,
-        result: payload,
-      },
-    ];
-    const { result, rerender } = renderRestHook(
-      () => {
-        return useRetrieve(CoolerArticleResource.detail(), payload);
-      },
-      { results },
-    );
-    await result.current;
-    expect(fetchMock).toHaveBeenCalledTimes(0);
-    time += 100;
-    rerender();
-    await result.current;
-    expect(fetchMock).toHaveBeenCalledTimes(0);
-    // eslint-disable-next-line require-atomic-updates
-    time += 610000000;
-    rerender();
-    await result.current;
-    rerender();
-    await result.current;
-    expect(fetchMock).toHaveBeenCalledTimes(0);
   });
 });

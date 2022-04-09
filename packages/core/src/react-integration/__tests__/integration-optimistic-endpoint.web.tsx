@@ -159,7 +159,7 @@ describe.each([
       const { result, waitForNextUpdate } = renderRestHook(
         () => {
           const { fetch } = useController();
-          const articles = useCache(CoolerArticleResource.list(), {});
+          const articles = useCache(CoolerArticleResource.list());
           return { fetch, articles };
         },
         {
@@ -223,7 +223,6 @@ describe.each([
       const promise = act(async () => {
         await result.current.fetch(
           ArticleResourceWithOtherListUrl.create(),
-          {},
           body,
         );
       });

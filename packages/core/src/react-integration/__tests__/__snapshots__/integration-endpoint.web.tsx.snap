@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CacheProvider Endpoint should gracefully abort in useResource() 1`] = `[AbortError: Aborted]`;
+exports[`CacheProvider Endpoint should gracefully abort in useSuspense() 1`] = `[AbortError: Aborted]`;
 
-exports[`CacheProvider Endpoint should resolve useResource() with SimpleRecords 1`] = `
+exports[`CacheProvider Endpoint should resolve useSuspense() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
     "author": UserResource {
@@ -59,7 +59,7 @@ Value: {
 ]
 `;
 
-exports[`CacheProvider should resolve useResource() with SimpleRecords 1`] = `
+exports[`CacheProvider should resolve useSuspense() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
     "author": UserResource {
@@ -92,7 +92,7 @@ Array [
 ]
 `;
 
-exports[`CacheProvider useResource() should throw errors on malformed response 1`] = `
+exports[`CacheProvider useSuspense() should throw errors on malformed response 1`] = `
 [Error: Error processing GET http://test.com/article-cooler/878
 
 Full Schema: {
@@ -121,9 +121,9 @@ First three members: [
 ]]
 `;
 
-exports[`ExternalCacheProvider Endpoint should gracefully abort in useResource() 1`] = `[AbortError: Aborted]`;
+exports[`ExternalCacheProvider Endpoint should gracefully abort in useSuspense() 1`] = `[AbortError: Aborted]`;
 
-exports[`ExternalCacheProvider Endpoint should resolve useResource() with SimpleRecords 1`] = `
+exports[`ExternalCacheProvider Endpoint should resolve useSuspense() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
     "author": UserResource {
@@ -180,7 +180,7 @@ Value: {
 ]
 `;
 
-exports[`ExternalCacheProvider should resolve useResource() with SimpleRecords 1`] = `
+exports[`ExternalCacheProvider should resolve useSuspense() with SimpleRecords 1`] = `
 Array [
   PaginatedArticleResource {
     "author": UserResource {
@@ -213,7 +213,7 @@ Array [
 ]
 `;
 
-exports[`ExternalCacheProvider useResource() should throw errors on malformed response 1`] = `
+exports[`ExternalCacheProvider useSuspense() should throw errors on malformed response 1`] = `
 [Error: Error processing GET http://test.com/article-cooler/878
 
 Full Schema: {
