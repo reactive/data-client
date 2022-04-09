@@ -575,9 +575,9 @@ describe('useResource()', () => {
       const { result, waitForNextUpdate, rerender } = renderRestHook(
         () => {
           return {
-            data: useResource(ContextAuthdArticle.detail(), payload),
-            fetch: useFetcher(ContextAuthdArticle.detail()),
-            create: useFetcher(ContextAuthdArticle.create()),
+            data: useResource(ContextAuthdArticle.useDetail(), payload),
+            fetch: useFetcher(ContextAuthdArticle.useDetail()),
+            create: useFetcher(ContextAuthdArticle.useCreate()),
           };
         },
         {

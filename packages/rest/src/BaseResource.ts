@@ -33,7 +33,7 @@ export default abstract class BaseResource extends Entity {
     return `${this.name}::${this.urlRoot}`;
   }
 
-  /** Returns the globally unique identifier for this SimpleResource */
+  /** Returns the globally unique identifier for this BaseResource */
   static get key(): string {
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
@@ -48,10 +48,10 @@ export default abstract class BaseResource extends Entity {
     return this.urlRoot;
   }
 
-  /** URL to find this SimpleResource */
+  /** URL to find this BaseResource */
   declare readonly url: string;
 
-  /** Get the url for a SimpleResource
+  /** Get the url for a BaseResource
    *
    * Default implementation conforms to common REST patterns
    */
@@ -69,7 +69,7 @@ export default abstract class BaseResource extends Entity {
     return this.urlRoot;
   }
 
-  /** Get the url for many SimpleResources
+  /** Get the url for many BaseResources
    *
    * Default implementation conforms to common REST patterns
    */
@@ -130,12 +130,7 @@ export default abstract class BaseResource extends Entity {
     return init;
   }
 
-  /** Init options for fetch - run at render */
-  static useFetchInit(init: Readonly<RequestInit>): RequestInit {
-    return init;
-  }
-
-  /** Get the request options for this SimpleResource */
+  /** Get the request options for this BaseResource */
   static getEndpointExtra(): EndpointExtraOptions | undefined {
     return {
       errorPolicy: error =>
@@ -167,7 +162,7 @@ export default abstract class BaseResource extends Entity {
         },
       });
     }
-    return cache[name].useFetchInit() as T;
+    return cache[name] as T;
   }
 
   /** Base endpoint that uses all the hooks provided by Resource  */
@@ -193,10 +188,6 @@ export default abstract class BaseResource extends Entity {
           },
           url,
           fetchInit: {} as RequestInit,
-          useFetchInit(this: any) {
-            this.fetchInit = resource.useFetchInit(this.fetchInit);
-            return this;
-          },
           getFetchInit(this: any, body?: any) {
             if (isPojo(body)) {
               body = JSON.stringify(body);
