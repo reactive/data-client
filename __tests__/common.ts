@@ -12,7 +12,7 @@ import {
 import {
   Resource,
   RestEndpoint,
-  RestFetch,
+  HookableResource,
   FetchGet,
   FetchMutate,
   Schema,
@@ -193,7 +193,29 @@ export class ArticleResource extends Resource {
 
 export const AuthContext = createContext('');
 
-export class ContextAuthdArticle extends ArticleResource {
+export class ContextAuthdArticle extends HookableResource {
+  readonly id: number | undefined = undefined;
+  readonly title: string = '';
+  readonly content: string = '';
+  readonly author: UserResource | null = null;
+  readonly tags: string[] = [];
+
+  pk() {
+    return this.id?.toString();
+  }
+
+  static schema = {
+    author: UserResource,
+  };
+
+  static urlRoot = 'http://test.com/article/';
+  static url(urlParams?: any): string {
+    if (urlParams && !urlParams.id) {
+      return `${this.urlRoot}${urlParams.title}`;
+    }
+    return super.url(urlParams);
+  }
+
   /** Init options for fetch */
   static useFetchInit(init: RequestInit): RequestInit {
     /* eslint-disable-next-line */

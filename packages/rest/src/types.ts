@@ -32,7 +32,6 @@ export interface RestEndpoint<
 > extends EndpointInstance<F, S, M> {
   url: (...args: U) => string;
   fetchInit: RequestInit;
-  useFetchInit: (this: any) => any;
   getFetchInit: (
     this: any,
     body?: RequestInit['body'] | Record<string, any>,

@@ -631,9 +631,9 @@ describe('useSuspense()', () => {
       const { result, waitForNextUpdate, rerender } = renderRestHook(
         () => {
           return {
-            data: useSuspense(ContextAuthdArticle.detail(), payload),
+            data: useSuspense(ContextAuthdArticle.useDetail(), payload),
             controller: useController(),
-            endpoint: ContextAuthdArticle.detail(),
+            endpoint: ContextAuthdArticle.useDetail(),
           };
         },
         {

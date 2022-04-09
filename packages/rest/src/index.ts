@@ -1,7 +1,8 @@
 import Resource from '@rest-hooks/rest/Resource';
 import BaseResource from '@rest-hooks/rest/BaseResource';
+import HookableResource from '@rest-hooks/rest/HookableResource';
 
-export { Resource, BaseResource };
+export { Resource, BaseResource, HookableResource };
 
 export type {
   RestEndpoint,
