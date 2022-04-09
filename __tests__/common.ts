@@ -256,7 +256,7 @@ export class ArticleResourceWithOtherListUrl extends ArticleResource {
     const list = ArticleResourceWithOtherListUrl.list();
     const otherList = ArticleResourceWithOtherListUrl.otherList();
     return super.create().extend({
-      getOptimisticResponse: (snap, params, body) => body,
+      getOptimisticResponse: (snap, body) => body,
       schema: this,
       update: (newArticleID: string) => ({
         [list.key({})]: (articleIDs: string[] | undefined) => [
