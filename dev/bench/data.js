@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1649437279945,
+  "lastUpdate": 1649531994108,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -5414,6 +5414,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.85%",
             "unit": "ops/sec",
             "extra": "75 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "dcd9fbb4f4ce5583503187317ea0e065f5d31f1a",
+          "message": "feat: HookableResource - endpoints as hooks (#1891)\n\nBREAKING CHANGE: Removed Resource.useFetchInit(). Use HookableResource\r\ninstead",
+          "timestamp": "2022-04-09T12:16:30-07:00",
+          "tree_id": "969416204812b7d83c2b7c44e28f1a544bb237ff",
+          "url": "https://github.com/coinbase/rest-hooks/commit/dcd9fbb4f4ce5583503187317ea0e065f5d31f1a"
+        },
+        "date": 1649531992506,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 99.96,
+            "range": "±1.26%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 39.7,
+            "range": "±0.93%",
+            "unit": "ops/sec",
+            "extra": "53 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 43.36,
+            "range": "±0.96%",
+            "unit": "ops/sec",
+            "extra": "57 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 99.44,
+            "range": "±1.68%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
           }
         ]
       }
