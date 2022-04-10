@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1649562999700,
+  "lastUpdate": 1649615471644,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -5570,6 +5570,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.76%",
             "unit": "ops/sec",
             "extra": "68 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "36b11af67b08183288ad295ff0303eaf78f01dba",
+          "message": "enhance: Improve type inference for getFetchKey (#1896)",
+          "timestamp": "2022-04-10T11:26:26-07:00",
+          "tree_id": "f318d03eb96fbdf3490798fa1450fe15f564836a",
+          "url": "https://github.com/coinbase/rest-hooks/commit/36b11af67b08183288ad295ff0303eaf78f01dba"
+        },
+        "date": 1649615469958,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 79.64,
+            "range": "±1.69%",
+            "unit": "ops/sec",
+            "extra": "67 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 31.84,
+            "range": "±1.43%",
+            "unit": "ops/sec",
+            "extra": "56 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 35.23,
+            "range": "±1.25%",
+            "unit": "ops/sec",
+            "extra": "61 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 78.1,
+            "range": "±1.03%",
+            "unit": "ops/sec",
+            "extra": "65 samples"
           }
         ]
       }
