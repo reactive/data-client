@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.3.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.3...rest-hooks@6.3.0) (2022-04-10)
+
+
+### 🚀 Features
+
+* Export useDLE() ([#1879](https://github.com/coinbase/rest-hooks/issues/1879)) ([25d57f3](https://github.com/coinbase/rest-hooks/commit/25d57f3729fda7c4dc50329588ce3c15d345b692))
+
+
+
 ### [6.2.3](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.2...rest-hooks@6.2.3) (2022-04-08)
 
 **Note:** Version bump only for package rest-hooks

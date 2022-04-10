@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@4.0.0...@rest-hooks/rest@5.0.0) (2022-04-10)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* fetch(Resource.create(), {}, body) -> fetch(Resource.create(), body)
+* Removed Resource.useFetchInit(). Use HookableResource
+instead
+
+### 🚀 Features
+
+* HookableResource - endpoints as hooks ([#1891](https://github.com/coinbase/rest-hooks/issues/1891)) ([dcd9fbb](https://github.com/coinbase/rest-hooks/commit/dcd9fbb4f4ce5583503187317ea0e065f5d31f1a))
+* Resource.create() can take 1-2 args ([ed4f55c](https://github.com/coinbase/rest-hooks/commit/ed4f55c8b4b80eb93f3c01108c2177b97f5dc4e8))
+* Simplify Resource.create() & Resource.list() arguments ([153f8fa](https://github.com/coinbase/rest-hooks/commit/153f8fac3ff64a3b9fc3df31c7ce31ad8193633a))
+
+
+
 ## [4.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@3.0.3...@rest-hooks/rest@4.0.0) (2022-04-08)
 
 

@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@4.0.0...@rest-hooks/experimental@5.0.0) (2022-04-10)
+
+
+### ⚠ 💥 BREAKING CHANGES
+
+* * Resource.listUrl() is gone
+* Resource.urlRoot should use path-to-regex syntax
+* Removed Resource.useFetchInit(). Use HookableResource
+instead
+
+### 🚀 Features
+
+* HookableResource - endpoints as hooks ([#1891](https://github.com/coinbase/rest-hooks/issues/1891)) ([dcd9fbb](https://github.com/coinbase/rest-hooks/commit/dcd9fbb4f4ce5583503187317ea0e065f5d31f1a))
+* Use path-to-regex for urls ([a8ee5bf](https://github.com/coinbase/rest-hooks/commit/a8ee5bff5686e1bca0cf239cb41fb56e792f08d9))
+
+
+
 ## [4.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@3.3.2...@rest-hooks/experimental@4.0.0) (2022-04-08)
 
 
