@@ -12,8 +12,6 @@ import CommentsList, { CardLoading } from './CommentsList';
 
 const { Meta } = Card;
 
-type Props = Pick<IssueResource, 'repositoryUrl'>;
-
 function ReactionSpan({
   reactions,
   issue,
@@ -38,19 +36,15 @@ function ReactionSpan({
 
 function IssueDetail({ number: s }: { number: string }) {
   const number = Number.parseInt(s, 10);
+  const params = {
+    owner: 'facebook',
+    repo: 'react',
+    number,
+  };
 
-  useFetch(ReactionResource.list(), {
-    repositoryUrl: 'https://api.github.com/repos/facebook/react',
-    number,
-  });
-  const issue = useSuspense(IssueResource.detail(), {
-    repositoryUrl: 'https://api.github.com/repos/facebook/react',
-    number,
-  });
-  const { results: reactions } = useCache(ReactionResource.list(), {
-    repositoryUrl: 'https://api.github.com/repos/facebook/react',
-    number,
-  });
+  useFetch(ReactionResource.list(), params);
+  const issue = useSuspense(IssueResource.detail(), params);
+  const { results: reactions } = useCache(ReactionResource.list(), params);
 
   const actions: JSX.Element[] = useMemo(() => {
     const grouped = groupBy(reactions, (reaction) => reaction.content);
@@ -74,7 +68,7 @@ function IssueDetail({ number: s }: { number: string }) {
       </Card>
       {issue.comments ? (
         <Boundary fallback={<CardLoading />}>
-          <CommentsList issueUrl={issue.url} />
+          <CommentsList {...params} />
         </Boundary>
       ) : null}
     </React.Fragment>

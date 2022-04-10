@@ -1,5 +1,3 @@
-import { Resource } from '@rest-hooks/experimental';
-
 import BaseResource from './BaseResource';
 import UserResource from './UserResource';
 
@@ -16,22 +14,8 @@ export default class CommentResource extends BaseResource {
     return this.id?.toString();
   }
 
-  static urlRoot = 'https://api.github.com/repos/issues/comments';
-
-  static url<T extends typeof Resource>(
-    this: T,
-    urlParams?: Readonly<any>,
-  ): string {
-    throw new Error('retrieving single comment not supported');
-  }
-
-  static listUrl<T extends typeof Resource>(
-    this: T,
-    searchParams?: Readonly<any>,
-  ): string {
-    if (!searchParams) throw new Error('requires searchparams');
-    return `${searchParams.issueUrl}/comments`;
-  }
+  static urlRoot =
+    'https\\://api.github.com/repos/:owner/:repo/issues/:number/comments' as const;
 
   static schema = {
     user: UserResource,

@@ -12,31 +12,29 @@ const REL = new Intl.RelativeTimeFormat(navigator.language || 'en-US', {
   style: 'long',
 });
 
-type Props = Pick<IssueResource, 'repositoryUrl'> &
-  (
-    | {
-        page: number;
-      }
-    | {
-        state?: IssueResource['state'];
-      }
-  );
+type Props = { owner: string; repo: string } & (
+  | {
+      page: number;
+    }
+  | {
+      state?: IssueResource['state'];
+    }
+);
 
-export default function IssueList({ repositoryUrl }: Props) {
+export default function IssueList({ owner, repo }: Props) {
   const location = useLocation();
   const page = Number.parseInt(
     new URLSearchParams(location && location.search.substring(1)).get('page') ||
       '1',
     10,
   );
-  const { results: issues, link } = useSuspense(IssueResource.list(), {
-    repositoryUrl,
+  const params = {
+    owner,
+    repo,
     page,
-  });
-  useSubscription(IssueResource.list(), {
-    repositoryUrl,
-    page,
-  });
+  };
+  const { results: issues, link } = useSuspense(IssueResource.list(), params);
+  useSubscription(IssueResource.list(), params);
 
   return (
     <>
@@ -53,16 +51,18 @@ export default function IssueList({ repositoryUrl }: Props) {
 }
 
 function NextPage({
-  repositoryUrl,
+  repo,
+  owner,
   page,
 }: {
-  repositoryUrl: string;
+  repo: string;
+  owner: string;
   page: number;
 }) {
   const { fetch } = useController();
   const [count, setCount] = useState(0);
   const loadMore = () => {
-    fetch(IssueResource.listPage(), { page: page + count + 1, repositoryUrl });
+    fetch(IssueResource.listPage(), { page: page + count + 1, repo, owner });
     setCount((count) => count + 1);
   };
   return (

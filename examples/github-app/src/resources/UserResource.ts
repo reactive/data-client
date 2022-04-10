@@ -1,5 +1,3 @@
-import { FetchGet, Resource, RestEndpoint } from '@rest-hooks/experimental';
-
 import BaseResource from './BaseResource';
 
 export default class UserResource extends BaseResource {
@@ -48,21 +46,15 @@ export default class UserResource extends BaseResource {
     return this.login;
   }
 
-  static urlRoot = 'https://api.github.com/users/';
+  static urlRoot = 'https\\://api.github.com/users/:login?' as const;
 
   /** Retrieves current logged in user */
-  static current<T extends typeof Resource>(this: T) {
-    return super.endpoint().extend({
+  static current<T extends typeof UserResource>(this: T) {
+    return this.endpoint().extend({
       url() {
         return 'https://api.github.com/user/';
       },
       schema: this,
     });
-  }
-
-  static detail<T extends typeof Resource>(
-    this: T,
-  ): RestEndpoint<FetchGet<[{ login: string }]>, T, undefined> {
-    return super.detail().extend({ schema: this });
   }
 }

@@ -1,12 +1,6 @@
-import {
-  EndpointExtraOptions,
-  FetchGet,
-  Resource,
-  RestEndpoint,
-} from '@rest-hooks/experimental';
+import { EndpointExtraOptions } from '@rest-hooks/experimental';
 import React from 'react';
 import { InfoCircleOutlined, IssuesCloseOutlined } from '@ant-design/icons';
-import { Paginatable } from '@rest-hooks/experimental';
 
 import BaseResource from './BaseResource';
 import UserResource from './UserResource';
@@ -46,42 +40,10 @@ export default class IssueResource extends BaseResource {
     return [this.repositoryUrl, this.number].join(',');
   }
 
-  static urlRoot = 'https://api.github.com/repos/issues';
+  static urlRoot =
+    'https\\://api.github.com/repos/:owner/:repo/issues/:number?' as const;
 
   static getEndpointExtra(): EndpointExtraOptions {
     return { ...super.getEndpointExtra(), pollFrequency: 60000 };
-  }
-
-  static url(urlParams: Readonly<any>): string {
-    if (urlParams) {
-      return `${urlParams.repositoryUrl}/issues/${urlParams.number}`;
-    }
-    return this.urlRoot;
-  }
-
-  static listUrl(
-    searchParams: Readonly<Record<string, string | number>>,
-  ): string {
-    const queryParams: any = {
-      ...searchParams,
-      per_page: 50,
-    };
-    delete queryParams.repositoryUrl;
-
-    const params = new URLSearchParams(queryParams);
-    params.sort();
-    return `${searchParams.repositoryUrl}/issues?${params.toString()}`;
-  }
-
-  static list<T extends typeof Resource>(
-    this: T,
-  ): Paginatable<
-    RestEndpoint<
-      FetchGet<[{ repositoryUrl: string; state?: string; page?: number }]>,
-      { results: T[]; link: string },
-      undefined
-    >
-  > {
-    return super.list() as any;
   }
 }

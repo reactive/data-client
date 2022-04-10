@@ -24,10 +24,11 @@ export const routes = [
   {
     name: 'Home',
     component: lazyPage('IssueList'),
-    repositoryUrl: 'https://api.github.com/repos/facebook/react',
+    owner: 'facebook',
+    repo: 'react',
     resolveData: async (
       controller: Controller,
-      match: { repositoryUrl: string },
+      match: { owner: string; repo: string },
     ) => {
       controller.fetch(IssueResource.list(), match);
     },
@@ -36,17 +37,14 @@ export const routes = [
     name: 'IssueDetail',
     component: lazyPage('IssueDetail'),
     resolveData: async (controller: Controller, match: { number: string }) => {
-      controller.fetch(ReactionResource.list(), {
-        repositoryUrl: 'https://api.github.com/repos/facebook/react',
+      const params = {
+        owner: 'facebook',
+        repo: 'react',
         number: match.number,
-      });
-      const issue = await controller.fetch(IssueResource.detail(), {
-        repositoryUrl: 'https://api.github.com/repos/facebook/react',
-        number: match.number,
-      });
-      controller.fetch(CommentResource.list(), {
-        issueUrl: issue.url,
-      });
+      };
+      controller.fetch(ReactionResource.list(), params);
+      controller.fetch(CommentResource.list(), params);
+      await controller.fetch(IssueResource.detail(), params);
     },
   },
   {
