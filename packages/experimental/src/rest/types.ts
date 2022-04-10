@@ -10,11 +10,13 @@ export type RestFetch<A extends readonly any[] = any[], R = any> = (
   ...args: A
 ) => Promise<R>;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export type FetchMutate<A extends readonly any[] = [any, {}], R = any> = (
-  this: RestEndpoint,
-  ...args: A
-) => Promise<R>;
+export type FetchMutate<
+  A extends readonly any[] =  // eslint-disable-next-line @typescript-eslint/ban-types
+    | [any, {}]
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    | [{}],
+  R = any,
+> = (this: RestEndpoint, ...args: A) => Promise<R>;
 
 export type FetchGet<A extends readonly any[] = [any], R = any> = (
   this: RestEndpoint,
@@ -32,7 +34,6 @@ export interface RestEndpoint<
 > extends EndpointInstance<F, S, M> {
   url: (...args: Parameters<F>) => string;
   fetchInit: RequestInit;
-  useFetchInit: (this: any) => any;
   getFetchInit: (
     this: any,
     body?: RequestInit['body'] | Record<string, any>,

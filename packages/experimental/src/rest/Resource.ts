@@ -36,7 +36,7 @@ export default abstract class Resource extends BaseResource {
     this: T,
   ): Paginatable<
     RestEndpoint<
-      (this: RestEndpoint, params: any) => Promise<any>,
+      (this: RestEndpoint, params?: any) => Promise<any>,
       SchemaList<AbstractInstanceType<T>>,
       undefined
     >
@@ -45,7 +45,6 @@ export default abstract class Resource extends BaseResource {
     return this.memo('#list', () =>
       endpoint.extend({
         schema: [this],
-        url: this.listUrl.bind(this),
         paginated(
           this: any,
           removeCursor: (...args: Parameters<typeof this>) => {
@@ -79,18 +78,26 @@ export default abstract class Resource extends BaseResource {
   static create<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    (this: RestEndpoint, params: any, body: any) => Promise<any>,
+    (this: RestEndpoint, first: any, second?: any) => Promise<any>,
     SchemaDetail<AbstractInstanceType<T>>,
     true
   > {
-    //Partial<AbstractInstanceType<T>>
-    const endpoint = this.endpointMutate();
-    return this.memo('#create', () =>
-      endpoint.extend({
+    return this.memo('#create', () => {
+      const endpoint = this.endpointMutate();
+      const instanceFetch = this.fetch.bind(this);
+      return endpoint.extend({
+        fetch(...args) {
+          return instanceFetch(
+            this.url(...args),
+            this.getFetchInit(args[args.length - 1]),
+          );
+        },
+        url: (...args) => {
+          return args.length > 1 ? this.url(args[0]) : this.url();
+        },
         schema: this,
-        url: this.listUrl.bind(this),
-      }),
-    );
+      });
+    });
   }
 
   /** Endpoint to update an existing entity (put) */
