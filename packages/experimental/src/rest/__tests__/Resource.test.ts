@@ -26,7 +26,7 @@ export class UserResource extends Resource {
     return this.id?.toString();
   }
 
-  static urlRoot = 'http://test.com/user/';
+  static urlRoot = 'http\\://test.com/user/:id?';
 }
 export class PaginatedArticleResource extends Resource {
   readonly id: number | undefined = undefined;
@@ -43,7 +43,7 @@ export class PaginatedArticleResource extends Resource {
     author: UserResource,
   };
 
-  static urlRoot = 'http://test.com/article-paginated/';
+  static urlRoot = 'http\\://test.com/article-paginated/:id?';
 
   static list<T extends typeof Resource>(
     this: T,
@@ -95,11 +95,11 @@ describe('Resource', () => {
       .reply(403, {})
       .get(`/article-cooler/666`)
       .reply(200, '')
-      .get(`/article-cooler/`)
+      .get(`/article-cooler`)
       .reply(200, nested)
-      .post(`/article-cooler/`)
+      .post(`/article-cooler`)
       .reply(200, createPayload)
-      .get(`/user/`)
+      .get(`/user`)
       .reply(200, users);
     mynock = nock(/.*/).defaultReplyHeaders({
       'Access-Control-Allow-Origin': '*',
@@ -109,6 +109,57 @@ describe('Resource', () => {
 
   afterEach(() => {
     nock.cleanAll();
+  });
+
+  it('should handle simple urls', () => {
+    expect(UserResource.detail().url({ id: '5' })).toBe(
+      'http://test.com/user/5',
+    );
+    expect(UserResource.detail().url({ id: '100' })).toBe(
+      'http://test.com/user/100',
+    );
+    expect(UserResource.list().url({ bob: '100' })).toBe(
+      'http://test.com/user?bob=100',
+    );
+    expect(UserResource.create().url({ bob: '100' })).toBe(
+      'http://test.com/user',
+    );
+    expect(
+      UserResource.update().url({ id: '100' }, { id: '100', username: 'bob' }),
+    ).toBe('http://test.com/user/100');
+  });
+
+  it('should handle multiarg urls', () => {
+    class UserResource extends Resource {
+      readonly id: number | undefined = undefined;
+      readonly username: string = '';
+      readonly email: string = '';
+      readonly isAdmin: boolean = false;
+
+      pk() {
+        return this.id?.toString();
+      }
+
+      static urlRoot = 'http\\://test.com/groups/:group/users/:id?';
+    }
+    expect(UserResource.detail().url({ group: 'big', id: '5' })).toBe(
+      'http://test.com/groups/big/users/5',
+    );
+    expect(UserResource.detail().url({ group: 'big', id: '100' })).toBe(
+      'http://test.com/groups/big/users/100',
+    );
+    expect(UserResource.list().url({ group: 'big', bob: '100' })).toBe(
+      'http://test.com/groups/big/users?bob=100',
+    );
+    expect(UserResource.create().url({ group: 'big' }, { bob: '100' })).toBe(
+      'http://test.com/groups/big/users',
+    );
+    expect(
+      UserResource.update().url(
+        { group: 'big', id: '100' },
+        { id: '100', username: 'bob' },
+      ),
+    ).toBe('http://test.com/groups/big/users/100');
   });
 
   it('should automatically name methods', () => {
@@ -127,8 +178,8 @@ describe('Resource', () => {
   });
 
   it('should update on get for a paginated resource', async () => {
-    mynock.get(`/article-paginated/`).reply(200, paginatedFirstPage);
-    mynock.get(`/article-paginated/?cursor=2`).reply(200, paginatedSecondPage);
+    mynock.get(`/article-paginated`).reply(200, paginatedFirstPage);
+    mynock.get(`/article-paginated?cursor=2`).reply(200, paginatedSecondPage);
 
     const { result, waitForNextUpdate } = renderRestHook(() => {
       const { fetch } = useController();
@@ -157,8 +208,8 @@ describe('Resource', () => {
   });
 
   it('should deduplicate results', async () => {
-    mynock.get(`/article-paginated/`).reply(200, paginatedFirstPage);
-    mynock.get(`/article-paginated/?cursor=2`).reply(200, {
+    mynock.get(`/article-paginated`).reply(200, paginatedFirstPage);
+    mynock.get(`/article-paginated?cursor=2`).reply(200, {
       ...paginatedSecondPage,
       results: [nested[nested.length - 1], ...moreNested],
     });
@@ -201,7 +252,7 @@ describe('Resource', () => {
         return this.id;
       }
 
-      static urlRoot = '/complex-thing/';
+      static urlRoot = '/complex-thing/:id?';
     }
     const firstResponse = {
       id: '5',

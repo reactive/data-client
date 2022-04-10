@@ -1,6 +1,6 @@
-import { Endpoint } from '@rest-hooks/endpoint';
+import { Endpoint, Entity } from '@rest-hooks/endpoint';
 import type { EndpointExtraOptions, Schema } from '@rest-hooks/endpoint';
-import { Entity } from '@rest-hooks/endpoint';
+import { compile, PathFunction, parse } from 'path-to-regexp';
 
 import paramsToString from './paramsToString';
 import { RestEndpoint } from './types';
@@ -34,7 +34,7 @@ export default abstract class BaseResource extends Entity {
     return `${this.name}::${this.urlRoot}`;
   }
 
-  /** Returns the globally unique identifier for this SimpleResource */
+  /** Returns the globally unique identifier for this BaseResource */
   static get key(): string {
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
@@ -49,38 +49,47 @@ export default abstract class BaseResource extends Entity {
     return this.urlRoot;
   }
 
-  /** URL to find this SimpleResource */
+  /** URL to find this BaseResource */
   declare readonly url: string;
 
-  /** Get the url for a SimpleResource
-   *
-   * Default implementation conforms to common REST patterns
-   */
-  static url(urlParams: Readonly<Record<string, any>>): string {
-    if (
-      Object.prototype.hasOwnProperty.call(urlParams, 'url') &&
-      urlParams.url &&
-      typeof urlParams.url === 'string'
-    ) {
-      return urlParams.url;
+  private static readonly urlBaseSymbol = Symbol('urlBase');
+  private static readonly urlTokensSymbol = Symbol('urlTokens');
+
+  protected static getUrlBase(): PathFunction {
+    if (!Object.hasOwnProperty.call(this, this.urlBaseSymbol)) {
+      (this as any)[this.urlBaseSymbol] = compile(this.urlRoot, {
+        encode: encodeURIComponent,
+        validate: false,
+      });
     }
-    if (this.pk(urlParams as any) !== undefined) {
-      return `${this.urlRoot.replace(/\/$/, '')}/${this.pk(urlParams as any)}`;
-    }
-    return this.urlRoot;
+    return (this as any)[this.urlBaseSymbol];
   }
 
-  /** Get the url for many SimpleResources
-   *
-   * Default implementation conforms to common REST patterns
-   */
-  static listUrl(
-    searchParams: Readonly<Record<string, string | number | boolean>> = {},
-  ): string {
-    if (Object.keys(searchParams).length) {
-      return `${this.urlRoot}?${paramsToString(searchParams)}`;
+  protected static getUrlTokens(): Set<string> {
+    if (!Object.hasOwnProperty.call(this, this.urlTokensSymbol)) {
+      (this as any)[this.urlTokensSymbol] = new Set(
+        parse(this.urlRoot).map(t =>
+          typeof t === 'string' ? t : `${t['name']}`,
+        ),
+      );
     }
-    return this.urlRoot;
+    return (this as any)[this.urlTokensSymbol];
+  }
+
+  /** Get the url */
+  static url(urlParams: Readonly<Record<string, any>> = {}): string {
+    const urlBase = this.getUrlBase()(urlParams);
+    const tokens = this.getUrlTokens();
+    const searchParams: Record<string, string | number | boolean> = {};
+    Object.keys(urlParams).forEach(k => {
+      if (!tokens.has(k)) {
+        searchParams[k] = urlParams[k];
+      }
+    });
+    if (Object.keys(searchParams).length) {
+      return `${urlBase}?${paramsToString(searchParams)}`;
+    }
+    return urlBase;
   }
 
   /** Perform network request and resolve with HTTP Response */
@@ -131,12 +140,7 @@ export default abstract class BaseResource extends Entity {
     return init;
   }
 
-  /** Init options for fetch - run at render */
-  static useFetchInit(init: Readonly<RequestInit>): RequestInit {
-    return init;
-  }
-
-  /** Get the request options for this SimpleResource */
+  /** Get the request options for this BaseResource */
   static getEndpointExtra(): EndpointExtraOptions | undefined {
     return {
       errorPolicy: error =>
@@ -168,7 +172,7 @@ export default abstract class BaseResource extends Entity {
         },
       });
     }
-    return cache[name].useFetchInit() as T;
+    return cache[name] as T;
   }
 
   /** Base endpoint that uses all the hooks provided by Resource  */
@@ -194,10 +198,6 @@ export default abstract class BaseResource extends Entity {
           },
           url,
           fetchInit: {} as RequestInit,
-          useFetchInit(this: any) {
-            this.fetchInit = resource.useFetchInit(this.fetchInit);
-            return this;
-          },
           getFetchInit(this: any, body?: any) {
             if (isPojo(body)) {
               body = JSON.stringify(body);
@@ -240,7 +240,7 @@ export default abstract class BaseResource extends Entity {
       get(): string {
         // typescript thinks constructor is just a function
         const Static = this.constructor as typeof BaseResource;
-        return Static.url(this);
+        return Static.url(this).split('?')[0];
       },
       set(v: string) {
         Object.defineProperty(this, 'url', {
