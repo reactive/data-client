@@ -11,7 +11,7 @@ import {
   mockInitialState,
 } from '../../../../test';
 import { ControllerContext, DispatchContext, StateContext } from '../context';
-import { useController } from '../hooks';
+import { useController, useFetcher } from '../hooks';
 import { State, ActionTypes } from '../../types';
 import { INVALIDATE_TYPE, RESET_TYPE } from '../../actionTypes';
 import { articlesPages } from '../test-fixtures';
@@ -105,6 +105,27 @@ describe('useController.fetch', () => {
       return null;
     }
     await testDispatchFetch(DispatchTester, [payload]);
+  });
+
+  it('useFetcher() handle zero argument Endpoints', async () => {
+    const endpoint = CoolerArticleResource.list().extend({
+      fetch() {
+        return CoolerArticleResource.list().call(this as any, {});
+      },
+      url() {
+        return '';
+      },
+    });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function DispatchTester() {
+      const a = useFetcher(endpoint);
+      a(undefined).then(v => {
+        v[0].author;
+        //@ts-expect-error
+        v.jasfdasdf;
+      });
+      return null;
+    }
   });
 
   it('should handle zero argument Endpoints', async () => {
