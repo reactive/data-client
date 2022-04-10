@@ -8,9 +8,19 @@ import CommentResource from '../../resources/CommentResource';
 
 const { Meta } = Card;
 
-export default function CommentsList({ issueUrl }: { issueUrl: string }) {
+export default function CommentsList({
+  owner,
+  repo,
+  number,
+}: {
+  owner: string;
+  repo: string;
+  number: string | number;
+}) {
   const { results: comments } = useSuspense(CommentResource.list(), {
-    issueUrl,
+    owner,
+    repo,
+    number,
   });
 
   return (

@@ -4,6 +4,7 @@ import {
   RestEndpoint,
   Paginatable,
   FetchGet,
+  PathArgsAndSearch,
 } from '@rest-hooks/experimental';
 
 function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
@@ -41,12 +42,19 @@ export default abstract class BaseResource extends Resource {
   static list<T extends typeof Resource>(
     this: T,
   ): Paginatable<
-    RestEndpoint<FetchGet, { results: T[]; link: string }, undefined>
+    RestEndpoint<
+      (
+        this: RestEndpoint,
+        params?: PathArgsAndSearch<T['urlRoot']>,
+      ) => Promise<any>,
+      { results: T[]; link: string },
+      undefined
+    >
   > {
     const instanceFetchResponse = this.fetchResponse.bind(this);
 
     return super.list().extend({
-      fetch: async function (params: Readonly<object>) {
+      fetch: async function (params: any) {
         const response = await instanceFetchResponse(
           this.url(params),
           this.getFetchInit(),
@@ -70,7 +78,7 @@ export default abstract class BaseResource extends Resource {
     this: T,
   ): Paginatable<
     RestEndpoint<
-      FetchGet<[{ page: number } & Parameters<ReturnType<T['list']>>[0]]>,
+      FetchGet<[{ page: number } & PathArgsAndSearch<T['urlRoot']>]>,
       { results: T[]; link: string },
       undefined
     >

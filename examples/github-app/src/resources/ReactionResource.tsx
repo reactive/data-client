@@ -1,5 +1,3 @@
-import React from 'react';
-import { Resource } from '@rest-hooks/experimental';
 import { HeartOutlined } from '@ant-design/icons';
 
 import PreviewResource from './PreviewResource';
@@ -42,25 +40,8 @@ export default class ReactionResource extends PreviewResource {
     return this.id?.toString();
   }
 
-  static urlRoot = 'https://api.github.com/reactions/';
-
-  static listUrl<T extends typeof Resource>(
-    this: T,
-    searchParams?: Readonly<Record<string, string | number>>,
-  ): string {
-    if (!searchParams) throw new Error('need search params');
-    const queryParams: any = {
-      ...searchParams,
-    };
-    delete queryParams.repositoryUrl;
-    delete queryParams.number;
-
-    const params = new URLSearchParams(queryParams as any);
-    params.sort();
-    return `${searchParams.repositoryUrl}/issues/${
-      searchParams.number
-    }/reactions?${params.toString()}`;
-  }
+  static urlRoot =
+    'https\\://api.github.com/repos/:owner/:repo/issues/:number/reactions' as const;
 
   static schema = {
     user: UserResource,
