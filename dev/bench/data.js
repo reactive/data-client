@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1649542746693,
+  "lastUpdate": 1649562999700,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -5518,6 +5518,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.55%",
             "unit": "ops/sec",
             "extra": "69 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "natmaster@gmail.com",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": true,
+          "id": "a8ee5bff5686e1bca0cf239cb41fb56e792f08d9",
+          "message": "feat: Use path-to-regex for urls\n\nBREAKING CHANGE:\n* Resource.listUrl() is gone\n* Resource.urlRoot should use path-to-regex syntax",
+          "timestamp": "2022-04-09T22:52:30-05:00",
+          "tree_id": "9a4fa5783a8ad8d2e81c245681a2d076f2ed65ee",
+          "url": "https://github.com/coinbase/rest-hooks/commit/a8ee5bff5686e1bca0cf239cb41fb56e792f08d9"
+        },
+        "date": 1649562998783,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 79.09,
+            "range": "±1.65%",
+            "unit": "ops/sec",
+            "extra": "66 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 33.04,
+            "range": "±1.49%",
+            "unit": "ops/sec",
+            "extra": "58 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 36.2,
+            "range": "±0.72%",
+            "unit": "ops/sec",
+            "extra": "62 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 79.56,
+            "range": "±1.76%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
           }
         ]
       }
