@@ -7,7 +7,12 @@ import { schema } from '@rest-hooks/endpoint';
 
 import getArrayPath from './getArrayPath';
 import BaseResource from './BaseResource';
-import type { RestEndpoint, Paginatable } from './types';
+import type {
+  RestEndpoint,
+  Paginatable,
+  PathArgs,
+  PathArgsAndSearch,
+} from './types';
 
 /**
  * Represents an entity to be retrieved from a server.
@@ -19,7 +24,7 @@ export default abstract class Resource extends BaseResource {
   static detail<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    (this: RestEndpoint, params: any) => Promise<any>,
+    (this: RestEndpoint, params: PathArgs<T['urlRoot']>) => Promise<any>,
     SchemaDetail<AbstractInstanceType<T>>,
     undefined
   > {
@@ -36,7 +41,10 @@ export default abstract class Resource extends BaseResource {
     this: T,
   ): Paginatable<
     RestEndpoint<
-      (this: RestEndpoint, params?: any) => Promise<any>,
+      (
+        this: RestEndpoint,
+        params?: PathArgsAndSearch<T['urlRoot']>,
+      ) => Promise<any>,
       SchemaList<AbstractInstanceType<T>>,
       undefined
     >
@@ -71,7 +79,7 @@ export default abstract class Resource extends BaseResource {
           });
         },
       }),
-    );
+    ) as any;
   }
 
   /** Endpoint to create a new entity (post) */
@@ -104,7 +112,11 @@ export default abstract class Resource extends BaseResource {
   static update<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    (this: RestEndpoint, params: any, body: any) => Promise<any>,
+    (
+      this: RestEndpoint,
+      params: PathArgs<T['urlRoot']>,
+      body: any,
+    ) => Promise<any>,
     SchemaDetail<AbstractInstanceType<T>>,
     true
   > {
@@ -121,7 +133,11 @@ export default abstract class Resource extends BaseResource {
   static partialUpdate<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    (this: RestEndpoint, params: any, body: any) => Promise<any>,
+    (
+      this: RestEndpoint,
+      params: PathArgs<T['urlRoot']>,
+      body: any,
+    ) => Promise<any>,
     SchemaDetail<AbstractInstanceType<T>>,
     true
   > {
@@ -138,7 +154,7 @@ export default abstract class Resource extends BaseResource {
   static delete<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    (this: RestEndpoint, params: any) => Promise<any>,
+    (this: RestEndpoint, params: PathArgs<T['urlRoot']>) => Promise<any>,
     schema.Delete<T>,
     true
   > {
