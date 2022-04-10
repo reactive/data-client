@@ -26,7 +26,7 @@ export class UserResource extends Resource {
     return this.id?.toString();
   }
 
-  static urlRoot = 'http\\://test.com/user/:id?';
+  static urlRoot = 'http\\://test.com/user/:id?' as const;
 }
 export class PaginatedArticleResource extends Resource {
   readonly id: number | undefined = undefined;
@@ -43,13 +43,13 @@ export class PaginatedArticleResource extends Resource {
     author: UserResource,
   };
 
-  static urlRoot = 'http\\://test.com/article-paginated/:id?';
+  static urlRoot = 'http\\://test.com/article-paginated/:id?' as const;
 
   static list<T extends typeof Resource>(
     this: T,
   ): Paginatable<
     RestEndpoint<
-      FetchGet<[{ cursor?: number }]>,
+      (this: RestEndpoint, params?: { cursor?: number }) => Promise<any>,
       { nextPage: string; results: T[] },
       undefined
     >
@@ -63,7 +63,7 @@ export class PaginatedArticleResource extends Resource {
   }
 
   static listPage<T extends typeof PaginatedArticleResource>(this: T) {
-    return this.list().paginated(({ cursor, ...rest }) => [rest]);
+    return this.list().paginated(({ cursor, ...rest } = {}) => [rest]);
   }
 }
 
@@ -127,6 +127,9 @@ describe('Resource', () => {
     expect(
       UserResource.update().url({ id: '100' }, { id: '100', username: 'bob' }),
     ).toBe('http://test.com/user/100');
+
+    // @ts-expect-error
+    () => UserResource.detail().url({ sdf: '5' });
   });
 
   it('should handle multiarg urls', () => {
@@ -140,7 +143,7 @@ describe('Resource', () => {
         return this.id?.toString();
       }
 
-      static urlRoot = 'http\\://test.com/groups/:group/users/:id?';
+      static urlRoot = 'http\\://test.com/groups/:group/users/:id?' as const;
     }
     expect(UserResource.detail().url({ group: 'big', id: '5' })).toBe(
       'http://test.com/groups/big/users/5',
@@ -160,6 +163,26 @@ describe('Resource', () => {
         { id: '100', username: 'bob' },
       ),
     ).toBe('http://test.com/groups/big/users/100');
+
+    // missing required
+    expect(() =>
+      // @ts-expect-error
+      UserResource.detail().url({ id: '5' }),
+    ).toThrow();
+    // extra fields
+    () =>
+      UserResource.detail().url({
+        group: 'mygroup',
+        id: '5',
+        // @ts-expect-error
+        notexisting: 'hi',
+      });
+
+    // @ts-expect-error
+    () => useSuspense(UserResource.detail(), { id: '5' });
+    // @ts-expect-error
+    () => useSuspense(UserResource.detail());
+    () => useSuspense(UserResource.detail(), { group: 'yay', id: '5' });
   });
 
   it('should automatically name methods', () => {

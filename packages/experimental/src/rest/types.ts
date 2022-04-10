@@ -45,8 +45,30 @@ export interface RestEndpoint<
 export type Paginatable<
   E extends EndpointInterface<RestFetch, Schema | undefined, true | undefined>,
 > = E & {
-  paginated<T extends E>(
-    this: T,
-    removeCursor: (...args: Parameters<E>) => any[],
-  ): T;
+  paginated<T extends E>(this: T, removeCursor: (...args: any) => any[]): T;
 };
+
+type OnlyOptional<S extends string> = S extends `${infer K}?` ? K : never;
+type OnlyRequired<S extends string> = S extends `${string}?` ? never : S;
+
+export type PathKeys<S extends string> = S extends `${string}\\:${infer R}`
+  ? PathKeys<R>
+  : S extends `${string}:${infer K}/${infer R}`
+  ? RemoveEscapes<K> | PathKeys<R>
+  : S extends `${string}:${infer K}`
+  ? RemoveEscapes<K>
+  : never;
+
+type RemoveEscapes<S extends string> = S extends `${infer K}\\?${string}`
+  ? K
+  : S;
+
+export type PathArgs<S extends string> = {
+  [K in PathKeys<S> as OnlyOptional<K>]?: string | number;
+} & {
+  [K in PathKeys<S> as OnlyRequired<K>]: string | number;
+};
+
+export type PathArgsAndSearch<S extends string> = {
+  [K in PathKeys<S> as OnlyRequired<K>]: string | number;
+} & Record<string, number | string>;
