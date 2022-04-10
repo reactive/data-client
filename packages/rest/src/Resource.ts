@@ -50,7 +50,7 @@ export default abstract class Resource extends BaseResource {
   static create<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    (this: RestEndpoint, body: any) => Promise<any>,
+    (this: RestEndpoint, first: any, second?: any) => Promise<any>,
     SchemaDetail<AbstractInstanceType<T>>,
     true
   > {
@@ -58,11 +58,16 @@ export default abstract class Resource extends BaseResource {
       const endpoint = this.endpointMutate();
       const instanceFetch = this.fetch.bind(this);
       return endpoint.extend({
-        fetch(this: RestEndpoint, body: any) {
-          return instanceFetch(this.url(), this.getFetchInit(body));
+        fetch(...args) {
+          return instanceFetch(
+            this.url(...args),
+            this.getFetchInit(args[args.length - 1]),
+          );
+        },
+        url: (...args) => {
+          return args.length > 1 ? this.listUrl(args[0]) : this.listUrl();
         },
         schema: this,
-        url: this.listUrl.bind(this),
       });
     });
   }

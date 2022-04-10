@@ -95,6 +95,30 @@ describe('Resource', () => {
     });
   });
 
+  it('should build urls with different numbers of args', () => {
+    class UserResource extends Resource {
+      readonly id: number | undefined = undefined;
+      readonly username: string = '';
+      readonly email: string = '';
+      readonly isAdmin: boolean = false;
+
+      pk() {
+        return this.id?.toString();
+      }
+
+      static urlRoot = 'http://test.com/users';
+    }
+    expect(UserResource.create().url({ group: 'big' }, { bob: '100' })).toBe(
+      'http://test.com/users?group=big',
+    );
+    expect(UserResource.create().url({ bob: '100' })).toBe(
+      'http://test.com/users',
+    );
+    expect(
+      UserResource.update().url({ id: '100' }, { id: '100', username: 'bob' }),
+    ).toBe('http://test.com/users/100');
+  });
+
   describe('nested schema', () => {
     describe('merging', () => {
       const nested = [
