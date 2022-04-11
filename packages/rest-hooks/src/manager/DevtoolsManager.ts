@@ -26,6 +26,7 @@ export default class DevToolsManager implements Manager {
   constructor(
     config: DevToolsConfig = {
       name: `Rest Hooks: ${globalThis.document?.title}`,
+      autoPause: true,
       serialize: {
         // the default options are only used if serialize isn't specified, so we include the default here
         options: {
