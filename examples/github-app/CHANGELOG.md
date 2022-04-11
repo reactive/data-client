@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.2.4](https://github.com/coinbase/rest-hooks/compare/github-app@0.2.3...github-app@0.2.4) (2022-04-11)
+
+
+### 💅 Enhancement
+
+* Add labels to github example ([#1901](https://github.com/coinbase/rest-hooks/issues/1901)) ([ce9c7c9](https://github.com/coinbase/rest-hooks/commit/ce9c7c9bcbab6004035fe7fa5abebd0d48ea1b2c))
+
+
+### 🐛 Bug Fix
+
+* Update github example to use latest experimental Resource ([#1898](https://github.com/coinbase/rest-hooks/issues/1898)) ([75f1254](https://github.com/coinbase/rest-hooks/commit/75f1254b7c1658e83f74ba7d3a659d1db2d04d50))
+
+
+
 ### [0.2.3](https://github.com/coinbase/rest-hooks/compare/github-app@0.2.2...github-app@0.2.3) (2022-04-10)
 
 

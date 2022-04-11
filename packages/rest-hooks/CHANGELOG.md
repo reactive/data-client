@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.3.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.3.0...rest-hooks@6.3.1) (2022-04-11)
+
+
+### 💅 Enhancement
+
+* autopause devtools by default ([#1902](https://github.com/coinbase/rest-hooks/issues/1902)) ([586fa3c](https://github.com/coinbase/rest-hooks/commit/586fa3c0eaf4a2952e695bbb4fc1c1d216a3e833))
+
+
+
 ## [6.3.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.2.3...rest-hooks@6.3.0) (2022-04-10)
 
 

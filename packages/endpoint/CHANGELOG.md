@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [2.2.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.2.3...@rest-hooks/endpoint@2.2.4) (2022-04-11)
+
+
+### 💅 Enhancement
+
+* Improve type inference for getFetchKey ([#1896](https://github.com/coinbase/rest-hooks/issues/1896)) ([36b11af](https://github.com/coinbase/rest-hooks/commit/36b11af67b08183288ad295ff0303eaf78f01dba))
+
+
+
 ### [2.2.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.2.2...@rest-hooks/endpoint@2.2.3) (2022-04-08)
 
 **Note:** Version bump only for package @rest-hooks/endpoint
