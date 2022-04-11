@@ -57,7 +57,7 @@ export type PathKeys<S extends string> = S extends `${string}\\:${infer R}`
   ? RemoveEscapes<K> | PathKeys<R>
   : S extends `${string}:${infer K}`
   ? RemoveEscapes<K>
-  : never;
+  : string;
 
 type RemoveEscapes<S extends string> = S extends `${infer K}\\?${string}`
   ? K
