@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSuspense, useSubscription, useController } from 'rest-hooks';
 import { Link, useLocation } from '@anansi/router';
 import { List, Avatar } from 'antd';
+import Labels from 'components/Labels';
 
 import LinkPagination from '../navigation/LinkPagination';
 import IssueResource from '../resources/IssueResource';
@@ -74,9 +75,12 @@ function NextPage({
 
 function IssueListItem({ issue }: { issue: IssueResource }) {
   const actions = [];
+  if (issue.labels) {
+    actions.push(<Labels key="labels" labels={issue.labels} />);
+  }
   if (issue.comments) {
     actions.push(
-      <Link name="IssueDetail" props={{ number: issue.number }}>
+      <Link key="comments" name="IssueDetail" props={{ number: issue.number }}>
         <span role="img" aria-label="Comments">
           🗨️
         </span>
