@@ -28,7 +28,7 @@ const contentToIcon: Record<string, JSX.Element> = {
 
 export default class ReactionResource extends PreviewResource {
   readonly id: number | undefined = undefined;
-  readonly user: string = '';
+  readonly user: UserResource = UserResource.fromJS({});
   readonly content: ReactionType = '+1';
   readonly createdAt: Date = new Date(0);
 

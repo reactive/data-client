@@ -4,6 +4,7 @@ import { InfoCircleOutlined, IssuesCloseOutlined } from '@ant-design/icons';
 
 import BaseResource from './BaseResource';
 import UserResource from './UserResource';
+import LabelResource from './LabelResource';
 
 const stateToIcon: Record<string, React.ReactNode> = {
   closed: <IssuesCloseOutlined />,
@@ -25,6 +26,7 @@ export default class IssueResource extends BaseResource {
   readonly createdAt: Date = new Date(0);
   readonly updatedAt: Date = new Date(0);
   readonly closedAt: string | null = null;
+  readonly labels: LabelResource[] = [];
 
   get stateIcon() {
     return stateToIcon[this.state];
@@ -34,6 +36,7 @@ export default class IssueResource extends BaseResource {
     user: UserResource,
     createdAt: Date,
     updatedAt: Date,
+    labels: [LabelResource],
   };
 
   pk() {

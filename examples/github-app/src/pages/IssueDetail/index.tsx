@@ -5,6 +5,7 @@ import React, { useMemo, memo } from 'react';
 import Markdown from 'react-markdown';
 import Boundary from 'Boundary';
 import { Link } from '@anansi/router';
+import Labels from 'components/Labels';
 
 import IssueResource from '../../resources/IssueResource';
 import ReactionResource from '../../resources/ReactionResource';
@@ -48,9 +49,9 @@ function IssueDetail({ number: s }: { number: string }) {
 
   const actions: JSX.Element[] = useMemo(() => {
     const grouped = groupBy(reactions, (reaction) => reaction.content);
-    return Object.entries(grouped).map(([k, v]) => (
-      <ReactionSpan key={k} reactions={v} issue={issue} />
-    ));
+    return Object.entries(grouped)
+      .map(([k, v]) => <ReactionSpan key={k} reactions={v} issue={issue} />)
+      .concat(<Labels labels={issue.labels} />);
   }, [reactions, issue]);
 
   return (
