@@ -96,7 +96,7 @@ Array [
 ]
 `;
 
-exports[`UnionSchema denormalization returns the original value no schema is given 1`] = `
+exports[`UnionSchema denormalization returns the original value when no schema is given 1`] = `
 Array [
   Object {
     "id": "1",
@@ -106,11 +106,19 @@ Array [
 ]
 `;
 
-exports[`UnionSchema denormalization returns the original value no schema is given 2`] = `
+exports[`UnionSchema denormalization returns the original value when no schema is given 2`] = `
 Array [
   Immutable.Map {
     "id": "1",
   },
+  true,
+  false,
+]
+`;
+
+exports[`UnionSchema denormalization returns the original value when string is given 1`] = `
+Array [
+  "1",
   true,
   false,
 ]

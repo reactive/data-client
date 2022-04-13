@@ -7,7 +7,7 @@ import {
   DenormalizeCache,
   UnvisitFunction,
 } from '@rest-hooks/normalizr/types';
-import Entity, { isEntity } from '@rest-hooks/normalizr/entities/Entity';
+import { isEntity } from '@rest-hooks/normalizr/entities/Entity';
 import { DELETED } from '@rest-hooks/normalizr/special';
 import WeakListMap from '@rest-hooks/normalizr/WeakListMap';
 import { denormalize as arrayDenormalize } from '@rest-hooks/normalizr/schemas/Array';
@@ -17,23 +17,19 @@ import { isImmutable } from '@rest-hooks/normalizr/schemas/ImmutableUtils';
 const DRAFT = Symbol('draft');
 
 const unvisitEntity = (
-  id: any,
-  schema: any,
+  entityOrId: Record<string, any> | string,
+  schema: EntityInterface,
   unvisit: UnvisitFunction,
   getEntity: (
     entityOrId: Record<string, any> | string,
-    schema: typeof Entity,
-  ) => EntityInterface | typeof DELETED,
+    schema: EntityInterface,
+  ) => object | typeof DELETED,
   localCache: Record<string, Record<string, any>>,
   entityCache: DenormalizeCache['entities'],
   dependencies: object[],
   cycleIndex: { i: number },
-): [
-  denormalized: EntityInterface | undefined,
-  found: boolean,
-  deleted: boolean,
-] => {
-  const entity = getEntity(id, schema);
+): [denormalized: object | undefined, found: boolean, deleted: boolean] => {
+  const entity = getEntity(entityOrId, schema);
   if (entity === DELETED) {
     return [undefined, true, true];
   }
@@ -51,6 +47,14 @@ Make sure you do not have multiple versions of @rest-hooks/normalizr installed.`
     return [entity, false, false];
   }
 
+  const pk =
+    typeof entityOrId === 'string'
+      ? entityOrId
+      : schema.pk(isImmutable(entity) ? (entity as any).toJS() : entity);
+  if (pk === undefined || pk === '') {
+    return [entity, false, false];
+  }
+
   if (localCache[schema.key] === undefined) {
     localCache[schema.key] = {};
   }
@@ -58,18 +62,18 @@ Make sure you do not have multiple versions of @rest-hooks/normalizr installed.`
   let found = true;
   let deleted = false;
 
-  if (!localCache[schema.key][id]) {
+  if (!localCache[schema.key][pk]) {
     const trackingIndex = dependencies.length;
     dependencies.push(entity);
 
     const wrappedUnvisit = withTrackedEntities(unvisit);
     // { [DRAFT] } means we are still processing - which if found indicates a cycle
     wrappedUnvisit.setLocal = entityCopy =>
-      (localCache[schema.key][id] = { [DRAFT]: entityCopy, i: trackingIndex });
+      (localCache[schema.key][pk] = { [DRAFT]: entityCopy, i: trackingIndex });
 
-    const globalCacheEntry = getGlobalCacheEntry(entityCache, schema, id);
+    const globalCacheEntry = getGlobalCacheEntry(entityCache, schema, pk);
 
-    [localCache[schema.key][id], found, deleted] = schema.denormalize(
+    [localCache[schema.key][pk], found, deleted] = schema.denormalize(
       entity,
       wrappedUnvisit,
     );
@@ -81,9 +85,9 @@ Make sure you do not have multiple versions of @rest-hooks/normalizr installed.`
     );
 
     if (!globalCacheEntry.has(localKey)) {
-      globalCacheEntry.set(localKey, localCache[schema.key][id]);
+      globalCacheEntry.set(localKey, localCache[schema.key][pk]);
     } else {
-      localCache[schema.key][id] = globalCacheEntry.get(localKey);
+      localCache[schema.key][pk] = globalCacheEntry.get(localKey);
     }
 
     // start of cycle - reset cycle detection
@@ -93,17 +97,17 @@ Make sure you do not have multiple versions of @rest-hooks/normalizr installed.`
   } else {
     // cycle detected
     if (
-      Object.prototype.hasOwnProperty.call(localCache[schema.key][id], DRAFT)
+      Object.prototype.hasOwnProperty.call(localCache[schema.key][pk], DRAFT)
     ) {
-      cycleIndex.i = localCache[schema.key][id].i;
-      return [localCache[schema.key][id][DRAFT], found, deleted];
+      cycleIndex.i = localCache[schema.key][pk].i;
+      return [localCache[schema.key][pk][DRAFT], found, deleted];
     } else {
       // with no cycle, globalCacheEntry will have already been set
       dependencies.push(entity);
     }
   }
 
-  return [localCache[schema.key][id], found, deleted];
+  return [localCache[schema.key][pk], found, deleted];
 };
 
 const getUnvisit = (
@@ -140,7 +144,7 @@ const getUnvisit = (
     }
 
     if (isEntity(schema)) {
-      // unvisitEntity just can't handle undefined
+      // unvisitEntity only works with valid input of string
       if (input === undefined) {
         return [input, false, false];
       }
@@ -187,7 +191,10 @@ const getUnvisit = (
 const getEntities = (entities: Record<string, any>) => {
   const entityIsImmutable = isImmutable(entities);
 
-  return (entityOrId: Record<string, any> | string, schema: typeof Entity) => {
+  return (
+    entityOrId: Record<string, any> | string,
+    schema: EntityInterface,
+  ) => {
     const schemaKey = schema.key;
 
     if (typeof entityOrId === 'object') {
