@@ -83,8 +83,6 @@ describe.each([
       .reply(200, valuesFixture)
       .post(`/article-cooler/`)
       .reply(200, createPayload)
-      .patch(`/article-cooler/${payload.id}`)
-      .reply(200, payload)
       .get(`/user/`)
       .reply(200, users)
       .get(`/article-cooler/withEditor`)
