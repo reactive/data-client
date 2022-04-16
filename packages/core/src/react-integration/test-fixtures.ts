@@ -57,6 +57,11 @@ export const users = [
   },
 ];
 
+export const editorPayload = {
+  ...payload,
+  editor: users[0],
+};
+
 export const nested = [
   {
     id: 5,
