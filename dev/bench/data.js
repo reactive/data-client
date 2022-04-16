@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1649712399016,
+  "lastUpdate": 1650128796527,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -5674,6 +5674,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.57%",
             "unit": "ops/sec",
             "extra": "67 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c8fdca9e0cd65622d41692b66c3e2744b20bef23",
+          "message": "enhance: Improve robustness when using distinct schemas to normalize/denormalize (#1908)\n\n* enhance: Improve robustness when using distinct schemas to normalize/denormalize\r\n\r\n* internal: Integration test (#1912)\r\n\r\n* fix: Account for missing meta\r\n\r\n* enhance: Prototype pollution protection\r\n\r\nCo-authored-by: Dylan Petro <dylanpetro17@gmail.com>",
+          "timestamp": "2022-04-16T10:02:47-07:00",
+          "tree_id": "0f5a19e4ff7e40c3f8cfe05801e3269a27bd21bc",
+          "url": "https://github.com/coinbase/rest-hooks/commit/c8fdca9e0cd65622d41692b66c3e2744b20bef23"
+        },
+        "date": 1650128795567,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 81.36,
+            "range": "±0.77%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 33.53,
+            "range": "±1.52%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 37.22,
+            "range": "±0.53%",
+            "unit": "ops/sec",
+            "extra": "64 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 81.98,
+            "range": "±1.95%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
           }
         ]
       }
