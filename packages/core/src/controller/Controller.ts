@@ -318,7 +318,7 @@ export default class Controller {
           Object.keys(entities).forEach(pk => {
             expiresAt = Math.min(
               expiresAt,
-              state.entityMeta[key][pk].expiresAt,
+              state.entityMeta[key]?.[pk]?.expiresAt ?? Infinity,
             );
           }),
         );
