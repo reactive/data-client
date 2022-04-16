@@ -51,13 +51,15 @@ export type Paginatable<
 type OnlyOptional<S extends string> = S extends `${infer K}?` ? K : never;
 type OnlyRequired<S extends string> = S extends `${string}?` ? never : S;
 
-export type PathKeys<S extends string> = S extends `${string}\\:${infer R}`
-  ? PathKeys<R>
+export type PathKeys<S extends string> = string extends S
+  ? string
+  : S extends `${infer A}\\:${infer B}`
+  ? PathKeys<A> | PathKeys<B>
   : S extends `${string}:${infer K}/${infer R}`
   ? RemoveEscapes<K> | PathKeys<R>
   : S extends `${string}:${infer K}`
   ? RemoveEscapes<K>
-  : string;
+  : never;
 
 type RemoveEscapes<S extends string> = S extends `${infer K}\\?${string}`
   ? K
