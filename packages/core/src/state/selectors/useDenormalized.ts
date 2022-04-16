@@ -112,7 +112,10 @@ export default function useDenormalized<
       // using Object.keys ensures we don't hit `toString` type members
       Object.keys(resolvedEntities).forEach(key =>
         Object.keys(resolvedEntities[key]).forEach(pk => {
-          expiresAt = Math.min(expiresAt, entityMeta[key][pk].expiresAt);
+          expiresAt = Math.min(
+            expiresAt,
+            state.entityMeta[key]?.[pk]?.expiresAt ?? Infinity,
+          );
         }),
       );
     } else {

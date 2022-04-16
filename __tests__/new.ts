@@ -153,6 +153,15 @@ export class CoolerArticleResource extends ArticleResource {
   }
 }
 
+export class EditorArticleResource extends CoolerArticleResource {
+  readonly editor: UserResource | null = null;
+
+  static schema = {
+    ...ArticleResource.schema,
+    editor: UserResource,
+  };
+}
+
 export class TypedArticleResource extends CoolerArticleResource {
   get tagString() {
     return this.tags.join(', ');

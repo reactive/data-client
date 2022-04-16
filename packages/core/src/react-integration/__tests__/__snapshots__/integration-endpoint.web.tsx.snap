@@ -74,6 +74,21 @@ Value: {
   \\"body\\": \\"hi\\"
 }",
   ],
+  Array [
+    "TypeError: Unable to infer schema for UnionSchema
+Value: {
+  \\"id\\": \\"5\\",
+  \\"body\\": \\"hi\\",
+  \\"type\\": \\"another\\"
+}.",
+  ],
+  Array [
+    "TypeError: Unable to infer schema for UnionSchema
+Value: {
+  \\"id\\": \\"5\\",
+  \\"body\\": \\"hi\\"
+}.",
+  ],
 ]
 `;
 
@@ -213,6 +228,21 @@ Value: {
   \\"id\\": \\"5\\",
   \\"body\\": \\"hi\\"
 }",
+  ],
+  Array [
+    "TypeError: Unable to infer schema for UnionSchema
+Value: {
+  \\"id\\": \\"5\\",
+  \\"body\\": \\"hi\\",
+  \\"type\\": \\"another\\"
+}.",
+  ],
+  Array [
+    "TypeError: Unable to infer schema for UnionSchema
+Value: {
+  \\"id\\": \\"5\\",
+  \\"body\\": \\"hi\\"
+}.",
   ],
 ]
 `;

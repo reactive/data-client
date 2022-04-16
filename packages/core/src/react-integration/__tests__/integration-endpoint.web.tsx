@@ -1,5 +1,6 @@
 import {
   CoolerArticleResource,
+  EditorArticleResource,
   ArticleResource,
   PaginatedArticleResource,
   UserResource,
@@ -33,6 +34,7 @@ import {
   paginatedFirstPage,
   paginatedSecondPage,
   valuesFixture,
+  editorPayload,
 } from '../test-fixtures';
 import { StateContext } from '../context';
 
@@ -83,7 +85,9 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
         .post(`/article-cooler/`)
         .reply(200, createPayload)
         .get(`/user/`)
-        .reply(200, users);
+        .reply(200, users)
+        .get(`/article-cooler/withEditor`)
+        .reply(200, editorPayload);
 
       mynock = nock(/.*/).defaultReplyHeaders({
         'Access-Control-Allow-Origin': '*',
@@ -897,6 +901,33 @@ for (const makeProvider of [makeCacheProvider, makeExternalCacheProvider]) {
           await result.current.del({ id: '23' });
           expect(result.current.charlie).toBeUndefined();
         });
+      });
+    });
+
+    describe("a parent resource endpoint returns an attribute NOT in its own schema but used in a child's schemas", () => {
+      it('should not error when fetching the child entity from cache', async () => {
+        const { result, waitForNextUpdate } = renderRestHook(() => {
+          // CoolerArticleResource does NOT have editor in its schema, but return editor from the server
+          const articleWithoutEditorSchema = useResource(
+            CoolerArticleResource.detail(),
+            {
+              title: 'withEditor',
+            },
+          );
+          // EditorArticleResource does have editor in its schema, get it from cache
+          const articleWithEditorSchema = useCache(
+            EditorArticleResource.detail(),
+            {
+              id: payload.id,
+            },
+          );
+          return { articleWithoutEditorSchema, articleWithEditorSchema };
+        });
+        await waitForNextUpdate();
+        // This throws TypeError: Cannot read properties of undefined (reading '[object Object]')
+        expect(result.current.articleWithEditorSchema?.editor?.id).toEqual(
+          editorPayload.editor.id,
+        );
       });
     });
   });

@@ -752,7 +752,8 @@ describe(`${Entity.name} denormalization`, () => {
         '1': { id: '1', food: { id: '1' } },
       },
       Food: {
-        '1': { id: '1' },
+        // TODO: BREAKING CHANGE: Update this to use main entity and only return nested as 'fallback' in case main entity is not set
+        '1': { id: '1', extra: 'hi' },
       },
     };
 

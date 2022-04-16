@@ -319,7 +319,7 @@ describe(`${schema.Union.name} denormalization`, () => {
     ).toMatchSnapshot();
   });
 
-  test('returns the original value no schema is given', () => {
+  test('returns the original value when no schema is given', () => {
     const union = new schema.Union(
       {
         users: User,
@@ -334,5 +334,19 @@ describe(`${schema.Union.name} denormalization`, () => {
     expect(
       denormalize(fromJS({ id: '1' }), union, fromJS(entities)),
     ).toMatchSnapshot();
+  });
+
+  test('returns the original value when string is given', () => {
+    const union = new schema.Union(
+      {
+        users: User,
+        groups: Group,
+      },
+      input => {
+        return input.username ? 'users' : 'groups';
+      },
+    );
+
+    expect(denormalize('1', union, entities)).toMatchSnapshot();
   });
 });
