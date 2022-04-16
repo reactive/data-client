@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.5.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.5.4...@rest-hooks/core@1.5.5) (2022-04-16)
+
+
+### 💅 Enhancement
+
+* Improve robustness when using distinct schemas to normalize/denormalize ([#1908](https://github.com/coinbase/rest-hooks/issues/1908)) ([6527cd9](https://github.com/coinbase/rest-hooks/commit/6527cd993694510833b47b579a355f797c20b9cb)), closes [#1912](https://github.com/coinbase/rest-hooks/issues/1912)
+
+
+### 🐛 Bug Fix
+
+* Union schemas with null args[0] hooks ([#1779](https://github.com/coinbase/rest-hooks/issues/1779)) ([ab8557c](https://github.com/coinbase/rest-hooks/commit/ab8557cffa9b55b084b03f0936da0494ce18bf8e))
+* useFetcher() work with zero argument Endpoint ([#1514](https://github.com/coinbase/rest-hooks/issues/1514)) ([5bd749b](https://github.com/coinbase/rest-hooks/commit/5bd749b9c2209f8af6b5fde95fecf1a051b4d016))
+
+
+
 ### [1.5.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.5.3...@rest-hooks/core@1.5.4) (2021-09-08)
 
 
