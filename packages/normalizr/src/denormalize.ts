@@ -56,7 +56,7 @@ Make sure you do not have multiple versions of @rest-hooks/normalizr installed.`
   }
 
   if (localCache[schema.key] === undefined) {
-    localCache[schema.key] = {};
+    localCache[schema.key] = Object.create(null);
   }
 
   let found = true;
