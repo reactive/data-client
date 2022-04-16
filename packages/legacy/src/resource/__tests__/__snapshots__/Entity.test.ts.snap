@@ -12,7 +12,7 @@ Array [
   false,
   Object {
     "Food": Object {
-      "[object Object]": Food {
+      "1": Food {
         "id": "1",
       },
     },
@@ -40,7 +40,7 @@ Array [
   false,
   Object {
     "Food": Object {
-      "Map { \\"id\\": \\"1\\" }": Food {
+      "1": Food {
         "id": "1",
       },
     },
