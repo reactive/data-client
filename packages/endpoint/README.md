@@ -27,8 +27,9 @@ const UserDetail = new Endpoint(fetchUser);
 
 ```tsx
 function UserProfile() {
-  const user = useResource(UserDetail, { id });
-  const updateUser = useFetcher(UserDetail);
+  const user = useSuspense(UserDetail, { id });
+  const { fetch } = useController();
+  const updateUser = (data) => fetch(UserDetail, { id }, data);
 
   return <UserForm user={user} onSubmit={updateUser} />
 }
@@ -121,7 +122,7 @@ Default:
 
 ### sideEffect: true | undefined
 
-Disallows usage in hooks like `useResource()` since they might call fetch
+Disallows usage in hooks like `useSuspense()` since they might call fetch
 an unpredictable number of times. Use this for APIs with mutation side-effects like update, create, deletes.
 
 Defaults to undefined meaning no side effects.
@@ -188,5 +189,5 @@ const UserIndex = new Index(User)
 const bob = useCache(UserIndex, { username: 'bob' });
 
 // @ts-expect-error Indexes don't fetch, they just retrieve already existing data
-const bob = useResource(UserIndex, { username: 'bob' });
+const bob = useSuspense(UserIndex, { username: 'bob' });
 ```

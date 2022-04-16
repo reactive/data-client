@@ -27,11 +27,11 @@ Here, Rest Hooks is simply used to track resource loading - only storing the `sr
 
 ```tsx
 import React, { ImgHTMLAttributes } from 'react';
-import { useResource } from 'rest-hooks';
+import { useSuspense } from 'rest-hooks';
 import { Img } from '@rest-hooks/img';
 
 export default function Profile({ username }: { username: string }) {
-  const user = useResource(UseResource.detail(), { username });
+  const user = useSuspense(UseResource.detail(), { username });
   return (
     <div>
       <Img
@@ -56,13 +56,13 @@ the image request can start. If the image url is deterministic based on the same
 
 ```tsx
 import React, { ImgHTMLAttributes } from 'react';
-import { useResource, useRetrieve } from 'rest-hooks';
+import { useSuspense, useFetch } from 'rest-hooks';
 import { Img, getImage } from '@rest-hooks/img';
 
 export default function Profile({ username }: { username: string }) {
   const imageSrc = `/profile_images/${username}}`;
-  useRetrieve(getImage, { src: imageSrc });
-  const user = useResource(UseResource.detail(), { username });
+  useFetch(getImage, { src: imageSrc });
+  const user = useSuspense(UseResource.detail(), { username });
   return (
     <div>
       <Img
@@ -79,5 +79,5 @@ export default function Profile({ username }: { username: string }) {
 </details>
 
 
-When using the [fetch as you render](https://resthooks.io/docs/guides/render-as-you-fetch) pattern in concurrent mode, [useFetcher](https://resthooks.io/docs/api/useFetcher) with the `getImage`
+When using the [fetch as you render](https://resthooks.io/docs/guides/render-as-you-fetch) pattern in concurrent mode, [useController().fetch](https://resthooks.io/docs/api/Controller#fetch) with the `getImage`
 [Endpoint](https://resthooks.io/docs/api/Endpoint) to preload the image.
