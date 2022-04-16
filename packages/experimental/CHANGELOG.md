@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@5.0.1...@rest-hooks/experimental@5.0.2) (2022-04-16)
+
+
+### 🐛 Bug Fix
+
+* urlRoot type inference handles escapes anywhere in string ([#1917](https://github.com/coinbase/rest-hooks/issues/1917)) ([e598a08](https://github.com/coinbase/rest-hooks/commit/e598a080df019242dcc0c778440edcad3c71dad3))
+
+
+
 ### [5.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@5.0.0...@rest-hooks/experimental@5.0.1) (2022-04-11)
 
 

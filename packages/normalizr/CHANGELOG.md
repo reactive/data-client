@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [8.2.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.2.3...@rest-hooks/normalizr@8.2.4) (2022-04-16)
+
+
+### 💅 Enhancement
+
+* Improve robustness when using distinct schemas to normalize/denormalize ([#1908](https://github.com/coinbase/rest-hooks/issues/1908)) ([c8fdca9](https://github.com/coinbase/rest-hooks/commit/c8fdca9e0cd65622d41692b66c3e2744b20bef23)), closes [#1912](https://github.com/coinbase/rest-hooks/issues/1912)
+
+
+
 ### [8.2.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.2.2...@rest-hooks/normalizr@8.2.3) (2022-04-08)
 
 
