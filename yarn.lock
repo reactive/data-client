@@ -9,10 +9,10 @@
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.0"
 
-"@anansi/babel-preset@3.0.2", "@anansi/babel-preset@^3.0.1":
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-3.0.2.tgz#ffd5f16486c47b869bbca41d6167ba4a051ce7e3"
-  integrity sha512-V72nj8/C9FyfnZ5y/4JPpg6jTK09JlJ4j21cDmzypBt4lXfncEKgxbz6xSE56XVZlD62jp6/SzUboOfSycLC5g==
+"@anansi/babel-preset@3.0.3", "@anansi/babel-preset@^3.0.1":
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-3.0.3.tgz#d37212147eb3f59dab6b6e95a97e00411618e609"
+  integrity sha512-DOtSYRS6EbhHjkMntxFDhYc0UV0ujOeuWCuRqc31QGgRsvVMnIEO0mGXd/1JqjpQCZL2QTx2OqTB/epdv7bL4Q==
   dependencies:
     "@anansi/ts-utils" "^0.2.5"
     "@babel/plugin-proposal-class-properties" "^7.16.7"
@@ -40,10 +40,10 @@
     babel-plugin-react-require "^3.1.3"
     babel-plugin-root-import "^6.6.0"
     babel-plugin-transform-react-remove-prop-types "^0.4.24"
-    core-js-compat "^3.21.1"
+    core-js-compat "^3.22.0"
     glob-to-regexp "^0.4.1"
     path "^0.12.7"
-    semver "^7.3.6"
+    semver "^7.3.7"
     stable "^0.1.8"
 
 "@anansi/browserslist-config@1.3.3":
@@ -2552,6 +2552,7 @@
 
 "@lerna/conventional-commits@4.0.0", "@lerna/conventional-commits@https://github.com/ntucker/lerna-conventional-commits.git":
   version "3.16.4"
+  uid "4389120475a4f80ac8e4fbe766fa4c9644c6b1c7"
   resolved "https://github.com/ntucker/lerna-conventional-commits.git#4389120475a4f80ac8e4fbe766fa4c9644c6b1c7"
   dependencies:
     "@lerna/validation-error" "^4.0"
@@ -5657,7 +5658,7 @@ browserify-zlib@^0.2.0:
   dependencies:
     pako "~1.0.5"
 
-browserslist@^4.0.0, browserslist@^4.14.5, browserslist@^4.16.0, browserslist@^4.16.6, browserslist@^4.17.5, browserslist@^4.18.1, browserslist@^4.19.1, browserslist@^4.20.2:
+browserslist@^4.0.0, browserslist@^4.14.5, browserslist@^4.16.0, browserslist@^4.16.6, browserslist@^4.17.5, browserslist@^4.18.1, browserslist@^4.20.2:
   version "4.20.2"
   resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.20.2.tgz#567b41508757ecd904dab4d1c646c612cd3d4f88"
   integrity sha512-CQOBCqp/9pDvDbx3xfMi+86pr4KXIf2FDkTTdeuYw8OxS9t898LA1Khq57gtufFILXpfgsSx5woNgsBgvGjpsA==
@@ -6601,12 +6602,12 @@ copyfiles@^2.4.1:
     untildify "^4.0.0"
     yargs "^16.1.0"
 
-core-js-compat@^3.20.0, core-js-compat@^3.20.2, core-js-compat@^3.21.1:
-  version "3.21.1"
-  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.21.1.tgz#cac369f67c8d134ff8f9bd1623e3bc2c42068c82"
-  integrity sha512-gbgX5AUvMb8gwxC7FLVWYT7Kkgu/y7+h/h1X43yJkNqhlK2fuYyQimqvKGNZFAY6CKii/GFKJ2cp/1/42TN36g==
+core-js-compat@^3.20.0, core-js-compat@^3.20.2, core-js-compat@^3.22.0:
+  version "3.22.0"
+  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.22.0.tgz#7ce17ab57c378be2c717c7c8ed8f82a50a25b3e4"
+  integrity sha512-WwA7xbfRGrk8BGaaHlakauVXrlYmAIkk8PNGb1FDQS+Rbrewc3pgFfwJFRw6psmJVAll7Px9UHRYE16oRQnwAQ==
   dependencies:
-    browserslist "^4.19.1"
+    browserslist "^4.20.2"
     semver "7.0.0"
 
 core-js-pure@^3.14.0:
