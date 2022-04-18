@@ -1,6 +1,6 @@
 {
   "name": "github-app",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "github-app - A rest hooks example",
   "scripts": {
     "lint": "eslint src --ext .ts,.tsx",
