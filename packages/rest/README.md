@@ -18,6 +18,8 @@ Extensible CRUD patterns for REST APIs.
 ### Simple TypeScript definition
 
 ```typescript
+import { Resource } from '@rest-hooks/rest';
+
 class ArticleResource extends Resource {
   readonly id: number | undefined = undefined;
   readonly title: string = '';
@@ -33,26 +35,27 @@ class ArticleResource extends Resource {
 #### Reads
 
 ```typescript
-const article = useResource(ArticleResource.detail(), { id: 5 });
-const articles = useResource(ArticleResource.list(), {});
+const article = useSuspense(ArticleResource.detail(), { id: 5 });
+const articles = useSuspense(ArticleResource.list());
 ```
 
 #### Mutates
 
 ```typescript
-const updateArticle = useFetcher(ArticleResource.update());
-const partialUpdateArticle = useFetcher(ArticleResource.partialUpdate());
-const createArticle = useFetcher(ArticleResource.create());
-const deleteArticle = useFetcher(ArticleResource.delete());
+const { fetch } = useController();
+const updateArticle = data => fetch(ArticleResource.update(), { id }, data);
+const partialUpdateArticle = data => fetch(ArticleResource.partialUpdate(), { id }, data);
+const createArticle = data => fetch(ArticleResource.create(), data);
+const deleteArticle = data => fetch(ArticleResource.delete(), { id });
 ```
 
 ### DRY Customization
 
 ```typescript
-import { Resource } from '@rest-hooks/rest';
+import { HookableResource } from '@rest-hooks/rest';
 import { useAuth } from 'my-auth-lib';
 
-abstract class AuthdResource extends Resource {
+abstract class AuthdResource extends HookableResource {
   static useFetchInit = (init: RequestInit) => {
     const { session } = useAuth();
     return {
@@ -73,8 +76,8 @@ import AuthdResource from './AuthdResource';
 
 export default class UserResource extends AuthdResource {
   /** Retrieves current logged in user */
-  static current<T extends typeof Resource>(this: T): ReadEndpoint<FetchFunction, T> {
-    return super.detail().extend({ url: () => '/current_user' });
+  static useCurrent<T extends typeof Resource>(this: T): ReadEndpoint<FetchFunction, T> {
+    return super.useDetail().extend({ url: () => '/current_user' });
   }
 }
 ```

@@ -19,7 +19,7 @@ Composable hooks for networking data
 [Aborts](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) inflight request if the parameters change.
 
 ```typescript
-const data = useResource(useCancelling(MyEndpoint, { filter }), { filter });
+const data = useSuspense(useCancelling(MyEndpoint, { filter }), { filter });
 ```
 
 ### useDebounce()
@@ -29,7 +29,7 @@ Useful to avoid spamming network requests when parameters might change quickly (
 
 ```typescript
 const debouncedFilter = useDebounce(filter, 200);
-const data = useResource(SearchList, { filter: debouncedFilter });
+const data = useSuspense(SearchList, { filter: debouncedFilter });
 ```
 
 ### useLoading()

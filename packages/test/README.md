@@ -116,7 +116,7 @@ const renderRestHook = makeRenderRestHook(makeCacheProvider);
 
 it('should resolve list', async () => {
   const { result, waitForNextUpdate } = renderRestHook(() => {
-    return useResource(ArticleResource.list(), {
+    return useSuspense(ArticleResource.list(), {
       maxResults: 10,
     });
   }, { results: options.full });
@@ -127,7 +127,7 @@ it('should resolve list', async () => {
 
 it('should throw errors on bad network', async () => {
   const { result, waitForNextUpdate } = renderRestHook(() => {
-    return useResource(ArticleResource.list(), {
+    return useSuspense(ArticleResource.list(), {
       maxResults: 10,
     });
   }, { results: options.error });
