@@ -57,7 +57,7 @@
     "cross-env": "^7.0.2",
     "cross-fetch": "^3.0.6",
     "downlevel-dts": "^0.9.0",
-    "eslint": "^7.19.0",
+    "eslint": "^8.13.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.22.0",
