@@ -21,7 +21,7 @@
     "serve": "^13.0.2"
   },
   "dependencies": {
-    "@anansi/webpack-config": "^11.3.8",
+    "@anansi/webpack-config": "^11.3.9",
     "@docusaurus/core": "^2.0.0-beta.18",
     "@docusaurus/plugin-client-redirects": "^2.0.0-beta.18",
     "@docusaurus/preset-classic": "^2.0.0-beta.18",
