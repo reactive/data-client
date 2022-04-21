@@ -1,6 +1,7 @@
-import useController from '@rest-hooks/core/react-integration/hooks/useController';
 import { EndpointInterface, Schema, FetchFunction } from '@rest-hooks/endpoint';
 import { useEffect } from 'react';
+
+import useController from '../hooks/useController.js';
 
 /**
  * Keeps a resource fresh by subscribing to updates.

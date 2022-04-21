@@ -12,8 +12,8 @@ import {
   UnvisitFunction,
   EntityMap,
   NormalizedIndex,
-} from './types';
-import { default as Delete } from './schemas/Delete';
+} from './types.js';
+import { default as Delete } from './schemas/Delete.js';
 
 export { Delete, EntityMap };
 

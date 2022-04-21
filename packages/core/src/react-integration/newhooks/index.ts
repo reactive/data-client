@@ -1,6 +1,6 @@
-export { default as useSuspense } from '@rest-hooks/core/react-integration/newhooks/useSuspense';
-export { default as useCache } from '@rest-hooks/core/react-integration/newhooks/useCache';
-export { default as useError } from '@rest-hooks/core/react-integration/newhooks/useError';
-export { default as useFetch } from '@rest-hooks/core/react-integration/newhooks/useFetch';
-export { default as useSubscription } from '@rest-hooks/core/react-integration/newhooks/useSubscription';
-export { default as useDLE } from '@rest-hooks/core/react-integration/newhooks/useDLE';
+export { default as useSuspense } from './useSuspense.js';
+export { default as useCache } from './useCache.js';
+export { default as useError } from './useError.js';
+export { default as useFetch } from './useFetch.js';
+export { default as useSubscription } from './useSubscription.js';
+export { default as useDLE } from './useDLE.js';

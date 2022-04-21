@@ -1,4 +1,4 @@
-import SimpleResource from '@rest-hooks/legacy/rest-3/SimpleResource';
+import SimpleResource from './SimpleResource.js';
 
 class NetworkError extends Error {
   declare status: number;

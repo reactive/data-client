@@ -1,6 +1,7 @@
 import { AbstractInstanceType, schema } from '@rest-hooks/normalizr';
-import Entity from '@rest-hooks/legacy/resource/Entity';
-import SimpleRecord from '@rest-hooks/legacy/resource/SimpleRecord';
+
+import Entity from './Entity.js';
+import SimpleRecord from './SimpleRecord.js';
 
 /** @deprecated */
 export default abstract class FlatEntity extends Entity {

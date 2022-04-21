@@ -17,7 +17,8 @@ import type {
 } from '@rest-hooks/core';
 import { denormalize } from '@rest-hooks/normalizr';
 import { useContext, useMemo } from 'react';
-import shapeToEndpoint from '@rest-hooks/legacy/shapeToEndpoint';
+
+import shapeToEndpoint from './shapeToEndpoint.js';
 
 const { inferResults } = __INTERNAL__;
 

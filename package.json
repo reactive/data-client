@@ -16,22 +16,22 @@
     "build": "yarn build:types && lerna run build --stream",
     "build:bundle": "lerna run build:bundle --stream",
     "build:clean": "lerna run build:clean --stream",
-    "build:types": "yarn build:copy:ambient && ttsc --build && lerna run build:legacy-types --stream",
+    "build:types": "yarn build:copy:ambient && tsc --build && lerna run build:legacy-types --stream",
     "build:copy:ambient": "mkdirp ./packages/normalizr/lib && copyfiles --flat ./packages/normalizr/src/schema.d.ts ./packages/normalizr/lib/ && mkdirp ./packages/endpoint/lib && copyfiles --flat ./packages/endpoint/src/endpoint.d.ts ./packages/endpoint/lib/&& mkdirp ./packages/core/lib && copyfiles --flat ./packages/core/src/state/RIC.d.ts ./packages/core/lib/state",
-    "test": "cross-env NODE_ENV=test jest",
+    "test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest",
     "test:ci": "yarn test -- --ci",
     "test:coverage": "yarn test -- --coverage",
-    "prepare": "yarn build:copy:ambient && ttsc --build",
+    "prepare": "yarn build:copy:ambient && tsc --build",
     "prepublishOnly": "lerna run build:legacy-types --stream"
   },
   "engines": {
-    "node": ">=10.0"
+    "node": "^12.17 || ^13.7 || >=14"
   },
   "browserslist": [
     "extends @anansi/browserslist-config"
   ],
   "devDependencies": {
-    "@anansi/babel-preset": "3.0.3",
+    "@anansi/babel-preset": "3.0.4",
     "@anansi/browserslist-config": "1.3.3",
     "@anansi/eslint-plugin": "0.12.10",
     "@anansi/jest-preset": "^0.6.1",
@@ -47,7 +47,6 @@
     "@types/jest": "^27.0.0",
     "@types/lodash": "^4.14.166",
     "@types/react": "^18.0.0",
-    "@zerollup/ts-transform-paths": "^1.7.18",
     "benchmark": "^2.1.4",
     "conventional-changelog-anansi": "^0.2.0",
     "copyfiles": "^2.4.1",
@@ -83,8 +82,7 @@
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-terser": "^7.0.2",
     "ts-node": "^9.1.1",
-    "ttypescript": "^1.5.13",
-    "typescript": "^4.6.2",
+    "typescript": "^4.7.0-0",
     "whatwg-fetch": "3.0.0"
   },
   "resolutions": {

@@ -5,7 +5,8 @@ import {
   makeRenderRestHook,
   makeCacheProvider,
   Fixture,
-} from '../../../../test';
+} from '@rest-hooks/test';
+
 import { useMeta } from '../hooks';
 import { payload } from '../test-fixtures';
 

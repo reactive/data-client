@@ -1,6 +1,7 @@
-import { DispatchContext } from '@rest-hooks/core/react-integration/context';
-import { RESET_TYPE } from '@rest-hooks/core/actionTypes';
 import { useContext, useCallback } from 'react';
+
+import { DispatchContext } from '../context.js';
+import { RESET_TYPE } from '../../actionTypes.js';
 
 /**
  * Returns a function to completely clear the cache of all entries

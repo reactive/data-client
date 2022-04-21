@@ -1,4 +1,4 @@
-import { isImmutable } from '@rest-hooks/normalizr/schemas/ImmutableUtils';
+import { isImmutable } from './ImmutableUtils.js';
 
 export default class PolymorphicSchema {
   private declare _schemaAttribute: any;

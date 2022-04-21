@@ -1,8 +1,9 @@
-import { FetchShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
-import { StateContext } from '@rest-hooks/core/react-integration/context';
-import { selectMeta } from '@rest-hooks/core/state/selectors/index';
 import { useContext, useMemo } from 'react';
 import { EndpointInterface, FetchFunction } from '@rest-hooks/endpoint';
+
+import { FetchShape, ParamsFromShape } from '../../endpoint/index.js';
+import { StateContext } from '../context.js';
+import { selectMeta } from '../../state/selectors/index.js';
 
 /**
  * Gets meta for a fetch key.

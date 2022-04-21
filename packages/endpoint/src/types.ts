@@ -1,8 +1,9 @@
 import { schema, Schema } from '@rest-hooks/normalizr';
-import { Normalize } from '@rest-hooks/endpoint/normal';
-import { EndpointInterface } from '@rest-hooks/endpoint/interface';
-import { ResolveType } from '@rest-hooks/endpoint/utility';
-import SnapshotInterface from '@rest-hooks/endpoint/SnapshotInterface';
+
+import { Normalize } from './normal.js';
+import { EndpointInterface } from './interface.js';
+import { ResolveType } from './utility.js';
+import SnapshotInterface from './SnapshotInterface.js';
 
 export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   /** Default data expiry length, will fall back to NetworkManager default if not defined */
@@ -60,5 +61,5 @@ export type SchemaList<T> =
   | Schema[]
   | schema.SchemaClass;
 
-export * from '@rest-hooks/endpoint/ErrorTypes';
-export { default as SnapshotInterface } from '@rest-hooks/endpoint/SnapshotInterface';
+export * from './ErrorTypes';
+export { default as SnapshotInterface } from './SnapshotInterface';

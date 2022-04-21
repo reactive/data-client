@@ -1,14 +1,12 @@
-import createReducer from '@rest-hooks/core/state/createReducer';
-import { State, Manager } from '@rest-hooks/core/types';
 import useEnhancedReducer from '@rest-hooks/use-enhanced-reducer';
 import React, { ReactNode, useEffect, useMemo, memo } from 'react';
-import {
-  StateContext,
-  DispatchContext,
-} from '@rest-hooks/core/react-integration/context';
-import BackupBoundary from '@rest-hooks/core/react-integration/provider/BackupBoundary';
 import type { Middleware } from '@rest-hooks/use-enhanced-reducer';
-import Controller from '@rest-hooks/core/controller/Controller';
+
+import { State, Manager } from '../../types.js';
+import createReducer from '../../state/createReducer.js';
+import Controller from '../../controller/Controller.js';
+import { StateContext, DispatchContext } from '../context.js';
+import BackupBoundary from './BackupBoundary.js';
 
 interface StoreProps {
   children: ReactNode;

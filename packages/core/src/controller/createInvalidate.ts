@@ -1,6 +1,7 @@
-import type { InvalidateAction } from '@rest-hooks/core/types';
-import { INVALIDATE_TYPE } from '@rest-hooks/core/actionTypes';
 import type { EndpointInterface } from '@rest-hooks/endpoint';
+
+import type { InvalidateAction } from '../types.js';
+import { INVALIDATE_TYPE } from '../actionTypes.js';
 
 export default function createInvalidate<E extends EndpointInterface>(
   endpoint: E,

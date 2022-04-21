@@ -1,8 +1,9 @@
-import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
 import { useContext, useMemo } from 'react';
-import useFetchDispatcher from '@rest-hooks/core/react-integration/hooks/useFetchDispatcher';
-import useExpiresAt from '@rest-hooks/core/react-integration/hooks/useExpiresAt';
-import { StateContext } from '@rest-hooks/core/react-integration/context';
+
+import { ReadShape, ParamsFromShape } from '../../endpoint/index.js';
+import useFetchDispatcher from './useFetchDispatcher.js';
+import useExpiresAt from './useExpiresAt.js';
+import { StateContext } from '../context.js';
 
 /**
  * Request a resource if it is not in cache.\

@@ -15,6 +15,11 @@ const baseConfig = {
     'packages/core/src/react-integration/hooks/hasUsableData',
   ],
   testURL: 'http://localhost',
+  /** TODO: Remove once we move to 'publishConfig' */
+  moduleNameMapper: {
+    '@rest-hooks/(.*)$': ['<rootDir>/packages/$1/src'],
+    'rest-hooks': ['<rootDir>/packages/rest-hooks/src'],
+  },
 };
 
 const packages = [
@@ -40,7 +45,6 @@ const projects = [
     displayName: 'ReactDOM',
     setupFiles: ['<rootDir>/scripts/testSetup.js'],
     testEnvironment: 'jsdom',
-    transformIgnorePatterns: ['/node_modules/(?!@babel/runtime)'],
     testRegex: [
       '((/__tests__/(?!.*\\.node).*)|(\\.|/)(test|spec))\\.(j|t)sx?$',
     ],
@@ -61,6 +65,7 @@ const projects = [
     },
     transformIgnorePatterns: [
       '/node_modules/(?!@babel/runtime)',
+      '\\.pnp\\.[^\\/]+$',
       '<rootDir>/.*__tests__/[^/]+\\.web\\.(j|t)sx?$',
     ],
     testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.node\\.(j|t)sx?$',

@@ -5,8 +5,9 @@ import type {
   Schema,
 } from '@rest-hooks/endpoint';
 import { schema } from '@rest-hooks/endpoint';
-import BaseResource from '@rest-hooks/rest/BaseResource';
-import type { RestEndpoint } from '@rest-hooks/rest/types';
+
+import BaseResource from './BaseResource.js';
+import type { RestEndpoint } from './types.js';
 
 /**
  * Represents an entity to be retrieved from a server.

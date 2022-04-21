@@ -1,5 +1,8 @@
-import { Normalize } from '@rest-hooks/endpoint';
-import type { EndpointInterface, ResolveType } from '@rest-hooks/endpoint';
+import type {
+  Normalize,
+  EndpointInterface,
+  ResolveType,
+} from '@rest-hooks/endpoint';
 
 export type ResultEntry<E extends EndpointInterface> =
   E['schema'] extends undefined ? ResolveType<E> : Normalize<E>;

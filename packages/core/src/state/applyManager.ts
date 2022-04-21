@@ -1,6 +1,7 @@
 import { Middleware } from '@rest-hooks/use-enhanced-reducer';
-import { Manager } from '@rest-hooks/core/types';
-import type Controller from '@rest-hooks/core/controller/Controller';
+
+import { Manager } from '../types.js';
+import type Controller from '../controller/Controller.js';
 
 export default function applyManager(
   managers: Manager[],

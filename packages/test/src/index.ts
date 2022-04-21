@@ -1,12 +1,9 @@
-import makeRenderRestHook from '@rest-hooks/test/makeRenderRestHook';
-import {
-  makeExternalCacheProvider,
-  makeCacheProvider,
-} from '@rest-hooks/test/providers';
-import MockProvider from '@rest-hooks/test/MockProvider';
-import mockInitialState from '@rest-hooks/test/mockState';
-export * from '@rest-hooks/test/managers';
-export { default as MockResolver } from '@rest-hooks/test/MockResolver';
+import makeRenderRestHook from './makeRenderRestHook.js';
+import { makeExternalCacheProvider, makeCacheProvider } from './providers.js';
+import MockProvider from './MockProvider.js';
+import mockInitialState from './mockState.js';
+export * from './managers.js';
+export { default as MockResolver } from './MockResolver.js';
 export type {
   FixtureEndpoint,
   SuccessFixtureEndpoint,
@@ -14,7 +11,7 @@ export type {
   Fixture,
   SuccessFixture,
   ErrorFixture,
-} from '@rest-hooks/test/mockState';
+} from './mockState.js';
 
 export {
   makeRenderRestHook,

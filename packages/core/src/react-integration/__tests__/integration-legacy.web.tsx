@@ -18,7 +18,7 @@ import {
   makeRenderRestHook,
   makeCacheProvider,
   makeExternalCacheProvider,
-} from '../../../../test/lib';
+} from '../../../../test';
 import { useResource, useFetcher, useCache, useInvalidator } from '../hooks';
 import {
   payload,

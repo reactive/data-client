@@ -1,4 +1,4 @@
-import { FetchShape } from '@rest-hooks/core/endpoint/index';
+import { FetchShape } from '../../endpoint/index.js';
 
 /** @deprecated use https://resthooks.io/docs/api/Controller#getResponse */
 export default function hasUsableData(

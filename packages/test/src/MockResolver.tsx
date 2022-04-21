@@ -7,12 +7,9 @@ import {
   useMemo,
 } from 'react';
 import React from 'react';
-import {
-  Fixture,
-  actionFromFixture,
-  dispatchFixture,
-} from '@rest-hooks/test/mockState';
 import * as RestHooksCore from '@rest-hooks/core';
+
+import { Fixture, actionFromFixture, dispatchFixture } from './mockState.js';
 
 const ControllerContext: Context<any> =
   RestHooksCore.ControllerContext ?? createContext({});

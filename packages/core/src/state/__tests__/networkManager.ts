@@ -1,6 +1,7 @@
 import { ArticleResource } from '__tests__/common';
-import { Controller, Middleware } from '@rest-hooks/core';
 
+import { Middleware } from '../../types';
+import Controller from '../../controller/Controller';
 import NetworkManager from '../NetworkManager';
 import { FetchAction } from '../../types';
 import { RECEIVE_TYPE } from '../../actionTypes';

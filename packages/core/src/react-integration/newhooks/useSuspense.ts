@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { StateContext } from '@rest-hooks/core/react-integration/context';
 import { DenormalizeNullable, ExpiryStatus } from '@rest-hooks/endpoint';
-import useController from '@rest-hooks/core/react-integration/hooks/useController';
 import {
   EndpointInterface,
   Denormalize,
@@ -9,6 +7,9 @@ import {
   FetchFunction,
 } from '@rest-hooks/endpoint';
 import { useContext, useMemo } from 'react';
+
+import useController from '../hooks/useController.js';
+import { StateContext } from '../context.js';
 
 /**
  * Ensure an endpoint is available.

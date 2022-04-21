@@ -1,7 +1,8 @@
-import type { ReceiveAction } from '@rest-hooks/core/types';
-import { RECEIVE_TYPE } from '@rest-hooks/core/actionTypes';
 import type { EndpointInterface, ResolveType } from '@rest-hooks/endpoint';
-import { EndpointUpdateFunction } from '@rest-hooks/core/controller/types';
+
+import type { ReceiveAction } from '../types.js';
+import { RECEIVE_TYPE } from '../actionTypes.js';
+import { EndpointUpdateFunction } from './types.js';
 
 export default function createReceive<
   E extends EndpointInterface & {

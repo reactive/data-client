@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { AbstractInstanceType, Schema, schema } from '@rest-hooks/core';
-import {
-  isImmutable,
-  denormalizeImmutable,
-} from '@rest-hooks/legacy/resource/ImmutableUtils';
-import SimpleRecord from '@rest-hooks/legacy/resource/SimpleRecord';
+
+import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
+import SimpleRecord from './SimpleRecord.js';
 
 /** Represents data that should be deduped by specifying a primary key. */
 export default abstract class Entity extends SimpleRecord {

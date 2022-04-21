@@ -1,15 +1,15 @@
-export * as __INTERNAL__ from '@rest-hooks/core/internal';
+export * as __INTERNAL__ from './internal.js';
 export {
   default as NetworkManager,
   ResetError,
-} from '@rest-hooks/core/state/NetworkManager';
+} from './state/NetworkManager.js';
 export {
   default as createReducer,
   initialState,
-} from '@rest-hooks/core/state/createReducer';
-export { default as reducer } from '@rest-hooks/core/state/reducerInstance';
-export { default as applyManager } from '@rest-hooks/core/state/applyManager';
-export { useDenormalized } from '@rest-hooks/core/state/selectors/index';
+} from './state/createReducer.js';
+export { default as reducer } from './state/reducerInstance.js';
+export { default as applyManager } from './state/applyManager.js';
+export { useDenormalized } from './state/selectors/index.js';
 export {
   useCache,
   useFetcher,
@@ -26,38 +26,38 @@ export {
   useInvalidateDispatcher,
   useResetter,
   hasUsableData,
-} from '@rest-hooks/core/react-integration/index';
+} from './react-integration/index.js';
 export {
   useSuspense,
   useFetch,
   useDLE,
-} from '@rest-hooks/core/react-integration/newhooks/index';
-export type { ErrorTypes } from '@rest-hooks/core/react-integration/index';
+} from './react-integration/newhooks/index.js';
+export type { ErrorTypes } from './react-integration/index.js';
 export {
   StateContext,
   DispatchContext,
   DenormalizeCacheContext,
   ControllerContext,
-} from '@rest-hooks/core/react-integration/context';
-export { default as Controller } from '@rest-hooks/core/controller/Controller';
+} from './react-integration/context.js';
+export { default as Controller } from './controller/Controller.js';
 export { ExpiryStatus } from '@rest-hooks/endpoint';
 
-export * from '@rest-hooks/core/controller/types';
-export * from '@rest-hooks/core/state/actions/index';
-export * as actionTypes from '@rest-hooks/core/actionTypes';
+export * from './controller/types.js';
+export * from './state/actions/index.js';
+export * as actionTypes from './actionTypes.js';
 export { usePromisifiedDispatch } from '@rest-hooks/use-enhanced-reducer';
 export * from '@rest-hooks/endpoint';
 /* istanbul ignore next */
-export * from '@rest-hooks/core/types';
+export * from './types.js';
 export type {
   FetchShape,
   ReadShape,
   MutateShape,
   DeleteShape,
-} from '@rest-hooks/core/endpoint/shapes';
+} from './endpoint/shapes.js';
 export type {
   SetShapeParams,
   ParamsFromShape,
   BodyFromShape,
   ReturnFromShape,
-} from '@rest-hooks/core/endpoint/types';
+} from './endpoint/types.js';

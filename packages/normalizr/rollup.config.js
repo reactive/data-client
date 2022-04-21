@@ -11,7 +11,6 @@ const isProduction = process.env.NODE_ENV === 'production';
 const destBase = 'dist/normalizr';
 const destExtension = `${isProduction ? '.min' : ''}.js`;
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
-process.env.RESOLVER_ALIAS = '{"@rest-hooks/normalizr":"./src"}';
 
 function snakeCase(id) {
   return id.replace(/(-|\/)/g, '_').replace(/@/g, '');
@@ -22,7 +21,7 @@ const configs = [];
 if (process.env.BROWSERSLIST_ENV !== 'node12') {
   if (process.env.NODE_ENV === 'production') {
     configs.push({
-      input: 'src/index.ts',
+      input: 'lib/index.js',
       output: [{ file: `${destBase}.es${destExtension}`, format: 'es' }],
       plugins: [
         babel({
@@ -39,7 +38,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
     });
   } else {
     configs.push({
-      input: 'src/index.ts',
+      input: 'lib/index.js',
       output: [
         {
           file: `${destBase}.umd${destExtension}`,
@@ -74,7 +73,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
 } else {
   // node-friendly commonjs build
   configs.push({
-    input: 'src/index.ts',
+    input: 'lib/index.js',
     output: [{ file: `${destBase}${destExtension}`, format: 'cjs' }],
     plugins: [
       babel({

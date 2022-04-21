@@ -1,9 +1,7 @@
-import type {
-  SubscribeAction,
-  UnsubscribeAction,
-} from '@rest-hooks/core/types';
-import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '@rest-hooks/core/actionTypes';
 import type { EndpointInterface } from '@rest-hooks/endpoint';
+
+import type { SubscribeAction, UnsubscribeAction } from '../types.js';
+import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '../actionTypes.js';
 
 export function createSubscription<E extends EndpointInterface>(
   endpoint: E,

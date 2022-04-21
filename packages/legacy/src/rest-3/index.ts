@@ -1,14 +1,14 @@
-import Resource from '@rest-hooks/legacy/rest-3/Resource';
-import SimpleResource from '@rest-hooks/legacy/rest-3/SimpleResource';
+import Resource from './Resource.js';
+import SimpleResource from './SimpleResource.js';
 
 export { Resource, SimpleResource };
-export { default as EntityRecord } from '@rest-hooks/legacy/rest-3/EntityRecord';
+export { default as EntityRecord } from './EntityRecord.js';
 
 export type {
   RestEndpoint,
   RestFetch,
   FetchMutate,
   FetchGet,
-} from '@rest-hooks/legacy/rest-3/types';
+} from './types.js';
 
 export * from '@rest-hooks/endpoint';

@@ -1,11 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import {
-  SchemaClass,
-  UnvisitFunction,
-  EntityInterface,
-} from '@rest-hooks/normalizr/schema';
-import { DELETED } from '@rest-hooks/normalizr/special';
-import type { AbstractInstanceType } from '@rest-hooks/normalizr/types';
+import { SchemaClass, UnvisitFunction, EntityInterface } from '../schema.js';
+import { DELETED } from '../special.js';
+import type { AbstractInstanceType } from '../types.js';
 
 /**
  * Marks entity as deleted.

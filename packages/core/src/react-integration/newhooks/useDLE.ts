@@ -7,10 +7,11 @@ import type {
   FetchFunction,
   Schema,
 } from '@rest-hooks/endpoint';
-import useController from '@rest-hooks/core/react-integration/hooks/useController';
 import { ExpiryStatus } from '@rest-hooks/endpoint';
-import { StateContext } from '@rest-hooks/core/react-integration/context';
 import { useContext, useMemo } from 'react';
+
+import useController from '../hooks/useController.js';
+import { StateContext } from '../context.js';
 
 type CondNull<P, A, B> = P extends null ? A : B;
 

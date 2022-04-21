@@ -1,4 +1,4 @@
-import ConnectionListener from 'rest-hooks/manager/ConnectionListener';
+import ConnectionListener from './ConnectionListener.js';
 
 export class BrowserConnectionListener implements ConnectionListener {
   isOnline() {

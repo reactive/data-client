@@ -1,7 +1,4 @@
-import {
-  isImmutable,
-  denormalizeImmutable,
-} from '@rest-hooks/legacy/resource/ImmutableUtils';
+import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
 
 export const normalize = (
   schema: any,

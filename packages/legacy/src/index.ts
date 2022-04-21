@@ -1,6 +1,6 @@
-export * from '@rest-hooks/legacy/resource/index';
-export { default as useStatefulResource } from '@rest-hooks/legacy/useStatefulResource';
-export { default as shapeToEndpoint } from '@rest-hooks/legacy/shapeToEndpoint';
+export * from './resource/index.js';
+export { default as useStatefulResource } from './useStatefulResource.js';
+export { default as shapeToEndpoint } from './shapeToEndpoint.js';
 export type {
   FetchShape,
   ReadShape,

@@ -1,4 +1,3 @@
-import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
 import { useMemo } from 'react';
 import {
   EndpointInterface,
@@ -6,8 +5,10 @@ import {
   Schema,
   FetchFunction,
 } from '@rest-hooks/endpoint';
-import shapeToEndpoint from '@rest-hooks/core/endpoint/adapter';
-import useCacheNew from '@rest-hooks/core/react-integration/newhooks/useCache';
+
+import { ReadShape, ParamsFromShape } from '../../endpoint/index.js';
+import shapeToEndpoint from '../../endpoint/adapter.js';
+import useCacheNew from '../newhooks/useCache.js';
 
 /**
  * Access a response if it is available.

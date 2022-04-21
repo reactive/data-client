@@ -8,7 +8,8 @@ import {
   NetworkManager,
 } from '@rest-hooks/core';
 import { createStore, applyMiddleware } from 'redux';
-import { ServerDataComponent } from '@rest-hooks/ssr/ServerDataComponent';
+
+import { ServerDataComponent } from './ServerDataComponent.js';
 
 export default function createPersistedStore(managers?: Manager[]) {
   const controller = new Controller();

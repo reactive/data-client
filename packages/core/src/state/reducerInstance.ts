@@ -1,6 +1,6 @@
 /* istanbul ignore file */
-import createReducer from '@rest-hooks/core/state/createReducer';
-import Controller from '@rest-hooks/core/controller/Controller';
+import createReducer from './createReducer.js';
+import Controller from '../controller/Controller.js';
 
 /**
  * @deprecated use createReducer instead

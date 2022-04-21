@@ -1,8 +1,8 @@
-import { OPTIMISTIC_TYPE } from '@rest-hooks/core/actionTypes';
 import type { EndpointInterface } from '@rest-hooks/endpoint';
-import { EndpointUpdateFunction } from '@rest-hooks/core/controller/types';
 
-import { OptimisticAction } from '..';
+import { OPTIMISTIC_TYPE } from '../actionTypes.js';
+import { EndpointUpdateFunction } from './types.js';
+import { OptimisticAction } from '../types.js';
 
 export default function createOptimistic<
   E extends EndpointInterface & {

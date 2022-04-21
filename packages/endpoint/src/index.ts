@@ -5,17 +5,14 @@ export type {
   IndexInterface,
   IndexParams,
   ArrayElement,
-} from '@rest-hooks/endpoint/interface';
-export type {
-  EndpointOptions,
-  EndpointInstance,
-} from '@rest-hooks/endpoint/endpoint';
+} from './interface.js';
+export type { EndpointOptions, EndpointInstance } from './endpoint.js';
 export type {
   Normalize,
   NormalizeNullable,
   Denormalize,
   DenormalizeNullable,
-} from '@rest-hooks/endpoint/normal';
+} from './normal.js';
 export { schema, Entity, isEntity, DELETED } from '@rest-hooks/normalizr';
 export type { AbstractInstanceType, Schema } from '@rest-hooks/normalizr';
 export type {
@@ -29,15 +26,11 @@ export type {
   NetworkError,
   UnknownError,
   ErrorTypes,
-} from '@rest-hooks/endpoint/types';
-export { ExpiryStatus } from '@rest-hooks/endpoint/Expiry';
-export type { ExpiryStatusInterface } from '@rest-hooks/endpoint/Expiry';
-export type {
-  ResolveType,
-  EndpointParam,
-  InferReturn,
-} from '@rest-hooks/endpoint/utility';
+} from './types.js';
+export { ExpiryStatus } from './Expiry.js';
+export type { ExpiryStatusInterface } from './Expiry.js';
+export type { ResolveType, EndpointParam, InferReturn } from './utility.js';
 
-export { default as Endpoint } from '@rest-hooks/endpoint/endpoint';
-export { default as Index } from '@rest-hooks/endpoint/indexEndpoint';
-export { default as AbortOptimistic } from '@rest-hooks/endpoint/AbortOptimistic';
+export { default as Endpoint } from './endpoint.js';
+export { default as Index } from './indexEndpoint.js';
+export { default as AbortOptimistic } from './AbortOptimistic.js';

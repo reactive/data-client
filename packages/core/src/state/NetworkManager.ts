@@ -7,19 +7,12 @@ import {
   MiddlewareAPI,
   Middleware,
   Dispatch,
-} from '@rest-hooks/core/types';
-import {
-  RECEIVE_TYPE,
-  FETCH_TYPE,
-  RESET_TYPE,
-} from '@rest-hooks/core/actionTypes';
-import RIC from '@rest-hooks/core/state/RIC';
-import {
-  createReceive,
-  createReceiveError,
-} from '@rest-hooks/core/state/actions/index';
-import { initialState } from '@rest-hooks/core/state/createReducer';
-import Controller from '@rest-hooks/core/controller/Controller';
+} from '../types.js';
+import { RECEIVE_TYPE, FETCH_TYPE, RESET_TYPE } from '../actionTypes.js';
+import RIC from './RIC.js';
+import { createReceive, createReceiveError } from './actions/index.js';
+import { initialState } from './createReducer.js';
+import Controller from '../controller/Controller.js';
 
 export class ResetError extends Error {
   name = 'ResetError';

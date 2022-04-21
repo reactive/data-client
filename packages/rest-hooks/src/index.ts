@@ -68,17 +68,14 @@ export {
   PromiseifyMiddleware,
   NetworkErrorBoundary,
   mapMiddleware,
-} from 'rest-hooks/react-integration/index';
+} from './react-integration/index.js';
 
 export {
   PollingSubscription,
   DevToolsManager,
   SubscriptionManager,
   DefaultConnectionListener,
-} from 'rest-hooks/manager/index';
-export type {
-  ConnectionListener,
-  DevToolsConfig,
-} from 'rest-hooks/manager/index';
-export { default as useSelectionUnstable } from 'rest-hooks/react-integration/hooks/useSelection';
-export * as __INTERNAL__ from 'rest-hooks/internal';
+} from './manager/index.js';
+export type { ConnectionListener, DevToolsConfig } from './manager/index.js';
+export { default as useSelectionUnstable } from './react-integration/hooks/useSelection.js';
+export * as __INTERNAL__ from './internal.js';

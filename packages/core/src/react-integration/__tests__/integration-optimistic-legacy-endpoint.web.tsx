@@ -9,7 +9,7 @@ import {
   makeRenderRestHook,
   makeCacheProvider,
   makeExternalCacheProvider,
-} from '../../../../test/lib';
+} from '../../../../test';
 import { useResource, useFetcher, useCache } from '../hooks';
 import {
   payload,

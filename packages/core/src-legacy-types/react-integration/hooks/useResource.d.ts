@@ -1,11 +1,11 @@
 import { Denormalize, DenormalizeNullable } from '@rest-hooks/endpoint';
 
-import { ReadShape, ParamsFromShape } from '../../endpoint';
+import { ReadShape, ParamsFromShape } from '../../endpoint.js';
 declare type CondNull<P, A, B> = P extends null ? A : B;
 /** Ensure a resource is available; suspending to React until it is. */
 export default function useResource<
   S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null
+  P1 extends ParamsFromShape<S1> | null,
 >(
   v1: readonly [S1, P1],
 ): [CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>];
@@ -13,7 +13,7 @@ export default function useResource<
   S1 extends ReadShape<any, any>,
   P1 extends ParamsFromShape<S1> | null,
   S2 extends ReadShape<any, any>,
-  P2 extends ParamsFromShape<S2> | null
+  P2 extends ParamsFromShape<S2> | null,
 >(
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
@@ -23,7 +23,7 @@ export default function useResource<
 ];
 export default function useResource<
   S extends ReadShape<any, any>,
-  P extends ParamsFromShape<S> | null
+  P extends ParamsFromShape<S> | null,
 >(
   fetchShape: S,
   params: P,
@@ -34,7 +34,7 @@ export default function useResource<
   S2 extends ReadShape<any, any>,
   P2 extends ParamsFromShape<S2> | null,
   S3 extends ReadShape<any, any>,
-  P3 extends ParamsFromShape<S3> | null
+  P3 extends ParamsFromShape<S3> | null,
 >(
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
@@ -52,7 +52,7 @@ export default function useResource<
   S3 extends ReadShape<any, any>,
   P3 extends ParamsFromShape<S3> | null,
   S4 extends ReadShape<any, any>,
-  P4 extends ParamsFromShape<S4> | null
+  P4 extends ParamsFromShape<S4> | null,
 >(
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
@@ -74,7 +74,7 @@ export default function useResource<
   S4 extends ReadShape<any, any>,
   P4 extends ParamsFromShape<S4> | null,
   S5 extends ReadShape<any, any>,
-  P5 extends ParamsFromShape<S5> | null
+  P5 extends ParamsFromShape<S5> | null,
 >(
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
@@ -100,7 +100,7 @@ export default function useResource<
   S5 extends ReadShape<any, any>,
   P5 extends ParamsFromShape<S5> | null,
   S6 extends ReadShape<any, any>,
-  P6 extends ParamsFromShape<S6> | null
+  P6 extends ParamsFromShape<S6> | null,
 >(
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
@@ -130,7 +130,7 @@ export default function useResource<
   S6 extends ReadShape<any, any>,
   P6 extends ParamsFromShape<S6> | null,
   S7 extends ReadShape<any, any>,
-  P7 extends ParamsFromShape<S7> | null
+  P7 extends ParamsFromShape<S7> | null,
 >(
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
@@ -164,7 +164,7 @@ export default function useResource<
   S7 extends ReadShape<any, any>,
   P7 extends ParamsFromShape<S7> | null,
   S8 extends ReadShape<any, any>,
-  P8 extends ParamsFromShape<S8> | null
+  P8 extends ParamsFromShape<S8> | null,
 >(
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
@@ -202,7 +202,7 @@ export default function useResource<
   S8 extends ReadShape<any, any>,
   P8 extends ParamsFromShape<S8> | null,
   S9 extends ReadShape<any, any>,
-  P9 extends ParamsFromShape<S9> | null
+  P9 extends ParamsFromShape<S9> | null,
 >(
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
@@ -244,7 +244,7 @@ export default function useResource<
   S9 extends ReadShape<any, any>,
   P9 extends ParamsFromShape<S9> | null,
   S10 extends ReadShape<any, any>,
-  P10 extends ParamsFromShape<S10> | null
+  P10 extends ParamsFromShape<S10> | null,
 >(
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
@@ -290,7 +290,7 @@ export default function useResource<
   S10 extends ReadShape<any, any>,
   P10 extends ParamsFromShape<S10> | null,
   S11 extends ReadShape<any, any>,
-  P11 extends ParamsFromShape<S11> | null
+  P11 extends ParamsFromShape<S11> | null,
 >(
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
@@ -340,7 +340,7 @@ export default function useResource<
   S11 extends ReadShape<any, any>,
   P11 extends ParamsFromShape<S11> | null,
   S12 extends ReadShape<any, any>,
-  P12 extends ParamsFromShape<S12> | null
+  P12 extends ParamsFromShape<S12> | null,
 >(
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
@@ -394,7 +394,7 @@ export default function useResource<
   S12 extends ReadShape<any, any>,
   P12 extends ParamsFromShape<S12> | null,
   S13 extends ReadShape<any, any>,
-  P13 extends ParamsFromShape<S13> | null
+  P13 extends ParamsFromShape<S13> | null,
 >(
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
@@ -452,7 +452,7 @@ export default function useResource<
   S13 extends ReadShape<any, any>,
   P13 extends ParamsFromShape<S13> | null,
   S14 extends ReadShape<any, any>,
-  P14 extends ParamsFromShape<S14> | null
+  P14 extends ParamsFromShape<S14> | null,
 >(
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
@@ -514,7 +514,7 @@ export default function useResource<
   S14 extends ReadShape<any, any>,
   P14 extends ParamsFromShape<S14> | null,
   S15 extends ReadShape<any, any>,
-  P15 extends ParamsFromShape<S15> | null
+  P15 extends ParamsFromShape<S15> | null,
 >(
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
@@ -580,7 +580,7 @@ export default function useResource<
   S15 extends ReadShape<any, any>,
   P15 extends ParamsFromShape<S15> | null,
   S16 extends ReadShape<any, any>,
-  P16 extends ParamsFromShape<S16> | null
+  P16 extends ParamsFromShape<S16> | null,
 >(
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
