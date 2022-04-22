@@ -95,10 +95,10 @@
   resolved "https://registry.yarnpkg.com/@anansi/ts-utils/-/ts-utils-0.2.5.tgz#bd2270fb1f96a26dbcf3a9a61a6a6b36652e75c6"
   integrity sha512-m6jFCF3Y6Tcd06hmq1pDqOCHGpe30QO9FcCblYD0ohhl5olcyq+f2DbKWPQSeddzHdHxDUpZ9OG7xwHv4xtmUw==
 
-"@anansi/webpack-config@11.3.9":
-  version "11.3.9"
-  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.3.9.tgz#c94256d5a53d1d64423a53be361fdb34ed9e5ca4"
-  integrity sha512-ZqLHpA8V8+7YNHz9qTqHm6AOYgOD/mENMa4AMqFOXR+80/I9cXVYWpWLTCj8vZC/J2ONdLLKKuCR1s96q8Cp/Q==
+"@anansi/webpack-config@11.3.10":
+  version "11.3.10"
+  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.3.10.tgz#fbf7e4ad5a70707c76e1415dfb59958e4d2b0caf"
+  integrity sha512-l0luW4JTv79K/RPPix2w4QlC1WZ3pRH0JKkLYbIW3y72ZMzAyR7T/bqhEnkUzJXh8QXp9xqtrXnNHdWLH+TEzQ==
   dependencies:
     "@babel/runtime" "^7.17.2"
     "@ntucker/linaria-webpack5-loader" "3.0.0-beta.17"
@@ -108,7 +108,7 @@
     "@vue/preload-webpack-plugin" "^2.0.0"
     assert "^2.0.0"
     autoprefixer "^10.4.4"
-    babel-loader "^8.2.4"
+    babel-loader "^8.2.5"
     browserify-zlib "^0.2.0"
     buffer "^6.0.3"
     circular-dependency-plugin "^5.2.2"
@@ -146,7 +146,7 @@
     react-dev-utils "^12.0.1"
     react-error-overlay "6.0.9"
     readable-stream "^3.6.0"
-    sass "^1.50.0"
+    sass "^1.50.1"
     sass-loader "^12.6.0"
     sass-resources-loader "^2.2.5"
     semver "^7.3.7"
@@ -5190,10 +5190,10 @@ babel-jest@^27.5.1:
     graceful-fs "^4.2.9"
     slash "^3.0.0"
 
-babel-loader@^8.2.4:
-  version "8.2.4"
-  resolved "https://registry.yarnpkg.com/babel-loader/-/babel-loader-8.2.4.tgz#95f5023c791b2e9e2ca6f67b0984f39c82ff384b"
-  integrity sha512-8dytA3gcvPPPv4Grjhnt8b5IIiTcq/zeXOPk4iTYI0SVXcsmuGg7JtBRDp8S9X+gJfhQ8ektjXZlDu1Bb33U8A==
+babel-loader@^8.2.5:
+  version "8.2.5"
+  resolved "https://registry.yarnpkg.com/babel-loader/-/babel-loader-8.2.5.tgz#d45f585e654d5a5d90f5350a779d7647c5ed512e"
+  integrity sha512-OSiFfH89LrEMiWd4pLNqGz4CwJDtbs2ZVc+iGu2HrkRfPxId9F2anQj38IxWpmRfsUY0aBZYi1EFcd3mhtRMLQ==
   dependencies:
     find-cache-dir "^3.3.1"
     loader-utils "^2.0.0"
@@ -15685,10 +15685,10 @@ sass-resources-loader@^2.2.5:
     glob "^7.1.6"
     loader-utils "^2.0.0"
 
-sass@^1.50.0:
-  version "1.50.0"
-  resolved "https://registry.yarnpkg.com/sass/-/sass-1.50.0.tgz#3e407e2ebc53b12f1e35ce45efb226ea6063c7c8"
-  integrity sha512-cLsD6MEZ5URXHStxApajEh7gW189kkjn4Rc8DQweMyF+o5HF5nfEz8QYLMlPsTOD88DknatTmBWkOcw5/LnJLQ==
+sass@^1.50.1:
+  version "1.50.1"
+  resolved "https://registry.yarnpkg.com/sass/-/sass-1.50.1.tgz#e9b078a1748863013c4712d2466ce8ca4e4ed292"
+  integrity sha512-noTnY41KnlW2A9P8sdwESpDmo+KBNkukI1i8+hOK3footBUcohNHtdOJbckp46XO95nuvcHDDZ+4tmOnpK3hjw==
   dependencies:
     chokidar ">=3.0.0 <4.0.0"
     immutable "^4.0.0"
