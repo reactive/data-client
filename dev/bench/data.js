@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1650135359185,
+  "lastUpdate": 1650905847679,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -5778,6 +5778,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.92%",
             "unit": "ops/sec",
             "extra": "63 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d5c4b9ee25e64033729389ae153f56544c8cc97e",
+          "message": "internal: Use TypeScript 4.7 tooling (#1938)",
+          "timestamp": "2022-04-25T09:53:31-07:00",
+          "tree_id": "42a378086986e7b436a1fbd755183dc9f9f79b2f",
+          "url": "https://github.com/coinbase/rest-hooks/commit/d5c4b9ee25e64033729389ae153f56544c8cc97e"
+        },
+        "date": 1650905845653,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 84.53,
+            "range": "±1.98%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 34.02,
+            "range": "±1.61%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 39.03,
+            "range": "±1.13%",
+            "unit": "ops/sec",
+            "extra": "52 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 87.09,
+            "range": "±1.49%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
           }
         ]
       }
