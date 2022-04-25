@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { StateContext } from '@rest-hooks/core/react-integration/context';
 import type { NetworkError, UnknownError } from '@rest-hooks/endpoint';
-import useController from '@rest-hooks/core/react-integration/hooks/useController';
 import { EndpointInterface } from '@rest-hooks/endpoint';
 import { useContext } from 'react';
+
+import useController from '../hooks/useController.js';
+import { StateContext } from '../context.js';
 
 export type ErrorTypes = NetworkError | UnknownError;
 

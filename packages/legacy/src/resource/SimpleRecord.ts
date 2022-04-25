@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { AbstractInstanceType, Schema } from '@rest-hooks/normalizr';
-import { NormalizedEntity } from '@rest-hooks/legacy/resource/types';
-import { normalize, infer } from '@rest-hooks/legacy/resource/Object';
+
+import { NormalizedEntity } from './types.js';
+import { normalize, infer } from './Object.js';
 
 const DefinedMembersKey = Symbol('Defined Members');
 const UniqueIdentifierKey = Symbol('unq');

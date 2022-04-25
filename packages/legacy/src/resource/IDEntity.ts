@@ -1,4 +1,4 @@
-import Entity from '@rest-hooks/legacy/resource/Entity';
+import Entity from './Entity.js';
 
 /** Represents data with primary key being from 'id' field. */
 export default class IDEntity extends Entity {

@@ -1,13 +1,14 @@
 import { normalize } from '@rest-hooks/normalizr';
 import { AbortOptimistic } from '@rest-hooks/endpoint';
+
 import {
   ActionTypes,
   State,
   ReceiveAction,
   OptimisticAction,
-} from '@rest-hooks/core/types';
-import createOptimistic from '@rest-hooks/core/controller/createOptimistic';
-import { createReceive as legacyCreateReceive } from '@rest-hooks/core/state/actions/index';
+} from '../types.js';
+import createOptimistic from '../controller/createOptimistic.js';
+import { createReceive as legacyCreateReceive } from './actions/index.js';
 import {
   RECEIVE_TYPE,
   INVALIDATE_TYPE,
@@ -15,9 +16,9 @@ import {
   FETCH_TYPE,
   GC_TYPE,
   OPTIMISTIC_TYPE,
-} from '@rest-hooks/core/actionTypes';
-import applyUpdatersToResults from '@rest-hooks/core/state/applyUpdatersToResults';
-import Controller from '@rest-hooks/core/controller/Controller';
+} from '../actionTypes.js';
+import applyUpdatersToResults from './applyUpdatersToResults.js';
+import Controller from '../controller/Controller.js';
 
 export const initialState: State<unknown> = {
   entities: {},

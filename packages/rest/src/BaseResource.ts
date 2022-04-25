@@ -1,8 +1,9 @@
 import { Endpoint } from '@rest-hooks/endpoint';
 import type { EndpointExtraOptions, Schema } from '@rest-hooks/endpoint';
 import { Entity } from '@rest-hooks/endpoint';
-import paramsToString from '@rest-hooks/rest/paramsToString';
-import { RestEndpoint } from '@rest-hooks/rest/types';
+
+import paramsToString from './paramsToString.js';
+import { RestEndpoint } from './types.js';
 
 class NetworkError extends Error {
   declare status: number;

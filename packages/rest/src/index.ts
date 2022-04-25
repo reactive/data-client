@@ -1,6 +1,6 @@
-import Resource from '@rest-hooks/rest/Resource';
-import BaseResource from '@rest-hooks/rest/BaseResource';
-import HookableResource from '@rest-hooks/rest/HookableResource';
+import Resource from './Resource.js';
+import BaseResource from './BaseResource.js';
+import HookableResource from './HookableResource.js';
 
 export { Resource, BaseResource, HookableResource };
 
@@ -9,6 +9,6 @@ export type {
   RestFetch,
   FetchMutate,
   FetchGet,
-} from '@rest-hooks/rest/types';
+} from './types.js';
 
 export * from '@rest-hooks/endpoint';

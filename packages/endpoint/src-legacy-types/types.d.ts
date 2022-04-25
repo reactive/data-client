@@ -1,8 +1,8 @@
 import { schema, Schema } from '@rest-hooks/normalizr';
 
-import { Normalize } from './normal';
-import { EndpointInterface } from './interface';
-import { ResolveType } from './utility';
+import { Normalize } from './normal.js';
+import { EndpointInterface } from './interface.js';
+import { ResolveType } from './utility.js';
 export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   /** Default data expiry length, will fall back to NetworkManager default if not defined */
   readonly dataExpiryLength?: number;
@@ -23,7 +23,7 @@ export declare type FetchFunction<P = any, B = any, R = any> = (
 ) => Promise<R>;
 export declare type OptimisticUpdateParams<
   SourceSchema extends Schema | undefined,
-  Dest extends EndpointInterface<FetchFunction, Schema, any>
+  Dest extends EndpointInterface<FetchFunction, Schema, any>,
 > = [
   Dest,
   Parameters<Dest>[0],
@@ -31,7 +31,7 @@ export declare type OptimisticUpdateParams<
 ];
 export declare type UpdateFunction<
   SourceSchema extends Schema | undefined,
-  DestSchema extends Schema
+  DestSchema extends Schema,
 > = (
   sourceResults: Normalize<SourceSchema>,
   destResults: Normalize<DestSchema> | undefined,

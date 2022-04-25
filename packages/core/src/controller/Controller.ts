@@ -1,22 +1,11 @@
-import type { ActionTypes, State } from '@rest-hooks/core/types';
 import type {
   EndpointInterface,
   FetchFunction,
   ResolveType,
   DenormalizeNullable,
 } from '@rest-hooks/endpoint';
-import createInvalidate from '@rest-hooks/core/controller/createInvalidate';
-import createFetch from '@rest-hooks/core/controller/createFetch';
-import createReset from '@rest-hooks/core/controller/createReset';
-import selectMeta from '@rest-hooks/core/state/selectors/selectMeta';
-import createReceive from '@rest-hooks/core/controller/createReceive';
 import type { ErrorTypes, SnapshotInterface } from '@rest-hooks/endpoint';
 import { ExpiryStatus } from '@rest-hooks/endpoint';
-import {
-  createUnsubscription,
-  createSubscription,
-} from '@rest-hooks/core/controller/createSubscription';
-import type { EndpointUpdateFunction } from '@rest-hooks/core/controller/types';
 import {
   denormalize,
   DenormalizeCache,
@@ -26,6 +15,18 @@ import {
 } from '@rest-hooks/normalizr';
 import { inferResults } from '@rest-hooks/normalizr';
 import { unsetDispatch } from '@rest-hooks/use-enhanced-reducer';
+
+import type { EndpointUpdateFunction } from './types.js';
+import {
+  createUnsubscription,
+  createSubscription,
+} from './createSubscription.js';
+import createReceive from './createReceive.js';
+import createReset from './createReset.js';
+import createFetch from './createFetch.js';
+import createInvalidate from './createInvalidate.js';
+import selectMeta from '../state/selectors/selectMeta.js';
+import type { ActionTypes, State } from '../types.js';
 
 type RHDispatch = (value: ActionTypes) => Promise<void>;
 

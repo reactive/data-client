@@ -1,5 +1,5 @@
-import type { ResetAction } from '@rest-hooks/core/types';
-import { RESET_TYPE } from '@rest-hooks/core/actionTypes';
+import type { ResetAction } from '../types.js';
+import { RESET_TYPE } from '../actionTypes.js';
 
 export default function createReset(): ResetAction {
   return {

@@ -10,8 +10,6 @@ const dependencies = Object.keys(pkg.dependencies)
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
 process.env.NODE_ENV = 'production';
-process.env.BROWSERSLIST_ENV = 'node10';
-process.env.RESOLVER_ALIAS = '{"@rest-hooks/test":"./src"}';
 
 function isExternal(id) {
   return dependencies.some(dep => dep === id || id.startsWith(dep));
@@ -20,7 +18,7 @@ function isExternal(id) {
 export default [
   // test utils commonjs build
   {
-    input: 'src/index.ts',
+    input: 'lib/index.js',
     external: id => id === '..' || isExternal(id),
     output: [{ file: pkg.main, format: 'cjs' }],
     plugins: [

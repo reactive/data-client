@@ -1,5 +1,5 @@
-import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
-import useMeta from '@rest-hooks/core/react-integration/hooks/useMeta';
+import { ReadShape, ParamsFromShape } from '../../endpoint/index.js';
+import useMeta from './useMeta.js';
 
 /** Returns whether the data at this url is fresh or stale
  * @deprecated use https://resthooks.io/docs/api/Controller#getResponse

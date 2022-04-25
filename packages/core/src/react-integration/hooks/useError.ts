@@ -1,9 +1,10 @@
-import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
 import type { NetworkError, UnknownError } from '@rest-hooks/endpoint';
 import { useMemo } from 'react';
-import shapeToEndpoint from '@rest-hooks/core/endpoint/adapter';
-import useErrorNew from '@rest-hooks/core/react-integration/newhooks/useError';
 import { EndpointInterface, Schema, FetchFunction } from '@rest-hooks/endpoint';
+
+import { ReadShape, ParamsFromShape } from '../../endpoint/index.js';
+import shapeToEndpoint from '../../endpoint/adapter.js';
+import useErrorNew from '../newhooks/useError.js';
 
 export type ErrorTypes = NetworkError | UnknownError;
 

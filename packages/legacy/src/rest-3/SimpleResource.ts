@@ -6,15 +6,12 @@ import type {
   SchemaList,
 } from '@rest-hooks/core';
 import type { AbstractInstanceType } from '@rest-hooks/core';
-import EntityRecord from '@rest-hooks/legacy/rest-3/EntityRecord';
-import {
-  ReadShape,
-  MutateShape,
-  DeleteShape,
-} from '@rest-hooks/legacy/rest-3/legacy';
-import { NotImplementedError } from '@rest-hooks/legacy/rest-3/errors';
-import paramsToString from '@rest-hooks/legacy/rest-3/paramsToString';
-import { RestEndpoint } from '@rest-hooks/legacy/rest-3/types';
+
+import EntityRecord from './EntityRecord.js';
+import { ReadShape, MutateShape, DeleteShape } from './legacy.js';
+import { NotImplementedError } from './errors.js';
+import paramsToString from './paramsToString.js';
+import { RestEndpoint } from './types.js';
 
 /**
  * Represents an entity to be retrieved from a server.

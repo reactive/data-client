@@ -1,9 +1,7 @@
 import { Schema, AbstractInstanceType } from '@rest-hooks/normalizr';
-import type {
-  EndpointExtraOptions,
-  FetchFunction,
-} from '@rest-hooks/endpoint/types';
-import { InferReturn } from '@rest-hooks/endpoint/utility';
+
+import type { EndpointExtraOptions, FetchFunction } from './types.js';
+import { InferReturn } from './utility.js';
 
 /** Defines a networking endpoint */
 export interface EndpointInterface<

@@ -3,11 +3,10 @@ import type {
   NormalizedSchema,
   Schema,
   NormalizedIndex,
-} from '@rest-hooks/normalizr/types';
-import { DELETED } from '@rest-hooks/normalizr/special';
-import { normalize as arrayNormalize } from '@rest-hooks/normalizr/schemas/Array';
-import { normalize as objectNormalize } from '@rest-hooks/normalizr/schemas/Object';
-
+} from './types.js';
+import { DELETED } from './special.js';
+import { normalize as arrayNormalize } from './schemas/Array.js';
+import { normalize as objectNormalize } from './schemas/Object.js';
 import { EntityInterface } from './schema';
 
 const visit = (

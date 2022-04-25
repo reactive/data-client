@@ -1,4 +1,4 @@
-import CacheProvider from '@rest-hooks/core/react-integration/provider/CacheProvider';
-import BackupBoundary from '@rest-hooks/core/react-integration/provider/BackupBoundary';
+import CacheProvider from './CacheProvider.js';
+import BackupBoundary from './BackupBoundary.js';
 
 export { CacheProvider, BackupBoundary };

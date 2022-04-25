@@ -1,7 +1,8 @@
 import { useContext, useCallback } from 'react';
-import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
-import { DispatchContext } from '@rest-hooks/core/react-integration/context';
-import { INVALIDATE_TYPE } from '@rest-hooks/core/actionTypes';
+
+import { ReadShape, ParamsFromShape } from '../../endpoint/index.js';
+import { DispatchContext } from '../context.js';
+import { INVALIDATE_TYPE } from '../../actionTypes.js';
 
 /** Invalidate a certain item within the cache
  * @deprecated use https://resthooks.io/docs/api/Controller#invalidate

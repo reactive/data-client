@@ -1,10 +1,10 @@
-import { denormalize } from '@rest-hooks/normalizr/denormalize';
-import { normalize } from '@rest-hooks/normalizr/normalize';
-import WeakListMap from '@rest-hooks/normalizr/WeakListMap';
-import * as schema from '@rest-hooks/normalizr/schema';
-import Entity, { isEntity } from '@rest-hooks/normalizr/entities/Entity';
-export { default as inferResults } from '@rest-hooks/normalizr/inferResults';
-export { DELETED } from '@rest-hooks/normalizr/special';
+import { denormalize } from './denormalize.js';
+import { normalize } from './normalize.js';
+import WeakListMap from './WeakListMap.js';
+import * as schema from './schema.js';
+import Entity, { isEntity } from './entities/Entity.js';
+export { default as inferResults } from './inferResults.js';
+export { DELETED } from './special.js';
 
 export type {
   AbstractInstanceType,
@@ -18,6 +18,6 @@ export type {
   DenormalizeNullable,
   DenormalizeReturnType,
   DenormalizeCache,
-} from '@rest-hooks/normalizr/types';
+} from './types.js';
 
 export { denormalize, schema, normalize, Entity, isEntity, WeakListMap };

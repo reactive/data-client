@@ -1,6 +1,7 @@
 import { Endpoint, EndpointOptions } from '@rest-hooks/endpoint';
 import type { Schema } from '@rest-hooks/endpoint';
-import GQLNetworkError from '@rest-hooks/graphql/GQLNetworkError';
+
+import GQLNetworkError from './GQLNetworkError.js';
 
 export default class GQLEndpoint<
   Variables,

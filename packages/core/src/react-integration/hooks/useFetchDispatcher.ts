@@ -1,3 +1,6 @@
+import { Schema } from '@rest-hooks/endpoint';
+import { useContext, useCallback } from 'react';
+
 import {
   FetchShape,
   SchemaFromShape,
@@ -5,11 +8,9 @@ import {
   BodyFromShape,
   OptimisticUpdateParams,
   ReturnFromShape,
-} from '@rest-hooks/core/endpoint/index';
-import { Schema } from '@rest-hooks/endpoint';
-import { DispatchContext } from '@rest-hooks/core/react-integration/context';
-import createFetch from '@rest-hooks/core/state/actions/createFetch';
-import { useContext, useCallback } from 'react';
+} from '../../endpoint/index.js';
+import { DispatchContext } from '../context.js';
+import createFetch from '../../state/actions/createFetch.js';
 
 /** Build an imperative dispatcher to issue network requests.
  * @deprecated use https://resthooks.io/docs/api/Controller#fetch

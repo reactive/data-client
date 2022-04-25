@@ -1,10 +1,7 @@
 {
   "extends": "./tsconfig",
   "compilerOptions": {
-    "exactOptionalPropertyTypes": true,
-    "paths": {
-      "@rest-hooks/test/*": ["packages/test/src/*"]
-    }
+    "exactOptionalPropertyTypes": true
   },
   "exclude": ["node_modules", "dist", "lib", "ts3.4", "legacy", "**/__tests__"]
 }

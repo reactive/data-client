@@ -16,7 +16,6 @@ const dependencies = Object.keys(pkg.dependencies)
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
 const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
-process.env.RESOLVER_ALIAS = '{"@rest-hooks/graphql":"./src"}';
 
 function isExternal(id) {
   return dependencies.some(dep => dep === id || id.startsWith(dep));
@@ -25,7 +24,7 @@ const configs = [];
 if (process.env.BROWSERSLIST_ENV !== 'node12') {
   // browser-friendly UMD build
   configs.push({
-    input: 'src/index.ts',
+    input: 'lib/index.js',
     external: isExternal,
     output: [{ file: pkg.unpkg, format: 'umd', name: 'restHookRest' }],
     plugins: [
@@ -46,7 +45,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
 } else {
   // node-friendly commonjs build
   configs.push({
-    input: 'src/index.ts',
+    input: 'lib/index.js',
     external: isExternal,
     output: [{ file: pkg.main, format: 'cjs' }],
     plugins: [

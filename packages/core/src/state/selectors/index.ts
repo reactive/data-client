@@ -1,5 +1,5 @@
-import useDenormalized from '@rest-hooks/core/state/selectors/useDenormalized';
+import useDenormalized from './useDenormalized.js';
 
 export { useDenormalized };
 
-export { default as selectMeta } from '@rest-hooks/core/state/selectors/selectMeta';
+export { default as selectMeta } from './selectMeta.js';

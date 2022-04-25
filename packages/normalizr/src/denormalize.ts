@@ -1,18 +1,18 @@
-import { EntityInterface } from '@rest-hooks/normalizr/schema';
-import * as schema from '@rest-hooks/normalizr/schema';
+import { EntityInterface } from './schema.js';
+import * as schema from './schema.js';
 import {
   Denormalize,
   DenormalizeNullable,
   Schema,
   DenormalizeCache,
   UnvisitFunction,
-} from '@rest-hooks/normalizr/types';
-import { isEntity } from '@rest-hooks/normalizr/entities/Entity';
-import { DELETED } from '@rest-hooks/normalizr/special';
-import WeakListMap from '@rest-hooks/normalizr/WeakListMap';
-import { denormalize as arrayDenormalize } from '@rest-hooks/normalizr/schemas/Array';
-import { denormalize as objectDenormalize } from '@rest-hooks/normalizr/schemas/Object';
-import { isImmutable } from '@rest-hooks/normalizr/schemas/ImmutableUtils';
+} from './types.js';
+import { isEntity } from './entities/Entity.js';
+import { DELETED } from './special.js';
+import WeakListMap from './WeakListMap.js';
+import { denormalize as arrayDenormalize } from './schemas/Array.js';
+import { denormalize as objectDenormalize } from './schemas/Object.js';
+import { isImmutable } from './schemas/ImmutableUtils.js';
 
 const DRAFT = Symbol('draft');
 

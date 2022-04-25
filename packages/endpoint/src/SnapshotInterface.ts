@@ -1,7 +1,7 @@
-import type { DenormalizeNullable } from '@rest-hooks/endpoint/normal';
-import type { EndpointInterface } from '@rest-hooks/endpoint/interface';
-import type { ExpiryStatusInterface } from '@rest-hooks/endpoint/Expiry';
-import type { ErrorTypes } from '@rest-hooks/endpoint/ErrorTypes';
+import type { DenormalizeNullable } from './normal.js';
+import type { EndpointInterface } from './interface.js';
+import type { ExpiryStatusInterface } from './Expiry.js';
+import type { ErrorTypes } from './ErrorTypes.js';
 
 export default interface SnapshotInterface {
   getResponse: <

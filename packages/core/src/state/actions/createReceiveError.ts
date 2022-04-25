@@ -1,10 +1,7 @@
 import { Schema } from '@rest-hooks/endpoint';
-import {
-  FetchAction,
-  ReceiveAction,
-  FetchOptions,
-} from '@rest-hooks/core/types';
-import { RECEIVE_TYPE } from '@rest-hooks/core/actionTypes';
+
+import { FetchAction, ReceiveAction, FetchOptions } from '../../types.js';
+import { RECEIVE_TYPE } from '../../actionTypes.js';
 
 interface Options<S extends Schema | undefined = any>
   extends Pick<FetchAction<any, S>['meta'], 'schema' | 'key' | 'options'> {

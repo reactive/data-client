@@ -1,10 +1,8 @@
 import { actionTypes, Dispatch, Schema, State } from '@rest-hooks/core';
-import {
-  Subscription,
-  SubscriptionInit,
-} from 'rest-hooks/manager/SubscriptionManager';
-import DefaultConnectionListener from 'rest-hooks/manager/DefaultConnectionListener';
-import ConnectionListener from 'rest-hooks/manager/ConnectionListener';
+
+import { Subscription, SubscriptionInit } from './SubscriptionManager.js';
+import DefaultConnectionListener from './DefaultConnectionListener.js';
+import ConnectionListener from './ConnectionListener.js';
 
 const { FETCH_TYPE } = actionTypes;
 

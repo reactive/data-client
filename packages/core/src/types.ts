@@ -9,8 +9,10 @@ import type {
   EndpointExtraOptions,
   EndpointInterface,
 } from '@rest-hooks/endpoint';
-import { ErrorableFSAWithPayloadAndMeta } from '@rest-hooks/core/fsa';
-import { FetchShape } from '@rest-hooks/core/endpoint/index';
+import type { ErrorTypes } from '@rest-hooks/endpoint';
+
+import { ErrorableFSAWithPayloadAndMeta } from './fsa.js';
+import { FetchShape } from './endpoint/index.js';
 import {
   RECEIVE_TYPE,
   RESET_TYPE,
@@ -20,10 +22,9 @@ import {
   INVALIDATE_TYPE,
   GC_TYPE,
   OPTIMISTIC_TYPE,
-} from '@rest-hooks/core/actionTypes';
-import type Controller from '@rest-hooks/core/controller/Controller';
-import type { ErrorTypes } from '@rest-hooks/endpoint';
-import type { EndpointUpdateFunction } from '@rest-hooks/core/controller/types';
+} from './actionTypes.js';
+import type Controller from './controller/Controller.js';
+import type { EndpointUpdateFunction } from './controller/types.js';
 
 export type { AbstractInstanceType, UpdateFunction };
 

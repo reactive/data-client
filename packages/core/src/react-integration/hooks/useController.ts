@@ -1,6 +1,7 @@
 import { useContext } from 'react';
-import Controller from '@rest-hooks/core/controller/Controller';
-import { ControllerContext } from '@rest-hooks/core/react-integration/context';
+
+import Controller from '../../controller/Controller.js';
+import { ControllerContext } from '../context.js';
 
 /**
  * Imperative control of Rest Hooks store

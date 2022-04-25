@@ -1,6 +1,6 @@
-export type { default as ConnectionListener } from 'rest-hooks/manager/ConnectionListener';
-export { default as DefaultConnectionListener } from 'rest-hooks/manager/DefaultConnectionListener';
-export { default as PollingSubscription } from 'rest-hooks/manager/PollingSubscription';
-export { default as SubscriptionManager } from 'rest-hooks/manager/SubscriptionManager';
-export { default as DevToolsManager } from 'rest-hooks/manager/DevtoolsManager';
-export type { DevToolsConfig } from 'rest-hooks/manager/DevtoolsManager';
+export type { default as ConnectionListener } from './ConnectionListener.js';
+export { default as DefaultConnectionListener } from './DefaultConnectionListener.js';
+export { default as PollingSubscription } from './PollingSubscription.js';
+export { default as SubscriptionManager } from './SubscriptionManager.js';
+export { default as DevToolsManager } from './DevtoolsManager.js';
+export type { DevToolsConfig } from './DevtoolsManager.js';

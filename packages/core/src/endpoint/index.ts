@@ -3,7 +3,7 @@ export type {
   ReadShape,
   MutateShape,
   DeleteShape,
-} from '@rest-hooks/core/endpoint/shapes';
+} from './shapes.js';
 export type {
   SetShapeParams,
   ParamsFromShape,
@@ -11,4 +11,4 @@ export type {
   SchemaFromShape,
   BodyFromShape,
   ReturnFromShape,
-} from '@rest-hooks/core/endpoint/types';
+} from './types.js';

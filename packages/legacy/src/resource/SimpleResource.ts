@@ -7,15 +7,12 @@ import type {
   MutateShape,
   DeleteShape,
 } from '@rest-hooks/core';
-import FlatEntity from '@rest-hooks/legacy/resource/FlatEntity';
-import Delete from '@rest-hooks/legacy/resource/Delete';
-import {
-  SchemaDetail,
-  Method,
-  SchemaList,
-} from '@rest-hooks/legacy/resource/types';
-import { NotImplementedError } from '@rest-hooks/legacy/resource/errors';
-import paramsToString from '@rest-hooks/legacy/resource/paramsToString';
+
+import FlatEntity from './FlatEntity.js';
+import Delete from './Delete.js';
+import { SchemaDetail, Method, SchemaList } from './types.js';
+import { NotImplementedError } from './errors.js';
+import paramsToString from './paramsToString.js';
 
 /** Represents an entity to be retrieved from a server.
  * Typically 1:1 with a url endpoint.

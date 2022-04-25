@@ -1,11 +1,12 @@
-import { State } from '@rest-hooks/core/types';
-import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
 import { DenormalizeNullable } from '@rest-hooks/endpoint';
 import { Schema } from '@rest-hooks/endpoint';
 import { useMemo } from 'react';
-import useController from '@rest-hooks/core/react-integration/hooks/useController';
-import shapeToEndpoint from '@rest-hooks/core/endpoint/adapter';
 import { ExpiryStatus } from '@rest-hooks/endpoint';
+
+import { State } from '../../types.js';
+import { ReadShape, ParamsFromShape } from '../../endpoint/index.js';
+import useController from '../../react-integration/hooks/useController.js';
+import shapeToEndpoint from '../../endpoint/adapter.js';
 
 /**
  * @deprecated use https://resthooks.io/docs/api/Controller#getResponse directly instead

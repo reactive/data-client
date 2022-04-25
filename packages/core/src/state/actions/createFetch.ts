@@ -1,13 +1,14 @@
-import { FetchAction } from '@rest-hooks/core/types';
-import { FETCH_TYPE } from '@rest-hooks/core/actionTypes';
 import { Schema } from '@rest-hooks/endpoint';
+
+import { FetchAction } from '../../types.js';
+import { FETCH_TYPE } from '../../actionTypes.js';
 import {
   FetchShape,
   SchemaFromShape,
   ParamsFromShape,
   BodyFromShape,
   OptimisticUpdateParams,
-} from '@rest-hooks/core/endpoint/index';
+} from '../../endpoint/index.js';
 
 interface Options<
   Shape extends FetchShape<

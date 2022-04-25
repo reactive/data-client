@@ -1,6 +1,6 @@
-export { default as GQLEntity } from '@rest-hooks/graphql/GQLEntity';
-export { default as GQLEndpoint } from '@rest-hooks/graphql/GQLEndpoint';
-export { default as GQLNetworkError } from '@rest-hooks/graphql/GQLNetworkError';
-export * from '@rest-hooks/graphql/GQLNetworkError';
+export { default as GQLEntity } from './GQLEntity.js';
+export { default as GQLEndpoint } from './GQLEndpoint.js';
+export { default as GQLNetworkError } from './GQLNetworkError.js';
+export * from './GQLNetworkError.js';
 
 export * from '@rest-hooks/endpoint';

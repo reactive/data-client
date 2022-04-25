@@ -1,11 +1,12 @@
-import { ReadShape, ParamsFromShape } from '@rest-hooks/core/endpoint/index';
 import { Denormalize, DenormalizeNullable } from '@rest-hooks/endpoint';
-import { useDenormalized } from '@rest-hooks/core/state/selectors/index';
-import { StateContext } from '@rest-hooks/core/react-integration/context';
 import { useMemo, useContext } from 'react';
-import useRetrieve from '@rest-hooks/core/react-integration/hooks/useRetrieve';
-import useError from '@rest-hooks/core/react-integration/hooks/useError';
 import { ExpiryStatus } from '@rest-hooks/endpoint';
+
+import { ReadShape, ParamsFromShape } from '../../endpoint/index.js';
+import { useDenormalized } from '../../state/selectors/index.js';
+import { StateContext } from '../context.js';
+import useRetrieve from './useRetrieve.js';
+import useError from './useError.js';
 
 type ResourceArgs<
   S extends ReadShape<any, any>,

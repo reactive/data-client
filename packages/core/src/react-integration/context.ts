@@ -1,8 +1,9 @@
 import { createContext } from 'react';
 import type { DenormalizeCache } from '@rest-hooks/normalizr';
-import type { ActionTypes } from '@rest-hooks/core/types';
-import { initialState } from '@rest-hooks/core/state/createReducer';
-import Controller from '@rest-hooks/core/controller/Controller';
+
+import type { ActionTypes } from '../types.js';
+import { initialState } from '../state/createReducer.js';
+import Controller from '../controller/Controller.js';
 
 export const StateContext = createContext(initialState);
 
