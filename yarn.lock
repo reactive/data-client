@@ -9,10 +9,10 @@
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.0"
 
-"@anansi/babel-preset@3.0.3", "@anansi/babel-preset@^3.0.1":
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-3.0.3.tgz#d37212147eb3f59dab6b6e95a97e00411618e609"
-  integrity sha512-DOtSYRS6EbhHjkMntxFDhYc0UV0ujOeuWCuRqc31QGgRsvVMnIEO0mGXd/1JqjpQCZL2QTx2OqTB/epdv7bL4Q==
+"@anansi/babel-preset@3.0.4", "@anansi/babel-preset@^3.0.1":
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-3.0.4.tgz#57fe76434c7e097c1b3ee476b4e6cf9d6cd4b4a2"
+  integrity sha512-CuOznVep3yXOJyDKJxNCGUe28GDH9BCtjNyii/DRdWiMpHVq33A81PMPy1zQ0IjthCwV0QsVe8I1zGcHwf5erw==
   dependencies:
     "@anansi/ts-utils" "^0.2.5"
     "@babel/plugin-proposal-class-properties" "^7.16.7"
@@ -40,7 +40,7 @@
     babel-plugin-react-require "^3.1.3"
     babel-plugin-root-import "^6.6.0"
     babel-plugin-transform-react-remove-prop-types "^0.4.24"
-    core-js-compat "^3.22.0"
+    core-js-compat "^3.22.2"
     glob-to-regexp "^0.4.1"
     path "^0.12.7"
     semver "^7.3.7"
@@ -6571,10 +6571,10 @@ copyfiles@^2.4.1:
     untildify "^4.0.0"
     yargs "^16.1.0"
 
-core-js-compat@^3.20.0, core-js-compat@^3.20.2, core-js-compat@^3.22.0:
-  version "3.22.0"
-  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.22.0.tgz#7ce17ab57c378be2c717c7c8ed8f82a50a25b3e4"
-  integrity sha512-WwA7xbfRGrk8BGaaHlakauVXrlYmAIkk8PNGb1FDQS+Rbrewc3pgFfwJFRw6psmJVAll7Px9UHRYE16oRQnwAQ==
+core-js-compat@^3.20.0, core-js-compat@^3.20.2, core-js-compat@^3.22.2:
+  version "3.22.2"
+  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.22.2.tgz#eec621eb276518efcf718d0a6d9d042c3d0cad48"
+  integrity sha512-Fns9lU06ZJ07pdfmPMu7OnkIKGPKDzXKIiuGlSvHHapwqMUF2QnnsWwtueFZtSyZEilP0o6iUeHQwpn7LxtLUw==
   dependencies:
     browserslist "^4.20.2"
     semver "7.0.0"
