@@ -245,10 +245,6 @@
             },
             {
               "type": "doc",
-              "id": "guides/no-suspense"
-            },
-            {
-              "type": "doc",
               "id": "guides/legacy-browser"
             }
           ]
@@ -294,6 +290,10 @@
             {
               "type": "doc",
               "id": "api/useFetch"
+            },
+            {
+              "type": "doc",
+              "id": "api/useDLE"
             },
             {
               "type": "doc",
@@ -406,6 +406,14 @@
             {
               "type": "doc",
               "id": "api/resource"
+            },
+            {
+              "type": "doc",
+              "id": "api/BaseResource"
+            },
+            {
+              "type": "doc",
+              "id": "api/HookableResource"
             }
           ]
         },
