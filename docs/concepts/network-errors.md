@@ -40,7 +40,7 @@ type and handle network errors there.
 
 Error boundaries provide elegant ways to reduce complexity by handling many
 errors in the react tree in one location. However, if you find yourself wanting to handle
-error state manually you can adapt the [useStatefulResource()](../guides/no-suspense.md) hook.
+error state manually you can adapt the [useDLE()](../api/useDLE.md) hook.
 
 ## Errors from Mutates (imperative)
 

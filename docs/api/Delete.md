@@ -90,7 +90,7 @@ class MyResource extends Resource {
 ```tsx
 function MyTable() {
   const { selectedIds } = useFields(TableForm);
-  const list = useSuspense(MyResource.list(), {});
+  const list = useSuspense(MyResource.list());
   const { fetch } = useController();
 
   return (

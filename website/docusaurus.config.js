@@ -82,7 +82,7 @@ module.exports = {
           lastVersion: 'current',
           includeCurrentVersion: true,
           versions: {
-            current: { label: '6.2', path: '', badge: false },
+            current: { label: '6.3', path: '', badge: false },
             '5.0': { label: '5.0', path: '5.0', banner: 'none' },
           },
           onlyIncludeVersions: isDev
@@ -143,6 +143,10 @@ module.exports = {
           {
             to: '/docs/api/useSuspense',
             from: ['/docs/next/api/useSuspense'],
+          },
+          {
+            to: '/docs/api/useDLE',
+            from: ['/docs/guides/no-suspense'],
           },
         ],
       },
@@ -210,10 +214,10 @@ module.exports = {
               to: 'docs/upgrade/upgrading-to-6',
             },
             {
-              label: '6.2',
+              label: '6.3',
               to: 'docs/',
               activeBaseRegex:
-                'docs/(?!2.2|3.0|4.0|4.1|4.2|4.3|4.5|5.0|6.0|6.1|6.2)',
+                'docs/(?!2.2|3.0|4.0|4.1|4.2|4.3|4.5|5.0|6.0|6.1|6.2|6.3)',
             },
             ...versions.map(version => ({
               label: version,

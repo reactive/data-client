@@ -50,7 +50,7 @@ class MyResource extends Resource {
   static create<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    RestFetch<{}, Partial<AbstractInstanceType<T>>>,
+    RestFetch<Partial<AbstractInstanceType<T>>>,
     SchemaDetail<AbstractInstanceType<T>>,
     true
   > {
@@ -60,7 +60,7 @@ class MyResource extends Resource {
   static filteredAndPaginatedList<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    RestFetch<{ filterA: boolean; sortby: string }>,
+    RestFetch<[{ filterA: boolean; sortby: string }]>,
     { results: T[]; nextPage: string },
     undefined
   > {
@@ -73,9 +73,9 @@ class MyResource extends Resource {
 import MyResource from 'resources/MyResource';
 import { useSuspense, useController } from 'rest-hooks';
 
-const items = useSuspense(MyResource.list(), {});
+const items = useSuspense(MyResource.list());
 const { fetch } = useController();
-const createMy = payload => fetch(MyResource.create(), {}, payload);
+const createMy = payload => fetch(MyResource.create(), payload);
 const { results, nextPage } = useSuspense(
   MyResource.filteredAndPaginatedList(),
   { filterA: true, sortby: 'first' },
@@ -392,7 +392,7 @@ class User extends Resource {
   static detail<T extends typeof Resource>(
     this: T,
   ): RestEndpoint<
-    RestFetch<{ id: string }>,
+    RestFetch<[{ id: string }]>,
     SchemaDetail<AbstractInstanceType<T>>,
     undefined
   > {
@@ -454,7 +454,7 @@ import { RestEndpoint, RestFetch, Resource } from '@rest-hooks/rest';
 class User extends Resource {
   static update<T extends typeof Resource>(
     this: T,
-  ): RestEndpoint<RestFetch<object, { username: string }>, T, true> {
+  ): RestEndpoint<RestFetch<[object, { username: string }]>, T, true> {
     // super.update() resolves the Schema to be based on `typeof Resource`, rather than `T`
     // which makes it incompatible with the return type correctly specified.
     return super.update() as any;
