@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1650905847679,
+  "lastUpdate": 1650938811719,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -5830,6 +5830,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.49%",
             "unit": "ops/sec",
             "extra": "74 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5e764194cfcd98d63ad7a4046423d3a8abe7b67b",
+          "message": "internal: Upgrade to jest 28 (#1944)",
+          "timestamp": "2022-04-25T19:03:19-07:00",
+          "tree_id": "81a81c394e92e7a57615669b71a567ac87e64848",
+          "url": "https://github.com/coinbase/rest-hooks/commit/5e764194cfcd98d63ad7a4046423d3a8abe7b67b"
+        },
+        "date": 1650938810428,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 98.38,
+            "range": "±0.37%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 40.65,
+            "range": "±1.63%",
+            "unit": "ops/sec",
+            "extra": "54 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 43.81,
+            "range": "±1.39%",
+            "unit": "ops/sec",
+            "extra": "58 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 95.04,
+            "range": "±1.71%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
           }
         ]
       }
