@@ -7551,14 +7551,14 @@ dot-prop@^6.0.1:
   dependencies:
     is-obj "^2.0.0"
 
-downlevel-dts@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/downlevel-dts/-/downlevel-dts-0.9.0.tgz#23c71e5bdf825a073f80a7ed077553c81aabdf01"
-  integrity sha512-XDYaZ7yY4yPLlNx3txbYRzUF6WiElAgMJQ/ACIaZnKISwuWw2eAHD7Ecp3u60ntej6i1yaMtjsN02hhA4FakFw==
+downlevel-dts@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/downlevel-dts/-/downlevel-dts-0.10.0.tgz#d2be7b4408a1f9eb3a39e15a361f8ea4f175facc"
+  integrity sha512-AZ7tnUy4XJArsjv6Bcuivvxx+weMvOGHF6seu7e7PVOqMDHMSlfgMl1kt+F4Y2+5TmDwKWHOdimM1DZKihQs8Q==
   dependencies:
     semver "^7.3.2"
     shelljs "^0.8.3"
-    typescript "^4.5.5"
+    typescript next
 
 duplexer@0.1.1, duplexer@^0.1.1:
   version "0.1.1"
@@ -17447,15 +17447,15 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@^4.4.3, typescript@^4.5.5:
+typescript@^4.4.3:
   version "4.6.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.6.3.tgz#eefeafa6afdd31d725584c67a0eaba80f6fc6c6c"
   integrity sha512-yNIatDa5iaofVozS/uQJEl3JRWLKKGJKh6Yaiv0GLGSuhpFJe7P3SbHZ8/yjAHRQwKRoA6YZqlfjXWmVzoVSMw==
 
-typescript@^4.7.0-0:
-  version "4.7.0-dev.20220424"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.0-dev.20220424.tgz#fb9cd9a4f7495248694ab1b9c8fd6cd350c7428c"
-  integrity sha512-oQrr51Qhxrgn/PTNoeRX4aNRV+jzb4egLCxW8EZ3nf/O50VckCME2hwS0hR4IPA6bn6CFPXhAY8rYVRIosua2Q==
+typescript@^4.7.0-0, typescript@next:
+  version "4.7.0-dev.20220425"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.0-dev.20220425.tgz#9b7b76e5514f92352098c802df0cc80249b1e38c"
+  integrity sha512-fMwLQ7gLYOCEH+fwhUajRCDSrEu8Pu26mL6HV1yk734f+00QGcKsAJTjgAyZ79rnYqQFzjIilegksYhZ7zrJAA==
 
 uglify-es@^3.1.9:
   version "3.3.9"
