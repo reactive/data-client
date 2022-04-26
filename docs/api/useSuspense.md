@@ -65,7 +65,7 @@ function Post({ id }: { id: number }) {
 
 ```tsx
 function Posts() {
-  const posts = useSuspense(PostResource.list(), {});
+  const posts = useSuspense(PostResource.list());
   // posts as PostResource[]
 }
 ```

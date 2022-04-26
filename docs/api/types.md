@@ -148,11 +148,11 @@ for easy customization.
 export interface RestEndpoint<
   F extends FetchFunction = RestFetch,
   S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined
+  M extends true | undefined = true | undefined,
+  U extends any[] = any,
 > extends EndpointInstance<F, S, M> {
-  url: (urlParams: Readonly<Record<string, any>>) => string;
+  url: (...args: U) => string;
   fetchInit: RequestInit;
-  useFetchInit: (this: any) => any;
   getFetchInit: (
     this: any,
     body?: RequestInit['body'] | Record<string, any>,
@@ -168,9 +168,8 @@ Fetch function for Resources. Unlike [FetchFunction](#fetchfunction), these requ
 as [Resource](./resource) expects it
 
 ```typescript
-export type RestFetch<
-  P = any,
-  B = RequestInit['body'] | Record<string, any>,
-  R = any
-> = (this: RestEndpoint, params: P, body?: B) => Promise<R>;
+export type RestFetch<A extends readonly any[] = any[], R = any> = (
+  this: RestEndpoint,
+  ...args: A
+) => Promise<R>;
 ```

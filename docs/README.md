@@ -407,12 +407,12 @@ class TodoResource extends Resource {
 const todo = useSuspense(TodoResource.detail(), { id: 5 });
 
 // GET https://jsonplaceholder.typicode.com/todos
-const todos = useSuspense(TodoResource.list(), {});
+const todos = useSuspense(TodoResource.list());
 
 // mutate
 // POST https://jsonplaceholder.typicode.com/todos
 const controller = useController();
-controller.fetch(TodoResource.create(), {}, { title: 'my todo' });
+controller.fetch(TodoResource.create(), { title: 'my todo' });
 
 // PUT https://jsonplaceholder.typicode.com/todos/5
 const controller = useController();

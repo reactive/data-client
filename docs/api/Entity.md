@@ -268,7 +268,7 @@ class AssetResource extends Resource {
 Some top level component:
 
 ```tsx
-const assets = useSuspense(AssetResource.list(), {});
+const assets = useSuspense(AssetResource.list());
 ```
 
 Nested below:

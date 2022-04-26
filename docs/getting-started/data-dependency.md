@@ -162,11 +162,10 @@ is obviously contrived; in practice this comes up quite often, especially when d
 ### Stateful
 
 You may find cases where it's still useful to use a stateful approach to fallbacks when using React 16 and 17.
-For these cases, or compatibility with some component libraries, the `@rest-hooks/legacy` package includes
-a hook that uses stateful loading and errors.
+For these cases, or compatibility with some component libraries, [useDLE()](../api/useDLE.md) is provided.
 
 ```tsx
-import { useStatefulResource } from '@rest-hooks/legacy';
+import { useDLE } from 'rest-hooks';
 // local directory for API definitions
 import { todoDetail } from 'endpoints/todo';
 
@@ -175,14 +174,12 @@ export default function TodoDetail({ id }: { id: number }) {
     loading,
     error,
     data: todo,
-  } = useStatefulResource(todoDetail, { id });
+  } = useDLE(todoDetail, { id });
   if (loading) return 'loading';
   if (error) return error.status;
   return <div>{todo.title}</div>;
 }
 ```
-
-Read more about [useStatefulResource](../guides/no-suspense)
 
 ## Subscriptions
 
@@ -272,7 +269,7 @@ class ExchangeRatesResource extends Resource {
 
   static list<T extends typeof Resource>(
     this: T,
-  ): RestEndpoint<RestFetch<{ currency: string }>, { data: T }, undefined> {
+  ): RestEndpoint<RestFetch<[{ currency: string }]>, { data: T }, undefined> {
     return super.list().extend({
       schema: { data: this },
     });

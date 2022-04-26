@@ -155,8 +155,13 @@ Using React Context for state that is not displayed (like auth tokens) is not re
 Here we use a context variable to set headers. Note - this means any endpoint functions can only be
 called from a React Component. (However, this should be fine since the context will only exist in React anyway.)
 
+[HookableResource](../api/HookableResource.md) gives us endpoint methods that are hooks so we can access
+React context.
+
 ```typescript
-abstract class AuthdResource extends Resource {
+import { HookableResource } from '@rest-hooks/rest';
+
+abstract class AuthdResource extends HookableResource {
   static useFetchInit = (init: RequestInit) => {
     const accessToken = useAuthContext();
     return {
@@ -177,9 +182,9 @@ Using this means all endpoint calls must only occur during a function render.
 ```tsx
 function CreatePost() {
   const { fetch } = useController();
-  // PostResource.create() calls useFetchInit()
+  // PostResource.useCreate() calls useFetchInit()
   //highlight-next-line
-  const createPost = PostResource.create();
+  const createPost = PostResource.useCreate();
 
   return (
     <form
@@ -188,16 +193,6 @@ function CreatePost() {
       {/* ... */}
     </form>
   );
-}
-```
-
-It may be helpful to prefix with 'use' so the react hooks linter detects these cases.
-
-```ts
-class PostResource extends Resource {
-  static useCreate<T extends typeof Resource>(this: T) {
-    return this.create();
-  }
 }
 ```
 

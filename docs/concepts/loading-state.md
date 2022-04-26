@@ -47,7 +47,7 @@ const App = () => (
 Suspense is the recommended way of handling loading state as it reduces complexity
 while integrating with [React.lazy()](https://reactjs.org/docs/code-splitting.html#reactlazy)
 and the soon-to-be-released concurrent mode. However, if you find yourself wanting to handle
-loading state manually you can adapt the [useStatefulResource()](../guides/no-suspense.md) hook.
+loading state manually you can adapt the [useDLE()](../api/useDLE.md) hook.
 
 ## Loading Buttons
 
