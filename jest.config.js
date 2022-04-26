@@ -14,7 +14,9 @@ const baseConfig = {
     'packages/legacy/src/rest-3',
     'packages/core/src/react-integration/hooks/hasUsableData',
   ],
-  testURL: 'http://localhost',
+  testEnvironmentOptions: {
+    url: 'http://localhost',
+  },
   /** TODO: Remove once we move to 'publishConfig' */
   moduleNameMapper: {
     '@rest-hooks/(.*)$': ['<rootDir>/packages/$1/src'],
