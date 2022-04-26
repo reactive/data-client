@@ -8,6 +8,7 @@ import nock from 'nock';
 import { AbortOptimistic } from '@rest-hooks/endpoint';
 import { act } from '@testing-library/react-hooks';
 import { useContext } from 'react';
+import { jest } from '@jest/globals';
 
 import {
   makeRenderRestHook,
@@ -619,7 +620,7 @@ describe.each([
       );
 
       it('toggle should alternate with multiple optimistic updates', async () => {
-        jest.useFakeTimers('modern');
+        jest.useFakeTimers({ legacyFakeTimers: false });
 
         // keeping state here allows the requests to flip flop each time
         let visible = false;
@@ -699,7 +700,7 @@ describe.each([
       });
 
       it('toggle should handle when response is missing', async () => {
-        jest.useFakeTimers('modern');
+        jest.useFakeTimers({ legacyFakeTimers: false });
 
         // keeping state here allows the requests to flip flop each time
         let visible = false;
@@ -733,7 +734,7 @@ describe.each([
       });
 
       it('should error when user error happens', async () => {
-        jest.useFakeTimers('modern');
+        jest.useFakeTimers({ legacyFakeTimers: false });
 
         const toggleError = new Endpoint(
           (id: number): Promise<{ id: number; visible: boolean }> =>
@@ -793,7 +794,7 @@ describe.each([
 
       describe('with timestamps', () => {
         it('should handle out of order server responses', async () => {
-          jest.useFakeTimers('modern');
+          jest.useFakeTimers({ legacyFakeTimers: false });
 
           const initVis = {
             id: 5,

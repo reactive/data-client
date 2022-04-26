@@ -4,6 +4,7 @@ import {
   FutureArticleResource,
 } from '__tests__/legacy-optimistic';
 import nock from 'nock';
+import { jest } from '@jest/globals';
 
 import {
   makeRenderRestHook,
@@ -261,7 +262,7 @@ describe.each([
     });
 
     it('should clear only earlier optimistic updates when a promise resolves', async () => {
-      jest.useFakeTimers('legacy');
+      jest.useFakeTimers({ legacyFakeTimers: true });
 
       const params = { id: payload.id };
       const { result, waitForNextUpdate } = renderRestHook(

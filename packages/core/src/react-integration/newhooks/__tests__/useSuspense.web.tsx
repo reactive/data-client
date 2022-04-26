@@ -17,16 +17,18 @@ import {
   StateContext,
   initialState,
   Controller,
+  ActionTypes,
+  actionTypes,
 } from '@rest-hooks/core';
 import React, { Suspense } from 'react';
 import { render, act } from '@testing-library/react';
 import nock from 'nock';
-
+import { jest } from '@jest/globals';
 // relative imports to avoid circular dependency in tsconfig references
-
 import { normalize } from '@rest-hooks/normalizr';
 import { Endpoint, ReadEndpoint } from '@rest-hooks/endpoint';
 
+import { FetchAction } from '../../../types';
 import {
   makeRenderRestHook,
   makeCacheProvider,
@@ -40,7 +42,7 @@ async function testDispatchFetch(
   Component: React.FunctionComponent<any>,
   payloads: any[],
 ) {
-  const dispatch = jest.fn();
+  const dispatch = jest.fn<(value: ActionTypes) => Promise<void>>();
   const controller = new Controller({ dispatch });
 
   const tree = (
@@ -54,11 +56,12 @@ async function testDispatchFetch(
   expect(dispatch).toHaveBeenCalled();
   expect(dispatch.mock.calls.length).toBe(payloads.length);
   let i = 0;
-  for (const call of dispatch.mock.calls) {
+  for (const call of dispatch.mock.calls as any) {
+    expect(call[0].type).toBe(actionTypes.FETCH_TYPE);
     delete call[0]?.meta?.createdAt;
     delete call[0]?.meta?.promise;
     expect(call[0]).toMatchSnapshot();
-    const action = call[0];
+    const action: FetchAction = call[0] as any;
     const res = await action.payload();
     expect(res).toEqual(payloads[i]);
     i++;
