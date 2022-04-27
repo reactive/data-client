@@ -4,16 +4,16 @@ title: BaseResource
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 
-`BaseResource` is an [Entity](./Entity) with multiple [Endpoint](./Endpoint)s that operate on the data. All additional members are provided to make CRUD or other REST-like API definitions easy and terse.
+`BaseResource` is an [Entity](./Entity.md) with multiple [Endpoint](./Endpoint.md)s that operate on the data. All additional members are provided to make CRUD or other REST-like API definitions easy and terse.
 
-For other patterns, feel free to use [Endpoint](./Endpoint)s on their own or in any other way you see fit.
+For other patterns, feel free to use [Endpoint](./Endpoint.md)s on their own or in any other way you see fit.
 
 <LanguageTabs>
 
 ```typescript
-import { Resource } from '@rest-hooks/rest';
+import { BaseResource } from '@rest-hooks/rest';
 
-export default class ArticleResource extends Resource {
+export default class ArticleResource extends BaseResource {
   readonly id: number | undefined = undefined;
   readonly title: string = '';
   readonly content: string = '';
@@ -29,9 +29,9 @@ export default class ArticleResource extends Resource {
 ```
 
 ```js
-import { Resource } from '@rest-hooks/rest';
+import { BaseResource } from '@rest-hooks/rest';
 
-export default class ArticleResource extends Resource {
+export default class ArticleResource extends BaseResource {
   id = undefined;
   title = '';
   content = '';
@@ -48,11 +48,15 @@ export default class ArticleResource extends Resource {
 
 </LanguageTabs>
 
-`Resource` extends [Entity](./Entity)
+:::info extends
+
+`BaseResource` extends [Entity](./Entity)
+
+:::
 
 Package: [@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest)
 
-There are two sides to `Resource` definition - the static and instance side.
+There are two sides to `BaseResource` definition - the static and instance side.
 
 ### Static
 
@@ -62,7 +66,7 @@ tell the [hooks](./useSuspense.md) how to process requests. Endpoints are provid
 common `REST` request types. However, it is encouraged to build your own or override the
 provided ones to fit the needs of your API.
 
-Resource extends from [Entity](./Entity), which includes many static methods defining how to process
+BaseResource extends from [Entity](./Entity), which includes many static methods defining how to process
 network data to ensure performance and consistency. [Deserilization](../guides/network-transform#deserializing-fields)
 for instance can be done using the [static schema](./Entity#schema).
 
@@ -70,21 +74,21 @@ for instance can be done using the [static schema](./Entity#schema).
 
 Instances are mostly for you to define how you want to interact with your data. This means
 you should start off by defining the fields you expect to see, and provide defaults in case
-they are not sent for some reason. `Resource` also requires that you define a method to
-get an entity's (entity is an instance of a Resource) unique identifier. (This is used for
+they are not sent for some reason. `BaseResource` also requires that you define a method to
+get an entity's (entity is an instance of a BaseResource) unique identifier. (This is used for
 book-keeping the normalized cache.) Make sure to mark all members as readonly as all the data members
 are immutable (this library enforces that)!
 
 You are encouraged to add your own member methods. Often times it is useful to provide
 methods for computed values that are commonly used in your React components.
 
-A final note: `Resource` provides a factory method called `fromJS()` that will be used
-to construct instances. This is the only supported way of created `Resource`s so please
+A final note: `BaseResource` provides a factory method called `fromJS()` that will be used
+to construct instances. This is the only supported way of created `BaseResource`s so please
 don't use constructors.
 
 ## Factory method
 
-### fromJS(props): Resource {#fromJS}
+### fromJS(props): BaseResource {#fromJS}
 
 ```ts
 static fromJS<T extends typeof SimpleRecord>(this: T, props: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T>
@@ -99,7 +103,7 @@ Factory method called during denormalization. Use this instead of `new MyEntity(
 > Inherited from [Entity](./Entity)
 
 PK stands for _primary key_ and is intended to provide a standard means of retrieving
-a key identifier for any `Resource`. In many cases there will simply be an 'id' field
+a key identifier for any `BaseResource`. In many cases there will simply be an 'id' field
 member to return. In case of multicolumn you can simply join them together.
 
 #### Multi-column primary key:
@@ -113,7 +117,7 @@ pk(parent?: any, key?: string) {
 #### undefined value
 
 A `undefined` can be used as a default to indicate the resource has not been created yet.
-This is useful when initializing a creation form using [Resource.fromJS()](#fromJS)
+This is useful when initializing a creation form using [BaseResource.fromJS()](#fromJS)
 directly. If `pk()` resolves to null it is considered not persisted to the server,
 and thus will not be kept in the cache. sdf sdfsd
 
@@ -134,9 +138,9 @@ return (
 );
 ```
 
-#### Singleton Resources
+#### Singleton BaseResources
 
-What if there is only ever once instance of a Resource for your entire application? You
+What if there is only ever once instance of a BaseResource for your entire application? You
 don't really need to distinguish between each instance, so likely there was no `id` or
 similar field defined in the API. In these cases you can just return a literal like
 'the_only_one'.
@@ -150,18 +154,18 @@ pk() {
 ### static urlRoot: string {#urlRoot}
 
 Used to build url patterns in `url()` and `listUrl()`. Used as the default in
-[key](#static-get-key-string) so typically you'll want this to be globally unique per Resource.
+[key](#static-get-key-string) so typically you'll want this to be globally unique per BaseResource.
 
 ### static get key(): string {#key}
 
 > Inherited from [Entity](./Entity)
 
-This defines the key for the Resource itself, rather than an instance. As seen below, by default it
+This defines the key for the BaseResource itself, rather than an instance. As seen below, by default it
 simply returns the urlRoot since this is typically globally unique. However if you want to share
-urlRoot across different Resources, be sure to override this.
+urlRoot across different BaseResources, be sure to override this.
 
 ```typescript
-/** Returns the globally unique identifier for this Resource */
+/** Returns the globally unique identifier for this BaseResource */
 static get key(): string {
   return this.urlRoot;
 }
@@ -174,7 +178,7 @@ These are the basic building blocks used to compile the [Endpoint](../api/Endpoi
 ### static url(urlParams) => string {#url}
 
 ```ts
-static url<T extends typeof Resource>(urlParams: Partial<AbstractInstanceType<T>>) => string
+static url<T extends typeof BaseResource>(urlParams: Partial<AbstractInstanceType<T>>) => string
 ```
 
 Computes the url based on the parameters. Default implementation follows `/urlRoot/[pk]` pattern.
