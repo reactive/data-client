@@ -25,7 +25,7 @@ function useDLE<
 
 </GenericsTabs>
 
-In case you cannot use suspense, useDLE() is just like useSuspense() but returns [D]ata [L]oading [E]rror values.
+In case you cannot use suspense, useDLE() is just like [useSuspense()](./useSuspense.md) but returns [D]ata [L]oading [E]rror values.
 
 ## Hook usage
 
@@ -58,7 +58,7 @@ const { Meta } = Card;
 
 function ProfileList() {
   const { data, loading, error } = useDLE(
-    ProfileResource.detail(),
+    ProfileResource.list(),
     {},
   );
   if (error) return <div>Error {error.status}</div>
