@@ -43,20 +43,15 @@ export const denormalize = (
   unvisit: any,
 ): [denormalized: any, found: boolean, suspend: boolean] => {
   schema = validateSchema(schema);
-  let deleted = false;
-  let found = true;
-  if (input === undefined && schema) {
-    [, found, deleted] = unvisit(undefined, schema);
-  }
   return [
-    input && input.map
+    input.map
       ? input
           .map(entityOrId => unvisit(entityOrId, schema))
           .filter(filterEmpty)
           .map(([value]) => value)
       : input,
-    found,
-    deleted,
+    true,
+    false,
   ];
 };
 
@@ -94,20 +89,15 @@ export default class ArraySchema extends PolymorphicSchema {
   }
 
   denormalize(input: any, unvisit: any) {
-    let deleted = false;
-    let found = true;
-    if (input === undefined && this.schema) {
-      [, found, deleted] = unvisit(undefined, this.schema);
-    }
     return [
-      input && input.map
+      input.map
         ? input
             .map(entityOrId => this.denormalizeValue(entityOrId, unvisit))
             .filter(filterEmpty)
             .map(([value]) => value)
         : input,
-      found,
-      deleted,
+      true,
+      false,
     ];
   }
 

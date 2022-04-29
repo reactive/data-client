@@ -3,6 +3,8 @@
  * the 'immutable' package as a dependency.
  */
 
+import Immutable from 'immutable';
+
 /**
  * Check if an object is immutable by checking if it has a key specific
  * to the immutable library.
@@ -10,12 +12,16 @@
  * @param  {any} object
  * @return {bool}
  */
-export function isImmutable(object: any) {
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function isImmutable(object: {}): object is {
+  get(k: string): any;
+  [k: string]: any;
+} {
   return !!(
-    object &&
     typeof object.hasOwnProperty === 'function' &&
     (Object.hasOwnProperty.call(object, '__ownerID') || // Immutable.Map
-      (object._map && Object.hasOwnProperty.call(object._map, '__ownerID')))
+      ((object as any)._map &&
+        Object.hasOwnProperty.call((object as any)._map, '__ownerID')))
   ); // Immutable.Record
 }
 

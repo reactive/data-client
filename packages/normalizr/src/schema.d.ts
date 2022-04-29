@@ -52,7 +52,7 @@ export interface SchemaSimple<T = any> {
   ): any;
   denormalize(
     // eslint-disable-next-line @typescript-eslint/ban-types
-    input: {} | undefined,
+    input: {},
     unvisit: UnvisitFunction,
   ): [denormalized: T, found: boolean, suspend: boolean];
   infer(
@@ -103,7 +103,7 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
 
   denormalize(
     // eslint-disable-next-line @typescript-eslint/ban-types
-    input: {} | undefined,
+    input: {},
     unvisit: UnvisitFunction,
   ): [denormalized: Denormalize<S>[], found: boolean, suspend: boolean];
 
@@ -135,7 +135,7 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
 
   denormalize(
     // eslint-disable-next-line @typescript-eslint/ban-types
-    input: {} | undefined,
+    input: {},
     unvisit: UnvisitFunction,
   ): [denormalized: DenormalizeObject<O>, found: boolean, suspend: boolean];
 
@@ -173,7 +173,7 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
 
   denormalize(
     // eslint-disable-next-line @typescript-eslint/ban-types
-    input: {} | undefined,
+    input: {},
     unvisit: UnvisitFunction,
   ): [
     denormalized: AbstractInstanceType<Choices[keyof Choices]>,
@@ -236,7 +236,7 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
 
   denormalize(
     // eslint-disable-next-line @typescript-eslint/ban-types
-    input: {} | undefined,
+    input: {},
     unvisit: UnvisitFunction,
   ): [
     denormalized: Record<
