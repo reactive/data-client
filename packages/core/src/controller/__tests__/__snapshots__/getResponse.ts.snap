@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Controller.getResponse() denormalizes schema with extra members but not set 1`] = `
+Object {
+  "data": Array [
+    Tacos {
+      "id": "1",
+      "type": "foo",
+    },
+    Tacos {
+      "id": "2",
+      "type": "bar",
+    },
+  ],
+}
+`;
+
+exports[`Controller.getResponse() infers schema with extra members but not set 1`] = `
+Object {
+  "data": Tacos {
+    "id": "1",
+    "type": "foo",
+  },
+  "extra": "",
+  "page": Object {
+    "complex": Object {
+      "complex": true,
+      "next": false,
+    },
+    "first": null,
+    "second": undefined,
+    "third": 0,
+  },
+}
+`;

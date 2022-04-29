@@ -126,28 +126,32 @@ const getUnvisit = (
   ): [denormalized: any, found: boolean, deleted: boolean] {
     if (!schema) return [input, true, false];
 
-    if (!schema.denormalize || typeof schema.denormalize !== 'function') {
-      if (typeof schema === 'function') {
-        if (input instanceof schema) return [input, true, false];
-        return [new schema(input), true, false];
-      } else if (typeof schema === 'object') {
-        const method = Array.isArray(schema)
-          ? arrayDenormalize
-          : objectDenormalize;
-        return method(schema, input, unvisit);
-      }
-    }
-
     // null is considered intentional, thus always 'found' as true
     if (input === null) {
       return [input, true, false];
     }
 
+    const hasDenormalize = typeof schema.denormalize === 'function';
+
+    if (!hasDenormalize && typeof schema === 'function') {
+      if (input instanceof schema) return [input, true, false];
+      // field deserialization should never count against 'found' (whether to used inferred results)
+      if (input === undefined) return [input, true, false];
+      return [new schema(input), true, false];
+    }
+
+    if (input === undefined) {
+      return [input, false, false];
+    }
+
+    if (!hasDenormalize && typeof schema === 'object') {
+      const method = Array.isArray(schema)
+        ? arrayDenormalize
+        : objectDenormalize;
+      return method(schema, input, unvisit);
+    }
+
     if (isEntity(schema)) {
-      // unvisitEntity only works with valid input of string
-      if (input === undefined) {
-        return [input, false, false];
-      }
       return unvisitEntity(
         input,
         schema,
@@ -160,7 +164,7 @@ const getUnvisit = (
       );
     }
 
-    if (typeof schema.denormalize === 'function') {
+    if (hasDenormalize) {
       return schema.denormalize(input, unvisit);
     }
 

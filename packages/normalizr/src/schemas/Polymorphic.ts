@@ -83,9 +83,6 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
 
   // value is guaranteed by caller to not be null
   denormalizeValue(value: any, unvisit: any) {
-    if (value === undefined) {
-      return [value, false, false];
-    }
     const schemaKey = isImmutable(value) ? value.get('schema') : value.schema;
     if (!this.isSingleSchema && !schemaKey) {
       /* istanbul ignore else */

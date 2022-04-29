@@ -295,6 +295,31 @@ describe(`${schema.Array.name} denormalization`, () => {
       expect(found).toBe(true);
     });
 
+    test('denormalizes removes undefined', () => {
+      class Cat extends IDEntity {}
+      const catSchema = { results: [Cat], nextPage: '' };
+      const entities = {
+        Cat: {
+          1: { id: '1', name: 'Milo' },
+          2: { id: '2', name: 'Jake' },
+        },
+      };
+      let [value, found] = denormalize(
+        { results: ['1', undefined, '2'] },
+        catSchema,
+        entities,
+      );
+      expect(value).toMatchSnapshot();
+      expect(found).toBe(true);
+      [value, found] = denormalize(
+        { results: ['1', '2'] },
+        catSchema,
+        fromJS(entities),
+      );
+      expect(value).toMatchSnapshot();
+      expect(found).toBe(true);
+    });
+
     test('denormalizes should not be found when result array is undefined', () => {
       class Cat extends IDEntity {}
       const catSchema = { results: [Cat] };

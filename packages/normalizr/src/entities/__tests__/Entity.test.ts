@@ -104,6 +104,47 @@ describe(`${Entity.name} normalization`, () => {
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 
+  it('should handle optional schema entries Entity', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      readonly blarb: Date | undefined = undefined;
+      pk() {
+        return this.name;
+      }
+
+      static schema = {
+        blarb: Date,
+      };
+    }
+    const schema = MyEntity;
+
+    expect(normalize({ name: 'bob', secondthing: 'hi' }, schema))
+      .toMatchInlineSnapshot(`
+      Object {
+        "entities": Object {
+          "MyEntity": Object {
+            "bob": Object {
+              "name": "bob",
+              "secondthing": "hi",
+            },
+          },
+        },
+        "entityMeta": Object {
+          "MyEntity": Object {
+            "bob": Object {
+              "date": 1557831718135,
+              "expiresAt": Infinity,
+              "fetchedAt": 0,
+            },
+          },
+        },
+        "indexes": Object {},
+        "result": "bob",
+      }
+    `);
+  });
+
   it('should throw a custom error if data loads with no matching props', () => {
     class MyEntity extends Entity {
       readonly name: string = '';
@@ -736,6 +777,70 @@ describe(`${Entity.name} denormalization`, () => {
 
     expect(denormalize('2', Menu, entities)).toMatchSnapshot();
     expect(denormalize('2', Menu, fromJS(entities))).toMatchSnapshot();
+  });
+
+  it('should handle optional schema entries Entity', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      readonly blarb: Date | undefined = undefined;
+      pk() {
+        return this.name;
+      }
+
+      static schema = {
+        blarb: Date,
+      };
+    }
+    const schema = MyEntity;
+
+    expect(
+      denormalize('bob', schema, {
+        MyEntity: { bob: { name: 'bob', secondthing: 'hi' } },
+      }),
+    ).toMatchInlineSnapshot(`
+      Array [
+        MyEntity {
+          "blarb": undefined,
+          "name": "bob",
+          "secondthing": "hi",
+        },
+        true,
+        false,
+      ]
+    `);
+  });
+
+  it('should handle null schema entries Entity', () => {
+    class MyEntity extends Entity {
+      readonly name: string = '';
+      readonly secondthing: string = '';
+      readonly blarb: Date | null = null;
+      pk() {
+        return this.name;
+      }
+
+      static schema = {
+        blarb: Date,
+      };
+    }
+    const schema = MyEntity;
+
+    expect(
+      denormalize('bob', schema, {
+        MyEntity: { bob: { name: 'bob', secondthing: 'hi', blarb: null } },
+      }),
+    ).toMatchInlineSnapshot(`
+      Array [
+        MyEntity {
+          "blarb": null,
+          "name": "bob",
+          "secondthing": "hi",
+        },
+        true,
+        false,
+      ]
+    `);
   });
 
   test('denormalizes to undefined for deleted data', () => {
