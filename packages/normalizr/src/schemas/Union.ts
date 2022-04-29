@@ -25,7 +25,8 @@ export default class UnionSchema extends PolymorphicSchema {
     );
   }
 
-  denormalize(input, unvisit) {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  denormalize(input: {}, unvisit: any) {
     return this.denormalizeValue(input, unvisit);
   }
 

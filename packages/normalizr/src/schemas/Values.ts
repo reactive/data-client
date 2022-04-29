@@ -24,7 +24,8 @@ export default class ValuesSchema extends PolymorphicSchema {
     }, {});
   }
 
-  denormalize(input, unvisit) {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  denormalize(input: {}, unvisit: any) {
     let found = true;
     let deleted = false;
     return [

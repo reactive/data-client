@@ -127,9 +127,9 @@ describe(`${schema.Object.name} denormalization`, () => {
   test('should have found = true with null member even when schema has nested entity', () => {
     class User extends IDEntity {}
     const object = {
-      item: new schema.Object({
+      item: {
         user: User,
-      }),
+      },
     };
     const entities = {
       User: {
