@@ -31,7 +31,8 @@ export const normalize = (
 
 export const denormalize = (
   schema: any,
-  input: any,
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  input: {},
   unvisit: any,
 ): [denormalized: any, found: boolean, deleted: boolean] => {
   if (isImmutable(input)) {
@@ -100,7 +101,8 @@ export default class ObjectSchema {
     return normalize(this.schema, ...args);
   }
 
-  denormalize(...args: readonly [input: any, unvisit: any]) {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  denormalize(...args: readonly [input: {}, unvisit: any]) {
     return denormalize(this.schema, ...args);
   }
 

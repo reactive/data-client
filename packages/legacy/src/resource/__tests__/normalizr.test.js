@@ -923,7 +923,23 @@ describe('denormalize with global cache', () => {
         entityCache,
         resultCache,
       );
-      expect(denorm).toEqual({});
+      expect(denorm).toEqual(null);
+      expect(found).toBe(true);
+      expect(deleted).toBe(false);
+    });
+
+    test('handles undefined at top level', () => {
+      const entityCache = {};
+      const resultCache = new WeakListMap();
+
+      const [denorm, found, deleted] = denormalize(
+        undefined,
+        { data: Article },
+        {},
+        entityCache,
+        resultCache,
+      );
+      expect(denorm).toEqual(undefined);
       expect(found).toBe(false);
       expect(deleted).toBe(false);
     });
