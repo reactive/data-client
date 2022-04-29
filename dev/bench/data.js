@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1650938811719,
+  "lastUpdate": 1651251236899,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -5882,6 +5882,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.71%",
             "unit": "ops/sec",
             "extra": "81 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2d4214a4c6b74725c9a6a92e36817bd26aa3c366",
+          "message": "fix: Accept undefined or null responses for schema entries (#1963)\n\nCo-authored-by: Jordan Harband <ljharb@gmail.com>",
+          "timestamp": "2022-04-29T09:50:32-07:00",
+          "tree_id": "a5f1b8a3b1cbffced3cfa30f0a13d907731c4cd7",
+          "url": "https://github.com/coinbase/rest-hooks/commit/2d4214a4c6b74725c9a6a92e36817bd26aa3c366"
+        },
+        "date": 1651251236036,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 99.77,
+            "range": "±0.99%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 39.72,
+            "range": "±1.76%",
+            "unit": "ops/sec",
+            "extra": "53 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 44.19,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "58 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 98.31,
+            "range": "±0.57%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
           }
         ]
       }
