@@ -119,7 +119,7 @@ pk(parent?: any, key?: string) {
 A `undefined` can be used as a default to indicate the resource has not been created yet.
 This is useful when initializing a creation form using [BaseResource.fromJS()](#fromJS)
 directly. If `pk()` resolves to null it is considered not persisted to the server,
-and thus will not be kept in the cache. sdf sdfsd
+and thus will not be kept in the cache.
 
 #### Other uses
 

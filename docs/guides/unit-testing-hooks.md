@@ -5,6 +5,13 @@ import PkgTabs from '@site/src/components/PkgTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+:::danger
+
+Do *not* use jest.mock on any rest-hooks library. This will likely result in hard-to trace
+errors like `TypeError: Class extends value undefined is not a function or null`.
+
+:::
+
 Hooks allow you to pull complex behaviors out of your components into succinct,
 composable functions. This makes testing component behavior potentially much
 easier. But how does this work if you want to use hooks from `rest-hooks`?

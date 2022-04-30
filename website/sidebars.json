@@ -83,19 +83,8 @@
           ]
         },
         {
-          "type": "category",
-          "collapsible": false,
-          "label": "Resource Instance",
-          "items": [
-            {
-              "type": "doc",
-              "id": "guides/computed-properties"
-            },
-            {
-              "type": "doc",
-              "id": "guides/multi-pk"
-            }
-          ]
+          "type": "doc",
+          "id": "guides/computed-properties"
         },
         {
           "type": "category",
