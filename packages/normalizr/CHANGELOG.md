@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [8.2.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.2.4...@rest-hooks/normalizr@8.2.5) (2022-04-30)
+
+
+### 🐛 Bug Fix
+
+* Accept undefined or null responses for schema entries ([#1963](https://github.com/coinbase/rest-hooks/issues/1963)) ([2d4214a](https://github.com/coinbase/rest-hooks/commit/2d4214a4c6b74725c9a6a92e36817bd26aa3c366))
+
+
+
 ### [8.2.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.2.3...@rest-hooks/normalizr@8.2.4) (2022-04-16)
 
 

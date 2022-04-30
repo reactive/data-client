@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.3.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@4.3.1...@rest-hooks/legacy@4.3.2) (2022-04-30)
+
+
+### 💅 Enhancement
+
+* Improve robustness when using distinct schemas to normalize/denormalize ([#1908](https://github.com/coinbase/rest-hooks/issues/1908)) ([c8fdca9](https://github.com/coinbase/rest-hooks/commit/c8fdca9e0cd65622d41692b66c3e2744b20bef23)), closes [#1912](https://github.com/coinbase/rest-hooks/issues/1912)
+
+
+### 🐛 Bug Fix
+
+* Accept undefined or null responses for schema entries ([#1963](https://github.com/coinbase/rest-hooks/issues/1963)) ([2d4214a](https://github.com/coinbase/rest-hooks/commit/2d4214a4c6b74725c9a6a92e36817bd26aa3c366))
+
+
+
 ### [4.3.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@4.3.0...@rest-hooks/legacy@4.3.1) (2022-04-08)
 
 

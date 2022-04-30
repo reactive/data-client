@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.2.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.2.2...@rest-hooks/core@3.2.3) (2022-04-30)
+
+
+### 🐛 Bug Fix
+
+* Accept undefined or null responses for schema entries ([#1963](https://github.com/coinbase/rest-hooks/issues/1963)) ([2d4214a](https://github.com/coinbase/rest-hooks/commit/2d4214a4c6b74725c9a6a92e36817bd26aa3c366))
+
+
+
 ### [3.2.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.2.1...@rest-hooks/core@3.2.2) (2022-04-16)
 
 

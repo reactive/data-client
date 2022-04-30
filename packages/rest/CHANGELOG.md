@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@5.0.0...@rest-hooks/rest@5.0.1) (2022-04-30)
+
+
+### 📝 Documentation
+
+* Update README with newest practices ([#1920](https://github.com/coinbase/rest-hooks/issues/1920)) ([9bbd76c](https://github.com/coinbase/rest-hooks/commit/9bbd76c4fb20125d6318bd8ac5cc4238be4ab3d5))
+
+
+
 ## [5.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@4.0.0...@rest-hooks/rest@5.0.0) (2022-04-10)
 
 

@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.2.7](https://github.com/coinbase/rest-hooks/compare/github-app@0.2.6...github-app@0.2.7) (2022-04-30)
+
+
+### 📦 Package
+
+* react, babel, jest, eslint ([#1968](https://github.com/coinbase/rest-hooks/issues/1968)) ([219e644](https://github.com/coinbase/rest-hooks/commit/219e644192a5b2520f7bf076213c1f715b50f2bc))
+
+
+
 ### [0.2.6](https://github.com/coinbase/rest-hooks/compare/github-app@0.2.5...github-app@0.2.6) (2022-04-18)
 
 **Note:** Version bump only for package github-app
