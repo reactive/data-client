@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1651251236899,
+  "lastUpdate": 1651347683671,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -5934,6 +5934,58 @@ window.BENCHMARK_DATA = {
             "range": "±0.57%",
             "unit": "ops/sec",
             "extra": "72 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": false,
+          "id": "f490c35cb1a91a4f740488d28b92d3e3b3a98ffe",
+          "message": "internal: publish\n\n - benchmark@0.1.4\n - github-app@0.2.7\n - normalizr-github-example@0.0.11\n - normalizr-redux-example@0.0.11\n - normalizr-relationships@0.0.11\n - todo-app@0.2.7\n - @rest-hooks/core@3.2.3\n - @rest-hooks/endpoint@2.2.6\n - @rest-hooks/graphql@0.1.5\n - @rest-hooks/hooks@3.0.1\n - @rest-hooks/legacy@4.3.2\n - @rest-hooks/normalizr@8.2.5\n - rest-hooks@6.3.3\n - @rest-hooks/rest@5.0.1\n - @rest-hooks/ssr@0.1.4\n - @rest-hooks/test@7.3.1",
+          "timestamp": "2022-04-30T12:54:45-05:00",
+          "tree_id": "f5f7b6566cce89cc57e8a87b327947213455029d",
+          "url": "https://github.com/coinbase/rest-hooks/commit/f490c35cb1a91a4f740488d28b92d3e3b3a98ffe"
+        },
+        "date": 1651347682279,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 108,
+            "range": "±1.10%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 43.94,
+            "range": "±0.74%",
+            "unit": "ops/sec",
+            "extra": "58 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 47.06,
+            "range": "±0.40%",
+            "unit": "ops/sec",
+            "extra": "62 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 105,
+            "range": "±1.71%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
           }
         ]
       }
