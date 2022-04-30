@@ -21,11 +21,11 @@
   "private": true,
   "license": "Apache-2.0",
   "devDependencies": {
-    "@anansi/babel-preset": "^3.0.1",
+    "@anansi/babel-preset": "^3.1.0",
     "@anansi/browserslist-config": "1.3.3",
     "@anansi/eslint-plugin": "0.12.10",
-    "@anansi/webpack-config": "11.3.9",
-    "@babel/core": "7.17.9",
+    "@anansi/webpack-config": "11.3.11",
+    "@babel/core": "7.17.10",
     "@linaria/babel-preset": "3.0.0-beta.18",
     "@linaria/core": "3.0.0-beta.18",
     "@linaria/react": "3.0.0-beta.18",
@@ -39,8 +39,8 @@
   },
   "dependencies": {
     "@rest-hooks/rest": "^5.0.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
     "rest-hooks": "^6.3.2"
   }
 }
