@@ -31,7 +31,7 @@
     "@linaria/react": "3.0.0-beta.18",
     "@linaria/shaker": "3.0.0-beta.18",
     "@types/parse-link-header": "^2.0.0",
-    "@types/react-dom": "18.0.2",
+    "@types/react-dom": "18.0.3",
     "react-refresh": "^0.13.0",
     "serve": "13.0.2",
     "webpack": "5.72.0",
