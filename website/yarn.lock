@@ -3107,38 +3107,38 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.19.tgz#2c94db828794aa53e7a420809dac870348819233"
   integrity sha512-kHR9OHwP9WLpyC0i/WCAQCgf5hXkR9C+/21qxmrn+YwRlDRnBlqrcrFpXxhJTA9LDHJWa/FjoO2LJ12q8iWlEQ==
 
-"@rest-hooks/core@^3.2.2", "@rest-hooks/core@file:../packages/core":
-  version "3.2.2"
+"@rest-hooks/core@^3.2.3", "@rest-hooks/core@file:../packages/core":
+  version "3.2.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
-    "@rest-hooks/endpoint" "^2.2.5"
-    "@rest-hooks/normalizr" "^8.2.4"
+    "@rest-hooks/endpoint" "^2.2.6"
+    "@rest-hooks/normalizr" "^8.2.5"
     "@rest-hooks/use-enhanced-reducer" "^1.1.1"
     flux-standard-action "^2.1.1"
 
-"@rest-hooks/endpoint@^2.2.5", "@rest-hooks/endpoint@file:../packages/endpoint":
-  version "2.2.5"
+"@rest-hooks/endpoint@^2.2.6", "@rest-hooks/endpoint@file:../packages/endpoint":
+  version "2.2.6"
   dependencies:
     "@babel/runtime" "^7.7.2"
-    "@rest-hooks/normalizr" "^8.2.4"
+    "@rest-hooks/normalizr" "^8.2.5"
 
 "@rest-hooks/graphql@file:../packages/graphql":
-  version "0.1.4"
+  version "0.1.5"
   dependencies:
     "@babel/runtime" "^7.7.2"
 
 "@rest-hooks/hooks@file:../packages/hooks":
-  version "3.0.0"
+  version "3.0.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
 
-"@rest-hooks/normalizr@^8.2.4", "@rest-hooks/normalizr@file:../packages/normalizr":
-  version "8.2.4"
+"@rest-hooks/normalizr@^8.2.5", "@rest-hooks/normalizr@file:../packages/normalizr":
+  version "8.2.5"
   dependencies:
     "@babel/runtime" "^7.7.2"
 
 "@rest-hooks/rest@file:../packages/rest":
-  version "5.0.0"
+  version "5.0.1"
   dependencies:
     "@babel/runtime" "^7.7.2"
 
@@ -10744,11 +10744,11 @@ responselike@^1.0.2:
     lowercase-keys "^1.0.0"
 
 "rest-hooks@file:../packages/rest-hooks":
-  version "6.3.2"
+  version "6.3.3"
   dependencies:
     "@babel/runtime" "^7.7.2"
-    "@rest-hooks/core" "^3.2.2"
-    "@rest-hooks/endpoint" "^2.2.5"
+    "@rest-hooks/core" "^3.2.3"
+    "@rest-hooks/endpoint" "^2.2.6"
 
 restore-cursor@^3.1.0:
   version "3.1.0"
