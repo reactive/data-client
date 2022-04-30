@@ -2,6 +2,13 @@
 title: Unit testing components
 ---
 
+:::danger
+
+Do *not* use jest.mock on any rest-hooks library. This will likely result in hard-to trace
+errors like `TypeError: Class extends value undefined is not a function or null`.
+
+:::
+
 If you need to add unit tests to your components to check some behavior you might want
 avoid dealing with network fetch cycle as that is probably orthogonal to what your are
 trying to test. Using [<MockResolver /\>](../api/MockResolver) in our tests allow

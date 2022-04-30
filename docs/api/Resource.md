@@ -112,9 +112,18 @@ member to return. In case of multicolumn you can simply join them together.
 
 #### Multi-column primary key:
 
+Sometimes you have a resource that doesn't have its own primary key. This is typically found in `join tables` that express `many-to-many` relationships.
+
 ```typescript
-pk(parent?: any, key?: string) {
-  return [this.firstCol, this.secondCol, this.thirdCol].join(',');
+export class VoteResource extends Resource {
+  readonly userId: number | undefined = undefined;
+  readonly postId: number | undefined = undefined;
+  readonly createdAt: string = '1900-01-01T01:01:01Z';
+
+  pk() {
+    return [this.userId, this.postId].join(',');
+  }
+  static urlRoot = 'https://example.com/votes/';
 }
 ```
 
@@ -123,7 +132,7 @@ pk(parent?: any, key?: string) {
 A `undefined` can be used as a default to indicate the resource has not been created yet.
 This is useful when initializing a creation form using [Resource.fromJS()](#fromJS)
 directly. If `pk()` resolves to null it is considered not persisted to the server,
-and thus will not be kept in the cache. sdf sdfsd
+and thus will not be kept in the cache.
 
 #### Other uses
 
