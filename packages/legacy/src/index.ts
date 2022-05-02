@@ -9,4 +9,4 @@ export type {
   SetShapeParams,
   ParamsFromShape,
 } from '@rest-hooks/core';
-export * as rest3 from './rest-3/index';
+export * as rest3 from './rest-3/index.js';
