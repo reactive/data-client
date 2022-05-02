@@ -40,4 +40,4 @@ const optimisticPartial = (
   ...body,
 });
 
-const optimisticCreate = (snap: SnapshotInterface, _: any, body: any) => body;
+const optimisticCreate = (snap: SnapshotInterface, body: any) => body;

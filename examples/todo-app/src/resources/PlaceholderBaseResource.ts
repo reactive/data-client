@@ -28,9 +28,9 @@ export default abstract class PlaceholderBaseResource extends Resource {
   static create<T extends typeof Resource>(this: T) {
     const endpoint = super.create();
     return endpoint.extend({
-      fetch: async (params: any, body: any) => {
+      fetch: async (body: any) => {
         // create has no parameters, but has a body with the id
-        return { ...(await endpoint(params, body)), id: body.id };
+        return { ...(await endpoint(body)), id: body.id };
       },
     });
   }
