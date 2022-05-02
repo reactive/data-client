@@ -148,6 +148,10 @@ module.exports = {
             to: '/docs/api/useDLE',
             from: ['/docs/guides/no-suspense'],
           },
+          {
+            to: '/docs/getting-started/expiry-policy',
+            from: ['/docs/guides/resource-lifetime'],
+          },
         ],
       },
     ],

@@ -90,7 +90,7 @@ export default class ArticleResource extends Resource {
   }
   static urlRoot = 'http://test.com/article/';
 
-  static schema = {
+  static schema: { [k: string]: Schema } = {
     author: UserResource,
     contributors: [UserResource],
   };

@@ -1,5 +1,6 @@
 ---
-title: Validation
+title: Entity Validation
+sidebar_label: Validation
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';

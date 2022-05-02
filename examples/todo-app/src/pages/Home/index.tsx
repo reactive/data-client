@@ -21,7 +21,7 @@ const Title = styled.nav`
   top: 0;
   width: 100%;
   padding: 18px;
-  background: #4516f0;
+  background: white;
   z-index: 100;
 `;
 

@@ -96,6 +96,50 @@ render(<Navigator />);
 
 </HooksPlayground>
 
+<details><summary><b>@rest-hooks/rest</b></summary>
+
+## Examples
+
+To apply to all of a [Resource's endpoints](../api/resource#detail), use [getEndpointExtra](../api/resource#getEndpointExtra)
+
+### Long cache lifetime
+
+`LongLivingResource.ts`
+
+```typescript
+import { Resource } from '@rest-hooks/rest';
+
+// We can now extend LongLivingResource to get a resource that will be cached for one hour
+abstract class LongLivingResource extends Resource {
+  static getEndpointExtra() {
+    return {
+      ...super.getEndpointExtra(),
+      dataExpiryLength: 60 * 60 * 1000, // one hour
+    };
+  }
+}
+```
+
+### Never retry on error
+
+`NoRetryResource.ts`
+
+```typescript
+import { Resource } from '@rest-hooks/rest';
+
+// We can now extend NoRetryResource to get a resource that will never retry on network error
+abstract class NoRetryResource extends Resource {
+  static getEndpointExtra() {
+    return {
+      ...super.getEndpointExtra(),
+      errorExpiryLength: Infinity,
+    };
+  }
+}
+```
+
+</details>
+
 ### Endpoint.invalidIfStale
 
 [Endpoint.invalidIfStale](../api/Endpoint#invalidifstale) eliminates the `stale` status, making data

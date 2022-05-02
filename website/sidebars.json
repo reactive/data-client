@@ -75,16 +75,8 @@
             {
               "type": "doc",
               "id": "guides/mocking-unfinished"
-            },
-            {
-              "type": "doc",
-              "id": "guides/resource-lifetime"
             }
           ]
-        },
-        {
-          "type": "doc",
-          "id": "guides/computed-properties"
         },
         {
           "type": "category",
@@ -102,15 +94,12 @@
           ]
         },
         {
-          "type": "category",
-          "collapsible": false,
-          "label": "Advanced",
-          "items": [
-            {
-              "type": "doc",
-              "id": "guides/custom-networking"
-            }
-          ]
+          "type": "doc",
+          "id": "guides/computed-properties"
+        },
+        {
+          "type": "doc",
+          "id": "guides/custom-networking"
         }
       ]
     },
