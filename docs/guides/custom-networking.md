@@ -3,7 +3,7 @@ title: Using a custom networking library
 sidebar_label: Custom networking library
 ---
 import CodeBlock from '@theme/CodeBlock';
-import ResourceSource from '!!raw-loader!@site/../packages/rest/src/Resource.ts';
+import ResourceSource from '!!raw-loader!@site/../packages/rest/src/BaseResource.ts';
 
 `Resource.fetch()` wraps the standard [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 One key customization is ensuring every network related error thrown has a
@@ -29,9 +29,6 @@ The [whatwg-fetch](https://github.com/github/fetch#installation) polyfill will b
 useful in environments that don't support it, like node and older browsers
 (Internet Explorer). Be sure to include it in any bundles that need it.
 
-This implementation is provided as a useful reference for building your own.
-For the most up-to-date implementation, see the [source on master](https://github.com/coinbase/rest-hooks/blob/master/packages/rest-hooks/src/resource/Resource.ts)
-
 <CodeBlock className="language-typescript">{ResourceSource}</CodeBlock>
 
 ## Superagent
@@ -39,7 +36,7 @@ For the most up-to-date implementation, see the [source on master](https://githu
 [Superagent](https://visionmedia.github.io/superagent/)
 
 ```typescript
-import { SimpleResource, Method } from '@rest-hooks/rest';
+import { Resource, Method } from '@rest-hooks/rest';
 import type { SuperAgentRequest } from 'superagent';
 
 const ResourceError = `JSON expected but not returned from API`;
@@ -48,7 +45,7 @@ const ResourceError = `JSON expected but not returned from API`;
  * Represents an entity to be retrieved from a server.
  * Typically 1:1 with a url endpoint.
  */
-export default abstract class Resource extends SimpleResource {
+export default abstract class SuperResource extends Resource {
   /** A function to mutate all requests for fetch */
   static fetchPlugin?: (request: SuperAgentRequest) => SuperAgentRequest;
 
@@ -81,10 +78,10 @@ export const isInvalidResponse = (res: request.Response): boolean => {
 [Axios](https://github.com/axios/axios)
 
 ```typescript
-import { SimpleResource, Method } from '@rest-hooks/rest';
+import { Resource, Method } from '@rest-hooks/rest';
 import axios from 'axios';
 
-export default abstract class AxiosResource extends SimpleResource {
+export default abstract class AxiosResource extends Resource {
   /** Perform network request and resolve with json body */
   static async fetch(
     input: RequestInfo, init: RequestInit

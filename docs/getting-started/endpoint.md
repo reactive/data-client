@@ -1,6 +1,11 @@
 ---
-title: Endpoint
+title: Define API Endpoint
+sidebar_label: Endpoint
 ---
+
+<head>
+  <title>TypeScript Standard Endpoints</title>
+</head>
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';

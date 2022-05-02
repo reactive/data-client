@@ -321,7 +321,11 @@ Rest Hooks what response it _expects_ to receive from the mutation call, Rest Ho
 can **immediately** update **all** components using the relevant entity.
 
 ```typescript
-const getOptimisticResponse = (snap: SnapshotInterface, params: Params, body: FormData) => ({
+const getOptimisticResponse = (
+  snap: SnapshotInterface,
+  params: Params,
+  body: FormData,
+) => ({
   id: params.id,
   ...body,
 });
@@ -355,7 +359,11 @@ const todoUpdate = new Endpoint(fetchTodoUpdate, {
   getOptimisticResponse,
 });
 
-const getOptimisticResponse = (snap: SnapshotInterface, params: Params, body: FormData) => ({
+const getOptimisticResponse = (
+  snap: SnapshotInterface,
+  params: Params,
+  body: FormData,
+) => ({
   id: params.id,
   ...body,
 });
@@ -479,7 +487,6 @@ export const getPhoto = new Endpoint(async ({ userId }: { userId: string }) => {
 [Suspense](./getting-started/data-dependency.md#async-fallbacks) as well as the [render as you fetch](./guides/render-as-you-fetch.md)
 pattern for improved user experience.
 
-
 ## Debugging
 
 <img src={require('@site/static/img/redux-devtools-logo.jpg').default} width="75" height="75" alt="redux-devtools" style={{ float: 'left', "marginRight": "var(--ifm-paragraph-margin-bottom)" }} />
@@ -564,6 +571,26 @@ const todoDetail404Fixture: FixtureEndpoint = {
 
 ## Demo
 
-See this all in action in [examples/todo-app](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2Findex.tsx)
+### Todo Demo
 
-Or a [github api demo](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
+<iframe
+  src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?embed=1&file=src%2Fpages%2FHome%2FTodoListComponent.tsx&hidedevtools=1&view=both&ctl=1"
+  width="100%"
+  height="500"
+></iframe>
+
+[Open demo in own tab](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoListComponent.tsx)
+
+[Explore on github](https://github.com/coinbase/rest-hooks/tree/master/examples/todo-app)
+
+### Github Demo
+
+<iframe
+  src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fpages%2FIssueList.tsx&hidedevtools=1&view=preview&ctl=1"
+  width="100%"
+  height="500"
+></iframe>
+
+[Open demo in own tab](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
+
+[Explore on github](https://github.com/coinbase/rest-hooks/tree/master/examples/github-app)
