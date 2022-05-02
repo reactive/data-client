@@ -6,9 +6,12 @@ import TodoResource from 'resources/TodoResource';
 export default function NewTodo({ lastId }: { lastId: number }) {
   const { fetch } = useController();
   const [title, setTitle] = useState('');
-  const handleChange = useCallback((e) => {
-    setTitle(e.currentTarget.value);
-  }, []);
+  const handleChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
+    (e) => {
+      setTitle(e.currentTarget.value);
+    },
+    [],
+  );
 
   // this allows handlePress to never change referential equality
   const payload = useRef({ id: lastId + 1, title: title });
@@ -17,7 +20,7 @@ export default function NewTodo({ lastId }: { lastId: number }) {
   const handlePress = useCallback(
     async (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
-        fetch(TodoResource.create(), {}, payload.current);
+        fetch(TodoResource.create(), payload.current);
         setTitle('');
       }
     },
