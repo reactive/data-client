@@ -7,6 +7,7 @@ import BigNumber from 'bignumber.js';
 
 import { default as BaseTodoResource } from './Playground/resources/TodoResource';
 import Playground from './Playground';
+import ResetableErrorBoundary from './ResettableErrorBoundary';
 
 const mockFetch = (getResponse, name, delay = 150) => {
   const fetch = (...args) =>
@@ -45,34 +46,6 @@ function CurrentTime() {
     <time>
       {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(time)}
     </time>
-  );
-}
-
-function ResetableErrorBoundary({ children }) {
-  const [i, setI] = React.useState(0);
-  const { resetEntireStore } = restHooks.useController();
-
-  return (
-    <restHooks.NetworkErrorBoundary
-      key={i}
-      fallbackComponent={({ error }) => (
-        <>
-          <div>
-            {error.message} <i>{error.status}</i>
-          </div>
-          <button
-            onClick={() => {
-              resetEntireStore();
-              setI(i => i + 1);
-            }}
-          >
-            Clear Error
-          </button>
-        </>
-      )}
-    >
-      {children}
-    </restHooks.NetworkErrorBoundary>
   );
 }
 
