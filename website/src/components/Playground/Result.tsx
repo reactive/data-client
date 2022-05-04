@@ -71,7 +71,7 @@ function Result({
           {() => (
             <Suspense fallback={<LivePreviewLoader />}>
               <LivePreview />
-              <LiveError />
+              <LiveError className={styles.playgroundError} />
             </Suspense>
           )}
         </BrowserOnly>

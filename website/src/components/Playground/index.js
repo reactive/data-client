@@ -38,7 +38,9 @@ function Header({ children, className }) {
 
 function ResultWithHeader({ groupId, defaultOpen, row }) {
   return (
-    <div>
+    <div
+      style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+    >
       <Header>
         <Translate
           id="theme.Playground.result"

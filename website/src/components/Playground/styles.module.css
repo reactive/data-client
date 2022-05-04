@@ -51,8 +51,10 @@ div:first-of-type > .playgroundHeader {
   flex: 1 4 20%;
   overflow: auto;
 }
-:global(.col) .playgroundPreview pre {
+:global(.col) .playgroundError {
   overflow: visible;
+  padding: 0;
+  color: var(--ifm-color-danger-contrast-foreground);
 }
 
 
