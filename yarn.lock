@@ -66,9 +66,9 @@
     eslint-plugin-jsx-a11y "^6.5.1"
 
 "@anansi/jest-preset@^0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.7.0.tgz#1297797c0725c623c5f1c64d05e87d4dcda2024c"
-  integrity sha512-Bb0EKr75mGIWYbR0Rsu3Bo6aKrM/97b/uRSFYIIsT2E3rkFwlOxoito54UvjVLO/RgtV/Xg3DYMktVm9c9q8pA==
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.7.1.tgz#5045b84eff237cc4edbe06eacab0ae881a8bbb7b"
+  integrity sha512-rUbzpRK0yjLsuppRYr4402GlbUYCFCtdJjFgvuiLxS9zRpcTyjhKRoKeRJGTmBgsVucZ9jaMVHSNHeFiVSOyMg==
   dependencies:
     "@anansi/ts-utils" "^0.2.5"
     babel-jest "^28.0.3"
@@ -77,7 +77,7 @@
     jest-pnp-resolver "^1.2.2"
     mitt "^3.0.0"
     semver "^7.3.7"
-    ts-jest "^28.0.0-next.3"
+    ts-jest "^28.0.1"
     whatwg-fetch "^3.0.0"
 
 "@anansi/router@^0.4.0":
@@ -17138,10 +17138,10 @@ ts-invariant@^0.9.0:
   dependencies:
     tslib "^2.1.0"
 
-ts-jest@^28.0.0-next.3:
-  version "28.0.0-next.3"
-  resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-28.0.0-next.3.tgz#df236176c74923fc76a289317106937a7a072d58"
-  integrity sha512-R1mD18XKfd2Cb1qpjXfB3FfJ+yX8G75czuSnDu3hAcccPumeC3FKwAM6dGMvt5Yl0RSGw+bUQskp4zDma3Gdgg==
+ts-jest@^28.0.1:
+  version "28.0.1"
+  resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-28.0.1.tgz#626b4d7d5c386f88f4813d959ffc4ca0a8ffef96"
+  integrity sha512-PbkbitaT/9ZYAqqzk3UYTvCq080Seo46T3m/AdwcZ0D8WH2uBhG6PvA8oOAWsZIknzPQU66fYobvFCL8IqIhmg==
   dependencies:
     bs-logger "0.x"
     fast-json-stable-stringify "2.x"
