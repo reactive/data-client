@@ -1,0 +1,17 @@
+{
+  "extends": ["group:allNonMajor", "group:monorepos"],
+  "assigneesFromCodeOwners": true,
+  "commitMessagePrefix": "pkg: ",
+  "commitMessageTopic": "`{{depName}}`",
+  "dependencyDashboardApproval": true,
+  "rangeStrategy": "auto",
+  "ignoreDeps": ["whatwg-fetch", "react-error-overlay"],
+  "timezone": "America/Chicago",
+  "packageRules": [
+    {
+      "matchPackageNames": ["@babel/runtime", "core-js"],
+      "matchDepTypes": ["dependencies"],
+      "rangeStrategy": "replace"
+    }
+  ]
+}
