@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@anansi/webpack-config": "^11.3.11",
-    "@docusaurus/core": "^2.0.0-beta.18",
+    "@docusaurus/core": "^2.0.0-beta.20",
     "@docusaurus/plugin-client-redirects": "^2.0.0-beta.18",
     "@docusaurus/preset-classic": "^2.0.0-beta.18",
     "@docusaurus/theme-live-codeblock": "^2.0.0-beta.18",
