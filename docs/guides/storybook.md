@@ -124,9 +124,7 @@ You'll need to add the appropriate [global decorators](https://storybook.js.org/
 
 This should resemble what you have added in [initial setup](../getting-started/installation#add-provider-at-top-level-component)
 
-#### `.storybook/preview.tsx`
-
-```tsx
+```tsx title=".storybook/preview.tsx"
 import { Suspense } from 'react';
 import { CacheProvider, NetworkErrorBoundary } from 'rest-hooks';
 
@@ -150,9 +148,7 @@ control how Rest Hooks' fetches are resolved.
 
 Here we select which fixtures should be used by [storybook controls](https://storybook.js.org/docs/react/essentials/controls).
 
-#### `ArticleList.stories.tsx`
-
-```tsx
+```tsx title="ArticleList.stories.tsx"
 import { MockResolver } from '@rest-hooks/test';
 import type { Fixture } from '@rest-hooks/test';
 import { Story } from '@storybook/react/types-6-0';
@@ -176,8 +172,10 @@ export default {
 };
 
 const Template: Story<{ result: keyof typeof options }> = ({ result }) => (
+  // highlight-next-line
   <MockResolver fixtures={options[result]}>
     <ArticleList maxResults={10} />
+  // highlight-next-line
   </MockResolver>
 );
 
