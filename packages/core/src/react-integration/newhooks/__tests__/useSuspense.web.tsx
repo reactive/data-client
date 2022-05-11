@@ -27,6 +27,7 @@ import { jest } from '@jest/globals';
 // relative imports to avoid circular dependency in tsconfig references
 import { normalize } from '@rest-hooks/normalizr';
 import { Endpoint, ReadEndpoint } from '@rest-hooks/endpoint';
+import { SpyInstance } from 'jest-mock';
 
 import { FetchAction } from '../../../types';
 import {
@@ -320,7 +321,7 @@ describe('useSuspense()', () => {
   });
 
   describe('errors', () => {
-    let errorspy: jest.SpyInstance;
+    let errorspy: SpyInstance<typeof global.console.error>;
     beforeEach(() => {
       errorspy = jest
         .spyOn(global.console, 'error')
