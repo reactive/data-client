@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1651347683671,
+  "lastUpdate": 1652305377623,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -5986,6 +5986,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.71%",
             "unit": "ops/sec",
             "extra": "77 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "972d6463c6d1946254673bb7029898b19ce4ffdd",
+          "message": "pkg: @anansi, types, antd, eslint, node, redux, typescript, webpack (#2015)\n\n* pkg: Update all non-major dependencies\r\n\r\n* pkg(fix): Consolidate react types\r\n\r\n* pkg: Consolidate typescript next version\r\n\r\n* internal: Update jest types\r\n\r\nCo-authored-by: Renovate Bot <bot@renovateapp.com>\r\nCo-authored-by: Nathaniel Tucker <nathaniel@sisudata.com>",
+          "timestamp": "2022-05-11T16:39:23-05:00",
+          "tree_id": "faf6135ea8e4598578fd6db600731692b0f2e819",
+          "url": "https://github.com/coinbase/rest-hooks/commit/972d6463c6d1946254673bb7029898b19ce4ffdd"
+        },
+        "date": 1652305376228,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 99.53,
+            "range": "±0.58%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 40.9,
+            "range": "±0.80%",
+            "unit": "ops/sec",
+            "extra": "55 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 44.62,
+            "range": "±0.43%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 99.02,
+            "range": "±2.26%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
           }
         ]
       }
