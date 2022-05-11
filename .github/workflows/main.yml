@@ -17,7 +17,7 @@ jobs:
       with:
         fetch-depth: 1
     - name: compressed-size-action
-      uses: preactjs/compressed-size-action@v1
+      uses: preactjs/compressed-size-action@v2
       continue-on-error: true
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
