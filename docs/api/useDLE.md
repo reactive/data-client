@@ -1,6 +1,7 @@
 ---
 title: useDLE()
 ---
+
 import PkgTabs from '@site/src/components/PkgTabs';
 import GenericsTabs from '@site/src/components/GenericsTabs';
 
@@ -10,7 +11,11 @@ import GenericsTabs from '@site/src/components/GenericsTabs';
 function useDLE(
   endpoint: ReadEndpoint,
   ...args: Parameters<typeof endpoint> | [null]
-): { data: Denormalize<typeof endpoint.schema>, loading: boolean, error: Error | undefined };
+): {
+  data: Denormalize<typeof endpoint.schema>;
+  loading: boolean;
+  error: Error | undefined;
+};
 ```
 
 ```typescript
@@ -20,7 +25,11 @@ function useDLE<
 >(
   endpoint: E,
   ...args: Args
-): { data: DenormalizeNullable<typeof endpoint.schema>, loading: boolean, error: Error | undefined };
+): {
+  data: DenormalizeNullable<typeof endpoint.schema>;
+  loading: boolean;
+  error: Error | undefined;
+};
 ```
 
 </GenericsTabs>
@@ -29,9 +38,9 @@ In case you cannot use suspense, useDLE() is just like [useSuspense()](./useSusp
 
 ## Hook usage
 
-<details><summary><b>resources/ProfileResource.ts</b></summary>
+<details><summary><b>Resource</b></summary>
 
-```typescript
+```typescript title="resources/ProfileResource.ts"
 export default class ProfileResource extends Resource {
   readonly id: number | undefined = undefined;
   readonly img: string = '';
@@ -47,9 +56,7 @@ export default class ProfileResource extends Resource {
 
 </details>
 
-#### `ProfileList.tsx`
-
-```tsx
+```tsx title="ProfileList.tsx"
 import { useDLE } from 'rest-hooks';
 import { Skeleton, Card, Avatar } from 'antd';
 import ProfileResource from 'resources/ProfileResource';
@@ -57,22 +64,19 @@ import ProfileResource from 'resources/ProfileResource';
 const { Meta } = Card;
 
 function ProfileList() {
-  const { data, loading, error } = useDLE(
-    ProfileResource.list(),
-    {},
-  );
-  if (error) return <div>Error {error.status}</div>
+  const { data, loading, error } = useDLE(ProfileResource.list());
+  if (error) return <div>Error {error.status}</div>;
   return (
     <Card style={{ width: 300, marginTop: 16 }} loading={loading}>
-      <Meta
-        avatar={
-          <Avatar src={data.img} />
-        }
-        title={data.fullName}
-        description={data.bio}
-      />
+      {data.map(profile => (
+        <Meta
+          key={profile.pk()}
+          avatar={<Avatar src={profile.img} />}
+          title={profile.fullName}
+          description={profile.bio}
+        />
+      ))}
     </Card>
   );
 }
 ```
-
