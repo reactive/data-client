@@ -241,10 +241,10 @@
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.0"
 
-"@anansi/webpack-config@^11.3.11":
-  version "11.3.11"
-  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.3.11.tgz#89d9eab40d9a7833e54043d502ecf0440132d6df"
-  integrity sha512-pNjA2H2RVgxEjn96aDLlckvGEUmGNLqjNyrQZZAE5pE4ezYXMTuAlMq+JAFQKmDboPVI+/0veWGAYvAOCJ1diQ==
+"@anansi/webpack-config@11.3.12":
+  version "11.3.12"
+  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.3.12.tgz#77557a4e42b126156ef67e7dd6b0b0f23d9ac50a"
+  integrity sha512-V0bJndonDfvv6w1fhgXaVBrsU7RvhfgD0mtXg7YkWfkU4HwHO2hnXXGNKPNuPiYq9XxnaR8BEbFMLn05Dl/nCg==
   dependencies:
     "@babel/runtime" "^7.17.2"
     "@linaria/webpack5-loader" "^3.0.0-beta.18"
@@ -253,7 +253,7 @@
     "@types/webpack-bundle-analyzer" "^4.4.1"
     "@vue/preload-webpack-plugin" "^2.0.0"
     assert "^2.0.0"
-    autoprefixer "^10.4.5"
+    autoprefixer "^10.4.7"
     babel-loader "^8.2.5"
     browserify-zlib "^0.2.0"
     buffer "^6.0.3"
@@ -281,9 +281,9 @@
     os-browserify "^0.3.0"
     path "^0.12.7"
     path-browserify "^1.0.1"
-    postcss "^8.4.12"
+    postcss "^8.4.13"
     postcss-loader "^6.2.1"
-    postcss-preset-env "^7.4.4"
+    postcss-preset-env "^7.5.0"
     process "^0.11.10"
     punycode "^2.1.1"
     querystring-es3 "^0.2.1"
@@ -3601,10 +3601,19 @@
     "@types/history" "*"
     "@types/react" "*"
 
-"@types/react@*", "@types/react@^17.0.44":
+"@types/react@*":
   version "17.0.44"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.44.tgz#c3714bd34dd551ab20b8015d9d0dbec812a51ec7"
   integrity sha512-Ye0nlw09GeMp2Suh8qoOv0odfgCoowfM/9MG6WeRD60Gq9wS90bdkdRtYbRkNhXOpG4H+YXGvj4wOWhAC0LJ1g==
+  dependencies:
+    "@types/prop-types" "*"
+    "@types/scheduler" "*"
+    csstype "^3.0.2"
+
+"@types/react@17.0.45":
+  version "17.0.45"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.45.tgz#9b3d5b661fd26365fefef0e766a1c6c30ccf7b3f"
+  integrity sha512-YfhQ22Lah2e3CHPsb93tRwIGNiSwkuz1/blk4e6QrWS0jQzCSNbGLtOEYhPg02W0yGTTmpajp7dCTbBAMN3qsg==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -4150,7 +4159,7 @@ at-least-node@^1.0.0:
   resolved "https://registry.yarnpkg.com/at-least-node/-/at-least-node-1.0.0.tgz#602cd4b46e844ad4effc92a8011a3c46e0238dc2"
   integrity sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==
 
-autoprefixer@^10.3.7, autoprefixer@^10.4.5, autoprefixer@^10.4.6:
+autoprefixer@^10.3.7, autoprefixer@^10.4.5, autoprefixer@^10.4.6, autoprefixer@^10.4.7:
   version "10.4.7"
   resolved "https://registry.yarnpkg.com/autoprefixer/-/autoprefixer-10.4.7.tgz#1db8d195f41a52ca5069b7593be167618edbbedf"
   integrity sha512-ypHju4Y2Oav95SipEcCcI5J7CGPuvz8oat7sUtYj3ClK44bldfvtvcxK6IEK++7rqB7YchDGzweZIBG+SD0ZAA==
@@ -9409,7 +9418,7 @@ postcss-place@^7.0.4:
   dependencies:
     postcss-value-parser "^4.2.0"
 
-postcss-preset-env@^7.4.4:
+postcss-preset-env@^7.5.0:
   version "7.5.0"
   resolved "https://registry.yarnpkg.com/postcss-preset-env/-/postcss-preset-env-7.5.0.tgz#0c1f23933597d55dab4a90f61eda30b76e710658"
   integrity sha512-0BJzWEfCdTtK2R3EiKKSdkE51/DI/BwnhlnicSW482Ym6/DGHud8K0wGLcdjip1epVX0HKo4c8zzTeV/SkiejQ==
@@ -9595,7 +9604,7 @@ postcss-zindex@^5.1.0:
   resolved "https://registry.yarnpkg.com/postcss-zindex/-/postcss-zindex-5.1.0.tgz#4a5c7e5ff1050bd4c01d95b1847dfdcc58a496ff"
   integrity sha512-fgFMf0OtVSBR1va1JNHYgMxYk73yhn/qb4uQDq1DLGYolz8gHCyr/sesEuGUaYs58E3ZJRcpoGuPVoB7Meiq9A==
 
-postcss@^8.3.11, postcss@^8.3.5, postcss@^8.3.7, postcss@^8.4.12, postcss@^8.4.7:
+postcss@^8.3.11, postcss@^8.3.5, postcss@^8.3.7, postcss@^8.4.7:
   version "8.4.12"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.12.tgz#1e7de78733b28970fa4743f7da6f3763648b1905"
   integrity sha512-lg6eITwYe9v6Hr5CncVbK70SoioNQIq81nsaG86ev5hAidQvmOeETBqs7jm43K2F5/Ley3ytDtriImV6TpNiSg==

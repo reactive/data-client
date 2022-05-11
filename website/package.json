@@ -15,13 +15,13 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "2.0.0-beta.20",
     "@tsconfig/docusaurus": "^1.0.5",
-    "@types/react": "^17.0.44",
+    "@types/react": "17.0.45",
     "@types/react-helmet": "^6.1.5",
     "@types/react-router-dom": "^5.3.3",
     "serve": "^13.0.2"
   },
   "dependencies": {
-    "@anansi/webpack-config": "^11.3.11",
+    "@anansi/webpack-config": "11.3.12",
     "@docusaurus/core": "2.0.0-beta.20",
     "@docusaurus/plugin-client-redirects": "2.0.0-beta.20",
     "@docusaurus/preset-classic": "2.0.0-beta.20",
