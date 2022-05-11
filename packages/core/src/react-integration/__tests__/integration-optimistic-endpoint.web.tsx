@@ -9,6 +9,7 @@ import { AbortOptimistic } from '@rest-hooks/endpoint';
 import { act } from '@testing-library/react-hooks';
 import { useContext } from 'react';
 import { jest } from '@jest/globals';
+import { SpyInstance } from 'jest-mock';
 
 import {
   makeRenderRestHook,
@@ -575,7 +576,7 @@ describe.each([
     });
 
     describe('race conditions', () => {
-      let errorspy: jest.SpyInstance;
+      let errorspy: SpyInstance<typeof global.console.error>;
       beforeEach(() => {
         errorspy = jest
           .spyOn(global.console, 'error')
