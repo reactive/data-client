@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1652305377623,
+  "lastUpdate": 1653066537341,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -6036,6 +6036,58 @@ window.BENCHMARK_DATA = {
             "name": "receiveLong",
             "value": 99.02,
             "range": "±2.26%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "78a22f29f86527ac10eb2c9b031984e044226dce",
+          "message": "pkg: Use @babel/runtime@^7.13.0 to use CJS/ESM exports support (#2019)",
+          "timestamp": "2022-05-20T12:04:42-05:00",
+          "tree_id": "a394622fda99e3f90a61dd5a0b35f52361446d9e",
+          "url": "https://github.com/coinbase/rest-hooks/commit/78a22f29f86527ac10eb2c9b031984e044226dce"
+        },
+        "date": 1653066535745,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 79.57,
+            "range": "±0.82%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 34.89,
+            "range": "±0.93%",
+            "unit": "ops/sec",
+            "extra": "61 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 38.38,
+            "range": "±0.61%",
+            "unit": "ops/sec",
+            "extra": "51 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 76.51,
+            "range": "±2.76%",
             "unit": "ops/sec",
             "extra": "73 samples"
           }
