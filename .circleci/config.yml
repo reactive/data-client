@@ -76,6 +76,7 @@ jobs:
       react-version:
         type: string
     docker: *docker
+    resource_class: large
     steps:
       - attach_workspace:
           at: ~/
