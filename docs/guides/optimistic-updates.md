@@ -101,16 +101,19 @@ export default class ArticleResource extends Resource {
     (p: Readonly<object>, b: Partial<AbstractInstanceType<T>>) => Promise<any>,
     SchemaDetail<Readonly<AbstractInstanceType<T>>>
   > {
+    const list = this.list();
     return super.create().extend({
       getOptimisticResponse: (snap, params, body) => body,
+      update: (newResourcePk: string) => ({
+        [list.key({})]: (resourcePks: string[] = []) => [
+          ...resourcePks,
+          newResourcePk,
+        ],
+      }),
     });
   }
 }
 
-export const appendUpdater = (
-  newArticleID: string,
-  articleIDs: string[] | undefined,
-) => [...(articleIDs || []), newArticleID];
 ```
 
 ### CreateArticle.tsx
@@ -134,9 +137,7 @@ export default function CreateArticle() {
   const submitHandler = useCallback(
     data =>
       // note the fake id we create.
-      fetch(ArticleResource.create(), {}, { id: uuid(), ...data }, [
-        [ArticleResource.list(), {}, appendUpdater],
-      ]),
+      fetch(ArticleResource.create(), { id: uuid(), ...data }),
     [create],
   );
 
