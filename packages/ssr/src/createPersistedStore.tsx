@@ -23,7 +23,13 @@ export default function createPersistedStore(managers?: Manager[]) {
   managers.forEach(manager => manager.init?.(store.getState()));
 
   const selector = (state: any) => state;
-  function ServerCacheProvider({ children }: { children: React.ReactNode }) {
+  function ServerCacheProvider({
+    children,
+    nonce,
+  }: {
+    children: React.ReactNode;
+    nonce?: string | undefined;
+  }) {
     return (
       <ExternalCacheProvider
         store={store}
@@ -31,7 +37,7 @@ export default function createPersistedStore(managers?: Manager[]) {
         controller={controller}
       >
         {children}
-        <ServerDataComponent data={store.getState()} />
+        <ServerDataComponent data={store.getState()} nonce={nonce} />
       </ExternalCacheProvider>
     );
   }

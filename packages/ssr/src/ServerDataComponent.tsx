@@ -1,7 +1,13 @@
 import { initialState } from '@rest-hooks/core';
 import type { State } from '@rest-hooks/core';
 
-export const ServerDataComponent = ({ data }: { data: State<unknown> }) => {
+export const ServerDataComponent = ({
+  data,
+  nonce,
+}: {
+  data: State<unknown>;
+  nonce?: string | undefined;
+}) => {
   return (
     <script
       type="application/json"
@@ -9,6 +15,7 @@ export const ServerDataComponent = ({ data }: { data: State<unknown> }) => {
       dangerouslySetInnerHTML={{
         __html: JSON.stringify(data),
       }}
+      nonce={nonce}
     />
   );
 };
