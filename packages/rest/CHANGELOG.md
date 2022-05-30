@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@5.0.1...@rest-hooks/rest@5.0.2) (2022-05-30)
+
+
+### 📦 Package
+
+* Use @babel/runtime@^7.13.0 to use CJS/ESM exports support ([#2019](https://github.com/coinbase/rest-hooks/issues/2019)) ([78a22f2](https://github.com/coinbase/rest-hooks/commit/78a22f29f86527ac10eb2c9b031984e044226dce))
+
+
+
 ### [5.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@5.0.0...@rest-hooks/rest@5.0.1) (2022-04-30)
 
 

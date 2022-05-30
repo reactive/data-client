@@ -1,6 +1,6 @@
 {
   "name": "normalizr-relationships",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "And example of using Normalizr with relationships",
   "main": "index.js",
   "author": "Paul Armstrong",
@@ -13,6 +13,6 @@
     "mockdate": "^3.0.5"
   },
   "dependencies": {
-    "@rest-hooks/normalizr": "^8.2.5"
+    "@rest-hooks/normalizr": "^8.2.6"
   }
 }

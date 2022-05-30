@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.2.8](https://github.com/coinbase/rest-hooks/compare/github-app@0.2.7...github-app@0.2.8) (2022-05-30)
+
+
+### 📦 Package
+
+* [@anansi](https://github.com/anansi), types, antd, eslint, node, redux, typescript, webpack ([#2015](https://github.com/coinbase/rest-hooks/issues/2015)) ([972d646](https://github.com/coinbase/rest-hooks/commit/972d6463c6d1946254673bb7029898b19ce4ffdd))
+* Update `@babel/core` to v7.17.12 ([#2018](https://github.com/coinbase/rest-hooks/issues/2018)) ([712f7b6](https://github.com/coinbase/rest-hooks/commit/712f7b6521e7948c5a289719d57be3d6d2906305))
+* Update `@babel/core` to v7.18.0 ([#2022](https://github.com/coinbase/rest-hooks/issues/2022)) ([e9aaf65](https://github.com/coinbase/rest-hooks/commit/e9aaf65752e098dd9e142000f1e97c97504c812d))
+* Update `@babel/core` to v7.18.2 ([#2024](https://github.com/coinbase/rest-hooks/issues/2024)) ([3a42465](https://github.com/coinbase/rest-hooks/commit/3a4246508b975cbb3a7b9226a6043374d65a4c77))
+* Update `react-markdown` to v8 ([#2011](https://github.com/coinbase/rest-hooks/issues/2011)) ([97d2424](https://github.com/coinbase/rest-hooks/commit/97d242468e359a87936135729e3519e19024fba2))
+* Update all non-major dependencies ([#2021](https://github.com/coinbase/rest-hooks/issues/2021)) ([3b9f77e](https://github.com/coinbase/rest-hooks/commit/3b9f77e0bb95cf788ed8b3ff1041f5fa4b1fec85))
+* Update all non-major dependencies ([#2023](https://github.com/coinbase/rest-hooks/issues/2023)) ([9e1d0f7](https://github.com/coinbase/rest-hooks/commit/9e1d0f7d0082ae4375ef044a4b6f356cbaca373a))
+
+
+
 ### [0.2.7](https://github.com/coinbase/rest-hooks/compare/github-app@0.2.6...github-app@0.2.7) (2022-04-30)
 
 

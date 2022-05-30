@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.2.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.2.3...@rest-hooks/core@3.2.4) (2022-05-30)
+
+
+### 📦 Package
+
+* [@anansi](https://github.com/anansi), types, antd, eslint, node, redux, typescript, webpack ([#2015](https://github.com/coinbase/rest-hooks/issues/2015)) ([972d646](https://github.com/coinbase/rest-hooks/commit/972d6463c6d1946254673bb7029898b19ce4ffdd))
+* Use @babel/runtime@^7.13.0 to use CJS/ESM exports support ([#2019](https://github.com/coinbase/rest-hooks/issues/2019)) ([78a22f2](https://github.com/coinbase/rest-hooks/commit/78a22f29f86527ac10eb2c9b031984e044226dce))
+
+
+
 ### [3.2.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.2.2...@rest-hooks/core@3.2.3) (2022-04-30)
 
 

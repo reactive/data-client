@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.1.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/graphql@0.1.5...@rest-hooks/graphql@0.1.6) (2022-05-30)
+
+
+### 📦 Package
+
+* Use @babel/runtime@^7.13.0 to use CJS/ESM exports support ([#2019](https://github.com/coinbase/rest-hooks/issues/2019)) ([78a22f2](https://github.com/coinbase/rest-hooks/commit/78a22f29f86527ac10eb2c9b031984e044226dce))
+
+
+
 ### [0.1.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/graphql@0.1.4...@rest-hooks/graphql@0.1.5) (2022-04-30)
 
 **Note:** Version bump only for package @rest-hooks/graphql

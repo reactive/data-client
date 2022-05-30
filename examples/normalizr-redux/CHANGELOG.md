@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.0.12](https://github.com/coinbase/rest-hooks/compare/normalizr-redux-example@0.0.11...normalizr-redux-example@0.0.12) (2022-05-30)
+
+
+### 📦 Package
+
+* [@anansi](https://github.com/anansi), types, antd, eslint, node, redux, typescript, webpack ([#2015](https://github.com/coinbase/rest-hooks/issues/2015)) ([972d646](https://github.com/coinbase/rest-hooks/commit/972d6463c6d1946254673bb7029898b19ce4ffdd))
+
+
+
 ### [0.0.11](https://github.com/coinbase/rest-hooks/compare/normalizr-redux-example@0.0.10...normalizr-redux-example@0.0.11) (2022-04-30)
 
 **Note:** Version bump only for package normalizr-redux-example

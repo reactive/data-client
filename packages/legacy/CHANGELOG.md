@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.3.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@4.3.2...@rest-hooks/legacy@4.3.3) (2022-05-30)
+
+
+### 🐛 Bug Fix
+
+* Missing import extension in legacy package ([#1977](https://github.com/coinbase/rest-hooks/issues/1977)) ([07e7f68](https://github.com/coinbase/rest-hooks/commit/07e7f68f0365f5e0ee31f3f99ec8f5ba1bca051d))
+
+
+
 ### [4.3.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@4.3.1...@rest-hooks/legacy@4.3.2) (2022-04-30)
 
 

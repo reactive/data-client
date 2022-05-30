@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [8.2.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.2.5...@rest-hooks/normalizr@8.2.6) (2022-05-30)
+
+
+### 📦 Package
+
+* Update all non-major dependencies ([#2023](https://github.com/coinbase/rest-hooks/issues/2023)) ([9e1d0f7](https://github.com/coinbase/rest-hooks/commit/9e1d0f7d0082ae4375ef044a4b6f356cbaca373a))
+* Use @babel/runtime@^7.13.0 to use CJS/ESM exports support ([#2019](https://github.com/coinbase/rest-hooks/issues/2019)) ([78a22f2](https://github.com/coinbase/rest-hooks/commit/78a22f29f86527ac10eb2c9b031984e044226dce))
+
+
+
 ### [8.2.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@8.2.4...@rest-hooks/normalizr@8.2.5) (2022-04-30)
 
 
