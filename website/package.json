@@ -21,7 +21,7 @@
     "serve": "^13.0.2"
   },
   "dependencies": {
-    "@anansi/webpack-config": "11.6.0",
+    "@anansi/webpack-config": "11.6.3",
     "@docusaurus/core": "2.0.0-beta.21",
     "@docusaurus/plugin-client-redirects": "2.0.0-beta.21",
     "@docusaurus/preset-classic": "2.0.0-beta.21",
@@ -32,11 +32,11 @@
     "@rest-hooks/rest": "file:../packages/rest",
     "bignumber.js": "^9.0.2",
     "clsx": "^1.1.1",
-    "msw": "0.41.1",
+    "msw": "0.42.0",
     "raw-loader": "^4.0.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-json-tree": "^0.16.2",
+    "react-json-tree": "0.17.0",
     "rest-hooks": "file:../packages/rest-hooks",
     "typescript": "4.7.2"
   },
