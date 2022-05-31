@@ -7,7 +7,7 @@ jobs:
   setup:
     docker: &docker
       # specify the version you desire here
-      - image: circleci/node:16
+      - image: cimg/node:18.2
     resource_class: large
     steps:
       - checkout
