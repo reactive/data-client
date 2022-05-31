@@ -24,7 +24,7 @@ jobs:
         fetch-depth: 1
     - uses: actions/setup-node@v3
       with:
-        node-version: '16'
+        node-version: '18'
     - name: Run benchmark
       run: yarn install && NODE_ENV=production BROWSERSLIST_ENV=modern yarn lerna run --scope @rest-hooks/core --include-dependencies build && yarn workspace benchmark start | tee output.txt
 
