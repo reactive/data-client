@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1653942281159,
+  "lastUpdate": 1654288412445,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -6194,6 +6194,58 @@ window.BENCHMARK_DATA = {
             "range": "±0.51%",
             "unit": "ops/sec",
             "extra": "83 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e8aff22fe754bf47691b8f6c1b27d45335445def",
+          "message": "fix: Hydration mismatch in React 17 (#2039)",
+          "timestamp": "2022-06-03T13:29:26-07:00",
+          "tree_id": "e043f30464f73a14067ca572a77ec4643d15b498",
+          "url": "https://github.com/coinbase/rest-hooks/commit/e8aff22fe754bf47691b8f6c1b27d45335445def"
+        },
+        "date": 1654288410203,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 103,
+            "range": "±3.75%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 46.09,
+            "range": "±0.79%",
+            "unit": "ops/sec",
+            "extra": "60 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 50.34,
+            "range": "±0.58%",
+            "unit": "ops/sec",
+            "extra": "66 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 109,
+            "range": "±2.79%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
           }
         ]
       }
