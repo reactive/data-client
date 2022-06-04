@@ -12,7 +12,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 <LanguageTabs>
 
 ```typescript
-import { Entity } from 'rest-hooks';
+import { Entity } from '@rest-hooks/endpoint';
 
 export default class Article extends Entity {
   readonly id: number | undefined = undefined;
@@ -32,7 +32,7 @@ export default class Article extends Entity {
 ```
 
 ```js
-import { Entity } from 'rest-hooks';
+import { Entity } from '@rest-hooks/endpoint';
 
 export default class Article extends Entity {
   id = undefined;
@@ -159,6 +159,31 @@ class LatestPriceEntity extends Entity {
   }
 }
 ```
+
+#### Preventing updates
+
+useIncoming can also be used to short-circuit an entity update.
+
+```typescript
+import deepEqual from 'deep-equal';
+
+class LatestPriceEntity extends Entity {
+  readonly id: string = '';
+  readonly timestamp: string = '';
+  readonly price: string = '0.0';
+  readonly symbol: string = '';
+
+  static useIncoming(
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
+    existing: any,
+    incoming: any,
+  ) {
+    return !deepEqual(incoming, existing);
+  }
+}
+```
+
 
 ### static merge(existing, incoming): mergedValue {#merge}
 
