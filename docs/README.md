@@ -75,6 +75,13 @@ By _decoupling_ endpoint definitions from their usage, we are able to reuse them
 - Reuse across different **platforms** like React Native, React web, or even beyond React in Angular, Svelte, Vue, or Node
 - Published as **packages** independent of their consumption
 
+:::info
+
+Endpoints are the building blocks that enable sharing common API patterns; To get started quickly it is recommended
+to adopt some of the [Protocol specific patterns](#protocol-specific-patterns) that implement common patterns out of the box.
+
+:::
+
 ## Co-locate data dependencies
 
 Add one-line [data hookup](./getting-started/data-dependency.md) in the components that need it with [useSuspense()](./api/useSuspense.md)
@@ -112,7 +119,8 @@ function App() {
 }
 ```
 
-[Non-Suspense fallback handling](./getting-started/data-dependency.md#stateful)
+[Non-Suspense fallback handling](./getting-started/data-dependency.md#stateful) can also be used for certain
+cases in React 16 and 17
 
 ## Mutations
 
@@ -198,6 +206,9 @@ so how can Rest Hooks know to update todoDetail with this data?
 Adding [Entities](./getting-started/entity.md#entities) to our endpoint definition tells Rest Hooks
 how to extract and find a given piece of data no matter where it is used. The [pk()](./api/Entity.md#pk) (primary key)
 method is used as a key in a lookup table.
+
+This enables a [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) storage pattern, which
+prevents 'data tearing' jank and improves performance.
 
 <Tabs
 defaultValue="Entity"
@@ -571,7 +582,7 @@ const todoDetail404Fixture: FixtureEndpoint = {
 
 ## Demo
 
-### Todo Demo
+### Todo Demo {#todo-demo}
 
 <iframe
   src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?embed=1&file=src%2Fpages%2FHome%2FTodoListComponent.tsx&hidedevtools=1&view=both&ctl=1"
@@ -583,7 +594,7 @@ const todoDetail404Fixture: FixtureEndpoint = {
 
 [Explore on github](https://github.com/coinbase/rest-hooks/tree/master/examples/todo-app)
 
-### Github Demo
+### Github Demo {#github-demo}
 
 <iframe
   src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fpages%2FIssueList.tsx&hidedevtools=1&view=preview&ctl=1"
