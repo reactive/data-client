@@ -7,6 +7,7 @@ title: useCache()
 </head>
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
+import ConditionalDependencies from '../shared/_conditional_dependencies.mdx';
 
 <GenericsTabs>
 
@@ -85,6 +86,8 @@ function ArticleList({ page }: { page: string }) {
   // ...render stuff here
 }
 ```
+
+<ConditionalDependencies hook="useCache" />
 
 ## Useful `Endpoint`s to send
 
