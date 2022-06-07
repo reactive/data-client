@@ -23,9 +23,7 @@ describe('<BackupBoundary />', () => {
     const msg = renderToString(tree);
     if (LegacyReact) {
       expect(msg).toBeDefined();
-      expect(msg).toMatchInlineSnapshot(
-        `"<div id=\\"rest-hooks-SSR\\"><div>hi</div></div>"`,
-      );
+      expect(msg).toMatchInlineSnapshot(`"<div>hi</div>"`);
     } else {
       expect(msg).toMatchInlineSnapshot(`"<!--$--><div>hi</div><!--/$-->"`);
     }
