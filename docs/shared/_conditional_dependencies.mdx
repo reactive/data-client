@@ -1,0 +1,13 @@
+import CodeBlock from '@theme/CodeBlock';
+
+:::tip Conditional Dependencies
+
+Use `null` as the second argument on any rest hooks to indicate "do nothing."
+
+<CodeBlock
+  language="typescript">
+  {`// todo could be undefined if id is undefined
+const todo = ${props.hook ?? 'useSuspense'}(todoDetail, id ? { id } : null);`}
+</CodeBlock>
+
+:::
