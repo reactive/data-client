@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1654288412445,
+  "lastUpdate": 1654706222384,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -6246,6 +6246,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.79%",
             "unit": "ops/sec",
             "extra": "80 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6b62bc61fbec06bb4f8eb30c8f2eb8e341e32a21",
+          "message": "enhance: Warn about CacheProvider usage for SSR (#2044)",
+          "timestamp": "2022-06-08T09:33:03-07:00",
+          "tree_id": "a030abec0b1cc8e4d5b8f04b50e96626a2b5371f",
+          "url": "https://github.com/coinbase/rest-hooks/commit/6b62bc61fbec06bb4f8eb30c8f2eb8e341e32a21"
+        },
+        "date": 1654706220498,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 100,
+            "range": "±2.53%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 47.48,
+            "range": "±0.69%",
+            "unit": "ops/sec",
+            "extra": "62 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 51.54,
+            "range": "±0.34%",
+            "unit": "ops/sec",
+            "extra": "67 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 101,
+            "range": "±3.68%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
           }
         ]
       }
