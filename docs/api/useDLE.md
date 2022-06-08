@@ -4,6 +4,7 @@ title: useDLE()
 
 import PkgTabs from '@site/src/components/PkgTabs';
 import GenericsTabs from '@site/src/components/GenericsTabs';
+import ConditionalDependencies from '../shared/_conditional_dependencies.mdx';
 
 <GenericsTabs>
 
@@ -80,3 +81,5 @@ function ProfileList() {
   );
 }
 ```
+
+<ConditionalDependencies hook="useDLE" />

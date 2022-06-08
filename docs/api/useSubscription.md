@@ -7,6 +7,7 @@ title: useSubscription()
 </head>
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
+import ConditionalDependencies from '../shared/_conditional_dependencies.mdx';
 
 <GenericsTabs>
 
@@ -75,9 +76,7 @@ function MasterPrice({ symbol }: { symbol: string }) {
 
 ## Only subscribe while element is visible
 
-`MasterPrice.tsx`
-
-```tsx
+```tsx title="MasterPrice.tsx"
 import { useRef } from 'react';
 import { useSuspense, useSubscription } from 'rest-hooks';
 import PriceResource from 'resources/PriceResource';
