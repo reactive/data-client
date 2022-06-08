@@ -44,7 +44,7 @@
     "@testing-library/react": "13.3.0",
     "@testing-library/react-hooks": "~7.0.2",
     "@testing-library/react-native": "^9.0.0",
-    "@types/jest": "27.5.1",
+    "@types/jest": "28.1.1",
     "@types/lodash": "^4.14.166",
     "@types/react": "18.0.10",
     "benchmark": "^2.1.4",
