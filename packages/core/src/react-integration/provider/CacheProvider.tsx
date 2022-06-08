@@ -9,6 +9,9 @@ import applyManager from '../../state/applyManager.js';
 import CacheStore from './CacheStore.js';
 import Controller from '../../controller/Controller.js';
 
+/* istanbul ignore next  */
+const SSR = typeof window === 'undefined';
+
 interface ProviderProps {
   children: ReactNode;
   managers: Manager[];
@@ -26,6 +29,13 @@ export default function CacheProvider({
   initialState,
   Controller,
 }: ProviderProps) {
+  /* istanbul ignore else */
+  if (process.env.NODE_ENV !== 'production' && SSR) {
+    console.warn(
+      `CacheProvider does not update while doing SSR.
+Try using https://resthooks.io/docs/api/ExternalCacheProvider for server entry points.`,
+    );
+  }
   // contents of this component expected to be relatively stable
 
   const controllerRef: React.MutableRefObject<Controller> = useRef<any>();

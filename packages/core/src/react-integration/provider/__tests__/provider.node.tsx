@@ -2,7 +2,7 @@
 import React, { version } from 'react';
 import { renderToString } from 'react-dom/server';
 
-import BackupBoundary from '../BackupBoundary';
+import CacheProvider from '../CacheProvider';
 
 describe('<BackupBoundary />', () => {
   let warnspy: jest.SpyInstance;
@@ -13,20 +13,27 @@ describe('<BackupBoundary />', () => {
     warnspy.mockRestore();
   });
 
-  it('should warn users about missing Suspense', () => {
+  it('should warn users about SSR with CacheProvider', () => {
     const tree = (
-      <BackupBoundary>
+      <CacheProvider>
         <div>hi</div>
-      </BackupBoundary>
+      </CacheProvider>
     );
     const LegacyReact = version.startsWith('16') || version.startsWith('17');
+
     const msg = renderToString(tree);
 
-    if (LegacyReact) {
-      expect(msg).toBeDefined();
-      expect(msg).toMatchInlineSnapshot(`"<div>hi</div>"`);
-    } else {
+    expect(warnspy.mock.lastCall).toMatchInlineSnapshot(`
+      Array [
+        "CacheProvider does not update while doing SSR.
+      Try using https://resthooks.io/docs/api/ExternalCacheProvider for server entry points.",
+      ]
+    `);
+
+    if (!LegacyReact) {
       expect(msg).toMatchInlineSnapshot(`"<!--$--><div>hi</div><!--/$-->"`);
+    } else {
+      expect(msg).toMatchInlineSnapshot(`"<div>hi</div>"`);
     }
   });
 });
