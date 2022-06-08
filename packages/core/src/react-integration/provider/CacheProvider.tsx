@@ -29,6 +29,7 @@ export default function CacheProvider({
   initialState,
   Controller,
 }: ProviderProps) {
+  /* istanbul ignore else */
   if (process.env.NODE_ENV !== 'production' && SSR) {
     console.warn(
       `CacheProvider does not update while doing SSR.
