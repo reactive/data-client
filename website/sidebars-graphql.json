@@ -1,0 +1,12 @@
+{
+  "docs": [
+    {
+      "type": "doc",
+      "id": "usage"
+    },
+    {
+      "type": "doc",
+      "id": "auth"
+    }
+  ]
+}
