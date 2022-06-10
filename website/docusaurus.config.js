@@ -1,6 +1,7 @@
 const path = require('path');
 
 const versions = require('./versions.json');
+const versionsRest = require('./versions-rest.json');
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -66,6 +67,9 @@ module.exports = {
       '@docusaurus/preset-classic',
       {
         docs: {
+          //id: 'core',
+          path: '../docs/core',
+          //routeBasePath: 'core',
           sidebarPath: require.resolve('./sidebars.json'),
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
@@ -78,7 +82,6 @@ module.exports = {
             const nextVersionDocsDirPath = 'docs';
             return `https://github.com/coinbase/rest-hooks/edit/master/${nextVersionDocsDirPath}/${docPath}`;
           },
-          path: '../docs',
           lastVersion: 'current',
           includeCurrentVersion: true,
           versions: {
@@ -106,8 +109,73 @@ module.exports = {
   ],
   plugins: [
     [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'rest',
+        path: '../docs/rest',
+        routeBasePath: 'rest',
+        sidebarPath: require.resolve('./sidebars-rest.json'),
+        showLastUpdateAuthor: true,
+        showLastUpdateTime: true,
+        editUrl: ({ locale, docPath }) => {
+          /*if (locale !== 'en') {
+            return `https://crowdin.com/project/docusaurus-v2/${locale}`;
+          }*/
+          // We want users to submit doc updates to the upstream/next version!
+          // Otherwise we risk losing the update on the next release.
+          const nextVersionDocsDirPath = 'docs/rest';
+          return `https://github.com/coinbase/rest-hooks/edit/master/${nextVersionDocsDirPath}/${docPath}`;
+        },
+        lastVersion: 'current',
+        includeCurrentVersion: true,
+        versions: {
+          current: { label: '5.0', path: '', badge: false },
+          //'4.0': { label: '4.0', path: '4.0', banner: 'none' },
+        },
+        /*onlyIncludeVersions: isDev
+          ? ['current', ...versionsRest.slice(0, 4)]
+          : ['current', ...versionsRest],*/
+      },
+    ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'graphql',
+        path: '../docs/graphql',
+        routeBasePath: 'graphql',
+        sidebarPath: require.resolve('./sidebars-graphql.json'),
+        showLastUpdateAuthor: true,
+        showLastUpdateTime: true,
+        editUrl: ({ locale, docPath }) => {
+          /*if (locale !== 'en') {
+            return `https://crowdin.com/project/docusaurus-v2/${locale}`;
+          }*/
+          // We want users to submit doc updates to the upstream/next version!
+          // Otherwise we risk losing the update on the next release.
+          const nextVersionDocsDirPath = 'docs/graphql';
+          return `https://github.com/coinbase/rest-hooks/edit/master/${nextVersionDocsDirPath}/${docPath}`;
+        },
+        lastVersion: 'current',
+        includeCurrentVersion: true,
+        versions: {
+          current: { label: '0.1', path: '', badge: false },
+        },
+        /*onlyIncludeVersions: isDev
+          ? ['current', ...versionsRest.slice(0, 4)]
+          : ['current', ...versionsRest],*/
+      },
+    ],
+    [
       '@docusaurus/plugin-client-redirects',
       {
+        createRedirects(existingPath) {
+          if (existingPath.includes('/rest')) {
+            return [existingPath.replace('/rest', '/docs/rest')];
+          } else if (existingPath.includes('/graphql')) {
+            return [existingPath.replace('/graphql', '/docs/graphql')];
+          }
+          return undefined;
+        },
         redirects: [
           {
             to: '/docs/',
@@ -137,7 +205,7 @@ module.exports = {
             from: ['/docs/guides/binary-fetches'],
           },
           {
-            to: '/docs/api/resource',
+            to: '/rest/api/resource',
             from: ['/docs/guides/resource-types'],
           },
           {
@@ -176,6 +244,7 @@ module.exports = {
       logo: {
         src: 'img/rest_hooks_logo.svg',
       },
+      hideOnScroll: true,
       items: [
         {
           to: 'docs',
@@ -188,12 +257,12 @@ module.exports = {
           position: 'left',
         },
         {
-          to: 'docs/rest/usage',
+          to: 'rest/usage',
           label: 'REST',
           position: 'left',
         },
         {
-          to: 'docs/graphql/usage',
+          to: 'graphql/usage',
           label: 'GraphQL',
           position: 'left',
         },
@@ -204,6 +273,22 @@ module.exports = {
           position: 'right',
         },
         {
+          type: 'docsVersionDropdown',
+          docsPluginId: 'default',
+          position: 'right',
+          dropdownItemsBefore: [
+            {
+              label: 'Upgrade Guide',
+              to: 'docs/upgrade/upgrading-to-6',
+            },
+          ],
+        },
+        {
+          type: 'docsVersionDropdown',
+          docsPluginId: 'rest',
+          position: 'right',
+        },
+        /*{
           label: 'Version',
           to: 'docs',
           position: 'right',
@@ -227,9 +312,9 @@ module.exports = {
               label: 'Master/Unreleased',
               to: 'docs/next/',
               activeBaseRegex: 'docs/next/(?!support|team|resources)',
-            },*/
+            },*
           ],
-        },
+        },*/
         {
           href: 'https://www.github.com/coinbase/rest-hooks',
           position: 'right',

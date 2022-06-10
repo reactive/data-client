@@ -37,88 +37,6 @@
     },
     {
       "type": "category",
-      "label": "REST / CRUD",
-      "items": [
-        {
-          "type": "doc",
-          "id": "rest/usage"
-        },
-        {
-          "type": "category",
-          "collapsible": false,
-          "label": "Custom Endpoints",
-          "items": [
-            {
-              "type": "doc",
-              "id": "guides/url"
-            },
-            {
-              "type": "doc",
-              "id": "guides/extending-endpoints"
-            },
-            {
-              "type": "doc",
-              "id": "guides/rest-types"
-            },
-            {
-              "type": "doc",
-              "id": "guides/pagination"
-            },
-            {
-              "type": "doc",
-              "id": "guides/auth"
-            },
-            {
-              "type": "doc",
-              "id": "guides/network-transform"
-            },
-            {
-              "type": "doc",
-              "id": "guides/mocking-unfinished"
-            }
-          ]
-        },
-        {
-          "type": "category",
-          "collapsible": false,
-          "label": "Performance Optimizations",
-          "items": [
-            {
-              "type": "doc",
-              "id": "guides/nested-response"
-            },
-            {
-              "type": "doc",
-              "id": "guides/rpc"
-            }
-          ]
-        },
-        {
-          "type": "doc",
-          "id": "guides/computed-properties"
-        },
-        {
-          "type": "doc",
-          "id": "guides/custom-networking"
-        }
-      ]
-    },
-    {
-      "type": "category",
-      "label": "GraphQL",
-      "items": [
-        {
-          "type": "doc",
-          "id": "graphql/usage"
-        },
-        {
-          "type": "doc",
-          "id": "graphql/auth"
-        }
-      ]
-    },
-    {
-      "type": "category",
       "label": "Testing",
       "items": [
         {
@@ -375,24 +293,6 @@
               "id": "api/SimpleRecord"
             }
 
-          ]
-        },
-        {
-          "type": "category",
-          "label": "@rest-hooks/rest",
-          "items": [
-            {
-              "type": "doc",
-              "id": "api/resource"
-            },
-            {
-              "type": "doc",
-              "id": "api/BaseResource"
-            },
-            {
-              "type": "doc",
-              "id": "api/HookableResource"
-            }
           ]
         },
         {
