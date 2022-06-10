@@ -42,10 +42,5 @@
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "rest-hooks": "^6.3.4"
-  },
-  "resolutions": {
-    "@linaria/babel-preset": "3.0.0-beta.21",
-    "@linaria/preeval": "3.0.0-beta.21",
-    "@linaria/utils": "3.0.0-beta.20"
   }
 }
