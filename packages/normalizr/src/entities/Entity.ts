@@ -79,7 +79,10 @@ export default abstract class Entity {
     existing: any,
     incoming: any,
   ) {
-    return existingMeta.fetchedAt <= incomingMeta.fetchedAt;
+    return (
+      existingMeta.fetchedAt <= incomingMeta.fetchedAt ||
+      !!this.validate(existing)
+    );
   }
 
   /** Creates new instance copying over defined values of arguments */
