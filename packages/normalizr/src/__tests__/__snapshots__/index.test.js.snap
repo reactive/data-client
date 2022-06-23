@@ -63,7 +63,7 @@ Array [
       "type": "foo",
     },
   ],
-  true,
+  false,
   false,
 ]
 `;
@@ -78,7 +78,7 @@ Array [
       },
     ],
   },
-  true,
+  false,
   false,
 ]
 `;

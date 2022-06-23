@@ -310,7 +310,7 @@ describe(`${schema.Array.name} denormalization`, () => {
         entities,
       );
       expect(value).toMatchSnapshot();
-      expect(found).toBe(true);
+      expect(found).toBe(false);
       [value, found] = denormalize(
         { results: ['1', '2'] },
         catSchema,
@@ -345,7 +345,7 @@ describe(`${schema.Array.name} denormalization`, () => {
       expect(found).toBe(false);
     });
 
-    test('denormalizes with missing entity should have true second value', () => {
+    test('denormalizes with missing entity should have false second value', () => {
       class Cat extends IDEntity {}
       const entities = {
         Cat: {
@@ -359,7 +359,7 @@ describe(`${schema.Array.name} denormalization`, () => {
         entities,
       );
       expect(value).toMatchSnapshot();
-      expect(foundEntities).toBe(true);
+      expect(foundEntities).toBe(false);
       [value, foundEntities] = denormalize(
         [{ data: '1' }, { data: '2' }, { data: '3' }],
         [{ data: Cat }],
