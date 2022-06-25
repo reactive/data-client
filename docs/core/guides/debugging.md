@@ -57,7 +57,7 @@ For example, when a useSuspense() hook is first mounted it might
 
 ### Normalized Cache
 
-If [schema](../api/schema)s are used, API responses are split into two pieces - entities, and results.
+If [schema](/rest/api/schema)s are used, API responses are split into two pieces - entities, and results.
 This ensures consistency and alows allows for automatic as well as novel performances optimizations, especially
 key if the data ever changes or is repeated.
 

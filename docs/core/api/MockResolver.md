@@ -62,7 +62,7 @@ export type Fixture = SuccessFixture | ErrorFixture | FixtureEndpoint;
 ```
 
 This prop specifies the fixtures to use data from. Each item represents a fetch defined by the
-[Endpoint](api/Endpoint.md) and params. `Result` contains the JSON response expected from said fetch.
+[Endpoint](/rest/api/Endpoint) and params. `Result` contains the JSON response expected from said fetch.
 
 ## Returns
 

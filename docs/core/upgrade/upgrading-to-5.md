@@ -196,15 +196,15 @@ in. (To prevent unwanted side effects.)
 
 <details><summary>useInvalidator() triggers suspense</summary>
 
-You can likely remove [invalidIfStale](../api/Endpoint#invalidifstale-boolean) if used in conjunction with [useInvalidator()](../api/useInvalidator)
+You can likely remove [invalidIfStale](/rest/api/Endpoint#invalidifstale-boolean) if used in conjunction with [useInvalidator()](../api/useInvalidator)
 
-[invalidIfStale](../api/Endpoint#invalidifstale-boolean) is still useful to disable the `stale-while-revalidate` policy.
+[invalidIfStale](/rest/api/Endpoint#invalidifstale-boolean) is still useful to disable the `stale-while-revalidate` policy.
 
 </details>
 
 <details><summary>`delete` suspends instead of throwing 404</summary>
 
-[Delete](../api/Delete) marks an entity as deleted. _Any_ response requiring
+[Delete](/docs/5.0/api/Delete) marks an entity as deleted. _Any_ response requiring
 that entity will suspend. Previously it throw a 404 error.
 
 </details>
@@ -213,7 +213,7 @@ that entity will suspend. Previously it throw a 404 error.
 
 Required entities missing from network response will now throw error in useSuspense() just like other unexpected deserializations.
 
-Use [SimpleRecord](../api/SimpleRecord) for [optional entities](../api/SimpleRecord#optional-members).
+Use [SimpleRecord](/docs/5.0/api/SimpleRecord) for [optional entities](/docs/5.0/api/SimpleRecord#optional-members).
 
 <BeforeAfterTabs>
 
@@ -240,7 +240,7 @@ const schema = OptionalSchema;
 
 <details><summary>invalidIfStale</summary>
 
-When [invalidIfStale](../api/Endpoint#invalidifstale-boolean) is true, useCache() and useStatefulResource() will no longer return entities, even if they are in the cache.
+When [invalidIfStale](/rest/api/Endpoint#invalidifstale-boolean) is true, useCache() and useStatefulResource() will no longer return entities, even if they are in the cache.
 This matches the expected behavior that any `loading` data should not be usable.
 
 </details>
@@ -471,7 +471,7 @@ const user = article.user;
 
 <details><summary>FetchShape -> Endpoint</summary>
 
-[Endpoints](../api/Endpoint) use the builder pattern to make customization easy. Use [extend()](../api/Endpoint#extendendpointoptions-endpoint) to customize.
+[Endpoints](/rest/api/Endpoint) use the builder pattern to make customization easy. Use [extend()](/rest/api/Endpoint#extendendpointoptions-endpoint) to customize.
 
 [@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint) is also its own package. This empowers you to publish interfaces for public APIs by marking [@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint) as a peerDependency in the package.
 
@@ -515,7 +515,7 @@ export default class UserResource extends Resource {
 
 </BeforeAfterTabs>
 
-Currently all [Endpoints](../api/Endpoint) also implement the `FetchShape` interface, so feel free to incrementally migrate. This means using Endpoint and extended via object spreads will still work:
+Currently all [Endpoints](/rest/api/Endpoint) also implement the `FetchShape` interface, so feel free to incrementally migrate. This means using Endpoint and extended via object spreads will still work:
 
 ```typescript
 import { Resource } from 'rest-hooks';

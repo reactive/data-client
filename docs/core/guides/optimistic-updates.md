@@ -148,7 +148,7 @@ export default function CreateArticle() {
 ## Optimistic Deletes
 
 Since deletes [automatically update the cache correctly](./immediate-updates#delete) upon fetch success,
-making your delete endpoint do this optimistically is as easy as adding the [getOptimisticResponse](../api/Endpoint#getoptimisticresponse)
+making your delete endpoint do this optimistically is as easy as adding the [getOptimisticResponse](/rest/api/Endpoint#getoptimisticresponse)
 function to your options.
 
 We return an empty string because that's the response we expect from the server. Although by
@@ -249,7 +249,7 @@ render(<CounterPage />);
 
 </HooksPlayground>
 
-Try removing `getOptimisticResponse` from the increment [Endpoint](../api/Endpoint.md). Even without optimistic updates, this race condition can be a real problem. While it is less likely with fast endpoints;
+Try removing `getOptimisticResponse` from the increment [Endpoint](/rest/api/Endpoint). Even without optimistic updates, this race condition can be a real problem. While it is less likely with fast endpoints;
 slower or less reliable internet connections means a slow response time no matter how fast the server is.
 
 The problem is that the responses come back in a different order than they are computed. If we can determine the
@@ -261,10 +261,10 @@ The client can then choose to ignore responses that are out of date by their tim
 ### Tracking order with updatedAt
 
 To handle potential out of order resolutions, we can track the last update time in `updatedAt`.
-Overriding our [useIncoming](../api/Entity.md#useincoming), we can check which data is newer, and disregard old data
+Overriding our [useIncoming](/rest/api/Entity#useincoming), we can check which data is newer, and disregard old data
 that resolves out of order.
 
-We use [snap.fetchedAt](../api/Snapshot.md#fetchedat) in our [getOptimisticResponse](../api/Endpoint.md#getoptimisticresponse). This respresents the moment the fetch is triggered,
+We use [snap.fetchedAt](../api/Snapshot.md#fetchedat) in our [getOptimisticResponse](/rest/api/Endpoint#getoptimisticresponse). This respresents the moment the fetch is triggered,
 which is when the optimistic update first applies.
 
 <HooksPlayground>
@@ -355,7 +355,7 @@ agreeing on a total order of events is no longer possible. However, using [vecto
 allows us to maintain agreement on a *casual* order.
 
 The key things to observe in the code example is the added field `updatedAt`, which is our vector clock, as well
-as how it is used in our new [static merge()](../api/Entity#merge) as well as updates to [getOptimisticResponse](../api/Endpoint.md#getoptimisticresponse).
+as how it is used in our new [static merge()](/rest/api/Entity#merge) as well as updates to [getOptimisticResponse](/rest/api/Endpoint#getoptimisticresponse).
 
 <HooksPlayground>
 

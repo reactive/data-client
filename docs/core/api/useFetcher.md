@@ -120,7 +120,7 @@ function PostListItem({ post }: { post: PostResource }) {
 
 :::caution Deprecated
 
-Use [Endpoint.update](./Endpoint.md#update) instead
+Use [Endpoint.update](/rest/api/Endpoint#update) instead
 
 :::
 
@@ -195,7 +195,7 @@ createArticle({}, { id: 1 }, [
 - partialUpdate()
 - delete()
 
-Feel free to add your own [Endpoint](api/Endpoint.md) as well.
+Feel free to add your own [Endpoint](/rest/api/Endpoint) as well.
 
 > ### Notes
 >

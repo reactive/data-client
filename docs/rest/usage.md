@@ -56,14 +56,14 @@ export default class ArticleResource extends Resource {
 
 </LanguageTabs>
 
-[Resource](./api/Resource.md)s are immutable. Use `readonly` in typescript to enforce this.
+[Resource](api/Resource.md)s are immutable. Use `readonly` in typescript to enforce this.
 
 Default values ensure simpler types, which means less conditionals in your components.
 
-[pk()](./api/Resource.md#pk) is essential to tell Rest Hooks how to normalize the data. This ensures consistency
+[pk()](api/Resource.md#pk) is essential to tell Rest Hooks how to normalize the data. This ensures consistency
 and the best performance characteristics possible.
 
-[static urlRoot](./api/Resource.md#urlRoot) is used as the basis of common [url patterns](./guides/url.md)
+[static urlRoot](api/Resource.md#urlRoot) is used as the basis of common [url patterns](./guides/url.md)
 
 APIs quickly get much more complicated! [Customizing Resources to fit your API](./guides/extending-endpoints.md)
 
@@ -115,13 +115,13 @@ export default function ArticleList({ sortBy }: { sortBy: string }) {
 </TabItem>
 </Tabs>
 
-[useSuspense()](/docs/api/useSuspense) guarantees access to data with sufficient [freshness](/docs/api/Endpoint#dataexpirylength).
+[useSuspense()](/docs/api/useSuspense) guarantees access to data with sufficient [freshness](api/Endpoint.md#dataexpirylength).
 This means it may issue network calls, and it may [suspend](/docs/getting-started/data-dependency#async-fallbacks) until the fetch completes.
 Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
 suspends.
 
 - Fetches are centrally controlled, and thus automatically deduplicated
-- Data is centralized and normalized guaranteeing consistency across uses, even with different [endpoints](/docs/api/Endpoint).
+- Data is centralized and normalized guaranteeing consistency across uses, even with different [endpoints](api/Endpoint.md).
   - (For example: navigating to a detail page with a single entry from a list view will instantly show the same data as the list without
     requiring a refetch.)
 
@@ -152,7 +152,7 @@ export default function NewArticleForm() {
 }
 ```
 
-[create()](./api/Resource.md#create) then takes any `keyable` body to send as the payload and then returns a promise that
+[create()](api/Resource.md#create) then takes any `keyable` body to send as the payload and then returns a promise that
 resolves to the new Resource created by the API. It will automatically be added in the cache for any consumers to display.
 
 </TabItem>
@@ -178,7 +178,7 @@ export default function UpdateArticleForm({ id }: { id: number }) {
 }
 ```
 
-[update()](./api/Resource.md#update) then takes any `keyable` body to send as the payload and then returns a promise that
+[update()](api/Resource.md#update) then takes any `keyable` body to send as the payload and then returns a promise that
  then takes any `keyable` body to send as the payload and then returns a promise that
 resolves to the new Resource created by the API. It will automatically be added in the cache for any consumers to display.
 

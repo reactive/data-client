@@ -14,8 +14,8 @@ some media fetches as well to take advantage of suspense and [concurrent mode su
 
 ## Storing buffers
 
-[Resource](/rest/api/resource) and [Entity](../api/Entity) should not be used in this case, since they both represent
-string -> value map structures. Instead, we'll define our own simple [Endpoint](../api/Endpoint).
+[Resource](/rest/api/resource) and [Entity](/rest/api/Entity) should not be used in this case, since they both represent
+string -> value map structures. Instead, we'll define our own simple [Endpoint](/rest/api/Endpoint).
 
 ```typescript
 import { Endpoint } from 'rest-hooks';
@@ -132,4 +132,4 @@ export default function Profile({ username }: { username: string }) {
 
 
 When using the [fetch as you render](../guides/render-as-you-fetch) pattern in concurrent mode, [Controller.fetch()](../api/Controller.md#fetch) with the `getImage`
-[Endpoint](../api/Endpoint) to preload the image.
+[Endpoint](/rest/api/Endpoint) to preload the image.

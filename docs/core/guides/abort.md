@@ -7,7 +7,7 @@ fetches that are no longer considered relevant. This can be hooked into fetch vi
 
 ## Resource
 
-Easy integration is provided with the [Endpoint](../api/Endpoint)s defined in [Resource](/rest/api/resource) via the signal member:
+Easy integration is provided with the [Endpoint](/rest/api/Endpoint)s defined in [Resource](/rest/api/resource) via the signal member:
 
 ```typescript
 const abort = new AbortController();

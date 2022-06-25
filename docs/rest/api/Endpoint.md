@@ -80,7 +80,7 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   /** User-land extra data to send */
   readonly extra?: any;
   /** Enables optimistic updates for this request - uses return value as assumed network response
-   * @deprecated use https://resthooks.io/docs/api/Endpoint#getoptimisticresponse instead
+   * @deprecated use https://resthooks.io./Endpoint.md#getoptimisticresponse instead
    */
   readonly optimisticUpdate?: (...args: Parameters<F>) => ResolveType<F>;
 }
@@ -109,7 +109,7 @@ Default:
 ### sideEffect: true | undefined {#sideeffect}
 
 Used to indicate endpoint might have side-effects (non-idempotent). This restricts it
-from being used with [useSuspense()](./useSuspense) or [useFetch()](useFetch) as those can hit the
+from being used with [useSuspense()](/docs/api/useSuspense) or [useFetch()](/docs/api/useFetch) as those can hit the
 endpoint an unpredictable number of times.
 
 ### schema: Schema {#schema}
@@ -157,7 +157,7 @@ In addition to the members, `fetch` can be sent to override the fetch function.
 
 Custom data cache lifetime for the fetched resource. Will override the value set in NetworkManager.
 
-[Learn more about expiry time](../getting-started/expiry-policy#expiry-time)
+[Learn more about expiry time](/docs/getting-started/expiry-policy#expiry-time)
 
 #### errorExpiryLength?: number {#errorexpirylength}
 
@@ -168,7 +168,7 @@ Custom data error lifetime for the fetched resource. Will override the value set
 'soft' will use stale data (if exists) in case of error; undefined or not providing option will result
 in error.
 
-[Learn more about errorPolicy](../getting-started/expiry-policy#error-policy)
+[Learn more about errorPolicy](/docs/getting-started/expiry-policy#error-policy)
 
 #### invalidIfStale: boolean {#invalidifstale}
 
@@ -177,7 +177,7 @@ that useSuspense() will suspend when data is stale even if it already exists in 
 
 #### pollFrequency: number {#pollfrequency}
 
-Frequency in millisecond to poll at. Requires using [useSubscription()](./useSubscription.md) to have
+Frequency in millisecond to poll at. Requires using [useSubscription()](/docs/api/useSubscription) to have
 an effect.
 
 #### getOptimisticResponse: (snap, ...args) => fakePayload {#getoptimisticresponse}
@@ -186,7 +186,7 @@ When provided, any fetches with this endpoint will behave as though the `fakePay
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
 
-[Optimistic update guide](../guides/optimistic-updates.md)
+[Optimistic update guide](/docs/guides/optimistic-updates)
 
 #### optimisticUpdate: (...args) => fakePayload {#optimisticupdate}
 
@@ -372,7 +372,7 @@ console.log(user);
 - [Custom endpoints](/rest/guides/extending-endpoints)
 - [Pagination](/rest/guides/pagination)
 - [Mocking unfinished endpoints](/rest/guides/mocking-unfinished)
-- [Optimistic updates](../guides/optimistic-updates)
+- [Optimistic updates](/docs/guides/optimistic-updates)
 
 ## Motivation
 

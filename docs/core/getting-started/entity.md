@@ -7,7 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 
-[Entities](../api/Entity.md) have a primary key. This enables easy access via a lookup table.
+[Entities](/rest/api/Entity) have a primary key. This enables easy access via a lookup table.
 This makes it easy to find, update, create, or delete the same data - no matter what
 endpoint it was used in.
 
@@ -116,7 +116,7 @@ an entire endpoint response.
 
 ## Mutations and Dynamic Data
 
-When an endpoint changes data, this is known as a [side effect](/rest/guides/rpc). Marking an endpoint with [sideEffect: true](../api/Endpoint.md#sideeffect)
+When an endpoint changes data, this is known as a [side effect](/rest/guides/rpc). Marking an endpoint with [sideEffect: true](/rest/api/Endpoint#sideeffect)
 tells Rest Hooks that this endpoint is not idempotent, and thus should not be allowed in hooks
 that may call the endpoint an arbitrary number of times like [useSuspense()](../api/useSuspense.md) or [useFetch()](../api/useFetch.md)
 
@@ -244,9 +244,9 @@ Mutations automatically update the normalized cache, resulting in consistent and
 
 ## Schema
 
-Schemas are a declarative definition of how to [process responses](../api/schema)
+Schemas are a declarative definition of how to [process responses](/rest/api/schema)
 
-- [where](../api/schema) to expect [Entities](../api/Entity.md)
+- [where](/rest/api/schema) to expect [Entities](/rest/api/Entity)
 - Classes to [deserialize fields](/rest/guides/network-transform#deserializing-fields)
 
 ```typescript
@@ -262,24 +262,24 @@ const todoList = new Endpoint(fetchTodoList, {
 });
 ```
 
-Placing our [Entity](../api/Entity.md) `Todo` in an array, tells Rest Hooks to expect
+Placing our [Entity](/rest/api/Entity) `Todo` in an array, tells Rest Hooks to expect
 an array of `Todos`.
 
 Aside from array, there are a few more 'schemas' provided for various patterns. The first two (Object and Array)
 have shorthands of using object and array literals.
 
-- [Object](../api/Object.md): maps with known keys
-- [Array](../api/Array.md): variably sized arrays
-- [Union](../api/Union.md): select from many different types
-- [Values](../api/Values.md): maps with any keys - variably sized
-- [Delete](../api/Delete.md): remove an entity
+- [Object](/rest/api/Object): maps with known keys
+- [Array](/rest/api/Array): variably sized arrays
+- [Union](/rest/api/Union): select from many different types
+- [Values](/rest/api/Values): maps with any keys - variably sized
+- [Delete](/rest/api/Delete): remove an entity
 
-[Learn more](../api/schema.md)
+[Learn more](/rest/api/schema)
 
 ### Nesting
 
-Additionally, [Entities](../api/Entity.md) themselves can specify [nested](/rest/guides/nested-response) [schemas](../api/schema.md)
-by specifying a [static schema](../api/Entity.md#schema) member.
+Additionally, [Entities](/rest/api/Entity) themselves can specify [nested](/rest/guides/nested-response) [schemas](/rest/api/schema)
+by specifying a [static schema](/rest/api/Entity#schema) member.
 
 <Tabs
 defaultValue="Entity"

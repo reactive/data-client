@@ -204,7 +204,7 @@ so how can Rest Hooks know to update todoDetail with this data?
 ### Entities
 
 Adding [Entities](./getting-started/entity.md#entities) to our endpoint definition tells Rest Hooks
-how to extract and find a given piece of data no matter where it is used. The [pk()](./api/Entity.md#pk) (primary key)
+how to extract and find a given piece of data no matter where it is used. The [pk()](/rest/api/Entity#pk) (primary key)
 method is used as a key in a lookup table.
 
 This enables a [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) storage pattern, which
@@ -393,7 +393,7 @@ encourages extracting shared logic among endpoints.
 One common pattern is having endpoints Create Read Update Delete (CRUD) for a given resource.
 Using [@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest) ([docs](/rest/usage)) simplifies these patterns.
 
-Instead of defining an [Entity](./api/Entity.md), we define a [Resource](/rest/api/resource). `Resource`
+Instead of defining an [Entity](/rest/api/Entity), we define a [Resource](/rest/api/resource). `Resource`
 extends from `Entity`, so we still need the `pk()` definiton.
 
 In addition, providing [static urlRoot](/rest/api/resource#urlRoot) enable [6 Endpoints](/rest/api/resource#endpoints)

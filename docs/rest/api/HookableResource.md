@@ -60,7 +60,7 @@ See [Resource](./Resource.md) for more information
 
 ## Static network methods and properties
 
-These are the basic building blocks used to compile the [Endpoint](/docs/api/Endpoint) below.
+These are the basic building blocks used to compile the [Endpoint](./Endpoint.md) below.
 
 ### static useFetchInit(init: RequestInit): RequestInit {#useFetchInit}
 
@@ -73,7 +73,7 @@ This is often useful for [authentication](../guides/auth)
 ## Endpoints
 
 These provide the standard [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
-[endpoints](/docs/api/Endpoint)s common in [REST](https://www.restapitutorial.com/) APIs. Feel free to customize or add
+[endpoints](./Endpoint.md)s common in [REST](https://www.restapitutorial.com/) APIs. Feel free to customize or add
 new endpoints based to match your API.
 
 ### useDetail(): Endpoint {#detail}

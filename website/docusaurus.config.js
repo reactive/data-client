@@ -115,7 +115,7 @@ module.exports = {
         id: 'rest',
         path: '../docs/rest',
         routeBasePath: 'rest',
-        sidebarPath: require.resolve('./sidebars-rest.json'),
+        sidebarPath: require.resolve('./sidebars-rest.js'),
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
         editUrl: ({ locale, docPath }) => {
@@ -144,7 +144,7 @@ module.exports = {
         id: 'graphql',
         path: '../docs/graphql',
         routeBasePath: 'graphql',
-        sidebarPath: require.resolve('./sidebars-graphql.json'),
+        sidebarPath: require.resolve('./sidebars-graphql.js'),
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
         editUrl: ({ locale, docPath }) => {
@@ -171,7 +171,10 @@ module.exports = {
       {
         createRedirects(existingPath) {
           if (existingPath.includes('/rest')) {
-            return [existingPath.replace('/rest', '/docs/rest')];
+            return [
+              existingPath.replace('/rest', '/docs/rest'),
+              existingPath.replace('/rest', '/docs'),
+            ];
           } else if (existingPath.includes('/graphql')) {
             return [existingPath.replace('/graphql', '/docs/graphql')];
           }

@@ -56,13 +56,13 @@ export default function TodoList() {
 </TabItem>
 </Tabs>
 
-[useSuspense()](../api/useSuspense) guarantees access to data with sufficient [freshness](../api/Endpoint#dataexpirylength-number).
+[useSuspense()](../api/useSuspense) guarantees access to data with sufficient [freshness](/rest/api/Endpoint#dataexpirylength-number).
 This means it may issue network calls, and it may [suspend](#boundaries) until the the fetch completes.
 Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
 suspends.
 
 - Fetches are centrally controlled, and thus automatically deduplicated
-- Data is centralized and normalized guaranteeing consistency across uses, even with different [endpoints](../api/Endpoint).
+- Data is centralized and normalized guaranteeing consistency across uses, even with different [endpoints](/rest/api/Endpoint).
   - (For example: navigating to a detail page with a single entry from a list view will instantly show the same data as the list without
     requiring a refetch.)
 
@@ -225,7 +225,7 @@ export default function TodoList() {
 </Tabs>
 
 Subscriptions are orchestrated by [Managers](../api/Manager.md). Out of the box,
-polling based subscriptions can be used by adding [pollFrequency](../api/Endpoint.md#pollfrequency-number) to an endpoint.
+polling based subscriptions can be used by adding [pollFrequency](/rest/api/Endpoint#pollfrequency-number) to an endpoint.
 For pushed based networking protocols like websockets, see the [example websocket stream manager](../api/Manager.md#middleware-data-stream).
 
 ```typescript

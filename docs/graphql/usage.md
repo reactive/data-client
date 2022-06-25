@@ -43,7 +43,7 @@ export default class User extends GQLEntity {}
 
 </LanguageTabs>
 
-[Entity](/docs/api/Entity)s are immutable. Use `readonly` in typescript to enforce this.
+[Entity](api/Entity.md)s are immutable. Use `readonly` in typescript to enforce this.
 
 :::tip
 
@@ -122,13 +122,13 @@ export default function UserList() {
 </TabItem>
 </Tabs>
 
-[useSuspense()](/docs/api/useSuspense) guarantees access to data with sufficient [freshness](/docs/api/Endpoint#dataexpirylength-number).
+[useSuspense()](/docs/api/useSuspense) guarantees access to data with sufficient [freshness](api/Endpoint.md#dataexpirylength-number).
 This means it may issue network calls, and it may [suspend](/docs/getting-started/data-dependency#boundaries) until the fetch completes.
 Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
 suspends.
 
 - Fetches are centrally controlled, and thus automatically deduplicated
-- Data is centralized and normalized guaranteeing consistency across uses, even with different [endpoints](/docs/api/Endpoint).
+- Data is centralized and normalized guaranteeing consistency across uses, even with different [endpoints](api/Endpoint.md).
   - (For example: navigating to a detail page with a single entry from a list view will instantly show the same data as the list without
     requiring a refetch.)
 

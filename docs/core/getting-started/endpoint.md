@@ -11,7 +11,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 
-[Endpoints](../api/Endpoint) describe an asynchronous [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/). This includes both runtime behavior as well as (optionally) typing.
+[Endpoints](/rest/api/Endpoint) describe an asynchronous [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/). This includes both runtime behavior as well as (optionally) typing.
 
 <LanguageTabs>
 
@@ -84,11 +84,11 @@ asynchronous data.
 
 ## More than just a function
 
-In addition to an async function and (optional) types, [Endpoint](../api/Endpoint)s are objects,
+In addition to an async function and (optional) types, [Endpoint](/rest/api/Endpoint)s are objects,
 allowing them to provide any additional relevant information about the endpoint itself.
 
 For instance, to allow integration into a cache as well as knowing when to recompute and/or refetch
-when parameters change, Endpoints have a [key()](../api/Endpoint#key-params--string) member that serializes
+when parameters change, Endpoints have a [key()](/rest/api/Endpoint#key-params--string) member that serializes
 the endpoint and parameters to a unique string.
 
 ```js
@@ -118,7 +118,7 @@ console.log(todoDetailWithCustomizedKey.key({ id: '1' }));
 
 ### Endpoint.extend()
 
-For convenience, [extend()](../api/Endpoint.md#extend) allows type-correct
+For convenience, [extend()](/rest/api/Endpoint#extend) allows type-correct
 prototypical inheritance extensions of an endpoint.
 
 This is greatly reduces boilerplate when strong patterns are established for an API like

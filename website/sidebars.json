@@ -249,54 +249,6 @@
         },
         {
           "type": "category",
-          "label": "@rest-hooks/endpoint",
-          "items": [
-            {
-              "type": "doc",
-              "id": "api/Endpoint"
-            },
-
-            {
-              "type": "doc",
-              "id": "api/Index"
-            },
-            {
-              "type": "doc",
-              "id": "api/schema"
-            },
-            {
-              "type": "doc",
-              "id": "api/Entity"
-            },
-            {
-              "type": "doc",
-              "id": "api/Object"
-            },
-            {
-              "type": "doc",
-              "id": "api/Array"
-            },
-            {
-              "type": "doc",
-              "id": "api/Union"
-            },
-            {
-              "type": "doc",
-              "id": "api/Values"
-            },
-            {
-              "type": "doc",
-              "id": "api/Delete"
-            },
-            {
-              "type": "doc",
-              "id": "api/SimpleRecord"
-            }
-
-          ]
-        },
-        {
-          "type": "category",
           "label": "@rest-hooks/test",
           "items": [
             {

@@ -106,7 +106,7 @@ function PostListItem({ post }: { post: PostResource }) {
 
 ### Endpoint.sideEffect
 
-[sideEffect](./Endpoint.md#sideeffect) changes the behavior
+[sideEffect](/rest/api/Endpoint#sideeffect) changes the behavior
 
 #### true
 
@@ -168,7 +168,7 @@ To refresh while continuing to display stale data - [Controller.fetch](#fetch) i
 
 :::tip Invalidate many endpoints at once
 
-Use [schema.Delete](./Delete.md) to invalidate every endpoint that contains a given entity.
+Use [schema.Delete](/rest/api/Delete) to invalidate every endpoint that contains a given entity.
 
 :::
 
@@ -202,11 +202,11 @@ function UserName() {
 
 ## receive(endpoint, ...args, response) {#receive}
 
-Stores `response` in cache for given [Endpoint](./Endpoint.md) and args.
+Stores `response` in cache for given [Endpoint](/rest/api/Endpoint) and args.
 
-Any components suspending for the given [Endpoint](./Endpoint.md) and args will resolve.
+Any components suspending for the given [Endpoint](/rest/api/Endpoint) and args will resolve.
 
-If data already exists for the given [Endpoint](./Endpoint.md) and args, it will be updated.
+If data already exists for the given [Endpoint](/rest/api/Endpoint) and args, it will be updated.
 
 ```tsx
 const { receive } = useController();
@@ -223,7 +223,7 @@ useEffect(() => {
 
 ## receiveError(endpoint, ...args, error) {#receiveError}
 
-Stores the result of [Endpoint](./Endpoint.md) and args as the error provided.
+Stores the result of [Endpoint](/rest/api/Endpoint) and args as the error provided.
 
 
 ## resolve(endpoint, { args, response, fetchedAt, error }) {#resolve}
@@ -238,7 +238,7 @@ processing fetch requests.
 
 ## subscribe(endpoint, ...args) {#subscribe}
 
-Marks a new subscription to a given [Endpoint](./Endpoint.md). This should increment the subscription.
+Marks a new subscription to a given [Endpoint](/rest/api/Endpoint). This should increment the subscription.
 
 [useSubscription](./useSubscription.md) calls this on mount.
 
@@ -256,7 +256,7 @@ useEffect(() => {
 
 ## unsubscribe(endpoint, ...args) {#unsubscribe}
 
-Marks completion of subscription to a given [Endpoint](./Endpoint.md). This should
+Marks completion of subscription to a given [Endpoint](/rest/api/Endpoint). This should
 decrement the subscription and if the count reaches 0, more updates won't be received automatically.
 
 [useSubscription](./useSubscription.md) calls this on unmount.

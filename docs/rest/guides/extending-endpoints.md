@@ -6,11 +6,11 @@ import TabItem from '@theme/TabItem';
 
 [Previously we saw how we could use](../usage#use-the-resource)
 the [useSuspense()](/docs/api/useSuspense) and [Controller.fetch()](/docs/api/Controller#fetch) hooks to read and mutate
-data. The first argument of these hooks is known as a [Endpoint](/docs/api/Endpoint).
+data. The first argument of these hooks is known as a [Endpoint](api/Endpoint.md).
 Endpoints are the minimal definition of instructions needed to tell Rest Hooks how to handle
 those types of requests.
 
-Resource comes with a [small handleful Endpoints](../api/Resource.md#static-network-methods-and-properties)
+Resource comes with a [small handleful Endpoints](api/Resource.md#static-network-methods-and-properties)
 for each of the typical [CRUD operations](https://restfulapi.net/http-methods/). This is often not enough.
 
 :::caution
@@ -166,7 +166,7 @@ export default class CommentResource extends Resource {
 }
 ```
 
-Here we only overrode the 'schema' part of the [Endpoint](/docs/api/Endpoint) - taking advantage
+Here we only overrode the 'schema' part of the [Endpoint](api/Endpoint.md) - taking advantage
 of [super](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/super) to keep
 the other pieces the same. See [pagination](./pagination), [nested resources](./nested-response)
 and [mutation side-effects](./rpc) guide for more examples of custom schemas and overriding
@@ -176,13 +176,13 @@ endpoints.
 
 In many cases there are more means of interacting with a given resource than the basic CRUD
 operations. Often this means a custom RPC call, or even a custom retrieval endpoint. We'll demonstrate
-a few examples here, but be sure to learn more about [Endpoint](/docs/api/Endpoint)s to
+a few examples here, but be sure to learn more about [Endpoint](api/Endpoint.md)s to
 define exactly what your endpoint needs.
 
 ### RPC
 
 In this example, we have an RPC endpoint located at `/users/[id]/make_manager`. This endpoint
-doesn't expect any body, but is a POST request. Because it is so similar to a [create()](../api/Resource.md#create)
+doesn't expect any body, but is a POST request. Because it is so similar to a [create()](api/Resource.md#create)
 we'll be extended that schema definition.
 
 ```typescript
@@ -253,9 +253,9 @@ export default function CurrentUserProfilePage() {
 ### Custom List Endpoints
 
 Sometimes we have endpoints that select particular results. We set the url
-in our custom [Endpoint](/docs/api/Endpoint) function,
+in our custom [Endpoint](api/Endpoint.md) function,
 and ensure the data is normalized and typed
-correctly via the [schema](/docs/api/Endpoint#schema) definition.
+correctly via the [schema](api/Endpoint.md#schema) definition.
 
 ```typescript
 import { Resource } from '@rest-hooks/rest';
