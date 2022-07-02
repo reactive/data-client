@@ -57,6 +57,7 @@
         "import": "./node.mjs",
         "require": "./dist/normalizr.js"
       },
+      "require": "./dist/normalizr.js",
       "default": "./lib/index.js"
     },
     "./package.json": "./package.json"
