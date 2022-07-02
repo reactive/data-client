@@ -5,6 +5,9 @@ updates:
     # Look for `package.json` and `lock` files in the `root` directory
     directory: "/"
     open-pull-requests-limit: 0
+    schedule:
+      # Check for updates managed by Composer once a week
+      interval: "weekly"
     labels:
       - "dependencies"
     commit-message:
@@ -13,6 +16,9 @@ updates:
     # Look for `package.json` and `lock` files in the `root` directory
     directory: "/website/"
     open-pull-requests-limit: 0
+    schedule:
+      # Check for updates managed by Composer once a week
+      interval: "weekly"
     labels:
       - "dependencies"
     commit-message:
