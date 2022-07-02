@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    # Look for `package.json` and `lock` files in the `root` directory
+    directory: "/"
+    open-pull-requests-limit: 0
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "internal(pkg): "
+  - package-ecosystem: "npm"
+    # Look for `package.json` and `lock` files in the `root` directory
+    directory: "/website/"
+    open-pull-requests-limit: 0
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "internal: "
