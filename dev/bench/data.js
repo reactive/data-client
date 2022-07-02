@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1654706222384,
+  "lastUpdate": 1656723877448,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -6298,6 +6298,58 @@ window.BENCHMARK_DATA = {
             "range": "±3.68%",
             "unit": "ops/sec",
             "extra": "74 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0088494e5cab91da7becebe7d9b62796fb9f4f2e",
+          "message": "fix: Fix package exports support for latest resolve pkg (#2062)",
+          "timestamp": "2022-07-01T20:00:20-05:00",
+          "tree_id": "b7bc65a9097155da6638c8392d4196f6842d42f8",
+          "url": "https://github.com/coinbase/rest-hooks/commit/0088494e5cab91da7becebe7d9b62796fb9f4f2e"
+        },
+        "date": 1656723875995,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 113,
+            "range": "±1.79%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 46.87,
+            "range": "±1.26%",
+            "unit": "ops/sec",
+            "extra": "61 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 46.78,
+            "range": "±2.17%",
+            "unit": "ops/sec",
+            "extra": "60 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 96.97,
+            "range": "±2.96%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
           }
         ]
       }
