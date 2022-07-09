@@ -9,10 +9,10 @@
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.0"
 
-"@anansi/babel-preset@3.2.7":
-  version "3.2.7"
-  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-3.2.7.tgz#d0e966afa8d3790420df3f42d05fc20d02c82f8b"
-  integrity sha512-kmcGTXk9x4u8iB6595qpfovXbcuNys1MPNaGWxO5vMNdqynEdjH7Xoy33dpmkfPGn7KHQqEPspy+wWX2/WMP9w==
+"@anansi/babel-preset@3.2.8":
+  version "3.2.8"
+  resolved "https://registry.yarnpkg.com/@anansi/babel-preset/-/babel-preset-3.2.8.tgz#203b7fee65a12cf44f5ee303ff106e03e8562522"
+  integrity sha512-sMTYX8O9lOam5rmkC1bRuTCacrMSoQBQlI1whR5M+wci91U+vqup4rIFJmEXQpAZ0Gs/vWthsSBNOInCOFybJw==
   dependencies:
     "@anansi/ts-utils" "^0.2.5"
     "@babel/plugin-proposal-class-properties" "^7.18.6"
@@ -30,7 +30,7 @@
     "@babel/plugin-transform-react-constant-elements" "^7.18.6"
     "@babel/plugin-transform-react-inline-elements" "^7.18.6"
     "@babel/plugin-transform-runtime" "^7.18.6"
-    "@babel/plugin-transform-typescript" "^7.18.6"
+    "@babel/plugin-transform-typescript" "^7.18.8"
     "@babel/preset-env" "^7.18.6"
     "@babel/preset-react" "^7.18.6"
     babel-plugin-lodash "^3.3.4"
@@ -65,10 +65,10 @@
     eslint-plugin-babel "^5.3.1"
     eslint-plugin-jsx-a11y "^6.5.1"
 
-"@anansi/jest-preset@0.7.11":
-  version "0.7.11"
-  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.7.11.tgz#64dcf31baeb063fb7e566ad76340213d82dd898b"
-  integrity sha512-1TwxEdcGuBgbWe2yUNf20Xvk8x2Z/QdCFeqLoNCkeVpBepIpA9ewGYLksvkZ37HRHHmmhlh+q3wYPdZBVR56Dg==
+"@anansi/jest-preset@0.7.12":
+  version "0.7.12"
+  resolved "https://registry.yarnpkg.com/@anansi/jest-preset/-/jest-preset-0.7.12.tgz#c5013c27baac925efd6ef86c020486dad24b0f93"
+  integrity sha512-ZA7cEq+vDP24rHDprrgYAn92ZTUV3ZGaXRN8EJQ8zPYp/fwyRrHx9op2q9BFbbRKRipIzkOvsECkp5PPpfH4yA==
   dependencies:
     "@anansi/ts-utils" "^0.2.5"
     babel-jest "^28.1.2"
@@ -80,13 +80,13 @@
     ts-jest "^28.0.5"
     whatwg-fetch "^3.0.0"
 
-"@anansi/router@0.6.5":
-  version "0.6.5"
-  resolved "https://registry.yarnpkg.com/@anansi/router/-/router-0.6.5.tgz#cca26f3ad1c85436ff52ae1c80de3a721feb485c"
-  integrity sha512-zE9ObwZPgB2nLR13dkePDkHstvft0KoexHoCt7Y71sE64kkWQi31SF8vAj5AO6A9VFUcDNpNOgizX17RVUmECw==
+"@anansi/router@0.6.6":
+  version "0.6.6"
+  resolved "https://registry.yarnpkg.com/@anansi/router/-/router-0.6.6.tgz#0875b864424eaca9029ca621ae80b762ec17c950"
+  integrity sha512-DiHLrFc4Irw9iYxyZ/7vKJS6uOApqFMQTL53Q0AOpn8uDHzUgR9kl6IdHjl8G26Im6CQVWmYKOyyU8oeq7Uh6A==
   dependencies:
     "@babel/runtime" "^7.10.5"
-    "@pojo-router/core" "^0.5.13"
+    "@pojo-router/core" "^0.5.14"
     history "^5.3.0"
     nano-memoize "^1.3.0"
 
@@ -95,10 +95,10 @@
   resolved "https://registry.yarnpkg.com/@anansi/ts-utils/-/ts-utils-0.2.5.tgz#bd2270fb1f96a26dbcf3a9a61a6a6b36652e75c6"
   integrity sha512-m6jFCF3Y6Tcd06hmq1pDqOCHGpe30QO9FcCblYD0ohhl5olcyq+f2DbKWPQSeddzHdHxDUpZ9OG7xwHv4xtmUw==
 
-"@anansi/webpack-config@11.6.7":
-  version "11.6.7"
-  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.6.7.tgz#f8176056f1989a42f7931682db8d141d0161bc5e"
-  integrity sha512-0QZof4RmCQrA8OYz3JI+TkA8GoYYVaIC0CmQJRJETF/6mRUbpYp7VgzD3J7C6ai67v7GDNU3GwB9MNxh9q1FVg==
+"@anansi/webpack-config@11.6.8":
+  version "11.6.8"
+  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.6.8.tgz#029b11ceba1f7328a883ef69afe0c771f1e91e82"
+  integrity sha512-A9sbccWXoyJZSL/ibEH1Uh+LUKPEFCC8HzrSZlJhKW6d908v5x0k/VrTTmKcbzvYTpY+VUg3zKG0N7/IvsVM3Q==
   dependencies:
     "@babel/runtime" "^7.17.2"
     "@linaria/webpack5-loader" "3.0.0-beta.22"
@@ -1908,10 +1908,10 @@
     "@babel/helper-plugin-utils" "^7.17.12"
     "@babel/plugin-syntax-typescript" "^7.17.12"
 
-"@babel/plugin-transform-typescript@^7.18.6":
-  version "7.18.6"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-typescript/-/plugin-transform-typescript-7.18.6.tgz#8f4ade1a9cf253e5cf7c7c20173082c2c08a50a7"
-  integrity sha512-ijHNhzIrLj5lQCnI6aaNVRtGVuUZhOXFLRVFs7lLrkXTHip4FKty5oAuQdk4tywG0/WjXmjTfQCWmuzrvFer1w==
+"@babel/plugin-transform-typescript@^7.18.8":
+  version "7.18.8"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-typescript/-/plugin-transform-typescript-7.18.8.tgz#303feb7a920e650f2213ef37b36bbf327e6fa5a0"
+  integrity sha512-p2xM8HI83UObjsZGofMV/EdYjamsDm6MoN3hXPYIT0+gxIoopE+B7rPYKAxfrz9K9PK7JafTTjqYC6qipLExYA==
   dependencies:
     "@babel/helper-create-class-features-plugin" "^7.18.6"
     "@babel/helper-plugin-utils" "^7.18.6"
@@ -4113,10 +4113,10 @@
     schema-utils "^3.0.0"
     source-map "^0.7.3"
 
-"@pojo-router/core@^0.5.13":
-  version "0.5.13"
-  resolved "https://registry.yarnpkg.com/@pojo-router/core/-/core-0.5.13.tgz#5a03ef522d67fcb968ea24418f46c2681e2984e0"
-  integrity sha512-GaDgfiz8Cnm3EVM4UxDiCM4xK+36uss+D4vMeMSZlKKABzE0bzA5DZ8hpixwLD5bzxtNsTBg7clAhZLXBNF+uA==
+"@pojo-router/core@^0.5.14":
+  version "0.5.14"
+  resolved "https://registry.yarnpkg.com/@pojo-router/core/-/core-0.5.14.tgz#680c49b885a9a5b848b2aec4027c5f698b0cdb60"
+  integrity sha512-H7rs1a9k3hCS48/60g2YY3w9/jKehtZebnzzfpYogS7/H4leHSsQVprWAT1vTAJ0ONPfH2xe65LmoD9Gpl8EEg==
   dependencies:
     "@babel/runtime" "^7.10.5"
     history "5.3.0"
@@ -4860,10 +4860,19 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react@*", "@types/react@18.0.14":
+"@types/react@*":
   version "18.0.14"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-18.0.14.tgz#e016616ffff51dba01b04945610fe3671fdbe06d"
   integrity sha512-x4gGuASSiWmo0xjDLpm5mPb52syZHJx02VKbqUKdLmKtAwIh63XClGsiTI1K6DO5q7ox4xAsQrU+Gl3+gGXF9Q==
+  dependencies:
+    "@types/prop-types" "*"
+    "@types/scheduler" "*"
+    csstype "^3.0.2"
+
+"@types/react@18.0.15":
+  version "18.0.15"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.0.15.tgz#d355644c26832dc27f3e6cbf0c4f4603fc4ab7fe"
+  integrity sha512-iz3BtLuIYH1uWdsv6wXYdhozhqj20oD4/Hk2DNXIn1kFsmp9x8d9QB6FnPhfkbhd2PgEONt9Q1x/ebkwjfFLow==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -16719,10 +16728,10 @@ rollup-pluginutils@^2.5.0, rollup-pluginutils@^2.6.0, rollup-pluginutils@^2.8.1:
   dependencies:
     estree-walker "^0.6.1"
 
-rollup@2.75.7:
-  version "2.75.7"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.75.7.tgz#221ff11887ae271e37dcc649ba32ce1590aaa0b9"
-  integrity sha512-VSE1iy0eaAYNCxEXaleThdFXqZJ42qDBatAwrfnPlENEZ8erQ+0LYX4JXOLPceWfZpV1VtZwZ3dFCuOZiSyFtQ==
+rollup@2.76.0:
+  version "2.76.0"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.76.0.tgz#c69fe03db530ac53fcb9523b3caa0d3c0b9491a1"
+  integrity sha512-9jwRIEY1jOzKLj3nsY/yot41r19ITdQrhs+q3ggNWhr9TQgduHqANvPpS32RNpzGklJu3G1AJfvlZLi/6wFgWA==
   optionalDependencies:
     fsevents "~2.3.2"
 
@@ -17007,10 +17016,10 @@ serve-static@^1.13.1:
     parseurl "~1.3.3"
     send "0.17.1"
 
-serve@13.0.2:
-  version "13.0.2"
-  resolved "https://registry.yarnpkg.com/serve/-/serve-13.0.2.tgz#b19ccb854dfdf3085613cd3a4033c7807aeaf85b"
-  integrity sha512-71R6fKvNgKrqARAag6lYJNnxDzpH7DCNrMuvPY5PLVaC2PDhJsGTj/34o4o4tPWhTuLgEXqvgnAWbATQ9zGZTQ==
+serve@13.0.4:
+  version "13.0.4"
+  resolved "https://registry.yarnpkg.com/serve/-/serve-13.0.4.tgz#fc4466dc84b3e4a6cb622247c85ed8afe4b88820"
+  integrity sha512-Lj8rhXmphJCRQVv5qwu0NQZ2h+0MrRyRJxDZu5y3qLH2i/XY6a0FPj/VmjMUdkJb672MBfE8hJ274PU6JzBd0Q==
   dependencies:
     "@zeit/schemas" "2.6.0"
     ajv "6.12.6"
