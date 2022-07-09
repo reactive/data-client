@@ -64,7 +64,7 @@
     "ignore-styles": "^5.0.1",
     "jest": "28.1.2",
     "jest-environment-jsdom": "28.1.2",
-    "lerna": "5.1.6",
+    "lerna": "5.1.8",
     "mkdirp": "^1.0.4",
     "nock": "13.2.8",
     "prettier": "2.7.1",
