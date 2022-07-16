@@ -241,10 +241,10 @@
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.0"
 
-"@anansi/webpack-config@11.6.8":
-  version "11.6.8"
-  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-11.6.8.tgz#029b11ceba1f7328a883ef69afe0c771f1e91e82"
-  integrity sha512-A9sbccWXoyJZSL/ibEH1Uh+LUKPEFCC8HzrSZlJhKW6d908v5x0k/VrTTmKcbzvYTpY+VUg3zKG0N7/IvsVM3Q==
+"@anansi/webpack-config@12.0.0":
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-12.0.0.tgz#68bdda574ffed2d5661d9a5bca8c5f75d3f1ae5b"
+  integrity sha512-+b0Emd+ksw8wCSfsRGIMIiTpaALYia7D1xp1bkbKYoS/aKKRVqeD9xLFm7TO1X5wDMs8beqmY377hhRydbXiUg==
   dependencies:
     "@babel/runtime" "^7.17.2"
     "@linaria/webpack5-loader" "3.0.0-beta.22"
@@ -271,7 +271,7 @@
     events "^3.3.0"
     file-loader "^6.2.0"
     find-cache-dir "^3.3.2"
-    html-loader "^3.1.2"
+    html-loader "^4.1.0"
     html-webpack-plugin "^5.5.0"
     https-browserify "^1.0.0"
     is-wsl "^2.2.0"
@@ -282,7 +282,7 @@
     path "^0.12.7"
     path-browserify "^1.0.1"
     postcss "^8.4.14"
-    postcss-loader "^7.0.0"
+    postcss-loader "^7.0.1"
     postcss-preset-env "^7.7.2"
     process "^0.11.10"
     punycode "^2.1.1"
@@ -291,7 +291,7 @@
     raw-loader "4.0.2"
     react-dev-utils "^12.0.1"
     react-error-overlay "6.0.9"
-    readable-stream "^4.0.0"
+    readable-stream "^4.1.0"
     sass "^1.53.0"
     sass-loader "^13.0.2"
     sass-resources-loader "^2.2.5"
@@ -7186,13 +7186,13 @@ html-entities@^2.1.0, html-entities@^2.3.2:
   resolved "https://registry.yarnpkg.com/html-entities/-/html-entities-2.3.2.tgz#760b404685cb1d794e4f4b744332e3b00dcfe488"
   integrity sha512-c3Ab/url5ksaT0WyleslpBEthOzWhrjQbg75y7XUsfSzi3Dgzt0l8w5e7DylRn15MTlMMD58dTfzddNS2kcAjQ==
 
-html-loader@^3.1.2:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/html-loader/-/html-loader-3.1.2.tgz#5dc7e52d110b97c381468ac3354efd9bfa36c9fd"
-  integrity sha512-9WQlLiAV5N9fCna4MUmBW/ifaUbuFZ2r7IZmtXzhyfyi4zgPEjXsmsYCKs+yT873MzRj+f1WMjuAiPNA7C6Tcw==
+html-loader@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/html-loader/-/html-loader-4.1.0.tgz#a2f935802675fef0703165491316b200600996be"
+  integrity sha512-QDDNmLgn96NWtTPx/VXRerFXH0hn7cm4bruqsZ333GCb+rqiqGurcxtP/M52wcui1/iLiu0l5ms/McE7/Ik6aQ==
   dependencies:
-    html-minifier-terser "^6.0.2"
-    parse5 "^6.0.1"
+    html-minifier-terser "^6.1.0"
+    parse5 "^7.0.0"
 
 html-minifier-terser@^6.0.2:
   version "6.0.2"
@@ -9200,6 +9200,15 @@ postcss-loader@^7.0.0:
     klona "^2.0.5"
     semver "^7.3.7"
 
+postcss-loader@^7.0.1:
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/postcss-loader/-/postcss-loader-7.0.1.tgz#4c883cc0a1b2bfe2074377b7a74c1cd805684395"
+  integrity sha512-VRviFEyYlLjctSM93gAZtcJJ/iSkPZ79zWbN/1fSH+NisBByEiVLqpdVDrPLVSi8DX0oJo12kL/GppTBdKVXiQ==
+  dependencies:
+    cosmiconfig "^7.0.0"
+    klona "^2.0.5"
+    semver "^7.3.7"
+
 postcss-logical@^5.0.4:
   version "5.0.4"
   resolved "https://registry.yarnpkg.com/postcss-logical/-/postcss-logical-5.0.4.tgz#ec75b1ee54421acc04d5921576b7d8db6b0e6f73"
@@ -10077,10 +10086,10 @@ readable-stream@^3.0.6, readable-stream@^3.4.0, readable-stream@^3.5.0, readable
     string_decoder "^1.1.1"
     util-deprecate "^1.0.1"
 
-readable-stream@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-4.0.0.tgz#da7105d03430a28ef4080785a43e6a45d4cdc4d1"
-  integrity sha512-Mf7ilWBP6AV3tF3MjtBrHMH3roso7wIrpgzCwt9ybvqiJQVWIEBMnp/W+S//yvYSsUUi2cJIwD7q7m57l0AqZw==
+readable-stream@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-4.1.0.tgz#280d0a29f559d3fb684a277254e02b6f61ae0631"
+  integrity sha512-sVisi3+P2lJ2t0BPbpK629j8wRW06yKGJUcaLAGXPAUhyUxVJm7VsCTit1PFgT4JHUDMrGNR+ZjSKpzGaRF3zw==
   dependencies:
     abort-controller "^3.0.0"
 
