@@ -42,7 +42,7 @@
     "@anansi/router": "0.6.6",
     "@ant-design/icons": "^4.7.0",
     "@rest-hooks/experimental": "^5.0.3",
-    "antd": "4.21.5",
+    "antd": "4.21.6",
     "parse-link-header": "^2.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
