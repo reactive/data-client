@@ -10,7 +10,7 @@ import clsx from 'clsx';
 import {
   useScrollPositionBlocker,
   useTabGroupChoice,
-} from '@docusaurus/theme-common';
+} from '@docusaurus/theme-common/internal';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 
 import styles from './styles.module.css';
