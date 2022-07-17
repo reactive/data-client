@@ -2,7 +2,7 @@ import React, { memo, useState } from 'react';
 import {
   useScrollPositionBlocker,
   useTabGroupChoice,
-} from '@docusaurus/theme-common';
+} from '@docusaurus/theme-common/internal';
 
 import CodeTabContext from './CodeTabContext';
 
