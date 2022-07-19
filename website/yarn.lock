@@ -241,10 +241,10 @@
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.0"
 
-"@anansi/webpack-config@12.0.0":
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-12.0.0.tgz#68bdda574ffed2d5661d9a5bca8c5f75d3f1ae5b"
-  integrity sha512-+b0Emd+ksw8wCSfsRGIMIiTpaALYia7D1xp1bkbKYoS/aKKRVqeD9xLFm7TO1X5wDMs8beqmY377hhRydbXiUg==
+"@anansi/webpack-config@12.0.1":
+  version "12.0.1"
+  resolved "https://registry.yarnpkg.com/@anansi/webpack-config/-/webpack-config-12.0.1.tgz#bb7a6ac7f42bf9569108bd983e4f740e6ea74142"
+  integrity sha512-9eb59lgZo49/EeGiSHdq40DYiDJiLwSImFC1Ee24Y2uWlViVajudGP6dZz8OLymCbx1WvCCrHaOXAF82sBccig==
   dependencies:
     "@babel/runtime" "^7.17.2"
     "@linaria/webpack5-loader" "3.0.0-beta.22"
