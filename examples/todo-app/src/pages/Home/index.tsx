@@ -1,5 +1,6 @@
 import { css } from '@linaria/core';
 import { styled } from '@linaria/react';
+import Boundary from 'Boundary';
 
 import TodoListComponent from './TodoListComponent';
 
@@ -30,7 +31,9 @@ export default function Home() {
     <div className={home}>
       <Title>Todo List</Title>
       <main style={{ paddingTop: '50px' }}>
-        <TodoListComponent />
+        <Boundary>
+          <TodoListComponent />
+        </Boundary>
       </main>
     </div>
   );
