@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.2.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.2.4...@rest-hooks/core@3.2.7) (2022-07-20)
+
+
+### 💅 Enhancement
+
+* Warn about CacheProvider usage for SSR ([#2044](https://github.com/coinbase/rest-hooks/issues/2044)) ([6b62bc6](https://github.com/coinbase/rest-hooks/commit/6b62bc61fbec06bb4f8eb30c8f2eb8e341e32a21))
+
+
+### 🐛 Bug Fix
+
+* 18.2 StrictMode compatibility ([#2096](https://github.com/coinbase/rest-hooks/issues/2096)) ([ca7d9de](https://github.com/coinbase/rest-hooks/commit/ca7d9deb2e5bcb542dfa33bc7ab3ef1b6aff7b8b))
+* Fix package exports support for latest resolve pkg ([#2062](https://github.com/coinbase/rest-hooks/issues/2062)) ([0088494](https://github.com/coinbase/rest-hooks/commit/0088494e5cab91da7becebe7d9b62796fb9f4f2e))
+* Hydration mismatch in React 17 ([#2039](https://github.com/coinbase/rest-hooks/issues/2039)) ([e8aff22](https://github.com/coinbase/rest-hooks/commit/e8aff22fe754bf47691b8f6c1b27d45335445def))
+
+
+
 ### [3.2.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.2.3...@rest-hooks/core@3.2.4) (2022-05-30)
 
 

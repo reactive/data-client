@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.3.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.3.1...@rest-hooks/test@7.3.3) (2022-07-20)
+
+
+### 🐛 Bug Fix
+
+* Fix package exports support for latest resolve pkg ([#2062](https://github.com/coinbase/rest-hooks/issues/2062)) ([0088494](https://github.com/coinbase/rest-hooks/commit/0088494e5cab91da7becebe7d9b62796fb9f4f2e))
+
+
+### 📦 Package
+
+* Update `@testing-library/react-hooks` to v8 ([#2070](https://github.com/coinbase/rest-hooks/issues/2070)) ([174d896](https://github.com/coinbase/rest-hooks/commit/174d896af4fe77443037409b336a12efd86ce5ad))
+
+
+
 ### [7.3.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.3.0...@rest-hooks/test@7.3.1) (2022-04-30)
 
 

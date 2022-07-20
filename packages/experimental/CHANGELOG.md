@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.0.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@5.0.3...@rest-hooks/experimental@5.0.5) (2022-07-20)
+
+
+### 📦 Package
+
+* build, eslint, webpack, typescript ([#2050](https://github.com/coinbase/rest-hooks/issues/2050)) ([9e2d363](https://github.com/coinbase/rest-hooks/commit/9e2d3636879d0c3c51763b9e74424640c4976e3a))
+
+
+
 ### [5.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@5.0.2...@rest-hooks/experimental@5.0.3) (2022-05-30)
 
 

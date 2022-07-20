@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/endpoint",
-  "version": "2.2.9",
+  "version": "2.2.10",
   "description": "Declarative Network Interface Definitions",
   "sideEffects": false,
   "main": "dist/index.js",
@@ -98,6 +98,6 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.13.0",
-    "@rest-hooks/normalizr": "^8.2.6"
+    "@rest-hooks/normalizr": "^8.2.9"
   }
 }

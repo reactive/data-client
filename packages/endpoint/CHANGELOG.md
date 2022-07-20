@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [2.2.10](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.2.7...@rest-hooks/endpoint@2.2.10) (2022-07-20)
+
+
+### 🐛 Bug Fix
+
+* Fix package exports support for latest resolve pkg ([#2062](https://github.com/coinbase/rest-hooks/issues/2062)) ([0088494](https://github.com/coinbase/rest-hooks/commit/0088494e5cab91da7becebe7d9b62796fb9f4f2e))
+
+
+
 ### [2.2.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.2.6...@rest-hooks/endpoint@2.2.7) (2022-05-30)
 
 

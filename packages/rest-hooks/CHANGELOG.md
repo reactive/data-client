@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.3.7](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.3.4...rest-hooks@6.3.7) (2022-07-20)
+
+
+### 🐛 Bug Fix
+
+* Fix package exports support for latest resolve pkg ([#2062](https://github.com/coinbase/rest-hooks/issues/2062)) ([0088494](https://github.com/coinbase/rest-hooks/commit/0088494e5cab91da7becebe7d9b62796fb9f4f2e))
+
+
+
 ### [6.3.4](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.3.3...rest-hooks@6.3.4) (2022-05-30)
 
 
