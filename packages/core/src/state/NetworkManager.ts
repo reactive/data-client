@@ -37,6 +37,7 @@ export default class NetworkManager implements Manager {
   declare readonly errorExpiryLength: number;
   protected declare middleware: Middleware;
   protected getState: () => State<unknown> = () => initialState;
+  declare cleanupDate?: number;
 
   constructor(dataExpiryLength = 60000, errorExpiryLength = 1000) {
     this.dataExpiryLength = dataExpiryLength;
@@ -105,12 +106,15 @@ export default class NetworkManager implements Manager {
     );
   }
 
+  /** On mount */
+  init() {
+    delete this.cleanupDate;
+  }
+
   /** Ensures all promises are completed by rejecting remaining. */
   cleanup() {
     // ensure no dispatches after unmount
-    const cleanupDate = Date.now();
-    this.getLastReset = () => cleanupDate;
-    this.clearAll();
+    this.cleanupDate = Date.now();
   }
 
   /** Clear all promise state */
@@ -128,6 +132,7 @@ export default class NetworkManager implements Manager {
   }
 
   protected getLastReset() {
+    if (this.cleanupDate) return this.cleanupDate;
     const lastReset = this.getState().lastReset;
     if (lastReset instanceof Date) return lastReset.valueOf();
     if (typeof lastReset !== 'number') return -Infinity;
