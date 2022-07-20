@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1658331276737,
+  "lastUpdate": 1658336901118,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -6402,6 +6402,58 @@ window.BENCHMARK_DATA = {
             "range": "±0.83%",
             "unit": "ops/sec",
             "extra": "78 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": false,
+          "id": "a34477ee514c1d705555dbe5338cca976df665aa",
+          "message": "internal: publish\n\n - @rest-hooks/core@3.2.7\n - @rest-hooks/endpoint@2.2.10\n - @rest-hooks/experimental@5.0.5\n - @rest-hooks/graphql@0.1.8\n - @rest-hooks/legacy@4.3.5\n - @rest-hooks/normalizr@8.2.9\n - rest-hooks@6.3.7\n - @rest-hooks/rest@5.0.4\n - @rest-hooks/ssr@0.2.2\n - @rest-hooks/test@7.3.3",
+          "timestamp": "2022-07-20T10:41:28-05:00",
+          "tree_id": "ed2c0ffbf77b1d6e31879a39a86be40f4e48d1a2",
+          "url": "https://github.com/coinbase/rest-hooks/commit/a34477ee514c1d705555dbe5338cca976df665aa"
+        },
+        "date": 1658336899299,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 74.53,
+            "range": "±2.90%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 31.18,
+            "range": "±1.58%",
+            "unit": "ops/sec",
+            "extra": "54 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 32.7,
+            "range": "±1.49%",
+            "unit": "ops/sec",
+            "extra": "56 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 76.52,
+            "range": "±1.21%",
+            "unit": "ops/sec",
+            "extra": "65 samples"
           }
         ]
       }
