@@ -53,10 +53,8 @@
   },
   "exports": {
     ".": {
-      "node": {
-        "import": "./node.mjs",
-        "require": "./dist/normalizr.js"
-      },
+      "module": "./lib/index.js",
+      "import": "./node.mjs",
       "require": "./dist/normalizr.js",
       "default": "./lib/index.js"
     },
