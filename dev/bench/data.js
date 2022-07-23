@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1658336901118,
+  "lastUpdate": 1658587115302,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -6454,6 +6454,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.21%",
             "unit": "ops/sec",
             "extra": "65 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6206e6463a7c3699d5c1d1b248e4d5418b1327f1",
+          "message": "fix: Ensure dual package hazard solved for non-node (#2099)",
+          "timestamp": "2022-07-23T07:33:44-07:00",
+          "tree_id": "52f4f72fbf9becadc457fe03c6a4034da467b970",
+          "url": "https://github.com/coinbase/rest-hooks/commit/6206e6463a7c3699d5c1d1b248e4d5418b1327f1"
+        },
+        "date": 1658587113835,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 96.12,
+            "range": "±4.87%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 43.09,
+            "range": "±1.49%",
+            "unit": "ops/sec",
+            "extra": "57 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 47.97,
+            "range": "±1.02%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 94.87,
+            "range": "±4.95%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
           }
         ]
       }
