@@ -27,11 +27,14 @@
   "exports": {
     ".": {
       "node": {
+        "module": "./lib/index.js",
         "import": "./node.mjs",
         "require": "./dist/index.js"
       },
+      "module": "./lib/browser.js",
+      "import": "./node.mjs",
       "require": "./dist/index.js",
-      "default": "./lib/browser.js"
+      "default": "./lib/index.js"
     },
     "./package.json": "./package.json"
   },
