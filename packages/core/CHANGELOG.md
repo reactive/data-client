@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.2.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.2.7...@rest-hooks/core@3.2.8) (2022-07-23)
+
+
+### 🐛 Bug Fix
+
+* Ensure dual package hazard solved for non-node ([#2099](https://github.com/coinbase/rest-hooks/issues/2099)) ([6206e64](https://github.com/coinbase/rest-hooks/commit/6206e6463a7c3699d5c1d1b248e4d5418b1327f1))
+
+
+
 ### [3.2.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.2.4...@rest-hooks/core@3.2.7) (2022-07-20)
 
 
