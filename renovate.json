@@ -17,8 +17,9 @@
     {
       "matchPackageNames": ["@anansi/webpack-config"],
       "matchPackagePrefixes": ["@linaria", "webpack-"],
-      "matchSourceUrlPrefixes": ["https://github.com/webpack/webpack"],
-      "groupName": "webpack"
+      "matchSourceUrlPrefixes": ["https://github.com/webpack/webpack", "https://github.com/callstack/linaria"],
+      "matchUpdateTypes": ["digest", "patch", "minor", "major"],
+      "groupName": "webpack packages"
     },
     {
       "extends": ["monorepo:babel"],
@@ -28,7 +29,7 @@
         "core-js-compat"
       ],
       "matchUpdateTypes": ["digest", "patch", "minor", "major"],
-      "groupName": "babel"
+      "groupName": "babel packages"
     },
     {
       "extends": ["packages:jsTest"],

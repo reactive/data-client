@@ -33,6 +33,7 @@
     "@types/eslint": "^8",
     "@types/prettier": "^2",
     "@types/react-dom": "18.0.6",
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
     "eslint": "^8.20.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
