@@ -72,7 +72,7 @@
     "prettier": "2.7.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-native": "0.69.2",
+    "react-native": "0.69.3",
     "react-test-renderer": "18.2.0",
     "redux": "4.2.0",
     "rest-hooks": "workspace:^",
