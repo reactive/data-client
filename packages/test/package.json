@@ -53,14 +53,15 @@
     "README.md"
   ],
   "scripts": {
-    "build:lib": "cross-env NODE_ENV=production BROWSERSLIST_ENV=2020 BROWSERSLIST_ENV='modern' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
-    "build:legacy:lib": "cross-env NODE_ENV=production BROWSERSLIST_ENV=2018 babel --root-mode upward src --out-dir legacy --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
-    "build:bundle": "cross-env BROWSERSLIST_ENV=node12 rollup -c && echo '{\"type\":\"commonjs\"}' > dist/package.json",
+    "build:lib": "NODE_ENV=production BROWSERSLIST_ENV=2020 BROWSERSLIST_ENV='modern' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:legacy:lib": "NODE_ENV=production BROWSERSLIST_ENV=2018 babel --root-mode upward src --out-dir legacy --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:bundle": "BROWSERSLIST_ENV=node12 rollup -c && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:clean": "rimraf lib dist ts3.4 legacy *.tsbuildinfo",
     "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
     "build": "yarn run build:lib && yarn run build:legacy:lib && yarn run build:bundle",
     "dev": "yarn run build:lib -w",
     "prepare": "yarn run build:lib",
+    "prepack": "yarn prepare",
     "prepublishOnly": "yarn run build:bundle && yarn run build:legacy:lib"
   },
   "keywords": [
@@ -106,11 +107,22 @@
     "rest-hooks": "^5.0.11 || ^6.0.0-0"
   },
   "peerDependenciesMeta": {
-    "redux": {
-      "optional": true
-    },
     "@types/react": {
       "optional": true
+    },
+    "redux": {
+      "optional": true
     }
+  },
+  "devDependencies": {
+    "downlevel-dts": "^0.10.0",
+    "rollup": "^2.77.0",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-filesize": "^9.1.2",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-replace": "^2.2.0",
+    "rollup-plugin-terser": "^7.0.2"
   }
 }

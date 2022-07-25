@@ -1,5 +1,5 @@
 {
-  "name": "benchmark",
+  "name": "example-benchmark",
   "version": "0.1.5",
   "description": "Benchmark for normalizr",
   "main": "index.js",
@@ -7,9 +7,15 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "cross-env NODE_ENV=production BROWSERSLIST_ENV=modern babel-node --root-mode upward ./ --extensions '.ts,.tsx,.js'"
+    "start": "NODE_ENV=production BROWSERSLIST_ENV=modern babel-node --root-mode upward ./ --extensions '.ts,.tsx,.js'"
+  },
+  "dependencies": {
+    "@rest-hooks/core": "^3.2.8",
+    "@rest-hooks/normalizr": "^8.2.6",
+    "benchmark": "^2.1.4"
   },
   "devDependencies": {
-    "@rest-hooks/normalizr": "^8.2.6"
+    "@babel/node": "^7.18.9",
+    "@types/benchmark": "^2"
   }
 }

@@ -13,38 +13,20 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v5-dependencies-{{ checksum "yarn.lock" }}
+            - v7-dependencies-{{ checksum "yarn.lock" }}
             # fallback to using the latest cache if no exact match is found
-            - v5-dependencies-
+            - v7-dependencies-
       - run:
           name: yarn install
           command: |
-            yarn config set cache-folder ~/.cache/yarn
-            yarn install --prefer-offline --frozen-lockfile
+            npm install -g corepack
+            corepack enable
+            yarn install --immutable
       - save_cache:
           paths:
-            - node_modules
-            - packages/core/node_modules
-            - packages/endpoint/node_modules
-            - packages/experimental/node_modules
-            - packages/graphql/node_modules
-            - packages/hooks/node_modules
-            - packages/img/node_modules
-            - packages/legacy/node_modules
-            - packages/normalizr/node_modules
-            - packages/rest/node_modules
-            - packages/rest-hooks/node_modules
-            - packages/test/node_modules
-            - packages/use-enhanced-reducer/node_modules
-            - examples/benchmark/node_modules
-            - examples/normalizr-bench/node_modules
-            - examples/normalizr-github/node_modules
-            - examples/normalizr-redux/node_modules
-            - examples/normalizr-relationships/node_modules
-            - examples/todo-app/node_modules
-            - examples/github-app/node_modules
-            - ~/.cache/yarn
-          key: v5-dependencies-{{ checksum "yarn.lock" }}
+            - .yarn/cache
+            - .yarn/install-state.gz
+          key: v7-dependencies-{{ checksum "yarn.lock" }}
       - run: yarn run lerna run build --stream
       - persist_to_workspace:
           root: ~/
@@ -83,7 +65,7 @@ jobs:
       - run:
           command: |
             if [ "<< parameters.react-version >>" != "^18" ]; then
-            yarn add -W --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >> @testing-library/react@^12.0.0
+            yarn add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >> @testing-library/react@^12.0.0
             fi
       - run:
           command: |
@@ -97,7 +79,7 @@ jobs:
           at: ~/
       - run:
           command: |
-            yarn add -W --dev react@^17.0.0 react-dom@^17.0.0 react-test-renderer@^17.0.0 @testing-library/react@^12.0.0
+            yarn add --dev react@^17.0.0 react-dom@^17.0.0 react-test-renderer@^17.0.0 @testing-library/react@^12.0.0
       - run:
           command: |
             curl -Os https://uploader.codecov.io/latest/linux/codecov;

@@ -7,11 +7,44 @@
   "rangeStrategy": "auto",
   "ignoreDeps": ["whatwg-fetch", "react-error-overlay", "msw"],
   "timezone": "America/Chicago",
+  "postUpdateOptions": ["yarnDedupeFewer"],
   "packageRules": [
     {
-      "matchPackageNames": ["@babel/runtime", "core-js"],
+      "matchPackageNames": ["@babel/runtime", "core-js", "core-js-compat"],
       "matchDepTypes": ["dependencies"],
       "rangeStrategy": "replace"
+    },
+    {
+      "matchPackageNames": ["@anansi/webpack-config"],
+      "matchPackagePrefixes": ["@linaria", "webpack-"],
+      "matchSourceUrlPrefixes": ["https://github.com/webpack/webpack"],
+      "groupName": "webpack"
+    },
+    {
+      "extends": ["monorepo:babel"],
+      "matchPackageNames": [
+        "@anansi/babel-config",
+        "core-js",
+        "core-js-compat"
+      ],
+      "matchUpdateTypes": ["digest", "patch", "minor", "major"],
+      "groupName": "babel"
+    },
+    {
+      "extends": ["packages:jsTest"],
+      "matchPackageNames": ["@anansi/jest-preset"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "JS test packages"
+    },
+    {
+      "extends": ["packages:linters"],
+      "groupName": "linters",
+      "matchPackageNames": [
+        "@anansi/eslint-plugin",
+        "prettier",
+        "eslint-plugin-prettier",
+        "@typescript-eslint/eslint-plugin"
+      ]
     }
   ]
 }
