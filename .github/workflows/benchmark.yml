@@ -30,7 +30,7 @@ jobs:
         npm install -g corepack
         corepack enable
         yarn install --immutable
-        NODE_ENV=production BROWSERSLIST_ENV=modern yarn lerna run --scope @rest-hooks/core --include-dependencies build && yarn workspace example-benchmark start | tee output.txt
+        NODE_ENV=production BROWSERSLIST_ENV=modern yarn workspaces foreach -ptivR --from @rest-hooks/core run build && yarn workspace example-benchmark start | tee output.txt
 
 
     # PR comments on changes

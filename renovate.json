@@ -15,9 +15,9 @@
       "rangeStrategy": "replace"
     },
     {
-      "matchPackageNames": ["@anansi/webpack-config"],
+      "matchPackageNames": ["webpack", "@anansi/webpack-config"],
       "matchPackagePrefixes": ["@linaria", "webpack-"],
-      "matchSourceUrlPrefixes": ["https://github.com/webpack/webpack", "https://github.com/callstack/linaria"],
+      "matchSourceUrlPrefixes": ["https://github.com/webpack", "https://github.com/callstack/linaria"],
       "matchUpdateTypes": ["digest", "patch", "minor", "major"],
       "groupName": "webpack packages"
     },

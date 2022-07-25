@@ -27,7 +27,7 @@ jobs:
             - .yarn/cache
             - .yarn/install-state.gz
           key: v7-dependencies-{{ checksum "yarn.lock" }}
-      - run: yarn run lerna run build --stream
+      - run: yarn workspaces foreach -ptiv --no-private run build
       - persist_to_workspace:
           root: ~/
           paths:
