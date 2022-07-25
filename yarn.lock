@@ -22050,9 +22050,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native@npm:0.69.2":
-  version: 0.69.2
-  resolution: "react-native@npm:0.69.2"
+"react-native@npm:0.69.3":
+  version: 0.69.3
+  resolution: "react-native@npm:0.69.3"
   dependencies:
     "@jest/create-cache-key-function": ^27.0.1
     "@react-native-community/cli": ^8.0.3
@@ -22091,7 +22091,7 @@ __metadata:
     react: 18.0.0
   bin:
     react-native: cli.js
-  checksum: aba201af0595be1161e8ddaa7fffcfafea53f7840d62c21dd8fe0b0b7d4a075e09c901ed9b1f113354085ad211d6036fc5dbb41f7626cbf3065b457a8dea7bab
+  checksum: 49153ee9ec7bec8d181f98c5ba2d4dbd2d9a7fd53ff3a45108290651af4df19db972619c12db1b7e2d98b19f30ada59f3811951ef5cc78348e03ef9145c03dea
   languageName: node
   linkType: hard
 
@@ -23121,7 +23121,7 @@ __metadata:
     prettier: 2.7.1
     react: 18.2.0
     react-dom: 18.2.0
-    react-native: 0.69.2
+    react-native: 0.69.3
     react-test-renderer: 18.2.0
     redux: 4.2.0
     rest-hooks: "workspace:^"
