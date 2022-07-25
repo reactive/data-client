@@ -5008,7 +5008,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/core@npm:3.0.0-beta.22, @linaria/core@npm:^3.0.0-beta.22":
+"@linaria/core@npm:4.1.0":
+  version: 4.1.0
+  resolution: "@linaria/core@npm:4.1.0"
+  dependencies:
+    "@linaria/logger": ^4.0.0
+    "@linaria/tags": ^4.1.0
+    "@linaria/utils": ^4.1.0
+  checksum: 98ad6fd309800cf537a0f410b4dae4169c7c55c7b76ce8a979127bfd5309549e1e5e0e8285a33c0a87d1b1e2e52a521245e516da7fb59e3b1a2261b189346fd8
+  languageName: node
+  linkType: hard
+
+"@linaria/core@npm:^3.0.0-beta.22":
   version: 3.0.0-beta.22
   resolution: "@linaria/core@npm:3.0.0-beta.22"
   dependencies:
@@ -5025,6 +5036,16 @@ __metadata:
     debug: ^4.1.1
     picocolors: ^1.0.0
   checksum: c5c1fbe593d9110fcbf7309517530fbda419c42c4258e0854f05619f917641724718919693a0a12eb50250bace9857435f29f4de8b056e1dc5f40c01eb074a7a
+  languageName: node
+  linkType: hard
+
+"@linaria/logger@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "@linaria/logger@npm:4.0.0"
+  dependencies:
+    debug: ^4.1.1
+    picocolors: ^1.0.0
+  checksum: 261b955d5cb53a3eaf8b9c7890b761ba72bd16d6f81096659f31a75c84b4df3004d4a5598a2261b2d810828eb84e7e8067f38b58492544db42dc4ee56726f2d1
   languageName: node
   linkType: hard
 
@@ -5068,10 +5089,37 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@linaria/tags@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "@linaria/tags@npm:4.1.0"
+  dependencies:
+    "@babel/generator": ^7.18.9
+    "@linaria/logger": ^4.0.0
+    "@linaria/utils": ^4.1.0
+  checksum: b355206bcc6214f1d7cba5212842a11cfe3533f87a72392e102c60b4708e2a9a2890d9e801f8fdddfffa345d5c89bbd68a3c4e93fa74fb35fb9d5f0d2dec2152
+  languageName: node
+  linkType: hard
+
 "@linaria/utils@npm:^3.0.0-beta.20":
   version: 3.0.0-beta.20
   resolution: "@linaria/utils@npm:3.0.0-beta.20"
   checksum: dbf2170bf89a06fd7158b979069ca0a445a56baeebe258109a2490d4709dacc5c4b1a3628cd179ba991478809907847e0460c0c32ac92f3d427f9056e2b8c152
+  languageName: node
+  linkType: hard
+
+"@linaria/utils@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "@linaria/utils@npm:4.1.0"
+  dependencies:
+    "@babel/core": ^7.18.9
+    "@babel/plugin-proposal-export-namespace-from": ">=7"
+    "@babel/plugin-syntax-dynamic-import": ">=7"
+    "@babel/plugin-transform-modules-commonjs": ^7.18.2
+    "@babel/traverse": ^7.18.9
+    "@babel/types": ^7.18.9
+    "@linaria/logger": ^4.0.0
+    babel-merge: ^3.0.0
+  checksum: 14e9b3811cd1a6b9c4b8a457a49b367d4839645db7019a0bd6cbb2242600db3d4e9ef2d6c3e9458414a32e24f605846c25bf8c886951d062c5be4457b0140ee0
   languageName: node
   linkType: hard
 
@@ -8516,6 +8564,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"babel-merge@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "babel-merge@npm:3.0.0"
+  dependencies:
+    deepmerge: ^2.2.1
+    object.omit: ^3.0.0
+  peerDependencies:
+    "@babel/core": ^7.0.0
+  checksum: 8613efb6edcacaac628f9f86056bb110bc4f78dcc35c38787aaa4b8cfe92481ebedf56d558a1e74fcb8cdb4242d0bea2c1ab00e150e243548934157d0c9db06b
+  languageName: node
+  linkType: hard
+
 "babel-plugin-dynamic-import-node@npm:^2.3.3":
   version: 2.3.3
   resolution: "babel-plugin-dynamic-import-node@npm:2.3.3"
@@ -11165,6 +11225,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"deepmerge@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "deepmerge@npm:2.2.1"
+  checksum: 284b71065079e66096229f735a9a0222463c9ca9ee9dda7d5e9a0545bf254906dbc7377e3499ca3b2212073672b1a430d80587993b43b87d8de17edc6af649a8
+  languageName: node
+  linkType: hard
+
 "deepmerge@npm:^3.2.0":
   version: 3.3.0
   resolution: "deepmerge@npm:3.3.0"
@@ -13479,7 +13546,7 @@ __metadata:
     "@ant-design/icons": ^4.7.0
     "@babel/core": 7.18.9
     "@linaria/babel-preset": 3.0.0-beta.22
-    "@linaria/core": 3.0.0-beta.22
+    "@linaria/core": 4.1.0
     "@linaria/react": 3.0.0-beta.22
     "@linaria/shaker": 3.0.0-beta.22
     "@rest-hooks/core": ^3.2.8
@@ -14858,7 +14925,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-extendable@npm:^1.0.1":
+"is-extendable@npm:^1.0.0, is-extendable@npm:^1.0.1":
   version: 1.0.1
   resolution: "is-extendable@npm:1.0.1"
   dependencies:
@@ -19117,6 +19184,15 @@ __metadata:
     define-properties: ^1.1.4
     es-abstract: ^1.19.5
   checksum: d8ed4907ce57f48b93e3b53c418fd6787bf226a51e8d698c91e39b78e80fe5b124cb6282f6a9d5be21cf9e2c7829ab10206dcc6112b7748860eefe641880c793
+  languageName: node
+  linkType: hard
+
+"object.omit@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "object.omit@npm:3.0.0"
+  dependencies:
+    is-extendable: ^1.0.0
+  checksum: 7444bcbd5e240bb933956b02450e61fe3c64670f6a99dd4b9fc26f4261afd629dd4f707770b2e8c399688358f90886d9ce9c31700486f58f1635aaf233d32931
   languageName: node
   linkType: hard
 
@@ -24965,7 +25041,7 @@ __metadata:
     "@anansi/webpack-config": 12.0.1
     "@babel/core": 7.18.9
     "@linaria/babel-preset": 3.0.0-beta.22
-    "@linaria/core": 3.0.0-beta.22
+    "@linaria/core": 4.1.0
     "@linaria/react": 3.0.0-beta.22
     "@linaria/shaker": 3.0.0-beta.22
     "@rest-hooks/endpoint": ^2.2.11
