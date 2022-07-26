@@ -5397,6 +5397,7 @@ __metadata:
   dependencies:
     "@babel/cli": ^7.18.9
     "@babel/core": ^7.18.9
+    "@babel/runtime": ^7.13.0
     "@testing-library/react-hooks": ~8.0.0
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
