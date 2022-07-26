@@ -120,18 +120,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/jest-preset@npm:0.7.14":
-  version: 0.7.14
-  resolution: "@anansi/jest-preset@npm:0.7.14"
+"@anansi/jest-preset@npm:0.7.16":
+  version: 0.7.16
+  resolution: "@anansi/jest-preset@npm:0.7.16"
   dependencies:
-    "@anansi/ts-utils": ^0.2.5
+    "@anansi/ts-utils": ^0.2.6
     babel-jest: ^28.1.3
     core-js: ^3.21.0
     identity-obj-proxy: ^3.0.0
     jest-pnp-resolver: ^1.2.2
     mitt: ^3.0.0
     semver: ^7.3.7
-    ts-jest: ^28.0.6
+    ts-jest: ^28.0.7
     whatwg-fetch: ^3.0.0
   peerDependencies:
     "@babel/core": ^7.0.0
@@ -141,7 +141,7 @@ __metadata:
   peerDependenciesMeta:
     react:
       optional: true
-  checksum: b87ece2fab720a208101839f5cc004448ef018ebeb8766c79da05cd348862d76d69330c9ae49870862f19f6672ea056b2fb4fa6ffaae9ed7ca1d94f1e8756aba
+  checksum: 4dfa2f21873ba484deb44e835dedcb7840f07b17206693bdd9d3d965bb735b49935995e498d8993c853169f74748fb2bad9f4c703ff4a829e4ca502396cf00fb
   languageName: node
   linkType: hard
 
@@ -169,6 +169,15 @@ __metadata:
   peerDependencies:
     typescript: ^3.0.0 || ^4.0.0
   checksum: 33416a2e1cf6b1e0f7bdabc37c92669c41d15c1e9af61d377e65ee36450d0c3160448eb685505fe42b2ff2f9e94b7048c07bc1f3dd3c9866908919ad26d6d7d4
+  languageName: node
+  linkType: hard
+
+"@anansi/ts-utils@npm:^0.2.6":
+  version: 0.2.6
+  resolution: "@anansi/ts-utils@npm:0.2.6"
+  peerDependencies:
+    typescript: ^3.0.0 || ^4.0.0
+  checksum: 4e10275df677df51c58180dcf5aa5e80ad2b4f79173312513ee035c928178f27cf9f4500c26e3a396a31a8c1afcec9ed78c7deaf598210785c805c290059c94b
   languageName: node
   linkType: hard
 
@@ -21760,7 +21769,7 @@ __metadata:
     "@anansi/babel-preset": 3.2.10
     "@anansi/browserslist-config": 1.3.3
     "@anansi/eslint-plugin": 0.14.2
-    "@anansi/jest-preset": 0.7.14
+    "@anansi/jest-preset": 0.7.16
     "@babel/cli": 7.18.9
     "@babel/core": ^7.18.9
     "@babel/node": 7.18.9
@@ -23704,7 +23713,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^28.0.6":
+"ts-jest@npm:^28.0.7":
   version: 28.0.7
   resolution: "ts-jest@npm:28.0.7"
   dependencies:
