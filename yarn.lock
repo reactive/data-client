@@ -5078,16 +5078,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rest-hooks/core@^3.2.8, @rest-hooks/core@workspace:^, @rest-hooks/core@workspace:packages/core":
+"@rest-hooks/core@^3.2.8, @rest-hooks/core@^3.2.9, @rest-hooks/core@workspace:^, @rest-hooks/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/core@workspace:packages/core"
   dependencies:
     "@babel/cli": ^7.18.9
     "@babel/core": ^7.18.9
     "@babel/runtime": ^7.13.0
-    "@rest-hooks/endpoint": ^2.2.11
-    "@rest-hooks/normalizr": ^8.2.10
-    "@rest-hooks/use-enhanced-reducer": ^1.1.1
+    "@rest-hooks/endpoint": ^2.2.12
+    "@rest-hooks/normalizr": ^8.2.11
+    "@rest-hooks/use-enhanced-reducer": ^1.1.2
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     flux-standard-action: ^2.1.1
@@ -5109,14 +5109,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/endpoint@^2.2.11, @rest-hooks/endpoint@workspace:packages/endpoint":
+"@rest-hooks/endpoint@^2.2.11, @rest-hooks/endpoint@^2.2.12, @rest-hooks/endpoint@workspace:packages/endpoint":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/endpoint@workspace:packages/endpoint"
   dependencies:
     "@babel/cli": ^7.18.9
     "@babel/core": ^7.18.9
     "@babel/runtime": ^7.13.0
-    "@rest-hooks/normalizr": ^8.2.10
+    "@rest-hooks/normalizr": ^8.2.11
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
@@ -5267,7 +5267,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/normalizr@^8.2.10, @rest-hooks/normalizr@^8.2.6, @rest-hooks/normalizr@workspace:packages/normalizr":
+"@rest-hooks/normalizr@^8.2.11, @rest-hooks/normalizr@^8.2.6, @rest-hooks/normalizr@workspace:packages/normalizr":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/normalizr@workspace:packages/normalizr"
   dependencies:
@@ -5375,7 +5375,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/use-enhanced-reducer@^1.1.1, @rest-hooks/use-enhanced-reducer@workspace:packages/use-enhanced-reducer":
+"@rest-hooks/use-enhanced-reducer@^1.1.2, @rest-hooks/use-enhanced-reducer@workspace:packages/use-enhanced-reducer":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/use-enhanced-reducer@workspace:packages/use-enhanced-reducer"
   dependencies:
@@ -21395,8 +21395,8 @@ __metadata:
     "@babel/cli": ^7.18.9
     "@babel/core": ^7.18.9
     "@babel/runtime": ^7.13.0
-    "@rest-hooks/core": ^3.2.8
-    "@rest-hooks/endpoint": ^2.2.11
+    "@rest-hooks/core": ^3.2.9
+    "@rest-hooks/endpoint": ^2.2.12
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
