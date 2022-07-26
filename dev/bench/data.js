@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1658856159775,
+  "lastUpdate": 1658859166632,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -6714,6 +6714,58 @@ window.BENCHMARK_DATA = {
             "range": "±5.11%",
             "unit": "ops/sec",
             "extra": "62 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": false,
+          "id": "5d2bfe84df68f8f76aaa2f223f721768f2cabc1e",
+          "message": "internal: Fix yarn.lock",
+          "timestamp": "2022-07-26T12:52:20-05:00",
+          "tree_id": "4940326ddb84126b45f13b8a74d57e776441c0ac",
+          "url": "https://github.com/coinbase/rest-hooks/commit/5d2bfe84df68f8f76aaa2f223f721768f2cabc1e"
+        },
+        "date": 1658859164350,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 83.97,
+            "range": "±4.34%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 39.7,
+            "range": "±1.56%",
+            "unit": "ops/sec",
+            "extra": "52 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 45.72,
+            "range": "±1.02%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 94.14,
+            "range": "±0.74%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
           }
         ]
       }
