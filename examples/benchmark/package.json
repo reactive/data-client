@@ -12,10 +12,14 @@
   "dependencies": {
     "@rest-hooks/core": "^3.2.8",
     "@rest-hooks/normalizr": "^8.2.6",
-    "benchmark": "^2.1.4"
+    "benchmark": "^2.1.4",
+    "react": "^18.2.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.18.9",
     "@babel/node": "^7.18.9",
-    "@types/benchmark": "^2"
+    "@types/babel__core": "^7",
+    "@types/benchmark": "^2",
+    "@types/react": "^18"
   }
 }
