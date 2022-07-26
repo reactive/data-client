@@ -15,10 +15,17 @@
       "rangeStrategy": "replace"
     },
     {
-      "matchPackageNames": ["webpack", "@anansi/webpack-config"],
-      "matchPackagePrefixes": ["@linaria", "webpack-"],
-      "matchSourceUrlPrefixes": ["https://github.com/webpack", "https://github.com/callstack/linaria"],
-      "matchUpdateTypes": ["digest", "patch", "minor", "major"],
+      "extends": ["monorepo:react"],
+      "matchPackageNames": ["@types/react", "@types/react-dom"],
+      "groupName": "react"
+    },
+    {
+      "matchPackageNames": ["@anansi/webpack-config"],
+      "matchPackagePrefixes": ["@linaria", "webpack"],
+      "matchSourceUrlPrefixes": [
+        "https://github.com/webpack",
+        "https://github.com/callstack/linaria"
+      ],
       "groupName": "webpack packages"
     },
     {
@@ -28,7 +35,6 @@
         "core-js",
         "core-js-compat"
       ],
-      "matchUpdateTypes": ["digest", "patch", "minor", "major"],
       "groupName": "babel packages"
     },
     {
