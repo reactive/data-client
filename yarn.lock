@@ -87,12 +87,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/eslint-plugin@npm:0.14.1":
-  version: 0.14.1
-  resolution: "@anansi/eslint-plugin@npm:0.14.1"
+"@anansi/eslint-plugin@npm:0.14.2":
+  version: 0.14.2
+  resolution: "@anansi/eslint-plugin@npm:0.14.2"
   dependencies:
     "@babel/eslint-parser": ^7.17.0
-    "@typescript-eslint/eslint-plugin": ^5.11.0
     "@typescript-eslint/parser": ^5.11.0
     eslint-config-prettier: ^8.3.0
     eslint-import-resolver-typescript: ^3.3.0
@@ -101,6 +100,7 @@ __metadata:
     eslint-plugin-jsx-a11y: ^6.5.1
   peerDependencies:
     "@babel/core": ^7.0.0
+    "@typescript-eslint/eslint-plugin": ^5.11.0
     eslint: ^7.0.0 || ^8.0.0
     eslint-plugin-import: ^2.22.0
     eslint-plugin-prettier: ^4.0.0
@@ -116,7 +116,7 @@ __metadata:
       optional: true
     webpack:
       optional: true
-  checksum: 61a56f507f5e294735ce39323383f8c3518a9f599c9b5328e105d451a5c06c0fe2e5b91f1ae2f49ef8b2ac628411e88c498f407242625f7d1b9b39e8850a74b5
+  checksum: d97391d92ce3b6c9f85bf64161a885ccf7e4397af00c5e85c23ee219dd2113310a011e47c6c4dcda62fe879ab0186708caf1cd6b09432176a267a213a020c11c
   languageName: node
   linkType: hard
 
@@ -5893,7 +5893,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/eslint@npm:*, @types/eslint@npm:^8":
+"@types/eslint@npm:*, @types/eslint@npm:8.4.5":
   version: 8.4.5
   resolution: "@types/eslint@npm:8.4.5"
   dependencies:
@@ -6363,30 +6363,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^5.11.0":
-  version: 5.11.0
-  resolution: "@typescript-eslint/eslint-plugin@npm:5.11.0"
-  dependencies:
-    "@typescript-eslint/scope-manager": 5.11.0
-    "@typescript-eslint/type-utils": 5.11.0
-    "@typescript-eslint/utils": 5.11.0
-    debug: ^4.3.2
-    functional-red-black-tree: ^1.0.1
-    ignore: ^5.1.8
-    regexpp: ^3.2.0
-    semver: ^7.3.5
-    tsutils: ^3.21.0
-  peerDependencies:
-    "@typescript-eslint/parser": ^5.0.0
-    eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: fa546ba4397f3e693870c39d1e8df6feccb728a7092be6312b78806a64c4ff4648cff0462503d3e510e8b173b9704c19e78d2a7af790ab1c0309782e33a89c32
-  languageName: node
-  linkType: hard
-
-"@typescript-eslint/eslint-plugin@npm:^5.31.0":
+"@typescript-eslint/eslint-plugin@npm:5.31.0":
   version: 5.31.0
   resolution: "@typescript-eslint/eslint-plugin@npm:5.31.0"
   dependencies:
@@ -6409,6 +6386,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@typescript-eslint/parser@npm:5.31.0":
+  version: 5.31.0
+  resolution: "@typescript-eslint/parser@npm:5.31.0"
+  dependencies:
+    "@typescript-eslint/scope-manager": 5.31.0
+    "@typescript-eslint/types": 5.31.0
+    "@typescript-eslint/typescript-estree": 5.31.0
+    debug: ^4.3.4
+  peerDependencies:
+    eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: ae842105ff0e5811d54c9c020ee0568170c13f401de293eb4caa2106f3060558773b496b5647f2b80b2969a2890135c054f50e2443a13c3705d5965aa12896c0
+  languageName: node
+  linkType: hard
+
 "@typescript-eslint/parser@npm:^5.11.0":
   version: 5.11.0
   resolution: "@typescript-eslint/parser@npm:5.11.0"
@@ -6423,23 +6417,6 @@ __metadata:
     typescript:
       optional: true
   checksum: 521b6e701d877dc0514c6a3992f4900aa6fea28ba7c0bc03c634dad2b50aa195401e45683dfebd9e8492a857cd84bba3b585d8fe8d0cd1d7e2720372c34c50a3
-  languageName: node
-  linkType: hard
-
-"@typescript-eslint/parser@npm:^5.31.0":
-  version: 5.31.0
-  resolution: "@typescript-eslint/parser@npm:5.31.0"
-  dependencies:
-    "@typescript-eslint/scope-manager": 5.31.0
-    "@typescript-eslint/types": 5.31.0
-    "@typescript-eslint/typescript-estree": 5.31.0
-    debug: ^4.3.4
-  peerDependencies:
-    eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: ae842105ff0e5811d54c9c020ee0568170c13f401de293eb4caa2106f3060558773b496b5647f2b80b2969a2890135c054f50e2443a13c3705d5965aa12896c0
   languageName: node
   linkType: hard
 
@@ -6460,22 +6437,6 @@ __metadata:
     "@typescript-eslint/types": 5.31.0
     "@typescript-eslint/visitor-keys": 5.31.0
   checksum: f771adf54a7cf6387bb201a0d4bef598425818c38832cabbf33c369b3fb650932cbb81a28f198727f3ffae5e21445dde710c41c624bd10b3b7283249333b625b
-  languageName: node
-  linkType: hard
-
-"@typescript-eslint/type-utils@npm:5.11.0":
-  version: 5.11.0
-  resolution: "@typescript-eslint/type-utils@npm:5.11.0"
-  dependencies:
-    "@typescript-eslint/utils": 5.11.0
-    debug: ^4.3.2
-    tsutils: ^3.21.0
-  peerDependencies:
-    eslint: "*"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: fd570806d82874289ded6bfd90ff5414d4365b95b4a2e911f7ff2fee6e2c7675d0f2f71580c24cb8be733c3dfe2cd33eedff99ae2aa50f61b1b5af76499074eb
   languageName: node
   linkType: hard
 
@@ -6542,22 +6503,6 @@ __metadata:
     typescript:
       optional: true
   checksum: 921c502ac4c93df9342d29636b384e154c3ac714e2be0308a4c9d3337d24d8b4721b76cbe700f70c7ceef06b50dfc404e4d4d734e446fe319bac030cb653d7b4
-  languageName: node
-  linkType: hard
-
-"@typescript-eslint/utils@npm:5.11.0":
-  version: 5.11.0
-  resolution: "@typescript-eslint/utils@npm:5.11.0"
-  dependencies:
-    "@types/json-schema": ^7.0.9
-    "@typescript-eslint/scope-manager": 5.11.0
-    "@typescript-eslint/types": 5.11.0
-    "@typescript-eslint/typescript-estree": 5.11.0
-    eslint-scope: ^5.1.1
-    eslint-utils: ^3.0.0
-  peerDependencies:
-    eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
-  checksum: 5ab1a15db1e0a2fbb857a8a16325459ad3d5239066f2641aa93ad9f7d08252d3a4ca6ae356c51cba1c6c81a65d84883436566b01932fa55b64a69796b950900d
   languageName: node
   linkType: hard
 
@@ -11357,7 +11302,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-import@npm:^2.26.0":
+"eslint-plugin-import@npm:2.26.0":
   version: 2.26.0
   resolution: "eslint-plugin-import@npm:2.26.0"
   dependencies:
@@ -11402,7 +11347,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-prettier@npm:4.2.1, eslint-plugin-prettier@npm:^4.2.1":
+"eslint-plugin-prettier@npm:4.2.1":
   version: 4.2.1
   resolution: "eslint-plugin-prettier@npm:4.2.1"
   dependencies:
@@ -11417,7 +11362,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-react-hooks@npm:4.6.0, eslint-plugin-react-hooks@npm:^4.6.0":
+"eslint-plugin-react-hooks@npm:4.6.0":
   version: 4.6.0
   resolution: "eslint-plugin-react-hooks@npm:4.6.0"
   peerDependencies:
@@ -11426,7 +11371,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-react@npm:7.30.1, eslint-plugin-react@npm:^7.30.1":
+"eslint-plugin-react@npm:7.30.1":
   version: 7.30.1
   resolution: "eslint-plugin-react@npm:7.30.1"
   dependencies:
@@ -11502,7 +11447,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:8.20.0, eslint@npm:^8.20.0":
+"eslint@npm:8.20.0":
   version: 8.20.0
   resolution: "eslint@npm:8.20.0"
   dependencies:
@@ -12629,7 +12574,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": 3.2.10
     "@anansi/browserslist-config": 1.3.3
-    "@anansi/eslint-plugin": 0.14.1
+    "@anansi/eslint-plugin": 0.14.2
     "@anansi/router": 0.6.8
     "@anansi/webpack-config": 12.0.1
     "@ant-design/icons": ^4.7.0
@@ -12642,21 +12587,21 @@ __metadata:
     "@rest-hooks/endpoint": ^2.2.11
     "@rest-hooks/experimental": ^5.0.3
     "@rest-hooks/rest": ^5.0.5
-    "@types/eslint": ^8
+    "@types/eslint": 8.4.5
     "@types/parse-link-header": ^2.0.0
     "@types/prettier": ^2
     "@types/react": ^18.0.15
     "@types/react-dom": 18.0.6
-    "@typescript-eslint/eslint-plugin": ^5.31.0
-    "@typescript-eslint/parser": ^5.31.0
+    "@typescript-eslint/eslint-plugin": 5.31.0
+    "@typescript-eslint/parser": 5.31.0
     antd: 4.21.7
-    eslint: ^8.20.0
-    eslint-plugin-import: ^2.26.0
-    eslint-plugin-prettier: ^4.2.1
-    eslint-plugin-react: ^7.30.1
-    eslint-plugin-react-hooks: ^4.6.0
+    eslint: 8.20.0
+    eslint-plugin-import: 2.26.0
+    eslint-plugin-prettier: 4.2.1
+    eslint-plugin-react: 7.30.1
+    eslint-plugin-react-hooks: 4.6.0
     parse-link-header: ^2.0.0
-    prettier: ^2.7.1
+    prettier: 2.7.1
     react: 18.2.0
     react-dom: 18.2.0
     react-error-boundary: ^3.1.3
@@ -13526,7 +13471,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ignore@npm:^5.1.4, ignore@npm:^5.1.8, ignore@npm:^5.2.0":
+"ignore@npm:^5.1.4, ignore@npm:^5.2.0":
   version: 5.2.0
   resolution: "ignore@npm:5.2.0"
   checksum: 6b1f926792d614f64c6c83da3a1f9c83f6196c2839aa41e1e32dd7b8d174cef2e329d75caabb62cb61ce9dc432f75e67d07d122a037312db7caa73166a1bdb77
@@ -19704,7 +19649,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:2.7.1, prettier@npm:^2.7.1":
+"prettier@npm:2.7.1":
   version: 2.7.1
   resolution: "prettier@npm:2.7.1"
   bin:
@@ -21814,7 +21759,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": 3.2.10
     "@anansi/browserslist-config": 1.3.3
-    "@anansi/eslint-plugin": 0.14.1
+    "@anansi/eslint-plugin": 0.14.2
     "@anansi/jest-preset": 0.7.14
     "@babel/cli": 7.18.9
     "@babel/core": ^7.18.9
@@ -21831,8 +21776,8 @@ __metadata:
     "@types/lodash": ^4.14.166
     "@types/node": ^18.0.6
     "@types/react": 18.0.15
-    "@typescript-eslint/eslint-plugin": ^5.31.0
-    "@typescript-eslint/parser": ^5.31.0
+    "@typescript-eslint/eslint-plugin": 5.31.0
+    "@typescript-eslint/parser": 5.31.0
     benchmark: ^2.1.4
     conventional-changelog-anansi: ^0.2.0
     copyfiles: ^2.4.1
@@ -21841,7 +21786,7 @@ __metadata:
     cpy-cli: ^4.0.0
     cross-fetch: ^3.0.6
     eslint: 8.20.0
-    eslint-plugin-import: ^2.26.0
+    eslint-plugin-import: 2.26.0
     eslint-plugin-prettier: 4.2.1
     eslint-plugin-react: 7.30.1
     eslint-plugin-react-hooks: 4.6.0
@@ -23618,7 +23563,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": 3.2.10
     "@anansi/browserslist-config": 1.3.3
-    "@anansi/eslint-plugin": 0.14.1
+    "@anansi/eslint-plugin": 0.14.2
     "@anansi/webpack-config": 12.0.1
     "@babel/core": ^7.18.9
     "@linaria/babel-preset": 3.0.0-beta.22
@@ -23627,17 +23572,17 @@ __metadata:
     "@linaria/shaker": 3.0.0-beta.22
     "@rest-hooks/endpoint": ^2.2.11
     "@rest-hooks/rest": ^5.0.2
-    "@types/eslint": ^8
+    "@types/eslint": 8.4.5
     "@types/prettier": ^2
     "@types/react-dom": 18.0.6
-    "@typescript-eslint/eslint-plugin": ^5.31.0
-    "@typescript-eslint/parser": ^5.31.0
-    eslint: ^8.20.0
-    eslint-plugin-import: ^2.26.0
-    eslint-plugin-prettier: ^4.2.1
-    eslint-plugin-react: ^7.30.1
-    eslint-plugin-react-hooks: ^4.6.0
-    prettier: ^2.7.1
+    "@typescript-eslint/eslint-plugin": 5.31.0
+    "@typescript-eslint/parser": 5.31.0
+    eslint: 8.20.0
+    eslint-plugin-import: 2.26.0
+    eslint-plugin-prettier: 4.2.1
+    eslint-plugin-react: 7.30.1
+    eslint-plugin-react-hooks: 4.6.0
+    prettier: 2.7.1
     react: 18.2.0
     react-dom: 18.2.0
     react-refresh: 0.14.0
