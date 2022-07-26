@@ -3,22 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-### [3.2.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.2.7...@rest-hooks/core@3.2.8) (2022-07-23)
+### [3.2.9](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.2.8...@rest-hooks/core@3.2.9) (2022-07-26)
 
+### 📦 Package
+
+* Update all non-major dependencies ([#2113](https://github.com/coinbase/rest-hooks/issues/2113)) ([f9b7a6e](https://github.com/coinbase/rest-hooks/commit/f9b7a6e5b19a0d6f26208af517451affa161b070))
+
+### [3.2.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.2.7...@rest-hooks/core@3.2.8) (2022-07-23)
 
 ### 🐛 Bug Fix
 
 * Ensure dual package hazard solved for non-node ([#2099](https://github.com/coinbase/rest-hooks/issues/2099)) ([6206e64](https://github.com/coinbase/rest-hooks/commit/6206e6463a7c3699d5c1d1b248e4d5418b1327f1))
 
-
-
 ### [3.2.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.2.4...@rest-hooks/core@3.2.7) (2022-07-20)
-
 
 ### 💅 Enhancement
 
 * Warn about CacheProvider usage for SSR ([#2044](https://github.com/coinbase/rest-hooks/issues/2044)) ([6b62bc6](https://github.com/coinbase/rest-hooks/commit/6b62bc61fbec06bb4f8eb30c8f2eb8e341e32a21))
-
 
 ### 🐛 Bug Fix
 
@@ -26,38 +27,26 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Fix package exports support for latest resolve pkg ([#2062](https://github.com/coinbase/rest-hooks/issues/2062)) ([0088494](https://github.com/coinbase/rest-hooks/commit/0088494e5cab91da7becebe7d9b62796fb9f4f2e))
 * Hydration mismatch in React 17 ([#2039](https://github.com/coinbase/rest-hooks/issues/2039)) ([e8aff22](https://github.com/coinbase/rest-hooks/commit/e8aff22fe754bf47691b8f6c1b27d45335445def))
 
-
-
 ### [3.2.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.2.3...@rest-hooks/core@3.2.4) (2022-05-30)
-
 
 ### 📦 Package
 
 * [@anansi](https://github.com/anansi), types, antd, eslint, node, redux, typescript, webpack ([#2015](https://github.com/coinbase/rest-hooks/issues/2015)) ([972d646](https://github.com/coinbase/rest-hooks/commit/972d6463c6d1946254673bb7029898b19ce4ffdd))
 * Use @babel/runtime@^7.13.0 to use CJS/ESM exports support ([#2019](https://github.com/coinbase/rest-hooks/issues/2019)) ([78a22f2](https://github.com/coinbase/rest-hooks/commit/78a22f29f86527ac10eb2c9b031984e044226dce))
 
-
-
 ### [3.2.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.2.2...@rest-hooks/core@3.2.3) (2022-04-30)
-
 
 ### 🐛 Bug Fix
 
 * Accept undefined or null responses for schema entries ([#1963](https://github.com/coinbase/rest-hooks/issues/1963)) ([2d4214a](https://github.com/coinbase/rest-hooks/commit/2d4214a4c6b74725c9a6a92e36817bd26aa3c366))
 
-
-
 ### [3.2.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.2.1...@rest-hooks/core@3.2.2) (2022-04-16)
-
 
 ### 💅 Enhancement
 
 * Improve robustness when using distinct schemas to normalize/denormalize ([#1908](https://github.com/coinbase/rest-hooks/issues/1908)) ([c8fdca9](https://github.com/coinbase/rest-hooks/commit/c8fdca9e0cd65622d41692b66c3e2744b20bef23)), closes [#1912](https://github.com/coinbase/rest-hooks/issues/1912)
 
-
-
 ### [3.2.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.2.0...@rest-hooks/core@3.2.1) (2022-04-11)
-
 
 ### ⚠ 💥 BREAKING CHANGES
 
@@ -69,59 +58,43 @@ instead
 * HookableResource - endpoints as hooks ([#1891](https://github.com/coinbase/rest-hooks/issues/1891)) ([dcd9fbb](https://github.com/coinbase/rest-hooks/commit/dcd9fbb4f4ce5583503187317ea0e065f5d31f1a))
 * Resource.create() can take 1-2 args ([ed4f55c](https://github.com/coinbase/rest-hooks/commit/ed4f55c8b4b80eb93f3c01108c2177b97f5dc4e8))
 
-
 ### 💅 Enhancement
 
 * Improve type inference for getFetchKey ([#1896](https://github.com/coinbase/rest-hooks/issues/1896)) ([36b11af](https://github.com/coinbase/rest-hooks/commit/36b11af67b08183288ad295ff0303eaf78f01dba))
 
-
-
 ## [3.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.2...@rest-hooks/core@3.2.0) (2022-04-08)
-
 
 ### 🚀 Features
 
 * Add CacheProvider Controller prop to allow controller customization ([#1868](https://github.com/coinbase/rest-hooks/issues/1868)) ([2b3f70e](https://github.com/coinbase/rest-hooks/commit/2b3f70e318f168d3788303a4be6e7992fb2678e8))
 * Add useDLE() to core ([#1866](https://github.com/coinbase/rest-hooks/issues/1866)) ([9efc216](https://github.com/coinbase/rest-hooks/commit/9efc21650bbe0c445ea61e0acb334391b996dd40))
 
-
 ### 💅 Enhancement
 
 * Improve update types ([b6b0334](https://github.com/coinbase/rest-hooks/commit/b6b033470c14bf9bed0e6b161570dde97b6390b4))
-
 
 ### 🐛 Bug Fix
 
 * optimisticUpdate when used with controller.fetch or useSuspense ([e40f5ea](https://github.com/coinbase/rest-hooks/commit/e40f5ea75191ff5b4e170922744f1eaa95c09275))
 
-
-
 ### [3.1.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.1...@rest-hooks/core@3.1.2) (2022-04-02)
-
 
 ### 💅 Enhancement
 
 * More exact optional type handling ([#1858](https://github.com/coinbase/rest-hooks/issues/1858)) ([0459dbd](https://github.com/coinbase/rest-hooks/commit/0459dbdc3fe1555c5e6dc80290187ec8297d1aa6))
 
-
-
 ### [3.1.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.9...@rest-hooks/core@3.1.1) (2022-04-01)
-
 
 ### 💅 Enhancement
 
 * Hooks should type return value based on 'null' arg ([#1783](https://github.com/coinbase/rest-hooks/issues/1783)) ([d14673e](https://github.com/coinbase/rest-hooks/commit/d14673eab0dad3f02edb54f7bf37e6fed1c47a62))
-
 
 ### 🐛 Bug Fix
 
 * Default optimistic race condition handling should assume in-order server response ([#1852](https://github.com/coinbase/rest-hooks/issues/1852)) ([cf38c3f](https://github.com/coinbase/rest-hooks/commit/cf38c3f67ff0041b528e9d8cf21d31704b76fc01))
 * Hooks with null param maintain basic schema structure ([#1853](https://github.com/coinbase/rest-hooks/issues/1853)) ([0707e1a](https://github.com/coinbase/rest-hooks/commit/0707e1a6ee8233b2d1b6590db137e298e264635c))
 
-
-
 ## [3.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.0.2...@rest-hooks/core@3.1.0) (2022-03-17)
-
 
 ### 🚀 Features
 
@@ -130,14 +103,12 @@ instead
 * export BackupBoundary ([7a7c398](https://github.com/coinbase/rest-hooks/commit/7a7c398d2db852ab6d3523f1a7ca20ef46e9d5f4))
 * useSuspense, useFetch, remaining hooks typed for Endpoint ([#1440](https://github.com/coinbase/rest-hooks/issues/1440)) ([2039d2c](https://github.com/coinbase/rest-hooks/commit/2039d2c4bf280b5a3c570824c25af3a4cc39af0d))
 
-
 ### 💅 Enhancement
 
 * Dispatch new receive action if new fetch triggered it ([#1455](https://github.com/coinbase/rest-hooks/issues/1455)) ([99f9a6d](https://github.com/coinbase/rest-hooks/commit/99f9a6d13b970eba398d869acf60f6776e62939e))
 * Fetch resolution only removes the optimistic update corresponding to that fetch ([#1653](https://github.com/coinbase/rest-hooks/issues/1653)) ([2fd93f2](https://github.com/coinbase/rest-hooks/commit/2fd93f235074d134200e81ddb16792647b3cffad))
 * Hooks should type return value based on 'null' arg ([#1783](https://github.com/coinbase/rest-hooks/issues/1783)) ([d14673e](https://github.com/coinbase/rest-hooks/commit/d14673eab0dad3f02edb54f7bf37e6fed1c47a62))
 * optimisticUpdater -> getOptimisticResponse ([#1769](https://github.com/coinbase/rest-hooks/issues/1769)) ([4d1cd66](https://github.com/coinbase/rest-hooks/commit/4d1cd66ea2677868aba402d362b9896dffc24462))
-
 
 ### 🐛 Bug Fix
 
@@ -147,24 +118,17 @@ instead
 * Union schemas with null args[0] hooks ([#1779](https://github.com/coinbase/rest-hooks/issues/1779)) ([fcf70a9](https://github.com/coinbase/rest-hooks/commit/fcf70a92ef15531b7fd12feb117f29ad8c3de3d8))
 * useFetcher() work with zero argument Endpoint ([#1514](https://github.com/coinbase/rest-hooks/issues/1514)) ([c5ac9e7](https://github.com/coinbase/rest-hooks/commit/c5ac9e7a1d66f57ddcee5c343b239cf2d6d5f782))
 
-
 ### 📝 Documentation
 
 * Use stackblitz for demos ([#1699](https://github.com/coinbase/rest-hooks/issues/1699)) ([ee7b4ca](https://github.com/coinbase/rest-hooks/commit/ee7b4ca6fbe5ccea4ea32a52885bf9fe64cbb947))
 
-
-
 ## [3.1.0-beta.9](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.8...@rest-hooks/core@3.1.0-beta.9) (2022-03-10)
-
 
 ### 🐛 Bug Fix
 
 * Union schemas with null args[0] hooks ([#1779](https://github.com/coinbase/rest-hooks/issues/1779)) ([fcf70a9](https://github.com/coinbase/rest-hooks/commit/fcf70a92ef15531b7fd12feb117f29ad8c3de3d8))
 
-
-
 ## [3.1.0-beta.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.6...@rest-hooks/core@3.1.0-beta.8) (2022-03-08)
-
 
 ### ⚠ 💥 BREAKING CHANGES
 
@@ -175,82 +139,58 @@ instead
 * Entity.useIncoming() for race condition handling ([#1771](https://github.com/coinbase/rest-hooks/issues/1771)) ([ffd70fe](https://github.com/coinbase/rest-hooks/commit/ffd70fe0aa12634d06d2e0d43a5b89d420e2220c))
 * export BackupBoundary ([7a7c398](https://github.com/coinbase/rest-hooks/commit/7a7c398d2db852ab6d3523f1a7ca20ef46e9d5f4))
 
-
 ### 💅 Enhancement
 
 * optimisticUpdater -> getOptimisticResponse ([#1769](https://github.com/coinbase/rest-hooks/issues/1769)) ([4d1cd66](https://github.com/coinbase/rest-hooks/commit/4d1cd66ea2677868aba402d362b9896dffc24462))
-
 
 ### 🐛 Bug Fix
 
 * lastReset should serialize ([#1745](https://github.com/coinbase/rest-hooks/issues/1745)) ([e25158a](https://github.com/coinbase/rest-hooks/commit/e25158a28c5bdc90aeb7fa6e7ca2c43580f6f88f))
 
-
-
 ## [3.1.0-beta.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.6...@rest-hooks/core@3.1.0-beta.7) (2022-03-01)
-
 
 ### 🚀 Features
 
 * export BackupBoundary ([7a7c398](https://github.com/coinbase/rest-hooks/commit/7a7c398d2db852ab6d3523f1a7ca20ef46e9d5f4))
 
-
 ### 🐛 Bug Fix
 
 * lastReset should serialize ([#1745](https://github.com/coinbase/rest-hooks/issues/1745)) ([e25158a](https://github.com/coinbase/rest-hooks/commit/e25158a28c5bdc90aeb7fa6e7ca2c43580f6f88f))
 
-
-
 ## [3.1.0-beta.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.5...@rest-hooks/core@3.1.0-beta.6) (2022-02-26)
-
 
 ### 🐛 Bug Fix
 
 * Expiry defaults for useSuspense() should match useResource() ([#1738](https://github.com/coinbase/rest-hooks/issues/1738)) ([b98dcfd](https://github.com/coinbase/rest-hooks/commit/b98dcfdb56bfc947829e2eead4b6a785dfe3965d))
 * InvalidIfStale should be respected in no-schema endpoints ([#1724](https://github.com/coinbase/rest-hooks/issues/1724)) ([28fab73](https://github.com/coinbase/rest-hooks/commit/28fab739952aae6819ddfcaafe9fcb3c893f8d2f))
 
-
-
 ## [3.1.0-beta.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.3...@rest-hooks/core@3.1.0-beta.5) (2022-02-15)
-
 
 ### 💅 Enhancement
 
 * Fetch resolution only removes the optimistic update corresponding to that fetch ([#1653](https://github.com/coinbase/rest-hooks/issues/1653)) ([2fd93f2](https://github.com/coinbase/rest-hooks/commit/2fd93f235074d134200e81ddb16792647b3cffad))
-
 
 ### 📝 Documentation
 
 * Use stackblitz for demos ([#1699](https://github.com/coinbase/rest-hooks/issues/1699)) ([ee7b4ca](https://github.com/coinbase/rest-hooks/commit/ee7b4ca6fbe5ccea4ea32a52885bf9fe64cbb947))
 
-
-
 ## [3.1.0-beta.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.3...@rest-hooks/core@3.1.0-beta.4) (2022-01-31)
-
 
 ### 💅 Enhancement
 
 * Fetch resolution only removes the optimistic update corresponding to that fetch ([#1653](https://github.com/coinbase/rest-hooks/issues/1653)) ([2fd93f2](https://github.com/coinbase/rest-hooks/commit/2fd93f235074d134200e81ddb16792647b3cffad))
 
-
-
 ## [3.1.0-beta.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.2...@rest-hooks/core@3.1.0-beta.3) (2022-01-23)
-
 
 ### 🚀 Features
 
 * Add endpoint.optimisticUpdater ([#1616](https://github.com/coinbase/rest-hooks/issues/1616)) ([7a99fae](https://github.com/coinbase/rest-hooks/commit/7a99fae20ee9abf5f2121c1f1719bdcce3e78d98))
 
-
-
 ## [3.1.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.1.0-beta.1...@rest-hooks/core@3.1.0-beta.2) (2021-11-26)
-
 
 ### 🐛 Bug Fix
 
 * useFetcher() work with zero argument Endpoint ([#1514](https://github.com/coinbase/rest-hooks/issues/1514)) ([c5ac9e7](https://github.com/coinbase/rest-hooks/commit/c5ac9e7a1d66f57ddcee5c343b239cf2d6d5f782))
-
-
 
 ## [3.1.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.0.2...@rest-hooks/core@3.1.0-beta.1) (2021-10-29)
 
@@ -258,37 +198,25 @@ instead
 
 * Dispatch new receive action if new fetch triggered it ([#1455](https://github.com/coinbase/rest-hooks/issues/1455)) ([99f9a6d](https://github.com/coinbase/rest-hooks/commit/99f9a6d13b970eba398d869acf60f6776e62939e))
 
-
-
 ## [3.1.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.0.2...@rest-hooks/core@3.1.0-beta.0) (2021-10-24)
-
 
 ### 🚀 Features
 
 * useSuspense, useFetch, remaining hooks typed for Endpoint ([#1440](https://github.com/coinbase/rest-hooks/issues/1440)) ([2039d2c](https://github.com/coinbase/rest-hooks/commit/2039d2c4bf280b5a3c570824c25af3a4cc39af0d))
 
-
-
 ### [3.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.0.1...@rest-hooks/core@3.0.2) (2021-10-20)
-
 
 ### 💅 Enhancement
 
 * Use const enums for ExpiryStatus ([#1417](https://github.com/coinbase/rest-hooks/issues/1417)) ([8d3f7f9](https://github.com/coinbase/rest-hooks/commit/8d3f7f973155680b2d52ed3f2e2758327b76d356))
 
-
-
 ### [3.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.0.0...@rest-hooks/core@3.0.1) (2021-10-18)
-
 
 ### 💅 Enhancement
 
 * Improve types of controller.sub/unsub ([#1401](https://github.com/coinbase/rest-hooks/issues/1401)) ([85f18b0](https://github.com/coinbase/rest-hooks/commit/85f18b0af0f11efcb240ac44c2d04ec6d115f72f))
 
-
-
 ## [3.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.2.2...@rest-hooks/core@3.0.0) (2021-10-17)
-
 
 ### ⚠ 💥 BREAKING CHANGES
 
@@ -303,20 +231,15 @@ instead
 
 * Improve Controller.getResponse() interface ([#1396](https://github.com/coinbase/rest-hooks/issues/1396)) ([f57a909](https://github.com/coinbase/rest-hooks/commit/f57a909b98aa1c385a95f1dde437a0d6aa7ff916))
 
-
 ### 🐛 Bug Fix
 
 * Correct controller override ([#1386](https://github.com/coinbase/rest-hooks/issues/1386)) ([c1d4a70](https://github.com/coinbase/rest-hooks/commit/c1d4a70d09f0bd501ea5c0112a48b377d553ca45))
 
-
-
 ### [2.2.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.2.1...@rest-hooks/core@2.2.2) (2021-10-11)
-
 
 ### 💅 Enhancement
 
 * Unified unset dispatch function ([#1362](https://github.com/coinbase/rest-hooks/issues/1362)) ([1b6d718](https://github.com/coinbase/rest-hooks/commit/1b6d71850d5adf38de879181ba62115db73e4e45))
-
 
 ### 📝 Documentation
 
@@ -326,76 +249,53 @@ instead
 * Rearrange homepage ([#1352](https://github.com/coinbase/rest-hooks/issues/1352)) ([404b2b0](https://github.com/coinbase/rest-hooks/commit/404b2b0eaeea9be71594e031f9763b09c6c8fee7))
 * Reorganize docs ([#1345](https://github.com/coinbase/rest-hooks/issues/1345)) ([fa49b6b](https://github.com/coinbase/rest-hooks/commit/fa49b6bcf1d6838b85ce21e728f0630e2746e68f))
 
-
-
 ### [2.2.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.2.0...@rest-hooks/core@2.2.1) (2021-09-29)
-
 
 ### 💅 Enhancement
 
 * Hoist conditional for Boundary SSR ([#1313](https://github.com/coinbase/rest-hooks/issues/1313)) ([7cfd9fa](https://github.com/coinbase/rest-hooks/commit/7cfd9fa2ff534233442e8135228d6e5c165fa20d))
 
-
-
 ## [2.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.1.0...@rest-hooks/core@2.2.0) (2021-09-29)
-
 
 ### 🚀 Features
 
 * Add controller.getResponse() & controller.getError() ([#1290](https://github.com/coinbase/rest-hooks/issues/1290)) ([2434d95](https://github.com/coinbase/rest-hooks/commit/2434d95d6d3a546b448790058c3fd8e779a1da4d))
 
-
 ### 💅 Enhancement
 
 * Improve compatibility with SSR and React Native ([#1308](https://github.com/coinbase/rest-hooks/issues/1308)) ([de4c1a4](https://github.com/coinbase/rest-hooks/commit/de4c1a4def0bf05236ce4138e3ab96cc24ace568))
-
 
 ### 🐛 Bug Fix
 
 * Compatibility with React Native in CacheProvider ([#1307](https://github.com/coinbase/rest-hooks/issues/1307)) ([f021905](https://github.com/coinbase/rest-hooks/commit/f021905e3f31fadc68f6b27a6219db8b232a74f8)), closes [#1306](https://github.com/coinbase/rest-hooks/issues/1306)
 
-
-
 ## [2.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.1...@rest-hooks/core@2.1.0) (2021-09-19)
-
 
 ### 🚀 Features
 
 * Add Controller ([#1239](https://github.com/coinbase/rest-hooks/issues/1239)) ([321dbaa](https://github.com/coinbase/rest-hooks/commit/321dbaa905744b5d331a163d4a0f219809f740ee))
 * Send controller to middlewares ([#1271](https://github.com/coinbase/rest-hooks/issues/1271)) ([29db53c](https://github.com/coinbase/rest-hooks/commit/29db53c8ee7f5d770dd43b6e3d97346bc77f76d7))
 
-
 ### 📝 Documentation
 
 * Random fixes ([#1261](https://github.com/coinbase/rest-hooks/issues/1261)) ([ec90154](https://github.com/coinbase/rest-hooks/commit/ec901542a5157b35e20a346b7794f986f775138c))
-
-
 
 ### [2.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.0...@rest-hooks/core@2.0.1) (2021-09-14)
 
 **Note:** Version bump only for package @rest-hooks/core
 
-
-
-
-
 ## [2.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.0-beta.6...@rest-hooks/core@2.0.0) (2021-09-08)
-
 
 ### 🐛 Bug Fix
 
 * Updating nesting under arrays ([#1047](https://github.com/coinbase/rest-hooks/issues/1047)) ([a78a1a4](https://github.com/coinbase/rest-hooks/commit/a78a1a41149dbb0646660fdeef38918b2e16cc14))
-
 
 ### 📝 Documentation
 
 * Add links to protocol specific docs ([#1218](https://github.com/coinbase/rest-hooks/issues/1218)) ([1570881](https://github.com/coinbase/rest-hooks/commit/1570881372bb1cc0a3d4034c24543bb8ea5d99c1))
 * Add more tags to packages ([#1223](https://github.com/coinbase/rest-hooks/issues/1223)) ([ef76efc](https://github.com/coinbase/rest-hooks/commit/ef76efc70f7c6acb73d22135a227f84e522729b4))
 
-
-
 ## [2.0.0-beta.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.0-beta.5...@rest-hooks/core@2.0.0-beta.6) (2021-09-06)
-
 
 ### 💅 Enhancement
 
@@ -404,28 +304,19 @@ instead
 * validate during denormalization ([#1183](https://github.com/coinbase/rest-hooks/issues/1183)) ([bca1e4a](https://github.com/coinbase/rest-hooks/commit/bca1e4a9158a294ee82745107e04e43564ccd5a0))
 * Warn users if they are missing Suspense boundary ([#1169](https://github.com/coinbase/rest-hooks/issues/1169)) ([ccf819a](https://github.com/coinbase/rest-hooks/commit/ccf819ab65163aa056a3317e1c1eca17c003ecf6))
 
-
-
 ## [2.0.0-beta.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.0-beta.4...@rest-hooks/core@2.0.0-beta.5) (2021-08-25)
-
 
 ### 💅 Enhancement
 
 * Back to avoiding reducer for fetch ([#1149](https://github.com/coinbase/rest-hooks/issues/1149)) ([06ae6a4](https://github.com/coinbase/rest-hooks/commit/06ae6a450f65f0344a44e2c8d162b62e7461bfe8))
 
-
-
 ## [2.0.0-beta.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.0-beta.3...@rest-hooks/core@2.0.0-beta.4) (2021-08-22)
-
 
 ### 🐛 Bug Fix
 
 * Cannot update a component while rendering a different component ([#1130](https://github.com/coinbase/rest-hooks/issues/1130)) ([0003388](https://github.com/coinbase/rest-hooks/commit/00033882ec88338b94bd78c8a7a5ad2954af40d6))
 
-
-
 ## [2.0.0-beta.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.0-beta.2...@rest-hooks/core@2.0.0-beta.3) (2021-08-21)
-
 
 ### 💅 Enhancement
 
@@ -433,16 +324,12 @@ instead
 * Hide throttled fetches from devtools ([#1083](https://github.com/coinbase/rest-hooks/issues/1083)) ([2f09c22](https://github.com/coinbase/rest-hooks/commit/2f09c227ef9dcc056a4e9f1c76b725aa063964d6))
 * Improve reducer error visibility ([#1084](https://github.com/coinbase/rest-hooks/issues/1084)) ([b69a50d](https://github.com/coinbase/rest-hooks/commit/b69a50d7b3d658c0b4c7f6c198fe8e2a76ec8aa9))
 
-
 ### 🐛 Bug Fix
 
 * RESET clears inflight fetches ([#1085](https://github.com/coinbase/rest-hooks/issues/1085)) ([02fa0d5](https://github.com/coinbase/rest-hooks/commit/02fa0d527ef138961ba6dc2509648337c01e604d))
 * useFetchInit() hook calls same amount every render ([#1123](https://github.com/coinbase/rest-hooks/issues/1123)) ([6cd0b7c](https://github.com/coinbase/rest-hooks/commit/6cd0b7cc57de59b5f394942dfa9a3a08d9f2e912))
 
-
-
 ## [2.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.5.3...@rest-hooks/core@2.0.0-beta.2) (2021-07-12)
-
 
 ### ⚠ 💥 BREAKING CHANGES
 
@@ -470,7 +357,6 @@ errors for missing entities
 * FixtureEndpoint & renderRestHook resolverFixtures ([#1027](https://github.com/coinbase/rest-hooks/issues/1027)) ([bbb69e9](https://github.com/coinbase/rest-hooks/commit/bbb69e9faaa523c46a0e309a44e0fd52f0ce91aa))
 * Use 'exports' package.json member ([#955](https://github.com/coinbase/rest-hooks/issues/955)) ([7e9d39f](https://github.com/coinbase/rest-hooks/commit/7e9d39f15b4b321352ece0caddb93e2c414df8ae))
 
-
 ### 💅 Enhancement
 
 * Different babel targets for cjs and umd builds ([#989](https://github.com/coinbase/rest-hooks/issues/989)) ([f054814](https://github.com/coinbase/rest-hooks/commit/f05481410cf8daa2101d4dbda826e56ad10ec723))
@@ -483,29 +369,21 @@ errors for missing entities
 * Use optional chaining ([#1003](https://github.com/coinbase/rest-hooks/issues/1003)) ([6e45937](https://github.com/coinbase/rest-hooks/commit/6e459377e3f0d90d1832c0173358c3c73f253831))
 * useError() only checks meta error ([#938](https://github.com/coinbase/rest-hooks/issues/938)) ([b08d708](https://github.com/coinbase/rest-hooks/commit/b08d708ea50170de0dd25340aec84b86a7687f48))
 
-
 ### 🐛 Bug Fix
 
 * module build import path ([#994](https://github.com/coinbase/rest-hooks/issues/994)) ([1f84f51](https://github.com/coinbase/rest-hooks/commit/1f84f51e0f3b62832945e75d0e241dba59b6623c))
-
 
 ### 📝 Documentation
 
 * Add doc links to jsdocs ([#966](https://github.com/coinbase/rest-hooks/issues/966)) ([dc7fcfe](https://github.com/coinbase/rest-hooks/commit/dc7fcfec24c30d5f405d24ccc1828620d837ea6b))
 
-
-
 ## [2.0.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@2.0.0-beta.0...@rest-hooks/core@2.0.0-beta.1) (2021-06-30)
-
 
 ### 🐛 Bug Fix
 
 * module build import path ([#994](https://github.com/coinbase/rest-hooks/issues/994)) ([1f84f51](https://github.com/coinbase/rest-hooks/commit/1f84f51e0f3b62832945e75d0e241dba59b6623c))
 
-
-
 ## [2.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.5.2...@rest-hooks/core@2.0.0-beta.0) (2021-06-30)
-
 
 ### ⚠ 💥 BREAKING CHANGES
 
@@ -532,7 +410,6 @@ errors for missing entities
 * Add errorPolicy to endpoint options ([#971](https://github.com/coinbase/rest-hooks/issues/971)) ([836f05b](https://github.com/coinbase/rest-hooks/commit/836f05b407b5ac96c8f094e652221aa5a95300b0))
 * Use 'exports' package.json member ([#955](https://github.com/coinbase/rest-hooks/issues/955)) ([7e9d39f](https://github.com/coinbase/rest-hooks/commit/7e9d39f15b4b321352ece0caddb93e2c414df8ae))
 
-
 ### 💅 Enhancement
 
 * Different babel targets for cjs and umd builds ([#989](https://github.com/coinbase/rest-hooks/issues/989)) ([f054814](https://github.com/coinbase/rest-hooks/commit/f05481410cf8daa2101d4dbda826e56ad10ec723))
@@ -543,7 +420,6 @@ errors for missing entities
 * Remove Resource export from 'rest-hooks' package ([#939](https://github.com/coinbase/rest-hooks/issues/939)) ([0707920](https://github.com/coinbase/rest-hooks/commit/0707920bd9de70112b5287d101dcd4f6962f21d1))
 * useError() only checks meta error ([#938](https://github.com/coinbase/rest-hooks/issues/938)) ([b08d708](https://github.com/coinbase/rest-hooks/commit/b08d708ea50170de0dd25340aec84b86a7687f48))
 
-
 ### 📝 Documentation
 
 * Add doc links to jsdocs ([#966](https://github.com/coinbase/rest-hooks/issues/966)) ([dc7fcfe](https://github.com/coinbase/rest-hooks/commit/dc7fcfec24c30d5f405d24ccc1828620d837ea6b))
@@ -552,75 +428,48 @@ errors for missing entities
 
 **Note:** Version bump only for package @rest-hooks/core
 
-
-
-
-
 ### [1.5.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.5.1...@rest-hooks/core@1.5.2) (2021-06-19)
 
 **Note:** Version bump only for package @rest-hooks/core
-
-
-
-
 
 ### [1.5.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.5.0...@rest-hooks/core@1.5.1) (2021-06-16)
 
 **Note:** Version bump only for package @rest-hooks/core
 
-
-
-
-
 ## [1.5.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.4.1...@rest-hooks/core@1.5.0) (2021-06-13)
-
 
 ### 🚀 Features
 
 * Normalize merges entities, entitymeta, indexes ([#915](https://github.com/coinbase/rest-hooks/issues/915)) ([bd21d8c](https://github.com/coinbase/rest-hooks/commit/bd21d8ce0d004a56e6853918d9fb9ecaa2c730a8))
 * Support React 18 ([#907](https://github.com/coinbase/rest-hooks/issues/907)) ([63e8bc9](https://github.com/coinbase/rest-hooks/commit/63e8bc9887a080e1aa510d972645c037dfc96128))
 
-
 ### 💅 Enhancement
 
 * Use inferResults() from normalizr ([#901](https://github.com/coinbase/rest-hooks/issues/901)) ([875cb6a](https://github.com/coinbase/rest-hooks/commit/875cb6acf31055e37e2d1faf4414bcbf31f5700f))
 
-
-
 ### [1.4.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.4.0...@rest-hooks/core@1.4.1) (2021-06-09)
-
 
 ### 💅 Enhancement
 
 * 'module' entrypoint targets 2019 browsers ([#905](https://github.com/coinbase/rest-hooks/issues/905)) ([d988abe](https://github.com/coinbase/rest-hooks/commit/d988abe063fc67c74fce12e234c9c3ffdb7cc230))
 
-
-
 ## [1.4.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.2.1...@rest-hooks/core@1.4.0) (2021-06-02)
-
 
 ### 🚀 Features
 
 * Add garbage collection action ([#865](https://github.com/coinbase/rest-hooks/issues/865)) ([aab7ad6](https://github.com/coinbase/rest-hooks/commit/aab7ad6045a08417f53b778a7ea4d2611f6cac06))
-
 
 ### 💅 Enhancement
 
 * Improve autoimport handling in vscode ([#890](https://github.com/coinbase/rest-hooks/issues/890)) ([f8f2bef](https://github.com/coinbase/rest-hooks/commit/f8f2bef411183676009c6a9df24a26d147c6d9f6))
 
-
-
 ## [1.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.2.1...@rest-hooks/core@1.3.0) (2021-05-30)
-
 
 ### 🚀 Features
 
 * Add garbage collection action ([#865](https://github.com/coinbase/rest-hooks/issues/865)) ([aab7ad6](https://github.com/coinbase/rest-hooks/commit/aab7ad6045a08417f53b778a7ea4d2611f6cac06))
 
-
-
 ### [1.2.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.2.0...@rest-hooks/core@1.2.1) (2021-05-24)
-
 
 ### 💅 Enhancement
 
@@ -628,88 +477,61 @@ errors for missing entities
 * Support endpoint.update in existing useFetcher ([#853](https://github.com/coinbase/rest-hooks/issues/853)) ([2436f3b](https://github.com/coinbase/rest-hooks/commit/2436f3b9e6f91fc73178476d3ca88605349bba33))
 * Transform updateParams to 'update' function ([#854](https://github.com/coinbase/rest-hooks/issues/854)) ([7ef3e2a](https://github.com/coinbase/rest-hooks/commit/7ef3e2a646421356029294e440e1a2e000b05f05))
 
-
-
 ## [1.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.1.2...@rest-hooks/core@1.2.0) (2021-05-24)
-
 
 ### 🚀 Features
 
 * Endpoint.update programmable sideeffects ([#843](https://github.com/coinbase/rest-hooks/issues/843)) ([3b011b2](https://github.com/coinbase/rest-hooks/commit/3b011b2ab7d3f2fd6588bd26c566bf542beeba49))
 
-
 ### 💅 Enhancement
 
 * Do not throw on unmount of CacheProvider ([#837](https://github.com/coinbase/rest-hooks/issues/837)) ([f7dcf24](https://github.com/coinbase/rest-hooks/commit/f7dcf24d2b6123ab84470263d505a975591bd9b4))
 
-
-
 ### [1.1.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.1.1...@rest-hooks/core@1.1.2) (2021-04-26)
-
 
 ### 🐛 Bug Fix
 
 * useMeta() parameters type ([#775](https://github.com/coinbase/rest-hooks/issues/775)) ([9f7fae4](https://github.com/coinbase/rest-hooks/commit/9f7fae4dba0d797fdfac114e52cdd5ea90f4d61f))
 
-
-
 ### [1.1.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.1.0...@rest-hooks/core@1.1.1) (2021-04-25)
-
 
 ### 💅 Enhancement
 
 * Make hook generics use consist params ([#769](https://github.com/coinbase/rest-hooks/issues/769)) ([5a68f2a](https://github.com/coinbase/rest-hooks/commit/5a68f2a5d9d942436f08c513b8b56c78718f14aa))
 
-
 ### 🐛 Bug Fix
 
 * Delete should only be triggered on finding DELETE symbol ([#770](https://github.com/coinbase/rest-hooks/issues/770)) ([20886f6](https://github.com/coinbase/rest-hooks/commit/20886f65cba2e741e1496990123f97f38852aaf4))
 
-
-
 ## [1.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.16...@rest-hooks/core@1.1.0) (2021-04-24)
-
 
 ### 🚀 Features
 
 * Endpoint parameters can be of any length ([#767](https://github.com/coinbase/rest-hooks/issues/767)) ([552f837](https://github.com/coinbase/rest-hooks/commit/552f83740279376288879a661ff487c5c6f1d469))
 
-
-
 ### [1.0.16](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.15...@rest-hooks/core@1.0.16) (2021-04-13)
-
 
 ### 💅 Enhancement
 
 * Remove extraneous outdated hack ([#750](https://github.com/coinbase/rest-hooks/issues/750)) ([da7e7cb](https://github.com/coinbase/rest-hooks/commit/da7e7cbedd6264b26f6158079d9224f52fe2f829))
 
-
 ### 🐛 Bug Fix
 
 * Generate types that do not refer internally to other packages ([#749](https://github.com/coinbase/rest-hooks/issues/749)) ([2e55e32](https://github.com/coinbase/rest-hooks/commit/2e55e3229f23ba1d0d6eb15faf3dd5ba3de838c4))
 
-
-
 ### [1.0.15](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.14...@rest-hooks/core@1.0.15) (2021-04-12)
-
 
 ### 🐛 Bug Fix
 
 * Relax DeleteShape def to be back-compat ([#743](https://github.com/coinbase/rest-hooks/issues/743)) ([20aa3a0](https://github.com/coinbase/rest-hooks/commit/20aa3a09bbe4419c23e37b331ca3208349f0e07c))
 
-
-
 ### [1.0.14](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.13...@rest-hooks/core@1.0.14) (2021-04-12)
-
 
 ### 🐛 Bug Fix
 
 * Publish legacy type files ([#741](https://github.com/coinbase/rest-hooks/issues/741)) ([bbae8bd](https://github.com/coinbase/rest-hooks/commit/bbae8bd44d9870e7f6ed599b0751ad264f9f2313))
 
-
-
 ### [1.0.13](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.12...@rest-hooks/core@1.0.13) (2021-04-12)
-
 
 ### 💅 Enhancement
 
@@ -718,144 +540,97 @@ errors for missing entities
 * Support TypeScript 3, while using TypeScript 4 features ([#726](https://github.com/coinbase/rest-hooks/issues/726)) ([4db2522](https://github.com/coinbase/rest-hooks/commit/4db2522b9060a7f7aaba4a93c3cf1694eb3d5364))
 * Use namedtuples for denormalize ([#733](https://github.com/coinbase/rest-hooks/issues/733)) ([83382cc](https://github.com/coinbase/rest-hooks/commit/83382cce716ec22949127cc0f190bbeddf5a3722))
 
-
 ### 🐛 Bug Fix
 
 * Inferring schema.Values() ([#732](https://github.com/coinbase/rest-hooks/issues/732)) ([1a77a03](https://github.com/coinbase/rest-hooks/commit/1a77a03a5c06b352feb467958be2e6e3f8f91003))
 * schema.Values singleSchema denormalization ([#723](https://github.com/coinbase/rest-hooks/issues/723)) ([99317d1](https://github.com/coinbase/rest-hooks/commit/99317d17db8293d6bf987d1cbfa99691cf58903e))
 
-
-
 ### [1.0.12](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.11...@rest-hooks/core@1.0.12) (2021-04-04)
 
 **Note:** Version bump only for package @rest-hooks/core
 
-
-
-
-
 ### [1.0.11](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.10...@rest-hooks/core@1.0.11) (2021-03-26)
-
 
 ### 🐛 Bug Fix
 
 * Compatibility with TypeScript strict: false ([#683](https://github.com/coinbase/rest-hooks/issues/683)) ([8a6e7ed](https://github.com/coinbase/rest-hooks/commit/8a6e7ed4d179555c4ba5cb8957b1c63697a1ce1a))
 
-
 ### 📝 Documentation
 
 * Update package description ([#684](https://github.com/coinbase/rest-hooks/issues/684)) ([c2b6915](https://github.com/coinbase/rest-hooks/commit/c2b6915c3a055816f345634416aeae9196de7051))
-
-
 
 ### [1.0.10](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.9...@rest-hooks/core@1.0.10) (2021-03-24)
 
 **Note:** Version bump only for package @rest-hooks/core
 
-
-
-
-
 ### [1.0.9](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.8...@rest-hooks/core@1.0.9) (2021-03-14)
-
 
 ### 📝 Documentation
 
 * Update package tags ([#650](https://github.com/coinbase/rest-hooks/issues/650)) ([4ef465a](https://github.com/coinbase/rest-hooks/commit/4ef465a129cd59668cd9c3542bb9ec03c84d2a4d))
 
-
-
 ### [1.0.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.7...@rest-hooks/core@1.0.8) (2021-03-08)
-
 
 ### 💅 Enhancement
 
 * Don't use global for rIC def ([#617](https://github.com/coinbase/rest-hooks/issues/617)) ([ed33203](https://github.com/coinbase/rest-hooks/commit/ed33203aa8685953e0d09c831343480e0e2e6051))
 
-
-
 ### [1.0.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.6...@rest-hooks/core@1.0.7) (2021-03-03)
-
 
 ### 🐛 Bug Fix
 
 * useStatefulResource() return type ([#613](https://github.com/coinbase/rest-hooks/issues/613)) ([05a4995](https://github.com/coinbase/rest-hooks/commit/05a49954c61f47deef18bc5d58d045ac79efd78e))
 
-
-
 ### [1.0.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.5...@rest-hooks/core@1.0.6) (2021-03-01)
-
 
 ### 💅 Enhancement
 
 * Support 'undefined' as schema ([#583](https://github.com/coinbase/rest-hooks/issues/583)) ([1e81470](https://github.com/coinbase/rest-hooks/commit/7ef172a3d8469b182cc7a19055920a308841b59e))
 
-
-
 ### [1.0.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.4...@rest-hooks/core@1.0.5) (2021-02-27)
-
 
 ### 💅 Enhancement
 
 * Make type discrimination easier in error types ([#581](https://github.com/coinbase/rest-hooks/issues/581)) ([cd105f3](https://github.com/coinbase/rest-hooks/commit/cd105f378e3c97b6accd127a61759287fb8bb3b5))
 
-
-
 ### [1.0.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.3...@rest-hooks/core@1.0.4) (2021-02-24)
-
 
 ### 💅 Enhancement
 
 * Improve error type preciseness ([#571](https://github.com/coinbase/rest-hooks/issues/571)) ([6f760be](https://github.com/coinbase/rest-hooks/commit/6f760be7149f04eb26727730e0ec0d67f2215ed5))
 * legacy Resource should only warn on validation problems ([#540](https://github.com/coinbase/rest-hooks/issues/540)) ([eb83a51](https://github.com/coinbase/rest-hooks/commit/eb83a511d41c0b18ea3f5ecd6696e1013ed8e1c3))
 
-
-
 ### [1.0.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.2...@rest-hooks/core@1.0.3) (2021-02-04)
-
 
 ### 📦 Package
 
 * Relax @babel/runtime requirement to ^7.7.2 ([#513](https://github.com/coinbase/rest-hooks/issues/513)) ([cc95b21](https://github.com/coinbase/rest-hooks/commit/cc95b219fbddebfbf334728887ca6d2fa070fce1))
 
-
 ### 📝 Documentation
 
 * Link improvements, flesh out test readme ([#511](https://github.com/coinbase/rest-hooks/issues/511)) ([9cab431](https://github.com/coinbase/rest-hooks/commit/9cab431803a8b7d9c18e02b3e9cb7e336215ccdb))
-
-
 
 ### [1.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.1...@rest-hooks/core@1.0.2) (2021-01-30)
 
 **Note:** Version bump only for package @rest-hooks/core
 
-
-
-
-
 ### [1.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0...@rest-hooks/core@1.0.1) (2021-01-24)
-
 
 ### 💅 Enhancement
 
 * Add `static automaticValidation` to Entity ([#495](https://github.com/coinbase/rest-hooks/issues/495)) ([034450d](https://github.com/coinbase/rest-hooks/commit/034450d2eb00fab636ca4db5138b6a0573620db6))
 * Improve malformed entity detection ([#494](https://github.com/coinbase/rest-hooks/issues/494)) ([b8bb07f](https://github.com/coinbase/rest-hooks/commit/b8bb07f480549a97254a4fdf6b00acd9cb89a9eb))
 
-
 ### 🐛 Bug Fix
 
 * Support TypeScript <4 ([#489](https://github.com/coinbase/rest-hooks/issues/489)) ([267b541](https://github.com/coinbase/rest-hooks/commit/267b5412cf4e65f6e523aad764203b91a92cc427))
-
 
 ### 📝 Documentation
 
 * Improve rest-types and network transform ([#486](https://github.com/coinbase/rest-hooks/issues/486)) ([e61342a](https://github.com/coinbase/rest-hooks/commit/e61342acc920288ecb98f36e9aa8ecb13dd6fe44))
 * Update wording for 'cache lifetime' in feature list ([#483](https://github.com/coinbase/rest-hooks/issues/483)) ([5a62b73](https://github.com/coinbase/rest-hooks/commit/5a62b73d66cc232e21f5f8792e8d6f63d094b9f2))
 
-
-
 ## 1.0.0 (2021-01-19)
-
 
 ### ⚠ 💥 BREAKING CHANGES
 
@@ -895,7 +670,6 @@ not trigger a fetch if entities are fresh enough
 * Track and use entity resolution time ([54203f9](https://github.com/coinbase/rest-hooks/commit/54203f994a166a4ed786328c2ef85b20749a8d6b))
 * useFetchDispatcher() ([#407](https://github.com/coinbase/rest-hooks/issues/407)) ([f4e45be](https://github.com/coinbase/rest-hooks/commit/f4e45be370b99bdaf31b5f9dba77fbd55da2f1ea))
 
-
 ### 💅 Enhancement
 
 * `endpoint` package only exports definitions ([#473](https://github.com/coinbase/rest-hooks/issues/473)) ([51dcafe](https://github.com/coinbase/rest-hooks/commit/51dcafe98631998a1db1959f2796d7122d96960b))
@@ -911,7 +685,6 @@ not trigger a fetch if entities are fresh enough
 * Simplify endpoint memoization and provide new extensions ([#391](https://github.com/coinbase/rest-hooks/issues/391)) ([d874d0b](https://github.com/coinbase/rest-hooks/commit/d874d0b3e6433a616d2dbecd8076715f5caefaeb))
 * Support React 17 ([#397](https://github.com/coinbase/rest-hooks/issues/397)) ([a833f07](https://github.com/coinbase/rest-hooks/commit/a833f0724c60fbb2dd3ff6d7d791ee53c3eff694))
 * Widen RestFetch types to make overriding not break ([#479](https://github.com/coinbase/rest-hooks/issues/479)) ([2bccf12](https://github.com/coinbase/rest-hooks/commit/2bccf12f7892ccbc1d342bd529b3659c2935fb71))
-
 
 ### 🐛 Bug Fix
 
@@ -933,13 +706,11 @@ not trigger a fetch if entities are fresh enough
 * SimpleRecord as schema in useDenormalized() ([#346](https://github.com/coinbase/rest-hooks/issues/346)) ([2b96335](https://github.com/coinbase/rest-hooks/commit/2b96335d2758b67fa5616fdafb6b338c8128c9a2))
 * useFetcher() return types ([#347](https://github.com/coinbase/rest-hooks/issues/347)) ([d921cbe](https://github.com/coinbase/rest-hooks/commit/d921cbe41dc4b0d3f2c80bb9b6ef99dc71a8a86d))
 
-
 ### 📦 Package
 
 * Add type exports: Normalize, Denormalize, and their nullables ([378078f](https://github.com/coinbase/rest-hooks/commit/378078f543526047ad76251e1ef73ae5899eaaf5))
 * Bump babel runtime ([c6bf844](https://github.com/coinbase/rest-hooks/commit/c6bf844fcf1a483988d34b5f09faa03ceff179ec))
 * Use @babel/runtime @ 7.12 ([e631f6a](https://github.com/coinbase/rest-hooks/commit/e631f6a8c435c5ef74b3809c8950a2caceca8763))
-
 
 ### 📝 Documentation
 
@@ -952,10 +723,7 @@ not trigger a fetch if entities are fresh enough
 * Update readme examples ([68c69ab](https://github.com/coinbase/rest-hooks/commit/68c69ab4f4aebadb93ac30a6c37672dc585683fd))
 * Update readme tagline ([fe39b16](https://github.com/coinbase/rest-hooks/commit/fe39b1634535c265afe9a00fe44a3fea29773522))
 
-
-
 ## [1.0.0-rc.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-rc.0...@rest-hooks/core@1.0.0-rc.1) (2021-01-19)
-
 
 ### ⚠ 💥 BREAKING CHANGES
 
@@ -969,13 +737,10 @@ entities
 
 * Resources can have nested entities ([#469](https://github.com/coinbase/rest-hooks/issues/469)) ([4eeeaae](https://github.com/coinbase/rest-hooks/commit/4eeeaae1026715be4e72a66cd94d81934f2b0ce7))
 
-
 ### 💅 Enhancement
 
 * `endpoint` package only exports definitions ([#473](https://github.com/coinbase/rest-hooks/issues/473)) ([51dcafe](https://github.com/coinbase/rest-hooks/commit/51dcafe98631998a1db1959f2796d7122d96960b))
 * Widen RestFetch types to make overriding not break ([#479](https://github.com/coinbase/rest-hooks/issues/479)) ([2bccf12](https://github.com/coinbase/rest-hooks/commit/2bccf12f7892ccbc1d342bd529b3659c2935fb71))
-
-
 
 ## 1.0.0-rc.0 (2021-01-14)
 
@@ -983,15 +748,11 @@ entities
 * enhance: Maintain referential equality globally (#403) ([e1e353d](https://github.com/coinbase/rest-hooks/commit/e1e353d)), closes [#403](https://github.com/coinbase/rest-hooks/issues/403)
 * internal: Fix publish message (#461) ([e1691f5](https://github.com/coinbase/rest-hooks/commit/e1691f5)), closes [#461](https://github.com/coinbase/rest-hooks/issues/461)
 
-
 ### BREAKING CHANGE
 
 * Node engine requirement of >=0.12
 * useResource() inferred endpoint will sometimes
 not trigger a fetch if entities are fresh enough
-
-
-
 
 ## 1.0.0-k.5 (2021-01-06)
 
@@ -999,18 +760,10 @@ not trigger a fetch if entities are fresh enough
 * feat: Track and use entity resolution time ([54203f9](https://github.com/coinbase/rest-hooks/commit/54203f9))
 * pkg: Use @babel/runtime @ 7.12 ([e631f6a](https://github.com/coinbase/rest-hooks/commit/e631f6a))
 
-
-
-
-
 ## 1.0.0-k.4 (2020-12-08)
 
 * fix: Clear promises on cleanup (#422) ([bcb236e](https://github.com/coinbase/rest-hooks/commit/bcb236e)), closes [#422](https://github.com/coinbase/rest-hooks/issues/422)
 * feat: Add useInvalidateDispatcher() (#413) ([e416c5f](https://github.com/coinbase/rest-hooks/commit/e416c5f)), closes [#413](https://github.com/coinbase/rest-hooks/issues/413)
-
-
-
-
 
 ## 1.0.0-k.3 (2020-09-08)
 
@@ -1018,111 +771,59 @@ not trigger a fetch if entities are fresh enough
 * feat: useFetchDispatcher() (#407) ([f4e45be](https://github.com/coinbase/rest-hooks/commit/f4e45be)), closes [#407](https://github.com/coinbase/rest-hooks/issues/407)
 * internal: Upgrade build pkgs (#404) ([dc56530](https://github.com/coinbase/rest-hooks/commit/dc56530)), closes [#404](https://github.com/coinbase/rest-hooks/issues/404)
 
-
-
-
-
 ## 1.0.0-k.2 (2020-08-13)
 
 **Note:** Version bump only for package @rest-hooks/core
 
-
-
-
-
 ## 1.0.0-k.1 (2020-08-12)
 
 * enhance: Support React 17 (#397) ([a833f07](https://github.com/coinbase/rest-hooks/commit/a833f07)), closes [#397](https://github.com/coinbase/rest-hooks/issues/397)
-
-
-
-
 
 ## 1.0.0-k.0 (2020-08-09)
 
 * feat: Add @rest-hooks/hooks for composable utilities (#393) ([b225a2a](https://github.com/coinbase/rest-hooks/commit/b225a2a)), closes [#393](https://github.com/coinbase/rest-hooks/issues/393)
 * feat: Simple AbortController integration (#392) ([899563d](https://github.com/coinbase/rest-hooks/commit/899563d)), closes [#392](https://github.com/coinbase/rest-hooks/issues/392)
 
-
-
-
-
 ## 1.0.0-j.7 (2020-08-09)
 
 * enhance: console instead of throw when missing frequency ([8708b1f](https://github.com/coinbase/rest-hooks/commit/8708b1f))
 * fix: extend() correctly keeps options for FetchShape compat ([bf522a2](https://github.com/coinbase/rest-hooks/commit/bf522a2))
-
-
-
-
 
 ## 1.0.0-j.6 (2020-08-09)
 
 * enhance: Simplify endpoint memoization and provide new extensions (#391) ([d874d0b](https://github.com/coinbase/rest-hooks/commit/d874d0b)), closes [#391](https://github.com/coinbase/rest-hooks/issues/391)
 * fix: Resource endpoint memoization ([744431e](https://github.com/coinbase/rest-hooks/commit/744431e))
 
-
-
-
-
 ## 1.0.0-j.5 (2020-08-08)
 
 * internal: Test using endpoints directly (#389) ([bb0e8fd](https://github.com/coinbase/rest-hooks/commit/bb0e8fd)), closes [#389](https://github.com/coinbase/rest-hooks/issues/389)
 * feat: Support extra endpoint members and inheritance (#387) ([6ad5486](https://github.com/coinbase/rest-hooks/commit/6ad5486)), closes [#387](https://github.com/coinbase/rest-hooks/issues/387)
-
-
-
-
 
 ## 1.0.0-j.4 (2020-08-04)
 
 * fix: Handle entities updated with new indexes (#384) ([2ee3bb6](https://github.com/coinbase/rest-hooks/commit/2ee3bb6)), closes [#384](https://github.com/coinbase/rest-hooks/issues/384)
 * fix: Infer useFetcher() has no body when not present in fetch (#385) ([22dd399](https://github.com/coinbase/rest-hooks/commit/22dd399)), closes [#385](https://github.com/coinbase/rest-hooks/issues/385)
 
-
-
-
-
 ## 1.0.0-j.3 (2020-07-31)
 
 **Note:** Version bump only for package @rest-hooks/core
-
-
-
-
 
 ## 1.0.0-j.2 (2020-07-27)
 
 **Note:** Version bump only for package @rest-hooks/core
 
-
-
-
-
 ## 1.0.0-j.1 (2020-07-27)
 
 * fix: Inferred return of useCache() (#377) ([ce7a4f7](https://github.com/coinbase/rest-hooks/commit/ce7a4f7)), closes [#377](https://github.com/coinbase/rest-hooks/issues/377)
-
-
-
-
 
 ## 1.0.0-j.0 (2020-07-27)
 
 * feat: Add @rest-hooks/rest package (#375) ([5e5c125](https://github.com/coinbase/rest-hooks/commit/5e5c125)), closes [#375](https://github.com/coinbase/rest-hooks/issues/375)
 
-
-
-
-
 ## 1.0.0-i.4 (2020-07-22)
 
 * internal: Add add more disruption to referntial test ([f249b40](https://github.com/coinbase/rest-hooks/commit/f249b40))
 * docs: Add link to debugging docs from readme ([d75cbe8](https://github.com/coinbase/rest-hooks/commit/d75cbe8))
-
-
-
-
 
 ## 1.0.0-i.3 (2020-07-21)
 
@@ -1131,10 +832,6 @@ not trigger a fetch if entities are fresh enough
 * internal: Fix tests ([78332b3](https://github.com/coinbase/rest-hooks/commit/78332b3))
 * feat: Add fetch request creation time to meta ([1a6242f](https://github.com/coinbase/rest-hooks/commit/1a6242f))
 
-
-
-
-
 ## 1.0.0-i.2 (2020-07-20)
 
 * feat: Add DevToolsManager to integrate with redux-devtools (#371) ([aa171bc](https://github.com/coinbase/rest-hooks/commit/aa171bc)), closes [#371](https://github.com/coinbase/rest-hooks/issues/371)
@@ -1142,17 +839,9 @@ not trigger a fetch if entities are fresh enough
 * docs: Fix Endpoint def in readme example ([125ad57](https://github.com/coinbase/rest-hooks/commit/125ad57))
 * docs: Update readme tagline ([fe39b16](https://github.com/coinbase/rest-hooks/commit/fe39b16))
 
-
-
-
-
 ## 1.0.0-i.1 (2020-07-14)
 
 * fix: Export Endpoint through core ([8b60dea](https://github.com/coinbase/rest-hooks/commit/8b60dea))
-
-
-
-
 
 ## 1.0.0-i.0 (2020-07-14)
 
@@ -1160,13 +849,9 @@ not trigger a fetch if entities are fresh enough
 * enhance: Make Endpoint compatible with FetchShape ([caa967c](https://github.com/coinbase/rest-hooks/commit/caa967c))
 * enhance: Resource uses endpoint (#365) ([4472106](https://github.com/coinbase/rest-hooks/commit/4472106)), closes [#365](https://github.com/coinbase/rest-hooks/issues/365)
 
-
 ### BREAKING CHANGE
 
 * getFetchOptions() -> getEndpointExtra()
-
-
-
 
 ## 1.0.0-h.0 (2020-07-13)
 
@@ -1174,15 +859,10 @@ not trigger a fetch if entities are fresh enough
 * docs: Fix tags ([987f0ed](https://github.com/coinbase/rest-hooks/commit/987f0ed))
 * docs: Remove irrelevant tags ([ff137da](https://github.com/coinbase/rest-hooks/commit/ff137da))
 
-
-
-
-
 ## 1.0.0-delta.0 (2020-07-08)
 
 * feat: Deletes and invalidates trigger suspense always (#360) ([96175ba](https://github.com/coinbase/rest-hooks/commit/96175ba)), closes [#360](https://github.com/coinbase/rest-hooks/issues/360)
 * feat: Resource.fetch() arguments reflect browser fetch() (#362) ([1d19421](https://github.com/coinbase/rest-hooks/commit/1d19421)), closes [#362](https://github.com/coinbase/rest-hooks/issues/362)
-
 
 ### BREAKING CHANGE
 
@@ -1197,41 +877,22 @@ not trigger a fetch if entities are fresh enough
 - Added Resource.getFetchInit() which is called in shape generators
 - Resourece.fetch() interface changed to match browser fetch()
 
-
-
-
 ## 1.0.0-gamma.0 (2020-06-13)
 
 **Note:** Version bump only for package @rest-hooks/core
 
-
-
-
-
 ## 1.0.0-beta.15 (2020-06-13)
 
 * feat: Declarative schema deserialization (#355) ([9dbb019](https://github.com/coinbase/rest-hooks/commit/9dbb019)), closes [#355](https://github.com/coinbase/rest-hooks/issues/355)
-
-
-
-
 
 ## 1.0.0-beta.14 (2020-06-09)
 
 * fix: Clear invalidIfStale protections on mount (#357) ([b9a89dc](https://github.com/coinbase/rest-hooks/commit/b9a89dc)), closes [#357](https://github.com/coinbase/rest-hooks/issues/357)
 * internal: Add tests for malformed network responses ([96b788a](https://github.com/coinbase/rest-hooks/commit/96b788a))
 
-
-
-
-
 ## 1.0.0-beta.13 (2020-06-08)
 
 * fix: Looping fetches should still expire at some point ([ef560a9](https://github.com/coinbase/rest-hooks/commit/ef560a9))
-
-
-
-
 
 ## 1.0.0-beta.12 (2020-06-06)
 
@@ -1241,35 +902,23 @@ not trigger a fetch if entities are fresh enough
 * internal: Add additional type test for useFetcher() ([2f5c876](https://github.com/coinbase/rest-hooks/commit/2f5c876))
 * internal: Prepare tests to run in React Native env (#309) ([64efd70](https://github.com/coinbase/rest-hooks/commit/64efd70)), closes [#309](https://github.com/coinbase/rest-hooks/issues/309)
 
-
-
-
-
 ## [1.0.0-beta.11](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.10...@rest-hooks/core@1.0.0-beta.11) (2020-05-20)
-
 
 ### 🏠 Internal
 
 * Bump typescript patch and get rid of comment ([17174ea](https://github.com/coinbase/rest-hooks/commit/17174ea13577571db1c1d2f2d3d7e7f64ea1ed57))
 
-
-
 ## [1.0.0-beta.10](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.9...@rest-hooks/core@1.0.0-beta.10) (2020-05-20)
-
 
 ### 🐛 Bug Fix
 
 * Inferred return type of useFetcher() should be promise ([18f5654](https://github.com/coinbase/rest-hooks/commit/18f565491eecd69aa4b76774937e7dfd82822788))
 
-
-
 ## [1.0.0-beta.9](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.8...@rest-hooks/core@1.0.0-beta.9) (2020-05-20)
-
 
 ### 💅 Enhancement
 
 * Infer a reasonble type for fetch responses by default ([9d8c44c](https://github.com/coinbase/rest-hooks/commit/9d8c44cf2dfc085a8d5ad16fcc14095849283c68))
-
 
 ### 🐛 Bug Fix
 
@@ -1277,74 +926,45 @@ not trigger a fetch if entities are fresh enough
 * SimpleRecord as schema in useDenormalized() ([#346](https://github.com/coinbase/rest-hooks/issues/346)) ([2b96335](https://github.com/coinbase/rest-hooks/commit/2b96335d2758b67fa5616fdafb6b338c8128c9a2))
 * useFetcher() return types ([#347](https://github.com/coinbase/rest-hooks/issues/347)) ([d921cbe](https://github.com/coinbase/rest-hooks/commit/d921cbe41dc4b0d3f2c80bb9b6ef99dc71a8a86d))
 
-
-
 ## [1.0.0-beta.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.7...@rest-hooks/core@1.0.0-beta.8) (2020-05-19)
 
 **Note:** Version bump only for package @rest-hooks/core
-
-
-
-
 
 ## [1.0.0-beta.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.6...@rest-hooks/core@1.0.0-beta.7) (2020-05-19)
 
 **Note:** Version bump only for package @rest-hooks/core
 
-
-
-
-
 ## [1.0.0-beta.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.5...@rest-hooks/core@1.0.0-beta.6) (2020-05-19)
-
 
 ### 🐛 Bug Fix
 
 * No entity schemas should suspend when they have no results ([#344](https://github.com/coinbase/rest-hooks/issues/344)) ([d3cd45e](https://github.com/coinbase/rest-hooks/commit/d3cd45e03bd639c49bf010ff848d4a158f0e6bf9))
 
-
-
 ## [1.0.0-beta.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.4...@rest-hooks/core@1.0.0-beta.5) (2020-05-14)
-
 
 ### 📝 Documentation
 
 * Get rid of all references to asSchema() ([#339](https://github.com/coinbase/rest-hooks/issues/339)) ([01b878b](https://github.com/coinbase/rest-hooks/commit/01b878b85f7469a12e19912efc696a424663e5f5))
 
-
-
 ## [1.0.0-beta.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.3...@rest-hooks/core@1.0.0-beta.4) (2020-05-13)
 
 **Note:** Version bump only for package @rest-hooks/core
 
-
-
-
-
 ## [1.0.0-beta.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.2...@rest-hooks/core@1.0.0-beta.3) (2020-05-13)
-
 
 ### 💅 Enhancement
 
 * Add back remaining normalizr exports to rest-hooks ([b6878ee](https://github.com/coinbase/rest-hooks/commit/b6878eebbf1572a4b859828da81a058bc5c118e3))
 
-
 ### 📦 Package
 
 * Add type exports: Normalize, Denormalize, and their nullables ([378078f](https://github.com/coinbase/rest-hooks/commit/378078f543526047ad76251e1ef73ae5899eaaf5))
-
-
 
 ## [1.0.0-beta.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@1.0.0-beta.1...@rest-hooks/core@1.0.0-beta.2) (2020-05-13)
 
 **Note:** Version bump only for package @rest-hooks/core
 
-
-
-
-
 ## 1.0.0-beta.1 (2020-05-12)
-
 
 ### 💅 Enhancement
 
