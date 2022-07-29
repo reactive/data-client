@@ -13,7 +13,13 @@ export type {
   Denormalize,
   DenormalizeNullable,
 } from './normal.js';
-export { schema, Entity, isEntity, DELETED } from '@rest-hooks/normalizr';
+export {
+  schema,
+  Entity,
+  isEntity,
+  DELETED,
+  validateRequired,
+} from '@rest-hooks/normalizr';
 export type { AbstractInstanceType, Schema } from '@rest-hooks/normalizr';
 export type {
   EndpointExtraOptions,

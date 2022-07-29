@@ -5,6 +5,7 @@ import * as schema from './schema.js';
 import Entity, { isEntity } from './entities/Entity.js';
 export { default as inferResults } from './inferResults.js';
 export { DELETED } from './special.js';
+export { default as validateRequired } from './entities/validatRequired.js';
 
 export type {
   AbstractInstanceType,
