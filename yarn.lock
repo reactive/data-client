@@ -7695,10 +7695,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:3.24.0, core-js@npm:^3.21.0, core-js@npm:^3.22.1":
-  version: 3.24.0
-  resolution: "core-js@npm:3.24.0"
-  checksum: f1d1feef82bac7ecddd9e40e75b7126e7b5299a0d17aa046238bd8c78567d485b32c9c80b212704d9483ccc8b3f13b3ee35a5ec69fdca874377f654664068669
+"core-js@npm:3.24.1, core-js@npm:^3.21.0, core-js@npm:^3.22.1":
+  version: 3.24.1
+  resolution: "core-js@npm:3.24.1"
+  checksum: 6fb5bf0fd9e9f3e69d95616dd03332fea6758a715d2628c108b5faf17b48b0f580e90c4febb0a523c4665b0991a810de16289f86187fe79d70cc722dbd3edf0e
   languageName: node
   linkType: hard
 
@@ -18603,7 +18603,7 @@ __metadata:
     benchmark: ^2.1.4
     conventional-changelog-anansi: ^0.2.0
     copyfiles: ^2.4.1
-    core-js: 3.24.0
+    core-js: 3.24.1
     coveralls: ^3.1.0
     cpy-cli: ^4.0.0
     cross-fetch: ^3.0.6
