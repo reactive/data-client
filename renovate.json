@@ -56,7 +56,7 @@
       "groupName": "JS test packages"
     },
     {
-      "matchPackageNames": ["@anansi/jest-preset"],
+      "matchPackageNames": ["@anansi/jest-preset", "@types/jsdom", "jest-environment-jsdom"],
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupName": "JS test packages"
     },
