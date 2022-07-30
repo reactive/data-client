@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1658859166632,
+  "lastUpdate": 1659155027731,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -6766,6 +6766,58 @@ window.BENCHMARK_DATA = {
             "range": "±0.74%",
             "unit": "ops/sec",
             "extra": "74 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3003348ba96781085a6f8a6a86a882438ba2b5ea",
+          "message": "pkg: Update all non-major dependencies (#2119)\n\n* pkg: Update all non-major dependencies\r\n\r\n* internal: Need to sudo corepack\r\n\r\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\r\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2022-07-29T21:17:31-07:00",
+          "tree_id": "316bd7e640252343da9eb99f701a0b4caf891604",
+          "url": "https://github.com/coinbase/rest-hooks/commit/3003348ba96781085a6f8a6a86a882438ba2b5ea"
+        },
+        "date": 1659155025155,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 74.62,
+            "range": "±2.14%",
+            "unit": "ops/sec",
+            "extra": "66 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 36.32,
+            "range": "±1.65%",
+            "unit": "ops/sec",
+            "extra": "60 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 39.71,
+            "range": "±0.83%",
+            "unit": "ops/sec",
+            "extra": "52 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 75.14,
+            "range": "±2.38%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
           }
         ]
       }
