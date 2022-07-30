@@ -19,8 +19,8 @@ jobs:
       - run:
           name: yarn install
           command: |
-            npm install -g corepack
-            corepack enable
+            sudo npm install -g corepack
+            sudo corepack enable
             yarn install --immutable
       - save_cache:
           paths:
