@@ -65,6 +65,7 @@ module.exports = {
   presets: [
     [
       '@docusaurus/preset-classic',
+      /** @type {import('@docusaurus/preset-classic').Options} */
       {
         docs: {
           //id: 'core',
@@ -225,70 +226,72 @@ module.exports = {
     ],
     path.resolve(__dirname, './node-plugin'),
   ],
-  themeConfig: {
-    colorMode: {
-      defaultMode: 'light',
-      disableSwitch: false,
-      respectPrefersColorScheme: true,
-    },
-    image: 'img/rest_hooks_logo.png',
-    // Open Graph and Twitter card images.
-    ogImage: 'img/rest_hooks_logo.png',
-    twitterImage: 'img/rest_hooks_logo.png',
-    announcementBar: {
-      id: 'announcementBar-2', // Increment on change
-      content: `If you like Rest Hooks, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/coinbase/rest-hooks">GitHub</a>`,
-    },
-    navbar: {
-      title: 'Rest Hooks',
-      logo: {
-        src: 'img/rest_hooks_logo.svg',
+  themeConfig:
+    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
+    {
+      colorMode: {
+        defaultMode: 'light',
+        disableSwitch: false,
+        respectPrefersColorScheme: true,
       },
-      hideOnScroll: true,
-      items: [
-        {
-          to: 'docs',
-          label: 'Docs',
-          position: 'left',
+      image: 'img/rest_hooks_logo.png',
+      // Open Graph and Twitter card images.
+      ogImage: 'img/rest_hooks_logo.png',
+      twitterImage: 'img/rest_hooks_logo.png',
+      announcementBar: {
+        id: 'announcementBar-2', // Increment on change
+        content: `If you like Rest Hooks, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/coinbase/rest-hooks">GitHub</a>`,
+      },
+      navbar: {
+        title: 'Rest Hooks',
+        logo: {
+          src: 'img/rest_hooks_logo.svg',
         },
-        {
-          to: 'docs/api/types',
-          label: 'API',
-          position: 'left',
-        },
-        {
-          to: 'rest/usage',
-          label: 'REST',
-          position: 'left',
-        },
-        {
-          to: 'graphql/usage',
-          label: 'GraphQL',
-          position: 'left',
-        },
-        { to: '/blog', label: 'News', position: 'left' },
-        {
-          to: 'demos',
-          label: '🎮 Demos',
-          position: 'right',
-        },
-        {
-          type: 'docsVersionDropdown',
-          docsPluginId: 'default',
-          position: 'right',
-          dropdownItemsBefore: [
-            {
-              label: 'Upgrade Guide',
-              to: 'docs/upgrade/upgrading-to-6',
-            },
-          ],
-        },
-        {
-          type: 'docsVersionDropdown',
-          docsPluginId: 'rest',
-          position: 'right',
-        },
-        /*{
+        hideOnScroll: true,
+        items: [
+          {
+            to: 'docs',
+            label: 'Docs',
+            position: 'left',
+          },
+          {
+            to: 'docs/api/types',
+            label: 'API',
+            position: 'left',
+          },
+          {
+            to: 'rest/usage',
+            label: 'REST',
+            position: 'left',
+          },
+          {
+            to: 'graphql/usage',
+            label: 'GraphQL',
+            position: 'left',
+          },
+          { to: '/blog', label: 'News', position: 'left' },
+          {
+            to: 'demos',
+            label: '🎮 Demos',
+            position: 'right',
+          },
+          {
+            type: 'docsVersionDropdown',
+            docsPluginId: 'default',
+            position: 'right',
+            dropdownItemsBefore: [
+              {
+                label: 'Upgrade Guide',
+                to: 'docs/upgrade/upgrading-to-6',
+              },
+            ],
+          },
+          {
+            type: 'docsVersionDropdown',
+            docsPluginId: 'rest',
+            position: 'right',
+          },
+          /*{
           label: 'Version',
           to: 'docs',
           position: 'right',
@@ -315,62 +318,62 @@ module.exports = {
             },*
           ],
         },*/
-        {
-          href: 'https://www.github.com/coinbase/rest-hooks',
-          position: 'right',
-          className: 'header-github-link',
-          'aria-label': 'GitHub repository',
-        },
-      ],
-    },
-    footer: {
-      links: [
-        {
-          title: 'Docs',
-          items: [
-            {
-              label: 'Introduction',
-              to: '/docs',
-            },
-            {
-              label: 'REST / CRUD',
-              to: '/docs/rest/usage',
-            },
-            {
-              label: 'GraphQL',
-              to: '/docs/graphql/usage',
-            },
-            {
-              label: 'API',
-              to: '/docs/api/types',
-            },
-          ],
-        },
-        {
-          title: 'Community',
-          items: [
-            {
-              label: 'Discord',
-              href: 'https://discord.gg/35nb8Mz',
-            },
-            {
-              label: 'Stack Overflow',
-              href: 'http://stackoverflow.com/questions/tagged/rest-hooks',
-            },
-            /*{
+          {
+            href: 'https://www.github.com/coinbase/rest-hooks',
+            position: 'right',
+            className: 'header-github-link',
+            'aria-label': 'GitHub repository',
+          },
+        ],
+      },
+      footer: {
+        links: [
+          {
+            title: 'Docs',
+            items: [
+              {
+                label: 'Introduction',
+                to: '/docs',
+              },
+              {
+                label: 'REST / CRUD',
+                to: '/docs/rest/usage',
+              },
+              {
+                label: 'GraphQL',
+                to: '/docs/graphql/usage',
+              },
+              {
+                label: 'API',
+                to: '/docs/api/types',
+              },
+            ],
+          },
+          {
+            title: 'Community',
+            items: [
+              {
+                label: 'Discord',
+                href: 'https://discord.gg/35nb8Mz',
+              },
+              {
+                label: 'Stack Overflow',
+                href: 'http://stackoverflow.com/questions/tagged/rest-hooks',
+              },
+              /*{
               label: 'Twitter',
               href: 'https://twitter.com/RestHooks',
             },*/
-          ],
-        },
-        {
-          title: 'More',
-          items: [
-            {
-              label: 'Blog',
-              to: '/blog',
-            },
-            /*{
+            ],
+          },
+          {
+            title: 'More',
+            items: [
+              {
+                label: 'Blog',
+                to: '/blog',
+              },
+              /*{
               html: `<iframe
               src="https://ghbtns.com/github-btn.html?user=coinbase&amp;repo=rest-hooks&amp;type=star&amp;count=true&amp;size=small"
               width="110"
@@ -378,23 +381,23 @@ module.exports = {
               title="GitHub Stars"
             />`,
             },*/
-          ],
+            ],
+          },
+        ],
+        copyright: `Copyright © ${new Date().getFullYear()} Nathaniel Tucker. Some icons by <a href="https://www.freepik.com" title="Freepik">Freepik</a>`,
+        logo: {
+          src: 'img/rest_hooks_logo.svg',
         },
-      ],
-      copyright: `Copyright © ${new Date().getFullYear()} Nathaniel Tucker. Some icons by <a href="https://www.freepik.com" title="Freepik">Freepik</a>`,
-      logo: {
-        src: 'img/rest_hooks_logo.svg',
+      },
+      algolia: {
+        appId: 'BH4D9OD16A',
+        apiKey: '937e8e00950173761eede8a9c5ed77ac',
+        indexName: 'resthooks',
+        contextualSearch: true,
+        algoliaOptions: {
+          debug: process.env.NODE_ENV === 'development',
+          facetFilters: ['docusaurus_tag:docs-default-current'],
+        },
       },
     },
-    algolia: {
-      appId: 'BH4D9OD16A',
-      apiKey: '937e8e00950173761eede8a9c5ed77ac',
-      indexName: 'resthooks',
-      contextualSearch: true,
-      algoliaOptions: {
-        debug: process.env.NODE_ENV === 'development',
-        facetFilters: ['docusaurus_tag:docs-default-current'],
-      },
-    },
-  },
 };

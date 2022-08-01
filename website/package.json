@@ -1,7 +1,7 @@
 {
   "scripts": {
     "examples": "docusaurus-examples",
-    "start": "docusaurus start",
+    "start": "NODE_OPTIONS=--openssl-legacy-provider docusaurus start",
     "start:prod": "serve build",
     "build": "docusaurus build",
     "publish-gh-pages": "docusaurus-publish",
@@ -13,12 +13,14 @@
     "docusaurus": "docusaurus"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "2.0.1",
-    "@tsconfig/docusaurus": "1.0.6",
+    "@docusaurus/module-type-aliases": "^2.0.1",
+    "@tsconfig/docusaurus": "^1.0.6",
     "@types/react": "17.0.48",
+    "@types/react-dom": "^17.0.0",
     "@types/react-helmet": "^6.1.5",
     "@types/react-router-dom": "^5.3.3",
-    "serve": "14.0.1"
+    "serve": "14.0.1",
+    "webpack": "^5.74.0"
   },
   "dependencies": {
     "@anansi/webpack-config": "13.0.1",
@@ -38,8 +40,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-json-tree": "0.17.0",
-    "rest-hooks": "file:../packages/rest-hooks",
-    "typescript": "4.7.4"
+    "rest-hooks": "file:../packages/rest-hooks"
   },
   "resolutions": {
     "@rest-hooks/core": "file:../packages/core",
@@ -52,5 +53,6 @@
   },
   "msw": {
     "workerDirectory": "static"
-  }
+  },
+  "packageManager": "yarn@3.2.2"
 }
