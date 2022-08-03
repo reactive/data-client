@@ -94,7 +94,7 @@ export default function TodoDetail({ id }: { id: number }) {
 
 ## Async Fallbacks with Boundaries
 
-Unify and reuse [loading and error fallbacks](./getting-started/data-dependency.md#async-fallbacks-loadingerror) with [Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html) and [NetworkErrorBoundary](./api/NetworkErrorBoundary.md)
+Unify and reuse [loading and error fallbacks](./getting-started/data-dependency.md#async-fallbacks) with [Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html) and [NetworkErrorBoundary](./api/NetworkErrorBoundary.md)
 
 ```tsx {6-7,10-11}
 import { Suspense } from 'react';

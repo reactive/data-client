@@ -32,7 +32,7 @@ function useResource<
 
 Excellent for retrieving the data you need.
 
-`useResource()` [suspends](../getting-started/data-dependency#async-fallbacks-loadingerror) rendering until the data is available. This is much like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)ing an [async](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) function. That is to say, the lines after the function won't be run until resolution (data is available).
+`useResource()` [suspends](../getting-started/data-dependency#async-fallbacks) rendering until the data is available. This is much like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)ing an [async](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) function. That is to say, the lines after the function won't be run until resolution (data is available).
 
 Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by default but also [configurable](https://resthooks.io/docs/guides/resource-lifetime).
 
@@ -45,11 +45,11 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
   - and When no identical requests are in flight
   - and when params are not null
 - [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):
-  - Throws error to be [caught](../getting-started/data-dependency#async-fallbacks-loadingerror) by [Error Boundaries](https://reactjs.org/docs/error-boundaries.html)
+  - Throws error to be [caught](../getting-started/data-dependency#async-fallbacks) by [Error Boundaries](https://reactjs.org/docs/error-boundaries.html)
 - While Loading:
   - Returns previously cached if exists (even if stale)
     - except in case of delete or [invalidation](./useInvalidator)
-  - [Suspend rendering](../getting-started/data-dependency#async-fallbacks-loadingerror) otherwise
+  - [Suspend rendering](../getting-started/data-dependency#async-fallbacks) otherwise
 
 ## Single
 
