@@ -3,8 +3,8 @@ title: Guides
 ---
 
 - 🔰 Basics
-  - [Handling loading state](getting-started/data-dependency#async-fallbacks-loadingerror)
-  - [Dealing with network errors](getting-started/data-dependency#async-fallbacks-loadingerror)
+  - [Handling loading state](getting-started/data-dependency#async-fallbacks)
+  - [Dealing with network errors](getting-started/data-dependency#async-fallbacks)
   - [Fetching multiple resources at once](guides/fetch-multiple.md)
   - [Pagination](guides/pagination.md)
   - [Understanding Immutability](guides/immutability.md)
