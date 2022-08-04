@@ -6,12 +6,12 @@
     "lint": "eslint src --ext .ts,.tsx",
     "format": "npm run lint --fix",
     "test:type": "tsc",
-    "start": "NODE_OPTIONS=--openssl-legacy-provider webpack serve --mode=development",
+    "start": "webpack serve --mode=development",
     "start:prod": "serve dist",
-    "build:browser": "NODE_OPTIONS=--openssl-legacy-provider webpack --mode=production",
-    "build:analyze": "NODE_OPTIONS=--openssl-legacy-provider webpack --mode=production --env analyze",
-    "build:profile": "NODE_OPTIONS=--openssl-legacy-provider webpack --mode=production --env profile",
-    "test:pkg": "NODE_OPTIONS=--openssl-legacy-provider webpack --env check=nobuild"
+    "build:browser": "webpack --mode=production",
+    "build:analyze": "webpack --mode=production --env analyze",
+    "build:profile": "webpack --mode=production --env profile",
+    "test:pkg": "webpack --env check=nobuild"
   },
   "keywords": [
     "anansi"
@@ -24,7 +24,7 @@
     "@anansi/babel-preset": "3.2.14",
     "@anansi/browserslist-config": "1.3.3",
     "@anansi/eslint-plugin": "0.14.2",
-    "@anansi/webpack-config": "13.0.1",
+    "@anansi/webpack-config": "13.0.3",
     "@babel/core": "7.18.10",
     "@linaria/babel-preset": "4.1.2",
     "@linaria/core": "4.1.1",
