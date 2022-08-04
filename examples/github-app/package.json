@@ -58,13 +58,13 @@
     "webpack-dev-server": "4.9.3"
   },
   "dependencies": {
-    "@anansi/router": "0.6.11",
+    "@anansi/router": "0.6.13",
     "@ant-design/icons": "^4.7.0",
     "@rest-hooks/core": "^3.2.8",
     "@rest-hooks/endpoint": "^2.2.11",
     "@rest-hooks/experimental": "^5.0.3",
     "@rest-hooks/rest": "^5.0.5",
-    "antd": "4.22.2",
+    "antd": "4.22.3",
     "parse-link-header": "^2.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
