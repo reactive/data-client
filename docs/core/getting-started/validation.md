@@ -107,6 +107,8 @@ render(<ArticlePage id="2" />);
 Another great use of validation is mixing endpoints that return incomplete objects. This is often
 useful when some fields consume lots of bandwidth or are computationally expensive for the backend.
 
+Consider using [validateRequired](/rest/api/validateRequired) to reduce code.
+
 <HooksPlayground>
 
 ```tsx
