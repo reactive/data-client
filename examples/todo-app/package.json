@@ -6,12 +6,12 @@
     "lint": "eslint src --ext .ts,.tsx",
     "format": "npm run lint --fix",
     "test:type": "tsc",
-    "start": "NODE_OPTIONS=--openssl-legacy-provider webpack serve --mode=development",
+    "start": "webpack serve --mode=development",
     "start:prod": "serve dist",
-    "build:browser": "NODE_OPTIONS=--openssl-legacy-provider webpack --mode=production",
-    "build:analyze": "NODE_OPTIONS=--openssl-legacy-provider webpack --mode=production --env analyze",
-    "build:profile": "NODE_OPTIONS=--openssl-legacy-provider webpack --mode=production --env profile",
-    "test:pkg": "NODE_OPTIONS=--openssl-legacy-provider webpack --env check=nobuild"
+    "build:browser": "webpack --mode=production",
+    "build:analyze": "webpack --mode=production --env analyze",
+    "build:profile": "webpack --mode=production --env profile",
+    "test:pkg": "webpack --env check=nobuild"
   },
   "keywords": [
     "anansi"
