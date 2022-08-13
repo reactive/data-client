@@ -14,9 +14,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:3.2.14":
-  version: 3.2.14
-  resolution: "@anansi/babel-preset@npm:3.2.14"
+"@anansi/babel-preset@npm:3.2.15":
+  version: 3.2.15
+  resolution: "@anansi/babel-preset@npm:3.2.15"
   dependencies:
     "@anansi/ts-utils": ^0.2.6
     "@babel/plugin-proposal-class-properties": ^7.18.6
@@ -31,10 +31,10 @@ __metadata:
     "@babel/plugin-syntax-top-level-await": ^7.14.5
     "@babel/plugin-transform-flow-strip-types": ^7.18.9
     "@babel/plugin-transform-object-assign": ^7.18.6
-    "@babel/plugin-transform-react-constant-elements": ^7.18.9
+    "@babel/plugin-transform-react-constant-elements": ^7.18.12
     "@babel/plugin-transform-react-inline-elements": ^7.18.6
     "@babel/plugin-transform-runtime": ^7.18.10
-    "@babel/plugin-transform-typescript": ^7.18.10
+    "@babel/plugin-transform-typescript": ^7.18.12
     "@babel/preset-env": ^7.18.10
     "@babel/preset-react": ^7.18.6
     babel-plugin-lodash: ^3.3.4
@@ -74,7 +74,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: c36bbd4641f4282f0a95085eae05c20342f33a9ac41211f8469bc02453cea3c52fdbe844a7f67ee18e9e70731e172c12fee58f99934c729b6a4db7d2691bf55e
+  checksum: 0ce888bee93c4ae631c9550722123616c8cae9241b3be1fa630dc66de3d875f7185150220c9630e46a375f5b6df3de22c06a2731314a23e5d8ba3c5c65c46d85
   languageName: node
   linkType: hard
 
@@ -1545,14 +1545,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-react-constant-elements@npm:^7.17.12, @babel/plugin-transform-react-constant-elements@npm:^7.18.9":
-  version: 7.18.9
-  resolution: "@babel/plugin-transform-react-constant-elements@npm:7.18.9"
+"@babel/plugin-transform-react-constant-elements@npm:^7.17.12, @babel/plugin-transform-react-constant-elements@npm:^7.18.12":
+  version: 7.18.12
+  resolution: "@babel/plugin-transform-react-constant-elements@npm:7.18.12"
   dependencies:
     "@babel/helper-plugin-utils": ^7.18.9
   peerDependencies:
     "@babel/core": ^7.0.0-0
-  checksum: bbdc4bc38317e62bb729d6d2b48bfac4cca52cb476a1a537a6fe693610852a6f2c3b3f616e1c73f17fb4b0dae551b1c96f898b7867a02ff2fbe3e858a346c767
+  checksum: d83fbc65e8eb32b64fc83c64436d85dba44e2c358b906e5eb3709d22b05bdeada2f92af1e85e26fda88bb8d688b06546b9a98fee17c82563ae00f19827ba0c79
   languageName: node
   linkType: hard
 
@@ -1734,16 +1734,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-typescript@npm:^7.18.10, @babel/plugin-transform-typescript@npm:^7.18.6, @babel/plugin-transform-typescript@npm:^7.5.0":
-  version: 7.18.10
-  resolution: "@babel/plugin-transform-typescript@npm:7.18.10"
+"@babel/plugin-transform-typescript@npm:^7.18.12, @babel/plugin-transform-typescript@npm:^7.18.6, @babel/plugin-transform-typescript@npm:^7.5.0":
+  version: 7.18.12
+  resolution: "@babel/plugin-transform-typescript@npm:7.18.12"
   dependencies:
     "@babel/helper-create-class-features-plugin": ^7.18.9
     "@babel/helper-plugin-utils": ^7.18.9
     "@babel/plugin-syntax-typescript": ^7.18.6
   peerDependencies:
     "@babel/core": ^7.0.0-0
-  checksum: 9fba23131b747936112549f26e5007d2762c36dc2f3a753b0cded9bf220364c85fc432b45eba1848037bc9f9317c78ff0b3f88977851499ad9115f6083c0a7fb
+  checksum: 87e9b783ef712697a9d3bd72d0345ea4ea71b4676f9b88da0a30fe4b8a81f453a5badee788bb4dc849616af84d674d728a6ec4248f14a75bfb0b4de5bcce7431
   languageName: node
   linkType: hard
 
@@ -10323,7 +10323,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "github-app@workspace:examples/github-app"
   dependencies:
-    "@anansi/babel-preset": 3.2.14
+    "@anansi/babel-preset": 3.2.15
     "@anansi/browserslist-config": 1.3.3
     "@anansi/eslint-plugin": 0.14.2
     "@anansi/router": 0.6.13
@@ -18644,7 +18644,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": 3.2.14
+    "@anansi/babel-preset": 3.2.15
     "@anansi/browserslist-config": 1.3.3
     "@anansi/eslint-plugin": 0.14.2
     "@anansi/jest-preset": 0.7.16
@@ -20243,7 +20243,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "todo-app@workspace:examples/todo-app"
   dependencies:
-    "@anansi/babel-preset": 3.2.14
+    "@anansi/babel-preset": 3.2.15
     "@anansi/browserslist-config": 1.3.3
     "@anansi/eslint-plugin": 0.14.2
     "@anansi/webpack-config": 13.0.4
