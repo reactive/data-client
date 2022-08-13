@@ -181,9 +181,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:13.0.3":
-  version: 13.0.3
-  resolution: "@anansi/webpack-config@npm:13.0.3"
+"@anansi/webpack-config@npm:13.0.4":
+  version: 13.0.4
+  resolution: "@anansi/webpack-config@npm:13.0.4"
   dependencies:
     "@babel/runtime": ^7.17.2
     "@linaria/webpack5-loader": 4.1.2
@@ -219,7 +219,7 @@ __metadata:
     os-browserify: ^0.3.0
     path: ^0.12.7
     path-browserify: ^1.0.1
-    postcss: ^8.4.14
+    postcss: ^8.4.16
     postcss-loader: ^7.0.1
     postcss-preset-env: ^7.7.2
     process: ^0.11.10
@@ -230,7 +230,7 @@ __metadata:
     react-dev-utils: ^12.0.1
     react-error-overlay: 6.0.9
     readable-stream: ^4.1.0
-    sass: ^1.54.2
+    sass: ^1.54.4
     sass-loader: ^13.0.2
     sass-resources-loader: ^2.2.5
     semver: ^7.3.7
@@ -240,7 +240,7 @@ __metadata:
     strip-ansi: ^6.0.1
     svgo: ^2.8.0
     svgo-loader: ^3.0.1
-    terser-webpack-plugin: ^5.3.3
+    terser-webpack-plugin: ^5.3.4
     timers-browserify: ^2.0.12
     tsconfig-paths-webpack-plugin: ^4.0.0
     tty-browserify: ^0.0.1
@@ -251,7 +251,7 @@ __metadata:
     webpack-bundle-analyzer: ^4.5.0
     webpack-node-externals: ^3.0.0
     webpack-remove-empty-scripts: ^0.8.1
-    webpack-stats-plugin: ^1.0.3
+    webpack-stats-plugin: ^1.1.0
     worker-loader: ^3.0.8
   peerDependencies:
     "@babel/core": ^6 || ^7 || ^8
@@ -286,7 +286,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 806fb039c341a1b6f9c371d27b6b4fec49f138c594649e89e8875f4e40604323e1b18cfeaf3734e13e670fbc05f048fd93cbb4d7bfd3499460f8be604ac9c7f1
+  checksum: 6320a95345c621f93d69e28b27e2d58263bfba119fe8ac43704599e32b305aa095da930fba8720ae030c1d27b063753556767d06c05ef51168ebaed02cfb5394
   languageName: node
   linkType: hard
 
@@ -2507,13 +2507,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jridgewell/trace-mapping@npm:^0.3.0, @jridgewell/trace-mapping@npm:^0.3.7, @jridgewell/trace-mapping@npm:^0.3.9":
-  version: 0.3.14
-  resolution: "@jridgewell/trace-mapping@npm:0.3.14"
+"@jridgewell/trace-mapping@npm:^0.3.0, @jridgewell/trace-mapping@npm:^0.3.14, @jridgewell/trace-mapping@npm:^0.3.9":
+  version: 0.3.15
+  resolution: "@jridgewell/trace-mapping@npm:0.3.15"
   dependencies:
     "@jridgewell/resolve-uri": ^3.0.3
     "@jridgewell/sourcemap-codec": ^1.4.10
-  checksum: b9537b9630ffb631aef9651a085fe361881cde1772cd482c257fe3c78c8fd5388d681f504a9c9fe1081b1c05e8f75edf55ee10fdb58d92bbaa8dbf6a7bd6b18c
+  checksum: 38917e9c2b014d469a9f51c016ed506acbe44dd16ec2f6f99b553ebf3764d22abadbf992f2367b6d2b3511f3eae8ed3a8963f6c1030093fda23efd35ecab2bae
   languageName: node
   linkType: hard
 
@@ -10919,14 +10919,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.3.11, postcss@npm:^8.4.13, postcss@npm:^8.4.14, postcss@npm:^8.4.7":
-  version: 8.4.14
-  resolution: "postcss@npm:8.4.14"
+"postcss@npm:^8.3.11, postcss@npm:^8.4.13, postcss@npm:^8.4.14, postcss@npm:^8.4.16, postcss@npm:^8.4.7":
+  version: 8.4.16
+  resolution: "postcss@npm:8.4.16"
   dependencies:
     nanoid: ^3.3.4
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
-  checksum: fe58766ff32e4becf65a7d57678995cfd239df6deed2fe0557f038b47c94e4132e7e5f68b5aa820c13adfec32e523b693efaeb65798efb995ce49ccd83953816
+  checksum: 10eee25efd77868036403858577da0cefaf2e0905feeaba5770d5438ccdddba3d01cba8063e96b8aac4c6daa0ed413dd5ae0554a433a3c4db38df1d134cffc1f
   languageName: node
   linkType: hard
 
@@ -11986,7 +11986,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/webpack-config": 13.0.3
+    "@anansi/webpack-config": 13.0.4
     "@docusaurus/core": 2.0.1
     "@docusaurus/module-type-aliases": ^2.0.1
     "@docusaurus/plugin-client-redirects": 2.0.1
@@ -12119,16 +12119,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass@npm:^1.54.2":
-  version: 1.54.2
-  resolution: "sass@npm:1.54.2"
+"sass@npm:^1.54.4":
+  version: 1.54.4
+  resolution: "sass@npm:1.54.4"
   dependencies:
     chokidar: ">=3.0.0 <4.0.0"
     immutable: ^4.0.0
     source-map-js: ">=0.6.2 <2.0.0"
   bin:
     sass: sass.js
-  checksum: 710e798533088182963f9c83113954ea1db5ffdf24ffbe454ce7667f3113e308c43ba20516a8c40929fae5b5f911032076e7c4d7eb00b2da7a12fc9884f5d39d
+  checksum: bb6aead09764de450a02b9a66e4ee538f0ba6bc8f2fc3905c71b2c302b5f47e089b510b86cfa7ef2d4139c210c8abf99fe157e7a5bd356c057f10d29e6c4b44c
   languageName: node
   linkType: hard
 
@@ -13058,15 +13058,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"terser-webpack-plugin@npm:^5.1.3, terser-webpack-plugin@npm:^5.3.3":
-  version: 5.3.3
-  resolution: "terser-webpack-plugin@npm:5.3.3"
+"terser-webpack-plugin@npm:^5.1.3, terser-webpack-plugin@npm:^5.3.3, terser-webpack-plugin@npm:^5.3.4":
+  version: 5.3.4
+  resolution: "terser-webpack-plugin@npm:5.3.4"
   dependencies:
-    "@jridgewell/trace-mapping": ^0.3.7
+    "@jridgewell/trace-mapping": ^0.3.14
     jest-worker: ^27.4.5
     schema-utils: ^3.1.1
     serialize-javascript: ^6.0.0
-    terser: ^5.7.2
+    terser: ^5.14.1
   peerDependencies:
     webpack: ^5.1.0
   peerDependenciesMeta:
@@ -13076,11 +13076,11 @@ __metadata:
       optional: true
     uglify-js:
       optional: true
-  checksum: 4b8d508d8a0f6e604addb286975f1fa670f8c3964a67abc03a7cfcfd4cdeca4b07dda6655e1c4425427fb62e4d2b0ca59d84f1b2cd83262ff73616d5d3ccdeb5
+  checksum: 37f65cf0a3fd24c7ce48268e387e50d3315136c9afd27952e1c299995a951aa61c0d34d8eb07cf2eb667078176b5e0d56e7f7400b09984eaa74712d0c1e39203
   languageName: node
   linkType: hard
 
-"terser@npm:^5.10.0, terser@npm:^5.7.2":
+"terser@npm:^5.10.0, terser@npm:^5.14.1":
   version: 5.14.2
   resolution: "terser@npm:5.14.2"
   dependencies:
@@ -13950,10 +13950,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-stats-plugin@npm:^1.0.3":
-  version: 1.0.3
-  resolution: "webpack-stats-plugin@npm:1.0.3"
-  checksum: c6f400b945091b19f34fbd463a1ba6f000b9cac06f8021757f90bad2cd30803e53d6f24ac4eb042593baa2da055a0696e85f430a47315de7c44d9b5bb7e66f05
+"webpack-stats-plugin@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "webpack-stats-plugin@npm:1.1.0"
+  checksum: f692f3003813122a1745607c1db78fbcdf51dca570984a591f53f8e6e4a856ebb1490c43837ad4728ca2b62aed9bdadecb79e5e04efc5bff41ff075e5d809c54
   languageName: node
   linkType: hard
 
