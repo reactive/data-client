@@ -33,7 +33,7 @@
     "@rest-hooks/graphql": "file:../packages/graphql",
     "@rest-hooks/hooks": "file:../packages/hooks",
     "@rest-hooks/rest": "file:../packages/rest",
-    "bignumber.js": "^9.0.2",
+    "bignumber.js": "9.1.0",
     "clsx": "1.2.1",
     "msw": "0.40.2",
     "raw-loader": "^4.0.2",

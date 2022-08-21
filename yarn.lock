@@ -143,12 +143,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:0.6.13":
-  version: 0.6.13
-  resolution: "@anansi/router@npm:0.6.13"
+"@anansi/router@npm:0.6.16":
+  version: 0.6.16
+  resolution: "@anansi/router@npm:0.6.16"
   dependencies:
     "@babel/runtime": ^7.10.5
-    "@pojo-router/core": ^0.5.21
+    "@pojo-router/core": ^0.5.24
     history: ^5.3.0
     nano-memoize: ^1.3.0
   peerDependencies:
@@ -157,7 +157,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 8649ae98108394da71661728dfac5d110bf37b1533296257aa89bc0491447110069c9c14aebdd4b04b3b1dc1d5b98a16391cf8ba68f7569bdb33d67ac2fdecab
+  checksum: 74cf483081c52a8555a062c82daca40c7fc18ec3f5cf95aa278d04d12f92b4f2c5f85107adcca7d23183b4b3a7a7f809e886d2ae0e4ba71e883c58f1a3c00267
   languageName: node
   linkType: hard
 
@@ -2792,40 +2792,44 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lerna-lite/cli@npm:1.9.1":
-  version: 1.9.1
-  resolution: "@lerna-lite/cli@npm:1.9.1"
+"@lerna-lite/cli@npm:1.11.0":
+  version: 1.11.0
+  resolution: "@lerna-lite/cli@npm:1.11.0"
   dependencies:
-    "@lerna-lite/core": 1.9.1
-    "@lerna-lite/info": 1.9.1
-    "@lerna-lite/init": 1.9.1
-    "@lerna-lite/listable": 1.9.1
-    "@lerna-lite/publish": 1.9.1
-    "@lerna-lite/version": 1.9.1
+    "@lerna-lite/core": 1.11.0
+    "@lerna-lite/info": 1.11.0
+    "@lerna-lite/init": 1.11.0
+    "@lerna-lite/listable": 1.11.0
+    "@lerna-lite/publish": 1.11.0
+    "@lerna-lite/version": 1.11.0
     dedent: ^0.7.0
     dotenv: ^16.0.1
     import-local: ^3.1.0
+    load-json-file: ^6.2.0
     npmlog: ^6.0.2
+    path: ^0.12.7
     yargs: ^17.5.1
   bin:
     lerna: dist/cli.js
-  checksum: 9291e16fad303b2cb56809cf5624c500acf43d01d2feee5f4a8cdb7ed9cb8ca2d4fdd816c83c13c5a421fef7f317a8c061a0cff43b9923109d662c99a5c4caa4
+  checksum: 641eb28e8990a09c50468269c7464ccbbbe7ebdd17a106a383d0320f32a80c866b003b88270e78a9b63c3efddea261ad5c1f21dc8fbe013a7de4264c23dd0a93
   languageName: node
   linkType: hard
 
-"@lerna-lite/core@npm:1.9.1":
-  version: 1.9.1
-  resolution: "@lerna-lite/core@npm:1.9.1"
+"@lerna-lite/core@npm:1.11.0":
+  version: 1.11.0
+  resolution: "@lerna-lite/core@npm:1.11.0"
   dependencies:
-    "@npmcli/run-script": ^4.1.7
+    "@npmcli/run-script": ^4.2.1
     "@octokit/plugin-enterprise-rest": ^6.0.1
-    "@octokit/rest": ^19.0.3
+    "@octokit/rest": ^19.0.4
     async: ^3.2.4
     chalk: ^4.1.2
     clone-deep: ^4.0.1
     config-chain: ^1.1.13
     conventional-changelog-angular: ^5.0.13
     conventional-changelog-core: ^4.2.4
+    conventional-changelog-writer: ^5.0.1
+    conventional-commits-parser: ^3.2.4
     conventional-recommended-bump: ^6.1.0
     cosmiconfig: ^7.0.1
     dedent: ^0.7.0
@@ -2847,14 +2851,14 @@ __metadata:
     node-fetch: ^2.6.7
     npm-package-arg: ^9.1.0
     npm-packlist: ^5.1.1
-    npm-registry-fetch: ^13.3.0
+    npm-registry-fetch: ^13.3.1
     npmlog: ^6.0.2
     os: ^0.1.2
     p-map: ^4.0.0
     p-pipe: ^3.1.0
     p-queue: ^6.6.2
     p-reduce: ^2.1.0
-    pacote: ^13.6.1
+    pacote: ^13.6.2
     path: ^0.12.7
     pify: ^5.0.0
     resolve-from: ^5.0.0
@@ -2865,56 +2869,55 @@ __metadata:
     tar: ^6.1.11
     temp-dir: ^1.0.0
     uuid: ^8.3.2
-    whatwg-url: ^11.0.0
-    write-file-atomic: ^4.0.1
+    write-file-atomic: ^4.0.2
     write-json-file: ^4.3.0
     write-pkg: ^4.0.0
     yargs: ^17.5.1
-  checksum: 0ccf180b10547973802c75e3130c8e9c964bdb60bb88f26b800ba5e6b986554f47e47e36d8b93af08c24d4aea8a8fd48121ca4c527ed95f1dbefaff9d2903a6c
+  checksum: 023f9e6c8a4496adf1ccdd78ddb06cb9808b5bb4e256722016c25985c5b1536cf0f448987f7b3b7bea70d319cc5a66080dc652939e77e989a8614a5861330754
   languageName: node
   linkType: hard
 
-"@lerna-lite/info@npm:1.9.1":
-  version: 1.9.1
-  resolution: "@lerna-lite/info@npm:1.9.1"
+"@lerna-lite/info@npm:1.11.0":
+  version: 1.11.0
+  resolution: "@lerna-lite/info@npm:1.11.0"
   dependencies:
-    "@lerna-lite/core": 1.9.1
+    "@lerna-lite/core": 1.11.0
     dedent: ^0.7.0
     envinfo: ^7.8.1
     yargs: ^17.5.1
-  checksum: 2c9ef2a312287f11d41e642d1b25b52a9d5dea47a03f6960c31eb39b3e780c7ba70b2d83e64b73c01f2e8b60bb669593ab21271e321854d3f3f9bbda72854a7e
+  checksum: d0162d77c8b699a63bab9ba2237d9b854f53bf1cc4b5061b94776f7b338e7dcd672b38a832af4318626eeeef02be32f400b55e295c6a557f6c2d710b7a01a283
   languageName: node
   linkType: hard
 
-"@lerna-lite/init@npm:1.9.1":
-  version: 1.9.1
-  resolution: "@lerna-lite/init@npm:1.9.1"
+"@lerna-lite/init@npm:1.11.0":
+  version: 1.11.0
+  resolution: "@lerna-lite/init@npm:1.11.0"
   dependencies:
-    "@lerna-lite/core": 1.9.1
+    "@lerna-lite/core": 1.11.0
     fs-extra: ^10.1.0
     p-map: ^4.0.0
     write-json-file: ^4.3.0
-  checksum: 1570c01876ecc5ad7c4bca1cb357f7244f35d2e6faae5a681fe0ce12a59072be8945653df6ff7252a617ae8e086b181a3070efb93702bc0a64514433b39ccd98
+  checksum: b57b28acbc4289dd715fc90f2cba91e2bb0869e5bb370d176d54637d283b3e6059c27aaeeaad2fed327e1064cc47a1a2bdb56df83a79c5d0e2cc880328b0db35
   languageName: node
   linkType: hard
 
-"@lerna-lite/listable@npm:1.9.1":
-  version: 1.9.1
-  resolution: "@lerna-lite/listable@npm:1.9.1"
+"@lerna-lite/listable@npm:1.11.0":
+  version: 1.11.0
+  resolution: "@lerna-lite/listable@npm:1.11.0"
   dependencies:
-    "@lerna-lite/core": 1.9.1
+    "@lerna-lite/core": 1.11.0
     chalk: ^4.1.2
     columnify: ^1.6.0
-  checksum: dbe0d204b924f465f99cc46cba54854c9ea098aa9e8fb51e3ef490f47b186be1d640c8f845781c160e6e1554f5614800fe499eb4a4a0e92124685fa95bb45da2
+  checksum: 309ce6235801d692cef0165c24a0c13e95562cc442bebfbb8e71dff1b0c0ab2553416b003c32e85343b2c03f1a1e5e56bfa1a972ca0d6abc4880bc217a76be80
   languageName: node
   linkType: hard
 
-"@lerna-lite/publish@npm:1.9.1":
-  version: 1.9.1
-  resolution: "@lerna-lite/publish@npm:1.9.1"
+"@lerna-lite/publish@npm:1.11.0":
+  version: 1.11.0
+  resolution: "@lerna-lite/publish@npm:1.11.0"
   dependencies:
-    "@lerna-lite/core": 1.9.1
-    "@lerna-lite/version": 1.9.1
+    "@lerna-lite/core": 1.11.0
+    "@lerna-lite/version": 1.11.0
     byte-size: ^7.0.1
     columnify: ^1.6.0
     fs-extra: ^10.1.0
@@ -2923,12 +2926,12 @@ __metadata:
     libnpmpublish: ^6.0.4
     npm-package-arg: ^9.1.0
     npm-packlist: ^5.1.1
-    npm-registry-fetch: ^13.3.0
+    npm-registry-fetch: ^13.3.1
     npmlog: ^6.0.2
     os: ^0.1.2
     p-map: ^4.0.0
     p-pipe: ^3.1.0
-    pacote: ^13.6.1
+    pacote: ^13.6.2
     path: ^0.12.7
     pify: ^5.0.0
     read-package-json: ^5.0.1
@@ -2938,20 +2941,19 @@ __metadata:
     ssri: ^9.0.1
     strong-log-transformer: ^2.1.0
     tar: ^6.1.11
-    whatwg-url: ^11.0.0
-    write-file-atomic: ^4.0.1
+    write-file-atomic: ^4.0.2
     write-json-file: ^4.3.0
     write-pkg: ^4.0.0
     yargs: ^17.5.1
-  checksum: 597cf6dbbc390e10c319002b5e7003ff24ca9159624d656e33f92cbc34d25c69319c5636ca80cfc5e0bd7a422d1980a49f2836659965a3af5b49e93997230b4b
+  checksum: 2c0b93e3dc9f672fb478329f0d6e0d113959afa91ec4d93d1228749a851f1d8447355a14f09ffaa9e89fd4306df81d6089d276edf59144a6aa78f977716d3808
   languageName: node
   linkType: hard
 
-"@lerna-lite/version@npm:1.9.1":
-  version: 1.9.1
-  resolution: "@lerna-lite/version@npm:1.9.1"
+"@lerna-lite/version@npm:1.11.0":
+  version: 1.11.0
+  resolution: "@lerna-lite/version@npm:1.11.0"
   dependencies:
-    "@lerna-lite/core": 1.9.1
+    "@lerna-lite/core": 1.11.0
     chalk: ^4.1.2
     dedent: ^0.7.0
     load-json-file: ^6.2.0
@@ -2966,7 +2968,7 @@ __metadata:
     slash: ^3.0.0
     write-json-file: ^4.3.0
     yargs: ^17.5.1
-  checksum: 5f5048fa0e4c152d3ab4021412f4666a48a7b2009247243000627d7e18e1e92fa967020a27ed02f427c52d7d9c504f7b02e4a89c0607f9fb2e68564d9f74ecfc
+  checksum: fbbb29fdda42df92450b153bf2c22f8968c012eb9d0c906c4de6faf396eb575d55e78c8a0231f1fa0ab0df9bfa902c067e3f70d190d2e17e508924a8a68f183b
   languageName: node
   linkType: hard
 
@@ -3251,16 +3253,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@npmcli/run-script@npm:^4.1.0, @npmcli/run-script@npm:^4.1.7":
-  version: 4.1.7
-  resolution: "@npmcli/run-script@npm:4.1.7"
+"@npmcli/run-script@npm:^4.1.0, @npmcli/run-script@npm:^4.2.1":
+  version: 4.2.1
+  resolution: "@npmcli/run-script@npm:4.2.1"
   dependencies:
     "@npmcli/node-gyp": ^2.0.0
     "@npmcli/promise-spawn": ^3.0.0
     node-gyp: ^9.0.0
     read-package-json-fast: ^2.0.3
     which: ^2.0.2
-  checksum: 87c32b12fed981fe8a48de985dd1ae0350bcda2830ca4a35efe4b2b96932905cccd04e6e2de5bfea8ed4e2bf3b6f8315630ff9a09c72f80ff3c49f19a9fc80ff
+  checksum: 7b8d6676353f157e68b26baf848e01e5d887bcf90ce81a52f23fc9a5d93e6ffb60057532d664cfd7aeeb76d464d0c8b0d314ee6cccb56943acb3b6c570b756c8
   languageName: node
   linkType: hard
 
@@ -3317,6 +3319,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@octokit/openapi-types@npm:^13.4.0":
+  version: 13.4.0
+  resolution: "@octokit/openapi-types@npm:13.4.0"
+  checksum: e5bb4573f065d0847c783db818eaa28fe2f8ec160334060e606c65dbf96a8c2108bcfed03da457e25b5dd9c0847b09cccf1206c709ee45c43108bb5d29808e9e
+  languageName: node
+  linkType: hard
+
 "@octokit/plugin-enterprise-rest@npm:^6.0.1":
   version: 6.0.1
   resolution: "@octokit/plugin-enterprise-rest@npm:6.0.1"
@@ -3324,14 +3333,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/plugin-paginate-rest@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "@octokit/plugin-paginate-rest@npm:3.0.0"
+"@octokit/plugin-paginate-rest@npm:^4.0.0":
+  version: 4.1.0
+  resolution: "@octokit/plugin-paginate-rest@npm:4.1.0"
   dependencies:
-    "@octokit/types": ^6.39.0
+    "@octokit/types": ^7.1.1
   peerDependencies:
     "@octokit/core": ">=4"
-  checksum: 1d2c900254f3dcd43f7ba69dfd12ff63f93a0d39a1bf542b1d0f006e95da4924ae0a26044c864ad7fb0309047f44becaf76293aae334d14c946910d65edd2523
+  checksum: bca2481b8add3b01b2ca447c0b534b0ec60a8cf45e58577f78ef3e5dd95274eac065d7e6dc4b8e1a5e37c69f37e6bf314b2139c15816e0c0c6f80c18e12a7192
   languageName: node
   linkType: hard
 
@@ -3381,15 +3390,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/rest@npm:19.0.3, @octokit/rest@npm:^19.0.3":
-  version: 19.0.3
-  resolution: "@octokit/rest@npm:19.0.3"
+"@octokit/rest@npm:19.0.4, @octokit/rest@npm:^19.0.4":
+  version: 19.0.4
+  resolution: "@octokit/rest@npm:19.0.4"
   dependencies:
     "@octokit/core": ^4.0.0
-    "@octokit/plugin-paginate-rest": ^3.0.0
+    "@octokit/plugin-paginate-rest": ^4.0.0
     "@octokit/plugin-request-log": ^1.0.4
     "@octokit/plugin-rest-endpoint-methods": ^6.0.0
-  checksum: 9ee96976c4c22dab11b3dacd541e694f3ad9bb1d44243985dc90ce6e8a42c3e3176a206e8d3a883b63b517fc15af8c8c88d8d0ecd9bac2b86a635a9667fc6ff4
+  checksum: 7eba9148b707c713705ba8d75c25fbb22488f30abef7967ce92884a51e411e709b90ff56b0e6fa5521b261f343a7fd33b8ad5d0b87cab4bc2e178002b2566cf2
   languageName: node
   linkType: hard
 
@@ -3399,6 +3408,15 @@ __metadata:
   dependencies:
     "@octokit/openapi-types": ^12.7.0
   checksum: 0e3d55e4bdef41e652a2e99a304cebada90f23a90619c49ab892a76ae908c4281316738453348c9ba30b32250ef5eda0a939c2af3aec5ca808acdf9922da420c
+  languageName: node
+  linkType: hard
+
+"@octokit/types@npm:^7.1.1":
+  version: 7.1.1
+  resolution: "@octokit/types@npm:7.1.1"
+  dependencies:
+    "@octokit/openapi-types": ^13.4.0
+  checksum: fe7847fe996b14761d1ca3e6dbb1b33bb180fc9b28ac602fab939fcdb729d99ec30a210f9ede6cd88a41cd04b3b49126ec3794220724a3be3d7863cdfbd9d490
   languageName: node
   linkType: hard
 
@@ -3455,9 +3473,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.5.21":
-  version: 0.5.21
-  resolution: "@pojo-router/core@npm:0.5.21"
+"@pojo-router/core@npm:^0.5.24":
+  version: 0.5.24
+  resolution: "@pojo-router/core@npm:0.5.24"
   dependencies:
     "@babel/runtime": ^7.10.5
     history: 5.3.0
@@ -3468,7 +3486,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 0867386893f7b0f569dd5e08e434a92fe9face9cf5d45acb3a922dddbb54f0e07ec9f740d8db47acf77d274f865d40314559cd758f7bb6398d6239e7b3b3c414
+  checksum: 568793eebc72030d2f08d6c83fd3d339666ed6b26be819bbd16d9b892efbc1fd2c5ab139f5a2f587857e985e208038f6817532de07530edcd238b82a64ffcf11
   languageName: node
   linkType: hard
 
@@ -3712,7 +3730,7 @@ __metadata:
     downlevel-dts: ^0.10.0
     flux-standard-action: ^2.1.1
     npm-run-all: ^4.1.5
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -3740,7 +3758,7 @@ __metadata:
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -3762,7 +3780,7 @@ __metadata:
     "@types/path-to-regexp": ^1.7.0
     downlevel-dts: ^0.10.0
     path-to-regexp: ^6.2.0
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -3792,7 +3810,7 @@ __metadata:
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -3814,7 +3832,7 @@ __metadata:
     "@babel/runtime": ^7.13.0
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -3841,7 +3859,7 @@ __metadata:
     "@babel/runtime": ^7.13.0
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -3869,7 +3887,7 @@ __metadata:
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -3898,7 +3916,7 @@ __metadata:
     downlevel-dts: ^0.10.0
     immutable: 4.1.0
     npm-run-all: ^4.1.5
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -3920,7 +3938,7 @@ __metadata:
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -3943,7 +3961,7 @@ __metadata:
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -3973,7 +3991,7 @@ __metadata:
     "@testing-library/react-hooks": ~8.0.0
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -4003,7 +4021,7 @@ __metadata:
     "@babel/core": 7.18.10
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -4621,10 +4639,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.14.166":
-  version: 4.14.182
-  resolution: "@types/lodash@npm:4.14.182"
-  checksum: 7dd137aa9dbabd632408bd37009d984655164fa1ecc3f2b6eb94afe35bf0a5852cbab6183148d883e9c73a958b7fec9a9bcf7c8e45d41195add6a18c34958209
+"@types/lodash@npm:4.14.184":
+  version: 4.14.184
+  resolution: "@types/lodash@npm:4.14.184"
+  checksum: 6d9a4d67f7f9d0ec3fd21174f3dd3d00629dc1227eb469450eace53adbc1f7e2330699c28d0fe093e5f0fef0f0e763098be1f779268857213224af082b62be21
   languageName: node
   linkType: hard
 
@@ -4672,10 +4690,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:18.6.3, @types/node@npm:>=12":
-  version: 18.6.3
-  resolution: "@types/node@npm:18.6.3"
-  checksum: 38495b8fd27200d2b7ab9ccd8c1e2475d2411fba15330f2cba869a85ef79dd42382a2658c8dd298ace8c21ed3bfafcdea408faecd74928b144377d07d00e7c8c
+"@types/node@npm:*, @types/node@npm:18.7.9, @types/node@npm:>=12":
+  version: 18.7.9
+  resolution: "@types/node@npm:18.7.9"
+  checksum: 691ea1b734c0a39c4fe03c104fed18e0148bda6f2504dd341f84be8153d28e74d8114198d2d064ab7fdd2ece3ee16c60b78eea0101fb004f6e4595a631bc3839
   languageName: node
   linkType: hard
 
@@ -4716,10 +4734,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/prettier@npm:2.6.4, @types/prettier@npm:^2.1.5":
-  version: 2.6.4
-  resolution: "@types/prettier@npm:2.6.4"
-  checksum: a8ec6601cbacf8040782cc883bf1a9393fdcb991ebe88440b0f875bb1556652927ac9fe61a721b6c666ac6252158ba327ce2868559bafa2c86e7dfef4089782a
+"@types/prettier@npm:2.7.0, @types/prettier@npm:^2.1.5":
+  version: 2.7.0
+  resolution: "@types/prettier@npm:2.7.0"
+  checksum: bf5d0c7c1270909b39399539ac106d20ddaa85fe92eb1d59922dc99159604b4f8d5e41b0045fb29c8011585cf5bca2350b7441ef3d9816c08bd0e10ebd4b31d4
   languageName: node
   linkType: hard
 
@@ -4753,14 +4771,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:18.0.15, @types/react@npm:^18, @types/react@npm:^18.0.15":
-  version: 18.0.15
-  resolution: "@types/react@npm:18.0.15"
+"@types/react@npm:*, @types/react@npm:18.0.17":
+  version: 18.0.17
+  resolution: "@types/react@npm:18.0.17"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: e22cc388d1c145aa184787e44dc28db4789976c704cd5db475c170bb76a560eb81def5f346cfe750949bb3d43ad88822b8cbb9f19b1286e3795892a8263e7715
+  checksum: 18cae64f5bfd6bb58fbd8ee2ba52ec82de844f114254e26de7b513e4b86621f643f9b71d7066958cd571b0d78cb86cbceda449c5289f9349ca573df29ab69252
   languageName: node
   linkType: hard
 
@@ -5559,9 +5577,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"antd@npm:4.22.3":
-  version: 4.22.3
-  resolution: "antd@npm:4.22.3"
+"antd@npm:4.22.7":
+  version: 4.22.7
+  resolution: "antd@npm:4.22.7"
   dependencies:
     "@ant-design/colors": ^6.0.0
     "@ant-design/icons": ^4.7.0
@@ -5577,14 +5595,14 @@ __metadata:
     rc-checkbox: ~2.3.0
     rc-collapse: ~3.3.0
     rc-dialog: ~8.9.0
-    rc-drawer: ~5.1.0-alpha.1
+    rc-drawer: ~5.1.0
     rc-dropdown: ~4.0.0
     rc-field-form: ~1.27.0
     rc-image: ~5.7.0
     rc-input: ~0.0.1-alpha.5
     rc-input-number: ~7.3.5
-    rc-mentions: ~1.9.0
-    rc-menu: ~9.6.0
+    rc-mentions: ~1.9.1
+    rc-menu: ~9.6.3
     rc-motion: ^2.6.1
     rc-notification: ~4.6.0
     rc-pagination: ~3.1.17
@@ -5610,7 +5628,7 @@ __metadata:
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: f7e82011acd7f3188d267aae7766408368e09a086dc2a40fbd61cefe37ada3c14b2e336b910f490eea3e3a25dac50dd5be9f738bc0b682b112c228509c814bcb
+  checksum: 9fc8b390f3b81871f8db332efadd9edcbe69839f8eda59ef37d429d80c74be800e301b3a6c4017e1c580815dc5b9f92fca6a663645a419e8559580bf71270c2b
   languageName: node
   linkType: hard
 
@@ -7597,7 +7615,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"conventional-changelog-writer@npm:^5.0.0":
+"conventional-changelog-writer@npm:^5.0.0, conventional-changelog-writer@npm:^5.0.1":
   version: 5.0.1
   resolution: "conventional-changelog-writer@npm:5.0.1"
   dependencies:
@@ -7626,7 +7644,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"conventional-commits-parser@npm:^3.2.0, conventional-commits-parser@npm:^3.2.2":
+"conventional-commits-parser@npm:^3.2.0, conventional-commits-parser@npm:^3.2.2, conventional-commits-parser@npm:^3.2.4":
   version: 3.2.4
   resolution: "conventional-commits-parser@npm:3.2.4"
   dependencies:
@@ -9435,7 +9453,7 @@ __metadata:
     "@rest-hooks/normalizr": ^8.2.6
     "@types/babel__core": ^7
     "@types/benchmark": ^2
-    "@types/react": ^18
+    "@types/react": 18.0.17
     benchmark: ^2.1.4
     react: ^18.2.0
   languageName: unknown
@@ -10327,7 +10345,7 @@ __metadata:
     "@anansi/babel-preset": 3.2.15
     "@anansi/browserslist-config": 1.3.3
     "@anansi/eslint-plugin": 0.14.2
-    "@anansi/router": 0.6.13
+    "@anansi/router": 0.6.16
     "@anansi/webpack-config": 13.0.4
     "@ant-design/icons": ^4.7.0
     "@babel/core": 7.18.10
@@ -10341,12 +10359,12 @@ __metadata:
     "@rest-hooks/rest": ^5.0.5
     "@types/eslint": 8.4.6
     "@types/parse-link-header": ^2.0.0
-    "@types/prettier": 2.6.4
-    "@types/react": ^18.0.15
+    "@types/prettier": 2.7.0
+    "@types/react": 18.0.17
     "@types/react-dom": 18.0.6
     "@typescript-eslint/eslint-plugin": 5.33.1
     "@typescript-eslint/parser": 5.33.1
-    antd: 4.22.3
+    antd: 4.22.7
     eslint: 8.22.0
     eslint-plugin-import: 2.26.0
     eslint-plugin-prettier: 4.2.1
@@ -10360,7 +10378,7 @@ __metadata:
     react-markdown: 8.0.3
     react-refresh: 0.14.0
     rest-hooks: ^6.3.4
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -14732,7 +14750,7 @@ __metadata:
     "@babel/node": 7.18.10
     "@rest-hooks/normalizr": ^8.2.6
     "@types/babel__core": ^7
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -14749,13 +14767,13 @@ __metadata:
   dependencies:
     "@babel/core": 7.18.10
     "@babel/node": 7.18.10
-    "@octokit/rest": 19.0.3
+    "@octokit/rest": 19.0.4
     "@rest-hooks/normalizr": ^8.2.6
     "@types/babel__core": ^7
     inquirer: ^8.1.1
     redux: 4.2.0
     redux-thunk: ^2.3.0
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -14775,7 +14793,7 @@ __metadata:
     "@rest-hooks/normalizr": ^8.2.6
     "@types/babel__core": ^7
     mockdate: ^3.0.5
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -14909,9 +14927,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"npm-registry-fetch@npm:^13.0.0, npm-registry-fetch@npm:^13.0.1, npm-registry-fetch@npm:^13.3.0":
-  version: 13.3.0
-  resolution: "npm-registry-fetch@npm:13.3.0"
+"npm-registry-fetch@npm:^13.0.0, npm-registry-fetch@npm:^13.0.1, npm-registry-fetch@npm:^13.3.1":
+  version: 13.3.1
+  resolution: "npm-registry-fetch@npm:13.3.1"
   dependencies:
     make-fetch-happen: ^10.0.6
     minipass: ^3.1.6
@@ -14920,7 +14938,7 @@ __metadata:
     minizlib: ^2.1.2
     npm-package-arg: ^9.0.1
     proc-log: ^2.0.0
-  checksum: f153e471b7204eef260d4b774087291981a0d2909db7568540d77759409300d10f8e2a464af0da15ab1c4da4d6285c5d746ba09707dd55a4bd66f5f0ceafcf64
+  checksum: 5a941c2c799568e0dbccfc15f280444da398dadf2eede1b1921f08ddd5cb5f32c7cb4d16be96401f95a33073aeec13a3fd928c753790d3c412c2e64e7f7c6ee4
   languageName: node
   linkType: hard
 
@@ -15509,9 +15527,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pacote@npm:^13.6.1":
-  version: 13.6.1
-  resolution: "pacote@npm:13.6.1"
+"pacote@npm:^13.6.2":
+  version: 13.6.2
+  resolution: "pacote@npm:13.6.2"
   dependencies:
     "@npmcli/git": ^3.0.0
     "@npmcli/installed-package-contents": ^1.0.7
@@ -15536,7 +15554,7 @@ __metadata:
     tar: ^6.1.11
   bin:
     pacote: lib/bin.js
-  checksum: 26cebb59aea93d03ad051d82c4f2300beb333ded0f16ba92cfe976b5600157bd1ee034afe1c86406bbe5eacd51d413797939b08aa58adcf73f7680aead9e667f
+  checksum: a7b7f97094ab570a23e1c174537e9953a4d53176cc4b18bac77d7728bd89e2b9fa331d0f78fa463add03df79668a918bbdaa2750819504ee39242063abf53c6e
   languageName: node
   linkType: hard
 
@@ -17112,9 +17130,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-drawer@npm:~5.1.0-alpha.1":
-  version: 5.1.0-alpha.2
-  resolution: "rc-drawer@npm:5.1.0-alpha.2"
+"rc-drawer@npm:~5.1.0":
+  version: 5.1.0
+  resolution: "rc-drawer@npm:5.1.0"
   dependencies:
     "@babel/runtime": ^7.10.1
     classnames: ^2.2.6
@@ -17123,7 +17141,7 @@ __metadata:
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: 77576a42bc3e21afc5c4896053655ce82002421f12c84da23a32f67aa75b95b724c79c04f9f62217bc46a40196741d44b5f55351fa1f8b4bcc1e24cce3cde74e
+  checksum: dc2ce0924b338c8a68975bdc66ece46bf640f3ce522f002ce15d17236184f2377900d190fa7699edc1063c3e62829bd4d3f2a75405b63e8f47e5d9c440d824ef
   languageName: node
   linkType: hard
 
@@ -17199,9 +17217,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-mentions@npm:~1.9.0":
-  version: 1.9.0
-  resolution: "rc-mentions@npm:1.9.0"
+"rc-mentions@npm:~1.9.1":
+  version: 1.9.2
+  resolution: "rc-mentions@npm:1.9.2"
   dependencies:
     "@babel/runtime": ^7.10.1
     classnames: ^2.2.6
@@ -17212,13 +17230,13 @@ __metadata:
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: 40b0af494e83f09910bdc22e60b971eb2599b1afd52fe6ffe2be1390bb14a7c912e92d6c926cabe307702d8f5e850d9272f380ae9f4295c3830b2906c54f150c
+  checksum: 52709f90c8c8cc36a157716830f796b4caea5a7b0b63c2d32bb6b8855693c3f671206dacc4a4bd2e9175e63ba70930862a4564f6e967a0caf892f69b6e860530
   languageName: node
   linkType: hard
 
-"rc-menu@npm:~9.6.0":
-  version: 9.6.0
-  resolution: "rc-menu@npm:9.6.0"
+"rc-menu@npm:~9.6.0, rc-menu@npm:~9.6.3":
+  version: 9.6.3
+  resolution: "rc-menu@npm:9.6.3"
   dependencies:
     "@babel/runtime": ^7.10.1
     classnames: 2.x
@@ -17230,7 +17248,7 @@ __metadata:
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: 4a6f01eece1101b91c61b511260082f3a200a0878770f0c38511da995e04fd3a6af52648b36ae175a966dc8a4384861d12a73e5db5b4dadaab800bd27f30fd6d
+  checksum: 9f0faf722466cab90685f37d0a00740c5fa8b675fbbfa8184eaaa8015396436363db412d85fd70fd05af9230ca73c47c7118bd37137baf9f849fabe2f96dc4ba
   languageName: node
   linkType: hard
 
@@ -18419,7 +18437,7 @@ __metadata:
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -18627,9 +18645,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup@npm:2.77.2":
-  version: 2.77.2
-  resolution: "rollup@npm:2.77.2"
+"rollup@npm:2.78.1":
+  version: 2.78.1
+  resolution: "rollup@npm:2.78.1"
   dependencies:
     fsevents: ~2.3.2
   dependenciesMeta:
@@ -18637,7 +18655,7 @@ __metadata:
       optional: true
   bin:
     rollup: dist/bin/rollup
-  checksum: 5a84fb98a6f858906bceba091430442f6c1f362b07c5fa9123b708f87e39f52640e34a189cd9a1776ceae61300055c78ba648205fa03188451539ebeb19797df
+  checksum: 9034814383ca5bdb4bea6d499270aeb31cdb0bb884f81b0c6a1d19c63cc973f040e6ee09b7af8a7169dd231c090f4b44ef8b99c4bfdf884aceeb3dcefb8cfa14
   languageName: node
   linkType: hard
 
@@ -18654,16 +18672,16 @@ __metadata:
     "@babel/node": 7.18.10
     "@commitlint/cli": 17.0.3
     "@commitlint/config-conventional": 17.0.3
-    "@lerna-lite/cli": 1.9.1
+    "@lerna-lite/cli": 1.11.0
     "@rest-hooks/core": "workspace:^"
     "@rest-hooks/test": ^7.2.1
     "@testing-library/react": 13.3.0
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 11.0.0
     "@types/jest": 28.1.6
-    "@types/lodash": ^4.14.166
-    "@types/node": 18.6.3
-    "@types/react": 18.0.15
+    "@types/lodash": 4.14.184
+    "@types/node": 18.7.9
+    "@types/react": 18.0.17
     "@typescript-eslint/eslint-plugin": 5.33.1
     "@typescript-eslint/parser": 5.33.1
     benchmark: ^2.1.4
@@ -20256,7 +20274,7 @@ __metadata:
     "@rest-hooks/endpoint": ^2.2.11
     "@rest-hooks/rest": ^5.0.2
     "@types/eslint": 8.4.6
-    "@types/prettier": 2.6.4
+    "@types/prettier": 2.7.0
     "@types/react-dom": 18.0.6
     "@typescript-eslint/eslint-plugin": 5.33.1
     "@typescript-eslint/parser": 5.33.1
@@ -20270,7 +20288,7 @@ __metadata:
     react-dom: 18.2.0
     react-refresh: 0.14.0
     rest-hooks: ^6.3.4
-    rollup: 2.77.2
+    rollup: 2.78.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
     rollup-plugin-filesize: ^9.1.2
@@ -21686,13 +21704,13 @@ typescript@next:
   languageName: node
   linkType: hard
 
-"write-file-atomic@npm:^4.0.1":
-  version: 4.0.1
-  resolution: "write-file-atomic@npm:4.0.1"
+"write-file-atomic@npm:^4.0.1, write-file-atomic@npm:^4.0.2":
+  version: 4.0.2
+  resolution: "write-file-atomic@npm:4.0.2"
   dependencies:
     imurmurhash: ^0.1.4
     signal-exit: ^3.0.7
-  checksum: 8f780232533ca6223c63c9b9c01c4386ca8c625ebe5017a9ed17d037aec19462ae17109e0aa155bff5966ee4ae7a27b67a99f55caf3f32ffd84155e9da3929fc
+  checksum: 5da60bd4eeeb935eec97ead3df6e28e5917a6bd317478e4a85a5285e8480b8ed96032bbcc6ecd07b236142a24f3ca871c924ec4a6575e623ec1b11bf8c1c253c
   languageName: node
   linkType: hard
 
