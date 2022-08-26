@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1661116438268,
+  "lastUpdate": 1661508532486,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -6922,6 +6922,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.65%",
             "unit": "ops/sec",
             "extra": "72 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "82e1cbbd70373d36ec44272ff581e3cf531e5fed",
+          "message": "pkg: Update all non-major dependencies (#2137)\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+          "timestamp": "2022-08-26T05:03:56-05:00",
+          "tree_id": "e575d6c1ad918d81ec59523d8e5ba4d45c149b92",
+          "url": "https://github.com/coinbase/rest-hooks/commit/82e1cbbd70373d36ec44272ff581e3cf531e5fed"
+        },
+        "date": 1661508531101,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 101,
+            "range": "±1.06%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 46.54,
+            "range": "±0.42%",
+            "unit": "ops/sec",
+            "extra": "61 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 52.19,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "67 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 102,
+            "range": "±1.03%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
           }
         ]
       }
