@@ -13,7 +13,7 @@
     "@rest-hooks/normalizr": "^8.2.6"
   },
   "devDependencies": {
-    "@babel/core": "7.18.10",
+    "@babel/core": "7.18.13",
     "@babel/node": "7.18.10",
     "@types/babel__core": "^7",
     "rollup": "2.78.1",
