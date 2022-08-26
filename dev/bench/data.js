@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1661508532486,
+  "lastUpdate": 1661522226991,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -6972,6 +6972,58 @@ window.BENCHMARK_DATA = {
             "name": "receiveLong",
             "value": 102,
             "range": "±1.03%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "bc4d12d5369f4eee17f32d9379793cfc9b679d61",
+          "message": "pkg: Update babel packages (#2140)\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+          "timestamp": "2022-08-26T08:52:03-05:00",
+          "tree_id": "07327230190458a32b4b14bef5335363bf6c15f5",
+          "url": "https://github.com/coinbase/rest-hooks/commit/bc4d12d5369f4eee17f32d9379793cfc9b679d61"
+        },
+        "date": 1661522225102,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 90.59,
+            "range": "±1.96%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 45.51,
+            "range": "±0.71%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 47.9,
+            "range": "±0.38%",
+            "unit": "ops/sec",
+            "extra": "62 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 89.91,
+            "range": "±2.10%",
             "unit": "ops/sec",
             "extra": "75 samples"
           }
