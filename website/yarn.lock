@@ -2871,11 +2871,11 @@ __metadata:
 
 "@rest-hooks/normalizr@file:../packages/normalizr::locator=root-workspace-0b6124%40workspace%3A.":
   version: 8.2.11
-  resolution: "@rest-hooks/normalizr@file:../packages/normalizr#../packages/normalizr::hash=51a0d0&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/normalizr@file:../packages/normalizr#../packages/normalizr::hash=c0a49d&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.13.0
     npm-run-all: ^4.1.5
-  checksum: df4964633cf1ffce0d83114fa98edf314d3f59ed44cebe7b4a83a6e3fb4dfdbde8c9c5f6181542bbb706149278d42db0ee634f80fcdba1846c68241520ec5607
+  checksum: 91a7e0310cd112a15c07407c0c61c36bb08888922b69b7b15a26105afbc291b198f19997c00c403f72f1cb5bd0ea26b6caa170e424504c76a02d9fdd781b7f91
   languageName: node
   linkType: hard
 
