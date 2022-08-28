@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1661522226991,
+  "lastUpdate": 1661657199053,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -7026,6 +7026,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.10%",
             "unit": "ops/sec",
             "extra": "75 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "70759cfc8a2de9d42a060727d9f91fe4e6945296",
+          "message": "pkg: Update JS test packages to v29 (major) (#2141)\n\n* pkg: Update JS test packages to v29\r\n\r\n* internal: Update snapshots for new jest version\r\n\r\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\r\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2022-08-27T20:21:26-07:00",
+          "tree_id": "ccc2f9429a9ccba1a244b65a365308a4353029f4",
+          "url": "https://github.com/coinbase/rest-hooks/commit/70759cfc8a2de9d42a060727d9f91fe4e6945296"
+        },
+        "date": 1661657197118,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 91.18,
+            "range": "±1.67%",
+            "unit": "ops/sec",
+            "extra": "67 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 44.07,
+            "range": "±1.77%",
+            "unit": "ops/sec",
+            "extra": "58 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 48.72,
+            "range": "±1.50%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 91.96,
+            "range": "±2.82%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
           }
         ]
       }
