@@ -1,18 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`useFetchDispatcher should dispatch an action that fetches a create 1`] = `
-Object {
-  "meta": Object {
-    "args": Array [
-      Object {},
-      Object {
+{
+  "meta": {
+    "args": [
+      {},
+      {
         "content": "hi",
       },
     ],
     "key": "POST http://test.com/article-cooler/",
-    "options": Object {
+    "options": {
       "errorPolicy": [Function],
-      "fetchInit": Object {},
+      "fetchInit": {},
       "getFetchInit": [Function],
       "method": "POST",
       "signal": undefined,

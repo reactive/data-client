@@ -318,7 +318,7 @@ describe('useDenormalized()', () => {
             "author": null,
             "content": "head",
             "id": 5,
-            "tags": Array [],
+            "tags": [],
             "title": "bob",
             "user": UserResource {
               "email": "",
@@ -355,7 +355,7 @@ describe('useDenormalized()', () => {
 
       it('should provide inferred results with undefined for entity', () => {
         expect(data).toMatchInlineSnapshot(`
-          Object {
+          {
             "nextPage": "",
             "prevPage": "",
             "results": undefined,
@@ -612,7 +612,7 @@ describe('useDenormalized()', () => {
 
       it('value should be inferred for pagination primitives', () => {
         expect(data).toMatchInlineSnapshot(`
-          Object {
+          {
             "nextPage": "",
             "prevPage": "",
             "results": undefined,

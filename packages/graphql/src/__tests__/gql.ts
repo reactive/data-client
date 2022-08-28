@@ -107,8 +107,8 @@ describe('GQLEndpoint', () => {
     expect(response.user).toBeDefined();
     expect(response.user.name).toBeDefined();
     expect(response).toMatchInlineSnapshot(`
-      Object {
-        "user": Object {
+      {
+        "user": {
           "email": "fong@test.com",
           "id": "1",
           "name": "Fong",
@@ -143,8 +143,8 @@ describe('GQLEndpoint', () => {
       expect(response.user).toBeDefined();
       expect(response.user.name).toBeDefined();
       expect(response).toMatchInlineSnapshot(`
-        Object {
-          "user": Object {
+        {
+          "user": {
             "email": "fong@test.com",
             "id": "1",
             "name": "Fong",

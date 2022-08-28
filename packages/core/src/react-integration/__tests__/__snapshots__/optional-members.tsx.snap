@@ -4,16 +4,16 @@ exports[`optional members should infer a detail based on list results 1`] = `
 SomeResource {
   "id": "1",
   "name": "fails",
-  "things": Array [],
+  "things": [],
 }
 `;
 
 exports[`optional members should infer even with nested missing 1`] = `
-Object {
+{
   "a": SomeResource {
     "id": "2",
     "name": "works",
-    "things": Array [
+    "things": [
       Nested {
         "id": "1",
         "name": "first",
@@ -32,16 +32,16 @@ Object {
 `;
 
 exports[`optional members should return all members of list without suspending 1`] = `
-Array [
+[
   SomeResource {
     "id": "1",
     "name": "fails",
-    "things": Array [],
+    "things": [],
   },
   SomeResource {
     "id": "2",
     "name": "works",
-    "things": Array [
+    "things": [
       Nested {
         "id": "1",
         "name": "first",
@@ -55,7 +55,7 @@ Array [
   SomeResource {
     "id": "3",
     "name": "works",
-    "things": Array [
+    "things": [
       Nested {
         "id": "2",
         "name": "second",

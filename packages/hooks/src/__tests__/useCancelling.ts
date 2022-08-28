@@ -55,11 +55,11 @@ describe('useCancelling()', () => {
     const nextPromise = result.current({ id: '7' });
     jest.advanceTimersByTime(2000);
     await expect(nextPromise).resolves.toMatchInlineSnapshot(`
-            Object {
-              "id": "7",
-              "title": "second one",
-            }
-          `);
+      {
+        "id": "7",
+        "title": "second one",
+      }
+    `);
     act(() => rerender({ id: '7' }));
   });
 

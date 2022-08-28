@@ -109,11 +109,11 @@ First three members: []]
 `;
 
 exports[`useSuspense() should dispatch an action that fetches 1`] = `
-Object {
+{
   "endpoint": [Function],
-  "meta": Object {
-    "args": Array [
-      Object {
+  "meta": {
+    "args": [
+      {
         "id": 5,
       },
     ],

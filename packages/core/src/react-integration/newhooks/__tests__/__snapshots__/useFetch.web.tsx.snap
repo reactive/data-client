@@ -1,14 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`useFetch should dispatch singles 1`] = `
-Object {
+{
   "endpoint": [Function],
-  "meta": Object {
-    "args": Array [
-      Object {
+  "meta": {
+    "args": [
+      {
         "content": "whatever",
         "id": 5,
-        "tags": Array [
+        "tags": [
           "a",
           "best",
           "react",
@@ -30,14 +30,14 @@ Object {
 `;
 
 exports[`useFetch should dispatch with fetch shape defined dataExpiryLength 1`] = `
-Object {
+{
   "endpoint": [Function],
-  "meta": Object {
-    "args": Array [
-      Object {
+  "meta": {
+    "args": [
+      {
         "content": "whatever",
         "id": 5,
-        "tags": Array [
+        "tags": [
           "a",
           "best",
           "react",
@@ -59,14 +59,14 @@ Object {
 `;
 
 exports[`useFetch should dispatch with fetch shape defined errorExpiryLength 1`] = `
-Object {
+{
   "endpoint": [Function],
-  "meta": Object {
-    "args": Array [
-      Object {
+  "meta": {
+    "args": [
+      {
         "content": "whatever",
         "id": 5,
-        "tags": Array [
+        "tags": [
           "a",
           "best",
           "react",
@@ -88,14 +88,14 @@ Object {
 `;
 
 exports[`useFetch should dispatch with resource defined dataExpiryLength 1`] = `
-Object {
+{
   "endpoint": [Function],
-  "meta": Object {
-    "args": Array [
-      Object {
+  "meta": {
+    "args": [
+      {
         "content": "whatever",
         "id": 5,
-        "tags": Array [
+        "tags": [
           "a",
           "best",
           "react",

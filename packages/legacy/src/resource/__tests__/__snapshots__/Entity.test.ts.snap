@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Entity denormalization can denormalize already partially denormalized data 1`] = `
-Array [
+[
   Menu {
     "food": Food {
       "id": "1",
@@ -10,13 +10,13 @@ Array [
   },
   true,
   false,
-  Object {
-    "Food": Object {
+  {
+    "Food": {
       "1": Food {
         "id": "1",
       },
     },
-    "Menu": Object {
+    "Menu": {
       "1": Menu {
         "food": Food {
           "id": "1",
@@ -29,7 +29,7 @@ Array [
 `;
 
 exports[`Entity denormalization can denormalize already partially denormalized data 2`] = `
-Array [
+[
   Menu {
     "food": Food {
       "id": "1",
@@ -38,13 +38,13 @@ Array [
   },
   true,
   false,
-  Object {
-    "Food": Object {
+  {
+    "Food": {
       "1": Food {
         "id": "1",
       },
     },
-    "Menu": Object {
+    "Menu": {
       "1": Menu {
         "food": Food {
           "id": "1",
@@ -57,7 +57,7 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes an entity 1`] = `
-Array [
+[
   Tacos {
     "alias": undefined,
     "id": "1",
@@ -66,8 +66,8 @@ Array [
   },
   true,
   false,
-  Object {
-    "Tacos": Object {
+  {
+    "Tacos": {
       "1": Tacos {
         "alias": undefined,
         "id": "1",
@@ -80,7 +80,7 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes an entity 2`] = `
-Array [
+[
   Tacos {
     "alias": undefined,
     "id": "1",
@@ -89,8 +89,8 @@ Array [
   },
   true,
   false,
-  Object {
-    "Tacos": Object {
+  {
+    "Tacos": {
       "1": Tacos {
         "alias": undefined,
         "id": "1",
@@ -103,7 +103,7 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes deep entities 1`] = `
-Array [
+[
   Menu {
     "food": Food {
       "id": "1",
@@ -112,13 +112,13 @@ Array [
   },
   true,
   false,
-  Object {
-    "Food": Object {
+  {
+    "Food": {
       "1": Food {
         "id": "1",
       },
     },
-    "Menu": Object {
+    "Menu": {
       "1": Menu {
         "food": Food {
           "id": "1",
@@ -131,7 +131,7 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes deep entities 2`] = `
-Array [
+[
   Menu {
     "food": Food {
       "id": "1",
@@ -140,13 +140,13 @@ Array [
   },
   true,
   false,
-  Object {
-    "Food": Object {
+  {
+    "Food": {
       "1": Food {
         "id": "1",
       },
     },
-    "Menu": Object {
+    "Menu": {
       "1": Menu {
         "food": Food {
           "id": "1",
@@ -159,7 +159,7 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes deep entities 3`] = `
-Array [
+[
   Menu {
     "food": Food {
       "id": undefined,
@@ -168,8 +168,8 @@ Array [
   },
   true,
   false,
-  Object {
-    "Menu": Object {
+  {
+    "Menu": {
       "2": Menu {
         "food": Food {
           "id": undefined,
@@ -182,7 +182,7 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes deep entities 4`] = `
-Array [
+[
   Menu {
     "food": Food {
       "id": undefined,
@@ -191,8 +191,8 @@ Array [
   },
   false,
   false,
-  Object {
-    "Menu": Object {
+  {
+    "Menu": {
       "2": Menu {
         "food": Food {
           "id": undefined,
@@ -205,7 +205,7 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes deep entities with records 1`] = `
-Array [
+[
   Menu {
     "food": Food {
       "id": "1",
@@ -214,13 +214,13 @@ Array [
   },
   true,
   false,
-  Object {
-    "Food": Object {
+  {
+    "Food": {
       "1": Food {
         "id": "1",
       },
     },
-    "Menu": Object {
+    "Menu": {
       "1": Menu {
         "food": Food {
           "id": "1",
@@ -233,7 +233,7 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes deep entities with records 2`] = `
-Array [
+[
   Menu {
     "food": Food {
       "id": "1",
@@ -242,13 +242,13 @@ Array [
   },
   true,
   false,
-  Object {
-    "Food": Object {
+  {
+    "Food": {
       "1": Food {
         "id": "1",
       },
     },
-    "Menu": Object {
+    "Menu": {
       "1": Menu {
         "food": Food {
           "id": "1",
@@ -261,15 +261,15 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes deep entities with records 3`] = `
-Array [
+[
   Menu {
     "food": null,
     "id": "2",
   },
   true,
   false,
-  Object {
-    "Menu": Object {
+  {
+    "Menu": {
       "2": Menu {
         "food": null,
         "id": "2",
@@ -280,15 +280,15 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes deep entities with records 4`] = `
-Array [
+[
   Menu {
     "food": null,
     "id": "2",
   },
   true,
   false,
-  Object {
-    "Menu": Object {
+  {
+    "Menu": {
       "2": Menu {
         "food": null,
         "id": "2",
@@ -299,11 +299,11 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes recursive dependencies 1`] = `
-Array [
+[
   Report {
     "draftedBy": User {
       "id": "456",
-      "reports": Array [
+      "reports": [
         [Circular],
       ],
       "role": "manager",
@@ -311,7 +311,7 @@ Array [
     "id": "123",
     "publishedBy": User {
       "id": "456",
-      "reports": Array [
+      "reports": [
         [Circular],
       ],
       "role": "manager",
@@ -320,12 +320,12 @@ Array [
   },
   true,
   false,
-  Object {
-    "Report": Object {
+  {
+    "Report": {
       "123": Report {
         "draftedBy": User {
           "id": "456",
-          "reports": Array [
+          "reports": [
             [Circular],
           ],
           "role": "manager",
@@ -333,7 +333,7 @@ Array [
         "id": "123",
         "publishedBy": User {
           "id": "456",
-          "reports": Array [
+          "reports": [
             [Circular],
           ],
           "role": "manager",
@@ -341,10 +341,10 @@ Array [
         "title": "Weekly report",
       },
     },
-    "User": Object {
+    "User": {
       "456": User {
         "id": "456",
-        "reports": Array [
+        "reports": [
           Report {
             "draftedBy": [Circular],
             "id": "123",
@@ -360,7 +360,7 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes recursive dependencies 2`] = `
-Array [
+[
   Report {
     "draftedBy": User {
       "id": "456",
@@ -391,8 +391,8 @@ Array [
   },
   true,
   false,
-  Object {
-    "Report": Object {
+  {
+    "Report": {
       "123": Report {
         "draftedBy": User {
           "id": "456",
@@ -422,7 +422,7 @@ Array [
         "title": "Weekly report",
       },
     },
-    "User": Object {
+    "User": {
       "456": User {
         "id": "456",
         "reports": Immutable.List [
@@ -441,10 +441,10 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes recursive dependencies 3`] = `
-Array [
+[
   User {
     "id": "456",
-    "reports": Array [
+    "reports": [
       Report {
         "draftedBy": [Circular],
         "id": "123",
@@ -456,12 +456,12 @@ Array [
   },
   true,
   false,
-  Object {
-    "Report": Object {
+  {
+    "Report": {
       "123": Report {
         "draftedBy": User {
           "id": "456",
-          "reports": Array [
+          "reports": [
             [Circular],
           ],
           "role": "manager",
@@ -469,7 +469,7 @@ Array [
         "id": "123",
         "publishedBy": User {
           "id": "456",
-          "reports": Array [
+          "reports": [
             [Circular],
           ],
           "role": "manager",
@@ -477,10 +477,10 @@ Array [
         "title": "Weekly report",
       },
     },
-    "User": Object {
+    "User": {
       "456": User {
         "id": "456",
-        "reports": Array [
+        "reports": [
           Report {
             "draftedBy": [Circular],
             "id": "123",
@@ -496,7 +496,7 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes recursive dependencies 4`] = `
-Array [
+[
   User {
     "id": "456",
     "reports": Immutable.List [
@@ -523,8 +523,8 @@ Array [
   },
   true,
   false,
-  Object {
-    "Report": Object {
+  {
+    "Report": {
       "123": Report {
         "draftedBy": Immutable.Map {
           "id": "456",
@@ -544,7 +544,7 @@ Array [
         "title": "Weekly report",
       },
     },
-    "User": Object {
+    "User": {
       "456": User {
         "id": "456",
         "reports": Immutable.List [
@@ -575,15 +575,15 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes to undefined for deleted data 1`] = `
-Array [
+[
   Menu {
     "food": undefined,
     "id": "1",
   },
   true,
   true,
-  Object {
-    "Menu": Object {
+  {
+    "Menu": {
       "1": Menu {
         "food": undefined,
         "id": "1",
@@ -594,15 +594,15 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes to undefined for deleted data 2`] = `
-Array [
+[
   Menu {
     "food": undefined,
     "id": "1",
   },
   true,
   true,
-  Object {
-    "Menu": Object {
+  {
+    "Menu": {
       "1": Menu {
         "food": undefined,
         "id": "1",
@@ -613,33 +613,33 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes to undefined for deleted data 3`] = `
-Array [
+[
   undefined,
   true,
   true,
-  Object {},
+  {},
 ]
 `;
 
 exports[`Entity denormalization denormalizes to undefined for deleted data 4`] = `
-Array [
+[
   undefined,
   true,
   true,
-  Object {},
+  {},
 ]
 `;
 
 exports[`Entity denormalization denormalizes to undefined for missing data 1`] = `
-Array [
+[
   Menu {
     "food": undefined,
     "id": "1",
   },
   true,
   false,
-  Object {
-    "Menu": Object {
+  {
+    "Menu": {
       "1": Menu {
         "food": undefined,
         "id": "1",
@@ -650,15 +650,15 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes to undefined for missing data 2`] = `
-Array [
+[
   Menu {
     "food": undefined,
     "id": "1",
   },
   false,
   false,
-  Object {
-    "Menu": Object {
+  {
+    "Menu": {
       "1": Menu {
         "food": undefined,
         "id": "1",
@@ -669,27 +669,27 @@ Array [
 `;
 
 exports[`Entity denormalization denormalizes to undefined for missing data 3`] = `
-Array [
+[
   undefined,
   false,
   false,
-  Object {},
+  {},
 ]
 `;
 
 exports[`Entity denormalization denormalizes to undefined for missing data 4`] = `
-Array [
+[
   undefined,
   false,
   false,
-  Object {},
+  {},
 ]
 `;
 
 exports[`Entity normalization mergeStrategy can use a custom merging strategy 1`] = `
-Object {
-  "entities": Object {
-    "MergeTaco": Object {
+{
+  "entities": {
+    "MergeTaco": {
       "1": MergeTaco {
         "alias": "bar",
         "id": "1",
@@ -697,17 +697,17 @@ Object {
       },
     },
   },
-  "entityMeta": Object {
-    "MergeTaco": Object {
-      "1": Object {
+  "entityMeta": {
+    "MergeTaco": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Array [
+  "indexes": {},
+  "result": [
     "1",
     "1",
   ],
@@ -715,9 +715,9 @@ Object {
 `;
 
 exports[`Entity normalization mergeStrategy defaults to plain merging 1`] = `
-Object {
-  "entities": Object {
-    "Tacos": Object {
+{
+  "entities": {
+    "Tacos": {
       "1": Tacos {
         "alias": "bar",
         "id": "1",
@@ -725,17 +725,17 @@ Object {
       },
     },
   },
-  "entityMeta": Object {
-    "Tacos": Object {
-      "1": Object {
+  "entityMeta": {
+    "Tacos": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Array [
+  "indexes": {},
+  "result": [
     "1",
     "1",
   ],
@@ -743,49 +743,49 @@ Object {
 `;
 
 exports[`Entity normalization normalizes an entity 1`] = `
-Object {
-  "entities": Object {
-    "MyEntity": Object {
+{
+  "entities": {
+    "MyEntity": {
       "1": MyEntity {
         "id": "1",
       },
     },
   },
-  "entityMeta": Object {
-    "MyEntity": Object {
-      "1": Object {
+  "entityMeta": {
+    "MyEntity": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
+  "indexes": {},
   "result": "1",
 }
 `;
 
 exports[`Entity normalization pk() can build the entity's ID from the parent object 1`] = `
-Object {
-  "entities": Object {
-    "User": Object {
+{
+  "entities": {
+    "User": {
       "tacos-user-4": User {
         "id": "4",
         "name": "Jimmy",
       },
     },
   },
-  "entityMeta": Object {
-    "User": Object {
-      "tacos-user-4": Object {
+  "entityMeta": {
+    "User": {
+      "tacos-user-4": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Object {
+  "indexes": {},
+  "result": {
     "name": "tacos",
     "user": "tacos-user-4",
   },
@@ -793,9 +793,9 @@ Object {
 `;
 
 exports[`Entity normalization pk() can normalize entity IDs based on their object key 1`] = `
-Object {
-  "entities": Object {
-    "User": Object {
+{
+  "entities": {
+    "User": {
       "4": User {
         "name": "taco",
       },
@@ -804,27 +804,27 @@ Object {
       },
     },
   },
-  "entityMeta": Object {
-    "User": Object {
-      "4": Object {
+  "entityMeta": {
+    "User": {
+      "4": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
-      "56": Object {
+      "56": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Object {
-    "4": Object {
+  "indexes": {},
+  "result": {
+    "4": {
       "id": "4",
       "schema": "users",
     },
-    "56": Object {
+    "56": {
       "id": "56",
       "schema": "users",
     },
@@ -833,33 +833,33 @@ Object {
 `;
 
 exports[`Entity normalization pk() can use a custom pk() string 1`] = `
-Object {
-  "entities": Object {
-    "User": Object {
+{
+  "entities": {
+    "User": {
       "134351": User {
         "idStr": "134351",
         "name": "Kathy",
       },
     },
   },
-  "entityMeta": Object {
-    "User": Object {
-      "134351": Object {
+  "entityMeta": {
+    "User": {
+      "134351": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
+  "indexes": {},
   "result": "134351",
 }
 `;
 
 exports[`Entity normalization processStrategy can use a custom processing strategy 1`] = `
-Object {
-  "entities": Object {
-    "ProcessTaco": Object {
+{
+  "entities": {
+    "ProcessTaco": {
       "1": ProcessTaco {
         "alias": undefined,
         "id": "1",
@@ -868,24 +868,24 @@ Object {
       },
     },
   },
-  "entityMeta": Object {
-    "ProcessTaco": Object {
-      "1": Object {
+  "entityMeta": {
+    "ProcessTaco": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
+  "indexes": {},
   "result": "1",
 }
 `;
 
 exports[`Entity normalization processStrategy can use information from the parent in the process strategy 1`] = `
-Object {
-  "entities": Object {
-    "ChildEntity": Object {
+{
+  "entities": {
+    "ChildEntity": {
       "4": ChildEntity {
         "content": "child",
         "id": "4",
@@ -893,7 +893,7 @@ Object {
         "parentKey": "child",
       },
     },
-    "ParentEntity": Object {
+    "ParentEntity": {
       "1": ParentEntity {
         "child": "4",
         "content": "parent",
@@ -901,38 +901,38 @@ Object {
       },
     },
   },
-  "entityMeta": Object {
-    "ChildEntity": Object {
-      "4": Object {
+  "entityMeta": {
+    "ChildEntity": {
+      "4": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
-    "ParentEntity": Object {
-      "1": Object {
+    "ParentEntity": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
+  "indexes": {},
   "result": "1",
 }
 `;
 
 exports[`Entity normalization processStrategy is run before and passed to the schema normalization 1`] = `
-Object {
-  "entities": Object {
-    "AttachmentsEntity": Object {
+{
+  "entities": {
+    "AttachmentsEntity": {
       "456": AttachmentsEntity {
         "id": "456",
       },
     },
-    "EntriesEntity": Object {
+    "EntriesEntity": {
       "123": EntriesEntity {
-        "data": Object {
+        "data": {
           "attachment": "456",
         },
         "id": "123",
@@ -940,31 +940,31 @@ Object {
       },
     },
   },
-  "entityMeta": Object {
-    "AttachmentsEntity": Object {
-      "456": Object {
+  "entityMeta": {
+    "AttachmentsEntity": {
+      "456": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
-    "EntriesEntity": Object {
-      "123": Object {
+    "EntriesEntity": {
+      "123": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
+  "indexes": {},
   "result": "123",
 }
 `;
 
 exports[`Entity normalization should allow many unexpected as long as none are missing 1`] = `
-Object {
-  "entities": Object {
-    "MyEntity": Object {
+{
+  "entities": {
+    "MyEntity": {
       "hi": MyEntity {
         "a": "a",
         "b": "b",
@@ -991,24 +991,24 @@ Object {
       },
     },
   },
-  "entityMeta": Object {
-    "MyEntity": Object {
-      "hi": Object {
+  "entityMeta": {
+    "MyEntity": {
+      "hi": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
+  "indexes": {},
   "result": "hi",
 }
 `;
 
 exports[`Entity normalization should only warn if at least four members are found with unexpected 1`] = `
-Object {
-  "entities": Object {
-    "MyEntity": Object {
+{
+  "entities": {
+    "MyEntity": {
       "hi": MyEntity {
         "a": "a",
         "b": "b",
@@ -1046,22 +1046,22 @@ Object {
       },
     },
   },
-  "entityMeta": Object {
-    "MyEntity": Object {
-      "hi": Object {
+  "entityMeta": {
+    "MyEntity": {
+      "hi": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
+  "indexes": {},
   "result": "hi",
 }
 `;
 
 exports[`Entity normalization should only warn if at least four members are found with unexpected 2`] = `
-Array [
+[
   "Attempted to initialize MyEntity with a large number of unexpected keys found
 
   This is likely due to a malformed response.
@@ -1074,23 +1074,23 @@ Array [
     Found: name,a,b,c
     Unexpected keys: d,e,f,g,h,i,j,k,l,m,n,o,p
   Value: {
-  \\"name\\": \\"hi\\",
-  \\"a\\": \\"a\\",
-  \\"b\\": \\"b\\",
-  \\"c\\": \\"c\\",
-  \\"d\\": \\"e\\",
-  \\"e\\": 0,
-  \\"f\\": 0,
-  \\"g\\": 0,
-  \\"h\\": 0,
-  \\"i\\": 0,
-  \\"j\\": 0,
-  \\"k\\": 0,
-  \\"l\\": 0,
-  \\"m\\": 0,
-  \\"n\\": 0,
-  \\"o\\": 0,
-  \\"p\\": 0
+  "name": "hi",
+  "a": "a",
+  "b": "b",
+  "c": "c",
+  "d": "e",
+  "e": 0,
+  "f": 0,
+  "g": 0,
+  "h": 0,
+  "i": 0,
+  "j": 0,
+  "k": 0,
+  "l": 0,
+  "m": 0,
+  "n": 0,
+  "o": 0,
+  "p": 0
 }",
 ]
 `;
@@ -1105,7 +1105,7 @@ exports[`Entity normalization should throw a custom error if data does not inclu
 
   Entity: MyEntity
   Value: {
-  \\"secondthing\\": \\"hi\\"
+  "secondthing": "hi"
 }
   "
 `;
@@ -1123,8 +1123,8 @@ exports[`Entity normalization should throw a custom error if data loads with hal
     Found: name
     Unexpected keys: nonexistantthing
   Value: {
-  \\"name\\": \\"hoho\\",
-  \\"nonexistantthing\\": \\"hi\\"
+  "name": "hoho",
+  "nonexistantthing": "hi"
 }"
 `;
 
@@ -1144,16 +1144,16 @@ exports[`Entity normalization should throw a custom error if data loads with no 
 `;
 
 exports[`Entity normalization should throw a custom error if data loads with string 1`] = `
-"Unexpected input given to normalize. Expected type to be \\"object\\", found \\"string\\".
+"Unexpected input given to normalize. Expected type to be "object", found "string".
 
           Schema: {
-  \\"data\\": {
-    \\"name\\": \\"MyEntity\\",
-    \\"schema\\": {},
-    \\"key\\": \\"MyEntity\\"
+  "data": {
+    "name": "MyEntity",
+    "schema": {},
+    "key": "MyEntity"
   }
 }
-          Input: \\"hibho\\""
+          Input: "hibho""
 `;
 
 exports[`Entity normalization should throw a custom error if schema key is missing from Entity 1`] = `
@@ -1180,22 +1180,22 @@ If this is a mistake, you can disable this check by setting static automaticVali
 Missing: name,secondthing
 First three members: [
   {
-    \\"name\\": \\"hi\\",
-    \\"secondthing\\": \\"ho\\"
+    "name": "hi",
+    "secondthing": "ho"
   },
   {
-    \\"name\\": \\"hi\\",
-    \\"secondthing\\": \\"ho\\"
+    "name": "hi",
+    "secondthing": "ho"
   },
   {
-    \\"name\\": \\"hi\\",
-    \\"secondthing\\": \\"ho\\"
+    "name": "hi",
+    "secondthing": "ho"
   }
 ]"
 `;
 
 exports[`Entity normalization should warn when automaticValidation === "warn" 1`] = `
-Array [
+[
   "Attempted to initialize MyEntity with an array, but named members were expected
 
 This is likely due to a malformed response.
@@ -1207,23 +1207,23 @@ If this is a mistake, you can disable this check by setting static automaticVali
 Missing: secondthing
 First three members: [
   {
-    \\"name\\": \\"hi\\",
-    \\"secondthing\\": \\"ho\\"
+    "name": "hi",
+    "secondthing": "ho"
   },
   {
-    \\"name\\": \\"hi\\",
-    \\"secondthing\\": \\"ho\\"
+    "name": "hi",
+    "secondthing": "ho"
   },
   {
-    \\"name\\": \\"hi\\",
-    \\"secondthing\\": \\"ho\\"
+    "name": "hi",
+    "secondthing": "ho"
   }
 ]",
 ]
 `;
 
 exports[`Entity normalization should warn when automaticValidation === "warn" 2`] = `
-Array [
+[
   "Attempted to initialize MyEntity with a large number of unexpected keys found
 
   This is likely due to a malformed response.
@@ -1236,8 +1236,8 @@ Array [
     Found: name
     Unexpected keys: nonexistantthing
   Value: {
-  \\"name\\": \\"hoho\\",
-  \\"nonexistantthing\\": \\"hi\\"
+  "name": "hoho",
+  "nonexistantthing": "hi"
 }",
 ]
 `;

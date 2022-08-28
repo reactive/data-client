@@ -1,18 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`useFetcher should dispatch an action that fetches a create 1`] = `
-Object {
-  "meta": Object {
-    "args": Array [
-      Object {},
-      Object {
+{
+  "meta": {
+    "args": [
+      {},
+      {
         "content": "hi",
       },
     ],
     "key": "POST http://test.com/article-cooler/",
-    "options": Object {
+    "options": {
       "errorPolicy": [Function],
-      "fetchInit": Object {},
+      "fetchInit": {},
       "getFetchInit": [Function],
       "method": "POST",
       "signal": undefined,
@@ -31,20 +31,20 @@ Object {
 `;
 
 exports[`useFetcher should dispatch an action that fetches a full update 1`] = `
-Object {
-  "meta": Object {
-    "args": Array [
-      Object {
+{
+  "meta": {
+    "args": [
+      {
         "id": 1,
       },
-      Object {
+      {
         "content": "changed",
       },
     ],
     "key": "PUT http://test.com/article-cooler/1",
-    "options": Object {
+    "options": {
       "errorPolicy": [Function],
-      "fetchInit": Object {},
+      "fetchInit": {},
       "getFetchInit": [Function],
       "method": "PUT",
       "signal": undefined,
@@ -63,22 +63,22 @@ Object {
 `;
 
 exports[`useFetcher should dispatch an action that fetches a partial update 1`] = `
-Object {
-  "meta": Object {
-    "args": Array [
-      Object {
+{
+  "meta": {
+    "args": [
+      {
         "id": 1,
       },
-      Object {
+      {
         "content": "changed",
       },
     ],
     "key": "PATCH http://test.com/article-cooler/1",
-    "optimisticResponse": Object {
+    "optimisticResponse": {
       "content": "changed",
       "id": 1,
     },
-    "options": Object {
+    "options": {
       "errorPolicy": [Function],
       "optimisticUpdate": [Function],
     },
@@ -94,19 +94,19 @@ Object {
 `;
 
 exports[`useFetcher should dispatch an action with multiple updaters in the meta if update shapes params are passed in 1`] = `
-Object {
-  "meta": Object {
-    "args": Array [
-      Object {},
-      Object {
+{
+  "meta": {
+    "args": [
+      {},
+      {
         "content": "hi",
       },
     ],
     "key": "POST http://test.com/article/",
-    "optimisticResponse": Object {
+    "optimisticResponse": {
       "content": "hi",
     },
-    "options": Object {
+    "options": {
       "errorPolicy": [Function],
       "optimisticUpdate": [Function],
     },
@@ -123,18 +123,18 @@ Object {
 `;
 
 exports[`useFetcher should dispatch an action with updater in the meta if update shapes params are passed in 1`] = `
-Object {
-  "meta": Object {
-    "args": Array [
-      Object {},
-      Object {
+{
+  "meta": {
+    "args": [
+      {},
+      {
         "content": "hi",
       },
     ],
     "key": "POST http://test.com/article-cooler/",
-    "options": Object {
+    "options": {
       "errorPolicy": [Function],
-      "fetchInit": Object {},
+      "fetchInit": {},
       "getFetchInit": [Function],
       "method": "POST",
       "signal": undefined,
@@ -154,18 +154,18 @@ Object {
 `;
 
 exports[`useFetcher should refresh get details 1`] = `
-Object {
-  "meta": Object {
-    "args": Array [
-      Object {
+{
+  "meta": {
+    "args": [
+      {
         "id": 1,
       },
       undefined,
     ],
     "key": "GET http://test.com/article-cooler/1",
-    "options": Object {
+    "options": {
       "errorPolicy": [Function],
-      "fetchInit": Object {},
+      "fetchInit": {},
       "getFetchInit": [Function],
       "method": "GET",
       "signal": undefined,
@@ -184,13 +184,13 @@ Object {
 `;
 
 exports[`useRetrieve should dispatch singles 1`] = `
-Object {
-  "meta": Object {
-    "args": Array [
-      Object {
+{
+  "meta": {
+    "args": [
+      {
         "content": "whatever",
         "id": 5,
-        "tags": Array [
+        "tags": [
           "a",
           "best",
           "react",
@@ -200,9 +200,9 @@ Object {
       undefined,
     ],
     "key": "GET http://test.com/article-cooler/5",
-    "options": Object {
+    "options": {
       "errorPolicy": [Function],
-      "fetchInit": Object {},
+      "fetchInit": {},
       "getFetchInit": [Function],
       "method": "GET",
       "signal": undefined,
@@ -221,13 +221,13 @@ Object {
 `;
 
 exports[`useRetrieve should dispatch with fetch shape defined dataExpiryLength 1`] = `
-Object {
-  "meta": Object {
-    "args": Array [
-      Object {
+{
+  "meta": {
+    "args": [
+      {
         "content": "whatever",
         "id": 5,
-        "tags": Array [
+        "tags": [
           "a",
           "best",
           "react",
@@ -237,10 +237,10 @@ Object {
       undefined,
     ],
     "key": "GET http://test.com/article-static/5",
-    "options": Object {
+    "options": {
       "dataExpiryLength": 3600000,
       "errorPolicy": [Function],
-      "fetchInit": Object {},
+      "fetchInit": {},
       "getFetchInit": [Function],
       "method": "GET",
       "signal": undefined,
@@ -259,13 +259,13 @@ Object {
 `;
 
 exports[`useRetrieve should dispatch with fetch shape defined errorExpiryLength 1`] = `
-Object {
-  "meta": Object {
-    "args": Array [
-      Object {
+{
+  "meta": {
+    "args": [
+      {
         "content": "whatever",
         "id": 5,
-        "tags": Array [
+        "tags": [
           "a",
           "best",
           "react",
@@ -275,10 +275,10 @@ Object {
       undefined,
     ],
     "key": "GET http://test.com/article-static/5",
-    "options": Object {
+    "options": {
       "errorExpiryLength": Infinity,
       "errorPolicy": [Function],
-      "fetchInit": Object {},
+      "fetchInit": {},
       "getFetchInit": [Function],
       "method": "GET",
       "signal": undefined,
@@ -297,13 +297,13 @@ Object {
 `;
 
 exports[`useRetrieve should dispatch with resource defined dataExpiryLength 1`] = `
-Object {
-  "meta": Object {
-    "args": Array [
-      Object {
+{
+  "meta": {
+    "args": [
+      {
         "content": "whatever",
         "id": 5,
-        "tags": Array [
+        "tags": [
           "a",
           "best",
           "react",
@@ -313,9 +313,9 @@ Object {
       undefined,
     ],
     "key": "GET http://test.com/article-static/5",
-    "options": Object {
+    "options": {
       "errorPolicy": [Function],
-      "fetchInit": Object {},
+      "fetchInit": {},
       "getFetchInit": [Function],
       "method": "GET",
       "signal": undefined,

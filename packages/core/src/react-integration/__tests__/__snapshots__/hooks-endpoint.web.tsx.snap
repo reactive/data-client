@@ -1,11 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`useController.fetch should dispatch an action that fetches a create 1`] = `
-Object {
+{
   "endpoint": [Function],
-  "meta": Object {
-    "args": Array [
-      Object {
+  "meta": {
+    "args": [
+      {
         "content": "hi",
       },
     ],
@@ -23,14 +23,14 @@ Object {
 `;
 
 exports[`useController.fetch should dispatch an action that fetches a full update 1`] = `
-Object {
+{
   "endpoint": [Function],
-  "meta": Object {
-    "args": Array [
-      Object {
+  "meta": {
+    "args": [
+      {
         "id": 1,
       },
-      Object {
+      {
         "content": "changed",
       },
     ],
@@ -48,14 +48,14 @@ Object {
 `;
 
 exports[`useController.fetch should dispatch an action that fetches a partial update 1`] = `
-Object {
+{
   "endpoint": [Function],
-  "meta": Object {
-    "args": Array [
-      Object {
+  "meta": {
+    "args": [
+      {
         "id": 1,
       },
-      Object {
+      {
         "content": "changed",
       },
     ],
@@ -73,11 +73,11 @@ Object {
 `;
 
 exports[`useController.fetch should dispatch an action with updater in the meta if update shapes params are passed in 1`] = `
-Object {
+{
   "endpoint": [Function],
-  "meta": Object {
-    "args": Array [
-      Object {
+  "meta": {
+    "args": [
+      {
         "content": "hi",
       },
     ],
@@ -95,11 +95,11 @@ Object {
 `;
 
 exports[`useController.fetch should refresh get details 1`] = `
-Object {
+{
   "endpoint": [Function],
-  "meta": Object {
-    "args": Array [
-      Object {
+  "meta": {
+    "args": [
+      {
         "id": 1,
       },
     ],

@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Serializable denormalization denormalizes as plain 1`] = `
-Object {
-  "anotherItem": Object {
+{
+  "anotherItem": {
     "thing": 500,
   },
   "time": 2020-06-07T02:00:15.000Z,
@@ -15,8 +15,8 @@ Object {
 `;
 
 exports[`Serializable denormalization denormalizes date and custom 1`] = `
-Object {
-  "anotherItem": Object {
+{
+  "anotherItem": {
     "thing": 500,
   },
   "time": 2020-06-07T02:00:15.000Z,
@@ -29,28 +29,28 @@ Object {
 `;
 
 exports[`Serializable normalization normalizes date and custom 1`] = `
-Object {
-  "entities": Object {
-    "User": Object {
-      "1": Object {
+{
+  "entities": {
+    "User": {
+      "1": {
         "createdAt": 2020-06-07T02:00:15.000Z,
         "id": "1",
         "name": "Nacho",
       },
     },
   },
-  "entityMeta": Object {
-    "User": Object {
-      "1": Object {
+  "entityMeta": {
+    "User": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Object {
-    "anotherItem": Object {
+  "indexes": {},
+  "result": {
+    "anotherItem": {
       "thing": 500,
     },
     "time": 2020-06-07T02:00:15.000Z,
@@ -59,4 +59,4 @@ Object {
 }
 `;
 
-exports[`Serializable normalization normalizes date and custom 2`] = `"{\\"entities\\":{\\"User\\":{\\"1\\":{\\"id\\":\\"1\\",\\"name\\":\\"Nacho\\",\\"createdAt\\":\\"2020-06-07T02:00:15.000Z\\"}}},\\"indexes\\":{},\\"result\\":{\\"user\\":\\"1\\",\\"anotherItem\\":{\\"thing\\":500},\\"time\\":\\"2020-06-07T02:00:15.000Z\\"},\\"entityMeta\\":{\\"User\\":{\\"1\\":{\\"expiresAt\\":null,\\"date\\":1557831718135,\\"fetchedAt\\":0}}}}"`;
+exports[`Serializable normalization normalizes date and custom 2`] = `"{"entities":{"User":{"1":{"id":"1","name":"Nacho","createdAt":"2020-06-07T02:00:15.000Z"}}},"indexes":{},"result":{"user":"1","anotherItem":{"thing":500},"time":"2020-06-07T02:00:15.000Z"},"entityMeta":{"User":{"1":{"expiresAt":null,"date":1557831718135,"fetchedAt":0}}}}"`;

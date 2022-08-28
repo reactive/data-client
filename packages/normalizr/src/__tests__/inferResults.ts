@@ -75,7 +75,7 @@ describe('inferResults()', () => {
     const schema = UnionResource.detail().schema;
     expect(buildInferredResults(schema, [{ id: 5, type: 'first' }], {}))
       .toMatchInlineSnapshot(`
-      Object {
+      {
         "id": 5,
         "schema": "first",
       }

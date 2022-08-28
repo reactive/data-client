@@ -86,7 +86,7 @@ describe('Endpoint', () => {
       expect(UserDetail.sideEffect).toBe(undefined);
       //expect(UserDetail.schema).toBeUndefined(); TODO: re-enable once we don't care about FetchShape compatibility
       expect(UserDetail.key({ id: payload.id })).toMatchInlineSnapshot(
-        `"fetchUsers [{\\"id\\":\\"5\\"}]"`,
+        `"fetchUsers [{"id":"5"}]"`,
       );
       // @ts-expect-error
       expect(UserDetail.notexist).toBeUndefined();
@@ -111,7 +111,7 @@ describe('Endpoint', () => {
       expect(Another.name).toBe('new');
       const Third = Another.extend({ method: 'POST' }).extend({ extra: 5 });
       expect(Third.name).toBe('new');
-      expect(Third.key('5')).toMatchInlineSnapshot(`"new [\\"5\\"]"`);
+      expect(Third.key('5')).toMatchInlineSnapshot(`"new ["5"]"`);
       const Fourth = Third.extend({ fetch: fetchUserList });
       expect(Fourth.name).toBe('fetchUserList');
       const Weird = new Endpoint(fetchUsersIdParam, { fetch: fetchUserList });
@@ -132,7 +132,7 @@ describe('Endpoint', () => {
       expect(UserDetail.sideEffect).toBe(undefined);
       //expect(UserDetail.schema).toBeUndefined(); TODO: re-enable once we don't care about FetchShape compatibility
       expect(UserDetail.key(payload.id)).toMatchInlineSnapshot(
-        `"fetchUsersIdParam [\\"5\\"]"`,
+        `"fetchUsersIdParam ["5"]"`,
       );
       // @ts-expect-error
       expect(UserDetail.notexist).toBeUndefined();
@@ -203,9 +203,7 @@ describe('Endpoint', () => {
 
       // check additional properties defaults
       expect(boundDetail.sideEffect).toBe(undefined);
-      expect(boundDetail.key()).toMatchInlineSnapshot(
-        `"fetch [{\\"id\\":\\"5\\"}]"`,
-      );
+      expect(boundDetail.key()).toMatchInlineSnapshot(`"fetch [{"id":"5"}]"`);
       expect(boundDetail.root).toBe('moreusers');
       // @ts-expect-error
       expect(boundDetail.notexist).toBeUndefined();
@@ -312,7 +310,7 @@ describe('Endpoint', () => {
     expect(response.notexist).toBeUndefined();
 
     expect(AssetDetail.key({ symbol: 'doge' })).toMatchInlineSnapshot(
-      `"fetchAsset [{\\"symbol\\":\\"doge\\"}]"`,
+      `"fetchAsset [{"symbol":"doge"}]"`,
     );
   });
 

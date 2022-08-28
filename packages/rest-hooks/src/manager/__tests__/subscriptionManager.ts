@@ -182,7 +182,7 @@ describe('SubscriptionManager', () => {
       expect((manager as any).subscriptions[action.meta.key]).not.toBeDefined();
 
       expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
-        Array [
+        [
           "Mismatched unsubscribe: http://test.com/article/25 is not subscribed",
         ]
       `);

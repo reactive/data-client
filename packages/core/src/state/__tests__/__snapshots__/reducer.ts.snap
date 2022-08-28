@@ -1,55 +1,55 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`reducer should set error in meta for "receive" 1`] = `
-Object {
-  "entities": Object {},
-  "entityMeta": Object {},
-  "indexes": Object {},
+{
+  "entities": {},
+  "entityMeta": {},
+  "indexes": {},
   "lastReset": 0,
-  "meta": Object {
-    "http://test.com/article/20": Object {
+  "meta": {
+    "http://test.com/article/20": {
       "date": 5000000000,
       "error": [Error: hi],
       "errorPolicy": undefined,
       "expiresAt": 5000500000,
     },
   },
-  "optimistic": Array [],
-  "results": Object {},
+  "optimistic": [],
+  "results": {},
 }
 `;
 
 exports[`reducer singles should update state correctly 1`] = `
-Object {
-  "entities": Object {
-    "http://test.com/article/": Object {
-      "20": Object {
+{
+  "entities": {
+    "http://test.com/article/": {
+      "20": {
         "content": "this is the content",
         "id": 20,
         "title": "hi",
       },
     },
   },
-  "entityMeta": Object {
-    "http://test.com/article/": Object {
-      "20": Object {
+  "entityMeta": {
+    "http://test.com/article/": {
+      "20": {
         "date": 5000000000,
         "expiresAt": 5000500000,
         "fetchedAt": 5000000000,
       },
     },
   },
-  "indexes": Object {},
+  "indexes": {},
   "lastReset": 0,
-  "meta": Object {
-    "http://test.com/article/20": Object {
+  "meta": {
+    "http://test.com/article/20": {
       "date": 5000000000,
       "expiresAt": 5000500000,
       "prevExpiresAt": undefined,
     },
   },
-  "optimistic": Array [],
-  "results": Object {
+  "optimistic": [],
+  "results": {
     "http://test.com/article/20": "20",
   },
 }

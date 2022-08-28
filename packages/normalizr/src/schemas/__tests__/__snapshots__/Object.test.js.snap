@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ObjectSchema denormalization denormalizes an object 1`] = `
-Array [
-  Object {
+[
+  {
     "user": User {
       "id": "1",
       "name": "Nacho",
@@ -14,8 +14,8 @@ Array [
 `;
 
 exports[`ObjectSchema denormalization denormalizes an object 2`] = `
-Array [
-  Object {
+[
+  {
     "user": User {
       "id": "1",
       "name": "Nacho",
@@ -27,7 +27,7 @@ Array [
 `;
 
 exports[`ObjectSchema denormalization denormalizes an object 3`] = `
-Array [
+[
   Immutable.Map {
     "user": User {
       "id": "1",
@@ -40,8 +40,8 @@ Array [
 `;
 
 exports[`ObjectSchema denormalization denormalizes an object that contains a property representing a an object with an id of zero 1`] = `
-Array [
-  Object {
+[
+  {
     "user": User {
       "id": "0",
       "name": "Chancho",
@@ -53,8 +53,8 @@ Array [
 `;
 
 exports[`ObjectSchema denormalization denormalizes an object that contains a property representing a an object with an id of zero 2`] = `
-Array [
-  Object {
+[
+  {
     "user": User {
       "id": "0",
       "name": "Chancho",
@@ -66,7 +66,7 @@ Array [
 `;
 
 exports[`ObjectSchema denormalization denormalizes an object that contains a property representing a an object with an id of zero 3`] = `
-Array [
+[
   Immutable.Map {
     "user": User {
       "id": "0",
@@ -79,8 +79,8 @@ Array [
 `;
 
 exports[`ObjectSchema denormalization denormalizes an object with plain members 1`] = `
-Array [
-  Object {
+[
+  {
     "user": User {
       "id": "1",
       "name": "Nacho",
@@ -92,8 +92,8 @@ Array [
 `;
 
 exports[`ObjectSchema denormalization denormalizes an object with plain members 2`] = `
-Array [
-  Object {
+[
+  {
     "user": User {
       "id": "1",
       "name": "Nacho",
@@ -105,7 +105,7 @@ Array [
 `;
 
 exports[`ObjectSchema denormalization denormalizes an object with plain members 3`] = `
-Array [
+[
   Immutable.Map {
     "user": User {
       "id": "1",
@@ -118,8 +118,8 @@ Array [
 `;
 
 exports[`ObjectSchema denormalization denormalizes plain object shorthand 1`] = `
-Array [
-  Object {
+[
+  {
     "user": User {
       "id": "1",
       "name": "Jane",
@@ -131,8 +131,8 @@ Array [
 `;
 
 exports[`ObjectSchema denormalization denormalizes plain object shorthand 2`] = `
-Array [
-  Object {
+[
+  {
     "user": User {
       "id": "1",
       "name": "Jane",
@@ -144,7 +144,7 @@ Array [
 `;
 
 exports[`ObjectSchema denormalization denormalizes plain object shorthand 3`] = `
-Array [
+[
   Immutable.Map {
     "user": User {
       "id": "1",
@@ -157,9 +157,9 @@ Array [
 `;
 
 exports[`ObjectSchema denormalization denormalizes plain object shorthand 4`] = `
-Array [
-  Object {
-    "tacos": Object {},
+[
+  {
+    "tacos": {},
     "user": User {
       "id": "1",
       "name": "Jane",
@@ -171,9 +171,9 @@ Array [
 `;
 
 exports[`ObjectSchema denormalization denormalizes plain object shorthand 5`] = `
-Array [
-  Object {
-    "tacos": Object {},
+[
+  {
+    "tacos": {},
     "user": User {
       "id": "1",
       "name": "Jane",
@@ -185,7 +185,7 @@ Array [
 `;
 
 exports[`ObjectSchema denormalization denormalizes plain object shorthand 6`] = `
-Array [
+[
   Immutable.Map {
     "user": User {
       "id": "1",
@@ -199,13 +199,13 @@ Array [
 `;
 
 exports[`ObjectSchema denormalization should have found = true with null member even when schema has nested entity 1`] = `
-Object {
+{
   "item": null,
 }
 `;
 
 exports[`ObjectSchema denormalization should have found = true with null member even when schema has nested entity 2`] = `
-Object {
+{
   "item": null,
 }
 `;
@@ -217,100 +217,100 @@ Immutable.Map {
 `;
 
 exports[`ObjectSchema normalization filters out undefined and null values 1`] = `
-Object {
-  "entities": Object {
-    "User": Object {
-      "1": Object {
+{
+  "entities": {
+    "User": {
+      "1": {
         "id": "1",
       },
     },
   },
-  "entityMeta": Object {
-    "User": Object {
-      "1": Object {
+  "entityMeta": {
+    "User": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Object {
+  "indexes": {},
+  "result": {
     "bar": "1",
   },
 }
 `;
 
 exports[`ObjectSchema normalization normalizes an object 1`] = `
-Object {
-  "entities": Object {
-    "User": Object {
-      "1": Object {
+{
+  "entities": {
+    "User": {
+      "1": {
         "id": "1",
       },
     },
   },
-  "entityMeta": Object {
-    "User": Object {
-      "1": Object {
+  "entityMeta": {
+    "User": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Object {
+  "indexes": {},
+  "result": {
     "user": "1",
   },
 }
 `;
 
 exports[`ObjectSchema normalization normalizes plain objects as shorthand for ObjectSchema 1`] = `
-Object {
-  "entities": Object {
-    "User": Object {
-      "1": Object {
+{
+  "entities": {
+    "User": {
+      "1": {
         "id": "1",
       },
     },
   },
-  "entityMeta": Object {
-    "User": Object {
-      "1": Object {
+  "entityMeta": {
+    "User": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Object {
+  "indexes": {},
+  "result": {
     "user": "1",
   },
 }
 `;
 
 exports[`ObjectSchema normalization should deserialize Date 1`] = `
-Object {
-  "entities": Object {
-    "User": Object {
-      "5": Object {
+{
+  "entities": {
+    "User": {
+      "5": {
         "id": "5",
       },
     },
   },
-  "entityMeta": Object {
-    "User": Object {
-      "5": Object {
+  "entityMeta": {
+    "User": {
+      "5": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Object {
+  "indexes": {},
+  "result": {
     "createdAt": 2020-06-07T02:00:15.000Z,
     "nextPage": "blob",
     "user": "5",
@@ -319,25 +319,25 @@ Object {
 `;
 
 exports[`ObjectSchema normalization should pass over when Date not provided 1`] = `
-Object {
-  "entities": Object {
-    "User": Object {
-      "5": Object {
+{
+  "entities": {
+    "User": {
+      "5": {
         "id": "5",
       },
     },
   },
-  "entityMeta": Object {
-    "User": Object {
-      "5": Object {
+  "entityMeta": {
+    "User": {
+      "5": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Object {
+  "indexes": {},
+  "result": {
     "nextPage": "blob",
     "user": "5",
   },

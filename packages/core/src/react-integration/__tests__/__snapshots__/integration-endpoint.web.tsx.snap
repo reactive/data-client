@@ -3,7 +3,7 @@
 exports[`CacheProvider Endpoint should gracefully abort in useSuspense() 1`] = `[AbortError: Aborted]`;
 
 exports[`CacheProvider Endpoint should resolve useSuspense() with SimpleRecords 1`] = `
-Array [
+[
   PaginatedArticleResource {
     "author": UserResource {
       "email": "bob@bob.com",
@@ -13,7 +13,7 @@ Array [
     },
     "content": "whatever",
     "id": 5,
-    "tags": Array [
+    "tags": [
       "a",
       "best",
       "react",
@@ -29,53 +29,53 @@ Array [
     },
     "content": "whatever",
     "id": 3,
-    "tags": Array [],
+    "tags": [],
     "title": "the next time",
   },
 ]
 `;
 
 exports[`CacheProvider should passthrough union with unexpected schema attribute 1`] = `
-Array [
-  Array [
-    "Schema attribute \\"another\\" is not expected.
-Expected one of: \\"first\\", \\"second\\"
+[
+  [
+    "Schema attribute "another" is not expected.
+Expected one of: "first", "second"
 
 Value: {
-  \\"id\\": \\"5\\",
-  \\"body\\": \\"hi\\",
-  \\"type\\": \\"another\\"
+  "id": "5",
+  "body": "hi",
+  "type": "another"
 }",
   ],
-  Array [
+  [
     "Schema attribute undefined is not expected.
-Expected one of: \\"first\\", \\"second\\"
+Expected one of: "first", "second"
 
 Value: {
-  \\"id\\": \\"5\\",
-  \\"body\\": \\"hi\\"
+  "id": "5",
+  "body": "hi"
 }",
   ],
-  Array [
+  [
     "TypeError: Unable to infer schema for UnionSchema
 Value: {
-  \\"id\\": \\"5\\",
-  \\"body\\": \\"hi\\",
-  \\"type\\": \\"another\\"
+  "id": "5",
+  "body": "hi",
+  "type": "another"
 }.",
   ],
-  Array [
+  [
     "TypeError: Unable to infer schema for UnionSchema
 Value: {
-  \\"id\\": \\"5\\",
-  \\"body\\": \\"hi\\"
+  "id": "5",
+  "body": "hi"
 }.",
   ],
 ]
 `;
 
 exports[`CacheProvider should resolve useSuspense() with SimpleRecords 1`] = `
-Array [
+[
   PaginatedArticleResource {
     "author": UserResource {
       "email": "bob@bob.com",
@@ -85,7 +85,7 @@ Array [
     },
     "content": "whatever",
     "id": 5,
-    "tags": Array [
+    "tags": [
       "a",
       "best",
       "react",
@@ -101,7 +101,7 @@ Array [
     },
     "content": "whatever",
     "id": 3,
-    "tags": Array [],
+    "tags": [],
     "title": "the next time",
   },
 ]
@@ -139,7 +139,7 @@ First three members: [
 exports[`ExternalCacheProvider Endpoint should gracefully abort in useSuspense() 1`] = `[AbortError: Aborted]`;
 
 exports[`ExternalCacheProvider Endpoint should resolve useSuspense() with SimpleRecords 1`] = `
-Array [
+[
   PaginatedArticleResource {
     "author": UserResource {
       "email": "bob@bob.com",
@@ -149,7 +149,7 @@ Array [
     },
     "content": "whatever",
     "id": 5,
-    "tags": Array [
+    "tags": [
       "a",
       "best",
       "react",
@@ -165,53 +165,53 @@ Array [
     },
     "content": "whatever",
     "id": 3,
-    "tags": Array [],
+    "tags": [],
     "title": "the next time",
   },
 ]
 `;
 
 exports[`ExternalCacheProvider should passthrough union with unexpected schema attribute 1`] = `
-Array [
-  Array [
-    "Schema attribute \\"another\\" is not expected.
-Expected one of: \\"first\\", \\"second\\"
+[
+  [
+    "Schema attribute "another" is not expected.
+Expected one of: "first", "second"
 
 Value: {
-  \\"id\\": \\"5\\",
-  \\"body\\": \\"hi\\",
-  \\"type\\": \\"another\\"
+  "id": "5",
+  "body": "hi",
+  "type": "another"
 }",
   ],
-  Array [
+  [
     "Schema attribute undefined is not expected.
-Expected one of: \\"first\\", \\"second\\"
+Expected one of: "first", "second"
 
 Value: {
-  \\"id\\": \\"5\\",
-  \\"body\\": \\"hi\\"
+  "id": "5",
+  "body": "hi"
 }",
   ],
-  Array [
+  [
     "TypeError: Unable to infer schema for UnionSchema
 Value: {
-  \\"id\\": \\"5\\",
-  \\"body\\": \\"hi\\",
-  \\"type\\": \\"another\\"
+  "id": "5",
+  "body": "hi",
+  "type": "another"
 }.",
   ],
-  Array [
+  [
     "TypeError: Unable to infer schema for UnionSchema
 Value: {
-  \\"id\\": \\"5\\",
-  \\"body\\": \\"hi\\"
+  "id": "5",
+  "body": "hi"
 }.",
   ],
 ]
 `;
 
 exports[`ExternalCacheProvider should resolve useSuspense() with SimpleRecords 1`] = `
-Array [
+[
   PaginatedArticleResource {
     "author": UserResource {
       "email": "bob@bob.com",
@@ -221,7 +221,7 @@ Array [
     },
     "content": "whatever",
     "id": 5,
-    "tags": Array [
+    "tags": [
       "a",
       "best",
       "react",
@@ -237,7 +237,7 @@ Array [
     },
     "content": "whatever",
     "id": 3,
-    "tags": Array [],
+    "tags": [],
     "title": "the next time",
   },
 ]

@@ -1,34 +1,34 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`useDenormalized() List paginated results should referentially change when the result extends 1`] = `
-Object {
-  "results": Array [
+{
+  "results": [
     PaginatedArticleResource {
       "author": null,
       "content": "",
       "id": 5,
-      "tags": Array [],
+      "tags": [],
       "title": "",
     },
     PaginatedArticleResource {
       "author": null,
       "content": "",
       "id": 6,
-      "tags": Array [],
+      "tags": [],
       "title": "",
     },
     PaginatedArticleResource {
       "author": null,
       "content": "",
       "id": 34,
-      "tags": Array [],
+      "tags": [],
       "title": "five",
     },
     PaginatedArticleResource {
       "author": null,
       "content": "",
       "id": 5,
-      "tags": Array [],
+      "tags": [],
       "title": "",
     },
   ],

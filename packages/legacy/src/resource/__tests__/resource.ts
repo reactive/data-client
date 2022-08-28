@@ -119,7 +119,7 @@ describe('Resource', () => {
           "author": null,
           "content": "",
           "id": 5,
-          "tags": Array [],
+          "tags": [],
           "title": "great",
         }
       `);
@@ -130,7 +130,7 @@ describe('Resource', () => {
           "author": null,
           "content": "",
           "id": 5,
-          "tags": Array [],
+          "tags": [],
           "title": "great",
         }
       `);
@@ -151,13 +151,13 @@ describe('Resource', () => {
     it('works', () => {
       expect(CoolerArticleResource.toObjectDefined(coolA))
         .toMatchInlineSnapshot(`
-        Object {
+        {
           "title": "great",
         }
       `);
       expect(CoolerArticleResource.toObjectDefined(coolB))
         .toMatchInlineSnapshot(`
-        Object {
+        {
           "id": 5,
         }
       `);
@@ -167,12 +167,12 @@ describe('Resource', () => {
   describe('keysDefined()', () => {
     it('works', () => {
       expect(CoolerArticleResource.keysDefined(coolA)).toMatchInlineSnapshot(`
-        Array [
+        [
           "title",
         ]
       `);
       expect(CoolerArticleResource.keysDefined(coolB)).toMatchInlineSnapshot(`
-        Array [
+        [
           "id",
         ]
       `);

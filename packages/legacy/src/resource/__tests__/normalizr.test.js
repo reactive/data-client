@@ -53,10 +53,10 @@ describe('normalize', () => {
   test('can normalize string', () => {
     const mySchema = '';
     expect(normalize('bob', mySchema)).toMatchInlineSnapshot(`
-      Object {
-        "entities": Object {},
-        "entityMeta": Object {},
-        "indexes": Object {},
+      {
+        "entities": {},
+        "entityMeta": {},
+        "indexes": {},
         "result": "bob",
       }
     `);
@@ -168,12 +168,12 @@ describe('normalize', () => {
     ).toMatchSnapshot();
 
     expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
-      Array [
+      [
         "Index not found in entity. Indexes must be top-level members of your entity.
       Index: notfound
       Entity: {
-        \\"id\\": \\"1\\",
-        \\"type\\": \\"foo\\"
+        "id": "1",
+        "type": "foo"
       }",
       ]
     `);
@@ -959,11 +959,11 @@ describe('denormalize with global cache', () => {
         resultCache,
       );
       expect(denorm).toMatchInlineSnapshot(`
-        Object {
+        {
           "data": Article {
             "author": null,
             "body": "",
-            "comments": Array [],
+            "comments": [],
             "id": "5",
             "title": "hehe",
           },
