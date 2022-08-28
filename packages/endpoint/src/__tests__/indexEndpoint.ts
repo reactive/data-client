@@ -18,7 +18,7 @@ describe('Index', () => {
     const UserIndex = new Index(User);
 
     expect(UserIndex.key({ username: 'hi' })).toMatchInlineSnapshot(
-      `"{\\"username\\":\\"hi\\"}"`,
+      `"{"username":"hi"}"`,
     );
 
     //@ts-expect-error
@@ -31,7 +31,7 @@ describe('Index', () => {
     const UserIndex = new Index(User);
 
     expect(UserIndex.getFetchKey({ username: 'hi' })).toMatchInlineSnapshot(
-      `"{\\"username\\":\\"hi\\"}"`,
+      `"{"username":"hi"}"`,
     );
 
     //@ts-expect-error

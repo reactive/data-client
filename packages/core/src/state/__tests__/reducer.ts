@@ -779,12 +779,12 @@ describe('reducer', () => {
       expect(newState.lastReset).toBeDefined();
       expect(newState.lastReset).toBeGreaterThan(0);
       expect(warnspy.mock.calls).toMatchInlineSnapshot(`
-Array [
-  Array [
-    "rest-hooks/reset sent without 'date' member. This is deprecated. Please use createReset() action creator to ensure correct action shape.",
-  ],
-]
-`);
+        [
+          [
+            "rest-hooks/reset sent without 'date' member. This is deprecated. Please use createReset() action creator to ensure correct action shape.",
+          ],
+        ]
+      `);
     });
   });
 

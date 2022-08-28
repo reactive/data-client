@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CacheProvider Endpoint should resolve useResource() with SimpleRecords 1`] = `
-Array [
+[
   PaginatedArticleResource {
     "author": UserResource {
       "email": "bob@bob.com",
@@ -11,7 +11,7 @@ Array [
     },
     "content": "whatever",
     "id": 5,
-    "tags": Array [
+    "tags": [
       "a",
       "best",
       "react",
@@ -27,7 +27,7 @@ Array [
     },
     "content": "whatever",
     "id": 3,
-    "tags": Array [],
+    "tags": [],
     "title": "the next time",
   },
 ]
@@ -52,7 +52,7 @@ IndexedUserResource {
 `;
 
 exports[`CacheProvider should resolve useResource() with SimpleRecords 1`] = `
-Array [
+[
   PaginatedArticleResource {
     "author": UserResource {
       "email": "bob@bob.com",
@@ -62,7 +62,7 @@ Array [
     },
     "content": "whatever",
     "id": 5,
-    "tags": Array [
+    "tags": [
       "a",
       "best",
       "react",
@@ -78,7 +78,7 @@ Array [
     },
     "content": "whatever",
     "id": 3,
-    "tags": Array [],
+    "tags": [],
     "title": "the next time",
   },
 ]
@@ -114,7 +114,7 @@ First three members: [
 `;
 
 exports[`ExternalCacheProvider Endpoint should resolve useResource() with SimpleRecords 1`] = `
-Array [
+[
   PaginatedArticleResource {
     "author": UserResource {
       "email": "bob@bob.com",
@@ -124,7 +124,7 @@ Array [
     },
     "content": "whatever",
     "id": 5,
-    "tags": Array [
+    "tags": [
       "a",
       "best",
       "react",
@@ -140,7 +140,7 @@ Array [
     },
     "content": "whatever",
     "id": 3,
-    "tags": Array [],
+    "tags": [],
     "title": "the next time",
   },
 ]
@@ -165,7 +165,7 @@ IndexedUserResource {
 `;
 
 exports[`ExternalCacheProvider should resolve useResource() with SimpleRecords 1`] = `
-Array [
+[
   PaginatedArticleResource {
     "author": UserResource {
       "email": "bob@bob.com",
@@ -175,7 +175,7 @@ Array [
     },
     "content": "whatever",
     "id": 5,
-    "tags": Array [
+    "tags": [
       "a",
       "best",
       "react",
@@ -191,7 +191,7 @@ Array [
     },
     "content": "whatever",
     "id": 3,
-    "tags": Array [],
+    "tags": [],
     "title": "the next time",
   },
 ]

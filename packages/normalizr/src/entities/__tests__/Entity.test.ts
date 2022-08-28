@@ -121,25 +121,25 @@ describe(`${Entity.name} normalization`, () => {
 
     expect(normalize({ name: 'bob', secondthing: 'hi' }, schema))
       .toMatchInlineSnapshot(`
-      Object {
-        "entities": Object {
-          "MyEntity": Object {
-            "bob": Object {
+      {
+        "entities": {
+          "MyEntity": {
+            "bob": {
               "name": "bob",
               "secondthing": "hi",
             },
           },
         },
-        "entityMeta": Object {
-          "MyEntity": Object {
-            "bob": Object {
+        "entityMeta": {
+          "MyEntity": {
+            "bob": {
               "date": 1557831718135,
               "expiresAt": Infinity,
               "fetchedAt": 0,
             },
           },
         },
-        "indexes": Object {},
+        "indexes": {},
         "result": "bob",
       }
     `);
@@ -799,7 +799,7 @@ describe(`${Entity.name} denormalization`, () => {
         MyEntity: { bob: { name: 'bob', secondthing: 'hi' } },
       }),
     ).toMatchInlineSnapshot(`
-      Array [
+      [
         MyEntity {
           "blarb": undefined,
           "name": "bob",
@@ -831,7 +831,7 @@ describe(`${Entity.name} denormalization`, () => {
         MyEntity: { bob: { name: 'bob', secondthing: 'hi', blarb: null } },
       }),
     ).toMatchInlineSnapshot(`
-      Array [
+      [
         MyEntity {
           "blarb": null,
           "name": "bob",

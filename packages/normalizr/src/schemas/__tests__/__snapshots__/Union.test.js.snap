@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`UnionSchema denormalization denormalizes an array of multiple entities using a function to infer the schemaAttribute 1`] = `
-Array [
+[
   User {
     "id": "1",
     "type": "users",
@@ -13,7 +13,7 @@ Array [
 `;
 
 exports[`UnionSchema denormalization denormalizes an array of multiple entities using a function to infer the schemaAttribute 2`] = `
-Array [
+[
   User {
     "id": "1",
     "type": "users",
@@ -25,7 +25,7 @@ Array [
 `;
 
 exports[`UnionSchema denormalization denormalizes an array of multiple entities using a function to infer the schemaAttribute 3`] = `
-Array [
+[
   Group {
     "groupname": "People",
     "id": "2",
@@ -37,7 +37,7 @@ Array [
 `;
 
 exports[`UnionSchema denormalization denormalizes an array of multiple entities using a function to infer the schemaAttribute 4`] = `
-Array [
+[
   Group {
     "groupname": "People",
     "id": "2",
@@ -49,7 +49,7 @@ Array [
 `;
 
 exports[`UnionSchema denormalization denormalizes an object using string schemaAttribute 1`] = `
-Array [
+[
   User {
     "id": "1",
     "type": "users",
@@ -61,7 +61,7 @@ Array [
 `;
 
 exports[`UnionSchema denormalization denormalizes an object using string schemaAttribute 2`] = `
-Array [
+[
   User {
     "id": "1",
     "type": "users",
@@ -73,7 +73,7 @@ Array [
 `;
 
 exports[`UnionSchema denormalization denormalizes an object using string schemaAttribute 3`] = `
-Array [
+[
   Group {
     "groupname": "People",
     "id": "2",
@@ -85,7 +85,7 @@ Array [
 `;
 
 exports[`UnionSchema denormalization denormalizes an object using string schemaAttribute 4`] = `
-Array [
+[
   Group {
     "groupname": "People",
     "id": "2",
@@ -97,8 +97,8 @@ Array [
 `;
 
 exports[`UnionSchema denormalization returns the original value when no schema is given 1`] = `
-Array [
-  Object {
+[
+  {
     "id": "1",
   },
   true,
@@ -107,7 +107,7 @@ Array [
 `;
 
 exports[`UnionSchema denormalization returns the original value when no schema is given 2`] = `
-Array [
+[
   Immutable.Map {
     "id": "1",
   },
@@ -117,7 +117,7 @@ Array [
 `;
 
 exports[`UnionSchema denormalization returns the original value when string is given 1`] = `
-Array [
+[
   "1",
   true,
   false,
@@ -125,26 +125,26 @@ Array [
 `;
 
 exports[`UnionSchema normalization normalizes an array of multiple entities using a function to infer the schemaAttribute 1`] = `
-Object {
-  "entities": Object {
-    "User": Object {
-      "1": Object {
+{
+  "entities": {
+    "User": {
+      "1": {
         "id": "1",
         "username": "Janey",
       },
     },
   },
-  "entityMeta": Object {
-    "User": Object {
-      "1": Object {
+  "entityMeta": {
+    "User": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Object {
+  "indexes": {},
+  "result": {
     "id": "1",
     "schema": "users",
   },
@@ -152,26 +152,26 @@ Object {
 `;
 
 exports[`UnionSchema normalization normalizes an array of multiple entities using a function to infer the schemaAttribute 2`] = `
-Object {
-  "entities": Object {
-    "Group": Object {
-      "2": Object {
+{
+  "entities": {
+    "Group": {
+      "2": {
         "groupname": "People",
         "id": "2",
       },
     },
   },
-  "entityMeta": Object {
-    "Group": Object {
-      "2": Object {
+  "entityMeta": {
+    "Group": {
+      "2": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Object {
+  "indexes": {},
+  "result": {
     "id": "2",
     "schema": "groups",
   },
@@ -179,11 +179,11 @@ Object {
 `;
 
 exports[`UnionSchema normalization normalizes an array of multiple entities using a function to infer the schemaAttribute 3`] = `
-Object {
-  "entities": Object {},
-  "entityMeta": Object {},
-  "indexes": Object {},
-  "result": Object {
+{
+  "entities": {},
+  "entityMeta": {},
+  "indexes": {},
+  "result": {
     "id": "3",
     "notdefined": "yep",
   },
@@ -191,26 +191,26 @@ Object {
 `;
 
 exports[`UnionSchema normalization normalizes an object using string schemaAttribute 1`] = `
-Object {
-  "entities": Object {
-    "User": Object {
-      "1": Object {
+{
+  "entities": {
+    "User": {
+      "1": {
         "id": "1",
         "type": "users",
       },
     },
   },
-  "entityMeta": Object {
-    "User": Object {
-      "1": Object {
+  "entityMeta": {
+    "User": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Object {
+  "indexes": {},
+  "result": {
     "id": "1",
     "schema": "users",
   },
@@ -218,26 +218,26 @@ Object {
 `;
 
 exports[`UnionSchema normalization normalizes an object using string schemaAttribute 2`] = `
-Object {
-  "entities": Object {
-    "Group": Object {
-      "2": Object {
+{
+  "entities": {
+    "Group": {
+      "2": {
         "id": "2",
         "type": "groups",
       },
     },
   },
-  "entityMeta": Object {
-    "Group": Object {
-      "2": Object {
+  "entityMeta": {
+    "Group": {
+      "2": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Object {
+  "indexes": {},
+  "result": {
     "id": "2",
     "schema": "groups",
   },
@@ -245,168 +245,168 @@ Object {
 `;
 
 exports[`complex case works with undefined 1`] = `
-Object {
-  "entities": Object {
-    "ContinuousSequence": Object {
-      "22": Object {
-        "group_a_stats": Object {
+{
+  "entities": {
+    "ContinuousSequence": {
+      "22": {
+        "group_a_stats": {
           "count": 79557,
           "sum": 3727219.2099861577,
         },
-        "group_b_stats": Object {
+        "group_b_stats": {
           "count": 66794,
           "sum": 2999496.370384956,
         },
         "sequence_id": 22,
         "sequence_type": "temporal_mean_shift",
-        "subpops_group_a_incremental_stats": Array [
-          Object {
+        "subpops_group_a_incremental_stats": [
+          {
             "count": 19302,
             "sum": 909835.9502538516,
           },
-          Object {
+          {
             "count": 12452,
             "sum": 468902.2598208785,
           },
-          Object {
+          {
             "count": 29674,
             "sum": 1533126.7700431347,
           },
-          Object {
+          {
             "count": 3979,
             "sum": 123931.08003079893,
           },
-          Object {
+          {
             "count": 3501,
             "sum": 173706.13005542755,
           },
         ],
-        "subpops_group_a_stats": Array [
-          Object {
+        "subpops_group_a_stats": [
+          {
             "count": 19302,
             "sum": 909835.9502538516,
           },
-          Object {
+          {
             "count": 15550,
             "sum": 656345.8200406507,
           },
-          Object {
+          {
             "count": 38523,
             "sum": 1767670.8099250195,
           },
-          Object {
+          {
             "count": 15778,
             "sum": 549563.3501347005,
           },
-          Object {
+          {
             "count": 20194,
             "sum": 951307.5302157328,
           },
         ],
-        "subpops_group_b_incremental_stats": Array [
-          Object {
+        "subpops_group_b_incremental_stats": [
+          {
             "count": 16022,
             "sum": 686623.8400082085,
           },
-          Object {
+          {
             "count": 10427,
             "sum": 632778.0701571181,
           },
-          Object {
+          {
             "count": 25270,
             "sum": 1002223.6299012974,
           },
-          Object {
+          {
             "count": 3386,
             "sum": 104987.2500332594,
           },
-          Object {
+          {
             "count": 2893,
             "sum": 139013.64997577667,
           },
         ],
-        "subpops_group_b_stats": Array [
-          Object {
+        "subpops_group_b_stats": [
+          {
             "count": 16022,
             "sum": 686623.8400082085,
           },
-          Object {
+          {
             "count": 12964,
             "sum": 713309.7901891638,
           },
-          Object {
+          {
             "count": 32773,
             "sum": 1542281.990038909,
           },
-          Object {
+          {
             "count": 12722,
             "sum": 423195.7500065565,
           },
-          Object {
+          {
             "count": 17110,
             "sum": 768182.7200815715,
           },
         ],
-        "subpopulations": Array [
-          Array [
-            Object {
+        "subpopulations": [
+          [
+            {
               "absolute_range": null,
               "factor_type": "value",
               "keyword": null,
               "percentile_range": null,
-              "value": Object {
+              "value": {
                 "column": "loyalty_program",
                 "data_type": "string",
                 "value": "none",
               },
             },
           ],
-          Array [
-            Object {
+          [
+            {
               "absolute_range": null,
               "factor_type": "value",
               "keyword": null,
               "percentile_range": null,
-              "value": Object {
+              "value": {
                 "column": "coupon_code",
                 "data_type": "string",
                 "value": "01DEC2019PROMO",
               },
             },
           ],
-          Array [
-            Object {
+          [
+            {
               "absolute_range": null,
               "factor_type": "value",
               "keyword": null,
               "percentile_range": null,
-              "value": Object {
+              "value": {
                 "column": "loyalty_program",
                 "data_type": "string",
                 "value": "silver",
               },
             },
           ],
-          Array [
-            Object {
+          [
+            {
               "absolute_range": null,
               "factor_type": "value",
               "keyword": null,
               "percentile_range": null,
-              "value": Object {
+              "value": {
                 "column": "ad_shown",
                 "data_type": "string",
                 "value": "week52_20",
               },
             },
           ],
-          Array [
-            Object {
+          [
+            {
               "absolute_range": null,
               "factor_type": "value",
               "keyword": null,
               "percentile_range": null,
-              "value": Object {
+              "value": {
                 "column": "day_part",
                 "data_type": "string",
                 "value": "afternoon",
@@ -417,21 +417,21 @@ Object {
       },
     },
   },
-  "entityMeta": Object {
-    "ContinuousSequence": Object {
-      "22": Object {
+  "entityMeta": {
+    "ContinuousSequence": {
+      "22": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Object {
-    "sequences": Array [
+  "indexes": {},
+  "result": {
+    "sequences": [
       null,
       undefined,
-      Object {
+      {
         "id": "22",
         "schema": "temporal_mean_shift",
       },
@@ -441,169 +441,169 @@ Object {
 `;
 
 exports[`complex case works with undefined 2`] = `
-Array [
-  Object {
-    "sequences": Array [
+[
+  {
+    "sequences": [
       null,
       ContinuousSequence {
-        "group_a_stats": Object {
+        "group_a_stats": {
           "count": 79557,
           "sum": 3727219.2099861577,
         },
-        "group_b_stats": Object {
+        "group_b_stats": {
           "count": 66794,
           "sum": 2999496.370384956,
         },
         "sequence_id": 22,
         "sequence_type": "temporal_mean_shift",
-        "subpops_group_a_incremental_stats": Array [
-          Object {
+        "subpops_group_a_incremental_stats": [
+          {
             "count": 19302,
             "sum": 909835.9502538516,
           },
-          Object {
+          {
             "count": 12452,
             "sum": 468902.2598208785,
           },
-          Object {
+          {
             "count": 29674,
             "sum": 1533126.7700431347,
           },
-          Object {
+          {
             "count": 3979,
             "sum": 123931.08003079893,
           },
-          Object {
+          {
             "count": 3501,
             "sum": 173706.13005542755,
           },
         ],
-        "subpops_group_a_stats": Array [
-          Object {
+        "subpops_group_a_stats": [
+          {
             "count": 19302,
             "sum": 909835.9502538516,
           },
-          Object {
+          {
             "count": 15550,
             "sum": 656345.8200406507,
           },
-          Object {
+          {
             "count": 38523,
             "sum": 1767670.8099250195,
           },
-          Object {
+          {
             "count": 15778,
             "sum": 549563.3501347005,
           },
-          Object {
+          {
             "count": 20194,
             "sum": 951307.5302157328,
           },
         ],
-        "subpops_group_b_incremental_stats": Array [
-          Object {
+        "subpops_group_b_incremental_stats": [
+          {
             "count": 16022,
             "sum": 686623.8400082085,
           },
-          Object {
+          {
             "count": 10427,
             "sum": 632778.0701571181,
           },
-          Object {
+          {
             "count": 25270,
             "sum": 1002223.6299012974,
           },
-          Object {
+          {
             "count": 3386,
             "sum": 104987.2500332594,
           },
-          Object {
+          {
             "count": 2893,
             "sum": 139013.64997577667,
           },
         ],
-        "subpops_group_b_stats": Array [
-          Object {
+        "subpops_group_b_stats": [
+          {
             "count": 16022,
             "sum": 686623.8400082085,
           },
-          Object {
+          {
             "count": 12964,
             "sum": 713309.7901891638,
           },
-          Object {
+          {
             "count": 32773,
             "sum": 1542281.990038909,
           },
-          Object {
+          {
             "count": 12722,
             "sum": 423195.7500065565,
           },
-          Object {
+          {
             "count": 17110,
             "sum": 768182.7200815715,
           },
         ],
-        "subpopulations": Array [
-          Array [
-            Object {
+        "subpopulations": [
+          [
+            {
               "absolute_range": null,
               "factor_type": "value",
               "keyword": null,
               "percentile_range": null,
-              "value": Object {
+              "value": {
                 "column": "loyalty_program",
                 "data_type": "string",
                 "value": "none",
               },
             },
           ],
-          Array [
-            Object {
+          [
+            {
               "absolute_range": null,
               "factor_type": "value",
               "keyword": null,
               "percentile_range": null,
-              "value": Object {
+              "value": {
                 "column": "coupon_code",
                 "data_type": "string",
                 "value": "01DEC2019PROMO",
               },
             },
           ],
-          Array [
-            Object {
+          [
+            {
               "absolute_range": null,
               "factor_type": "value",
               "keyword": null,
               "percentile_range": null,
-              "value": Object {
+              "value": {
                 "column": "loyalty_program",
                 "data_type": "string",
                 "value": "silver",
               },
             },
           ],
-          Array [
-            Object {
+          [
+            {
               "absolute_range": null,
               "factor_type": "value",
               "keyword": null,
               "percentile_range": null,
-              "value": Object {
+              "value": {
                 "column": "ad_shown",
                 "data_type": "string",
                 "value": "week52_20",
               },
             },
           ],
-          Array [
-            Object {
+          [
+            {
               "absolute_range": null,
               "factor_type": "value",
               "keyword": null,
               "percentile_range": null,
-              "value": Object {
+              "value": {
                 "column": "day_part",
                 "data_type": "string",
                 "value": "afternoon",

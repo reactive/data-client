@@ -1,21 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`denormalize denormalizes arrays with objects inside 1`] = `
-Array [
-  Object {
+[
+  {
     "data": Tacos {
       "id": "1",
       "type": "foo",
     },
   },
-  Object {
+  {
     "data": undefined,
   },
 ]
 `;
 
 exports[`denormalize denormalizes entities 1`] = `
-Array [
+[
   Tacos {
     "id": "1",
     "type": "foo",
@@ -28,8 +28,8 @@ Array [
 `;
 
 exports[`denormalize denormalizes ignoring deleted entities in arrays 1`] = `
-Array [
-  Array [
+[
+  [
     Tacos {
       "id": "1",
       "type": "foo",
@@ -41,9 +41,9 @@ Array [
 `;
 
 exports[`denormalize denormalizes ignoring deleted entities in arrays 2`] = `
-Array [
-  Object {
-    "results": Array [
+[
+  {
+    "results": [
       Tacos {
         "id": "1",
         "type": "foo",
@@ -56,8 +56,8 @@ Array [
 `;
 
 exports[`denormalize denormalizes ignoring unfound entities in arrays 1`] = `
-Array [
-  Array [
+[
+  [
     Tacos {
       "id": "1",
       "type": "foo",
@@ -69,9 +69,9 @@ Array [
 `;
 
 exports[`denormalize denormalizes ignoring unfound entities in arrays 2`] = `
-Array [
-  Object {
-    "results": Array [
+[
+  {
+    "results": [
       Tacos {
         "id": "1",
         "type": "foo",
@@ -84,14 +84,14 @@ Array [
 `;
 
 exports[`denormalize denormalizes nested entities 1`] = `
-Array [
+[
   Article {
     "author": User {
       "id": "8472",
       "name": "Paul",
     },
     "body": "This article is great.",
-    "comments": Array [
+    "comments": [
       Comment {
         "comment": "I like it!",
         "id": "comment-123-4738",
@@ -110,9 +110,9 @@ Array [
 `;
 
 exports[`denormalize denormalizes schema with extra members 1`] = `
-Array [
-  Object {
-    "data": Array [
+[
+  {
+    "data": [
       Tacos {
         "id": "1",
         "type": "foo",
@@ -123,13 +123,13 @@ Array [
       },
     ],
     "extra": "5",
-    "page": Object {
-      "complex": Object {
+    "page": {
+      "complex": {
         "complex": false,
         "next": true,
       },
       "first": null,
-      "second": Object {
+      "second": {
         "thing": "two",
       },
       "third": 1,
@@ -141,9 +141,9 @@ Array [
 `;
 
 exports[`denormalize denormalizes schema with extra members but not set 1`] = `
-Array [
-  Object {
-    "data": Array [
+[
+  {
+    "data": [
       Tacos {
         "id": "1",
         "type": "foo",
@@ -160,8 +160,8 @@ Array [
 `;
 
 exports[`denormalize denormalizes with function as pk() 1`] = `
-Array [
-  Array [
+[
+  [
     Patron {
       "guest": null,
       "id": "1",
@@ -181,8 +181,8 @@ Array [
 `;
 
 exports[`denormalize denormalizes without entities fills undefined 1`] = `
-Array [
-  Object {
+[
+  {
     "data": undefined,
   },
   false,
@@ -191,7 +191,7 @@ Array [
 `;
 
 exports[`denormalize denormalizes without entities fills undefined 2`] = `
-Array [
+[
   Immutable.Map {
     "data": undefined,
   },
@@ -203,11 +203,11 @@ Array [
 exports[`denormalize gracefully handles when nested entities are primitives 1`] = `[Function]`;
 
 exports[`denormalize set to undefined if schema key is not in entities 1`] = `
-Array [
+[
   Article {
     "author": undefined,
     "body": "",
-    "comments": Array [
+    "comments": [
       Comment {
         "comment": "",
         "id": "1",
@@ -223,17 +223,17 @@ Array [
 `;
 
 exports[`normalize can use fully custom entity classes 1`] = `
-Object {
-  "entities": Object {
-    "Children": Object {
-      "4": Object {
+{
+  "entities": {
+    "Children": {
+      "4": {
         "id": 4,
         "name": "lettuce",
       },
     },
-    "Food": Object {
-      "1234": Object {
-        "children": Array [
+    "Food": {
+      "1234": {
+        "children": [
           "4",
         ],
         "name": "tacos",
@@ -241,24 +241,24 @@ Object {
       },
     },
   },
-  "entityMeta": Object {
-    "Children": Object {
-      "4": Object {
+  "entityMeta": {
+    "Children": {
+      "4": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
-    "Food": Object {
-      "1234": Object {
+    "Food": {
+      "1234": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Object {
+  "indexes": {},
+  "result": {
     "schema": "Food",
     "uuid": "1234",
   },
@@ -266,68 +266,68 @@ Object {
 `;
 
 exports[`normalize ignores null values 1`] = `
-Object {
-  "entities": Object {},
-  "entityMeta": Object {},
-  "indexes": Object {},
-  "result": Array [
+{
+  "entities": {},
+  "entityMeta": {},
+  "indexes": {},
+  "result": [
     null,
   ],
 }
 `;
 
 exports[`normalize ignores null values 2`] = `
-Object {
-  "entities": Object {},
-  "entityMeta": Object {},
-  "indexes": Object {},
-  "result": Array [
+{
+  "entities": {},
+  "entityMeta": {},
+  "indexes": {},
+  "result": [
     undefined,
   ],
 }
 `;
 
 exports[`normalize ignores null values 3`] = `
-Object {
-  "entities": Object {},
-  "entityMeta": Object {},
-  "indexes": Object {},
-  "result": Array [
+{
+  "entities": {},
+  "entityMeta": {},
+  "indexes": {},
+  "result": [
     false,
   ],
 }
 `;
 
 exports[`normalize normalizes entities 1`] = `
-Object {
-  "entities": Object {
-    "Tacos": Object {
-      "1": Object {
+{
+  "entities": {
+    "Tacos": {
+      "1": {
         "id": "1",
         "type": "foo",
       },
-      "2": Object {
+      "2": {
         "id": "2",
         "type": "bar",
       },
     },
   },
-  "entityMeta": Object {
-    "Tacos": Object {
-      "1": Object {
+  "entityMeta": {
+    "Tacos": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
-      "2": Object {
+      "2": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Array [
+  "indexes": {},
+  "result": [
     "1",
     "2",
   ],
@@ -335,137 +335,137 @@ Object {
 `;
 
 exports[`normalize normalizes entities with circular references 1`] = `
-Object {
-  "entities": Object {
-    "User": Object {
-      "123": Object {
-        "friends": Array [
+{
+  "entities": {
+    "User": {
+      "123": {
+        "friends": [
           "123",
         ],
         "id": "123",
       },
     },
   },
-  "entityMeta": Object {
-    "User": Object {
-      "123": Object {
+  "entityMeta": {
+    "User": {
+      "123": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
+  "indexes": {},
   "result": "123",
 }
 `;
 
 exports[`normalize normalizes nested entities 1`] = `
-Object {
-  "entities": Object {
-    "Article": Object {
-      "123": Object {
+{
+  "entities": {
+    "Article": {
+      "123": {
         "author": "8472",
         "body": "This article is great.",
-        "comments": Array [
+        "comments": [
           "comment-123-4738",
         ],
         "id": "123",
         "title": "A Great Article",
       },
     },
-    "Comment": Object {
-      "comment-123-4738": Object {
+    "Comment": {
+      "comment-123-4738": {
         "comment": "I like it!",
         "id": "comment-123-4738",
         "user": "10293",
       },
     },
-    "User": Object {
-      "10293": Object {
+    "User": {
+      "10293": {
         "id": "10293",
         "name": "Jane",
       },
-      "8472": Object {
+      "8472": {
         "id": "8472",
         "name": "Paul",
       },
     },
   },
-  "entityMeta": Object {
-    "Article": Object {
-      "123": Object {
+  "entityMeta": {
+    "Article": {
+      "123": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
-    "Comment": Object {
-      "comment-123-4738": Object {
+    "Comment": {
+      "comment-123-4738": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
-    "User": Object {
-      "10293": Object {
+    "User": {
+      "10293": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
-      "8472": Object {
+      "8472": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
+  "indexes": {},
   "result": "123",
 }
 `;
 
 exports[`normalize normalizes schema with extra members 1`] = `
-Object {
-  "entities": Object {
-    "Tacos": Object {
-      "1": Object {
+{
+  "entities": {
+    "Tacos": {
+      "1": {
         "id": "1",
         "type": "foo",
       },
-      "2": Object {
+      "2": {
         "id": "2",
         "type": "bar",
       },
     },
   },
-  "entityMeta": Object {
-    "Tacos": Object {
-      "1": Object {
+  "entityMeta": {
+    "Tacos": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
-      "2": Object {
+      "2": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Object {
-    "data": Array [
+  "indexes": {},
+  "result": {
+    "data": [
       "1",
       "2",
     ],
     "extra": "five",
-    "page": Object {
-      "complex": Object {
+    "page": {
+      "complex": {
         "complex": false,
         "next": true,
       },
-      "second": Object {
+      "second": {
         "thing": "two",
       },
       "third": 1,
@@ -475,36 +475,36 @@ Object {
 `;
 
 exports[`normalize normalizes schema with extra members but not set 1`] = `
-Object {
-  "entities": Object {
-    "Tacos": Object {
-      "1": Object {
+{
+  "entities": {
+    "Tacos": {
+      "1": {
         "id": "1",
         "type": "foo",
       },
-      "2": Object {
+      "2": {
         "id": "2",
         "type": "bar",
       },
     },
   },
-  "entityMeta": Object {
-    "Tacos": Object {
-      "1": Object {
+  "entityMeta": {
+    "Tacos": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
-      "2": Object {
+      "2": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
-  "result": Object {
-    "data": Array [
+  "indexes": {},
+  "result": {
+    "data": [
       "1",
       "2",
     ],
@@ -513,45 +513,45 @@ Object {
 `;
 
 exports[`normalize normalizes schema with indexes 1`] = `
-Object {
-  "entities": Object {
-    "MyTaco": Object {
-      "1": Object {
+{
+  "entities": {
+    "MyTaco": {
+      "1": {
         "id": "1",
         "type": "foo",
       },
-      "2": Object {
+      "2": {
         "id": "2",
         "type": "bar2",
       },
     },
   },
-  "entityMeta": Object {
-    "MyTaco": Object {
-      "1": Object {
+  "entityMeta": {
+    "MyTaco": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
-      "2": Object {
+      "2": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {
-    "MyTaco": Object {
-      "type": Object {
+  "indexes": {
+    "MyTaco": {
+      "type": {
         "bar": Symbol(ENTITY WAS DELETED),
         "bar2": "2",
         "foo": "1",
       },
     },
   },
-  "result": Object {
+  "result": {
     "alt": "2",
-    "data": Array [
+    "data": [
       "1",
       "2",
     ],
@@ -560,41 +560,41 @@ Object {
 `;
 
 exports[`normalize normalizes warns on schemas with unfound indexes 1`] = `
-Object {
-  "entities": Object {
-    "MyTaco": Object {
-      "1": Object {
+{
+  "entities": {
+    "MyTaco": {
+      "1": {
         "id": "1",
         "type": "foo",
       },
-      "2": Object {
+      "2": {
         "id": "2",
         "type": "bar2",
       },
     },
   },
-  "entityMeta": Object {
-    "MyTaco": Object {
-      "1": Object {
+  "entityMeta": {
+    "MyTaco": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
-      "2": Object {
+      "2": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {
-    "MyTaco": Object {
-      "notfound": Object {},
+  "indexes": {
+    "MyTaco": {
+      "notfound": {},
     },
   },
-  "result": Object {
+  "result": {
     "alt": "2",
-    "data": Array [
+    "data": [
       "1",
       "2",
     ],
@@ -603,84 +603,84 @@ Object {
 `;
 
 exports[`normalize passes over pre-normalized values 1`] = `
-Object {
-  "entities": Object {
-    "Article": Object {
-      "123": Object {
+{
+  "entities": {
+    "Article": {
+      "123": {
         "author": "1",
         "id": "123",
         "title": "normalizr is great!",
       },
     },
   },
-  "entityMeta": Object {
-    "Article": Object {
-      "123": Object {
+  "entityMeta": {
+    "Article": {
+      "123": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
+  "indexes": {},
   "result": "123",
 }
 `;
 
 exports[`normalize passes over pre-normalized values 2`] = `
-Object {
-  "entities": Object {},
-  "entityMeta": Object {},
-  "indexes": Object {},
-  "result": Object {
+{
+  "entities": {},
+  "entityMeta": {},
+  "indexes": {},
+  "result": {
     "user": "1",
   },
 }
 `;
 
 exports[`normalize uses the non-normalized input when getting the ID for an entity 1`] = `
-Object {
-  "entities": Object {
-    "Recommendations": Object {
-      "456": Object {
+{
+  "entities": {
+    "Recommendations": {
+      "456": {
         "user": "456",
       },
     },
-    "User": Object {
-      "456": Object {
+    "User": {
+      "456": {
         "id": "456",
       },
     },
   },
-  "entityMeta": Object {
-    "Recommendations": Object {
-      "456": Object {
+  "entityMeta": {
+    "Recommendations": {
+      "456": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
-    "User": Object {
-      "456": Object {
+    "User": {
+      "456": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
+  "indexes": {},
   "result": "456",
 }
 `;
 
 exports[`normalize uses the non-normalized input when getting the ID for an entity 2`] = `
-Array [
-  Array [
-    Object {
+[
+  [
+    {
       "user": "456",
     },
-    Object {
-      "user": Object {
+    {
+      "user": {
         "id": "456",
       },
     },

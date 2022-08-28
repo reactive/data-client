@@ -75,7 +75,7 @@ describe('BaseResource', () => {
       }
     }
     expect(() => NoUrlResource.key).toThrowErrorMatchingInlineSnapshot(`
-      "urlRoot is not defined for Resource \\"NoUrlResource\\"
+      "urlRoot is not defined for Resource "NoUrlResource"
 
         Resources require a 'static urlRoot' or 'static get key()' defined.
         (See https://resthooks.io/docs/api/resource#static-urlroot-string)

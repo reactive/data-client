@@ -1,12 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`useCache() should select paginated results 1`] = `
-Array [
+[
   PaginatedArticleResource {
     "author": null,
     "content": "the best things in life com efree",
     "id": 23,
-    "tags": Array [
+    "tags": [
       "one",
       "two",
     ],
@@ -16,7 +16,7 @@ Array [
     "author": null,
     "content": "the best things in life com efree",
     "id": 44,
-    "tags": Array [
+    "tags": [
       "hbh",
       "wew",
     ],
@@ -26,7 +26,7 @@ Array [
     "author": null,
     "content": "the best things in life com efree",
     "id": 2,
-    "tags": Array [
+    "tags": [
       "free",
       "honey",
     ],
@@ -36,7 +36,7 @@ Array [
     "author": null,
     "content": "the best things in life com efree",
     "id": 643,
-    "tags": Array [],
+    "tags": [],
     "title": "a long time ago",
   },
 ]

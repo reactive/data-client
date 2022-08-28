@@ -1,44 +1,44 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`<CacheProvider /> should change state 1`] = `
-Object {
-  "entities": Object {
-    "http://test.com/article-cooler/": Object {
-      "5": Object {
+{
+  "entities": {
+    "http://test.com/article-cooler/": {
+      "5": {
         "content": "more things here",
         "id": 5,
         "title": "hi",
       },
     },
   },
-  "entityMeta": Object {
-    "http://test.com/article-cooler/": Object {
-      "5": Object {
+  "entityMeta": {
+    "http://test.com/article-cooler/": {
+      "5": {
         "date": 50,
         "expiresAt": 55,
         "fetchedAt": 50,
       },
     },
   },
-  "indexes": Object {},
+  "indexes": {},
   "lastReset": 0,
-  "meta": Object {
-    "http://test.com/article-cooler/5": Object {
+  "meta": {
+    "http://test.com/article-cooler/5": {
       "date": 50,
       "expiresAt": 55,
       "prevExpiresAt": undefined,
     },
   },
-  "optimistic": Array [],
-  "results": Object {
+  "optimistic": [],
+  "results": {
     "http://test.com/article-cooler/5": "5",
   },
 }
 `;
 
 exports[`<CacheProvider /> should warn users about missing Suspense 1`] = `
-Array [
-  Array [
+[
+  [
     "Uncaught suspense.
 Make sure to add your own Suspense boundaries: https://resthooks.io/docs/getting-started/data-dependency#async-fallbacks",
   ],

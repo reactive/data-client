@@ -254,7 +254,7 @@ describe('PollingSubscription', () => {
         expect(dispatch.mock.calls.length).toBe(13);
 
         expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
-          Array [
+          [
             "Mismatched remove: 1000 is not subscribed for test.com",
           ]
         `);

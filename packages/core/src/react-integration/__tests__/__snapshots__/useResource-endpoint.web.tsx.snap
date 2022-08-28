@@ -1,18 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`useResource() should dispatch an action that fetches 1`] = `
-Object {
-  "meta": Object {
-    "args": Array [
-      Object {
+{
+  "meta": {
+    "args": [
+      {
         "id": 5,
       },
       undefined,
     ],
     "key": "GET http://test.com/article-cooler/5",
-    "options": Object {
+    "options": {
       "errorPolicy": [Function],
-      "fetchInit": Object {},
+      "fetchInit": {},
       "getFetchInit": [Function],
       "method": "GET",
       "signal": undefined,
@@ -30,18 +30,18 @@ Object {
 `;
 
 exports[`useResource() should dispatch fetch when sent multiple arguments 1`] = `
-Object {
-  "meta": Object {
-    "args": Array [
-      Object {
+{
+  "meta": {
+    "args": [
+      {
         "id": 5,
       },
       undefined,
     ],
     "key": "GET http://test.com/article-cooler/5",
-    "options": Object {
+    "options": {
       "errorPolicy": [Function],
-      "fetchInit": Object {},
+      "fetchInit": {},
       "getFetchInit": [Function],
       "method": "GET",
       "signal": undefined,
@@ -59,16 +59,16 @@ Object {
 `;
 
 exports[`useResource() should dispatch fetch when sent multiple arguments 2`] = `
-Object {
-  "meta": Object {
-    "args": Array [
-      Object {},
+{
+  "meta": {
+    "args": [
+      {},
       undefined,
     ],
     "key": "GET http://test.com/user/",
-    "options": Object {
+    "options": {
       "errorPolicy": [Function],
-      "fetchInit": Object {},
+      "fetchInit": {},
       "getFetchInit": [Function],
       "method": "GET",
       "signal": undefined,
@@ -76,7 +76,7 @@ Object {
     },
     "reject": [Function],
     "resolve": [Function],
-    "schema": Array [
+    "schema": [
       [Function],
     ],
     "throttle": true,

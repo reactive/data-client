@@ -65,7 +65,7 @@ describe('Resource', () => {
       }
     }
     expect(() => NoUrlResource.key).toThrowErrorMatchingInlineSnapshot(`
-      "urlRoot is not defined for Resource \\"NoUrlResource\\"
+      "urlRoot is not defined for Resource "NoUrlResource"
         Resources require a 'static urlRoot' or 'static get key()' defined.
         (See https://resthooks.io/docs/api/resource#static-urlroot-string)
       "
@@ -126,7 +126,7 @@ describe('Resource', () => {
           "author": null,
           "content": "",
           "id": 5,
-          "tags": Array [],
+          "tags": [],
           "title": "great",
         }
       `);
@@ -137,7 +137,7 @@ describe('Resource', () => {
           "author": null,
           "content": "",
           "id": 5,
-          "tags": Array [],
+          "tags": [],
           "title": "great",
         }
       `);
@@ -158,14 +158,14 @@ describe('Resource', () => {
     it('works', () => {
       expect(CoolerArticleResource.toObjectDefined(coolA))
         .toMatchInlineSnapshot(`
-        Object {
+        {
           "id": 5,
           "title": "great",
         }
       `);
       expect(CoolerArticleResource.toObjectDefined(coolB))
         .toMatchInlineSnapshot(`
-        Object {
+        {
           "id": 5,
         }
       `);
@@ -175,13 +175,13 @@ describe('Resource', () => {
   describe('keysDefined()', () => {
     it('works', () => {
       expect(CoolerArticleResource.keysDefined(coolA)).toMatchInlineSnapshot(`
-        Array [
+        [
           "title",
           "id",
         ]
       `);
       expect(CoolerArticleResource.keysDefined(coolB)).toMatchInlineSnapshot(`
-        Array [
+        [
           "id",
         ]
       `);

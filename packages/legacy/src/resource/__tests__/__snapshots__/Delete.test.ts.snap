@@ -1,22 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Delete normalization normalizes an object 1`] = `
-Object {
-  "entities": Object {
-    "User": Object {
+{
+  "entities": {
+    "User": {
       "1": Symbol(ENTITY WAS DELETED),
     },
   },
-  "entityMeta": Object {
-    "User": Object {
-      "1": Object {
+  "entityMeta": {
+    "User": {
+      "1": {
         "date": 1557831718135,
         "expiresAt": Infinity,
         "fetchedAt": 0,
       },
     },
   },
-  "indexes": Object {},
+  "indexes": {},
   "result": "1",
 }
 `;
@@ -31,18 +31,18 @@ exports[`Delete normalization should throw a custom error if data does not inclu
 
   Delete(Entity): Delete(MyEntity)
   Value: {
-  \\"secondthing\\": \\"hi\\"
+  "secondthing": "hi"
 }
   "
 `;
 
 exports[`UnionSchema denormalization denormalizes deleted entities as undefined 1`] = `
-Array [
-  Object {
+[
+  {
     "data": undefined,
   },
   true,
   true,
-  Object {},
+  {},
 ]
 `;

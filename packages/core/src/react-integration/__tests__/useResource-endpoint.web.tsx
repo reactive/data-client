@@ -220,7 +220,7 @@ describe('useResource()', () => {
         "author": null,
         "content": "whatever",
         "id": 5,
-        "tags": Array [
+        "tags": [
           "a",
           "best",
           "react",

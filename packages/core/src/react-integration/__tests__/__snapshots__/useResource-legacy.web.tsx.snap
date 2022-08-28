@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`useResource() should throw error when response is {} when expecting entity 1`] = `
-Array [
-  Array [
+[
+  [
     "Attempted to initialize CoolerArticleResource with no matching keys found
 
   This is likely due to a malformed response.
@@ -20,8 +20,8 @@ Array [
 `;
 
 exports[`useResource() should throw error when response is array when expecting entity 1`] = `
-Array [
-  Array [
+[
+  [
     "Attempted to initialize CoolerArticleResource with no matching keys found
 
   This is likely due to a malformed response.
@@ -39,8 +39,8 @@ Array [
 `;
 
 exports[`useResource() should throw error when response is number when expecting entity 1`] = `
-Array [
-  Array [
+[
+  [
     "Attempted to initialize CoolerArticleResource with no matching keys found
 
   This is likely due to a malformed response.
@@ -58,8 +58,8 @@ Array [
 `;
 
 exports[`useResource() should throw error when response is string when expecting entity 1`] = `
-Array [
-  Array [
+[
+  [
     "Attempted to initialize CoolerArticleResource with no matching keys found
 
   This is likely due to a malformed response.

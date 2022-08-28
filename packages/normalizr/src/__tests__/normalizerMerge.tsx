@@ -127,9 +127,9 @@ describe('normalizer() merging', () => {
       const { entities } = normalize(nested, ArticleResource, first);
 
       expect(entities).toMatchInlineSnapshot(`
-        Object {
-          "http://test.com/article/": Object {
-            "20": Object {
+        {
+          "http://test.com/article/": {
+            "20": {
               "id": 20,
               "title": "hello",
             },
