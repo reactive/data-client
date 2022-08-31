@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1661657199053,
+  "lastUpdate": 1661987393511,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -7078,6 +7078,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.82%",
             "unit": "ops/sec",
             "extra": "72 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "eb480f1f567944208483c9239256e7bcf81351e7",
+          "message": "pkg: Update all non-major dependencies (#2150)\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+          "timestamp": "2022-08-31T16:05:01-07:00",
+          "tree_id": "b6dd8adf7649649e55d964cf8c137291c45874dd",
+          "url": "https://github.com/coinbase/rest-hooks/commit/eb480f1f567944208483c9239256e7bcf81351e7"
+        },
+        "date": 1661987392192,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 89.79,
+            "range": "±2.23%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 45.68,
+            "range": "±0.79%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 49.96,
+            "range": "±0.30%",
+            "unit": "ops/sec",
+            "extra": "65 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 89.98,
+            "range": "±2.25%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
           }
         ]
       }
