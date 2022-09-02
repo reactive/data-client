@@ -15,7 +15,7 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^2.0.1",
     "@tsconfig/docusaurus": "^1.0.6",
-    "@types/react": "17.0.48",
+    "@types/react": "17.0.49",
     "@types/react-dom": "^17.0.0",
     "@types/react-helmet": "^6.1.5",
     "@types/react-router-dom": "^5.3.3",
@@ -36,7 +36,6 @@
     "bignumber.js": "9.1.0",
     "clsx": "1.2.1",
     "msw": "0.40.2",
-    "raw-loader": "^4.0.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-json-tree": "0.17.0",
