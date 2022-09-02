@@ -7,7 +7,7 @@
   "rangeStrategy": "auto",
   "ignoreDeps": ["whatwg-fetch", "react-error-overlay", "msw"],
   "timezone": "America/Chicago",
-  "postUpdateOptions": ["yarnDedupeHighest"],
+  "postUpdateOptions": ["yarnDedupeFewer"],
   "packageRules": [
     {
       "matchPackageNames": ["@babel/runtime", "core-js", "core-js-compat"],

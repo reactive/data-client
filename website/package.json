@@ -36,7 +36,6 @@
     "bignumber.js": "9.1.0",
     "clsx": "1.2.1",
     "msw": "0.40.2",
-    "raw-loader": "^4.0.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-json-tree": "0.17.0",

@@ -3781,7 +3781,7 @@ __metadata:
     "@rest-hooks/normalizr": ^8.2.11
     "@rest-hooks/use-enhanced-reducer": ^1.1.2
     "@types/babel__core": ^7
-    downlevel-dts: 0.10.1
+    downlevel-dts: ^0.10.0
     flux-standard-action: ^2.1.1
     npm-run-all: ^4.1.5
     rollup: 2.79.0
@@ -3810,7 +3810,7 @@ __metadata:
     "@babel/runtime": ^7.13.0
     "@rest-hooks/normalizr": ^8.2.11
     "@types/babel__core": ^7
-    downlevel-dts: 0.10.1
+    downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
     rollup: 2.79.0
     rollup-plugin-babel: ^4.4.0
@@ -3832,7 +3832,7 @@ __metadata:
     "@babel/runtime": ^7.13.0
     "@types/babel__core": ^7
     "@types/path-to-regexp": ^1.7.0
-    downlevel-dts: 0.10.1
+    downlevel-dts: ^0.10.0
     path-to-regexp: ^6.2.0
     rollup: 2.79.0
     rollup-plugin-babel: ^4.4.0
@@ -3862,7 +3862,7 @@ __metadata:
     "@babel/core": 7.18.13
     "@babel/runtime": ^7.13.0
     "@types/babel__core": ^7
-    downlevel-dts: 0.10.1
+    downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
     rollup: 2.79.0
     rollup-plugin-babel: ^4.4.0
@@ -3885,7 +3885,7 @@ __metadata:
     "@babel/core": 7.18.13
     "@babel/runtime": ^7.13.0
     "@types/babel__core": ^7
-    downlevel-dts: 0.10.1
+    downlevel-dts: ^0.10.0
     rollup: 2.79.0
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
@@ -3912,7 +3912,7 @@ __metadata:
     "@babel/core": 7.18.13
     "@babel/runtime": ^7.13.0
     "@types/babel__core": ^7
-    downlevel-dts: 0.10.1
+    downlevel-dts: ^0.10.0
     rollup: 2.79.0
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
@@ -3939,7 +3939,7 @@ __metadata:
     "@babel/cli": 7.18.10
     "@babel/core": 7.18.13
     "@types/babel__core": ^7
-    downlevel-dts: 0.10.1
+    downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
     rollup: 2.79.0
     rollup-plugin-babel: ^4.4.0
@@ -3967,7 +3967,7 @@ __metadata:
     "@babel/core": 7.18.13
     "@babel/runtime": ^7.13.0
     "@types/babel__core": ^7
-    downlevel-dts: 0.10.1
+    downlevel-dts: ^0.10.0
     immutable: 4.1.0
     npm-run-all: ^4.1.5
     rollup: 2.79.0
@@ -3990,7 +3990,7 @@ __metadata:
     "@babel/core": 7.18.13
     "@babel/runtime": ^7.13.0
     "@types/babel__core": ^7
-    downlevel-dts: 0.10.1
+    downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
     rollup: 2.79.0
     rollup-plugin-babel: ^4.4.0
@@ -4013,7 +4013,7 @@ __metadata:
     "@babel/core": 7.18.13
     "@babel/runtime": ^7.13.0
     "@types/babel__core": ^7
-    downlevel-dts: 0.10.1
+    downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
     rollup: 2.79.0
     rollup-plugin-babel: ^4.4.0
@@ -4044,7 +4044,7 @@ __metadata:
     "@babel/runtime": ^7.13.0
     "@testing-library/react-hooks": ~8.0.0
     "@types/babel__core": ^7
-    downlevel-dts: 0.10.1
+    downlevel-dts: ^0.10.0
     rollup: 2.79.0
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
@@ -4074,7 +4074,7 @@ __metadata:
     "@babel/cli": 7.18.10
     "@babel/core": 7.18.13
     "@types/babel__core": ^7
-    downlevel-dts: 0.10.1
+    downlevel-dts: ^0.10.0
     rollup: 2.79.0
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
@@ -8764,16 +8764,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"downlevel-dts@npm:0.10.1":
-  version: 0.10.1
-  resolution: "downlevel-dts@npm:0.10.1"
+"downlevel-dts@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "downlevel-dts@npm:0.10.0"
   dependencies:
     semver: ^7.3.2
     shelljs: ^0.8.3
     typescript: next
   bin:
     downlevel-dts: index.js
-  checksum: d66fe88fdd6e2309fbec1fe57f2697bb3d925db2d1a9e5ed2c8d58adf1bc6f9ead44e8bd5d484179d3ee84f110b9bfed8abda63867d8418515a61daedccbbee4
+  checksum: c0ac21a13a5060913a31ece1af8f817d50b7ad4875cd855b34f0560d46d78e0f02b93bdd8eb81735db9cbfaeef22f56c5be4e9d74b91ea44f63c5335c0d32bbf
   languageName: node
   linkType: hard
 
@@ -18527,7 +18527,7 @@ __metadata:
     "@rest-hooks/core": ^3.2.9
     "@rest-hooks/endpoint": ^2.2.12
     "@types/babel__core": ^7
-    downlevel-dts: 0.10.1
+    downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
     rollup: 2.79.0
     rollup-plugin-babel: ^4.4.0
