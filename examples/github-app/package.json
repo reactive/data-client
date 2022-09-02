@@ -33,7 +33,7 @@
     "@types/eslint": "8.4.6",
     "@types/parse-link-header": "^2.0.0",
     "@types/prettier": "2.7.0",
-    "@types/react": "18.0.18",
+    "@types/react": "18.0.17",
     "@types/react-dom": "18.0.6",
     "@typescript-eslint/eslint-plugin": "5.36.1",
     "@typescript-eslint/parser": "5.36.1",
@@ -44,7 +44,7 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "prettier": "2.7.1",
     "react-refresh": "0.14.0",
-    "rollup": "2.79.0",
+    "rollup": "2.78.1",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-filesize": "^9.1.2",
@@ -58,7 +58,7 @@
     "webpack-dev-server": "4.10.1"
   },
   "dependencies": {
-    "@anansi/router": "0.6.18",
+    "@anansi/router": "0.6.17",
     "@ant-design/icons": "^4.7.0",
     "@rest-hooks/core": "^3.2.8",
     "@rest-hooks/endpoint": "^2.2.11",
