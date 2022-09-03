@@ -65,4 +65,4 @@ function MasterPost({ id, doNotFetch }: { id: number; doNotFetch: boolean }) {
 - detail()
 - list()
 
-Feel free to add your own [Endpoint](api/Endpoint.md) as well.
+Feel free to add your own [Endpoint](/rest/api/Endpoint) as well.

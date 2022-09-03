@@ -120,6 +120,6 @@ export default class UserResource extends Resource {
 }
 ```
 
-[1]: ../api/Resource.md
+[1]: api/Resource.md
 [2]: /docs/api/useCache
-[3]: /docs/api/Entity#schema
+[3]: api/Entity.md#schema

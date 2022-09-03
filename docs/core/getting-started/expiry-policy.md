@@ -47,7 +47,7 @@ no components care about this data no action will be taken.
 
 ### Endpoint.dataExpiryLength
 
-[Endpoint.dataExpiryLength](../api/Endpoint#dataexpirylength) sets how long (in miliseconds) it takes for data
+[Endpoint.dataExpiryLength](/rest/api/Endpoint#dataexpirylength) sets how long (in miliseconds) it takes for data
 to transition from 'fresh' to 'stale' status. Try setting it to a very low number like '50'
 to make it becomes stale almost instantly; or a very large number to stay around for a long time.
 
@@ -142,7 +142,7 @@ abstract class NoRetryResource extends Resource {
 
 ### Endpoint.invalidIfStale
 
-[Endpoint.invalidIfStale](../api/Endpoint#invalidifstale) eliminates the `stale` status, making data
+[Endpoint.invalidIfStale](/rest/api/Endpoint#invalidifstale) eliminates the `stale` status, making data
 that expires immediately be considered 'invalid'.
 
 This is demonstrated by the component suspending once its data goes stale. If the data is still
@@ -250,7 +250,7 @@ render(<ShowTime />);
 
 ### Any endpoint with an entity
 
-Using [Delete](../api/Delete.md) allows us to invalidate _any_ endpoint that includes that relies on that entity in their
+Using [Delete](/rest/api/Delete) allows us to invalidate _any_ endpoint that includes that relies on that entity in their
 response. If the endpoint uses the entity in an Array, it will simply be removed from that Array.
 
 <HooksPlayground>
@@ -282,7 +282,7 @@ render(<ShowTime />);
 
 ## Error policy
 
-[Endpoint.errorPolicy](../api/Endpoint#errorpolicy) controls cache behavior upon a fetch rejection.
+[Endpoint.errorPolicy](/rest/api/Endpoint#errorpolicy) controls cache behavior upon a fetch rejection.
 It uses the rejection error to determine whether it should be treated as 'soft' or 'hard' error.
 
 ### Soft

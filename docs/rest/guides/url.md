@@ -14,7 +14,7 @@ Common REST urls resemble the following:
   - PATCH - update partial entity
   - DELETE - delete entity
 
-[Resource](../api/Resource.md) comes out of the box with support for these patterns simply
+[Resource](api/Resource.md) comes out of the box with support for these patterns simply
 by defining the `static urlRoot` property on a Resource.
 
 ```typescript
@@ -29,9 +29,9 @@ export default ArticleResource extends Resource {
 
 It does this by using that `urlRoot` static property in two static methods:
 
-- [url(urlParams)](../api/Resource.md#url)
+- [url(urlParams)](api/Resource.md#url)
   - handles most Endpoints
-- [listUrl(searchParams)](../api/Resource.md#listUrl)
+- [listUrl(searchParams)](api/Resource.md#listUrl)
   - used in create() and list()
 
 ```typescript
@@ -44,7 +44,7 @@ ArticleResource.url({ id: 5 });
 ```
 
 Customizing the url patterns is typically as easy as overriding either of these
-methods. However, in more extreme scenarios, [key()](/docs/api/Endpoint#key)
+methods. However, in more extreme scenarios, [key()](api/Endpoint.md#key)
 can be set in a custom Endpoint definition.
 
 ## Example

@@ -240,7 +240,7 @@ later.
 
 #### useSuspense()
 
-With [useSuspense()](./useSuspense) this will eagerly infer the results from entities table if possible,
+With [useSuspense()](/docs/api/useSuspense) this will eagerly infer the results from entities table if possible,
 rendering without needing to complete the fetch. This is typically helpful when the entities
 cache has already been populated by another request like a list request.
 
@@ -268,7 +268,7 @@ const user = useSuspense(UserResource.detail(), { username: 'bob' });
 
 #### useCache()
 
-With [useCache()](./useCache), this enables accessing results retrieved inside other requests - even
+With [useCache()](/docs/api/useCache), this enables accessing results retrieved inside other requests - even
 if there is no endpoint it can be fetched from.
 
 ```typescript

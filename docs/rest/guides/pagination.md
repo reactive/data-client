@@ -28,7 +28,7 @@ and the Array of results as another member.
 }
 ```
 
-To deal with our specific endpoint, we'll need to customize the [Endpoint](/docs/api/Endpoint) of lists to
+To deal with our specific endpoint, we'll need to customize the [Endpoint](api/Endpoint.md) of lists to
 understand how to normalize the results (via schema). Be sure to provide defaults in your schema for any members
 that aren't entities.
 
@@ -84,8 +84,8 @@ export default function ArticleList() {
 ## Tokens in HTTP Headers
 
 In some cases the pagination tokens will be embeded in HTTP headers, rather than part of the payload. In this
-case you'll need to customize the [fetch()](/docs/api/Endpoint#extend) function
-for [list()](../api/Resource.md#list) so the pagination headers are included fetch object.
+case you'll need to customize the [fetch()](api/Endpoint.md#extend) function
+for [list()](api/Resource.md#list) so the pagination headers are included fetch object.
 
 We show the custom list() below. All other parts of the above example remain the same.
 

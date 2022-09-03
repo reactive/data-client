@@ -30,7 +30,7 @@ function useSubscription<
 Great for keeping resources up-to-date with frequent changes.
 
 When using the default [polling subscriptions](./PollingSubscription), frequency must be set in
-[Endpoint](api/Endpoint.md), otherwise will have no effect.
+[Endpoint](/rest/api/Endpoint), otherwise will have no effect.
 
 > Send `null` to params to unsubscribe.
 
@@ -106,5 +106,5 @@ based on whether the element rendered is [visible on screen](https://usehooks.co
 - detail()
 - list()
 
-Be sure to extend these [Endpoint](api/Endpoint.md)s with a pollFrequency to set
+Be sure to extend these [Endpoint](/rest/api/Endpoint)s with a pollFrequency to set
 the polling-rate.

@@ -66,7 +66,7 @@ function useCache<E extends EndpointInterface>(
 
 ### EndpointInstance
 
-An instance of the [Endpoint](./Endpoint) class.
+An instance of the [Endpoint](/rest/api/Endpoint) class.
 
 ```typescript
 interface EndpointInstance<

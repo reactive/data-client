@@ -49,7 +49,7 @@ export default class RatingResource extends Resource {
 ```
 
 By mocking the
-[Endpoint](/docs/api/Endpoint) we can easily fake the data the server will return. Doing
+[Endpoint](api/Endpoint.md) we can easily fake the data the server will return. Doing
 this allows free use of the strongly typed RatingResource as normal throughout the codebase.
 
 Once the API is implemented you can simply remove the custom fetch (and the entire list()

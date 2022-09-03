@@ -4,7 +4,7 @@ title: Infinite Scrolling
 
 ## Add Update Function matching network schema
 
-If your API follows a common pattern, adding the [Endpoint.update](../api/Endpoint#update)
+If your API follows a common pattern, adding the [Endpoint.update](/rest/api/Endpoint#update)
 to a base class can make adding pagination behavior to any of your endpoints quite easy.
 
 ```typescript
@@ -49,7 +49,7 @@ abstract class BaseResource extends Resource {
 ## Create pagination hook
 
 Here we'll define a helper hook for pagination that uses the BaseResource
-[Endpoint.update](../api/Endpoint#update).
+[Endpoint.update](/rest/api/Endpoint#update).
 This can then be used for any Resources that conform to this schema. Most likely
 that is the same as those extending from BaseResource.
 

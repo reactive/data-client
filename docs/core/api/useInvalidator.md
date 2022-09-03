@@ -63,7 +63,7 @@ function ArticleName({ id }: { id: string }) {
 ## Invalidate an entity
 
 `useInvalidator()` invalidates a particular response. If you're looking to invalidate _every_
-response containing a particular entity, use the [Delete](./Delete)
+response containing a particular entity, use the [Delete](/rest/api/Delete)
 Schema. This causes all responses with that entity marked as required to suspend.
 
 In case this isn't an actual endpoint, simply fake the `fetch`:

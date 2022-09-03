@@ -5,12 +5,12 @@ sidebar_label: Validation
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
-[Entity.validate()](../api/Entity#validate) is called during normalization and denormalization.
+[Entity.validate()](/rest/api/Entity#validate) is called during normalization and denormalization.
 `undefined` indicates no error, and a string error message if there is an error.
 
 ## Field check
 
-Validation happens after [Entity.process()](../api/Entity#process) but before [Entity.fromJS()](../api/Entity#fromJS),
+Validation happens after [Entity.process()](/rest/api/Entity#process) but before [Entity.fromJS()](/rest/api/Entity#fromJS),
 thus operates on POJOs rather than an instance of the class.
 
 Here we can make sure the title field is included, and of the expected type.

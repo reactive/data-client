@@ -12,7 +12,7 @@ Attaching these operations to the type via static methods allows
 - A singular import for both class usage, typing, and endpoints
 - Reducing code duplication by extracting common patterns into base classes
 
-[Resource](../api/Resource.md) provides one such pattern, which makes getting started
+[Resource](api/Resource.md) provides one such pattern, which makes getting started
 fast. However, even if the pattern generally matches your API design, there
 are often special operations or one-off cases where additional endpoints must
 be extended or added.
@@ -22,7 +22,7 @@ be extended or added.
 ### RestEndpoint
 
 [RestEndpoint](/docs/api/types#restendpoint) type is provided to conveniently declare
-[Resource](../api/Resource.md) [Endpoint](/docs/api/Endpoint)s.
+[Resource](api/Resource.md) [Endpoint](api/Endpoint.md)s.
 
 ```typescript
 RestEndpoint<
@@ -89,7 +89,7 @@ to share common patterns in parent classes, and only specify what is specific to
 resource in that resource's class. Oftentimes this looks like simply its expected members
 and a pk() definition (though if you use a common field for pk() - you can also pull that up).
 
-[Resource](../api/Resource.md) is an example attempt that is useful for many common REST patterns that
+[Resource](api/Resource.md) is an example attempt that is useful for many common REST patterns that
 can be further extended and easily customized like so:
 
 <Tabs
@@ -195,8 +195,8 @@ class Post extends Resource {
 Even in this overly simplistic case we're more than halving the lines of code.
 Once the complexities of the real world kick in, this improvement expands.
 
-However, we now have a problem. Before we were explictily specifying the [Endpoint](/docs/api/Endpoint)s'
-expected shape via the [schema](/docs/api/schema). Now it if we use the common methods like .detail()
+However, we now have a problem. Before we were explictily specifying the [Endpoint](api/Endpoint.md)s'
+expected shape via the [schema](api/schema.md). Now it if we use the common methods like .detail()
 we lose our typing information.
 
 ## Generics, static methods, and this
@@ -472,6 +472,6 @@ const { data: user } = useSuspense(User.detail(), { id: '5' });
 Generally you want to type return values as specific as possible, but accept
 function arguments as loose as possible (like in hooks). To follow this principal:
 
-- [RestEndpoint](/docs/api/types#restendpoint) for endpoints in [Resource](../api/Resource.md)s
-- [EndpointInstance](/docs/api/types#endpointinstance) for anything that uses the [Endpoint](/docs/api/Endpoint) class.
+- [RestEndpoint](/docs/api/types#restendpoint) for endpoints in [Resource](api/Resource.md)s
+- [EndpointInstance](/docs/api/types#endpointinstance) for anything that uses the [Endpoint](api/Endpoint.md) class.
 - [EndpointInterface](/docs/api/types#endpointinterface) for any hook arguments

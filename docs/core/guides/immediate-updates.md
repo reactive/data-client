@@ -23,7 +23,7 @@ update endpoints](/rest/guides/rpc)
 
 ## Delete
 
-Rest Hooks automatically deletes entity entries [schema.Delete](../api/Delete.md) is used.
+Rest Hooks automatically deletes entity entries [schema.Delete](/rest/api/Delete) is used.
 [Resource.delete()](/rest/api/resource#delete-endpoint)
 provides such an endpoint.
 
@@ -35,7 +35,7 @@ not have to wait for an additional retrieval request. However, often new items a
 when viewing an entire list of items, and the create should result in that list - any maybe others -
 displaying the newly created entry.
 
-[Endpoint.update](../api/Endpoint.md#update) handles this case
+[Endpoint.update](/rest/api/Endpoint#update) handles this case
 
 Simplest case:
 

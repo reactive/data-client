@@ -51,7 +51,7 @@ If you used the [custom superagent fetch](../guides/custom-networking#superagent
 </Tabs>
 
 You can also do more complex flows (like adding arbitrary headers) to
-the request. Every [getFetchInit()](../api/Resource.md#getFetchInit) takes in the existing [init options](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) of fetch, and returns new init options to be used.
+the request. Every [getFetchInit()](api/Resource.md#getFetchInit) takes in the existing [init options](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) of fetch, and returns new init options to be used.
 
 ## Access Tokens
 
@@ -155,7 +155,7 @@ Using React Context for state that is not displayed (like auth tokens) is not re
 Here we use a context variable to set headers. Note - this means any endpoint functions can only be
 called from a React Component. (However, this should be fine since the context will only exist in React anyway.)
 
-[HookableResource](../api/HookableResource.md) gives us endpoint methods that are hooks so we can access
+[HookableResource](api/HookableResource.md) gives us endpoint methods that are hooks so we can access
 React context.
 
 ```typescript
