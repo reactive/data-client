@@ -223,7 +223,7 @@ export default class UserResource extends Resource {
   static current<T extends typeof Resource>(this: T) {
     const endpoint = this.detail();
     return endpoint.extend({
-      fetch() { return endpoint(this); }
+      fetch() { return endpoint.call(this); }
       url() { return '/current_user/' },
     })
   }
@@ -244,7 +244,7 @@ import { useSuspense } from 'rest-hooks';
 import UserResource from 'resources/user';
 
 export default function CurrentUserProfilePage() {
-  const loggedInUser = useSuspense(UserResource.current(), {});
+  const loggedInUser = useSuspense(UserResource.current());
 
   return <ProfileDetail user={loggedInUser} />;
 }
