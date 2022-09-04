@@ -19,7 +19,7 @@ class CustomBaseResource extends Resource {
 
 ## Partial/full results
 
-This can be useful to automatically validate for [partial results](../getting-started/validation.md#partial-results)
+This can be useful to automatically validate for [partial results](/docs/getting-started/validation#partial-results)
 
 ```ts
 class SummaryAnalysis extends Resource {
