@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { DenormalizeNullable, ExpiryStatus } from '@rest-hooks/endpoint';
+import {
+  DenormalizeNullable,
+  ExpiryStatus,
+  ResolveType,
+} from '@rest-hooks/endpoint';
 import {
   EndpointInterface,
   Denormalize,
@@ -32,7 +36,7 @@ export default function useSuspense<
     : undefined
   : E['schema'] extends Exclude<Schema, null>
   ? Denormalize<E['schema']>
-  : ReturnType<E> {
+  : ResolveType<E> {
   const state = useContext(StateContext);
   const controller = useController();
 

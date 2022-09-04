@@ -4,6 +4,7 @@ import {
   DenormalizeNullable,
   Schema,
   FetchFunction,
+  ResolveType,
 } from '@rest-hooks/endpoint';
 import { useContext, useMemo } from 'react';
 import { ExpiryStatus } from '@rest-hooks/endpoint';
@@ -23,7 +24,14 @@ export default function useCache<
     'key' | 'schema' | 'invalidIfStale'
   >,
   Args extends readonly [...Parameters<E['key']>] | readonly [null],
->(endpoint: E, ...args: Args): DenormalizeNullable<E['schema']> {
+>(
+  endpoint: E,
+  ...args: Args
+): E['schema'] extends undefined
+  ? E extends (...args: any) => any
+    ? ResolveType<E> | undefined
+    : any
+  : DenormalizeNullable<E['schema']> {
   const state = useContext(StateContext);
   const controller = useController();
 

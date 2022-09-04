@@ -6,6 +6,7 @@ import type {
   EndpointInterface,
   FetchFunction,
   Schema,
+  ResolveType,
 } from '@rest-hooks/endpoint';
 import { ExpiryStatus } from '@rest-hooks/endpoint';
 import { useContext, useMemo } from 'react';
@@ -38,7 +39,16 @@ type StatefulReturn<S extends Schema | undefined, P> = CondNull<
 export default function useDLE<
   E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
   Args extends readonly [...Parameters<E>] | readonly [null],
->(endpoint: E, ...args: Args): StatefulReturn<E['schema'], Args[0]> {
+>(
+  endpoint: E,
+  ...args: Args
+): E['schema'] extends undefined
+  ? {
+      data: E extends (...args: any) => any ? ResolveType<E> | undefined : any;
+      loading: boolean;
+      error: ErrorTypes | undefined;
+    }
+  : StatefulReturn<E['schema'], Args[0]> {
   const state = useContext(StateContext);
   const controller = useController();
 

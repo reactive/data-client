@@ -126,7 +126,7 @@ describe.each([
         return [
           useSuspense(CoolerArticleDetail, payload),
           useCache(CoolerArticleDetail, payload),
-        ];
+        ] as const;
       });
       expect(result.current).toBeUndefined();
       await waitForNextUpdate();

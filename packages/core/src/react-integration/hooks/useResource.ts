@@ -1,4 +1,8 @@
-import { Denormalize, DenormalizeNullable } from '@rest-hooks/endpoint';
+import {
+  Denormalize,
+  DenormalizeNullable,
+  ResolveType,
+} from '@rest-hooks/endpoint';
 import { useMemo, useContext } from 'react';
 import { ExpiryStatus } from '@rest-hooks/endpoint';
 
@@ -12,6 +16,16 @@ type ResourceArgs<
   S extends ReadShape<any, any>,
   P extends ParamsFromShape<S> | null,
 > = readonly [S, P];
+
+type ResourceReturn<P, S extends { fetch: any; schema: any }> = CondNull<
+  P,
+  S['schema'] extends undefined
+    ? ResolveType<S['fetch']> | undefined
+    : DenormalizeNullable<S['schema']>,
+  S['schema'] extends undefined
+    ? ResolveType<S['fetch']>
+    : Denormalize<S['schema']>
+>;
 
 /** single form resource */
 function useOneResource<
@@ -123,9 +137,7 @@ type CondNull<P, A, B> = P extends null ? A : B;
 export default function useResource<
   S1 extends ReadShape<any, any>,
   P1 extends ParamsFromShape<S1> | null,
->(
-  v1: readonly [S1, P1],
-): [CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>];
+>(v1: readonly [S1, P1]): [ResourceReturn<P1, S1>];
 
 export default function useResource<
   S1 extends ReadShape<any, any>,
@@ -135,18 +147,12 @@ export default function useResource<
 >(
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
-): [
-  CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>,
-  CondNull<P2, DenormalizeNullable<S2['schema']>, Denormalize<S2['schema']>>,
-];
+): [ResourceReturn<P1, S1>, ResourceReturn<P2, S2>];
 
 export default function useResource<
   S extends ReadShape<any, any>,
   P extends ParamsFromShape<S> | null,
->(
-  fetchShape: S,
-  params: P,
-): CondNull<P, DenormalizeNullable<S['schema']>, Denormalize<S['schema']>>;
+>(fetchShape: S, params: P): ResourceReturn<P, S>;
 
 export default function useResource<
   S1 extends ReadShape<any, any>,
@@ -159,11 +165,7 @@ export default function useResource<
   v1: readonly [S1, P1],
   v2: readonly [S2, P2],
   v3: readonly [S3, P3],
-): [
-  CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>,
-  CondNull<P2, DenormalizeNullable<S2['schema']>, Denormalize<S2['schema']>>,
-  CondNull<P3, DenormalizeNullable<S3['schema']>, Denormalize<S3['schema']>>,
-];
+): [ResourceReturn<P1, S1>, ResourceReturn<P2, S2>, ResourceReturn<P3, S3>];
 
 export default function useResource<
   S1 extends ReadShape<any, any>,
@@ -180,10 +182,10 @@ export default function useResource<
   v3: readonly [S3, P3],
   v4: readonly [S4, P4],
 ): [
-  CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>,
-  CondNull<P2, DenormalizeNullable<S2['schema']>, Denormalize<S2['schema']>>,
-  CondNull<P3, DenormalizeNullable<S3['schema']>, Denormalize<S3['schema']>>,
-  CondNull<P4, DenormalizeNullable<S4['schema']>, Denormalize<S4['schema']>>,
+  ResourceReturn<P1, S1>,
+  ResourceReturn<P2, S2>,
+  ResourceReturn<P3, S3>,
+  ResourceReturn<P4, S4>,
 ];
 
 export default function useResource<
@@ -204,11 +206,11 @@ export default function useResource<
   v4: readonly [S4, P4],
   v5: readonly [S5, P5],
 ): [
-  CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>,
-  CondNull<P2, DenormalizeNullable<S2['schema']>, Denormalize<S2['schema']>>,
-  CondNull<P3, DenormalizeNullable<S3['schema']>, Denormalize<S3['schema']>>,
-  CondNull<P4, DenormalizeNullable<S4['schema']>, Denormalize<S4['schema']>>,
-  CondNull<P5, DenormalizeNullable<S5['schema']>, Denormalize<S5['schema']>>,
+  ResourceReturn<P1, S1>,
+  ResourceReturn<P2, S2>,
+  ResourceReturn<P3, S3>,
+  ResourceReturn<P4, S4>,
+  ResourceReturn<P5, S5>,
 ];
 
 export default function useResource<
@@ -232,12 +234,12 @@ export default function useResource<
   v5: readonly [S5, P5],
   v6: readonly [S6, P6],
 ): [
-  CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>,
-  CondNull<P2, DenormalizeNullable<S2['schema']>, Denormalize<S2['schema']>>,
-  CondNull<P3, DenormalizeNullable<S3['schema']>, Denormalize<S3['schema']>>,
-  CondNull<P4, DenormalizeNullable<S4['schema']>, Denormalize<S4['schema']>>,
-  CondNull<P5, DenormalizeNullable<S5['schema']>, Denormalize<S5['schema']>>,
-  CondNull<P6, DenormalizeNullable<S6['schema']>, Denormalize<S6['schema']>>,
+  ResourceReturn<P1, S1>,
+  ResourceReturn<P2, S2>,
+  ResourceReturn<P3, S3>,
+  ResourceReturn<P4, S4>,
+  ResourceReturn<P5, S5>,
+  ResourceReturn<P6, S6>,
 ];
 
 export default function useResource<
@@ -264,13 +266,13 @@ export default function useResource<
   v6: readonly [S6, P6],
   v7: readonly [S7, P7],
 ): [
-  CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>,
-  CondNull<P2, DenormalizeNullable<S2['schema']>, Denormalize<S2['schema']>>,
-  CondNull<P3, DenormalizeNullable<S3['schema']>, Denormalize<S3['schema']>>,
-  CondNull<P4, DenormalizeNullable<S4['schema']>, Denormalize<S4['schema']>>,
-  CondNull<P5, DenormalizeNullable<S5['schema']>, Denormalize<S5['schema']>>,
-  CondNull<P6, DenormalizeNullable<S6['schema']>, Denormalize<S6['schema']>>,
-  CondNull<P7, DenormalizeNullable<S7['schema']>, Denormalize<S7['schema']>>,
+  ResourceReturn<P1, S1>,
+  ResourceReturn<P2, S2>,
+  ResourceReturn<P3, S3>,
+  ResourceReturn<P4, S4>,
+  ResourceReturn<P5, S5>,
+  ResourceReturn<P6, S6>,
+  ResourceReturn<P7, S7>,
 ];
 
 export default function useResource<
@@ -300,14 +302,14 @@ export default function useResource<
   v7: readonly [S7, P7],
   v8: readonly [S8, P8],
 ): [
-  CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>,
-  CondNull<P2, DenormalizeNullable<S2['schema']>, Denormalize<S2['schema']>>,
-  CondNull<P3, DenormalizeNullable<S3['schema']>, Denormalize<S3['schema']>>,
-  CondNull<P4, DenormalizeNullable<S4['schema']>, Denormalize<S4['schema']>>,
-  CondNull<P5, DenormalizeNullable<S5['schema']>, Denormalize<S5['schema']>>,
-  CondNull<P6, DenormalizeNullable<S6['schema']>, Denormalize<S6['schema']>>,
-  CondNull<P7, DenormalizeNullable<S7['schema']>, Denormalize<S7['schema']>>,
-  CondNull<P8, DenormalizeNullable<S8['schema']>, Denormalize<S8['schema']>>,
+  ResourceReturn<P1, S1>,
+  ResourceReturn<P2, S2>,
+  ResourceReturn<P3, S3>,
+  ResourceReturn<P4, S4>,
+  ResourceReturn<P5, S5>,
+  ResourceReturn<P6, S6>,
+  ResourceReturn<P7, S7>,
+  ResourceReturn<P8, S8>,
 ];
 
 export default function useResource<
@@ -340,15 +342,15 @@ export default function useResource<
   v8: readonly [S8, P8],
   v9: readonly [S9, P9],
 ): [
-  CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>,
-  CondNull<P2, DenormalizeNullable<S2['schema']>, Denormalize<S2['schema']>>,
-  CondNull<P3, DenormalizeNullable<S3['schema']>, Denormalize<S3['schema']>>,
-  CondNull<P4, DenormalizeNullable<S4['schema']>, Denormalize<S4['schema']>>,
-  CondNull<P5, DenormalizeNullable<S5['schema']>, Denormalize<S5['schema']>>,
-  CondNull<P6, DenormalizeNullable<S6['schema']>, Denormalize<S6['schema']>>,
-  CondNull<P7, DenormalizeNullable<S7['schema']>, Denormalize<S7['schema']>>,
-  CondNull<P8, DenormalizeNullable<S8['schema']>, Denormalize<S8['schema']>>,
-  CondNull<P9, DenormalizeNullable<S9['schema']>, Denormalize<S9['schema']>>,
+  ResourceReturn<P1, S1>,
+  ResourceReturn<P2, S2>,
+  ResourceReturn<P3, S3>,
+  ResourceReturn<P4, S4>,
+  ResourceReturn<P5, S5>,
+  ResourceReturn<P6, S6>,
+  ResourceReturn<P7, S7>,
+  ResourceReturn<P8, S8>,
+  ResourceReturn<P9, S9>,
 ];
 
 export default function useResource<
@@ -384,16 +386,16 @@ export default function useResource<
   v9: readonly [S9, P9],
   v10: readonly [S10, P10],
 ): [
-  CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>,
-  CondNull<P2, DenormalizeNullable<S2['schema']>, Denormalize<S2['schema']>>,
-  CondNull<P3, DenormalizeNullable<S3['schema']>, Denormalize<S3['schema']>>,
-  CondNull<P4, DenormalizeNullable<S4['schema']>, Denormalize<S4['schema']>>,
-  CondNull<P5, DenormalizeNullable<S5['schema']>, Denormalize<S5['schema']>>,
-  CondNull<P6, DenormalizeNullable<S6['schema']>, Denormalize<S6['schema']>>,
-  CondNull<P7, DenormalizeNullable<S7['schema']>, Denormalize<S7['schema']>>,
-  CondNull<P8, DenormalizeNullable<S8['schema']>, Denormalize<S8['schema']>>,
-  CondNull<P9, DenormalizeNullable<S9['schema']>, Denormalize<S9['schema']>>,
-  CondNull<P10, DenormalizeNullable<S10['schema']>, Denormalize<S10['schema']>>,
+  ResourceReturn<P1, S1>,
+  ResourceReturn<P2, S2>,
+  ResourceReturn<P3, S3>,
+  ResourceReturn<P4, S4>,
+  ResourceReturn<P5, S5>,
+  ResourceReturn<P6, S6>,
+  ResourceReturn<P7, S7>,
+  ResourceReturn<P8, S8>,
+  ResourceReturn<P9, S9>,
+  ResourceReturn<P10, S10>,
 ];
 
 export default function useResource<
@@ -432,17 +434,17 @@ export default function useResource<
   v10: readonly [S10, P10],
   v11: readonly [S11, P11],
 ): [
-  CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>,
-  CondNull<P2, DenormalizeNullable<S2['schema']>, Denormalize<S2['schema']>>,
-  CondNull<P3, DenormalizeNullable<S3['schema']>, Denormalize<S3['schema']>>,
-  CondNull<P4, DenormalizeNullable<S4['schema']>, Denormalize<S4['schema']>>,
-  CondNull<P5, DenormalizeNullable<S5['schema']>, Denormalize<S5['schema']>>,
-  CondNull<P6, DenormalizeNullable<S6['schema']>, Denormalize<S6['schema']>>,
-  CondNull<P7, DenormalizeNullable<S7['schema']>, Denormalize<S7['schema']>>,
-  CondNull<P8, DenormalizeNullable<S8['schema']>, Denormalize<S8['schema']>>,
-  CondNull<P9, DenormalizeNullable<S9['schema']>, Denormalize<S9['schema']>>,
-  CondNull<P10, DenormalizeNullable<S10['schema']>, Denormalize<S10['schema']>>,
-  CondNull<P11, DenormalizeNullable<S11['schema']>, Denormalize<S11['schema']>>,
+  ResourceReturn<P1, S1>,
+  ResourceReturn<P2, S2>,
+  ResourceReturn<P3, S3>,
+  ResourceReturn<P4, S4>,
+  ResourceReturn<P5, S5>,
+  ResourceReturn<P6, S6>,
+  ResourceReturn<P7, S7>,
+  ResourceReturn<P8, S8>,
+  ResourceReturn<P9, S9>,
+  ResourceReturn<P10, S10>,
+  ResourceReturn<P11, S11>,
 ];
 
 export default function useResource<
@@ -484,18 +486,18 @@ export default function useResource<
   v11: readonly [S11, P11],
   v12: readonly [S12, P12],
 ): [
-  CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>,
-  CondNull<P2, DenormalizeNullable<S2['schema']>, Denormalize<S2['schema']>>,
-  CondNull<P3, DenormalizeNullable<S3['schema']>, Denormalize<S3['schema']>>,
-  CondNull<P4, DenormalizeNullable<S4['schema']>, Denormalize<S4['schema']>>,
-  CondNull<P5, DenormalizeNullable<S5['schema']>, Denormalize<S5['schema']>>,
-  CondNull<P6, DenormalizeNullable<S6['schema']>, Denormalize<S6['schema']>>,
-  CondNull<P7, DenormalizeNullable<S7['schema']>, Denormalize<S7['schema']>>,
-  CondNull<P8, DenormalizeNullable<S8['schema']>, Denormalize<S8['schema']>>,
-  CondNull<P9, DenormalizeNullable<S9['schema']>, Denormalize<S9['schema']>>,
-  CondNull<P10, DenormalizeNullable<S10['schema']>, Denormalize<S10['schema']>>,
-  CondNull<P11, DenormalizeNullable<S11['schema']>, Denormalize<S11['schema']>>,
-  CondNull<P12, DenormalizeNullable<S12['schema']>, Denormalize<S12['schema']>>,
+  ResourceReturn<P1, S1>,
+  ResourceReturn<P2, S2>,
+  ResourceReturn<P3, S3>,
+  ResourceReturn<P4, S4>,
+  ResourceReturn<P5, S5>,
+  ResourceReturn<P6, S6>,
+  ResourceReturn<P7, S7>,
+  ResourceReturn<P8, S8>,
+  ResourceReturn<P9, S9>,
+  ResourceReturn<P10, S10>,
+  ResourceReturn<P11, S11>,
+  ResourceReturn<P12, S12>,
 ];
 
 export default function useResource<
@@ -540,19 +542,19 @@ export default function useResource<
   v12: readonly [S12, P12],
   v13: readonly [S13, P13],
 ): [
-  CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>,
-  CondNull<P2, DenormalizeNullable<S2['schema']>, Denormalize<S2['schema']>>,
-  CondNull<P3, DenormalizeNullable<S3['schema']>, Denormalize<S3['schema']>>,
-  CondNull<P4, DenormalizeNullable<S4['schema']>, Denormalize<S4['schema']>>,
-  CondNull<P5, DenormalizeNullable<S5['schema']>, Denormalize<S5['schema']>>,
-  CondNull<P6, DenormalizeNullable<S6['schema']>, Denormalize<S6['schema']>>,
-  CondNull<P7, DenormalizeNullable<S7['schema']>, Denormalize<S7['schema']>>,
-  CondNull<P8, DenormalizeNullable<S8['schema']>, Denormalize<S8['schema']>>,
-  CondNull<P9, DenormalizeNullable<S9['schema']>, Denormalize<S9['schema']>>,
-  CondNull<P10, DenormalizeNullable<S10['schema']>, Denormalize<S10['schema']>>,
-  CondNull<P11, DenormalizeNullable<S11['schema']>, Denormalize<S11['schema']>>,
-  CondNull<P12, DenormalizeNullable<S12['schema']>, Denormalize<S12['schema']>>,
-  CondNull<P13, DenormalizeNullable<S13['schema']>, Denormalize<S13['schema']>>,
+  ResourceReturn<P1, S1>,
+  ResourceReturn<P2, S2>,
+  ResourceReturn<P3, S3>,
+  ResourceReturn<P4, S4>,
+  ResourceReturn<P5, S5>,
+  ResourceReturn<P6, S6>,
+  ResourceReturn<P7, S7>,
+  ResourceReturn<P8, S8>,
+  ResourceReturn<P9, S9>,
+  ResourceReturn<P10, S10>,
+  ResourceReturn<P11, S11>,
+  ResourceReturn<P12, S12>,
+  ResourceReturn<P13, S13>,
 ];
 
 export default function useResource<
@@ -600,20 +602,20 @@ export default function useResource<
   v13: readonly [S13, P13],
   v14: readonly [S14, P14],
 ): [
-  CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>,
-  CondNull<P2, DenormalizeNullable<S2['schema']>, Denormalize<S2['schema']>>,
-  CondNull<P3, DenormalizeNullable<S3['schema']>, Denormalize<S3['schema']>>,
-  CondNull<P4, DenormalizeNullable<S4['schema']>, Denormalize<S4['schema']>>,
-  CondNull<P5, DenormalizeNullable<S5['schema']>, Denormalize<S5['schema']>>,
-  CondNull<P6, DenormalizeNullable<S6['schema']>, Denormalize<S6['schema']>>,
-  CondNull<P7, DenormalizeNullable<S7['schema']>, Denormalize<S7['schema']>>,
-  CondNull<P8, DenormalizeNullable<S8['schema']>, Denormalize<S8['schema']>>,
-  CondNull<P9, DenormalizeNullable<S9['schema']>, Denormalize<S9['schema']>>,
-  CondNull<P10, DenormalizeNullable<S10['schema']>, Denormalize<S10['schema']>>,
-  CondNull<P11, DenormalizeNullable<S11['schema']>, Denormalize<S11['schema']>>,
-  CondNull<P12, DenormalizeNullable<S12['schema']>, Denormalize<S12['schema']>>,
-  CondNull<P13, DenormalizeNullable<S13['schema']>, Denormalize<S13['schema']>>,
-  CondNull<P14, DenormalizeNullable<S14['schema']>, Denormalize<S14['schema']>>,
+  ResourceReturn<P1, S1>,
+  ResourceReturn<P2, S2>,
+  ResourceReturn<P3, S3>,
+  ResourceReturn<P4, S4>,
+  ResourceReturn<P5, S5>,
+  ResourceReturn<P6, S6>,
+  ResourceReturn<P7, S7>,
+  ResourceReturn<P8, S8>,
+  ResourceReturn<P9, S9>,
+  ResourceReturn<P10, S10>,
+  ResourceReturn<P11, S11>,
+  ResourceReturn<P12, S12>,
+  ResourceReturn<P13, S13>,
+  ResourceReturn<P14, S14>,
 ];
 
 export default function useResource<
@@ -664,21 +666,21 @@ export default function useResource<
   v14: readonly [S14, P14],
   v15: readonly [S15, P15],
 ): [
-  CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>,
-  CondNull<P2, DenormalizeNullable<S2['schema']>, Denormalize<S2['schema']>>,
-  CondNull<P3, DenormalizeNullable<S3['schema']>, Denormalize<S3['schema']>>,
-  CondNull<P4, DenormalizeNullable<S4['schema']>, Denormalize<S4['schema']>>,
-  CondNull<P5, DenormalizeNullable<S5['schema']>, Denormalize<S5['schema']>>,
-  CondNull<P6, DenormalizeNullable<S6['schema']>, Denormalize<S6['schema']>>,
-  CondNull<P7, DenormalizeNullable<S7['schema']>, Denormalize<S7['schema']>>,
-  CondNull<P8, DenormalizeNullable<S8['schema']>, Denormalize<S8['schema']>>,
-  CondNull<P9, DenormalizeNullable<S9['schema']>, Denormalize<S9['schema']>>,
-  CondNull<P10, DenormalizeNullable<S10['schema']>, Denormalize<S10['schema']>>,
-  CondNull<P11, DenormalizeNullable<S11['schema']>, Denormalize<S11['schema']>>,
-  CondNull<P12, DenormalizeNullable<S12['schema']>, Denormalize<S12['schema']>>,
-  CondNull<P13, DenormalizeNullable<S13['schema']>, Denormalize<S13['schema']>>,
-  CondNull<P14, DenormalizeNullable<S14['schema']>, Denormalize<S14['schema']>>,
-  CondNull<P15, DenormalizeNullable<S15['schema']>, Denormalize<S15['schema']>>,
+  ResourceReturn<P1, S1>,
+  ResourceReturn<P2, S2>,
+  ResourceReturn<P3, S3>,
+  ResourceReturn<P4, S4>,
+  ResourceReturn<P5, S5>,
+  ResourceReturn<P6, S6>,
+  ResourceReturn<P7, S7>,
+  ResourceReturn<P8, S8>,
+  ResourceReturn<P9, S9>,
+  ResourceReturn<P10, S10>,
+  ResourceReturn<P11, S11>,
+  ResourceReturn<P12, S12>,
+  ResourceReturn<P13, S13>,
+  ResourceReturn<P14, S14>,
+  ResourceReturn<P15, S15>,
 ];
 
 export default function useResource<
@@ -732,22 +734,22 @@ export default function useResource<
   v15: readonly [S15, P15],
   v16: readonly [S16, P16],
 ): [
-  CondNull<P1, DenormalizeNullable<S1['schema']>, Denormalize<S1['schema']>>,
-  CondNull<P2, DenormalizeNullable<S2['schema']>, Denormalize<S2['schema']>>,
-  CondNull<P3, DenormalizeNullable<S3['schema']>, Denormalize<S3['schema']>>,
-  CondNull<P4, DenormalizeNullable<S4['schema']>, Denormalize<S4['schema']>>,
-  CondNull<P5, DenormalizeNullable<S5['schema']>, Denormalize<S5['schema']>>,
-  CondNull<P6, DenormalizeNullable<S6['schema']>, Denormalize<S6['schema']>>,
-  CondNull<P7, DenormalizeNullable<S7['schema']>, Denormalize<S7['schema']>>,
-  CondNull<P8, DenormalizeNullable<S8['schema']>, Denormalize<S8['schema']>>,
-  CondNull<P9, DenormalizeNullable<S9['schema']>, Denormalize<S9['schema']>>,
-  CondNull<P10, DenormalizeNullable<S10['schema']>, Denormalize<S10['schema']>>,
-  CondNull<P11, DenormalizeNullable<S11['schema']>, Denormalize<S11['schema']>>,
-  CondNull<P12, DenormalizeNullable<S12['schema']>, Denormalize<S12['schema']>>,
-  CondNull<P13, DenormalizeNullable<S13['schema']>, Denormalize<S13['schema']>>,
-  CondNull<P14, DenormalizeNullable<S14['schema']>, Denormalize<S14['schema']>>,
-  CondNull<P15, DenormalizeNullable<S15['schema']>, Denormalize<S15['schema']>>,
-  CondNull<P16, DenormalizeNullable<S16['schema']>, Denormalize<S16['schema']>>,
+  ResourceReturn<P1, S1>,
+  ResourceReturn<P2, S2>,
+  ResourceReturn<P3, S3>,
+  ResourceReturn<P4, S4>,
+  ResourceReturn<P5, S5>,
+  ResourceReturn<P6, S6>,
+  ResourceReturn<P7, S7>,
+  ResourceReturn<P8, S8>,
+  ResourceReturn<P9, S9>,
+  ResourceReturn<P10, S10>,
+  ResourceReturn<P11, S11>,
+  ResourceReturn<P12, S12>,
+  ResourceReturn<P13, S13>,
+  ResourceReturn<P14, S14>,
+  ResourceReturn<P15, S15>,
+  ResourceReturn<P16, S16>,
 ];
 export default function useResource<
   Shape extends ReadShape<any, any>,

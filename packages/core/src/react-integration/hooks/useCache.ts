@@ -4,6 +4,7 @@ import {
   DenormalizeNullable,
   Schema,
   FetchFunction,
+  ResolveType,
 } from '@rest-hooks/endpoint';
 
 import { ReadShape, ParamsFromShape } from '../../endpoint/index.js';
@@ -28,7 +29,14 @@ export default function useCache<
         ? readonly [...Parameters<E['key']>]
         : readonly [ParamsFromShape<E>])
     | readonly [null],
->(endpoint: E, ...args: Args): DenormalizeNullable<E['schema']> {
+>(
+  endpoint: E,
+  ...args: Args
+): E['schema'] extends undefined
+  ? E extends (...args: any) => any
+    ? ResolveType<E> | undefined
+    : any
+  : DenormalizeNullable<E['schema']> {
   const adaptedEndpoint: any = useMemo(() => {
     return shapeToEndpoint(endpoint);
     // we currently don't support shape changes

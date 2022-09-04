@@ -180,14 +180,14 @@ export type RestExtendedEndpoint<
   ? RestType<
       PathArgs<Exclude<O['path'], undefined>>,
       'body' extends keyof O ? O['body'] : undefined,
-      'schema' extends keyof O ? O['schema'] : E['_schema'],
+      'schema' extends keyof O ? O['schema'] : E['schema'],
       'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect']
     >
   : RestInstance<
       (
         ...args: Parameters<E>
       ) => 'schema' extends keyof O ? Promise<O['schema']> : ReturnType<E>,
-      'schema' extends keyof O ? O['schema'] : E['_schema'],
+      'schema' extends keyof O ? O['schema'] : E['schema'],
       'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect']
     >) &
   Omit<O, KeyofRestEndpoint> &
