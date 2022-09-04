@@ -1,7 +1,7 @@
 const path = require('path');
 
 const versions = require('./versions.json');
-const versionsRest = require('./versions-rest.json');
+//const versionsRest = require('./rest_versions.json');
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -130,8 +130,7 @@ module.exports = {
         lastVersion: 'current',
         includeCurrentVersion: true,
         versions: {
-          current: { label: '5.0', path: '', badge: false },
-          //'4.0': { label: '4.0', path: '4.0', banner: 'none' },
+          current: { label: '5.1', path: '', badge: false, banner: 'none' },
         },
         /*onlyIncludeVersions: isDev
           ? ['current', ...versionsRest.slice(0, 4)]
