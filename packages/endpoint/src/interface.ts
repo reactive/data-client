@@ -1,11 +1,15 @@
 import { Schema, AbstractInstanceType } from '@rest-hooks/normalizr';
 
-import type { EndpointExtraOptions, FetchFunction } from './types.js';
+import type {
+  EndpointExtraOptions,
+  FetchFunction,
+  SimpleFetchFunction,
+} from './types.js';
 import { InferReturn } from './utility.js';
 
 /** Defines a networking endpoint */
 export interface EndpointInterface<
-  F extends FetchFunction = FetchFunction,
+  F extends FetchFunction = FetchFunction<any[]>,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined,
 > extends EndpointExtraOptions<F> {
@@ -17,7 +21,7 @@ export interface EndpointInterface<
 
 /** To change values on the server */
 export interface MutateEndpoint<
-  F extends (params?: any, body?: any) => Promise<any> = FetchFunction,
+  F extends (params?: any, body?: any) => Promise<any> = SimpleFetchFunction,
   S extends Schema | undefined = Schema | undefined,
 > extends EndpointInterface<F, S, true> {
   sideEffect: true;
