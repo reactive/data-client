@@ -60,7 +60,7 @@ describe(`validateRequired`, () => {
         MyEntity: { bob: { name: 'bob', secondthing: 'hi' } },
       }),
     ).toMatchInlineSnapshot(`
-      Array [
+      [
         MyEntity {
           "blarb": 1970-01-01T00:00:00.000Z,
           "name": "bob",
@@ -85,7 +85,7 @@ describe(`validateRequired`, () => {
         },
       }),
     ).toMatchInlineSnapshot(`
-      Array [
+      [
         MyEntity {
           "blarb": 1970-01-01T00:01:40.000Z,
           "name": "bob",
