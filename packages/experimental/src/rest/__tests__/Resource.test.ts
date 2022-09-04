@@ -1,10 +1,11 @@
 import nock from 'nock';
 import { useController } from '@rest-hooks/core';
 import { act } from '@testing-library/react-hooks';
+import { Entity, Schema, schema } from '@rest-hooks/endpoint';
 
-import Resource from '../Resource';
+import RestEndpoint from '../RestEndpoint';
 import useSuspense from '../../hooks/useSuspense';
-import type { Paginatable, RestEndpoint, FetchGet } from '../types';
+import createResource from '../createResource';
 import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import {
   payload,
@@ -16,7 +17,7 @@ import {
   paginatedSecondPage,
 } from '../test-fixtures';
 
-export class UserResource extends Resource {
+export class User extends Entity {
   readonly id: number | undefined = undefined;
   readonly username: string = '';
   readonly email: string = '';
@@ -25,10 +26,12 @@ export class UserResource extends Resource {
   pk() {
     return this.id?.toString();
   }
-
-  static urlRoot = 'http\\://test.com/user/:id?' as const;
 }
-export class PaginatedArticleResource extends Resource {
+export const UserResource = createResource(
+  'http\\://test.com/user/:id' as const,
+  User,
+);
+export class PaginatedArticle extends Entity {
   readonly id: number | undefined = undefined;
   readonly title: string = '';
   readonly content: string = '';
@@ -40,34 +43,36 @@ export class PaginatedArticleResource extends Resource {
   }
 
   static schema = {
-    author: UserResource,
+    author: User,
   };
-
-  static urlRoot = 'http\\://test.com/article-paginated/:id?' as const;
-
-  static list<T extends typeof Resource>(
-    this: T,
-  ): Paginatable<
-    RestEndpoint<
-      (this: RestEndpoint, params?: { cursor?: number }) => Promise<any>,
-      { nextPage: string; results: T[] },
-      undefined
-    >
-  > {
-    return super.list().extend({
-      schema: {
-        nextPage: '',
-        results: [this],
-      },
-    });
-  }
-
-  static listPage<T extends typeof PaginatedArticleResource>(this: T) {
-    return this.list().paginated(({ cursor, ...rest } = {}) => [rest]);
-  }
 }
+function createPaginatableResource<U extends string, S extends Schema>(
+  urlRoot: U,
+  schema: S,
+  Endpoint: typeof RestEndpoint = RestEndpoint,
+) {
+  const baseResource = createResource(urlRoot, schema, Endpoint);
+  const getList = baseResource.getList.extend({
+    urlRoot: 'http\\://test.com/article-paginated' as const,
+    schema: {
+      nextPage: '',
+      results: [PaginatedArticle],
+    },
+  });
+  const getNextPage = getList.paginated((v: { cursor: string | number }) => []);
+  return {
+    ...baseResource,
+    getList,
+    getNextPage,
+  };
+}
+const PaginatedArticleResource = createPaginatableResource(
+  'http\\://test.com/article-paginated/:id' as const,
+  PaginatedArticle,
+  RestEndpoint,
+);
 
-export class UrlArticleResource extends PaginatedArticleResource {
+export class UrlArticle extends PaginatedArticle {
   readonly url: string = 'happy.com';
 }
 
@@ -112,66 +117,57 @@ describe('Resource', () => {
   });
 
   it('should handle simple urls', () => {
-    expect(UserResource.detail().url({ id: '5' })).toBe(
-      'http://test.com/user/5',
-    );
-    expect(UserResource.detail().url({ id: '100' })).toBe(
+    expect(UserResource.get.url({ id: '5' })).toBe('http://test.com/user/5');
+    expect(UserResource.get.url({ id: '100' })).toBe(
       'http://test.com/user/100',
     );
-    expect(UserResource.list().url({ bob: '100' })).toBe(
+    /*expect(UserResource.getList.url({ bob: '100' })).toBe(
       'http://test.com/user?bob=100',
     );
-    expect(UserResource.create().url({ bob: '100' })).toBe(
+    expect(UserResource.create.url({ bob: '100' })).toBe(
       'http://test.com/user',
-    );
+    );*/
     expect(
-      UserResource.update().url({ id: '100' }, { id: '100', username: 'bob' }),
+      UserResource.update.url({ id: '100' }, { id: 100, username: 'bob' }),
     ).toBe('http://test.com/user/100');
 
     // @ts-expect-error
-    () => UserResource.detail().url({ sdf: '5' });
+    () => UserResource.get.url({ sdf: '5' });
   });
 
   it('should handle multiarg urls', () => {
-    class UserResource extends Resource {
-      readonly id: number | undefined = undefined;
-      readonly username: string = '';
-      readonly email: string = '';
-      readonly isAdmin: boolean = false;
+    const MyUserResource = createResource(
+      'http\\://test.com/groups/:group/users/:id' as const,
+      User,
+    );
 
-      pk() {
-        return this.id?.toString();
-      }
-
-      static urlRoot = 'http\\://test.com/groups/:group/users/:id?' as const;
-    }
-    expect(UserResource.detail().url({ group: 'big', id: '5' })).toBe(
+    expect(MyUserResource.get.url({ group: 'big', id: '5' })).toBe(
       'http://test.com/groups/big/users/5',
     );
-    expect(UserResource.detail().url({ group: 'big', id: '100' })).toBe(
+    expect(MyUserResource.get.url({ group: 'big', id: '100' })).toBe(
       'http://test.com/groups/big/users/100',
     );
-    expect(UserResource.list().url({ group: 'big', bob: '100' })).toBe(
+    /*expect(MyUserResource.getList.url({ group: 'big', bob: '100' })).toBe(
       'http://test.com/groups/big/users?bob=100',
-    );
-    expect(UserResource.create().url({ group: 'big' }, { bob: '100' })).toBe(
-      'http://test.com/groups/big/users',
-    );
+    );*/
     expect(
-      UserResource.update().url(
+      MyUserResource.create.url({ group: 'big' }, { username: '100' }),
+    ).toBe('http://test.com/groups/big/users');
+    expect(
+      MyUserResource.update.url(
         { group: 'big', id: '100' },
-        { id: '100', username: 'bob' },
+        { id: 100, username: 'bob' },
       ),
     ).toBe('http://test.com/groups/big/users/100');
 
     // missing required
     expect(() =>
       // @ts-expect-error
-      UserResource.detail().url({ id: '5' }),
+      MyUserResource.get.url({ id: '5' }),
     ).toThrow();
     // extra fields
     () =>
-      UserResource.detail().url({
+      MyUserResource.get.url({
         group: 'mygroup',
         id: '5',
         // @ts-expect-error
@@ -179,24 +175,22 @@ describe('Resource', () => {
       });
 
     // @ts-expect-error
-    () => useSuspense(UserResource.detail(), { id: '5' });
+    () => useSuspense(MyUserResource.get, { id: '5' });
     // @ts-expect-error
-    () => useSuspense(UserResource.detail());
-    () => useSuspense(UserResource.detail(), { group: 'yay', id: '5' });
+    () => useSuspense(MyUserResource.get);
+    () => useSuspense(MyUserResource.get, { group: 'yay', id: '5' });
   });
 
   it('should automatically name methods', () => {
-    expect(PaginatedArticleResource.detail().name).toBe(
-      'PaginatedArticleResource.detail',
+    expect(PaginatedArticleResource.get.name).toBe('PaginatedArticle.get');
+    expect(PaginatedArticleResource.create.name).toBe(
+      'PaginatedArticle.create',
     );
-    expect(PaginatedArticleResource.list().name).toBe(
-      'PaginatedArticleResource.list',
+    expect(PaginatedArticleResource.getList.name).toBe(
+      'PaginatedArticle.getList',
     );
-    expect(PaginatedArticleResource.create().name).toBe(
-      'PaginatedArticleResource.create',
-    );
-    expect(PaginatedArticleResource.delete().name).toBe(
-      'PaginatedArticleResource.delete',
+    expect(PaginatedArticleResource.delete.name).toBe(
+      'PaginatedArticle.delete',
     );
   });
 
@@ -207,27 +201,20 @@ describe('Resource', () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       const { fetch } = useController();
       const { results: articles, nextPage } = useSuspense(
-        PaginatedArticleResource.list(),
-        {},
+        PaginatedArticleResource.getList,
       );
       return { articles, nextPage, fetch };
     });
     await waitForNextUpdate();
     () =>
-      result.current.fetch(PaginatedArticleResource.listPage(), {
-        // @ts-expect-error
-        cursor: 'five',
-      });
+      // @ts-expect-error
+      result.current.fetch(PaginatedArticleResource.getNextPage);
     await act(async () => {
-      await result.current.fetch(PaginatedArticleResource.listPage(), {
+      await result.current.fetch(PaginatedArticleResource.getNextPage, {
         cursor: 2,
       });
     });
-    expect(
-      result.current.articles.map(
-        ({ id }: Partial<PaginatedArticleResource>) => id,
-      ),
-    ).toEqual([5, 3, 7, 8]);
+    expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3, 7, 8]);
   });
 
   it('should deduplicate results', async () => {
@@ -240,22 +227,17 @@ describe('Resource', () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       const { fetch } = useController();
       const { results: articles, nextPage } = useSuspense(
-        PaginatedArticleResource.list(),
-        {},
+        PaginatedArticleResource.getList,
       );
       return { articles, nextPage, fetch };
     });
     await waitForNextUpdate();
     await act(async () => {
-      await result.current.fetch(PaginatedArticleResource.listPage(), {
+      await result.current.fetch(PaginatedArticleResource.getNextPage, {
         cursor: 2,
       });
     });
-    expect(
-      result.current.articles.map(
-        ({ id }: Partial<PaginatedArticleResource>) => id,
-      ),
-    ).toEqual([5, 3, 7, 8]);
+    expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3, 7, 8]);
   });
 
   it('should not deep-merge deeply defined entities', async () => {
@@ -266,7 +248,7 @@ describe('Resource', () => {
         other?: string;
       };
     }
-    class ComplexResource extends Resource {
+    class ComplexEntity extends Entity {
       readonly id: string = '';
       readonly complexThing?: Complex = undefined;
       readonly extra: string = '';
@@ -274,9 +256,11 @@ describe('Resource', () => {
       pk() {
         return this.id;
       }
-
-      static urlRoot = '/complex-thing/:id?';
     }
+    const ComplexResource = createResource(
+      '/complex-thing/:id' as const,
+      ComplexEntity,
+    );
     const firstResponse = {
       id: '5',
       complexThing: {
@@ -289,7 +273,7 @@ describe('Resource', () => {
 
     const { result, waitForNextUpdate } = renderRestHook(() => {
       const { fetch } = useController();
-      const article = useSuspense(ComplexResource.detail(), { id: '5' });
+      const article = useSuspense(ComplexResource.get, { id: '5' });
       return { article, fetch };
     });
     await waitForNextUpdate();
@@ -305,7 +289,7 @@ describe('Resource', () => {
 
     mynock.get(`/complex-thing/5`).reply(200, secondResponse);
     await act(async () => {
-      await result.current.fetch(ComplexResource.detail(), {
+      await result.current.fetch(ComplexResource.get, {
         id: '5',
       });
     });
@@ -314,30 +298,20 @@ describe('Resource', () => {
 
   it('delete() should fallback to params when response is empty object', async () => {
     mynock.delete(`/article-paginated/500`).reply(200, {});
-    const res = await PaginatedArticleResource.delete()({ id: 500 });
+    const res = await PaginatedArticleResource.delete({ id: 500 });
     expect(res).toEqual({ id: 500 });
   });
 
   it('delete() should fallback to params when response is undefined', async () => {
     mynock.delete(`/article-paginated/500`).reply(204, undefined);
-    const res = await PaginatedArticleResource.delete()({ id: 500 });
+    const res = await PaginatedArticleResource.delete({ id: 500 });
     expect(res).toEqual({ id: 500 });
   });
 
   it('should spread `url` member', () => {
-    const entity = UrlArticleResource.fromJS({ url: 'five' });
+    const entity = UrlArticle.fromJS({ url: 'five' });
     const spread = { ...entity };
     expect(spread.url).toBe('five');
     expect(Object.prototype.hasOwnProperty.call(entity, 'url')).toBeTruthy();
-  });
-
-  it('should not spread `url` member if not a member', () => {
-    const entity = PaginatedArticleResource.fromJS({ id: 5, title: 'five' });
-    expect(entity.url).toMatchInlineSnapshot(
-      `"http://test.com/article-paginated/5"`,
-    );
-    const spread = { ...entity };
-    expect(spread.url).toBeUndefined();
-    expect(Object.prototype.hasOwnProperty.call(entity, 'url')).toBeFalsy();
   });
 });

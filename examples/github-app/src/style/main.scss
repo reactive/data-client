@@ -9,6 +9,12 @@
 body {
   font-family: 'Graphik', 'Avenir Next', 'Helvetica Nueue', Helvetica,
     sans-serif;
-  background-color: #4516f0;
-  color: white;
+}
+
+section {
+  margin-bottom: 24px;
+}
+
+.ant-card-meta-detail {
+  width:100%;
 }

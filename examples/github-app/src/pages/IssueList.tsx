@@ -3,9 +3,9 @@ import { useSuspense, useSubscription, useController } from 'rest-hooks';
 import { Link, useLocation } from '@anansi/router';
 import { List, Avatar } from 'antd';
 import Labels from 'components/Labels';
+import { Issue, IssueResource } from 'resources/Issue';
 
 import LinkPagination from '../navigation/LinkPagination';
-import IssueResource from '../resources/IssueResource';
 
 const REL = new Intl.RelativeTimeFormat(navigator.language || 'en-US', {
   localeMatcher: 'best fit',
@@ -18,7 +18,7 @@ type Props = { owner: string; repo: string } & (
       page: number;
     }
   | {
-      state?: IssueResource['state'];
+      state?: Issue['state'];
     }
 );
 
@@ -34,8 +34,8 @@ export default function IssueList({ owner, repo }: Props) {
     repo,
     page,
   };
-  const { results: issues, link } = useSuspense(IssueResource.list(), params);
-  useSubscription(IssueResource.list(), params);
+  const { results: issues, link } = useSuspense(IssueResource.getList, params);
+  useSubscription(IssueResource.getList, params);
 
   return (
     <>
@@ -63,7 +63,7 @@ function NextPage({
   const { fetch } = useController();
   const [count, setCount] = useState(0);
   const loadMore = () => {
-    fetch(IssueResource.listPage(), { page: page + count + 1, repo, owner });
+    fetch(IssueResource.getNextPage, { page: page + count + 1, repo, owner });
     setCount((count) => count + 1);
   };
   return (
@@ -73,14 +73,18 @@ function NextPage({
   );
 }
 
-function IssueListItem({ issue }: { issue: IssueResource }) {
+function IssueListItem({ issue }: { issue: Issue }) {
   const actions = [];
   if (issue.labels) {
     actions.push(<Labels key="labels" labels={issue.labels} />);
   }
   if (issue.comments) {
     actions.push(
-      <Link key="comments" name="IssueDetail" props={{ number: issue.number }}>
+      <Link
+        key="comments"
+        name="IssueDetail"
+        props={{ number: issue.number, repo: issue.repo, owner: issue.owner }}
+      >
         <span role="img" aria-label="Comments">
           🗨️
         </span>
@@ -93,7 +97,14 @@ function IssueListItem({ issue }: { issue: IssueResource }) {
       <List.Item.Meta
         avatar={<Avatar src={issue.user.avatarUrl} />}
         title={
-          <Link name="IssueDetail" props={{ number: issue.number }}>
+          <Link
+            name="IssueDetail"
+            props={{
+              number: issue.number,
+              repo: issue.repo,
+              owner: issue.owner,
+            }}
+          >
             {issue.stateIcon} {issue.title}
           </Link>
         }

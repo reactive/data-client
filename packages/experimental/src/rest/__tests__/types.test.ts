@@ -1,4 +1,5 @@
-import { PathArgs } from '../types';
+import { GetEndpoint } from '../RestEndpoint';
+import { PathArgs, ShortenPath } from '../types';
 
 describe('PathArgs', () => {
   it('should infer types', () => {
@@ -32,5 +33,18 @@ describe('PathArgs', () => {
     //@ts-expect-error
     () => thing2.A({});
     () => thing2.A({ item: 'win' });
+  });
+
+  it('works when combining with known types', () => {
+    const a: GetEndpoint<
+      PathArgs<ShortenPath<'/hi'>> & { page: string | number }
+    > = 0 as any;
+    () => a({ page: '5' });
+    //@ts-expect-error
+    () => a({ sdf: '5' });
+    //@ts-expect-error
+    () => a({ page: '5' }, { hi: '5' });
+    //@ts-expect-error
+    () => a();
   });
 });

@@ -2,6 +2,7 @@ import { CacheProvider } from 'rest-hooks';
 import type { ReactNode } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import type { FallbackProps } from 'react-error-boundary';
+import { AuthdProvider } from 'navigation/authdContext';
 
 import { Router } from './routing';
 import Boundary from './Boundary';
@@ -19,9 +20,11 @@ export default function RootProvider({ children, ...rest }: Props) {
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <CacheProvider {...rest}>
         <Router>
-          <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <Boundary>{children}</Boundary>
-          </ErrorBoundary>
+          <AuthdProvider>
+            <ErrorBoundary FallbackComponent={ErrorFallback}>
+              <Boundary>{children}</Boundary>
+            </ErrorBoundary>
+          </AuthdProvider>
         </Router>
       </CacheProvider>
     </ErrorBoundary>
