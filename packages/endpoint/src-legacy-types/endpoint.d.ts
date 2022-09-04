@@ -91,9 +91,7 @@ export interface EndpointInstance<
   caller: F;
   key(...args: Parameters<F>): string;
   readonly sideEffect: M;
-  readonly schema: S extends undefined ? schema.SchemaClass<ResolveType<F>> : S;
-  /** @deprecated */
-  readonly _schema: S; // TODO: remove once we don't care about FetchShape compatibility
+  readonly schema: S;
   fetch: F;
   extend<
     E extends EndpointInstance<
@@ -114,7 +112,7 @@ export interface EndpointInstance<
         : E['fetch'],
       'schema' extends keyof typeof options
         ? typeof options['schema']
-        : E['_schema'],
+        : E['schema'],
       'sideEffect' extends keyof typeof options
         ? typeof options['sideEffect']
         : E['sideEffect']

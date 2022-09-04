@@ -45,7 +45,7 @@ export type ExtendedEndpoint<
   F extends FetchFunction,
 > = EndpointInstance<
   'fetch' extends keyof O ? Exclude<O['fetch'], undefined> : E['fetch'],
-  'schema' extends keyof O ? O['schema'] : E['_schema'],
+  'schema' extends keyof O ? O['schema'] : E['schema'],
   'sideEffect' extends keyof O ? O['sideEffect'] : E['sideEffect']
 > &
   Omit<O, KeyofEndpointInstance> &
@@ -84,11 +84,7 @@ export interface EndpointInstanceInterface<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined,
-> extends EndpointInterface<
-    F,
-    S extends undefined ? schema.SchemaClass<ResolveType<F>> : S,
-    M
-  > {
+> extends EndpointInterface<F, S, M> {
   constructor: EndpointConstructor;
 
   /**
@@ -144,9 +140,7 @@ export interface EndpointInstanceInterface<
 
   readonly sideEffect: M;
 
-  readonly schema: S extends undefined ? schema.SchemaClass<ResolveType<F>> : S;
-  /** @deprecated */
-  readonly _schema: S; // TODO: remove once we don't care about FetchShape compatibility
+  readonly schema: S;
 
   fetch: F;
 
