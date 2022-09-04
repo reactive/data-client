@@ -39,7 +39,8 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-json-tree": "0.17.0",
-    "rest-hooks": "file:../packages/rest-hooks"
+    "rest-hooks": "file:../packages/rest-hooks",
+    "typescript": "4.7.0-dev.20220425"
   },
   "resolutions": {
     "@rest-hooks/core": "file:../packages/core",
