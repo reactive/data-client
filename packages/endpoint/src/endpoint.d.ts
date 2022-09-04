@@ -33,6 +33,8 @@ export type ParamFromFetch<F> = F extends (
 
 type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;
 
+export type KeyofEndpointInstance = keyof EndpointInstance<FetchFunction>;
+
 export type ExtendedEndpoint<
   O extends EndpointExtendOptions<F>,
   E extends EndpointInstance<
@@ -41,13 +43,13 @@ export type ExtendedEndpoint<
     true | undefined
   >,
   F extends FetchFunction,
-> = Omit<O, keyof EndpointInstance<FetchFunction>> &
-  Omit<E, keyof EndpointInstance<FetchFunction>> &
-  EndpointInstance<
-    'fetch' extends keyof O ? Exclude<O['fetch'], undefined> : E['fetch'],
-    'schema' extends keyof O ? O['schema'] : E['_schema'],
-    'sideEffect' extends keyof O ? O['sideEffect'] : E['sideEffect']
-  >;
+> = EndpointInstance<
+  'fetch' extends keyof O ? Exclude<O['fetch'], undefined> : E['fetch'],
+  'schema' extends keyof O ? O['schema'] : E['_schema'],
+  'sideEffect' extends keyof O ? O['sideEffect'] : E['sideEffect']
+> &
+  Omit<O, KeyofEndpointInstance> &
+  Omit<E, KeyofEndpointInstance>;
 
 export function Make(...args: any[]): EndpointInstance<FetchFunction>;
 
@@ -56,6 +58,29 @@ export function Make(...args: any[]): EndpointInstance<FetchFunction>;
  * @see https://resthooks.io/docs/api/Endpoint
  */
 export interface EndpointInstance<
+  F extends (...args: any) => Promise<any> = FetchFunction,
+  S extends Schema | undefined = Schema | undefined,
+  M extends true | undefined = true | undefined,
+> extends EndpointInstanceInterface<F, S, M> {
+  extend<
+    E extends EndpointInstance<
+      (...args: any) => Promise<any>,
+      Schema | undefined,
+      true | undefined
+    >,
+    O extends EndpointExtendOptions<F> &
+      Partial<Omit<E, keyof EndpointInstance<FetchFunction>>>,
+  >(
+    this: E,
+    options: O,
+  ): ExtendedEndpoint<typeof options, E, F>;
+}
+
+/**
+ * Defines an async data source.
+ * @see https://resthooks.io/docs/api/Endpoint
+ */
+export interface EndpointInstanceInterface<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined,
@@ -94,18 +119,15 @@ export interface EndpointInstance<
    * @param thisArg An object to which the this keyword can refer inside the new function.
    * @param argArray A list of arguments to be passed to the new function.
    */
-  bind<
-    E extends EndpointInstance<
-      FetchFunction,
-      Schema | undefined,
-      true | undefined
-    >,
-    P extends Parameters<F>,
-  >(
+  bind<E extends FetchFunction, P extends Parameters<E>>(
     this: E,
     thisArg: ThisParameterType<E>,
     ...args: readonly [...P]
-  ): EndpointInstance<() => ReturnType<E>, S, M> &
+  ): EndpointInstance<
+    (...args: readonly [...RemoveArray<Parameters<E>, P>]) => ReturnType<E>,
+    S,
+    M
+  > &
     Omit<E, keyof EndpointInstance<FetchFunction>>;
 
   /** Returns a string representation of a function. */
@@ -127,19 +149,6 @@ export interface EndpointInstance<
   readonly _schema: S; // TODO: remove once we don't care about FetchShape compatibility
 
   fetch: F;
-
-  extend<
-    E extends EndpointInstance<
-      FetchFunction,
-      Schema | undefined,
-      true | undefined
-    >,
-    O extends EndpointExtendOptions<F> &
-      Partial<Omit<E, keyof EndpointInstance<FetchFunction>>>,
-  >(
-    this: E,
-    options: O,
-  ): ExtendedEndpoint<typeof options, E, F>;
 
   /** The following is for compatibility with FetchShape */
   /** @deprecated */
@@ -173,7 +182,34 @@ declare let Endpoint: EndpointConstructor;
 
 export default Endpoint;
 
+interface ExtendableEndpointConstructor {
+  new <
+    F extends (
+      this: EndpointInstanceInterface<FetchFunction> & E,
+      params?: any,
+      body?: any,
+    ) => Promise<any>,
+    S extends Schema | undefined = undefined,
+    M extends true | undefined = undefined,
+    E extends Record<string, any> = {},
+  >(
+    RestFetch: F,
+    options?: EndpointOptions<F, S, M> & E,
+  ): EndpointInstanceInterface<F, S, M> & E;
+  readonly prototype: Function;
+}
+export declare let ExtendableEndpoint: ExtendableEndpointConstructor;
+
 type IfAny<T, Y, N> = 0 extends 1 & T ? Y : N;
 type IfTypeScriptLooseNull<Y, N> = 1 | undefined extends 1 ? Y : N;
 
 type OnlyFirst<A extends unknown[]> = A extends [] ? [] : [A[0]];
+
+type RemoveArray<Orig extends any[], Rem extends any[]> = Rem extends [
+  any,
+  ...infer RestRem,
+]
+  ? Orig extends [any, ...infer RestOrig]
+    ? RemoveArray<RestOrig, RestRem>
+    : never
+  : Orig;

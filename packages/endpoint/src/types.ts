@@ -17,19 +17,23 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   /** Enables optimistic updates for this request - uses return value as assumed network response
    * @deprecated use https://resthooks.io/docs/api/Endpoint#getoptimisticresponse instead
    */
-  readonly optimisticUpdate?: (...args: Parameters<F>) => ResolveType<F>;
+  optimisticUpdate?(...args: Parameters<F>): ResolveType<F>;
   /** Enables optimistic updates for this request - uses return value as assumed network response */
-  readonly getOptimisticResponse?: (
+  getOptimisticResponse?(
     snap: SnapshotInterface,
     ...args: Parameters<F>
-  ) => ResolveType<F>;
+  ): ResolveType<F>;
   /** Determines whether to throw or fallback to */
-  readonly errorPolicy?: (error: any) => 'soft' | undefined;
+  errorPolicy?(error: any): 'soft' | undefined;
   /** User-land extra data to send */
   readonly extra?: any;
 }
+export type FetchFunction<A extends readonly any[] = any, R = any> = (
+  ...args: A
+) => Promise<R>;
 
-export type FetchFunction<P = any, B = any, R = any> = (
+/** @deprecated */
+export type SimpleFetchFunction<P = any, B = any, R = any> = (
   ...args: readonly [params?: P, body?: B, ...rest: any]
 ) => Promise<R>;
 

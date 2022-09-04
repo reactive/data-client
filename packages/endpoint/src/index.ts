@@ -6,7 +6,12 @@ export type {
   IndexParams,
   ArrayElement,
 } from './interface.js';
-export type { EndpointOptions, EndpointInstance } from './endpoint.js';
+export type {
+  EndpointOptions,
+  EndpointInstance,
+  EndpointInstanceInterface,
+  EndpointExtendOptions,
+} from './endpoint.js';
 export type {
   Normalize,
   NormalizeNullable,
@@ -24,6 +29,7 @@ export type { AbstractInstanceType, Schema } from '@rest-hooks/normalizr';
 export type {
   EndpointExtraOptions,
   FetchFunction,
+  SimpleFetchFunction as FetchFunctionOld,
   OptimisticUpdateParams,
   UpdateFunction,
   SchemaDetail,
@@ -37,6 +43,7 @@ export { ExpiryStatus } from './Expiry.js';
 export type { ExpiryStatusInterface } from './Expiry.js';
 export type { ResolveType, EndpointParam, InferReturn } from './utility.js';
 
-export { default as Endpoint } from './endpoint.js';
+export { default as Endpoint, ExtendableEndpoint } from './endpoint.js';
+export type { KeyofEndpointInstance } from './endpoint.js';
 export { default as Index } from './indexEndpoint.js';
 export { default as AbortOptimistic } from './AbortOptimistic.js';

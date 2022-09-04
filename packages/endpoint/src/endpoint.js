@@ -92,3 +92,4 @@ export default class Endpoint extends Function {
     return instance;
   }
 }
+export const ExtendableEndpoint = Endpoint;
