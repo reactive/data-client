@@ -20,22 +20,19 @@ function LinkPagination({ link }: PageProps) {
       : parsed && parsed.prev
       ? Number.parseInt(parsed.prev.page) + 1
       : 1;
-  let total, pageSize;
+  let total;
   if (!parsed) {
     total = 1;
-    pageSize = 50;
   } else if (parsed.last) {
     total = Number.parseInt(parsed.last.page);
-    pageSize = Number.parseInt(parsed.last.per_page);
   } else {
-    pageSize = Number.parseInt(parsed.first.per_page);
     total = curPage;
   }
   return (
     <Pagination
       defaultCurrent={curPage}
-      total={total * pageSize}
-      pageSize={pageSize}
+      total={total * 20}
+      pageSize={20}
       onChange={handleChange(controller.history)}
     />
   );

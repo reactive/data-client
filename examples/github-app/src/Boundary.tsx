@@ -2,6 +2,7 @@ import { memo, Suspense } from 'react';
 import { NetworkErrorBoundary } from 'rest-hooks';
 import type { ReactNode } from 'react';
 import { Spin } from 'antd';
+import { styled } from '@linaria/react';
 
 function Boundary({
   children,
@@ -19,7 +20,14 @@ function Boundary({
 export default memo(Boundary);
 
 export const Loading = () => (
-  <div className="center">
+  <Center>
     <Spin size="large" />
-  </div>
+  </Center>
 );
+
+const Center = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: auto;
+`;

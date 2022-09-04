@@ -1,12 +1,14 @@
-export { default as useFetcher } from './useFetcher';
 export { Controller, useController } from '@rest-hooks/core';
 export { default as useSuspense } from './hooks/useSuspense';
 export { default as useCache } from './hooks/useCache';
 export { default as useError } from './hooks/useError';
 export { default as useSubscription } from './hooks/useSubscription';
 export { default as useFetch } from './hooks/useFetch';
-export { default as Resource } from './rest/Resource';
-export { default as BaseResource } from './rest/BaseResource';
+export { default as RestEndpoint } from './rest/RestEndpoint';
+export * from './rest/RestEndpoint';
+export { default as createResource } from './rest/createResource';
+export type { Resource } from './rest/createResource';
+export { default as paginationUpdate } from './rest/paginationUpdate';
 import { schema, Entity, EndpointExtraOptions } from '@rest-hooks/endpoint';
 const Delete = schema.Delete;
 export { Delete, Entity };
