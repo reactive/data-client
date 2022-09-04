@@ -12025,6 +12025,7 @@ __metadata:
     react-json-tree: 0.17.0
     rest-hooks: "file:../packages/rest-hooks"
     serve: 14.0.1
+    typescript: 4.7.0-dev.20220425
     webpack: ^5.74.0
   languageName: unknown
   linkType: soft
@@ -13322,6 +13323,26 @@ __metadata:
   dependencies:
     is-typedarray: ^1.0.0
   checksum: 99c11aaa8f45189fcfba6b8a4825fd684a321caa9bd7a76a27cf0c7732c174d198b99f449c52c3818107430b5f41c0ccbbfb75cb2ee3ca4a9451710986d61a60
+  languageName: node
+  linkType: hard
+
+"typescript@npm:4.7.0-dev.20220425":
+  version: 4.7.0-dev.20220425
+  resolution: "typescript@npm:4.7.0-dev.20220425"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 9b3984483a09dd36a7d039b30eb8b085c27f04d5bc94445c609beff268df4ef11648e12651288d7010819e72d880e81841335a3ea203b5696c20f3881f39e6db
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@4.7.0-dev.20220425#~builtin<compat/typescript>":
+  version: 4.7.0-dev.20220425
+  resolution: "typescript@patch:typescript@npm%3A4.7.0-dev.20220425#~builtin<compat/typescript>::version=4.7.0-dev.20220425&hash=a1c5e5"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 4d739276fe6f556dab590fa11e7b9a334b337b5bd4536758f0bca3d4f11ebdc2aaa10f36360375a9b65168302ca1b16b53e8ff590bd27cfda140337e87ace38c
   languageName: node
   linkType: hard
 
