@@ -3854,7 +3854,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/graphql@workspace:^, @rest-hooks/graphql@workspace:packages/graphql":
+"@rest-hooks/graphql@^0.1.11, @rest-hooks/graphql@workspace:packages/graphql":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/graphql@workspace:packages/graphql"
   dependencies:
@@ -3877,7 +3877,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/hooks@workspace:^, @rest-hooks/hooks@workspace:packages/hooks":
+"@rest-hooks/hooks@^3.0.4, @rest-hooks/hooks@workspace:packages/hooks":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/hooks@workspace:packages/hooks"
   dependencies:
@@ -10462,8 +10462,8 @@ __metadata:
     "@rest-hooks/core": ^3.2.10
     "@rest-hooks/endpoint": ^2.3.0
     "@rest-hooks/experimental": ^6.0.0
-    "@rest-hooks/graphql": "workspace:^"
-    "@rest-hooks/hooks": "workspace:^"
+    "@rest-hooks/graphql": ^0.1.11
+    "@rest-hooks/hooks": ^3.0.4
     "@rest-hooks/rest": ^5.1.0
     "@types/eslint": 8.4.6
     "@types/parse-link-header": ^2.0.0
