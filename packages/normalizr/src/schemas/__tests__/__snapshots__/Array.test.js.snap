@@ -336,7 +336,7 @@ exports[`ArraySchema denormalization Class denormalizes with missing entity shou
       "name": "Jake",
     },
   ],
-  true,
+  false,
   false,
 ]
 `;
@@ -353,7 +353,7 @@ exports[`ArraySchema denormalization Class denormalizes with missing entity shou
       "name": "Jake",
     },
   ],
-  true,
+  false,
   false,
 ]
 `;

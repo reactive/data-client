@@ -79,7 +79,7 @@ exports[`denormalize denormalizes ignoring unfound entities in arrays 1`] = `
       "type": "foo",
     },
   ],
-  true,
+  false,
   false,
   {
     "Tacos": {
@@ -102,7 +102,7 @@ exports[`denormalize denormalizes ignoring unfound entities in arrays 2`] = `
       },
     ],
   },
-  true,
+  false,
   false,
   {
     "Tacos": {

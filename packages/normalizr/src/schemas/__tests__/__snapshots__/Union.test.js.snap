@@ -614,7 +614,7 @@ exports[`complex case works with undefined 2`] = `
       },
     ],
   },
-  true,
+  false,
   false,
 ]
 `;

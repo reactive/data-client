@@ -43,16 +43,16 @@ export const denormalize = (
   unvisit: any,
 ): [denormalized: any, found: boolean, suspend: boolean] => {
   schema = validateSchema(schema);
-  return [
-    input.map
-      ? input
-          .map(entityOrId => unvisit(entityOrId, schema))
-          .filter(filterEmpty)
-          .map(([value]) => value)
-      : input,
-    true,
-    false,
-  ];
+  if (input.map) {
+    const unvisited = input.map(entityOrId => unvisit(entityOrId, schema));
+    return [
+      unvisited.filter(filterEmpty).map(([value]) => value),
+      // 'not found' should propagate so we don't infer things that don't pass 'validation'
+      unvisited.every(([, found]) => found),
+      false,
+    ];
+  }
+  return [input, true, false];
 };
 
 export function infer(schema: any, args: any, indexes: any, recurse: any) {
@@ -89,16 +89,18 @@ export default class ArraySchema extends PolymorphicSchema {
   }
 
   denormalize(input: any, unvisit: any) {
-    return [
-      input.map
-        ? input
-            .map(entityOrId => this.denormalizeValue(entityOrId, unvisit))
-            .filter(filterEmpty)
-            .map(([value]) => value)
-        : input,
-      true,
-      false,
-    ];
+    if (input.map) {
+      const unvisited = input.map(entityOrId =>
+        this.denormalizeValue(entityOrId, unvisit),
+      );
+      return [
+        unvisited.filter(filterEmpty).map(([value]) => value),
+        // 'not found' should propagate so we don't infer things that don't pass 'validation'
+        unvisited.every(([, found]) => found),
+        false,
+      ];
+    }
+    return [input, true, false];
   }
 
   infer(args: any, indexes: any, recurse: any) {
