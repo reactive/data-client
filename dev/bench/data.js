@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1662271526244,
+  "lastUpdate": 1662596856820,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -7286,6 +7286,58 @@ window.BENCHMARK_DATA = {
             "range": "±2.09%",
             "unit": "ops/sec",
             "extra": "78 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "31b2c8ff3d9f9001c31f3f5c15bec1321a15361d",
+          "message": "pkg: Update babel packages (#2161)\n\n* pkg: Update babel packages\r\n\r\n* internal: yarnDedupeHighest is needed to actually dedupe babel\r\n\r\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\r\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2022-09-07T17:23:24-07:00",
+          "tree_id": "b84dc23393d4bbe682ad9fafac33379a1edb6588",
+          "url": "https://github.com/coinbase/rest-hooks/commit/31b2c8ff3d9f9001c31f3f5c15bec1321a15361d"
+        },
+        "date": 1662596855927,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 88.53,
+            "range": "±2.10%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 44.5,
+            "range": "±0.58%",
+            "unit": "ops/sec",
+            "extra": "58 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 49.22,
+            "range": "±0.30%",
+            "unit": "ops/sec",
+            "extra": "64 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 87.58,
+            "range": "±2.04%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
           }
         ]
       }
