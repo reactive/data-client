@@ -1,5 +1,3 @@
-import { RestGenerics } from '@rest-hooks/experimental';
-
 import { GithubEntity, createGithubResource, GithubGqlEndpoint } from './Base';
 
 export class Repository extends GithubEntity {

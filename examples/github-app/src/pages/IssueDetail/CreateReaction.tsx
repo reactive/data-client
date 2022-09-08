@@ -1,5 +1,4 @@
-import { useSuspense, useController } from 'rest-hooks';
-import React from 'react';
+import { useController, useCache } from 'rest-hooks';
 import { UserResource } from 'resources/User';
 import { v4 as uuid } from 'uuid';
 import { Reaction, ReactionResource, contentToIcon } from 'resources/Reaction';
@@ -18,13 +17,13 @@ export function CreateReaction({
   issue: Issue;
 }) {
   const { fetch } = useController();
-  const currentUser = useSuspense(UserResource.current);
-  const userReaction: Reaction | undefined = reactions.find(
-    (reaction) => reaction.user.login === currentUser.login,
-  );
+  const currentUser = useCache(UserResource.current);
+  const userReaction: Reaction | undefined =
+    currentUser &&
+    reactions.find((reaction) => reaction.user.login === currentUser.login);
 
   const handleClick = () => {
-    if (userReaction) return;
+    if (userReaction || !currentUser) return;
     fetch(
       ReactionResource.create,
       {

@@ -1,9 +1,7 @@
-import { Card, Avatar, Form, Button, Input, Space } from 'antd';
-import { Link } from '@anansi/router';
+import { Form, Button, Input, Space } from 'antd';
 import { useLoading } from '@rest-hooks/hooks';
-import { memo, useCallback } from 'react';
+import { memo } from 'react';
 
-const { Meta } = Card;
 const { TextArea } = Input;
 
 function CommentForm({

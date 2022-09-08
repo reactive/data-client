@@ -9,7 +9,6 @@ import rehypeHighlight from 'rehype-highlight';
 import { UserResource } from 'resources/User';
 import { css } from '@linaria/core';
 import { EllipsisOutlined } from '@ant-design/icons';
-import { styled } from '@linaria/react';
 import { CommentResource, Comment } from 'resources/Comment';
 import FlexRow from 'components/FlexRow';
 

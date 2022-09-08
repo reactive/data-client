@@ -70,7 +70,7 @@ export const ReactionResource = {
         ...rest,
       }),
     }),
-    getOptimisticResponse: (snap, params, body) => body,
+    getOptimisticResponse: (snap, params, body) => body as any,
   }),
   delete: base.delete.extend({
     getOptimisticResponse: (snap, params) => params,
