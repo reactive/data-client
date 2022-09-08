@@ -61,7 +61,7 @@ describe('GQLEndpoint', () => {
             },
             { 'content-type': 'application/json' },
           ];
-        else
+        else if (body.variables.name === 'Fong2')
           return [
             400,
             {
@@ -79,6 +79,15 @@ describe('GQLEndpoint', () => {
               ],
             },
             { 'content-type': 'application/json' },
+          ];
+        else
+          return [
+            401,
+            {
+              message: 'This endpoint requires you to be authenticated.',
+              documentation_url:
+                'https://docs.github.com/graphql/guides/forming-calls-with-graphql#authenticating-with-graphql',
+            },
           ];
       });
   });
@@ -160,5 +169,36 @@ describe('GQLEndpoint', () => {
     await expect(userDetail({ name: 'Fong2' })).rejects.toMatchInlineSnapshot(
       `[NetworkError: Generic failure]`,
     );
+  });
+
+  it('should throw if network response is not OK', async () => {
+    await expect(userDetail({ name: 'Fong3' })).rejects.toMatchInlineSnapshot(
+      `[NetworkError: This endpoint requires you to be authenticated.]`,
+    );
+  });
+
+  it('should throw if network is down', async () => {
+    const oldError = console.error;
+    console.error = () => {};
+
+    nock('https://nosy-baritone.glitch.me')
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
+      .post('/')
+      .replyWithError(new TypeError('Network Down'));
+
+    let error: any;
+    try {
+      await userDetail({ name: 'Fong4' });
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeDefined();
+    expect(error.status).toBe(400);
+
+    // eslint-disable-next-line require-atomic-updates
+    console.error = oldError;
   });
 });

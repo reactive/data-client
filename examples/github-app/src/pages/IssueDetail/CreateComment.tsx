@@ -1,6 +1,6 @@
 import UserResource from 'resources/User';
 import { useCache, useController } from 'rest-hooks';
-import { Card, Avatar, Input } from 'antd';
+import { Card, Avatar } from 'antd';
 import { Link } from '@anansi/router';
 import { memo, useCallback } from 'react';
 import { CommentResource } from 'resources/Comment';
