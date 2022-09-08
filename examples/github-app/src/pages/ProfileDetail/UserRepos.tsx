@@ -1,26 +1,27 @@
-import React, { useMemo } from 'react';
-import { useSuspense } from 'rest-hooks';
+import React from 'react';
+import { useCache, useSuspense } from 'rest-hooks';
 import { Card, List, Layout, Space, Timeline, Typography, Divider } from 'antd';
-import Markdown from 'react-markdown';
 import { Link } from '@anansi/router';
 import { UserResource, User } from 'resources/User';
 import RepositoryResource, { Repository } from 'resources/Repository';
 import { ForkOutlined, StarOutlined } from '@ant-design/icons';
-import { EventResource, typeToIcon, Event } from 'resources/Event';
-import { groupBy } from 'lodash';
 
-const { Meta } = Card;
-const { Sider, Content } = Layout;
-const { Title, Paragraph } = Typography;
+const { Title } = Typography;
 
 export default function UserRepositories({ user }: { user: User }) {
   const { results } = useSuspense(RepositoryResource.getByUser, {
     login: user.login,
   });
-  const pinned = useSuspense(RepositoryResource.getByPinned, {
-    login: user.login,
-  });
-  let repos = pinned.user.pinnedItems.nodes;
+  const currentUser = useCache(UserResource.current);
+  const pinned = useSuspense(
+    RepositoryResource.getByPinned,
+    currentUser
+      ? {
+          login: user.login,
+        }
+      : null,
+  );
+  let repos = pinned.user.pinnedItems.nodes ?? [];
   if (!repos.length) {
     repos = [...results.filter((repo) => !repo.fork)];
     repos.sort((a, b) => b.stargazersCount - a.stargazersCount);

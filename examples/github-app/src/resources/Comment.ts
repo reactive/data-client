@@ -30,27 +30,29 @@ const baseResource = createGithubResource(
   '/repos/:owner/:repo/issues/comments/:id' as const,
   Comment,
 );
-export const CommentResource = {
-  ...baseResource,
-  getList: baseResource.getList.extend({
-    urlRoot: '/repos/:owner/:repo/issues/:number/comments' as const,
-    body: undefined,
-  }),
-  create: baseResource.create.extend({
-    urlRoot: '/repos/:owner/:repo/issues/:number/comments' as const,
-    body: { body: '' },
-    update: (newId: string, params: any) => ({
-      [CommentResource.getList.key(params)]: ({
-        results = [],
-        ...rest
-      } = {}) => ({ results: [...new Set([...results, newId])], ...rest }),
+const getList = baseResource.getList.extend({
+  urlRoot: '/repos/:owner/:repo/issues/:number/comments' as const,
+  body: undefined,
+});
+const create = baseResource.create.extend({
+  urlRoot: '/repos/:owner/:repo/issues/:number/comments' as const,
+  body: { body: '' },
+  update: (newId: string, params: any) => ({
+    [getList.key(params)]: ({ results = [], ...rest } = {}) => ({
+      results: [...new Set([...results, newId])],
+      ...rest,
     }),
   }),
-};
-CommentResource.delete = baseResource.delete.extend({
-  getOptimisticResponse(snap, params) {
-    return params;
-  },
 });
+export const CommentResource = {
+  ...baseResource,
+  getList,
+  create,
+  delete: baseResource.delete.extend({
+    getOptimisticResponse(snap, params) {
+      return params;
+    },
+  }),
+};
 
 export default CommentResource;

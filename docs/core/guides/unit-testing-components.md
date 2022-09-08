@@ -15,9 +15,7 @@ trying to test. Using [<MockResolver /\>](../api/MockResolver) in our tests allo
 us to prime the cache with provided fixtures so the components will immediately render
 with said results.
 
-<details open><summary><b>__tests__/fixtures.ts</b></summary>
-
-```typescript
+```typescript title="__tests__/fixtures.ts"
 export default {
   full: [
     {
@@ -68,11 +66,7 @@ export default {
 };
 ```
 
-</details>
-
-<details open><summary><b>__tests__/ArticleList.tsx</b></summary>
-
-```tsx
+```tsx title="__tests__/ArticleList.tsx"
 import { CacheProvider } from 'rest-hooks';
 import { render } from '@testing-library/react';
 import { MockResolver } from '@rest-hooks/test';
@@ -110,5 +104,3 @@ describe('<ArticleList />', () => {
   })
 });
 ```
-
-</details>
