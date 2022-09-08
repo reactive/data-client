@@ -91,7 +91,7 @@
   "license": "MIT",
   "devDependencies": {
     "@babel/cli": "7.18.10",
-    "@babel/core": "7.18.13",
+    "@babel/core": "7.19.0",
     "@types/babel__core": "^7",
     "downlevel-dts": "^0.10.0",
     "immutable": "4.1.0",
