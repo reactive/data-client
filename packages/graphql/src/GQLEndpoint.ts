@@ -28,11 +28,20 @@ export default class GQLEndpoint<
           signal: this.signal ?? null,
           headers: this.getHeaders({ 'Content-Type': 'application/json' }),
         }),
-      ).then(async res => {
-        const { data, errors } = await res.json();
-        if (errors) throw new GQLNetworkError(errors);
-        return data;
-      });
+      )
+        .then(async res => {
+          const json = await res.json();
+          if (json.errors) throw new GQLNetworkError(json.errors);
+          if (!res.ok) throw new GQLNetworkError([json]);
+          return json.data;
+        })
+        .catch(error => {
+          // ensure CORS, network down, and parse errors are still caught by NetworkErrorBoundary
+          if (error instanceof TypeError) {
+            (error as any).status = 400;
+          }
+          throw error;
+        });
     }, args);
     return this;
   }
@@ -52,6 +61,10 @@ export default class GQLEndpoint<
 
   getHeaders(headers: HeadersInit): HeadersInit {
     return headers;
+  }
+
+  errorPolicy(error: any) {
+    return error.status >= 500 ? ('soft' as const) : undefined;
   }
 
   query<
