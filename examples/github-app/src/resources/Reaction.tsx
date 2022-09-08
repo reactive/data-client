@@ -63,18 +63,18 @@ export const ReactionResource = {
     urlRoot: 'repos/:owner/:repo/issues/comments/:comment/reactions' as const,
     body: undefined,
   }),
-};
-ReactionResource.create = ReactionResource.create.extend({
-  update: (newId: string, params: any) => ({
-    [ReactionResource.getList.key(params)]: ({
-      results = [],
-      ...rest
-    } = {}) => ({ results: [...new Set([newId, ...results])], ...rest }),
+  create: base.create.extend({
+    update: (newId: string, params: any) => ({
+      [base.getList.key(params)]: ({ results = [], ...rest } = {}) => ({
+        results: [...new Set([newId, ...results])],
+        ...rest,
+      }),
+    }),
+    getOptimisticResponse: (snap, params, body) => body,
   }),
-  getOptimisticResponse: (snap, params, body) => body,
-});
-ReactionResource.delete = ReactionResource.delete.extend({
-  getOptimisticResponse: (snap, params) => params,
-});
+  delete: base.delete.extend({
+    getOptimisticResponse: (snap, params) => params,
+  }),
+};
 
 export default ReactionResource;

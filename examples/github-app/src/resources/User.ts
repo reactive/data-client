@@ -49,7 +49,6 @@ export const UserResource = {
   ...createGithubResource('/users/:login' as const, User),
   current: new GithubEndpoint({
     urlRoot: '/user' as const,
-    body: undefined,
     schema: User,
   }),
 };

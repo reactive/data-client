@@ -1,5 +1,5 @@
 import { Card } from 'antd';
-import { CommentResource, Comment } from 'resources/Comment';
+import { CommentResource } from 'resources/Comment';
 import { useSuspense } from 'rest-hooks';
 
 import CommentInline from './CommentInline';

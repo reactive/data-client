@@ -12,10 +12,9 @@ import { IssueResource } from 'resources/Issue';
 import remarkGfm from 'remark-gfm';
 import remarkRemoveComments from 'remark-remove-comments';
 import rehypeHighlight from 'rehype-highlight';
-import { authdContext } from 'navigation/authdContext';
-import { styled } from '@linaria/react';
 import FlexRow from 'components/FlexRow';
 import UserResource from 'resources/User';
+import { ErrorBoundary } from 'react-error-boundary';
 
 import CreateComment from './CreateComment';
 import CommentsList, { CardLoading } from './CommentsList';
@@ -88,12 +87,16 @@ function IssueDetail({
             </FlexRow>
           }
           description={
-            <Markdown
-              remarkPlugins={[remarkRemoveComments, remarkGfm]}
-              rehypePlugins={[rehypeHighlight]}
+            <ErrorBoundary
+              fallbackRender={({ error }) => <div>{error.message}</div>}
             >
-              {issue.body}
-            </Markdown>
+              <Markdown
+                remarkPlugins={[remarkRemoveComments, remarkGfm]}
+                rehypePlugins={[() => rehypeHighlight({ ignoreMissing: true })]}
+              >
+                {issue.body}
+              </Markdown>
+            </ErrorBoundary>
           }
         />
       </Card>
