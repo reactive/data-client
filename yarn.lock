@@ -170,9 +170,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:13.0.7":
-  version: 13.0.7
-  resolution: "@anansi/webpack-config@npm:13.0.7"
+"@anansi/webpack-config@npm:13.0.8":
+  version: 13.0.8
+  resolution: "@anansi/webpack-config@npm:13.0.8"
   dependencies:
     "@babel/runtime": ^7.17.2
     "@linaria/webpack5-loader": 4.1.2
@@ -219,7 +219,7 @@ __metadata:
     react-dev-utils: ^12.0.1
     react-error-overlay: 6.0.9
     readable-stream: ^4.1.0
-    sass: ^1.54.6
+    sass: ^1.54.8
     sass-loader: ^13.0.2
     sass-resources-loader: ^2.2.5
     semver: ^7.3.7
@@ -239,7 +239,7 @@ __metadata:
     vm-browserify: ^1.1.2
     webpack-bundle-analyzer: ^4.6.1
     webpack-node-externals: ^3.0.0
-    webpack-remove-empty-scripts: ^0.8.1
+    webpack-remove-empty-scripts: ^0.8.3
     webpack-stats-plugin: ^1.1.0
     worker-loader: ^3.0.8
   peerDependencies:
@@ -275,7 +275,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 7dc69b8560c45fe47105d64078de1150ed0ea22cd969a4811912bc3397b06d0bef1c0b4937975975b87c0900687ca54430ae0e2283af9470d68db6b79fbbcc94
+  checksum: 56f9a1460af14455c761f158b836adaa4d5013adc95918ec795a0b5ba6bb1f9cfbd776077e574d074f2d125f8c9dad133c4a3d120093f33039e736717e8aa16a
   languageName: node
   linkType: hard
 
@@ -5622,10 +5622,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ansis@npm:^1.3.6":
-  version: 1.3.6
-  resolution: "ansis@npm:1.3.6"
-  checksum: 8d9341558abee49884a34bb4ac3421a1c478a06938f452cbaeec75f6bfa76a8ac24f3e98f3d3a22a9587257e6739ede36fb082af8a004c81814c02a8cff2bf52
+"ansis@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "ansis@npm:1.4.0"
+  checksum: d8cda1d5f65a35d37f65dc4a2a3a8bbde13907e05a96865392ba5e83e380803cb7ddcc2ceae108cda9ce2d41eca27ca90c52be438403664eb01d64724f348e8e
   languageName: node
   linkType: hard
 
@@ -10449,7 +10449,7 @@ __metadata:
     "@anansi/browserslist-config": 1.3.3
     "@anansi/eslint-plugin": 0.14.2
     "@anansi/router": 0.6.18
-    "@anansi/webpack-config": 13.0.7
+    "@anansi/webpack-config": 13.0.8
     "@ant-design/icons": ^4.7.0
     "@babel/core": 7.19.0
     "@linaria/babel-preset": 4.1.2
@@ -10499,7 +10499,7 @@ __metadata:
     uuid: ^8.3.2
     webpack: 5.74.0
     webpack-cli: 4.10.0
-    webpack-dev-server: 4.10.1
+    webpack-dev-server: 4.11.0
   languageName: unknown
   linkType: soft
 
@@ -19372,16 +19372,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass@npm:^1.54.6":
-  version: 1.54.7
-  resolution: "sass@npm:1.54.7"
+"sass@npm:^1.54.8":
+  version: 1.54.9
+  resolution: "sass@npm:1.54.9"
   dependencies:
     chokidar: ">=3.0.0 <4.0.0"
     immutable: ^4.0.0
     source-map-js: ">=0.6.2 <2.0.0"
   bin:
     sass: sass.js
-  checksum: 4b6a10e93387e65dcbad2683d46b4249453ab8777c1bafab7a73ac3900a21fa91fa31d68df7a1b982c7e332a99b5574b1adc6168eb1ac6d7ebb28e18a65c4198
+  checksum: 90182b566072b48e2263c5a87229ab85164e13b71b24847ba76a8e68eb952cb69a7dcef815f4ccc0189dd2d0c254311acff6972166603338d33bbc96f6d500c6
   languageName: node
   linkType: hard
 
@@ -20832,7 +20832,7 @@ __metadata:
     "@anansi/babel-preset": 3.2.16
     "@anansi/browserslist-config": 1.3.3
     "@anansi/eslint-plugin": 0.14.2
-    "@anansi/webpack-config": 13.0.7
+    "@anansi/webpack-config": 13.0.8
     "@babel/core": 7.19.0
     "@linaria/babel-preset": 4.1.2
     "@linaria/core": 4.1.1
@@ -20866,7 +20866,7 @@ __metadata:
     serve: 14.0.1
     webpack: 5.74.0
     webpack-cli: 4.10.0
-    webpack-dev-server: 4.10.1
+    webpack-dev-server: 4.11.0
   languageName: unknown
   linkType: soft
 
@@ -21942,9 +21942,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-dev-server@npm:4.10.1":
-  version: 4.10.1
-  resolution: "webpack-dev-server@npm:4.10.1"
+"webpack-dev-server@npm:4.11.0":
+  version: 4.11.0
+  resolution: "webpack-dev-server@npm:4.11.0"
   dependencies:
     "@types/bonjour": ^3.5.9
     "@types/connect-history-api-fallback": ^1.3.5
@@ -21982,7 +21982,7 @@ __metadata:
       optional: true
   bin:
     webpack-dev-server: bin/webpack-dev-server.js
-  checksum: d026e6be63058ba5f881c58c9d49367a26c43d76bb7c2a1d9fb80eeae644099cc098913b4e9f32e2ed89eff0e7cc08e03cae8a1c4e7a1c8f67c5c673ab70761e
+  checksum: b2c7e9810138d0c6fa670a890410a74b29d4dd23d428e92e61e0233c542689f57caf9b31c031fbcc772170b6710b0752e81fa9cbc41ac0deefdc32d5749ce08d
   languageName: node
   linkType: hard
 
@@ -22003,14 +22003,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-remove-empty-scripts@npm:^0.8.1":
-  version: 0.8.1
-  resolution: "webpack-remove-empty-scripts@npm:0.8.1"
+"webpack-remove-empty-scripts@npm:^0.8.3":
+  version: 0.8.3
+  resolution: "webpack-remove-empty-scripts@npm:0.8.3"
   dependencies:
-    ansis: ^1.3.6
+    ansis: ^1.4.0
   peerDependencies:
     webpack: ">=5.32.0"
-  checksum: 79d070c415c954d86f556d3da311cc0f9e0bed7e89872e9df14d7bdb4982237c1f04fdc8c572cde9e697389b98c468def4047373793f8cdbb2a86d11a1ef4444
+  checksum: e64e12d43c417c1168960e993e8ef66a7efb2aabc8ceab03c476aa00b2724b956eb47f31d4c82a078d977a86c7642d654d0616094981bb0d18602aafac40cd1b
   languageName: node
   linkType: hard
 
