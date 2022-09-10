@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.3.0 (2022-09-10)
+
+### 🚀 Features
+
+* Use @anansi/router and latest hooks ([#1854](https://github.com/coinbase/rest-hooks/issues/1854)) ([7202cc2](https://github.com/coinbase/rest-hooks/commit/7202cc269311c492ec0b2b883d961829a8a2e3f9))
+
+### 📦 Package
+
+* Update all non-major dependencies ([#2136](https://github.com/coinbase/rest-hooks/issues/2136)) ([f7c8649](https://github.com/coinbase/rest-hooks/commit/f7c864998abc68cae1a4130f2de50e055c7a5269))
+* Update all non-major dependencies ([#2150](https://github.com/coinbase/rest-hooks/issues/2150)) ([eb480f1](https://github.com/coinbase/rest-hooks/commit/eb480f1f567944208483c9239256e7bcf81351e7))
+* Update all non-major dependencies ([#2164](https://github.com/coinbase/rest-hooks/issues/2164)) ([5bab22a](https://github.com/coinbase/rest-hooks/commit/5bab22a75898c5a61d2e0ef9e1c8f4067f15f55f))
+* Update babel packages ([#2124](https://github.com/coinbase/rest-hooks/issues/2124)) ([bab76ae](https://github.com/coinbase/rest-hooks/commit/bab76ae4ac54474634d3cb323b69ef9be5773a03))
+* Update babel packages ([#2140](https://github.com/coinbase/rest-hooks/issues/2140)) ([bc4d12d](https://github.com/coinbase/rest-hooks/commit/bc4d12d5369f4eee17f32d9379793cfc9b679d61))
+* Update babel packages ([#2161](https://github.com/coinbase/rest-hooks/issues/2161)) ([31b2c8f](https://github.com/coinbase/rest-hooks/commit/31b2c8ff3d9f9001c31f3f5c15bec1321a15361d))
+
 ## 0.2.0 (2022-09-04)
 
 ### 🚀 Features

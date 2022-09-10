@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@6.0.0...@rest-hooks/experimental@7.0.0) (2022-09-10)
+
+### ⚠ 💥 BREAKING CHANGES
+
+* urlRoot -> path
+
+### 💅 Enhancement
+
+* urlRoot -> path ([#2170](https://github.com/coinbase/rest-hooks/issues/2170)) ([20ef4a9](https://github.com/coinbase/rest-hooks/commit/20ef4a9dcc05a4914fe4450fab10621064f467c1))
+
+### 📦 Package
+
+* Update babel packages ([#2161](https://github.com/coinbase/rest-hooks/issues/2161)) ([31b2c8f](https://github.com/coinbase/rest-hooks/commit/31b2c8ff3d9f9001c31f3f5c15bec1321a15361d))
+
 ## [6.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@5.0.6...@rest-hooks/experimental@6.0.0) (2022-09-04)
 
 ### ⚠ 💥 BREAKING CHANGES

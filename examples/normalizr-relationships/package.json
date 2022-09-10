@@ -1,6 +1,6 @@
 {
   "name": "normalizr-relationships",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "And example of using Normalizr with relationships",
   "main": "index.js",
   "author": "Paul Armstrong",
@@ -24,6 +24,6 @@
     "rollup-plugin-terser": "^7.0.2"
   },
   "dependencies": {
-    "@rest-hooks/normalizr": "^8.3.0"
+    "@rest-hooks/normalizr": "^8.3.1"
   }
 }

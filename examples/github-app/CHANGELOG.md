@@ -3,6 +3,66 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.0](https://github.com/coinbase/rest-hooks/compare/github-app@0.2.8...github-app@0.4.0) (2022-09-10)
+
+### ⚠ 💥 BREAKING CHANGES
+
+* urlRoot -> path
+* Removed BaseResource, Resource
+
+### 🚀 Features
+
+* Add EndpointInstanceInterface ([89a76b5](https://github.com/coinbase/rest-hooks/commit/89a76b50c8d89ea3d7fa19e70274f391b147017e))
+* RestEndpoint, createResource ([19e1863](https://github.com/coinbase/rest-hooks/commit/19e1863043e0446762430a728cb5114dd541e486))
+
+### 💅 Enhancement
+
+* Better handling of errors ([#2168](https://github.com/coinbase/rest-hooks/issues/2168)) ([0d75952](https://github.com/coinbase/rest-hooks/commit/0d75952dc74fe6c7b67c12745842d4ba3577af5e))
+* urlRoot -> path ([#2170](https://github.com/coinbase/rest-hooks/issues/2170)) ([20ef4a9](https://github.com/coinbase/rest-hooks/commit/20ef4a9dcc05a4914fe4450fab10621064f467c1))
+
+### 📦 Package
+
+* @anansi/eslint-plugin ([#2092](https://github.com/coinbase/rest-hooks/issues/2092)) ([e281ab2](https://github.com/coinbase/rest-hooks/commit/e281ab29f07c4f0bf88b919447788a5b04f28d92))
+* build, eslint, webpack, typescript ([#2050](https://github.com/coinbase/rest-hooks/issues/2050)) ([9e2d363](https://github.com/coinbase/rest-hooks/commit/9e2d3636879d0c3c51763b9e74424640c4976e3a))
+* Update `@anansi/babel-preset` to v3.2.15 ([#2132](https://github.com/coinbase/rest-hooks/issues/2132)) ([8282683](https://github.com/coinbase/rest-hooks/commit/8282683e2f767b6d2b34c9bc69f646aa35ceffe8))
+* Update `@anansi/webpack-config` to v12 ([#2087](https://github.com/coinbase/rest-hooks/issues/2087)) ([59df15f](https://github.com/coinbase/rest-hooks/commit/59df15ff04c036eb087086ba52c1594dce877832))
+* Update `@anansi/webpack-config` to v13.0.3 ([#2127](https://github.com/coinbase/rest-hooks/issues/2127)) ([0bd86c3](https://github.com/coinbase/rest-hooks/commit/0bd86c3627083c3bf0277d6a9795a58e2e314523))
+* Update `eslint` to v8.22.0 ([#2134](https://github.com/coinbase/rest-hooks/issues/2134)) ([eb6ed07](https://github.com/coinbase/rest-hooks/commit/eb6ed071a5cfec423393c76eed283c36ee9b2380))
+* Update `serve` to v14 ([#2086](https://github.com/coinbase/rest-hooks/issues/2086)) ([80c6c31](https://github.com/coinbase/rest-hooks/commit/80c6c31f6c347fc109c4f8137a3498dc8551a5a2))
+* Update `webpack` to v5.74.0 ([#2118](https://github.com/coinbase/rest-hooks/issues/2118)) ([5e0228a](https://github.com/coinbase/rest-hooks/commit/5e0228afbba1c56970f9b60a0883215875cac68f))
+* Update all non-major dependencies ([#2034](https://github.com/coinbase/rest-hooks/issues/2034)) ([a3963b2](https://github.com/coinbase/rest-hooks/commit/a3963b2618981992bab115a8e8543abdb9cdc655))
+* Update all non-major dependencies ([#2068](https://github.com/coinbase/rest-hooks/issues/2068)) ([cdb5adb](https://github.com/coinbase/rest-hooks/commit/cdb5adb174ef5f0f3ec1354d5c34a70efaed2b85))
+* Update all non-major dependencies ([#2076](https://github.com/coinbase/rest-hooks/issues/2076)) ([9bd006c](https://github.com/coinbase/rest-hooks/commit/9bd006c668413e223625a14c6481a29c4251781c))
+* Update all non-major dependencies ([#2079](https://github.com/coinbase/rest-hooks/issues/2079)) ([a264250](https://github.com/coinbase/rest-hooks/commit/a2642508971948a08a78477c351b70962d89229b))
+* Update all non-major dependencies ([#2085](https://github.com/coinbase/rest-hooks/issues/2085)) ([99db184](https://github.com/coinbase/rest-hooks/commit/99db184aa801f750c2506103e929e5996f4cf9df))
+* Update all non-major dependencies ([#2090](https://github.com/coinbase/rest-hooks/issues/2090)) ([c47de18](https://github.com/coinbase/rest-hooks/commit/c47de186f70d753d2c6e6cf6de6e74a1315ead41))
+* Update all non-major dependencies ([#2113](https://github.com/coinbase/rest-hooks/issues/2113)) ([f9b7a6e](https://github.com/coinbase/rest-hooks/commit/f9b7a6e5b19a0d6f26208af517451affa161b070))
+* Update all non-major dependencies ([#2119](https://github.com/coinbase/rest-hooks/issues/2119)) ([3003348](https://github.com/coinbase/rest-hooks/commit/3003348ba96781085a6f8a6a86a882438ba2b5ea))
+* Update all non-major dependencies ([#2122](https://github.com/coinbase/rest-hooks/issues/2122)) ([942cb5b](https://github.com/coinbase/rest-hooks/commit/942cb5bd045d3196d49fb6a583991cf2e15d41af))
+* Update all non-major dependencies ([#2136](https://github.com/coinbase/rest-hooks/issues/2136)) ([f7c8649](https://github.com/coinbase/rest-hooks/commit/f7c864998abc68cae1a4130f2de50e055c7a5269))
+* Update all non-major dependencies ([#2137](https://github.com/coinbase/rest-hooks/issues/2137)) ([82e1cbb](https://github.com/coinbase/rest-hooks/commit/82e1cbbd70373d36ec44272ff581e3cf531e5fed))
+* Update all non-major dependencies ([#2150](https://github.com/coinbase/rest-hooks/issues/2150)) ([eb480f1](https://github.com/coinbase/rest-hooks/commit/eb480f1f567944208483c9239256e7bcf81351e7))
+* Update all non-major dependencies ([#2164](https://github.com/coinbase/rest-hooks/issues/2164)) ([5bab22a](https://github.com/coinbase/rest-hooks/commit/5bab22a75898c5a61d2e0ef9e1c8f4067f15f55f))
+* Update babel monorepo to v7.18.6 ([#2075](https://github.com/coinbase/rest-hooks/issues/2075)) ([01052b0](https://github.com/coinbase/rest-hooks/commit/01052b076b353689a2621b6fecf5536b02c4f7dc))
+* Update babel monorepo to v7.18.9 ([#2089](https://github.com/coinbase/rest-hooks/issues/2089)) ([c7cf024](https://github.com/coinbase/rest-hooks/commit/c7cf0241dbe27de8780e2cab1bdc52f437766ec0))
+* Update babel packages ([#2124](https://github.com/coinbase/rest-hooks/issues/2124)) ([bab76ae](https://github.com/coinbase/rest-hooks/commit/bab76ae4ac54474634d3cb323b69ef9be5773a03))
+* Update babel packages ([#2140](https://github.com/coinbase/rest-hooks/issues/2140)) ([bc4d12d](https://github.com/coinbase/rest-hooks/commit/bc4d12d5369f4eee17f32d9379793cfc9b679d61))
+* Update babel packages ([#2161](https://github.com/coinbase/rest-hooks/issues/2161)) ([31b2c8f](https://github.com/coinbase/rest-hooks/commit/31b2c8ff3d9f9001c31f3f5c15bec1321a15361d))
+* Update linters ([#2106](https://github.com/coinbase/rest-hooks/issues/2106)) ([33f837c](https://github.com/coinbase/rest-hooks/commit/33f837c19a36635a6867b8100220972c1f564b67))
+* Update linting packages ([#2125](https://github.com/coinbase/rest-hooks/issues/2125)) ([9cc2b75](https://github.com/coinbase/rest-hooks/commit/9cc2b75f0efb11e55023d9dd1765f3721a0bab7e))
+* Update linting packages ([#2135](https://github.com/coinbase/rest-hooks/issues/2135)) ([b78fecd](https://github.com/coinbase/rest-hooks/commit/b78fecdeac649a96c98bfa5f1c2e0b2ef49f05f5))
+* Update linting packages ([#2138](https://github.com/coinbase/rest-hooks/issues/2138)) ([4b62fa8](https://github.com/coinbase/rest-hooks/commit/4b62fa861fe84d33a5db01f8a3f34c5d9ce0b2ea))
+* Update linting packages ([#2143](https://github.com/coinbase/rest-hooks/issues/2143)) ([630fdc7](https://github.com/coinbase/rest-hooks/commit/630fdc7ac4cd2f29d03a4bfc9fe6d838bd15eaf1))
+* Update linting packages ([#2163](https://github.com/coinbase/rest-hooks/issues/2163)) ([5cb3c6b](https://github.com/coinbase/rest-hooks/commit/5cb3c6b928a671c304dee31fdade14a6601a37a7))
+* Update linting packages to v5.33.0 ([#2130](https://github.com/coinbase/rest-hooks/issues/2130)) ([6c026ce](https://github.com/coinbase/rest-hooks/commit/6c026ce73df034d01b1056079bcbe059f10295cf))
+* Update linting packages to v5.36.1 ([#2145](https://github.com/coinbase/rest-hooks/issues/2145)) ([9a9c6bd](https://github.com/coinbase/rest-hooks/commit/9a9c6bd2edb5229d2d4a751e7ea68a45d2a88d38))
+* Update react monorepo ([#2063](https://github.com/coinbase/rest-hooks/issues/2063)) ([427a4d9](https://github.com/coinbase/rest-hooks/commit/427a4d99069ab379560642549bdb57e2fa0b3bb1))
+* Update webpack packages ([#2117](https://github.com/coinbase/rest-hooks/issues/2117)) ([334c623](https://github.com/coinbase/rest-hooks/commit/334c6234a230df721e1193e0c2f9eb4cda270ea9))
+* Update webpack packages ([#2131](https://github.com/coinbase/rest-hooks/issues/2131)) ([7503cfb](https://github.com/coinbase/rest-hooks/commit/7503cfbe61a7e5edf1dfb3b1cf09a7b93855d368))
+* Update webpack packages ([#2147](https://github.com/coinbase/rest-hooks/issues/2147)) ([cb9fd71](https://github.com/coinbase/rest-hooks/commit/cb9fd7139d3ec55e96c0b625d6d776811c3c644b))
+* Update webpack packages ([#2165](https://github.com/coinbase/rest-hooks/issues/2165)) ([e8119bc](https://github.com/coinbase/rest-hooks/commit/e8119bcf902d1caf4ef9043d67ea5dee12bc7452))
+* Update webpack packages ([#2166](https://github.com/coinbase/rest-hooks/issues/2166)) ([83ca869](https://github.com/coinbase/rest-hooks/commit/83ca869ce51a98751f84bd7f2bab4c551f4ee832))
+
 ## [0.3.0](https://github.com/coinbase/rest-hooks/compare/github-app@0.2.8...github-app@0.3.0) (2022-09-04)
 
 ### ⚠ 💥 BREAKING CHANGES

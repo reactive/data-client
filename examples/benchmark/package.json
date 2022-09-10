@@ -1,6 +1,6 @@
 {
   "name": "example-benchmark",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Benchmark for normalizr",
   "main": "index.js",
   "author": "Nathaniel Tucker",
@@ -10,8 +10,8 @@
     "start": "NODE_ENV=production BROWSERSLIST_ENV=modern babel-node --root-mode upward ./ --extensions '.ts,.tsx,.js'"
   },
   "dependencies": {
-    "@rest-hooks/core": "^3.2.10",
-    "@rest-hooks/normalizr": "^8.3.0",
+    "@rest-hooks/core": "^3.2.11",
+    "@rest-hooks/normalizr": "^8.3.1",
     "benchmark": "^2.1.4",
     "react": "^18.2.0"
   },

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.1.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.1.3...@rest-hooks/use-enhanced-reducer@1.1.4) (2022-09-10)
+
+### 📦 Package
+
+* Update babel packages ([#2161](https://github.com/coinbase/rest-hooks/issues/2161)) ([31b2c8f](https://github.com/coinbase/rest-hooks/commit/31b2c8ff3d9f9001c31f3f5c15bec1321a15361d))
+
 ### [1.1.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.1.2...@rest-hooks/use-enhanced-reducer@1.1.3) (2022-09-04)
 
 ### 📦 Package
