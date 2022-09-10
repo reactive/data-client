@@ -82,12 +82,12 @@ export class GithubEndpoint<
 }
 
 export function createGithubResource<U extends string, S extends Schema>(
-  urlRoot: U,
+  path: U,
   schema: S,
   Endpoint: typeof GithubEndpoint = GithubEndpoint,
 ): GithubResource<U, S> {
   const baseResource = createResource(
-    urlRoot,
+    path,
     schema,
     Endpoint,
     ({ page, ...rest }: { page: string | number } & PathArgs<ShortenPath<U>>) =>

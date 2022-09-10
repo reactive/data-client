@@ -47,13 +47,13 @@ export class PaginatedArticle extends Entity {
   };
 }
 function createPaginatableResource<U extends string, S extends Schema>(
-  urlRoot: U,
+  path: U,
   schema: S,
   Endpoint: typeof RestEndpoint = RestEndpoint,
 ) {
-  const baseResource = createResource(urlRoot, schema, Endpoint);
+  const baseResource = createResource(path, schema, Endpoint);
   const getList = baseResource.getList.extend({
-    urlRoot: 'http\\://test.com/article-paginated' as const,
+    path: 'http\\://test.com/article-paginated' as const,
     schema: {
       nextPage: '',
       results: [PaginatedArticle],

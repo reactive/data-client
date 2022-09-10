@@ -36,7 +36,7 @@ type RemoveEscapes<S extends string> = S extends `${infer K}\\?${string}`
   ? K
   : S;
 
-/** Parameters for a given urlRoot */
+/** Parameters for a given path */
 export type PathArgs<S extends string> = {
   [K in PathKeys<S> as OnlyOptional<K>]?: string | number;
 } & {

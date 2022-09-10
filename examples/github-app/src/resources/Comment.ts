@@ -31,11 +31,11 @@ const baseResource = createGithubResource(
   Comment,
 );
 const getList = baseResource.getList.extend({
-  urlRoot: '/repos/:owner/:repo/issues/:number/comments' as const,
+  path: '/repos/:owner/:repo/issues/:number/comments' as const,
   body: undefined,
 });
 const create = baseResource.create.extend({
-  urlRoot: '/repos/:owner/:repo/issues/:number/comments' as const,
+  path: '/repos/:owner/:repo/issues/:number/comments' as const,
   body: { body: '' },
   update: (newId: string, params: any) => ({
     [getList.key(params)]: ({ results = [], ...rest } = {}) => ({

@@ -60,7 +60,7 @@ const base = createGithubResource(
 export const ReactionResource = {
   ...base,
   getByComment: base.getList.extend({
-    urlRoot: 'repos/:owner/:repo/issues/comments/:comment/reactions' as const,
+    path: 'repos/:owner/:repo/issues/comments/:comment/reactions' as const,
     body: undefined,
   }),
   create: base.create.extend({

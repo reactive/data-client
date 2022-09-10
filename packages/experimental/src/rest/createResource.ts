@@ -5,7 +5,7 @@ import RestEndpoint, {
   MutateEndpoint,
   RestTypeNoBody,
 } from './RestEndpoint';
-import { shortenUrlRoot } from './RestHelpers';
+import { shortenPath } from './RestHelpers';
 import { PathArgs, ShortenPath } from './types';
 
 const { Delete } = schema;
@@ -17,22 +17,22 @@ export default function createResource<
     | ((...args: any) => PathArgs<ShortenPath<U>>)
     | undefined = undefined,
 >(
-  urlRoot: U,
+  path: U,
   schema: S,
   Endpoint: typeof RestEndpoint = RestEndpoint,
   removeCursor?: R,
 ): Resource<U, S, R> {
-  const shortenedUrl = shortenUrlRoot(urlRoot);
+  const shortenedPath = shortenPath(path);
   const getName = (name: string) => `${(schema as any)?.name}.${name}`;
   const getList = new Endpoint({
-    urlRoot: shortenedUrl,
+    path: shortenedPath,
     schema: [schema],
     name: getName('getList'),
   });
   return {
-    get: new Endpoint({ urlRoot, schema, name: getName('get') }),
+    get: new Endpoint({ path, schema, name: getName('get') }),
     getList: new Endpoint({
-      urlRoot: shortenedUrl,
+      path: shortenedPath,
       schema: [schema],
       name: getName('getList'),
     }),
@@ -40,25 +40,25 @@ export default function createResource<
       ? getList.paginated(removeCursor as any)
       : undefined,
     create: new Endpoint({
-      urlRoot: shortenedUrl,
+      path: shortenedPath,
       schema,
       method: 'POST',
       name: getName('create'),
     }),
     update: new Endpoint({
-      urlRoot,
+      path,
       schema,
       method: 'PUT',
       name: getName('update'),
     }),
     partialUpdate: new Endpoint({
-      urlRoot,
+      path,
       schema,
       method: 'PATCH',
       name: getName('partialUpdate'),
     }),
     delete: new Endpoint({
-      urlRoot,
+      path,
       schema: (schema as any).process ? new Delete(schema as any) : schema,
       method: 'DELETE',
       name: getName('delete'),

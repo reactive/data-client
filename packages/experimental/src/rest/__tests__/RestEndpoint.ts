@@ -31,7 +31,7 @@ export class User extends Entity {
   }
 }
 const getUser = new RestEndpoint({
-  urlRoot: 'http\\://test.com/user/:id' as const,
+  path: 'http\\://test.com/user/:id' as const,
   name: 'User.get',
   schema: User,
   method: 'GET' as const,
@@ -52,7 +52,7 @@ export class PaginatedArticle extends Entity {
   };
 }
 const getArticleList = new RestEndpoint({
-  urlRoot: 'http\\://test.com/article-paginated' as const,
+  path: 'http\\://test.com/article-paginated' as const,
   name: 'get',
   schema: {
     nextPage: '',
@@ -65,7 +65,7 @@ const getNextPage = getArticleList.paginated(
 );
 
 const getArticleList2 = new RestEndpoint({
-  urlRoot: 'http\\://test.com/article-paginated/:group' as const,
+  path: 'http\\://test.com/article-paginated/:group' as const,
   name: 'get',
   schema: {
     nextPage: '',
@@ -124,7 +124,7 @@ describe('RestEndpoint', () => {
   });
 
   it('should assign members', () => {
-    expect(getUser.urlRoot).toBe('http\\://test.com/user/:id');
+    expect(getUser.path).toBe('http\\://test.com/user/:id');
     expect(getUser.sideEffect).toBe(undefined);
     expect(getUser.method).toBe('GET');
 
@@ -138,7 +138,7 @@ describe('RestEndpoint', () => {
     ((m: 'POST') => {})(getUser.method);
 
     const updateUser = new RestEndpoint({
-      urlRoot: 'http\\://test.com/user/:id' as const,
+      path: 'http\\://test.com/user/:id' as const,
       name: 'update',
       schema: User,
       method: 'POST' as const,
@@ -150,7 +150,7 @@ describe('RestEndpoint', () => {
 
   /* TODO: it('should allow sideEffect overrides', () => {
     const weirdGetUser = new RestEndpoint({
-      urlRoot: 'http\\://test.com/user/:id' as const,
+      path: 'http\\://test.com/user/:id' as const,
       name: 'getter',
       schema: User,
       method: 'POST' as const,
@@ -172,7 +172,7 @@ describe('RestEndpoint', () => {
 
   it('should handle multiarg urls', () => {
     const getMyUser = new RestEndpoint({
-      urlRoot: 'http\\://test.com/groups/:group/users/:id' as const,
+      path: 'http\\://test.com/groups/:group/users/:id' as const,
       schema: User,
       method: 'GET' as const,
       extra: 5,
@@ -232,7 +232,7 @@ describe('RestEndpoint', () => {
     expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3, 7, 8]);
   });
 
-  it('should update on get for a paginated resource with parameter in urlRoot', async () => {
+  it('should update on get for a paginated resource with parameter in path', async () => {
     mynock.get(`/article-paginated/happy`).reply(200, paginatedFirstPage);
     mynock
       .get(`/article-paginated/happy?cursor=2`)
@@ -302,7 +302,7 @@ describe('RestEndpoint', () => {
       }
     }
     const getComplex = new RestEndpoint({
-      urlRoot: '/complex-thing/:id' as const,
+      path: '/complex-thing/:id' as const,
       schema: ComplexEntity,
       method: 'GET' as const,
     });
@@ -350,7 +350,7 @@ describe('RestEndpoint', () => {
     }));
     const updateUser = new RestEndpoint({
       method: 'PUT' as const,
-      urlRoot: 'http\\://test.com/user/:id' as const,
+      path: 'http\\://test.com/user/:id' as const,
       name: 'get',
       schema: User,
       getFetchInit(body: any): RequestInit {
@@ -411,7 +411,7 @@ describe('RestEndpoint', () => {
 
       const updateUser = new MyEndpoint({
         method: 'PUT' as const,
-        urlRoot: 'http\\://test.com/user/:id' as const,
+        path: 'http\\://test.com/user/:id' as const,
         name: 'update',
         schema: User,
       });
@@ -438,12 +438,12 @@ describe('RestEndpoint', () => {
 
       const updateUser = new MyEndpoint({
         method: 'PUT' as const,
-        urlRoot: 'http\\://test.com/user/:id' as const,
+        path: 'http\\://test.com/user/:id' as const,
         name: 'update',
         schema: User,
       }).extend({
         body: 5,
-        urlRoot: 'http\\://test.com/charmer/:charm' as const,
+        path: 'http\\://test.com/charmer/:charm' as const,
       });
       const response = await updateUser(
         { charm: 5 },
@@ -460,7 +460,7 @@ describe('RestEndpoint', () => {
       `);
       expect(updateUser.additional).toBe(5);
       const nobody = updateUser.extend({
-        urlRoot: 'http\\://test.com/user/:charm' as const,
+        path: 'http\\://test.com/user/:charm' as const,
       });
       () => nobody({ charm: 5 });
       // @ts-expect-error
@@ -475,7 +475,7 @@ describe('RestEndpoint', () => {
       }));
 
       const getUser = new MyEndpoint({
-        urlRoot: 'http\\://test.com/user/:id' as const,
+        path: 'http\\://test.com/user/:id' as const,
         name: 'update',
       });
       const { result, waitForNextUpdate } = renderRestHook(() => {
@@ -490,7 +490,7 @@ describe('RestEndpoint', () => {
       expect(result.current.email).toBe('bob@gmail.com');
     });
 
-    it('should work with default urlRoot in class definition', async () => {
+    it('should work with default path in class definition', async () => {
       mynock.get('/user/5').reply(200, (uri, body: any) => ({
         id: 5,
         username: 'bob',
@@ -500,19 +500,16 @@ describe('RestEndpoint', () => {
       class UserEndpoint<
         O extends Partial<RestGenerics> = {
           schema: DefaultUser;
-          urlRoot: 'http\\://test.com/user/:id';
+          path: 'http\\://test.com/user/:id';
         },
       > extends MyEndpoint<
-        Defaults<
-          O,
-          { schema: DefaultUser; urlRoot: 'http\\://test.com/user/:id' }
-        >
+        Defaults<O, { schema: DefaultUser; path: 'http\\://test.com/user/:id' }>
       > {
         constructor(options: O & { name: string }) {
           super(options as any);
         }
 
-        urlRoot = 'http\\://test.com/user/:id' as const;
+        path = 'http\\://test.com/user/:id' as const;
       }
 
       const getUser = new UserEndpoint({
@@ -547,11 +544,11 @@ describe('RestEndpoint', () => {
 
       const updateUser = new MyEndpoint({
         method: 'PUT' as const,
-        urlRoot: 'http\\://test.com/user/:id' as const,
+        path: 'http\\://test.com/user/:id' as const,
         name: 'update',
         schema: User,
       }).extend({
-        urlRoot: 'http\\://test.com/:group/user/:id' as const,
+        path: 'http\\://test.com/:group/user/:id' as const,
         body: 0 as Partial<User>,
       });
       expect(updateUser.additional).toBe(5);
@@ -588,12 +585,12 @@ describe('RestEndpoint', () => {
 
       const getUserBase = new MyEndpoint({
         method: 'GET',
-        urlRoot: 'http\\://test.com/user/:id' as const,
+        path: 'http\\://test.com/user/:id' as const,
         name: 'getuser',
         schema: User,
       });
       const getUser = getUserBase.extend({
-        urlRoot: 'http\\://test.com/:group/user/:id' as const,
+        path: 'http\\://test.com/:group/user/:id' as const,
         schema: User2,
       });
       expect(getUserBase.name).toBe('getuser');

@@ -112,7 +112,7 @@ const base = createGithubResource(
 export const EventResource = {
   ...base,
   getList: base.getList.extend({
-    urlRoot: '/users/:login/events/public\\?per_page=50',
+    path: '/users/:login/events/public\\?per_page=50',
     body: undefined,
   }),
 };
