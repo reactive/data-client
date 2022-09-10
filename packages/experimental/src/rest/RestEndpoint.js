@@ -40,8 +40,8 @@ export default class RestEndpoint extends Endpoint {
 
   /** Get the url */
   url(urlParams = {}) {
-    const urlBase = getUrlBase(this.urlRoot)(urlParams);
-    const tokens = getUrlTokens(this.urlRoot);
+    const urlBase = getUrlBase(this.path)(urlParams);
+    const tokens = getUrlTokens(this.path);
     const searchParams = {};
     Object.keys(urlParams).forEach(k => {
       if (!tokens.has(k)) {

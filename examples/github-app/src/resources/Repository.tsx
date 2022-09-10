@@ -67,7 +67,7 @@ const base = createGithubResource('/repos/:owner/:repo' as const, Repository);
 export const RepositoryResource = {
   ...base,
   getByUser: base.getList.extend({
-    urlRoot: '/users/:login/repos' as const,
+    path: '/users/:login/repos' as const,
     body: undefined,
   }),
   getByPinned: GithubGqlEndpoint.query(

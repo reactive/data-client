@@ -311,7 +311,7 @@ describe('resource', () => {
     const UserResourceExtend = {
       ...UserResource,
       get: UserResource.get.extend({
-        urlRoot: 'http\\://test.com/groups/:magic/users/:id' as const,
+        path: 'http\\://test.com/groups/:magic/users/:id' as const,
         schema: User2,
       }),
     };

@@ -14,7 +14,7 @@ export interface RestInstance<
   S extends Schema | undefined = any,
   M extends true | undefined = true | undefined,
 > extends EndpointInstanceInterface<F, S, M> {
-  readonly urlRoot: string;
+  readonly path: string;
   readonly fetchInit: RequestInit;
   readonly method: string;
   readonly signal: AbortSignal | undefined;
@@ -50,7 +50,7 @@ export interface RestInstance<
 }
 
 export interface RestGenerics {
-  urlRoot: string;
+  path: string;
   schema?: Schema | undefined;
   method?: string;
   body?: any;
@@ -86,13 +86,13 @@ export interface RestEndpointOptions<F extends FetchFunction = FetchFunction>
 
 export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
   RestEndpointOptions<
-    RestFetch<PathArgs<O['urlRoot']>, BodyDefault<O>, Denormalize<O['schema']>>
+    RestFetch<PathArgs<O['path']>, BodyDefault<O>, Denormalize<O['schema']>>
   >;
 
 export interface RestEndpointExtendOptions<
   F extends FetchFunction = FetchFunction,
 > extends RestEndpointOptions<F> {
-  urlRoot?: string;
+  path?: string;
   schema?: Schema | undefined;
   method?: string;
   body?: any;
@@ -105,7 +105,7 @@ export interface RestEndpointConstructor {
     name,
     ...options
   }: RestEndpointConstructorOptions<O> & O): RestInstance<
-    RestFetch<PathArgs<O['urlRoot']>, BodyDefault<O>, Denormalize<O['schema']>>,
+    RestFetch<PathArgs<O['path']>, BodyDefault<O>, Denormalize<O['schema']>>,
     O['schema'] extends Schema | undefined ? O['schema'] : undefined,
     MethodToSide<O['method']>
   >;
@@ -176,9 +176,9 @@ export type RestExtendedEndpoint<
   O extends RestEndpointExtendOptions<F>,
   E extends RestInstance,
   F extends FetchFunction,
-> = ('urlRoot' extends keyof O
+> = ('path' extends keyof O
   ? RestType<
-      PathArgs<Exclude<O['urlRoot'], undefined>>,
+      PathArgs<Exclude<O['path'], undefined>>,
       'body' extends keyof O ? O['body'] : undefined,
       'schema' extends keyof O ? O['schema'] : E['_schema'],
       'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect']
