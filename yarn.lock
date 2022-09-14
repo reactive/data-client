@@ -143,12 +143,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:0.6.20":
-  version: 0.6.20
-  resolution: "@anansi/router@npm:0.6.20"
+"@anansi/router@npm:0.6.22":
+  version: 0.6.22
+  resolution: "@anansi/router@npm:0.6.22"
   dependencies:
     "@babel/runtime": ^7.10.5
-    "@pojo-router/core": ^0.5.28
+    "@pojo-router/core": ^0.5.30
     history: ^5.3.0
     nano-memoize: ^1.3.0
   peerDependencies:
@@ -157,7 +157,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: af84f37797d447c150e60ff835d9b79376d3a25785061561f1ef6e10937780b5b6440bf441be5f5bf099368dc144ec44d391142aec4f556e5b382cbb3e6736cd
+  checksum: 9ee4da20399da17b580a0823b232ba2011cd196cb702066fa5b94c59ef3ebcc4ec49c52ed58c6a4655b3772bf93e57c4efaab9366ea39fd30d133c0db01c1f6d
   languageName: node
   linkType: hard
 
@@ -3514,9 +3514,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.5.28":
-  version: 0.5.28
-  resolution: "@pojo-router/core@npm:0.5.28"
+"@pojo-router/core@npm:^0.5.30":
+  version: 0.5.30
+  resolution: "@pojo-router/core@npm:0.5.30"
   dependencies:
     "@babel/runtime": ^7.10.5
     history: 5.3.0
@@ -3527,7 +3527,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 42281bbd710ddd3ac33b99daa03f06281b4978d5f342923d64c95a09efc8bb6ea3e63440e2d7433f860139a888c13dedc86c26dfe0cc9124ba7d7442a38ce51d
+  checksum: 55a4dac52a2ba52e34ab661483067ff95998b97ee3926abecc31e5f1d6ef3990a25550f9d3b48337c029a0b0dd1d91f2d66c274427952e374f65b2d58612aa24
   languageName: node
   linkType: hard
 
@@ -4669,10 +4669,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:4.14.184":
-  version: 4.14.184
-  resolution: "@types/lodash@npm:4.14.184"
-  checksum: 6d9a4d67f7f9d0ec3fd21174f3dd3d00629dc1227eb469450eace53adbc1f7e2330699c28d0fe093e5f0fef0f0e763098be1f779268857213224af082b62be21
+"@types/lodash@npm:4.14.185":
+  version: 4.14.185
+  resolution: "@types/lodash@npm:4.14.185"
+  checksum: f81d13da5ecab110ca9c5c7cc2bedc3c9802a6acf668576aecd1b8f4b134ed81d06c15f1e600fb08f05975098280a0d97d30cddfc2cb39ec1c6b56e971ca53b3
   languageName: node
   linkType: hard
 
@@ -4720,10 +4720,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:18.7.16":
-  version: 18.7.16
-  resolution: "@types/node@npm:18.7.16"
-  checksum: 01a3d35c764a3f0e7370b56e1ad4203731131883c65784e020009014171b3f53c4649cde6c7aa4f1026b907ee87ef6ae6ece2bc518151dc7b81100fe8b1db3ad
+"@types/node@npm:*, @types/node@npm:18.7.18":
+  version: 18.7.18
+  resolution: "@types/node@npm:18.7.18"
+  checksum: 8aec61f0f96e2a69ce51f1f40f949ca578bbb4fe05d7c0b8ce3aeeb848e90f755837f17f6ac132ca404d974fe9b2974150ad3b4984fc9dc7c3ceddb10bae0167
   languageName: node
   linkType: hard
 
@@ -4801,14 +4801,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:18.0.19":
-  version: 18.0.19
-  resolution: "@types/react@npm:18.0.19"
+"@types/react@npm:*, @types/react@npm:18.0.20":
+  version: 18.0.20
+  resolution: "@types/react@npm:18.0.20"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: 7dc048f9a6a38176c4c64ecf7f4c24c732df118402d7f34a4ff1702984c06f040fae1457b1b98b7f447ca2a3392dea7d027a05782dfe1b350475606f82ce6d63
+  checksum: f67f5b16efd89e237bf0e40d133218c398cf2a2f81166ce1e9fa32d0df6b869106740983396c51df9708a1b79b2a9d725eda1230cc3064c92d86d9ea6a4b714c
   languageName: node
   linkType: hard
 
@@ -9525,7 +9525,7 @@ __metadata:
     "@rest-hooks/normalizr": ^8.3.1
     "@types/babel__core": ^7
     "@types/benchmark": 2.1.2
-    "@types/react": 18.0.19
+    "@types/react": 18.0.20
     benchmark: ^2.1.4
     react: ^18.2.0
   languageName: unknown
@@ -10433,7 +10433,7 @@ __metadata:
     "@anansi/babel-preset": 3.2.17
     "@anansi/browserslist-config": 1.3.3
     "@anansi/eslint-plugin": 0.14.2
-    "@anansi/router": 0.6.20
+    "@anansi/router": 0.6.22
     "@anansi/webpack-config": 13.0.9
     "@ant-design/icons": ^4.7.0
     "@babel/core": 7.19.1
@@ -10450,7 +10450,7 @@ __metadata:
     "@types/eslint": 8.4.6
     "@types/parse-link-header": ^2.0.0
     "@types/prettier": 2.7.0
-    "@types/react": 18.0.19
+    "@types/react": 18.0.20
     "@types/react-dom": 18.0.6
     "@types/uuid": ^8
     "@typescript-eslint/eslint-plugin": 5.37.0
@@ -19216,9 +19216,9 @@ __metadata:
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 11.0.0
     "@types/jest": 29.0.1
-    "@types/lodash": 4.14.184
-    "@types/node": 18.7.16
-    "@types/react": 18.0.19
+    "@types/lodash": 4.14.185
+    "@types/node": 18.7.18
+    "@types/react": 18.0.20
     "@typescript-eslint/eslint-plugin": 5.37.0
     "@typescript-eslint/parser": 5.37.0
     benchmark: ^2.1.4
