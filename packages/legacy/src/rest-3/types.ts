@@ -1,4 +1,4 @@
-import { EndpointInstance, FetchFunction, Schema } from '@rest-hooks/core';
+import { EndpointInstance, FetchFunction, Schema } from '@rest-hooks/endpoint';
 
 export type RestFetch<
   P = any,

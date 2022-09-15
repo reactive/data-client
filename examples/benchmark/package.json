@@ -10,8 +10,9 @@
     "start": "NODE_ENV=production BROWSERSLIST_ENV=modern babel-node --root-mode upward ./ --extensions '.ts,.tsx,.js'"
   },
   "dependencies": {
-    "@rest-hooks/core": "^3.2.11",
-    "@rest-hooks/normalizr": "^8.3.1",
+    "@rest-hooks/core": "workspace:^",
+    "@rest-hooks/endpoint": "workspace:^",
+    "@rest-hooks/normalizr": "workspace:^",
     "benchmark": "^2.1.4",
     "react": "^18.2.0"
   },

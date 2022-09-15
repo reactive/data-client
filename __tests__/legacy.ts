@@ -10,7 +10,7 @@ import {
 } from '@rest-hooks/legacy';
 import type { AbstractInstanceType } from '@rest-hooks/normalizr';
 import { Endpoint, EndpointExtraOptions } from '@rest-hooks/endpoint';
-import { schema } from '@rest-hooks/normalizr';
+import { schema } from '@rest-hooks/endpoint';
 import React from 'react';
 
 export class UserResource extends Resource {

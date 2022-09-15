@@ -4,7 +4,7 @@ import {
   PaginatedArticleResource,
 } from '__tests__/common';
 import { PaginatedArticleResource as PaginatedArticle } from '__tests__/new';
-import { DELETED, schema } from '@rest-hooks/normalizr';
+import { DELETED, schema } from '@rest-hooks/endpoint';
 
 import createReducer, { initialState } from '../createReducer';
 import {

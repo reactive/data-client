@@ -1,14 +1,10 @@
-import { EntityInterface } from './schema.js';
-import * as schema from './schema.js';
-import {
+import type { Schema, EntityInterface, UnvisitFunction } from './interface.js';
+import type {
   Denormalize,
   DenormalizeNullable,
-  Schema,
   DenormalizeCache,
-  UnvisitFunction,
 } from './types.js';
-import { isEntity } from './entities/Entity.js';
-import { DELETED } from './special.js';
+import { isEntity } from './isEntity.js';
 import WeakListMap from './WeakListMap.js';
 import { denormalize as arrayDenormalize } from './schemas/Array.js';
 import { denormalize as objectDenormalize } from './schemas/Object.js';
@@ -23,28 +19,22 @@ const unvisitEntity = (
   getEntity: (
     entityOrId: Record<string, any> | string,
     schema: EntityInterface,
-  ) => object | typeof DELETED,
+  ) => object | symbol,
   localCache: Record<string, Record<string, any>>,
   entityCache: DenormalizeCache['entities'],
   dependencies: object[],
   cycleIndex: { i: number },
 ): [denormalized: object | undefined, found: boolean, deleted: boolean] => {
   const entity = getEntity(entityOrId, schema);
-  if (entity === DELETED) {
-    return [undefined, true, true];
-  }
   if (
-    process.env.NODE_ENV !== 'production' &&
     typeof entity === 'symbol' &&
     (entity as symbol).toString().includes('DELETED')
   ) {
-    throw new Error(
-      `Unrecognized symbol detected.
-Make sure you do not have multiple versions of @rest-hooks/normalizr installed.`,
-    );
+    return [undefined, true, true];
   }
+
   if (typeof entity !== 'object' || entity === null) {
-    return [entity, false, false];
+    return [entity as any, false, false];
   }
 
   const pk =
@@ -291,7 +281,7 @@ function getGlobalCacheEntry(
   return entityCache[schema.key][id];
 }
 
-function withTrackedEntities(unvisit: UnvisitFunction): schema.UnvisitFunction {
+function withTrackedEntities(unvisit: UnvisitFunction): UnvisitFunction {
   // every time we nest, we want to unwrap back to the top.
   // this is due to only needed the next level of nested entities for lookup
   const originalUnvisit = unvisit.og || unvisit;

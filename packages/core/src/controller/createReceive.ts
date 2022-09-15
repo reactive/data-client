@@ -1,4 +1,4 @@
-import type { EndpointInterface, ResolveType } from '@rest-hooks/endpoint';
+import type { EndpointInterface, ResolveType } from '@rest-hooks/normalizr';
 
 import type { ReceiveAction } from '../types.js';
 import { RECEIVE_TYPE } from '../actionTypes.js';

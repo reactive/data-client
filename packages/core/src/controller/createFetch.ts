@@ -1,4 +1,4 @@
-import type { EndpointInterface } from '@rest-hooks/endpoint';
+import type { EndpointInterface } from '@rest-hooks/normalizr';
 
 import type { FetchAction } from '../types.js';
 import { FETCH_TYPE } from '../actionTypes.js';
@@ -33,6 +33,8 @@ export default function createFetch<
     meta.update = endpoint.update;
   }
 
+  // TODO: Remove once EOL on this deprecated piece
+  /* istanbul ignore if */
   if (endpoint.optimisticUpdate) {
     meta.optimisticResponse = endpoint.optimisticUpdate(...args);
   }

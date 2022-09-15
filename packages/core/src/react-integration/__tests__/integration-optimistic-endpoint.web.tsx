@@ -5,6 +5,7 @@ import {
   VisSettings,
 } from '__tests__/new';
 import nock from 'nock';
+import { Endpoint, Entity } from '@rest-hooks/endpoint';
 import { AbortOptimistic } from '@rest-hooks/endpoint';
 import { act } from '@testing-library/react-hooks';
 import { useContext } from 'react';
@@ -24,8 +25,8 @@ import {
   nested,
   valuesFixture,
 } from '../test-fixtures';
-import { Endpoint, Entity } from '../..';
 import { StateContext } from '../context';
+import { useError } from '../newhooks';
 
 function onError(e: any) {
   e.preventDefault();
@@ -617,6 +618,60 @@ describe.each([
               visible: data.visible ? false : true,
             };
           },
+        },
+      );
+
+      // Object.create(null) handles e.constructor is undefined case
+      it.each(['failed string', Object.create(null)])(
+        'should fail when %s is thrown in getOptimisticResponse',
+        async toThrow => {
+          const failToggle = toggle.extend({
+            getOptimisticResponse(snap, id) {
+              throw toThrow;
+            },
+          });
+          // keeping state here allows the requests to flip flop each time
+          let visible = false;
+          mynock.get('/toggle/5').reply(200, () => {
+            return { id: 5, visible };
+          });
+          mynock
+            .persist()
+            .post('/toggle/5')
+            .delay(2000)
+            .reply(200, () => {
+              visible = visible ? false : true;
+              return { id: 5, visible };
+            });
+
+          const { result, waitForNextUpdate } = renderRestHook(
+            () => {
+              const { fetch } = useController();
+              const tog = useCache(getbool, 5);
+              const err = useError(failToggle, 5);
+              // @ts-expect-error
+              tog.doesnotexist;
+              return { fetch, tog, err };
+            },
+            {
+              results: [
+                {
+                  endpoint: getbool,
+                  args: [5],
+                  response: { id: 5, visible },
+                },
+              ],
+            },
+          );
+          expect(result.current.tog).toEqual({ id: 5, visible: false });
+
+          const promise = act(async () => {
+            await result.current.fetch(failToggle, 5);
+          });
+          // nothing should change since this failed
+          expect(result.current.tog).toEqual({ id: 5, visible: false });
+          expect(result.current.err).toEqual(toThrow);
+          await promise;
         },
       );
 

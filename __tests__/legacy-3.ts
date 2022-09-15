@@ -4,7 +4,7 @@ import {
   MutateShape,
   ReadShape,
 } from '@rest-hooks/core';
-import { schema } from '@rest-hooks/normalizr';
+import { schema } from '@rest-hooks/endpoint';
 import {
   Endpoint,
   EndpointExtraOptions,

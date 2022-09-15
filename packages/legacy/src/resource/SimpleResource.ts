@@ -1,13 +1,11 @@
 /* istanbul ignore file */
 
 import type {
-  FetchOptions,
+  EndpointExtraOptions,
   AbstractInstanceType,
-  ReadShape,
-  MutateShape,
-  DeleteShape,
-} from '@rest-hooks/core';
+} from '@rest-hooks/endpoint';
 
+import { ReadShape, MutateShape, DeleteShape } from '../rest-3/legacy.js';
 import FlatEntity from './FlatEntity.js';
 import Delete from './Delete.js';
 import { SchemaDetail, Method, SchemaList } from './types.js';
@@ -98,7 +96,7 @@ export default abstract class SimpleResource extends FlatEntity {
 
   /** @deprecated */
   /** Get the request options for this SimpleResource  */
-  static getFetchOptions(): FetchOptions | undefined {
+  static getFetchOptions(): EndpointExtraOptions | undefined {
     return {
       errorPolicy: () => 'soft' as const,
     };
@@ -110,7 +108,7 @@ export default abstract class SimpleResource extends FlatEntity {
   }
 
   /** Get the request options for this SimpleResource  */
-  static getEndpointExtra(): FetchOptions | undefined {
+  static getEndpointExtra(): EndpointExtraOptions | undefined {
     return this.getFetchOptions();
   }
 

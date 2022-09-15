@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { Entity } from '@rest-hooks/core';
-import type { AbstractInstanceType } from '@rest-hooks/core';
+import { Entity } from '@rest-hooks/endpoint';
+import type { AbstractInstanceType } from '@rest-hooks/endpoint';
 
 const DefinedMembersKey = Symbol('Defined Members');
 const UniqueIdentifierKey = Symbol('unq');

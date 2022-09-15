@@ -347,10 +347,13 @@ describe('useSuspense()', () => {
       const { findAllByText } = render(tree);
       expect(fbmock).toHaveBeenCalled();
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        /* TODO: remove above and re-enable below once we figure out how to make suspense testing work in react 18
-        await findAllByText(payload.title);
-        */
+        let count = 0;
+        while (errorspy.mock.calls.length < 1 && count < 10) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          count++;
+        }
+        /* TODO: remove above and re-enable below once we figure out how to make suspense testing work in react 18 */
+        //await findAllByText(payload.title);
       });
       expect(errorspy.mock.calls).toContainEqual([
         'state.lastReset is NaN. Only positive timestamps are valid.',

@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { ExpiryStatus } from '@rest-hooks/endpoint';
+import { ExpiryStatus } from '@rest-hooks/normalizr';
 import {
   EndpointInterface,
   Denormalize,
   Schema,
   FetchFunction,
-} from '@rest-hooks/endpoint';
+} from '@rest-hooks/normalizr';
 import { useContext, useMemo } from 'react';
 
 import useController from '../hooks/useController.js';

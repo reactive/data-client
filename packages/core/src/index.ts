@@ -1,4 +1,14 @@
 export * as __INTERNAL__ from './internal.js';
+export type {
+  NetworkError,
+  UnknownError,
+  ErrorTypes,
+  Schema,
+  EndpointInterface,
+  EntityInterface,
+  ResolveType,
+} from '@rest-hooks/normalizr';
+export { ExpiryStatus } from '@rest-hooks/normalizr';
 export {
   default as NetworkManager,
   ResetError,
@@ -32,7 +42,6 @@ export {
   useFetch,
   useDLE,
 } from './react-integration/newhooks/index.js';
-export type { ErrorTypes } from './react-integration/index.js';
 export {
   StateContext,
   DispatchContext,
@@ -40,13 +49,11 @@ export {
   ControllerContext,
 } from './react-integration/context.js';
 export { default as Controller } from './controller/Controller.js';
-export { ExpiryStatus } from '@rest-hooks/endpoint';
 
 export * from './controller/types.js';
 export * from './state/actions/index.js';
 export * as actionTypes from './actionTypes.js';
 export { usePromisifiedDispatch } from '@rest-hooks/use-enhanced-reducer';
-export * from '@rest-hooks/endpoint';
 /* istanbul ignore next */
 export * from './types.js';
 export type {

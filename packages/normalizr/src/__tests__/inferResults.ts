@@ -3,7 +3,7 @@ import {
   UnionResource,
   IndexedUserResource,
 } from '__tests__/common';
-import { schema as schemas } from '@rest-hooks/normalizr';
+import { schema as schemas } from '@rest-hooks/endpoint';
 import { SimpleRecord } from '@rest-hooks/legacy';
 
 import buildInferredResults from '../inferResults';

@@ -1,15 +1,6 @@
-import { AbstractInstanceType, schema } from '@rest-hooks/core';
-import { SimpleRecord } from '@rest-hooks/legacy';
-import {
-  Endpoint,
-  EndpointExtraOptions,
-  FetchFunction,
-  Index,
-  SchemaDetail,
-  SchemaList,
-} from '@rest-hooks/endpoint';
+import { AbstractInstanceType, schema } from '@rest-hooks/endpoint';
+import { SchemaDetail, SchemaList } from '@rest-hooks/endpoint';
 import { rest3 } from '@rest-hooks/legacy';
-import React, { createContext, useContext } from 'react';
 
 export class UserResource extends rest3.Resource {
   readonly id: number | undefined = undefined;

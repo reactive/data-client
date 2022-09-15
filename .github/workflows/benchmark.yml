@@ -6,12 +6,14 @@ on:
       - master
     paths:
       - 'packages/normalizr/**'
+      - 'packages/endpoint/schemas/**'
       - 'packages/core/**'
   push:
     branches:
       - master
     paths:
       - 'packages/normalizr/**'
+      - 'packages/endpoint/schemas/**'
       - 'packages/core/**'
 jobs:
   benchmark:
@@ -30,7 +32,7 @@ jobs:
         npm install -g corepack
         corepack enable
         yarn install --immutable
-        NODE_ENV=production BROWSERSLIST_ENV=modern yarn workspaces foreach -ptivR --from @rest-hooks/core run build && yarn workspace example-benchmark start | tee output.txt
+        NODE_ENV=production BROWSERSLIST_ENV=modern yarn workspaces foreach -ptivR --from @rest-hooks/core run build && NODE_ENV=production BROWSERSLIST_ENV=modern yarn workspaces foreach -ptivR --from @rest-hooks/endpoint run build && yarn workspace example-benchmark start | tee output.txt
 
 
     # PR comments on changes

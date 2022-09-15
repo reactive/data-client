@@ -1,7 +1,6 @@
 import nock from 'nock';
-import { Schema, Entity } from '@rest-hooks/normalizr';
-import { camelCase, snakeCase } from 'lodash';
 
+import Entity from '../schemas/Entity';
 import Endpoint, { EndpointInstance } from '../endpoint';
 import { EndpointInterface } from '../interface';
 

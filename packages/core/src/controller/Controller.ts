@@ -3,10 +3,11 @@ import type {
   FetchFunction,
   ResolveType,
   DenormalizeNullable,
-} from '@rest-hooks/endpoint';
-import type { ErrorTypes, SnapshotInterface } from '@rest-hooks/endpoint';
-import { ExpiryStatus } from '@rest-hooks/endpoint';
+} from '@rest-hooks/normalizr';
+import { ExpiryStatus } from '@rest-hooks/normalizr';
 import {
+  ErrorTypes,
+  SnapshotInterface,
   denormalize,
   DenormalizeCache,
   isEntity,

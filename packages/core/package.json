@@ -102,7 +102,6 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.13.0",
-    "@rest-hooks/endpoint": "^2.3.1",
     "@rest-hooks/normalizr": "^8.3.1",
     "@rest-hooks/use-enhanced-reducer": "^1.1.4",
     "flux-standard-action": "^2.1.1"

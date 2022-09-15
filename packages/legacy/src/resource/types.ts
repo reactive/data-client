@@ -1,4 +1,4 @@
-import { schema as schemas, Schema } from '@rest-hooks/core';
+import { schema as schemas, Schema } from '@rest-hooks/endpoint';
 
 export type SchemaDetail<T> =
   | schemas.EntityInterface<T>

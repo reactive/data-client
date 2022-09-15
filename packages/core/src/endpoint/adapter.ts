@@ -1,5 +1,4 @@
-import { Endpoint } from '@rest-hooks/endpoint';
-import type { EndpointInstance } from '@rest-hooks/endpoint';
+import type { EndpointInterface } from '@rest-hooks/normalizr';
 
 import type { FetchShape } from './shapes.js';
 
@@ -13,7 +12,7 @@ export default function shapeToEndpoint<
 >(
   shape: Shape,
 ): Shape['fetch'] extends (...args: any) => Promise<any>
-  ? EndpointInstance<
+  ? EndpointInterface<
       Shape['fetch'],
       Shape['schema'],
       ShapeTypeToSideEffect<Shape['type']>
@@ -29,8 +28,12 @@ export default function shapeToEndpoint<
     schema: shape.schema,
     ...((sideEffect && { sideEffect }) as any),
   };
-  if (Object.prototype.hasOwnProperty.call(shape, 'fetch'))
-    return new Endpoint(shape.fetch as any, options);
+  if (Object.prototype.hasOwnProperty.call(shape, 'fetch')) {
+    // simplest form of endpoint without relying on the package
+    const endpoint: any = (...args: any) => (shape as any).fetch(...args);
+    Object.assign(endpoint, options);
+    return endpoint;
+  }
 
   return options as any;
 }

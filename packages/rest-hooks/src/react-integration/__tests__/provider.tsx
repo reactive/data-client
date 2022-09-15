@@ -1,4 +1,3 @@
-import React from 'react';
 import { CacheProvider as CoreCacheProvider } from '@rest-hooks/core';
 import { render } from '@testing-library/react';
 

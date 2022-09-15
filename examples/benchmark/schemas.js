@@ -1,4 +1,4 @@
-import { Entity } from '@rest-hooks/normalizr';
+import { Entity } from '@rest-hooks/endpoint';
 
 class BuildTypeDescription extends Entity {
   pk() {

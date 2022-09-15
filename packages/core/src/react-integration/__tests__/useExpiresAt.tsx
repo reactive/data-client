@@ -1,11 +1,10 @@
 import React from 'react';
-import { Entity } from '@rest-hooks/normalizr';
 import { CoolerArticleResource } from '__tests__/new';
 import { renderHook, RenderHookOptions } from '@testing-library/react-hooks';
+import { Endpoint, Entity } from '@rest-hooks/endpoint';
+import { StateContext } from '@rest-hooks/core';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { Endpoint } from '@rest-hooks/endpoint';
-import { StateContext } from '@rest-hooks/core';
 
 import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import { useExpiresAt } from '../hooks';

@@ -1,4 +1,4 @@
-import { schema, Entity } from '@rest-hooks/normalizr';
+import { schema, Entity } from '@rest-hooks/endpoint';
 
 class BaseEntity extends Entity {
   id = 0;

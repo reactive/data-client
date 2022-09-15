@@ -1,6 +1,5 @@
-import { Entity } from '@rest-hooks/normalizr';
-
-import Index from '../indexEndpoint';
+import Entity from '../schemas/Entity';
+import { Index } from '../indexEndpoint';
 
 describe('Index', () => {
   class User extends Entity {
@@ -20,6 +19,17 @@ describe('Index', () => {
     expect(UserIndex.key({ username: 'hi' })).toMatchInlineSnapshot(
       `"{"username":"hi"}"`,
     );
+
+    //@ts-expect-error
+    UserIndex.key({ username: 5 });
+    //@ts-expect-error
+    UserIndex.key({ blah: 5 });
+  });
+
+  it('constructs with key', () => {
+    const UserIndex = new Index(User, ({ username }) => `${username}`);
+
+    expect(UserIndex.key({ username: 'hi' })).toMatchInlineSnapshot(`"hi"`);
 
     //@ts-expect-error
     UserIndex.key({ username: 5 });

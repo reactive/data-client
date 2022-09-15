@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { Schema, schema } from '@rest-hooks/normalizr';
-
-import { EndpointInterface } from './interface.js';
+import { EndpointInterface, Schema } from './interface.js';
 import { EndpointExtraOptions, FetchFunction } from './types.js';
-import { ResolveType } from './utility.js';
 export interface EndpointOptions<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = undefined,
@@ -28,19 +25,54 @@ export type ParamFromFetch<F> = F extends (
   ? P
   : never;
 type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;
+export type KeyofEndpointInstance = keyof EndpointInstance<FetchFunction>;
+export type ExtendedEndpoint<
+  O extends EndpointExtendOptions<F>,
+  E extends EndpointInstance<
+    FetchFunction,
+    Schema | undefined,
+    true | undefined
+  >,
+  F extends FetchFunction,
+> = EndpointInstance<
+  'fetch' extends keyof O ? Exclude<O['fetch'], undefined> : E['fetch'],
+  'schema' extends keyof O ? O['schema'] : E['schema'],
+  'sideEffect' extends keyof O ? O['sideEffect'] : E['sideEffect']
+> &
+  Pick<O, Exclude<keyof O, KeyofEndpointInstance>> &
+  Pick<E, Exclude<keyof E, KeyofEndpointInstance>>;
 export function Make(...args: any[]): EndpointInstance<FetchFunction>;
 /**
- * Creates a new function.
+ * Defines an async data source.
+ * @see https://resthooks.io/docs/api/Endpoint
  */
 export interface EndpointInstance<
+  F extends (...args: any) => Promise<any> = FetchFunction,
+  S extends Schema | undefined = Schema | undefined,
+  M extends true | undefined = true | undefined,
+> extends EndpointInstanceInterface<F, S, M> {
+  extend<
+    E extends EndpointInstance<
+      (...args: any) => Promise<any>,
+      Schema | undefined,
+      true | undefined
+    >,
+    O extends EndpointExtendOptions<F> &
+      Partial<Omit<E, keyof EndpointInstance<FetchFunction>>>,
+  >(
+    this: E,
+    options: O,
+  ): ExtendedEndpoint<typeof options, E, F>;
+}
+/**
+ * Defines an async data source.
+ * @see https://resthooks.io/docs/api/Endpoint
+ */
+export interface EndpointInstanceInterface<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined,
-> extends EndpointInterface<
-    F,
-    S extends undefined ? schema.SchemaClass<ResolveType<F>> : S,
-    M
-  > {
+> extends EndpointInterface<F, S, M> {
   constructor: EndpointConstructor;
   /**
    * Calls the function, substituting the specified object for the this value of the function, and the specified array for the arguments of the function.
@@ -68,20 +100,12 @@ export interface EndpointInstance<
    * @param thisArg An object to which the this keyword can refer inside the new function.
    * @param argArray A list of arguments to be passed to the new function.
    */
-  bind<
-    E extends EndpointInstance<
-      FetchFunction,
-      Schema | undefined,
-      true | undefined
-    >,
-    P extends Parameters<F>,
-  >(
+  bind<E extends FetchFunction, P extends Parameters<E>>(
     this: E,
     thisArg: ThisParameterType<E>,
     ...args: P
   ): EndpointInstance<() => ReturnType<E>, S, M> &
-    Omit<E, keyof EndpointInstance<FetchFunction>>;
-
+    Pick<E, Exclude<keyof E, keyof EndpointInstance<FetchFunction>>>;
   /** Returns a string representation of a function. */
   toString(): string;
   prototype: any;
@@ -93,30 +117,6 @@ export interface EndpointInstance<
   readonly sideEffect: M;
   readonly schema: S;
   fetch: F;
-  extend<
-    E extends EndpointInstance<
-      FetchFunction,
-      Schema | undefined,
-      true | undefined
-    >,
-    O extends EndpointExtendOptions<F> &
-      Partial<Pick<E, Exclude<keyof E, keyof EndpointInstance<FetchFunction>>>>,
-  >(
-    this: E,
-    options: O,
-  ): Pick<O, Exclude<keyof O, keyof EndpointInstance<FetchFunction>>> &
-    Pick<E, Exclude<keyof E, keyof EndpointInstance<FetchFunction>>> &
-    EndpointInstance<
-      'fetch' extends keyof typeof options
-        ? Exclude<typeof options['fetch'], undefined>
-        : E['fetch'],
-      'schema' extends keyof typeof options
-        ? typeof options['schema']
-        : E['schema'],
-      'sideEffect' extends keyof typeof options
-        ? typeof options['sideEffect']
-        : E['sideEffect']
-    >;
   /** The following is for compatibility with FetchShape */
   /** @deprecated */
   readonly type: M extends undefined
@@ -145,5 +145,22 @@ interface EndpointConstructor {
 }
 declare let Endpoint: EndpointConstructor;
 export default Endpoint;
+interface ExtendableEndpointConstructor {
+  new <
+    F extends (
+      this: EndpointInstanceInterface<FetchFunction> & E,
+      params?: any,
+      body?: any,
+    ) => Promise<any>,
+    S extends Schema | undefined = undefined,
+    M extends true | undefined = undefined,
+    E extends Record<string, any> = {},
+  >(
+    RestFetch: F,
+    options?: EndpointOptions<F, S, M> & E,
+  ): EndpointInstanceInterface<F, S, M> & E;
+  readonly prototype: Function;
+}
+export declare let ExtendableEndpoint: ExtendableEndpointConstructor;
 type IfAny<T, Y, N> = 0 extends 1 & T ? Y : N;
 type IfTypeScriptLooseNull<Y, N> = 1 | undefined extends 1 ? Y : N;

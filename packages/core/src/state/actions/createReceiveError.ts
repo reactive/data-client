@@ -1,6 +1,9 @@
-import { Schema } from '@rest-hooks/endpoint';
+import {
+  Schema,
+  EndpointExtraOptions as FetchOptions,
+} from '@rest-hooks/normalizr';
 
-import { FetchAction, ReceiveAction, FetchOptions } from '../../types.js';
+import { FetchAction, ReceiveAction } from '../../types.js';
 import { RECEIVE_TYPE } from '../../actionTypes.js';
 
 interface Options<S extends Schema | undefined = any>

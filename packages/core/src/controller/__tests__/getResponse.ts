@@ -1,4 +1,6 @@
-import { Endpoint, Entity, ExpiryStatus } from '../..';
+import { Endpoint, Entity } from '@rest-hooks/endpoint';
+
+import { ExpiryStatus } from '../..';
 import Contoller from '../Controller';
 import { initialState } from '../../state/createReducer';
 

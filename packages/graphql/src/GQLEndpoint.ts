@@ -1,4 +1,4 @@
-import { Endpoint, EndpointOptions } from '@rest-hooks/endpoint';
+import { Denormalize, Endpoint, EndpointOptions } from '@rest-hooks/endpoint';
 import type { Schema } from '@rest-hooks/endpoint';
 
 import GQLNetworkError from './GQLNetworkError.js';
@@ -7,7 +7,7 @@ export default class GQLEndpoint<
   Variables,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined,
-> extends Endpoint<(v: Variables) => Promise<any>, S, M> {
+> extends Endpoint<(v: Variables) => Promise<Denormalize<S>>, S, M> {
   declare url: string;
   declare signal?: AbortSignal;
 

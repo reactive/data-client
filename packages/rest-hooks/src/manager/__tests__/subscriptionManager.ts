@@ -6,7 +6,7 @@ import {
   Controller,
 } from '@rest-hooks/core';
 
-import SubscriptionManager, { Subscription } from '../SubscriptionManager';
+import SubscriptionManager, { Subscription } from '../SubscriptionManager.js';
 
 const { UNSUBSCRIBE_TYPE, SUBSCRIBE_TYPE, RECEIVE_TYPE } = actionTypes;
 

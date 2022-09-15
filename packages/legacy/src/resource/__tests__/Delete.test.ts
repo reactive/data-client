@@ -1,6 +1,7 @@
 // eslint-env jest
 import { fromJS } from 'immutable';
-import { normalize, denormalize, schema, DELETED } from '@rest-hooks/normalizr';
+import { normalize, denormalize, DELETED } from '@rest-hooks/normalizr';
+import { schema } from '@rest-hooks/endpoint';
 
 import Delete from '../Delete';
 import IDEntity from '../IDEntity';

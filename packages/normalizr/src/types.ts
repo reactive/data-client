@@ -1,5 +1,11 @@
-import type { default as schema, EntityInterface } from './schema.js';
-import WeakListMap from './WeakListMap.js';
+import type {
+  Schema,
+  Serializable,
+  EntityInterface,
+  NormalizedIndex,
+  SchemaClass,
+} from './interface.js';
+import type WeakListMap from './WeakListMap.js';
 
 export type AbstractInstanceType<T> = T extends { prototype: infer U }
   ? U
@@ -35,12 +41,6 @@ interface NestedSchemaClass<T = any> {
 
 export interface RecordClass<T = any> extends NestedSchemaClass<T> {
   fromJS: (...args: any) => AbstractInstanceType<T>;
-}
-
-export interface UnvisitFunction {
-  (input: any, schema: any): [any, boolean, boolean];
-  og?: UnvisitFunction;
-  setLocal?: (entity: any) => void;
 }
 
 export interface DenormalizeCache {
@@ -79,9 +79,9 @@ export type Denormalize<S> = S extends EntityInterface<infer U>
   ? U
   : S extends RecordClass
   ? AbstractInstanceType<S>
-  : S extends schema.SchemaClass
+  : S extends SchemaClass
   ? DenormalizeReturnType<S['denormalize']>
-  : S extends schema.Serializable<infer T>
+  : S extends Serializable<infer T>
   ? T
   : S extends Array<infer F>
   ? Denormalize<F>[]
@@ -93,9 +93,9 @@ export type DenormalizeNullable<S> = S extends EntityInterface<any>
   ? DenormalizeNullableNestedSchema<S> | undefined
   : S extends RecordClass
   ? DenormalizeNullableNestedSchema<S>
-  : S extends schema.SchemaClass
+  : S extends SchemaClass
   ? DenormalizeReturnType<S['_denormalizeNullable']>
-  : S extends schema.Serializable<infer T>
+  : S extends Serializable<infer T>
   ? T
   : S extends Array<infer F>
   ? Denormalize<F>[] | undefined
@@ -107,9 +107,9 @@ export type Normalize<S> = S extends EntityInterface
   ? string
   : S extends RecordClass
   ? NormalizeObject<S['schema']>
-  : S extends schema.SchemaClass
+  : S extends SchemaClass
   ? NormalizeReturnType<S['normalize']>
-  : S extends schema.Serializable<infer T>
+  : S extends Serializable<infer T>
   ? T
   : S extends Array<infer F>
   ? Normalize<F>[]
@@ -121,29 +121,15 @@ export type NormalizeNullable<S> = S extends EntityInterface
   ? string | undefined
   : S extends RecordClass
   ? NormalizedNullableObject<S['schema']>
-  : S extends schema.SchemaClass
+  : S extends SchemaClass
   ? NormalizeReturnType<S['_normalizeNullable']>
-  : S extends schema.Serializable<infer T>
+  : S extends Serializable<infer T>
   ? T
   : S extends Array<infer F>
   ? Normalize<F>[] | undefined
   : S extends { [K: string]: any }
   ? NormalizedNullableObject<S>
   : S;
-
-export type Schema =
-  | null
-  | string
-  | { [K: string]: any }
-  | Schema[]
-  | schema.SchemaSimple
-  | schema.Serializable;
-
-export type NormalizedIndex = {
-  readonly [entityKey: string]: {
-    readonly [indexName: string]: { readonly [lookup: string]: string };
-  };
-};
 
 export type NormalizedSchema<E, R> = {
   entities: E;

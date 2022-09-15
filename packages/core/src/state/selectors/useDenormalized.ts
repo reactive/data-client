@@ -1,7 +1,6 @@
-import { DenormalizeNullable } from '@rest-hooks/endpoint';
-import { Schema } from '@rest-hooks/endpoint';
+import type { Schema, DenormalizeNullable } from '@rest-hooks/normalizr';
 import { useMemo } from 'react';
-import { ExpiryStatus } from '@rest-hooks/endpoint';
+import { ExpiryStatus } from '@rest-hooks/normalizr';
 
 import { State } from '../../types.js';
 import { ReadShape, ParamsFromShape } from '../../endpoint/index.js';

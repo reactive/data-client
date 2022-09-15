@@ -1,4 +1,4 @@
-import { Schema } from '@rest-hooks/endpoint';
+import { Schema } from '@rest-hooks/normalizr';
 import { useRef, useCallback } from 'react';
 
 import {

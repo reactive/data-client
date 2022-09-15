@@ -1,4 +1,4 @@
-import { AbstractInstanceType, schema } from '@rest-hooks/normalizr';
+import { AbstractInstanceType, schema } from '@rest-hooks/endpoint';
 
 import Entity from './Entity.js';
 import SimpleRecord from './SimpleRecord.js';

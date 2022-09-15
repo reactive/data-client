@@ -1,6 +1,6 @@
 export * from './resource/index.js';
 export { default as useStatefulResource } from './useStatefulResource.js';
-export { default as shapeToEndpoint } from './shapeToEndpoint.js';
+export * from './endpoint/index.js';
 export type {
   FetchShape,
   ReadShape,

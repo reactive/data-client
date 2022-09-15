@@ -5,7 +5,7 @@ import {
   Denormalize,
   Schema,
   FetchFunction,
-} from '@rest-hooks/endpoint';
+} from '@rest-hooks/normalizr';
 import { useContext, useMemo } from 'react';
 
 /**

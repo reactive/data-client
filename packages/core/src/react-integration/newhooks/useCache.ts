@@ -5,9 +5,9 @@ import {
   Schema,
   FetchFunction,
   ResolveType,
-} from '@rest-hooks/endpoint';
+} from '@rest-hooks/normalizr';
 import { useContext, useMemo } from 'react';
-import { ExpiryStatus } from '@rest-hooks/endpoint';
+import { ExpiryStatus } from '@rest-hooks/normalizr';
 
 import { StateContext } from '../context.js';
 import useController from '../hooks/useController.js';

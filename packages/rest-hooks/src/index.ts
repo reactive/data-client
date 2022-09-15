@@ -15,8 +15,6 @@ export {
   useDLE,
   // TODO: get rid of these exports once core has been out for a while
   usePromisifiedDispatch,
-  Endpoint,
-  Index,
 } from '@rest-hooks/core';
 export type {
   FetchShape,
@@ -26,7 +24,6 @@ export type {
   SetShapeParams,
   ParamsFromShape,
   AbstractInstanceType,
-  FetchOptions,
   UpdateFunction,
   // TODO: get rid of these exports once core has been out for a while
   FetchAction,
@@ -43,6 +40,10 @@ export type {
   MiddlewareAPI,
   ActionTypes,
   Manager,
+} from '@rest-hooks/core';
+export { Endpoint, Index } from '@rest-hooks/endpoint';
+export type {
+  EndpointExtraOptions as FetchOptions,
   Schema,
   Normalize,
   NormalizeNullable,
@@ -52,15 +53,13 @@ export type {
   FetchFunction,
   ResolveType,
   EndpointParam,
-  InferReturn,
   EndpointInterface,
   ReadEndpoint,
   MutateEndpoint,
-  IndexInterface,
   IndexParams,
   ArrayElement,
   NetworkError,
-} from '@rest-hooks/core';
+} from '@rest-hooks/endpoint';
 
 export {
   CacheProvider,

@@ -1,6 +1,7 @@
-import { Schema } from '@rest-hooks/endpoint';
-
-import { FetchOptions } from '../types.js';
+import {
+  Schema,
+  EndpointExtraOptions as FetchOptions,
+} from '@rest-hooks/normalizr';
 
 /** Defines the shape of a network request */
 export interface FetchShape<

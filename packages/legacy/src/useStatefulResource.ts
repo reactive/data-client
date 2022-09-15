@@ -1,24 +1,23 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import {
-  Schema,
   StateContext,
   ParamsFromShape,
   ReadShape,
   __INTERNAL__,
-  ExpiryStatus,
   useController,
 } from '@rest-hooks/core';
 import type {
+  Schema,
   Denormalize,
   DenormalizeNullable,
   ErrorTypes,
   EndpointInterface,
   FetchFunction,
-} from '@rest-hooks/core';
-import { denormalize } from '@rest-hooks/normalizr';
+} from '@rest-hooks/normalizr';
+import { denormalize, ExpiryStatus } from '@rest-hooks/normalizr';
 import { useContext, useMemo } from 'react';
 
-import shapeToEndpoint from './shapeToEndpoint.js';
+import shapeToEndpoint from './endpoint/shapeToEndpoint.js';
 
 const { inferResults } = __INTERNAL__;
 

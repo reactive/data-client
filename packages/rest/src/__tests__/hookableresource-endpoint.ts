@@ -1,6 +1,6 @@
 import { ContextAuthdArticle, UserResource } from '__tests__/new';
 import nock from 'nock';
-import { normalize, schema } from '@rest-hooks/normalizr';
+import { schema } from '@rest-hooks/endpoint';
 import { useController, useSuspense } from '@rest-hooks/core';
 
 import HookableResource from '../HookableResource';

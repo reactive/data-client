@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { schema, AbstractInstanceType, DELETED } from '@rest-hooks/core';
+import { schema, AbstractInstanceType, DELETED } from '@rest-hooks/endpoint';
 
 export default class Delete<E extends schema.EntityInterface & { fromJS: any }>
   implements schema.SchemaClass

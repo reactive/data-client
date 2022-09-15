@@ -1,4 +1,4 @@
-import type { EndpointInterface } from '@rest-hooks/endpoint';
+import type { EndpointInterface } from '@rest-hooks/normalizr';
 
 import type { SubscribeAction, UnsubscribeAction } from '../types.js';
 import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '../actionTypes.js';

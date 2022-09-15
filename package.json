@@ -16,7 +16,7 @@
     "build:bundle": "yarn workspaces foreach -pti --no-private run build:bundle",
     "build:clean": "yarn workspaces foreach -pti --no-private run build:clean",
     "build:types": "yarn build:copy:ambient && tsc --build && yarn workspaces foreach -pti --no-private run build:legacy-types",
-    "build:copy:ambient": "mkdirp ./packages/normalizr/lib && copyfiles --flat ./packages/normalizr/src/schema.d.ts ./packages/normalizr/lib/ && mkdirp ./packages/endpoint/lib && copyfiles --flat ./packages/endpoint/src/endpoint.d.ts ./packages/endpoint/lib/&& mkdirp ./packages/core/lib && copyfiles --flat ./packages/core/src/state/RIC.d.ts ./packages/core/lib/state && mkdirp ./packages/experimental/lib && copyfiles --flat ./packages/experimental/src/rest/RestEndpoint.d.ts ./packages/experimental/lib/rest",
+    "build:copy:ambient": "mkdirp ./packages/endpoint/lib && copyfiles --flat ./packages/endpoint/src/schema.d.ts ./packages/endpoint/lib/ && copyfiles --flat ./packages/endpoint/src/endpoint.d.ts ./packages/endpoint/lib/&& mkdirp ./packages/core/lib && copyfiles --flat ./packages/core/src/state/RIC.d.ts ./packages/core/lib/state && mkdirp ./packages/experimental/lib && copyfiles --flat ./packages/experimental/src/rest/RestEndpoint.d.ts ./packages/experimental/lib/rest",
     "test": "NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest",
     "test:ci": "yarn test --ci",
     "test:coverage": "yarn test --coverage",

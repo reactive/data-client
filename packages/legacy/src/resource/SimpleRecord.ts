@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { AbstractInstanceType, Schema } from '@rest-hooks/normalizr';
+import { AbstractInstanceType, Schema } from '@rest-hooks/endpoint';
 
 import { NormalizedEntity } from './types.js';
 import { normalize, infer } from './Object.js';

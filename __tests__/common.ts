@@ -1,4 +1,4 @@
-import { AbstractInstanceType, schema } from '@rest-hooks/core';
+import { AbstractInstanceType, schema } from '@rest-hooks/endpoint';
 import { SimpleRecord } from '@rest-hooks/legacy';
 import {
   AbortOptimistic,

@@ -10,8 +10,6 @@ import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { Endpoint } from '@rest-hooks/endpoint';
-
 import {
   makeRenderRestHook,
   makeCacheProvider,

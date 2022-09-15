@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react';
-import { EndpointInterface, FetchFunction } from '@rest-hooks/endpoint';
+import { EndpointInterface, FetchFunction } from '@rest-hooks/normalizr';
 
 import { FetchShape, ParamsFromShape } from '../../endpoint/index.js';
 import { StateContext } from '../context.js';

@@ -11,7 +11,7 @@ import { normalize, NormalizedIndex } from '@rest-hooks/normalizr';
 import { initialState } from '@rest-hooks/core';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useState } from 'react';
-import { ExpiryStatus } from '@rest-hooks/core/';
+import { ExpiryStatus } from '@rest-hooks/normalizr';
 
 import useDenormalized from '../useDenormalized';
 

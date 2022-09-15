@@ -1,4 +1,4 @@
-import type { EndpointInterface } from '@rest-hooks/endpoint';
+import type { EndpointInterface } from '@rest-hooks/normalizr';
 
 import { OPTIMISTIC_TYPE } from '../actionTypes.js';
 import { EndpointUpdateFunction } from './types.js';

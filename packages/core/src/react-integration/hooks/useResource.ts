@@ -2,9 +2,9 @@ import {
   Denormalize,
   DenormalizeNullable,
   ResolveType,
-} from '@rest-hooks/endpoint';
+} from '@rest-hooks/normalizr';
 import { useMemo, useContext } from 'react';
-import { ExpiryStatus } from '@rest-hooks/endpoint';
+import { ExpiryStatus } from '@rest-hooks/normalizr';
 
 import { ReadShape, ParamsFromShape } from '../../endpoint/index.js';
 import { useDenormalized } from '../../state/selectors/index.js';

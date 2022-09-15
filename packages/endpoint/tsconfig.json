@@ -6,7 +6,5 @@
     "skipLibCheck": false
   },
   "include": ["src"],
-  "references": [
-    { "path": "../normalizr" }
-  ]
+  "references": [{ "path": "../../__tests__" }]
 }

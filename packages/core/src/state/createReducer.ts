@@ -1,5 +1,4 @@
 import { normalize } from '@rest-hooks/normalizr';
-import { AbortOptimistic } from '@rest-hooks/endpoint';
 
 import {
   ActionTypes,
@@ -105,9 +104,9 @@ export default function createReducer(controller: Controller) {
                 // if endpoint exists, so must args; TODO: fix typing
                 ...(action.meta.args as any[]),
               );
-            } catch (e) {
+            } catch (e: any) {
               // AbortOptimistic means 'do nothing', otherwise we count the exception as endpoint failure
-              if (e instanceof AbortOptimistic) {
+              if (e.constructor?.name === 'AbortOptimistic') {
                 return state;
               }
               throw e;
@@ -170,15 +169,18 @@ export default function createReducer(controller: Controller) {
           };
           // reducer must update the state, so in case of processing errors we simply compute the results inline
         } catch (error: any) {
-          error.message = `Error processing ${
-            action.meta.key
-          }\n\nFull Schema: ${JSON.stringify(
-            action.meta.schema,
-            undefined,
-            2,
-          )}\n\nError:\n${error.message}`;
-          if ('payload' in action) error.payload = action.payload;
-          error.status = 400;
+          if (typeof error === 'object') {
+            error.message = `Error processing ${
+              action.meta.key
+            }\n\nFull Schema: ${JSON.stringify(
+              action.meta.schema,
+              undefined,
+              2,
+            )}\n\nError:\n${error.message}`;
+            if ('payload' in action) error.payload = action.payload;
+            error.status = 400;
+          }
+
           // this is not always bubbled up, so let's double sure this doesn't fail silently
           /* istanbul ignore else */
           if (process.env.NODE_ENV !== 'production') {

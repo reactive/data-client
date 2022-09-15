@@ -1,8 +1,8 @@
 import { ArticleResource } from '__tests__/common';
+import { schema } from '@rest-hooks/endpoint';
 
 import { denormalize } from '../denormalize';
 import { normalize } from '../normalize';
-import Delete from '../schemas/Delete';
 
 describe('normalizer() merging', () => {
   describe('with instance.constructor.merge()', () => {
@@ -120,7 +120,7 @@ describe('normalizer() merging', () => {
       const id = 20;
       const { entities: first } = normalize(
         { id },
-        new Delete(ArticleResource),
+        new schema.Delete(ArticleResource),
       );
 
       const nested = { id, title: 'hello' };

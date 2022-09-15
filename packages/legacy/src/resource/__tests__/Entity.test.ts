@@ -2,12 +2,12 @@
 import { fromJS, Record } from 'immutable';
 import {
   normalize,
-  schema,
   denormalize,
   DELETED,
   AbstractInstanceType,
   WeakListMap,
 } from '@rest-hooks/normalizr';
+import { schema } from '@rest-hooks/endpoint';
 
 import SimpleRecord from '../SimpleRecord';
 import IDEntity from '../IDEntity';

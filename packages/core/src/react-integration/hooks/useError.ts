@@ -1,6 +1,10 @@
-import type { NetworkError, UnknownError } from '@rest-hooks/endpoint';
+import type { NetworkError, UnknownError } from '@rest-hooks/normalizr';
 import { useMemo } from 'react';
-import { EndpointInterface, Schema, FetchFunction } from '@rest-hooks/endpoint';
+import {
+  EndpointInterface,
+  Schema,
+  FetchFunction,
+} from '@rest-hooks/normalizr';
 
 import { ReadShape, ParamsFromShape } from '../../endpoint/index.js';
 import shapeToEndpoint from '../../endpoint/adapter.js';

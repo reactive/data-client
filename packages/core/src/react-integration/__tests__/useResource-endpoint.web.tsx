@@ -15,12 +15,10 @@ import { initialState } from '@rest-hooks/core';
 import React, { Suspense } from 'react';
 import { render } from '@testing-library/react';
 import nock from 'nock';
-
-// relative imports to avoid circular dependency in tsconfig references
-
 import { normalize } from '@rest-hooks/normalizr';
 import { ReadEndpoint } from '@rest-hooks/endpoint';
 
+// relative imports to avoid circular dependency in tsconfig references
 import {
   makeRenderRestHook,
   makeCacheProvider,

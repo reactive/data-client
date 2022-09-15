@@ -1,12 +1,18 @@
 // eslint-env jest
 import { fromJS } from 'immutable';
+import { Entity } from '@rest-hooks/endpoint';
 
 import { denormalizeSimple as denormalize } from '../denormalize';
-import { normalize, schema } from '../';
-import Entity from '../entities/Entity';
-import IDEntity from '../entities/IDEntity';
+import { normalize } from '../';
 import { DELETED } from '../special';
 import WeakListMap from '../WeakListMap';
+
+class IDEntity extends Entity {
+  id = '';
+  pk() {
+    return this.id;
+  }
+}
 
 class Tacos extends IDEntity {
   type = '';
@@ -420,17 +426,13 @@ describe('denormalize', () => {
     ).toMatchSnapshot();
   });
 
-  test('denormalizes throws when unknown symbol is found as entity', () => {
+  test('denormalizes suspends when symbol contains DELETED string', () => {
     const entities = {
       Tacos: {
         1: Symbol('ENTITY WAS DELETED'),
       },
     };
-    expect(() => denormalize(['1', '2'], [Tacos], entities))
-      .toThrowErrorMatchingInlineSnapshot(`
-      "Unrecognized symbol detected.
-      Make sure you do not have multiple versions of @rest-hooks/normalizr installed."
-    `);
+    expect(denormalize('1', Tacos, entities)).toEqual([undefined, true, true]);
   });
 
   test('denormalizes ignoring deleted entities in arrays', () => {

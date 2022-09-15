@@ -1,9 +1,13 @@
 import { useMemo } from 'react';
-import { EndpointInterface, Schema, FetchFunction } from '@rest-hooks/endpoint';
+import {
+  EndpointInterface,
+  Schema,
+  FetchFunction,
+} from '@rest-hooks/normalizr';
 
+import shapeToEndpoint from '../../endpoint/adapter.js';
 import { ReadShape, ParamsFromShape } from '../../endpoint/index.js';
 import useSubscriptionNew from '../newhooks/useSubscription.js';
-import shapeToEndpoint from '../../endpoint/adapter.js';
 
 /**
  * Keeps a resource fresh by subscribing to updates.

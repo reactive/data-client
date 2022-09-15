@@ -1,9 +1,28 @@
-import { schema, Schema } from '@rest-hooks/normalizr';
-
-import { Normalize } from './normal.js';
-import { EndpointInterface } from './interface.js';
+import type { SchemaClass } from './schema.js';
+import type { Schema, EntityInterface } from './interface.js';
 import { ResolveType } from './utility.js';
-import SnapshotInterface from './SnapshotInterface.js';
+import { SnapshotInterface } from './SnapshotInterface.js';
+
+export * from './utility.js';
+export * from './ErrorTypes.js';
+
+export type FetchFunction<A extends readonly any[] = any, R = any> = (
+  ...args: A
+) => Promise<R>;
+
+// This hack is only needed for @rest-hooks/rest@5 or below
+/** @deprecated */
+export type SchemaDetail<T> =
+  | EntityInterface<T>
+  | { [K: string]: any }
+  | SchemaClass;
+
+/** @deprecated */
+export type SchemaList<T> =
+  | EntityInterface<T>[]
+  | { [K: string]: any }
+  | Schema[]
+  | SchemaClass;
 
 export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   /** Default data expiry length, will fall back to NetworkManager default if not defined */
@@ -28,42 +47,3 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   /** User-land extra data to send */
   readonly extra?: any;
 }
-export type FetchFunction<A extends readonly any[] = any, R = any> = (
-  ...args: A
-) => Promise<R>;
-
-/** @deprecated */
-export type SimpleFetchFunction<P = any, B = any, R = any> = (
-  ...args: readonly [params?: P, body?: B, ...rest: any]
-) => Promise<R>;
-
-export type OptimisticUpdateParams<
-  SourceSchema extends Schema | undefined,
-  Dest extends EndpointInterface<FetchFunction, Schema, any>,
-> = [
-  Dest,
-  Parameters<Dest>[0],
-  UpdateFunction<SourceSchema, Exclude<Dest['schema'], undefined>>,
-];
-
-export type UpdateFunction<
-  SourceSchema extends Schema | undefined,
-  DestSchema extends Schema,
-> = (
-  sourceResults: Normalize<SourceSchema>,
-  destResults: Normalize<DestSchema> | undefined,
-) => Normalize<DestSchema>;
-
-export type SchemaDetail<T> =
-  | schema.EntityInterface<T>
-  | { [K: string]: any }
-  | schema.SchemaClass;
-
-export type SchemaList<T> =
-  | schema.EntityInterface<T>[]
-  | { [K: string]: any }
-  | Schema[]
-  | schema.SchemaClass;
-
-export * from './ErrorTypes';
-export { default as SnapshotInterface } from './SnapshotInterface';

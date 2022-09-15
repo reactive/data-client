@@ -1,4 +1,4 @@
-import { Denormalize, DenormalizeNullable } from '@rest-hooks/endpoint';
+import { Denormalize, DenormalizeNullable } from '@rest-hooks/normalizr';
 
 import { ReadShape, ParamsFromShape } from '../../endpoint.js';
 declare type CondNull<P, A, B> = P extends null ? A : B;

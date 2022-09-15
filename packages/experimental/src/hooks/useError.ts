@@ -5,7 +5,7 @@ import {
   StateContext,
   useController,
 } from '@rest-hooks/core';
-import { EndpointInterface } from '@rest-hooks/endpoint';
+import { EndpointInterface } from '@rest-hooks/normalizr';
 import { useContext } from 'react';
 
 export type ErrorTypes = NetworkError | UnknownError;

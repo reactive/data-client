@@ -8,10 +8,9 @@ import replace from 'rollup-plugin-replace';
 
 import pkg from './package.json';
 
-const dependencies = Object.keys(pkg.dependencies)
-  .concat(Object.keys(pkg.peerDependencies))
-  .concat(['@rest-hooks/endpoint', '@rest-hooks/normalizr'])
-  .filter(dep => !['@babel/runtime'].includes(dep));
+const dependencies = Object.keys(pkg.dependencies).filter(
+  dep => !['@babel/runtime'].includes(dep),
+);
 
 const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
 const nativeExtensions = ['.native.ts', ...extensions];

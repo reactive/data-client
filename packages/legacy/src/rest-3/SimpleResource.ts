@@ -1,11 +1,11 @@
-import { Endpoint, schema } from '@rest-hooks/core';
+import { Endpoint, schema } from '@rest-hooks/endpoint';
 import type {
   Schema,
   EndpointExtraOptions,
   SchemaDetail,
   SchemaList,
-} from '@rest-hooks/core';
-import type { AbstractInstanceType } from '@rest-hooks/core';
+} from '@rest-hooks/endpoint';
+import type { AbstractInstanceType } from '@rest-hooks/endpoint';
 
 import EntityRecord from './EntityRecord.js';
 import { ReadShape, MutateShape, DeleteShape } from './legacy.js';

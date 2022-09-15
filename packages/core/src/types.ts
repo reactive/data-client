@@ -5,11 +5,10 @@ import type {
   UpdateFunction,
   AbstractInstanceType,
   Schema,
-  FetchFunction,
   EndpointExtraOptions,
   EndpointInterface,
-} from '@rest-hooks/endpoint';
-import type { ErrorTypes } from '@rest-hooks/endpoint';
+} from '@rest-hooks/normalizr';
+import type { ErrorTypes } from '@rest-hooks/normalizr';
 
 import { ErrorableFSAWithPayloadAndMeta } from './fsa.js';
 import { FetchShape } from './endpoint/index.js';
@@ -60,9 +59,6 @@ export type State<T> = Readonly<{
   optimistic: (ReceiveAction | OptimisticAction)[];
   lastReset: Date | number;
 }>;
-
-export type FetchOptions<F extends FetchFunction = FetchFunction> =
-  EndpointExtraOptions<F>;
 
 export interface ReceiveMeta<S extends Schema | undefined> {
   schema?: S;
@@ -133,7 +129,7 @@ interface FetchMeta<
   args?: readonly any[];
   updaters?: Record<string, UpdateFunction<S, any>>;
   update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
-  options?: FetchOptions;
+  options?: EndpointExtraOptions;
   throttle: boolean;
   resolve: (value?: any | PromiseLike<any>) => void;
   reject: (reason?: any) => void;
@@ -168,7 +164,7 @@ export interface SubscribeAction
     schema: Schema | undefined;
     fetch: () => Promise<any>;
     key: string;
-    options: FetchOptions | undefined;
+    options: EndpointExtraOptions | undefined;
   };
 }
 
@@ -178,7 +174,7 @@ export interface UnsubscribeAction
   meta: {
     args?: readonly any[];
     key: string;
-    options: FetchOptions | undefined;
+    options: EndpointExtraOptions | undefined;
   };
 }
 

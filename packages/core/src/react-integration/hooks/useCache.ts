@@ -5,7 +5,7 @@ import {
   Schema,
   FetchFunction,
   ResolveType,
-} from '@rest-hooks/endpoint';
+} from '@rest-hooks/normalizr';
 
 import { ReadShape, ParamsFromShape } from '../../endpoint/index.js';
 import shapeToEndpoint from '../../endpoint/adapter.js';

@@ -79,6 +79,24 @@ describe('useDLE()', () => {
     expect(result.current.data).toEqual(CoolerArticleResource.fromJS(payload));
   });
 
+  it('should work with no schema', async () => {
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      return useDLE(
+        CoolerArticleResource.detail().extend({ schema: undefined }),
+        {
+          id: payload.id,
+        },
+      );
+    });
+    expect(result.current.data).toBe(undefined);
+    expect(result.current.error).toBe(undefined);
+    expect(result.current.loading).toBe(true);
+    await waitForNextUpdate();
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeUndefined();
+    expect(result.current.data).toEqual(payload);
+  });
+
   it('should work on good network with endpoint', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useDLE(TypedArticleResource.detail(), {

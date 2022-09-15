@@ -1,5 +1,5 @@
-import type { EndpointExtraOptions } from '@rest-hooks/core';
-import { Schema } from '@rest-hooks/core';
+import type { EndpointExtraOptions } from '@rest-hooks/endpoint';
+import { Schema } from '@rest-hooks/endpoint';
 
 /** Defines the shape of a network request */
 export interface FetchShape<

@@ -50,7 +50,7 @@ jobs:
           at: ~/
       - run:
           command: |
-            cd packages/normalizr
+            cd packages/endpoint
             yarn run typecheck
 
   unit_tests:

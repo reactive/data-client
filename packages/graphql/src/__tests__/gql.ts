@@ -1,5 +1,5 @@
 import nock from 'nock';
-import { schema } from '@rest-hooks/normalizr';
+import { schema } from '@rest-hooks/endpoint';
 
 import GQLEndpoint from '../GQLEndpoint';
 import GQLEntity from '../GQLEntity';

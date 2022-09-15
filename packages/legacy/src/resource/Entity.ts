@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { AbstractInstanceType, Schema, schema } from '@rest-hooks/core';
+import { AbstractInstanceType, Schema, schema } from '@rest-hooks/endpoint';
 
 import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
 import SimpleRecord from './SimpleRecord.js';

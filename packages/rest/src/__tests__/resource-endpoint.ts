@@ -1,10 +1,7 @@
-import {
-  CoolerArticleResource,
-  UserResource,
-  UrlArticleResource,
-} from '__tests__/new';
+import { CoolerArticleResource, UserResource } from '__tests__/new';
 import nock from 'nock';
-import { normalize, schema } from '@rest-hooks/normalizr';
+import { schema } from '@rest-hooks/endpoint';
+import { normalize } from '@rest-hooks/normalizr';
 
 import Resource from '../Resource';
 import BaseResource from '../BaseResource';
