@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.0-beta.0](https://github.com/coinbase/rest-hooks/compare/example-benchmark@0.3.0...example-benchmark@0.4.0-beta.0) (2022-09-16)
+
+### 🚀 Features
+
+* Move schema implementations to @rest-hooks/endpoint ([#2159](https://github.com/coinbase/rest-hooks/issues/2159)) ([ffaed57](https://github.com/coinbase/rest-hooks/commit/ffaed57a3b397f6eeb69ab3a9fd51366b298b3e5))
+
+### 📦 Package
+
+* Update all non-major dependencies ([#2175](https://github.com/coinbase/rest-hooks/issues/2175)) ([d2fb0cc](https://github.com/coinbase/rest-hooks/commit/d2fb0ccb0d46cd2c25d16da36c69200a02fae0bd))
+* Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
+
 ## 0.3.0 (2022-09-10)
 
 ### 🚀 Features

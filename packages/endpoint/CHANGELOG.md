@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.3.1...@rest-hooks/endpoint@3.0.0-beta.0) (2022-09-16)
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Requires handling endpoints without schema
+
+### 🚀 Features
+
+* Move schema implementations to @rest-hooks/endpoint ([#2159](https://github.com/coinbase/rest-hooks/issues/2159)) ([ffaed57](https://github.com/coinbase/rest-hooks/commit/ffaed57a3b397f6eeb69ab3a9fd51366b298b3e5))
+
+### 💅 Enhancement
+
+* Get rid of legacy _schema member type ([3245cdc](https://github.com/coinbase/rest-hooks/commit/3245cdc4c0e82b1ceee77c81d920c46df1c87e37))
+
+### 📦 Package
+
+* Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
+
 ### [2.3.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.3.0...@rest-hooks/endpoint@2.3.1) (2022-09-10)
 
 ### 📦 Package

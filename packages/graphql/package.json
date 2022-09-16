@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/graphql",
-  "version": "0.1.12",
+  "version": "0.2.0-beta.0",
   "description": "Endpoints for GraphQL APIs",
   "sideEffects": false,
   "main": "dist/index.js",

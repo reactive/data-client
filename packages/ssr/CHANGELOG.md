@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.2.7-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.2.6...@rest-hooks/ssr@0.2.7-beta.0) (2022-09-16)
+
+### 📦 Package
+
+* Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
+
 ### [0.2.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.2.4...@rest-hooks/ssr@0.2.6) (2022-09-10)
 
 ### 📦 Package

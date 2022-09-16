@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/legacy",
-  "version": "4.3.9",
+  "version": "4.4.0-beta.0",
   "description": "Legacy features for Rest Hooks",
   "sideEffects": false,
   "main": "dist/index.js",

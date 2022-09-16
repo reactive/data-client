@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.0-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/graphql@0.1.12...@rest-hooks/graphql@0.2.0-beta.0) (2022-09-16)
+
+### 🚀 Features
+
+* Move schema implementations to @rest-hooks/endpoint ([#2159](https://github.com/coinbase/rest-hooks/issues/2159)) ([ffaed57](https://github.com/coinbase/rest-hooks/commit/ffaed57a3b397f6eeb69ab3a9fd51366b298b3e5))
+
+### 📦 Package
+
+* Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
+
 ### [0.1.12](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/graphql@0.1.10...@rest-hooks/graphql@0.1.12) (2022-09-10)
 
 ### 💅 Enhancement

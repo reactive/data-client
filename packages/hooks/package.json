@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/hooks",
-  "version": "3.0.5",
+  "version": "3.0.6-beta.0",
   "description": "Collection of composable data hooks",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
