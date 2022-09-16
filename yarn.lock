@@ -18243,28 +18243,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-codegen@npm:^0.70.4":
-  version: 0.70.4
-  resolution: "react-native-codegen@npm:0.70.4"
+"react-native-codegen@npm:^0.70.5":
+  version: 0.70.5
+  resolution: "react-native-codegen@npm:0.70.5"
   dependencies:
     "@babel/parser": ^7.14.0
     flow-parser: ^0.121.0
     jscodeshift: ^0.13.1
     nullthrows: ^1.1.1
-  checksum: 3498952fca88a90b3bd0d0a99c40b118c1ea4b88e2d41ca8e3367befb681dced0a68c1055a0ce12ca68821174ea0f4f6ba9cadc5001f93e0d3fe7a4fe0164bfc
+  checksum: f02fe72996c0b2fb1f30f87df18c8ba36463058a5c60ac2fceee8b04304ae921f362d683ec27d919b90190ec27e411e926e7ff83e25e7f1d378410dbae577bfa
   languageName: node
   linkType: hard
 
-"react-native-gradle-plugin@npm:^0.70.2":
-  version: 0.70.2
-  resolution: "react-native-gradle-plugin@npm:0.70.2"
-  checksum: 4a118c5f9b04f6b22d1c02be9056f3e774574b954c779e3729d288876a11b4d44b85c401183e76808fe1acae277a05a22633b8a9f14fbfc72db9d45be11fd9c7
+"react-native-gradle-plugin@npm:^0.70.3":
+  version: 0.70.3
+  resolution: "react-native-gradle-plugin@npm:0.70.3"
+  checksum: 04a3379842bcb4709ac6b37e093a3de59acd33b28b200885843b13908fac685a77ab81d732c34090c56e5c0eec971d578b227f302bd04fe7901e8792d434f41f
   languageName: node
   linkType: hard
 
-"react-native@npm:0.70.0":
-  version: 0.70.0
-  resolution: "react-native@npm:0.70.0"
+"react-native@npm:0.70.1":
+  version: 0.70.1
+  resolution: "react-native@npm:0.70.1"
   dependencies:
     "@jest/create-cache-key-function": ^27.0.1
     "@react-native-community/cli": ^9.0.0
@@ -18288,8 +18288,8 @@ __metadata:
     pretty-format: ^26.5.2
     promise: ^8.0.3
     react-devtools-core: 4.24.0
-    react-native-codegen: ^0.70.4
-    react-native-gradle-plugin: ^0.70.2
+    react-native-codegen: ^0.70.5
+    react-native-gradle-plugin: ^0.70.3
     react-refresh: ^0.4.0
     react-shallow-renderer: ^16.15.0
     regenerator-runtime: ^0.13.2
@@ -18302,7 +18302,7 @@ __metadata:
     react: 18.1.0
   bin:
     react-native: cli.js
-  checksum: 3daa4636d6f0f2b21a6fd3df10a2a7efa819f68bcad3cebc126a0e9858d56744da5724a85fd3e7a429f1333ccb01545fc9883232e213b9caad522c66471ff946
+  checksum: 766622bb5150269a284c5cfa7f2213a5cc6e1f9637633852da25066f9dfa69b1b459f2152dc2df37e33a1b104b3675c86e1cb0e70419fe2b623fd7089b5cba85
   languageName: node
   linkType: hard
 
@@ -19241,7 +19241,7 @@ __metadata:
     prettier: 2.7.1
     react: 18.2.0
     react-dom: 18.2.0
-    react-native: 0.70.0
+    react-native: 0.70.1
     react-test-renderer: 18.2.0
     redux: 4.2.0
     rest-hooks: "workspace:^"
