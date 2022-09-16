@@ -31,13 +31,13 @@ export type ReceiveTypes = typeof RECEIVE_TYPE;
 
 export type PK = string;
 
-export type State<T> = Readonly<{
-  entities: {
+export interface State<T> {
+  readonly entities: {
     readonly [entityKey: string]: { readonly [pk: string]: T } | undefined;
   };
-  indexes: NormalizedIndex;
-  results: { readonly [key: string]: unknown | PK[] | PK | undefined };
-  meta: {
+  readonly indexes: NormalizedIndex;
+  readonly results: { readonly [key: string]: unknown | PK[] | PK | undefined };
+  readonly meta: {
     readonly [key: string]: {
       readonly date: number;
       readonly error?: ErrorTypes;
@@ -47,7 +47,7 @@ export type State<T> = Readonly<{
       readonly errorPolicy?: 'soft' | undefined;
     };
   };
-  entityMeta: {
+  readonly entityMeta: {
     readonly [entityKey: string]: {
       readonly [pk: string]: {
         readonly date: number;
@@ -56,9 +56,9 @@ export type State<T> = Readonly<{
       };
     };
   };
-  optimistic: (ReceiveAction | OptimisticAction)[];
-  lastReset: Date | number;
-}>;
+  readonly optimistic: (ReceiveAction | OptimisticAction)[];
+  readonly lastReset: Date | number;
+}
 
 export interface ReceiveMeta<S extends Schema | undefined> {
   schema?: S;
