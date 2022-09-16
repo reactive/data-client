@@ -161,11 +161,11 @@ export default abstract class SimpleRecord {
     return [this.fromJS(object) as any, found, deleted];
   }
 
-  private declare static __defaults: any;
+  declare static readonly __defaults: any;
   /** All instance defaults set */
-  protected static get defaults() {
+  static get defaults() {
     if (!Object.prototype.hasOwnProperty.call(this, '__defaults'))
-      this.__defaults = new (this as any)();
+      (this as any).__defaults = new (this as any)();
     return this.__defaults;
   }
 

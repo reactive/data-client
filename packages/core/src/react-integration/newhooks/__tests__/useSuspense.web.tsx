@@ -26,7 +26,7 @@ import nock from 'nock';
 import { jest } from '@jest/globals';
 // relative imports to avoid circular dependency in tsconfig references
 import { normalize } from '@rest-hooks/normalizr';
-import { Endpoint, ReadEndpoint } from '@rest-hooks/endpoint';
+import { Endpoint, FetchFunction, ReadEndpoint } from '@rest-hooks/endpoint';
 import { SpyInstance } from 'jest-mock';
 
 import { FetchAction } from '../../../types';
@@ -93,7 +93,7 @@ describe('useSuspense()', () => {
 
   async function testMalformedResponse(
     payload: any,
-    endpoint: ReadEndpoint = CoolerArticleResource.detail(),
+    endpoint: ReadEndpoint<FetchFunction, any> = CoolerArticleResource.detail(),
   ) {
     nock(/.*/)
       .persist()
@@ -106,7 +106,7 @@ describe('useSuspense()', () => {
       .reply(200, payload);
 
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useSuspense(endpoint as any, {
+      return useSuspense(endpoint, {
         id: 400,
       });
     });
