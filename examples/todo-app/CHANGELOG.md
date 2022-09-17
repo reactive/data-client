@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.2.11-beta.1](https://github.com/coinbase/rest-hooks/compare/todo-app@0.2.10...todo-app@0.2.11-beta.1) (2022-09-17)
+
+### 📦 Package
+
+* Update all non-major dependencies ([#2179](https://github.com/coinbase/rest-hooks/issues/2179)) ([07ab6c3](https://github.com/coinbase/rest-hooks/commit/07ab6c3f8cc868e41605af220dbc64f9f1da4ad8))
+* Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
+* Update linting packages ([#2173](https://github.com/coinbase/rest-hooks/issues/2173)) ([40a9937](https://github.com/coinbase/rest-hooks/commit/40a99370212b66b387c50b7787f7c569772dceac))
+
 ### [0.2.11-beta.0](https://github.com/coinbase/rest-hooks/compare/todo-app@0.2.10...todo-app@0.2.11-beta.0) (2022-09-16)
 
 ### 📦 Package

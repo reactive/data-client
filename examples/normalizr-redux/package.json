@@ -1,6 +1,6 @@
 {
   "name": "normalizr-redux-example",
-  "version": "0.1.0-beta.0",
+  "version": "0.1.0-beta.1",
   "description": "And example of using Normalizr with Redux",
   "main": "index.js",
   "author": "Paul Armstrong",
@@ -13,7 +13,7 @@
     "@babel/core": "7.19.1",
     "@babel/node": "7.19.1",
     "@octokit/rest": "19.0.4",
-    "@rest-hooks/normalizr": "^9.0.0-beta.0",
+    "@rest-hooks/normalizr": "^9.0.0-beta.1",
     "@types/babel__core": "^7",
     "inquirer": "^8.1.1",
     "redux": "4.2.0",

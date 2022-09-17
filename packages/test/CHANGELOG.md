@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.3.8-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.3.7...@rest-hooks/test@7.3.8-beta.1) (2022-09-17)
+
+### 💅 Enhancement
+
+* Object.prototype.hasOwnProperty -> Object.hasOwn ([bdbc6a4](https://github.com/coinbase/rest-hooks/commit/bdbc6a49350cae24a9d8cda0d4e360ce20cb91cd))
+
+### 📦 Package
+
+* Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
+
 ### [7.3.8-beta.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.3.7...@rest-hooks/test@7.3.8-beta.0) (2022-09-16)
 
 ### 📦 Package

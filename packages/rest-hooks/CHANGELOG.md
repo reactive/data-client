@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.4.0-beta.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.3.11...rest-hooks@6.4.0-beta.1) (2022-09-17)
+
+### 🚀 Features
+
+* Move schema implementations to @rest-hooks/endpoint ([#2159](https://github.com/coinbase/rest-hooks/issues/2159)) ([a4be8c0](https://github.com/coinbase/rest-hooks/commit/a4be8c08ea515a27254ea480da2baffa1534b09d))
+
+### 💅 Enhancement
+
+* Object.prototype.hasOwnProperty -> Object.hasOwn ([bdbc6a4](https://github.com/coinbase/rest-hooks/commit/bdbc6a49350cae24a9d8cda0d4e360ce20cb91cd))
+
+### 📦 Package
+
+* Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
+
 ## [6.4.0-beta.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.3.11...rest-hooks@6.4.0-beta.0) (2022-09-16)
 
 ### 🚀 Features
