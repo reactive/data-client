@@ -78,10 +78,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/browserslist-config@npm:1.3.3":
-  version: 1.3.3
-  resolution: "@anansi/browserslist-config@npm:1.3.3"
-  checksum: e6ed85f78b84356c8c6b539d78cd6a50434e802d39da43fd84224ff0db1e6bf9c2d60cd8fe1b8ceb810ca08e6107a10b2e7570536aed6d7569774d27986531b3
+"@anansi/browserslist-config@npm:1.4.0":
+  version: 1.4.0
+  resolution: "@anansi/browserslist-config@npm:1.4.0"
+  checksum: 83c147f7e22a6c8bce33b8890d6237fcbbbff795b198c2e3ee187ccbdd3725af06ee07a8367f71cbdc886be253d95a3b4185840845dfe9a33f5c7da6a7fd2c01
   languageName: node
   linkType: hard
 
@@ -143,12 +143,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:0.6.22":
-  version: 0.6.22
-  resolution: "@anansi/router@npm:0.6.22"
+"@anansi/router@npm:0.6.23":
+  version: 0.6.23
+  resolution: "@anansi/router@npm:0.6.23"
   dependencies:
     "@babel/runtime": ^7.10.5
-    "@pojo-router/core": ^0.5.30
+    "@pojo-router/core": ^0.5.31
     history: ^5.3.0
     nano-memoize: ^1.3.0
   peerDependencies:
@@ -157,7 +157,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 9ee4da20399da17b580a0823b232ba2011cd196cb702066fa5b94c59ef3ebcc4ec49c52ed58c6a4655b3772bf93e57c4efaab9366ea39fd30d133c0db01c1f6d
+  checksum: 7e1d4bb1f25c090f6ec3c123641c9a92f42c35915139e4491b2fb0c46e1e9e3eb46450a5185f16c00ef0b9b0548ac24948c6140f755ee1597a0a2884b9f000fa
   languageName: node
   linkType: hard
 
@@ -3514,9 +3514,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.5.30":
-  version: 0.5.30
-  resolution: "@pojo-router/core@npm:0.5.30"
+"@pojo-router/core@npm:^0.5.31":
+  version: 0.5.31
+  resolution: "@pojo-router/core@npm:0.5.31"
   dependencies:
     "@babel/runtime": ^7.10.5
     history: 5.3.0
@@ -3527,7 +3527,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 55a4dac52a2ba52e34ab661483067ff95998b97ee3926abecc31e5f1d6ef3990a25550f9d3b48337c029a0b0dd1d91f2d66c274427952e374f65b2d58612aa24
+  checksum: 388c4027bdaee997739b96d38237951e985de69717ef34e5f436873af0c9de21da116c5fa7f54d303a10d28b2721f68c76437ee5de79352a7bf2303464781c7b
   languageName: node
   linkType: hard
 
@@ -5615,9 +5615,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"antd@npm:4.23.1":
-  version: 4.23.1
-  resolution: "antd@npm:4.23.1"
+"antd@npm:4.23.2":
+  version: 4.23.2
+  resolution: "antd@npm:4.23.2"
   dependencies:
     "@ant-design/colors": ^6.0.0
     "@ant-design/icons": ^4.7.0
@@ -5629,7 +5629,7 @@ __metadata:
     lodash: ^4.17.21
     memoize-one: ^6.0.0
     moment: ^2.29.2
-    rc-cascader: ~3.6.0
+    rc-cascader: ~3.7.0
     rc-checkbox: ~2.3.0
     rc-collapse: ~3.3.0
     rc-dialog: ~8.9.0
@@ -5649,7 +5649,7 @@ __metadata:
     rc-rate: ~2.9.0
     rc-resize-observer: ^1.2.0
     rc-segmented: ~2.1.0
-    rc-select: ~14.1.1
+    rc-select: ~14.1.13
     rc-slider: ~10.0.0
     rc-steps: ~4.1.0
     rc-switch: ~3.2.0
@@ -5657,8 +5657,8 @@ __metadata:
     rc-tabs: ~12.1.0-alpha.1
     rc-textarea: ~0.3.0
     rc-tooltip: ~5.2.0
-    rc-tree: ~5.6.5
-    rc-tree-select: ~5.4.0
+    rc-tree: ~5.7.0
+    rc-tree-select: ~5.5.0
     rc-trigger: ^5.2.10
     rc-upload: ~4.3.0
     rc-util: ^5.22.5
@@ -5666,7 +5666,7 @@ __metadata:
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: 32153beac347a15cde588050b716bd87294a16234a7278d9d5a5936d6088618dce13e1dd221e47abd0e29d586f72d8ed1194afc87715662ca0379f04e72527b5
+  checksum: fe35176d0da0075321968c8cd2ec60c11ce910303c7ae2203456f9144ba29c48ae5df8e3a1bfc0b01a34c5ac999d3ef09d119ce7d4814dcaa686df9e33831d14
   languageName: node
   linkType: hard
 
@@ -10431,9 +10431,9 @@ __metadata:
   resolution: "github-app@workspace:examples/github-app"
   dependencies:
     "@anansi/babel-preset": 3.2.17
-    "@anansi/browserslist-config": 1.3.3
+    "@anansi/browserslist-config": 1.4.0
     "@anansi/eslint-plugin": 0.14.2
-    "@anansi/router": 0.6.22
+    "@anansi/router": 0.6.23
     "@anansi/webpack-config": 13.0.9
     "@ant-design/icons": ^4.7.0
     "@babel/core": 7.19.1
@@ -10455,7 +10455,7 @@ __metadata:
     "@types/uuid": ^8
     "@typescript-eslint/eslint-plugin": 5.37.0
     "@typescript-eslint/parser": 5.37.0
-    antd: 4.23.1
+    antd: 4.23.2
     eslint: 8.23.1
     eslint-plugin-import: 2.26.0
     eslint-plugin-prettier: 4.2.1
@@ -17571,20 +17571,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-cascader@npm:~3.6.0":
-  version: 3.6.0
-  resolution: "rc-cascader@npm:3.6.0"
+"rc-cascader@npm:~3.7.0":
+  version: 3.7.0
+  resolution: "rc-cascader@npm:3.7.0"
   dependencies:
     "@babel/runtime": ^7.12.5
     array-tree-filter: ^2.1.0
     classnames: ^2.3.1
     rc-select: ~14.1.0
-    rc-tree: ~5.6.3
+    rc-tree: ~5.7.0
     rc-util: ^5.6.1
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: edf3aca269a70cc23a332458f7d816591279bfcdb90b0645e1b0ad14c12f25ee6c95ed939cc36b09b7a08a13f9beec13be07750f87d4d748bb1ca2cdcca4c52f
+  checksum: 9bc01c8fb633f6d9af821fad7020ceb829fe71bb9e3517fee2554ca58176b650621e3e9286b2e8208df419c381d6b7696aa801985acdb050c6f36b7c68321cff
   languageName: node
   linkType: hard
 
@@ -17888,9 +17888,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-select@npm:~14.1.0, rc-select@npm:~14.1.1":
-  version: 14.1.2
-  resolution: "rc-select@npm:14.1.2"
+"rc-select@npm:~14.1.0, rc-select@npm:~14.1.13":
+  version: 14.1.13
+  resolution: "rc-select@npm:14.1.13"
   dependencies:
     "@babel/runtime": ^7.10.1
     classnames: 2.x
@@ -17902,7 +17902,7 @@ __metadata:
   peerDependencies:
     react: "*"
     react-dom: "*"
-  checksum: ff29c0bf3409e46cbc8f0b278a90ad1d348088d4301f086011af374356b8dbeed4e79dc872559ee588bfacbe1d5277128a1f3cf465428aa974d2c2fd02003334
+  checksum: 1ea0fc5fa5ea6e1b364d0c7257fcfa78f04ee8fa395a01a9bbca0da695517ae386350668ec24ff9ea199bfbeb1a67a9c7cdd93fc2de1dc459948cf613decb2f8
   languageName: node
   linkType: hard
 
@@ -18013,25 +18013,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-tree-select@npm:~5.4.0":
-  version: 5.4.0
-  resolution: "rc-tree-select@npm:5.4.0"
+"rc-tree-select@npm:~5.5.0":
+  version: 5.5.0
+  resolution: "rc-tree-select@npm:5.5.0"
   dependencies:
     "@babel/runtime": ^7.10.1
     classnames: 2.x
     rc-select: ~14.1.0
-    rc-tree: ~5.6.1
+    rc-tree: ~5.7.0
     rc-util: ^5.16.1
   peerDependencies:
     react: "*"
     react-dom: "*"
-  checksum: e1f4b3cf025b371579a686fa1b04a9439ac84fa663f6ed52e384059a15255b634d0ab94a49a555727ada0b2686fd43daf4ba0b244529d1ff7ae6816a2cba2c34
+  checksum: 5053d3b550314a664654384117dd17d31220ff9d2c465941c84058fae5da777e1a2965422f3a33fe69bd6db4f6ed92c728254c42c9f443474a304325b14fc6d2
   languageName: node
   linkType: hard
 
-"rc-tree@npm:~5.6.1, rc-tree@npm:~5.6.3, rc-tree@npm:~5.6.5":
-  version: 5.6.5
-  resolution: "rc-tree@npm:5.6.5"
+"rc-tree@npm:~5.7.0":
+  version: 5.7.0
+  resolution: "rc-tree@npm:5.7.0"
   dependencies:
     "@babel/runtime": ^7.10.1
     classnames: 2.x
@@ -18041,7 +18041,7 @@ __metadata:
   peerDependencies:
     react: "*"
     react-dom: "*"
-  checksum: 107efb7dbf6d44faf11072c4c53277f234ecd8d0c5a5cb387d5d9ac18b96098fa9cef3312f52589930c5562fd708f4da50f3b7880b27b2405c6ac558dce9f037
+  checksum: 0bcab3a11615ca69386077841d63337206ddb6dcb7284b6cfbc53d39b450e74f5e3e0f43b190e445182321bb6052a9b46dacc566a6a564e8ba2d65e83b99ffcb
   languageName: node
   linkType: hard
 
@@ -19201,7 +19201,7 @@ __metadata:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     "@anansi/babel-preset": 3.2.17
-    "@anansi/browserslist-config": 1.3.3
+    "@anansi/browserslist-config": 1.4.0
     "@anansi/eslint-plugin": 0.14.2
     "@anansi/jest-preset": 0.7.24
     "@babel/cli": 7.18.10
@@ -20800,7 +20800,7 @@ __metadata:
   resolution: "todo-app@workspace:examples/todo-app"
   dependencies:
     "@anansi/babel-preset": 3.2.17
-    "@anansi/browserslist-config": 1.3.3
+    "@anansi/browserslist-config": 1.4.0
     "@anansi/eslint-plugin": 0.14.2
     "@anansi/webpack-config": 13.0.9
     "@babel/core": 7.19.1

@@ -22,7 +22,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@anansi/babel-preset": "3.2.17",
-    "@anansi/browserslist-config": "1.3.3",
+    "@anansi/browserslist-config": "1.4.0",
     "@anansi/eslint-plugin": "0.14.2",
     "@anansi/webpack-config": "13.0.9",
     "@babel/core": "7.19.1",
