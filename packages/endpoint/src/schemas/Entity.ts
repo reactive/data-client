@@ -332,9 +332,14 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
 
   static denormalize<T extends typeof Entity>(
     this: T,
-    input: Readonly<Partial<AbstractInstanceType<T>>>,
+    input: any,
     unvisit: UnvisitFunction,
   ): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean] {
+    // TODO: remove codecov ignore once denormalize is modified to expect this
+    /* istanbul ignore if */
+    if (typeof input === 'symbol') {
+      return [undefined, true, true] as any;
+    }
     if (isImmutable(input)) {
       if (this.validate((input as any).toJS()))
         return [undefined as any, false, true];

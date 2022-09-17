@@ -31,6 +31,9 @@ const unvisitEntity = (
     (entity as symbol).toString().includes('DELETED')
   ) {
     return [undefined, true, true];
+    // TODO: Change to this as breaking change once we only support newer entities
+    // also remove `(entity as symbol).toString().includes('DELETED')` and do this for all symbols
+    // return schema.denormalize(entity, unvisit);
   }
 
   if (typeof entity !== 'object' || entity === null) {
