@@ -7,13 +7,15 @@ assignees: ''
 
 ---
 
-**React version** (e.g., 17.0.2)
+**React version** (e.g., 18.2.0)
+
+**TypeScript version (if used)** (e.g., 4.8.2)
+
+**Rest Hooks version** (e.g., 6.3.11)
 
 **Package manager version** (e.g., yarn 2, npm 8)
 
 **Node version** (e.g., 16.13.2)
-
-**Rest Hooks version** (e.g., 6.2.0)
 
 **Describe the bug**
 A clear and concise description of what the bug is.
