@@ -56,7 +56,7 @@ export default function MockResolver({
           typeof action.meta.createdAt !== 'number'
             ? action.meta.createdAt.getTime()
             : action.meta.createdAt;
-        if (Object.prototype.hasOwnProperty.call(fixtureMap, key)) {
+        if (Object.hasOwn(fixtureMap, key)) {
           // All updates must be async or React will complain about re-rendering in same pass
           setTimeout(() => {
             const fixture = fixtureMap[key];
@@ -101,7 +101,7 @@ export default function MockResolver({
         }
       } else if (action.type === actionTypes.SUBSCRIBE_TYPE) {
         const { key } = action.meta;
-        if (Object.prototype.hasOwnProperty.call(fixtureMap, key)) {
+        if (Object.hasOwn(fixtureMap, key)) {
           return Promise.resolve();
         }
       }

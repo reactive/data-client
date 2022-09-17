@@ -89,9 +89,7 @@ const unvisitEntity = (
     }
   } else {
     // cycle detected
-    if (
-      Object.prototype.hasOwnProperty.call(localCache[schema.key][pk], DRAFT)
-    ) {
+    if (Object.hasOwn(localCache[schema.key][pk], DRAFT)) {
       cycleIndex.i = localCache[schema.key][pk].i;
       return [localCache[schema.key][pk][DRAFT], found, deleted];
     } else {

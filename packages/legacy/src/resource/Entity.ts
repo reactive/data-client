@@ -350,7 +350,5 @@ function indexFromParams<I extends string>(
   indexes?: Readonly<I[]>,
 ) {
   if (!indexes) return undefined;
-  return indexes.find(index =>
-    Object.prototype.hasOwnProperty.call(params, index),
-  );
+  return indexes.find(index => Object.hasOwn(params, index));
 }

@@ -29,7 +29,7 @@ export default function shapeToEndpoint<
     schema: shape.schema,
     ...((sideEffect && { sideEffect }) as any),
   };
-  if (Object.prototype.hasOwnProperty.call(shape, 'fetch'))
+  if (Object.hasOwn(shape, 'fetch'))
     return new Endpoint(shape.fetch as any, options);
 
   return options as any;

@@ -192,7 +192,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     visitedEntities[entityType][id].push(input);
 
     Object.keys(this.schema).forEach(key => {
-      if (Object.prototype.hasOwnProperty.call(processedEntity, key)) {
+      if (Object.hasOwn(processedEntity, key)) {
         const schema = this.schema[key];
         processedEntity[key] = visit(
           processedEntity[key],
@@ -284,8 +284,8 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     }
     if (process.env.NODE_ENV !== 'production') {
       for (const key of Object.keys(this.schema)) {
-        if (!Object.prototype.hasOwnProperty.call(processedEntity, key)) {
-          if (!Object.prototype.hasOwnProperty.call(this.defaults, key)) {
+        if (!Object.hasOwn(processedEntity, key)) {
+          if (!Object.hasOwn(this.defaults, key)) {
             return `Schema key is missing in Entity
 
   Be sure all schema members are also part of the entity
@@ -366,24 +366,15 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     // note: iteration order must be stable
     Object.keys(this.schema).forEach(key => {
       const schema = this.schema[key];
-      const nextInput = Object.prototype.hasOwnProperty.call(input, key)
+      const nextInput = Object.hasOwn(input, key)
         ? (input as any)[key]
         : undefined;
       const [value, , deletedItem] = unvisit(nextInput, schema);
 
-      if (
-        deletedItem &&
-        !(
-          Object.prototype.hasOwnProperty.call(input, key) &&
-          !this.defaults[key]
-        )
-      ) {
+      if (deletedItem && !(Object.hasOwn(input, key) && !this.defaults[key])) {
         deleted = true;
       }
-      if (
-        Object.prototype.hasOwnProperty.call(input, key) &&
-        (input as any)[key] !== value
-      ) {
+      if (Object.hasOwn(input, key) && (input as any)[key] !== value) {
         this.set(entityCopy, key, value);
       }
     });
@@ -394,7 +385,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
   private declare static __defaults: any;
   /** All instance defaults set */
   protected static get defaults() {
-    if (!Object.prototype.hasOwnProperty.call(this, '__defaults'))
+    if (!Object.hasOwn(this, '__defaults'))
       this.__defaults = new (this as any)();
     return this.__defaults;
   }
@@ -425,7 +416,5 @@ function indexFromParams<I extends string>(
   indexes?: Readonly<I[]>,
 ) {
   if (!indexes) return undefined;
-  return indexes.find(index =>
-    Object.prototype.hasOwnProperty.call(params, index),
-  );
+  return indexes.find(index => Object.hasOwn(params, index));
 }

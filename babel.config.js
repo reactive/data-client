@@ -26,6 +26,10 @@ module.exports = function (api) {
         },
       ],
     ],
+    plugins: [
+      process.env.BROWSERSLIST_ENV !== '2020' &&
+        'babel-plugin-transform-object-hasown',
+    ].filter(p => p),
     assumptions: {
       noDocumentAll: true,
       noClassCalls: true,

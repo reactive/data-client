@@ -164,7 +164,7 @@ export default abstract class SimpleRecord {
   declare static readonly __defaults: any;
   /** All instance defaults set */
   static get defaults() {
-    if (!Object.prototype.hasOwnProperty.call(this, '__defaults'))
+    if (!Object.hasOwn(this, '__defaults'))
       (this as any).__defaults = new (this as any)();
     return this.__defaults;
   }

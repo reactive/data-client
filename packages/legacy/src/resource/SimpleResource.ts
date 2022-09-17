@@ -49,7 +49,7 @@ export default abstract class SimpleResource extends FlatEntity {
    */
   static url(urlParams: Readonly<Record<string, any>>): string {
     if (
-      Object.prototype.hasOwnProperty.call(urlParams, 'url') &&
+      Object.hasOwn(urlParams, 'url') &&
       urlParams.url &&
       typeof urlParams.url === 'string'
     ) {

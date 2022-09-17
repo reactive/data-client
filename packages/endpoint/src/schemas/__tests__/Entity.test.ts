@@ -743,8 +743,7 @@ describe(`${Entity.name} denormalization`, () => {
   test('denormalizes to undefined when validate() returns string', () => {
     class MyTacos extends Tacos {
       static validate(entity) {
-        if (!Object.prototype.hasOwnProperty.call(entity, 'name'))
-          return 'no name';
+        if (!Object.hasOwn(entity, 'name')) return 'no name';
       }
     }
     const entities = {

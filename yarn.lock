@@ -6294,6 +6294,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"babel-plugin-transform-object-hasown@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "babel-plugin-transform-object-hasown@npm:1.1.0"
+  checksum: 5cdde8b784ebc2364324da16c48cbc75de63d9529be02ceff6a44a86f0681e41a771fdc857b01828e46bf3d2b0228cfae27f436678f19db9e54172e9a79ef4bf
+  languageName: node
+  linkType: hard
+
 "babel-plugin-transform-react-remove-prop-types@npm:^0.4.24":
   version: 0.4.24
   resolution: "babel-plugin-transform-react-remove-prop-types@npm:0.4.24"
@@ -19242,6 +19249,7 @@ __metadata:
     "@types/react": 18.0.20
     "@typescript-eslint/eslint-plugin": 5.37.0
     "@typescript-eslint/parser": 5.37.0
+    babel-plugin-transform-object-hasown: ^1.1.0
     benchmark: ^2.1.4
     conventional-changelog-anansi: ^0.2.0
     copyfiles: ^2.4.1

@@ -28,7 +28,7 @@ export default function shapeToEndpoint<
     schema: shape.schema,
     ...((sideEffect && { sideEffect }) as any),
   };
-  if (Object.prototype.hasOwnProperty.call(shape, 'fetch')) {
+  if (Object.hasOwn(shape, 'fetch')) {
     // simplest form of endpoint without relying on the package
     const endpoint: any = (...args: any) => (shape as any).fetch(...args);
     Object.assign(endpoint, options);

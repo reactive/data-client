@@ -53,6 +53,7 @@
     "@types/react": "18.0.20",
     "@typescript-eslint/eslint-plugin": "5.37.0",
     "@typescript-eslint/parser": "5.37.0",
+    "babel-plugin-transform-object-hasown": "^1.1.0",
     "benchmark": "^2.1.4",
     "conventional-changelog-anansi": "^0.2.0",
     "copyfiles": "^2.4.1",

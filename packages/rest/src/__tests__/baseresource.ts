@@ -94,7 +94,7 @@ describe('BaseResource', () => {
     const entity = UrlArticleResource.fromJS({ url: 'five' });
     const spread = { ...entity };
     expect(spread.url).toBe('five');
-    expect(Object.prototype.hasOwnProperty.call(entity, 'url')).toBeTruthy();
+    expect(Object.hasOwn(entity, 'url')).toBeTruthy();
   });
 
   it('should not spread `url` member if not a member', () => {
@@ -104,7 +104,7 @@ describe('BaseResource', () => {
     );
     const spread = { ...entity };
     expect(spread.url).toBeUndefined();
-    expect(Object.prototype.hasOwnProperty.call(entity, 'url')).toBeFalsy();
+    expect(Object.hasOwn(entity, 'url')).toBeFalsy();
   });
 
   it('should convert class to string', () => {

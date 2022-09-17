@@ -101,8 +101,7 @@ export default class NetworkManager implements Manager {
   skipLogging(action: ActionTypes) {
     /* istanbul ignore next */
     return (
-      action.type === FETCH_TYPE &&
-      Object.prototype.hasOwnProperty.call(this.fetched, action.meta.key)
+      action.type === FETCH_TYPE && Object.hasOwn(this.fetched, action.meta.key)
     );
   }
 
@@ -263,7 +262,7 @@ export default class NetworkManager implements Manager {
    */
   protected handleReceive(action: ReceiveAction) {
     // this can still turn out to be untrue since this is async
-    if (Object.prototype.hasOwnProperty.call(this.fetched, action.meta.key)) {
+    if (Object.hasOwn(this.fetched, action.meta.key)) {
       let promiseHandler: (value?: any) => void;
       if (action.error) {
         promiseHandler = this.rejectors[action.meta.key];

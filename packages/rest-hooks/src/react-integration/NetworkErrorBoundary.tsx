@@ -2,7 +2,7 @@ import React from 'react';
 import type { NetworkError } from '@rest-hooks/core';
 
 function isNetworkError(error: NetworkError | unknown): error is NetworkError {
-  return Object.prototype.hasOwnProperty.call(error, 'status');
+  return Object.hasOwn(error as any, 'status');
 }
 
 interface Props<E extends NetworkError> {

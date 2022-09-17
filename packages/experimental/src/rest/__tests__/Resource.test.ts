@@ -312,6 +312,6 @@ describe('Resource', () => {
     const entity = UrlArticle.fromJS({ url: 'five' });
     const spread = { ...entity };
     expect(spread.url).toBe('five');
-    expect(Object.prototype.hasOwnProperty.call(entity, 'url')).toBeTruthy();
+    expect(Object.hasOwn(entity, 'url')).toBeTruthy();
   });
 });

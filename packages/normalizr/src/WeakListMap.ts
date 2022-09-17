@@ -29,7 +29,7 @@ export default class WeakListMap<K extends object, V> {
   has(key: K[]): boolean {
     const link = this.traverse(key);
     if (!link) return false;
-    return Object.prototype.hasOwnProperty.call(link, 'value');
+    return Object.hasOwn(link, 'value');
   }
 
   set(key: K[], value: V): WeakListMap<K, V> {
