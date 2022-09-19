@@ -86,7 +86,7 @@ module.exports = {
           lastVersion: 'current',
           includeCurrentVersion: true,
           versions: {
-            current: { label: '6.3', path: '', badge: false },
+            current: { label: '6.4', path: '', badge: false },
             '5.0': { label: '5.0', path: '5.0', banner: 'none' },
           },
           onlyIncludeVersions: isDev
@@ -130,7 +130,7 @@ module.exports = {
         lastVersion: 'current',
         includeCurrentVersion: true,
         versions: {
-          current: { label: '5.1', path: '', badge: false, banner: 'none' },
+          current: { label: '5.2', path: '', badge: false, banner: 'none' },
         },
         /*onlyIncludeVersions: isDev
           ? ['current', ...versionsRest.slice(0, 4)]
