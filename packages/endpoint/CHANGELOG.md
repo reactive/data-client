@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.3.1...@rest-hooks/endpoint@3.0.0) (2022-09-19)
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Requires handling endpoints without schema
+
+### 🚀 Features
+
+* Entity.denormalize handles symbol input ([0817c1e](https://github.com/coinbase/rest-hooks/commit/0817c1e56132ef02c38dfc7c226ba84dc272fce5))
+* Move schema implementations to @rest-hooks/endpoint ([#2159](https://github.com/coinbase/rest-hooks/issues/2159)) ([a4be8c0](https://github.com/coinbase/rest-hooks/commit/a4be8c08ea515a27254ea480da2baffa1534b09d))
+
+### 💅 Enhancement
+
+* Get rid of legacy _schema member type ([7a42da4](https://github.com/coinbase/rest-hooks/commit/7a42da4f5c3357eb1963d8fd990851a554034671))
+* Object.prototype.hasOwnProperty -> Object.hasOwn ([bdbc6a4](https://github.com/coinbase/rest-hooks/commit/bdbc6a49350cae24a9d8cda0d4e360ce20cb91cd))
+
+### 🐛 Bug Fix
+
+* React native to use es6 modules ([#2180](https://github.com/coinbase/rest-hooks/issues/2180)) ([31524ea](https://github.com/coinbase/rest-hooks/commit/31524ea2cbe6ab4bf4cfe77659ac5e69b0319763))
+
+### 📦 Package
+
+* Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
+
 ## [3.0.0-beta.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.3.1...@rest-hooks/endpoint@3.0.0-beta.1) (2022-09-17)
 
 ### ⚠ 💥 BREAKING CHANGES

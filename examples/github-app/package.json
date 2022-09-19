@@ -1,6 +1,6 @@
 {
   "name": "github-app",
-  "version": "0.4.1-beta.2",
+  "version": "0.4.1",
   "description": "github-app - A rest hooks example",
   "scripts": {
     "lint": "eslint src --ext .ts,.tsx",
@@ -61,12 +61,12 @@
   "dependencies": {
     "@anansi/router": "0.6.23",
     "@ant-design/icons": "^4.7.0",
-    "@rest-hooks/core": "^3.3.0-beta.2",
-    "@rest-hooks/endpoint": "^3.0.0-beta.2",
-    "@rest-hooks/experimental": "^7.1.0-beta.2",
-    "@rest-hooks/graphql": "^0.2.0-beta.2",
-    "@rest-hooks/hooks": "^3.0.6-beta.2",
-    "@rest-hooks/rest": "^5.2.0-beta.2",
+    "@rest-hooks/core": "^3.3.0",
+    "@rest-hooks/endpoint": "^3.0.0",
+    "@rest-hooks/experimental": "^7.1.0",
+    "@rest-hooks/graphql": "^0.2.0",
+    "@rest-hooks/hooks": "^3.0.6",
+    "@rest-hooks/rest": "^5.2.0",
     "antd": "4.23.2",
     "parse-link-header": "^2.0.0",
     "react": "18.2.0",
@@ -76,7 +76,7 @@
     "rehype-highlight": "^5.0.2",
     "remark-gfm": "^3.0.1",
     "remark-remove-comments": "^0.2.0",
-    "rest-hooks": "^6.4.0-beta.2",
+    "rest-hooks": "^6.4.0",
     "uuid": "^8.3.2"
   }
 }
