@@ -54,6 +54,10 @@
     "typescript",
     "data fetching",
     "data cache",
+    "react-native",
+    "ios",
+    "android",
+    "web",
     "declarative"
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",

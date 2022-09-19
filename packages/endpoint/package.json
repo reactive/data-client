@@ -81,7 +81,11 @@
     "schema",
     "async",
     "ajax",
-    "react"
+    "react",
+    "react-native",
+    "ios",
+    "android",
+    "web"
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",

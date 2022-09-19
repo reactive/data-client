@@ -82,6 +82,10 @@
     "graph",
     "swr",
     "endpoint",
+    "react-native",
+    "ios",
+    "android",
+    "web",
     "networking",
     "react",
     "json"

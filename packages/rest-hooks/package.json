@@ -87,6 +87,10 @@
     "GraphQL",
     "query",
     "async",
+    "react-native",
+    "ios",
+    "android",
+    "web",
     "declarative",
     "scalable"
   ],

@@ -19,6 +19,10 @@
     "data",
     "cache",
     "api",
+    "react-native",
+    "ios",
+    "android",
+    "web",
     "json"
   ],
   "files": [

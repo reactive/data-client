@@ -79,6 +79,10 @@
     "normalized cache",
     "subject pattern",
     "endpoint",
+    "react-native",
+    "ios",
+    "android",
+    "web",
     "json"
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",

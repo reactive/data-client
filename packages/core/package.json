@@ -86,6 +86,10 @@
     "swr",
     "GraphQL",
     "query",
+    "react-native",
+    "ios",
+    "android",
+    "web",
     "middleware",
     "declarative",
     "scalable"
