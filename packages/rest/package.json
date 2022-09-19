@@ -4,6 +4,7 @@
   "description": "Endpoints for REST APIs",
   "sideEffects": false,
   "main": "dist/index.js",
+  "react-native": "legacy/index.js",
   "module": "legacy/index.js",
   "unpkg": "dist/index.umd.min.js",
   "types": "lib/index.d.ts",

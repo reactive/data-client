@@ -4,6 +4,7 @@
   "description": "Testing utilities for Rest Hooks",
   "sideEffects": false,
   "main": "dist/index.js",
+  "react-native": "legacy/browser.js",
   "module": "legacy/browser.js",
   "types": "lib/index.d.ts",
   "typesVersions": {

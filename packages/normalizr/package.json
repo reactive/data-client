@@ -31,6 +31,7 @@
     "README.md"
   ],
   "main": "dist/normalizr.js",
+  "react-native": "legacy/index.js",
   "module": "legacy/index.js",
   "types": "lib/index.d.ts",
   "typesVersions": {

@@ -4,6 +4,7 @@
   "description": "Add powerful orchestration to hooks-based Flux stores",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
+  "react-native": "lib/index.js",
   "module": "lib/index.js",
   "unpkg": "dist/index.umd.min.js",
   "types": "lib/index.d.ts",
