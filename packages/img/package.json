@@ -86,7 +86,7 @@
     "@babel/core": "7.19.1",
     "@types/babel__core": "^7",
     "downlevel-dts": "^0.10.0",
-    "rollup": "2.79.0",
+    "rollup": "2.79.1",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-filesize": "^9.1.2",
