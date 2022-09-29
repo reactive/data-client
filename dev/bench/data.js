@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1664135347790,
+  "lastUpdate": 1664469340989,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -7598,6 +7598,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.92%",
             "unit": "ops/sec",
             "extra": "80 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7c9d3bc8ea3019490a1f9e1978c3709b346d582d",
+          "message": "pkg: Update babel packages (#2192)\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+          "timestamp": "2022-09-29T11:31:25-05:00",
+          "tree_id": "01ba25b5e25a40c06b12b897af888677afdb6913",
+          "url": "https://github.com/coinbase/rest-hooks/commit/7c9d3bc8ea3019490a1f9e1978c3709b346d582d"
+        },
+        "date": 1664469339867,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 101,
+            "range": "±0.39%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 48.64,
+            "range": "±0.46%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 53.03,
+            "range": "±0.77%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 101,
+            "range": "±1.29%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
           }
         ]
       }
