@@ -7,7 +7,7 @@ title: useSubscription()
 </head>
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
-import ConditionalDependencies from '../shared/_conditional_dependencies.mdx';
+import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 
 <GenericsTabs>
 
@@ -36,13 +36,10 @@ When using the default [polling subscriptions](./PollingSubscription), frequency
 
 ## Example
 
-`PriceResource.ts`
+```typescript title="api/Price.ts"
+import { Resource, Entity } from '@rest-hooks/rest';
 
-```typescript
-import { Resource } from '@rest-hooks/rest';
-import { EndpointExtraOptions } from '@rest-hooks/endpoint';
-
-export default class PriceResource extends Resource {
+export class Price extends Entity {
   readonly symbol: string | undefined = undefined;
   readonly price: string = '0.0';
   // ...
@@ -50,26 +47,23 @@ export default class PriceResource extends Resource {
   pk() {
     return this.symbol;
   }
-  static urlRoot = 'http://test.com/price/';
-
-  /** Used as default options for every Endpoint */
-  static getEndpointExtra(): EndpointExtraOptions {
-    return {
-      pollFrequency: 5000, // every 5 seconds
-    };
-  }
 }
+
+export const getPrice = new RestEndpont({
+  urlPrefix: 'http://test.com',
+  path: '/price/:symbol',
+  schema: Price,
+  pollFrequency: 5000,
+});
 ```
 
-`MasterPrice.tsx`
-
-```tsx
+```tsx title="MasterPrice.tsx"
 import { useSuspense, useSubscription } from 'rest-hooks';
-import PriceResource from 'resources/PriceResource';
+import { getPrice } from 'api/Price';
 
 function MasterPrice({ symbol }: { symbol: string }) {
-  const price = useSuspense(PriceResource.detail(), { symbol });
-  useSubscription(PriceResource.detail(), { symbol });
+  const price = useSuspense(getPrice, { symbol });
+  useSubscription(getPrice, { symbol });
   // ...
 }
 ```
@@ -79,14 +73,14 @@ function MasterPrice({ symbol }: { symbol: string }) {
 ```tsx title="MasterPrice.tsx"
 import { useRef } from 'react';
 import { useSuspense, useSubscription } from 'rest-hooks';
-import PriceResource from 'resources/PriceResource';
+import { getPrice } from 'api/Price';
 
 function MasterPrice({ symbol }: { symbol: string }) {
-  const price = useSuspense(PriceResource.detail(), { symbol });
+  const price = useSuspense(getPrice, { symbol });
   const ref = useRef();
   const onScreen = useOnScreen(ref);
   // null params means don't subscribe
-  useSubscription(PriceResource.detail(), onScreen ? null : { symbol });
+  useSubscription(getPrice, onScreen ? null : { symbol });
 
   return (
     <div ref={ref}>{price.value.toLocaleString('en', { currency: 'USD' })}</div>
@@ -101,10 +95,9 @@ based on whether the element rendered is [visible on screen](https://usehooks.co
 
 ## Useful `Endpoint`s to send
 
-[Resource](/rest/api/resource#provided-and-overridable-methods) provides these built-in:
+[Resource](/rest/api/createResource#members) provides these built-in:
 
-- detail()
-- list()
+- get
+- getList
 
-Be sure to extend these [Endpoint](/rest/api/Endpoint)s with a pollFrequency to set
-the polling-rate.
+Feel free to add your own [RestEndpoint](/rest/api/RestEndpoint) as well.

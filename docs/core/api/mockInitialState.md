@@ -55,7 +55,7 @@ import MyComponentToTest from 'components/MyComponentToTest';
 
 const results = [
   {
-    request: ArticleResource.list(),
+    request: ArticleResource.getList,
     params: { maxResults: 10 },
     result: [
       {

@@ -14,15 +14,15 @@ yarn add @rest-hooks/rest
 
 #### Readonly endpoints
 
-- Resource.detail()
-- Resource.list()
+- Resource.get
+- Resource.getList
 
 #### Mutation endpoints
 
-- Resource.create()
-- Resource.update()
-- Resource.partialUpdate()
-- Resource.delete()
+- Resource.create
+- Resource.update
+- Resource.partialUpdate
+- Resource.delete
 
 
 ## GraphQL

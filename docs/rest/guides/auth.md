@@ -1,57 +1,48 @@
 ---
-title: Resource Authentication
+title: Rest Authentication
 sidebar_label: Authentication
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-All network requests are run through the `static getFetchInit` optionally
-defined in your `Resource`.
+All network requests are run through the [getRequestInit](../api/RestEndpoint.md#getRequestInit) optionally
+defined in your [RestEndpoint](../api/RestEndpoint.md).
 
 ## Cookie Auth
 
 Here's an example using simple cookie auth:
 
-<Tabs
-defaultValue="fetch"
-values={[
-{ label: 'fetch', value: 'fetch' },
-{ label: 'superagent', value: 'superagent' },
-]}>
-<TabItem value="fetch">
+```ts title="api/AuthdEndpoint.ts"
+import { RestEndpoint } from '@rest-hooks/rest';
 
-```typescript
-import { Resource } from '@rest-hooks/rest';
-
-abstract class AuthdResource extends Resource {
-  static getFetchInit = (init: RequestInit): RequestInit => ({
-    ...init,
-    credentials: 'same-origin',
-  });
+export default class AuthdEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  getRequestInit(body: any): RequestInit {
+    return {
+      ...super.getRequestInit(body),
+      // highlight-next-line
+      credentials: 'same-origin',
+    };
+  }
 }
 ```
 
-</TabItem>
-<TabItem value="superagent">
+```ts title="api/MyResource.ts"
+import { createResource, Entity } from '@rest-hooks/rest';
+import AuthdEndpoint from 'api/AuthdEndpoint';
 
-```typescript
-import { Resource } from '@rest-hooks/rest';
-import type { SuperAgentRequest } from 'superagent';
-
-abstract class AuthdResource extends Resource {
-  static fetchPlugin = (request: SuperAgentRequest) =>
-    request.withCredentials();
+class MyEntity extends Entity {
+  /* Define MyEntity */
 }
+
+export const MyResource = createResource({
+  path: '/my/:id',
+  schema: MyEntity,
+  Endpoint: AuthdEndpoint,
+})
 ```
-
-If you used the [custom superagent fetch](../guides/custom-networking#superagent)
-
-</TabItem>
-</Tabs>
-
-You can also do more complex flows (like adding arbitrary headers) to
-the request. Every [getFetchInit()](api/Resource.md#getFetchInit) takes in the existing [init options](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) of fetch, and returns new init options to be used.
 
 ## Access Tokens
 
@@ -63,28 +54,29 @@ values={[
 ]}>
 <TabItem value="static">
 
-```ts title="resources/AuthdResource.ts"
-import { getAuthToken } from 'authorization-singleton';
-import { Resource } from '@rest-hooks/rest';
+```ts title="api/AuthdEndpoint.ts"
+import { RestEndpoint } from '@rest-hooks/rest';
 
-abstract class AuthdResource extends Resource {
+export default class AuthdEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
   // highlight-next-line
   declare static accessToken?: string;
-  static getFetchInit = (init: RequestInit): RequestInit => ({
-    ...init,
-    headers: {
-      ...init.headers,
+
+  getHeaders(headers: HeadersInit): HeadersInit {
+    return {
+      ...headers,
       // highlight-next-line
-      'Access-Token': this.accessToken,
-    },
-  });
+      'Access-Token': this.constructor.accessToken,
+    };
+  }
 }
 ```
 
 Upon login we set the token:
 
 ```tsx title="Auth.tsx"
-import AuthdResource from 'resources/AuthdResource';
+import AuthdEndpoint from 'api/AuthdEndpoint';
 
 function Auth() {
   const handleLogin = useCallback(
@@ -104,19 +96,20 @@ function Auth() {
 </TabItem>
 <TabItem value="function">
 
-```ts
+```ts title="api/AuthdEndpoint.ts"
 import { getAuthToken } from 'authorization-singleton';
-import { Resource } from '@rest-hooks/rest';
+import { RestEndpoint } from '@rest-hooks/rest';
 
-abstract class AuthdResource extends Resource {
-  static getFetchInit = (init: RequestInit): RequestInit => ({
-    ...init,
-    headers: {
-      ...init.headers,
+export default class AuthdEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  getHeaders(headers: HeadersInit): HeadersInit {
+    return {
+      ...headers,
       // highlight-next-line
       'Access-Token': getAuthToken(),
-    },
-  });
+    };
+  }
 }
 ```
 
@@ -144,34 +137,61 @@ function Auth() {
 </TabItem>
 </Tabs>
 
+
+```ts title="api/MyResource.ts"
+import { createResource, Entity } from '@rest-hooks/rest';
+import AuthdEndpoint from 'api/AuthdEndpoint';
+
+class MyEntity extends Entity {
+  /* Define MyEntity */
+}
+
+export const MyResource = createResource({
+  path: '/my/:id',
+  schema: MyEntity,
+  Endpoint: AuthdEndpoint,
+})
+```
+
 ## Auth Headers from React Context
 
 :::warning
 
 Using React Context for state that is not displayed (like auth tokens) is not recommended.
+This will result in unnecessary re-renders and application complexity.
 
 :::
 
-Here we use a context variable to set headers. Note - this means any endpoint functions can only be
-called from a React Component. (However, this should be fine since the context will only exist in React anyway.)
+We will first provide an easy way of using the context to alter the fetch headers.
 
-[HookableResource](api/HookableResource.md) gives us endpoint methods that are hooks so we can access
-React context.
+```ts title="api/AuthdEndpoint.ts"
+import { RestEndpoint } from '@rest-hooks/rest';
 
-```typescript
-import { HookableResource } from '@rest-hooks/rest';
+export default class AuthdEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  // highlight-next-line
+  declare accessToken?: string;
 
-abstract class AuthdResource extends HookableResource {
-  static useFetchInit = (init: RequestInit) => {
-    const accessToken = useAuthContext();
+  getHeaders(headers: HeadersInit): HeadersInit {
     return {
-      ...init,
-      headers: {
-        ...init.headers,
-        'Access-Token': accessToken,
-      },
+      ...headers,
+      // highlight-next-line
+      'Access-Token': this.accessToken,
     };
-  };
+  }
+}
+```
+
+Next we will [extend](../api/RestEndpoint.md#extend) to generate a new endpoint with this context injected.
+
+```tsx
+function useEndpoint(endpoint: RestEndpoint) {
+  const accessToken = useAuthContext();
+  return useMemo(
+    () => endpoint.extend({ accessToken }),
+    [endpoint, accessToken],
+  );
 }
 ```
 
@@ -181,15 +201,12 @@ Using this means all endpoint calls must only occur during a function render.
 
 ```tsx
 function CreatePost() {
-  const { fetch } = useController();
-  // PostResource.useCreate() calls useFetchInit()
+  const controller = useController();
   //highlight-next-line
-  const createPost = PostResource.useCreate();
+  const createPost = useEndpoint(PostResource.create);
 
   return (
-    <form
-      onSubmit={e => fetch(createPost, {}, new FormData(e.target))}
-    >
+    <form onSubmit={e => controller.fetch(createPost, {}, new FormData(e.target))}>
       {/* ... */}
     </form>
   );
@@ -197,7 +214,6 @@ function CreatePost() {
 ```
 
 :::
-
 
 ## Code organization
 

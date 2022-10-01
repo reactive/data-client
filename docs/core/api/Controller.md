@@ -50,7 +50,7 @@ function CreatePost() {
 
   return (
     <form
-      onSubmit={e => fetch(PostResource.create(), {}, new FormData(e.target))}
+      onSubmit={e => fetch(PostResource.create, new FormData(e.target))}
     >
       {/* ... */}
     </form>
@@ -68,7 +68,7 @@ function UpdatePost({ id }: { id: string }) {
   return (
     <form
       onSubmit={e =>
-        fetch(PostResource.update(), { id }, new FormData(e.target))
+        fetch(PostResource.update, { id }, new FormData(e.target))
       }
     >
       {/* ... */}
@@ -86,7 +86,7 @@ function PostListItem({ post }: { post: PostResource }) {
 
   const handleDelete = useCallback(
     async e => {
-      await fetch(PostResource.delete(), { id: post.id });
+      await fetch(PostResource.delete, { id: post.id });
       history.push('/');
     },
     [fetch, id],
@@ -119,28 +119,6 @@ function PostListItem({ post }: { post: PostResource }) {
 - Identical requests are deduplicated globally; allowing only one inflight request at a time.
   - To ensure a _new_ request is started, make sure to abort any existing inflight requests.
 
-### useFetchInit()
-
-Overriding [Resource.useFetchInit()](./rest/api/resource#useFetchInit) makes it necessary to hoist all endpoint calls
-to the function render.
-
-```tsx
-function CreatePost() {
-  const { fetch } = useController();
-  // PostResource.create() calls useFetchInit()
-  //highlight-next-line
-  const createPost = PostResource.create();
-
-  return (
-    <form
-      onSubmit={e => fetch(createPost, {}, new FormData(e.target))}
-    >
-      {/* ... */}
-    </form>
-  );
-}
-```
-
 ## invalidate(endpoint, ...args) {#invalidate}
 
 Forces refetching and suspense on [useSuspense](./useSuspense.md) with the same Endpoint
@@ -148,13 +126,13 @@ and parameters.
 
 ```tsx
 function ArticleName({ id }: { id: string }) {
-  const article = useSuspense(ArticleResource.detail(), { id });
+  const article = useSuspense(ArticleResource.get, { id });
   const { invalidate } = useController();
 
   return (
     <div>
       <h1>{article.title}<h1>
-      <button onClick={() => invalidate(ArticleResource.detail(), { id })}>Fetch &amp; suspend</button>
+      <button onClick={() => invalidate(ArticleResource.get, { id })}>Fetch &amp; suspend</button>
     </div>
   );
 }
@@ -182,7 +160,7 @@ This is typically used when logging out or changing authenticated users.
 const USER_NUMBER_ONE: string = "1111";
 
 function UserName() {
-  const user = useSuspense(CurrentUserResource.detail(), { });
+  const user = useSuspense(CurrentUserResource.get);
   const { resetEntireStore } = useController();
 
   const becomeAdmin = useCallback(() => {

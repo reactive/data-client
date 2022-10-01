@@ -11,12 +11,13 @@ const DemoPlayground = memo(
 
     return (
       <div ref={ref}>
-        {values.map(({ value, code }) => (
+        {values.map(({ value, endpointCode, code }) => (
           <HooksPlayground
             groupId="homepage-demo"
             row
             key={value}
             hidden={value !== selectedValue}
+            endpointCode={endpointCode}
           >
             {code}
           </HooksPlayground>
@@ -27,7 +28,7 @@ const DemoPlayground = memo(
 );
 
 interface Props<T extends string> {
-  codes: { label: string; value: T; code: string }[];
+  codes: { label: string; value: T; endpointCode: string; code: string }[];
   defaultValue: T;
 }
 

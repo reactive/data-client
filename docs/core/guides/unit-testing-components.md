@@ -19,7 +19,7 @@ with said results.
 export default {
   full: [
     {
-      endpoint: ArticleResource.list(),
+      endpoint: ArticleResource.getList,
       args: [{ maxResults: 10 }] as const,
       response: [
         {
@@ -49,14 +49,14 @@ export default {
   ],
   empty: [
     {
-      endpoint: ArticleResource.list(),
+      endpoint: ArticleResource.getList,
       args: [{ maxResults: 10 }] as const,
       response: [],
     },
   ],
   error: [
     {
-      endpoint: ArticleResource.list(),
+      endpoint: ArticleResource.getList,
       args: [{ maxResults: 10 }] as const,
       response: { message: 'Bad request', status: 400, name: 'Not Found' },
       error: true,

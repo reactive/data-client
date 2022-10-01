@@ -1,13 +1,13 @@
 ---
-title: Resources with nested structure
-sidebar_label: Nesting related resources (server-side join)
+title: Entities with nested structure
+sidebar_label: Nesting related data
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
 Say you have a foreignkey author, and an array of foreign keys to contributors.
 
-First we need to model what this will look like by adding members to our [Resource][1] definition.
+First we need to model what this will look like by adding members to our [Entity][1] definition.
 These should be the primary keys of the entities we care about.
 
 Next we'll provide a definition of nested members in the [schema][3] member.
@@ -17,48 +17,46 @@ Next we'll provide a definition of nested members in the [schema][3] member.
 <HooksPlayground groupId="schema" defaultOpen="y">
 
 ```tsx
-class UserResource extends Resource {
+class User extends Entity {
   readonly name: string = '';
   pk() {
     return this.id;
   }
-  static urlRoot = 'http://fakeapi.com/user/';
 }
-class PostResource extends Resource {
+class Post extends Entity {
   readonly id: number | undefined = undefined;
-  readonly author: UserResource = UserResource.fromJS({});
-  readonly contributors: number[] = [];
+  readonly author: User = User.fromJS({});
+  readonly contributors: User[] = [];
 
   static schema = {
-    author: UserResource,
-    contributors: [UserResource],
+    author: User,
+    contributors: [User],
   };
   pk() {
     return this.id;
   }
-  static urlRoot = 'http://fakeapi.com/article/';
-
-  // this override is purely to fake a response
-  static detail<T extends typeof Resource>(this: T) {
-    return super.detail().extend({
-      fetch({ id }) {
-        return Promise.resolve({
-          id,
-          author: { id: '123', name: 'Jim' },
-          content: 'Happy day',
-          contributors: [{ id: '100', name: 'Eliza' }],
-        });
-      },
-      schema: this,
-    });
-  }
 }
+const getPost = new RestEndpoint({
+  urlPrefix: 'http://fakeapi.com',
+  path: '/article/:id',
+  schema: Post,
+  fetch({ id }) {
+    return Promise.resolve({
+      id,
+      author: { id: '123', name: 'Jim' },
+      content: 'Happy day',
+      contributors: [{ id: '100', name: 'Eliza' }],
+    });
+  },
+});
 
 function PostPage() {
-  const post = useSuspense(PostResource.detail(), { id: '5' });
+  const post = useSuspense(getPost, { id: '5' });
   return (
     <div>
-      <p>{post.content} - <cite>{post.author.name}</cite></p>
+      <p>
+        {post.content} - <cite>{post.author.name}</cite>
+      </p>
       <div>Contributors: {post.contributors.map(user => user.name)}</div>
     </div>
   );
@@ -70,56 +68,54 @@ render(<PostPage />);
 
 ## Circular dependencies
 
-If both [Resources][1] are in distinct files, this must be handled with care.
+If both [Entities][1] are in distinct files, this must be handled with care.
 
-If two or more [Resources][1] include each other in their schema, you can dynamically override
+If two or more [Entities][1] include each other in their schema, you can dynamically override
 one of their [schema][3] to avoid circular imports.
 
-```typescript title="resources/ArticleResource.ts"
-import { Resource, AbstractInstanceType } from '@rest-hooks/rest';
-import { UserResource } from 'resources';
+```typescript title="api/Article.ts"
+import { Entity } from '@rest-hooks/rest';
+import { User } from './User';
 
-export default class ArticleResource extends Resource {
+export class Article extends Entity {
   readonly id: number | undefined = undefined;
   readonly content: string = '';
-  readonly author: UserResource = UserResource.fromJS({});
-  readonly contributors: number[] = [];
+  readonly author: User = User.fromJS({});
+  readonly contributors: User[] = [];
 
   pk() {
     return this.id?.toString();
   }
-  static urlRoot = 'http://test.com/article/';
 
   static schema: { [k: string]: Schema } = {
-    author: UserResource,
-    contributors: [UserResource],
+    author: User,
+    contributors: [User],
   };
 }
 
-// we set the schema here since we can correctly reference ArticleResource
-UserResource.schema = {
-  posts: [ArticleResource],
+// we set the schema here since we can correctly reference Article
+User.schema = {
+  posts: [Article],
 };
 ```
 
-```typescript title="resources/UserResource.ts"
-import { Resource } from '@rest-hooks/rest';
-import type { ArticleResource } from 'resources';
+```typescript title="api/User.ts"
+import { Entity } from '@rest-hooks/rest';
+import type { Article } from './Article';
 // we can only import the type else we break javascript imports
 // thus we change the schema of UserResource above
 
-export default class UserResource extends Resource {
+export class User extends Entity {
   readonly id: number | undefined = undefined;
   readonly name: string = '';
-  readonly posts: ArticleResource[] = [];
+  readonly posts: Article[] = [];
 
   pk() {
     return this.id?.toString();
   }
-  static urlRoot = 'http://test.com/user/';
 }
 ```
 
-[1]: api/Resource.md
+[1]: api/Entity.md
 [2]: /docs/api/useCache
 [3]: api/Entity.md#schema

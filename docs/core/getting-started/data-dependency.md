@@ -7,7 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
-import ConditionalDependencies from '../shared/_conditional_dependencies.mdx';
+import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 
 Co-locating data dependencies means we only use data-binding hooks like [useSuspense()](../api/useSuspense)
 in components where we display/use their data directly.
@@ -162,11 +162,7 @@ import { useDLE } from 'rest-hooks';
 import { todoDetail } from 'endpoints/todo';
 
 export default function TodoDetail({ id }: { id: number }) {
-  const {
-    loading,
-    error,
-    data: todo,
-  } = useDLE(todoDetail, { id });
+  const { loading, error, data: todo } = useDLE(todoDetail, { id });
   if (loading) return 'loading';
   if (error) return error.status;
   return <div>{todo.title}</div>;
@@ -245,34 +241,26 @@ const todoDetail = new Endpoint(
 <HooksPlayground  defaultOpen="n">
 
 ```tsx
-class ExchangeRatesResource extends Resource {
+class ExchangeRate extends Entity {
   readonly currency: string = 'USD';
   readonly rates: Record<string, string> = {};
 
   pk(): string {
     return this.currency;
   }
-
-  static urlRoot = 'https://www.coinbase.com/api/v2/exchange-rates';
-
-  static getEndpointExtra() {
-    return { pollFrequency: 5000 };
-  }
-
-  static list<T extends typeof Resource>(
-    this: T,
-  ): RestEndpoint<RestFetch<[{ currency: string }]>, { data: T }, undefined> {
-    return super.list().extend({
-      schema: { data: this },
-    });
-  }
 }
+const getExchangeRates = new RestEndpoint({
+  urlPrefix: 'https://www.coinbase.com/api/v2',
+  path: '/exchange-rates',
+  schema: { data: ExchangeRate },
+  pollFrequency: 5000,
+});
 
 function AssetPrice({ symbol }: { symbol: string }) {
-  const { data: price } = useSuspense(ExchangeRatesResource.list(), {
+  const { data: price } = useSuspense(getExchangeRates, {
     currency: 'USD',
   });
-  useSubscription(ExchangeRatesResource.list(), {
+  useSubscription(getExchangeRates, {
     currency: 'USD',
   });
   const displayPrice = new Intl.NumberFormat('en-US', {

@@ -23,6 +23,7 @@
     "webpack": "^5.74.0"
   },
   "dependencies": {
+    "@anansi/browserslist-config": "^1.4.0",
     "@anansi/webpack-config": "13.0.15",
     "@docusaurus/core": "2.1.0",
     "@docusaurus/plugin-client-redirects": "2.1.0",
@@ -39,6 +40,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-json-tree": "0.17.0",
+    "react-live": "^3.1.1",
     "rest-hooks": "file:../packages/rest-hooks",
     "typescript": "next"
   },
@@ -54,5 +56,8 @@
   "msw": {
     "workerDirectory": "static"
   },
+  "browserslist": [
+    "extends @anansi/browserslist-config"
+  ],
   "packageManager": "yarn@3.2.3"
 }

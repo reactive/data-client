@@ -3,7 +3,6 @@ title: Using a custom networking library
 sidebar_label: Custom networking library
 ---
 import CodeBlock from '@theme/CodeBlock';
-import ResourceSource from '!!raw-loader!@site/../packages/rest/src/Resource.ts';
 
 `Resource.fetch()` wraps the standard [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
 One key customization is ensuring every network related error thrown has a
@@ -32,7 +31,75 @@ useful in environments that don't support it, like node and older browsers
 This implementation is provided as a useful reference for building your own.
 For the most up-to-date implementation, see the [source on master](https://github.com/coinbase/rest-hooks/blob/master/packages/rest-hooks/src/resource/Resource.ts)
 
-<CodeBlock className="language-typescript">{ResourceSource}</CodeBlock>
+
+```ts
+import SimpleResource from './SimpleResource.js';
+
+class NetworkError extends Error {
+  declare status: number;
+  declare response: Response;
+  name = 'NetworkError';
+
+  constructor(response: Response) {
+    super(
+      response.statusText ||
+        /* istanbul ignore next */ `Network response not 'ok': ${response.status}`,
+    );
+    this.status = response.status;
+    this.response = response;
+  }
+}
+
+/**
+ * Represents an entity to be retrieved from a server.
+ * Typically 1:1 with a url endpoint.
+ * @see https://resthooks.io/docs/api/resource
+ */
+export default abstract class Resource extends SimpleResource {
+  /** Perform network request and resolve with HTTP Response */
+  static fetchResponse(input: RequestInfo, init: RequestInit) {
+    let options: RequestInit = init;
+    if (!options.body || typeof options.body === 'string') {
+      options = {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+      };
+    }
+    return fetch(input, options)
+      .then(response => {
+        if (!response.ok) {
+          throw new NetworkError(response);
+        }
+        return response;
+      })
+      .catch(error => {
+        // ensure CORS, network down, and parse errors are still caught by NetworkErrorBoundary
+        if (error instanceof TypeError) {
+          (error as any).status = 400;
+        }
+        throw error;
+      });
+  }
+
+  /** Perform network request and resolve with json body */
+  static fetch(input: RequestInfo, init: RequestInit) {
+    return this.fetchResponse(input, init).then((response: Response) => {
+      if (
+        !response.headers.get('content-type')?.includes('json') ||
+        response.status === 204
+      )
+        return response.text();
+      return response.json().catch(error => {
+        error.status = 400;
+        throw error;
+      });
+    });
+  }
+}
+```
 
 ## Superagent
 

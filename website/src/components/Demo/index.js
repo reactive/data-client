@@ -9,39 +9,41 @@ const simpleFetchDemo = [
   {
     label: 'Fetch',
     value: 'fetch',
-    code:
-      `const fetchTodoDetail = async ({ id }) =>
+    endpointCode: `const fetchTodoDetail = async ({ id }) =>
   (await fetch(\`https://jsonplaceholder.typicode.com/todos/\${id}\`)).json()
-const todoDetail = new Endpoint(fetchTodoDetail);` +
-      '\n\n' +
-      `function TodoDetail() {
-  const todo = useSuspense(todoDetail, { id: 1 });
+const todoDetail = new Endpoint(fetchTodoDetail);`,
+    code: `function TodoDetail({ id }: { id: number }) {
+  const todo = useSuspense(todoDetail, { id });
   return <div>{todo.title}</div>;
 }
-render(<TodoDetail/>);
+render(<TodoDetail id={1} />);
 `,
   },
   {
     label: 'REST',
     value: 'rest',
-    code:
-      `class TodoResource extends Resource {
-    pk() { return this.id }
-    static urlRoot = 'https://jsonplaceholder.typicode.com/todos';
-  }` +
-      '\n\n' +
-      `function TodoDetail() {
-  const todo = useSuspense(TodoResource.detail(), { id: 1 });
+    endpointCode: `class Todo extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  completed = false;
+  pk() { return this.id }
+}
+const TodoResource = createResource({
+  path: 'https\\\\://jsonplaceholder.typicode.com/todos/:id',
+  schema: Todo,
+})`,
+    code: `function TodoDetail({ id }: { id: number }) {
+  const todo = useSuspense(TodoResource.get, { id });
   return <div>{todo.title}</div>;
 }
-render(<TodoDetail/>);
+render(<TodoDetail id={1} />);
 `,
   },
   {
     label: 'GraphQL',
     value: 'graphql',
-    code:
-      `const gql = new GQLEndpoint('/');
+    endpointCode: `const gql = new GQLEndpoint('/');
 const todoDetail = gql.query(\`
   query GetTodo($id: ID!) {
     todo(id: $id) {
@@ -50,14 +52,13 @@ const todoDetail = gql.query(\`
       completed
     }
   }
-\`);` +
-      '\n\n' +
-      `function TodoDetail() {
-    const { todo } = useSuspense(todoDetail, { id: 1 });
-    return <div>{todo.title}</div>;
-  }
-  render(<TodoDetail/>);
-  `,
+\`);`,
+    code: `function TodoDetail({ id }: { id: number }) {
+  const { todo } = useSuspense(todoDetail, { id });
+  return <div>{todo.title}</div>;
+}
+render(<TodoDetail id={1} />);
+`,
   },
 ];
 
@@ -66,11 +67,11 @@ const mutationDemo = [
     label: 'REST',
     value: 'rest',
     code: `function TodoDetail({ id }) {
-  const todo = useSuspense(TodoResource.detail(), { id });
+  const todo = useSuspense(TodoResource.get, { id });
   const controller = useController();
   const updateWith = title => () =>
     controller.fetch(
-      TodoResource.partialUpdate(),
+      TodoResource.partialUpdate,
       { id },
       { title }
     );
@@ -88,15 +89,14 @@ render(<TodoDetail id={1} />);
   {
     label: 'GraphQL',
     value: 'graphql',
-    code:
-      `const gql = new GQLEndpoint('/');
+    endpointCode: `const gql = new GQLEndpoint('/');
 
 class Todo extends GQLEntity {
   readonly title: string = '';
   readonly completed: boolean = false;
-}
-
-const todoDetail = gql.query(\`
+}`,
+    code:
+      `const getTodo = gql.query(\`
   query GetTodo($id: ID!) {
     todo(id: $id) {
       id
@@ -118,7 +118,7 @@ const updateTodo = gql.mutation(
 );` +
       '\n\n' +
       `function TodoDetail({ id }) {
-  const { todo } = useSuspense(todoDetail, { id });
+  const { todo } = useSuspense(getTodo, { id });
   const controller = useController();
   const updateWith = title => () =>
     controller.fetch(
@@ -142,7 +142,7 @@ const appDemo = [
   {
     label: 'REST',
     value: 'rest',
-    code: `function TodoItem({ todo }: { todo: TodoResource }) {
+    code: `function TodoItem({ todo }: { todo: Todo }) {
   const controller = useController();
   return (
     <div>
@@ -151,7 +151,7 @@ const appDemo = [
         checked={todo.completed}
         onChange={e =>
           controller.fetch(
-            TodoResource.partialUpdate(),
+            TodoResource.partialUpdate,
             { id: todo.id },
             { completed: e.currentTarget.checked },
           )
@@ -165,7 +165,7 @@ const appDemo = [
       <a
         style={{ cursor: 'pointer' }}
         onClick={() =>
-          controller.fetch(TodoResource.delete(), {
+          controller.fetch(TodoResource.delete, {
             id: todo.id,
           })
         }
@@ -177,7 +177,7 @@ const appDemo = [
 }
 
 function TodoList() {
-  const todos = useSuspense(TodoResource.list(), {});
+  const todos = useSuspense(TodoResource.getList);
   const controller = useController();
   return (
     <div>
@@ -193,15 +193,14 @@ render(<TodoList />);
   {
     label: 'GraphQL',
     value: 'graphql',
-    code:
-      `const gql = new GQLEndpoint('/');
+    endpointCode: `const gql = new GQLEndpoint('/');
 
 class Todo extends GQLEntity {
   readonly title: string = '';
   readonly completed: boolean = false;
-}
-
-const todoList = gql.query(\`
+}`,
+    code:
+      `const todoList = gql.query(\`
   query GetTodos {
     todo {
       id

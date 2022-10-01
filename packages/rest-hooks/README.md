@@ -20,20 +20,30 @@ Asynchronous dynamic data at scale. Performance, data integrity, and typing for 
 ### Simple TypeScript definition
 
 ```typescript
-class ArticleResource extends Resource {
+class Article extends Entity {
   readonly id: string = '';
   readonly title: string = '';
   readonly body: string = '';
 
-  pk() { return this.id; }
-  static urlRoot = '/articles/';
+  pk() {
+    return this.id;
+  }
 }
+```
+
+### Bind to networking API
+
+```typescript
+const ArticleResource = createResource({
+  path: '/articles/:id',
+  schema: Article,
+})
 ```
 
 ### One line data hookup
 
 ```tsx
-const article = useSuspense(ArticleResource.detail(), { id });
+const article = useSuspense(ArticleResource.get, { id });
 return (
   <>
     <h2>{article.title}</h2>
@@ -48,7 +58,7 @@ return (
 const { fetch } = useController();
 return (
   <ArticleForm
-    onSubmit={data => fetch(ArticleResource.update(), { id }, data)}
+    onSubmit={data => fetch(ArticleResource.update, { id }, data)}
   />
 );
 ```
@@ -56,8 +66,8 @@ return (
 ### And subscriptions
 
 ```tsx
-const price = useSuspense(PriceResource.detail(), { symbol });
-useSubscription(PriceResource.detail(), { symbol });
+const price = useSuspense(PriceResource.get, { symbol });
+useSubscription(PriceResource.get, { symbol });
 return price.value;
 ```
 
@@ -67,16 +77,16 @@ For the small price of 8kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 
 ## Features
 
-- [x] ![TS](./typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) types
-- [x] 🛌 React [Suspense](https://resthooks.io/docs/guides/loading-state) support
-- [x] 🧵 React 18 [Concurrent mode](https://reactjs.org/docs/concurrent-mode-patterns.html) compatible
+- [x] ![TS](./packages/rest-hooks/typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) types
+- [x] 🛌 React [Suspense](https://resthooks.io/docs/getting-started/data-dependency#boundaries) support
+- [x] 🧵 React 18 [Concurrent mode](https://resthooks.io/docs/guides/render-as-you-fetch) compatible
 - [x] 🎣 [Declarative API](https://resthooks.io/docs/getting-started/data-dependency)
 - [x] 📝 Composition over configuration
 - [x] 💰 [Normalized](https://resthooks.io/docs/getting-started/entity) caching
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination
-- [x] ✨ [Optimistic updates](https://resthooks.io/docs/guides/optimistic-updates)
-- [x] 🧘 [Flexible](https://resthooks.io/docs/api/Endpoint) to fit any API design (one size fits all)
+- [x] ✨ [Optimistic updates](https://resthooks.io/rest/guides/optimistic-updates)
+- [x] 🧘 [Flexible](https://resthooks.io/docs/getting-started/endpoint) to fit any API design (one size fits all)
 - [x] 🔧 [Debugging and inspection](https://resthooks.io/docs/guides/debugging) via browser extension
 - [x] 🌳 Tree-shakable (only use what you need)
 - [x] 🔁 [Subscriptions](https://resthooks.io/docs/api/useSubscription)

@@ -104,4 +104,4 @@ const InvalidateArticle = new Endpoint(
 );
 ```
 
-This is actually what the default [Resource.delete()](/rest/api/resource#delete-endpoint) does.
+This is actually what the default [Resource.delete()](/rest/5.2/api/resource#delete-endpoint) does.

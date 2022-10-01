@@ -129,9 +129,8 @@ Represents a function that does actual fetch. Convenient type to specify
 only part of the function's type.
 
 ```typescript
-export type FetchFunction<P = any, B = any, R = any> = (
-  params?: P,
-  body?: B,
+export type FetchFunction<A extends readonly any[] = any, R = any> = (
+  ...args: A
 ) => Promise<R>;
 ```
 
@@ -139,37 +138,23 @@ Providing a function type that returns a Promise also works.
 
 ## @rest-hooks/rest
 
-### RestEndpoint
-
-Is a specialized form of Endpoint that includes additional extension points
-for easy customization.
-
 ```typescript
-export interface RestEndpoint<
-  F extends FetchFunction = RestFetch,
-  S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined,
-  U extends any[] = any,
-> extends EndpointInstance<F, S, M> {
-  url: (...args: U) => string;
-  fetchInit: RequestInit;
-  getFetchInit: (
-    this: any,
-    body?: RequestInit['body'] | Record<string, any>,
-  ) => any;
-  method: string;
-  signal: AbortSignal | undefined;
+export interface RestGenerics {
+  readonly path: string;
+  readonly schema?: Schema | undefined;
+  readonly method?: string;
+  readonly body?: any;
 }
+
+export type GetEndpoint<
+  UrlParams = any,
+  S extends Schema | undefined = Schema | undefined,
+> = RestTypeNoBody<UrlParams, S, undefined>;
+
+export type MutateEndpoint<
+  UrlParams = any,
+  Body extends BodyInit | Record<string, any> = any,
+  S extends Schema | undefined = Schema | undefined,
+> = RestTypeWithBody<UrlParams, S, true, Body>;
 ```
 
-### RestFetch
-
-Fetch function for Resources. Unlike [FetchFunction](#fetchfunction), these require the params variable
-as [Resource](/rest/api/resource) expects it
-
-```typescript
-export type RestFetch<A extends readonly any[] = any[], R = any> = (
-  this: RestEndpoint,
-  ...args: A
-) => Promise<R>;
-```

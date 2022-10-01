@@ -4,7 +4,7 @@ title: useDLE()
 
 import PkgTabs from '@site/src/components/PkgTabs';
 import GenericsTabs from '@site/src/components/GenericsTabs';
-import ConditionalDependencies from '../shared/_conditional_dependencies.mdx';
+import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 
 <GenericsTabs>
 
@@ -41,8 +41,10 @@ In case you cannot use suspense, useDLE() is just like [useSuspense()](./useSusp
 
 <details><summary><b>Resource</b></summary>
 
-```typescript title="resources/ProfileResource.ts"
-export default class ProfileResource extends Resource {
+```typescript title="api/Profile.ts"
+import { Entity, createResource } from '@rest-hooks/rest';
+
+export class Profile extends Entity {
   readonly id: number | undefined = undefined;
   readonly img: string = '';
   readonly fullName: string = '';
@@ -51,8 +53,12 @@ export default class ProfileResource extends Resource {
   pk() {
     return this.id?.toString();
   }
-  static urlRoot = '/profiles';
 }
+
+export const ProfileResource = createResource({
+  path: '/profiles/:id',
+  schema: Profile,
+})
 ```
 
 </details>
@@ -60,12 +66,12 @@ export default class ProfileResource extends Resource {
 ```tsx title="ProfileList.tsx"
 import { useDLE } from 'rest-hooks';
 import { Skeleton, Card, Avatar } from 'antd';
-import ProfileResource from 'resources/ProfileResource';
+import { ProfileResource } from 'api/Profile';
 
 const { Meta } = Card;
 
 function ProfileList() {
-  const { data, loading, error } = useDLE(ProfileResource.list());
+  const { data, loading, error } = useDLE(ProfileResource.getList);
   if (error) return <div>Error {error.status}</div>;
   return (
     <Card style={{ width: 300, marginTop: 16 }} loading={loading}>

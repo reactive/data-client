@@ -76,21 +76,9 @@
       "type": "category",
       "label": "Advanced",
       "items": [
-
-            {
-              "type": "doc",
-              "id": "guides/img-media"
-            },
         {
-          "type": "category",
-          "collapsible": false,
-          "label": "Components",
-          "items": [
-            {
-              "type": "doc",
-              "id": "guides/infinite-scrolling-pagination"
-            }
-          ]
+          "type": "doc",
+          "id": "guides/img-media"
         },
         {
           "type": "category",
@@ -99,19 +87,11 @@
           "items": [
             {
               "type": "doc",
-              "id": "guides/fetch-multiple"
-            },
-            {
-              "type": "doc",
               "id": "guides/render-as-you-fetch"
             },
             {
               "type": "doc",
               "id": "guides/immediate-updates"
-            },
-            {
-              "type": "doc",
-              "id": "guides/optimistic-updates"
             },
             {
               "type": "doc",
@@ -281,7 +261,6 @@
           "type": "category",
           "label": "Extra Managers",
           "items": [
-
             {
               "type": "doc",
               "id": "api/SubscriptionManager"

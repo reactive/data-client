@@ -1,24 +1,23 @@
 ---
 title: Computed Properties
 ---
-`Resource` classes are just normal classes, so any common derived data can just be added as
+
+`Entity` classes are just normal classes, so any common derived data can just be added as
 getters to the class itself.
 
 ```typescript
-import { Resource } from '@rest-hooks/rest';
+import { Entity } from '@rest-hooks/rest';
 
-class User extends Resource {
-  readonly id: number | undefined = undefined;
-  readonly firstName: string = '';
-  readonly lastName: string = '';
-  readonly username: string = '';
-  readonly email: string = '';
+class User extends Entity {
+  id = '';
+  firstName = '';
+  lastName = '';
+  username = '';
+  email = '';
 
   pk() {
-    return this.id?.toString();
+    return this.id;
   }
-
-  static urlRoot = '/users/';
 
   get fullName() {
     return `${this.firstName} ${this.lastName}`;
@@ -30,10 +29,10 @@ If the computations are expensive feel free to add some
 memoization.
 
 ```typescript
-import { Resource } from '@rest-hooks/rest';
+import { Entity } from '@rest-hooks/rest';
 import { memoize } from 'lodash';
 
-class User extends Resource {
+class User extends Entity {
   truelyExpensiveValue = memoize(() => {
     // compute that expensive thing!
   });

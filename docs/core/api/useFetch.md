@@ -44,7 +44,7 @@ This can be useful for ensuring resources early in a render tree before they are
 
 ```tsx
 function MasterPost({ id }: { id: number }) {
-  useFetch(PostResource.detail(), { id });
+  useFetch(PostResource.get, { id });
   // ...
 }
 ```
@@ -53,16 +53,16 @@ function MasterPost({ id }: { id: number }) {
 
 ```tsx
 function MasterPost({ id, doNotFetch }: { id: number; doNotFetch: boolean }) {
-  useFetch(PostResource.detail(), doNotFetch ? null : { id });
+  useFetch(PostResource.get, doNotFetch ? null : { id });
   // ...
 }
 ```
 
 ## Useful `Endpoint`s to send
 
-[Resource](/rest/api/resource#provided-and-overridable-methods) provides these built-in:
+[Resource](/rest/api/createResource#members) provides these built-in:
 
-- detail()
-- list()
+- get
+- getList
 
-Feel free to add your own [Endpoint](/rest/api/Endpoint) as well.
+Feel free to add your own [RestEndpoint](/rest/api/RestEndpoint) as well.

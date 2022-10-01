@@ -130,7 +130,8 @@ module.exports = {
         lastVersion: 'current',
         includeCurrentVersion: true,
         versions: {
-          current: { label: '5.2', path: '', badge: false, banner: 'none' },
+          current: { label: '6.0', path: '', badge: false, banner: 'none' },
+          5.2: { label: '5.2', path: '5.2', banner: 'none' },
         },
         /*onlyIncludeVersions: isDev
           ? ['current', ...versionsRest.slice(0, 4)]
@@ -158,7 +159,7 @@ module.exports = {
         lastVersion: 'current',
         includeCurrentVersion: true,
         versions: {
-          current: { label: '0.1', path: '', badge: false },
+          current: { label: '0.3', path: '', badge: false },
         },
         /*onlyIncludeVersions: isDev
           ? ['current', ...versionsRest.slice(0, 4)]
@@ -208,8 +209,20 @@ module.exports = {
             from: ['/docs/guides/binary-fetches'],
           },
           {
-            to: '/rest/api/resource',
-            from: ['/docs/guides/resource-types'],
+            to: '/rest/api/createResource',
+            from: [
+              '/rest/api/resource',
+              '/rest/api/BaseResource',
+              '/docs/guides/resource-types',
+            ],
+          },
+          {
+            to: '/rest/api/RestEndpoint',
+            from: ['/rest/guides/extending-endpoints'],
+          },
+          {
+            to: '/rest/api/hookifyResource',
+            from: ['/rest/api/HookableResource'],
           },
           {
             to: '/docs/api/useSuspense',
@@ -222,6 +235,10 @@ module.exports = {
           {
             to: '/docs/getting-started/expiry-policy',
             from: ['/docs/guides/resource-lifetime'],
+          },
+          {
+            to: '/rest/guides/pagination',
+            from: ['/docs/guides/infinite-scrolling-pagination'],
           },
         ],
       },

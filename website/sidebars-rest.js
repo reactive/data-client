@@ -7,20 +7,8 @@ module.exports = {
     {
       type: 'category',
       collapsed: false,
-      label: 'Guides',
+      label: 'Networking Guides',
       items: [
-        {
-          type: 'doc',
-          id: 'guides/url',
-        },
-        {
-          type: 'doc',
-          id: 'guides/extending-endpoints',
-        },
-        {
-          type: 'doc',
-          id: 'guides/rest-types',
-        },
         {
           type: 'doc',
           id: 'guides/pagination',
@@ -31,12 +19,27 @@ module.exports = {
         },
         {
           type: 'doc',
+          id: 'guides/optimistic-updates',
+        },
+        {
+          type: 'doc',
           id: 'guides/network-transform',
         },
         {
           type: 'doc',
           id: 'guides/mocking-unfinished',
         },
+        {
+          type: 'doc',
+          id: 'guides/abort',
+        },
+      ],
+    },
+    {
+      type: 'category',
+      collapsed: false,
+      label: 'Data Guides',
+      items: [
         {
           type: 'doc',
           id: 'guides/nested-response',
@@ -49,36 +52,40 @@ module.exports = {
           type: 'doc',
           id: 'guides/computed-properties',
         },
-        {
-          type: 'doc',
-          id: 'guides/custom-networking',
-        },
       ],
     },
     {
       type: 'category',
       collapsed: false,
-      label: 'API',
+      label: 'Endpoint API',
       items: [
         {
           type: 'doc',
-          id: 'api/resource',
+          id: 'api/RestEndpoint',
         },
         {
           type: 'doc',
-          id: 'api/BaseResource',
+          id: 'api/Endpoint',
         },
         {
           type: 'doc',
-          id: 'api/HookableResource',
+          id: 'api/createResource',
         },
         {
-          type: 'category',
-          label: '@rest-hooks/endpoint',
-          collapsed: false,
-          items: require('./sidebars-endpoint.json'),
+          type: 'doc',
+          id: 'api/hookifyResource',
+        },
+        {
+          type: 'doc',
+          id: 'api/Index',
         },
       ],
+    },
+    {
+      type: 'category',
+      label: 'Schema API',
+      collapsed: false,
+      items: require('./sidebars-endpoint.json').slice(2),
     },
   ],
 };

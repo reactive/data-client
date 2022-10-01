@@ -327,7 +327,7 @@ as any mutations that occur.
 By using the response of the mutation call to update the Rest Hooks store, we were able to
 keep our components updated automatically and only after one request.
 
-However, after toggling todo.completed, this is just too slow! No worries, [getOptimisticResponse](./guides/optimistic-updates.md) tells
+However, after toggling todo.completed, this is just too slow! No worries, [getOptimisticResponse](/rest/guides/optimistic-updates) tells
 Rest Hooks what response it _expects_ to receive from the mutation call, Rest Hooks
 can **immediately** update **all** components using the relevant entity.
 
@@ -393,27 +393,29 @@ encourages extracting shared logic among endpoints.
 One common pattern is having endpoints Create Read Update Delete (CRUD) for a given resource.
 Using [@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest) ([docs](/rest/usage)) simplifies these patterns.
 
-Instead of defining an [Entity](/rest/api/Entity), we define a [Resource](/rest/api/resource). `Resource`
-extends from `Entity`, so we still need the `pk()` definiton.
+[RestEndpoint](/rest/api/RestEndpoint) extends [Endpoint](/rest/api/Endpoint) simplifying HTTP patterns.
 
-In addition, providing [static urlRoot](/rest/api/resource#urlRoot) enable [6 Endpoints](/rest/api/resource#endpoints)
+[createResource](/rest/api/createResource) takes this one step further by creating [6 Endpoints](/rest/api/createResource#endpoints)
 with easy logic sharing and overrides.
 
 ```typescript
-import { Resource } from '@rest-hooks/rest';
+import { Entity, createResource } from '@rest-hooks/rest';
 
-class TodoResource extends Resource {
+class Todo extends Entity {
   readonly id: number = 0;
   readonly userId: number = 0;
   readonly title: string = '';
   readonly completed: boolean = false;
 
-  static urlRoot = 'https://jsonplaceholder.typicode.com/todos';
-
   pk() {
     return `${this.id}`;
   }
 }
+
+const TodoResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+});
 ```
 
 [Introduction to Resource](/rest/usage)
@@ -423,27 +425,27 @@ class TodoResource extends Resource {
 ```typescript
 // read
 // GET https://jsonplaceholder.typicode.com/todos/5
-const todo = useSuspense(TodoResource.detail(), { id: 5 });
+const todo = useSuspense(TodoResource.get, { id: 5 });
 
 // GET https://jsonplaceholder.typicode.com/todos
-const todos = useSuspense(TodoResource.list());
+const todos = useSuspense(TodoResource.getList);
 
 // mutate
 // POST https://jsonplaceholder.typicode.com/todos
 const controller = useController();
-controller.fetch(TodoResource.create(), { title: 'my todo' });
+controller.fetch(TodoResource.create, { title: 'my todo' });
 
 // PUT https://jsonplaceholder.typicode.com/todos/5
 const controller = useController();
-controller.fetch(TodoResource.update(), { id: 5 }, { title: 'my todo' });
+controller.fetch(TodoResource.update, { id: 5 }, { title: 'my todo' });
 
 // PATCH https://jsonplaceholder.typicode.com/todos/5
 const controller = useController();
-controller.fetch(TodoResource.partialUpdate(), { id: 5 }, { title: 'my todo' });
+controller.fetch(TodoResource.partialUpdate, { id: 5 }, { title: 'my todo' });
 
 // DELETE https://jsonplaceholder.typicode.com/todos/5
 const controller = useController();
-controller.fetch(TodoResource.delete(), { id: 5 });
+controller.fetch(TodoResource.delete, { id: 5 });
 ```
 
 </details>

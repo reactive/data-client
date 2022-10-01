@@ -7,7 +7,7 @@ title: useCache()
 </head>
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
-import ConditionalDependencies from '../shared/_conditional_dependencies.mdx';
+import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 
 <GenericsTabs>
 
@@ -45,7 +45,7 @@ Excellent to use data in the normalized cache without fetching.
 
 ```tsx
 function Post({ id }: { id: number }) {
-  const post = useCache(PostResource.detail(), { id });
+  const post = useCache(PostResource.get, { id });
   // post as PostResource | null
   if (!post) return null;
   // post as PostResource (typeguarded)
@@ -58,31 +58,28 @@ function Post({ id }: { id: number }) {
 When entities are stored in nested structures, that structure will remain.
 
 ```typescript
-export class PaginatedPostResource extends Resource {
+export class PaginatedPost extends Entity {
   readonly id: number | null = null;
   readonly title: string = '';
   readonly content: string = '';
 
-  static urlRoot = 'http://test.com/post/';
-
-  static list<T extends typeof Resource>(this: T) {
-    return super.list().extend({
-      schema: { results: [this], nextPage: '', lastPage: '' },
-    });
+  pk() {
+    return this.id;
   }
 }
+
+export const getPosts = new RestEndpoint({
+  path: '/post\\?page=:page',
+  schema: { results: [PaginatedPost], nextPage: '', lastPage: '' },
+});
 ```
 
 ```tsx
 function ArticleList({ page }: { page: string }) {
-  const {
-    results: posts,
-    nextPage,
-    lastPage,
-  } = useCache(PaginatedPostResource.list(), { page });
-  // posts as PaginatedPostResource[] | null
+  const { results: posts, nextPage, lastPage } = useCache(getPosts, { page });
+  // posts as PaginatedPost[] | null
   if (!posts) return null;
-  // posts as PaginatedPostResource[] (typeguarded)
+  // posts as PaginatedPost[] (typeguarded)
   // ...render stuff here
 }
 ```
@@ -91,9 +88,9 @@ function ArticleList({ page }: { page: string }) {
 
 ## Useful `Endpoint`s to send
 
-[Resource](/rest/api/resource#provided-and-overridable-methods) provides these built-in:
+[Resource](/rest/api/createResource#members) provides these built-in:
 
-- detail()
-- list()
+- get
+- getList
 
-Feel free to add your own [Endpoint](/rest/api/Endpoint) as well.
+Feel free to add your own [RestEndpoint](/rest/api/RestEndpoint) as well.

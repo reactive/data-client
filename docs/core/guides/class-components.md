@@ -33,8 +33,8 @@ class Profile extends React.PureComponent<{
 
 export default withHook(({ id }: { id: number }) => {
   const [user, friends] = useSuspense(
-    [UserResource.detail(), { id }],
-    [UserResource.list(), { friendid: id }],
+    [UserResource.get, { id }],
+    [UserResource.getList, { friendid: id }],
   );
   return { user, friends };
 })(Profile);
@@ -57,8 +57,8 @@ import UserResource from 'resources/user';
 
 function useProfile({ id }: { id: number }) {
   const [user, friends] = useSuspense(
-    [UserResource.detail(), { id }],
-    [UserResource.list(), { friendid: id }],
+    [UserResource.get, { id }],
+    [UserResource.getList, { friendid: id }],
   );
   return { user, friends };
 }
@@ -91,8 +91,8 @@ function useProfile({ id }: { id: number }) {
   const debouncedId = useDebounce(id, 150);
 
   const [user, friends] = useSuspense(
-    [UserResource.detail(), { id }],
-    [UserResource.list(), { friendid: id }],
+    [UserResource.get, { id }],
+    [UserResource.getList, { friendid: id }],
   );
   const realFriends = friends.filter(friend => friend.isReal);
 

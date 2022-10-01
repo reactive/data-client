@@ -8,48 +8,49 @@ mock the endpoint and use it in a way such that when the endpoint is done
 you won't need to make major changes to your code.
 
 ```typescript title="resource/RatingResource.ts"
-import { Resource } from '@rest-hooks/rest';
+import { Entity, createResource } from '@rest-hooks/rest';
 import { EndpointExtraOptions } from '@rest-hooks/endpoint';
 
-export default class RatingResource extends Resource {
+export class Rating extends Entity {
   readonly id: string = '';
   readonly rating: number = 4.6;
   readonly author: string = '';
-  readonly date: string = '1990-01-01T00:00:00Z';
+  readonly date: Date = new Date(0);
 
   pk() {
     return this.id;
   }
 
-  static urlRoot = '/ratings';
-
-  static getEndpointExtra(): EndpointExtraOptions {
-    return {
-      dataExpiryLength: 10 * 60 * 1000, // 10 minutes
-    };
-  }
-
-  static list<T extends typeof Resource>(this: T) {
-    return super.list().extend({
-      fetch(params: Readonly<object>, body?: Readonly<object | string>) {
-        return Promise.resolve(
-          ['Morningstar', 'Seekingalpha', 'Morningstar', 'CNBC'].map(
-            author => ({
-              id: `${Math.random()}`,
-              rating: randomFloatInRange(2, 5).toFixed(1),
-              author,
-              date: '1990-01-01T00:00:00Z',
-            }),
-          ),
-        );
-      },
-    });
-  }
+  static schema = {
+    date: Date,
+  };
 }
+
+const BaseRatingResource = createResource({
+  path: '/ratings/:id',
+  schema: Rating,
+});
+
+export const RatingResource = {
+  ...BaseRatingResource,
+  getList: BaseRatingResource.getList.extend({
+    dataExpiryLength: 10 * 60 * 1000, // 10 minutes
+    fetch() {
+      return Promise.resolve(
+        ['Morningstar', 'Seekingalpha', 'Morningstar', 'CNBC'].map(author => ({
+          id: `${Math.random()}`,
+          rating: randomFloatInRange(2, 5).toFixed(1),
+          author,
+          date: '1990-01-01T00:00:00Z',
+        })),
+      );
+    },
+  }),
+};
 ```
 
 By mocking the
-[Endpoint](api/Endpoint.md) we can easily fake the data the server will return. Doing
+[RestEndpoint](../api/RestEndpoint.md) we can easily fake the data the server will return. Doing
 this allows free use of the strongly typed RatingResource as normal throughout the codebase.
 
 Once the API is implemented you can simply remove the custom fetch (and the entire list()

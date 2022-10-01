@@ -14,13 +14,10 @@ One common use case is for quick toggles. Here we demonstrate a publish button f
 article. Note that we need to include the primary key (`id` in this case) in the response
 body to ensure the normalized cache gets updated correctly.
 
-### ArticleResource.ts
+```typescript title="api/Article.ts"
+import { Entity, createResource } from '@rest-hooks/rest';
 
-```typescript
-import { MutateEndpoint, SchemaDetail, AbstractInstanceType } from 'rest-hooks';
-import { Resource } from '@rest-hooks/rest';
-
-export default class ArticleResource extends Resource {
+export class Article extends Entity {
   readonly id: string | undefined = undefined;
   readonly title: string = '';
   readonly content: string = '';
@@ -29,38 +26,44 @@ export default class ArticleResource extends Resource {
   pk() {
     return this.id;
   }
+}
 
-  static partialUpdate<T extends typeof Resource>(
-    this: T,
-  ): MutateEndpoint<
-    (p: Readonly<object>, b: Partial<AbstractInstanceType<T>>) => Promise<any>,
-    SchemaDetail<Readonly<AbstractInstanceType<T>>>
-  > {
-    return super.partialUpdate().extend({
-      getOptimisticResponse: (snap, params, body) => ({
+const BaseArticleResource = createResource({
+  path: '/articles/:id',
+  schema: Article,
+});
+export const ArticleResource = {
+  ...BaseArticleResource,
+  partialUpdate: BaseArticleResource.partialUpdate.extend({
+    // highlight-start
+    getOptimisticResponse(snap, params, body) {
+      return {
         // we absolutely need the primary key here,
         // but won't be sent in a partial update
         id: params.id,
         ...body,
-      }),
-    });
-  }
-}
+      };
+    },
+    // highlight-end
+  }),
+};
 ```
 
-### PublishButton.tsx
-
-```typescript
+```typescript title="PublishButton.tsx"
 import { useController } from 'rest-hooks';
-import ArticleResource from 'ArticleResource';
+import { ArticleResource } from 'api/Article';
 
 export default function PublishButton({ id }: { id: string }) {
-  const { fetch } = useController();
+  const controller = useController();
 
   return (
     <button
       onClick={() =>
-        fetch(ArticleResource.partialUpdate(), { id }, { published: true })
+        controller.fetch(
+          ArticleResource.partialUpdate,
+          { id },
+          { published: true },
+        )
       }
     >
       Publish
@@ -71,7 +74,7 @@ export default function PublishButton({ id }: { id: string }) {
 
 ## Optimistic create with instant updates
 
-Optimistic updates can also be combined with [immediate updates](./immediate-updates), enabling updates to
+Optimistic updates can also be combined with [immediate updates](/docs/guides/immediate-updates), enabling updates to
 other endpoints instantly. This is most commonly seen when creating new items
 while viewing a list of them.
 
@@ -79,13 +82,11 @@ Here we demonstrate what could be used in a list of articles with a modal
 to create a new article. On submission of the form it would instantly
 add to the list of articles the newly created article - without waiting on a network response.
 
-### ArticleResource.ts
+```typescript title="api/Article.ts"
+import { Entity, createResource } from '@rest-hooks/rest';
+import uuid from 'uuid/v4';
 
-```typescript
-import { MutateEndpoint, AbstractInstanceType } from 'rest-hooks';
-import { SchemaDetail, Resource } from '@rest-hooks/rest';
-
-export default class ArticleResource extends Resource {
+export class Article extends Entity {
   readonly id: string | undefined = undefined;
   readonly title: string = '';
   readonly content: string = '';
@@ -94,29 +95,39 @@ export default class ArticleResource extends Resource {
   pk() {
     return this.id;
   }
+}
 
-  static create<T extends typeof Resource>(
-    this: T,
-  ): MutateEndpoint<
-    (p: Readonly<object>, b: Partial<AbstractInstanceType<T>>) => Promise<any>,
-    SchemaDetail<Readonly<AbstractInstanceType<T>>>
-  > {
-    const list = this.list();
-    return super.create().extend({
-      getOptimisticResponse: (snap, params, body) => body,
-      update: (newResourcePk: string) => ({
+const BaseArticleResource = createResource({
+  path: '/articles/:id',
+  schema: Article,
+});
+export const ArticleResource = {
+  ...BaseArticleResource,
+  create: BaseArticleResource.create.extend({
+    getRequestInit(body) {
+      if (body) {
+        return this.constructor.prototype.getRequestInit.call(this, {
+          // highlight-next-line
+          id: uuid(),
+          ...body,
+        });
+      }
+      return this.constructor.prototype.getRequestInit.call(this, body);
+    },
+    getOptimisticResponse(snap, params, body) {
+      return body;
+    },
+    update(newResourcePk: string) {
+      return {
         [list.key({})]: (resourcePks: string[] = []) => [
           ...resourcePks,
           newResourcePk,
         ],
-      }),
-    });
-  }
-}
-
+      };
+    },
+  }),
+};
 ```
-
-### CreateArticle.tsx
 
 Since the actual `id` of the article is created on the server, we will need to fill
 in a temporary fake `id` here, so the `primary key` can be generated. This is needed
@@ -127,17 +138,14 @@ data. This is often seamless, but care should be taken if the fake `id` is used 
 renders - like to issue subsequent requests. We recommend disabling `edit` type features
 that rely on the `primary key` until the network fetch completes.
 
-```typescript
+```typescript title="CreateArticle.tsx"
 import { useController } from 'rest-hooks';
-import uuid from 'uuid/v4';
-import ArticleResource from 'ArticleResource';
+import { ArticleResource } from 'api/Article';
 
 export default function CreateArticle() {
   const { fetch } = useController();
   const submitHandler = useCallback(
-    data =>
-      // note the fake id we create.
-      fetch(ArticleResource.create(), { id: uuid(), ...data }),
+    data => fetch(ArticleResource.create, data),
     [create],
   );
 
@@ -147,18 +155,17 @@ export default function CreateArticle() {
 
 ## Optimistic Deletes
 
-Since deletes [automatically update the cache correctly](./immediate-updates#delete) upon fetch success,
-making your delete endpoint do this optimistically is as easy as adding the [getOptimisticResponse](/rest/api/Endpoint#getoptimisticresponse)
+Since deletes [automatically update the cache correctly](/docs/guides/immediate-updates#delete) upon fetch success,
+making your delete endpoint do this optimistically is as easy as adding the [getOptimisticResponse](api/RestEndpoint.md#getoptimisticresponse)
 function to your options.
 
 We return an empty string because that's the response we expect from the server. Although by
 default, the server response is ignored.
 
-```ts
-import { Resource, SimpleResource } from '@rest-hooks/rest';
-import { MutateEndpoint } from 'rest-hooks';
+```typescript title="api/Article.ts"
+import { Entity, createResource } from '@rest-hooks/rest';
 
-export default class ArticleResource extends Resource {
+export class Article extends Entity {
   readonly id: string | undefined = undefined;
   readonly title: string = '';
   readonly content: string = '';
@@ -167,15 +174,22 @@ export default class ArticleResource extends Resource {
   pk() {
     return this.id;
   }
-
-  static delete<T extends typeof Resource>(
-    this: T,
-  ): MutateEndpoint<(p: Readonly<object>) => Promise<any>, schemas.Delete<T>> {
-    return super.delete().extend({
-      getOptimisticResponse: (snap, params, body) => params,
-    });
-  }
 }
+
+const BaseArticleResource = createResource({
+  path: '/articles/:id',
+  schema: Article,
+});
+export const ArticleResource = {
+  ...BaseArticleResource,
+  delete: BaseArticleResource.delete.extend({
+    // highlight-start
+    getOptimisticResponse(snap, params, body) {
+      return params;
+    },
+    // highlight-end
+  }),
+};
 ```
 
 ## Optimistic Transforms
@@ -194,30 +208,21 @@ class CountEntity extends Entity {
     return `SINGLETON`;
   }
 }
-const getCount = new Endpoint(
-  () => fetch('/api/count').then(res => res.json()),
-  {
-    name: 'get',
-    schema: CountEntity,
-  },
+const getCount = new RestEndpoint({
+  path: '/api/count',
+  schema: CountEntity,
+  name: 'get',
+}
 );
-const increment = new Endpoint(
-  async () => {
-    const body = JSON.stringify({ updatedAt: Date.now() });
-    return await (
-      await fetch('/api/count/increment', {
-        method: 'post',
-        body,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-    ).json();
-  },
+const increment = new RestEndpoint(
   {
+    path: '/api/count/increment',
+    method: 'POST',
     name: 'increment',
     schema: CountEntity,
-    sideEffect: true,
+    getRequestInit() {
+      return this.constructor.prototype.getRequestInit.call(this, { updatedAt: Date.now() });
+    }
     getOptimisticResponse(snap) {
       const { data } = snap.getResponse(getCount);
       if (!data) throw new AbortOptimistic();
@@ -249,7 +254,7 @@ render(<CounterPage />);
 
 </HooksPlayground>
 
-Try removing `getOptimisticResponse` from the increment [Endpoint](/rest/api/Endpoint). Even without optimistic updates, this race condition can be a real problem. While it is less likely with fast endpoints;
+Try removing `getOptimisticResponse` from the increment [RestEndpoint](api/RestEndpoint.md). Even without optimistic updates, this race condition can be a real problem. While it is less likely with fast endpoints;
 slower or less reliable internet connections means a slow response time no matter how fast the server is.
 
 The problem is that the responses come back in a different order than they are computed. If we can determine the
@@ -261,10 +266,10 @@ The client can then choose to ignore responses that are out of date by their tim
 ### Tracking order with updatedAt
 
 To handle potential out of order resolutions, we can track the last update time in `updatedAt`.
-Overriding our [useIncoming](/rest/api/Entity#useincoming), we can check which data is newer, and disregard old data
+Overriding our [useIncoming](api/Entity.md#useincoming), we can check which data is newer, and disregard old data
 that resolves out of order.
 
-We use [snap.fetchedAt](../api/Snapshot.md#fetchedat) in our [getOptimisticResponse](/rest/api/Endpoint#getoptimisticresponse). This respresents the moment the fetch is triggered,
+We use [snap.fetchedAt](/docs/api/Snapshot#fetchedat) in our [getOptimisticResponse](api/RestEndpoint.md#getoptimisticresponse). This respresents the moment the fetch is triggered,
 which is when the optimistic update first applies.
 
 <HooksPlayground>
@@ -282,33 +287,23 @@ class CountEntity extends Entity {
     return existing.updatedAt <= incoming.updatedAt;
   }
 }
-const getCount = new Endpoint(
-  () => fetch('/api/count').then(res => res.json()),
-  {
-    name: 'get',
-    schema: CountEntity,
-  },
+const getCount = new RestEndpoint({
+  path: '/api/count',
+  schema: CountEntity,
+  name: 'get',
+}
 );
-const increment = new Endpoint(
-  async () => {
-    const body = JSON.stringify({ updatedAt: Date.now() });
-    return await (
-      await fetch('/api/count/increment', {
-        method: 'post',
-        body,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-    ).json();
-  },
+const increment = new RestEndpoint(
   {
+    path: '/api/count/increment',
+    method: 'POST',
     name: 'increment',
     schema: CountEntity,
-    sideEffect: true,
+    getRequestInit() {
+      return this.constructor.prototype.getRequestInit.call(this, { updatedAt: Date.now() });
+    }
     getOptimisticResponse(snap) {
       const { data } = snap.getResponse(getCount);
-      // server already has this optimistic computation then do nothing
       if (!data) throw new AbortOptimistic();
       return {
         count: data.count + 1,

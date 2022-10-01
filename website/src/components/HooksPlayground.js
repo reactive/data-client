@@ -5,7 +5,11 @@ import * as hooks from '@rest-hooks/hooks';
 import * as graphql from '@rest-hooks/graphql';
 import BigNumber from 'bignumber.js';
 
-import { default as BaseTodoResource } from './Playground/resources/TodoResource';
+import {
+  TodoResource as BaseTodoResource,
+  Todo,
+  TodoEndpoint,
+} from './Playground/resources/TodoResource';
 import Playground from './Playground';
 import ResetableErrorBoundary from './ResettableErrorBoundary';
 
@@ -49,16 +53,14 @@ function CurrentTime() {
   );
 }
 
-class TodoResource extends BaseTodoResource {
-  static list() {
-    const superEndpoint = super.list();
-    return superEndpoint.extend({
-      async fetch(...args) {
-        return (await superEndpoint(...args)).slice(0, 5);
-      },
-    });
-  }
-}
+const TodoResource = {
+  ...BaseTodoResource,
+  getList: BaseTodoResource.getList.extend({
+    process(todos) {
+      return todos.slice(0, 7);
+    },
+  }),
+};
 
 const scope = {
   ...restHooks,
@@ -71,27 +73,34 @@ const scope = {
   TimedEntity,
   CurrentTime,
   ResetableErrorBoundary,
+};
+const scopeWithEndpoint = {
+  ...scope,
+  Todo,
   TodoResource,
+  TodoEndpoint,
 };
 
 const HooksPlayground = ({
   children,
+  endpointCode,
   groupId,
   hidden = false,
   defaultOpen = 'n',
   row = false,
 }) => (
   <Playground
-    scope={scope}
+    scope={endpointCode ? scope : scopeWithEndpoint}
     noInline
     groupId={groupId}
     defaultOpen={defaultOpen}
     row={row}
     hidden={hidden}
   >
-    {typeof children === 'string'
-      ? children
-      : children.props.children.props.children}
+    {(endpointCode ? endpointCode + '\n\n' : '') +
+      (typeof children === 'string'
+        ? children
+        : children.props.children.props.children)}
   </Playground>
 );
 export default memo(HooksPlayground);

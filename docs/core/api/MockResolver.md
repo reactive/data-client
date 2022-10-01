@@ -82,7 +82,7 @@ import MyComponentToTest from 'components/MyComponentToTest';
 
 const results = [
   {
-    endpoint: ArticleResource.list(),
+    endpoint: ArticleResource.getList,
     args: [{ maxResults: 10 }] as const,
     response: [
       {

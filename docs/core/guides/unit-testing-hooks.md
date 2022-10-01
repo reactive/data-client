@@ -101,7 +101,7 @@ describe('useSuspense()', () => {
 
   it('should throw errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useSuspense(ArticleResource.detail(), {
+      return useSuspense(ArticleResource.get, {
         title: '0',
       });
     });
@@ -143,7 +143,7 @@ describe('useSuspense()', () => {
 
   it('should throw errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useSuspense(ArticleResource.detail(), {
+      return useSuspense(ArticleResource.get, {
         title: '0',
       });
     });

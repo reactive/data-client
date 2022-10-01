@@ -10,7 +10,7 @@ testing, potentially speeding up development time greatly.
 
 [<MockResolver /\>](../api/MockResolver.md) enables easy loading of fixtures to see what
 different network responses might look like. It can be layered, composed, and even used
-for [imperative fetches](../api/Controller.md#fetch) usually used with side-effect endpoints like [create](/rest/api/resource#create-endpoint) and [update](/rest/api/resource#update-endpoint).
+for [imperative fetches](../api/Controller.md#fetch) usually used with side-effect endpoints like [create](/rest/api/createResource#create) and [update](/rest/api/createResource#update).
 
 ## Setup
 
@@ -23,7 +23,7 @@ values={[
 <TabItem value="ArticleResource.ts">
 
 ```typescript title="ArticleResource.ts"
-export default class ArticleResource extends Resource {
+export class Article extends Entity {
   readonly id: number | undefined = undefined;
   readonly content: string = '';
   readonly author: number | null = null;
@@ -32,20 +32,25 @@ export default class ArticleResource extends Resource {
   pk() {
     return this.id?.toString();
   }
-  static urlRoot = 'http://test.com/article/';
-  declare static fixtures: Record<string, FixtureEndpoint>;
 }
+export const ArticleResource = createResource({
+  urlPrefix: 'http://test.com',
+  path: '/article/:id',
+  schema: Article,
+});
+
+export let ArticleFixtures: Record<string, FixtureEndpoint> = {};
 ```
 
 </TabItem>
 <TabItem value="ArticleList.tsx">
 
 ```tsx title="ArticleList.tsx"
-import ArticleResource from 'resources/ArticleResource';
+import { ArticleResource } from 'resources/ArticleResource';
 import ArticleSummary from './ArticleSummary';
 
 export default function ArticleList({ maxResults }: { maxResults: number }) {
-  const articles = useSuspense(ArticleResource.list(), { maxResults });
+  const articles = useSuspense(ArticleResource.getList, { maxResults });
   return (
     <div>
       {articles.map(article => (
@@ -67,10 +72,10 @@ existing so loading fallback is shown.
 ```typescript title="ArticleResource.ts"
 // leave out in production so we don't bloat the bundle
 if (process.env.NODE_ENV !== 'production') {
-  ArticleResource.fixtures = {
+  ArticleFixtures = {
     full: [
       {
-        endpoint: ArticleResource.list(),
+        endpoint: ArticleResource.getList,
         args: [{ maxResults: 10 }] as const,
         response: [
           {
@@ -88,7 +93,7 @@ if (process.env.NODE_ENV !== 'production') {
         ],
       },
       {
-        endpoint: ArticleResource.update(),
+        endpoint: ArticleResource.update,
         args: [{ id: 532 }] as const,
         response: {
           id: 532,
@@ -100,14 +105,14 @@ if (process.env.NODE_ENV !== 'production') {
     ],
     empty: [
       {
-        endpoint: ArticleResource.list(),
+        endpoint: ArticleResource.getList,
         args: [{ maxResults: 10 }] as const,
         response: [],
       },
     ],
     error: [
       {
-        endpoint: ArticleResource.list(),
+        endpoint: ArticleResource.getList,
         args: [{ maxResults: 10 }] as const,
         response: { message: 'Bad request', status: 400, name: 'Not Found' },
         error: true,
@@ -154,7 +159,7 @@ import type { Fixture } from '@rest-hooks/test';
 import { Story } from '@storybook/react/types-6-0';
 
 import ArticleList from 'ArticleList';
-import ArticleResource from 'resources/ArticleResource';
+import { ArticleFixtures } from 'resources/ArticleResource';
 
 export default {
   title: 'Pages/ArticleList',
@@ -165,7 +170,7 @@ export default {
       defaultValue: 'full',
       control: {
         type: 'select',
-        options: Object.keys(ArticleResource.fixtures),
+        options: Object.keys(ArticleFixtures),
       },
     },
   },
@@ -175,7 +180,7 @@ const Template: Story<{ result: keyof typeof options }> = ({ result }) => (
   // highlight-next-line
   <MockResolver fixtures={options[result]}>
     <ArticleList maxResults={10} />
-  // highlight-next-line
+    // highlight-next-line
   </MockResolver>
 );
 

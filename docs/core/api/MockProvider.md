@@ -17,7 +17,7 @@ can be tested. This is useful for [storybook](../guides/storybook.md) as well as
 
 :::caution Deprecated
 
-Use [<MockResolver /\>](./mockResolver) instead as it also supports [imperative fetches](../api/Controller.md#fetch) like [create](/rest/api/resource#create-endpoint) and [update](/rest/api/resource#update-endpoint).
+Use [<MockResolver /\>](./mockResolver) instead as it also supports [imperative fetches](../api/Controller.md#fetch) like [create](/rest/api/createResource#create) and [update](/rest/api/createResource#update).
 
 Note: <MockProvider /\> disables dispatches, thus no fetches will occur. To simply initalize the
 cache, use [mockInitialState()](./mockInitialState) to construct initialState for the normal [<CacheProvider /\>](./CacheProvider)
@@ -57,7 +57,7 @@ import MyComponentToTest from 'components/MyComponentToTest';
 
 const results = [
   {
-    request: ArticleResource.list(),
+    request: ArticleResource.getList,
     params: { maxResults: 10 },
     result: [
       {

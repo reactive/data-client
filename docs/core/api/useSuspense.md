@@ -57,7 +57,7 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
 
 ```tsx
 function Post({ id }: { id: number }) {
-  const post = useSuspense(PostResource.detail(), { id });
+  const post = useSuspense(PostResource.get, { id });
   // post as PostResource
 }
 ```
@@ -66,7 +66,7 @@ function Post({ id }: { id: number }) {
 
 ```tsx
 function Posts() {
-  const posts = useSuspense(PostResource.list());
+  const posts = useSuspense(PostResource.getList);
   // posts as PostResource[]
 }
 ```
@@ -75,9 +75,9 @@ function Posts() {
 
 ```tsx
 function PostWithAuthor() {
-  const post = useSuspense(PostResource.detail(), { id });
+  const post = useSuspense(PostResource.get, { id });
   // post as PostResource
-  const author = useSuspense(UserResource.detail(), {
+  const author = useSuspense(UserResource.get, {
     id: post.userId,
   });
   // author as UserResource
@@ -89,19 +89,18 @@ function PostWithAuthor() {
 When entities are stored in nested structures, that structure will remain.
 
 ```typescript
-export class PaginatedPostResource extends Resource {
+export class PaginatedPost extends Entity {
   readonly id: number | null = null;
   readonly title: string = '';
   readonly content: string = '';
 
-  static urlRoot = 'http://test.com/post/';
-
-  static list<T extends typeof Resource>(this: T) {
-    return super.list().extend({
-      schema: { results: [this], nextPage: '', lastPage: '' },
-    });
-  }
+  pk() { return this.id }
 }
+
+export const getPosts = new RestEndpoint({
+  path: '/post\\?page=:page',
+  schema: { results: [PaginatedPost], nextPage: '', lastPage: '' },
+})
 ```
 
 ```tsx
@@ -110,7 +109,7 @@ function ArticleList({ page }: { page: string }) {
     results: posts,
     nextPage,
     lastPage,
-  } = useSuspense(PaginatedPostResource.list(), { page });
+  } = useSuspense(getPosts, { page });
   // posts as PaginatedPostResource[]
 }
 ```
@@ -118,9 +117,9 @@ function ArticleList({ page }: { page: string }) {
 
 ## Useful `Endpoint`s to send
 
-[Resource](/rest/api/resource#provided-and-overridable-methods) provides these built-in:
+[Resource](/rest/api/createResource#members) provides these built-in:
 
-- detail()
-- list()
+- get
+- getList
 
-Feel free to add your own [Endpoint](/rest/api/Endpoint) as well.
+Feel free to add your own [RestEndpoint](/rest/api/RestEndpoint) as well.

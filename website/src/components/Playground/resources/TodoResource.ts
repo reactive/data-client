@@ -1,20 +1,15 @@
+import { RestEndpoint, RestGenerics } from '@rest-hooks/rest';
+
 import {
-  Resource,
-  SnapshotInterface,
-  schema,
-  RestEndpoint,
-  Schema,
-} from '@rest-hooks/rest';
+  createPlaceholderResource,
+  PlaceholderEntity,
+} from './PlaceholderBaseResource';
 
-import PlaceholderBaseResource from './PlaceholderBaseResource';
-
-export default class TodoResource extends PlaceholderBaseResource {
+export class Todo extends PlaceholderEntity {
   readonly userId: number = 0;
   readonly title: string = '';
   readonly completed: boolean = false;
   readonly updatedAt: number = 0;
-
-  static urlRoot = '/api/todos';
 
   static useIncoming(
     existingMeta: { date: number; fetchedAt: number },
@@ -22,70 +17,55 @@ export default class TodoResource extends PlaceholderBaseResource {
     existing: { updatedAt: number },
     incoming: { updatedAt: number },
   ) {
-    return existing.updatedAt <= incoming.updatedAt;
-  }
-
-  protected static endpointMutate(): RestEndpoint<
-    (this: RestEndpoint, params: any, body?: any) => Promise<any>,
-    Schema | undefined,
-    true
-  > {
-    const sup = super.endpointMutate();
-    return sup.extend({
-      getFetchInit(this: RestEndpoint, body?: any) {
-        if (body) {
-          body = { ...body, updatedAt: Date.now() };
-        }
-        return sup.getFetchInit.call(this, body);
-      },
-    });
-  }
-
-  static partialUpdate<T extends typeof Resource>(this: T) {
-    return super.partialUpdate().extend({
-      schema: this,
-      getOptimisticResponse: optimisticPartial,
-    });
-  }
-
-  static create<T extends typeof Resource>(this: T) {
-    const listkey = this.list().key({});
-    return super.create().extend({
-      schema: this,
-      getOptimisticResponse: optimisticCreate,
-      update: (newResourceId: string) => ({
-        [listkey]: (resourceIds: string[] = []) => [
-          ...resourceIds,
-          newResourceId,
-        ],
-      }),
-    });
-  }
-
-  static delete<T extends typeof Resource>(this: T) {
-    return super.delete().extend({
-      schema: new schema.Delete(this),
-      getOptimisticResponse: optimisticDelete,
-    });
+    return (
+      existing.updatedAt === undefined ||
+      existing.updatedAt <= incoming.updatedAt
+    );
   }
 }
 
-const optimisticPartial = (
-  snap: SnapshotInterface,
-  params: any,
-  body: any,
-) => ({
-  id: params.id,
-  ...snap.getResponse(TodoResource.detail(), { id: params.id }).data,
-  ...body,
-  updatedAt: snap.fetchedAt,
-});
+export class TodoEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  getRequestInit(body?: any) {
+    if (body) {
+      body = { ...body, updatedAt: Date.now() };
+    }
+    return super.getRequestInit.call(this, body);
+  }
+}
 
-const optimisticCreate = (snap: SnapshotInterface, _: any, body: any) => ({
-  ...body,
-  updatedAt: snap.fetchedAt,
+const TodoResourceBase = createPlaceholderResource({
+  path: 'https\\://jsonplaceholder.typicode.com/todos/:id',
+  schema: Todo,
+  Endpoint: TodoEndpoint,
 });
-const optimisticDelete = (snap: SnapshotInterface, params: any) => ({
-  ...params,
-  updatedAt: snap.fetchedAt,
-});
+export const TodoResource = {
+  ...TodoResourceBase,
+  partialUpdate: TodoResourceBase.partialUpdate.extend({
+    getOptimisticResponse(snap, params, body) {
+      return {
+        id: params.id,
+        ...snap.getResponse(TodoResourceBase.get, { id: params.id }).data,
+        ...body,
+        updatedAt: snap.fetchedAt,
+      };
+    },
+  }),
+  create: TodoResourceBase.create.extend({
+    getOptimisticResponse(snap, body) {
+      return { ...body, updatedAt: snap.fetchedAt };
+    },
+    update: (newResourceId: string) => ({
+      [TodoResourceBase.getList.key()]: (resourceIds: string[] = []) => [
+        ...resourceIds,
+        newResourceId,
+      ],
+    }),
+  }),
+  delete: TodoResourceBase.delete.extend({
+    getOptimisticResponse(snap, params) {
+      return { ...params, updatedAt: snap.fetchedAt };
+    },
+  }),
+};

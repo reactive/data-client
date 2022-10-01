@@ -57,7 +57,7 @@ you will continue to see the old time without any refresh.
 <HooksPlayground>
 
 ```tsx
-const lastUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
+lastUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 
 function TimePage({ id }) {
   const { updatedAt } = useSuspense(lastUpdated, { id });
@@ -100,42 +100,38 @@ render(<Navigator />);
 
 ## Examples
 
-To apply to all of a [Resource's endpoints](/rest/api/resource#detail), use [getEndpointExtra](/rest/api/resource#getEndpointExtra)
+To apply to all of a [Resource's endpoints](/rest/api/createResource), use [getEndpointExtra](/rest/api/RestEndpoint#getEndpointExtra)
 
 ### Long cache lifetime
 
-`LongLivingResource.ts`
+```typescript title="LongLivingResource.ts"
+import { RestEndpoint, RestGenerics, createResource } from '@rest-hooks/rest';
 
-```typescript
-import { Resource } from '@rest-hooks/rest';
-
-// We can now extend LongLivingResource to get a resource that will be cached for one hour
-abstract class LongLivingResource extends Resource {
-  static getEndpointExtra() {
-    return {
-      ...super.getEndpointExtra(),
-      dataExpiryLength: 60 * 60 * 1000, // one hour
-    };
-  }
+// We can now use LongLivingEndpoint to create endpoints that will be cached for one hour
+class LongLivingEndpoint<O extends RestGenerics> extends RestEndpoint<O> {
+  dataExpiryLength = 60 * 60 * 1000; // one hour
 }
+
+const LongLivingResource = createResource({
+  path: '/:id',
+  Endpoint: LongLivingEndpoint,
+});
 ```
 
 ### Never retry on error
 
-`NoRetryResource.ts`
+```typescript title="NoRetryResource.ts"
+import { RestEndpoint, RestGenerics, createResource } from '@rest-hooks/rest';
 
-```typescript
-import { Resource } from '@rest-hooks/rest';
-
-// We can now extend NoRetryResource to get a resource that will never retry on network error
-abstract class NoRetryResource extends Resource {
-  static getEndpointExtra() {
-    return {
-      ...super.getEndpointExtra(),
-      errorExpiryLength: Infinity,
-    };
-  }
+// We can now use NoRetryEndpoint to create endpoints that will be cached for one hour
+class NoRetryEndpoint<O extends RestGenerics> extends RestEndpoint<O> {
+  errorExpiryLength = Infinity;
 }
+
+const NoRetryResource = createResource({
+  path: '/:id',
+  Endpoint: NoRetryEndpoint,
+});
 ```
 
 </details>
@@ -151,7 +147,7 @@ within the expiry time it just continues to display it.
 <HooksPlayground>
 
 ```tsx
-const lastUpdated = lastUpdated.extend({
+lastUpdated = lastUpdated.extend({
   invalidIfStale: true,
   dataExpiryLength: 5000,
 });
@@ -300,10 +296,10 @@ Hard errors always invalidate a response with the rejection - even when data has
 ```tsx
 let FAKE_ERROR = undefined;
 const superFetch = lastUpdated;
-const mockFetch = (arg, error) =>
+mockFetch = (arg, error) =>
   FAKE_ERROR !== undefined ? Promise.reject(FAKE_ERROR) : superFetch(arg);
 
-const lastUpdated = lastUpdated.extend({
+lastUpdated = lastUpdated.extend({
   fetch: mockFetch,
   errorPolicy: error =>
     error.status >= 500 ? ('hard' as const) : ('soft' as const),
@@ -375,7 +371,7 @@ render(
 
 </HooksPlayground>
 
-### Policy for Resources
+### Policy for RestEndpoint
 
 Since `500`s indicate a failure of the server, we want to use stale data
 if it exists. On the other hand, something like a `400` indicates 'user error', which
@@ -385,11 +381,7 @@ in `400`. Keeping the record around would be inaccurate.
 Since this is the typical behavior for REST APIs, this is the default policy in [@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest)
 
 ```ts
-  /** Get the request options for this SimpleResource */
-  static getEndpointExtra(): EndpointExtraOptions | undefined {
-    return {
-      errorPolicy: error =>
-        error.status >= 500 ? ('soft' as const) : undefined,
-    };
-  }
+errorPolicy(error) {
+  return error.status >= 500 ? 'soft' : undefined;
+}
 ```

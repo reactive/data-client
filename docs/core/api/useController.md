@@ -20,14 +20,14 @@ function MyComponent({ id }) {
 
   const handleRefresh = useCallback(
     async e => {
-      await fetch(MyResource.detail(), { id });
+      await fetch(MyResource.get, { id });
     },
     [fetch, id],
   );
 
   const handleSuspend = useCallback(
     async e => {
-      await invalidate(MyResource.detail(), { id });
+      await invalidate(MyResource.get, { id });
     },
     [invalidate, id],
   );

@@ -50,9 +50,9 @@ export const routes: Route<Controller>[] = [
           id: Number.parseInt(match.id, 10),
         });
         // don't block on posts but start fetching
-        controller.fetch(PostResource.list(), { userId: match.id });
+        controller.fetch(PostResource.getList, { userId: match.id });
         await Promise.all([
-          controller.fetch(UserResource.detail(), match),
+          controller.fetch(UserResource.get, match),
           controller.fetch(getImage, {
             src: fakeUser.profileImage,
           }),
@@ -89,7 +89,7 @@ export type Props = { id: string };
 const { Meta } = Card;
 
 export default function UserDetail({ id }: Props) {
-  const user = useSuspense(UserResource.detail(), { id });
+  const user = useSuspense(UserResource.get, { id });
   return (
     <>
       <Card cover={<Img src={user.coverImage} />}>

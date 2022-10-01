@@ -21,7 +21,7 @@ prefer `camelCase`. This snippet lets us make the transform needed.
 
 ```typescript title="CamelResource.ts"
 import { camelCase, snakeCase } from 'lodash';
-import { Resource } from '@rest-hooks/rest';
+import { RestEndpoint, RestGenerics  } from '@rest-hooks/rest';
 
 function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
   const ret: Record<string, any> = Array.isArray(obj) ? [] : {};
@@ -35,18 +35,16 @@ function deeplyApplyKeyTransform(obj: any, transform: (key: string) => string) {
   return ret;
 }
 
-// We can now extend CamelResource instead of Resource to build
-// all of our classes.
-abstract class CamelResource extends Resource {
-  static async fetch(input: RequestInfo, init: RequestInit) {
+class CamelEndpoint<O Extends RestGenerics = any> extends RestEndpoint<O> {
+  getRequestInit(body) {
     // we'll need to do the inverse operation when sending data back to the server
-    if (init.body) {
-      init.body = deeplyApplyKeyTransform(init.body, snakeCase);
+    if (body) {
+      return super.getRequestInit(deeplyApplyKeyTransform(body, snakeCase));
     }
-    // perform actual network request getting back json
-    const jsonResponse = await super.fetch(input, init);
-    // do the conversion!
-    return deeplyApplyKeyTransform(jsonResponse, camelCase);
+    return super.getRequestInit(body);
+  }
+  process(value) {
+    return deeplyApplyKeyTransform(value, camelCase);
   }
 }
 ```
@@ -125,10 +123,10 @@ response.
 }
 ```
 
-```typescript title="StreamResource.ts"
+```typescript title="api/Stream.ts"
 const USERNAME_MATCHER = /.*\/([^\/]+)\/?/;
 
-abstract class StreamResource extends CamelResource {
+class Stream extends Entity {
   readonly username: string = '';
   readonly title: string = '';
   readonly game: string = '';
@@ -138,52 +136,43 @@ abstract class StreamResource extends CamelResource {
   pk() {
     return this.username;
   }
-
-  static detail<T extends typeof Resource>(this: T) {
-    const superEndpoint = super.detail() as ReadEndpoint<FetchFunction, T>;
-    return superEndpoint.extend({
-      fetch: async (params: { username: string }) => {
-        const response = await superEndpoint.fetch.call(this, params);
-        response.username = params.username;
-        return response;
-      },
-      // calling super with generics is broken in TypeScript, so re-defining schema ensures correct typing
-      schema: this,
-    });
-  }
 }
+
+const getStream = new RestEndpoint({
+  urlPrefix: 'https://mystreamsite.tv',
+  path: '/:username',
+  schema: Stream,
+  process(value, { username }) {
+    value.username = username;
+    return value;
+  },
+});
 ```
 
 ## Using HTTP Headers
 
 HTTP [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers) are accessible in the fetch
-[Response](https://developer.mozilla.org/en-US/docs/Web/API/Response). [Resource.fetchResponse()](api/Resource.md#fetchResponse)
-can be used to construct [Endpoint](api/Endpoint.md).
+[Response](https://developer.mozilla.org/en-US/docs/Web/API/Response). [RestEndpoint.fetchResponse()](../api/RestEndpoint.md#fetchResponse)
+can be used to construct [RestEndpoint](../api/RestEndpoint.md).
 
 Sometimes this is used for cursor based [pagination](./pagination.md#tokens-in-http-headers).
 
 ```typescript
-import { Resource } from '@rest-hooks/rest';
+import { RestEndpoint, RestGenerics } from '@rest-hooks/rest';
 
-export default class ArticleResource extends Resource {
-  // same as above....
-
-  /** Endpoint to get a list of entities */
-  static list<T extends typeof Resource>(this: T) {
-    const instanceFetchResponse = this.fetchResponse.bind(this);
-
-    return super.list().extend({
-      fetch: async function (params: Readonly<Record<string, string | number>>) {
-        const response = await instanceFetchResponse(this.url(params), this.init);
-        return {
-          link: response.headers.get('link'),
-          results: await response.json().catch((error: any) => {
-            error.status = 400;
-            throw error;
-        };
-      },
-      schema: { results: [this], link: '' },
-    });
+class GithubEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+  async parseResponse(response: Response) {
+    const results = await super.parseResponse(response);
+    if (
+      (response.headers && response.headers.has('link')) ||
+      Array.isArray(results)
+    ) {
+      return {
+        link: response.headers.get('link'),
+        results,
+      };
+    }
+    return results;
   }
 }
 ```
@@ -195,29 +184,22 @@ you have much better naming standards, so instead of your `Resource` class defin
 and all your code, you just want to remap that key.
 
 ```typescript title="ArticleResource.ts"
-// We're using camelCase now as well ;)
-class ArticleResource extends CamelResource {
-  readonly id: string = '';
-  readonly title: string = '';
-  readonly carrotsUsed: number = 0;
-
-  static async fetch(input: RequestInfo, init: RequestInit) {
-    // we'll need to do the inverse operation when sending data back to the server
-    if (init.body && 'carrotsUsed' in init.body) {
-      // caller should manage init & body, so we don't want to modify it
-      init = { ...init, body: { ...init.body } };
-      init.body.carrotsUsedIsThisNameTooLong = init.body.carrotsUsed;
-      delete init.body.carrotsUsed;
+class RenamedEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+  getRequestInit(body) {
+    if (body && 'carrotsUsed' in body) {
+      const newBody = { ...body, carrotsUSedIsThisNameTooLong: carrotsUsed };
+      delete newBody.carrotsUsed;
+      return super.getRequestInit(newBody);
     }
-    // perform actual network request getting back json
-    const jsonResponse = await super.fetch(input, init);
-    // only replace the name if it exists. This also helps us ignore list responses.
-    if ('carrotsUsedIsThisNameTooLong' in jsonResponse) {
+    return super.getRequestInit(body);
+  }
+  process(value) {
+    if ('carrotsUsedIsThisNameTooLong' in value) {
       // ok to mutate jsonResponse since we control it
-      jsonResponse.carrotsUsed = jsonResponse.carrotsUsedIsThisNameTooLong;
-      delete jsonResponse.carrotsUsedIsThisNameTooLong;
+      value.carrotsUsed = value.carrotsUsedIsThisNameTooLong;
+      delete value.carrotsUsedIsThisNameTooLong;
     }
-    return jsonResponse;
+    return value;
   }
 }
 ```

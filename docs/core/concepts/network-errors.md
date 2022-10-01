@@ -54,7 +54,7 @@ import { useController } from 'rest-hooks';
 import ArticleResource from 'resources/article';
 
 export default function UpdateArticleForm({ id }: { id: number }) {
-  const article = useSuspense(ArticleResource.detail(), { id });
+  const article = useSuspense(ArticleResource.get, { id });
   const { fetch } = useController();
 
   return (

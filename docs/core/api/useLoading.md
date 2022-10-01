@@ -33,10 +33,10 @@ import { useCallback } from 'react';
 import { useController } from 'rest-hooks';
 import { useLoading } from '@rest-hooks/hooks';
 
-import TodoResource from 'resources/TodoResource';
+import { TodoResource, Todo } from 'api/Todo';
 
 interface Props {
-  todo: TodoResource;
+  todo: Todo;
 }
 
 function TodoListItem({ todo }) {
@@ -45,7 +45,7 @@ function TodoListItem({ todo }) {
   const [toggleHandler, loading, error] = useLoading(
     (e: ChangeEvent<HTMLInputElement>) =>
       fetch(
-        TodoResource.partialUpdate(),
+        TodoResource.partialUpdate,
         { id },
         { completed: e.currentTarget.checked },
       ),

@@ -188,7 +188,7 @@ createArticle({}, { id: 1 }, [
 
 ## Useful `Endpoint`s to send
 
-[Resource](/rest/api/resource#provided-and-overridable-methods) provides these built-in:
+[Resource](/rest/5.2/api/resource#provided-and-overridable-methods) provides these built-in:
 
 - create()
 - update()

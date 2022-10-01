@@ -124,7 +124,7 @@ beforeEach(() => {
 
 it('should resolve useSuspense()', async () => {
   const { result, waitForNextUpdate } = renderRestHook(() => {
-    return useSuspense(ArticleResource.detail(), payload);
+    return useSuspense(ArticleResource.get, payload);
   });
   expect(result.current).toBeUndefined();
   await waitForNextUpdate();

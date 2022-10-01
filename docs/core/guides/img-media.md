@@ -1,6 +1,7 @@
 ---
 title: Images and other Media
 ---
+
 <head>
   <title>Using React Suspense with Images and other Media | Rest Hooks</title>
 </head>
@@ -14,7 +15,7 @@ some media fetches as well to take advantage of suspense and [concurrent mode su
 
 ## Storing buffers
 
-[Resource](/rest/api/resource) and [Entity](/rest/api/Entity) should not be used in this case, since they both represent
+[Resource](/rest/api/createResource) and [Entity](/rest/api/Entity) should not be used in this case, since they both represent
 string -> value map structures. Instead, we'll define our own simple [Endpoint](/rest/api/Endpoint).
 
 ```typescript
@@ -75,15 +76,13 @@ images using suspense. This becomes especially powerful [with the fetch as you r
 
 ## Usage
 
-<details open><summary><b>Profile.tsx</b></summary>
-
-```tsx
+```tsx title="Profile.tsx"
 import React, { ImgHTMLAttributes } from 'react';
 import { useSuspense } from 'rest-hooks';
 import { Img } from '@rest-hooks/img';
 
 export default function Profile({ username }: { username: string }) {
-  const user = useSuspense(UseResource.detail(), { username });
+  const user = useSuspense(UserResource.get, { username });
   return (
     <div>
       <Img
@@ -97,16 +96,12 @@ export default function Profile({ username }: { username: string }) {
 }
 ```
 
-</details>
-
 #### Prefetching
 
 Note this will cascade the requests, waiting for user to resolve before
 the image request can start. If the image url is deterministic based on the same parameters, we can start that request at the same time as the user request:
 
-<details open><summary><b>Profile.tsx</b></summary>
-
-```tsx
+```tsx title="Profile.tsx"
 import React, { ImgHTMLAttributes } from 'react';
 import { useSuspense, useFetch } from 'rest-hooks';
 import { Img, getImage } from '@rest-hooks/img';
@@ -114,7 +109,7 @@ import { Img, getImage } from '@rest-hooks/img';
 export default function Profile({ username }: { username: string }) {
   const imageSrc = `/profile_images/${username}}`;
   useFetch(getImage, { src: imageSrc });
-  const user = useSuspense(UseResource.detail(), { username });
+  const user = useSuspense(UserResource.get, { username });
   return (
     <div>
       <Img
@@ -127,9 +122,6 @@ export default function Profile({ username }: { username: string }) {
   );
 }
 ```
-
-</details>
-
 
 When using the [fetch as you render](../guides/render-as-you-fetch) pattern in concurrent mode, [Controller.fetch()](../api/Controller.md#fetch) with the `getImage`
 [Endpoint](/rest/api/Endpoint) to preload the image.

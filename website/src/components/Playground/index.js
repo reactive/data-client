@@ -22,11 +22,10 @@ const babelTransform = code => {
   const transformed = ts.transpileModule(code, {
     compilerOptions: {
       module: ts.ModuleKind.ESNext,
-      target: ts.ScriptTarget.ES5,
+      target: ts.ScriptTarget.ES2017,
       jsx: 'react',
     },
   });
-
   return transformed.outputText;
 };
 
@@ -46,7 +45,7 @@ function ResultWithHeader({ groupId, defaultOpen, row }) {
           id="theme.Playground.result"
           description="The result label of the live codeblocks"
         >
-          Result
+          Live Preview
         </Translate>
       </Header>
       <div className={styles.playgroundResult}>
@@ -146,18 +145,6 @@ export default function Playground({
       <LiveProvider
         code={children.replace(/\n$/, '')}
         transformCode={transformCode || (code => babelTransform(`${code};`))}
-        transpileOptions={{
-          target: { chrome: 71 },
-          transforms: {
-            classes: false,
-            letConst: false,
-            getterSetter: false,
-            generator: false,
-            asyncAwait: false,
-            moduleImport: false,
-            moduleExport: false,
-          },
-        }}
         theme={prismTheme}
         {...props}
       >

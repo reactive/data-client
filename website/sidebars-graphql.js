@@ -9,6 +9,10 @@ module.exports = {
       id: 'auth',
     },
     {
+      type: 'doc',
+      id: 'api/GQLEndpoint',
+    },
+    {
       type: 'category',
       label: '@rest-hooks/endpoint',
       collapsed: false,

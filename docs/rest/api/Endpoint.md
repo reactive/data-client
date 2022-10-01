@@ -369,7 +369,6 @@ console.log(user);
 
 ### Additional
 
-- [Custom endpoints](/rest/guides/extending-endpoints)
 - [Pagination](/rest/guides/pagination)
 - [Mocking unfinished endpoints](/rest/guides/mocking-unfinished)
 - [Optimistic updates](/docs/guides/optimistic-updates)
