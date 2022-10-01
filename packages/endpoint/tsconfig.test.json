@@ -3,6 +3,7 @@
   "compilerOptions": {
     "noEmit": true,
     "emitDeclarationOnly": false,
+    "noImplicitAny": false,
     "composite": false,
     "rootDir": "../..",
     "paths": {
