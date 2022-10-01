@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1664469340989,
+  "lastUpdate": 1664587387659,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -7650,6 +7650,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.29%",
             "unit": "ops/sec",
             "extra": "74 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": false,
+          "id": "c5079b6eae8b77593a32423bde11cf5805f1a994",
+          "message": "internal: publish\n\n - example-benchmark@0.4.1\n - github-app@0.4.2\n - normalizr-github-example@0.1.1\n - normalizr-redux-example@0.1.1\n - normalizr-relationships@0.1.1\n - todo-app@0.2.12\n - @rest-hooks/core@3.3.1\n - @rest-hooks/endpoint@3.0.1\n - @rest-hooks/experimental@8.0.0\n - @rest-hooks/graphql@0.3.0\n - @rest-hooks/hooks@3.0.7\n - @rest-hooks/img@0.6.6\n - @rest-hooks/legacy@4.4.1\n - @rest-hooks/normalizr@9.0.1\n - rest-hooks@6.4.1\n - @rest-hooks/rest@6.0.0\n - @rest-hooks/ssr@0.2.8\n - @rest-hooks/test@7.3.9\n - @rest-hooks/use-enhanced-reducer@1.1.6",
+          "timestamp": "2022-09-30T20:14:37-05:00",
+          "tree_id": "faf00a36eb306eb81226637ed03869f888cb2429",
+          "url": "https://github.com/coinbase/rest-hooks/commit/c5079b6eae8b77593a32423bde11cf5805f1a994"
+        },
+        "date": 1664587386706,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 98.93,
+            "range": "±0.74%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 48.02,
+            "range": "±1.38%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 54.71,
+            "range": "±0.14%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 99.37,
+            "range": "±1.28%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
           }
         ]
       }
