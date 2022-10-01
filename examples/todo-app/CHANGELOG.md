@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.2.12](https://github.com/coinbase/rest-hooks/compare/todo-app@0.2.11...todo-app@0.2.12) (2022-10-01)
+
+### 📦 Package
+
+* Update `eslint` to v8.24.0 ([#2189](https://github.com/coinbase/rest-hooks/issues/2189)) ([70cf3d0](https://github.com/coinbase/rest-hooks/commit/70cf3d095a971855ff405f7e9b676b43417afb3a))
+* Update all non-major dependencies ([#2190](https://github.com/coinbase/rest-hooks/issues/2190)) ([c2c7403](https://github.com/coinbase/rest-hooks/commit/c2c74033ecf2004ddebaf064af64f37894f20dec))
+* Update babel packages ([#2192](https://github.com/coinbase/rest-hooks/issues/2192)) ([7c9d3bc](https://github.com/coinbase/rest-hooks/commit/7c9d3bc8ea3019490a1f9e1978c3709b346d582d))
+* Update linting packages to v5.38.0 ([#2186](https://github.com/coinbase/rest-hooks/issues/2186)) ([957a99d](https://github.com/coinbase/rest-hooks/commit/957a99d5598416dc5d677c6c2037ee514fde0753))
+* Update linting packages to v5.38.1 ([#2194](https://github.com/coinbase/rest-hooks/issues/2194)) ([0e86426](https://github.com/coinbase/rest-hooks/commit/0e86426dbccf2d40afc9e451060c5e6383cf6f1b))
+* Update webpack packages ([#2188](https://github.com/coinbase/rest-hooks/issues/2188)) ([246c99a](https://github.com/coinbase/rest-hooks/commit/246c99a08b9fb94f2eb3b3828a4e26aa055c124c))
+* Update webpack packages ([#2195](https://github.com/coinbase/rest-hooks/issues/2195)) ([3080c0c](https://github.com/coinbase/rest-hooks/commit/3080c0c48739e1898f4033270387eca4f332d8d1))
+
 ### [0.2.11](https://github.com/coinbase/rest-hooks/compare/todo-app@0.2.10...todo-app@0.2.11) (2022-09-19)
 
 ### 📦 Package

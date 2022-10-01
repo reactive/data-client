@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@3.0.0...@rest-hooks/endpoint@3.0.1) (2022-10-01)
+
+### 💅 Enhancement
+
+* Improve types ([31e3d63](https://github.com/coinbase/rest-hooks/commit/31e3d63080939409f791e3c8ecb266ab23d1265b))
+
+### 📦 Package
+
+* Update all non-major dependencies ([#2190](https://github.com/coinbase/rest-hooks/issues/2190)) ([c2c7403](https://github.com/coinbase/rest-hooks/commit/c2c74033ecf2004ddebaf064af64f37894f20dec))
+* Update all non-major dependencies ([#2193](https://github.com/coinbase/rest-hooks/issues/2193)) ([2abaf51](https://github.com/coinbase/rest-hooks/commit/2abaf5179ae9f30df405c800284d0a5aa41b2ffe))
+* Update babel packages ([#2192](https://github.com/coinbase/rest-hooks/issues/2192)) ([7c9d3bc](https://github.com/coinbase/rest-hooks/commit/7c9d3bc8ea3019490a1f9e1978c3709b346d582d))
+
+### 📝 Documentation
+
+* Add react-native related keywords ([fe66dcd](https://github.com/coinbase/rest-hooks/commit/fe66dcdcf3948e6d2142004d0f6b0d043f9b4fb4))
+
 ## [3.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@2.3.1...@rest-hooks/endpoint@3.0.0) (2022-09-19)
 
 ### ⚠ 💥 BREAKING CHANGES

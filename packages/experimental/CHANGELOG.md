@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@7.1.0...@rest-hooks/experimental@8.0.0) (2022-10-01)
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Removed BaseResource, Resource, HookableResource
+
+### 🚀 Features
+
+* RestEndpoint, createResource, hookifyResource ([#2187](https://github.com/coinbase/rest-hooks/issues/2187)) ([b48314b](https://github.com/coinbase/rest-hooks/commit/b48314bfe56f162ca4094d6e436b1ac1c4a9d477))
+
+### 📦 Package
+
+* Update all non-major dependencies ([#2190](https://github.com/coinbase/rest-hooks/issues/2190)) ([c2c7403](https://github.com/coinbase/rest-hooks/commit/c2c74033ecf2004ddebaf064af64f37894f20dec))
+* Update babel packages ([#2192](https://github.com/coinbase/rest-hooks/issues/2192)) ([7c9d3bc](https://github.com/coinbase/rest-hooks/commit/7c9d3bc8ea3019490a1f9e1978c3709b346d582d))
+
 ## [7.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@7.0.0...@rest-hooks/experimental@7.1.0) (2022-09-19)
 
 ### 🚀 Features

@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.1.1](https://github.com/coinbase/rest-hooks/compare/normalizr-github-example@0.1.0...normalizr-github-example@0.1.1) (2022-10-01)
+
+### 📦 Package
+
+* Update all non-major dependencies ([#2190](https://github.com/coinbase/rest-hooks/issues/2190)) ([c2c7403](https://github.com/coinbase/rest-hooks/commit/c2c74033ecf2004ddebaf064af64f37894f20dec))
+* Update babel packages ([#2192](https://github.com/coinbase/rest-hooks/issues/2192)) ([7c9d3bc](https://github.com/coinbase/rest-hooks/commit/7c9d3bc8ea3019490a1f9e1978c3709b346d582d))
+
 ## [0.1.0](https://github.com/coinbase/rest-hooks/compare/normalizr-github-example@0.0.14...normalizr-github-example@0.1.0) (2022-09-19)
 
 ### 🚀 Features

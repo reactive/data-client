@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/test",
-  "version": "7.3.8",
+  "version": "7.3.9",
   "description": "Testing utilities for Rest Hooks",
   "sideEffects": false,
   "main": "dist/index.js",
