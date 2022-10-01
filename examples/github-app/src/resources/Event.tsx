@@ -90,9 +90,9 @@ export class IssuesEvent extends Event {
   };
 }
 
-const base = createGithubResource(
-  '/users/:login/events/public/:id' as const,
-  new schema.Union(
+const base = createGithubResource({
+  path: '/users/:login/events/public/:id',
+  schema: new schema.Union(
     {
       PullRequestEvent,
       IssuesEvent,
@@ -107,8 +107,8 @@ const base = createGithubResource(
     },
     'type' as const,
   ),
-  PreviewEndpoint,
-);
+  Endpoint: PreviewEndpoint,
+});
 export const EventResource = {
   ...base,
   getList: base.getList.extend({
@@ -124,4 +124,4 @@ export const typeToIcon: Record<Event['type'], JSX.Element> = {
   IssueCommentEvent: <CommentOutlined />,
   PullRequestReviewEvent: <EyeOutlined />,
   IssuesEvent: <ExclamationCircleOutlined />,
-} as const;
+};

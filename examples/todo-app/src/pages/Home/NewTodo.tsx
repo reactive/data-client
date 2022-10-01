@@ -1,7 +1,7 @@
 import { useController } from 'rest-hooks';
 import { useCallback, useRef, useState } from 'react';
 import { styled } from '@linaria/react';
-import TodoResource from 'resources/TodoResource';
+import { TodoResource, Todo } from 'resources/TodoResource';
 
 export default function NewTodo({ lastId }: { lastId: number }) {
   const { fetch } = useController();
@@ -20,7 +20,7 @@ export default function NewTodo({ lastId }: { lastId: number }) {
   const handlePress = useCallback(
     async (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
-        fetch(TodoResource.create(), payload.current);
+        fetch(TodoResource.create, payload.current);
         setTitle('');
       }
     },

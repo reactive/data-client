@@ -10,6 +10,7 @@ import {
   IndexedUserResource,
   UnionResource,
   FutureArticleResource,
+  User,
 } from '__tests__/new';
 import nock from 'nock';
 import { act } from '@testing-library/react-hooks';
@@ -21,7 +22,7 @@ import {
   makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../../../test';
-import { useResource, useFetcher, useCache, useInvalidator } from '../hooks';
+import { useCache, useSuspense, useController } from '../hooks';
 import {
   payload,
   createPayload,
@@ -76,7 +77,7 @@ describe('indexes', () => {
       .reply(200, valuesFixture)
       .post(`/article-cooler/`)
       .reply(200, createPayload)
-      .get(`/user/`)
+      .get(`/user`)
       .reply(200, users);
 
     mynock = nock(/.*/).defaultReplyHeaders({
@@ -93,18 +94,18 @@ describe('indexes', () => {
     renderRestHook = makeRenderRestHook(makeCacheProvider);
   });
 
-  it('should resolve parallel useResource() request', async () => {
+  it('should resolve parallel useSuspense() request', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      useResource(IndexedUserResource.list(), {});
+      const { fetch } = useController();
+      useSuspense(IndexedUserResource.getList);
       return {
-        bob: useCache(IndexedUserResource.index(), {
+        bob: useCache(IndexedUserResource.getIndex, {
           username: 'bob',
         }),
-        charlie: useCache(IndexedUserResource.index(), {
+        charlie: useCache(IndexedUserResource.getIndex, {
           username: 'charlie',
         }),
-        fetch: useFetcher(IndexedUserResource.detail()),
-        del: useFetcher(IndexedUserResource.delete()),
+        fetch,
         state: useContext(StateContext),
       };
     });
@@ -112,7 +113,7 @@ describe('indexes', () => {
     await waitForNextUpdate();
     const bob = result.current.bob;
     expect(bob).toBeDefined();
-    expect(bob instanceof UserResource).toBe(true);
+    expect(bob instanceof User).toBe(true);
     expect(bob?.username).toBe('bob');
     expect(bob).toMatchSnapshot();
     expect(result.current.charlie).toBeUndefined();
@@ -120,18 +121,20 @@ describe('indexes', () => {
     const renamed = { ...users[0] };
     renamed.username = 'charlie';
     mynock.get(`/user/23`).reply(200, renamed);
-    result.current.fetch({ id: '23' });
+    result.current.fetch(IndexedUserResource.get, { id: '23' });
     await waitForNextUpdate();
 
     const charlie = result.current.charlie;
     expect(charlie).toBeDefined();
-    expect(charlie instanceof UserResource).toBe(true);
+    expect(charlie instanceof User).toBe(true);
     expect(charlie?.username).toBe('charlie');
     expect(charlie).toMatchSnapshot();
     expect(result.current.bob).toBeUndefined();
 
     // deletes should roll through to indexes
-    await result.current.del({ id: '23' });
+    await act(async () => {
+      await result.current.fetch(IndexedUserResource.delete, { id: '23' });
+    });
     expect(result.current.charlie).toBeUndefined();
   });
 });

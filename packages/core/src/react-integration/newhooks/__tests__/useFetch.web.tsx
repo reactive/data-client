@@ -102,7 +102,7 @@ describe('useFetch', () => {
 
   it('should dispatch singles', async () => {
     function FetchTester() {
-      useFetch(CoolerArticleResource.detail(), payload);
+      useFetch(CoolerArticleResource.get, { id: payload.id });
       return null;
     }
     await testDispatchFetch(FetchTester, [payload]);
@@ -113,7 +113,7 @@ describe('useFetch', () => {
     let params: any = null;
     const { rerender } = testRestHook(
       () => {
-        useFetch(CoolerArticleResource.detail(), params);
+        useFetch(CoolerArticleResource.get, params);
       },
       initialState,
       dispatch,
@@ -126,7 +126,7 @@ describe('useFetch', () => {
 
   it('should dispatch with resource defined dataExpiryLength', async () => {
     function FetchTester() {
-      useFetch(StaticArticleResource.detail(), payload);
+      useFetch(StaticArticleResource.get, { id: payload.id });
       return null;
     }
     await testDispatchFetch(FetchTester, [payload]);
@@ -134,7 +134,7 @@ describe('useFetch', () => {
 
   it('should dispatch with fetch shape defined dataExpiryLength', async () => {
     function FetchTester() {
-      useFetch(StaticArticleResource.longLiving(), payload);
+      useFetch(StaticArticleResource.longLiving, { id: payload.id });
       return null;
     }
     await testDispatchFetch(FetchTester, [payload]);
@@ -142,7 +142,7 @@ describe('useFetch', () => {
 
   it('should dispatch with fetch shape defined errorExpiryLength', async () => {
     function FetchTester() {
-      useFetch(StaticArticleResource.neverRetryOnError(), payload);
+      useFetch(StaticArticleResource.neverRetryOnError, { id: payload.id });
       return null;
     }
     await testDispatchFetch(FetchTester, [payload]);
@@ -156,14 +156,14 @@ describe('useFetch', () => {
     mynock.get(`/article-cooler/${payload.id}`).reply(200, fetchMock).persist();
     const results: any[] = [
       {
-        request: CoolerArticleResource.detail(),
-        params: payload,
-        result: payload,
+        endpoint: CoolerArticleResource.get,
+        args: [{ id: payload.id }],
+        response: payload,
       },
     ];
     const { result, rerender } = renderRestHook(
       () => {
-        return useFetch(CoolerArticleResource.detail(), payload);
+        return useFetch(CoolerArticleResource.get, { id: payload.id });
       },
       { results },
     );

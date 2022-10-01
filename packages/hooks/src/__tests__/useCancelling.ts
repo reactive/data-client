@@ -42,7 +42,7 @@ describe('useCancelling()', () => {
   it('should abort when props change and resolve when kept the same', async () => {
     const { result, rerender } = renderHook(
       ({ id }: { id: string }) => {
-        return useCancelling(ArticleResource.detail(), { id });
+        return useCancelling(ArticleResource.get, { id });
       },
       { initialProps: { id: '6' } },
     );
@@ -66,7 +66,7 @@ describe('useCancelling()', () => {
   it('should remain === if params does not change', () => {
     const { result, rerender } = renderHook(
       ({ id }: { id: string }) => {
-        return useCancelling(ArticleResource.detail(), { id });
+        return useCancelling(ArticleResource.get, { id });
       },
       { initialProps: { id: '6' } },
     );

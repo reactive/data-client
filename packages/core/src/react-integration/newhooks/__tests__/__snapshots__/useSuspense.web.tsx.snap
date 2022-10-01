@@ -4,19 +4,19 @@ exports[`useSuspense() errors should throw error when response is {} when expect
 [Error: Error processing GET http://test.com/article-cooler/400
 
 Full Schema: {
-  "name": "CoolerArticleResource",
+  "name": "CoolerArticle",
   "schema": {
     "author": {
-      "name": "UserResource",
+      "name": "User",
       "schema": {},
-      "key": "http://test.com/user/"
+      "key": "User"
     }
   },
-  "key": "http://test.com/article-cooler/"
+  "key": "CoolerArticle"
 }
 
 Error:
-Attempted to initialize CoolerArticleResource with an array, but named members were expected
+Attempted to initialize CoolerArticle with an array, but named members were expected
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.
@@ -31,19 +31,19 @@ exports[`useSuspense() errors should throw error when response is array when exp
 [Error: Error processing GET http://test.com/article-cooler/400
 
 Full Schema: {
-  "name": "CoolerArticleResource",
+  "name": "CoolerArticle",
   "schema": {
     "author": {
-      "name": "UserResource",
+      "name": "User",
       "schema": {},
-      "key": "http://test.com/user/"
+      "key": "User"
     }
   },
-  "key": "http://test.com/article-cooler/"
+  "key": "CoolerArticle"
 }
 
 Error:
-Attempted to initialize CoolerArticleResource with an array, but named members were expected
+Attempted to initialize CoolerArticle with an array, but named members were expected
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.
@@ -58,19 +58,19 @@ exports[`useSuspense() errors should throw error when response is number when ex
 [Error: Error processing GET http://test.com/article-cooler/400
 
 Full Schema: {
-  "name": "CoolerArticleResource",
+  "name": "CoolerArticle",
   "schema": {
     "author": {
-      "name": "UserResource",
+      "name": "User",
       "schema": {},
-      "key": "http://test.com/user/"
+      "key": "User"
     }
   },
-  "key": "http://test.com/article-cooler/"
+  "key": "CoolerArticle"
 }
 
 Error:
-Attempted to initialize CoolerArticleResource with an array, but named members were expected
+Attempted to initialize CoolerArticle with an array, but named members were expected
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.
@@ -85,19 +85,19 @@ exports[`useSuspense() errors should throw error when response is string when ex
 [Error: Error processing GET http://test.com/article-cooler/400
 
 Full Schema: {
-  "name": "CoolerArticleResource",
+  "name": "CoolerArticle",
   "schema": {
     "author": {
-      "name": "UserResource",
+      "name": "User",
       "schema": {},
-      "key": "http://test.com/user/"
+      "key": "User"
     }
   },
-  "key": "http://test.com/article-cooler/"
+  "key": "CoolerArticle"
 }
 
 Error:
-Attempted to initialize CoolerArticleResource with an array, but named members were expected
+Attempted to initialize CoolerArticle with an array, but named members were expected
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.

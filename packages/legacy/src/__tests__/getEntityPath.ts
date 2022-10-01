@@ -1,4 +1,4 @@
-import { CoolerArticleResource } from '__tests__/common';
+import { CoolerArticleResource } from '__tests__/legacy-3';
 import { schema as schemas } from '@rest-hooks/endpoint';
 
 import getEntityPath from '../getEntityPath';

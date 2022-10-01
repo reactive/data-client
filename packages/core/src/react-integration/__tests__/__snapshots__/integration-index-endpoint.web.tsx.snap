@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`indexes should resolve parallel useResource() request 1`] = `
-IndexedUserResource {
+exports[`indexes should resolve parallel useSuspense() request 1`] = `
+IndexedUser {
   "email": "bob@bob.com",
   "id": 23,
   "isAdmin": false,
@@ -9,8 +9,8 @@ IndexedUserResource {
 }
 `;
 
-exports[`indexes should resolve parallel useResource() request 2`] = `
-IndexedUserResource {
+exports[`indexes should resolve parallel useSuspense() request 2`] = `
+IndexedUser {
   "email": "bob@bob.com",
   "id": 23,
   "isAdmin": false,

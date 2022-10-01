@@ -1,4 +1,4 @@
-import { PollingArticleResource } from '__tests__/new';
+import { Article, PollingArticleResource } from '__tests__/new';
 import { initialState } from '@rest-hooks/core';
 
 import PollingSubscription from '../PollingSubscription';
@@ -83,7 +83,7 @@ describe('PollingSubscription', () => {
       const sub2 = new PollingSubscription(
         {
           key: 'test.com',
-          schema: PollingArticleResource,
+          schema: Article,
           fetch,
           frequency: 5000,
           getState: makeState('test.com', Date.now()),
@@ -109,7 +109,7 @@ describe('PollingSubscription', () => {
       const sub2 = new PollingSubscription(
         {
           key: 'test.com',
-          schema: PollingArticleResource,
+          schema: Article,
           fetch,
           frequency: 5000,
           getState: () => initialState,
@@ -141,7 +141,7 @@ describe('PollingSubscription', () => {
       sub = new PollingSubscription(
         {
           key: 'test.com',
-          schema: PollingArticleResource,
+          schema: Article,
           fetch,
           frequency: 5000,
           getState: makeState('test.com', 0),
@@ -160,7 +160,7 @@ describe('PollingSubscription', () => {
           new PollingSubscription(
             {
               key: 'test.com',
-              schema: PollingArticleResource,
+              schema: Article,
               fetch,
               getState: makeState('test.com', 0),
             },
@@ -272,7 +272,7 @@ describe('PollingSubscription', () => {
         const sub = new PollingSubscription(
           {
             key: 'test.com',
-            schema: PollingArticleResource,
+            schema: Article,
             fetch,
             frequency: 5000,
             getState: makeState('test.com', 0),
@@ -316,7 +316,7 @@ describe('PollingSubscription', () => {
       const pollingSubscription = new PollingSubscription(
         {
           key: 'test.com',
-          schema: PollingArticleResource,
+          schema: Article,
           fetch,
           frequency: 5000,
           getState: makeState('test.com', 0),

@@ -1,8 +1,4 @@
-import {
-  CoolerArticleResource,
-  UnionResource,
-  IndexedUserResource,
-} from '__tests__/common';
+import { UnionResource, CoolerArticle, IndexedUser } from '__tests__/new';
 import { schema as schemas } from '@rest-hooks/endpoint';
 import { SimpleRecord } from '@rest-hooks/legacy';
 
@@ -12,7 +8,7 @@ describe('inferResults()', () => {
   it('should work with Object', () => {
     const schema = new schemas.Object({
       data: new schemas.Object({
-        article: CoolerArticleResource,
+        article: CoolerArticle,
       }),
     });
     expect(buildInferredResults(schema, [{ id: 5 }], {})).toEqual({
@@ -22,10 +18,10 @@ describe('inferResults()', () => {
 
   it('should work with SimpleRecord', () => {
     class Data extends SimpleRecord {
-      readonly article = CoolerArticleResource.fromJS();
+      readonly article = CoolerArticle.fromJS();
       readonly otherfield = '';
       static schema = {
-        article: CoolerArticleResource,
+        article: CoolerArticle,
       };
     }
     class Message extends SimpleRecord {
@@ -43,14 +39,14 @@ describe('inferResults()', () => {
 
   it('should be undefined with Array', () => {
     const schema = {
-      data: new schemas.Array(CoolerArticleResource),
+      data: new schemas.Array(CoolerArticle),
     };
     expect(buildInferredResults(schema, [{ id: 5 }], {})).toStrictEqual({
       data: undefined,
     });
 
     const schema2 = {
-      data: [CoolerArticleResource],
+      data: [CoolerArticle],
     };
     expect(buildInferredResults(schema2, [{ id: 5 }], {})).toStrictEqual({
       data: undefined,
@@ -59,7 +55,7 @@ describe('inferResults()', () => {
 
   it('should be undefined with Values', () => {
     const schema = {
-      data: new schemas.Values(CoolerArticleResource),
+      data: new schemas.Values(CoolerArticle),
     };
     expect(buildInferredResults(schema, [{ id: 5 }], {})).toStrictEqual({
       data: undefined,
@@ -67,12 +63,12 @@ describe('inferResults()', () => {
   });
 
   it('should be undefined with Union and type', () => {
-    const schema = UnionResource.detail().schema;
+    const schema = UnionResource.get.schema;
     expect(buildInferredResults(schema, [{ id: 5 }], {})).toBe(undefined);
   });
 
   it('should work with Union', () => {
-    const schema = UnionResource.detail().schema;
+    const schema = UnionResource.get.schema;
     expect(buildInferredResults(schema, [{ id: 5, type: 'first' }], {}))
       .toMatchInlineSnapshot(`
       {
@@ -85,7 +81,7 @@ describe('inferResults()', () => {
   it('should work with primitive defaults', () => {
     const schema = {
       pagination: { next: '', previous: '' },
-      data: CoolerArticleResource,
+      data: CoolerArticle,
     };
     expect(buildInferredResults(schema, [{ id: 5 }], {})).toEqual({
       pagination: { next: '', previous: '' },
@@ -96,11 +92,11 @@ describe('inferResults()', () => {
   it('should work with indexes', () => {
     const schema = {
       pagination: { next: '', previous: '' },
-      data: IndexedUserResource,
+      data: IndexedUser,
     };
     expect(
       buildInferredResults(schema, [{ username: 'bob' }], {
-        [IndexedUserResource.key]: {
+        [IndexedUser.key]: {
           username: {
             bob: '5',
           },
@@ -112,7 +108,7 @@ describe('inferResults()', () => {
     });
     expect(
       buildInferredResults(schema, [{ username: 'bob', mary: 'five' }], {
-        [IndexedUserResource.key]: {
+        [IndexedUser.key]: {
           username: {
             bob: '5',
           },
@@ -127,11 +123,11 @@ describe('inferResults()', () => {
   it('should work with indexes but none set', () => {
     const schema = {
       pagination: { next: '', previous: '' },
-      data: IndexedUserResource,
+      data: IndexedUser,
     };
     expect(
       buildInferredResults(schema, [{ username: 'bob' }], {
-        [IndexedUserResource.key]: {
+        [IndexedUser.key]: {
           username: {
             charles: '5',
           },
@@ -143,7 +139,7 @@ describe('inferResults()', () => {
     });
     expect(
       buildInferredResults(schema, [{ hover: 'bob' }], {
-        [IndexedUserResource.key]: {
+        [IndexedUser.key]: {
           username: {
             charles: '5',
           },
@@ -158,7 +154,7 @@ describe('inferResults()', () => {
   it('should work with indexes but no indexes stored', () => {
     const schema = {
       pagination: { next: '', previous: '' },
-      data: IndexedUserResource,
+      data: IndexedUser,
     };
     expect(buildInferredResults(schema, [{ username: 'bob' }], {})).toEqual({
       pagination: { next: '', previous: '' },

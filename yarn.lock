@@ -3792,7 +3792,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/experimental@^7.1.0, @rest-hooks/experimental@workspace:packages/experimental":
+"@rest-hooks/experimental@workspace:packages/experimental":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/experimental@workspace:packages/experimental"
   dependencies:
@@ -3958,8 +3958,12 @@ __metadata:
     "@babel/runtime": ^7.13.0
     "@rest-hooks/endpoint": ^3.0.0
     "@types/babel__core": ^7
+    "@types/copyfiles": ^2
+    "@types/path-to-regexp": ^1.7.0
+    copyfiles: ^2.4.1
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
+    path-to-regexp: ^6.2.1
     rollup: 2.79.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
@@ -4484,6 +4488,13 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: fe81351470f2d3165e8b12ce33542eef89ea893e36dd62e8f7d72566dfb7e448376ae962f9f3ea888547ce8b55a40020ca0e01d637fab5d99567673084542641
+  languageName: node
+  linkType: hard
+
+"@types/copyfiles@npm:^2":
+  version: 2.4.1
+  resolution: "@types/copyfiles@npm:2.4.1"
+  checksum: e586284f736c5e1336c7760972db44c26cb4aa02a7fea0d31694306b5569a499546f35990aec9c007df7506a9c0ab62ddb019d96d054560d39d423ebd5ecb917
   languageName: node
   linkType: hard
 
@@ -10460,7 +10471,6 @@ __metadata:
     "@linaria/shaker": 4.2.1
     "@rest-hooks/core": ^3.3.0
     "@rest-hooks/endpoint": ^3.0.0
-    "@rest-hooks/experimental": ^7.1.0
     "@rest-hooks/graphql": ^0.2.0
     "@rest-hooks/hooks": ^3.0.6
     "@rest-hooks/rest": ^5.2.0
@@ -16299,7 +16309,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"path-to-regexp@npm:*, path-to-regexp@npm:6.2.1, path-to-regexp@npm:^6.2.0":
+"path-to-regexp@npm:*, path-to-regexp@npm:6.2.1, path-to-regexp@npm:^6.2.0, path-to-regexp@npm:^6.2.1":
   version: 6.2.1
   resolution: "path-to-regexp@npm:6.2.1"
   checksum: f0227af8284ea13300f4293ba111e3635142f976d4197f14d5ad1f124aebd9118783dd2e5f1fe16f7273743cc3dbeddfb7493f237bb27c10fdae07020cc9b698

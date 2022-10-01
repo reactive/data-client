@@ -92,11 +92,11 @@ describe('useController.fetch', () => {
   const payload = { id: 1, content: 'hi' };
 
   it('should dispatch an action that fetches a create', async () => {
-    mynock.post(`/article-cooler/`).reply(201, payload);
+    mynock.post(`/article-cooler`).reply(201, payload);
 
     function DispatchTester() {
       const { fetch } = useController();
-      fetch(CoolerArticleResource.create(), { content: 'hi' }).then(v => {
+      fetch(CoolerArticleResource.create, { content: 'hi' }).then(v => {
         v.author;
         /*
         // @ts-expect-error
@@ -107,32 +107,8 @@ describe('useController.fetch', () => {
     await testDispatchFetch(DispatchTester, [payload]);
   });
 
-  it('useFetcher() handle zero argument Endpoints', async () => {
-    const endpoint = CoolerArticleResource.list().extend({
-      fetch() {
-        return CoolerArticleResource.list().call(this as any, {});
-      },
-      url() {
-        return '';
-      },
-    });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function DispatchTester() {
-      const a = useFetcher(endpoint);
-      a(undefined).then(v => {
-        v[0].author;
-        //@ts-expect-error
-        v.jasfdasdf;
-      });
-      return null;
-    }
-  });
-
   it('should handle zero argument Endpoints', async () => {
-    const endpoint = CoolerArticleResource.list().extend({
-      fetch() {
-        return CoolerArticleResource.list().call(this as any, {});
-      },
+    const endpoint = CoolerArticleResource.getList.extend({
       url() {
         return '';
       },
@@ -151,12 +127,12 @@ describe('useController.fetch', () => {
   });
 
   it('should dispatch an action with updater in the meta if update shapes params are passed in', async () => {
-    mynock.post(`/article-cooler/`).reply(201, payload);
+    mynock.post(`/article-cooler`).reply(201, payload);
 
     function DispatchTester() {
       const { fetch } = useController();
       const params = { content: 'hi' };
-      fetch(CoolerArticleResource.create(), params).then(v => {
+      fetch(CoolerArticleResource.create, params).then(v => {
         v.title;
         /*
         // @ts-expect-error
@@ -174,7 +150,7 @@ describe('useController.fetch', () => {
       const { fetch } = useController();
       // @ts-expect-error
       () => fetch(CoolerArticleResource.detail(), {}, { content: 'hi' });
-      fetch(CoolerArticleResource.detail(), { id: payload.id }).then(v => {
+      fetch(CoolerArticleResource.get, { id: payload.id }).then(v => {
         v.title;
         /*
         // @ts-expect-error
@@ -190,7 +166,7 @@ describe('useController.fetch', () => {
     const spy = (console.error = jest.fn());
     renderHook(() => {
       const { fetch } = useController();
-      fetch(CoolerArticleResource.create(), { content: 'hi' });
+      fetch(CoolerArticleResource.create, { content: 'hi' });
       return null;
     });
     expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
@@ -208,7 +184,7 @@ describe('useController.fetch', () => {
     function DispatchTester() {
       const { fetch } = useController();
       fetch(
-        CoolerArticleResource.partialUpdate(),
+        CoolerArticleResource.partialUpdate,
         { id: payload.id },
         { content: 'changed' },
       );
@@ -223,7 +199,7 @@ describe('useController.fetch', () => {
     function DispatchTester() {
       const { fetch } = useController();
       fetch(
-        CoolerArticleResource.update(),
+        CoolerArticleResource.update,
         { id: payload.id },
         { content: 'changed' },
       );
@@ -237,9 +213,9 @@ describe('useController().invalidate', () => {
   it('should not invalidate anything if params is null', () => {
     const state = mockInitialState([
       {
-        request: PaginatedArticleResource.list(),
-        params: {},
-        result: articlesPages,
+        endpoint: PaginatedArticleResource.getList,
+        args: [],
+        response: articlesPages,
       },
     ]);
     const dispatch = jest.fn();
@@ -251,15 +227,15 @@ describe('useController().invalidate', () => {
       state,
       dispatch,
     );
-    invalidate(PaginatedArticleResource.list(), null);
+    invalidate(PaginatedArticleResource.getList, null);
     expect(dispatch).not.toHaveBeenCalled();
   });
   it('should return a function that dispatches an action to invalidate a resource', () => {
     const state = mockInitialState([
       {
-        request: PaginatedArticleResource.list(),
-        params: {},
-        result: articlesPages,
+        endpoint: PaginatedArticleResource.getList,
+        args: [],
+        response: articlesPages,
       },
     ]);
     const dispatch = jest.fn();
@@ -271,11 +247,11 @@ describe('useController().invalidate', () => {
       state,
       dispatch,
     );
-    invalidate(PaginatedArticleResource.list(), {});
+    invalidate(PaginatedArticleResource.getList);
     expect(dispatch).toHaveBeenCalledWith({
       type: INVALIDATE_TYPE,
       meta: {
-        key: 'GET http://test.com/article-paginated/',
+        key: PaginatedArticleResource.getList.key(),
       },
     });
   });
@@ -302,8 +278,8 @@ describe('useController().reset', () => {
     jest.useFakeTimers();
     const state = mockInitialState([
       {
-        endpoint: PaginatedArticleResource.list(),
-        args: [{}],
+        endpoint: PaginatedArticleResource.getList,
+        args: [],
         response: articlesPages,
       },
     ]);

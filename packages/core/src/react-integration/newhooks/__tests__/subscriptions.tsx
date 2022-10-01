@@ -1,7 +1,11 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
-import { PollingArticleResource, ArticleResource } from '__tests__/new';
+import {
+  PollingArticleResource,
+  ArticleResource,
+  Article,
+} from '__tests__/new';
 import {
   actionTypes,
   Controller,
@@ -43,8 +47,8 @@ describe.each([
   });
 
   beforeAll(() => {
-    ArticleResource.detail().pollFrequency;
-    PollingArticleResource.detail().pollFrequency;
+    ArticleResource.get.pollFrequency;
+    PollingArticleResource.get.pollFrequency;
   });
 
   beforeEach(() => {
@@ -73,16 +77,16 @@ describe.each([
 
   it('useSubscription() + useCache()', async () => {
     jest.useFakeTimers();
-    const frequency = PollingArticleResource.detail().pollFrequency as number;
+    const frequency = PollingArticleResource.get.pollFrequency as number;
     expect(frequency).toBeDefined();
 
     const { result, waitForNextUpdate, rerender } = renderRestHook(
       ({ active }) => {
         useSubscription(
-          PollingArticleResource.detail(),
-          active ? articlePayload : null,
+          PollingArticleResource.get,
+          active ? { id: articlePayload.id } : null,
         );
-        return useCache(PollingArticleResource.detail(), articlePayload);
+        return useCache(PollingArticleResource.get, { id: articlePayload.id });
       },
       { initialProps: { active: true } },
     );
@@ -118,7 +122,7 @@ describe.each([
     const spy = (console.error = jest.fn());
 
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      useSubscription(ArticleResource.detail(), articlePayload);
+      useSubscription(ArticleResource.get, { id: articlePayload.id });
     });
     expect(result.error).toBeUndefined();
     expect(spy.mock.calls[0]).toMatchSnapshot();
@@ -128,18 +132,13 @@ describe.each([
 
   it('useSubscription() without active arg', async () => {
     jest.useFakeTimers();
-    const frequency = PollingArticleResource.detail().pollFrequency as number;
+    const frequency = PollingArticleResource.get.pollFrequency as number;
     expect(frequency).toBeDefined();
-    expect(
-      PollingArticleResource.detail().options?.pollFrequency,
-    ).toBeDefined();
-    expect(
-      PollingArticleResource.anotherDetail().options?.pollFrequency,
-    ).toBeDefined();
+    expect(PollingArticleResource.anotherGet.pollFrequency).toBeDefined();
 
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      useSubscription(PollingArticleResource.detail(), articlePayload);
-      return useCache(PollingArticleResource.detail(), articlePayload);
+      useSubscription(PollingArticleResource.get, { id: articlePayload.id });
+      return useCache(PollingArticleResource.get, { id: articlePayload.id });
     });
 
     await validateSubscription(
@@ -157,7 +156,7 @@ describe.each([
 
     const { rerender } = renderHook(
       () => {
-        useSubscription(PollingArticleResource.list(), { id: 5 });
+        useSubscription(PollingArticleResource.getList, { id: 5 });
       },
       {
         wrapper: function Wrapper({ children }: any) {
@@ -182,7 +181,7 @@ describe.each([
 
     const { rerender } = renderHook(
       ({ id }: { id: number | null }) => {
-        useSubscription(PollingArticleResource.list(), id ? { id } : null);
+        useSubscription(PollingArticleResource.getList, id ? { id } : null);
       },
       {
         initialProps: { id: 5 } as { id: number | null },
@@ -216,7 +215,7 @@ it('useSubscription() should include extra options in dispatched meta', () => {
 
   renderHook(
     () => {
-      useSubscription(PollingArticleResource.pusher(), {});
+      useSubscription(PollingArticleResource.pusher, { id: 5 });
     },
     {
       wrapper: function Wrapper({ children }: any) {
@@ -237,7 +236,7 @@ it('useSubscription() should include extra options in dispatched meta', () => {
 
 async function validateSubscription(
   result: {
-    readonly current: PollingArticleResource | undefined;
+    readonly current: Article | undefined;
     readonly error?: Error;
   },
   frequency: number,
@@ -254,8 +253,8 @@ async function validateSubscription(
   // should be defined after frequency milliseconds
   jest.advanceTimersByTime(frequency);
   await waitForNextUpdate();
-  expect(result.current).toBeInstanceOf(PollingArticleResource);
-  expect(result.current).toEqual(PollingArticleResource.fromJS(articlePayload));
+  expect(result.current).toBeInstanceOf(Article);
+  expect(result.current).toEqual(Article.fromJS(articlePayload));
   // should update again after frequency
   mynock
     .get(`/article/${articlePayload.id}`)

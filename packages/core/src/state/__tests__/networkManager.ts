@@ -1,4 +1,5 @@
-import { ArticleResource } from '__tests__/common';
+import { Article, ArticleResource } from '__tests__/new';
+import { Endpoint } from '@rest-hooks/endpoint';
 
 import { Middleware } from '../../types';
 import Controller from '../../controller/Controller';
@@ -50,9 +51,12 @@ describe('NetworkManager', () => {
   });
 
   describe('middleware', () => {
-    const detailEndpoint = ArticleResource.detail().extend({
-      fetch: (v: { id: number }) => Promise.resolve({ id: 5, title: 'hi' }),
-    });
+    const detailEndpoint = new Endpoint(
+      (v: { id: number }) => Promise.resolve({ id: 5, title: 'hi' }),
+      {
+        schema: Article,
+      },
+    );
     const fetchResolveAction = createFetch(detailEndpoint, {
       args: [{ id: 5 }],
     });
@@ -60,7 +64,7 @@ describe('NetworkManager', () => {
     const detailWithUpdaterEndpoint = detailEndpoint.extend({
       update(id: string, v: { id: number }) {
         const updates = {
-          [ArticleResource.list().key({})]: (oldResults = []) => [
+          [ArticleResource.getList.key({})]: (oldResults = []) => [
             ...(oldResults || []),
             id,
           ],
@@ -75,33 +79,47 @@ describe('NetworkManager', () => {
       },
     );
 
-    const updateShape = ArticleResource.update().extend({
-      fetch: (params: any, body: any) => Promise.resolve(body),
-      update(id: string, params: any, body: any) {
-        const updates = {
-          [ArticleResource.list().key({})]: (oldResults = []) => [
-            ...(oldResults || []),
-            id,
-          ],
-        };
-        return updates;
+    const updateShape = new Endpoint(
+      (params: any, body: any) => Promise.resolve(body),
+      {
+        schema: Article,
+        sideEffect: true,
+        key: ArticleResource.update.key.bind(ArticleResource.partialUpdate),
+        update(id: string, params: any, body: any) {
+          const updates = {
+            [ArticleResource.getList.key({})]: (oldResults = []) => [
+              ...(oldResults || []),
+              id,
+            ],
+          };
+          return updates;
+        },
       },
-    });
+    );
     const fetchRpcWithUpdatersAction = createFetch(updateShape, {
       args: [{ id: 5 }, { id: 5, title: 'hi' }],
     });
-    const partialUpdateShape = ArticleResource.partialUpdate().extend({
-      fetch: (params, body) => Promise.resolve(body),
-      update(id: string, params: any, body: any) {
-        const updates = {
-          [ArticleResource.list().key({})]: (oldResults = []) => [
-            ...(oldResults || []),
-            id,
-          ],
-        };
-        return updates;
+    const partialUpdateShape = new Endpoint(
+      (params, body) => Promise.resolve(body),
+      {
+        getOptimisticResponse:
+          ArticleResource.partialUpdate.getOptimisticResponse,
+        schema: Article,
+        key: ArticleResource.partialUpdate.key.bind(
+          ArticleResource.partialUpdate,
+        ),
+        sideEffect: true,
+        update(id: string, params: any, body: any) {
+          const updates = {
+            [ArticleResource.getList.key({})]: (oldResults = []) => [
+              ...(oldResults || []),
+              id,
+            ],
+          };
+          return updates;
+        },
       },
-    });
+    );
     const fetchRpcWithUpdatersAndOptimisticAction = createFetch(
       partialUpdateShape,
       {
@@ -109,7 +127,7 @@ describe('NetworkManager', () => {
       },
     );
 
-    const errorUpdateShape = ArticleResource.update();
+    const errorUpdateShape = ArticleResource.update;
     errorUpdateShape.fetch = () => Promise.reject(new Error('Failed'));
     const fetchRejectAction = createFetch(errorUpdateShape, {
       args: [{ id: 5 }, { id: 5, title: 'hi' }],
@@ -150,7 +168,6 @@ describe('NetworkManager', () => {
           date: expect.any(Number),
           expiresAt: expect.any(Number),
           fetchedAt: expect.any(Number),
-          errorPolicy: expect.any(Function),
         },
       };
       expect(dispatch).toHaveBeenCalledWith(action);
@@ -182,7 +199,6 @@ describe('NetworkManager', () => {
           date: expect.any(Number),
           expiresAt: expect.any(Number),
           fetchedAt: expect.any(Number),
-          errorPolicy: expect.any(Function),
         },
       };
       expect(dispatch).toHaveBeenCalledWith(action);
@@ -214,7 +230,6 @@ describe('NetworkManager', () => {
           date: expect.any(Number),
           expiresAt: expect.any(Number),
           fetchedAt: expect.any(Number),
-          errorPolicy: expect.any(Function),
         },
       };
       expect(dispatch).toHaveBeenCalledWith(action);
@@ -246,7 +261,6 @@ describe('NetworkManager', () => {
           date: expect.any(Number),
           expiresAt: expect.any(Number),
           fetchedAt: expect.any(Number),
-          errorPolicy: expect.any(Function),
         },
       });
     });

@@ -12,10 +12,10 @@ export class Label extends GithubEntity {
     return this.id?.toString();
   }
 }
-export const LabelResource = createGithubResource(
-  '/repos/:owner/:repo/labels/:name' as const,
-  Label,
-  PreviewEndpoint,
-);
+export const LabelResource = createGithubResource({
+  path: '/repos/:owner/:repo/labels/:name',
+  schema: Label,
+  Endpoint: PreviewEndpoint,
+});
 
 export default LabelResource;

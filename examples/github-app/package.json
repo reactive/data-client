@@ -63,7 +63,6 @@
     "@ant-design/icons": "^4.7.0",
     "@rest-hooks/core": "^3.3.0",
     "@rest-hooks/endpoint": "^3.0.0",
-    "@rest-hooks/experimental": "^7.1.0",
     "@rest-hooks/graphql": "^0.2.0",
     "@rest-hooks/hooks": "^3.0.6",
     "@rest-hooks/rest": "^5.2.0",

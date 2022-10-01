@@ -1,5 +1,5 @@
 // eslint-env jest
-import { CoolerArticleResource } from '__tests__/common';
+import { CoolerArticle, CoolerArticleResource } from '__tests__/new';
 import React, { useContext, Suspense } from 'react';
 import { act, render } from '@testing-library/react';
 import { NetworkManager, useSuspense } from '@rest-hooks/core';
@@ -39,7 +39,7 @@ describe('<CacheProvider />', () => {
 
   it('should warn users about missing Suspense', () => {
     const Component = () => {
-      const article = useSuspense(CoolerArticleResource.detail(), { id: 5 });
+      const article = useSuspense(CoolerArticleResource.get, { id: 5 });
       return <div>{article.title}</div>;
     };
     const tree = (
@@ -56,7 +56,7 @@ describe('<CacheProvider />', () => {
 
   it('should not warn if Suspense is provided', () => {
     const Component = () => {
-      const article = useSuspense(CoolerArticleResource.detail(), { id: 5 });
+      const article = useSuspense(CoolerArticleResource.get, { id: 5 });
       return <div>{article.title}</div>;
     };
     const tree = (
@@ -124,8 +124,8 @@ describe('<CacheProvider />', () => {
       type: RECEIVE_TYPE,
       payload: { id: 5, title: 'hi', content: 'more things here' },
       meta: {
-        schema: CoolerArticleResource,
-        key: CoolerArticleResource.url({ id: 5 }),
+        schema: CoolerArticle,
+        key: CoolerArticleResource.get.key({ id: 5 }),
         mutate: false,
         date: 50,
         expiresAt: 55,

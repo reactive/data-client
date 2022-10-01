@@ -205,8 +205,6 @@ describe('SimpleRecord', () => {
       // typing of members that it has
       pagination.data?.content;
       pagination.data?.title;
-      // @ts-expect-error - data might be undefined since its a nested entity
-      pagination.data.content;
       // @ts-expect-error - fails when it doesn't have member
       pagination?.bob;
     });

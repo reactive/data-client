@@ -3,7 +3,7 @@
 exports[`<CacheProvider /> should change state 1`] = `
 {
   "entities": {
-    "http://test.com/article-cooler/": {
+    "CoolerArticle": {
       "5": {
         "content": "more things here",
         "id": 5,
@@ -12,7 +12,7 @@ exports[`<CacheProvider /> should change state 1`] = `
     },
   },
   "entityMeta": {
-    "http://test.com/article-cooler/": {
+    "CoolerArticle": {
       "5": {
         "date": 50,
         "expiresAt": 55,
@@ -23,7 +23,7 @@ exports[`<CacheProvider /> should change state 1`] = `
   "indexes": {},
   "lastReset": 0,
   "meta": {
-    "http://test.com/article-cooler/5": {
+    "GET http://test.com/article-cooler/5": {
       "date": 50,
       "expiresAt": 55,
       "prevExpiresAt": undefined,
@@ -31,7 +31,7 @@ exports[`<CacheProvider /> should change state 1`] = `
   },
   "optimistic": [],
   "results": {
-    "http://test.com/article-cooler/5": "5",
+    "GET http://test.com/article-cooler/5": "5",
   },
 }
 `;

@@ -19,23 +19,24 @@ describe('useMeta()', () => {
   it('should contain error', () => {
     const results: Fixture[] = [
       {
-        request: TypedArticleResource.detail().bind(undefined, payload),
-        result: new Error('broken'),
+        endpoint: TypedArticleResource.get,
+        args: [{ id: payload.id }],
+        response: new Error('broken'),
         error: true,
       },
     ];
     const { result } = renderRestHook(
       () => {
         // @ts-expect-error
-        useMeta(TypedArticleResource.detail(), 500);
+        () => useMeta(TypedArticleResource.get, 500);
         // @ts-expect-error
-        useMeta(TypedArticleResource.detail());
+        () => useMeta(TypedArticleResource.get);
         // @ts-expect-error
-        useMeta(TypedArticleResource.detail(), { id: '5' });
+        () => useMeta(TypedArticleResource.get, '5');
         // @ts-expect-error
-        useMeta(TypedArticleResource.detail(), payload, { a: 5 });
+        () => useMeta(TypedArticleResource.get, payload, { a: 5 });
 
-        return useMeta(TypedArticleResource.detail(), payload);
+        return useMeta(TypedArticleResource.get, { id: payload.id });
       },
       { results },
     );

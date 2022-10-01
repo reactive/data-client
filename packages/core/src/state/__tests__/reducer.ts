@@ -2,8 +2,10 @@ import {
   ArticleResource,
   ArticleResourceWithOtherListUrl,
   PaginatedArticleResource,
-} from '__tests__/common';
-import { PaginatedArticleResource as PaginatedArticle } from '__tests__/new';
+  Article,
+  PaginatedArticle,
+  UrlArticle,
+} from '__tests__/new';
 import { DELETED, schema } from '@rest-hooks/endpoint';
 
 import createReducer, { initialState } from '../createReducer';
@@ -44,8 +46,8 @@ describe('reducer', () => {
       type: RECEIVE_TYPE,
       payload,
       meta: {
-        schema: ArticleResource,
-        key: ArticleResource.url({ id }),
+        schema: Article,
+        key: ArticleResource.get.url({ id }),
         date: 5000000000,
         expiresAt: 5000500000,
         fetchedAt: 5000000000,
@@ -62,10 +64,8 @@ describe('reducer', () => {
       expect(newState).toMatchSnapshot();
     });
     it('should overwrite existing entity', () => {
-      const getEntity = (state: any): ArticleResource =>
-        state.entities[ArticleResource.key][
-          `${ArticleResource.pk(action.payload)}`
-        ];
+      const getEntity = (state: any): Article =>
+        state.entities[Article.key][`${Article.pk(action.payload)}`];
       const prevEntity = getEntity(newState);
       expect(prevEntity).toBeDefined();
       const nextState = reducer(newState, action);
@@ -74,10 +74,8 @@ describe('reducer', () => {
       expect(nextEntity).toBeDefined();
     });
     it('should merge partial entity with existing entity', () => {
-      const getEntity = (state: any): ArticleResource =>
-        state.entities[ArticleResource.key][
-          `${ArticleResource.pk(action.payload)}`
-        ];
+      const getEntity = (state: any): Article =>
+        state.entities[Article.key][`${Article.pk(action.payload)}`];
       const prevEntity = getEntity(newState);
       expect(prevEntity).toBeDefined();
       const nextState = reducer(newState, partialResultAction);
@@ -92,14 +90,10 @@ describe('reducer', () => {
       expect(nextEntity.content).not.toBe(undefined);
 
       expect(
-        nextState.entityMeta[ArticleResource.key][
-          `${ArticleResource.pk(action.payload)}`
-        ],
+        nextState.entityMeta[Article.key][`${Article.pk(action.payload)}`],
       ).toBeDefined();
       expect(
-        nextState.entityMeta[ArticleResource.key][
-          `${ArticleResource.pk(action.payload)}`
-        ].date,
+        nextState.entityMeta[Article.key][`${Article.pk(action.payload)}`].date,
       ).toBe(action.meta.date);
     });
 
@@ -113,9 +107,7 @@ describe('reducer', () => {
         },
       };
       const getMeta = (state: any): { expiresAt: number } =>
-        state.entityMeta[ArticleResource.key][
-          `${ArticleResource.pk(action.payload)}`
-        ];
+        state.entityMeta[Article.key][`${Article.pk(action.payload)}`];
       const prevMeta = getMeta(newState);
       expect(prevMeta).toBeDefined();
       const nextState = reducer(newState, localAction);
@@ -136,13 +128,9 @@ describe('reducer', () => {
         },
       };
       const getMeta = (state: any): { date: number } =>
-        state.entityMeta[ArticleResource.key][
-          `${ArticleResource.pk(action.payload)}`
-        ];
-      const getEntity = (state: any): ArticleResource =>
-        state.entities[ArticleResource.key][
-          `${ArticleResource.pk(action.payload)}`
-        ];
+        state.entityMeta[Article.key][`${Article.pk(action.payload)}`];
+      const getEntity = (state: any): Article =>
+        state.entities[Article.key][`${Article.pk(action.payload)}`];
       const prevEntity = getEntity(newState);
       const prevMeta = getMeta(newState);
       expect(prevMeta).toBeDefined();
@@ -157,7 +145,11 @@ describe('reducer', () => {
     });
 
     it('should use entity.expiresAt()', () => {
-      class ExpiresSoon extends ArticleResource {
+      class ExpiresSoon extends Article {
+        static get key() {
+          return Article.key;
+        }
+
         static expiresAt(
           { expiresAt, date }: { expiresAt: number; date: number },
           input: any,
@@ -165,6 +157,7 @@ describe('reducer', () => {
           return input.content ? expiresAt : 0;
         }
       }
+      console.log('hi', ExpiresSoon.key);
       const spy = jest.spyOn(ExpiresSoon, 'expiresAt');
       const localAction = {
         ...partialResultAction,
@@ -205,15 +198,15 @@ describe('reducer', () => {
       type: RECEIVE_TYPE,
       payload,
       meta: {
-        schema: ArticleResource,
-        key: ArticleResource.listUrl(payload),
+        schema: Article,
+        key: ArticleResource.getList.key(payload),
         date: 0,
         expiresAt: 1000000000000,
       },
     };
     const iniState = {
       ...initialState,
-      results: { abc: '5', [ArticleResource.listUrl(payload)]: `${id}` },
+      results: { abc: '5', [ArticleResource.getList.key(payload)]: `${id}` },
     };
     const newState = reducer(iniState, action);
     expect(newState.results).toStrictEqual(iniState.results);
@@ -224,8 +217,8 @@ describe('reducer', () => {
       type: RECEIVE_TYPE,
       payload: { id },
       meta: {
-        schema: new schema.Delete(ArticleResource),
-        key: ArticleResource.delete().key({ id }),
+        schema: new schema.Delete(Article),
+        key: ArticleResource.delete.key({ id }),
         date: 0,
         expiresAt: 0,
       },
@@ -233,13 +226,13 @@ describe('reducer', () => {
     const iniState: any = {
       ...initialState,
       entities: {
-        [ArticleResource.key]: {
-          '10': ArticleResource.fromJS({ id: 10 }),
-          '20': ArticleResource.fromJS({ id: 20 }),
-          '25': ArticleResource.fromJS({ id: 25 }),
+        [Article.key]: {
+          '10': Article.fromJS({ id: 10 }),
+          '20': Article.fromJS({ id: 20 }),
+          '25': Article.fromJS({ id: 25 }),
         },
-        [PaginatedArticleResource.key]: {
-          hi: PaginatedArticleResource.fromJS({ id: 5 }),
+        [PaginatedArticle.key]: {
+          hi: PaginatedArticle.fromJS({ id: 5 }),
         },
         '5': undefined,
       },
@@ -247,17 +240,17 @@ describe('reducer', () => {
     };
     const newState = reducer(iniState, action);
     expect(newState.results.abc).toBe(iniState.results.abc);
-    const expectedEntities = { ...iniState.entities[ArticleResource.key] };
+    const expectedEntities = { ...iniState.entities[Article.key] };
     expectedEntities['20'] = DELETED;
-    expect(newState.entities[ArticleResource.key]).toEqual(expectedEntities);
+    expect(newState.entities[Article.key]).toEqual(expectedEntities);
   });
 
   describe('updaters', () => {
     describe('Update on get (pagination use case)', () => {
-      const shape = PaginatedArticleResource.list();
+      const shape = PaginatedArticleResource.getList;
       function makeOptimisticAction(
         payload: {
-          results: Partial<PaginatedArticleResource>[];
+          results: Partial<PaginatedArticle>[];
         },
         updaters: {
           [key: string]: UpdateFunction<
@@ -270,8 +263,8 @@ describe('reducer', () => {
           type: RECEIVE_TYPE,
           payload,
           meta: {
-            schema: PaginatedArticleResource.list().schema,
-            key: PaginatedArticleResource.list().key({
+            schema: PaginatedArticleResource.getList.schema,
+            key: PaginatedArticleResource.getList.key({
               cursor: 2,
             }),
             updaters,
@@ -302,12 +295,12 @@ describe('reducer', () => {
       const iniState: any = {
         ...initialState,
         entities: {
-          [PaginatedArticleResource.key]: {
-            '10': PaginatedArticleResource.fromJS({ id: 10 }),
+          [PaginatedArticle.key]: {
+            '10': PaginatedArticle.fromJS({ id: 10 }),
           },
         },
         results: {
-          [PaginatedArticleResource.listUrl()]: { results: ['10'] },
+          [PaginatedArticleResource.getList.key()]: { results: ['10'] },
         },
       };
 
@@ -317,12 +310,12 @@ describe('reducer', () => {
           makeOptimisticAction(
             { results: [{ id: 11 }, { id: 12 }] },
             {
-              [PaginatedArticleResource.listUrl()]: insertAfterUpdater,
+              [PaginatedArticleResource.getList.key()]: insertAfterUpdater,
             },
           ),
         );
         expect(
-          newState.results[PaginatedArticleResource.listUrl()],
+          newState.results[PaginatedArticleResource.getList.key()],
         ).toStrictEqual({ results: ['10', '11', '12'] });
       });
 
@@ -332,24 +325,24 @@ describe('reducer', () => {
           makeOptimisticAction(
             { results: [{ id: 11 }, { id: 12 }] },
             {
-              [PaginatedArticleResource.listUrl()]: insertBeforeUpdater,
+              [PaginatedArticleResource.getList.key()]: insertBeforeUpdater,
             },
           ),
         );
         expect(
-          newState.results[PaginatedArticleResource.listUrl()],
+          newState.results[PaginatedArticleResource.getList.key()],
         ).toStrictEqual({ results: ['11', '12', '10'] });
       });
     });
 
     describe('rpc update on create', () => {
-      const createShape = ArticleResource.create();
+      const createEndpoint = ArticleResource.create;
       function makeOptimisticAction(
-        payload: Partial<ArticleResource>,
+        payload: Partial<Article>,
         updaters: {
           [key: string]: UpdateFunction<
-            typeof createShape['schema'],
-            typeof ArticleResource[]
+            typeof createEndpoint['schema'],
+            typeof Article[]
           >;
         },
       ) {
@@ -357,8 +350,8 @@ describe('reducer', () => {
           type: RECEIVE_TYPE,
           payload,
           meta: {
-            schema: ArticleResource,
-            key: ArticleResource.create().key({}),
+            schema: Article,
+            key: ArticleResource.create.key({}),
             updaters,
             date: 0,
             expiresAt: 100000000000,
@@ -379,14 +372,14 @@ describe('reducer', () => {
       const iniState: any = {
         ...initialState,
         entities: {
-          [ArticleResourceWithOtherListUrl.key]: {
-            '10': ArticleResourceWithOtherListUrl.fromJS({ id: 10 }),
-            '21': ArticleResourceWithOtherListUrl.fromJS({ id: 21 }),
+          [UrlArticle.key]: {
+            '10': UrlArticle.fromJS({ id: 10 }),
+            '21': UrlArticle.fromJS({ id: 21 }),
           },
         },
         results: {
-          [ArticleResourceWithOtherListUrl.listUrl()]: ['10'],
-          [ArticleResourceWithOtherListUrl.otherList().url()]: ['21'],
+          [ArticleResourceWithOtherListUrl.getList.key()]: ['10'],
+          [ArticleResourceWithOtherListUrl.otherList.key()]: ['21'],
         },
       };
 
@@ -396,11 +389,11 @@ describe('reducer', () => {
           makeOptimisticAction(
             { id: 11 },
             {
-              [ArticleResource.listUrl()]: insertAfterUpdater,
+              [ArticleResource.getList.key()]: insertAfterUpdater,
             },
           ),
         );
-        expect(newState.results[ArticleResource.listUrl()]).toStrictEqual([
+        expect(newState.results[ArticleResource.getList.key()]).toStrictEqual([
           '10',
           '11',
         ]);
@@ -412,11 +405,11 @@ describe('reducer', () => {
           makeOptimisticAction(
             { id: 11 },
             {
-              [ArticleResource.listUrl()]: insertBeforeUpdater,
+              [ArticleResource.getList.key()]: insertBeforeUpdater,
             },
           ),
         );
-        expect(newState.results[ArticleResource.listUrl()]).toStrictEqual([
+        expect(newState.results[ArticleResource.getList.key()]).toStrictEqual([
           '11',
           '10',
         ]);
@@ -428,17 +421,18 @@ describe('reducer', () => {
           makeOptimisticAction(
             { id: 11 },
             {
-              [ArticleResourceWithOtherListUrl.listUrl()]: insertAfterUpdater,
-              [ArticleResourceWithOtherListUrl.otherList().url()]:
+              [ArticleResourceWithOtherListUrl.getList.key()]:
+                insertAfterUpdater,
+              [ArticleResourceWithOtherListUrl.otherList.key()]:
                 insertAfterUpdater,
             },
           ),
         );
         expect(
-          newState.results[ArticleResourceWithOtherListUrl.listUrl()],
+          newState.results[ArticleResourceWithOtherListUrl.getList.key()],
         ).toStrictEqual(['10', '11']);
         expect(
-          newState.results[ArticleResourceWithOtherListUrl.otherList().url()],
+          newState.results[ArticleResourceWithOtherListUrl.otherList.key()],
         ).toStrictEqual(['21', '11']);
       });
     });
@@ -446,7 +440,7 @@ describe('reducer', () => {
 
   describe('endpoint.update', () => {
     describe('Update on get (pagination use case)', () => {
-      const endpoint = PaginatedArticle.list();
+      const endpoint = PaginatedArticleResource.getList;
 
       const iniState: any = {
         ...initialState,
@@ -456,7 +450,7 @@ describe('reducer', () => {
           },
         },
         results: {
-          [PaginatedArticle.list().key({})]: { results: ['10'] },
+          [PaginatedArticleResource.getList.key({})]: { results: ['10'] },
         },
       };
 
@@ -467,7 +461,7 @@ describe('reducer', () => {
             ...endpoint,
             key: endpoint.key({ cursor: 2 }),
             update: (nextpage: { results: string[] }) => ({
-              [PaginatedArticle.list().key({})]: (
+              [PaginatedArticleResource.getList.key({})]: (
                 existing: { results: string[] } = { results: [] },
               ) => ({
                 ...existing,
@@ -478,11 +472,11 @@ describe('reducer', () => {
           },
         );
         const newState = reducer(iniState, action);
-        expect(newState.results[PaginatedArticle.list().key({})]).toStrictEqual(
-          {
-            results: ['10', '11', '12'],
-          },
-        );
+        expect(
+          newState.results[PaginatedArticleResource.getList.key({})],
+        ).toStrictEqual({
+          results: ['10', '11', '12'],
+        });
       });
 
       it('should insert correctly into the beginning of the list request', () => {
@@ -494,46 +488,7 @@ describe('reducer', () => {
               ...endpoint,
               key: endpoint.key({ cursor: 2 }),
               update: (nextpage: { results: string[] }) => ({
-                [PaginatedArticle.list().key({})]: (
-                  existing: { results: string[] } = { results: [] },
-                ) => ({
-                  ...existing,
-                  results: [...nextpage.results, ...existing.results],
-                }),
-              }),
-              dataExpiryLength: 600000,
-            },
-          ),
-        );
-        expect(newState.results[PaginatedArticle.list().key({})]).toStrictEqual(
-          {
-            results: ['11', '12', '10'],
-          },
-        );
-      });
-
-      it('should account for args', () => {
-        const iniState: any = {
-          ...initialState,
-          entities: {
-            [PaginatedArticle.key]: {
-              '10': PaginatedArticle.fromJS({ id: 10 }),
-            },
-          },
-          results: {
-            [PaginatedArticle.list().key({ admin: true })]: { results: ['10'] },
-          },
-        };
-        const newState = reducer(
-          iniState,
-          createReceive(
-            { results: [{ id: 11 }, { id: 12 }] },
-            {
-              ...endpoint,
-              key: endpoint.key({ cursor: 2, admin: true }),
-              args: [{ cursor: 2, admin: true }],
-              update: (nextpage: { results: string[] }, { admin }) => ({
-                [PaginatedArticle.list().key({ admin })]: (
+                [PaginatedArticleResource.getList.key({})]: (
                   existing: { results: string[] } = { results: [] },
                 ) => ({
                   ...existing,
@@ -545,7 +500,50 @@ describe('reducer', () => {
           ),
         );
         expect(
-          newState.results[PaginatedArticle.list().key({ admin: true })],
+          newState.results[PaginatedArticleResource.getList.key({})],
+        ).toStrictEqual({
+          results: ['11', '12', '10'],
+        });
+      });
+
+      it('should account for args', () => {
+        const iniState: any = {
+          ...initialState,
+          entities: {
+            [PaginatedArticle.key]: {
+              '10': PaginatedArticle.fromJS({ id: 10 }),
+            },
+          },
+          results: {
+            [PaginatedArticleResource.getList.key({ admin: true })]: {
+              results: ['10'],
+            },
+          },
+        };
+        const newState = reducer(
+          iniState,
+          createReceive(
+            { results: [{ id: 11 }, { id: 12 }] },
+            {
+              ...endpoint,
+              key: endpoint.key({ cursor: 2, admin: true }),
+              args: [{ cursor: 2, admin: true }],
+              update: (nextpage: { results: string[] }, { admin }) => ({
+                [PaginatedArticleResource.getList.key({ admin })]: (
+                  existing: { results: string[] } = { results: [] },
+                ) => ({
+                  ...existing,
+                  results: [...nextpage.results, ...existing.results],
+                }),
+              }),
+              dataExpiryLength: 600000,
+            },
+          ),
+        );
+        expect(
+          newState.results[
+            PaginatedArticleResource.getList.key({ admin: true })
+          ],
         ).toStrictEqual({
           results: ['11', '12', '10'],
         });
@@ -564,13 +562,13 @@ describe('reducer', () => {
     const iniState: any = {
       ...initialState,
       entities: {
-        [ArticleResource.key]: {
-          '10': ArticleResource.fromJS({ id: 10 }),
-          '20': ArticleResource.fromJS({ id: 20 }),
-          '25': ArticleResource.fromJS({ id: 25 }),
+        [Article.key]: {
+          '10': Article.fromJS({ id: 10 }),
+          '20': Article.fromJS({ id: 20 }),
+          '25': Article.fromJS({ id: 25 }),
         },
-        [PaginatedArticleResource.key]: {
-          hi: PaginatedArticleResource.fromJS({ id: 5 }),
+        [PaginatedArticle.key]: {
+          hi: PaginatedArticle.fromJS({ id: 5 }),
         },
         '5': undefined,
       },
@@ -598,8 +596,8 @@ describe('reducer', () => {
       type: RECEIVE_TYPE,
       payload: error,
       meta: {
-        schema: ArticleResource,
-        key: ArticleResource.url({ id }),
+        schema: Article,
+        key: ArticleResource.get.key({ id }),
         date: 5000000000,
         expiresAt: 5000500000,
       },
@@ -616,8 +614,8 @@ describe('reducer', () => {
       type: RECEIVE_TYPE,
       payload: error,
       meta: {
-        schema: ArticleResource,
-        key: ArticleResource.url({ id }),
+        schema: Article,
+        key: ArticleResource.get.key({ id }),
         date: 0,
         expiresAt: 10000000000000000000,
       },
@@ -635,8 +633,8 @@ describe('reducer', () => {
       type: RECEIVE_TYPE,
       payload: error,
       meta: {
-        schema: new schema.Delete(ArticleResource),
-        key: ArticleResource.delete().key({ id }),
+        schema: new schema.Delete(Article),
+        key: ArticleResource.delete.key({ id }),
         date: 0,
         expiresAt: 0,
       },
@@ -645,12 +643,12 @@ describe('reducer', () => {
     const iniState = {
       ...initialState,
       entities: {
-        [ArticleResource.key]: {
-          [id]: ArticleResource.fromJS({}),
+        [Article.key]: {
+          [id]: Article.fromJS({}),
         },
       },
       results: {
-        [ArticleResource.url({ id })]: id,
+        [ArticleResource.get.url({ id })]: id,
       },
     };
     const newState = reducer(iniState, action);
@@ -662,8 +660,8 @@ describe('reducer', () => {
       type: FETCH_TYPE,
       payload: () => new Promise<any>(() => null),
       meta: {
-        schema: ArticleResource,
-        key: ArticleResource.url({ id: 5 }),
+        schema: Article,
+        key: ArticleResource.get.url({ id: 5 }),
         type: 'read' as const,
         throttle: true,
         reject: (v: any) => null,
@@ -708,13 +706,13 @@ describe('reducer', () => {
       const iniState: any = {
         ...initialState,
         entities: {
-          [ArticleResource.key]: {
-            '10': ArticleResource.fromJS({ id: 10 }),
-            '20': ArticleResource.fromJS({ id: 20 }),
-            '25': ArticleResource.fromJS({ id: 25 }),
+          [Article.key]: {
+            '10': Article.fromJS({ id: 10 }),
+            '20': Article.fromJS({ id: 20 }),
+            '25': Article.fromJS({ id: 25 }),
           },
-          [PaginatedArticleResource.key]: {
-            hi: PaginatedArticleResource.fromJS({ id: 5 }),
+          [PaginatedArticle.key]: {
+            hi: PaginatedArticle.fromJS({ id: 5 }),
           },
           '5': undefined,
         },
@@ -735,13 +733,13 @@ describe('reducer', () => {
       const iniState: any = {
         ...initialState,
         entities: {
-          [ArticleResource.key]: {
-            '10': ArticleResource.fromJS({ id: 10 }),
-            '20': ArticleResource.fromJS({ id: 20 }),
-            '25': ArticleResource.fromJS({ id: 25 }),
+          [Article.key]: {
+            '10': Article.fromJS({ id: 10 }),
+            '20': Article.fromJS({ id: 20 }),
+            '25': Article.fromJS({ id: 25 }),
           },
-          [PaginatedArticleResource.key]: {
-            hi: PaginatedArticleResource.fromJS({ id: 5 }),
+          [PaginatedArticle.key]: {
+            hi: PaginatedArticle.fromJS({ id: 5 }),
           },
           '5': undefined,
         },
@@ -760,13 +758,13 @@ describe('reducer', () => {
       const iniState: any = {
         ...initialState,
         entities: {
-          [ArticleResource.key]: {
-            '10': ArticleResource.fromJS({ id: 10 }),
-            '20': ArticleResource.fromJS({ id: 20 }),
-            '25': ArticleResource.fromJS({ id: 25 }),
+          [Article.key]: {
+            '10': Article.fromJS({ id: 10 }),
+            '20': Article.fromJS({ id: 20 }),
+            '25': Article.fromJS({ id: 25 }),
           },
-          [PaginatedArticleResource.key]: {
-            hi: PaginatedArticleResource.fromJS({ id: 5 }),
+          [PaginatedArticle.key]: {
+            hi: PaginatedArticle.fromJS({ id: 5 }),
           },
           '5': undefined,
         },
@@ -795,19 +793,19 @@ describe('reducer', () => {
       iniState = {
         ...initialState,
         entities: {
-          [ArticleResource.key]: {
-            '10': ArticleResource.fromJS({ id: 10 }),
-            '20': ArticleResource.fromJS({ id: 20 }),
-            '25': ArticleResource.fromJS({ id: 25 }),
-            '250': ArticleResource.fromJS({ id: 250 }),
+          [Article.key]: {
+            '10': Article.fromJS({ id: 10 }),
+            '20': Article.fromJS({ id: 20 }),
+            '25': Article.fromJS({ id: 25 }),
+            '250': Article.fromJS({ id: 250 }),
           },
-          [PaginatedArticleResource.key]: {
-            hi: PaginatedArticleResource.fromJS({ id: 5 }),
+          [PaginatedArticle.key]: {
+            hi: PaginatedArticle.fromJS({ id: 5 }),
           },
           '5': undefined,
         },
         entityMeta: {
-          [ArticleResource.key]: {
+          [Article.key]: {
             '10': { date: 0, expiresAt: 10000, fetchedAt: 0 },
             '20': { date: 0, expiresAt: 10000, fetchedAt: 0 },
             '25': { date: 0, expiresAt: 10000, fetchedAt: 0 },
@@ -827,9 +825,7 @@ describe('reducer', () => {
 
       const newState = reducer(iniState, action);
       expect(newState).toBe(iniState);
-      expect(
-        Object.keys(newState.entities[ArticleResource.key] ?? {}).length,
-      ).toBe(4);
+      expect(Object.keys(newState.entities[Article.key] ?? {}).length).toBe(4);
       expect(Object.keys(newState.results).length).toBe(1);
     });
 
@@ -837,20 +833,18 @@ describe('reducer', () => {
       const action: GCAction = {
         type: GC_TYPE,
         entities: [
-          [ArticleResource.key, '10'],
-          [ArticleResource.key, '250'],
+          [Article.key, '10'],
+          [Article.key, '250'],
         ],
         results: ['abc'],
       };
 
       const newState = reducer(iniState, action);
       expect(newState).toBe(iniState);
-      expect(
-        Object.keys(newState.entities[ArticleResource.key] ?? {}).length,
-      ).toBe(2);
-      expect(
-        Object.keys(newState.entityMeta[ArticleResource.key] ?? {}).length,
-      ).toBe(2);
+      expect(Object.keys(newState.entities[Article.key] ?? {}).length).toBe(2);
+      expect(Object.keys(newState.entityMeta[Article.key] ?? {}).length).toBe(
+        2,
+      );
       expect(Object.keys(newState.results).length).toBe(0);
     });
 
@@ -858,7 +852,7 @@ describe('reducer', () => {
       const action: GCAction = {
         type: GC_TYPE,
         entities: [
-          [ArticleResource.key, '100000000'],
+          [Article.key, '100000000'],
           ['sillythings', '10'],
         ],
         results: [],
@@ -866,9 +860,7 @@ describe('reducer', () => {
 
       const newState = reducer(iniState, action);
       expect(newState).toBe(iniState);
-      expect(
-        Object.keys(newState.entities[ArticleResource.key] ?? {}).length,
-      ).toBe(4);
+      expect(Object.keys(newState.entities[Article.key] ?? {}).length).toBe(4);
       expect(Object.keys(newState.results).length).toBe(1);
     });
   });

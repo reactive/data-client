@@ -1,4 +1,5 @@
 import {
+  CoolerArticle,
   CoolerArticleResource,
   InvalidIfStaleArticleResource,
   PaginatedArticleResource,
@@ -6,6 +7,7 @@ import {
 } from '__tests__/new';
 import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 import nock from 'nock';
+import { compile, PathFunction, parse } from 'path-to-regexp';
 
 import { payload, payload2, users, nested } from './fixtures';
 import useDLE from '../useDLE';
@@ -46,13 +48,13 @@ describe('useDLE()', () => {
       .reply(403, {})
       .get(`/article-cooler/666`)
       .reply(200, '')
-      .get(`/article-cooler/`)
+      .get(`/article-cooler`)
       .reply(200, nested)
       .get(/article-cooler\/.*/)
       .reply(404, 'not found')
       .put(/article-cooler\/[^5].*/)
       .reply(404, 'not found')
-      .get(`/user/`)
+      .get(`/user`)
       .reply(200, users);
   });
 
@@ -66,7 +68,7 @@ describe('useDLE()', () => {
 
   it('should work on good network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useDLE(CoolerArticleResource.detail(), {
+      return useDLE(CoolerArticleResource.get, {
         id: payload.id,
       });
     });
@@ -76,17 +78,14 @@ describe('useDLE()', () => {
     await waitForNextUpdate();
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBeUndefined();
-    expect(result.current.data).toEqual(CoolerArticleResource.fromJS(payload));
+    expect(result.current.data).toEqual(CoolerArticle.fromJS(payload));
   });
 
   it('should work with no schema', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useDLE(
-        CoolerArticleResource.detail().extend({ schema: undefined }),
-        {
-          id: payload.id,
-        },
-      );
+      return useDLE(CoolerArticleResource.get.extend({ schema: undefined }), {
+        id: payload.id,
+      });
     });
     expect(result.current.data).toBe(undefined);
     expect(result.current.error).toBe(undefined);
@@ -99,7 +98,7 @@ describe('useDLE()', () => {
 
   it('should work on good network with endpoint', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useDLE(TypedArticleResource.detail(), {
+      return useDLE(TypedArticleResource.get, {
         id: payload.id,
       });
     });
@@ -109,12 +108,12 @@ describe('useDLE()', () => {
     await waitForNextUpdate();
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBeUndefined();
-    expect(result.current.data).toEqual(CoolerArticleResource.fromJS(payload));
+    expect(result.current.data).toEqual(CoolerArticle.fromJS(payload));
   });
 
   it('should return errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useDLE(CoolerArticleResource.detail(), {
+      return useDLE(CoolerArticleResource.get, {
         title: '0',
       });
     });
@@ -129,7 +128,7 @@ describe('useDLE()', () => {
 
   it('should pass with exact params', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useDLE(TypedArticleResource.detail(), {
+      return useDLE(TypedArticleResource.get, {
         id: payload.id,
       });
     });
@@ -146,8 +145,8 @@ describe('useDLE()', () => {
   it('should fail with improperly typed param', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       // @ts-expect-error
-      return useDLE(TypedArticleResource.detail(), {
-        id: { a: 'five' },
+      return useDLE(TypedArticleResource.get, {
+        id: "{ a: 'five' }" as any as Date,
       });
     });
     expect(result.current.data).toBeUndefined();
@@ -164,7 +163,7 @@ describe('useDLE()', () => {
   it('should fetch anew with param changes', async () => {
     const { result, waitForNextUpdate, rerender } = renderRestHook(
       ({ id }: { id: number }) => {
-        return useDLE(CoolerArticleResource.detail(), {
+        return useDLE(CoolerArticleResource.get, {
           id,
         });
       },
@@ -176,7 +175,7 @@ describe('useDLE()', () => {
     await waitForNextUpdate();
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBeUndefined();
-    expect(result.current.data).toEqual(CoolerArticleResource.fromJS(payload));
+    expect(result.current.data).toEqual(CoolerArticle.fromJS(payload));
     await rerender({ id: payload2.id });
     expect(result.current.data).toBe(undefined);
     expect(result.current.error).toBe(undefined);
@@ -184,19 +183,19 @@ describe('useDLE()', () => {
     await waitForNextUpdate();
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBeUndefined();
-    expect(result.current.data).toEqual(CoolerArticleResource.fromJS(payload2));
+    expect(result.current.data).toEqual(CoolerArticle.fromJS(payload2));
   });
 
   it('should not be loading with null params to useStatefulResource()', () => {
     const { result } = renderRestHook(() => {
-      return useDLE(CoolerArticleResource.detail(), null);
+      return useDLE(CoolerArticleResource.get, null);
     });
     expect(result.current.loading).toBe(false);
   });
 
   it('should maintain schema structure even with null params', () => {
     const { result } = renderRestHook(() => {
-      return useDLE(PaginatedArticleResource.list(), null);
+      return useDLE(PaginatedArticleResource.getList, null);
     });
     expect(result.current.loading).toBe(false);
     expect(result.current.data.results).toBeUndefined();
@@ -211,7 +210,7 @@ describe('useDLE()', () => {
     Date.now = jest.fn(() => 999999999);
     const { result, rerender, waitForNextUpdate } = renderRestHook(
       props => {
-        return useDLE(InvalidIfStaleArticleResource.detail(), props);
+        return useDLE(InvalidIfStaleArticleResource.get, props);
       },
       { initialProps: { id: payload.id } as any },
     );

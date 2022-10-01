@@ -6,7 +6,7 @@ export class User extends GithubEntity {
   readonly avatarUrl: string = '';
   readonly gravatarUrl: string = '';
   readonly gravatarId: string = '';
-  readonly type = 'User' as const;
+  readonly type = 'User';
   readonly siteAdmin: boolean = false;
   readonly htmlUrl: string = '';
   readonly followersUrl: string = '';
@@ -46,9 +46,9 @@ export class User extends GithubEntity {
   }
 }
 export const UserResource = {
-  ...createGithubResource('/users/:login' as const, User),
+  ...createGithubResource({ path: '/users/:login', schema: User }),
   current: new GithubEndpoint({
-    path: '/user' as const,
+    path: '/user',
     schema: User,
   }),
 };

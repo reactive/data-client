@@ -9,7 +9,7 @@ import {
   createResource,
   GetEndpoint,
   RestGenerics,
-} from '@rest-hooks/experimental';
+} from '@rest-hooks/rest';
 
 import { getAuth } from './Auth';
 
@@ -42,16 +42,14 @@ export const GithubGqlEndpoint = new GQLEndpoint(
 export class GithubEndpoint<
   O extends RestGenerics = any,
 > extends RestEndpoint<O> {
-  url(...args: any) {
-    return `${HOST}${super.url(...args)}`;
-  }
+  urlPrefix = HOST;
 
-  getFetchInit(body: any): RequestInit {
+  getRequestInit(body: any): RequestInit {
     let init: RequestInit;
     if (body) {
-      init = super.getFetchInit(deeplyApplyKeyTransform(body, snakeCase));
+      init = super.getRequestInit(deeplyApplyKeyTransform(body, snakeCase));
     }
-    init = super.getFetchInit(body);
+    init = super.getRequestInit(body);
     if (getAuth()) {
       init.mode = 'cors';
       init.headers = {
@@ -81,18 +79,16 @@ export class GithubEndpoint<
   }
 }
 
-export function createGithubResource<U extends string, S extends Schema>(
-  path: U,
-  schema: S,
-  Endpoint: typeof GithubEndpoint = GithubEndpoint,
-): GithubResource<U, S> {
-  const baseResource = createResource(
-    path,
-    schema,
-    Endpoint,
-    ({ page, ...rest }: { page: string | number } & PathArgs<ShortenPath<U>>) =>
-      (Object.keys(rest).length ? [rest] : []) as any,
-  );
+export function createGithubResource<U extends string, S extends Schema>({
+  path,
+  schema,
+  Endpoint = GithubEndpoint,
+}: {
+  readonly path: U;
+  readonly schema: S;
+  readonly Endpoint?: typeof GithubEndpoint;
+}): GithubResource<U, S> {
+  const baseResource = createResource({ path, schema, Endpoint });
 
   const getList: GetEndpoint<
     PathArgs<ShortenPath<U>>,

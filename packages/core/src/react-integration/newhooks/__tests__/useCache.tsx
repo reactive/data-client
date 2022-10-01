@@ -4,10 +4,14 @@ import {
   InvalidIfStaleArticleResource,
   GetNoEntities,
   UnionResource,
+  CoolerArticle,
+  PaginatedArticle,
 } from '__tests__/new';
 import React, { useEffect } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
+import { GetEndpoint } from '@rest-hooks/rest';
+
 import { makeRenderRestHook, makeCacheProvider } from '../../../../../test';
 import useCache from '../useCache';
 import { articlesPages, payload, nested } from '../test-fixtures';
@@ -20,7 +24,7 @@ describe('useCache()', () => {
 
   it('should be null with empty state', () => {
     const { result } = renderRestHook(() => {
-      return useCache(CoolerArticleResource.detail(), payload);
+      return useCache(CoolerArticleResource.get, { id: payload.id });
     }, {});
     // @ts-expect-error
     result.current?.doesnotexist;
@@ -28,11 +32,7 @@ describe('useCache()', () => {
   });
 
   it('should read with no params Endpoint', async () => {
-    const List = CoolerArticleResource.list().extend({
-      fetch() {
-        return CoolerArticleResource.list()({});
-      },
-    });
+    const List = CoolerArticleResource.getList;
     const { result } = renderRestHook(
       () => {
         return useCache(List);
@@ -44,19 +44,15 @@ describe('useCache()', () => {
     // @ts-expect-error
     () => useCache(List, 5);
     // @ts-expect-error
-    () => useCache(List, {});
-    // @ts-expect-error
     () => useCache(List, '5');
   });
 
   it.each([
-    ['Resource', CoolerArticleResource.detail()],
-    ['Union', UnionResource.detail()],
+    ['Resource', CoolerArticleResource.get],
+    ['Union', UnionResource.get],
   ] as const)(`should infer with no params Endpoint [%s]`, (_, endpoint) => {
-    const noargs = endpoint.extend({
-      fetch() {
-        return endpoint({});
-      },
+    const noargs = (endpoint as any).extend({
+      path: '/' as const,
       key: () => 'noargs',
     });
     const { result } = renderRestHook(() => {
@@ -65,44 +61,58 @@ describe('useCache()', () => {
     expect(result.current).toBeUndefined();
   });
 
-  it.each([
-    ['Resource', CoolerArticleResource.detail()],
-    ['Union', UnionResource.detail()],
-    ['Array<Union>', UnionResource.list()],
-  ] as const)(`should be undefined when args is null [%s]`, (_, endpoint) => {
+  it(`should be undefined when args is null [CoolerArticleResource.get]`, () => {
     const { result } = renderRestHook(() => {
-      return useCache(endpoint, null);
+      return useCache(CoolerArticleResource.get, null);
     });
-    const b: CoolerArticleResource | undefined = result.current;
+    const b: CoolerArticle | undefined = result.current;
     // @ts-expect-error
     const c: object = result.current;
+    expect(result.current).toBeUndefined();
+  });
+  it(`should be undefined when args is null [UnionResource.get]`, () => {
+    const { result } = renderRestHook(() => {
+      return useCache(UnionResource.get, null);
+    });
+    const b: 'first' | 'second' | undefined = result.current?.type;
+    // @ts-expect-error
+    const c: 'first' | 'second' = result.current?.type;
+    expect(result.current).toBeUndefined();
+  });
+  it(`should be undefined when args is null [UnionResource.getList]`, () => {
+    const { result } = renderRestHook(() => {
+      return useCache(UnionResource.getList, null);
+    });
+    const b: 'first' | 'second' | undefined = result.current?.[0]?.type;
+    // @ts-expect-error
+    const c: 'first' | 'second' = result.current?.[0]?.type;
     expect(result.current).toBeUndefined();
   });
 
   it(`should maintain schema structure even with null params`, () => {
     const { result } = renderRestHook(() => {
-      return useCache(PaginatedArticleResource.list(), null);
+      return useCache(PaginatedArticleResource.getList, null);
     });
-    const b: PaginatedArticleResource[] | undefined = result.current.results;
+    const b: PaginatedArticle[] | undefined = result.current.results;
     // @ts-expect-error
-    const c: PaginatedArticleResource[] = result.current.results;
+    const c: PaginatedArticle[] = result.current.results;
     expect(result.current.results).toBeUndefined();
     expect(result.current.nextPage).toBe('');
   });
 
   it('should read with id params Endpoint', async () => {
-    const Detail = CoolerArticleResource.detail().extend({
-      fetch(id: number) {
-        return CoolerArticleResource.detail()({ id });
+    const Detail = (CoolerArticleResource.get as any).extend({
+      url(id: any) {
+        return CoolerArticleResource.get.url({ id });
       },
-    });
+    }) as GetEndpoint<number, typeof CoolerArticle>;
     const { result } = renderRestHook(
       () => {
         return useCache(Detail, 5);
       },
       { initialFixtures: [{ endpoint: Detail, args: [5], response: payload }] },
     );
-    expect(result.current).toEqual(CoolerArticleResource.fromJS(payload));
+    expect(result.current).toEqual(CoolerArticle.fromJS(payload));
 
     // @ts-expect-error
     () => useCache(Detail);
@@ -125,14 +135,14 @@ describe('useCache()', () => {
   it('should select singles', () => {
     const results = [
       {
-        request: CoolerArticleResource.detail(),
-        params: payload,
-        result: payload,
+        endpoint: CoolerArticleResource.get,
+        args: [{ id: payload.id }],
+        response: payload,
       },
     ];
     const { result } = renderRestHook(
       () => {
-        return useCache(CoolerArticleResource.detail(), payload);
+        return useCache(CoolerArticleResource.get, { id: payload.id });
       },
       { results },
     );
@@ -146,14 +156,14 @@ describe('useCache()', () => {
     Date.now = jest.fn(() => 999999999);
     const results = [
       {
-        request: InvalidIfStaleArticleResource.detail(),
-        params: payload,
-        result: payload,
+        endpoint: InvalidIfStaleArticleResource.get,
+        args: [{ id: payload.id }],
+        response: payload,
       },
     ];
     const { result, rerender } = renderRestHook(
       props => {
-        return useCache(InvalidIfStaleArticleResource.detail(), props);
+        return useCache(InvalidIfStaleArticleResource.get, props);
       },
       { results, initialProps: { id: payload.id } },
     );
@@ -172,14 +182,14 @@ describe('useCache()', () => {
   it('should select paginated results', () => {
     const results = [
       {
-        request: PaginatedArticleResource.list(),
-        params: {},
-        result: articlesPages,
+        endpoint: PaginatedArticleResource.getList,
+        args: [],
+        response: articlesPages,
       },
     ];
     const { result } = renderRestHook(
       () => {
-        return useCache(PaginatedArticleResource.list(), {});
+        return useCache(PaginatedArticleResource.getList);
       },
       { results },
     );
@@ -188,23 +198,23 @@ describe('useCache()', () => {
     expect(result.current.results).toBeDefined();
     if (!result.current.results) return;
     expect(result.current.results.length).toBe(articlesPages.results.length);
-    expect(result.current.results[0]).toBeInstanceOf(PaginatedArticleResource);
+    expect(result.current.results[0]).toBeInstanceOf(PaginatedArticle);
     expect(result.current.results).toMatchSnapshot();
   });
 
   it('should return identical value no matter how many re-renders', () => {
     const results = [
       {
-        request: PaginatedArticleResource.list(),
-        params: {},
-        result: articlesPages,
+        endpoint: PaginatedArticleResource.getList,
+        args: [],
+        response: articlesPages,
       },
     ];
     const track = jest.fn();
 
     const { rerender } = renderRestHook(
       () => {
-        const articles = useCache(PaginatedArticleResource.list(), {});
+        const articles = useCache(PaginatedArticleResource.getList);
         useEffect(track, [articles]);
       },
       { results },
@@ -222,7 +232,7 @@ describe('useCache()', () => {
       const defaults = { prevPage: '', nextPage: '', results: undefined };
       const { result } = renderRestHook(
         () => {
-          return useCache(PaginatedArticleResource.list(), {});
+          return useCache(PaginatedArticleResource.getList);
         },
         { results: [] },
       );
@@ -232,14 +242,14 @@ describe('useCache()', () => {
     it('should find results', () => {
       const results = [
         {
-          request: PaginatedArticleResource.list(),
-          params: {},
-          result: articlesPages,
+          endpoint: PaginatedArticleResource.getList,
+          args: [],
+          response: articlesPages,
         },
       ];
       const { result } = renderRestHook(
         () => {
-          return useCache(PaginatedArticleResource.list(), {});
+          return useCache(PaginatedArticleResource.getList);
         },
         { results },
       );
@@ -247,18 +257,16 @@ describe('useCache()', () => {
       expect(result.current.nextPage).toBe(articlesPages.nextPage);
       expect(result.current.prevPage).toBe(articlesPages.prevPage);
       expect(result.current.results).toEqual(
-        articlesPages.results.map(article =>
-          PaginatedArticleResource.fromJS(article),
-        ),
+        articlesPages.results.map(article => PaginatedArticle.fromJS(article)),
       );
     });
 
     it('should return identical value no matter how many re-renders', () => {
       const results = [
         {
-          request: PaginatedArticleResource.list(),
-          params: {},
-          result: articlesPages,
+          endpoint: PaginatedArticleResource.getList,
+          args: [],
+          response: articlesPages,
         },
       ];
       const track = jest.fn();
@@ -266,7 +274,7 @@ describe('useCache()', () => {
       const { rerender } = renderRestHook(
         () => {
           useEffect(track, [results]);
-          return useCache(PaginatedArticleResource.list(), {});
+          return useCache(PaginatedArticleResource.getList);
         },
         { results },
       );

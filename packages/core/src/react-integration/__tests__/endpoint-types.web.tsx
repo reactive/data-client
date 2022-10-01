@@ -6,7 +6,7 @@ import {
   makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../../../test';
-import { useResource, useController } from '../hooks';
+import { useController, useSuspense } from '../hooks';
 import { payload, createPayload, users, nested } from '../test-fixtures';
 
 function onError(e: any) {
@@ -76,7 +76,7 @@ describe('endpoint types', () => {
 
     it('should pass with exact params', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        return useResource(TypedArticleResource.detail(), {
+        return useSuspense(TypedArticleResource.get, {
           id: payload.id,
         });
       });
@@ -88,8 +88,8 @@ describe('endpoint types', () => {
     it('should fail with improperly typed param', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
         // @ts-expect-error
-        return useResource(TypedArticleResource.detail(), {
-          id: { a: 'five' },
+        return useSuspense(TypedArticleResource.get, {
+          id: 'abc ' as any as Date,
         });
       });
       expect(result.current).toBeUndefined();
@@ -103,7 +103,7 @@ describe('endpoint types', () => {
         return useController().fetch;
       });
       const a = await result.current(
-        TypedArticleResource.update(),
+        TypedArticleResource.update,
         { id: payload.id },
         { title: 'hi' },
       );
@@ -115,12 +115,12 @@ describe('endpoint types', () => {
       });
       () =>
         result.current(
-          TypedArticleResource.anyparam(),
+          TypedArticleResource.anyparam,
           { id: payload.id },
           // @ts-expect-error
           { title: 'hi' },
         );
-      () => result.current(TypedArticleResource.anyparam(), { id: payload.id });
+      () => result.current(TypedArticleResource.anyparam, { id: payload.id });
     });
 
     it('types should strictly enforce with body that are any', async () => {
@@ -129,7 +129,7 @@ describe('endpoint types', () => {
       });
       () =>
         result.current(
-          TypedArticleResource.anybody(),
+          TypedArticleResource.anybody,
           { id: payload.id },
           { title: 'hi' },
         );
@@ -142,13 +142,13 @@ describe('endpoint types', () => {
         return useController().fetch;
       });
       await result.current(
-        TypedArticleResource.update(),
+        TypedArticleResource.update,
         { id: payload.id },
         // @ts-expect-error
         { title2: 'hi' },
       );
       await result.current(
-        TypedArticleResource.update(),
+        TypedArticleResource.update,
         { id: payload.id },
         // @ts-expect-error
         { title: 5 },
@@ -160,14 +160,14 @@ describe('endpoint types', () => {
         return useController().fetch;
       });
 
-      await expect(
+      expect(() =>
         result.current(
-          TypedArticleResource.update(),
+          TypedArticleResource.update,
           // @ts-expect-error
-          { id: 'hi' },
+          'hi',
           { title: 'hi' },
         ),
-      ).rejects.toEqual(expect.any(Error));
+      ).toThrow(expect.any(Error));
     });
   });
 });

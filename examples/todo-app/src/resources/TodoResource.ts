@@ -1,43 +1,37 @@
-import { Resource, SnapshotInterface } from '@rest-hooks/rest';
+import {
+  createPlaceholderResource,
+  PlaceholderEntity,
+} from './PlaceholderBaseResource';
 
-import PlaceholderBaseResource from './PlaceholderBaseResource';
-
-export default class TodoResource extends PlaceholderBaseResource {
+export class Todo extends PlaceholderEntity {
   readonly userId: number = 0;
   readonly title: string = '';
   readonly completed: boolean = false;
-
-  static urlRoot = 'https://jsonplaceholder.typicode.com/todos';
-
-  static partialUpdate<T extends typeof Resource>(this: T) {
-    return super.partialUpdate().extend({
-      schema: this,
-      getOptimisticResponse: optimisticPartial,
-    });
-  }
-
-  static create<T extends typeof Resource>(this: T) {
-    const listkey = this.list().key({});
-    return super.create().extend({
-      schema: this,
-      getOptimisticResponse: optimisticCreate,
-      update: (newResourceId: string) => ({
-        [listkey]: (resourceIds: string[] = []) => [
-          ...resourceIds,
-          newResourceId,
-        ],
-      }),
-    });
-  }
 }
 
-const optimisticPartial = (
-  snap: SnapshotInterface,
-  params: { id: string | number },
-  body: any,
-) => ({
-  id: params.id,
-  ...body,
+const TodoResourceBase = createPlaceholderResource({
+  path: 'https\\://jsonplaceholder.typicode.com/todos/:id',
+  schema: Todo,
 });
-
-const optimisticCreate = (snap: SnapshotInterface, body: any) => body;
+export const TodoResource = {
+  ...TodoResourceBase,
+  partialUpdate: TodoResourceBase.partialUpdate.extend({
+    getOptimisticResponse(snap, params, body) {
+      return {
+        id: params.id,
+        ...body,
+      };
+    },
+  }),
+  create: TodoResourceBase.create.extend({
+    getOptimisticResponse(snap, body) {
+      return body;
+    },
+    update: (newResourceId: string) => ({
+      [TodoResourceBase.getList.key()]: (resourceIds: string[] = []) => [
+        ...resourceIds,
+        newResourceId,
+      ],
+    }),
+  }),
+};

@@ -3,6 +3,10 @@ import {
   ArticleResourceWithOtherListUrl,
   FutureArticleResource,
   VisSettings,
+  VisSettingsResource,
+  VisEndpoint,
+  CoolerArticle,
+  Article,
 } from '__tests__/new';
 import nock from 'nock';
 import { Endpoint, Entity } from '@rest-hooks/endpoint';
@@ -17,7 +21,7 @@ import {
   makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../../../test';
-import { useResource, useCache, useController } from '../hooks';
+import { useCache, useController, useSuspense } from '../hooks';
 import {
   payload,
   createPayload,
@@ -50,7 +54,6 @@ describe.each([
   describe('Optimistic Updates', () => {
     let renderRestHook: ReturnType<typeof makeRenderRestHook>;
     let mynock: nock.Scope;
-    const fetchSpy = jest.spyOn(VisSettings, 'fetch');
 
     beforeEach(() => {
       nock(/.*/)
@@ -73,13 +76,13 @@ describe.each([
         .reply(403, {})
         .get(`/article-cooler/666`)
         .reply(200, '')
-        .get(`/article-cooler/`)
+        .get(`/article-cooler`)
         .reply(200, nested)
         .get(`/article-cooler/values`)
         .reply(200, valuesFixture)
-        .post(`/article-cooler/`)
+        .post(`/article-cooler`)
         .reply(200, createPayload)
-        .get(`/user/`)
+        .get(`/user`)
         .reply(200, users);
 
       mynock = nock(/.*/).defaultReplyHeaders({
@@ -111,7 +114,7 @@ describe.each([
       const { result, waitForNextUpdate } = renderRestHook(
         () => {
           const { fetch } = useController();
-          const article = useCache(CoolerArticleResource.detail(), params);
+          const article = useCache(CoolerArticleResource.get, params);
           // @ts-expect-error
           article.doesnotexist;
           return { fetch, article };
@@ -119,35 +122,33 @@ describe.each([
         {
           results: [
             {
-              endpoint: CoolerArticleResource.detail(),
+              endpoint: CoolerArticleResource.get,
               args: [params],
               response: payload,
             },
           ],
         },
       );
-      expect(result.current.article).toEqual(
-        CoolerArticleResource.fromJS(payload),
-      );
+      expect(result.current.article).toEqual(CoolerArticle.fromJS(payload));
       const promise = act(async () => {
         await result.current.fetch(
-          CoolerArticleResource.partialUpdate(),
+          CoolerArticleResource.partialUpdate,
           params,
           {
             content: 'changed',
           },
         );
       });
-      expect(result.current.article).toBeInstanceOf(CoolerArticleResource);
+      expect(result.current.article).toBeInstanceOf(CoolerArticle);
       expect(result.current.article).toEqual(
-        CoolerArticleResource.fromJS({
+        CoolerArticle.fromJS({
           ...payload,
           content: 'changed',
         }),
       );
       await promise;
       expect(result.current.article).toEqual(
-        CoolerArticleResource.fromJS({
+        CoolerArticle.fromJS({
           ...payload,
           title: 'some other title',
           content: 'real response',
@@ -162,24 +163,22 @@ describe.each([
       const { result, waitForNextUpdate } = renderRestHook(
         () => {
           const { fetch } = useController();
-          const articles = useCache(CoolerArticleResource.list());
+          const articles = useCache(CoolerArticleResource.getList);
           return { fetch, articles };
         },
         {
           results: [
             {
-              endpoint: CoolerArticleResource.list(),
+              endpoint: CoolerArticleResource.getList,
               args: [{}],
               response: [payload],
             },
           ],
         },
       );
-      expect(result.current.articles).toEqual([
-        CoolerArticleResource.fromJS(payload),
-      ]);
+      expect(result.current.articles).toEqual([CoolerArticle.fromJS(payload)]);
       const promise = act(async () => {
-        await result.current.fetch(CoolerArticleResource.delete(), params);
+        await result.current.fetch(CoolerArticleResource.delete, params);
       });
       expect(result.current.articles).toEqual([]);
       await promise;
@@ -188,12 +187,12 @@ describe.each([
 
     it('works with eager creates', async () => {
       const body = { id: -1111111111, content: 'hi' };
-      const existingItem = ArticleResourceWithOtherListUrl.fromJS({
+      const existingItem = Article.fromJS({
         id: 100,
         content: 'something',
       });
 
-      mynock.post(`/article/`).reply(201, {
+      mynock.post(`/article`).reply(201, {
         ...payload,
         title: 'some other title',
         content: 'real response',
@@ -202,18 +201,15 @@ describe.each([
       const { result, waitForNextUpdate } = renderRestHook(
         () => {
           const { fetch } = useController();
-          const listA = useCache(ArticleResourceWithOtherListUrl.list(), {});
-          const listB = useCache(
-            ArticleResourceWithOtherListUrl.otherList(),
-            {},
-          );
+          const listA = useCache(ArticleResourceWithOtherListUrl.getList);
+          const listB = useCache(ArticleResourceWithOtherListUrl.otherList);
           return { fetch, listA, listB };
         },
         {
           results: [
             {
-              endpoint: ArticleResourceWithOtherListUrl.otherList(),
-              args: [{}],
+              endpoint: ArticleResourceWithOtherListUrl.otherList,
+              args: [],
               response: [{ id: 100, content: 'something' }],
             },
           ],
@@ -225,21 +221,19 @@ describe.each([
 
       const promise = act(async () => {
         await result.current.fetch(
-          ArticleResourceWithOtherListUrl.create(),
+          ArticleResourceWithOtherListUrl.create,
           body,
         );
       });
 
-      expect(result.current.listA).toEqual([
-        CoolerArticleResource.fromJS(body),
-      ]);
+      expect(result.current.listA).toEqual([CoolerArticle.fromJS(body)]);
       expect(result.current.listB).toEqual([
         existingItem,
-        CoolerArticleResource.fromJS(body),
+        CoolerArticle.fromJS(body),
       ]);
       await promise;
       expect(result.current.listA).toEqual([
-        CoolerArticleResource.fromJS({
+        CoolerArticle.fromJS({
           ...payload,
           title: 'some other title',
           content: 'real response',
@@ -247,7 +241,7 @@ describe.each([
       ]);
       expect(result.current.listB).toEqual([
         existingItem,
-        CoolerArticleResource.fromJS({
+        CoolerArticle.fromJS({
           ...payload,
           title: 'some other title',
           content: 'real response',
@@ -257,7 +251,7 @@ describe.each([
 
     it('should update on create', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
-        const articles = useResource(FutureArticleResource.list(), {});
+        const articles = useSuspense(FutureArticleResource.getList);
         const { fetch } = useController();
         return { articles, fetch };
       });
@@ -265,7 +259,7 @@ describe.each([
       await waitForNextUpdate();
       expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3]);
 
-      const createOptimistic = FutureArticleResource.create().extend({
+      const createOptimistic = FutureArticleResource.create.extend({
         getOptimisticResponse: (snap, body) => ({ id: Math.random(), ...body }),
       });
       act(() => {
@@ -282,13 +276,13 @@ describe.each([
       const { result, waitForNextUpdate } = renderRestHook(
         () => {
           const { fetch } = useController();
-          const article = useCache(CoolerArticleResource.detail(), params);
+          const article = useCache(CoolerArticleResource.get, params);
           return { fetch, article };
         },
         {
           initialFixtures: [
             {
-              endpoint: CoolerArticleResource.detail(),
+              endpoint: CoolerArticleResource.get,
               args: [params],
               response: payload,
             },
@@ -304,7 +298,7 @@ describe.each([
       await act(async () => {
         fetches.push(
           result.current.fetch(
-            CoolerArticleResource.partialUpdate().extend({
+            CoolerArticleResource.partialUpdate.extend({
               fetch(...args: any[]) {
                 return new Promise(resolve => {
                   resolves.push(resolve);
@@ -320,7 +314,7 @@ describe.each([
         );
       });
       expect(result.current.article).toEqual(
-        CoolerArticleResource.fromJS({
+        CoolerArticle.fromJS({
           ...payload,
           title: 'firstoptimistic',
           content: 'firstoptimistic',
@@ -332,7 +326,7 @@ describe.each([
       act(() => {
         fetches.push(
           result.current.fetch(
-            CoolerArticleResource.partialUpdate().extend({
+            CoolerArticleResource.partialUpdate.extend({
               fetch(...args: any[]) {
                 return new Promise(resolve => {
                   resolves.push(resolve);
@@ -347,7 +341,7 @@ describe.each([
         );
       });
       expect(result.current.article).toEqual(
-        CoolerArticleResource.fromJS({
+        CoolerArticle.fromJS({
           ...payload,
           title: 'secondoptimistic',
           content: 'firstoptimistic',
@@ -359,7 +353,7 @@ describe.each([
       act(() => {
         fetches.push(
           result.current.fetch(
-            CoolerArticleResource.partialUpdate().extend({
+            CoolerArticleResource.partialUpdate.extend({
               fetch(...args: any[]) {
                 return new Promise(resolve => {
                   resolves.push(resolve);
@@ -374,7 +368,7 @@ describe.each([
         );
       });
       expect(result.current.article).toEqual(
-        CoolerArticleResource.fromJS({
+        CoolerArticle.fromJS({
           ...payload,
           title: 'secondoptimistic',
           content: 'firstoptimistic',
@@ -391,7 +385,7 @@ describe.each([
       // first and second optimistic should be cleared with only third optimistic left to be layerd
       // on top of second's network response
       expect(result.current.article).toEqual(
-        CoolerArticleResource.fromJS({
+        CoolerArticle.fromJS({
           ...payload,
           title: 'second',
           tags: ['thirdoptimistic'],
@@ -409,7 +403,7 @@ describe.each([
       );
       await act(() => fetches[0]);
       expect(result.current.article).toEqual(
-        CoolerArticleResource.fromJS({
+        CoolerArticle.fromJS({
           ...payload,
           title: 'second',
           tags: ['thirdoptimistic'],
@@ -422,13 +416,13 @@ describe.each([
       const { result, waitForNextUpdate } = renderRestHook(
         () => {
           const { fetch } = useController();
-          const article = useCache(CoolerArticleResource.detail(), params);
+          const article = useCache(CoolerArticleResource.get, params);
           return { fetch, article };
         },
         {
           results: [
             {
-              endpoint: CoolerArticleResource.detail(),
+              endpoint: CoolerArticleResource.get,
               args: [params],
               response: payload,
             },
@@ -444,7 +438,7 @@ describe.each([
       await act(async () => {
         fetches.push(
           result.current.fetch(
-            CoolerArticleResource.partialUpdate().extend({
+            CoolerArticleResource.partialUpdate.extend({
               fetch(...args: any[]) {
                 return new Promise(resolve => {
                   resolves.push(resolve);
@@ -460,7 +454,7 @@ describe.each([
         );
       });
       expect(result.current.article).toEqual(
-        CoolerArticleResource.fromJS({
+        CoolerArticle.fromJS({
           ...payload,
           title: 'firstoptimistic',
           content: 'firstoptimistic',
@@ -472,7 +466,7 @@ describe.each([
       act(() => {
         fetches.push(
           result.current.fetch(
-            CoolerArticleResource.partialUpdate().extend({
+            CoolerArticleResource.partialUpdate.extend({
               fetch(...args: any[]) {
                 return new Promise(resolve => {
                   resolves.push(resolve);
@@ -487,7 +481,7 @@ describe.each([
         );
       });
       expect(result.current.article).toEqual(
-        CoolerArticleResource.fromJS({
+        CoolerArticle.fromJS({
           ...payload,
           title: 'secondoptimistic',
           content: 'firstoptimistic',
@@ -499,7 +493,7 @@ describe.each([
       act(() => {
         fetches.push(
           result.current.fetch(
-            CoolerArticleResource.partialUpdate().extend({
+            CoolerArticleResource.partialUpdate.extend({
               fetch(...args: any[]) {
                 return new Promise(resolve => {
                   resolves.push(resolve);
@@ -514,7 +508,7 @@ describe.each([
         );
       });
       expect(result.current.article).toEqual(
-        CoolerArticleResource.fromJS({
+        CoolerArticle.fromJS({
           ...payload,
           title: 'secondoptimistic',
           content: 'firstoptimistic',
@@ -530,7 +524,7 @@ describe.each([
 
       // replace optimistic with response
       expect(result.current.article).toEqual(
-        CoolerArticleResource.fromJS({
+        CoolerArticle.fromJS({
           ...payload,
           title: 'secondoptimistic',
           content: 'first',
@@ -548,7 +542,7 @@ describe.each([
       );
       await act(() => fetches[0]);
       expect(result.current.article).toEqual(
-        CoolerArticleResource.fromJS({
+        CoolerArticle.fromJS({
           ...payload,
           title: 'second',
           content: 'first',
@@ -567,7 +561,7 @@ describe.each([
       );
       await act(() => fetches[0]);
       expect(result.current.article).toEqual(
-        CoolerArticleResource.fromJS({
+        CoolerArticle.fromJS({
           ...payload,
           title: 'second',
           content: 'first',
@@ -862,7 +856,7 @@ describe.each([
           const { result } = renderRestHook(
             () => {
               const { fetch } = useController();
-              const vis = useCache(VisSettings.detail(), { id: 5 });
+              const vis = useCache(VisSettingsResource.get, { id: 5 });
               // @ts-expect-error
               vis.doesnotexist;
               return { fetch, vis };
@@ -870,7 +864,7 @@ describe.each([
             {
               results: [
                 {
-                  endpoint: VisSettings.detail(),
+                  endpoint: VisSettingsResource.get,
                   args: [{ id: 5 }],
                   response: initVis,
                 },
@@ -881,6 +875,7 @@ describe.each([
 
           let resolvePartial = (resolution: any) => {};
           let partialPromise: Promise<any>;
+          let fetchSpy = jest.spyOn(VisSettingsResource.partialUpdate, 'fetch');
           fetchSpy.mockImplementationOnce(
             () =>
               (partialPromise = new Promise(resolve => {
@@ -892,7 +887,7 @@ describe.each([
           jest.advanceTimersByTime(100);
           act(() => {
             result.current.fetch(
-              VisSettings.partialUpdate(),
+              VisSettingsResource.partialUpdate,
               { id: 5 },
               { visType: 'line' },
             );
@@ -901,6 +896,7 @@ describe.each([
 
           let resolveIncrement = (resolution: any) => {};
           let incrementPromise: Promise<any>;
+          fetchSpy = jest.spyOn(VisSettingsResource.incrementCols, 'fetch');
           fetchSpy.mockImplementationOnce(
             () =>
               (incrementPromise = new Promise(resolve => {
@@ -911,7 +907,7 @@ describe.each([
           );
           jest.advanceTimersByTime(100);
           act(() => {
-            result.current.fetch(VisSettings.incrementCols(), 5);
+            result.current.fetch(VisSettingsResource.incrementCols, { id: 5 });
           });
           expect(result.current.vis?.visType).toEqual('line');
           expect(result.current.vis?.numCols).toEqual(1);
@@ -920,6 +916,7 @@ describe.each([
 
           let resolveIncrement2 = (resolution: any) => {};
           let incrementPromise2: Promise<any>;
+
           fetchSpy.mockImplementationOnce(
             () =>
               (incrementPromise2 = new Promise(resolve => {
@@ -930,7 +927,7 @@ describe.each([
           );
           jest.advanceTimersByTime(100);
           act(() => {
-            result.current.fetch(VisSettings.incrementCols(), 5);
+            result.current.fetch(VisSettingsResource.incrementCols, { id: 5 });
           });
           expect(result.current.vis?.visType).toEqual('line');
           expect(result.current.vis?.numCols).toEqual(2);

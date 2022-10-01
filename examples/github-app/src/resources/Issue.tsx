@@ -1,4 +1,4 @@
-import { RestGenerics } from '@rest-hooks/experimental';
+import { RestGenerics } from '@rest-hooks/rest';
 import React from 'react';
 import { InfoCircleOutlined, IssuesCloseOutlined } from '@ant-design/icons';
 
@@ -59,9 +59,9 @@ class IssueEndpoint<O extends RestGenerics = any> extends GithubEndpoint<O> {
   pollFrequency = 60000;
 }
 
-export const IssueResource = createGithubResource(
-  '/repos/:owner/:repo/issues/:number' as const,
-  Issue,
-  IssueEndpoint,
-);
+export const IssueResource = createGithubResource({
+  path: '/repos/:owner/:repo/issues/:number',
+  schema: Issue,
+  Endpoint: IssueEndpoint,
+});
 export default IssueResource;

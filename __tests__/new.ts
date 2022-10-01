@@ -1,24 +1,27 @@
-import { AbstractInstanceType, schema } from '@rest-hooks/endpoint';
 import { SimpleRecord } from '@rest-hooks/legacy';
+import React, { createContext, useContext } from 'react';
 import {
+  AbstractInstanceType,
+  schema,
   AbortOptimistic,
   Endpoint,
-  EndpointExtraOptions,
-  FetchFunction,
   Index,
-  SchemaDetail,
-  SchemaList,
-} from '@rest-hooks/endpoint';
-import {
-  Resource,
+  createResource,
   RestEndpoint,
-  HookableResource,
   FetchGet,
   FetchMutate,
   Schema,
   Entity,
+  RestGenerics,
+  RestEndpointConstructorOptions,
+  GetEndpoint,
+  PathArgs,
+  hookifyResource,
+  RestType,
+  MutateEndpoint,
 } from '@rest-hooks/rest';
-import React, { createContext, useContext } from 'react';
+import { EntityInterface } from 'packages/normalizr/src';
+import { DenormalizeNullable } from 'packages/normalizr/src/types';
 
 /** Represents data with primary key being from 'id' field. */
 export class IDEntity extends Entity {
@@ -42,17 +45,15 @@ interface Vis {
   readonly updatedAt: number;
 }
 
-export class VisSettings extends Resource implements Vis {
+export class VisSettings extends Entity implements Vis {
   readonly id: number | undefined = undefined;
-  readonly visType: 'graph' | 'line' = 'graph' as const;
+  readonly visType: 'graph' | 'line' = 'graph';
   readonly numCols: number = 0;
-  readonly updatedAt = 0;
+  readonly updatedAt: number = 0;
 
   pk() {
     return `${this.id}`;
   }
-
-  static urlRoot = 'http://test.com/vis-settings/';
 
   static useIncoming(
     existingMeta: { date: number },
@@ -62,69 +63,54 @@ export class VisSettings extends Resource implements Vis {
   ) {
     return existing.updatedAt <= incoming.updatedAt;
   }
-
-  protected static endpointMutate(): RestEndpoint<
-    (this: RestEndpoint, params: any, body?: any) => Promise<any>,
-    Schema | undefined,
-    true
-  > {
-    const sup = super.endpointMutate();
-    return sup.extend({
-      getFetchInit(this: RestEndpoint, body?: any) {
-        if (body) {
-          body = { ...body, updatedAt: Date.now() };
-        }
-        return sup.getFetchInit.call(this, body);
-      },
-    });
-  }
-
-  static partialUpdate<T extends typeof Resource>(
-    this: T,
-  ): RestEndpoint<
-    FetchMutate<[{ id: number }, Partial<Exclude<Vis, 'updatedAt'>>]>,
-    T,
-    true
-  > {
-    const detail = (this as unknown as typeof VisSettings).detail();
-    const partial = super.partialUpdate();
-    return partial.extend({
-      getOptimisticResponse(snap, params, body) {
-        const { data } = snap.getResponse(detail, params);
-        if (!data) throw new AbortOptimistic();
-        return {
-          ...data,
-          ...body,
-          updatedAt: snap.fetchedAt,
-        };
-      },
-      schema: this,
-    });
-  }
-
-  static incrementCols<T extends typeof VisSettings>(
-    this: T,
-  ): RestEndpoint<(id: number) => Promise<any>, T, true> {
-    const detail = this.detail();
-
-    return this.endpointMutate().extend({
-      name: 'incrementCols',
-      url: (id: number) => `${this.urlRoot}{id}/incCol`,
-      getOptimisticResponse(snap, id: number) {
-        const { data } = snap.getResponse(detail, { id });
-        const numCols = data ? data.numCols + 1 : 0;
-        return {
-          ...data,
-          numCols,
-          updatedAt: snap.fetchedAt,
-        };
-      },
-      schema: this,
-    });
+}
+export class VisEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+  getRequestInit(body: any): RequestInit {
+    if (body && typeof body === 'object') {
+      body = { ...body, updatedAt: Date.now() };
+    }
+    return super.getRequestInit(body);
   }
 }
+const VisSettingsResourceBase = createResource({
+  path: 'http\\://test.com/vis-settings/:id',
+  schema: VisSettings,
+  Endpoint: VisEndpoint,
+});
+export const VisSettingsResource = {
+  ...VisSettingsResourceBase,
+  partialUpdate: VisSettingsResourceBase.partialUpdate.extend({
+    getOptimisticResponse(snap, params, body) {
+      const { data } = snap.getResponse(VisSettingsResourceBase.get, params);
+      if (!data) throw new AbortOptimistic();
+      return {
+        ...data,
+        ...body,
+        updatedAt: snap.fetchedAt,
+      };
+    },
+  }),
+  incrementCols: new VisEndpoint({
+    schema: VisSettings,
+    path: 'http\\://test.com/vis-settings/:id/incCol',
+    body: undefined,
+    method: 'POST',
+    name: 'incrementCols',
+  }).extend({
+    getOptimisticResponse(snap, params) {
+      const { data } = snap.getResponse(VisSettingsResourceBase.get, params);
+      const numCols = data ? data.numCols + 1 : 0;
+      return {
+        ...data,
+        numCols,
+        updatedAt: snap.fetchedAt,
+      } as any;
+    },
+  }),
+};
+VisSettingsResource.incrementCols;
 
-export class UserResource extends Resource {
+export class User extends Entity {
   readonly id: number | undefined = undefined;
   readonly username: string = '';
   readonly email: string = '';
@@ -133,15 +119,17 @@ export class UserResource extends Resource {
   pk() {
     return this.id?.toString();
   }
-
-  static urlRoot = 'http://test.com/user/';
 }
+export const UserResource = createResource({
+  path: 'http\\://test.com/user/:id',
+  schema: User,
+});
 
-export class ArticleResource extends Resource {
+export class Article extends Entity {
   readonly id: number | undefined = undefined;
   readonly title: string = '';
   readonly content: string = '';
-  readonly author: UserResource | null = null;
+  readonly author: User | null = null;
   readonly tags: string[] = [];
 
   pk() {
@@ -149,151 +137,117 @@ export class ArticleResource extends Resource {
   }
 
   static schema = {
-    author: UserResource,
+    author: User,
   };
+}
+class ArticleEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {}
 
-  static urlRoot = 'http://test.com/article/';
-  static url(urlParams?: any): string {
-    if (urlParams && !urlParams.id) {
-      return `${this.urlRoot}${urlParams.title}`;
-    }
-    return super.url(urlParams);
+function createArticleResource<S extends Schema>(
+  schema: S,
+  urlRoot = 'article',
+  EndpointArg: typeof ArticleEndpoint = ArticleEndpoint,
+) {
+  class EndpointUrlRootOverride<
+    O extends RestGenerics = any,
+  > extends EndpointArg<O> {
+    urlPrefix = `http://test.com/${urlRoot}`;
   }
-
-  static longLiving<T extends typeof Resource>(this: T) {
-    return this.detail().extend({
+  const base = createResource({
+    path: '/:id',
+    schema,
+    Endpoint: EndpointUrlRootOverride,
+  });
+  return {
+    ...base,
+    longLiving: base.get.extend({
       dataExpiryLength: 1000 * 60 * 60,
-    });
-  }
-
-  static neverRetryOnError<T extends typeof Resource>(this: T) {
-    return this.detail().extend({
+    }),
+    neverRetryOnError: base.get.extend({
       errorExpiryLength: Infinity,
-    });
-  }
-
-  static singleWithUser<T extends typeof ArticleResource>(this: T) {
-    return this.detail().extend({
-      url: (params: object) => this.url({ ...params, includeUser: true }),
-    });
-  }
-
-  static listWithUser<T extends typeof ArticleResource>(this: T) {
-    return this.list().extend({
-      url: (
-        params: Readonly<Record<string, string | number | boolean>> | undefined,
-      ) => this.listUrl({ ...params, includeUser: true }),
-    });
-  }
-
-  static partialUpdate<T extends typeof Resource>(
-    this: T,
-  ): RestEndpoint<FetchMutate, T, true> {
-    return super.partialUpdate().extend({
+    }),
+    singleWithUser: base.get.extend({
+      url: (params: any) =>
+        (base.get.url as any)({ ...params, includeUser: true }),
+    }),
+    listWithUser: base.getList.extend({
+      url: () => (base.getList.url as any)({ includeUser: true }),
+    }),
+    partialUpdate: base.partialUpdate.extend({
       getOptimisticResponse: (snap, params, body) => ({
         id: params.id,
         ...body,
       }),
-      schema: this,
-    });
-  }
-
-  static delete<T extends typeof Resource>(this: T) {
-    return super.delete().extend({
+    }) as any as typeof base.partialUpdate,
+    delete: base.delete.extend({
       getOptimisticResponse: (snap, params) => params,
-      schema: new schema.Delete(this),
-    });
-  }
+    }),
+  };
 }
+export const ArticleResource = createArticleResource(Article);
 
 export const AuthContext = createContext('');
 
-export class ContextAuthdArticle extends HookableResource {
-  readonly id: number | undefined = undefined;
-  readonly title: string = '';
-  readonly content: string = '';
-  readonly author: UserResource | null = null;
-  readonly tags: string[] = [];
-
-  pk() {
-    return this.id?.toString();
-  }
-
-  static schema = {
-    author: UserResource,
-  };
-
-  static urlRoot = 'http://test.com/article/';
-  static url(urlParams?: any): string {
-    if (urlParams && !urlParams.id) {
-      return `${this.urlRoot}${urlParams.title}`;
-    }
-    return super.url(urlParams);
-  }
-
-  /** Init options for fetch */
-  static useFetchInit(init: RequestInit): RequestInit {
-    /* eslint-disable-next-line */
+const ContextAuthdArticleResourceBase = createResource({
+  path: 'http\\://test.com/article/:id',
+  schema: Article,
+});
+export const ContextAuthdArticleResource = hookifyResource(
+  {
+    ...ContextAuthdArticleResourceBase,
+    getListWithUser: ContextAuthdArticleResourceBase.getList.extend({
+      url: () =>
+        (ContextAuthdArticleResourceBase.getList.url as any)({
+          includeUser: true,
+        }),
+    }),
+  },
+  function useInit(): RequestInit {
     const accessToken = useContext(AuthContext);
     return {
-      ...init,
       headers: {
-        ...init.headers,
         'Access-Token': accessToken,
       },
     };
-  }
+  },
+);
 
-  static useListWithUser<T extends typeof ContextAuthdArticle>(this: T) {
-    return this.useList().extend({
-      url: (
-        params: Readonly<Record<string, string | number | boolean>> | undefined,
-      ) => this.listUrl({ ...params, includeUser: true }),
-    });
-  }
-}
-
-export class ArticleTimedResource extends ArticleResource {
+export class ArticleTimed extends Article {
   readonly createdAt = new Date(0);
 
   static schema = {
-    ...ArticleResource.schema,
+    ...Article.schema,
     createdAt: Date,
   };
-
-  static urlRoot = 'http://test.com/article-time/';
 }
+export const ArticleTimedResource = createArticleResource(
+  ArticleTimed,
+  'article-time',
+);
 
-export class UrlArticleResource extends ArticleResource {
+export class UrlArticle extends Article {
   readonly url: string = 'happy.com';
 }
+export const UrlArticleResource = createArticleResource(UrlArticle);
 
-export class ArticleResourceWithOtherListUrl extends ArticleResource {
-  static otherList<T extends typeof ArticleResourceWithOtherListUrl>(this: T) {
-    return this.list().extend({
-      url: () => this.urlRoot + 'some-list-url',
-    });
-  }
+export const ArticleResourceWithOtherListUrl = {
+  ...ArticleResource,
+  otherList: ArticleResource.getList.extend({
+    url: () => ArticleResource.getList.url() + 'some-list-url',
+  }),
+  create: ArticleResource.create.extend({
+    getOptimisticResponse: (snap, body) => body,
+    update: (newArticleID: string) => ({
+      [ArticleResource.getList.key()]: (articleIDs: string[] | undefined) => [
+        ...(articleIDs || []),
+        newArticleID,
+      ],
+      [ArticleResource.getList.key() + 'some-list-url']: (
+        articleIDs: string[] | undefined,
+      ) => [...(articleIDs || []), newArticleID],
+    }),
+  }),
+};
 
-  static create<T extends typeof Resource>(this: T) {
-    const list = ArticleResourceWithOtherListUrl.list();
-    const otherList = ArticleResourceWithOtherListUrl.otherList();
-    return super.create().extend({
-      getOptimisticResponse: (snap, body) => body,
-      schema: this,
-      update: (newArticleID: string) => ({
-        [list.key({})]: (articleIDs: string[] | undefined) => [
-          ...(articleIDs || []),
-          newArticleID,
-        ],
-        [otherList.key({})]: (articleIDs: string[] | undefined) => [
-          ...(articleIDs || []),
-          newArticleID,
-        ],
-      }),
-    });
-  }
-}
 /*
         [
           [
@@ -315,162 +269,127 @@ export class ArticleResourceWithOtherListUrl extends ArticleResource {
         ],
         */
 
-export class CoolerArticleResource extends ArticleResource {
-  static urlRoot = 'http://test.com/article-cooler/';
+export class CoolerArticle extends Article {
   get things() {
     return `${this.title} five`;
   }
 }
+const CoolerArticleResourceBase = createArticleResource(
+  CoolerArticle,
+  'article-cooler',
+);
+export const CoolerArticleResource = {
+  ...CoolerArticleResourceBase,
+  get: CoolerArticleResourceBase.get.extend({
+    path: '/:id?/:title?',
+  }) as any as GetEndpoint<
+    { id: string | number } | { title: string | number },
+    typeof CoolerArticle
+  >,
+};
 
-export class EditorArticleResource extends CoolerArticleResource {
-  readonly editor: UserResource | null = null;
+export class EditorArticle extends CoolerArticle {
+  readonly editor: User | null = null;
 
   static schema = {
-    ...ArticleResource.schema,
-    editor: UserResource,
+    ...Article.schema,
+    editor: User,
   };
-}
 
-export class TypedArticleResource extends CoolerArticleResource {
+  static get key() {
+    return 'CoolerArticle';
+  }
+}
+export const EditorArticleResource = createArticleResource(
+  EditorArticle,
+  'article-cooler',
+);
+
+export class TypedArticle extends CoolerArticle {
   get tagString() {
     return this.tags.join(', ');
   }
-
-  static update<T extends typeof Resource>(
-    this: T,
-  ): RestEndpoint<
-    FetchMutate<
-      [{ id: number }, Partial<AbstractInstanceType<T>>],
-      Partial<AbstractInstanceType<T>>
-    >,
-    SchemaDetail<AbstractInstanceType<T>>,
-    true
-  > {
-    return super.update();
-  }
-
-  static detail<T extends typeof Resource>(
-    this: T,
-  ): RestEndpoint<
-    FetchGet<[{ id: number }], Partial<AbstractInstanceType<T>>>,
-    SchemaDetail<AbstractInstanceType<T>>,
-    undefined
-  > {
-    return super.detail();
-  }
-
-  static list<T extends typeof Resource>(
-    this: T,
-  ): RestEndpoint<
-    FetchGet<[any], Partial<AbstractInstanceType<T>>[]>,
-    SchemaList<AbstractInstanceType<T>>,
-    undefined
-  > {
-    return super.list();
-  }
-
-  static anyparam<T extends typeof Resource>(
-    this: T,
-  ): RestEndpoint<(a: any) => Promise<any>> {
-    return super.detail() as any;
-  }
-
-  static anybody<T extends typeof Resource>(
-    this: T,
-  ): RestEndpoint<(a: any, b: any) => Promise<any>> {
-    return super.detail() as any;
-  }
-
-  static noparams<T extends typeof Resource>(
-    this: T,
-  ): RestEndpoint<() => Promise<any>, T[], undefined> {
-    return super.list() as any;
-  }
 }
+export const TypedArticleResourceBase = createArticleResource(
+  TypedArticle,
+  'article-cooler',
+);
+export const TypedArticleResource = {
+  ...TypedArticleResourceBase,
+  anyparam: TypedArticleResourceBase.get.extend({
+    path: '/:id',
+  }),
+  anybody: TypedArticleResourceBase.get.extend({
+    path: '/:id',
+    body: 0 as any,
+  }),
+  noparams: TypedArticleResourceBase.getList,
+};
 
-export class FutureArticleResource extends CoolerArticleResource {
-  static url(id: any): string {
-    if (this.pk({ id }) !== undefined) {
-      return `${this.urlRoot.replace(/\/$/, '')}/${this.pk({ id })}`;
-    }
-    return this.urlRoot;
-  }
+/** Validating more exotic argument types */
+export const FutureArticleResource = {
+  ...CoolerArticleResource,
+  get: (
+    CoolerArticleResource.get as any as GetEndpoint<
+      string | number,
+      typeof CoolerArticle
+    >
+  ).extend({
+    url(id: string) {
+      return `http://test.com/article-cooler/${id}`;
+    },
+  }),
+  update: (
+    CoolerArticleResource.update as any as MutateEndpoint<
+      string | number,
+      Partial<CoolerArticle>,
+      CoolerArticle
+    >
+  ).extend({
+    url(id: string) {
+      return `http://test.com/article-cooler/${id}`;
+    },
+  }),
+  delete: (
+    CoolerArticleResource.delete as any as RestType<
+      string | number,
+      undefined,
+      schema.Delete<typeof CoolerArticle>,
+      true
+    >
+  ).extend({
+    url(id: string) {
+      return `http://test.com/article-cooler/${id}`;
+    },
+  }),
+  create: CoolerArticleResource.create.extend({
+    update: (newid: string) => ({
+      [CoolerArticleResource.getList.key()]: (existing: string[] = []) => [
+        newid,
+        ...existing,
+      ],
+    }),
+  }),
+};
 
-  static update<T extends typeof Resource>(
-    this: T,
-  ): RestEndpoint<
-    FetchMutate<
-      [{ id: number }, Partial<AbstractInstanceType<T>>],
-      Partial<AbstractInstanceType<T>>
-    >,
-    SchemaDetail<AbstractInstanceType<T>>,
-    true
-  > {
-    return super.update();
-  }
-
-  static create<T extends typeof Resource>(
-    this: T,
-  ): RestEndpoint<
-    (
-      body: Partial<AbstractInstanceType<T>>,
-    ) => Promise<Partial<AbstractInstanceType<T>>>,
-    SchemaDetail<AbstractInstanceType<T>>,
-    true,
-    Parameters<T['listUrl']>
-  > {
-    const instanceFetch = this.fetch.bind(this);
-    return super.create().extend({
-      fetch(body: Partial<AbstractInstanceType<T>>) {
-        return instanceFetch(this.url(), this.getFetchInit(body));
-      },
-      url: () => this.listUrl({}),
-      update: (newid: string) => ({
-        [this.list().key({})]: (existing: string[] = []) => [
-          newid,
-          ...existing,
-        ],
-      }),
-    });
-  }
-
-  static detail<T extends typeof Resource>(
-    this: T,
-  ): RestEndpoint<
-    (id: number) => Promise<Partial<AbstractInstanceType<T>>>,
-    T,
-    undefined
-  > {
-    return super.detail().extend({ schema: this });
-  }
-
-  static list<T extends typeof Resource>(
-    this: T,
-  ): RestEndpoint<
-    (
-      options?: Record<string, any>,
-    ) => Promise<Partial<AbstractInstanceType<T>>[]>,
-    T[],
-    undefined
-  > {
-    return super.list().extend({ schema: [this] });
-  }
-}
-
-export class CoauthoredArticleResource extends FutureArticleResource {
-  readonly coAuthors: UserResource[] = [];
+export class CoauthoredArticle extends CoolerArticle {
+  readonly coAuthors: User[] = [];
   static schema = {
-    ...FutureArticleResource.schema,
-    coAuthors: [UserResource],
+    ...CoolerArticle.schema,
+    coAuthors: [User],
   };
 }
+export const CoauthoredArticleResource = createArticleResource(
+  CoauthoredArticle,
+  'article-cooler',
+);
 
 export const CoolerArticleDetail = new Endpoint(
   ({ id }: { id: number }) => {
     return fetch(`http://test.com/article-cooler/${id}`).then(res =>
       res.json(),
     ) as Promise<{
-      [k in keyof CoolerArticleResource]: CoolerArticleResource[k];
+      [k in keyof CoolerArticle]: CoolerArticle[k];
     }>;
   },
   {
@@ -480,61 +399,61 @@ export const CoolerArticleDetail = new Endpoint(
   },
 );
 
-export class IndexedUserResource extends UserResource {
-  static indexes = ['username' as const];
-
-  static index() {
-    return new Index(this);
-  }
+export class IndexedUser extends User {
+  static readonly indexes = ['username'];
 }
+export const IndexedUserResource = {
+  ...createResource({
+    path: 'http\\://test.com/user/:id',
+    schema: IndexedUser,
+  }),
+  getIndex: new Index(IndexedUser),
+};
 
-export class InvalidIfStaleArticleResource extends CoolerArticleResource {
-  static getEndpointExtra(): EndpointExtraOptions {
-    return {
-      ...super.getEndpointExtra(),
-      dataExpiryLength: 5000,
-      errorExpiryLength: 5000,
-      invalidIfStale: true,
-    };
-  }
+class InvalidIfStaleEndpoint<
+  O extends RestGenerics = any,
+> extends ArticleEndpoint<O> {
+  dataExpiryLength = 5000;
+  errorExpiryLength = 5000;
+  invalidIfStale = true;
 }
+export const InvalidIfStaleArticleResource = createArticleResource(
+  CoolerArticle,
+  'article-cooler',
+  InvalidIfStaleEndpoint,
+);
 
-export class PollingArticleResource extends ArticleResource {
-  static getEndpointExtra(): EndpointExtraOptions {
-    return {
-      ...super.getEndpointExtra(),
-      pollFrequency: 5000,
-    };
-  }
-
-  static pusher<T extends typeof PollingArticleResource>(this: T) {
-    return this.detail().extend({
-      extra: {
-        eventType: 'PollingArticleResource:fetch',
-      },
-    });
-  }
-
-  static anotherDetail<T extends typeof PollingArticleResource>(this: T) {
-    return this.detail().extend({
-      method: 'GET',
-      schema: this,
-    });
-  }
+class PollingEndpoint<O extends RestGenerics = any> extends ArticleEndpoint<O> {
+  pollFrequency = 5000;
 }
+export const PollingArticleResourceBase = createArticleResource(
+  Article,
+  'article',
+  PollingEndpoint,
+);
+export const PollingArticleResource = {
+  ...PollingArticleResourceBase,
+  pusher: PollingArticleResourceBase.get.extend({
+    extra: { eventType: 'PollingArticleResource:fetch' },
+  }),
+  anotherGet: PollingArticleResourceBase.get.extend({
+    method: 'GET',
+    schema: Article,
+  }),
+};
 
-export class StaticArticleResource extends ArticleResource {
-  static urlRoot = 'http://test.com/article-static/';
-
-  static EndpointExtraOptions() {
-    return {
-      ...super.getEndpointExtra(),
-      dataExpiryLength: Infinity,
-    };
-  }
+class StaticEndpoint<O extends RestGenerics = any> extends ArticleEndpoint<O> {
+  dataExpiryLength = Infinity;
 }
+export const StaticArticleResource = createArticleResource(
+  Article,
+  'article-static',
+  StaticEndpoint,
+);
 
-class OtherArticleResource extends CoolerArticleResource {}
+abstract class OtherArticle extends CoolerArticle {}
+
+export class PaginatedArticle extends OtherArticle {}
 
 function makePaginatedRecord<T>(entity: T) {
   return class PaginatedRecord extends SimpleRecord {
@@ -545,47 +464,41 @@ function makePaginatedRecord<T>(entity: T) {
   };
 }
 
-export class PaginatedArticleResource extends OtherArticleResource {
-  static urlRoot = 'http://test.com/article-paginated/';
-
-  static list<T extends typeof Resource>(
-    this: T,
-  ): RestEndpoint<
-    FetchFunction,
-    { results: T[]; prevPage: string; nextPage: string },
-    undefined
-  > {
-    return super.list().extend({
-      schema: { results: [this], prevPage: '', nextPage: '' },
-    });
-  }
-
-  static listDefaults<T extends typeof Resource>(this: T) {
-    return super.list().extend({
-      schema: makePaginatedRecord(this),
-    });
-  }
-
-  static detail<T extends typeof Resource>(this: T) {
-    return super.detail().extend({
-      schema: { data: this },
-    });
-  }
-}
+const PaginatedArticleResourceBase = createArticleResource(
+  PaginatedArticle,
+  'article-paginated',
+);
+const paginatedSchema = {
+  results: [PaginatedArticle],
+  prevPage: '',
+  nextPage: '',
+};
+export const PaginatedArticleResource = {
+  ...PaginatedArticleResourceBase,
+  getList: PaginatedArticleResourceBase.getList.extend({
+    schema: paginatedSchema,
+  }) as GetEndpoint<
+    undefined | { cursor?: string | number; admin?: boolean },
+    typeof paginatedSchema
+  >,
+  getListDefaults: PaginatedArticleResourceBase.getList.extend({
+    schema: makePaginatedRecord(PaginatedArticle),
+  }),
+  get: PaginatedArticleResourceBase.get.extend({
+    schema: { data: PaginatedArticle },
+  }),
+};
 
 export const ListPaginatedArticle = new Endpoint(
-  (params: Readonly<Record<string, string | number>>) => {
-    return PaginatedArticleResource.fetch(
-      PaginatedArticleResource.listUrl(params),
-      PaginatedArticleResource.getFetchInit({ method: 'GET' }),
-    );
+  () => {
+    return PaginatedArticleResource.getList();
   },
   {
-    schema: makePaginatedRecord(PaginatedArticleResource),
+    schema: makePaginatedRecord(PaginatedArticle),
   },
 );
 
-export class UnionResource extends Resource {
+export abstract class UnionBase extends Entity {
   readonly id: string = '';
   readonly body: string = '';
   readonly type: string = '';
@@ -593,52 +506,42 @@ export class UnionResource extends Resource {
   pk() {
     return this.id;
   }
-
-  static urlRoot = '/union/';
-
-  static detail<T extends typeof Resource>(this: T) {
-    return super.detail().extend({
-      schema: new schema.Union(
-        {
-          first: FirstUnionResource,
-          second: SecondUnionResource,
-        },
-        'type',
-      ),
-    });
-  }
-
-  static list<T extends typeof Resource>(this: T) {
-    return super.list().extend({
-      schema: [
-        new schema.Union(
-          {
-            first: FirstUnionResource,
-            second: SecondUnionResource,
-          },
-          (input: FirstUnionResource | SecondUnionResource) => input['type'],
-        ),
-      ],
-    });
-  }
 }
-export class FirstUnionResource extends UnionResource {
-  readonly type = 'first' as const;
+export class FirstUnion extends UnionBase {
+  readonly type = 'first';
   readonly firstOnlyField: number = 5;
 }
-export class SecondUnionResource extends UnionResource {
-  readonly type = 'second' as const;
+export class SecondUnion extends UnionBase {
+  readonly type = 'second';
   readonly secondeOnlyField: number = 10;
 }
 
-export class NestedArticleResource extends OtherArticleResource {
-  readonly user: number | null = null;
-
-  static schema = {
-    ...OtherArticleResource.schema,
-    user: UserResource,
-  };
-}
+const UnionSchema = new schema.Union(
+  {
+    first: FirstUnion,
+    second: SecondUnion,
+  },
+  'type',
+);
+const UnionResourceBase = createResource({
+  path: '/union/:id',
+  schema: UnionSchema,
+});
+export const UnionResource = {
+  ...UnionResourceBase,
+  // just to test the other type of union def
+  getList: UnionResourceBase.getList.extend({
+    schema: [
+      new schema.Union(
+        {
+          first: FirstUnion,
+          second: SecondUnion,
+        },
+        (input: FirstUnion | SecondUnion) => input['type'],
+      ),
+    ],
+  }),
+};
 
 export const GetPhoto = new Endpoint(
   async function ({ userId }: { userId: string }): Promise<ArrayBuffer> {

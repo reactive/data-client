@@ -2,8 +2,7 @@ import {
   CoolerArticleResource,
   InvalidIfStaleArticleResource,
   PaginatedArticleResource,
-  TypedArticleResource,
-} from '__tests__/new';
+} from '__tests__/legacy-3';
 import { CoolerArticleResource as LegacyArticle } from '__tests__/legacy';
 import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 import nock from 'nock';
@@ -95,21 +94,6 @@ describe('useStatefulResource()', () => {
     expect(result.current.data).toEqual(LegacyArticle.fromJS(payload));
   });
 
-  it('should work on good network with endpoint', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useStatefulResource(TypedArticleResource.detail(), {
-        id: payload.id,
-      });
-    });
-    expect(result.current.data).toBe(undefined);
-    expect(result.current.error).toBe(undefined);
-    expect(result.current.loading).toBe(true);
-    await waitForNextUpdate();
-    expect(result.current.loading).toBe(false);
-    expect(result.current.error).toBeUndefined();
-    expect(result.current.data).toEqual(CoolerArticleResource.fromJS(payload));
-  });
-
   it('should return errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useStatefulResource(CoolerArticleResource.detail(), {
@@ -127,7 +111,7 @@ describe('useStatefulResource()', () => {
 
   it('should pass with exact params', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useStatefulResource(TypedArticleResource.detail(), {
+      return useStatefulResource(CoolerArticleResource.detail(), {
         id: payload.id,
       });
     });
@@ -138,24 +122,6 @@ describe('useStatefulResource()', () => {
       expect(result.current.data.title).toBe(payload.title);
       // @ts-expect-error ensure this isn't "any"
       result.current.data.doesnotexist;
-    }
-  });
-
-  it('should fail with improperly typed param', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
-      // @ts-expect-error
-      return useStatefulResource(TypedArticleResource.detail(), {
-        id: { a: 'five' },
-      });
-    });
-    expect(result.current.data).toBeUndefined();
-    expect(result.current.error).toBeUndefined();
-    expect(result.current.loading).toBe(true);
-    await waitForNextUpdate();
-    expect(result.current.loading).toBe(false);
-    expect(result.current.error).toBeDefined();
-    if (result.current.error) {
-      expect(result.current.error.status).toBe(404);
     }
   });
 
@@ -194,7 +160,7 @@ describe('useStatefulResource()', () => {
 
   it('should maintain schema structure even with null params', () => {
     const { result } = renderRestHook(() => {
-      return useStatefulResource(PaginatedArticleResource.list(), null);
+      return useStatefulResource(PaginatedArticleResource.listShape(), null);
     });
     expect(result.current.loading).toBe(false);
     expect(result.current.data.results).toBeUndefined();

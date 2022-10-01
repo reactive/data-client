@@ -14,14 +14,14 @@ describe('useError()', () => {
   it('should return undefined when cache not ready and no error in meta', () => {
     const results = [
       {
-        request: CoolerArticleResource.detail(),
-        params: payload,
-        result: payload,
+        endpoint: CoolerArticleResource.get,
+        args: [{ id: payload.id }],
+        response: payload,
       },
     ];
     const { result } = renderRestHook(
       () => {
-        return useError(CoolerArticleResource.detail(), payload);
+        return useError(CoolerArticleResource.get, { id: payload.id });
       },
       { results },
     );

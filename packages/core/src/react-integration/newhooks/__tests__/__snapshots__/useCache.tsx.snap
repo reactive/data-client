@@ -2,7 +2,7 @@
 
 exports[`useCache() should select paginated results 1`] = `
 [
-  PaginatedArticleResource {
+  PaginatedArticle {
     "author": null,
     "content": "the best things in life com efree",
     "id": 23,
@@ -12,7 +12,7 @@ exports[`useCache() should select paginated results 1`] = `
     ],
     "title": "the first draft",
   },
-  PaginatedArticleResource {
+  PaginatedArticle {
     "author": null,
     "content": "the best things in life com efree",
     "id": 44,
@@ -22,7 +22,7 @@ exports[`useCache() should select paginated results 1`] = `
     ],
     "title": "the second book",
   },
-  PaginatedArticleResource {
+  PaginatedArticle {
     "author": null,
     "content": "the best things in life com efree",
     "id": 2,
@@ -32,7 +32,7 @@ exports[`useCache() should select paginated results 1`] = `
     ],
     "title": "the third novel",
   },
-  PaginatedArticleResource {
+  PaginatedArticle {
     "author": null,
     "content": "the best things in life com efree",
     "id": 643,

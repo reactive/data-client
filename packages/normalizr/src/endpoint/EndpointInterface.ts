@@ -7,7 +7,7 @@ import { SnapshotInterface } from './SnapshotInterface.js';
 
 /** Defines a networking endpoint */
 export interface EndpointInterface<
-  F extends FetchFunction = FetchFunction<any[]>,
+  F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined,
 > extends EndpointExtraOptions<F> {
@@ -60,7 +60,7 @@ export type UpdateFunction<
 
 /** To change values on the server */
 export interface MutateEndpoint<
-  F extends FetchFunction = FetchFunction<any[]>,
+  F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
 > extends EndpointInterface<F, S, true> {
   sideEffect: true;
@@ -68,6 +68,6 @@ export interface MutateEndpoint<
 
 /** For retrieval requests */
 export type ReadEndpoint<
-  F extends FetchFunction = FetchFunction<any[]>,
+  F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
 > = EndpointInterface<F, S, undefined>;

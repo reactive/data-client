@@ -1,4 +1,4 @@
-import { PollingArticleResource } from '__tests__/common';
+import { Article, PollingArticleResource } from '__tests__/new';
 import {
   SubscribeAction,
   UnsubscribeAction,
@@ -42,8 +42,9 @@ describe('SubscriptionManager', () => {
   describe('cleanup()', () => {
     it('should cleanup all Subcription members', () => {
       const sub = new TestSubscription();
-      (manager as any).subscriptions[PollingArticleResource.url({ id: 5 })] =
-        sub;
+      (manager as any).subscriptions[
+        PollingArticleResource.get.key({ id: 5 })
+      ] = sub;
       manager.cleanup();
       expect(sub.cleanup.mock.calls.length).toBe(1);
     });
@@ -51,7 +52,7 @@ describe('SubscriptionManager', () => {
 
   describe('middleware', () => {
     function createSubscribeAction(
-      payload: Record<string, unknown>,
+      payload: Record<string, any>,
       reject = false,
     ): SubscribeAction {
       const fetch = reject
@@ -60,20 +61,20 @@ describe('SubscriptionManager', () => {
       return {
         type: SUBSCRIBE_TYPE,
         meta: {
-          schema: PollingArticleResource,
-          key: PollingArticleResource.url(payload),
+          schema: Article,
+          key: PollingArticleResource.get.key({ id: payload.id }),
           fetch,
           options: { pollFrequency: 1000 },
         },
       };
     }
     function createUnsubscribeAction(
-      payload: Record<string, unknown>,
+      payload: Record<string, any>,
     ): UnsubscribeAction {
       return {
         type: UNSUBSCRIBE_TYPE,
         meta: {
-          key: PollingArticleResource.url(payload),
+          key: PollingArticleResource.get.key({ id: payload.id }),
           options: { pollFrequency: 1000 },
         },
       };
@@ -124,8 +125,9 @@ describe('SubscriptionManager', () => {
     });
     it('subscribe with another should not call previous', () => {
       expect(
-        (manager as any).subscriptions[PollingArticleResource.url({ id: 5 })]
-          .add.mock.calls.length,
+        (manager as any).subscriptions[
+          PollingArticleResource.get.key({ id: 5 })
+        ].add.mock.calls.length,
       ).toBe(2);
     });
 
@@ -183,7 +185,7 @@ describe('SubscriptionManager', () => {
 
       expect(spy.mock.calls[0]).toMatchInlineSnapshot(`
         [
-          "Mismatched unsubscribe: http://test.com/article/25 is not subscribed",
+          "Mismatched unsubscribe: GET http://test.com/article/25 is not subscribed",
         ]
       `);
       console.error = oldError;

@@ -1,6 +1,6 @@
-import { FutureArticleResource } from '__tests__/new';
+import { CoolerArticle, FutureArticleResource } from '__tests__/new';
 import nock from 'nock';
-import { useCache, useResource, ResolveType } from '@rest-hooks/core';
+import { useCache, useSuspense, ResolveType } from '@rest-hooks/core';
 import { act } from '@testing-library/react-hooks';
 
 // relative imports to avoid circular dependency in tsconfig references
@@ -77,10 +77,9 @@ describe.each([
       .reply(403, {})
       .get(`/article-cooler/666`)
       .reply(200, '')
-      .get(`/article-cooler/`)
+      .get(`/article-cooler`)
       .reply(200, nested)
-
-      .post(`/article-cooler/`)
+      .post(`/article-cooler`)
       .reply(200, createPayload);
 
     mynock = nock(/.*/).defaultReplyHeaders({
@@ -108,18 +107,18 @@ describe.each([
   it('should fetch', async () => {
     const { result } = renderRestHook(() => {
       return {
-        data: useCache(FutureArticleResource.detail(), payload.id),
+        data: useCache(FutureArticleResource.get, payload.id),
         fetch: useController().fetch,
       };
     });
     expect(result.current.data).toBeUndefined();
     let response;
     await act(async () => {
-      result.current.fetch(FutureArticleResource.detail(), payload.id);
-      result.current.fetch(FutureArticleResource.detail(), payload.id);
-      result.current.fetch(FutureArticleResource.detail(), payload.id);
+      result.current.fetch(FutureArticleResource.get, payload.id);
+      result.current.fetch(FutureArticleResource.get, payload.id);
+      result.current.fetch(FutureArticleResource.get, payload.id);
       response = await result.current.fetch(
-        FutureArticleResource.detail(),
+        FutureArticleResource.get,
         payload.id,
       );
     });
@@ -131,21 +130,17 @@ describe.each([
     // TODO: move these to own unit tests if/when applicable
     () => {
       // @ts-expect-error
-      result.current.fetch(FutureArticleResource.detail());
+      result.current.fetch(FutureArticleResource.get);
       // @ts-expect-error
-      result.current.fetch(FutureArticleResource.detail(), {
+      result.current.fetch(FutureArticleResource.get, {
         id: payload.id,
       });
-      result.current.fetch(FutureArticleResource.create(), payload);
+      result.current.fetch(FutureArticleResource.create, payload);
       // @ts-expect-error
-      result.current.fetch(FutureArticleResource.create(), {}, payload);
-      result.current.fetch(
-        FutureArticleResource.update(),
-        { id: payload.id },
-        payload,
-      );
+      result.current.fetch(FutureArticleResource.create, {}, payload);
+      result.current.fetch(FutureArticleResource.update, payload.id, payload);
       // @ts-expect-error
-      result.current.fetch(FutureArticleResource.update(), payload);
+      result.current.fetch(FutureArticleResource.update, payload);
     };
   });
 
@@ -153,14 +148,14 @@ describe.each([
     // we use this id because it is not nock'd
     const id = 10000;
     const fixture = {
-      endpoint: FutureArticleResource.detail(),
+      endpoint: FutureArticleResource.get,
       args: [10000],
       response: payload,
     };
     const { result } = renderRestHook(
       () => {
         return {
-          data: useCache(FutureArticleResource.detail(), id),
+          data: useCache(FutureArticleResource.get, id),
           fetch: useController().fetch,
         };
       },
@@ -169,15 +164,15 @@ describe.each([
     expect(result.current.data).toBeUndefined();
     let response;
     await act(async () => {
-      result.current.fetch(FutureArticleResource.detail(), id);
-      result.current.fetch(FutureArticleResource.detail(), id);
-      result.current.fetch(FutureArticleResource.detail(), id);
-      response = await result.current.fetch(FutureArticleResource.detail(), id);
+      result.current.fetch(FutureArticleResource.get, id);
+      result.current.fetch(FutureArticleResource.get, id);
+      result.current.fetch(FutureArticleResource.get, id);
+      response = await result.current.fetch(FutureArticleResource.get, id);
     });
   });
 
   it('should update on create', async () => {
-    const endpoint = FutureArticleResource.create();
+    const endpoint = FutureArticleResource.create;
     const response: ResolveType<typeof endpoint> = createPayload;
     const fixtures: FixtureEndpoint[] = [
       {
@@ -190,7 +185,7 @@ describe.each([
     for (const resolverFixtures of [undefined, fixtures]) {
       const { result, waitForNextUpdate } = renderRestHook(
         () => {
-          const articles = useResource(FutureArticleResource.list(), {});
+          const articles = useSuspense(FutureArticleResource.getList);
           const fetch = useController().fetch;
           return { articles, fetch };
         },
@@ -198,7 +193,7 @@ describe.each([
       );
       await waitForNextUpdate();
       await act(async () => {
-        await result.current.fetch(FutureArticleResource.create(), {
+        await result.current.fetch(FutureArticleResource.create, {
           id: 1,
         });
       });
@@ -208,7 +203,7 @@ describe.each([
   });
 
   it('should log error message when user update method throws', async () => {
-    const endpoint = FutureArticleResource.create().extend({
+    const endpoint = FutureArticleResource.create.extend({
       update: () => {
         throw new Error('usererror');
       },
@@ -223,7 +218,7 @@ describe.each([
     ];
     const { result, waitForNextUpdate } = renderRestHook(
       () => {
-        const articles = useResource(FutureArticleResource.list(), {});
+        const articles = useSuspense(FutureArticleResource.getList);
         const fetch = useController().fetch;
         return { articles, fetch };
       },
@@ -256,7 +251,7 @@ describe.each([
       ({ id }) => {
         try {
           return [
-            useResource(FutureArticleResource.detail(), id) ?? null,
+            useSuspense(FutureArticleResource.get, id) ?? null,
             useController().fetch,
           ] as const;
         } catch (e: any) {
@@ -273,7 +268,7 @@ describe.each([
     expect(result.current).toBeUndefined();
     await waitForNextUpdate();
     const [data, fetch] = result.current;
-    expect(data).toBeInstanceOf(FutureArticleResource);
+    expect(data).toBeInstanceOf(CoolerArticle);
     expect(data?.title).toBe(temppayload.title);
     expect(throws.length).toBe(1);
 
@@ -284,7 +279,7 @@ describe.each([
 
     expect(throws.length).toBe(1);
     await act(async () => {
-      await fetch(FutureArticleResource.delete(), temppayload.id);
+      await fetch(FutureArticleResource.delete, temppayload.id);
       rerender({ id: null });
     });
     expect(throws.length).toBe(1);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { useMemo } from 'react';
 import {
   EndpointInterface,
@@ -32,11 +33,11 @@ export default function useCache<
 >(
   endpoint: E,
   ...args: Args
-): E['schema'] extends undefined
-  ? E extends (...args: any) => any
-    ? ResolveType<E> | undefined
-    : any
-  : DenormalizeNullable<E['schema']> {
+): E['schema'] extends {}
+  ? DenormalizeNullable<E['schema']>
+  : E extends (...args: any) => any
+  ? ResolveType<E> | undefined
+  : any {
   const adaptedEndpoint: any = useMemo(() => {
     return shapeToEndpoint(endpoint);
     // we currently don't support shape changes

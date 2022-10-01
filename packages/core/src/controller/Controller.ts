@@ -223,7 +223,8 @@ export default class Controller {
   ): ErrorTypes | undefined => {
     if (rest[0] === null) return;
     const state = rest[rest.length - 1] as State<unknown>;
-    const args = rest.slice(0, rest.length - 1) as Parameters<E['key']>;
+    // this is typescript generics breaking
+    const args: any = rest.slice(0, rest.length - 1) as Parameters<E['key']>;
     const key = endpoint.key(...args);
 
     const meta = selectMeta(state, key);
@@ -246,7 +247,8 @@ export default class Controller {
     expiresAt: number;
   } => {
     const state = rest[rest.length - 1] as State<unknown>;
-    const args = rest.slice(0, rest.length - 1) as Parameters<E['key']>;
+    // this is typescript generics breaking
+    const args: any = rest.slice(0, rest.length - 1) as Parameters<E['key']>;
     const isActive = args.length !== 1 || args[0] !== null;
     const key = isActive ? endpoint.key(...args) : '';
     const cacheResults = isActive && state.results[key];

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`optional members should infer a detail based on list results 1`] = `
-SomeResource {
+Some {
   "id": "1",
   "name": "fails",
   "things": [],
@@ -10,7 +10,7 @@ SomeResource {
 
 exports[`optional members should infer even with nested missing 1`] = `
 {
-  "a": SomeResource {
+  "a": Some {
     "id": "2",
     "name": "works",
     "things": [
@@ -33,12 +33,12 @@ exports[`optional members should infer even with nested missing 1`] = `
 
 exports[`optional members should return all members of list without suspending 1`] = `
 [
-  SomeResource {
+  Some {
     "id": "1",
     "name": "fails",
     "things": [],
   },
-  SomeResource {
+  Some {
     "id": "2",
     "name": "works",
     "things": [
@@ -52,7 +52,7 @@ exports[`optional members should return all members of list without suspending 1
       },
     ],
   },
-  SomeResource {
+  Some {
     "id": "3",
     "name": "works",
     "things": [

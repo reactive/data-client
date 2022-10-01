@@ -1,6 +1,5 @@
 import React from 'react';
-import { CoolerArticleResource } from '__tests__/new';
-import { renderHook, RenderHookOptions } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react-hooks';
 import { Endpoint, Entity } from '@rest-hooks/endpoint';
 import { StateContext } from '@rest-hooks/core';
 
@@ -8,7 +7,6 @@ import { StateContext } from '@rest-hooks/core';
 
 import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import { useExpiresAt } from '../hooks';
-import { payload } from '../test-fixtures';
 import { State, useDenormalized } from '../..';
 
 export default class IDEntity extends Entity {

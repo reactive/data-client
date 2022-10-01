@@ -1,7 +1,11 @@
 import { useEffect } from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
-import { CoolerArticleDetail, FutureArticleResource } from '__tests__/new';
+import {
+  CoolerArticle,
+  CoolerArticleDetail,
+  FutureArticleResource,
+} from '__tests__/new';
 import { FixtureEndpoint } from '@rest-hooks/test/mockState';
 import { act } from '@testing-library/react-hooks';
 import { useCache, useError, useResource } from '@rest-hooks/core';
@@ -25,14 +29,14 @@ export const createPayload = {
 };
 
 export const detail: FixtureEndpoint = {
-  endpoint: FutureArticleResource.detail(),
+  endpoint: FutureArticleResource.get,
   args: [5],
   response: payload,
 };
 
 export const nested: FixtureEndpoint = {
-  endpoint: FutureArticleResource.list(),
-  args: [{}],
+  endpoint: FutureArticleResource.getList,
+  args: [],
   response: [
     {
       id: 5,
@@ -74,18 +78,18 @@ describe('receive', () => {
   it('should update store when receive is complete', async () => {
     const { result } = renderRestHook(() => {
       return {
-        data: useCache(FutureArticleResource.detail(), payload.id),
+        data: useCache(FutureArticleResource.get, payload.id),
         receive: useController().receive,
       };
     });
     expect(result.current.data).toBeUndefined();
-    const ep = FutureArticleResource.detail();
+    const ep = FutureArticleResource.get;
     await act(async () => {
       await result.current.receive(ep, 5, payload);
     });
     expect(result.current.data).toBeDefined();
     expect(result.current.data?.content).toEqual(payload.content);
-    expect(result.current.data).toEqual(FutureArticleResource.fromJS(payload));
+    expect(result.current.data).toEqual(CoolerArticle.fromJS(payload));
 
     // type tests
     // TODO: move these to own unit tests if/when applicable
@@ -100,12 +104,12 @@ describe('receive', () => {
         },
         payload,
       );
-      const create = FutureArticleResource.create();
-      const update = FutureArticleResource.update();
+      const create = FutureArticleResource.create;
+      const update = FutureArticleResource.update;
       result.current.receive(create, payload, payload);
       // @ts-expect-error
       result.current.receive(create, {}, payload, payload);
-      result.current.receive(update, { id: payload.id }, payload, payload);
+      result.current.receive(update, payload.id, payload, payload);
       // @ts-expect-error
       result.current.receive(update, payload, payload);
     };
@@ -114,14 +118,14 @@ describe('receive', () => {
   it('should update store with error', async () => {
     const { result } = renderRestHook(() => {
       return {
-        data: useCache(FutureArticleResource.detail(), payload.id),
-        err: useError(FutureArticleResource.detail(), payload.id),
+        data: useCache(FutureArticleResource.get, payload.id),
+        err: useError(FutureArticleResource.get, payload.id),
         receiveError: useController().receiveError,
       };
     });
     expect(result.current.data).toBeUndefined();
     const error = new Error('hi');
-    const ep = FutureArticleResource.detail();
+    const ep = FutureArticleResource.get;
     await act(async () => {
       await result.current.receiveError(ep, 5, error);
     });
@@ -142,12 +146,12 @@ describe('receive', () => {
         },
         error,
       );
-      const create = FutureArticleResource.create();
-      const update = FutureArticleResource.update();
+      const create = FutureArticleResource.create;
+      const update = FutureArticleResource.update;
       result.current.receiveError(create, payload, error);
       // @ts-expect-error
       result.current.receiveError(create, {}, payload, error);
-      result.current.receiveError(update, { id: payload.id }, payload, error);
+      result.current.receiveError(update, payload.id, payload, error);
       // @ts-expect-error
       result.current.receiveError(update, payload, error);
     };

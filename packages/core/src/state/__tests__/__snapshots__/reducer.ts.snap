@@ -7,7 +7,7 @@ exports[`reducer should set error in meta for "receive" 1`] = `
   "indexes": {},
   "lastReset": 0,
   "meta": {
-    "http://test.com/article/20": {
+    "GET http://test.com/article/20": {
       "date": 5000000000,
       "error": [Error: hi],
       "errorPolicy": undefined,
@@ -22,7 +22,7 @@ exports[`reducer should set error in meta for "receive" 1`] = `
 exports[`reducer singles should update state correctly 1`] = `
 {
   "entities": {
-    "http://test.com/article/": {
+    "Article": {
       "20": {
         "content": "this is the content",
         "id": 20,
@@ -31,7 +31,7 @@ exports[`reducer singles should update state correctly 1`] = `
     },
   },
   "entityMeta": {
-    "http://test.com/article/": {
+    "Article": {
       "20": {
         "date": 5000000000,
         "expiresAt": 5000500000,

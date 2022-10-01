@@ -22,13 +22,13 @@ export const createPayload = {
 };
 
 export const detail: FixtureEndpoint = {
-  endpoint: FutureArticleResource.detail(),
+  endpoint: FutureArticleResource.get,
   args: [5],
   response: payload,
 };
 
 export const nested: FixtureEndpoint = {
-  endpoint: FutureArticleResource.list(),
+  endpoint: FutureArticleResource.getList,
   args: [{}],
   response: [
     {
@@ -71,13 +71,13 @@ describe('subscribe', () => {
   it('should not error on subscribe', async () => {
     const { result } = renderRestHook(() => {
       return {
-        data: useCache(FutureArticleResource.detail(), payload.id),
+        data: useCache(FutureArticleResource.get, payload.id),
         subscribe: useController().subscribe,
         unsubscribe: useController().unsubscribe,
       };
     });
     expect(result.current.data).toBeUndefined();
-    const ep = FutureArticleResource.detail();
+    const ep = FutureArticleResource.get;
     await act(async () => {
       await result.current.subscribe(ep.extend({ pollFrequency: 1000 }), 5);
     });

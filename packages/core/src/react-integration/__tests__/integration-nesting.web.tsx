@@ -1,4 +1,8 @@
-import { CoauthoredArticleResource, UserResource } from '__tests__/new';
+import {
+  CoauthoredArticle,
+  CoauthoredArticleResource,
+  UserResource,
+} from '__tests__/new';
 import nock from 'nock';
 import { act } from '@testing-library/react-hooks';
 
@@ -7,7 +11,7 @@ import {
   makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../../../test';
-import { useResource, useFetcher, useCache } from '../hooks';
+import { useCache, useSuspense, useController } from '../hooks';
 import { coAuthored } from '../test-fixtures';
 
 function onError(e: any) {
@@ -67,23 +71,23 @@ describe.each([
     const expectedUser = coAuthored.coAuthors[0];
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return {
-        article: useResource(CoauthoredArticleResource.detail(), coAuthored.id),
-        user: useCache(UserResource.detail(), { id: 42 }),
-        updateUser: useFetcher(UserResource.update()),
-        deleteUser: useFetcher(UserResource.delete()),
+        article: useSuspense(CoauthoredArticleResource.get, {
+          id: coAuthored.id,
+        }),
+        user: useCache(UserResource.get, { id: 42 }),
+        controller: useController(),
       };
     });
     expect(result.current).toBeUndefined();
     await waitForNextUpdate();
-    expect(result.current.article instanceof CoauthoredArticleResource).toBe(
-      true,
-    );
+    expect(result.current.article instanceof CoauthoredArticle).toBe(true);
     expect(result.current.article.title).toBe(coAuthored.title);
     expect(result.current.article.coAuthors.length).toBe(2);
     expect(result.current.article.coAuthors[0].email).toBe(expectedUser.email);
     // now check updates
     await act(async () => {
-      await result.current.updateUser(
+      await result.current.controller.fetch(
+        UserResource.update,
         { id: expectedUser.id },
         {
           id: 42,
@@ -99,7 +103,7 @@ describe.each([
     expect(result.current.article.coAuthors[0]).toBe(result.current.user);
     // now check deletes
     await act(async () => {
-      await result.current.deleteUser({ id: 51 });
+      await result.current.controller.fetch(UserResource.delete, { id: 51 });
     });
     expect(result.current.article.coAuthors.length).toBe(1);
   });

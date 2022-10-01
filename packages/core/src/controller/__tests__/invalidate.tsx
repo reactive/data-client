@@ -24,14 +24,14 @@ export const createPayload = {
 };
 
 export const detail: FixtureEndpoint = {
-  endpoint: FutureArticleResource.detail(),
+  endpoint: FutureArticleResource.get,
   args: [5],
   response: payload,
 };
 
 export const nested: FixtureEndpoint = {
-  endpoint: FutureArticleResource.list(),
-  args: [{}],
+  endpoint: FutureArticleResource.getList,
+  args: [],
   response: [
     {
       id: 5,
@@ -74,7 +74,7 @@ describe('invalidate', () => {
     const { result } = renderRestHook(
       () => {
         return {
-          data: useCache(FutureArticleResource.detail(), 5),
+          data: useCache(FutureArticleResource.get, 5),
           controller: useController(),
         };
       },
@@ -83,7 +83,7 @@ describe('invalidate', () => {
     expect(result.current.data).toBeDefined();
     await act(async () => {
       await result.current.controller.invalidate(
-        FutureArticleResource.detail(),
+        FutureArticleResource.get,
         null,
       );
     });
@@ -94,7 +94,7 @@ describe('invalidate', () => {
     const { result } = renderRestHook(
       () => {
         return {
-          data: useCache(FutureArticleResource.detail(), 5),
+          data: useCache(FutureArticleResource.get, 5),
           controller: useController(),
         };
       },
@@ -102,10 +102,7 @@ describe('invalidate', () => {
     );
     expect(result.current.data).toBeDefined();
     await act(async () => {
-      await result.current.controller.invalidate(
-        FutureArticleResource.detail(),
-        5,
-      );
+      await result.current.controller.invalidate(FutureArticleResource.get, 5);
     });
     expect(result.current.data).toBeUndefined();
   });

@@ -52,15 +52,15 @@ export class Reaction extends GithubEntity {
   };
 }
 
-const base = createGithubResource(
-  '/repos/:owner/:repo/issues/:number/reactions/:id' as const,
-  Reaction,
-  PreviewEndpoint,
-);
+const base = createGithubResource({
+  path: '/repos/:owner/:repo/issues/:number/reactions/:id',
+  schema: Reaction,
+  Endpoint: PreviewEndpoint,
+});
 export const ReactionResource = {
   ...base,
   getByComment: base.getList.extend({
-    path: 'repos/:owner/:repo/issues/comments/:comment/reactions' as const,
+    path: 'repos/:owner/:repo/issues/comments/:comment/reactions',
     body: undefined,
   }),
   create: base.create.extend({

@@ -1,8 +1,9 @@
-import { Entity, Resource } from '@rest-hooks/rest';
+import { createResource, Entity } from '@rest-hooks/rest';
 
-import { useResource, useCache } from '..';
+import { useSuspense, useCache } from '..';
 import {
   Fixture,
+  FixtureEndpoint,
   makeCacheProvider,
   makeRenderRestHook,
 } from '../../../../test';
@@ -15,7 +16,7 @@ class Nested extends Entity {
   }
 }
 
-export class SomeResource extends Resource {
+export class Some extends Entity {
   id = '';
   things: Nested[] = [];
 
@@ -26,14 +27,13 @@ export class SomeResource extends Resource {
   static schema = {
     things: [Nested],
   };
-
-  static urlRoot = '/some';
 }
+const SomeResource = createResource({ path: '/some/:id', schema: Some });
 
-const fixture: Fixture = {
-  request: SomeResource.list(),
-  params: {},
-  result: [
+const fixture: FixtureEndpoint = {
+  endpoint: SomeResource.getList,
+  args: [],
+  response: [
     {
       id: '1',
       name: 'fails',
@@ -75,9 +75,9 @@ describe(`optional members`, () => {
   it('should return all members of list without suspending', () => {
     const { result } = renderRestHook(
       () => {
-        return useResource(SomeResource.list(), {});
+        return useSuspense(SomeResource.getList);
       },
-      { results: [fixture] },
+      { initialFixtures: [fixture] },
     );
     expect(result.current).toMatchSnapshot();
   });
@@ -85,9 +85,9 @@ describe(`optional members`, () => {
   it('should infer a detail based on list results', () => {
     const { result } = renderRestHook(
       () => {
-        return useCache(SomeResource.detail(), { id: '1' });
+        return useCache(SomeResource.get, { id: '1' });
       },
-      { results: [fixture] },
+      { initialFixtures: [fixture] },
     );
     expect(result.current).toMatchSnapshot();
   });
@@ -95,51 +95,52 @@ describe(`optional members`, () => {
   it('should not infer a missing entity', () => {
     const { result } = renderRestHook(
       () => {
-        return useCache(SomeResource.detail(), { id: '4' });
+        return useCache(SomeResource.get, { id: '4' });
       },
-      { results: [fixture] },
+      { initialFixtures: [fixture] },
     );
     expect(result.current).toBeUndefined();
   });
 
   it('should not infer a missing entity (complex)', () => {
-    const endpoint = SomeResource.detail().extend({
+    const endpoint = SomeResource.get.extend({
       schema: {
-        a: SomeResource,
+        a: Some,
         b: Nested,
       },
     });
+    console.log(endpoint.path);
     const { result } = renderRestHook(
       () => {
         return useCache(endpoint, { id: '3' });
       },
-      { results: [fixture] },
+      { initialFixtures: [fixture] },
     );
     expect(result.current.b).toBeUndefined();
     expect(result.current.a).toBeUndefined();
   });
 
   it('should suspend on partial results already there', () => {
-    const endpoint = SomeResource.detail().extend({
+    const endpoint = SomeResource.get.extend({
       schema: {
-        a: SomeResource,
+        a: Some,
         b: Nested,
       },
     });
     const { result } = renderRestHook(
       () => {
-        return useResource(endpoint, { id: '3' });
+        return useSuspense(endpoint, { id: '3' });
       },
-      { results: [fixture] },
+      { initialFixtures: [fixture] },
     );
     // undefined means suspend
     expect(result.current).toBeUndefined();
   });
 
   it('should infer even with nested missing', () => {
-    const endpoint = SomeResource.detail().extend({
+    const endpoint = SomeResource.get.extend({
       schema: {
-        a: SomeResource,
+        a: Some,
         b: Nested,
       },
     });
@@ -147,7 +148,7 @@ describe(`optional members`, () => {
       () => {
         return useCache(endpoint, { id: '2' });
       },
-      { results: [fixture] },
+      { initialFixtures: [fixture] },
     );
     expect(result.current).toMatchSnapshot();
   });

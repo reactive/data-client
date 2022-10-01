@@ -1,16 +1,14 @@
-import { RestGenerics } from '@rest-hooks/experimental';
+import { RestGenerics } from '@rest-hooks/rest';
 
 import { GithubEndpoint } from './Base';
 
 export default class PreviewEndpoint<
   O extends RestGenerics,
 > extends GithubEndpoint<O> {
-  getFetchInit(body: any) {
-    const init: any = { ...super.getFetchInit(body) };
-    init.headers = {
-      ...init.headers,
+  getHeaders(headers: HeadersInit): HeadersInit {
+    return {
+      ...headers,
       Accept: 'application/vnd.github.squirrel-girl-preview+json',
     };
-    return init;
   }
 }

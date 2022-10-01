@@ -4,8 +4,8 @@ exports[`CacheProvider Endpoint should gracefully abort in useSuspense() 1`] = `
 
 exports[`CacheProvider Endpoint should resolve useSuspense() with SimpleRecords 1`] = `
 [
-  PaginatedArticleResource {
-    "author": UserResource {
+  PaginatedArticle {
+    "author": User {
       "email": "bob@bob.com",
       "id": 23,
       "isAdmin": false,
@@ -20,8 +20,8 @@ exports[`CacheProvider Endpoint should resolve useSuspense() with SimpleRecords 
     ],
     "title": "hi ho",
   },
-  PaginatedArticleResource {
-    "author": UserResource {
+  PaginatedArticle {
+    "author": User {
       "email": "bob@bob.com",
       "id": 23,
       "isAdmin": false,
@@ -76,8 +76,8 @@ Value: {
 
 exports[`CacheProvider should resolve useSuspense() with SimpleRecords 1`] = `
 [
-  PaginatedArticleResource {
-    "author": UserResource {
+  PaginatedArticle {
+    "author": User {
       "email": "bob@bob.com",
       "id": 23,
       "isAdmin": false,
@@ -92,8 +92,8 @@ exports[`CacheProvider should resolve useSuspense() with SimpleRecords 1`] = `
     ],
     "title": "hi ho",
   },
-  PaginatedArticleResource {
-    "author": UserResource {
+  PaginatedArticle {
+    "author": User {
       "email": "bob@bob.com",
       "id": 23,
       "isAdmin": false,
@@ -111,19 +111,19 @@ exports[`CacheProvider useSuspense() should throw errors on malformed response 1
 [Error: Error processing GET http://test.com/article-cooler/878
 
 Full Schema: {
-  "name": "CoolerArticleResource",
+  "name": "CoolerArticle",
   "schema": {
     "author": {
-      "name": "UserResource",
+      "name": "User",
       "schema": {},
-      "key": "http://test.com/user/"
+      "key": "User"
     }
   },
-  "key": "http://test.com/article-cooler/"
+  "key": "CoolerArticle"
 }
 
 Error:
-Attempted to initialize CoolerArticleResource with an array, but named members were expected
+Attempted to initialize CoolerArticle with an array, but named members were expected
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.
@@ -140,8 +140,8 @@ exports[`ExternalCacheProvider Endpoint should gracefully abort in useSuspense()
 
 exports[`ExternalCacheProvider Endpoint should resolve useSuspense() with SimpleRecords 1`] = `
 [
-  PaginatedArticleResource {
-    "author": UserResource {
+  PaginatedArticle {
+    "author": User {
       "email": "bob@bob.com",
       "id": 23,
       "isAdmin": false,
@@ -156,8 +156,8 @@ exports[`ExternalCacheProvider Endpoint should resolve useSuspense() with Simple
     ],
     "title": "hi ho",
   },
-  PaginatedArticleResource {
-    "author": UserResource {
+  PaginatedArticle {
+    "author": User {
       "email": "bob@bob.com",
       "id": 23,
       "isAdmin": false,
@@ -212,8 +212,8 @@ Value: {
 
 exports[`ExternalCacheProvider should resolve useSuspense() with SimpleRecords 1`] = `
 [
-  PaginatedArticleResource {
-    "author": UserResource {
+  PaginatedArticle {
+    "author": User {
       "email": "bob@bob.com",
       "id": 23,
       "isAdmin": false,
@@ -228,8 +228,8 @@ exports[`ExternalCacheProvider should resolve useSuspense() with SimpleRecords 1
     ],
     "title": "hi ho",
   },
-  PaginatedArticleResource {
-    "author": UserResource {
+  PaginatedArticle {
+    "author": User {
       "email": "bob@bob.com",
       "id": 23,
       "isAdmin": false,
@@ -247,19 +247,19 @@ exports[`ExternalCacheProvider useSuspense() should throw errors on malformed re
 [Error: Error processing GET http://test.com/article-cooler/878
 
 Full Schema: {
-  "name": "CoolerArticleResource",
+  "name": "CoolerArticle",
   "schema": {
     "author": {
-      "name": "UserResource",
+      "name": "User",
       "schema": {},
-      "key": "http://test.com/user/"
+      "key": "User"
     }
   },
-  "key": "http://test.com/article-cooler/"
+  "key": "CoolerArticle"
 }
 
 Error:
-Attempted to initialize CoolerArticleResource with an array, but named members were expected
+Attempted to initialize CoolerArticle with an array, but named members were expected
 
 This is likely due to a malformed response.
 Try inspecting the network response or fetch() return value.

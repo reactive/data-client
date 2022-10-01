@@ -1,4 +1,4 @@
-import { ArticleResource } from '__tests__/common';
+import { Article } from '__tests__/new';
 import { schema } from '@rest-hooks/endpoint';
 
 import { denormalize } from '../denormalize';
@@ -14,19 +14,19 @@ describe('normalizer() merging', () => {
           title: 'hi',
           content: 'this is the content',
         },
-        ArticleResource,
+        Article,
       );
 
       const { result, entities } = normalize(
         { id, title: 'hello' },
-        ArticleResource,
+        Article,
         first,
       );
 
-      const [merged] = denormalize(result, ArticleResource, entities);
-      expect(merged).toBeInstanceOf(ArticleResource);
+      const [merged] = denormalize(result, Article, entities);
+      expect(merged).toBeInstanceOf(Article);
       expect(merged).toEqual(
-        ArticleResource.fromJS({
+        Article.fromJS({
           id,
           title: 'hello',
           content: 'this is the content',
@@ -37,13 +37,13 @@ describe('normalizer() merging', () => {
     it('should not affect merging of plain objects', () => {
       const id = 20;
       const entitiesA = {
-        [ArticleResource.key]: {
-          [id]: ArticleResource.fromJS({
+        [Article.key]: {
+          [id]: Article.fromJS({
             id,
             title: 'hi',
             content: 'this is the content',
           }),
-          [42]: ArticleResource.fromJS({
+          [42]: Article.fromJS({
             id: 42,
             title: 'dont touch me',
             content: 'this is mine',
@@ -53,13 +53,11 @@ describe('normalizer() merging', () => {
 
       const { entities } = normalize(
         { id, title: 'hi', content: 'this is the content' },
-        ArticleResource,
+        Article,
         entitiesA,
       );
 
-      expect(entities[ArticleResource.key][42]).toBe(
-        entitiesA[ArticleResource.key][42],
-      );
+      expect(entities[Article.key][42]).toBe(entitiesA[Article.key][42]);
     });
   });
 
@@ -72,19 +70,19 @@ describe('normalizer() merging', () => {
           title: 'hi',
           content: 'this is the content',
         },
-        ArticleResource,
+        Article,
       );
 
       const { result, entities } = normalize(
         { id, title: null },
-        ArticleResource,
+        Article,
         first,
       );
 
-      const [merged] = denormalize(result, ArticleResource, entities);
-      expect(merged).toBeInstanceOf(ArticleResource);
+      const [merged] = denormalize(result, Article, entities);
+      expect(merged).toBeInstanceOf(Article);
       expect(merged).toEqual(
-        ArticleResource.fromJS({
+        Article.fromJS({
           id,
           title: null as any,
           content: 'this is the content',
@@ -100,15 +98,15 @@ describe('normalizer() merging', () => {
           title: 'hi',
           content: 'this is the content',
         },
-        ArticleResource,
+        Article,
       );
 
-      normalize({ id, title: 'hello' }, ArticleResource, first);
+      normalize({ id, title: 'hello' }, Article, first);
 
-      const [merged] = denormalize(id, ArticleResource, first);
-      expect(merged).toBeInstanceOf(ArticleResource);
+      const [merged] = denormalize(id, Article, first);
+      expect(merged).toBeInstanceOf(Article);
       expect(merged).toEqual(
-        ArticleResource.fromJS({
+        Article.fromJS({
           id,
           title: 'hi',
           content: 'this is the content',
@@ -118,17 +116,14 @@ describe('normalizer() merging', () => {
 
     it('should still clone even when overwriting', () => {
       const id = 20;
-      const { entities: first } = normalize(
-        { id },
-        new schema.Delete(ArticleResource),
-      );
+      const { entities: first } = normalize({ id }, new schema.Delete(Article));
 
       const nested = { id, title: 'hello' };
-      const { entities } = normalize(nested, ArticleResource, first);
+      const { entities } = normalize(nested, Article, first);
 
       expect(entities).toMatchInlineSnapshot(`
         {
-          "http://test.com/article/": {
+          "Article": {
             "20": {
               "id": 20,
               "title": "hello",
@@ -137,7 +132,7 @@ describe('normalizer() merging', () => {
         }
       `);
 
-      expect(entities[ArticleResource.key][id]).not.toBe(nested);
+      expect(entities[Article.key][id]).not.toBe(nested);
     });
   });
 });

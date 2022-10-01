@@ -25,14 +25,14 @@ export const createPayload = {
 };
 
 export const detail: FixtureEndpoint = {
-  endpoint: FutureArticleResource.detail(),
+  endpoint: FutureArticleResource.get,
   args: [5],
   response: payload,
 };
 
 export const nested: FixtureEndpoint = {
-  endpoint: FutureArticleResource.list(),
-  args: [{}],
+  endpoint: FutureArticleResource.getList,
+  args: [],
   response: [
     {
       id: 5,
@@ -75,7 +75,7 @@ describe('resetEntireStore', () => {
     const { result } = renderRestHook(
       () => {
         return {
-          data: useCache(FutureArticleResource.detail(), 5),
+          data: useCache(FutureArticleResource.get, 5),
           controller: useController(),
         };
       },
@@ -186,7 +186,7 @@ describe('resetEntireStore', () => {
       );
       expect(result.current).toBeDefined();
       expect(result.current?.title).not.toEqual('latest and greatest title');
-      fetch(CoolerArticleDetail, { id: 9999 }).catch(e => {
+      fetch(CoolerArticleDetail, { id: 9999 }).catch((e: any) => {
         console.log('...', e);
       });
       jest.advanceTimersByTime(1000);

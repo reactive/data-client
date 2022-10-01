@@ -59,11 +59,9 @@ export type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> =
     ? S['prototype'] // this is the case of a non-set schema, which means it actually has no members
     : string extends keyof S['schema']
     ? S['prototype']
-    : {
-        [K in keyof S['prototype']]: K extends keyof S['schema']
-          ? DenormalizeNullable<S['schema'][K]>
-          : S['prototype'][K];
-      };
+    : S['prototype'] /*& {
+        [K in keyof S['schema']]: DenormalizeNullable<S['schema'][K]>;
+      }*/;
 
 export type DenormalizeReturnType<T> = T extends (
   input: any,

@@ -1,15 +1,15 @@
 import { useController } from 'rest-hooks';
 import { styled } from '@linaria/react';
 import { memo, useCallback } from 'react';
-import TodoResource from 'resources/TodoResource';
+import { TodoResource, Todo } from 'resources/TodoResource';
 
-function TodoListItem({ todo }: { todo: TodoResource }) {
+function TodoListItem({ todo }: { todo: Todo }) {
   const controller = useController();
 
   const toggleHandler = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       await controller.fetch(
-        TodoResource.partialUpdate(),
+        TodoResource.partialUpdate,
         { id: todo.id },
         { completed: e.currentTarget.checked },
       );

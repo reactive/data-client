@@ -26,16 +26,16 @@ export class Comment extends GithubEntity {
     updatedAt: Date,
   };
 }
-const baseResource = createGithubResource(
-  '/repos/:owner/:repo/issues/comments/:id' as const,
-  Comment,
-);
+const baseResource = createGithubResource({
+  path: '/repos/:owner/:repo/issues/comments/:id',
+  schema: Comment,
+});
 const getList = baseResource.getList.extend({
-  path: '/repos/:owner/:repo/issues/:number/comments' as const,
+  path: '/repos/:owner/:repo/issues/:number/comments',
   body: undefined,
 });
 const create = baseResource.create.extend({
-  path: '/repos/:owner/:repo/issues/:number/comments' as const,
+  path: '/repos/:owner/:repo/issues/:number/comments',
   body: { body: '' },
   update: (newId: string, params: any) => ({
     [getList.key(params)]: ({ results = [], ...rest } = {}) => ({
