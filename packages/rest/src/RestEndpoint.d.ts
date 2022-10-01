@@ -4,6 +4,7 @@ import type {
   EndpointInstanceInterface,
   Schema,
   FetchFunction,
+  ResolveType,
 } from '@rest-hooks/endpoint';
 
 import { PathArgs } from './pathTypes.js';
@@ -41,7 +42,7 @@ export interface RestInstance<
   /** @see https://resthooks.io/rest/api/RestEndpoint#parseResponse */
   parseResponse(response: Response): Promise<any>;
   /** @see https://resthooks.io/rest/api/RestEndpoint#process */
-  process(value: any, ...args: Parameters<F>): any;
+  process(value: any, ...args: Parameters<F>): ResolveType<F>;
 
   /* extenders */
   paginated<
@@ -73,7 +74,8 @@ type OptionsToFunction<
       PathArgs<Exclude<O['path'], undefined>>,
       'body' extends keyof O ? O['body'] : undefined,
       'schema' extends keyof O ? O['schema'] : E['schema'],
-      'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect']
+      'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
+      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>
     >
   : F;
 
@@ -86,7 +88,9 @@ export type RestExtendedEndpoint<
   RestInstance<
     (
       ...args: Parameters<E>
-    ) => 'schema' extends keyof O ? Promise<O['schema']> : ReturnType<E>,
+    ) => O['process'] extends {}
+      ? Promise<ReturnType<O['process']>>
+      : ReturnType<E>,
     'schema' extends keyof O ? O['schema'] : E['schema'],
     'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect']
   >
@@ -99,13 +103,15 @@ export interface RestGenerics {
   readonly schema?: Schema | undefined;
   readonly method?: string;
   readonly body?: any;
+  /** @see https://resthooks.io/rest/api/RestEndpoint#process */
+  process?(value: any, ...args: any): any;
 }
 
 export type PaginationEndpoint<
   E extends RestInstance,
   A extends any[],
 > = RestInstance<
-  ParamFetchNoBody<A[0], any /*Denormalize<E['schema']>*/>,
+  ParamFetchNoBody<A[0], ResolveType<E>>,
   E['schema'],
   E['sideEffect']
 >;
@@ -124,7 +130,6 @@ export interface RestEndpointOptions<F extends FetchFunction = FetchFunction>
   key?(...args: Parameters<F>): string;
   sideEffect?: true | undefined;
   name?: string;
-  process?(res: any, ...args: any): any;
   signal?: AbortSignal;
   url?(...args: Parameters<F>): string;
   getHeaders?(headers: HeadersInit): HeadersInit;
@@ -139,7 +144,9 @@ export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
     RestFetch<
       PathArgs<O['path']>,
       BodyDefault<O>,
-      any /*Denormalize<O['schema']>*/
+      O['process'] extends {}
+        ? ReturnType<O['process']>
+        : any /*Denormalize<O['schema']>*/
     >
   >;
 
@@ -152,7 +159,10 @@ export interface RestEndpointConstructor {
   }: Readonly<RestEndpointConstructorOptions<O> & O>): RestInstance<
     RestFetch<
       PathArgs<O['path']>,
-      BodyDefault<O> /*, Denormalize<O['schema']>*/
+      BodyDefault<O>,
+      O['process'] extends {}
+        ? ReturnType<O['process']>
+        : any /*Denormalize<O['schema']>*/
     >,
     O['schema'] extends Schema | undefined ? O['schema'] : undefined,
     MethodToSide<O['method']>
@@ -178,10 +188,11 @@ export type RestType<
   Body = any,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined,
+  R = any,
   // eslint-disable-next-line @typescript-eslint/ban-types
 > = Body extends {}
-  ? RestTypeWithBody<UrlParams, S, M, Body>
-  : RestTypeNoBody<UrlParams, S, M>;
+  ? RestTypeWithBody<UrlParams, S, M, Body, R>
+  : RestTypeNoBody<UrlParams, S, M, R>;
 
 export type RestTypeWithBody<
   UrlParams = any,

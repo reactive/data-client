@@ -35,7 +35,8 @@ export class Article extends Entity {
 }
 
 export const ArticleResource = createResource({
-  path: 'http\\://test.com/article/:id',
+  urlPrefix: 'http://test.com',
+  path: '/article/:id',
   schema: Article,
 });
 ```
@@ -55,7 +56,8 @@ export class Article extends Entity {
   }
 }
 export const ArticleResource = createResource({
-  path: 'http\\://test.com/article/:id',
+  urlPrefix: 'http://test.com',
+  path: '/article/:id',
   schema: Article,
 });
 ```

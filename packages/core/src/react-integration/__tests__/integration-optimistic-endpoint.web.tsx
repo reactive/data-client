@@ -260,7 +260,10 @@ describe.each([
       expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3]);
 
       const createOptimistic = FutureArticleResource.create.extend({
-        getOptimisticResponse: (snap, body) => ({ id: Math.random(), ...body }),
+        getOptimisticResponse: (snap, body) => ({
+          id: Math.random(),
+          ...(body as any),
+        }),
       });
       act(() => {
         result.current.fetch(createOptimistic, {
