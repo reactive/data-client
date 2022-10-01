@@ -1,11 +1,12 @@
 import nock from 'nock';
-import { useController, useSuspense } from '@rest-hooks/core';
+import { useController } from '@rest-hooks/core';
 import { act } from '@testing-library/react-hooks';
-import { Entity, Schema, schema } from '@rest-hooks/endpoint';
+import { Entity, Schema } from '@rest-hooks/endpoint';
+import { useSuspense } from '@rest-hooks/core';
 
 import RestEndpoint from '../RestEndpoint';
 import createResource from '../createResource';
-import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
+import { makeRenderRestHook, makeCacheProvider } from '../../../test';
 import {
   payload,
   createPayload,
@@ -26,10 +27,10 @@ export class User extends Entity {
     return this.id?.toString();
   }
 }
-export const UserResource = createResource(
-  'http\\://test.com/user/:id' as const,
-  User,
-);
+export const UserResource = createResource({
+  path: 'http\\://test.com/user/:id',
+  schema: User,
+});
 export class PaginatedArticle extends Entity {
   readonly id: number | undefined = undefined;
   readonly title: string = '';
@@ -45,17 +46,21 @@ export class PaginatedArticle extends Entity {
     author: User,
   };
 }
-function createPaginatableResource<U extends string, S extends Schema>(
-  path: U,
-  schema: S,
-  Endpoint: typeof RestEndpoint = RestEndpoint,
-) {
-  const baseResource = createResource(path, schema, Endpoint);
+function createPaginatableResource<U extends string, S extends Schema>({
+  path,
+  schema,
+  Endpoint = RestEndpoint,
+}: {
+  readonly path: U;
+  readonly schema: S;
+  readonly Endpoint?: typeof RestEndpoint;
+}) {
+  const baseResource = createResource({ path, schema, Endpoint });
   const getList = baseResource.getList.extend({
-    path: 'http\\://test.com/article-paginated' as const,
+    path: 'http\\://test.com/article-paginated',
     schema: {
       nextPage: '',
-      results: [PaginatedArticle],
+      data: { results: [PaginatedArticle] },
     },
   });
   const getNextPage = getList.paginated((v: { cursor: string | number }) => []);
@@ -65,17 +70,16 @@ function createPaginatableResource<U extends string, S extends Schema>(
     getNextPage,
   };
 }
-const PaginatedArticleResource = createPaginatableResource(
-  'http\\://test.com/article-paginated/:id' as const,
-  PaginatedArticle,
-  RestEndpoint,
-);
+const PaginatedArticleResource = createPaginatableResource({
+  path: 'http\\://test.com/article-paginated/:id',
+  schema: PaginatedArticle,
+});
 
 export class UrlArticle extends PaginatedArticle {
   readonly url: string = 'happy.com';
 }
 
-describe('Resource', () => {
+describe('createResource()', () => {
   const renderRestHook: ReturnType<typeof makeRenderRestHook> =
     makeRenderRestHook(makeCacheProvider);
   let mynock: nock.Scope;
@@ -135,10 +139,10 @@ describe('Resource', () => {
   });
 
   it('should handle multiarg urls', () => {
-    const MyUserResource = createResource(
-      'http\\://test.com/groups/:group/users/:id' as const,
-      User,
-    );
+    const MyUserResource = createResource({
+      path: 'http\\://test.com/groups/:group/users/:id',
+      schema: User,
+    });
 
     expect(MyUserResource.get.url({ group: 'big', id: '5' })).toBe(
       'http://test.com/groups/big/users/5',
@@ -199,9 +203,10 @@ describe('Resource', () => {
 
     const { result, waitForNextUpdate } = renderRestHook(() => {
       const { fetch } = useController();
-      const { results: articles, nextPage } = useSuspense(
-        PaginatedArticleResource.getList,
-      );
+      const {
+        data: { results: articles },
+        nextPage,
+      } = useSuspense(PaginatedArticleResource.getList);
       return { articles, nextPage, fetch };
     });
     await waitForNextUpdate();
@@ -225,9 +230,10 @@ describe('Resource', () => {
 
     const { result, waitForNextUpdate } = renderRestHook(() => {
       const { fetch } = useController();
-      const { results: articles, nextPage } = useSuspense(
-        PaginatedArticleResource.getList,
-      );
+      const {
+        data: { results: articles },
+        nextPage,
+      } = useSuspense(PaginatedArticleResource.getList);
       return { articles, nextPage, fetch };
     });
     await waitForNextUpdate();
@@ -256,10 +262,10 @@ describe('Resource', () => {
         return this.id;
       }
     }
-    const ComplexResource = createResource(
-      '/complex-thing/:id' as const,
-      ComplexEntity,
-    );
+    const ComplexResource = createResource({
+      path: '/complex-thing/:id',
+      schema: ComplexEntity,
+    });
     const firstResponse = {
       id: '5',
       complexThing: {

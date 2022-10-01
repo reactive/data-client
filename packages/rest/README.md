@@ -1,4 +1,5 @@
 # Rest Hooks for REST
+
 [![CircleCI](https://circleci.com/gh/coinbase/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/coinbase/rest-hooks)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/coinbase/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/coinbase/rest-hooks?branch=master)
 [![npm downloads](https://img.shields.io/npm/dm/@rest-hooks/rest.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/rest)
@@ -18,16 +19,21 @@ Extensible CRUD patterns for REST APIs.
 ### Simple TypeScript definition
 
 ```typescript
-import { Resource } from '@rest-hooks/rest';
+import { Entity, createResource } from '@rest-hooks/rest';
 
-class ArticleResource extends Resource {
+class Article extends Entity {
   readonly id: number | undefined = undefined;
   readonly title: string = '';
   readonly body: string = '';
 
-  pk() { return this.id; }
-  static urlRoot = '/articles/';
+  pk() {
+    return this.id;
+  }
 }
+const ArticleResource = createResource({
+  path: '/articles/:id',
+  schema: Article,
+});
 ```
 
 ### Standard CRUD Endpoints
@@ -35,51 +41,19 @@ class ArticleResource extends Resource {
 #### Reads
 
 ```typescript
-const article = useSuspense(ArticleResource.detail(), { id: 5 });
-const articles = useSuspense(ArticleResource.list());
+const article = useSuspense(ArticleResource.get, { id: 5 });
+const articles = useSuspense(ArticleResource.getList);
 ```
 
 #### Mutates
 
 ```typescript
 const { fetch } = useController();
-const updateArticle = data => fetch(ArticleResource.update(), { id }, data);
-const partialUpdateArticle = data => fetch(ArticleResource.partialUpdate(), { id }, data);
-const createArticle = data => fetch(ArticleResource.create(), data);
-const deleteArticle = data => fetch(ArticleResource.delete(), { id });
-```
-
-### DRY Customization
-
-```typescript
-import { HookableResource } from '@rest-hooks/rest';
-import { useAuth } from 'my-auth-lib';
-
-abstract class AuthdResource extends HookableResource {
-  static useFetchInit = (init: RequestInit) => {
-    const { session } = useAuth();
-    return {
-    ...options,
-      headers: {
-        ...options.headers,
-        'Access-Token': session,
-      },
-    }
-  };
-}
-```
-
-```typescript
-import type { ReadEndpoint, FetchFunction } from '@rest-hooks/endpoint';
-
-import AuthdResource from './AuthdResource';
-
-export default class UserResource extends AuthdResource {
-  /** Retrieves current logged in user */
-  static useCurrent<T extends typeof Resource>(this: T): ReadEndpoint<FetchFunction, T> {
-    return super.useDetail().extend({ url: () => '/current_user' });
-  }
-}
+const updateArticle = data => fetch(ArticleResource.update, { id }, data);
+const partialUpdateArticle = data =>
+  fetch(ArticleResource.partialUpdate, { id }, data);
+const createArticle = data => fetch(ArticleResource.create, data);
+const deleteArticle = data => fetch(ArticleResource.delete, { id });
 ```
 
 ### Prior Art

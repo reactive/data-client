@@ -1,52 +1,14 @@
-import { ContextAuthdArticle, UserResource } from '__tests__/new';
+import { CoolerArticleResource, CoolerArticle, User } from '__tests__/new';
 import nock from 'nock';
-import { schema } from '@rest-hooks/endpoint';
 import { useController, useSuspense } from '@rest-hooks/core';
 
-import HookableResource from '../HookableResource';
+import hookifyResource from '../hookifyResource';
 import { makeRenderRestHook, makeCacheProvider } from '../../../test';
 
-export class HookableArticle extends HookableResource {
-  readonly id: number | undefined = undefined;
-  readonly title: string = '';
-  readonly content: string = '';
-  readonly author: UserResource | null = null;
-  readonly tags: string[] = [];
-
-  pk() {
-    return this.id?.toString();
-  }
-
-  static schema = {
-    author: UserResource,
-  };
-
-  static urlRoot = 'http://test.com/article/';
-  static url(urlParams?: any): string {
-    if (urlParams && !urlParams.id) {
-      return `${this.urlRoot}${urlParams.title}`;
-    }
-    return super.url(urlParams);
-  }
-
-  static useListWithUser<T extends typeof HookableArticle>(this: T) {
-    return this.useList().extend({
-      url: (
-        params: Readonly<Record<string, string | number | boolean>> | undefined,
-      ) => this.listUrl({ ...params, includeUser: true }),
-    });
-  }
-}
-
-export class UrlArticleResource extends HookableArticle {
-  readonly url: string = 'happy.com';
-}
-export class CoolerArticleResource extends HookableArticle {
-  static urlRoot = 'http://test.com/article-cooler/';
-  get things() {
-    return `${this.title} five`;
-  }
-}
+const CoolerArticleHookResource = hookifyResource(
+  CoolerArticleResource,
+  () => ({}),
+);
 
 function onError(e: any) {
   e.preventDefault();
@@ -60,7 +22,7 @@ afterEach(() => {
     removeEventListener('error', onError);
 });
 
-describe('HookableResource', () => {
+describe('hookifyResource()', () => {
   beforeAll(() => {
     nock(/.*/)
       .persist()
@@ -76,32 +38,6 @@ describe('HookableResource', () => {
     nock.cleanAll();
   });
 
-  it('should implement schema.EntityInterface', () => {
-    class A extends HookableResource {
-      readonly id: string = '';
-      pk() {
-        return this.id;
-      }
-    }
-    const a: schema.EntityInterface = A;
-  });
-
-  it('should init', () => {
-    const author = UserResource.fromJS({ id: 5 });
-    const resource = CoolerArticleResource.fromJS({
-      id: 5,
-      title: 'happy',
-      author,
-    });
-    expect(resource.pk()).toBe('5');
-    expect(CoolerArticleResource.pk(resource)).toBe('5');
-    expect(resource.title).toBe('happy');
-    expect(resource.things).toBe('happy five');
-    expect(resource.url).toBe('http://test.com/article-cooler/5');
-    expect(resource.author).toBe(author);
-    expect(resource.author?.pk()).toBe('5');
-  });
-
   describe('HookableResource endpoints', () => {
     const id = 5;
     const idHtml = 6;
@@ -109,7 +45,7 @@ describe('HookableResource', () => {
     const payload = {
       id,
       title: 'happy',
-      author: UserResource.fromJS({ id: 5 }),
+      author: User.fromJS({ id: 5 }),
     };
     const putResponseBody = {
       id,
@@ -137,13 +73,13 @@ describe('HookableResource', () => {
         })
         .get(`/article-cooler/${payload.id}`)
         .reply(200, payload)
-        .get(`/article-cooler/`)
+        .get(`/article-cooler`)
         .reply(200, [payload])
         .get(`/article-cooler/${idHtml}`)
         .reply(200, '<body>this is html</body>')
         .get(`/article-cooler/${idNoContent}`)
         .reply(204, '')
-        .post('/article-cooler/')
+        .post('/article-cooler')
         .reply((uri, requestBody) => [
           201,
           requestBody,
@@ -155,7 +91,7 @@ describe('HookableResource', () => {
           if (typeof requestBody === 'string') {
             body = JSON.parse(requestBody);
           }
-          for (const key of Object.keys(CoolerArticleResource.fromJS({}))) {
+          for (const key of Object.keys(CoolerArticle.fromJS({}))) {
             if (key !== 'id' && !(key in body)) {
               return [400, {}, { 'content-type': 'application/json' }];
             }
@@ -174,7 +110,7 @@ describe('HookableResource', () => {
 
     it('useDetail', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() =>
-        useSuspense(CoolerArticleResource.useDetail(), payload),
+        useSuspense(CoolerArticleHookResource.useGet(), { id: payload.id }),
       );
       await waitForNextUpdate();
       expect(result.current).toBeDefined();
@@ -183,7 +119,7 @@ describe('HookableResource', () => {
 
     it('useList', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() =>
-        useSuspense(CoolerArticleResource.useList()),
+        useSuspense(CoolerArticleHookResource.useGetList()),
       );
       await waitForNextUpdate();
       expect(result.current).toBeDefined();
@@ -191,7 +127,7 @@ describe('HookableResource', () => {
 
     it('useCreate', async () => {
       const { result } = renderRestHook(() => ({
-        endpoint: CoolerArticleResource.useCreate(),
+        endpoint: CoolerArticleHookResource.useCreate(),
         fetch: useController().fetch,
       }));
       const payload2 = { id: 20, content: 'better task' };
@@ -206,7 +142,7 @@ describe('HookableResource', () => {
 
     it('useDelete', async () => {
       const { result } = renderRestHook(() => ({
-        endpoint: CoolerArticleResource.useDelete(),
+        endpoint: CoolerArticleHookResource.useDelete(),
         fetch: useController().fetch,
       }));
 
@@ -218,19 +154,23 @@ describe('HookableResource', () => {
 
     it('useUpdate', async () => {
       const { result } = renderRestHook(() => ({
-        endpoint: CoolerArticleResource.useUpdate(),
+        endpoint: CoolerArticleHookResource.useUpdate(),
         fetch: useController().fetch,
       }));
 
-      const res = await result.current.fetch(result.current.endpoint, payload, {
-        ...CoolerArticleResource.fromJS(payload),
-      });
+      const res = await result.current.fetch(
+        result.current.endpoint,
+        { id: payload.id },
+        {
+          ...CoolerArticle.fromJS(payload),
+        },
+      );
       expect(res).toEqual(putResponseBody);
     });
 
     it('usePartialUpdate', async () => {
       const { result } = renderRestHook(() => ({
-        endpoint: CoolerArticleResource.usePartialUpdate(),
+        endpoint: CoolerArticleHookResource.usePartialUpdate(),
         fetch: useController().fetch,
       }));
 
@@ -243,26 +183,14 @@ describe('HookableResource', () => {
     });
 
     it('should use useFetchInit if defined (in endpoint method)', async () => {
-      class FetchResource extends CoolerArticleResource {
-        static useFetchInit = jest.fn(a => a);
-      }
-      const articleDetail = FetchResource.useDetail();
+      const useFetchInit = jest.fn(() => ({}));
+      const FetchResource = hookifyResource(
+        CoolerArticleResource,
+        useFetchInit,
+      );
+      const articleDetail = FetchResource.useGet();
       expect(articleDetail).toBeDefined();
-      expect(FetchResource.useFetchInit.mock.calls.length).toBeGreaterThan(0);
-    });
-
-    it('should use getFetchInit if defined (upon fetch)', async () => {
-      class FetchResource extends CoolerArticleResource {
-        static useFetchInit = jest.fn(a => a);
-        static getFetchInit = jest.fn(a => a);
-      }
-      const articleDetail = FetchResource.useDetail();
-      expect(articleDetail).toBeDefined();
-      expect(FetchResource.getFetchInit.mock.calls.length).toBe(0);
-
-      const article = await articleDetail(payload);
-      expect(article).toBeDefined();
-      expect(FetchResource.getFetchInit.mock.calls.length).toBeGreaterThan(0);
+      expect(useFetchInit.mock.calls.length).toBeGreaterThan(0);
     });
   });
 });

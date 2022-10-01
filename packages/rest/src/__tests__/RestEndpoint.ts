@@ -1,14 +1,16 @@
 import nock from 'nock';
-import { useController, useSuspense } from '@rest-hooks/core';
+import { useController } from '@rest-hooks/core';
 import { act } from '@testing-library/react-hooks';
 import { Entity } from '@rest-hooks/endpoint';
+import { useSuspense } from '@rest-hooks/core';
+import { CoolerArticle, CoolerArticleResource } from '__tests__/new';
 
 import RestEndpoint, {
   Defaults,
   RestEndpointConstructorOptions,
   RestGenerics,
 } from '../RestEndpoint';
-import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
+import { makeRenderRestHook, makeCacheProvider } from '../../../test';
 import {
   payload,
   createPayload,
@@ -30,10 +32,10 @@ export class User extends Entity {
   }
 }
 const getUser = new RestEndpoint({
-  path: 'http\\://test.com/user/:id' as const,
+  path: 'http\\://test.com/user/:id',
   name: 'User.get',
   schema: User,
-  method: 'GET' as const,
+  method: 'GET',
 });
 export class PaginatedArticle extends Entity {
   readonly id: number | undefined = undefined;
@@ -51,26 +53,27 @@ export class PaginatedArticle extends Entity {
   };
 }
 const getArticleList = new RestEndpoint({
-  path: 'http\\://test.com/article-paginated' as const,
+  path: 'http\\://test.com/article-paginated',
   name: 'get',
   schema: {
     nextPage: '',
-    results: [PaginatedArticle],
+    data: { results: [PaginatedArticle] },
   },
-  method: 'GET' as const,
+  method: 'GET',
 });
 const getNextPage = getArticleList.paginated(
   (v: { cursor: string | number }) => [],
 );
 
 const getArticleList2 = new RestEndpoint({
-  path: 'http\\://test.com/article-paginated/:group' as const,
+  urlPrefix: 'http://test.com/article-paginated/',
+  path: ':group',
   name: 'get',
   schema: {
     nextPage: '',
-    results: [PaginatedArticle],
+    data: { results: [PaginatedArticle] },
   },
-  method: 'GET' as const,
+  method: 'GET',
 });
 const getNextPage2 = getArticleList2.paginated(
   ({
@@ -137,10 +140,10 @@ describe('RestEndpoint', () => {
     ((m: 'POST') => {})(getUser.method);
 
     const updateUser = new RestEndpoint({
-      path: 'http\\://test.com/user/:id' as const,
+      path: 'http\\://test.com/user/:id',
       name: 'update',
       schema: User,
-      method: 'POST' as const,
+      method: 'POST',
     });
     expect(updateUser.sideEffect).toBe(true);
     // @ts-expect-error
@@ -149,10 +152,10 @@ describe('RestEndpoint', () => {
 
   /* TODO: it('should allow sideEffect overrides', () => {
     const weirdGetUser = new RestEndpoint({
-      path: 'http\\://test.com/user/:id' as const,
+      path: 'http\\://test.com/user/:id',
       name: 'getter',
       schema: User,
-      method: 'POST' as const,
+      method: 'POST',
       sideEffect: undefined,
     });
 
@@ -171,9 +174,9 @@ describe('RestEndpoint', () => {
 
   it('should handle multiarg urls', () => {
     const getMyUser = new RestEndpoint({
-      path: 'http\\://test.com/groups/:group/users/:id' as const,
+      path: 'http\\://test.com/groups/:group/users/:id',
       schema: User,
-      method: 'GET' as const,
+      method: 'GET',
       extra: 5,
     });
 
@@ -215,7 +218,10 @@ describe('RestEndpoint', () => {
 
     const { result, waitForNextUpdate } = renderRestHook(() => {
       const { fetch } = useController();
-      const { results: articles, nextPage } = useSuspense(getArticleList);
+      const {
+        data: { results: articles },
+        nextPage,
+      } = useSuspense(getArticleList);
       return { articles, nextPage, fetch };
     });
     await waitForNextUpdate();
@@ -239,7 +245,10 @@ describe('RestEndpoint', () => {
 
     const { result, waitForNextUpdate } = renderRestHook(() => {
       const { fetch } = useController();
-      const { results: articles, nextPage } = useSuspense(getArticleList2, {
+      const {
+        data: { results: articles },
+        nextPage,
+      } = useSuspense(getArticleList2, {
         group: 'happy',
       });
       return { articles, nextPage, fetch };
@@ -271,7 +280,10 @@ describe('RestEndpoint', () => {
 
     const { result, waitForNextUpdate } = renderRestHook(() => {
       const { fetch } = useController();
-      const { results: articles, nextPage } = useSuspense(getArticleList);
+      const {
+        data: { results: articles },
+        nextPage,
+      } = useSuspense(getArticleList);
       return { articles, nextPage, fetch };
     });
     await waitForNextUpdate();
@@ -301,9 +313,9 @@ describe('RestEndpoint', () => {
       }
     }
     const getComplex = new RestEndpoint({
-      path: '/complex-thing/:id' as const,
+      path: '/complex-thing/:id',
       schema: ComplexEntity,
-      method: 'GET' as const,
+      method: 'GET',
     });
 
     const firstResponse = {
@@ -348,18 +360,18 @@ describe('RestEndpoint', () => {
       ...body,
     }));
     const updateUser = new RestEndpoint({
-      method: 'PUT' as const,
-      path: 'http\\://test.com/user/:id' as const,
+      method: 'PUT',
+      path: 'http\\://test.com/user/:id',
       name: 'get',
       schema: User,
-      getFetchInit(body: any): RequestInit {
+      getRequestInit(body): RequestInit {
         if (body && isPojo(body)) {
-          return RestEndpoint.prototype.getFetchInit.call(this, {
+          return RestEndpoint.prototype.getRequestInit.call(this, {
             ...body,
             email: 'always@always.com',
           });
         }
-        return RestEndpoint.prototype.getFetchInit.call(this, body);
+        return RestEndpoint.prototype.getRequestInit.call(this, body);
       },
     });
     const response = await updateUser(
@@ -383,7 +395,7 @@ describe('RestEndpoint', () => {
     class MyEndpoint<O extends RestGenerics = any> extends RestEndpoint<
       Defaults<O, { schema: DefaultUser }>
     > {
-      constructor(options: O & RestEndpointConstructorOptions<O>) {
+      constructor(options: Readonly<RestEndpointConstructorOptions<O> & O>) {
         super({ schema: DefaultUser, ...options } as any);
       }
 
@@ -391,11 +403,11 @@ describe('RestEndpoint', () => {
         return super.parseResponse(response);
       }
 
-      getFetchInit(body: any): RequestInit {
+      getRequestInit(body: any): RequestInit {
         if (isPojo(body)) {
-          return super.getFetchInit({ ...body, email: 'always@always.com' });
+          return super.getRequestInit({ ...body, email: 'always@always.com' });
         }
-        return super.getFetchInit(body);
+        return super.getRequestInit(body);
       }
 
       additional = 5;
@@ -409,8 +421,8 @@ describe('RestEndpoint', () => {
       }));
 
       const updateUser = new MyEndpoint({
-        method: 'PUT' as const,
-        path: 'http\\://test.com/user/:id' as const,
+        method: 'PUT',
+        path: 'http\\://test.com/user/:id',
         name: 'update',
         schema: User,
       });
@@ -436,13 +448,13 @@ describe('RestEndpoint', () => {
       }));
 
       const updateUser = new MyEndpoint({
-        method: 'PUT' as const,
-        path: 'http\\://test.com/user/:id' as const,
+        method: 'PUT',
+        path: 'http\\://test.com/user/:id',
         name: 'update',
         schema: User,
       }).extend({
         body: 5,
-        path: 'http\\://test.com/charmer/:charm' as const,
+        path: 'http\\://test.com/charmer/:charm',
       });
       const response = await updateUser(
         { charm: 5 },
@@ -459,7 +471,7 @@ describe('RestEndpoint', () => {
       `);
       expect(updateUser.additional).toBe(5);
       const nobody = updateUser.extend({
-        path: 'http\\://test.com/user/:charm' as const,
+        path: 'http\\://test.com/user/:charm',
       });
       () => nobody({ charm: 5 });
       // @ts-expect-error
@@ -474,7 +486,7 @@ describe('RestEndpoint', () => {
       }));
 
       const getUser = new MyEndpoint({
-        path: 'http\\://test.com/user/:id' as const,
+        path: 'http\\://test.com/user/:id',
         name: 'update',
       });
       const { result, waitForNextUpdate } = renderRestHook(() => {
@@ -504,15 +516,15 @@ describe('RestEndpoint', () => {
       > extends MyEndpoint<
         Defaults<O, { schema: DefaultUser; path: 'http\\://test.com/user/:id' }>
       > {
-        constructor(options: O & { name: string }) {
+        constructor(options: Readonly<O & { name: string }>) {
           super(options as any);
         }
 
-        path = 'http\\://test.com/user/:id' as const;
+        readonly path = 'http\\://test.com/user/:id';
       }
 
       const getUser = new UserEndpoint({
-        method: 'GET' as const,
+        method: 'GET',
         name: 'update',
       });
       const { result, waitForNextUpdate } = renderRestHook(() => {
@@ -542,12 +554,12 @@ describe('RestEndpoint', () => {
       }));
 
       const updateUser = new MyEndpoint({
-        method: 'PUT' as const,
-        path: 'http\\://test.com/user/:id' as const,
+        method: 'PUT',
+        path: 'http\\://test.com/user/:id',
         name: 'update',
         schema: User,
       }).extend({
-        path: 'http\\://test.com/:group/user/:id' as const,
+        path: 'http\\://test.com/:group/user/:id',
         body: 0 as Partial<User>,
       });
       expect(updateUser.additional).toBe(5);
@@ -584,12 +596,12 @@ describe('RestEndpoint', () => {
 
       const getUserBase = new MyEndpoint({
         method: 'GET',
-        path: 'http\\://test.com/user/:id' as const,
+        path: 'http\\://test.com/user/:id',
         name: 'getuser',
         schema: User,
       });
       const getUser = getUserBase.extend({
-        path: 'http\\://test.com/:group/user/:id' as const,
+        path: 'http\\://test.com/:group/user/:id',
         schema: User2,
       });
       expect(getUserBase.name).toBe('getuser');
@@ -598,7 +610,13 @@ describe('RestEndpoint', () => {
       expect(getUser.method).toBe('GET');
       const user = await getUser({ group: '6', id: 5 });
       expect(user.username2).toBe('charles');
-      // @ts-expect-error
+      () => {
+        const a = useSuspense(getUser, { group: '6', id: 5 });
+        // @ts-expect-error
+        a.username;
+      };
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       expect(user.username).toBeUndefined();
       expect(user).toMatchInlineSnapshot(`
         {
@@ -607,6 +625,268 @@ describe('RestEndpoint', () => {
         }
       `);
     });
+  });
+  it('extending with name should work', () => {
+    const endpoint = CoolerArticleResource.get.extend({ name: 'mything' });
+    expect(endpoint.name).toBe('mything');
+  });
+  it('should infer default method when sideEffect is set', async () => {
+    const endpoint = new RestEndpoint({
+      sideEffect: true,
+      path: 'http\\://test.com/article-cooler',
+      body: 0 as any,
+      schema: CoolerArticle,
+    }).extend({ name: 'createarticle' });
+    expect(endpoint.method).toBe('POST');
+    const article = await endpoint(payload);
+    expect(article).toMatchInlineSnapshot(`
+      {
+        "content": "whatever",
+        "id": 1,
+        "tags": [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      }
+    `);
+  });
+
+  it('extend options should match function of path set', () => {
+    const endpoint = new RestEndpoint({
+      sideEffect: true,
+      path: 'http\\://test.com/article-cooler/:id',
+      body: 0 as any,
+      schema: CoolerArticle,
+      getOptimisticResponse(snap, params, body) {
+        params.id;
+        // @ts-expect-error
+        params.two;
+
+        body.hi;
+      },
+    }).extend({
+      path: '/:group/next/:two',
+      body: undefined,
+      getOptimisticResponse(snap, params) {
+        params.two;
+        params.group;
+        // @ts-expect-error
+        params.id;
+      },
+    });
+  });
+});
+
+describe('RestEndpoint.fetch()', () => {
+  const id = 5;
+  const idHtml = 6;
+  const idNoContent = 7;
+  const payload = {
+    id,
+    title: 'happy',
+    author: User.fromJS({ id: 5 }),
+  };
+  const putResponseBody = {
+    id,
+    title: 'happy',
+    completed: true,
+  };
+  const patchPayload = {
+    title: 'happy',
+  };
+  const patchResponseBody = {
+    id,
+    title: 'happy',
+    completed: false,
+  };
+
+  beforeEach(() => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
+      .options(/.*/)
+      .reply(200)
+      .get(`/article-cooler/${payload.id}`)
+      .reply(200, payload)
+      .get(`/article-cooler/${idHtml}`)
+      .reply(200, '<body>this is html</body>')
+      .get(`/article-cooler/${idNoContent}`)
+      .reply(204, '')
+      .post('/article-cooler')
+      .reply((uri, requestBody) => [
+        201,
+        requestBody,
+        { 'content-type': 'application/json' },
+      ])
+      .put('/article-cooler/5')
+      .reply((uri, requestBody) => {
+        let body = requestBody as any;
+        if (typeof requestBody === 'string') {
+          body = JSON.parse(requestBody);
+        }
+        for (const key of Object.keys(CoolerArticle.fromJS({}))) {
+          if (key !== 'id' && !(key in body)) {
+            return [400, {}, { 'content-type': 'application/json' }];
+          }
+        }
+        return [200, putResponseBody, { 'content-type': 'application/json' }];
+      })
+      .patch('/article-cooler/5')
+      .reply(() => [
+        200,
+        patchResponseBody,
+        { 'content-type': 'application/json' },
+      ])
+      .intercept('/article-cooler/5', 'DELETE')
+      .reply(200, {});
+  });
+
+  afterEach(() => {
+    nock.cleanAll();
+  });
+
+  it('should GET', async () => {
+    const article = await CoolerArticleResource.get({
+      id: payload.id,
+    });
+    expect(article).toBeDefined();
+    if (!article) {
+      throw new Error('ahh');
+    }
+    expect(article.title).toBe(payload.title);
+  });
+
+  it('should POST', async () => {
+    const payload2 = { id: 20, content: 'better task' };
+    const article = await CoolerArticleResource.create(payload2);
+    expect(article).toMatchObject(payload2);
+  });
+
+  it('should PUT with multipart form data', async () => {
+    const payload2 = { id: 500, content: 'another' };
+    let lastRequest: any;
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+      })
+      .put('/article-cooler/500')
+      .reply(function (uri, requestBody) {
+        lastRequest = this.req;
+        return [201, payload2, { 'Content-Type': 'application/json' }];
+      });
+    const newPhoto = new Blob();
+    const body = new FormData();
+    body.append('photo', newPhoto);
+
+    const article = await CoolerArticleResource.update.extend({
+      path: CoolerArticleResource.update.path,
+      body: new FormData(),
+    })({ id: '500' }, body);
+    expect(lastRequest.headers['content-type']).toContain(
+      'multipart/form-data',
+    );
+    expect(article).toMatchObject(payload2);
+  });
+
+  it('should DELETE', async () => {
+    const res = await CoolerArticleResource.delete({
+      id: payload.id,
+    });
+    expect(res).toEqual({ id });
+  });
+
+  it('should PUT', async () => {
+    const response = await CoolerArticleResource.update(
+      { id: payload.id },
+      { ...CoolerArticle.fromJS(payload) },
+    );
+    expect(response).toEqual(putResponseBody);
+  });
+
+  it('should PATCH', async () => {
+    const response = await CoolerArticleResource.partialUpdate(
+      { id },
+      patchPayload,
+    );
+    expect(response).toEqual(patchResponseBody);
+  });
+
+  it('should throw if response is not json', async () => {
+    let error: any;
+    try {
+      await CoolerArticleResource.get({ id: idHtml });
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeDefined();
+    // This is very weird, but we're forced to use node-fetch for react native
+    // node-fetch doesn't handle errors consistently with normal fetch implementations, so this won't work
+    // react-native itself should match this correctly however.
+    if (typeof window !== 'undefined') expect(error.status).toBe(400);
+  });
+
+  it('should throw if network is down', async () => {
+    const oldError = console.error;
+    console.error = () => {};
+
+    const id = 10;
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
+      .get(`/article-cooler/${id}`)
+      .replyWithError(new TypeError('Network Down'));
+
+    let error: any;
+    try {
+      await CoolerArticleResource.get({ id });
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeDefined();
+    expect(error.status).toBe(400);
+
+    // eslint-disable-next-line require-atomic-updates
+    console.error = oldError;
+  });
+
+  it('should return raw response if status is 204 No Content', async () => {
+    const res = await CoolerArticleResource.get({ id: idNoContent });
+    expect(res).toBe('');
+  });
+
+  it('should return text if content-type is not json', async () => {
+    const id = 8;
+    const text = '<body>this is html</body>';
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
+      .get(`/article-cooler/${id}`)
+      .reply(200, text, { 'content-type': 'html/text' });
+
+    const res = await CoolerArticleResource.get({ id });
+    expect(res).toBe('<body>this is html</body>');
+  });
+
+  it('should return text if content-type does not exist', async () => {
+    const id = 10;
+    const text = '<body>this is html</body>';
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+      })
+      .get(`/article-cooler/${id}`)
+      .reply(200, text, {});
+
+    const res = await CoolerArticleResource.get({ id });
+    expect(res).toBe(text);
   });
 });
 const proto = Object.prototype;

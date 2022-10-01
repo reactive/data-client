@@ -1,14 +1,3 @@
-import type {
-  EndpointInstance,
-  EndpointInterface,
-  FetchFunction,
-  Schema,
-  EndpointExtendOptions,
-  EndpointInstanceInterface,
-  KeyofEndpointInstance,
-  Denormalize,
-} from '@rest-hooks/endpoint';
-
 /*export type Paginatable<
   E extends EndpointInterface<
     FetchFunction,
