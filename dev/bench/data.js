@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1664587387659,
+  "lastUpdate": 1664743650049,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -7700,6 +7700,58 @@ window.BENCHMARK_DATA = {
             "name": "receiveLong",
             "value": 99.37,
             "range": "±1.28%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "37f635bc1371840419917e34cf85097898d7d8b4",
+          "message": "enhance: Use process() option to infer return type of RestEndpoint (#2197)",
+          "timestamp": "2022-10-02T13:43:30-07:00",
+          "tree_id": "0679d4aee36aa7b6db79d06ce0a1d54cc8778db9",
+          "url": "https://github.com/coinbase/rest-hooks/commit/37f635bc1371840419917e34cf85097898d7d8b4"
+        },
+        "date": 1664743648590,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 87.19,
+            "range": "±1.33%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 42.52,
+            "range": "±0.94%",
+            "unit": "ops/sec",
+            "extra": "56 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 47.11,
+            "range": "±0.43%",
+            "unit": "ops/sec",
+            "extra": "61 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 85.97,
+            "range": "±1.46%",
             "unit": "ops/sec",
             "extra": "73 samples"
           }
