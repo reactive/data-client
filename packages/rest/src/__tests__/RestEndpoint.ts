@@ -653,6 +653,97 @@ describe('RestEndpoint', () => {
     `);
   });
 
+  describe('process() return type setting', () => {
+    const getArticle = new RestEndpoint({
+      path: 'http\\://test.com/article-cooler/:id',
+      process(value): CoolerArticle {
+        return value;
+      },
+    });
+
+    it('should work with constructors', async () => {
+      const article = await getArticle({ id: '5' });
+      article.author;
+      // @ts-expect-error
+      article.asdf;
+      () => useSuspense(getArticle, { id: '5' }).content;
+      // @ts-expect-error
+      () => useSuspense(getArticle, { id: '5' }).asdf;
+    });
+
+    it('should set on .extend()', async () => {
+      const getExtends = new RestEndpoint({
+        path: 'http\\://test.com/article-cooler/:id',
+      }).extend({
+        process(value: any): CoolerArticle {
+          return value;
+        },
+      });
+      const ex = await getExtends({ id: '5' });
+      ex.author;
+      // @ts-expect-error
+      ex.asdf;
+      () => useSuspense(getExtends, { id: '5' }).content;
+      // @ts-expect-error
+      () => useSuspense(getExtends, { id: '5' }).asdf;
+    });
+
+    it('should override existing type on .extend()', async () => {
+      const getOverride = getArticle.extend({
+        process(value: any, param: any): { asdf: string } {
+          return value;
+        },
+      });
+      const ov = await getOverride({ id: '5' });
+      ov.asdf;
+      // @ts-expect-error
+      ov.author;
+      () => useSuspense(getOverride, { id: '5' }).asdf;
+      // @ts-expect-error
+      () => useSuspense(getOverride, { id: '5' }).content;
+    });
+
+    it('should maintain existing type on .extend() when not specified', async () => {
+      const getOverride = getArticle.extend({
+        dataExpiryLength: 7,
+      });
+      const ov = await getOverride({ id: '5' });
+      ov.author;
+      // @ts-expect-error
+      ov.asdf;
+    });
+
+    it('should maintain existing type on .extend() when process is not supplied but path is', async () => {
+      const getOverride = getArticle.extend({
+        path: '/:a/:b',
+      });
+      async () => {
+        const ov = await getOverride({ a: '5', b: '7' });
+        ov.author;
+        // @ts-expect-error
+        ov.asdf;
+      };
+    });
+
+    it('should override existing type on .extend() when path is also supplied', async () => {
+      const getOverride = getArticle.extend({
+        path: '/:a/:b',
+        process(value: any, param: any): { asdf: string } {
+          return value;
+        },
+      });
+      async () => {
+        const ov = await getOverride({ a: '5', b: '7' });
+        ov.asdf;
+        // @ts-expect-error
+        ov.author;
+      };
+      () => useSuspense(getOverride, { a: '5', b: '7' }).asdf;
+      // @ts-expect-error
+      () => useSuspense(getOverride, { a: '5', b: '7' }).content;
+    });
+  });
+
   it('extend options should match function of path set', () => {
     const endpoint = new RestEndpoint({
       sideEffect: true,

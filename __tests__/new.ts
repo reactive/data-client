@@ -363,6 +363,21 @@ export const FutureArticleResource = {
     },
   }),
   create: CoolerArticleResource.create.extend({
+    path: '',
+    body: {} as {
+      id?: number;
+      title?: string;
+      content?: string;
+      tags?: string[];
+    },
+    process(value: any): {
+      id: number;
+      title: string;
+      content: string;
+      tags: string[];
+    } {
+      return value;
+    },
     update: (newid: string) => ({
       [CoolerArticleResource.getList.key()]: (existing: string[] = []) => [
         newid,

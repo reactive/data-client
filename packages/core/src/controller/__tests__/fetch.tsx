@@ -193,9 +193,17 @@ describe.each([
       );
       await waitForNextUpdate();
       await act(async () => {
-        await result.current.fetch(FutureArticleResource.create, {
-          id: 1,
-        });
+        const article = await result.current.fetch(
+          FutureArticleResource.create,
+          {
+            id: 1,
+          },
+        );
+        article.content;
+        // @ts-expect-error
+        article.asdf;
+        // @ts-expect-error
+        article.pk;
       });
 
       expect(result.current.articles.map(({ id }) => id)).toEqual([1, 5, 3]);
