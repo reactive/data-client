@@ -57,12 +57,21 @@ export default function MockResolver({
             ? action.meta.createdAt.getTime()
             : action.meta.createdAt;
         if (Object.hasOwn(fixtureMap, key)) {
+          const fixture = fixtureMap[key];
           // All updates must be async or React will complain about re-rendering in same pass
           setTimeout(() => {
-            const fixture = fixtureMap[key];
             try {
               if ('endpoint' in fixture) {
-                dispatchFixture(fixture, controller, createdAt);
+                dispatchFixture(
+                  'endpoint' in action
+                    ? {
+                        ...fixture,
+                        endpoint: action.endpoint as typeof fixture.endpoint,
+                      }
+                    : fixture,
+                  controller,
+                  createdAt,
+                );
               } else {
                 const receiveAction = actionFromFixture(fixture);
                 dispatch(receiveAction);
@@ -75,7 +84,7 @@ export default function MockResolver({
                 'endpoint' in fixture ? fixture.response : fixture.result,
               );
             }
-          }, 0);
+          }, fixture.delay ?? 0);
           return Promise.resolve();
         }
         if (!silenceMissing) {

@@ -23,7 +23,8 @@ export interface SuccessFixtureEndpoint<
 > {
   endpoint: E;
   args: Parameters<E>;
-  response: ResolveType<E>;
+  response: ResolveType<E> | ((...args: Parameters<E>) => ResolveType<E>);
+  delay?: number;
   error?: false;
 }
 
@@ -34,6 +35,7 @@ export interface SuccessFixture {
   body?: any;
   result: object | string | number;
   error?: false;
+  delay?: number;
 }
 
 export interface ErrorFixtureEndpoint<
@@ -43,6 +45,7 @@ export interface ErrorFixtureEndpoint<
   args: Parameters<E>;
   response: any;
   error: true;
+  delay?: number;
 }
 
 /** @deprecated */
@@ -52,6 +55,7 @@ export interface ErrorFixture {
   body?: any;
   result: Error;
   error: true;
+  delay?: number;
 }
 
 export type FixtureEndpoint = SuccessFixtureEndpoint | ErrorFixtureEndpoint;
@@ -120,7 +124,11 @@ export function dispatchFixture(
   controller: RestHooks.Controller,
   fetchedAt?: number,
 ) {
-  const { endpoint, args, response, error } = fixture;
+  const { endpoint, args, error } = fixture;
+  let response = fixture.response;
+  if (typeof fixture.response === 'function') {
+    response = fixture.response(...args);
+  }
   if (controller.resolve) {
     controller.resolve(endpoint, {
       args,
