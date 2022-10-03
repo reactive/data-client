@@ -44,6 +44,9 @@ div:first-of-type > .playgroundHeader {
   direction: ltr;
   height: 100%;
 }
+.playgroundEditor :global(.prism-code) {
+  border-radius: 0;
+}
 
 :global(.col) .playgroundPreview {
   padding: 1rem;

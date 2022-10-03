@@ -4,6 +4,7 @@ import * as rest from '@rest-hooks/rest';
 import * as hooks from '@rest-hooks/hooks';
 import * as graphql from '@rest-hooks/graphql';
 import BigNumber from 'bignumber.js';
+import { FixtureEndpoint } from '@rest-hooks/test';
 
 import {
   TodoResource as BaseTodoResource,
@@ -86,8 +87,9 @@ const HooksPlayground = ({
   endpointCode,
   groupId,
   hidden = false,
-  defaultOpen = 'n',
+  defaultOpen,
   row = false,
+  fixtures,
 }) => (
   <Playground
     scope={endpointCode ? scope : scopeWithEndpoint}
@@ -96,6 +98,7 @@ const HooksPlayground = ({
     defaultOpen={defaultOpen}
     row={row}
     hidden={hidden}
+    fixtures={fixtures}
   >
     {(endpointCode ? endpointCode + '\n\n' : '') +
       (typeof children === 'string'
@@ -103,4 +106,8 @@ const HooksPlayground = ({
         : children.props.children.props.children)}
   </Playground>
 );
+HooksPlayground.defaultProps = {
+  defaultOpen: 'n' as const,
+  fixtures: [] as FixtureEndpoint[],
+};
 export default memo(HooksPlayground);

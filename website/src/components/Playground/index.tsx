@@ -1,41 +1,42 @@
-/**
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
 import React, { useContext } from 'react';
-import { LiveProvider, LiveEditor } from 'react-live';
+import { LiveProvider, LiveEditor, LiveProviderProps } from 'react-live';
 import clsx from 'clsx';
 import Translate from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 import { usePrismTheme } from '@docusaurus/theme-common';
 import * as ts from 'typescript';
+import { FixtureEndpoint } from '@rest-hooks/test';
 
 import CodeTabContext from '../Demo/CodeTabContext';
-import Result from './Result';
+import Preview from './Preview';
 import styles from './styles.module.css';
+import FixturePreview from './FixturePreview';
 
 const babelTransform = code => {
   const transformed = ts.transpileModule(code, {
     compilerOptions: {
       module: ts.ModuleKind.ESNext,
       target: ts.ScriptTarget.ES2017,
-      jsx: 'react',
+      jsx: ts.JsxEmit.React,
     },
   });
   return transformed.outputText;
 };
 
-function Header({ children, className }) {
+function Header({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
     <div className={clsx(styles.playgroundHeader, className)}>{children}</div>
   );
 }
 
-function ResultWithHeader({ groupId, defaultOpen, row }) {
+function PreviewWithHeader({ groupId, defaultOpen, row, fixtures }) {
   return (
     <div
       style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
@@ -49,7 +50,12 @@ function ResultWithHeader({ groupId, defaultOpen, row }) {
         </Translate>
       </Header>
       <div className={styles.playgroundResult}>
-        <Result groupId={groupId} defaultOpen={defaultOpen} row={row} />
+        <Preview
+          groupId={groupId}
+          defaultOpen={defaultOpen}
+          row={row}
+          fixtures={fixtures}
+        />
       </div>
     </div>
   );
@@ -89,18 +95,24 @@ function HeaderWithTabControls({ children }) {
   );
 }
 
-function EditorWithHeader({ title }) {
+function EditorWithHeader({ title, fixtures }) {
   const { values } = useContext(CodeTabContext);
   const hasTabs = values.length > 0;
   const isBrowser = useIsBrowser();
   return (
     <div>
+      {fixtures.length ? (
+        <>
+          <Header>Fixtures</Header>
+          <FixturePreview fixtures={fixtures} />
+        </>
+      ) : null}
       {hasTabs ? (
         <HeaderWithTabControls>{title}</HeaderWithTabControls>
       ) : (
         <Header>{title}</Header>
       )}
-      <LiveEditor key={isBrowser} className={styles.playgroundEditor} />
+      <LiveEditor key={`${isBrowser}`} className={styles.playgroundEditor} />
     </div>
   );
 }
@@ -121,16 +133,19 @@ export default function Playground({
   groupId,
   defaultOpen,
   row,
-  hidden = false,
+  hidden,
+  fixtures,
   ...props
+}: Omit<LiveProviderProps, 'ref'> & {
+  groupId: string;
+  defaultOpen: 'y' | 'n';
+  row: boolean;
+  children: string;
+  fixtures: FixtureEndpoint[];
 }) {
   const {
-    siteConfig: {
-      themeConfig: {
-        liveCodeBlock: { playgroundPosition },
-      },
-    },
-  } = useDocusaurusContext();
+    liveCodeBlock: { playgroundPosition },
+  } = useDocusaurusContext().siteConfig.themeConfig as any;
   const prismTheme = usePrismTheme();
 
   const scope = { ...props.scope };
@@ -150,20 +165,22 @@ export default function Playground({
       >
         {playgroundPosition === 'top' ? (
           <>
-            <ResultWithHeader
+            <PreviewWithHeader
               groupId={groupId}
               defaultOpen={defaultOpen}
               row={row}
+              fixtures={fixtures}
             />
-            <EditorWithHeader />
+            <EditorWithHeader fixtures={fixtures} />
           </>
         ) : (
           <>
-            <EditorWithHeader />
-            <ResultWithHeader
+            <EditorWithHeader fixtures={fixtures} />
+            <PreviewWithHeader
               groupId={groupId}
               defaultOpen={defaultOpen}
               row={row}
+              fixtures={fixtures}
             />
           </>
         )}
@@ -173,4 +190,5 @@ export default function Playground({
 }
 Playground.defaultProps = {
   row: false,
+  hidden: false,
 };

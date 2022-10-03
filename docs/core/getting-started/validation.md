@@ -4,6 +4,7 @@ sidebar_label: Validation
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import {RestEndpoint} from '@rest-hooks/rest';
 
 [Entity.validate()](/rest/api/Entity#validate) is called during normalization and denormalization.
 `undefined` indicates no error, and a string error message if there is an error.
@@ -15,7 +16,26 @@ thus operates on POJOs rather than an instance of the class.
 
 Here we can make sure the title field is included, and of the expected type.
 
-<HooksPlayground>
+<HooksPlayground fixtures={[
+{
+endpoint: new RestEndpoint({path: '/article/:id'}),
+args: [{ id: 1 }],
+response: { id: '1', title: 'first' },
+delay: 150,
+},
+{
+endpoint: new RestEndpoint({path: '/article/:id'}),
+args: [{ id: 2 }],
+response: { id: '2' },
+delay: 150,
+},
+{
+endpoint: new RestEndpoint({path: '/article/:id'}),
+args: [{ id: 3 }],
+response: { id: '3', title: { complex: 'second', object: 5 } },
+delay: 150,
+},
+]}>
 
 ```tsx
 class Article extends Entity {
@@ -32,21 +52,13 @@ class Article extends Entity {
   }
 }
 
-const mockArticleDetail = mockFetch(
-  ({ id }) =>
-    ({
-      '1': { id: '1', title: 'first' },
-      '2': { id: '2' },
-      '3': { id: '3', title: { complex: 'second', object: 5 } },
-    }[id]),
-  'mockArticleDetail',
-);
-const articleDetail = new Endpoint(mockArticleDetail, {
+const getArticle = new RestEndpoint({
+  path: '/article/:id',
   schema: Article,
 });
 
 function ArticlePage({ id }: { id: string }) {
-  const article = useSuspense(articleDetail, { id });
+  const article = useSuspense(getArticle, { id });
   return <div>{article.title}</div>;
 }
 
@@ -59,7 +71,26 @@ render(<ArticlePage id="2" />);
 
 Here's a recipe for checking that every defined field is present.
 
-<HooksPlayground>
+<HooksPlayground fixtures={[
+{
+endpoint: new RestEndpoint({path: '/article/:id'}),
+args: [{ id: 1 }],
+response: { id: '1', title: 'first' },
+delay: 150,
+},
+{
+endpoint: new RestEndpoint({path: '/article/:id'}),
+args: [{ id: 2 }],
+response: { id: '2' },
+delay: 150,
+},
+{
+endpoint: new RestEndpoint({path: '/article/:id'}),
+args: [{ id: 3 }],
+response: { id: '3', title: { complex: 'second', object: 5 } },
+delay: 150,
+},
+]}>
 
 ```tsx
 class Article extends Entity {
@@ -80,20 +111,13 @@ class Article extends Entity {
   }
 }
 
-const mockArticleDetail = mockFetch(
-  ({ id }) =>
-    ({
-      '1': { id: '1', title: 'first' },
-      '2': { id: '2' },
-    }[id]),
-  'mockArticleDetail',
-);
-const articleDetail = new Endpoint(mockArticleDetail, {
+const getArticle = new RestEndpoint({
+  path: '/article/:id',
   schema: Article,
 });
 
 function ArticlePage({ id }: { id: string }) {
-  const article = useSuspense(articleDetail, { id });
+  const article = useSuspense(getArticle, { id });
   return <div>{article.title}</div>;
 }
 
@@ -109,35 +133,41 @@ useful when some fields consume lots of bandwidth or are computationally expensi
 
 Consider using [validateRequired](/rest/api/validateRequired) to reduce code.
 
-<HooksPlayground>
+<HooksPlayground fixtures={[
+{
+endpoint: new RestEndpoint({path: '/article'}),
+args: [],
+response: [
+{ id: '1', title: 'first' },
+{ id: '2', title: 'second' },
+],
+delay: 150,
+},
+{
+endpoint: new RestEndpoint({path: '/article/:id'}),
+args: [{ id: 1 }],
+response: {
+id: '1',
+title: 'first',
+content: 'long',
+createdAt: '2011-10-05T14:48:00.000Z',
+},
+delay: 150,
+},
+{
+endpoint: new RestEndpoint({path: '/article/:id'}),
+args: [{ id: 2 }],
+response: {
+id: '2',
+title: 'second',
+content: 'short',
+createdAt: '2011-10-05T14:48:00.000Z',
+},
+delay: 150,
+},
+]}>
 
 ```tsx
-const mockArticleList = mockFetch(
-  () => [
-    { id: '1', title: 'first' },
-    { id: '2', title: 'second' },
-  ],
-  'mockArticleList',
-);
-const mockArticleDetail = mockFetch(
-  ({ id }) =>
-    ({
-      '1': {
-        id: '1',
-        title: 'first',
-        content: 'long',
-        createdAt: '2011-10-05T14:48:00.000Z',
-      },
-      '2': {
-        id: '2',
-        title: 'second',
-        content: 'short',
-        createdAt: '2011-10-05T14:48:00.000Z',
-      },
-    }[id]),
-  'mockArticleDetail',
-);
-
 class ArticlePreview extends Entity {
   readonly id: string = '';
   readonly title: string = '';
@@ -149,7 +179,10 @@ class ArticlePreview extends Entity {
     return 'Article';
   }
 }
-const articleList = new Endpoint(mockArticleList, { schema: [ArticlePreview] });
+const getArticleList = new RestEndpoint({
+  path: '/article',
+  schema: [ArticlePreview],
+});
 
 class ArticleFull extends ArticlePreview {
   readonly content: string = '';
@@ -163,16 +196,21 @@ class ArticleFull extends ArticlePreview {
     if (!Object.hasOwn(processedEntity, 'content')) return 'Missing content';
   }
 }
-const articleDetail = new Endpoint(mockArticleDetail, {
+
+const getArticle = new RestEndpoint({
+  path: '/article/:id',
   schema: ArticleFull,
 });
 
 function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
-  const article = useSuspense(articleDetail, { id });
+  const article = useSuspense(getArticle, { id });
   return (
     <div>
       <h4>
-        <a onClick={onHome} style={{cursor: 'pointer'}}>&lt;</a> {article.title}
+        <a onClick={onHome} style={{ cursor: 'pointer' }}>
+          &lt;
+        </a>{' '}
+        {article.title}
       </h4>
       <div>
         <p>{article.content}</p>
@@ -190,13 +228,17 @@ function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
 }
 function ArticleList() {
   const [route, setRoute] = React.useState<string>();
-  const articles = useSuspense(articleList, {});
+  const articles = useSuspense(getArticleList);
   if (!route) {
     return (
       <div>
         {articles.map(article => (
-          <div key={article.pk()} onClick={() => setRoute(article.id)} style={{cursor: 'pointer'}}>
-            {article.title}
+          <div
+            key={article.pk()}
+            onClick={() => setRoute(article.id)}
+            style={{ cursor: 'pointer', textDecoration: 'underline' }}
+          >
+            Click me: {article.title}
           </div>
         ))}
       </div>

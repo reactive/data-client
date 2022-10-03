@@ -3,8 +3,7 @@ import React, { useMemo } from 'react';
 import { useColorMode, usePrismTheme } from '@docusaurus/theme-common';
 
 export default function Output({ value }: { value: any }) {
-  //const prismTheme = usePrismTheme();
-  const { isDarkTheme } = useColorMode();
+  const isDarkTheme = useColorMode().colorMode === 'dark';
   const valueColorMap = useMemo(
     () => ({
       String: 'rgb(195, 232, 141)',
@@ -18,45 +17,50 @@ export default function Output({ value }: { value: any }) {
     }),
     [],
   );
+  const theme = useMemo(
+    () => ({
+      tree: {
+        overflow: 'auto',
+        flex: '4 1 70%',
+        margin: 0,
+        padding: '0 0.5rem',
+        backgroundColor: isDarkTheme
+          ? 'var(--ifm-pre-background)'
+          : 'rgb(41, 45, 62)',
+        font: 'var(--ifm-code-font-size) / var(--ifm-pre-line-height) var(--ifm-font-family-monospace) !important',
+      },
+      arrowContainer: ({ style }, arrowStyle) => ({
+        style: {
+          ...style,
+          fontFamily: 'arial',
+        },
+      }),
+      arrowSign: {
+        color: 'rgb(130, 170, 255)',
+      },
+      label: {
+        color: 'rgb(130, 170, 255)',
+      },
+      itemRange: {
+        color: 'rgb(105, 112, 152)',
+      },
+      valueText: ({ style }, nodeType: keyof typeof valueColorMap) => ({
+        style: {
+          ...style,
+          color: valueColorMap[nodeType],
+        },
+      }),
+      base0B: 'rgb(191, 199, 213)',
+    }),
+    [isDarkTheme, valueColorMap],
+  );
   return (
     <JSONTree
       shouldExpandNode={shouldExpandNode}
       data={value}
       valueRenderer={valueRenderer}
-      theme={{
-        tree: {
-          overflow: 'auto',
-          flex: '4 1 70%',
-          margin: 0,
-          padding: '0 0.5rem',
-          backgroundColor: isDarkTheme
-            ? 'var(--ifm-pre-background)'
-            : 'rgb(41, 45, 62)',
-          font: 'var(--ifm-code-font-size) / var(--ifm-pre-line-height) var(--ifm-font-family-monospace) !important',
-        },
-        arrowContainer: ({ style }, arrowStyle) => ({
-          style: {
-            ...style,
-            fontFamily: 'arial',
-          },
-        }),
-        arrowSign: {
-          color: 'rgb(130, 170, 255)',
-        },
-        label: {
-          color: 'rgb(130, 170, 255)',
-        },
-        itemRange: {
-          color: 'rgb(105, 112, 152)',
-        },
-        valueText: ({ style }, nodeType: keyof typeof valueColorMap) => ({
-          style: {
-            ...style,
-            color: valueColorMap[nodeType],
-          },
-        }),
-        base0B: 'rgb(191, 199, 213)',
-      }}
+      theme={theme}
+      hideRoot={true}
     />
   );
 }

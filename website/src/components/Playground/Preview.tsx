@@ -4,6 +4,7 @@ import {
   SubscriptionManager,
 } from 'rest-hooks';
 import { NetworkManager } from '@rest-hooks/core';
+import { FixtureEndpoint, MockResolver } from '@rest-hooks/test';
 import React, { memo, useCallback, useState, Suspense, useMemo } from 'react';
 import { LiveError, LivePreview } from 'react-live';
 import clsx from 'clsx';
@@ -16,14 +17,16 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 import styles from './styles.module.css';
 import StoreInspector from './StoreInspector';
 
-function Result({
+function Preview({
   groupId,
   defaultOpen,
   row,
+  fixtures,
 }: {
   groupId: string;
   row: boolean;
   defaultOpen: 'y' | 'n';
+  fixtures: FixtureEndpoint[];
 }) {
   const { tabGroupChoices, setTabGroupChoices } = useTabGroupChoice();
   const [selectedValue, setSelectedValue] = useState(defaultOpen);
@@ -62,25 +65,27 @@ function Result({
 
   return (
     <CacheProvider managers={managers}>
-      <div
-        className={clsx(styles.playgroundPreview, {
-          [styles.hidden]: hiddenResult,
-        })}
-      >
-        <BrowserOnly fallback={<LivePreviewLoader />}>
-          {() => (
-            <Suspense fallback={<LivePreviewLoader />}>
-              <LivePreview />
-              <LiveError className={styles.playgroundError} />
-            </Suspense>
-          )}
-        </BrowserOnly>
-      </div>
+      <MockResolver fixtures={fixtures} silenceMissing={false}>
+        <div
+          className={clsx(styles.playgroundPreview, {
+            [styles.hidden]: hiddenResult,
+          })}
+        >
+          <BrowserOnly fallback={<LivePreviewLoader />}>
+            {() => (
+              <Suspense fallback={<LivePreviewLoader />}>
+                <LivePreview />
+                <LiveError className={styles.playgroundError} />
+              </Suspense>
+            )}
+          </BrowserOnly>
+        </div>
+      </MockResolver>
       <StoreInspector selectedValue={selectedValue} toggle={toggle} />
     </CacheProvider>
   );
 }
-export default memo(Result);
+export default memo(Preview);
 
 function LivePreviewLoader() {
   return <div>Loading...</div>;

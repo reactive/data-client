@@ -34,6 +34,7 @@
     "@rest-hooks/graphql": "file:../packages/graphql",
     "@rest-hooks/hooks": "file:../packages/hooks",
     "@rest-hooks/rest": "file:../packages/rest",
+    "@rest-hooks/test": "file:../packages/test",
     "bignumber.js": "9.1.0",
     "clsx": "1.2.1",
     "msw": "0.40.2",
@@ -51,7 +52,8 @@
     "@rest-hooks/endpoint": "file:../packages/endpoint",
     "@rest-hooks/hooks": "file:../packages/hooks",
     "@rest-hooks/graphql": "file:../packages/graphql",
-    "@rest-hooks/rest": "file:../packages/rest"
+    "@rest-hooks/rest": "file:../packages/rest",
+    "@rest-hooks/test": "file:../packages/test"
   },
   "msw": {
     "workerDirectory": "static"

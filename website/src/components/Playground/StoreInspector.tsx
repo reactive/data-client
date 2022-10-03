@@ -13,10 +13,24 @@ function StoreInspector({
     event: React.FocusEvent<HTMLLIElement> | React.MouseEvent<HTMLLIElement>,
   ) => void;
 }) {
+  const rotation = selectedValue === 'y' ? '0' : '180';
   return (
     <>
       <div className={styles.debugToggle} onClick={toggle}>
         Store
+        <span
+          style={{
+            transition: 'all 200ms ease 0s',
+            transform: `rotateZ(${rotation}deg)`,
+            transformOrigin: '45% 50% 0px',
+            position: 'relative',
+            display: 'inline-block',
+            fontSize: '90%',
+            float: 'right',
+          }}
+        >
+          ▶
+        </span>
       </div>
       {selectedValue === 'y' ? <StoreTreeM /> : null}
     </>
