@@ -60,7 +60,7 @@ export default function UpdateArticleForm({ id }: { id: number }) {
   return (
     <Form
       onSubmit={e =>
-        fetch(ArticleResource.update(), { id }, new FormData(e.target))
+        fetch(ArticleResource.update, { id }, new FormData(e.target))
       }
       initialValues={article}
     >

@@ -9,11 +9,12 @@ const simpleFetchDemo = [
   {
     label: 'Fetch',
     value: 'fetch',
-    endpointCode: `const fetchTodoDetail = async ({ id }) =>
-  (await fetch(\`https://jsonplaceholder.typicode.com/todos/\${id}\`)).json()
-const todoDetail = new Endpoint(fetchTodoDetail);`,
+    endpointCode: `const getTodo = new RestEndpoint({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id'
+});`,
     code: `function TodoDetail({ id }: { id: number }) {
-  const todo = useSuspense(todoDetail, { id });
+  const todo = useSuspense(getTodo, { id });
   return <div>{todo.title}</div>;
 }
 render(<TodoDetail id={1} />);

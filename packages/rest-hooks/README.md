@@ -17,7 +17,7 @@ Asynchronous dynamic data at scale. Performance, data integrity, and typing for 
 
 </div>
 
-### Simple TypeScript definition
+### Simple [TypeScript definition](https://resthooks.io/rest/api/Entity)
 
 ```typescript
 class Article extends Entity {
@@ -31,7 +31,7 @@ class Article extends Entity {
 }
 ```
 
-### Bind to networking API
+### Create [collection of API Endpoints](https://resthooks.io/rest/api/createResource)
 
 ```typescript
 const ArticleResource = createResource({
@@ -40,7 +40,7 @@ const ArticleResource = createResource({
 })
 ```
 
-### One line data hookup
+### One line [data binding](https://resthooks.io/docs/api/useSuspense)
 
 ```tsx
 const article = useSuspense(ArticleResource.get, { id });
@@ -52,7 +52,7 @@ return (
 );
 ```
 
-### Mutation
+### [Mutation](https://resthooks.io/docs/api/Controller#fetch)
 
 ```tsx
 const { fetch } = useController();
@@ -63,7 +63,7 @@ return (
 );
 ```
 
-### And subscriptions
+### And [subscriptions](https://resthooks.io/docs/api/useSubscription)
 
 ```tsx
 const price = useSuspense(PriceResource.get, { symbol });

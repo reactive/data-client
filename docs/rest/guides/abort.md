@@ -27,8 +27,8 @@ function AbortDemo() {
       </React.Suspense>
       <div>
         <button onClick={() => setId(id => id - 1)}>-</button>
-        <button onClick={() => setId(id => id + 1)}>+</button>
-        {' '}{id}
+        {' '}<button onClick={() => setId(id => id + 1)}>+</button>
+        {' '}&nbsp;{id}
       </div>
     </div>
   );
@@ -42,6 +42,13 @@ render(<AbortDemo />);
 
 </HooksPlayground>
 
-> Warning: Be careful when using this with many disjoint components fetching the same
-> arguments (Endpoint/params pair) to useSuspense(). This solution aborts fetches per-component,
-> which means you might end up canceling a fetch that another component still cares about.
+Try clicking the `+` very quickly. If you increment before it resolves the request will be cancelled and you should
+not see results in the store.
+
+:::caution Warning
+
+Be careful when using this with many disjoint components fetching the same
+arguments (Endpoint/params pair) to useSuspense(). This solution aborts fetches per-component,
+which means you might end up canceling a fetch that another component still cares about.
+
+:::

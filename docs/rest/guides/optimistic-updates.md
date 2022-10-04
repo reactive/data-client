@@ -2,6 +2,10 @@
 title: Optimistic Updates
 ---
 
+<head>
+  <title>Optimistic Updates - High performance mutations</title>
+</head>
+
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
 Optimistic updates enable highly responsive and fast interfaces by avoiding network wait times.
