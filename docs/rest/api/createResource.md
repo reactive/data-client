@@ -3,6 +3,11 @@ id: createResource
 title: createResource
 ---
 
+<head>
+  <title>createResource() - Collection of CRUD API operations</title>
+</head>
+
+
 import LanguageTabs from '@site/src/components/LanguageTabs';
 
 `Resource`s are a collection of [RestEndpoints](./RestEndpoint.md) that operate on a common

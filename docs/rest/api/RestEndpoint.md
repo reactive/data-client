@@ -2,6 +2,10 @@
 title: RestEndpoint
 ---
 
+<head>
+  <title>RestEndpoint - Strongly typed path-based API definitions</title>
+</head>
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 

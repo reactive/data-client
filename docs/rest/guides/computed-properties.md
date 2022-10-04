@@ -2,7 +2,7 @@
 title: Computed Properties
 ---
 
-`Entity` classes are just normal classes, so any common derived data can just be added as
+[Entity](../api/Entity.md) classes are just normal classes, so any common derived data can just be added as
 getters to the class itself.
 
 ```typescript

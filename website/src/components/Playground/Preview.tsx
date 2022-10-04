@@ -65,7 +65,7 @@ function Preview({
 
   return (
     <CacheProvider managers={managers}>
-      <MockResolver fixtures={fixtures} silenceMissing={false}>
+      <MockResolver fixtures={fixtures} silenceMissing={true}>
         <div
           className={clsx(styles.playgroundPreview, {
             [styles.hidden]: hiddenResult,
@@ -80,8 +80,12 @@ function Preview({
             )}
           </BrowserOnly>
         </div>
+        <BrowserOnly fallback={<LivePreviewLoader />}>
+          {() => (
+            <StoreInspector selectedValue={selectedValue} toggle={toggle} />
+          )}
+        </BrowserOnly>
       </MockResolver>
-      <StoreInspector selectedValue={selectedValue} toggle={toggle} />
     </CacheProvider>
   );
 }

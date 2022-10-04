@@ -28,6 +28,7 @@ export interface SuccessFixtureEndpoint<
   args: Parameters<E>;
   response: ResolveType<E>;
   error?: false;
+  delay?: number;
 }
 
 /** @deprecated */
@@ -46,6 +47,7 @@ export interface ErrorFixtureEndpoint<
   args: Parameters<E>;
   response: any;
   error: true;
+  delay?: number;
 }
 
 /** @deprecated */

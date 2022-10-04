@@ -2,6 +2,11 @@
 title: Endpoint
 ---
 
+<head>
+  <title>Endpoint - Strongly typed API definitions</title>
+</head>
+
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
