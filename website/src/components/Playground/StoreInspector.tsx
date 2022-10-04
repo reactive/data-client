@@ -13,7 +13,8 @@ function StoreInspector({
     event: React.FocusEvent<HTMLLIElement> | React.MouseEvent<HTMLLIElement>,
   ) => void;
 }) {
-  const rotation = selectedValue === 'y' ? '0' : '180';
+  const isSelected = selectedValue === 'y';
+  const rotation = isSelected ? '0' : '180';
   return (
     <>
       <div className={styles.debugToggle} onClick={toggle}>
@@ -32,7 +33,7 @@ function StoreInspector({
           ▶
         </span>
       </div>
-      {selectedValue === 'y' ? <StoreTreeM /> : null}
+      {isSelected ? <StoreTreeM /> : null}
     </>
   );
 }
@@ -45,7 +46,6 @@ function StoreTree() {
       ...state,
     };
     delete ret.optimistic;
-    delete ret.lastReset;
     return ret;
   }, [state]);
   return <Tree value={simplifiedState} />;

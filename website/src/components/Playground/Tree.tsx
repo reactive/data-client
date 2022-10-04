@@ -23,7 +23,7 @@ export default function Output({ value }: { value: any }) {
         overflow: 'auto',
         flex: '4 1 70%',
         margin: 0,
-        padding: '0 0.5rem',
+        padding: '0 0.5rem 0 0.8rem',
         backgroundColor: isDarkTheme
           ? 'var(--ifm-pre-background)'
           : 'rgb(41, 45, 62)',
@@ -33,6 +33,8 @@ export default function Output({ value }: { value: any }) {
         style: {
           ...style,
           fontFamily: 'arial',
+          padding: '7px 7px 7px 0',
+          margin: '-7px calc(0.5em - 7px) -7px 0',
         },
       }),
       arrowSign: {

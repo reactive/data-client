@@ -80,11 +80,7 @@ function Preview({
             )}
           </BrowserOnly>
         </div>
-        <BrowserOnly fallback={<LivePreviewLoader />}>
-          {() => (
-            <StoreInspector selectedValue={selectedValue} toggle={toggle} />
-          )}
-        </BrowserOnly>
+        <StoreInspector selectedValue={selectedValue} toggle={toggle} />
       </MockResolver>
     </CacheProvider>
   );
