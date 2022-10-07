@@ -1,64 +1,36 @@
-import React, { useContext } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useContext,
+  useMemo,
+  useReducer,
+  useState,
+} from 'react';
 import { LiveProvider, LiveEditor, LiveProviderProps } from 'react-live';
 import clsx from 'clsx';
 import Translate from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 import { usePrismTheme } from '@docusaurus/theme-common';
-import * as ts from 'typescript';
+import { transpileModule, ModuleKind, ScriptTarget, JsxEmit } from 'typescript';
 import { FixtureEndpoint } from '@rest-hooks/test';
 
 import CodeTabContext from '../Demo/CodeTabContext';
 import Preview from './Preview';
 import styles from './styles.module.css';
 import FixturePreview from './FixturePreview';
+import Header from './Header';
+import PreviewWithHeader from './PreviewWithHeader';
 
-const babelTransform = code => {
-  const transformed = ts.transpileModule(code, {
+function babelTransform(code) {
+  const transformed = transpileModule(code, {
     compilerOptions: {
-      module: ts.ModuleKind.ESNext,
-      target: ts.ScriptTarget.ES2017,
-      jsx: ts.JsxEmit.React,
+      module: ModuleKind.ESNext,
+      target: ScriptTarget.ES2017,
+      jsx: JsxEmit.React,
     },
   });
   return transformed.outputText;
-};
-
-function Header({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={clsx(styles.playgroundHeader, className)}>{children}</div>
-  );
-}
-
-function PreviewWithHeader({ groupId, defaultOpen, row, fixtures }) {
-  return (
-    <div
-      style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
-    >
-      <Header>
-        <Translate
-          id="theme.Playground.result"
-          description="The result label of the live codeblocks"
-        >
-          Live Preview
-        </Translate>
-      </Header>
-      <div className={styles.playgroundResult}>
-        <Preview
-          groupId={groupId}
-          defaultOpen={defaultOpen}
-          row={row}
-          fixtures={fixtures}
-        />
-      </div>
-    </div>
-  );
 }
 
 function HeaderTabs() {
@@ -89,34 +61,35 @@ function HeaderTabs() {
 function HeaderWithTabControls({ children }) {
   return (
     <Header className={styles.tabControls}>
-      <div>{children}</div>
+      <div className={styles.title}>{children}</div>
       <HeaderTabs />
     </Header>
   );
 }
 
-function EditorWithHeader({ title, fixtures }) {
+function EditorHeader({
+  title,
+  fixtures,
+}: {
+  title: string;
+  fixtures: FixtureEndpoint[];
+}) {
   const { values } = useContext(CodeTabContext);
   const hasTabs = values.length > 0;
-  const isBrowser = useIsBrowser();
+
   return (
-    <div>
+    <>
       {fixtures.length ? (
         <>
-          <Header>Fixtures</Header>
+          <Header className={styles.small}>Fixtures</Header>
           <FixturePreview fixtures={fixtures} />
         </>
       ) : null}
-      {hasTabs ? (
-        <HeaderWithTabControls>{title}</HeaderWithTabControls>
-      ) : (
-        <Header>{title}</Header>
-      )}
-      <LiveEditor key={`${isBrowser}`} className={styles.playgroundEditor} />
-    </div>
+      {hasTabs ? <HeaderWithTabControls>{title}</HeaderWithTabControls> : null}
+    </>
   );
 }
-EditorWithHeader.defaultProps = {
+EditorHeader.defaultProps = {
   title: (
     <Translate
       id="theme.Playground.liveEditor"
@@ -125,6 +98,7 @@ EditorWithHeader.defaultProps = {
       Live Editor
     </Translate>
   ),
+  fixtures: [],
 };
 
 export default function Playground({
@@ -140,15 +114,48 @@ export default function Playground({
   groupId: string;
   defaultOpen: 'y' | 'n';
   row: boolean;
-  children: string;
+  children: string | any[];
   fixtures: FixtureEndpoint[];
 }) {
   const {
     liveCodeBlock: { playgroundPosition },
   } = useDocusaurusContext().siteConfig.themeConfig as any;
   const prismTheme = usePrismTheme();
+  const isBrowser = useIsBrowser();
 
-  const scope = { ...props.scope };
+  const handleTransformCode = useMemo(
+    () => transformCode || (code => babelTransform(`${code};`)),
+    [transformCode],
+  );
+  const codeTabs: { code: string; title?: string; collapsed: boolean }[] =
+    useMemo(() => {
+      if (typeof children === 'string')
+        return [{ code: children.replace(/\n$/, ''), collapsed: false }];
+      return (Array.isArray(children) ? children : [children])
+        .filter(child => child.props.children)
+        .map(child =>
+          typeof child.props.children === 'string'
+            ? child.props
+            : child.props.children.props,
+        )
+        .map(({ children, title = '', collapsed = false }) => ({
+          code: children.replace(/\n$/, ''),
+          title: title.replaceAll('"', ''),
+          collapsed,
+        }));
+    }, [children]);
+
+  const [codes, dispatch] = useReducer(reduceCodes, undefined, () =>
+    codeTabs.map(({ code }) => code),
+  );
+  const handleCodeChange = useMemo(
+    () => codeTabs.map((_, i) => v => dispatch({ i, code: v })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [codeTabs.length],
+  );
+  const [closedList, setClosed] = useState(() =>
+    codeTabs.map(({ collapsed }) => collapsed),
+  );
 
   return (
     <div
@@ -157,33 +164,56 @@ export default function Playground({
         [styles.hidden]: hidden,
       })}
     >
-      <LiveProvider
-        code={children.replace(/\n$/, '')}
-        transformCode={transformCode || (code => babelTransform(`${code};`))}
-        theme={prismTheme}
-        {...props}
-      >
-        {playgroundPosition === 'top' ? (
-          <>
+      <LiveProvider theme={prismTheme} {...props}>
+        <Reversible reverse={playgroundPosition === 'top'}>
+          <div>
+            <EditorHeader fixtures={fixtures} />
+            {row && codeTabs.length > 1 ? (
+              <EditorTabs
+                titles={codeTabs.map(({ title }) => title)}
+                closedList={closedList}
+                onClick={i => setClosed(cl => cl.map((_, j) => j !== i))}
+              />
+            ) : null}
+            {codeTabs.map(({ title }, i) => (
+              <>
+                {!row && title ? (
+                  <CodeTabHeader
+                    onClick={() =>
+                      setClosed(cl => {
+                        const n = [...cl];
+                        n[i] = !n[i];
+                        return n;
+                      })
+                    }
+                    closed={closedList[i]}
+                    title={title}
+                  />
+                ) : null}
+                {closedList[i] ? null : (
+                  <MemoEditor
+                    key={`${isBrowser}-${i}`}
+                    className={styles.playgroundEditor}
+                    onChange={handleCodeChange[i]}
+                    code={codes[i]}
+                  />
+                )}
+              </>
+            ))}
+          </div>
+          <LiveProvider
+            code={codes.join('\n')}
+            transformCode={handleTransformCode}
+            {...props}
+          >
             <PreviewWithHeader
               groupId={groupId}
               defaultOpen={defaultOpen}
               row={row}
               fixtures={fixtures}
             />
-            <EditorWithHeader fixtures={fixtures} />
-          </>
-        ) : (
-          <>
-            <EditorWithHeader fixtures={fixtures} />
-            <PreviewWithHeader
-              groupId={groupId}
-              defaultOpen={defaultOpen}
-              row={row}
-              fixtures={fixtures}
-            />
-          </>
-        )}
+          </LiveProvider>
+        </Reversible>
       </LiveProvider>
     </div>
   );
@@ -192,3 +222,68 @@ Playground.defaultProps = {
   row: false,
   hidden: false,
 };
+
+function Reversible({
+  children,
+  reverse,
+}: {
+  children: React.ReactNode[];
+  reverse: boolean;
+}): React.ReactElement {
+  const newchild = [...children];
+  newchild.reverse();
+  if (reverse) {
+    return newchild as any;
+  }
+  return children as any;
+}
+Reversible.defaultProps = {
+  reverse: false,
+};
+
+function reduceCodes(state: string[], action: { i: number; code: string }) {
+  const newstate = [...state];
+  newstate[action.i] = action.code;
+  return newstate;
+}
+const MemoEditor = memo(LiveEditor);
+
+function CodeTabHeader({ onClick, closed, title }) {
+  return (
+    <Header className={styles.small} onClick={onClick}>
+      <span className={clsx(styles.arrow, closed ? styles.right : styles.down)}>
+        ▶
+      </span>
+      {title}
+    </Header>
+  );
+}
+
+function EditorTabs({ titles, closedList, onClick }) {
+  const { values } = useContext(CodeTabContext);
+  const hasTabs = values.length > 0;
+  return (
+    <Header
+      className={clsx(
+        { [styles.small]: hasTabs, [styles.subtabs]: hasTabs },
+        styles.noupper,
+        styles.tabControls,
+      )}
+    >
+      <div className={styles.tabs} role="tablist" aria-orientation="horizontal">
+        {titles.map((title, i) => (
+          <div
+            role="tab"
+            key={i}
+            onClick={() => onClick(i)}
+            className={clsx(styles.tab, {
+              [styles.selected]: !closedList[i],
+            })}
+          >
+            {title}
+          </div>
+        ))}
+      </div>
+    </Header>
+  );
+}

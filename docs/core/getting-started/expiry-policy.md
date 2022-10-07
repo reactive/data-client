@@ -56,7 +56,7 @@ you will continue to see the old time without any refresh.
 
 <HooksPlayground>
 
-```tsx
+```tsx title="TimePage.tsx"
 lastUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 
 function TimePage({ id }) {
@@ -146,7 +146,7 @@ within the expiry time it just continues to display it.
 
 <HooksPlayground>
 
-```tsx
+```tsx title="TimePage.tsx"
 lastUpdated = lastUpdated.extend({
   invalidIfStale: true,
   dataExpiryLength: 5000,
@@ -196,7 +196,7 @@ the previous data. This can be done even with 'fresh' data.
 
 <HooksPlayground>
 
-```tsx
+```tsx title="ShowTime.tsx"
 function ShowTime() {
   const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
   const { fetch } = useController();
@@ -224,7 +224,7 @@ In this example we can see invalidating the endpoint shows the loading fallback 
 
 <HooksPlayground>
 
-```tsx
+```tsx title="ShowTime.tsx"
 function ShowTime() {
   const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
   const { invalidate } = useController();
@@ -251,7 +251,7 @@ response. If the endpoint uses the entity in an Array, it will simply be removed
 
 <HooksPlayground>
 
-```tsx
+```tsx title="ShowTime.tsx"
 const mockDelete = ({ id }) => Promise.resolve({ id });
 const deleteLastUpdated = new Endpoint(mockDelete, {
   schema: new schema.Delete(TimedEntity),
@@ -293,7 +293,7 @@ Hard errors always invalidate a response with the rejection - even when data has
 
 <HooksPlayground>
 
-```tsx
+```tsx title="ShowTime.tsx"
 let FAKE_ERROR = undefined;
 const superFetch = lastUpdated;
 mockFetch = (arg, error) =>

@@ -2,6 +2,10 @@
 title: useDLE()
 ---
 
+<head>
+  <title>useDLE() - Data Loading Error - Stateful Data Fetching</title>
+</head>
+
 import PkgTabs from '@site/src/components/PkgTabs';
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';

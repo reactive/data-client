@@ -92,7 +92,7 @@ const HooksPlayground = ({
   fixtures,
 }) => (
   <Playground
-    scope={endpointCode ? scope : scopeWithEndpoint}
+    scope={endpointCode || Array.isArray(children) ? scope : scopeWithEndpoint}
     noInline
     groupId={groupId}
     defaultOpen={defaultOpen}
@@ -100,10 +100,11 @@ const HooksPlayground = ({
     hidden={hidden}
     fixtures={fixtures}
   >
-    {(endpointCode ? endpointCode + '\n\n' : '') +
-      (typeof children === 'string'
-        ? children
-        : children.props.children.props.children)}
+    {typeof children === 'string'
+      ? (endpointCode ? endpointCode + '\n\n' : '') + children
+      : Array.isArray(children)
+      ? children
+      : children.props.children}
   </Playground>
 );
 HooksPlayground.defaultProps = {
@@ -111,3 +112,5 @@ HooksPlayground.defaultProps = {
   fixtures: [] as FixtureEndpoint[],
 };
 export default memo(HooksPlayground);
+
+//child.props.children.props.title

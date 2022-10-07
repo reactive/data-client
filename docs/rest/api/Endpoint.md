@@ -248,39 +248,7 @@ const createUser = new Endpoint(postToUserFunction, {
 });
 ```
 
-This is usage with a [Resource](/rest/api/resource)
-
-```typescript title="TodoResource.ts"
-import { Resource } from '@rest-hooks/rest';
-
-export default class TodoResource extends Resource {
-  readonly id: number = 0;
-  readonly userId: number = 0;
-  readonly title: string = '';
-  readonly completed: boolean = false;
-
-  pk() {
-    return `${this.id}`;
-  }
-
-  static urlRoot = 'https://jsonplaceholder.typicode.com/todos';
-
-  static create<T extends typeof Resource>(this: T) {
-    const todoList = this.list();
-    return super.create().extend({
-      schema: this,
-      // highlight-start
-      update: (newResourceId: string) => ({
-        [todoList.key({})]: (resourceIds: string[] = []) => [
-          ...resourceIds,
-          newResourceId,
-        ],
-      }),
-      // highlight-end
-    });
-  }
-}
-```
+See usage with [Resource or RestEndpoint](./RestEndpoint.md#update)
 
 ## Examples
 

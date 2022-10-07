@@ -214,6 +214,7 @@ module.exports = {
               '/rest/api/resource',
               '/rest/api/BaseResource',
               '/docs/guides/resource-types',
+              '/rest/guides/rest-types',
             ],
           },
           {

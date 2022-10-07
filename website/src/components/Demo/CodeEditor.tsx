@@ -17,9 +17,11 @@ const DemoPlayground = memo(
             row
             key={value}
             hidden={value !== selectedValue}
-            endpointCode={endpointCode}
           >
-            {code}
+            <code title="Endpoint" collapsed={true}>
+              {endpointCode}
+            </code>
+            <code title="React">{code}</code>
           </HooksPlayground>
         ))}
       </div>
