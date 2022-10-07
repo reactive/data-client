@@ -14,6 +14,12 @@ import {
 import Playground from './Playground';
 import ResetableErrorBoundary from './ResettableErrorBoundary';
 
+function randomFloatInRange(min, max, decimals) {
+  const str = (Math.random() * (max - min) + min).toFixed(decimals);
+
+  return parseFloat(str);
+}
+
 const mockFetch = (getResponse, name, delay = 150) => {
   const fetch = (...args) =>
     new Promise(resolve =>
@@ -68,6 +74,7 @@ const scope = {
   ...rest,
   ...graphql,
   ...hooks,
+  randomFloatInRange,
   mockFetch,
   BigNumber,
   lastUpdated,
@@ -84,7 +91,6 @@ const scopeWithEndpoint = {
 
 const HooksPlayground = ({
   children,
-  endpointCode,
   groupId,
   hidden = false,
   defaultOpen,
@@ -92,7 +98,7 @@ const HooksPlayground = ({
   fixtures,
 }) => (
   <Playground
-    scope={endpointCode || Array.isArray(children) ? scope : scopeWithEndpoint}
+    scope={Array.isArray(children) ? scope : scopeWithEndpoint}
     noInline
     groupId={groupId}
     defaultOpen={defaultOpen}
@@ -101,7 +107,7 @@ const HooksPlayground = ({
     fixtures={fixtures}
   >
     {typeof children === 'string'
-      ? (endpointCode ? endpointCode + '\n\n' : '') + children
+      ? children
       : Array.isArray(children)
       ? children
       : children.props.children}

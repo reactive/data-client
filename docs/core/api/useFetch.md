@@ -4,6 +4,10 @@ title: useFetch()
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 
+<head>
+  <title>useFetch() - Declarative fetch triggers</title>
+</head>
+
 <GenericsTabs>
 
 ```typescript

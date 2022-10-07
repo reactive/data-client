@@ -65,11 +65,11 @@ by increasing cache hit rates.
 
 ## Methods
 
-### static fromJS<T extends typeof SimpleRecord\>(this: T, props: Partial<AbstractInstanceType<T\>\>): AbstractInstanceType<T\> {#fromJS}
+### static fromJS(props): Entity {#fromJS}
 
 Factory method called during denormalization. Use this instead of `new MyEntity()`
 
-### process(input, parent, key): processedEntity
+### process(input, parent, key): processedEntity {#process}
 
 Run at the start of normalization for this entity. Return value is saved in store
 and sent to [pk()](#pk).

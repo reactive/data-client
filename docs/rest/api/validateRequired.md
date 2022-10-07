@@ -10,7 +10,7 @@ Returns a string message if any keys of `requiredDefaults` are missing in `proce
 can be used to [validate](./Entity.md#validate) fields that must be provided.
 
 ```ts
-class CustomBaseResource extends Resource {
+class CustomBaseEntity extends Entity {
   static validate(processedEntity) {
     return validateRequired(processedEntity, this.defaults) || super.validate(processedEntity);
   }
@@ -22,7 +22,7 @@ class CustomBaseResource extends Resource {
 This can be useful to automatically validate for [partial results](/docs/getting-started/validation#partial-results)
 
 ```ts
-class SummaryAnalysis extends Resource {
+class SummaryAnalysis extends Entity {
   readonly id: string = '';
   readonly createdAt: Date = new Date(0);
   readonly meanValue: number = 0;

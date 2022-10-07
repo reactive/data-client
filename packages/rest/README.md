@@ -12,7 +12,7 @@ Extensible CRUD patterns for REST APIs.
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io/docs/rest/usage)**
+**[📖Read The Docs](https://resthooks.io/docs/rest)**
 
 </div>
 

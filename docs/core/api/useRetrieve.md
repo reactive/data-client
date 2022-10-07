@@ -71,7 +71,7 @@ function MasterPost({ id, doNotFetch }: { id: number, doNotFetch: boolean }) {
 
 ## Useful `Endpoint`s to send
 
-[Resource](/rest/5.2/resource#provided-and-overridable-methods) provides these built-in:
+[Resource](/rest/5.2/api/resource#endpoints) provides these built-in:
 
 - detail()
 - list()

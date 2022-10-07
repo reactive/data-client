@@ -28,6 +28,7 @@ export default function Output({ value }: { value: any }) {
           ? 'var(--ifm-pre-background)'
           : 'rgb(41, 45, 62)',
         font: 'var(--ifm-code-font-size) / var(--ifm-pre-line-height) var(--ifm-font-family-monospace) !important',
+        color: 'rgb(227, 227, 227)',
       },
       arrowContainer: ({ style }, arrowStyle) => ({
         style: {

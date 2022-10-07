@@ -65,7 +65,7 @@ and the best performance characteristics possible.
 
 `static urlRoot` is used as the basis of common [url patterns](../guides/url)
 
-APIs quickly get much more complicated! [Customizing Resources to fit your API](../guides/resource-types)
+APIs quickly get much more complicated! [Customizing Resources to fit your API](../guides/extending-endpoints)
 
 ## Use the Resource
 
@@ -116,7 +116,7 @@ export default function ArticleList({ sortBy }: { sortBy: string }) {
 </Tabs>
 
 [useResource()](../api/useresource) guarantees access to data with sufficient [freshness](../api/Endpoint#dataexpirylength-number).
-This means it may issue network calls, and it may [suspend](../guides/loading-state) until the fetch completes.
+This means it may issue network calls, and it may [suspend](../concepts/loading-state) until the fetch completes.
 Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
 suspends.
 

@@ -44,12 +44,12 @@ function UsersPage() {
       {users.map(user => (
         <div key={user.pk()}>
           {user.name}{' '}
-          <a
+          <span
             style={{ cursor: 'pointer' }}
             onClick={() => fetch(userDelete, { id: user.id })}
           >
             ❌
-          </a>
+          </span>
         </div>
       ))}
     </div>

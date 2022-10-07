@@ -240,7 +240,7 @@ const todoDetail = new Endpoint(
 
 <HooksPlayground  defaultOpen="n">
 
-```tsx
+```typescript title="api/ExchangeRate.ts"
 class ExchangeRate extends Entity {
   readonly currency: string = 'USD';
   readonly rates: Record<string, string> = {};
@@ -255,7 +255,9 @@ const getExchangeRates = new RestEndpoint({
   schema: { data: ExchangeRate },
   pollFrequency: 5000,
 });
+```
 
+```tsx title="AssetPrice.tsx"
 function AssetPrice({ symbol }: { symbol: string }) {
   const { data: price } = useSuspense(getExchangeRates, {
     currency: 'USD',
@@ -273,7 +275,6 @@ function AssetPrice({ symbol }: { symbol: string }) {
     </span>
   );
 }
-
 render(<AssetPrice symbol="BTC" />);
 ```
 

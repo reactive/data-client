@@ -11,14 +11,15 @@ const DemoPlayground = memo(
 
     return (
       <div ref={ref}>
-        {values.map(({ value, endpointCode, code }) => (
+        {values.map(({ value, endpointCode, code, fixtures }) => (
           <HooksPlayground
             groupId="homepage-demo"
             row
             key={value}
             hidden={value !== selectedValue}
+            fixtures={fixtures}
           >
-            <code title="Endpoint" collapsed={true}>
+            <code title="Endpoint" collapsed>
               {endpointCode}
             </code>
             <code title="React">{code}</code>

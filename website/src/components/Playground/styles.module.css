@@ -6,6 +6,7 @@
   display: flex;
   align-items: stretch;
   flex-direction: column;
+  background-color: var(--ifm-background-color);
 }
 @media only screen and (min-width: 768px) {
   .playgroundContainer.row {
@@ -76,7 +77,7 @@ div > .playgroundHeader.subtabs {
   transform-origin: 45% 50% 0px;
   position: relative;
   display: inline-block;
-  font-size: 90%;
+  font-size: 12px;
   margin-right: 1em;
 }
 .arrow.vertical {

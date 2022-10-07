@@ -10,7 +10,7 @@ title: createResource
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 
-`Resource`s are a collection of [RestEndpoints](./RestEndpoint.md) that operate on a common
+`Resources` are a collection of [RestEndpoints](./RestEndpoint.md) that operate on a common
 data by sharing a [schema](./schema.md)
 
 ## Usage

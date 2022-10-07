@@ -1,7 +1,8 @@
 .features {
   display: flex;
   align-items: center;
-  padding: 3.8rem 0;
+  margin: 3.2rem 0;
+  padding: 0;
   width: 100%;
 }
 

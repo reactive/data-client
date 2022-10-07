@@ -2,7 +2,7 @@ module.exports = {
   docs: [
     {
       type: 'doc',
-      id: 'usage',
+      id: 'README',
     },
     {
       type: 'category',

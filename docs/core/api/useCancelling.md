@@ -2,6 +2,10 @@
 title: useCancelling()
 ---
 
+<head>
+  <title>useCancelling() - Declarative fetch aborting</title>
+</head>
+
 ```typescript
 function useCancelling<E extends EndpointInterface & {
     extend: (o: {

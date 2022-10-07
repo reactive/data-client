@@ -2,6 +2,10 @@
 title: useLoading()
 ---
 
+<head>
+  <title>useLoading() - Turn any promise into React State</title>
+</head>
+
 ```typescript
 export default function useLoading<F extends (...args: any) => Promise<any>>(
   func: F,
