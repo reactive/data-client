@@ -1,5 +1,6 @@
 import { StateContext } from '@rest-hooks/core';
 import React, { useContext, memo, useMemo } from 'react';
+import clsx from 'clsx';
 
 import Tree from './Tree';
 import styles from './styles.module.css';
@@ -14,24 +15,12 @@ function StoreInspector({
   ) => void;
 }) {
   const isSelected = selectedValue === 'y';
-  const rotation = isSelected ? '0' : '180';
+  const rotation = isSelected ? styles.right : styles.left;
   return (
     <>
       <div className={styles.debugToggle} onClick={toggle}>
         Store
-        <span
-          style={{
-            transition: 'all 200ms ease 0s',
-            transform: `rotateZ(${rotation}deg)`,
-            transformOrigin: '45% 50% 0px',
-            position: 'relative',
-            display: 'inline-block',
-            fontSize: '90%',
-            float: 'right',
-          }}
-        >
-          ▶
-        </span>
+        <span className={clsx(styles.arrow, rotation, styles.vertical)}>▶</span>
       </div>
       {isSelected ? <StoreTreeM /> : null}
     </>

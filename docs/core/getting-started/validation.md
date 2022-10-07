@@ -37,7 +37,7 @@ delay: 150,
 },
 ]}>
 
-```tsx
+```typescript title="api/Article.ts"
 class Article extends Entity {
   readonly id: string = '';
   readonly title: string = '';
@@ -56,7 +56,9 @@ const getArticle = new RestEndpoint({
   path: '/article/:id',
   schema: Article,
 });
+```
 
+```tsx title="ArticlePage.tsx" collapsed
 function ArticlePage({ id }: { id: string }) {
   const article = useSuspense(getArticle, { id });
   return <div>{article.title}</div>;
@@ -92,7 +94,7 @@ delay: 150,
 },
 ]}>
 
-```tsx
+```tsx title="api/Article.ts"
 class Article extends Entity {
   readonly id: string = '';
   readonly title: string = '';
@@ -115,7 +117,9 @@ const getArticle = new RestEndpoint({
   path: '/article/:id',
   schema: Article,
 });
+```
 
+```tsx title="ArticlePage.tsx" collapsed
 function ArticlePage({ id }: { id: string }) {
   const article = useSuspense(getArticle, { id });
   return <div>{article.title}</div>;
@@ -167,7 +171,7 @@ delay: 150,
 },
 ]}>
 
-```tsx
+```typescript title="api/Article.ts"
 class ArticlePreview extends Entity {
   readonly id: string = '';
   readonly title: string = '';
@@ -201,7 +205,9 @@ const getArticle = new RestEndpoint({
   path: '/article/:id',
   schema: ArticleFull,
 });
+```
 
+```tsx title="ArticleDetail.tsx" collapsed
 function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
   const article = useSuspense(getArticle, { id });
   return (

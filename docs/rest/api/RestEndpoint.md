@@ -229,16 +229,15 @@ Takes the [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) 
 
 Perform any transforms with the parsed result. Defaults to identity function.
 
-## Endpoint Life-Cycles
+## schema?: Schema {#schema}
 
-### schema: Schema {#schema}
+[Declarative data lifecycle](./schema.md)
 
-Declarative definition of how to [process responses](./schema)
-
-- [where](./schema) to expect [Entities](./Entity.md)
+- Global data consistency and performance with [DRY](https://www.plutora.com/blog/understanding-the-dry-dont-repeat-yourself-principle) state: [where](./schema.md) to expect [Entities](./Entity.md)
 - Classes to [deserialize fields](/rest/guides/network-transform#deserializing-fields)
-
-Not providing this option means no entities will be extracted.
+- [Race condition handling](./Entity.md#useincoming)
+- [Validation](./Entity.md#validate)
+- [Expiry](./Entity.md#expiresat)
 
 ```tsx
 import { Entity, RestEndpoint } from '@rest-hooks/rest';
@@ -257,6 +256,8 @@ const getUser = new RestEndpoint({
   schema: User,
 });
 ```
+
+## Endpoint Life-Cycles
 
 ### dataExpiryLength?: number {#dataexpirylength}
 

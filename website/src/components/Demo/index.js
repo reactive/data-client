@@ -11,7 +11,7 @@ const simpleFetchDemo = [
     value: 'fetch',
     endpointCode: `const getTodo = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/todos/:id'
+  path: '/todos/:id',
 });`,
     code: `function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(getTodo, { id });
@@ -31,7 +31,8 @@ render(<TodoDetail id={1} />);
   pk() { return this.id }
 }
 const TodoResource = createResource({
-  path: 'https\\\\://jsonplaceholder.typicode.com/todos/:id',
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
   schema: Todo,
 })`,
     code: `function TodoDetail({ id }: { id: number }) {
@@ -67,6 +68,29 @@ const mutationDemo = [
   {
     label: 'REST',
     value: 'rest',
+    endpointCode: `class Todo extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  completed = false;
+  pk() { return this.id }
+}
+const BaseTodoResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  schema: Todo,
+});
+const TodoResource = {
+  ...BaseTodoResource,
+  partialUpdate: BaseTodoResource.partialUpdate.extend({
+    getOptimisticResponse(snap, params, body) {
+      return {
+        id: params.id,
+        ...body,
+      };
+    },
+  }),
+};`,
     code: `function TodoDetail({ id }) {
   const todo = useSuspense(TodoResource.get, { id });
   const controller = useController();
@@ -95,9 +119,9 @@ render(<TodoDetail id={1} />);
 class Todo extends GQLEntity {
   readonly title: string = '';
   readonly completed: boolean = false;
-}`,
-    code:
-      `const getTodo = gql.query(\`
+}
+
+const getTodo = gql.query(\`
   query GetTodo($id: ID!) {
     todo(id: $id) {
       id
@@ -116,9 +140,8 @@ const updateTodo = gql.mutation(
     }
   }\`,
   { updateTodo: Todo },
-);` +
-      '\n\n' +
-      `function TodoDetail({ id }) {
+);`,
+    code: `function TodoDetail({ id }) {
   const { todo } = useSuspense(getTodo, { id });
   const controller = useController();
   const updateWith = title => () =>
@@ -143,6 +166,39 @@ const appDemo = [
   {
     label: 'REST',
     value: 'rest',
+    endpointCode: `class Todo extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  completed = false;
+  pk() { return this.id }
+}
+const BaseTodoResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  schema: Todo,
+});
+const TodoResource = {
+  ...BaseTodoResource,
+  getList: BaseTodoResource.getList.extend({
+    process(todos) {
+      return todos.slice(0, 7);
+    },
+  }),
+  partialUpdate: BaseTodoResource.partialUpdate.extend({
+    getOptimisticResponse(snap, params, body) {
+      return {
+        id: params.id,
+        ...body,
+      };
+    },
+  }),
+  delete: BaseTodoResource.delete.extend({
+    getOptimisticResponse(snap, params) {
+      return params;
+    },
+  }),
+};`,
     code: `function TodoItem({ todo }: { todo: Todo }) {
   const controller = useController();
   return (
@@ -199,9 +255,9 @@ render(<TodoList />);
 class Todo extends GQLEntity {
   readonly title: string = '';
   readonly completed: boolean = false;
-}`,
-    code:
-      `const todoList = gql.query(\`
+}
+
+const todoList = gql.query(\`
   query GetTodos {
     todo {
       id
@@ -220,9 +276,8 @@ const updateTodo = gql.mutation(
     }
   }\`,
   { updateTodo: Todo },
-);` +
-      '\n\n' +
-      `function TodoItem({ todo }: { todo: TodoResource }) {
+);`,
+    code: `function TodoItem({ todo }: { todo: Todo }) {
   const controller = useController();
   return (
     <div>

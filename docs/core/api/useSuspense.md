@@ -119,7 +119,7 @@ function ArticleList({ page }: { page: string }) {
 
 [Resource](/rest/api/createResource#members) provides these built-in:
 
-- get
-- getList
+- [get](/rest/api/createResource#get)
+- [getList](/rest/api/createResource#getlist)
 
 Feel free to add your own [RestEndpoint](/rest/api/RestEndpoint) as well.

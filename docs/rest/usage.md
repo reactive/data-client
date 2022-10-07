@@ -115,13 +115,13 @@ export default function ArticleList() {
 </TabItem>
 </Tabs>
 
-[useSuspense()](/docs/api/useSuspense) guarantees access to data with sufficient [freshness](api/Endpoint.md#dataexpirylength).
+[useSuspense()](/docs/api/useSuspense) guarantees access to data with sufficient [freshness](api/RestEndpoint.md#dataexpirylength).
 This means it may issue network calls, and it may [suspend](/docs/getting-started/data-dependency#async-fallbacks) until the fetch completes.
 Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
 suspends.
 
 - Fetches are centrally controlled, and thus automatically deduplicated
-- Data is centralized and normalized guaranteeing consistency across uses, even with different [endpoints](api/Endpoint.md).
+- Data is centralized and normalized guaranteeing consistency across uses, even with different [endpoints](api/RestEndpoint.md).
   - (For example: navigating to a detail page with a single entry from a list view will instantly show the same data as the list without
     requiring a refetch.)
 
