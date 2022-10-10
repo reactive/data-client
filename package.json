@@ -32,7 +32,7 @@
     "extends @anansi/browserslist-config"
   ],
   "devDependencies": {
-    "@anansi/babel-preset": "3.2.18",
+    "@anansi/babel-preset": "3.2.19",
     "@anansi/browserslist-config": "1.4.0",
     "@anansi/eslint-plugin": "0.14.3",
     "@anansi/jest-preset": "0.7.29",
@@ -57,7 +57,7 @@
     "benchmark": "^2.1.4",
     "conventional-changelog-anansi": "^0.2.0",
     "copyfiles": "^2.4.1",
-    "core-js": "3.25.3",
+    "core-js": "3.25.5",
     "coveralls": "^3.1.0",
     "cpy-cli": "4.2.0",
     "cross-fetch": "^3.0.6",
