@@ -181,10 +181,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/browserslist-config@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "@anansi/browserslist-config@npm:1.4.0"
-  checksum: 83c147f7e22a6c8bce33b8890d6237fcbbbff795b198c2e3ee187ccbdd3725af06ee07a8367f71cbdc886be253d95a3b4185840845dfe9a33f5c7da6a7fd2c01
+"@anansi/browserslist-config@npm:1.4.1":
+  version: 1.4.1
+  resolution: "@anansi/browserslist-config@npm:1.4.1"
+  checksum: 1a495f4f7d94a19fc60d0fc53f962d19f0b03a1cf48127257f43f8b067d622d73db6759340bf4d82e029c980ab85cba205fe657cccd59fb919a6cd8c8df797ef
   languageName: node
   linkType: hard
 
@@ -12305,7 +12305,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/browserslist-config": ^1.4.0
+    "@anansi/browserslist-config": 1.4.1
     "@anansi/webpack-config": 13.0.17
     "@docusaurus/core": 2.1.0
     "@docusaurus/module-type-aliases": 2.1.0

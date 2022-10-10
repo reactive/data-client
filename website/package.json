@@ -23,7 +23,7 @@
     "webpack": "^5.74.0"
   },
   "dependencies": {
-    "@anansi/browserslist-config": "^1.4.0",
+    "@anansi/browserslist-config": "1.4.1",
     "@anansi/webpack-config": "13.0.17",
     "@docusaurus/core": "2.1.0",
     "@docusaurus/plugin-client-redirects": "2.1.0",
