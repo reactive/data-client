@@ -4,6 +4,19 @@ import Boundary from 'Boundary';
 
 import TodoListComponent from './TodoListComponent';
 
+export default function Home() {
+  return (
+    <div className={home}>
+      <Title>Todo List</Title>
+      <main style={{ paddingTop: '50px' }}>
+        <Boundary>
+          <TodoListComponent />
+        </Boundary>
+      </main>
+    </div>
+  );
+}
+
 const margin = '8px';
 
 const home = css`
@@ -25,16 +38,3 @@ const Title = styled.nav`
   background: white;
   z-index: 100;
 `;
-
-export default function Home() {
-  return (
-    <div className={home}>
-      <Title>Todo List</Title>
-      <main style={{ paddingTop: '50px' }}>
-        <Boundary>
-          <TodoListComponent />
-        </Boundary>
-      </main>
-    </div>
-  );
-}

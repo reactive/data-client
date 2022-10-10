@@ -256,7 +256,8 @@ function CounterPage() {
         Click the button multiple times quickly to trigger the race condition
       </p>
       <div>
-        {count} <button onClick={clickHandler}>+</button>
+        {count}
+        <br/><button onClick={clickHandler}>+</button>
         {loading ? ' ...loading' : ''}
       </div>
     </div>

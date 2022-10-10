@@ -9,14 +9,29 @@ module.exports = {
       id: 'auth',
     },
     {
-      type: 'doc',
-      id: 'api/GQLEndpoint',
+      type: 'category',
+      collapsed: false,
+      label: 'Endpoint API',
+      items: [
+        {
+          type: 'doc',
+          id: 'api/GQLEndpoint',
+        },
+        {
+          type: 'doc',
+          id: 'api/Endpoint',
+        },
+        {
+          type: 'doc',
+          id: 'api/Index',
+        },
+      ],
     },
     {
       type: 'category',
-      label: '@rest-hooks/endpoint',
+      label: 'Schema API',
       collapsed: false,
-      items: require('./sidebars-endpoint.json'),
+      items: require('./sidebars-endpoint.json').slice(2),
     },
   ],
 };

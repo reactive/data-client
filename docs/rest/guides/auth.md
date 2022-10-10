@@ -41,10 +41,10 @@ export const MyResource = createResource({
   path: '/my/:id',
   schema: MyEntity,
   Endpoint: AuthdEndpoint,
-})
+});
 ```
 
-## Access Tokens
+## Access Tokens or JWT
 
 <Tabs
 defaultValue="static"
@@ -137,7 +137,6 @@ function Auth() {
 </TabItem>
 </Tabs>
 
-
 ```ts title="api/MyResource.ts"
 import { createResource, Entity } from '@rest-hooks/rest';
 import AuthdEndpoint from 'api/AuthdEndpoint';
@@ -150,7 +149,7 @@ export const MyResource = createResource({
   path: '/my/:id',
   schema: MyEntity,
   Endpoint: AuthdEndpoint,
-})
+});
 ```
 
 ## Auth Headers from React Context
@@ -161,6 +160,70 @@ Using React Context for state that is not displayed (like auth tokens) is not re
 This will result in unnecessary re-renders and application complexity.
 
 :::
+
+<Tabs
+defaultValue="resource"
+values={[
+{ label: 'Resource', value: 'resource' },
+{ label: 'RestEndpoint', value: 'endpoint' },
+]}>
+<TabItem value="resource">
+
+We can transform any [Resource](../api/createResource.md) into one that uses hooks to create endpoints
+by using [hookifyResource](../api/hookifyResource.md)
+
+```ts title="api/Post.ts"
+import { createResource, hookifyResource } from '@rest-hooks/rest';
+
+// Post defined here
+
+export const PostResource = hookifyResource(
+  createResource({ path: '/posts/:id', schema: Post }),
+  function useInit(): RequestInit {
+    const accessToken = useAuthContext();
+    return {
+      headers: {
+        'Access-Token': accessToken,
+      },
+    };
+  },
+);
+```
+
+Then we can get the endpoints as hooks in our React Components
+
+```tsx
+import { useSuspense } from 'rest-hooks';
+import { PostResource } from 'api/Post';
+
+function PostDetail({ id }) {
+  const post = useSuspense(PostResource.useGet(), { id });
+  return <div>{post.title}</div>;
+}
+```
+
+:::caution
+
+Using this means all endpoint calls must only occur during a function render.
+
+```tsx
+function CreatePost() {
+  const controller = useController();
+  //highlight-next-line
+  const createPost = PostResource.useCreate();
+
+  return (
+    <form onSubmit={e => controller.fetch(createPost, new FormData(e.target))}>
+      {/* ... */}
+    </form>
+  );
+}
+```
+
+:::
+
+</TabItem>
+<TabItem value="endpoint">
 
 We will first provide an easy way of using the context to alter the fetch headers.
 
@@ -206,7 +269,9 @@ function CreatePost() {
   const createPost = useEndpoint(PostResource.create);
 
   return (
-    <form onSubmit={e => controller.fetch(createPost, {}, new FormData(e.target))}>
+    <form
+      onSubmit={e => controller.fetch(createPost, {}, new FormData(e.target))}
+    >
       {/* ... */}
     </form>
   );
@@ -214,6 +279,9 @@ function CreatePost() {
 ```
 
 :::
+
+</TabItem>
+</Tabs>
 
 ## Code organization
 

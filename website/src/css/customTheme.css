@@ -88,9 +88,9 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
   line-height: 2;
 }
 
-button {
-  margin-right: 8px;
-  padding: 2px 4px;
+small {
+  /* google doesn't like anything smaller than 12 */
+  font-size: 12px;
 }
 
 @media only screen and (max-width: 996px) {

@@ -1,9 +1,11 @@
 ---
 title: RestEndpoint
+description: Strongly typed path-based API definitions.
 ---
 
 <head>
   <title>RestEndpoint - Strongly typed path-based API definitions</title>
+  <meta data-rh="true" name="docsearch:pagerank" content="10"/>
 </head>
 
 import Tabs from '@theme/Tabs';

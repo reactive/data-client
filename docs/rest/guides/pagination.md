@@ -155,7 +155,7 @@ export default function ArticleList() {
 
 In some cases the pagination tokens will be embeded in HTTP headers, rather than part of the payload. In this
 case you'll need to customize the [parseResponse()](api/RestEndpoint.md#parseResponse) function
-for [getList](api/createResource.md#getList) so the pagination headers are included fetch object.
+for [getList](api/createResource.md#getlist) so the pagination headers are included fetch object.
 
 We show the custom `getList` below. All other parts of the above example remain the same.
 
@@ -187,5 +187,39 @@ export const ArticleResource = {
 
 ## Code organization
 
-If much of your `Resources` share a similar pagination, you might
-try extending from a base class that defines such common customizations.
+If much of your API share a similar pagination, you might
+try a custom Endpoint class that shares this logic.
+
+```ts title="api/PagingEndpoint.ts"
+import { RestEndpoint, type RestGenerics } from '@rest-hooks/rest';
+
+export class PagingEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  async parseResponse(response: Response) {
+    const results = await super.parseResponse(response);
+    if (
+      (response.headers && response.headers.has('link')) ||
+      Array.isArray(results)
+    ) {
+      return {
+        link: response.headers.get('link'),
+        results,
+      };
+    }
+    return results;
+  }
+}
+```
+
+```ts title="api/My.ts"
+import { createResource, Entity } from '@rest-hooks/rest';
+
+import { PagingEndpoint } from './PagingEndpoint';
+
+export const MyResource = createResource({
+  path: '/stuff/:id',
+  schema: MyEntity,
+  Endpoint: PagingEndpoint,
+});
+```
