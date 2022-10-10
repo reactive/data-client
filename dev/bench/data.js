@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1664743650049,
+  "lastUpdate": 1665377685818,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -7752,6 +7752,58 @@ window.BENCHMARK_DATA = {
             "name": "receiveLong",
             "value": 85.97,
             "range": "±1.46%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c7eb5e9e51b3fa42e996b27c6d42ba317028f292",
+          "message": "docs: Fix mobile usability SEO (#2206)",
+          "timestamp": "2022-10-09T23:50:29-05:00",
+          "tree_id": "603431ee4b1d12fd3ecab67c379438fb8bb50856",
+          "url": "https://github.com/coinbase/rest-hooks/commit/c7eb5e9e51b3fa42e996b27c6d42ba317028f292"
+        },
+        "date": 1665377684803,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 84.82,
+            "range": "±2.34%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 45.73,
+            "range": "±1.22%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 48.13,
+            "range": "±0.46%",
+            "unit": "ops/sec",
+            "extra": "62 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 86.88,
+            "range": "±3.03%",
             "unit": "ops/sec",
             "extra": "73 samples"
           }
