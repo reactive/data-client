@@ -118,9 +118,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/jest-preset@npm:0.7.29":
-  version: 0.7.29
-  resolution: "@anansi/jest-preset@npm:0.7.29"
+"@anansi/jest-preset@npm:0.7.31":
+  version: 0.7.31
+  resolution: "@anansi/jest-preset@npm:0.7.31"
   dependencies:
     "@anansi/ts-utils": ^0.2.6
     babel-jest: ^29.1.2
@@ -128,7 +128,7 @@ __metadata:
     identity-obj-proxy: ^3.0.0
     jest-pnp-resolver: ^1.2.2
     mitt: ^3.0.0
-    semver: ^7.3.7
+    semver: ^7.3.8
     ts-jest: ^29.0.3
     whatwg-fetch: ^3.0.0
   peerDependencies:
@@ -139,7 +139,7 @@ __metadata:
   peerDependenciesMeta:
     react:
       optional: true
-  checksum: d5c1f47e13d506d918323d0d64c6e7f82ef425e9ff660d60a386f5199cff9219f137a4dbb3831a90e00ca3c9222f608d90f2da645a7fa765e5b58c367c87972a
+  checksum: d823832b7a2954b0f2acdd231a6a309ccf364592c0cdcfe9a81b274808f77513c644999b4ac46f569cbbcb1dd6c29e037040c5dd594c4c94ae90182493a3d249
   languageName: node
   linkType: hard
 
@@ -4633,13 +4633,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:29.1.1":
-  version: 29.1.1
-  resolution: "@types/jest@npm:29.1.1"
+"@types/jest@npm:29.1.2":
+  version: 29.1.2
+  resolution: "@types/jest@npm:29.1.2"
   dependencies:
     expect: ^29.0.0
     pretty-format: ^29.0.0
-  checksum: d9e6f7d6ab64cf45535369d0a3dc4640cbe6b37ab6f8927e874eacc199581338ebf6ff544f7c2cd188c5fc7cd0b3197aa72cb2b826f0a1352b93b89993711413
+  checksum: a6761b5ac132c641740886f9c0714607255ebffb6add5989f51ea9e392fc3c5cd474e7590f12b003d5b67ce177dfbc8d3d60d0baa335c48c50deeee6b755a473
   languageName: node
   linkType: hard
 
@@ -19098,7 +19098,7 @@ __metadata:
     "@anansi/babel-preset": 3.2.19
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.14.3
-    "@anansi/jest-preset": 0.7.29
+    "@anansi/jest-preset": 0.7.31
     "@babel/cli": 7.19.3
     "@babel/core": 7.19.3
     "@babel/node": 7.19.1
@@ -19110,7 +19110,7 @@ __metadata:
     "@testing-library/react": 13.4.0
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 11.2.0
-    "@types/jest": 29.1.1
+    "@types/jest": 29.1.2
     "@types/lodash": 4.14.186
     "@types/node": 18.8.3
     "@types/react": 18.0.21
