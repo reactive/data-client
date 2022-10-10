@@ -96,6 +96,14 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
 
 Package: [@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint)
 
+:::tip
+
+Endpoint is a protocol independent class. Try using the protocol specific patterns
+[REST](./RestEndpoint.md), [GraphQL](/graphql/api/GQLEndpoint),
+or [getImage](/docs/guides/img-media#just-images) instead.
+
+:::
+
 ## Endpoint Members
 
 Members double as options (second constructor arg). While none are required, the first few

@@ -95,7 +95,7 @@
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
-  "homepage": "https://resthooks.io/docs/api/resource",
+  "homepage": "https://resthooks.io/rest",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:coinbase/rest-hooks.git",

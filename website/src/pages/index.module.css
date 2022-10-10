@@ -4,20 +4,30 @@
  */
 
 .heroBanner {
-  padding: 3rem 0;
+  padding: 2.5rem 0;
   text-align: center;
   position: relative;
   overflow: hidden;
   /*margin-bottom: 10px;*/
 
-  background: url('../../static/img/rest_hooks_logo_grayscale.svg') var(--ifm-hero-background-color) no-repeat;
-  background-position: 100% 20%;
-}
+  background: linear-gradient(
+      transparent 212px,
+      var(--ifm-hero-fade-to-background-color) 100%
+    ),
+    url('../../static/img/rest_hooks_logo_grayscale.svg')
+      var(--ifm-hero-background-color) no-repeat;
+  background-position: 0, 100% calc(20% - 3rem);
 
+  /* overlap */
+  padding-bottom: 14.5rem;
+  margin-bottom: -12rem;
+}
 
 @media screen and (max-width: 966px) {
   .heroBanner {
     padding: 2rem;
+    padding-bottom: 14rem;
+    margin-bottom: -12rem;
   }
 }
 
@@ -27,7 +37,7 @@
   justify-content: center;
 }
 .buttons :global(.button.button--primary) {
-  font-size: 23px;
+  font-size: 21px;
   padding: 0.2em 1.3em;
   font-weight: bold;
   border-radius: 10px;
@@ -41,4 +51,18 @@
 
 .GitHubButton {
   overflow: hidden;
+}
+
+@media only screen and (max-width: 768px) {
+  .buttons {
+    flex-direction: column;
+  }
+  .buttons :global(.button.button--primary) {
+    margin: 0 0 15px 0;
+  }
+}
+
+:global(.main-wrapper) > main {
+  z-index: 1;
+  position: relative;
 }

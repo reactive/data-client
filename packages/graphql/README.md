@@ -12,7 +12,7 @@
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io/docs/graphql/usage)**
+**[📖Read The Docs](https://resthooks.io/docs/graphql)**
 
 </div>
 

@@ -1,5 +1,5 @@
 ---
-id: usage
+id: README
 title: REST
 sidebar_label: Usage
 ---

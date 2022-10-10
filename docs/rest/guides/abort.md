@@ -12,12 +12,39 @@ fetches that are no longer considered relevant. This can be hooked into fetch vi
 Sometimes a user has the opportunity to fill out a field that is used to affect the results of a network call.
 If this is a text input, they could potentially type quite quickly, thus creating a lot of network requests.
 
-Using `@rest-hooks/hooks` package with [useCancelling()](/docs/api/useCancelling) will automatically cancel in-flight requests if the parameters
+Using [@rest-hooks/hooks](https://www.npmjs.com/package/@rest-hooks/hooks) package with [useCancelling()](/docs/api/useCancelling) will automatically cancel in-flight requests if the parameters
 change before the request is resolved.
 
 <HooksPlayground>
 
-```tsx
+```tsx title="api/Todo.ts" collapsed
+class Todo extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  completed = false;
+  pk() {
+    return this.id;
+  }
+}
+const TodoResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  schema: Todo,
+});
+```
+
+```tsx title="TodoDetail.tsx"
+import { useSuspense } from 'rest-hooks';
+import { useCancelling } from '@rest-hooks/hooks';
+
+function TodoDetail({ id }) {
+  const todo = useSuspense(useCancelling(TodoResource.get, { id }), { id });
+  return <div>{todo.title}</div>;
+}
+```
+
+```tsx title="Demo" collapsed
 function AbortDemo() {
   const [id, setId] = React.useState(1);
   return (
@@ -26,16 +53,11 @@ function AbortDemo() {
         <TodoDetail id={id} />
       </React.Suspense>
       <div>
-        <button onClick={() => setId(id => id - 1)}>-</button>
-        {' '}<button onClick={() => setId(id => id + 1)}>+</button>
-        {' '}&nbsp;{id}
+        <button onClick={() => setId(id => id - 1)}>➖</button>{' '}
+        <button onClick={() => setId(id => id + 1)}>➕</button> &nbsp;{id}
       </div>
     </div>
   );
-}
-function TodoDetail({ id }) {
-  const todo = useSuspense(useCancelling(TodoResource.get, { id }), { id });
-  return <div>{todo.title}</div>;
 }
 render(<AbortDemo />);
 ```

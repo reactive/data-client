@@ -7,12 +7,16 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 All network requests flow through the `fetch()` method, so any transforms needed can simply
 be done by overriding it with a call to super.
 
-> Note: If you retain control over the API design, generally it's preferred to
-> update the data sent over the network. Keeping the client as `thin` as possible
-> is helpful to both performance and complexity.
->
-> That said, in many cases you want to consume APIs you don't have control over -
-> be they public APIs, or due to internal organizational structure.
+:::tip
+
+Note: If you retain control over the API design, generally it's preferred to
+update the data sent over the network. Keeping the client as `thin` as possible
+is helpful to both performance and complexity.
+
+That said, in many cases you want to consume APIs you don't have control over -
+be they public APIs, or due to internal organizational structure.
+
+:::
 
 ## Snakes to camels
 
@@ -62,7 +66,7 @@ In this case, simply use the [static schema](api/Entity.md#schema) with [Date](h
 
 <HooksPlayground groupId="schema" defaultOpen="y">
 
-```tsx
+```tsx title="api/Price.ts"
 const exchangeMock = ({ exchangePair }) =>
   Promise.resolve({
     exchangePair,
@@ -85,6 +89,9 @@ class ExchangePrice extends Entity {
 const getPrice = new Endpoint(exchangeMock, {
   schema: ExchangePrice,
 });
+```
+
+```tsx title="PricePage.tsx"
 function PricePage() {
   const currentPrice = useSuspense(getPrice, { exchangePair: 'btc-usd' });
   return (

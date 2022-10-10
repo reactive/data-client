@@ -7,6 +7,7 @@ title: Optimistic Updates
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import {RestEndpoint} from '@rest-hooks/rest';
 
 Optimistic updates enable highly responsive and fast interfaces by avoiding network wait times.
 An update is optimistic by assuming the network is successful. In the case of any errors, Rest
@@ -202,9 +203,15 @@ Sometimes user actions should result in data transformations that are dependent 
 The simplest examples of this are toggling a boolean, or incrementing a counter; but the same principal applies to
 more complicated transforms. To make it more obvious we're using a simple counter here.
 
-<HooksPlayground>
+<HooksPlayground fixtures={[
+  {
+    endpoint: new RestEndpoint({path: '/api/count'}),
+    args: [],
+    response: { count: 0, updatedAt: new Date() }
+  }
+]}>
 
-```ts
+```ts title="api/Count.ts"
 class CountEntity extends Entity {
   readonly count = 0;
 
@@ -236,7 +243,9 @@ const increment = new RestEndpoint(
     },
   },
 );
+```
 
+```tsx title="CounterPage.tsx"
 function CounterPage() {
   const { fetch } = useController();
   const { count } = useSuspense(getCount);
@@ -276,9 +285,15 @@ that resolves out of order.
 We use [snap.fetchedAt](/docs/api/Snapshot#fetchedat) in our [getOptimisticResponse](api/RestEndpoint.md#getoptimisticresponse). This respresents the moment the fetch is triggered,
 which is when the optimistic update first applies.
 
-<HooksPlayground>
+<HooksPlayground fixtures={[
+  {
+    endpoint: new RestEndpoint({path: '/api/count'}),
+    args: [],
+    response: { count: 0, updatedAt: new Date() }
+  }
+]}>
 
-```tsx
+```ts title="api/Count.ts"
 class CountEntity extends Entity {
   readonly count = 0;
   readonly updatedAt = 0;
@@ -316,7 +331,9 @@ const increment = new RestEndpoint(
     },
   },
 );
+```
 
+```tsx title="CounterPage.tsx"
 function CounterPage() {
   const { fetch } = useController();
   const { count } = useSuspense(getCount);

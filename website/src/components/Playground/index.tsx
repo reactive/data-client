@@ -1,11 +1,4 @@
-import React, {
-  memo,
-  useCallback,
-  useContext,
-  useMemo,
-  useReducer,
-  useState,
-} from 'react';
+import React, { memo, useContext, useMemo, useReducer, useState } from 'react';
 import { LiveProvider, LiveEditor, LiveProviderProps } from 'react-live';
 import clsx from 'clsx';
 import Translate from '@docusaurus/Translate';
@@ -16,14 +9,13 @@ import { transpileModule, ModuleKind, ScriptTarget, JsxEmit } from 'typescript';
 import { FixtureEndpoint } from '@rest-hooks/test';
 
 import CodeTabContext from '../Demo/CodeTabContext';
-import Preview from './Preview';
 import styles from './styles.module.css';
 import FixturePreview from './FixturePreview';
 import Header from './Header';
 import PreviewWithHeader from './PreviewWithHeader';
 
 function babelTransform(code) {
-  const transformed = transpileModule(code, {
+  const transformed = transpileModule(code.replaceAll(/^import.+$/gm, ''), {
     compilerOptions: {
       module: ModuleKind.ESNext,
       target: ScriptTarget.ES2017,
@@ -95,7 +87,7 @@ EditorHeader.defaultProps = {
       id="theme.Playground.liveEditor"
       description="The live editor label of the live codeblocks"
     >
-      Live Editor
+      Editor
     </Translate>
   ),
   fixtures: [],
@@ -167,7 +159,7 @@ export default function Playground({
       <LiveProvider theme={prismTheme} {...props}>
         <Reversible reverse={playgroundPosition === 'top'}>
           <div>
-            <EditorHeader fixtures={fixtures} />
+            <EditorHeader fixtures={!row && fixtures} />
             {row && codeTabs.length > 1 ? (
               <EditorTabs
                 titles={codeTabs.map(({ title }) => title)}
@@ -176,7 +168,7 @@ export default function Playground({
               />
             ) : null}
             {codeTabs.map(({ title }, i) => (
-              <>
+              <React.Fragment key={i}>
                 {!row && title ? (
                   <CodeTabHeader
                     onClick={() =>
@@ -198,7 +190,7 @@ export default function Playground({
                     code={codes[i]}
                   />
                 )}
-              </>
+              </React.Fragment>
             ))}
           </div>
           <LiveProvider

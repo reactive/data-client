@@ -2,6 +2,10 @@
 title: useDebounce()
 ---
 
+<head>
+  <title>useDebounce() - Declarative value delays</title>
+</head>
+
 ```typescript
 function useDebounce<T>(value: T, delay: number, updatable?: boolean): T;
 ```

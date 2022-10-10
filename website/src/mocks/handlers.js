@@ -2,7 +2,7 @@ import { rest, graphql } from 'msw';
 
 const pageInitAt = Date.now();
 
-let TODOS = [
+export let TODOS = [
   {
     userId: 1,
     id: 1,

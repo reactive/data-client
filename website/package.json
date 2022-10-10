@@ -59,7 +59,8 @@
     "workerDirectory": "static"
   },
   "browserslist": [
-    "extends @anansi/browserslist-config"
+    "extends @anansi/browserslist-config",
+    "last 1 years"
   ],
   "packageManager": "yarn@3.2.4"
 }

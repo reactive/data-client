@@ -2,6 +2,10 @@
 title: Pagination
 ---
 
+<head>
+  <title>Paginating REST data</title>
+</head>
+
 ## Infinite Scrolling
 
 In case you want to append results to your existing list, rather than move to another page

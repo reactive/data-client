@@ -8,7 +8,7 @@ const isDev = process.env.NODE_ENV === 'development';
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'Rest Hooks',
-  tagline: 'Asynchronous data framework for React',
+  tagline: 'Declarative Async State Management for React',
   url: 'https://resthooks.io',
   baseUrl: '/',
   organizationName: 'coinbase',
@@ -46,18 +46,16 @@ module.exports = {
       as: 'style',
       crossOrigin: true,
     },
+    {
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&family=Rubik:ital,wght@1,300..900&family=Roboto+Mono:wght@100..700&family=Roboto+Mono:ital,wght@1,100..700&display=swap',
+      crossOrigin: true,
+      media: 'all',
+    },
   ],
   favicon: 'img/favicon/favicon.ico',
   themes: ['@docusaurus/theme-live-codeblock'],
   customFields: {
-    users: [
-      {
-        caption: 'Coinbase',
-        image: '/img/coinbase-logo.svg',
-        infoLink: 'https://www.coinbase.com',
-        pinned: true,
-      },
-    ],
     repoUrl: 'https://github.com/coinbase/rest-hooks',
   },
   onBrokenLinks: 'log',
@@ -241,6 +239,14 @@ module.exports = {
             to: '/rest/guides/pagination',
             from: ['/docs/guides/infinite-scrolling-pagination'],
           },
+          {
+            to: '/rest',
+            from: ['/rest/usage'],
+          },
+          {
+            to: '/graphql',
+            from: ['/graphql/usage'],
+          },
         ],
       },
     ],
@@ -266,6 +272,7 @@ module.exports = {
         title: 'Rest Hooks',
         logo: {
           src: 'img/rest_hooks_logo.svg',
+          alt: 'Rest Hooks Logo',
         },
         hideOnScroll: true,
         items: [
@@ -275,17 +282,18 @@ module.exports = {
             position: 'left',
           },
           {
-            to: 'docs/api/types',
-            label: 'API',
+            to: 'docs/api/useSuspense',
+            label: 'Hooks',
             position: 'left',
+            activeBasePath: '/donotuse',
           },
           {
-            to: 'rest/usage',
+            to: 'rest',
             label: 'REST',
             position: 'left',
           },
           {
-            to: 'graphql/usage',
+            to: 'graphql',
             label: 'GraphQL',
             position: 'left',
           },
@@ -309,6 +317,11 @@ module.exports = {
           {
             type: 'docsVersionDropdown',
             docsPluginId: 'rest',
+            position: 'right',
+          },
+          {
+            type: 'docsVersionDropdown',
+            docsPluginId: 'graphql',
             position: 'right',
           },
           /*{
@@ -356,16 +369,24 @@ module.exports = {
                 to: '/docs',
               },
               {
-                label: 'REST / CRUD',
-                to: '/docs/rest/usage',
+                label: 'REST',
+                to: '/rest',
               },
               {
                 label: 'GraphQL',
-                to: '/docs/graphql/usage',
+                to: '/graphql',
               },
               {
-                label: 'API',
-                to: '/docs/api/types',
+                label: 'Images / Binary',
+                to: '/docs/guides/img-media',
+              },
+              {
+                label: 'Websockets',
+                to: '/docs/api/Manager#middleware-data-stream',
+              },
+              {
+                label: 'Hooks',
+                to: '/docs/api/useSuspense',
               },
             ],
           },
@@ -393,6 +414,18 @@ module.exports = {
                 label: 'Blog',
                 to: '/blog',
               },
+              {
+                label: 'Github',
+                to: 'https://github.com/coinbase/rest-hooks',
+              },
+              {
+                label: 'Demo (Github)',
+                to: 'https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx',
+              },
+              {
+                label: 'Demo (Todo)',
+                to: 'https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoListComponent.tsx',
+              },
               /*{
               html: `<iframe
               src="https://ghbtns.com/github-btn.html?user=coinbase&amp;repo=rest-hooks&amp;type=star&amp;count=true&amp;size=small"
@@ -407,6 +440,9 @@ module.exports = {
         copyright: `Copyright © ${new Date().getFullYear()} Nathaniel Tucker. Some icons by <a href="https://www.freepik.com" title="Freepik">Freepik</a>`,
         logo: {
           src: 'img/rest_hooks_logo.svg',
+          alt: 'Rest Hooks Logo',
+          width: 94,
+          height: 90,
         },
       },
       algolia: {

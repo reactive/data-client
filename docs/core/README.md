@@ -16,7 +16,7 @@ it is not a networking stack for things like minecraft game servers.
 
 A good way to tell if this could be useful is if you use something similar to **any** of the following to build data-driven applications:
 
-- API protocols like [REST](/rest/usage), [GraphQL](/graphql/usage), [gRPC](https://grpc.io/), [JSON:API](https://jsonapi.org/)
+- API protocols like [REST](/rest), [GraphQL](/graphql), [gRPC](https://grpc.io/), [JSON:API](https://jsonapi.org/)
 - Transport protocols like [HTTP](/rest/api/RestEndpoint), [WebSockets](./api/Manager.md#middleware-data-stream), [local](/rest/guides/mocking-unfinished)
 - Async storage engines like [IndexedDb](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API), [AsyncStorage](https://reactnative.dev/docs/asyncstorage)
 
@@ -391,7 +391,7 @@ encourages extracting shared logic among endpoints.
 ### @rest-hooks/rest
 
 One common pattern is having endpoints Create Read Update Delete (CRUD) for a given resource.
-Using [@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest) ([docs](/rest/usage)) simplifies these patterns.
+Using [@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest) ([docs](/rest)) simplifies these patterns.
 
 [RestEndpoint](/rest/api/RestEndpoint) extends [Endpoint](/rest/api/Endpoint) simplifying HTTP patterns.
 
@@ -418,7 +418,7 @@ const TodoResource = createResource({
 });
 ```
 
-[Introduction to Resource](/rest/usage)
+[Introduction to Resource](/rest)
 
 <details><summary><b>Resource Endpoints</b></summary>
 
@@ -453,7 +453,7 @@ controller.fetch(TodoResource.delete, { id: 5 });
 ### @rest-hooks/graphql
 
 [GraphQL](https://graphql.org) support ships in the [@rest-hooks/graphql](https://www.npmjs.com/package/@rest-hooks/graphql)
-([docs](/graphql/usage)) package.
+([docs](/graphql)) package.
 
 ```typescript
 import { GQLEntity, GQLEndpoint } from '@rest-hooks/graphql';

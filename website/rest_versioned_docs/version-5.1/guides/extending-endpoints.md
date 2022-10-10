@@ -4,7 +4,7 @@ title: Custom endpoints
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-[Previously we saw how we could use](../usage#use-the-resource)
+[Previously we saw how we could use](../README.md#use-the-resource)
 the [useSuspense()](/docs/api/useSuspense) and [Controller.fetch()](/docs/api/Controller#fetch) hooks to read and mutate
 data. The first argument of these hooks is known as a [Endpoint](api/Endpoint.md).
 Endpoints are the minimal definition of instructions needed to tell Rest Hooks how to handle

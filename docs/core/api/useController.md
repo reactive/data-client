@@ -10,7 +10,9 @@ title: useController()
 function useController(): Controller;
 ```
 
-Provides access to [Controller](./Controller.md)
+Provides access to [Controller](./Controller.md) which can be used for imperative control
+over the cache. For instance [fetch](./Controller.md#fetch), [invalidate](./Controller.md#invalidate),
+and [receive](./Controller.md#receive)
 
 ```tsx
 import { useController } from 'rest-hooks';

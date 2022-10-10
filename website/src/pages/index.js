@@ -27,9 +27,9 @@ const ProjectTitle = () => {
       >
         <ThemedImage
           sources={sources}
-          alt="Rest Hooks - An API client for dynamic applications"
-          height={110}
-          width={512}
+          alt="Rest Hooks - The Object Protocol Mapper for React"
+          height={90}
+          width={416}
         />
       </div>
 
@@ -72,13 +72,13 @@ export default function Home() {
   const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
-      title={`Asynchronous Data for React`}
+      title={`Declarative Async State Management for React`}
       description="Making dynamic sites performant, scalable, simple to build with any API design. ...all typed ...fast ...and consistent"
     >
       <HomepageHeader />
       <main>
-        <HomepageFeatures />
         <Demo />
+        <HomepageFeatures />
       </main>
     </Layout>
   );

@@ -1,5 +1,5 @@
 ---
-id: usage
+id: README
 title: GraphQL Usage
 sidebar_label: Usage
 ---

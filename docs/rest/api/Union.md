@@ -27,7 +27,7 @@ _Note: If your data returns an object that you did not provide a mapping for, th
 
 <HooksPlayground groupId="schema" defaultOpen="y">
 
-```tsx
+```tsx title="api/Feed.ts"
 const sampleData = () =>
   Promise.resolve([
     { id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
@@ -62,7 +62,9 @@ const feed = new Endpoint(sampleData, {
     ),
   ],
 });
+```
 
+```tsx title="FeedList.tsx"
 function FeedList() {
   const feedItems = useSuspense(feed, {});
   return (

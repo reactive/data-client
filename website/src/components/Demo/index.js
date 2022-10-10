@@ -1,7 +1,9 @@
 import React from 'react';
 import clsx from 'clsx';
 import { Link } from 'react-router-dom';
+import { GQLEndpoint } from '@rest-hooks/graphql';
 
+import { TODOS } from '../../mocks/handlers';
 import CodeEditor from './CodeEditor';
 import styles from './styles.module.css';
 
@@ -45,6 +47,22 @@ render(<TodoDetail id={1} />);
   {
     label: 'GraphQL',
     value: 'graphql',
+    fixtures: [
+      {
+        endpoint: new GQLEndpoint('/').query(`
+  query GetTodo($id: ID!) {
+    todo(id: $id) {
+      id
+      title
+      completed
+    }
+  }
+`),
+        args: [{ id: 1 }],
+        response: { todo: TODOS.find(todo => todo.id === 1) },
+        delay: 150,
+      },
+    ],
     endpointCode: `const gql = new GQLEndpoint('/');
 const todoDetail = gql.query(\`
   query GetTodo($id: ID!) {
@@ -114,6 +132,22 @@ render(<TodoDetail id={1} />);
   {
     label: 'GraphQL',
     value: 'graphql',
+    fixtures: [
+      {
+        endpoint: new GQLEndpoint('/').query(`
+  query GetTodo($id: ID!) {
+    todo(id: $id) {
+      id
+      title
+      completed
+    }
+  }
+`),
+        args: [{ id: 1 }],
+        response: { todo: TODOS.find(todo => todo.id === 1) },
+        delay: 150,
+      },
+    ],
     endpointCode: `const gql = new GQLEndpoint('/');
 
 class Todo extends GQLEntity {
@@ -203,23 +237,25 @@ const TodoResource = {
   const controller = useController();
   return (
     <div>
-      <input
-        type="checkbox"
-        checked={todo.completed}
-        onChange={e =>
-          controller.fetch(
-            TodoResource.partialUpdate,
-            { id: todo.id },
-            { completed: e.currentTarget.checked },
-          )
-        }
-      />
-      {todo.completed ? (
-        <strike>{todo.title}</strike>
-      ) : (
-        todo.title
-      )}
-      <a
+      <label>
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          onChange={e =>
+            controller.fetch(
+              TodoResource.partialUpdate,
+              { id: todo.id },
+              { completed: e.currentTarget.checked },
+            )
+          }
+        />
+        {todo.completed ? (
+          <strike>{todo.title}</strike>
+        ) : (
+          todo.title
+        )}
+      </label>
+      <span
         style={{ cursor: 'pointer' }}
         onClick={() =>
           controller.fetch(TodoResource.delete, {
@@ -228,14 +264,13 @@ const TodoResource = {
         }
       >
         ❌
-      </a>
+      </span>
     </div>
   );
 }
 
 function TodoList() {
   const todos = useSuspense(TodoResource.getList);
-  const controller = useController();
   return (
     <div>
       {todos.map(todo => (
@@ -250,6 +285,22 @@ render(<TodoList />);
   {
     label: 'GraphQL',
     value: 'graphql',
+    fixtures: [
+      {
+        endpoint: new GQLEndpoint('/').query(`
+  query GetTodos {
+    todo {
+      id
+      title
+      completed
+    }
+  }
+`),
+        args: [{}],
+        response: { todos: TODOS },
+        delay: 150,
+      },
+    ],
     endpointCode: `const gql = new GQLEndpoint('/');
 
 class Todo extends GQLEntity {
@@ -281,23 +332,24 @@ const updateTodo = gql.mutation(
   const controller = useController();
   return (
     <div>
-      <input
-        type="checkbox"
-        checked={todo.completed}
-        onChange={e =>
-          controller.fetch(updateTodo, {
-            todo: { id: todo.id, completed: e.currentTarget.checked },
-          })
-        }
-      />
-      {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+      <label>
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          onChange={e =>
+            controller.fetch(updateTodo, {
+              todo: { id: todo.id, completed: e.currentTarget.checked },
+            })
+          }
+        />
+        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+      </label>
     </div>
   );
 }
 
 function TodoList() {
   const { todos } = useSuspense(todoList, {});
-  const controller = useController();
   return (
     <div>
       {todos.map(todo => (
@@ -318,11 +370,12 @@ const Demo = props => (
         <h2>A simple data fetch</h2>
         <div>
           <p>
-            Add a single{' '}
+            Add a single <Link to="/docs/api/useSuspense">useSuspense()</Link>{' '}
+            call{' '}
             <Link to="/docs/getting-started/data-dependency">
-              useSuspense()
-            </Link>{' '}
-            call where you need its data.
+              where you need its data
+            </Link>
+            .
           </p>
           <p>
             Rest Hooks automatically optimizes performance by caching the

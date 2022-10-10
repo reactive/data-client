@@ -16,7 +16,7 @@ Next we'll provide a definition of nested members in the [schema][3] member.
 
 <HooksPlayground groupId="schema" defaultOpen="y">
 
-```tsx
+```tsx title="api/Post.ts"
 class User extends Entity {
   readonly name: string = '';
   pk() {
@@ -49,7 +49,9 @@ const getPost = new RestEndpoint({
     });
   },
 });
+```
 
+```tsx title="PostPage.tsx" collapsed
 function PostPage() {
   const post = useSuspense(getPost, { id: '5' });
   return (
@@ -94,9 +96,11 @@ export class Article extends Entity {
 }
 
 // we set the schema here since we can correctly reference Article
+// highlight-start
 User.schema = {
   posts: [Article],
 };
+// highlight-end
 ```
 
 ```typescript title="api/User.ts"
@@ -109,9 +113,14 @@ export class User extends Entity {
   readonly id: number | undefined = undefined;
   readonly name: string = '';
   readonly posts: Article[] = [];
+  readonly createdAt: Date = new Date(0);
 
   pk() {
     return this.id?.toString();
+  }
+
+  static schema: Record<string, Schema | Date> = {
+    createdAt: Date,
   }
 }
 ```

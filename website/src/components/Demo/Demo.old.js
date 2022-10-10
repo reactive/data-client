@@ -16,13 +16,13 @@ const Demo = props => (
       </a>
       <a
         className={clsx('blockElement', styles.blockImageFull)}
-        href="/docs/rest/usage#define-a-resource"
+        href="/docs/rest#define-a-resource"
       >
         <img src={require(`../../static/img/resource.png`).default} />
       </a>
       <a
         className={clsx('blockElement', styles.blockImageFull)}
-        href="/docs/rest/usage#use-the-resource"
+        href="/docs/rest#use-the-resource"
       >
         <video
           autoPlay

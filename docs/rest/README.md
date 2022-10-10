@@ -1,8 +1,9 @@
 ---
-id: usage
-title: REST
+id: README
+title: REST Usage
 sidebar_label: Usage
 ---
+
 <head>
   <title>Using REST APIs with Rest Hooks</title>
 </head>
@@ -14,32 +15,36 @@ import PkgTabs from '@site/src/components/PkgTabs';
 
 <PkgTabs pkgs="@rest-hooks/rest" />
 
-## Define a Resource
+## Define the API
 
 <LanguageTabs>
 
-```typescript title="resources/article.ts"
-import { Resource } from '@rest-hooks/rest';
+```typescript title="api/Article.ts"
+import { Entity, createResource } from '@rest-hooks/rest';
 
-export default class ArticleResource extends Resource {
-  readonly id: number | undefined = undefined;
-  readonly title: string = '';
-  readonly content: string = '';
-  readonly author: number | null = null;
-  readonly tags: string[] = [];
+export class Article extends Entity {
+  id: number | undefined = undefined;
+  title = '';
+  content = '';
+  author: number | null = null;
+  tags: string[] = [];
 
   pk() {
     return this.id?.toString();
   }
-
-  static urlRoot = 'http://test.com/article/';
 }
+
+export const ArticleResource = createResource({
+  urlPrefix: 'http://test.com',
+  path: '/article/:id',
+  schema: Article,
+});
 ```
 
-```js title="resources/article.js"
-import { Resource } from '@rest-hooks/rest';
+```js title="api/Article.js"
+import { Entity, createResource } from '@rest-hooks/rest';
 
-export default class ArticleResource extends Resource {
+export class Article extends Entity {
   id = undefined;
   title = '';
   content = '';
@@ -49,25 +54,20 @@ export default class ArticleResource extends Resource {
   pk() {
     return this.id?.toString();
   }
-
-  static urlRoot = 'http://test.com/article/';
 }
+export const ArticleResource = createResource({
+  urlPrefix: 'http://test.com',
+  path: '/article/:id',
+  schema: Article,
+});
 ```
 
 </LanguageTabs>
 
-[Resource](api/Resource.md)s are immutable. Use `readonly` in typescript to enforce this.
+Our definitions are composed of two pieces. Our data model defined by [Schema](api/schema.md) and the
+networking endpoints defined by [RestEndpoint](api/RestEndpoint.md).
 
-Default values ensure simpler types, which means less conditionals in your components.
-
-[pk()](api/Resource.md#pk) is essential to tell Rest Hooks how to normalize the data. This ensures consistency
-and the best performance characteristics possible.
-
-[static urlRoot](api/Resource.md#urlRoot) is used as the basis of common [url patterns](./guides/url.md)
-
-APIs quickly get much more complicated! [Customizing Resources to fit your API](./guides/extending-endpoints.md)
-
-## Use the Resource
+## Bind the data with Suspense
 
 <Tabs
 defaultValue="Single"
@@ -79,10 +79,10 @@ values={[
 
 ```tsx
 import { useSuspense } from 'rest-hooks';
-import ArticleResource from 'resources/article';
+import { ArticleResource } from 'api/article';
 
 export default function ArticleDetail({ id }: { id: number }) {
-  const article = useSuspense(ArticleResource.detail(), { id });
+  const article = useSuspense(ArticleResource.get, { id });
   return (
     <article>
       <h2>{article.title}</h2>
@@ -97,11 +97,11 @@ export default function ArticleDetail({ id }: { id: number }) {
 
 ```tsx
 import { useSuspense } from 'rest-hooks';
-import ArticleResource from 'resources/article';
+import { ArticleResource } from 'api/article';
 import ArticleSummary from './ArticleSummary';
 
-export default function ArticleList({ sortBy }: { sortBy: string }) {
-  const articles = useSuspense(ArticleResource.list(), { sortBy });
+export default function ArticleList() {
+  const articles = useSuspense(ArticleResource.getList);
   return (
     <section>
       {articles.map(article => (
@@ -115,17 +115,17 @@ export default function ArticleList({ sortBy }: { sortBy: string }) {
 </TabItem>
 </Tabs>
 
-[useSuspense()](/docs/api/useSuspense) guarantees access to data with sufficient [freshness](api/Endpoint.md#dataexpirylength).
+[useSuspense()](/docs/api/useSuspense) guarantees access to data with sufficient [freshness](api/RestEndpoint.md#dataexpirylength).
 This means it may issue network calls, and it may [suspend](/docs/getting-started/data-dependency#async-fallbacks) until the fetch completes.
 Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
 suspends.
 
 - Fetches are centrally controlled, and thus automatically deduplicated
-- Data is centralized and normalized guaranteeing consistency across uses, even with different [endpoints](api/Endpoint.md).
+- Data is centralized and normalized guaranteeing consistency across uses, even with different [endpoints](api/RestEndpoint.md).
   - (For example: navigating to a detail page with a single entry from a list view will instantly show the same data as the list without
     requiring a refetch.)
 
-## Dispatch mutation
+## Mutate the data
 
 <Tabs
 defaultValue="Create"
@@ -138,12 +138,16 @@ values={[
 
 ```tsx title="article.tsx"
 import { useController } from 'rest-hooks';
-import ArticleResource from 'resources/article';
+import { ArticleResource } from 'api/article';
 
 export default function NewArticleForm() {
-  const { fetch } = useController();
+  const controller = useController();
   return (
-    <Form onSubmit={e => fetch(ArticleResource.create(), new FormData(e.target))}>
+    <Form
+      onSubmit={e =>
+        controller.fetch(ArticleResource.create, new FormData(e.target))
+      }
+    >
       <FormField name="title" />
       <FormField name="content" type="textarea" />
       <FormField name="tags" type="tag" />
@@ -152,7 +156,7 @@ export default function NewArticleForm() {
 }
 ```
 
-[create()](api/Resource.md#create) then takes any `keyable` body to send as the payload and then returns a promise that
+[create](api/createResource.md#create) then takes any `keyable` body to send as the payload and then returns a promise that
 resolves to the new Resource created by the API. It will automatically be added in the cache for any consumers to display.
 
 </TabItem>
@@ -160,14 +164,16 @@ resolves to the new Resource created by the API. It will automatically be added 
 
 ```tsx title="article.tsx"
 import { useController } from 'rest-hooks';
-import ArticleResource from 'resources/article';
+import { ArticleResource } from 'api/article';
 
 export default function UpdateArticleForm({ id }: { id: number }) {
-  const article = useSuspense(ArticleResource.detail(), { id });
-  const { fetch } = useController();
+  const article = useSuspense(ArticleResource.get, { id });
+  const controller = useController();
   return (
     <Form
-      onSubmit={e => fetch(ArticleResource.update(), { id }, new FormData(e.target))}
+      onSubmit={e =>
+        controller.fetch(ArticleResource.update, { id }, new FormData(e.target))
+      }
       initialValues={article}
     >
       <FormField name="title" />
@@ -178,8 +184,8 @@ export default function UpdateArticleForm({ id }: { id: number }) {
 }
 ```
 
-[update()](api/Resource.md#update) then takes any `keyable` body to send as the payload and then returns a promise that
- then takes any `keyable` body to send as the payload and then returns a promise that
+[update](api/createResource.md#update) then takes any `keyable` body to send as the payload and then returns a promise that
+then takes any `keyable` body to send as the payload and then returns a promise that
 resolves to the new Resource created by the API. It will automatically be added in the cache for any consumers to display.
 
 </TabItem>
@@ -187,15 +193,21 @@ resolves to the new Resource created by the API. It will automatically be added 
 
 ```tsx title="article.tsx"
 import { useController } from 'rest-hooks';
-import ArticleResource from 'resources/article';
+import { Article, ArticleResource } from 'api/article';
 
-export default function ArticleWithDelete({ article }: { article: ArticleResource }) {
-  const { fetch } = useController();
+export default function ArticleWithDelete({ article }: { article: Article }) {
+  const controller = useController();
   return (
     <article>
       <h2>{article.title}</h2>
       <div>{article.content}</div>
-      <button onClick={() => fetch(ArticleResource.delete(), { id: article.id })}>Delete</button>
+      <button
+        onClick={() =>
+          controller.fetch(ArticleResource.delete, { id: article.id })
+        }
+      >
+        Delete
+      </button>
     </article>
   );
 }
