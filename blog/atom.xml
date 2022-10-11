@@ -8,9 +8,9 @@
     <subtitle>Rest Hooks Blog</subtitle>
     <icon>https://resthooks.io/img/favicon/favicon.ico</icon>
     <entry>
-        <title type="html"><![CDATA[validateRequired for quick validation]]></title>
-        <id>/2022/08/03/validateRequired for quick validation</id>
-        <link href="https://resthooks.io/blog/2022/08/03/validateRequired for quick validation"/>
+        <title type="html"><![CDATA[Adding validation helpers for required field checks]]></title>
+        <id>/2022/08/03/Adding-validation-helpers-for-required-fields</id>
+        <link href="https://resthooks.io/blog/2022/08/03/Adding-validation-helpers-for-required-fields"/>
         <updated>2022-08-03T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[validateRequired() will validate that required fields]]></summary>
         <content type="html"><![CDATA[<p><a href="https://resthooks.io/rest/api/validateRequired" target="_blank" rel="noopener noreferrer">validateRequired()</a> will validate that required fields

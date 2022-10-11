@@ -9,9 +9,9 @@
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
         <item>
-            <title><![CDATA[validateRequired for quick validation]]></title>
-            <link>https://resthooks.io/blog/2022/08/03/validateRequired for quick validation</link>
-            <guid>/2022/08/03/validateRequired for quick validation</guid>
+            <title><![CDATA[Adding validation helpers for required field checks]]></title>
+            <link>https://resthooks.io/blog/2022/08/03/Adding-validation-helpers-for-required-fields</link>
+            <guid>/2022/08/03/Adding-validation-helpers-for-required-fields</guid>
             <pubDate>Wed, 03 Aug 2022 00:00:00 GMT</pubDate>
             <description><![CDATA[validateRequired() will validate that required fields]]></description>
             <content:encoded><![CDATA[<p><a href="https://resthooks.io/rest/api/validateRequired" target="_blank" rel="noopener noreferrer">validateRequired()</a> will validate that required fields
