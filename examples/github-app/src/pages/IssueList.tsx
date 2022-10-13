@@ -6,20 +6,10 @@ import { Issue, IssueResource } from 'resources/Issue';
 import LinkPagination from '../navigation/LinkPagination';
 import IssueListItem from './IssueListItem';
 
-type Props = { owner: string; repo: string } & (
-  | {
-      page: number;
-    }
-  | {
-      state?: Issue['state'];
-    }
-);
-
 export default function IssueList({ owner, repo }: Props) {
   const location = useLocation();
   const page = Number.parseInt(
-    new URLSearchParams(location && location.search.substring(1)).get('page') ||
-      '1',
+    new URLSearchParams(location?.search?.substring?.(1)).get('page') || '1',
     10,
   );
   const params = {
@@ -43,3 +33,12 @@ export default function IssueList({ owner, repo }: Props) {
     </>
   );
 }
+
+type Props = { owner: string; repo: string } & (
+  | {
+      page: number;
+    }
+  | {
+      state?: Issue['state'];
+    }
+);

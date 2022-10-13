@@ -83,7 +83,7 @@ export interface BaseResource<U extends string, S extends Schema> {
   get: GetEndpoint<PathArgs<U>, S>;
   /** Get a list of item
    *
-   * @see https://resthooks.io/rest/api/createResource#getList
+   * @see https://resthooks.io/rest/api/createResource#getlist
    */
   getList: GetEndpoint<PathArgsAndSearch<ShortenPath<U>>, S[]>;
   /** Create a new item (POST)
@@ -98,7 +98,7 @@ export interface BaseResource<U extends string, S extends Schema> {
   update: MutateEndpoint<PathArgs<U>, Partial<Denormalize<S>>, S>;
   /** Update an item (PATCH)
    *
-   * @see https://resthooks.io/rest/api/createResource#partialUpdate
+   * @see https://resthooks.io/rest/api/createResource#partialupdate
    */
   partialUpdate: MutateEndpoint<PathArgs<U>, Partial<Denormalize<S>>, S>;
   /** Delete an item (DELETE)

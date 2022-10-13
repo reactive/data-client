@@ -1,12 +1,20 @@
-import React, { memo, useContext, useMemo, useReducer, useState } from 'react';
+import React, {
+  memo,
+  Suspense,
+  useContext,
+  useMemo,
+  useReducer,
+  useState,
+  lazy,
+} from 'react';
 import { LiveProvider, LiveEditor, LiveProviderProps } from 'react-live';
 import clsx from 'clsx';
 import Translate from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 import { usePrismTheme } from '@docusaurus/theme-common';
-import { transpileModule, ModuleKind, ScriptTarget, JsxEmit } from 'typescript';
 import { FixtureEndpoint } from '@rest-hooks/test';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 
 import CodeTabContext from '../Demo/CodeTabContext';
 import styles from './styles.module.css';
@@ -14,16 +22,7 @@ import FixturePreview from './FixturePreview';
 import Header from './Header';
 import PreviewWithHeader from './PreviewWithHeader';
 
-function babelTransform(code) {
-  const transformed = transpileModule(code.replaceAll(/^import.+$/gm, ''), {
-    compilerOptions: {
-      module: ModuleKind.ESNext,
-      target: ScriptTarget.ES2017,
-      jsx: JsxEmit.React,
-    },
-  });
-  return transformed.outputText;
-}
+const PreviewWithScope = lazy(() => import('./PreviewWithScope'));
 
 function HeaderTabs() {
   const { selectedValue, setSelectedValue, values } =
@@ -101,6 +100,7 @@ export default function Playground({
   row,
   hidden,
   fixtures,
+  includeEndpoints,
   ...props
 }: Omit<LiveProviderProps, 'ref'> & {
   groupId: string;
@@ -108,6 +108,7 @@ export default function Playground({
   row: boolean;
   children: string | any[];
   fixtures: FixtureEndpoint[];
+  includeEndpoints: boolean;
 }) {
   const {
     liveCodeBlock: { playgroundPosition },
@@ -115,10 +116,10 @@ export default function Playground({
   const prismTheme = usePrismTheme();
   const isBrowser = useIsBrowser();
 
-  const handleTransformCode = useMemo(
+  /*const handleTransformCode = useMemo(
     () => transformCode || (code => babelTransform(`${code};`)),
     [transformCode],
-  );
+  );*/
   const codeTabs: { code: string; title?: string; collapsed: boolean }[] =
     useMemo(() => {
       if (typeof children === 'string')
@@ -148,6 +149,8 @@ export default function Playground({
   const [closedList, setClosed] = useState(() =>
     codeTabs.map(({ collapsed }) => collapsed),
   );
+
+  const code = codes.join('\n');
 
   return (
     <div
@@ -193,18 +196,44 @@ export default function Playground({
               </React.Fragment>
             ))}
           </div>
-          <LiveProvider
-            code={codes.join('\n')}
-            transformCode={handleTransformCode}
-            {...props}
+          <BrowserOnly
+            fallback={
+              <LiveProvider code={'render(() => "loading...");'} noInline>
+                <PreviewWithHeader
+                  {...{
+                    includeEndpoints,
+                    groupId,
+                    defaultOpen,
+                    row,
+                    fixtures,
+                  }}
+                />
+              </LiveProvider>
+            }
           >
-            <PreviewWithHeader
-              groupId={groupId}
-              defaultOpen={defaultOpen}
-              row={row}
-              fixtures={fixtures}
-            />
-          </LiveProvider>
+            {() => (
+              <Suspense
+                fallback={
+                  <LiveProvider code={'render(() => "loading...");'} noInline>
+                    <PreviewWithHeader
+                      {...{
+                        includeEndpoints,
+                        groupId,
+                        defaultOpen,
+                        row,
+                        fixtures,
+                      }}
+                    />
+                  </LiveProvider>
+                }
+              >
+                <PreviewWithScope
+                  code={code}
+                  {...{ includeEndpoints, groupId, defaultOpen, row, fixtures }}
+                />
+              </Suspense>
+            )}
+          </BrowserOnly>
         </Reversible>
       </LiveProvider>
     </div>

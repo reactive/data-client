@@ -109,7 +109,7 @@ const TodoResource = {
     },
   }),
 };`,
-    code: `function TodoDetail({ id }) {
+    code: `function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(TodoResource.get, { id });
   const controller = useController();
   const updateWith = title => () =>
@@ -175,7 +175,7 @@ const updateTodo = gql.mutation(
   }\`,
   { updateTodo: Todo },
 );`,
-    code: `function TodoDetail({ id }) {
+    code: `function TodoDetail({ id }: { id: number }) {
   const { todo } = useSuspense(getTodo, { id });
   const controller = useController();
   const updateWith = title => () =>

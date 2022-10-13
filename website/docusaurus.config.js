@@ -446,14 +446,13 @@ module.exports = {
         },
       },
       algolia: {
-        appId: 'BH4D9OD16A',
-        apiKey: '937e8e00950173761eede8a9c5ed77ac',
+        appId: '09LY5NUEP1',
+        apiKey: 'c7ff0e67454c62cecdd72b22a317de43',
         indexName: 'resthooks',
         contextualSearch: true,
-        algoliaOptions: {
-          debug: process.env.NODE_ENV === 'development',
-          facetFilters: ['docusaurus_tag:docs-default-current'],
-        },
+        sitemaps: ['https://resthooks.io/sitemap.xml'],
+        placeholder: 'Search Rest Hooks',
+        debug: process.env.NODE_ENV === 'development',
       },
     },
 };

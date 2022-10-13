@@ -17,14 +17,7 @@ const ProjectTitle = () => {
   };
   return (
     <React.Fragment>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginBottom: '30px',
-        }}
-      >
+      <div className={styles.logoWrapper}>
         <ThemedImage
           sources={sources}
           alt="Rest Hooks - The Object Protocol Mapper for React"

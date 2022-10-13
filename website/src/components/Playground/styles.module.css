@@ -178,3 +178,10 @@ div > .playgroundHeader.subtabs {
 .subtabs .tab {
   padding: 0.4rem 0.75rem;
 }
+
+
+.playgroundPreview button {
+  margin-bottom: 8px;
+  margin-right: 8px;
+  padding: 2px 6px;
+}

@@ -1,5 +1,7 @@
 import React from 'react';
 import Layout from '@theme/Layout';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 export default function DemoList() {
   return (
@@ -7,52 +9,46 @@ export default function DemoList() {
       title="React Suspense Demos"
       description="Rest Hooks Suspense Demos"
     >
-      <div className="container margin-vert--lg">
-        <h1
-          style={{
-            display: 'flex',
-            alignItems: 'baseline',
-          }}
-        >
-          Todo{' '}
-          <a
-            href="https://github.com/coinbase/rest-hooks/tree/master/examples/todo-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="header-github-link"
-            style={{ marginLeft: '1ex' }}
-          ></a>
-        </h1>
-        <p>
+      <Tabs
+        defaultValue="todo"
+        values={[
+          { label: 'Todo', value: 'todo' },
+          { label: 'GitHub', value: 'github' },
+        ]}
+        groupId="Demos"
+      >
+        <TabItem value="todo">
+          {/*Todo
+              <a
+                href="https://github.com/coinbase/rest-hooks/tree/master/examples/todo-app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="header-github-link"
+                style={{ marginLeft: '1ex' }}
+        ></a>*/}
           <iframe
-            src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?embed=1&file=src%2Fpages%2FHome%2FTodoListComponent.tsx&hidedevtools=1&view=both"
-            width="100%"
+            src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?embed=1&file=src%2Fpages%2FHome%2FTodoListComponent.tsx&hideDevTools=1&hideNavigation=1"
+            width="900"
             height="600"
+            style={{ width: '100%', height: 'calc(100vh - 170px)' }}
           ></iframe>
-        </p>
-        <h1
-          style={{
-            display: 'flex',
-            alignItems: 'baseline',
-          }}
-        >
-          Github{' '}
-          <a
-            href="https://github.com/coinbase/rest-hooks/tree/master/examples/github-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="header-github-link"
-            style={{ marginLeft: '1ex' }}
-          ></a>
-        </h1>
-        <p>
+        </TabItem>
+        <TabItem value="github">
+          {/*            <a
+              href="https://github.com/coinbase/rest-hooks/tree/master/examples/github-app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="header-github-link"
+              style={{ marginLeft: '1ex' }}
+            ></a>*/}
           <iframe
-            src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fpages%2FIssueList.tsx&hidedevtools=1&view=preview"
-            width="100%"
+            src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fpages%2FIssueList.tsx&hideNavigation=1&hideDevTools=1"
+            width="900"
             height="700"
+            style={{ width: '100%', height: 'calc(100vh - 170px)' }}
           ></iframe>
-        </p>
-      </div>
+        </TabItem>
+      </Tabs>
     </Layout>
   );
 }
