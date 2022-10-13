@@ -72,7 +72,7 @@
     "react-dom": "18.2.0",
     "react-error-boundary": "^3.1.3",
     "react-markdown": "8.0.3",
-    "rehype-highlight": "^5.0.2",
+    "rehype-highlight": "6.0.0",
     "remark-gfm": "^3.0.1",
     "remark-remove-comments": "^0.2.0",
     "rest-hooks": "^6.4.1",
