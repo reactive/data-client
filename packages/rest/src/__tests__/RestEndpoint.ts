@@ -624,6 +624,32 @@ describe('RestEndpoint', () => {
           "username2": "charles",
         }
       `);
+
+      const newBody = getUser.extend({
+        body: {} as { title: string },
+      });
+      () => newBody({ group: 'hi', id: 'what' }, { title: 'cool' });
+      // @ts-expect-error
+      () => newBody({ id: 'what' }, { title: 'cool' });
+      // @ts-expect-error
+      () => newBody({ title: 'cool' });
+      // @ts-expect-error
+      () => newBody({ group: 'hi', id: 'what' });
+      // @ts-expect-error
+      () => newBody({ group: 'hi', id: 'what' }, { sdfsd: 'cool' });
+
+      const bodyNoParams = newBody
+        .extend({
+          path: '/',
+        })
+        .extend({ body: {} as { happy: string } });
+      () => bodyNoParams({ happy: 'cool' });
+      // @ts-expect-error
+      () => bodyNoParams({ group: 'hi', id: 'what' }, { happy: 'cool' });
+      // @ts-expect-error
+      () => bodyNoParams({ group: 'hi', id: 'what' }, { title: 'cool' });
+      // @ts-expect-error
+      () => bodyNoParams({ sdfd: 'cool' });
     });
   });
   it('extending with name should work', () => {

@@ -64,7 +64,7 @@ render(<TodoDetail id={1} />);
       },
     ],
     endpointCode: `const gql = new GQLEndpoint('/');
-const todoDetail = gql.query(\`
+const getTodo = gql.query(\`
   query GetTodo($id: ID!) {
     todo(id: $id) {
       id
@@ -74,7 +74,7 @@ const todoDetail = gql.query(\`
   }
 \`);`,
     code: `function TodoDetail({ id }: { id: number }) {
-  const { todo } = useSuspense(todoDetail, { id });
+  const { todo } = useSuspense(getTodo, { id });
   return <div>{todo.title}</div>;
 }
 render(<TodoDetail id={1} />);

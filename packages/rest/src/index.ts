@@ -14,7 +14,10 @@ export type {
 export { default as createResource } from './createResource.js';
 export type { Resource } from './createResource.js';
 export { default as hookifyResource } from './hookifyResource.js';
-export type { HookResource } from './hookifyResource.js';
+export type {
+  HookResource,
+  HookableEndpointInterface,
+} from './hookifyResource.js';
 export { default as NetworkError } from './NetworkError.js';
 export { default as paginationUpdate } from './paginationUpdate.js';
 
