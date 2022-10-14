@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.3.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/graphql@0.3.0...@rest-hooks/graphql@0.3.1) (2022-10-14)
+
+### 📝 Documentation
+
+* Fix mobile usability SEO ([#2206](https://github.com/coinbase/rest-hooks/issues/2206)) ([c7eb5e9](https://github.com/coinbase/rest-hooks/commit/c7eb5e9e51b3fa42e996b27c6d42ba317028f292))
+
 ## [0.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/graphql@0.2.0...@rest-hooks/graphql@0.3.0) (2022-10-01)
 
 ### ⚠ 💥 BREAKING CHANGES

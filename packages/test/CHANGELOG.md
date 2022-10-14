@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.4.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.3.9...@rest-hooks/test@7.4.0) (2022-10-14)
+
+### 🚀 Features
+
+* Add optional delay property to fixtures ([1b8458d](https://github.com/coinbase/rest-hooks/commit/1b8458d9ccf6a2a441cd991801f6f544723d8f9a))
+
 ### [7.3.9](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.3.8...@rest-hooks/test@7.3.9) (2022-10-01)
 
 ### 📦 Package

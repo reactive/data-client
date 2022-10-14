@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.4.3](https://github.com/coinbase/rest-hooks/compare/github-app@0.4.2...github-app@0.4.3) (2022-10-14)
+
+### 📦 Package
+
+* Update `@anansi/webpack-config` to v13.0.17 ([#2209](https://github.com/coinbase/rest-hooks/issues/2209)) ([f156b71](https://github.com/coinbase/rest-hooks/commit/f156b71ecd961f00271b08599092e5aaaf942072))
+* Update `rehype-highlight` to v6 ([#2214](https://github.com/coinbase/rest-hooks/issues/2214)) ([7ec153a](https://github.com/coinbase/rest-hooks/commit/7ec153aed5c4fbff63d0d544248a4eed5083dee1))
+* Update all non-major dependencies ([#2198](https://github.com/coinbase/rest-hooks/issues/2198)) ([504a076](https://github.com/coinbase/rest-hooks/commit/504a076ba1d4b6b143ea2c2f8a5432baec6f1892))
+* Update all non-major dependencies ([#2210](https://github.com/coinbase/rest-hooks/issues/2210)) ([8d3e382](https://github.com/coinbase/rest-hooks/commit/8d3e382bc1ffc59e58ab9387fddc420ff1f7c48a))
+* Update babel packages ([#2211](https://github.com/coinbase/rest-hooks/issues/2211)) ([c59d852](https://github.com/coinbase/rest-hooks/commit/c59d852e1cfd1d1a5e3f7c05bf2f2ba71ed5c0f1))
+* Update linting packages ([#2207](https://github.com/coinbase/rest-hooks/issues/2207)) ([395313a](https://github.com/coinbase/rest-hooks/commit/395313a1b5b1a80d1a92c522d216219fb2afbd64))
+* Update linting packages to v5.39.0 ([#2205](https://github.com/coinbase/rest-hooks/issues/2205)) ([9116555](https://github.com/coinbase/rest-hooks/commit/911655512fc2798379ce35c6964926fdfa0b87e5))
+
+### 📝 Documentation
+
+* Website updates for google ([#2212](https://github.com/coinbase/rest-hooks/issues/2212)) ([ef21019](https://github.com/coinbase/rest-hooks/commit/ef21019e54f7c14713e198c0b1c9a9b5a7005ff2))
+* Yet more docs ([#2203](https://github.com/coinbase/rest-hooks/issues/2203)) ([0420a87](https://github.com/coinbase/rest-hooks/commit/0420a8722c39779b9bb028d6f6f235fbcc1cb3d5))
+
 ### [0.4.2](https://github.com/coinbase/rest-hooks/compare/github-app@0.4.1...github-app@0.4.2) (2022-10-01)
 
 ### 📦 Package

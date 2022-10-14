@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.0.0...@rest-hooks/rest@6.0.1) (2022-10-14)
+
+### 💅 Enhancement
+
+* Allow body-only RestEndpoint.extend() ([#2216](https://github.com/coinbase/rest-hooks/issues/2216)) ([658e5da](https://github.com/coinbase/rest-hooks/commit/658e5da7a6d67374f77d7513e4f1baa1b25aeecd))
+* Use process() option to infer return type of RestEndpoint ([#2197](https://github.com/coinbase/rest-hooks/issues/2197)) ([37f635b](https://github.com/coinbase/rest-hooks/commit/37f635bc1371840419917e34cf85097898d7d8b4))
+
+### 📝 Documentation
+
+* Fix mobile usability SEO ([#2206](https://github.com/coinbase/rest-hooks/issues/2206)) ([c7eb5e9](https://github.com/coinbase/rest-hooks/commit/c7eb5e9e51b3fa42e996b27c6d42ba317028f292))
+* Website updates for google ([#2212](https://github.com/coinbase/rest-hooks/issues/2212)) ([ef21019](https://github.com/coinbase/rest-hooks/commit/ef21019e54f7c14713e198c0b1c9a9b5a7005ff2))
+
 ## [6.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@5.2.0...@rest-hooks/rest@6.0.0) (2022-10-01)
 
 ### ⚠ 💥 BREAKING CHANGES
