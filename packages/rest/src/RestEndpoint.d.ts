@@ -52,21 +52,21 @@ export interface RestInstance<
     this: E,
     removeCursor: (...args: A) => readonly [...Parameters<E>],
   ): PaginationEndpoint<E, A>;
-  extend<E extends RestInstance, O extends Partial<RestGenerics> | {}>(
+  extend<E extends RestInstance, O extends PartialRestGenerics | {}>(
     this: E,
     options: Readonly<RestEndpointExtendOptions<O, E, F> & O>,
   ): RestExtendedEndpoint<O, E>;
 }
 
 export type RestEndpointExtendOptions<
-  O extends Partial<RestGenerics> | {},
+  O extends PartialRestGenerics | {},
   E extends RestInstance,
   F extends FetchFunction,
 > = RestEndpointOptions<OptionsToFunction<O, E, F>> &
   Partial<Omit<E, keyof RestInstance>>;
 
 type OptionsToFunction<
-  O extends Partial<RestGenerics>,
+  O extends PartialRestGenerics,
   E extends RestInstance,
   F extends FetchFunction,
 > = 'path' extends keyof O
@@ -77,10 +77,21 @@ type OptionsToFunction<
       'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
       O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>
     >
+  : 'body' extends keyof O
+  ? RestType<
+      UrlParamsFromFunction<Parameters<E>>,
+      'body' extends keyof O ? O['body'] : undefined,
+      'schema' extends keyof O ? O['schema'] : E['schema'],
+      'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
+      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>
+    >
   : F;
+type UrlParamsFromFunction<Args extends any[]> = 1 extends keyof Args
+  ? Args[0]
+  : undefined;
 
 export type RestExtendedEndpoint<
-  O extends Partial<RestGenerics>,
+  O extends PartialRestGenerics,
   E extends RestInstance,
 > = OptionsToFunction<
   O,
@@ -95,16 +106,19 @@ export type RestExtendedEndpoint<
     'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect']
   >
 > &
-  Omit<O, KeyofRestEndpoint> &
+  Omit<O, KeyofRestEndpoint | 'body'> &
   Omit<E, KeyofRestEndpoint>;
 
-export interface RestGenerics {
-  readonly path: string;
+export interface PartialRestGenerics {
+  readonly path?: string;
   readonly schema?: Schema | undefined;
   readonly method?: string;
   readonly body?: any;
   /** @see https://resthooks.io/rest/api/RestEndpoint#process */
   process?(value: any, ...args: any): any;
+}
+export interface RestGenerics extends PartialRestGenerics {
+  readonly path: string;
 }
 
 export type PaginationEndpoint<

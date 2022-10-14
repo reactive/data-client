@@ -1,6 +1,6 @@
 import { EndpointInterface } from '@rest-hooks/endpoint';
 
-interface HookableEndpointInterface extends EndpointInterface {
+export interface HookableEndpointInterface extends EndpointInterface {
   extend(...args: any): HookableEndpointInterface;
 }
 

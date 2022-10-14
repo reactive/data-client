@@ -66,6 +66,8 @@ Passed to [RestEndpoint.urlPrefix](./RestEndpoint.md#urlPrefix)
 
 Class used to construct the members.
 
+### [EndpointExtraOptions](./RestEndpoint.md#endpoint-life-cycles)
+
 ## Members
 
 These provide the standard [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete)
@@ -87,6 +89,7 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
   - Removes the last argument:
     ```ts
     createResource({path: '/:first/:second'}).getList.path === '/:first'
+    createResource({path: '/:first'}).getList.path === '/'
     ```
 - schema: `[schema]`
 
@@ -99,6 +102,7 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
   - Removes the last argument:
     ```ts
     createResource({path: '/:first/:second'}).getList.path === '/:first'
+    createResource({path: '/:first'}).create.path === '/'
     ```
 - schema: `schema`
 

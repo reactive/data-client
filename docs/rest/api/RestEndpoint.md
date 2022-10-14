@@ -186,6 +186,25 @@ const getSite = new RestEndpoint({ path: 'https\\://site.com/:slug' });
 getSite({ slug: 'first' });
 ```
 
+:::info
+
+Types are inferred automatically from `path`.
+
+`body` can be used to set a second argument for mutation endpoints. The actual value is not
+used in any way so it does not matter.
+
+```ts
+const updateSite = new RestEndpoint({
+  path: 'https\\://site.com/:slug',
+  // highlight-next-line
+  body: {} as { url: string },
+});
+
+updateSite({ slug: 'cool' }, { url: 'https://resthooks.io/' })
+```
+
+:::
+
 ### urlPrefix: string = '' {#urlPrefix}
 
 Prepends this to the compiled [path](#path)
@@ -230,6 +249,34 @@ Takes the [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) 
 ### process(value, ...args): any {#process}
 
 Perform any transforms with the parsed result. Defaults to identity function.
+
+:::tip
+
+The return type of process can be used to set the return type of the endpoint fetch:
+
+```ts
+const getTodo = new RestEndpoint({
+  path: '/todos/:id',
+  // The identity function is the default value; so we aren't changing any runtime behavior
+  // highlight-next-line
+  process(value): TodoInterface {
+    return value;
+  },
+});
+
+interface TodoInterface {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+```
+
+```ts
+// title is string
+const title = (await getTodo({ id })).title;
+```
+
+:::
 
 ## schema?: Schema {#schema}
 
