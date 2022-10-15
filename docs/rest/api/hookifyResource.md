@@ -2,6 +2,10 @@
 title: hookifyResource
 ---
 
+<head>
+  <title>hookifyResource() - Collection of CRUD hook Endpoints</title>
+</head>
+
 import LanguageTabs from '@site/src/components/LanguageTabs';
 
 `hookifyResource()` Turns any [Resource](./createResource.md) (collection of [RestEndpoints](./RestEndpoint.md)) into a collection

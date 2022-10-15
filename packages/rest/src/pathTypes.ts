@@ -33,7 +33,7 @@ export type KeysToArgs<Key extends string> = {
 export type PathArgsAndSearch<S extends string> = OnlyRequired<
   PathKeys<S>
 > extends never
-  ? Record<string, number | string> | undefined
+  ? Record<string, number | string | boolean> | undefined
   : {
       [K in PathKeys<S> as OnlyRequired<K>]: string | number;
     } & Record<string, number | string>;

@@ -52,6 +52,10 @@ module.exports = {
           type: 'doc',
           id: 'guides/computed-properties',
         },
+        {
+          type: 'doc',
+          id: 'guides/summary-list',
+        },
       ],
     },
     {

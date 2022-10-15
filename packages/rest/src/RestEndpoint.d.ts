@@ -80,7 +80,7 @@ type OptionsToFunction<
   : 'body' extends keyof O
   ? RestType<
       UrlParamsFromFunction<Parameters<E>>,
-      'body' extends keyof O ? O['body'] : undefined,
+      O['body'],
       'schema' extends keyof O ? O['schema'] : E['schema'],
       'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
       O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>

@@ -4,7 +4,7 @@ title: createResource
 ---
 
 <head>
-  <title>createResource() - Collection of CRUD API operations</title>
+  <title>createResource() - Collection of CRUD Endpoints</title>
 </head>
 
 
