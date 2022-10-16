@@ -93,7 +93,7 @@ small {
   font-size: 12px;
 }
 
-@media only screen and (max-width: 996px) {
+@media (pointer: coarse) {
   .footer__link-item {
     line-height: 2.5;
   }

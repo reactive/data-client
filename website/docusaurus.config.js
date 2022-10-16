@@ -324,33 +324,6 @@ module.exports = {
             docsPluginId: 'graphql',
             position: 'right',
           },
-          /*{
-          label: 'Version',
-          to: 'docs',
-          position: 'right',
-          items: [
-            {
-              label: 'Upgrade Guide',
-              to: 'docs/upgrade/upgrading-to-6',
-            },
-            {
-              label: '6.3',
-              to: 'docs/',
-              activeBaseRegex:
-                'docs/(?!2.2|3.0|4.0|4.1|4.2|4.3|4.5|5.0|6.0|6.1|6.2|6.3)',
-            },
-            ...versions.map(version => ({
-              label: version,
-              to: `docs/${version}`,
-              rel: 'nofollow',
-            })),
-            /*{
-              label: 'Master/Unreleased',
-              to: 'docs/next/',
-              activeBaseRegex: 'docs/next/(?!support|team|resources)',
-            },*
-          ],
-        },*/
           {
             href: 'https://www.github.com/coinbase/rest-hooks',
             position: 'right',

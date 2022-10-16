@@ -127,6 +127,80 @@ const updateTodo = new RestEndpoint({
 
 Using a [Schema](./schema.md) enables automatic data consistency without the need to hurt performance with refetching.
 
+### Typing
+
+#### Resolution/Return
+
+[schema](#schema) determines the return value when used with data-binding hooks like [useSuspense](/docs/api/useSuspense), [useDLE](/docs/api/useDLE) or [useCache](/docs/api/useCache)
+
+```ts
+const get = new RestEndpoint({ path: '/', schema: Todo });
+// todo is Todo
+const todo = useSuspense(get);
+```
+
+[process](#process) determines the resolution value when the endpoint is called directly or
+when use with [Controller.fetch](/docs/api/Controller#fetch). Otherwise this will be 'any' to
+ensure compatibility.
+
+```ts
+interface TodoInterface {
+  title: string;
+  completed: boolean;
+}
+const get = new RestEndpoint({
+  path: '/',
+  process(value): TodoInterface {
+    return value;
+  },
+});
+// todo is TodoInterface
+const todo = await get();
+const todo2 = await controller.fetch(get);
+```
+
+#### Function Parameters
+
+[path](#path) used to construct the url determines the type of the first argument. If it has no patterns,
+then the 'first' argument is skipped.
+
+```ts
+const get = new RestEndpoint({ path: '/' });
+get();
+const getById = new RestEndpoint({ path: '/:id' });
+// both number and string types work as they are serialized into strings to construct the url
+getById({ id: 5 });
+getById({ id: '5' });
+```
+
+[method](#method) determines whether there is a second argument to be sent as the [body](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#body).
+
+```ts
+const update = new RestEndpoint({ path: '/:id', method: 'PUT' });
+update({ id: 5 }, { title: 'updated', completed: true });
+```
+
+However, this is typed as 'any' so it won't catch typos.
+
+`body` can be used to type the argument after the url parameters. It is only used for typing so the
+value sent does not matter. `undefined` value can be used to 'disable' the second argument.
+
+```ts
+const update = new RestEndpoint({
+  path: '/:id',
+  method: 'PUT',
+  body: {} as TodoInterface,
+});
+update({ id: 5 }, { title: 'updated', completed: true });
+// `undefined` disables 'body' argument
+const rpc = new RestEndpoint({
+  path: '/:id',
+  method: 'PUT',
+  body: undefined,
+});
+rpc({ id: 5 });
+```
+
 ## Fetch Lifecycle
 
 RestEndpoint adds to Endpoint by providing customizations for a provided fetch method.
@@ -200,7 +274,7 @@ const updateSite = new RestEndpoint({
   body: {} as { url: string },
 });
 
-updateSite({ slug: 'cool' }, { url: 'https://resthooks.io/' })
+updateSite({ slug: 'cool' }, { url: 'https://resthooks.io/' });
 ```
 
 :::
@@ -208,6 +282,21 @@ updateSite({ slug: 'cool' }, { url: 'https://resthooks.io/' })
 ### urlPrefix: string = '' {#urlPrefix}
 
 Prepends this to the compiled [path](#path)
+
+:::tip
+
+For a dynamic prefix, try overriding the url() method:
+
+```ts
+const getTodo = new RestEndpoint({
+  path: '/todo/:id',
+  url(...args) {
+    return dynamicPrefix() + super.url(...args);
+  },
+});
+```
+
+:::
 
 ### method: string = 'GET' {#method}
 
@@ -218,6 +307,31 @@ to inform `sideEffect` and whether the endpoint should use a `body` payload.
 `GET` is 'readonly', other methods imply sideEffects.
 
 `GET` and `DELETE` both default to no `body`.
+
+:::tip How method affects function Parameters
+
+`method` only influences parameters in the RestEndpoint constructor and _not_ [.extend()](#extend).
+This allows non-standard method-body combinations.
+
+`body` will default to `any`. You can always set body explicitly to take full control. `undefined` can be used
+to indicate there is no body.
+
+```ts
+const standardCreate = new RestEndpoint({
+  path: '/:id',
+  method: 'POST',
+});
+standardCreate({ id }, myPayload);
+const nonStandardEndpoint = new RestEndpoint({
+  path: '/:id',
+  method: 'POST',
+  body: undefined,
+});
+// no second 'body' argument, because body was set to 'undefined'
+nonStandardEndpoint({ id });
+```
+
+:::
 
 ### getRequestInit(body): RequestInit {#getRequestInit}
 
