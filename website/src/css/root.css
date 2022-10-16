@@ -1,0 +1,32 @@
+:root {
+  --ifm-color-primary-lightest: #b09dff;
+  --ifm-color-primary-lighter: #896eff;
+  --ifm-color-primary-light: #7d5eff;
+  --ifm-color-primary: #633eff;
+  --ifm-color-primary-dark: #491eff;
+  --ifm-color-primary-darker: #3d0eff;
+  --ifm-color-primary-darkest: #2b00de;
+  --ifm-font-family-base: 'Rubik', 'Avenir Next', 'Segoe UI', Tahoma, Geneva,
+    Verdana, sans-serif;
+  --ifm-font-family-monospace: 'Roboto Mono', SFMono-Regular, Menlo, Monaco,
+    Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --ifm-hero-background-color: var(--ifm-background-color);
+  --ifm-hero-fade-to-background-color: var(--ifm-background-color);
+  --ifm-pre-padding: .8rem;
+}
+
+.navbar .navbar__link {
+  font-family: var(--ifm-font-family-base);
+}
+
+.navbar .navbar__brand .navbar__title {
+  font-family: var(--ifm-font-family-base);
+}
+
+code, pre {
+  font-family: var(-ifm-font-family-monospace);
+}
+
+html {
+  font-family: var(--ifm-font-family-base);
+}

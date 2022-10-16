@@ -1,22 +1,21 @@
 import type { FixtureEndpoint } from '@rest-hooks/test';
-import React, { memo } from 'react';
+import React, { memo, type ReactElement } from 'react';
+import CodeBlock from '@theme/CodeBlock';
+
+import styles from './styles.module.css';
 
 function FixturePreview({ fixtures }: { fixtures: FixtureEndpoint[] }) {
   return (
-    <div
-      style={{
-        backgroundColor: 'rgb(41, 45, 62)',
-        font: 'var(--ifm-code-font-size) / var(--ifm-pre-line-height) var(--ifm-font-family-monospace) !important',
-        color: 'rgb(191, 199, 213)',
-        padding: '10px',
-      }}
-    >
+    <div className={styles.fixtureBlock}>
       {fixtures.map(fixture => (
-        <div key={fixture.endpoint.key(...fixture.args)}>
-          <span style={{ color: 'rgb(195, 232, 141)' }}>
+        <div
+          key={fixture.endpoint.key(...fixture.args)}
+          className={styles.fixtureItem}
+        >
+          <div className={styles.fixtureHeader}>
             {fixture.endpoint.key(...fixture.args)}
-          </span>
-          : <FixtureResponse fixture={fixture} />
+          </div>
+          <FixtureResponse fixture={fixture} />
         </div>
       ))}
     </div>
@@ -24,12 +23,16 @@ function FixturePreview({ fixtures }: { fixtures: FixtureEndpoint[] }) {
 }
 export default memo(FixturePreview);
 
-function FixtureResponse({ fixture }: { fixture: FixtureEndpoint }) {
-  return (
-    <span>
-      {typeof fixture.response === 'function'
-        ? 'function'
-        : JSON.stringify(fixture.response, undefined, 2)}
-    </span>
+function FixtureResponse({
+  fixture,
+}: {
+  fixture: FixtureEndpoint;
+}): ReactElement {
+  return typeof fixture.response === 'function' ? (
+    ('function' as any)
+  ) : (
+    <CodeBlock language="json" className={styles.fixtureJson}>
+      {JSON.stringify(fixture.response)}
+    </CodeBlock>
   );
 }

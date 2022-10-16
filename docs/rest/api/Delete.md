@@ -6,6 +6,7 @@ title: schema.Delete
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import { RestEndpoint } from '@rest-hooks/rest';
 
 Describes entities to be marked as `DELETED`. This is a special symbol.
 
@@ -13,15 +14,20 @@ Describes entities to be marked as `DELETED`. This is a special symbol.
 
 ## Usage
 
-<HooksPlayground groupId="schema" defaultOpen="y">
-
-```tsx
-const sampleData = () =>
-  Promise.resolve([
+<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+{
+endpoint: new RestEndpoint({path: '/users'}),
+args: [],
+response: [
     { id: '123', name: 'Jim' },
     { id: '456', name: 'Jane' },
     { id: '555', name: 'Phone' },
-  ]);
+  ],
+delay: 150,
+},
+]}>
+
+```typescript title="api/User.ts"
 const sampleDelete = ({ id }) => Promise.resolve({ id });
 
 class User extends Entity {
@@ -30,12 +36,16 @@ class User extends Entity {
     return this.id;
   }
 }
-const userList = new Endpoint(sampleData, {
+const userList = new RestEndpoint({
+  path: '/users',
   schema: [User],
 });
 const userDelete = new Endpoint(sampleDelete, {
   schema: new schema.Delete(User),
 });
+```
+
+```tsx title="UserPage.tsx"
 function UsersPage() {
   const users = useSuspense(userList, {});
   const { fetch } = useController();

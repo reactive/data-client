@@ -47,11 +47,51 @@ module.exports = {
       crossOrigin: true,
     },
     {
+      rel: 'preload',
+      href: 'https://fonts.gstatic.com/s/rubik/v21/iJWKBXyIfDnIV7nBrXw.woff2',
+      as: 'font',
+      type: 'font/woff2',
+      crossOrigin: true,
+    },
+    {
+      rel: 'preload',
+      href: 'https://fonts.gstatic.com/s/robotomono/v22/L0x5DF4xlVMF-BfR8bXMIjhLq38.woff2',
+      as: 'font',
+      type: 'font/woff2',
+      crossOrigin: true,
+    },
+    {
+      rel: 'preload',
+      href: 'https://fonts.gstatic.com/s/rubik/v21/iJWEBXyIfDnIV7nEnX661A.woff2',
+      as: 'font',
+      type: 'font/woff2',
+      crossOrigin: true,
+    },
+    {
+      rel: 'preload',
+      href: 'https://fonts.gstatic.com/s/robotomono/v22/L0x7DF4xlVMF-BfR8bXMIjhOm32WWg.woff2',
+      as: 'font',
+      type: 'font/woff2',
+      crossOrigin: true,
+    },
+    {
       rel: 'stylesheet',
       href: 'https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&family=Rubik:ital,wght@1,300..900&family=Roboto+Mono:wght@100..700&family=Roboto+Mono:ital,wght@1,100..700&display=swap',
       crossOrigin: true,
       media: 'all',
     },
+    /*{
+      rel: 'preload',
+      href: '/assets/css/root.css',
+      as: 'style',
+      crossOrigin: true,
+    },
+    {
+      rel: 'stylesheet',
+      href: '/assets/css/root.css',
+      crossOrigin: true,
+      media: 'all',
+    }, TODO: figure out how to load this*/
   ],
   favicon: 'img/favicon/favicon.ico',
   themes: ['@docusaurus/theme-live-codeblock'],
@@ -96,6 +136,7 @@ module.exports = {
         },
         theme: {
           customCss: [
+            require.resolve('./src/css/root.css'),
             require.resolve('./src/css/customTheme.css'),
             require.resolve('./src/mocks/init.js'),
           ],
@@ -251,6 +292,7 @@ module.exports = {
       },
     ],
     path.resolve(__dirname, './node-plugin'),
+    path.resolve(__dirname, './profiling-plugin'),
   ],
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */

@@ -245,7 +245,7 @@ const increment = new RestEndpoint(
 );
 ```
 
-```tsx title="CounterPage.tsx"
+```tsx title="CounterPage.tsx" collapsed
 function CounterPage() {
   const { fetch } = useController();
   const { count } = useSuspense(getCount);
@@ -334,7 +334,7 @@ const increment = new RestEndpoint(
 );
 ```
 
-```tsx title="CounterPage.tsx"
+```tsx title="CounterPage.tsx" collapsed
 function CounterPage() {
   const { fetch } = useController();
   const { count } = useSuspense(getCount);

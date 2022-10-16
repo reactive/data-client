@@ -5,17 +5,16 @@ import {
 } from 'rest-hooks';
 import { NetworkManager } from '@rest-hooks/core';
 import { FixtureEndpoint, MockResolver } from '@rest-hooks/test';
-import React, { memo, useCallback, useState, Suspense, useMemo } from 'react';
-import { LiveError, LivePreview } from 'react-live';
+import React, { memo, useCallback, useState, useMemo, lazy } from 'react';
 import clsx from 'clsx';
 import {
   useScrollPositionBlocker,
   useTabGroupChoice,
 } from '@docusaurus/theme-common/internal';
-import BrowserOnly from '@docusaurus/BrowserOnly';
 
 import styles from './styles.module.css';
 import StoreInspector from './StoreInspector';
+import Boundary from './Boundary';
 
 function Preview({
   groupId,
@@ -71,14 +70,9 @@ function Preview({
             [styles.hidden]: hiddenResult,
           })}
         >
-          <BrowserOnly fallback={<LivePreviewLoader />}>
-            {() => (
-              <Suspense fallback={<LivePreviewLoader />}>
-                <LivePreview />
-                <LiveError className={styles.playgroundError} />
-              </Suspense>
-            )}
-          </BrowserOnly>
+          <Boundary fallback={<LivePreviewLoader />}>
+            <PreviewBlockLazy />
+          </Boundary>
         </div>
         <StoreInspector selectedValue={selectedValue} toggle={toggle} />
       </MockResolver>
@@ -90,3 +84,9 @@ export default memo(Preview);
 function LivePreviewLoader() {
   return <div>Loading...</div>;
 }
+const PreviewBlockLazy = lazy(
+  () =>
+    import(
+      /* webpackChunkName: '[request]', webpackPreload: true */ './PreviewBlock'
+    ),
+);

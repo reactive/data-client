@@ -8,6 +8,7 @@ title: Entity
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import LanguageTabs from '@site/src/components/LanguageTabs';
+import { RestEndpoint } from '@rest-hooks/rest';
 
 <LanguageTabs>
 
@@ -184,7 +185,6 @@ class LatestPriceEntity extends Entity {
 }
 ```
 
-
 ### static merge(existing, incoming): mergedValue {#merge}
 
 ```typescript
@@ -245,7 +245,7 @@ rendering without needing to complete the fetch. This is typically helpful when 
 cache has already been populated by another request like a list request.
 
 ```typescript
-export class UserResource extends Resource {
+export class User extends Entity {
   readonly id: number | undefined = undefined;
   readonly username: string = '';
   readonly email: string = '';
@@ -260,10 +260,14 @@ export class UserResource extends Resource {
   // right here
   static indexes = ['username' as const];
 }
+export const UserResource = new createResource({
+  path: '/user/:id',
+  schema: User,
+})
 ```
 
 ```tsx
-const user = useSuspense(UserResource.detail(), { username: 'bob' });
+const user = useSuspense(UserResource.get, { username: 'bob' });
 ```
 
 #### useCache()
@@ -276,11 +280,13 @@ class LatestPrice extends Entity {
   readonly id: string = '';
   readonly symbol: string = '';
   readonly price: string = '0.0';
+  static indexes = ['symbol'] as const;
 }
+const latestPriceFromCache = new Index(LatestPrice);
 ```
 
 ```typescript
-class AssetResource extends Resource {
+class Asset extends Entity {
   readonly id: string = '';
   readonly price: string = '';
 
@@ -288,18 +294,22 @@ class AssetResource extends Resource {
     price: LatestPrice,
   };
 }
+const getAssets = new RestEndpoint({
+  path: '/assets',
+  schema: [Asset],
+})
 ```
 
 Some top level component:
 
 ```tsx
-const assets = useSuspense(AssetResource.list());
+const assets = useSuspense(getAssets);
 ```
 
 Nested below:
 
 ```tsx
-const price = useCache(LatestPrice, { symbol: 'BTC' });
+const price = useCache(latestPriceFromCache, { symbol: 'BTC' });
 ```
 
 ### static schema: { [k: keyof this]: Schema } {#schema}
@@ -308,17 +318,21 @@ Set this to [define entities nested](/rest/guides/nested-response) inside this o
 
 Additionally can be used to [declare field deserialization](/rest/guides/network-transform#deserializing-fields)
 
-<HooksPlayground groupId="schema" defaultOpen="y">
-
-```tsx
-const postSample = () =>
-  Promise.resolve({
+<HooksPlayground groupId="schema" defaultOpen="y"  fixtures={[
+{
+endpoint: new RestEndpoint({path: '/posts/:id'}),
+args: [{ id: '123' }],
+response: {
     id: '5',
     author: { id: '123', name: 'Jim' },
     content: 'Happy day',
     createdAt: '2019-01-23T06:07:48.311Z',
-  });
+  },
+delay: 150,
+},
+]}>
 
+```tsx title="PostPage.tsx"
 class User extends Entity {
   readonly name: string = '';
   pk() {
@@ -336,11 +350,12 @@ class Post extends Entity {
     return this.id;
   }
 }
-const postDetail = new Endpoint(postSample, {
+const getPost = new RestEndpoint({
+  path: '/posts/:id',
   schema: Post,
 });
 function PostPage() {
-  const post = useSuspense(postDetail, { id: '123' });
+  const post = useSuspense(getPost, { id: '123' });
   return (
     <div>
       <p>

@@ -48,6 +48,10 @@
   text-transform: none;
 }
 
+body {
+--ifm-color-playground-tab-selected: var(--ifm-color-emphasis-300);
+}
+
 
 div:first-of-type > .playgroundHeader {
   background: var(--ifm-color-emphasis-600);
@@ -55,7 +59,7 @@ div:first-of-type > .playgroundHeader {
 }
 div > .playgroundHeader.subtabs {
   color: var(--ifm-color-content);
-  background: var(--ifm-color-emphasis-400);
+  background: var(--ifm-color-playground-tab-selected);
 }
 
 .playgroundEditor {
@@ -164,19 +168,25 @@ div > .playgroundHeader.subtabs {
   align-items: center;
 }
 .tab:hover {
-  background-color: var(--ifm-color-emphasis-500);
+  background-color: var(--ifm-color-emphasis-700);
 }
 
 .tab.selected {
-  background-color: var(--ifm-color-emphasis-400);
+  background-color: var(--ifm-color-playground-tab-selected);
   color: var(--ifm-color-content);
 }
 .subtabs .tab.selected {
   background-color: var(--ifm-color-emphasis-600);
   color: var(--ifm-color-content-inverse);
 }
+.subtabs .tab.selected:hover {
+  background-color: var(--ifm-color-emphasis-600);
+}
 .subtabs .tab {
   padding: 0.4rem 0.75rem;
+}
+.subtabs .tab:hover {
+  background-color: var(--ifm-color-emphasis-400);
 }
 
 
@@ -184,4 +194,29 @@ div > .playgroundHeader.subtabs {
   margin-bottom: 8px;
   margin-right: 8px;
   padding: 2px 6px;
+}
+
+.fixtureBlock {
+  background-color: rgb(41, 45, 62);
+  font: var(--ifm-code-font-size) / var(--ifm-pre-line-height) var(--ifm-font-family-monospace);
+  color: rgb(191, 199, 213);
+  padding: 8px;
+}
+.fixtureItem {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+.fixtureHeader {
+  color: rgb(195, 232, 141);
+  font: var(--ifm-code-font-size) / var(--ifm-pre-line-height) var(--ifm-font-family-monospace);
+  flex: 0 0 auto;
+}
+div.fixtureJson {
+  margin-bottom: 0;
+}
+.fixtureJson code {
+  padding: 0;
+  margin: 0;
+  white-space: pre-wrap;
 }

@@ -1,6 +1,5 @@
 import React, {
   memo,
-  Suspense,
   useContext,
   useMemo,
   useReducer,
@@ -11,18 +10,15 @@ import { LiveProvider, LiveEditor, LiveProviderProps } from 'react-live';
 import clsx from 'clsx';
 import Translate from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import useIsBrowser from '@docusaurus/useIsBrowser';
 import { usePrismTheme } from '@docusaurus/theme-common';
 import { FixtureEndpoint } from '@rest-hooks/test';
-import BrowserOnly from '@docusaurus/BrowserOnly';
 
 import CodeTabContext from '../Demo/CodeTabContext';
 import styles from './styles.module.css';
 import FixturePreview from './FixturePreview';
 import Header from './Header';
 import PreviewWithHeader from './PreviewWithHeader';
-
-const PreviewWithScope = lazy(() => import('./PreviewWithScope'));
+import Boundary from './Boundary';
 
 function HeaderTabs() {
   const { selectedValue, setSelectedValue, values } =
@@ -114,12 +110,43 @@ export default function Playground({
     liveCodeBlock: { playgroundPosition },
   } = useDocusaurusContext().siteConfig.themeConfig as any;
   const prismTheme = usePrismTheme();
-  const isBrowser = useIsBrowser();
 
-  /*const handleTransformCode = useMemo(
-    () => transformCode || (code => babelTransform(`${code};`)),
-    [transformCode],
-  );*/
+  return (
+    <div
+      className={clsx(styles.playgroundContainer, {
+        [styles.row]: row,
+        [styles.hidden]: hidden,
+      })}
+    >
+      <LiveProvider theme={prismTheme} {...props}>
+        <PlaygroundContent
+          reverse={playgroundPosition === 'top'}
+          row={row}
+          fixtures={fixtures}
+          includeEndpoints={includeEndpoints}
+          groupId={groupId}
+          defaultOpen={defaultOpen}
+        >
+          {children}
+        </PlaygroundContent>
+      </LiveProvider>
+    </div>
+  );
+}
+Playground.defaultProps = {
+  row: false,
+  hidden: false,
+};
+
+function PlaygroundContent({
+  reverse,
+  children,
+  row,
+  fixtures,
+  includeEndpoints,
+  groupId,
+  defaultOpen,
+}) {
   const codeTabs: { code: string; title?: string; collapsed: boolean }[] =
     useMemo(() => {
       if (typeof children === 'string')
@@ -153,96 +180,81 @@ export default function Playground({
   const code = codes.join('\n');
 
   return (
-    <div
-      className={clsx(styles.playgroundContainer, {
-        [styles.row]: row,
-        [styles.hidden]: hidden,
-      })}
-    >
-      <LiveProvider theme={prismTheme} {...props}>
-        <Reversible reverse={playgroundPosition === 'top'}>
-          <div>
-            <EditorHeader fixtures={!row && fixtures} />
-            {row && codeTabs.length > 1 ? (
-              <EditorTabs
-                titles={codeTabs.map(({ title }) => title)}
-                closedList={closedList}
-                onClick={i => setClosed(cl => cl.map((_, j) => j !== i))}
+    <Reversible reverse={reverse}>
+      <div>
+        <EditorHeader fixtures={!row && fixtures} />
+        {row && codeTabs.length > 1 ? (
+          <EditorTabs
+            titles={codeTabs.map(({ title }) => title)}
+            closedList={closedList}
+            onClick={i => setClosed(cl => cl.map((_, j) => j !== i))}
+          />
+        ) : null}
+        {codeTabs.map(({ title }, i) => (
+          <React.Fragment key={i}>
+            {!row && title ? (
+              <CodeTabHeader
+                onClick={() =>
+                  setClosed(cl => {
+                    const n = [...cl];
+                    n[i] = !n[i];
+                    return n;
+                  })
+                }
+                closed={closedList[i]}
+                title={title}
               />
             ) : null}
-            {codeTabs.map(({ title }, i) => (
-              <React.Fragment key={i}>
-                {!row && title ? (
-                  <CodeTabHeader
-                    onClick={() =>
-                      setClosed(cl => {
-                        const n = [...cl];
-                        n[i] = !n[i];
-                        return n;
-                      })
-                    }
-                    closed={closedList[i]}
-                    title={title}
-                  />
-                ) : null}
-                {closedList[i] ? null : (
-                  <MemoEditor
-                    key={`${isBrowser}-${i}`}
-                    className={styles.playgroundEditor}
-                    onChange={handleCodeChange[i]}
-                    code={codes[i]}
-                  />
-                )}
-              </React.Fragment>
-            ))}
-          </div>
-          <BrowserOnly
-            fallback={
-              <LiveProvider code={'render(() => "loading...");'} noInline>
-                <PreviewWithHeader
-                  {...{
-                    includeEndpoints,
-                    groupId,
-                    defaultOpen,
-                    row,
-                    fixtures,
-                  }}
-                />
-              </LiveProvider>
-            }
-          >
-            {() => (
-              <Suspense
-                fallback={
-                  <LiveProvider code={'render(() => "loading...");'} noInline>
-                    <PreviewWithHeader
-                      {...{
-                        includeEndpoints,
-                        groupId,
-                        defaultOpen,
-                        row,
-                        fixtures,
-                      }}
-                    />
-                  </LiveProvider>
-                }
-              >
-                <PreviewWithScope
-                  code={code}
-                  {...{ includeEndpoints, groupId, defaultOpen, row, fixtures }}
-                />
-              </Suspense>
+            {closedList[i] ? null : (
+              <PlaygroundEditor
+                key={i}
+                onChange={handleCodeChange[i]}
+                code={codes[i]}
+              />
             )}
-          </BrowserOnly>
-        </Reversible>
-      </LiveProvider>
-    </div>
+          </React.Fragment>
+        ))}
+      </div>
+      <Boundary
+        fallback={
+          <LiveProvider
+            key="preview"
+            code={'render(() => "Loading...");'}
+            noInline
+          >
+            <PreviewWithHeader
+              key="preview"
+              {...{
+                includeEndpoints,
+                groupId,
+                defaultOpen,
+                row,
+                fixtures,
+              }}
+            />
+          </LiveProvider>
+        }
+      >
+        <PreviewWithScopeLazy
+          code={code}
+          {...{ includeEndpoints, groupId, defaultOpen, row, fixtures }}
+        />
+      </Boundary>
+    </Reversible>
   );
 }
-Playground.defaultProps = {
-  row: false,
-  hidden: false,
-};
+
+const isGoogleBot =
+  typeof navigator === 'object' &&
+  /bot|googlebot|crawler|spider|robot|crawling/i.test(navigator?.userAgent);
+
+const PreviewWithScopeLazy = lazy(() =>
+  isGoogleBot
+    ? Promise.resolve({ default: (props: any): JSX.Element => null })
+    : import(
+        /* webpackChunkName: '[request]', webpackPrefetch: true */ './PreviewWithScope'
+      ),
+);
 
 function Reversible({
   children,
@@ -268,6 +280,17 @@ function reduceCodes(state: string[], action: { i: number; code: string }) {
   return newstate;
 }
 const MemoEditor = memo(LiveEditor);
+
+function PlaygroundEditor({ onChange, code }) {
+  //const isBrowser = useIsBrowser(); we used to key Editor on this; but I'm not sure why
+  return (
+    <MemoEditor
+      className={styles.playgroundEditor}
+      onChange={onChange}
+      code={code}
+    />
+  );
+}
 
 function CodeTabHeader({ onClick, closed, title }) {
   return (

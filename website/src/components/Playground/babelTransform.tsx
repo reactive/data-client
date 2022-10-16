@@ -6,6 +6,7 @@ export function babelTransform(code) {
       module: ModuleKind.ESNext,
       target: ScriptTarget.ES2017,
       jsx: JsxEmit.React,
+      skipLibCheck: true,
     },
   });
   return transformed.outputText;
