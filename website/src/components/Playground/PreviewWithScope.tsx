@@ -115,12 +115,13 @@ export default function PreviewWithScope({
 }) {
   return (
     <LiveProvider
+      key="preview"
       code={code}
       transformCode={babelTransform}
       noInline
       scope={includeEndpoints ? scopeWithEndpoint : scope}
     >
-      <PreviewWithHeader {...props} />
+      <PreviewWithHeader key="preview" {...props} />
     </LiveProvider>
   );
 }

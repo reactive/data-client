@@ -1,12 +1,14 @@
 ---
 title: schema.Object
 ---
+
 <head>
   <title>schema.Values - Representing Objects with known keys | Rest Hooks</title>
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import { RestEndpoint } from '@rest-hooks/rest';
 
 Define a plain object mapping that has values needing to be normalized into Entities. _Note: The same behavior can be defined with shorthand syntax: `{ ... }`_
 
@@ -19,25 +21,30 @@ Define a plain object mapping that has values needing to be normalized into Enti
 
 #### Usage
 
-<HooksPlayground groupId="schema" defaultOpen="y">
+<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+{
+endpoint: new RestEndpoint({path: '/users'}),
+args: [],
+response: { users: [{ id: '123', name: 'Beth' }] },
+delay: 150,
+},
+]}>
 
-```tsx
-const sampleData = () =>
-  Promise.resolve({ users: [{ id: '123', name: 'Beth' }] });
-
+```tsx title="UsersPage.tsx"
 class User extends Entity {
   readonly name: string = '';
   pk() {
     return this.id;
   }
 }
-const userList = new Endpoint(sampleData, {
+const getUsers = new RestEndpoint({
+  path: '/users',
   schema:
     new schema.Object({ users: new schema.Array(User) }),
   ,
 });
 function UsersPage() {
-  const { users } = useSuspense(userList, {});
+  const { users } = useSuspense(getUsers);
   return (
     <div>
       {users.map(user => <div key={user.pk()}>{user.name}</div>)}

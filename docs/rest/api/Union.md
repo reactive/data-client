@@ -7,6 +7,7 @@ title: schema.Union
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import { RestEndpoint } from '@rest-hooks/rest';
 
 Describe a schema which is a union of multiple schemas. This is useful if you need the polymorphic behavior provided by `schema.Array` or `schema.Values` but for non-collection fields.
 
@@ -25,15 +26,19 @@ Describe a schema which is a union of multiple schemas. This is useful if you ne
 
 _Note: If your data returns an object that you did not provide a mapping for, the original object will be returned in the result and an entity will not be created._
 
-<HooksPlayground groupId="schema" defaultOpen="y">
-
-```tsx title="api/Feed.ts"
-const sampleData = () =>
-  Promise.resolve([
+<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+{
+endpoint: new RestEndpoint({path: '/feed'}),
+args: [],
+response: [
     { id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
     { id: 10, type: 'post', content: 'good day!' },
-  ]);
+  ],
+delay: 150,
+},
+]}>
 
+```typescript title="api/Feed.ts"
 abstract class FeedItem extends Entity {
   readonly id: number = 0;
   declare readonly type: 'link' | 'post';
@@ -51,7 +56,8 @@ class Post extends FeedItem {
   readonly content: string = '';
 }
 
-const feed = new Endpoint(sampleData, {
+const feed = new RestEndpoint({
+  path: '/feed',
   schema: [
     new schema.Union(
       {
@@ -64,7 +70,7 @@ const feed = new Endpoint(sampleData, {
 });
 ```
 
-```tsx title="FeedList.tsx"
+```tsx title="FeedList.tsx" collapsed
 function FeedList() {
   const feedItems = useSuspense(feed, {});
   return (

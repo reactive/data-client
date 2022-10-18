@@ -1,23 +1,7 @@
-import React, {
-  memo,
-  useCallback,
-  useContext,
-  useMemo,
-  useReducer,
-} from 'react';
-import { LiveProvider, LiveEditor, LiveProviderProps } from 'react-live';
+import React from 'react';
 import clsx from 'clsx';
-import Translate from '@docusaurus/Translate';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import useIsBrowser from '@docusaurus/useIsBrowser';
-import { usePrismTheme } from '@docusaurus/theme-common';
-import { transpileModule, ModuleKind, ScriptTarget, JsxEmit } from 'typescript';
-import { FixtureEndpoint } from '@rest-hooks/test';
 
-import CodeTabContext from '../Demo/CodeTabContext';
-import Preview from './Preview';
 import styles from './styles.module.css';
-import FixturePreview from './FixturePreview';
 
 type OnClick = React.DetailedHTMLProps<
   React.HTMLAttributes<HTMLDivElement>,

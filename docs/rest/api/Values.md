@@ -1,12 +1,14 @@
 ---
 title: schema.Values
 ---
+
 <head>
   <title>schema.Values - Representing Objects with arbitrary keys | Rest Hooks</title>
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import { RestEndpoint } from '@rest-hooks/rest';
 
 Like [Array](./Array), `Values` are unbounded in size. The definition here describes the types of values to expect,
 with keys being any string.
@@ -26,9 +28,16 @@ Describes a map whose values follow the given schema.
 
 ## Usage
 
-<HooksPlayground groupId="schema" defaultOpen="y">
+<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+{
+endpoint: new RestEndpoint({path: '/items'}),
+args: [],
+response: { firstThing: { id: 1 }, secondThing: { id: 2 } },
+delay: 150,
+},
+]}>
 
-```tsx
+```tsx title="ItemPage.tsx"
 const sampleData = () =>
   Promise.resolve({ firstThing: { id: 1 }, secondThing: { id: 2 } });
 
@@ -38,11 +47,12 @@ class Item extends Entity {
     return `${this.id}`;
   }
 }
-const itemValues = new Endpoint(sampleData, {
+const getItems = new RestEndpoint({
+  path: '/items',
   schema: new schema.Values(Item),
 });
 function ItemPage() {
-  const items = useSuspense(itemValues, {});
+  const items = useSuspense(getItems);
   return <pre>{JSON.stringify(items, undefined, 2)}</pre>;
 }
 render(<ItemPage />);
@@ -58,15 +68,19 @@ _Note: If your data returns an object that you did not provide a mapping for, th
 
 #### string schemaAttribute
 
-<HooksPlayground groupId="schema" defaultOpen="y">
+<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+{
+endpoint: new RestEndpoint({path: '/feed'}),
+args: [],
+response: [
+{ id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
+{ id: 10, type: 'post', content: 'good day!' },
+],
+delay: 150,
+},
+]}>
 
-```tsx
-const sampleData = () =>
-  Promise.resolve({
-    firstLink: { id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
-    greatPost: { id: 10, type: 'post', content: 'good day!' },
-  });
-
+```tsx title="api/Feed.ts"
 abstract class FeedItem extends Entity {
   readonly id: number = 0;
   declare readonly type: 'link' | 'post';
@@ -83,7 +97,8 @@ class Post extends FeedItem {
   readonly type = 'post' as const;
   readonly content: string = '';
 }
-const feed = new Endpoint(sampleData, {
+const getFeed = new RestEndpoint({
+  path: '/feed',
   schema:
     new schema.Values(
       {
@@ -94,17 +109,23 @@ const feed = new Endpoint(sampleData, {
     ),
   ,
 });
+```
+
+```tsx title="FeedList.tsx" collapsed
 function FeedList() {
-  const feedItems = useSuspense(feed, {});
+  const feedItems = useSuspense(getFeed);
   return (
     <div>
-      {Object.entries(feedItems).map(([key, item]) =>
-        (<div key={item.pk()}>{key}: {item.type === 'link' ? (
-           <LinkItem link={item} />
-        ) : (
-          <PostItem post={item} />
-        )}</div>),
-      )}
+      {Object.entries(feedItems).map(([key, item]) => (
+        <div key={item.pk()}>
+          {key}:{' '}
+          {item.type === 'link' ? (
+            <LinkItem link={item} />
+          ) : (
+            <PostItem post={item} />
+          )}
+        </div>
+      ))}
     </div>
   );
 }
@@ -112,7 +133,7 @@ function LinkItem({ link }: { link: Link }) {
   return <a href={link.url}>{link.title}</a>;
 }
 function PostItem({ post }: { post: Post }) {
-  return <div>{post.content}</div>;
+  return <span>{post.content}</span>;
 }
 render(<FeedList />);
 ```
@@ -124,15 +145,19 @@ render(<FeedList />);
 The return values should match a key in the `definition`. Here we'll show the same behavior as the 'string'
 case, except we'll append an 's'.
 
-<HooksPlayground groupId="schema" defaultOpen="y">
+<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+{
+endpoint: new RestEndpoint({path: '/feed'}),
+args: [],
+response: [
+{ id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
+{ id: 10, type: 'post', content: 'good day!' },
+],
+delay: 150,
+},
+]}>
 
-```tsx
-const sampleData = () =>
-  Promise.resolve({
-    firstLink: { id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
-    greatPost: { id: 10, type: 'post', content: 'good day!' },
-  });
-
+```typescript title="api/Feed.ts"
 abstract class FeedItem extends Entity {
   readonly id: number = 0;
   declare readonly type: 'link' | 'post';
@@ -149,7 +174,8 @@ class Post extends FeedItem {
   readonly type = 'post' as const;
   readonly content: string = '';
 }
-const feed = new Endpoint(sampleData, {
+const getFeed = new RestEndpoint({
+  path: '/feed',
   schema:
     new schema.Values(
       {
@@ -160,17 +186,23 @@ const feed = new Endpoint(sampleData, {
     ),
   ,
 });
+```
+
+```tsx title="FeedList.tsx" collapsed
 function FeedList() {
-  const feedItems = useSuspense(feed, {});
+  const feedItems = useSuspense(getFeed);
   return (
     <div>
-      {Object.entries(feedItems).map(([key, item]) =>
-        (<div key={item.pk()}>{key}: {item.type === 'link' ? (
-           <LinkItem link={item} />
-        ) : (
-          <PostItem post={item} />
-        )}</div>),
-      )}
+      {Object.entries(feedItems).map(([key, item]) => (
+        <div key={item.pk()}>
+          {key}:{' '}
+          {item.type === 'link' ? (
+            <LinkItem link={item} />
+          ) : (
+            <PostItem post={item} />
+          )}
+        </div>
+      ))}
     </div>
   );
 }
@@ -178,7 +210,7 @@ function LinkItem({ link }: { link: Link }) {
   return <a href={link.url}>{link.title}</a>;
 }
 function PostItem({ post }: { post: Post }) {
-  return <div>{post.content}</div>;
+  return <span>{post.content}</span>;
 }
 render(<FeedList />);
 ```

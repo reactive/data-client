@@ -1,6 +1,7 @@
 ---
 title: schema.Array
 ---
+
 <head>
   <title>schema.Array - Representing Arrays | Rest Hooks</title>
 </head>
@@ -9,6 +10,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import { RestEndpoint } from '@rest-hooks/rest';
 
 Creates a schema to normalize an array of schemas. If the input value is an `Object` instead of an `Array`,
 the normalized result will be an `Array` of the `Object`'s values.
@@ -29,28 +31,33 @@ _Note: The same behavior can be defined with shorthand syntax: `[ mySchema ]`_
 
 To describe a simple array of a singular entity type:
 
-<HooksPlayground groupId="schema" defaultOpen="y">
+<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+{
+endpoint: new RestEndpoint({path: '/users'}),
+args: [],
+response: [
+{ id: '123', name: 'Jim' },
+{ id: '456', name: 'Jane' },
+],
+delay: 150,
+},
+]}>
 
-```tsx
-const sampleData = () =>
-  Promise.resolve([
-  { id: '123', name: 'Jim' },
-  { id: '456', name: 'Jane' },
-]);
-
+```tsx title="Users.tsx"
 class User extends Entity {
   readonly name: string = '';
   pk() {
     return this.id;
   }
 }
-const userList = new Endpoint(sampleData, {
+const getUsers = new RestEndpoint({
+  path: '/users',
   schema:
     new schema.Array(User),
   ,
 });
 function UsersPage() {
-  const users = useSuspense(userList, {});
+  const users = useSuspense(getUsers);
   return (
     <div>
       {users.map(user => <div key={user.pk()}>{user.name}</div>)}
@@ -70,15 +77,19 @@ _Note: If your data returns an object that you did not provide a mapping for, th
 
 #### string schemaAttribute
 
-<HooksPlayground groupId="schema" defaultOpen="y">
+<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+{
+endpoint: new RestEndpoint({path: '/feed'}),
+args: [],
+response: [
+{ id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
+{ id: 10, type: 'post', content: 'good day!' },
+],
+delay: 150,
+},
+]}>
 
-```tsx
-const sampleData = () =>
-  Promise.resolve([
-    { id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
-    { id: 10, type: 'post', content: 'good day!' },
-  ]);
-
+```typescript title="api/Feed.ts"
 abstract class FeedItem extends Entity {
   readonly id: number = 0;
   declare readonly type: 'link' | 'post';
@@ -95,7 +106,8 @@ class Post extends FeedItem {
   readonly type = 'post' as const;
   readonly content: string = '';
 }
-const feed = new Endpoint(sampleData, {
+const getFeed = new RestEndpoint({
+  path: '/feed',
   schema:
     new schema.Array(
       {
@@ -106,8 +118,11 @@ const feed = new Endpoint(sampleData, {
     ),
   ,
 });
+```
+
+```tsx title="FeedList.tsx" collapsed
 function FeedList() {
-  const feedItems = useSuspense(feed, {});
+  const feedItems = useSuspense(getFeed);
   return (
     <div>
       {feedItems.map(item =>
@@ -136,15 +151,19 @@ render(<FeedList />);
 The return values should match a key in the `definition`. Here we'll show the same behavior as the 'string'
 case, except we'll append an 's'.
 
-<HooksPlayground groupId="schema" defaultOpen="y">
+<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+{
+endpoint: new RestEndpoint({path: '/feed'}),
+args: [],
+response: [
+{ id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
+{ id: 10, type: 'post', content: 'good day!' },
+],
+delay: 150,
+},
+]}>
 
-```tsx
-const sampleData = () =>
-  Promise.resolve([
-    { id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
-    { id: 10, type: 'post', content: 'good day!' },
-  ]);
-
+```typescript title="api/Feed.ts"
 abstract class FeedItem extends Entity {
   readonly id: number = 0;
   declare readonly type: 'link' | 'post';
@@ -161,7 +180,8 @@ class Post extends FeedItem {
   readonly type = 'post' as const;
   readonly content: string = '';
 }
-const feed = new Endpoint(sampleData, {
+const getFeed = new RestEndpoint({
+  path: '/feed',
   schema:
     new schema.Array(
       {
@@ -172,8 +192,11 @@ const feed = new Endpoint(sampleData, {
     ),
   ,
 });
+```
+
+```tsx title="FeedList.tsx" collapsed
 function FeedList() {
-  const feedItems = useSuspense(feed, {});
+  const feedItems = useSuspense(getFeed);
   return (
     <div>
       {feedItems.map(item =>
