@@ -6,11 +6,6 @@ import { User } from './User';
 import { Label } from './Label';
 import { GithubEndpoint, GithubEntity, createGithubResource } from './Base';
 
-const stateToIcon: Record<string, React.ReactNode> = {
-  closed: <IssuesCloseOutlined />,
-  open: <InfoCircleOutlined />,
-};
-
 export class Issue extends GithubEntity {
   readonly number: number = 0;
   readonly repositoryUrl: string = '';
@@ -54,7 +49,7 @@ export class Issue extends GithubEntity {
     return [this.repositoryUrl, this.number].join(',');
   }
 }
-// since we don't use for types - setting generics is not essential
+
 class IssueEndpoint<O extends RestGenerics = any> extends GithubEndpoint<O> {
   pollFrequency = 60000;
 }
@@ -65,3 +60,8 @@ export const IssueResource = createGithubResource({
   Endpoint: IssueEndpoint,
 });
 export default IssueResource;
+
+const stateToIcon: Record<string, React.ReactNode> = {
+  closed: <IssuesCloseOutlined />,
+  open: <InfoCircleOutlined />,
+};

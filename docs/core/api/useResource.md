@@ -5,6 +5,7 @@ title: useResource()
 
 <head>
   <title>useResource() - Data fetching with Suspense</title>
+  <meta name="docsearch:pagerank" content="-5" />
 </head>
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
