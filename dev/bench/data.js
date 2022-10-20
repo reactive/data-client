@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1665377685818,
+  "lastUpdate": 1666288915569,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -7806,6 +7806,58 @@ window.BENCHMARK_DATA = {
             "range": "±3.03%",
             "unit": "ops/sec",
             "extra": "73 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ff9bcc0382dc41d1bf47754c1493320847e103cc",
+          "message": "feat: Support infer for Endpoints with string or number args (#2226)",
+          "timestamp": "2022-10-20T10:56:39-07:00",
+          "tree_id": "48851358dd4fa6e1916fde428d8cdf31885a38a9",
+          "url": "https://github.com/coinbase/rest-hooks/commit/ff9bcc0382dc41d1bf47754c1493320847e103cc"
+        },
+        "date": 1666288913898,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 84,
+            "range": "±1.27%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 41.94,
+            "range": "±1.17%",
+            "unit": "ops/sec",
+            "extra": "55 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 47.41,
+            "range": "±0.84%",
+            "unit": "ops/sec",
+            "extra": "61 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 81.46,
+            "range": "±1.54%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
           }
         ]
       }
