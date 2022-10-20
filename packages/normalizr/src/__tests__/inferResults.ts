@@ -16,6 +16,28 @@ describe('inferResults()', () => {
     });
   });
 
+  it('should work with number argument', () => {
+    const schema = new schemas.Object({
+      data: new schemas.Object({
+        article: CoolerArticle,
+      }),
+    });
+    expect(buildInferredResults(schema, [5], {})).toEqual({
+      data: { article: '5' },
+    });
+  });
+
+  it('should work with string argument', () => {
+    const schema = new schemas.Object({
+      data: new schemas.Object({
+        article: CoolerArticle,
+      }),
+    });
+    expect(buildInferredResults(schema, ['5'], {})).toEqual({
+      data: { article: '5' },
+    });
+  });
+
   it('should work with SimpleRecord', () => {
     class Data extends SimpleRecord {
       readonly article = CoolerArticle.fromJS();

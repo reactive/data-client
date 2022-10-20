@@ -307,6 +307,9 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     recurse: any,
   ): any {
     if (!args[0]) return undefined;
+    if (['string', 'number'].includes(typeof args[0])) {
+      return `${args[0]}`;
+    }
     const id = this.pk(args[0], undefined, '');
     // Was able to infer the entity's primary key from params
     if (id !== undefined && id !== '') return id;
