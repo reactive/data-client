@@ -1,10 +1,5 @@
 import PolymorphicSchema from './Polymorphic.js';
-
-const getValues = (input: any) =>
-  Array.isArray(input) ? input : Object.keys(input).map(key => input[key]);
-
-const filterEmpty = ([item, , deletedItem]: any) =>
-  item !== undefined && !deletedItem;
+import { filterEmpty, getValues } from './utils.js';
 
 /**
  * Represents arrays

@@ -3,6 +3,7 @@ import type {
   FetchFunction,
   ResolveType,
   DenormalizeNullable,
+  EntityTable,
 } from '@rest-hooks/normalizr';
 import { ExpiryStatus } from '@rest-hooks/normalizr';
 import {

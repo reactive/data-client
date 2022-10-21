@@ -1,4 +1,9 @@
-import type { Schema, SchemaSimple, NormalizedIndex } from './interface.js';
+import type {
+  Schema,
+  SchemaSimple,
+  NormalizedIndex,
+  EntityTable,
+} from './interface.js';
 import type { NormalizeNullable } from './types.js';
 import { infer as objectInfer } from './schemas/Object.js';
 import { infer as arrayInfer } from './schemas/Array.js';

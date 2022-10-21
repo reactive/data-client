@@ -1,4 +1,9 @@
-import type { Schema, EntityInterface, UnvisitFunction } from './interface.js';
+import type {
+  Schema,
+  QueryInterface,
+  EntityInterface,
+  UnvisitFunction,
+} from './interface.js';
 import type {
   Denormalize,
   DenormalizeNullable,
@@ -9,6 +14,7 @@ import WeakListMap from './WeakListMap.js';
 import { denormalize as arrayDenormalize } from './schemas/Array.js';
 import { denormalize as objectDenormalize } from './schemas/Object.js';
 import { isImmutable } from './schemas/ImmutableUtils.js';
+import { isQuery } from './isQuery.js';
 
 const DRAFT = Symbol('draft');
 
@@ -101,6 +107,31 @@ const unvisitEntity = (
   return [localCache[schema.key][pk], found, deleted];
 };
 
+const unvisitQuery = (
+  parent: any,
+  schema: QueryInterface,
+  unvisit: UnvisitFunction,
+  entities: any,
+): [denormalized: object | undefined, found: boolean, deleted: boolean] => {
+  const [denormalized, found, deleted] = schema.denormalize(
+    /*
+    {
+      Cat: {
+        1: {},
+        2: {}
+      },
+      Dog: {
+        5: {}
+      }
+    }
+    */
+    entities,
+    unvisit,
+  );
+  if (denormalized === undefined) return [denormalized, found, deleted];
+  return [schema.process(denormalized, parent), found, deleted];
+};
+
 const getUnvisit = (
   entities: Record<string, Record<string, any>>,
   entityCache: DenormalizeCache['entities'],
@@ -153,6 +184,11 @@ const getUnvisit = (
         dependencies,
         cycleIndex,
       );
+    }
+
+    // this must come after isEntity as entity would pass
+    if (isQuery(schema)) {
+      return unvisitQuery(input, schema, unvisit, entities);
     }
 
     if (hasDenormalize) {

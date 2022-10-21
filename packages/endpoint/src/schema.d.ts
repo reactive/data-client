@@ -3,6 +3,8 @@ import type {
   Schema,
   UnvisitFunction,
   NormalizedIndex,
+  EntityTable,
+  EntityInterface,
 } from './interface.js';
 import type {
   AbstractInstanceType,
@@ -28,6 +30,67 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
     schemaAttribute?: S extends EntityMap<infer T>
       ? keyof T | SchemaFunction<keyof S>
       : undefined,
+  );
+
+  define(definition: Schema): void;
+  readonly isSingleSchema: S extends EntityMap ? false : true;
+  readonly schema: S;
+  normalize(
+    input: any,
+    parent: any,
+    key: any,
+    visit: (...args: any) => any,
+    addEntity: (...args: any) => any,
+    visitedEntities: Record<string, any>,
+  ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
+
+  _normalizeNullable():
+    | (S extends EntityMap ? UnionResult<S> : Normalize<S>)[]
+    | undefined;
+
+  denormalize(
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    input: {},
+    unvisit: UnvisitFunction,
+  ): [
+    denormalized: (S extends EntityMap<infer T> ? T : Denormalize<S>)[],
+    found: boolean,
+    suspend: boolean,
+  ];
+
+  _denormalizeNullable(): [
+    (S extends EntityMap<infer T> ? T : Denormalize<S>)[] | undefined,
+    false,
+    boolean,
+  ];
+
+  infer(
+    args: readonly any[],
+    indexes: NormalizedIndex,
+    recurse: (...args: any) => any,
+  ): any;
+}
+
+export class Query<
+  S extends EntityMap | EntityInterface = EntityMap | EntityInterface,
+> implements SchemaClass
+{
+  process(
+    entries: (S extends EntityMap<infer T> ? T : Denormalize<S>)[],
+    context: any,
+  ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
+
+  constructor(
+    definition: S,
+    options?: {
+      schemaAttribute?: S extends EntityMap<infer T>
+        ? keyof T | SchemaFunction<keyof S>
+        : undefined;
+      process?: (
+        entries: (S extends EntityMap<infer T> ? T : Denormalize<S>)[],
+        context: any,
+      ) => (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
+    },
   );
 
   define(definition: Schema): void;

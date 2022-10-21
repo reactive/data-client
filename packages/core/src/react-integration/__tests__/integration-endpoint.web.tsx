@@ -10,8 +10,6 @@ import {
   CoolerArticle,
   FirstUnion,
   PaginatedArticle,
-  UserResource,
-  User,
 } from '__tests__/new';
 import nock from 'nock';
 import { act } from '@testing-library/react-hooks';
@@ -19,7 +17,7 @@ import { act } from '@testing-library/react-hooks';
 import { schema, Entity } from '@rest-hooks/endpoint';
 import { SimpleRecord } from '@rest-hooks/legacy';
 import { Endpoint } from '@rest-hooks/endpoint';
-import { createResource, GetEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@rest-hooks/rest';
 
 import {
   makeRenderRestHook,
@@ -83,10 +81,12 @@ describe.each([
       .reply(200, '')
       .get(`/article-cooler`)
       .reply(200, nested)
+      .get(`/article-cooler?tags=a`)
+      .reply(200, nested)
       .get(`/article-cooler/values`)
       .reply(200, valuesFixture)
       .post(`/article-cooler`)
-      .reply(200, createPayload)
+      .reply(200, (uri, body: any) => ({ ...createPayload, ...body }))
       .get(`/user`)
       .reply(200, users)
       .get(`/article-cooler/withEditor`)
@@ -219,6 +219,135 @@ describe.each([
       // @ts-expect-error
       expect(result.current[k].doesnotexist).toBeUndefined();
     });
+  });
+
+  it('should denormalize schema.Query()', async () => {
+    const getList = CoolerArticleResource.getList.extend({
+      schema: new schema.Query(CoolerArticle),
+    });
+
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      return useSuspense(getList);
+    });
+    expect(result.current).toBeUndefined();
+    await waitForNextUpdate();
+    result.current.forEach(article => {
+      expect(article instanceof CoolerArticle).toBe(true);
+      expect(article.title).toBeDefined();
+      // @ts-expect-error
+      expect(article.doesnotexist).toBeUndefined();
+    });
+  });
+
+  it('should filter schema.Query() based on arguments', async () => {
+    const getList = CoolerArticleResource.getList.extend({
+      schema: new schema.Query(CoolerArticle, {
+        process(entries, context) {
+          if (!context[0].tags) return entries;
+          return entries.filter(article =>
+            article.tags.includes(context[0].tags),
+          );
+        },
+      }),
+    });
+
+    const { result, waitForNextUpdate, rerender } = renderRestHook(
+      ({ tags }: { tags: string }) => {
+        return {
+          data: useSuspense(getList, { tags }),
+          controller: useController(),
+        };
+      },
+      { initialProps: { tags: 'a' } },
+    );
+    expect(result.current).toBeUndefined();
+    await waitForNextUpdate();
+    expect(result.current.data.length).toBe(1);
+    expect(result.current.data).toMatchSnapshot();
+
+    await act(async () =>
+      result.current.controller.fetch(CoolerArticleResource.create, {
+        id: 1000,
+        title: 'bob says',
+        tags: ['a'],
+      }),
+    );
+    await act(async () =>
+      result.current.controller.fetch(CoolerArticleResource.create, {
+        id: 2000,
+        title: 'should not exist',
+        tags: [],
+      }),
+    );
+    // should only include the one with the tag
+    expect(result.current.data.length).toBe(2);
+    expect(result.current.data).toMatchSnapshot();
+    rerender({ tags: '' });
+    // should not need to fetch as data already provided
+    // with no tags should include all entries
+    expect(result.current.data.length).toBe(4);
+    expect(result.current.data).toMatchSnapshot();
+  });
+
+  it('should filter nested schema.Query() based on parent', async () => {
+    class Parent extends Entity {
+      id = '0';
+      tags = '';
+      articles: CoolerArticle[] = [];
+
+      pk() {
+        return this.id;
+      }
+
+      static schema = {
+        articles: new schema.Query(CoolerArticle, {
+          process(entries, context: Parent) {
+            if (!context.tags) return entries;
+            return entries.filter(article =>
+              article.tags.includes(context.tags),
+            );
+          },
+        }),
+      };
+    }
+    const getParent = new RestEndpoint({
+      path: '/getNestedQuery/:id',
+      schema: Parent,
+    });
+    mynock.get('/getNestedQuery/5').reply(200, {
+      id: '5',
+      tags: 'a',
+    });
+
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      useSuspense(CoolerArticleResource.getList);
+      return {
+        data: useSuspense(getParent, { id: '5' }),
+        controller: useController(),
+      };
+    });
+    expect(result.current).toBeUndefined();
+    await waitForNextUpdate();
+    expect(result.current.data.articles.length).toBe(1);
+    expect(result.current.data).toMatchSnapshot();
+
+    await act(async () =>
+      result.current.controller.fetch(CoolerArticleResource.create, {
+        id: 1000,
+        title: 'bob says',
+        tags: ['a'],
+      }),
+    );
+    await act(async () =>
+      result.current.controller.fetch(CoolerArticleResource.create, {
+        id: 2000,
+        title: 'should not exist',
+        tags: [],
+      }),
+    );
+    // should only include the one with the tag
+    expect(result.current.data.articles.length).toBe(2);
+    expect(result.current.data.articles).toMatchSnapshot();
   });
 
   it('should denormalize schema.Union()', async () => {

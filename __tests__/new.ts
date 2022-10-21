@@ -8,20 +8,14 @@ import {
   Index,
   createResource,
   RestEndpoint,
-  FetchGet,
-  FetchMutate,
   Schema,
   Entity,
   RestGenerics,
-  RestEndpointConstructorOptions,
   GetEndpoint,
-  PathArgs,
   hookifyResource,
   RestType,
   MutateEndpoint,
 } from '@rest-hooks/rest';
-import { EntityInterface } from 'packages/normalizr/src';
-import { DenormalizeNullable } from 'packages/normalizr/src/types';
 
 /** Represents data with primary key being from 'id' field. */
 export class IDEntity extends Entity {

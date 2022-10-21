@@ -1,3 +1,4 @@
+import { AbstractInstanceType, Denormalize, EntityMap } from './normal.js';
 import type { EndpointExtraOptions, FetchFunction } from './types.js';
 
 export * from './SnapshotInterface.js';
@@ -61,6 +62,15 @@ export interface EntityInterface<T = any> extends SchemaSimple {
   prototype: T;
 }
 
+export interface QueryInterface<
+  S extends EntityMap | EntityInterface = EntityMap | EntityInterface,
+> extends SchemaSimple {
+  process(
+    entries: (S extends EntityMap<infer T> ? T : Denormalize<S>)[],
+    context: unknown,
+  ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
+}
+
 export interface UnvisitFunction {
   (input: any, schema: any): [any, boolean, boolean];
   og?: UnvisitFunction;
@@ -71,6 +81,14 @@ export interface NormalizedIndex {
   readonly [entityKey: string]: {
     readonly [indexName: string]: { readonly [lookup: string]: string };
   };
+}
+
+export interface EntityTable {
+  [entityKey: string]:
+    | {
+        [pk: string]: unknown;
+      }
+    | undefined;
 }
 
 /** Defines a networking endpoint */
