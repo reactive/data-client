@@ -8,7 +8,7 @@
     <subtitle>Rest Hooks Blog</subtitle>
     <icon>https://resthooks.io/img/favicon/favicon.ico</icon>
     <entry>
-        <title type="html"><![CDATA[Rest v6]]></title>
+        <title type="html"><![CDATA[Rest v6 - url path templates and more]]></title>
         <id>/2022/10/23/Announcing-Rest-6</id>
         <link href="https://resthooks.io/blog/2022/10/23/Announcing-Rest-6"/>
         <updated>2022-10-23T00:00:00.000Z</updated>

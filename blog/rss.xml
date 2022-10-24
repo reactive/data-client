@@ -9,7 +9,7 @@
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
         <item>
-            <title><![CDATA[Rest v6]]></title>
+            <title><![CDATA[Rest v6 - url path templates and more]]></title>
             <link>https://resthooks.io/blog/2022/10/23/Announcing-Rest-6</link>
             <guid>/2022/10/23/Announcing-Rest-6</guid>
             <pubDate>Sun, 23 Oct 2022 00:00:00 GMT</pubDate>
