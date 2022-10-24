@@ -4,8 +4,13 @@ title: Unit testing components
 
 :::danger
 
-Do *not* use jest.mock on any rest-hooks library. This will likely result in hard-to trace
+Be careful when using [jest.mock](https://jestjs.io/docs/jest-object#jestmockmodulename-factory-options) on modules like rest-hooks. Eliminating expected
+exports can lead to hard-to trace
 errors like `TypeError: Class extends value undefined is not a function or null`.
+
+Instead either do a [partial mock](https://jestjs.io/docs/mock-functions#mocking-partials),
+or better [mockResolvedValue](https://jestjs.io/docs/mock-functions#mocking-modules) on your
+endpoints.
 
 :::
 

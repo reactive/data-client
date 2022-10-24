@@ -3,6 +3,10 @@ title: useFetcher()
 ---
 import GenericsTabs from '@site/src/components/GenericsTabs';
 
+<head>
+  <meta name="docsearch:pagerank" content="-40"/>
+</head>
+
 :::tip
 
 Use [Controller.fetch()](./Controller.md#fetch) instead

@@ -5,7 +5,6 @@ description: Strongly typed path-based API definitions.
 
 <head>
   <title>RestEndpoint - Strongly typed path-based API definitions</title>
-  <meta data-rh="true" name="docsearch:pagerank" content="10"/>
 </head>
 
 import Tabs from '@theme/Tabs';
@@ -206,7 +205,7 @@ rpc({ id: 5 });
 RestEndpoint adds to Endpoint by providing customizations for a provided fetch method.
 
 1. _Prepare fetch_
-   1. url()
+   1. [url()](#url)
       - [urlPrefix](#urlPrefix)
       - [path](#path)
    1. [getRequestInit()](#getRequestInit)
@@ -232,6 +231,36 @@ function fetch(...args) {
 
 Members double as options (second constructor arg). While none are required, the first few
 have defaults.
+
+### url(params): string {#url}
+
+`urlPrefix` + `path template` + '?' + `searchParams`
+
+`url()` uses the `params` to fill in the [path template](#path). Any unused `params` members are then used
+as [searchParams](https://developer.mozilla.org/en-US/docs/Web/API/URL/searchParams) (aka 'GET' params - the stuff after `?`).
+
+[searchParams](https://developer.mozilla.org/en-US/docs/Web/API/URL/searchParams) are sorted to maintain determinism.
+
+<details collapsed><summary><b>Implementation</b></summary>
+
+```typescript
+url(urlParams = {}) {
+  const urlBase = getUrlBase(this.path)(urlParams);
+  const tokens = getUrlTokens(this.path);
+  const searchParams = {};
+  Object.keys(urlParams).forEach(k => {
+    if (!tokens.has(k)) {
+      searchParams[k] = urlParams[k];
+    }
+  });
+  if (Object.keys(searchParams).length) {
+    return `${this.urlPrefix}${urlBase}?${paramsToString(searchParams)}`;
+  }
+  return `${this.urlPrefix}${urlBase}`;
+}
+```
+
+</details>
 
 ### path: string {#path}
 

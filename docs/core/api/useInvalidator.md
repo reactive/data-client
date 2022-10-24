@@ -3,6 +3,10 @@ title: useInvalidator()
 ---
 import GenericsTabs from '@site/src/components/GenericsTabs';
 
+<head>
+  <meta name="docsearch:pagerank" content="-40"/>
+</head>
+
 :::tip
 
 Use [Controller.invalidate()](./Controller.md#invalidate) instead

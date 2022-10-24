@@ -4,6 +4,7 @@ title: Controller
 
 <head>
   <title>Controller - Imperative Controls for Rest Hooks</title>
+  <meta name="docsearch:pagerank" content="10"/>
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
@@ -49,9 +50,7 @@ function CreatePost() {
   const { fetch } = useController();
 
   return (
-    <form
-      onSubmit={e => fetch(PostResource.create, new FormData(e.target))}
-    >
+    <form onSubmit={e => fetch(PostResource.create, new FormData(e.target))}>
       {/* ... */}
     </form>
   );
@@ -67,9 +66,7 @@ function UpdatePost({ id }: { id: string }) {
 
   return (
     <form
-      onSubmit={e =>
-        fetch(PostResource.update, { id }, new FormData(e.target))
-      }
+      onSubmit={e => fetch(PostResource.update, { id }, new FormData(e.target))}
     >
       {/* ... */}
     </form>
@@ -202,7 +199,6 @@ useEffect(() => {
 ## receiveError(endpoint, ...args, error) {#receiveError}
 
 Stores the result of [Endpoint](/rest/api/Endpoint) and args as the error provided.
-
 
 ## resolve(endpoint, { args, response, fetchedAt, error }) {#resolve}
 
@@ -341,11 +337,9 @@ export default class MyManager implements Manager {
 }
 ```
 
-
 ## getError(endpoint, ...args, state) {#getError}
 
 Gets the error, if any, for a given endpoint. Returns undefined for no errors.
-
 
 ## snapshot(state, fetchedAt) {#snapshot}
 

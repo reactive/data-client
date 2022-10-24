@@ -2,6 +2,10 @@
 title: "<MockProvider />"
 ---
 
+<head>
+  <meta name="docsearch:pagerank" content="-20" />
+</head>
+
 ```typescript
 function MockProvider({
   children,

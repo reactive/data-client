@@ -6,6 +6,7 @@ import GenericsTabs from '@site/src/components/GenericsTabs';
 
 <head>
   <title>useFetch() - Declarative fetch triggers</title>
+  <meta name="docsearch:pagerank" content="10"/>
 </head>
 
 <GenericsTabs>

@@ -2,6 +2,10 @@
 title: useResetter()
 ---
 
+<head>
+  <meta name="docsearch:pagerank" content="-40"/>
+</head>
+
 :::tip
 
 Use [Controller.resetEntireStore()](./Controller.md#resetEntireStore) instead

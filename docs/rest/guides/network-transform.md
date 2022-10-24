@@ -3,6 +3,7 @@ title: Transforming data on fetch
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import { RestEndpoint } from '@rest-hooks/rest';
 
 All network requests flow through the `fetch()` method, so any transforms needed can simply
 be done by overriding it with a call to super.
@@ -64,29 +65,35 @@ or multiplying two numbers.
 
 In this case, simply use the [static schema](api/Entity.md#schema) with [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) and [BigNumber](https://github.com/MikeMcl/bignumber.js)
 
-<HooksPlayground groupId="schema" defaultOpen="y">
+<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+{
+endpoint: new RestEndpoint({path: '/price/:exchangePair'}),
+args: [{ exchangePair: 'btc-usd' }],
+response: {
+exchangePair: 'btc-usd',
+price: '32982389239823983298329832.238923982389328932893298',
+updatedAt: new Date().toISOString(),
+},
+delay: 150,
+},
+]}>
 
 ```tsx title="api/Price.ts"
-const exchangeMock = ({ exchangePair }) =>
-  Promise.resolve({
-    exchangePair,
-    price: '32982389239823983298329832.238923982389328932893298',
-    updatedAt: new Date().toISOString(),
-  });
-
 class ExchangePrice extends Entity {
   readonly exchangePair = '';
   readonly updatedAt = new Date(0);
   readonly price = new BigNumber(0);
+  pk() {
+    return this.exchangePair;
+  }
+
   static schema = {
     updatedAt: Date,
     price: BigNumber,
   };
-  pk() {
-    return this.exchangePair;
-  }
 }
-const getPrice = new Endpoint(exchangeMock, {
+const getPrice = new RestEndpoint({
+  path: '/price/:exchangePair',
   schema: ExchangePrice,
 });
 ```

@@ -4,6 +4,10 @@ title: useRetrieve()
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 
+<head>
+  <meta name="docsearch:pagerank" content="-5" />
+</head>
+
 :::tip
 
 Use [useFetch()](./useFetch.md) instead
