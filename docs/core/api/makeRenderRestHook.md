@@ -72,7 +72,7 @@ Hooks to run inside React. Return value will become available in `result`
 Can be used to prime the cache if test expects cache values to already be filled. Takes same
 [array of fixtures as MockResolver](../api/MockResolver#fixtures)
 
-This has the same effect as initializing [<CacheProvider />](../api/CacheProvider) with [mockInitialState()](../api/mockInitialState)
+This has the same effect as initializing [<CacheProvider /\>](../api/CacheProvider) with [mockInitialState()](../api/mockInitialState)
 
 ### options.resolverFixtures
 

@@ -72,7 +72,7 @@ const feed = new RestEndpoint({
 
 ```tsx title="FeedList.tsx" collapsed
 function FeedList() {
-  const feedItems = useSuspense(feed, {});
+  const feedItems = useSuspense(feed);
   return (
     <div>
       {feedItems.map(item =>

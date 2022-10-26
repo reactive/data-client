@@ -2,25 +2,42 @@
   margin-bottom: var(--ifm-leading);
   border-radius: var(--ifm-global-radius);
   box-shadow: var(--ifm-global-shadow-lw);
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   align-items: stretch;
   flex-direction: column;
   background-color: var(--ifm-background-color);
 }
+.playgroundContainer .playgroundHeader.tabControls:first-of-type {
+  border-top-left-radius: var(--ifm-global-radius);
+  overflow: hidden;
+}
+.playgroundContainer.row > :last-child {
+  overflow: hidden;
+  border-top-right-radius: var(--ifm-global-radius);
+  border-bottom-right-radius: var(--ifm-global-radius);
+}
+.playgroundContainer:not(.row) > :last-child {
+  overflow: hidden;
+  border-bottom-left-radius: var(--ifm-global-radius);
+  border-bottom-right-radius: var(--ifm-global-radius);
+}
 @media only screen and (min-width: 768px) {
   .playgroundContainer.row {
     flex-direction: row;
   }
-  .playgroundContainer.row .hidden {
-    display: none;
-  }
 }
+.playgroundContainer.row .hidden {
+  display: none;
+}
+
 .playgroundContainer > div {
   flex: 1 1 auto;
 }
 .playgroundContainer > div:first-child {
   flex: 0 0 70%;
+  background-color: var(--monoco-code-background);
+  border-bottom-left-radius: var(--ifm-global-radius);
 }
 
 .playgroundHeader {
@@ -49,13 +66,18 @@
 }
 
 body {
---ifm-color-playground-tab-selected: var(--ifm-color-emphasis-300);
+  --ifm-color-playground-tab-selected: var(--ifm-color-emphasis-300);
 }
-
 
 div:first-of-type > .playgroundHeader {
   background: var(--ifm-color-emphasis-600);
   color: var(--ifm-color-content-inverse);
+}
+.playgroundContainer:not(.row)
+  > div:first-of-type
+  > .playgroundHeader:first-child {
+  border-top-right-radius: var(--ifm-global-radius);
+  border-top-left-radius: var(--ifm-global-radius);
 }
 div > .playgroundHeader.subtabs {
   color: var(--ifm-color-content);
@@ -137,7 +159,7 @@ div > .playgroundHeader.subtabs {
   background-color: var(--ifm-color-emphasis-300);
 }
 
-.playgroundContainer.row.hidden {
+.playgroundContainer.row.hidden, .hidden {
   display: none;
 }
 
@@ -189,7 +211,6 @@ div > .playgroundHeader.subtabs {
   background-color: var(--ifm-color-emphasis-400);
 }
 
-
 .playgroundPreview button {
   margin-bottom: 8px;
   margin-right: 8px;
@@ -198,7 +219,8 @@ div > .playgroundHeader.subtabs {
 
 .fixtureBlock {
   background-color: rgb(41, 45, 62);
-  font: var(--ifm-code-font-size) / var(--ifm-pre-line-height) var(--ifm-font-family-monospace);
+  font: var(--ifm-code-font-size) / var(--ifm-pre-line-height)
+    var(--ifm-font-family-monospace);
   color: rgb(191, 199, 213);
   padding: 8px;
 }
@@ -209,14 +231,44 @@ div > .playgroundHeader.subtabs {
 }
 .fixtureHeader {
   color: rgb(195, 232, 141);
-  font: var(--ifm-code-font-size) / var(--ifm-pre-line-height) var(--ifm-font-family-monospace);
+  font: var(--ifm-code-font-size) / var(--ifm-pre-line-height)
+    var(--ifm-font-family-monospace);
   flex: 0 0 auto;
 }
 div.fixtureJson {
   margin-bottom: 0;
+  flex: 1 1 auto;
+  min-width: 200px;
 }
 .fixtureJson code {
   padding: 0;
   margin: 0;
   white-space: pre-wrap;
+  max-width: 100%;
+}
+
+.playgroundEditor :global(.monaco-editor) {
+  --monaco-monospace-font: var(--ifm-font-family-monospace);
+}
+
+.playgroundEditor :global(.monaco-editor),
+.playgroundEditor :global(.monaco-editor-background),
+.playgroundEditor :global(.monaco-editor) :global(.margin),
+:global(.monaco-editor) :global(.inputarea.ime-input) {
+  background-color: var(--monoco-code-background);
+  border-bottom-left-radius: var(--ifm-global-radius);
+}
+.playgroundEditor
+  :global(.monaco-editor)
+  :global(.view-overlays)
+  :global(.current-line) {
+  border-color: var(--monoco-code-lineHighlightBorder);
+}
+html[data-theme='dark'] {
+  --monoco-code-background: hsl(229, 20%, 15%);
+  --monoco-code-lineHighlightBorder: hsl(228, 20%, 20%);
+}
+html[data-theme='light'] {
+  --monoco-code-background: #292d3e;
+  --monoco-code-lineHighlightBorder: hsl(228, 20%, 25%);
 }

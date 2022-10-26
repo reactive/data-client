@@ -32,22 +32,23 @@ delay: 150,
 
 ```tsx title="UsersPage.tsx"
 class User extends Entity {
-  readonly name: string = '';
+  id = '';
+  name = '';
   pk() {
     return this.id;
   }
 }
 const getUsers = new RestEndpoint({
   path: '/users',
-  schema:
-    new schema.Object({ users: new schema.Array(User) }),
-  ,
+  schema: new schema.Object({ users: new schema.Array(User) }),
 });
 function UsersPage() {
   const { users } = useSuspense(getUsers);
   return (
     <div>
-      {users.map(user => <div key={user.pk()}>{user.name}</div>)}
+      {users.map(user => (
+        <div key={user.pk()}>{user.name}</div>
+      ))}
     </div>
   );
 }

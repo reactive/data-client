@@ -9,7 +9,7 @@ https://prismjs.com/download.html#themes=prism-okaidia&languages=markup+css+clik
  code[class*="language-"],
  pre[class*="language-"] {
    color: #f8f8f2;
-   background: #282c34;;
+   background: #282c34;
    text-shadow: 0 1px rgba(0, 0, 0, 0.3);
    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
    font-size: 1em;

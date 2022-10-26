@@ -204,48 +204,51 @@ The simplest examples of this are toggling a boolean, or incrementing a counter;
 more complicated transforms. To make it more obvious we're using a simple counter here.
 
 <HooksPlayground fixtures={[
-  {
-    endpoint: new RestEndpoint({path: '/api/count'}),
-    args: [],
-    response: { count: 0, updatedAt: new Date() }
-  }
+{
+endpoint: new RestEndpoint({path: '/api/count'}),
+args: [],
+response: { count: 0, updatedAt: new Date() }
+}
 ]}>
 
 ```ts title="api/Count.ts"
-class CountEntity extends Entity {
+export class CountEntity extends Entity {
   readonly count = 0;
 
   pk() {
     return `SINGLETON`;
   }
 }
-const getCount = new RestEndpoint({
+export const getCount = new RestEndpoint({
   path: '/api/count',
   schema: CountEntity,
   name: 'get',
-}
-);
-const increment = new RestEndpoint(
-  {
-    path: '/api/count/increment',
-    method: 'POST',
-    name: 'increment',
-    schema: CountEntity,
-    getRequestInit() {
-      return this.constructor.prototype.getRequestInit.call(this, { updatedAt: Date.now() });
-    }
-    getOptimisticResponse(snap) {
-      const { data } = snap.getResponse(getCount);
-      if (!data) throw new AbortOptimistic();
-      return {
-        count: data.count + 1,
-      };
-    },
+});
+export const increment = new RestEndpoint({
+  path: '/api/count/increment',
+  method: 'POST',
+  name: 'increment',
+  schema: CountEntity,
+  getRequestInit() {
+    // substitute for super.getRequestInit()
+    return this.constructor.prototype.getRequestInit.call(this, {
+      updatedAt: Date.now(),
+    });
   },
-);
+  getOptimisticResponse(snap) {
+    const { data } = snap.getResponse(getCount);
+    if (!data) throw new AbortOptimistic();
+    return {
+      count: data.count + 1,
+    };
+  },
+});
 ```
 
 ```tsx title="CounterPage.tsx" collapsed
+import { useLoading } from '@rest-hooks/hooks';
+import { getCount, increment } from './api/Count';
+
 function CounterPage() {
   const { fetch } = useController();
   const { count } = useSuspense(getCount);
@@ -257,7 +260,8 @@ function CounterPage() {
       </p>
       <div>
         {count}
-        <br/><button onClick={clickHandler}>+</button>
+        <br />
+        <button onClick={clickHandler}>+</button>
         {loading ? ' ...loading' : ''}
       </div>
     </div>
@@ -287,15 +291,15 @@ We use [snap.fetchedAt](/docs/api/Snapshot#fetchedat) in our [getOptimisticRespo
 which is when the optimistic update first applies.
 
 <HooksPlayground fixtures={[
-  {
-    endpoint: new RestEndpoint({path: '/api/count'}),
-    args: [],
-    response: { count: 0, updatedAt: new Date() }
-  }
+{
+endpoint: new RestEndpoint({path: '/api/count'}),
+args: [],
+response: { count: 0, updatedAt: new Date() }
+}
 ]}>
 
 ```ts title="api/Count.ts"
-class CountEntity extends Entity {
+export class CountEntity extends Entity {
   readonly count = 0;
   readonly updatedAt = 0;
 
@@ -307,34 +311,37 @@ class CountEntity extends Entity {
     return existing.updatedAt <= incoming.updatedAt;
   }
 }
-const getCount = new RestEndpoint({
+export const getCount = new RestEndpoint({
   path: '/api/count',
   schema: CountEntity,
   name: 'get',
-}
-);
-const increment = new RestEndpoint(
-  {
-    path: '/api/count/increment',
-    method: 'POST',
-    name: 'increment',
-    schema: CountEntity,
-    getRequestInit() {
-      return this.constructor.prototype.getRequestInit.call(this, { updatedAt: Date.now() });
-    }
-    getOptimisticResponse(snap) {
-      const { data } = snap.getResponse(getCount);
-      if (!data) throw new AbortOptimistic();
-      return {
-        count: data.count + 1,
-        updatedAt: snap.fetchedAt,
-      };
-    },
+});
+export const increment = new RestEndpoint({
+  path: '/api/count/increment',
+  method: 'POST',
+  name: 'increment',
+  schema: CountEntity,
+  getRequestInit() {
+    // substitute for super.getRequestInit()
+    return this.constructor.prototype.getRequestInit.call(this, {
+      updatedAt: Date.now(),
+    });
   },
-);
+  getOptimisticResponse(snap) {
+    const { data } = snap.getResponse(getCount);
+    if (!data) throw new AbortOptimistic();
+    return {
+      count: data.count + 1,
+      updatedAt: snap.fetchedAt,
+    };
+  },
+});
 ```
 
 ```tsx title="CounterPage.tsx" collapsed
+import { useLoading } from '@rest-hooks/hooks';
+import { getCount, increment } from './api/Count';
+
 function CounterPage() {
   const { fetch } = useController();
   const { count } = useSuspense(getCount);

@@ -7,7 +7,7 @@ original_id: storybook
 [Storybook](https://storybook.js.org/) is a great utility to do isolated development and
 testing, potentially speeding up development time greatly.
 
-[\<MockProvider />](../api/MockProvider.md) enables easy loading of fixtures to test the
+[\<MockProvider /\>](../api/MockProvider.md) enables easy loading of fixtures to test the
 happy path of components. Loading state is bypassed by initializing the cache ahead of time.
 
 ## Setup

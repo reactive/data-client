@@ -1,5 +1,5 @@
 import useEnhancedReducer from '@rest-hooks/use-enhanced-reducer';
-import React, { ReactNode, useEffect, useMemo, memo } from 'react';
+import React, { useEffect, useMemo, memo } from 'react';
 import type { Middleware } from '@rest-hooks/use-enhanced-reducer';
 
 import { State, Manager } from '../../types.js';
@@ -9,7 +9,7 @@ import { StateContext, DispatchContext } from '../context.js';
 import BackupBoundary from './BackupBoundary.js';
 
 interface StoreProps {
-  children: ReactNode;
+  children: React.ReactNode;
   managers: Manager[];
   middlewares: Middleware[];
   initialState: State<unknown>;

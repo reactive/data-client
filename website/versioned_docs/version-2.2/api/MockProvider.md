@@ -14,7 +14,7 @@ function MockProvider({
 }): JSX.Element;
 ```
 
-\<MockProvider /> is a simple substitute provider to prefill the cache with fixtures so the 'happy path'
+\<MockProvider /\> is a simple substitute provider to prefill the cache with fixtures so the 'happy path'
 can be tested. This is useful for [storybook](../guides/storybook.md) as well as component testing.
 
 ## Arguments

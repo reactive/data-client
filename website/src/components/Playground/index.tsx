@@ -19,6 +19,7 @@ import FixturePreview from './FixturePreview';
 import Header from './Header';
 import PreviewWithHeader from './PreviewWithHeader';
 import Boundary from './Boundary';
+import PlaygroundEditor from './PlaygroundEditor';
 
 function HeaderTabs() {
   const { selectedValue, setSelectedValue, values } =
@@ -147,23 +148,30 @@ function PlaygroundContent({
   groupId,
   defaultOpen,
 }) {
-  const codeTabs: { code: string; title?: string; collapsed: boolean }[] =
-    useMemo(() => {
-      if (typeof children === 'string')
-        return [{ code: children.replace(/\n$/, ''), collapsed: false }];
-      return (Array.isArray(children) ? children : [children])
-        .filter(child => child.props.children)
-        .map(child =>
-          typeof child.props.children === 'string'
-            ? child.props
-            : child.props.children.props,
-        )
-        .map(({ children, title = '', collapsed = false }) => ({
-          code: children.replace(/\n$/, ''),
-          title: title.replaceAll('"', ''),
-          collapsed,
-        }));
-    }, [children]);
+  const id = useId();
+
+  const codeTabs: {
+    code: string;
+    path?: string;
+    title?: string;
+    collapsed: boolean;
+  }[] = useMemo(() => {
+    if (typeof children === 'string')
+      return [{ code: children.replace(/\n$/, ''), collapsed: false }];
+    return (Array.isArray(children) ? children : [children])
+      .filter(child => child.props.children)
+      .map(child =>
+        typeof child.props.children === 'string'
+          ? child.props
+          : child.props.children.props,
+      )
+      .map(({ children, title = '', collapsed = false, path }) => ({
+        code: children.replace(/\n$/, ''),
+        title: title.replaceAll('"', ''),
+        collapsed,
+        path,
+      }));
+  }, [children]);
 
   const [codes, dispatch] = useReducer(reduceCodes, undefined, () =>
     codeTabs.map(({ code }) => code),
@@ -190,7 +198,7 @@ function PlaygroundContent({
             onClick={i => setClosed(cl => cl.map((_, j) => j !== i))}
           />
         ) : null}
-        {codeTabs.map(({ title }, i) => (
+        {codeTabs.map(({ title, path }, i) => (
           <React.Fragment key={i}>
             {!row && title ? (
               <CodeTabHeader
@@ -205,13 +213,21 @@ function PlaygroundContent({
                 title={title}
               />
             ) : null}
-            {closedList[i] ? null : (
-              <PlaygroundEditor
-                key={i}
-                onChange={handleCodeChange[i]}
-                code={codes[i]}
-              />
-            )}
+            <div
+              key={i}
+              className={clsx(styles.playgroundEditor, {
+                [styles.hidden]: closedList[i],
+              })}
+            >
+              {
+                /*closedList[i] ? null : */ <PlaygroundEditor
+                  key={i}
+                  onChange={handleCodeChange[i]}
+                  code={codes[i]}
+                  path={'/' + id + '/' + (path || title || 'default.tsx')}
+                />
+              }
+            </div>
           </React.Fragment>
         ))}
       </div>
@@ -279,18 +295,6 @@ function reduceCodes(state: string[], action: { i: number; code: string }) {
   newstate[action.i] = action.code;
   return newstate;
 }
-const MemoEditor = memo(LiveEditor);
-
-function PlaygroundEditor({ onChange, code }) {
-  //const isBrowser = useIsBrowser(); we used to key Editor on this; but I'm not sure why
-  return (
-    <MemoEditor
-      className={styles.playgroundEditor}
-      onChange={onChange}
-      code={code}
-    />
-  );
-}
 
 function CodeTabHeader({ onClick, closed, title }) {
   return (
@@ -330,4 +334,7 @@ function EditorTabs({ titles, closedList, onClick }) {
       </div>
     </Header>
   );
+}
+function useId() {
+  return useMemo(() => (Math.random() * 10000).toPrecision(4).toString(), []);
 }

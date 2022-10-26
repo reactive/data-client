@@ -75,7 +75,7 @@ class Article extends ArticleSummary {
   }
 }
 
-const BaseArticleResource = new createResource({
+const BaseArticleResource = createResource({
   path: '/article/:id',
   schema: Article,
 });
@@ -111,7 +111,7 @@ function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
   );
 }
 function ArticleList() {
-  const [route, setRoute] = React.useState<string>();
+  const [route, setRoute] = React.useState('');
   const articles = useSuspense(ArticleResource.getList);
   if (!route) {
     return (
@@ -128,7 +128,7 @@ function ArticleList() {
       </div>
     );
   }
-  return <ArticleDetail id={route} onHome={() => setRoute()} />;
+  return <ArticleDetail id={route} onHome={() => setRoute('')} />;
 }
 
 render(<ArticleList />);

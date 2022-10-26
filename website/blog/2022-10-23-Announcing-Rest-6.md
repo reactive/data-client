@@ -1,5 +1,5 @@
 ---
-title: Rest v6 - url path templates and more
+title: Rest v6 - TypeScript HTTP endpoints from url path templates
 authors: [ntucker]
 tags:
   [
@@ -17,11 +17,7 @@ tags:
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
-<head>
-  <title>@rest-hooks/rest@6 - TypeScript HTTP endpoints from url path templates.</title>
-</head>
-
-Today we're releasing [@rest-hooks/rest](/rest/usage) version 6. While this is a pretty
+Today we're releasing [@rest-hooks/rest](/rest) version 6. While this is a pretty
 radical departure from previous versions, there is no need to upgrade if previous versions are
 working as they will continue to work with the current 6.4 release of Rest Hooks as well as many
 future versions.
@@ -35,13 +31,18 @@ data can be consgtructed by calling [createResource](/rest/api/createResource).
 <HooksPlayground row>
 
 ```tsx title="api/getTodo.ts"
-const getTodo = new RestEndpoint({
+import { RestEndpoint } from '@rest-hooks/rest';
+
+export const getTodo = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
 });
 ```
 
 ```tsx title="TodoDetail.tsx" collapsed=true
+import { useSuspense } from 'rest-hooks';
+import { getTodo } from './api/getTodo';
+
 function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(getTodo, { id });
   return <div>{todo.title}</div>;
@@ -60,16 +61,18 @@ strict TypeScript automatically](/rest/api/RestEndpoint#typing).
 <HooksPlayground row>
 
 ```tsx title="api/Todo.ts"
-class Todo extends Entity {
+import { Entity, createResource } from '@rest-hooks/rest';
+
+export class Todo extends Entity {
   id = 0;
   userId = 0;
   title = '';
   completed = false;
   pk() {
-    return this.id;
+    return `${this.id}`;
   }
 }
-const TodoResource = createResource({
+export const TodoResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
@@ -77,6 +80,9 @@ const TodoResource = createResource({
 ```
 
 ```tsx title="TodoDetail.tsx" collapsed=true
+import { useSuspense } from 'rest-hooks';
+import { TodoResource } from './api/Todo';
+
 function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(TodoResource.get, { id });
   return <div>{todo.title}</div>;
@@ -117,7 +123,7 @@ The motivation is for brevity: This allows one import to both define the expecte
 However, this lead to some problems. Originally it was thought many of these would be eliminated by improvements
 in related technologies.
 
-1. Class static side is not well supported by TypeScript. This leads to the somewhat confusing but also limiting [generic workaround](https://resthooks.io/rest/guides/rest-types).
+1. Class static side is not well supported by TypeScript. This leads to the somewhat confusing but also limiting [generic workaround](https://resthooks.io/rest/5.2/guides/rest-types).
 2. Inheritance does not work well for providing out-of-the-box endpoint definitions. Overrides are better
    - It's a struggle between general types that allow overrides or precise types that help developers.
    - Hacks like ‘SchemaDetail’ are an attempt around this but are confusing, expensive for typescript to compute and likely break in certain configurations.

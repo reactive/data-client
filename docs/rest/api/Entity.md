@@ -263,7 +263,7 @@ export class User extends Entity {
 export const UserResource = new createResource({
   path: '/user/:id',
   schema: User,
-})
+});
 ```
 
 ```tsx
@@ -297,7 +297,7 @@ class Asset extends Entity {
 const getAssets = new RestEndpoint({
   path: '/assets',
   schema: [Asset],
-})
+});
 ```
 
 Some top level component:
@@ -318,30 +318,35 @@ Set this to [define entities nested](/rest/guides/nested-response) inside this o
 
 Additionally can be used to [declare field deserialization](/rest/guides/network-transform#deserializing-fields)
 
-<HooksPlayground groupId="schema" defaultOpen="y"  fixtures={[
+<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/posts/:id'}),
 args: [{ id: '123' }],
 response: {
-    id: '5',
-    author: { id: '123', name: 'Jim' },
-    content: 'Happy day',
-    createdAt: '2019-01-23T06:07:48.311Z',
-  },
+id: '5',
+author: { id: '123', name: 'Jim' },
+content: 'Happy day',
+createdAt: '2019-01-23T06:07:48.311Z',
+},
 delay: 150,
 },
 ]}>
 
 ```tsx title="PostPage.tsx"
-class User extends Entity {
-  readonly name: string = '';
+export class User extends Entity {
+  id = '';
+  name = '';
   pk() {
     return this.id;
   }
 }
-class Post extends Entity {
-  readonly author: User = User.fromJS({});
-  readonly createdAt: Date = new Date(0);
+export class Post extends Entity {
+  id = '';
+  author = User.fromJS({});
+  createdAt = new Date(0);
+  content = '';
+  title = '';
+
   static schema = {
     author: User,
     createdAt: Date,
@@ -350,7 +355,7 @@ class Post extends Entity {
     return this.id;
   }
 }
-const getPost = new RestEndpoint({
+export const getPost = new RestEndpoint({
   path: '/posts/:id',
   schema: Post,
 });

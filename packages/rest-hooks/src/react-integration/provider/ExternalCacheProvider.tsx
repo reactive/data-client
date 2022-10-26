@@ -11,7 +11,6 @@ import {
   BackupBoundary,
 } from '@rest-hooks/core';
 import React, {
-  ReactNode,
   useEffect,
   useState,
   useMemo,
@@ -25,7 +24,7 @@ interface Store<S> {
   getState(): S;
 }
 interface Props<S> {
-  children: ReactNode;
+  children: React.ReactNode;
   store: Store<S>;
   selector: (state: S) => State<unknown>;
   controller: Controller;

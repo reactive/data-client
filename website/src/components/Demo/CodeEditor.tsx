@@ -19,10 +19,12 @@ const DemoPlayground = memo(
             hidden={value !== selectedValue}
             fixtures={fixtures}
           >
-            <code title="Endpoint" collapsed>
+            <code title="Endpoint" path={`${value}/api.ts`} collapsed>
               {endpointCode}
             </code>
-            <code title="React">{code}</code>
+            <code title="React" path={`${value}/component.tsx`}>
+              {code}
+            </code>
           </HooksPlayground>
         ))}
       </div>

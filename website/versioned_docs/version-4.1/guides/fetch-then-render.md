@@ -125,7 +125,7 @@ const FriendCard = () => {
 
 #### Posts
 
-Here we use [\<SuspenseList />](https://reactjs.org/docs/concurrent-mode-reference.html#suspenselist) and [useResource()](../api/useresource)
+Here we use [\<SuspenseList /\>](https://reactjs.org/docs/concurrent-mode-reference.html#suspenselist) and [useResource()](../api/useresource)
 
 ```tsx
 const Posts = () => {

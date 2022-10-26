@@ -6,7 +6,7 @@ original_id: unit-testing-components
 
 If you need to add unit tests to your components to check some behavior you might want
 avoid dealing with network fetch cycle as that is probably orthogonal to what your are
-trying to test. Using [\<MockProvider />](../api/MockProvider.md) in our tests allow
+trying to test. Using [\<MockProvider /\>](../api/MockProvider.md) in our tests allow
 us to prime the cache with provided fixtures so the components will immediately render
 with said results.
 
