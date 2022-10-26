@@ -21,6 +21,6 @@
     "@babel/node": "7.19.1",
     "@types/babel__core": "^7",
     "@types/benchmark": "2.1.2",
-    "@types/react": "18.0.21"
+    "@types/react": "18.0.23"
   }
 }
