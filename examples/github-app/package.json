@@ -33,8 +33,8 @@
     "@types/eslint": "8.4.8",
     "@types/parse-link-header": "^2.0.0",
     "@types/prettier": "2.7.1",
-    "@types/react": "18.0.21",
-    "@types/react-dom": "18.0.6",
+    "@types/react": "18.0.23",
+    "@types/react-dom": "18.0.7",
     "@types/uuid": "^8",
     "@typescript-eslint/eslint-plugin": "5.41.0",
     "@typescript-eslint/parser": "5.41.0",
@@ -59,7 +59,7 @@
     "webpack-dev-server": "4.11.1"
   },
   "dependencies": {
-    "@anansi/router": "0.6.30",
+    "@anansi/router": "0.6.32",
     "@ant-design/icons": "^4.7.0",
     "@rest-hooks/core": "^3.3.1",
     "@rest-hooks/endpoint": "^3.0.1",
