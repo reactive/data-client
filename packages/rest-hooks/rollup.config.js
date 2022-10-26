@@ -6,6 +6,7 @@ import { terser } from 'rollup-plugin-terser';
 import filesize from 'rollup-plugin-filesize';
 import replace from 'rollup-plugin-replace';
 
+import { typeConfig, esnextConfig } from '../../rollup-utils';
 import pkg from './package.json';
 
 const dependencies = Object.keys(pkg.dependencies)
@@ -42,6 +43,8 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
       filesize({ showBrotliSize: true }),
     ],
   });
+  configs.push(typeConfig);
+  configs.push(esnextConfig);
 } else {
   // node-friendly commonjs build
   configs.push({

@@ -9,7 +9,7 @@ declare const makeCacheProvider: (
 ) => ({ children }: { children: React.ReactNode }) => JSX.Element;
 ```
 
-Used to build a [\<CacheProvider />](./CacheProvider.md) for [makeRenderRestHook()](./makeRenderRestHook.md)
+Used to build a [\<CacheProvider /\>](./CacheProvider.md) for [makeRenderRestHook()](./makeRenderRestHook.md)
 
 ## Arguments
 

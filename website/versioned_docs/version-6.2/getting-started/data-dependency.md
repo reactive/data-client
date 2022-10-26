@@ -85,7 +85,7 @@ These are called 'fallbacks'.
 ### Boundaries (Suspense/NetworkErrorBoundary) {#boundaries}
 
 In React 18, the best way to achieve this is with boundaries. ([React 16.3+ supported](#stateful), but less powerful.)
-`<Suspense />` and `<NetworkErrorBoundary />`
+`<Suspense />` and `<NetworkErrorBoundary /\>`
 are wrapper components which show fallback [elements](https://reactjs.org/docs/rendering-elements.html)
 when any component rendered as a descendent is loading or errored while loading their data dependency.
 

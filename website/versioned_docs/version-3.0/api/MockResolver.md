@@ -12,7 +12,7 @@ function MockResolver({
 }): JSX.Element;
 ```
 
-\<MockResolver /> enables easy loading of fixtures to see what different network responses might look like.
+\<MockResolver /\> enables easy loading of fixtures to see what different network responses might look like.
 This is useful for [storybook](../guides/storybook.md) as well as component testing.
 
 

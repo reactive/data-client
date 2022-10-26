@@ -11,11 +11,13 @@ const simpleFetchDemo = [
   {
     label: 'Fetch',
     value: 'fetch',
-    endpointCode: `const getTodo = new RestEndpoint({
+    endpointCode: `export const getTodo = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
 });`,
-    code: `function TodoDetail({ id }: { id: number }) {
+    code: `import { getTodo } from './api';
+
+function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(getTodo, { id });
   return <div>{todo.title}</div>;
 }
@@ -25,19 +27,21 @@ render(<TodoDetail id={1} />);
   {
     label: 'REST',
     value: 'rest',
-    endpointCode: `class Todo extends Entity {
+    endpointCode: `export class Todo extends Entity {
   id = 0;
   userId = 0;
   title = '';
   completed = false;
-  pk() { return this.id }
+  pk() { return \`\${this.id}\` }
 }
-const TodoResource = createResource({
+export const TodoResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
 })`,
-    code: `function TodoDetail({ id }: { id: number }) {
+    code: `import { TodoResource } from './api';
+
+function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(TodoResource.get, { id });
   return <div>{todo.title}</div>;
 }
@@ -63,8 +67,10 @@ render(<TodoDetail id={1} />);
         delay: 150,
       },
     ],
-    endpointCode: `const gql = new GQLEndpoint('/');
-const getTodo = gql.query(\`
+    endpointCode: `import { GQLEndpoint } from '@rest-hooks/graphql';
+
+const gql = new GQLEndpoint('/');
+export const getTodo = gql.query(\`
   query GetTodo($id: ID!) {
     todo(id: $id) {
       id
@@ -73,7 +79,9 @@ const getTodo = gql.query(\`
     }
   }
 \`);`,
-    code: `function TodoDetail({ id }: { id: number }) {
+    code: `import { getTodo } from './api';
+
+function TodoDetail({ id }: { id: number }) {
   const { todo } = useSuspense(getTodo, { id });
   return <div>{todo.title}</div>;
 }
@@ -86,19 +94,19 @@ const mutationDemo = [
   {
     label: 'REST',
     value: 'rest',
-    endpointCode: `class Todo extends Entity {
+    endpointCode: `export class Todo extends Entity {
   id = 0;
   userId = 0;
   title = '';
   completed = false;
-  pk() { return this.id }
+  pk() { return \`\${this.id}\` }
 }
 const BaseTodoResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
 });
-const TodoResource = {
+export const TodoResource = {
   ...BaseTodoResource,
   partialUpdate: BaseTodoResource.partialUpdate.extend({
     getOptimisticResponse(snap, params, body) {
@@ -109,7 +117,9 @@ const TodoResource = {
     },
   }),
 };`,
-    code: `function TodoDetail({ id }: { id: number }) {
+    code: `import { TodoResource } from './api';
+
+function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(TodoResource.get, { id });
   const controller = useController();
   const updateWith = title => () =>
@@ -148,14 +158,16 @@ render(<TodoDetail id={1} />);
         delay: 150,
       },
     ],
-    endpointCode: `const gql = new GQLEndpoint('/');
+    endpointCode: `import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
 
-class Todo extends GQLEntity {
+const gql = new GQLEndpoint('/');
+
+export class Todo extends GQLEntity {
   readonly title: string = '';
   readonly completed: boolean = false;
 }
 
-const getTodo = gql.query(\`
+export const getTodo = gql.query(\`
   query GetTodo($id: ID!) {
     todo(id: $id) {
       id
@@ -165,7 +177,7 @@ const getTodo = gql.query(\`
   }
 \`, { todo: Todo });
 
-const updateTodo = gql.mutation(
+export const updateTodo = gql.mutation(
   \`mutation UpdateTodo($todo: Todo!) {
     updateTodo(todo: $todo) {
       id
@@ -175,7 +187,9 @@ const updateTodo = gql.mutation(
   }\`,
   { updateTodo: Todo },
 );`,
-    code: `function TodoDetail({ id }: { id: number }) {
+    code: `import { getTodo, updateTodo } from './api';
+
+function TodoDetail({ id }: { id: number }) {
   const { todo } = useSuspense(getTodo, { id });
   const controller = useController();
   const updateWith = title => () =>
@@ -200,19 +214,19 @@ const appDemo = [
   {
     label: 'REST',
     value: 'rest',
-    endpointCode: `class Todo extends Entity {
+    endpointCode: `export class Todo extends Entity {
   id = 0;
   userId = 0;
   title = '';
   completed = false;
-  pk() { return this.id }
+  pk() { return \`\${this.id}\` }
 }
 const BaseTodoResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
 });
-const TodoResource = {
+export const TodoResource = {
   ...BaseTodoResource,
   getList: BaseTodoResource.getList.extend({
     process(todos) {
@@ -233,7 +247,9 @@ const TodoResource = {
     },
   }),
 };`,
-    code: `function TodoItem({ todo }: { todo: Todo }) {
+    code: `import { TodoResource, Todo } from './api';
+
+function TodoItem({ todo }: { todo: Todo }) {
   const controller = useController();
   return (
     <div>
@@ -301,14 +317,16 @@ render(<TodoList />);
         delay: 150,
       },
     ],
-    endpointCode: `const gql = new GQLEndpoint('/');
+    endpointCode: `import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
 
-class Todo extends GQLEntity {
+const gql = new GQLEndpoint('/');
+
+export class Todo extends GQLEntity {
   readonly title: string = '';
   readonly completed: boolean = false;
 }
 
-const todoList = gql.query(\`
+export const todoList = gql.query(\`
   query GetTodos {
     todo {
       id
@@ -318,7 +336,7 @@ const todoList = gql.query(\`
   }
 \`, { todos: [Todo] });
 
-const updateTodo = gql.mutation(
+export const updateTodo = gql.mutation(
   \`mutation UpdateTodo($todo: Todo!) {
     updateTodo(todo: $todo) {
       id
@@ -328,7 +346,9 @@ const updateTodo = gql.mutation(
   }\`,
   { updateTodo: Todo },
 );`,
-    code: `function TodoItem({ todo }: { todo: Todo }) {
+    code: `import { todoList, updateTodo, Todo } from './api';
+
+function TodoItem({ todo }: { todo: Todo }) {
   const controller = useController();
   return (
     <div>

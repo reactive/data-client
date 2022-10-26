@@ -77,7 +77,7 @@ These are called 'fallbacks'.
 ### Boundaries (Suspense/NetworkErrorBoundary) {#boundaries}
 
 In React 18, the best way to achieve this is with boundaries. ([React 16.3+ supported](#stateful), but less powerful.)
-`<Suspense />` and `<NetworkErrorBoundary />`
+`<Suspense />` and `<NetworkErrorBoundary /\>`
 are wrapper components which show fallback [elements](https://reactjs.org/docs/rendering-elements.html)
 when any component rendered as a descendent is loading or errored while loading their data dependency.
 
@@ -241,7 +241,7 @@ const todoDetail = new Endpoint(
 <HooksPlayground  defaultOpen="n">
 
 ```typescript title="api/ExchangeRate.ts"
-class ExchangeRate extends Entity {
+export class ExchangeRate extends Entity {
   readonly currency: string = 'USD';
   readonly rates: Record<string, string> = {};
 
@@ -249,15 +249,17 @@ class ExchangeRate extends Entity {
     return this.currency;
   }
 }
-const getExchangeRates = new RestEndpoint({
+export const getExchangeRates = new RestEndpoint({
   urlPrefix: 'https://www.coinbase.com/api/v2',
-  path: '/exchange-rates',
+  path: '/exchange-rates\\?currency=:currency',
   schema: { data: ExchangeRate },
   pollFrequency: 5000,
 });
 ```
 
 ```tsx title="AssetPrice.tsx"
+import { getExchangeRates } from './api/ExchangeRate';
+
 function AssetPrice({ symbol }: { symbol: string }) {
   const { data: price } = useSuspense(getExchangeRates, {
     currency: 'USD',

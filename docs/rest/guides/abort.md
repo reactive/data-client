@@ -18,16 +18,16 @@ change before the request is resolved.
 <HooksPlayground>
 
 ```tsx title="api/Todo.ts" collapsed
-class Todo extends Entity {
+export class Todo extends Entity {
   id = 0;
   userId = 0;
   title = '';
   completed = false;
   pk() {
-    return this.id;
+    return `${this.id}`;
   }
 }
-const TodoResource = createResource({
+export const TodoResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
@@ -37,14 +37,18 @@ const TodoResource = createResource({
 ```tsx title="TodoDetail.tsx"
 import { useSuspense } from 'rest-hooks';
 import { useCancelling } from '@rest-hooks/hooks';
+import { TodoResource } from './api/Todo';
 
-function TodoDetail({ id }) {
+export default function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(useCancelling(TodoResource.get, { id }), { id });
   return <div>{todo.title}</div>;
 }
 ```
 
 ```tsx title="Demo" collapsed
+import React from 'react';
+import TodoDetail from './TodoDetail';
+
 function AbortDemo() {
   const [id, setId] = React.useState(1);
   return (

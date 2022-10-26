@@ -31,7 +31,8 @@ delay: 150,
 const sampleDelete = ({ id }) => Promise.resolve({ id });
 
 class User extends Entity {
-  readonly name: string = '';
+  id = '';
+  name = '';
   pk() {
     return this.id;
   }
@@ -47,7 +48,7 @@ const userDelete = new Endpoint(sampleDelete, {
 
 ```tsx title="UserPage.tsx"
 function UsersPage() {
-  const users = useSuspense(userList, {});
+  const users = useSuspense(userList);
   const { fetch } = useController();
   return (
     <div>

@@ -44,23 +44,24 @@ delay: 150,
 ]}>
 
 ```tsx title="Users.tsx"
-class User extends Entity {
-  readonly name: string = '';
+export class User extends Entity {
+  id = '';
+  name = '';
   pk() {
     return this.id;
   }
 }
-const getUsers = new RestEndpoint({
+export const getUsers = new RestEndpoint({
   path: '/users',
-  schema:
-    new schema.Array(User),
-  ,
+  schema: new schema.Array(User),
 });
 function UsersPage() {
   const users = useSuspense(getUsers);
   return (
     <div>
-      {users.map(user => <div key={user.pk()}>{user.name}</div>)}
+      {users.map(user => (
+        <div key={user.pk()}>{user.name}</div>
+      ))}
     </div>
   );
 }
@@ -90,37 +91,37 @@ delay: 150,
 ]}>
 
 ```typescript title="api/Feed.ts"
-abstract class FeedItem extends Entity {
+export abstract class FeedItem extends Entity {
   readonly id: number = 0;
   declare readonly type: 'link' | 'post';
   pk() {
     return `${this.id}`;
   }
 }
-class Link extends FeedItem {
+export class Link extends FeedItem {
   readonly type = 'link' as const;
   readonly url: string = '';
   readonly title: string = '';
 }
-class Post extends FeedItem {
+export class Post extends FeedItem {
   readonly type = 'post' as const;
   readonly content: string = '';
 }
-const getFeed = new RestEndpoint({
+export const getFeed = new RestEndpoint({
   path: '/feed',
-  schema:
-    new schema.Array(
-      {
-        link: Link,
-        post: Post,
-      },
-      'type',
-    ),
-  ,
+  schema: new schema.Array(
+    {
+      link: Link,
+      post: Post,
+    },
+    'type',
+  ),
 });
 ```
 
 ```tsx title="FeedList.tsx" collapsed
+import { getFeed, Link, Post } from './api/Feed';
+
 function FeedList() {
   const feedItems = useSuspense(getFeed);
   return (
@@ -164,37 +165,37 @@ delay: 150,
 ]}>
 
 ```typescript title="api/Feed.ts"
-abstract class FeedItem extends Entity {
+export abstract class FeedItem extends Entity {
   readonly id: number = 0;
   declare readonly type: 'link' | 'post';
   pk() {
     return `${this.id}`;
   }
 }
-class Link extends FeedItem {
+export class Link extends FeedItem {
   readonly type = 'link' as const;
   readonly url: string = '';
   readonly title: string = '';
 }
-class Post extends FeedItem {
+export class Post extends FeedItem {
   readonly type = 'post' as const;
   readonly content: string = '';
 }
-const getFeed = new RestEndpoint({
+export const getFeed = new RestEndpoint({
   path: '/feed',
-  schema:
-    new schema.Array(
-      {
-        links: Link,
-        posts: Post,
-      },
-      (input, parent, key) => `${input.type}s`,
-    ),
-  ,
+  schema: new schema.Array(
+    {
+      links: Link,
+      posts: Post,
+    },
+    (input: Link | Post, parent, key) => `${input.type}s`,
+  ),
 });
 ```
 
 ```tsx title="FeedList.tsx" collapsed
+import { getFeed, Link, Post } from './api/Feed';
+
 function FeedList() {
   const feedItems = useSuspense(getFeed);
   return (

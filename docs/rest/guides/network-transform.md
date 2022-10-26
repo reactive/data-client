@@ -79,10 +79,12 @@ delay: 150,
 ]}>
 
 ```tsx title="api/Price.ts"
-class ExchangePrice extends Entity {
-  readonly exchangePair = '';
-  readonly updatedAt = new Date(0);
-  readonly price = new BigNumber(0);
+import BigNumber from 'bignumber.js';
+
+export class ExchangePrice extends Entity {
+  exchangePair = '';
+  updatedAt = new Date(0);
+  price = new BigNumber(0);
   pk() {
     return this.exchangePair;
   }
@@ -92,13 +94,15 @@ class ExchangePrice extends Entity {
     price: BigNumber,
   };
 }
-const getPrice = new RestEndpoint({
+export const getPrice = new RestEndpoint({
   path: '/price/:exchangePair',
   schema: ExchangePrice,
 });
 ```
 
 ```tsx title="PricePage.tsx"
+import { getPrice } from './api/Price';
+
 function PricePage() {
   const currentPrice = useSuspense(getPrice, { exchangePair: 'btc-usd' });
   return (

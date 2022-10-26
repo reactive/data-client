@@ -5,6 +5,7 @@ import json from 'rollup-plugin-json';
 import { terser } from 'rollup-plugin-terser';
 import filesize from 'rollup-plugin-filesize';
 import replace from 'rollup-plugin-replace';
+import dts from 'rollup-plugin-dts';
 
 import pkg from './package.json';
 
@@ -48,6 +49,11 @@ export default [
       terser({}),
       filesize({ showBrotliSize: true }),
     ],
+  },
+  {
+    input: './lib/index.d.ts',
+    output: [{ file: 'index.d.ts', format: 'es' }],
+    plugins: [dts()],
   },
   // node-friendly commonjs build
   {

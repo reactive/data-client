@@ -30,6 +30,7 @@
     "@docusaurus/plugin-content-docs": "2.1.0",
     "@docusaurus/preset-classic": "2.1.0",
     "@docusaurus/theme-live-codeblock": "2.1.0",
+    "@monaco-editor/react": "^4.4.6",
     "@rest-hooks/endpoint": "file:../packages/endpoint",
     "@rest-hooks/graphql": "file:../packages/graphql",
     "@rest-hooks/hooks": "file:../packages/hooks",

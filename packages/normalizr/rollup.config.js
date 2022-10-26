@@ -3,6 +3,7 @@ import commonjs from 'rollup-plugin-commonjs';
 import filesize from 'rollup-plugin-filesize';
 import resolve from 'rollup-plugin-node-resolve';
 import { terser } from 'rollup-plugin-terser';
+import dts from 'rollup-plugin-dts';
 
 import { name } from './package.json';
 
@@ -68,6 +69,11 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
         isProduction && terser(),
         filesize(),
       ].filter(Boolean),
+    });
+    configs.push({
+      input: './lib/index.d.ts',
+      output: [{ file: 'index.d.ts', format: 'es' }],
+      plugins: [dts()],
     });
   }
 } else {

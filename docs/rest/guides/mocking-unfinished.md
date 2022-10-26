@@ -13,9 +13,8 @@ you won't need to make major changes to your code.
 
 ```typescript title="api/Rating.ts"
 import { Entity, createResource } from '@rest-hooks/rest';
-import { EndpointExtraOptions } from '@rest-hooks/endpoint';
 
-class Rating extends Entity {
+export class Rating extends Entity {
   readonly id: string = '';
   readonly rating: number = 4.6;
   readonly author: string = '';
@@ -35,7 +34,7 @@ const BaseRatingResource = createResource({
   schema: Rating,
 });
 
-const RatingResource = {
+export const RatingResource = {
   ...BaseRatingResource,
   getList: BaseRatingResource.getList.extend({
     dataExpiryLength: 10 * 60 * 1000, // 10 minutes
@@ -54,12 +53,14 @@ const RatingResource = {
 ```
 
 ```tsx title="Demo.tsx" collapsed
+import { RatingResource } from './api/Rating';
+
 function Demo() {
   const ratings = useSuspense(RatingResource.getList);
   return (
     <div>
       {ratings.map(rating => (
-        <div>
+        <div key={rating.pk()}>
           {rating.author}:{' '}
           {rating.rating}{' '}
           <time>

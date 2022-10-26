@@ -38,7 +38,7 @@ Testing utilities are imported from `@rest-hooks/test`. These are useful
 helpers to ensure your code works as intended and are not meant to be shipped
 to production themselves.
 
-- [\<MockProvider />](MockProvider)
+- [\<MockProvider /\>](MockProvider)
 - [makeRenderRestHook()](makeRenderRestHook)
 - [makeCacheProvider()](makeCacheProvider)
 - [makeExternalCacheProvider()](makeExternalCacheProvider)

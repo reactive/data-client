@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useRef } from 'react';
 
 import { initialState as defaultState } from '../../state/createReducer.js';
@@ -13,7 +13,7 @@ import Controller from '../../controller/Controller.js';
 const SSR = typeof window === 'undefined';
 
 interface ProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
   managers: Manager[];
   initialState: State<unknown>;
   Controller: typeof Controller;

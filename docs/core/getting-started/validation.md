@@ -38,7 +38,7 @@ delay: 150,
 ]}>
 
 ```typescript title="api/Article.ts"
-class Article extends Entity {
+export class Article extends Entity {
   readonly id: string = '';
   readonly title: string = '';
 
@@ -52,13 +52,15 @@ class Article extends Entity {
   }
 }
 
-const getArticle = new RestEndpoint({
+export const getArticle = new RestEndpoint({
   path: '/article/:id',
   schema: Article,
 });
 ```
 
 ```tsx title="ArticlePage.tsx" collapsed
+import { getArticle } from './api/Article';
+
 function ArticlePage({ id }: { id: string }) {
   const article = useSuspense(getArticle, { id });
   return <div>{article.title}</div>;
@@ -95,7 +97,7 @@ delay: 150,
 ]}>
 
 ```tsx title="api/Article.ts"
-class Article extends Entity {
+export class Article extends Entity {
   readonly id: string = '';
   readonly title: string = '';
 
@@ -113,13 +115,15 @@ class Article extends Entity {
   }
 }
 
-const getArticle = new RestEndpoint({
+export const getArticle = new RestEndpoint({
   path: '/article/:id',
   schema: Article,
 });
 ```
 
 ```tsx title="ArticlePage.tsx" collapsed
+import { getArticle } from './api/Article';
+
 function ArticlePage({ id }: { id: string }) {
   const article = useSuspense(getArticle, { id });
   return <div>{article.title}</div>;
@@ -172,7 +176,7 @@ delay: 150,
 ]}>
 
 ```typescript title="api/Article.ts"
-class ArticlePreview extends Entity {
+export class ArticlePreview extends Entity {
   readonly id: string = '';
   readonly title: string = '';
 
@@ -183,12 +187,12 @@ class ArticlePreview extends Entity {
     return 'Article';
   }
 }
-const getArticleList = new RestEndpoint({
+export const getArticleList = new RestEndpoint({
   path: '/article',
   schema: [ArticlePreview],
 });
 
-class ArticleFull extends ArticlePreview {
+export class ArticleFull extends ArticlePreview {
   readonly content: string = '';
   readonly createdAt: Date = new Date(0);
 
@@ -201,13 +205,15 @@ class ArticleFull extends ArticlePreview {
   }
 }
 
-const getArticle = new RestEndpoint({
+export const getArticle = new RestEndpoint({
   path: '/article/:id',
   schema: ArticleFull,
 });
 ```
 
 ```tsx title="ArticleDetail.tsx" collapsed
+import { getArticle, getArticleList } from './api/Article';
+
 function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
   const article = useSuspense(getArticle, { id });
   return (
@@ -233,7 +239,7 @@ function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
   );
 }
 function ArticleList() {
-  const [route, setRoute] = React.useState<string>();
+  const [route, setRoute] = React.useState('');
   const articles = useSuspense(getArticleList);
   if (!route) {
     return (
@@ -250,7 +256,7 @@ function ArticleList() {
       </div>
     );
   }
-  return <ArticleDetail id={route} onHome={() => setRoute()} />;
+  return <ArticleDetail id={route} onHome={() => setRoute('')} />;
 }
 
 render(<ArticleList />);

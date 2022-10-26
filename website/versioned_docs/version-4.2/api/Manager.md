@@ -36,7 +36,7 @@ interface Manager {
 getMiddleware() returns a function that very similar to a [redux middleware](https://redux.js.org/advanced/middleware).
 The only differences is that the `next()` function returns a `Promise`. This promise resolves when the reducer update is
 [committed](https://indepth.dev/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react/#general-algorithm)
-when using <CacheProvider />. This is necessary since the commit phase is asynchronously scheduled. This enables building
+when using <CacheProvider /\>. This is necessary since the commit phase is asynchronously scheduled. This enables building
 managers that perform work after the DOM is updated and also with the newly computed state.
 
 Since redux is fully synchronous, an adapter must be placed in front of Rest Hooks style middleware to

@@ -272,7 +272,7 @@ const todoList = new Endpoint(fetchTodoList, {
 
 [Schemas](./schema) also automatically infer and enforce the response type, ensuring
 the variable `todos` will be typed precisely. If the API responds in another manner
-the hook with throw instead, triggering the `error fallback` specified in [\<NetworkErrorBoundary />](../api/NetworkErrorBoundary)
+the hook with throw instead, triggering the `error fallback` specified in [\<NetworkErrorBoundary /\>](../api/NetworkErrorBoundary)
 
 ```tsx
 import { useResource } from 'rest-hooks';

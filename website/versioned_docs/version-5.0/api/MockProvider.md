@@ -12,13 +12,13 @@ function MockProvider({
 }): JSX.Element;
 ```
 
-\<MockProvider /> is a simple substitute provider to prefill the cache with fixtures so the 'happy path'
+\<MockProvider /\> is a simple substitute provider to prefill the cache with fixtures so the 'happy path'
 can be tested. This is useful for [storybook](../guides/storybook.md) as well as component testing.
 
-> Deprecated: Use [\<MockResolver />](./mockResolver) instead as it also supports [imperative fetches](../api/useFetcher) like [create](../api/resource#create-endpoint) and [update](../api/resource#update-endpoint).
+> Deprecated: Use [\<MockResolver /\>](./mockResolver) instead as it also supports [imperative fetches](../api/useFetcher) like [create](../api/resource#create-endpoint) and [update](../api/resource#update-endpoint).
 
-> Note: \<MockProvider /> disables dispatches, thus no fetches will occur. To simply initalize the
-> cache, use [mockInitialState()](./mockInitialState) to construct initialState for the normal [\<CacheProvider />](./CacheProvider)
+> Note: \<MockProvider /\> disables dispatches, thus no fetches will occur. To simply initalize the
+> cache, use [mockInitialState()](./mockInitialState) to construct initialState for the normal [\<CacheProvider /\>](./CacheProvider)
 
 ## Arguments
 

@@ -89,13 +89,13 @@ const scope = {
   randomFloatInRange,
   mockFetch,
   BigNumber,
-  lastUpdated,
-  TimedEntity,
   CurrentTime,
   ResetableErrorBoundary,
 };
 const scopeWithEndpoint = {
   ...scope,
+  lastUpdated,
+  TimedEntity,
   Todo,
   TodoResource,
   TodoEndpoint,

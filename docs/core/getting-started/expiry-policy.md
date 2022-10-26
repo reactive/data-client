@@ -56,11 +56,44 @@ you will continue to see the old time without any refresh.
 
 <HooksPlayground>
 
+```ts title="api/lastUpdated" collapsed
+const mockLastUpdated = ({ id }) => {
+  return new Promise(resolve => {
+    setTimeout(
+      () =>
+        resolve({
+          id,
+          updatedAt: new Date().toISOString(),
+        }),
+      150,
+    );
+  });
+};
+
+export class TimedEntity extends Entity {
+  id = '';
+  updatedAt = new Date(0);
+  pk() {
+    return this.id;
+  }
+
+  static schema = {
+    updatedAt: Date,
+  };
+}
+
+export const lastUpdated = new Endpoint(mockLastUpdated, {
+  schema: TimedEntity,
+});
+```
+
 ```tsx title="TimePage.tsx"
-lastUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
+import { lastUpdated } from './api/lastUpdated';
+
+const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 
 function TimePage({ id }) {
-  const { updatedAt } = useSuspense(lastUpdated, { id });
+  const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
       API Time:{' '}
@@ -146,14 +179,47 @@ within the expiry time it just continues to display it.
 
 <HooksPlayground>
 
+```ts title="api/lastUpdated" collapsed
+const mockLastUpdated = ({ id }) => {
+  return new Promise(resolve => {
+    setTimeout(
+      () =>
+        resolve({
+          id,
+          updatedAt: new Date().toISOString(),
+        }),
+      150,
+    );
+  });
+};
+
+export class TimedEntity extends Entity {
+  id = '';
+  updatedAt = new Date(0);
+  pk() {
+    return this.id;
+  }
+
+  static schema = {
+    updatedAt: Date,
+  };
+}
+
+export const lastUpdated = new Endpoint(mockLastUpdated, {
+  schema: TimedEntity,
+});
+```
+
 ```tsx title="TimePage.tsx"
-lastUpdated = lastUpdated.extend({
+import { lastUpdated } from './api/lastUpdated';
+
+const getUpdated = lastUpdated.extend({
   invalidIfStale: true,
   dataExpiryLength: 5000,
 });
 
 function TimePage({ id }) {
-  const { updatedAt } = useSuspense(lastUpdated, { id });
+  const { updatedAt } = useSuspense(getUpdated, { id });
   return (
     <div>
       API Time:{' '}
@@ -196,7 +262,40 @@ the previous data. This can be done even with 'fresh' data.
 
 <HooksPlayground>
 
+```ts title="api/lastUpdated" collapsed
+const mockLastUpdated = ({ id }) => {
+  return new Promise(resolve => {
+    setTimeout(
+      () =>
+        resolve({
+          id,
+          updatedAt: new Date().toISOString(),
+        }),
+      150,
+    );
+  });
+};
+
+export class TimedEntity extends Entity {
+  id = '';
+  updatedAt = new Date(0);
+  pk() {
+    return this.id;
+  }
+
+  static schema = {
+    updatedAt: Date,
+  };
+}
+
+export const lastUpdated = new Endpoint(mockLastUpdated, {
+  schema: TimedEntity,
+});
+```
+
 ```tsx title="ShowTime.tsx"
+import { lastUpdated } from './api/lastUpdated';
+
 function ShowTime() {
   const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
   const { fetch } = useController();
@@ -224,7 +323,40 @@ In this example we can see invalidating the endpoint shows the loading fallback 
 
 <HooksPlayground>
 
+```ts title="api/lastUpdated" collapsed
+const mockLastUpdated = ({ id }) => {
+  return new Promise(resolve => {
+    setTimeout(
+      () =>
+        resolve({
+          id,
+          updatedAt: new Date().toISOString(),
+        }),
+      150,
+    );
+  });
+};
+
+export class TimedEntity extends Entity {
+  id = '';
+  updatedAt = new Date(0);
+  pk() {
+    return this.id;
+  }
+
+  static schema = {
+    updatedAt: Date,
+  };
+}
+
+export const lastUpdated = new Endpoint(mockLastUpdated, {
+  schema: TimedEntity,
+});
+```
+
 ```tsx title="ShowTime.tsx"
+import { lastUpdated } from './api/lastUpdated';
+
 function ShowTime() {
   const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
   const { invalidate } = useController();
@@ -251,7 +383,40 @@ response. If the endpoint uses the entity in an Array, it will simply be removed
 
 <HooksPlayground>
 
+```ts title="api/lastUpdated" collapsed
+const mockLastUpdated = ({ id }) => {
+  return new Promise(resolve => {
+    setTimeout(
+      () =>
+        resolve({
+          id,
+          updatedAt: new Date().toISOString(),
+        }),
+      150,
+    );
+  });
+};
+
+export class TimedEntity extends Entity {
+  id = '';
+  updatedAt = new Date(0);
+  pk() {
+    return this.id;
+  }
+
+  static schema = {
+    updatedAt: Date,
+  };
+}
+
+export const lastUpdated = new Endpoint(mockLastUpdated, {
+  schema: TimedEntity,
+});
+```
+
 ```tsx title="ShowTime.tsx"
+import { lastUpdated, TimedEntity } from './api/lastUpdated';
+
 const mockDelete = ({ id }) => Promise.resolve({ id });
 const deleteLastUpdated = new Endpoint(mockDelete, {
   schema: new schema.Delete(TimedEntity),
@@ -293,25 +458,58 @@ Hard errors always invalidate a response with the rejection - even when data has
 
 <HooksPlayground>
 
+```ts title="api/lastUpdated" collapsed
+const mockLastUpdated = ({ id }, ) => {
+  return new Promise(resolve => {
+    setTimeout(
+      () =>
+        resolve({
+          id,
+          updatedAt: new Date().toISOString(),
+        }),
+      150,
+    );
+  });
+};
+
+export class TimedEntity extends Entity {
+  id = '';
+  updatedAt = new Date(0);
+  pk() {
+    return this.id;
+  }
+
+  static schema = {
+    updatedAt: Date,
+  };
+}
+
+export const lastUpdated = new Endpoint(mockLastUpdated, {
+  schema: TimedEntity,
+});
+```
+
 ```tsx title="ShowTime.tsx"
-let FAKE_ERROR = undefined;
+import { lastUpdated } from './api/lastUpdated';
+
+let FAKE_ERROR: Error | undefined = undefined;
 const superFetch = lastUpdated;
-mockFetch = (arg, error) =>
+const mockErrorFetch = (arg) =>
   FAKE_ERROR !== undefined ? Promise.reject(FAKE_ERROR) : superFetch(arg);
 
-lastUpdated = lastUpdated.extend({
-  fetch: mockFetch,
+const getUpdated = lastUpdated.extend({
+  fetch: mockErrorFetch,
   errorPolicy: error =>
     error.status >= 500 ? ('hard' as const) : ('soft' as const),
 });
 function createError(status) {
-  const error = new Error('fake error');
+  const error: Error & { status: any } = new Error('fake error') as any;
   error.status = status;
   return error;
 }
 
 function ShowTime() {
-  const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
+  const { updatedAt } = useSuspense(getUpdated, { id: '1' });
   const { fetch, invalidate } = useController();
   React.useEffect(
     () => () => {
@@ -328,7 +526,7 @@ function ShowTime() {
         <button
           onClick={() => {
             FAKE_ERROR = createError(400);
-            fetch(lastUpdated, { id: '1' });
+            fetch(getUpdated, { id: '1' });
           }}
         >
           Fetch Soft
@@ -336,7 +534,7 @@ function ShowTime() {
         <button
           onClick={() => {
             FAKE_ERROR = createError(500);
-            fetch(lastUpdated, { id: '1' });
+            fetch(getUpdated, { id: '1' });
           }}
         >
           Fetch Hard
@@ -344,7 +542,7 @@ function ShowTime() {
         <button
           onClick={() => {
             FAKE_ERROR = createError(400);
-            invalidate(lastUpdated, { id: '1' });
+            invalidate(getUpdated, { id: '1' });
           }}
         >
           Invalidate Soft
@@ -352,7 +550,7 @@ function ShowTime() {
         <button
           onClick={() => {
             FAKE_ERROR = createError(500);
-            invalidate(lastUpdated, { id: '1' });
+            invalidate(getUpdated, { id: '1' });
           }}
         >
           Invalidate Hard

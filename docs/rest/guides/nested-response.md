@@ -4,6 +4,7 @@ sidebar_label: Nesting related data
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import { RestEndpoint } from '@rest-hooks/rest';
 
 Say you have a foreignkey author, and an array of foreign keys to contributors.
 
@@ -14,18 +15,33 @@ Next we'll provide a definition of nested members in the [schema][3] member.
 
 ## static schema
 
-<HooksPlayground groupId="schema" defaultOpen="y">
+<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+{
+endpoint: new RestEndpoint({ urlPrefix: 'http://fakeapi.com',
+path: '/article/:id',}),
+args: [{ id: '5' }],
+response: {
+id: '5',
+author: { id: '123', name: 'Jim' },
+content: 'Happy day',
+contributors: [{ id: '100', name: 'Eliza' }],
+},
+delay: 150,
+},
+]}>
 
 ```tsx title="api/Post.ts"
-class User extends Entity {
-  readonly name: string = '';
+export class User extends Entity {
+  id = '';
+  name = '';
   pk() {
     return this.id;
   }
 }
-class Post extends Entity {
+export class Post extends Entity {
   readonly id: number | undefined = undefined;
   readonly author: User = User.fromJS({});
+  readonly content: string = '';
   readonly contributors: User[] = [];
 
   static schema = {
@@ -33,25 +49,19 @@ class Post extends Entity {
     contributors: [User],
   };
   pk() {
-    return this.id;
+    return `${this.id}`;
   }
 }
-const getPost = new RestEndpoint({
+export const getPost = new RestEndpoint({
   urlPrefix: 'http://fakeapi.com',
   path: '/article/:id',
   schema: Post,
-  fetch({ id }) {
-    return Promise.resolve({
-      id,
-      author: { id: '123', name: 'Jim' },
-      content: 'Happy day',
-      contributors: [{ id: '100', name: 'Eliza' }],
-    });
-  },
 });
 ```
 
 ```tsx title="PostPage.tsx" collapsed
+import { getPost } from './api/Post';
+
 function PostPage() {
   const post = useSuspense(getPost, { id: '5' });
   return (
@@ -121,7 +131,7 @@ export class User extends Entity {
 
   static schema: Record<string, Schema | Date> = {
     createdAt: Date,
-  }
+  };
 }
 ```
 

@@ -12,7 +12,7 @@ declare const makeRestProvider: (
 ) => ({ children }: { children: React.ReactNode }) => JSX.Element;
 ```
 
-Used to build a [\<RestProvider />](./RestProvider.md) for [makeRenderRestHook()](./makeRenderRestHook.md)
+Used to build a [\<RestProvider /\>](./RestProvider.md) for [makeRenderRestHook()](./makeRenderRestHook.md)
 
 ## Arguments
 

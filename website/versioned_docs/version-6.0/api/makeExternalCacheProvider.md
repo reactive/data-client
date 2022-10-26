@@ -9,7 +9,7 @@ declare const makeExternalCacheProvider: (
 ) => ({ children }: { children: React.ReactNode }) => JSX.Element;
 ```
 
-Used to build a [\<ExternalCacheProvider />](./ExternalCacheProvider.md) for [makeRenderRestHook()](./makeRenderRestHook.md)
+Used to build a [\<ExternalCacheProvider/\>](./ExternalCacheProvider.md) for [makeRenderRestHook()](./makeRenderRestHook.md)
 
 Internally constructs a redux store attaching the middlwares.
 

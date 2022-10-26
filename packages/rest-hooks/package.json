@@ -57,7 +57,7 @@
     "build:js:node": "BROWSERSLIST_ENV=node12 rollup -c",
     "build:js:browser": "BROWSERSLIST_ENV=legacy rollup -c",
     "build:bundle": "run-s build:js:\\* && echo '{\"type\":\"commonjs\"}' > dist/package.json",
-    "build:clean": "rimraf lib ts3.4 legacy dist *.tsbuildinfo",
+    "build:clean": "rimraf lib ts3.4 legacy dist *.tsbuildinfo ./index.d.ts",
     "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
     "build": "yarn run build:lib && yarn run build:legacy:lib && yarn run build:bundle",
     "dev": "yarn run build:lib -w",
