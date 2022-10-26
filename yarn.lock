@@ -170,12 +170,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:13.0.20":
-  version: 13.0.20
-  resolution: "@anansi/webpack-config@npm:13.0.20"
+"@anansi/webpack-config@npm:13.0.21":
+  version: 13.0.21
+  resolution: "@anansi/webpack-config@npm:13.0.21"
   dependencies:
     "@babel/runtime": ^7.17.2
-    "@linaria/webpack5-loader": 4.1.7
+    "@linaria/webpack5-loader": 4.1.8
     "@pmmmwh/react-refresh-webpack-plugin": ^0.5.8
     "@svgr/webpack": ^6.5.0
     "@types/webpack-bundle-analyzer": ^4.6.0
@@ -228,7 +228,7 @@ __metadata:
     string_decoder: ^1.3.0
     strip-ansi: ^6.0.1
     svgo: ^2.8.0
-    svgo-loader: ^3.0.1
+    svgo-loader: ^3.0.2
     terser-webpack-plugin: ^5.3.6
     timers-browserify: ^2.0.12
     tsconfig-paths-webpack-plugin: ^4.0.0
@@ -278,7 +278,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: b5a41d517ed2389632c65f86d75794d0b78389146f7d598b86c9d6650c9c6498ae9480a44481dbc416b1a26f3be3a46b17fa0ea69fca20c204cc4aaab30a07ae
+  checksum: 46de4b2a9cdf07339f6a982a498f9c1a10c853e5cf602c0cac28ca628a9b79d581b3c9431debea4eb08b09cc1bcfe3aa5c5efa22da5e8ddbfb8ee813203c2595
   languageName: node
   linkType: hard
 
@@ -2986,9 +2986,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/babel-preset@npm:4.2.4, @linaria/babel-preset@npm:^4.2.4":
-  version: 4.2.4
-  resolution: "@linaria/babel-preset@npm:4.2.4"
+"@linaria/babel-preset@npm:4.3.0, @linaria/babel-preset@npm:^4.3.0":
+  version: 4.3.0
+  resolution: "@linaria/babel-preset@npm:4.3.0"
   dependencies:
     "@babel/core": ^7.18.9
     "@babel/generator": ^7.18.9
@@ -2996,27 +2996,27 @@ __metadata:
     "@babel/template": ^7.18.6
     "@babel/traverse": ^7.18.9
     "@babel/types": ^7.18.9
-    "@linaria/core": ^4.2.1
+    "@linaria/core": ^4.2.2
     "@linaria/logger": ^4.0.0
-    "@linaria/shaker": ^4.2.3
-    "@linaria/tags": ^4.1.5
-    "@linaria/utils": ^4.2.3
+    "@linaria/shaker": ^4.2.4
+    "@linaria/tags": ^4.2.0
+    "@linaria/utils": ^4.2.4
     cosmiconfig: ^5.1.0
     find-up: ^5.0.0
     source-map: ^0.7.3
     stylis: ^3.5.4
-  checksum: c3bcc2712cfa366cd9a2237c9dade75187c92dfb556ef2866fac34581291286c2b611bf48395d839d73ef9115ad0337b369e971e28e74466b4d350f7e717bfa6
+  checksum: f215b6d54f390c197cc52476488d9c27562ad7ad6f49b174060248762f934fdd2f643d97a54fa45cbe624fbe993d9231f9e289b1c577c5d1b320e20b3a9b7c94
   languageName: node
   linkType: hard
 
-"@linaria/core@npm:4.2.1, @linaria/core@npm:^4.2.1":
-  version: 4.2.1
-  resolution: "@linaria/core@npm:4.2.1"
+"@linaria/core@npm:4.2.2, @linaria/core@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@linaria/core@npm:4.2.2"
   dependencies:
     "@linaria/logger": ^4.0.0
-    "@linaria/tags": ^4.1.5
-    "@linaria/utils": ^4.2.3
-  checksum: a01449441eb99ef76a60c7aff5f59794d86ec58ffd3ad3431f3c193865c13e7e6785de9bf49664e93caf3b69d6a9c3f2b1824952cce0ee57fb977afeca808ef9
+    "@linaria/tags": ^4.2.0
+    "@linaria/utils": ^4.2.4
+  checksum: d0860f8c79e90e9bce04ebf9d905376b4f033c7d4365fb3cf9b9c4b59d4ea7a7fc20c24914e00ee2983cf3ecc3173a090d0be6deb8aa37ed3d5eab5be39cc22f
   languageName: node
   linkType: hard
 
@@ -3030,24 +3030,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@linaria/react@npm:4.2.1":
-  version: 4.2.1
-  resolution: "@linaria/react@npm:4.2.1"
+"@linaria/react@npm:4.3.0":
+  version: 4.3.0
+  resolution: "@linaria/react@npm:4.3.0"
   dependencies:
     "@emotion/is-prop-valid": ^1.2.0
-    "@linaria/core": ^4.2.1
-    "@linaria/tags": ^4.1.5
-    "@linaria/utils": ^4.2.3
+    "@linaria/core": ^4.2.2
+    "@linaria/tags": ^4.2.0
+    "@linaria/utils": ^4.2.4
+    react-html-attributes: ^1.4.6
     ts-invariant: ^0.10.3
   peerDependencies:
     react: ">=16"
-  checksum: ff355b0abd28e27af516ff7a6541ae6b66fe22e5b4028ecf41d5e973286f2a7fb2f5462285a71cb00c1122e6ece6677e6e339145356726188c2a9316cccf3758
+  checksum: ddb15cef9df2ab1a907ba59d550c44d389a905a8e300e38f65b3e0bbbaaad58a344164045b35ee663cdec6c41a205873c2ea8f273ae1157bb9645d009e1ef551
   languageName: node
   linkType: hard
 
-"@linaria/shaker@npm:4.2.3, @linaria/shaker@npm:^4.2.3":
-  version: 4.2.3
-  resolution: "@linaria/shaker@npm:4.2.3"
+"@linaria/shaker@npm:4.2.4, @linaria/shaker@npm:^4.2.4":
+  version: 4.2.4
+  resolution: "@linaria/shaker@npm:4.2.4"
   dependencies:
     "@babel/core": ^7.18.9
     "@babel/generator": ^7.18.9
@@ -3056,27 +3057,27 @@ __metadata:
     "@babel/plugin-transform-template-literals": ">=7"
     "@babel/preset-env": ">=7"
     "@linaria/logger": ^4.0.0
-    "@linaria/utils": ^4.2.3
+    "@linaria/utils": ^4.2.4
     babel-plugin-transform-react-remove-prop-types: ^0.4.24
     ts-invariant: ^0.10.3
-  checksum: 330b83c1840ad50d071ec40f1b37f7a421abbd05eea0bc78522c6d829ed6daf343c8a94b846415aaf8d1e33c2ef566444f4c0c01c775d4a46c1c0df66bd78488
+  checksum: 9fa4b790cd0fa46c71ad1da14dcd611e8910ce05251036abf1533fd48ebf5611e5dd5c0fc7bd6cb2fb3383b3e15243f2d6b5bf3b60825a8633290d88427b9b7d
   languageName: node
   linkType: hard
 
-"@linaria/tags@npm:^4.1.5":
-  version: 4.1.5
-  resolution: "@linaria/tags@npm:4.1.5"
+"@linaria/tags@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "@linaria/tags@npm:4.2.0"
   dependencies:
     "@babel/generator": ^7.18.9
     "@linaria/logger": ^4.0.0
-    "@linaria/utils": ^4.2.3
-  checksum: a25b94ed9c4bbc36a996ce6fde7d3cd95c33eb0682e9d5255d85415ae8f66c9271ca1a81d4e3a1ee51c0f68d102b4fde32a794b563c689df734833a098fcef27
+    "@linaria/utils": ^4.2.4
+  checksum: 2e54638705d7e88689fd1cc0e42f9115817e3e5bd9f594269bc958d4f8ff5c2c1899f92458566cf1256dd3a34442813e5bee0f197c2d20ffb7d43c5acaae4b58
   languageName: node
   linkType: hard
 
-"@linaria/utils@npm:^4.2.3":
-  version: 4.2.3
-  resolution: "@linaria/utils@npm:4.2.3"
+"@linaria/utils@npm:^4.2.4":
+  version: 4.2.4
+  resolution: "@linaria/utils@npm:4.2.4"
   dependencies:
     "@babel/core": ^7.18.9
     "@babel/plugin-proposal-export-namespace-from": ">=7"
@@ -3086,21 +3087,21 @@ __metadata:
     "@babel/types": ^7.18.9
     "@linaria/logger": ^4.0.0
     babel-merge: ^3.0.0
-  checksum: 44e8cc78576bba08d207279cb16fae81f5da14e589fd4ada8db511bfdeb9748a061384334fc4d5b4c3fd8f6f779e954146397cdccc69f82fec8f9e8583a8614f
+  checksum: 4fbb674c6dcd3be3fb9793f95eb2c24a35a043016b0250a1884c9f4da8c1d4f3c8cb9ae924f4642ac7d263df38b7ee5a8a185babc45d4a3fb92cbe97e1521b37
   languageName: node
   linkType: hard
 
-"@linaria/webpack5-loader@npm:4.1.7":
-  version: 4.1.7
-  resolution: "@linaria/webpack5-loader@npm:4.1.7"
+"@linaria/webpack5-loader@npm:4.1.8":
+  version: 4.1.8
+  resolution: "@linaria/webpack5-loader@npm:4.1.8"
   dependencies:
-    "@linaria/babel-preset": ^4.2.4
+    "@linaria/babel-preset": ^4.3.0
     "@linaria/logger": ^4.0.0
     enhanced-resolve: ^5.3.1
     mkdirp: ^0.5.1
   peerDependencies:
     webpack: ^5.0.0
-  checksum: 8222a29249eae75cef9db67bf7a8427201b684e3b542fa478bbe9e9bdfe1d8268e93037f94d39f1c6cb8a19336906d96d1bba3f707bbd78c78bdfe8dc811594a
+  checksum: 98242f1985c25e3fb8c961dd48500a443d8b3a441016a7598412091bbd94506760e9bf06616231762612988951ea4aef26eef1dae3542b2ad2691ec07c8e2dc5
   languageName: node
   linkType: hard
 
@@ -10722,13 +10723,13 @@ __metadata:
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.14.3
     "@anansi/router": 0.6.30
-    "@anansi/webpack-config": 13.0.20
+    "@anansi/webpack-config": 13.0.21
     "@ant-design/icons": ^4.7.0
     "@babel/core": 7.19.6
-    "@linaria/babel-preset": 4.2.4
-    "@linaria/core": 4.2.1
-    "@linaria/react": 4.2.1
-    "@linaria/shaker": 4.2.3
+    "@linaria/babel-preset": 4.3.0
+    "@linaria/core": 4.2.2
+    "@linaria/react": 4.3.0
+    "@linaria/shaker": 4.2.4
     "@rest-hooks/core": ^3.3.1
     "@rest-hooks/endpoint": ^3.0.1
     "@rest-hooks/graphql": ^0.3.1
@@ -11275,6 +11276,13 @@ __metadata:
   version: 1.1.2
   resolution: "html-comment-regex@npm:1.1.2"
   checksum: 64c1e13c93f91554a06327176663037e630f5a47de8aae6a6a60cbca25e6d7b63ee16dd35707e33ba09288b900c6947050c6945c34a0a84d27f5415cef525599
+  languageName: node
+  linkType: hard
+
+"html-element-attributes@npm:^1.0.0":
+  version: 1.3.1
+  resolution: "html-element-attributes@npm:1.3.1"
+  checksum: 2b4c14bdd1a56d816da5a50028abba76ccd967ae1cde72a6fb8021f8c5a75af20a18d791e2da4a4ec8397323f84b55ec22968f4fca7c42efb2343e7dbdd23272
   languageName: node
   linkType: hard
 
@@ -13514,17 +13522,6 @@ __metadata:
   version: 4.2.0
   resolution: "loader-runner@npm:4.2.0"
   checksum: e61aea8b6904b8af53d9de6f0484da86c462c0001f4511bedc837cec63deb9475cea813db62f702cd7930420ccb0e75c78112270ca5c8b61b374294f53c0cb3a
-  languageName: node
-  linkType: hard
-
-"loader-utils@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "loader-utils@npm:1.4.0"
-  dependencies:
-    big.js: ^5.2.2
-    emojis-list: ^3.0.0
-    json5: ^1.0.1
-  checksum: d150b15e7a42ac47d935c8b484b79e44ff6ab4c75df7cc4cb9093350cf014ec0b17bdb60c5d6f91a37b8b218bd63b973e263c65944f58ca2573e402b9a27e717
   languageName: node
   linkType: hard
 
@@ -18634,6 +18631,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-html-attributes@npm:^1.4.6":
+  version: 1.4.6
+  resolution: "react-html-attributes@npm:1.4.6"
+  dependencies:
+    html-element-attributes: ^1.0.0
+  checksum: f7b89c96700760b362fc3defef3bd850a134b42b248fd27ec1bb820c1dba7a4ececa8d3acbce8d6b1bb8caf07d5288c4307506e831bfcb7f514bb519de3acad4
+  languageName: node
+  linkType: hard
+
 "react-is@npm:^16.12.0 || ^17.0.0 || ^18.0.0, react-is@npm:^18.0.0, react-is@npm:^18.2.0":
   version: 18.2.0
   resolution: "react-is@npm:18.2.0"
@@ -20990,13 +20996,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svgo-loader@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "svgo-loader@npm:3.0.1"
+"svgo-loader@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "svgo-loader@npm:3.0.2"
   dependencies:
-    loader-utils: ^1.4.0
+    loader-utils: ^3.2.0
     svgo: ^2.8.0
-  checksum: f38e925fc9bb5a7d3ac2d701223cc37432003b156418d5bee688d062d4dc2bf55658bb7a2ca94286274252a8ec5c0d2d7fb383e2a02130cdaa37858ed90ff3c5
+  checksum: 1bd16a8e9f678e1e1d4fd08790eaefd26082a4ad40d6d3a933490061c1681d24c699c94afbf894b8945003747cf4427c3c191b8a604052314854ca9ce190766b
   languageName: node
   linkType: hard
 
@@ -21285,12 +21291,12 @@ __metadata:
     "@anansi/babel-preset": 3.2.20
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.14.3
-    "@anansi/webpack-config": 13.0.20
+    "@anansi/webpack-config": 13.0.21
     "@babel/core": 7.19.6
-    "@linaria/babel-preset": 4.2.4
-    "@linaria/core": 4.2.1
-    "@linaria/react": 4.2.1
-    "@linaria/shaker": 4.2.3
+    "@linaria/babel-preset": 4.3.0
+    "@linaria/core": 4.2.2
+    "@linaria/react": 4.3.0
+    "@linaria/shaker": 4.2.4
     "@rest-hooks/endpoint": ^3.0.1
     "@rest-hooks/rest": ^6.0.1
     "@types/eslint": 8.4.6
