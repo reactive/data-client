@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.19.6",
-    "@babel/node": "7.19.1",
+    "@babel/node": "7.20.0",
     "@types/babel__core": "^7",
     "@types/benchmark": "2.1.2",
     "@types/react": "18.0.23"

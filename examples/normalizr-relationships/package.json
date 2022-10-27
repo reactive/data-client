@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.19.6",
-    "@babel/node": "7.19.1",
+    "@babel/node": "7.20.0",
     "@types/babel__core": "^7",
     "mockdate": "^3.0.5",
     "rollup": "2.79.1",
