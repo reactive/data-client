@@ -170,9 +170,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:13.0.21":
-  version: 13.0.21
-  resolution: "@anansi/webpack-config@npm:13.0.21"
+"@anansi/webpack-config@npm:13.0.22":
+  version: 13.0.22
+  resolution: "@anansi/webpack-config@npm:13.0.22"
   dependencies:
     "@babel/runtime": ^7.17.2
     "@linaria/webpack5-loader": 4.1.8
@@ -182,7 +182,7 @@ __metadata:
     "@vue/preload-webpack-plugin": ^2.0.0
     assert: ^2.0.0
     autoprefixer: ^10.4.12
-    babel-loader: ^8.2.5
+    babel-loader: ^9.0.0
     browserify-zlib: ^0.2.0
     buffer: ^6.0.3
     circular-dependency-plugin: ^5.2.2
@@ -228,7 +228,7 @@ __metadata:
     string_decoder: ^1.3.0
     strip-ansi: ^6.0.1
     svgo: ^2.8.0
-    svgo-loader: ^3.0.2
+    svgo-loader: ^3.0.3
     terser-webpack-plugin: ^5.3.6
     timers-browserify: ^2.0.12
     tsconfig-paths-webpack-plugin: ^4.0.0
@@ -237,7 +237,7 @@ __metadata:
     url-loader: ^4.1.1
     util: ^0.12.5
     vm-browserify: ^1.1.2
-    webpack-bundle-analyzer: ^4.6.1
+    webpack-bundle-analyzer: ^4.7.0
     webpack-node-externals: ^3.0.0
     webpack-remove-empty-scripts: ^1.0.1
     webpack-stats-plugin: ^1.1.0
@@ -278,7 +278,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 46de4b2a9cdf07339f6a982a498f9c1a10c853e5cf602c0cac28ca628a9b79d581b3c9431debea4eb08b09cc1bcfe3aa5c5efa22da5e8ddbfb8ee813203c2595
+  checksum: c74782b45b7c0388359e7ec4c65e75a9def50e0ae8f901138d76355a553fe9513f512b634c8566638a145ef03a03245a0ae318a6fc17118d5b69fd96f006a3ee
   languageName: node
   linkType: hard
 
@@ -6291,18 +6291,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-loader@npm:^8.2.5":
-  version: 8.2.5
-  resolution: "babel-loader@npm:8.2.5"
+"babel-loader@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "babel-loader@npm:9.0.0"
   dependencies:
-    find-cache-dir: ^3.3.1
-    loader-utils: ^2.0.0
-    make-dir: ^3.1.0
-    schema-utils: ^2.6.5
+    find-cache-dir: ^3.3.2
+    schema-utils: ^4.0.0
   peerDependencies:
-    "@babel/core": ^7.0.0
-    webpack: ">=2"
-  checksum: a6605557885eabbc3250412405f2c63ca87287a95a439c643fdb47d5ea3d5326f72e43ab97be070316998cb685d5dfbc70927ce1abe8be7a6a4f5919287773fb
+    "@babel/core": ^7.12.0
+    webpack: ">=5"
+  checksum: 6b146e33c81fd948ffdefa8a6319efa1bea6e17c946bfac4641375710e51831aeb7f4a20c88604eaa00f5ecd4b6591da5a65ade326feba792609f932df150645
   languageName: node
   linkType: hard
 
@@ -10178,7 +10176,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"find-cache-dir@npm:^3.3.1, find-cache-dir@npm:^3.3.2":
+"find-cache-dir@npm:^3.3.2":
   version: 3.3.2
   resolution: "find-cache-dir@npm:3.3.2"
   dependencies:
@@ -10724,7 +10722,7 @@ __metadata:
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.14.3
     "@anansi/router": 0.6.32
-    "@anansi/webpack-config": 13.0.21
+    "@anansi/webpack-config": 13.0.22
     "@ant-design/icons": ^4.7.0
     "@babel/core": 7.19.6
     "@linaria/babel-preset": 4.3.0
@@ -13533,14 +13531,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"loader-utils@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "loader-utils@npm:2.0.0"
+"loader-utils@npm:^2.0.0, loader-utils@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "loader-utils@npm:2.0.3"
   dependencies:
     big.js: ^5.2.2
     emojis-list: ^3.0.0
     json5: ^2.1.2
-  checksum: 6856423131b50b6f5f259da36f498cfd7fc3c3f8bb17777cf87fdd9159e797d4ba4288d9a96415fd8da62c2906960e88f74711dee72d03a9003bddcd0d364a51
+  checksum: d055c61ce5927b64cb4af40218606603a7d3a39adb7b6eec116bb31d19203875950e478152dea056de404eced8e87e9bfd336ec636591ded040ea451f63c7d88
   languageName: node
   linkType: hard
 
@@ -19899,17 +19897,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"schema-utils@npm:^2.6.5":
-  version: 2.7.1
-  resolution: "schema-utils@npm:2.7.1"
-  dependencies:
-    "@types/json-schema": ^7.0.5
-    ajv: ^6.12.4
-    ajv-keywords: ^3.5.2
-  checksum: 32c62fc9e28edd101e1bd83453a4216eb9bd875cc4d3775e4452b541908fa8f61a7bbac8ffde57484f01d7096279d3ba0337078e85a918ecbeb72872fb09fb2b
-  languageName: node
-  linkType: hard
-
 "schema-utils@npm:^3.0.0, schema-utils@npm:^3.1.0, schema-utils@npm:^3.1.1":
   version: 3.1.1
   resolution: "schema-utils@npm:3.1.1"
@@ -21004,13 +20991,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svgo-loader@npm:^3.0.2":
-  version: 3.0.2
-  resolution: "svgo-loader@npm:3.0.2"
+"svgo-loader@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "svgo-loader@npm:3.0.3"
   dependencies:
-    loader-utils: ^3.2.0
+    loader-utils: ^2.0.3
     svgo: ^2.8.0
-  checksum: 1bd16a8e9f678e1e1d4fd08790eaefd26082a4ad40d6d3a933490061c1681d24c699c94afbf894b8945003747cf4427c3c191b8a604052314854ca9ce190766b
+  checksum: 50f0241dec806da548e7034b19499488e47da40cf278135e18e9650ce159d2c8b38bc753fba87f6af297a002f2d2a0a6f202544be1e4217e92d90819834e7186
   languageName: node
   linkType: hard
 
@@ -21299,7 +21286,7 @@ __metadata:
     "@anansi/babel-preset": 3.2.21
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.14.3
-    "@anansi/webpack-config": 13.0.21
+    "@anansi/webpack-config": 13.0.22
     "@babel/core": 7.19.6
     "@linaria/babel-preset": 4.3.0
     "@linaria/core": 4.2.2
@@ -22409,9 +22396,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-bundle-analyzer@npm:^4.6.1":
-  version: 4.6.1
-  resolution: "webpack-bundle-analyzer@npm:4.6.1"
+"webpack-bundle-analyzer@npm:^4.7.0":
+  version: 4.7.0
+  resolution: "webpack-bundle-analyzer@npm:4.7.0"
   dependencies:
     acorn: ^8.0.4
     acorn-walk: ^8.0.0
@@ -22424,7 +22411,7 @@ __metadata:
     ws: ^7.3.1
   bin:
     webpack-bundle-analyzer: lib/bin/analyzer.js
-  checksum: 4bc97ac6a1d9cd1f133444b0fc9d9091c97f4bd8388f97636ce27abd1ebffaa7dd45d29f6693661a666e77bcc08dff43ab7c2f5e2600a3101b956c94c1d038d0
+  checksum: 4ce3b379c61ce16b2219756843407cc99f2b82cd191f653043f1b705a3e32b3af03834af0dfded98ab852313a892a148bed1a8effaacd6440f028c19f41581f3
   languageName: node
   linkType: hard
 
