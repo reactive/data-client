@@ -8,11 +8,11 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
-[GraphQL](https://graphql.org/) [Endpoints](https://resthooks.io/docs/getting-started/endpoint) for [Rest Hooks](https://resthooks.io)
+[GraphQL Endpoints](https://resthooks.io/graphql) for [Rest Hooks](https://resthooks.io)
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io/docs/graphql)**
+**[📖Read The Docs](https://resthooks.io/graphql)** &nbsp;|&nbsp; [🎮Github Demo](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?file=src%2Fresources%2FRepository.tsx)
 
 </div>
 
@@ -60,7 +60,7 @@ const userDetail = gql.query(
 ### One line data-hookup
 
 ```tsx
-const { user } = useResource(userDetail, { name: 'Fong' });
+const { user } = useSuspense(userDetail, { name: 'Fong' });
 return (
   <>
     <h2>{user.name}</h2>
@@ -86,6 +86,7 @@ const createReview = gql.mutation(
 ```
 
 ```tsx
+const controller = useController();
 const createReview = useFetcher(createReview);
-return <ReviewForm onSubmit={data => createReview(data)} />;
+return <ReviewForm onSubmit={data => controller.fetch(createReview, data)} />;
 ```

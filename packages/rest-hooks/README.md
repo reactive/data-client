@@ -2,12 +2,12 @@
 
 [![CircleCI](https://circleci.com/gh/coinbase/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/coinbase/rest-hooks)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/coinbase/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/coinbase/rest-hooks?branch=master)
-[![npm downloads](https://img.shields.io/npm/dm/rest-hooks.svg?style=flat-square)](https://www.npmjs.com/package/rest-hooks)
+[![npm downloads](https://img.shields.io/npm/dt/rest-hooks.svg?style=flat-square)](https://www.npmjs.com/package/rest-hooks)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/rest-hooks?style=flat-square)](https://bundlephobia.com/result?p=rest-hooks)
 [![npm version](https://img.shields.io/npm/v/rest-hooks.svg?style=flat-square)](https://www.npmjs.com/package/rest-hooks)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-Asynchronous dynamic data at scale. Performance, data integrity, and typing for [REST](https://resthooks.io/docs/rest), proto, [GraphQL](https://resthooks.io/docs/graphql), [websockets](https://resthooks.io/docs/api/Manager#middleware-data-stream) and [more](https://resthooks.io/docs/guides/img-media)..
+Asynchronous dynamic data at scale. Performance, data integrity, and typing for [REST](https://resthooks.io/rest), proto, [GraphQL](https://resthooks.io/graphql), [websockets](https://resthooks.io/docs/api/Manager#middleware-data-stream) and [more](https://resthooks.io/docs/guides/img-media)..
 
 <div align="center">
 

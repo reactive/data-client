@@ -2,12 +2,12 @@
 
 [![CircleCI](https://circleci.com/gh/coinbase/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/coinbase/rest-hooks)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/coinbase/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/coinbase/rest-hooks?branch=master)
-[![npm downloads](https://img.shields.io/npm/dm/@rest-hooks/core.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/core)
+[![npm downloads](https://img.shields.io/npm/dt/@rest-hooks/core.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/core)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/@rest-hooks/core?style=flat-square)](https://bundlephobia.com/result?p=@rest-hooks/core)
 [![npm version](https://img.shields.io/npm/v/@rest-hooks/core.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/core)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-Asynchronous dynamic data at scale. Performance, data integrity, and typing for [REST](https://resthooks.io/docs/rest), proto, [GraphQL](https://resthooks.io/docs/graphql), [websockets](https://resthooks.io/docs/api/Manager#middleware-data-stream) and [more](https://resthooks.io/docs/guides/img-media)..
+Asynchronous dynamic data at scale. Performance, data integrity, and typing for [REST](https://resthooks.io/rest), proto, [GraphQL](https://resthooks.io/graphql), [websockets](https://resthooks.io/docs/api/Manager#middleware-data-stream) and [more](https://resthooks.io/docs/guides/img-media)..
 
 <div align="center">
 
@@ -17,7 +17,7 @@ Asynchronous dynamic data at scale. Performance, data integrity, and typing for 
 
 </div>
 
-### Simple TypeScript definition
+### Simple [TypeScript definition](https://resthooks.io/rest/api/Entity)
 
 ```typescript
 class Article extends Entity {
@@ -25,19 +25,25 @@ class Article extends Entity {
   readonly title: string = '';
   readonly body: string = '';
 
-  pk() { return this.id; }
-}
-
-const ArticleDetail = new Endpoint(
-  ({ id }: { id: string }) => fetch(`http://test.com/articles/${id}`)).then(res => res.json()),
-  { schema: Article },
+  pk() {
+    return this.id;
+  }
 }
 ```
 
-### One line data hookup
+### Create [collection of API Endpoints](https://resthooks.io/rest/api/createResource)
+
+```typescript
+const ArticleResource = createResource({
+  path: '/articles/:id',
+  schema: Article,
+})
+```
+
+### One line [data binding](https://resthooks.io/docs/api/useSuspense)
 
 ```tsx
-const article = useSuspense(ArticleDetail, { id });
+const article = useSuspense(ArticleResource.get, { id });
 return (
   <>
     <h2>{article.title}</h2>
@@ -46,18 +52,22 @@ return (
 );
 ```
 
-### Mutation
+### [Mutation](https://resthooks.io/docs/api/Controller#fetch)
 
 ```tsx
 const { fetch } = useController();
-return <ArticleForm onSubmit={data => fetch(ArticleDetail, { id }, data)} />;
+return (
+  <ArticleForm
+    onSubmit={data => fetch(ArticleResource.update, { id }, data)}
+  />
+);
 ```
 
-### And subscriptions
+### And [subscriptions](https://resthooks.io/docs/api/useSubscription)
 
 ```tsx
-const price = useSuspense(PriceDetail, { symbol });
-useSubscription(PriceDetail, { symbol });+
+const price = useSuspense(PriceResource.get, { symbol });
+useSubscription(PriceResource.get, { symbol });
 return price.value;
 ```
 
