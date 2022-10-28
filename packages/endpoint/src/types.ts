@@ -43,7 +43,7 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
     ...args: Parameters<F>
   ): ResolveType<F>;
   /** Determines whether to throw or fallback to */
-  errorPolicy?(error: any): 'soft' | undefined;
+  errorPolicy?(error: any): 'hard' | 'soft' | undefined;
   /** User-land extra data to send */
   readonly extra?: any;
 }

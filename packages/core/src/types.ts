@@ -44,7 +44,7 @@ export interface State<T> {
       readonly expiresAt: number;
       readonly prevExpiresAt?: number;
       readonly invalidated?: boolean;
-      readonly errorPolicy?: 'soft' | undefined;
+      readonly errorPolicy?: 'hard' | 'soft' | undefined;
     };
   };
   readonly entityMeta: {
@@ -69,7 +69,7 @@ export interface ReceiveMeta<S extends Schema | undefined> {
   fetchedAt?: number;
   date: number;
   expiresAt: number;
-  errorPolicy?: (error: any) => 'soft' | undefined;
+  errorPolicy?: (error: any) => 'hard' | 'soft' | undefined;
 }
 
 export type ReceiveAction<
@@ -104,7 +104,7 @@ export type OptimisticAction<
     fetchedAt: number;
     date: number;
     expiresAt: number;
-    errorPolicy?: (error: any) => 'soft' | undefined;
+    errorPolicy?: (error: any) => 'hard' | 'soft' | undefined;
   };
   endpoint: E;
   error?: undefined;
