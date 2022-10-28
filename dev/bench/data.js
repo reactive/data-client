@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1666340643343,
+  "lastUpdate": 1666926510094,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -7910,6 +7910,58 @@ window.BENCHMARK_DATA = {
             "range": "±1.62%",
             "unit": "ops/sec",
             "extra": "81 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": false,
+          "id": "5f2182e6f210bbdad6278dd4f7c352896dee359f",
+          "message": "fix: Array polymorphic types",
+          "timestamp": "2022-10-27T21:57:20-05:00",
+          "tree_id": "cd3be115461c5edbbe31651b1d531820a70be663",
+          "url": "https://github.com/coinbase/rest-hooks/commit/5f2182e6f210bbdad6278dd4f7c352896dee359f"
+        },
+        "date": 1666926507317,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 72,
+            "range": "±1.79%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 37.96,
+            "range": "±1.80%",
+            "unit": "ops/sec",
+            "extra": "50 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 41.22,
+            "range": "±1.25%",
+            "unit": "ops/sec",
+            "extra": "54 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 71.22,
+            "range": "±3.14%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
           }
         ]
       }
