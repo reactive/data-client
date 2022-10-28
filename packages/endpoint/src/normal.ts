@@ -132,4 +132,6 @@ export type NormalizedSchema<E, R> = {
   };
 };
 
-export type EntityMap<T = any> = Record<string, EntityInterface<T>>;
+export interface EntityMap<T = any> {
+  readonly [k: string]: EntityInterface<T>;
+}

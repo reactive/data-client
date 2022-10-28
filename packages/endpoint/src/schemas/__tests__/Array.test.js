@@ -370,8 +370,12 @@ describe.each([
       });
 
       test('denormalizes multiple entities', () => {
-        class Cat extends IDEntity {}
-        class Person extends IDEntity {}
+        class Cat extends IDEntity {
+          type = 'Cat';
+        }
+        class Person extends IDEntity {
+          type = 'people';
+        }
         const listSchema = new schema.Array(
           {
             Cat: Cat,
@@ -407,9 +411,14 @@ describe.each([
           { id: '456', schema: 'Cat' },
         ];
 
-        expect(
-          denormalize(createInput(input), listSchema, createInput(entities)),
-        ).toMatchSnapshot();
+        const [value, found, deleted] = denormalize(
+          createInput(input),
+          listSchema,
+          createInput(entities),
+        );
+        expect(found).toBe(true);
+        expect(deleted).toBe(false);
+        expect(value).toMatchSnapshot();
       });
 
       test('does not assume mapping of schema to attribute values when schemaAttribute is not set', () => {

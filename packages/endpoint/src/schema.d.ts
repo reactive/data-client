@@ -23,8 +23,15 @@ export { Delete, EntityMap };
 export { EntityInterface } from './interface.js';
 
 export class Array<S extends Schema = Schema> implements SchemaClass {
-  constructor(definition: S, schemaAttribute?: string | SchemaFunction);
+  constructor(
+    definition: S,
+    schemaAttribute?: S extends EntityMap<infer T>
+      ? keyof T | SchemaFunction<keyof S>
+      : undefined,
+  );
+
   define(definition: Schema): void;
+  readonly isSingleSchema: S extends EntityMap ? false : true;
   readonly schema: S;
   normalize(
     input: any,
@@ -33,17 +40,27 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
     visit: (...args: any) => any,
     addEntity: (...args: any) => any,
     visitedEntities: Record<string, any>,
-  ): Normalize<S>[];
+  ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
-  _normalizeNullable(): Normalize<S>[] | undefined;
+  _normalizeNullable():
+    | (S extends EntityMap ? UnionResult<S> : Normalize<S>)[]
+    | undefined;
 
   denormalize(
     // eslint-disable-next-line @typescript-eslint/ban-types
     input: {},
     unvisit: UnvisitFunction,
-  ): [denormalized: Denormalize<S>[], found: boolean, suspend: boolean];
+  ): [
+    denormalized: (S extends EntityMap<infer T> ? T : Denormalize<S>)[],
+    found: boolean,
+    suspend: boolean,
+  ];
 
-  _denormalizeNullable(): [Denormalize<S>[] | undefined, false, boolean];
+  _denormalizeNullable(): [
+    (S extends EntityMap<infer T> ? T : Denormalize<S>)[] | undefined,
+    false,
+    boolean,
+  ];
 
   infer(
     args: readonly any[],

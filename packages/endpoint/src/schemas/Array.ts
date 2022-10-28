@@ -18,7 +18,7 @@ export default class ArraySchema extends PolymorphicSchema {
     visit: any,
     addEntity: any,
     visitedEntities: any,
-  ) {
+  ): any {
     const values = getValues(input);
 
     return values
@@ -35,7 +35,10 @@ export default class ArraySchema extends PolymorphicSchema {
       .filter(value => value !== undefined && value !== null);
   }
 
-  denormalize(input: any, unvisit: any) {
+  denormalize(
+    input: any,
+    unvisit: any,
+  ): [denormalized: any, found: boolean, deleted: boolean] {
     return [
       input.map
         ? input
@@ -50,7 +53,7 @@ export default class ArraySchema extends PolymorphicSchema {
     ];
   }
 
-  infer(args: any, indexes: any, recurse: any) {
+  infer(args: unknown, indexes: unknown, recurse: unknown): any {
     return undefined;
   }
 

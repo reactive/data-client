@@ -67,11 +67,11 @@ export interface UnvisitFunction {
   setLocal?: (entity: any) => void;
 }
 
-export type NormalizedIndex = {
+export interface NormalizedIndex {
   readonly [entityKey: string]: {
     readonly [indexName: string]: { readonly [lookup: string]: string };
   };
-};
+}
 
 /** Defines a networking endpoint */
 export interface EndpointInterface<

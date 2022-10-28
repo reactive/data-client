@@ -5,6 +5,6 @@
     "rootDir": "src",
     "skipLibCheck": false
   },
-  "include": ["src"],
+  "include": ["src", "typescript-tests"],
   "references": [{ "path": "../../__tests__" }]
 }

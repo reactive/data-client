@@ -19,25 +19,21 @@ exports[`ArraySchema denormalization (class, direct) Object denormalizes a singl
 
 exports[`ArraySchema denormalization (class, direct) Object denormalizes multiple entities 1`] = `
 [
-  [
-    Cat {
-      "id": "123",
-      "type": "Cat",
-    },
-    Person {
-      "id": "123",
-      "type": "people",
-    },
-    {
-      "id": "789",
-    },
-    Cat {
-      "id": "456",
-      "type": "Cat",
-    },
-  ],
-  true,
-  false,
+  Cat {
+    "id": "123",
+    "type": "Cat",
+  },
+  Person {
+    "id": "123",
+    "type": "people",
+  },
+  {
+    "id": "789",
+  },
+  Cat {
+    "id": "456",
+    "type": "Cat",
+  },
 ]
 `;
 
@@ -334,26 +330,22 @@ exports[`ArraySchema denormalization (class, immutable) Object denormalizes a si
 `;
 
 exports[`ArraySchema denormalization (class, immutable) Object denormalizes multiple entities 1`] = `
-[
-  Immutable.List [
-    Cat {
-      "id": "123",
-      "type": "Cat",
-    },
-    Person {
-      "id": "123",
-      "type": "people",
-    },
-    Immutable.Map {
-      "id": "789",
-    },
-    Cat {
-      "id": "456",
-      "type": "Cat",
-    },
-  ],
-  true,
-  false,
+Immutable.List [
+  Cat {
+    "id": "123",
+    "type": "Cat",
+  },
+  Person {
+    "id": "123",
+    "type": "people",
+  },
+  Immutable.Map {
+    "id": "789",
+  },
+  Cat {
+    "id": "456",
+    "type": "Cat",
+  },
 ]
 `;
 
@@ -651,25 +643,21 @@ exports[`ArraySchema denormalization (object, direct) Object denormalizes a sing
 
 exports[`ArraySchema denormalization (object, direct) Object denormalizes multiple entities 1`] = `
 [
-  [
-    Cat {
-      "id": "123",
-      "type": "Cat",
-    },
-    Person {
-      "id": "123",
-      "type": "people",
-    },
-    {
-      "id": "789",
-    },
-    Cat {
-      "id": "456",
-      "type": "Cat",
-    },
-  ],
-  true,
-  false,
+  Cat {
+    "id": "123",
+    "type": "Cat",
+  },
+  Person {
+    "id": "123",
+    "type": "people",
+  },
+  {
+    "id": "789",
+  },
+  Cat {
+    "id": "456",
+    "type": "Cat",
+  },
 ]
 `;
 
@@ -966,26 +954,22 @@ exports[`ArraySchema denormalization (object, immutable) Object denormalizes a s
 `;
 
 exports[`ArraySchema denormalization (object, immutable) Object denormalizes multiple entities 1`] = `
-[
-  Immutable.List [
-    Cat {
-      "id": "123",
-      "type": "Cat",
-    },
-    Person {
-      "id": "123",
-      "type": "people",
-    },
-    Immutable.Map {
-      "id": "789",
-    },
-    Cat {
-      "id": "456",
-      "type": "Cat",
-    },
-  ],
-  true,
-  false,
+Immutable.List [
+  Cat {
+    "id": "123",
+    "type": "Cat",
+  },
+  Person {
+    "id": "123",
+    "type": "people",
+  },
+  Immutable.Map {
+    "id": "789",
+  },
+  Cat {
+    "id": "456",
+    "type": "Cat",
+  },
 ]
 `;
 

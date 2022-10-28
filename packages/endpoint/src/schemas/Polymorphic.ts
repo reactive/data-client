@@ -6,7 +6,7 @@ export default class PolymorphicSchema {
 
   constructor(
     definition: any,
-    schemaAttribute: string | ((...args: any) => any),
+    schemaAttribute?: string | ((...args: any) => any),
   ) {
     if (schemaAttribute) {
       this._schemaAttribute =
