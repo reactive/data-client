@@ -4,6 +4,7 @@ title: useController()
 
 <head>
   <title>useController() - Imperative Controls for Rest Hooks</title>
+  <meta name="docsearch:pagerank" content="10"/>
 </head>
 
 ```typescript

@@ -4,6 +4,7 @@ title: Entity
 
 <head>
   <title>Entity - Declarative Data Normalization | Rest Hooks</title>
+  <meta name="docsearch:pagerank" content="10"/>
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';

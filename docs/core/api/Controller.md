@@ -4,7 +4,7 @@ title: Controller
 
 <head>
   <title>Controller - Imperative Controls for Rest Hooks</title>
-  <meta name="docsearch:pagerank" content="10"/>
+  <meta name="docsearch:pagerank" content="30"/>
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
@@ -149,7 +149,7 @@ Use [schema.Delete](/rest/api/Delete) to invalidate every endpoint that contains
 
 ## resetEntireStore() {#resetEntireStore}
 
-Resets the entire Rest Hooks cache. All inflight requests will not resolve.
+Resets/clears the entire Rest Hooks cache. All inflight requests will not resolve.
 
 This is typically used when logging out or changing authenticated users.
 

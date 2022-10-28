@@ -3,12 +3,7 @@
 html[data-theme='light'] {
   --ifm-hero-background-color: var(--ifm-footer-background-color);
 }*/
-html[data-theme='light'] {
-  --ifm-hero-fade-to-background-color: #fff;
-}
-html[data-theme='dark'] {
-  --ifm-link-color: var(--ifm-color-primary-light);
-}
+
 
 .docusaurus-highlight-code-line {
   background-color: rgb(72, 77, 91);

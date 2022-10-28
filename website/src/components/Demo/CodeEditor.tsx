@@ -11,22 +11,28 @@ const DemoPlayground = memo(
 
     return (
       <div ref={ref}>
-        {values.map(({ value, endpointCode, code, fixtures }) => (
-          <HooksPlayground
-            groupId="homepage-demo"
-            row
-            key={value}
-            hidden={value !== selectedValue}
-            fixtures={fixtures}
-          >
-            <code title="Endpoint" path={`${value}/api.ts`} collapsed>
-              {endpointCode}
-            </code>
-            <code title="React" path={`${value}/component.tsx`}>
-              {code}
-            </code>
-          </HooksPlayground>
-        ))}
+        {values.map(
+          ({ value, endpointCode, code, fixtures, autoFocus = false }) => (
+            <HooksPlayground
+              groupId="homepage-demo"
+              row
+              key={value}
+              hidden={value !== selectedValue}
+              fixtures={fixtures}
+            >
+              <code title="Endpoint" path={`${value}/api.ts`} collapsed>
+                {endpointCode}
+              </code>
+              <code
+                title="React"
+                path={`${value}/component.tsx`}
+                autoFocus={autoFocus}
+              >
+                {code}
+              </code>
+            </HooksPlayground>
+          ),
+        )}
       </div>
     );
   }),

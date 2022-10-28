@@ -14,7 +14,7 @@ import {
 } from './resources/TodoResource';
 import ResetableErrorBoundary from '../ResettableErrorBoundary';
 import PreviewWithHeader from './PreviewWithHeader';
-import { babelTransform } from './babelTransform';
+import transformCode from './transformCode';
 
 function randomFloatInRange(min, max, decimals) {
   const str = (Math.random() * (max - min) + min).toFixed(decimals);
@@ -117,7 +117,7 @@ export default function PreviewWithScope({
     <LiveProvider
       key="preview"
       code={code}
-      transformCode={babelTransform}
+      transformCode={transformCode}
       noInline
       scope={includeEndpoints ? scopeWithEndpoint : scope}
     >

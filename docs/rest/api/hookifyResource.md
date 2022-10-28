@@ -4,6 +4,7 @@ title: hookifyResource
 
 <head>
   <title>hookifyResource() - Collection of CRUD hook Endpoints</title>
+  <meta name="docsearch:pagerank" content="20"/>
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';

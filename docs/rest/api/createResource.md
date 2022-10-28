@@ -5,8 +5,8 @@ title: createResource
 
 <head>
   <title>createResource() - Collection of CRUD Endpoints</title>
+  <meta name="docsearch:pagerank" content="20"/>
 </head>
-
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
 
@@ -20,7 +20,9 @@ export class Todo extends Entity {
   id = '';
   title = '';
   completed = false;
-  pk() { return this.id }
+  pk() {
+    return this.id;
+  }
 }
 
 const TodoResource = createResource({
@@ -33,10 +35,16 @@ const TodoResource = createResource({
 ```ts
 const todo = useSuspense(TodoResource.get, { id: '5' });
 const todos = useSuspense(TodoResource.getList);
-controller.fetch(TodoResource.create, { title: 'finish installing rest hooks' })
-controller.fetch(TodoResource.update, { id: '5' }, { ...todo, completed: true })
-controller.fetch(TodoResource.partialUpdate, { id: '5' }, { completed: true })
-controller.fetch(TodoResource.delete, { id: '5' })
+controller.fetch(TodoResource.create, {
+  title: 'finish installing rest hooks',
+});
+controller.fetch(
+  TodoResource.update,
+  { id: '5' },
+  { ...todo, completed: true },
+);
+controller.fetch(TodoResource.partialUpdate, { id: '5' }, { completed: true });
+controller.fetch(TodoResource.delete, { id: '5' });
 ```
 
 ## Arguments
@@ -88,8 +96,8 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 - path: `shortenPath(path)`
   - Removes the last argument:
     ```ts
-    createResource({path: '/:first/:second'}).getList.path === '/:first'
-    createResource({path: '/:first'}).getList.path === '/'
+    createResource({ path: '/:first/:second' }).getList.path === '/:first';
+    createResource({ path: '/:first' }).getList.path === '/';
     ```
 - schema: `[schema]`
 
@@ -101,8 +109,8 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 - path: `shortenPath(path)`
   - Removes the last argument:
     ```ts
-    createResource({path: '/:first/:second'}).getList.path === '/:first'
-    createResource({path: '/:first'}).create.path === '/'
+    createResource({ path: '/:first/:second' }).getList.path === '/:first';
+    createResource({ path: '/:first' }).create.path === '/';
     ```
 - schema: `schema`
 
@@ -130,11 +138,10 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 - path: `path`
 - schema: `new schema.Delete(schema)`
 - process:
-    ```ts
-    (value, params) {
-      return value && Object.keys(value).length ? value : params;
-    },
-    ```
+  ```ts
+  (value, params) {
+    return value && Object.keys(value).length ? value : params;
+  },
+  ```
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
-

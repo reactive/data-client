@@ -38,6 +38,7 @@
     "@rest-hooks/test": "file:../packages/test",
     "bignumber.js": "9.1.0",
     "clsx": "1.2.1",
+    "monaco-editor": "^0.34.1",
     "msw": "0.40.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

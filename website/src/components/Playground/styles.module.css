@@ -88,17 +88,19 @@ div > .playgroundHeader.subtabs {
 }
 
 .playgroundEditor {
-  font: var(--ifm-code-font-size) / var(--ifm-pre-line-height)
-    var(--ifm-font-family-monospace) !important;
   /*rtl:ignore*/
   direction: ltr;
   height: 100%;
-  padding-top: 7px;
+  padding-top: 8px;
 }
 .playgroundEditor :global(.prism-code) {
   border-radius: 0;
   background: transparent;
-  padding-top: 1px !important;
+  padding-top: 0 !important;
+}
+.playgroundEditor,
+.playgroundEditor :global(.prism-code) {
+  font: 13px / 19px var(--ifm-font-family-monospace) !important;
 }
 .playgroundContainer:not(.row) {
   background-color: var(--monoco-code-background);
@@ -168,7 +170,8 @@ div > .playgroundHeader.subtabs {
   background-color: var(--ifm-color-emphasis-300);
 }
 
-.playgroundContainer.row.hidden, .hidden {
+.playgroundContainer.row.hidden,
+.hidden {
   display: none;
 }
 
@@ -227,7 +230,7 @@ div > .playgroundHeader.subtabs {
 }
 
 .fixtureBlock {
-  background-color: rgb(41, 45, 62);
+  background-color: var(--prism-background-color);
   font: var(--ifm-code-font-size) / var(--ifm-pre-line-height)
     var(--ifm-font-family-monospace);
   color: rgb(191, 199, 213);
@@ -268,10 +271,12 @@ div.fixtureJson {
 }
 .playgroundContainer.row .playgroundEditor :global(.monaco-editor),
 .playgroundContainer.row .playgroundEditor :global(.monaco-editor-background),
-.playgroundContainer.row .playgroundEditor :global(.monaco-editor) :global(.margin),
+.playgroundContainer.row
+  .playgroundEditor
+  :global(.monaco-editor)
+  :global(.margin),
 .playgroundContainer.row :global(.monaco-editor) :global(.inputarea.ime-input) {
   border-bottom-left-radius: var(--ifm-global-radius);
-
 }
 .playgroundEditor
   :global(.monaco-editor)
@@ -279,11 +284,15 @@ div.fixtureJson {
   :global(.current-line) {
   border-color: var(--monoco-code-lineHighlightBorder);
 }
-html[data-theme='dark'] {
-  --monoco-code-background: hsl(229, 20%, 15%);
-  --monoco-code-lineHighlightBorder: hsl(228, 20%, 20%);
+
+/* override bad loading styles for monaco editor */
+.playgroundEditor > section > div {
+  display: block !important;
 }
-html[data-theme='light'] {
-  --monoco-code-background: #292d3e;
-  --monoco-code-lineHighlightBorder: hsl(228, 20%, 25%);
+.playgroundEditor > section > div:not(:first-child) {
+  width: 0;
+  flex: 0 0 0;
+}
+.playgroundEditor > section {
+  position: auto !important;
 }

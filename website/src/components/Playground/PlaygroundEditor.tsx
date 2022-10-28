@@ -1,9 +1,8 @@
 import PlaygroundMonacoEditor from './PlaygroundMonacoEditor';
 import PlaygroundLiveEditor from './PlaygroundLiveEditor';
+import usingMonaco from './usingMonaco';
 
-const PlaygroundEditor =
-  typeof window !== 'undefined' &&
-  !/bot|googlebot|crawler|spider|robot|crawling/i.test(navigator.userAgent)
-    ? PlaygroundMonacoEditor
-    : PlaygroundLiveEditor;
+const PlaygroundEditor = usingMonaco
+  ? PlaygroundMonacoEditor
+  : PlaygroundLiveEditor;
 export default PlaygroundEditor;
