@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.0.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/hooks@3.0.7...@rest-hooks/hooks@3.0.8) (2022-10-28)
+
+### 📦 Package
+
+* Update babel packages ([#2227](https://github.com/coinbase/rest-hooks/issues/2227)) ([4e652a1](https://github.com/coinbase/rest-hooks/commit/4e652a13552cbf467ca140738f9603aba06cffee))
+
+### 📝 Documentation
+
+* Show typing information in live editor ([#2236](https://github.com/coinbase/rest-hooks/issues/2236)) ([20fb530](https://github.com/coinbase/rest-hooks/commit/20fb530f8091831b23556c98f6c88068e3879035))
+
 ### [3.0.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/hooks@3.0.6...@rest-hooks/hooks@3.0.7) (2022-10-01)
 
 ### 📦 Package

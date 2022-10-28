@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.3.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.3.1...@rest-hooks/core@3.3.2) (2022-10-28)
+
+### 💅 Enhancement
+
+* Use process() option to infer return type of RestEndpoint ([#2197](https://github.com/coinbase/rest-hooks/issues/2197)) ([37f635b](https://github.com/coinbase/rest-hooks/commit/37f635bc1371840419917e34cf85097898d7d8b4))
+
+### 🐛 Bug Fix
+
+* Add 'hard' are error policy type option ([7977941](https://github.com/coinbase/rest-hooks/commit/79779411716fce15ce5fa25b35b14021db1e25a0))
+
+### 📦 Package
+
+* Update babel packages ([#2227](https://github.com/coinbase/rest-hooks/issues/2227)) ([4e652a1](https://github.com/coinbase/rest-hooks/commit/4e652a13552cbf467ca140738f9603aba06cffee))
+
+### 📝 Documentation
+
+* Fix mobile usability SEO ([#2206](https://github.com/coinbase/rest-hooks/issues/2206)) ([c7eb5e9](https://github.com/coinbase/rest-hooks/commit/c7eb5e9e51b3fa42e996b27c6d42ba317028f292))
+* Show typing information in live editor ([#2236](https://github.com/coinbase/rest-hooks/issues/2236)) ([20fb530](https://github.com/coinbase/rest-hooks/commit/20fb530f8091831b23556c98f6c88068e3879035))
+* Update readmes ([e2c6438](https://github.com/coinbase/rest-hooks/commit/e2c64382312c7dcca11662789477c3a6929640be))
+
 ### [3.3.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.3.0...@rest-hooks/core@3.3.1) (2022-10-01)
 
 ### 📦 Package
