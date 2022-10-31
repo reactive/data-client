@@ -1,18 +1,62 @@
-import React, { memo, useCallback, useState } from 'react';
-import Editor, { type OnMount } from '@monaco-editor/react';
+import React, {
+  memo,
+  useCallback,
+  useState,
+  useEffect,
+  useRef,
+  MutableRefObject,
+} from 'react';
+import Editor, { useMonaco, type OnMount } from '@monaco-editor/react';
+import type { languages } from 'monaco-editor';
+import { LiveEditor } from 'react-live';
 
 import './monaco-init';
 
 const MemoEditor = memo(Editor);
 
-export default function PlaygroundMonacoEditor({ onChange, code, path }) {
+export default function PlaygroundMonacoEditor({
+  onChange,
+  code,
+  path,
+  autoFocus = false,
+  ...rest
+}) {
   //const isBrowser = useIsBrowser(); we used to key Editor on this; but I'm not sure why
 
   if (!path.endsWith('.tsx') && !path.endsWith('.ts')) {
     path = path + '.tsx';
   }
-  const [height, setHeight] = useState(50);
+  const handleChange = useWorkerCB(
+    tsWorker => {
+      tsWorker.getEmitOutput(`file:///${path}`).then(source => {
+        onChange(source.outputFiles[0].text);
+      });
+    },
+    [onChange, path],
+  );
+  const [height, setHeight] = useState<string | number>('100%');
   const handleMount: OnMount = useCallback(editor => {
+    // autofocus
+    if (autoFocus) editor.focus();
+    // autohighlight
+    const highlights = Object.keys(rest)
+      .map(key => /\{(\d+)\}/.exec(key)?.[1])
+      .filter(Boolean);
+    if (highlights.length) {
+      editor.setSelections(
+        highlights.map(lineNumber => {
+          const selectionStartLineNumber = Number.parseInt(lineNumber, 10);
+          return {
+            selectionStartLineNumber,
+            selectionStartColumn: 0,
+            positionLineNumber: selectionStartLineNumber + 1,
+            positionColumn: 0,
+          };
+        }),
+      );
+    }
+
+    // autoheight
     const LINE_HEIGHT = 19;
     const CONTAINER_GUTTER = 10;
 
@@ -48,11 +92,13 @@ export default function PlaygroundMonacoEditor({ onChange, code, path }) {
       path={path}
       defaultLanguage="typescript"
       onChange={onChange}
-      value={code}
+      defaultValue={code}
+      //value={code}
       options={options}
       theme="prism"
       onMount={handleMount}
       height={height}
+      loading={<LiveEditor language="tsx" code={code} disabled />}
     />
   );
 }
@@ -69,4 +115,39 @@ const options = {
   // Undocumented see https://github.com/Microsoft/vscode/issues/30795#issuecomment-410998882
   //lineDecorationsWidth: 0,
   //lineNumbersMinChars: 0,
+  fontLigatures: true,
+  fontFamily:
+    '"Roboto Mono",SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace',
+  fontSize: '13px',
+  lineHeight: 19,
 } as const;
+
+function useMonacoWorker(
+  callback: (worker: languages.typescript.TypeScriptWorker) => void,
+): MutableRefObject<languages.typescript.TypeScriptWorker | undefined> {
+  const monaco = useMonaco();
+  const workerRef = useRef<languages.typescript.TypeScriptWorker | undefined>();
+  useEffect(() => {
+    if (!monaco) return;
+    monaco.languages.typescript
+      .getTypeScriptWorker()
+      .then(a => a())
+      .then(worker => {
+        workerRef.current = worker;
+        //callback(worker);
+      });
+  }, [monaco]);
+  return workerRef;
+}
+
+function useWorkerCB(
+  callback: (worker: languages.typescript.TypeScriptWorker) => void,
+  deps: any[],
+) {
+  const tsWorkerRef = useMonacoWorker(callback);
+
+  return useCallback((...args) => {
+    if (!tsWorkerRef.current) return;
+    callback(tsWorkerRef.current);
+  }, deps);
+}

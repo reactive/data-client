@@ -1,6 +1,6 @@
 import loader from '@monaco-editor/loader';
 
-let monacoMaster;
+export let monacoMaster;
 
 if (
   typeof window !== 'undefined' &&
@@ -33,11 +33,11 @@ if (
       monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
         allowNonTsExtensions: true,
         target: monaco.languages.typescript.ScriptTarget.ES2017,
-        jsx: monaco.languages.typescript.JsxEmit.ReactJSX,
+        jsx: monaco.languages.typescript.JsxEmit.React,
         strict: true,
+        strictNullChecks: true,
         lib: ['dom', 'esnext'],
-        noEmit: true,
-        module: monaco.languages.typescript.ModuleKind.ES2015,
+        module: monaco.languages.typescript.ModuleKind.ESNext,
         moduleResolution:
           monaco.languages.typescript.ModuleResolutionKind.NodeJs,
         typeRoots: ['node_modules/@types'],
@@ -46,6 +46,7 @@ if (
         noImplicitAny: false,
       });
       // TODO: load theme from docusaurus config
+      // see https://microsoft.github.io/monaco-editor/playground.html for full options
       monaco.editor.defineTheme('prism', {
         base: 'vs-dark',
         inherit: true,
@@ -67,6 +68,7 @@ if (
           //'editor.background': '#292d3e',
           'editor.foreground': '#bfc7d5',
           //'editor.lineHighlightBorder': '#33384d',
+          'editor.inactiveSelectionBackground': '#484d5b',
         },
       });
       //monaco.languages.typescript.getTypeScriptWorker().then(worker => worker)
@@ -94,6 +96,27 @@ if (
               textUntilPosition.endsWith('.') ||
               textUntilPosition.endsWith('/')
             ) {
+              //const thisId = /\/\d+\//g.exec(model.uri.path)?.[0];
+              //if (!thisId) return;
+              const completions = monaco.editor
+                .getModels()
+                .map(model => model.uri.path)
+                /*.filter(
+                  path => path.startsWith(thisId) && path !== model.uri.path,
+                )*/
+                .map(path => {
+                  const candidateId = /\/\d+\//g.exec(path)?.[0] ?? '';
+                  const file = path.substring(candidateId.length - 1);
+                  return {
+                    // Show the full file path for label
+                    label: file,
+                    // Don't keep extension for JS files
+                    insertText: file.replace(/\.tsx?$/, ''),
+                    kind: monaco.languages.CompletionItemKind.Module,
+                  };
+                });
+              if (!completions.length) return;
+              return { suggestions: completions };
               // User is trying to import a file
               /*return Object.keys(this.props.files)
               .filter(path => path !== this.props.path)
@@ -114,7 +137,6 @@ if (
                 return null;
               })
               .filter(Boolean);*/
-              return;
             } else {
               // User is trying to import a dependency
               return {
@@ -179,7 +201,8 @@ if (
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare function render(component:JSX.Element):void;
         declare function CurrentTime(props: {}):JSX.Element;
-        declare function ResetableErrorBoundary(props: { children: JSX.ReactChild }):JSX.Element;`,
+        declare function ResetableErrorBoundary(props: { children: JSX.ReactChild }):JSX.Element;
+        declare function randomFloatInRange(min: number, max: number, decimals?: number): number;`,
       );
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         es2022,
@@ -214,7 +237,7 @@ if (
         }
       });
 
-      monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
+      monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
       return monaco;
     });
   }

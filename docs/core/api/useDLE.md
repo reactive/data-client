@@ -2,8 +2,11 @@
 title: useDLE()
 ---
 
+import HooksPlayground from '@site/src/components/HooksPlayground';
+import {RestEndpoint} from '@rest-hooks/rest';
+
 <head>
-  <title>useDLE() - Data Loading Error - Stateful Data Fetching</title>
+  <title>useDLE() - [D]ata [L]oading [E]rror: Stateful Data Fetching</title>
 </head>
 
 import PkgTabs from '@site/src/components/PkgTabs';
@@ -39,13 +42,20 @@ function useDLE<
 
 </GenericsTabs>
 
-In case you cannot use suspense, useDLE() is just like [useSuspense()](./useSuspense.md) but returns [D]ata [L]oading [E]rror values.
+In case you cannot use [suspense](../getting-started/data-dependency.md#async-fallbacks), useDLE() is just like [useSuspense()](./useSuspense.md) but returns [D]ata [L]oading [E]rror values.
 
 ## Hook usage
 
-<details><summary><b>Resource</b></summary>
+<HooksPlayground fixtures={[
+{
+endpoint: new RestEndpoint({path: '/profiles'}),
+args: [],
+response: [{ id: '1', fullName: 'Einstein', bio: 'Smart physicist' },{ id: '2', fullName: 'Elon Musk', bio: 'CEO of Tesla, SpaceX and owner of Twitter' }],
+delay: 150,
+},
+]}>
 
-```typescript title="api/Profile.ts"
+```typescript title="api/Profile.ts" collapsed
 import { Entity, createResource } from '@rest-hooks/rest';
 
 export class Profile extends Entity {
@@ -62,34 +72,31 @@ export class Profile extends Entity {
 export const ProfileResource = createResource({
   path: '/profiles/:id',
   schema: Profile,
-})
+});
 ```
-
-</details>
 
 ```tsx title="ProfileList.tsx"
 import { useDLE } from 'rest-hooks';
-import { Skeleton, Card, Avatar } from 'antd';
-import { ProfileResource } from 'api/Profile';
+import { ProfileResource } from './api/Profile';
 
-const { Meta } = Card;
-
-function ProfileList() {
+function ProfileList(): JSX.Element {
   const { data, loading, error } = useDLE(ProfileResource.getList);
   if (error) return <div>Error {error.status}</div>;
+  if (loading || !data) return <>loading...</>;
   return (
-    <Card style={{ width: 300, marginTop: 16 }} loading={loading}>
+    <div>
       {data.map(profile => (
-        <Meta
-          key={profile.pk()}
-          avatar={<Avatar src={profile.img} />}
-          title={profile.fullName}
-          description={profile.bio}
-        />
+        <div key={profile.pk()}>
+          <h4>{profile.fullName}</h4>
+          <p>{profile.bio}</p>
+        </div>
       ))}
-    </Card>
+    </div>
   );
 }
+render(<ProfileList />);
 ```
+
+</HooksPlayground>
 
 <ConditionalDependencies hook="useDLE" />

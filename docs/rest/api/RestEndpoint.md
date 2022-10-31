@@ -4,7 +4,8 @@ description: Strongly typed path-based API definitions.
 ---
 
 <head>
-  <title>RestEndpoint - Strongly typed path-based API definitions</title>
+  <title>RestEndpoint - Strongly typed path-based HTTP API definitions</title>
+  <meta name="docsearch:pagerank" content="20"/>
 </head>
 
 import Tabs from '@theme/Tabs';
@@ -239,7 +240,7 @@ have defaults.
 `url()` uses the `params` to fill in the [path template](#path). Any unused `params` members are then used
 as [searchParams](https://developer.mozilla.org/en-US/docs/Web/API/URL/searchParams) (aka 'GET' params - the stuff after `?`).
 
-[searchParams](https://developer.mozilla.org/en-US/docs/Web/API/URL/searchParams) are sorted to maintain determinism.
+[searchParams](https://developer.mozilla.org/en-US/docs/Web/API/URL/searchParams) (aka queryParams) are sorted to maintain determinism.
 
 <details collapsed><summary><b>Implementation</b></summary>
 

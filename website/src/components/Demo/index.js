@@ -11,6 +11,8 @@ const simpleFetchDemo = [
   {
     label: 'Fetch',
     value: 'fetch',
+    autoFocus: true,
+
     endpointCode: `export const getTodo = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
@@ -27,6 +29,7 @@ render(<TodoDetail id={1} />);
   {
     label: 'REST',
     value: 'rest',
+    autoFocus: true,
     endpointCode: `export class Todo extends Entity {
   id = 0;
   userId = 0;
@@ -51,6 +54,8 @@ render(<TodoDetail id={1} />);
   {
     label: 'GraphQL',
     value: 'graphql',
+    autoFocus: true,
+
     fixtures: [
       {
         endpoint: new GQLEndpoint('/').query(`

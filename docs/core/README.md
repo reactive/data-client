@@ -10,6 +10,8 @@ slug: /
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
+import ProtocolTabs from '@site/src/components/ProtocolTabs';
+import HooksPlayground from '@site/src/components/HooksPlayground';
 
 Rest Hooks is an asynchronous data framework for TypeScript and JavaScript. While it is completely protocol and platform agnostic,
 it is not a networking stack for things like minecraft game servers.
@@ -28,45 +30,38 @@ Rest Hooks focuses on solving the following challenges in a declarative composab
 
 ## Endpoint
 
-[Endpoints](./getting-started/endpoint.md) describe an asynchronous [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/).
+[Endpoints](./getting-started/endpoint.md) make it easy to share and reuse strongly typed [APIs](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/)
 
-These define both `runtime` behaviors, as well as (optionally) `typing`.
+[Protocol implementations](#protocol-specific-patterns) make definitions a breeze by building off the basic
+[Endpoint](/rest/api/Endpoint). For protocols not shipped here, feel free to extend Endpoint directly.
 
-<LanguageTabs>
+<ProtocolTabs>
 
-```typescript {18}
-import { Endpoint } from '@rest-hooks/endpoint';
+```ts
+import { RestEndpoint } from '@rest-hooks/rest';
 
-interface Todo {
-  userId: number;
-  id: number;
-  title: string;
-  completed: boolean;
-}
-interface Params {
-  id: number;
-}
-
-const fetchTodoDetail = ({ id }: Params): Promise<Todo> =>
-  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res =>
-    res.json(),
-  );
-
-const todoDetail = new Endpoint(fetchTodoDetail);
+const getTodo = new RestEndpoint({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+});
 ```
 
-```js {8}
-import { Endpoint } from '@rest-hooks/endpoint';
+```ts
+import { GQLEndpoint } from '@rest-hooks/graphql';
 
-const fetchTodoDetail = ({ id }) =>
-  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res =>
-    res.json(),
-  );
-
-const todoDetail = new Endpoint(fetchTodoDetail);
+const gql = new GQLEndpoint('/');
+export const getTodo = gql.query(`
+  query GetTodo($id: ID!) {
+    todo(id: $id) {
+      id
+      title
+      completed
+    }
+  }
+`);
 ```
 
-</LanguageTabs>
+</ProtocolTabs>
 
 By _decoupling_ endpoint definitions from their usage, we are able to reuse them in many contexts.
 
@@ -75,25 +70,19 @@ By _decoupling_ endpoint definitions from their usage, we are able to reuse them
 - Reuse across different **platforms** like React Native, React web, or even beyond React in Angular, Svelte, Vue, or Node
 - Published as **packages** independent of their consumption
 
-:::info
-
-Endpoints are the building blocks that enable sharing common API patterns; To get started quickly it is recommended
-to adopt some of the [Protocol specific patterns](#protocol-specific-patterns) that implement common patterns out of the box.
-
-:::
-
 ## Co-locate data dependencies
 
-Add one-line [data hookup](./getting-started/data-dependency.md) in the components that need it with [useSuspense()](./api/useSuspense.md)
+Bind the data [where you need it](./getting-started/data-dependency.md) with the one-line [useSuspense()](./api/useSuspense.md)
 
 ```tsx {4}
 import { useSuspense } from 'rest-hooks';
 
 export default function TodoDetail({ id }: { id: number }) {
-  const todo = useSuspense(todoDetail, { id });
+  const todo = useSuspense(getTodo, { id });
 
   return <div>{todo.title}</div>;
 }
+render(<TodoDetail id={1} />);
 ```
 
 - Avoid prop drilling

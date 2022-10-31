@@ -34,7 +34,7 @@ export const TodoResource = createResource({
 });
 ```
 
-```tsx title="TodoDetail.tsx"
+```tsx title="TodoDetail.tsx" {6}
 import { useSuspense } from 'rest-hooks';
 import { useCancelling } from '@rest-hooks/hooks';
 import { TodoResource } from './api/Todo';

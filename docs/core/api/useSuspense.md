@@ -4,10 +4,13 @@ title: useSuspense()
 
 <head>
   <title>useSuspense() - Data fetching with Suspense</title>
+  <meta name="docsearch:pagerank" content="10"/>
 </head>
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
-import ConditionalDependencies from '../shared/_conditional_dependencies.mdx';
+import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
+import HooksPlayground from '@site/src/components/HooksPlayground';
+import {RestEndpoint} from '@rest-hooks/rest';
 
 <GenericsTabs>
 
@@ -55,21 +58,111 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
 
 ## Single
 
-```tsx
-function Post({ id }: { id: number }) {
-  const post = useSuspense(PostResource.get, { id });
-  // post as PostResource
+<HooksPlayground fixtures={[
+{
+endpoint: new RestEndpoint({path: '/profiles/:id'}),
+args: [{id:1}],
+response: { id: '1', fullName: 'Einstein', bio: 'Smart physicist' },
+delay: 150,
+},
+{
+endpoint: new RestEndpoint({path: '/profiles/:id'}),
+args: [{id:2}],
+response: { id: '2', fullName: 'Elon Musk', bio: 'CEO of Tesla, SpaceX and owner of Twitter' },
+delay: 150,
+},
+]}>
+
+```typescript title="api/Profile.ts" collapsed
+import { Entity, createResource } from '@rest-hooks/rest';
+
+export class Profile extends Entity {
+  readonly id: number | undefined = undefined;
+  readonly img: string = '';
+  readonly fullName: string = '';
+  readonly bio: string = '';
+
+  pk() {
+    return this.id?.toString();
+  }
 }
+
+export const ProfileResource = createResource({
+  path: '/profiles/:id',
+  schema: Profile,
+});
 ```
+
+```tsx title="ProfileList.tsx"
+import { useSuspense } from 'rest-hooks';
+import { ProfileResource } from './api/Profile';
+
+function ProfileDetail(): JSX.Element {
+  const profile = useSuspense(ProfileResource.get, { id: 1 });
+  return (
+    <div>
+      <h4>{profile.fullName}</h4>
+      <p>{profile.bio}</p>
+    </div>
+  );
+}
+render(<ProfileDetail />);
+```
+
+</HooksPlayground>
 
 ## List
 
-```tsx
-function Posts() {
-  const posts = useSuspense(PostResource.getList);
-  // posts as PostResource[]
+<HooksPlayground fixtures={[
+{
+endpoint: new RestEndpoint({path: '/profiles'}),
+args: [],
+response: [{ id: '1', fullName: 'Einstein', bio: 'Smart physicist' },{ id: '2', fullName: 'Elon Musk', bio: 'CEO of Tesla, SpaceX and owner of Twitter' }],
+delay: 150,
+},
+]}>
+
+```typescript title="api/Profile.ts" collapsed
+import { Entity, createResource } from '@rest-hooks/rest';
+
+export class Profile extends Entity {
+  readonly id: number | undefined = undefined;
+  readonly img: string = '';
+  readonly fullName: string = '';
+  readonly bio: string = '';
+
+  pk() {
+    return this.id?.toString();
+  }
 }
+
+export const ProfileResource = createResource({
+  path: '/profiles/:id',
+  schema: Profile,
+});
 ```
+
+```tsx title="ProfileList.tsx"
+import { useSuspense } from 'rest-hooks';
+import { ProfileResource } from './api/Profile';
+
+function ProfileList(): JSX.Element {
+  const profiles = useSuspense(ProfileResource.getList);
+  return (
+    <div>
+      {profiles.map(profile => (
+        <div key={profile.pk()}>
+          <h4>{profile.fullName}</h4>
+          <p>{profile.bio}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+render(<ProfileList />);
+```
+
+</HooksPlayground>
 
 ## Sequential
 
@@ -94,13 +187,15 @@ export class PaginatedPost extends Entity {
   readonly title: string = '';
   readonly content: string = '';
 
-  pk() { return this.id }
+  pk() {
+    return this.id;
+  }
 }
 
 export const getPosts = new RestEndpoint({
   path: '/post\\?page=:page',
   schema: { results: [PaginatedPost], nextPage: '', lastPage: '' },
-})
+});
 ```
 
 ```tsx
@@ -113,6 +208,7 @@ function ArticleList({ page }: { page: string }) {
   // posts as PaginatedPostResource[]
 }
 ```
+
 <ConditionalDependencies />
 
 ## Useful `Endpoint`s to send

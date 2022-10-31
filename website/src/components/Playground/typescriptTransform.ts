@@ -1,6 +1,6 @@
 import { transpileModule, ModuleKind, ScriptTarget, JsxEmit } from 'typescript';
 
-export function babelTransform(code) {
+export default function typescriptTransform(code) {
   const transformed = transpileModule(
     code.replaceAll(/^(import.+$|export )/gm, ''),
     {

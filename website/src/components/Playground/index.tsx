@@ -13,6 +13,7 @@ import Header from './Header';
 import PreviewWithHeader from './PreviewWithHeader';
 import Boundary from './Boundary';
 import PlaygroundEditor from './PlaygroundEditor';
+import MonacoPreloads from './MonacoPreloads';
 
 function HeaderTabs() {
   const { selectedValue, setSelectedValue, values } =
@@ -106,25 +107,28 @@ export default function Playground({
   const prismTheme = usePrismTheme();
 
   return (
-    <div
-      className={clsx(styles.playgroundContainer, {
-        [styles.row]: row,
-        [styles.hidden]: hidden,
-      })}
-    >
-      <LiveProvider theme={prismTheme} {...props}>
-        <PlaygroundContent
-          reverse={playgroundPosition === 'top'}
-          row={row}
-          fixtures={fixtures}
-          includeEndpoints={includeEndpoints}
-          groupId={groupId}
-          defaultOpen={defaultOpen}
-        >
-          {children}
-        </PlaygroundContent>
-      </LiveProvider>
-    </div>
+    <>
+      <div
+        className={clsx(styles.playgroundContainer, {
+          [styles.row]: row,
+          [styles.hidden]: hidden,
+        })}
+      >
+        <LiveProvider theme={prismTheme} {...props}>
+          <PlaygroundContent
+            reverse={playgroundPosition === 'top'}
+            row={row}
+            fixtures={fixtures}
+            includeEndpoints={includeEndpoints}
+            groupId={groupId}
+            defaultOpen={defaultOpen}
+          >
+            {children}
+          </PlaygroundContent>
+        </LiveProvider>
+      </div>
+      <MonacoPreloads />
+    </>
   );
 }
 Playground.defaultProps = {
@@ -148,6 +152,7 @@ function PlaygroundContent({
     path?: string;
     title?: string;
     collapsed: boolean;
+    [k: string]: any;
   }[] = useMemo(() => {
     if (typeof children === 'string')
       return [{ code: children.replace(/\n$/, ''), collapsed: false }];
@@ -158,19 +163,29 @@ function PlaygroundContent({
           ? child.props
           : child.props.children.props,
       )
-      .map(({ children, title = '', collapsed = false, path }) => ({
+      .map(({ children, title = '', collapsed = false, path, ...rest }) => ({
         code: children.replace(/\n$/, ''),
         title: title.replaceAll('"', ''),
         collapsed,
         path,
+        ...rest,
       }));
   }, [children]);
 
   const [codes, dispatch] = useReducer(reduceCodes, undefined, () =>
     codeTabs.map(({ code }) => code),
   );
+  //const [ready, setReady] = useState(() => codeTabs.map(() => false));
   const handleCodeChange = useMemo(
-    () => codeTabs.map((_, i) => v => dispatch({ i, code: v })),
+    () =>
+      codeTabs.map((_, i) => v => {
+        /*setReady(readies => {
+          const ret = [...readies];
+          ret[i] = true;
+          return ret;
+        });*/
+        dispatch({ i, code: v });
+      }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [codeTabs.length],
   );
@@ -178,6 +193,9 @@ function PlaygroundContent({
     codeTabs.map(({ collapsed }) => collapsed),
   );
 
+  /*const code = ready.every(v => v)
+    ? codes.join('\n')
+    : 'render(<div>Loading...</div>);';*/
   const code = codes.join('\n');
 
   return (
@@ -191,7 +209,7 @@ function PlaygroundContent({
             onClick={i => setClosed(cl => cl.map((_, j) => j !== i))}
           />
         ) : null}
-        {codeTabs.map(({ title, path }, i) => (
+        {codeTabs.map(({ title, path, code, collapsed, ...rest }, i) => (
           <React.Fragment key={i}>
             {!row && title ? (
               <CodeTabHeader
@@ -218,6 +236,7 @@ function PlaygroundContent({
                   onChange={handleCodeChange[i]}
                   code={codes[i]}
                   path={'/' + id + '/' + (path || title || 'default.tsx')}
+                  {...rest}
                 />
               }
             </div>

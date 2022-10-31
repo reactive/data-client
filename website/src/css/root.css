@@ -1,3 +1,13 @@
+html[data-theme='dark'] {
+  --monoco-code-background: hsl(229, 20%, 15%);
+  --monoco-code-lineHighlightBorder: hsl(228, 20%, 20%);
+  --ifm-link-color: var(--ifm-color-primary-light);
+}
+html[data-theme='light'] {
+  --monoco-code-background: #292d3e;
+  --monoco-code-lineHighlightBorder: hsl(228, 20%, 25%);
+  --ifm-hero-fade-to-background-color: #fff;
+}
 :root {
   --ifm-color-primary-lightest: #b09dff;
   --ifm-color-primary-lighter: #896eff;
@@ -15,6 +25,11 @@
   --ifm-pre-padding: .8rem;
 }
 
+.theme-code-block {
+  --prism-background-color: var(--monoco-code-background) !important;
+  --ifm-pre-background: var(--prism-background-color);
+}
+
 .navbar .navbar__link {
   font-family: var(--ifm-font-family-base);
 }
@@ -30,3 +45,4 @@ code, pre {
 html {
   font-family: var(--ifm-font-family-base);
 }
+

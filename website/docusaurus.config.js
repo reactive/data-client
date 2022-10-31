@@ -41,6 +41,11 @@ module.exports = {
       crossOrigin: true,
     },
     {
+      rel: 'preconnect',
+      href: 'https://cdn.jsdelivr.net',
+      crossOrigin: true,
+    },
+    {
       rel: 'preload',
       href: 'https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&family=Rubik:ital,wght@1,300..900&family=Roboto+Mono:wght@100..700&family=Roboto+Mono:ital,wght@1,100..700&display=swap',
       as: 'style',
