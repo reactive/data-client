@@ -205,18 +205,38 @@ rpc({ id: 5 });
 
 RestEndpoint adds to Endpoint by providing customizations for a provided fetch method.
 
-1. _Prepare fetch_
-   1. [url()](#url)
-      - [urlPrefix](#urlPrefix)
-      - [path](#path)
-   1. [getRequestInit()](#getRequestInit)
-      - [getHeaders()](#getHeaders)
-      - [method](#method)
-      - [signal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
-1. _Perform fetch_
-   1. [fetchResponse()](#fetchResponse)
-   1. [parseResponse()](#parseResponse)
-   1. [process()](#process)
+```mermaid
+flowchart TB
+    URL-->response
+    INIT-->response
+    subgraph Prepare Fetch
+      subgraph URL
+        direction BT
+        urlPrefix-->url("url(...args)")
+        path-->url
+      end
+      subgraph INIT
+      direction BT
+        getHeaders("getHeaders()")-->reqinit("getRequestInit(...args)")
+        method-->reqinit
+        signal-->reqinit
+      end
+    end
+    subgraph Perform Fetch
+    response("fetchResponse()")-->parse("parseResponse()")
+    parse-->process("process()")
+    end
+    click url "#url"
+    click urlPrefix "#urlPrefix"
+    click path "#path"
+    click getHeaders "#getHeaders"
+    click method "#method"
+    click signal "https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal"
+    click reqinit "#getRequestInit"
+    click response "#fetchResponse"
+    click parse "#parseResponse"
+    click process "#process"
+```
 
 ```ts title="fetch implementation for RestEndpoint"
 function fetch(...args) {

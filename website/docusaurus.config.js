@@ -14,6 +14,9 @@ module.exports = {
   organizationName: 'coinbase',
   projectName: 'rest-hooks',
   trailingSlash: false,
+  markdown: {
+    mermaid: true,
+  },
   scripts: [],
   stylesheets: [
     /*{
@@ -99,7 +102,7 @@ module.exports = {
     }, TODO: figure out how to load this*/
   ],
   favicon: 'img/favicon/favicon.ico',
-  themes: ['@docusaurus/theme-live-codeblock'],
+  themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
   customFields: {
     repoUrl: 'https://github.com/coinbase/rest-hooks',
   },
@@ -301,7 +304,18 @@ module.exports = {
   ],
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
+    /** @type {import('@docusaurus/theme-mermaid').ThemeConfig} */
     {
+      mermaid: {
+        theme: { light: 'neutral', dark: 'dark' },
+        options: {
+          fontFamily:
+            "'Rubik', 'Avenir Next', 'Segoe UI', Tahoma, Geneva,Verdana, sans-serif",
+          flowchart: {
+            //diagramPadding: 100,
+          },
+        },
+      },
       colorMode: {
         defaultMode: 'light',
         disableSwitch: false,
