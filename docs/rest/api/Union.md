@@ -9,7 +9,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@rest-hooks/rest';
 
-Describe a schema which is a union of multiple schemas. This is useful if you need the polymorphic behavior provided by `schema.Array` or `schema.Values` but for non-collection fields.
+Describe a schema which is a union of multiple schemas. This is useful if you need the polymorphic behavior provided by [schema.Array](./Array.md) or [schema.Values](./Values.md) but for non-collection fields.
 
 - `definition`: **required** An object mapping the definition of the nested entities found within the input array
 - `schemaAttribute`: **required** The attribute on each entity found that defines what schema, per the definition mapping, to use when normalizing.
@@ -22,9 +22,19 @@ Describe a schema which is a union of multiple schemas. This is useful if you ne
 
 - `define(definition)`: When used, the `definition` passed in will be merged with the original definition passed to the `Union` constructor. This method tends to be useful for creating circular references in schema.
 
+:::info Naming
+
+`Union` is named after the [set theory concept](https://en.wikipedia.org/wiki/Union_(set_theory)) just like [TypeScript Unions](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types)
+
+:::
+
 ## Usage
 
-_Note: If your data returns an object that you did not provide a mapping for, the original object will be returned in the result and an entity will not be created._
+:::note
+
+If your data returns an object that you did not provide a mapping for, the original object will be returned in the result and an entity will not be created.
+
+:::
 
 <HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
 {

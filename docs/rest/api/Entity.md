@@ -62,8 +62,49 @@ each row represents an instance of the Entity.
 By defining a `pk()` member, Rest Hooks will normalize entities, ensuring consistency and improve performance
 by increasing cache hit rates.
 
-> For common REST patterns, inheriting from [Resource](/rest/api/resource) is recommended. However, for other cases
-> `Entity` is a great place to start.
+:::tip
+
+Entities are bound to Endpoints using [createResource.schema](./createResource.md#schema) or
+[RestEndpoint.schema](./RestEndpoint.md#schema)
+
+:::
+
+## Data lifecycle
+
+```mermaid
+flowchart BT
+  subgraph getResponse
+    pk2("pk()")-->denormalize
+    subgraph denormalize
+      direction TB
+      validate2("validate()")---fromJS("fromJS()")
+      fromJS---denormNest("denormalize(this.schema)")
+    end
+  end
+  subgraph receive
+    direction TB
+    subgraph normalize
+      direction TB
+      process("process()")-->pk("pk()")
+      pk---validate("validate()")
+      process-->validate
+      validate---normNest("normalize(this.schema)")
+    end
+    process-->useincoming("useIncoming()")
+    useincoming-->merge("merge()")
+    process-->merge
+    process-->expiresAt("expiresAt()")
+  end
+  click process "#process"
+  click pk "#pk"
+  click pk2 "#pk"
+  click fromJS "#fromJS"
+  click validate "#validate"
+  click validate2 "#validate"
+  click expiresAt "#expiresat"
+  click useincoming "#useincoming"
+  click merge "#merge"
+```
 
 ## Methods
 
@@ -210,6 +251,8 @@ will block on fetching a result.
 
 By **default** does some basic field existance checks in development mode only. Override to
 disable or customize.
+
+[Using validation for summary endpoints](../guides/summary-list.md)
 
 ### static infer(args, indexes, recurse): pk? {#infer}
 

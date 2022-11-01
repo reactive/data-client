@@ -104,6 +104,73 @@ or [getImage](/docs/guides/img-media#just-images) instead.
 
 :::
 
+## Lifecycle
+
+### Success
+
+```mermaid
+flowchart LR
+  subgraph Controller.fetch
+    direction TB
+    key--->dispatch("dispatch(FETCH)")
+  end
+  subgraph managers
+    NetworkManager-->endpoint("endpoint(...args)")
+    endpoint--resolves-->Controller.resolve
+    Controller.resolve(Controller.resolve)-->dispatchR("dispatch(RECEIVE)")
+  end
+  managers--FETCH-->reducer:FETCH
+  Controller.fetch--FETCH-->managers
+  subgraph reducer:FETCH
+    getOptimisticResponse("?getOptimisticResponse()")-->RECIEVE
+    subgraph RECIEVE
+      normalize(normalize)-->update("update()")
+    end
+  end
+  subgraph reducer:RECEIVE
+    normalize2(normalize)-->update2("update()")
+  end
+  managers--RECEIVE-->reducer:RECEIVE
+  click key "#key"
+  click NetworkManager /docs/api/NetworkManager
+  click getOptimisticResponse #getoptimisticresponse
+  click update #update
+  click update2 #update
+```
+
+### Error
+
+```mermaid
+flowchart LR
+  subgraph Controller.fetch
+    direction TB
+    key--->dispatch("dispatch(FETCH)")
+  end
+  subgraph managers
+    NetworkManager-->endpoint("endpoint(...args)")
+    endpoint--rejects-->Controller.resolve
+    Controller.resolve(Controller.resolve)-->dispatchR("dispatch(RECEIVE)")
+  end
+  managers--FETCH-->reducer:FETCH
+  Controller.fetch--FETCH-->managers
+  subgraph reducer:FETCH
+    getOptimisticResponse("?getOptimisticResponse()")-->RECIEVE
+    subgraph RECIEVE
+      normalize(normalize)-->update("update()")
+    end
+  end
+  subgraph reducer:reduceError
+    filterOptimistic(filterOptimistic)-->errorPolicy("errorPolicy()")
+  end
+  managers--RECEIVE:error-->reducer:reduceError
+  click key "#key"
+  click NetworkManager /docs/api/NetworkManager
+  click getOptimisticResponse #getoptimisticresponse
+  click update #update
+  click errorPolicy #errorpolicy
+```
+
+
 ## Endpoint Members
 
 Members double as options (second constructor arg). While none are required, the first few
@@ -350,9 +417,9 @@ console.log(user);
 
 ### Additional
 
-- [Pagination](/rest/guides/pagination)
-- [Mocking unfinished endpoints](/rest/guides/mocking-unfinished)
-- [Optimistic updates](/docs/guides/optimistic-updates)
+- [Pagination](../guides/pagination.md)
+- [Mocking unfinished endpoints](../guides/mocking-unfinished.md)
+- [Optimistic updates](../guides/optimistic-updates.md)
 
 ## Motivation
 

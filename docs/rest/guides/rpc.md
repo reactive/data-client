@@ -71,8 +71,10 @@ export default function CreateTrade() {
 }
 ```
 
-> #### Note:
->
-> Feel free to create completely new [RestEndpoint](../api/RestEndpoint.md) methods for any custom
-> endpoints you have. This endpoint tells `rest-hooks` how to process any
-> request.
+:::note
+
+Feel free to create completely new [RestEndpoint](../api/RestEndpoint.md) methods for any custom
+endpoints you have. This endpoint tells `rest-hooks` how to process any
+request.
+
+:::
