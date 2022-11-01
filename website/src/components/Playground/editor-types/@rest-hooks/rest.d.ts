@@ -1266,7 +1266,7 @@ declare function createResource<U extends string, S extends Schema>({
   readonly Endpoint?: typeof RestEndpoint;
   urlPrefix?: string;
 } & EndpointExtraOptions): Resource<U, S>;
-interface BaseResource<U extends string, S extends Schema> {
+interface Resource<U extends string, S extends Schema> {
   /** Get a singular item
    *
    * @see https://resthooks.io/rest/api/createResource#get
@@ -1307,7 +1307,6 @@ interface BaseResource<U extends string, S extends Schema> {
     Partial<PathArgs<U>>
   >;
 }
-declare type Resource<U extends string, S extends Schema> = BaseResource<U, S>;
 
 interface HookableEndpointInterface extends EndpointInterface {
   extend(...args: any): HookableEndpointInterface;

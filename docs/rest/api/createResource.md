@@ -145,3 +145,58 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
   ```
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
+
+## Function Inheritance Patterns
+
+To reuse code around `Resource` design, you can create your own function that calls createResource().
+This has similar effects as class-based inheritance.
+
+```typescript
+import {
+  createResource,
+  RestEndpoint,
+  type EndpointExtraOptions,
+  type RestGenerics,
+} from '@rest-hooks/rest';
+
+export class AuthdEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  getRequestInit(body: any): RequestInit {
+    return {
+      ...super.getRequestInit(body),
+      credentials: 'same-origin',
+    };
+  }
+}
+
+export function createMyResource<U extends string, S extends Schema>({
+  path,
+  schema,
+  Endpoint = AuthdEndpoint,
+  ...extraOptions
+}: {
+  // `readonly` is critical for the argument types to be inferred correctly
+  readonly path: U;
+  readonly schema: S;
+  readonly Endpoint?: typeof RestEndpoint;
+  urlPrefix?: string;
+} & EndpointExtraOptions) {
+  const BaseResource = createResource({
+    path,
+    Endpoint,
+    schema,
+    ...extraOptions,
+  });
+
+  return {
+    ...BaseResource,
+    getList: BaseResource.getList.extend({
+      schema: { results: [schema], total: 0, limit: 0, skip: 0 },
+    }),
+  };
+}
+```
+
+The [Github Example App](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?file=src%2Fresources%2FBase.ts)
+uses this pattern as well.

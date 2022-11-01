@@ -112,30 +112,31 @@ or [getImage](/docs/guides/img-media#just-images) instead.
 flowchart LR
   subgraph Controller.fetch
     direction TB
-    key--->dispatch("dispatch(FETCH)")
+    key("Endpoint.key(...args)")--->dispatch("dispatch(FETCH)")
   end
   subgraph managers
     NetworkManager-->endpoint("endpoint(...args)")
     endpoint--resolves-->Controller.resolve
-    Controller.resolve(Controller.resolve)-->dispatchR("dispatch(RECEIVE)")
+    Controller.resolve("Controller.resolve(response)")-->dispatchR("dispatch(RECEIVE)")
   end
   managers--FETCH-->reducer:FETCH
   Controller.fetch--FETCH-->managers
   subgraph reducer:FETCH
-    getOptimisticResponse("?getOptimisticResponse()")-->RECIEVE
+    optimistic("Endpoint.?getOptimisticResponse()")-->RECIEVE
     subgraph RECIEVE
-      normalize(normalize)-->update("update()")
+      normalize(normalize)-->update("Endpoint.update()")
     end
   end
   subgraph reducer:RECEIVE
-    normalize2(normalize)-->update2("update()")
+    direction LR
+    normalize2(normalize)-->update2("Endpoint.update()")
   end
   managers--RECEIVE-->reducer:RECEIVE
   click key "#key"
-  click NetworkManager /docs/api/NetworkManager
-  click getOptimisticResponse #getoptimisticresponse
-  click update #update
-  click update2 #update
+  click NetworkManager "/docs/api/NetworkManager"
+  click optimistic "#getoptimisticresponse"
+  click update "#update"
+  click update2 "#update"
 ```
 
 ### Error
@@ -144,30 +145,31 @@ flowchart LR
 flowchart LR
   subgraph Controller.fetch
     direction TB
-    key--->dispatch("dispatch(FETCH)")
+    key("Endpoint.key(...args)")--->dispatch("dispatch(FETCH)")
   end
   subgraph managers
     NetworkManager-->endpoint("endpoint(...args)")
     endpoint--rejects-->Controller.resolve
-    Controller.resolve(Controller.resolve)-->dispatchR("dispatch(RECEIVE)")
+    Controller.resolve("Controller.resolve(error)")-->dispatchR("dispatch(RECEIVE)")
   end
   managers--FETCH-->reducer:FETCH
   Controller.fetch--FETCH-->managers
   subgraph reducer:FETCH
-    getOptimisticResponse("?getOptimisticResponse()")-->RECIEVE
+    optimistic("Endpoint.?getOptimisticResponse()")-->RECIEVE
     subgraph RECIEVE
-      normalize(normalize)-->update("update()")
+      normalize(normalize)-->update("Endpoint.update()")
     end
   end
   subgraph reducer:reduceError
-    filterOptimistic(filterOptimistic)-->errorPolicy("errorPolicy()")
+    direction LR
+    filterOptimistic(filterOptimistic)-->errorPolicy("Endpoint.errorPolicy()")
   end
   managers--RECEIVE:error-->reducer:reduceError
   click key "#key"
-  click NetworkManager /docs/api/NetworkManager
-  click getOptimisticResponse #getoptimisticresponse
-  click update #update
-  click errorPolicy #errorpolicy
+  click optimistic "#getoptimisticresponse"
+  click update "#update"
+  click errorPolicy "#errorpolicy"
+  click NetworkManager "/docs/api/NetworkManager"
 ```
 
 
