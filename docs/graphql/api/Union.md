@@ -8,7 +8,7 @@ title: schema.Union
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
-Describe a schema which is a union of multiple schemas. This is useful if you need the polymorphic behavior provided by `schema.Array` or `schema.Values` but for non-collection fields.
+Describe a schema which is a union of multiple schemas. This is useful if you need the polymorphic behavior provided by [schema.Array](./Array.md) or [schema.Values](./Values.md) but for non-collection fields.
 
 - `definition`: **required** An object mapping the definition of the nested entities found within the input array
 - `schemaAttribute`: **required** The attribute on each entity found that defines what schema, per the definition mapping, to use when normalizing.
@@ -23,7 +23,11 @@ Describe a schema which is a union of multiple schemas. This is useful if you ne
 
 ## Usage
 
-_Note: If your data returns an object that you did not provide a mapping for, the original object will be returned in the result and an entity will not be created._
+:::note
+
+If your data returns an object that you did not provide a mapping for, the original object will be returned in the result and an entity will not be created.
+
+:::
 
 <HooksPlayground groupId="schema" defaultOpen="y">
 

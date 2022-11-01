@@ -50,11 +50,15 @@ render(<ItemPage />);
 
 </HooksPlayground>
 
-### Dynamic entity types
+### Polymorphic types
 
-If your input data is an object that has values of more than one type of entity, but their schema is not easily defined by the key, you can use a mapping of schema, much like `schema.Union` and `schema.Array`.
+If your input data is an object that has values of more than one type of entity, but their schema is not easily defined by the key, you can use a mapping of schema, much like [schema.Union](./Union.md) and [schema.Array](./Array.md).
 
-_Note: If your data returns an object that you did not provide a mapping for, the original object will be returned in the result and an entity will not be created._
+:::note
+
+If your data returns an object that you did not provide a mapping for, the original object will be returned in the result and an entity will not be created.
+
+:::
 
 #### string schemaAttribute
 

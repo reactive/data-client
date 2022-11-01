@@ -10,8 +10,8 @@ import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
-Creates a schema to normalize an array of schemas. If the input value is an `Object` instead of an `Array`,
-the normalized result will be an `Array` of the `Object`'s values.
+Creates a schema to normalize an array of schemas. If the input value is an [Object](./Object.md) instead of an `Array`,
+the normalized result will be an `Array` of the [Object](./Object.md)'s values.
 
 _Note: The same behavior can be defined with shorthand syntax: `[ mySchema ]`_
 
@@ -20,6 +20,12 @@ _Note: The same behavior can be defined with shorthand syntax: `[ mySchema ]`_
   Can be a string or a function. If given a function, accepts the following arguments:
   _ `value`: The input value of the entity.
   _ `parent`: The parent object of the input array. \* `key`: The key at which the input array appears on the parent object.
+
+:::tip
+
+For unbounded collections with `string` keys, use [schema.Values](./Values.md)
+
+:::
 
 ## Instance Methods
 
@@ -62,11 +68,15 @@ render(<UsersPage />);
 
 </HooksPlayground>
 
-### Dynamic entity types
+### Polymorphic types
 
 If your input data is an array of more than one type of entity, it is necessary to define a schema mapping.
 
-_Note: If your data returns an object that you did not provide a mapping for, the original object will be returned in the result and an entity will not be created._
+:::note
+
+If your data returns an object that you did not provide a mapping for, the original object will be returned in the result and an entity will not be created.
+
+:::
 
 #### string schemaAttribute
 

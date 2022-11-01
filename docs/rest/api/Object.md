@@ -15,6 +15,12 @@ Define a plain object mapping that has values needing to be normalized into Enti
 - `definition`: **required** A definition of the nested entities found within this object. Defaults to empty object.
   You _do not_ need to define any keys in your object other than those that hold other entities. All other values will be copied to the normalized output.
 
+:::tip
+
+`Objects` have statically known members. For unbounded Objects (aribtrary `string` keys), use [schema.Values](./Values.md)
+
+:::
+
 #### Instance Methods
 
 - `define(definition)`: When used, the `definition` passed in will be merged with the original definition passed to the `Object` constructor. This method tends to be useful for creating circular references in schema.

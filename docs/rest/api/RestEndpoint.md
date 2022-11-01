@@ -472,6 +472,8 @@ const getUser = new RestEndpoint({
 
 ## Endpoint Life-Cycles
 
+These are inherited from [Endpoint](./Endpoint.md#lifecycle)
+
 ### dataExpiryLength?: number {#dataexpirylength}
 
 Custom data cache lifetime for the fetched resource. Will override the value set in NetworkManager.
