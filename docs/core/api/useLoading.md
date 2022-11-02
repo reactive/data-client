@@ -30,6 +30,12 @@ function Button({ onClick, children, ...props }) {
 
 Part of [@rest-hooks/hooks](https://www.npmjs.com/package/@rest-hooks/hooks)
 
+:::tip
+
+[useSuspense()](./useSuspense.md) or [useDLE()](./useDLE.md) are better for GET/read endpoints.
+
+:::
+
 ### Todo toggle example
 
 ```tsx

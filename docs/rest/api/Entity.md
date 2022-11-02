@@ -73,27 +73,29 @@ Entities are bound to Endpoints using [createResource.schema](./createResource.m
 
 ```mermaid
 flowchart BT
-  subgraph getResponse
-    pk2("pk()")-->denormalize
+  subgraph Controller.getResponse
+    infer("Entity.infer()")---pk2
+    pk2("Entity.pk()")-->denormalize
     subgraph denormalize
       direction TB
-      validate2("validate()")---fromJS("fromJS()")
+      validate2("Entity.validate()")---fromJS("Entity.fromJS()")
       fromJS---denormNest("denormalize(this.schema)")
     end
   end
-  subgraph receive
-    direction TB
-    subgraph normalize
+  subgraph reducer:RECEIVE
+    direction LR
+    subgraph Entity.normalize
       direction TB
-      process("process()")-->pk("pk()")
-      pk---validate("validate()")
+      process("Entity.process()")-->pk("Entity.pk()")
+      pk---validate("Entity.validate()")
       process-->validate
       validate---normNest("normalize(this.schema)")
     end
-    process-->useincoming("useIncoming()")
-    useincoming-->merge("merge()")
-    process-->merge
-    process-->expiresAt("expiresAt()")
+    Entity.normalize--processedEntity-->addEntity
+    subgraph addEntity
+      useincoming("Entity.useIncoming()")---expiresAt("Entity.expiresAt()")
+      expiresAt-->merge("Entity.merge()")
+    end
   end
   click process "#process"
   click pk "#pk"
@@ -104,6 +106,7 @@ flowchart BT
   click expiresAt "#expiresat"
   click useincoming "#useincoming"
   click merge "#merge"
+  click infer "#infer"
 ```
 
 ## Methods

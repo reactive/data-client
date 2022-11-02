@@ -43,6 +43,13 @@ This can be useful for ensuring resources early in a render tree before they are
   - Returned promise will reject
 - On fetch returns a promise else undefined.
 
+:::tip
+
+Use in combination with a data-binding hook ([useCache()](./useCache.md), [useSuspense()](./useSuspense.md), [useDLE()](./useDLE.md))
+in another component.
+
+:::
+
 ## Example
 
 ### Simple

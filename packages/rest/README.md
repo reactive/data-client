@@ -36,6 +36,16 @@ const ArticleResource = createResource({
 });
 ```
 
+[Entity](https://resthooks.io/rest/api/Entity) defines a data model.
+[createResource](https://resthooks.io/rest/api/createResource) creates a [collection](https://resthooks.io/rest/api/createResource#members)
+of six [RestEndpoints](https://resthooks.io/rest/api/RestEndpoint)
+
+[RestEndpoints](https://resthooks.io/rest/api/RestEndpoint) are functions (and more) that return a Promise.
+Both call parameters and return value are [automatically inferred](https://resthooks.io/rest/api/RestEndpoint#typing) from
+the options used to construct them.
+
+`path` is a templating language using [path-to-regex compile](https://github.com/pillarjs/path-to-regexp#compile-reverse-path-to-regexp).
+
 ### Standard CRUD Endpoints
 
 #### Reads
@@ -54,6 +64,13 @@ const partialUpdateArticle = data =>
   fetch(ArticleResource.partialUpdate, { id }, data);
 const createArticle = data => fetch(ArticleResource.create, data);
 const deleteArticle = data => fetch(ArticleResource.delete, { id });
+```
+
+### Use with Node
+
+```typescript
+const article = await ArticleResource.get({ id: 5 });
+const articles = await ArticleResource.getList();
 ```
 
 ### Prior Art

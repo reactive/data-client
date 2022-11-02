@@ -81,6 +81,8 @@
     "model",
     "resource",
     "typescript",
+    "path-to-regex",
+    "path template",
     "data fetching",
     "data cache",
     "api",

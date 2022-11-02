@@ -144,9 +144,7 @@ to understand how these customizations affect fetch.
 ### Base overrides for lifecycles
 
 ```ts
-class GithubEndpoint<
-  O extends RestGenerics = any,
-> extends RestEndpoint<O> {
+class GithubEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
   getRequestInit(body: any): RequestInit {
     if (body) {
       return super.getRequestInit(deeplyApplyKeyTransform(body, snakeCase));
@@ -177,7 +175,7 @@ class GithubEndpoint<
 ### Default values
 
 ```ts
-class IssueEndpoint<O extends RestGenerics=any> extends GithubEndpoint<O> {
+class IssueEndpoint<O extends RestGenerics = any> extends GithubEndpoint<O> {
   pollFrequency = 60000;
 }
 ```
@@ -235,13 +233,67 @@ export const ContextAuthdArticleResource = hookifyResource(
 
 ```tsx
 const article = useSuspense(ContextAuthdArticleResource.useGet(), { id });
-const updateArticle = ContextAuthdArticleResource.useUpdate()
+const updateArticle = ContextAuthdArticleResource.useUpdate();
 const onSubmit = () => controller.fetch(updateArticle, { id }, body);
 
-return <Form onSubmit={onSubmit} initialValues={article} />
+return <Form onSubmit={onSubmit} initialValues={article} />;
 ```
 
-# Demo
+## Inheritance patterns for code sharing
+
+For method overrides related to networking, you can [extend the RestEndpoint](/rest/guides/auth#cookie-auth)
+
+```typescript title="AuthdEndpoint.ts"
+import { RestEndpoint, type RestGenerics } from '@rest-hooks/rest';
+
+export class AuthdEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  getRequestInit(body: any): RequestInit {
+    return {
+      ...super.getRequestInit(body),
+      credentials: 'same-origin',
+    };
+  }
+}
+```
+
+To customize data/schema shapes or which [collection of Endpoints](/rest/api/createResource#members) to create,
+you can [create your own creation function](rest/api/createResource#function-inheritance-patterns) that simply calls [createResource()](/rest/api/createResource)
+
+```typescript title="createMyResource.ts"
+import { createResource, type EndpointExtraOptions } from '@rest-hooks/rest';
+import { AuthdEndpoint } from './AuthdEndpoint';
+
+export function createMyResource<U extends string, S extends Schema>({
+  path,
+  schema,
+  Endpoint = AuthdEndpoint,
+  ...extraOptions
+}: {
+  // `readonly` is critical for the argument types to be inferred correctly
+  readonly path: U;
+  readonly schema: S;
+  readonly Endpoint?: typeof RestEndpoint;
+  urlPrefix?: string;
+} & EndpointExtraOptions) {
+  const BaseResource = createResource({
+    path,
+    Endpoint,
+    schema,
+    ...extraOptions,
+  });
+
+  return {
+    ...BaseResource,
+    getList: BaseResource.getList.extend({
+      schema: { results: [schema], total: 0, limit: 0, skip: 0 },
+    }),
+  };
+}
+```
+
+## Demo
 
 Explore common patterns with this implementation using the GitHub API.
 
@@ -252,7 +304,7 @@ Explore common patterns with this implementation using the GitHub API.
   style={{ width: '100%' }}
 ></iframe>
 
-# Next Steps
+## Next Steps
 
 See the [full documentation for @rest-hooks/rest@6](/rest) for more detailed guides that cover all the functionality.
 
