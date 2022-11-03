@@ -1,4 +1,10 @@
-import React, { useReducer, useMemo, useRef, useEffect } from 'react';
+import React, {
+  useReducer,
+  useMemo,
+  useRef,
+  useEffect,
+  useCallback,
+} from 'react';
 
 import { Middleware, Dispatch } from './types';
 import usePromisifiedDispatch from './usePromisifiedDispatch';
@@ -19,7 +25,11 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
   reducer: R,
   startingState: React.ReducerState<R>,
   middlewares: Middleware[],
-): [React.ReducerState<R>, (value: React.ReducerAction<R>) => Promise<any>] {
+): [
+  React.ReducerState<R>,
+  (value: React.ReducerAction<R>) => Promise<any>,
+  () => React.ReducerState<R>,
+] {
   const stateRef = useRef(startingState);
   const [state, realDispatch] = useReducer(reducer, startingState);
 
@@ -27,13 +37,15 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
     stateRef.current = state;
   }, [state]);
 
+  const getState = useCallback(() => stateRef.current, []);
+
   const dispatchWithPromise = usePromisifiedDispatch(realDispatch, state);
 
   const outerDispatch = useMemo(() => {
     let dispatch: Dispatch<R> = unsetDispatch;
     // closure here around dispatch allows us to change it after middleware is constructed
     const middlewareAPI = {
-      getState: () => stateRef.current,
+      getState,
       dispatch: (action: React.ReducerAction<R>) => dispatch(action),
     };
     const chain = middlewares.map(middleware => middleware(middlewareAPI));
@@ -41,7 +53,7 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
     return dispatch;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatchWithPromise, ...middlewares]);
-  return [state, outerDispatch];
+  return [state, outerDispatch, getState];
 }
 
 const compose = (fns: ((...args: any) => any)[]) => (initial: any) =>
