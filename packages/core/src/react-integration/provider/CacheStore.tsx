@@ -28,11 +28,14 @@ function CacheStore({
 }: StoreProps) {
   const masterReducer = useMemo(() => createReducer(controller), [controller]);
 
-  const [state, dispatch] = useEnhancedReducer(
+  const [state, dispatch, getState] = useEnhancedReducer(
     masterReducer,
     initialState,
     middlewares,
   );
+  useMemo(() => {
+    controller.getState = getState;
+  }, [controller, getState]);
   const optimisticState = useMemo(
     () => state.optimistic.reduce(masterReducer, state),
     [masterReducer, state],
