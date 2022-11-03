@@ -6,10 +6,10 @@ import {
   Schema,
   FetchFunction,
 } from '@rest-hooks/normalizr';
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import useController from '../hooks/useController.js';
-import { StateContext } from '../context.js';
+import useCacheState from './useCacheState.js';
 
 /**
  * Request a resource if it is not in cache.
@@ -19,7 +19,7 @@ export default function useFetch<
   E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
   Args extends readonly [...Parameters<E>] | readonly [null],
 >(endpoint: E, ...args: Args) {
-  const state = useContext(StateContext);
+  const state = useCacheState();
   const controller = useController();
 
   const key = args[0] !== null ? endpoint.key(...args) : '';

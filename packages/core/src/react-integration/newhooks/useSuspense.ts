@@ -10,10 +10,10 @@ import {
   Schema,
   FetchFunction,
 } from '@rest-hooks/normalizr';
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import useController from '../hooks/useController.js';
-import { StateContext } from '../context.js';
+import useCacheState from './useCacheState.js';
 
 /**
  * Ensure an endpoint is available.
@@ -37,7 +37,7 @@ export default function useSuspense<
   : E['schema'] extends Exclude<Schema, null>
   ? Denormalize<E['schema']>
   : ResolveType<E> {
-  const state = useContext(StateContext);
+  const state = useCacheState();
   const controller = useController();
 
   const key = args[0] !== null ? endpoint.key(...args) : '';

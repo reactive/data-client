@@ -11,6 +11,7 @@ import { ExpiryStatus } from '@rest-hooks/normalizr';
 
 import { StateContext } from '../context.js';
 import useController from '../hooks/useController.js';
+import useCacheState from './useCacheState.js';
 
 /**
  * Access a response if it is available.
@@ -32,7 +33,7 @@ export default function useCache<
     ? ResolveType<E> | undefined
     : any
   : DenormalizeNullable<E['schema']> {
-  const state = useContext(StateContext);
+  const state = useCacheState();
   const controller = useController();
 
   const key = args[0] !== null ? endpoint.key(...args) : '';

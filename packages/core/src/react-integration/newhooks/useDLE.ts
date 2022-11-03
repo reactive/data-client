@@ -9,10 +9,10 @@ import type {
   ResolveType,
 } from '@rest-hooks/normalizr';
 import { ExpiryStatus } from '@rest-hooks/normalizr';
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import useController from '../hooks/useController.js';
-import { StateContext } from '../context.js';
+import useCacheState from './useCacheState.js';
 
 type CondNull<P, A, B> = P extends null ? A : B;
 
@@ -49,7 +49,7 @@ export default function useDLE<
       error: ErrorTypes | undefined;
     }
   : StatefulReturn<E['schema'], Args[0]> {
-  const state = useContext(StateContext);
+  const state = useCacheState();
   const controller = useController();
 
   const key = args[0] !== null ? endpoint.key(...args) : '';
