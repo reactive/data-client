@@ -28,6 +28,7 @@ import createFetch from './createFetch.js';
 import createInvalidate from './createInvalidate.js';
 import selectMeta from '../state/selectors/selectMeta.js';
 import type { ActionTypes, State } from '../types.js';
+import { initialState } from '../state/createReducer.js';
 
 type RHDispatch = (value: ActionTypes) => Promise<void>;
 
@@ -210,10 +211,27 @@ export default class Controller {
   ): Promise<void>
   */
 
+  /**
+   * Gets the latest state snapshot that is fully committed.
+   *
+   * This can be useful for imperative use-cases like event handlers.
+   * This should *not* be used to render; instead useSuspense() or useCache()
+   * @see https://resthooks.io/docs/api/Controller#getState
+   */
+  getState = (): State<unknown> => {
+    // This is only the value until it is set by the CacheProvider
+    /* istanbul ignore next */
+    return initialState;
+  };
+
   snapshot = (state: State<unknown>, fetchedAt?: number): SnapshotInterface => {
     return new Snapshot(this, state, fetchedAt);
   };
 
+  /**
+   * Gets the error, if any, for a given endpoint. Returns undefined for no errors.
+   * @see https://resthooks.io/docs/api/Controller#getError
+   */
   getError = <
     E extends Pick<EndpointInterface, 'key'>,
     Args extends readonly [...Parameters<E['key']>] | readonly [null],
@@ -235,6 +253,10 @@ export default class Controller {
     return meta?.error as any;
   };
 
+  /**
+   * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
+   * @see https://resthooks.io/docs/api/Controller#getResponse
+   */
   getResponse = <
     E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>,
     Args extends readonly [...Parameters<E['key']>] | readonly [null],

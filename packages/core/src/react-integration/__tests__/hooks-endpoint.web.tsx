@@ -1,5 +1,5 @@
 import { CoolerArticleResource, PaginatedArticleResource } from '__tests__/new';
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useContext, useEffect } from 'react';
 import { render, act } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import nock from 'nock';
@@ -9,12 +9,13 @@ import {
   makeRenderRestHook,
   makeCacheProvider,
   mockInitialState,
+  makeExternalCacheProvider,
 } from '../../../../test';
 import { ControllerContext, DispatchContext, StateContext } from '../context';
-import { useController, useFetcher } from '../hooks';
+import { useController, useSuspense } from '../hooks';
 import { State, ActionTypes } from '../../types';
 import { INVALIDATE_TYPE, RESET_TYPE } from '../../actionTypes';
-import { articlesPages } from '../test-fixtures';
+import { articlesPages, createPayload, payload } from '../test-fixtures';
 import { Controller } from '../..';
 
 async function testDispatchFetch(
@@ -304,6 +305,99 @@ describe('useController().reset', () => {
     const { rerender } = renderHook(() => {
       const reset = useController().resetEntireStore;
       useEffect(track, [reset]);
+    });
+    expect(track.mock.calls.length).toBe(1);
+    for (let i = 0; i < 4; ++i) {
+      rerender();
+    }
+    expect(track.mock.calls.length).toBe(1);
+  });
+});
+
+describe('useController().getState', () => {
+  describe.each([
+    ['CacheProvider', makeCacheProvider],
+    ['ExternalCacheProvider', makeExternalCacheProvider],
+  ] as const)(`%s`, (_, makeProvider) => {
+    let renderRestHook: ReturnType<typeof makeRenderRestHook>;
+    let mynock: nock.Scope;
+
+    beforeEach(() => {
+      nock(/.*/)
+        .persist()
+        .defaultReplyHeaders({
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        })
+        .options(/.*/)
+        .reply(200)
+        .get(`/article-cooler/${payload.id}`)
+        .reply(200, payload)
+        .post(`/article-cooler`)
+        .reply(200, createPayload);
+
+      mynock = nock(/.*/).defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      });
+    });
+
+    afterEach(() => {
+      nock.cleanAll();
+    });
+    beforeEach(() => {
+      renderRestHook = makeRenderRestHook(makeProvider);
+    });
+
+    it('should have initial values before any state updates', () => {
+      const { result } = renderRestHook(() => {
+        return [useController(), useContext(StateContext)] as const;
+      });
+      expect(result.current[0].getState()).toEqual(result.current[1]);
+    });
+
+    it('should eventually update', async () => {
+      const { result, waitForNextUpdate } = renderRestHook(() => {
+        return [
+          useSuspense(CoolerArticleResource.get, { id: payload.id }),
+          useController(),
+        ] as const;
+      });
+      expect(result.current).toBeUndefined();
+      await waitForNextUpdate();
+      expect(result.current[0].title).toBe(payload.title);
+      // @ts-expect-error
+      expect(result.current[0].lafsjlfd).toBeUndefined();
+      expect(
+        Object.keys(result.current[1].getState().results).length,
+      ).toBeGreaterThanOrEqual(1);
+      // === guarantee
+      expect(
+        result.current[1].getResponse(
+          CoolerArticleResource.get,
+          { id: payload.id },
+          result.current[1].getState(),
+        ).data,
+      ).toBe(result.current[0]);
+      await act(() =>
+        result.current[1].fetch(CoolerArticleResource.create, createPayload),
+      );
+      expect(
+        result.current[1].getResponse(
+          CoolerArticleResource.create,
+          createPayload,
+          result.current[1].getState(),
+        ).data,
+      ).toMatchSnapshot();
+    });
+  });
+
+  it('should return the same === function each time', () => {
+    const track = jest.fn();
+
+    const { rerender } = renderHook(() => {
+      const { getState } = useController();
+      useEffect(track, [getState]);
     });
     expect(track.mock.calls.length).toBe(1);
     for (let i = 0; i < 4; ++i) {
