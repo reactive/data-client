@@ -75,7 +75,7 @@ export default function createResource<U extends string, S extends Schema>({
   } as any;
 }
 
-export interface BaseResource<U extends string, S extends Schema> {
+export interface Resource<U extends string, S extends Schema> {
   /** Get a singular item
    *
    * @see https://resthooks.io/rest/api/createResource#get
@@ -112,5 +112,3 @@ export interface BaseResource<U extends string, S extends Schema> {
     Partial<PathArgs<U>>
   >;
 }
-
-export type Resource<U extends string, S extends Schema> = BaseResource<U, S>;
