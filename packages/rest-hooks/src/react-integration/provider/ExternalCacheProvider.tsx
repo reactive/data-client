@@ -9,6 +9,7 @@ import {
   DenormalizeCacheContext,
   Controller,
   BackupBoundary,
+  StoreContext,
 } from '@rest-hooks/core';
 import React, {
   useEffect,
@@ -64,14 +65,20 @@ export default function ExternalCacheProvider<S>({
 
   const dispatch = usePromisifiedDispatch(store.dispatch, state);
 
+  const adaptedStore = useMemo(() => {
+    return { ...store, getState: () => selector(store.getState()) };
+  }, [selector, store]);
+
   return (
     <DispatchContext.Provider value={dispatch}>
       <StateContext.Provider value={state}>
-        <ControllerContext.Provider value={controller}>
-          <DenormalizeCacheContext.Provider value={controller.globalCache}>
-            <BackupBoundary>{children}</BackupBoundary>
-          </DenormalizeCacheContext.Provider>
-        </ControllerContext.Provider>
+        <StoreContext.Provider value={adaptedStore}>
+          <ControllerContext.Provider value={controller}>
+            <DenormalizeCacheContext.Provider value={controller.globalCache}>
+              <BackupBoundary>{children}</BackupBoundary>
+            </DenormalizeCacheContext.Provider>
+          </ControllerContext.Provider>
+        </StoreContext.Provider>
       </StateContext.Provider>
     </DispatchContext.Provider>
   );

@@ -21,16 +21,27 @@ Hydrate/dehydration utilities for [Rest Hooks](https://resthooks.io)
 ```tsx
 import express from 'express';
 import { renderToPipeableStream } from 'react-dom/server';
-import { createPersistedCacheProvder } from '@rest-hooks/ssr';
+import {
+  createPersistedCacheProvder,
+  createServerDataComponent,
+} from '@rest-hooks/ssr';
+
+const rootId = 'react-root';
 
 const app = express();
 app.get('/*', (req: any, res: any) => {
-  const [ServerCacheProvider, controller] = createPersistedCacheProvder();
+  const [ServerCacheProvider, useReadyCacheState, controller] =
+    createPersistedCacheProvder();
+  const ServerDataComponent = createServerDataComponent(useReadyCacheState);
 
   controller.fetch(NeededForPage, { id: 5 });
 
   const { pipe, abort } = renderToPipeableStream(
-    <Document assets={assets}>
+    <Document
+      assets={assets}
+      scripts={[<ServerDataComponent key="server-data" />]}
+      rootId={rootId}
+    >
       <ServerCacheProvider>{children}</ServerCacheProvider>
     </Document>,
 
@@ -63,30 +74,29 @@ app.listen(3000, () => {
 
 ```tsx
 import { hydrateRoot } from 'react-dom';
-import { getDatafromDOM } from '@rest-hooks/ssr';
+import { getInitialData } from '@rest-hooks/ssr';
 
-const data = getDatafromDOM();
-hydrateRoot(
-  document,
-  <Document assets={assets}>
-    <CacheProvider initialState={data}>
-      {children}
-      <ServerDataComponent data={data} />
-    </CacheProvider>
-  </Document>,
-);
+const rootId = 'react-root';
+
+getInitialData().then(initialState => {
+  hydrateRoot(
+    document.getElementById(rootId),
+    <CacheProvider initialState={initialState}>{children}</CacheProvider>,
+  );
+});
 ```
 
 ## API
 
-### createPersistedStore(managers) => [ServerCacheProvider, controller]
+### createPersistedStore(managers) => [ServerCacheProvider, useReadyCacheState, controller, store]
 
 Used to server side render cache. Renders &lt;ServerDataComponent/> inside to serialize cache so client can hydrate.
 
-### ServerDataComponent
+### createServerDataComponent(useReadyCacheState, id = 'rest-hooks-data')
 
-Hydrate/dehydrates Rest Hooks cache. Contents are a script with JSON encoding of cache state sent from server.
+Contents are a script with JSON encoding of cache state sent from server. Be sure to place outside hydration
+element so React will not need to hydrate it.
 
-### getDatafromDOM()
+### getInitialData(id = 'rest-hooks-data') => Promise(State)
 
-Loads data from ServerDataComponent to initialize cache.
+Resolves promise with serialized initialState to pass to &lt;CacheProvider />

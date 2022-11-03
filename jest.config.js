@@ -5,6 +5,7 @@ const baseConfig = {
   preset: '@anansi/jest-preset',
   coveragePathIgnorePatterns: [
     'node_modules',
+    '/__tests__',
     'react-integration/hooks/useSelection',
     'packages/test',
     'packages/experimental',
