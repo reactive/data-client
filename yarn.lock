@@ -118,9 +118,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/jest-preset@npm:0.7.35":
-  version: 0.7.35
-  resolution: "@anansi/jest-preset@npm:0.7.35"
+"@anansi/jest-preset@npm:0.7.36":
+  version: 0.7.36
+  resolution: "@anansi/jest-preset@npm:0.7.36"
   dependencies:
     "@anansi/ts-utils": ^0.2.6
     babel-jest: ^29.2.2
@@ -139,7 +139,7 @@ __metadata:
   peerDependenciesMeta:
     react:
       optional: true
-  checksum: abd2dba28dd8b80077a0f0eb73cec50c1bef7d925138c5f5a98ee03498362a72c92d00e03927017cb218e8bf9ce2207c9189e34c7569b9c7bc8cb58ec8e840f1
+  checksum: 2f7c42ef2723cc4068f18daf2de36a1b0d1173109d6e00556f1153b65e66a4a7bd28372efc90ef5d292227194c50f1dea0d2ef16c403005783aab8148986aae0
   languageName: node
   linkType: hard
 
@@ -4460,11 +4460,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-native@npm:11.3.0":
-  version: 11.3.0
-  resolution: "@testing-library/react-native@npm:11.3.0"
+"@testing-library/react-native@npm:11.4.0":
+  version: 11.4.0
+  resolution: "@testing-library/react-native@npm:11.4.0"
   dependencies:
-    pretty-format: ^29.0.3
+    pretty-format: ^29.0.0
   peerDependencies:
     jest: ">=28.0.0"
     react: ">=16.0.0"
@@ -4473,7 +4473,7 @@ __metadata:
   peerDependenciesMeta:
     jest:
       optional: true
-  checksum: fb028396b52e9b27e5151366b67fe4ecdb632504cc1f569e39e84debc216ed50f659abdd0e2e592fc7149cbf25f86e71927d84b239d51ab97e83c4444a80ebde
+  checksum: be54bb017ffa2d4bede9dcfa1a6e27d134f1c567be942dea4eba8c40ac909d69c9afeac91dd2f102927fdbb626ccbc4c6c38118517d210727b7b403d2ebb15af
   languageName: node
   linkType: hard
 
@@ -4797,13 +4797,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:29.2.0":
-  version: 29.2.0
-  resolution: "@types/jest@npm:29.2.0"
+"@types/jest@npm:29.2.1":
+  version: 29.2.1
+  resolution: "@types/jest@npm:29.2.1"
   dependencies:
     expect: ^29.0.0
     pretty-format: ^29.0.0
-  checksum: 6779e63d8d7507b116a61b2935a200e48531849fc1ac74090212759fe17716777ca6d2c3a8d927a563e9cfa474ae91d40b1688376ae80e3a08974b3c9e9691e1
+  checksum: 5610c9a44c57f6dc39cf54429ea8d04574ad4c3e3ddf9a2621882aa94a0758a42ca97a0d0aec41a8d0b149fa63bf3d077d1f07c1f1d82e3d89ad7408de211255
   languageName: node
   linkType: hard
 
@@ -17702,7 +17702,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pretty-format@npm:^29.0.0, pretty-format@npm:^29.0.3, pretty-format@npm:^29.2.1":
+"pretty-format@npm:^29.0.0, pretty-format@npm:^29.2.1":
   version: 29.2.1
   resolution: "pretty-format@npm:29.2.1"
   dependencies:
@@ -19731,7 +19731,7 @@ __metadata:
     "@anansi/babel-preset": 3.2.21
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.14.3
-    "@anansi/jest-preset": 0.7.35
+    "@anansi/jest-preset": 0.7.36
     "@babel/cli": 7.19.3
     "@babel/core": 7.19.6
     "@babel/node": 7.20.0
@@ -19742,8 +19742,8 @@ __metadata:
     "@rest-hooks/test": ^7.2.1
     "@testing-library/react": 13.4.0
     "@testing-library/react-hooks": 8.0.1
-    "@testing-library/react-native": 11.3.0
-    "@types/jest": 29.2.0
+    "@testing-library/react-native": 11.4.0
+    "@types/jest": 29.2.1
     "@types/lodash": 4.14.186
     "@types/node": 18.11.7
     "@types/react": 18.0.24
