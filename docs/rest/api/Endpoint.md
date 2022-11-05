@@ -108,70 +108,15 @@ or [getImage](/docs/guides/img-media#just-images) instead.
 
 ### Success
 
-```mermaid
-flowchart LR
-  subgraph Controller.fetch
-    direction TB
-    key("Endpoint.key(...args)")--->dispatch("dispatch(FETCH)")
-  end
-  subgraph managers
-    NetworkManager-->endpoint("endpoint(...args)")
-    endpoint--resolves-->Controller.resolve
-    Controller.resolve("Controller.resolve(response)")-->dispatchR("dispatch(RECEIVE)")
-  end
-  managers--FETCH-->reducer:FETCH
-  Controller.fetch--FETCH-->managers
-  subgraph reducer:FETCH
-    optimistic("Endpoint.?getOptimisticResponse()")-->RECIEVE
-    subgraph RECIEVE
-      normalize(normalize)-->update("Endpoint.update()")
-    end
-  end
-  subgraph reducer:RECEIVE
-    direction LR
-    normalize2(normalize)-->update2("Endpoint.update()")
-  end
-  managers--RECEIVE-->reducer:RECEIVE
-  click key "#key"
-  click NetworkManager "/docs/api/NetworkManager"
-  click optimistic "#getoptimisticresponse"
-  click update "#update"
-  click update2 "#update"
-```
+import SuccessLifecycle from '../diagrams/\_endpoint_success_lifecycle.mdx';
+
+<SuccessLifecycle/>
 
 ### Error
 
-```mermaid
-flowchart LR
-  subgraph Controller.fetch
-    direction TB
-    key("Endpoint.key(...args)")--->dispatch("dispatch(FETCH)")
-  end
-  subgraph managers
-    NetworkManager-->endpoint("endpoint(...args)")
-    endpoint--rejects-->Controller.resolve
-    Controller.resolve("Controller.resolve(error)")-->dispatchR("dispatch(RECEIVE)")
-  end
-  managers--FETCH-->reducer:FETCH
-  Controller.fetch--FETCH-->managers
-  subgraph reducer:FETCH
-    optimistic("Endpoint.?getOptimisticResponse()")-->RECIEVE
-    subgraph RECIEVE
-      normalize(normalize)-->update("Endpoint.update()")
-    end
-  end
-  subgraph reducer:reduceError
-    direction LR
-    filterOptimistic(filterOptimistic)-->errorPolicy("Endpoint.errorPolicy()")
-  end
-  managers--RECEIVE:error-->reducer:reduceError
-  click key "#key"
-  click optimistic "#getoptimisticresponse"
-  click update "#update"
-  click errorPolicy "#errorpolicy"
-  click NetworkManager "/docs/api/NetworkManager"
-```
+import ErrorLifecycle from '../diagrams/\_endpoint_error_lifecycle.mdx';
 
+<ErrorLifecycle/>
 
 ## Endpoint Members
 

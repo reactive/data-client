@@ -125,8 +125,3 @@ For the small price of 7kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 
 - Simple case is simple
 - Scale as your app scales
-
-### Special thanks
-
-Thanks to [@0xcaff](https://github.com/0xcaff), [@melissafzhang](https://github.com/melissafzhang)
-and [@alexiswolfish](https://github.com/alexiswolfish) for their valuable feedback.
