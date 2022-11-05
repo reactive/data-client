@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { NetworkError, UnknownError } from '@rest-hooks/normalizr';
 import { EndpointInterface } from '@rest-hooks/normalizr';
-import { useContext } from 'react';
 
 import useController from '../hooks/useController.js';
-import { StateContext } from '../context.js';
+import useCacheState from './useCacheState.js';
 
 export type ErrorTypes = NetworkError | UnknownError;
 
@@ -18,7 +17,7 @@ export default function useError<
   E extends Pick<EndpointInterface, 'key'>,
   Args extends readonly [...Parameters<E['key']>] | readonly [null],
 >(endpoint: E, ...args: Args): UseErrorReturn<Args> {
-  const state = useContext(StateContext);
+  const state = useCacheState();
 
   const controller = useController();
 

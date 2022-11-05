@@ -116,6 +116,11 @@ export default class NetworkManager implements Manager {
     this.cleanupDate = Date.now();
   }
 
+  allSettled() {
+    const fetches = Object.values(this.fetched);
+    if (fetches.length) return Promise.allSettled(fetches);
+  }
+
   /** Clear all promise state */
   protected clearAll() {
     for (const k in this.rejectors) {

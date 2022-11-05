@@ -47,6 +47,8 @@ export {
   DispatchContext,
   DenormalizeCacheContext,
   ControllerContext,
+  StoreContext,
+  type Store,
 } from './react-integration/context.js';
 export { default as Controller } from './controller/Controller.js';
 

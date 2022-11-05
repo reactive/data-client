@@ -1,9 +1,9 @@
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import { EndpointInterface, FetchFunction } from '@rest-hooks/normalizr';
 
 import { FetchShape, ParamsFromShape } from '../../endpoint/index.js';
-import { StateContext } from '../context.js';
 import { selectMeta } from '../../state/selectors/index.js';
+import useCacheState from '../newhooks/useCacheState.js';
 
 /**
  * Gets meta for a fetch key.
@@ -19,7 +19,7 @@ export default function useMeta<
         : readonly [ParamsFromShape<E>])
     | readonly [null],
 >(endpoint: E, ...args: Args) {
-  const state = useContext(StateContext);
+  const state = useCacheState();
   const key = args[0]
     ? (endpoint as any).key
       ? (endpoint as any).key(...args)

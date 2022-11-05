@@ -6,14 +6,19 @@ import {
   Manager,
   applyManager,
   NetworkManager,
+  State,
 } from '@rest-hooks/core';
 import { createStore, applyMiddleware } from 'redux';
-
-import { ServerDataComponent } from './ServerDataComponent.js';
+import { useSyncExternalStore } from 'react';
 
 export default function createPersistedStore(managers?: Manager[]) {
   const controller = new Controller();
   managers = managers ?? [new NetworkManager()];
+  const nm: NetworkManager = managers.find(
+    m => m instanceof NetworkManager,
+  ) as any;
+  if (nm === undefined)
+    throw new Error('managers must include a NetworkManager');
   const reducer = createReducer(controller);
   const enhancer = applyMiddleware(
     ...applyManager(managers, controller),
@@ -23,13 +28,23 @@ export default function createPersistedStore(managers?: Manager[]) {
   managers.forEach(manager => manager.init?.(store.getState()));
 
   const selector = (state: any) => state;
-  function ServerCacheProvider({
-    children,
-    nonce,
-  }: {
-    children: React.ReactNode;
-    nonce?: string | undefined;
-  }) {
+
+  const getState = () => selector(store.getState());
+  let firstRender = true;
+  function useReadyCacheState(): State<unknown> {
+    const inFlightFetches = nm.allSettled();
+    if (inFlightFetches) {
+      firstRender = false;
+      throw inFlightFetches;
+    }
+    if (firstRender) {
+      firstRender = false;
+      throw new Promise(resolve => setTimeout(resolve, 10));
+    }
+    return useSyncExternalStore(store.subscribe, getState, getState);
+  }
+
+  function ServerCacheProvider({ children }: { children: React.ReactNode }) {
     return (
       <ExternalCacheProvider
         store={store}
@@ -37,9 +52,8 @@ export default function createPersistedStore(managers?: Manager[]) {
         controller={controller}
       >
         {children}
-        <ServerDataComponent data={store.getState()} nonce={nonce} />
       </ExternalCacheProvider>
     );
   }
-  return [ServerCacheProvider, controller] as const;
+  return [ServerCacheProvider, useReadyCacheState, controller, store] as const;
 }

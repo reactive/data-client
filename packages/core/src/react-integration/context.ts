@@ -1,7 +1,7 @@
 import { createContext } from 'react';
 import type { DenormalizeCache } from '@rest-hooks/normalizr';
 
-import type { ActionTypes } from '../types.js';
+import type { ActionTypes, State } from '../types.js';
 import { initialState } from '../state/createReducer.js';
 import Controller from '../controller/Controller.js';
 
@@ -39,3 +39,17 @@ export const ControllerContext = createContext<Controller>(
     },
   }),
 );
+
+export interface Store<S> {
+  subscribe(listener: () => void): () => void;
+  dispatch: React.Dispatch<ActionTypes>;
+  getState(): S;
+  uninitialized?: boolean;
+}
+/* istanbul ignore next */
+export const StoreContext = createContext<Store<State<unknown>>>({
+  subscribe: listener => () => {},
+  dispatch: () => {},
+  getState: () => initialState,
+  uninitialized: true,
+});
