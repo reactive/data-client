@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1667515507917,
+  "lastUpdate": 1667680739774,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -8064,6 +8064,58 @@ window.BENCHMARK_DATA = {
             "name": "receiveLong",
             "value": 99.59,
             "range": "±1.22%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "589030c60481a7a502700773b67beeb684d527fe",
+          "message": "feat: Support React 18 preload-free-SSR like in NextJS (#2253)\n\n* enhance: Extract state binding to one hook\r\n\r\n* feat: Support React 18 preload-free-SSR like in NextJS",
+          "timestamp": "2022-11-05T13:34:44-07:00",
+          "tree_id": "cbd90ed686e156eb4bed5303b4775f6816d46d7f",
+          "url": "https://github.com/coinbase/rest-hooks/commit/589030c60481a7a502700773b67beeb684d527fe"
+        },
+        "date": 1667680738759,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 99.08,
+            "range": "±1.18%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 48.57,
+            "range": "±0.46%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 52.71,
+            "range": "±1.63%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 100,
+            "range": "±1.18%",
             "unit": "ops/sec",
             "extra": "73 samples"
           }
