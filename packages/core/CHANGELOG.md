@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.4.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.3.2...@rest-hooks/core@3.4.0) (2022-11-06)
+
+### 🚀 Features
+
+* Add Controller.getState() ([#2252](https://github.com/coinbase/rest-hooks/issues/2252)) ([20aa9e4](https://github.com/coinbase/rest-hooks/commit/20aa9e42fa7777baeef208b8f880411c0b1e6862))
+* Add Query and schema.All ([#2229](https://github.com/coinbase/rest-hooks/issues/2229)) ([ddc03ff](https://github.com/coinbase/rest-hooks/commit/ddc03ff39b7ce8415db37b735bb81aa862807bb2))
+* Support React 18 preload-free-SSR like in NextJS ([#2253](https://github.com/coinbase/rest-hooks/issues/2253)) ([589030c](https://github.com/coinbase/rest-hooks/commit/589030c60481a7a502700773b67beeb684d527fe))
+
+### 📦 Package
+
+* Update babel packages ([#2255](https://github.com/coinbase/rest-hooks/issues/2255)) ([4d739a9](https://github.com/coinbase/rest-hooks/commit/4d739a9dbe2d9796f21e24ebb2022e10575bd0c4))
+
+### 📝 Documentation
+
+* Add diagram blog post ([#2254](https://github.com/coinbase/rest-hooks/issues/2254)) ([13b260f](https://github.com/coinbase/rest-hooks/commit/13b260f3b610983008ed051928516adee894c55d))
+
 ### [3.3.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.3.1...@rest-hooks/core@3.3.2) (2022-10-28)
 
 ### 💅 Enhancement

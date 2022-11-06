@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/core",
-  "version": "3.3.2",
+  "version": "3.4.0",
   "description": "Asynchronous data framework for React",
   "sideEffects": false,
   "main": "dist/index.js",
@@ -107,8 +107,8 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.13.0",
-    "@rest-hooks/normalizr": "^9.1.0",
-    "@rest-hooks/use-enhanced-reducer": "^1.1.7",
+    "@rest-hooks/normalizr": "^9.2.0",
+    "@rest-hooks/use-enhanced-reducer": "^1.2.0",
     "flux-standard-action": "^2.1.1"
   },
   "peerDependencies": {

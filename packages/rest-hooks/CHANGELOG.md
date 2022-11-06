@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.5.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.4.2...rest-hooks@6.5.0) (2022-11-06)
+
+### 🚀 Features
+
+* Add Controller.getState() ([#2252](https://github.com/coinbase/rest-hooks/issues/2252)) ([20aa9e4](https://github.com/coinbase/rest-hooks/commit/20aa9e42fa7777baeef208b8f880411c0b1e6862))
+* Support React 18 preload-free-SSR like in NextJS ([#2253](https://github.com/coinbase/rest-hooks/issues/2253)) ([589030c](https://github.com/coinbase/rest-hooks/commit/589030c60481a7a502700773b67beeb684d527fe))
+
+### 📦 Package
+
+* Update babel packages ([#2255](https://github.com/coinbase/rest-hooks/issues/2255)) ([4d739a9](https://github.com/coinbase/rest-hooks/commit/4d739a9dbe2d9796f21e24ebb2022e10575bd0c4))
+* Update docusaurus monorepo to v2.2.0 ([#2242](https://github.com/coinbase/rest-hooks/issues/2242)) ([dcdc24a](https://github.com/coinbase/rest-hooks/commit/dcdc24a8f1c9644ad9e991ef9476d1c12eccb3de))
+
+### 📝 Documentation
+
+* Add diagram blog post ([#2254](https://github.com/coinbase/rest-hooks/issues/2254)) ([13b260f](https://github.com/coinbase/rest-hooks/commit/13b260f3b610983008ed051928516adee894c55d))
+
 ### [6.4.2](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.4.1...rest-hooks@6.4.2) (2022-10-28)
 
 ### 📦 Package

@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.1.7...@rest-hooks/use-enhanced-reducer@1.2.0) (2022-11-06)
+
+### 🚀 Features
+
+* Return getState method as third arg ([#2250](https://github.com/coinbase/rest-hooks/issues/2250)) ([c46ce8d](https://github.com/coinbase/rest-hooks/commit/c46ce8dae8d9e1aaf8d149fb3777c9b7c756097a))
+
+### 📦 Package
+
+* Update babel packages ([#2255](https://github.com/coinbase/rest-hooks/issues/2255)) ([4d739a9](https://github.com/coinbase/rest-hooks/commit/4d739a9dbe2d9796f21e24ebb2022e10575bd0c4))
+
 ### [1.1.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.1.6...@rest-hooks/use-enhanced-reducer@1.1.7) (2022-10-28)
 
 ### 📦 Package

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.3.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/graphql@0.3.2...@rest-hooks/graphql@0.3.3) (2022-11-06)
+
+### 📦 Package
+
+* Update babel packages ([#2255](https://github.com/coinbase/rest-hooks/issues/2255)) ([4d739a9](https://github.com/coinbase/rest-hooks/commit/4d739a9dbe2d9796f21e24ebb2022e10575bd0c4))
+
 ### [0.3.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/graphql@0.3.1...@rest-hooks/graphql@0.3.2) (2022-10-28)
 
 ### 📦 Package

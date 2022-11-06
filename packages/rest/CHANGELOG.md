@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.0.2...@rest-hooks/rest@6.1.0) (2022-11-06)
+
+### 🚀 Features
+
+* Exporting schema.All and Query ([e710e61](https://github.com/coinbase/rest-hooks/commit/e710e619adf23e23d83350df47e9e08eb43307dc))
+
+### 💅 Enhancement
+
+* Get rid of extraneous type BaseResource ([#2251](https://github.com/coinbase/rest-hooks/issues/2251)) ([fa5b457](https://github.com/coinbase/rest-hooks/commit/fa5b4573240d7d77d74aa824cdd2cfc05040078f))
+
+### 📦 Package
+
+* Update babel packages ([#2255](https://github.com/coinbase/rest-hooks/issues/2255)) ([4d739a9](https://github.com/coinbase/rest-hooks/commit/4d739a9dbe2d9796f21e24ebb2022e10575bd0c4))
+
+### 📝 Documentation
+
+* More random docs updates ([#2245](https://github.com/coinbase/rest-hooks/issues/2245)) ([361082a](https://github.com/coinbase/rest-hooks/commit/361082a3f6994f365712a4beb15f642ac24bc7ee))
+
 ### [6.0.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.0.1...@rest-hooks/rest@6.0.2) (2022-10-28)
 
 ### 📦 Package

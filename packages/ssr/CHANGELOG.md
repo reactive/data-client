@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.2.9...@rest-hooks/ssr@0.3.0) (2022-11-06)
+
+### 🚀 Features
+
+* Support React 18 preload-free-SSR like in NextJS ([#2253](https://github.com/coinbase/rest-hooks/issues/2253)) ([589030c](https://github.com/coinbase/rest-hooks/commit/589030c60481a7a502700773b67beeb684d527fe))
+
+### 📦 Package
+
+* Update babel packages ([#2255](https://github.com/coinbase/rest-hooks/issues/2255)) ([4d739a9](https://github.com/coinbase/rest-hooks/commit/4d739a9dbe2d9796f21e24ebb2022e10575bd0c4))
+
 ### [0.2.9](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.2.8...@rest-hooks/ssr@0.2.9) (2022-10-28)
 
 ### 📦 Package
