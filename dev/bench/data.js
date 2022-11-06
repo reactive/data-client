@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1667710474698,
+  "lastUpdate": 1667756898885,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -8191,6 +8191,79 @@ window.BENCHMARK_DATA = {
             "range": "±1.24%",
             "unit": "ops/sec",
             "extra": "76 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4d739a9dbe2d9796f21e24ebb2022e10575bd0c4",
+          "message": "pkg: Update babel packages (#2255)\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+          "timestamp": "2022-11-06T09:42:50-08:00",
+          "tree_id": "529051a6e55b4dbc1f661f80083f3089bad60b60",
+          "url": "https://github.com/coinbase/rest-hooks/commit/4d739a9dbe2d9796f21e24ebb2022e10575bd0c4"
+        },
+        "date": 1667756897101,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 87.92,
+            "range": "±2.21%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 4753,
+            "range": "±0.96%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 42.29,
+            "range": "±1.40%",
+            "unit": "ops/sec",
+            "extra": "55 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 45.94,
+            "range": "±2.56%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 45.25,
+            "range": "±1.29%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 46,
+            "range": "±0.81%",
+            "unit": "ops/sec",
+            "extra": "59 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 85.78,
+            "range": "±1.39%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
           }
         ]
       }
