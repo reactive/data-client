@@ -71,43 +71,9 @@ Entities are bound to Endpoints using [createResource.schema](./createResource.m
 
 ## Data lifecycle
 
-```mermaid
-flowchart BT
-  subgraph Controller.getResponse
-    infer("Entity.infer()")---pk2
-    pk2("Entity.pk()")-->denormalize
-    subgraph denormalize
-      direction TB
-      validate2("Entity.validate()")---fromJS("Entity.fromJS()")
-      fromJS---denormNest("denormalize(this.schema)")
-    end
-  end
-  subgraph reducer:RECEIVE
-    direction LR
-    subgraph Entity.normalize
-      direction TB
-      process("Entity.process()")-->pk("Entity.pk()")
-      pk---validate("Entity.validate()")
-      process-->validate
-      validate---normNest("normalize(this.schema)")
-    end
-    Entity.normalize--processedEntity-->addEntity
-    subgraph addEntity
-      useincoming("Entity.useIncoming()")---expiresAt("Entity.expiresAt()")
-      expiresAt-->merge("Entity.merge()")
-    end
-  end
-  click process "#process"
-  click pk "#pk"
-  click pk2 "#pk"
-  click fromJS "#fromJS"
-  click validate "#validate"
-  click validate2 "#validate"
-  click expiresAt "#expiresat"
-  click useincoming "#useincoming"
-  click merge "#merge"
-  click infer "#infer"
-```
+import Lifecycle from '../diagrams/\_entity_lifecycle.mdx';
+
+<Lifecycle/>
 
 ## Methods
 

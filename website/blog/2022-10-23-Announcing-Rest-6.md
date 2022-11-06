@@ -259,7 +259,7 @@ export class AuthdEndpoint<
 ```
 
 To customize data/schema shapes or which [collection of Endpoints](/rest/api/createResource#members) to create,
-you can [create your own creation function](rest/api/createResource#function-inheritance-patterns) that simply calls [createResource()](/rest/api/createResource)
+you can [create your own creation function](/rest/api/createResource#function-inheritance-patterns) that simply calls [createResource()](/rest/api/createResource)
 
 ```typescript title="createMyResource.ts"
 import { createResource, type EndpointExtraOptions } from '@rest-hooks/rest';

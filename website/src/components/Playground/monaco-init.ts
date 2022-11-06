@@ -36,6 +36,7 @@ if (
         jsx: monaco.languages.typescript.JsxEmit.React,
         strict: true,
         strictNullChecks: true,
+        exactOptionalPropertyTypes: true,
         lib: ['dom', 'esnext'],
         module: monaco.languages.typescript.ModuleKind.ESNext,
         moduleResolution:
