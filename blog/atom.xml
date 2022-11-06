@@ -2,11 +2,33 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://resthooks.io/blog</id>
     <title>Rest Hooks Blog</title>
-    <updated>2022-10-23T00:00:00.000Z</updated>
+    <updated>2022-11-07T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://resthooks.io/blog"/>
     <subtitle>Rest Hooks Blog</subtitle>
     <icon>https://resthooks.io/img/favicon/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[New lifecycle controlflow diagrams using Mermaid]]></title>
+        <id>/2022/11/07/Lifecycle-controlflow-diagrams-mermaid</id>
+        <link href="https://resthooks.io/blog/2022/11/07/Lifecycle-controlflow-diagrams-mermaid"/>
+        <updated>2022-11-07T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Mermaid is a cool way of creating diagrams in markdown.]]></summary>
+        <content type="html"><![CDATA[<p><a href="https://mermaid-js.github.io/mermaid/" target="_blank" rel="noopener noreferrer">Mermaid</a> is a cool way of creating diagrams in markdown.
+It was recently integrated into Github Markdown and <a href="https://docusaurus.io/blog/releases/2.2#mermaid-diagrams" target="_blank" rel="noopener noreferrer">added to this site's framework</a>
+as well.</p><p>A lot of concepts are much easy to convey using visualizations so we quickly started using this
+in the docs. To start off we have added control flow diagrams to help with hooking into the lifecycles
+of Rest Hooks for customizations as well as understanding how it operates.</p><h3 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="restendpoint"><a href="/rest/api/RestEndpoint#fetch-lifecycle">RestEndpoint</a><a class="hash-link" href="#restendpoint" title="Direct link to heading">​</a></h3><h3 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="endpoint-success"><a href="/rest/api/Endpoint#success">Endpoint Success</a><a class="hash-link" href="#endpoint-success" title="Direct link to heading">​</a></h3><h3 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="endpoint-error"><a href="/rest/api/Endpoint#error">Endpoint Error</a><a class="hash-link" href="#endpoint-error" title="Direct link to heading">​</a></h3><h3 class="anchor anchorWithHideOnScrollNavbar_WYt5" id="entity"><a href="/rest/api/Entity#data-lifecycle">Entity</a><a class="hash-link" href="#entity" title="Direct link to heading">​</a></h3>]]></content>
+        <author>
+            <name>Nathaniel Tucker</name>
+            <uri>https://github.com/ntucker</uri>
+        </author>
+        <category label="lifecycle" term="lifecycle"/>
+        <category label="control flow" term="control flow"/>
+        <category label="diagram" term="diagram"/>
+        <category label="mermaid" term="mermaid"/>
+        <category label="docusarus" term="docusarus"/>
+        <category label="documentation" term="documentation"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Rest v6 - TypeScript HTTP endpoints from url path templates]]></title>
         <id>/2022/10/23/Announcing-Rest-6</id>
