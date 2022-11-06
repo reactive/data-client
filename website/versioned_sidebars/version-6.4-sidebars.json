@@ -1,0 +1,328 @@
+{
+  "docs": [
+    {
+      "type": "doc",
+      "id": "README"
+    },
+    {
+      "type": "category",
+      "collapsed": false,
+      "label": "Getting Started",
+      "items": [
+        {
+          "type": "doc",
+          "id": "getting-started/installation"
+        },
+        {
+          "type": "doc",
+          "id": "getting-started/endpoint"
+        },
+        {
+          "type": "doc",
+          "id": "getting-started/data-dependency"
+        },
+        {
+          "type": "doc",
+          "id": "getting-started/entity"
+        },
+        {
+          "type": "doc",
+          "id": "getting-started/expiry-policy"
+        },
+        {
+          "type": "doc",
+          "id": "getting-started/validation"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Testing",
+      "items": [
+        {
+          "type": "doc",
+          "id": "guides/debugging"
+        },
+        {
+          "type": "doc",
+          "id": "guides/storybook"
+        },
+        {
+          "type": "doc",
+          "id": "guides/unit-testing-hooks"
+        },
+        {
+          "type": "doc",
+          "id": "guides/unit-testing-components"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Concepts",
+      "items": [
+        {
+          "type": "doc",
+          "id": "concepts/loading-state"
+        },
+        {
+          "type": "doc",
+          "id": "concepts/network-errors"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Advanced",
+      "items": [
+        {
+          "type": "doc",
+          "id": "guides/img-media"
+        },
+        {
+          "type": "category",
+          "collapsible": false,
+          "label": "Performance",
+          "items": [
+            {
+              "type": "doc",
+              "id": "guides/render-as-you-fetch"
+            },
+            {
+              "type": "doc",
+              "id": "guides/immediate-updates"
+            },
+            {
+              "type": "doc",
+              "id": "guides/abort"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "collapsible": false,
+          "label": "Integrations",
+          "items": [
+            {
+              "type": "doc",
+              "id": "guides/redux"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "collapsible": false,
+          "label": "Legacy",
+          "items": [
+            {
+              "type": "doc",
+              "id": "guides/class-components"
+            },
+            {
+              "type": "doc",
+              "id": "guides/legacy-browser"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "API",
+      "items": [
+        {
+          "type": "doc",
+          "id": "api/types"
+        },
+        {
+          "type": "category",
+          "label": "@rest-hooks/core",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/Controller"
+            },
+            {
+              "type": "doc",
+              "id": "api/Snapshot"
+            },
+            {
+              "type": "doc",
+              "id": "api/useSuspense"
+            },
+            {
+              "type": "doc",
+              "id": "api/useController"
+            },
+            {
+              "type": "doc",
+              "id": "api/useCache"
+            },
+            {
+              "type": "doc",
+              "id": "api/useSubscription"
+            },
+            {
+              "type": "doc",
+              "id": "api/useFetch"
+            },
+            {
+              "type": "doc",
+              "id": "api/useDLE"
+            },
+            {
+              "type": "doc",
+              "id": "api/useMeta"
+            },
+            {
+              "type": "doc",
+              "id": "api/useError"
+            },
+            {
+              "type": "doc",
+              "id": "api/CacheProvider"
+            },
+            {
+              "type": "doc",
+              "id": "api/ExternalCacheProvider"
+            },
+            {
+              "type": "doc",
+              "id": "api/NetworkErrorBoundary"
+            },
+            {
+              "type": "doc",
+              "id": "api/Manager"
+            },
+            {
+              "type": "doc",
+              "id": "api/NetworkManager"
+            },
+            {
+              "type": "doc",
+              "id": "api/useresource"
+            },
+            {
+              "type": "doc",
+              "id": "api/useRetrieve"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "@rest-hooks/hooks",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/useDebounce"
+            },
+            {
+              "type": "doc",
+              "id": "api/useCancelling"
+            },
+            {
+              "type": "doc",
+              "id": "api/useLoading"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "@rest-hooks/test",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/MockResolver"
+            },
+            {
+              "type": "doc",
+              "id": "api/makeRenderRestHook"
+            },
+            {
+              "type": "doc",
+              "id": "api/makeCacheProvider"
+            },
+            {
+              "type": "doc",
+              "id": "api/makeExternalCacheProvider"
+            },
+            {
+              "type": "doc",
+              "id": "api/mockInitialState"
+            },
+            {
+              "type": "doc",
+              "id": "api/MockProvider"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Extra Managers",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/SubscriptionManager"
+            },
+            {
+              "type": "doc",
+              "id": "api/PollingSubscription"
+            },
+            {
+              "type": "doc",
+              "id": "api/DevToolsManager"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Legacy Hooks",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/useFetcher"
+            },
+            {
+              "type": "doc",
+              "id": "api/useInvalidator"
+            },
+            {
+              "type": "doc",
+              "id": "api/useResetter"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Upgrade Guide",
+      "items": [
+        {
+          "type": "doc",
+          "id": "upgrade/upgrading-to-6"
+        },
+        {
+          "type": "doc",
+          "id": "upgrade/upgrading-to-5"
+        },
+        {
+          "type": "doc",
+          "id": "upgrade/upgrading-test-to-seven"
+        },
+        {
+          "type": "doc",
+          "id": "upgrade/upgrading-test-to-six"
+        },
+        {
+          "type": "doc",
+          "id": "upgrade/upgrading-test-to-four"
+        },
+        {
+          "type": "doc",
+          "id": "upgrade/upgrading-test-to-three"
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 ---
-title: New lifecycle controlflow diagrams using Mermaid
+title: Lifecycle controlflow diagrams using Mermaid
 authors: [ntucker]
 tags:
   [

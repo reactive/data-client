@@ -2927,7 +2927,7 @@ __metadata:
 
 "@rest-hooks/core@file:../packages/core::locator=root-workspace-0b6124%40workspace%3A.":
   version: 3.3.2
-  resolution: "@rest-hooks/core@file:../packages/core#../packages/core::hash=6ae198&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/core@file:../packages/core#../packages/core::hash=9a8c88&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.13.0
     "@rest-hooks/normalizr": ^9.1.0
@@ -2939,7 +2939,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 71b2fefebb5c1a338a8f9ab880432654ddb639d2bff0836bcdbaf8f2652849d2557caeb2d03132cd84ef2e75f91fc5f29014d10d2e22304ad474dabc1e595286
+  checksum: 0da853fa7c70f75da023a8850e7775ef67733264435b9bf8b661f79a4d3f7fcf2b897739573d662bdd27d96885fcc5c41fc785f6d436705dc5c6b9d75ba038ba
   languageName: node
   linkType: hard
 
@@ -3023,14 +3023,14 @@ __metadata:
 
 "@rest-hooks/use-enhanced-reducer@file:../packages/use-enhanced-reducer::locator=root-workspace-0b6124%40workspace%3A.":
   version: 1.1.7
-  resolution: "@rest-hooks/use-enhanced-reducer@file:../packages/use-enhanced-reducer#../packages/use-enhanced-reducer::hash=65690c&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/use-enhanced-reducer@file:../packages/use-enhanced-reducer#../packages/use-enhanced-reducer::hash=afd548&locator=root-workspace-0b6124%40workspace%3A."
   peerDependencies:
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
     react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: dc10ad0dacc07b59ec7f2ee8136ca884da64df5712831eab37b064f3ad7874cda9a9485252416a9077e27f7f4025f4075378fe51237dce5f4044593b4edf85d2
+  checksum: 9ed92c7fee397e01aadbf3db831ec26b62791e5a097facca26acf6657f2965a34783ae5328e0c0e61e411cc8c99fcb4ef152eb2a7e8bc586a6bc25a0f808a130
   languageName: node
   linkType: hard
 
