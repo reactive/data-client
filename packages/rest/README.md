@@ -55,6 +55,13 @@ const article = useSuspense(ArticleResource.get, { id: 5 });
 const articles = useSuspense(ArticleResource.getList);
 ```
 
+```typescript
+const [article, setArticle] = useState();
+useEffect(() => {
+  setArticle(await ArticleResource.get({ id: 5 }));
+}, []);
+```
+
 #### Mutates
 
 ```typescript
