@@ -32,13 +32,13 @@
     "extends @anansi/browserslist-config"
   ],
   "devDependencies": {
-    "@anansi/babel-preset": "3.2.21",
+    "@anansi/babel-preset": "3.2.22",
     "@anansi/browserslist-config": "1.4.1",
     "@anansi/eslint-plugin": "0.14.3",
     "@anansi/jest-preset": "0.7.36",
     "@babel/cli": "7.19.3",
-    "@babel/core": "7.19.6",
-    "@babel/node": "7.20.0",
+    "@babel/core": "7.20.2",
+    "@babel/node": "7.20.2",
     "@commitlint/cli": "17.2.0",
     "@commitlint/config-conventional": "17.2.0",
     "@lerna-lite/cli": "1.12.0",

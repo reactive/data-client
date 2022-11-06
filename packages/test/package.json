@@ -118,7 +118,7 @@
   },
   "devDependencies": {
     "@babel/cli": "7.19.3",
-    "@babel/core": "7.19.6",
+    "@babel/core": "7.20.2",
     "@types/babel__core": "^7",
     "downlevel-dts": "^0.10.0",
     "rollup": "2.79.1",
