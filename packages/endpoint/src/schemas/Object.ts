@@ -62,17 +62,20 @@ export function infer(
   args: readonly any[],
   indexes: any,
   recurse: any,
+  entities: any,
 ) {
   const resultObject: any = {};
+  console.log('infer obj');
   for (const k of Object.keys(schema)) {
-    resultObject[k] = recurse(schema[k], args, indexes);
+    console.log('infer', k);
+    resultObject[k] = recurse(schema[k], args, indexes, entities);
   }
   return resultObject;
 }
 
 /**
- * Represents fixed objects
- * @see https://resthooks.io/docs/api/Object
+ * Represents objects with statically known members
+ * @see https://resthooks.io/rest/api/Object
  */
 export default class ObjectSchema {
   protected schema: any;
@@ -106,7 +109,7 @@ export default class ObjectSchema {
     return denormalize(this.schema, ...args);
   }
 
-  infer(args: any, indexes: any, recurse: any) {
-    return infer(this.schema, args, indexes, recurse);
+  infer(args: any, indexes: any, recurse: any, entities: any) {
+    return infer(this.schema, args, indexes, recurse, entities);
   }
 }

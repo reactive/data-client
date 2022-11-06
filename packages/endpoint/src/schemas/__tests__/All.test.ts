@@ -18,10 +18,10 @@ afterAll(() => {
   dateSpy.mockRestore();
 });
 
-describe.each([[]])(`${schema.Query.name} normalization (%s)`, () => {
+describe.each([[]])(`${schema.All.name} normalization (%s)`, () => {
   test('should throw a custom error if data loads with string unexpected value', () => {
     class User extends IDEntity {}
-    const sch = new schema.Query(User);
+    const sch = new schema.All(User);
     function normalizeBad() {
       normalize('abc', sch);
     }
@@ -30,60 +30,18 @@ describe.each([[]])(`${schema.Query.name} normalization (%s)`, () => {
 
   test('should throw a custom error if data loads with json string unexpected value', () => {
     class User extends IDEntity {}
-    const sch = new schema.Query(User);
+    const sch = new schema.All(User);
     function normalizeBad() {
       normalize('[{"id":5}]', sch);
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });
 
-  test('should normalize to parent when nested', () => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    class Child extends IDEntity {
-      content = '';
-
-      static fromJS<T extends typeof IDEntity>(
-        this: T,
-        entity: any,
-        parent: any,
-        key: any,
-      ): AbstractInstanceType<T> {
-        return super.fromJS({
-          ...entity,
-          parentId: parent.id,
-          parentKey: key,
-        }) as any;
-      }
-    }
-    class Parent extends IDEntity {
-      content = '';
-      children = [];
-
-      static schema = {
-        children: new schema.Query(Child),
-      };
-    }
-
-    const state = normalize(
-      {
-        id: '1',
-        content: 'parent',
-        children: [{ id: 4, content: 'child' }],
-      },
-      Parent,
-    );
-
-    expect(state.entities[Parent.key]['1'].children).toBe(
-      state.entities[Parent.key]['1'],
-    );
-  });
-
   test('normalizes Objects using their values', () => {
     class User extends IDEntity {}
     const { result, entities } = normalize(
       { foo: { id: '1' }, bar: { id: '2' } },
-      new schema.Query(User),
+      new schema.All(User),
     );
     expect(result).toBeUndefined();
     expect(entities).toMatchSnapshot();
@@ -92,7 +50,7 @@ describe.each([[]])(`${schema.Query.name} normalization (%s)`, () => {
   describe('Class', () => {
     class Cats extends IDEntity {}
     test('normalizes a single entity', () => {
-      const listSchema = new schema.Query(Cats);
+      const listSchema = new schema.All(Cats);
       expect(
         normalize([{ id: '1' }, { id: '2' }], listSchema).entities,
       ).toMatchSnapshot();
@@ -101,12 +59,12 @@ describe.each([[]])(`${schema.Query.name} normalization (%s)`, () => {
     test('normalizes multiple entities', () => {
       const inferSchemaFn = jest.fn(input => input.type || 'dogs');
       class Person extends IDEntity {}
-      const listSchema = new schema.Query(
+      const listSchema = new schema.All(
         {
           Cat: Cats,
           people: Person,
         },
-        { schemaAttribute: inferSchemaFn },
+        inferSchemaFn,
       );
 
       const { result, entities } = normalize(
@@ -125,7 +83,7 @@ describe.each([[]])(`${schema.Query.name} normalization (%s)`, () => {
 
     test('normalizes Objects using their values', () => {
       class User extends IDEntity {}
-      const users = new schema.Query(User);
+      const users = new schema.All(User);
       expect(
         normalize({ foo: { id: '1' }, bar: { id: '2' } }, users).entities,
       ).toMatchSnapshot();
@@ -133,7 +91,7 @@ describe.each([[]])(`${schema.Query.name} normalization (%s)`, () => {
 
     test('filters out undefined and null normalized values', () => {
       class User extends IDEntity {}
-      const users = new schema.Query(User);
+      const users = new schema.All(User);
       expect(
         normalize([undefined, { id: '123' }, null], users).entities,
       ).toMatchSnapshot();
@@ -143,11 +101,11 @@ describe.each([[]])(`${schema.Query.name} normalization (%s)`, () => {
 
 describe.each([
   ['direct', <T>(data: T) => data, <T>(data: T) => data],
-  /*[
+  [
     'immutable',
     fromJS,
-    (v: any) => (typeof v.toJS === 'function' ? v.toJS() : v),
-  ],*/
+    (v: any) => (typeof v?.toJS === 'function' ? v.toJS() : v),
+  ],
 ])(
   `${schema.Array.name} denormalization (%s)`,
   (_, createInput, createOutput) => {
@@ -159,14 +117,19 @@ describe.each([
           2: { id: '2', name: 'Jake' },
         },
       };
+      const sch = new schema.All(Cat);
       expect(
-        denormalize([], new schema.Query(Cat), createInput(entities)),
+        denormalize(
+          inferResults(sch, [], {}, entities),
+          sch,
+          createInput(entities),
+        ),
       ).toMatchSnapshot();
     });
 
     test('denormalizes nested in object', () => {
       class Cat extends IDEntity {}
-      const catSchema = { results: new schema.Query(Cat) };
+      const catSchema = { results: new schema.All(Cat) };
       const entities = {
         Cat: {
           1: { id: '1', name: 'Milo' },
@@ -174,28 +137,29 @@ describe.each([
         },
       };
       expect(
-        denormalize({ results: [] }, catSchema, createInput(entities)),
+        denormalize(
+          inferResults(catSchema, [], {}, entities),
+          catSchema,
+          createInput(entities),
+        ),
       ).toMatchSnapshot();
     });
 
     test('denormalizes nested in object with primitive', () => {
       class Cat extends IDEntity {}
-      const catSchema = { results: new schema.Query(Cat), nextPage: '' };
+      const catSchema = { results: new schema.All(Cat), nextPage: '' };
       const entities = {
         Cat: {
           1: { id: '1', name: 'Milo' },
           2: { id: '2', name: 'Jake' },
         },
       };
-      let [value, found] = denormalize(
-        { results: [] },
-        catSchema,
-        createInput(entities),
-      );
+      const input = inferResults(catSchema, [], {}, entities);
+      let [value, found] = denormalize(input, catSchema, createInput(entities));
       expect(createOutput(value.results)).toMatchSnapshot();
       expect(found).toBe(true);
       [value, found] = denormalize(
-        createInput({ results: [] }),
+        createInput(input),
         catSchema,
         createInput(entities),
       );
@@ -205,7 +169,7 @@ describe.each([
 
     test('denormalizes removes undefined or DELETED entities', () => {
       class Cat extends IDEntity {}
-      const catSchema = { results: new schema.Query(Cat), nextPage: '' };
+      const catSchema = { results: new schema.All(Cat), nextPage: '' };
       const entities = {
         Cat: {
           1: { id: '1', name: 'Milo' },
@@ -214,15 +178,12 @@ describe.each([
           4: DELETED,
         },
       };
-      let [value, found] = denormalize(
-        { results: [] },
-        catSchema,
-        createInput(entities),
-      );
+      const input = inferResults(catSchema, [], {}, entities);
+      let [value, found] = denormalize(input, catSchema, createInput(entities));
       expect(createOutput(value.results)).toMatchSnapshot();
       expect(found).toBe(true);
       [value, found] = denormalize(
-        createInput({ results: [] }),
+        createInput(input),
         catSchema,
         createInput(entities),
       );
@@ -232,26 +193,65 @@ describe.each([
 
     test('denormalizes should not be found when no entities are present', () => {
       class Cat extends IDEntity {}
-      const catSchema = { results: new schema.Query(Cat) };
+      const catSchema = { results: new schema.All(Cat) };
       const entities = {
         DOG: {
           1: { id: '1', name: 'Milo' },
           2: { id: '2', name: 'Jake' },
         },
       };
+      const input = inferResults(catSchema, [], {}, entities);
+
       const [value, found] = denormalize(
-        createInput({ results: [] }),
+        createInput(input),
         catSchema,
         createInput(entities),
       );
-      expect(createOutput(value)).toEqual({ results: undefined });
       expect(found).toBe(false);
+
+      expect(createOutput(value)).toEqual({ results: undefined });
+    });
+
+    test('denormalizes should not be found when no entities are present (polymorphic)', () => {
+      class Cat extends IDEntity {
+        readonly type = 'Cat';
+      }
+      class Dog extends IDEntity {
+        readonly type = 'dogs';
+      }
+      class Person extends IDEntity {
+        readonly type = 'people';
+      }
+      const listSchema = new schema.All(
+        {
+          Cat: Cat,
+          dogs: Dog,
+          people: Person,
+        },
+        input => input.type || 'dogs',
+      );
+
+      const entities = {
+        DOG: {
+          1: { id: '1', name: 'Milo' },
+          2: { id: '2', name: 'Jake' },
+        },
+      };
+      const input = inferResults(listSchema, [], {}, entities);
+      const [value, found] = denormalize(
+        createInput(input),
+        listSchema,
+        createInput(entities),
+      );
+      expect(found).toBe(false);
+
+      expect(createOutput(value)).toEqual(undefined);
     });
 
     test('returns the input value if is null', () => {
       class Filling extends IDEntity {}
       class Taco extends IDEntity {
-        static schema = { fillings: new schema.Query(Filling) };
+        static schema = { fillings: new schema.All(Filling) };
       }
       const entities = {
         Taco: {
@@ -261,7 +261,6 @@ describe.each([
           },
         },
       };
-
       expect(denormalize('123', Taco, createInput(entities))).toMatchSnapshot();
     });
 
@@ -275,13 +274,13 @@ describe.each([
       class Person extends IDEntity {
         readonly type = 'people';
       }
-      const listSchema = new schema.Query(
+      const listSchema = new schema.All(
         {
           Cat: Cat,
           dogs: Dog,
           people: Person,
         },
-        { schemaAttribute: input => input.type || 'dogs' },
+        input => input.type || 'dogs',
       );
 
       const entities = {
@@ -303,8 +302,9 @@ describe.each([
         },
       };
 
+      const input = inferResults(listSchema, [], {}, entities);
       const [value, found, deleted] = denormalize(
-        [],
+        input,
         listSchema,
         createInput(entities),
       );
@@ -314,73 +314,6 @@ describe.each([
       const first = value && value[0];
       // type check to ensure correct inference
       first?.type;
-    });
-
-    test('denormalizes multiple entities and processes them', () => {
-      class Cat extends IDEntity {
-        readonly type = 'Cat';
-        index = 0;
-      }
-      class Dog extends IDEntity {
-        readonly type = 'dogs';
-        index = 0;
-      }
-      class Person extends IDEntity {
-        readonly type = 'people';
-        index = 0;
-      }
-      const listSchema = new schema.Query(
-        {
-          Cat: Cat,
-          dogs: Dog,
-          people: Person,
-        },
-        {
-          schemaAttribute: input => input.type || 'dogs',
-          process(entries, [{ asc }]) {
-            const sorted = [...entries].sort((a, b) => a.index - b.index);
-            if (asc) return sorted;
-            return sorted.reverse();
-          },
-        },
-      );
-
-      const entities = {
-        Cat: {
-          123: {
-            id: '123',
-            type: 'Cat',
-            index: 5,
-          },
-          456: {
-            id: '456',
-            type: 'Cat',
-            index: 1,
-          },
-        },
-        Person: {
-          123: {
-            id: '123',
-            type: 'people',
-            index: 3,
-          },
-        },
-      };
-
-      const [value, found, deleted] = denormalize(
-        [{ asc: true }],
-        listSchema,
-        createInput(entities),
-      );
-      expect(found).toBe(true);
-      expect(deleted).toBe(false);
-      expect(value).toMatchSnapshot();
-      const first = value && value[0];
-      // type check to ensure correct inference
-      first?.type;
-      expect(
-        denormalize([{ asc: false }], listSchema, createInput(entities))[0],
-      ).toMatchSnapshot();
     });
 
     test('does not allow initializing with non-entities', () => {
@@ -389,7 +322,7 @@ describe.each([
         cat: Cat,
       });
       // @ts-expect-error
-      const catList = new schema.Query(catRecord);
+      const catList = new schema.All(catRecord);
     });
   },
 );

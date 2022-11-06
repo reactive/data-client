@@ -62,10 +62,11 @@ export function infer(
   args: readonly any[],
   indexes: any,
   recurse: any,
+  entities: any,
 ) {
   const resultObject: any = {};
   for (const k of Object.keys(schema)) {
-    resultObject[k] = recurse(schema[k], args, indexes);
+    resultObject[k] = recurse(schema[k], args, indexes, entities);
   }
   return resultObject;
 }

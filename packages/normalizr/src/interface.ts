@@ -32,6 +32,7 @@ export interface SchemaSimple<T = any> {
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
+    entities: EntityTable,
   ): any;
 }
 
@@ -57,15 +58,6 @@ export interface EntityInterface<T = any> extends SchemaSimple {
   indexes?: any;
   schema: Record<string, Schema>;
   prototype: T;
-}
-
-export interface QueryInterface<
-  S extends EntityMap | EntityInterface = EntityMap | EntityInterface,
-> extends SchemaSimple {
-  process(
-    entries: (S extends EntityMap<infer T> ? T : Denormalize<S>)[],
-    context: unknown,
-  ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 }
 
 export interface UnvisitFunction {

@@ -40,4 +40,5 @@ export type {
 export { default as Endpoint, ExtendableEndpoint } from './endpoint.js';
 export type { KeyofEndpointInstance } from './endpoint.js';
 export * from './indexEndpoint.js';
+export * from './queryEndpoint.js';
 export { default as AbortOptimistic } from './AbortOptimistic.js';

@@ -35,32 +35,28 @@ exports[`CacheProvider Endpoint should resolve useSuspense() with SimpleRecords 
 ]
 `;
 
-exports[`CacheProvider should filter nested schema.Query() based on parent 1`] = `
-Parent {
-  "articles": [
-    CoolerArticle {
-      "author": User {
-        "email": "bob@bob.com",
-        "id": 23,
-        "isAdmin": false,
-        "username": "charles",
-      },
-      "content": "whatever",
-      "id": 5,
-      "tags": [
-        "a",
-        "best",
-        "react",
-      ],
-      "title": "hi ho",
+exports[`CacheProvider should filter Query based on arguments 1`] = `
+[
+  CoolerArticle {
+    "author": User {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
     },
-  ],
-  "id": "5",
-  "tags": "a",
-}
+    "content": "whatever",
+    "id": 5,
+    "tags": [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+]
 `;
 
-exports[`CacheProvider should filter nested schema.Query() based on parent 2`] = `
+exports[`CacheProvider should filter Query based on arguments 2`] = `
 [
   CoolerArticle {
     "author": User {
@@ -90,58 +86,7 @@ exports[`CacheProvider should filter nested schema.Query() based on parent 2`] =
 ]
 `;
 
-exports[`CacheProvider should filter schema.Query() based on arguments 1`] = `
-[
-  CoolerArticle {
-    "author": User {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 5,
-    "tags": [
-      "a",
-      "best",
-      "react",
-    ],
-    "title": "hi ho",
-  },
-]
-`;
-
-exports[`CacheProvider should filter schema.Query() based on arguments 2`] = `
-[
-  CoolerArticle {
-    "author": User {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 5,
-    "tags": [
-      "a",
-      "best",
-      "react",
-    ],
-    "title": "hi ho",
-  },
-  CoolerArticle {
-    "author": null,
-    "content": "whatever",
-    "id": 1000,
-    "tags": [
-      "a",
-    ],
-    "title": "bob says",
-  },
-]
-`;
-
-exports[`CacheProvider should filter schema.Query() based on arguments 3`] = `
+exports[`CacheProvider should filter Query based on arguments 3`] = `
 [
   CoolerArticle {
     "author": User {
@@ -326,32 +271,28 @@ exports[`ExternalCacheProvider Endpoint should resolve useSuspense() with Simple
 ]
 `;
 
-exports[`ExternalCacheProvider should filter nested schema.Query() based on parent 1`] = `
-Parent {
-  "articles": [
-    CoolerArticle {
-      "author": User {
-        "email": "bob@bob.com",
-        "id": 23,
-        "isAdmin": false,
-        "username": "charles",
-      },
-      "content": "whatever",
-      "id": 5,
-      "tags": [
-        "a",
-        "best",
-        "react",
-      ],
-      "title": "hi ho",
+exports[`ExternalCacheProvider should filter Query based on arguments 1`] = `
+[
+  CoolerArticle {
+    "author": User {
+      "email": "bob@bob.com",
+      "id": 23,
+      "isAdmin": false,
+      "username": "charles",
     },
-  ],
-  "id": "5",
-  "tags": "a",
-}
+    "content": "whatever",
+    "id": 5,
+    "tags": [
+      "a",
+      "best",
+      "react",
+    ],
+    "title": "hi ho",
+  },
+]
 `;
 
-exports[`ExternalCacheProvider should filter nested schema.Query() based on parent 2`] = `
+exports[`ExternalCacheProvider should filter Query based on arguments 2`] = `
 [
   CoolerArticle {
     "author": User {
@@ -381,58 +322,7 @@ exports[`ExternalCacheProvider should filter nested schema.Query() based on pare
 ]
 `;
 
-exports[`ExternalCacheProvider should filter schema.Query() based on arguments 1`] = `
-[
-  CoolerArticle {
-    "author": User {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 5,
-    "tags": [
-      "a",
-      "best",
-      "react",
-    ],
-    "title": "hi ho",
-  },
-]
-`;
-
-exports[`ExternalCacheProvider should filter schema.Query() based on arguments 2`] = `
-[
-  CoolerArticle {
-    "author": User {
-      "email": "bob@bob.com",
-      "id": 23,
-      "isAdmin": false,
-      "username": "charles",
-    },
-    "content": "whatever",
-    "id": 5,
-    "tags": [
-      "a",
-      "best",
-      "react",
-    ],
-    "title": "hi ho",
-  },
-  CoolerArticle {
-    "author": null,
-    "content": "whatever",
-    "id": 1000,
-    "tags": [
-      "a",
-    ],
-    "title": "bob says",
-  },
-]
-`;
-
-exports[`ExternalCacheProvider should filter schema.Query() based on arguments 3`] = `
+exports[`ExternalCacheProvider should filter Query based on arguments 3`] = `
 [
   CoolerArticle {
     "author": User {

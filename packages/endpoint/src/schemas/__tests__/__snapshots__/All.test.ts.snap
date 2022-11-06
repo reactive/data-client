@@ -1,0 +1,550 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AllSchema normalization (%s) Class filters out undefined and null normalized values 1`] = `
+{
+  "User": {
+    "123": {
+      "id": "123",
+    },
+  },
+}
+`;
+
+exports[`AllSchema normalization (%s) Class normalizes Objects using their values 1`] = `
+{
+  "User": {
+    "1": {
+      "id": "1",
+    },
+    "2": {
+      "id": "2",
+    },
+  },
+}
+`;
+
+exports[`AllSchema normalization (%s) Class normalizes a single entity 1`] = `
+{
+  "Cats": {
+    "1": {
+      "id": "1",
+    },
+    "2": {
+      "id": "2",
+    },
+  },
+}
+`;
+
+exports[`AllSchema normalization (%s) Class normalizes multiple entities 1`] = `
+{
+  "Cats": {
+    "123": {
+      "id": "123",
+      "type": "Cat",
+    },
+    "456": {
+      "id": "456",
+      "type": "Cat",
+    },
+  },
+  "Person": {
+    "123": {
+      "id": "123",
+      "type": "people",
+    },
+  },
+}
+`;
+
+exports[`AllSchema normalization (%s) Class normalizes multiple entities 2`] = `
+[
+  [
+    {
+      "id": "123",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "123",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "123",
+      "type": "people",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "123",
+      "type": "people",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "789",
+      "name": "fido",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "789",
+      "name": "fido",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "456",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+  [
+    {
+      "id": "456",
+      "type": "Cat",
+    },
+    [
+      {
+        "id": "123",
+        "type": "Cat",
+      },
+      {
+        "id": "123",
+        "type": "people",
+      },
+      {
+        "id": "789",
+        "name": "fido",
+      },
+      {
+        "id": "456",
+        "type": "Cat",
+      },
+    ],
+    undefined,
+  ],
+]
+`;
+
+exports[`AllSchema normalization (%s) normalizes Objects using their values 1`] = `
+{
+  "User": {
+    "1": {
+      "id": "1",
+    },
+    "2": {
+      "id": "2",
+    },
+  },
+}
+`;
+
+exports[`AllSchema normalization (%s) should throw a custom error if data loads with json string unexpected value 1`] = `
+"Normalizing a string, but this does match schema.
+
+Parsing this input string as JSON worked. This likely indicates fetch function did not parse
+the JSON. By default, this only happens if "content-type" header includes "json".
+See https://resthooks.io/docs/guides/custom-networking for more information
+
+  Schema: [
+  {
+    "name": "User",
+    "schema": {},
+    "key": "User"
+  }
+]
+  Input: "[{"id":5}]""
+`;
+
+exports[`AllSchema normalization (%s) should throw a custom error if data loads with string unexpected value 1`] = `
+"Unexpected input given to normalize. Expected type to be "object", found "string".
+
+          Schema: [
+  {
+    "name": "User",
+    "schema": {},
+    "key": "User"
+  }
+]
+          Input: "abc""
+`;
+
+exports[`ArraySchema denormalization (direct) denormalizes a single entity 1`] = `
+[
+  [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+  true,
+  false,
+]
+`;
+
+exports[`ArraySchema denormalization (direct) denormalizes multiple entities 1`] = `
+[
+  Cat {
+    "id": "123",
+    "type": "Cat",
+  },
+  Cat {
+    "id": "456",
+    "type": "Cat",
+  },
+  Person {
+    "id": "123",
+    "type": "people",
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (direct) denormalizes nested in object 1`] = `
+[
+  {
+    "results": [
+      Cat {
+        "id": "1",
+        "name": "Milo",
+      },
+      Cat {
+        "id": "2",
+        "name": "Jake",
+      },
+    ],
+  },
+  true,
+  false,
+]
+`;
+
+exports[`ArraySchema denormalization (direct) denormalizes nested in object with primitive 1`] = `
+[
+  Cat {
+    "id": "1",
+    "name": "Milo",
+  },
+  Cat {
+    "id": "2",
+    "name": "Jake",
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (direct) denormalizes nested in object with primitive 2`] = `
+{
+  "nextPage": "",
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (direct) denormalizes removes undefined or DELETED entities 1`] = `
+[
+  Cat {
+    "id": "1",
+    "name": "Milo",
+  },
+  Cat {
+    "id": "2",
+    "name": "Jake",
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (direct) denormalizes removes undefined or DELETED entities 2`] = `
+{
+  "nextPage": "",
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (direct) returns the input value if is null 1`] = `
+[
+  Taco {
+    "fillings": null,
+    "id": "123",
+  },
+  true,
+  false,
+]
+`;
+
+exports[`ArraySchema denormalization (immutable) denormalizes a single entity 1`] = `
+[
+  [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+  true,
+  false,
+]
+`;
+
+exports[`ArraySchema denormalization (immutable) denormalizes multiple entities 1`] = `
+[
+  Cat {
+    "id": "123",
+    "type": "Cat",
+  },
+  Cat {
+    "id": "456",
+    "type": "Cat",
+  },
+  Person {
+    "id": "123",
+    "type": "people",
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (immutable) denormalizes nested in object 1`] = `
+[
+  {
+    "results": [
+      Cat {
+        "id": "1",
+        "name": "Milo",
+      },
+      Cat {
+        "id": "2",
+        "name": "Jake",
+      },
+    ],
+  },
+  true,
+  false,
+]
+`;
+
+exports[`ArraySchema denormalization (immutable) denormalizes nested in object with primitive 1`] = `
+[
+  Cat {
+    "id": "1",
+    "name": "Milo",
+  },
+  Cat {
+    "id": "2",
+    "name": "Jake",
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (immutable) denormalizes nested in object with primitive 2`] = `
+{
+  "nextPage": "",
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (immutable) denormalizes removes undefined or DELETED entities 1`] = `
+[
+  Cat {
+    "id": "1",
+    "name": "Milo",
+  },
+  Cat {
+    "id": "2",
+    "name": "Jake",
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (immutable) denormalizes removes undefined or DELETED entities 2`] = `
+{
+  "nextPage": "",
+  "results": [
+    Cat {
+      "id": "1",
+      "name": "Milo",
+    },
+    Cat {
+      "id": "2",
+      "name": "Jake",
+    },
+  ],
+}
+`;
+
+exports[`ArraySchema denormalization (immutable) returns the input value if is null 1`] = `
+[
+  Taco {
+    "fillings": null,
+    "id": "123",
+  },
+  true,
+  false,
+]
+`;

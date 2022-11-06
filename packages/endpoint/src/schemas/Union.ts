@@ -2,7 +2,7 @@ import PolymorphicSchema from './Polymorphic.js';
 
 /**
  * Represents polymorphic values.
- * @see https://resthooks.io/docs/api/Union
+ * @see https://resthooks.io/rest/api/Union
  */
 export default class UnionSchema extends PolymorphicSchema {
   constructor(definition: any, schemaAttribute: any) {
@@ -37,7 +37,7 @@ export default class UnionSchema extends PolymorphicSchema {
     return this.denormalizeValue(input, unvisit);
   }
 
-  infer(args: any, indexes: any, recurse: any) {
+  infer(args: any, indexes: any, recurse: any, entities: any) {
     if (!args[0]) return undefined;
     const attr = this.getSchemaAttribute(args[0], undefined, '');
     const discriminatedSchema = this.schema[attr];
@@ -45,7 +45,7 @@ export default class UnionSchema extends PolymorphicSchema {
     // Was unable to infer the entity's schema from params
     if (discriminatedSchema === undefined) return undefined;
     return {
-      id: recurse(discriminatedSchema, args, indexes),
+      id: recurse(discriminatedSchema, args, indexes, entities),
       schema: attr,
     };
   }

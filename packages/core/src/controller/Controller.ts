@@ -284,6 +284,7 @@ export default class Controller {
       cacheResults,
       args,
       state.indexes,
+      state.entities,
     );
 
     if (!endpoint.schema || !schemaHasEntity(endpoint.schema)) {
@@ -372,10 +373,11 @@ export default class Controller {
     cacheResults: any,
     args: any[],
     indexes: any,
+    entities: EntityTable,
   ) => {
     if (cacheResults || schema === undefined) return cacheResults;
 
-    return inferResults(schema, args, indexes);
+    return inferResults(schema, args, indexes, entities);
   };
 }
 

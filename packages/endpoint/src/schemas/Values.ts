@@ -2,7 +2,7 @@ import PolymorphicSchema from './Polymorphic.js';
 
 /**
  * Represents variably sized objects
- * @see https://resthooks.io/docs/api/Values
+ * @see https://resthooks.io/rest/api/Values
  */
 export default class ValuesSchema extends PolymorphicSchema {
   normalize(

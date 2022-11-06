@@ -1,5 +1,3 @@
-import { schema } from '@rest-hooks/rest';
-
 import {
   createPlaceholderResource,
   PlaceholderEntity,
@@ -29,8 +27,5 @@ export const TodoResource = {
     getOptimisticResponse(snap, body) {
       return body;
     },
-  }),
-  getList: TodoResourceBase.getList.extend({
-    schema: new schema.Query(Todo),
   }),
 };

@@ -106,7 +106,12 @@ export default function useStatefulResource<
 
   if (loading && adaptedEndpoint.schema)
     data = denormalize(
-      inferResults(adaptedEndpoint.schema, args as any, state.indexes),
+      inferResults(
+        adaptedEndpoint.schema,
+        args as any,
+        state.indexes,
+        state.entities,
+      ),
       adaptedEndpoint.schema,
       {},
     )[0] as any;

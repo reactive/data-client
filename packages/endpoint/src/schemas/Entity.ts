@@ -2,7 +2,6 @@
 import { AbstractInstanceType } from '../normal.js';
 import type { Schema, NormalizedIndex, UnvisitFunction } from '../interface.js';
 import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
-import Query from './Query.js';
 
 /**
  * Represents data that should be deduped by specifying a primary key.
@@ -135,15 +134,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
       }
     }
 
-    const value = { ...input };
-    // TODO: figure out a better way to do this... right now we're placing parent in the place since
-    // we don't get that context during denormalize step
-    Object.keys(this.schema).forEach(key => {
-      if (this.schema[key] instanceof Query && !Object.hasOwn(value, key)) {
-        value[key] = [];
-      }
-    });
-    return value;
+    return { ...input };
   }
 
   static normalize(

@@ -6,7 +6,7 @@ import type { AbstractInstanceType } from '../normal.js';
 
 /**
  * Marks entity as deleted.
- * @see https://resthooks.io/docs/api/Delete
+ * @see https://resthooks.io/rest/api/Delete
  */
 export default class Delete<E extends EntityInterface & { process: any }>
   implements SchemaClass

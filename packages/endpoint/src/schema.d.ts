@@ -24,6 +24,10 @@ export { Delete, EntityMap };
 
 export { EntityInterface } from './interface.js';
 
+/**
+ * Represents arrays
+ * @see https://resthooks.io/rest/api/Array
+ */
 export class Array<S extends Schema = Schema> implements SchemaClass {
   constructor(
     definition: S,
@@ -71,26 +75,20 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
   ): any;
 }
 
-export class Query<
+/**
+ * Retrieves all entities in cache
+ *
+ * @see https://resthooks.io/rest/api/AllSchema
+ */
+export class All<
   S extends EntityMap | EntityInterface = EntityMap | EntityInterface,
 > implements SchemaClass
 {
-  process(
-    entries: (S extends EntityMap<infer T> ? T : Denormalize<S>)[],
-    context: any,
-  ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
-
   constructor(
     definition: S,
-    options?: {
-      schemaAttribute?: S extends EntityMap<infer T>
-        ? keyof T | SchemaFunction<keyof S>
-        : undefined;
-      process?: (
-        entries: (S extends EntityMap<infer T> ? T : Denormalize<S>)[],
-        context: any,
-      ) => (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
-    },
+    schemaAttribute?: S extends EntityMap<infer T>
+      ? keyof T | SchemaFunction<keyof S>
+      : undefined,
   );
 
   define(definition: Schema): void;
@@ -129,9 +127,14 @@ export class Query<
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
+    entities: EntityTable,
   ): any;
 }
 
+/**
+ * Represents objects with statically known members
+ * @see https://resthooks.io/rest/api/Object
+ */
 export class Object<O extends Record<string, any> = Record<string, Schema>>
   implements SchemaClass
 {
@@ -164,6 +167,10 @@ export class Object<O extends Record<string, any> = Record<string, Schema>>
   ): any;
 }
 
+/**
+ * Represents polymorphic values.
+ * @see https://resthooks.io/rest/api/Union
+ */
 export class Union<Choices extends EntityMap = any> implements SchemaClass {
   constructor(
     definition: Choices,
@@ -210,6 +217,10 @@ export class Union<Choices extends EntityMap = any> implements SchemaClass {
   ): any;
 }
 
+/**
+ * Represents variably sized objects
+ * @see https://resthooks.io/rest/api/Values
+ */
 export class Values<Choices extends Schema = any> implements SchemaClass {
   constructor(
     definition: Choices,

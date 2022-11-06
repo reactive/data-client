@@ -14,7 +14,7 @@ import {
 import nock from 'nock';
 import { act } from '@testing-library/react-hooks';
 // relative imports to avoid circular dependency in tsconfig references
-import { schema, Entity } from '@rest-hooks/endpoint';
+import { schema, Entity, Query } from '@rest-hooks/endpoint';
 import { SimpleRecord } from '@rest-hooks/legacy';
 import { Endpoint } from '@rest-hooks/endpoint';
 import { RestEndpoint } from '@rest-hooks/rest';
@@ -24,7 +24,7 @@ import {
   makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../../../test';
-import { useCache, useController, useSuspense } from '../hooks';
+import { useCache, useController, useFetch, useSuspense } from '../hooks';
 import {
   payload,
   createPayload,
@@ -221,17 +221,20 @@ describe.each([
     });
   });
 
-  it('should denormalize schema.Query()', async () => {
+  it('should denormalize Query', async () => {
     const getList = CoolerArticleResource.getList.extend({
-      schema: new schema.Query(CoolerArticle),
+      schema: new schema.All(CoolerArticle),
     });
+    const queryArticle = new Query(new schema.All(CoolerArticle));
 
     const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useSuspense(getList);
+      useFetch(getList);
+      return useCache(queryArticle);
     });
     expect(result.current).toBeUndefined();
     await waitForNextUpdate();
-    result.current.forEach(article => {
+    expect(result.current).toBeDefined();
+    result.current?.forEach(article => {
       expect(article instanceof CoolerArticle).toBe(true);
       expect(article.title).toBeDefined();
       // @ts-expect-error
@@ -239,30 +242,29 @@ describe.each([
     });
   });
 
-  it('should filter schema.Query() based on arguments', async () => {
-    const getList = CoolerArticleResource.getList.extend({
-      schema: new schema.Query(CoolerArticle, {
-        process(entries, context) {
-          if (!context[0].tags) return entries;
-          return entries.filter(article =>
-            article.tags.includes(context[0].tags),
-          );
-        },
-      }),
-    });
+  it('should filter Query based on arguments', async () => {
+    const queryArticle = new Query(
+      new schema.All(CoolerArticle),
+      (entries, { tags }: { tags: string }) => {
+        if (!tags) return entries;
+        return entries.filter(article => article.tags.includes(tags));
+      },
+    );
 
     const { result, waitForNextUpdate, rerender } = renderRestHook(
       ({ tags }: { tags: string }) => {
+        useFetch(CoolerArticleResource.getList);
         return {
-          data: useSuspense(getList, { tags }),
+          data: useCache(queryArticle, { tags }),
           controller: useController(),
         };
       },
       { initialProps: { tags: 'a' } },
     );
-    expect(result.current).toBeUndefined();
+    expect(result.current.data).toBeUndefined();
     await waitForNextUpdate();
-    expect(result.current.data.length).toBe(1);
+    expect(result.current.data).toBeDefined();
+    expect(result.current.data?.length).toBe(1);
     expect(result.current.data).toMatchSnapshot();
 
     await act(async () =>
@@ -279,75 +281,16 @@ describe.each([
         tags: [],
       }),
     );
+    expect(result.current.data).toBeDefined();
     // should only include the one with the tag
-    expect(result.current.data.length).toBe(2);
+    expect(result.current.data?.length).toBe(2);
     expect(result.current.data).toMatchSnapshot();
     rerender({ tags: '' });
+    expect(result.current.data).toBeDefined();
     // should not need to fetch as data already provided
     // with no tags should include all entries
-    expect(result.current.data.length).toBe(4);
+    expect(result.current.data?.length).toBe(4);
     expect(result.current.data).toMatchSnapshot();
-  });
-
-  it('should filter nested schema.Query() based on parent', async () => {
-    class Parent extends Entity {
-      id = '0';
-      tags = '';
-      articles: CoolerArticle[] = [];
-
-      pk() {
-        return this.id;
-      }
-
-      static schema = {
-        articles: new schema.Query(CoolerArticle, {
-          process(entries, context: Parent) {
-            if (!context.tags) return entries;
-            return entries.filter(article =>
-              article.tags.includes(context.tags),
-            );
-          },
-        }),
-      };
-    }
-    const getParent = new RestEndpoint({
-      path: '/getNestedQuery/:id',
-      schema: Parent,
-    });
-    mynock.get('/getNestedQuery/5').reply(200, {
-      id: '5',
-      tags: 'a',
-    });
-
-    const { result, waitForNextUpdate } = renderRestHook(() => {
-      useSuspense(CoolerArticleResource.getList);
-      return {
-        data: useSuspense(getParent, { id: '5' }),
-        controller: useController(),
-      };
-    });
-    expect(result.current).toBeUndefined();
-    await waitForNextUpdate();
-    expect(result.current.data.articles.length).toBe(1);
-    expect(result.current.data).toMatchSnapshot();
-
-    await act(async () =>
-      result.current.controller.fetch(CoolerArticleResource.create, {
-        id: 1000,
-        title: 'bob says',
-        tags: ['a'],
-      }),
-    );
-    await act(async () =>
-      result.current.controller.fetch(CoolerArticleResource.create, {
-        id: 2000,
-        title: 'should not exist',
-        tags: [],
-      }),
-    );
-    // should only include the one with the tag
-    expect(result.current.data.articles.length).toBe(2);
-    expect(result.current.data.articles).toMatchSnapshot();
   });
 
   it('should denormalize schema.Union()', async () => {

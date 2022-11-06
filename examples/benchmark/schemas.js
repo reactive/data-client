@@ -1,4 +1,4 @@
-import { Entity, schema } from '@rest-hooks/endpoint';
+import { Entity, schema, Query } from '@rest-hooks/endpoint';
 
 class BuildTypeDescription extends Entity {
   pk() {
@@ -6,7 +6,7 @@ class BuildTypeDescription extends Entity {
   }
 }
 
-class ProjectWithBuildTypesDescription extends Entity {
+export class ProjectWithBuildTypesDescription extends Entity {
   pk() {
     return this.id;
   }
@@ -19,12 +19,11 @@ class ProjectWithBuildTypesDescription extends Entity {
 export const ProjectSchema = { project: [ProjectWithBuildTypesDescription] };
 
 export const ProjectQuery = {
-  project: new schema.Query(ProjectWithBuildTypesDescription),
+  project: new schema.All(ProjectWithBuildTypesDescription),
 };
-export const ProjectQuerySorted = {
-  project: new schema.Query(ProjectWithBuildTypesDescription, {
-    process(entries) {
-      return [...entries].sort((a, b) => a.internalId - b.internalId);
-    },
-  }),
-};
+export const ProjectQuerySorted = new Query(
+  new schema.All(ProjectWithBuildTypesDescription),
+  entries => {
+    return [...entries].sort((a, b) => a.internalId - b.internalId);
+  },
+);
