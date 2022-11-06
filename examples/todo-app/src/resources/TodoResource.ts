@@ -27,11 +27,5 @@ export const TodoResource = {
     getOptimisticResponse(snap, body) {
       return body;
     },
-    update: (newResourceId: string) => ({
-      [TodoResourceBase.getList.key()]: (resourceIds: string[] = []) => [
-        ...resourceIds,
-        newResourceId,
-      ],
-    }),
   }),
 };

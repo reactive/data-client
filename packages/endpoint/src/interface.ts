@@ -1,3 +1,4 @@
+import { AbstractInstanceType, Denormalize, EntityMap } from './normal.js';
 import type { EndpointExtraOptions, FetchFunction } from './types.js';
 
 export * from './SnapshotInterface.js';
@@ -34,6 +35,7 @@ export interface SchemaSimple<T = any> {
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
+    entities: EntityTable,
   ): any;
 }
 
@@ -71,6 +73,14 @@ export interface NormalizedIndex {
   readonly [entityKey: string]: {
     readonly [indexName: string]: { readonly [lookup: string]: string };
   };
+}
+
+export interface EntityTable {
+  [entityKey: string]:
+    | {
+        [pk: string]: unknown;
+      }
+    | undefined;
 }
 
 /** Defines a networking endpoint */

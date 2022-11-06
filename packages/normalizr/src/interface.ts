@@ -1,3 +1,5 @@
+import { AbstractInstanceType, Denormalize, EntityMap } from './types.js';
+
 export type Schema =
   | null
   | string
@@ -30,6 +32,7 @@ export interface SchemaSimple<T = any> {
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
+    entities: EntityTable,
   ): any;
 }
 
@@ -63,8 +66,16 @@ export interface UnvisitFunction {
   setLocal?: (entity: any) => void;
 }
 
-export type NormalizedIndex = {
+export interface NormalizedIndex {
   readonly [entityKey: string]: {
     readonly [indexName: string]: { readonly [lookup: string]: string };
   };
-};
+}
+
+export interface EntityTable {
+  [entityKey: string]:
+    | {
+        [pk: string]: unknown;
+      }
+    | undefined;
+}

@@ -10,23 +10,21 @@ import {
   CoolerArticle,
   FirstUnion,
   PaginatedArticle,
-  UserResource,
-  User,
 } from '__tests__/new';
 import nock from 'nock';
 import { act } from '@testing-library/react-hooks';
 // relative imports to avoid circular dependency in tsconfig references
-import { schema, Entity } from '@rest-hooks/endpoint';
+import { schema, Entity, Query } from '@rest-hooks/endpoint';
 import { SimpleRecord } from '@rest-hooks/legacy';
 import { Endpoint } from '@rest-hooks/endpoint';
-import { createResource, GetEndpoint } from '@rest-hooks/rest';
+import { RestEndpoint } from '@rest-hooks/rest';
 
 import {
   makeRenderRestHook,
   makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../../../test';
-import { useCache, useController, useSuspense } from '../hooks';
+import { useCache, useController, useFetch, useSuspense } from '../hooks';
 import {
   payload,
   createPayload,
@@ -83,10 +81,12 @@ describe.each([
       .reply(200, '')
       .get(`/article-cooler`)
       .reply(200, nested)
+      .get(`/article-cooler?tags=a`)
+      .reply(200, nested)
       .get(`/article-cooler/values`)
       .reply(200, valuesFixture)
       .post(`/article-cooler`)
-      .reply(200, createPayload)
+      .reply(200, (uri, body: any) => ({ ...createPayload, ...body }))
       .get(`/user`)
       .reply(200, users)
       .get(`/article-cooler/withEditor`)
@@ -219,6 +219,78 @@ describe.each([
       // @ts-expect-error
       expect(result.current[k].doesnotexist).toBeUndefined();
     });
+  });
+
+  it('should denormalize Query', async () => {
+    const getList = CoolerArticleResource.getList.extend({
+      schema: new schema.All(CoolerArticle),
+    });
+    const queryArticle = new Query(new schema.All(CoolerArticle));
+
+    const { result, waitForNextUpdate } = renderRestHook(() => {
+      useFetch(getList);
+      return useCache(queryArticle);
+    });
+    expect(result.current).toBeUndefined();
+    await waitForNextUpdate();
+    expect(result.current).toBeDefined();
+    result.current?.forEach(article => {
+      expect(article instanceof CoolerArticle).toBe(true);
+      expect(article.title).toBeDefined();
+      // @ts-expect-error
+      expect(article.doesnotexist).toBeUndefined();
+    });
+  });
+
+  it('should filter Query based on arguments', async () => {
+    const queryArticle = new Query(
+      new schema.All(CoolerArticle),
+      (entries, { tags }: { tags: string }) => {
+        if (!tags) return entries;
+        return entries.filter(article => article.tags.includes(tags));
+      },
+    );
+
+    const { result, waitForNextUpdate, rerender } = renderRestHook(
+      ({ tags }: { tags: string }) => {
+        useFetch(CoolerArticleResource.getList);
+        return {
+          data: useCache(queryArticle, { tags }),
+          controller: useController(),
+        };
+      },
+      { initialProps: { tags: 'a' } },
+    );
+    expect(result.current.data).toBeUndefined();
+    await waitForNextUpdate();
+    expect(result.current.data).toBeDefined();
+    expect(result.current.data?.length).toBe(1);
+    expect(result.current.data).toMatchSnapshot();
+
+    await act(async () =>
+      result.current.controller.fetch(CoolerArticleResource.create, {
+        id: 1000,
+        title: 'bob says',
+        tags: ['a'],
+      }),
+    );
+    await act(async () =>
+      result.current.controller.fetch(CoolerArticleResource.create, {
+        id: 2000,
+        title: 'should not exist',
+        tags: [],
+      }),
+    );
+    expect(result.current.data).toBeDefined();
+    // should only include the one with the tag
+    expect(result.current.data?.length).toBe(2);
+    expect(result.current.data).toMatchSnapshot();
+    rerender({ tags: '' });
+    expect(result.current.data).toBeDefined();
+    // should not need to fetch as data already provided
+    // with no tags should include all entries
+    expect(result.current.data?.length).toBe(4);
+    expect(result.current.data).toMatchSnapshot();
   });
 
   it('should denormalize schema.Union()', async () => {
