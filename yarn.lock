@@ -170,9 +170,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:13.0.23":
-  version: 13.0.23
-  resolution: "@anansi/webpack-config@npm:13.0.23"
+"@anansi/webpack-config@npm:13.0.24":
+  version: 13.0.24
+  resolution: "@anansi/webpack-config@npm:13.0.24"
   dependencies:
     "@babel/runtime": ^7.17.2
     "@linaria/webpack5-loader": 4.1.8
@@ -182,7 +182,7 @@ __metadata:
     "@vue/preload-webpack-plugin": ^2.0.0
     assert: ^2.0.0
     autoprefixer: ^10.4.13
-    babel-loader: ^9.0.1
+    babel-loader: ^9.1.0
     browserify-zlib: ^0.2.0
     buffer: ^6.0.3
     circular-dependency-plugin: ^5.2.2
@@ -219,7 +219,7 @@ __metadata:
     react-dev-utils: ^12.0.1
     react-error-overlay: 6.0.9
     readable-stream: ^4.2.0
-    sass: ^1.55.0
+    sass: ^1.56.0
     sass-loader: ^13.1.0
     sass-resources-loader: ^2.2.5
     semver: ^7.3.8
@@ -278,7 +278,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 8797ed03265d8e01870e3a0a01855c851cc6597b2a81ad9d38341545145b8661e8fff9bc3e430ff0e5463c99ffc332ac1001c63ceee32a3702031a7e4db3abb1
+  checksum: f4f46e04cd366302ade6dd7c4702d2bcd9700b5f23713029c5b9fda204a2e94bd3cc46345901c5930ace982f548baefa8d916a7e7b387e70bf12f4e8c39a7686
   languageName: node
   linkType: hard
 
@@ -6290,7 +6290,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-loader@npm:^9.0.1":
+"babel-loader@npm:^9.1.0":
   version: 9.1.0
   resolution: "babel-loader@npm:9.1.0"
   dependencies:
@@ -10712,7 +10712,7 @@ __metadata:
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.14.3
     "@anansi/router": 0.6.33
-    "@anansi/webpack-config": 13.0.23
+    "@anansi/webpack-config": 13.0.24
     "@ant-design/icons": ^4.7.0
     "@babel/core": 7.20.2
     "@linaria/babel-preset": 4.3.0
@@ -19868,16 +19868,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass@npm:^1.55.0":
-  version: 1.55.0
-  resolution: "sass@npm:1.55.0"
+"sass@npm:^1.56.0":
+  version: 1.56.0
+  resolution: "sass@npm:1.56.0"
   dependencies:
     chokidar: ">=3.0.0 <4.0.0"
     immutable: ^4.0.0
     source-map-js: ">=0.6.2 <2.0.0"
   bin:
     sass: sass.js
-  checksum: 7d769ed08efce4e6134e0f3dc11c4f07e32c413ac8eb43c5855f2686890fdcbd80da34165c91fb4ba407f478ca108e171574b5a60cb9814a5ed09d80f6014f96
+  checksum: 37fb48b838f7a12f3c3efbf27bfc5f2b7fba015ed4b11effe32bd9488e30e1d5cefcbfef1e5c5dbd95557889fe2c7ec72f33e898cfc76182ea34eae03b1a4fb1
   languageName: node
   linkType: hard
 
@@ -21308,7 +21308,7 @@ __metadata:
     "@anansi/babel-preset": 3.2.22
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.14.3
-    "@anansi/webpack-config": 13.0.23
+    "@anansi/webpack-config": 13.0.24
     "@babel/core": 7.20.2
     "@linaria/babel-preset": 4.3.0
     "@linaria/core": 4.2.2
