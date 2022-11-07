@@ -81,6 +81,10 @@ module.exports = {
         },
         {
           type: 'doc',
+          id: 'api/Query',
+        },
+        {
+          type: 'doc',
           id: 'api/Index',
         },
       ],

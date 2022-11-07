@@ -2945,20 +2945,20 @@ __metadata:
 
 "@rest-hooks/endpoint@file:../packages/endpoint::locator=root-workspace-0b6124%40workspace%3A.":
   version: 3.1.0
-  resolution: "@rest-hooks/endpoint@file:../packages/endpoint#../packages/endpoint::hash=b99784&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/endpoint@file:../packages/endpoint#../packages/endpoint::hash=7e2df4&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.13.0
-  checksum: f435327fd1419920cba5233b34674ffc5ca5db23da9740a9b71f082ebdcd9a34ea77315dc337290afa2345d8de39589c67cb2421db5b40a71b2048622aaadb8a
+  checksum: d792549ba96d8aacc03202a7ac08d00219f9e281fdbc87090701690e46d8057037d68139494b28d1402fcf039d8c5ed0eab020a117f26cff572403139507f10c
   languageName: node
   linkType: hard
 
 "@rest-hooks/graphql@file:../packages/graphql::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.3.2
-  resolution: "@rest-hooks/graphql@file:../packages/graphql#../packages/graphql::hash=69b32f&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/graphql@file:../packages/graphql#../packages/graphql::hash=8baa5b&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.13.0
     "@rest-hooks/endpoint": ^3.1.0
-  checksum: db30b1b3034f286945d313d6935fd15ed11354908a450b17c47ea59b6a5467667ef9b6d1588e81e5eadd3ed60d682d327b8465a97c1b7e27da7d4e1f3aa6b3b1
+  checksum: af11e3691a6083d2ab8483b8405db343b5e9699dca80d5824025a9563ad4693fdca631579cb93df72108d4869c31e838c396b2a96771663fcda9241ee1b62c37
   languageName: node
   linkType: hard
 
@@ -2990,13 +2990,13 @@ __metadata:
 
 "@rest-hooks/rest@file:../packages/rest::locator=root-workspace-0b6124%40workspace%3A.":
   version: 6.0.2
-  resolution: "@rest-hooks/rest@file:../packages/rest#../packages/rest::hash=b7a95b&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/rest@file:../packages/rest#../packages/rest::hash=e6f400&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.13.0
     "@rest-hooks/endpoint": ^3.1.0
     copyfiles: ^2.4.1
     path-to-regexp: ^6.2.1
-  checksum: f65a016bb421343f62a06a5572b9df7bd0c415751606851c10e5031ebeed12262d6b05ccf5ec60981fcd681902c9df5de6823a7906e554965a611898458bd19d
+  checksum: a8a8783d3b545e04bdd88ba26a807699762537e05e7311036ff1ca8351a838c8b263d1b1c5fd15b2ad23faa153e092a800a007fe92c512ad3a23a1c032f59941
   languageName: node
   linkType: hard
 

@@ -118,6 +118,39 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@anansi/eslint-plugin@npm:0.14.4":
+  version: 0.14.4
+  resolution: "@anansi/eslint-plugin@npm:0.14.4"
+  dependencies:
+    "@babel/eslint-parser": ^7.17.0
+    "@typescript-eslint/parser": ^5.11.0
+    eslint-config-prettier: ^8.3.0
+    eslint-import-resolver-typescript: ^3.3.0
+    eslint-import-resolver-webpack: ^0.13.2
+    eslint-plugin-babel: ^5.3.1
+    eslint-plugin-jsx-a11y: ^6.5.1
+  peerDependencies:
+    "@babel/core": ^7.0.0
+    "@typescript-eslint/eslint-plugin": ^5.11.0
+    eslint: ^7.0.0 || ^8.0.0
+    eslint-plugin-import: ^2.22.0
+    eslint-plugin-prettier: ^4.0.0
+    eslint-plugin-react: ^7.22.0
+    eslint-plugin-react-hooks: ^4.2.0
+    prettier: ^2.2.1
+    typescript: ^3.7.3 || ^4.0.0
+    webpack: ^3.0.0 || ^4.0.0 || ^5.0.0
+  peerDependenciesMeta:
+    "@babel/core":
+      optional: true
+    typescript:
+      optional: true
+    webpack:
+      optional: true
+  checksum: 4d9ee3a0f80f0c247167971ec4652bfd22482cfdc15755aeb8f44570df5c36e2ec4a88cadaffc3ef91d0c0df1f60e225b96c4791fdebd7e59909c47fd008130b
+  languageName: node
+  linkType: hard
+
 "@anansi/jest-preset@npm:0.7.37":
   version: 0.7.37
   resolution: "@anansi/jest-preset@npm:0.7.37"
@@ -19718,7 +19751,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": 3.2.22
     "@anansi/browserslist-config": 1.4.1
-    "@anansi/eslint-plugin": 0.14.3
+    "@anansi/eslint-plugin": 0.14.4
     "@anansi/jest-preset": 0.7.37
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2

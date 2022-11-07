@@ -1,9 +1,9 @@
 ---
-title: schema.Array
+title: schema.All
 ---
 
 <head>
-  <title>schema.Array - Representing Arrays | Rest Hooks</title>
+  <title>schema.All - Access every entity in the Rest Hooks store</title>
 </head>
 
 import Tabs from '@theme/Tabs';
@@ -12,26 +12,17 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@rest-hooks/rest';
 
-Creates a schema to normalize an array of schemas. If the input value is an [Object](./Object.md) instead of an `Array`,
-the normalized result will be an `Array` of the [Object](./Object.md)'s values.
+Retrieves all entities in cache as an Array.
 
-_Note: The same behavior can be defined with shorthand syntax: `[ mySchema ]`_
-
-- `definition`: **required** A singular schema that this array contains _or_ a mapping of attribute values to schema.
+- `definition`: **required** A singular [Entity](./Entity.md) that this array contains _or_ a mapping of attribute values to [Entities](./Entity.md).
 - `schemaAttribute`: _optional_ (required if `definition` is not a singular schema) The attribute on each entity found that defines what schema, per the definition mapping, to use when normalizing.
   Can be a string or a function. If given a function, accepts the following arguments:
   _ `value`: The input value of the entity.
   _ `parent`: The parent object of the input array. \* `key`: The key at which the input array appears on the parent object.
 
-:::tip
-
-For unbounded collections with `string` keys, use [schema.Values](./Values.md)
-
-:::
-
 ## Instance Methods
 
-- `define(definition)`: When used, the `definition` passed in will be merged with the original definition passed to the `Array` constructor. This method tends to be useful for creating circular references in schema.
+- `define(definition)`: When used, the `definition` passed in will be merged with the original definition passed to the `All` constructor. This method tends to be useful for creating circular references in schema.
 
 ## Usage
 
@@ -47,9 +38,15 @@ response: [
 ],
 delay: 150,
 },
+{
+endpoint: new RestEndpoint({path: '/users', method:'POST'}),
+args: [{ name: 'ABC' }],
+response: { id: '777', name: 'ABC' },
+delay: 150,
+},
 ]}>
 
-```tsx title="Users.tsx"
+```tsx title="api/User.ts" collapsed
 export class User extends Entity {
   id = '';
   name = '';
@@ -57,10 +54,43 @@ export class User extends Entity {
     return this.id;
   }
 }
-export const getUsers = new RestEndpoint({
+export const createUser = new RestEndpoint({
   path: '/users',
-  schema: new schema.Array(User),
+  schema: User,
+  body: { name: '' },
+  method: 'POST'
 });
+```
+
+```tsx title="NewUser.tsx" collapsed
+import { useController } from 'rest-hooks';
+import { createUser } from './api/User';
+
+export default function NewUser() {
+  const { fetch } = useController();
+  const handlePress = React.useCallback(
+    async (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        fetch(createUser, {name: e.currentTarget.value});
+        e.currentTarget.value = '';
+      }
+    },
+    [fetch],
+  );
+  return <input onKeyPress={handlePress}/>;
+}
+```
+
+```tsx title="UsersPage.tsx"
+import { schema, RestEndpoint } from '@rest-hooks/rest';
+import { User } from './api/User';
+import NewUser from './NewUser';
+
+const getUsers = new RestEndpoint({
+  path: '/users',
+  schema: new schema.All(User),
+});
+
 function UsersPage() {
   const users = useSuspense(getUsers);
   return (
@@ -68,6 +98,7 @@ function UsersPage() {
       {users.map(user => (
         <div key={user.pk()}>{user.name}</div>
       ))}
+      <NewUser />
     </div>
   );
 }
@@ -119,7 +150,7 @@ export class Post extends FeedItem {
 }
 export const getFeed = new RestEndpoint({
   path: '/feed',
-  schema: new schema.Array(
+  schema: new schema.All(
     {
       link: Link,
       post: Post,
@@ -193,7 +224,7 @@ export class Post extends FeedItem {
 }
 export const getFeed = new RestEndpoint({
   path: '/feed',
-  schema: new schema.Array(
+  schema: new schema.All(
     {
       links: Link,
       posts: Post,

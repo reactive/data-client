@@ -8,6 +8,8 @@ title: useCache()
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
+import HooksPlayground from '@site/src/components/HooksPlayground';
+import { RestEndpoint } from '@rest-hooks/rest';
 
 <GenericsTabs>
 
@@ -94,3 +96,65 @@ function ArticleList({ page }: { page: string }) {
 - [getList](/rest/api/createResource#getlist)
 
 Feel free to add your own [RestEndpoint](/rest/api/RestEndpoint) as well.
+
+### Query arbitrary Entities
+
+[Query](/rest/api/Query) provides programmatic access to the Rest Hooks store.
+
+<HooksPlayground fixtures={[
+{
+endpoint: new RestEndpoint({path: '/users'}),
+args: [],
+response: [
+{ id: '123', name: 'Jim' },
+{ id: '456', name: 'Jane' },
+{ id: '777', name: 'Albatras', isAdmin: true },
+],
+delay: 150,
+},
+]}>
+
+```ts title="api/User.ts" collapsed
+export class User extends Entity {
+  id = '';
+  name = '';
+  isAdmin = false;
+  pk() {
+    return this.id;
+  }
+}
+export const UserResource = createResource({
+  path: '/users/:id',
+  schema: User,
+});
+```
+
+```tsx title="UsersPage.tsx" {15}
+import { Query, schema } from '@rest-hooks/rest';
+import { UserResource, User } from './api/User';
+
+const sortedUsers = new Query(
+  new schema.All(User),
+  (entries, { asc } = { asc: false }) => {
+    const sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
+    if (asc) return sorted;
+    return sorted.reverse();
+  }
+);
+
+function UsersPage() {
+  useFetch(UserResource.getList);
+  const users = useCache(sortedUsers, { asc: true });
+  if (!users) return <div>No users in cache yet</div>;
+  return (
+    <div>
+      {users.map(user => (
+        <div key={user.pk()}>{user.name}</div>
+      ))}
+    </div>
+  );
+}
+render(<UsersPage />);
+```
+
+</HooksPlayground>
