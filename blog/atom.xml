@@ -8,7 +8,7 @@
     <subtitle>Rest Hooks Blog</subtitle>
     <icon>https://resthooks.io/img/favicon/favicon.ico</icon>
     <entry>
-        <title type="html"><![CDATA[New lifecycle controlflow diagrams using Mermaid]]></title>
+        <title type="html"><![CDATA[Lifecycle controlflow diagrams using Mermaid]]></title>
         <id>/2022/11/07/Lifecycle-controlflow-diagrams-mermaid</id>
         <link href="https://resthooks.io/blog/2022/11/07/Lifecycle-controlflow-diagrams-mermaid"/>
         <updated>2022-11-07T00:00:00.000Z</updated>
