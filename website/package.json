@@ -19,7 +19,7 @@
     "@types/react-dom": "^17.0.0",
     "@types/react-helmet": "^6.1.5",
     "@types/react-router-dom": "^5.3.3",
-    "serve": "14.0.1",
+    "serve": "14.1.0",
     "webpack": "^5.74.0"
   },
   "dependencies": {
