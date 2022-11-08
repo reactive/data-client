@@ -33,6 +33,7 @@ interface SchemaSimple<T = any> {
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
+    entities: EntityTable,
   ): any;
 }
 interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
@@ -59,13 +60,20 @@ interface UnvisitFunction {
   og?: UnvisitFunction;
   setLocal?: (entity: any) => void;
 }
-declare type NormalizedIndex = {
+interface NormalizedIndex {
   readonly [entityKey: string]: {
     readonly [indexName: string]: {
       readonly [lookup: string]: string;
     };
   };
-};
+}
+interface EntityTable {
+  [entityKey: string]:
+    | {
+        [pk: string]: unknown;
+      }
+    | undefined;
+}
 
 /** Link in a chain */
 declare class Link<K extends object, V> {
@@ -274,6 +282,7 @@ declare function inferResults<S extends Schema>(
   schema: S,
   args: any[],
   indexes: NormalizedIndex,
+  entities?: EntityTable,
 ): NormalizeNullable$1<S>;
 
 declare const DELETED: unique symbol;
@@ -449,6 +458,7 @@ export {
   EndpointExtraOptions,
   EndpointInterface,
   EntityInterface,
+  EntityTable,
   ErrorTypes,
   ExpiryStatus,
   ExpiryStatusInterface,

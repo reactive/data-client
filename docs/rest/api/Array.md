@@ -17,7 +17,7 @@ the normalized result will be an `Array` of the [Object](./Object.md)'s values.
 
 _Note: The same behavior can be defined with shorthand syntax: `[ mySchema ]`_
 
-- `definition`: **required** A singular schema that this array contains _or_ a mapping of schema to attribute values.
+- `definition`: **required** A singular schema that this array contains _or_ a mapping of attribute values to schema.
 - `schemaAttribute`: _optional_ (required if `definition` is not a singular schema) The attribute on each entity found that defines what schema, per the definition mapping, to use when normalizing.
   Can be a string or a function. If given a function, accepts the following arguments:
   _ `value`: The input value of the entity.

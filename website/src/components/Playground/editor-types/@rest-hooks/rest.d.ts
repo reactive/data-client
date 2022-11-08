@@ -105,7 +105,7 @@ interface EntityMap<T = any> {
 
 /**
  * Marks entity as deleted.
- * @see https://resthooks.io/docs/api/Delete
+ * @see https://resthooks.io/rest/api/Delete
  */
 declare class Delete<
   E extends EntityInterface & {
@@ -149,6 +149,10 @@ declare class Delete<
   ): boolean;
 }
 
+/**
+ * Represents arrays
+ * @see https://resthooks.io/rest/api/Array
+ */
 declare class Array$1<S extends Schema = Schema> implements SchemaClass$1 {
   constructor(
     definition: S,
@@ -196,6 +200,66 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass$1 {
   ): any;
 }
 
+/**
+ * Retrieves all entities in cache
+ *
+ * @see https://resthooks.io/rest/api/AllSchema
+ */
+declare class All<
+  S extends EntityMap | EntityInterface = EntityMap | EntityInterface,
+> implements SchemaClass$1
+{
+  constructor(
+    definition: S,
+    schemaAttribute?: S extends EntityMap<infer T>
+      ? keyof T | SchemaFunction<keyof S>
+      : undefined,
+  );
+
+  define(definition: Schema): void;
+  readonly isSingleSchema: S extends EntityMap ? false : true;
+  readonly schema: S;
+  normalize(
+    input: any,
+    parent: any,
+    key: any,
+    visit: (...args: any) => any,
+    addEntity: (...args: any) => any,
+    visitedEntities: Record<string, any>,
+  ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
+
+  _normalizeNullable():
+    | (S extends EntityMap ? UnionResult<S> : Normalize<S>)[]
+    | undefined;
+
+  denormalize(
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    input: {},
+    unvisit: UnvisitFunction,
+  ): [
+    denormalized: (S extends EntityMap<infer T> ? T : Denormalize<S>)[],
+    found: boolean,
+    suspend: boolean,
+  ];
+
+  _denormalizeNullable(): [
+    (S extends EntityMap<infer T> ? T : Denormalize<S>)[] | undefined,
+    false,
+    boolean,
+  ];
+
+  infer(
+    args: readonly any[],
+    indexes: NormalizedIndex,
+    recurse: (...args: any) => any,
+    entities: EntityTable,
+  ): any;
+}
+
+/**
+ * Represents objects with statically known members
+ * @see https://resthooks.io/rest/api/Object
+ */
 declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
   implements SchemaClass$1
 {
@@ -228,6 +292,10 @@ declare class Object$1<O extends Record<string, any> = Record<string, Schema>>
   ): any;
 }
 
+/**
+ * Represents polymorphic values.
+ * @see https://resthooks.io/rest/api/Union
+ */
 declare class Union<Choices extends EntityMap = any> implements SchemaClass$1 {
   constructor(
     definition: Choices,
@@ -274,6 +342,10 @@ declare class Union<Choices extends EntityMap = any> implements SchemaClass$1 {
   ): any;
 }
 
+/**
+ * Represents variably sized objects
+ * @see https://resthooks.io/rest/api/Values
+ */
 declare class Values<Choices extends Schema = any> implements SchemaClass$1 {
   constructor(
     definition: Choices,
@@ -373,6 +445,10 @@ type schema_d_Delete<
 declare const schema_d_Delete: typeof Delete;
 type schema_d_EntityMap<T = any> = EntityMap<T>;
 type schema_d_UnvisitFunction = UnvisitFunction;
+type schema_d_All<
+  S extends EntityMap | EntityInterface = EntityMap | EntityInterface,
+> = All<S>;
+declare const schema_d_All: typeof All;
 type schema_d_Union<Choices extends EntityMap = any> = Union<Choices>;
 declare const schema_d_Union: typeof Union;
 type schema_d_Values<Choices extends Schema = any> = Values<Choices>;
@@ -390,6 +466,7 @@ declare namespace schema_d {
     schema_d_EntityMap as EntityMap,
     schema_d_UnvisitFunction as UnvisitFunction,
     Array$1 as Array,
+    schema_d_All as All,
     Object$1 as Object,
     schema_d_Union as Union,
     schema_d_Values as Values,
@@ -527,13 +604,14 @@ interface SchemaSimple<T = any> {
     visitedEntities: Record<string, any>,
   ): any;
   denormalize(
-    input: Record<string, unknown>,
+    input: {},
     unvisit: UnvisitFunction,
   ): [denormalized: T, found: boolean, suspend: boolean];
   infer(
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
+    entities: EntityTable,
   ): any;
 }
 interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
@@ -566,6 +644,13 @@ interface NormalizedIndex {
       readonly [lookup: string]: string;
     };
   };
+}
+interface EntityTable {
+  [entityKey: string]:
+    | {
+        [pk: string]: unknown;
+      }
+    | undefined;
 }
 /** Defines a networking endpoint */
 interface EndpointInterface<
@@ -926,6 +1011,23 @@ declare type IndexParams<S extends Schema> = S extends {
       >]?: AbstractInstanceType<S>[K];
     }
   : Readonly<object>;
+
+/**
+ * Programmatic cache reading
+ * @see https://resthooks.io/rest/api/Query
+ */
+declare class Query<S extends SchemaSimple, P extends any[] = []> {
+  schema: S;
+  process: (entries: Denormalize<S>, ...args: P) => Denormalize<S>;
+  readonly sideEffect: undefined;
+  constructor(
+    schema: S,
+    process?: (entries: Denormalize<S>, ...args: P) => Denormalize<S>,
+  );
+
+  key(...args: P): string;
+  protected createQuerySchema(schema: SchemaSimple): any;
+}
 
 declare class AbortOptimistic extends Error {}
 
@@ -1387,6 +1489,7 @@ export {
   NormalizeNullable,
   PathArgs,
   PathKeys,
+  Query,
   ReadEndpoint,
   ResolveType,
   Resource,

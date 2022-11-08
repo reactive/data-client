@@ -46,7 +46,7 @@ the options used to construct them.
 
 `path` is a templating language using [path-to-regex compile](https://github.com/pillarjs/path-to-regexp#compile-reverse-path-to-regexp).
 
-### Standard CRUD Endpoints
+### [Standard CRUD Endpoints](https://resthooks.io/rest/api/createResource#members)
 
 #### Reads
 
@@ -78,6 +78,22 @@ const deleteArticle = data => fetch(ArticleResource.delete, { id });
 ```typescript
 const article = await ArticleResource.get({ id: 5 });
 const articles = await ArticleResource.getList();
+```
+### [Programmatic queries](https://resthooks.io/rest/api/Query)
+
+```tsx
+const sortedArticles = new Query(
+  new schema.All(Article),
+  (entries, { asc } = { asc: false }) => {
+    const sorted = [...entries].sort((a, b) => a.title.localeCompare(b.title));
+    if (asc) return sorted;
+    return sorted.reverse();
+  }
+);
+
+const articlesUnsorted = useCache(sortedArticles);
+const articlesAscending = useCache(sortedArticles, { asc: true });
+const articlesDescending = useCache(sortedArticles, { asc: false });
 ```
 
 ### Prior Art

@@ -36,13 +36,14 @@ interface SchemaSimple<T = any> {
     visitedEntities: Record<string, any>,
   ): any;
   denormalize(
-    input: Record<string, unknown>,
+    input: {},
     unvisit: UnvisitFunction,
   ): [denormalized: T, found: boolean, suspend: boolean];
   infer(
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
+    entities: EntityTable,
   ): any;
 }
 interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
@@ -69,13 +70,20 @@ interface UnvisitFunction {
   og?: UnvisitFunction;
   setLocal?: (entity: any) => void;
 }
-declare type NormalizedIndex = {
+interface NormalizedIndex {
   readonly [entityKey: string]: {
     readonly [indexName: string]: {
       readonly [lookup: string]: string;
     };
   };
-};
+}
+interface EntityTable {
+  [entityKey: string]:
+    | {
+        [pk: string]: unknown;
+      }
+    | undefined;
+}
 
 /** Link in a chain */
 declare class Link<K extends object, V> {
@@ -213,6 +221,7 @@ declare function inferResults<S extends Schema>(
   schema: S,
   args: any[],
   indexes: NormalizedIndex,
+  entities?: EntityTable,
 ): NormalizeNullable<S>;
 
 declare const DELETED: unique symbol;
@@ -714,7 +723,19 @@ declare class Controller {
   ) => Promise<void>;
 
   /*************** More ***************/
+  /**
+   * Gets the latest state snapshot that is fully committed.
+   *
+   * This can be useful for imperative use-cases like event handlers.
+   * This should *not* be used to render; instead useSuspense() or useCache()
+   * @see https://resthooks.io/docs/api/Controller#getState
+   */
+  getState: () => State<unknown>;
   snapshot: (state: State<unknown>, fetchedAt?: number) => SnapshotInterface;
+  /**
+   * Gets the error, if any, for a given endpoint. Returns undefined for no errors.
+   * @see https://resthooks.io/docs/api/Controller#getError
+   */
   getError: <
     E extends Pick<
       EndpointInterface<
@@ -730,6 +751,10 @@ declare class Controller {
     ...rest: [...Args, State<unknown>]
   ) => ErrorTypes$1 | undefined;
 
+  /**
+   * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
+   * @see https://resthooks.io/docs/api/Controller#getResponse
+   */
   getResponse: <
     E extends Pick<
       EndpointInterface<
@@ -972,6 +997,7 @@ declare class NetworkManager implements Manager {
   init(): void;
   /** Ensures all promises are completed by rejecting remaining. */
   cleanup(): void;
+  allSettled(): Promise<PromiseSettledResult<any>[]> | undefined;
   /** Clear all promise state */
   protected clearAll(): void;
   /** Clear promise state for a given key */
@@ -1140,7 +1166,7 @@ declare function useCache<
 >(
   endpoint: E,
   ...args: Args
-): E['schema'] extends Record<string, unknown>
+): E['schema'] extends {}
   ? DenormalizeNullable<E['schema']>
   : E extends (...args: any) => any
   ? ResolveType<E> | undefined
@@ -1978,6 +2004,13 @@ declare const DispatchContext: React$1.Context<
 >;
 declare const DenormalizeCacheContext: React$1.Context<DenormalizeCache>;
 declare const ControllerContext: React$1.Context<Controller>;
+interface Store<S> {
+  subscribe(listener: () => void): () => void;
+  dispatch: React.Dispatch<ActionTypes>;
+  getState(): S;
+  uninitialized?: boolean;
+}
+declare const StoreContext: React$1.Context<Store<State<unknown>>>;
 
 interface Options$2<
   Shape extends FetchShape<
@@ -2107,6 +2140,8 @@ export {
   SetShapeParams,
   State,
   StateContext,
+  Store,
+  StoreContext,
   SubscribeAction,
   UnknownError,
   UnsubscribeAction,

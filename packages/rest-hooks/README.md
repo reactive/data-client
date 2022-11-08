@@ -71,6 +71,23 @@ useSubscription(PriceResource.get, { symbol });
 return price.value;
 ```
 
+### [Programmatic queries](https://resthooks.io/rest/api/Query)
+
+```tsx
+const sortedArticles = new Query(
+  new schema.All(Article),
+  (entries, { asc } = { asc: false }) => {
+    const sorted = [...entries].sort((a, b) => a.title.localeCompare(b.title));
+    if (asc) return sorted;
+    return sorted.reverse();
+  }
+);
+
+const articlesUnsorted = useCache(sortedArticles);
+const articlesAscending = useCache(sortedArticles, { asc: true });
+const articlesDescending = useCache(sortedArticles, { asc: false });
+```
+
 ### ...all typed ...fast ...and consistent
 
 For the small price of 8kb gziped. &nbsp;&nbsp; [🏁Get started now](https://resthooks.io/docs/getting-started/installation)

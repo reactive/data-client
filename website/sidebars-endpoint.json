@@ -37,6 +37,10 @@
   },
   {
     "type": "doc",
+    "id": "api/All"
+  },
+  {
+    "type": "doc",
     "id": "api/validateRequired"
   }
 ]

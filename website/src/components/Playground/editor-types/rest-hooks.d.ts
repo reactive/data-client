@@ -268,13 +268,14 @@ interface SchemaSimple<T = any> {
     visitedEntities: Record<string, any>,
   ): any;
   denormalize(
-    input: Record<string, unknown>,
+    input: {},
     unvisit: UnvisitFunction,
   ): [denormalized: T, found: boolean, suspend: boolean];
   infer(
     args: readonly any[],
     indexes: NormalizedIndex,
     recurse: (...args: any) => any,
+    entities: EntityTable,
   ): any;
 }
 interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
@@ -307,6 +308,13 @@ interface NormalizedIndex {
       readonly [lookup: string]: string;
     };
   };
+}
+interface EntityTable {
+  [entityKey: string]:
+    | {
+        [pk: string]: unknown;
+      }
+    | undefined;
 }
 /** Defines a networking endpoint */
 interface EndpointInterface<

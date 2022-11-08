@@ -101,6 +101,23 @@ function PostListItem({ post }: { post: PostResource }) {
 </TabItem>
 </Tabs>
 
+:::tip
+
+`fetch` has the same return value as the [Endpoint](/rest/api/Endpoint) passed to it.
+When using schemas, the denormalized value can be retrieved using a combination of
+[Controller.getResponse](#getResponse) and [Controller.getState](#getState)
+
+```ts
+await controller.fetch(PostResource.create, createPayload);
+const denormalizedResponse = controller.getResponse(
+  PostResource.create,
+  createPayload,
+  controller.getState(),
+);
+```
+
+:::
+
 ### Endpoint.sideEffect
 
 [sideEffect](/rest/api/Endpoint#sideeffect) changes the behavior
@@ -344,3 +361,35 @@ Gets the error, if any, for a given endpoint. Returns undefined for no errors.
 ## snapshot(state, fetchedAt) {#snapshot}
 
 Returns a [Snapshot](./Snapshot.md).
+
+## getState() {#getState}
+
+Gets the internal state of Rest Hooks that has _already been committed_.
+
+:::warning
+
+This should only be used in event handlers and not during React's render lifecycle.
+
+:::
+
+```tsx
+const controller = useController();
+
+const updateHandler = useCallback(
+  async updatePayload => {
+    const response = await controller.fetch(
+      MyResource.update,
+      { id },
+      updatePayload,
+    );
+    const denormalized = controller.getResponse(
+      MyResource.update,
+      { id },
+      updatePayload,
+      controller.getState(),
+    );
+    redirect(denormalized.getterUrl);
+  },
+  [id],
+);
+```

@@ -12,13 +12,13 @@ import type { Denormalize } from './normal.js';
 export class Query<S extends SchemaSimple, P extends any[] = []> {
   declare schema: S;
   // TODO: allow arbitrary return types then inferring it from
-  declare process: (entries: Denormalize<S>, ...rest: P) => Denormalize<S>;
+  declare process: (entries: Denormalize<S>, ...args: P) => Denormalize<S>;
 
-  readonly sideEffect = false;
+  readonly sideEffect = undefined;
 
   constructor(
     schema: S,
-    process?: (entries: Denormalize<S>, ...rest: P) => Denormalize<S>,
+    process?: (entries: Denormalize<S>, ...args: P) => Denormalize<S>,
   ) {
     this.schema = this.createQuerySchema(schema);
     if (process) this.process = process;
