@@ -55,7 +55,7 @@ export default function TodoList() {
 </Tabs>
 
 [useResource()](../api/useresource) guarantees access to data with sufficient [freshness](../api/Endpoint#dataexpirylength-number).
-This means it may issue network calls, and it may [suspend](../guides/loading-state) until the the fetch completes.
+This means it may issue network calls, and it may [suspend](../concepts/loading-state.md) until the the fetch completes.
 Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
 suspends.
 

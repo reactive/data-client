@@ -95,7 +95,7 @@ don't use constructors.
 
 ## Factory method
 
-### static fromJS\<T extends typeof Resource\>(this: T, props: Partial\<AbstractInstanceType\<T\>\>): AbstractInstanceType\<T\>
+### static fromJS\<T extends typeof Resource\>(this: T, props: Partial\<AbstractInstanceType\<T\>\>): AbstractInstanceType\<T\> {#fromJS}
 
 > Inherited from [SimpleRecord](./SimpleRecord)
 
@@ -129,7 +129,7 @@ pk(parent?: any, key?: string) {
 #### undefined value
 
 A `undefined` can be used as a default to indicate the resource has not been created yet.
-This is useful when initializing a creation form using [Resource.fromJS()](./api/resource#static-fromjs-t-extends-typeof-resource-this-t-props-partial-abstractinstancetype-t-abstractinstancetype-t)
+This is useful when initializing a creation form using [Resource.fromJS()](#fromJS)
 directly. If `pk()` resolves to null it is considered not persisted to the server,
 and thus will not be kept in the cache.
 

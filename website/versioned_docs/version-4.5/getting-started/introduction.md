@@ -8,7 +8,7 @@ it is not a networking stack for things like minecraft game servers.
 A good way to tell if this could be useful is if you use something similar to **any** of the following to build data-driven applications:
 
 - API protocols like [REST](https://restfulapi.net/), [GraphQL](https://graphql.org/), [gRPC](https://grpc.io/), [JSON:API](https://jsonapi.org/)
-- Transport protocols like [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview), [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API), [local](../guides/mocking-unfinished)
+- Transport protocols like [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview), [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API), [local](../guides/mocking-unfinished.md)
 - Async storage engines like [IndexedDb](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API), [AsyncStorage](https://reactnative.dev/docs/asyncstorage)
 
 Rest Hooks focuses on solving the following challenges in a declarative composable manner
@@ -19,7 +19,7 @@ Rest Hooks focuses on solving the following challenges in a declarative composab
 
 ## Endpoint
 
-[Endpoints](./endpoint) describe an asynchronous [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/).
+[Endpoints](../api/Endpoint.md) describe an asynchronous [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/).
 
 These define both `runtime` behaviors, as well as (optionally) `typing`.
 
