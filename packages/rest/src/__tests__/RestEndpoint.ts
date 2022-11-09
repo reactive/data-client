@@ -650,6 +650,30 @@ describe('RestEndpoint', () => {
       () => bodyNoParams({ group: 'hi', id: 'what' }, { title: 'cool' });
       // @ts-expect-error
       () => bodyNoParams({ sdfd: 'cool' });
+
+      const searchParams = getUser.extend({
+        path: 'http\\://test.com/:group/user/:id',
+        searchParams: {} as { isAdmin?: boolean; sort: 'asc' | 'desc' },
+      });
+      () => searchParams({ group: 'hi', id: 'what', sort: 'asc' });
+      () =>
+        searchParams({ group: 'hi', id: 'what', sort: 'asc', isAdmin: true });
+      // @ts-expect-error
+      () => searchParams({ group: 'hi', id: 'what', sort: 'abc' });
+      // @ts-expect-error
+      () => searchParams({ group: 'hi', id: 'what' });
+      // @ts-expect-error
+      () => searchParams.url({ group: 'hi', id: 'what' });
+      expect(
+        searchParams.url({
+          group: 'hi',
+          id: 'what',
+          sort: 'desc',
+          isAdmin: true,
+        }),
+      ).toMatchInlineSnapshot(
+        `"http://test.com/hi/user/what?isAdmin=true&sort=desc"`,
+      );
     });
   });
   it('extending with name should work', () => {
