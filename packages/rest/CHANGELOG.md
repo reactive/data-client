@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.1.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.1.0...@rest-hooks/rest@6.1.1) (2022-11-09)
+
+### 💅 Enhancement
+
+* Add searchParams arg for RestEndpoint typing ([#2266](https://github.com/coinbase/rest-hooks/issues/2266)) ([828e425](https://github.com/coinbase/rest-hooks/commit/828e425374ca1cb2d6e18fe0014397e2aa34dd1e))
+
+### 📝 Documentation
+
+* Cut 6.5 of docs ([#2259](https://github.com/coinbase/rest-hooks/issues/2259)) ([777695b](https://github.com/coinbase/rest-hooks/commit/777695b474ddd63710cf720caa4a079929f0537a))
+
 ## [6.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.0.2...@rest-hooks/rest@6.1.0) (2022-11-06)
 
 ### 🚀 Features
