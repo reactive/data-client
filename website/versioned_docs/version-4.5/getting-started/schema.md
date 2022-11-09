@@ -5,7 +5,7 @@ sidebar_label: Schema
 
 Schemas are a declarative definition of how to [process responses](./schema)
 
-- [where](./schema) to expect [Entities](./Entity)
+- [where](./schema) to expect [Entities](../api/Entity.md)
 - Classes to [deserialize fields](../guides/network-transform#deserializing-fields)
 
 ```typescript
@@ -30,7 +30,7 @@ const TodoDetail = new Endpoint(
 
 ## Entities
 
-[Entities](./Entity) have a primary key. This enables easy access via a lookup table.
+[Entities](../api/Entity.md) have a primary key. This enables easy access via a lookup table.
 This makes it easy to find, update, create, or delete the same data - no matter what
 endpoint it was used in.
 

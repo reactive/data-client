@@ -4,7 +4,7 @@ title: Custom endpoints
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-[Previously we saw how we could use](../getting-started/usage#use-resource-docs-api-useresource)
+[Previously we saw how we could use](../introduction.md#co-locate-data-dependencies)
 the [useResource()](../api/useresource) and [useFetcher()](../api/useFetcher) hooks to read and mutate
 data. The first argument of these hooks is known as a [Endpoint](../api/Endpoint).
 Endpoints are the minimal definition of instructions needed to tell Rest Hooks how to handle

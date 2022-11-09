@@ -264,4 +264,4 @@ TypeScript the definition of a networking API.
 
 ## See also
 
-- [Index](./Index)
+- [Index](./Index.md)

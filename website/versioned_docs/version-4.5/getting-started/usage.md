@@ -124,7 +124,7 @@ export default function ArticleList({ sortBy }: { sortBy: string }) {
 <!--END_DOCUSAURUS_CODE_TABS-->
 
 [useResource()](../api/useResource.md) guarantees access to data with sufficient [freshness](../api/FetchShape#dataexpirylength-number).
-This means it may issue network calls, and it may [suspend](../guides/loading-state) until the the fetch completes.
+This means it may issue network calls, and it may [suspend](../guides/loading-state.md) until the the fetch completes.
 Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
 suspends.
 

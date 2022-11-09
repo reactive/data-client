@@ -102,7 +102,7 @@ render(<ShowTime />);
 
 ## Force refresh
 
-[Controller.fetch](../api/Controller#fetch) can be used to trigger a fetch while still showing
+[useFetcher()](../api/useFetcher.md) can be used to trigger a fetch while still showing
 the previous data. This can be done even with 'fresh' data.
 
 <HooksPlayground>
