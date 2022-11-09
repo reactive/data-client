@@ -71,7 +71,9 @@ type OptionsToFunction<
   F extends FetchFunction,
 > = 'path' extends keyof O
   ? RestType<
-      PathArgs<Exclude<O['path'], undefined>>,
+      'searchParams' extends keyof O
+        ? O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
+        : PathArgs<Exclude<O['path'], undefined>>,
       'body' extends keyof O ? O['body'] : undefined,
       'schema' extends keyof O ? O['schema'] : E['schema'],
       'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
@@ -106,14 +108,17 @@ export type RestExtendedEndpoint<
     'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect']
   >
 > &
-  Omit<O, KeyofRestEndpoint | 'body'> &
+  Omit<O, KeyofRestEndpoint | 'body' | 'searchParams'> &
   Omit<E, KeyofRestEndpoint>;
 
 export interface PartialRestGenerics {
   readonly path?: string;
   readonly schema?: Schema | undefined;
   readonly method?: string;
+  /** Only used for types */
   readonly body?: any;
+  /** Only used for types */
+  readonly searchParams?: any;
   /** @see https://resthooks.io/rest/api/RestEndpoint#process */
   process?(value: any, ...args: any): any;
 }
@@ -156,7 +161,9 @@ export interface RestEndpointOptions<F extends FetchFunction = FetchFunction>
 export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
   RestEndpointOptions<
     RestFetch<
-      PathArgs<O['path']>,
+      'searchParams' extends keyof O
+        ? O['searchParams'] & PathArgs<O['path']>
+        : PathArgs<O['path']>,
       BodyDefault<O>,
       O['process'] extends {}
         ? ReturnType<O['process']>
@@ -172,7 +179,9 @@ export interface RestEndpointConstructor {
     ...options
   }: Readonly<RestEndpointConstructorOptions<O> & O>): RestInstance<
     RestFetch<
-      PathArgs<O['path']>,
+      'searchParams' extends keyof O
+        ? O['searchParams'] & PathArgs<O['path']>
+        : PathArgs<O['path']>,
       BodyDefault<O>,
       O['process'] extends {}
         ? ReturnType<O['process']>
