@@ -170,13 +170,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:13.0.24":
-  version: 13.0.24
-  resolution: "@anansi/webpack-config@npm:13.0.24"
+"@anansi/webpack-config@npm:13.0.25":
+  version: 13.0.25
+  resolution: "@anansi/webpack-config@npm:13.0.25"
   dependencies:
     "@babel/runtime": ^7.17.2
     "@linaria/webpack5-loader": 4.1.8
-    "@pmmmwh/react-refresh-webpack-plugin": ^0.5.8
+    "@pmmmwh/react-refresh-webpack-plugin": ^0.5.9
     "@svgr/webpack": ^6.5.1
     "@types/webpack-bundle-analyzer": ^4.6.0
     "@vue/preload-webpack-plugin": ^2.0.0
@@ -219,8 +219,8 @@ __metadata:
     react-dev-utils: ^12.0.1
     react-error-overlay: 6.0.9
     readable-stream: ^4.2.0
-    sass: ^1.56.0
-    sass-loader: ^13.1.0
+    sass: ^1.56.1
+    sass-loader: ^13.2.0
     sass-resources-loader: ^2.2.5
     semver: ^7.3.8
     stream-browserify: ^3.0.0
@@ -278,7 +278,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: f4f46e04cd366302ade6dd7c4702d2bcd9700b5f23713029c5b9fda204a2e94bd3cc46345901c5930ace982f548baefa8d916a7e7b387e70bf12f4e8c39a7686
+  checksum: 27edcc589cb144f1c323a48340cdd0a6721d08eef9c30c50c0685da6e0e52afa46ade714369ade1db9486473a5b021d6c4bed149019e62d5949df66d59d78831
   languageName: node
   linkType: hard
 
@@ -3621,9 +3621,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pmmmwh/react-refresh-webpack-plugin@npm:^0.5.8":
-  version: 0.5.8
-  resolution: "@pmmmwh/react-refresh-webpack-plugin@npm:0.5.8"
+"@pmmmwh/react-refresh-webpack-plugin@npm:^0.5.9":
+  version: 0.5.9
+  resolution: "@pmmmwh/react-refresh-webpack-plugin@npm:0.5.9"
   dependencies:
     ansi-html-community: ^0.0.8
     common-path-prefix: ^3.0.0
@@ -3631,7 +3631,7 @@ __metadata:
     error-stack-parser: ^2.0.6
     find-up: ^5.0.0
     html-entities: ^2.1.0
-    loader-utils: ^2.0.0
+    loader-utils: ^2.0.3
     schema-utils: ^3.0.0
     source-map: ^0.7.3
   peerDependencies:
@@ -3656,7 +3656,7 @@ __metadata:
       optional: true
     webpack-plugin-serve:
       optional: true
-  checksum: 48d8b2813dfba7d482e58a2b0161b79e3a5d608603f1a3c34d709ecc2e6e08f8b14f79934c57849d06f153eb327f18e3d8e1539f978e40ca91539c342f27b8ae
+  checksum: 446c0add9ecf17ed9911bf310bf22ab64f4b3d0ce334e68a3fcac5efee782ef4d7b6260997efaf720c7a2ea39086db89629e4aa07fb18558387d8dc8f0f31da2
   languageName: node
   linkType: hard
 
@@ -10764,7 +10764,7 @@ __metadata:
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.14.4
     "@anansi/router": 0.6.36
-    "@anansi/webpack-config": 13.0.24
+    "@anansi/webpack-config": 13.0.25
     "@ant-design/icons": ^4.7.0
     "@babel/core": 7.20.2
     "@linaria/babel-preset": 4.3.0
@@ -10811,7 +10811,7 @@ __metadata:
     rollup-plugin-terser: ^7.0.2
     serve: 14.1.0
     uuid: ^8.3.2
-    webpack: 5.74.0
+    webpack: 5.75.0
     webpack-cli: 4.10.0
     webpack-dev-server: 4.11.1
   languageName: unknown
@@ -19878,15 +19878,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass-loader@npm:^13.1.0":
-  version: 13.1.0
-  resolution: "sass-loader@npm:13.1.0"
+"sass-loader@npm:^13.2.0":
+  version: 13.2.0
+  resolution: "sass-loader@npm:13.2.0"
   dependencies:
     klona: ^2.0.4
     neo-async: ^2.6.2
   peerDependencies:
     fibers: ">= 3.1.0"
-    node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+    node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
     sass: ^1.3.0
     sass-embedded: "*"
     webpack: ^5.0.0
@@ -19899,7 +19899,7 @@ __metadata:
       optional: true
     sass-embedded:
       optional: true
-  checksum: 6b3b6c0e070a32c594001cee98c85a72afb6081c46d56a4283269e6c1802b0e26128bc8363fcd8d8c941abe1f9e441e3efcd401fcf3ef436e1f1fbeb6e0a1374
+  checksum: ed6cdb5f5508e1a8a020d1451160a5e94805d0c2a97be5719c6a44ed28a258b5f37a1478d01b9d545f269367ae91ccb88adc93bd6202bfd609dbe3193228d51e
   languageName: node
   linkType: hard
 
@@ -19915,16 +19915,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass@npm:^1.56.0":
-  version: 1.56.0
-  resolution: "sass@npm:1.56.0"
+"sass@npm:^1.56.1":
+  version: 1.56.1
+  resolution: "sass@npm:1.56.1"
   dependencies:
     chokidar: ">=3.0.0 <4.0.0"
     immutable: ^4.0.0
     source-map-js: ">=0.6.2 <2.0.0"
   bin:
     sass: sass.js
-  checksum: 37fb48b838f7a12f3c3efbf27bfc5f2b7fba015ed4b11effe32bd9488e30e1d5cefcbfef1e5c5dbd95557889fe2c7ec72f33e898cfc76182ea34eae03b1a4fb1
+  checksum: 78e693e5992b149574c95d5adfe39ca3e5b97d80befa11191a20d1daa41fe201a98ac099beab726cd3095e2d2e7991a2c408ba0fcc3fa9f525879de7eee18dad
   languageName: node
   linkType: hard
 
@@ -21356,7 +21356,7 @@ __metadata:
     "@anansi/babel-preset": 3.2.22
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.14.4
-    "@anansi/webpack-config": 13.0.24
+    "@anansi/webpack-config": 13.0.25
     "@babel/core": 7.20.2
     "@linaria/babel-preset": 4.3.0
     "@linaria/core": 4.2.2
@@ -21388,7 +21388,7 @@ __metadata:
     rollup-plugin-replace: ^2.2.0
     rollup-plugin-terser: ^7.0.2
     serve: 14.1.0
-    webpack: 5.74.0
+    webpack: 5.75.0
     webpack-cli: 4.10.0
     webpack-dev-server: 4.11.1
   languageName: unknown
@@ -22619,9 +22619,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:5.74.0, webpack@npm:^5":
-  version: 5.74.0
-  resolution: "webpack@npm:5.74.0"
+"webpack@npm:5.75.0, webpack@npm:^5":
+  version: 5.75.0
+  resolution: "webpack@npm:5.75.0"
   dependencies:
     "@types/eslint-scope": ^3.7.3
     "@types/estree": ^0.0.51
@@ -22652,7 +22652,7 @@ __metadata:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: 320c41369a75051b19e18c63f408b3dcc481852e992f83d311771c5ec0f05f2946385e8ebef62030cf3587f0a3d2f12779ffdb191569a966847289ba7313f946
+  checksum: 2bcc5f3c195f375944e8af2f00bf2feea39cb9fda5f763b0d1b00077f1c51783db25c94d3fae96a07dead9fa085e6ae7474417e5ab31719c9776ea5969ceb83a
   languageName: node
   linkType: hard
 
