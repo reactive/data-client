@@ -96,16 +96,16 @@ class NewsResource extends Resource {
 
 
 ```tsx
-import { useResource } from 'rest-hooks';
+import { useSuspense, useController } from '@rest-hooks/react';
 import NewsResource from 'resources/NewsResource';
 
 function NewsList() {
-  const { results, cursor } = useResource(NewsResource.list(), {});
+  const { results, cursor } = useSuspense(NewsResource.list(), {});
   const curRef = useRef(cursor);
   curRef.current = cursor;
-  const fetch = useFetcher();
+  const controller = useController();
   const getNextPage = useCallback(
-    () => fetch(NewsResource.listPage(), { cursor: curRef.current }),
+    () => controller.fetch(NewsResource.listPage(), { cursor: curRef.current }),
     []
   );
 

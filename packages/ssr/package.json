@@ -85,8 +85,7 @@
     "swr",
     "endpoint",
     "networking",
-    "react",
-    "json"
+    "react"
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",

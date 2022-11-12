@@ -27,7 +27,7 @@ Here, Rest Hooks is simply used to track resource loading - only storing the `sr
 
 ```tsx
 import React, { ImgHTMLAttributes } from 'react';
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 import { Img } from '@rest-hooks/img';
 
 export default function Profile({ username }: { username: string }) {
@@ -56,7 +56,7 @@ the image request can start. If the image url is deterministic based on the same
 
 ```tsx
 import React, { ImgHTMLAttributes } from 'react';
-import { useSuspense, useFetch } from 'rest-hooks';
+import { useSuspense, useFetch } from '@rest-hooks/react';
 import { Img, getImage } from '@rest-hooks/img';
 
 export default function Profile({ username }: { username: string }) {
