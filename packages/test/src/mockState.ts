@@ -1,17 +1,17 @@
 import {
   FetchShape,
   Schema,
-  createReceive,
-  initialState,
-  createReceiveError,
-  ReceiveAction,
   EndpointInterface,
   ResolveType,
+  ReceiveAction,
   State,
   ActionTypes,
-} from '@rest-hooks/core';
-// this allows us to support versions with different exports
-import * as RestHooks from '@rest-hooks/core';
+  Controller,
+  __INTERNAL__,
+} from 'rest-hooks';
+
+const { createReceive, initialState, createReceiveError, createReducer } =
+  __INTERNAL__;
 
 type Updater = (
   result: any,
@@ -90,24 +90,16 @@ export function actionFromFixture(fixture: SuccessFixture | ErrorFixture) {
 }
 
 export default function mockInitialState(fixtures: Fixture[]): State<unknown> {
-  let reducer: (
-    state: State<unknown> | undefined,
-    action: ActionTypes,
-  ) => State<unknown>;
   const actions: ReceiveAction[] = [];
   const dispatch = (action: any) => {
     actions.push(action);
     return Promise.resolve();
   };
-  const controller = new RestHooks.Controller({ dispatch });
-  // >=6.1 of Rest Hooks / >=3.1 of RH/core
-  if ('createReducer' in RestHooks) {
-    // `{...RestHooks}` blocks webpack from barfing during compilation if createReducer export isn't available
-    reducer = { ...RestHooks }.createReducer(controller);
-    // previous versions
-  } else {
-    reducer = (RestHooks as any).reducer;
-  }
+  const controller = new Controller({ dispatch });
+  const reducer: (
+    state: State<unknown> | undefined,
+    action: ActionTypes,
+  ) => State<unknown> = createReducer(controller);
 
   fixtures.forEach(fixture => {
     if ('endpoint' in fixture) {
@@ -121,7 +113,7 @@ export default function mockInitialState(fixtures: Fixture[]): State<unknown> {
 
 export function dispatchFixture(
   fixture: FixtureEndpoint,
-  controller: RestHooks.Controller,
+  controller: Controller,
   fetchedAt?: number,
 ) {
   const { endpoint, args, error } = fixture;

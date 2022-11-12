@@ -1,21 +1,13 @@
-export {
-  useCache,
-  useController,
-  useFetcher,
-  useRetrieve,
-  useResource,
-  useSubscription,
-  useMeta,
-  useError,
-  useInvalidator,
-  useResetter,
-  useDenormalized,
-  useSuspense,
-  useFetch,
-  useDLE,
-  // TODO: get rid of these exports once core has been out for a while
-  usePromisifiedDispatch,
-} from '@rest-hooks/core';
+export { Endpoint, Index } from '@rest-hooks/endpoint';
+export type {
+  EndpointExtraOptions as FetchOptions,
+  EndpointParam,
+  ReadEndpoint,
+  MutateEndpoint,
+  IndexParams,
+  ArrayElement,
+} from '@rest-hooks/endpoint';
+export * from '@rest-hooks/react';
 export type {
   FetchShape,
   ReadShape,
@@ -23,58 +15,25 @@ export type {
   DeleteShape,
   SetShapeParams,
   ParamsFromShape,
-  AbstractInstanceType,
-  UpdateFunction,
-  // TODO: get rid of these exports once core has been out for a while
-  FetchAction,
-  InvalidateAction,
-  UnsubscribeAction,
-  SubscribeAction,
-  ResetAction,
-  ReceiveAction,
-  State,
-  ReceiveTypes,
-  PK,
-  Dispatch,
-  Middleware,
-  MiddlewareAPI,
-  ActionTypes,
-  Manager,
-} from '@rest-hooks/core';
-export { Endpoint, Index } from '@rest-hooks/endpoint';
-export type {
-  EndpointExtraOptions as FetchOptions,
-  Schema,
-  Normalize,
-  NormalizeNullable,
-  Denormalize,
-  DenormalizeNullable,
-  EndpointExtraOptions,
-  FetchFunction,
-  ResolveType,
-  EndpointParam,
-  EndpointInterface,
-  ReadEndpoint,
-  MutateEndpoint,
-  IndexParams,
-  ArrayElement,
-  NetworkError,
-} from '@rest-hooks/endpoint';
+} from './endpoint/index.js';
+export { default as makeCacheProvider } from '@rest-hooks/react/makeCacheProvider';
+export { default as makeExternalCacheProvider } from '@rest-hooks/redux/makeCacheProvider';
 
-export {
-  CacheProvider,
-  ExternalCacheProvider,
-  PromiseifyMiddleware,
-  NetworkErrorBoundary,
-  mapMiddleware,
-} from './react-integration/index.js';
-
-export {
-  PollingSubscription,
-  DevToolsManager,
-  SubscriptionManager,
-  DefaultConnectionListener,
-} from './manager/index.js';
-export type { ConnectionListener, DevToolsConfig } from './manager/index.js';
-export { default as useSelectionUnstable } from './react-integration/hooks/useSelection.js';
 export * as __INTERNAL__ from './internal.js';
+export { useDenormalized } from './selectors/index.js';
+// some of these overwrite @rest-hooks/react
+export {
+  useCache,
+  useError,
+  useExpiresAt,
+  useFetchDispatcher,
+  useFetcher,
+  useInvalidateDispatcher,
+  useInvalidator,
+  useMeta,
+  useResetter,
+  useResource,
+  useRetrieve,
+  useSubscription,
+  hasUsableData,
+} from './hooks/index.js';

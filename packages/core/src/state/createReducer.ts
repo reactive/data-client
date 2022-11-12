@@ -7,7 +7,7 @@ import {
   OptimisticAction,
 } from '../types.js';
 import createOptimistic from '../controller/createOptimistic.js';
-import { createReceive as legacyCreateReceive } from './actions/index.js';
+import { createReceive as legacyCreateReceive } from './legacy-actions/index.js';
 import {
   RECEIVE_TYPE,
   INVALIDATE_TYPE,

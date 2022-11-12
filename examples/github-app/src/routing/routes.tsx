@@ -1,4 +1,4 @@
-import { Controller } from '@rest-hooks/core';
+import { Controller } from 'rest-hooks';
 import { lazy, Route } from '@anansi/router';
 import { getImage } from '@rest-hooks/img';
 import IssueResource from 'resources/Issue';

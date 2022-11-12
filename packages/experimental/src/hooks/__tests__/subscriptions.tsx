@@ -11,7 +11,7 @@ import {
   Controller,
   ControllerContext,
   useCache,
-} from '@rest-hooks/core';
+} from '@rest-hooks/react';
 
 import {
   makeCacheProvider,

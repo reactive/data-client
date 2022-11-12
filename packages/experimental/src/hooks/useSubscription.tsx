@@ -1,4 +1,4 @@
-import { useController } from '@rest-hooks/core';
+import { useController } from '@rest-hooks/react';
 import {
   EndpointInterface,
   Schema,

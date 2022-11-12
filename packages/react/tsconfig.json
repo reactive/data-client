@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig-base",
+  "compilerOptions": {
+    "outDir": "lib",
+    "rootDir": "src"
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../../__tests__" },
+    { "path": "../core" },
+    { "path": "../use-enhanced-reducer" }
+  ]
+}

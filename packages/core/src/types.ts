@@ -1,5 +1,4 @@
 import { NormalizedIndex } from '@rest-hooks/normalizr';
-import { Dispatch } from '@rest-hooks/use-enhanced-reducer';
 import { FSAWithPayloadAndMeta, FSAWithMeta } from 'flux-standard-action';
 import type {
   UpdateFunction,
@@ -10,6 +9,7 @@ import type {
 } from '@rest-hooks/normalizr';
 import type { ErrorTypes } from '@rest-hooks/normalizr';
 
+import { Dispatch, Middleware, MiddlewareAPI } from './middlewareTypes.js';
 import { ErrorableFSAWithPayloadAndMeta } from './fsa.js';
 import { FetchShape } from './endpoint/index.js';
 import {
@@ -22,7 +22,6 @@ import {
   GC_TYPE,
   OPTIMISTIC_TYPE,
 } from './actionTypes.js';
-import type Controller from './controller/Controller.js';
 import type { EndpointUpdateFunction } from './controller/types.js';
 
 export type { AbstractInstanceType, UpdateFunction };
@@ -210,16 +209,4 @@ export interface Manager {
   init?: (state: State<any>) => void;
 }
 
-export type Middleware = <R extends React.Reducer<any, any>>(
-  options: MiddlewareAPI<R>,
-) => (next: Dispatch<R>) => Dispatch<R>;
-
-export interface MiddlewareAPI<
-  R extends React.Reducer<any, any> = React.Reducer<any, any>,
-> {
-  getState: () => React.ReducerState<R>;
-  dispatch: Dispatch<R>;
-  controller: Controller;
-}
-
-export type { Dispatch };
+export type { Dispatch, Middleware, MiddlewareAPI };

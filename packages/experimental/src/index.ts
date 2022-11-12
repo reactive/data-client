@@ -1,4 +1,4 @@
-export { Controller, useController } from '@rest-hooks/core';
+export { Controller, useController } from '@rest-hooks/react';
 export { default as useSubscription } from './hooks/useSubscription';
 export { default as RestEndpoint } from './rest/RestEndpoint';
 export * from './rest/RestEndpoint';

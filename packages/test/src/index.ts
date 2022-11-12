@@ -1,5 +1,4 @@
 import makeRenderRestHook from './makeRenderRestHook.js';
-import { makeExternalCacheProvider, makeCacheProvider } from './providers.js';
 import MockProvider from './MockProvider.js';
 import mockInitialState from './mockState.js';
 export * from './managers.js';
@@ -12,11 +11,6 @@ export type {
   SuccessFixture,
   ErrorFixture,
 } from './mockState.js';
+export { makeExternalCacheProvider, makeCacheProvider } from 'rest-hooks';
 
-export {
-  makeRenderRestHook,
-  makeExternalCacheProvider,
-  makeCacheProvider,
-  MockProvider,
-  mockInitialState,
-};
+export { makeRenderRestHook, MockProvider, mockInitialState };

@@ -1,5 +1,4 @@
-import { State, Manager } from '@rest-hooks/core';
-import { SubscriptionManager } from 'rest-hooks';
+import { State, Manager, SubscriptionManager } from 'rest-hooks';
 import React, { memo, Suspense } from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 

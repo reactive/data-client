@@ -6,7 +6,6 @@
   },
   "include": ["src"],
   "references": [
-    { "path": "../core" },
     { "path": "../rest-hooks" }
   ]
 }

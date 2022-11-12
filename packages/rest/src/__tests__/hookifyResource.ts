@@ -1,6 +1,6 @@
 import { CoolerArticleResource, CoolerArticle, User } from '__tests__/new';
 import nock from 'nock';
-import { useController, useSuspense } from '@rest-hooks/core';
+import { useController, useSuspense } from '@rest-hooks/react';
 
 import hookifyResource from '../hookifyResource';
 import { makeRenderRestHook, makeCacheProvider } from '../../../test';

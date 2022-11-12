@@ -8,7 +8,7 @@
   "include": ["src"],
   "references": [
     { "path": "../../__tests__" },
-    { "path": "../rest-hooks" },
-    { "path": "../core" }
+    { "path": "../react" },
+    { "path": "../redux" }
   ]
 }

@@ -7,8 +7,7 @@
   "include": ["src"],
   "references": [
     { "path": "../../__tests__" },
-    { "path": "../use-enhanced-reducer" },
     { "path": "../endpoint" },
-    { "path": "../core" },
+    { "path": "../react" },
   ]
 }

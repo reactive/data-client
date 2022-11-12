@@ -58,7 +58,7 @@
     "build:js:browser": "BROWSERSLIST_ENV=legacy rollup -c",
     "build:bundle": "run-s build:js:\\* && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:clean": "rimraf lib ts3.4 legacy dist *.tsbuildinfo ./index.d.ts",
-    "build:legacy-types": "yarn run downlevel-dts lib ts3.4 && copyfiles --up 1 ./src-legacy-types/**/*.d.ts ./ts3.4/",
+    "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
     "build": "yarn run build:lib && yarn run build:legacy:lib && yarn run build:bundle",
     "dev": "yarn run build:lib -w",
     "prepare": "yarn run build:lib",
@@ -66,16 +66,13 @@
     "prepublishOnly": "yarn run build:bundle && yarn run build:legacy:lib"
   },
   "keywords": [
-    "react",
     "data",
     "cache",
     "flux",
-    "suspense",
     "fetch",
     "hook",
     "networking",
     "async",
-    "concurrent mode",
     "typescript",
     "async",
     "data fetching",
@@ -108,17 +105,7 @@
   "dependencies": {
     "@babel/runtime": "^7.13.0",
     "@rest-hooks/normalizr": "^9.2.0",
-    "@rest-hooks/use-enhanced-reducer": "^1.2.0",
     "flux-standard-action": "^2.1.1"
-  },
-  "peerDependencies": {
-    "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
-    "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0"
-  },
-  "peerDependenciesMeta": {
-    "@types/react": {
-      "optional": true
-    }
   },
   "devDependencies": {
     "@babel/cli": "7.19.3",

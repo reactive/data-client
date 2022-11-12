@@ -58,7 +58,7 @@
     "build:js:browser": "BROWSERSLIST_ENV=legacy rollup -c",
     "build:bundle": "run-s build:js:\\* && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:clean": "rimraf lib ts3.4 legacy dist *.tsbuildinfo ./index.d.ts",
-    "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
+    "build:legacy-types": "yarn run downlevel-dts lib ts3.4 && copyfiles --up 1 ./src-legacy-types/**/*.d.ts ./ts3.4/",
     "build": "yarn run build:lib && yarn run build:legacy:lib && yarn run build:bundle",
     "dev": "yarn run build:lib -w",
     "prepare": "yarn run build:lib",
@@ -107,8 +107,9 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.13.0",
-    "@rest-hooks/core": "^3.4.0",
-    "@rest-hooks/endpoint": "^3.2.1"
+    "@rest-hooks/endpoint": "^3.2.1",
+    "@rest-hooks/react": "^0.1.0 || ^0.2.0",
+    "@rest-hooks/redux": "^0.1.0 || ^0.2.0"
   },
   "peerDependencies": {
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",

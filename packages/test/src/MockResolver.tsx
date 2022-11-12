@@ -1,18 +1,14 @@
-import { DispatchContext, actionTypes, ActionTypes } from '@rest-hooks/core';
 import {
-  Context,
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-} from 'react';
+  DispatchContext,
+  actionTypes,
+  ActionTypes,
+  ControllerContext,
+  Controller,
+} from 'rest-hooks';
+import { useCallback, useContext, useMemo } from 'react';
 import React from 'react';
-import * as RestHooksCore from '@rest-hooks/core';
 
 import { Fixture, actionFromFixture, dispatchFixture } from './mockState.js';
-
-const ControllerContext: Context<any> =
-  RestHooksCore.ControllerContext ?? createContext({});
 
 type Props = {
   children: React.ReactNode;
@@ -119,8 +115,8 @@ export default function MockResolver({
     [controller, dispatch, fixtureMap, silenceMissing],
   );
   const controllerInterceptor = useMemo(() => {
-    if (!RestHooksCore.Controller) return controller;
-    return new RestHooksCore.Controller({
+    if (!Controller) return controller;
+    return new Controller({
       ...controller,
       dispatch: dispatchInterceptor,
     });

@@ -27,3 +27,31 @@ export const ProjectQuerySorted = new Query(
     return [...entries].sort((a, b) => a.internalId - b.internalId);
   },
 );
+
+class BuildTypeDescriptionSimpleMerge extends Entity {
+  pk() {
+    return this.id;
+  }
+
+  static merge(existing, incoming) {
+    return incoming;
+  }
+}
+
+export class ProjectWithBuildTypesDescriptionSimpleMerge extends Entity {
+  pk() {
+    return this.id;
+  }
+
+  static schema = {
+    buildTypes: { buildType: [BuildTypeDescriptionSimpleMerge] },
+  };
+
+  static merge(existing, incoming) {
+    return incoming;
+  }
+}
+
+export const ProjectSchemaSimpleMerge = {
+  project: [ProjectWithBuildTypesDescriptionSimpleMerge],
+};

@@ -1,8 +1,8 @@
 import nock from 'nock';
-import { useController } from '@rest-hooks/core';
+import { useController } from '@rest-hooks/react';
 import { act } from '@testing-library/react-hooks';
 import { Entity } from '@rest-hooks/endpoint';
-import { useSuspense } from '@rest-hooks/core';
+import { useSuspense } from '@rest-hooks/react';
 import { CoolerArticle, CoolerArticleResource } from '__tests__/new';
 
 import RestEndpoint, {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useResource } from '@rest-hooks/core';
+import { useSuspense } from '@rest-hooks/react';
 
 import getImage from './getImage';
 
@@ -15,7 +15,7 @@ export default function Img<
     | React.JSXElementConstructor<any> = 'img',
 >(props: Props<C>): React.ReactElement {
   const { component, ...rest } = props;
-  useResource(getImage, rest.src ? { src: rest.src } : null);
+  useSuspense(getImage, rest.src ? { src: rest.src } : null);
   return React.createElement(component, rest);
 }
 Img.defaultProps = {

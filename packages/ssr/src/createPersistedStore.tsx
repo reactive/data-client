@@ -1,15 +1,16 @@
-import { ExternalCacheProvider, PromiseifyMiddleware } from 'rest-hooks';
 import {
+  CacheProvider as ExternalCacheProvider,
+  PromiseifyMiddleware,
   Controller,
-  createReducer,
-  initialState,
   Manager,
-  applyManager,
   NetworkManager,
   State,
-} from '@rest-hooks/core';
+  __INTERNAL__,
+} from '@rest-hooks/redux';
 import { createStore, applyMiddleware } from 'redux';
 import { useSyncExternalStore } from 'react';
+
+const { createReducer, initialState, applyManager } = __INTERNAL__;
 
 export default function createPersistedStore(managers?: Manager[]) {
   const controller = new Controller();

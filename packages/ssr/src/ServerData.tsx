@@ -1,4 +1,4 @@
-import type { State } from '@rest-hooks/core';
+import type { State } from '@rest-hooks/redux';
 
 export const ServerData = ({
   data,

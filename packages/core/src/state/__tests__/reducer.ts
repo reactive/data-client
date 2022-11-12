@@ -26,7 +26,7 @@ import {
   RESET_TYPE,
   GC_TYPE,
 } from '../../actionTypes';
-import { createReceive } from '../actions';
+import { createReceive } from '../legacy-actions';
 import { Controller } from '../..';
 
 describe('reducer', () => {

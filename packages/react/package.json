@@ -1,0 +1,151 @@
+{
+  "name": "@rest-hooks/react",
+  "version": "0.1.0",
+  "description": "Asynchronous data framework for React",
+  "sideEffects": false,
+  "main": "dist/index.js",
+  "react-native": "legacy/index.js",
+  "module": "legacy/index.js",
+  "unpkg": "dist/index.umd.min.js",
+  "types": "lib/index.d.ts",
+  "typesVersions": {
+    ">=4.0": {
+      "": [
+        "lib/index.d.ts"
+      ],
+      "makeCacheProvider": [
+        "lib/makeCacheProvider.d.ts"
+      ],
+      "*": [
+        "lib/index.d.ts"
+      ]
+    },
+    ">=3.4": {
+      "": [
+        "ts3.4/index.d.ts"
+      ],
+      "makeCacheProvider": [
+        "ts3.4/makeCacheProvider.d.ts"
+      ],
+      "*": [
+        "ts3.4/index.d.ts"
+      ]
+    }
+  },
+  "exports": {
+    ".": {
+      "module": "./lib/index.js",
+      "import": "./node.mjs",
+      "require": "./dist/index.js",
+      "default": "./lib/index.js"
+    },
+    "./makeCacheProvider": {
+      "types": "./lib/makeCacheProvider.d.ts",
+      "module": "./lib/makeCacheProvider.js",
+      "import": "./makeCacheProvider.mjs",
+      "require": "./dist/makeCacheProvider.js",
+      "default": "./lib/makeCacheProvider.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "type": "module",
+  "engines": {
+    "node": "^12.17 || ^13.7 || >=14"
+  },
+  "files": [
+    "src",
+    "dist",
+    "lib",
+    "ts3.4",
+    "node.mjs",
+    "legacy",
+    "LICENSE",
+    "README.md",
+    "./typescript.svg",
+    "./rest_hooks_logo_and_text.svg"
+  ],
+  "scripts": {
+    "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js,.jsx' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:legacy:lib": "NODE_ENV=production BROWSERSLIST_ENV='2018' babel --root-mode upward src --out-dir legacy --source-maps inline --extensions '.ts,.tsx,.js,.jsx' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:js:node": "BROWSERSLIST_ENV=node12 rollup -c",
+    "build:js:browser": "BROWSERSLIST_ENV=legacy rollup -c",
+    "build:bundle": "run-s build:js:\\* && echo '{\"type\":\"commonjs\"}' > dist/package.json",
+    "build:clean": "rimraf lib ts3.4 legacy dist *.tsbuildinfo ./index.d.ts",
+    "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
+    "build": "yarn run build:lib && yarn run build:legacy:lib && yarn run build:bundle",
+    "dev": "yarn run build:lib -w",
+    "prepare": "yarn run build:lib",
+    "prepack": "yarn prepare",
+    "prepublishOnly": "yarn run build:bundle && yarn run build:legacy:lib"
+  },
+  "keywords": [
+    "react",
+    "data",
+    "cache",
+    "flux",
+    "suspense",
+    "fetch",
+    "hook",
+    "networking",
+    "async",
+    "concurrent mode",
+    "typescript",
+    "async",
+    "data fetching",
+    "data cache",
+    "api client",
+    "api",
+    "normalized cache",
+    "swr",
+    "GraphQL",
+    "query",
+    "react-native",
+    "ios",
+    "android",
+    "web",
+    "middleware",
+    "declarative",
+    "scalable"
+  ],
+  "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
+  "license": "Apache-2.0",
+  "homepage": "https://resthooks.io",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:coinbase/rest-hooks.git",
+    "directory": "packages/react"
+  },
+  "bugs": {
+    "url": "https://github.com/coinbase/rest-hooks/issues"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.13.0",
+    "@rest-hooks/core": "^3.4.0",
+    "@rest-hooks/use-enhanced-reducer": "^1.2.0"
+  },
+  "peerDependencies": {
+    "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0",
+    "react": "^16.8.4 || ^17.0.0 || ^18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@babel/cli": "7.19.3",
+    "@babel/core": "7.20.2",
+    "@types/babel__core": "^7",
+    "downlevel-dts": "^0.10.0",
+    "npm-run-all": "^4.1.5",
+    "rollup": "2.79.1",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-dts": "^5.0.0",
+    "rollup-plugin-filesize": "^9.1.2",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-replace": "^2.2.0",
+    "rollup-plugin-terser": "^7.0.2"
+  }
+}

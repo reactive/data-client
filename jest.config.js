@@ -6,21 +6,25 @@ const baseConfig = {
   coveragePathIgnorePatterns: [
     'node_modules',
     '/__tests__',
-    'react-integration/hooks/useSelection',
+    'DevtoolsManager',
     'packages/test',
     'packages/experimental',
     'packages/graphql',
+    'packages/redux',
     'packages/ssr',
     'packages/legacy/src/resource',
     'packages/legacy/src/rest-3',
-    'packages/core/src/react-integration/hooks/hasUsableData',
+    'packages/rest-hooks/src/hooks/hasUsableData',
   ],
   testEnvironmentOptions: {
     url: 'http://localhost',
   },
   /** TODO: Remove once we move to 'publishConfig' */
   moduleNameMapper: {
-    '@rest-hooks/(.*)$': ['<rootDir>/packages/$1/src'],
+    '@rest-hooks/redux/makeCacheProvider$': [
+      '<rootDir>/packages/redux/src/makeExternalCacheProvider',
+    ],
+    '@rest-hooks/([^/]+)(/.*|[^/]*)$': ['<rootDir>/packages/$1/src$2'],
     'rest-hooks': ['<rootDir>/packages/rest-hooks/src'],
   },
 };
@@ -32,6 +36,8 @@ const packages = [
   'rest',
   'graphql',
   'core',
+  'react',
+  'redux',
   'rest-hooks',
   'normalizr',
   'use-enhanced-reducer',

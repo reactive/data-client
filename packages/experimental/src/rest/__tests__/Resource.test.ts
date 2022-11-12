@@ -1,5 +1,5 @@
 import nock from 'nock';
-import { useController, useSuspense } from '@rest-hooks/core';
+import { useController, useSuspense } from '@rest-hooks/react';
 import { act } from '@testing-library/react-hooks';
 import { Entity, Schema, schema } from '@rest-hooks/endpoint';
 

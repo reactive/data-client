@@ -16,7 +16,6 @@ import {
   WeakListMap,
 } from '@rest-hooks/normalizr';
 import { inferResults } from '@rest-hooks/normalizr';
-import { unsetDispatch } from '@rest-hooks/use-enhanced-reducer';
 
 import type { EndpointUpdateFunction } from './types.js';
 import {
@@ -27,7 +26,7 @@ import createReceive from './createReceive.js';
 import createReset from './createReset.js';
 import createFetch from './createFetch.js';
 import createInvalidate from './createInvalidate.js';
-import selectMeta from '../state/selectors/selectMeta.js';
+import selectMeta from '../state/selectMeta.js';
 import type { ActionTypes, State } from '../types.js';
 import { initialState } from '../state/createReducer.js';
 
@@ -37,6 +36,13 @@ interface ConstructorProps {
   dispatch?: RHDispatch;
   globalCache?: DenormalizeCache;
 }
+
+const unsetDispatch = () => {
+  throw new Error(
+    `Dispatching while constructing your middleware is not allowed. ` +
+      `Other middleware would not be applied to this dispatch.`,
+  );
+};
 
 /**
  * Imperative control of Rest Hooks store
