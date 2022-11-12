@@ -4,7 +4,7 @@
 
 <div align="center">
 
-**[🏁Guides](https://resthooks.io/docs/guides/storybook)** &nbsp;|&nbsp; [🏁API Reference](https://resthooks.io/docs/api/MockResolver)
+**[🏁Guides](https://resthooks.io/docs/guides/storybook)** &nbsp;|&nbsp; [🏁API Reference](https://resthooks.io/docs/api/makeRenderRestHook)
 
 </div>
 
