@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [9.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@9.0.0...@rest-hooks/experimental@9.0.1) (2022-11-13)
+
+**Note:** Version bump only for package @rest-hooks/experimental
+
 ## [9.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@8.0.2...@rest-hooks/experimental@9.0.0) (2022-11-13)
 
 ### ⚠ 💥 BREAKING CHANGES

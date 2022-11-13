@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.6.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.6.0...rest-hooks@6.6.1) (2022-11-13)
+
+### 🐛 Bug Fix
+
+* Need redux for @rest-hooksr/redux ([#2272](https://github.com/coinbase/rest-hooks/issues/2272)) ([e7be083](https://github.com/coinbase/rest-hooks/commit/e7be0835dfca551ed7c78f5ea29ebbd04dca9062))
+
 ## [6.6.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.5.1...rest-hooks@6.6.0) (2022-11-13)
 
 ### 🚀 Features

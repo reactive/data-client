@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.7.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/img@0.7.0...@rest-hooks/img@0.7.1) (2022-11-13)
+
+**Note:** Version bump only for package @rest-hooks/img
+
 ## [0.7.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/img@0.6.8...@rest-hooks/img@0.7.0) (2022-11-13)
 
 ### ⚠ 💥 BREAKING CHANGES
