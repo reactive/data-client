@@ -1,5 +1,5 @@
-import { createBrowserHistory } from 'history';
 import { RouteProvider, RouteController } from '@anansi/router';
+import { createBrowserHistory } from 'history';
 import { useController } from 'rest-hooks';
 
 import { routes, namedPaths } from './routes';

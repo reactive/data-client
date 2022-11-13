@@ -1,8 +1,8 @@
+import type { State, Manager } from '@rest-hooks/core';
+import { createReducer, Controller } from '@rest-hooks/core';
 import useEnhancedReducer from '@rest-hooks/use-enhanced-reducer';
 import type { Middleware } from '@rest-hooks/use-enhanced-reducer';
 import React, { useEffect, useMemo, memo } from 'react';
-import type { State, Manager } from '@rest-hooks/core';
-import { createReducer, Controller } from '@rest-hooks/core';
 
 import { StateContext, DispatchContext } from '../context.js';
 import BackupBoundary from './BackupBoundary.js';

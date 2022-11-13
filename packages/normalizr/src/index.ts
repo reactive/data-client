@@ -1,7 +1,7 @@
 import { denormalize } from './denormalize.js';
+import { isEntity } from './isEntity.js';
 import { normalize } from './normalize.js';
 import WeakListMap from './WeakListMap.js';
-import { isEntity } from './isEntity.js';
 export { default as inferResults } from './inferResults.js';
 export { DELETED } from './special.js';
 

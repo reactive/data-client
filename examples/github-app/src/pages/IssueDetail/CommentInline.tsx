@@ -1,16 +1,16 @@
-import React, { memo, useCallback, useState } from 'react';
-import { useCache, useController } from 'rest-hooks';
-import { Card, Avatar, Button, Tag, Popover } from 'antd';
-import Markdown from 'react-markdown';
 import { Link, useRoutes } from '@anansi/router';
+import { EllipsisOutlined } from '@ant-design/icons';
+import { css } from '@linaria/core';
+import { Card, Avatar, Button, Tag, Popover } from 'antd';
+import FlexRow from 'components/FlexRow';
+import React, { memo, useCallback, useState } from 'react';
+import Markdown from 'react-markdown';
+import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import remarkRemoveComments from 'remark-remove-comments';
-import rehypeHighlight from 'rehype-highlight';
-import { UserResource } from 'resources/User';
-import { css } from '@linaria/core';
-import { EllipsisOutlined } from '@ant-design/icons';
 import { CommentResource, Comment } from 'resources/Comment';
-import FlexRow from 'components/FlexRow';
+import { UserResource } from 'resources/User';
+import { useCache, useController } from 'rest-hooks';
 
 import CommentForm from './CommentForm';
 

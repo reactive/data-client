@@ -1,6 +1,6 @@
-import { UnionResource, CoolerArticle, IndexedUser } from '__tests__/new';
 import { schema as schemas } from '@rest-hooks/endpoint';
 import { SimpleRecord } from '@rest-hooks/legacy';
+import { UnionResource, CoolerArticle, IndexedUser } from '__tests__/new';
 
 import buildInferredResults from '../inferResults';
 

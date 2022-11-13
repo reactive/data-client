@@ -1,5 +1,5 @@
-import React, { useContext, ReactChild, ReactNode, ReactElement } from 'react';
 import { render } from '@testing-library/react';
+import React, { useContext, ReactChild, ReactNode, ReactElement } from 'react';
 
 import NetworkErrorBoundary from '../NetworkErrorBoundary';
 

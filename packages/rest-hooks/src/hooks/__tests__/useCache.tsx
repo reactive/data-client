@@ -7,8 +7,8 @@ import {
 import React, { useEffect } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import { useCache } from '..';
+import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import { articlesPages, payload } from '../test-fixtures';
 
 describe('useCache()', () => {

@@ -1,13 +1,13 @@
 /** This file exists to keep compatibility with SchemaDetail, and SchemaList type hacks
  * Support can be dropped once @rest-hooks/rest@5 support is dropped
  */
+import type { EntityInterface } from './interface.js';
 import type {
   Denormalize as DenormalizeCore,
   DenormalizeNullable as DenormalizeNullableCore,
   Normalize as NormalizeCore,
   NormalizeNullable as NormalizeNullableCore,
 } from './types.js';
-import type { EntityInterface } from './interface.js';
 
 export type Denormalize<S> = Extract<S, EntityInterface> extends never
   ? Extract<S, EntityInterface[]> extends never

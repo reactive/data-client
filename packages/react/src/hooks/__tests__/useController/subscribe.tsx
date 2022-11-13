@@ -1,10 +1,10 @@
-import nock from 'nock';
-import { FutureArticleResource } from '__tests__/new';
 import { FixtureEndpoint } from '@rest-hooks/test/mockState';
 import { act } from '@testing-library/react-hooks';
+import { FutureArticleResource } from '__tests__/new';
+import nock from 'nock';
 
-import useCache from '../../useCache';
 import { makeRenderRestHook, makeCacheProvider } from '../../../../../test';
+import useCache from '../../useCache';
 import useController from '../../useController';
 
 export const payload = {

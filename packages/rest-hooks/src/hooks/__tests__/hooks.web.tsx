@@ -1,16 +1,4 @@
 import {
-  CoolerArticleResource,
-  PaginatedArticleResource,
-  ArticleResourceWithOtherListUrl,
-  StaticArticleResource,
-} from '__tests__/legacy-3';
-import React, { Suspense, useEffect } from 'react';
-import { render } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
-import nock from 'nock';
-
-// relative imports to avoid circular dependency in tsconfig references
-import {
   DispatchContext,
   StateContext,
   State,
@@ -18,13 +6,25 @@ import {
   actionTypes,
   __INTERNAL__,
 } from '@rest-hooks/react';
+import { render } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
+import {
+  CoolerArticleResource,
+  PaginatedArticleResource,
+  ArticleResourceWithOtherListUrl,
+  StaticArticleResource,
+} from '__tests__/legacy-3';
+import nock from 'nock';
+import React, { Suspense, useEffect } from 'react';
 
+// relative imports to avoid circular dependency in tsconfig references
+
+import { useFetcher, useRetrieve, useInvalidator, useResetter } from '..';
 import {
   makeRenderRestHook,
   makeCacheProvider,
   mockInitialState,
 } from '../../../../test';
-import { useFetcher, useRetrieve, useInvalidator, useResetter } from '..';
 import { users, articlesPages, payload } from '../test-fixtures';
 
 const { initialState } = __INTERNAL__;

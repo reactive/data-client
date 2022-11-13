@@ -1,3 +1,15 @@
+import { jest } from '@jest/globals';
+import {
+  State,
+  initialState,
+  Controller,
+  ActionTypes,
+  actionTypes,
+} from '@rest-hooks/core';
+import { FetchAction } from '@rest-hooks/core';
+import { Endpoint, FetchFunction, ReadEndpoint } from '@rest-hooks/endpoint';
+import { normalize } from '@rest-hooks/normalizr';
+import { render, act } from '@testing-library/react';
 import {
   CoolerArticleResource,
   InvalidIfStaleArticleResource,
@@ -14,36 +26,24 @@ import {
   ArticleTimed,
 } from '__tests__/new';
 import { createEntityMeta } from '__tests__/utils';
-import {
-  State,
-  initialState,
-  Controller,
-  ActionTypes,
-  actionTypes,
-} from '@rest-hooks/core';
-import React, { Suspense } from 'react';
-import { render, act } from '@testing-library/react';
-import nock from 'nock';
-import { jest } from '@jest/globals';
-// relative imports to avoid circular dependency in tsconfig references
-import { normalize } from '@rest-hooks/normalizr';
-import { Endpoint, FetchFunction, ReadEndpoint } from '@rest-hooks/endpoint';
 import { SpyInstance } from 'jest-mock';
-import { FetchAction } from '@rest-hooks/core';
+import nock from 'nock';
+import React, { Suspense } from 'react';
+// relative imports to avoid circular dependency in tsconfig references
 
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  mockInitialState,
-} from '../../../../test';
-import useSuspense from '../useSuspense';
-import { articlesPages, payload, users, nested } from '../test-fixtures';
 import {
   CacheProvider,
   useController,
   ControllerContext,
   StateContext,
 } from '../..';
+import {
+  makeRenderRestHook,
+  makeCacheProvider,
+  mockInitialState,
+} from '../../../../test';
+import { articlesPages, payload, users, nested } from '../test-fixtures';
+import useSuspense from '../useSuspense';
 
 async function testDispatchFetch(
   Component: React.FunctionComponent<any>,

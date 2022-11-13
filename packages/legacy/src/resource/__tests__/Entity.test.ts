@@ -1,5 +1,5 @@
 // eslint-env jest
-import { fromJS, Record } from 'immutable';
+import { schema } from '@rest-hooks/endpoint';
 import {
   normalize,
   denormalize,
@@ -7,11 +7,11 @@ import {
   AbstractInstanceType,
   WeakListMap,
 } from '@rest-hooks/normalizr';
-import { schema } from '@rest-hooks/endpoint';
+import { fromJS, Record } from 'immutable';
 
-import SimpleRecord from '../SimpleRecord';
-import IDEntity from '../IDEntity';
 import Entity from '../Entity';
+import IDEntity from '../IDEntity';
+import SimpleRecord from '../SimpleRecord';
 
 let dateSpy: jest.SpyInstance;
 beforeAll(() => {

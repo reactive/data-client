@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { AbstractInstanceType } from '../normal.js';
 import type { Schema, NormalizedIndex, UnvisitFunction } from '../interface.js';
+import { AbstractInstanceType } from '../normal.js';
 import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
 
 /**

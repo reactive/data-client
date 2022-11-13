@@ -1,8 +1,8 @@
-import thunk from 'redux-thunk';
 import { applyMiddleware, createStore } from 'redux';
+import thunk from 'redux-thunk';
 
-import * as schema from '../api/schema';
 import api from '../api';
+import * as schema from '../api/schema';
 import reducer from './reducer';
 
 export default createStore(

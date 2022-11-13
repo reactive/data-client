@@ -1,4 +1,3 @@
-import { GetEndpoint } from '../RestEndpoint';
 import {
   KeysToArgs,
   PathArgs,
@@ -6,6 +5,7 @@ import {
   PathKeys,
   ShortenPath,
 } from '../pathTypes';
+import { GetEndpoint } from '../RestEndpoint';
 
 describe('PathArgs', () => {
   it('should infer types', () => {

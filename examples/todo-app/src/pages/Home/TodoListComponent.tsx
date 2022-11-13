@@ -1,8 +1,8 @@
-import { useSuspense } from 'rest-hooks';
 import { TodoResource, Todo } from 'resources/TodoResource';
+import { useSuspense } from 'rest-hooks';
 
-import TodoListItem from './TodoListItem';
 import NewTodo from './NewTodo';
+import TodoListItem from './TodoListItem';
 
 export default function TodoListComponent() {
   const todos = useSuspense(TodoResource.getList);

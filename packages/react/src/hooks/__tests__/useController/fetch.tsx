@@ -1,7 +1,7 @@
+import { ResolveType } from '@rest-hooks/core';
+import { act } from '@testing-library/react-hooks';
 import { CoolerArticle, FutureArticleResource } from '__tests__/new';
 import nock from 'nock';
-import { act } from '@testing-library/react-hooks';
-import { ResolveType } from '@rest-hooks/core';
 
 import { useCache, useController, useSuspense } from '../..';
 // relative imports to avoid circular dependency in tsconfig references

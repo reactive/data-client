@@ -1,10 +1,10 @@
+import { InfoCircleOutlined, IssuesCloseOutlined } from '@ant-design/icons';
 import { RestGenerics } from '@rest-hooks/rest';
 import React from 'react';
-import { InfoCircleOutlined, IssuesCloseOutlined } from '@ant-design/icons';
 
-import { User } from './User';
-import { Label } from './Label';
 import { GithubEndpoint, GithubEntity, createGithubResource } from './Base';
+import { Label } from './Label';
+import { User } from './User';
 
 export class Issue extends GithubEntity {
   readonly number: number = 0;

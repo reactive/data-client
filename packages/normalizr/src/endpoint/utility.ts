@@ -1,6 +1,6 @@
-import type { FetchFunction } from './types.js';
-import type { Denormalize } from '../types.js';
 import type { Schema } from '../interface.js';
+import type { Denormalize } from '../types.js';
+import type { FetchFunction } from './types.js';
 
 /** What the function's promise resolves to */
 export type ResolveType<E extends (...args: any) => any> =

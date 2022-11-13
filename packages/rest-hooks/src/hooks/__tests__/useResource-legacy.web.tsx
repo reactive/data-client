@@ -1,10 +1,10 @@
-import { CoolerArticleResource } from '__tests__/legacy';
 import { ReadShape } from '@rest-hooks/core';
+import { CoolerArticleResource } from '__tests__/legacy';
 import nock from 'nock';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import { useResource } from '..';
+import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import { payload, users, nested } from '../test-fixtures';
 
 describe('useResource()', () => {

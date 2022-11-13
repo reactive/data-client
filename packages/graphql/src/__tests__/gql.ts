@@ -1,5 +1,5 @@
-import nock from 'nock';
 import { schema } from '@rest-hooks/endpoint';
+import nock from 'nock';
 
 import GQLEndpoint from '../GQLEndpoint';
 import GQLEntity from '../GQLEntity';

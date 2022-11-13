@@ -1,5 +1,5 @@
-import { Article } from '__tests__/new';
 import { schema } from '@rest-hooks/endpoint';
+import { Article } from '__tests__/new';
 
 import { denormalize } from '../denormalize';
 import { normalize } from '../normalize';

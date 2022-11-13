@@ -17,18 +17,18 @@ import {
 } from '@rest-hooks/normalizr';
 import { inferResults } from '@rest-hooks/normalizr';
 
-import type { EndpointUpdateFunction } from './types.js';
+import { initialState } from '../state/createReducer.js';
+import selectMeta from '../state/selectMeta.js';
+import type { ActionTypes, State } from '../types.js';
+import createFetch from './createFetch.js';
+import createInvalidate from './createInvalidate.js';
+import createReceive from './createReceive.js';
+import createReset from './createReset.js';
 import {
   createUnsubscription,
   createSubscription,
 } from './createSubscription.js';
-import createReceive from './createReceive.js';
-import createReset from './createReset.js';
-import createFetch from './createFetch.js';
-import createInvalidate from './createInvalidate.js';
-import selectMeta from '../state/selectMeta.js';
-import type { ActionTypes, State } from '../types.js';
-import { initialState } from '../state/createReducer.js';
+import type { EndpointUpdateFunction } from './types.js';
 
 type RHDispatch = (value: ActionTypes) => Promise<void>;
 

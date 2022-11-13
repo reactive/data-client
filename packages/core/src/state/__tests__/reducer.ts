@@ -1,3 +1,4 @@
+import { DELETED, schema } from '@rest-hooks/endpoint';
 import {
   ArticleResource,
   ArticleResourceWithOtherListUrl,
@@ -6,9 +7,15 @@ import {
   PaginatedArticle,
   UrlArticle,
 } from '__tests__/new';
-import { DELETED, schema } from '@rest-hooks/endpoint';
 
-import createReducer, { initialState } from '../createReducer';
+import { Controller } from '../..';
+import {
+  RECEIVE_TYPE,
+  INVALIDATE_TYPE,
+  FETCH_TYPE,
+  RESET_TYPE,
+  GC_TYPE,
+} from '../../actionTypes';
 import {
   FetchAction,
   ReceiveAction,
@@ -19,15 +26,8 @@ import {
   State,
   ActionTypes,
 } from '../../types';
-import {
-  RECEIVE_TYPE,
-  INVALIDATE_TYPE,
-  FETCH_TYPE,
-  RESET_TYPE,
-  GC_TYPE,
-} from '../../actionTypes';
+import createReducer, { initialState } from '../createReducer';
 import { createReceive } from '../legacy-actions';
-import { Controller } from '../..';
 
 describe('reducer', () => {
   let reducer: (

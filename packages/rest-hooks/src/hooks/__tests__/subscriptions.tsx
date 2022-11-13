@@ -1,21 +1,21 @@
-import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
-import nock from 'nock';
-import { PollingArticleResource } from '__tests__/legacy-3';
-
-// relative imports to avoid circular dependency in tsconfig references
 import {
   DispatchContext,
   ControllerContext,
   Controller,
 } from '@rest-hooks/react';
+import { renderHook } from '@testing-library/react-hooks';
+import { PollingArticleResource } from '__tests__/legacy-3';
+import nock from 'nock';
+import React from 'react';
 
+// relative imports to avoid circular dependency in tsconfig references
+
+import { useSubscription, useCache } from '..';
 import {
   makeCacheProvider,
   makeExternalCacheProvider,
   makeRenderRestHook,
 } from '../../../../test';
-import { useSubscription, useCache } from '..';
 
 let mynock: nock.Scope;
 

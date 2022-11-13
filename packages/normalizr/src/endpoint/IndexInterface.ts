@@ -1,5 +1,5 @@
-import type { AbstractInstanceType } from '../types.js';
 import type { Schema } from '../interface.js';
+import type { AbstractInstanceType } from '../types.js';
 
 export interface IndexInterface<S extends Schema = Schema, P = object> {
   key(params?: P): string;

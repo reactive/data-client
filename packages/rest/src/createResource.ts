@@ -5,13 +5,13 @@ import {
   type EndpointExtraOptions,
 } from '@rest-hooks/endpoint';
 
+import { PathArgs, PathArgsAndSearch, ShortenPath } from './pathTypes.js';
 import RestEndpoint, {
   GetEndpoint,
   MutateEndpoint,
   RestTypeNoBody,
 } from './RestEndpoint.js';
 import { shortenPath } from './RestHelpers.js';
-import { PathArgs, PathArgsAndSearch, ShortenPath } from './pathTypes.js';
 
 const { Delete } = schema;
 

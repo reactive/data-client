@@ -1,5 +1,5 @@
-import { useContext } from 'react';
 import type { Controller } from '@rest-hooks/core';
+import { useContext } from 'react';
 
 import { ControllerContext } from '../context.js';
 

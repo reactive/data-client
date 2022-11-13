@@ -8,8 +8,8 @@ import type {
 import type { AbstractInstanceType } from '@rest-hooks/endpoint';
 
 import EntityRecord from './EntityRecord.js';
-import { ReadShape, MutateShape, DeleteShape } from './legacy.js';
 import { NotImplementedError } from './errors.js';
+import { ReadShape, MutateShape, DeleteShape } from './legacy.js';
 import paramsToString from './paramsToString.js';
 import { RestEndpoint } from './types.js';
 

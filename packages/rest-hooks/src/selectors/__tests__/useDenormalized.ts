@@ -1,3 +1,7 @@
+import { initialState } from '@rest-hooks/core';
+import { normalize, NormalizedIndex } from '@rest-hooks/normalizr';
+import { ExpiryStatus } from '@rest-hooks/normalizr';
+import { renderHook, act } from '@testing-library/react-hooks';
 import {
   CoolerArticleResource,
   PaginatedArticleResource,
@@ -7,11 +11,7 @@ import {
   photoShape,
 } from '__tests__/legacy-3';
 import { createEntityMeta } from '__tests__/utils';
-import { normalize, NormalizedIndex } from '@rest-hooks/normalizr';
-import { initialState } from '@rest-hooks/core';
-import { renderHook, act } from '@testing-library/react-hooks';
 import { useState } from 'react';
-import { ExpiryStatus } from '@rest-hooks/normalizr';
 
 import useDenormalized from '../useDenormalized';
 

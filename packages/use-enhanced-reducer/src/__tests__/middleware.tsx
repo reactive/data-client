@@ -1,8 +1,8 @@
-import React from 'react';
 import { renderHook, act } from '@testing-library/react-hooks';
+import React from 'react';
 
-import useEnhancedReducer from '../useEnhancedReducer';
 import { MiddlewareAPI } from '../types';
+import useEnhancedReducer from '../useEnhancedReducer';
 
 function ignoreError(e: Event) {
   e.preventDefault();

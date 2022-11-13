@@ -1,9 +1,9 @@
-import { useController } from '@rest-hooks/react';
 import {
   EndpointInterface,
   Schema,
   FetchFunction,
 } from '@rest-hooks/normalizr';
+import { useController } from '@rest-hooks/react';
 import { useEffect } from 'react';
 
 /**

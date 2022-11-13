@@ -1,5 +1,5 @@
-import { useContext, useCallback } from 'react';
 import { DispatchContext, actionTypes } from '@rest-hooks/react';
+import { useContext, useCallback } from 'react';
 
 import { ReadShape, ParamsFromShape } from '../endpoint/index.js';
 

@@ -1,7 +1,7 @@
-import type { SchemaClass } from './schema.js';
 import type { Schema, EntityInterface } from './interface.js';
-import { ResolveType } from './utility.js';
+import type { SchemaClass } from './schema.js';
 import { SnapshotInterface } from './SnapshotInterface.js';
+import { ResolveType } from './utility.js';
 
 export * from './utility.js';
 export * from './ErrorTypes.js';

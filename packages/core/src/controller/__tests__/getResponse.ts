@@ -1,8 +1,8 @@
 import { Endpoint, Entity } from '@rest-hooks/endpoint';
 
 import { ExpiryStatus } from '../..';
-import Contoller from '../Controller';
 import { initialState } from '../../state/createReducer';
+import Contoller from '../Controller';
 
 describe('Controller.getResponse()', () => {
   it('denormalizes schema with extra members but not set', () => {

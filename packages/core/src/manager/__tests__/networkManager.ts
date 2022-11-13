@@ -1,13 +1,13 @@
-import { Article, ArticleResource } from '__tests__/new';
 import { Endpoint } from '@rest-hooks/endpoint';
+import { Article, ArticleResource } from '__tests__/new';
 
-import { Middleware } from '../../types';
-import Controller from '../../controller/Controller';
-import NetworkManager from '../../manager/NetworkManager';
-import { FetchAction } from '../../types';
 import { RECEIVE_TYPE } from '../../actionTypes';
+import Controller from '../../controller/Controller';
 import createFetch from '../../controller/createFetch';
+import NetworkManager from '../../manager/NetworkManager';
 import { initialState } from '../../state/createReducer';
+import { FetchAction } from '../../types';
+import { Middleware } from '../../types';
 
 describe('NetworkManager', () => {
   const manager = new NetworkManager();

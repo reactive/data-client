@@ -5,13 +5,6 @@ import {
   Controller,
   __INTERNAL__,
 } from '@rest-hooks/react';
-import React, {
-  useEffect,
-  useState,
-  useMemo,
-  useRef,
-  useCallback,
-} from 'react';
 import {
   StateContext,
   DispatchContext,
@@ -20,6 +13,13 @@ import {
   StoreContext,
   BackupBoundary,
 } from '@rest-hooks/react';
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+  useCallback,
+} from 'react';
 
 const { createReducer } = __INTERNAL__;
 

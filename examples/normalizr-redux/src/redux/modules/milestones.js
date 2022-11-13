@@ -1,8 +1,8 @@
 import { denormalize, normalize } from '@rest-hooks/normalizr';
 
-import * as Repo from './repos';
 import { Milestone } from '../../api/schema';
 import { ADD_ENTITIES, addEntities } from '../actions';
+import * as Repo from './repos';
 
 export const STATE_KEY = 'milestones';
 

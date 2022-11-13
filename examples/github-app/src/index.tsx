@@ -1,7 +1,7 @@
 import ReactDOM from 'react-dom/client';
 
-import RootProvider from './RootProvider';
 import App from './App';
+import RootProvider from './RootProvider';
 
 const content = (
   <RootProvider>

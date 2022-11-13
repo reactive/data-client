@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { useMemo } from 'react';
 import type {
   FetchFunction,
   Schema,
@@ -8,9 +7,10 @@ import type {
   ResolveType,
 } from '@rest-hooks/react';
 import { useCache as useCacheNew } from '@rest-hooks/react';
+import { useMemo } from 'react';
 
-import { ReadShape, ParamsFromShape } from '../endpoint/index.js';
 import shapeToEndpoint from '../endpoint/adapter.js';
+import { ReadShape, ParamsFromShape } from '../endpoint/index.js';
 
 /**
  * Access a response if it is available.

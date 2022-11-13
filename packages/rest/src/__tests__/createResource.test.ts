@@ -1,11 +1,11 @@
 import { Entity, schema } from '@rest-hooks/endpoint';
 import { useCache, useController, useSuspense } from '@rest-hooks/react';
-import nock from 'nock';
-import { act } from '@testing-library/react-hooks';
 import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
+import { act } from '@testing-library/react-hooks';
+import nock from 'nock';
 
-import RestEndpoint, { RestGenerics } from '../RestEndpoint';
 import createResource from '../createResource';
+import RestEndpoint, { RestGenerics } from '../RestEndpoint';
 
 describe('createResource()', () => {
   const renderRestHook: ReturnType<typeof makeRenderRestHook> =

@@ -5,11 +5,11 @@ import type {
   UnknownError,
   FetchFunction,
 } from '@rest-hooks/react';
-import { useMemo } from 'react';
 import { useError as useErrorNew } from '@rest-hooks/react';
+import { useMemo } from 'react';
 
-import { ReadShape, ParamsFromShape } from '../endpoint/index.js';
 import shapeToEndpoint from '../endpoint/adapter.js';
+import { ReadShape, ParamsFromShape } from '../endpoint/index.js';
 
 export type ErrorTypes = NetworkError | UnknownError;
 

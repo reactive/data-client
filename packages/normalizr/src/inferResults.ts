@@ -4,9 +4,9 @@ import type {
   NormalizedIndex,
   EntityTable,
 } from './interface.js';
-import type { NormalizeNullable } from './types.js';
-import { infer as objectInfer } from './schemas/Object.js';
 import { infer as arrayInfer } from './schemas/Array.js';
+import { infer as objectInfer } from './schemas/Object.js';
+import type { NormalizeNullable } from './types.js';
 
 /**
  * Build the result parameter to denormalize from schema alone.

@@ -1,17 +1,17 @@
-import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
-import nock from 'nock';
-import {
-  PollingArticleResource,
-  ArticleResource,
-  Article,
-} from '__tests__/new';
 import {
   actionTypes,
   Controller,
   ControllerContext,
   useCache,
 } from '@rest-hooks/react';
+import { renderHook } from '@testing-library/react-hooks';
+import {
+  PollingArticleResource,
+  ArticleResource,
+  Article,
+} from '__tests__/new';
+import nock from 'nock';
+import React from 'react';
 
 import {
   makeCacheProvider,

@@ -1,3 +1,4 @@
+import { normalize, Schema } from '@rest-hooks/normalizr';
 import {
   CoolerArticleResource,
   UserResource,
@@ -5,11 +6,10 @@ import {
   ArticleResource,
 } from '__tests__/legacy-3';
 import nock from 'nock';
-import { normalize, Schema } from '@rest-hooks/normalizr';
 
+import { FetchShape } from '../legacy';
 import Resource from '../Resource';
 import SimpleResource from '../SimpleResource';
-import { FetchShape } from '../legacy';
 
 function onError(e: any) {
   e.preventDefault();

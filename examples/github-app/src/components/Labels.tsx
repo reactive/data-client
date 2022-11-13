@@ -1,6 +1,6 @@
-import LabelResource from 'resources/LabelResource';
 import { Tag } from 'antd';
 import { memo } from 'react';
+import LabelResource from 'resources/LabelResource';
 
 function Labels({ labels }: { labels: LabelResource[] }) {
   return (

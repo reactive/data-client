@@ -1,6 +1,6 @@
+import { act } from '@testing-library/react-hooks';
 import { IndexedUserResource, User } from '__tests__/new';
 import nock from 'nock';
-import { act } from '@testing-library/react-hooks';
 import { useContext } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
@@ -9,6 +9,7 @@ import {
   makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../../test';
+import { StateContext } from '../context';
 import { useCache, useSuspense, useController } from '../hooks';
 import {
   payload,
@@ -19,7 +20,6 @@ import {
   paginatedSecondPage,
   valuesFixture,
 } from '../test-fixtures';
-import { StateContext } from '../context';
 
 function onError(e: any) {
   e.preventDefault();

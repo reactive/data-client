@@ -1,6 +1,6 @@
+import { act } from '@testing-library/react-hooks';
 import { CoolerArticleResource, CoolerArticleDetail } from '__tests__/new';
 import nock from 'nock';
-import { act } from '@testing-library/react-hooks';
 // relative imports to avoid circular dependency in tsconfig references
 
 import { makeRenderRestHook, makeExternalCacheProvider } from '../../../test';

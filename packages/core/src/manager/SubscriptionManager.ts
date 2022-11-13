@@ -1,5 +1,6 @@
 import type { Schema } from '@rest-hooks/normalizr';
 
+import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '../actionTypes.js';
 import type {
   Manager,
   State,
@@ -9,7 +10,6 @@ import type {
   UnsubscribeAction,
   SubscribeAction,
 } from '../types.js';
-import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '../actionTypes.js';
 
 type Actions = UnsubscribeAction | SubscribeAction;
 

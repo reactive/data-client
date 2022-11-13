@@ -1,4 +1,3 @@
-import React, { useMemo, useRef } from 'react';
 import {
   initialState as defaultState,
   NetworkManager,
@@ -9,6 +8,7 @@ import {
   DevToolsManager,
 } from '@rest-hooks/core';
 import type { State, Manager } from '@rest-hooks/core';
+import React, { useMemo, useRef } from 'react';
 
 import { DenormalizeCacheContext, ControllerContext } from '../context.js';
 import CacheStore from './CacheStore.js';

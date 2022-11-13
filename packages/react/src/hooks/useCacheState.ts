@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
 import type { State } from '@rest-hooks/core';
+import React, { useContext } from 'react';
 
 import { StateContext, StoreContext } from '../context.js';
 

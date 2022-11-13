@@ -1,6 +1,6 @@
 import type { Schema } from '@rest-hooks/react';
-import { useContext, useCallback } from 'react';
 import { DispatchContext, __INTERNAL__ } from '@rest-hooks/react';
+import { useContext, useCallback } from 'react';
 
 import {
   FetchShape,

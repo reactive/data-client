@@ -1,16 +1,16 @@
-import { CoolerArticleResource, StaticArticleResource } from '__tests__/new';
-import React, { Suspense } from 'react';
+import { initialState, State, ActionTypes, Controller } from '@rest-hooks/core';
 import { render } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
+import { CoolerArticleResource, StaticArticleResource } from '__tests__/new';
 import nock from 'nock';
+import React, { Suspense } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { initialState, State, ActionTypes, Controller } from '@rest-hooks/core';
 
 import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
-import useFetch from '../useFetch';
-import { users, payload } from '../test-fixtures';
 import { StateContext, ControllerContext } from '../../context';
+import { users, payload } from '../test-fixtures';
+import useFetch from '../useFetch';
 
 async function testDispatchFetch(
   Component: React.FunctionComponent<any>,

@@ -1,9 +1,9 @@
-import { useController, useCache } from 'rest-hooks';
-import { UserResource } from 'resources/User';
-import { v4 as uuid } from 'uuid';
-import { Reaction, ReactionResource, contentToIcon } from 'resources/Reaction';
-import { Issue } from 'resources/Issue';
 import { Tag } from 'antd';
+import { Issue } from 'resources/Issue';
+import { Reaction, ReactionResource, contentToIcon } from 'resources/Reaction';
+import { UserResource } from 'resources/User';
+import { useController, useCache } from 'rest-hooks';
+import { v4 as uuid } from 'uuid';
 
 const { CheckableTag } = Tag;
 

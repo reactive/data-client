@@ -1,3 +1,4 @@
+import createReducer from '../state/createReducer.js';
 import type {
   Manager,
   State,
@@ -6,7 +7,6 @@ import type {
   Middleware,
   Dispatch,
 } from '../types.js';
-import createReducer from '../state/createReducer.js';
 
 export type DevToolsConfig = {
   [k: string]: unknown;

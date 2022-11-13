@@ -1,11 +1,11 @@
+import { schema } from '@rest-hooks/endpoint';
+import { normalize } from '@rest-hooks/normalizr';
 import {
   CoolerArticleResource,
   UserResource,
   UrlArticleResource,
 } from '__tests__/legacy';
 import nock from 'nock';
-import { normalize } from '@rest-hooks/normalizr';
-import { schema } from '@rest-hooks/endpoint';
 
 import Resource from '../Resource';
 import SimpleResource from '../SimpleResource';

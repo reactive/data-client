@@ -1,10 +1,10 @@
-import { useSuspense, useController, useCache } from 'rest-hooks';
-import React, { useCallback } from 'react';
-import { UserResource } from 'resources/User';
-import { v4 as uuid } from 'uuid';
-import { Reaction, ReactionResource } from 'resources/Reaction';
-import { Issue } from 'resources/Issue';
 import { Tag } from 'antd';
+import React, { useCallback } from 'react';
+import { Issue } from 'resources/Issue';
+import { Reaction, ReactionResource } from 'resources/Reaction';
+import { UserResource } from 'resources/User';
+import { useSuspense, useController, useCache } from 'rest-hooks';
+import { v4 as uuid } from 'uuid';
 
 const { CheckableTag } = Tag;
 

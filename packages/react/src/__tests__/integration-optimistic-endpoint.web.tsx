@@ -1,3 +1,7 @@
+import { jest } from '@jest/globals';
+import { Endpoint, Entity } from '@rest-hooks/endpoint';
+import { AbortOptimistic } from '@rest-hooks/endpoint';
+import { act } from '@testing-library/react-hooks';
 import {
   CoolerArticleResource,
   ArticleResourceWithOtherListUrl,
@@ -8,20 +12,18 @@ import {
   CoolerArticle,
   Article,
 } from '__tests__/new';
-import nock from 'nock';
-import { Endpoint, Entity } from '@rest-hooks/endpoint';
-import { AbortOptimistic } from '@rest-hooks/endpoint';
-import { act } from '@testing-library/react-hooks';
-import { useContext } from 'react';
-import { jest } from '@jest/globals';
 import { SpyInstance } from 'jest-mock';
+import nock from 'nock';
+import { useContext } from 'react';
 
 import {
   makeRenderRestHook,
   makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../../test';
+import { StateContext } from '../context';
 import { useCache, useController, useSuspense } from '../hooks';
+import { useError } from '../hooks';
 import {
   payload,
   createPayload,
@@ -29,8 +31,6 @@ import {
   nested,
   valuesFixture,
 } from '../test-fixtures';
-import { StateContext } from '../context';
-import { useError } from '../hooks';
 
 function onError(e: any) {
   e.preventDefault();

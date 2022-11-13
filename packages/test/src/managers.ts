@@ -1,6 +1,6 @@
+import { act } from '@testing-library/react-hooks';
 import { NetworkManager, PollingSubscription } from 'rest-hooks';
 import type { ReceiveAction } from 'rest-hooks';
-import { act } from '@testing-library/react-hooks';
 
 export class MockNetworkManager extends NetworkManager {
   handleFetch(

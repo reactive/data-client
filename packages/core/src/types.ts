@@ -1,5 +1,4 @@
 import { NormalizedIndex } from '@rest-hooks/normalizr';
-import { FSAWithPayloadAndMeta, FSAWithMeta } from 'flux-standard-action';
 import type {
   UpdateFunction,
   AbstractInstanceType,
@@ -8,10 +7,8 @@ import type {
   EndpointInterface,
 } from '@rest-hooks/normalizr';
 import type { ErrorTypes } from '@rest-hooks/normalizr';
+import { FSAWithPayloadAndMeta, FSAWithMeta } from 'flux-standard-action';
 
-import { Dispatch, Middleware, MiddlewareAPI } from './middlewareTypes.js';
-import { ErrorableFSAWithPayloadAndMeta } from './fsa.js';
-import { FetchShape } from './endpoint/index.js';
 import {
   RECEIVE_TYPE,
   RESET_TYPE,
@@ -23,6 +20,9 @@ import {
   OPTIMISTIC_TYPE,
 } from './actionTypes.js';
 import type { EndpointUpdateFunction } from './controller/types.js';
+import { FetchShape } from './endpoint/index.js';
+import { ErrorableFSAWithPayloadAndMeta } from './fsa.js';
+import { Dispatch, Middleware, MiddlewareAPI } from './middlewareTypes.js';
 
 export type { AbstractInstanceType, UpdateFunction };
 
