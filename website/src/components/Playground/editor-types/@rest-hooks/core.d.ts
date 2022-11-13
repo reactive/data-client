@@ -1,6 +1,3 @@
-/// <reference types="react" />
-import * as React$1 from 'react';
-import React__default from 'react';
 import {
   ErrorFluxStandardActionWithPayloadAndMeta,
   FSA,
@@ -118,7 +115,7 @@ declare type NormalizeObject<S extends Record<string, any>> = {
   [K in keyof S]: S[K] extends Schema ? Normalize$1<S[K]> : S[K];
 };
 declare type NormalizedNullableObject<S extends Record<string, any>> = {
-  [K in keyof S]: S[K] extends Schema ? NormalizeNullable<S[K]> : S[K];
+  [K in keyof S]: S[K] extends Schema ? NormalizeNullable$1<S[K]> : S[K];
 };
 interface NestedSchemaClass<T = any> {
   schema: Record<string, Schema>;
@@ -197,7 +194,7 @@ declare type Normalize$1<S> = S extends EntityInterface
     }
   ? NormalizeObject<S>
   : S;
-declare type NormalizeNullable<S> = S extends EntityInterface
+declare type NormalizeNullable$1<S> = S extends EntityInterface
   ? string | undefined
   : S extends RecordClass
   ? NormalizedNullableObject<S['schema']>
@@ -222,7 +219,7 @@ declare function inferResults<S extends Schema>(
   args: any[],
   indexes: NormalizedIndex,
   entities?: EntityTable,
-): NormalizeNullable<S>;
+): NormalizeNullable$1<S>;
 
 declare const DELETED: unique symbol;
 
@@ -234,7 +231,7 @@ interface UnknownError extends Error {
   status?: unknown;
   response?: unknown;
 }
-declare type ErrorTypes$1 = NetworkError | UnknownError;
+declare type ErrorTypes = NetworkError | UnknownError;
 
 /** What the function's promise resolves to */
 declare type ResolveType<E extends (...args: any) => any> =
@@ -264,7 +261,7 @@ interface SnapshotInterface {
     endpoint: E,
     ...args: Args
   ) => {
-    data: DenormalizeNullable$1<E['schema']>;
+    data: any;
     expiryStatus: ExpiryStatusInterface;
     expiresAt: number;
   };
@@ -274,7 +271,7 @@ interface SnapshotInterface {
   >(
     endpoint: E,
     ...args: Args
-  ) => ErrorTypes$1 | undefined;
+  ) => ErrorTypes | undefined;
   readonly fetchedAt: number;
 }
 
@@ -343,228 +340,13 @@ declare type Normalize<S> = Extract<S, EntityInterface> extends never
     ? Normalize$1<S>
     : Normalize$1<Extract<S, EntityInterface[]>>
   : Normalize$1<Extract<S, EntityInterface>>;
+declare type NormalizeNullable<S> = Extract<S, EntityInterface> extends never
+  ? Extract<S, EntityInterface[]> extends never
+    ? NormalizeNullable$1<S>
+    : NormalizeNullable$1<Extract<S, EntityInterface[]>>
+  : NormalizeNullable$1<Extract<S, EntityInterface>>;
 
 declare const RIC: (cb: (...args: any[]) => void, options: any) => void;
-
-declare const _default: React__default.NamedExoticComponent<{
-  children: React__default.ReactNode;
-}>;
-//# sourceMappingURL=BackupBoundary.d.ts.map
-
-//# sourceMappingURL=internal.d.ts.map
-
-declare const internal_d_inferResults: typeof inferResults;
-declare const internal_d_DELETED: typeof DELETED;
-declare const internal_d_RIC: typeof RIC;
-declare namespace internal_d {
-  export {
-    internal_d_inferResults as inferResults,
-    internal_d_DELETED as DELETED,
-    internal_d_RIC as RIC,
-    _default as BackupBoundary,
-  };
-}
-
-interface MiddlewareAPI$1<
-  R extends React__default.Reducer<any, any> = React__default.Reducer<any, any>,
-> {
-  getState: () => React__default.ReducerState<R>;
-  dispatch: Dispatch<R>;
-}
-declare type Dispatch<R extends React__default.Reducer<any, any>> = (
-  action: React__default.ReducerAction<R>,
-) => Promise<void>;
-declare type Middleware$1 = <R extends React__default.Reducer<any, any>>({
-  dispatch,
-}: MiddlewareAPI$1<R>) => (next: Dispatch<R>) => Dispatch<R>;
-
-/** Turns a dispatch function into one that resolves once its been commited */
-declare function usePromisifiedDispatch<
-  R extends React__default.Reducer<any, any>,
->(
-  dispatch: React__default.Dispatch<React__default.ReducerAction<R>>,
-  state: React__default.ReducerState<R>,
-): (action: React__default.ReducerAction<R>) => Promise<void>;
-
-declare type ErrorableFSAWithPayloadAndMeta<
-  Type extends string = string,
-  Payload = undefined,
-  Meta = undefined,
-  CustomError extends Error = Error,
-> =
-  | ErrorFluxStandardActionWithPayloadAndMeta<Type, CustomError, Meta>
-  | NoErrorFluxStandardActionWithPayloadAndMeta<Type, Payload, Meta>;
-interface NoErrorFluxStandardAction<
-  Type extends string = string,
-  Payload = undefined,
-  Meta = undefined,
-> extends FSA<Type, Payload, Meta> {
-  error?: false;
-}
-/**
- * A Flux Standard action with a required payload property.
- */
-interface NoErrorFluxStandardActionWithPayload<
-  Type extends string = string,
-  Payload = undefined,
-  Meta = undefined,
-> extends NoErrorFluxStandardAction<Type, Payload, Meta> {
-  /**
-   * The required `payload` property MAY be any type of value.
-   * It represents the payload of the action.
-   * Any information about the action that is not the type or status of the action should be part of the `payload` field.
-   * By convention, if `error` is `true`, the `payload` SHOULD be an error object.
-   * This is akin to rejecting a promise with an error object.
-   */
-  payload: Payload;
-}
-/**
- * A Flux Standard action with a required metadata property.
- */
-interface NoErrorFluxStandardActionWithMeta<
-  Type extends string = string,
-  Payload = undefined,
-  Meta = undefined,
-> extends NoErrorFluxStandardAction<Type, Payload, Meta> {
-  /**
-   * The required `meta` property MAY be any type of value.
-   * It is intended for any extra information that is not part of the payload.
-   */
-  meta: Meta;
-}
-/**
- * A Flux Standard action with required payload and metadata properties.
- */
-declare type NoErrorFluxStandardActionWithPayloadAndMeta<
-  Type extends string = string,
-  Payload = undefined,
-  Meta = undefined,
-> = NoErrorFluxStandardActionWithPayload<Type, Payload, Meta> &
-  NoErrorFluxStandardActionWithMeta<Type, Payload, Meta>;
-
-/** Defines the shape of a network request */
-interface FetchShape<
-  S extends Schema | undefined,
-  Params extends Readonly<object> = Readonly<object>,
-  Body extends Readonly<object | string> | void | unknown =
-    | Readonly<object | string>
-    | undefined,
-  Response = any,
-> {
-  readonly type: 'read' | 'mutate' | 'delete';
-  fetch(params: Params, body?: Body): Promise<Response>;
-  getFetchKey(params: Params): string;
-  readonly schema: S;
-  readonly options?: EndpointExtraOptions;
-}
-/** To change values on the server */
-interface MutateShape<
-  S extends Schema | undefined,
-  Params extends Readonly<object> = Readonly<object>,
-  Body extends Readonly<object | string> | void | unknown =
-    | Readonly<object | string>
-    | undefined,
-  Response extends object | string | number | boolean | null = any,
-> extends FetchShape<S, Params, Body, Response> {
-  readonly type: 'mutate';
-  fetch(params: Params, body: Body): Promise<Response>;
-}
-/** Removes entities */
-interface DeleteShape<
-  S extends Schema | undefined,
-  Params extends Readonly<object> = Readonly<object>,
-  Response extends object | string | number | boolean | null = any,
-> extends FetchShape<S, Params, undefined, Response> {
-  readonly type: 'mutate';
-  fetch(params: Params, ...args: any): Promise<Response>;
-}
-/** For retrieval requests */
-interface ReadShape<
-  S extends Schema | undefined,
-  Params extends Readonly<object> = Readonly<object>,
-  Response extends object | string | number | boolean | null = any,
-> extends FetchShape<S, Params, undefined, Response> {
-  readonly type: 'read';
-  fetch(params: Params): Promise<Response>;
-}
-
-/** Sets a FetchShape's Param type.
- * Useful to constrain acceptable params (second arg) in hooks like useResource().
- *
- * @param [Shape] FetchShape to act upon
- * @param [Params] what to set the Params to
- */
-declare type SetShapeParams<
-  Shape extends FetchShape<any, any, any>,
-  Params extends Readonly<object>,
-> = {
-  [K in keyof Shape]: Shape[K];
-} & (Shape['fetch'] extends (first: any, ...rest: infer Args) => infer Return
-  ? {
-      fetch: (first: Params, ...rest: Args) => Return;
-    }
-  : never);
-/** Get the Params type for a given Shape */
-declare type ParamsFromShape<S> = S extends {
-  fetch: (first: infer A, ...rest: any) => any;
-}
-  ? A
-  : S extends {
-      getFetchKey: (first: infer A, ...rest: any) => any;
-    }
-  ? A
-  : never;
-/** Get the Schema type for a given Shape */
-declare type SchemaFromShape<
-  F extends FetchShape<Schema | undefined, any, any>,
-> = F['schema'];
-/** Get the Body type for a given Shape */
-declare type BodyFromShape<F extends FetchShape<any, any, any>> = Parameters<
-  F['fetch']
->[1];
-declare type OptimisticUpdateParams<
-  SourceSchema extends Schema | undefined,
-  DestShape extends FetchShape<any, any, any>,
-> = [
-  DestShape,
-  ParamsFromShape<DestShape>,
-  UpdateFunction<SourceSchema, SchemaFromShape<DestShape>>,
-];
-declare type ReturnFromShape<S extends FetchShape<any, any, any>> = ReturnType<
-  S['fetch']
-> extends unknown
-  ? Promise<Denormalize<S['schema']>>
-  : ReturnType<S['fetch']>;
-
-declare const FETCH_TYPE: 'rest-hooks/fetch';
-declare const RECEIVE_TYPE: 'rest-hooks/receive';
-declare const OPTIMISTIC_TYPE: 'rest-hooks/optimistic';
-declare const RESET_TYPE: 'rest-hooks/reset';
-declare const SUBSCRIBE_TYPE: 'rest-hooks/subscribe';
-declare const UNSUBSCRIBE_TYPE: 'rest-hook/unsubscribe';
-declare const INVALIDATE_TYPE: 'rest-hooks/invalidate';
-declare const GC_TYPE: 'rest-hooks/gc';
-
-declare const actionTypes_d_FETCH_TYPE: typeof FETCH_TYPE;
-declare const actionTypes_d_RECEIVE_TYPE: typeof RECEIVE_TYPE;
-declare const actionTypes_d_OPTIMISTIC_TYPE: typeof OPTIMISTIC_TYPE;
-declare const actionTypes_d_RESET_TYPE: typeof RESET_TYPE;
-declare const actionTypes_d_SUBSCRIBE_TYPE: typeof SUBSCRIBE_TYPE;
-declare const actionTypes_d_UNSUBSCRIBE_TYPE: typeof UNSUBSCRIBE_TYPE;
-declare const actionTypes_d_INVALIDATE_TYPE: typeof INVALIDATE_TYPE;
-declare const actionTypes_d_GC_TYPE: typeof GC_TYPE;
-declare namespace actionTypes_d {
-  export {
-    actionTypes_d_FETCH_TYPE as FETCH_TYPE,
-    actionTypes_d_RECEIVE_TYPE as RECEIVE_TYPE,
-    actionTypes_d_OPTIMISTIC_TYPE as OPTIMISTIC_TYPE,
-    actionTypes_d_RESET_TYPE as RESET_TYPE,
-    actionTypes_d_SUBSCRIBE_TYPE as SUBSCRIBE_TYPE,
-    actionTypes_d_UNSUBSCRIBE_TYPE as UNSUBSCRIBE_TYPE,
-    actionTypes_d_INVALIDATE_TYPE as INVALIDATE_TYPE,
-    actionTypes_d_GC_TYPE as GC_TYPE,
-  };
-}
 
 declare type ResultEntry<E extends EndpointInterface> =
   E['schema'] extends undefined ? ResolveType<E> : Normalize<E>;
@@ -749,7 +531,7 @@ declare class Controller {
   >(
     endpoint: E,
     ...rest: [...Args, State<unknown>]
-  ) => ErrorTypes$1 | undefined;
+  ) => ErrorTypes | undefined;
 
   /**
    * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
@@ -762,7 +544,7 @@ declare class Controller {
         Schema | undefined,
         true | undefined
       >,
-      'schema' | 'key' | 'invalidIfStale'
+      'key' | 'schema' | 'invalidIfStale'
     >,
     Args extends readonly [null] | readonly [...Parameters<E['key']>],
   >(
@@ -775,6 +557,211 @@ declare class Controller {
   };
 
   private getResults;
+}
+
+interface MiddlewareAPI$1<R extends Reducer<any, any> = Reducer<any, any>> {
+  getState: () => ReducerState<R>;
+  dispatch: Dispatch<R>;
+  controller: Controller;
+}
+declare type Dispatch<R extends Reducer<any, any>> = (
+  action: ReducerAction<R>,
+) => Promise<void>;
+declare type Middleware$1 = <R extends Reducer<any, any>>({
+  dispatch,
+}: MiddlewareAPI$1<R>) => (next: Dispatch<R>) => Dispatch<R>;
+declare type Reducer<S, A> = (prevState: S, action: A) => S;
+declare type ReducerState<R extends Reducer<any, any>> = R extends Reducer<
+  infer S,
+  any
+>
+  ? S
+  : never;
+declare type ReducerAction<R extends Reducer<any, any>> = R extends Reducer<
+  any,
+  infer A
+>
+  ? A
+  : never;
+
+declare type ErrorableFSAWithPayloadAndMeta<
+  Type extends string = string,
+  Payload = undefined,
+  Meta = undefined,
+  CustomError extends Error = Error,
+> =
+  | ErrorFluxStandardActionWithPayloadAndMeta<Type, CustomError, Meta>
+  | NoErrorFluxStandardActionWithPayloadAndMeta<Type, Payload, Meta>;
+interface NoErrorFluxStandardAction<
+  Type extends string = string,
+  Payload = undefined,
+  Meta = undefined,
+> extends FSA<Type, Payload, Meta> {
+  error?: false;
+}
+/**
+ * A Flux Standard action with a required payload property.
+ */
+interface NoErrorFluxStandardActionWithPayload<
+  Type extends string = string,
+  Payload = undefined,
+  Meta = undefined,
+> extends NoErrorFluxStandardAction<Type, Payload, Meta> {
+  /**
+   * The required `payload` property MAY be any type of value.
+   * It represents the payload of the action.
+   * Any information about the action that is not the type or status of the action should be part of the `payload` field.
+   * By convention, if `error` is `true`, the `payload` SHOULD be an error object.
+   * This is akin to rejecting a promise with an error object.
+   */
+  payload: Payload;
+}
+/**
+ * A Flux Standard action with a required metadata property.
+ */
+interface NoErrorFluxStandardActionWithMeta<
+  Type extends string = string,
+  Payload = undefined,
+  Meta = undefined,
+> extends NoErrorFluxStandardAction<Type, Payload, Meta> {
+  /**
+   * The required `meta` property MAY be any type of value.
+   * It is intended for any extra information that is not part of the payload.
+   */
+  meta: Meta;
+}
+/**
+ * A Flux Standard action with required payload and metadata properties.
+ */
+declare type NoErrorFluxStandardActionWithPayloadAndMeta<
+  Type extends string = string,
+  Payload = undefined,
+  Meta = undefined,
+> = NoErrorFluxStandardActionWithPayload<Type, Payload, Meta> &
+  NoErrorFluxStandardActionWithMeta<Type, Payload, Meta>;
+
+/** Defines the shape of a network request */
+interface FetchShape<
+  S extends Schema | undefined,
+  Params extends Readonly<object> = Readonly<object>,
+  Body extends Readonly<object | string> | void | unknown =
+    | Readonly<object | string>
+    | undefined,
+  Response = any,
+> {
+  readonly type: 'read' | 'mutate' | 'delete';
+  fetch(params: Params, body?: Body): Promise<Response>;
+  getFetchKey(params: Params): string;
+  readonly schema: S;
+  readonly options?: EndpointExtraOptions;
+}
+/** To change values on the server */
+interface MutateShape<
+  S extends Schema | undefined,
+  Params extends Readonly<object> = Readonly<object>,
+  Body extends Readonly<object | string> | void | unknown =
+    | Readonly<object | string>
+    | undefined,
+  Response extends object | string | number | boolean | null = any,
+> extends FetchShape<S, Params, Body, Response> {
+  readonly type: 'mutate';
+  fetch(params: Params, body: Body): Promise<Response>;
+}
+/** Removes entities */
+interface DeleteShape<
+  S extends Schema | undefined,
+  Params extends Readonly<object> = Readonly<object>,
+  Response extends object | string | number | boolean | null = any,
+> extends FetchShape<S, Params, undefined, Response> {
+  readonly type: 'mutate';
+  fetch(params: Params, ...args: any): Promise<Response>;
+}
+/** For retrieval requests */
+interface ReadShape<
+  S extends Schema | undefined,
+  Params extends Readonly<object> = Readonly<object>,
+  Response extends object | string | number | boolean | null = any,
+> extends FetchShape<S, Params, undefined, Response> {
+  readonly type: 'read';
+  fetch(params: Params): Promise<Response>;
+}
+
+/** Sets a FetchShape's Param type.
+ * Useful to constrain acceptable params (second arg) in hooks like useResource().
+ *
+ * @param [Shape] FetchShape to act upon
+ * @param [Params] what to set the Params to
+ */
+declare type SetShapeParams<
+  Shape extends FetchShape<any, any, any>,
+  Params extends Readonly<object>,
+> = {
+  [K in keyof Shape]: Shape[K];
+} & (Shape['fetch'] extends (first: any, ...rest: infer Args) => infer Return
+  ? {
+      fetch: (first: Params, ...rest: Args) => Return;
+    }
+  : never);
+/** Get the Params type for a given Shape */
+declare type ParamsFromShape<S> = S extends {
+  fetch: (first: infer A, ...rest: any) => any;
+}
+  ? A
+  : S extends {
+      getFetchKey: (first: infer A, ...rest: any) => any;
+    }
+  ? A
+  : never;
+/** Get the Schema type for a given Shape */
+declare type SchemaFromShape<
+  F extends FetchShape<Schema | undefined, any, any>,
+> = F['schema'];
+/** Get the Body type for a given Shape */
+declare type BodyFromShape<F extends FetchShape<any, any, any>> = Parameters<
+  F['fetch']
+>[1];
+declare type OptimisticUpdateParams<
+  SourceSchema extends Schema | undefined,
+  DestShape extends FetchShape<any, any, any>,
+> = [
+  DestShape,
+  ParamsFromShape<DestShape>,
+  UpdateFunction<SourceSchema, SchemaFromShape<DestShape>>,
+];
+declare type ReturnFromShape<S extends FetchShape<any, any, any>> = ReturnType<
+  S['fetch']
+> extends unknown
+  ? Promise<Denormalize<S['schema']>>
+  : ReturnType<S['fetch']>;
+
+declare const FETCH_TYPE: 'rest-hooks/fetch';
+declare const RECEIVE_TYPE: 'rest-hooks/receive';
+declare const OPTIMISTIC_TYPE: 'rest-hooks/optimistic';
+declare const RESET_TYPE: 'rest-hooks/reset';
+declare const SUBSCRIBE_TYPE: 'rest-hooks/subscribe';
+declare const UNSUBSCRIBE_TYPE: 'rest-hook/unsubscribe';
+declare const INVALIDATE_TYPE: 'rest-hooks/invalidate';
+declare const GC_TYPE: 'rest-hooks/gc';
+
+declare const actionTypes_d_FETCH_TYPE: typeof FETCH_TYPE;
+declare const actionTypes_d_RECEIVE_TYPE: typeof RECEIVE_TYPE;
+declare const actionTypes_d_OPTIMISTIC_TYPE: typeof OPTIMISTIC_TYPE;
+declare const actionTypes_d_RESET_TYPE: typeof RESET_TYPE;
+declare const actionTypes_d_SUBSCRIBE_TYPE: typeof SUBSCRIBE_TYPE;
+declare const actionTypes_d_UNSUBSCRIBE_TYPE: typeof UNSUBSCRIBE_TYPE;
+declare const actionTypes_d_INVALIDATE_TYPE: typeof INVALIDATE_TYPE;
+declare const actionTypes_d_GC_TYPE: typeof GC_TYPE;
+declare namespace actionTypes_d {
+  export {
+    actionTypes_d_FETCH_TYPE as FETCH_TYPE,
+    actionTypes_d_RECEIVE_TYPE as RECEIVE_TYPE,
+    actionTypes_d_OPTIMISTIC_TYPE as OPTIMISTIC_TYPE,
+    actionTypes_d_RESET_TYPE as RESET_TYPE,
+    actionTypes_d_SUBSCRIBE_TYPE as SUBSCRIBE_TYPE,
+    actionTypes_d_UNSUBSCRIBE_TYPE as UNSUBSCRIBE_TYPE,
+    actionTypes_d_INVALIDATE_TYPE as INVALIDATE_TYPE,
+    actionTypes_d_GC_TYPE as GC_TYPE,
+  };
 }
 
 declare type ReceiveTypes = typeof RECEIVE_TYPE;
@@ -794,7 +781,7 @@ interface State<T> {
   readonly meta: {
     readonly [key: string]: {
       readonly date: number;
-      readonly error?: ErrorTypes$1;
+      readonly error?: ErrorTypes;
       readonly expiresAt: number;
       readonly prevExpiresAt?: number;
       readonly invalidated?: boolean;
@@ -946,19 +933,29 @@ declare type ActionTypes =
   | ResetAction
   | GCAction;
 interface Manager {
-  getMiddleware(): Middleware;
+  getMiddleware(): Middleware$1;
   cleanup(): void;
   init?: (state: State<any>) => void;
 }
-declare type Middleware = <R extends React.Reducer<any, any>>(
-  options: MiddlewareAPI<R>,
-) => (next: Dispatch<R>) => Dispatch<R>;
-interface MiddlewareAPI<
-  R extends React.Reducer<any, any> = React.Reducer<any, any>,
-> {
-  getState: () => React.ReducerState<R>;
-  dispatch: Dispatch<R>;
-  controller: Controller;
+
+declare const initialState: State<unknown>;
+declare function createReducer(
+  controller: Controller,
+): (state: State<unknown> | undefined, action: ActionTypes) => State<unknown>;
+
+//# sourceMappingURL=internal.d.ts.map
+
+declare const internal_d_inferResults: typeof inferResults;
+declare const internal_d_DELETED: typeof DELETED;
+declare const internal_d_RIC: typeof RIC;
+declare const internal_d_initialState: typeof initialState;
+declare namespace internal_d {
+  export {
+    internal_d_inferResults as inferResults,
+    internal_d_DELETED as DELETED,
+    internal_d_RIC as RIC,
+    internal_d_initialState as initialState,
+  };
 }
 
 declare class ResetError extends Error {
@@ -987,7 +984,7 @@ declare class NetworkManager implements Manager {
 
   readonly dataExpiryLength: number;
   readonly errorExpiryLength: number;
-  protected middleware: Middleware;
+  protected middleware: Middleware$1;
   protected getState: () => State<unknown>;
   cleanupDate?: number;
   constructor(dataExpiryLength?: number, errorExpiryLength?: number);
@@ -1029,7 +1026,7 @@ declare class NetworkManager implements Manager {
    * Resolve/rejects a request when matching 'rest-hooks/receive' event
    * is seen.
    */
-  getMiddleware<T extends NetworkManager>(this: T): Middleware;
+  getMiddleware<T extends NetworkManager>(this: T): Middleware$1;
   /** Ensures only one request for a given key is in flight at any time
    *
    * Uses key to either retrieve in-flight promise, or if not
@@ -1043,11 +1040,6 @@ declare class NetworkManager implements Manager {
   protected throttle(key: string, fetch: () => Promise<any>): Promise<any>;
 }
 
-declare const initialState: State<unknown>;
-declare function createReducer(
-  controller: Controller,
-): (state: State<unknown> | undefined, action: ActionTypes) => State<unknown>;
-
 /**
  * @deprecated use createReducer instead
  */
@@ -1060,957 +1052,14 @@ declare const reducer: (
 declare function applyManager(
   managers: Manager[],
   controller: Controller,
-): Middleware$1[];
-
-/**
- * @deprecated use https://resthooks.io/docs/api/Controller#getResponse directly instead
- *
- * Selects the denormalized form from `state` cache.
- *
- * If `result` is not found, will attempt to generate it naturally
- * using params and schema. This increases cache hit rate for many
- * detail shapes.
- *
- * @returns [denormalizedValue, ready]
- */
-declare function useDenormalized<
-  Shape extends Pick<
-    ReadShape<Schema | undefined, any>,
-    'getFetchKey' | 'schema' | 'options'
-  >,
->(
-  shape: Shape,
-  params: ParamsFromShape<Shape> | null,
-  state: State<any>,
-  /** @deprecated */
-  denormalizeCache?: any,
-): {
-  data: DenormalizeNullable<Shape['schema']>;
-  expiryStatus: ExpiryStatus;
-  expiresAt: number;
-};
-
-interface ProviderProps {
-  children: React__default.ReactNode;
-  managers: Manager[];
-  initialState: State<unknown>;
-  Controller: typeof Controller;
+): Middleware[];
+interface MiddlewareAPI<R extends Reducer<any, any> = Reducer<any, any>> {
+  getState: () => ReducerState<R>;
+  dispatch: Dispatch<R>;
 }
-/**
- * Controller managing state of the cache and coordinating network requests.
- * @see https://resthooks.io/docs/api/CacheProvider
- */
-declare function CacheProvider({
-  children,
-  managers,
-  initialState,
-  Controller,
-}: ProviderProps): JSX.Element;
-declare namespace CacheProvider {
-  var defaultProps: {
-    managers: Manager[];
-    initialState: State<unknown>;
-    Controller: typeof Controller;
-  };
-}
-//# sourceMappingURL=CacheProvider.d.ts.map
-
-/**
- * Build an imperative dispatcher to issue network requests.
- * @deprecated use https://resthooks.io/docs/api/Controller#fetch
- */
-declare function useFetcher<
-  Shape extends FetchShape<Schema, Readonly<object>, any>,
->(
-  fetchShape: Shape & {
-    update?: (...args: any) => Record<string, (...args: any) => any>;
-  },
-  throttle?: boolean,
-): <
-  UpdateParams extends OptimisticUpdateParams<
-    SchemaFromShape<Shape>,
-    FetchShape<any, any, any>
-  >[],
->(
-  a: Parameters<Shape['fetch']>[0],
-  b?: Parameters<Shape['fetch']>[1],
-  updateParams?: UpdateParams | undefined,
-) => ReturnFromShape<typeof fetchShape>;
-
-/**
- * Imperative control of Rest Hooks store
- * @see https://resthooks.io/docs/api/useController
- */
-declare function useController(): Controller;
-
-/**
- * Access a response if it is available.
- *
- * `useCache` guarantees referential equality globally.
- * @see https://resthooks.io/docs/api/useCache
- */
-declare function useCache<
-  E extends
-    | Pick<
-        EndpointInterface<FetchFunction, Schema | undefined, undefined>,
-        'key' | 'schema' | 'invalidIfStale'
-      >
-    | Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>,
-  Args extends
-    | (E extends {
-        key: any;
-      }
-        ? readonly [...Parameters<E['key']>]
-        : readonly [ParamsFromShape<E>])
-    | readonly [null],
->(
-  endpoint: E,
-  ...args: Args
-): E['schema'] extends {}
-  ? DenormalizeNullable<E['schema']>
-  : E extends (...args: any) => any
-  ? ResolveType<E> | undefined
-  : any;
-
-/**
- * Request a resource if it is not in cache.\
- * @see https://resthooks.io/docs/api/useRetrieve
- */
-declare function useRetrieve<Shape extends ReadShape<any, any>>(
-  fetchShape: Shape,
-  params: ParamsFromShape<Shape> | null,
-  triggerFetch?: boolean,
-  entitiesExpireAt?: number,
-): any;
-
-declare type ResourceReturn<
-  P,
-  S extends {
-    fetch: any;
-    schema: any;
-  },
-> = CondNull$1<
-  P,
-  S['schema'] extends undefined
-    ? ResolveType<S['fetch']> | undefined
-    : DenormalizeNullable<S['schema']>,
-  S['schema'] extends undefined
-    ? ResolveType<S['fetch']>
-    : Denormalize<S['schema']>
->;
-declare type CondNull$1<P, A, B> = P extends null ? A : B;
-/**
- * Ensure a resource is available.
- * Suspends until it is.
- *
- * `useResource` guarantees referential equality globally.
- * @see https://resthooks.io/docs/api/useresource
- * @throws {Promise} If data is not yet available.
- * @throws {NetworkError} If fetch fails.
- */
-declare function useResource<
-  S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null,
->(v1: readonly [S1, P1]): [ResourceReturn<P1, S1>];
-declare function useResource<
-  S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null,
-  S2 extends ReadShape<any, any>,
-  P2 extends ParamsFromShape<S2> | null,
->(
-  v1: readonly [S1, P1],
-  v2: readonly [S2, P2],
-): [ResourceReturn<P1, S1>, ResourceReturn<P2, S2>];
-declare function useResource<
-  S extends ReadShape<any, any>,
-  P extends ParamsFromShape<S> | null,
->(fetchShape: S, params: P): ResourceReturn<P, S>;
-declare function useResource<
-  S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null,
-  S2 extends ReadShape<any, any>,
-  P2 extends ParamsFromShape<S2> | null,
-  S3 extends ReadShape<any, any>,
-  P3 extends ParamsFromShape<S3> | null,
->(
-  v1: readonly [S1, P1],
-  v2: readonly [S2, P2],
-  v3: readonly [S3, P3],
-): [ResourceReturn<P1, S1>, ResourceReturn<P2, S2>, ResourceReturn<P3, S3>];
-declare function useResource<
-  S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null,
-  S2 extends ReadShape<any, any>,
-  P2 extends ParamsFromShape<S2> | null,
-  S3 extends ReadShape<any, any>,
-  P3 extends ParamsFromShape<S3> | null,
-  S4 extends ReadShape<any, any>,
-  P4 extends ParamsFromShape<S4> | null,
->(
-  v1: readonly [S1, P1],
-  v2: readonly [S2, P2],
-  v3: readonly [S3, P3],
-  v4: readonly [S4, P4],
-): [
-  ResourceReturn<P1, S1>,
-  ResourceReturn<P2, S2>,
-  ResourceReturn<P3, S3>,
-  ResourceReturn<P4, S4>,
-];
-declare function useResource<
-  S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null,
-  S2 extends ReadShape<any, any>,
-  P2 extends ParamsFromShape<S2> | null,
-  S3 extends ReadShape<any, any>,
-  P3 extends ParamsFromShape<S3> | null,
-  S4 extends ReadShape<any, any>,
-  P4 extends ParamsFromShape<S4> | null,
-  S5 extends ReadShape<any, any>,
-  P5 extends ParamsFromShape<S5> | null,
->(
-  v1: readonly [S1, P1],
-  v2: readonly [S2, P2],
-  v3: readonly [S3, P3],
-  v4: readonly [S4, P4],
-  v5: readonly [S5, P5],
-): [
-  ResourceReturn<P1, S1>,
-  ResourceReturn<P2, S2>,
-  ResourceReturn<P3, S3>,
-  ResourceReturn<P4, S4>,
-  ResourceReturn<P5, S5>,
-];
-declare function useResource<
-  S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null,
-  S2 extends ReadShape<any, any>,
-  P2 extends ParamsFromShape<S2> | null,
-  S3 extends ReadShape<any, any>,
-  P3 extends ParamsFromShape<S3> | null,
-  S4 extends ReadShape<any, any>,
-  P4 extends ParamsFromShape<S4> | null,
-  S5 extends ReadShape<any, any>,
-  P5 extends ParamsFromShape<S5> | null,
-  S6 extends ReadShape<any, any>,
-  P6 extends ParamsFromShape<S6> | null,
->(
-  v1: readonly [S1, P1],
-  v2: readonly [S2, P2],
-  v3: readonly [S3, P3],
-  v4: readonly [S4, P4],
-  v5: readonly [S5, P5],
-  v6: readonly [S6, P6],
-): [
-  ResourceReturn<P1, S1>,
-  ResourceReturn<P2, S2>,
-  ResourceReturn<P3, S3>,
-  ResourceReturn<P4, S4>,
-  ResourceReturn<P5, S5>,
-  ResourceReturn<P6, S6>,
-];
-declare function useResource<
-  S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null,
-  S2 extends ReadShape<any, any>,
-  P2 extends ParamsFromShape<S2> | null,
-  S3 extends ReadShape<any, any>,
-  P3 extends ParamsFromShape<S3> | null,
-  S4 extends ReadShape<any, any>,
-  P4 extends ParamsFromShape<S4> | null,
-  S5 extends ReadShape<any, any>,
-  P5 extends ParamsFromShape<S5> | null,
-  S6 extends ReadShape<any, any>,
-  P6 extends ParamsFromShape<S6> | null,
-  S7 extends ReadShape<any, any>,
-  P7 extends ParamsFromShape<S7> | null,
->(
-  v1: readonly [S1, P1],
-  v2: readonly [S2, P2],
-  v3: readonly [S3, P3],
-  v4: readonly [S4, P4],
-  v5: readonly [S5, P5],
-  v6: readonly [S6, P6],
-  v7: readonly [S7, P7],
-): [
-  ResourceReturn<P1, S1>,
-  ResourceReturn<P2, S2>,
-  ResourceReturn<P3, S3>,
-  ResourceReturn<P4, S4>,
-  ResourceReturn<P5, S5>,
-  ResourceReturn<P6, S6>,
-  ResourceReturn<P7, S7>,
-];
-declare function useResource<
-  S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null,
-  S2 extends ReadShape<any, any>,
-  P2 extends ParamsFromShape<S2> | null,
-  S3 extends ReadShape<any, any>,
-  P3 extends ParamsFromShape<S3> | null,
-  S4 extends ReadShape<any, any>,
-  P4 extends ParamsFromShape<S4> | null,
-  S5 extends ReadShape<any, any>,
-  P5 extends ParamsFromShape<S5> | null,
-  S6 extends ReadShape<any, any>,
-  P6 extends ParamsFromShape<S6> | null,
-  S7 extends ReadShape<any, any>,
-  P7 extends ParamsFromShape<S7> | null,
-  S8 extends ReadShape<any, any>,
-  P8 extends ParamsFromShape<S8> | null,
->(
-  v1: readonly [S1, P1],
-  v2: readonly [S2, P2],
-  v3: readonly [S3, P3],
-  v4: readonly [S4, P4],
-  v5: readonly [S5, P5],
-  v6: readonly [S6, P6],
-  v7: readonly [S7, P7],
-  v8: readonly [S8, P8],
-): [
-  ResourceReturn<P1, S1>,
-  ResourceReturn<P2, S2>,
-  ResourceReturn<P3, S3>,
-  ResourceReturn<P4, S4>,
-  ResourceReturn<P5, S5>,
-  ResourceReturn<P6, S6>,
-  ResourceReturn<P7, S7>,
-  ResourceReturn<P8, S8>,
-];
-declare function useResource<
-  S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null,
-  S2 extends ReadShape<any, any>,
-  P2 extends ParamsFromShape<S2> | null,
-  S3 extends ReadShape<any, any>,
-  P3 extends ParamsFromShape<S3> | null,
-  S4 extends ReadShape<any, any>,
-  P4 extends ParamsFromShape<S4> | null,
-  S5 extends ReadShape<any, any>,
-  P5 extends ParamsFromShape<S5> | null,
-  S6 extends ReadShape<any, any>,
-  P6 extends ParamsFromShape<S6> | null,
-  S7 extends ReadShape<any, any>,
-  P7 extends ParamsFromShape<S7> | null,
-  S8 extends ReadShape<any, any>,
-  P8 extends ParamsFromShape<S8> | null,
-  S9 extends ReadShape<any, any>,
-  P9 extends ParamsFromShape<S9> | null,
->(
-  v1: readonly [S1, P1],
-  v2: readonly [S2, P2],
-  v3: readonly [S3, P3],
-  v4: readonly [S4, P4],
-  v5: readonly [S5, P5],
-  v6: readonly [S6, P6],
-  v7: readonly [S7, P7],
-  v8: readonly [S8, P8],
-  v9: readonly [S9, P9],
-): [
-  ResourceReturn<P1, S1>,
-  ResourceReturn<P2, S2>,
-  ResourceReturn<P3, S3>,
-  ResourceReturn<P4, S4>,
-  ResourceReturn<P5, S5>,
-  ResourceReturn<P6, S6>,
-  ResourceReturn<P7, S7>,
-  ResourceReturn<P8, S8>,
-  ResourceReturn<P9, S9>,
-];
-declare function useResource<
-  S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null,
-  S2 extends ReadShape<any, any>,
-  P2 extends ParamsFromShape<S2> | null,
-  S3 extends ReadShape<any, any>,
-  P3 extends ParamsFromShape<S3> | null,
-  S4 extends ReadShape<any, any>,
-  P4 extends ParamsFromShape<S4> | null,
-  S5 extends ReadShape<any, any>,
-  P5 extends ParamsFromShape<S5> | null,
-  S6 extends ReadShape<any, any>,
-  P6 extends ParamsFromShape<S6> | null,
-  S7 extends ReadShape<any, any>,
-  P7 extends ParamsFromShape<S7> | null,
-  S8 extends ReadShape<any, any>,
-  P8 extends ParamsFromShape<S8> | null,
-  S9 extends ReadShape<any, any>,
-  P9 extends ParamsFromShape<S9> | null,
-  S10 extends ReadShape<any, any>,
-  P10 extends ParamsFromShape<S10> | null,
->(
-  v1: readonly [S1, P1],
-  v2: readonly [S2, P2],
-  v3: readonly [S3, P3],
-  v4: readonly [S4, P4],
-  v5: readonly [S5, P5],
-  v6: readonly [S6, P6],
-  v7: readonly [S7, P7],
-  v8: readonly [S8, P8],
-  v9: readonly [S9, P9],
-  v10: readonly [S10, P10],
-): [
-  ResourceReturn<P1, S1>,
-  ResourceReturn<P2, S2>,
-  ResourceReturn<P3, S3>,
-  ResourceReturn<P4, S4>,
-  ResourceReturn<P5, S5>,
-  ResourceReturn<P6, S6>,
-  ResourceReturn<P7, S7>,
-  ResourceReturn<P8, S8>,
-  ResourceReturn<P9, S9>,
-  ResourceReturn<P10, S10>,
-];
-declare function useResource<
-  S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null,
-  S2 extends ReadShape<any, any>,
-  P2 extends ParamsFromShape<S2> | null,
-  S3 extends ReadShape<any, any>,
-  P3 extends ParamsFromShape<S3> | null,
-  S4 extends ReadShape<any, any>,
-  P4 extends ParamsFromShape<S4> | null,
-  S5 extends ReadShape<any, any>,
-  P5 extends ParamsFromShape<S5> | null,
-  S6 extends ReadShape<any, any>,
-  P6 extends ParamsFromShape<S6> | null,
-  S7 extends ReadShape<any, any>,
-  P7 extends ParamsFromShape<S7> | null,
-  S8 extends ReadShape<any, any>,
-  P8 extends ParamsFromShape<S8> | null,
-  S9 extends ReadShape<any, any>,
-  P9 extends ParamsFromShape<S9> | null,
-  S10 extends ReadShape<any, any>,
-  P10 extends ParamsFromShape<S10> | null,
-  S11 extends ReadShape<any, any>,
-  P11 extends ParamsFromShape<S11> | null,
->(
-  v1: readonly [S1, P1],
-  v2: readonly [S2, P2],
-  v3: readonly [S3, P3],
-  v4: readonly [S4, P4],
-  v5: readonly [S5, P5],
-  v6: readonly [S6, P6],
-  v7: readonly [S7, P7],
-  v8: readonly [S8, P8],
-  v9: readonly [S9, P9],
-  v10: readonly [S10, P10],
-  v11: readonly [S11, P11],
-): [
-  ResourceReturn<P1, S1>,
-  ResourceReturn<P2, S2>,
-  ResourceReturn<P3, S3>,
-  ResourceReturn<P4, S4>,
-  ResourceReturn<P5, S5>,
-  ResourceReturn<P6, S6>,
-  ResourceReturn<P7, S7>,
-  ResourceReturn<P8, S8>,
-  ResourceReturn<P9, S9>,
-  ResourceReturn<P10, S10>,
-  ResourceReturn<P11, S11>,
-];
-declare function useResource<
-  S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null,
-  S2 extends ReadShape<any, any>,
-  P2 extends ParamsFromShape<S2> | null,
-  S3 extends ReadShape<any, any>,
-  P3 extends ParamsFromShape<S3> | null,
-  S4 extends ReadShape<any, any>,
-  P4 extends ParamsFromShape<S4> | null,
-  S5 extends ReadShape<any, any>,
-  P5 extends ParamsFromShape<S5> | null,
-  S6 extends ReadShape<any, any>,
-  P6 extends ParamsFromShape<S6> | null,
-  S7 extends ReadShape<any, any>,
-  P7 extends ParamsFromShape<S7> | null,
-  S8 extends ReadShape<any, any>,
-  P8 extends ParamsFromShape<S8> | null,
-  S9 extends ReadShape<any, any>,
-  P9 extends ParamsFromShape<S9> | null,
-  S10 extends ReadShape<any, any>,
-  P10 extends ParamsFromShape<S10> | null,
-  S11 extends ReadShape<any, any>,
-  P11 extends ParamsFromShape<S11> | null,
-  S12 extends ReadShape<any, any>,
-  P12 extends ParamsFromShape<S12> | null,
->(
-  v1: readonly [S1, P1],
-  v2: readonly [S2, P2],
-  v3: readonly [S3, P3],
-  v4: readonly [S4, P4],
-  v5: readonly [S5, P5],
-  v6: readonly [S6, P6],
-  v7: readonly [S7, P7],
-  v8: readonly [S8, P8],
-  v9: readonly [S9, P9],
-  v10: readonly [S10, P10],
-  v11: readonly [S11, P11],
-  v12: readonly [S12, P12],
-): [
-  ResourceReturn<P1, S1>,
-  ResourceReturn<P2, S2>,
-  ResourceReturn<P3, S3>,
-  ResourceReturn<P4, S4>,
-  ResourceReturn<P5, S5>,
-  ResourceReturn<P6, S6>,
-  ResourceReturn<P7, S7>,
-  ResourceReturn<P8, S8>,
-  ResourceReturn<P9, S9>,
-  ResourceReturn<P10, S10>,
-  ResourceReturn<P11, S11>,
-  ResourceReturn<P12, S12>,
-];
-declare function useResource<
-  S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null,
-  S2 extends ReadShape<any, any>,
-  P2 extends ParamsFromShape<S2> | null,
-  S3 extends ReadShape<any, any>,
-  P3 extends ParamsFromShape<S3> | null,
-  S4 extends ReadShape<any, any>,
-  P4 extends ParamsFromShape<S4> | null,
-  S5 extends ReadShape<any, any>,
-  P5 extends ParamsFromShape<S5> | null,
-  S6 extends ReadShape<any, any>,
-  P6 extends ParamsFromShape<S6> | null,
-  S7 extends ReadShape<any, any>,
-  P7 extends ParamsFromShape<S7> | null,
-  S8 extends ReadShape<any, any>,
-  P8 extends ParamsFromShape<S8> | null,
-  S9 extends ReadShape<any, any>,
-  P9 extends ParamsFromShape<S9> | null,
-  S10 extends ReadShape<any, any>,
-  P10 extends ParamsFromShape<S10> | null,
-  S11 extends ReadShape<any, any>,
-  P11 extends ParamsFromShape<S11> | null,
-  S12 extends ReadShape<any, any>,
-  P12 extends ParamsFromShape<S12> | null,
-  S13 extends ReadShape<any, any>,
-  P13 extends ParamsFromShape<S13> | null,
->(
-  v1: readonly [S1, P1],
-  v2: readonly [S2, P2],
-  v3: readonly [S3, P3],
-  v4: readonly [S4, P4],
-  v5: readonly [S5, P5],
-  v6: readonly [S6, P6],
-  v7: readonly [S7, P7],
-  v8: readonly [S8, P8],
-  v9: readonly [S9, P9],
-  v10: readonly [S10, P10],
-  v11: readonly [S11, P11],
-  v12: readonly [S12, P12],
-  v13: readonly [S13, P13],
-): [
-  ResourceReturn<P1, S1>,
-  ResourceReturn<P2, S2>,
-  ResourceReturn<P3, S3>,
-  ResourceReturn<P4, S4>,
-  ResourceReturn<P5, S5>,
-  ResourceReturn<P6, S6>,
-  ResourceReturn<P7, S7>,
-  ResourceReturn<P8, S8>,
-  ResourceReturn<P9, S9>,
-  ResourceReturn<P10, S10>,
-  ResourceReturn<P11, S11>,
-  ResourceReturn<P12, S12>,
-  ResourceReturn<P13, S13>,
-];
-declare function useResource<
-  S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null,
-  S2 extends ReadShape<any, any>,
-  P2 extends ParamsFromShape<S2> | null,
-  S3 extends ReadShape<any, any>,
-  P3 extends ParamsFromShape<S3> | null,
-  S4 extends ReadShape<any, any>,
-  P4 extends ParamsFromShape<S4> | null,
-  S5 extends ReadShape<any, any>,
-  P5 extends ParamsFromShape<S5> | null,
-  S6 extends ReadShape<any, any>,
-  P6 extends ParamsFromShape<S6> | null,
-  S7 extends ReadShape<any, any>,
-  P7 extends ParamsFromShape<S7> | null,
-  S8 extends ReadShape<any, any>,
-  P8 extends ParamsFromShape<S8> | null,
-  S9 extends ReadShape<any, any>,
-  P9 extends ParamsFromShape<S9> | null,
-  S10 extends ReadShape<any, any>,
-  P10 extends ParamsFromShape<S10> | null,
-  S11 extends ReadShape<any, any>,
-  P11 extends ParamsFromShape<S11> | null,
-  S12 extends ReadShape<any, any>,
-  P12 extends ParamsFromShape<S12> | null,
-  S13 extends ReadShape<any, any>,
-  P13 extends ParamsFromShape<S13> | null,
-  S14 extends ReadShape<any, any>,
-  P14 extends ParamsFromShape<S14> | null,
->(
-  v1: readonly [S1, P1],
-  v2: readonly [S2, P2],
-  v3: readonly [S3, P3],
-  v4: readonly [S4, P4],
-  v5: readonly [S5, P5],
-  v6: readonly [S6, P6],
-  v7: readonly [S7, P7],
-  v8: readonly [S8, P8],
-  v9: readonly [S9, P9],
-  v10: readonly [S10, P10],
-  v11: readonly [S11, P11],
-  v12: readonly [S12, P12],
-  v13: readonly [S13, P13],
-  v14: readonly [S14, P14],
-): [
-  ResourceReturn<P1, S1>,
-  ResourceReturn<P2, S2>,
-  ResourceReturn<P3, S3>,
-  ResourceReturn<P4, S4>,
-  ResourceReturn<P5, S5>,
-  ResourceReturn<P6, S6>,
-  ResourceReturn<P7, S7>,
-  ResourceReturn<P8, S8>,
-  ResourceReturn<P9, S9>,
-  ResourceReturn<P10, S10>,
-  ResourceReturn<P11, S11>,
-  ResourceReturn<P12, S12>,
-  ResourceReturn<P13, S13>,
-  ResourceReturn<P14, S14>,
-];
-declare function useResource<
-  S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null,
-  S2 extends ReadShape<any, any>,
-  P2 extends ParamsFromShape<S2> | null,
-  S3 extends ReadShape<any, any>,
-  P3 extends ParamsFromShape<S3> | null,
-  S4 extends ReadShape<any, any>,
-  P4 extends ParamsFromShape<S4> | null,
-  S5 extends ReadShape<any, any>,
-  P5 extends ParamsFromShape<S5> | null,
-  S6 extends ReadShape<any, any>,
-  P6 extends ParamsFromShape<S6> | null,
-  S7 extends ReadShape<any, any>,
-  P7 extends ParamsFromShape<S7> | null,
-  S8 extends ReadShape<any, any>,
-  P8 extends ParamsFromShape<S8> | null,
-  S9 extends ReadShape<any, any>,
-  P9 extends ParamsFromShape<S9> | null,
-  S10 extends ReadShape<any, any>,
-  P10 extends ParamsFromShape<S10> | null,
-  S11 extends ReadShape<any, any>,
-  P11 extends ParamsFromShape<S11> | null,
-  S12 extends ReadShape<any, any>,
-  P12 extends ParamsFromShape<S12> | null,
-  S13 extends ReadShape<any, any>,
-  P13 extends ParamsFromShape<S13> | null,
-  S14 extends ReadShape<any, any>,
-  P14 extends ParamsFromShape<S14> | null,
-  S15 extends ReadShape<any, any>,
-  P15 extends ParamsFromShape<S15> | null,
->(
-  v1: readonly [S1, P1],
-  v2: readonly [S2, P2],
-  v3: readonly [S3, P3],
-  v4: readonly [S4, P4],
-  v5: readonly [S5, P5],
-  v6: readonly [S6, P6],
-  v7: readonly [S7, P7],
-  v8: readonly [S8, P8],
-  v9: readonly [S9, P9],
-  v10: readonly [S10, P10],
-  v11: readonly [S11, P11],
-  v12: readonly [S12, P12],
-  v13: readonly [S13, P13],
-  v14: readonly [S14, P14],
-  v15: readonly [S15, P15],
-): [
-  ResourceReturn<P1, S1>,
-  ResourceReturn<P2, S2>,
-  ResourceReturn<P3, S3>,
-  ResourceReturn<P4, S4>,
-  ResourceReturn<P5, S5>,
-  ResourceReturn<P6, S6>,
-  ResourceReturn<P7, S7>,
-  ResourceReturn<P8, S8>,
-  ResourceReturn<P9, S9>,
-  ResourceReturn<P10, S10>,
-  ResourceReturn<P11, S11>,
-  ResourceReturn<P12, S12>,
-  ResourceReturn<P13, S13>,
-  ResourceReturn<P14, S14>,
-  ResourceReturn<P15, S15>,
-];
-declare function useResource<
-  S1 extends ReadShape<any, any>,
-  P1 extends ParamsFromShape<S1> | null,
-  S2 extends ReadShape<any, any>,
-  P2 extends ParamsFromShape<S2> | null,
-  S3 extends ReadShape<any, any>,
-  P3 extends ParamsFromShape<S3> | null,
-  S4 extends ReadShape<any, any>,
-  P4 extends ParamsFromShape<S4> | null,
-  S5 extends ReadShape<any, any>,
-  P5 extends ParamsFromShape<S5> | null,
-  S6 extends ReadShape<any, any>,
-  P6 extends ParamsFromShape<S6> | null,
-  S7 extends ReadShape<any, any>,
-  P7 extends ParamsFromShape<S7> | null,
-  S8 extends ReadShape<any, any>,
-  P8 extends ParamsFromShape<S8> | null,
-  S9 extends ReadShape<any, any>,
-  P9 extends ParamsFromShape<S9> | null,
-  S10 extends ReadShape<any, any>,
-  P10 extends ParamsFromShape<S10> | null,
-  S11 extends ReadShape<any, any>,
-  P11 extends ParamsFromShape<S11> | null,
-  S12 extends ReadShape<any, any>,
-  P12 extends ParamsFromShape<S12> | null,
-  S13 extends ReadShape<any, any>,
-  P13 extends ParamsFromShape<S13> | null,
-  S14 extends ReadShape<any, any>,
-  P14 extends ParamsFromShape<S14> | null,
-  S15 extends ReadShape<any, any>,
-  P15 extends ParamsFromShape<S15> | null,
-  S16 extends ReadShape<any, any>,
-  P16 extends ParamsFromShape<S16> | null,
->(
-  v1: readonly [S1, P1],
-  v2: readonly [S2, P2],
-  v3: readonly [S3, P3],
-  v4: readonly [S4, P4],
-  v5: readonly [S5, P5],
-  v6: readonly [S6, P6],
-  v7: readonly [S7, P7],
-  v8: readonly [S8, P8],
-  v9: readonly [S9, P9],
-  v10: readonly [S10, P10],
-  v11: readonly [S11, P11],
-  v12: readonly [S12, P12],
-  v13: readonly [S13, P13],
-  v14: readonly [S14, P14],
-  v15: readonly [S15, P15],
-  v16: readonly [S16, P16],
-): [
-  ResourceReturn<P1, S1>,
-  ResourceReturn<P2, S2>,
-  ResourceReturn<P3, S3>,
-  ResourceReturn<P4, S4>,
-  ResourceReturn<P5, S5>,
-  ResourceReturn<P6, S6>,
-  ResourceReturn<P7, S7>,
-  ResourceReturn<P8, S8>,
-  ResourceReturn<P9, S9>,
-  ResourceReturn<P10, S10>,
-  ResourceReturn<P11, S11>,
-  ResourceReturn<P12, S12>,
-  ResourceReturn<P13, S13>,
-  ResourceReturn<P14, S14>,
-  ResourceReturn<P15, S15>,
-  ResourceReturn<P16, S16>,
-];
-
-/**
- * Keeps a resource fresh by subscribing to updates.
- * @see https://resthooks.io/docs/api/useSubscription
- */
-declare function useSubscription<
-  E extends
-    | EndpointInterface<FetchFunction, Schema | undefined, undefined>
-    | ReadShape<any, any>,
-  Args extends
-    | (E extends (...args: any) => any
-        ? readonly [...Parameters<E>]
-        : readonly [ParamsFromShape<E>])
-    | readonly [null],
->(endpoint: E, ...args: Args): void;
-
-/**
- * Gets meta for a fetch key.
- * @see https://resthooks.io/docs/api/useMeta
- */
-declare function useMeta<
-  E extends
-    | Pick<EndpointInterface<FetchFunction>, 'key'>
-    | Pick<FetchShape<any, any>, 'getFetchKey'>,
-  Args extends
-    | (E extends {
-        key: any;
-      }
-        ? readonly [...Parameters<E['key']>]
-        : readonly [ParamsFromShape<E>])
-    | readonly [null],
->(
-  endpoint: E,
-  ...args: Args
-): {
-  readonly date: number;
-  readonly error?: ErrorTypes$1 | undefined;
-  readonly expiresAt: number;
-  readonly prevExpiresAt?: number | undefined;
-  readonly invalidated?: boolean | undefined;
-  readonly errorPolicy?: 'hard' | 'soft' | undefined;
-} | null;
-
-declare type ErrorTypes = NetworkError | UnknownError;
-declare type UseErrorReturn<P> = P extends [null]
-  ? undefined
-  : ErrorTypes | undefined;
-/**
- * Get any errors for a given request
- * @see https://resthooks.io/docs/api/useError
- */
-declare function useError<
-  E extends
-    | Pick<
-        EndpointInterface<FetchFunction, Schema | undefined, undefined>,
-        'key' | 'schema' | 'invalidIfStale'
-      >
-    | Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>,
-  Args extends
-    | (E extends {
-        key: any;
-      }
-        ? readonly [...Parameters<E['key']>]
-        : readonly [ParamsFromShape<E>])
-    | readonly [null],
->(endpoint: E, ...args: Args): UseErrorReturn<typeof args>;
-
-/**
- * Invalidate a certain item within the cache
- * @deprecated use https://resthooks.io/docs/api/Controller#invalidate
- */
-declare function useInvalidator<Shape extends ReadShape<any, any>>(
-  fetchShape: Shape,
-): (params: ParamsFromShape<Shape> | null) => void;
-
-/**
- * Returns a function to completely clear the cache of all entries
- * @deprecated use https://resthooks.io/docs/api/Controller#resetEntireStore
- */
-declare function useResetter(): () => void;
-
-/** Build an imperative dispatcher to issue network requests.
- * @deprecated use https://resthooks.io/docs/api/Controller#fetch
- */
-declare function useFetchDispatcher(throttle?: boolean): <
-  Shape extends FetchShape<Schema, Readonly<object>, any>,
-  UpdateParams extends OptimisticUpdateParams<
-    SchemaFromShape<Shape>,
-    FetchShape<any, any, any>
-  >[],
->(
-  fetchShape: Shape & {
-    update?: (...args: any) => Record<string, (...args: any) => any>;
-  },
-  params: ParamsFromShape<Shape>,
-  body: BodyFromShape<Shape>,
-  updateParams?: UpdateParams | undefined,
-) => ReturnFromShape<typeof fetchShape>;
-
-/** Invalidate a certain item within the cache
- * @deprecated use https://resthooks.io/docs/api/Controller#invalidate
- */
-declare function useInvalidateDispatcher(): <Shape extends ReadShape<any, any>>(
-  fetchShape: Shape,
-  params: ParamsFromShape<Shape>,
-) => void;
-
-/**
- * Request a resource if it is not in cache.
- * @see https://resthooks.io/docs/api/useFetch
- */
-declare function useFetch<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
-  Args extends readonly [...Parameters<E>] | readonly [null],
->(endpoint: E, ...args: Args): ReturnType<E> | undefined;
-
-/**
- * Ensure an endpoint is available.
- * Suspends until it is.
- *
- * `useSuspense` guarantees referential equality globally.
- * @see https://resthooks.io/docs/api/useSuspense
- * @throws {Promise} If data is not yet available.
- * @throws {NetworkError} If fetch fails.
- */
-declare function useSuspense<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
-  Args extends readonly [...Parameters<E>] | readonly [null],
->(
-  endpoint: E,
-  ...args: Args
-): Args extends [null]
-  ? E['schema'] extends Exclude<Schema, null>
-    ? DenormalizeNullable<E['schema']>
-    : undefined
-  : E['schema'] extends Exclude<Schema, null>
-  ? Denormalize<E['schema']>
-  : ResolveType<E>;
-
-/** @deprecated use https://resthooks.io/docs/api/Controller#getResponse */
-declare function hasUsableData(
-  fetchShape: Pick<FetchShape<any>, 'options'>,
-  cacheReady: boolean,
-  deleted: boolean,
-  invalidated?: boolean,
-): boolean;
-
-declare type CondNull<P, A, B> = P extends null ? A : B;
-declare type StatefulReturn<S extends Schema | undefined, P> = CondNull<
-  P,
-  {
-    data: DenormalizeNullable<S>;
-    loading: false;
-    error: undefined;
-  },
-  | {
-      data: Denormalize<S>;
-      loading: false;
-      error: undefined;
-    }
-  | {
-      data: DenormalizeNullable<S>;
-      loading: true;
-      error: undefined;
-    }
-  | {
-      data: DenormalizeNullable<S>;
-      loading: false;
-      error: ErrorTypes$1;
-    }
->;
-/**
- * Use async date with { data, loading, error } (DLE)
- * @see https://resthooks.io/docs/guides/no-suspense
- */
-declare function useDLE<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
-  Args extends readonly [...Parameters<E>] | readonly [null],
->(
-  endpoint: E,
-  ...args: Args
-): E['schema'] extends undefined
-  ? {
-      data: E extends (...args: any) => any ? ResolveType<E> | undefined : any;
-      loading: boolean;
-      error: ErrorTypes$1 | undefined;
-    }
-  : StatefulReturn<E['schema'], Args[0]>;
-
-declare const StateContext: React$1.Context<State<unknown>>;
-declare const DispatchContext: React$1.Context<
-  (value: ActionTypes) => Promise<void>
->;
-declare const DenormalizeCacheContext: React$1.Context<DenormalizeCache>;
-declare const ControllerContext: React$1.Context<Controller>;
-interface Store<S> {
-  subscribe(listener: () => void): () => void;
-  dispatch: React.Dispatch<ActionTypes>;
-  getState(): S;
-  uninitialized?: boolean;
-}
-declare const StoreContext: React$1.Context<Store<State<unknown>>>;
+declare type Middleware = <R extends Reducer<any, any>>({
+  dispatch,
+}: MiddlewareAPI<R>) => (next: Dispatch<R>) => Dispatch<R>;
 
 interface Options$2<
   Shape extends FetchShape<
@@ -2096,36 +1145,201 @@ declare function createReceiveError<S extends Schema | undefined = any>(
   { schema, key, options, errorExpiryLength, fetchedAt }: Options<S>,
 ): ReceiveAction;
 
+//# sourceMappingURL=index.d.ts.map
+
+declare const index_d_createFetch: typeof createFetch;
+declare const index_d_createReceive: typeof createReceive;
+declare const index_d_createReceiveError: typeof createReceiveError;
+declare namespace index_d {
+  export {
+    index_d_createFetch as createFetch,
+    index_d_createReceive as createReceive,
+    index_d_createReceiveError as createReceiveError,
+  };
+}
+
+interface ConnectionListener {
+  isOnline: () => boolean;
+  addOnlineListener: (handler: () => void) => void;
+  removeOnlineListener: (handler: () => void) => void;
+  addOfflineListener: (handler: () => void) => void;
+  removeOfflineListener: (handler: () => void) => void;
+}
+
+declare let DefaultConnectionListener: {
+  new (): ConnectionListener;
+};
+
+/** Properties sent to Subscription constructor */
+interface SubscriptionInit {
+  schema?: Schema | undefined;
+  fetch: () => Promise<any>;
+  key: string;
+  getState: () => State<unknown>;
+  frequency?: number | undefined;
+}
+/** Interface handling a single resource subscription */
+interface Subscription {
+  add(frequency?: number): void;
+  remove(frequency?: number): boolean;
+  cleanup(): void;
+}
+/** The static class that constructs Subscription */
+interface SubscriptionConstructable {
+  new (init: SubscriptionInit, dispatch: Dispatch<any>): Subscription;
+}
+/** Handles subscription actions -> fetch or receive actions
+ *
+ * Constructor takes a SubscriptionConstructable class to control how
+ * subscriptions are handled. (e.g., polling, websockets)
+ */
+declare class SubscriptionManager<S extends SubscriptionConstructable>
+  implements Manager
+{
+  protected subscriptions: {
+    [key: string]: InstanceType<S>;
+  };
+
+  protected readonly Subscription: S;
+  protected middleware: Middleware$1;
+  constructor(Subscription: S);
+  /** Ensures all subscriptions are cleaned up. */
+  cleanup(): void;
+  /** Called when middleware intercepts 'rest-hooks/subscribe' action.
+   *
+   */
+  protected handleSubscribe(
+    action: SubscribeAction,
+    dispatch: Dispatch<any>,
+    getState: () => State<unknown>,
+  ): void;
+
+  /** Called when middleware intercepts 'rest-hooks/unsubscribe' action.
+   *
+   */
+  protected handleUnsubscribe(
+    action: UnsubscribeAction,
+    dispatch: Dispatch<any>,
+  ): void;
+
+  /** Attaches Manager to store
+   *
+   * Intercepts 'rest-hooks/subscribe'/'rest-hooks/unsubscribe' to register resources that
+   * need to be kept up to date.
+   *
+   * Will possibly dispatch 'rest-hooks/fetch' or 'rest-hooks/receive' to keep resources fresh
+   *
+   */
+  getMiddleware<T extends SubscriptionManager<any>>(this: T): Middleware$1;
+}
+
+/**
+ * PollingSubscription keeps a given resource updated by
+ * dispatching a fetch at a rate equal to the minimum update
+ * interval requested.
+ */
+declare class PollingSubscription implements Subscription {
+  protected readonly schema: Schema | undefined;
+  protected readonly fetch: () => Promise<any>;
+  protected readonly key: string;
+  protected frequency: number;
+  protected frequencyHistogram: Map<number, number>;
+  protected dispatch: Dispatch<any>;
+  protected getState: () => State<unknown>;
+  protected intervalId?: ReturnType<typeof setInterval>;
+  protected lastIntervalId?: ReturnType<typeof setInterval>;
+  protected startId?: ReturnType<typeof setTimeout>;
+  private connectionListener;
+  constructor(
+    { key, schema, fetch, frequency, getState }: SubscriptionInit,
+    dispatch: Dispatch<any>,
+    connectionListener?: ConnectionListener,
+  );
+
+  /** Subscribe to a frequency */
+  add(frequency?: number): void;
+  /** Unsubscribe from a frequency */
+  remove(frequency?: number): boolean;
+  /** Cleanup means clearing out background interval. */
+  cleanup(): void;
+  /** Trigger request for latest resource */
+  protected update(): void;
+  /** What happens when browser goes offline */
+  protected offlineListener: () => void;
+  /** What happens when browser comes online */
+  protected onlineListener: () => void;
+  /** Run polling process with current frequency
+   *
+   * Will clean up old poll interval on next run
+   */
+  protected run(): void;
+  /** Last fetch time */
+  protected lastFetchTime(): number;
+}
+
+declare type DevToolsConfig = {
+  [k: string]: unknown;
+  name: string;
+};
+/** Integrates with https://github.com/zalmoxisus/redux-devtools-extension
+ *
+ * Options: https://github.com/zalmoxisus/redux-devtools-extension/blob/master/docs/API/Arguments.md
+ */
+declare class DevToolsManager implements Manager {
+  protected middleware: Middleware$1;
+  protected devTools: undefined | any;
+  constructor(
+    config?: DevToolsConfig,
+    skipLogging?: (action: ActionTypes) => boolean,
+  );
+
+  /** Called when initial state is ready */
+  init(state: State<any>): void;
+  /** Ensures all subscriptions are cleaned up. */
+  cleanup(): void;
+  /** Attaches Manager to store
+   *
+   */
+  getMiddleware<T extends DevToolsManager>(this: T): Middleware$1;
+}
+
 export {
   AbstractInstanceType,
   ActionTypes,
-  _default as BackupBoundary,
   BodyFromShape,
-  CacheProvider,
+  ConnectionListener,
   Controller,
-  ControllerContext,
+  DefaultConnectionListener,
   DeleteShape,
-  DenormalizeCacheContext,
+  Denormalize,
+  DenormalizeCache,
+  DenormalizeNullable,
+  DevToolsConfig,
+  DevToolsManager,
   Dispatch,
-  DispatchContext,
+  EndpointExtraOptions,
   EndpointInterface,
   EndpointUpdateFunction,
   EntityInterface,
-  ErrorTypes$1 as ErrorTypes,
+  ErrorTypes,
   ExpiryStatus,
   FetchAction,
+  FetchFunction,
   FetchShape,
   GCAction,
   InvalidateAction,
   Manager,
-  Middleware,
-  MiddlewareAPI,
+  Middleware$1 as Middleware,
+  MiddlewareAPI$1 as MiddlewareAPI,
   MutateShape,
   NetworkError,
   NetworkManager,
+  Normalize,
+  NormalizeNullable,
   OptimisticAction,
   PK,
   ParamsFromShape,
+  PollingSubscription,
   ReadShape,
   ReceiveAction,
   ReceiveMeta,
@@ -2139,38 +1353,16 @@ export {
   Schema,
   SetShapeParams,
   State,
-  StateContext,
-  Store,
-  StoreContext,
   SubscribeAction,
+  SubscriptionManager,
   UnknownError,
   UnsubscribeAction,
   UpdateFunction,
   internal_d as __INTERNAL__,
   actionTypes_d as actionTypes,
   applyManager,
-  createFetch,
-  createReceive,
-  createReceiveError,
   createReducer,
-  hasUsableData,
   initialState,
+  index_d as legacyActions,
   reducer,
-  useCache,
-  useController,
-  useDLE,
-  useDenormalized,
-  useError,
-  useFetch,
-  useFetchDispatcher,
-  useFetcher,
-  useInvalidateDispatcher,
-  useInvalidator,
-  useMeta,
-  usePromisifiedDispatch,
-  useResetter,
-  useResource,
-  useRetrieve,
-  useSubscription,
-  useSuspense,
 };

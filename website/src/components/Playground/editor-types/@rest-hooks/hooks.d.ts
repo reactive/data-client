@@ -13,7 +13,11 @@ import { EndpointInterface, EndpointParam } from '@rest-hooks/endpoint';
  const list = useResource(ListShape, { filter });
  ```
  */
-declare function useDebounce<T>(value: T, delay: number, updatable?: boolean): T;
+declare function useDebounce<T>(
+  value: T,
+  delay: number,
+  updatable?: boolean,
+): T;
 
 /**
  * Builds an Endpoint that cancels fetch everytime params change
@@ -24,11 +28,11 @@ declare function useDebounce<T>(value: T, delay: number, updatable?: boolean): T
  useResource(useCancelling(MyEndpoint, { id }), { id })
  ```
  */
-declare function useCancelling<E extends EndpointInterface & {
-    extend: (o: {
-        signal?: AbortSignal | undefined;
-    }) => any;
-}>(endpoint: E, params: EndpointParam<E> | null): E;
+declare function useCancelling<
+  E extends EndpointInterface & {
+    extend: (o: { signal?: AbortSignal }) => any;
+  },
+>(endpoint: E, params: EndpointParam<E> | null): E;
 
 /**
  * Takes an async function and tracks resolution as a boolean.
@@ -48,6 +52,9 @@ declare function useCancelling<E extends EndpointInterface & {
  }
  ```
  */
-declare function useLoading<F extends (...args: any) => Promise<any>>(func: F, deps?: readonly any[]): [F, boolean, Error | undefined];
+declare function useLoading<F extends (...args: any) => Promise<any>>(
+  func: F,
+  deps?: readonly any[],
+): [F, boolean, Error | undefined];
 
 export { useCancelling, useDebounce, useLoading };

@@ -12,20 +12,18 @@ up to you.
 
 ## Error Boundary
 
-This library provides `NetworkErrorBoundary` component that only catches network
+`AsyncBoundary` provides `NetworkErrorBoundary` component that only catches network
 errors and sends them to a fallback component you provide. Other errors will rethrow.
 
 ```tsx
 import { Suspense } from 'react';
-import { NetworkErrorBoundary } from 'rest-hooks';
+import { AsyncBoundary } from 'rest-hooks';
 import { RouteChildrenProps } from 'react-router';
 
 const App = ({ location }: RouteChildrenProps) => (
-  <Suspense fallback={<Spinner />}>
-    <NetworkErrorBoundary>
-      <Routes />
-    </NetworkErrorBoundary>
-  </Suspense>
+  <AsyncBoundary fallback={<Spinner />}>
+    <Routes />
+  </AsyncBoundary>
 );
 ```
 

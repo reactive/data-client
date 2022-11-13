@@ -2,8 +2,8 @@ import {
   CacheProvider,
   PollingSubscription,
   SubscriptionManager,
+  NetworkManager,
 } from 'rest-hooks';
-import { NetworkManager } from '@rest-hooks/core';
 import { FixtureEndpoint, MockResolver } from '@rest-hooks/test';
 import React, { memo, useCallback, useState, useMemo, lazy } from 'react';
 import clsx from 'clsx';

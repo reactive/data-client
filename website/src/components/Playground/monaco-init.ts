@@ -9,16 +9,18 @@ if (
   const rhDeps = [
     'rest',
     'core',
+    'react',
     'endpoint',
     'normalizr',
     'graphql',
     'hooks',
   ] as const;
 
-  const dependencies = [
+  const suggestionDependencies = [
     'react',
     'rest-hooks',
     '@rest-hooks/rest',
+    '@rest-hooks/react',
     '@rest-hooks/graphql',
     '@rest-hooks/hooks',
     'bignumber.js',
@@ -141,9 +143,9 @@ if (
             } else {
               // User is trying to import a dependency
               return {
-                suggestions: dependencies.map(name => ({
+                suggestions: suggestionDependencies.map(name => ({
                   label: name,
-                  //detail: dependencies[name],
+                  //detail: suggestionDependencies[name],
                   kind: monaco.languages.CompletionItemKind.Module,
                   insertText: name,
                 })),
@@ -220,6 +222,9 @@ if (
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare module "rest-hooks" { ${restHooks} }`,
         'file:///node_modules/rest-hooks/index.d.ts',
+      );
+      monaco.languages.typescript.typescriptDefaults.addExtraLib(
+        `declare globals { ${react} }`,
       );
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare globals { ${restHooks} }`,

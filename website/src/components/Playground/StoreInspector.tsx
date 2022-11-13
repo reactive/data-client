@@ -1,4 +1,4 @@
-import { StateContext } from '@rest-hooks/core';
+import { StateContext } from 'rest-hooks';
 import React, { useContext, memo, useMemo } from 'react';
 import clsx from 'clsx';
 

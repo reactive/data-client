@@ -56,6 +56,8 @@
     "@rest-hooks/hooks": "file:../packages/hooks",
     "@rest-hooks/graphql": "file:../packages/graphql",
     "@rest-hooks/rest": "file:../packages/rest",
+    "@rest-hooks/react": "file:../packages/react",
+    "@rest-hooks/redux": "file:../packages/redux",
     "@rest-hooks/test": "file:../packages/test"
   },
   "msw": {

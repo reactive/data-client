@@ -131,16 +131,14 @@ This should resemble what you have added in [initial setup](../getting-started/i
 
 ```tsx title=".storybook/preview.tsx"
 import { Suspense } from 'react';
-import { CacheProvider, NetworkErrorBoundary } from 'rest-hooks';
+import { CacheProvider, AsyncBoundary } from 'rest-hooks';
 
 export const decorators = [
   Story => (
     <CacheProvider>
-      <Suspense fallback="loading">
-        <NetworkErrorBoundary>
-          <Story />
-        </NetworkErrorBoundary>
-      </Suspense>
+      <AsyncBoundary fallback="loading">
+        <Story />
+      </AsyncBoundary>
     </CacheProvider>
   ),
 ];

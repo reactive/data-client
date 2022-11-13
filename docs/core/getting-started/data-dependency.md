@@ -76,46 +76,32 @@ These are called 'fallbacks'.
 
 ### Boundaries (Suspense/NetworkErrorBoundary) {#boundaries}
 
-In React 18, the best way to achieve this is with boundaries. ([React 16.3+ supported](#stateful), but less powerful.)
-`<Suspense />` and `<NetworkErrorBoundary /\>`
-are wrapper components which show fallback [elements](https://reactjs.org/docs/rendering-elements.html)
-when any component rendered as a descendent is loading or errored while loading their data dependency.
+In React 18, the best way to achieve this is with boundaries. Rest Hooks provides [<AsyncBoundary /\>](../api/AsyncBoundary.md),
+which uses `<Suspense />` for loading state and [<NetworkErrorBoundary /\>](../api/NetworkErrorBoundary.md) for error states of
+any descendant components.
 
 <LanguageTabs>
 
 ```tsx {6,12,23-25}
 import React, { Suspense } from 'react';
-import { NetworkErrorBoundary } from 'rest-hooks';
+import { AsyncBoundary } from 'rest-hooks';
 
 export default function TodoPage({ id }: { id: number }) {
   return (
-    <AsyncBoundary>
+    <AsyncBoundary fallback="loading">
       <section>
         <TodoDetail id={1} />
         <TodoDetail id={5} />
         <TodoDetail id={10} />
       </section>
     </AsyncBoundary>
-  );
-}
-
-interface Props {
-  fallback: React.ReactElement;
-  children: React.ReactNode;
-}
-
-function AsyncBoundary({ children, fallback = 'loading' }: Props) {
-  return (
-    <Suspense fallback={fallback}>
-      <NetworkErrorBoundary>{children}</NetworkErrorBoundary>
-    </Suspense>
   );
 }
 ```
 
 ```jsx {6,12,18-20}
 import React, { Suspense } from 'react';
-import { NetworkErrorBoundary } from 'rest-hooks';
+import { AsyncBoundary } from 'rest-hooks';
 
 export default function TodoPage({ id }: { id: number }) {
   return (
@@ -126,14 +112,6 @@ export default function TodoPage({ id }: { id: number }) {
         <TodoDetail id={10} />
       </section>
     </AsyncBoundary>
-  );
-}
-
-function AsyncBoundary({ children, fallback = 'loading' }: Props) {
-  return (
-    <Suspense fallback={fallback}>
-      <NetworkErrorBoundary>{children}</NetworkErrorBoundary>
-    </Suspense>
   );
 }
 ```

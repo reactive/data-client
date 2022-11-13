@@ -2,6 +2,7 @@ import { LiveProvider } from 'react-live';
 import React, { useEffect, useState, memo } from 'react';
 import * as restHooks from 'rest-hooks';
 import * as rest from '@rest-hooks/rest';
+import * as rhReact from '@rest-hooks/react';
 import * as hooks from '@rest-hooks/hooks';
 import * as graphql from '@rest-hooks/graphql';
 import BigNumber from 'bignumber.js';
@@ -83,6 +84,7 @@ const TodoResource = {
 
 const scope = {
   ...restHooks,
+  ...rhReact,
   ...rest,
   ...graphql,
   ...hooks,

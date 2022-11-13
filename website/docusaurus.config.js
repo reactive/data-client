@@ -132,7 +132,7 @@ module.exports = {
           lastVersion: 'current',
           includeCurrentVersion: true,
           versions: {
-            current: { label: '6.5', path: '', badge: false },
+            current: { label: '6.6', path: '', badge: false },
             '5.0': { label: '5.0', path: '5.0', banner: 'none' },
           },
           onlyIncludeVersions: isDev

@@ -21,18 +21,16 @@ it in multiple locations!
 
 ```tsx
 import { Suspense } from 'react';
-import { NetworkErrorBoundary } from 'rest-hooks';
+import { AsyncBoundary } from 'rest-hooks';
 import { RouteChildrenProps } from 'react-router';
 
 const App = () => (
   <div>
     <h1>Main Title</h1>
     <Nav />
-    <Suspense fallback={<Spinner />}>
-      <NetworkErrorBoundary>
-        <Routes />
-      </NetworkErrorBoundary>
-    </Suspense>
+    <AsyncBoundary fallback={<Spinner />}>
+      <Routes />
+    </AsyncBoundary>
   </div>
 );
 ```

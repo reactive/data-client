@@ -137,7 +137,7 @@
         },
         {
           "type": "category",
-          "label": "@rest-hooks/core",
+          "label": "Imperative",
           "items": [
             {
               "type": "doc",
@@ -146,7 +146,14 @@
             {
               "type": "doc",
               "id": "api/Snapshot"
-            },
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Hooks",
+          "items": [
+
             {
               "type": "doc",
               "id": "api/useSuspense"
@@ -181,38 +188,12 @@
             },
             {
               "type": "doc",
-              "id": "api/CacheProvider"
-            },
-            {
-              "type": "doc",
-              "id": "api/ExternalCacheProvider"
-            },
-            {
-              "type": "doc",
-              "id": "api/NetworkErrorBoundary"
-            },
-            {
-              "type": "doc",
-              "id": "api/Manager"
-            },
-            {
-              "type": "doc",
-              "id": "api/NetworkManager"
-            },
-            {
-              "type": "doc",
               "id": "api/useresource"
             },
             {
               "type": "doc",
               "id": "api/useRetrieve"
-            }
-          ]
-        },
-        {
-          "type": "category",
-          "label": "@rest-hooks/hooks",
-          "items": [
+            },
             {
               "type": "doc",
               "id": "api/useDebounce"
@@ -229,7 +210,55 @@
         },
         {
           "type": "category",
-          "label": "@rest-hooks/test",
+          "label": "Components",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/CacheProvider"
+            },
+            {
+              "type": "doc",
+              "id": "api/ExternalCacheProvider"
+            },
+            {
+              "type": "doc",
+              "id": "api/AsyncBoundary"
+            },
+            {
+              "type": "doc",
+              "id": "api/NetworkErrorBoundary"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Managers",
+          "items": [
+            {
+              "type": "doc",
+              "id": "api/Manager"
+            },
+            {
+              "type": "doc",
+              "id": "api/NetworkManager"
+            },
+            {
+              "type": "doc",
+              "id": "api/SubscriptionManager"
+            },
+            {
+              "type": "doc",
+              "id": "api/PollingSubscription"
+            },
+            {
+              "type": "doc",
+              "id": "api/DevToolsManager"
+            }
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Testing",
           "items": [
             {
               "type": "doc",
@@ -254,24 +283,6 @@
             {
               "type": "doc",
               "id": "api/MockProvider"
-            }
-          ]
-        },
-        {
-          "type": "category",
-          "label": "Extra Managers",
-          "items": [
-            {
-              "type": "doc",
-              "id": "api/SubscriptionManager"
-            },
-            {
-              "type": "doc",
-              "id": "api/PollingSubscription"
-            },
-            {
-              "type": "doc",
-              "id": "api/DevToolsManager"
             }
           ]
         },
