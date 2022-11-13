@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1668321394418,
+  "lastUpdate": 1668354649703,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -8570,6 +8570,93 @@ window.BENCHMARK_DATA = {
             "range": "±2.08%",
             "unit": "ops/sec",
             "extra": "69 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3d36956f03c3051181f20e6c4375a6496e3b2add",
+          "message": "internal: Update `@anansi/eslint-plugin` to v0.15.0 (#2271)\n\n* pkg: Update `@anansi/eslint-plugin` to v0.15.0\r\n\r\n* internal: Import sort order\r\n\r\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\r\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2022-11-13T07:47:03-08:00",
+          "tree_id": "cb0a773f35164156809070adff32e9361dd6e628",
+          "url": "https://github.com/coinbase/rest-hooks/commit/3d36956f03c3051181f20e6c4375a6496e3b2add"
+        },
+        "date": 1668354648469,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 123,
+            "range": "±0.51%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 9169,
+            "range": "±0.25%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 60.94,
+            "range": "±1.57%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 66.1,
+            "range": "±0.44%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 64.62,
+            "range": "±0.51%",
+            "unit": "ops/sec",
+            "extra": "67 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 63.8,
+            "range": "±0.85%",
+            "unit": "ops/sec",
+            "extra": "66 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 121,
+            "range": "±1.57%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "receiveLongWithMerge",
+            "value": 80.74,
+            "range": "±0.43%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
+          },
+          {
+            "name": "receiveLongWithSimpleMerge",
+            "value": 109,
+            "range": "±1.13%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
           }
         ]
       }
