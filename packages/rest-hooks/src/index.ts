@@ -18,6 +18,11 @@ export type {
 } from './endpoint/index.js';
 export { default as makeCacheProvider } from '@rest-hooks/react/makeCacheProvider';
 export { default as makeExternalCacheProvider } from '@rest-hooks/redux/makeCacheProvider';
+export {
+  CacheProvider as ExternalCacheProvider,
+  PromiseifyMiddleware,
+  mapMiddleware,
+} from '@rest-hooks/redux';
 
 export * as __INTERNAL__ from './internal.js';
 export { useDenormalized } from './selectors/index.js';
