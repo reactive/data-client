@@ -55,7 +55,7 @@ const projects = [
     setupFiles: ['<rootDir>/scripts/testSetup.js'],
     testEnvironment: 'jsdom',
     testRegex: [
-      '((/__tests__/(?!.*\\.node).*)|(\\.|/)(test|spec))\\.(j|t)sx?$',
+      '((/__tests__/(?!.*\\.(node|native)).*)|(\\.|/)(test|spec))\\.(j|t)sx?$',
     ],
   },
   {
@@ -75,19 +75,23 @@ const projects = [
     transformIgnorePatterns: [
       '/node_modules/(?!@babel/runtime)',
       '\\.pnp\\.[^\\/]+$',
-      '<rootDir>/.*__tests__/[^/]+\\.web\\.(j|t)sx?$',
+      '<rootDir>/.*__tests__/[^/]+\\.(web|native)\\.(j|t)sx?$',
     ],
     testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.node\\.(j|t)sx?$',
   },
-  /*{
+  {
+    // RN preset at https://github.com/facebook/react-native/blob/main/jest-preset.js
     ...baseConfig,
     rootDir: __dirname,
     roots: packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
     displayName: 'React Native',
-    preset: 'react-native',
+    testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.native\\.(j|t)sx?$',
+    testEnvironment: 'node',
+    //'<rootDir>/node_modules/react-native/jest/react-native-env.js', //from RN preset future version
     transformIgnorePatterns: [
-      '/node_modules/(?!(jest-)?react-native|@react-native-community)', //from RN preset
-      '<rootDir>/.*__tests__/[^/]+\\.web\\.(j|t)sx?$',
+      'node_modules\\/(?!(((jest-)?react-native)|@react-native(-community)?|react-navigation))', //from RN preset
+      '<rootDir>/.*__tests__/[^/]+\\.(web|node)\\.(j|t)sx?$',
+      '<rootDir>/scripts',
     ],
     setupFiles: [
       '<rootDir>/node_modules/react-native/jest/setup.js', //from RN preset
@@ -99,7 +103,12 @@ const projects = [
       '^.+\\.(bmp|gif|jpg|jpeg|mp4|png|psd|svg|webp)$':
         '<rootDir>/node_modules/react-native/jest/assetFileTransformer.js', //from RN preset
     },
-  },*/
+    haste: {
+      //from RN preset
+      defaultPlatform: 'ios',
+      platforms: ['android', 'ios', 'native'],
+    },
+  },
 ];
 
 module.exports = {

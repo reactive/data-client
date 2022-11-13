@@ -5,7 +5,7 @@ module.exports = function (api) {
   return {
     presets: [
       [
-        '@anansi/babel-preset',
+        '@anansi',
         {
           typing: 'typescript',
           loose: true,
@@ -39,5 +39,12 @@ module.exports = function (api) {
     },
     // allows us to load .babelrc in addition to this
     babelrcRoots: ['packages/*', '__tests__'],
+    // this is just for testing react native...they ship packages with flowtype in them
+    overrides: [
+      {
+        test: /node_modules\/.+\.(m|c)?js$/,
+        presets: ['@babel/preset-flow'],
+      },
+    ],
   };
 };

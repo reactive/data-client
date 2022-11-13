@@ -1369,7 +1369,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-flow-strip-types@npm:^7.0.0, @babel/plugin-transform-flow-strip-types@npm:^7.17.12, @babel/plugin-transform-flow-strip-types@npm:^7.19.0":
+"@babel/plugin-transform-flow-strip-types@npm:^7.0.0, @babel/plugin-transform-flow-strip-types@npm:^7.17.12, @babel/plugin-transform-flow-strip-types@npm:^7.18.6, @babel/plugin-transform-flow-strip-types@npm:^7.19.0":
   version: 7.19.0
   resolution: "@babel/plugin-transform-flow-strip-types@npm:7.19.0"
   dependencies:
@@ -1866,6 +1866,19 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0-0
   checksum: 21b123c21133eb0998f7b847176da392d49e894671c96785c2471d34845bb50cf4d376e1b4ea3edeafb8b258cc884cd3bed5882fe7ba8d7b0522f3829dea39c5
+  languageName: node
+  linkType: hard
+
+"@babel/preset-flow@npm:^7.18.6":
+  version: 7.18.6
+  resolution: "@babel/preset-flow@npm:7.18.6"
+  dependencies:
+    "@babel/helper-plugin-utils": ^7.18.6
+    "@babel/helper-validator-option": ^7.18.6
+    "@babel/plugin-transform-flow-strip-types": ^7.18.6
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: 9100d4eab3402e6601e361a5b235e46d90cfd389c12db19e2a071e1082ca2a00c04bd47eb185ce68d8979e7c8f3e548cd5d61b86dcd701135468fb929c3aecb6
   languageName: node
   linkType: hard
 
@@ -8640,6 +8653,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"data-uri-to-buffer@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "data-uri-to-buffer@npm:4.0.0"
+  checksum: a010653869abe8bb51259432894ac62c52bf79ad761d418d94396f48c346f2ae739c46b254e8bb5987bded8a653d467db1968db3a69bab1d33aa5567baa5cfc7
+  languageName: node
+  linkType: hard
+
 "data-urls@npm:^3.0.2":
   version: 3.0.2
   resolution: "data-urls@npm:3.0.2"
@@ -10178,6 +10198,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fetch-blob@npm:^3.1.2, fetch-blob@npm:^3.1.4":
+  version: 3.2.0
+  resolution: "fetch-blob@npm:3.2.0"
+  dependencies:
+    node-domexception: ^1.0.0
+    web-streams-polyfill: ^3.0.3
+  checksum: f19bc28a2a0b9626e69fd7cf3a05798706db7f6c7548da657cbf5026a570945f5eeaedff52007ea35c8bcd3d237c58a20bf1543bc568ab2422411d762dd3d5bf
+  languageName: node
+  linkType: hard
+
 "figures@npm:^3.0.0":
   version: 3.2.0
   resolution: "figures@npm:3.2.0"
@@ -10473,6 +10503,15 @@ __metadata:
   version: 0.2.2
   resolution: "format@npm:0.2.2"
   checksum: 646a60e1336250d802509cf24fb801e43bd4a70a07510c816fa133aa42cdbc9c21e66e9cc0801bb183c5b031c9d68be62e7fbb6877756e52357850f92aa28799
+  languageName: node
+  linkType: hard
+
+"formdata-polyfill@npm:^4.0.10":
+  version: 4.0.10
+  resolution: "formdata-polyfill@npm:4.0.10"
+  dependencies:
+    fetch-blob: ^3.1.2
+  checksum: 82a34df292afadd82b43d4a740ce387bc08541e0a534358425193017bf9fb3567875dc5f69564984b1da979979b70703aa73dee715a17b6c229752ae736dd9db
   languageName: node
   linkType: hard
 
@@ -15473,6 +15512,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-domexception@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "node-domexception@npm:1.0.0"
+  checksum: ee1d37dd2a4eb26a8a92cd6b64dfc29caec72bff5e1ed9aba80c294f57a31ba4895a60fd48347cf17dd6e766da0ae87d75657dfd1f384ebfa60462c2283f5c7f
+  languageName: node
+  linkType: hard
+
 "node-environment-flags@npm:^1.0.5":
   version: 1.0.6
   resolution: "node-environment-flags@npm:1.0.6"
@@ -15494,6 +15540,17 @@ __metadata:
     encoding:
       optional: true
   checksum: 8d816ffd1ee22cab8301c7756ef04f3437f18dace86a1dae22cf81db8ef29c0bf6655f3215cb0cdb22b420b6fe141e64b26905e7f33f9377a7fa59135ea3e10b
+  languageName: node
+  linkType: hard
+
+"node-fetch@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "node-fetch@npm:3.3.0"
+  dependencies:
+    data-uri-to-buffer: ^4.0.0
+    fetch-blob: ^3.1.4
+    formdata-polyfill: ^4.0.10
+  checksum: e9936908d2783d3c48a038e187f8062de294d75ef43ec8ab812d7cbd682be2b67605868758d2e9cad6103706dcfe4a9d21d78f6df984e8edf10e7a5ce2e665f8
   languageName: node
   linkType: hard
 
@@ -19842,6 +19899,7 @@ __metadata:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
     "@babel/node": 7.20.2
+    "@babel/preset-flow": ^7.18.6
     "@commitlint/cli": 17.2.0
     "@commitlint/config-conventional": 17.2.0
     "@lerna-lite/cli": 1.12.0
@@ -19874,6 +19932,7 @@ __metadata:
     jest-environment-jsdom: 29.3.1
     mkdirp: ^1.0.4
     nock: 13.2.9
+    node-fetch: ^3.3.0
     prettier: 2.7.1
     react: 18.2.0
     react-dom: 18.2.0
@@ -22521,6 +22580,13 @@ __metadata:
   dependencies:
     defaults: ^1.0.3
   checksum: 814e9d1ddcc9798f7377ffa448a5a3892232b9275ebb30a41b529607691c0491de47cba426e917a4d08ded3ee7e9ba2f3fe32e62ee3cd9c7d3bafb7754bd553c
+  languageName: node
+  linkType: hard
+
+"web-streams-polyfill@npm:^3.0.3":
+  version: 3.2.1
+  resolution: "web-streams-polyfill@npm:3.2.1"
+  checksum: b119c78574b6d65935e35098c2afdcd752b84268e18746606af149e3c424e15621b6f1ff0b42b2676dc012fc4f0d313f964b41a4b5031e525faa03997457da02
   languageName: node
   linkType: hard
 
