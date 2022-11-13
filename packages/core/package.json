@@ -68,6 +68,8 @@
   "keywords": [
     "data",
     "cache",
+    "normalizr",
+    "normalization",
     "flux",
     "fetch",
     "hook",
@@ -83,7 +85,6 @@
     "swr",
     "GraphQL",
     "query",
-    "react-native",
     "ios",
     "android",
     "web",
