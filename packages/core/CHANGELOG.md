@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.4.0...@rest-hooks/core@4.0.0) (2022-11-13)
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Removed all hooks and other react exports
+
+### 🚀 Features
+
+* Add packages react and redux ([#2270](https://github.com/coinbase/rest-hooks/issues/2270)) ([6e28f5f](https://github.com/coinbase/rest-hooks/commit/6e28f5f465b6f4f5d444b56234f212863aeade31))
+* Remove all react-related code ([dda9884](https://github.com/coinbase/rest-hooks/commit/dda988400fc15fdb38f8c2b8fafc17d2ed146ab5))
+
+### 📝 Documentation
+
+* Cut 6.5 of docs ([#2259](https://github.com/coinbase/rest-hooks/issues/2259)) ([777695b](https://github.com/coinbase/rest-hooks/commit/777695b474ddd63710cf720caa4a079929f0537a))
+
 ## [3.4.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@3.3.2...@rest-hooks/core@3.4.0) (2022-11-06)
 
 ### 🚀 Features

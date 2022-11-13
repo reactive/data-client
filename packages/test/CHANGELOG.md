@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.4.2...@rest-hooks/test@8.0.0) (2022-11-13)
+
+### ⚠ 💥 BREAKING CHANGES
+
+* Requires rest-hooks@6.5
+
+### 🚀 Features
+
+* Add packages react and redux ([#2270](https://github.com/coinbase/rest-hooks/issues/2270)) ([6e28f5f](https://github.com/coinbase/rest-hooks/commit/6e28f5f465b6f4f5d444b56234f212863aeade31))
+* Require rest-hooks>6.5 ([5b37263](https://github.com/coinbase/rest-hooks/commit/5b372633d3e3ab3ff4cef4060ba1adcba8f2146d))
+
 ### [7.4.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@7.4.1...@rest-hooks/test@7.4.2) (2022-11-06)
 
 ### 📦 Package

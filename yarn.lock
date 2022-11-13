@@ -3906,14 +3906,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rest-hooks/core@^3.4.0, @rest-hooks/core@workspace:^, @rest-hooks/core@workspace:packages/core":
+"@rest-hooks/core@^4.0.0, @rest-hooks/core@workspace:^, @rest-hooks/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/core@workspace:packages/core"
   dependencies:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
     "@babel/runtime": ^7.13.0
-    "@rest-hooks/normalizr": ^9.2.0
+    "@rest-hooks/normalizr": ^9.3.0
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     flux-standard-action: ^2.1.1
@@ -4087,7 +4087,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/normalizr@^9.0.1, @rest-hooks/normalizr@^9.2.0, @rest-hooks/normalizr@workspace:^, @rest-hooks/normalizr@workspace:packages/normalizr":
+"@rest-hooks/normalizr@^9.0.1, @rest-hooks/normalizr@^9.3.0, @rest-hooks/normalizr@workspace:^, @rest-hooks/normalizr@workspace:packages/normalizr":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/normalizr@workspace:packages/normalizr"
   dependencies:
@@ -4109,14 +4109,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/react@^0.1.0 || ^0.2.0, @rest-hooks/react@workspace:packages/react":
+"@rest-hooks/react@^0.2.0, @rest-hooks/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/react@workspace:packages/react"
   dependencies:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
     "@babel/runtime": ^7.13.0
-    "@rest-hooks/core": ^3.4.0
+    "@rest-hooks/core": ^4.0.0
     "@rest-hooks/use-enhanced-reducer": ^1.2.0
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
@@ -4139,7 +4139,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/redux@^0.1.0 || ^0.2.0, @rest-hooks/redux@workspace:packages/redux":
+"@rest-hooks/redux@^0.2.0, @rest-hooks/redux@workspace:packages/redux":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/redux@workspace:packages/redux"
   dependencies:
@@ -4226,7 +4226,28 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/test@^7.2.1, @rest-hooks/test@workspace:packages/test":
+"@rest-hooks/test@npm:^7.2.1":
+  version: 7.4.2
+  resolution: "@rest-hooks/test@npm:7.4.2"
+  dependencies:
+    "@babel/runtime": ^7.13.0
+    "@testing-library/react-hooks": ~8.0.0
+  peerDependencies:
+    "@rest-hooks/core": ^1.0.0-0 || ^2.0.0-0 || ^3.0.0-0
+    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
+    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
+    redux: ^4.0.0
+    rest-hooks: ^5.0.11 || ^6.0.0-0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    redux:
+      optional: true
+  checksum: d1e4a84ebb944365c4d4ea593a9cc3560a7e45574c5dceaf7ef6a3deff0bc2ad641b9650e70dd9bbedb157131f7f664f578da24be083dc266d7a446f2eaeb6f7
+  languageName: node
+  linkType: hard
+
+"@rest-hooks/test@workspace:packages/test":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/test@workspace:packages/test"
   dependencies:
@@ -19566,8 +19587,8 @@ __metadata:
     "@babel/core": 7.20.2
     "@babel/runtime": ^7.13.0
     "@rest-hooks/endpoint": ^3.2.1
-    "@rest-hooks/react": ^0.1.0 || ^0.2.0
-    "@rest-hooks/redux": ^0.1.0 || ^0.2.0
+    "@rest-hooks/react": ^0.2.0
+    "@rest-hooks/redux": ^0.2.0
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
