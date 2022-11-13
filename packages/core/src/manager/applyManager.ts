@@ -1,6 +1,6 @@
+import type Controller from '../controller/Controller.js';
 import type { Reducer, Dispatch, ReducerState } from '../middlewareTypes.js';
 import { Manager } from '../types.js';
-import type Controller from '../controller/Controller.js';
 
 export default function applyManager(
   managers: Manager[],

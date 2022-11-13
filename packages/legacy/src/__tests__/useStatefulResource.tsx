@@ -1,14 +1,14 @@
+import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
+import { CoolerArticleResource as LegacyArticle } from '__tests__/legacy';
 import {
   CoolerArticleResource,
   InvalidIfStaleArticleResource,
   PaginatedArticleResource,
 } from '__tests__/legacy-3';
-import { CoolerArticleResource as LegacyArticle } from '__tests__/legacy';
-import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 import nock from 'nock';
 
-import { payload, payload2, users, nested } from './fixtures';
 import useStatefulResource from '../useStatefulResource';
+import { payload, payload2, users, nested } from './fixtures';
 
 function onError(e: any) {
   e.preventDefault();

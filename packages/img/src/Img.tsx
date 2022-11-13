@@ -1,5 +1,5 @@
-import React from 'react';
 import { useSuspense } from '@rest-hooks/react';
+import React from 'react';
 
 import getImage from './getImage';
 

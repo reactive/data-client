@@ -1,6 +1,6 @@
+import React from 'react';
 import { StateContext, DispatchContext, actionTypes } from 'rest-hooks';
 import type { ActionTypes } from 'rest-hooks';
-import React from 'react';
 
 import mockState, { Fixture } from './mockState.js';
 

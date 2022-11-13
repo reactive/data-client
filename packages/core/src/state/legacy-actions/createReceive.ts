@@ -3,8 +3,8 @@ import type {
   EndpointExtraOptions as FetchOptions,
 } from '@rest-hooks/normalizr';
 
-import { FetchAction, ReceiveAction } from '../../types.js';
 import { RECEIVE_TYPE } from '../../actionTypes.js';
+import { FetchAction, ReceiveAction } from '../../types.js';
 
 interface Options<
   Payload extends object | string | number | null =

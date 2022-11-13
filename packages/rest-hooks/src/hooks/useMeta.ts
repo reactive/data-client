@@ -1,10 +1,10 @@
-import { useMemo } from 'react';
 import {
   __INTERNAL__,
   State,
   EndpointInterface,
   FetchFunction,
 } from '@rest-hooks/react';
+import { useMemo } from 'react';
 
 import { FetchShape, ParamsFromShape } from '../endpoint/index.js';
 

@@ -1,11 +1,11 @@
 import React, { memo } from 'react';
+import { MatchedRoute, Link } from '@anansi/router';
 import { Layout, Menu } from 'antd';
 import Boundary, { Loading } from 'Boundary';
-import { MatchedRoute, Link } from '@anansi/router';
 import 'antd/dist/antd.css';
 import 'style/main.scss';
-import NavBar from 'navigation/NavBar';
 import FlexRow from 'components/FlexRow';
+import NavBar from 'navigation/NavBar';
 
 const { Header, Content } = Layout;
 

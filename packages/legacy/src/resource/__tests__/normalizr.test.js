@@ -1,11 +1,11 @@
 // eslint-env jest
-import { fromJS } from 'immutable';
 import {
   denormalize,
   normalize,
   DELETED,
   WeakListMap,
 } from '@rest-hooks/normalizr';
+import { fromJS } from 'immutable';
 
 import Entity from '../Entity';
 import IDEntity from '../IDEntity';

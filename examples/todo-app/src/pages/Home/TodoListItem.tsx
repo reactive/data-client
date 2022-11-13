@@ -1,7 +1,7 @@
-import { useController } from 'rest-hooks';
 import { styled } from '@linaria/react';
 import { memo, useCallback } from 'react';
 import { TodoResource, Todo } from 'resources/TodoResource';
+import { useController } from 'rest-hooks';
 
 function TodoListItem({ todo }: { todo: Todo }) {
   const controller = useController();

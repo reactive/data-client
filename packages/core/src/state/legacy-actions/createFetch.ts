@@ -1,6 +1,5 @@
 import { Schema } from '@rest-hooks/normalizr';
 
-import { FetchAction } from '../../types.js';
 import { FETCH_TYPE } from '../../actionTypes.js';
 import {
   FetchShape,
@@ -9,6 +8,7 @@ import {
   BodyFromShape,
   OptimisticUpdateParams,
 } from '../../endpoint/index.js';
+import { FetchAction } from '../../types.js';
 
 interface Options<
   Shape extends FetchShape<

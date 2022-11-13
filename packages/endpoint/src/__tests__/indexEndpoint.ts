@@ -1,5 +1,5 @@
-import Entity from '../schemas/Entity';
 import { Index } from '../indexEndpoint';
+import Entity from '../schemas/Entity';
 
 describe('Index', () => {
   class User extends Entity {

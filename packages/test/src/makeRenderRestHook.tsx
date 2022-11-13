@@ -1,10 +1,10 @@
-import { State, Manager, SubscriptionManager } from 'rest-hooks';
-import React, { memo, Suspense } from 'react';
 import { renderHook } from '@testing-library/react-hooks';
+import React, { memo, Suspense } from 'react';
+import { State, Manager, SubscriptionManager } from 'rest-hooks';
 
-import mockInitialState, { Fixture, FixtureEndpoint } from './mockState.js';
-import MockResolver from './MockResolver.js';
 import { MockNetworkManager, MockPollingSubscription } from './managers.js';
+import MockResolver from './MockResolver.js';
+import mockInitialState, { Fixture, FixtureEndpoint } from './mockState.js';
 
 export default function makeRenderRestHook(
   makeProvider: (

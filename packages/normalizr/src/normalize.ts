@@ -1,8 +1,8 @@
-import type { NormalizeNullable, NormalizedSchema } from './types.js';
 import type { EntityInterface, Schema, NormalizedIndex } from './interface.js';
-import { DELETED } from './special.js';
 import { normalize as arrayNormalize } from './schemas/Array.js';
 import { normalize as objectNormalize } from './schemas/Object.js';
+import { DELETED } from './special.js';
+import type { NormalizeNullable, NormalizedSchema } from './types.js';
 
 const visit = (
   value: any,

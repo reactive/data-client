@@ -2,8 +2,8 @@ import { CoolerArticleResource } from '__tests__/new';
 
 // relative imports to avoid circular dependency in tsconfig references
 import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
-import useError from '../useError';
 import { payload } from '../test-fixtures';
+import useError from '../useError';
 
 describe('useError()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;

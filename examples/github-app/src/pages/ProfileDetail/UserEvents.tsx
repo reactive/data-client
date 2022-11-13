@@ -1,16 +1,14 @@
-import React, { useMemo } from 'react';
-import { useSuspense } from 'rest-hooks';
-import { Card, List, Layout, Space, Timeline, Typography, Divider } from 'antd';
-import Markdown from 'react-markdown';
 import { Link } from '@anansi/router';
-import { UserResource, User } from 'resources/User';
-import RepositoryResource, { Repository } from 'resources/Repository';
 import {
   BranchesOutlined,
   ForkOutlined,
   PullRequestOutlined,
   StarOutlined,
 } from '@ant-design/icons';
+import { Card, List, Layout, Space, Timeline, Typography, Divider } from 'antd';
+import { groupBy } from 'lodash';
+import React, { useMemo } from 'react';
+import Markdown from 'react-markdown';
 import {
   EventResource,
   typeToIcon,
@@ -20,7 +18,9 @@ import {
   PushEvent,
   PullRequestReviewEvent,
 } from 'resources/Event';
-import { groupBy } from 'lodash';
+import RepositoryResource, { Repository } from 'resources/Repository';
+import { UserResource, User } from 'resources/User';
+import { useSuspense } from 'rest-hooks';
 
 import FlexRow from '../../components/FlexRow';
 

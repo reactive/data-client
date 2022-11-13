@@ -1,3 +1,11 @@
+import { RECEIVE_TYPE, FETCH_TYPE, RESET_TYPE } from '../actionTypes.js';
+import Controller from '../controller/Controller.js';
+import { initialState } from '../state/createReducer.js';
+import {
+  createReceive,
+  createReceiveError,
+} from '../state/legacy-actions/index.js';
+import RIC from '../state/RIC.js';
 import type {
   FetchAction,
   ReceiveAction,
@@ -8,14 +16,6 @@ import type {
   Middleware,
   Dispatch,
 } from '../types.js';
-import { RECEIVE_TYPE, FETCH_TYPE, RESET_TYPE } from '../actionTypes.js';
-import RIC from '../state/RIC.js';
-import {
-  createReceive,
-  createReceiveError,
-} from '../state/legacy-actions/index.js';
-import { initialState } from '../state/createReducer.js';
-import Controller from '../controller/Controller.js';
 
 export class ResetError extends Error {
   name = 'ResetError';

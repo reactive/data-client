@@ -1,8 +1,8 @@
-import { memo, Suspense } from 'react';
-import { NetworkErrorBoundary } from 'rest-hooks';
-import type { ReactNode } from 'react';
-import { Spin } from 'antd';
 import { styled } from '@linaria/react';
+import { Spin } from 'antd';
+import { memo, Suspense } from 'react';
+import type { ReactNode } from 'react';
+import { NetworkErrorBoundary } from 'rest-hooks';
 
 function Boundary({
   children,

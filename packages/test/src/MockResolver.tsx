@@ -1,3 +1,5 @@
+import { useCallback, useContext, useMemo } from 'react';
+import React from 'react';
 import {
   DispatchContext,
   actionTypes,
@@ -5,8 +7,6 @@ import {
   ControllerContext,
   Controller,
 } from 'rest-hooks';
-import { useCallback, useContext, useMemo } from 'react';
-import React from 'react';
 
 import { Fixture, actionFromFixture, dispatchFixture } from './mockState.js';
 

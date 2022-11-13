@@ -1,11 +1,11 @@
-import { CoolerArticleResource, PaginatedArticleResource } from '__tests__/new';
-import React, { Suspense, useContext, useEffect } from 'react';
+import { State, ActionTypes, Controller, actionTypes } from '@rest-hooks/core';
 import { render, act } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
+import { CoolerArticleResource, PaginatedArticleResource } from '__tests__/new';
 import nock from 'nock';
+import React, { Suspense, useContext, useEffect } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { State, ActionTypes, Controller, actionTypes } from '@rest-hooks/core';
 
 import {
   makeRenderRestHook,

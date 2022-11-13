@@ -1,10 +1,10 @@
-import { useMemo } from 'react';
 import type {
   EndpointInterface,
   Schema,
   FetchFunction,
 } from '@rest-hooks/react';
 import { useSubscription as useSubscriptionNew } from '@rest-hooks/react';
+import { useMemo } from 'react';
 
 import shapeToEndpoint from '../endpoint/adapter.js';
 import { ReadShape, ParamsFromShape } from '../endpoint/index.js';

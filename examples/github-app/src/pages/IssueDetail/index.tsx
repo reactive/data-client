@@ -1,23 +1,23 @@
-import { useSuspense, useFetch, useCache } from 'rest-hooks';
+import { Link } from '@anansi/router';
 import { Card, Avatar, Popover } from 'antd';
+import { Tag } from 'antd';
+import Boundary from 'Boundary';
+import FlexRow from 'components/FlexRow';
+import Labels from 'components/Labels';
 import { groupBy } from 'lodash';
 import React, { useMemo, memo, useContext } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import Markdown from 'react-markdown';
-import Boundary from 'Boundary';
-import { Link } from '@anansi/router';
-import Labels from 'components/Labels';
-import { Tag } from 'antd';
-import { ReactionResource, contentToIcon } from 'resources/Reaction';
-import { IssueResource } from 'resources/Issue';
+import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import remarkRemoveComments from 'remark-remove-comments';
-import rehypeHighlight from 'rehype-highlight';
-import FlexRow from 'components/FlexRow';
+import { IssueResource } from 'resources/Issue';
+import { ReactionResource, contentToIcon } from 'resources/Reaction';
 import UserResource from 'resources/User';
-import { ErrorBoundary } from 'react-error-boundary';
+import { useSuspense, useFetch, useCache } from 'rest-hooks';
 
-import CreateComment from './CreateComment';
 import CommentsList, { CardLoading } from './CommentsList';
+import CreateComment from './CreateComment';
 import { CreateReaction } from './CreateReaction';
 import { ReactionSpan } from './ReactionSpan';
 

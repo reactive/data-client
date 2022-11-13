@@ -7,8 +7,8 @@ import {
   State,
   __INTERNAL__,
 } from '@rest-hooks/redux';
-import { createStore, applyMiddleware } from 'redux';
 import { useSyncExternalStore } from 'react';
+import { createStore, applyMiddleware } from 'redux';
 
 const { createReducer, initialState, applyManager } = __INTERNAL__;
 

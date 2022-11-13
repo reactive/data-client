@@ -1,17 +1,17 @@
+import { jest } from '@jest/globals';
 import {
   CoolerArticleResource,
   ArticleResourceWithOtherListUrl,
   FutureArticleResource,
 } from '__tests__/legacy-optimistic';
 import nock from 'nock';
-import { jest } from '@jest/globals';
 
+import { useResource, useFetcher, useCache } from '..';
 import {
   makeRenderRestHook,
   makeCacheProvider,
   makeExternalCacheProvider,
 } from '../../../../test';
-import { useResource, useFetcher, useCache } from '..';
 import {
   payload,
   createPayload,

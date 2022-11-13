@@ -1,3 +1,7 @@
+import { schema, Entity, Query } from '@rest-hooks/endpoint';
+import { Endpoint } from '@rest-hooks/endpoint';
+import { SimpleRecord } from '@rest-hooks/legacy';
+import { act } from '@testing-library/react-hooks';
 import {
   CoolerArticleResource,
   EditorArticleResource,
@@ -12,11 +16,7 @@ import {
   PaginatedArticle,
 } from '__tests__/new';
 import nock from 'nock';
-import { act } from '@testing-library/react-hooks';
 // relative imports to avoid circular dependency in tsconfig references
-import { schema, Entity, Query } from '@rest-hooks/endpoint';
-import { SimpleRecord } from '@rest-hooks/legacy';
-import { Endpoint } from '@rest-hooks/endpoint';
 
 import {
   makeRenderRestHook,

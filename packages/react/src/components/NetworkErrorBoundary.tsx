@@ -1,5 +1,5 @@
-import React from 'react';
 import type { NetworkError } from '@rest-hooks/core';
+import React from 'react';
 
 function isNetworkError(error: NetworkError | unknown): error is NetworkError {
   return Object.hasOwn(error as any, 'status');

@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
-import { renderHook } from '@testing-library/react-hooks';
-import nock from 'nock';
-import { FutureArticleResource, GetPhoto } from '__tests__/new';
 import { FixtureEndpoint } from '@rest-hooks/test/mockState';
+import { renderHook } from '@testing-library/react-hooks';
 import { act } from '@testing-library/react-hooks';
+import { FutureArticleResource, GetPhoto } from '__tests__/new';
+import nock from 'nock';
+import { useEffect } from 'react';
 
 import { useCache, useController } from '../..';
 import { makeRenderRestHook, makeCacheProvider } from '../../../../../test';

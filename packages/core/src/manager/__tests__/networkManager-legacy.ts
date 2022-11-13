@@ -1,12 +1,12 @@
 import { ArticleResource } from '__tests__/legacy-3';
 
-import { Middleware } from '../../types';
-import Controller from '../../controller/Controller';
-import NetworkManager from '../NetworkManager';
-import { FetchAction } from '../../types';
 import { RECEIVE_TYPE } from '../../actionTypes';
-import { createFetch } from '../../state/legacy-actions';
+import Controller from '../../controller/Controller';
 import { initialState } from '../../state/createReducer';
+import { createFetch } from '../../state/legacy-actions';
+import { Middleware } from '../../types';
+import { FetchAction } from '../../types';
+import NetworkManager from '../NetworkManager';
 
 describe('NetworkManager', () => {
   const manager = new NetworkManager();

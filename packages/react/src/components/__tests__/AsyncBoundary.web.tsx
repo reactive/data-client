@@ -1,9 +1,9 @@
-import React, { useContext, ReactChild, ReactNode, ReactElement } from 'react';
-import { render } from '@testing-library/react';
 import { Endpoint } from '@rest-hooks/endpoint';
+import { render } from '@testing-library/react';
+import React, { useContext, ReactChild, ReactNode, ReactElement } from 'react';
 
-import AsyncBoundary from '../AsyncBoundary';
 import { useSuspense } from '../../hooks';
+import AsyncBoundary from '../AsyncBoundary';
 import CacheProvider from '../CacheProvider';
 
 describe('<AsyncBoundary />', () => {

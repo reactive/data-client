@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { StateContext, __INTERNAL__, useController } from '@rest-hooks/react';
 import type {
   Schema,
   Denormalize,
@@ -9,6 +8,7 @@ import type {
   FetchFunction,
 } from '@rest-hooks/normalizr';
 import { denormalize, ExpiryStatus } from '@rest-hooks/normalizr';
+import { StateContext, __INTERNAL__, useController } from '@rest-hooks/react';
 import { useContext, useMemo } from 'react';
 
 import type { ParamsFromShape, ReadShape } from './endpoint/index.js';

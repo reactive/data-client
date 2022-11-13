@@ -1,9 +1,9 @@
 import { PollingArticleResource } from '__tests__/legacy-3';
 
 import { initialState } from '../../state/createReducer';
-import PollingSubscription from '../PollingSubscription';
-import DefaultConnectionListener from '../DefaultConnectionListener';
 import ConnectionListener from '../ConnectionListener';
+import DefaultConnectionListener from '../DefaultConnectionListener';
+import PollingSubscription from '../PollingSubscription';
 
 class MockConnectionListener implements ConnectionListener {
   declare online: boolean;

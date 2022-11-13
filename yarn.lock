@@ -85,9 +85,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/eslint-plugin@npm:0.14.4":
-  version: 0.14.4
-  resolution: "@anansi/eslint-plugin@npm:0.14.4"
+"@anansi/eslint-plugin@npm:0.15.0":
+  version: 0.15.0
+  resolution: "@anansi/eslint-plugin@npm:0.15.0"
   dependencies:
     "@babel/eslint-parser": ^7.17.0
     "@typescript-eslint/parser": ^5.11.0
@@ -114,7 +114,7 @@ __metadata:
       optional: true
     webpack:
       optional: true
-  checksum: 4d9ee3a0f80f0c247167971ec4652bfd22482cfdc15755aeb8f44570df5c36e2ec4a88cadaffc3ef91d0c0df1f60e225b96c4791fdebd7e59909c47fd008130b
+  checksum: 12de73d378e1949fd0aaff63e84e85367c0b4a9087856e0868a1f9442fbfd00cbff9cec523a4f91a6ba61efce426e6fa5a399bd9dbcdd32201f7a39e514050b5
   languageName: node
   linkType: hard
 
@@ -10833,7 +10833,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": 3.2.22
     "@anansi/browserslist-config": 1.4.1
-    "@anansi/eslint-plugin": 0.14.4
+    "@anansi/eslint-plugin": 0.15.0
     "@anansi/router": 0.6.36
     "@anansi/webpack-config": 13.0.25
     "@ant-design/icons": ^4.7.0
@@ -19836,7 +19836,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": 3.2.22
     "@anansi/browserslist-config": 1.4.1
-    "@anansi/eslint-plugin": 0.14.4
+    "@anansi/eslint-plugin": 0.15.0
     "@anansi/jest-preset": 0.7.38
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
@@ -21426,7 +21426,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": 3.2.22
     "@anansi/browserslist-config": 1.4.1
-    "@anansi/eslint-plugin": 0.14.4
+    "@anansi/eslint-plugin": 0.15.0
     "@anansi/webpack-config": 13.0.25
     "@babel/core": 7.20.2
     "@linaria/babel-preset": 4.3.0

@@ -1,10 +1,10 @@
+import { act } from '@testing-library/react-hooks';
 import {
   CoauthoredArticle,
   CoauthoredArticleResource,
   UserResource,
 } from '__tests__/new';
 import nock from 'nock';
-import { act } from '@testing-library/react-hooks';
 
 import {
   makeRenderRestHook,

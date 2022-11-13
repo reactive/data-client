@@ -1,6 +1,6 @@
-import type { DenormalizeNullable } from './normal.js';
-import type { EndpointInterface } from './interface.js';
 import type { ErrorTypes } from './ErrorTypes.js';
+import type { EndpointInterface } from './interface.js';
+import type { DenormalizeNullable } from './normal.js';
 
 export interface SnapshotInterface {
   getResponse: <

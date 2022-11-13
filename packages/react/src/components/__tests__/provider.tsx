@@ -1,18 +1,18 @@
 // eslint-env jest
-import { CoolerArticle, CoolerArticleResource } from '__tests__/new';
-import React, { useContext, Suspense } from 'react';
-import { act, render } from '@testing-library/react';
 import {
   NetworkManager,
   actionTypes,
   SubscriptionManager,
 } from '@rest-hooks/core';
+import { act, render } from '@testing-library/react';
+import { CoolerArticle, CoolerArticleResource } from '__tests__/new';
 import nock from 'nock';
+import React, { useContext, Suspense } from 'react';
 
-import { useSuspense } from '../../hooks';
 import { DispatchContext, StateContext } from '../../context';
-import CacheProvider from '../CacheProvider';
+import { useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
+import CacheProvider from '../CacheProvider';
 
 const { RECEIVE_TYPE } = actionTypes;
 

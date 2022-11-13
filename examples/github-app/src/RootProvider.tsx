@@ -1,11 +1,11 @@
-import { CacheProvider } from 'rest-hooks';
+import { AuthdProvider } from 'navigation/authdContext';
 import type { ReactNode } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import type { FallbackProps } from 'react-error-boundary';
-import { AuthdProvider } from 'navigation/authdContext';
+import { CacheProvider } from 'rest-hooks';
 
-import { Router } from './routing';
 import Boundary from './Boundary';
+import { Router } from './routing';
 
 type ComponentProps<T> = T extends
   | React.ComponentType<infer P>

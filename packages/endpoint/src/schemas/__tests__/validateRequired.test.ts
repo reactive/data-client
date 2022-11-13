@@ -2,8 +2,8 @@
 import { IDEntity } from '__tests__/new';
 
 import Entity from '../Entity';
-import denormalize from './denormalize';
 import validateRequired from '../validatRequired';
+import denormalize from './denormalize';
 
 let dateSpy: jest.SpyInstance;
 beforeAll(() => {

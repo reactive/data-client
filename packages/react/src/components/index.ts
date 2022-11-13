@@ -1,5 +1,5 @@
-import CacheProvider from './CacheProvider.js';
 import BackupBoundary from './BackupBoundary.js';
+import CacheProvider from './CacheProvider.js';
 
 export { CacheProvider, BackupBoundary };
 export { default as AsyncBoundary } from './AsyncBoundary.js';

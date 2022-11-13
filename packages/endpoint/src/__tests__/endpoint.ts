@@ -1,8 +1,8 @@
 import nock from 'nock';
 
-import Entity from '../schemas/Entity';
 import Endpoint, { EndpointInstance } from '../endpoint';
 import { EndpointInterface } from '../interface';
+import Entity from '../schemas/Entity';
 
 describe('Endpoint', () => {
   const payload = { id: '5', username: 'bobber' };

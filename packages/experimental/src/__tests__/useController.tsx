@@ -1,18 +1,18 @@
-import { Suspense, useEffect } from 'react';
+import { useCache, useSuspense, useFetch } from '@rest-hooks/react';
+import { FixtureEndpoint } from '@rest-hooks/test/mockState';
 import { render } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
-import nock from 'nock';
-import { CoolerArticleDetail, FutureArticleResource } from '__tests__/new';
-import { FixtureEndpoint } from '@rest-hooks/test/mockState';
 import { act } from '@testing-library/react-hooks';
-import { useCache, useSuspense, useFetch } from '@rest-hooks/react';
+import { CoolerArticleDetail, FutureArticleResource } from '__tests__/new';
+import nock from 'nock';
+import { Suspense, useEffect } from 'react';
 
+import { useController } from '..';
 import {
   makeRenderRestHook,
   makeCacheProvider,
   MockNetworkManager,
 } from '../../../test';
-import { useController } from '..';
 
 export const payload = {
   id: 5,

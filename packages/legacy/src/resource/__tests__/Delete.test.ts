@@ -1,11 +1,11 @@
 // eslint-env jest
-import { fromJS } from 'immutable';
-import { normalize, denormalize, DELETED } from '@rest-hooks/normalizr';
 import { schema } from '@rest-hooks/endpoint';
+import { normalize, denormalize, DELETED } from '@rest-hooks/normalizr';
+import { fromJS } from 'immutable';
 
 import Delete from '../Delete';
-import IDEntity from '../IDEntity';
 import Entity from '../Entity';
+import IDEntity from '../IDEntity';
 
 let dateSpy: jest.SpyInstance;
 beforeAll(() => {

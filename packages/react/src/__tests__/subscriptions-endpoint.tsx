@@ -1,20 +1,20 @@
-import React from 'react';
+import { Controller } from '@rest-hooks/core';
 import { renderHook } from '@testing-library/react-hooks';
-import nock from 'nock';
 import {
   PollingArticleResource,
   ArticleResource,
   Article,
 } from '__tests__/new';
-import { Controller } from '@rest-hooks/core';
+import nock from 'nock';
+import React from 'react';
 
 import {
   makeCacheProvider,
   makeExternalCacheProvider,
   makeRenderRestHook,
 } from '../../../test';
-import { useSubscription, useCache } from '../hooks';
 import { ControllerContext } from '../context';
+import { useSubscription, useCache } from '../hooks';
 
 let mynock: nock.Scope;
 

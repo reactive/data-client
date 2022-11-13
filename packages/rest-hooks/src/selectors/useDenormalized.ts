@@ -1,9 +1,9 @@
 import type { Schema, DenormalizeNullable } from '@rest-hooks/react';
-import { useMemo } from 'react';
 import { State, useController, ExpiryStatus } from '@rest-hooks/react';
+import { useMemo } from 'react';
 
-import { ReadShape, ParamsFromShape } from '../endpoint/index.js';
 import shapeToEndpoint from '../endpoint/adapter.js';
+import { ReadShape, ParamsFromShape } from '../endpoint/index.js';
 
 /**
  * @deprecated use https://resthooks.io/docs/api/Controller#getResponse directly instead

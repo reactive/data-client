@@ -1,5 +1,5 @@
-import React, { memo, Suspense } from 'react';
 import type { NetworkError } from '@rest-hooks/core';
+import React, { memo, Suspense } from 'react';
 
 import NetworkErrorBoundary from './NetworkErrorBoundary.js';
 

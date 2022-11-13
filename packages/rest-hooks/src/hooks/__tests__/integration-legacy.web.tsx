@@ -1,3 +1,12 @@
+import { jest } from '@jest/globals';
+// relative imports to avoid circular dependency in tsconfig references
+import { SimpleRecord } from '@rest-hooks/legacy';
+import {
+  makeRenderRestHook,
+  makeCacheProvider,
+  makeExternalCacheProvider,
+} from '@rest-hooks/test';
+import { act } from '@testing-library/react-hooks';
 import {
   CoolerArticleResource,
   ArticleResource,
@@ -9,15 +18,6 @@ import {
   IndexedUserResource,
 } from '__tests__/legacy-3';
 import nock from 'nock';
-import { act } from '@testing-library/react-hooks';
-import { jest } from '@jest/globals';
-// relative imports to avoid circular dependency in tsconfig references
-import { SimpleRecord } from '@rest-hooks/legacy';
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  makeExternalCacheProvider,
-} from '@rest-hooks/test';
 
 import { useResource, useFetcher, useCache, useInvalidator } from '..';
 import {

@@ -6,11 +6,11 @@ import type {
 } from '@rest-hooks/endpoint';
 
 import { ReadShape, MutateShape, DeleteShape } from '../rest-3/legacy.js';
-import FlatEntity from './FlatEntity.js';
 import Delete from './Delete.js';
-import { SchemaDetail, Method, SchemaList } from './types.js';
 import { NotImplementedError } from './errors.js';
+import FlatEntity from './FlatEntity.js';
 import paramsToString from './paramsToString.js';
+import { SchemaDetail, Method, SchemaList } from './types.js';
 
 /** Represents an entity to be retrieved from a server.
  * Typically 1:1 with a url endpoint.

@@ -1,8 +1,8 @@
 import { CoolerArticleResource } from '__tests__/legacy-3';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import { useError } from '..';
+import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
 import { payload } from '../test-fixtures';
 
 describe('useError()', () => {

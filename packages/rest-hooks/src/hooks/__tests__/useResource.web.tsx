@@ -1,3 +1,11 @@
+import { State, ReadShape } from '@rest-hooks/core';
+import { initialState } from '@rest-hooks/core';
+
+// relative imports to avoid circular dependency in tsconfig references
+
+import { normalize } from '@rest-hooks/normalizr';
+import { DispatchContext, StateContext } from '@rest-hooks/react';
+import { render } from '@testing-library/react';
 import {
   CoolerArticleResource,
   UserResource,
@@ -7,23 +15,15 @@ import {
   ArticleTimedResource,
 } from '__tests__/legacy-3';
 import { createEntityMeta } from '__tests__/utils';
-import { State, ReadShape } from '@rest-hooks/core';
-import { initialState } from '@rest-hooks/core';
-import React, { Suspense } from 'react';
-import { render } from '@testing-library/react';
 import nock from 'nock';
+import React, { Suspense } from 'react';
 
-// relative imports to avoid circular dependency in tsconfig references
-
-import { normalize } from '@rest-hooks/normalizr';
-import { DispatchContext, StateContext } from '@rest-hooks/react';
-
+import { useResource } from '..';
 import {
   makeRenderRestHook,
   makeCacheProvider,
   mockInitialState,
 } from '../../../../test';
-import { useResource } from '..';
 import { payload, users, nested } from '../test-fixtures';
 
 async function testDispatchFetch(

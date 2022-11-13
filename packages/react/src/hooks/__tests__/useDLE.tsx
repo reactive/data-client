@@ -1,3 +1,4 @@
+import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 import {
   CoolerArticle,
   CoolerArticleResource,
@@ -5,11 +6,10 @@ import {
   PaginatedArticleResource,
   TypedArticleResource,
 } from '__tests__/new';
-import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 import nock from 'nock';
 
-import { payload, payload2, users, nested } from './fixtures';
 import useDLE from '../useDLE';
+import { payload, payload2, users, nested } from './fixtures';
 
 function onError(e: any) {
   e.preventDefault();

@@ -3,13 +3,13 @@ import type {
   Denormalize,
   DenormalizeNullable,
 } from '@rest-hooks/react';
-import { useMemo, useContext } from 'react';
 import { StateContext, ExpiryStatus } from '@rest-hooks/react';
+import { useMemo, useContext } from 'react';
 
 import { ReadShape, ParamsFromShape } from '../endpoint/index.js';
 import { useDenormalized } from '../selectors/index.js';
-import useRetrieve from './useRetrieve.js';
 import useError from './useError.js';
+import useRetrieve from './useRetrieve.js';
 
 type ResourceArgs<
   S extends ReadShape<any, any>,

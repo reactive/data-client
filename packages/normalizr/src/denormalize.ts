@@ -1,14 +1,14 @@
 import type { Schema, EntityInterface, UnvisitFunction } from './interface.js';
+import { isEntity } from './isEntity.js';
+import { denormalize as arrayDenormalize } from './schemas/Array.js';
+import { isImmutable } from './schemas/ImmutableUtils.js';
+import { denormalize as objectDenormalize } from './schemas/Object.js';
 import type {
   Denormalize,
   DenormalizeNullable,
   DenormalizeCache,
 } from './types.js';
-import { isEntity } from './isEntity.js';
 import WeakListMap from './WeakListMap.js';
-import { denormalize as arrayDenormalize } from './schemas/Array.js';
-import { denormalize as objectDenormalize } from './schemas/Object.js';
-import { isImmutable } from './schemas/ImmutableUtils.js';
 
 const DRAFT = Symbol('draft');
 

@@ -2,8 +2,8 @@ import { Endpoint, Entity } from '@rest-hooks/endpoint';
 import { CoolerArticleResource } from '__tests__/new';
 
 import { ExpiryStatus } from '../..';
-import Contoller from '../Controller';
 import { initialState } from '../../state/createReducer';
+import Contoller from '../Controller';
 
 function ignoreError(e: Event) {
   e.preventDefault();

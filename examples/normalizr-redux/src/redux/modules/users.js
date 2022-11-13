@@ -1,7 +1,7 @@
 import { denormalize } from '@rest-hooks/normalizr';
 
-import { ADD_ENTITIES } from '../actions';
 import { User } from '../../api/schema';
+import { ADD_ENTITIES } from '../actions';
 
 export const STATE_KEY = 'users';
 

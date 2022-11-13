@@ -1,7 +1,7 @@
-import { useSuspense, useSubscription } from 'rest-hooks';
 import { useLocation } from '@anansi/router';
 import { List } from 'antd';
 import { Issue, IssueResource } from 'resources/Issue';
+import { useSuspense, useSubscription } from 'rest-hooks';
 
 import LinkPagination from '../navigation/LinkPagination';
 import IssueListItem from './IssueListItem';

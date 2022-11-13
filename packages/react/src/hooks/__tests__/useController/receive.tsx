@@ -1,13 +1,13 @@
-import { useEffect } from 'react';
+import { FixtureEndpoint } from '@rest-hooks/test/mockState';
 import { renderHook } from '@testing-library/react-hooks';
-import nock from 'nock';
+import { act } from '@testing-library/react-hooks';
 import {
   CoolerArticle,
   CoolerArticleDetail,
   FutureArticleResource,
 } from '__tests__/new';
-import { FixtureEndpoint } from '@rest-hooks/test/mockState';
-import { act } from '@testing-library/react-hooks';
+import nock from 'nock';
+import { useEffect } from 'react';
 
 import { useCache, useController, useError } from '../..';
 import { makeRenderRestHook, makeCacheProvider } from '../../../../../test';

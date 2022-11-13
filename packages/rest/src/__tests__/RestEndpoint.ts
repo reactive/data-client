@@ -1,16 +1,16 @@
-import nock from 'nock';
-import { useController } from '@rest-hooks/react';
-import { act } from '@testing-library/react-hooks';
 import { Entity } from '@rest-hooks/endpoint';
+import { useController } from '@rest-hooks/react';
 import { useSuspense } from '@rest-hooks/react';
+import { act } from '@testing-library/react-hooks';
 import { CoolerArticle, CoolerArticleResource } from '__tests__/new';
+import nock from 'nock';
 
+import { makeRenderRestHook, makeCacheProvider } from '../../../test';
 import RestEndpoint, {
   Defaults,
   RestEndpointConstructorOptions,
   RestGenerics,
 } from '../RestEndpoint';
-import { makeRenderRestHook, makeCacheProvider } from '../../../test';
 import {
   payload,
   createPayload,

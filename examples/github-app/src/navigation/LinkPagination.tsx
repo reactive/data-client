@@ -1,8 +1,8 @@
-import React from 'react';
-import parseLink from 'parse-link-header';
+import { useController } from '@anansi/router';
 import { Pagination } from 'antd';
 import type { History } from 'history';
-import { useController } from '@anansi/router';
+import parseLink from 'parse-link-header';
+import React from 'react';
 const handleChange =
   (history: History) => (page: number, pageSize?: number) => {
     history.push(history.location.pathname + `?page=${page}`);
