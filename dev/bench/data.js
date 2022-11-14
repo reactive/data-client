@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1668385264248,
+  "lastUpdate": 1668461708787,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -8744,6 +8744,93 @@ window.BENCHMARK_DATA = {
             "range": "±2.28%",
             "unit": "ops/sec",
             "extra": "73 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": false,
+          "id": "f36a6cb91abf6c37039ed6ab30b4113ead880f23",
+          "message": "feat(react-native): Revalidate stale on react-navigation focus (#2273)",
+          "timestamp": "2022-11-14T15:24:24-06:00",
+          "tree_id": "440969dc6d9a1ea94c500f83229925531a4a8dc5",
+          "url": "https://github.com/coinbase/rest-hooks/commit/f36a6cb91abf6c37039ed6ab30b4113ead880f23"
+        },
+        "date": 1668461707305,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 94.97,
+            "range": "±1.24%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 5560,
+            "range": "±0.25%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 47.29,
+            "range": "±0.66%",
+            "unit": "ops/sec",
+            "extra": "62 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 49.69,
+            "range": "±0.29%",
+            "unit": "ops/sec",
+            "extra": "64 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 49.42,
+            "range": "±1.33%",
+            "unit": "ops/sec",
+            "extra": "64 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 49.19,
+            "range": "±0.72%",
+            "unit": "ops/sec",
+            "extra": "64 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 94.51,
+            "range": "±1.65%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "receiveLongWithMerge",
+            "value": 60.77,
+            "range": "±0.48%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "receiveLongWithSimpleMerge",
+            "value": 83.76,
+            "range": "±0.69%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
           }
         ]
       }
