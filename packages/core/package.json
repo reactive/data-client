@@ -1,7 +1,7 @@
 {
   "name": "@rest-hooks/core",
   "version": "4.0.1",
-  "description": "Asynchronous data framework for React",
+  "description": "Normalized Asynchronous data framework. Protocol and View agnostic.",
   "sideEffects": false,
   "main": "dist/index.js",
   "react-native": "legacy/index.js",
