@@ -2,8 +2,6 @@ import { __INTERNAL__ } from '@rest-hooks/react';
 
 export { StateContext, DispatchContext } from '@rest-hooks/react';
 
-export { hasUsableData } from './hooks/index.js';
-
 export const createFetch: typeof __INTERNAL__.createFetch =
   __INTERNAL__.createFetch;
 export const createReceive: typeof __INTERNAL__.createReceive =

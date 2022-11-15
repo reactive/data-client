@@ -16,7 +16,7 @@ or it won't work as expected.
 
 First make sure you have redux installed:
 
-<PkgTabs pkgs="redux" />
+<PkgTabs pkgs="@rest-hooks/redux redux" />
 
 Note: react-redux is _not_ needed for this integration (though you will need it if you want to use redux directly as well).
 
@@ -46,7 +46,7 @@ import {
   PollingSubscription,
   ExternalCacheProvider,
   PromiseifyMiddleware,
-} from 'rest-hooks';
+} from '@rest-hooks/redux';
 import {
   initialState,
   createReducer,
@@ -125,7 +125,7 @@ import {
   PollingSubscription,
   ExternalCacheProvider,
   PromiseifyMiddleware,
-} from 'rest-hooks';
+} from '@rest-hooks/redux';
 import {
   initialState,
   createReducer,

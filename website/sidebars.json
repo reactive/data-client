@@ -180,19 +180,7 @@
             },
             {
               "type": "doc",
-              "id": "api/useMeta"
-            },
-            {
-              "type": "doc",
               "id": "api/useError"
-            },
-            {
-              "type": "doc",
-              "id": "api/useresource"
-            },
-            {
-              "type": "doc",
-              "id": "api/useRetrieve"
             },
             {
               "type": "doc",
@@ -292,15 +280,15 @@
           "items": [
             {
               "type": "doc",
-              "id": "api/useFetcher"
+              "id": "api/useMeta"
             },
             {
               "type": "doc",
-              "id": "api/useInvalidator"
+              "id": "api/useresource"
             },
             {
               "type": "doc",
-              "id": "api/useResetter"
+              "id": "api/useRetrieve"
             }
           ]
         }
@@ -310,6 +298,10 @@
       "type": "category",
       "label": "Upgrade Guide",
       "items": [
+        {
+          "type": "doc",
+          "id": "upgrade/upgrading-to-7"
+        },
         {
           "type": "doc",
           "id": "upgrade/upgrading-to-6"

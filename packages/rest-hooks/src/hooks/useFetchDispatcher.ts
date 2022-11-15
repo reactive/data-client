@@ -4,10 +4,8 @@ import { useContext, useCallback } from 'react';
 
 import {
   FetchShape,
-  SchemaFromShape,
   ParamsFromShape,
   BodyFromShape,
-  OptimisticUpdateParams,
   ReturnFromShape,
 } from '../endpoint/index.js';
 
@@ -18,17 +16,12 @@ const { createFetch } = __INTERNAL__;
  */
 export default function useFetchDispatcher(throttle = false): <
   Shape extends FetchShape<Schema, Readonly<object>, any>,
-  UpdateParams extends OptimisticUpdateParams<
-    SchemaFromShape<Shape>,
-    FetchShape<any, any, any>
-  >[],
 >(
   fetchShape: Shape & {
     update?: (...args: any) => Record<string, (...args: any) => any>;
   },
   params: ParamsFromShape<Shape>,
   body: BodyFromShape<Shape>,
-  updateParams?: UpdateParams | undefined,
 ) => ReturnFromShape<typeof fetchShape> {
   const dispatch = useContext(DispatchContext);
 
@@ -37,18 +30,11 @@ export default function useFetchDispatcher(throttle = false): <
       fetchShape: Shape,
       params: ParamsFromShape<Shape>,
       body: BodyFromShape<Shape>,
-      updateParams?:
-        | OptimisticUpdateParams<
-            SchemaFromShape<Shape>,
-            FetchShape<any, any, any>
-          >[]
-        | undefined,
     ) => {
       const action = createFetch(fetchShape, {
         params,
         body,
         throttle,
-        updateParams,
       });
       dispatch(action);
       return action.meta.promise;

@@ -132,8 +132,8 @@ module.exports = {
           lastVersion: 'current',
           includeCurrentVersion: true,
           versions: {
-            current: { label: '6.6', path: '', badge: false },
-            '5.0': { label: '5.0', path: '5.0', banner: 'none' },
+            current: { label: '7.0', path: '', badge: false },
+            6.6: { label: '6.6', path: '6.6', banner: 'none' },
           },
           onlyIncludeVersions: isDev
             ? ['current', ...versions.slice(0, 4)]
@@ -371,7 +371,7 @@ module.exports = {
             dropdownItemsBefore: [
               {
                 label: 'Upgrade Guide',
-                to: 'docs/upgrade/upgrading-to-6',
+                to: 'docs/upgrade/upgrading-to-7',
               },
             ],
           },

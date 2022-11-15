@@ -128,7 +128,7 @@ type CondNull<P, A, B> = P extends null ? A : B;
  * Suspends until it is.
  *
  * `useResource` guarantees referential equality globally.
- * @see https://resthooks.io/docs/api/useresource
+ * @deprecated use https://resthooks.io/docs/api/useSuspense
  * @throws {Promise} If data is not yet available.
  * @throws {NetworkError} If fetch fails.
  */

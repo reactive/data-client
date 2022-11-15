@@ -4,7 +4,7 @@ import { CoolerArticleResource } from '__tests__/legacy-3';
 import nock from 'nock';
 import React, { Suspense } from 'react';
 
-import { useFetchDispatcher } from '..';
+import useFetchDispatcher from '../useFetchDispatcher';
 
 async function testDispatchFetch(
   Component: React.FunctionComponent<any>,

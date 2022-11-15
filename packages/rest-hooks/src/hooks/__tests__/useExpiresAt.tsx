@@ -5,9 +5,9 @@ import { renderHook } from '@testing-library/react-hooks';
 import React from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { useExpiresAt } from '..';
 import { State, useDenormalized } from '../..';
 import { makeRenderRestHook } from '../../../../test';
+import useExpiresAt from '../useExpiresAt';
 
 export default class IDEntity extends Entity {
   readonly id: string | number | undefined = undefined;

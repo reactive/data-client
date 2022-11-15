@@ -1,14 +1,27 @@
 ---
 title: "<ExternalCacheProvider />"
 ---
+
+import PkgTabs from '@site/src/components/PkgTabs';
+
 Integrates external stores with `rest-hooks`. Should be placed as high as possible
 in application tree as any usage of the hooks is only possible for components below the provider
 in the React tree.
 
+:::caution
+
 **Is a replacement for [<CacheProvider /\>](./CacheProvider.md) - do _NOT_ use both at once**
 
+:::
+
+## Installation
+
+<PkgTabs pkgs="@rest-hooks/redux redux" />
+
+## Usage
+
 ```tsx title="index.tsx"
-import { ExternalCacheProvider } from 'rest-hooks';
+import { ExternalCacheProvider } from '@rest-hooks/redux';
 import ReactDOM from 'react-dom';
 
 import { store, selector } from './store';

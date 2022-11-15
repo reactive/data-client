@@ -7,7 +7,7 @@ import useFetchDispatcher from './useFetchDispatcher.js';
 
 /**
  * Request a resource if it is not in cache.\
- * @see https://resthooks.io/docs/api/useRetrieve
+ * @deprecated use https://resthooks.io/docs/api/useFetch
  */
 export default function useRetrieve<Shape extends ReadShape<any, any>>(
   fetchShape: Shape,

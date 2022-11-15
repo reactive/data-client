@@ -17,12 +17,6 @@ export type {
   ParamsFromShape,
 } from './endpoint/index.js';
 export { default as makeCacheProvider } from '@rest-hooks/react/makeCacheProvider';
-export { default as makeExternalCacheProvider } from '@rest-hooks/redux/makeCacheProvider';
-export {
-  CacheProvider as ExternalCacheProvider,
-  PromiseifyMiddleware,
-  mapMiddleware,
-} from '@rest-hooks/redux';
 
 export * as __INTERNAL__ from './internal.js';
 export { useDenormalized } from './selectors/index.js';
@@ -30,15 +24,8 @@ export { useDenormalized } from './selectors/index.js';
 export {
   useCache,
   useError,
-  useExpiresAt,
-  useFetchDispatcher,
-  useFetcher,
-  useInvalidateDispatcher,
-  useInvalidator,
   useMeta,
-  useResetter,
   useResource,
   useRetrieve,
   useSubscription,
-  hasUsableData,
 } from './hooks/index.js';

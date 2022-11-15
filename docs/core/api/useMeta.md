@@ -18,7 +18,3 @@ function useMeta(
 [NetworkError](./types#networkerror) [UnknownError](./types#unknownerror)
 
 Retrieves metadata about a request from the cache.
-
-Used in
-
-- [useError()](./useError)

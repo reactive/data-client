@@ -33,24 +33,6 @@ exports[`CacheProvider Endpoint should resolve useResource() with SimpleRecords 
 ]
 `;
 
-exports[`CacheProvider Optimistic Updates indexes should resolve parallel useResource() request 1`] = `
-IndexedUserResource {
-  "email": "bob@bob.com",
-  "id": 23,
-  "isAdmin": false,
-  "username": "bob",
-}
-`;
-
-exports[`CacheProvider Optimistic Updates indexes should resolve parallel useResource() request 2`] = `
-IndexedUserResource {
-  "email": "bob@bob.com",
-  "id": 23,
-  "isAdmin": false,
-  "username": "charlie",
-}
-`;
-
 exports[`CacheProvider should resolve useResource() with SimpleRecords 1`] = `
 [
   PaginatedArticleResource {
@@ -144,24 +126,6 @@ exports[`ExternalCacheProvider Endpoint should resolve useResource() with Simple
     "title": "the next time",
   },
 ]
-`;
-
-exports[`ExternalCacheProvider Optimistic Updates indexes should resolve parallel useResource() request 1`] = `
-IndexedUserResource {
-  "email": "bob@bob.com",
-  "id": 23,
-  "isAdmin": false,
-  "username": "bob",
-}
-`;
-
-exports[`ExternalCacheProvider Optimistic Updates indexes should resolve parallel useResource() request 2`] = `
-IndexedUserResource {
-  "email": "bob@bob.com",
-  "id": 23,
-  "isAdmin": false,
-  "username": "charlie",
-}
 `;
 
 exports[`ExternalCacheProvider should resolve useResource() with SimpleRecords 1`] = `
