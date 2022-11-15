@@ -6,58 +6,26 @@
 [![npm version](https://img.shields.io/npm/v/@rest-hooks/legacy.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/legacy)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-[Rest Hooks](https://resthooks.io) without Suspense.
+[Rest Hooks](https://resthooks.io) legacy support.
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io/docs/guides/no-suspense)** &nbsp;|&nbsp; [🏁Getting Started with Rest Hooks](https://resthooks.io/docs/getting-started/installation) &nbsp;|&nbsp;
-[🎮Rest Hooks Demo](https://codesandbox.io/s/rest-hooks-hinux?fontsize=14&module=%2Fsrc%2Fpages%2FIssueList.tsx)
+**[📖Read The Docs](https://resthooks.io/docs/upgrade/upgrading-to-7)**
 
 </div>
 
-#### `resources/ProfileResource.ts`
-
-```typescript
-import { Resource } from '@rest-hooks/legacy';
-
-export default class ProfileResource extends Resource {
-  readonly id: number | undefined = undefined;
-  readonly img: string = '';
-  readonly fullName: string = '';
-  readonly bio: string = '';
-
-  pk() {
-    return this.id;
-  }
-  static urlRoot = '/profiles';
-}
-```
-
-#### `ProfileList.tsx`
+## shapeToEndpoint
 
 ```tsx
-import { useStatefulResource } from '@rest-hooks/legacy';
-import { Skeleton, Card, Avatar } from 'antd';
-import ProfileResource from 'resources/ProfileResource';
+import { shapeToEndpoint } from '@rest-hooks/legacy';
 
-const { Meta } = Card;
-
-function ProfileList() {
-  const { data, loading, error } = useStatefulResource(
-    ProfileResource.detailShape(),
-    {},
-  );
-  if (error) return <div>Error {error.status}</div>
-  return (
-    <Card style={{ width: 300, marginTop: 16 }} loading={loading}>
-      <Meta
-        avatar={
-          <Avatar src={data.img} />
-        }
-        title={data.fullName}
-        description={data.bio}
-      />
-    </Card>
-  );
+function MyComponent() {
+  const endpoint: any = useMemo(() => {
+    return shapeToEndpoint(fetchShape);
+    // we currently don't support shape changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const mydata = useSuspense(endpoint, params);
+  //...
 }
 ```

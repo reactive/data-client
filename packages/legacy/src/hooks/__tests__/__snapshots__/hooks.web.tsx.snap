@@ -1,0 +1,334 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`useFetcher should dispatch an action that fetches a create 1`] = `
+{
+  "meta": {
+    "args": [
+      {},
+      {
+        "content": "hi",
+      },
+    ],
+    "key": "POST http://test.com/article-cooler/",
+    "options": {
+      "errorPolicy": [Function],
+      "fetchInit": {},
+      "getFetchInit": [Function],
+      "method": "POST",
+      "signal": undefined,
+      "url": [Function],
+      "useFetchInit": [Function],
+    },
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": false,
+    "type": "mutate",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetcher should dispatch an action that fetches a full update 1`] = `
+{
+  "meta": {
+    "args": [
+      {
+        "id": 1,
+      },
+      {
+        "content": "changed",
+      },
+    ],
+    "key": "PUT http://test.com/article-cooler/1",
+    "options": {
+      "errorPolicy": [Function],
+      "fetchInit": {},
+      "getFetchInit": [Function],
+      "method": "PUT",
+      "signal": undefined,
+      "url": [Function],
+      "useFetchInit": [Function],
+    },
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": false,
+    "type": "mutate",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetcher should dispatch an action that fetches a partial update 1`] = `
+{
+  "meta": {
+    "args": [
+      {
+        "id": 1,
+      },
+      {
+        "content": "changed",
+      },
+    ],
+    "key": "PATCH http://test.com/article-cooler/1",
+    "optimisticResponse": {
+      "content": "changed",
+      "id": 1,
+    },
+    "options": {
+      "errorPolicy": [Function],
+      "optimisticUpdate": [Function],
+    },
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": false,
+    "type": "mutate",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetcher should dispatch an action with multiple updaters in the meta if update shapes params are passed in 1`] = `
+{
+  "meta": {
+    "args": [
+      {},
+      {
+        "content": "hi",
+      },
+    ],
+    "key": "POST http://test.com/article/",
+    "optimisticResponse": {
+      "content": "hi",
+    },
+    "options": {
+      "errorPolicy": [Function],
+      "optimisticUpdate": [Function],
+    },
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": false,
+    "type": "mutate",
+    "update": [Function],
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetcher should dispatch an action with updater in the meta if update shapes params are passed in 1`] = `
+{
+  "meta": {
+    "args": [
+      {},
+      {
+        "content": "hi",
+      },
+    ],
+    "key": "POST http://test.com/article-cooler/",
+    "options": {
+      "errorPolicy": [Function],
+      "fetchInit": {},
+      "getFetchInit": [Function],
+      "method": "POST",
+      "signal": undefined,
+      "url": [Function],
+      "useFetchInit": [Function],
+    },
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": false,
+    "type": "mutate",
+    "update": [Function],
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetcher should refresh get details 1`] = `
+{
+  "meta": {
+    "args": [
+      {
+        "id": 1,
+      },
+      undefined,
+    ],
+    "key": "GET http://test.com/article-cooler/1",
+    "options": {
+      "errorPolicy": [Function],
+      "fetchInit": {},
+      "getFetchInit": [Function],
+      "method": "GET",
+      "signal": undefined,
+      "url": [Function],
+      "useFetchInit": [Function],
+    },
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": false,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useRetrieve should dispatch singles 1`] = `
+{
+  "meta": {
+    "args": [
+      {
+        "content": "whatever",
+        "id": 5,
+        "tags": [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      },
+      undefined,
+    ],
+    "key": "GET http://test.com/article-cooler/5",
+    "options": {
+      "errorPolicy": [Function],
+      "fetchInit": {},
+      "getFetchInit": [Function],
+      "method": "GET",
+      "signal": undefined,
+      "url": [Function],
+      "useFetchInit": [Function],
+    },
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useRetrieve should dispatch with fetch shape defined dataExpiryLength 1`] = `
+{
+  "meta": {
+    "args": [
+      {
+        "content": "whatever",
+        "id": 5,
+        "tags": [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      },
+      undefined,
+    ],
+    "key": "GET http://test.com/article-static/5",
+    "options": {
+      "dataExpiryLength": 3600000,
+      "errorPolicy": [Function],
+      "fetchInit": {},
+      "getFetchInit": [Function],
+      "method": "GET",
+      "signal": undefined,
+      "url": [Function],
+      "useFetchInit": [Function],
+    },
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useRetrieve should dispatch with fetch shape defined errorExpiryLength 1`] = `
+{
+  "meta": {
+    "args": [
+      {
+        "content": "whatever",
+        "id": 5,
+        "tags": [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      },
+      undefined,
+    ],
+    "key": "GET http://test.com/article-static/5",
+    "options": {
+      "errorExpiryLength": Infinity,
+      "errorPolicy": [Function],
+      "fetchInit": {},
+      "getFetchInit": [Function],
+      "method": "GET",
+      "signal": undefined,
+      "url": [Function],
+      "useFetchInit": [Function],
+    },
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useRetrieve should dispatch with resource defined dataExpiryLength 1`] = `
+{
+  "meta": {
+    "args": [
+      {
+        "content": "whatever",
+        "id": 5,
+        "tags": [
+          "a",
+          "best",
+          "react",
+        ],
+        "title": "hi ho",
+      },
+      undefined,
+    ],
+    "key": "GET http://test.com/article-static/5",
+    "options": {
+      "errorPolicy": [Function],
+      "fetchInit": {},
+      "getFetchInit": [Function],
+      "method": "GET",
+      "signal": undefined,
+      "url": [Function],
+      "useFetchInit": [Function],
+    },
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
