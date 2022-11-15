@@ -108,8 +108,8 @@
   "dependencies": {
     "@babel/runtime": "^7.13.0",
     "@rest-hooks/endpoint": "^3.2.2",
-    "@rest-hooks/react": "^0.2.1",
-    "@rest-hooks/redux": "^0.2.1",
+    "@rest-hooks/react": "^6.0.0",
+    "@rest-hooks/redux": "^6.0.0",
     "redux": "^4.0.0"
   },
   "peerDependencies": {
