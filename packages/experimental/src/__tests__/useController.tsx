@@ -1,4 +1,5 @@
 import { useCache, useSuspense, useFetch } from '@rest-hooks/react';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { FixtureEndpoint } from '@rest-hooks/test/mockState';
 import { render } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
@@ -8,11 +9,7 @@ import nock from 'nock';
 import { Suspense, useEffect } from 'react';
 
 import { useController } from '..';
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  MockNetworkManager,
-} from '../../../test';
+import { makeRenderRestHook, MockNetworkManager } from '../../../test';
 
 export const payload = {
   id: 5,

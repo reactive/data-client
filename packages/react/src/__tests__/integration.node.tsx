@@ -1,9 +1,10 @@
+import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
 import { act } from '@testing-library/react-hooks';
 import { CoolerArticleResource, CoolerArticleDetail } from '__tests__/new';
 import nock from 'nock';
-// relative imports to avoid circular dependency in tsconfig references
 
-import { makeRenderRestHook, makeExternalCacheProvider } from '../../../test';
+// relative imports to avoid circular dependency in tsconfig references
+import { makeRenderRestHook } from '../../../test';
 import { useCache, useSuspense } from '../hooks';
 import { useController } from '../hooks';
 import {

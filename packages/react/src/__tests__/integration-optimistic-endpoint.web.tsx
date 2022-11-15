@@ -1,6 +1,8 @@
 import { jest } from '@jest/globals';
 import { Endpoint, Entity } from '@rest-hooks/endpoint';
 import { AbortOptimistic } from '@rest-hooks/endpoint';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
 import { act } from '@testing-library/react-hooks';
 import {
   CoolerArticleResource,
@@ -16,11 +18,7 @@ import { SpyInstance } from 'jest-mock';
 import nock from 'nock';
 import { useContext } from 'react';
 
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  makeExternalCacheProvider,
-} from '../../../test';
+import { makeRenderRestHook } from '../../../test';
 import { StateContext } from '../context';
 import { useCache, useController, useSuspense } from '../hooks';
 import { useError } from '../hooks';

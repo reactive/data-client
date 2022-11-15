@@ -1,3 +1,4 @@
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { FixtureEndpoint } from '@rest-hooks/test/mockState';
 import { renderHook } from '@testing-library/react-hooks';
 import { act } from '@testing-library/react-hooks';
@@ -6,7 +7,7 @@ import nock from 'nock';
 import { useEffect } from 'react';
 
 import { useCache, useController } from '../..';
-import { makeRenderRestHook, makeCacheProvider } from '../../../../../test';
+import { makeRenderRestHook } from '../../../../../test';
 
 export const payload = {
   id: 5,

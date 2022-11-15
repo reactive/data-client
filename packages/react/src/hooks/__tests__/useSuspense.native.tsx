@@ -11,11 +11,8 @@ import {
 import { FetchAction } from '@rest-hooks/core';
 import { Endpoint, FetchFunction, ReadEndpoint } from '@rest-hooks/endpoint';
 import { normalize } from '@rest-hooks/normalizr';
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  mockInitialState,
-} from '@rest-hooks/test';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { makeRenderRestHook, mockInitialState } from '@rest-hooks/test';
 import { render, act, screen, waitFor } from '@testing-library/react-native';
 import {
   CoolerArticleResource,

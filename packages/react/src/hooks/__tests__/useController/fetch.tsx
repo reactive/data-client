@@ -1,16 +1,13 @@
 import { ResolveType } from '@rest-hooks/core';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
 import { act } from '@testing-library/react-hooks';
 import { CoolerArticle, FutureArticleResource } from '__tests__/new';
 import nock from 'nock';
 
 import { useCache, useController, useSuspense } from '../..';
 // relative imports to avoid circular dependency in tsconfig references
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  makeExternalCacheProvider,
-  FixtureEndpoint,
-} from '../../../../../test';
+import { makeRenderRestHook, FixtureEndpoint } from '../../../../../test';
 
 export const payload = {
   id: 5,

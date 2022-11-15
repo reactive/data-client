@@ -1,6 +1,6 @@
+import { StateContext, DispatchContext, actionTypes } from '@rest-hooks/react';
+import type { ActionTypes } from '@rest-hooks/react';
 import React from 'react';
-import { StateContext, DispatchContext, actionTypes } from 'rest-hooks';
-import type { ActionTypes } from 'rest-hooks';
 
 import mockState, { Fixture } from './mockState.js';
 
@@ -14,14 +14,14 @@ for which there is no matching fixture.
 If you were expecting to see results, it is likely due to data not being found in fixtures.
 Double check your params and FetchShape match. For example:
 
-useResource(ArticleResource.listShape(), { maxResults: 10 });
+useSuspense(ArticleResource.getList, { maxResults: 10 });
 
 and
 
 {
-request: ArticleResource.listShape(),
-params: { maxResults: 10 },
-result: [],
+endpoint: ArticleResource.getList,
+args: [{ maxResults: 10 }],
+response: [],
 }`,
     );
   }

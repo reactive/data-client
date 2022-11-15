@@ -1,3 +1,5 @@
+import { shapeToEndpoint } from '@rest-hooks/legacy';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import {
   CoolerArticleResource,
   PaginatedArticleResource,
@@ -8,7 +10,7 @@ import React, { useEffect } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
 import { useCache } from '..';
-import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
+import { makeRenderRestHook } from '../../../../test';
 import { articlesPages, payload } from '../test-fixtures';
 
 describe('useCache()', () => {
@@ -37,9 +39,9 @@ describe('useCache()', () => {
   it('should select singles', () => {
     const results = [
       {
-        request: CoolerArticleResource.detailShape(),
-        params: payload,
-        result: payload,
+        endpoint: shapeToEndpoint(CoolerArticleResource.detailShape()),
+        args: [payload],
+        response: payload,
       },
     ];
     const { result } = renderRestHook(
@@ -58,9 +60,9 @@ describe('useCache()', () => {
     Date.now = jest.fn(() => 999999999);
     const results = [
       {
-        request: InvalidIfStaleArticleResource.detailShape(),
-        params: payload,
-        result: payload,
+        endpoint: shapeToEndpoint(InvalidIfStaleArticleResource.detailShape()),
+        args: [payload],
+        response: payload,
       },
     ];
     const { result, rerender } = renderRestHook(
@@ -84,9 +86,9 @@ describe('useCache()', () => {
   it('should select paginated results', () => {
     const results = [
       {
-        request: PaginatedArticleResource.listShape(),
-        params: {},
-        result: articlesPages,
+        endpoint: shapeToEndpoint(PaginatedArticleResource.listShape()),
+        args: [{}],
+        response: articlesPages,
       },
     ];
     const { result } = renderRestHook(
@@ -107,9 +109,9 @@ describe('useCache()', () => {
   it('should return identical value no matter how many re-renders', () => {
     const results = [
       {
-        request: PaginatedArticleResource.listShape(),
-        params: {},
-        result: articlesPages,
+        endpoint: shapeToEndpoint(PaginatedArticleResource.listShape()),
+        args: [{}],
+        response: articlesPages,
       },
     ];
     const track = jest.fn();
@@ -144,9 +146,9 @@ describe('useCache()', () => {
     it('should find results', () => {
       const results = [
         {
-          request: PaginatedArticleResource.listShape(),
-          params: {},
-          result: articlesPages,
+          endpoint: shapeToEndpoint(PaginatedArticleResource.listShape()),
+          args: [{}],
+          response: articlesPages,
         },
       ];
       const { result } = renderRestHook(
@@ -168,9 +170,9 @@ describe('useCache()', () => {
     it('should return identical value no matter how many re-renders', () => {
       const results = [
         {
-          request: PaginatedArticleResource.listShape(),
-          params: {},
-          result: articlesPages,
+          endpoint: shapeToEndpoint(PaginatedArticleResource.listShape()),
+          args: [{}],
+          response: articlesPages,
         },
       ];
       const track = jest.fn();

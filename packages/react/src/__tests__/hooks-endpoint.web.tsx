@@ -1,4 +1,6 @@
 import { State, ActionTypes, Controller, actionTypes } from '@rest-hooks/core';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
 import { render, act } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { CoolerArticleResource, PaginatedArticleResource } from '__tests__/new';
@@ -7,12 +9,7 @@ import React, { Suspense, useContext, useEffect } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
 
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  mockInitialState,
-  makeExternalCacheProvider,
-} from '../../../test';
+import { makeRenderRestHook, mockInitialState } from '../../../test';
 import { ControllerContext, DispatchContext, StateContext } from '../context';
 import { useController, useSuspense } from '../hooks';
 import { articlesPages, createPayload, payload } from '../test-fixtures';

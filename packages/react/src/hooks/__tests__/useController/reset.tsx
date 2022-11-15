@@ -1,4 +1,5 @@
-import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { makeRenderRestHook } from '@rest-hooks/test';
 import { FixtureEndpoint } from '@rest-hooks/test/mockState';
 import { renderHook } from '@testing-library/react-hooks';
 import { act } from '@testing-library/react-hooks';

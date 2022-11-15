@@ -1,10 +1,9 @@
 import { State, ReadShape } from '@rest-hooks/core';
 import { initialState } from '@rest-hooks/core';
-
-// relative imports to avoid circular dependency in tsconfig references
-
+import { shapeToEndpoint } from '@rest-hooks/legacy';
 import { normalize } from '@rest-hooks/normalizr';
 import { DispatchContext, StateContext } from '@rest-hooks/react';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { render } from '@testing-library/react';
 import {
   CoolerArticleResource,
@@ -18,12 +17,9 @@ import { createEntityMeta } from '__tests__/utils';
 import nock from 'nock';
 import React, { Suspense } from 'react';
 
+// relative imports to avoid circular dependency in tsconfig references
 import { useResource } from '..';
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  mockInitialState,
-} from '../../../../test';
+import { makeRenderRestHook, mockInitialState } from '../../../../test';
 import { payload, users, nested } from '../test-fixtures';
 
 async function testDispatchFetch(
@@ -231,9 +227,9 @@ describe('useResource()', () => {
   it('should NOT suspend if result already in cache and options.invalidIfStale is false', () => {
     const state: State<unknown> = mockInitialState([
       {
-        request: CoolerArticleResource.detailShape(),
-        params: payload,
-        result: payload,
+        endpoint: shapeToEndpoint(CoolerArticleResource.detailShape()),
+        args: [payload],
+        response: payload,
       },
     ]) as any;
 
@@ -395,11 +391,13 @@ describe('useResource()', () => {
       {
         results: [
           {
-            request: FS,
-            params: {
-              id: '0',
-            },
-            result: error,
+            endpoint: shapeToEndpoint(FS),
+            args: [
+              {
+                id: '0',
+              },
+            ],
+            response: error,
             error: true,
           },
         ],
@@ -428,11 +426,13 @@ describe('useResource()', () => {
       {
         results: [
           {
-            request: expiredShape,
-            params: {
-              id: '0',
-            },
-            result: error,
+            endpoint: shapeToEndpoint(expiredShape),
+            args: [
+              {
+                id: '0',
+              },
+            ],
+            response: error,
             error: true,
           },
         ],
@@ -478,11 +478,11 @@ describe('useResource()', () => {
       {
         results: [
           {
-            request: expiredShape,
-            params: {
+            endpoint: shapeToEndpoint(expiredShape,
+            args: [{
               id: '4000',
             },
-            result: { data: null },
+            response: { data: null },
           },
         ],
       },

@@ -1,11 +1,10 @@
 import { jest } from '@jest/globals';
 // relative imports to avoid circular dependency in tsconfig references
 import { SimpleRecord } from '@rest-hooks/legacy';
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  makeExternalCacheProvider,
-} from '@rest-hooks/test';
+import { shapeToEndpoint } from '@rest-hooks/legacy';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
+import { makeRenderRestHook } from '@rest-hooks/test';
 import { act } from '@testing-library/react-hooks';
 import {
   CoolerArticleResource,
@@ -422,9 +421,9 @@ describe.each([
         {
           results: [
             {
-              request: CoolerArticleResource.detailShape(),
-              params,
-              result: payload,
+              endpoint: shapeToEndpoint(CoolerArticleResource.detailShape()),
+              args: [params],
+              response: payload,
             },
           ],
         },
@@ -463,9 +462,9 @@ describe.each([
         {
           results: [
             {
-              request: CoolerArticleResource.listShape(),
-              params: {},
-              result: [payload],
+              endpoint: shapeToEndpoint(CoolerArticleResource.listShape()),
+              args: [{}],
+              response: [payload],
             },
           ],
         },
@@ -512,9 +511,11 @@ describe.each([
         {
           results: [
             {
-              request: ArticleResourceWithOtherListUrl.otherListShape(),
-              params: {},
-              result: [{ id: 100, content: 'something' }],
+              endpoint: shapeToEndpoint(
+                ArticleResourceWithOtherListUrl.otherListShape(),
+              ),
+              args: [{}],
+              response: [{ id: 100, content: 'something' }],
             },
           ],
         },
@@ -580,9 +581,9 @@ describe.each([
         {
           results: [
             {
-              request: CoolerArticleResource.detailShape(),
-              params,
-              result: payload,
+              endpoint: shapeToEndpoint(CoolerArticleResource.detailShape()),
+              args: [params],
+              response: payload,
             },
           ],
         },

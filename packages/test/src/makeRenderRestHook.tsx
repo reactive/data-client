@@ -1,6 +1,6 @@
+import { State, Manager, SubscriptionManager } from '@rest-hooks/react';
 import { renderHook } from '@testing-library/react-hooks';
 import React, { memo, Suspense } from 'react';
-import { State, Manager, SubscriptionManager } from 'rest-hooks';
 
 import { MockNetworkManager, MockPollingSubscription } from './managers.js';
 import MockResolver from './MockResolver.js';

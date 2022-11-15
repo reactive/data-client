@@ -1,3 +1,4 @@
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import {
   CoolerArticleResource,
   PaginatedArticleResource,
@@ -10,7 +11,7 @@ import {
 import React, { useEffect } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { makeRenderRestHook, makeCacheProvider } from '../../../test';
+import { makeRenderRestHook } from '../../../test';
 import { useCache } from '../hooks';
 import { articlesPages, payload, nested } from '../test-fixtures';
 
@@ -83,9 +84,9 @@ describe('useCache()', () => {
   it('should select singles', () => {
     const results = [
       {
-        request: CoolerArticleResource.get,
-        params: payload,
-        result: payload,
+        endpoint: CoolerArticleResource.get,
+        args: [payload],
+        response: payload,
       },
     ];
     const { result } = renderRestHook(
@@ -104,9 +105,9 @@ describe('useCache()', () => {
     Date.now = jest.fn(() => 999999999);
     const results = [
       {
-        request: InvalidIfStaleArticleResource.get,
-        params: payload,
-        result: payload,
+        endpoint: InvalidIfStaleArticleResource.get,
+        args: [payload],
+        response: payload,
       },
     ];
     const { result, rerender } = renderRestHook(

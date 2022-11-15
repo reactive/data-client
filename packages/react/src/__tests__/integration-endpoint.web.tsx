@@ -1,6 +1,8 @@
 import { schema, Entity, Query } from '@rest-hooks/endpoint';
 import { Endpoint } from '@rest-hooks/endpoint';
 import { SimpleRecord } from '@rest-hooks/legacy';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
 import { act } from '@testing-library/react-hooks';
 import {
   CoolerArticleResource,
@@ -16,13 +18,10 @@ import {
   PaginatedArticle,
 } from '__tests__/new';
 import nock from 'nock';
+
 // relative imports to avoid circular dependency in tsconfig references
 
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  makeExternalCacheProvider,
-} from '../../../test';
+import { makeRenderRestHook } from '../../../test';
 import { useCache, useController, useFetch, useSuspense } from '../hooks';
 import {
   payload,
@@ -327,9 +326,9 @@ describe.each([
       {
         results: [
           {
-            request: unionEndpoint,
-            params: {},
-            result: [
+            endpoint: unionEndpoint,
+            args: [{}],
+            response: [
               { id: '1', type: 'users', username: 'bob' },
               { id: '2', type: 'groups', grouname: 'fast', memberCount: 5 },
             ],

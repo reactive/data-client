@@ -1,14 +1,14 @@
-import { useCallback, useContext, useMemo } from 'react';
-import React from 'react';
 import {
   DispatchContext,
   actionTypes,
   ActionTypes,
   ControllerContext,
   Controller,
-} from 'rest-hooks';
+} from '@rest-hooks/react';
+import { useCallback, useContext, useMemo } from 'react';
+import React from 'react';
 
-import { Fixture, actionFromFixture, dispatchFixture } from './mockState.js';
+import { Fixture, dispatchFixture } from './mockState.js';
 
 type Props = {
   children: React.ReactNode;
@@ -34,10 +34,7 @@ export default function MockResolver({
   const fixtureMap = useMemo(() => {
     const map: Record<string, Fixture> = {};
     for (const fixture of fixtures) {
-      const key =
-        'endpoint' in fixture
-          ? fixture.endpoint.key(...fixture.args)
-          : fixture.request.getFetchKey(fixture.params);
+      const key = fixture.endpoint.key(...fixture.args);
       map[key] = fixture;
     }
     return map;
@@ -57,28 +54,22 @@ export default function MockResolver({
           // All updates must be async or React will complain about re-rendering in same pass
           setTimeout(() => {
             try {
-              if ('endpoint' in fixture) {
-                dispatchFixture(
-                  'endpoint' in action
-                    ? {
-                        ...fixture,
-                        endpoint: action.endpoint as typeof fixture.endpoint,
-                      }
-                    : fixture,
-                  controller,
-                  createdAt,
-                );
-              } else {
-                const receiveAction = actionFromFixture(fixture);
-                dispatch(receiveAction);
-              }
+              dispatchFixture(
+                'endpoint' in action
+                  ? {
+                      ...fixture,
+                      endpoint: action.endpoint as typeof fixture.endpoint,
+                    }
+                  : fixture,
+                controller,
+                createdAt,
+              );
+
               // dispatch goes through user-code that can sometimes fail.
               // let's ensure we always complete the promise
             } finally {
               const complete = fixture.error ? reject : resolve;
-              complete(
-                'endpoint' in fixture ? fixture.response : fixture.result,
-              );
+              complete(fixture.response);
             }
           }, fixture.delay ?? 0);
           return Promise.resolve();

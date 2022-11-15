@@ -1,12 +1,8 @@
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { createResource, Entity } from '@rest-hooks/rest';
 
 import { useSuspense, useCache } from '../';
-import {
-  Fixture,
-  FixtureEndpoint,
-  makeCacheProvider,
-  makeRenderRestHook,
-} from '../../../test';
+import { Fixture, FixtureEndpoint, makeRenderRestHook } from '../../../test';
 
 class Nested extends Entity {
   id = '';

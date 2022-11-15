@@ -1,3 +1,4 @@
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { GetEndpoint } from '@rest-hooks/rest';
 import {
   CoolerArticleResource,
@@ -9,10 +10,9 @@ import {
   PaginatedArticle,
 } from '__tests__/new';
 import React, { useEffect } from 'react';
-
 // relative imports to avoid circular dependency in tsconfig references
 
-import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
+import { makeRenderRestHook } from '../../../../test';
 import { articlesPages, payload, nested } from '../test-fixtures';
 import useCache from '../useCache';
 

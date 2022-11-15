@@ -1,4 +1,6 @@
 import { Controller } from '@rest-hooks/core';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
 import { renderHook } from '@testing-library/react-hooks';
 import {
   PollingArticleResource,
@@ -8,11 +10,7 @@ import {
 import nock from 'nock';
 import React from 'react';
 
-import {
-  makeCacheProvider,
-  makeExternalCacheProvider,
-  makeRenderRestHook,
-} from '../../../test';
+import { makeRenderRestHook } from '../../../test';
 import { ControllerContext } from '../context';
 import { useSubscription, useCache } from '../hooks';
 

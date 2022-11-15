@@ -3,16 +3,16 @@ import { getImage } from '..';
 export default {
   found: [
     {
-      request: getImage,
-      params: { src: 'http://test.com/myimage.png' },
-      result: 'http://test.com/myimage.png',
+      endpoint: getImage,
+      args: [{ src: 'http://test.com/myimage.png' }],
+      response: 'http://test.com/myimage.png',
     },
   ],
   error: [
     {
-      request: getImage,
-      params: { src: 'http://test.com/myimage.png' },
-      result: { message: 'Bad request', status: 400, name: 'Not Found' },
+      endpoint: getImage,
+      args: [{ src: 'http://test.com/myimage.png' }],
+      response: { message: 'Bad request', status: 400, name: 'Not Found' },
       error: true,
     },
   ],

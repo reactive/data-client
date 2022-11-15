@@ -1,6 +1,7 @@
 import { Entity, Schema, schema } from '@rest-hooks/endpoint';
 import { useCache, useController, useSuspense } from '@rest-hooks/react';
-import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { makeRenderRestHook } from '@rest-hooks/test';
 import { act } from '@testing-library/react-hooks';
 import nock from 'nock';
 
