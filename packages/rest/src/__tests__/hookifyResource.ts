@@ -1,8 +1,9 @@
 import { useController, useSuspense } from '@rest-hooks/react';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { CoolerArticleResource, CoolerArticle, User } from '__tests__/new';
 import nock from 'nock';
 
-import { makeRenderRestHook, makeCacheProvider } from '../../../test';
+import { makeRenderRestHook } from '../../../test';
 import hookifyResource from '../hookifyResource';
 
 const CoolerArticleHookResource = hookifyResource(

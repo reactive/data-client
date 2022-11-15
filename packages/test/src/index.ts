@@ -11,6 +11,5 @@ export type {
   SuccessFixture,
   ErrorFixture,
 } from './mockState.js';
-export { makeExternalCacheProvider, makeCacheProvider } from 'rest-hooks';
 
 export { makeRenderRestHook, MockProvider, mockInitialState };

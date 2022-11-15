@@ -1,7 +1,8 @@
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { CoolerArticleResource } from '__tests__/new';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { makeRenderRestHook, makeCacheProvider } from '../../../test';
+import { makeRenderRestHook } from '../../../test';
 import { useError } from '../hooks';
 import { payload } from '../test-fixtures';
 

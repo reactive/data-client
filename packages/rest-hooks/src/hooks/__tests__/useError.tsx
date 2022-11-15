@@ -1,8 +1,10 @@
+import { shapeToEndpoint } from '@rest-hooks/legacy';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { CoolerArticleResource } from '__tests__/legacy-3';
 
 // relative imports to avoid circular dependency in tsconfig references
 import { useError } from '..';
-import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
+import { makeRenderRestHook } from '../../../../test';
 import { payload } from '../test-fixtures';
 
 describe('useError()', () => {
@@ -14,9 +16,9 @@ describe('useError()', () => {
   it('should return undefined when cache not ready and no error in meta', () => {
     const results = [
       {
-        request: CoolerArticleResource.detailShape(),
-        params: payload,
-        result: payload,
+        endpoint: shapeToEndpoint(CoolerArticleResource.detailShape()),
+        args: [payload],
+        response: payload,
       },
     ];
     const { result } = renderRestHook(

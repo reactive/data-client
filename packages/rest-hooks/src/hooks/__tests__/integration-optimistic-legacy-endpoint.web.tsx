@@ -1,4 +1,6 @@
 import { jest } from '@jest/globals';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
 import {
   CoolerArticleResource,
   ArticleResourceWithOtherListUrl,
@@ -7,11 +9,7 @@ import {
 import nock from 'nock';
 
 import { useResource, useFetcher, useCache } from '..';
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  makeExternalCacheProvider,
-} from '../../../../test';
+import { makeRenderRestHook } from '../../../../test';
 import {
   payload,
   createPayload,
@@ -107,9 +105,9 @@ describe.each([
         {
           results: [
             {
-              request: CoolerArticleResource.detail(),
-              params,
-              result: payload,
+              endpoint: CoolerArticleResource.detail(),
+              args: [params],
+              response: payload,
             },
           ],
         },
@@ -148,9 +146,9 @@ describe.each([
         {
           results: [
             {
-              request: CoolerArticleResource.list(),
-              params: {},
-              result: [payload],
+              endpoint: CoolerArticleResource.list(),
+              args: [{}],
+              response: [payload],
             },
           ],
         },
@@ -190,9 +188,9 @@ describe.each([
         {
           results: [
             {
-              request: ArticleResourceWithOtherListUrl.otherList(),
-              params: {},
-              result: [{ id: 100, content: 'something' }],
+              endpoint: ArticleResourceWithOtherListUrl.otherList(),
+              args: [{}],
+              response: [{ id: 100, content: 'something' }],
             },
           ],
         },

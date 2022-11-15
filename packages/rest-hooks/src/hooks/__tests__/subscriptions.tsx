@@ -3,6 +3,8 @@ import {
   ControllerContext,
   Controller,
 } from '@rest-hooks/react';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
 import { renderHook } from '@testing-library/react-hooks';
 import { PollingArticleResource } from '__tests__/legacy-3';
 import nock from 'nock';
@@ -11,11 +13,7 @@ import React from 'react';
 // relative imports to avoid circular dependency in tsconfig references
 
 import { useSubscription, useCache } from '..';
-import {
-  makeCacheProvider,
-  makeExternalCacheProvider,
-  makeRenderRestHook,
-} from '../../../../test';
+import { makeRenderRestHook } from '../../../../test';
 
 let mynock: nock.Scope;
 

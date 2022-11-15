@@ -1,9 +1,10 @@
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { FixtureEndpoint } from '@rest-hooks/test/mockState';
 import { act } from '@testing-library/react-hooks';
 import { FutureArticleResource } from '__tests__/new';
 import nock from 'nock';
 
-import { makeRenderRestHook, makeCacheProvider } from '../../../../../test';
+import { makeRenderRestHook } from '../../../../../test';
 import useCache from '../../useCache';
 import useController from '../../useController';
 

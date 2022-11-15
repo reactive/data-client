@@ -1,9 +1,10 @@
 import { Entity } from '@rest-hooks/endpoint';
 import { useController, useSuspense } from '@rest-hooks/react';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { act } from '@testing-library/react-hooks';
 import nock from 'nock';
 
-import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
+import { makeRenderRestHook } from '../../../../test';
 import RestEndpoint, {
   Defaults,
   RestEndpointConstructorOptions,

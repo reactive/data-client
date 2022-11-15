@@ -6,6 +6,6 @@
   },
   "include": ["src"],
   "references": [
-    { "path": "../rest-hooks" }
+    { "path": "../react" }
   ]
 }

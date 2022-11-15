@@ -1,6 +1,4 @@
 import {
-  FetchShape,
-  Schema,
   EndpointInterface,
   ResolveType,
   ReceiveAction,
@@ -8,10 +6,9 @@ import {
   ActionTypes,
   Controller,
   __INTERNAL__,
-} from 'rest-hooks';
+} from '@rest-hooks/react';
 
-const { createReceive, initialState, createReceiveError, createReducer } =
-  __INTERNAL__;
+const { initialState, createReducer } = __INTERNAL__;
 
 type Updater = (
   result: any,
@@ -28,16 +25,6 @@ export interface SuccessFixtureEndpoint<
   error?: false;
 }
 
-/** @deprecated */
-export interface SuccessFixture {
-  request: FetchShape<Schema, any>;
-  params?: any;
-  body?: any;
-  result: object | string | number;
-  error?: false;
-  delay?: number;
-}
-
 export interface ErrorFixtureEndpoint<
   E extends EndpointInterface & { update?: Updater } = EndpointInterface,
 > {
@@ -48,46 +35,10 @@ export interface ErrorFixtureEndpoint<
   delay?: number;
 }
 
-/** @deprecated */
-export interface ErrorFixture {
-  request: FetchShape<Schema, any>;
-  params?: any;
-  body?: any;
-  result: Error;
-  error: true;
-  delay?: number;
-}
-
 export type FixtureEndpoint = SuccessFixtureEndpoint | ErrorFixtureEndpoint;
-export type Fixture = SuccessFixture | ErrorFixture | FixtureEndpoint;
-
-export function actionFromFixture(fixture: SuccessFixture | ErrorFixture) {
-  let action: ReceiveAction;
-
-  const { request, params, body, result, error } = fixture;
-  const { schema, getFetchKey, options } = request;
-  const args = [params, body] as const;
-  const key = getFetchKey(params);
-  if (error === true) {
-    action = createReceiveError(result as Error, {
-      errorExpiryLength: options?.errorExpiryLength ?? 1000,
-      ...options,
-      schema,
-      key,
-    });
-  } else {
-    action = createReceive(result, {
-      dataExpiryLength: options?.dataExpiryLength ?? 60000,
-      type: 'read' as const,
-      ...options,
-      args,
-      schema,
-      key,
-    });
-  }
-
-  return action;
-}
+export type SuccessFixture = SuccessFixtureEndpoint;
+export type ErrorFixture = ErrorFixtureEndpoint;
+export type Fixture = FixtureEndpoint;
 
 export default function mockInitialState(fixtures: Fixture[]): State<unknown> {
   const actions: ReceiveAction[] = [];
@@ -102,11 +53,7 @@ export default function mockInitialState(fixtures: Fixture[]): State<unknown> {
   ) => State<unknown> = createReducer(controller);
 
   fixtures.forEach(fixture => {
-    if ('endpoint' in fixture) {
-      dispatchFixture(fixture, controller);
-    } else {
-      actions.push(actionFromFixture(fixture));
-    }
+    dispatchFixture(fixture, controller);
   });
   return actions.reduce(reducer, initialState);
 }

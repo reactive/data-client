@@ -1,3 +1,5 @@
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
 import { act } from '@testing-library/react-hooks';
 import {
   CoauthoredArticle,
@@ -6,11 +8,7 @@ import {
 } from '__tests__/new';
 import nock from 'nock';
 
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  makeExternalCacheProvider,
-} from '../../../test';
+import { makeRenderRestHook } from '../../../test';
 import { useCache, useSuspense, useController } from '../hooks';
 import { coAuthored } from '../test-fixtures';
 

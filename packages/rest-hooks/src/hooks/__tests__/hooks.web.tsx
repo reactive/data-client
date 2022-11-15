@@ -1,3 +1,4 @@
+import { shapeToEndpoint } from '@rest-hooks/legacy';
 import {
   DispatchContext,
   StateContext,
@@ -6,6 +7,7 @@ import {
   actionTypes,
   __INTERNAL__,
 } from '@rest-hooks/react';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { render } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import {
@@ -16,15 +18,10 @@ import {
 } from '__tests__/legacy-3';
 import nock from 'nock';
 import React, { Suspense, useEffect } from 'react';
-
 // relative imports to avoid circular dependency in tsconfig references
 
 import { useFetcher, useRetrieve, useInvalidator, useResetter } from '..';
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  mockInitialState,
-} from '../../../../test';
+import { makeRenderRestHook, mockInitialState } from '../../../../test';
 import { users, articlesPages, payload } from '../test-fixtures';
 
 const { initialState } = __INTERNAL__;
@@ -220,9 +217,9 @@ describe('useInvalidate', () => {
   it('should not invalidate anything if params is null', () => {
     const state = mockInitialState([
       {
-        request: PaginatedArticleResource.listShape(),
-        params: {},
-        result: articlesPages,
+        endpoint: shapeToEndpoint(PaginatedArticleResource.listShape()),
+        args: [{}],
+        response: articlesPages,
       },
     ]);
     const dispatch = jest.fn();
@@ -240,9 +237,9 @@ describe('useInvalidate', () => {
   it('should return a function that dispatches an action to invalidate a resource', () => {
     const state = mockInitialState([
       {
-        request: PaginatedArticleResource.listShape(),
-        params: {},
-        result: articlesPages,
+        endpoint: shapeToEndpoint(PaginatedArticleResource.listShape()),
+        args: [{}],
+        response: articlesPages,
       },
     ]);
     const dispatch = jest.fn();
@@ -285,9 +282,9 @@ describe('useResetter', () => {
     jest.useFakeTimers();
     const state = mockInitialState([
       {
-        request: PaginatedArticleResource.listShape(),
-        params: {},
-        result: articlesPages,
+        endpoint: shapeToEndpoint(PaginatedArticleResource.listShape()),
+        args: [{}],
+        response: articlesPages,
       },
     ]);
     const dispatch = jest.fn();
@@ -388,9 +385,9 @@ describe('useRetrieve', () => {
     mynock.get(`/article-cooler/${payload.id}`).reply(200, fetchMock).persist();
     const results: any[] = [
       {
-        request: CoolerArticleResource.detailShape(),
-        params: payload,
-        result: payload,
+        endpoint: shapeToEndpoint(CoolerArticleResource.detailShape()),
+        args: [payload],
+        response: payload,
       },
     ];
     const { result, rerender } = renderRestHook(

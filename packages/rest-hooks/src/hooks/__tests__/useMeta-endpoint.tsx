@@ -1,12 +1,8 @@
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  Fixture,
-} from '@rest-hooks/test';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { makeRenderRestHook, Fixture } from '@rest-hooks/test';
 import { TypedArticleResource } from '__tests__/new';
 
 // relative imports to avoid circular dependency in tsconfig references
-
 import { useMeta } from '..';
 import { payload } from '../test-fixtures';
 

@@ -1,16 +1,11 @@
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { FixtureEndpoint } from '@rest-hooks/test/mockState';
-import { renderHook } from '@testing-library/react-hooks';
 import { act } from '@testing-library/react-hooks';
-import {
-  CoolerArticle,
-  CoolerArticleDetail,
-  FutureArticleResource,
-} from '__tests__/new';
+import { CoolerArticle, FutureArticleResource } from '__tests__/new';
 import nock from 'nock';
-import { useEffect } from 'react';
 
 import { useCache, useController, useError } from '../..';
-import { makeRenderRestHook, makeCacheProvider } from '../../../../../test';
+import { makeRenderRestHook } from '../../../../../test';
 
 export const payload = {
   id: 5,

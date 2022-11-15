@@ -1,13 +1,13 @@
 import { Endpoint, Entity } from '@rest-hooks/endpoint';
 import { StateContext } from '@rest-hooks/react';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { renderHook } from '@testing-library/react-hooks';
 import React from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
-
 import { useExpiresAt } from '..';
 import { State, useDenormalized } from '../..';
-import { makeRenderRestHook, makeCacheProvider } from '../../../../test';
+import { makeRenderRestHook } from '../../../../test';
 
 export default class IDEntity extends Entity {
   readonly id: string | number | undefined = undefined;

@@ -9,6 +9,7 @@ import {
 import { FetchAction } from '@rest-hooks/core';
 import { Endpoint, FetchFunction, ReadEndpoint } from '@rest-hooks/endpoint';
 import { normalize } from '@rest-hooks/normalizr';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { render, act } from '@testing-library/react';
 import {
   CoolerArticleResource,
@@ -37,11 +38,7 @@ import {
   ControllerContext,
   StateContext,
 } from '../..';
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  mockInitialState,
-} from '../../../../test';
+import { makeRenderRestHook, mockInitialState } from '../../../../test';
 import { articlesPages, payload, users, nested } from '../test-fixtures';
 import useSuspense from '../useSuspense';
 

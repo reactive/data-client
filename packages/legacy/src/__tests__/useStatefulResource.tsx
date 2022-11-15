@@ -1,4 +1,5 @@
-import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { makeRenderRestHook } from '@rest-hooks/test';
 import { CoolerArticleResource as LegacyArticle } from '__tests__/legacy';
 import {
   CoolerArticleResource,

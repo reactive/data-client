@@ -1,11 +1,9 @@
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
 import { TypedArticleResource } from '__tests__/new';
 import nock from 'nock';
 
-import {
-  makeRenderRestHook,
-  makeCacheProvider,
-  makeExternalCacheProvider,
-} from '../../../test';
+import { makeRenderRestHook } from '../../../test';
 import { useController, useSuspense } from '../hooks';
 import { payload, createPayload, users, nested } from '../test-fixtures';
 
