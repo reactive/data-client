@@ -2949,13 +2949,13 @@ __metadata:
   linkType: hard
 
 "@rest-hooks/core@file:../packages/core::locator=root-workspace-0b6124%40workspace%3A.":
-  version: 4.0.1
-  resolution: "@rest-hooks/core@file:../packages/core#../packages/core::hash=ec9a7a&locator=root-workspace-0b6124%40workspace%3A."
+  version: 4.0.2
+  resolution: "@rest-hooks/core@file:../packages/core#../packages/core::hash=c03d55&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.13.0
     "@rest-hooks/normalizr": ^9.3.1
     flux-standard-action: ^2.1.1
-  checksum: d96a54cd25f678887889331ef6b2a76a2a1d9b60ad7dc46c4c3164c6e68a6b7aa20abd1b92d1059593e1e2260243741284c682a30677a814a74cd15b499529ea
+  checksum: a2d82fe53c74997f14c826abb5fc358b1b5d75ccbc49ae7252d8ad6627f34acc5cee15e976527ea651826ab5e975f86cc2d3f5eecc980b6de19d0bb01dd1c1a7
   languageName: node
   linkType: hard
 
@@ -3006,10 +3006,10 @@ __metadata:
 
 "@rest-hooks/react@file:../packages/react::locator=root-workspace-0b6124%40workspace%3A.":
   version: 6.0.0
-  resolution: "@rest-hooks/react@file:../packages/react#../packages/react::hash=7b9f11&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/react@file:../packages/react#../packages/react::hash=12cddf&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.13.0
-    "@rest-hooks/core": ^4.0.1
+    "@rest-hooks/core": ^4.0.2
     "@rest-hooks/use-enhanced-reducer": ^1.2.0
   peerDependencies:
     "@react-navigation/native": ^6.0.0
@@ -3020,7 +3020,7 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: 076e6826a33a4cc0dc377ef7cc35e788936de2b96782e00c3d1a1dabe2dd68281ce6846d581517221e98fc049af9f563ef28ad1d9c3f7878f30b33e817404c1b
+  checksum: 718be2c8b088874096133ab27ba1dd15ec31569156ffced11302676691f7ca8fbc99649df3baf04193fea1c8255bc157b0515149246aed944afd74b99ebcb5ff
   languageName: node
   linkType: hard
 
@@ -3037,19 +3037,19 @@ __metadata:
   linkType: hard
 
 "@rest-hooks/test@file:../packages/test::locator=root-workspace-0b6124%40workspace%3A.":
-  version: 8.0.1
-  resolution: "@rest-hooks/test@file:../packages/test#../packages/test::hash=075125&locator=root-workspace-0b6124%40workspace%3A."
+  version: 9.0.0
+  resolution: "@rest-hooks/test@file:../packages/test#../packages/test::hash=427a01&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.13.0
     "@testing-library/react-hooks": ~8.0.0
   peerDependencies:
-    "@rest-hooks/react": ^0.2.0 || ^0.3.0 || ^1.0.0
+    "@rest-hooks/react": ^0.2.0 || ^0.3.0 || ^1.0.0 || ^6.0.0 || ^7.0.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
     react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 8b6a21b55ed6f3a04c9097522975ec929112ffb308b6e9cc2cfec0f1ed019ab3d54d790e1e714a0885a76ba8acc434349b83363df5f799aad38a3a9854141553
+  checksum: fb36dbb94fd1f693113635890ade93e0db39f59b08f612a184efecc311505f65b1203caa2553239f8aa2f80ead0f75dc82995a340b61dd8d2dd4c3b7dd847de5
   languageName: node
   linkType: hard
 
@@ -13200,8 +13200,8 @@ __metadata:
   linkType: hard
 
 "rest-hooks@file:../packages/rest-hooks::locator=root-workspace-0b6124%40workspace%3A.":
-  version: 6.6.1
-  resolution: "rest-hooks@file:../packages/rest-hooks#../packages/rest-hooks::hash=0fb073&locator=root-workspace-0b6124%40workspace%3A."
+  version: 6.6.2
+  resolution: "rest-hooks@file:../packages/rest-hooks#../packages/rest-hooks::hash=86a134&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.13.0
     "@rest-hooks/endpoint": ^3.2.2
@@ -13213,7 +13213,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 0da330e3a6e999fe307e0d64f3559fa438de2888af59e85587959df8fbe5d71afcfb3546f34b1659bd7950339d96018dbb872a110c3811484a8e65d7308a4854
+  checksum: 63b6afa3d4b4ebac894af1c88ca0977d1131f913f9c27dae5275cbe147fa5da357be18ba199afbcc032e51215d3d216e272df8794105816e912845b7f810604e
   languageName: node
   linkType: hard
 
