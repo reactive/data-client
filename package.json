@@ -89,5 +89,5 @@
     "typescript": "4.8.4",
     "whatwg-fetch": "3.0.0"
   },
-  "packageManager": "yarn@3.2.4"
+  "packageManager": "yarn@3.3.0"
 }
