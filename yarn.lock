@@ -4177,7 +4177,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/react@workspace:^, @rest-hooks/react@workspace:packages/react":
+"@rest-hooks/react@^7.0.0, @rest-hooks/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/react@workspace:packages/react"
   dependencies:
@@ -4241,7 +4241,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/rest@^6.0.1, @rest-hooks/rest@workspace:packages/rest":
+"@rest-hooks/rest@^6.2.0, @rest-hooks/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/rest@workspace:packages/rest"
   dependencies:
@@ -10917,8 +10917,8 @@ __metadata:
     "@rest-hooks/endpoint": ^3.0.1
     "@rest-hooks/graphql": ^0.3.1
     "@rest-hooks/hooks": ^3.0.7
-    "@rest-hooks/react": "workspace:^"
-    "@rest-hooks/rest": ^6.0.1
+    "@rest-hooks/react": ^7.0.0
+    "@rest-hooks/rest": ^6.2.0
     "@types/eslint": 8.4.10
     "@types/parse-link-header": ^2.0.0
     "@types/prettier": 2.7.1
@@ -21588,8 +21588,8 @@ __metadata:
     "@linaria/react": 4.3.0
     "@linaria/shaker": 4.2.4
     "@rest-hooks/endpoint": ^3.0.1
-    "@rest-hooks/react": "workspace:^"
-    "@rest-hooks/rest": ^6.0.1
+    "@rest-hooks/react": ^7.0.0
+    "@rest-hooks/rest": ^6.2.0
     "@types/eslint": 8.4.10
     "@types/prettier": 2.7.1
     "@types/react-dom": 18.0.9
