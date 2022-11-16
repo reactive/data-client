@@ -226,9 +226,6 @@ if (
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare globals { ${react} }`,
       );
-      monaco.languages.typescript.typescriptDefaults.addExtraLib(
-        `declare globals { ${restHooks} }`,
-      );
 
       rhLibs.forEach((lib, i) => {
         const dep = rhDeps[i];
@@ -236,7 +233,7 @@ if (
           `declare module "@rest-hooks/${dep}" { ${lib} }`,
           `file:///node_modules/@rest-hooks/${lib}/index.d.ts`,
         );
-        if (dep === 'rest') {
+        if (['rest', 'react'].includes(dep)) {
           monaco.languages.typescript.typescriptDefaults.addExtraLib(
             `declare globals { ${lib} }`,
           );

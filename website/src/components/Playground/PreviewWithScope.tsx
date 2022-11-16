@@ -6,7 +6,6 @@ import type { FixtureEndpoint } from '@rest-hooks/test';
 import BigNumber from 'bignumber.js';
 import React, { useEffect, useState, memo } from 'react';
 import { LiveProvider } from 'react-live';
-import * as restHooks from 'rest-hooks';
 
 import ResetableErrorBoundary from '../ResettableErrorBoundary';
 import PreviewWithHeader from './PreviewWithHeader';
@@ -56,7 +55,7 @@ class TimedEntity extends rest.Entity {
   };
 }
 
-const lastUpdated = new restHooks.Endpoint(mockLastUpdated, {
+const lastUpdated = new rest.Endpoint(mockLastUpdated, {
   schema: TimedEntity,
 });
 
@@ -83,7 +82,6 @@ const TodoResource = {
 };
 
 const scope = {
-  ...restHooks,
   ...rhReact,
   ...rest,
   ...graphql,

@@ -2,6 +2,11 @@
 title: "<AsyncBoundary />"
 ---
 
+<head>
+  <title>&lt;AsyncBoundary /&gt; - handling asynchronous loading and error conditions</title>
+  <meta name="docsearch:pagerank" content="20"/>
+</head>
+
 Handles loading and error conditions of Suspense.
 
 ```tsx
