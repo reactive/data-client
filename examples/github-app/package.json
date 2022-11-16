@@ -64,6 +64,7 @@
     "@rest-hooks/endpoint": "^3.0.1",
     "@rest-hooks/graphql": "^0.3.1",
     "@rest-hooks/hooks": "^3.0.7",
+    "@rest-hooks/react": "workspace:^",
     "@rest-hooks/rest": "^6.0.1",
     "antd": "4.24.2",
     "parse-link-header": "^2.0.0",
@@ -74,7 +75,6 @@
     "rehype-highlight": "6.0.0",
     "remark-gfm": "^3.0.1",
     "remark-remove-comments": "^0.2.0",
-    "rest-hooks": "^7.0.0",
     "uuid": "^8.3.2"
   }
 }

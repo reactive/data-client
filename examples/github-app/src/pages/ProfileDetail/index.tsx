@@ -7,7 +7,7 @@ import Markdown from 'react-markdown';
 import { EventResource, typeToIcon, Event } from 'resources/Event';
 import RepositoryResource, { Repository } from 'resources/Repository';
 import { UserResource, User } from 'resources/User';
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 
 import UserEvents from './UserEvents';
 import UserRepositories from './UserRepos';

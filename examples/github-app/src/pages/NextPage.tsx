@@ -1,6 +1,6 @@
+import { useController } from '@rest-hooks/react';
 import { useState } from 'react';
 import { IssueResource } from 'resources/Issue';
-import { useController } from 'rest-hooks';
 
 export default function NextPage({
   repo,

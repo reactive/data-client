@@ -1,7 +1,7 @@
 import { styled } from '@linaria/react';
 import { useCallback, useRef, useState } from 'react';
 import { TodoResource, Todo } from 'resources/TodoResource';
-import { useController } from 'rest-hooks';
+import { useController } from '@rest-hooks/react';
 
 export default function NewTodo({ lastId }: { lastId: number }) {
   const { fetch } = useController();

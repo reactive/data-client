@@ -1,6 +1,6 @@
+import { useSuspense } from '@rest-hooks/react';
 import { Card } from 'antd';
 import { CommentResource } from 'resources/Comment';
-import { useSuspense } from 'rest-hooks';
 
 import CommentInline from './CommentInline';
 

@@ -10,7 +10,7 @@ import remarkGfm from 'remark-gfm';
 import remarkRemoveComments from 'remark-remove-comments';
 import { CommentResource, Comment } from 'resources/Comment';
 import { UserResource } from 'resources/User';
-import { useCache, useController } from 'rest-hooks';
+import { useCache, useController } from '@rest-hooks/react';
 
 import CommentForm from './CommentForm';
 

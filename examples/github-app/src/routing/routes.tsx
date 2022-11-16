@@ -1,12 +1,12 @@
 import { lazy, Route } from '@anansi/router';
 import { getImage } from '@rest-hooks/img';
+import { Controller } from '@rest-hooks/react';
 import CommentResource from 'resources/Comment';
 import { EventResource } from 'resources/Event';
 import IssueResource from 'resources/Issue';
 import ReactionResource from 'resources/Reaction';
 import RepositoryResource from 'resources/Repository';
 import UserResource from 'resources/User';
-import { Controller } from 'rest-hooks';
 
 const lazyPage = (pageName: string) =>
   lazy(

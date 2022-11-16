@@ -84,7 +84,7 @@ jobs:
           command: |
             curl -Os https://uploader.codecov.io/latest/linux/codecov;
             chmod +x codecov;
-            yarn run test:coverage --ci --maxWorkers=4 --coverageReporters=text-lcov > ./lcov.info;
+            yarn run test:coverage --ci --maxWorkers=3 --coverageReporters=text-lcov > ./lcov.info;
             if [ "$CODECOV_TOKEN" != "" ]; then
             ./codecov -t ${CODECOV_TOKEN} < ./lcov.info || true;
             else

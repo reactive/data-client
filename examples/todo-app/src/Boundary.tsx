@@ -1,6 +1,6 @@
+import { NetworkErrorBoundary } from '@rest-hooks/react';
 import { memo, Suspense } from 'react';
 import type { ReactNode } from 'react';
-import { NetworkErrorBoundary } from 'rest-hooks';
 
 function Boundary({ children }: { children: ReactNode }) {
   return (
