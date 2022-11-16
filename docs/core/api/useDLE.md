@@ -76,7 +76,7 @@ export const ProfileResource = createResource({
 ```
 
 ```tsx title="ProfileList.tsx"
-import { useDLE } from 'rest-hooks';
+import { useDLE } from '@rest-hooks/react';
 import { ProfileResource } from './api/Profile';
 
 function ProfileList(): JSX.Element {

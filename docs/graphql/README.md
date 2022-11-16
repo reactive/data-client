@@ -62,7 +62,7 @@ values={[
 <TabItem value="Single">
 
 ```tsx title="pages/UserDetail.tsx"
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 import User from 'schema/User';
 import gql from 'schema/endpoint';
 
@@ -92,7 +92,7 @@ export default function UserDetail({ name }: { name: string }) {
 <TabItem value="List">
 
 ```tsx title="pages/UserList.tsx"
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 import User from 'schema/User';
 import gql from 'schema/endpoint';
 
@@ -191,7 +191,7 @@ render(<StarPeople/>);
 We're using [SWAPI](https://graphql.org/swapi-graphql) as our example, since it offers mutations.
 
 ```tsx title="pages/CreateReview.tsx"
-import { useController } from 'rest-hooks';
+import { useController } from '@rest-hooks/react';
 import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
 
 const gql = new GQLEndpoint(

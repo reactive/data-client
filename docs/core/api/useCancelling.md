@@ -20,7 +20,7 @@ Builds an Endpoint that cancels fetch everytime params change
 
 ```tsx
 import { useCancelling } from '@rest-hooks/hooks';
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 
 const CancelingUserList = useCancelling(UserList, { query });
 const users = useSuspense(CancelingUserList, { query });

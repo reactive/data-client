@@ -17,7 +17,7 @@ errors and sends them to a fallback component you provide. Other errors will ret
 
 ```tsx
 import { Suspense } from 'react';
-import { AsyncBoundary } from 'rest-hooks';
+import { AsyncBoundary } from '@rest-hooks/react';
 import { RouteChildrenProps } from 'react-router';
 
 const App = ({ location }: RouteChildrenProps) => (
@@ -48,7 +48,7 @@ is a network error like 400 because the form values were invalid.
 Let's look at the update form example from the introduction.
 
 ```tsx
-import { useController } from 'rest-hooks';
+import { useController } from '@rest-hooks/react';
 import ArticleResource from 'resources/article';
 
 export default function UpdateArticleForm({ id }: { id: number }) {

@@ -19,7 +19,7 @@ some media fetches as well to take advantage of suspense and [concurrent mode su
 string -> value map structures. Instead, we'll define our own simple [Endpoint](/rest/api/Endpoint).
 
 ```typescript
-import { Endpoint } from 'rest-hooks';
+import { Endpoint } from '@rest-hooks/react';
 
 export const getPhoto = new Endpoint(async ({ userId }: { userId: string }) => {
   const response = await fetch(`/users/${userId}/photo`);
@@ -78,7 +78,7 @@ images using suspense. This becomes especially powerful [with the fetch as you r
 
 ```tsx title="Profile.tsx"
 import React, { ImgHTMLAttributes } from 'react';
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 import { Img } from '@rest-hooks/img';
 
 export default function Profile({ username }: { username: string }) {
@@ -103,7 +103,7 @@ the image request can start. If the image url is deterministic based on the same
 
 ```tsx title="Profile.tsx"
 import React, { ImgHTMLAttributes } from 'react';
-import { useSuspense, useFetch } from 'rest-hooks';
+import { useSuspense, useFetch } from '@rest-hooks/react';
 import { Img, getImage } from '@rest-hooks/img';
 
 export default function Profile({ username }: { username: string }) {

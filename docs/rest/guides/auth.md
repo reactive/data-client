@@ -193,7 +193,7 @@ export const PostResource = hookifyResource(
 Then we can get the endpoints as hooks in our React Components
 
 ```tsx
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 import { PostResource } from 'api/Post';
 
 function PostDetail({ id }) {

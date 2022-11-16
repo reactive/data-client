@@ -21,7 +21,7 @@ values={[
 <TabItem value="Single">
 
 ```tsx
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 // local directory for API definitions
 import { todoDetail } from 'endpoints/todo';
 
@@ -36,7 +36,7 @@ export default function TodoDetail({ id }: { id: number }) {
 <TabItem value="List">
 
 ```tsx
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 // local directory for API definitions
 import { todoList } from 'endpoints/todo';
 
@@ -84,7 +84,7 @@ any descendant components.
 
 ```tsx {6,12,23-25}
 import React, { Suspense } from 'react';
-import { AsyncBoundary } from 'rest-hooks';
+import { AsyncBoundary } from '@rest-hooks/react';
 
 export default function TodoPage({ id }: { id: number }) {
   return (
@@ -101,7 +101,7 @@ export default function TodoPage({ id }: { id: number }) {
 
 ```jsx {6,12,18-20}
 import React, { Suspense } from 'react';
-import { AsyncBoundary } from 'rest-hooks';
+import { AsyncBoundary } from '@rest-hooks/react';
 
 export default function TodoPage({ id }: { id: number }) {
   return (
@@ -135,7 +135,7 @@ You may find cases where it's still useful to use a stateful approach to fallbac
 For these cases, or compatibility with some component libraries, [useDLE()](../api/useDLE.md) is provided.
 
 ```tsx
-import { useDLE } from 'rest-hooks';
+import { useDLE } from '@rest-hooks/react';
 // local directory for API definitions
 import { todoDetail } from 'endpoints/todo';
 
@@ -161,7 +161,7 @@ values={[
 <TabItem value="Single">
 
 ```tsx
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 // local directory for API definitions
 import { todoDetail } from 'endpoints/todo';
 
@@ -177,7 +177,7 @@ export default function TodoDetail({ id }: { id: number }) {
 <TabItem value="List">
 
 ```tsx
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 // local directory for API definitions
 import { todoList } from 'endpoints/todo';
 

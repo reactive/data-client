@@ -7,7 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
 
-<PkgTabs pkgs="rest-hooks @rest-hooks/react @rest-hooks/test @rest-hooks/hooks @rest-hooks/rest" />
+<PkgTabs pkgs="@rest-hooks/react @rest-hooks/test @rest-hooks/hooks @rest-hooks/rest" />
 
 TypeScript is optional, but requires at least version [3.7](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#more-recursive-type-aliases) for full type enforcement.
 
@@ -25,7 +25,7 @@ values={[
 <TabItem value="web">
 
 ```tsx title="/index.tsx"
-import { CacheProvider } from 'rest-hooks';
+import { CacheProvider } from '@rest-hooks/react';
 import ReactDOM from 'react-dom';
 
 ReactDOM.render(
@@ -41,7 +41,7 @@ ReactDOM.render(
 <TabItem value="18-web">
 
 ```tsx title="/index.tsx"
-import { CacheProvider } from 'rest-hooks';
+import { CacheProvider } from '@rest-hooks/react';
 import ReactDOM from 'react-dom';
 
 ReactDOM.createRoot(document.body).render(
@@ -56,7 +56,7 @@ ReactDOM.createRoot(document.body).render(
   <TabItem value="native">
 
 ```tsx title="/index.tsx"
-import { CacheProvider } from 'rest-hooks';
+import { CacheProvider } from '@rest-hooks/react';
 import { AppRegistry } from 'react-native';
 
 const Root = () => (

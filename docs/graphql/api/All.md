@@ -63,7 +63,7 @@ export const createUser = new RestEndpoint({
 ```
 
 ```tsx title="NewUser.tsx" collapsed
-import { useController } from 'rest-hooks';
+import { useController } from '@rest-hooks/react';
 import { createUser } from './api/User';
 
 export default function NewUser() {

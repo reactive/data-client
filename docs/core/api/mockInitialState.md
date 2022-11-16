@@ -47,7 +47,7 @@ This can be used as the initialState prop for [<CacheProvider /\>](./CacheProvid
 ## Example
 
 ```typescript
-import { CacheProvider } from 'rest-hooks';
+import { CacheProvider } from '@rest-hooks/react';
 import { mockInitialState } from '@rest-hooks/test';
 
 import ArticleResource from 'resources/ArticleResource';

@@ -75,7 +75,7 @@ By _decoupling_ endpoint definitions from their usage, we are able to reuse them
 Bind the data [where you need it](./getting-started/data-dependency.md) with the one-line [useSuspense()](./api/useSuspense.md)
 
 ```tsx {4}
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 
 export default function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(getTodo, { id });
@@ -94,7 +94,7 @@ Unify and reuse [loading and error fallbacks](./getting-started/data-dependency.
 
 ```tsx {6,9}
 import { Suspense } from 'react';
-import { AsyncBoundary } from 'rest-hooks';
+import { AsyncBoundary } from '@rest-hooks/react';
 
 function App() {
   return (
@@ -161,7 +161,7 @@ problems of attempting to cascade endpoint refreshes.
 is used to trigger imperative actions like [fetch](./api/Controller.md#fetch).
 
 ```tsx
-import { useController } from 'rest-hooks';
+import { useController } from '@rest-hooks/react';
 
 const { fetch } = useController();
 return <ArticleForm onSubmit={data => fetch(todoUpdate, { id }, data)} />;
@@ -291,7 +291,7 @@ the variable `todos` will be typed precisely. If the API responds in another man
 the hook with throw instead, triggering the `error fallback` specified in [<NetworkErrorBoundary /\>](./api/NetworkErrorBoundary.md)
 
 ```tsx {4}
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 
 export default function TodoListComponent() {
   const todos = useSuspense(todoList, {});

@@ -16,7 +16,7 @@ over the cache. For instance [fetch](./Controller.md#fetch), [invalidate](./Cont
 and [receive](./Controller.md#receive)
 
 ```tsx
-import { useController } from 'rest-hooks';
+import { useController } from '@rest-hooks/react';
 
 function MyComponent({ id }) {
   const { fetch, invalidate, resetEntireStore } = useController();

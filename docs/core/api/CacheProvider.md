@@ -15,7 +15,7 @@ in application tree as any usage of the hooks is only possible for components be
 in the React tree.
 
 ```tsx title="index.tsx"
-import { CacheProvider } from 'rest-hooks';
+import { CacheProvider } from '@rest-hooks/react';
 import ReactDOM from 'react-dom';
 
 ReactDOM.render(

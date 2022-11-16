@@ -72,7 +72,7 @@ export default {
 ```
 
 ```tsx title="__tests__/ArticleList.tsx"
-import { CacheProvider } from 'rest-hooks';
+import { CacheProvider } from '@rest-hooks/react';
 import { render } from '@testing-library/react';
 import { MockResolver } from '@rest-hooks/test';
 

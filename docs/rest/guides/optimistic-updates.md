@@ -55,7 +55,7 @@ export const ArticleResource = {
 ```
 
 ```typescript title="PublishButton.tsx"
-import { useController } from 'rest-hooks';
+import { useController } from '@rest-hooks/react';
 import { ArticleResource } from 'api/Article';
 
 export default function PublishButton({ id }: { id: string }) {
@@ -144,7 +144,7 @@ renders - like to issue subsequent requests. We recommend disabling `edit` type 
 that rely on the `primary key` until the network fetch completes.
 
 ```typescript title="CreateArticle.tsx"
-import { useController } from 'rest-hooks';
+import { useController } from '@rest-hooks/react';
 import { ArticleResource } from 'api/Article';
 
 export default function CreateArticle() {
