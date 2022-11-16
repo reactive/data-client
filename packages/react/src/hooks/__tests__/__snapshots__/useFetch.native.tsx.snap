@@ -1,0 +1,89 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`useFetch should dispatch singles 1`] = `
+{
+  "endpoint": [Function],
+  "meta": {
+    "args": [
+      {
+        "id": 5,
+      },
+    ],
+    "key": "GET http://test.com/article-cooler/5",
+    "options": [Function],
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetch should dispatch with fetch shape defined dataExpiryLength 1`] = `
+{
+  "endpoint": [Function],
+  "meta": {
+    "args": [
+      {
+        "id": 5,
+      },
+    ],
+    "key": "GET http://test.com/article-static/5",
+    "options": [Function],
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetch should dispatch with fetch shape defined errorExpiryLength 1`] = `
+{
+  "endpoint": [Function],
+  "meta": {
+    "args": [
+      {
+        "id": 5,
+      },
+    ],
+    "key": "GET http://test.com/article-static/5",
+    "options": [Function],
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
+
+exports[`useFetch should dispatch with resource defined dataExpiryLength 1`] = `
+{
+  "endpoint": [Function],
+  "meta": {
+    "args": [
+      {
+        "id": 5,
+      },
+    ],
+    "key": "GET http://test.com/article-static/5",
+    "options": [Function],
+    "reject": [Function],
+    "resolve": [Function],
+    "schema": [Function],
+    "throttle": true,
+    "type": "read",
+  },
+  "payload": [Function],
+  "type": "rest-hooks/fetch",
+}
+`;
