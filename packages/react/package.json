@@ -122,7 +122,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.13.0",
-    "@rest-hooks/core": "^4.0.1",
+    "@rest-hooks/core": "^4.0.2",
     "@rest-hooks/use-enhanced-reducer": "^1.2.0"
   },
   "peerDependencies": {

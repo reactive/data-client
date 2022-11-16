@@ -3987,7 +3987,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rest-hooks/core@^4.0.1, @rest-hooks/core@workspace:^, @rest-hooks/core@workspace:packages/core":
+"@rest-hooks/core@^4.0.2, @rest-hooks/core@workspace:^, @rest-hooks/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/core@workspace:packages/core"
   dependencies:
@@ -4197,7 +4197,7 @@ __metadata:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
     "@babel/runtime": ^7.13.0
-    "@rest-hooks/core": ^4.0.1
+    "@rest-hooks/core": ^4.0.2
     "@rest-hooks/use-enhanced-reducer": ^1.2.0
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
@@ -10987,7 +10987,7 @@ __metadata:
     rehype-highlight: 6.0.0
     remark-gfm: ^3.0.1
     remark-remove-comments: ^0.2.0
-    rest-hooks: ^6.4.1
+    rest-hooks: ^6.6.2
     rollup: 2.79.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
@@ -19758,7 +19758,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rest-hooks@^6.4.1, rest-hooks@workspace:^, rest-hooks@workspace:packages/rest-hooks":
+"rest-hooks@^6.6.2, rest-hooks@workspace:^, rest-hooks@workspace:packages/rest-hooks":
   version: 0.0.0-use.local
   resolution: "rest-hooks@workspace:packages/rest-hooks"
   dependencies:
@@ -21649,7 +21649,7 @@ __metadata:
     react: 18.2.0
     react-dom: 18.2.0
     react-refresh: 0.14.0
-    rest-hooks: ^6.4.1
+    rest-hooks: ^6.6.2
     rollup: 2.79.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
