@@ -1,10 +1,10 @@
 import { Link, useShowLoading } from '@anansi/router';
 import { styled } from '@linaria/react';
+import { NetworkErrorBoundary, useSuspense } from '@rest-hooks/react';
 import { Layout, Menu, Spin, Affix } from 'antd';
 import { Avatar } from 'antd';
 import { memo, Suspense, useContext, useState } from 'react';
 import UserResource from 'resources/User';
-import { NetworkErrorBoundary, useSuspense } from 'rest-hooks';
 
 import { authdContext } from './authdContext';
 import LoginModal from './LoginModal';

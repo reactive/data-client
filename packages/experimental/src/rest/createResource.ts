@@ -62,7 +62,7 @@ export default function createResource<
       schema: (schema as any).process ? new Delete(schema as any) : schema,
       method: 'DELETE',
       name: getName('delete'),
-      process(res, params) {
+      process(res: any, params: any) {
         return res && Object.keys(res).length ? res : params;
       },
     }),

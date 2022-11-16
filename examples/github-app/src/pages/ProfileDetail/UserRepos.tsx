@@ -4,7 +4,7 @@ import { Card, List, Layout, Space, Timeline, Typography, Divider } from 'antd';
 import React from 'react';
 import RepositoryResource, { Repository } from 'resources/Repository';
 import { UserResource, User } from 'resources/User';
-import { useCache, useSuspense } from 'rest-hooks';
+import { useCache, useSuspense } from '@rest-hooks/react';
 
 const { Title } = Typography;
 

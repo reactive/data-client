@@ -1,8 +1,8 @@
+import { CacheProvider } from '@rest-hooks/react';
 import { AuthdProvider } from 'navigation/authdContext';
 import type { ReactNode } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import type { FallbackProps } from 'react-error-boundary';
-import { CacheProvider } from 'rest-hooks';
 
 import Boundary from './Boundary';
 import { Router } from './routing';

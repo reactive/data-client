@@ -34,7 +34,7 @@
     "@types/parse-link-header": "^2.0.0",
     "@types/prettier": "2.7.1",
     "@types/react": "18.0.25",
-    "@types/react-dom": "18.0.8",
+    "@types/react-dom": "18.0.9",
     "@types/uuid": "^8",
     "@typescript-eslint/eslint-plugin": "5.42.1",
     "@typescript-eslint/parser": "5.42.1",
@@ -53,19 +53,20 @@
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-terser": "^7.0.2",
-    "serve": "14.1.0",
+    "serve": "14.1.1",
     "webpack": "5.75.0",
     "webpack-cli": "4.10.0",
     "webpack-dev-server": "4.11.1"
   },
   "dependencies": {
-    "@anansi/router": "0.6.36",
+    "@anansi/router": "0.6.38",
     "@ant-design/icons": "^4.7.0",
     "@rest-hooks/endpoint": "^3.0.1",
     "@rest-hooks/graphql": "^0.3.1",
     "@rest-hooks/hooks": "^3.0.7",
+    "@rest-hooks/react": "workspace:^",
     "@rest-hooks/rest": "^6.0.1",
-    "antd": "4.24.1",
+    "antd": "4.24.2",
     "parse-link-header": "^2.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -74,7 +75,6 @@
     "rehype-highlight": "6.0.0",
     "remark-gfm": "^3.0.1",
     "remark-remove-comments": "^0.2.0",
-    "rest-hooks": "^7.0.0",
     "uuid": "^8.3.2"
   }
 }

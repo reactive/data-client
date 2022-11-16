@@ -14,7 +14,7 @@ import remarkRemoveComments from 'remark-remove-comments';
 import { IssueResource } from 'resources/Issue';
 import { ReactionResource, contentToIcon } from 'resources/Reaction';
 import UserResource from 'resources/User';
-import { useSuspense, useFetch, useCache } from 'rest-hooks';
+import { useSuspense, useFetch, useCache } from '@rest-hooks/react';
 
 import CommentsList, { CardLoading } from './CommentsList';
 import CreateComment from './CreateComment';

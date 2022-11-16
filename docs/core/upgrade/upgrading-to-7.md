@@ -4,7 +4,7 @@ title: Upgrading from 6 to 7
 import BeforeAfterTabs from '@site/src/components/BeforeAfterTabs';
 import PkgTabs from '@site/src/components/PkgTabs';
 
-<PkgTabs pkgs="rest-hooks@7 @rest-hooks/react @rest-hooks/redux @rest-hooks/test@8" upgrade />
+<PkgTabs pkgs="rest-hooks@7 @rest-hooks/react@6 @rest-hooks/redux@6 @rest-hooks/test@9" upgrade />
 
 [@rest-hooks/react](https://www.npmjs.com/package/@rest-hooks/react) is now a peerDependency
 so be sure to install it. The [rest-hooks](https://www.npmjs.com/package/rest-hooks) will eventually
@@ -61,7 +61,7 @@ function MyComponent() {
 }
 ```
 
-## Test @8
+## Test @9
 
 Old-style fixtures using FetchShape were removed here.
 
@@ -88,3 +88,11 @@ const fixtures = [
   },
 ];
 ```
+
+## Preparing for the future
+
+Once you have successfully upgraded, you can try converting all 'rest-hooks' imports to '@rest-hooks/react'.
+This will become the recommended way to consume rest hooks when using React. The 'rest-hooks' package will
+still work but eventually remove any additions.
+
+- `import {} from 'rest-hooks'` -> `import {} from '@rest-hooks/react'`

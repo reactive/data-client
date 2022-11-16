@@ -1,5 +1,5 @@
+import { useSuspense } from '@rest-hooks/react';
 import { TodoResource, Todo } from 'resources/TodoResource';
-import { useSuspense } from 'rest-hooks';
 
 import NewTodo from './NewTodo';
 import TodoListItem from './TodoListItem';

@@ -1,7 +1,7 @@
+import { useController } from '@rest-hooks/react';
 import React, { createContext, useState, useCallback, useMemo } from 'react';
 import { getAuth, setAuth, unAuth } from 'resources/Auth';
 import UserResource from 'resources/User';
-import { useController } from 'rest-hooks';
 
 export const authdContext = createContext({
   authed: false,
