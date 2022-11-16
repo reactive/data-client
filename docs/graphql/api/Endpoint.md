@@ -275,7 +275,7 @@ const UserDetail = new Endpoint(
 
 ```typescript
 import { Endpoint } from '@rest-hooks/endpoint';
-import { Entity } from 'rest-hooks';
+import { Entity } from '@rest-hooks/react';
 
 class User extends Entity {
   readonly id: string = '';
@@ -295,7 +295,7 @@ const UserDetail = new Endpoint(
 
 ```typescript
 import { Endpoint } from '@rest-hooks/endpoint';
-import { Entity } from 'rest-hooks';
+import { Entity } from '@rest-hooks/react';
 
 class User extends Entity {
   readonly id: string = '';

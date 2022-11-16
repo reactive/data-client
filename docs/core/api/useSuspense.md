@@ -94,7 +94,7 @@ export const ProfileResource = createResource({
 ```
 
 ```tsx title="ProfileList.tsx"
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 import { ProfileResource } from './api/Profile';
 
 function ProfileDetail(): JSX.Element {
@@ -143,7 +143,7 @@ export const ProfileResource = createResource({
 ```
 
 ```tsx title="ProfileList.tsx"
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 import { ProfileResource } from './api/Profile';
 
 function ProfileList(): JSX.Element {

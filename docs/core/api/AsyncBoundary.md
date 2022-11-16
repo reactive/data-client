@@ -2,6 +2,11 @@
 title: "<AsyncBoundary />"
 ---
 
+<head>
+  <title>&lt;AsyncBoundary /&gt; - Handle asynchronous loading and error conditions</title>
+  <meta name="docsearch:pagerank" content="20"/>
+</head>
+
 Handles loading and error conditions of Suspense.
 
 ```tsx
@@ -18,7 +23,7 @@ Custom fallback usage example:
 
 ```tsx
 import React from 'react';
-import { CacheProvider, AsyncBoundary, NetworkError } from 'rest-hooks';
+import { CacheProvider, AsyncBoundary, NetworkError } from '@rest-hooks/react';
 
 function ErrorPage({ error }: { error: NetworkError }) {
   return (

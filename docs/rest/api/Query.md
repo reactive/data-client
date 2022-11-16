@@ -4,7 +4,8 @@ slug: Query
 ---
 
 <head>
-  <title>Query - Programmatic retrieval of cache state</title>
+  <title>Query - Programmatic performant store access</title>
+  <meta name="docsearch:pagerank" content="30"/>
 </head>
 
 import { RestEndpoint } from '@rest-hooks/rest';

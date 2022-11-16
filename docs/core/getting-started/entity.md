@@ -148,7 +148,7 @@ const todoCreate = new Endpoint(
 <details><summary><b>Example Usage</b></summary>
 
 ```tsx
-import { useController } from 'rest-hooks';
+import { useController } from '@rest-hooks/react';
 
 export default function NewTodoForm() {
   const { fetch } = useController();
@@ -181,7 +181,7 @@ const todoUpdate = new Endpoint(
 <details><summary><b>Example Usage</b></summary>
 
 ```tsx
-import { useController } from 'rest-hooks';
+import { useController } from '@rest-hooks/react';
 
 export default function UpdateTodoForm({ id }: { id: number }) {
   const todo = useSuspense(todoDetail, { id });
@@ -217,7 +217,7 @@ const todoDelete = new Endpoint(
 <details><summary><b>Example Usage</b></summary>
 
 ```tsx
-import { useController } from 'rest-hooks';
+import { useController } from '@rest-hooks/react';
 import ArticleResource from 'resources/article';
 
 export default function TodoWithDelete({ todo }: { todo: Todo }) {

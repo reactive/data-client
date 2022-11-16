@@ -77,7 +77,7 @@ export const routes: Route<Controller>[] = [
 [UserDetail page](https://stackblitz.com/github/ntucker/anansi/tree/master/examples/concurrent?file=src%2Fpages%2FUserDetail%2Findex.tsx)
 
 ```tsx
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 import { Img } from '@rest-hooks/img';
 import { Card, Avatar } from 'antd';
 

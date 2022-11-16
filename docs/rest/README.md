@@ -78,7 +78,7 @@ values={[
 <TabItem value="Single">
 
 ```tsx
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 import { ArticleResource } from 'api/article';
 
 export default function ArticleDetail({ id }: { id: number }) {
@@ -96,7 +96,7 @@ export default function ArticleDetail({ id }: { id: number }) {
 <TabItem value="List">
 
 ```tsx
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 import { ArticleResource } from 'api/article';
 import ArticleSummary from './ArticleSummary';
 
@@ -137,7 +137,7 @@ values={[
 <TabItem value="Create">
 
 ```tsx title="article.tsx"
-import { useController } from 'rest-hooks';
+import { useController } from '@rest-hooks/react';
 import { ArticleResource } from 'api/article';
 
 export default function NewArticleForm() {
@@ -163,7 +163,7 @@ resolves to the new Resource created by the API. It will automatically be added 
 <TabItem value="Update">
 
 ```tsx title="article.tsx"
-import { useController } from 'rest-hooks';
+import { useController } from '@rest-hooks/react';
 import { ArticleResource } from 'api/article';
 
 export default function UpdateArticleForm({ id }: { id: number }) {
@@ -192,7 +192,7 @@ resolves to the new Resource created by the API. It will automatically be added 
 <TabItem value="Delete">
 
 ```tsx title="article.tsx"
-import { useController } from 'rest-hooks';
+import { useController } from '@rest-hooks/react';
 import { Article, ArticleResource } from 'api/article';
 
 export default function ArticleWithDelete({ article }: { article: Article }) {

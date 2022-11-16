@@ -131,7 +131,7 @@ This should resemble what you have added in [initial setup](../getting-started/i
 
 ```tsx title=".storybook/preview.tsx"
 import { Suspense } from 'react';
-import { CacheProvider, AsyncBoundary } from 'rest-hooks';
+import { CacheProvider, AsyncBoundary } from '@rest-hooks/react';
 
 export const decorators = [
   Story => (

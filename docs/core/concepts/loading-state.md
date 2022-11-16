@@ -21,7 +21,7 @@ it in multiple locations!
 
 ```tsx
 import { Suspense } from 'react';
-import { AsyncBoundary } from 'rest-hooks';
+import { AsyncBoundary } from '@rest-hooks/react';
 import { RouteChildrenProps } from 'react-router';
 
 const App = () => (

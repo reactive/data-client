@@ -40,7 +40,7 @@ Part of [@rest-hooks/hooks](https://www.npmjs.com/package/@rest-hooks/hooks)
 
 ```tsx
 import { useCallback } from 'react';
-import { useController } from 'rest-hooks';
+import { useController } from '@rest-hooks/react';
 import { useLoading } from '@rest-hooks/hooks';
 
 import { TodoResource, Todo } from 'api/Todo';

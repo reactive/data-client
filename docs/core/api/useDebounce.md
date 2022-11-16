@@ -15,7 +15,7 @@ Useful to avoid spamming network requests when parameters might change quickly (
 
 ```typescript
 import { useDebounce } from '@rest-hooks/hooks';
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 
 const debouncedFilter = useDebounce(filter, 200);
 const data = useSuspense(MyEndpoint, { filter: debouncedFilter });

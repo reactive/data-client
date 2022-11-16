@@ -49,7 +49,7 @@ we'll just assume a `Pagination` component is built, that uses a callback to tri
 page fetching. On web, it is recommended to use something based on [Intersection Observers](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
 
 ```tsx
-import { useSuspense, useController } from 'rest-hooks';
+import { useSuspense, useController } from '@rest-hooks/react';
 import { NewsResource } from 'api/News';
 
 function NewsList() {
@@ -128,7 +128,7 @@ Now we can use `getList` to get not only the articles, but also our `nextPage`
 and `prevPage` values. We can use those tokens to define our pagination buttons.
 
 ```tsx title="ArticleList.tsx"
-import { useSuspense } from 'rest-hooks';
+import { useSuspense } from '@rest-hooks/react';
 import ArticleResource from 'resources/ArticleResource';
 
 export default function ArticleList() {

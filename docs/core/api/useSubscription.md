@@ -58,7 +58,7 @@ export const getPrice = new RestEndpont({
 ```
 
 ```tsx title="MasterPrice.tsx"
-import { useSuspense, useSubscription } from 'rest-hooks';
+import { useSuspense, useSubscription } from '@rest-hooks/react';
 import { getPrice } from 'api/Price';
 
 function MasterPrice({ symbol }: { symbol: string }) {
@@ -72,7 +72,7 @@ function MasterPrice({ symbol }: { symbol: string }) {
 
 ```tsx title="MasterPrice.tsx"
 import { useRef } from 'react';
-import { useSuspense, useSubscription } from 'rest-hooks';
+import { useSuspense, useSubscription } from '@rest-hooks/react';
 import { getPrice } from 'api/Price';
 
 function MasterPrice({ symbol }: { symbol: string }) {
