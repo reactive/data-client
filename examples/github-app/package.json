@@ -1,6 +1,6 @@
 {
   "name": "github-app",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "github-app - A rest hooks example",
   "scripts": {
     "lint": "eslint src --ext .ts,.tsx",
@@ -74,7 +74,7 @@
     "rehype-highlight": "6.0.0",
     "remark-gfm": "^3.0.1",
     "remark-remove-comments": "^0.2.0",
-    "rest-hooks": "^6.6.2",
+    "rest-hooks": "^7.0.0",
     "uuid": "^8.3.2"
   }
 }

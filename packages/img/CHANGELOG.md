@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/img@0.7.2...@rest-hooks/img@0.8.0) (2022-11-16)
+
+### 🚀 Features
+
+* @rest-hooks/react latest version matching ([3f7b2c4](https://github.com/coinbase/rest-hooks/commit/3f7b2c4ef5d7ff9c29749a1ad8764d80388f058a))
+
 ### [0.7.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/img@0.7.0...@rest-hooks/img@0.7.1) (2022-11-13)
 
 **Note:** Version bump only for package @rest-hooks/img

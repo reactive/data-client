@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.4.5](https://github.com/coinbase/rest-hooks/compare/github-app@0.4.4...github-app@0.4.5) (2022-11-16)
+
+**Note:** Version bump only for package github-app
+
 ### [0.4.3](https://github.com/coinbase/rest-hooks/compare/github-app@0.4.2...github-app@0.4.3) (2022-10-14)
 
 ### 📦 Package

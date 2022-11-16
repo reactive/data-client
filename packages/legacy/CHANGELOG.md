@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@5.1.0...@rest-hooks/legacy@5.2.0) (2022-11-16)
+
+### 🚀 Features
+
+* Add useFetcher, useInvalidator ([e13e227](https://github.com/coinbase/rest-hooks/commit/e13e227eb93efa6bdfdc8eb142d5b5bbb93d4997))
+
 ### [5.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@5.0.0...@rest-hooks/legacy@5.0.1) (2022-11-13)
 
 **Note:** Version bump only for package @rest-hooks/legacy

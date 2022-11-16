@@ -1,6 +1,6 @@
 {
   "name": "rest-hooks",
-  "version": "6.6.2",
+  "version": "7.0.0",
   "description": "Asynchronous data framework for React",
   "sideEffects": false,
   "main": "dist/index.js",

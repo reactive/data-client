@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.0.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.6.2...rest-hooks@7.0.0) (2022-11-16)
+
+### ⚠ 💥 BREAKING CHANGES
+
+* - Removed hasUsableData, useFetcher, useInvalidateDispatcher,
+  useInvalidator, useResetter
+- Marked as deprecated: useResource, useMeta, useRetrieve
+- peerDep @rest-hooks/react
+- ExternalCacheProvider, PromiseifyMiddleware, mapMiddleware moved to @rest-hooks/redux
+
+Upgrading: https://resthooks.io/docs/upgrade/upgrading-to-7
+
+### 💅 Enhancement
+
+* Remove deprecated members ([3cf8f93](https://github.com/coinbase/rest-hooks/commit/3cf8f93c92a79891b1b9ae0c743f38127307418b))
+
 ### [6.6.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.6.0...rest-hooks@6.6.1) (2022-11-13)
 
 ### 🐛 Bug Fix
