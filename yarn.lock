@@ -118,15 +118,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/jest-preset@npm:0.7.38":
-  version: 0.7.38
-  resolution: "@anansi/jest-preset@npm:0.7.38"
+"@anansi/jest-preset@npm:0.7.40":
+  version: 0.7.40
+  resolution: "@anansi/jest-preset@npm:0.7.40"
   dependencies:
     "@anansi/ts-utils": ^0.2.6
-    babel-jest: ^29.3.0
+    babel-jest: ^29.3.1
     core-js: ^3.21.0
     identity-obj-proxy: ^3.0.0
-    jest-pnp-resolver: ^1.2.2
+    jest-pnp-resolver: ^1.2.3
     mitt: ^3.0.0
     semver: ^7.3.8
     ts-jest: ^29.0.3
@@ -139,7 +139,7 @@ __metadata:
   peerDependenciesMeta:
     react:
       optional: true
-  checksum: 9d883b8b83b922defd589520f413a524b63adb7b40baf03199463559e68b49aa5591970e8d3f922259fd7d201c681a7434484d6e3e1e402d3e9aafd4f76c4975
+  checksum: 89199fb9b96dccc79cf38c86cf3afd06449cd0b475be8f02f71c2cd558ad735e8c260ec47152bedc34a28b9d49b439e473fb9e086c994ba2a363aea01f6672a7
   languageName: node
   linkType: hard
 
@@ -4950,13 +4950,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:29.2.2":
-  version: 29.2.2
-  resolution: "@types/jest@npm:29.2.2"
+"@types/jest@npm:29.2.3":
+  version: 29.2.3
+  resolution: "@types/jest@npm:29.2.3"
   dependencies:
     expect: ^29.0.0
     pretty-format: ^29.0.0
-  checksum: 13b1a48858c8c451109c2838205fdcee6f41d672674d2f0e3cada35e94f133370aba4f4b5c3f5b174f3e16244d76d7d718afa7cc67d4d6f90d1b87951f4c87c3
+  checksum: 55370906711b600a05b9e497c22aa74d80d8adcdbe4ac2f1bc9311f6f6ca0dd192862b6f38df6ac0d45e92396bcd796e377b1d8058c10bdfd584aeee580c3ce1
   languageName: node
   linkType: hard
 
@@ -6428,7 +6428,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-jest@npm:^29.3.0, babel-jest@npm:^29.3.1":
+"babel-jest@npm:^29.3.1":
   version: 29.3.1
   resolution: "babel-jest@npm:29.3.1"
   dependencies:
@@ -12908,15 +12908,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-pnp-resolver@npm:^1.2.2":
-  version: 1.2.2
-  resolution: "jest-pnp-resolver@npm:1.2.2"
+"jest-pnp-resolver@npm:^1.2.2, jest-pnp-resolver@npm:^1.2.3":
+  version: 1.2.3
+  resolution: "jest-pnp-resolver@npm:1.2.3"
   peerDependencies:
     jest-resolve: "*"
   peerDependenciesMeta:
     jest-resolve:
       optional: true
-  checksum: bd85dcc0e76e0eb0c3d56382ec140f08d25ff4068cda9d0e360bb78fb176cb726d0beab82dc0e8694cafd09f55fee7622b8bcb240afa5fad301f4ed3eebb4f47
+  checksum: db1a8ab2cb97ca19c01b1cfa9a9c8c69a143fde833c14df1fab0766f411b1148ff0df878adea09007ac6a2085ec116ba9a996a6ad104b1e58c20adbf88eed9b2
   languageName: node
   linkType: hard
 
@@ -19972,7 +19972,7 @@ __metadata:
     "@anansi/babel-preset": 3.2.22
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.15.0
-    "@anansi/jest-preset": 0.7.38
+    "@anansi/jest-preset": 0.7.40
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
     "@babel/node": 7.20.2
@@ -19987,7 +19987,7 @@ __metadata:
     "@testing-library/react": 13.4.0
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 11.4.0
-    "@types/jest": 29.2.2
+    "@types/jest": 29.2.3
     "@types/lodash": 4.14.189
     "@types/node": 18.11.9
     "@types/react": 18.0.25
