@@ -50,7 +50,7 @@
     "@rest-hooks/test": "^7.2.1",
     "@testing-library/react": "13.4.0",
     "@testing-library/react-hooks": "8.0.1",
-    "@testing-library/react-native": "11.4.0",
+    "@testing-library/react-native": "11.5.0",
     "@types/jest": "29.2.3",
     "@types/lodash": "4.14.189",
     "@types/node": "18.11.9",
