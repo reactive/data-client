@@ -4613,9 +4613,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-native@npm:11.4.0":
-  version: 11.4.0
-  resolution: "@testing-library/react-native@npm:11.4.0"
+"@testing-library/react-native@npm:11.5.0":
+  version: 11.5.0
+  resolution: "@testing-library/react-native@npm:11.5.0"
   dependencies:
     pretty-format: ^29.0.0
   peerDependencies:
@@ -4626,7 +4626,7 @@ __metadata:
   peerDependenciesMeta:
     jest:
       optional: true
-  checksum: be54bb017ffa2d4bede9dcfa1a6e27d134f1c567be942dea4eba8c40ac909d69c9afeac91dd2f102927fdbb626ccbc4c6c38118517d210727b7b403d2ebb15af
+  checksum: 841c769c2734d7fb7d9a4054fad0582505e49c4c2d99ddcf742ef11f6dd6ee3bcf040400e27dbb55d7fda48b305ae92f40dc8c507e93dffb96d768ff3aba7bad
   languageName: node
   linkType: hard
 
@@ -19986,7 +19986,7 @@ __metadata:
     "@rest-hooks/test": ^7.2.1
     "@testing-library/react": 13.4.0
     "@testing-library/react-hooks": 8.0.1
-    "@testing-library/react-native": 11.4.0
+    "@testing-library/react-native": 11.5.0
     "@types/jest": 29.2.3
     "@types/lodash": 4.14.189
     "@types/node": 18.11.9
