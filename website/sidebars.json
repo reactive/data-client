@@ -107,6 +107,10 @@
             {
               "type": "doc",
               "id": "guides/redux"
+            },
+            {
+              "type": "doc",
+              "id": "guides/ssr"
             }
           ]
         },

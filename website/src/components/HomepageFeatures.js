@@ -1,8 +1,8 @@
-import React from 'react';
-import clsx from 'clsx';
-import ThemedImage from '@theme/ThemedImage';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import Link from '@docusaurus/Link';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import ThemedImage from '@theme/ThemedImage';
+import clsx from 'clsx';
+import React from 'react';
 
 import styles from './HomepageFeatures.module.css';
 

@@ -22,7 +22,7 @@ Hydrate/dehydration utilities for [Rest Hooks](https://resthooks.io)
 import express from 'express';
 import { renderToPipeableStream } from 'react-dom/server';
 import {
-  createPersistedCacheProvder,
+  createPersistedStore,
   createServerDataComponent,
 } from '@rest-hooks/ssr';
 
@@ -31,7 +31,7 @@ const rootId = 'react-root';
 const app = express();
 app.get('/*', (req: any, res: any) => {
   const [ServerCacheProvider, useReadyCacheState, controller] =
-    createPersistedCacheProvder();
+    createPersistedStore();
   const ServerDataComponent = createServerDataComponent(useReadyCacheState);
 
   controller.fetch(NeededForPage, { id: 5 });
@@ -74,17 +74,121 @@ app.listen(3000, () => {
 
 ```tsx
 import { hydrateRoot } from 'react-dom';
-import { getInitialData } from '@rest-hooks/ssr';
+import { awaitInitialData } from '@rest-hooks/ssr';
 
 const rootId = 'react-root';
 
-getInitialData().then(initialState => {
+awaitInitialData().then(initialState => {
   hydrateRoot(
     document.getElementById(rootId),
     <CacheProvider initialState={initialState}>{children}</CacheProvider>,
   );
 });
 ```
+
+## NextJS
+
+We've optimized integration into NextJS with a custom [Document](https://nextjs.org/docs/advanced-features/custom-document)
+and NextJS specific wrapper for [App](https://nextjs.org/docs/advanced-features/custom-app)
+
+<details open><summary><b>pages/_document.tsx</b></summary>
+
+```tsx
+import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
+
+export default RestHooksDocument;
+```
+
+</details>
+
+<details open><summary><b>pages/_app.tsx</b></summary>
+
+```tsx
+import { AppCacheProvider } from '@rest-hooks/ssr/nextjs';
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <AppCacheProvider>
+      <Component {...pageProps} />
+    </AppCacheProvider>
+  );
+}
+```
+
+</details>
+
+### Further customizing Document
+
+To further customize Document, simply extend from the provided document.
+
+Make sure you use `super.getInitialProps()` instead of `Document.getInitialProps()`
+or the Rest Hooks code won't run!
+
+<details open><summary><b>pages/_document.tsx</b></summary>
+
+```tsx
+import { Html, Head, Main, NextScript } from 'next/document'
+import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
+
+export default class MyDocument extends RestHooksDocument {
+  static async getInitialProps(ctx) {
+    const originalRenderPage = ctx.renderPage
+
+    // Run the React rendering logic synchronously
+    ctx.renderPage = () =>
+      originalRenderPage({
+        // Useful for wrapping the whole react tree
+        enhanceApp: (App) => App,
+        // Useful for wrapping in a per-page basis
+        enhanceComponent: (Component) => Component,
+      })
+
+    // Run the parent `getInitialProps`, it now includes the custom `renderPage`
+    const initialProps = await super.getInitialProps(ctx)
+
+    return initialProps
+  }
+
+  render() {
+    return (
+      <Html>
+        <Head />
+        <body>
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
+    )
+  }
+}
+```
+
+</details>
+
+### CSP Nonce
+
+Rest Hooks Document serializes the store state in a script tag. In case you have
+Content Security Policy restrictions that require use of a nonce, you can override
+`RestHooksDocument.getNonce`.
+
+Since there is no standard way of handling [nonce](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)
+in NextJS, this allows you
+to retrieve any nonce you created in the DocumentContext to use with Rest Hooks.
+
+<details open><summary><b>pages/_document.tsx</b></summary>
+
+```tsx
+import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
+
+export default class MyDocument extends RestHooksDocument {
+  static getNonce(ctx: DocumentContext) {
+    // this assumes nonce has been added here - customize as you need
+    return ctx.res.nonce;
+  }
+}
+```
+
+</details>
 
 ## API
 
