@@ -1,7 +1,7 @@
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import React from 'react';
 import CodeBlock from '@theme/CodeBlock';
+import TabItem from '@theme/TabItem';
+import Tabs from '@theme/Tabs';
+import React from 'react';
 
 export default function PkgTabs({ pkgs, dev = false }) {
   return (

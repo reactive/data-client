@@ -1,5 +1,5 @@
-import React, { memo } from 'react';
 import type { FixtureEndpoint } from '@rest-hooks/test';
+import React, { memo } from 'react';
 
 import Playground from './Playground';
 

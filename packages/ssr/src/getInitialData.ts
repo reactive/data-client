@@ -1,4 +1,7 @@
-const getInitialData = (id = 'rest-hooks-data') => {
+import { __INTERNAL__ } from '@rest-hooks/react';
+const { initialState } = __INTERNAL__;
+
+export const awaitInitialData = (id = 'rest-hooks-data') => {
   return new Promise<any>((resolve, reject) => {
     let el: HTMLScriptElement | null;
     if ((el = document.getElementById(id) as any)) {
@@ -13,6 +16,12 @@ const getInitialData = (id = 'rest-hooks-data') => {
   });
 };
 
+export const getInitialData = (id = 'rest-hooks-data') => {
+  const el: HTMLScriptElement | null = document.getElementById(id) as any;
+  if (!el) return initialState;
+  return getDataFromEl(el, id);
+};
+
 function getDataFromEl(el: HTMLScriptElement, key: string) {
   if (el.text === undefined) {
     console.error(
@@ -21,5 +30,3 @@ function getDataFromEl(el: HTMLScriptElement, key: string) {
   }
   return el?.text ? JSON.parse(el?.text) : undefined;
 }
-
-export default getInitialData;

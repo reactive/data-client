@@ -1,8 +1,8 @@
-import React, { memo, useState } from 'react';
 import {
   useScrollPositionBlocker,
   useTabGroupChoice,
 } from '@docusaurus/theme-common/internal';
+import React, { memo, useState } from 'react';
 
 import CodeTabContext from './CodeTabContext';
 

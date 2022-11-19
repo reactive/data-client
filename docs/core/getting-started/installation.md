@@ -6,13 +6,13 @@ title: Installation
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
+import PkgInstall from '@site/src/components/PkgInstall';
 
 <PkgTabs pkgs="@rest-hooks/react @rest-hooks/test @rest-hooks/hooks @rest-hooks/rest" />
 
 TypeScript is optional, but requires at least version [3.7](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#more-recursive-type-aliases) for full type enforcement.
 
 ## Add provider at top-level component
-
 
 <Tabs
 defaultValue="18-web"
@@ -21,6 +21,7 @@ values={[
 { label: 'React Web 16+', value: 'web' },
 { label: 'React Web 18+', value: '18-web' },
 { label: 'React Native', value: 'native' },
+{ label: 'NextJS', value: 'nextjs' },
 ]}>
 <TabItem value="web">
 
@@ -53,7 +54,7 @@ ReactDOM.createRoot(document.body).render(
 
 </TabItem>
 
-  <TabItem value="native">
+<TabItem value="native">
 
 ```tsx title="/index.tsx"
 import { CacheProvider } from '@rest-hooks/react';
@@ -66,6 +67,33 @@ const Root = () => (
 );
 AppRegistry.registerComponent('MyApp', () => Root);
 ```
+
+</TabItem>
+
+<TabItem value="nextjs">
+
+<PkgInstall pkgs="@rest-hooks/ssr @rest-hooks/redux redux" />
+
+```tsx title="pages/_document.tsx"
+import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
+
+export default RestHooksDocument;
+```
+
+```tsx  title="pages/_app.tsx"
+import { AppCacheProvider } from '@rest-hooks/ssr/nextjs';
+import type { AppProps } from 'next/app';
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <AppCacheProvider>
+      <Component {...pageProps} />
+    </AppCacheProvider>
+  );
+}
+```
+
+[Full NextJS Guide](../guides/ssr.md#nextjs)
 
 </TabItem>
 </Tabs>
