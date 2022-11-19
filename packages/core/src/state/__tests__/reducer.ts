@@ -157,7 +157,6 @@ describe('reducer', () => {
           return input.content ? expiresAt : 0;
         }
       }
-      console.log('hi', ExpiresSoon.key);
       const spy = jest.spyOn(ExpiresSoon, 'expiresAt');
       const localAction = {
         ...partialResultAction,

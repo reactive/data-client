@@ -19,7 +19,7 @@ import { inferResults } from '@rest-hooks/normalizr';
 
 import { initialState } from '../state/createReducer.js';
 import selectMeta from '../state/selectMeta.js';
-import type { ActionTypes, State } from '../types.js';
+import type { ActionTypes, FetchAction, State } from '../types.js';
 import createFetch from './createFetch.js';
 import createInvalidate from './createInvalidate.js';
 import createReceive from './createReceive.js';
@@ -34,6 +34,7 @@ type RHDispatch = (value: ActionTypes) => Promise<void>;
 
 interface ConstructorProps {
   dispatch?: RHDispatch;
+  getState?: () => State<unknown>;
   globalCache?: DenormalizeCache;
 }
 
@@ -43,23 +44,43 @@ const unsetDispatch = () => {
       `Other middleware would not be applied to this dispatch.`,
   );
 };
+const unsetState = (): State<unknown> => {
+  // This is only the value until it is set by the CacheProvider
+  /* istanbul ignore next */
+  return initialState;
+};
 
 /**
  * Imperative control of Rest Hooks store
  * @see https://resthooks.io/docs/api/Controller
  */
 export default class Controller {
+  /**
+   * Dispatches an action to Rest Hooks reducer.
+   *
+   * @see https://resthooks.io/docs/api/Controller#dispatch
+   */
   declare readonly dispatch: RHDispatch;
+  /**
+   * Gets the latest state snapshot that is fully committed.
+   *
+   * This can be useful for imperative use-cases like event handlers.
+   * This should *not* be used to render; instead useSuspense() or useCache()
+   * @see https://resthooks.io/docs/api/Controller#getState
+   */
+  declare readonly getState: () => State<unknown>;
   declare readonly globalCache: DenormalizeCache;
 
   constructor({
     dispatch = unsetDispatch,
+    getState = unsetState,
     globalCache = {
       entities: {},
       results: {},
     },
   }: ConstructorProps = {}) {
     this.dispatch = dispatch;
+    this.getState = getState;
     this.globalCache = globalCache;
   }
 
@@ -75,7 +96,7 @@ export default class Controller {
     endpoint: E,
     ...args: readonly [...Parameters<E>]
   ): ReturnType<E> => {
-    const action = createFetch(endpoint, {
+    const action: FetchAction = createFetch(endpoint, {
       args,
     });
     this.dispatch(action);
@@ -217,19 +238,6 @@ export default class Controller {
     ...args: readonly [...Parameters<E>]
   ): Promise<void>
   */
-
-  /**
-   * Gets the latest state snapshot that is fully committed.
-   *
-   * This can be useful for imperative use-cases like event handlers.
-   * This should *not* be used to render; instead useSuspense() or useCache()
-   * @see https://resthooks.io/docs/api/Controller#getState
-   */
-  getState = (): State<unknown> => {
-    // This is only the value until it is set by the CacheProvider
-    /* istanbul ignore next */
-    return initialState;
-  };
 
   snapshot = (state: State<unknown>, fetchedAt?: number): SnapshotInterface => {
     return new Snapshot(this, state, fetchedAt);

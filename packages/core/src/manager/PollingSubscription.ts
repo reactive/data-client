@@ -10,6 +10,8 @@ import { Subscription, SubscriptionInit } from './SubscriptionManager.js';
  * PollingSubscription keeps a given resource updated by
  * dispatching a fetch at a rate equal to the minimum update
  * interval requested.
+ *
+ * @see https://resthooks.io/docs/api/PollingSubscription
  */
 export default class PollingSubscription implements Subscription {
   protected declare readonly schema: Schema | undefined;

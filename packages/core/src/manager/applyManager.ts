@@ -10,13 +10,18 @@ export default function applyManager(
     const middleware = manager.getMiddleware();
     return ({ dispatch, getState }) => {
       (controller as any).dispatch = dispatch;
-      return middleware({ controller, dispatch, getState });
+      (controller as any).getState = getState;
+      // this is needed for backwards compatibility as we added 'controller' prop previously
+      const API = Object.create(controller, {
+        controller: { value: controller },
+      });
+      // controller is a superset of the middleware API
+      return middleware(API);
     };
   });
 }
 
 /* These should be compatible with redux */
-
 export interface MiddlewareAPI<
   R extends Reducer<any, any> = Reducer<any, any>,
 > {

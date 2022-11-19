@@ -18,6 +18,8 @@ const HASINTL = typeof Intl !== 'undefined';
 /** Integrates with https://github.com/zalmoxisus/redux-devtools-extension
  *
  * Options: https://github.com/zalmoxisus/redux-devtools-extension/blob/master/docs/API/Arguments.md
+ *
+ * @see https://resthooks.io/docs/api/DevToolsManager
  */
 export default class DevToolsManager implements Manager {
   protected declare middleware: Middleware;
@@ -64,15 +66,14 @@ export default class DevToolsManager implements Manager {
     /* istanbul ignore if */
     /* istanbul ignore next */
     if (process.env.NODE_ENV === 'development' && this.devTools) {
-      this.middleware = <R extends React.Reducer<any, any>>({
-        getState,
-        controller,
-      }: MiddlewareAPI<R>) => {
+      this.middleware = <R extends React.Reducer<any, any>>(
+        controller: MiddlewareAPI<R>,
+      ) => {
         const reducer = createReducer(controller);
         return (next: Dispatch<R>) => (action: React.ReducerAction<R>) => {
           return next(action).then(() => {
             if (skipLogging?.(action)) return;
-            const state = getState();
+            const state = controller.getState();
             this.devTools.send(
               action,
               state.optimistic.reduce(reducer, state),

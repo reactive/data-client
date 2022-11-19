@@ -1,6 +1,7 @@
 import type { Schema } from '@rest-hooks/normalizr';
 
 import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '../actionTypes.js';
+import { RestHooksReducer } from '../middlewareTypes.js';
 import type {
   Manager,
   State,
@@ -38,6 +39,8 @@ export interface SubscriptionConstructable {
  *
  * Constructor takes a SubscriptionConstructable class to control how
  * subscriptions are handled. (e.g., polling, websockets)
+ *
+ * @see https://resthooks.io/docs/api/SubscriptionManager
  */
 export default class SubscriptionManager<S extends SubscriptionConstructable>
   implements Manager
@@ -52,7 +55,7 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
   constructor(Subscription: S) {
     this.Subscription = Subscription;
 
-    this.middleware = <R extends React.Reducer<any, any>>({
+    this.middleware = <R extends RestHooksReducer>({
       dispatch,
       getState,
     }: MiddlewareAPI<R>) => {
@@ -87,7 +90,7 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
    */
   protected handleSubscribe(
     action: SubscribeAction,
-    dispatch: Dispatch<any>,
+    dispatch: (action: any) => Promise<void>,
     getState: () => State<unknown>,
   ) {
     const key = action.meta.key;
@@ -114,7 +117,7 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
    */
   protected handleUnsubscribe(
     action: UnsubscribeAction,
-    dispatch: Dispatch<any>,
+    dispatch: (action: any) => Promise<void>,
   ) {
     const key = action.meta.key;
     const frequency = action.meta.options?.pollFrequency;

@@ -50,9 +50,6 @@ export default function ExternalCacheProvider<S>({
     const state = selector(store.getState());
     return state.optimistic.reduce(masterReducer, state);
   }, [masterReducer, selector, store]);
-  useMemo(() => {
-    controller.getState = selectState;
-  }, [controller, selectState]);
 
   const [state, setState] = useState(selectState);
 

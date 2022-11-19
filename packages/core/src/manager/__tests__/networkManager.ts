@@ -147,9 +147,15 @@ describe('NetworkManager', () => {
     it('should handle fetch actions and dispatch on success', async () => {
       const next = jest.fn();
       const dispatch = jest.fn();
-      const controller = new Controller({ dispatch });
+      const controller = new Controller({ dispatch, getState });
+      const API: Controller & { controller: Controller } = Object.create(
+        controller,
+        {
+          controller: { value: controller },
+        },
+      );
 
-      middleware({ dispatch, getState, controller })(next)(fetchResolveAction);
+      middleware(API)(next)(fetchResolveAction);
 
       const data = await fetchResolveAction.payload();
 
@@ -176,11 +182,15 @@ describe('NetworkManager', () => {
     it('should handle fetch receive action and dispatch on success with updaters', async () => {
       const next = jest.fn();
       const dispatch = jest.fn();
-      const controller = new Controller({ dispatch });
-
-      middleware({ dispatch, getState, controller })(next)(
-        fetchReceiveWithUpdatersAction,
+      const controller = new Controller({ dispatch, getState });
+      const API: Controller & { controller: Controller } = Object.create(
+        controller,
+        {
+          controller: { value: controller },
+        },
       );
+
+      middleware(API)(next)(fetchReceiveWithUpdatersAction);
 
       const data = await fetchReceiveWithUpdatersAction.payload();
 
@@ -207,11 +217,15 @@ describe('NetworkManager', () => {
     it('should handle fetch rpc action and dispatch on success with updaters', async () => {
       const next = jest.fn();
       const dispatch = jest.fn();
-      const controller = new Controller({ dispatch });
-
-      middleware({ dispatch, getState, controller })(next)(
-        fetchRpcWithUpdatersAction,
+      const controller = new Controller({ dispatch, getState });
+      const API: Controller & { controller: Controller } = Object.create(
+        controller,
+        {
+          controller: { value: controller },
+        },
       );
+
+      middleware(API)(next)(fetchRpcWithUpdatersAction);
 
       const data = await fetchRpcWithUpdatersAction.payload();
 
@@ -238,11 +252,15 @@ describe('NetworkManager', () => {
     it('should handle fetch rpc action with optimistic response and dispatch on success with updaters', async () => {
       const next = jest.fn();
       const dispatch = jest.fn();
-      const controller = new Controller({ dispatch });
-
-      middleware({ dispatch, getState, controller })(next)(
-        fetchRpcWithUpdatersAndOptimisticAction,
+      const controller = new Controller({ dispatch, getState });
+      const API: Controller & { controller: Controller } = Object.create(
+        controller,
+        {
+          controller: { value: controller },
+        },
       );
+
+      middleware(API)(next)(fetchRpcWithUpdatersAndOptimisticAction);
 
       const data = await fetchRpcWithUpdatersAndOptimisticAction.payload();
 
@@ -266,9 +284,15 @@ describe('NetworkManager', () => {
     });
     it('should use dataExpireLength from action if specified', async () => {
       const dispatch = jest.fn();
-      const controller = new Controller({ dispatch });
+      const controller = new Controller({ dispatch, getState });
+      const API: Controller & { controller: Controller } = Object.create(
+        controller,
+        {
+          controller: { value: controller },
+        },
+      );
 
-      middleware({ dispatch, getState, controller })(() => Promise.resolve())({
+      middleware(API)(() => Promise.resolve())({
         ...fetchResolveAction,
         endpoint: detailEndpoint.extend({ dataExpiryLength: 314 }),
       });
@@ -281,9 +305,15 @@ describe('NetworkManager', () => {
     });
     it('should use dataExpireLength from NetworkManager if not specified in action', async () => {
       const dispatch = jest.fn();
-      const controller = new Controller({ dispatch });
+      const controller = new Controller({ dispatch, getState });
+      const API: Controller & { controller: Controller } = Object.create(
+        controller,
+        {
+          controller: { value: controller },
+        },
+      );
 
-      middleware({ dispatch, getState, controller })(() => Promise.resolve())({
+      middleware(API)(() => Promise.resolve())({
         ...fetchResolveAction,
         endpoint: detailEndpoint.extend({ dataExpiryLength: undefined }),
       });
@@ -297,12 +327,16 @@ describe('NetworkManager', () => {
     it('should handle fetch actions and dispatch on error', async () => {
       const next = jest.fn();
       const dispatch = jest.fn();
-      const controller = new Controller({ dispatch });
+      const controller = new Controller({ dispatch, getState });
+      const API: Controller & { controller: Controller } = Object.create(
+        controller,
+        {
+          controller: { value: controller },
+        },
+      );
 
       try {
-        await middleware({ dispatch, getState, controller })(next)(
-          fetchRejectAction,
-        );
+        await middleware(API)(next)(fetchRejectAction);
       } catch (error) {
         expect(next).not.toHaveBeenCalled();
         expect(dispatch).toHaveBeenCalledWith({
@@ -320,12 +354,16 @@ describe('NetworkManager', () => {
     });
     it('should use errorExpireLength from action if specified', async () => {
       const dispatch = jest.fn();
-      const controller = new Controller({ dispatch });
+      const controller = new Controller({ dispatch, getState });
+      const API: Controller & { controller: Controller } = Object.create(
+        controller,
+        {
+          controller: { value: controller },
+        },
+      );
 
       try {
-        await middleware({ dispatch, getState, controller })(() =>
-          Promise.resolve(),
-        )({
+        await middleware(API)(() => Promise.resolve())({
           ...fetchRejectAction,
           meta: {
             ...fetchRejectAction.meta,
@@ -340,12 +378,16 @@ describe('NetworkManager', () => {
     });
     it('should use errorExpireLength from NetworkManager if not specified in action', async () => {
       const dispatch = jest.fn();
-      const controller = new Controller({ dispatch });
+      const controller = new Controller({ dispatch, getState });
+      const API: Controller & { controller: Controller } = Object.create(
+        controller,
+        {
+          controller: { value: controller },
+        },
+      );
 
       try {
-        await middleware({ dispatch, getState, controller })(() =>
-          Promise.resolve(),
-        )({
+        await middleware(API)(() => Promise.resolve())({
           ...fetchRejectAction,
           meta: {
             ...fetchRejectAction.meta,

@@ -1,6 +1,7 @@
 import { RECEIVE_TYPE, FETCH_TYPE, RESET_TYPE } from '../actionTypes.js';
 import Controller from '../controller/Controller.js';
-import { initialState } from '../state/createReducer.js';
+import { initialState } from '../internal.js';
+import { RestHooksReducer } from '../middlewareTypes.js';
 import {
   createReceive,
   createReceiveError,
@@ -10,11 +11,11 @@ import type {
   FetchAction,
   ReceiveAction,
   Manager,
-  State,
   ActionTypes,
   MiddlewareAPI,
   Middleware,
   Dispatch,
+  State,
 } from '../types.js';
 
 export class ResetError extends Error {
@@ -31,6 +32,8 @@ export class ResetError extends Error {
  * and returning existing promises for requests already in flight.
  *
  * Interfaces with store via a redux-compatible middleware.
+ *
+ * @see https://resthooks.io/docs/api/NetworkManager
  */
 export default class NetworkManager implements Manager {
   protected fetched: { [k: string]: Promise<any> } = {};
@@ -40,18 +43,20 @@ export default class NetworkManager implements Manager {
   declare readonly errorExpiryLength: number;
   protected declare middleware: Middleware;
   protected getState: () => State<unknown> = () => initialState;
+  protected controller: Controller = new Controller();
   declare cleanupDate?: number;
 
   constructor(dataExpiryLength = 60000, errorExpiryLength = 1000) {
     this.dataExpiryLength = dataExpiryLength;
     this.errorExpiryLength = errorExpiryLength;
 
-    this.middleware = <R extends React.Reducer<any, any>>({
+    this.middleware = <R extends RestHooksReducer>({
       dispatch,
       getState,
       controller,
     }: MiddlewareAPI<R>) => {
       this.getState = getState;
+      this.controller = controller;
       return (next: Dispatch<R>) =>
         (action: React.ReducerAction<R>): Promise<void> => {
           switch (action.type) {
@@ -72,9 +77,11 @@ export default class NetworkManager implements Manager {
               return next(action).then(() => {
                 if (action.meta.key in this.fetched) {
                   // Note: meta *must* be set by reducer so this should be safe
-                  const error = getState().meta[action.meta.key]?.error;
+                  const error =
+                    controller.getState().meta[action.meta.key]?.error;
                   // processing errors result in state meta having error, so we should reject the promise
                   if (error) {
+                    // TODO: use only new action types
                     this.handleReceive(createReceiveError(error, action.meta));
                   } else {
                     this.handleReceive(action);
@@ -140,7 +147,7 @@ export default class NetworkManager implements Manager {
 
   protected getLastReset() {
     if (this.cleanupDate) return this.cleanupDate;
-    const lastReset = this.getState().lastReset;
+    const lastReset = this.controller.getState().lastReset;
     if (lastReset instanceof Date) return lastReset.valueOf();
     if (typeof lastReset !== 'number') return -Infinity;
     return lastReset;
@@ -156,7 +163,7 @@ export default class NetworkManager implements Manager {
    */
   protected handleFetch(
     action: FetchAction,
-    dispatch: Dispatch<any>,
+    dispatch: (action: any) => Promise<void>,
     controller: Controller,
   ) {
     const fetch = action.payload;
@@ -202,15 +209,15 @@ export default class NetworkManager implements Manager {
           // don't update state with promises started before last clear
           if (createdAt >= lastReset) {
             // we still check for controller in case someone didn't have type protection since this didn't always exist
-            if (action.endpoint && controller) {
-              controller.resolve(action.endpoint, {
+            if (action.endpoint && this.controller) {
+              this.controller.resolve(action.endpoint, {
                 args: action.meta.args as any,
                 response: data,
                 fetchedAt: createdAt,
               });
             } else {
               // does this throw if the reducer fails? - no because reducer is wrapped in try/catch
-              dispatch(
+              this.controller.dispatch(
                 createReceive(data, {
                   ...action.meta,
                   fetchedAt: createdAt,
@@ -227,15 +234,15 @@ export default class NetworkManager implements Manager {
           const lastReset = this.getLastReset();
           // don't update state with promises started before last clear
           if (createdAt >= lastReset) {
-            if (action.endpoint && controller) {
-              controller.resolve(action.endpoint, {
+            if (action.endpoint && this.controller) {
+              this.controller.resolve(action.endpoint, {
                 args: action.meta.args as any,
                 response: error,
                 fetchedAt: createdAt,
                 error: true,
               });
             } else {
-              dispatch(
+              this.controller.dispatch(
                 createReceiveError(error, {
                   ...action.meta,
                   errorExpiryLength:

@@ -86,11 +86,11 @@ import type { EndpointInterface } from '@rest-hooks/endpoint';
 export default class StreamManager implements Manager
 {
   protected declare middleware: Middleware;
-  protected declare websocket: Websocket;
+  protected declare websocket: WebSocket;
   protected declare endpoints: Record<string, EndpointInterface>;
 
   constructor(url: string, endpoints: Record<string, EndpointInterface>) {
-    this.websocket = new Websocket(url);
+    this.websocket = new WebSocket(url);
     this.endpoints = endpoints;
 
     // highlight-start
