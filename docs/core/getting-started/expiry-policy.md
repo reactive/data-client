@@ -500,7 +500,7 @@ const mockErrorFetch = (arg) =>
 const getUpdated = lastUpdated.extend({
   fetch: mockErrorFetch,
   errorPolicy: error =>
-    error.status >= 500 ? ('hard' as const) : ('soft' as const),
+    error.status >= 500 ? ('soft' as const) : ('hard' as const),
 });
 function createError(status) {
   const error: Error & { status: any } = new Error('fake error') as any;
@@ -525,7 +525,7 @@ function ShowTime() {
       <div>
         <button
           onClick={() => {
-            FAKE_ERROR = createError(400);
+            FAKE_ERROR = createError(500);
             fetch(getUpdated, { id: '1' });
           }}
         >
@@ -533,7 +533,7 @@ function ShowTime() {
         </button>
         <button
           onClick={() => {
-            FAKE_ERROR = createError(500);
+            FAKE_ERROR = createError(400);
             fetch(getUpdated, { id: '1' });
           }}
         >
@@ -541,7 +541,7 @@ function ShowTime() {
         </button>
         <button
           onClick={() => {
-            FAKE_ERROR = createError(400);
+            FAKE_ERROR = createError(500);
             invalidate(getUpdated, { id: '1' });
           }}
         >
@@ -549,7 +549,7 @@ function ShowTime() {
         </button>
         <button
           onClick={() => {
-            FAKE_ERROR = createError(500);
+            FAKE_ERROR = createError(400);
             invalidate(getUpdated, { id: '1' });
           }}
         >

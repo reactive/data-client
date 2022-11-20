@@ -1,12 +1,13 @@
 ---
-title: "<CacheProvider />"
+title: '<CacheProvider />'
 ---
 
 ```typescript
 interface ProviderProps {
   children: ReactNode;
-  managers: Manager[];
-  initialState: State<unknown>;
+  managers?: Manager[];
+  initialState?: State<unknown>;
+  Controller?: typeof Controller;
 }
 ```
 
@@ -18,11 +19,10 @@ in the React tree.
 import { CacheProvider } from '@rest-hooks/react';
 import ReactDOM from 'react-dom';
 
-ReactDOM.render(
+ReactDOM.createRoot(document.body).render(
   <CacheProvider>
     <App />
   </CacheProvider>,
-  document.body
 );
 ```
 
@@ -46,7 +46,26 @@ be useful for testing, or rehydrating the cache state when using server side ren
 Default:
 
 ```typescript
-[new NetworkManager(), new SubscriptionManager(PollingSubscription)]
+[new NetworkManager(), new SubscriptionManager(PollingSubscription)];
 ```
 
 List of [Manager](./Manager)s use. This is the main extensibility point of the provider.
+
+## Controller: typeof Controller {#Controller}
+
+This allows you to extend [Controller](./Controller.md) to provide additional functionality.
+This might be useful if you have additional actions you want to dispatch to custom [Managers](./Manager.md)
+
+```tsx
+class MyController extends Controller {
+  doSomething = () => {
+    console.log('hi');
+  };
+}
+
+const RealApp = (
+  <CacheProvider Controller={MyController}>
+    <App />
+  </CacheProvider>
+);
+```

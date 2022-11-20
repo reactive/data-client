@@ -130,7 +130,7 @@ AppRegistry.registerComponent('MyApp', () => Root);
 
 <TabItem value="nextjs">
 
-```tsx  title="pages/_app.tsx"
+```tsx title="pages/_app.tsx"
 import { CacheProvider } from '@rest-hooks/react';
 import { AppCacheProvider } from '@rest-hooks/ssr/nextjs';
 import type { AppProps } from 'next/app';
@@ -159,11 +159,17 @@ via intercepting and dispatching actions, as well as reading the internal state.
 ### Middleware logging
 
 ```typescript
-this.middleware = controller => next => async action => {
-  console.log('before', action, controller.getState());
-  await next(action);
-  console.log('after', action, controller.getState());
-};
+import type { Manager, Middleware } from '@rest-hooks/core';
+
+export default class LoggingManager implements Manager {
+  getMiddleware = (): Middleware => controller => next => async action => {
+    console.log('before', action, controller.getState());
+    await next(action);
+    console.log('after', action, controller.getState());
+  };
+
+  cleanup() {}
+}
 ```
 
 ### Middleware data stream
@@ -199,7 +205,7 @@ export default class StreamManager implements Manager {
     this.websocket.close();
   }
 
-  getMiddleware<T extends StreamManager>(this: T) {
+  getMiddleware() {
     return this.middleware;
   }
 }
