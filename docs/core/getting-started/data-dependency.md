@@ -74,7 +74,7 @@ This works great if the client already has the data. But while it's waiting on a
 we need some kind of loading indication. Similarly if there is an error in the fetch, we should indicate such.
 These are called 'fallbacks'.
 
-### Boundaries (Suspense/NetworkErrorBoundary) {#boundaries}
+### Async Boundaries {#boundaries}
 
 In React 18, the best way to achieve this is with boundaries. Rest Hooks provides [<AsyncBoundary /\>](../api/AsyncBoundary.md),
 which uses `<Suspense />` for loading state and [<NetworkErrorBoundary /\>](../api/NetworkErrorBoundary.md) for error states of
@@ -150,7 +150,9 @@ export default function TodoDetail({ id }: { id: number }) {
 ## Subscriptions
 
 When data is likely to change due to external factor; [useSubscription()](../api/useSubscription.md)
-ensures continual updates while a component is mounted.
+ensures continual updates while a component is mounted. [useLive()](../api/useLive.md) calls both
+[useSubscription()](../api/useSubscription.md) and [useSuspense()](../api/useSuspense.md), making it quite
+easy to use fresh data.
 
 <Tabs
 defaultValue="Single"
@@ -161,14 +163,13 @@ values={[
 <TabItem value="Single">
 
 ```tsx
-import { useSuspense } from '@rest-hooks/react';
+import { useLive } from '@rest-hooks/react';
 // local directory for API definitions
 import { todoDetail } from 'endpoints/todo';
 
 export default function TodoDetail({ id }: { id: number }) {
-  const todo = useSuspense(todoDetail, { id });
   // highlight-next-line
-  useSubscription(todoDetail, { id });
+  const todo = useLive(todoDetail, { id });
   return <div>{todo.title}</div>;
 }
 ```
@@ -182,9 +183,7 @@ import { useSuspense } from '@rest-hooks/react';
 import { todoList } from 'endpoints/todo';
 
 export default function TodoList() {
-  const todos = useSuspense(todoList, {});
-  // highlight-next-line
-  useSubscription(todoList, {});
+  const todos = useLive(todoList, {});
   return (
     <section>
       {todos.map(todo => (
@@ -216,9 +215,9 @@ const todoDetail = new Endpoint(
 
 ### Live Crypto Price Example
 
-<HooksPlayground  defaultOpen="n">
+<HooksPlayground defaultOpen="n">
 
-```typescript title="api/ExchangeRate.ts"
+```typescript title="api/ExchangeRate.ts" {13}
 export class ExchangeRate extends Entity {
   readonly currency: string = 'USD';
   readonly rates: Record<string, string> = {};
@@ -235,14 +234,12 @@ export const getExchangeRates = new RestEndpoint({
 });
 ```
 
-```tsx title="AssetPrice.tsx"
+```tsx title="AssetPrice.tsx" {5}
+import { useLive } from '@rest-hooks/react';
 import { getExchangeRates } from './api/ExchangeRate';
 
 function AssetPrice({ symbol }: { symbol: string }) {
-  const { data: price } = useSuspense(getExchangeRates, {
-    currency: 'USD',
-  });
-  useSubscription(getExchangeRates, {
+  const { data: price } = useLive(getExchangeRates, {
     currency: 'USD',
   });
   const displayPrice = new Intl.NumberFormat('en-US', {

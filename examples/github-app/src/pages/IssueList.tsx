@@ -1,5 +1,5 @@
 import { useLocation } from '@anansi/router';
-import { useSuspense, useSubscription } from '@rest-hooks/react';
+import { useLive } from '@rest-hooks/react';
 import { List } from 'antd';
 import { Issue, IssueResource } from 'resources/Issue';
 
@@ -17,8 +17,7 @@ export default function IssueList({ owner, repo }: Props) {
     repo,
     page,
   };
-  const { results: issues, link } = useSuspense(IssueResource.getList, params);
-  useSubscription(IssueResource.getList, params);
+  const { results: issues, link } = useLive(IssueResource.getList, params);
 
   return (
     <>

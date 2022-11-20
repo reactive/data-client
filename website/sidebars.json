@@ -176,6 +176,10 @@
             },
             {
               "type": "doc",
+              "id": "api/useLive"
+            },
+            {
+              "type": "doc",
               "id": "api/useFetch"
             },
             {

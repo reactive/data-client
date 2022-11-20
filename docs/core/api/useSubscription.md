@@ -32,7 +32,7 @@ Great for keeping resources up-to-date with frequent changes.
 When using the default [polling subscriptions](./PollingSubscription), frequency must be set in
 [Endpoint](/rest/api/Endpoint), otherwise will have no effect.
 
-> Send `null` to params to unsubscribe.
+<ConditionalDependencies />
 
 ## Example
 
@@ -67,6 +67,12 @@ function MasterPrice({ symbol }: { symbol: string }) {
   // ...
 }
 ```
+
+:::tip
+
+[useLive()](./useLive.md) is a terser way to use in combination with [useSuspense()](./useSuspense.md),
+
+:::
 
 ## Only subscribe while element is visible
 

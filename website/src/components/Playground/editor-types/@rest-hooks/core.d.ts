@@ -1,3 +1,4 @@
+/// <reference types="react" />
 import { ErrorFluxStandardActionWithPayloadAndMeta, FSA, FSAWithPayloadAndMeta, FSAWithMeta } from 'flux-standard-action';
 
 type Schema = null | string | {
@@ -314,13 +315,12 @@ interface NoErrorFluxStandardActionWithMeta<Type extends string = string, Payloa
  */
 type NoErrorFluxStandardActionWithPayloadAndMeta<Type extends string = string, Payload = undefined, Meta = undefined> = NoErrorFluxStandardActionWithPayload<Type, Payload, Meta> & NoErrorFluxStandardActionWithMeta<Type, Payload, Meta>;
 
-interface MiddlewareAPI$1<R extends Reducer<any, any> = Reducer<any, any>> {
-    getState: () => ReducerState<R>;
-    dispatch: Dispatch<R>;
+interface MiddlewareAPI$1<R extends Reducer<State<unknown>, ActionTypes> = Reducer<State<unknown>, ActionTypes>> extends Controller {
     controller: Controller;
 }
 type Dispatch<R extends Reducer<any, any>> = (action: ReducerAction<R>) => Promise<void>;
-type Middleware$1 = <R extends Reducer<any, any>>({ dispatch, }: MiddlewareAPI$1<R>) => (next: Dispatch<R>) => Dispatch<R>;
+type Middleware$1 = <R extends RestHooksReducer>(controller: MiddlewareAPI$1<R>) => (next: Dispatch<R>) => Dispatch<R>;
+type RestHooksReducer = React.Reducer<State<unknown>, ActionTypes>;
 type Reducer<S, A> = (prevState: S, action: A) => S;
 type ReducerState<R extends Reducer<any, any>> = R extends Reducer<infer S, any> ? S : never;
 type ReducerAction<R extends Reducer<any, any>> = R extends Reducer<any, infer A> ? A : never;
@@ -455,6 +455,7 @@ interface Manager {
 type RHDispatch = (value: ActionTypes) => Promise<void>;
 interface ConstructorProps {
     dispatch?: RHDispatch;
+    getState?: () => State<unknown>;
     globalCache?: DenormalizeCache;
 }
 /**
@@ -462,9 +463,22 @@ interface ConstructorProps {
  * @see https://resthooks.io/docs/api/Controller
  */
 declare class Controller {
+    /**
+     * Dispatches an action to Rest Hooks reducer.
+     *
+     * @see https://resthooks.io/docs/api/Controller#dispatch
+     */
     readonly dispatch: RHDispatch;
+    /**
+     * Gets the latest state snapshot that is fully committed.
+     *
+     * This can be useful for imperative use-cases like event handlers.
+     * This should *not* be used to render; instead useSuspense() or useCache()
+     * @see https://resthooks.io/docs/api/Controller#getState
+     */
+    readonly getState: () => State<unknown>;
     readonly globalCache: DenormalizeCache;
-    constructor({ dispatch, globalCache, }?: ConstructorProps);
+    constructor({ dispatch, getState, globalCache, }?: ConstructorProps);
     /*************** Action Dispatchers ***************/
     /**
      * Fetches the endpoint with given args, updating the Rest Hooks cache with the response or error upon completion.
@@ -525,14 +539,6 @@ declare class Controller {
      */
     unsubscribe: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, undefined>>(endpoint: E, ...args: readonly [null] | readonly [...Parameters<E>]) => Promise<void>;
     /*************** More ***************/
-    /**
-     * Gets the latest state snapshot that is fully committed.
-     *
-     * This can be useful for imperative use-cases like event handlers.
-     * This should *not* be used to render; instead useSuspense() or useCache()
-     * @see https://resthooks.io/docs/api/Controller#getState
-     */
-    getState: () => State<unknown>;
     snapshot: (state: State<unknown>, fetchedAt?: number) => SnapshotInterface;
     /**
      * Gets the error, if any, for a given endpoint. Returns undefined for no errors.
@@ -543,7 +549,7 @@ declare class Controller {
      * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
      * @see https://resthooks.io/docs/api/Controller#getResponse
      */
-    getResponse: <E extends Pick<EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined>, "schema" | "key" | "invalidIfStale">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => {
+    getResponse: <E extends Pick<EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined>, "key" | "schema" | "invalidIfStale">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => {
         data: DenormalizeNullable<E["schema"]>;
         expiryStatus: ExpiryStatus;
         expiresAt: number;
@@ -579,6 +585,8 @@ declare class ResetError extends Error {
  * and returning existing promises for requests already in flight.
  *
  * Interfaces with store via a redux-compatible middleware.
+ *
+ * @see https://resthooks.io/docs/api/NetworkManager
  */
 declare class NetworkManager implements Manager {
     protected fetched: {
@@ -594,6 +602,7 @@ declare class NetworkManager implements Manager {
     readonly errorExpiryLength: number;
     protected middleware: Middleware$1;
     protected getState: () => State<unknown>;
+    protected controller: Controller;
     cleanupDate?: number;
     constructor(dataExpiryLength?: number, errorExpiryLength?: number);
     /** Used by DevtoolsManager to determine whether to log an action */
@@ -616,7 +625,7 @@ declare class NetworkManager implements Manager {
      * Uses throttle only when instructed by action meta. This is valuable
      * for ensures mutation requests always go through.
      */
-    protected handleFetch(action: FetchAction, dispatch: Dispatch<any>, controller: Controller): Promise<string | number | void | object | null>;
+    protected handleFetch(action: FetchAction, dispatch: (action: any) => Promise<void>, controller: Controller): Promise<string | number | void | object | null>;
     /** Called when middleware intercepts a receive action.
      *
      * Will resolve the promise associated with receive key.
@@ -683,10 +692,10 @@ interface Options$1<Payload extends object | string | number | null = object | s
 declare function createReceive<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any>(data: Payload, { schema, key, args, updaters, fetchedAt, update, dataExpiryLength, }: Options$1<Payload, S>): ReceiveAction<Payload, S>;
 
 interface Options<S extends Schema | undefined = any> extends Pick<FetchAction<any, S>['meta'], 'schema' | 'key' | 'options'> {
-    errorExpiryLength: NonNullable<EndpointExtraOptions['errorExpiryLength']>;
+    errorExpiryLength?: NonNullable<EndpointExtraOptions['errorExpiryLength']>;
     fetchedAt?: number;
 }
-declare function createReceiveError<S extends Schema | undefined = any>(error: Error, { schema, key, options, errorExpiryLength, fetchedAt }: Options<S>): ReceiveAction;
+declare function createReceiveError<S extends Schema | undefined = any>(error: Error, { schema, key, options, errorExpiryLength, fetchedAt, }: Options<S>): ReceiveAction;
 
 //# sourceMappingURL=index.d.ts.map
 
@@ -735,6 +744,8 @@ interface SubscriptionConstructable {
  *
  * Constructor takes a SubscriptionConstructable class to control how
  * subscriptions are handled. (e.g., polling, websockets)
+ *
+ * @see https://resthooks.io/docs/api/SubscriptionManager
  */
 declare class SubscriptionManager<S extends SubscriptionConstructable> implements Manager {
     protected subscriptions: {
@@ -748,11 +759,11 @@ declare class SubscriptionManager<S extends SubscriptionConstructable> implement
     /** Called when middleware intercepts 'rest-hooks/subscribe' action.
      *
      */
-    protected handleSubscribe(action: SubscribeAction, dispatch: Dispatch<any>, getState: () => State<unknown>): void;
+    protected handleSubscribe(action: SubscribeAction, dispatch: (action: any) => Promise<void>, getState: () => State<unknown>): void;
     /** Called when middleware intercepts 'rest-hooks/unsubscribe' action.
      *
      */
-    protected handleUnsubscribe(action: UnsubscribeAction, dispatch: Dispatch<any>): void;
+    protected handleUnsubscribe(action: UnsubscribeAction, dispatch: (action: any) => Promise<void>): void;
     /** Attaches Manager to store
      *
      * Intercepts 'rest-hooks/subscribe'/'rest-hooks/unsubscribe' to register resources that
@@ -768,6 +779,8 @@ declare class SubscriptionManager<S extends SubscriptionConstructable> implement
  * PollingSubscription keeps a given resource updated by
  * dispatching a fetch at a rate equal to the minimum update
  * interval requested.
+ *
+ * @see https://resthooks.io/docs/api/PollingSubscription
  */
 declare class PollingSubscription implements Subscription {
     protected readonly schema: Schema | undefined;
@@ -810,6 +823,8 @@ type DevToolsConfig = {
 /** Integrates with https://github.com/zalmoxisus/redux-devtools-extension
  *
  * Options: https://github.com/zalmoxisus/redux-devtools-extension/blob/master/docs/API/Arguments.md
+ *
+ * @see https://resthooks.io/docs/api/PollingSubscription
  */
 declare class DevToolsManager implements Manager {
     protected middleware: Middleware$1;

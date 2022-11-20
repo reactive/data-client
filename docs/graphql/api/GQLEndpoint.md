@@ -139,8 +139,8 @@ that useSuspense() will suspend when data is stale even if it already exists in 
 
 ### pollFrequency: number {#pollfrequency}
 
-Frequency in millisecond to poll at. Requires using [useSubscription()](/docs/api/useSubscription) to have
-an effect.
+Frequency in millisecond to poll at. Requires using [useSubscription()](/docs/api/useSubscription) or
+[useLive()](/docs/api/useLive) to have an effect.
 
 ### getOptimisticResponse: (snap, ...args) => fakePayload {#getoptimisticresponse}
 

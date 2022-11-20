@@ -45,7 +45,7 @@ This can be useful for ensuring resources early in a render tree before they are
 
 :::tip
 
-Use in combination with a data-binding hook ([useCache()](./useCache.md), [useSuspense()](./useSuspense.md), [useDLE()](./useDLE.md))
+Use in combination with a data-binding hook ([useCache()](./useCache.md), [useSuspense()](./useSuspense.md), [useDLE()](./useDLE.md), [useLive()](./useLive.md))
 in another component.
 
 :::

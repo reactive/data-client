@@ -277,6 +277,16 @@ declare function useDLE<E extends EndpointInterface<FetchFunction, Schema | unde
  */
 declare function useController(): Controller;
 
+/**
+ * Ensure an endpoint is available. Keeps it fresh once it is.
+ *
+ * useSuspense() + useSubscription()
+ * @see https://resthooks.io/docs/api/useLive
+ * @throws {Promise} If data is not yet available.
+ * @throws {NetworkError} If fetch fails.
+ */
+declare function useLive<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): Args extends [null] ? E['schema'] extends Exclude<Schema, null> ? DenormalizeNullable<E['schema']> : undefined : E['schema'] extends Exclude<Schema, null> ? Denormalize<E['schema']> : ResolveType<E>;
+
 declare const StateContext: Context<State$1<unknown>>;
 declare const DispatchContext: Context<(value: ActionTypes) => Promise<void>>;
 declare const DenormalizeCacheContext: Context<DenormalizeCache>;
@@ -325,4 +335,4 @@ declare namespace internal_d {
 /** Turns a dispatch function into one that resolves once its been commited */
 declare function usePromisifiedDispatch<R extends React$1.Reducer<any, any>>(dispatch: React$1.Dispatch<React$1.ReducerAction<R>>, state: React$1.ReducerState<R>): (action: React$1.ReducerAction<R>) => Promise<void>;
 
-export { _default as AsyncBoundary, _default$1 as BackupBoundary, CacheProvider, ControllerContext, DenormalizeCacheContext, DispatchContext, NetworkErrorBoundary, StateContext, Store, StoreContext, internal_d as __INTERNAL__, useCache, useController, useDLE, useError, useFetch, usePromisifiedDispatch, useSubscription, useSuspense };
+export { _default as AsyncBoundary, _default$1 as BackupBoundary, CacheProvider, ControllerContext, DenormalizeCacheContext, DispatchContext, NetworkErrorBoundary, StateContext, Store, StoreContext, internal_d as __INTERNAL__, useCache, useController, useDLE, useError, useFetch, useLive, usePromisifiedDispatch, useSubscription, useSuspense };
