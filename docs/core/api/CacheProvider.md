@@ -41,7 +41,7 @@ type State<T> = Readonly<{
 Instead of starting with an empty cache, you can provide your own initial state. This can
 be useful for testing, or rehydrating the cache state when using server side rendering.
 
-## managers: Manager[]
+## managers: Manager[] {#managers}
 
 Default:
 

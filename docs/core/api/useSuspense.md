@@ -56,6 +56,13 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
     - except in case of delete or [invalidation](./Controller.md#invalidate)
   - [Suspend rendering](../getting-started/data-dependency#async-fallbacks) otherwise
 
+:::info React Native
+
+When using React Navigation, useSuspense() will trigger fetches on focus if the data is considered
+stale.
+
+:::
+
 ## Single
 
 <HooksPlayground fixtures={[

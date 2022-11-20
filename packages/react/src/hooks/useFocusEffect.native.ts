@@ -12,7 +12,11 @@ import('@react-navigation/native').then(rn => {
   _useNavigation = rn.useNavigation;
 });
 
-function useFocusEffect(effect: EffectCallback, deps?: DependencyList) {
+function useFocusEffect(
+  effect: EffectCallback,
+  deps?: DependencyList,
+  runOnMount = false,
+) {
   let navigation: NavigationProp<ReactNavigation.RootParamList>;
   // if we aren't in react-navigation context, just ignore focus events
   try {
@@ -28,14 +32,19 @@ function useFocusEffect(effect: EffectCallback, deps?: DependencyList) {
       if (firstRenderRef.current) {
         firstRenderRef.current = false;
       } else {
+        if (onCancel) onCancel();
         onCancel = effect();
       }
     });
+    if (runOnMount) {
+      onCancel = effect();
+    }
 
     return () => {
-      unsubscribe();
+      if (unsubscribe) unsubscribe();
       if (onCancel) onCancel();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
 export default useFocusEffect;

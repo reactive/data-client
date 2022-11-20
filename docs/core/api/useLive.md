@@ -39,7 +39,14 @@ function useLive<
 
 Fetch and use data, while keeping it fresh to change remote changes.
 
-<ConditionalDependencies />
+<ConditionalDependencies hook="useLive" />
+
+:::info React Native
+
+When using React Navigation, useLive() will trigger fetches on focus if the data is considered
+stale. useLive() will also sub/unsub with focus/unfocus respectively.
+
+:::
 
 ## Example
 

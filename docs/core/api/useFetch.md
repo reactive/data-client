@@ -43,6 +43,13 @@ This can be useful for ensuring resources early in a render tree before they are
   - Returned promise will reject
 - On fetch returns a promise else undefined.
 
+:::info React Native
+
+When using React Navigation, useFetch() will trigger fetches on focus if the data is considered
+stale.
+
+:::
+
 :::tip
 
 Use in combination with a data-binding hook ([useCache()](./useCache.md), [useSuspense()](./useSuspense.md), [useDLE()](./useDLE.md), [useLive()](./useLive.md))

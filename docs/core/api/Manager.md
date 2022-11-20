@@ -2,6 +2,9 @@
 title: Manager
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 Managers are singletons that orchestrate the complex asynchronous behavior of `rest-hooks`.
 Several managers are provided by `rest-hooks` and used by default; however there is nothing
 stopping other compatible managers to be built that expand the functionality. We encourage
@@ -51,10 +54,100 @@ Provides any cleanup of dangling resources after manager is no longer in use.
 Called with initial state after provider is mounted. Can be useful to run setup at start that
 relies on state actually existing.
 
-## Provided managers:
+## Provided managers
 
 - [NetworkManager](./NetworkManager.md)
 - [SubscriptionManager](./SubscriptionManager.md)
+- [DevToolsManager](./DevToolsManager.md)
+
+## Adding managers to Rest Hooks
+
+Use the [managers](./CacheProvider.md#managers) prop of [CacheProvider](./CacheProvider.md). Be
+sure to hoist to module level or wrap in a useMemo() to ensure they are not recreated. Managers
+have internal state, so it is important to not constantly recreate them.
+
+<Tabs
+defaultValue="18-web"
+groupId="platform"
+values={[
+{ label: 'React Web 16+', value: 'web' },
+{ label: 'React Web 18+', value: '18-web' },
+{ label: 'React Native', value: 'native' },
+{ label: 'NextJS', value: 'nextjs' },
+]}>
+<TabItem value="web">
+
+```tsx title="/index.tsx"
+import { CacheProvider } from '@rest-hooks/react';
+import ReactDOM from 'react-dom';
+
+const managers = [...CacheProvider.defaultProps.managers, MyManager];
+
+ReactDOM.render(
+  <CacheProvider managers={managers}>
+    <App />
+  </CacheProvider>,
+  document.body,
+);
+```
+
+</TabItem>
+
+<TabItem value="18-web">
+
+```tsx title="/index.tsx"
+import { CacheProvider } from '@rest-hooks/react';
+import ReactDOM from 'react-dom';
+
+const managers = [...CacheProvider.defaultProps.managers, MyManager];
+
+ReactDOM.createRoot(document.body).render(
+  <CacheProvider managers={managers}>
+    <App />
+  </CacheProvider>,
+);
+```
+
+</TabItem>
+
+<TabItem value="native">
+
+```tsx title="/index.tsx"
+import { CacheProvider } from '@rest-hooks/react';
+import { AppRegistry } from 'react-native';
+
+const managers = [...CacheProvider.defaultProps.managers, MyManager];
+
+const Root = () => (
+  <CacheProvider managers={managers}>
+    <App />
+  </CacheProvider>
+);
+AppRegistry.registerComponent('MyApp', () => Root);
+```
+
+</TabItem>
+
+<TabItem value="nextjs">
+
+```tsx  title="pages/_app.tsx"
+import { CacheProvider } from '@rest-hooks/react';
+import { AppCacheProvider } from '@rest-hooks/ssr/nextjs';
+import type { AppProps } from 'next/app';
+
+const managers = [...CacheProvider.defaultProps.managers, MyManager];
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <AppCacheProvider managers={managers}>
+      <Component {...pageProps} />
+    </AppCacheProvider>
+  );
+}
+```
+
+</TabItem>
+</Tabs>
 
 ## Control flow
 

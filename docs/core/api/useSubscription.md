@@ -32,7 +32,13 @@ Great for keeping resources up-to-date with frequent changes.
 When using the default [polling subscriptions](./PollingSubscription), frequency must be set in
 [Endpoint](/rest/api/Endpoint), otherwise will have no effect.
 
-<ConditionalDependencies />
+<ConditionalDependencies hook="useSubscription" />
+
+:::info React Native
+
+When using React Navigation, useSubscription() will sub/unsub with focus/unfocus respectively.
+
+:::
 
 ## Example
 

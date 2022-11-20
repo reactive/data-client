@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CacheProvider with subscriptions should console.error() with no frequency specified 1`] = `
+[
+  [Error: frequency needed for polling subscription],
+]
+`;
+
+exports[`ExternalCacheProvider with subscriptions should console.error() with no frequency specified 1`] = `
+[
+  [Error: frequency needed for polling subscription],
+]
+`;
