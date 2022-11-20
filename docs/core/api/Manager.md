@@ -15,18 +15,14 @@ or unresolved Promises; and finally getMiddleware() - providing the mechanism to
 the flux data flow.
 
 ```typescript
-type Dispatch<R extends React.Reducer<any, any>> = (action: React.ReducerAction<R>) => Promise<void>;
+type Dispatch = (action: ActionTypes) => Promise<void>;
 
-type Middleware = <R extends React.Reducer<any, A>, A extends Actions>({
-  dispatch,
-  getState,
-  controller,
-}: MiddlewareAPI<R>) => (
-  next: Dispatch<R>,
-) => Dispatch<R>;
+type Middleware = <R extends React.Reducer<State<unknown>, ActionTypes>>(
+  controller: Controller,
+) => (next: Dispatch<R>) => Dispatch<R>;
 
 interface Manager {
-  getMiddleware<T extends Manager>(this: T): Middleware;
+  getMiddleware(): Middleware;
   cleanup(): void;
   init?: (state: State<any>) => void;
 }
@@ -70,11 +66,11 @@ via intercepting and dispatching actions, as well as reading the internal state.
 ### Middleware logging
 
 ```typescript
-this.middleware = ({ getState }) => (next) => async (action) => {
-  console.log('before', action, getState());
+this.middleware = controller => next => async action => {
+  console.log('before', action, controller.getState());
   await next(action);
-  console.log('after', action, getState())
-}
+  console.log('after', action, controller.getState());
+};
 ```
 
 ### Middleware data stream
@@ -83,8 +79,7 @@ this.middleware = ({ getState }) => (next) => async (action) => {
 import type { Manager, Middleware } from '@rest-hooks/core';
 import type { EndpointInterface } from '@rest-hooks/endpoint';
 
-export default class StreamManager implements Manager
-{
+export default class StreamManager implements Manager {
   protected declare middleware: Middleware;
   protected declare websocket: WebSocket;
   protected declare endpoints: Record<string, EndpointInterface>;
@@ -94,12 +89,16 @@ export default class StreamManager implements Manager
     this.endpoints = endpoints;
 
     // highlight-start
-    this.middleware = ({ controller, getState }) => {
-      this.websocket.onmessage = (event) => {
-        controller.receive(this.endpoints[event.type], ...event.args, event.data);
-      }
-      return (next) => async (action) => next(action);
-    }
+    this.middleware = controller => {
+      this.websocket.onmessage = event => {
+        controller.receive(
+          this.endpoints[event.type],
+          ...event.args,
+          event.data,
+        );
+      };
+      return next => async action => next(action);
+    };
     // highlight-end
   }
 

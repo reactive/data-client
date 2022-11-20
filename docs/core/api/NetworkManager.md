@@ -38,7 +38,7 @@ Marks request as complete.
 
 ## Protected members
 
-### handleFetch(fetchAction, dispatch, controller)
+### handleFetch(fetchAction)
 
 Called when middleware intercepts 'rest-hooks/fetch' action.
 

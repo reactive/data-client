@@ -55,7 +55,7 @@ function useSuspense(endpoint, ...args)
     // null params mean don't do anything
     if ((Date.now() <= expiresAt && !forceFetch) || !key) return;
 
-    return controller.fetch(endpoint, ...(args as readonly [...Parameters<E>]));
+    return controller.fetch(endpoint, ...args);
     // we need to check against serialized params, since params can change frequently
   }, [expiresAt, controller, key, forceFetch, state.lastReset]);
 
