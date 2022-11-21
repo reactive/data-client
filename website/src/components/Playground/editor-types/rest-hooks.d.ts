@@ -600,7 +600,7 @@ declare function useLive<E extends EndpointInterface<FetchFunction, Schema | und
 declare const StateContext: Context<State$1<unknown>>;
 declare const DispatchContext: Context<(value: ActionTypes) => Promise<void>>;
 declare const DenormalizeCacheContext: Context<DenormalizeCache>;
-declare const ControllerContext: Context<Controller>;
+declare const ControllerContext: Context<Controller<(value: ActionTypes) => Promise<void>>>;
 interface Store<S> {
     subscribe(listener: () => void): () => void;
     dispatch: React.Dispatch<ActionTypes>;

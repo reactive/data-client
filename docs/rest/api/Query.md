@@ -125,7 +125,7 @@ const sortedUsers = new Query(
     const sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
     if (asc) return sorted;
     return sorted.reverse();
-  }
+  },
 );
 
 function UsersPage() {
@@ -184,7 +184,7 @@ const usersByAdmin = new Query(
   (entries, { isAdmin }: { isAdmin?: boolean } = {}) => {
     if (isAdmin === undefined) return entries;
     return entries.filter(user => user.isAdmin === isAdmin);
-  }
+  },
 );
 
 function UsersPage() {
@@ -200,6 +200,84 @@ function UsersPage() {
   );
 }
 render(<UsersPage />);
+```
+
+</HooksPlayground>
+
+### Client side joins
+
+Even if the network responses don't nest data, we can perform client-side joins by specifying
+the relationship in [Entity.schema](./Entity.md#schema)
+
+<HooksPlayground>
+
+```ts title="api/User.ts" collapsed
+export class User extends Entity {
+  id = 0;
+  name = '';
+  email = '';
+  website = '';
+  pk() {
+    return `${this.id}`;
+  }
+}
+export const UserResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/users/:id',
+  schema: User,
+});
+```
+
+```ts title="api/Todo.ts" collapsed
+import { User } from './User';
+
+export class Todo extends Entity {
+  id = 0;
+  userId = User.fromJS({});
+  title = '';
+  completed = false;
+  pk() {
+    return `${this.id}`;
+  }
+  static schema = {
+    userId: User,
+  };
+}
+export const TodoResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  schema: Todo,
+});
+```
+
+```tsx title="TodoJoined.tsx"
+import { Query, schema } from '@rest-hooks/rest';
+import { TodoResource, Todo } from './api/Todo';
+import { UserResource, User } from './api/User';
+
+const todosWithUser = new Query(
+  new schema.All(Todo),
+  (entries, { userId = 0 }) => {
+    return entries.filter(todo => todo.userId?.id === userId);
+  },
+);
+
+function TodosPage() {
+  useFetch(UserResource.getList);
+  useFetch(TodoResource.getList);
+  const todos = useCache(todosWithUser, { userId: 1 });
+  if (!todos) return <div>No Todos in cache yet</div>;
+  return (
+    <div>
+      {todos.map(todo => (
+        <div key={todo.pk()}>
+          {todo.title} by {todo.userId.name}
+        </div>
+      ))}
+    </div>
+  );
+}
+render(<TodosPage />);
 ```
 
 </HooksPlayground>

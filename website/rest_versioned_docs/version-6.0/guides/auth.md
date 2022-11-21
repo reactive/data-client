@@ -84,7 +84,7 @@ function Auth() {
       const { accessToken } = await login(new FormData(e.target));
       // success!
       // highlight-next-line
-      AuthdResource.accessToken = accessToken;
+      AuthdEndpoint.accessToken = accessToken;
     },
     [login],
   );
