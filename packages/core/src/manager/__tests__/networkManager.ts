@@ -6,7 +6,6 @@ import Controller from '../../controller/Controller';
 import createFetch from '../../controller/createFetch';
 import NetworkManager from '../../manager/NetworkManager';
 import { initialState } from '../../state/createReducer';
-import { FetchAction } from '../../types';
 import { Middleware } from '../../types';
 
 describe('NetworkManager', () => {
@@ -72,7 +71,7 @@ describe('NetworkManager', () => {
         return updates;
       },
     });
-    const fetchReceiveWithUpdatersAction: FetchAction = createFetch(
+    const fetchReceiveWithUpdatersAction = createFetch(
       detailWithUpdaterEndpoint,
       {
         args: [{ id: 5 }],

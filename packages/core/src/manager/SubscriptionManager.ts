@@ -1,7 +1,6 @@
 import type { Schema } from '@rest-hooks/normalizr';
 
 import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '../actionTypes.js';
-import { RestHooksReducer } from '../middlewareTypes.js';
 import type {
   Manager,
   State,
@@ -55,26 +54,24 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
   constructor(Subscription: S) {
     this.Subscription = Subscription;
 
-    this.middleware = <R extends RestHooksReducer>({
-      dispatch,
-      getState,
-    }: MiddlewareAPI<R>) => {
-      return (next: Dispatch<R>) => (action: React.ReducerAction<R>) => {
-        switch (action.type) {
-          case SUBSCRIBE_TYPE:
-            try {
-              this.handleSubscribe(action, dispatch, getState);
-            } catch (e) {
-              console.error(e);
-            }
-            return Promise.resolve();
-          case UNSUBSCRIBE_TYPE:
-            this.handleUnsubscribe(action, dispatch);
-            return Promise.resolve();
-          default:
-            return next(action);
-        }
-      };
+    this.middleware = <C extends MiddlewareAPI>({ dispatch, getState }: C) => {
+      return (next: C['dispatch']): C['dispatch'] =>
+        action => {
+          switch (action.type) {
+            case SUBSCRIBE_TYPE:
+              try {
+                this.handleSubscribe(action, dispatch, getState);
+              } catch (e) {
+                console.error(e);
+              }
+              return Promise.resolve();
+            case UNSUBSCRIBE_TYPE:
+              this.handleUnsubscribe(action, dispatch);
+              return Promise.resolve();
+            default:
+              return next(action);
+          }
+        };
     };
   }
 
@@ -141,7 +138,7 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
    * Will possibly dispatch 'rest-hooks/fetch' or 'rest-hooks/receive' to keep resources fresh
    *
    */
-  getMiddleware<T extends SubscriptionManager<any>>(this: T) {
+  getMiddleware() {
     return this.middleware;
   }
 }

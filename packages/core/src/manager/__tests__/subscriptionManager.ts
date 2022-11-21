@@ -1,13 +1,12 @@
 import { Article, PollingArticleResource } from '__tests__/new';
 
-import {
-  SubscribeAction,
-  UnsubscribeAction,
-  actionTypes,
-  Controller,
-  initialState,
-} from '../..';
+import { actionTypes, Controller, initialState } from '../..';
+import { legacyActions } from '../../types';
 import SubscriptionManager, { Subscription } from '../SubscriptionManager.js';
+
+type SubscribeAction = legacyActions.SubscribeAction;
+
+type UnsubscribeAction = legacyActions.UnsubscribeAction;
 
 const { UNSUBSCRIBE_TYPE, SUBSCRIBE_TYPE, RECEIVE_TYPE } = actionTypes;
 

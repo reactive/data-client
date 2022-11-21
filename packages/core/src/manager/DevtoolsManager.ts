@@ -1,3 +1,4 @@
+import { MiddlewareController } from '../middlewareTypes.js';
 import createReducer from '../state/createReducer.js';
 import type {
   Manager,
@@ -5,7 +6,6 @@ import type {
   ActionTypes,
   MiddlewareAPI,
   Middleware,
-  Dispatch,
 } from '../types.js';
 
 export type DevToolsConfig = {
@@ -66,22 +66,21 @@ export default class DevToolsManager implements Manager {
     /* istanbul ignore if */
     /* istanbul ignore next */
     if (process.env.NODE_ENV === 'development' && this.devTools) {
-      this.middleware = <R extends React.Reducer<any, any>>(
-        controller: MiddlewareAPI<R>,
-      ) => {
-        const reducer = createReducer(controller);
-        return (next: Dispatch<R>) => (action: React.ReducerAction<R>) => {
-          return next(action).then(() => {
-            if (skipLogging?.(action)) return;
-            const state = controller.getState();
-            this.devTools.send(
-              action,
-              state.optimistic.reduce(reducer, state),
-              undefined,
-              'REST_HOOKS',
-            );
-          });
-        };
+      this.middleware = <C extends MiddlewareController>(controller: C) => {
+        const reducer = createReducer(controller as any);
+        return (next: C['dispatch']): C['dispatch'] =>
+          action => {
+            return next(action).then(() => {
+              if (skipLogging?.(action)) return;
+              const state = controller.getState();
+              this.devTools.send(
+                action,
+                state.optimistic.reduce(reducer, state),
+                undefined,
+                'REST_HOOKS',
+              );
+            });
+          };
       };
     } else {
       this.middleware = () => next => action => next(action);
@@ -100,7 +99,7 @@ export default class DevToolsManager implements Manager {
   /** Attaches Manager to store
    *
    */
-  getMiddleware<T extends DevToolsManager>(this: T) {
+  getMiddleware() {
     return this.middleware;
   }
 }

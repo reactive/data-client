@@ -10,12 +10,8 @@ import {
 } from '../actionTypes.js';
 import Controller from '../controller/Controller.js';
 import createOptimistic from '../controller/createOptimistic.js';
-import {
-  ActionTypes,
-  State,
-  ReceiveAction,
-  OptimisticAction,
-} from '../types.js';
+import { ReceiveAction, OptimisticAction } from '../previousActions.js';
+import type { OldActionTypes, ActionTypes, State } from '../types.js';
 import applyUpdatersToResults from './applyUpdatersToResults.js';
 import { createReceive as legacyCreateReceive } from './legacy-actions/index.js';
 
@@ -29,10 +25,15 @@ export const initialState: State<unknown> = {
   lastReset: 0,
 };
 
-export default function createReducer(controller: Controller) {
+type ReducerType = (
+  state: State<unknown> | undefined,
+  action: ActionTypes,
+) => State<unknown>;
+
+export default function createReducer(controller: Controller): ReducerType {
   return function reducer(
     state: State<unknown> | undefined,
-    action: ActionTypes,
+    action: OldActionTypes,
   ): State<unknown> {
     if (!state) state = initialState;
     switch (action.type) {
@@ -59,7 +60,7 @@ export default function createReducer(controller: Controller) {
               typeof action.meta.createdAt !== 'number'
                 ? action.meta.createdAt.getTime()
                 : action.meta.createdAt,
-          });
+          }) as any;
         } else if (optimisticResponse) {
           receiveAction = legacyCreateReceive(optimisticResponse, {
             ...action.meta,
@@ -224,7 +225,7 @@ export default function createReducer(controller: Controller) {
         // Alternatively you can throw an error if an invalid action is dispatched.
         return state;
     }
-  };
+  } as any;
 }
 
 type Writable<T> = { [P in keyof T]: NonNullable<Writable<T[P]>> };

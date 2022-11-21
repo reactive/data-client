@@ -2,10 +2,10 @@ import { ArticleResource } from '__tests__/legacy-3';
 
 import { RECEIVE_TYPE } from '../../actionTypes';
 import Controller from '../../controller/Controller';
+import { FetchAction } from '../../legacyActions';
 import { initialState } from '../../state/createReducer';
 import { createFetch } from '../../state/legacy-actions';
 import { Middleware } from '../../types';
-import { FetchAction } from '../../types';
 import NetworkManager from '../NetworkManager';
 
 describe('NetworkManager', () => {

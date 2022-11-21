@@ -1,7 +1,6 @@
 import { RECEIVE_TYPE, FETCH_TYPE, RESET_TYPE } from '../actionTypes.js';
 import Controller from '../controller/Controller.js';
 import { initialState } from '../internal.js';
-import { RestHooksReducer } from '../middlewareTypes.js';
 import {
   createReceive,
   createReceiveError,
@@ -14,7 +13,6 @@ import type {
   ActionTypes,
   MiddlewareAPI,
   Middleware,
-  Dispatch,
   State,
 } from '../types.js';
 
@@ -50,15 +48,15 @@ export default class NetworkManager implements Manager {
     this.dataExpiryLength = dataExpiryLength;
     this.errorExpiryLength = errorExpiryLength;
 
-    this.middleware = <R extends RestHooksReducer>({
+    this.middleware = <C extends MiddlewareAPI>({
       dispatch,
       getState,
       controller,
-    }: MiddlewareAPI<R>) => {
+    }: C) => {
       this.getState = getState;
       this.controller = controller;
-      return (next: Dispatch<R>) =>
-        (action: React.ReducerAction<R>): Promise<void> => {
+      return (next: C['dispatch']): C['dispatch'] =>
+        (action): Promise<void> => {
           switch (action.type) {
             case FETCH_TYPE:
               this.handleFetch(action, dispatch, controller);
@@ -297,7 +295,7 @@ export default class NetworkManager implements Manager {
    * Resolve/rejects a request when matching 'rest-hooks/receive' event
    * is seen.
    */
-  getMiddleware<T extends NetworkManager>(this: T) {
+  getMiddleware() {
     return this.middleware;
   }
 

@@ -1,12 +1,15 @@
 import type { EndpointInterface } from '@rest-hooks/normalizr';
 
 import { SUBSCRIBE_TYPE, UNSUBSCRIBE_TYPE } from '../actionTypes.js';
-import type { SubscribeAction, UnsubscribeAction } from '../types.js';
+import type {
+  CompatibleSubscribeAction,
+  CompatibleUnsubscribeAction,
+} from '../compatibleActions.js';
 
 export function createSubscription<E extends EndpointInterface>(
   endpoint: E,
   { args }: { args: readonly [...Parameters<E>] },
-): SubscribeAction {
+): CompatibleSubscribeAction<E> {
   return {
     type: SUBSCRIBE_TYPE,
     endpoint,
@@ -19,19 +22,11 @@ export function createSubscription<E extends EndpointInterface>(
     },
   };
 }
-/** Future action shape
-{
-  type: SUBSCRIBE_TYPE,
-  endpoint,
-  meta: {
-    args,
-  },
-} */
 
 export function createUnsubscription<E extends EndpointInterface>(
   endpoint: E,
   { args }: { args: readonly [...Parameters<E>] },
-): UnsubscribeAction {
+): CompatibleUnsubscribeAction<E> {
   return {
     type: UNSUBSCRIBE_TYPE,
     endpoint,
@@ -42,11 +37,3 @@ export function createUnsubscription<E extends EndpointInterface>(
     },
   };
 }
-/** Future action shape
-{
-  type: UNSUBSCRIBE_TYPE,
-  endpoint,
-  meta: {
-    args,
-  },
-} */

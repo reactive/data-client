@@ -4,7 +4,7 @@ import {
 } from '@rest-hooks/normalizr';
 
 import { RECEIVE_TYPE } from '../../actionTypes.js';
-import { FetchAction, ReceiveAction } from '../../types.js';
+import { FetchAction, ReceiveAction } from '../../legacyActions.js';
 
 interface Options<S extends Schema | undefined = any>
   extends Pick<FetchAction<any, S>['meta'], 'schema' | 'key' | 'options'> {

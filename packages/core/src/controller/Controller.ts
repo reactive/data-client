@@ -17,9 +17,15 @@ import {
 } from '@rest-hooks/normalizr';
 import { inferResults } from '@rest-hooks/normalizr';
 
+import { CompatibleActionTypes } from '../compatibleActions.js';
 import { initialState } from '../state/createReducer.js';
 import selectMeta from '../state/selectMeta.js';
-import type { ActionTypes, FetchAction, State } from '../types.js';
+import type {
+  ActionTypes as BroadActionTypes,
+  CombinedActionTypes,
+  legacyActions,
+  State,
+} from '../types.js';
 import createFetch from './createFetch.js';
 import createInvalidate from './createInvalidate.js';
 import createReceive from './createReceive.js';
@@ -30,15 +36,17 @@ import {
 } from './createSubscription.js';
 import type { EndpointUpdateFunction } from './types.js';
 
-type RHDispatch = (value: ActionTypes) => Promise<void>;
+type GenericDispatch = (value: any) => Promise<void>;
+type CompatibleDispatch = (value: CombinedActionTypes) => Promise<void>;
+type PreviousDispatch = (value: BroadActionTypes) => Promise<void>;
 
-interface ConstructorProps {
-  dispatch?: RHDispatch;
+interface ConstructorProps<D extends GenericDispatch = CompatibleDispatch> {
+  dispatch?: D;
   getState?: () => State<unknown>;
   globalCache?: DenormalizeCache;
 }
 
-const unsetDispatch = () => {
+const unsetDispatch = (action: unknown): Promise<void> => {
   throw new Error(
     `Dispatching while constructing your middleware is not allowed. ` +
       `Other middleware would not be applied to this dispatch.`,
@@ -54,13 +62,15 @@ const unsetState = (): State<unknown> => {
  * Imperative control of Rest Hooks store
  * @see https://resthooks.io/docs/api/Controller
  */
-export default class Controller {
+export default class Controller<
+  D extends GenericDispatch = CompatibleDispatch,
+> {
   /**
    * Dispatches an action to Rest Hooks reducer.
    *
    * @see https://resthooks.io/docs/api/Controller#dispatch
    */
-  declare readonly dispatch: RHDispatch;
+  declare readonly dispatch: D;
   /**
    * Gets the latest state snapshot that is fully committed.
    *
@@ -72,13 +82,13 @@ export default class Controller {
   declare readonly globalCache: DenormalizeCache;
 
   constructor({
-    dispatch = unsetDispatch,
+    dispatch = unsetDispatch as any,
     getState = unsetState,
     globalCache = {
       entities: {},
       results: {},
     },
-  }: ConstructorProps = {}) {
+  }: ConstructorProps<D> = {}) {
     this.dispatch = dispatch;
     this.getState = getState;
     this.globalCache = globalCache;
@@ -96,7 +106,7 @@ export default class Controller {
     endpoint: E,
     ...args: readonly [...Parameters<E>]
   ): ReturnType<E> => {
-    const action: FetchAction = createFetch(endpoint, {
+    const action = createFetch(endpoint, {
       args,
     });
     this.dispatch(action);

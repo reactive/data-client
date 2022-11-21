@@ -1,7 +1,10 @@
 import type { EndpointInterface } from '@rest-hooks/normalizr';
 
 import { FETCH_TYPE } from '../actionTypes.js';
-import type { FetchAction } from '../types.js';
+import type {
+  CompatibleFetchAction,
+  CompatibleFetchMeta,
+} from '../compatibleActions.js';
 import { EndpointUpdateFunction } from './types.js';
 
 /**
@@ -9,14 +12,17 @@ import { EndpointUpdateFunction } from './types.js';
  */
 export default function createFetch<
   E extends EndpointInterface & { update?: EndpointUpdateFunction<E> },
->(endpoint: E, { args }: { args: readonly [...Parameters<E>] }): FetchAction {
+>(
+  endpoint: E,
+  { args }: { args: readonly [...Parameters<E>] },
+): CompatibleFetchAction<E> {
   const key = endpoint.key(...args);
   let resolve: (value?: any | PromiseLike<any>) => void = 0 as any;
   let reject: (reason?: any) => void = 0 as any;
   const promise = new Promise<any>((a, b) => {
     [resolve, reject] = [a, b];
   });
-  const meta: FetchAction['meta'] = {
+  const meta: CompatibleFetchMeta = {
     schema: endpoint.schema,
     type: endpoint.sideEffect ? ('mutate' as const) : ('read' as const),
     args,
@@ -41,21 +47,8 @@ export default function createFetch<
 
   return {
     type: FETCH_TYPE,
-    payload: () => endpoint(...args),
+    payload: () => endpoint(...args) as any,
     meta,
     endpoint,
   };
 }
-
-/** Future action shape
-{
-  type: FETCH_TYPE,
-  endpoint,
-  meta: {
-    args,
-    createdAt,
-    promise,
-    resolve,
-    reject,
-  }
-} */

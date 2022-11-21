@@ -1,7 +1,7 @@
 import type { EndpointInterface } from '@rest-hooks/normalizr';
 
 import { OPTIMISTIC_TYPE } from '../actionTypes.js';
-import { OptimisticAction } from '../types.js';
+import { OptimisticAction } from '../newActions.js';
 import { EndpointUpdateFunction } from './types.js';
 
 export default function createOptimistic<
@@ -24,7 +24,8 @@ export default function createOptimistic<
     throw new Error('Negative expiry length are not allowed.');
   }
   const now = Date.now();
-  const meta: OptimisticAction['meta'] = {
+  // TODO: Use correct type once we no longer need backcompat
+  const meta: any = {
     args,
     fetchedAt,
     date: now,
@@ -44,16 +45,3 @@ export default function createOptimistic<
   };
   return action;
 }
-
-/** Future action shape
-{
-  type: OPTIMISTIC_TYPE,
-  endpoint,
-  meta: {
-    args,
-    date,
-    expiresAt,
-    fetchedAt,
-  },
-  error?: true,
-} */

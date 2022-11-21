@@ -16,18 +16,16 @@ import {
   RESET_TYPE,
   GC_TYPE,
 } from '../../actionTypes';
-import {
-  FetchAction,
-  ReceiveAction,
-  ResetAction,
-  InvalidateAction,
-  UpdateFunction,
-  GCAction,
-  State,
-  ActionTypes,
-} from '../../types';
+import { UpdateFunction, State, ActionTypes, legacyActions } from '../../types';
 import createReducer, { initialState } from '../createReducer';
 import { createReceive } from '../legacy-actions';
+
+type FetchAction = legacyActions.FetchAction;
+type ReceiveAction<T extends string | number | object | null = any> =
+  legacyActions.ReceiveAction<T>;
+type ResetAction = legacyActions.ResetAction;
+type InvalidateAction = legacyActions.InvalidateAction;
+type GCAction = legacyActions.GCAction;
 
 describe('reducer', () => {
   let reducer: (

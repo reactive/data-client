@@ -8,7 +8,7 @@ import {
   BodyFromShape,
   OptimisticUpdateParams,
 } from '../../endpoint/index.js';
-import { FetchAction } from '../../types.js';
+import { FetchAction } from '../../legacyActions.js';
 
 interface Options<
   Shape extends FetchShape<

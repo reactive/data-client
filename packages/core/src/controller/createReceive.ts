@@ -1,7 +1,10 @@
 import type { EndpointInterface, ResolveType } from '@rest-hooks/normalizr';
 
 import { RECEIVE_TYPE } from '../actionTypes.js';
-import type { ReceiveAction } from '../types.js';
+import type {
+  CompatibleReceiveAction,
+  CompatibleReceiveMeta,
+} from '../compatibleActions.js';
 import { EndpointUpdateFunction } from './types.js';
 
 export default function createReceive<
@@ -16,7 +19,7 @@ export default function createReceive<
     fetchedAt?: number;
     error: true;
   },
-): ReceiveAction;
+): CompatibleReceiveAction<E>;
 
 export default function createReceive<
   E extends EndpointInterface & {
@@ -30,7 +33,7 @@ export default function createReceive<
     fetchedAt?: number;
     error?: false;
   },
-): ReceiveAction;
+): CompatibleReceiveAction<E>;
 
 export default function createReceive<
   E extends EndpointInterface & {
@@ -49,7 +52,7 @@ export default function createReceive<
     fetchedAt?: number;
     error?: boolean;
   },
-): ReceiveAction {
+): CompatibleReceiveAction<E> {
   const expiryLength: number = error
     ? endpoint.errorExpiryLength ?? 1000
     : endpoint.dataExpiryLength ?? 60000;
@@ -58,7 +61,7 @@ export default function createReceive<
     throw new Error('Negative expiry length are not allowed.');
   }
   const now = Date.now();
-  const meta: ReceiveAction['meta'] = {
+  const meta: CompatibleReceiveMeta = {
     args,
     fetchedAt: fetchedAt ?? now,
     date: now,
@@ -71,7 +74,7 @@ export default function createReceive<
   if (endpoint.update) meta.update = endpoint.update;
   if (endpoint.errorPolicy) meta.errorPolicy = endpoint.errorPolicy;
 
-  const action: ReceiveAction = {
+  const action: CompatibleReceiveAction<E> = {
     type: RECEIVE_TYPE,
     payload: response,
     endpoint: endpoint,
@@ -80,17 +83,3 @@ export default function createReceive<
   if (error) (action as any).error = true;
   return action;
 }
-
-/** Future action shape
-{
-  type: RECEIVE_TYPE,
-  endpoint,
-  payload,
-  meta: {
-    args,
-    date,
-    expiresAt,
-    fetchedAt,
-  },
-  error?: true,
-} */
