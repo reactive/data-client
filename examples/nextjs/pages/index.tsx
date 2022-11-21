@@ -20,9 +20,11 @@ export default function Home() {
           <a href="https://resthooks.io">Rest Hooks</a>
         </h1>
 
-        <h2>Here we show the live price of BTC using Rest Hooks</h2>
+        <h2 className={styles.subtitle}>
+          Here we show the live price of BTC using Rest Hooks
+        </h2>
 
-        <p>
+        <p className={styles.price}>
           <AsyncBoundary>
             <AssetPrice symbol="BTC" />
           </AsyncBoundary>

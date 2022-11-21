@@ -1,7 +1,7 @@
-import React from 'react';
 import Layout from '@theme/Layout';
-import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import Tabs from '@theme/Tabs';
+import React from 'react';
 
 export default function DemoList() {
   return (
@@ -14,6 +14,7 @@ export default function DemoList() {
         values={[
           { label: 'Todo', value: 'todo' },
           { label: 'GitHub', value: 'github' },
+          { label: 'NextJS SSR', value: 'nextjs' },
         ]}
         groupId="Demos"
       >
@@ -43,6 +44,21 @@ export default function DemoList() {
             ></a>*/}
           <iframe
             src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fpages%2FIssueList.tsx&hideNavigation=1&hideDevTools=1"
+            width="900"
+            height="700"
+            style={{ width: '100%', height: 'calc(100vh - 170px)' }}
+          ></iframe>
+        </TabItem>
+        <TabItem value="NextJS">
+          {/*            <a
+              href="https://github.com/coinbase/rest-hooks/tree/master/examples/github-app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="header-github-link"
+              style={{ marginLeft: '1ex' }}
+            ></a>*/}
+          <iframe
+            src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/nextjs?embed=1&file=pages%2FAssetPrice.tsx&hideNavigation=1&hideDevTools=1"
             width="900"
             height="700"
             style={{ width: '100%', height: 'calc(100vh - 170px)' }}

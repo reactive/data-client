@@ -42,12 +42,20 @@
 .title {
   margin: 0;
   line-height: 1.15;
-  font-size: 4rem;
+  font-size: 2rem;
 }
 
 .title,
 .description {
   text-align: center;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+}
+
+.price {
+  font-size: 1.5rem;
 }
 
 .description {

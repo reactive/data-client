@@ -13,7 +13,8 @@ Asynchronous dynamic data at scale. Performance, data integrity, and typing for 
 
 **[📖Read The Docs](https://resthooks.io/docs)** &nbsp;|&nbsp; [🏁Getting Started](https://resthooks.io/docs/getting-started/installation) &nbsp;|&nbsp;
 [🎮Todo Demo](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2Findex.tsx) &nbsp;|&nbsp;
-[🎮Github Demo](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
+[🎮Github Demo](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx) &nbsp;|&nbsp;
+[🎮NextJS SSR Demo](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
 
 </div>
 
