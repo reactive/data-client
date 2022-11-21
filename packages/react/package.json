@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/react",
-  "version": "7.0.0",
+  "version": "7.1.0-beta.0",
   "description": "Asynchronous data framework for React",
   "sideEffects": [
     "./lib/hooks/useFocusEffect.native.js"
@@ -122,7 +122,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.13.0",
-    "@rest-hooks/core": "^4.0.2",
+    "@rest-hooks/core": "^4.1.0-beta.0",
     "@rest-hooks/use-enhanced-reducer": "^1.2.0"
   },
   "peerDependencies": {

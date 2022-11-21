@@ -4081,7 +4081,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rest-hooks/core@^4.0.2, @rest-hooks/core@workspace:^, @rest-hooks/core@workspace:packages/core":
+"@rest-hooks/core@^4.1.0-beta.0, @rest-hooks/core@workspace:^, @rest-hooks/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/core@workspace:packages/core"
   dependencies:
@@ -4284,14 +4284,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/react@^7.0.0, @rest-hooks/react@workspace:packages/react":
+"@rest-hooks/react@^7.1.0-beta.0, @rest-hooks/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/react@workspace:packages/react"
   dependencies:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
     "@babel/runtime": ^7.13.0
-    "@rest-hooks/core": ^4.0.2
+    "@rest-hooks/core": ^4.1.0-beta.0
     "@rest-hooks/use-enhanced-reducer": ^1.2.0
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
@@ -4374,7 +4374,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/ssr@^0.6.0, @rest-hooks/ssr@workspace:packages/ssr":
+"@rest-hooks/ssr@^0.7.0-beta.1, @rest-hooks/ssr@workspace:packages/ssr":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/ssr@workspace:packages/ssr"
   dependencies:
@@ -4397,7 +4397,7 @@ __metadata:
     "@rest-hooks/react": ^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0
     "@rest-hooks/redux": ^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    next: ">=12"
+    next: ">=12.0.0"
     react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
     redux: ^4.0.0
   peerDependenciesMeta:
@@ -11129,7 +11129,7 @@ __metadata:
     "@rest-hooks/endpoint": ^3.0.1
     "@rest-hooks/graphql": ^0.3.1
     "@rest-hooks/hooks": ^3.0.7
-    "@rest-hooks/react": ^7.0.0
+    "@rest-hooks/react": ^7.1.0-beta.0
     "@rest-hooks/rest": ^6.2.0
     "@types/eslint": 8.4.10
     "@types/parse-link-header": ^2.0.0
@@ -15730,10 +15730,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "next-app@workspace:examples/nextjs"
   dependencies:
-    "@rest-hooks/react": ^7.0.0
+    "@rest-hooks/react": ^7.1.0-beta.0
     "@rest-hooks/redux": ^6.1.0
     "@rest-hooks/rest": ^6.2.0
-    "@rest-hooks/ssr": ^0.6.0
+    "@rest-hooks/ssr": ^0.7.0-beta.1
     "@rest-hooks/test": ^9.1.0
     "@types/node": 18.11.9
     "@types/react": 18.0.25
@@ -21943,7 +21943,7 @@ __metadata:
     "@linaria/react": 4.3.0
     "@linaria/shaker": 4.2.4
     "@rest-hooks/endpoint": ^3.0.1
-    "@rest-hooks/react": ^7.0.0
+    "@rest-hooks/react": ^7.1.0-beta.0
     "@rest-hooks/rest": ^6.2.0
     "@types/eslint": 8.4.10
     "@types/prettier": 2.7.1
