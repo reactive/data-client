@@ -1,6 +1,6 @@
 import { Link, useShowLoading } from '@anansi/router';
 import { styled } from '@linaria/react';
-import { NetworkErrorBoundary, useSuspense } from '@rest-hooks/react';
+import { NetworkErrorBoundary, useCache, useSuspense } from '@rest-hooks/react';
 import { Layout, Menu, Spin, Affix } from 'antd';
 import { Avatar } from 'antd';
 import { memo, Suspense, useContext, useState } from 'react';
@@ -22,7 +22,8 @@ const LoadContainer = styled.li`
 function NavBar() {
   const loading = useShowLoading(150);
   const [visibleLogin, setVisibleLogin] = useState(false);
-  const { authed, logout } = useContext(authdContext);
+  const user = useCache(UserResource.current);
+  const { logout } = useContext(authdContext);
   return (
     <Affix offsetTop={0}>
       <Header className="header">
@@ -44,7 +45,7 @@ function NavBar() {
               Rest Hooks Issues
             </Link>
           </Menu.Item>
-          {authed ? (
+          {user ? (
             <>
               <Menu.Item key="profile">
                 <NetworkErrorBoundary>

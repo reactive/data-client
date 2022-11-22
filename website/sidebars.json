@@ -249,6 +249,10 @@
             {
               "type": "doc",
               "id": "api/DevToolsManager"
+            },
+            {
+              "type": "doc",
+              "id": "api/LogoutManager"
             }
           ]
         },

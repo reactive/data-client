@@ -1,0 +1,57 @@
+import { RECEIVE_TYPE } from '../actionTypes.js';
+import Controller from '../controller/Controller.js';
+import { UnknownError } from '../index.js';
+import type { CombinedActionTypes } from '../types.js';
+import { Manager } from '../types.js';
+
+/** Handling network unauthorized indicators like HTTP 401
+ *
+ * @see https://resthooks.io/docs/api/LogoutManager
+ */
+export default class LogoutManager implements Manager<CombinedActionTypes> {
+  protected declare middleware: Middleware;
+
+  constructor({ handleLogout, shouldLogout }: Props = {}) {
+    if (handleLogout) this.handleLogout = handleLogout;
+    if (shouldLogout) this.shouldLogout = shouldLogout;
+    this.middleware = controller => next => async action => {
+      await next(action);
+      if (
+        action.type === RECEIVE_TYPE &&
+        action.error &&
+        this.shouldLogout(action.payload)
+      ) {
+        this.handleLogout(controller);
+      }
+    };
+  }
+
+  cleanup() {}
+
+  getMiddleware() {
+    return this.middleware;
+  }
+
+  protected shouldLogout(error: UnknownError) {
+    // 401 indicates reauthorization is needed
+    return error.status === 401;
+  }
+
+  handleLogout(controller: Controller<Dispatch>) {
+    controller.resetEntireStore();
+  }
+}
+
+type Dispatch = (value: CombinedActionTypes) => Promise<void>;
+
+// this further restricts the types to be future compatible
+export type Middleware = <C extends Controller<Dispatch>>(
+  controller: C,
+) => (next: C['dispatch']) => C['dispatch'];
+
+type HandleLogout = (controller: Controller<Dispatch>) => void;
+
+interface Props {
+  handleLogout?: HandleLogout;
+  shouldLogout?: (error: UnknownError) => boolean;
+}

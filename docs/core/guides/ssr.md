@@ -33,6 +33,23 @@ export default function App({ Component, pageProps }: AppProps) {
 }
 ```
 
+:::caution
+
+When fetching from parameters from [useRouter()](https://nextjs.org/docs/api-reference/next/router#userouter), you will need to
+add getServerSideProps to avoid [NextJS setting router.query to nothing](https://nextjs.org/docs/advanced-features/automatic-static-optimization)
+
+```typescript
+export default function MyComponent() {
+  const id: string; = useRouter().query.id;
+  const post = useSuspense(getPost, { id });
+  // etc
+}
+// highlight-next-line
+export const getServerSideProps = () => ({ props: {} });
+```
+
+:::
+
 ### Demo
 
 <iframe

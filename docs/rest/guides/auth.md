@@ -287,3 +287,9 @@ function CreatePost() {
 
 If much of your `Resources` share a similar auth mechanism, you might
 try extending from a base class that defines such common customizations.
+
+## 401 Logout Handling
+
+In case a users authorization expires, the server will typically responsd to indicate
+as such. The standard way of doing this is with a 401. [LogoutManager](/docs/api/LogoutManager)
+can be used to easily trigger any de-authorization cleanup.

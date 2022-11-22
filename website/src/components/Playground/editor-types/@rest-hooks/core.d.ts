@@ -231,6 +231,146 @@ type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends R
     [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
 };
 
+interface ReceiveMeta$2 {
+    args: readonly any[];
+    fetchedAt: number;
+    date: number;
+    expiresAt: number;
+}
+interface ReceiveActionSuccess<E extends EndpointInterface = EndpointInterface> {
+    type: typeof RECEIVE_TYPE;
+    endpoint: E;
+    meta: ReceiveMeta$2;
+    payload: ResolveType<E>;
+    error?: false;
+}
+interface ReceiveActionError<E extends EndpointInterface = EndpointInterface> {
+    type: typeof RECEIVE_TYPE;
+    endpoint: E;
+    meta: ReceiveMeta$2;
+    payload: UnknownError;
+    error: true;
+}
+type ReceiveAction$3<E extends EndpointInterface = EndpointInterface> = ReceiveActionSuccess<E> | ReceiveActionError<E>;
+interface FetchMeta$2 {
+    args: readonly any[];
+    throttle: boolean;
+    resolve: (value?: any | PromiseLike<any>) => void;
+    reject: (reason?: any) => void;
+    promise: PromiseLike<any>;
+    createdAt: number;
+    nm?: boolean;
+}
+interface FetchAction$3<E extends EndpointInterface = EndpointInterface> {
+    type: typeof FETCH_TYPE;
+    endpoint: E;
+    meta: FetchMeta$2;
+    payload: () => ReturnType<E>;
+}
+interface OptimisticAction$2<E extends EndpointInterface & {
+    update?: EndpointUpdateFunction<E>;
+} = EndpointInterface & {
+    update?: EndpointUpdateFunction<EndpointInterface>;
+}> {
+    type: typeof OPTIMISTIC_TYPE;
+    endpoint: E;
+    meta: ReceiveMeta$2;
+    error?: boolean;
+}
+interface SubscribeAction$3<E extends EndpointInterface = EndpointInterface> {
+    type: typeof SUBSCRIBE_TYPE;
+    endpoint: E;
+    meta: {
+        args: readonly any[];
+    };
+}
+interface UnsubscribeAction$3<E extends EndpointInterface = EndpointInterface> {
+    type: typeof UNSUBSCRIBE_TYPE;
+    endpoint: E;
+    meta: {
+        args: readonly any[];
+    };
+}
+interface InvalidateAction$2 {
+    type: typeof INVALIDATE_TYPE;
+    meta: {
+        key: string;
+    };
+}
+interface ResetAction$3 {
+    type: typeof RESET_TYPE;
+    date: number;
+}
+interface GCAction$2 {
+    type: typeof GC_TYPE;
+    entities: [string, string][];
+    results: string[];
+}
+type ActionTypes$2 = FetchAction$3 | OptimisticAction$2 | ReceiveAction$3 | SubscribeAction$3 | UnsubscribeAction$3 | InvalidateAction$2 | ResetAction$3 | GCAction$2;
+
+type newActions_ReceiveActionSuccess<E extends EndpointInterface = EndpointInterface> = ReceiveActionSuccess<E>;
+type newActions_ReceiveActionError<E extends EndpointInterface = EndpointInterface> = ReceiveActionError<E>;
+declare namespace newActions {
+  export {
+    ReceiveMeta$2 as ReceiveMeta,
+    newActions_ReceiveActionSuccess as ReceiveActionSuccess,
+    newActions_ReceiveActionError as ReceiveActionError,
+    ReceiveAction$3 as ReceiveAction,
+    FetchMeta$2 as FetchMeta,
+    FetchAction$3 as FetchAction,
+    OptimisticAction$2 as OptimisticAction,
+    SubscribeAction$3 as SubscribeAction,
+    UnsubscribeAction$3 as UnsubscribeAction,
+    InvalidateAction$2 as InvalidateAction,
+    ResetAction$3 as ResetAction,
+    GCAction$2 as GCAction,
+    ActionTypes$2 as ActionTypes,
+  };
+}
+
+interface CompatibleFetchMeta extends FetchMeta$2 {
+    key: string;
+    schema?: Schema;
+    type: 'mutate' | 'read';
+    update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
+    options?: EndpointExtraOptions;
+    optimisticResponse?: {};
+}
+interface CompatibleFetchAction<E extends EndpointInterface = EndpointInterface> extends FetchAction$3<E> {
+    meta: CompatibleFetchMeta;
+}
+interface CompatibleReceiveMeta extends ReceiveMeta$2 {
+    key: string;
+    schema?: any;
+    update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
+    errorPolicy?: (error: any) => 'hard' | 'soft' | undefined;
+}
+interface CompatibleReceiveActionSuccess<E extends EndpointInterface = EndpointInterface> extends ReceiveActionSuccess<E> {
+    meta: CompatibleReceiveMeta;
+    payload: any;
+}
+interface CompatibleReceiveActionError<E extends EndpointInterface = EndpointInterface> extends ReceiveActionError<E> {
+    meta: CompatibleReceiveMeta;
+    payload: any;
+}
+type CompatibleReceiveAction<E extends EndpointInterface = EndpointInterface> = CompatibleReceiveActionSuccess<E> | CompatibleReceiveActionError<E>;
+interface CompatibleSubscribeAction<E extends EndpointInterface = EndpointInterface> extends SubscribeAction$3<E> {
+    meta: {
+        args: readonly any[];
+        schema: Schema | undefined;
+        fetch: () => Promise<any>;
+        key: string;
+        options: EndpointExtraOptions | undefined;
+    };
+}
+interface CompatibleUnsubscribeAction<E extends EndpointInterface = EndpointInterface> extends UnsubscribeAction$3<E> {
+    meta: {
+        args: readonly any[];
+        key: string;
+        options: EndpointExtraOptions | undefined;
+    };
+}
+
 /** Defines the shape of a network request */
 interface FetchShape<S extends Schema | undefined, Params extends Readonly<object> = Readonly<object>, Body extends Readonly<object | string> | void | unknown = Readonly<object | string> | undefined, Response = any> {
     readonly type: 'read' | 'mutate' | 'delete';
@@ -315,113 +455,6 @@ interface NoErrorFluxStandardActionWithMeta<Type extends string = string, Payloa
  */
 type NoErrorFluxStandardActionWithPayloadAndMeta<Type extends string = string, Payload = undefined, Meta = undefined> = NoErrorFluxStandardActionWithPayload<Type, Payload, Meta> & NoErrorFluxStandardActionWithMeta<Type, Payload, Meta>;
 
-interface ReceiveMeta$2 {
-    args: readonly any[];
-    fetchedAt: number;
-    date: number;
-    expiresAt: number;
-}
-interface ReceiveActionSuccess<E extends EndpointInterface = EndpointInterface> {
-    type: typeof RECEIVE_TYPE;
-    endpoint: E;
-    meta: ReceiveMeta$2;
-    payload: ResolveType<E>;
-}
-interface ReceiveActionError<E extends EndpointInterface = EndpointInterface> {
-    type: typeof RECEIVE_TYPE;
-    endpoint: E;
-    meta: ReceiveMeta$2;
-    payload: UnknownError;
-    error: true;
-}
-type ReceiveAction$2<E extends EndpointInterface = EndpointInterface> = ReceiveActionSuccess<E> | ReceiveActionError<E>;
-interface FetchMeta$2 {
-    args: readonly any[];
-    throttle: boolean;
-    resolve: (value?: any | PromiseLike<any>) => void;
-    reject: (reason?: any) => void;
-    promise: PromiseLike<any>;
-    createdAt: number;
-    nm?: boolean;
-}
-interface FetchAction$2<E extends EndpointInterface = EndpointInterface> {
-    type: typeof FETCH_TYPE;
-    endpoint: E;
-    meta: FetchMeta$2;
-    payload: () => ReturnType<E>;
-}
-interface OptimisticAction$1<E extends EndpointInterface & {
-    update?: EndpointUpdateFunction<E>;
-} = EndpointInterface & {
-    update?: EndpointUpdateFunction<EndpointInterface>;
-}> {
-    type: typeof OPTIMISTIC_TYPE;
-    endpoint: E;
-    meta: ReceiveMeta$2;
-    error?: boolean;
-}
-interface SubscribeAction$1<E extends EndpointInterface = EndpointInterface> {
-    type: typeof SUBSCRIBE_TYPE;
-    endpoint: E;
-    meta: {
-        args: readonly any[];
-    };
-}
-interface UnsubscribeAction$1<E extends EndpointInterface = EndpointInterface> {
-    type: typeof UNSUBSCRIBE_TYPE;
-    endpoint: E;
-    meta: {
-        args: readonly any[];
-    };
-}
-interface InvalidateAction$1 {
-    type: typeof INVALIDATE_TYPE;
-    meta: {
-        key: string;
-    };
-}
-interface ResetAction$1 {
-    type: typeof RESET_TYPE;
-    date: number;
-}
-interface GCAction$1 {
-    type: typeof GC_TYPE;
-    entities: [string, string][];
-    results: string[];
-}
-type ActionTypes$1 = FetchAction$2 | OptimisticAction$1 | ReceiveAction$2 | SubscribeAction$1 | UnsubscribeAction$1 | InvalidateAction$1 | ResetAction$1 | GCAction$1;
-
-type newActions_d_ReceiveActionSuccess<E extends EndpointInterface = EndpointInterface> = ReceiveActionSuccess<E>;
-type newActions_d_ReceiveActionError<E extends EndpointInterface = EndpointInterface> = ReceiveActionError<E>;
-declare namespace newActions_d {
-  export {
-    ReceiveMeta$2 as ReceiveMeta,
-    newActions_d_ReceiveActionSuccess as ReceiveActionSuccess,
-    newActions_d_ReceiveActionError as ReceiveActionError,
-    ReceiveAction$2 as ReceiveAction,
-    FetchMeta$2 as FetchMeta,
-    FetchAction$2 as FetchAction,
-    OptimisticAction$1 as OptimisticAction,
-    SubscribeAction$1 as SubscribeAction,
-    UnsubscribeAction$1 as UnsubscribeAction,
-    InvalidateAction$1 as InvalidateAction,
-    ResetAction$1 as ResetAction,
-    GCAction$1 as GCAction,
-    ActionTypes$1 as ActionTypes,
-  };
-}
-
-type LegacyDispatch = (value: ActionTypes) => Promise<void>;
-interface MiddlewareAPI$1<R extends RestHooksReducer = RestHooksReducer> extends Controller<LegacyDispatch> {
-    controller: Controller<LegacyDispatch>;
-}
-type Dispatch<R extends Reducer<any, any>> = (action: ReducerAction<R>) => Promise<void>;
-type Middleware$1 = <A extends MiddlewareAPI$1>(controller: A) => (next: A['dispatch']) => A['dispatch'];
-type RestHooksReducer = React.Reducer<State<unknown>, ActionTypes$1>;
-type Reducer<S, A> = (prevState: S, action: A) => S;
-type ReducerState<R extends Reducer<any, any>> = R extends Reducer<infer S, any> ? S : never;
-type ReducerAction<R extends Reducer<any, any>> = R extends Reducer<any, infer A> ? A : never;
-
 interface ReceiveMeta$1<S extends Schema | undefined> {
     schema?: S;
     key: string;
@@ -433,7 +466,11 @@ interface ReceiveMeta$1<S extends Schema | undefined> {
     expiresAt: number;
     errorPolicy?: (error: any) => 'hard' | 'soft' | undefined;
 }
-type ReceiveAction$1<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> = ErrorableFSAWithPayloadAndMeta<typeof RECEIVE_TYPE, Payload, ReceiveMeta$1<S>>;
+type ReceiveAction$2<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> = ErrorableFSAWithPayloadAndMeta<typeof RECEIVE_TYPE, Payload, ReceiveMeta$1<S>>;
+interface ResetAction$2 {
+    type: typeof RESET_TYPE;
+    date: number | Date;
+}
 interface FetchMeta$1<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> {
     type: FetchShape<any, any>['type'];
     schema?: S;
@@ -450,9 +487,129 @@ interface FetchMeta$1<Payload extends object | string | number | null = object |
     optimisticResponse?: Payload;
     nm?: boolean;
 }
-interface FetchAction$1<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> extends FSAWithPayloadAndMeta<typeof FETCH_TYPE, () => Promise<Payload>, FetchMeta$1<any, any>> {
+interface FetchAction$2<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> extends FSAWithPayloadAndMeta<typeof FETCH_TYPE, () => Promise<Payload>, FetchMeta$1<any, any>> {
     meta: FetchMeta$1<Payload, S>;
+    endpoint?: undefined;
 }
+interface SubscribeAction$2 extends FSAWithMeta<typeof SUBSCRIBE_TYPE, undefined, any> {
+    meta: {
+        args?: readonly any[];
+        schema: Schema | undefined;
+        fetch: () => Promise<any>;
+        key: string;
+        options: EndpointExtraOptions | undefined;
+    };
+    endpoint?: undefined;
+}
+interface UnsubscribeAction$2 extends FSAWithMeta<typeof UNSUBSCRIBE_TYPE, undefined, any> {
+    meta: {
+        args?: readonly any[];
+        key: string;
+        options: EndpointExtraOptions | undefined;
+    };
+    endpoint?: undefined;
+}
+
+type RHDispatch<Actions = any> = (value: Actions) => Promise<void>;
+interface MiddlewareAPI$1<R extends RestHooksReducer = RestHooksReducer> extends Controller<RHDispatch<CombinedActionTypes>> {
+    controller: Controller<RHDispatch<CombinedActionTypes>>;
+}
+interface MiddlewareController<Actions = ActionTypes> extends Controller<RHDispatch<Actions>> {
+    controller: Controller<RHDispatch<Actions>>;
+}
+type Middleware$2<Actions = any> = <A extends MiddlewareController<Actions>>(controller: A) => (next: A['dispatch']) => A['dispatch'];
+type RestHooksReducer = React.Reducer<State<unknown>, ActionTypes$2>;
+type Dispatch$1<R extends Reducer<any, any>> = (action: ReducerAction<R>) => Promise<void>;
+type Reducer<S, A> = (prevState: S, action: A) => S;
+type ReducerState<R extends Reducer<any, any>> = R extends Reducer<infer S, any> ? S : never;
+type ReducerAction<R extends Reducer<any, any>> = R extends Reducer<any, infer A> ? A : never;
+
+interface ReceiveMeta<S extends Schema | undefined> {
+    schema?: S;
+    key: string;
+    args?: readonly any[];
+    updaters?: Record<string, UpdateFunction<S, any>>;
+    update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
+    fetchedAt?: number;
+    date: number;
+    expiresAt: number;
+    errorPolicy?: (error: any) => 'hard' | 'soft' | undefined;
+}
+type ReceiveAction$1<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> = ErrorableFSAWithPayloadAndMeta<typeof RECEIVE_TYPE, Payload, ReceiveMeta<S>> & {
+    endpoint?: EndpointInterface;
+};
+type OptimisticAction$1<E extends EndpointInterface & {
+    update?: EndpointUpdateFunction<E>;
+} = EndpointInterface & {
+    update?: EndpointUpdateFunction<EndpointInterface>;
+}> = {
+    type: typeof OPTIMISTIC_TYPE;
+    meta: {
+        schema: E['schema'];
+        key: string;
+        args: readonly any[];
+        update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
+        fetchedAt: number;
+        date: number;
+        expiresAt: number;
+        errorPolicy?: (error: any) => 'hard' | 'soft' | undefined;
+    };
+    endpoint: E;
+    error?: undefined;
+};
+interface ResetAction$1 {
+    type: typeof RESET_TYPE;
+    date: number | Date;
+}
+interface FetchMeta<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> {
+    type: FetchShape<any, any>['type'];
+    schema?: S;
+    key: string;
+    args?: readonly any[];
+    updaters?: Record<string, UpdateFunction<S, any>>;
+    update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
+    options?: EndpointExtraOptions;
+    throttle: boolean;
+    resolve: (value?: any | PromiseLike<any>) => void;
+    reject: (reason?: any) => void;
+    promise: PromiseLike<any>;
+    createdAt: number | Date;
+    optimisticResponse?: Payload;
+    nm?: boolean;
+}
+interface FetchAction$1<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> extends FSAWithPayloadAndMeta<typeof FETCH_TYPE, () => Promise<Payload>, FetchMeta<any, any>> {
+    meta: FetchMeta<Payload, S>;
+    endpoint?: EndpointInterface;
+}
+interface SubscribeAction$1 extends FSAWithMeta<typeof SUBSCRIBE_TYPE, undefined, any> {
+    endpoint?: EndpointInterface;
+    meta: {
+        args?: readonly any[];
+        schema: Schema | undefined;
+        fetch: () => Promise<any>;
+        key: string;
+        options: EndpointExtraOptions | undefined;
+    };
+}
+interface UnsubscribeAction$1 extends FSAWithMeta<typeof UNSUBSCRIBE_TYPE, undefined, any> {
+    endpoint?: EndpointInterface;
+    meta: {
+        args?: readonly any[];
+        key: string;
+        options: EndpointExtraOptions | undefined;
+    };
+}
+interface InvalidateAction$1 extends FSAWithMeta<typeof INVALIDATE_TYPE, undefined, any> {
+    meta: {
+        key: string;
+    };
+}
+interface GCAction$1 {
+    type: typeof GC_TYPE;
+    entities: [string, string][];
+    results: string[];
+}
+type ActionTypes$1 = FetchAction$1 | OptimisticAction$1 | ReceiveAction$1 | SubscribeAction$1 | UnsubscribeAction$1 | InvalidateAction$1 | ResetAction$1 | GCAction$1;
 
 type ReceiveTypes = typeof RECEIVE_TYPE;
 type PK = string;
@@ -485,105 +642,35 @@ interface State<T> {
             };
         };
     };
-    readonly optimistic: (ReceiveAction | OptimisticAction)[];
+    readonly optimistic: (ReceiveAction$1 | OptimisticAction$1)[];
     readonly lastReset: Date | number;
 }
 
-interface ReceiveMeta<S extends Schema | undefined> {
-    schema?: S;
-    key: string;
-    args?: readonly any[];
-    updaters?: Record<string, UpdateFunction<S, any>>;
-    update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
-    fetchedAt?: number;
-    date: number;
-    expiresAt: number;
-    errorPolicy?: (error: any) => 'hard' | 'soft' | undefined;
-}
-type ReceiveAction<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> = ErrorableFSAWithPayloadAndMeta<typeof RECEIVE_TYPE, Payload, ReceiveMeta<S>> & {
-    endpoint?: EndpointInterface;
-};
 type OptimisticAction<E extends EndpointInterface & {
     update?: EndpointUpdateFunction<E>;
 } = EndpointInterface & {
     update?: EndpointUpdateFunction<EndpointInterface>;
-}> = {
-    type: typeof OPTIMISTIC_TYPE;
-    meta: {
-        schema: E['schema'];
-        key: string;
-        args: readonly any[];
-        update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
-        fetchedAt: number;
-        date: number;
-        expiresAt: number;
-        errorPolicy?: (error: any) => 'hard' | 'soft' | undefined;
-    };
-    endpoint: E;
-    error?: undefined;
-};
-interface ResetAction {
-    type: typeof RESET_TYPE;
-    date: number | Date;
-}
-interface FetchMeta<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> {
-    type: FetchShape<any, any>['type'];
-    schema?: S;
-    key: string;
-    args?: readonly any[];
-    updaters?: Record<string, UpdateFunction<S, any>>;
-    update?: (result: any, ...args: any) => Record<string, (...args: any) => any>;
-    options?: EndpointExtraOptions;
-    throttle: boolean;
-    resolve: (value?: any | PromiseLike<any>) => void;
-    reject: (reason?: any) => void;
-    promise: PromiseLike<any>;
-    createdAt: number | Date;
-    optimisticResponse?: Payload;
-    nm?: boolean;
-}
-interface FetchAction<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> extends FSAWithPayloadAndMeta<typeof FETCH_TYPE, () => Promise<Payload>, FetchMeta<any, any>> {
-    meta: FetchMeta<Payload, S>;
-    endpoint?: EndpointInterface;
-}
-interface SubscribeAction extends FSAWithMeta<typeof SUBSCRIBE_TYPE, undefined, any> {
-    endpoint?: EndpointInterface;
-    meta: {
-        args?: readonly any[];
-        schema: Schema | undefined;
-        fetch: () => Promise<any>;
-        key: string;
-        options: EndpointExtraOptions | undefined;
-    };
-}
-interface UnsubscribeAction extends FSAWithMeta<typeof UNSUBSCRIBE_TYPE, undefined, any> {
-    endpoint?: EndpointInterface;
-    meta: {
-        args?: readonly any[];
-        key: string;
-        options: EndpointExtraOptions | undefined;
-    };
-}
-interface InvalidateAction extends FSAWithMeta<typeof INVALIDATE_TYPE, undefined, any> {
-    meta: {
-        key: string;
-    };
-}
-interface GCAction {
-    type: typeof GC_TYPE;
-    entities: [string, string][];
-    results: string[];
-}
+}> = OptimisticAction$2<E>;
+type InvalidateAction = InvalidateAction$2;
+type ResetAction = ResetAction$3 | ResetAction$2;
+type GCAction = GCAction$2;
+type FetchAction<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> = CompatibleFetchAction | FetchAction$2<Payload, S>;
+type ReceiveAction<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> = CompatibleReceiveAction | ReceiveAction$2<Payload, S>;
+type SubscribeAction = CompatibleSubscribeAction | SubscribeAction$2;
+type UnsubscribeAction = CompatibleUnsubscribeAction | UnsubscribeAction$2;
 type ResponseActions = ReceiveAction;
-type ActionTypes = FetchAction | OptimisticAction | ReceiveAction | SubscribeAction | UnsubscribeAction | InvalidateAction | ResetAction | GCAction;
-interface Manager {
-    getMiddleware(): Middleware$1;
+type OldActionTypes = ActionTypes$1;
+type CombinedActionTypes = OptimisticAction | InvalidateAction | ResetAction | GCAction | FetchAction | ReceiveAction | SubscribeAction | UnsubscribeAction;
+type ActionTypes = CombinedActionTypes;
+interface Manager<Actions = CombinedActionTypes> {
+    getMiddleware(): Middleware$2<Actions>;
     cleanup(): void;
     init?: (state: State<any>) => void;
 }
 
-type CompatibleDispatch = (value: ActionTypes) => Promise<void>;
-interface ConstructorProps<D extends CompatibleDispatch = CompatibleDispatch> {
+type GenericDispatch = (value: any) => Promise<void>;
+type CompatibleDispatch = (value: CombinedActionTypes) => Promise<void>;
+interface ConstructorProps<D extends GenericDispatch = CompatibleDispatch> {
     dispatch?: D;
     getState?: () => State<unknown>;
     globalCache?: DenormalizeCache;
@@ -592,7 +679,7 @@ interface ConstructorProps<D extends CompatibleDispatch = CompatibleDispatch> {
  * Imperative control of Rest Hooks store
  * @see https://resthooks.io/docs/api/Controller
  */
-declare class Controller<D extends CompatibleDispatch = CompatibleDispatch> {
+declare class Controller<D extends GenericDispatch = CompatibleDispatch> {
     /**
      * Dispatches an action to Rest Hooks reducer.
      *
@@ -688,7 +775,8 @@ declare class Controller<D extends CompatibleDispatch = CompatibleDispatch> {
 }
 
 declare const initialState: State<unknown>;
-declare function createReducer(controller: Controller): (state: State<unknown> | undefined, action: ActionTypes) => State<unknown>;
+type ReducerType = (state: State<unknown> | undefined, action: ActionTypes) => State<unknown>;
+declare function createReducer(controller: Controller): ReducerType;
 
 //# sourceMappingURL=internal.d.ts.map
 
@@ -730,7 +818,7 @@ declare class NetworkManager implements Manager {
     };
     readonly dataExpiryLength: number;
     readonly errorExpiryLength: number;
-    protected middleware: Middleware$1;
+    protected middleware: Middleware$2;
     protected getState: () => State<unknown>;
     protected controller: Controller;
     cleanupDate?: number;
@@ -755,7 +843,7 @@ declare class NetworkManager implements Manager {
      * Uses throttle only when instructed by action meta. This is valuable
      * for ensures mutation requests always go through.
      */
-    protected handleFetch(action: FetchAction, dispatch: (action: any) => Promise<void>, controller: Controller): Promise<string | number | void | object | null>;
+    protected handleFetch(action: FetchAction, dispatch: (action: any) => Promise<void>, controller: Controller): Promise<any>;
     /** Called when middleware intercepts a receive action.
      *
      * Will resolve the promise associated with receive key.
@@ -768,7 +856,7 @@ declare class NetworkManager implements Manager {
      * Resolve/rejects a request when matching 'rest-hooks/receive' event
      * is seen.
      */
-    getMiddleware(): Middleware$1;
+    getMiddleware(): Middleware$2<any>;
     /** Ensures only one request for a given key is in flight at any time
      *
      * Uses key to either retrieve in-flight promise, or if not
@@ -788,12 +876,12 @@ declare class NetworkManager implements Manager {
 declare const reducer: (state: State<unknown> | undefined, action: ActionTypes) => State<unknown>;
 //# sourceMappingURL=reducerInstance.d.ts.map
 
-declare function applyManager(managers: Manager[], controller: Controller): Middleware[];
+declare function applyManager(managers: Manager[], controller: Controller): Middleware$1[];
 interface MiddlewareAPI<R extends Reducer<any, any> = Reducer<any, any>> {
     getState: () => ReducerState<R>;
-    dispatch: Dispatch<R>;
+    dispatch: Dispatch$1<R>;
 }
-type Middleware = <R extends Reducer<any, any>>({ dispatch, }: MiddlewareAPI<R>) => (next: Dispatch<R>) => Dispatch<R>;
+type Middleware$1 = <R extends Reducer<any, any>>({ dispatch, }: MiddlewareAPI<R>) => (next: Dispatch$1<R>) => Dispatch$1<R>;
 
 interface Options$2<Shape extends FetchShape<Schema | undefined, Readonly<object>, Readonly<object | string> | void>> {
     params: ParamsFromShape<Shape>;
@@ -808,9 +896,9 @@ interface Options$2<Shape extends FetchShape<Schema | undefined, Readonly<object
  */
 declare function createFetch<Shape extends FetchShape<Schema | undefined, Readonly<object>, Readonly<object | string> | void>>(fetchShape: Shape & {
     update?: (...args: any) => Record<string, (...args: any) => any>;
-}, { params, body, throttle, updateParams }: Options$2<Shape>): FetchAction$1;
+}, { params, body, throttle, updateParams }: Options$2<Shape>): FetchAction$2;
 
-interface Options$1<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> extends Pick<FetchAction$1<Payload, S>['meta'], 'schema' | 'key' | 'type' | 'updaters' | 'update' | 'args'> {
+interface Options$1<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> extends Pick<FetchAction$2<Payload, S>['meta'], 'schema' | 'key' | 'type' | 'updaters' | 'update' | 'args'> {
     dataExpiryLength: NonNullable<EndpointExtraOptions['dataExpiryLength']>;
     fetchedAt?: number;
 }
@@ -819,13 +907,13 @@ interface Options$1<Payload extends object | string | number | null = object | s
  * @param data
  * @param param1 { schema, key, type, updaters, dataExpiryLength }
  */
-declare function createReceive<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any>(data: Payload, { schema, key, args, updaters, fetchedAt, update, dataExpiryLength, }: Options$1<Payload, S>): ReceiveAction$1<Payload, S>;
+declare function createReceive<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any>(data: Payload, { schema, key, args, updaters, fetchedAt, update, dataExpiryLength, }: Options$1<Payload, S>): ReceiveAction$2<Payload, S>;
 
-interface Options<S extends Schema | undefined = any> extends Pick<FetchAction$1<any, S>['meta'], 'schema' | 'key' | 'options'> {
+interface Options<S extends Schema | undefined = any> extends Pick<FetchAction$2<any, S>['meta'], 'schema' | 'key' | 'options'> {
     errorExpiryLength?: NonNullable<EndpointExtraOptions['errorExpiryLength']>;
     fetchedAt?: number;
 }
-declare function createReceiveError<S extends Schema | undefined = any>(error: Error, { schema, key, options, errorExpiryLength, fetchedAt, }: Options<S>): ReceiveAction$1;
+declare function createReceiveError<S extends Schema | undefined = any>(error: Error, { schema, key, options, errorExpiryLength, fetchedAt, }: Options<S>): ReceiveAction$2;
 
 //# sourceMappingURL=index.d.ts.map
 
@@ -868,7 +956,7 @@ interface Subscription {
 }
 /** The static class that constructs Subscription */
 interface SubscriptionConstructable {
-    new (init: SubscriptionInit, dispatch: Dispatch<any>): Subscription;
+    new (init: SubscriptionInit, dispatch: Dispatch$1<any>): Subscription;
 }
 /** Handles subscription actions -> fetch or receive actions
  *
@@ -882,7 +970,7 @@ declare class SubscriptionManager<S extends SubscriptionConstructable> implement
         [key: string]: InstanceType<S>;
     };
     protected readonly Subscription: S;
-    protected middleware: Middleware$1;
+    protected middleware: Middleware$2;
     constructor(Subscription: S);
     /** Ensures all subscriptions are cleaned up. */
     cleanup(): void;
@@ -902,7 +990,7 @@ declare class SubscriptionManager<S extends SubscriptionConstructable> implement
      * Will possibly dispatch 'rest-hooks/fetch' or 'rest-hooks/receive' to keep resources fresh
      *
      */
-    getMiddleware(): Middleware$1;
+    getMiddleware(): Middleware$2<any>;
 }
 
 /**
@@ -918,13 +1006,13 @@ declare class PollingSubscription implements Subscription {
     protected readonly key: string;
     protected frequency: number;
     protected frequencyHistogram: Map<number, number>;
-    protected dispatch: Dispatch<any>;
+    protected dispatch: Dispatch$1<any>;
     protected getState: () => State<unknown>;
     protected intervalId?: ReturnType<typeof setInterval>;
     protected lastIntervalId?: ReturnType<typeof setInterval>;
     protected startId?: ReturnType<typeof setTimeout>;
     private connectionListener;
-    constructor({ key, schema, fetch, frequency, getState }: SubscriptionInit, dispatch: Dispatch<any>, connectionListener?: ConnectionListener);
+    constructor({ key, schema, fetch, frequency, getState }: SubscriptionInit, dispatch: Dispatch$1<any>, connectionListener?: ConnectionListener);
     /** Subscribe to a frequency */
     add(frequency?: number): void;
     /** Unsubscribe from a frequency */
@@ -957,7 +1045,7 @@ type DevToolsConfig = {
  * @see https://resthooks.io/docs/api/DevToolsManager
  */
 declare class DevToolsManager implements Manager {
-    protected middleware: Middleware$1;
+    protected middleware: Middleware$2;
     protected devTools: undefined | any;
     constructor(config?: DevToolsConfig, skipLogging?: (action: ActionTypes) => boolean);
     /** Called when initial state is ready */
@@ -967,7 +1055,18 @@ declare class DevToolsManager implements Manager {
     /** Attaches Manager to store
      *
      */
-    getMiddleware(): Middleware$1;
+    getMiddleware(): Middleware$2<any>;
 }
 
-export { AbstractInstanceType, ActionTypes, BodyFromShape, ConnectionListener, Controller, DefaultConnectionListener, DeleteShape, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, FetchShape, GCAction, InvalidateAction, Manager, Middleware$1 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, MutateShape, NetworkError, NetworkManager, Normalize, NormalizeNullable, OptimisticAction, PK, ParamsFromShape, PollingSubscription, ReadShape, ReceiveAction, ReceiveMeta, ReceiveTypes, ResetAction, ResetError, ResolveType, ResponseActions, ResultEntry, ReturnFromShape, Schema, SetShapeParams, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createReducer, initialState, index_d as legacyActions, newActions_d as newActions, reducer };
+type Dispatch = (value: CombinedActionTypes) => Promise<void>;
+type Middleware = <C extends Controller<Dispatch>>(controller: C) => (next: C['dispatch']) => C['dispatch'];
+declare class LogoutManager implements Manager<CombinedActionTypes> {
+    protected middleware: Middleware;
+    constructor();
+    cleanup(): void;
+    getMiddleware(): Middleware;
+    protected shouldLogout(error: UnknownError): boolean;
+    handleLogout(controller: Controller<Dispatch>): void;
+}
+
+export { AbstractInstanceType, ActionTypes, BodyFromShape, CombinedActionTypes, ConnectionListener, Controller, DefaultConnectionListener, DeleteShape, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, FetchShape, GCAction, InvalidateAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, MutateShape, NetworkError, NetworkManager, Normalize, NormalizeNullable, OldActionTypes, OptimisticAction, PK, ParamsFromShape, PollingSubscription, ReadShape, ReceiveAction, ReceiveTypes, ResetAction, ResetError, ResolveType, ResponseActions, ResultEntry, ReturnFromShape, Schema, SetShapeParams, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createReducer, initialState, index_d as legacyActions, newActions, reducer };
