@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/redux@6.1.0...@rest-hooks/redux@6.2.0) (2022-11-22)
+
+### 🚀 Features
+
+* Make Controller the middleware API ([#2290](https://github.com/coinbase/rest-hooks/issues/2290)) ([0f0302d](https://github.com/coinbase/rest-hooks/commit/0f0302d6e95faea67cc3283bc013de06b9dcc840))
+
 ## [6.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/redux@6.0.0...@rest-hooks/redux@6.1.0) (2022-11-16)
 
 ### 🚀 Features

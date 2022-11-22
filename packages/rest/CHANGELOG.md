@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.2.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.2.0-beta.0...@rest-hooks/rest@6.2.1) (2022-11-22)
+
+**Note:** Version bump only for package @rest-hooks/rest
+
 ## [6.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.1.1...@rest-hooks/rest@6.2.0) (2022-11-13)
 
 ### 🚀 Features

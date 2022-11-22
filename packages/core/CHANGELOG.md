@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@4.0.2...@rest-hooks/core@4.1.0) (2022-11-22)
+
+### 🚀 Features
+
+* Add LogoutManager ([e9e10a8](https://github.com/coinbase/rest-hooks/commit/e9e10a88df2bbc36bfaf3498c00cc35b657ada8f))
+* Make Controller the middleware API ([#2290](https://github.com/coinbase/rest-hooks/issues/2290)) ([0f0302d](https://github.com/coinbase/rest-hooks/commit/0f0302d6e95faea67cc3283bc013de06b9dcc840))
+
+### 💅 Enhancement
+
+* Add newActions types ([1aa6962](https://github.com/coinbase/rest-hooks/commit/1aa6962f8ca3aa6ef5388874cef97921a85137f5))
+
+### 📝 Documentation
+
+* Update manager docs ([cc58cd5](https://github.com/coinbase/rest-hooks/commit/cc58cd5fe4197814d23209555f034a81675f2f7d))
+
 ### [4.0.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@4.0.0...@rest-hooks/core@4.0.1) (2022-11-13)
 
 **Note:** Version bump only for package @rest-hooks/core

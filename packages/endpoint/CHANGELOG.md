@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.2.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@3.2.2...@rest-hooks/endpoint@3.2.3) (2022-11-22)
+
+### 📦 Package
+
+* Update all non-major dependencies ([#2278](https://github.com/coinbase/rest-hooks/issues/2278)) ([f3c52d4](https://github.com/coinbase/rest-hooks/commit/f3c52d4d290caee2197501f4b524bc509c18291e))
+
 ### [3.2.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@3.2.1...@rest-hooks/endpoint@3.2.2) (2022-11-13)
 
 **Note:** Version bump only for package @rest-hooks/endpoint
