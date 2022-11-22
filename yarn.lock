@@ -4158,7 +4158,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/graphql@^0.3.1, @rest-hooks/graphql@workspace:packages/graphql":
+"@rest-hooks/graphql@^0.3.5, @rest-hooks/graphql@workspace:packages/graphql":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/graphql@workspace:packages/graphql"
   dependencies:
@@ -4180,7 +4180,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/hooks@^3.0.7, @rest-hooks/hooks@workspace:packages/hooks":
+"@rest-hooks/hooks@^3.1.0, @rest-hooks/hooks@workspace:packages/hooks":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/hooks@workspace:packages/hooks"
   dependencies:
@@ -4284,7 +4284,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/react@^7.1.0-beta.0, @rest-hooks/react@workspace:packages/react":
+"@rest-hooks/react@^7.1.0, @rest-hooks/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/react@workspace:packages/react"
   dependencies:
@@ -4317,7 +4317,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/redux@^6.1.0, @rest-hooks/redux@workspace:packages/redux":
+"@rest-hooks/redux@^6.2.0, @rest-hooks/redux@workspace:packages/redux":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/redux@workspace:packages/redux"
   dependencies:
@@ -4348,7 +4348,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/rest@^6.2.0, @rest-hooks/rest@workspace:packages/rest":
+"@rest-hooks/rest@^6.2.0, @rest-hooks/rest@^6.2.1, @rest-hooks/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/rest@workspace:packages/rest"
   dependencies:
@@ -4374,7 +4374,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/ssr@^0.7.0-beta.1, @rest-hooks/ssr@workspace:packages/ssr":
+"@rest-hooks/ssr@^0.7.0, @rest-hooks/ssr@workspace:packages/ssr":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/ssr@workspace:packages/ssr"
   dependencies:
@@ -11127,9 +11127,9 @@ __metadata:
     "@linaria/react": 4.3.0
     "@linaria/shaker": 4.2.4
     "@rest-hooks/endpoint": ^3.0.1
-    "@rest-hooks/graphql": ^0.3.1
-    "@rest-hooks/hooks": ^3.0.7
-    "@rest-hooks/react": ^7.1.0-beta.0
+    "@rest-hooks/graphql": ^0.3.5
+    "@rest-hooks/hooks": ^3.1.0
+    "@rest-hooks/react": ^7.1.0
     "@rest-hooks/rest": ^6.2.0
     "@types/eslint": 8.4.10
     "@types/parse-link-header": ^2.0.0
@@ -15730,10 +15730,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "next-app@workspace:examples/nextjs"
   dependencies:
-    "@rest-hooks/react": ^7.1.0-beta.0
-    "@rest-hooks/redux": ^6.1.0
-    "@rest-hooks/rest": ^6.2.0
-    "@rest-hooks/ssr": ^0.7.0-beta.1
+    "@rest-hooks/react": ^7.1.0
+    "@rest-hooks/redux": ^6.2.0
+    "@rest-hooks/rest": ^6.2.1
+    "@rest-hooks/ssr": ^0.7.0
     "@rest-hooks/test": ^9.1.0
     "@types/node": 18.11.9
     "@types/react": 18.0.25
@@ -21943,7 +21943,7 @@ __metadata:
     "@linaria/react": 4.3.0
     "@linaria/shaker": 4.2.4
     "@rest-hooks/endpoint": ^3.0.1
-    "@rest-hooks/react": ^7.1.0-beta.0
+    "@rest-hooks/react": ^7.1.0
     "@rest-hooks/rest": ^6.2.0
     "@types/eslint": 8.4.10
     "@types/prettier": 2.7.1
