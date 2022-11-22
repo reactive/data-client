@@ -9,10 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@rest-hooks/react": "^7.1.0-beta.0",
-    "@rest-hooks/redux": "^6.1.0",
-    "@rest-hooks/rest": "^6.2.0",
-    "@rest-hooks/ssr": "^0.7.0-beta.1",
+    "@rest-hooks/react": "^7.1.0",
+    "@rest-hooks/redux": "^6.2.0",
+    "@rest-hooks/rest": "^6.2.1",
+    "@rest-hooks/ssr": "^0.7.0",
     "@rest-hooks/test": "^9.1.0",
     "@types/node": "18.11.9",
     "@types/react": "18.0.25",

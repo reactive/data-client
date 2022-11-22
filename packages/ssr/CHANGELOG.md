@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.6.0...@rest-hooks/ssr@0.7.0) (2022-11-22)
+
+### 🚀 Features
+
+* Add LogoutManager ([e9e10a8](https://github.com/coinbase/rest-hooks/commit/e9e10a88df2bbc36bfaf3498c00cc35b657ada8f))
+* Add nextjs helpers and docs ([#2288](https://github.com/coinbase/rest-hooks/issues/2288)) ([59b55aa](https://github.com/coinbase/rest-hooks/commit/59b55aa0b380593dccfed74e3cd9c0b47a9e8699))
+
+### 💅 Enhancement
+
+* AppCacheProvider passes props to CacheProvider ([22f2ed0](https://github.com/coinbase/rest-hooks/commit/22f2ed0758e0be7e0c5ae8b2e1244560c3608e9e))
+
+### 📝 Documentation
+
+* Add nextjs demo ([b650618](https://github.com/coinbase/rest-hooks/commit/b6506180ef41a73eb4c926eef3786e0394c3a2c3))
+
 ## [0.6.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.5.0...@rest-hooks/ssr@0.6.0) (2022-11-16)
 
 ### 🚀 Features

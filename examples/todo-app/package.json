@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "@rest-hooks/endpoint": "^3.0.1",
-    "@rest-hooks/react": "^7.1.0-beta.0",
+    "@rest-hooks/react": "^7.1.0",
     "@rest-hooks/rest": "^6.2.0",
     "react": "18.2.0",
     "react-dom": "18.2.0"

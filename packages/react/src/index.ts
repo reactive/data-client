@@ -4,6 +4,7 @@ export {
   SubscriptionManager,
   DefaultConnectionListener,
   NetworkManager,
+  LogoutManager,
   Controller,
   ExpiryStatus,
   actionTypes,

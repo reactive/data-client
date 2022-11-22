@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.0.1](https://github.com/coinbase/rest-hooks/compare/rest-hooks@7.0.0...rest-hooks@7.0.1) (2022-11-22)
+
+### 📝 Documentation
+
+* Add nextjs demo ([b650618](https://github.com/coinbase/rest-hooks/commit/b6506180ef41a73eb4c926eef3786e0394c3a2c3))
+
 ## [7.0.0](https://github.com/coinbase/rest-hooks/compare/rest-hooks@6.6.2...rest-hooks@7.0.0) (2022-11-16)
 
 ### ⚠ 💥 BREAKING CHANGES

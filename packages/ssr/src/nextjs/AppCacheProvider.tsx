@@ -13,7 +13,7 @@ type ProviderProps = Omit<
 export default function AppCacheProvider({
   children,
   ...props
-}: ProviderProps) {
+}: ProviderProps): React.ReactElement {
   // only runs client-side as we handle the SSR in Document
   if (typeof window !== 'undefined') {
     const initialState = getInitialData();
@@ -24,5 +24,5 @@ export default function AppCacheProvider({
     );
   }
   // provider is done via Document server side, so we don't put the children here
-  return children;
+  return children as any;
 }
