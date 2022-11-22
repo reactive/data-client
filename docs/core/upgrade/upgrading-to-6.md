@@ -45,7 +45,7 @@ These are still supported! They are simply moved to [@rest-hooks/legacy](https:/
 
     has all of these, and is compatible with both `rest-hooks` 5 and 6.
 2. Upgrade `rest-hooks` to 6 & `@rest-hooks/legacy` to 3.
-3. [Gradually migrate](https://resthooks.io/docs/upgrade/upgrading-to-5#rest-hooksrest) to [@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest)
+3. [Gradually migrate](/docs/upgrade/upgrading-to-5#rest-hooksrest) to [@rest-hooks/rest](https://www.npmjs.com/package/@rest-hooks/rest)
 
 ### Importing directly from hidden files is no longer supported
 
@@ -59,7 +59,7 @@ with tooling that supports package exports, it will not work at all.
 
 Entities no longer normalize to their class. Class construction is now done during denormalization step.
 This means the internal state of Rest Hooks is a [POJO](https://en.wikipedia.org/wiki/Plain_old_Java_object). This
-improves serialization. However, it does mean relying on the internal state in a [Manager](https://resthooks.io/docs/api/Manager)
+improves serialization. However, it does mean relying on the internal state in a [Manager](/docs/6.6/api/Manager)
 to be a class will break. Additionally the expected serialization of Rest Hooks store will be slightly different, which
 could affect snapshot tests or persistance efforts like using IndexedDB.
 
@@ -69,7 +69,7 @@ could affect snapshot tests or persistance efforts like using IndexedDB.
 
 SimpleRecord was removed (though available in [@rest-hooks/legacy](https://www.npmjs.com/package/@rest-hooks/legacy))
 
-[Object](https://resthooks.io/docs/api/Object) can be used instead
+[Object](/rest/api/Object) can be used instead
 
 <BeforeAfterTabs>
 
@@ -105,7 +105,7 @@ export const Address = {
 
 ### @rest-hooks/rest changes from 2 -> 3
 
-These add on to the [existing changes](https://resthooks.io/docs/upgrade/upgrading-to-5#rest-hooksrest) of @rest-hooks/rest from @rest-hooks/legacy
+These add on to the [existing changes](/docs/upgrade/upgrading-to-5#rest-hooksrest) of @rest-hooks/rest from @rest-hooks/legacy
 
 - If `Resource.fromJS()` was used to customize normalization process, use `process()` instead.
 
@@ -232,3 +232,9 @@ Removed exports from 'rest-hooks': NestedEntity, schemas, isEntity, Entity, Reso
 - peerDep @rest-hooks/endpoint > 2
 
 [Full Release notes](https://github.com/coinbase/rest-hooks/releases/tag/rest-hooks%406.0.0)
+
+## Support
+
+If you have any trouble upgrading, you can get some help from the community discord [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
+
+If you find any bugs or other issues, feel free to open a [github ticket](https://github.com/coinbase/rest-hooks/issues/new/choose)

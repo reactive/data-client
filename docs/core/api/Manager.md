@@ -59,6 +59,7 @@ relies on state actually existing.
 - [NetworkManager](./NetworkManager.md)
 - [SubscriptionManager](./SubscriptionManager.md)
 - [DevToolsManager](./DevToolsManager.md)
+- [LogoutManager](./LogoutManager.md)
 
 ## Adding managers to Rest Hooks
 

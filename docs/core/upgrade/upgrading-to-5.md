@@ -169,7 +169,7 @@ Many 'advanced' features of rest-hooks are not longer exported by 'rest-hooks' p
 
 ### Managers
 
-These only apply if you have a custom [Manager](../api/Manager)
+These only apply if you have a custom [Manager](/docs/5.0/api/Manager)
 
 <details><summary>action.meta.url -> action.meta.key</summary>
 
@@ -196,7 +196,7 @@ in. (To prevent unwanted side effects.)
 
 <details><summary>useInvalidator() triggers suspense</summary>
 
-You can likely remove [invalidIfStale](/rest/api/Endpoint#invalidifstale-boolean) if used in conjunction with [useInvalidator()](../api/useInvalidator)
+You can likely remove [invalidIfStale](/rest/api/Endpoint#invalidifstale-boolean) if used in conjunction with [useInvalidator()](/docs/5.0/api/useInvalidator)
 
 [invalidIfStale](/rest/api/Endpoint#invalidifstale-boolean) is still useful to disable the `stale-while-revalidate` policy.
 
@@ -550,3 +550,9 @@ Eventually support for FetchShape will be deprecated, and then removed.
 </details>
 
 [Full Release notes](https://github.com/coinbase/rest-hooks/releases/tag/rest-hooks%405.0.0)
+
+## Support
+
+If you have any trouble upgrading, you can get some help from the community discord [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
+
+If you find any bugs or other issues, feel free to open a [github ticket](https://github.com/coinbase/rest-hooks/issues/new/choose)

@@ -594,3 +594,15 @@ const todoDetail404Fixture: FixtureEndpoint = {
 [Open demo in own tab](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
 
 [Explore on github](https://github.com/coinbase/rest-hooks/tree/master/examples/github-app)
+
+### NextJS Demo {#nextjs-demo}
+
+<iframe
+  src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/nextjs?embed=1&file=src%2Fpages%2FHome%2FTodoListComponent.tsx&hidedevtools=1&view=both&ctl=1"
+  width="100%"
+  height="500"
+></iframe>
+
+[Open demo in own tab](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
+
+[Explore on github](https://github.com/coinbase/rest-hooks/tree/master/examples/nextjs)

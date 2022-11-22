@@ -6,6 +6,11 @@ title: Server Side Rendering
 import PkgInstall from '@site/src/components/PkgInstall';
 import PkgTabs from '@site/src/components/PkgTabs';
 
+<head>
+  <title>Server Side Rendering Integrations - NextJS, Express</title>
+  <meta name="docsearch:pagerank" content="10"/>
+</head>
+
 
 ## NextJS
 
