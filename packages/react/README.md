@@ -64,11 +64,10 @@ return (
 );
 ```
 
-### And [subscriptions](https://resthooks.io/docs/api/useSubscription)
+### And [subscriptions](https://resthooks.io/docs/api/useLive)
 
 ```tsx
-const price = useSuspense(PriceResource.get, { symbol });
-useSubscription(PriceResource.get, { symbol });
+const price = useLive(PriceResource.get, { symbol });
 return price.value;
 ```
 
@@ -95,9 +94,10 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 
 ## Features
 
-- [x] ![TS](./packages/rest-hooks/typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) types
+- [x] ![TS](./packages/rest-hooks/typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) inference
 - [x] 🛌 React [Suspense](https://resthooks.io/docs/getting-started/data-dependency#boundaries) support
 - [x] 🧵 React 18 [Concurrent mode](https://resthooks.io/docs/guides/render-as-you-fetch) compatible
+- [x] 💦 [Partial Hydration Server Side Rendering](https://resthooks.io/docs/guides/ssr)
 - [x] 🎣 [Declarative API](https://resthooks.io/docs/getting-started/data-dependency)
 - [x] 📝 Composition over configuration
 - [x] 💰 [Normalized](https://resthooks.io/docs/getting-started/entity) caching
@@ -111,7 +111,12 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 - [x] ♻️ Optional [redux integration](https://resthooks.io/docs/guides/redux)
 - [x] 📙 [Storybook mocking](https://resthooks.io/docs/guides/storybook)
 - [x] 📱 [React Native](https://facebook.github.io/react-native/) support
+- [x] ⚛️ [NextJS](https://resthooks.io/docs/guides/ssr#nextjs) support
 - [x] 🚯 [Declarative cache lifetime policy](https://resthooks.io/docs/getting-started/expiry-policy)
+- [x] 🧅 [Composable middlewares](https://resthooks.io/docs/api/Manager)
+- [x] 💽 Global data consistency guarantees
+- [x] 🏇 Automatic race condition elimination
+- [x] 👯 Global referential equality guarantees
 
 ## Principals of Rest Hooks
 

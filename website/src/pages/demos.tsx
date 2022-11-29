@@ -49,7 +49,7 @@ export default function DemoList() {
             style={{ width: '100%', height: 'calc(100vh - 170px)' }}
           ></iframe>
         </TabItem>
-        <TabItem value="NextJS">
+        <TabItem value="nextjs">
           {/*            <a
               href="https://github.com/coinbase/rest-hooks/tree/master/examples/github-app"
               target="_blank"

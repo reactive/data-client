@@ -196,7 +196,7 @@ in. (To prevent unwanted side effects.)
 
 <details><summary>useInvalidator() triggers suspense</summary>
 
-You can likely remove [invalidIfStale](/rest/api/Endpoint#invalidifstale-boolean) if used in conjunction with [useInvalidator()](../api/useInvalidator)
+You can likely remove [invalidIfStale](/rest/api/Endpoint#invalidifstale-boolean) if used in conjunction with [useInvalidator()](/docs/5.0/api/useInvalidator)
 
 [invalidIfStale](/rest/api/Endpoint#invalidifstale-boolean) is still useful to disable the `stale-while-revalidate` policy.
 

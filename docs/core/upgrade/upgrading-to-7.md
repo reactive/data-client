@@ -96,3 +96,9 @@ This will become the recommended way to consume rest hooks when using React. The
 still work but eventually remove any additions.
 
 - `import {} from 'rest-hooks'` -> `import {} from '@rest-hooks/react'`
+
+## Support
+
+If you have any trouble upgrading, you can get some help from the community discord [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
+
+If you find any bugs or other issues, feel free to open a [github ticket](https://github.com/coinbase/rest-hooks/issues/new/choose)

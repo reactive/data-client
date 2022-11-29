@@ -6,6 +6,10 @@ sidebar_label: LogoutManager
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+<head>
+  <title>LogoutManager - Handling 401s and other deauthorization triggers</title>
+</head>
+
 Logs out when receiving a [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401) response.
 
 ## Usage
