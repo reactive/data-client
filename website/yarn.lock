@@ -13158,7 +13158,7 @@ __metadata:
     react-json-tree: 0.17.0
     react-live: ^3.1.1
     rest-hooks: "file:../packages/rest-hooks"
-    serve: 14.1.1
+    serve: 14.1.2
     typescript: next
     webpack: ^5.74.0
   languageName: unknown
@@ -13485,9 +13485,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"serve@npm:14.1.1":
-  version: 14.1.1
-  resolution: "serve@npm:14.1.1"
+"serve@npm:14.1.2":
+  version: 14.1.2
+  resolution: "serve@npm:14.1.2"
   dependencies:
     "@zeit/schemas": 2.21.0
     ajv: 8.11.0
@@ -13502,7 +13502,7 @@ __metadata:
     update-check: 1.5.4
   bin:
     serve: build/main.js
-  checksum: 7db310dfbe05699b51b1ff5932598c666cecceceb7a5dfaf0b04bb90a7f5fdca4c4dd5eaa1224e0df35fdd6a59c5ca98a730aca99bb7765e003a8236e6e81743
+  checksum: 814e429f2373addca7e57c38c548ae1d4ef7afe52f5091aa421604f4c61633417e891834d5c7bcb6439ee4b0aeb7a4871e3e704c42173b602986566be21f5375
   languageName: node
   linkType: hard
 
