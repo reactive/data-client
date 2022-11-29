@@ -106,7 +106,7 @@ export default class RestEndpoint extends Endpoint {
       .catch(error => {
         // ensure CORS, network down, and parse errors are still caught by NetworkErrorBoundary
         if (error instanceof TypeError) {
-          error.status = 400;
+          error.status = 500;
         }
         throw error;
       });
