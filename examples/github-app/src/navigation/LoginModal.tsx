@@ -25,7 +25,7 @@ export default function LoginModal({
 
   return (
     <Modal
-      visible={visible}
+      open={visible}
       title="Login"
       onOk={handleOk}
       onCancel={handleCancel}
