@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { MatchedRoute, Link } from '@anansi/router';
 import { Layout, Menu } from 'antd';
 import Boundary, { Loading } from 'Boundary';
-import 'antd/dist/antd.css';
+import 'antd/dist/reset.css';
 import 'style/main.scss';
 import FlexRow from 'components/FlexRow';
 import NavBar from 'navigation/NavBar';

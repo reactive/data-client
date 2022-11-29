@@ -8,14 +8,13 @@ import { unAuth } from 'resources/Auth';
 import Boundary from './Boundary';
 import { Router } from './routing';
 
-class MyLogoutManager extends LogoutManager {
-  handleLogout(controller: Controller) {
-    unAuth();
-    super.handleLogout(controller);
-  }
-}
 const managers = [
-  new MyLogoutManager(),
+  new LogoutManager({
+    handleLogout(controller: Controller) {
+      unAuth();
+      controller.resetEntireStore();
+    },
+  }),
   ...CacheProvider.defaultProps.managers,
 ];
 

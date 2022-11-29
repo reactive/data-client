@@ -65,7 +65,11 @@ export const routes = [
     resolveData: async (controller: Controller, match: { login: string }) => {
       controller.fetch(UserResource.get, match);
       controller.fetch(RepositoryResource.getByUser, match);
-      controller.fetch(RepositoryResource.getByPinned, match);
+      const { data: currentUser } = controller.getResponse(
+        UserResource.current,
+        controller.getState(),
+      );
+      if (currentUser) controller.fetch(RepositoryResource.getByPinned, match);
       controller.fetch(EventResource.getList, match);
     },
   },
