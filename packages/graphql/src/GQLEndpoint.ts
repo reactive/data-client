@@ -68,7 +68,7 @@ export default class GQLEndpoint<
       .catch(error => {
         // ensure CORS, network down, and parse errors are still caught by NetworkErrorBoundary
         if (error instanceof TypeError) {
-          (error as any).status = 400;
+          (error as any).status = 500;
         }
         throw error;
       });
