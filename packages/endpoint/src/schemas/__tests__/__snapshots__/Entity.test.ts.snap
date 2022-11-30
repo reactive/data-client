@@ -381,7 +381,45 @@ exports[`Entity normalization normalizes already processed entities 1`] = `
   "entities": {},
   "entityMeta": {},
   "indexes": {},
-  "result": "1",
+  "result": [
+    "1",
+  ],
+}
+`;
+
+exports[`Entity normalization normalizes already processed entities 2`] = `
+{
+  "entities": {},
+  "entityMeta": {},
+  "indexes": {},
+  "result": {
+    "data": "1",
+  },
+}
+`;
+
+exports[`Entity normalization normalizes already processed entities 3`] = `
+{
+  "entities": {
+    "Nested": {
+      "5": {
+        "id": "5",
+        "nest": "10",
+        "title": "hi",
+      },
+    },
+  },
+  "entityMeta": {
+    "Nested": {
+      "5": {
+        "date": 1557831718135,
+        "expiresAt": Infinity,
+        "fetchedAt": 0,
+      },
+    },
+  },
+  "indexes": {},
+  "result": "5",
 }
 `;
 

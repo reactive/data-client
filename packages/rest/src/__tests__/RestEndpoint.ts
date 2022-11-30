@@ -999,10 +999,10 @@ describe('RestEndpoint.fetch()', () => {
 
   it('should return raw response if status is 204 No Content', async () => {
     const res = await CoolerArticleResource.get({ id: idNoContent });
-    expect(res).toBe('');
+    expect(res).toBe(null);
   });
 
-  it('should return text if content-type is not json', async () => {
+  it('should reject if content-type is not json with schema', async () => {
     const id = 8;
     const text = '<body>this is html</body>';
     nock(/.*/)
@@ -1013,11 +1013,12 @@ describe('RestEndpoint.fetch()', () => {
       .get(`/article-cooler/${id}`)
       .reply(200, text, { 'content-type': 'html/text' });
 
-    const res = await CoolerArticleResource.get({ id });
-    expect(res).toBe('<body>this is html</body>');
+    await expect(
+      async () => await CoolerArticleResource.get({ id }),
+    ).rejects.toMatchSnapshot();
   });
 
-  it('should return text if content-type does not exist', async () => {
+  it('should reject if content-type does not exist with schema', async () => {
     const id = 10;
     const text = '<body>this is html</body>';
     nock(/.*/)
@@ -1027,8 +1028,72 @@ describe('RestEndpoint.fetch()', () => {
       .get(`/article-cooler/${id}`)
       .reply(200, text, {});
 
-    const res = await CoolerArticleResource.get({ id });
+    await expect(
+      async () => await CoolerArticleResource.get({ id }),
+    ).rejects.toMatchSnapshot();
+  });
+
+  it('should return text if content-type is not json with no schema', async () => {
+    const id = 8;
+    const text = '<body>this is html</body>';
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
+      .get(`/article-cooler/${id}`)
+      .reply(200, text, { 'content-type': 'html/text' });
+
+    const res = await CoolerArticleResource.get.extend({ schema: undefined })({
+      id,
+    });
+    expect(res).toBe('<body>this is html</body>');
+  });
+
+  it('should return text if content-type does not exist with no schema', async () => {
+    const id = 10;
+    const text = '<body>this is html</body>';
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+      })
+      .get(`/article-cooler/${id}`)
+      .reply(200, text, {});
+
+    const res = await CoolerArticleResource.get.extend({ schema: undefined })({
+      id,
+    });
     expect(res).toBe(text);
+  });
+
+  it('should reject with custom message if content type is set but json parsable', async () => {
+    const id = 8;
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'text',
+      })
+      .get(`/article-cooler/${id}`)
+      .reply(200, { id, title: 'hi' }, {});
+
+    await expect(
+      async () => await CoolerArticleResource.get({ id }),
+    ).rejects.toMatchSnapshot();
+  });
+
+  it('should still work with empty content-type', async () => {
+    const id = 8;
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+      })
+      .get(`/article-cooler/${id}`)
+      .reply(200, { id, title: 'hi' });
+
+    const res = await CoolerArticleResource.get({
+      id,
+    });
+    expect(res).toEqual({ id, title: 'hi' });
   });
 });
 const proto = Object.prototype;

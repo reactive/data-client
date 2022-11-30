@@ -1,5 +1,5 @@
 // eslint-env jest
-import { Entity } from '@rest-hooks/endpoint';
+import { Entity, schema } from '@rest-hooks/endpoint';
 import { fromJS } from 'immutable';
 
 import { normalize } from '../';
@@ -30,7 +30,7 @@ afterAll(() => {
 });
 
 describe('normalize', () => {
-  test.each([42, null, undefined, () => {}])(
+  test.each([42, null, undefined, '42', () => {}])(
     `cannot normalize input that == %s`,
     input => {
       class Test extends IDEntity {}
@@ -47,7 +47,7 @@ describe('normalize', () => {
 
   test('can normalize strings for entity (already processed)', () => {
     class Test extends IDEntity {}
-    expect(normalize('42', Test).result).toEqual('42');
+    expect(normalize(['42'], new schema.Array(Test)).result).toEqual(['42']);
   });
 
   test('passthrough with undefined schema', () => {

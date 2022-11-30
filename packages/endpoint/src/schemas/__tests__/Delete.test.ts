@@ -36,6 +36,9 @@ describe(`${schema.Delete.name} normalization`, () => {
   test('normalizes already processed entities', () => {
     class MyEntity extends IDEntity {}
     expect(normalize('1', new schema.Delete(MyEntity))).toMatchSnapshot();
+    expect(
+      normalize(['1', '2'], new schema.Array(new schema.Delete(MyEntity))),
+    ).toMatchSnapshot();
   });
 
   test('does not infer', () => {

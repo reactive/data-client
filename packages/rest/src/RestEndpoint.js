@@ -22,7 +22,7 @@ export default class RestEndpoint extends Endpoint {
             this.url(urlParams),
             this.getRequestInit(body),
           )
-            .then(this.parseResponse)
+            .then(response => this.parseResponse(response))
             .then(res => this.process(res, ...args));
         },
       options,
@@ -113,11 +113,46 @@ export default class RestEndpoint extends Endpoint {
   }
 
   parseResponse(response) {
-    if (
-      !response.headers.get('content-type')?.includes('json') ||
-      response.status === 204
-    )
-      return response.text();
+    // this should not have any content to read
+    if (response.status === 204) return Promise.resolve(null);
+    if (!response.headers.get('content-type')?.includes('json')) {
+      return response.text().then(text => {
+        // string or 'not set' schema, are valid
+        if (
+          ['string', 'undefined'].includes(typeof this.schema) ||
+          this.schema === null
+        )
+          return text;
+
+        const error = new NetworkError(response);
+        error.status = 404;
+        error.message = `Unexpected text response for schema ${this.schema}`;
+        // custom dev-only messages for more detailed cause
+        /* istanbul ignore else */
+        if (process.env.NODE_ENV !== 'production') {
+          if (
+            !(
+              response.headers.get('content-type')?.includes('html') ||
+              text.startsWith('<!doctype html>')
+            )
+          ) {
+            if (tryParse(text) !== undefined) {
+              error.message = `"content-type" header does not include "json", but JSON response found.
+See https://www.rfc-editor.org/rfc/rfc4627 for information on JSON responses
+
+Using parsed JSON.
+If text content was expected see https://resthooks.io/rest/api/RestEndpoint#parseResponse`;
+            }
+          } else {
+            error.message = `Unexpected html response for schema ${this.schema}
+This likely means no API endpoint was configured for this request, resulting in an HTML fallback.
+
+Response (first 300 characters): ${text.substr(0, 300)}`;
+          }
+        }
+        throw error;
+      });
+    }
     return response.json().catch(error => {
       error.status = 400;
       throw error;
@@ -157,3 +192,11 @@ export default class RestEndpoint extends Endpoint {
     return this.extend({ update: paginationUpdate(this, removeCursor) });
   }
 }
+
+const tryParse = input => {
+  try {
+    return JSON.parse(input);
+  } catch (e) {
+    return undefined;
+  }
+};

@@ -213,7 +213,12 @@ export const normalize = <
   if (
     input === null ||
     (typeof input !== schemaType &&
-      !((schema as any).key !== undefined && typeof input === 'string'))
+      // we will allow a Delete schema to be a string or object
+      !(
+        (schema as any).key !== undefined &&
+        (schema as any).pk === undefined &&
+        typeof input === 'string'
+      ))
   ) {
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {

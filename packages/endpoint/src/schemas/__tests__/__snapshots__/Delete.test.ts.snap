@@ -145,6 +145,18 @@ exports[`Delete normalization normalizes already processed entities 1`] = `
 }
 `;
 
+exports[`Delete normalization normalizes already processed entities 2`] = `
+{
+  "entities": {},
+  "entityMeta": {},
+  "indexes": {},
+  "result": [
+    "1",
+    "2",
+  ],
+}
+`;
+
 exports[`Delete normalization normalizes an object 1`] = `
 {
   "entities": {

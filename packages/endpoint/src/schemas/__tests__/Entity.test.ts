@@ -69,7 +69,20 @@ describe(`${Entity.name} normalization`, () => {
 
   test('normalizes already processed entities', () => {
     class MyEntity extends IDEntity {}
-    expect(normalize('1', MyEntity)).toMatchSnapshot();
+    class Nested extends IDEntity {
+      title = '';
+      nest = MyEntity.fromJS();
+      static schema = {
+        nest: MyEntity,
+      };
+    }
+    expect(normalize(['1'], new schema.Array(MyEntity))).toMatchSnapshot();
+    expect(
+      normalize({ data: '1' }, new schema.Object({ data: MyEntity })),
+    ).toMatchSnapshot();
+    expect(
+      normalize({ title: 'hi', id: '5', nest: '10' }, Nested),
+    ).toMatchSnapshot();
   });
 
   it('should throw a custom error if data does not include pk', () => {

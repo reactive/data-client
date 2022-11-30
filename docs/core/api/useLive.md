@@ -3,7 +3,7 @@ title: useLive()
 ---
 
 <head>
-  <title>useLive() - Use the data that is always fresh</title>
+  <title>useLive() - Use data that is always fresh</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 

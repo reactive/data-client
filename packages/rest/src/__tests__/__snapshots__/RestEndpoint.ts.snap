@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RestEndpoint.fetch() should reject if content-type does not exist with schema 1`] = `
+[NetworkError: Unexpected text response for schema class CoolerArticle extends Article {
+  get things() {
+    return \`\${this.title} five\`;
+  }
+}]
+`;
+
+exports[`RestEndpoint.fetch() should reject if content-type is not json with schema 1`] = `
+[NetworkError: Unexpected html response for schema class CoolerArticle extends Article {
+  get things() {
+    return \`\${this.title} five\`;
+  }
+}
+This likely means no API endpoint was configured for this request, resulting in an HTML fallback.
+
+Response (first 300 characters): <body>this is html</body>]
+`;
+
+exports[`RestEndpoint.fetch() should reject with custom message if content type is set but json parsable 1`] = `
+[NetworkError: "content-type" header does not include "json", but JSON response found.
+See https://www.rfc-editor.org/rfc/rfc4627 for information on JSON responses
+
+Using parsed JSON.
+If text content was expected see https://resthooks.io/rest/api/RestEndpoint#parseResponse]
+`;
