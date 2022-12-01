@@ -1,13 +1,7 @@
-import { Link } from '@anansi/router';
-import { ForkOutlined, StarOutlined } from '@ant-design/icons';
-import { Card, List, Layout, Space, Timeline, Typography, Divider } from 'antd';
-import { groupBy } from 'lodash';
-import React, { useMemo } from 'react';
-import Markdown from 'react-markdown';
-import { EventResource, typeToIcon, Event } from 'resources/Event';
-import RepositoryResource, { Repository } from 'resources/Repository';
-import { UserResource, User } from 'resources/User';
 import { useSuspense } from '@rest-hooks/react';
+import { Card, List, Layout, Typography } from 'antd';
+import Markdown from 'react-markdown';
+import { UserResource } from 'resources/User';
 
 import UserEvents from './UserEvents';
 import UserRepositories from './UserRepos';

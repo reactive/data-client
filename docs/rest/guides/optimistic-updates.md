@@ -207,7 +207,7 @@ more complicated transforms. To make it more obvious we're using a simple counte
 {
 endpoint: new RestEndpoint({path: '/api/count'}),
 args: [],
-response: { count: 0, updatedAt: new Date() }
+response: { count: 0 }
 }
 ]}>
 
@@ -229,12 +229,6 @@ export const increment = new RestEndpoint({
   method: 'POST',
   name: 'increment',
   schema: CountEntity,
-  getRequestInit() {
-    // substitute for super.getRequestInit()
-    return this.constructor.prototype.getRequestInit.call(this, {
-      updatedAt: Date.now(),
-    });
-  },
   getOptimisticResponse(snap) {
     const { data } = snap.getResponse(getCount);
     if (!data) throw new AbortOptimistic();
@@ -252,14 +246,23 @@ import { getCount, increment } from './api/Count';
 function CounterPage() {
   const { fetch } = useController();
   const { count } = useSuspense(getCount);
-  const [clickHandler, loading, error] = useLoading(() => fetch(increment));
+  const [stateCount, setStateCount] = React.useState(0);
+  const [responseCount, setResponseCount] = React.useState(0);
+  const [clickHandler, loading, error] = useLoading(async () => {
+    setStateCount(stateCount+1);
+    const val = await fetch(increment);
+    setResponseCount(val.count);
+    setStateCount(val.count);
+  });
   return (
     <div>
       <p>
         Click the button multiple times quickly to trigger the race condition
       </p>
       <div>
-        {count}
+        Rest Hooks: {count}
+        <br />
+        Other Libraries: {responseCount}; with optimistic: {stateCount}
         <br />
         <button onClick={clickHandler}>+</button>
         {loading ? ' ...loading' : ''}
@@ -272,29 +275,73 @@ render(<CounterPage />);
 
 </HooksPlayground>
 
-Try removing `getOptimisticResponse` from the increment [RestEndpoint](api/RestEndpoint.md). Even without optimistic updates, this race condition can be a real problem. While it is less likely with fast endpoints;
-slower or less reliable internet connections means a slow response time no matter how fast the server is.
+Rest Hooks automatically handles all race conditions due to network timings. Rest Hooks both tracks
+fetch timings, pairs responses with their respective optimistic update and rollsback in case of resolution or
+rejection/failure.
 
-The problem is that the responses come back in a different order than they are computed. If we can determine the
-correct 'total order', we would be able to solve this problem.
+You can see how this is problematic for other libraries even without optimistic updates;
+but optimistic updates make it even worse.
 
-Without optimistic updates, this can be achieved simply by having the server return a timestamp of when it was last updated.
-The client can then choose to ignore responses that are out of date by their time of resolution.
+### Example race condition
 
-### Tracking order with updatedAt
+Here's an example of the race condition. Here we request an increment twice; but the first response comes back to
+client after the second response.
 
-To handle potential out of order resolutions, we can track the last update time in `updatedAt`.
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client
+    participant Server
+    Client->>+Server: Increment from 0
+    Client->>+Server: Increment from 1
+    Server->>-Client: Response: 2
+    Server->>-Client: Response: 1
+```
+
+With other libraries and no optimistic updates this would result in showing 0, then, 2, then 1.
+
+If the other library does have optimistic updates, it should show 0, 1, 2, 2, then 1.
+
+In both cases we end up showing an incorrect state, and along the way see weird janky state updates.
+
+### Compensating for Server timing variations {#server-timings}
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client
+    participant Server
+    Client->>Server: Request timing
+    Note over Client,Server: Server timing
+    Server->>Client: Response timing
+```
+
+There are three timings which can vary in an async mutation.
+
+1. Request timing
+1. Server timing
+1. Response timing
+
+Rest Hooks is able to automatically handling the network timings, aka request and response timing. Typically this
+is sufficient, as servers tend to process requests received first before others. However, in case persist order
+varies from request order in the server this could cause another race condition.
+
+This can be be solved by maintaining a [total order](https://en.wikipedia.org/wiki/Total_order). Because the
+servers and clients can potentially has different times, we will need to track time from a consistent perspective.
+Since we are performing optimistic updates this means we must use the client's clock. This means we will send the request
+timing to the server in an `updatedAt` header via [getRequestInit()](../api/RestEndpoint.md#getRequestInit). The server should then ensure processing based on that order, and
+then store this `updatedAt` in the entity to return in any request.
+
 Overriding our [useIncoming](api/Entity.md#useincoming), we can check which data is newer, and disregard old data
 that resolves out of order.
 
-We use [snap.fetchedAt](/docs/api/Snapshot#fetchedat) in our [getOptimisticResponse](api/RestEndpoint.md#getoptimisticresponse). This respresents the moment the fetch is triggered,
-which is when the optimistic update first applies.
+We use [snap.fetchedAt](/docs/api/Snapshot#fetchedat) in our [getOptimisticResponse](api/RestEndpoint.md#getoptimisticresponse). This respresents the moment the fetch is triggered, which will be the same time the `updatedAt` header is computed.
 
 <HooksPlayground fixtures={[
 {
 endpoint: new RestEndpoint({path: '/api/count'}),
 args: [],
-response: { count: 0, updatedAt: new Date() }
+response: { count: 0, updatedAt: Date.now() }
 }
 ]}>
 
@@ -322,7 +369,7 @@ export const increment = new RestEndpoint({
   name: 'increment',
   schema: CountEntity,
   getRequestInit() {
-    // substitute for super.getRequestInit()
+    // this is a substitute for super.getRequestInit() since we aren't in a class context
     return this.constructor.prototype.getRequestInit.call(this, {
       updatedAt: Date.now(),
     });
@@ -369,122 +416,3 @@ render(<CounterPage />);
 ```
 
 </HooksPlayground>
-
-<!---
-### Vector Clocks
-
-However, when doing an optimistic update, we now have two distinct nodes computed derived data. Optimistic updates
-represent the client's computation and the server also computes derivations. Much like the [real world](https://en.wikipedia.org/wiki/Theory_of_relativity)
-agreeing on a total order of events is no longer possible. However, using [vector clocks](https://en.wikipedia.org/wiki/Vector_clock)
-allows us to maintain agreement on a *casual* order.
-
-The key things to observe in the code example is the added field `updatedAt`, which is our vector clock, as well
-as how it is used in our new [static merge()](/rest/api/Entity#merge) as well as updates to [getOptimisticResponse](/rest/api/Endpoint#getoptimisticresponse).
-
-<HooksPlayground>
-
-```ts
-class CountEntity extends Entity {
-  readonly id = 0;
-  readonly count = 0;
-  readonly updatedAt = { client: 0, server: 0 };
-
-  pk() {
-    return `${this.id}`;
-  }
-
-  static merge(existing, incoming) {
-    if (
-      existing.updatedAt.client < incoming.updatedAt.client ||
-      existing.updatedAt.server < incoming.updatedAt.server
-    ) {
-      return {
-        ...existing,
-        ...incoming,
-        updatedAt: {
-          client: Math.max(
-            existing.updatedAt.client,
-            incoming.updatedAt.client,
-          ),
-          server: Math.max(
-            existing.updatedAt.server,
-            incoming.updatedAt.server,
-          ),
-        },
-      };
-    }
-    return existing;
-  }
-}
-const simulatedServerStateCount = 0;
-const getCount = new Endpoint(
-  (id: number) =>
-    Promise.resolve({
-      id,
-      count: simulatedServerStateCount,
-      updatedAt: { client: 0, server: Date.now() },
-    }),
-  {
-    name: 'get',
-    schema: CountEntity,
-  },
-);
-const increment = new Endpoint(
-  (id: number) =>
-    new Promise(resolve => {
-      const serverState = {
-        id,
-        count: ++simulatedServerStateCount,
-        updatedAt: { client: Date.now(), server: Date.now() + 200 },
-      };
-      // resolve from 500ms -> 5 seconds. Represents network variance.
-      // making state computed before hand allows demonstrating out of order race conditions
-      setTimeout(() => resolve(serverState), 500 + Math.random() * 4500);
-    }),
-  {
-    name: 'increment',
-    schema: CountEntity,
-    sideEffect: true,
-    getOptimisticResponse(snap, id) {
-      const { data } = snap.getResponse(getCount, id);
-      // server already has this optimistic computation then do nothing
-      if (!data || snap.fetchedAt < data.updatedAt.client) throw new AbortOptimistic();
-      return {
-        id,
-        count: data.count + 1,
-        updatedAt: {
-          client: snap.fetchedAt,
-          server: data.updatedAt.server,
-        },
-      };
-    },
-  },
-);
-
-function CounterPage() {
-  const { fetch } = useController();
-  const { count } = useSuspense(getCount, 1);
-  const [n, setN] = React.useState(count);
-  const [clickHandler, loading, error] = useLoading(() => {
-    fetch(increment, 1);
-    setN(n => n+1);
-  });
-  return (
-    <div>
-      <p>
-        Click the button multiple times quickly to trigger the potential race condition.
-        This time our vector clock protects us.
-      </p>
-      <div>
-        Network: {count} Should be: {n}<br/><button onClick={clickHandler}>+</button>
-        {loading ? ' ...loading' : ''}
-      </div>
-    </div>
-  );
-}
-render(<CounterPage />);
-```
-
-</HooksPlayground>
-
--->

@@ -1,14 +1,9 @@
 import { Link } from '@anansi/router';
-import {
-  BranchesOutlined,
-  ForkOutlined,
-  PullRequestOutlined,
-  StarOutlined,
-} from '@ant-design/icons';
-import { Card, List, Layout, Space, Timeline, Typography, Divider } from 'antd';
+import { BranchesOutlined, PullRequestOutlined } from '@ant-design/icons';
+import { useSuspense } from '@rest-hooks/react';
+import { Card, Layout, Timeline, Typography, Divider } from 'antd';
 import { groupBy } from 'lodash';
-import React, { useMemo } from 'react';
-import Markdown from 'react-markdown';
+import { useMemo } from 'react';
 import {
   EventResource,
   typeToIcon,
@@ -18,9 +13,7 @@ import {
   PushEvent,
   PullRequestReviewEvent,
 } from 'resources/Event';
-import RepositoryResource, { Repository } from 'resources/Repository';
-import { UserResource, User } from 'resources/User';
-import { useSuspense } from '@rest-hooks/react';
+import { User } from 'resources/User';
 
 import FlexRow from '../../components/FlexRow';
 

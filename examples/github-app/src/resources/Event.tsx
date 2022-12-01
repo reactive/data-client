@@ -12,9 +12,7 @@ import { Issue } from './Issue';
 import PreviewEndpoint from './PreviewEndpoint';
 import { PullRequest } from './PullRequest';
 import { Push } from './Push';
-import { Repository } from './Repository';
 import { Review } from './Review';
-import { User } from './User';
 
 export class Event extends GithubEntity {
   readonly type:

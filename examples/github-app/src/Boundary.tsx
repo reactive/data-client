@@ -1,7 +1,7 @@
 import { styled } from '@linaria/react';
-import { NetworkErrorBoundary } from '@rest-hooks/react';
+import { AsyncBoundary } from '@rest-hooks/react';
 import { Spin } from 'antd';
-import { memo, Suspense } from 'react';
+import { memo } from 'react';
 import type { ReactNode } from 'react';
 
 function Boundary({
@@ -11,11 +11,7 @@ function Boundary({
   children: ReactNode;
   fallback?: ReactNode;
 }) {
-  return (
-    <Suspense fallback={fallback}>
-      <NetworkErrorBoundary>{children}</NetworkErrorBoundary>
-    </Suspense>
-  );
+  return <AsyncBoundary fallback={fallback}>{children}</AsyncBoundary>;
 }
 export default memo(Boundary);
 

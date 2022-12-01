@@ -10,7 +10,7 @@ import TabItem from '@theme/TabItem';
   <title>LogoutManager - Handling 401s and other deauthorization triggers</title>
 </head>
 
-Logs out when receiving a [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401) response.
+Logs out based on fetch responses. By default this is triggered by [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401) status responses.
 
 ## Usage
 

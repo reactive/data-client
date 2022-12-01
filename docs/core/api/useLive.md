@@ -35,9 +35,9 @@ function useLive<
 
 </GenericsTabs>
 
-[useSuspense()](./useSuspense.md) + [useSubscription()](./useSubscription.md).
+Fetch and use data, while keeping it updated with remote changes.
 
-Fetch and use data, while keeping it fresh to change remote changes.
+[useSuspense()](./useSuspense.md) + [useSubscription()](./useSubscription.md) in one hook.
 
 <ConditionalDependencies hook="useLive" />
 
