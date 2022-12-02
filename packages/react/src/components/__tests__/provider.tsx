@@ -24,7 +24,7 @@ describe('<CacheProvider />', () => {
   let debugspy: jest.SpyInstance;
   beforeEach(() => {
     warnspy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
-    debugspy = jest.spyOn(global.console, 'info').mockImplementation(() => {});
+    debugspy = jest.spyOn(global.console, 'debug').mockImplementation(() => {});
   });
   afterEach(() => {
     warnspy.mockRestore();
