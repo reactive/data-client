@@ -47,6 +47,19 @@ function CacheStore({
       managers[i].init?.(state);
     }
     return () => {
+      // dispatching after unmount should be ignored
+      /* istanbul ignore else */
+      if (process.env.NODE_ENV !== 'production') {
+        (controller as any).dispatch = (action: any) => {
+          console.debug(
+            'Action dispatched after CacheProvider unmounted. This will be ignored.',
+          );
+          console.debug(JSON.stringify(action, undefined, 2));
+          return Promise.resolve();
+        };
+      } else {
+        (controller as any).dispatch = () => Promise.resolve();
+      }
       for (let i = 0; i < managers.length; ++i) {
         managers[i].cleanup();
       }

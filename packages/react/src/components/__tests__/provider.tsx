@@ -3,6 +3,9 @@ import {
   NetworkManager,
   actionTypes,
   SubscriptionManager,
+  Manager,
+  Middleware,
+  Controller,
 } from '@rest-hooks/core';
 import { act, render } from '@testing-library/react';
 import { CoolerArticle, CoolerArticleResource } from '__tests__/new';
@@ -18,11 +21,14 @@ const { RECEIVE_TYPE } = actionTypes;
 
 describe('<CacheProvider />', () => {
   let warnspy: jest.SpyInstance;
+  let debugspy: jest.SpyInstance;
   beforeEach(() => {
-    warnspy = jest.spyOn(global.console, 'warn');
+    warnspy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
+    debugspy = jest.spyOn(global.console, 'debug').mockImplementation(() => {});
   });
   afterEach(() => {
     warnspy.mockRestore();
+    debugspy.mockRestore();
   });
 
   beforeAll(() => {
@@ -149,5 +155,62 @@ describe('<CacheProvider />', () => {
       manager => manager instanceof SubscriptionManager,
     );
     expect(subManagers.length).toBe(1);
+  });
+
+  it('should ignore dispatches after unmount', async () => {
+    class InjectorManager implements Manager {
+      protected declare middleware: Middleware;
+      declare controller: Controller;
+
+      constructor() {
+        this.middleware = controller => {
+          this.controller = controller;
+          return next => async action => {
+            await next(action);
+          };
+        };
+      }
+
+      cleanup() {}
+
+      getMiddleware() {
+        return this.middleware;
+      }
+    }
+    const injector = new InjectorManager();
+    const managers = [injector, ...CacheProvider.defaultProps.managers];
+    let resolve: (r: any) => void = () => {};
+    const endpoint = CoolerArticleResource.get.extend({
+      fetch() {
+        return new Promise(res => {
+          resolve = res;
+        });
+      },
+    });
+    const Component = () => {
+      const article = useSuspense(endpoint, { id: 5 });
+      return <div>{article.title}</div>;
+    };
+    const tree = (
+      <CacheProvider managers={managers}>
+        <Suspense fallback="loading">
+          <Component />
+        </Suspense>
+      </CacheProvider>
+    );
+    const { getByText, unmount } = render(tree);
+    const msg = getByText('loading');
+    expect(msg).toBeDefined();
+    unmount();
+    expect(debugspy).not.toHaveBeenCalled();
+    await act(() =>
+      injector.controller.receive(endpoint, { id: 5 }, { id: 5, title: 'hi' }),
+    );
+    expect(debugspy).toHaveBeenCalled();
+    expect(debugspy.mock.calls[0]).toMatchInlineSnapshot(`
+      [
+        "Action dispatched after CacheProvider unmounted. This will be ignored.",
+      ]
+    `);
   });
 });
