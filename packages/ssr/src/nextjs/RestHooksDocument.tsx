@@ -4,6 +4,7 @@ import Document, {
   DocumentContext,
   DocumentInitialProps,
 } from 'next/document.js';
+import 'core-js/es/object/has-own';
 
 import createPersistedStore from '../createPersistedStore.js';
 import createServerDataComponent from '../createServerDataComponent.js';

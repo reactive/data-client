@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import 'core-js/es/object/has-own';
 import type { Schema, NormalizedIndex, UnvisitFunction } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';

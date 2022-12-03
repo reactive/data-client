@@ -1,5 +1,6 @@
 import type { State } from '@rest-hooks/core';
 import React, { useContext } from 'react';
+import 'core-js/es/object/has-own';
 
 import { StateContext, StoreContext } from '../context.js';
 
