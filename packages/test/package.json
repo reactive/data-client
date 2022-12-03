@@ -98,8 +98,9 @@
     "url": "https://github.com/coinbase/rest-hooks/issues"
   },
   "dependencies": {
-    "@babel/runtime": "^7.13.0",
-    "@testing-library/react-hooks": "~8.0.0"
+    "@babel/runtime": "^7.17.0",
+    "@testing-library/react-hooks": "~8.0.0",
+    "core-js": "^3.17.0"
   },
   "peerDependencies": {
     "@rest-hooks/react": "^0.2.0 || ^0.3.0 || ^1.0.0 || ^6.0.0 || ^7.0.0",

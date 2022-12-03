@@ -100,7 +100,16 @@ export default function App({ Component, pageProps }: AppProps) {
 
 Alternatively [integrate state with redux](../guides/redux.md)
 
-<details><summary><b>Legacy (IE) browser support</b></summary>
+<details><summary><b>Older browser support</b></summary>
+
+If your application targets older browsers (a few years or more), be sure to load polyfills.
+Typically this is done with [@babel/preset-env useBuiltIns: 'entry'](https://babeljs.io/docs/en/babel-preset-env#usebuiltins),
+coupled with importing [https://www.npmjs.com/package/core-js] at the entrypoint of your application.
+
+This ensures only the needed polyfills for your browser support targets are included in your application bundle.
+
+</details>
+<details><summary><b>Internet Explorer support</b></summary>
 
 If you see `Uncaught TypeError: Class constructor Resource cannot be invoked without 'new'`,
 follow the instructions to [add legacy browser support to packages](../guides/legacy-browser)

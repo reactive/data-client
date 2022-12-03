@@ -93,6 +93,7 @@
   "peerDependencies": {
     "@rest-hooks/react": "^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0",
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
+    "core-js": "^3.17.0",
     "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0"
   },
   "peerDependenciesMeta": {

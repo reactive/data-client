@@ -9,6 +9,7 @@ module.exports = function (api) {
         {
           typing: 'typescript',
           loose: true,
+          useBuiltIns: 'entry',
           resolver: {
             extensions: ['.ts.', '.tsx', '.js', '.jsx', '.es', '.es6', '.mjs'],
             resolvePath(sourcePath, currentFile, opts) {
@@ -26,10 +27,6 @@ module.exports = function (api) {
         },
       ],
     ],
-    plugins: [
-      process.env.BROWSERSLIST_ENV !== '2020' &&
-        'babel-plugin-transform-object-hasown',
-    ].filter(p => p),
     assumptions: {
       noDocumentAll: true,
       noClassCalls: true,

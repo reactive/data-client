@@ -1,3 +1,4 @@
+import 'core-js/es/object/has-own';
 /** Link in a chain */
 class Link<K extends object, V> {
   children = new WeakMap<K, Link<K, V>>();
