@@ -6,6 +6,7 @@ import type {
   SchemaList,
 } from '@rest-hooks/endpoint';
 import type { AbstractInstanceType } from '@rest-hooks/endpoint';
+import 'core-js/es/object/has-own';
 
 import EntityRecord from './EntityRecord.js';
 import { NotImplementedError } from './errors.js';

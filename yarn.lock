@@ -1942,21 +1942,21 @@ __metadata:
   linkType: hard
 
 "@babel/runtime-corejs3@npm:^7.10.2":
-  version: 7.18.3
-  resolution: "@babel/runtime-corejs3@npm:7.18.3"
+  version: 7.20.6
+  resolution: "@babel/runtime-corejs3@npm:7.20.6"
   dependencies:
-    core-js-pure: ^3.20.2
-    regenerator-runtime: ^0.13.4
-  checksum: 50319e107e4c3dc6662404daf1079ab1ecd1cb232577bf50e645c5051fa8977f6ce48a44aa1d158ce2beaec76a43df4fc404999bf4f03c66719c3f8b8fe50a4e
+    core-js-pure: ^3.25.1
+    regenerator-runtime: ^0.13.11
+  checksum: d533d432216509426c4f9dad56db2fe453112b7d738433111944372fba4abd0b07bee3261f19a218530b435de46592121b2a6a57b98c0c7c3452d552ba009c3e
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.10.1, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.10.4, @babel/runtime@npm:^7.10.5, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.0, @babel/runtime@npm:^7.13.8, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.16.7, @babel/runtime@npm:^7.17.2, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.9.2":
-  version: 7.20.1
-  resolution: "@babel/runtime@npm:7.20.1"
+"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.10.1, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.10.4, @babel/runtime@npm:^7.10.5, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.0, @babel/runtime@npm:^7.13.8, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.16.7, @babel/runtime@npm:^7.17.0, @babel/runtime@npm:^7.17.2, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.9.2":
+  version: 7.20.6
+  resolution: "@babel/runtime@npm:7.20.6"
   dependencies:
-    regenerator-runtime: ^0.13.10
-  checksum: 00567a333d3357925742a6f5e39394dcc0af6e6029103fe188158bf7ae8b0b3ee3c6c0f68fccc217f0a6cfa455f6be252298baf56b3f5ff37b34313b170cd9f6
+    regenerator-runtime: ^0.13.11
+  checksum: 42a8504db21031b1859fbc0f52d698a3d2f5ada9519eb76c6f96a7e657d8d555732a18fe71ef428a67cc9fc81ca0d3562fb7afdc70549c5fec343190cbaa9b03
   languageName: node
   linkType: hard
 
@@ -3993,9 +3993,10 @@ __metadata:
   dependencies:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
-    "@babel/runtime": ^7.13.0
+    "@babel/runtime": ^7.17.0
     "@rest-hooks/normalizr": ^9.3.1
     "@types/babel__core": ^7
+    core-js: ^3.17.0
     downlevel-dts: ^0.10.0
     flux-standard-action: ^2.1.1
     npm-run-all: ^4.1.5
@@ -4017,8 +4018,9 @@ __metadata:
   dependencies:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
-    "@babel/runtime": ^7.13.0
+    "@babel/runtime": ^7.17.0
     "@types/babel__core": ^7
+    core-js: ^3.17.0
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
     rollup: 2.79.1
@@ -4039,7 +4041,7 @@ __metadata:
   dependencies:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
-    "@babel/runtime": ^7.13.0
+    "@babel/runtime": ^7.17.0
     "@types/babel__core": ^7
     "@types/path-to-regexp": ^1.7.0
     downlevel-dts: ^0.10.0
@@ -4070,7 +4072,7 @@ __metadata:
   dependencies:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
-    "@babel/runtime": ^7.13.0
+    "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.2.2
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
@@ -4092,7 +4094,7 @@ __metadata:
   dependencies:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
-    "@babel/runtime": ^7.13.0
+    "@babel/runtime": ^7.17.0
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     rollup: 2.79.1
@@ -4119,7 +4121,7 @@ __metadata:
   dependencies:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
-    "@babel/runtime": ^7.13.0
+    "@babel/runtime": ^7.17.0
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     rollup: 2.79.1
@@ -4161,6 +4163,7 @@ __metadata:
   peerDependencies:
     "@rest-hooks/react": ^0.1.0 || ^0.2.0 || ^6.0.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
+    core-js: ^3.17.0
     react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
   peerDependenciesMeta:
     "@types/react":
@@ -4174,8 +4177,9 @@ __metadata:
   dependencies:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
-    "@babel/runtime": ^7.13.0
+    "@babel/runtime": ^7.17.0
     "@types/babel__core": ^7
+    core-js: ^3.17.0
     downlevel-dts: ^0.10.0
     immutable: 4.1.0
     npm-run-all: ^4.1.5
@@ -4196,10 +4200,11 @@ __metadata:
   dependencies:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
-    "@babel/runtime": ^7.13.0
+    "@babel/runtime": ^7.17.0
     "@rest-hooks/core": ^4.0.2
     "@rest-hooks/use-enhanced-reducer": ^1.2.0
     "@types/babel__core": ^7
+    core-js: ^3.17.0
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
     rollup: 2.79.1
@@ -4229,7 +4234,7 @@ __metadata:
   dependencies:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
-    "@babel/runtime": ^7.13.0
+    "@babel/runtime": ^7.17.0
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
@@ -4260,12 +4265,13 @@ __metadata:
   dependencies:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
-    "@babel/runtime": ^7.13.0
+    "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.2.2
     "@types/babel__core": ^7
     "@types/copyfiles": ^2
     "@types/path-to-regexp": ^1.7.0
     copyfiles: ^2.4.1
+    core-js: ^3.17.0
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
     path-to-regexp: ^6.2.1
@@ -4286,8 +4292,9 @@ __metadata:
   dependencies:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
-    "@babel/runtime": ^7.13.0
+    "@babel/runtime": ^7.17.0
     "@types/babel__core": ^7
+    core-js: ^3.17.0
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
     rollup: 2.79.1
@@ -4337,9 +4344,10 @@ __metadata:
   dependencies:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
-    "@babel/runtime": ^7.13.0
+    "@babel/runtime": ^7.17.0
     "@testing-library/react-hooks": ~8.0.0
     "@types/babel__core": ^7
+    core-js: ^3.17.0
     downlevel-dts: ^0.10.0
     rollup: 2.79.1
     rollup-plugin-babel: ^4.4.0
@@ -6613,13 +6621,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-transform-object-hasown@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "babel-plugin-transform-object-hasown@npm:1.1.0"
-  checksum: 5cdde8b784ebc2364324da16c48cbc75de63d9529be02ceff6a44a86f0681e41a771fdc857b01828e46bf3d2b0228cfae27f436678f19db9e54172e9a79ef4bf
-  languageName: node
-  linkType: hard
-
 "babel-plugin-transform-react-remove-prop-types@npm:^0.4.24":
   version: 0.4.24
   resolution: "babel-plugin-transform-react-remove-prop-types@npm:0.4.24"
@@ -8232,25 +8233,32 @@ __metadata:
   linkType: hard
 
 "core-js-compat@npm:^3.23.5, core-js-compat@npm:^3.25.1":
-  version: 3.25.1
-  resolution: "core-js-compat@npm:3.25.1"
+  version: 3.26.1
+  resolution: "core-js-compat@npm:3.26.1"
   dependencies:
-    browserslist: ^4.21.3
-  checksum: 34dbec657adc2f660f4cd701709c9c5e27cbd608211c65df09458f80f3e357b9492ba1c5173e17cca72d889dcc6da01268cadf88fb407cf1726e76d301c6143e
+    browserslist: ^4.21.4
+  checksum: f222bce0002eae405327d68286e1d566037e8ac21906a47d7ecd15858adca7b12e82140db11dc43c8cc1fc066c5306120f3c27bfb2d7dbc2d20a72a2d90d38dc
   languageName: node
   linkType: hard
 
-"core-js-pure@npm:^3.20.2, core-js-pure@npm:^3.23.3":
-  version: 3.25.5
-  resolution: "core-js-pure@npm:3.25.5"
-  checksum: e48799a8ab28f00ef3db18377142ff2c578574ab2b18ebddde6cbf12823e0181a57c80e3caa6046ce2a2e439d603a252be767583ddc54248e3d1060bc5012127
+"core-js-pure@npm:^3.23.3, core-js-pure@npm:^3.25.1":
+  version: 3.26.1
+  resolution: "core-js-pure@npm:3.26.1"
+  checksum: d88c40e5e29e413c11d1ef991a8d5b6a63f00bd94707af0f649d3fc18b3524108b202f4ae75ce77620a1557d1ba340bc3362b4f25d590eccc37cf80fc75f7cd4
   languageName: node
   linkType: hard
 
-"core-js@npm:3.26.0, core-js@npm:^3.21.0, core-js@npm:^3.25.1":
+"core-js@npm:3.26.0, core-js@npm:^3.25.1":
   version: 3.26.0
   resolution: "core-js@npm:3.26.0"
   checksum: 0149eb9d3909fde9c17626af3a6e625c326e8598d0bb5e6c5b48a18e5fcd4eaf48d4964d873667d8148542ff590fb98eb3f93618da114ca54999d6bc0349734b
+  languageName: node
+  linkType: hard
+
+"core-js@npm:^3.17.0, core-js@npm:^3.21.0":
+  version: 3.26.1
+  resolution: "core-js@npm:3.26.1"
+  checksum: 0a01149f51ff1e9f41d1ea49cc4c9222047949ea597189ede7c4cf8cde3b097766b9c7615acc77c86fe65b4002f20b638a133dfba7b41dba830d707aeeed45ad
   languageName: node
   linkType: hard
 
@@ -19395,10 +19403,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"regenerator-runtime@npm:^0.13.10, regenerator-runtime@npm:^0.13.2, regenerator-runtime@npm:^0.13.4":
+"regenerator-runtime@npm:^0.13.10":
   version: 0.13.10
   resolution: "regenerator-runtime@npm:0.13.10"
   checksum: 09893f5a9e82932642d9a999716b6c626dc53ef2a01307c952ebbf8e011802360163a37c304c18a6c358548be5a72b448e37209954a18696f21e438c81cbb4b9
+  languageName: node
+  linkType: hard
+
+"regenerator-runtime@npm:^0.13.11, regenerator-runtime@npm:^0.13.2":
+  version: 0.13.11
+  resolution: "regenerator-runtime@npm:0.13.11"
+  checksum: 27481628d22a1c4e3ff551096a683b424242a216fee44685467307f14d58020af1e19660bf2e26064de946bad7eff28950eae9f8209d55723e2d9351e632bbb4
   languageName: node
   linkType: hard
 
@@ -19764,11 +19779,12 @@ __metadata:
   dependencies:
     "@babel/cli": 7.19.3
     "@babel/core": 7.20.2
-    "@babel/runtime": ^7.13.0
+    "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.2.2
     "@rest-hooks/react": ^6.0.0
     "@rest-hooks/redux": ^6.0.0
     "@types/babel__core": ^7
+    core-js: ^3.17.0
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
     redux: ^4.0.0
@@ -20038,7 +20054,6 @@ __metadata:
     "@types/react": 18.0.25
     "@typescript-eslint/eslint-plugin": 5.42.1
     "@typescript-eslint/parser": 5.42.1
-    babel-plugin-transform-object-hasown: ^1.1.0
     benchmark: ^2.1.4
     conventional-changelog-anansi: ^0.2.0
     copyfiles: ^2.4.1

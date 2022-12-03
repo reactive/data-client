@@ -4,6 +4,7 @@ import type {
   EndpointExtraOptions,
   AbstractInstanceType,
 } from '@rest-hooks/endpoint';
+import 'core-js/es/object/has-own';
 
 import { ReadShape, MutateShape, DeleteShape } from '../rest-3/legacy.js';
 import Delete from './Delete.js';
