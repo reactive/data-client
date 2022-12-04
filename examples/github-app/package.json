@@ -35,7 +35,7 @@
     "@types/prettier": "2.7.1",
     "@types/react": "18.0.26",
     "@types/react-dom": "18.0.9",
-    "@types/uuid": "^8",
+    "@types/uuid": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "5.45.0",
     "@typescript-eslint/parser": "5.45.0",
     "eslint": "8.29.0",
@@ -75,6 +75,6 @@
     "rehype-highlight": "6.0.0",
     "remark-gfm": "^3.0.1",
     "remark-remove-comments": "^0.2.0",
-    "uuid": "^8.3.2"
+    "uuid": "^9.0.0"
   }
 }
