@@ -5352,10 +5352,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/uuid@npm:^8":
-  version: 8.3.4
-  resolution: "@types/uuid@npm:8.3.4"
-  checksum: 6f11f3ff70f30210edaa8071422d405e9c1d4e53abbe50fdce365150d3c698fe7bbff65c1e71ae080cbfb8fded860dbb5e174da96fdbbdfcaa3fb3daa474d20f
+"@types/uuid@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "@types/uuid@npm:9.0.0"
+  checksum: 59ae56d9547c8758588659da2a2b4c97cce79c2aae1798c892bb29452ef08e87859dea2ec3a66bfa88d0d2153147520be2b1893be920f9f0bc9c53a3207ea6aa
   languageName: node
   linkType: hard
 
@@ -11100,7 +11100,7 @@ __metadata:
     "@types/prettier": 2.7.1
     "@types/react": 18.0.26
     "@types/react-dom": 18.0.9
-    "@types/uuid": ^8
+    "@types/uuid": ^9.0.0
     "@typescript-eslint/eslint-plugin": 5.45.0
     "@typescript-eslint/parser": 5.45.0
     antd: 5.0.3
@@ -11128,7 +11128,7 @@ __metadata:
     rollup-plugin-replace: ^2.2.0
     rollup-plugin-terser: ^7.0.2
     serve: 14.1.2
-    uuid: ^8.3.2
+    uuid: ^9.0.0
     webpack: 5.75.0
     webpack-cli: 5.0.0
     webpack-dev-server: 4.11.1
