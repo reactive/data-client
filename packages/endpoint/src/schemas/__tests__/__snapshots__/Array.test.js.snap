@@ -1690,7 +1690,7 @@ exports[`ArraySchema normalization (plain) Object should throw a custom error if
 
 Parsing this input string as JSON worked. This likely indicates fetch function did not parse
 the JSON. By default, this only happens if "content-type" header includes "json".
-See https://resthooks.io/docs/guides/custom-networking for more information
+See https://resthooks.io/rest/api/RestEndpoint#parseResponse for more information
 
   Schema: [
   {
@@ -2155,7 +2155,7 @@ exports[`ArraySchema normalization (schema) Object should throw a custom error i
 
 Parsing this input string as JSON worked. This likely indicates fetch function did not parse
 the JSON. By default, this only happens if "content-type" header includes "json".
-See https://resthooks.io/docs/guides/custom-networking for more information
+See https://resthooks.io/rest/api/RestEndpoint#parseResponse for more information
 
   Schema: [
   {
