@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.3.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/graphql@0.3.6...@rest-hooks/graphql@0.3.7) (2022-12-05)
+
+### 💅 Enhancement
+
+* Include Object.hasOwn polyfill ([#2309](https://github.com/coinbase/rest-hooks/issues/2309)) ([14b93f6](https://github.com/coinbase/rest-hooks/commit/14b93f67f0589df5813909e0c1acd4cacad0a3ee))
+
+### 🐛 Bug Fix
+
+* Network down/ CORS errors should be 'soft' by default ([#2302](https://github.com/coinbase/rest-hooks/issues/2302)) ([2545ce8](https://github.com/coinbase/rest-hooks/commit/2545ce8164e69905773738d7da0e170b3810a48e))
+
+### 📦 Package
+
+* Update babel packages ([#2308](https://github.com/coinbase/rest-hooks/issues/2308)) ([e3ee5ee](https://github.com/coinbase/rest-hooks/commit/e3ee5ee57431971ba4bdb47b48ed89933412374c))
+
 ### [0.3.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/graphql@0.3.5...@rest-hooks/graphql@0.3.6) (2022-11-22)
 
 **Note:** Version bump only for package @rest-hooks/graphql

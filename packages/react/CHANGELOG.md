@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.1.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/react@7.1.0...@rest-hooks/react@7.1.1) (2022-12-05)
+
+### 💅 Enhancement
+
+* Block dispatches after unmount ([#2307](https://github.com/coinbase/rest-hooks/issues/2307)) ([55af3e6](https://github.com/coinbase/rest-hooks/commit/55af3e693c310f81511b254c1c2451d3bcbd7342))
+* Include Object.hasOwn polyfill ([#2309](https://github.com/coinbase/rest-hooks/issues/2309)) ([14b93f6](https://github.com/coinbase/rest-hooks/commit/14b93f67f0589df5813909e0c1acd4cacad0a3ee))
+
+### 📦 Package
+
+* Update babel packages ([#2308](https://github.com/coinbase/rest-hooks/issues/2308)) ([e3ee5ee](https://github.com/coinbase/rest-hooks/commit/e3ee5ee57431971ba4bdb47b48ed89933412374c))
+
+### 📝 Documentation
+
+* Lots of fixes ([#2295](https://github.com/coinbase/rest-hooks/issues/2295)) ([2d151e8](https://github.com/coinbase/rest-hooks/commit/2d151e824bac674f35b20f684defffd26c1409a1))
+
 ## [7.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/react@7.0.0...@rest-hooks/react@7.1.0) (2022-11-22)
 
 ### 🚀 Features

@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.2.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@3.2.3...@rest-hooks/endpoint@3.2.4) (2022-12-05)
+
+### 💅 Enhancement
+
+* Detect html bad responses ([#2311](https://github.com/coinbase/rest-hooks/issues/2311)) ([674001b](https://github.com/coinbase/rest-hooks/commit/674001bb697017c925d9f138744e94826fa1c519))
+* Include Object.hasOwn polyfill ([#2309](https://github.com/coinbase/rest-hooks/issues/2309)) ([14b93f6](https://github.com/coinbase/rest-hooks/commit/14b93f67f0589df5813909e0c1acd4cacad0a3ee))
+* Update doc link in normalize error ([042237a](https://github.com/coinbase/rest-hooks/commit/042237a0196c9ec3d9e00d1ad0f12334daf3f3df))
+
+### 📦 Package
+
+* Update babel packages ([#2308](https://github.com/coinbase/rest-hooks/issues/2308)) ([e3ee5ee](https://github.com/coinbase/rest-hooks/commit/e3ee5ee57431971ba4bdb47b48ed89933412374c))
+
 ### [3.2.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@3.2.2...@rest-hooks/endpoint@3.2.3) (2022-11-22)
 
 ### 📦 Package

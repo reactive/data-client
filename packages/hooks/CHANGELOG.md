@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.1.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/hooks@3.1.0...@rest-hooks/hooks@3.1.1) (2022-12-05)
+
+### 💅 Enhancement
+
+* Include Object.hasOwn polyfill ([#2309](https://github.com/coinbase/rest-hooks/issues/2309)) ([14b93f6](https://github.com/coinbase/rest-hooks/commit/14b93f67f0589df5813909e0c1acd4cacad0a3ee))
+
+### 📦 Package
+
+* Update babel packages ([#2308](https://github.com/coinbase/rest-hooks/issues/2308)) ([e3ee5ee](https://github.com/coinbase/rest-hooks/commit/e3ee5ee57431971ba4bdb47b48ed89933412374c))
+
 ## [3.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/hooks@3.0.9...@rest-hooks/hooks@3.1.0) (2022-11-13)
 
 ### 🚀 Features
