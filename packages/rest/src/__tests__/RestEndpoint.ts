@@ -473,10 +473,87 @@ describe('RestEndpoint', () => {
       expect(updateUser.additional).toBe(5);
       const nobody = updateUser.extend({
         path: 'http\\://test.com/user/:charm',
+        body: undefined,
       });
       () => nobody({ charm: 5 });
       // @ts-expect-error
       () => nobody({ id: 5 });
+    });
+
+    it('setting body in extend should work without path', async () => {
+      mynock.put('/user/5').reply(200, (uri, body: any) => ({
+        id: 5,
+        username: 'bob',
+        ...body,
+      }));
+
+      const updateUser = new MyEndpoint({
+        method: 'PUT',
+        path: 'http\\://test.com/user/:id',
+        name: 'update',
+        schema: User,
+      }).extend({
+        body: 5,
+      });
+      const response = await updateUser(
+        { id: 5 },
+        // @ts-expect-error
+        { username: 'micky', email: 'micky@gmail.com' },
+      );
+      () => updateUser({ id: 5 }, 5);
+      expect(response).toMatchInlineSnapshot(`
+        {
+          "email": "always@always.com",
+          "id": 5,
+          "username": "micky",
+        }
+      `);
+      expect(updateUser.additional).toBe(5);
+      const nobody = updateUser.extend({
+        path: 'http\\://test.com/user/:charm',
+        body: undefined,
+      });
+      () => nobody({ charm: 5 });
+      // @ts-expect-error
+      () => nobody({ id: 5 });
+
+      const updateUser2 = new MyEndpoint({
+        method: 'PUT',
+        path: 'http\\://test.com/user/:id',
+        name: 'update',
+        schema: User,
+      }).extend({
+        searchParams: {} as { isAdmin: boolean },
+      });
+      () =>
+        updateUser2(
+          { id: 5, isAdmin: true },
+          { username: 'micky', email: 'micky@gmail.com' },
+        );
+      () =>
+        // @ts-expect-error
+        updateUser2({ id: 5 }, { username: 'micky', email: 'micky@gmail.com' });
+      () =>
+        updateUser2(
+          // @ts-expect-error
+          { isAdmin: true },
+          { username: 'micky', email: 'micky@gmail.com' },
+        );
+
+      const updateBasic = new MyEndpoint({
+        method: 'PUT',
+        path: 'http\\://test.com/user/:id',
+        name: 'update',
+        schema: User,
+      });
+      () =>
+        updateBasic({ id: 5 }, { username: 'micky', email: 'micky@gmail.com' });
+      () =>
+        updateBasic(
+          // @ts-expect-error
+          { id: 5, isAdmin: true },
+          { username: 'micky', email: 'micky@gmail.com' },
+        );
     });
 
     it('should work with default schema in class definition', async () => {
@@ -517,11 +594,12 @@ describe('RestEndpoint', () => {
       > extends MyEndpoint<
         Defaults<O, { schema: DefaultUser; path: 'http\\://test.com/user/:id' }>
       > {
-        constructor(options: Readonly<O & { name: string }>) {
-          super(options as any);
+        constructor({
+          path = 'http\\://test.com/user/:id',
+          ...options
+        }: Readonly<O & { name: string }>) {
+          super({ path, ...options } as any);
         }
-
-        readonly path = 'http\\://test.com/user/:id';
       }
 
       const getUser = new UserEndpoint({
@@ -605,6 +683,7 @@ describe('RestEndpoint', () => {
         path: 'http\\://test.com/:group/user/:id',
         schema: User2,
       });
+      getUserBase.body;
       expect(getUserBase.name).toBe('getuser');
       expect(getUser.name).toBe('getuser');
       expect(getUser.additional).toBe(5);
@@ -675,6 +754,47 @@ describe('RestEndpoint', () => {
       ).toMatchInlineSnapshot(
         `"http://test.com/hi/user/what?isAdmin=true&sort=desc"`,
       );
+
+      const searchParams2 = searchParams.extend({
+        searchParams: {} as { bigger: boolean },
+      });
+      () => searchParams2({ group: 'hi', id: 'what', bigger: true });
+      () => searchParams2({ group: 'hi', id: 'what', bigger: false });
+      // @ts-expect-error
+      () => searchParams2({ group: 'hi', id: 'what', bigger: 5 });
+      // @ts-expect-error
+      () => searchParams2({ group: 'hi', id: 'what', sort: 'asc' });
+      // @ts-expect-error
+      () => searchParams2({ group: 'hi', id: 'what' });
+      // @ts-expect-error
+      () => searchParams2.url({ group: 'hi', id: 'what' });
+      expect(
+        searchParams2.url({
+          group: 'hi',
+          id: 'what',
+          bigger: true,
+        }),
+      ).toMatchInlineSnapshot(`"http://test.com/hi/user/what?bigger=true"`);
+
+      const searchParams3 = getUserBase.extend({
+        searchParams: {} as { bigger: boolean },
+      });
+      () => searchParams3({ id: 'what', bigger: true });
+      () => searchParams3({ id: 'what', bigger: false });
+      // @ts-expect-error
+      () => searchParams3({ id: 'what', bigger: 5 });
+      // @ts-expect-error
+      () => searchParams3({ id: 'what', sort: 'asc' });
+      // @ts-expect-error
+      () => searchParams3({ id: 'what' });
+      // @ts-expect-error
+      () => searchParams3.url({ id: 'what' });
+      expect(
+        searchParams3.url({
+          id: 'what',
+          bigger: true,
+        }),
+      ).toMatchInlineSnapshot(`"http://test.com/user/what?bigger=true"`);
     });
   });
   it('extending with name should work', () => {

@@ -854,11 +854,22 @@ interface RestInstance<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = any,
   M extends true | undefined = true | undefined,
+  O extends {
+    path: string;
+    body?: any;
+    searchParams?: any;
+  } = { path: string },
 > extends EndpointInstanceInterface<F, S, M> {
+  readonly body?: 'body' extends keyof O ? O['body'] : any;
+  readonly searchParams?: 'searchParams' extends keyof O
+    ? O['searchParams']
+    : // unknown is identity with '&' type operator
+      unknown;
+
   /** Pattern to construct url based on Url Parameters
    * @see https://resthooks.io/rest/api/RestEndpoint#path
    */
-  readonly path: string;
+  readonly path: O['path'];
   /** Prepended to all urls
    * @see https://resthooks.io/rest/api/RestEndpoint#urlPrefix
    */
@@ -904,29 +915,58 @@ type RestEndpointExtendOptions<
   E extends RestInstance,
   F extends FetchFunction,
 > = RestEndpointOptions<OptionsToFunction<O, E, F>> &
-  Partial<Omit<E, keyof RestInstance>>;
+  Partial<Omit<E, KeyofRestEndpoint | 'body' | 'searchParams'>>;
 
 type OptionsToFunction<
   O extends PartialRestGenerics,
-  E extends RestInstance,
+  E extends RestInstance & { body?: any },
   F extends FetchFunction,
 > = 'path' extends keyof O
   ? RestType<
       'searchParams' extends keyof O
         ? O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
         : PathArgs<Exclude<O['path'], undefined>>,
-      'body' extends keyof O ? O['body'] : undefined,
+      'body' extends keyof O ? O['body'] : E['body'],
       'schema' extends keyof O ? O['schema'] : E['schema'],
       'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
-      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>
+      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
+      {
+        path: Exclude<O['path'], undefined>;
+        body: 'body' extends keyof O ? O['body'] : E['body'];
+        searchParams: 'searchParams' extends keyof O
+          ? O['searchParams']
+          : E['searchParams'];
+      }
     >
   : 'body' extends keyof O
   ? RestType<
-      UrlParamsFromFunction<Parameters<E>>,
+      'searchParams' extends keyof O
+        ? O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>
+        : UrlParamsFromFunction<Parameters<E>>,
       O['body'],
       'schema' extends keyof O ? O['schema'] : E['schema'],
       'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
-      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>
+      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
+      {
+        path: E['path'];
+        body: O['body'];
+        searchParams: 'searchParams' extends keyof O
+          ? O['searchParams']
+          : E['searchParams'];
+      }
+    >
+  : 'searchParams' extends keyof O
+  ? RestType<
+      O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>,
+      E['body'],
+      'schema' extends keyof O ? O['schema'] : E['schema'],
+      'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
+      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
+      {
+        path: E['path'];
+        body: E['body'];
+        searchParams: O['searchParams'];
+      }
     >
   : F;
 type UrlParamsFromFunction<Args extends any[]> = 1 extends keyof Args
@@ -949,8 +989,8 @@ type RestExtendedEndpoint<
     'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect']
   >
 > &
-  Omit<O, KeyofRestEndpoint | 'body' | 'searchParams'> &
-  Omit<E, KeyofRestEndpoint>;
+  Omit<O, KeyofRestEndpoint> &
+  Omit<E, KeyofRestEndpoint | keyof O>;
 
 interface PartialRestGenerics {
   readonly path?: string;
@@ -973,7 +1013,8 @@ type PaginationEndpoint<
 > = RestInstance<
   ParamFetchNoBody<A[0], ResolveType<E>>,
   E['schema'],
-  E['sideEffect']
+  E['sideEffect'],
+  Pick<E, 'path' | 'searchParams' | 'body'>
 >;
 
 type BodyDefault<O extends RestGenerics> = 'body' extends keyof O
@@ -981,6 +1022,12 @@ type BodyDefault<O extends RestGenerics> = 'body' extends keyof O
   : O['method'] extends 'POST' | 'PUT' | 'PATCH'
   ? Record<string, unknown> | FormData
   : undefined;
+
+type OptionsBodyDefault<O extends RestGenerics> = 'body' extends keyof O
+  ? O
+  : O['method'] extends 'POST' | 'PUT' | 'PATCH'
+  ? O & { body: any }
+  : O & { body: undefined };
 
 interface RestEndpointOptions<F extends FetchFunction = FetchFunction>
   extends EndpointExtraOptions<F> {
@@ -1029,10 +1076,12 @@ interface RestEndpointConstructor {
         : any /*Denormalize<O['schema']>*/
     >,
     O['schema'] extends Schema | undefined ? O['schema'] : undefined,
-    MethodToSide<O['method']>
+    MethodToSide<O['method']>,
+    OptionsBodyDefault<O>
   >;
   readonly prototype: RestInstance;
 }
+
 /** Simplifies endpoint definitions that follow REST patterns
  *
  * @see https://resthooks.io/rest/api/RestEndpoint
@@ -1053,10 +1102,15 @@ type RestType<
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined,
   R = any,
+  O extends {
+    path: string;
+    body?: any;
+    searchParams?: any;
+  } = { path: string },
   // eslint-disable-next-line @typescript-eslint/ban-types
 > = Body extends {}
-  ? RestTypeWithBody<UrlParams, S, M, Body, R>
-  : RestTypeNoBody<UrlParams, S, M, R>;
+  ? RestTypeWithBody<UrlParams, S, M, Body, R, O>
+  : RestTypeNoBody<UrlParams, S, M, R, O>;
 
 type RestTypeWithBody<
   UrlParams = any,
@@ -1064,14 +1118,24 @@ type RestTypeWithBody<
   M extends true | undefined = true | undefined,
   Body extends BodyInit | Record<string, any> = any,
   R = any /*Denormalize<S>*/,
-> = RestInstance<ParamFetchWithBody<UrlParams, Body, R>, S, M>;
+  O extends {
+    path: string;
+    body?: any;
+    searchParams?: any;
+  } = { path: string; body: any },
+> = RestInstance<ParamFetchWithBody<UrlParams, Body, R>, S, M, O>;
 
 type RestTypeNoBody<
   UrlParams = any,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined,
   R = any /*Denormalize<S>*/,
-> = RestInstance<ParamFetchNoBody<UrlParams, R>, S, M>;
+  O extends {
+    path: string;
+    body?: undefined;
+    searchParams?: any;
+  } = { path: string; body: undefined },
+> = RestInstance<ParamFetchNoBody<UrlParams, R>, S, M, O>;
 
 /** Simple parameters, and body fetch functions */
 type RestFetch<
@@ -1119,13 +1183,13 @@ type FetchGet<A extends readonly any[] = [any], R = any> = (
 type GetEndpoint<
   UrlParams = any,
   S extends Schema | undefined = Schema | undefined,
-> = RestTypeNoBody<UrlParams, S, undefined>;
+> = RestTypeNoBody<UrlParams, S, undefined, { path: string; body: undefined }>;
 
 type MutateEndpoint<
   UrlParams = any,
   Body extends BodyInit | Record<string, any> = any,
   S extends Schema | undefined = Schema | undefined,
-> = RestTypeWithBody<UrlParams, S, true, Body>;
+> = RestTypeWithBody<UrlParams, S, true, Body, { path: string; body: Body }>;
 
 type Defaults<O, D> = {
   [K in keyof O | keyof D]: K extends keyof O

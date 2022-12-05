@@ -4,7 +4,7 @@ slug: /
 ---
 
 <head>
-  <title>Rest Hooks Introduction - Asynchronous Data for React ✨</title>
+  <title>Introducing The Relational Data Client for React: Rest Hooks ✨</title>
 </head>
 
 import Tabs from '@theme/Tabs';

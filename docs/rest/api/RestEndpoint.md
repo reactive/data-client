@@ -204,17 +204,8 @@ rpc({ id: 5 });
 `searchParams` can be used in a similar way to `body` to specify types extra parameters, used
 for the GET/searchParams/queryParams in a [url()](#url).
 
-:::caution
-
-There is an important
-limitation - they can only be provided when [path](#path) is also provided. Furthermore,
-providing [path](#path) but not `searchParams` will reset them.
-
-:::
-
 ```ts
 const getList = getUser.extend({
-  path: '/:group/user/:id',
   searchParams: {} as { isAdmin?: boolean; sort: 'asc' | 'desc' },
 });
 getList.url({group: 'big', id: '5', sort: 'asc' }) === '/big/user/5?sort=asc';
