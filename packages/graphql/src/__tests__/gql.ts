@@ -110,6 +110,15 @@ describe('GQLEndpoint', () => {
     }`,
     { user: User },
   );
+  const userDetailNoSchema = gql.query(
+    (v: { name: string }) => `query UserDetail($name: String!) {
+      user(name: $name) {
+        id
+        name
+        email
+      }
+    }`,
+  );
 
   it('should query', async () => {
     const response = await userDetail({ name: 'Fong' });
@@ -126,6 +135,21 @@ describe('GQLEndpoint', () => {
     `);
     // @ts-expect-error
     expect(response.slkd).toBeUndefined();
+  });
+
+  it('should query no schema', async () => {
+    const response = await userDetailNoSchema({ name: 'Fong' });
+    expect(response.user).toBeDefined();
+    expect(response.user.name).toBeDefined();
+    expect(response).toMatchInlineSnapshot(`
+      {
+        "user": {
+          "email": "fong@test.com",
+          "id": "1",
+          "name": "Fong",
+        },
+      }
+    `);
   });
 
   it('should deny bad types', () => {

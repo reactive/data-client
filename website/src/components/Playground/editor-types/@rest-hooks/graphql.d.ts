@@ -843,7 +843,7 @@ interface GQLOptions<Variables, S extends Schema | undefined = Schema | undefine
     fetchResponse?(input: RequestInfo, init: RequestInit): Promise<any>;
     process?(value: any, variables: any): any;
 }
-declare class GQLEndpoint<Variables, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined> extends Endpoint<(v: Variables) => Promise<Denormalize<S>>, S, M> {
+declare class GQLEndpoint<Variables, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined> extends Endpoint<(v: Variables) => Promise<S extends undefined ? any : Denormalize<S>>, S, M> {
     readonly url: string;
     signal?: AbortSignal;
     constructor(url: string, options?: GQLOptions<Variables, S, M>);

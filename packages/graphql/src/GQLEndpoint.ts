@@ -18,7 +18,11 @@ export default class GQLEndpoint<
   Variables,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined,
-> extends Endpoint<(v: Variables) => Promise<Denormalize<S>>, S, M> {
+> extends Endpoint<
+  (v: Variables) => Promise<S extends undefined ? any : Denormalize<S>>,
+  S,
+  M
+> {
   declare readonly url: string;
   declare signal?: AbortSignal;
 
