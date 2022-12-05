@@ -5,6 +5,11 @@ title: Manager
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+<head>
+  <title>Manager - Powerful middlewares with global store knowledge</title>
+  <meta name="docsearch:pagerank" content="20"/>
+</head>
+
 Managers are singletons that orchestrate the complex asynchronous behavior of `rest-hooks`.
 Several managers are provided by `rest-hooks` and used by default; however there is nothing
 stopping other compatible managers to be built that expand the functionality. We encourage
@@ -173,7 +178,7 @@ export default class LoggingManager implements Manager {
 }
 ```
 
-### Middleware data stream
+### Middleware data stream (with websockets) {#data-stream}
 
 ```typescript
 import type { Manager, Middleware } from '@rest-hooks/core';

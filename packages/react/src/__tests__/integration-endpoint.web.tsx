@@ -445,8 +445,7 @@ describe.each([
       await fetch(CoolerArticleResource.delete, { id: temppayload.id });
     });
     expect(throws.length).toBeGreaterThanOrEqual(2); //TODO: delete seems to have receive process multiple times. we suspect this is because of test+act integration.
-    await waitForNextUpdate();
-    await throws[throws.length - 1];
+    await Promise.race([waitForNextUpdate(), throws[throws.length - 1]]);
     [data, fetch] = result.current;
     expect(data).toBeInstanceOf(CoolerArticle);
     expect(data.title).toBe('othertitle');

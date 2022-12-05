@@ -38,3 +38,32 @@ class User extends Entity {
   });
 }
 ```
+
+:::tip
+
+If you simply want to [deserialize a field](./network-transform.md#deserializing-fields) to a more useful form like [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) or [BigNumber](https://github.com/MikeMcl/bignumber.js), you can use
+the declarative [static schema](./network-transform.md#deserializing-fields).
+
+
+```typescript
+import { Entity } from '@rest-hooks/rest';
+
+class User extends Entity {
+  id = '';
+  firstName = '';
+  lastName = '';
+  createdAt = new Date(0);
+
+  pk() {
+    return this.id;
+  }
+
+  // highlight-start
+  static schema = {
+    createdAt: Date,
+  };
+  // highlight-end
+}
+```
+
+:::

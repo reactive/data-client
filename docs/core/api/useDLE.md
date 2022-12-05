@@ -44,6 +44,8 @@ function useDLE<
 
 In case you cannot use [suspense](../getting-started/data-dependency.md#async-fallbacks), useDLE() is just like [useSuspense()](./useSuspense.md) but returns [D]ata [L]oading [E]rror values.
 
+<ConditionalDependencies hook="useDLE" />
+
 ## Hook usage
 
 <HooksPlayground fixtures={[
@@ -99,4 +101,3 @@ render(<ProfileList />);
 
 </HooksPlayground>
 
-<ConditionalDependencies hook="useDLE" />

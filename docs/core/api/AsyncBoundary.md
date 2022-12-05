@@ -1,5 +1,5 @@
 ---
-title: "<AsyncBoundary />"
+title: '<AsyncBoundary />'
 ---
 
 <head>
@@ -10,16 +10,47 @@ title: "<AsyncBoundary />"
 Handles loading and error conditions of Suspense.
 
 ```tsx
-function AsyncBoundary({ children, errorComponent, fallback, }: {
-    children: React.ReactNode;
-    fallback?: React.ReactNode;
-    errorComponent?: React.ComponentType<{
-        error: NetworkError;
-    }>;
+function AsyncBoundary({
+  children,
+  errorComponent,
+  fallback,
+}: {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+  errorComponent?: React.ComponentType<{
+    error: NetworkError;
+  }>;
 }): JSX.Element;
 ```
 
-Custom fallback usage example:
+:::tip
+
+Learn more about boundary placement by learning how to [co-locate data dependencies](../getting-started/data-dependency.md)
+
+:::
+
+## Example
+
+```tsx
+import React from 'react';
+import { AsyncBoundary } from '@rest-hooks/react';
+
+export default function MyPage() {
+  return (
+    <AsyncBoundary>
+      <SuspendingComponent />
+    </AsyncBoundary>
+  );
+}
+
+function SuspendingComponent() {
+  const data = useSuspense(MyEndpoint);
+
+  return <div>{data.text}</div>
+}
+```
+
+## Custom fallback example {#custom-fallback}
 
 ```tsx
 import React from 'react';
@@ -33,7 +64,7 @@ function ErrorPage({ error }: { error: NetworkError }) {
   );
 }
 
-export default function App(): React.ReactElement {
+export default function App() {
   return (
     <CacheProvider>
       <AsyncBoundary fallback="loading" errorComponent={ErrorPage}>

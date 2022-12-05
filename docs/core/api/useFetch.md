@@ -3,6 +3,7 @@ title: useFetch()
 ---
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
+import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 
 <head>
   <title>useFetch() - Declarative fetch triggers</title>
@@ -56,6 +57,8 @@ Use in combination with a data-binding hook ([useCache()](./useCache.md), [useSu
 in another component.
 
 :::
+
+<ConditionalDependencies hook="useFetch" />
 
 ## Example
 
