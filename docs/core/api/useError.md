@@ -2,6 +2,10 @@
 title: useError()
 ---
 
+<head>
+  <title>useError() - Accessing error metadata</title>
+</head>
+
 ```typescript
 export interface SyntheticError extends Error {
   status: number;

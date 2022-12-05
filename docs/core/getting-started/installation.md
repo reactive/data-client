@@ -104,7 +104,7 @@ Alternatively [integrate state with redux](../guides/redux.md)
 
 If your application targets older browsers (a few years or more), be sure to load polyfills.
 Typically this is done with [@babel/preset-env useBuiltIns: 'entry'](https://babeljs.io/docs/en/babel-preset-env#usebuiltins),
-coupled with importing [https://www.npmjs.com/package/core-js] at the entrypoint of your application.
+coupled with importing [core-js](https://www.npmjs.com/package/core-js) at the entrypoint of your application.
 
 This ensures only the needed polyfills for your browser support targets are included in your application bundle.
 

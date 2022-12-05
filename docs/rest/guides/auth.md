@@ -154,7 +154,7 @@ export const MyResource = createResource({
 
 ## Auth Headers from React Context
 
-:::warning
+:::caution
 
 Using React Context for state that is not displayed (like auth tokens) is not recommended.
 This will result in unnecessary re-renders and application complexity.

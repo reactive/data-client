@@ -1,7 +1,7 @@
-import React from 'react';
-import clsx from 'clsx';
-import { Link } from 'react-router-dom';
 import { GQLEndpoint } from '@rest-hooks/graphql';
+import clsx from 'clsx';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 import { TODOS } from '../../mocks/handlers';
 import CodeEditor from './CodeEditor';
@@ -235,6 +235,7 @@ export const TodoResource = {
   ...BaseTodoResource,
   getList: BaseTodoResource.getList.extend({
     process(todos) {
+      // for demo purposes we'll only use the first seven
       return todos.slice(0, 7);
     },
   }),

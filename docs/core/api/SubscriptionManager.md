@@ -7,7 +7,7 @@ sidebar_label: SubscriptionManager
 class SubscriptionManager<S extends SubscriptionConstructable> implements Manager
 ```
 
-Keeps track of all resource subscriptions.
+Orchestrates all subscriptions; ensuring fresh data without overfetching.
 
 ## constructor(Subscription: S)
 

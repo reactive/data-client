@@ -15,6 +15,8 @@ assignees: ''
 
 **Package manager version** (e.g., yarn 2, npm 8)
 
+**Environment version** (e.g., chrome 108, react-native 0.70.6 android)
+
 **Node version** (e.g., 16.13.2)
 
 **Describe the bug**

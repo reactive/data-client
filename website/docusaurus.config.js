@@ -8,7 +8,7 @@ const isDev = process.env.NODE_ENV === 'development';
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'Rest Hooks',
-  tagline: 'Declarative Async State Management for React',
+  tagline: 'The Relational Data Client (for React)',
   url: 'https://resthooks.io',
   baseUrl: '/',
   organizationName: 'coinbase',
@@ -459,6 +459,10 @@ module.exports = {
               {
                 label: 'Demo (Todo)',
                 to: 'https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoListComponent.tsx',
+              },
+              {
+                label: 'Demo (NextJS)',
+                to: 'https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx',
               },
               /*{
               html: `<iframe

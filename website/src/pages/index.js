@@ -1,14 +1,14 @@
-import React from 'react';
-import clsx from 'clsx';
-import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import Layout from '@theme/Layout';
+import ThemedImage from '@theme/ThemedImage';
+import clsx from 'clsx';
+import React from 'react';
 
-import styles from './index.module.css';
-import HomepageFeatures from '../components/HomepageFeatures';
 import Demo from '../components/Demo/index';
+import HomepageFeatures from '../components/HomepageFeatures';
+import styles from './index.module.css';
 
 const ProjectTitle = () => {
   const sources = {
@@ -65,7 +65,7 @@ export default function Home() {
   const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
-      title={`Declarative Async State Management for React`}
+      title={`The Relational Data Client (for React)`}
       description="Making dynamic sites performant, scalable, simple to build with any API design. ...all typed ...fast ...and consistent"
     >
       <HomepageHeader />
