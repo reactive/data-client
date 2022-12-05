@@ -1058,15 +1058,24 @@ declare class DevToolsManager implements Manager {
     getMiddleware(): Middleware$2<any>;
 }
 
-type Dispatch = (value: CombinedActionTypes) => Promise<void>;
-type Middleware = <C extends Controller<Dispatch>>(controller: C) => (next: C['dispatch']) => C['dispatch'];
+/** Handling network unauthorized indicators like HTTP 401
+ *
+ * @see https://resthooks.io/docs/api/LogoutManager
+ */
 declare class LogoutManager implements Manager<CombinedActionTypes> {
     protected middleware: Middleware;
-    constructor();
+    constructor({ handleLogout, shouldLogout }?: Props);
     cleanup(): void;
     getMiddleware(): Middleware;
     protected shouldLogout(error: UnknownError): boolean;
     handleLogout(controller: Controller<Dispatch>): void;
+}
+type Dispatch = (value: CombinedActionTypes) => Promise<void>;
+type Middleware = <C extends Controller<Dispatch>>(controller: C) => (next: C['dispatch']) => C['dispatch'];
+type HandleLogout = (controller: Controller<Dispatch>) => void;
+interface Props {
+    handleLogout?: HandleLogout;
+    shouldLogout?: (error: UnknownError) => boolean;
 }
 
 export { AbstractInstanceType, ActionTypes, BodyFromShape, CombinedActionTypes, ConnectionListener, Controller, DefaultConnectionListener, DeleteShape, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, FetchShape, GCAction, InvalidateAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, MutateShape, NetworkError, NetworkManager, Normalize, NormalizeNullable, OldActionTypes, OptimisticAction, PK, ParamsFromShape, PollingSubscription, ReadShape, ReceiveAction, ReceiveTypes, ResetAction, ResetError, ResolveType, ResponseActions, ResultEntry, ReturnFromShape, Schema, SetShapeParams, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createReducer, initialState, index_d as legacyActions, newActions, reducer };
