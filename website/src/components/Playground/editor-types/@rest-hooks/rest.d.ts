@@ -1183,13 +1183,13 @@ type FetchGet<A extends readonly any[] = [any], R = any> = (
 type GetEndpoint<
   UrlParams = any,
   S extends Schema | undefined = Schema | undefined,
-> = RestTypeNoBody<UrlParams, S, undefined, { path: string; body: undefined }>;
+> = RestTypeNoBody<UrlParams, S, undefined>;
 
 type MutateEndpoint<
   UrlParams = any,
   Body extends BodyInit | Record<string, any> = any,
   S extends Schema | undefined = Schema | undefined,
-> = RestTypeWithBody<UrlParams, S, true, Body, { path: string; body: Body }>;
+> = RestTypeWithBody<UrlParams, S, true, Body>;
 
 type Defaults<O, D> = {
   [K in keyof O | keyof D]: K extends keyof O

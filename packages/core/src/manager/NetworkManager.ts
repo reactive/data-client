@@ -1,4 +1,3 @@
-import 'core-js/es/object/has-own';
 import { RECEIVE_TYPE, FETCH_TYPE, RESET_TYPE } from '../actionTypes.js';
 import Controller from '../controller/Controller.js';
 import { initialState } from '../internal.js';

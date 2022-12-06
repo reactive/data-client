@@ -1,7 +1,6 @@
 import type { EndpointInterface } from '@rest-hooks/react';
 
 import type { FetchShape } from './shapes.js';
-import 'core-js/es/object/has-own';
 
 type ShapeTypeToSideEffect<T extends 'read' | 'mutate' | 'delete' | undefined> =
   T extends 'read' | undefined ? undefined : true;
