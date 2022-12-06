@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1670209771965,
+  "lastUpdate": 1670362062990,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -9440,6 +9440,93 @@ window.BENCHMARK_DATA = {
             "range": "±2.70%",
             "unit": "ops/sec",
             "extra": "70 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1f8009d9849cfb784f072a1078b4d12b37d59a04",
+          "message": "enhance: Reduce bundlesize via custom Object.hasOwn polyfill (#2322)",
+          "timestamp": "2022-12-06T13:22:44-08:00",
+          "tree_id": "99a078c47fd7aa35592580b2e85482682b463828",
+          "url": "https://github.com/coinbase/rest-hooks/commit/1f8009d9849cfb784f072a1078b4d12b37d59a04"
+        },
+        "date": 1670362061450,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 93.55,
+            "range": "±1.56%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 5505,
+            "range": "±0.28%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 46.16,
+            "range": "±0.78%",
+            "unit": "ops/sec",
+            "extra": "60 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 48.71,
+            "range": "±0.46%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 48.22,
+            "range": "±1.73%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 47.96,
+            "range": "±0.42%",
+            "unit": "ops/sec",
+            "extra": "62 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 94,
+            "range": "±2.20%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "receiveLongWithMerge",
+            "value": 61.51,
+            "range": "±0.50%",
+            "unit": "ops/sec",
+            "extra": "62 samples"
+          },
+          {
+            "name": "receiveLongWithSimpleMerge",
+            "value": 80.09,
+            "range": "±0.97%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
           }
         ]
       }
