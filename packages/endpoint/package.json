@@ -99,8 +99,7 @@
     "url": "https://github.com/coinbase/rest-hooks/issues"
   },
   "dependencies": {
-    "@babel/runtime": "^7.17.0",
-    "core-js": "^3.17.0"
+    "@babel/runtime": "^7.17.0"
   },
   "devDependencies": {
     "@babel/cli": "7.19.3",

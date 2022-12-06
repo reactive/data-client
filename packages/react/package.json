@@ -123,8 +123,7 @@
   "dependencies": {
     "@babel/runtime": "^7.17.0",
     "@rest-hooks/core": "^4.0.2",
-    "@rest-hooks/use-enhanced-reducer": "^1.2.0",
-    "core-js": "^3.17.0"
+    "@rest-hooks/use-enhanced-reducer": "^1.2.0"
   },
   "peerDependencies": {
     "@react-navigation/native": "^6.0.0",

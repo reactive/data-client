@@ -9,7 +9,6 @@ module.exports = function (api) {
         {
           typing: 'typescript',
           loose: true,
-          useBuiltIns: 'entry',
           resolver: {
             extensions: ['.ts.', '.tsx', '.js', '.jsx', '.es', '.es6', '.mjs'],
             resolvePath(sourcePath, currentFile, opts) {

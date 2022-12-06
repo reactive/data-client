@@ -9,7 +9,6 @@ import type {
   DenormalizeCache,
 } from './types.js';
 import WeakListMap from './WeakListMap.js';
-import 'core-js/es/object/has-own';
 
 const DRAFT = Symbol('draft');
 
