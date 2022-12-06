@@ -1,5 +1,3 @@
-import 'core-js/es/object/has-own';
-
 export default function validateRequired(
   processedEntity: any,
   requiredDefaults: Record<string, unknown>,

@@ -7,7 +7,6 @@ import {
 } from '@rest-hooks/react';
 import { useCallback, useContext, useMemo } from 'react';
 import React from 'react';
-import 'core-js/es/object/has-own';
 
 import { Fixture, dispatchFixture } from './mockState.js';
 

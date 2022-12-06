@@ -1,5 +1,4 @@
 import { compile, PathFunction, parse } from 'path-to-regexp';
-import 'core-js/es/object/has-own';
 
 import { ShortenPath } from './pathTypes.js';
 

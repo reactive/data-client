@@ -1,19 +1,19 @@
-import React, { useContext, useMemo, useReducer, useState, lazy } from 'react';
-import { LiveProvider, LiveProviderProps } from 'react-live';
-import clsx from 'clsx';
+import { usePrismTheme } from '@docusaurus/theme-common';
 import Translate from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import { usePrismTheme } from '@docusaurus/theme-common';
 import { FixtureEndpoint } from '@rest-hooks/test';
+import clsx from 'clsx';
+import React, { useContext, useMemo, useReducer, useState, lazy } from 'react';
+import { LiveProvider, LiveProviderProps } from 'react-live';
 
 import CodeTabContext from '../Demo/CodeTabContext';
-import styles from './styles.module.css';
+import Boundary from './Boundary';
 import FixturePreview from './FixturePreview';
 import Header from './Header';
-import PreviewWithHeader from './PreviewWithHeader';
-import Boundary from './Boundary';
-import PlaygroundEditor from './PlaygroundEditor';
 import MonacoPreloads from './MonacoPreloads';
+import PlaygroundEditor from './PlaygroundEditor';
+import PreviewWithHeader from './PreviewWithHeader';
+import styles from './styles.module.css';
 
 function HeaderTabs() {
   const { selectedValue, setSelectedValue, values } =

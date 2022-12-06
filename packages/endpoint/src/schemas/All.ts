@@ -1,4 +1,3 @@
-import 'core-js/es/object/has-own';
 import { EntityTable } from '../interface.js';
 import { EntityInterface, EntityMap, SchemaFunction } from '../schema.js';
 import ArraySchema from './Array.js';

@@ -108,6 +108,8 @@ coupled with importing [core-js](https://www.npmjs.com/package/core-js) at the e
 
 This ensures only the needed polyfills for your browser support targets are included in your application bundle.
 
+For instance `TypeError: Object.hasOwn is not a function`
+
 </details>
 <details><summary><b>Internet Explorer support</b></summary>
 
