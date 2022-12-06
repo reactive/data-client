@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.2.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@5.2.1...@rest-hooks/legacy@5.2.2) (2022-12-06)
+
+### 💅 Enhancement
+
+* Reduce bundlesize via custom Object.hasOwn polyfill ([#2322](https://github.com/coinbase/rest-hooks/issues/2322)) ([1f8009d](https://github.com/coinbase/rest-hooks/commit/1f8009d9849cfb784f072a1078b4d12b37d59a04))
+
 ### [5.2.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@5.2.0...@rest-hooks/legacy@5.2.1) (2022-12-05)
 
 ### 💅 Enhancement

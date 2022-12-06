@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.3.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/graphql@0.3.7...@rest-hooks/graphql@0.3.8) (2022-12-06)
+
+### 💅 Enhancement
+
+* GQLEndpoint without schema should resolve to any ([#2319](https://github.com/coinbase/rest-hooks/issues/2319)) ([8d2184b](https://github.com/coinbase/rest-hooks/commit/8d2184b045e1b81d97e2ae780cb5446b2abbee51))
+
 ### [0.3.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/graphql@0.3.6...@rest-hooks/graphql@0.3.7) (2022-12-05)
 
 ### 💅 Enhancement

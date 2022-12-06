@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.2.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.2.2...@rest-hooks/rest@6.2.3) (2022-12-06)
+
+### 💅 Enhancement
+
+* Allow extend({searchParams}) without path arg ([#2320](https://github.com/coinbase/rest-hooks/issues/2320)) ([2c8ff55](https://github.com/coinbase/rest-hooks/commit/2c8ff556e317483beadc7cc4eb4339edd5a6ec7e))
+* Reduce bundlesize via custom Object.hasOwn polyfill ([#2322](https://github.com/coinbase/rest-hooks/issues/2322)) ([1f8009d](https://github.com/coinbase/rest-hooks/commit/1f8009d9849cfb784f072a1078b4d12b37d59a04))
+
 ### [6.2.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.2.1...@rest-hooks/rest@6.2.2) (2022-12-05)
 
 ### 💅 Enhancement

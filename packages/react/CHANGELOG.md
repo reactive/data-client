@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.1.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/react@7.1.1...@rest-hooks/react@7.1.2) (2022-12-06)
+
+### 💅 Enhancement
+
+* Reduce bundlesize via custom Object.hasOwn polyfill ([#2322](https://github.com/coinbase/rest-hooks/issues/2322)) ([1f8009d](https://github.com/coinbase/rest-hooks/commit/1f8009d9849cfb784f072a1078b4d12b37d59a04))
+
+### 📝 Documentation
+
+* Random improvements and robots.txt again ([#2318](https://github.com/coinbase/rest-hooks/issues/2318)) ([b146f82](https://github.com/coinbase/rest-hooks/commit/b146f821f4cef623d410692449555190deb9a9e0))
+
 ### [7.1.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/react@7.1.0...@rest-hooks/react@7.1.1) (2022-12-05)
 
 ### 💅 Enhancement
