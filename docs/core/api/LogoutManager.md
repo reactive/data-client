@@ -12,6 +12,12 @@ import TabItem from '@theme/TabItem';
 
 Logs out based on fetch responses. By default this is triggered by [401 (Unauthorized)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401) status responses.
 
+:::info implements
+
+`LogoutManager` implements [Manager](./Manager.md)
+
+:::
+
 ## Usage
 
 <Tabs

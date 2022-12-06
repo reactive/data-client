@@ -1,10 +1,7 @@
 ---
-title: PollingSubscription implements Subscription
+title: PollingSubscription
 sidebar_label: PollingSubscription
-hide_title: true
 ---
-
-# PollingSubscription implements [Subscription](./SubscriptionManager.md)
 
 Will dispatch a `fetch` action at the minimum interval of all subscriptions to this
 resource.
@@ -12,6 +9,12 @@ resource.
 - Pauses when offline.
 - Immediately fetches when online status returns.
 - Immediately fetches any new subscriptions.
+
+:::info implements
+
+`PollingSubscription` implements [Subscription](./SubscriptionManager.md#subscription)
+
+:::
 
 ```tsx
 import {

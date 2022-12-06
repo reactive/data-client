@@ -1,5 +1,5 @@
 ---
-title: "SubscriptionManager<S extends SubscriptionConstructable> implements Manager"
+title: "SubscriptionManager"
 sidebar_label: SubscriptionManager
 ---
 
@@ -8,6 +8,12 @@ class SubscriptionManager<S extends SubscriptionConstructable> implements Manage
 ```
 
 Orchestrates all subscriptions; ensuring fresh data without overfetching.
+
+:::info implements
+
+`SubscriptionManager` implements [Manager](./Manager.md)
+
+:::
 
 ## constructor(Subscription: S)
 
