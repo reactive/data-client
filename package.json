@@ -53,7 +53,7 @@
     "@testing-library/react-native": "11.5.0",
     "@types/jest": "29.2.3",
     "@types/lodash": "4.14.191",
-    "@types/node": "18.11.10",
+    "@types/node": "18.11.11",
     "@types/react": "18.0.26",
     "@typescript-eslint/eslint-plugin": "5.45.0",
     "@typescript-eslint/parser": "5.45.0",
@@ -86,7 +86,7 @@
     "rest-hooks": "workspace:^",
     "rimraf": "^3.0.2",
     "ts-node": "10.9.1",
-    "typescript": "4.9.3",
+    "typescript": "4.9.4",
     "whatwg-fetch": "3.0.0"
   },
   "packageManager": "yarn@3.3.0"
