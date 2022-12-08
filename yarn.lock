@@ -149,12 +149,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:0.7.3":
-  version: 0.7.3
-  resolution: "@anansi/router@npm:0.7.3"
+"@anansi/router@npm:0.7.4":
+  version: 0.7.4
+  resolution: "@anansi/router@npm:0.7.4"
   dependencies:
     "@babel/runtime": ^7.17.0
-    "@pojo-router/core": ^0.5.50
+    "@pojo-router/core": ^0.5.51
     history: ^5.3.0
     nano-memoize: ^1.3.0
   peerDependencies:
@@ -163,7 +163,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: a0f7ec47665bacc525391b22a3b7ec9909ce2188fbfbbce0b31e115cc021b1da2bdcc989d930cd48e7537dfbb7ca851ba1690236a7c6ccb496a6db3c963dbc64
+  checksum: 3fe62c35fa5262692350a06c5ca86d8f06d21b567c3d1e9150d418cb6ad96d55b071e57574d438737c4d85081f7bd5f933a0705bca06b2357d5b51f61f9c8ab1
   languageName: node
   linkType: hard
 
@@ -3761,9 +3761,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.5.50":
-  version: 0.5.50
-  resolution: "@pojo-router/core@npm:0.5.50"
+"@pojo-router/core@npm:^0.5.51":
+  version: 0.5.51
+  resolution: "@pojo-router/core@npm:0.5.51"
   dependencies:
     "@babel/runtime": ^7.17.0
     history: 5.3.0
@@ -3774,7 +3774,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: e9ca9356c106acb5833c0b8223c56fbac91c7e1c5c80ae07bb976351ea8d2276a8b3bbe4e91d54fe6fccab7db615ad8e21c5b15b6dcc31e25b1db732a2457702
+  checksum: 53713ef77d9e80df824148d594015b072e56c2e94d3faa4469801ecfeca2a2e3a26ab6e9e7ce655130f9c821fa0c80888d71dac1056299ae3af3ce71e5a906ab
   languageName: node
   linkType: hard
 
@@ -3782,6 +3782,15 @@ __metadata:
   version: 1.0.0-next.15
   resolution: "@polka/url@npm:1.0.0-next.15"
   checksum: 10f5ebf60b1c6237a36c6f62d90b0426e660c3d8afb4db3cee9c25231eb1f76bed55cb8845bc145187793396a07fa9592fe591e7333e7fa3dc639b741f9cf6c7
+  languageName: node
+  linkType: hard
+
+"@rc-component/mini-decimal@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@rc-component/mini-decimal@npm:1.0.1"
+  dependencies:
+    "@babel/runtime": ^7.18.0
+  checksum: 2fd3f3d9c404f679461fa52372b71b1131ecad6b2a34d6b5be07b04475ed22428ffc7dac599a28734b349f7b1c5b714cf879e9c005a89430016c6d83899ff1e9
   languageName: node
   linkType: hard
 
@@ -4133,7 +4142,7 @@ __metadata:
     rollup-plugin-node-resolve: ^5.2.0
     rollup-plugin-replace: ^2.2.0
     rollup-plugin-terser: ^7.0.2
-    typescript: 4.9.3
+    typescript: 4.9.4
   languageName: unknown
   linkType: soft
 
@@ -5173,10 +5182,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:18.11.10":
-  version: 18.11.10
-  resolution: "@types/node@npm:18.11.10"
-  checksum: 0f60cb090b2ee91fcd3dc4311bc1ed7889b92f14644c0069f100776f86474c12eebbcc6c75bc0d7d96b975a103b4d5d6b3c22b4e88bea6e7f4e2b1bb0daf5ea8
+"@types/node@npm:*, @types/node@npm:18.11.11":
+  version: 18.11.11
+  resolution: "@types/node@npm:18.11.11"
+  checksum: c4b1176a8f1714a3ee3fc2a5e1d568b0cd50209000282db5c68154b3c975952928dbb834ef3a0ce55bd7b345ae29f2cbf4a34635a070294d135a24254231386a
   languageName: node
   linkType: hard
 
@@ -6084,9 +6093,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"antd@npm:5.0.3":
-  version: 5.0.3
-  resolution: "antd@npm:5.0.3"
+"antd@npm:5.0.4":
+  version: 5.0.4
+  resolution: "antd@npm:5.0.4"
   dependencies:
     "@ant-design/colors": ^6.0.0
     "@ant-design/cssinjs": ^1.0.0
@@ -6108,7 +6117,7 @@ __metadata:
     rc-field-form: ~1.27.0
     rc-image: ~5.12.0
     rc-input: ~0.1.4
-    rc-input-number: ~7.3.9
+    rc-input-number: ~7.4.0
     rc-mentions: ~1.13.1
     rc-menu: ~9.8.0
     rc-motion: ^2.6.1
@@ -6131,13 +6140,13 @@ __metadata:
     rc-tree-select: ~5.5.4
     rc-trigger: ^5.2.10
     rc-upload: ~4.3.0
-    rc-util: ^5.22.5
+    rc-util: ^5.25.2
     scroll-into-view-if-needed: ^2.2.25
     shallowequal: ^1.1.0
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: ae8ef1b03c943450c93ae3746a6ca69d9cbc0849f61822391db9e5d83fdb46c6feaf4f0b22aa040100d832887a74484e21a34d91dc9939e5c1f7b48f0e007b6e
+  checksum: a32f38ece67a810da77c4f35381f70c763ea21e0921fe91b804eefc64732e95362ce19eccd6276ce497b85d1897dd03727c91a20065fe0fd203bc7060dae80d8
   languageName: node
   linkType: hard
 
@@ -11074,7 +11083,7 @@ __metadata:
     "@anansi/babel-preset": 3.3.1
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.15.0
-    "@anansi/router": 0.7.3
+    "@anansi/router": 0.7.4
     "@anansi/webpack-config": 14.0.3
     "@ant-design/icons": ^4.7.0
     "@babel/core": 7.20.5
@@ -11095,7 +11104,7 @@ __metadata:
     "@types/uuid": ^9.0.0
     "@typescript-eslint/eslint-plugin": 5.45.0
     "@typescript-eslint/parser": 5.45.0
-    antd: 5.0.3
+    antd: 5.0.4
     eslint: 8.29.0
     eslint-plugin-import: 2.26.0
     eslint-plugin-prettier: 4.2.1
@@ -15709,7 +15718,7 @@ __metadata:
     "@rest-hooks/rest": ^6.2.1
     "@rest-hooks/ssr": ^0.7.0
     "@rest-hooks/test": ^9.1.0
-    "@types/node": 18.11.10
+    "@types/node": 18.11.11
     "@types/react": 18.0.26
     "@types/react-dom": 18.0.9
     eslint: 8.29.0
@@ -15718,7 +15727,7 @@ __metadata:
     react: 18.2.0
     react-dom: 18.2.0
     redux: ^4.2.0
-    typescript: 4.9.3
+    typescript: 4.9.4
   languageName: unknown
   linkType: soft
 
@@ -18530,17 +18539,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-input-number@npm:~7.3.9":
-  version: 7.3.9
-  resolution: "rc-input-number@npm:7.3.9"
+"rc-input-number@npm:~7.4.0":
+  version: 7.4.0
+  resolution: "rc-input-number@npm:7.4.0"
   dependencies:
     "@babel/runtime": ^7.10.1
+    "@rc-component/mini-decimal": ^1.0.1
     classnames: ^2.2.5
     rc-util: ^5.23.0
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: ad5eb4e3abefcd7c1ed87dc8a7c84611325598f9fa122736bd644446415396f1b12225e8a7fef4477b028a025c4b12e46501a5719e1266781891206617fe6d24
+  checksum: 6f6a46eec6d1993ee47c9de5622276fc33f37d36ee06582cd9d7625ae83516a3e335c5bfc82950d8c9bdf603eeac7c7b25b9c1148fc2465aa3cb1f0a5f6485df
   languageName: node
   linkType: hard
 
@@ -18922,9 +18932,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-util@npm:^5.0.1, rc-util@npm:^5.0.6, rc-util@npm:^5.12.0, rc-util@npm:^5.15.0, rc-util@npm:^5.16.0, rc-util@npm:^5.16.1, rc-util@npm:^5.17.0, rc-util@npm:^5.18.1, rc-util@npm:^5.19.2, rc-util@npm:^5.2.0, rc-util@npm:^5.2.1, rc-util@npm:^5.20.1, rc-util@npm:^5.21.0, rc-util@npm:^5.21.2, rc-util@npm:^5.22.5, rc-util@npm:^5.23.0, rc-util@npm:^5.24.2, rc-util@npm:^5.24.4, rc-util@npm:^5.3.0, rc-util@npm:^5.4.0, rc-util@npm:^5.6.1, rc-util@npm:^5.7.0, rc-util@npm:^5.8.0, rc-util@npm:^5.9.4":
-  version: 5.24.8
-  resolution: "rc-util@npm:5.24.8"
+"rc-util@npm:^5.0.1, rc-util@npm:^5.0.6, rc-util@npm:^5.12.0, rc-util@npm:^5.15.0, rc-util@npm:^5.16.0, rc-util@npm:^5.16.1, rc-util@npm:^5.17.0, rc-util@npm:^5.18.1, rc-util@npm:^5.19.2, rc-util@npm:^5.2.0, rc-util@npm:^5.2.1, rc-util@npm:^5.20.1, rc-util@npm:^5.21.0, rc-util@npm:^5.21.2, rc-util@npm:^5.22.5, rc-util@npm:^5.23.0, rc-util@npm:^5.24.2, rc-util@npm:^5.24.4, rc-util@npm:^5.25.2, rc-util@npm:^5.3.0, rc-util@npm:^5.4.0, rc-util@npm:^5.6.1, rc-util@npm:^5.7.0, rc-util@npm:^5.8.0, rc-util@npm:^5.9.4":
+  version: 5.25.2
+  resolution: "rc-util@npm:5.25.2"
   dependencies:
     "@babel/runtime": ^7.18.3
     react-is: ^16.12.0
@@ -18932,7 +18942,7 @@ __metadata:
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: 50aa9ba0721f8b6ae25269600e692aee764018dd682f74c37fd5d5721b6e991c095692737b038d5280fd8b9a43ad0c3572aa1f8f52ecd63482766d3b1a3fe7a1
+  checksum: 55b28c161705a3c24e8d27c030d69f077c7445018d5acd84f189297175d1b8c6fff50246d4f44bb048abacf5feaa93ec9ef62c504792c05afda7ee27532c9c77
   languageName: node
   linkType: hard
 
@@ -20145,7 +20155,7 @@ __metadata:
     "@testing-library/react-native": 11.5.0
     "@types/jest": 29.2.3
     "@types/lodash": 4.14.191
-    "@types/node": 18.11.10
+    "@types/node": 18.11.11
     "@types/react": 18.0.26
     "@typescript-eslint/eslint-plugin": 5.45.0
     "@typescript-eslint/parser": 5.45.0
@@ -20178,7 +20188,7 @@ __metadata:
     rest-hooks: "workspace:^"
     rimraf: ^3.0.2
     ts-node: 10.9.1
-    typescript: 4.9.3
+    typescript: 4.9.4
     whatwg-fetch: 3.0.0
   languageName: unknown
   linkType: soft
@@ -22157,13 +22167,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:4.9.3, typescript@npm:^4.6.4":
-  version: 4.9.3
-  resolution: "typescript@npm:4.9.3"
+"typescript@npm:4.9.4, typescript@npm:^4.6.4":
+  version: 4.9.4
+  resolution: "typescript@npm:4.9.4"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 17b8f816050b412403e38d48eef0e893deb6be522d6dc7caf105e54a72e34daf6835c447735fd2b28b66784e72bfbf87f627abb4818a8e43d1fa8106396128dc
+  checksum: e782fb9e0031cb258a80000f6c13530288c6d63f1177ed43f770533fdc15740d271554cdae86701c1dd2c83b082cea808b07e97fd68b38a172a83dbf9e0d0ef9
   languageName: node
   linkType: hard
 
@@ -22177,13 +22187,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@4.9.3#~builtin<compat/typescript>, typescript@patch:typescript@^4.6.4#~builtin<compat/typescript>":
-  version: 4.9.3
-  resolution: "typescript@patch:typescript@npm%3A4.9.3#~builtin<compat/typescript>::version=4.9.3&hash=d73830"
+"typescript@patch:typescript@4.9.4#~builtin<compat/typescript>, typescript@patch:typescript@^4.6.4#~builtin<compat/typescript>":
+  version: 4.9.4
+  resolution: "typescript@patch:typescript@npm%3A4.9.4#~builtin<compat/typescript>::version=4.9.4&hash=d73830"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 67ca21a387c0572f1c04936e638dde7782c5aa520c3754aadc7cc9b7c915da9ebc3e27c601bfff4ccb7d7264e82dce6d277ada82ec09dc75024349e0ef64926d
+  checksum: 37f6e2c3c5e2aa5934b85b0fddbf32eeac8b1bacf3a5b51d01946936d03f5377fe86255d4e5a4ae628fd0cd553386355ad362c57f13b4635064400f3e8e05b9d
   languageName: node
   linkType: hard
 
