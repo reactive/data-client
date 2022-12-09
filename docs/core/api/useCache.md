@@ -34,12 +34,12 @@ function useCache<
 
 Excellent to use data in the normalized cache without fetching.
 
-- [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):
-  - Returns previously cached if exists
-  - null otherwise
-- While loading:
-  - Returns previously cached if exists
-  - null otherwise
+| Expiry Status | Returns           | Conditions                                                                                            |
+| ------------- | --------------- | ----------------------------------------------------------------------------------------------------- |
+| Invalid       | `undefined` | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../getting-started/expiry-policy.md#endpointinvalidifstale) |
+| Stale         | denormalized | (first-render, arg change) & [expiry &lt; now](../getting-started/expiry-policy.md)                   |
+| Valid         | denormalized | fetch completion                                                                                      |
+| Ignore        | `undefined` | `null` used as second argument                                                                        |
 
 ## Example
 

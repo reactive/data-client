@@ -26,10 +26,15 @@ class Controller {
   getResponse(endpoint, ...args, state)​ => { data, expiryStatus, expiresAt };
   getError(endpoint, ...args, state)​ => ErrorTypes | undefined;
   snapshot(state: State<unknown>, fetchedAt?: number): SnapshotInterface;
+  getState(): State<unknown>;
 }
 ```
 
-[useController()](./useController.md) provides access in React components
+`Controller` is a singleton providing safe access to the Rest Hooks [flux store and lifecycle](./Manager.md#control-flow).
+
+[useController()](./useController.md) provides access in React components, and for [Managers](./Manager.md)
+it is passed as the first argument in [Manager.getMiddleware()](./Manager.md#middleware)
+
 
 ## fetch(endpoint, ...args) {#fetch}
 
@@ -47,10 +52,10 @@ values={[
 
 ```tsx
 function CreatePost() {
-  const { fetch } = useController();
+  const ctrl = useController();
 
   return (
-    <form onSubmit={e => fetch(PostResource.create, new FormData(e.target))}>
+    <form onSubmit={e => ctrl.fetch(PostResource.create, new FormData(e.target))}>
       {/* ... */}
     </form>
   );
@@ -62,11 +67,11 @@ function CreatePost() {
 
 ```tsx
 function UpdatePost({ id }: { id: string }) {
-  const { fetch } = useController();
+  const ctrl = useController();
 
   return (
     <form
-      onSubmit={e => fetch(PostResource.update, { id }, new FormData(e.target))}
+      onSubmit={e => ctrl.fetch(PostResource.update, { id }, new FormData(e.target))}
     >
       {/* ... */}
     </form>
@@ -79,14 +84,14 @@ function UpdatePost({ id }: { id: string }) {
 
 ```tsx
 function PostListItem({ post }: { post: PostResource }) {
-  const { fetch } = useController();
+  const ctrl = useController();
 
   const handleDelete = useCallback(
     async e => {
-      await fetch(PostResource.delete, { id: post.id });
+      await ctrl.fetch(PostResource.delete, { id: post.id });
       history.push('/');
     },
-    [fetch, id],
+    [ctrl, id],
   );
 
   return (
@@ -141,12 +146,12 @@ and parameters.
 ```tsx
 function ArticleName({ id }: { id: string }) {
   const article = useSuspense(ArticleResource.get, { id });
-  const { invalidate } = useController();
+  const ctrl = useController();
 
   return (
     <div>
       <h1>{article.title}<h1>
-      <button onClick={() => invalidate(ArticleResource.get, { id })}>Fetch &amp; suspend</button>
+      <button onClick={() => ctrl.invalidate(ArticleResource.get, { id })}>Fetch &amp; suspend</button>
     </div>
   );
 }
@@ -175,14 +180,14 @@ const USER_NUMBER_ONE: string = "1111";
 
 function UserName() {
   const user = useSuspense(CurrentUserResource.get);
-  const { resetEntireStore } = useController();
+  const ctrl = useController();
 
   const becomeAdmin = useCallback(() => {
     // Changes the current user
     impersonateUser(USER_NUMBER_ONE);
     // highlight-next-line
-    resetEntireStore();
-  }, []);
+    ctrl.resetEntireStore();
+  }, [ctrl]);
   return (
     <div>
       <h1>{user.name}<h1>
@@ -201,17 +206,20 @@ Any components suspending for the given [Endpoint](/rest/api/Endpoint) and args 
 If data already exists for the given [Endpoint](/rest/api/Endpoint) and args, it will be updated.
 
 ```tsx
-const { receive } = useController();
+const ctrl = useController();
 
 useEffect(() => {
   const websocket = new Websocket(url);
 
   websocket.onmessage = event =>
-    receive(EndpointLookup[event.endpoint], ...event.args, event.data);
+    ctrl.receive(EndpointLookup[event.endpoint], ...event.args, event.data);
 
   return () => websocket.close();
 });
 ```
+
+This shows a proof of concept in React; however a [Manager websockets implementation](./Manager.md#data-stream)
+would be much more robust.
 
 ## receiveError(endpoint, ...args, error) {#receiveError}
 

@@ -45,10 +45,15 @@
 }
 .buttons :global(.button.button--primary) {
   font-size: 21px;
-  padding: 0.2em 1.3em;
   font-weight: bold;
+}
+.buttons :global(.button) {
+  font-size: 20px;
+  padding: 0.3em 1.3em;
   border-radius: 10px;
   letter-spacing: 1px;
+}
+.buttons :global(.button:last-of-type) {
   margin: 0 36px;
 }
 
@@ -64,7 +69,7 @@
   .buttons {
     flex-direction: column;
   }
-  .buttons :global(.button.button--primary) {
+  .buttons :global(.button), .buttons :global(.button:last-of-type) {
     margin: 0 0 15px 0;
   }
   .logoWrapper {
@@ -73,7 +78,7 @@
 }
 
 @media only screen and (max-width: 500px) {
-  .buttons :global(.button.button--primary) {
+  .buttons :global(.button.button--primary),.buttons :global(.button.button--info) {
     font-size: 20px;
     padding: 0.2em 1.1em;
   }

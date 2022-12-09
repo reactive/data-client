@@ -35,8 +35,7 @@ const FeatureList = [
       <>
         <b>Declare</b> what you need <b>where</b> you need it. <b>Share</b> data
         definitions <b>across platforms</b>, components,{' '}
-        <Link to="/docs#protocol-specific-patterns">protocols</Link>, and
-        behaviors.
+        <Link to="/docs#endpoint">protocols</Link>, and behaviors.
       </>
     ),
     Svg: require(`../../static/img/chemical-composition.svg`).default,

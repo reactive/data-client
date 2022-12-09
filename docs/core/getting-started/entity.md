@@ -151,9 +151,9 @@ const todoCreate = new Endpoint(
 import { useController } from '@rest-hooks/react';
 
 export default function NewTodoForm() {
-  const { fetch } = useController();
+  const ctrl = useController();
   return (
-    <Form onSubmit={e => fetch(todoCreate, new FormData(e.target))}>
+    <Form onSubmit={e => ctrl.fetch(todoCreate, new FormData(e.target))}>
       <FormField name="title" />
     </Form>
   );
@@ -185,10 +185,10 @@ import { useController } from '@rest-hooks/react';
 
 export default function UpdateTodoForm({ id }: { id: number }) {
   const todo = useSuspense(todoDetail, { id });
-  const { fetch } = useController();
+  const ctrl = useController();
   return (
     <Form
-      onSubmit={e => fetch(todoUpdate, { id }, new FormData(e.target))}
+      onSubmit={e => ctrl.fetch(todoUpdate, { id }, new FormData(e.target))}
       initialValues={todo}
     >
       <FormField name="title" />
@@ -221,11 +221,11 @@ import { useController } from '@rest-hooks/react';
 import ArticleResource from 'resources/article';
 
 export default function TodoWithDelete({ todo }: { todo: Todo }) {
-  const { fetch } = useController();
+  const ctrl = useController();
   return (
     <div>
       {todo.title}
-      <button onClick={() => del(todoDelete, { id: todo.id })}>Delete</button>
+      <button onClick={() => ctrl.fetch(todoDelete, { id: todo.id })}>Delete</button>
     </div>
   );
 }

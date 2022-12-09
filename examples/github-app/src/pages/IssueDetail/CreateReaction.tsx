@@ -16,7 +16,7 @@ export function CreateReaction({
   content: keyof typeof contentToIcon;
   issue: Issue;
 }) {
-  const { fetch } = useController();
+  const ctrl = useController();
   const currentUser = useCache(UserResource.current);
   const userReaction: Reaction | undefined =
     currentUser &&
@@ -24,7 +24,7 @@ export function CreateReaction({
 
   const handleClick = () => {
     if (userReaction || !currentUser) return;
-    fetch(
+    ctrl.fetch(
       ReactionResource.create,
       {
         owner: issue.owner,

@@ -4,6 +4,7 @@ title: Optimistic Updates
 
 <head>
   <title>Optimistic Updates - High performance mutations</title>
+  <meta name="docsearch:pagerank" content="40"/>
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
@@ -148,9 +149,9 @@ import { useController } from '@rest-hooks/react';
 import { ArticleResource } from 'api/Article';
 
 export default function CreateArticle() {
-  const { fetch } = useController();
+  const ctrl = useController();
   const submitHandler = useCallback(
-    data => fetch(ArticleResource.create, data),
+    data => ctrl.fetch(ArticleResource.create, data),
     [create],
   );
 
@@ -244,13 +245,13 @@ import { useLoading } from '@rest-hooks/hooks';
 import { getCount, increment } from './api/Count';
 
 function CounterPage() {
-  const { fetch } = useController();
+  const ctrl = useController();
   const { count } = useSuspense(getCount);
   const [stateCount, setStateCount] = React.useState(0);
   const [responseCount, setResponseCount] = React.useState(0);
   const [clickHandler, loading, error] = useLoading(async () => {
     setStateCount(stateCount+1);
-    const val = await fetch(increment);
+    const val = await ctrl.fetch(increment);
     setResponseCount(val.count);
     setStateCount(val.count);
   });
@@ -390,12 +391,12 @@ import { useLoading } from '@rest-hooks/hooks';
 import { getCount, increment } from './api/Count';
 
 function CounterPage() {
-  const { fetch } = useController();
+  const ctrl = useController();
   const { count } = useSuspense(getCount);
   const [n, setN] = React.useState(count);
   const [clickHandler, loading, error] = useLoading(() => {
     setN(n => n + 1);
-    return fetch(increment);
+    return ctrl.fetch(increment);
   });
   return (
     <div>

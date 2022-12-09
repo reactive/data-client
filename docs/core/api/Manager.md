@@ -178,7 +178,12 @@ export default class LoggingManager implements Manager {
 }
 ```
 
-### Middleware data stream (with websockets) {#data-stream}
+### Middleware data stream (push-based) {#data-stream}
+
+Adding a manager to process data pushed from the server by [websockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
+or [Server Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) ensures
+we can maintain fresh data when the data updates are independent of user action. For example, a trading app's
+price, or a real-time collaborative editor.
 
 ```typescript
 import type { Manager, Middleware } from '@rest-hooks/core';
@@ -186,21 +191,27 @@ import type { EndpointInterface } from '@rest-hooks/endpoint';
 
 export default class StreamManager implements Manager {
   protected declare middleware: Middleware;
-  protected declare websocket: WebSocket;
+  protected declare evtSource: WebSocket | EventSource;
   protected declare endpoints: Record<string, EndpointInterface>;
 
-  constructor(url: string, endpoints: Record<string, EndpointInterface>) {
-    this.websocket = new WebSocket(url);
+  constructor(
+    evtSource: WebSocket | EventSource,
+    endpoints: Record<string, EndpointInterface>,
+  ) {
+    this.evtSource = evtSource;
     this.endpoints = endpoints;
 
     // highlight-start
     this.middleware = controller => {
-      this.websocket.onmessage = event => {
-        controller.receive(
-          this.endpoints[event.type],
-          ...event.args,
-          event.data,
-        );
+      this.evtSource.onmessage = event => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type in this.endpoints)
+            controller.receive(this.endpoints[msg.type], ...msg.args, msg.data);
+        } catch (e) {
+          console.error('Failed to handle message');
+          console.error(e);
+        }
       };
       return next => async action => next(action);
     };
@@ -208,7 +219,7 @@ export default class StreamManager implements Manager {
   }
 
   cleanup() {
-    this.websocket.close();
+    this.evtSource.close();
   }
 
   getMiddleware() {

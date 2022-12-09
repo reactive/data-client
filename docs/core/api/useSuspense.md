@@ -41,20 +41,19 @@ Excellent for guaranteed data rendering.
 
 Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by default but also [configurable](../getting-started/expiry-policy.md).
 
-- Triggers fetch:
-  - On first-render
-    - or parameters change
-    - or required entity is deleted
-    - or imperative [invalidation](./Controller.md#invalidate) triggered
-  - and When not in cache or result is considered stale
-  - and When no identical requests are in flight
-  - and when params are not null
-- [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):
-  - Throws error to be [caught](../getting-started/data-dependency#async-fallbacks) by [Error Boundaries](https://reactjs.org/docs/error-boundaries.html)
-- While Loading:
-  - Returns previously cached if exists (even if stale)
-    - except in case of delete or [invalidation](./Controller.md#invalidate)
-  - [Suspend rendering](../getting-started/data-dependency#async-fallbacks) otherwise
+| Expiry Status | Fetch           | Suspend           | Error             | Conditions                                                                                            |
+| ------------- | --------------- | ----------------- | ----------------- | ----------------------------------------------------------------------------------------------------- |
+| Invalid       | yes<sup>1</sup> | yes               | no                | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../getting-started/expiry-policy.md#endpointinvalidifstale) |
+| Stale         | yes<sup>1</sup> | no | no                | (first-render, arg change) & [expiry &lt; now](../getting-started/expiry-policy.md)                   |
+| Valid         | no              | no                | maybe<sup>2</sup> | fetch completion                                                                                      |
+| Ignore        | no              | no                | no                | `null` used as second argument                                                                        |
+
+:::note
+
+1. Identical fetches are automatically deduplicated
+2. [Hard errors](../getting-started/expiry-policy.md#error-policy) to be [caught](../getting-started/data-dependency#async-fallbacks) by [Error Boundaries](./AsyncBoundary.md)
+
+:::
 
 :::info React Native
 
@@ -62,6 +61,8 @@ When using React Navigation, useSuspense() will trigger fetches on focus if the 
 stale.
 
 :::
+
+<ConditionalDependencies />
 
 ## Single
 
@@ -176,15 +177,15 @@ render(<ProfileList />);
 ```tsx
 function PostWithAuthor() {
   const post = useSuspense(PostResource.get, { id });
-  // post as PostResource
+  // post as Post
   const author = useSuspense(UserResource.get, {
     id: post.userId,
   });
-  // author as UserResource
+  // author as User
 }
 ```
 
-## Paginated data
+## Embedded data
 
 When entities are stored in nested structures, that structure will remain.
 
@@ -215,8 +216,6 @@ function ArticleList({ page }: { page: string }) {
   // posts as PaginatedPostResource[]
 }
 ```
-
-<ConditionalDependencies />
 
 ## Useful `Endpoint`s to send
 

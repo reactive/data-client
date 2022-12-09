@@ -39,16 +39,16 @@ function CreateComment({ issue }: { issue: Issue }) {
 export default memo(CreateComment);
 
 function CreateForm({ issue }: { issue: Issue }) {
-  const { fetch } = useController();
+  const ctrl = useController();
   const onFinish = useCallback(
     (data: { body: string }) => {
-      return fetch(
+      return ctrl.fetch(
         CommentResource.create,
         { owner: issue.owner, repo: issue.repo, number: issue.number },
         data,
       );
     },
-    [fetch, issue.number, issue.owner, issue.repo],
+    [ctrl, issue.number, issue.owner, issue.repo],
   );
   return <CommentForm onFinish={onFinish} label="Comment" />;
 }

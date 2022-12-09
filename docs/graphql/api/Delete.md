@@ -38,7 +38,7 @@ const userDelete = new Endpoint(sampleDelete, {
 });
 function UsersPage() {
   const users = useSuspense(userList, {});
-  const { fetch } = useController();
+  const ctrl = useController();
   return (
     <div>
       {users.map(user => (
@@ -46,7 +46,7 @@ function UsersPage() {
           {user.name}{' '}
           <span
             style={{ cursor: 'pointer' }}
-            onClick={() => fetch(userDelete, { id: user.id })}
+            onClick={() => ctrl.fetch(userDelete, { id: user.id })}
           >
             ❌
           </span>
@@ -91,13 +91,13 @@ class MyResource extends Resource {
 function MyTable() {
   const { selectedIds } = useFields(TableForm);
   const list = useSuspense(MyResource.list());
-  const { fetch } = useController();
+  const ctrl = useController();
 
   return (
     <div>
       <header>
         <span>My Table</span>
-        <button onClick={() => fetch(MyResource.deleteList(), selectedIds)}>
+        <button onClick={() => ctrl.fetch(deleteResource, selectedIds)}>
           Delete
         </button>
       </header>

@@ -14,7 +14,7 @@ Composable hooks for networking data
 
 </div>
 
-### useCancelling()
+### [useCancelling()](https://resthooks.io/docs/api/useCancelling)
 
 [Aborts](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) inflight request if the parameters change.
 
@@ -22,7 +22,7 @@ Composable hooks for networking data
 const data = useSuspense(useCancelling(MyEndpoint, { filter }), { filter });
 ```
 
-### useDebounce()
+### [useDebounce()](https://resthooks.io/docs/api/useDebounce)
 
 Delays updating the parameters by [debouncing](https://css-tricks.com/debouncing-throttling-explained-examples/).
 Useful to avoid spamming network requests when parameters might change quickly (like a typeahead field).
@@ -32,7 +32,7 @@ const debouncedFilter = useDebounce(filter, 200);
 const data = useSuspense(SearchList, { filter: debouncedFilter });
 ```
 
-### useLoading()
+### [useLoading()](https://resthooks.io/docs/api/useDebounce)
 
 Helps track loading state of imperative async functions.
 

@@ -65,10 +65,10 @@ return (
 ### [Mutation](https://resthooks.io/docs/api/Controller#fetch)
 
 ```tsx
-const { fetch } = useController();
+const ctrl = useController();
 return (
   <ArticleForm
-    onSubmit={data => fetch(ArticleResource.update, { id }, data)}
+    onSubmit={data => ctrl.fetch(ArticleResource.update, { id }, data)}
   />
 );
 ```

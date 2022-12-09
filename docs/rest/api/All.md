@@ -67,11 +67,11 @@ import { useController } from '@rest-hooks/react';
 import { createUser } from './api/User';
 
 export default function NewUser() {
-  const { fetch } = useController();
+  const ctrl = useController();
   const handlePress = React.useCallback(
     async (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
-        fetch(createUser, {name: e.currentTarget.value});
+        ctrl.fetch(createUser, {name: e.currentTarget.value});
         e.currentTarget.value = '';
       }
     },

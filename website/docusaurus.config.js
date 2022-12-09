@@ -8,7 +8,7 @@ const isDev = process.env.NODE_ENV === 'development';
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'Rest Hooks',
-  tagline: 'The Relational Data Client (for React)',
+  tagline: 'Async State Management for React',
   url: 'https://resthooks.io',
   baseUrl: '/',
   organizationName: 'coinbase',
@@ -266,11 +266,11 @@ module.exports = {
           },
           {
             to: '/rest/api/RestEndpoint',
-            from: ['/rest/guides/extending-endpoints'],
+            from: ['/rest/guides/extending-endpoints', '/docs/guides/url'],
           },
           {
             to: '/rest/api/hookifyResource',
-            from: ['/rest/api/HookableResource'],
+            from: ['/rest/api/HookableResource', '/docs/api/HookableResource'],
           },
           {
             to: '/docs/api/useSuspense',
@@ -326,8 +326,8 @@ module.exports = {
       ogImage: 'img/rest_hooks_logo.png',
       twitterImage: 'img/rest_hooks_logo.png',
       announcementBar: {
-        id: 'announcementBar-2', // Increment on change
-        content: `If you like Rest Hooks, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/coinbase/rest-hooks">GitHub</a>`,
+        id: 'announcementBar-3', // Increment on change
+        content: `Have a question about Rest Hooks? Join our <a target="_blank" rel="noopener noreferrer" href="https://discord.gg/35nb8Mz">Discord</a> server.`,
       },
       navbar: {
         title: 'Rest Hooks',
@@ -415,7 +415,7 @@ module.exports = {
                 to: '/docs/guides/img-media',
               },
               {
-                label: 'Websockets',
+                label: 'Websockets+SSE',
                 to: '/docs/api/Manager#middleware-data-stream',
               },
               {
@@ -435,10 +435,14 @@ module.exports = {
                 label: 'Stack Overflow',
                 href: 'http://stackoverflow.com/questions/tagged/rest-hooks',
               },
-              /*{
-              label: 'Twitter',
-              href: 'https://twitter.com/RestHooks',
-            },*/
+              {
+                label: 'Twitter',
+                href: 'https://twitter.com/RestHooks',
+              },
+              {
+                label: 'Bug Report',
+                href: 'https://github.com/coinbase/rest-hooks/issues/new/choose',
+              },
             ],
           },
           {

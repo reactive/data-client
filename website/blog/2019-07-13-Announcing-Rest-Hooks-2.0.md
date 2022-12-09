@@ -4,6 +4,10 @@ tags: [releases, rest-hooks]
 title: Announcing Rest Hooks 2.0
 ---
 
+<head>
+  <meta name="docsearch:pagerank" content="-100"/>
+</head>
+
 We use [SemVer](https://semver.org/) for Rest Hooks - so 2.0 represents some breaking changes. To minimize disruption
 we have been carefully considering these changes and awaiting community feedback to be confident
 these are the right changes to make.

@@ -19,25 +19,25 @@ and [receive](./Controller.md#receive)
 import { useController } from '@rest-hooks/react';
 
 function MyComponent({ id }) {
-  const { fetch, invalidate, resetEntireStore } = useController();
+  const ctrl = useController();
 
   const handleRefresh = useCallback(
     async e => {
-      await fetch(MyResource.get, { id });
+      await ctrl.fetch(MyResource.get, { id });
     },
     [fetch, id],
   );
 
   const handleSuspend = useCallback(
     async e => {
-      await invalidate(MyResource.get, { id });
+      await ctrl.invalidate(MyResource.get, { id });
     },
     [invalidate, id],
   );
 
   const handleLogout = useCallback(
     async e => {
-      resetEntireStore();
+      ctrl.resetEntireStore();
     },
     [resetEntireStore],
   );
