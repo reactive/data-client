@@ -1,7 +1,7 @@
 import { Entity, Schema } from '@rest-hooks/endpoint';
 import { useController } from '@rest-hooks/react';
 import { useSuspense } from '@rest-hooks/react';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
 import { act } from '@testing-library/react-hooks';
 import nock from 'nock';
 
@@ -82,7 +82,7 @@ export class UrlArticle extends PaginatedArticle {
 
 describe('createResource()', () => {
   const renderRestHook: ReturnType<typeof makeRenderRestHook> =
-    makeRenderRestHook(makeCacheProvider);
+    makeRenderRestHook(CacheProvider);
   let mynock: nock.Scope;
 
   beforeEach(() => {
@@ -214,10 +214,8 @@ describe('createResource()', () => {
     () =>
       // @ts-expect-error
       result.current.fetch(PaginatedArticleResource.getNextPage);
-    await act(async () => {
-      await result.current.fetch(PaginatedArticleResource.getNextPage, {
-        cursor: 2,
-      });
+    await result.current.fetch(PaginatedArticleResource.getNextPage, {
+      cursor: 2,
     });
     expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3, 7, 8]);
   });
@@ -238,10 +236,8 @@ describe('createResource()', () => {
       return { articles, nextPage, fetch };
     });
     await waitForNextUpdate();
-    await act(async () => {
-      await result.current.fetch(PaginatedArticleResource.getNextPage, {
-        cursor: 2,
-      });
+    await result.current.fetch(PaginatedArticleResource.getNextPage, {
+      cursor: 2,
     });
     expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3, 7, 8]);
   });
@@ -294,10 +290,8 @@ describe('createResource()', () => {
     };
 
     mynock.get(`/complex-thing/5`).reply(200, secondResponse);
-    await act(async () => {
-      await result.current.fetch(ComplexResource.get, {
-        id: '5',
-      });
+    await result.current.fetch(ComplexResource.get, {
+      id: '5',
     });
     expect(result.current.article).toEqual({ ...secondResponse, extra: 'hi' });
   });

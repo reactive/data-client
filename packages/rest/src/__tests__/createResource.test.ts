@@ -1,11 +1,11 @@
 import { Entity, schema } from '@rest-hooks/endpoint';
 import {
-  Controller,
+  CacheProvider,
   useCache,
   useController,
+  Controller,
   useSuspense,
 } from '@rest-hooks/react';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { makeRenderRestHook } from '@rest-hooks/test';
 import { act } from '@testing-library/react-hooks';
 import nock from 'nock';
@@ -15,7 +15,7 @@ import RestEndpoint, { RestGenerics } from '../RestEndpoint';
 
 describe('createResource()', () => {
   const renderRestHook: ReturnType<typeof makeRenderRestHook> =
-    makeRenderRestHook(makeCacheProvider);
+    makeRenderRestHook(CacheProvider);
   let mynock: nock.Scope;
 
   class User extends Entity {

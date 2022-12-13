@@ -3,6 +3,18 @@ process.env.ANANSI_JEST_TSCONFIG = 'tsconfig.test.json';
 
 const baseConfig = {
   preset: '@anansi/jest-preset',
+  moduleFileExtensions: [
+    'ts',
+    'tsx',
+    'cts',
+    'mts',
+    'mtsx',
+    'js',
+    'jsx',
+    'mjs',
+    'cjs',
+    'json',
+  ],
   coveragePathIgnorePatterns: [
     'node_modules',
     '/__tests__',

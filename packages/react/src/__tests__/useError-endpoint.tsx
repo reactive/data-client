@@ -1,4 +1,4 @@
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
 import { CoolerArticleResource } from '__tests__/new';
 
 // relative imports to avoid circular dependency in tsconfig references
@@ -9,7 +9,7 @@ import { payload } from '../test-fixtures';
 describe('useError()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
+    renderRestHook = makeRenderRestHook(CacheProvider);
   });
 
   it('should return undefined when cache not ready and no error in meta', () => {

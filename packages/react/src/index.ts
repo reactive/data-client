@@ -48,7 +48,6 @@ export * from './hooks/index.js';
 export {
   StateContext,
   DispatchContext,
-  DenormalizeCacheContext,
   ControllerContext,
   StoreContext,
   type Store,

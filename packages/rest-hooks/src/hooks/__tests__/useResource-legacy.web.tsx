@@ -1,5 +1,5 @@
 import { ReadShape } from '@rest-hooks/core';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
 import { CoolerArticleResource } from '__tests__/legacy';
 import nock from 'nock';
 
@@ -72,7 +72,7 @@ describe('useResource()', () => {
   });
 
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
+    renderRestHook = makeRenderRestHook(CacheProvider);
   });
 
   it('should throw error when response is array when expecting entity', async () => {

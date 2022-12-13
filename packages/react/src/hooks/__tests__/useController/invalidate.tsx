@@ -1,4 +1,4 @@
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
 import { FixtureEndpoint } from '@rest-hooks/test/mockState';
 import { renderHook } from '@testing-library/react-hooks';
 import { act } from '@testing-library/react-hooks';
@@ -59,7 +59,7 @@ let renderRestHook: ReturnType<typeof makeRenderRestHook>;
 let mynock: nock.Scope;
 
 beforeEach(() => {
-  renderRestHook = makeRenderRestHook(makeCacheProvider);
+  renderRestHook = makeRenderRestHook(CacheProvider);
   mynock = nock(/.*/).defaultReplyHeaders({
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
@@ -101,9 +101,7 @@ describe('invalidate', () => {
       { initialFixtures: [detail] },
     );
     expect(result.current.data).toBeDefined();
-    await act(async () => {
-      await result.current.controller.invalidate(FutureArticleResource.get, 5);
-    });
+    await result.current.controller.invalidate(FutureArticleResource.get, 5);
     expect(result.current.data).toBeUndefined();
   });
 
@@ -142,9 +140,7 @@ describe('invalidate', () => {
       },
     );
     expect(result.current.data).toEqual(response);
-    await act(async () => {
-      await result.current.controller.invalidate(GetPhoto, { userId });
-    });
+    await result.current.controller.invalidate(GetPhoto, { userId });
     expect(result.current.data).toBeUndefined();
   });
 });

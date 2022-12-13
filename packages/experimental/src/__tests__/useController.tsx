@@ -1,15 +1,19 @@
-import { useCache, useSuspense, useFetch } from '@rest-hooks/react';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import {
+  useCache,
+  useSuspense,
+  useFetch,
+  CacheProvider,
+} from '@rest-hooks/react';
 import { FixtureEndpoint } from '@rest-hooks/test/mockState';
-import { render } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { act } from '@testing-library/react-hooks';
 import { CoolerArticleDetail, FutureArticleResource } from '__tests__/new';
 import nock from 'nock';
-import { Suspense, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { useController } from '..';
-import { makeRenderRestHook, MockNetworkManager } from '../../../test';
+import { makeRenderRestHook } from '../../../test';
 
 export const payload = {
   id: 5,
@@ -61,7 +65,7 @@ let renderRestHook: ReturnType<typeof makeRenderRestHook>;
 let mynock: nock.Scope;
 
 beforeEach(() => {
-  renderRestHook = makeRenderRestHook(makeCacheProvider);
+  renderRestHook = makeRenderRestHook(CacheProvider);
   mynock = nock(/.*/).defaultReplyHeaders({
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
@@ -93,18 +97,17 @@ describe('invalidate', () => {
   });
 
   it('should result in useCache having no entry', async () => {
-    const { result } = renderRestHook(
+    const { result, controller } = renderRestHook(
       () => {
         return {
           data: useCache(FutureArticleResource.get, 5),
-          controller: useController(),
         };
       },
       { initialFixtures: [detail] },
     );
     expect(result.current.data).toBeDefined();
-    await act(async () => {
-      await result.current.controller.invalidate(FutureArticleResource.get, 5);
+    act(() => {
+      controller.invalidate(FutureArticleResource.get, 5);
     });
     expect(result.current.data).toBeUndefined();
   });
@@ -126,7 +129,7 @@ describe('invalidate', () => {
 
 describe('resetEntireStore', () => {
   it('should result in useCache having no entry', async () => {
-    const { result } = renderRestHook(
+    const { result, controller } = renderRestHook(
       () => {
         return {
           data: useCache(FutureArticleResource.get, 5),
@@ -136,8 +139,8 @@ describe('resetEntireStore', () => {
       { initialFixtures: [detail] },
     );
     expect(result.current.data).toBeDefined();
-    await act(async () => {
-      await result.current.controller.resetEntireStore();
+    act(() => {
+      controller.resetEntireStore();
     });
     expect(result.current.data).toBeUndefined();
   });
@@ -158,11 +161,7 @@ describe('resetEntireStore', () => {
 
   describe('integration', () => {
     beforeEach(() => {
-      jest.useFakeTimers();
-      renderRestHook = makeRenderRestHook(makeCacheProvider);
-    });
-    afterEach(() => {
-      jest.useRealTimers();
+      renderRestHook = makeRenderRestHook(CacheProvider);
     });
 
     /**
@@ -174,33 +173,23 @@ describe('resetEntireStore', () => {
 
       mynock
         .get(`/article-cooler/${9999}`)
-        .delay(2000)
+        .delay(2)
         .reply(200, { ...payload, id: 9999 })
         .persist();
 
-      let resetEntireStore: any;
-
-      const { result, waitForNextUpdate, rerender } = renderRestHook(() => {
-        // cheating result since useResource will suspend
-        ({ resetEntireStore } = useController());
+      const { result, rerender, controller } = renderRestHook(() => {
         return useSuspense(CoolerArticleDetail, { id: 9999 });
       });
       expect(result.current).toBeUndefined();
-      jest.advanceTimersByTime(1000);
       act(() => rerender());
       // should not be resolved
       expect(result.current).toBeUndefined();
       act(() => {
-        resetEntireStore();
-      });
-      act(() => {
-        jest.advanceTimersByTime(5000);
+        controller.resetEntireStore();
       });
       act(() => rerender());
-      jest.advanceTimersByTime(5000);
-      await waitForNextUpdate();
 
-      expect(result.current).toBeDefined();
+      await waitFor(() => expect(result.current).toBeDefined());
       expect(result.current.title).toEqual(payload.title);
 
       // ensure it doesn't try to setstate during render (dispatching during fetch - which is called from memo)
@@ -219,7 +208,7 @@ describe('resetEntireStore', () => {
       };
       mynock
         .get(`/article-cooler/${9999}`)
-        //.delay(2000)
+        .delay(2)
         .reply(200, {
           ...payload,
           id: 9999,
@@ -227,39 +216,28 @@ describe('resetEntireStore', () => {
         })
         .persist();
 
-      let resetEntireStore: any;
-      let fetch: any;
-
-      const { result, rerender } = renderRestHook(
+      const { result, rerender, controller } = renderRestHook(
         () => {
-          // cheating result since useResource will suspend
-          ({ resetEntireStore, fetch } = useController());
           return useCache(CoolerArticleDetail, { id: 9999 });
         },
         { initialFixtures: [detail] },
       );
       expect(result.current).toBeDefined();
       expect(result.current?.title).not.toEqual('latest and greatest title');
-      fetch(CoolerArticleDetail, { id: 9999 }).catch((e: any) => {
+      controller.fetch(CoolerArticleDetail, { id: 9999 }).catch((e: any) => {
         console.log('...', e);
       });
-      jest.advanceTimersByTime(1000);
       act(() => rerender());
       // should not be resolved
       expect(result.current?.title).not.toEqual('latest and greatest title');
       act(() => {
-        resetEntireStore();
+        controller.resetEntireStore();
       });
 
-      jest.advanceTimersByTime(5000);
       act(() => rerender());
-      jest.advanceTimersByTime(5000);
-      jest.runAllTimers();
-      jest.runAllTicks();
 
       // TODO: Figure out a way to wait until fetch chain resolution instead of waiting on time
-      jest.useRealTimers();
-      await act(() => new Promise(resolve => setTimeout(resolve, 100)));
+      await act(() => new Promise(resolve => setTimeout(resolve, 20)));
 
       // should still not be resolved
       expect(result.current?.title).not.toEqual('latest and greatest title');
@@ -287,7 +265,7 @@ describe('resetEntireStore', () => {
       act(() => unmount());
 
       // TODO: Figure out a way to wait until fetch chain resolution instead of waiting on time
-      await act(() => new Promise(resolve => setTimeout(resolve, 100)));
+      await act(() => new Promise(resolve => setTimeout(resolve, 20)));
 
       // when trying to dispatch on unmounted this will trigger console errors
       expect(consoleSpy.mock.calls.length).toBeLessThan(1);

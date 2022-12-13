@@ -1967,7 +1967,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.10.1, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.10.4, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.0, @babel/runtime@npm:^7.13.8, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.16.7, @babel/runtime@npm:^7.17.0, @babel/runtime@npm:^7.17.2, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.20.0, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.9.2":
+"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.10.1, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.10.4, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.8, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.16.7, @babel/runtime@npm:^7.17.0, @babel/runtime@npm:^7.17.2, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.20.0, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.9.2":
   version: 7.20.6
   resolution: "@babel/runtime@npm:7.20.6"
   dependencies:
@@ -4198,6 +4198,7 @@ __metadata:
     "@babel/cli": 7.20.7
     "@babel/core": 7.20.12
     "@babel/runtime": ^7.17.0
+    "@rest-hooks/test": "workspace:^"
     "@types/babel__core": ^7
     "@types/path-to-regexp": ^1.7.0
     downlevel-dts: ^0.10.0
@@ -4348,7 +4349,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/react@^7.1.3, @rest-hooks/react@workspace:packages/react":
+"@rest-hooks/react@^7.1.3, @rest-hooks/react@workspace:^, @rest-hooks/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/react@workspace:packages/react"
   dependencies:
@@ -4472,16 +4473,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/test@^9.1.3, @rest-hooks/test@workspace:packages/test":
+"@rest-hooks/test@^9.1.3, @rest-hooks/test@workspace:^, @rest-hooks/test@workspace:packages/test":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/test@workspace:packages/test"
   dependencies:
     "@babel/cli": 7.20.7
     "@babel/core": 7.20.12
     "@babel/runtime": ^7.17.0
+    "@testing-library/react": ^13.4.0
     "@testing-library/react-hooks": ~8.0.0
+    "@testing-library/react-native": ^11.5.0
     "@types/babel__core": ^7
+    "@types/react-test-renderer": ^18
     downlevel-dts: ^0.10.0
+    react-error-boundary: ^3.1.4
     rollup: 2.79.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
@@ -4492,34 +4497,25 @@ __metadata:
     rollup-plugin-terser: ^7.0.2
   peerDependencies:
     "@rest-hooks/react": ^0.2.0 || ^0.3.0 || ^1.0.0 || ^6.0.0 || ^7.0.0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
+    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
+    "@types/react-dom": "*"
+    react: ^16.8.4 || ^17.0.0 || ^18.0.0
+    react-dom: "*"
+    react-native: "*"
+    react-test-renderer: "*"
   peerDependenciesMeta:
     "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+    react-dom:
+      optional: true
+    react-native:
+      optional: true
+    react-test-renderer:
       optional: true
   languageName: unknown
   linkType: soft
-
-"@rest-hooks/test@npm:^7.2.1":
-  version: 7.4.2
-  resolution: "@rest-hooks/test@npm:7.4.2"
-  dependencies:
-    "@babel/runtime": ^7.13.0
-    "@testing-library/react-hooks": ~8.0.0
-  peerDependencies:
-    "@rest-hooks/core": ^1.0.0-0 || ^2.0.0-0 || ^3.0.0-0
-    "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
-    redux: ^4.0.0
-    rest-hooks: ^5.0.11 || ^6.0.0-0
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-    redux:
-      optional: true
-  checksum: d1e4a84ebb944365c4d4ea593a9cc3560a7e45574c5dceaf7ef6a3deff0bc2ad641b9650e70dd9bbedb157131f7f664f578da24be083dc266d7a446f2eaeb6f7
-  languageName: node
-  linkType: hard
 
 "@rest-hooks/use-enhanced-reducer@^1.2.4, @rest-hooks/use-enhanced-reducer@workspace:packages/use-enhanced-reducer":
   version: 0.0.0-use.local
@@ -4804,7 +4800,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-native@npm:11.5.0":
+"@testing-library/react-native@npm:11.5.0, @testing-library/react-native@npm:^11.5.0":
   version: 11.5.0
   resolution: "@testing-library/react-native@npm:11.5.0"
   dependencies:
@@ -4821,7 +4817,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react@npm:13.4.0":
+"@testing-library/react@npm:13.4.0, @testing-library/react@npm:^13.4.0":
   version: 13.4.0
   resolution: "@testing-library/react@npm:13.4.0"
   dependencies:
@@ -5298,6 +5294,15 @@ __metadata:
   dependencies:
     "@types/react": "*"
   checksum: ff8282d5005a0b1cd95fb65bf79d3d8485e4cfe2aaf052129033a178684b940014a3f4536bc20d573f8a01cf4c6f4770c74988cef7c2b5cac3041d9f172647e3
+  languageName: node
+  linkType: hard
+
+"@types/react-test-renderer@npm:^18":
+  version: 18.0.0
+  resolution: "@types/react-test-renderer@npm:18.0.0"
+  dependencies:
+    "@types/react": "*"
+  checksum: 6afc938a1d7618d88ab8793e251f0bd5981bf3f08c1b600f74df3f8800b92589ea534dc6dcb7c8d683893fcc740bf8d7843a42bf2dae59785cfe88f004bd7b0b
   languageName: node
   linkType: hard
 
@@ -19087,7 +19092,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-error-boundary@npm:^3.1.0, react-error-boundary@npm:^3.1.3":
+"react-error-boundary@npm:^3.1.0, react-error-boundary@npm:^3.1.3, react-error-boundary@npm:^3.1.4":
   version: 3.1.4
   resolution: "react-error-boundary@npm:3.1.4"
   dependencies:
@@ -20224,8 +20229,8 @@ __metadata:
     "@lerna-lite/cli": 1.14.2
     "@react-navigation/native": ^6.0.13
     "@react-navigation/native-stack": ^6.9.1
-    "@rest-hooks/core": "workspace:^"
-    "@rest-hooks/test": ^7.2.1
+    "@rest-hooks/react": "workspace:^"
+    "@rest-hooks/test": "workspace:^"
     "@testing-library/react": 13.4.0
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 11.5.0

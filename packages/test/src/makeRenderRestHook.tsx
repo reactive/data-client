@@ -1,20 +1,44 @@
-import { State, Manager, SubscriptionManager } from '@rest-hooks/react';
-import { renderHook } from '@testing-library/react-hooks';
+import {
+  State,
+  Manager,
+  SubscriptionManager,
+  NetworkManager,
+  PollingSubscription,
+  Controller,
+  actionTypes,
+} from '@rest-hooks/react';
 import React, { memo, Suspense } from 'react';
 
-import { MockNetworkManager, MockPollingSubscription } from './managers.js';
 import MockResolver from './MockResolver.js';
 import mockInitialState, { Fixture, FixtureEndpoint } from './mockState.js';
+import { renderHook, act, RenderHookResult } from './renderHook.cjs';
 
 export default function makeRenderRestHook(
-  makeProvider: (
-    managers: Manager[],
-    initialState?: State<unknown>,
-  ) => React.ComponentType<{ children: React.ReactChild }>,
+  Provider: React.ComponentType<ProviderProps>,
 ) {
-  const manager = new MockNetworkManager();
-  const subManager = new SubscriptionManager(MockPollingSubscription);
-  function renderRestHook<P, R>(
+  /** Wraps dispatches that are typically called declaratively in act() */
+  class ActController extends Controller<any> {
+    constructor(...args: any) {
+      super(...args);
+      const { setResponse, resolve } = this;
+      this.setResponse = (...args) => {
+        let promise: any;
+        act(() => {
+          promise = setResponse.call(this, ...args);
+        });
+        return promise;
+      };
+      this.resolve = (...args) => {
+        let promise: any;
+        act(() => {
+          promise = resolve.call(this, ...args);
+        });
+        return promise;
+      };
+    }
+  }
+
+  const renderRestHook: RenderRestHook = (<P, R>(
     callback: (props: P) => R,
     options?: {
       initialProps?: P;
@@ -24,21 +48,42 @@ export default function makeRenderRestHook(
       resolverFixtures?: FixtureEndpoint[];
       wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
     },
-  ) {
-    const initialState = options?.initialFixtures
-      ? mockInitialState(options.initialFixtures)
+  ): RenderHookResult<R, P> & { controller: Controller } => {
+    // we want fresh manager state in each instance
+    const managers = [
+      new NetworkManager(),
+      new SubscriptionManager(PollingSubscription),
+    ];
+    renderRestHook.cleanup = () => {
+      (managers[0] as any).cleanupDate = Infinity;
+      Object.values(
+        (managers[0] as any).rejectors as Record<string, any>,
+      ).forEach(rej => {
+        rej();
+      });
+      (managers[0] as any).clearAll();
+    };
+    renderRestHook.allSettled = async () => {
+      return (managers[0] as NetworkManager).allSettled();
+    };
+
+    const initialState: State<unknown> = options?.initialFixtures
+      ? (mockInitialState(options.initialFixtures) as any)
       : options?.results && mockInitialState(options.results);
-    const Provider: React.ComponentType<any> = makeProvider(
-      [manager, subManager],
-      initialState,
-    );
+
+    // TODO: controller provided to middleware should be same as useController() - so pull out the mockresolver stuff and don't actually
+    // use the component here
     const ProviderWithResolver: React.ComponentType<any> =
       options?.resolverFixtures
         ? memo(function ProviderWithResolver({
             children,
           }: React.PropsWithChildren<P>) {
             return (
-              <Provider>
+              <Provider
+                initialState={initialState}
+                Controller={ActController}
+                managers={managers}
+              >
                 <MockResolver
                   fixtures={options.resolverFixtures as FixtureEndpoint[]}
                 >
@@ -47,7 +92,19 @@ export default function makeRenderRestHook(
               </Provider>
             );
           })
-        : Provider;
+        : memo(function ProviderWithResolver({
+            children,
+          }: React.PropsWithChildren<P>) {
+            return (
+              <Provider
+                initialState={initialState}
+                Controller={ActController}
+                managers={managers}
+              >
+                {children}
+              </Provider>
+            );
+          });
 
     const Wrapper = options?.wrapper;
     const ProviderWithWrapper = Wrapper
@@ -69,14 +126,33 @@ export default function makeRenderRestHook(
       </ProviderWithWrapper>
     );
 
-    return renderHook(callback, {
+    const ret: any = renderHook(callback, {
       ...options,
       wrapper,
     });
-  }
-  /** @deprecated */
-  renderRestHook.cleanup = () => {
-    console.warn('cleanup() now happened automatically on unmount');
-  };
+    ret.controller = (managers[0] as any).controller;
+    return ret;
+  }) as any;
+  renderRestHook.cleanup = () => {};
+  renderRestHook.allSettled = () => Promise.resolve();
   return renderRestHook;
 }
+interface ProviderProps {
+  children: React.ReactNode;
+  managers: Manager[];
+  initialState: State<unknown>;
+  Controller: typeof Controller;
+}
+
+type RenderRestHook = (<P, R>(
+  callback: (props: P) => R,
+  options?: {
+    initialProps?: P;
+    results?: Fixture[];
+    initialFixtures?: FixtureEndpoint[];
+    resolverFixtures?: FixtureEndpoint[];
+    wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
+  },
+) => RenderHookResult<R, P> & {
+  controller: Controller;
+}) & { cleanup: () => void; allSettled: () => Promise<unknown> };

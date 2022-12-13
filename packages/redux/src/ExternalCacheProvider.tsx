@@ -9,7 +9,6 @@ import {
   StateContext,
   DispatchContext,
   ControllerContext,
-  DenormalizeCacheContext,
   StoreContext,
   BackupBoundary,
 } from '@rest-hooks/react';
@@ -79,9 +78,7 @@ export default function ExternalCacheProvider<S>({
       <StateContext.Provider value={state}>
         <StoreContext.Provider value={adaptedStore}>
           <ControllerContext.Provider value={controller}>
-            <DenormalizeCacheContext.Provider value={controller.globalCache}>
-              <BackupBoundary>{children}</BackupBoundary>
-            </DenormalizeCacheContext.Provider>
+            <BackupBoundary>{children}</BackupBoundary>
           </ControllerContext.Provider>
         </StoreContext.Provider>
       </StateContext.Provider>

@@ -1,9 +1,8 @@
 import { jest } from '@jest/globals';
 import { Endpoint, Entity } from '@rest-hooks/endpoint';
 import { AbortOptimistic } from '@rest-hooks/endpoint';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
-import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
-import { act } from '@testing-library/react-hooks';
+import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
 import {
   CoolerArticleResource,
   ArticleResourceWithOtherListUrl,
@@ -18,7 +17,7 @@ import { SpyInstance } from 'jest-mock';
 import nock from 'nock';
 import { useContext } from 'react';
 
-import { makeRenderRestHook } from '../../../test';
+import { makeRenderRestHook, act } from '../../../test';
 import { StateContext } from '../context';
 import { useCache, useController, useSuspense } from '../hooks';
 import { useError } from '../hooks';
@@ -46,8 +45,8 @@ afterEach(() => {
   These tests cover 'getOptimisticResponse' property
 */
 describe.each([
-  ['CacheProvider', makeCacheProvider],
-  ['ExternalCacheProvider', makeExternalCacheProvider],
+  ['CacheProvider', CacheProvider],
+  ['ExternalCacheProvider', ExternalCacheProvider],
 ] as const)(`%s`, (_, makeProvider) => {
   describe('Optimistic Updates', () => {
     let renderRestHook: ReturnType<typeof makeRenderRestHook>;
@@ -128,8 +127,9 @@ describe.each([
         },
       );
       expect(result.current.article).toEqual(CoolerArticle.fromJS(payload));
-      const promise = act(async () => {
-        await result.current.fetch(
+      let promise: any;
+      act(() => {
+        promise = result.current.fetch(
           CoolerArticleResource.partialUpdate,
           params,
           {
@@ -137,6 +137,7 @@ describe.each([
           },
         );
       });
+
       expect(result.current.article).toBeInstanceOf(CoolerArticle);
       expect(result.current.article).toEqual(
         CoolerArticle.fromJS({
@@ -144,7 +145,7 @@ describe.each([
           content: 'changed',
         }),
       );
-      await promise;
+      await act(() => promise);
       expect(result.current.article).toEqual(
         CoolerArticle.fromJS({
           ...payload,
@@ -175,11 +176,12 @@ describe.each([
         },
       );
       expect(result.current.articles).toEqual([CoolerArticle.fromJS(payload)]);
-      const promise = act(async () => {
-        await result.current.fetch(CoolerArticleResource.delete, params);
+      let promise: any;
+      act(() => {
+        promise = result.current.fetch(CoolerArticleResource.delete, params);
       });
       expect(result.current.articles).toEqual([]);
-      await promise;
+      await act(() => promise);
       expect(result.current.articles).toEqual([]);
     });
 
@@ -217,8 +219,9 @@ describe.each([
       expect(result.current.listA).toEqual(undefined);
       expect(result.current.listB).toEqual([existingItem]);
 
-      const promise = act(async () => {
-        await result.current.fetch(
+      let promise: any;
+      act(() => {
+        promise = result.current.fetch(
           ArticleResourceWithOtherListUrl.create,
           body,
         );
@@ -229,7 +232,7 @@ describe.each([
         existingItem,
         CoolerArticle.fromJS(body),
       ]);
-      await promise;
+      await act(() => promise);
       expect(result.current.listA).toEqual([
         CoolerArticle.fromJS({
           ...payload,
@@ -295,8 +298,7 @@ describe.each([
       const resolves: ((v: any) => void)[] = [];
 
       // first optimistic
-
-      await act(async () => {
+      act(() => {
         fetches.push(
           result.current.fetch(
             CoolerArticleResource.partialUpdate.extend({
@@ -435,8 +437,7 @@ describe.each([
       const resolves: ((v: any) => void)[] = [];
 
       // first optimistic
-
-      await act(async () => {
+      act(() => {
         fetches.push(
           result.current.fetch(
             CoolerArticleResource.partialUpdate.extend({
@@ -660,13 +661,14 @@ describe.each([
           );
           expect(result.current.tog).toEqual({ id: 5, visible: false });
 
-          const promise = act(async () => {
-            await result.current.fetch(failToggle, 5);
+          let promise: any;
+          act(() => {
+            promise = result.current.fetch(failToggle, 5);
           });
           // nothing should change since this failed
           expect(result.current.tog).toEqual({ id: 5, visible: false });
           expect(result.current.err).toEqual(toThrow);
-          await promise;
+          await act(() => promise);
         },
       );
 

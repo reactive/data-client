@@ -1,5 +1,5 @@
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
-import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
 import { TypedArticleResource } from '__tests__/new';
 import nock from 'nock';
 
@@ -21,8 +21,8 @@ afterEach(() => {
 
 describe('endpoint types', () => {
   describe.each([
-    ['CacheProvider', makeCacheProvider],
-    ['ExternalCacheProvider', makeExternalCacheProvider],
+    ['CacheProvider', CacheProvider],
+    ['ExternalCacheProvider', ExternalCacheProvider],
   ] as const)(`%s should enforce defined types`, (_, makeProvider) => {
     let renderRestHook: ReturnType<typeof makeRenderRestHook>;
     let mynock: nock.Scope;

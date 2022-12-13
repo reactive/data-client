@@ -1,6 +1,5 @@
 import { Endpoint, Entity } from '@rest-hooks/endpoint';
-import { StateContext } from '@rest-hooks/react';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider, StateContext } from '@rest-hooks/react';
 import { renderHook } from '@testing-library/react-hooks';
 import React from 'react';
 
@@ -30,7 +29,7 @@ class Tacos extends IDEntity {
 describe('useExpiresAt()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
+    renderRestHook = makeRenderRestHook(CacheProvider);
   });
 
   it('age is minimum of entities', () => {

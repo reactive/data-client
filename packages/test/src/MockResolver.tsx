@@ -1,11 +1,11 @@
 import {
-  DispatchContext,
   actionTypes,
   ActionTypes,
   ControllerContext,
   Controller,
+  useController,
 } from '@rest-hooks/react';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import React from 'react';
 
 import { Fixture, dispatchFixture } from './mockState.js';
@@ -27,9 +27,7 @@ export default function MockResolver({
   fixtures,
   silenceMissing,
 }: Props) {
-  const controller = useContext(ControllerContext);
-  const dis = useContext(DispatchContext);
-  const dispatch = controller.dispatch ?? dis;
+  const controller = useController();
 
   const fixtureMap = useMemo(() => {
     const map: Record<string, Fixture> = {};
@@ -41,7 +39,7 @@ export default function MockResolver({
   }, [fixtures]);
 
   const dispatchInterceptor = useCallback(
-    (action: ActionTypes) => {
+    function (action: ActionTypes) {
       if (action.type === actionTypes.FETCH_TYPE) {
         const { key, resolve, reject } = action.meta;
         // TODO(breaking): remove support for Date type in 'Receive' action
@@ -101,24 +99,25 @@ export default function MockResolver({
           return Promise.resolve();
         }
       }
-      return dispatch(action);
+      return controller.dispatch(action);
     },
-    [controller, dispatch, fixtureMap, silenceMissing],
+    [controller, fixtureMap, silenceMissing],
   );
   const controllerInterceptor = useMemo(() => {
-    if (!Controller) return controller;
-    return new Controller({
+    return new (controller.constructor as any)({
       ...controller,
       dispatch: dispatchInterceptor,
     });
+    /*TODO: this is better but we need to disallow destructuring with controller
+    return Object.create(controller, {
+      dispatch: { value: dispatchInterceptor },
+    });*/
   }, [controller, dispatchInterceptor]);
 
   return (
-    <DispatchContext.Provider value={dispatchInterceptor}>
-      <ControllerContext.Provider value={controllerInterceptor}>
-        {children}
-      </ControllerContext.Provider>
-    </DispatchContext.Provider>
+    <ControllerContext.Provider value={controllerInterceptor}>
+      {children}
+    </ControllerContext.Provider>
   );
 }
 

@@ -1,4 +1,4 @@
-import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
+import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
 import { act } from '@testing-library/react-hooks';
 import { CoolerArticleResource, CoolerArticleDetail } from '__tests__/new';
 import nock from 'nock';
@@ -67,7 +67,7 @@ describe('SSR', () => {
   });
 
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeExternalCacheProvider);
+    renderRestHook = makeRenderRestHook(ExternalCacheProvider);
   });
 
   it('should update useCache()', async () => {

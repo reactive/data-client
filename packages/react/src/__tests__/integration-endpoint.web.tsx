@@ -1,8 +1,8 @@
 import { schema, Entity, Query } from '@rest-hooks/endpoint';
 import { Endpoint } from '@rest-hooks/endpoint';
 import { SimpleRecord } from '@rest-hooks/legacy';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
-import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
 import { act } from '@testing-library/react-hooks';
 import {
   CoolerArticleResource,
@@ -20,7 +20,6 @@ import {
 import nock from 'nock';
 
 // relative imports to avoid circular dependency in tsconfig references
-
 import { makeRenderRestHook } from '../../../test';
 import { useCache, useController, useFetch, useSuspense } from '../hooks';
 import {
@@ -47,8 +46,8 @@ afterEach(() => {
 });
 
 describe.each([
-  ['CacheProvider', makeCacheProvider],
-  ['ExternalCacheProvider', makeExternalCacheProvider],
+  ['CacheProvider', CacheProvider],
+  ['ExternalCacheProvider', ExternalCacheProvider],
 ] as const)(`%s`, (_, makeProvider) => {
   // TODO: add nested resource test case that has multiple partials to test merge functionality
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
@@ -249,46 +248,46 @@ describe.each([
       },
     );
 
-    const { result, waitForNextUpdate, rerender } = renderRestHook(
+    const { result, waitForNextUpdate, rerender, controller } = renderRestHook(
       ({ tags }: { tags: string }) => {
         useFetch(CoolerArticleResource.getList);
-        return {
-          data: useCache(queryArticle, { tags }),
-          controller: useController(),
-        };
+        const data = useCache(queryArticle, { tags });
+        return useCache(queryArticle, { tags });
       },
       { initialProps: { tags: 'a' } },
     );
-    expect(result.current.data).toBeUndefined();
+    expect(result.current).toBeUndefined();
     await waitForNextUpdate();
-    expect(result.current.data).toBeDefined();
-    expect(result.current.data?.length).toBe(1);
-    expect(result.current.data).toMatchSnapshot();
+    expect(result.current).toBeDefined();
+    expect(result.current?.length).toBe(1);
+    expect(result.current).toMatchSnapshot();
 
-    await act(async () =>
-      result.current.controller.fetch(CoolerArticleResource.create, {
-        id: 1000,
-        title: 'bob says',
-        tags: ['a'],
-      }),
+    await act(
+      async () =>
+        await controller.fetch(CoolerArticleResource.create, {
+          id: 1000,
+          title: 'bob says',
+          tags: ['a'],
+        }),
     );
-    await act(async () =>
-      result.current.controller.fetch(CoolerArticleResource.create, {
-        id: 2000,
-        title: 'should not exist',
-        tags: [],
-      }),
+    await act(
+      async () =>
+        await controller.fetch(CoolerArticleResource.create, {
+          id: 2000,
+          title: 'should not exist',
+          tags: [],
+        }),
     );
-    expect(result.current.data).toBeDefined();
+    expect(result.current).toBeDefined();
     // should only include the one with the tag
-    expect(result.current.data?.length).toBe(2);
-    expect(result.current.data).toMatchSnapshot();
+    expect(result.current?.length).toBe(2);
+    expect(result.current).toMatchSnapshot();
     rerender({ tags: '' });
-    expect(result.current.data).toBeDefined();
+    expect(result.current).toBeDefined();
     // should not need to fetch as data already provided
     // with no tags should include all entries
-    expect(result.current.data?.length).toBe(4);
-    expect(result.current.data).toMatchSnapshot();
+    expect(result.current?.length).toBe(4);
+    expect(result.current).toMatchSnapshot();
   });
 
   it('should denormalize schema.Union()', async () => {
@@ -679,10 +678,9 @@ describe.each([
   );
 
   it('should update on create', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
       const articles = useSuspense(CoolerArticleResource.getList);
-      const { fetch } = useController();
-      return { articles, fetch };
+      return { articles };
     });
     await waitForNextUpdate();
     const createEndpoint = CoolerArticleResource.create.extend({
@@ -694,7 +692,7 @@ describe.each([
       }),
     });
     await act(async () => {
-      await result.current.fetch(createEndpoint, { id: 1 });
+      await controller.fetch(createEndpoint, { id: 1 });
     });
     expect(
       result.current.articles.map(({ id }: Partial<CoolerArticle>) => id),
@@ -722,9 +720,7 @@ describe.each([
         }),
       }),
     });
-    await act(async () => {
-      await result.current.fetch(extendEndpoint, { cursor: 2 });
-    });
+    await result.current.fetch(extendEndpoint, { cursor: 2 });
     expect(
       result.current.articles.map(({ id }: Partial<PaginatedArticle>) => id),
     ).toEqual([5, 3, 7, 8]);

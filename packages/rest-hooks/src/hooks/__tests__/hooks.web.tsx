@@ -1,13 +1,14 @@
 import { shapeToEndpoint } from '@rest-hooks/legacy';
 import {
-  DispatchContext,
   StateContext,
   State,
   ActionTypes,
   actionTypes,
   __INTERNAL__,
+  Controller,
+  ControllerContext,
 } from '@rest-hooks/react';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
 import { render } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import {
@@ -34,11 +35,11 @@ async function testDispatchFetch(
 ) {
   const dispatch = jest.fn();
   const tree = (
-    <DispatchContext.Provider value={dispatch}>
+    <ControllerContext.Provider value={new Controller({ dispatch })}>
       <Suspense fallback={null}>
         <Component />
       </Suspense>
-    </DispatchContext.Provider>
+    </ControllerContext.Provider>
   );
   render(tree);
   expect(dispatch).toHaveBeenCalledTimes(payloads.length);
@@ -62,11 +63,11 @@ function testRestHook(
   return renderHook(callback, {
     wrapper: function Wrapper({ children }: { children: React.ReactNode }) {
       return (
-        <DispatchContext.Provider value={dispatch}>
+        <ControllerContext.Provider value={new Controller({ dispatch })}>
           <StateContext.Provider value={state}>
             {children}
           </StateContext.Provider>
-        </DispatchContext.Provider>
+        </ControllerContext.Provider>
       );
     },
   });
@@ -99,7 +100,7 @@ describe('useRetrieve', () => {
     mynock.get(`/article-cooler/${payload.id}`).reply(200, payload);
     mynock.get(`/article-static/${payload.id}`).reply(200, payload);
     mynock.get(`/user/`).reply(200, users);
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
+    renderRestHook = makeRenderRestHook(CacheProvider);
   });
   afterEach(() => {
     nock.cleanAll();

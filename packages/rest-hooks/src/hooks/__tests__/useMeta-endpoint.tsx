@@ -1,4 +1,4 @@
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
 import { makeRenderRestHook, Fixture } from '@rest-hooks/test';
 import { TypedArticleResource } from '__tests__/new';
 
@@ -9,7 +9,7 @@ import { payload } from '../test-fixtures';
 describe('useMeta()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
+    renderRestHook = makeRenderRestHook(CacheProvider);
   });
 
   it('should contain error', () => {

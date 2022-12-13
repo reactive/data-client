@@ -1,5 +1,5 @@
 import {
-  CacheProvider as ExternalCacheProvider,
+  ExternalCacheProvider,
   PromiseifyMiddleware,
   Controller,
   Manager,

@@ -1,7 +1,6 @@
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { createResource, Entity } from '@rest-hooks/rest';
 
-import { useSuspense, useCache } from '../';
+import { useSuspense, useCache, CacheProvider } from '../';
 import { Fixture, FixtureEndpoint, makeRenderRestHook } from '../../../test';
 
 class Nested extends Entity {
@@ -65,7 +64,7 @@ describe(`optional members`, () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
 
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
+    renderRestHook = makeRenderRestHook(CacheProvider);
   });
 
   it('should return all members of list without suspending', () => {

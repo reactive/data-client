@@ -1,5 +1,5 @@
 import { useController, useSuspense } from '@rest-hooks/react';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
 import { CoolerArticleResource, CoolerArticle, User } from '__tests__/new';
 import nock from 'nock';
 
@@ -65,7 +65,7 @@ describe('hookifyResource()', () => {
     let renderRestHook: ReturnType<typeof makeRenderRestHook>;
 
     beforeEach(() => {
-      renderRestHook = makeRenderRestHook(makeCacheProvider);
+      renderRestHook = makeRenderRestHook(CacheProvider);
 
       nock(/.*/)
         .defaultReplyHeaders({

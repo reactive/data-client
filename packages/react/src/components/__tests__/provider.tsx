@@ -12,8 +12,8 @@ import { CoolerArticle, CoolerArticleResource } from '__tests__/new';
 import nock from 'nock';
 import React, { useContext, Suspense } from 'react';
 
-import { DispatchContext, StateContext } from '../../context';
-import { useSuspense } from '../../hooks';
+import { ControllerContext, StateContext } from '../../context';
+import { useController, useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
 import CacheProvider from '../CacheProvider';
 
@@ -88,7 +88,7 @@ describe('<CacheProvider />', () => {
     let dispatch;
     let count = 0;
     function DispatchTester() {
-      dispatch = useContext(DispatchContext);
+      dispatch = useController().dispatch;
       count++;
       return null;
     }
@@ -105,24 +105,26 @@ describe('<CacheProvider />', () => {
     expect(count).toBe(1);
     const managers: any[] = [new NetworkManager()];
     rerender(<CacheProvider managers={managers}>{chil}</CacheProvider>);
-    expect(count).toBe(2);
+    expect(count).toBe(1);
     curDisp = dispatch;
     rerender(<CacheProvider managers={managers}>{chil}</CacheProvider>);
     expect(curDisp).toBe(dispatch);
-    expect(count).toBe(2);
+    expect(count).toBe(1);
     rerender(
-      <DispatchContext.Provider value={() => Promise.resolve()}>
+      <ControllerContext.Provider
+        value={new Controller({ dispatch: () => Promise.resolve() })}
+      >
         {chil}
-      </DispatchContext.Provider>,
+      </ControllerContext.Provider>,
     );
     expect(curDisp).not.toBe(dispatch);
-    expect(count).toBe(3);
+    expect(count).toBe(2);
   });
   it('should change state', () => {
     let dispatch: any, state;
     let count = 0;
     function ContextTester() {
-      dispatch = useContext(DispatchContext);
+      dispatch = useController().dispatch;
       state = useContext(StateContext);
       count++;
       return null;

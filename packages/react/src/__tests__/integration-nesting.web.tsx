@@ -1,5 +1,5 @@
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
-import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
 import { act } from '@testing-library/react-hooks';
 import {
   CoauthoredArticle,
@@ -25,8 +25,8 @@ afterEach(() => {
 });
 
 describe.each([
-  ['CacheProvider', makeCacheProvider],
-  ['ExternalCacheProvider', makeExternalCacheProvider],
+  ['CacheProvider', CacheProvider],
+  ['ExternalCacheProvider', ExternalCacheProvider],
 ] as const)(`%s`, (_, makeProvider) => {
   // TODO: add nested resource test case that has multiple partials to test merge functionality
 

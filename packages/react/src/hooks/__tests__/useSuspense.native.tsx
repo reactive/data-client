@@ -11,7 +11,6 @@ import {
 import { FetchAction } from '@rest-hooks/core';
 import { Endpoint, FetchFunction, ReadEndpoint } from '@rest-hooks/endpoint';
 import { normalize } from '@rest-hooks/normalizr';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { makeRenderRestHook, mockInitialState } from '@rest-hooks/test';
 import { render, act, screen, waitFor } from '@testing-library/react-native';
 import {
@@ -161,7 +160,7 @@ describe('useSuspense()', () => {
   });
 
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
+    renderRestHook = makeRenderRestHook(CacheProvider);
     fbmock.mockReset();
   });
 

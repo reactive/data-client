@@ -1,9 +1,9 @@
-import { DispatchContext } from '@rest-hooks/react';
 import { render } from '@testing-library/react';
 import { CoolerArticleResource } from '__tests__/legacy-3';
 import nock from 'nock';
 import React, { Suspense } from 'react';
 
+import { Controller, ControllerContext } from '../..';
 import useFetchDispatcher from '../useFetchDispatcher';
 
 async function testDispatchFetch(
@@ -12,11 +12,11 @@ async function testDispatchFetch(
 ) {
   const dispatch = jest.fn();
   const tree = (
-    <DispatchContext.Provider value={dispatch}>
+    <ControllerContext.Provider value={new Controller({ dispatch })}>
       <Suspense fallback={null}>
         <Component />
       </Suspense>
-    </DispatchContext.Provider>
+    </ControllerContext.Provider>
   );
   render(tree);
   expect(dispatch).toHaveBeenCalledTimes(payloads.length);

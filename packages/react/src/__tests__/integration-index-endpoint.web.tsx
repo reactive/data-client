@@ -1,4 +1,3 @@
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { act } from '@testing-library/react-hooks';
 import { IndexedUserResource, User } from '__tests__/new';
 import nock from 'nock';
@@ -6,6 +5,7 @@ import { useContext } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
 import { makeRenderRestHook } from '../../../test';
+import { CacheProvider } from '../components';
 import { StateContext } from '../context';
 import { useCache, useSuspense, useController } from '../hooks';
 import {
@@ -75,7 +75,7 @@ describe('indexes', () => {
   });
 
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
+    renderRestHook = makeRenderRestHook(CacheProvider);
   });
 
   it('should resolve parallel useSuspense() request', async () => {

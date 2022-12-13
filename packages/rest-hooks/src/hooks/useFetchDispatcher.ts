@@ -1,6 +1,6 @@
-import type { Schema } from '@rest-hooks/react';
-import { DispatchContext, __INTERNAL__ } from '@rest-hooks/react';
-import { useContext, useCallback } from 'react';
+import { Schema, useController } from '@rest-hooks/react';
+import { __INTERNAL__ } from '@rest-hooks/react';
+import { useCallback } from 'react';
 
 import {
   FetchShape,
@@ -23,7 +23,7 @@ export default function useFetchDispatcher(throttle = false): <
   params: ParamsFromShape<Shape>,
   body: BodyFromShape<Shape>,
 ) => ReturnFromShape<typeof fetchShape> {
-  const dispatch = useContext(DispatchContext);
+  const { dispatch } = useController();
 
   const fetchDispatcher = useCallback(
     <Shape extends FetchShape<Schema, Readonly<object>, any>>(

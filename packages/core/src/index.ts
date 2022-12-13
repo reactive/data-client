@@ -34,6 +34,8 @@ export { default as reducer } from './state/reducerInstance.js';
 export { default as applyManager } from './manager/applyManager.js';
 
 export { default as Controller } from './controller/Controller.js';
+export { default as createFetch } from './controller/createFetch.js';
+export { default as createReceive } from './controller/createReceive.js';
 
 export * from './controller/types.js';
 export * as legacyActions from './state/legacy-actions/index.js';

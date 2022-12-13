@@ -16,5 +16,6 @@ export type {
   SuccessFixture,
   ErrorFixture,
 } from './mockState.js';
+export { act } from './renderHook.cjs';
 
 export { makeRenderRestHook, MockProvider, mockInitialState };

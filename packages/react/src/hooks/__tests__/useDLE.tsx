@@ -1,4 +1,4 @@
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
 import { makeRenderRestHook } from '@rest-hooks/test';
 import {
   CoolerArticle,
@@ -63,7 +63,7 @@ describe('useDLE()', () => {
   });
 
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
+    renderRestHook = makeRenderRestHook(CacheProvider);
   });
 
   it('should work on good network', async () => {

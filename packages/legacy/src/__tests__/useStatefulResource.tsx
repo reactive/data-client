@@ -1,4 +1,4 @@
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
 import { makeRenderRestHook } from '@rest-hooks/test';
 import { CoolerArticleResource as LegacyArticle } from '__tests__/legacy';
 import {
@@ -8,8 +8,8 @@ import {
 } from '__tests__/legacy-3';
 import nock from 'nock';
 
-import { payload, payload2, users, nested } from './fixtures';
 import useStatefulResource from '../useStatefulResource';
+import { payload, payload2, users, nested } from './fixtures';
 
 function onError(e: any) {
   e.preventDefault();
@@ -62,7 +62,7 @@ describe('useStatefulResource()', () => {
   });
 
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
+    renderRestHook = makeRenderRestHook(CacheProvider);
   });
 
   it('should work on good network', async () => {

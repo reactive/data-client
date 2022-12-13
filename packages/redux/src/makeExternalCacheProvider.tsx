@@ -1,10 +1,8 @@
 import { State, Manager, Controller, __INTERNAL__ } from '@rest-hooks/react';
 import React, { useEffect } from 'react';
-import { createStore, applyMiddleware, combineReducers } from 'redux';
 
 import { default as CacheProvider } from './ExternalCacheProvider.js';
-import { default as mapMiddleware } from './mapMiddleware.js';
-import { default as PromiseifyMiddleware } from './PromiseifyMiddleware.js';
+import { prepareStore } from './prepareStore.js';
 
 const {
   createReducer,
@@ -13,7 +11,7 @@ const {
 } = __INTERNAL__;
 
 // Extension of the DeepPartial type defined by Redux which handles unknown
-type DeepPartialWithUnknown<T> = {
+export type DeepPartialWithUnknown<T> = {
   [K in keyof T]?: T[K] extends unknown
     ? any
     : T[K] extends object
@@ -24,17 +22,12 @@ type DeepPartialWithUnknown<T> = {
 const makeExternalCacheProvider = function makeExternal(
   managers: Manager[],
   initialState: DeepPartialWithUnknown<State<any>> = defaultState,
+  Ctrl: typeof Controller,
 ) {
-  const selector = (s: { restHooks: State<unknown> }) => s.restHooks;
-  const controller = new Controller();
-  const reducer = createReducer(controller);
-  const store = createStore(
-    combineReducers({ restHooks: reducer }),
-    { restHooks: initialState as any },
-    applyMiddleware(
-      ...mapMiddleware(selector)(...applyManager(managers, controller)),
-      PromiseifyMiddleware,
-    ),
+  const { selector, store, controller } = prepareStore(
+    initialState,
+    managers,
+    Ctrl,
   );
 
   return function ConfiguredExternalCacheProvider({

@@ -1,7 +1,7 @@
 import { actionTypes, Controller } from '@rest-hooks/core';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
-import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
-import { renderHook } from '@testing-library/react-native';
+import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
+import { renderHook, waitFor } from '@testing-library/react-native';
 import {
   PollingArticleResource,
   ArticleResource,
@@ -16,8 +16,8 @@ import useSubscription from '../useSubscription';
 let mynock: nock.Scope;
 
 describe.each([
-  ['CacheProvider', makeCacheProvider],
-  ['ExternalCacheProvider', makeExternalCacheProvider],
+  ['CacheProvider', CacheProvider],
+  ['ExternalCacheProvider', ExternalCacheProvider],
 ] as const)(`%s with subscriptions`, (_, makeProvider) => {
   const articlePayload = {
     id: 5,
@@ -57,7 +57,11 @@ describe.each([
       'Access-Control-Allow-Origin': '*',
       'Content-Type': 'application/json',
     });
-    mynock
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
       .get(`/article-cooler/${articlePayload.id}`)
       .reply(200, articlePayload)
       .get(`/article/${articlePayload.id}`)
@@ -115,7 +119,7 @@ describe.each([
     const oldError = console.error;
     const spy = (console.error = jest.fn());
 
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result } = renderRestHook(() => {
       useSubscription(ArticleResource.get, { id: articlePayload.id });
     });
     expect(result.error).toBeUndefined();
@@ -234,7 +238,6 @@ async function validateSubscription(
     readonly error?: Error;
   },
   frequency: number,
-  waitForNextUpdate: () => Promise<void>,
   articlePayload: {
     id: number;
     title: string;
@@ -246,14 +249,16 @@ async function validateSubscription(
   expect(result.current).toBeUndefined();
   // should be defined after frequency milliseconds
   jest.advanceTimersByTime(frequency);
-  await waitForNextUpdate();
+
+  await waitFor(() => expect(result.current).not.toBeUndefined());
   expect(result.current).toBeInstanceOf(Article);
   expect(result.current).toEqual(Article.fromJS(articlePayload));
   // should update again after frequency
-  mynock
+  const fiverNock = mynock
     .get(`/article/${articlePayload.id}`)
     .reply(200, { ...articlePayload, title: 'fiver' });
   jest.advanceTimersByTime(frequency);
-  await waitForNextUpdate();
-  expect((result.current as any).title).toBe('fiver');
+
+  await waitFor(() => expect(fiverNock.isDone()).toBeTruthy());
+  await waitFor(() => expect((result.current as any).title).toBe('fiver'));
 }

@@ -36,8 +36,8 @@ import type {
   State,
 } from '../types.js';
 
-type GenericDispatch = (value: any) => Promise<void>;
-type CompatibleDispatch = (value: CombinedActionTypes) => Promise<void>;
+export type GenericDispatch = (value: any) => Promise<void>;
+export type CompatibleDispatch = (value: CombinedActionTypes) => Promise<void>;
 type PreviousDispatch = (value: BroadActionTypes) => Promise<void>;
 
 interface ConstructorProps<D extends GenericDispatch = CompatibleDispatch> {

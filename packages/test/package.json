@@ -54,9 +54,9 @@
     "README.md"
   ],
   "scripts": {
-    "build:lib": "NODE_ENV=production BROWSERSLIST_ENV=2020 BROWSERSLIST_ENV='modern' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
-    "build:legacy:lib": "NODE_ENV=production BROWSERSLIST_ENV=2018 babel --root-mode upward src --out-dir legacy --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
-    "build:bundle": "BROWSERSLIST_ENV=node12 rollup -c && echo '{\"type\":\"commonjs\"}' > dist/package.json",
+    "build:lib": "NODE_ENV=production BROWSERSLIST_ENV=2020 BROWSERSLIST_ENV='modern' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.cts,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts' && mv ./lib/renderHook.js ./lib/renderHook.cjs",
+    "build:legacy:lib": "NODE_ENV=production BROWSERSLIST_ENV=2018 babel --root-mode upward src --out-dir legacy --source-maps inline --extensions '.ts,.tsx,.cts,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:bundle": "BROWSERSLIST_ENV=node12 rollup -c && COMPILE_TARGET=native BROWSERSLIST_ENV=node12 rollup -c && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:clean": "rimraf lib dist ts3.4 legacy *.tsbuildinfo",
     "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
     "build": "yarn run build:lib && yarn run build:legacy:lib && yarn run build:bundle",
@@ -99,15 +99,34 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@testing-library/react-hooks": "~8.0.0"
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/react-hooks": "~8.0.0",
+    "@testing-library/react-native": "^11.5.0",
+    "react-error-boundary": "^3.1.4"
   },
   "peerDependencies": {
     "@rest-hooks/react": "^0.2.0 || ^0.3.0 || ^1.0.0 || ^6.0.0 || ^7.0.0",
-    "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
-    "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0"
+    "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0",
+    "@types/react-dom": "*",
+    "react": "^16.8.4 || ^17.0.0 || ^18.0.0",
+    "react-dom": "*",
+    "react-native": "*",
+    "react-test-renderer": "*"
   },
   "peerDependenciesMeta": {
     "@types/react": {
+      "optional": true
+    },
+    "@types/react-dom": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    },
+    "react-test-renderer": {
       "optional": true
     }
   },
@@ -115,6 +134,7 @@
     "@babel/cli": "7.20.7",
     "@babel/core": "7.20.12",
     "@types/babel__core": "^7",
+    "@types/react-test-renderer": "^18",
     "downlevel-dts": "^0.10.0",
     "rollup": "2.79.1",
     "rollup-plugin-babel": "^4.4.0",

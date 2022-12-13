@@ -1,4 +1,4 @@
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
 import { FixtureEndpoint } from '@rest-hooks/test/mockState';
 import { act } from '@testing-library/react-hooks';
 import { CoolerArticle, FutureArticleResource } from '__tests__/new';
@@ -57,7 +57,7 @@ let renderRestHook: ReturnType<typeof makeRenderRestHook>;
 let mynock: nock.Scope;
 
 beforeEach(() => {
-  renderRestHook = makeRenderRestHook(makeCacheProvider);
+  renderRestHook = makeRenderRestHook(CacheProvider);
   mynock = nock(/.*/).defaultReplyHeaders({
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
@@ -77,9 +77,7 @@ describe('receive', () => {
     });
     expect(result.current.data).toBeUndefined();
     const ep = FutureArticleResource.get;
-    await act(async () => {
-      await result.current.setResponse(ep, 5, payload);
-    });
+    await result.current.setResponse(ep, 5, payload);
     expect(result.current.data).toBeDefined();
     expect(result.current.data?.content).toEqual(payload.content);
     expect(result.current.data).toEqual(CoolerArticle.fromJS(payload));
@@ -119,9 +117,7 @@ describe('receive', () => {
     expect(result.current.data).toBeUndefined();
     const error = new Error('hi');
     const ep = FutureArticleResource.get;
-    await act(async () => {
-      await result.current.setError(ep, 5, error);
-    });
+    await result.current.setError(ep, 5, error);
     expect(result.current.data).toBeUndefined();
     expect(result.current.err).toBeDefined();
     expect(result.current.err).toBe(error);

@@ -1,6 +1,7 @@
 import { Controller } from '@rest-hooks/core';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
-import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
+import { waitFor } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import {
   PollingArticleResource,
@@ -10,15 +11,15 @@ import {
 import nock from 'nock';
 import React from 'react';
 
-import { makeRenderRestHook } from '../../../test';
+import { act, makeRenderRestHook } from '../../../test';
 import { ControllerContext } from '../context';
 import { useSubscription, useCache } from '../hooks';
 
 let mynock: nock.Scope;
 
 describe.each([
-  ['CacheProvider', makeCacheProvider],
-  ['ExternalCacheProvider', makeExternalCacheProvider],
+  ['CacheProvider', CacheProvider],
+  ['ExternalCacheProvider', ExternalCacheProvider],
 ] as const)(`%s with subscriptions`, (_, makeProvider) => {
   const articlePayload = {
     id: 5,
@@ -58,7 +59,11 @@ describe.each([
       'Access-Control-Allow-Origin': '*',
       'Content-Type': 'application/json',
     });
-    mynock
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
       .get(`/article-cooler/${articlePayload.id}`)
       .reply(200, articlePayload)
       .get(`/article/${articlePayload.id}`)
@@ -74,7 +79,7 @@ describe.each([
     const frequency = PollingArticleResource.get.pollFrequency as number;
     expect(frequency).toBeDefined();
 
-    const { result, waitForNextUpdate, rerender } = renderRestHook(
+    const { result, rerender } = renderRestHook(
       ({ active }) => {
         useSubscription(
           PollingArticleResource.get,
@@ -84,12 +89,7 @@ describe.each([
       },
       { initialProps: { active: true } },
     );
-    await validateSubscription(
-      result,
-      frequency,
-      waitForNextUpdate,
-      articlePayload,
-    );
+    await validateSubscription(result, frequency, articlePayload);
 
     // should not update if active is false
     rerender({ active: false });
@@ -101,11 +101,15 @@ describe.each([
 
     // errors should not fail when data already exists
     nock.cleanAll();
-    mynock.get(`/article/${articlePayload.id}`).reply(403, () => {
-      return { message: 'you fail' };
-    });
+    const lastCall = mynock
+      .get(`/article/${articlePayload.id}`)
+      .reply(403, () => {
+        return { message: 'you fail' };
+      });
     rerender({ active: true });
     jest.advanceTimersByTime(frequency);
+    await waitFor(() => expect(lastCall.isDone()).toBeTruthy());
+
     expect((result.current as any).title).toBe('fiver');
     jest.useRealTimers();
   });
@@ -114,7 +118,7 @@ describe.each([
     const oldError = console.error;
     const spy = (console.error = jest.fn());
 
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result } = renderRestHook(() => {
       useSubscription(ArticleResource.get, { id: articlePayload.id });
     });
     expect(result.error).toBeUndefined();
@@ -130,17 +134,12 @@ describe.each([
     expect(PollingArticleResource.get.pollFrequency).toBeDefined();
     expect(PollingArticleResource.anotherGet?.pollFrequency).toBeDefined();
 
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result } = renderRestHook(() => {
       useSubscription(PollingArticleResource.get, { id: articlePayload.id });
       return useCache(PollingArticleResource.get, { id: articlePayload.id });
     });
 
-    await validateSubscription(
-      result,
-      frequency,
-      waitForNextUpdate,
-      articlePayload,
-    );
+    await validateSubscription(result, frequency, articlePayload);
     jest.useRealTimers();
   });
 
@@ -201,7 +200,6 @@ async function validateSubscription(
     readonly error?: Error;
   },
   frequency: number,
-  waitForNextUpdate: () => Promise<void>,
   articlePayload: {
     id: number;
     title: string;
@@ -213,16 +211,17 @@ async function validateSubscription(
   expect(result.current).toBeUndefined();
   // should be defined after frequency milliseconds
   jest.advanceTimersByTime(frequency);
-  await waitForNextUpdate();
+
+  await waitFor(() => expect(result.current).not.toBeUndefined());
   expect(result.current).toBeInstanceOf(Article);
   expect(result.current).toEqual(Article.fromJS(articlePayload));
   // should update again after frequency
-  mynock
+  const fiverNock = mynock
     .get(`/article/${articlePayload.id}`)
     .reply(200, { ...articlePayload, title: 'fiver' });
+
   jest.advanceTimersByTime(frequency);
 
-  await waitForNextUpdate();
-
-  expect((result.current as any).title).toBe('fiver');
+  await waitFor(() => expect(fiverNock.isDone()).toBeTruthy());
+  await waitFor(() => expect((result.current as any).title).toBe('fiver'));
 }

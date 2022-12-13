@@ -1,4 +1,4 @@
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
 import { FixtureEndpoint } from '@rest-hooks/test/mockState';
 import { act } from '@testing-library/react-hooks';
 import { FutureArticleResource } from '__tests__/new';
@@ -58,7 +58,7 @@ let renderRestHook: ReturnType<typeof makeRenderRestHook>;
 let mynock: nock.Scope;
 
 beforeEach(() => {
-  renderRestHook = makeRenderRestHook(makeCacheProvider);
+  renderRestHook = makeRenderRestHook(CacheProvider);
   mynock = nock(/.*/).defaultReplyHeaders({
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',

@@ -2,8 +2,8 @@ import { jest } from '@jest/globals';
 // relative imports to avoid circular dependency in tsconfig references
 import { SimpleRecord } from '@rest-hooks/legacy';
 import { shapeToEndpoint } from '@rest-hooks/legacy';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
-import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
 import { makeRenderRestHook } from '@rest-hooks/test';
 import { act } from '@testing-library/react-hooks';
 import {
@@ -41,8 +41,8 @@ afterEach(() => {
 });
 
 describe.each([
-  ['CacheProvider', makeCacheProvider],
-  ['ExternalCacheProvider', makeExternalCacheProvider],
+  ['CacheProvider', CacheProvider],
+  ['ExternalCacheProvider', ExternalCacheProvider],
 ] as const)(`%s`, (_, makeProvider) => {
   // TODO: add nested resource test case that has multiple partials to test merge functionality
 

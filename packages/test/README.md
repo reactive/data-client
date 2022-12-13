@@ -112,7 +112,7 @@ export const FullArticleList = ({ result }) => (
 import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
 import options from './fixtures';
 
-const renderRestHook = makeRenderRestHook(makeCacheProvider);
+const renderRestHook = makeRenderRestHook(CacheProvider);
 
 it('should resolve list', async () => {
   const { result, waitForNextUpdate } = renderRestHook(() => {

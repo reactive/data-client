@@ -197,6 +197,7 @@ export const ContextAuthdArticleResource = hookifyResource(
   },
   function useInit(): RequestInit {
     const accessToken = useContext(AuthContext);
+    if (!accessToken) return {};
     return {
       headers: {
         'Access-Token': accessToken,

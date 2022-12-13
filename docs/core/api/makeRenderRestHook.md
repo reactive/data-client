@@ -119,7 +119,7 @@ beforeEach(() => {
   nock('http://test.com')
     .get(`/article-cooler/${payload.id}`)
     .reply(200, payload);
-  renderRestHook = makeRenderRestHook(makeCacheProvider);
+  renderRestHook = makeRenderRestHook(CacheProvider);
 });
 
 it('should resolve useSuspense()', async () => {

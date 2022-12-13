@@ -1,16 +1,23 @@
 import { Entity, Schema, schema } from '@rest-hooks/endpoint';
-import { useCache, useController, useSuspense } from '@rest-hooks/react';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import {
+  CacheProvider,
+  StateContext,
+  useCache,
+  useController,
+  useSuspense,
+} from '@rest-hooks/react';
 import { makeRenderRestHook } from '@rest-hooks/test';
+import { waitFor } from '@testing-library/react';
 import { act } from '@testing-library/react-hooks';
 import nock from 'nock';
+import { useContext } from 'react';
 
 import createResource from '../createResource';
 import RestEndpoint, { RestGenerics } from '../RestEndpoint';
 
 describe('resource', () => {
   const renderRestHook: ReturnType<typeof makeRenderRestHook> =
-    makeRenderRestHook(makeCacheProvider);
+    makeRenderRestHook(CacheProvider);
   let mynock: nock.Scope;
 
   class User extends Entity {
@@ -234,42 +241,42 @@ describe('resource', () => {
   });
 
   it('UserResource.delete should work', async () => {
-    mynock
-      .delete(`/groups/five/users/${userPayload.id}`)
-      .reply(200, (uri, body: any) => ({
-        id: userPayload.id,
-      }));
+    mynock.delete(`/groups/five/users/${599}`).reply(200, (uri, body: any) => ({
+      id: 599,
+    }));
 
     const { result, waitForNextUpdate } = renderRestHook(
       () => {
         return [
-          useSuspense(UserResource.get, { group: 'five', id: '5' }),
+          useSuspense(UserResource.get, { group: 'five', id: '599' }),
           useController(),
+          useContext(StateContext),
         ] as const;
       },
       {
         initialFixtures: [
           {
             endpoint: UserResource.get,
-            args: [{ group: 'five', id: '5' }],
-            response: userPayload,
+            args: [{ group: 'five', id: '599' }],
+            response: { ...userPayload, id: '599' },
           },
         ],
         resolverFixtures: [
           {
             endpoint: UserResource.get,
-            args: [{ group: 'five', id: '5' }],
+            args: [{ group: 'five', id: '599' }],
             response: 'not found',
             error: true,
           },
         ],
       },
     );
+
     // eslint-disable-next-line prefer-const
     let [user, controller] = result.current;
     expect(user.username).toBe(userPayload.username);
     await act(() => {
-      controller.fetch(UserResource.delete, { group: 'five', id: '5' });
+      controller.fetch(UserResource.delete, { group: 'five', id: '599' });
     });
     await waitForNextUpdate();
     // this means we suspended; so it hit the resolver fixture
@@ -278,7 +285,7 @@ describe('resource', () => {
     () =>
       controller.fetch(
         UserResource.delete,
-        { group: 'five', id: '5' },
+        { group: 'five', id: '599' },
         // @ts-expect-error
         { username: 'never' },
       );

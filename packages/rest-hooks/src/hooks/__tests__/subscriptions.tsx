@@ -1,14 +1,10 @@
-import {
-  DispatchContext,
-  ControllerContext,
-  Controller,
-} from '@rest-hooks/react';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
-import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
+import { ControllerContext, Controller } from '@rest-hooks/react';
+import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
+import { waitFor } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { PollingArticleResource } from '__tests__/legacy-3';
 import nock from 'nock';
-import React from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
 
@@ -18,8 +14,8 @@ import { makeRenderRestHook } from '../../../../test';
 let mynock: nock.Scope;
 
 describe.each([
-  ['CacheProvider', makeCacheProvider],
-  ['ExternalCacheProvider', makeExternalCacheProvider],
+  ['CacheProvider', CacheProvider],
+  ['ExternalCacheProvider', ExternalCacheProvider],
 ] as const)(`%s with subscriptions`, (_, makeProvider) => {
   const articlePayload = {
     id: 5,
@@ -54,7 +50,11 @@ describe.each([
       'Access-Control-Allow-Origin': '*',
       'Content-Type': 'application/json',
     });
-    mynock
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
       .get(`/article-cooler/${articlePayload.id}`)
       .reply(200, articlePayload)
       .get(`/article/${articlePayload.id}`)
@@ -72,7 +72,7 @@ describe.each([
     ).pollFrequency;
     let active = true;
 
-    const { result, waitForNextUpdate, rerender } = renderRestHook(() => {
+    const { result, rerender } = renderRestHook(() => {
       useSubscription(
         PollingArticleResource.detailShape(),
         active ? articlePayload : null,
@@ -80,12 +80,7 @@ describe.each([
       return useCache(PollingArticleResource.detailShape(), articlePayload);
     });
 
-    await validateSubscription(
-      result,
-      frequency,
-      waitForNextUpdate,
-      articlePayload,
-    );
+    await validateSubscription(result, frequency, articlePayload);
 
     // should not update if active is false
     active = false;
@@ -104,17 +99,12 @@ describe.each([
       PollingArticleResource.detailShape().options as any
     ).pollFrequency;
 
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result } = renderRestHook(() => {
       useSubscription(PollingArticleResource.detailShape(), articlePayload);
       return useCache(PollingArticleResource.detailShape(), articlePayload);
     });
 
-    await validateSubscription(
-      result,
-      frequency,
-      waitForNextUpdate,
-      articlePayload,
-    );
+    await validateSubscription(result, frequency, articlePayload);
     jest.useRealTimers();
   });
 
@@ -175,7 +165,6 @@ async function validateSubscription(
     readonly error?: Error;
   },
   frequency: number,
-  waitForNextUpdate: () => Promise<void>,
   articlePayload: {
     id: number;
     title: string;
@@ -187,14 +176,16 @@ async function validateSubscription(
   expect(result.current).toBeUndefined();
   // should be defined after frequency milliseconds
   jest.advanceTimersByTime(frequency);
-  await waitForNextUpdate();
+
+  await waitFor(() => expect(result.current).not.toBeUndefined());
   expect(result.current).toBeInstanceOf(PollingArticleResource);
   expect(result.current).toEqual(PollingArticleResource.fromJS(articlePayload));
   // should update again after frequency
-  mynock
+  const fiverNock = mynock
     .get(`/article/${articlePayload.id}`)
     .reply(200, { ...articlePayload, title: 'fiver' });
   jest.advanceTimersByTime(frequency);
-  await waitForNextUpdate();
-  expect((result.current as any).title).toBe('fiver');
+
+  await waitFor(() => expect(fiverNock.isDone()).toBeTruthy());
+  await waitFor(() => expect((result.current as any).title).toBe('fiver'));
 }

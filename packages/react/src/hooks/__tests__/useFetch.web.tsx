@@ -1,5 +1,5 @@
 import { initialState, State, ActionTypes, Controller } from '@rest-hooks/core';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
 import { render } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { CoolerArticleResource, StaticArticleResource } from '__tests__/new';
@@ -88,7 +88,7 @@ describe('useFetch', () => {
     mynock.get(`/article-cooler/${payload.id}`).reply(200, payload);
     mynock.get(`/article-static/${payload.id}`).reply(200, payload);
     mynock.get(`/user/`).reply(200, users);
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
+    renderRestHook = makeRenderRestHook(CacheProvider);
   });
   afterEach(() => {
     nock.cleanAll();

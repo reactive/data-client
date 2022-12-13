@@ -1,6 +1,6 @@
 import { ResolveType } from '@rest-hooks/core';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
-import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
 import { act } from '@testing-library/react-hooks';
 import { CoolerArticle, FutureArticleResource } from '__tests__/new';
 import nock from 'nock';
@@ -47,8 +47,8 @@ export const nested = [
 ];
 
 describe.each([
-  ['CacheProvider', makeCacheProvider],
-  ['ExternalCacheProvider', makeExternalCacheProvider],
+  ['CacheProvider', CacheProvider],
+  ['ExternalCacheProvider', ExternalCacheProvider],
 ] as const)(`%s`, (_, makeProvider) => {
   // TODO: add nested resource test case that has multiple partials to test merge functionality
 
@@ -109,16 +109,13 @@ describe.each([
       };
     });
     expect(result.current.data).toBeUndefined();
-    let response;
-    await act(async () => {
-      result.current.fetch(FutureArticleResource.get, payload.id);
-      result.current.fetch(FutureArticleResource.get, payload.id);
-      result.current.fetch(FutureArticleResource.get, payload.id);
-      response = await result.current.fetch(
-        FutureArticleResource.get,
-        payload.id,
-      );
-    });
+    result.current.fetch(FutureArticleResource.get, payload.id);
+    result.current.fetch(FutureArticleResource.get, payload.id);
+    result.current.fetch(FutureArticleResource.get, payload.id);
+    const response = await result.current.fetch(
+      FutureArticleResource.get,
+      payload.id,
+    );
     expect(result.current.data).toBeDefined();
     expect(result.current.data?.content).toEqual(payload.content);
     expect(response).toEqual(payload);
@@ -159,13 +156,10 @@ describe.each([
       { resolverFixtures: [fixture] },
     );
     expect(result.current.data).toBeUndefined();
-    let response;
-    await act(async () => {
-      result.current.fetch(FutureArticleResource.get, id);
-      result.current.fetch(FutureArticleResource.get, id);
-      result.current.fetch(FutureArticleResource.get, id);
-      response = await result.current.fetch(FutureArticleResource.get, id);
-    });
+    result.current.fetch(FutureArticleResource.get, id);
+    result.current.fetch(FutureArticleResource.get, id);
+    result.current.fetch(FutureArticleResource.get, id);
+    await result.current.fetch(FutureArticleResource.get, id);
   });
 
   it('should update on create', async () => {

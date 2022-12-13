@@ -1,5 +1,5 @@
 import { shapeToEndpoint } from '@rest-hooks/legacy';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
 import {
   CoolerArticleResource,
   PaginatedArticleResource,
@@ -16,7 +16,7 @@ import { articlesPages, payload } from '../test-fixtures';
 describe('useCache()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
+    renderRestHook = makeRenderRestHook(CacheProvider);
   });
 
   it('should be null with empty state', () => {

@@ -1,7 +1,7 @@
 import { Entity } from '@rest-hooks/endpoint';
 import { useController } from '@rest-hooks/react';
 import { useSuspense } from '@rest-hooks/react';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
 import { act } from '@testing-library/react-hooks';
 import { CoolerArticle, CoolerArticleResource } from '__tests__/new';
 import nock from 'nock';
@@ -88,7 +88,7 @@ const getNextPage2 = getArticleList2.paginated(
 
 describe('RestEndpoint', () => {
   const renderRestHook: ReturnType<typeof makeRenderRestHook> =
-    makeRenderRestHook(makeCacheProvider);
+    makeRenderRestHook(CacheProvider);
   let mynock: nock.Scope;
 
   beforeEach(() => {
@@ -217,7 +217,7 @@ describe('RestEndpoint', () => {
     mynock.get(`/article-paginated`).reply(200, paginatedFirstPage);
     mynock.get(`/article-paginated?cursor=2`).reply(200, paginatedSecondPage);
 
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitForNextUpdate, controller } = renderRestHook(() => {
       const { fetch } = useController();
       const {
         data: { results: articles },
@@ -227,14 +227,12 @@ describe('RestEndpoint', () => {
     });
     await waitForNextUpdate();
     // @ts-expect-error
-    () => result.current.fetch(getNextPage);
+    () => controller.fetch(getNextPage);
     // @ts-expect-error
-    () => result.current.fetch(getNextPage, { fake: 5 });
+    () => controller.fetch(getNextPage, { fake: 5 });
     expect(result.current.nextPage).toEqual(paginatedFirstPage.nextPage);
-    await act(async () => {
-      await result.current.fetch(getNextPage, {
-        cursor: result.current.nextPage,
-      });
+    await controller.fetch(getNextPage, {
+      cursor: result.current.nextPage,
     });
     expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3, 7, 8]);
     expect(result.current.nextPage).toBeUndefined();
@@ -265,11 +263,9 @@ describe('RestEndpoint', () => {
     () => result.current.fetch(getNextPage2, { group: 'happy' });
     // @ts-expect-error
     () => result.current.fetch(getNextPage2, { cursor: 2 });
-    await act(async () => {
-      await result.current.fetch(getNextPage2, {
-        group: 'happy',
-        cursor: 2,
-      });
+    await result.current.fetch(getNextPage2, {
+      group: 'happy',
+      cursor: 2,
     });
     expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3, 7, 8]);
   });
@@ -290,10 +286,8 @@ describe('RestEndpoint', () => {
       return { articles, nextPage, fetch };
     });
     await waitForNextUpdate();
-    await act(async () => {
-      await result.current.fetch(getNextPage, {
-        cursor: 2,
-      });
+    await result.current.fetch(getNextPage, {
+      cursor: 2,
     });
     //TODO: Why is this broken? expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3, 7, 8]);
   });
@@ -348,10 +342,8 @@ describe('RestEndpoint', () => {
     };
 
     mynock.get(`/complex-thing/5`).reply(200, secondResponse);
-    await act(async () => {
-      await result.current.fetch(getComplex, {
-        id: '5',
-      });
+    await result.current.fetch(getComplex, {
+      id: '5',
     });
     expect(result.current.article).toEqual({ ...secondResponse, extra: 'hi' });
   });

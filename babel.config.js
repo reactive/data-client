@@ -1,4 +1,6 @@
 const { resolvePath } = require('babel-plugin-module-resolver');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = function (api) {
   api.cache.using(() => process.env.NODE_ENV);
@@ -10,15 +12,38 @@ module.exports = function (api) {
           typing: 'typescript',
           loose: true,
           resolver: {
-            extensions: ['.ts.', '.tsx', '.js', '.jsx', '.es', '.es6', '.mjs'],
             resolvePath(sourcePath, currentFile, opts) {
               if (
                 process.env.NODE_ENV === 'test' &&
                 sourcePath.startsWith('.') &&
-                sourcePath.endsWith('.js')
+                (sourcePath.endsWith('.js') || sourcePath.endsWith('.cjs'))
               ) {
-                const removedExt = sourcePath.substr(0, sourcePath.length - 3);
+                const removedExt = sourcePath.substr(
+                  0,
+                  sourcePath.lastIndexOf('.'),
+                );
                 return resolvePath(removedExt, currentFile, opts);
+              }
+              // for compiling CJS .native only outputs
+              if (
+                process.env.COMPILE_TARGET === 'native' &&
+                sourcePath.startsWith('.') &&
+                (sourcePath.endsWith('.js') || sourcePath.endsWith('.cjs')) &&
+                !sourcePath.includes('.native')
+              ) {
+                const final =
+                  sourcePath.substr(0, sourcePath.lastIndexOf('.')) + '.native';
+
+                const resolved = resolvePath(final, currentFile, opts);
+                for (const ext of opts.extensions) {
+                  const absolutePath = path.join(
+                    path.dirname(currentFile),
+                    resolved + ext,
+                  );
+                  if (fs.existsSync(absolutePath)) {
+                    return resolved;
+                  }
+                }
               }
             },
             root: [],

@@ -10,8 +10,8 @@ import {
 import type { State, Manager } from '@rest-hooks/core';
 import React, { useMemo, useRef } from 'react';
 
+import { ControllerContext } from '../context.js';
 import CacheStore from './CacheStore.js';
-import { DenormalizeCacheContext, ControllerContext } from '../context.js';
 
 /* istanbul ignore next  */
 const SSR = typeof window === 'undefined';
@@ -41,13 +41,14 @@ Try using https://resthooks.io/docs/api/ExternalCacheProvider for server entry p
     );
   }
   // contents of this component expected to be relatively stable
-
   const controllerRef: React.MutableRefObject<Controller> = useRef<any>();
   if (!controllerRef.current) controllerRef.current = new Controller();
+  //TODO: bind all methods so destructuring works
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const memodManagers = useMemo(() => managers, managers);
 
+  // Makes manager middleware compatible with redux-style middleware (by a wrapper enhancement to provide controller API)
   const middlewares = useMemo(
     () => applyManager(managers, controllerRef.current),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -56,18 +57,14 @@ Try using https://resthooks.io/docs/api/ExternalCacheProvider for server entry p
 
   return (
     <ControllerContext.Provider value={controllerRef.current}>
-      <DenormalizeCacheContext.Provider
-        value={controllerRef.current.globalCache}
+      <CacheStore
+        managers={memodManagers}
+        middlewares={middlewares}
+        initialState={initialState}
+        controller={controllerRef.current}
       >
-        <CacheStore
-          managers={memodManagers}
-          middlewares={middlewares}
-          initialState={initialState}
-          controller={controllerRef.current}
-        >
-          {children}
-        </CacheStore>
-      </DenormalizeCacheContext.Provider>
+        {children}
+      </CacheStore>
     </ControllerContext.Provider>
   );
 }

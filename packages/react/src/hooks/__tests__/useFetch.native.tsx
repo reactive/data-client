@@ -2,7 +2,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { initialState, State, ActionTypes, Controller } from '@rest-hooks/core';
 import { normalize } from '@rest-hooks/normalizr';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
 import { makeRenderRestHook } from '@rest-hooks/test';
 import { renderHook } from '@testing-library/react-hooks';
 import { act, render } from '@testing-library/react-native';
@@ -98,7 +98,7 @@ describe('useFetch', () => {
     mynock.get(`/article-cooler/${payload.id}`).reply(200, payload);
     mynock.get(`/article-static/${payload.id}`).reply(200, payload);
     mynock.get(`/user/`).reply(200, users);
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
+    renderRestHook = makeRenderRestHook(CacheProvider);
   });
   afterEach(() => {
     nock.cleanAll();

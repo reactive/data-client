@@ -1,6 +1,6 @@
 import { State, ActionTypes, Controller, actionTypes } from '@rest-hooks/core';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
-import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
 import { render, act } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { CoolerArticleResource, PaginatedArticleResource } from '__tests__/new';
@@ -314,8 +314,8 @@ describe('useController().reset', () => {
 
 describe('useController().getState', () => {
   describe.each([
-    ['CacheProvider', makeCacheProvider],
-    ['ExternalCacheProvider', makeExternalCacheProvider],
+    ['CacheProvider', CacheProvider],
+    ['ExternalCacheProvider', ExternalCacheProvider],
   ] as const)(`%s`, (_, makeProvider) => {
     let renderRestHook: ReturnType<typeof makeRenderRestHook>;
     let mynock: nock.Scope;

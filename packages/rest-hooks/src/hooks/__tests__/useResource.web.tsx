@@ -1,9 +1,9 @@
-import { State, ReadShape } from '@rest-hooks/core';
+import { State, ReadShape, Controller } from '@rest-hooks/core';
 import { initialState } from '@rest-hooks/core';
 import { shapeToEndpoint } from '@rest-hooks/legacy';
 import { normalize } from '@rest-hooks/normalizr';
-import { DispatchContext, StateContext } from '@rest-hooks/react';
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { ControllerContext, StateContext } from '@rest-hooks/react';
+import { CacheProvider } from '@rest-hooks/react';
 import { render } from '@testing-library/react';
 import {
   CoolerArticleResource,
@@ -19,26 +19,26 @@ import React, { Suspense } from 'react';
 
 // relative imports to avoid circular dependency in tsconfig references
 import { useResource } from '..';
-import { makeRenderRestHook, mockInitialState } from '../../../../test';
+import { act, makeRenderRestHook, mockInitialState } from '../../../../test';
 import { payload, users, nested } from '../test-fixtures';
 
 async function testDispatchFetch(
   Component: React.FunctionComponent<any>,
   payloads: any[],
 ) {
-  const dispatch = jest.fn();
+  const controller = new Controller({ dispatch: jest.fn() });
   const tree = (
-    <DispatchContext.Provider value={dispatch}>
+    <ControllerContext.Provider value={controller}>
       <Suspense fallback={null}>
         <Component />
       </Suspense>
-    </DispatchContext.Provider>
+    </ControllerContext.Provider>
   );
   render(tree);
-  expect(dispatch).toHaveBeenCalled();
-  expect(dispatch.mock.calls.length).toBe(payloads.length);
+  expect(controller.dispatch).toHaveBeenCalled();
+  expect(controller.dispatch.mock.calls.length).toBe(payloads.length);
   let i = 0;
-  for (const call of dispatch.mock.calls) {
+  for (const call of controller.dispatch.mock.calls) {
     delete call[0]?.meta?.createdAt;
     delete call[0]?.meta?.promise;
     expect(call[0]).toMatchSnapshot();
@@ -132,7 +132,7 @@ describe('useResource()', () => {
   });
 
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
+    renderRestHook = makeRenderRestHook(CacheProvider);
   });
 
   it('should dispatch an action that fetches', async () => {
@@ -155,7 +155,7 @@ describe('useResource()', () => {
     await testDispatchFetch(MultiResourceTester, [payload, users]);
   });
   it('should throw same promise until both resolve', async () => {
-    const renderRestHook = makeRenderRestHook(makeCacheProvider);
+    const renderRestHook = makeRenderRestHook(CacheProvider);
     jest.useFakeTimers();
     nock('http://test.com')
       .get(`/article-cooler/${payload.id}`)
@@ -205,6 +205,7 @@ describe('useResource()', () => {
     const oldError = console.error;
     console.error = () => {};
     jest.runAllTimers();
+    jest.useRealTimers();
     await result.current;
     rerender();
     expect(result.current).toMatchInlineSnapshot(`
@@ -266,11 +267,14 @@ describe('useResource()', () => {
 
     const tree = (
       <StateContext.Provider value={state}>
-        <DispatchContext.Provider value={() => Promise.resolve()}>
+        <ControllerContext.Provider
+          value={new Controller({ dispatch: () => Promise.resolve() })}
+        >
+          {' '}
           <Suspense fallback={<Fallback />}>
             <ArticleComponentTester />
           </Suspense>{' '}
-        </DispatchContext.Provider>
+        </ControllerContext.Provider>
       </StateContext.Provider>
     );
     const { getByText } = render(tree);
@@ -339,11 +343,13 @@ describe('useResource()', () => {
 
     const tree = (
       <StateContext.Provider value={state}>
-        <DispatchContext.Provider value={() => Promise.resolve()}>
+        <ControllerContext.Provider
+          value={new Controller({ dispatch: () => Promise.resolve() })}
+        >
           <Suspense fallback={<Fallback />}>
             <ArticleComponentTester invalidIfStale />
           </Suspense>
-        </DispatchContext.Provider>
+        </ControllerContext.Provider>
       </StateContext.Provider>
     );
     render(tree);

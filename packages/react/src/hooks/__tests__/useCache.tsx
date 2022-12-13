@@ -1,4 +1,4 @@
-import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
+import { CacheProvider } from '@rest-hooks/react';
 import { GetEndpoint } from '@rest-hooks/rest';
 import {
   CoolerArticleResource,
@@ -19,7 +19,7 @@ import useCache from '../useCache';
 describe('useCache()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
   beforeEach(() => {
-    renderRestHook = makeRenderRestHook(makeCacheProvider);
+    renderRestHook = makeRenderRestHook(CacheProvider);
   });
 
   it('should be null with empty state', () => {
