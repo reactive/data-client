@@ -41,12 +41,12 @@ Excellent for guaranteed data rendering.
 
 Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by default but also [configurable](../getting-started/expiry-policy.md).
 
-| Expiry Status | Fetch           | Suspend           | Error             | Conditions                                                                                            |
-| ------------- | --------------- | ----------------- | ----------------- | ----------------------------------------------------------------------------------------------------- |
-| Invalid       | yes<sup>1</sup> | yes               | no                | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../getting-started/expiry-policy.md#endpointinvalidifstale) |
-| Stale         | yes<sup>1</sup> | no | no                | (first-render, arg change) & [expiry &lt; now](../getting-started/expiry-policy.md)                   |
-| Valid         | no              | no                | maybe<sup>2</sup> | fetch completion                                                                                      |
-| Ignore        | no              | no                | no                | `null` used as second argument                                                                        |
+| Expiry Status | Fetch           | Suspend | Error             | Conditions                                                                                                                                                                          |
+| ------------- | --------------- | ------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Invalid       | yes<sup>1</sup> | yes     | no                | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../getting-started/expiry-policy.md#endpointinvalidifstale) |
+| Stale         | yes<sup>1</sup> | no      | no                | (first-render, arg change) & [expiry &lt; now](../getting-started/expiry-policy.md)                                                                                                 |
+| Valid         | no              | no      | maybe<sup>2</sup> | fetch completion                                                                                                                                                                    |
+|               | no              | no      | no                | `null` used as second argument                                                                                                                                                      |
 
 :::note
 

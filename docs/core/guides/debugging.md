@@ -50,7 +50,7 @@ For example, when a useSuspense() hook is first mounted it might
 
 - Start by dispatching a fetch action
 - If no identical fetches are in-flight, the central store will then start the network call over HTTP
-- When the network call resolves, a receive action is sent to the store's reducer, updating the state.
+- When the network call resolves, a setResponse action is sent to the store's reducer, updating the state.
 - The component is re-rendered with the updated state, resolving the suspense.
 
 > [More about control flow](../api/Manager#control-flow)

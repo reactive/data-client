@@ -34,12 +34,12 @@ function useCache<
 
 Excellent to use data in the normalized cache without fetching.
 
-| Expiry Status | Returns           | Conditions                                                                                            |
-| ------------- | --------------- | ----------------------------------------------------------------------------------------------------- |
-| Invalid       | `undefined` | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../getting-started/expiry-policy.md#endpointinvalidifstale) |
-| Stale         | denormalized | (first-render, arg change) & [expiry &lt; now](../getting-started/expiry-policy.md)                   |
-| Valid         | denormalized | fetch completion                                                                                      |
-| Ignore        | `undefined` | `null` used as second argument                                                                        |
+| Expiry Status | Returns      | Conditions                                                                                                                                                                          |
+| ------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Invalid       | `undefined`  | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../getting-started/expiry-policy.md#endpointinvalidifstale) |
+| Stale         | denormalized | (first-render, arg change) & [expiry &lt; now](../getting-started/expiry-policy.md)                                                                                                 |
+| Valid         | denormalized | fetch completion                                                                                                                                                                    |
+|               | `undefined`  | `null` used as second argument                                                                                                                                                      |
 
 ## Example
 
@@ -139,7 +139,7 @@ const sortedUsers = new Query(
     const sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
     if (asc) return sorted;
     return sorted.reverse();
-  }
+  },
 );
 
 function UsersPage() {

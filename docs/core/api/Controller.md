@@ -17,8 +17,8 @@ class Controller {
   fetch(endpoint, ...args) => ReturnType<E>;
   invalidate(endpoint, ...args) => Promise<void>;
   resetEntireStore: () => Promise<void>;
-  receive(endpoint, ...args, response) => Promise<void>;
-  receiveError(endpoint, ...args, error) => Promise<void>;
+  setResponse(endpoint, ...args, response) => Promise<void>;
+  setError(endpoint, ...args, error) => Promise<void>;
   resolve(endpoint, { args, response, fetchedAt, error }) => Promise<void>;
   subscribe(endpoint, ...args) => Promise<void>;
   unsubscribe(endpoint, ...args) => Promise<void>;
@@ -197,7 +197,11 @@ function UserName() {
 }
 ```
 
-## receive(endpoint, ...args, response) {#receive}
+## receive() {#receive}
+
+Another name for setResponse()
+
+## setResponse(endpoint, ...args, response) {#setResponse}
 
 Stores `response` in cache for given [Endpoint](/rest/api/Endpoint) and args.
 
@@ -212,7 +216,7 @@ useEffect(() => {
   const websocket = new Websocket(url);
 
   websocket.onmessage = event =>
-    ctrl.receive(EndpointLookup[event.endpoint], ...event.args, event.data);
+    ctrl.setResponse(EndpointLookup[event.endpoint], ...event.args, event.data);
 
   return () => websocket.close();
 });
@@ -221,7 +225,11 @@ useEffect(() => {
 This shows a proof of concept in React; however a [Manager websockets implementation](./Manager.md#data-stream)
 would be much more robust.
 
-## receiveError(endpoint, ...args, error) {#receiveError}
+## receiveError() {#receiveError}
+
+Another name for setError()
+
+## setError(endpoint, ...args, error) {#setError}
 
 Stores the result of [Endpoint](/rest/api/Endpoint) and args as the error provided.
 
@@ -229,7 +237,7 @@ Stores the result of [Endpoint](/rest/api/Endpoint) and args as the error provid
 
 Resolves a specific fetch, storing the `response` in cache.
 
-This is similar to receive, except it triggers resolution of an inflight fetch.
+This is similar to setResponse, except it triggers resolution of an inflight fetch.
 This means the corresponding optimistic update will no longer be applies.
 
 This is used in [NetworkManager](./NetworkManager.md), and should be used when

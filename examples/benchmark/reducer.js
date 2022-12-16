@@ -27,7 +27,7 @@ export default function addReducerSuite(suite) {
   controllerPop.dispatch = action => {
     populatedState = reducerPop(state, action);
   };
-  controllerPop.receive(getProject, data);
+  controllerPop.setResponse(getProject, data);
   controllerPop.dispatch = action => {
     reducerPop(populatedState, action);
   };
@@ -38,14 +38,14 @@ export default function addReducerSuite(suite) {
   return (
     suite
       .add('receiveLong', () => {
-        return controller.receive(getProject, data);
+        return controller.setResponse(getProject, data);
       })
       .add('receiveLongWithMerge', () => {
-        return controllerPop.receive(getProject, data);
+        return controllerPop.setResponse(getProject, data);
       })
       // biggest performance bump is not spreading in merge
       .add('receiveLongWithSimpleMerge', () => {
-        return controllerPop.receive(getProjectSimple, data);
+        return controllerPop.setResponse(getProjectSimple, data);
       })
   );
 }

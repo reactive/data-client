@@ -77,9 +77,9 @@ export function dispatchFixture(
     });
   } else {
     if (error === true) {
-      controller.receiveError(endpoint, ...args, response);
+      controller.setError(endpoint, ...args, response);
     } else {
-      controller.receive(endpoint, ...args, response);
+      controller.setResponse(endpoint, ...args, response);
     }
   }
 }

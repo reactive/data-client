@@ -37,7 +37,7 @@ This can be useful for ensuring resources early in a render tree before they are
 | Invalid       | yes<sup>1</sup> | Promise     | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate) |
 | Stale         | yes<sup>1</sup> | Promise     | (first-render, arg change) & [expiry &lt; now](../getting-started/expiry-policy.md)                   |
 | Valid         | no              | `undefined` | fetch completion                                                                                      |
-| Ignore        | no              | `undefined` | `null` used as second argument                                                                        |
+|               | no              | `undefined` | `null` used as second argument                                                                        |
 
 :::note
 

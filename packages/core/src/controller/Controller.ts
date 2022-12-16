@@ -138,9 +138,9 @@ export default class Controller<
 
   /**
    * Stores response in cache for given Endpoint and args.
-   * @see https://resthooks.io/docs/api/Controller#receive
+   * @see https://resthooks.io/docs/api/Controller#set
    */
-  receive = <
+  setResponse = <
     E extends EndpointInterface & {
       update?: EndpointUpdateFunction<E>;
     },
@@ -156,11 +156,28 @@ export default class Controller<
     return this.dispatch(action);
   };
 
+  // TODO: deprecate
+  /**
+   * Another name for setResponse
+   * @see https://resthooks.io/docs/api/Controller#setResponse
+   */
+  /* istanbul ignore next */ receive = <
+    E extends EndpointInterface & {
+      update?: EndpointUpdateFunction<E>;
+    },
+  >(
+    endpoint: E,
+    ...rest: readonly [...Parameters<E>, any]
+  ): Promise<void> => {
+    /* istanbul ignore next */
+    return this.setResponse(endpoint, ...rest);
+  };
+
   /**
    * Stores the result of Endpoint and args as the error provided.
-   * @see https://resthooks.io/docs/api/Controller#receiveError
+   * @see https://resthooks.io/docs/api/Controller#setError
    */
-  receiveError = <
+  setError = <
     E extends EndpointInterface & {
       update?: EndpointUpdateFunction<E>;
     },
@@ -175,6 +192,23 @@ export default class Controller<
       error: true,
     });
     return this.dispatch(action);
+  };
+
+  // TODO: deprecate
+  /**
+   * Another name for setError
+   * @see https://resthooks.io/docs/api/Controller#setError
+   */
+  /* istanbul ignore next */ receiveError = <
+    E extends EndpointInterface & {
+      update?: EndpointUpdateFunction<E>;
+    },
+  >(
+    endpoint: E,
+    ...rest: readonly [...Parameters<E>, Error]
+  ): Promise<void> => {
+    /* istanbul ignore next */
+    return this.setError(endpoint, ...rest);
   };
 
   /**

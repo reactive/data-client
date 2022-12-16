@@ -204,7 +204,11 @@ describe('<CacheProvider />', () => {
     unmount();
     expect(debugspy).not.toHaveBeenCalled();
     await act(() =>
-      injector.controller.receive(endpoint, { id: 5 }, { id: 5, title: 'hi' }),
+      injector.controller.setResponse(
+        endpoint,
+        { id: 5 },
+        { id: 5, title: 'hi' },
+      ),
     );
     expect(debugspy).toHaveBeenCalled();
     expect(debugspy.mock.calls[0]).toMatchInlineSnapshot(`
