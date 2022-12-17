@@ -50,16 +50,16 @@ interface Props {
 }
 
 function TodoListItem({ todo }) {
-  const { fetch } = useController();
+  const ctrl = useController();
 
   const [toggleHandler, loading, error] = useLoading(
     (e: ChangeEvent<HTMLInputElement>) =>
-      fetch(
+      ctrl.fetch(
         TodoResource.partialUpdate,
         { id },
         { completed: e.currentTarget.checked },
       ),
-    [fetch],
+    [ctrl],
   );
 
   return (

@@ -28,8 +28,8 @@ const UserDetail = new Endpoint(fetchUser);
 ```tsx
 function UserProfile() {
   const user = useSuspense(UserDetail, { id });
-  const { fetch } = useController();
-  const updateUser = (data) => fetch(UserDetail, { id }, data);
+  const ctrl = useController();
+  const updateUser = (data) => ctrl.fetch(UserDetail, { id }, data);
 
   return <UserForm user={user} onSubmit={updateUser} />
 }

@@ -298,13 +298,13 @@ import { lastUpdated } from './api/lastUpdated';
 
 function ShowTime() {
   const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
-  const { fetch } = useController();
+  const ctrl = useController();
   return (
     <div>
       <time>
         {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
       </time>{' '}
-      <button onClick={() => fetch(lastUpdated, { id: '1' })}>Refresh</button>
+      <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>Refresh</button>
     </div>
   );
 }
@@ -359,13 +359,13 @@ import { lastUpdated } from './api/lastUpdated';
 
 function ShowTime() {
   const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
-  const { invalidate } = useController();
+  const ctrl = useController();
   return (
     <div>
       <time>
         {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
       </time>{' '}
-      <button onClick={() => invalidate(lastUpdated, { id: '1' })}>
+      <button onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}>
         Invalidate
       </button>
     </div>
@@ -424,13 +424,13 @@ const deleteLastUpdated = new Endpoint(mockDelete, {
 
 function ShowTime() {
   const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
-  const { fetch } = useController();
+  const ctrl = useController();
   return (
     <div>
       <time>
         {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
       </time>{' '}
-      <button onClick={() => fetch(deleteLastUpdated, { id: '1' })}>
+      <button onClick={() => ctrl.fetch(deleteLastUpdated, { id: '1' })}>
         Delete
       </button>
     </div>
@@ -510,7 +510,7 @@ function createError(status) {
 
 function ShowTime() {
   const { updatedAt } = useSuspense(getUpdated, { id: '1' });
-  const { fetch, invalidate } = useController();
+  const ctrl = useController();
   React.useEffect(
     () => () => {
       FAKE_ERROR = undefined;
@@ -526,7 +526,7 @@ function ShowTime() {
         <button
           onClick={() => {
             FAKE_ERROR = createError(500);
-            fetch(getUpdated, { id: '1' });
+            ctrl.fetch(getUpdated, { id: '1' });
           }}
         >
           Fetch Soft
@@ -534,7 +534,7 @@ function ShowTime() {
         <button
           onClick={() => {
             FAKE_ERROR = createError(400);
-            fetch(getUpdated, { id: '1' });
+            ctrl.fetch(getUpdated, { id: '1' });
           }}
         >
           Fetch Hard
@@ -542,7 +542,7 @@ function ShowTime() {
         <button
           onClick={() => {
             FAKE_ERROR = createError(500);
-            invalidate(getUpdated, { id: '1' });
+            ctrl.invalidate(getUpdated, { id: '1' });
           }}
         >
           Invalidate Soft
@@ -550,7 +550,7 @@ function ShowTime() {
         <button
           onClick={() => {
             FAKE_ERROR = createError(400);
-            invalidate(getUpdated, { id: '1' });
+            ctrl.invalidate(getUpdated, { id: '1' });
           }}
         >
           Invalidate Hard

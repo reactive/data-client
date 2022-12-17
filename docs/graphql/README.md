@@ -217,9 +217,9 @@ const createReview = gql.mutation(
 );
 
 export default function NewReviewForm() {
-  const { fetch } = useController();
+  const ctrl = useController();
   return (
-    <Form onSubmit={e => fetch(createReview, new FormData(e.target))}>
+    <Form onSubmit={e => ctrl.fetch(createReview, new FormData(e.target))}>
       <FormField name="ep" />
       <FormField name="review" type="compound" />
     </Form>

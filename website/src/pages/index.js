@@ -20,7 +20,7 @@ const ProjectTitle = () => {
       <div className={styles.logoWrapper}>
         <ThemedImage
           sources={sources}
-          alt="Rest Hooks - The Object Protocol Mapper for React"
+          alt="Rest Hooks - The Relational Date Client for React"
           height={90}
           width={416}
         />
@@ -41,10 +41,13 @@ function HomepageHeader() {
         <ProjectTitle />
         <div className={styles.buttons}>
           <Link
-            className="button button--primary "
+            className="button button--primary"
             to="/docs/getting-started/installation"
           >
             Get Started
+          </Link>
+          <Link className="button button--info" to="/docs">
+            Introduction
           </Link>
           <span className={styles.GitHubButtonWrapper}>
             <iframe
@@ -65,7 +68,7 @@ export default function Home() {
   const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
-      title={`The Relational Data Client (for React)`}
+      title={`Async State Management for React`}
       description="Making dynamic sites performant, scalable, simple to build with any API design. ...all typed ...fast ...and consistent"
     >
       <HomepageHeader />

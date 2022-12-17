@@ -53,12 +53,12 @@ import ArticleResource from 'resources/article';
 
 export default function UpdateArticleForm({ id }: { id: number }) {
   const article = useSuspense(ArticleResource.get, { id });
-  const { fetch } = useController();
+  const ctrl = useController();
 
   return (
     <Form
       onSubmit={e =>
-        fetch(ArticleResource.update, { id }, new FormData(e.target))
+        ctrl.fetch(ArticleResource.update, { id }, new FormData(e.target))
       }
       initialValues={article}
     >

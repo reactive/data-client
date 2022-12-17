@@ -11,10 +11,14 @@ export default function NextPage({
   owner: string;
   page: number;
 }) {
-  const { fetch } = useController();
+  const ctrl = useController();
   const [count, setCount] = useState(0);
   const loadMore = () => {
-    fetch(IssueResource.getNextPage, { page: page + count + 1, repo, owner });
+    ctrl.fetch(IssueResource.getNextPage, {
+      page: page + count + 1,
+      repo,
+      owner,
+    });
     setCount((count) => count + 1);
   };
   return (

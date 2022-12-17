@@ -12,10 +12,17 @@ html[data-theme='light'] {
   --ifm-color-primary-lightest: #b09dff;
   --ifm-color-primary-lighter: #896eff;
   --ifm-color-primary-light: #7d5eff;
-  --ifm-color-primary: #633eff;
-  --ifm-color-primary-dark: #491eff;
+  --ifm-color-primary: hsl(252, 100%, 65%);
+  --ifm-color-primary-dark: hsl(251, 100%, 56%);
   --ifm-color-primary-darker: #3d0eff;
   --ifm-color-primary-darkest: #2b00de;
+  --ifm-color-info: #08bfb6;
+  --ifm-color-info-dark: #07aca4;
+  --ifm-color-info-darker: #07a29b;
+  --ifm-color-info-darkest: #06867f;
+  --ifm-color-info-light: #09d2c8;
+  --ifm-color-info-lighter: #09dcd1;
+  --ifm-color-info-lightest: #0ef5ea;
   --ifm-font-family-base: 'Rubik', 'Avenir Next', 'Segoe UI', Tahoma, Geneva,
     Verdana, sans-serif;
   --ifm-font-family-monospace: 'Roboto Mono', SFMono-Regular, Menlo, Monaco,

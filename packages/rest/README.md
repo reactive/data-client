@@ -65,12 +65,12 @@ useEffect(() => {
 #### Mutates
 
 ```typescript
-const { fetch } = useController();
-const updateArticle = data => fetch(ArticleResource.update, { id }, data);
+const ctrl = useController();
+const updateArticle = data => ctrl.fetch(ArticleResource.update, { id }, data);
 const partialUpdateArticle = data =>
-  fetch(ArticleResource.partialUpdate, { id }, data);
-const createArticle = data => fetch(ArticleResource.create, data);
-const deleteArticle = data => fetch(ArticleResource.delete, { id });
+  ctrl.fetch(ArticleResource.partialUpdate, { id }, data);
+const createArticle = data => ctrl.fetch(ArticleResource.create, data);
+const deleteArticle = data => ctrl.fetch(ArticleResource.delete, { id });
 ```
 
 ### Use with Node
@@ -79,6 +79,7 @@ const deleteArticle = data => fetch(ArticleResource.delete, { id });
 const article = await ArticleResource.get({ id: 5 });
 const articles = await ArticleResource.getList();
 ```
+
 ### [Programmatic queries](https://resthooks.io/rest/api/Query)
 
 ```tsx
@@ -88,7 +89,7 @@ const sortedArticles = new Query(
     const sorted = [...entries].sort((a, b) => a.title.localeCompare(b.title));
     if (asc) return sorted;
     return sorted.reverse();
-  }
+  },
 );
 
 const articlesUnsorted = useCache(sortedArticles);

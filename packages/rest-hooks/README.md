@@ -18,6 +18,12 @@ Asynchronous dynamic data at scale. Performance, data integrity, and typing for 
 
 </div>
 
+## Installation
+
+```bash
+npm install --save @rest-hooks/react @rest-hooks/test @rest-hooks/hooks @rest-hooks/rest
+```
+
 ### Simple [TypeScript definition](https://resthooks.io/rest/api/Entity)
 
 ```typescript
@@ -56,10 +62,10 @@ return (
 ### [Mutation](https://resthooks.io/docs/api/Controller#fetch)
 
 ```tsx
-const { fetch } = useController();
+const ctrl = useController();
 return (
   <ArticleForm
-    onSubmit={data => fetch(ArticleResource.update, { id }, data)}
+    onSubmit={data => ctrl.fetch(ArticleResource.update, { id }, data)}
   />
 );
 ```

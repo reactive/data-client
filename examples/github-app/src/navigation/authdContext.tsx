@@ -13,14 +13,14 @@ export const authdContext = createContext({
 });
 
 export function AuthdProvider({ children }: { children: React.ReactNode }) {
-  const { invalidate, fetch } = useController();
+  const ctrl = useController();
   const logout = useCallback(() => {
     unAuth();
     // current user no longer exists
-    invalidate(UserResource.current);
+    ctrl.invalidate(UserResource.current);
   }, []);
   const login = useCallback((data: { login: string; token: string }) => {
-    fetch(UserResource.current);
+    ctrl.fetch(UserResource.current);
     setAuth(data);
   }, []);
   const value = useMemo(() => ({ login, logout }), [login, logout]);

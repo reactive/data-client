@@ -9,6 +9,9 @@ title: '<AsyncBoundary />'
 
 Handles loading and error conditions of Suspense.
 
+In React 18, this will create a concurrent split, and in 16 and 17 it will show loading fallbacks. If there is an
+irrecoverable API error, it will show an error fallback.
+
 ```tsx
 function AsyncBoundary({
   children,

@@ -32,17 +32,18 @@ Great for retrieving resources optimistically before they are needed.
 
 This can be useful for ensuring resources early in a render tree before they are needed.
 
-- Triggers fetch:
-  - On first-render
-    - or parameters change
-    - or required entity is deleted
-    - or imperative [invalidation](./Controller.md#invalidate) triggered
-  - and When not in cache or result is considered stale
-  - and When no identical requests are in flight
-  - and when params are not null
-- [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):
-  - Returned promise will reject
-- On fetch returns a promise else undefined.
+| Expiry Status | Fetch           | Returns     | Conditions                                                                                            |
+| ------------- | --------------- | ----------- | ----------------------------------------------------------------------------------------------------- |
+| Invalid       | yes<sup>1</sup> | Promise     | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate) |
+| Stale         | yes<sup>1</sup> | Promise     | (first-render, arg change) & [expiry &lt; now](../getting-started/expiry-policy.md)                   |
+| Valid         | no              | `undefined` | fetch completion                                                                                      |
+| Ignore        | no              | `undefined` | `null` used as second argument                                                                        |
+
+:::note
+
+1. Identical fetches are automatically deduplicated
+
+:::
 
 :::info React Native
 

@@ -86,7 +86,7 @@ new endpoints based to match your API.
 
 - method: 'GET'
 - path: `path`
-- schema: `schema`
+- schema: [schema](./Entity.md)
 
 Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate)
 
@@ -99,7 +99,7 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
     createResource({ path: '/:first/:second' }).getList.path === '/:first';
     createResource({ path: '/:first' }).getList.path === '/';
     ```
-- schema: `[schema]`
+- schema: [\[schema\]](./Array.md)
 
 Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate)
 
@@ -136,7 +136,7 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 - method: 'DELETE'
 - path: `path`
-- schema: `new schema.Delete(schema)`
+- schema: [new schema.Delete(schema)](./Delete.md)
 - process:
   ```ts
   (value, params) {

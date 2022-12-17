@@ -194,8 +194,6 @@ When provided, any fetches with this endpoint will behave as though the `fakePay
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
 
-[Optimistic update guide](/docs/guides/optimistic-updates)
-
 #### optimisticUpdate: (...args) => fakePayload {#optimisticupdate}
 
 :::caution Deprecated
@@ -324,9 +322,9 @@ values={[
 ```tsx
 function UserProfile() {
   const user = useSuspense(UserDetail, { id });
-  const { fetch } = useController();
+  const ctrl = useController();
 
-  return <UserForm user={user} onSubmit={() => fetch(UserDetail)} />;
+  return <UserForm user={user} onSubmit={() => ctrl.fetch(UserDetail)} />;
 }
 ```
 

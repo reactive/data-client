@@ -1,6 +1,7 @@
 import { Link, useRoutes } from '@anansi/router';
 import { EllipsisOutlined } from '@ant-design/icons';
 import { css } from '@linaria/core';
+import { useCache, useController } from '@rest-hooks/react';
 import { Card, Avatar, Button, Tag, Popover } from 'antd';
 import FlexRow from 'components/FlexRow';
 import React, { memo, useCallback, useState } from 'react';
@@ -10,7 +11,6 @@ import remarkGfm from 'remark-gfm';
 import remarkRemoveComments from 'remark-remove-comments';
 import { CommentResource, Comment } from 'resources/Comment';
 import { UserResource } from 'resources/User';
-import { useCache, useController } from '@rest-hooks/react';
 
 import CommentForm from './CommentForm';
 
@@ -92,11 +92,11 @@ function PopControls({
   setEditing: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const route = useRoutes<{ owner: string; repo: string }>()[0];
-  const { fetch } = useController();
+  const ctrl = useController();
 
   const handleEdit = () => setEditing(true);
   const handleDelete = () =>
-    fetch(CommentResource.delete, {
+    ctrl.fetch(CommentResource.delete, {
       owner: route.owner,
       repo: route.repo,
       id: comment.id,
@@ -133,16 +133,18 @@ function EditForm({
   comment: Comment;
   onFinish: () => void;
 }) {
-  const { fetch } = useController();
+  const ctrl = useController();
   const handleFinish = useCallback(
     ({ body }: { body: string }) => {
-      return fetch(
-        CommentResource.partialUpdate,
-        { owner: comment.owner, repo: comment.repo, id: comment.id },
-        { body },
-      ).then(onFinish);
+      return ctrl
+        .fetch(
+          CommentResource.partialUpdate,
+          { owner: comment.owner, repo: comment.repo, id: comment.id },
+          { body },
+        )
+        .then(onFinish);
     },
-    [comment.id, comment.owner, comment.repo, fetch, onFinish],
+    [comment.id, comment.owner, comment.repo, ctrl, onFinish],
   );
   const handleCancel = onFinish;
   return (
