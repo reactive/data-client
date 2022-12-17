@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk=self.webpackChunk||[]).push([[91948],{93772:e=>{e.exports=JSON.parse('{"permalink":"/blog/tags/rest-hooks/page/2","page":2,"postsPerPage":10,"totalPages":2,"totalCount":11,"previousPage":"/blog/tags/rest-hooks","blogDescription":"Blog","blogTitle":"Blog"}')}}]);
