@@ -176,9 +176,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:14.0.3":
-  version: 14.0.3
-  resolution: "@anansi/webpack-config@npm:14.0.3"
+"@anansi/webpack-config@npm:14.0.4":
+  version: 14.0.4
+  resolution: "@anansi/webpack-config@npm:14.0.4"
   dependencies:
     "@babel/runtime": ^7.17.2
     "@linaria/webpack5-loader": 4.1.10
@@ -197,7 +197,7 @@ __metadata:
     constants-browserify: ^1.0.0
     core-js: ^3.21.0
     crypto-browserify: ^3.12.0
-    css-loader: ^6.7.2
+    css-loader: ^6.7.3
     css-minimizer-webpack-plugin: ^4.2.2
     domain-browser: ^4.22.0
     duplicate-package-checker-webpack-plugin: ^3.0.0
@@ -214,7 +214,7 @@ __metadata:
     os-browserify: ^0.3.0
     path: ^0.12.7
     path-browserify: ^1.0.1
-    postcss: ^8.4.19
+    postcss: ^8.4.20
     postcss-loader: ^7.0.2
     postcss-preset-env: ^7.8.3
     process: ^0.11.10
@@ -286,7 +286,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 7947c96a3f4b4e272aa6bf944ebc21217a5021ffdc47a8e2dd1b09e674b1e352d40494e8b45a43401401eff4c2de6d6c5112b059c3cd2bf243f9323a14a0550e
+  checksum: 854708f1fc0531cc832db38e535636786fd2302dd7e06e1211e9c3dae73a2e5136dc674d0402985483b31bbddfedd09a7f433bbbd16cfae148ef8cd40c3290a7
   languageName: node
   linkType: hard
 
@@ -8638,12 +8638,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css-loader@npm:^6.7.2":
-  version: 6.7.2
-  resolution: "css-loader@npm:6.7.2"
+"css-loader@npm:^6.7.3":
+  version: 6.7.3
+  resolution: "css-loader@npm:6.7.3"
   dependencies:
     icss-utils: ^5.1.0
-    postcss: ^8.4.18
+    postcss: ^8.4.19
     postcss-modules-extract-imports: ^3.0.0
     postcss-modules-local-by-default: ^4.0.0
     postcss-modules-scope: ^3.0.0
@@ -8652,7 +8652,7 @@ __metadata:
     semver: ^7.3.8
   peerDependencies:
     webpack: ^5.0.0
-  checksum: f3c980cc9c033a02e60df7e5a2f33a1e8c2c3dd552f017485d2d81b383be623ae8c4189404e7a4a7403b52744683ae4b516def0f7ccf125c2b198cb647e46543
+  checksum: 473cc32b6c837c2848e2051ad1ba331c1457449f47442e75a8c480d9891451434ada241f7e3de2347e57de17fcd84610b3bcfc4a9da41102cdaedd1e17902d31
   languageName: node
   linkType: hard
 
@@ -11084,7 +11084,7 @@ __metadata:
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.15.0
     "@anansi/router": 0.7.4
-    "@anansi/webpack-config": 14.0.3
+    "@anansi/webpack-config": 14.0.4
     "@ant-design/icons": ^4.7.0
     "@babel/core": 7.20.5
     "@linaria/babel-preset": 4.3.2
@@ -18008,14 +18008,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.17, postcss@npm:^8.4.18, postcss@npm:^8.4.19":
-  version: 8.4.19
-  resolution: "postcss@npm:8.4.19"
+"postcss@npm:^8.4.17, postcss@npm:^8.4.19, postcss@npm:^8.4.20":
+  version: 8.4.20
+  resolution: "postcss@npm:8.4.20"
   dependencies:
     nanoid: ^3.3.4
     picocolors: ^1.0.0
     source-map-js: ^1.0.2
-  checksum: 62782723a385f92b7525f66d29614624de7c5643855423db3a5efd9287e677650300192749adddbbb6734cea9b1d5f5fd4f6ea00ca3f9a95dbbb88f835f5ca64
+  checksum: 1a5609ea1c1b204f9c2974a0019ae9eef2d99bf645c2c9aac675166c4cb1005be7b5e2ba196160bc771f5d9ac896ed883f236f888c891e835e59d28fff6651aa
   languageName: node
   linkType: hard
 
@@ -21767,7 +21767,7 @@ __metadata:
     "@anansi/babel-preset": 3.3.1
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.15.0
-    "@anansi/webpack-config": 14.0.3
+    "@anansi/webpack-config": 14.0.4
     "@babel/core": 7.20.5
     "@linaria/babel-preset": 4.3.2
     "@linaria/core": 4.2.4
