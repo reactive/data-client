@@ -207,7 +207,7 @@ export default class StreamManager implements Manager {
         try {
           const msg = JSON.parse(event.data);
           if (msg.type in this.endpoints)
-            controller.receive(this.endpoints[msg.type], ...msg.args, msg.data);
+            controller.setResponse(this.endpoints[msg.type], ...msg.args, msg.data);
         } catch (e) {
           console.error('Failed to handle message');
           console.error(e);
@@ -228,5 +228,5 @@ export default class StreamManager implements Manager {
 }
 ```
 
-[Controller.receive()](./Controller.md#receive) updates the Rest Hooks store
+[Controller.setResponse()](./Controller.md#setResponse) updates the Rest Hooks store
 with `event.data`.

@@ -457,7 +457,7 @@ export default class StreamManager implements Manager {
         try {
           const msg = JSON.parse(event.data);
           if (msg.type in this.endpoints)
-            controller.receive(this.endpoints[msg.type], ...msg.args, msg.data);
+            controller.setResponse(this.endpoints[msg.type], ...msg.args, msg.data);
         } catch (e) {
           console.error('Failed to handle message');
           console.error(e);

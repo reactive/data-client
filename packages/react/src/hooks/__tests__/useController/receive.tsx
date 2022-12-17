@@ -72,13 +72,13 @@ describe('receive', () => {
     const { result } = renderRestHook(() => {
       return {
         data: useCache(FutureArticleResource.get, payload.id),
-        receive: useController().receive,
+        setResponse: useController().setResponse,
       };
     });
     expect(result.current.data).toBeUndefined();
     const ep = FutureArticleResource.get;
     await act(async () => {
-      await result.current.receive(ep, 5, payload);
+      await result.current.setResponse(ep, 5, payload);
     });
     expect(result.current.data).toBeDefined();
     expect(result.current.data?.content).toEqual(payload.content);
@@ -88,8 +88,8 @@ describe('receive', () => {
     // TODO: move these to own unit tests if/when applicable
     () => {
       // @ts-expect-error
-      result.current.receive(ep, payload);
-      result.current.receive(
+      result.current.setResponse(ep, payload);
+      result.current.setResponse(
         ep,
         // @ts-expect-error
         {
@@ -99,12 +99,12 @@ describe('receive', () => {
       );
       const create = FutureArticleResource.create;
       const update = FutureArticleResource.update;
-      result.current.receive(create, payload, payload);
+      result.current.setResponse(create, payload, payload);
       // @ts-expect-error
-      result.current.receive(create, {}, payload, payload);
-      result.current.receive(update, payload.id, payload, payload);
+      result.current.setResponse(create, {}, payload, payload);
+      result.current.setResponse(update, payload.id, payload, payload);
       // @ts-expect-error
-      result.current.receive(update, payload, payload);
+      result.current.setResponse(update, payload, payload);
     };
   });
 
@@ -113,14 +113,14 @@ describe('receive', () => {
       return {
         data: useCache(FutureArticleResource.get, payload.id),
         err: useError(FutureArticleResource.get, payload.id),
-        receiveError: useController().receiveError,
+        setError: useController().setError,
       };
     });
     expect(result.current.data).toBeUndefined();
     const error = new Error('hi');
     const ep = FutureArticleResource.get;
     await act(async () => {
-      await result.current.receiveError(ep, 5, error);
+      await result.current.setError(ep, 5, error);
     });
     expect(result.current.data).toBeUndefined();
     expect(result.current.err).toBeDefined();
@@ -130,8 +130,8 @@ describe('receive', () => {
     // TODO: move these to own unit tests if/when applicable
     () => {
       // @ts-expect-error
-      result.current.receiveError(ep, error);
-      result.current.receiveError(
+      result.current.setError(ep, error);
+      result.current.setError(
         ep,
         // @ts-expect-error
         {
@@ -141,12 +141,12 @@ describe('receive', () => {
       );
       const create = FutureArticleResource.create;
       const update = FutureArticleResource.update;
-      result.current.receiveError(create, payload, error);
+      result.current.setError(create, payload, error);
       // @ts-expect-error
-      result.current.receiveError(create, {}, payload, error);
-      result.current.receiveError(update, payload.id, payload, error);
+      result.current.setError(create, {}, payload, error);
+      result.current.setError(update, payload.id, payload, error);
       // @ts-expect-error
-      result.current.receiveError(update, payload, error);
+      result.current.setError(update, payload, error);
     };
   });
 });
