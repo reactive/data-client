@@ -19,7 +19,7 @@ class CustomBaseEntity extends Entity {
 
 ## Partial/full results
 
-This can be useful to automatically validate for [partial results](/docs/getting-started/validation#partial-results)
+This can be useful to automatically validate for [partial results](/docs/concepts/validation#partial-results)
 
 ```ts
 class SummaryAnalysis extends Entity {

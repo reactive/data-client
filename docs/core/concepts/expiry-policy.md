@@ -13,6 +13,9 @@ To explain these concepts we'll be faking an endpoint that gives us the current 
 
 ```tsx title="lastUpdated.ts"
 class TimedEntity extends Entity {
+  id = '';
+  updatedAt = new Date(0);
+
   pk() {
     return this.id;
   }
@@ -20,9 +23,11 @@ class TimedEntity extends Entity {
     updatedAt: Date,
   };
 }
-const fetchLastUpdated = ({ id }) =>
-  fetch(`/api/currentTime/${id}`).then(res => res.json());
-const lastUpdated = new Endpoint(mockLastUpdated, { schema: TimedEntity });
+const lastUpdated = new RestEndpoint({
+  path: '/api/currentTime/:id',
+  schema: TimedEntity,
+  fetch: mockLastUpdated,
+});
 ```
 
 ## Expiry status
@@ -73,17 +78,19 @@ const mockLastUpdated = ({ id }) => {
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = new Date(0);
+
   pk() {
     return this.id;
   }
-
   static schema = {
     updatedAt: Date,
   };
 }
 
-export const lastUpdated = new Endpoint(mockLastUpdated, {
+export const lastUpdated = new RestEndpoint({
+  path: '/api/currentTime/:id',
   schema: TimedEntity,
+  fetch: mockLastUpdated,
 });
 ```
 
@@ -205,8 +212,10 @@ export class TimedEntity extends Entity {
   };
 }
 
-export const lastUpdated = new Endpoint(mockLastUpdated, {
+export const lastUpdated = new RestEndpoint({
+  path: '/api/currentTime/:id',
   schema: TimedEntity,
+  fetch: mockLastUpdated,
 });
 ```
 
@@ -288,8 +297,10 @@ export class TimedEntity extends Entity {
   };
 }
 
-export const lastUpdated = new Endpoint(mockLastUpdated, {
+export const lastUpdated = new RestEndpoint({
+  path: '/api/currentTime/:id',
   schema: TimedEntity,
+  fetch: mockLastUpdated,
 });
 ```
 
@@ -304,7 +315,9 @@ function ShowTime() {
       <time>
         {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
       </time>{' '}
-      <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>Refresh</button>
+      <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
+        Refresh
+      </button>
     </div>
   );
 }
@@ -349,8 +362,10 @@ export class TimedEntity extends Entity {
   };
 }
 
-export const lastUpdated = new Endpoint(mockLastUpdated, {
+export const lastUpdated = new RestEndpoint({
+  path: '/api/currentTime/:id',
   schema: TimedEntity,
+  fetch: mockLastUpdated,
 });
 ```
 
@@ -409,8 +424,10 @@ export class TimedEntity extends Entity {
   };
 }
 
-export const lastUpdated = new Endpoint(mockLastUpdated, {
+export const lastUpdated = new RestEndpoint({
+  path: '/api/currentTime/:id',
   schema: TimedEntity,
+  fetch: mockLastUpdated,
 });
 ```
 
@@ -459,7 +476,7 @@ Hard errors always invalidate a response with the rejection - even when data has
 <HooksPlayground>
 
 ```ts title="api/lastUpdated" collapsed
-const mockLastUpdated = ({ id }, ) => {
+const mockLastUpdated = ({ id }) => {
   return new Promise(resolve => {
     setTimeout(
       () =>
@@ -484,8 +501,10 @@ export class TimedEntity extends Entity {
   };
 }
 
-export const lastUpdated = new Endpoint(mockLastUpdated, {
+export const lastUpdated = new RestEndpoint({
+  path: '/api/currentTime/:id',
   schema: TimedEntity,
+  fetch: mockLastUpdated,
 });
 ```
 
@@ -494,7 +513,7 @@ import { lastUpdated } from './api/lastUpdated';
 
 let FAKE_ERROR: Error | undefined = undefined;
 const superFetch = lastUpdated;
-const mockErrorFetch = (arg) =>
+const mockErrorFetch = arg =>
   FAKE_ERROR !== undefined ? Promise.reject(FAKE_ERROR) : superFetch(arg);
 
 const getUpdated = lastUpdated.extend({

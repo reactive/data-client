@@ -61,14 +61,14 @@ relies on state actually existing.
 
 ## Provided managers
 
-- [NetworkManager](./NetworkManager.md)
-- [SubscriptionManager](./SubscriptionManager.md)
-- [DevToolsManager](./DevToolsManager.md)
-- [LogoutManager](./LogoutManager.md)
+- [NetworkManager](../api/NetworkManager.md)
+- [SubscriptionManager](../api/SubscriptionManager.md)
+- [DevToolsManager](../api/DevToolsManager.md)
+- [LogoutManager](../api/LogoutManager.md)
 
 ## Adding managers to Rest Hooks
 
-Use the [managers](./CacheProvider.md#managers) prop of [CacheProvider](./CacheProvider.md). Be
+Use the [managers](../api/CacheProvider.md#managers) prop of [CacheProvider](../api/CacheProvider.md). Be
 sure to hoist to module level or wrap in a useMemo() to ensure they are not recreated. Managers
 have internal state, so it is important to not constantly recreate them.
 
@@ -228,5 +228,5 @@ export default class StreamManager implements Manager {
 }
 ```
 
-[Controller.setResponse()](./Controller.md#setResponse) updates the Rest Hooks store
+[Controller.setResponse()](../api/Controller.md#setResponse) updates the Rest Hooks store
 with `event.data`.

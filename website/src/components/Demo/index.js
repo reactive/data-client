@@ -448,7 +448,7 @@ const Demo = props => (
           </p>
           <p>
             Rest Hooks uses{' '}
-            <Link to="/docs/getting-started/entity">data normalization</Link> to
+            <Link to="/docs/concepts/normalization">data normalization</Link> to
             maintain consistency no matter how and where the data is consumed.
           </p>
           <p>

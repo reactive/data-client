@@ -22,9 +22,9 @@ Extensible CRUD patterns for REST APIs.
 import { Entity, createResource } from '@rest-hooks/rest';
 
 class Article extends Entity {
-  readonly id: number | undefined = undefined;
-  readonly title: string = '';
-  readonly body: string = '';
+  id: number | undefined = undefined;
+  title = '';
+  body = '';
 
   pk() {
     return this.id;

@@ -42,11 +42,11 @@ export const ArticleResource = {
   ...BaseArticleResource,
   partialUpdate: BaseArticleResource.partialUpdate.extend({
     // highlight-start
-    getOptimisticResponse(snap, params, body) {
+    getOptimisticResponse(snap, { id }, body) {
       return {
-        // we absolutely need the primary key here,
-        // but won't be sent in a partial update
-        id: params.id,
+        // we absolutely need the id for primary key here,
+        // but won't be a member of body
+        id,
         ...body,
       };
     },
@@ -93,10 +93,10 @@ import { Entity, createResource } from '@rest-hooks/rest';
 import uuid from 'uuid/v4';
 
 export class Article extends Entity {
-  readonly id: string | undefined = undefined;
-  readonly title: string = '';
-  readonly content: string = '';
-  readonly published: boolean = false;
+  id: string | undefined = undefined;
+  title = '';
+  content = '';
+  published = false;
 
   pk() {
     return this.id;

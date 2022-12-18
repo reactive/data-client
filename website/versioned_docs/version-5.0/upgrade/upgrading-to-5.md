@@ -176,9 +176,9 @@ These only apply if you have a custom [Manager](../api/Manager)
 It's recommend to now use the action creators
 exported from `@rest-hooks/core`
 
-- [createFetch](../api/createFetch)
-- [createReceive](../api/createReceive)
-- [createReceiveError](../api/createReceiveError)
+- createFetch
+- createReceive
+- createReceiveError
 
 </details>
 

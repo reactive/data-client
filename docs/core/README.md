@@ -6,17 +6,17 @@ slug: /
 
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import LanguageTabs from '@site/src/components/LanguageTabs';
+import ProtocolTabs from '@site/src/components/ProtocolTabs';
+import HooksPlayground from '@site/src/components/HooksPlayground';
 
 <head>
   <title>Introducing The Relational Data Client for React: Rest Hooks ✨</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import LanguageTabs from '@site/src/components/LanguageTabs';
-import ProtocolTabs from '@site/src/components/ProtocolTabs';
-import HooksPlayground from '@site/src/components/HooksPlayground';
 
 Rest Hooks provides safe and performant [client access](./api/useSuspense.md) and [mutation](./api/Controller.md#fetch) over [remote data protocols](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/).
 Both pull/fetch ([REST](/rest) and [GraphQL](/graphql)) and push/stream ([WebSockets or Server Sent Events](./api/Manager.md#middleware-data-stream)) can be used simultaneously.
@@ -35,7 +35,7 @@ local**. This means component logic should be no more complex than useState and 
 
 [Endpoints](./getting-started/endpoint.md) are the _methods_ of your data. At their core they
 are simply asynchronous functions. However, they also define anything else relevant to the [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/)
-like [expiry policy](./getting-started/expiry-policy.md), [data model](./getting-started/entity.md), [validation](./getting-started/validation.md), and [types](/rest/api/RestEndpoint#typing).
+like [expiry policy](./concepts/expiry-policy.md), [data model](./concepts/normalization.md), [validation](./concepts/validation.md), and [types](/rest/api/RestEndpoint#typing).
 
 <ThemedImage
 alt="Endpoints used in many contexts"
@@ -140,7 +140,7 @@ to cascade endpoint refreshes.
 
 ### Keep data consistent and fresh {#entities}
 
-[Entities](./getting-started/endpoint.md) define our data model.
+[Entities](./concepts/normalization.md) define our data model.
 
 This enables a [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) storage pattern, which
 prevents 'data tearing' jank and improves performance.
@@ -292,7 +292,7 @@ function ArticleEdit() {
 ### More data modeling
 
 What if our entity is not the top level item? Here we define the `todoList`
-endpoint with `[Todo]` as its schema. [Schemas](./getting-started/entity.md#schema) tell Rest Hooks _where_ to find
+endpoint with `[Todo]` as its schema. [Schemas](./concepts/normalization.md#schema) tell Rest Hooks _where_ to find
 the Entities. By placing inside a list, Rest Hooks knows to expect a response
 where each item of the list is the entity specified.
 
@@ -306,7 +306,7 @@ export const getTodoList = new RestEndpoint({
 });
 ```
 
-[Schemas](./getting-started/entity.md) also automatically infer and enforce the response type, ensuring
+[Schemas](./concepts/normalization.md) also automatically infer and enforce the response type, ensuring
 the variable `todos` will be typed precisely.
 
 ```tsx {4}
@@ -428,7 +428,7 @@ problems in asynchronous programming.
 ### Remotely triggered mutations
 
 Sometimes data change is initiated remotely - either due to other users on the site, admins, etc. Declarative
-[expiry policy](./getting-started/expiry-policy.md) controls allow tight control over updates due to fetching.
+[expiry policy](./concepts/expiry-policy.md) controls allow tight control over updates due to fetching.
 
 However, for data that changes frequently (like exchange price tickers, or live conversations) sometimes push-based
 protocols are used like Websockets or Server Sent Events. Rest Hooks has a [powerful middleware layer called Managers](./api/Manager.md),

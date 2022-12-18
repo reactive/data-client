@@ -413,7 +413,7 @@ export default class Controller<
       }
     }
 
-    // https://resthooks.io/docs/getting-started/expiry-policy#expiry-status
+    // https://resthooks.io/docs/concepts/expiry-policy#expiry-status
     // we don't track the difference between stale or fresh because that is tied to triggering
     // conditions
     const expiryStatus =

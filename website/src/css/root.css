@@ -2,6 +2,7 @@ html[data-theme='dark'] {
   --monoco-code-background: hsl(229, 20%, 15%);
   --monoco-code-lineHighlightBorder: hsl(228, 20%, 20%);
   --ifm-link-color: var(--ifm-color-primary-light);
+  --docusaurus-highlighted-code-line-bg: rgb(72 77 91);
 }
 html[data-theme='light'] {
   --monoco-code-background: #292d3e;

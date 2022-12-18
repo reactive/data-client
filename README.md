@@ -62,7 +62,7 @@ return (
 );
 ```
 
-### [Mutation](https://resthooks.io/docs/api/Controller#fetch)
+### [Mutation](https://resthooks.io/docs/getting-started/mutations)
 
 ```tsx
 const ctrl = useController();
@@ -101,6 +101,7 @@ const articlesDescending = useCache(sortedArticles, { asc: false });
 ### ...all typed ...fast ...and consistent
 
 For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://resthooks.io/docs/getting-started/installation)
+| [🥊Comparison](https://resthooks.io/docs/getting-started/comparison)
 
 ## Features
 
@@ -110,7 +111,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 - [x] 💦 [Partial Hydration Server Side Rendering](https://resthooks.io/docs/guides/ssr)
 - [x] 🎣 [Declarative API](https://resthooks.io/docs/getting-started/data-dependency)
 - [x] 📝 Composition over configuration
-- [x] 💰 [Normalized](https://resthooks.io/docs/getting-started/entity) caching
+- [x] 💰 [Normalized](https://resthooks.io/docs/concepts/normalization) caching
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination
 - [x] ✨ [Optimistic updates](https://resthooks.io/rest/guides/optimistic-updates)
@@ -122,7 +123,7 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 - [x] 📙 [Storybook mocking](https://resthooks.io/docs/guides/storybook)
 - [x] 📱 [React Native](https://facebook.github.io/react-native/) support
 - [x] ⚛️ [NextJS](https://resthooks.io/docs/guides/ssr#nextjs) support
-- [x] 🚯 [Declarative cache lifetime policy](https://resthooks.io/docs/getting-started/expiry-policy)
+- [x] 🚯 [Declarative cache lifetime policy](https://resthooks.io/docs/concepts/expiry-policy)
 - [x] 🧅 [Composable middlewares](https://resthooks.io/docs/api/Manager)
 - [x] 💽 Global data consistency guarantees
 - [x] 🏇 Automatic race condition elimination

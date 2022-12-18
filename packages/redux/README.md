@@ -52,7 +52,7 @@ return (
 );
 ```
 
-### [Mutation](https://resthooks.io/docs/api/Controller#fetch)
+### [Mutation](https://resthooks.io/docs/getting-started/mutations)
 
 ```tsx
 const ctrl = useController();
@@ -99,7 +99,7 @@ const articlesDescending = useCache(sortedArticles, { asc: false });
 - [x] 🧵 React 18 [Concurrent mode](https://resthooks.io/docs/guides/render-as-you-fetch) compatible
 - [x] 🎣 [Declarative API](https://resthooks.io/docs/getting-started/data-dependency)
 - [x] 📝 Composition over configuration
-- [x] 💰 [Normalized](https://resthooks.io/docs/getting-started/entity) caching
+- [x] 💰 [Normalized](https://resthooks.io/docs/concepts/normalization) caching
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination
 - [x] ✨ [Optimistic updates](https://resthooks.io/rest/guides/optimistic-updates)
@@ -110,7 +110,7 @@ const articlesDescending = useCache(sortedArticles, { asc: false });
 - [x] ♻️ Optional [redux integration](https://resthooks.io/docs/guides/redux)
 - [x] 📙 [Storybook mocking](https://resthooks.io/docs/guides/storybook)
 - [x] 📱 [React Native](https://facebook.github.io/react-native/) support
-- [x] 🚯 [Declarative cache lifetime policy](https://resthooks.io/docs/getting-started/expiry-policy)
+- [x] 🚯 [Declarative cache lifetime policy](https://resthooks.io/docs/concepts/expiry-policy)
 
 ## Principals of Rest Hooks
 

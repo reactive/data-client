@@ -460,7 +460,7 @@ These are inherited from [Endpoint](./Endpoint.md#lifecycle)
 
 Custom data cache lifetime for the fetched resource. Will override the value set in NetworkManager.
 
-[Learn more about expiry time](/docs/getting-started/expiry-policy#expiry-time)
+[Learn more about expiry time](/docs/concepts/expiry-policy#expiry-time)
 
 ### errorExpiryLength?: number {#errorexpirylength}
 
@@ -471,7 +471,7 @@ Custom data error lifetime for the fetched resource. Will override the value set
 'soft' will use stale data (if exists) in case of error; undefined or not providing option will result
 in error.
 
-[Learn more about errorPolicy](/docs/getting-started/expiry-policy#error-policy)
+[Learn more about errorPolicy](/docs/concepts/expiry-policy#error-policy)
 
 ```ts
 errorPolicy(error) {

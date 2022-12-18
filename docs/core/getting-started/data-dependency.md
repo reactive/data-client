@@ -1,16 +1,17 @@
 ---
-title: Co-locate Data Dependencies
-sidebar_label: Data Dependencies
+title: Rendering Asynchronous Data
+sidebar_label: Render Data
 ---
 
+import ThemedImage from '@theme/ThemedImage';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 
-Co-locating data dependencies means we only use data-binding hooks like [useSuspense()](../api/useSuspense)
-in components where we display/use their data directly.
+Make your components reusable by binding the data where you need it with the one-line [useSuspense()](../api/useSuspense.md).
 
 <Tabs
 defaultValue="Single"
@@ -20,86 +21,116 @@ values={[
 ]}>
 <TabItem value="Single">
 
-```tsx
-import { useSuspense } from '@rest-hooks/react';
-// local directory for API definitions
-import { todoDetail } from 'endpoints/todo';
+<HooksPlayground defaultOpen="n" row>
 
-export default function TodoDetail({ id }: { id: number }) {
-  // highlight-next-line
-  const todo = useSuspense(todoDetail, { id });
+```ts title="api/Todo.ts" collapsed
+export class Todo extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  completed = false;
+  pk() {
+    return `${this.id}`;
+  }
+}
+export const TodoResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  schema: Todo,
+});
+```
+
+```tsx title="Todo.tsx" {5}
+import { useSuspense } from '@rest-hooks/react';
+import { TodoResource } from './api/Todo';
+
+function TodoDetail({ id }: { id: number }) {
+  const todo = useSuspense(TodoResource.get, { id });
   return <div>{todo.title}</div>;
 }
+render(<TodoDetail id={1} />);
 ```
+
+</HooksPlayground>
 
 </TabItem>
 <TabItem value="List">
 
-```tsx
-import { useSuspense } from '@rest-hooks/react';
-// local directory for API definitions
-import { todoList } from 'endpoints/todo';
+<HooksPlayground defaultOpen="n" row>
 
-export default function TodoList() {
-  // highlight-next-line
-  const todos = useSuspense(todoList, {});
+```ts title="api/Todo.ts" collapsed
+export class Todo extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  completed = false;
+  pk() {
+    return `${this.id}`;
+  }
+}
+export const TodoResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  schema: Todo,
+});
+```
+
+```tsx title="TodoList.tsx" {5}
+import { useSuspense } from '@rest-hooks/react';
+import { TodoResource } from './api/Todo';
+
+function TodoList() {
+  const todos = useSuspense(TodoResource.getList);
   return (
-    <section>
+    <section style={{ maxHeight: '300px', overflow: 'scroll' }}>
       {todos.map(todo => (
         <div key={todo.id}>{todo.title}</div>
       ))}
     </section>
   );
 }
+render(<TodoList />);
 ```
+
+</HooksPlayground>
 
 </TabItem>
 </Tabs>
 
-[useSuspense()](../api/useSuspense) guarantees access to data with sufficient [freshness](/rest/api/Endpoint#dataexpirylength-number).
-This means it may issue network calls, and it may [suspend](#boundaries) until the the fetch completes.
-Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
-suspends.
+<a href="https://beta.reactjs.org/learn/passing-data-deeply-with-context" target="_blank">
+<ThemedImage
+alt="Endpoints used in many contexts"
+sources={{
+    light: useBaseUrl('/img/passing_data_context_far.webp'),
+    dark: useBaseUrl('/img/passing_data_context_far.webp'),
+  }}
+style={{float: "right",marginLeft:"10px"}}
+width="415" height="184"
+/>
+</a>
 
-- Fetches are centrally controlled, and thus automatically deduplicated
-- Data is centralized and normalized guaranteeing consistency across uses, even with different [endpoints](/rest/api/Endpoint).
-  - (For example: navigating to a detail page with a single entry from a list view will instantly show the same data as the list without
-    requiring a refetch.)
+No more prop drilling, or cumbersome external state management. Rest Hooks guarantees global referential equality,
+data safety and performance.
+
+Co-location also allows [Server Side Rendering](../guides/ssr.md) to incrementally stream HTML, greatly reducing [TTFB](https://web.dev/ttfb/).
+[Rest Hooks SSR](../guides/ssr.md) automatically hydrates its store, allowing immediate interactive mutations with **zero** client-side
+fetches on first load.
 
 <ConditionalDependencies />
 
-## Async Fallbacks (loading/error) {#async-fallbacks}
+## Loading and Error {#async-fallbacks}
 
-This works great if the client already has the data. But while it's waiting on a response from the server,
-we need some kind of loading indication. Similarly if there is an error in the fetch, we should indicate such.
-These are called 'fallbacks'.
+You might have noticed the return type shows the value is always there. In Rest Hooks
+error/loading is disjoint from data usage.
 
 ### Async Boundaries {#boundaries}
 
-In React 18, the best way to achieve this is with boundaries. Rest Hooks provides [<AsyncBoundary /\>](../api/AsyncBoundary.md),
-which uses `<Suspense />` for loading state and [<NetworkErrorBoundary /\>](../api/NetworkErrorBoundary.md) for error states of
-any descendant components.
+Instead we place [<AsyncBoundary /\>](../api/AsyncBoundary.md) at or above navigational boundaries like pages,
+routes or modals.
 
 <LanguageTabs>
 
 ```tsx {6,12,23-25}
-import React, { Suspense } from 'react';
-import { AsyncBoundary } from '@rest-hooks/react';
-
-export default function TodoPage({ id }: { id: number }) {
-  return (
-    <AsyncBoundary fallback="loading">
-      <section>
-        <TodoDetail id={1} />
-        <TodoDetail id={5} />
-        <TodoDetail id={10} />
-      </section>
-    </AsyncBoundary>
-  );
-}
-```
-
-```jsx {6,12,18-20}
 import React, { Suspense } from 'react';
 import { AsyncBoundary } from '@rest-hooks/react';
 
@@ -116,36 +147,70 @@ export default function TodoPage({ id }: { id: number }) {
 }
 ```
 
+```jsx {6,12,18-20}
+import React, { Suspense } from 'react';
+import { AsyncBoundary } from '@rest-hooks/react';
+
+export default function TodoPage({ id }) {
+  return (
+    <AsyncBoundary>
+      <section>
+        <TodoDetail id={1} />
+        <TodoDetail id={5} />
+        <TodoDetail id={10} />
+      </section>
+    </AsyncBoundary>
+  );
+}
+```
+
 </LanguageTabs>
 
-:::note
+[useTransition](https://beta.reactjs.org/apis/react/useTransition) powered routers or navigation
+means React never has to show a loading fallback. Of course, these are only possible in React 18 or above,
+so for 16 and 17 this will merely centralize the fallback, eliminating 100s of loading spinners.
 
-This greatly simplifies complex orchestrations of data dependencies by decoupling where to show fallbacks
-from the components using the data.
-
-:::
-
-For instance, here we have three different components requesting different todo data. These will all loading in
-parallel and only show one loading indicator instead of filling the screen with them. Although this case
-is obviously contrived; in practice this comes up quite often, especially when data dependencies end up deeply nesting.
+In either case, a signficiant amount of component complexity is removed by centralizing fallback conditionals.
 
 ### Stateful
 
 You may find cases where it's still useful to use a stateful approach to fallbacks when using React 16 and 17.
 For these cases, or compatibility with some component libraries, [useDLE()](../api/useDLE.md) is provided.
 
-```tsx
-import { useDLE } from '@rest-hooks/react';
-// local directory for API definitions
-import { todoDetail } from 'endpoints/todo';
+<HooksPlayground defaultOpen="n" row>
 
-export default function TodoDetail({ id }: { id: number }) {
-  const { loading, error, data: todo } = useDLE(todoDetail, { id });
-  if (loading) return 'loading';
-  if (error) return error.status;
+```ts title="api/Todo.ts" collapsed
+export class Todo extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  completed = false;
+  pk() {
+    return `${this.id}`;
+  }
+}
+export const TodoResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  schema: Todo,
+});
+```
+
+```tsx title="Todo.tsx" {5}
+import { useDLE } from '@rest-hooks/react';
+import { TodoResource } from './api/Todo';
+
+function TodoDetail({ id }: { id: number }) {
+  const { loading, error, data: todo } = useDLE(TodoResource.get, { id });
+  if (loading || !todo) return <div>loading</div>;
+  if (error) return <div>{error.message}</div>;
+
   return <div>{todo.title}</div>;
 }
+render(<TodoDetail id={1} />);
 ```
+
+</HooksPlayground>
 
 ## Subscriptions
 
@@ -162,37 +227,80 @@ values={[
 ]}>
 <TabItem value="Single">
 
-```tsx
-import { useLive } from '@rest-hooks/react';
-// local directory for API definitions
-import { todoDetail } from 'endpoints/todo';
+<HooksPlayground defaultOpen="n" row>
 
-export default function TodoDetail({ id }: { id: number }) {
-  // highlight-next-line
-  const todo = useLive(todoDetail, { id });
+```ts title="api/Todo.ts" collapsed
+export class Todo extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  completed = false;
+  pk() {
+    return `${this.id}`;
+  }
+}
+export const TodoResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  schema: Todo,
+  pollFrequency: 10000,
+});
+```
+
+```tsx title="Todo.tsx" {5}
+import { useLive } from '@rest-hooks/react';
+import { TodoResource } from './api/Todo';
+
+function TodoDetail({ id }: { id: number }) {
+  const todo = useLive(TodoResource.get, { id });
   return <div>{todo.title}</div>;
 }
+render(<TodoDetail id={1} />);
 ```
+
+</HooksPlayground>
 
 </TabItem>
 <TabItem value="List">
 
-```tsx
-import { useSuspense } from '@rest-hooks/react';
-// local directory for API definitions
-import { todoList } from 'endpoints/todo';
+<HooksPlayground defaultOpen="n" row>
 
-export default function TodoList() {
-  const todos = useLive(todoList, {});
+```ts title="api/Todo.ts" collapsed
+export class Todo extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  completed = false;
+  pk() {
+    return `${this.id}`;
+  }
+}
+export const TodoResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  schema: Todo,
+  pollFrequency: 10000,
+});
+```
+
+```tsx title="TodoList.tsx" {5}
+import { useLive } from '@rest-hooks/react';
+import { TodoResource } from './api/Todo';
+
+function TodoList() {
+  const todos = useLive(TodoResource.getList);
   return (
-    <section>
+    <section style={{ maxHeight: '300px', overflowY: 'scroll' }}>
       {todos.map(todo => (
         <div key={todo.id}>{todo.title}</div>
       ))}
     </section>
   );
 }
+render(<TodoList />);
 ```
+
+</HooksPlayground>
 
 </TabItem>
 </Tabs>
@@ -202,22 +310,20 @@ polling based subscriptions can be used by adding [pollFrequency](/rest/api/Endp
 For pushed based networking protocols like websockets, see the [example websocket stream manager](../api/Manager.md#middleware-data-stream).
 
 ```typescript
-const fetchTodoDetail = ({ id }) =>
-  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res =>
-    res.json(),
-  );
-const todoDetail = new Endpoint(
-  fetchTodoDetail,
+export const TodoResource = createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  schema: Todo,
   // highlight-next-line
-  { pollFrequency: 1000 },
-);
+  pollFrequency: 10000,
+});
 ```
 
 ### Live Crypto Price Example
 
 <HooksPlayground defaultOpen="n">
 
-```typescript title="api/ExchangeRate.ts" {13}
+```typescript title="api/ExchangeRate.ts" {14}
 export class ExchangeRate extends Entity {
   readonly currency: string = 'USD';
   readonly rates: Record<string, string> = {};
@@ -228,7 +334,8 @@ export class ExchangeRate extends Entity {
 }
 export const getExchangeRates = new RestEndpoint({
   urlPrefix: 'https://www.coinbase.com/api/v2',
-  path: '/exchange-rates\\?currency=:currency',
+  path: '/exchange-rates',
+  searchParams: {} as { currency: string },
   schema: { data: ExchangeRate },
   pollFrequency: 5000,
 });
@@ -239,9 +346,7 @@ import { useLive } from '@rest-hooks/react';
 import { getExchangeRates } from './api/ExchangeRate';
 
 function AssetPrice({ symbol }: { symbol: string }) {
-  const { data: price } = useLive(getExchangeRates, {
-    currency: 'USD',
-  });
+  const { data: price } = useLive(getExchangeRates, { currency: 'USD' });
   const displayPrice = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
