@@ -1,6 +1,6 @@
 ---
 title: Entity and Data Normalization
-sidebar_label: Entity
+sidebar_label: Data Normalization
 ---
 
 import Tabs from '@theme/Tabs';
@@ -133,16 +133,14 @@ values={[
 <TabItem value="Create">
 
 ```typescript
-import { schema, Endpoint } from '@rest-hooks/endpoint';
+import { RestEndpoint } from '@rest-hooks/rest';
 
-const todoCreate = new Endpoint(
-  (body: FormData) =>
-    fetch(`https://jsonplaceholder.typicode.com/todos/`, {
-      method: 'POST',
-      body,
-    }).then(res => res.json()),
-  { schema: Todo, sideEffect: true },
-);
+const todoCreate = new RestEndpoint({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos',
+  method: 'POST',
+  schema: Todo,
+});
 ```
 
 <details><summary><b>Example Usage</b></summary>
@@ -166,16 +164,14 @@ export default function NewTodoForm() {
 <TabItem value="Update">
 
 ```typescript
-import { schema, Endpoint } from '@rest-hooks/endpoint';
+import { RestEndpoint } from '@rest-hooks/rest';
 
-const todoUpdate = new Endpoint(
-  ({ id }: { id: number }, body: FormData) =>
-    fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
-      method: 'PUT',
-      body,
-    }).then(res => res.json()),
-  { schema: Todo, sideEffect: true },
-);
+const todoUpdate = new RestEndpoint({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  method: 'PUT',
+  schema: Todo,
+});
 ```
 
 <details><summary><b>Example Usage</b></summary>
@@ -203,29 +199,29 @@ export default function UpdateTodoForm({ id }: { id: number }) {
 <TabItem value="Delete">
 
 ```typescript
-import { schema, Endpoint } from '@rest-hooks/endpoint';
+import { schema, RestEndpoint } from '@rest-hooks/rest';
 
-const todoDelete = new Endpoint(
-  ({ id }: { id: number }) =>
-    fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
-      method: 'DELETE',
-    }).then(() => ({ id })),
-  { schema: new schema.Delete(Todo), sideEffect: true },
-);
+const todoDelete = new RestEndpoint({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  method: 'DELETE',
+  schema: new schema.Delete(Todo),
+});
 ```
 
 <details><summary><b>Example Usage</b></summary>
 
 ```tsx
 import { useController } from '@rest-hooks/react';
-import ArticleResource from 'resources/article';
 
 export default function TodoWithDelete({ todo }: { todo: Todo }) {
   const ctrl = useController();
   return (
     <div>
       {todo.title}
-      <button onClick={() => ctrl.fetch(todoDelete, { id: todo.id })}>Delete</button>
+      <button onClick={() => ctrl.fetch(todoDelete, { id: todo.id })}>
+        Delete
+      </button>
     </div>
   );
 }
@@ -250,15 +246,13 @@ Schemas are a declarative definition of how to [process responses](/rest/api/sch
 - Classes to [deserialize fields](/rest/guides/network-transform#deserializing-fields)
 
 ```typescript
-import { Endpoint } from '@rest-hooks/endpoint';
+import { RestEndpoint } from '@rest-hooks/rest';
 
-const fetchTodoList = (params: any) =>
-  fetch(`https://jsonplaceholder.typicode.com/todos/`).then(res => res.json());
-
-const todoList = new Endpoint(fetchTodoList, {
+const getTodoList = new RestEndpoint({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos',
   // highlight-next-line
   schema: [Todo],
-  sideEffect: true,
 });
 ```
 
@@ -327,7 +321,7 @@ class User extends Entity {
   "id": 5,
   "user": {
     "id": 10,
-    "username": "bob",
+    "username": "bob"
   },
   "title": "Write some Entities",
   "completed": false
@@ -336,7 +330,6 @@ class User extends Entity {
 
 </TabItem>
 </Tabs>
-
 
 [Learn more](/rest/guides/nested-response)
 

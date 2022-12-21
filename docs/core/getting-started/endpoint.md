@@ -1,145 +1,158 @@
 ---
-title: Define API Endpoint
-sidebar_label: Endpoint
+title: Define API Endpoints
+sidebar_label: Define API
 ---
 
 <head>
-  <title>TypeScript Standard Endpoints</title>
+  <title>Define API for Rest Hooks</title>
 </head>
 
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import ThemedImage from '@theme/ThemedImage';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
+import ProtocolTabs from '@site/src/components/ProtocolTabs';
+import PkgInstall from '@site/src/components/PkgInstall';
 
-[Endpoints](/rest/api/Endpoint) describe an asynchronous [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/). This includes both runtime behavior as well as (optionally) typing.
+`Endpoints` are the _methods_ of your data. `Schemas` define the data model. `Resources` are
+a collection of `endpoints` around one `schema`.
 
-<LanguageTabs>
+<Tabs
+defaultValue="rest"
+groupId="protocol"
+values={[
+{ label: 'Rest', value: 'rest' },
+{ label: 'GraphQL', value: 'gql' },
+]}
+>
+<TabItem value="rest">
 
-```typescript
-interface Todo {
-  userId: number;
-  id: number;
-  title: string;
-  completed: boolean;
+  <PkgInstall pkgs="@rest-hooks/rest" />
+
+```typescript title="api/Todo.ts"
+import { createResource, Entity } from '@rest-hooks/rest';
+
+export class Todo extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  completed = false;
+
+  pk() {
+    return `${this.id}`;
+  }
 }
-interface Params {
-  id: number;
-}
 
-const fetchTodoDetail = ({ id }: Params): Promise<Todo> =>
-  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res =>
-    res.json(),
-  );
-
-// highlight-next-line
-const todoDetail = new Endpoint(fetchTodoDetail);
-```
-
-```js
-const fetchTodoDetail = ({ id }) =>
-  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res =>
-    res.json(),
-  );
-
-// highlight-next-line
-const todoDetail = new Endpoint(fetchTodoDetail);
-```
-
-</LanguageTabs>
-
-
-<details><summary><b>Example Usage</b></summary>
-
-```js
-console.log(await todoDetail({ id: '1' }));
-```
-
-<samp>
-
-```json
-{
-  "userId": 1,
-  "id": 1,
-  "title": "delectus aut autem",
-  "completed": false
-}
-```
-
-</samp>
-
-</details>
-
-We will likely want to use this endpoint in many places with differing needs.
-By defining a reusable function of _just_ the network definition, we empower
-its use in _any_ context.
-
-This is especially useful when we start adding more information related to the
-endpoint. For instance, TypeScript definitions help us avoid common mistakes, typos
-and speed up development with autocomplete.
-
-By _tightly coupling_ the interface definition, while _loosely coupling_ its usage,
-we reduce boilerplate, complexity, and common mistakes, while increasing performance and
-enabling global application consistency and integrity even in the face of unreliable
-asynchronous data.
-
-## More than just a function
-
-In addition to an async function and (optional) types, [Endpoint](/rest/api/Endpoint)s are objects,
-allowing them to provide any additional relevant information about the endpoint itself.
-
-For instance, to allow integration into a cache as well as knowing when to recompute and/or refetch
-when parameters change, Endpoints have a [key()](/rest/api/Endpoint#key-params--string) member that serializes
-the endpoint and parameters to a unique string.
-
-```js
-console.log(todoDetail.key({ id: '1' }));
-// fetchTodoDetail {"id":"1"}
-```
-
-### Members
-
-The second optional arg is an object to initialize the endpoint with. By avoiding arrow functions,
-we can use [this](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this)
-to access other members we defined.
-
-```js
-const todoDetailWithCustomizedKey = new Endpoint(fetchTodoDetail, {
-  key({ id }) {
-    return `${this.endpointIdentifier}/${id}`;
-  },
-  endpointIdentifier: 'todoDetail',
+export const TodoResource = new createResource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  schema: Todo,
 });
 ```
 
-```js
-console.log(todoDetailWithCustomizedKey.key({ id: '1' }));
-// todoDetail/1
+  </TabItem>
+  <TabItem value="gql">
+
+  <PkgInstall pkgs="@rest-hooks/graphql" />
+
+```typescript title="api/Todo.ts"
+import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
+
+const gql = new GQLEndpoint('/');
+
+export class Todo extends GQLEntity {
+  readonly title: string = '';
+  readonly completed: boolean = false;
+}
+
+export const todoList = gql.query(
+  `
+  query GetTodos {
+    todo {
+      id
+      title
+      completed
+    }
+  }
+`,
+  { todos: [Todo] },
+);
+
+export const updateTodo = gql.mutation(
+  `mutation UpdateTodo($todo: Todo!) {
+    updateTodo(todo: $todo) {
+      id
+      title
+      completed
+    }
+  }`,
+  { updateTodo: Todo },
+);
 ```
 
-### Endpoint.extend()
+  </TabItem>
 
-For convenience, [extend()](/rest/api/Endpoint#extend) allows type-correct
-prototypical inheritance extensions of an endpoint.
+</Tabs>
 
-This is greatly reduces boilerplate when strong patterns are established for an API like
-authentication.
 
-Here we show the benefits of customizing [method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods) member.
+<!--
+  <TabItem value="sse">
 
-```js
-const fetchTodoDetail = function ({ id }) {
-  return fetch(`${this.urlBase}/todos/${id}`, { method: this.method }).then(
-    res => res.json(),
-  );
-};
+```ts
+import type { Manager, Middleware } from '@rest-hooks/core';
+import type { EndpointInterface } from '@rest-hooks/endpoint';
 
-const todoDetail = new Endpoint(fetchTodoDetail, {
-  method: 'GET',
-  urlBase: 'https://jsonplaceholder.typicode.com',
-});
+export default class StreamManager implements Manager {
+  protected declare middleware: Middleware;
+  protected declare evtSource: WebSocket | EventSource;
+  protected declare endpoints: Record<string, EndpointInterface>;
+
+  constructor(
+    evtSource: WebSocket | EventSource,
+    endpoints: Record<string, EndpointInterface>,
+  ) {
+    this.evtSource = evtSource;
+    this.endpoints = endpoints;
+
+    this.middleware = controller => {
+      this.evtSource.onmessage = event => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type in this.endpoints)
+            controller.setResponse(
+              this.endpoints[msg.type],
+              ...msg.args,
+              msg.data,
+            );
+        } catch (e) {
+          console.error('Failed to handle message');
+          console.error(e);
+        }
+      };
+      return next => async action => next(action);
+    };
+  }
+
+  cleanup() {
+    this.evtSource.close();
+  }
+
+  getMiddleware() {
+    return this.middleware;
+  }
+}
 ```
 
-```js
-const todoCreate = todoDetail.extend({ method: 'POST' });
-const todoUpdate = todoDetail.extend({ method: 'PUT' });
-```
+  </TabItem>
+<TabItem value="img">
+
+<PkgInstall pkgs="@rest-hooks/img" />
+
+</TabItem>
+-->
+
+It's highly encouraged to design APIs with consistent patterns. Because of this,
+you can extend our protocol specific helpers. After choosing your protocol, you can
+read up on the full docs for reach protocol [REST](/rest), [GraphQL](/graphql),
+[Image/binary](../guides/img-media.md), [Websockets+SSE](../api/Manager.md#middleware-data-stream)

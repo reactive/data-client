@@ -26,11 +26,17 @@ export class Article extends Entity {
   id: number | undefined = undefined;
   title = '';
   content = '';
-  author: number | null = null;
+  author = User.fromJS({});
   tags: string[] = [];
+  createdAt = new Date(0);
 
   pk() {
     return this.id?.toString();
+  }
+
+  static schema = {
+    author: User,
+    createdAt: Date,
   }
 }
 
@@ -48,11 +54,17 @@ export class Article extends Entity {
   id = undefined;
   title = '';
   content = '';
-  author = null;
+  author = User.fromJS({});
   tags = [];
+  createdAt = new Date(0);
 
   pk() {
     return this.id?.toString();
+  }
+
+  static schema = {
+    author: User,
+    createdAt: Date,
   }
 }
 export const ArticleResource = createResource({

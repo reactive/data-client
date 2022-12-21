@@ -23,15 +23,33 @@
         },
         {
           "type": "doc",
-          "id": "getting-started/entity"
+          "id": "getting-started/mutations"
         },
         {
           "type": "doc",
-          "id": "getting-started/expiry-policy"
+          "id": "getting-started/comparison"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Concepts",
+      "items": [
+        {
+          "type": "doc",
+          "id": "concepts/normalization"
         },
         {
           "type": "doc",
-          "id": "getting-started/validation"
+          "id": "concepts/expiry-policy"
+        },
+        {
+          "type": "doc",
+          "id": "concepts/validation"
+        },
+        {
+          "type": "doc",
+          "id": "concepts/managers"
         }
       ]
     },
@@ -57,21 +75,6 @@
         }
       ]
     },
-
-    {
-      "type": "category",
-      "label": "Concepts",
-      "items": [
-        {
-          "type": "doc",
-          "id": "concepts/loading-state"
-        },
-        {
-          "type": "doc",
-          "id": "concepts/network-errors"
-        }
-      ]
-    },
     {
       "type": "category",
       "label": "Advanced",
@@ -79,6 +82,10 @@
         {
           "type": "doc",
           "id": "guides/img-media"
+        },
+        {
+          "type": "doc",
+          "id": "guides/custom-protocol"
         },
         {
           "type": "category",
@@ -111,14 +118,7 @@
             {
               "type": "doc",
               "id": "guides/ssr"
-            }
-          ]
-        },
-        {
-          "type": "category",
-          "collapsible": false,
-          "label": "Legacy",
-          "items": [
+            },
             {
               "type": "doc",
               "id": "guides/class-components"

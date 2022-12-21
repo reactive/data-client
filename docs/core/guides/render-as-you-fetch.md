@@ -24,7 +24,7 @@ and be assured they will get their data when it's ready. And when render-as-you-
 are added later - _those components don't need to change_. This makes data usage _tightly coupled_,
 and fetch optimization _loosely coupled_.
 
-<iframe src="https://stackblitz.com/github/ntucker/anansi/tree/ec2bfc36a17a8d40404717f5d7f02d7089916a5b/examples/concurrent?embed=1&file=src/routing/routes.tsx&hidedevtools=1&view=preview&initialpath=%2Fuser%2F1" width="100%" height="600"></iframe>
+<iframe src="https://stackblitz.com/github/ntucker/anansi/tree/master/examples/concurrent?embed=1&file=src/routing/routes.tsx&hidedevtools=1&view=preview&initialpath=%2Fuser%2F1" width="100%" height="600"></iframe>
 
 ## Routes that preload
 

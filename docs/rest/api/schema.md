@@ -37,17 +37,17 @@ import { normalize, schema, Entity } from '@rest-hooks/normalizr';
 
 // Define a users schema
 class User extends Entity {
-  readonly id: string = '';
-  readonly name: string = '';
+  id = '';
+  name = '';
 
   pk() { return this.id; }
 }
 
 // Define your comments schema
 class Comment extends Entity {
-  readonly id: string = '';
-  readonly createdAt: Date = new Date(0);
-  readonly commenter: User = User.fromJS({});
+  id = '';
+  createdAt = new Date(0);
+  commenter = User.fromJS({});
 
   pk() { return this.id; }
 
@@ -59,10 +59,10 @@ class Comment extends Entity {
 
 // Define your article
 class Article extends Entity {
-  readonly id: string = '';
-  readonly title: string = '';
-  readonly author: User = User.fromJS({});
-  readonly comments: Comment[] = [];
+  id = '';
+  title = '';
+  author = User.fromJS({});
+  comments: Comment[] = [];
 
   pk() { return this.id; }
 

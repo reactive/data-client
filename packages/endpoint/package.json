@@ -89,7 +89,7 @@
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
-  "homepage": "https://resthooks.io/docs/api/Endpoint",
+  "homepage": "https://resthooks.io/docs/guides/custom-protocol",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com:coinbase/rest-hooks.git",

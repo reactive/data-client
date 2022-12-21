@@ -35,7 +35,6 @@ class Controller {
 [useController()](./useController.md) provides access in React components, and for [Managers](./Manager.md)
 it is passed as the first argument in [Manager.getMiddleware()](./Manager.md#middleware)
 
-
 ## fetch(endpoint, ...args) {#fetch}
 
 Fetches the endpoint with given args, updating the Rest Hooks cache with
@@ -55,7 +54,9 @@ function CreatePost() {
   const ctrl = useController();
 
   return (
-    <form onSubmit={e => ctrl.fetch(PostResource.create, new FormData(e.target))}>
+    <form
+      onSubmit={e => ctrl.fetch(PostResource.create, new FormData(e.target))}
+    >
       {/* ... */}
     </form>
   );
@@ -71,7 +72,9 @@ function UpdatePost({ id }: { id: string }) {
 
   return (
     <form
-      onSubmit={e => ctrl.fetch(PostResource.update, { id }, new FormData(e.target))}
+      onSubmit={e =>
+        ctrl.fetch(PostResource.update, { id }, new FormData(e.target))
+      }
     >
       {/* ... */}
     </form>
@@ -114,7 +117,7 @@ When using schemas, the denormalized value can be retrieved using a combination 
 
 ```ts
 await controller.fetch(PostResource.create, createPayload);
-const denormalizedResponse = controller.getResponse(
+const { data: denormalizedResponse } = controller.getResponse(
   PostResource.create,
   createPayload,
   controller.getState(),
@@ -400,13 +403,18 @@ const updateHandler = useCallback(
       { id },
       updatePayload,
     );
-    const denormalized = controller.getResponse(
-      MyResource.update,
-      { id },
-      updatePayload,
-      controller.getState(),
-    );
-    redirect(denormalized.getterUrl);
+    // the fetch has completed, but react has not yet re-rendered
+    // this lets use sequence after the next re-render
+    // we're working on a better solution to this specific case
+    setTimeout(() => {
+      const { data: denormalized } = controller.getResponse(
+        MyResource.update,
+        { id },
+        updatePayload,
+        controller.getState(),
+      );
+      redirect(denormalized.getterUrl);
+    }, 40);
   },
   [id],
 );

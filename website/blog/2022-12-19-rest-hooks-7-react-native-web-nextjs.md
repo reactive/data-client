@@ -36,7 +36,7 @@ Once the `rest-hooks` package is upgraded, you can optionally upgrade @rest-hook
 Because the React Native and Web interfaces are the same, we ship them in the same package
 and delivery appropriate specializations where appropriate.
 
-The only breaking change is that [useSuspense](/docs/useSuspense), useSubscription,
+The only breaking change is that [useSuspense](/docs/api/useSuspense), useSubscription,
 useLive, useFetch are all react-native aware. This is unlikely to cause any issue, as
 screen focus will trigger fetches on stale data.
 
@@ -190,8 +190,8 @@ export default function App({ Component, pageProps }: AppProps) {
 
 ### useLive
 
-Often [useSubscription()](/api/useSubscription) is used in the same components that [useSuspense()](/api/useSuspense) is. To reduce verbosity
-we have introduced [useLive()](/api/useLive) which simply calls both useSubscription() and useSuspense().
+Often [useSubscription()](/docs/api/useSubscription) is used in the same components that [useSuspense()](/docs/api/useSuspense) is. To reduce verbosity
+we have introduced [useLive()](/docs/api/useLive) which simply calls both useSubscription() and useSuspense().
 
 <HooksPlayground>
 
@@ -245,8 +245,8 @@ render(<AssetPrice symbol="BTC" />);
 
 ### AsyncBoundary
 
-Suspense and [NetworkErrorBoundary](/api/NetworkErrorBoundary) are often co-located. To simplify this common
-case we introduced [AsyncBoundary](/api/AsyncBoundary)
+Suspense and [NetworkErrorBoundary](/docs/api/NetworkErrorBoundary) are often co-located. To simplify this common
+case we introduced [AsyncBoundary](/docs/api/AsyncBoundary)
 
 ```tsx {5,8}
 import { AsyncBoundary } from '@rest-hooks/react';
@@ -268,9 +268,9 @@ function App() {
 Manager middleware has been designed to be compatible with redux. This means the original
 API had `{ dispatch, getState }` as its arguments to the middleware.
 
-[Controller](/api/Controller) is a superset of this functionality, and its methods provide a more type-safe
+[Controller](/docs/api/Controller) is a superset of this functionality, and its methods provide a more type-safe
 way of interacting with the flux lifecycle. Because of this we have moved to pass the
-[whole controller](/api/Controller#fetch), instead of just dispatch, and getState.
+[whole controller](/docs/api/Controller#fetch), instead of just dispatch, and getState.
 
 ```ts
 class Controller {

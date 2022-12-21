@@ -229,23 +229,33 @@ module.exports = {
         },
         redirects: [
           {
-            to: '/docs/',
+            to: '/docs/concepts/normalization',
+            from: [
+              '/docs/getting-started/entity',
+              '/docs/getting-started/schema',
+            ],
+          },
+          {
+            to: '/docs/concepts/expiry-policy',
+            from: [
+              '/docs/getting-started/expiry-policy',
+              '/docs/guides/resource-lifetime',
+            ],
+          },
+          {
+            to: '/docs/concepts/validation',
+            from: ['/docs/getting-started/validation'],
+          },
+          {
+            to: '/docs',
             from: [
               '/docs/getting-started/introduction',
               '/docs/getting-started/usage',
             ],
           },
           {
-            to: '/docs/concepts/loading-state',
-            from: ['/docs/guides/loading-state'],
-          },
-          {
-            to: '/docs/concepts/network-errors',
-            from: ['/docs/guides/network-errors'],
-          },
-          {
-            to: '/docs/getting-started/entity',
-            from: ['/docs/getting-started/schema'],
+            to: '/docs/getting-started/data-dependency',
+            from: ['/docs/guides/loading-state', '/docs/guides/network-errors'],
           },
           {
             to: '/docs/api/types',
@@ -279,10 +289,6 @@ module.exports = {
           {
             to: '/docs/api/useDLE',
             from: ['/docs/guides/no-suspense'],
-          },
-          {
-            to: '/docs/getting-started/expiry-policy',
-            from: ['/docs/guides/resource-lifetime'],
           },
           {
             to: '/rest/guides/pagination',

@@ -716,14 +716,28 @@ declare class Controller<D extends GenericDispatch = CompatibleDispatch> {
     resetEntireStore: () => Promise<void>;
     /**
      * Stores response in cache for given Endpoint and args.
-     * @see https://resthooks.io/docs/api/Controller#receive
+     * @see https://resthooks.io/docs/api/Controller#set
+     */
+    setResponse: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined> & {
+        update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
+    }>(endpoint: E, ...rest: readonly [...Parameters<E>, any]) => Promise<void>;
+    /**
+     * Another name for setResponse
+     * @see https://resthooks.io/docs/api/Controller#setResponse
      */
     receive: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined> & {
         update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, any]) => Promise<void>;
     /**
      * Stores the result of Endpoint and args as the error provided.
-     * @see https://resthooks.io/docs/api/Controller#receiveError
+     * @see https://resthooks.io/docs/api/Controller#setError
+     */
+    setError: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined> & {
+        update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
+    }>(endpoint: E, ...rest: readonly [...Parameters<E>, Error]) => Promise<void>;
+    /**
+     * Another name for setError
+     * @see https://resthooks.io/docs/api/Controller#setError
      */
     receiveError: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined> & {
         update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
@@ -766,7 +780,7 @@ declare class Controller<D extends GenericDispatch = CompatibleDispatch> {
      * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
      * @see https://resthooks.io/docs/api/Controller#getResponse
      */
-    getResponse: <E extends Pick<EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined>, "schema" | "key" | "invalidIfStale">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => {
+    getResponse: <E extends Pick<EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined>, "key" | "schema" | "invalidIfStale">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => {
         data: DenormalizeNullable<E["schema"]>;
         expiryStatus: ExpiryStatus;
         expiresAt: number;

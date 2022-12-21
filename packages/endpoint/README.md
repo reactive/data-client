@@ -10,7 +10,7 @@ Declarative, strongly typed, reusable network definitions for networking librari
 
 <div align="center">
 
-**[📖Read The Docs](https://resthooks.io/docs/api/Endpoint)**
+**[📖Read The Docs](https://resthooks.io/docs/guides/custom-protocol)**
 
 </div>
 
@@ -108,7 +108,7 @@ export interface EndpointOptions extends EndpointExtraOptions {
 }
 ```
 
-### EndpointOptions
+### [EndpointOptions](https://resthooks.io/rest/api/Endpoint#endpointextraoptions)
 
 #### key: (params) => string
 
@@ -150,7 +150,7 @@ const UserDetail = new Endpoint(
 );
 ```
 
-### Endpoint
+### [Endpoint](https://resthooks.io/rest/api/Endpoint)
 
 #### extend(EndpointOptions): Endpoint
 
