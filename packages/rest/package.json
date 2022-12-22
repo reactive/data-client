@@ -112,8 +112,8 @@
     "path-to-regexp": "^6.2.1"
   },
   "devDependencies": {
-    "@babel/cli": "7.19.3",
-    "@babel/core": "7.20.5",
+    "@babel/cli": "7.20.7",
+    "@babel/core": "7.20.7",
     "@types/babel__core": "^7",
     "@types/copyfiles": "^2",
     "@types/path-to-regexp": "^1.7.0",
