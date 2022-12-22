@@ -1,5 +1,10 @@
 import { Entity, schema } from '@rest-hooks/endpoint';
-import { useCache, useController, useSuspense } from '@rest-hooks/react';
+import {
+  Controller,
+  useCache,
+  useController,
+  useSuspense,
+} from '@rest-hooks/react';
 import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 import { makeRenderRestHook } from '@rest-hooks/test';
 import { act } from '@testing-library/react-hooks';
@@ -468,5 +473,48 @@ describe('createResource()', () => {
           { username: 'never' },
         );
     });
+  });
+
+  it('UserResource.create.extends() should work', async () => {
+    interface CreateDeviceBody {
+      username: string;
+    }
+    interface UserInterface {
+      readonly id: number | undefined;
+      readonly username: string;
+      readonly email: string;
+      readonly isAdmin: boolean;
+    }
+
+    const createUser = UserResource.create.extend({
+      update: (newId, params) => {
+        return {
+          [UserResource.getList.key({ group: params.group })]: (
+            prevResponse = { items: [] },
+          ) => ({
+            items: [...prevResponse.items, newId],
+          }),
+        };
+      },
+      //searchParams: undefined as any,
+      body: {} as CreateDeviceBody,
+      schema: User,
+      sideEffect: true,
+      process(...args: any) {
+        return UserResource.create.process.apply(this, args) as UserInterface;
+      },
+    });
+    const ctrl = new Controller();
+    () => ctrl.fetch(createUser, { group: 'hi' }, { username: 'bob' });
+    () => createUser({ group: 'hi' }, { username: 'bob' });
+    // @ts-expect-error
+    () => createUser({ group: 'hi', id: 'what' }, { username: 'bob' });
+    // @ts-expect-error
+    () => createUser({ group: 'hi' });
+    // @ts-expect-error
+    () => createUser.url({ group: 'hi', id: 'what' }, { username: 'bob' });
+    expect(createUser.url({ group: 'hi' }, {} as any)).toMatchInlineSnapshot(
+      `"http://test.com/groups/hi/users"`,
+    );
   });
 });

@@ -387,7 +387,7 @@ Gets the internal state of Rest Hooks that has _already been committed_.
 
 :::warning
 
-This should only be used in event handlers.
+This should only be used in event handlers or [Managers](./Manager.md).
 
 Using getState() in React's render lifecycle can result in data tearing.
 

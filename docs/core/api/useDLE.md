@@ -1,5 +1,6 @@
 ---
-title: useDLE()
+title: useDLE() - [D]ata [L]oading [E]rror
+sidebar_label: useDLE()
 ---
 
 import HooksPlayground from '@site/src/components/HooksPlayground';

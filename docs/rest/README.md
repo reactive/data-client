@@ -17,6 +17,9 @@ import PkgTabs from '@site/src/components/PkgTabs';
 
 ## Define the API
 
+[RestEndpoint](/rest/api/RestEndpoint) are the _methods_ of your data. [Schemas](api/schema.md) define the data model. [Resources](./api/createResource.md) are
+a collection of `endpoints` around one `schema`.
+
 <LanguageTabs>
 
 ```typescript title="api/Article.ts"
@@ -76,8 +79,19 @@ export const ArticleResource = createResource({
 
 </LanguageTabs>
 
-Our definitions are composed of two pieces. Our data model defined by [Schema](api/schema.md) and the
-networking endpoints defined by [RestEndpoint](api/RestEndpoint.md).
+[Entity](./api/Entity.md) is a kind of schema that [has a primary key (pk)](/docs/concepts/normalization). This is what allows us
+to [avoid state duplication](https://beta.reactjs.org/learn/choosing-the-state-structure#principles-for-structuring-state), which
+is one of the core design choices that enable such high safety and performance characteristics.
+
+[static schema](./api/Entity.md#schema) lets us specify declarative transformations like auto [field deserialization](./guides/network-transform.md#deserializing-fields) with `createdAt` and [nesting the author field](./guides/nested-response.md).
+
+[Urls are constructed](./api/RestEndpoint.md#url) by combining the urlPrefix with [path templating](https://www.npmjs.com/package/path-to-regexp).
+TypeScript enforces the arguments specified with a prefixed colon like `:id` in this example.
+
+```ts
+// GET http://test.com/article/5
+TodoResource.get({ id: 5 })
+```
 
 ## Bind the data with Suspense
 
@@ -127,15 +141,7 @@ export default function ArticleList() {
 </TabItem>
 </Tabs>
 
-[useSuspense()](/docs/api/useSuspense) guarantees access to data with sufficient [freshness](api/RestEndpoint.md#dataexpirylength).
-This means it may issue network calls, and it may [suspend](/docs/getting-started/data-dependency#async-fallbacks) until the fetch completes.
-Param changes will result in accessing the appropriate data, which also sometimes results in new network calls and/or
-suspends.
-
-- Fetches are centrally controlled, and thus automatically deduplicated
-- Data is centralized and normalized guaranteeing consistency across uses, even with different [endpoints](api/RestEndpoint.md).
-  - (For example: navigating to a detail page with a single entry from a list view will instantly show the same data as the list without
-    requiring a refetch.)
+[useSuspense()](/docs/api/useSuspense) acts like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await), ensuring the data is available before returning. [Learn how to be declare your data dependencies](/docs/getting-started/data-dependency)
 
 ## Mutate the data
 
@@ -153,11 +159,11 @@ import { useController } from '@rest-hooks/react';
 import { ArticleResource } from 'api/article';
 
 export default function NewArticleForm() {
-  const controller = useController();
+  const ctrl = useController();
   return (
     <Form
       onSubmit={e =>
-        controller.fetch(ArticleResource.create, new FormData(e.target))
+        ctrl.fetch(ArticleResource.create, new FormData(e.target))
       }
     >
       <FormField name="title" />
@@ -180,11 +186,11 @@ import { ArticleResource } from 'api/article';
 
 export default function UpdateArticleForm({ id }: { id: number }) {
   const article = useSuspense(ArticleResource.get, { id });
-  const controller = useController();
+  const ctrl = useController();
   return (
     <Form
       onSubmit={e =>
-        controller.fetch(ArticleResource.update, { id }, new FormData(e.target))
+        ctrl.fetch(ArticleResource.update, { id }, new FormData(e.target))
       }
       initialValues={article}
     >
@@ -208,14 +214,14 @@ import { useController } from '@rest-hooks/react';
 import { Article, ArticleResource } from 'api/article';
 
 export default function ArticleWithDelete({ article }: { article: Article }) {
-  const controller = useController();
+  const ctrl = useController();
   return (
     <article>
       <h2>{article.title}</h2>
       <div>{article.content}</div>
       <button
         onClick={() =>
-          controller.fetch(ArticleResource.delete, { id: article.id })
+          ctrl.fetch(ArticleResource.delete, { id: article.id })
         }
       >
         Delete
@@ -232,4 +238,5 @@ We use [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData/Form
 the example since it doesn't require any opinionated form state management solution.
 Feel free to use whichever one you prefer.
 
-Mutations automatically update the normalized cache, resulting in consistent and fresh data.
+[Mutations](/docs/getting-started/mutations) automatically updates *all* usages without the need for
+additional requests.

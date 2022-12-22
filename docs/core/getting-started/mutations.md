@@ -6,6 +6,10 @@ sidebar_label: Mutate Data
 import ProtocolTabs from '@site/src/components/ProtocolTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
+<head>
+  <title>Mutating asynchronous data</title>
+</head>
+
 ## Tell react to update
 
 Just like [setState()](https://beta.reactjs.org/apis/react/useState), we must make React aware of the any mutations so it can rerender.
@@ -141,7 +145,7 @@ export const TodoResource = {
 };
 ```
 
-```tsx title="TodoItem.tsx" {11}
+```tsx title="TodoItem.tsx" {12}
 import { useController } from '@rest-hooks/react';
 import { TodoResource, Todo } from './api/Todo';
 

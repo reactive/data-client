@@ -11,7 +11,8 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 
-Make your components reusable by binding the data where you need it with the one-line [useSuspense()](../api/useSuspense.md).
+Make your components reusable by binding the data where you need it with the one-line [useSuspense()](../api/useSuspense.md),
+which guarantees data like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await).
 
 <Tabs
 defaultValue="Single"
@@ -120,8 +121,9 @@ fetches on first load.
 
 ## Loading and Error {#async-fallbacks}
 
-You might have noticed the return type shows the value is always there. In Rest Hooks
-error/loading is disjoint from data usage.
+You might have noticed the return type shows the value is always there. [useSuspense()](../api/useSuspense.md) operates very much
+like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await). This enables
+us to make error/loading disjoint from data usage.
 
 ### Async Boundaries {#boundaries}
 
@@ -175,7 +177,7 @@ In either case, a signficiant amount of component complexity is removed by centr
 ### Stateful
 
 You may find cases where it's still useful to use a stateful approach to fallbacks when using React 16 and 17.
-For these cases, or compatibility with some component libraries, [useDLE()](../api/useDLE.md) is provided.
+For these cases, or compatibility with some component libraries, [useDLE()](../api/useDLE.md) - [D]ata [L]oading [E]rror - is provided.
 
 <HooksPlayground defaultOpen="n" row>
 
@@ -337,7 +339,7 @@ export const getExchangeRates = new RestEndpoint({
   path: '/exchange-rates',
   searchParams: {} as { currency: string },
   schema: { data: ExchangeRate },
-  pollFrequency: 5000,
+  pollFrequency: 15000,
 });
 ```
 

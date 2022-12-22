@@ -31,6 +31,14 @@ sometimes a less powerful client library is sufficient.
 This is no small task. To achieve this, Rest Hooks' design is aimed at **treating remote data like it is
 local**. This means component logic should be no more complex than useState and setState.
 
+:::info Outcome
+
+- Write code faster: focus on your application, not complex state management
+- Stop worrying about data bugs or application jank
+- Deliver best application performance without extra work
+
+:::
+
 ## Define API {#endpoint}
 
 [Endpoints](./getting-started/endpoint.md) are the _methods_ of your data. At their core they
@@ -87,7 +95,8 @@ export const getTodo = gql.query(`
 
 ## Co-locate data dependencies
 
-Make your components reusable by binding the data [where you need it](./getting-started/data-dependency.md) with the one-line [useSuspense()](./api/useSuspense.md).
+Make your components reusable by binding the data [where you need it](./getting-started/data-dependency.md) with the one-line [useSuspense()](./api/useSuspense.md). Much like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await),
+[useSuspense()](./api/useSuspense.md) guarantees its data once it returns.
 
 ```tsx {4}
 import { useSuspense } from '@rest-hooks/react';

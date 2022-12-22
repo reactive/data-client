@@ -91,6 +91,8 @@
     "ios",
     "android",
     "web",
+    "websocket",
+    "sse",
     "declarative",
     "scalable"
   ],

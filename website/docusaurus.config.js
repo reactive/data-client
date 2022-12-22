@@ -255,7 +255,12 @@ module.exports = {
           },
           {
             to: '/docs/getting-started/data-dependency',
-            from: ['/docs/guides/loading-state', '/docs/guides/network-errors'],
+            from: [
+              '/docs/guides/loading-state',
+              '/docs/guides/network-errors',
+              '/docs/concepts/loading-state',
+              '/docs/concepts/network-errors',
+            ],
           },
           {
             to: '/docs/api/types',
