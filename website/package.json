@@ -68,5 +68,5 @@
     "extends @anansi/browserslist-config",
     "last 1 years"
   ],
-  "packageManager": "yarn@3.3.0"
+  "packageManager": "yarn@3.3.1"
 }
