@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1671756085092,
+  "lastUpdate": 1671821088570,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -10049,6 +10049,93 @@ window.BENCHMARK_DATA = {
             "range": "±0.46%",
             "unit": "ops/sec",
             "extra": "72 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": false,
+          "id": "0557cd94d9abbadad371c4bdf87e9013101e66a1",
+          "message": "docs: Add note about rest versions in upgrade guide",
+          "timestamp": "2022-12-23T12:33:10-06:00",
+          "tree_id": "80541783ca72ce24aecbfcfb56a0fb9c0fd23e0a",
+          "url": "https://github.com/coinbase/rest-hooks/commit/0557cd94d9abbadad371c4bdf87e9013101e66a1"
+        },
+        "date": 1671821087040,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 106,
+            "range": "±1.25%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 7246,
+            "range": "±0.38%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 47.34,
+            "range": "±1.73%",
+            "unit": "ops/sec",
+            "extra": "62 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 54.03,
+            "range": "±0.15%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 53.01,
+            "range": "±1.55%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 53.28,
+            "range": "±0.18%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 107,
+            "range": "±1.79%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "receiveLongWithMerge",
+            "value": 68.68,
+            "range": "±0.32%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "receiveLongWithSimpleMerge",
+            "value": 88.06,
+            "range": "±1.57%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
           }
         ]
       }
