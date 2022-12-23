@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.2.16](https://github.com/coinbase/rest-hooks/compare/todo-app@0.2.15...todo-app@0.2.16) (2022-12-23)
+
+### 📦 Package
+
+* Update `@anansi/webpack-config` to v13.0.27 ([#2285](https://github.com/coinbase/rest-hooks/issues/2285)) ([eb67654](https://github.com/coinbase/rest-hooks/commit/eb6765415ec2db226fe4481ca1b6e84ef58762f6))
+* Update `@anansi/webpack-config` to v14 ([#2298](https://github.com/coinbase/rest-hooks/issues/2298)) ([95bb1ce](https://github.com/coinbase/rest-hooks/commit/95bb1ce6fc40d64189b2dd84c2aa655ef7c1357a))
+* Update `@anansi/webpack-config` to v14.0.4 ([#2332](https://github.com/coinbase/rest-hooks/issues/2332)) ([1ce13d1](https://github.com/coinbase/rest-hooks/commit/1ce13d1d0032c9c68db6ab56d2e90526e925a994))
+* Update `webpack-cli` to v5 ([#2286](https://github.com/coinbase/rest-hooks/issues/2286)) ([ab5f7ef](https://github.com/coinbase/rest-hooks/commit/ab5f7ef18d52c7143dbd430b72ef316c75074c41))
+* Update all non-major dependencies ([#2278](https://github.com/coinbase/rest-hooks/issues/2278)) ([f3c52d4](https://github.com/coinbase/rest-hooks/commit/f3c52d4d290caee2197501f4b524bc509c18291e))
+* Update all non-major dependencies ([#2297](https://github.com/coinbase/rest-hooks/issues/2297)) ([0ee002c](https://github.com/coinbase/rest-hooks/commit/0ee002c0d02da44188f107105c3abff36d08dc8c))
+* Update all non-major dependencies ([#2336](https://github.com/coinbase/rest-hooks/issues/2336)) ([cedb54d](https://github.com/coinbase/rest-hooks/commit/cedb54d476ae6d7d19b472e1424bb60ca386be54))
+* Update babel packages ([#2308](https://github.com/coinbase/rest-hooks/issues/2308)) ([e3ee5ee](https://github.com/coinbase/rest-hooks/commit/e3ee5ee57431971ba4bdb47b48ed89933412374c))
+* Update babel packages ([#2339](https://github.com/coinbase/rest-hooks/issues/2339)) ([2cc99b9](https://github.com/coinbase/rest-hooks/commit/2cc99b99aeece58b0e7674ca80d3372555612c63))
+* Update linting packages ([#2296](https://github.com/coinbase/rest-hooks/issues/2296)) ([e510c40](https://github.com/coinbase/rest-hooks/commit/e510c409b16fc340de585fc6099b86239a3fbc43))
+* Update linting packages ([#2314](https://github.com/coinbase/rest-hooks/issues/2314)) ([7bd5bc8](https://github.com/coinbase/rest-hooks/commit/7bd5bc85b7c333fb7b33cc8b41bc225f1dd9dbf4))
+* Update linting packages ([#2327](https://github.com/coinbase/rest-hooks/issues/2327)) ([b14a0c7](https://github.com/coinbase/rest-hooks/commit/b14a0c7847985aaa1fc707bd09b0385aa76b497e))
+* Update linting packages ([#2333](https://github.com/coinbase/rest-hooks/issues/2333)) ([e622a3d](https://github.com/coinbase/rest-hooks/commit/e622a3d60d0c2d66b0ae53ce97ada9e76aad12c7))
+* Update linting packages ([#2341](https://github.com/coinbase/rest-hooks/issues/2341)) ([2b7efd5](https://github.com/coinbase/rest-hooks/commit/2b7efd578806b1aa81d4a6e27e80e69f4c277e5f))
+* Update linting packages to v5.43.0 ([#2281](https://github.com/coinbase/rest-hooks/issues/2281)) ([0353703](https://github.com/coinbase/rest-hooks/commit/0353703727347d9c550dfe2f25009fb2c3882cfb))
+* Update linting packages to v5.46.1 ([#2329](https://github.com/coinbase/rest-hooks/issues/2329)) ([d2928cb](https://github.com/coinbase/rest-hooks/commit/d2928cbb14e4278c8d591e85afec7c0d299bd0de))
+* Update webpack packages ([#2312](https://github.com/coinbase/rest-hooks/issues/2312)) ([5e367e3](https://github.com/coinbase/rest-hooks/commit/5e367e321d2ab587bbef5ddf90f49bed550630f3))
+* Update webpack packages ([#2323](https://github.com/coinbase/rest-hooks/issues/2323)) ([0429273](https://github.com/coinbase/rest-hooks/commit/0429273e771b7bc052350f5bd3f75c19ea0c1f9d))
+
+### 📝 Documentation
+
+* Add 7, 7.1 blog; new intro ([#2326](https://github.com/coinbase/rest-hooks/issues/2326)) ([b76c134](https://github.com/coinbase/rest-hooks/commit/b76c134cd8d0675c0eef7413ba3fddb6262443cb))
+
 ### [0.2.15](https://github.com/coinbase/rest-hooks/compare/todo-app@0.2.14...todo-app@0.2.15) (2022-11-16)
 
 **Note:** Version bump only for package todo-app

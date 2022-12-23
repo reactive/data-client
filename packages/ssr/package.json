@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/ssr",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Server Side Rendering helpers for Rest Hooks",
   "sideEffects": false,
   "main": "dist/index.js",

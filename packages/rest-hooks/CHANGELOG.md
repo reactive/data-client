@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.0.4](https://github.com/coinbase/rest-hooks/compare/rest-hooks@7.0.3...rest-hooks@7.0.4) (2022-12-23)
+
+### 📦 Package
+
+* Update babel packages ([#2339](https://github.com/coinbase/rest-hooks/issues/2339)) ([2cc99b9](https://github.com/coinbase/rest-hooks/commit/2cc99b99aeece58b0e7674ca80d3372555612c63))
+
+### 📝 Documentation
+
+* Add 7, 7.1 blog; new intro ([#2326](https://github.com/coinbase/rest-hooks/issues/2326)) ([b76c134](https://github.com/coinbase/rest-hooks/commit/b76c134cd8d0675c0eef7413ba3fddb6262443cb))
+* Updates to the docs ([#2335](https://github.com/coinbase/rest-hooks/issues/2335)) ([73c8d9f](https://github.com/coinbase/rest-hooks/commit/73c8d9f4b403412cd766955305461aa7d8ebb462))
+* Yet another docs change pr ([#2338](https://github.com/coinbase/rest-hooks/issues/2338)) ([52c2f83](https://github.com/coinbase/rest-hooks/commit/52c2f83d20106f8557ef8538a348c4bbac77dd53))
+
 ### [7.0.3](https://github.com/coinbase/rest-hooks/compare/rest-hooks@7.0.2...rest-hooks@7.0.3) (2022-12-06)
 
 ### 💅 Enhancement

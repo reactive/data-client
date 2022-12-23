@@ -1,6 +1,6 @@
 {
   "name": "todo-app",
-  "version": "0.2.15",
+  "version": "0.2.16",
   "description": "todo-app - A rest hooks example",
   "scripts": {
     "lint": "eslint src --ext .ts,.tsx",
@@ -56,9 +56,9 @@
     "webpack-dev-server": "4.11.1"
   },
   "dependencies": {
-    "@rest-hooks/endpoint": "^3.0.1",
-    "@rest-hooks/react": "^7.1.0",
-    "@rest-hooks/rest": "^6.2.0",
+    "@rest-hooks/endpoint": "^3.2.6",
+    "@rest-hooks/react": "^7.1.3",
+    "@rest-hooks/rest": "^6.2.4",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   }

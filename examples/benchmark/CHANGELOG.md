@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.4.3](https://github.com/coinbase/rest-hooks/compare/example-benchmark@0.4.2...example-benchmark@0.4.3) (2022-12-23)
+
+### 🚀 Features
+
+* Add ctrl.setResponse, ctrl.setError ([#2331](https://github.com/coinbase/rest-hooks/issues/2331)) ([46e3b63](https://github.com/coinbase/rest-hooks/commit/46e3b630dc66af54979eafbfc3c49847a4553f3f))
+
+### 📦 Package
+
+* Update all non-major dependencies ([#2310](https://github.com/coinbase/rest-hooks/issues/2310)) ([9490683](https://github.com/coinbase/rest-hooks/commit/9490683a702bb18f17eb3de42b83521c9f3209a4))
+* Update babel packages ([#2308](https://github.com/coinbase/rest-hooks/issues/2308)) ([e3ee5ee](https://github.com/coinbase/rest-hooks/commit/e3ee5ee57431971ba4bdb47b48ed89933412374c))
+* Update babel packages ([#2339](https://github.com/coinbase/rest-hooks/issues/2339)) ([2cc99b9](https://github.com/coinbase/rest-hooks/commit/2cc99b99aeece58b0e7674ca80d3372555612c63))
+
 ### [0.4.1](https://github.com/coinbase/rest-hooks/compare/example-benchmark@0.4.0...example-benchmark@0.4.1) (2022-10-01)
 
 ### 📦 Package
