@@ -3,12 +3,32 @@ title: Upgrading from 6 to 7
 ---
 import BeforeAfterTabs from '@site/src/components/BeforeAfterTabs';
 import PkgTabs from '@site/src/components/PkgTabs';
+import PkgInstall from '@site/src/components/PkgInstall';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 <PkgTabs pkgs="rest-hooks@7 @rest-hooks/react@6 @rest-hooks/redux@6 @rest-hooks/test@9" upgrade />
 
 [@rest-hooks/react](https://www.npmjs.com/package/@rest-hooks/react) is now a peerDependency
 so be sure to install it. The [rest-hooks](https://www.npmjs.com/package/rest-hooks) will eventually
 only proxy to exporting its members.
+
+For those on @rest-hooks/rest 3 or 4, you'll need to upgrade to the latest on that major release (3.1 or 4.1),
+then upgrade @rest-hooks/endpoint to 3.
+
+<Tabs
+defaultValue="4"
+values={[
+{ label: 'rest@4', value: '4' },
+{ label: 'rest@3', value: '3' },
+]}>
+<TabItem value="4">
+<PkgInstall pkgs="@rest-hooks/rest@4.1 @rest-hooks/endpoint@3" upgrade />
+</TabItem>
+<TabItem value="3">
+<PkgInstall pkgs="@rest-hooks/rest@3.1 @rest-hooks/endpoint@3" upgrade />
+</TabItem>
+</Tabs>
 
 ## Removals
 
