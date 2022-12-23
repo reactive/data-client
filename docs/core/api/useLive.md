@@ -66,8 +66,9 @@ export class ExchangeRates extends Entity {
 
 export const getExchangeRates = new RestEndpoint({
   urlPrefix: 'https://www.coinbase.com/api/v2',
-  path: '/exchange-rates\\?currency=:currency',
-  schema: { data: ExchangeRates },
+  path: '/exchange-rates',
+  searchParams: {} as { currency: string },
+  schema: { data: ExchangeRate },
   pollFrequency: 15000,
 });
 ```

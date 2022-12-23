@@ -32,7 +32,7 @@ const TodoResource = createResource({
 });
 ```
 
-```ts
+```ts title="Resources start with 6 Endpoints"
 const todo = useSuspense(TodoResource.get, { id: '5' });
 const todos = useSuspense(TodoResource.getList);
 controller.fetch(TodoResource.create, {
@@ -88,6 +88,14 @@ new endpoints based to match your API.
 - path: `path`
 - schema: [schema](./Entity.md)
 
+```typescript
+// GET //test.com/api/abc/xyz
+createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).get({
+  group: 'abc',
+  id: 'xyz',
+});
+```
+
 Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate)
 
 ### getList
@@ -100,6 +108,14 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
     createResource({ path: '/:first' }).getList.path === '/';
     ```
 - schema: [\[schema\]](./Array.md)
+
+```typescript
+// GET //test.com/api/abc?isExtra=xyz
+createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).getList({
+  group: 'abc',
+  isExtra: 'xyz',
+});
+```
 
 Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate)
 
@@ -114,6 +130,15 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
     ```
 - schema: `schema`
 
+```typescript
+// POST //test.com/api/abc
+// BODY { "title": "winning" }
+createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).create(
+  { group: 'abc' },
+  { title: 'winning' },
+);
+```
+
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### update
@@ -122,6 +147,15 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 - path: `path`
 - schema: `schema`
 
+```typescript
+// PUT //test.com/api/abc/xyz
+// BODY { "title": "winning" }
+createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).update(
+  { group: 'abc', id: 'xyz' },
+  { title: 'winning' },
+);
+```
+
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ### partialUpdate
@@ -129,6 +163,15 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 - method: 'PATCH'
 - path: `path`
 - schema: `schema`
+
+```typescript
+// PATCH //test.com/api/abc/xyz
+// BODY { "title": "winning" }
+createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).partialUpdate(
+  { group: 'abc', id: 'xyz' },
+  { title: 'winning' },
+);
+```
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
@@ -143,6 +186,14 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
     return value && Object.keys(value).length ? value : params;
   },
   ```
+
+```typescript
+// DELETE //test.com/api/abc/xyz
+createResource({ urlPrefix: '//test.com', path: '/api/:group/:id' }).delete({
+  group: 'abc',
+  id: 'xyz',
+});
+```
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 

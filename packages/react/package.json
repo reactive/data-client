@@ -106,6 +106,8 @@
     "android",
     "web",
     "middleware",
+    "websocket",
+    "sse",
     "declarative",
     "scalable"
   ],

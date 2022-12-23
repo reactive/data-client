@@ -4,7 +4,7 @@ sidebar_label: Define API
 ---
 
 <head>
-  <title>Define API for Rest Hooks</title>
+  <title>Defining Asynchronous Methods for Rest Hooks</title>
 </head>
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -15,7 +15,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import ProtocolTabs from '@site/src/components/ProtocolTabs';
 import PkgInstall from '@site/src/components/PkgInstall';
 
-`Endpoints` are the _methods_ of your data. `Schemas` define the data model. `Resources` are
+[Endpoints](/rest/api/RestEndpoint) are the _methods_ of your data. [Schemas](../concepts/normalization.md) define the data model. [Resources](/rest/api/createResource) are
 a collection of `endpoints` around one `schema`.
 
 <Tabs
@@ -24,8 +24,7 @@ groupId="protocol"
 values={[
 { label: 'Rest', value: 'rest' },
 { label: 'GraphQL', value: 'gql' },
-]}
->
+]}>
 <TabItem value="rest">
 
   <PkgInstall pkgs="@rest-hooks/rest" />
@@ -51,6 +50,25 @@ export const TodoResource = new createResource({
 });
 ```
 
+<details><summary><b>6 Resource Endpoints</b></summary>
+
+```typescript
+// GET https://jsonplaceholder.typicode.com/todos/5
+TodoResource.get({ id: 5 });
+// GET https://jsonplaceholder.typicode.com/todos
+TodoResource.getList();
+// POST https://jsonplaceholder.typicode.com/todos
+TodoResource.create({ title: 'my todo' });
+// PUT https://jsonplaceholder.typicode.com/todos/5
+TodoResource.update({ id: 5 }, { title: 'my todo' });
+// PATCH https://jsonplaceholder.typicode.com/todos/5
+TodoResource.partialUpdate({ id: 5 }, { title: 'my todo' });
+// DELETE https://jsonplaceholder.typicode.com/todos/5
+TodoResource.delete({ id: 5 });
+```
+
+</details>
+
   </TabItem>
   <TabItem value="gql">
 
@@ -66,8 +84,9 @@ export class Todo extends GQLEntity {
   readonly completed: boolean = false;
 }
 
-export const todoList = gql.query(
-  `
+export const TodoResource = {
+  getList: gql.query(
+    `
   query GetTodos {
     todo {
       id
@@ -76,25 +95,23 @@ export const todoList = gql.query(
     }
   }
 `,
-  { todos: [Todo] },
-);
-
-export const updateTodo = gql.mutation(
-  `mutation UpdateTodo($todo: Todo!) {
+    { todos: [Todo] },
+  ),
+  update: gql.mutation(
+    `mutation UpdateTodo($todo: Todo!) {
     updateTodo(todo: $todo) {
       id
       title
       completed
     }
   }`,
-  { updateTodo: Todo },
-);
+    { updateTodo: Todo },
+  ),
+};
 ```
 
   </TabItem>
-
 </Tabs>
-
 
 <!--
   <TabItem value="sse">

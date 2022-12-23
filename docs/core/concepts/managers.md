@@ -19,6 +19,16 @@ like automatic fetch deduplication, polling fetch coordinating eliminating many 
 
 It also means Rest Hooks behavior can be arbitrarily customized by writing your own Managers.
 
+## Default managers
+
+- [NetworkManager](../api/NetworkManager.md)
+- [SubscriptionManager](../api/SubscriptionManager.md)
+- [DevToolsManager](../api/DevToolsManager.md)
+
+## Extra managers
+
+- [LogoutManager](../api/LogoutManager.md)
+
 ## Examples
 
 ### Middleware logging

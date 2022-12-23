@@ -172,34 +172,35 @@ export class Todo extends GQLEntity {
   readonly completed: boolean = false;
 }
 
-export const getTodo = gql.query(\`
-  query GetTodo($id: ID!) {
-    todo(id: $id) {
-      id
-      title
-      completed
+export const TodoResource = {
+  get: gql.query(\`
+    query GetTodo($id: ID!) {
+      todo(id: $id) {
+        id
+        title
+        completed
+      }
     }
-  }
-\`, { todo: Todo });
-
-export const updateTodo = gql.mutation(
-  \`mutation UpdateTodo($todo: Todo!) {
-    updateTodo(todo: $todo) {
-      id
-      title
-      completed
-    }
-  }\`,
-  { updateTodo: Todo },
-);`,
-    code: `import { getTodo, updateTodo } from './api';
+  \`, { todo: Todo }),
+  update: gql.mutation(
+    \`mutation UpdateTodo($todo: Todo!) {
+      updateTodo(todo: $todo) {
+        id
+        title
+        completed
+      }
+    }\`,
+    { updateTodo: Todo },
+  ),
+}`,
+    code: `import { TodoResource } from './api';
 
 function TodoDetail({ id }: { id: number }) {
-  const { todo } = useSuspense(getTodo, { id });
+  const { todo } = useSuspense(TodoResource.get, { id });
   const controller = useController();
   const updateWith = title => () =>
     controller.fetch(
-      updateTodo,
+      TodoResource.update,
       { todo: { id, title } }
     );
   return (
@@ -332,27 +333,37 @@ export class Todo extends GQLEntity {
   readonly completed: boolean = false;
 }
 
-export const todoList = gql.query(\`
-  query GetTodos {
-    todo {
-      id
-      title
-      completed
+export const TodoResource = {
+  get: gql.query(\`
+    query GetTodo($id: ID!) {
+      todo(id: $id) {
+        id
+        title
+        completed
+      }
     }
-  }
-\`, { todos: [Todo] });
-
-export const updateTodo = gql.mutation(
-  \`mutation UpdateTodo($todo: Todo!) {
-    updateTodo(todo: $todo) {
-      id
-      title
-      completed
+  \`, { todo: Todo }),
+  getList: gql.query(\`
+    query GetTodos {
+      todo {
+        id
+        title
+        completed
+      }
     }
-  }\`,
-  { updateTodo: Todo },
-);`,
-    code: `import { todoList, updateTodo, Todo } from './api';
+  \`, { todos: [Todo] }),
+  update: gql.mutation(
+    \`mutation UpdateTodo($todo: Todo!) {
+      updateTodo(todo: $todo) {
+        id
+        title
+        completed
+      }
+    }\`,
+    { updateTodo: Todo },
+  ),
+};`,
+    code: `import { TodoResource, Todo } from './api';
 
 function TodoItem({ todo }: { todo: Todo }) {
   const controller = useController();
@@ -363,7 +374,7 @@ function TodoItem({ todo }: { todo: Todo }) {
           type="checkbox"
           checked={todo.completed}
           onChange={e =>
-            controller.fetch(updateTodo, {
+            controller.fetch(TodoResource.update, {
               todo: { id: todo.id, completed: e.currentTarget.checked },
             })
           }
@@ -375,7 +386,7 @@ function TodoItem({ todo }: { todo: Todo }) {
 }
 
 function TodoList() {
-  const { todos } = useSuspense(todoList, {});
+  const { todos } = useSuspense(TodoResource.getList, {});
   return (
     <div>
       {todos.map(todo => (
@@ -427,10 +438,9 @@ const Demo = props => (
             to update the store.
           </p>
           <p>
-            Rest Hooks ensures data consistency and integrity globally. Every
-            piece of data maintains referential stability unless it changes.
-            This ensures the most optimized render performance, as well as
-            predictable equality checks.
+            This updates <strong>all</strong> usages <em>atomically</em> and{' '}
+            <em>immediately</em> with zero additional fetches. Rest Hooks
+            automatically ensures data consistency and integrity globally.
           </p>
         </div>
       </div>
@@ -450,6 +460,11 @@ const Demo = props => (
             Rest Hooks uses{' '}
             <Link to="/docs/concepts/normalization">data normalization</Link> to
             maintain consistency no matter how and where the data is consumed.
+          </p>
+          <p>
+            Every piece of data maintains referential stability unless it
+            changes. This ensures the most optimized render performance, as well
+            as predictable equality checks.
           </p>
           <p>
             Rest easy with the help of{' '}

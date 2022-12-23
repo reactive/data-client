@@ -2,7 +2,7 @@
   "name": "@rest-hooks/normalizr",
   "version": "9.3.3",
   "description": "Normalizes and denormalizes JSON according to schema for Redux and Flux applications",
-  "homepage": "https://resthooks.io/rest/api/schema",
+  "homepage": "https://resthooks.io/docs/concepts/normalization",
   "bugs": {
     "url": "https://github.com/coinbase/rest-hooks/issues"
   },
@@ -23,6 +23,10 @@
     "ios",
     "android",
     "web",
+    "schema",
+    "typescript",
+    "validation",
+    "relational",
     "json"
   ],
   "files": [
@@ -109,7 +113,6 @@
     "rollup-plugin-terser": "^7.0.2"
   },
   "dependencies": {
-    "@babel/runtime": "^7.17.0",
-    "npm-run-all": "^4.1.5"
+    "@babel/runtime": "^7.17.0"
   }
 }

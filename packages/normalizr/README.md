@@ -1,4 +1,5 @@
 # normalizr
+
 [![CircleCI](https://circleci.com/gh/coinbase/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/coinbase/rest-hooks)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/coinbase/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/coinbase/rest-hooks?branch=master)
 [![npm version](https://img.shields.io/npm/v/@rest-hooks/normalizr.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/normalizr) [![npm downloads](https://img.shields.io/npm/dm/@rest-hooks/normalizr.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/normalizr)
@@ -25,19 +26,18 @@ Normalizr is a small, but powerful utility for taking JSON with a schema definit
 
 ## Documentation
 
-* [Introduction](./docs/README.md)
-  * [Build Files](./docs/README.md#build-files)
-* [Quick Start](https://resthooks.io/docs/api/schema)
-* [API](https://resthooks.io/docs/api/Entity)
-  * [normalize](./docs/api.md#normalizedata-schema)
-  * [denormalize](./docs/api.md#denormalizeinput-schema-entities)
-  * [schema](https://resthooks.io/docs/api/schema)
+- [Introduction](https://resthooks.io/docs/concepts/normalization)
+- [Quick Start](https://resthooks.io/rest/api/schema)
+- [API](https://resthooks.io/rest/api/Entity)
+  - [normalize](./docs/api.md#normalizedata-schema)
+  - [denormalize](./docs/api.md#denormalizeinput-schema-entities)
+  - [schema](https://resthooks.io/rest/api/schema)
 
 ## Examples
 
-* [Normalizing GitHub Issues](/examples/normalizr-github)
-* [Relational Data](/examples/normalizr-relationships)
-* [Interactive Redux](/examples/normalizr-redux)
+- [Normalizing GitHub Issues](/examples/normalizr-github)
+- [Relational Data](/examples/normalizr-relationships)
+- [Interactive Redux](/examples/normalizr-redux)
 
 ## Quick Start
 
@@ -70,26 +70,32 @@ import { normalize, schema, Entity } from '@rest-hooks/normalizr';
 
 // Define a users schema
 class User extends Entity {
-  pk() { return this.id }
+  pk() {
+    return this.id;
+  }
 }
 
 // Define your comments schema
 class Comment extends Entity {
-  pk() { return this.id }
+  pk() {
+    return this.id;
+  }
 
   static schema = {
     commenter: User,
-  }
+  };
 }
 
 // Define your article
 class Article extends Entity {
-  pk() { return this.id }
+  pk() {
+    return this.id;
+  }
 
   static schema = {
-  author: User,
-  comments: [Comment]
-  }
+    author: User,
+    comments: [Comment],
+  };
 }
 
 const normalizedData = normalize(originalData, Article);

@@ -8,9 +8,9 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
-Asynchronous dynamic data at scale. Performance, data integrity, and typing for [REST](https://resthooks.io/rest), proto, [GraphQL](https://resthooks.io/graphql), [websockets](https://resthooks.io/docs/api/Manager#middleware-data-stream) and [more](https://resthooks.io/docs/guides/img-media).
+Define your [async methods](https://resthooks.io/docs/getting-started/endpoint ). Use them [synchronously in React](https://resthooks.io/docs/getting-started/data-dependency). [Instantly mutate](https://resthooks.io/docs/getting-started/mutations) the data and automatically update all usages.
 
-Bring structure to your React State.
+For [REST](https://resthooks.io/rest), [GraphQL](https://resthooks.io/graphql), [Websockets+SSE](https://resthooks.io/docs/api/Manager#middleware-data-stream) and [more](https://resthooks.io/docs/guides/img-media)
 
 <div align="center">
 
