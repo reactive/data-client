@@ -11122,7 +11122,7 @@ __metadata:
     react-refresh: 0.14.0
     rehype-highlight: 6.0.0
     remark-gfm: ^3.0.1
-    remark-remove-comments: ^0.2.0
+    remark-remove-comments: ^1.0.0
     rollup: 2.79.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
@@ -19689,13 +19689,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-remove-comments@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "remark-remove-comments@npm:0.2.0"
+"remark-remove-comments@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "remark-remove-comments@npm:1.0.0"
   dependencies:
     html-comment-regex: ^1.1.2
-    unist-util-visit: ^2.0.3
-  checksum: 9c70e62d22f04fb69ea512c6bce19712410f10c253c08be75a998012d73234579bef07f24e11053dbb3d7ebfe50143221a5cb6be813dc33414e15ad70be715e9
+    unist-util-visit: ^4.1.1
+  checksum: 6f865671f9352b0ad937f16e818393e369de07eaccb716268d924087ca6bc108e5f6f4bbdcaa5d236e7bfa00b93aa0f4903bfdf51e534067dd6ddf94d04bde77
   languageName: node
   linkType: hard
 
@@ -22407,13 +22407,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unist-util-is@npm:^4.0.0":
-  version: 4.1.0
-  resolution: "unist-util-is@npm:4.1.0"
-  checksum: 726484cd2adc9be75a939aeedd48720f88294899c2e4a3143da413ae593f2b28037570730d5cf5fd910ff41f3bc1501e3d636b6814c478d71126581ef695f7ea
-  languageName: node
-  linkType: hard
-
 "unist-util-is@npm:^5.0.0":
   version: 5.1.1
   resolution: "unist-util-is@npm:5.1.1"
@@ -22437,16 +22430,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unist-util-visit-parents@npm:^3.0.0":
-  version: 3.1.1
-  resolution: "unist-util-visit-parents@npm:3.1.1"
-  dependencies:
-    "@types/unist": ^2.0.0
-    unist-util-is: ^4.0.0
-  checksum: 1170e397dff88fab01e76d5154981666eb0291019d2462cff7a2961a3e76d3533b42eaa16b5b7e2d41ad42a5ea7d112301458283d255993e660511387bf67bc3
-  languageName: node
-  linkType: hard
-
 "unist-util-visit-parents@npm:^4.0.0":
   version: 4.1.1
   resolution: "unist-util-visit-parents@npm:4.1.1"
@@ -22457,24 +22440,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unist-util-visit-parents@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "unist-util-visit-parents@npm:5.0.0"
+"unist-util-visit-parents@npm:^5.0.0, unist-util-visit-parents@npm:^5.1.1":
+  version: 5.1.1
+  resolution: "unist-util-visit-parents@npm:5.1.1"
   dependencies:
     "@types/unist": ^2.0.0
     unist-util-is: ^5.0.0
-  checksum: 867bc66748c7b03f687ef111dee72b188024cefe375f612d05c1e64dcbf053109fae1aefe4bf253dc780811a484117c488458d8f87ef0b338ccccc647f66c653
-  languageName: node
-  linkType: hard
-
-"unist-util-visit@npm:^2.0.3":
-  version: 2.0.3
-  resolution: "unist-util-visit@npm:2.0.3"
-  dependencies:
-    "@types/unist": ^2.0.0
-    unist-util-is: ^4.0.0
-    unist-util-visit-parents: ^3.0.0
-  checksum: 1fe19d500e212128f96d8c3cfa3312846e586b797748a1fd195fe6479f06bc90a6f6904deb08eefc00dd58e83a1c8a32fb8677252d2273ad7a5e624525b69b8f
+  checksum: c699d18f5b26461dee37612b84c243fd5457c98f4c0540d9ba8bee05062aece5f3b4fb1af6b07423ce6750d8926e8c01fc2b1a4de1e54925ef6795c177ed8e18
   languageName: node
   linkType: hard
 
@@ -22489,14 +22461,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unist-util-visit@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "unist-util-visit@npm:4.0.0"
+"unist-util-visit@npm:^4.0.0, unist-util-visit@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "unist-util-visit@npm:4.1.1"
   dependencies:
     "@types/unist": ^2.0.0
     unist-util-is: ^5.0.0
-    unist-util-visit-parents: ^5.0.0
-  checksum: 398ae7e45d6ecb16dcecc10e0e1d0e9f203ef330a17497b948e0fd733bb91a90f8516644046e6fc46f9de6d75dbc613122f11e8aff004b7d50029c88eea5916b
+    unist-util-visit-parents: ^5.1.1
+  checksum: c4a63734b0a5b439c62d20901bb472bdafdbbcd80c383e254aedeb98b23d0bae815a331e776ce7d63ea3c8018a54318abb8709d07cdf7dd094f79b2f07bb39f0
   languageName: node
   linkType: hard
 
