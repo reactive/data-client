@@ -32,7 +32,7 @@
     "@linaria/shaker": "4.2.6",
     "@types/eslint": "8.4.10",
     "@types/prettier": "2.7.2",
-    "@types/react-dom": "18.0.9",
+    "@types/react-dom": "18.0.10",
     "@typescript-eslint/eslint-plugin": "5.47.1",
     "@typescript-eslint/parser": "5.47.1",
     "eslint": "8.30.0",
