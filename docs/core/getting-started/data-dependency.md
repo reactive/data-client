@@ -325,8 +325,8 @@ export const TodoResource = createResource({
 
 <HooksPlayground defaultOpen="n">
 
-```typescript title="api/ExchangeRate.ts" {14}
-export class ExchangeRate extends Entity {
+```typescript title="api/ExchangeRates.ts" {14}
+export class ExchangeRates extends Entity {
   readonly currency: string = 'USD';
   readonly rates: Record<string, string> = {};
 
@@ -338,14 +338,14 @@ export const getExchangeRates = new RestEndpoint({
   urlPrefix: 'https://www.coinbase.com/api/v2',
   path: '/exchange-rates',
   searchParams: {} as { currency: string },
-  schema: { data: ExchangeRate },
+  schema: { data: ExchangeRates },
   pollFrequency: 15000,
 });
 ```
 
 ```tsx title="AssetPrice.tsx" {5}
 import { useLive } from '@rest-hooks/react';
-import { getExchangeRates } from './api/ExchangeRate';
+import { getExchangeRates } from './api/ExchangeRates';
 
 function AssetPrice({ symbol }: { symbol: string }) {
   const { data: price } = useLive(getExchangeRates, { currency: 'USD' });

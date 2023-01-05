@@ -68,7 +68,7 @@ export const getExchangeRates = new RestEndpoint({
   urlPrefix: 'https://www.coinbase.com/api/v2',
   path: '/exchange-rates',
   searchParams: {} as { currency: string },
-  schema: { data: ExchangeRate },
+  schema: { data: ExchangeRates },
   pollFrequency: 15000,
 });
 ```
