@@ -124,6 +124,5 @@ export const paginatedFirstPage = {
 };
 
 export const paginatedSecondPage = {
-  nextPage: null,
   data: { results: moreNested },
 };

@@ -230,12 +230,14 @@ describe('RestEndpoint', () => {
     () => result.current.fetch(getNextPage);
     // @ts-expect-error
     () => result.current.fetch(getNextPage, { fake: 5 });
+    expect(result.current.nextPage).toEqual(paginatedFirstPage.nextPage);
     await act(async () => {
       await result.current.fetch(getNextPage, {
-        cursor: 2,
+        cursor: result.current.nextPage,
       });
     });
     expect(result.current.articles.map(({ id }) => id)).toEqual([5, 3, 7, 8]);
+    expect(result.current.nextPage).toBeUndefined();
   });
 
   it('should update on get for a paginated resource with parameter in path', async () => {
