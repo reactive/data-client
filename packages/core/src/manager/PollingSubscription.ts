@@ -1,10 +1,10 @@
-import type { Schema } from '@rest-hooks/normalizr';
+import type { EndpointInterface, Schema } from '@rest-hooks/normalizr';
 
+import createFetch from '../controller/createFetch.js';
+import type { State, Dispatch } from '../types.js';
 import ConnectionListener from './ConnectionListener.js';
 import DefaultConnectionListener from './DefaultConnectionListener.js';
 import { Subscription, SubscriptionInit } from './SubscriptionManager.js';
-import { FETCH_TYPE } from '../actionTypes.js';
-import type { State, Dispatch } from '../types.js';
 
 /**
  * PollingSubscription keeps a given resource updated by
@@ -123,25 +123,16 @@ export default class PollingSubscription implements Subscription {
 
   /** Trigger request for latest resource */
   protected update() {
-    this.dispatch({
-      type: FETCH_TYPE,
-      payload: this.fetch,
-      meta: {
-        schema: this.schema,
-        key: this.key,
-        type: 'read',
-        throttle: true,
-        options: {
-          dataExpiryLength: this.frequency / 2,
-          errorExpiryLength: this.frequency / 10,
-          // never break when data already exists
-          errorPolicy: () => 'soft' as const,
-        },
-        createdAt: new Date(),
-        resolve: () => {},
-        reject: () => {},
-      },
-    });
+    const endpoint: EndpointInterface = () => this.fetch();
+    (endpoint as any).schema = this.schema;
+    endpoint.key = () => this.key;
+    (endpoint as any).dataExpiryLength = this.frequency / 2;
+    (endpoint as any).errorExpiryLength = this.frequency / 10;
+    endpoint.errorPolicy = () => 'soft' as const;
+    const action = createFetch(endpoint, { args: [] });
+    // stop any errors here from bubbling
+    (action.meta.promise as Promise<any>).catch(e => null);
+    this.dispatch(action);
   }
 
   /** What happens when browser goes offline */
