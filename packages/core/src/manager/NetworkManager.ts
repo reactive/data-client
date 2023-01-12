@@ -214,6 +214,7 @@ export default class NetworkManager implements Manager {
                 fetchedAt: createdAt,
               });
             } else {
+              // TODO(breaking): is this branch still possible? remove in next major update
               // does this throw if the reducer fails? - no because reducer is wrapped in try/catch
               this.controller.dispatch(
                 createReceive(data, {
