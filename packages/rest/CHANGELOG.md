@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.2.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.2.4...@rest-hooks/rest@6.2.5) (2023-01-12)
+
+### 🐛 Bug Fix
+
+* body type specified in RestEndpoint constructor ([#2355](https://github.com/coinbase/rest-hooks/issues/2355)) ([3caabee](https://github.com/coinbase/rest-hooks/commit/3caabeee0b573d1352bb218662e384c0d35344b6))
+* paginated() should replace all results to ensure updated cursor ([#2354](https://github.com/coinbase/rest-hooks/issues/2354)) ([95c9653](https://github.com/coinbase/rest-hooks/commit/95c96537a2eab29bec572b10bd1a243407fc6296))
+
+### 📦 Package
+
+* Update babel packages ([#2348](https://github.com/coinbase/rest-hooks/issues/2348)) ([5d0a68e](https://github.com/coinbase/rest-hooks/commit/5d0a68ea00b021effeae185fcdea415cf50c0328))
+
 ### [6.2.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.2.3...@rest-hooks/rest@6.2.4) (2022-12-23)
 
 ### 📦 Package

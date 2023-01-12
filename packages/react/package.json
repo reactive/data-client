@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/react",
-  "version": "7.1.3",
+  "version": "7.1.4",
   "description": "Synchronous state management for async data. Safe. Fast. Resuable.",
   "sideEffects": [
     "./lib/hooks/useFocusEffect.native.js"
@@ -124,8 +124,8 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@rest-hooks/core": "^4.1.3",
-    "@rest-hooks/use-enhanced-reducer": "^1.2.2"
+    "@rest-hooks/core": "^4.1.4",
+    "@rest-hooks/use-enhanced-reducer": "^1.2.3"
   },
   "peerDependencies": {
     "@react-navigation/native": "^6.0.0",
