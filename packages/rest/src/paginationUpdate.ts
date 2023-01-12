@@ -22,7 +22,7 @@ export default function paginationUpdate<
         (pk: string) => !existingSet.has(pk),
       );
       const mergedResults: string[] = [...existingList, ...addedList];
-      return setIn(existing, path, mergedResults);
+      return setIn(newPage, path, mergedResults);
     },
   });
 }
