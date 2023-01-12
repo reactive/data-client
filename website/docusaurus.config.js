@@ -217,12 +217,16 @@ module.exports = {
       '@docusaurus/plugin-client-redirects',
       {
         createRedirects(existingPath) {
-          if (existingPath.includes('/rest')) {
+          if (existingPath.includes('5.0')) return undefined;
+          if (
+            existingPath.includes('/rest/') &&
+            existingPath !== '/rest/guides/abort' // this path exists for both, so do not redirect
+          ) {
             return [
               existingPath.replace('/rest', '/docs/rest'),
               existingPath.replace('/rest', '/docs'),
             ];
-          } else if (existingPath.includes('/graphql')) {
+          } else if (existingPath.includes('/graphql/')) {
             return [existingPath.replace('/graphql', '/docs/graphql')];
           }
           return undefined;
@@ -275,13 +279,21 @@ module.exports = {
             from: [
               '/rest/api/resource',
               '/rest/api/BaseResource',
-              '/docs/guides/resource-types',
               '/rest/guides/rest-types',
+              '/docs/api/resource',
+              '/docs/api/BaseResource',
+              '/docs/guides/rest-types',
+              '/docs/guides/resource-types',
             ],
           },
           {
             to: '/rest/api/RestEndpoint',
-            from: ['/rest/guides/extending-endpoints', '/docs/guides/url'],
+            from: [
+              '/rest/guides/extending-endpoints',
+              '/docs/guides/extending-endpoints',
+              '/docs/guides/url',
+              '/docs/guides/endpoints',
+            ],
           },
           {
             to: '/rest/api/hookifyResource',
@@ -301,11 +313,11 @@ module.exports = {
           },
           {
             to: '/rest',
-            from: ['/rest/usage'],
+            from: ['/rest/usage', '/docs/rest'],
           },
           {
             to: '/graphql',
-            from: ['/graphql/usage'],
+            from: ['/graphql/usage', '/docs/graphql'],
           },
         ],
       },

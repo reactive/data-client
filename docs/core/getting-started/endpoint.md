@@ -1,10 +1,10 @@
 ---
-title: Define API Endpoints
-sidebar_label: Define API
+title: Define Async Methods (Endpoints)
+sidebar_label: Define Methods
 ---
 
 <head>
-  <title>Defining Asynchronous Methods for Rest Hooks</title>
+  <title>Defining Asynchronous Methods (Endpoints) for Rest Hooks</title>
 </head>
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -15,7 +15,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import ProtocolTabs from '@site/src/components/ProtocolTabs';
 import PkgInstall from '@site/src/components/PkgInstall';
 
-[Endpoints](/rest/api/RestEndpoint) are the _methods_ of your data. [Schemas](../concepts/normalization.md) define the data model. [Resources](/rest/api/createResource) are
+[Endpoints](/rest/api/RestEndpoint) are the [_methods_](https://en.wikipedia.org/wiki/Method_(computer_programming)) of your data. [Schemas](../concepts/normalization.md) define the data model. [Resources](/rest/api/createResource) are
 a collection of `endpoints` around one `schema`.
 
 <Tabs

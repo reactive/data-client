@@ -1,13 +1,14 @@
+import Editor, { useMonaco, type OnMount } from '@monaco-editor/react';
+import type { languages } from 'monaco-editor';
 import React, {
   memo,
+  useMemo,
   useCallback,
   useState,
   useEffect,
   useRef,
   MutableRefObject,
 } from 'react';
-import Editor, { useMonaco, type OnMount } from '@monaco-editor/react';
-import type { languages } from 'monaco-editor';
 import { LiveEditor } from 'react-live';
 
 import './monaco-init';
@@ -19,21 +20,24 @@ export default function PlaygroundMonacoEditor({
   code,
   path,
   autoFocus = false,
+  large = false,
   ...rest
 }) {
+  const editorOptions = large ? largeOptions : options;
+
   //const isBrowser = useIsBrowser(); we used to key Editor on this; but I'm not sure why
 
   if (!path.endsWith('.tsx') && !path.endsWith('.ts')) {
     path = path + '.tsx';
   }
-  const handleChange = useWorkerCB(
+  /*const handleChange = useWorkerCB(
     tsWorker => {
       tsWorker.getEmitOutput(`file:///${path}`).then(source => {
         onChange(source.outputFiles[0].text);
       });
     },
     [onChange, path],
-  );
+  );*/
   const [height, setHeight] = useState<string | number>('100%');
   const handleMount: OnMount = useCallback(editor => {
     // autofocus
@@ -57,7 +61,7 @@ export default function PlaygroundMonacoEditor({
     }
 
     // autoheight
-    const LINE_HEIGHT = 19;
+    const LINE_HEIGHT = editorOptions.lineHeight;
     const CONTAINER_GUTTER = 10;
 
     const el = editor.getDomNode();
@@ -94,7 +98,7 @@ export default function PlaygroundMonacoEditor({
       onChange={onChange}
       defaultValue={code}
       //value={code}
-      options={options}
+      options={editorOptions}
       theme="prism"
       onMount={handleMount}
       height={height}
@@ -118,11 +122,17 @@ const options = {
   fontLigatures: true,
   fontFamily:
     '"Roboto Mono",SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace',
-  fontSize: '13px',
+  fontSize: 13,
   lineHeight: 19,
 } as const;
 
-function useMonacoWorker(
+const largeOptions = {
+  ...options,
+  fontSize: 14,
+  lineHeight: 20,
+};
+
+/*function useMonacoWorker(
   callback: (worker: languages.typescript.TypeScriptWorker) => void,
 ): MutableRefObject<languages.typescript.TypeScriptWorker | undefined> {
   const monaco = useMonaco();
@@ -151,3 +161,4 @@ function useWorkerCB(
     callback(tsWorkerRef.current);
   }, deps);
 }
+*/

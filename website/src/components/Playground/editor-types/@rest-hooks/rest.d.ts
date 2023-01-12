@@ -1143,7 +1143,7 @@ type RestFetch<
   // eslint-disable-next-line @typescript-eslint/ban-types
   Body = {},
   Resolve = any,
-> = Body extends Record<string, unknown>
+> = Body extends {}
   ? ParamFetchWithBody<UrlParams, Body, Resolve>
   : ParamFetchNoBody<UrlParams, Resolve>;
 

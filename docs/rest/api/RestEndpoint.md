@@ -10,6 +10,7 @@ description: Strongly typed path-based API definitions.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 `RestEndpoints` are for [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP) based protocols like REST.
 
@@ -113,7 +114,7 @@ export class Todo extends Entity {
 }
 
 const getTodo = new RestEndpoint({
-  urlPrefix: 'https://jsonplaceholder.typicode.com'
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
 });
@@ -133,6 +134,7 @@ Using a [Schema](./schema.md) enables automatic data consistency without the nee
 
 [schema](#schema) determines the return value when used with data-binding hooks like [useSuspense](/docs/api/useSuspense), [useDLE](/docs/api/useDLE) or [useCache](/docs/api/useCache)
 
+
 ```ts
 const get = new RestEndpoint({ path: '/', schema: Todo });
 // todo is Todo
@@ -143,50 +145,68 @@ const todo = useSuspense(get);
 when use with [Controller.fetch](/docs/api/Controller#fetch). Otherwise this will be 'any' to
 ensure compatibility.
 
-```ts
+<TypeScriptEditor>
+
+```ts path="process.ts"
 interface TodoInterface {
   title: string;
   completed: boolean;
 }
-const get = new RestEndpoint({
+const getTodo = new RestEndpoint({
   path: '/',
   process(value): TodoInterface {
     return value;
   },
 });
-// todo is TodoInterface
-const todo = await get();
-const todo2 = await controller.fetch(get);
+async () => {
+  // todo is TodoInterface
+  const todo = await getTodo();
+
+  const ctrl = useController();
+  const todo2 = await ctrl.fetch(getTodo);
+}
 ```
+
+</TypeScriptEditor>
 
 #### Function Parameters
 
 [path](#path) used to construct the url determines the type of the first argument. If it has no patterns,
 then the 'first' argument is skipped.
 
+<TypeScriptEditor>
+
 ```ts
-const get = new RestEndpoint({ path: '/' });
-get();
+const getRoot = new RestEndpoint({ path: '/' });
+getRoot();
 const getById = new RestEndpoint({ path: '/:id' });
 // both number and string types work as they are serialized into strings to construct the url
 getById({ id: 5 });
 getById({ id: '5' });
 ```
 
+</TypeScriptEditor>
+
 [method](#method) determines whether there is a second argument to be sent as the [body](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#body).
 
-```ts
-const update = new RestEndpoint({ path: '/:id', method: 'PUT' });
+<TypeScriptEditor>
+
+```ts path=method.ts
+export const update = new RestEndpoint({ path: '/:id', method: 'PUT' });
 update({ id: 5 }, { title: 'updated', completed: true });
 ```
+
+</TypeScriptEditor>
 
 However, this is typed as 'any' so it won't catch typos.
 
 `body` can be used to type the argument after the url parameters. It is only used for typing so the
 value sent does not matter. `undefined` value can be used to 'disable' the second argument.
 
-```ts
-const update = new RestEndpoint({
+<TypeScriptEditor>
+
+```ts path=body.ts
+export const update = new RestEndpoint({
   path: '/:id',
   method: 'PUT',
   body: {} as TodoInterface,
@@ -201,8 +221,11 @@ const rpc = new RestEndpoint({
 rpc({ id: 5 });
 ```
 
+</TypeScriptEditor>
+
 `searchParams` can be used in a similar way to `body` to specify types extra parameters, used
 for the GET/searchParams/queryParams in a [url()](#url).
+
 
 ```ts
 const getList = getUser.extend({

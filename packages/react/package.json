@@ -1,7 +1,7 @@
 {
   "name": "@rest-hooks/react",
   "version": "7.1.3",
-  "description": "Asynchronous data framework for React",
+  "description": "Synchronous state management for async data. Safe. Fast. Resuable.",
   "sideEffects": [
     "./lib/hooks/useFocusEffect.native.js"
   ],

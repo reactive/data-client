@@ -20,7 +20,7 @@ const ProjectTitle = () => {
       <div className={styles.logoWrapper}>
         <ThemedImage
           sources={sources}
-          alt="Rest Hooks - The Relational Date Client for React"
+          alt="Rest Hooks - The Relational Data Client for React"
           height={90}
           width={416}
         />
@@ -69,7 +69,7 @@ export default function Home() {
   return (
     <Layout
       title={`Async State Management for React`}
-      description="Making dynamic sites performant, scalable, simple to build with any API design. ...all typed ...fast ...and consistent"
+      description="Synchronous state management for async data. Safe. Fast. Resuable."
     >
       <HomepageHeader />
       <main>

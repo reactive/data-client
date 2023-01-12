@@ -8,6 +8,15 @@
   flex-direction: column;
   background-color: var(--ifm-background-color);
 }
+.playgroundContainer.standaloneEditor {
+  --ifm-code-font-size: 14.4px;
+}
+.playgroundContainer.row.standaloneEditor > :last-child {
+  overflow: visible;
+}
+.playgroundContainer:not(.row).standaloneEditor > :last-child {
+  overflow: visible;
+}
 .playgroundContainer .playgroundHeader.tabControls:first-of-type {
   border-top-left-radius: var(--ifm-global-radius);
   overflow: hidden;
@@ -92,6 +101,10 @@ div > .playgroundHeader.subtabs {
   direction: ltr;
   height: 100%;
   padding-top: 8px;
+}
+.playgroundContainer.standaloneEditor .playgroundEditor {
+  padding-top: 12.8px;
+  padding-left: 2.8px;
 }
 .playgroundEditor :global(.prism-code) {
   border-radius: 0;

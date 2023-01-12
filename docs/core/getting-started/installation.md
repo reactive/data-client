@@ -3,6 +3,10 @@ id: installation
 title: Installation
 ---
 
+<head>
+  <title>Getting Started with Rest Hooks</title>
+</head>
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';

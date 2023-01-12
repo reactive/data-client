@@ -1,20 +1,20 @@
 import {
+  useScrollPositionBlocker,
+  useTabGroupChoice,
+} from '@docusaurus/theme-common/internal';
+import { FixtureEndpoint, MockResolver } from '@rest-hooks/test';
+import clsx from 'clsx';
+import React, { memo, useCallback, useState, useMemo, lazy } from 'react';
+import {
   CacheProvider,
   PollingSubscription,
   SubscriptionManager,
   NetworkManager,
 } from 'rest-hooks';
-import { FixtureEndpoint, MockResolver } from '@rest-hooks/test';
-import React, { memo, useCallback, useState, useMemo, lazy } from 'react';
-import clsx from 'clsx';
-import {
-  useScrollPositionBlocker,
-  useTabGroupChoice,
-} from '@docusaurus/theme-common/internal';
 
-import styles from './styles.module.css';
-import StoreInspector from './StoreInspector';
 import Boundary from './Boundary';
+import StoreInspector from './StoreInspector';
+import styles from './styles.module.css';
 
 function Preview({
   groupId,

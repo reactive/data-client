@@ -7,7 +7,7 @@ import ProtocolTabs from '@site/src/components/ProtocolTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
 <head>
-  <title>Mutating asynchronous data</title>
+  <title>Mutating Asynchronous Data with Rest Hooks</title>
 </head>
 
 ## Tell react to update
