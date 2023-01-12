@@ -19,6 +19,11 @@ try {
 } catch (e) {
   /* istanbul ignore next */
   CSP = true;
+  // TODO: figure out how to supress the error log instead of tell people it's okay
+  /* istanbul ignore next */
+  console.error(
+    'Content Security Policy: The previous CSP log can be safely ignored - @rest-hooks/endpoint will use setPrototypeOf instead',
+  );
 }
 
 /**
