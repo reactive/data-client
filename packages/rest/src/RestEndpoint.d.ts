@@ -176,7 +176,7 @@ export type PaginationEndpoint<
   Pick<E, 'path' | 'searchParams' | 'body'>
 >;
 
-type BodyDefault<O extends RestGenerics> = 'body' extends keyof O
+export type BodyDefault<O extends RestGenerics> = 'body' extends keyof O
   ? O['body']
   : O['method'] extends 'POST' | 'PUT' | 'PATCH'
   ? Record<string, unknown> | FormData
@@ -302,7 +302,7 @@ export type RestFetch<
   // eslint-disable-next-line @typescript-eslint/ban-types
   Body = {},
   Resolve = any,
-> = Body extends Record<string, unknown>
+> = Body extends {}
   ? ParamFetchWithBody<UrlParams, Body, Resolve>
   : ParamFetchNoBody<UrlParams, Resolve>;
 

@@ -826,6 +826,27 @@ describe('RestEndpoint', () => {
     `);
   });
 
+  describe('body type setting', () => {
+    it('should work in constructors', () => {
+      interface TodoInterface {
+        title: string;
+        completed: boolean;
+      }
+      const update = new RestEndpoint({
+        path: '/:id',
+        method: 'POST',
+        body: {} as TodoInterface,
+      });
+      () => update({ id: 5 }, { title: 'updated', completed: true });
+      // @ts-expect-error
+      () => update({ id: 5 });
+      // @ts-expect-error
+      () => update({ id: 5 }, { title: 5, completed: true });
+      // @ts-expect-error
+      () => update({ id: 5 }, { completed: true });
+    });
+  });
+
   describe('process() return type setting', () => {
     const getArticle = new RestEndpoint({
       path: 'http\\://test.com/article-cooler/:id',
