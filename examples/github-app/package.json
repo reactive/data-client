@@ -60,7 +60,7 @@
   },
   "dependencies": {
     "@anansi/router": "0.7.6",
-    "@ant-design/icons": "^4.7.0",
+    "@ant-design/icons": "^5.0.0",
     "@rest-hooks/endpoint": "^3.2.6",
     "@rest-hooks/graphql": "^0.3.9",
     "@rest-hooks/hooks": "^3.1.2",
