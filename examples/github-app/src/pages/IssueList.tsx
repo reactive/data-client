@@ -3,8 +3,8 @@ import { useLive } from '@rest-hooks/react';
 import { List } from 'antd';
 import { Issue, IssueResource } from 'resources/Issue';
 
-import LinkPagination from '../navigation/LinkPagination';
 import IssueListItem from './IssueListItem';
+import LinkPagination from '../navigation/LinkPagination';
 
 export default function IssueList({ owner, repo }: Props) {
   const location = useLocation();

@@ -189,7 +189,7 @@ class ArticleMeta extends Entity {
   }
 }
 
-const BaseArticleResource = new createResource({
+const BaseArticleResource = createResource({
   path: '/article/:id',
   schema: Article,
 });

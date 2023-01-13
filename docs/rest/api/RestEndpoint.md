@@ -105,12 +105,16 @@ const getTodo = new RestEndpoint({
 
 ### Managing state
 
-```ts
+<TypeScriptEditor>
+
+```ts path=Todo.ts
 export class Todo extends Entity {
   id = '';
   title = '';
   completed = false;
-  pk() { return this.id }
+  pk() {
+    return this.id;
+  }
 }
 
 const getTodo = new RestEndpoint({
@@ -123,8 +127,10 @@ const updateTodo = new RestEndpoint({
   path: '/todos/:id',
   method: 'PUT',
   schema: Todo,
-})
+});
 ```
+
+</TypeScriptEditor>
 
 Using a [Schema](./schema.md) enables automatic data consistency without the need to hurt performance with refetching.
 
@@ -134,12 +140,28 @@ Using a [Schema](./schema.md) enables automatic data consistency without the nee
 
 [schema](#schema) determines the return value when used with data-binding hooks like [useSuspense](/docs/api/useSuspense), [useDLE](/docs/api/useDLE) or [useCache](/docs/api/useCache)
 
+<TypeScriptEditor>
 
-```ts
-const get = new RestEndpoint({ path: '/', schema: Todo });
-// todo is Todo
-const todo = useSuspense(get);
+```ts title=Todo.ts collapsed
+export class Todo extends Entity {
+  id = '';
+  title = '';
+  completed = false;
+  pk() {
+    return this.id;
+  }
+}
 ```
+
+```ts title=getTodo.ts
+import { Todo } from './Todo';
+
+const getTodo = new RestEndpoint({ path: '/', schema: Todo });
+// Hover your mouse over 'todo' to see its type
+const todo = useSuspense(getTodo);
+```
+
+</TypeScriptEditor>
 
 [process](#process) determines the resolution value when the endpoint is called directly or
 when use with [Controller.fetch](/docs/api/Controller#fetch). Otherwise this will be 'any' to
@@ -164,7 +186,7 @@ async () => {
 
   const ctrl = useController();
   const todo2 = await ctrl.fetch(getTodo);
-}
+};
 ```
 
 </TypeScriptEditor>
@@ -226,13 +248,13 @@ rpc({ id: 5 });
 `searchParams` can be used in a similar way to `body` to specify types extra parameters, used
 for the GET/searchParams/queryParams in a [url()](#url).
 
-
 ```ts
 const getList = getUser.extend({
   searchParams: {} as { isAdmin?: boolean; sort: 'asc' | 'desc' },
 });
-getList.url({group: 'big', id: '5', sort: 'asc' }) === '/big/user/5?sort=asc';
-getList.url({group: 'big', id: '5', sort: 'desc', isAdmin: true }) === '/big/user/5?isAdmin=true&sort=asc';
+getList.url({ group: 'big', id: '5', sort: 'asc' }) === '/big/user/5?sort=asc';
+getList.url({ group: 'big', id: '5', sort: 'desc', isAdmin: true }) ===
+  '/big/user/5?isAdmin=true&sort=asc';
 ```
 
 ## Fetch Lifecycle
@@ -295,12 +317,18 @@ urls using the parameters passed. This also informs the types so they are proper
 
 `:` prefixed words are key names. Both strings and numbers are accepted as options.
 
+<TypeScriptEditor>
+
 ```ts
 const getThing = new RestEndpoint({ path: '/:group/things/:id' });
 getThing({ group: 'first', id: 77 });
 ```
 
+</TypeScriptEditor>
+
 `?` to indicate optional parameters
+
+<TypeScriptEditor>
 
 ```ts
 const optional = new RestEndpoint({ path: '/:group/things/:number?' });
@@ -308,12 +336,18 @@ optional({ group: 'first' });
 optional({ group: 'first', number: 'fifty' });
 ```
 
+</TypeScriptEditor>
+
 `\\` to escape special characters like `:` or `?`
+
+<TypeScriptEditor>
 
 ```ts
 const getSite = new RestEndpoint({ path: 'https\\://site.com/:slug' });
 getSite({ slug: 'first' });
 ```
+
+</TypeScriptEditor>
 
 :::info
 
@@ -322,15 +356,34 @@ Types are inferred automatically from `path`.
 `body` can be used to set a second argument for mutation endpoints. The actual value is not
 used in any way so it does not matter.
 
-```ts
+<TypeScriptEditor>
+
+```ts {3}
 const updateSite = new RestEndpoint({
   path: 'https\\://site.com/:slug',
-  // highlight-next-line
   body: {} as { url: string },
 });
 
 updateSite({ slug: 'cool' }, { url: 'https://resthooks.io/' });
 ```
+
+</TypeScriptEditor>
+
+`searchParams` can be to specify types extra parameters, used for the GET/searchParams/queryParams in a [url()](#url).
+
+<TypeScriptEditor>
+
+```ts {3}
+const getReactSite = new RestEndpoint({
+  path: 'https\\://site.com/:slug',
+  searchParams: {} as { isReact: boolean },
+});
+
+getReactSite({ slug: 'cool', isReact: true });
+getReactSite.url({ slug: 'cool', isReact: true }) === 'https://site.com/cool?isReact=true';
+```
+
+</TypeScriptEditor>
 
 :::
 
@@ -371,20 +424,26 @@ This allows non-standard method-body combinations.
 `body` will default to `any`. You can always set body explicitly to take full control. `undefined` can be used
 to indicate there is no body.
 
+<TypeScriptEditor>
+
 ```ts
-const standardCreate = new RestEndpoint({
-  path: '/:id',
-  method: 'POST',
-});
-standardCreate({ id }, myPayload);
-const nonStandardEndpoint = new RestEndpoint({
-  path: '/:id',
-  method: 'POST',
-  body: undefined,
-});
-// no second 'body' argument, because body was set to 'undefined'
-nonStandardEndpoint({ id });
+(id: string, myPayload: Record<string, unknown>) => {
+  const standardCreate = new RestEndpoint({
+    path: '/:id',
+    method: 'POST',
+  });
+  standardCreate({ id }, myPayload);
+  const nonStandardEndpoint = new RestEndpoint({
+    path: '/:id',
+    method: 'POST',
+    body: undefined,
+  });
+  // no second 'body' argument, because body was set to 'undefined'
+  nonStandardEndpoint({ id });
+};
 ```
+
+</TypeScriptEditor>
 
 :::
 
@@ -423,11 +482,12 @@ Perform any transforms with the parsed result. Defaults to identity function.
 
 The return type of process can be used to set the return type of the endpoint fetch:
 
-```ts
-const getTodo = new RestEndpoint({
+<TypeScriptEditor row={false}>
+
+```ts title="getTodo.ts" {4}
+export const getTodo = new RestEndpoint({
   path: '/todos/:id',
   // The identity function is the default value; so we aren't changing any runtime behavior
-  // highlight-next-line
   process(value): TodoInterface {
     return value;
   },
@@ -440,10 +500,17 @@ interface TodoInterface {
 }
 ```
 
-```ts
-// title is string
-const title = (await getTodo({ id })).title;
+```ts title="useTodo.ts"
+import { getTodo } from './getTodo';
+
+async (id: string) => {
+  // hover title to see it is a string
+  // see TS autocomplete by deleting `.title` and retyping the `.`
+  const title = (await getTodo({ id })).title;
+};
 ```
+
+</TypeScriptEditor>
 
 :::
 

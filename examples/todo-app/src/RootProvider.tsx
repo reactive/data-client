@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
 import { CacheProvider } from '@rest-hooks/react';
+import type { ReactNode } from 'react';
 
 import Boundary from './Boundary';
 

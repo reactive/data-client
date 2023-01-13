@@ -1,7 +1,7 @@
 import { styled } from '@linaria/react';
+import { useController } from '@rest-hooks/react';
 import { memo, useCallback } from 'react';
 import { TodoResource, Todo } from 'resources/TodoResource';
-import { useController } from '@rest-hooks/react';
 
 function TodoListItem({ todo }: { todo: Todo }) {
   const controller = useController();
@@ -18,12 +18,14 @@ function TodoListItem({ todo }: { todo: Todo }) {
   );
   return (
     <TodoBox>
-      <input
-        type="checkbox"
-        checked={todo.completed}
-        onChange={toggleHandler}
-      />
-      {todo.title}
+      <label>
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          onChange={toggleHandler}
+        />
+        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+      </label>
     </TodoBox>
   );
 }
