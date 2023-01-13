@@ -1,11 +1,11 @@
 import type { EndpointInterface, ResolveType } from '@rest-hooks/normalizr';
 
+import { EndpointUpdateFunction } from './types.js';
 import { RECEIVE_TYPE } from '../actionTypes.js';
 import type {
   CompatibleReceiveAction,
   CompatibleReceiveMeta,
 } from '../compatibleActions.js';
-import { EndpointUpdateFunction } from './types.js';
 
 export default function createReceive<
   E extends EndpointInterface & {

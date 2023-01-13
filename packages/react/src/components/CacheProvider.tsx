@@ -10,8 +10,8 @@ import {
 import type { State, Manager } from '@rest-hooks/core';
 import React, { useMemo, useRef } from 'react';
 
-import { DenormalizeCacheContext, ControllerContext } from '../context.js';
 import CacheStore from './CacheStore.js';
+import { DenormalizeCacheContext, ControllerContext } from '../context.js';
 
 /* istanbul ignore next  */
 const SSR = typeof window === 'undefined';

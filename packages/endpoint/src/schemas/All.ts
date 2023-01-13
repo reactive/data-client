@@ -1,6 +1,6 @@
+import ArraySchema from './Array.js';
 import { EntityTable } from '../interface.js';
 import { EntityInterface, EntityMap, SchemaFunction } from '../schema.js';
-import ArraySchema from './Array.js';
 
 /**
  * Retrieves all entities in cache

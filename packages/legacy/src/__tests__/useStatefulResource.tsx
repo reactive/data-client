@@ -8,8 +8,8 @@ import {
 } from '__tests__/legacy-3';
 import nock from 'nock';
 
-import useStatefulResource from '../useStatefulResource';
 import { payload, payload2, users, nested } from './fixtures';
+import useStatefulResource from '../useStatefulResource';
 
 function onError(e: any) {
   e.preventDefault();

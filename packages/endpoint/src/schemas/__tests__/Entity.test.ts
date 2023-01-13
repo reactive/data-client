@@ -5,10 +5,10 @@ import { WeakListMap } from '@rest-hooks/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS, Record } from 'immutable';
 
+import denormalize from './denormalize';
 import { AbstractInstanceType } from '../../';
 import { schema } from '../../';
 import Entity from '../Entity';
-import denormalize from './denormalize';
 
 let dateSpy: jest.SpyInstance;
 beforeAll(() => {

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
+import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
 import type { Schema, NormalizedIndex, UnvisitFunction } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
-import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
 
 /**
  * Represents data that should be deduped by specifying a primary key.

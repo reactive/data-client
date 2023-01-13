@@ -1,5 +1,7 @@
 import { normalize } from '@rest-hooks/normalizr';
 
+import applyUpdatersToResults from './applyUpdatersToResults.js';
+import { createReceive as legacyCreateReceive } from './legacy-actions/index.js';
 import {
   RECEIVE_TYPE,
   INVALIDATE_TYPE,
@@ -12,8 +14,6 @@ import Controller from '../controller/Controller.js';
 import createOptimistic from '../controller/createOptimistic.js';
 import { ReceiveAction, OptimisticAction } from '../previousActions.js';
 import type { OldActionTypes, ActionTypes, State } from '../types.js';
-import applyUpdatersToResults from './applyUpdatersToResults.js';
-import { createReceive as legacyCreateReceive } from './legacy-actions/index.js';
 
 export const initialState: State<unknown> = {
   entities: {},

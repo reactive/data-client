@@ -1,7 +1,7 @@
 /* istanbul ignore file */
+import createReducer from './createReducer.js';
 import Controller from '../controller/Controller.js';
 import { ActionTypes, State } from '../types.js';
-import createReducer from './createReducer.js';
 
 /**
  * @deprecated use createReducer instead

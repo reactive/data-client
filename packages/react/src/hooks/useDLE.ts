@@ -11,8 +11,8 @@ import type {
 import { ExpiryStatus } from '@rest-hooks/normalizr';
 import { useMemo } from 'react';
 
-import useController from '../hooks/useController.js';
 import useCacheState from './useCacheState.js';
+import useController from '../hooks/useController.js';
 
 type CondNull<P, A, B> = P extends null ? A : B;
 

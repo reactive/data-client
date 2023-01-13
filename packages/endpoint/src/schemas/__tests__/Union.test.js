@@ -4,8 +4,8 @@ import { IDEntity } from '__tests__/new';
 import { waterfallSchema } from '__tests__/UnionSchema';
 import { fromJS } from 'immutable';
 
-import { schema } from '../../';
 import denormalize from './denormalize';
+import { schema } from '../../';
 
 let dateSpy;
 beforeAll(() => {

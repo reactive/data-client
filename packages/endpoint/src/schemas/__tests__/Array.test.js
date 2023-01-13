@@ -3,8 +3,8 @@ import { normalize } from '@rest-hooks/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
-import { schema } from '../../';
 import denormalize from './denormalize';
+import { schema } from '../../';
 
 let dateSpy;
 beforeAll(() => {
