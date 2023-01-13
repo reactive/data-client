@@ -43,7 +43,7 @@ export class Todo extends Entity {
   }
 }
 
-export const TodoResource = new createResource({
+export const TodoResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,

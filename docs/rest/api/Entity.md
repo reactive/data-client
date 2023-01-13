@@ -273,7 +273,7 @@ export class User extends Entity {
   // right here
   static indexes = ['username' as const];
 }
-export const UserResource = new createResource({
+export const UserResource = createResource({
   path: '/user/:id',
   schema: User,
 });

@@ -1,7 +1,7 @@
-import fs from 'fs';
 import { normalize } from '@rest-hooks/normalizr';
-import path from 'path';
+import fs from 'fs';
 import MockDate from 'mockdate';
+import path from 'path';
 
 import input from './input.json';
 import postsSchema from './schema';

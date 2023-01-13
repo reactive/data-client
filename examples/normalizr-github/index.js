@@ -1,6 +1,6 @@
+import { normalize } from '@rest-hooks/normalizr';
 import fs from 'fs';
 import https from 'https';
-import { normalize } from '@rest-hooks/normalizr';
 import path from 'path';
 
 import * as schema from './schema';
