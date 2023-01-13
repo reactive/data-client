@@ -299,6 +299,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ant-design/colors@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@ant-design/colors@npm:7.0.0"
+  dependencies:
+    "@ctrl/tinycolor": ^3.4.0
+  checksum: 419e98d9cb823ff0935024f4278f7b9c5896805dce4c93d667b5a4d76b03f5fa969b32d1998ee761113da43063e2b23a94c330ad6e865f03fbbb2579907e7fdb
+  languageName: node
+  linkType: hard
+
 "@ant-design/cssinjs@npm:^1.3.0":
   version: 1.3.2
   resolution: "@ant-design/cssinjs@npm:1.3.2"
@@ -337,6 +346,22 @@ __metadata:
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
   checksum: 4264d38e6b3cc6d640e1e7f9821e5f428369c31754df03b4712706dba4e89c7bc3e6370ba8dc52b9eb278ccb986ddf215bfac0b0c01e5b7e8ed6f50179be1a69
+  languageName: node
+  linkType: hard
+
+"@ant-design/icons@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "@ant-design/icons@npm:5.0.0"
+  dependencies:
+    "@ant-design/colors": ^7.0.0
+    "@ant-design/icons-svg": ^4.2.1
+    "@babel/runtime": ^7.11.2
+    classnames: ^2.2.6
+    rc-util: ^5.9.4
+  peerDependencies:
+    react: ">=16.0.0"
+    react-dom: ">=16.0.0"
+  checksum: a6d96f8f822208193433a78754e013341f9c8c1c26599a0eefb63978c3581c1f6d404c2eadd0e72e32e9d218349e09dab9ade145af39176886974cd37ed1c226
   languageName: node
   linkType: hard
 
@@ -11096,7 +11121,7 @@ __metadata:
     "@anansi/eslint-plugin": 0.15.0
     "@anansi/router": 0.7.6
     "@anansi/webpack-config": 14.0.7
-    "@ant-design/icons": ^4.7.0
+    "@ant-design/icons": ^5.0.0
     "@babel/core": 7.20.12
     "@linaria/babel-preset": 4.3.3
     "@linaria/core": 4.2.5
