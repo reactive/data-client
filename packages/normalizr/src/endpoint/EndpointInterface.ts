@@ -1,9 +1,9 @@
-import { Schema } from '../interface.js';
-import { Normalize } from '../types.js';
 import { SnapshotInterface } from './SnapshotInterface.js';
 import type { FetchFunction } from './types.js';
 import { InferReturn } from './utility.js';
 import { ResolveType } from './utility.js';
+import { Schema } from '../interface.js';
+import { Normalize } from '../types.js';
 
 /** Defines a networking endpoint */
 export interface EndpointInterface<

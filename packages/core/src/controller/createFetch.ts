@@ -1,11 +1,11 @@
 import type { EndpointInterface } from '@rest-hooks/normalizr';
 
+import { EndpointUpdateFunction } from './types.js';
 import { FETCH_TYPE } from '../actionTypes.js';
 import type {
   CompatibleFetchAction,
   CompatibleFetchMeta,
 } from '../compatibleActions.js';
-import { EndpointUpdateFunction } from './types.js';
 
 /**
  * Requesting a fetch to begin

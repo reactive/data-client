@@ -1,9 +1,9 @@
 // eslint-env jest
 import { IDEntity } from '__tests__/new';
 
+import denormalize from './denormalize';
 import Entity from '../Entity';
 import validateRequired from '../validatRequired';
-import denormalize from './denormalize';
 
 let dateSpy: jest.SpyInstance;
 beforeAll(() => {

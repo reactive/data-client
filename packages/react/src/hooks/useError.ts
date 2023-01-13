@@ -2,8 +2,8 @@
 import type { NetworkError, UnknownError } from '@rest-hooks/normalizr';
 import { EndpointInterface } from '@rest-hooks/normalizr';
 
-import useController from '../hooks/useController.js';
 import useCacheState from './useCacheState.js';
+import useController from '../hooks/useController.js';
 
 export type ErrorTypes = NetworkError | UnknownError;
 

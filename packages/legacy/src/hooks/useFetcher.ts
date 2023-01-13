@@ -1,13 +1,13 @@
 import type { Schema } from '@rest-hooks/react';
 import { useRef, useCallback } from 'react';
 
+import useFetchDispatcher from './useFetchDispatcher.js';
 import {
   FetchShape,
   SchemaFromShape,
   OptimisticUpdateParams,
   ReturnFromShape,
 } from '../endpoint/index.js';
-import useFetchDispatcher from './useFetchDispatcher.js';
 
 /**
  * Build an imperative dispatcher to issue network requests.

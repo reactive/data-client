@@ -16,7 +16,7 @@ it('middlewares should compose with non-rest-hooks middlewares', () => {
   const API: typeof ctrl & { controller: typeof ctrl } = Object.create(ctrl, {
     controller: { value: ctrl },
   });
-  type A = typeof API['dispatch'];
+  type A = (typeof API)['dispatch'];
   let counter = 0;
   const nonRHMiddleware =
     <

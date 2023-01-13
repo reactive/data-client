@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react';
 
-import { ReadShape, ParamsFromShape } from '../endpoint/index.js';
 import useInvalidateDispatcher from './useInvalidateDispatcher.js';
+import { ReadShape, ParamsFromShape } from '../endpoint/index.js';
 
 /**
  * Invalidate a certain item within the cache

@@ -17,15 +17,6 @@ import {
 } from '@rest-hooks/normalizr';
 import { inferResults } from '@rest-hooks/normalizr';
 
-import { CompatibleActionTypes } from '../compatibleActions.js';
-import { initialState } from '../state/createReducer.js';
-import selectMeta from '../state/selectMeta.js';
-import type {
-  ActionTypes as BroadActionTypes,
-  CombinedActionTypes,
-  legacyActions,
-  State,
-} from '../types.js';
 import createFetch from './createFetch.js';
 import createInvalidate from './createInvalidate.js';
 import createReceive from './createReceive.js';
@@ -35,6 +26,15 @@ import {
   createSubscription,
 } from './createSubscription.js';
 import type { EndpointUpdateFunction } from './types.js';
+import { CompatibleActionTypes } from '../compatibleActions.js';
+import { initialState } from '../state/createReducer.js';
+import selectMeta from '../state/selectMeta.js';
+import type {
+  ActionTypes as BroadActionTypes,
+  CombinedActionTypes,
+  legacyActions,
+  State,
+} from '../types.js';
 
 type GenericDispatch = (value: any) => Promise<void>;
 type CompatibleDispatch = (value: CombinedActionTypes) => Promise<void>;

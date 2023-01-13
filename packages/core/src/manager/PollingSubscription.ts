@@ -1,10 +1,10 @@
 import type { Schema } from '@rest-hooks/normalizr';
 
-import { FETCH_TYPE } from '../actionTypes.js';
-import type { State, Dispatch } from '../types.js';
 import ConnectionListener from './ConnectionListener.js';
 import DefaultConnectionListener from './DefaultConnectionListener.js';
 import { Subscription, SubscriptionInit } from './SubscriptionManager.js';
+import { FETCH_TYPE } from '../actionTypes.js';
+import type { State, Dispatch } from '../types.js';
 
 /**
  * PollingSubscription keeps a given resource updated by

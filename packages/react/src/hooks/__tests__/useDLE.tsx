@@ -9,8 +9,8 @@ import {
 } from '__tests__/new';
 import nock from 'nock';
 
-import useDLE from '../useDLE';
 import { payload, payload2, users, nested } from './fixtures';
+import useDLE from '../useDLE';
 
 function onError(e: any) {
   e.preventDefault();

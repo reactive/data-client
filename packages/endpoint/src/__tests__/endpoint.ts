@@ -21,7 +21,7 @@ describe('Endpoint', () => {
   const fetchUserList = function (this: any) {
     return fetch(`/${this.root || 'users'}/`).then(res =>
       res.json(),
-    ) as Promise<typeof payload[]>;
+    ) as Promise<(typeof payload)[]>;
   };
   const fetchAsset = ({ symbol }: { symbol: string }) =>
     fetch(`/asset/${symbol}`).then(res => res.json()) as Promise<
@@ -546,7 +546,7 @@ describe('Endpoint', () => {
           },
         },
       );
-      const sch: typeof User[] = UserDetail.schema;
+      const sch: (typeof User)[] = UserDetail.schema;
       const s: undefined = UserDetail.sideEffect;
       UserDetail.random;
       // @ts-expect-error

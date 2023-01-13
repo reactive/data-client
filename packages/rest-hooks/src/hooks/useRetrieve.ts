@@ -1,9 +1,9 @@
 import { StateContext } from '@rest-hooks/react';
 import { useContext, useMemo } from 'react';
 
-import { ReadShape, ParamsFromShape } from '../endpoint/index.js';
 import useExpiresAt from './useExpiresAt.js';
 import useFetchDispatcher from './useFetchDispatcher.js';
+import { ReadShape, ParamsFromShape } from '../endpoint/index.js';
 
 /**
  * Request a resource if it is not in cache.\

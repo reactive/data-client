@@ -1,6 +1,6 @@
-import type { ExpiryStatusInterface } from '../Expiry.js';
 import type { EndpointInterface } from './EndpointInterface.js';
 import type { ErrorTypes } from './ErrorTypes.js';
+import type { ExpiryStatusInterface } from '../Expiry.js';
 
 export interface SnapshotInterface {
   getResponse: <

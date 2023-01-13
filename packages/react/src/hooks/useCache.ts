@@ -9,8 +9,8 @@ import {
 import { ExpiryStatus } from '@rest-hooks/normalizr';
 import { useMemo } from 'react';
 
-import useController from '../hooks/useController.js';
 import useCacheState from './useCacheState.js';
+import useController from '../hooks/useController.js';
 
 /**
  * Access a response if it is available.

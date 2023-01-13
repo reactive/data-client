@@ -251,8 +251,8 @@ describe('reducer', () => {
         },
         updaters: {
           [key: string]: UpdateFunction<
-            typeof shape['schema'],
-            typeof shape['schema']
+            (typeof shape)['schema'],
+            (typeof shape)['schema']
           >;
         },
       ) {
@@ -338,8 +338,8 @@ describe('reducer', () => {
         payload: Partial<Article>,
         updaters: {
           [key: string]: UpdateFunction<
-            typeof createEndpoint['schema'],
-            typeof Article[]
+            (typeof createEndpoint)['schema'],
+            (typeof Article)[]
           >;
         },
       ) {
