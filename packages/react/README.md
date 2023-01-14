@@ -92,7 +92,7 @@ const articlesDescending = useCache(sortedArticles, { asc: false });
 
 ### ...all typed ...fast ...and consistent
 
-For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://resthooks.io/docs/getting-started/installation)
+For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://resthooks.io/docs/getting-started/installation) | [🥊Comparison](https://resthooks.io/docs/getting-started/comparison)
 
 ## Features
 

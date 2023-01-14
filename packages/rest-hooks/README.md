@@ -22,6 +22,9 @@ For [REST](https://resthooks.io/rest), [GraphQL](https://resthooks.io/graphql), 
 
 ## Installation
 
+It's now [recommended for new projects](https://resthooks.io/blog/2022/12/19/rest-hooks-7-react-native-web-nextjs) to use
+[@rest-hooks/react](https://www.npmjs.com/package/@rest-hooks/react) directly.
+
 ```bash
 npm install --save @rest-hooks/react @rest-hooks/test @rest-hooks/hooks @rest-hooks/rest
 ```
@@ -72,11 +75,10 @@ return (
 );
 ```
 
-### And [subscriptions](https://resthooks.io/docs/api/useSubscription)
+### And [subscriptions](https://resthooks.io/docs/api/useLive)
 
 ```tsx
-const price = useSuspense(PriceResource.get, { symbol });
-useSubscription(PriceResource.get, { symbol });
+const price = useLive(PriceResource.get, { symbol });
 return price.value;
 ```
 

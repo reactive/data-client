@@ -41,18 +41,45 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
 
   const dispatchWithPromise = usePromisifiedDispatch(realDispatch, state);
 
+  const outerDispatchRef = useRef<Dispatch<R>>(unsetDispatch);
+  // protected from dispatches after unmount
+  const protectedDispatchRef = useRef<Dispatch<R>>(outerDispatchRef.current);
+
   const outerDispatch = useMemo(() => {
-    let dispatch: Dispatch<R> = unsetDispatch;
     // closure here around dispatch allows us to change it after middleware is constructed
     const middlewareAPI = {
       getState,
-      dispatch: (action: React.ReducerAction<R>) => dispatch(action),
+      dispatch: (action: React.ReducerAction<R>) =>
+        protectedDispatchRef.current(action),
     };
     const chain = middlewares.map(middleware => middleware(middlewareAPI));
-    dispatch = compose(chain)(dispatchWithPromise);
-    return dispatch;
+    protectedDispatchRef.current = outerDispatchRef.current =
+      compose(chain)(dispatchWithPromise);
+    return outerDispatchRef.current;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatchWithPromise, ...middlewares]);
+
+  // dispatching after unmount should be ignored - even by other middlewares
+  // using a ref allows symmetric implementation of dispatch indirection to ensure
+  // calling useEffect() multiple times has no adverse effects
+  useEffect(() => {
+    protectedDispatchRef.current = outerDispatchRef.current;
+    return () => {
+      /* istanbul ignore else */
+      if (process.env.NODE_ENV !== 'production') {
+        protectedDispatchRef.current = (action: any) => {
+          console.info(
+            'Action dispatched after unmount. This will be ignored.',
+          );
+          console.info(JSON.stringify(action, undefined, 2));
+          return Promise.resolve();
+        };
+      } else {
+        protectedDispatchRef.current = () => Promise.resolve();
+      }
+    };
+  }, [outerDispatch]);
+
   return [state, outerDispatch, getState];
 }
 

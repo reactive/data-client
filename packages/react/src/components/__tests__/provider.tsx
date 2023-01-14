@@ -24,7 +24,7 @@ describe('<CacheProvider />', () => {
   let debugspy: jest.SpyInstance;
   beforeEach(() => {
     warnspy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
-    debugspy = jest.spyOn(global.console, 'debug').mockImplementation(() => {});
+    debugspy = jest.spyOn(global.console, 'info').mockImplementation(() => {});
   });
   afterEach(() => {
     warnspy.mockRestore();
@@ -203,17 +203,15 @@ describe('<CacheProvider />', () => {
     expect(msg).toBeDefined();
     unmount();
     expect(debugspy).not.toHaveBeenCalled();
-    await act(() =>
-      injector.controller.setResponse(
-        endpoint,
-        { id: 5 },
-        { id: 5, title: 'hi' },
-      ),
+    await injector.controller.setResponse(
+      endpoint,
+      { id: 5 },
+      { id: 5, title: 'hi' },
     );
     expect(debugspy).toHaveBeenCalled();
     expect(debugspy.mock.calls[0]).toMatchInlineSnapshot(`
       [
-        "Action dispatched after CacheProvider unmounted. This will be ignored.",
+        "Action dispatched after unmount. This will be ignored.",
       ]
     `);
   });
