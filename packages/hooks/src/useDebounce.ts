@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
  * @example
  ```
  const debouncedFilter = useDebounced(filter, 200);
- const list = useResource(ListShape, { filter });
+ const list = useSuspense(ListShape, { filter });
  ```
  */
 export default function useDebounce<T>(

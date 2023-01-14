@@ -72,10 +72,10 @@
     "url": "https://github.com/coinbase/rest-hooks/issues"
   },
   "dependencies": {
-    "@babel/runtime": "^7.17.0"
+    "@babel/runtime": "^7.17.0",
+    "@rest-hooks/normalizr": "^9.3.5"
   },
   "peerDependencies": {
-    "@rest-hooks/endpoint": "^0.6.1 || ^1.0.0-0 || ^2.0.0-0 || ^3.0.0",
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
     "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0"
   },

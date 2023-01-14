@@ -1,4 +1,4 @@
-import type { EndpointParam, EndpointInterface } from '@rest-hooks/endpoint';
+import type { EndpointInterface } from '@rest-hooks/normalizr';
 import { useMemo, useRef } from 'react';
 
 /**
@@ -7,24 +7,25 @@ import { useMemo, useRef } from 'react';
  * @see https://resthooks.io/docs/api/useCancelling
  * @example
  ```
- useResource(useCancelling(MyEndpoint, { id }), { id })
+ useSuspense(useCancelling(MyEndpoint, { id }), { id })
  ```
  */
 export default function useCancelling<
   E extends EndpointInterface & {
     extend: (o: { signal?: AbortSignal }) => any;
   },
->(endpoint: E, params: EndpointParam<E> | null): E {
+>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E {
   const abortRef = useRef<AbortController>();
 
   // send abort signal anytime the params change
   // if fetch is already completed signal goes nowhere
-  const serializedParams = params && endpoint.key(params);
+  const key = args[0] !== null ? endpoint.key(...args) : '';
   return useMemo(() => {
     if (abortRef.current) abortRef.current.abort();
     abortRef.current = new AbortController();
     return endpoint.extend({
       signal: abortRef.current.signal,
     });
-  }, [serializedParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
 }

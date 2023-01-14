@@ -1,6 +1,7 @@
 ---
 title: useCancelling()
 ---
+
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
 <head>
@@ -8,17 +9,16 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 </head>
 
 ```typescript
-function useCancelling<E extends EndpointInterface & {
-    extend: (o: {
-        signal?: AbortSignal | undefined;
-    }) => any;
-}>(endpoint: E, params: EndpointParam<E> | null): E
+function useCancelling<
+  E extends EndpointInterface & {
+    extend: (o: { signal?: AbortSignal }) => any;
+  },
+>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E {
 ```
 
 Builds an Endpoint that cancels fetch everytime params change
 
 [Aborts](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) inflight request if the parameters change.
-
 
 <HooksPlayground>
 
