@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.1.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/react@7.1.4...@rest-hooks/react@7.1.5) (2023-01-14)
+
+### 🐛 Bug Fix
+
+* Compatibility with React 18 StrictMode ([e7174a3](https://github.com/coinbase/rest-hooks/commit/e7174a3c2aac3fd611d2e1305a4fe4927ef50e38))
+
+### 📦 Package
+
+* Update linting packages ([#2351](https://github.com/coinbase/rest-hooks/issues/2351)) ([d3498ea](https://github.com/coinbase/rest-hooks/commit/d3498ea396dfbfdc745ec6e68920a714d8870fe8))
+
 ### [7.1.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/react@7.1.3...@rest-hooks/react@7.1.4) (2023-01-12)
 
 ### 📦 Package

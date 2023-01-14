@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.2.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.2.3...@rest-hooks/use-enhanced-reducer@1.2.4) (2023-01-14)
+
+### 🐛 Bug Fix
+
+* Compatibility with React 18 StrictMode ([e7174a3](https://github.com/coinbase/rest-hooks/commit/e7174a3c2aac3fd611d2e1305a4fe4927ef50e38))
+
 ### [1.2.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.2.2...@rest-hooks/use-enhanced-reducer@1.2.3) (2023-01-12)
 
 ### 📦 Package

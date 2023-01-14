@@ -4126,14 +4126,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rest-hooks/core@^4.1.4, @rest-hooks/core@workspace:^, @rest-hooks/core@workspace:packages/core":
+"@rest-hooks/core@^4.1.5, @rest-hooks/core@workspace:^, @rest-hooks/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/core@workspace:packages/core"
   dependencies:
     "@babel/cli": 7.20.7
     "@babel/core": 7.20.12
     "@babel/runtime": ^7.17.0
-    "@rest-hooks/normalizr": ^9.3.5
+    "@rest-hooks/normalizr": ^9.3.6
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     flux-standard-action: ^2.1.1
@@ -4150,7 +4150,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/endpoint@^3.2.6, @rest-hooks/endpoint@^3.2.7, @rest-hooks/endpoint@workspace:^, @rest-hooks/endpoint@workspace:packages/endpoint":
+"@rest-hooks/endpoint@^3.2.6, @rest-hooks/endpoint@^3.2.8, @rest-hooks/endpoint@workspace:^, @rest-hooks/endpoint@workspace:packages/endpoint":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/endpoint@workspace:packages/endpoint"
   dependencies:
@@ -4210,7 +4210,7 @@ __metadata:
     "@babel/cli": 7.20.7
     "@babel/core": 7.20.12
     "@babel/runtime": ^7.17.0
-    "@rest-hooks/endpoint": ^3.2.7
+    "@rest-hooks/endpoint": ^3.2.8
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
@@ -4232,7 +4232,7 @@ __metadata:
     "@babel/cli": 7.20.7
     "@babel/core": 7.20.12
     "@babel/runtime": ^7.17.0
-    "@rest-hooks/normalizr": ^9.3.5
+    "@rest-hooks/normalizr": ^9.3.6
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     rollup: 2.79.1
@@ -4307,7 +4307,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/normalizr@^9.3.4, @rest-hooks/normalizr@^9.3.5, @rest-hooks/normalizr@workspace:^, @rest-hooks/normalizr@workspace:packages/normalizr":
+"@rest-hooks/normalizr@^9.3.4, @rest-hooks/normalizr@^9.3.6, @rest-hooks/normalizr@workspace:^, @rest-hooks/normalizr@workspace:packages/normalizr":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/normalizr@workspace:packages/normalizr"
   dependencies:
@@ -4336,8 +4336,8 @@ __metadata:
     "@babel/cli": 7.20.7
     "@babel/core": 7.20.12
     "@babel/runtime": ^7.17.0
-    "@rest-hooks/core": ^4.1.4
-    "@rest-hooks/use-enhanced-reducer": ^1.2.3
+    "@rest-hooks/core": ^4.1.5
+    "@rest-hooks/use-enhanced-reducer": ^1.2.4
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
@@ -4400,7 +4400,7 @@ __metadata:
     "@babel/cli": 7.20.7
     "@babel/core": 7.20.12
     "@babel/runtime": ^7.17.0
-    "@rest-hooks/endpoint": ^3.2.7
+    "@rest-hooks/endpoint": ^3.2.8
     "@types/babel__core": ^7
     "@types/copyfiles": ^2
     "@types/path-to-regexp": ^1.7.0
@@ -4502,7 +4502,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rest-hooks/use-enhanced-reducer@^1.2.3, @rest-hooks/use-enhanced-reducer@workspace:packages/use-enhanced-reducer":
+"@rest-hooks/use-enhanced-reducer@^1.2.4, @rest-hooks/use-enhanced-reducer@workspace:packages/use-enhanced-reducer":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/use-enhanced-reducer@workspace:packages/use-enhanced-reducer"
   dependencies:
@@ -19948,7 +19948,7 @@ __metadata:
     "@babel/cli": 7.20.7
     "@babel/core": 7.20.12
     "@babel/runtime": ^7.17.0
-    "@rest-hooks/endpoint": ^3.2.7
+    "@rest-hooks/endpoint": ^3.2.8
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5

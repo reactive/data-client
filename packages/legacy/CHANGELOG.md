@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [5.2.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@5.2.4...@rest-hooks/legacy@5.2.5) (2023-01-14)
+
+### 📦 Package
+
+* Update linting packages ([#2351](https://github.com/coinbase/rest-hooks/issues/2351)) ([d3498ea](https://github.com/coinbase/rest-hooks/commit/d3498ea396dfbfdc745ec6e68920a714d8870fe8))
+
 ### [5.2.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@5.2.3...@rest-hooks/legacy@5.2.4) (2023-01-12)
 
 ### 📦 Package

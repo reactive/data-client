@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [9.3.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@9.3.5...@rest-hooks/normalizr@9.3.6) (2023-01-14)
+
+### 📦 Package
+
+* Update linting packages ([#2351](https://github.com/coinbase/rest-hooks/issues/2351)) ([d3498ea](https://github.com/coinbase/rest-hooks/commit/d3498ea396dfbfdc745ec6e68920a714d8870fe8))
+
 ### [9.3.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@9.3.4...@rest-hooks/normalizr@9.3.5) (2023-01-12)
 
 ### 📦 Package

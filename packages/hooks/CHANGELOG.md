@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.1.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/hooks@3.1.3...@rest-hooks/hooks@3.1.4) (2023-01-14)
+
+### 💅 Enhancement
+
+* Remove @rest-hooks/endpoint peerDep for /hooks ([#2360](https://github.com/coinbase/rest-hooks/issues/2360)) ([db57ea5](https://github.com/coinbase/rest-hooks/commit/db57ea5a4fe1276501b81934bdb284157b9f04f1))
+
 ### [3.1.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/hooks@3.1.2...@rest-hooks/hooks@3.1.3) (2023-01-12)
 
 ### 📦 Package
