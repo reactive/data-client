@@ -3002,12 +3002,12 @@ __metadata:
 
 "@rest-hooks/rest@file:../packages/rest::locator=root-workspace-0b6124%40workspace%3A.":
   version: 6.2.6
-  resolution: "@rest-hooks/rest@file:../packages/rest#../packages/rest::hash=ea7a50&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/rest@file:../packages/rest#../packages/rest::hash=764f6c&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.2.8
     path-to-regexp: ^6.2.1
-  checksum: 31d8c4c61be420344454648c37fc73a0e22da9a500484300923f668aaad2118a5ed11e55768da1379466b0dbe0b1157ca6d208fb356338a7a1d16ed4dff1dc31
+  checksum: 7b38b98a7bcc471d9cdee0700af78bb38473a3cf130cd297df3a8ba90962fa604fc1755509bb8d70221ddbda6dacdd0001cad96fd081b0bee8bebfcad680b6cf
   languageName: node
   linkType: hard
 
