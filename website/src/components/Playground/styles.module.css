@@ -76,6 +76,10 @@
 .playgroundHeader.noupper {
   text-transform: none;
 }
+.playgroundHeader.lastChild {
+  border-bottom-left-radius: var(--ifm-global-radius);
+  border-bottom-right-radius: var(--ifm-global-radius);
+}
 
 .codeHeader {
   color: rgb(191, 199, 213);
