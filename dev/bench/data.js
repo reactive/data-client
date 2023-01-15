@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1673720305830,
+  "lastUpdate": 1673803332906,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -10571,6 +10571,93 @@ window.BENCHMARK_DATA = {
             "range": "±2.52%",
             "unit": "ops/sec",
             "extra": "73 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3a99f9693b2542fe0014af8fe7790d37f11f5999",
+          "message": "pkg: Update all non-major dependencies (#2362)\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+          "timestamp": "2023-01-15T09:16:54-08:00",
+          "tree_id": "31ce924b02ba6b5a3913238d3e07a06010942b0d",
+          "url": "https://github.com/coinbase/rest-hooks/commit/3a99f9693b2542fe0014af8fe7790d37f11f5999"
+        },
+        "date": 1673803331817,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 84.01,
+            "range": "±0.78%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 7041,
+            "range": "±0.33%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 43.09,
+            "range": "±0.89%",
+            "unit": "ops/sec",
+            "extra": "57 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 44.44,
+            "range": "±0.59%",
+            "unit": "ops/sec",
+            "extra": "58 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 44.04,
+            "range": "±0.22%",
+            "unit": "ops/sec",
+            "extra": "58 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 43.61,
+            "range": "±0.30%",
+            "unit": "ops/sec",
+            "extra": "57 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 83.14,
+            "range": "±1.93%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "receiveLongWithMerge",
+            "value": 54.06,
+            "range": "±0.55%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
+          },
+          {
+            "name": "receiveLongWithSimpleMerge",
+            "value": 76.61,
+            "range": "±0.76%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
           }
         ]
       }
