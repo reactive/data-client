@@ -3,6 +3,10 @@ title: Expiry Policy
 sidebar_label: Expiry Policy
 ---
 
+<head>
+  <meta name="docsearch:pagerank" content="40"/>
+</head>
+
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
 By default, Rest Hooks cache policy can be described as [stale-while-revalidate](https://web.dev/stale-while-revalidate/).

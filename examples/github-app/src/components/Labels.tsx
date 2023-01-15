@@ -1,8 +1,8 @@
 import { Tag } from 'antd';
 import { memo } from 'react';
-import LabelResource from 'resources/LabelResource';
+import { type Label } from 'resources/Label';
 
-function Labels({ labels }: { labels: LabelResource[] }) {
+function Labels({ labels }: { labels: Label[] }) {
   return (
     <div>
       {labels.map((label) => (

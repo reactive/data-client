@@ -3,6 +3,10 @@ title: Comparison with other tools
 sidebar_label: Comparison
 ---
 
+<head>
+  <meta name="docsearch:pagerank" content="20"/>
+</head>
+
 While there are numerous tools for async state we could compare to, the libraries were chosen as
 the strongest representation of their general approach.
 

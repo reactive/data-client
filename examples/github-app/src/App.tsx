@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { MatchedRoute } from '@anansi/router';
 import { Layout } from 'antd';
 import Boundary from 'Boundary';
@@ -6,7 +6,7 @@ import 'antd/dist/reset.css';
 import 'style/main.scss';
 import NavBar from 'navigation/NavBar';
 
-const { Header, Content } = Layout;
+const { Content } = Layout;
 
 // Typically place global navigation and routing layer in here
 function App() {

@@ -6,7 +6,7 @@ import Boundary from 'Boundary';
 import FlexRow from 'components/FlexRow';
 import Labels from 'components/Labels';
 import { groupBy } from 'lodash';
-import React, { useMemo, memo, useContext } from 'react';
+import React, { useMemo, memo } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import Markdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
@@ -21,7 +21,6 @@ import CreateComment from './CreateComment';
 import { CreateReaction } from './CreateReaction';
 import { ReactionSpan } from './ReactionSpan';
 
-const { CheckableTag } = Tag;
 const { Meta } = Card;
 
 function IssueDetail({

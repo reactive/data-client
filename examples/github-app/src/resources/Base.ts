@@ -8,6 +8,7 @@ import {
   createResource,
   GetEndpoint,
   RestGenerics,
+  type EndpointExtraOptions,
 } from '@rest-hooks/rest';
 import { camelCase, snakeCase } from 'lodash';
 
@@ -87,7 +88,8 @@ export function createGithubResource<U extends string, S extends Schema>({
   readonly path: U;
   readonly schema: S;
   readonly Endpoint?: typeof GithubEndpoint;
-}): GithubResource<U, S> {
+  urlPrefix?: string;
+} & EndpointExtraOptions): GithubResource<U, S> {
   const baseResource = createResource({ path, schema, Endpoint });
 
   const getList: GetEndpoint<

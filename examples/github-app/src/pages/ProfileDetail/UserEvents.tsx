@@ -1,7 +1,7 @@
 import { Link } from '@anansi/router';
 import { BranchesOutlined, PullRequestOutlined } from '@ant-design/icons';
 import { useSuspense } from '@rest-hooks/react';
-import { Card, Layout, Timeline, Typography, Divider } from 'antd';
+import { Timeline, Typography, Divider } from 'antd';
 import { groupBy } from 'lodash';
 import { useMemo } from 'react';
 import {
@@ -17,8 +17,6 @@ import { User } from 'resources/User';
 
 import FlexRow from '../../components/FlexRow';
 
-const { Meta } = Card;
-const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
 
 function UserEvents({ user }: { user: User }) {

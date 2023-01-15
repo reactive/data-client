@@ -1250,8 +1250,8 @@ interface HookableEndpointInterface extends EndpointInterface {
  *
  * @see https://resthooks.io/rest/api/hookifyResource
  */
-declare function hookifyResource<R extends Record<string, HookableEndpointInterface>>(resource: R, useRequestInit: () => RequestInit): HookResource<R>;
-type HookResource<R extends Record<string, HookableEndpointInterface>> = {
+declare function hookifyResource<R extends {}>(resource: R, useRequestInit: () => RequestInit): HookResource<R>;
+type HookResource<R extends {}> = {
     [K in Extract<keyof R, string> as `use${Capitalize<K>}`]: () => R[K];
 };
 

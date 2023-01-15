@@ -4,11 +4,11 @@ import clsx from 'clsx';
 import { useContext, useMemo, useReducer, useState } from 'react';
 import React from 'react';
 
-import CodeTabContext from '../Demo/CodeTabContext';
 import FixturePreview from './FixturePreview';
 import Header from './Header';
 import PlaygroundEditor from './PlaygroundEditor';
 import styles from './styles.module.css';
+import CodeTabContext from '../Demo/CodeTabContext';
 
 export function PlaygroundTextEdit({
   fixtures,
@@ -50,6 +50,7 @@ export function PlaygroundTextEdit({
               }
               closed={closedList[i]}
               title={title}
+              collapsible={codeTabs.length > 1}
             />
           ) : null}
           <div
@@ -127,15 +128,19 @@ function reduceCodes(state: string[], action: { i: number; code: string }) {
   return newstate;
 }
 
-function CodeTabHeader({ onClick, closed, title }) {
-  return (
-    <Header className={styles.small} onClick={onClick}>
-      <span className={clsx(styles.arrow, closed ? styles.right : styles.down)}>
-        ▶
-      </span>
-      {title}
-    </Header>
-  );
+function CodeTabHeader({ onClick, closed, title, collapsible = false }) {
+  if (collapsible)
+    return (
+      <Header className={styles.small} onClick={onClick}>
+        <span
+          className={clsx(styles.arrow, closed ? styles.right : styles.down)}
+        >
+          ▶
+        </span>
+        {title}
+      </Header>
+    );
+  return <div className={styles.codeHeader}>{title}</div>;
 }
 
 function EditorTabs({ titles, closedList, onClick }) {

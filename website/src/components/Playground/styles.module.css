@@ -77,6 +77,16 @@
   text-transform: none;
 }
 
+.codeHeader {
+  color: rgb(191, 199, 213);
+  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  font-size: var(--ifm-code-font-size);
+  font-weight: 500;
+  padding: 0.75rem var(--ifm-pre-padding);
+}
+
 body {
   --ifm-color-playground-tab-selected: var(--ifm-color-emphasis-300);
 }

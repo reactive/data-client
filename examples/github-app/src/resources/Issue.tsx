@@ -50,14 +50,10 @@ export class Issue extends GithubEntity {
   }
 }
 
-class IssueEndpoint<O extends RestGenerics = any> extends GithubEndpoint<O> {
-  pollFrequency = 60000;
-}
-
 export const IssueResource = createGithubResource({
   path: '/repos/:owner/:repo/issues/:number',
   schema: Issue,
-  Endpoint: IssueEndpoint,
+  pollFrequency: 60000,
 });
 export default IssueResource;
 

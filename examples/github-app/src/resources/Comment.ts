@@ -32,10 +32,10 @@ const baseResource = createGithubResource({
 });
 const getList = baseResource.getList.extend({
   path: '/repos/:owner/:repo/issues/:number/comments',
-  body: undefined,
 });
 const create = baseResource.create.extend({
   path: '/repos/:owner/:repo/issues/:number/comments',
+  // body is 'comment body' aka the text content
   body: { body: '' },
   update: (newId: string, params: any) => ({
     [getList.key(params)]: ({ results = [], ...rest } = {}) => ({

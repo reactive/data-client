@@ -71,7 +71,6 @@ export const RepositoryResource = {
   ...base,
   getByUser: base.getList.extend({
     path: '/users/:login/repos',
-    body: undefined,
   }),
   getByPinned: GithubGqlEndpoint.query(
     (v: { login: string }) => `query getByPinned($login: String!) {

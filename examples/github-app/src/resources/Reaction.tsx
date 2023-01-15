@@ -32,7 +32,6 @@ export const ReactionResource = {
   ...base,
   getByComment: base.getList.extend({
     path: 'repos/:owner/:repo/issues/comments/:comment/reactions',
-    body: undefined,
   }),
   create: base.create.extend({
     update: (newId: string, params: any) => ({

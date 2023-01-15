@@ -103,7 +103,7 @@ const base = createGithubResource({
       DeleteEvent: Event,
       ReleaseEvent: Event,
     },
-    'type' as const,
+    'type',
   ),
   Endpoint: PreviewEndpoint,
 });
@@ -111,7 +111,6 @@ export const EventResource = {
   ...base,
   getList: base.getList.extend({
     path: '/users/:login/events/public\\?per_page=50',
-    body: undefined,
   }),
 };
 

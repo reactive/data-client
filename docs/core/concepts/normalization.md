@@ -3,6 +3,10 @@ title: Entity and Data Normalization
 sidebar_label: Data Normalization
 ---
 
+<head>
+  <meta name="docsearch:pagerank" content="40"/>
+</head>
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';

@@ -5,7 +5,7 @@ title: createResource
 
 <head>
   <title>createResource() - Collection of CRUD Endpoints</title>
-  <meta name="docsearch:pagerank" content="20"/>
+  <meta name="docsearch:pagerank" content="30"/>
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
@@ -125,7 +125,7 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 - path: `shortenPath(path)`
   - Removes the last argument:
     ```ts
-    createResource({ path: '/:first/:second' }).getList.path === '/:first';
+    createResource({ path: '/:first/:second' }).create.path === '/:first';
     createResource({ path: '/:first' }).create.path === '/';
     ```
 - schema: `schema`

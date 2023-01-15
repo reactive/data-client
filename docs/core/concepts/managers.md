@@ -3,6 +3,10 @@ title: Managers, Middleware, and Flux
 sidebar_label: Managers and Middleware
 ---
 
+<head>
+  <meta name="docsearch:pagerank" content="40"/>
+</head>
+
 Rest Hooks uses the [flux store](https://facebook.github.io/flux/docs/in-depth-overview/) pattern, which is
 characterized by an easy to understand and debug [undirectional data flow](https://en.wikipedia.org/wiki/Unidirectional_Data_Flow_(computer_science)). State updates are performed by a reducer function.
 

@@ -84,7 +84,7 @@ import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
 export default RestHooksDocument;
 ```
 
-```tsx  title="pages/_app.tsx"
+```tsx title="pages/_app.tsx"
 import { AppCacheProvider } from '@rest-hooks/ssr/nextjs';
 import type { AppProps } from 'next/app';
 

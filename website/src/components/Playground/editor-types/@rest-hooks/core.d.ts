@@ -196,6 +196,11 @@ type NormalizeNullable<S> = Extract<S, EntityInterface> extends never ? Extract<
 
 declare const RIC: (cb: (...args: any[]) => void, options: any) => void;
 
+type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined ? ResolveType<E> : Normalize<E>;
+type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: Parameters<Source>) => {
+    [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
+};
+
 declare const FETCH_TYPE: "rest-hooks/fetch";
 declare const RECEIVE_TYPE: "rest-hooks/receive";
 declare const OPTIMISTIC_TYPE: "rest-hooks/optimistic";
@@ -225,11 +230,6 @@ declare namespace actionTypes_d {
     actionTypes_d_GC_TYPE as GC_TYPE,
   };
 }
-
-type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined ? ResolveType<E> : Normalize<E>;
-type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: Parameters<Source>) => {
-    [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
-};
 
 interface ReceiveMeta$2 {
     args: readonly any[];
@@ -780,7 +780,7 @@ declare class Controller<D extends GenericDispatch = CompatibleDispatch> {
      * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
      * @see https://resthooks.io/docs/api/Controller#getResponse
      */
-    getResponse: <E extends Pick<EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined>, "key" | "schema" | "invalidIfStale">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => {
+    getResponse: <E extends Pick<EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined>, "schema" | "key" | "invalidIfStale">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => {
         data: DenormalizeNullable<E["schema"]>;
         expiryStatus: ExpiryStatus;
         expiresAt: number;

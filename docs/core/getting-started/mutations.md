@@ -8,6 +8,7 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 
 <head>
   <title>Mutating Asynchronous Data with Rest Hooks</title>
+  <meta name="docsearch:pagerank" content="40"/>
 </head>
 
 ## Tell react to update

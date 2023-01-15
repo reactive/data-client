@@ -3,6 +3,10 @@ title: Entity Validation
 sidebar_label: Validation
 ---
 
+<head>
+  <meta name="docsearch:pagerank" content="40"/>
+</head>
+
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@rest-hooks/rest';
 

@@ -3,6 +3,10 @@ title: Rendering Asynchronous Data
 sidebar_label: Render Data
 ---
 
+<head>
+  <meta name="docsearch:pagerank" content="40"/>
+</head>
+
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import Tabs from '@theme/Tabs';

@@ -5,7 +5,7 @@ description: Strongly typed path-based API definitions.
 
 <head>
   <title>RestEndpoint - Strongly typed path-based HTTP API definitions</title>
-  <meta name="docsearch:pagerank" content="20"/>
+  <meta name="docsearch:pagerank" content="30"/>
 </head>
 
 import Tabs from '@theme/Tabs';

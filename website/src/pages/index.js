@@ -6,9 +6,9 @@ import ThemedImage from '@theme/ThemedImage';
 import clsx from 'clsx';
 import React from 'react';
 
+import styles from './index.module.css';
 import Demo from '../components/Demo/index';
 import HomepageFeatures from '../components/HomepageFeatures';
-import styles from './index.module.css';
 
 const ProjectTitle = () => {
   const sources = {
@@ -69,7 +69,7 @@ export default function Home() {
   return (
     <Layout
       title={`Async State Management for React`}
-      description="Synchronous state management for async data. Safe. Fast. Resuable."
+      description="Normalized state management for async data. Safe. Fast. Reusable."
     >
       <HomepageHeader />
       <main>

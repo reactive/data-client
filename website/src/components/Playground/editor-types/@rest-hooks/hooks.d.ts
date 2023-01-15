@@ -1,4 +1,4 @@
-import { EndpointInterface, EndpointParam } from '@rest-hooks/endpoint';
+import { EndpointInterface } from '@rest-hooks/normalizr';
 
 /**
  * Keeps value updated after delay time
@@ -10,7 +10,7 @@ import { EndpointInterface, EndpointParam } from '@rest-hooks/endpoint';
  * @example
  ```
  const debouncedFilter = useDebounced(filter, 200);
- const list = useResource(ListShape, { filter });
+ const list = useSuspense(ListShape, { filter });
  ```
  */
 declare function useDebounce<T>(value: T, delay: number, updatable?: boolean): T;
@@ -21,14 +21,14 @@ declare function useDebounce<T>(value: T, delay: number, updatable?: boolean): T
  * @see https://resthooks.io/docs/api/useCancelling
  * @example
  ```
- useResource(useCancelling(MyEndpoint, { id }), { id })
+ useSuspense(useCancelling(MyEndpoint, { id }), { id })
  ```
  */
 declare function useCancelling<E extends EndpointInterface & {
     extend: (o: {
         signal?: AbortSignal;
     }) => any;
-}>(endpoint: E, params: EndpointParam<E> | null): E;
+}>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E;
 
 /**
  * Takes an async function and tracks resolution as a boolean.
