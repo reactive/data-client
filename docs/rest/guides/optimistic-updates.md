@@ -228,6 +228,7 @@ export const getCount = new RestEndpoint({
 export const increment = new RestEndpoint({
   path: '/api/count/increment',
   method: 'POST',
+  body: undefined,
   name: 'increment',
   schema: CountEntity,
   getOptimisticResponse(snap) {
@@ -367,6 +368,7 @@ export const getCount = new RestEndpoint({
 export const increment = new RestEndpoint({
   path: '/api/count/increment',
   method: 'POST',
+  body: undefined,
   name: 'increment',
   schema: CountEntity,
   getRequestInit() {

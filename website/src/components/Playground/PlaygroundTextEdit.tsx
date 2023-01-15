@@ -51,6 +51,7 @@ export function PlaygroundTextEdit({
               closed={closedList[i]}
               title={title}
               collapsible={codeTabs.length > 1}
+              lastChild={i === codeTabs.length - 1 && large}
             />
           ) : null}
           <div
@@ -128,10 +129,21 @@ function reduceCodes(state: string[], action: { i: number; code: string }) {
   return newstate;
 }
 
-function CodeTabHeader({ onClick, closed, title, collapsible = false }) {
+function CodeTabHeader({
+  onClick,
+  closed,
+  title,
+  collapsible = false,
+  lastChild = false,
+}) {
   if (collapsible)
     return (
-      <Header className={styles.small} onClick={onClick}>
+      <Header
+        className={clsx(styles.small, {
+          [styles.lastChild]: lastChild && closed,
+        })}
+        onClick={onClick}
+      >
         <span
           className={clsx(styles.arrow, closed ? styles.right : styles.down)}
         >

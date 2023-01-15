@@ -15,6 +15,7 @@ import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import ProtocolTabs from '@site/src/components/ProtocolTabs';
 import PkgInstall from '@site/src/components/PkgInstall';
+import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 [Endpoints](/rest/api/RestEndpoint) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) of your data. [Schemas](../concepts/normalization.md) define the data model. [Resources](/rest/api/createResource) are
 a collection of `endpoints` around one `schema`.
@@ -29,6 +30,8 @@ values={[
 <TabItem value="rest">
 
   <PkgInstall pkgs="@rest-hooks/rest" />
+
+<TypeScriptEditor row={false}>
 
 ```typescript title="api/Todo.ts"
 import { createResource, Entity } from '@rest-hooks/rest';
@@ -51,9 +54,9 @@ export const TodoResource = createResource({
 });
 ```
 
-<details><summary><b>6 Resource Endpoints</b></summary>
+```typescript title="Six_Methods" collapsed
+import { TodoResource } from './api/Todo';
 
-```typescript
 // GET https://jsonplaceholder.typicode.com/todos/5
 TodoResource.get({ id: 5 });
 // GET https://jsonplaceholder.typicode.com/todos
@@ -68,12 +71,14 @@ TodoResource.partialUpdate({ id: 5 }, { title: 'my todo' });
 TodoResource.delete({ id: 5 });
 ```
 
-</details>
+</TypeScriptEditor>
 
   </TabItem>
   <TabItem value="gql">
 
   <PkgInstall pkgs="@rest-hooks/graphql" />
+
+<TypeScriptEditor row={false}>
 
 ```typescript title="api/Todo.ts"
 import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
@@ -110,6 +115,8 @@ export const TodoResource = {
   ),
 };
 ```
+
+</TypeScriptEditor>
 
   </TabItem>
 </Tabs>
