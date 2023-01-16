@@ -349,8 +349,8 @@ module.exports = {
       ogImage: 'img/rest_hooks_logo.png',
       twitterImage: 'img/rest_hooks_logo.png',
       announcementBar: {
-        id: 'announcementBar-3', // Increment on change
-        content: `Have a question about Rest Hooks? Join our <a target="_blank" rel="noopener noreferrer" href="https://discord.gg/35nb8Mz">Discord</a> server.`,
+        id: 'announcementBar-4', // Increment on change
+        content: `Give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/coinbase/rest-hooks">GitHub</a>. Get support on <a target="_blank" rel="noopener noreferrer" href="https://discord.gg/35nb8Mz">Discord</a>. File <a target="_blank" rel="noopener noreferrer" href="https://github.com/coinbase/rest-hooks/issues/new/choose">bug report</a>.`,
       },
       navbar: {
         title: 'Rest Hooks',

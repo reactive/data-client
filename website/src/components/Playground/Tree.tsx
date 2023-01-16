@@ -1,6 +1,6 @@
-import { JSONTree } from 'react-json-tree';
-import React, { useMemo } from 'react';
 import { useColorMode, usePrismTheme } from '@docusaurus/theme-common';
+import React, { useMemo } from 'react';
+import { JSONTree } from 'react-json-tree';
 
 export default function Output({ value }: { value: any }) {
   const isDarkTheme = useColorMode().colorMode === 'dark';
@@ -57,9 +57,10 @@ export default function Output({ value }: { value: any }) {
     }),
     [isDarkTheme, valueColorMap],
   );
+  const shouldExpandNodeInitially = useMemo(shouldExpandNode, []);
   return (
     <JSONTree
-      shouldExpandNode={shouldExpandNode}
+      shouldExpandNodeInitially={shouldExpandNodeInitially}
       data={value}
       valueRenderer={valueRenderer}
       theme={theme}
@@ -68,15 +69,22 @@ export default function Output({ value }: { value: any }) {
   );
 }
 
-function shouldExpandNode(keyName, data, level) {
-  if (level === 0) return true;
-  if (level === 1 && ['entities', 'results'].includes(keyName[0])) return true;
-  if (level === 2 && keyName[1] === 'entities') return true;
-  if (level === 2 && keyName[1] === 'results') return true;
-  if (level === 3 && keyName[2] === 'entities') return true;
-  if (level === 3 && keyName[2] === 'results') return true;
-  return false;
-}
+const shouldExpandNode = () => {
+  let entityCount = 0;
+
+  return (keyName, data, level) => {
+    if (level === 0) return true;
+    if (level === 1 && ['entities', 'results'].includes(keyName[0]))
+      return true;
+    if (level === 2 && keyName[1] === 'entities') return true;
+    if (level === 2 && keyName[1] === 'results') return true;
+    if (level === 3 && keyName[2] === 'entities') {
+      return entityCount++ < 4;
+    }
+    if (level === 3 && keyName[2] === 'results') return true;
+    return false;
+  };
+};
 
 const HASINTL = typeof Intl !== 'undefined';
 

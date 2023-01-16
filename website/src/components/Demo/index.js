@@ -3,9 +3,9 @@ import clsx from 'clsx';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { TODOS } from '../../mocks/handlers';
 import CodeEditor from './CodeEditor';
 import styles from './styles.module.css';
+import { TODOS } from '../../mocks/handlers';
 
 const simpleFetchDemo = [
   {
@@ -13,11 +13,12 @@ const simpleFetchDemo = [
     value: 'fetch',
     autoFocus: true,
 
-    endpointCode: `export const getTodo = new RestEndpoint({
+    code: {
+      api: `export const getTodo = new RestEndpoint({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
 });`,
-    code: `import { getTodo } from './api';
+      react: `import { getTodo } from './api';
 
 function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(getTodo, { id });
@@ -25,12 +26,14 @@ function TodoDetail({ id }: { id: number }) {
 }
 render(<TodoDetail id={1} />);
 `,
+    },
   },
   {
     label: 'REST',
     value: 'rest',
     autoFocus: true,
-    endpointCode: `export class Todo extends Entity {
+    code: {
+      api: `export class Todo extends Entity {
   id = 0;
   userId = 0;
   title = '';
@@ -42,7 +45,7 @@ export const TodoResource = createResource({
   path: '/todos/:id',
   schema: Todo,
 })`,
-    code: `import { TodoResource } from './api';
+      react: `import { TodoResource } from './api';
 
 function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(TodoResource.get, { id });
@@ -50,6 +53,7 @@ function TodoDetail({ id }: { id: number }) {
 }
 render(<TodoDetail id={1} />);
 `,
+    },
   },
   {
     label: 'GraphQL',
@@ -72,7 +76,8 @@ render(<TodoDetail id={1} />);
         delay: 150,
       },
     ],
-    endpointCode: `import { GQLEndpoint } from '@rest-hooks/graphql';
+    code: {
+      api: `import { GQLEndpoint } from '@rest-hooks/graphql';
 
 const gql = new GQLEndpoint('/');
 export const getTodo = gql.query(\`
@@ -84,7 +89,7 @@ export const getTodo = gql.query(\`
     }
   }
 \`);`,
-    code: `import { getTodo } from './api';
+      react: `import { getTodo } from './api';
 
 function TodoDetail({ id }: { id: number }) {
   const { todo } = useSuspense(getTodo, { id });
@@ -92,6 +97,7 @@ function TodoDetail({ id }: { id: number }) {
 }
 render(<TodoDetail id={1} />);
 `,
+    },
   },
 ];
 
@@ -99,7 +105,8 @@ const mutationDemo = [
   {
     label: 'REST',
     value: 'rest',
-    endpointCode: `export class Todo extends Entity {
+    code: {
+      api: `export class Todo extends Entity {
   id = 0;
   userId = 0;
   title = '';
@@ -122,7 +129,7 @@ export const TodoResource = {
     },
   }),
 };`,
-    code: `import { TodoResource } from './api';
+      react: `import { TodoResource } from './api';
 
 function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(TodoResource.get, { id });
@@ -143,6 +150,7 @@ function TodoDetail({ id }: { id: number }) {
 }
 render(<TodoDetail id={1} />);
 `,
+    },
   },
   {
     label: 'GraphQL',
@@ -163,7 +171,8 @@ render(<TodoDetail id={1} />);
         delay: 150,
       },
     ],
-    endpointCode: `import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
+    code: {
+      api: `import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
 
 const gql = new GQLEndpoint('/');
 
@@ -193,7 +202,7 @@ export const TodoResource = {
     { updateTodo: Todo },
   ),
 }`,
-    code: `import { TodoResource } from './api';
+      react: `import { TodoResource } from './api';
 
 function TodoDetail({ id }: { id: number }) {
   const { todo } = useSuspense(TodoResource.get, { id });
@@ -213,6 +222,7 @@ function TodoDetail({ id }: { id: number }) {
 }
 render(<TodoDetail id={1} />);
   `,
+    },
   },
 ];
 
@@ -220,7 +230,8 @@ const appDemo = [
   {
     label: 'REST',
     value: 'rest',
-    endpointCode: `export class Todo extends Entity {
+    code: {
+      api: `export class Todo extends Entity {
   id = 0;
   userId = 0;
   title = '';
@@ -254,9 +265,9 @@ export const TodoResource = {
     },
   }),
 };`,
-    code: `import { TodoResource, Todo } from './api';
+      TodoItem: `import { TodoResource, type Todo } from './api';
 
-function TodoItem({ todo }: { todo: Todo }) {
+export default function TodoItem({ todo }: { todo: Todo }) {
   const controller = useController();
   return (
     <div>
@@ -291,6 +302,9 @@ function TodoItem({ todo }: { todo: Todo }) {
     </div>
   );
 }
+`,
+      TodoList: `import { TodoResource } from './api';
+import TodoItem from './TodoItem';
 
 function TodoList() {
   const todos = useSuspense(TodoResource.getList);
@@ -304,6 +318,7 @@ function TodoList() {
 }
 render(<TodoList />);
 `,
+    },
   },
   {
     label: 'GraphQL',
@@ -324,7 +339,8 @@ render(<TodoList />);
         delay: 150,
       },
     ],
-    endpointCode: `import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
+    code: {
+      api: `import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
 
 const gql = new GQLEndpoint('/');
 
@@ -363,9 +379,9 @@ export const TodoResource = {
     { updateTodo: Todo },
   ),
 };`,
-    code: `import { TodoResource, Todo } from './api';
+      TodoItem: `import { TodoResource, type Todo } from './api';
 
-function TodoItem({ todo }: { todo: Todo }) {
+export default function TodoItem({ todo }: { todo: Todo }) {
   const controller = useController();
   return (
     <div>
@@ -384,6 +400,9 @@ function TodoItem({ todo }: { todo: Todo }) {
     </div>
   );
 }
+`,
+      TodoList: `import { TodoResource } from './api';
+import TodoItem from './TodoItem';
 
 function TodoList() {
   const { todos } = useSuspense(TodoResource.getList, {});
@@ -397,6 +416,7 @@ function TodoList() {
 }
 render(<TodoList />);
 `,
+    },
   },
 ];
 

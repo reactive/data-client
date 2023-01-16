@@ -1,8 +1,12 @@
 import React, { useContext, memo, useRef, forwardRef } from 'react';
 
 import CodeProvider from './CodeProvider';
-import HooksPlayground from '../HooksPlayground';
 import CodeTabContext from './CodeTabContext';
+import HooksPlayground from '../HooksPlayground';
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 // eslint-disable-next-line react/display-name
 const DemoPlayground = memo(
@@ -11,28 +15,29 @@ const DemoPlayground = memo(
 
     return (
       <div ref={ref}>
-        {values.map(
-          ({ value, endpointCode, code, fixtures, autoFocus = false }) => (
-            <HooksPlayground
-              groupId="homepage-demo"
-              row
-              key={value}
-              hidden={value !== selectedValue}
-              fixtures={fixtures}
-            >
-              <code title="Endpoint" path={`${value}/api.ts`} collapsed>
-                {endpointCode}
-              </code>
-              <code
-                title="React"
-                path={`${value}/component.tsx`}
-                autoFocus={autoFocus}
-              >
-                {code}
-              </code>
-            </HooksPlayground>
-          ),
-        )}
+        {values.map(({ value, code, fixtures, autoFocus = false }) => (
+          <HooksPlayground
+            groupId="homepage-demo"
+            row
+            key={value}
+            hidden={value !== selectedValue}
+            fixtures={fixtures}
+          >
+            {Object.entries(code).map(([path, instanceCode], i) => {
+              return (
+                <code
+                  key={path}
+                  title={capitalizeFirstLetter(path)}
+                  path={`${value}/${path}.tsx`}
+                  collapsed={Object.values(code).length !== i + 1}
+                  autoFocus={autoFocus && Object.values(code).length === i + 1}
+                >
+                  {instanceCode}
+                </code>
+              );
+            })}
+          </HooksPlayground>
+        ))}
       </div>
     );
   }),
