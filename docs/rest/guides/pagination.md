@@ -54,11 +54,11 @@ import { NewsResource } from 'api/News';
 
 function NewsList() {
   const { results, cursor } = useSuspense(NewsResource.getList);
-  const controller = useController();
+  const ctrl = useController();
 
   return (
     <Pagination
-      onPaginate={() => controller.fetch(NewsResource.getNextPage, { cursor })}
+      onPaginate={() => ctrl.fetch(NewsResource.getNextPage, { cursor })}
     >
       <NewsList data={results} />
     </Pagination>
