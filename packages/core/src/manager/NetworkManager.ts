@@ -37,6 +37,7 @@ export default class NetworkManager implements Manager {
   protected fetched: { [k: string]: Promise<any> } = {};
   protected resolvers: { [k: string]: (value?: any) => void } = {};
   protected rejectors: { [k: string]: (value?: any) => void } = {};
+  protected fetchedAt: { [k: string]: number } = {};
   declare readonly dataExpiryLength: number;
   declare readonly errorExpiryLength: number;
   protected declare middleware: Middleware;
@@ -121,6 +122,7 @@ export default class NetworkManager implements Manager {
   /** Ensures all promises are completed by rejecting remaining. */
   cleanup() {
     // ensure no dispatches after unmount
+    // this must be reversible (done in init) so useEffect() remains symmetric
     this.cleanupDate = Date.now();
   }
 
@@ -138,9 +140,11 @@ export default class NetworkManager implements Manager {
 
   /** Clear promise state for a given key */
   protected clear(key: string) {
+    this.fetched[key].catch(() => {});
     delete this.resolvers[key];
     delete this.rejectors[key];
     delete this.fetched[key];
+    delete this.fetchedAt[key];
   }
 
   protected getLastReset() {
@@ -262,7 +266,7 @@ export default class NetworkManager implements Manager {
     };
 
     if (throttle) {
-      return this.throttle(key, deferedFetch)
+      return this.throttle(key, deferedFetch, createdAt)
         .then(data => resolve(data))
         .catch(error => reject(error));
     } else {
@@ -310,9 +314,15 @@ export default class NetworkManager implements Manager {
    * This ensures promises are resolved only once their data is processed
    * by the reducer.
    */
-  protected throttle(key: string, fetch: () => Promise<any>) {
+  protected throttle(
+    key: string,
+    fetch: () => Promise<any>,
+    createdAt: number,
+  ) {
+    const lastReset = this.getLastReset();
     // we're already fetching so reuse the promise
-    if (key in this.fetched) {
+    // fetches after reset do not count
+    if (key in this.fetched && this.fetchedAt[key] > lastReset) {
       return this.fetched[key];
     }
 
@@ -320,6 +330,7 @@ export default class NetworkManager implements Manager {
       this.resolvers[key] = resolve;
       this.rejectors[key] = reject;
     });
+    this.fetchedAt[key] = createdAt;
 
     // since our real promise is resolved via the wrapReducer(),
     // we should just stop all errors here.
