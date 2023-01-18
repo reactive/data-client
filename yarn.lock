@@ -15740,6 +15740,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mkdirp@npm:^2.0.0":
+  version: 2.1.3
+  resolution: "mkdirp@npm:2.1.3"
+  bin:
+    mkdirp: dist/cjs/src/bin.js
+  checksum: 5d7d7997e38a962e8b66dd4db1974bdcb841f084531ba8c9e1f3d52d71f5e6639677a96b2eb5d5940406d729a2153d820f396077ed3a6716058d3e75041dc1f2
+  languageName: node
+  linkType: hard
+
 "mockdate@npm:^3.0.5":
   version: 3.0.5
   resolution: "mockdate@npm:3.0.5"
@@ -20370,7 +20379,7 @@ __metadata:
     ignore-styles: ^5.0.1
     jest: 29.3.1
     jest-environment-jsdom: 29.3.1
-    mkdirp: ^1.0.4
+    mkdirp: ^2.0.0
     nock: 13.2.9
     node-fetch: ^3.3.0
     prettier: 2.8.2
