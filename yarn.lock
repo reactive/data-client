@@ -124,18 +124,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/jest-preset@npm:0.7.42":
-  version: 0.7.42
-  resolution: "@anansi/jest-preset@npm:0.7.42"
+"@anansi/jest-preset@npm:0.7.45":
+  version: 0.7.45
+  resolution: "@anansi/jest-preset@npm:0.7.45"
   dependencies:
-    "@anansi/ts-utils": ^0.2.6
+    "@anansi/ts-utils": ^0.2.7
     babel-jest: ^29.3.1
     core-js: ^3.21.0
     identity-obj-proxy: ^3.0.0
     jest-pnp-resolver: ^1.2.3
     mitt: ^3.0.0
     semver: ^7.3.8
-    ts-jest: ^29.0.3
+    ts-jest: ^29.0.5
     whatwg-fetch: ^3.0.0
   peerDependencies:
     "@babel/core": ^7.0.0
@@ -145,7 +145,7 @@ __metadata:
   peerDependenciesMeta:
     react:
       optional: true
-  checksum: 3a1bc4cdf28333704cb4c1bbdbb756bb4c4853b8d0362dedef5ce98b31ba1c5086e545260210d353912898e24e8510f2db5c8b96fa090b8fa24bde0b8314d746
+  checksum: 6b688e9a17a85a308a22b955ad9340989d0568d15c198edf30a6f16e031391e0039a0bb82a665943353320992f01d88443e5354c203888c6abf346b5d26ab393
   languageName: node
   linkType: hard
 
@@ -167,12 +167,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/ts-utils@npm:^0.2.6":
-  version: 0.2.6
-  resolution: "@anansi/ts-utils@npm:0.2.6"
+"@anansi/ts-utils@npm:^0.2.6, @anansi/ts-utils@npm:^0.2.7":
+  version: 0.2.7
+  resolution: "@anansi/ts-utils@npm:0.2.7"
   peerDependencies:
     typescript: ^3.0.0 || ^4.0.0
-  checksum: 4e10275df677df51c58180dcf5aa5e80ad2b4f79173312513ee035c928178f27cf9f4500c26e3a396a31a8c1afcec9ed78c7deaf598210785c805c290059c94b
+  checksum: 7c8276e9a5deec510367d7f09ab92971eb2e335de1793cf63c7ba9e80b75cb9e7450d8118cf38d80815bc4b9f0608eed04dd81b7ade20d45d28efbb2c88c7def
   languageName: node
   linkType: hard
 
@@ -5150,13 +5150,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:29.2.3":
-  version: 29.2.3
-  resolution: "@types/jest@npm:29.2.3"
+"@types/jest@npm:29.2.6":
+  version: 29.2.6
+  resolution: "@types/jest@npm:29.2.6"
   dependencies:
     expect: ^29.0.0
     pretty-format: ^29.0.0
-  checksum: 55370906711b600a05b9e497c22aa74d80d8adcdbe4ac2f1bc9311f6f6ca0dd192862b6f38df6ac0d45e92396bcd796e377b1d8058c10bdfd584aeee580c3ce1
+  checksum: 90190ac830334af1470d255853f9621fe657e5030b4d96773fc1f884833cd303c76580b00c1b86dc38a8db94f1c7141d462190437a10af31852b8845a57c48ba
   languageName: node
   linkType: hard
 
@@ -13663,7 +13663,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"json5@npm:^2.1.2, json5@npm:^2.2.1, json5@npm:^2.2.2":
+"json5@npm:^2.1.2, json5@npm:^2.2.1, json5@npm:^2.2.2, json5@npm:^2.2.3":
   version: 2.2.3
   resolution: "json5@npm:2.2.3"
   bin:
@@ -16003,15 +16003,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nock@npm:13.2.9":
-  version: 13.2.9
-  resolution: "nock@npm:13.2.9"
+"nock@npm:13.3.0":
+  version: 13.3.0
+  resolution: "nock@npm:13.3.0"
   dependencies:
     debug: ^4.1.0
     json-stringify-safe: ^5.0.1
     lodash: ^4.17.21
     propagate: ^2.0.0
-  checksum: 04a2dc60b4b55fd1240f28fe34865bbc744088a4570db3781fcf66021644cc3cc9178fd86a0cb0c1f28ea77b83e8f1c9288535f6b39a6d07100059f156ccc23b
+  checksum: 118d04e95a17f493898a82b5dfecc03762776e1980d9c3b2077479747e60b77109c5f7c0df969d1a8f6039260abe5961733553a5841f0f627bb35238576a0009
   languageName: node
   linkType: hard
 
@@ -20352,7 +20352,7 @@ __metadata:
     "@anansi/babel-preset": 3.3.2
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.15.0
-    "@anansi/jest-preset": 0.7.42
+    "@anansi/jest-preset": 0.7.45
     "@babel/cli": 7.20.7
     "@babel/core": 7.20.12
     "@babel/node": 7.20.7
@@ -20367,7 +20367,7 @@ __metadata:
     "@testing-library/react": 13.4.0
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 11.5.0
-    "@types/jest": 29.2.3
+    "@types/jest": 29.2.6
     "@types/lodash": 4.14.191
     "@types/node": 18.11.18
     "@types/react": 18.0.26
@@ -20389,7 +20389,7 @@ __metadata:
     jest: 29.3.1
     jest-environment-jsdom: 29.3.1
     mkdirp: ^2.0.0
-    nock: 13.2.9
+    nock: 13.3.0
     node-fetch: ^3.3.0
     prettier: 2.8.2
     react: 18.2.0
@@ -22101,14 +22101,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^29.0.3":
-  version: 29.0.3
-  resolution: "ts-jest@npm:29.0.3"
+"ts-jest@npm:^29.0.5":
+  version: 29.0.5
+  resolution: "ts-jest@npm:29.0.5"
   dependencies:
     bs-logger: 0.x
     fast-json-stable-stringify: 2.x
     jest-util: ^29.0.0
-    json5: ^2.2.1
+    json5: ^2.2.3
     lodash.memoize: 4.x
     make-error: 1.x
     semver: 7.x
@@ -22130,7 +22130,7 @@ __metadata:
       optional: true
   bin:
     ts-jest: cli.js
-  checksum: 541e51776d367fa2279af47f75af94b03e0538f1839ea9983de0f4ad7f188002f6eb1fc72440651d96daa62d25a7bc679a129c14e6ef291277eea9346751d56b
+  checksum: f60f129c2287f4c963d9ee2677132496c5c5a5d39c27ad234199a1140c26318a7d5bda34890ab0e30636ec42a8de28f84487c09e9dcec639c9c67812b3a38373
   languageName: node
   linkType: hard
 
