@@ -2,6 +2,7 @@
   "compilerOptions": {
     "jsx": "react",
     "lib": ["dom", "esnext"],
+    "strictNullChecks": true
   },
   "extends": "@tsconfig/docusaurus/tsconfig.json",
   "include": ["src"]

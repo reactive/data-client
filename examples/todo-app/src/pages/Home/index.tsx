@@ -2,7 +2,7 @@ import { css } from '@linaria/core';
 import { styled } from '@linaria/react';
 import Boundary from 'Boundary';
 
-import TodoListComponent from './TodoListComponent';
+import TodoList from './TodoList';
 
 export default function Home() {
   return (
@@ -10,7 +10,7 @@ export default function Home() {
       <Title>Todo List</Title>
       <main style={{ paddingTop: '50px' }}>
         <Boundary>
-          <TodoListComponent />
+          <TodoList />
         </Boundary>
       </main>
     </div>

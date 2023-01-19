@@ -1,6 +1,13 @@
 ---
-title: Immediate Mutation Updates
+title: Atomic Mutations ⚛
+sidebar_label: Atomic Mutations
 ---
+
+<head>
+  <title>⚛ Atomic Mutations: Safe, high performance async mutations</title>
+  <meta name="docsearch:pagerank" content="10"/>
+</head>
+
 
 When a user causes mutations like creating, updating, or deleting resources, it's important
 to have those changed be reflected in the application. A simple publish cache

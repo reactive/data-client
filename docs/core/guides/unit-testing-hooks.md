@@ -74,14 +74,15 @@ require('whatwg-fetch');
 <Tabs
 defaultValue="CacheProvider"
 values={[
-{ label: 'CacheProvider', value: 'CacheProvider' },
-{ label: 'ExternalCacheProvider', value: 'ExternalCacheProvider' },
+{ label: '@rest-hooks/react', value: 'CacheProvider' },
+{ label: '@rest-hooks/redux', value: 'ExternalCacheProvider' },
 ]}>
 <TabItem value="CacheProvider">
 
 ```typescript
 import nock from 'nock';
-import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
+import { makeRenderRestHook } from '@rest-hooks/test';
+import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';
 
 describe('useSuspense()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
@@ -123,7 +124,8 @@ describe('useSuspense()', () => {
 
 ```typescript
 import nock from 'nock';
-import { makeRenderRestHook, makeExternalCacheProvider } from '@rest-hooks/test';
+import { makeRenderRestHook } from '@rest-hooks/test';
+import makeCacheProvider from '@rest-hooks/redux/makeCacheProvider';
 
 describe('useSuspense()', () => {
   let renderRestHook: ReturnType<typeof makeRenderRestHook>;
@@ -139,7 +141,7 @@ describe('useSuspense()', () => {
       .reply(200)
       .get(`/article/0`)
       .reply(403, {});
-    renderRestHook = makeRenderRestHook(makeExternalCacheProvider);
+    renderRestHook = makeRenderRestHook(makeCacheProvider);
   });
 
   afterEach(() => {

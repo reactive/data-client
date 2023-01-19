@@ -1,5 +1,6 @@
 import Editor, { useMonaco, type OnMount } from '@monaco-editor/react';
-import type { languages } from 'monaco-editor';
+import type { ISelection, languages } from 'monaco-editor';
+import rangeParser from 'parse-numeric-range';
 import React, {
   memo,
   useMemo,
@@ -10,7 +11,6 @@ import React, {
   MutableRefObject,
 } from 'react';
 import { LiveEditor } from 'react-live';
-
 import './monaco-init';
 
 const MemoEditor = memo(Editor);
@@ -30,7 +30,8 @@ export default function PlaygroundMonacoEditor({
   if (!path.endsWith('.tsx') && !path.endsWith('.ts')) {
     path = path + '.tsx';
   }
-  /*const handleChange = useWorkerCB(
+  /* TODO: using ts to compile rather than babel
+  const handleChange = useWorkerCB(
     tsWorker => {
       tsWorker.getEmitOutput(`file:///${path}`).then(source => {
         onChange(source.outputFiles[0].text);
@@ -44,20 +45,36 @@ export default function PlaygroundMonacoEditor({
     if (autoFocus) editor.focus();
     // autohighlight
     const highlights = Object.keys(rest)
-      .map(key => /\{(\d+)\}/.exec(key)?.[1])
-      .filter(Boolean);
+      .map(key => /\{([\d\-,.]+)\}/.exec(key)?.[1])
+      .filter(Boolean)
+      .map(rangeParser);
+
     if (highlights.length) {
-      editor.setSelections(
-        highlights.map(lineNumber => {
-          const selectionStartLineNumber = Number.parseInt(lineNumber, 10);
-          return {
+      let selectionStartLineNumber = highlights[0][0];
+      let positionLineNumber = selectionStartLineNumber;
+      const selections: ISelection[] = [];
+      highlights[0].forEach(lineNumber => {
+        // more of same selection
+        if (lineNumber === positionLineNumber) {
+          positionLineNumber++;
+        } else {
+          selections.push({
             selectionStartLineNumber,
             selectionStartColumn: 0,
-            positionLineNumber: selectionStartLineNumber + 1,
+            positionLineNumber,
             positionColumn: 0,
-          };
-        }),
-      );
+          });
+          selectionStartLineNumber = lineNumber;
+          positionLineNumber = lineNumber + 1;
+        }
+      });
+      selections.push({
+        selectionStartLineNumber,
+        selectionStartColumn: 0,
+        positionLineNumber,
+        positionColumn: 0,
+      });
+      editor.setSelections(selections);
     }
 
     // autoheight
@@ -79,16 +96,19 @@ export default function PlaygroundMonacoEditor({
     editor.onDidChangeModelDecorations(() => {
       // wait until dom rendered
       setTimeout(() => {
-        const height =
-          codeContainer.childElementCount * LINE_HEIGHT + CONTAINER_GUTTER; // fold
+        const lineCount =
+          editor.getModel()?.getLineCount?.() ??
+          codeContainer.childElementCount;
+        const height = lineCount * LINE_HEIGHT + CONTAINER_GUTTER; // fold
         prevLineCount = codeContainer.childElementCount;
 
         el.style.height = height + 'px';
-        setHeight(contentHeight);
+        setHeight(height);
 
         editor.layout();
       }, 0);
     });
+    return () => editor?.dispose();
   }, []);
 
   return (

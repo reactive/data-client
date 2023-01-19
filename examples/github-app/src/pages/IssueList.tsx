@@ -8,15 +8,14 @@ import LinkPagination from '../navigation/LinkPagination';
 
 export default function IssueList({ owner, repo }: Props) {
   const location = useLocation();
-  const page = Number.parseInt(
-    new URLSearchParams(location?.search?.substring?.(1)).get('page') || '1',
-    10,
-  );
+  const page =
+    new URLSearchParams(location?.search?.substring?.(1)).get('page') || '1';
   const params = {
     owner,
     repo,
     page,
   };
+
   const { results: issues, link } = useLive(IssueResource.getList, params);
 
   return (

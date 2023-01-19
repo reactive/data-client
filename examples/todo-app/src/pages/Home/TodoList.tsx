@@ -1,10 +1,10 @@
 import { useSuspense } from '@rest-hooks/react';
-import { TodoResource, Todo } from 'resources/TodoResource';
+import { TodoResource } from 'resources/TodoResource';
 
 import NewTodo from './NewTodo';
 import TodoListItem from './TodoListItem';
 
-export default function TodoListComponent() {
+export default function TodoList() {
   const todos = useSuspense(TodoResource.getList);
 
   return (

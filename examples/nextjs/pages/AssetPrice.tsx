@@ -2,10 +2,6 @@ import { useLive } from '@rest-hooks/react';
 
 import { getExchangeRates } from './api/ExchangeRates';
 
-export interface Props {
-  symbol: string;
-}
-
 export default function AssetPrice({ symbol }: Props) {
   // Learn more about Rest Hooks: https://resthooks.io/docs
   const { data: price } = useLive(getExchangeRates, {
@@ -20,4 +16,8 @@ export default function AssetPrice({ symbol }: Props) {
       {symbol} {displayPrice}
     </span>
   );
+}
+
+export interface Props {
+  symbol: string;
 }

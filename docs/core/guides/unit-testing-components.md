@@ -72,8 +72,8 @@ export default {
 ```
 
 ```tsx title="__tests__/ArticleList.tsx"
-import { CacheProvider } from '@rest-hooks/react';
-import { render } from '@testing-library/react';
+import { CacheProvider, AsyncBoundary } from '@rest-hooks/react';
+import { render, waitFor } from '@testing-library/react';
 import { MockResolver } from '@rest-hooks/test';
 
 import ArticleList from 'components/ArticleList';
@@ -86,8 +86,8 @@ describe('<ArticleList />', () => {
         <ArticleList maxResults={10} />
       </CacheProvider>
     );
-    const { queryByText } = render(tree);
-    const content = queryByText(results.full.result[0].content);
+    const { findByText } = render(tree);
+    const content = findByText(results.full.result[0].content);
     expect(content).toBeDefined();
   });
 
@@ -95,17 +95,16 @@ describe('<ArticleList />', () => {
     const tree = (
       <CacheProvider>
         <MockResolver fixtures={results.full}>
-          <Suspense fallback="loading">
+          <AsyncBoundary fallback="loading">
             <ArticleList maxResults={10} />
-          </Suspense>
+          </AsyncBoundary>
         </MockResolver>
       </CacheProvider>
     );
-    const { queryByText, waitForNextUpdate } = render(tree);
-    expect(queryByText('loading')).toBeDefined();
+    const { findByText } = render(tree);
+    expect(findByText('loading')).toBeDefined();
 
-    await waitForNextUpdate();
-    expect(queryByText(results.full.result[0].content)).toBeDefined();
+    await waitFor(expect(findByText(results.full.result[0].content)).toBeDefined());
   })
 });
 ```

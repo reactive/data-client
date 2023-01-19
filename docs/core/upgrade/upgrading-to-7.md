@@ -1,6 +1,7 @@
 ---
 title: Upgrading from 6 to 7
 ---
+
 import BeforeAfterTabs from '@site/src/components/BeforeAfterTabs';
 import PkgTabs from '@site/src/components/PkgTabs';
 import PkgInstall from '@site/src/components/PkgInstall';
@@ -49,7 +50,6 @@ and have been removed from 'rest-hooks'. Be sure to update their import location
 - [ExternalCacheProvider](../api/ExternalCacheProvider.md)
 - PromiseifyMiddleware
 - mapMiddleware
-
 
 ## Deprecations
 
@@ -116,6 +116,8 @@ This will become the recommended way to consume rest hooks when using React. The
 still work but eventually remove any additions.
 
 - `import {} from 'rest-hooks'` -> `import {} from '@rest-hooks/react'`
+- `import { makeCacheProvider } from '@rest-hooks/test';` -> `import makeCacheProvider from '@rest-hooks/react/makeCacheProvider';`
+- `import { makeExternalCacheProvider } from '@rest-hooks/test';` -> `import makeExternalCacheProvider from '@rest-hooks/redux/makeCacheProvider';`
 
 ## Support
 

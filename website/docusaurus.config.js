@@ -247,6 +247,10 @@ module.exports = {
             ],
           },
           {
+            to: '/docs/concepts/atomic-mutations',
+            from: ['/docs/getting-started/immediate-updates'],
+          },
+          {
             to: '/docs/concepts/validation',
             from: ['/docs/getting-started/validation'],
           },
@@ -349,7 +353,7 @@ module.exports = {
       ogImage: 'img/rest_hooks_logo.png',
       twitterImage: 'img/rest_hooks_logo.png',
       announcementBar: {
-        id: 'announcementBar-4', // Increment on change
+        id: 'announcementBar-3', // Increment on change
         content: `Give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/coinbase/rest-hooks">GitHub</a>. Get support on <a target="_blank" rel="noopener noreferrer" href="https://discord.gg/35nb8Mz">Discord</a>. File <a target="_blank" rel="noopener noreferrer" href="https://github.com/coinbase/rest-hooks/issues/new/choose">bug report</a>.`,
       },
       navbar: {
@@ -383,11 +387,6 @@ module.exports = {
           },
           { to: '/blog', label: 'News', position: 'left' },
           {
-            to: 'demos',
-            label: '🎮 Demos',
-            position: 'right',
-          },
-          {
             type: 'docsVersionDropdown',
             docsPluginId: 'default',
             position: 'right',
@@ -409,10 +408,23 @@ module.exports = {
             position: 'right',
           },
           {
+            to: 'demos',
+            //label: '🎮 Demos',
+            position: 'right',
+            className: 'header-demos-link',
+            'aria-label': 'GitHub repository',
+          },
+          {
             href: 'https://www.github.com/coinbase/rest-hooks',
             position: 'right',
             className: 'header-github-link',
             'aria-label': 'GitHub repository',
+          },
+          {
+            href: 'https://discord.gg/9aTc42GXWR',
+            position: 'right',
+            className: 'header-discord-link',
+            'aria-label': 'Discord chat support',
           },
         ],
       },
@@ -485,7 +497,7 @@ module.exports = {
               },
               {
                 label: 'Demo (Todo)',
-                to: 'https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoListComponent.tsx',
+                to: 'https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx',
               },
               {
                 label: 'Demo (NextJS)',

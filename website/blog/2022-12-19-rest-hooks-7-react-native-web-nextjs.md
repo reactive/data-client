@@ -85,7 +85,8 @@ export default function App({ Component, pageProps }: AppProps) {
 #### Demo
 
 <iframe
-  src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/nextjs?embed=1&file=src%2Fpages%2FHome%2FTodoListComponent.tsx&hidedevtools=1&view=both&ctl=1"
+  loading="lazy"
+  src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/nextjs?embed=1&file=pages%2FAssetPrice.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
   width="100%"
   height="500"
 ></iframe>

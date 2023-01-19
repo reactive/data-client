@@ -17,6 +17,7 @@ export function PlaygroundTextEdit({
   handleCodeChange,
   codes,
   large = false,
+  isPlayground = true,
 }) {
   const id = useId();
 
@@ -35,6 +36,7 @@ export function PlaygroundTextEdit({
           titles={codeTabs.map(({ title }) => title)}
           closedList={closedList}
           onClick={i => setClosed(cl => cl.map((_, j) => j !== i))}
+          isPlayground={isPlayground}
         />
       ) : null}
       {codeTabs.map(({ title, path, code, collapsed, ...rest }, i) => (
@@ -50,7 +52,7 @@ export function PlaygroundTextEdit({
               }
               closed={closedList[i]}
               title={title}
-              collapsible={codeTabs.length > 1}
+              collapsible={codeTabs.length > 1 || fixtures?.length}
               lastChild={i === codeTabs.length - 1 && large}
             />
           ) : null}
@@ -155,13 +157,13 @@ function CodeTabHeader({
   return <div className={styles.codeHeader}>{title}</div>;
 }
 
-function EditorTabs({ titles, closedList, onClick }) {
+function EditorTabs({ titles, closedList, onClick, isPlayground = true }) {
   const { values } = useContext(CodeTabContext);
   const hasTabs = values.length > 0;
   return (
     <Header
       className={clsx(
-        { [styles.small]: hasTabs, [styles.subtabs]: hasTabs },
+        { [styles.small]: hasTabs || !isPlayground, [styles.subtabs]: hasTabs },
         styles.noupper,
         styles.tabControls,
       )}

@@ -62,8 +62,8 @@ function AbortDemo() {
         <TodoDetail id={id} />
       </React.Suspense>
       <div>
-        <button onClick={() => setId(id => id - 1)}>➖</button>{' '}
-        <button onClick={() => setId(id => id + 1)}>➕</button> &nbsp;{id}
+        <button onClick={() => setId(id => id - 1)}>⬇️</button>{' '}
+        <button onClick={() => setId(id => id + 1)}>⬆️</button> &nbsp;{id}
       </div>
     </div>
   );

@@ -321,7 +321,7 @@ the variable `todos` will be typed precisely.
 ```tsx {4}
 import { useSuspense } from '@rest-hooks/react';
 
-export default function TodoListComponent() {
+export default function TodoList() {
   const todos = useSuspense(getTodoList);
 
   return (
@@ -594,36 +594,33 @@ const todoDetail404Fixture: FixtureEndpoint = {
   <TabItem value="todo">
 
 <iframe
-  src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?embed=1&file=src%2Fpages%2FHome%2FTodoListComponent.tsx&hidedevtools=1&view=both&ctl=1"
+  loading="lazy"
+  src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?embed=1&file=src%2Fpages%2FHome%2FTodoList.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
   width="100%"
   height="500"
 ></iframe>
-
-[Open demo in own tab](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoListComponent.tsx)
 
 [Explore on github](https://github.com/coinbase/rest-hooks/tree/master/examples/todo-app)
 </TabItem>
 
   <TabItem value="github">
 <iframe
-  src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fpages%2FIssueList.tsx&hidedevtools=1&view=preview&ctl=1"
+  loading="lazy"
+  src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fpages%2FIssueList.tsx&hidedevtools=1&view=preview&terminalHeight=0&hideNavigation=1"
   width="100%"
   height="500"
 ></iframe>
-
-[Open demo in own tab](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
 
 [Explore on github](https://github.com/coinbase/rest-hooks/tree/master/examples/github-app)
 </TabItem>
   <TabItem value="nextjs">
 
 <iframe
-  src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/nextjs?embed=1&file=src%2Fpages%2FHome%2FTodoListComponent.tsx&hidedevtools=1&view=both&ctl=1"
+  loading="lazy"
+  src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/nextjs?embed=1&file=pages%2FAssetPrice.tsx&hidedevtools=1&view=both&terminalHeight=0&showSidebar=0&hideNavigation=1"
   width="100%"
   height="500"
 ></iframe>
-
-[Open demo in own tab](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
 
 [Explore on github](https://github.com/coinbase/rest-hooks/tree/master/examples/nextjs)
 </TabItem>

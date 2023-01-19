@@ -8,22 +8,24 @@ html[data-theme='light'] {
   --monoco-code-background: #292d3e;
   --monoco-code-lineHighlightBorder: hsl(228, 20%, 25%);
   --ifm-hero-fade-to-background-color: #fff;
+  --ifm-link-color: var(--ifm-color-primary-dark);
+
 }
 :root {
-  --ifm-color-primary-lightest: #b09dff;
-  --ifm-color-primary-lighter: #896eff;
-  --ifm-color-primary-light: #7d5eff;
-  --ifm-color-primary: hsl(252, 100%, 65%);
-  --ifm-color-primary-dark: hsl(251, 100%, 56%);
-  --ifm-color-primary-darker: #3d0eff;
-  --ifm-color-primary-darkest: #2b00de;
-  --ifm-color-info: #08bfb6;
-  --ifm-color-info-dark: #07aca4;
-  --ifm-color-info-darker: #07a29b;
-  --ifm-color-info-darkest: #06867f;
-  --ifm-color-info-light: #09d2c8;
-  --ifm-color-info-lighter: #09dcd1;
-  --ifm-color-info-lightest: #0ef5ea;
+  --ifm-color-primary-lightest: hsl(252, 72%, 81%);
+  --ifm-color-primary-lighter: hsl(252, 72%, 72%);
+  --ifm-color-primary-light: hsl(252, 72%, 68%);
+  --ifm-color-primary: rgb(127, 101, 230);
+  --ifm-color-primary-dark: hsl(252, 72%, 56%);
+  --ifm-color-primary-darker: hsl(252, 72%, 53%);
+  --ifm-color-primary-darkest: hsl(252, 72%, 44%);
+  --ifm-color-info: hsl(206, 58%, 51%);
+  --ifm-color-info-dark: hsl(206, 58%,  35%);
+  --ifm-color-info-darker: hsl(206, 58%, 33%);
+  --ifm-color-info-darkest: hsl(206, 58%, 27%);
+  --ifm-color-info-light: hsl(206, 58%, 43%);
+  --ifm-color-info-lighter: hsl(206, 58%, 45%);
+  --ifm-color-info-lightest: hsl(206, 58%, 51%);
   --ifm-font-family-base: 'Rubik', 'Avenir Next', 'Segoe UI', Tahoma, Geneva,
     Verdana, sans-serif;
   --ifm-font-family-monospace: 'Roboto Mono', SFMono-Regular, Menlo, Monaco,

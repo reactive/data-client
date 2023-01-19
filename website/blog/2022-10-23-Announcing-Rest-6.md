@@ -26,7 +26,7 @@ First, we have completely decoupled the _networking lifecycle_ [RestEndpoint](/r
 from the _data lifecycle_ [Schema](/rest/api/schema). Collections of Endpoints that operate on the same
 data can be consgtructed by calling [createResource](/rest/api/createResource).
 
-## RestEndpoint
+### RestEndpoint
 
 <HooksPlayground row>
 
@@ -56,7 +56,7 @@ The new [RestEndpoint](/rest/api/RestEndpoint) optimizes configuration based aro
 networking. Urls are constructed based on simple named parameters, which are [enforced with
 strict TypeScript automatically](/rest/api/RestEndpoint#typing).
 
-## createResource
+### createResource
 
 <HooksPlayground row>
 
@@ -112,13 +112,13 @@ controller.fetch(TodoResource.delete, { id: '5' });
 
 <!--truncate-->
 
-## Motivation
+### Motivation
 
 Previously, [Resource](/rest/5.2/api/resource) _was_ an [Entity](/rest/5.2/api/Entity). Endpoints are defined as [static members](/rest/5.2/api/resource#detail).
 
 The motivation is for brevity: This allows one import to both define the expected type as well as access the endpoints to send as hook 'subjects'.
 
-### Problems
+#### Problems
 
 However, this lead to some problems. Originally it was thought many of these would be eliminated by improvements
 in related technologies.
@@ -135,13 +135,13 @@ in related technologies.
 Probably most of all is that sharing data lifecycles with networking lifecycles made them quite a bit confusing in
 many ways.
 
-## Custom Networking
+### Custom Networking
 
 Customizations can be done easily with both [RestEndpoint inheritance](/rest/api/RestEndpoint#inheritance)
 as well as [RestEndpoint.extend()](/rest/api/RestEndpoint#extend). Explore the [fetch lifecycle](/rest/api/RestEndpoint#fetch-lifecycle)
 to understand how these customizations affect fetch.
 
-### Base overrides for lifecycles
+#### Base overrides for lifecycles
 
 ```ts
 class GithubEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
@@ -172,7 +172,7 @@ class GithubEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
 }
 ```
 
-### Default values
+#### Default values
 
 ```ts
 class IssueEndpoint<O extends RestGenerics = any> extends GithubEndpoint<O> {
@@ -180,7 +180,7 @@ class IssueEndpoint<O extends RestGenerics = any> extends GithubEndpoint<O> {
 }
 ```
 
-## Pagination
+### Pagination
 
 [Infinite scrolling pagination](/rest/guides/pagination#infinite-scrolling) can be achieved by creating a new pagination endpoint
 for from any list endpoints [RestEndpoint.paginated()](/rest/api/RestEndpoint#paginated) method.
@@ -197,7 +197,7 @@ const MyResource.getNextPage = MyResource.getList.paginated(
 );
 ```
 
-## Hook context for fetch construction
+### Hook context for fetch construction
 
 In cases where React context is needed to perform networking requests, we can construct hook
 endpoint generators with an augmentation function [hookifyResource](/rest/api/hookifyResource)
@@ -239,7 +239,7 @@ const onSubmit = () => controller.fetch(updateArticle, { id }, body);
 return <Form onSubmit={onSubmit} initialValues={article} />;
 ```
 
-## Inheritance patterns for code sharing
+### Inheritance patterns for code sharing
 
 For method overrides related to networking, you can [extend the RestEndpoint](/rest/guides/auth#cookie-auth)
 
@@ -293,18 +293,19 @@ export function createMyResource<U extends string, S extends Schema>({
 }
 ```
 
-## Demo
+### Demo
 
 Explore common patterns with this implementation using the GitHub API.
 
 <iframe
-  src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fresources%2FIssue.tsx&hideNavigation=1&hideDevTools=1&view=editor"
+  loading="lazy"
+  src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fresources%2FIssue.tsx&hideNavigation=1&hideDevTools=1&view=editor&terminalHeight=1"
   width="738"
   height="700"
   style={{ width: '100%' }}
 ></iframe>
 
-## Next Steps
+### Next Steps
 
 See the [full documentation for @rest-hooks/rest@6](/rest) for more detailed guides that cover all the functionality.
 

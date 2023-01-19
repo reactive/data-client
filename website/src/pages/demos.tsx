@@ -3,6 +3,8 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
 
+import { searchParams } from '../utils/searchParams';
+
 export default function DemoList() {
   return (
     <Layout
@@ -28,7 +30,16 @@ export default function DemoList() {
                 style={{ marginLeft: '1ex' }}
         ></a>*/}
           <iframe
-            src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?embed=1&file=src%2Fpages%2FHome%2FTodoListComponent.tsx&hideDevTools=1&hideNavigation=1"
+            loading="lazy"
+            src={`https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?${searchParams(
+              {
+                embed: '1',
+                file: ['src/pages/Home/TodoList.tsx'],
+                hideDevTools: '1',
+                hideNavigation: '1',
+                terminalHeight: '1',
+              },
+            )}`}
             width="900"
             height="600"
             style={{ width: '100%', height: 'calc(100vh - 170px)' }}
@@ -43,7 +54,16 @@ export default function DemoList() {
               style={{ marginLeft: '1ex' }}
             ></a>*/}
           <iframe
-            src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fpages%2FIssueList.tsx&hideNavigation=1&hideDevTools=1"
+            loading="lazy"
+            src={`https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?${searchParams(
+              {
+                embed: '1',
+                file: ['src/pages/IssueList.tsx'],
+                hideDevTools: '1',
+                hideNavigation: '1',
+                terminalHeight: '1',
+              },
+            )}`}
             width="900"
             height="700"
             style={{ width: '100%', height: 'calc(100vh - 170px)' }}
@@ -58,7 +78,16 @@ export default function DemoList() {
               style={{ marginLeft: '1ex' }}
             ></a>*/}
           <iframe
-            src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/nextjs?embed=1&file=pages%2FAssetPrice.tsx&hideNavigation=1&hideDevTools=1"
+            loading="lazy"
+            src={`https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/nextjs?${searchParams(
+              {
+                embed: '1',
+                file: ['pages/AssetPrice.tsx'],
+                hideDevTools: '1',
+                hideNavigation: '1',
+                terminalHeight: '1',
+              },
+            )}`}
             width="900"
             height="700"
             style={{ width: '100%', height: 'calc(100vh - 170px)' }}

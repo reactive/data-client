@@ -49,6 +49,10 @@
         },
         {
           "type": "doc",
+          "id": "concepts/atomic-mutations"
+        },
+        {
+          "type": "doc",
           "id": "concepts/managers"
         }
       ]
@@ -95,10 +99,6 @@
             {
               "type": "doc",
               "id": "guides/render-as-you-fetch"
-            },
-            {
-              "type": "doc",
-              "id": "guides/immediate-updates"
             },
             {
               "type": "doc",

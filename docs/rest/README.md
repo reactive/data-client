@@ -12,6 +12,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
+import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 <PkgTabs pkgs="@rest-hooks/rest" />
 
@@ -22,8 +23,24 @@ a collection of `endpoints` around one `schema`.
 
 <LanguageTabs>
 
-```typescript title="api/Article.ts"
+<TypeScriptEditor>
+
+```typescript title="api/User" collapsed
+import { Entity } from '@rest-hooks/rest';
+
+export class User extends Entity {
+  id: number | undefined = undefined;
+  username = '';
+
+  pk() {
+    return this.id?.toString();
+  }
+}
+```
+
+```typescript title="api/Article"
 import { Entity, createResource } from '@rest-hooks/rest';
+import { User } from './User';
 
 export class Article extends Entity {
   id: number | undefined = undefined;
@@ -49,6 +66,9 @@ export const ArticleResource = createResource({
   schema: Article,
 });
 ```
+
+</TypeScriptEditor>
+
 
 ```js title="api/Article.js"
 import { Entity, createResource } from '@rest-hooks/rest';

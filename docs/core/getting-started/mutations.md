@@ -146,7 +146,7 @@ export const TodoResource = {
 };
 ```
 
-```tsx title="TodoItem.tsx" {12}
+```tsx title="TodoItem.tsx" {12-16}
 import { useController } from '@rest-hooks/react';
 import { TodoResource, Todo } from './api/Todo';
 

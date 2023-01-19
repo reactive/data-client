@@ -14,7 +14,8 @@ export default function TypeScriptEditor({ children, row }) {
         codeTabs={codeTabs}
         handleCodeChange={handleCodeChange}
         codes={codes}
-        large={true}
+        large={false}
+        isPlayground={false}
       />
     </div>
   );

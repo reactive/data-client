@@ -28,7 +28,7 @@ values={[
 
 <HooksPlayground defaultOpen="n" row>
 
-```ts title="api/Todo.ts" collapsed
+```ts title="api/Todo" collapsed
 export class Todo extends Entity {
   id = 0;
   userId = 0;
@@ -45,7 +45,7 @@ export const TodoResource = createResource({
 });
 ```
 
-```tsx title="Todo.tsx" {5}
+```tsx title="Todo" {5}
 import { useSuspense } from '@rest-hooks/react';
 import { TodoResource } from './api/Todo';
 
@@ -63,7 +63,7 @@ render(<TodoDetail id={1} />);
 
 <HooksPlayground defaultOpen="n" row>
 
-```ts title="api/Todo.ts" collapsed
+```ts title="api/Todo" collapsed
 export class Todo extends Entity {
   id = 0;
   userId = 0;
@@ -80,7 +80,7 @@ export const TodoResource = createResource({
 });
 ```
 
-```tsx title="TodoList.tsx" {5}
+```tsx title="TodoList" {5}
 import { useSuspense } from '@rest-hooks/react';
 import { TodoResource } from './api/Todo';
 
@@ -185,7 +185,7 @@ For these cases, or compatibility with some component libraries, [useDLE()](../a
 
 <HooksPlayground defaultOpen="n" row>
 
-```ts title="api/Todo.ts" collapsed
+```ts title="api/Todo" collapsed
 export class Todo extends Entity {
   id = 0;
   userId = 0;
@@ -202,7 +202,7 @@ export const TodoResource = createResource({
 });
 ```
 
-```tsx title="Todo.tsx" {5}
+```tsx title="Todo" {5}
 import { useDLE } from '@rest-hooks/react';
 import { TodoResource } from './api/Todo';
 
@@ -235,7 +235,7 @@ values={[
 
 <HooksPlayground defaultOpen="n" row>
 
-```ts title="api/Todo.ts" collapsed
+```ts title="api/Todo" collapsed
 export class Todo extends Entity {
   id = 0;
   userId = 0;
@@ -253,7 +253,7 @@ export const TodoResource = createResource({
 });
 ```
 
-```tsx title="Todo.tsx" {5}
+```tsx title="Todo" {5}
 import { useLive } from '@rest-hooks/react';
 import { TodoResource } from './api/Todo';
 
@@ -271,7 +271,7 @@ render(<TodoDetail id={1} />);
 
 <HooksPlayground defaultOpen="n" row>
 
-```ts title="api/Todo.ts" collapsed
+```ts title="api/Todo" collapsed
 export class Todo extends Entity {
   id = 0;
   userId = 0;
@@ -289,7 +289,7 @@ export const TodoResource = createResource({
 });
 ```
 
-```tsx title="TodoList.tsx" {5}
+```tsx title="TodoList" {5}
 import { useLive } from '@rest-hooks/react';
 import { TodoResource } from './api/Todo';
 
@@ -329,7 +329,7 @@ export const TodoResource = createResource({
 
 <HooksPlayground defaultOpen="n">
 
-```typescript title="api/ExchangeRates.ts" {14}
+```typescript title="api/ExchangeRates" {14}
 export class ExchangeRates extends Entity {
   readonly currency: string = 'USD';
   readonly rates: Record<string, string> = {};
@@ -347,7 +347,7 @@ export const getExchangeRates = new RestEndpoint({
 });
 ```
 
-```tsx title="AssetPrice.tsx" {5}
+```tsx title="AssetPrice" {5}
 import { useLive } from '@rest-hooks/react';
 import { getExchangeRates } from './api/ExchangeRates';
 

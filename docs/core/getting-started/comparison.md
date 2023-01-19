@@ -44,28 +44,28 @@ but having bluetooth and internet streaming isn't necessarily worse than a car w
 
 ### Safety
 
-|                                               | Rest Hooks | SWR | RTK-Query | Apollo | Relay |
-| --------------------------------------------- | :--------: | :-: | :-------: | :----: | :---: |
-| **Data Integrity**                            |            |     |           |        |
-| Typed returns                                 |     ✅     | 🛑  |    🛑     |        |
-| Typed arguments                               |     ✅     | 🛑  |    🛑     |        |
-| Typed mutations                               |     ✅     | 🛑  |    🛑     |        |
-| [Validation](../concepts/validation.md)       |     ✅     | 🛑  |    🛑     |        |  🛑   |
-| Global referential integrity                  |     ✅     | 🛑  |    🛑     |        |  🛑   |
-| Atomic mutations                              |     ✅     | 🛑  |    🛑     |        |  ✅   |
-| Mutation isolation                            |     ✅     | 🛑  |           |        |  ✅   |
-| **Data Consistency**                          |            |     |           |        |
-| No component tearing                          |     ✅     |     |           |        |  ✅   |
-| No mutation flashes                           |     ✅     | 🛑  |    🛑     |        |  ✅   |
-| Across queries                                |     ✅     | 🛑  |    🛑     |   ✅   |  ✅   |
-| Fetch order protection                        |     ✅     | 🛑  |    🛑     |        |
-| Entity ordering protection                    |     ✅     | 🛑  |    🛑     |        |
-| **Relationships**                             |            |     |           |        |
-| one-to-one                                    |     ✅     | 🛑  |    🛑     |   ✅   |  ✅   |
-| many-to-one                                   |     ✅     | 🛑  |    🛑     |   ✅   |  ✅   |
-| many-to-many                                  |     🟡     | 🛑  |    🛑     |        |  ✅   |
-| **Liveliness**                                |            |     |           |        |
-| [Expiry policy](../concepts/expiry-policy.md) |     ✅     | 🛑  |    ✅     |        |
+|                                                     | Rest Hooks | SWR | RTK-Query | Apollo | Relay |
+| --------------------------------------------------- | :--------: | :-: | :-------: | :----: | :---: |
+| **Data Integrity**                                  |            |     |           |        |
+| Typed returns                                       |     ✅     | 🛑  |    🛑     |        |
+| Typed arguments                                     |     ✅     | 🛑  |    🛑     |        |
+| Typed mutations                                     |     ✅     | 🛑  |    🛑     |        |
+| [Validation](../concepts/validation.md)             |     ✅     | 🛑  |    🛑     |        |  🛑   |
+| Global referential integrity                        |     ✅     | 🛑  |    🛑     |        |  🛑   |
+| [Atomic mutations](../concepts/atomic-mutations.md) |     ✅     | 🛑  |    🛑     |        |  ✅   |
+| Mutation isolation                                  |     ✅     | 🛑  |           |        |  ✅   |
+| **Data Consistency**                                |            |     |           |        |
+| No component tearing                                |     ✅     |     |           |        |  ✅   |
+| No mutation flashes                                 |     ✅     | 🛑  |    🛑     |        |  ✅   |
+| Across queries                                      |     ✅     | 🛑  |    🛑     |   ✅   |  ✅   |
+| Fetch order protection                              |     ✅     | 🛑  |    🛑     |        |
+| Entity ordering protection                          |     ✅     | 🛑  |    🛑     |        |
+| **Relationships**                                   |            |     |           |        |
+| one-to-one                                          |     ✅     | 🛑  |    🛑     |   ✅   |  ✅   |
+| many-to-one                                         |     ✅     | 🛑  |    🛑     |   ✅   |  ✅   |
+| many-to-many                                        |     🟡     | 🛑  |    🛑     |        |  ✅   |
+| **Liveliness**                                      |            |     |           |        |
+| [Expiry policy](../concepts/expiry-policy.md)       |     ✅     | 🛑  |    ✅     |        |
 
 ### Performance
 

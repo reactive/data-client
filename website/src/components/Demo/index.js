@@ -121,9 +121,9 @@ const BaseTodoResource = createResource({
 export const TodoResource = {
   ...BaseTodoResource,
   partialUpdate: BaseTodoResource.partialUpdate.extend({
-    getOptimisticResponse(snap, params, body) {
+    getOptimisticResponse(snap, { id }, body) {
       return {
-        id: params.id,
+        id,
         ...body,
       };
     },
@@ -252,9 +252,9 @@ export const TodoResource = {
     },
   }),
   partialUpdate: BaseTodoResource.partialUpdate.extend({
-    getOptimisticResponse(snap, params, body) {
+    getOptimisticResponse(snap, { id }, body) {
       return {
-        id: params.id,
+        id,
         ...body,
       };
     },
@@ -458,9 +458,12 @@ const Demo = props => (
             to update the store.
           </p>
           <p>
-            This updates <strong>all</strong> usages <em>atomically</em> and{' '}
-            <em>immediately</em> with zero additional fetches. Rest Hooks
-            automatically ensures data consistency and integrity globally.
+            This updates <strong>all</strong> usages{' '}
+            <Link to="/docs/concepts/atomic-mutations">
+              <em>atomically</em> and <em>immediately</em>
+            </Link>{' '}
+            with zero additional fetches. Rest Hooks automatically ensures data
+            consistency and integrity globally.
           </p>
         </div>
       </div>

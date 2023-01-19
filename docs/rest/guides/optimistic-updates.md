@@ -80,7 +80,7 @@ export default function PublishButton({ id }: { id: string }) {
 
 ## Optimistic create with instant updates
 
-Optimistic updates can also be combined with [immediate updates](/docs/guides/immediate-updates), enabling updates to
+Optimistic updates can also be combined with [atomic mutations](/docs/concepts/atomic-mutations), enabling updates to
 other endpoints instantly. This is most commonly seen when creating new items
 while viewing a list of them.
 
@@ -161,7 +161,7 @@ export default function CreateArticle() {
 
 ## Optimistic Deletes
 
-Since deletes [automatically update the cache correctly](/docs/guides/immediate-updates#delete) upon fetch success,
+Since deletes [automatically update the cache correctly](/docs/concepts/atomic-mutations#delete) upon fetch success,
 making your delete endpoint do this optimistically is as easy as adding the [getOptimisticResponse](api/RestEndpoint.md#getoptimisticresponse)
 function to your options.
 
@@ -212,7 +212,7 @@ response: { count: 0 }
 }
 ]}>
 
-```ts title="api/Count.ts"
+```ts title="api/Count.ts" {19-25}
 export class CountEntity extends Entity {
   count = 0;
 
@@ -347,7 +347,7 @@ response: { count: 0, updatedAt: Date.now() }
 }
 ]}>
 
-```ts title="api/Count.ts"
+```ts title="api/Count.ts" {24-29,35}
 export class CountEntity extends Entity {
   count = 0;
   updatedAt = 0;

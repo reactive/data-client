@@ -246,6 +246,9 @@ div > .playgroundHeader.subtabs {
 .subtabs .tab {
   padding: 0.4rem 0.75rem;
 }
+.small .tab {
+  padding: 0.4rem 0.75rem;
+}
 .subtabs .tab:hover {
   background-color: var(--ifm-color-emphasis-400);
 }
