@@ -1,11 +1,4 @@
-import {
-  actionTypes,
-  CombinedActionTypes,
-  createReceive,
-  EndpointInterface,
-  EndpointUpdateFunction,
-} from '@rest-hooks/core';
-import { createFetch } from '@rest-hooks/core';
+import { actionTypes, CombinedActionTypes } from '@rest-hooks/core';
 import React from 'react';
 
 import { State, CacheProvider, Manager, Controller } from './index.js';

@@ -7,8 +7,8 @@ import useEnhancedReducer from '@rest-hooks/use-enhanced-reducer';
 import type { Middleware } from '@rest-hooks/use-enhanced-reducer';
 import React, { useEffect, useMemo, memo } from 'react';
 
-import BackupBoundary from './BackupBoundary.js';
 import { StateContext, DispatchContext } from '../context.js';
+import BackupBoundary from './BackupBoundary.js';
 
 interface StoreProps {
   children: React.ReactNode;

@@ -27,6 +27,8 @@ const baseConfig = {
     'packages/legacy/src/resource',
     'packages/legacy/src/rest-3',
     'packages/rest-hooks/src/hooks/hasUsableData',
+    'packages/core/src/state/legacy-actions/createFetch',
+    'packages/react/src/makeCacheProvider',
   ],
   testEnvironmentOptions: {
     url: 'http://localhost',

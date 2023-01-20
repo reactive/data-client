@@ -1,3 +1,4 @@
+// TODO(breaking): remove file - not used
 import { Schema } from '@rest-hooks/normalizr';
 
 import { FETCH_TYPE } from '../../actionTypes.js';

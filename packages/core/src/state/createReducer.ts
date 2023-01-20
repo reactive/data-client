@@ -1,7 +1,5 @@
 import { normalize } from '@rest-hooks/normalizr';
 
-import applyUpdatersToResults from './applyUpdatersToResults.js';
-import { createReceive as legacyCreateReceive } from './legacy-actions/index.js';
 import {
   RECEIVE_TYPE,
   INVALIDATE_TYPE,
@@ -14,6 +12,8 @@ import Controller from '../controller/Controller.js';
 import createOptimistic from '../controller/createOptimistic.js';
 import { ReceiveAction, OptimisticAction } from '../previousActions.js';
 import type { OldActionTypes, ActionTypes, State } from '../types.js';
+import applyUpdatersToResults from './applyUpdatersToResults.js';
+import { createReceive as legacyCreateReceive } from './legacy-actions/index.js';
 
 export const initialState: State<unknown> = {
   entities: {},
@@ -61,7 +61,9 @@ export default function createReducer(controller: Controller): ReducerType {
                 ? action.meta.createdAt.getTime()
                 : action.meta.createdAt,
           }) as any;
-        } else if (optimisticResponse) {
+        } /* istanbul ignore if */ else if (optimisticResponse) {
+          // TODO(breaking): this is no longer used, remove this branch
+          /* istanbul ignore next */
           receiveAction = legacyCreateReceive(optimisticResponse, {
             ...action.meta,
             dataExpiryLength: Infinity,

@@ -435,6 +435,7 @@ export const InvalidIfStaleArticleResource = createArticleResource(
 
 class PollingEndpoint<O extends RestGenerics = any> extends ArticleEndpoint<O> {
   pollFrequency = 5000;
+  dataExpiryLength = 5000;
 }
 export const PollingArticleResourceBase = createArticleResource(
   Article,
