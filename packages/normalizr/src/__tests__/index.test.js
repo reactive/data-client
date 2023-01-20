@@ -50,6 +50,10 @@ describe('normalize', () => {
     expect(normalize(['42'], new schema.Array(Test)).result).toEqual(['42']);
   });
 
+  test('can normalize null schema with string response', () => {
+    expect(normalize('17,234', null).result).toEqual('17,234');
+  });
+
   test('passthrough with undefined schema', () => {
     const input = {};
     expect(normalize(input).result).toBe(input);

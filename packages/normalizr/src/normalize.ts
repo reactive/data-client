@@ -201,7 +201,7 @@ export const normalize = <
   },
 ): NormalizedSchema<E, R> => {
   // no schema means we don't process at all
-  if (schema === undefined)
+  if (schema === undefined || schema === null)
     return {
       entities: existingEntities,
       indexes: existingIndexes,
