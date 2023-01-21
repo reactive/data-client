@@ -2,6 +2,7 @@ import type {
   EntityTable,
   NormalizedIndex,
   SchemaSimple,
+  UnvisitFunction,
 } from './interface.js';
 import type { Denormalize } from './normal.js';
 
@@ -9,17 +10,18 @@ import type { Denormalize } from './normal.js';
  * Programmatic cache reading
  * @see https://resthooks.io/rest/api/Query
  */
-export class Query<S extends SchemaSimple, P extends any[] = []> {
-  declare schema: S;
+export class Query<
+  S extends SchemaSimple,
+  P extends any[] = [],
+  R = Denormalize<S>,
+> {
+  declare schema: QuerySchema<S, R>;
   // TODO: allow arbitrary return types then inferring it from
-  declare process: (entries: Denormalize<S>, ...args: P) => Denormalize<S>;
+  declare process: (entries: Denormalize<S>, ...args: P) => R;
 
   readonly sideEffect = undefined;
 
-  constructor(
-    schema: S,
-    process?: (entries: Denormalize<S>, ...args: P) => Denormalize<S>,
-  ) {
+  constructor(schema: S, process?: (entries: Denormalize<S>, ...args: P) => R) {
     this.schema = this.createQuerySchema(schema);
     if (process) this.process = process;
     // allows for inheritance overrides
@@ -57,3 +59,17 @@ export class Query<S extends SchemaSimple, P extends any[] = []> {
     return query;
   }
 }
+
+type QuerySchema<Schema, R> = Exclude<
+  Schema,
+  'denormalize' | '_denormalizeNullable'
+> & {
+  denormalize(
+    input: {},
+    unvisit: UnvisitFunction,
+  ): [denormalized: R, found: boolean, suspend: boolean];
+  _denormalizeNullable(
+    input: {},
+    unvisit: UnvisitFunction,
+  ): [denormalized: R | undefined, found: boolean, suspend: boolean];
+};

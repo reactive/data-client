@@ -820,14 +820,18 @@ type IndexParams<S extends Schema> = S extends {
  * Programmatic cache reading
  * @see https://resthooks.io/rest/api/Query
  */
-declare class Query<S extends SchemaSimple, P extends any[] = []> {
-    schema: S;
-    process: (entries: Denormalize<S>, ...args: P) => Denormalize<S>;
+declare class Query<S extends SchemaSimple, P extends any[] = [], R = Denormalize<S>> {
+    schema: QuerySchema<S, R>;
+    process: (entries: Denormalize<S>, ...args: P) => R;
     readonly sideEffect: undefined;
-    constructor(schema: S, process?: (entries: Denormalize<S>, ...args: P) => Denormalize<S>);
+    constructor(schema: S, process?: (entries: Denormalize<S>, ...args: P) => R);
     key(...args: P): string;
     protected createQuerySchema(schema: SchemaSimple): any;
 }
+type QuerySchema<Schema, R> = Exclude<Schema, 'denormalize' | '_denormalizeNullable'> & {
+    denormalize(input: {}, unvisit: UnvisitFunction): [denormalized: R, found: boolean, suspend: boolean];
+    _denormalizeNullable(input: {}, unvisit: UnvisitFunction): [denormalized: R | undefined, found: boolean, suspend: boolean];
+};
 
 declare class AbortOptimistic extends Error {
 }

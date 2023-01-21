@@ -31,6 +31,23 @@ class Query<S extends SchemaSimple, P extends any[] = []> {
 `Query` implements the [EndpointInterface](./Endpoint.md) but without the fetch function, which
 means it can only be passed to the [data binding hook useCache()](/docs/api/useCache)
 
+## Query members
+
+### schema
+
+[Schema](./schema.md) used to retrieve/denormalize data from the Rest Hooks cache.
+Most cases will use [schema.All](./All.md), which retrieves all entities of a given type found
+in the cache.
+
+### process(entries, ...args) {#process}
+
+Takes the (denormalized) response as entries and arguments and returns the new
+response for use with [useCache](/docs/api/useCache)
+
+### key(...args) {#key}
+
+Implements [Endpoint.key](./Endpoint.md#key) Used to determine recomputation of memoized values.
+
 ## Usage
 
 ### Simplest
@@ -85,7 +102,7 @@ render(<UsersPage />);
 
 </HooksPlayground>
 
-### Sorting
+### Sorting & Filtering
 
 <HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
@@ -119,10 +136,16 @@ export const UserResource = createResource({
 import { Query, schema } from '@rest-hooks/rest';
 import { UserResource, User } from './api/User';
 
+interface Args {
+  asc: boolean;
+  isAdmin?: boolean;
+}
 const sortedUsers = new Query(
   new schema.All(User),
-  (entries, { asc } = { asc: false }) => {
-    const sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
+  (entries, { asc, isAdmin }: Args = { asc: false }) => {
+    let sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
+    if (isAdmin !== undefined)
+      sorted = sorted.filter(user => user.isAdmin === isAdmin);
     if (asc) return sorted;
     return sorted.reverse();
   },
@@ -145,7 +168,7 @@ render(<UsersPage />);
 
 </HooksPlayground>
 
-### Filtering
+### Aggregates
 
 <HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
@@ -160,7 +183,7 @@ delay: 150,
 },
 ]}>
 
-```ts title="api/User.ts" collapsed
+```ts title="api/User" collapsed
 export class User extends Entity {
   id = '';
   name = '';
@@ -175,27 +198,32 @@ export const UserResource = createResource({
 });
 ```
 
-```tsx title="UsersPage.tsx"
+```tsx title="UsersPage"
 import { Query, schema } from '@rest-hooks/rest';
 import { UserResource, User } from './api/User';
 
-const usersByAdmin = new Query(
+const getUserCount = new Query(
   new schema.All(User),
-  (entries, { isAdmin }: { isAdmin?: boolean } = {}) => {
-    if (isAdmin === undefined) return entries;
-    return entries.filter(user => user.isAdmin === isAdmin);
+  (entries, { isAdmin } = { }) => {
+    if (isAdmin !== undefined)
+      return entries.filter(user => user.isAdmin === isAdmin).length;
+    return entries.length;
   },
 );
 
 function UsersPage() {
   useFetch(UserResource.getList);
-  const users = useCache(usersByAdmin, { isAdmin: true });
-  if (!users) return <div>No users in cache yet</div>;
+  const userCount = useCache(getUserCount);
+  const adminCount = useCache(getUserCount, { isAdmin: true });
+  if (userCount === undefined) return <div>No users in cache yet</div>;
   return (
     <div>
-      {users.map(user => (
-        <div key={user.pk()}>{user.name}</div>
-      ))}
+    <div>
+      Total users: {userCount}
+    </div>
+    <div>
+      Total admins: {adminCount}
+    </div>
     </div>
   );
 }
@@ -281,20 +309,3 @@ render(<TodosPage />);
 ```
 
 </HooksPlayground>
-
-## Query members
-
-### schema
-
-[Schema](./schema.md) used to retrieve/denormalize data from the Rest Hooks cache.
-Most cases will use [schema.All](./All.md), which retrieves all entities of a given type found
-in the cache.
-
-### process(entries, ...args) {#process}
-
-Takes the (denormalized) response as entries and arguments and returns the new
-response for use with [useCache](/docs/api/useCache)
-
-### key(...args) {#key}
-
-Implements [Endpoint.key](./Endpoint.md#key) Used to determine recomputation of memoized values.
