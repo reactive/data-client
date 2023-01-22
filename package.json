@@ -10,7 +10,7 @@
     "version:breaking": "lerna version --create-release=github",
     "version:beta": "lerna version  --create-release=github --no-git-tag-version --conventional-prerelease",
     "lint": "eslint --ext .ts,.tsx,.js",
-    "format": "eslint --fix \"packages/*/src/**/*.{js,ts,tsx}\"",
+    "format": "eslint --fix \"packages/*/src/**/*.{js,ts,tsx,cts}\"",
     "clean:types": "rimraf packages/*/*.tsbuildinfo",
     "build": "yarn build:types && yarn workspaces foreach -ptiv --no-private run build",
     "build:bundle": "yarn workspaces foreach -ptiv --no-private run build:bundle",

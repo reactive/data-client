@@ -2927,12 +2927,12 @@ __metadata:
 
 "@rest-hooks/core@file:../packages/core::locator=root-workspace-0b6124%40workspace%3A.":
   version: 4.1.5
-  resolution: "@rest-hooks/core@file:../packages/core#../packages/core::hash=b3a4db&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/core@file:../packages/core#../packages/core::hash=ebdfcb&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/normalizr": ^9.3.6
     flux-standard-action: ^2.1.1
-  checksum: 8d132c6e736ef424f31ef1a60f759a9459eec5e5c0b86008d206c56ee4085deb19a42b74c3d6977d030ecac77169b2a9eacc926465a9f7165c7fe80947b331ca
+  checksum: d85b1bf9c72dfb010d3662fe0580936a0c195fc94cdb7a93980ea998072fb0acfb30e0543c9b677a4866a46b275cf21143a3026d8432c3ffcd7fb7be42cef020
   languageName: node
   linkType: hard
 
@@ -2982,7 +2982,7 @@ __metadata:
 
 "@rest-hooks/react@file:../packages/react::locator=root-workspace-0b6124%40workspace%3A.":
   version: 7.1.5
-  resolution: "@rest-hooks/react@file:../packages/react#../packages/react::hash=9ca2ff&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/react@file:../packages/react#../packages/react::hash=095540&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/core": ^4.1.5
@@ -2996,7 +2996,7 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: e66b37c84431fbf046b6514b8d9386328f965ad59452a51a25fa4601e711fc35baaead96f6cb4d65e20ed541e0ebf06b5098bf04ce68fe479baca6b54c86a86d
+  checksum: 9a651ddb3c16056d763169d4fcd90776d78ade15685845d31f62dd5b54b97da7b4bc5d7628530debc77081d59f6f267e15f3cff3ba5b1950dbd0161f712de2d5
   languageName: node
   linkType: hard
 
