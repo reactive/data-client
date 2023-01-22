@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1674414567524,
+  "lastUpdate": 1674424311843,
   "repoUrl": "https://github.com/coinbase/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -10832,6 +10832,93 @@ window.BENCHMARK_DATA = {
             "range": "±1.60%",
             "unit": "ops/sec",
             "extra": "69 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "305debd269216444519d80c351fd63805a974343",
+          "message": "pkg: Update linting packages (#2376)\n\n* pkg: Update linting packages\r\n\r\n* internal: Format code with updated linters\r\n\r\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\r\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2023-01-22T13:46:50-08:00",
+          "tree_id": "1f051c47c9e96de2553f624ed05006b951fc4595",
+          "url": "https://github.com/coinbase/rest-hooks/commit/305debd269216444519d80c351fd63805a974343"
+        },
+        "date": 1674424309963,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 92.78,
+            "range": "±0.68%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 7244,
+            "range": "±0.36%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 47.21,
+            "range": "±1.33%",
+            "unit": "ops/sec",
+            "extra": "62 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 53.35,
+            "range": "±0.31%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 51.86,
+            "range": "±0.93%",
+            "unit": "ops/sec",
+            "extra": "67 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 52.35,
+            "range": "±0.26%",
+            "unit": "ops/sec",
+            "extra": "67 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 92.95,
+            "range": "±0.44%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "receiveLongWithMerge",
+            "value": 64.19,
+            "range": "±0.42%",
+            "unit": "ops/sec",
+            "extra": "66 samples"
+          },
+          {
+            "name": "receiveLongWithSimpleMerge",
+            "value": 82.25,
+            "range": "±1.09%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
           }
         ]
       }
