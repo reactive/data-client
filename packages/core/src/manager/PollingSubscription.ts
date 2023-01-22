@@ -1,10 +1,10 @@
 import type { EndpointInterface, Schema } from '@rest-hooks/normalizr';
 
-import createFetch from '../controller/createFetch.js';
-import type { State, Dispatch } from '../types.js';
 import ConnectionListener from './ConnectionListener.js';
 import DefaultConnectionListener from './DefaultConnectionListener.js';
 import { Subscription, SubscriptionInit } from './SubscriptionManager.js';
+import createFetch from '../controller/createFetch.js';
+import type { State, Dispatch } from '../types.js';
 
 /**
  * PollingSubscription keeps a given resource updated by
