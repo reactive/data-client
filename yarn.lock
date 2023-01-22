@@ -124,9 +124,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/jest-preset@npm:0.7.45":
-  version: 0.7.45
-  resolution: "@anansi/jest-preset@npm:0.7.45"
+"@anansi/jest-preset@npm:0.8.0":
+  version: 0.8.0
+  resolution: "@anansi/jest-preset@npm:0.8.0"
   dependencies:
     "@anansi/ts-utils": ^0.2.7
     babel-jest: ^29.3.1
@@ -145,7 +145,7 @@ __metadata:
   peerDependenciesMeta:
     react:
       optional: true
-  checksum: 6b688e9a17a85a308a22b955ad9340989d0568d15c198edf30a6f16e031391e0039a0bb82a665943353320992f01d88443e5354c203888c6abf346b5d26ab393
+  checksum: 52484ae4d53d98aa0fc51469bbcb2b9d1dc3148cda683599a571fe0d94a246fc2540b71a0306490e16f94c44d3662889159619abd8938948a5d8d4339976e524
   languageName: node
   linkType: hard
 
@@ -20344,7 +20344,7 @@ __metadata:
     "@anansi/babel-preset": 3.4.0
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.15.0
-    "@anansi/jest-preset": 0.7.45
+    "@anansi/jest-preset": 0.8.0
     "@babel/cli": 7.20.7
     "@babel/core": 7.20.12
     "@babel/node": 7.20.7
