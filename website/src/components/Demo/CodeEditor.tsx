@@ -1,3 +1,4 @@
+import { FixtureEndpoint } from '@rest-hooks/test';
 import React, { useContext, memo, useRef, forwardRef } from 'react';
 
 import CodeProvider from './CodeProvider';
@@ -23,13 +24,13 @@ const DemoPlayground = memo(
             hidden={value !== selectedValue}
             fixtures={fixtures}
           >
-            {Object.entries(code).map(([path, instanceCode], i) => {
+            {code.map(({ path, code: instanceCode, open }, i) => {
               return (
                 <code
                   key={path}
                   title={capitalizeFirstLetter(path)}
                   path={`${value}/${path}.tsx`}
-                  collapsed={Object.values(code).length !== i + 1}
+                  collapsed={!open}
                   autoFocus={autoFocus && Object.values(code).length === i + 1}
                 >
                   {instanceCode}
@@ -44,7 +45,13 @@ const DemoPlayground = memo(
 );
 
 interface Props<T extends string> {
-  codes: { label: string; value: T; endpointCode: string; code: string }[];
+  codes: {
+    label: string;
+    value: string;
+    code: { code: string; path: string; open?: true }[];
+    autoFocus?: boolean;
+    fixtures?: FixtureEndpoint[];
+  }[];
   defaultValue: T;
 }
 

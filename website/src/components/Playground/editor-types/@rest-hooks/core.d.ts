@@ -830,6 +830,9 @@ declare class NetworkManager implements Manager {
     protected rejectors: {
         [k: string]: (value?: any) => void;
     };
+    protected fetchedAt: {
+        [k: string]: number;
+    };
     readonly dataExpiryLength: number;
     readonly errorExpiryLength: number;
     protected middleware: Middleware$2;
@@ -881,7 +884,7 @@ declare class NetworkManager implements Manager {
      * This ensures promises are resolved only once their data is processed
      * by the reducer.
      */
-    protected throttle(key: string, fetch: () => Promise<any>): Promise<any>;
+    protected throttle(key: string, fetch: () => Promise<any>, createdAt: number): Promise<any>;
 }
 
 /**
@@ -896,6 +899,32 @@ interface MiddlewareAPI<R extends Reducer<any, any> = Reducer<any, any>> {
     dispatch: Dispatch$1<R>;
 }
 type Middleware$1 = <R extends Reducer<any, any>>({ dispatch, }: MiddlewareAPI<R>) => (next: Dispatch$1<R>) => Dispatch$1<R>;
+
+/**
+ * Requesting a fetch to begin
+ */
+declare function createFetch$1<E extends EndpointInterface & {
+    update?: EndpointUpdateFunction<E>;
+}>(endpoint: E, { args }: {
+    args: readonly [...Parameters<E>];
+}): CompatibleFetchAction<E>;
+
+declare function createReceive$1<E extends EndpointInterface & {
+    update?: EndpointUpdateFunction<E>;
+}>(endpoint: E, options: {
+    args: readonly [...Parameters<E>];
+    response: Error;
+    fetchedAt?: number;
+    error: true;
+}): CompatibleReceiveAction<E>;
+declare function createReceive$1<E extends EndpointInterface & {
+    update?: EndpointUpdateFunction<E>;
+}>(endpoint: E, options: {
+    args: readonly [...Parameters<E>];
+    response: ResolveType<E>;
+    fetchedAt?: number;
+    error?: false;
+}): CompatibleReceiveAction<E>;
 
 interface Options$2<Shape extends FetchShape<Schema | undefined, Readonly<object>, Readonly<object | string> | void>> {
     params: ParamsFromShape<Shape>;
@@ -1092,4 +1121,4 @@ interface Props {
     shouldLogout?: (error: UnknownError) => boolean;
 }
 
-export { AbstractInstanceType, ActionTypes, BodyFromShape, CombinedActionTypes, ConnectionListener, Controller, DefaultConnectionListener, DeleteShape, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, FetchShape, GCAction, InvalidateAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, MutateShape, NetworkError, NetworkManager, Normalize, NormalizeNullable, OldActionTypes, OptimisticAction, PK, ParamsFromShape, PollingSubscription, ReadShape, ReceiveAction, ReceiveTypes, ResetAction, ResetError, ResolveType, ResponseActions, ResultEntry, ReturnFromShape, Schema, SetShapeParams, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createReducer, initialState, index_d as legacyActions, newActions, reducer };
+export { AbstractInstanceType, ActionTypes, BodyFromShape, CombinedActionTypes, ConnectionListener, Controller, DefaultConnectionListener, DeleteShape, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, FetchShape, GCAction, InvalidateAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, MutateShape, NetworkError, NetworkManager, Normalize, NormalizeNullable, OldActionTypes, OptimisticAction, PK, ParamsFromShape, PollingSubscription, ReadShape, ReceiveAction, ReceiveTypes, ResetAction, ResetError, ResolveType, ResponseActions, ResultEntry, ReturnFromShape, Schema, SetShapeParams, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch$1 as createFetch, createReceive$1 as createReceive, createReducer, initialState, index_d as legacyActions, newActions, reducer };

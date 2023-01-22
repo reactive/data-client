@@ -1,7 +1,8 @@
 import * as _rest_hooks_core from '@rest-hooks/core';
-import { Manager, State as State$1, Controller, NetworkError as NetworkError$2, ActionTypes, DenormalizeCache, legacyActions, __INTERNAL__, Schema as Schema$2, EndpointExtraOptions as EndpointExtraOptions$2, createReducer as createReducer$1, applyManager as applyManager$1, DenormalizeNullable as DenormalizeNullable$3, ExpiryStatus, EndpointInterface as EndpointInterface$2, FetchFunction as FetchFunction$2, ResolveType as ResolveType$2, UnknownError as UnknownError$2, Denormalize as Denormalize$3 } from '@rest-hooks/core';
+import { Manager, State as State$1, Controller, NetworkError as NetworkError$2, ActionTypes, legacyActions, __INTERNAL__, Schema as Schema$2, EndpointExtraOptions as EndpointExtraOptions$2, createReducer as createReducer$1, applyManager as applyManager$1, DenormalizeNullable as DenormalizeNullable$3, ExpiryStatus, EndpointInterface as EndpointInterface$2, FetchFunction as FetchFunction$2, ResolveType as ResolveType$2, UnknownError as UnknownError$2, Denormalize as Denormalize$3 } from '@rest-hooks/core';
 export { AbstractInstanceType, ActionTypes, Controller, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ExpiryStatus, FetchAction, FetchFunction, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ReceiveAction, ReceiveTypes, ResetAction, ResolveType, Schema, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@rest-hooks/core';
 import React$1, { Context } from 'react';
+import * as packages_core_lib_controller_Controller from 'packages/core/lib/controller/Controller';
 
 type AbstractInstanceType$1<T> = T extends {
     prototype: infer U;
@@ -599,9 +600,9 @@ declare function useController(): Controller;
 declare function useLive<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): Args extends [null] ? E['schema'] extends Exclude<Schema, null> ? DenormalizeNullable<E['schema']> : undefined : E['schema'] extends Exclude<Schema, null> ? Denormalize<E['schema']> : ResolveType<E>;
 
 declare const StateContext: Context<State$1<unknown>>;
+/** @deprecated use Controller.dispatch */
 declare const DispatchContext: Context<(value: ActionTypes) => Promise<void>>;
-declare const DenormalizeCacheContext: Context<DenormalizeCache>;
-declare const ControllerContext: Context<Controller<(value: _rest_hooks_core.CombinedActionTypes) => Promise<void>>>;
+declare const ControllerContext: Context<Controller<packages_core_lib_controller_Controller.CompatibleDispatch>>;
 interface Store<S> {
     subscribe(listener: () => void): () => void;
     dispatch: React.Dispatch<ActionTypes>;
@@ -610,8 +611,11 @@ interface Store<S> {
 }
 declare const StoreContext: Context<Store<State$1<unknown>>>;
 
+/** @deprecated use Controller.dispatch */
 declare const createFetch$1: typeof legacyActions.createFetch;
+/** @deprecated use Controller.dispatch */
 declare const createReceive$1: typeof legacyActions.createReceive;
+/** @deprecated use Controller.dispatch */
 declare const createReceiveError$1: typeof legacyActions.createReceiveError;
 declare const inferResults$1: typeof __INTERNAL__.inferResults;
 
@@ -660,9 +664,13 @@ type ParamsFromShape<S> = S extends {
     getFetchKey: (first: infer A, ...rest: any) => any;
 } ? A : never;
 
-declare function makeCacheProvider(managers: Manager[], initialState?: State$1<unknown>): (props: {
+declare function makeCacheProvider(managers: Manager[], initialState?: State$1<unknown>, act?: Act): (props: {
     children: React$1.ReactNode;
 }) => JSX.Element;
+type Act = {
+    (callback: () => Promise<void | undefined>): Promise<undefined>;
+    (callback: () => void | undefined): void;
+};
 
 declare const createFetch: typeof createFetch$1;
 declare const createReceive: typeof createReceive$1;
@@ -936,4 +944,4 @@ declare function useRetrieve<Shape extends ReadShape<any, any>>(fetchShape: Shap
  */
 declare function useSubscription<E extends EndpointInterface$2<FetchFunction$2, Schema$2 | undefined, undefined> | ReadShape<any, any>, Args extends (E extends (...args: any) => any ? readonly [...Parameters<E>] : readonly [ParamsFromShape<E>]) | readonly [null]>(endpoint: E, ...args: Args): void;
 
-export { ArrayElement, _default as AsyncBoundary, _default$1 as BackupBoundary, CacheProvider, ControllerContext, DeleteShape, DenormalizeCacheContext, DispatchContext, Endpoint, EndpointParam, EndpointExtraOptions$1 as FetchOptions, FetchShape, Index, IndexParams, MutateEndpoint, MutateShape, NetworkErrorBoundary, ParamsFromShape, ReadEndpoint, ReadShape, SetShapeParams, StateContext, Store, StoreContext, internal_d as __INTERNAL__, makeCacheProvider, useCache, useController, useDLE, useDenormalized, useError, useFetch, useLive, useMeta, usePromisifiedDispatch, useResource, useRetrieve, useSubscription, useSuspense };
+export { ArrayElement, _default as AsyncBoundary, _default$1 as BackupBoundary, CacheProvider, ControllerContext, DeleteShape, DispatchContext, Endpoint, EndpointParam, EndpointExtraOptions$1 as FetchOptions, FetchShape, Index, IndexParams, MutateEndpoint, MutateShape, NetworkErrorBoundary, ParamsFromShape, ReadEndpoint, ReadShape, SetShapeParams, StateContext, Store, StoreContext, internal_d as __INTERNAL__, makeCacheProvider, useCache, useController, useDLE, useDenormalized, useError, useFetch, useLive, useMeta, usePromisifiedDispatch, useResource, useRetrieve, useSubscription, useSuspense };

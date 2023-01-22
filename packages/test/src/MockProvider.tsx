@@ -29,6 +29,7 @@ response: [],
   return Promise.resolve();
 };
 
+/* @deprecated use MockResolver instead */
 export default function MockProvider({
   children,
   results,

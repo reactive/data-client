@@ -1,3 +1,4 @@
+import type { FixtureEndpoint } from '@rest-hooks/test';
 import { createContext } from 'react';
 
 const CodeTabContext = createContext({
@@ -7,6 +8,12 @@ const CodeTabContext = createContext({
   ): void => {
     throw new Error('No Tab provider');
   },
-  values: [],
+  values: [] as {
+    label: string;
+    value: string;
+    code: { code: string; path: string; open?: true }[];
+    autoFocus?: boolean;
+    fixtures?: FixtureEndpoint[];
+  }[],
 });
 export default CodeTabContext;

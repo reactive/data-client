@@ -1,5 +1,5 @@
 import Translate from '@docusaurus/Translate';
-import { FixtureEndpoint } from '@rest-hooks/test';
+import type { FixtureEndpoint } from '@rest-hooks/test';
 import clsx from 'clsx';
 import { useContext, useMemo, useReducer, useState } from 'react';
 import React from 'react';
