@@ -12,6 +12,9 @@
       "": [
         "lib/index.d.ts"
       ],
+      "browser": [
+        "lib/browser.d.ts"
+      ],
       "*": [
         "lib/index.d.ts"
       ]
@@ -19,6 +22,9 @@
     ">=3.4": {
       "": [
         "ts3.4/index.d.ts"
+      ],
+      "browser": [
+        "ts3.4/browser.d.ts"
       ],
       "*": [
         "ts3.4/index.d.ts"
@@ -36,6 +42,9 @@
       "import": "./node.mjs",
       "require": "./dist/index.js",
       "default": "./lib/index.js"
+    },
+    "./browser": {
+      "default": "./lib/browser.js"
     },
     "./package.json": "./package.json"
   },

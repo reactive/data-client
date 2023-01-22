@@ -2,7 +2,7 @@ import {
   useScrollPositionBlocker,
   useTabGroupChoice,
 } from '@docusaurus/theme-common/internal';
-import { FixtureEndpoint, MockResolver } from '@rest-hooks/test';
+import { type FixtureEndpoint, MockResolver } from '@rest-hooks/test/browser';
 import clsx from 'clsx';
 import React, { memo, useCallback, useState, useMemo, lazy } from 'react';
 import {

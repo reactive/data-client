@@ -13,27 +13,48 @@ const simpleFetchDemo = [
     value: 'fetch',
     autoFocus: true,
 
-    code: {
-      api: `export const getTodo = new RestEndpoint({
-  urlPrefix: 'https://jsonplaceholder.typicode.com',
-  path: '/todos/:id',
-});`,
-      react: `import { getTodo } from './api';
+    code: [
+      {
+        path: 'api',
+        code: `import { Endpoint } from '@rest-hooks/endpoint';
+
+interface Todo {
+  id: number;
+  userId: number;
+  title: string;
+  completed: boolean;
+}
+
+const fetchTodo = (id: string | number): Promise<Todo> =>
+  fetch(\`https://jsonplaceholder.typicode.com/todos/\${id}\`).then(
+    res => res.json(),
+  );
+
+export const getTodo = new Endpoint(fetchTodo);
+`,
+      },
+      {
+        path: 'react',
+        open: true,
+        code: `import { getTodo } from './api';
 
 function TodoDetail({ id }: { id: number }) {
-  const todo = useSuspense(getTodo, { id });
+  const todo = useSuspense(getTodo, id);
   return <div>{todo.title}</div>;
 }
 render(<TodoDetail id={1} />);
 `,
-    },
+      },
+    ],
   },
   {
     label: 'REST',
     value: 'rest',
     autoFocus: true,
-    code: {
-      api: `export class Todo extends Entity {
+    code: [
+      {
+        path: 'api',
+        code: `export class Todo extends Entity {
   id = 0;
   userId = 0;
   title = '';
@@ -44,8 +65,12 @@ export const TodoResource = createResource({
   urlPrefix: 'https://jsonplaceholder.typicode.com',
   path: '/todos/:id',
   schema: Todo,
-})`,
-      react: `import { TodoResource } from './api';
+});`,
+      },
+      {
+        path: 'react',
+        open: true,
+        code: `import { TodoResource } from './api';
 
 function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(TodoResource.get, { id });
@@ -53,7 +78,8 @@ function TodoDetail({ id }: { id: number }) {
 }
 render(<TodoDetail id={1} />);
 `,
-    },
+      },
+    ],
   },
   {
     label: 'GraphQL',
@@ -76,8 +102,10 @@ render(<TodoDetail id={1} />);
         delay: 150,
       },
     ],
-    code: {
-      api: `import { GQLEndpoint } from '@rest-hooks/graphql';
+    code: [
+      {
+        path: 'api',
+        code: `import { GQLEndpoint } from '@rest-hooks/graphql';
 
 const gql = new GQLEndpoint('/');
 export const getTodo = gql.query(\`
@@ -89,7 +117,11 @@ export const getTodo = gql.query(\`
     }
   }
 \`);`,
-      react: `import { getTodo } from './api';
+      },
+      {
+        path: 'react',
+        open: true,
+        code: `import { getTodo } from './api';
 
 function TodoDetail({ id }: { id: number }) {
   const { todo } = useSuspense(getTodo, { id });
@@ -97,7 +129,8 @@ function TodoDetail({ id }: { id: number }) {
 }
 render(<TodoDetail id={1} />);
 `,
-    },
+      },
+    ],
   },
 ];
 
@@ -105,8 +138,10 @@ const mutationDemo = [
   {
     label: 'REST',
     value: 'rest',
-    code: {
-      api: `export class Todo extends Entity {
+    code: [
+      {
+        path: 'api',
+        code: `export class Todo extends Entity {
   id = 0;
   userId = 0;
   title = '';
@@ -129,7 +164,11 @@ export const TodoResource = {
     },
   }),
 };`,
-      react: `import { TodoResource } from './api';
+      },
+      {
+        path: 'react',
+        open: true,
+        code: `import { TodoResource } from './api';
 
 function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(TodoResource.get, { id });
@@ -150,7 +189,8 @@ function TodoDetail({ id }: { id: number }) {
 }
 render(<TodoDetail id={1} />);
 `,
-    },
+      },
+    ],
   },
   {
     label: 'GraphQL',
@@ -171,8 +211,10 @@ render(<TodoDetail id={1} />);
         delay: 150,
       },
     ],
-    code: {
-      api: `import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
+    code: [
+      {
+        path: 'api',
+        code: `import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
 
 const gql = new GQLEndpoint('/');
 
@@ -202,7 +244,11 @@ export const TodoResource = {
     { updateTodo: Todo },
   ),
 }`,
-      react: `import { TodoResource } from './api';
+      },
+      {
+        path: 'react',
+        open: true,
+        code: `import { TodoResource } from './api';
 
 function TodoDetail({ id }: { id: number }) {
   const { todo } = useSuspense(TodoResource.get, { id });
@@ -222,7 +268,8 @@ function TodoDetail({ id }: { id: number }) {
 }
 render(<TodoDetail id={1} />);
   `,
-    },
+      },
+    ],
   },
 ];
 
@@ -230,8 +277,10 @@ const appDemo = [
   {
     label: 'REST',
     value: 'rest',
-    code: {
-      api: `export class Todo extends Entity {
+    code: [
+      {
+        path: 'api',
+        code: `export class Todo extends Entity {
   id = 0;
   userId = 0;
   title = '';
@@ -265,7 +314,11 @@ export const TodoResource = {
     },
   }),
 };`,
-      TodoItem: `import { TodoResource, type Todo } from './api';
+      },
+      {
+        path: 'TodoItem',
+        open: true,
+        code: `import { TodoResource, type Todo } from './api';
 
 export default function TodoItem({ todo }: { todo: Todo }) {
   const controller = useController();
@@ -283,27 +336,31 @@ export default function TodoItem({ todo }: { todo: Todo }) {
             )
           }
         />
-        {todo.completed ? (
-          <strike>{todo.title}</strike>
-        ) : (
-          todo.title
-        )}
+        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
       </label>
       <span
-        style={{ cursor: 'pointer' }}
+        style={{ cursor: 'pointer', marginLeft: '.5em' }}
         onClick={() =>
           controller.fetch(TodoResource.delete, {
             id: todo.id,
           })
         }
       >
-        ❌
+        <img
+          src="/img/cancel.png"
+          width="16"
+          height="16"
+          style={{ marginBottom: '-3px' }}
+        />
       </span>
     </div>
   );
 }
 `,
-      TodoList: `import { TodoResource } from './api';
+      },
+      {
+        path: 'TodoList',
+        code: `import { TodoResource } from './api';
 import TodoItem from './TodoItem';
 
 function TodoList() {
@@ -318,7 +375,8 @@ function TodoList() {
 }
 render(<TodoList />);
 `,
-    },
+      },
+    ],
   },
   {
     label: 'GraphQL',
@@ -339,8 +397,10 @@ render(<TodoList />);
         delay: 150,
       },
     ],
-    code: {
-      api: `import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
+    code: [
+      {
+        path: 'api',
+        code: `import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
 
 const gql = new GQLEndpoint('/');
 
@@ -379,7 +439,11 @@ export const TodoResource = {
     { updateTodo: Todo },
   ),
 };`,
-      TodoItem: `import { TodoResource, type Todo } from './api';
+      },
+      {
+        path: 'TodoItem',
+        open: true,
+        code: `import { TodoResource, type Todo } from './api';
 
 export default function TodoItem({ todo }: { todo: Todo }) {
   const controller = useController();
@@ -401,7 +465,10 @@ export default function TodoItem({ todo }: { todo: Todo }) {
   );
 }
 `,
-      TodoList: `import { TodoResource } from './api';
+      },
+      {
+        path: 'TodoList',
+        code: `import { TodoResource } from './api';
 import TodoItem from './TodoItem';
 
 function TodoList() {
@@ -416,7 +483,8 @@ function TodoList() {
 }
 render(<TodoList />);
 `,
-    },
+      },
+    ],
   },
 ];
 

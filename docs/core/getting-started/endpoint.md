@@ -26,6 +26,7 @@ groupId="protocol"
 values={[
 { label: 'Rest', value: 'rest' },
 { label: 'GraphQL', value: 'gql' },
+{ label: 'Promise', value: 'other' },
 ]}>
 <TabItem value="rest">
 
@@ -112,6 +113,53 @@ export const TodoResource = {
     }
   }`,
     { updateTodo: Todo },
+  ),
+};
+```
+
+</TypeScriptEditor>
+
+  </TabItem>
+  <TabItem value="other">
+
+  <PkgInstall pkgs="@rest-hooks/endpoint" />
+
+<TypeScriptEditor row={false}>
+
+```typescript title="api/Todo.ts"
+import { Entity, Endpoint } from '@rest-hooks/endpoint';
+
+export class Todo extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  completed = false;
+
+  pk() {
+    return `${this.id}`;
+  }
+}
+
+export const TodoResource = {
+  getList: new Endpoint(
+    () =>
+      fetch('https://jsonplaceholder.typicode.com/todos').then(res =>
+        res.json(),
+      ),
+    {
+      schema: [Todo],
+    },
+  ),
+  update: new Endpoint(
+    (id: string, body: Partial<Todo>) =>
+      fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      }).then(res => res.json()),
+    {
+      schema: Todo,
+      sideEffect: true,
+    },
   ),
 };
 ```

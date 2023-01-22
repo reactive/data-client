@@ -1,17 +1,12 @@
 import { usePrismTheme } from '@docusaurus/theme-common';
-import Translate from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import { FixtureEndpoint } from '@rest-hooks/test';
+import type { FixtureEndpoint } from '@rest-hooks/test';
 import clsx from 'clsx';
-import React, { useContext, useMemo, useReducer, useState, lazy } from 'react';
+import React, { lazy } from 'react';
 import { LiveProvider, LiveProviderProps } from 'react-live';
 
-import CodeTabContext from '../Demo/CodeTabContext';
 import Boundary from './Boundary';
-import FixturePreview from './FixturePreview';
-import Header from './Header';
 import MonacoPreloads from './MonacoPreloads';
-import PlaygroundEditor from './PlaygroundEditor';
 import { PlaygroundTextEdit, useCode } from './PlaygroundTextEdit';
 import PreviewWithHeader from './PreviewWithHeader';
 import styles from './styles.module.css';
