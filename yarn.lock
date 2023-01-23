@@ -176,9 +176,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:14.0.7":
-  version: 14.0.7
-  resolution: "@anansi/webpack-config@npm:14.0.7"
+"@anansi/webpack-config@npm:14.1.1":
+  version: 14.1.1
+  resolution: "@anansi/webpack-config@npm:14.1.1"
   dependencies:
     "@babel/runtime": ^7.17.2
     "@linaria/webpack5-loader": 4.1.11
@@ -210,7 +210,7 @@ __metadata:
     is-wsl: ^2.2.0
     markdown-loader: ^8.0.0
     mini-css-extract-plugin: ^2.7.2
-    mkdirp: ^1.0.4
+    mkdirp: ^2.1.3
     os-browserify: ^0.3.0
     path: ^0.12.7
     path-browserify: ^1.0.1
@@ -218,7 +218,7 @@ __metadata:
     postcss-loader: ^7.0.2
     postcss-preset-env: ^7.8.3
     process: ^0.11.10
-    punycode: ^2.1.1
+    punycode: ^2.3.0
     querystring-es3: ^0.2.1
     ramda: ^0.28.0
     raw-loader: 4.0.2
@@ -286,7 +286,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: 611066c81411283a325852ca185f6351efdaef061e5072e3106241148294275666cf3b75b7f0a922d89c153be2c657ec674f1bc75828b6a6d286c0c7bba97cc9
+  checksum: 9c026244a11a3e046be20f01805109e34723ed3e662db8a6f58dc72fc86fa66b644064c2c66288727359cb52f7b80ef36da11aa2cb66140c1735d12b83dbe266
   languageName: node
   linkType: hard
 
@@ -11136,7 +11136,7 @@ __metadata:
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.15.0
     "@anansi/router": 0.7.10
-    "@anansi/webpack-config": 14.0.7
+    "@anansi/webpack-config": 14.1.1
     "@ant-design/icons": ^5.0.0
     "@babel/core": 7.20.12
     "@linaria/babel-preset": 4.3.3
@@ -15615,7 +15615,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mkdirp@npm:^2.0.0":
+"mkdirp@npm:^2.0.0, mkdirp@npm:^2.1.3":
   version: 2.1.3
   resolution: "mkdirp@npm:2.1.3"
   bin:
@@ -18322,10 +18322,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"punycode@npm:^2.1.0, punycode@npm:^2.1.1":
-  version: 2.1.1
-  resolution: "punycode@npm:2.1.1"
-  checksum: 823bf443c6dd14f669984dea25757b37993f67e8d94698996064035edd43bed8a5a17a9f12e439c2b35df1078c6bec05a6c86e336209eb1061e8025c481168e8
+"punycode@npm:^2.1.0, punycode@npm:^2.1.1, punycode@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "punycode@npm:2.3.0"
+  checksum: 39f760e09a2a3bbfe8f5287cf733ecdad69d6af2fe6f97ca95f24b8921858b91e9ea3c9eeec6e08cede96181b3bb33f95c6ffd8c77e63986508aa2e8159fa200
   languageName: node
   linkType: hard
 
@@ -21835,7 +21835,7 @@ __metadata:
     "@anansi/babel-preset": 3.4.0
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.15.0
-    "@anansi/webpack-config": 14.0.7
+    "@anansi/webpack-config": 14.1.1
     "@babel/core": 7.20.12
     "@linaria/babel-preset": 4.3.3
     "@linaria/core": 4.2.5
