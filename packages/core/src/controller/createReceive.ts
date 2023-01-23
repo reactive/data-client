@@ -1,7 +1,7 @@
 import type { EndpointInterface, ResolveType } from '@rest-hooks/normalizr';
 
 import { EndpointUpdateFunction } from './types.js';
-import { RECEIVE_TYPE } from '../actionTypes.js';
+import { SET_TYPE } from '../actionTypes.js';
 import type {
   CompatibleReceiveAction,
   CompatibleReceiveMeta,
@@ -75,7 +75,7 @@ export default function createReceive<
   if (endpoint.errorPolicy) meta.errorPolicy = endpoint.errorPolicy;
 
   const action: CompatibleReceiveAction<E> = {
-    type: RECEIVE_TYPE,
+    type: SET_TYPE,
     payload: response,
     endpoint: endpoint,
     meta,

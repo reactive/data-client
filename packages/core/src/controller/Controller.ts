@@ -156,7 +156,7 @@ export default class Controller<
     return this.dispatch(action);
   };
 
-  // TODO: deprecate
+  // TODO(breaking): deprecate
   /**
    * Another name for setResponse
    * @see https://resthooks.io/docs/api/Controller#setResponse

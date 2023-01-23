@@ -62,6 +62,7 @@ export interface State<T> {
 
 export * as legacyActions from './legacyActions.js';
 export * as newActions from './newActions.js';
+export type { SetAction } from './newActions.js';
 
 /* maintain backwards compatibility */
 /* TODO: switch to only include newActions in future */
