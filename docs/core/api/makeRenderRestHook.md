@@ -41,7 +41,7 @@ type RenderRestHookFunction = {
     options?: {
       initialProps?: P;
       initialFixtures?: Fixture[];
-      resolverFixtures?: Fixture[];
+      resolverFixtures?: (Fixture | Interceptor)[];
       wrapper?: React.ComponentType;
     },
   ): {
@@ -58,7 +58,7 @@ type RenderRestHookFunction = {
       options?: waitForOptions,
     ): Promise<T>;
   };
-  controller: Controller
+  controller: Controller;
   cleanup(): void;
   allSettled(): Promise<unknown>;
 };
@@ -132,19 +132,36 @@ const payload = {
 };
 
 beforeEach(() => {
-  nock('http://test.com')
-    .get(`/article-cooler/${payload.id}`)
-    .reply(200, payload);
   renderRestHook = makeRenderRestHook(CacheProvider);
 });
 
 it('should resolve useSuspense()', async () => {
-  const { result, waitFor } = renderRestHook(() => {
-    return useSuspense(ArticleResource.get, payload);
-  });
+  const { result, waitFor } = renderRestHook(
+    () => {
+      return useSuspense(ArticleResource.get, payload);
+    },
+    {
+      resolverFixtures: [
+        {
+          endpoint: ArticleResource.get,
+          response: ({ id }) => ({ ...payload, id }),
+        },
+        {
+          endpoint: ArticleResource.partialUpdate,
+          response: ({ id }, body) => ({ ...body, id }),
+        },
+      ],
+    },
+  );
   expect(result.current).toBeUndefined();
   await waitFor(() => expect(result.current).toBeDefined());
   expect(result.current instanceof ArticleResource).toBe(true);
   expect(result.current.title).toBe(payload.title);
+  await controller.fetch(
+    ArticleResource.partialUpdate,
+    { id: 'abc123' },
+    { title: 'updated title' },
+  );
+  expect(result.current.title).toBe('updated title');
 });
 ```

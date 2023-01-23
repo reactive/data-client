@@ -1,5 +1,5 @@
 ---
-title: "<MockResolver />"
+title: '<MockResolver />'
 ---
 
 ```typescript
@@ -8,71 +8,62 @@ function MockResolver({
   fixtures,
 }: {
   children: React.ReactNode;
-  fixtures: Fixture[];
+  fixtures: (Fixture | Interceptor)[];
 }): JSX.Element;
 ```
 
 &lt;MockResolver /\> enables easy loading of fixtures to see what different network responses might look like.
 This is useful for [storybook](../guides/storybook.md) as well as component testing.
 
+### Arguments
 
-## Arguments
-
-### fixtures
+#### fixtures
 
 ```typescript
 export interface SuccessFixture<
   E extends EndpointInterface = EndpointInterface,
 > {
-  endpoint: E;
-  args: Parameters<E>;
-  response: ResolveType<E>;
-  error?: false;
-  delay?: number;
+  readonly endpoint: E;
+  readonly args: Parameters<E>;
+  readonly response:
+    | ResolveType<E>
+    | ((...args: Parameters<E>) => ResolveType<E>);
+  readonly error?: false;
+  /** Number of miliseconds to wait before resolving */
+  readonly delay?: number;
+  /** Waits to run `response()` after `delay` time */
+  readonly delayCollapse?: boolean;
 }
 
-/** @deprecated */
-export interface SuccessFixture {
-  request: FetchShape<Schema, any>;
-  params?: any;
-  body?: any;
-  result: object | string | number;
-  error?: false;
+export interface ErrorFixture<E extends EndpointInterface = EndpointInterface> {
+  readonly endpoint: E;
+  readonly args: Parameters<E>;
+  readonly response: any;
+  readonly error: true;
+  /** Number of miliseconds to wait before resolving */
+  readonly delay?: number;
+  /** Waits to run `response()` after `delay` time */
+  readonly delayCollapse?: boolean;
 }
 
-export interface ErrorFixture<
-  E extends EndpointInterface = EndpointInterface,
+export interface Interceptor<
+  E extends EndpointInterface & {
+    testKey(key: string): boolean;
+  } = EndpointInterface & { testKey(key: string): boolean },
 > {
-  endpoint: E;
-  args: Parameters<E>;
-  response: any;
-  error: true;
-  delay?: number;
-}
-
-/** @deprecated */
-export interface ErrorFixture {
-  request: FetchShape<Schema, any>;
-  params?: any;
-  body?: any;
-  result: Error;
-  error: true;
+  readonly endpoint: E;
+  readonly response: (...args: Parameters<E>) => ResolveType<E>;
+  /** Number of miliseconds (or function that returns) to wait before resolving */
+  readonly delay?: number | ((...args: Parameters<E>) => number);
+  /** Waits to run `response()` after `delay` time */
+  readonly delayCollapse?: boolean;
 }
 
 export type Fixture = SuccessFixture | ErrorFixture;
-export type Fixture = SuccessFixture | ErrorFixture | Fixture;
 ```
 
 This prop specifies the fixtures to use data from. Each item represents a fetch defined by the
 [Endpoint](/rest/api/Endpoint) and params. `Result` contains the JSON response expected from said fetch.
-
-## Returns
-
-```typescript
-JSX.Element
-```
-
-Renders the children prop.
 
 ## Example
 
@@ -101,10 +92,19 @@ const results = [
       },
     ],
   },
+  {
+    endpoint: ArticleResource.partialUpdate,
+    response: ({ id }, body) => ({
+      ...body,
+      id,
+    }),
+  },
 ];
 
 const Template: Story = () => (
-  <MockResolver fixtures={results}><MyComponentToTest /></MockResolver>
+  <MockResolver fixtures={results}>
+    <MyComponentToTest />
+  </MockResolver>
 );
 
 export const MyStory = Template.bind({});

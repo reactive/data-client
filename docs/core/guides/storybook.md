@@ -94,13 +94,10 @@ if (process.env.NODE_ENV !== 'production') {
       },
       {
         endpoint: ArticleResource.update,
-        args: [{ id: 532 }] as const,
-        response: {
-          id: 532,
-          content: 'updated "never again"',
-          author: 23,
-          contributors: [5],
-        },
+        response: ({ id }, body) => ({
+          ...body,
+          id,
+        }),
       },
     ],
     empty: [

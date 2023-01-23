@@ -56,6 +56,7 @@ export interface RestInstance<
   process(value: any, ...args: Parameters<F>): ResolveType<F>;
 
   /* utilities */
+  /** @see https://resthooks.io/rest/api/RestEndpoint#testKey */
   testKey(key: string): boolean;
 
   /* extenders */

@@ -11,23 +11,35 @@ used in [<MockResolver /\>](./MockResolver) to process the results prop. However
 can also be useful to send into a normal provider when testing more complete flows
 that need to handle `dispatches` (and thus fetch).
 
-## Arguments
+### Arguments
 
-### results
+#### results
 
 ```typescript
-export interface SuccessFixture {
-  request: ReadShape<Schema, object>;
-  params: object;
-  result: object | string | number;
-  error?: false;
+export interface SuccessFixture<
+  E extends EndpointInterface = EndpointInterface,
+> {
+  readonly endpoint: E;
+  readonly args: Parameters<E>;
+  readonly response:
+    | ResolveType<E>
+    | ((...args: Parameters<E>) => ResolveType<E>);
+  readonly error?: false;
+  /** Number of miliseconds to wait before resolving */
+  readonly delay?: number;
+  /** Waits to run `response()` after `delay` time */
+  readonly delayCollapse?: boolean;
 }
 
-export interface ErrorFixture {
-  request: ReadShape<Schema, object>;
-  params: object;
-  result: Error;
-  error: true;
+export interface ErrorFixture<E extends EndpointInterface = EndpointInterface> {
+  readonly endpoint: E;
+  readonly args: Parameters<E>;
+  readonly response: any;
+  readonly error: true;
+  /** Number of miliseconds to wait before resolving */
+  readonly delay?: number;
+  /** Waits to run `response()` after `delay` time */
+  readonly delayCollapse?: boolean;
 }
 
 export type Fixture = SuccessFixture | ErrorFixture;
@@ -36,11 +48,6 @@ export type Fixture = SuccessFixture | ErrorFixture;
 This prop specifies the fixtures to use data from. Each item represents a fetch defined by the
 [Endpoint](/rest/api/Endpoint) and params. `Result` contains the JSON response expected from said fetch.
 
-## Returns
-
-```typescript
-State
-```
 
 This can be used as the initialState prop for [<CacheProvider /\>](./CacheProvider)
 
@@ -76,5 +83,5 @@ const results = [
 
 <CacheProvider initialState={mockInitialState(results)}>
   <MyComponentToTest />
-</CacheProvider>
+</CacheProvider>;
 ```

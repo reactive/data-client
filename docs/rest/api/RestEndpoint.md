@@ -674,6 +674,12 @@ export const TodoResource = {
 };
 ```
 
+## testKey(key): boolean
+
+Returns `true` if the provided (fetch) key matches this endpoint.
+
+This is used for mock interceptors with with [<MockResolver /&gt;](/docs/api/MockResolver)
+
 ## extend(options): Endpoint {#extend}
 
 Can be used to further customize the endpoint definition
