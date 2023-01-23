@@ -512,7 +512,7 @@ their effect on the cache state as well as current cache state.
 
 ## Mock data
 
-Writing `FixtureEndpoint`s is a standard format that can be used across all `@rest-hooks/test` helpers as well as your own uses.
+Writing `Fixture`s is a standard format that can be used across all `@rest-hooks/test` helpers as well as your own uses.
 
 <Tabs
 defaultValue="detail"
@@ -524,10 +524,10 @@ values={[
 <TabItem value="detail">
 
 ```typescript
-import type { FixtureEndpoint } from '@rest-hooks/test';
+import type { Fixture } from '@rest-hooks/test';
 import { todoDetail } from './todo';
 
-const todoDetailFixture: FixtureEndpoint = {
+const todoDetailFixture: Fixture = {
   endpoint: todoDetail,
   args: [{ id: 5 }] as const,
   response: {
@@ -543,10 +543,10 @@ const todoDetailFixture: FixtureEndpoint = {
 <TabItem value="update">
 
 ```typescript
-import type { FixtureEndpoint } from '@rest-hooks/test';
+import type { Fixture } from '@rest-hooks/test';
 import { todoUpdate } from './todo';
 
-const todoUpdateFixture: FixtureEndpoint = {
+const todoUpdateFixture: Fixture = {
   endpoint: todoUpdate,
   args: [{ id: 5 }, { completed: true }] as const,
   response: {
@@ -562,10 +562,10 @@ const todoUpdateFixture: FixtureEndpoint = {
 <TabItem value="detail404">
 
 ```typescript
-import type { FixtureEndpoint } from '@rest-hooks/test';
+import type { Fixture } from '@rest-hooks/test';
 import { todoDetail } from './todo';
 
-const todoDetail404Fixture: FixtureEndpoint = {
+const todoDetail404Fixture: Fixture = {
   endpoint: todoDetail,
   args: [{ id: 9001 }] as const,
   response: { status: 404, response: 'Not found' },

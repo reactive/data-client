@@ -47,7 +47,7 @@ export default [
     ],
   },
   {
-    input: 'lib/render18HookWrapped.js',
+    input: 'lib/makeRenderRestHook/render18HookWrapped.js',
     external: id => id === '..' || isExternal(id),
     output: [
       {

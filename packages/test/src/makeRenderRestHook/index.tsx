@@ -5,13 +5,12 @@ import {
   NetworkManager,
   PollingSubscription,
   Controller,
-  actionTypes,
 } from '@rest-hooks/react';
 import React, { memo, Suspense } from 'react';
 
-import MockResolver from './MockResolver.js';
-import mockInitialState, { Fixture, FixtureEndpoint } from './mockState.js';
 import { renderHook, act, RenderHookResult } from './renderHook.cjs';
+import MockResolver from '../MockResolver.js';
+import mockInitialState, { Fixture, FixtureEndpoint } from '../mockState.js';
 
 export default function makeRenderRestHook(
   Provider: React.ComponentType<ProviderProps>,

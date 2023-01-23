@@ -39,7 +39,7 @@ export const ArticleResource = createResource({
   schema: Article,
 });
 
-export let ArticleFixtures: Record<string, FixtureEndpoint> = {};
+export let ArticleFixtures: Record<string, Fixture> = {};
 ```
 
 </TabItem>

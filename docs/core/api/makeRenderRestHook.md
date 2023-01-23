@@ -39,8 +39,8 @@ type RenderRestHookFunction = {
     callback: (props: P) => R,
     options?: {
       initialProps?: P;
-      initialFixtures?: FixtureEndpoint[];
-      resolverFixtures?: FixtureEndpoint[];
+      initialFixtures?: Fixture[];
+      resolverFixtures?: Fixture[];
       wrapper?: React.ComponentType;
       // @deprecated
       results?: Fixture[];

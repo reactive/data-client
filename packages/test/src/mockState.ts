@@ -63,10 +63,15 @@ export function dispatchFixture(
   controller: Controller,
   fetchedAt?: number,
 ) {
-  const { endpoint, args, error } = fixture;
+  // eslint-disable-next-line prefer-const
+  let { endpoint, args, error } = fixture;
   let response = fixture.response;
   if (typeof fixture.response === 'function') {
-    response = fixture.response(...args);
+    try {
+      response = fixture.response(...args);
+    } catch (e: any) {
+      error = e;
+    }
   }
   if (controller.resolve) {
     controller.resolve(endpoint, {

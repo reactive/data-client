@@ -21,7 +21,7 @@ This is useful for [storybook](../guides/storybook.md) as well as component test
 ### fixtures
 
 ```typescript
-export interface SuccessFixtureEndpoint<
+export interface SuccessFixture<
   E extends EndpointInterface = EndpointInterface,
 > {
   endpoint: E;
@@ -40,7 +40,7 @@ export interface SuccessFixture {
   error?: false;
 }
 
-export interface ErrorFixtureEndpoint<
+export interface ErrorFixture<
   E extends EndpointInterface = EndpointInterface,
 > {
   endpoint: E;
@@ -59,8 +59,8 @@ export interface ErrorFixture {
   error: true;
 }
 
-export type FixtureEndpoint = SuccessFixtureEndpoint | ErrorFixtureEndpoint;
-export type Fixture = SuccessFixture | ErrorFixture | FixtureEndpoint;
+export type Fixture = SuccessFixture | ErrorFixture;
+export type Fixture = SuccessFixture | ErrorFixture | Fixture;
 ```
 
 This prop specifies the fixtures to use data from. Each item represents a fetch defined by the

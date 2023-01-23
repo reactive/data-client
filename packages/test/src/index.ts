@@ -4,7 +4,7 @@ Object.hasOwn =
     return Object.prototype.hasOwnProperty.call(it, key);
   };
 export { default as MockResolver } from './MockResolver.js';
-import makeRenderRestHook from './makeRenderRestHook.js';
+import makeRenderRestHook from './makeRenderRestHook/index.js';
 import MockProvider from './MockProvider.js';
 import mockInitialState from './mockState.js';
 export type {
@@ -15,6 +15,6 @@ export type {
   SuccessFixture,
   ErrorFixture,
 } from './mockState.js';
-export { act } from './renderHook.cjs';
+export { act } from './makeRenderRestHook/renderHook.cjs';
 
 export { makeRenderRestHook, MockProvider, mockInitialState };
