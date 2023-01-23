@@ -3,7 +3,9 @@ title: makeRenderRestHook()
 ---
 
 ```typescript
-function makeRenderRestHook(makeProvider: ProviderType): RenderRestHookFunction;
+function makeRenderRestHook(
+  Provider: React.ComponentType<ProviderProps>,
+): RenderRestHookFunction;
 ```
 
 `makeRenderRestHook()` is useful to test hooks that rely on the `rest-hooks`. It creates a renderRestHook()
@@ -12,22 +14,21 @@ as well as in a `<Provider />` context.
 
 ## Arguments
 
-### makeProvider
+### Provider
 
 ```typescript
-type ProviderType = (
-  managers: Manager[],
-  initialState?: State<unknown>,
-) => React.ComponentType<{
-  children: React.ReactChild;
-}>;
+interface ProviderProps {
+  children: React.ReactNode;
+  managers: Manager[];
+  initialState: State<unknown>;
+  Controller: typeof Controller;
+}
 ```
 
-Function to generate the provider used in `renderRestHook()`. The purpose of this is to unify construction of
-providers as they both are initialized in a very different fashion.
+The Rest Hooks [<CacheProvider /&gt;](./CacheProvider.md)
 
-- [makeCacheProvider()](./makeCacheProvider.md)
-- [makeExternalCacheProvider()](./makeExternalCacheProvider.md)
+- `import { CacheProvider } from @rest-hooks/react;`
+- `import { CacheProvider } from @rest-hooks/redux;`
 
 ## renderRestHook()
 
@@ -42,19 +43,24 @@ type RenderRestHookFunction = {
       initialFixtures?: Fixture[];
       resolverFixtures?: Fixture[];
       wrapper?: React.ComponentType;
-      // @deprecated
-      results?: Fixture[];
     },
   ): {
-    readonly result: {
-      readonly current: R;
-      readonly error: Error;
+    rerender: (props?: Props) => void;
+    result: {
+      current: Result;
+      error?: Error;
     };
-    readonly waitForNextUpdate: () => Promise<void>;
-    readonly unmount: () => boolean;
-    readonly rerender: (hookProps?: P | undefined) => void;
+    unmount: () => void;
+    /* @deprecated */
+    waitForNextUpdate: (options?: waitForOptions) => Promise<void>;
+    waitFor<T>(
+      callback: () => Promise<T> | T,
+      options?: waitForOptions,
+    ): Promise<T>;
   };
+  controller: Controller
   cleanup(): void;
+  allSettled(): Promise<unknown>;
 };
 ```
 
@@ -74,7 +80,7 @@ Can be used to prime the cache if test expects cache values to already be filled
 
 This has the same effect as initializing [<CacheProvider /\>](../api/CacheProvider) with [mockInitialState()](../api/mockInitialState)
 
-### options.resolverFixtures
+#### options.resolverFixtures
 
 These fixtures are used to resolve any new requests. This is most useful for mocking imperative fetches like mutations, but can also allow testing suspending states or transitions.
 
@@ -88,9 +94,19 @@ The initial values to pass to the callback function
 
 Pass a React Component as the wrapper option to have it rendered around the inner element
 
+### controller
+
+[Controller](./Controller.md) to dispatch imperative effects
+
 ### cleanup()
 
 Cleans up all managers used in tests. Should be run in `afterEach()` to ensure each test starts fresh.
+This is especially important when mocking timers, as Rest Hooks' internals relies on real timers to
+avoid race conditions.
+
+### allSettled()
+
+Returns a promise that resolves once all inflight requests are completed.
 
 ### Returns
 
@@ -123,11 +139,11 @@ beforeEach(() => {
 });
 
 it('should resolve useSuspense()', async () => {
-  const { result, waitForNextUpdate } = renderRestHook(() => {
+  const { result, waitFor } = renderRestHook(() => {
     return useSuspense(ArticleResource.get, payload);
   });
   expect(result.current).toBeUndefined();
-  await waitForNextUpdate();
+  await waitFor(() => expect(result.current).toBeDefined());
   expect(result.current instanceof ArticleResource).toBe(true);
   expect(result.current.title).toBe(payload.title);
 });

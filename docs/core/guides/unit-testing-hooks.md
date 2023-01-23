@@ -27,9 +27,6 @@ that are wrappers around [@testing-library/react-hooks](https://github.com/testi
 We want a [renderRestHook()](../api/makeRenderRestHook#renderresthook) function that renders in the context of both
 a `Provider` and `Suspense` boundary.
 
-To support both providers, you must choose among two provider-generators to
-send as args to the [renderRestHook()](../api/makeRenderRestHook#renderresthook) generator.
-
 These will generally be done during test setup. It's important to call cleanup
 upon test completion.
 
@@ -106,13 +103,13 @@ describe('useSuspense()', () => {
   });
 
   it('should throw errors on bad network', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitFor } = renderRestHook(() => {
       return useSuspense(ArticleResource.get, {
         title: '0',
       });
     });
     expect(result.current).toBeUndefined();
-    await waitForNextUpdate();
+    await waitFor(() => expect(result.current).toBeDefined());
     expect(result.error).toBeDefined();
     expect((result.error as any).status).toBe(403);
   });
@@ -149,13 +146,13 @@ describe('useSuspense()', () => {
   });
 
   it('should throw errors on bad network', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
+    const { result, waitFor } = renderRestHook(() => {
       return useSuspense(ArticleResource.get, {
         title: '0',
       });
     });
     expect(result.current).toBeUndefined();
-    await waitForNextUpdate();
+    await waitFor(() => expect(result.current).toBeDefined());
     expect(result.error).toBeDefined();
     expect((result.error as any).status).toBe(403);
   });

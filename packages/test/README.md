@@ -116,7 +116,7 @@ import options from './fixtures';
 const renderRestHook = makeRenderRestHook(CacheProvider);
 
 it('should resolve list', async () => {
-  const { result, waitForNextUpdate } = renderRestHook(() => {
+  const { result } = renderRestHook(() => {
     return useSuspense(ArticleResource.list(), {
       maxResults: 10,
     });
@@ -127,7 +127,7 @@ it('should resolve list', async () => {
 });
 
 it('should throw errors on bad network', async () => {
-  const { result, waitForNextUpdate } = renderRestHook(() => {
+  const { result } = renderRestHook(() => {
     return useSuspense(ArticleResource.list(), {
       maxResults: 10,
     });

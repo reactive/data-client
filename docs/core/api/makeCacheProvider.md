@@ -9,7 +9,13 @@ declare const makeCacheProvider: (
 ) => ({ children }: { children: React.ReactNode }) => JSX.Element;
 ```
 
-Used to build a [<CacheProvider /\>](./CacheProvider.md) for [makeRenderRestHook()](./makeRenderRestHook.md)
+:::caution Deprecated
+
+In @rest-hooks/test>=10, [<CacheProvider /\>](./CacheProvider.md) should be used directly
+
+For previous versions, this is used to build a [<CacheProvider /\>](./CacheProvider.md) for [makeRenderRestHook()](./makeRenderRestHook.md)
+
+:::
 
 ## Arguments
 
