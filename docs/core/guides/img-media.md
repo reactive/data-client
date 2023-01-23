@@ -13,7 +13,7 @@ import TabItem from '@theme/TabItem';
 After setting up Rest Hooks for structured data fetching, you might want to incorporate
 some media fetches as well to take advantage of suspense and [concurrent mode support](https://resthooks.io/docs/guides/render-as-you-fetch).
 
-## Storing buffers
+## Storing ArrayBuffer
 
 [Resource](/rest/api/createResource) and [Entity](/rest/api/Entity) should not be used in this case, since they both represent
 string -> value map structures. Instead, we'll define our own simple [Endpoint](/rest/api/Endpoint).

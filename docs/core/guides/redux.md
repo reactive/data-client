@@ -46,6 +46,7 @@ import {
   PollingSubscription,
   ExternalCacheProvider,
   PromiseifyMiddleware,
+  applyManager,
 } from '@rest-hooks/redux';
 import {
   initialState,
@@ -125,6 +126,7 @@ import {
   PollingSubscription,
   ExternalCacheProvider,
   PromiseifyMiddleware,
+  applyManager,
 } from '@rest-hooks/redux';
 import {
   initialState,
