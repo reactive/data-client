@@ -21,8 +21,14 @@ const dispatch = (value: ActionTypes) => {
   return Promise.resolve();
 };
 
+// this is not needed anymore, but keeping around for backcompatibility
 /** @deprecated use Controller.dispatch */
 export const DispatchContext = createContext(dispatch);
+/** @deprecated */
+export const DenormalizeCacheContext = createContext<DenormalizeCache>({
+  entities: {},
+  results: {},
+});
 
 export const ControllerContext = createContext<Controller>(
   new Controller({

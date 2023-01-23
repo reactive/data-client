@@ -50,6 +50,7 @@ export {
   DispatchContext,
   ControllerContext,
   StoreContext,
+  DenormalizeCacheContext,
   type Store,
 } from './context.js';
 export * as __INTERNAL__ from './internal.js';
