@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.1.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/react@7.1.6...@rest-hooks/react@7.1.7) (2023-01-23)
+
+### 🐛 Bug Fix
+
+* Add back DenormalizeCacheContext for older versions of redux ([8e0acab](https://github.com/coinbase/rest-hooks/commit/8e0acabbd86ca8cd2cd45d07c8e815df8c7375d9))
+
 ### [7.1.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/react@7.1.5...@rest-hooks/react@7.1.6) (2023-01-23)
 
 ### 🚀 Features
