@@ -2,7 +2,6 @@ import {
   actionTypes,
   ActionTypes,
   ControllerContext,
-  Controller,
   useController,
 } from '@rest-hooks/react';
 import { useCallback, useMemo } from 'react';

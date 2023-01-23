@@ -148,7 +148,7 @@ describe('useFetch', () => {
     nock.cleanAll();
     const fetchMock = jest.fn(() => payload);
     mynock.get(`/article-cooler/${payload.id}`).reply(200, fetchMock).persist();
-    const results: any[] = [
+    const initialFixtures: any[] = [
       {
         endpoint: CoolerArticleResource.get,
         args: [{ id: payload.id }],
@@ -159,7 +159,7 @@ describe('useFetch', () => {
       () => {
         return useFetch(CoolerArticleResource.get, { id: payload.id });
       },
-      { results },
+      { initialFixtures },
     );
     await result.current;
     expect(fetchMock).toHaveBeenCalledTimes(0);

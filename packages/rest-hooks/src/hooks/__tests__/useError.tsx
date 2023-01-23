@@ -14,7 +14,7 @@ describe('useError()', () => {
   });
 
   it('should return undefined when cache not ready and no error in meta', () => {
-    const results = [
+    const initialFixtures = [
       {
         endpoint: shapeToEndpoint(CoolerArticleResource.detailShape()),
         args: [payload],
@@ -25,7 +25,7 @@ describe('useError()', () => {
       () => {
         return useError(CoolerArticleResource.detailShape(), payload);
       },
-      { results },
+      { initialFixtures },
     );
 
     expect(result.current).toBeUndefined();

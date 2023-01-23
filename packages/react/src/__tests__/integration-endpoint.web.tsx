@@ -323,7 +323,7 @@ describe.each([
         return useSuspense(unionEndpoint, {});
       },
       {
-        results: [
+        initialFixtures: [
           {
             endpoint: unionEndpoint,
             args: [{}],
@@ -363,7 +363,7 @@ describe.each([
         return useSuspense(UnionResource.getList);
       },
       {
-        results: [
+        initialFixtures: [
           {
             endpoint: UnionResource.getList,
             args: [],
@@ -573,7 +573,7 @@ describe.each([
         ] as const;
       },
       {
-        results: [
+        initialFixtures: [
           {
             endpoint: TypedArticleResource.get.extend({
               dataExpiryLength: 1000,

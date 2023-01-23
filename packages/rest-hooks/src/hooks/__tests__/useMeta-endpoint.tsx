@@ -13,7 +13,7 @@ describe('useMeta()', () => {
   });
 
   it('should contain error', () => {
-    const results: Fixture[] = [
+    const initialFixtures: Fixture[] = [
       {
         endpoint: TypedArticleResource.get,
         args: [{ id: payload.id }],
@@ -34,7 +34,7 @@ describe('useMeta()', () => {
 
         return useMeta(TypedArticleResource.get, { id: payload.id });
       },
-      { results },
+      { initialFixtures },
     );
 
     expect(result.current).toBeDefined();

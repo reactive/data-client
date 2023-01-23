@@ -395,7 +395,7 @@ describe('useResource()', () => {
         });
       },
       {
-        results: [
+        initialFixtures: [
           {
             endpoint: shapeToEndpoint(FS),
             args: [
@@ -430,7 +430,7 @@ describe('useResource()', () => {
         ]);
       },
       {
-        results: [
+        initialFixtures: [
           {
             endpoint: shapeToEndpoint(expiredShape),
             args: [

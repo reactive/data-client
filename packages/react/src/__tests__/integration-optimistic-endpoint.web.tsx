@@ -117,7 +117,7 @@ describe.each([
           return { fetch, article };
         },
         {
-          results: [
+          initialFixtures: [
             {
               endpoint: CoolerArticleResource.get,
               args: [params],
@@ -166,7 +166,7 @@ describe.each([
           return { fetch, articles };
         },
         {
-          results: [
+          initialFixtures: [
             {
               endpoint: CoolerArticleResource.getList,
               args: [{}],
@@ -206,7 +206,7 @@ describe.each([
           return { fetch, listA, listB };
         },
         {
-          results: [
+          initialFixtures: [
             {
               endpoint: ArticleResourceWithOtherListUrl.otherList,
               args: [],
@@ -423,7 +423,7 @@ describe.each([
           return { fetch, article };
         },
         {
-          results: [
+          initialFixtures: [
             {
               endpoint: CoolerArticleResource.get,
               args: [params],
@@ -650,7 +650,7 @@ describe.each([
               return { fetch, tog, err };
             },
             {
-              results: [
+              initialFixtures: [
                 {
                   endpoint: getbool,
                   args: [5],
@@ -698,7 +698,7 @@ describe.each([
             return { fetch, tog };
           },
           {
-            results: [
+            initialFixtures: [
               {
                 endpoint: getbool,
                 args: [5],
@@ -824,7 +824,7 @@ describe.each([
             return { fetch, tog, fetchError };
           },
           {
-            results: [
+            initialFixtures: [
               {
                 endpoint: getbool,
                 args: [5],
@@ -865,7 +865,7 @@ describe.each([
               return { fetch, vis };
             },
             {
-              results: [
+              initialFixtures: [
                 {
                   endpoint: VisSettingsResource.get,
                   args: [{ id: 5 }],

@@ -109,7 +109,8 @@ export const FullArticleList = ({ result }) => (
 <details open><summary><b>Hook Unit Test</b></summary>
 
 ```typescript
-import { makeRenderRestHook, makeCacheProvider } from '@rest-hooks/test';
+import { CacheProvider } from '@rest-hooks/react';
+import { makeRenderRestHook } from '@rest-hooks/test';
 import options from './fixtures';
 
 const renderRestHook = makeRenderRestHook(CacheProvider);
@@ -119,7 +120,7 @@ it('should resolve list', async () => {
     return useSuspense(ArticleResource.list(), {
       maxResults: 10,
     });
-  }, { results: options.full });
+  }, { fixtures: options.full });
   expect(result.current).toBeDefined();
   expect(result.current.length).toBe(2);
   expect(result.current[0]).toBeInstanceOf(ArticleResource);
@@ -130,7 +131,7 @@ it('should throw errors on bad network', async () => {
     return useSuspense(ArticleResource.list(), {
       maxResults: 10,
     });
-  }, { results: options.error });
+  }, { fixtures: options.error });
     expect(result.error).toBeDefined();
     expect((result.error as any).status).toBe(400);
 });

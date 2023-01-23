@@ -48,7 +48,9 @@ export type Fixture<
   E extends EndpointInterface & { update?: Updater } = EndpointInterface,
 > = FixtureEndpoint<E>;
 
-export default function mockInitialState(fixtures: Fixture[]): State<unknown> {
+export default function mockInitialState(
+  fixtures: Fixture[] = [],
+): State<unknown> {
   const actions: ReceiveAction[] = [];
   const dispatch = (action: any) => {
     actions.push(action);

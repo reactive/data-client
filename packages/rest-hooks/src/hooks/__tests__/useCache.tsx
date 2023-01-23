@@ -37,7 +37,7 @@ describe('useCache()', () => {
   });
 
   it('should select singles', () => {
-    const results = [
+    const initialFixtures = [
       {
         endpoint: shapeToEndpoint(CoolerArticleResource.detailShape()),
         args: [payload],
@@ -48,7 +48,7 @@ describe('useCache()', () => {
       () => {
         return useCache(CoolerArticleResource.detailShape(), payload);
       },
-      { results },
+      { initialFixtures },
     );
 
     expect(result.current).toBeTruthy();
@@ -58,7 +58,7 @@ describe('useCache()', () => {
   it('should not select when results are stale and invalidIfStale is true', () => {
     const realDate = global.Date.now;
     Date.now = jest.fn(() => 999999999);
-    const results = [
+    const initialFixtures = [
       {
         endpoint: shapeToEndpoint(InvalidIfStaleArticleResource.detailShape()),
         args: [payload],
@@ -69,7 +69,7 @@ describe('useCache()', () => {
       props => {
         return useCache(InvalidIfStaleArticleResource.detailShape(), props);
       },
-      { results, initialProps: { id: payload.id } },
+      { initialFixtures, initialProps: { id: payload.id } },
     );
 
     expect(result.current).toBeDefined();
@@ -84,7 +84,7 @@ describe('useCache()', () => {
   });
 
   it('should select paginated results', () => {
-    const results = [
+    const initialFixtures = [
       {
         endpoint: shapeToEndpoint(PaginatedArticleResource.listShape()),
         args: [{}],
@@ -95,7 +95,7 @@ describe('useCache()', () => {
       () => {
         return useCache(PaginatedArticleResource.listShape(), {});
       },
-      { results },
+      { initialFixtures },
     );
     expect(result.current).toBeDefined();
     if (!result.current) return;
@@ -107,7 +107,7 @@ describe('useCache()', () => {
   });
 
   it('should return identical value no matter how many re-renders', () => {
-    const results = [
+    const initialFixtures = [
       {
         endpoint: shapeToEndpoint(PaginatedArticleResource.listShape()),
         args: [{}],
@@ -121,7 +121,7 @@ describe('useCache()', () => {
         const articles = useCache(PaginatedArticleResource.listShape(), {});
         useEffect(track, [articles]);
       },
-      { results },
+      { initialFixtures },
     );
 
     expect(track.mock.calls.length).toBe(1);
@@ -138,13 +138,13 @@ describe('useCache()', () => {
         () => {
           return useCache(PaginatedArticleResource.listShape(), {});
         },
-        { results: [] },
+        { initialFixtures: [] },
       );
       expect(result.current).toEqual(defaults);
     });
 
     it('should find results', () => {
-      const results = [
+      const initialFixtures = [
         {
           endpoint: shapeToEndpoint(PaginatedArticleResource.listShape()),
           args: [{}],
@@ -155,7 +155,7 @@ describe('useCache()', () => {
         () => {
           return useCache(PaginatedArticleResource.listShape(), {});
         },
-        { results },
+        { initialFixtures },
       );
       expect(result.current).toBeTruthy();
       expect(result.current.nextPage).toBe(articlesPages.nextPage);
@@ -168,7 +168,7 @@ describe('useCache()', () => {
     });
 
     it('should return identical value no matter how many re-renders', () => {
-      const results = [
+      const initialFixtures = [
         {
           endpoint: shapeToEndpoint(PaginatedArticleResource.listShape()),
           args: [{}],
@@ -179,10 +179,10 @@ describe('useCache()', () => {
 
       const { rerender } = renderRestHook(
         () => {
-          useEffect(track, [results]);
+          useEffect(track, [initialFixtures]);
           return useCache(PaginatedArticleResource.listShape(), {});
         },
-        { results },
+        { initialFixtures },
       );
 
       expect(track.mock.calls.length).toBe(1);

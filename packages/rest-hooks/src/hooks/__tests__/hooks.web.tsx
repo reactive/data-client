@@ -160,7 +160,7 @@ describe('useRetrieve', () => {
     nock.cleanAll();
     const fetchMock = jest.fn(() => payload);
     mynock.get(`/article-cooler/${payload.id}`).reply(200, fetchMock).persist();
-    const results: any[] = [
+    const initialFixtures: any[] = [
       {
         endpoint: shapeToEndpoint(CoolerArticleResource.detailShape()),
         args: [payload],
@@ -171,7 +171,7 @@ describe('useRetrieve', () => {
       () => {
         return useRetrieve(CoolerArticleResource.detailShape(), payload);
       },
-      { results },
+      { initialFixtures },
     );
     await result.current;
     expect(fetchMock).toHaveBeenCalledTimes(0);

@@ -13,7 +13,7 @@ describe('useError()', () => {
   });
 
   it('should return undefined when cache not ready and no error in meta', () => {
-    const results = [
+    const initialFixtures = [
       {
         endpoint: CoolerArticleResource.get,
         args: [{ id: payload.id }],
@@ -24,7 +24,7 @@ describe('useError()', () => {
       () => {
         return useError(CoolerArticleResource.get, { id: payload.id });
       },
-      { results },
+      { initialFixtures },
     );
 
     expect(result.current).toBeUndefined();

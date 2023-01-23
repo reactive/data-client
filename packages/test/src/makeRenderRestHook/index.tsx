@@ -10,7 +10,7 @@ import React, { memo, Suspense } from 'react';
 
 import { renderHook, act, RenderHookResult } from './renderHook.cjs';
 import MockResolver from '../MockResolver.js';
-import mockInitialState, { Fixture, FixtureEndpoint } from '../mockState.js';
+import mockInitialState, { FixtureEndpoint } from '../mockState.js';
 
 export default function makeRenderRestHook(
   Provider: React.ComponentType<ProviderProps>,
@@ -41,8 +41,6 @@ export default function makeRenderRestHook(
     callback: (props: P) => R,
     options?: {
       initialProps?: P;
-      /** @deprecated */
-      results?: Fixture[];
       initialFixtures?: FixtureEndpoint[];
       resolverFixtures?: FixtureEndpoint[];
       wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
@@ -66,9 +64,9 @@ export default function makeRenderRestHook(
       return (managers[0] as NetworkManager).allSettled();
     };
 
-    const initialState: State<unknown> = options?.initialFixtures
-      ? (mockInitialState(options.initialFixtures) as any)
-      : options?.results && mockInitialState(options.results);
+    const initialState: State<unknown> = mockInitialState(
+      options?.initialFixtures,
+    );
 
     // TODO: controller provided to middleware should be same as useController() - so pull out the mockresolver stuff and don't actually
     // use the component here
@@ -147,7 +145,6 @@ type RenderRestHook = (<P, R>(
   callback: (props: P) => R,
   options?: {
     initialProps?: P;
-    results?: Fixture[];
     initialFixtures?: FixtureEndpoint[];
     resolverFixtures?: FixtureEndpoint[];
     wrapper?: React.ComponentType<React.PropsWithChildren<P>>;

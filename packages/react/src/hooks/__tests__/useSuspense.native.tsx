@@ -510,7 +510,7 @@ describe('useSuspense()', () => {
         return nextPage;
       },
       {
-        results: [
+        initialFixtures: [
           {
             endpoint: PaginatedArticleResource.getList,
             args: [],

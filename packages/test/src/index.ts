@@ -5,7 +5,6 @@ Object.hasOwn =
   };
 export { default as MockResolver } from './MockResolver.js';
 import makeRenderRestHook from './makeRenderRestHook/index.js';
-import MockProvider from './MockProvider.js';
 import mockInitialState from './mockState.js';
 export type {
   FixtureEndpoint,
@@ -17,4 +16,4 @@ export type {
 } from './mockState.js';
 export { act } from './makeRenderRestHook/renderHook.cjs';
 
-export { makeRenderRestHook, MockProvider, mockInitialState };
+export { makeRenderRestHook, mockInitialState };
