@@ -9,8 +9,11 @@ import {
 import React, { memo, Suspense } from 'react';
 
 import { renderHook, act, RenderHookResult } from './renderHook.cjs';
+import { createControllerInterceptor } from '../createControllerInterceptor.js';
+import { createFixtureMap } from '../createFixtureMap.js';
+import { Interceptor, Fixture, FixtureEndpoint } from '../fixtureTypes.js';
 import MockResolver from '../MockResolver.js';
-import mockInitialState, { FixtureEndpoint } from '../mockState.js';
+import mockInitialState from '../mockState.js';
 
 export default function makeRenderRestHook(
   Provider: React.ComponentType<ProviderProps>,
@@ -41,8 +44,8 @@ export default function makeRenderRestHook(
     callback: (props: P) => R,
     options?: {
       initialProps?: P;
-      initialFixtures?: FixtureEndpoint[];
-      resolverFixtures?: FixtureEndpoint[];
+      initialFixtures?: Fixture[];
+      resolverFixtures?: (Fixture | Interceptor)[];
       wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
     },
   ): RenderHookResult<R, P> & { controller: Controller } => {
@@ -127,7 +130,14 @@ export default function makeRenderRestHook(
       ...options,
       wrapper,
     });
-    ret.controller = (managers[0] as any).controller;
+    const [fixtureMap, interceptors] = createFixtureMap(
+      options?.resolverFixtures,
+    );
+    ret.controller = createControllerInterceptor(
+      (managers[0] as any).controller,
+      fixtureMap,
+      interceptors,
+    );
     return ret;
   }) as any;
   renderRestHook.cleanup = () => {};
@@ -145,8 +155,8 @@ type RenderRestHook = (<P, R>(
   callback: (props: P) => R,
   options?: {
     initialProps?: P;
-    initialFixtures?: FixtureEndpoint[];
-    resolverFixtures?: FixtureEndpoint[];
+    initialFixtures?: readonly Fixture[];
+    readonly resolverFixtures?: readonly (Fixture | Interceptor)[];
     wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
   },
 ) => RenderHookResult<R, P> & {

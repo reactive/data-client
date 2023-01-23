@@ -13,7 +13,8 @@ export type {
   Fixture,
   SuccessFixture,
   ErrorFixture,
-} from './mockState.js';
+  Interceptor,
+} from './fixtureTypes.js';
 export { act } from './makeRenderRestHook/renderHook.cjs';
 
 export { makeRenderRestHook, mockInitialState };

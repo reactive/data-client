@@ -1,5 +1,5 @@
 import * as _rest_hooks_core from '@rest-hooks/core';
-import { Manager, State as State$1, Controller, NetworkError as NetworkError$1, ActionTypes, legacyActions, __INTERNAL__, createReducer, applyManager } from '@rest-hooks/core';
+import { Manager, State as State$1, Controller, NetworkError as NetworkError$1, ActionTypes, DenormalizeCache, legacyActions, __INTERNAL__, createReducer, applyManager } from '@rest-hooks/core';
 export { AbstractInstanceType, ActionTypes, Controller, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ExpiryStatus, FetchAction, FetchFunction, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ReceiveAction, ReceiveTypes, ResetAction, ResolveType, Schema, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@rest-hooks/core';
 import React$1, { Context } from 'react';
 import * as packages_core_lib_controller_Controller from 'packages/core/lib/controller/Controller';
@@ -291,6 +291,8 @@ declare function useLive<E extends EndpointInterface<FetchFunction, Schema | und
 declare const StateContext: Context<State$1<unknown>>;
 /** @deprecated use Controller.dispatch */
 declare const DispatchContext: Context<(value: ActionTypes) => Promise<void>>;
+/** @deprecated */
+declare const DenormalizeCacheContext: Context<DenormalizeCache>;
 declare const ControllerContext: Context<Controller<packages_core_lib_controller_Controller.CompatibleDispatch>>;
 interface Store<S> {
     subscribe(listener: () => void): () => void;
@@ -339,4 +341,4 @@ declare namespace internal_d {
 /** Turns a dispatch function into one that resolves once its been commited */
 declare function usePromisifiedDispatch<R extends React$1.Reducer<any, any>>(dispatch: React$1.Dispatch<React$1.ReducerAction<R>>, state: React$1.ReducerState<R>): (action: React$1.ReducerAction<R>) => Promise<void>;
 
-export { _default as AsyncBoundary, _default$1 as BackupBoundary, CacheProvider, ControllerContext, DispatchContext, NetworkErrorBoundary, StateContext, Store, StoreContext, internal_d as __INTERNAL__, useCache, useController, useDLE, useError, useFetch, useLive, usePromisifiedDispatch, useSubscription, useSuspense };
+export { _default as AsyncBoundary, _default$1 as BackupBoundary, CacheProvider, ControllerContext, DenormalizeCacheContext, DispatchContext, NetworkErrorBoundary, StateContext, Store, StoreContext, internal_d as __INTERNAL__, useCache, useController, useDLE, useError, useFetch, useLive, usePromisifiedDispatch, useSubscription, useSuspense };

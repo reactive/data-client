@@ -101,7 +101,6 @@ export const FullArticleList = ({ result }) => (
     <ArticleList maxResults={10} />
   </MockResolver>
 );
-
 ```
 
 </details>
@@ -116,24 +115,30 @@ import options from './fixtures';
 const renderRestHook = makeRenderRestHook(CacheProvider);
 
 it('should resolve list', async () => {
-  const { result } = renderRestHook(() => {
-    return useSuspense(ArticleResource.list(), {
-      maxResults: 10,
-    });
-  }, { fixtures: options.full });
+  const { result } = renderRestHook(
+    () => {
+      return useSuspense(ArticleResource.list(), {
+        maxResults: 10,
+      });
+    },
+    { initialFixtures: options.full },
+  );
   expect(result.current).toBeDefined();
   expect(result.current.length).toBe(2);
   expect(result.current[0]).toBeInstanceOf(ArticleResource);
 });
 
 it('should throw errors on bad network', async () => {
-  const { result } = renderRestHook(() => {
-    return useSuspense(ArticleResource.list(), {
-      maxResults: 10,
-    });
-  }, { fixtures: options.error });
-    expect(result.error).toBeDefined();
-    expect((result.error as any).status).toBe(400);
+  const { result } = renderRestHook(
+    () => {
+      return useSuspense(ArticleResource.list(), {
+        maxResults: 10,
+      });
+    },
+    { initialFixtures: options.error },
+  );
+  expect(result.error).toBeDefined();
+  expect((result.error as any).status).toBe(400);
 });
 ```
 

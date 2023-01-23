@@ -1,10 +1,10 @@
-import type { FixtureEndpoint } from '@rest-hooks/test';
-import React, { memo, type ReactElement } from 'react';
+import type { Fixture } from '@rest-hooks/test';
 import CodeBlock from '@theme/CodeBlock';
+import React, { memo, type ReactElement } from 'react';
 
 import styles from './styles.module.css';
 
-function FixturePreview({ fixtures }: { fixtures: FixtureEndpoint[] }) {
+function FixturePreview({ fixtures }: { fixtures: Fixture[] }) {
   return (
     <div className={styles.fixtureBlock}>
       {fixtures.map(fixture => (
@@ -23,11 +23,7 @@ function FixturePreview({ fixtures }: { fixtures: FixtureEndpoint[] }) {
 }
 export default memo(FixturePreview);
 
-function FixtureResponse({
-  fixture,
-}: {
-  fixture: FixtureEndpoint;
-}): ReactElement {
+function FixtureResponse({ fixture }: { fixture: Fixture }): ReactElement {
   return typeof fixture.response === 'function' ? (
     ('function' as any)
   ) : (

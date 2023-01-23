@@ -3,7 +3,6 @@ import { Endpoint } from '@rest-hooks/endpoint';
 import { SimpleRecord } from '@rest-hooks/legacy';
 import { CacheProvider } from '@rest-hooks/react';
 import { CacheProvider as ExternalCacheProvider } from '@rest-hooks/redux';
-import { act } from '@testing-library/react-hooks';
 import {
   CoolerArticleResource,
   EditorArticleResource,
@@ -20,7 +19,7 @@ import {
 import nock from 'nock';
 
 // relative imports to avoid circular dependency in tsconfig references
-import { makeRenderRestHook } from '../../../test';
+import { makeRenderRestHook, act } from '../../../test';
 import { useCache, useController, useFetch, useSuspense } from '../hooks';
 import {
   payload,
@@ -120,6 +119,39 @@ describe.each([
       expect(result.current.title).toBe(payload.title);
       // @ts-expect-error
       expect(result.current.lafsjlfd).toBeUndefined();
+    });
+
+    it('should resolve useSuspense() with Interceptors', async () => {
+      nock.cleanAll();
+      const { result, waitFor, controller } = renderRestHook(
+        () => {
+          return useSuspense(CoolerArticleResource.get, { id: 'abc123' });
+        },
+        {
+          resolverFixtures: [
+            {
+              endpoint: CoolerArticleResource.get,
+              response: ({ id }) => ({ ...payload, id }),
+            },
+            {
+              endpoint: CoolerArticleResource.partialUpdate,
+              response: ({ id }, body) => ({ ...body, id }),
+              delay: () => 1,
+            },
+          ],
+        },
+      );
+      expect(result.current).toBeUndefined();
+      await waitFor(() => expect(result.current).toBeDefined());
+      expect(result.current.title).toBe(payload.title);
+      // @ts-expect-error
+      expect(result.current.lafsjlfd).toBeUndefined();
+      await controller.fetch(
+        CoolerArticleResource.partialUpdate,
+        { id: 'abc123' },
+        { title: 'updated title' },
+      );
+      expect(result.current.title).toBe('updated title');
     });
 
     it('should maintain global referential equality', async () => {
