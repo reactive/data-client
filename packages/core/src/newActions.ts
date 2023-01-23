@@ -45,6 +45,9 @@ export type ReceiveAction<E extends EndpointInterface = EndpointInterface> =
   | ReceiveActionSuccess<E>
   | ReceiveActionError<E>;
 
+export type SetAction<E extends EndpointInterface = EndpointInterface> =
+  ReceiveAction<E>;
+
 /* FETCH */
 export interface FetchMeta {
   args: readonly any[];
