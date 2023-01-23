@@ -1,34 +1,60 @@
-import type { Fixture } from '@rest-hooks/test';
+import type { Fixture, Interceptor } from '@rest-hooks/test';
 import CodeBlock from '@theme/CodeBlock';
 import React, { memo, type ReactElement } from 'react';
 
 import styles from './styles.module.css';
 
-function FixturePreview({ fixtures }: { fixtures: Fixture[] }) {
+function FixturePreview({ fixtures }: { fixtures: (Fixture | Interceptor)[] }) {
   return (
     <div className={styles.fixtureBlock}>
-      {fixtures.map(fixture => (
-        <div
-          key={fixture.endpoint.key(...fixture.args)}
-          className={styles.fixtureItem}
-        >
-          <div className={styles.fixtureHeader}>
-            {fixture.endpoint.key(...fixture.args)}
-          </div>
-          <FixtureResponse fixture={fixture} />
-        </div>
+      {fixtures.map((fixture, i) => (
+        <FixtureOrInterceptor key={i} fixture={fixture} />
       ))}
     </div>
   );
 }
 export default memo(FixturePreview);
 
-function FixtureResponse({ fixture }: { fixture: Fixture }): ReactElement {
+function FixtureResponse({
+  fixture,
+}: {
+  fixture: Fixture | Interceptor;
+}): ReactElement {
   return typeof fixture.response === 'function' ? (
-    ('function' as any)
+    <CodeBlock language="javascript" className={styles.fixtureJson}>
+      {`${fixture.response}`}
+    </CodeBlock>
   ) : (
     <CodeBlock language="json" className={styles.fixtureJson}>
       {JSON.stringify(fixture.response)}
     </CodeBlock>
+  );
+}
+
+function FixtureOrInterceptor({
+  fixture,
+}: {
+  fixture: Fixture | Interceptor;
+}): JSX.Element {
+  if ('args' in fixture) {
+    return (
+      <div
+        key={fixture.endpoint.key(...fixture.args)}
+        className={styles.fixtureItem}
+      >
+        <div className={styles.fixtureHeader}>
+          {fixture.endpoint.key(...fixture.args)}
+        </div>
+        <FixtureResponse fixture={fixture} />
+      </div>
+    );
+  }
+  return (
+    <div className={styles.fixtureItem}>
+      <div className={styles.fixtureHeader}>
+        {(fixture.endpoint as any).method} {(fixture.endpoint as any).path}
+      </div>
+      <FixtureResponse fixture={fixture} />
+    </div>
   );
 }

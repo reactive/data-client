@@ -1,5 +1,5 @@
 import Translate from '@docusaurus/Translate';
-import type { FixtureEndpoint } from '@rest-hooks/test';
+import type { Fixture, FixtureEndpoint, Interceptor } from '@rest-hooks/test';
 import clsx from 'clsx';
 import { useContext, useMemo, useReducer, useState } from 'react';
 import React from 'react';
@@ -18,7 +18,7 @@ export function PlaygroundTextEdit({
   codes,
   large = false,
   isPlayground = true,
-}) {
+}: PlaygroundProps) {
   const id = useId();
 
   const [closedList, setClosed] = useState(() =>
@@ -28,7 +28,7 @@ export function PlaygroundTextEdit({
   return (
     <div>
       <EditorHeader
-        fixtures={!row && fixtures}
+        fixtures={!row ? fixtures : []}
         title={row && codeTabs.length === 1 ? codeTabs[0].title : undefined}
       />
       {row && codeTabs.length > 1 ? (
@@ -77,6 +77,15 @@ export function PlaygroundTextEdit({
       ))}
     </div>
   );
+}
+interface PlaygroundProps {
+  fixtures: (Fixture | Interceptor)[];
+  row: boolean;
+  codeTabs: any;
+  handleCodeChange: any;
+  codes: any;
+  large?: boolean;
+  isPlayground?: boolean;
 }
 
 export function useCode(children) {
@@ -225,10 +234,10 @@ function HeaderWithTabControls({ children }) {
 
 function EditorHeader({
   title,
-  fixtures,
+  fixtures = [],
 }: {
   title: string;
-  fixtures: FixtureEndpoint[];
+  fixtures: (Fixture | Interceptor)[];
 }) {
   const { values } = useContext(CodeTabContext);
   const hasTabs = values.length > 0;

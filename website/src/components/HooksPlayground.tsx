@@ -1,4 +1,4 @@
-import type { FixtureEndpoint } from '@rest-hooks/test';
+import type { Fixture, Interceptor } from '@rest-hooks/test';
 import React, { memo } from 'react';
 
 import Playground from './Playground';
@@ -10,7 +10,7 @@ const HooksPlayground = ({
   defaultOpen,
   row = false,
   fixtures,
-}) => (
+}: PlaygroundProps) => (
   <Playground
     includeEndpoints={!Array.isArray(children)}
     noInline
@@ -29,8 +29,19 @@ const HooksPlayground = ({
 );
 HooksPlayground.defaultProps = {
   defaultOpen: 'n' as const,
-  fixtures: [] as FixtureEndpoint[],
+  fixtures: [] as Fixture[],
 };
 export default memo(HooksPlayground);
 
 //child.props.children.props.title
+
+interface PlaygroundProps {
+  groupId: string;
+  defaultOpen: 'y' | 'n';
+  row: boolean;
+  hidden: boolean;
+  fixtures: (Fixture | Interceptor)[];
+  children: React.ReactNode;
+  reverse?: boolean;
+  includeEndpoints: boolean;
+}

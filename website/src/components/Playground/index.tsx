@@ -1,6 +1,6 @@
 import { usePrismTheme } from '@docusaurus/theme-common';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import type { FixtureEndpoint } from '@rest-hooks/test';
+import type { Fixture, FixtureEndpoint, Interceptor } from '@rest-hooks/test';
 import clsx from 'clsx';
 import React, { lazy } from 'react';
 import { LiveProvider, LiveProviderProps } from 'react-live';
@@ -26,7 +26,7 @@ export default function Playground({
   defaultOpen: 'y' | 'n';
   row: boolean;
   children: string | any[];
-  fixtures: FixtureEndpoint[];
+  fixtures: (Fixture | Interceptor)[];
   includeEndpoints: boolean;
 }) {
   const {
@@ -72,7 +72,7 @@ function PlaygroundContent({
   includeEndpoints,
   groupId,
   defaultOpen,
-}) {
+}: ContentProps) {
   const { handleCodeChange, codes, codeTabs } = useCode(children);
   /*const code = ready.every(v => v)
     ? codes.join('\n')
@@ -115,6 +115,15 @@ function PlaygroundContent({
       </Boundary>
     </Reversible>
   );
+}
+interface ContentProps {
+  groupId: string;
+  defaultOpen: 'y' | 'n';
+  row: boolean;
+  fixtures: (Fixture | Interceptor)[];
+  children: React.ReactNode;
+  reverse?: boolean;
+  includeEndpoints: boolean;
 }
 
 const isGoogleBot =

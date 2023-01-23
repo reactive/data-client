@@ -209,6 +209,17 @@ more complicated transforms. To make it more obvious we're using a simple counte
 endpoint: new RestEndpoint({path: '/api/count'}),
 args: [],
 response: { count: 0 }
+},
+{
+  endpoint: new RestEndpoint({
+    path: '/api/count/increment',
+    method: 'POST',
+    body: undefined,
+  }),
+  response: () => ({
+    "count": (globalThis.RH_count = (globalThis.RH_count ?? 0) + 1),
+  }),
+  delay: () => 500 + Math.random() * 4500,
 }
 ]}>
 
@@ -344,7 +355,7 @@ We use [snap.fetchedAt](/docs/api/Snapshot#fetchedat) in our [getOptimisticRespo
 endpoint: new RestEndpoint({path: '/api/count'}),
 args: [],
 response: { count: 0, updatedAt: Date.now() }
-}
+},
 ]}>
 
 ```ts title="api/Count.ts" {24-29,35}

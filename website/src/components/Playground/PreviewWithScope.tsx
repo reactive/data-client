@@ -2,12 +2,11 @@ import * as graphql from '@rest-hooks/graphql';
 import * as hooks from '@rest-hooks/hooks';
 import * as rhReact from '@rest-hooks/react';
 import * as rest from '@rest-hooks/rest';
-import type { FixtureEndpoint } from '@rest-hooks/test';
+import type { Fixture, Interceptor } from '@rest-hooks/test';
 import BigNumber from 'bignumber.js';
 import React, { useEffect, useState, memo } from 'react';
 import { LiveProvider } from 'react-live';
 
-import ResetableErrorBoundary from '../ResettableErrorBoundary';
 import PreviewWithHeader from './PreviewWithHeader';
 import {
   TodoResource as BaseTodoResource,
@@ -15,6 +14,7 @@ import {
   TodoEndpoint,
 } from './resources/TodoResource';
 import transformCode from './transformCode';
+import ResetableErrorBoundary from '../ResettableErrorBoundary';
 
 function randomFloatInRange(min, max, decimals) {
   const str = (Math.random() * (max - min) + min).toFixed(decimals);
@@ -111,7 +111,7 @@ export default function PreviewWithScope({
   groupId: string;
   defaultOpen: 'y' | 'n';
   row: boolean;
-  fixtures: FixtureEndpoint[];
+  fixtures: (Fixture | Interceptor)[];
 }) {
   return (
     <LiveProvider

@@ -1,11 +1,12 @@
-import React, { memo } from 'react';
 import Translate from '@docusaurus/Translate';
+import { Fixture, Interceptor } from '@rest-hooks/test';
+import React, { memo } from 'react';
 
+import Header from './Header';
 import Preview from './Preview';
 import styles from './styles.module.css';
-import Header from './Header';
 
-function PreviewWithHeader({ groupId, defaultOpen, row, fixtures }) {
+function PreviewWithHeader({ groupId, defaultOpen, row, fixtures }: Props) {
   return (
     <div
       style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
@@ -30,3 +31,10 @@ function PreviewWithHeader({ groupId, defaultOpen, row, fixtures }) {
   );
 }
 export default memo(PreviewWithHeader);
+
+interface Props {
+  groupId: string;
+  defaultOpen: 'y' | 'n';
+  row: boolean;
+  fixtures: (Fixture | Interceptor)[];
+}

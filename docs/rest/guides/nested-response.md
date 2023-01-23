@@ -19,13 +19,12 @@ Next we'll provide a definition of nested members in the [schema][3] member.
 {
 endpoint: new RestEndpoint({ urlPrefix: 'http://fakeapi.com',
 path: '/article/:id',}),
-args: [{ id: '5' }],
-response: {
-id: '5',
+response: ({ id }) => ({
+id,
 author: { id: '123', name: 'Jim' },
 content: 'Happy day',
 contributors: [{ id: '100', name: 'Eliza' }],
-},
+}),
 delay: 150,
 },
 ]}>

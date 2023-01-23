@@ -2,7 +2,11 @@ import {
   useScrollPositionBlocker,
   useTabGroupChoice,
 } from '@docusaurus/theme-common/internal';
-import { type FixtureEndpoint, MockResolver } from '@rest-hooks/test/browser';
+import {
+  type Fixture,
+  type Interceptor,
+  MockResolver,
+} from '@rest-hooks/test/browser';
 import clsx from 'clsx';
 import React, { memo, useCallback, useState, useMemo, lazy } from 'react';
 import {
@@ -25,7 +29,7 @@ function Preview({
   groupId: string;
   row: boolean;
   defaultOpen: 'y' | 'n';
-  fixtures: FixtureEndpoint[];
+  fixtures: (Fixture | Interceptor)[];
 }) {
   const { tabGroupChoices, setTabGroupChoices } = useTabGroupChoice();
   const [selectedValue, setSelectedValue] = useState(defaultOpen);
