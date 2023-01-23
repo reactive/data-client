@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [10.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@10.0.0...@rest-hooks/test@10.1.0) (2023-01-23)
+
+### 🚀 Features
+
+* Add Interceptors ([#2380](https://github.com/coinbase/rest-hooks/issues/2380)) ([53653ba](https://github.com/coinbase/rest-hooks/commit/53653ba9462510938f57cfe4ff907fda2efcc874))
+
+### 📝 Documentation
+
+* Update docs for @rest-hooks/test@10 ([86c630b](https://github.com/coinbase/rest-hooks/commit/86c630b4b313679c7a441cc7fa060dfb9005d1da))
+
 ### [10.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@9.1.4...@rest-hooks/test@10.0.0) (2023-01-23)
 
 ### ⚠ 💥 BREAKING CHANGES

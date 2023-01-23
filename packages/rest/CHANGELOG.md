@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.2.6...@rest-hooks/rest@6.3.0) (2023-01-23)
+
+### 🚀 Features
+
+* Add RestEndpoint.testKey() ([#2380](https://github.com/coinbase/rest-hooks/issues/2380)) ([c84c08f](https://github.com/coinbase/rest-hooks/commit/c84c08f4a135d87ed1aaedf36f7ab689154cba50))
+* makeRenderRestHook(CacheProvider) and React 18 testing ([#2328](https://github.com/coinbase/rest-hooks/issues/2328)) ([0e9e51e](https://github.com/coinbase/rest-hooks/commit/0e9e51e3bce3c9c978888a734c43be8d1fe3ae55))
+* More fleixble types for hookableResource ([6d388af](https://github.com/coinbase/rest-hooks/commit/6d388afcb178a3d139c807e8b3163bcea371f86c))
+
+### 💅 Enhancement
+
+* Remove deprecated string.substr() calls ([de3ed4f](https://github.com/coinbase/rest-hooks/commit/de3ed4f6db938aece3e3926e35de5a1c51a195c5))
+
 ### [6.2.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.2.6...@rest-hooks/rest@6.2.7) (2023-01-23)
 
 ### 🚀 Features
