@@ -1,4 +1,4 @@
-import { RECEIVE_TYPE, FETCH_TYPE, RESET_TYPE } from '../actionTypes.js';
+import { SET_TYPE, FETCH_TYPE, RESET_TYPE } from '../actionTypes.js';
 import Controller from '../controller/Controller.js';
 import { initialState } from '../internal.js';
 import {
@@ -71,7 +71,7 @@ export default class NetworkManager implements Manager {
                 return next(action);
               }
               return Promise.resolve();
-            case RECEIVE_TYPE:
+            case SET_TYPE:
               // only receive after new state is computed
               return next(action).then(() => {
                 if (action.meta.key in this.fetched) {

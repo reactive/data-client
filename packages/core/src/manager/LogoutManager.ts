@@ -1,4 +1,4 @@
-import { RECEIVE_TYPE } from '../actionTypes.js';
+import { SET_TYPE } from '../actionTypes.js';
 import Controller from '../controller/Controller.js';
 import { UnknownError } from '../index.js';
 import type { CombinedActionTypes } from '../types.js';
@@ -17,7 +17,7 @@ export default class LogoutManager implements Manager<CombinedActionTypes> {
     this.middleware = controller => next => async action => {
       await next(action);
       if (
-        action.type === RECEIVE_TYPE &&
+        action.type === SET_TYPE &&
         action.error &&
         this.shouldLogout(action.payload)
       ) {

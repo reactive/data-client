@@ -3,7 +3,7 @@ import { normalize } from '@rest-hooks/normalizr';
 import applyUpdatersToResults from './applyUpdatersToResults.js';
 import { createReceive as legacyCreateReceive } from './legacy-actions/index.js';
 import {
-  RECEIVE_TYPE,
+  SET_TYPE,
   INVALIDATE_TYPE,
   RESET_TYPE,
   FETCH_TYPE,
@@ -90,7 +90,7 @@ export default function createReducer(controller: Controller): ReducerType {
       case OPTIMISTIC_TYPE:
 
       // eslint-disable-next-line no-fallthrough
-      case RECEIVE_TYPE: {
+      case SET_TYPE: {
         if (action.error) {
           return reduceError(state, action, action.payload);
         }
