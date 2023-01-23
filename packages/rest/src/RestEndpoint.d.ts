@@ -55,6 +55,9 @@ export interface RestInstance<
   /** @see https://resthooks.io/rest/api/RestEndpoint#process */
   process(value: any, ...args: Parameters<F>): ResolveType<F>;
 
+  /* utilities */
+  testKey(key: string): boolean;
+
   /* extenders */
   paginated<
     E extends RestInstance<FetchFunction, Schema | undefined, undefined>,

@@ -37,6 +37,7 @@ const getUser = new RestEndpoint({
   name: 'User.get',
   schema: User,
   method: 'GET',
+  searchParams: {} as { extra?: string },
 });
 export class PaginatedArticle extends Entity {
   readonly id: number | undefined = undefined;
@@ -54,7 +55,8 @@ export class PaginatedArticle extends Entity {
   };
 }
 const getArticleList = new RestEndpoint({
-  path: 'http\\://test.com/article-paginated',
+  urlPrefix: 'http://test.com',
+  path: '/article-paginated',
   name: 'get',
   schema: {
     nextPage: '',
@@ -124,6 +126,14 @@ describe('RestEndpoint', () => {
 
   afterEach(() => {
     nock.cleanAll();
+  });
+
+  it('testKey should match keys', () => {
+    expect(getArticleList.testKey(getArticleList.key())).toBeTruthy();
+    expect(
+      getUser.testKey(getUser.key({ id: '100', extra: '345' })),
+    ).toBeTruthy();
+    expect(getUser.testKey(getUser.key({ id: 'xxx?*' }))).toBeTruthy();
   });
 
   it('should assign members', () => {

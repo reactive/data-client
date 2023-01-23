@@ -1,4 +1,5 @@
 import { Endpoint } from '@rest-hooks/endpoint';
+import { pathToRegexp } from 'path-to-regexp';
 
 import NetworkError from './NetworkError.js';
 import paginationUpdate from './paginationUpdate.js';
@@ -165,6 +166,18 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
 
   errorPolicy(error) {
     return error.status >= 500 ? 'soft' : undefined;
+  }
+
+  get pathRegex() {
+    return pathToRegexp(this.path);
+  }
+
+  testKey(key) {
+    const prefix = this.method + ' ' + this.urlPrefix;
+    if (!key.startsWith(prefix)) return false;
+    let lastQuestion = key.lastIndexOf('?');
+    if (lastQuestion === -1) lastQuestion = undefined;
+    return this.pathRegex.test(key.substring(prefix.length, lastQuestion));
   }
 
   extend(options) {
