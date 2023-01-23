@@ -35,10 +35,18 @@ export interface ErrorFixtureEndpoint<
   delay?: number;
 }
 
-export type FixtureEndpoint = SuccessFixtureEndpoint | ErrorFixtureEndpoint;
-export type SuccessFixture = SuccessFixtureEndpoint;
-export type ErrorFixture = ErrorFixtureEndpoint;
-export type Fixture = FixtureEndpoint;
+export type FixtureEndpoint<
+  E extends EndpointInterface & { update?: Updater } = EndpointInterface,
+> = SuccessFixtureEndpoint<E> | ErrorFixtureEndpoint<E>;
+export type SuccessFixture<
+  E extends EndpointInterface & { update?: Updater } = EndpointInterface,
+> = SuccessFixtureEndpoint<E>;
+export type ErrorFixture<
+  E extends EndpointInterface & { update?: Updater } = EndpointInterface,
+> = ErrorFixtureEndpoint<E>;
+export type Fixture<
+  E extends EndpointInterface & { update?: Updater } = EndpointInterface,
+> = FixtureEndpoint<E>;
 
 export default function mockInitialState(fixtures: Fixture[]): State<unknown> {
   const actions: ReceiveAction[] = [];
