@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [10.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@9.1.4...@rest-hooks/test@10.0.0) (2023-01-23)
+
+### ⚠ 💥 BREAKING CHANGES
+
+* makeRenderRestHook(makeCacheProvider) -> makeRenderRestHook(CacheProvider)
+* Behavior will change with React 18
+   * Be careful with waitForNextUpdate() as it is not as robust (use waitFor() instead)
+* MockProvider and results options are removed
+
+### 🚀 Features
+
+* makeRenderRestHook(CacheProvider) and React 18 testing ([#2328](https://github.com/coinbase/rest-hooks/issues/2328)) ([0e9e51e](https://github.com/coinbase/rest-hooks/commit/0e9e51e3bce3c9c978888a734c43be8d1fe3ae55))
+
+### 💅 Enhancement
+
+* Make all Fixture types generic ([25b57c4](https://github.com/coinbase/rest-hooks/commit/25b57c4bb8002891413ac7d7eae45201593a28c4))
+* Remove MockProvider, options.results ([af4b7d5](https://github.com/coinbase/rest-hooks/commit/af4b7d529c723366ad9eac1dfc65a144530cf3b3))
+
+### 📝 Documentation
+
+* Minor homepage demo improvements ([#2375](https://github.com/coinbase/rest-hooks/issues/2375)) ([9ddaeb6](https://github.com/coinbase/rest-hooks/commit/9ddaeb63d3f171573b7cd2d13982ca06d0b16c67))
+
 ### [9.1.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@9.1.3...@rest-hooks/test@9.1.4) (2023-01-12)
 
 ### 📦 Package

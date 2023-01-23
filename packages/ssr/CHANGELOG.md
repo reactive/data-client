@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.7.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.7.4...@rest-hooks/ssr@0.7.5) (2023-01-23)
+
+### 🚀 Features
+
+* makeRenderRestHook(CacheProvider) and React 18 testing ([#2328](https://github.com/coinbase/rest-hooks/issues/2328)) ([0e9e51e](https://github.com/coinbase/rest-hooks/commit/0e9e51e3bce3c9c978888a734c43be8d1fe3ae55))
+
 ### [0.7.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.7.3...@rest-hooks/ssr@0.7.4) (2023-01-12)
 
 ### 📦 Package

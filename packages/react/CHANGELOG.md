@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.1.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/react@7.1.5...@rest-hooks/react@7.1.6) (2023-01-23)
+
+### 🚀 Features
+
+* makeRenderRestHook(CacheProvider) and React 18 testing ([#2328](https://github.com/coinbase/rest-hooks/issues/2328)) ([0e9e51e](https://github.com/coinbase/rest-hooks/commit/0e9e51e3bce3c9c978888a734c43be8d1fe3ae55))
+
+### 💅 Enhancement
+
+* Stop uncaught promises ([aac6fe9](https://github.com/coinbase/rest-hooks/commit/aac6fe9523c5eeee0068a227bcf39798c80fc55f))
+
+### 📦 Package
+
+* Update linting packages ([#2376](https://github.com/coinbase/rest-hooks/issues/2376)) ([305debd](https://github.com/coinbase/rest-hooks/commit/305debd269216444519d80c351fd63805a974343))
+
+### 📝 Documentation
+
+* Add atomic mutations concept ([#2369](https://github.com/coinbase/rest-hooks/issues/2369)) ([a56380b](https://github.com/coinbase/rest-hooks/commit/a56380b8cb39348572b99013945fbb217566662c))
+* Update resource def best practices for github example ([#2363](https://github.com/coinbase/rest-hooks/issues/2363)) ([3144584](https://github.com/coinbase/rest-hooks/commit/3144584bb773c7c44362f08adedd89107d3b2313))
+
 ### [7.1.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/react@7.1.4...@rest-hooks/react@7.1.5) (2023-01-14)
 
 ### 🐛 Bug Fix

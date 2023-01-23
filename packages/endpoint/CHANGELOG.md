@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@3.2.8...@rest-hooks/endpoint@3.3.0) (2023-01-23)
+
+### 🚀 Features
+
+* Allow arbitrary return types for Query ([#2371](https://github.com/coinbase/rest-hooks/issues/2371)) ([b73cc3b](https://github.com/coinbase/rest-hooks/commit/b73cc3b025e7f96a97ebd3fb25f79c991d8b7936))
+
+### 💅 Enhancement
+
+* Inform user when CSP feature detection causes console error ([085449c](https://github.com/coinbase/rest-hooks/commit/085449c3d008a1e6e6bd9ad9d2a141d506f8bb3f))
+
 ### [3.2.8](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@3.2.7...@rest-hooks/endpoint@3.2.8) (2023-01-14)
 
 ### 📦 Package

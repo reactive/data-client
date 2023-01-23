@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/experimental",
-  "version": "9.2.4",
+  "version": "9.2.5",
   "description": "Experimental extensions for Rest Hooks",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
@@ -82,7 +82,7 @@
     "path-to-regexp": "^6.2.0"
   },
   "peerDependencies": {
-    "@rest-hooks/endpoint": "^2.2.0-beta.2",
+    "@rest-hooks/endpoint": "^2.2.0-beta.2 || ^3.3.0",
     "@rest-hooks/react": "^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0",
     "@rest-hooks/rest": "^3.0.0 || ^4.0.0 || ^5.0.0",
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",

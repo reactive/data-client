@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.0.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@5.2.5...@rest-hooks/legacy@6.0.0) (2023-01-23)
+
+### ⚠ 💥 BREAKING CHANGES
+
+* useFetcher, useFetchDispatcher, useInvalidator, useInvalidateDispatcher removed
+
+These predate @rest-hooks/endpoint and @rest-hooks/rest. Probably easier
+to rewrite in modern rest hooks than attempt upgrades with those at this
+point.
+
+### 🚀 Features
+
+* makeRenderRestHook(CacheProvider) and React 18 testing ([#2328](https://github.com/coinbase/rest-hooks/issues/2328)) ([0e9e51e](https://github.com/coinbase/rest-hooks/commit/0e9e51e3bce3c9c978888a734c43be8d1fe3ae55))
+
+### 💅 Enhancement
+
+* Removing ancient shape based hooks ([264203a](https://github.com/coinbase/rest-hooks/commit/264203a53299f1357697156f718300af42c1170d))
+
+### 📦 Package
+
+* Update linting packages ([#2376](https://github.com/coinbase/rest-hooks/issues/2376)) ([305debd](https://github.com/coinbase/rest-hooks/commit/305debd269216444519d80c351fd63805a974343))
+
 ### [5.2.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/legacy@5.2.4...@rest-hooks/legacy@5.2.5) (2023-01-14)
 
 ### 📦 Package

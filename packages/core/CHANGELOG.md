@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.1.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@4.1.5...@rest-hooks/core@4.1.6) (2023-01-23)
+
+### 🚀 Features
+
+* makeRenderRestHook(CacheProvider) and React 18 testing ([#2328](https://github.com/coinbase/rest-hooks/issues/2328)) ([0e9e51e](https://github.com/coinbase/rest-hooks/commit/0e9e51e3bce3c9c978888a734c43be8d1fe3ae55))
+
+### 💅 Enhancement
+
+* Use modern fetch action in PollingSubscription ([fd7bf78](https://github.com/coinbase/rest-hooks/commit/fd7bf78b120c9be88250fcf0d5d11828bc62a4b5))
+
+### 🐛 Bug Fix
+
+* Do not throttle with fetches initiated before a reset ([6cb2830](https://github.com/coinbase/rest-hooks/commit/6cb2830ae419570896afa3eab0feef449e54e2dd))
+
+### 📦 Package
+
+* Update linting packages ([#2376](https://github.com/coinbase/rest-hooks/issues/2376)) ([305debd](https://github.com/coinbase/rest-hooks/commit/305debd269216444519d80c351fd63805a974343))
+
+### 📝 Documentation
+
+* Add atomic mutations concept ([#2369](https://github.com/coinbase/rest-hooks/issues/2369)) ([a56380b](https://github.com/coinbase/rest-hooks/commit/a56380b8cb39348572b99013945fbb217566662c))
+
 ### [4.1.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@4.1.4...@rest-hooks/core@4.1.5) (2023-01-14)
 
 ### 📦 Package

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/redux@6.2.3...@rest-hooks/redux@6.3.0) (2023-01-23)
+
+### 🚀 Features
+
+* Export applyManager ([040a214](https://github.com/coinbase/rest-hooks/commit/040a214d5256e275e9ecaa3911558aba17d2b18d))
+* makeRenderRestHook(CacheProvider) and React 18 testing ([#2328](https://github.com/coinbase/rest-hooks/issues/2328)) ([0e9e51e](https://github.com/coinbase/rest-hooks/commit/0e9e51e3bce3c9c978888a734c43be8d1fe3ae55))
+
+### 📝 Documentation
+
+* Add atomic mutations concept ([#2369](https://github.com/coinbase/rest-hooks/issues/2369)) ([a56380b](https://github.com/coinbase/rest-hooks/commit/a56380b8cb39348572b99013945fbb217566662c))
+
 ### [6.2.3](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/redux@6.2.2...@rest-hooks/redux@6.2.3) (2023-01-12)
 
 ### 📦 Package

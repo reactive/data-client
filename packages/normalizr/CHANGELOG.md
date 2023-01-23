@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [9.3.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@9.3.6...@rest-hooks/normalizr@9.3.7) (2023-01-23)
+
+### 🐛 Bug Fix
+
+* Handle null schemas properly ([e86a38a](https://github.com/coinbase/rest-hooks/commit/e86a38a66e3e1b1c8b09df56578541cc1f47890c))
+
+### 📦 Package
+
+* Update all non-major dependencies ([#2362](https://github.com/coinbase/rest-hooks/issues/2362)) ([3a99f96](https://github.com/coinbase/rest-hooks/commit/3a99f9693b2542fe0014af8fe7790d37f11f5999))
+
 ### [9.3.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/normalizr@9.3.5...@rest-hooks/normalizr@9.3.6) (2023-01-14)
 
 ### 📦 Package
