@@ -147,7 +147,7 @@ If text content was expected see https://resthooks.io/rest/api/RestEndpoint#pars
             error.message = `Unexpected html response for schema ${this.schema}
 This likely means no API endpoint was configured for this request, resulting in an HTML fallback.
 
-Response (first 300 characters): ${text.substr(0, 300)}`;
+Response (first 300 characters): ${text.substring(0, 300)}`;
           }
         }
         throw error;

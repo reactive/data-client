@@ -18,7 +18,7 @@ module.exports = function (api) {
                 sourcePath.startsWith('.') &&
                 (sourcePath.endsWith('.js') || sourcePath.endsWith('.cjs'))
               ) {
-                const removedExt = sourcePath.substr(
+                const removedExt = sourcePath.substring(
                   0,
                   sourcePath.lastIndexOf('.'),
                 );
@@ -32,7 +32,8 @@ module.exports = function (api) {
                 !sourcePath.includes('.native')
               ) {
                 const final =
-                  sourcePath.substr(0, sourcePath.lastIndexOf('.')) + '.native';
+                  sourcePath.substring(0, sourcePath.lastIndexOf('.')) +
+                  '.native';
 
                 const resolved = resolvePath(final, currentFile, opts);
                 for (const ext of opts.extensions) {
