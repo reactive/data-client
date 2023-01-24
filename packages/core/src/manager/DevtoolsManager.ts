@@ -1,5 +1,5 @@
 import { MiddlewareController } from '../middlewareTypes.js';
-import createReducer from '../state/createReducer.js';
+import createReducer from '../state/reducer/createReducer.js';
 import type {
   Manager,
   State,

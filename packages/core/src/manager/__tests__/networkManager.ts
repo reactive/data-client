@@ -5,7 +5,7 @@ import { RECEIVE_TYPE } from '../../actionTypes';
 import Controller from '../../controller/Controller';
 import createFetch from '../../controller/createFetch';
 import NetworkManager from '../../manager/NetworkManager';
-import { initialState } from '../../state/createReducer';
+import { initialState } from '../../state/reducer/createReducer';
 import { Middleware } from '../../types';
 
 describe('NetworkManager', () => {

@@ -1,7 +1,7 @@
 import { Endpoint, Entity } from '@rest-hooks/endpoint';
 
 import { ExpiryStatus } from '../..';
-import { initialState } from '../../state/createReducer';
+import { initialState } from '../../state/reducer/createReducer';
 import Contoller from '../Controller';
 
 describe('Controller.getResponse()', () => {

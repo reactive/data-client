@@ -203,30 +203,36 @@ type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends R
 
 declare const FETCH_TYPE: "rest-hooks/fetch";
 declare const RECEIVE_TYPE: "rest-hooks/receive";
+declare const SET_TYPE: "rest-hooks/receive";
 declare const OPTIMISTIC_TYPE: "rest-hooks/optimistic";
 declare const RESET_TYPE: "rest-hooks/reset";
 declare const SUBSCRIBE_TYPE: "rest-hooks/subscribe";
 declare const UNSUBSCRIBE_TYPE: "rest-hook/unsubscribe";
 declare const INVALIDATE_TYPE: "rest-hooks/invalidate";
+declare const INVALIDATEALL_TYPE: "rest-hooks/invalidateall";
 declare const GC_TYPE: "rest-hooks/gc";
 
 declare const actionTypes_d_FETCH_TYPE: typeof FETCH_TYPE;
 declare const actionTypes_d_RECEIVE_TYPE: typeof RECEIVE_TYPE;
+declare const actionTypes_d_SET_TYPE: typeof SET_TYPE;
 declare const actionTypes_d_OPTIMISTIC_TYPE: typeof OPTIMISTIC_TYPE;
 declare const actionTypes_d_RESET_TYPE: typeof RESET_TYPE;
 declare const actionTypes_d_SUBSCRIBE_TYPE: typeof SUBSCRIBE_TYPE;
 declare const actionTypes_d_UNSUBSCRIBE_TYPE: typeof UNSUBSCRIBE_TYPE;
 declare const actionTypes_d_INVALIDATE_TYPE: typeof INVALIDATE_TYPE;
+declare const actionTypes_d_INVALIDATEALL_TYPE: typeof INVALIDATEALL_TYPE;
 declare const actionTypes_d_GC_TYPE: typeof GC_TYPE;
 declare namespace actionTypes_d {
   export {
     actionTypes_d_FETCH_TYPE as FETCH_TYPE,
     actionTypes_d_RECEIVE_TYPE as RECEIVE_TYPE,
+    actionTypes_d_SET_TYPE as SET_TYPE,
     actionTypes_d_OPTIMISTIC_TYPE as OPTIMISTIC_TYPE,
     actionTypes_d_RESET_TYPE as RESET_TYPE,
     actionTypes_d_SUBSCRIBE_TYPE as SUBSCRIBE_TYPE,
     actionTypes_d_UNSUBSCRIBE_TYPE as UNSUBSCRIBE_TYPE,
     actionTypes_d_INVALIDATE_TYPE as INVALIDATE_TYPE,
+    actionTypes_d_INVALIDATEALL_TYPE as INVALIDATEALL_TYPE,
     actionTypes_d_GC_TYPE as GC_TYPE,
   };
 }
@@ -252,6 +258,7 @@ interface ReceiveActionError<E extends EndpointInterface = EndpointInterface> {
     error: true;
 }
 type ReceiveAction$3<E extends EndpointInterface = EndpointInterface> = ReceiveActionSuccess<E> | ReceiveActionError<E>;
+type SetAction<E extends EndpointInterface = EndpointInterface> = ReceiveAction$3<E>;
 interface FetchMeta$2 {
     args: readonly any[];
     throttle: boolean;
@@ -291,7 +298,11 @@ interface UnsubscribeAction$3<E extends EndpointInterface = EndpointInterface> {
         args: readonly any[];
     };
 }
-interface InvalidateAction$2 {
+interface InvalidateAllAction {
+    type: typeof INVALIDATEALL_TYPE;
+    testKey: (key: string) => boolean;
+}
+interface InvalidateAction$1 {
     type: typeof INVALIDATE_TYPE;
     meta: {
         key: string;
@@ -306,22 +317,26 @@ interface GCAction$2 {
     entities: [string, string][];
     results: string[];
 }
-type ActionTypes$2 = FetchAction$3 | OptimisticAction$2 | ReceiveAction$3 | SubscribeAction$3 | UnsubscribeAction$3 | InvalidateAction$2 | ResetAction$3 | GCAction$2;
+type ActionTypes$2 = FetchAction$3 | OptimisticAction$2 | ReceiveAction$3 | SubscribeAction$3 | UnsubscribeAction$3 | InvalidateAction$1 | ResetAction$3 | GCAction$2;
 
 type newActions_ReceiveActionSuccess<E extends EndpointInterface = EndpointInterface> = ReceiveActionSuccess<E>;
 type newActions_ReceiveActionError<E extends EndpointInterface = EndpointInterface> = ReceiveActionError<E>;
+type newActions_SetAction<E extends EndpointInterface = EndpointInterface> = SetAction<E>;
+type newActions_InvalidateAllAction = InvalidateAllAction;
 declare namespace newActions {
   export {
     ReceiveMeta$2 as ReceiveMeta,
     newActions_ReceiveActionSuccess as ReceiveActionSuccess,
     newActions_ReceiveActionError as ReceiveActionError,
     ReceiveAction$3 as ReceiveAction,
+    newActions_SetAction as SetAction,
     FetchMeta$2 as FetchMeta,
     FetchAction$3 as FetchAction,
     OptimisticAction$2 as OptimisticAction,
     SubscribeAction$3 as SubscribeAction,
     UnsubscribeAction$3 as UnsubscribeAction,
-    InvalidateAction$2 as InvalidateAction,
+    newActions_InvalidateAllAction as InvalidateAllAction,
+    InvalidateAction$1 as InvalidateAction,
     ResetAction$3 as ResetAction,
     GCAction$2 as GCAction,
     ActionTypes$2 as ActionTypes,
@@ -599,17 +614,13 @@ interface UnsubscribeAction$1 extends FSAWithMeta<typeof UNSUBSCRIBE_TYPE, undef
         options: EndpointExtraOptions | undefined;
     };
 }
-interface InvalidateAction$1 extends FSAWithMeta<typeof INVALIDATE_TYPE, undefined, any> {
-    meta: {
-        key: string;
-    };
-}
+
 interface GCAction$1 {
     type: typeof GC_TYPE;
     entities: [string, string][];
     results: string[];
 }
-type ActionTypes$1 = FetchAction$1 | OptimisticAction$1 | ReceiveAction$1 | SubscribeAction$1 | UnsubscribeAction$1 | InvalidateAction$1 | ResetAction$1 | GCAction$1;
+type ActionTypes$1 = FetchAction$1 | OptimisticAction$1 | ReceiveAction$1 | SubscribeAction$1 | UnsubscribeAction$1 | InvalidateAction$1 | InvalidateAllAction | ResetAction$1 | GCAction$1;
 
 type ReceiveTypes = typeof RECEIVE_TYPE;
 type PK = string;
@@ -651,7 +662,7 @@ type OptimisticAction<E extends EndpointInterface & {
 } = EndpointInterface & {
     update?: EndpointUpdateFunction<EndpointInterface>;
 }> = OptimisticAction$2<E>;
-type InvalidateAction = InvalidateAction$2;
+type InvalidateAction = InvalidateAction$1;
 type ResetAction = ResetAction$3 | ResetAction$2;
 type GCAction = GCAction$2;
 type FetchAction<Payload extends object | string | number | null = object | string | number | null, S extends Schema | undefined = any> = CompatibleFetchAction | FetchAction$2<Payload, S>;
@@ -705,10 +716,17 @@ declare class Controller<D extends GenericDispatch = CompatibleDispatch> {
         update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
     }>(endpoint: E, ...args_0: Parameters<E>) => ReturnType<E>;
     /**
-     * Forces refetching and suspense on useResource with the same Endpoint and parameters.
+     * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
      * @see https://resthooks.io/docs/api/Controller#invalidate
      */
     invalidate: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
+    /**
+     * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
+     * @see https://resthooks.io/docs/api/Controller#invalidateAll
+     */
+    invalidateAll: (options: {
+        testKey: (key: string) => boolean;
+    }) => Promise<void>;
     /**
      * Resets the entire Rest Hooks cache. All inflight requests will not resolve.
      * @see https://resthooks.io/docs/api/Controller#resetEntireStore
@@ -788,9 +806,9 @@ declare class Controller<D extends GenericDispatch = CompatibleDispatch> {
     private getResults;
 }
 
+declare function createReducer(controller: Controller): ReducerType;
 declare const initialState: State<unknown>;
 type ReducerType = (state: State<unknown> | undefined, action: ActionTypes) => State<unknown>;
-declare function createReducer(controller: Controller): ReducerType;
 
 //# sourceMappingURL=internal.d.ts.map
 
@@ -1121,4 +1139,4 @@ interface Props {
     shouldLogout?: (error: UnknownError) => boolean;
 }
 
-export { AbstractInstanceType, ActionTypes, BodyFromShape, CombinedActionTypes, ConnectionListener, Controller, DefaultConnectionListener, DeleteShape, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, FetchShape, GCAction, InvalidateAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, MutateShape, NetworkError, NetworkManager, Normalize, NormalizeNullable, OldActionTypes, OptimisticAction, PK, ParamsFromShape, PollingSubscription, ReadShape, ReceiveAction, ReceiveTypes, ResetAction, ResetError, ResolveType, ResponseActions, ResultEntry, ReturnFromShape, Schema, SetShapeParams, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch$1 as createFetch, createReceive$1 as createReceive, createReducer, initialState, index_d as legacyActions, newActions, reducer };
+export { AbstractInstanceType, ActionTypes, BodyFromShape, CombinedActionTypes, ConnectionListener, Controller, DefaultConnectionListener, DeleteShape, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, FetchShape, GCAction, InvalidateAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, MutateShape, NetworkError, NetworkManager, Normalize, NormalizeNullable, OldActionTypes, OptimisticAction, PK, ParamsFromShape, PollingSubscription, ReadShape, ReceiveAction, ReceiveTypes, ResetAction, ResetError, ResolveType, ResponseActions, ResultEntry, ReturnFromShape, Schema, SetAction, SetShapeParams, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch$1 as createFetch, createReceive$1 as createReceive, createReducer, initialState, index_d as legacyActions, newActions, reducer };
