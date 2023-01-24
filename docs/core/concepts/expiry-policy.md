@@ -330,7 +330,7 @@ render(<ShowTime />);
 
 </HooksPlayground>
 
-## Invalidate (re-suspend)
+## Invalidate (re-suspend) {#invalidate}
 
 Both endpoints and entities can be targetted to be invalidated.
 
@@ -373,24 +373,60 @@ export const lastUpdated = new RestEndpoint({
 });
 ```
 
-```tsx title="ShowTime.tsx"
+```tsx title="ShowTime" collapsed
 import { lastUpdated } from './api/lastUpdated';
 
-function ShowTime() {
-  const { updatedAt } = useSuspense(lastUpdated, { id: '1' });
+export default function ShowTime({ id }: { id: string }) {
+  const { updatedAt } = useSuspense(lastUpdated, { id });
   const ctrl = useController();
   return (
     <div>
+      <b>{id}</b>{' '}
       <time>
         {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(updatedAt)}
-      </time>{' '}
+      </time>
+    </div>
+  );
+}
+```
+
+```tsx title="Loading" collapsed
+export default function Loading({ id }: { id: string }) {
+  return <div>{id} Loading...</div>;
+}
+```
+
+```tsx title="Demo"
+import { AsyncBoundary } from '@rest-hooks/react';
+
+import { lastUpdated } from './api/lastUpdated';
+import ShowTime from './ShowTime';
+import Loading from './Loading';
+
+function Demo() {
+  const ctrl = useController();
+  return (
+    <div>
+      <AsyncBoundary fallback={<Loading id="1" />}>
+        <ShowTime id="1" />
+      </AsyncBoundary>
+      <AsyncBoundary fallback={<Loading id="2" />}>
+        <ShowTime id="2" />
+      </AsyncBoundary>
+      <AsyncBoundary fallback={<Loading id="3" />}>
+        <ShowTime id="3" />
+      </AsyncBoundary>
+
+      <button onClick={() => ctrl.invalidateAll(lastUpdated)}>
+        Invalidate All
+      </button>
       <button onClick={() => ctrl.invalidate(lastUpdated, { id: '1' })}>
-        Invalidate
+        Invalidate First
       </button>
     </div>
   );
 }
-render(<ShowTime />);
+render(<Demo />);
 ```
 
 </HooksPlayground>
