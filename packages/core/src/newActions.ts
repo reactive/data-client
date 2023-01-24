@@ -13,6 +13,7 @@ import type {
   INVALIDATE_TYPE,
   GC_TYPE,
   OPTIMISTIC_TYPE,
+  INVALIDATEALL_TYPE,
 } from './actionTypes.js';
 import type { EndpointUpdateFunction } from './controller/types.js';
 
@@ -103,6 +104,11 @@ export interface UnsubscribeAction<
 }
 
 /* INVALIDATE */
+export interface InvalidateAllAction {
+  type: typeof INVALIDATEALL_TYPE;
+  testKey: (key: string) => boolean;
+}
+
 export interface InvalidateAction {
   type: typeof INVALIDATE_TYPE;
   meta: {

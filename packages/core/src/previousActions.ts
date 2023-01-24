@@ -19,6 +19,7 @@ import {
 import { EndpointUpdateFunction } from './controller/types.js';
 import { FetchShape } from './endpoint/index.js';
 import { ErrorableFSAWithPayloadAndMeta } from './fsa.js';
+import type { InvalidateAction, InvalidateAllAction } from './newActions.js';
 
 export interface ReceiveMeta<S extends Schema | undefined> {
   schema?: S;
@@ -138,12 +139,7 @@ export interface UnsubscribeAction
   };
 }
 
-export interface InvalidateAction
-  extends FSAWithMeta<typeof INVALIDATE_TYPE, undefined, any> {
-  meta: {
-    key: string;
-  };
-}
+export type { InvalidateAction, InvalidateAllAction };
 
 export interface GCAction {
   type: typeof GC_TYPE;
@@ -158,5 +154,6 @@ export type ActionTypes =
   | SubscribeAction
   | UnsubscribeAction
   | InvalidateAction
+  | InvalidateAllAction
   | ResetAction
   | GCAction;

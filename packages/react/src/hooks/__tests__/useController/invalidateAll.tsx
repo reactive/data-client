@@ -1,13 +1,13 @@
 import { CacheProvider } from '@rest-hooks/react';
+import { makeRenderRestHook } from '@rest-hooks/test';
 import { FixtureEndpoint } from '@rest-hooks/test/mockState';
 import { renderHook } from '@testing-library/react-hooks';
 import { act } from '@testing-library/react-hooks';
-import { FutureArticleResource, GetPhoto } from '__tests__/new';
+import { CoolerArticleResource, GetPhoto } from '__tests__/new';
 import nock from 'nock';
 import { useEffect } from 'react';
 
 import { useCache, useController } from '../..';
-import { makeRenderRestHook } from '../../../../../test';
 
 export const payload = {
   id: 5,
@@ -24,13 +24,13 @@ export const createPayload = {
 };
 
 export const detail: FixtureEndpoint = {
-  endpoint: FutureArticleResource.get,
-  args: [5],
+  endpoint: CoolerArticleResource.get,
+  args: [{ id: 5 }],
   response: payload,
 };
 
 export const nested: FixtureEndpoint = {
-  endpoint: FutureArticleResource.getList,
+  endpoint: CoolerArticleResource.getList,
   args: [],
   response: [
     {
@@ -69,12 +69,12 @@ afterEach(() => {
   nock.cleanAll();
 });
 
-describe('invalidate', () => {
-  it('should not invalidate anything if params is null', () => {
+describe('invalidateAll', () => {
+  it('should not invalidate anything not matching', () => {
     const { result } = renderRestHook(
       () => {
         return {
-          data: useCache(FutureArticleResource.get, 5),
+          data: useCache(CoolerArticleResource.get, { id: 5 }),
           controller: useController(),
         };
       },
@@ -82,7 +82,11 @@ describe('invalidate', () => {
     );
     expect(result.current.data).toBeDefined();
     act(() => {
-      result.current.controller.invalidate(FutureArticleResource.get, null);
+      result.current.controller.invalidateAll(CoolerArticleResource.update);
+    });
+    expect(result.current.data).toBeDefined();
+    act(() => {
+      result.current.controller.invalidateAll(CoolerArticleResource.getList);
     });
     expect(result.current.data).toBeDefined();
   });
@@ -91,7 +95,7 @@ describe('invalidate', () => {
     const { result } = renderRestHook(
       () => {
         return {
-          data: useCache(FutureArticleResource.get, 5),
+          data: useCache(CoolerArticleResource.get, { id: 5 }),
           controller: useController(),
         };
       },
@@ -99,7 +103,7 @@ describe('invalidate', () => {
     );
     expect(result.current.data).toBeDefined();
     act(() => {
-      result.current.controller.invalidate(FutureArticleResource.get, 5);
+      result.current.controller.invalidateAll(CoolerArticleResource.get);
     });
     expect(result.current.data).toBeUndefined();
   });
@@ -108,8 +112,8 @@ describe('invalidate', () => {
     const track = jest.fn();
 
     const { rerender } = renderHook(() => {
-      const invalidate = useController().invalidate;
-      useEffect(track, [invalidate]);
+      const invalidateAll = useController().invalidateAll;
+      useEffect(track, [invalidateAll]);
     });
     expect(track.mock.calls.length).toBe(1);
     for (let i = 0; i < 4; ++i) {
@@ -140,7 +144,7 @@ describe('invalidate', () => {
     );
     expect(result.current.data).toEqual(response);
     act(() => {
-      result.current.controller.invalidate(GetPhoto, { userId });
+      result.current.controller.invalidateAll(GetPhoto);
     });
     expect(result.current.data).toBeUndefined();
   });

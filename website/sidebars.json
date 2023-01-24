@@ -140,18 +140,12 @@
           "id": "api/types"
         },
         {
-          "type": "category",
-          "label": "Imperative",
-          "items": [
-            {
-              "type": "doc",
-              "id": "api/Controller"
-            },
-            {
-              "type": "doc",
-              "id": "api/Snapshot"
-            }
-          ]
+          "type": "doc",
+          "id": "api/Controller"
+        },
+        {
+          "type": "doc",
+          "id": "api/Snapshot"
         },
         {
           "type": "category",
