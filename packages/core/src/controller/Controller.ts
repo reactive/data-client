@@ -28,7 +28,7 @@ import {
 } from './createSubscription.js';
 import type { EndpointUpdateFunction } from './types.js';
 import { CompatibleActionTypes } from '../compatibleActions.js';
-import { initialState } from '../state/createReducer.js';
+import { initialState } from '../state/reducer/createReducer.js';
 import selectMeta from '../state/selectMeta.js';
 import type {
   ActionTypes as BroadActionTypes,

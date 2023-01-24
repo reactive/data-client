@@ -29,7 +29,7 @@ export {
 export {
   default as createReducer,
   initialState,
-} from './state/createReducer.js';
+} from './state/reducer/createReducer.js';
 export { default as reducer } from './state/reducerInstance.js';
 export { default as applyManager } from './manager/applyManager.js';
 

@@ -1,6 +1,6 @@
 import { Article, PollingArticleResource } from '__tests__/new';
 
-import { initialState } from '../../state/createReducer';
+import { initialState } from '../../state/reducer/createReducer';
 import ConnectionListener from '../ConnectionListener';
 import DefaultConnectionListener from '../DefaultConnectionListener';
 import PollingSubscription from '../PollingSubscription';
