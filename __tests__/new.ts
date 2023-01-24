@@ -564,6 +564,9 @@ export const GetPhoto = new Endpoint(
     key({ userId }: { userId: string }) {
       return `/users/${userId}/photo`;
     },
+    testKey(key: string) {
+      return /\/users\/([\w\W]+)\/photo/.test(key);
+    },
   },
 );
 

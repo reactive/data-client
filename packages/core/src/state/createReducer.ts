@@ -9,6 +9,7 @@ import {
   FETCH_TYPE,
   GC_TYPE,
   OPTIMISTIC_TYPE,
+  INVALIDATEALL_TYPE,
 } from '../actionTypes.js';
 import Controller from '../controller/Controller.js';
 import createOptimistic from '../controller/createOptimistic.js';
@@ -192,23 +193,34 @@ export default function createReducer(controller: Controller): ReducerType {
           return reduceError(state, action, error);
         }
       }
+      case INVALIDATEALL_TYPE:
       case INVALIDATE_TYPE: {
         const results = { ...state.results };
-        delete results[action.meta.key];
-        const meta = {
-          ...state.meta[action.meta.key],
-          expiresAt: 0,
-          invalidated: true,
+        const meta = { ...state.meta };
+        const invalidateKey = (key: string) => {
+          delete results[key];
+          const itemMeta = {
+            ...meta[key],
+            expiresAt: 0,
+            invalidated: true,
+          };
+          delete itemMeta.error;
+          meta[key] = itemMeta;
         };
-        delete meta.error;
+        if (action.type === INVALIDATE_TYPE) {
+          invalidateKey(action.meta.key);
+        } else {
+          Object.keys(results).forEach(key => {
+            if (action.testKey(key)) {
+              invalidateKey(key);
+            }
+          });
+        }
 
         return {
           ...state,
           results,
-          meta: {
-            ...state.meta,
-            [action.meta.key]: meta,
-          },
+          meta,
         };
       }
       case RESET_TYPE:

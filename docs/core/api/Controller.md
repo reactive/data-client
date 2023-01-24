@@ -14,17 +14,18 @@ import TabItem from '@theme/TabItem';
 ```ts
 class Controller {
   /*************** Action Dispatchers ***************/
-  fetch(endpoint, ...args) => ReturnType<E>;
-  invalidate(endpoint, ...args) => Promise<void>;
-  resetEntireStore: () => Promise<void>;
-  setResponse(endpoint, ...args, response) => Promise<void>;
-  setError(endpoint, ...args, error) => Promise<void>;
-  resolve(endpoint, { args, response, fetchedAt, error }) => Promise<void>;
-  subscribe(endpoint, ...args) => Promise<void>;
-  unsubscribe(endpoint, ...args) => Promise<void>;
+  fetch(endpoint, ...args): ReturnType<E>;
+  invalidate(endpoint, ...args): Promise<void>;
+  invalidateAll({ testKey }): Promise<void>;
+  resetEntireStore(): Promise<void>;
+  setResponse(endpoint, ...args, response): Promise<void>;
+  setError(endpoint, ...args, error): Promise<void>;
+  resolve(endpoint, { args, response, fetchedAt, error }): Promise<void>;
+  subscribe(endpoint, ...args): Promise<void>;
+  unsubscribe(endpoint, ...args): Promise<void>;
   /*************** Data Access ***************/
-  getResponse(endpoint, ...args, state)​ => { data, expiryStatus, expiresAt };
-  getError(endpoint, ...args, state)​ => ErrorTypes | undefined;
+  getResponse(endpoint, ...args, state): { data, expiryStatus, expiresAt };
+  getError(endpoint, ...args, state): ErrorTypes | undefined;
   snapshot(state: State<unknown>, fetchedAt?: number): SnapshotInterface;
   getState(): State<unknown>;
 }
@@ -171,6 +172,36 @@ To refresh while continuing to display stale data - [Controller.fetch](#fetch) i
 Use [schema.Delete](/rest/api/Delete) to invalidate every endpoint that contains a given entity.
 
 :::
+
+## invalidateAll({ testKey }) {#invalidateAll}
+
+[Invalidates](../concepts/expiry-policy#invalid) all endpoint configurations matching `testKey`.
+
+```tsx
+function ArticleName({ id }: { id: string }) {
+  const article = useSuspense(ArticleResource.get, { id });
+  const ctrl = useController();
+
+  return (
+    <div>
+      <h1>{article.title}<h1>
+      <button onClick={() => ctrl.invalidateAll(ArticleResource.get)}>Fetch &amp; suspend</button>
+    </div>
+  );
+}
+```
+
+Here we clear only GET endpoints using the test.com domain. This means other domains remain in cache.
+
+```tsx
+const myDomain = 'http://test.com';
+
+function useLogout() {
+  const ctrl = useController();
+  const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
+  return () => ctrl.invalidateAll({ testKey });
+}
+```
 
 ## resetEntireStore() {#resetEntireStore}
 

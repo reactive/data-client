@@ -19,6 +19,7 @@ import { inferResults } from '@rest-hooks/normalizr';
 
 import createFetch from './createFetch.js';
 import createInvalidate from './createInvalidate.js';
+import createInvalidateAll from './createInvalidateAll.js';
 import createReceive from './createReceive.js';
 import createReset from './createReset.js';
 import {
@@ -115,7 +116,7 @@ export default class Controller<
   };
 
   /**
-   * Forces refetching and suspense on useResource with the same Endpoint and parameters.
+   * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
    * @see https://resthooks.io/docs/api/Controller#invalidate
    */
   invalidate = <E extends EndpointInterface>(
@@ -129,6 +130,13 @@ export default class Controller<
           }),
         )
       : Promise.resolve();
+
+  /**
+   * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
+   * @see https://resthooks.io/docs/api/Controller#invalidateAll
+   */
+  invalidateAll = (options: { testKey: (key: string) => boolean }) =>
+    this.dispatch(createInvalidateAll((key: string) => options.testKey(key)));
 
   /**
    * Resets the entire Rest Hooks cache. All inflight requests will not resolve.
@@ -156,7 +164,7 @@ export default class Controller<
     return this.dispatch(action);
   };
 
-  // TODO(breaking): deprecate
+  // TODO: deprecate
   /**
    * Another name for setResponse
    * @see https://resthooks.io/docs/api/Controller#setResponse

@@ -125,6 +125,32 @@ const managers = [
 ];
 ```
 
+:::tip
+
+Use [controller.invalidateAll](./Controller.md#invalidateAll) to only clear part of the cache.
+
+```ts
+import { unAuth } from '../authentication';
+
+// highlight-next-line
+const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
+
+const managers = [
+  new LogoutManager({
+    handleLogout(controller) {
+      // call custom unAuth function we defined
+      unAuth();
+      // still reset the store
+      // highlight-next-line
+      controller.invalidateAll({ testKey })
+    },
+  }),
+  ...CacheProvider.defaultProps.managers,
+];
+```
+
+:::
+
 ## Members
 
 ### handleLogout(controller)
