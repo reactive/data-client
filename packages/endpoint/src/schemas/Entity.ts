@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
-import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
 import type { Schema, NormalizedIndex, UnvisitFunction } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
+import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
 
 /**
  * Represents data that should be deduped by specifying a primary key.
@@ -86,6 +86,34 @@ export default abstract class Entity {
       ...existing,
       ...incoming,
     };
+  }
+
+  /** Run when an existing entity is found in the store */
+  static mergeWithStore(
+    existingMeta:
+      | {
+          date: number;
+          fetchedAt: number;
+        }
+      | undefined,
+    incomingMeta: { date: number; fetchedAt: number },
+    existing: any,
+    incoming: any,
+  ) {
+    const useIncoming =
+      // we may have in store but not in meta; so this existance check is still important
+      !existingMeta ||
+      this.useIncoming(existingMeta, incomingMeta, existing, incoming);
+
+    if (useIncoming) {
+      if (typeof incoming !== typeof existing) {
+        return incoming;
+      } else {
+        return this.merge(existing, incoming);
+      }
+    } else {
+      return existing;
+    }
   }
 
   /** Factory method to convert from Plain JS Objects.
