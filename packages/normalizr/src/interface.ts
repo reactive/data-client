@@ -49,6 +49,13 @@ export interface EntityInterface<T = any> extends SchemaSimple {
   readonly key: string;
   merge(existing: any, incoming: any): any;
   expiresAt?(meta: any, input: any): number;
+  mergeWithStore?(
+    existingMeta: any,
+    incomingMeta: any,
+    existing: any,
+    incoming: any,
+  ): any;
+  // TODO(breaking): deprecate this
   useIncoming?(
     existingMeta: any,
     incomingMeta: any,

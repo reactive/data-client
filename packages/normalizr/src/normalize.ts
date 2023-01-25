@@ -72,7 +72,7 @@ const addEntities =
     if (existingEntity) {
       entities[schemaKey][id] = schema.merge(existingEntity, processedEntity);
     } else {
-      // TODO: eventually assume this exists and don't check for conditional. probably early 2022
+      // TODO(breaking): eventually assume this exists and don't check for conditional. probably early 2022
       const entityExpiresAt = schema.expiresAt
         ? schema.expiresAt(meta, processedEntity)
         : meta.expiresAt;
@@ -81,41 +81,24 @@ const addEntities =
       // this case we already have this entity in store
       if (inStoreEntity) {
         const inStoreMeta = entityMeta[schemaKey][id];
-        const useIncoming =
-          // we may have in store but not in meta; so this existance check is still important
-          !inStoreMeta ||
-          // useIncoming should not be used with legacy optimistic
-          (schema.useIncoming && meta.fetchedAt
-            ? schema.useIncoming(
-                inStoreMeta,
-                meta,
-                inStoreEntity,
-                processedEntity,
-              )
-            : entityMeta[schemaKey][id].date <= meta.date);
-        if (useIncoming) {
-          if (typeof processedEntity !== typeof inStoreEntity) {
-            entities[schemaKey][id] = processedEntity;
-          } else {
-            entities[schemaKey][id] = schema.merge(
+        entities[schemaKey][id] = schema.mergeWithStore
+          ? schema.mergeWithStore(
+              inStoreMeta,
+              meta,
+              inStoreEntity,
+              processedEntity,
+            )
+          : mergeWithStore(
+              schema,
+              inStoreMeta,
+              meta,
               inStoreEntity,
               processedEntity,
             );
-          }
-        } else {
-          entities[schemaKey][id] = inStoreEntity;
-        }
-
         entityMeta[schemaKey][id] = {
-          expiresAt: Math.max(
-            entityExpiresAt,
-            entityMeta[schemaKey][id]?.expiresAt,
-          ),
-          date: Math.max(meta.date, entityMeta[schemaKey][id]?.date ?? 0),
-          fetchedAt: Math.max(
-            meta.fetchedAt ?? 0,
-            entityMeta[schemaKey][id]?.fetchedAt ?? 0,
-          ),
+          expiresAt: Math.max(entityExpiresAt, inStoreMeta?.expiresAt),
+          date: Math.max(meta.date, inStoreMeta?.date ?? 0),
+          fetchedAt: Math.max(meta.fetchedAt ?? 0, inStoreMeta?.fetchedAt ?? 0),
         };
       } else {
         entities[schemaKey][id] = processedEntity;
@@ -165,6 +148,43 @@ Entity: ${JSON.stringify(entity, undefined, 2)}`);
     // set this after index updates so we know what indexes to remove from
     existingEntities[schemaKey][id] = entities[schemaKey][id];
   };
+
+// TODO(breaking): remove this in 2 breaking releases
+/** @deprecated use Entity.mergeStore() instead */
+function mergeWithStore(
+  schema: EntityInterface<any>,
+  existingMeta:
+    | {
+        date: number;
+        expiresAt: number;
+        fetchedAt: number;
+      }
+    | undefined,
+  incomingMeta: {
+    expiresAt: number;
+    date: number;
+    fetchedAt?: number | undefined;
+  },
+  existing: any,
+  incoming: any,
+) {
+  const useIncoming =
+    // we may have in store but not in meta; so this existance check is still important
+    !existingMeta ||
+    // useIncoming should not be used with legacy optimistic
+    (schema.useIncoming && incomingMeta.fetchedAt
+      ? schema.useIncoming(existingMeta, incomingMeta, existing, incoming)
+      : existingMeta.date <= incomingMeta.date);
+  if (useIncoming) {
+    if (typeof incoming !== typeof existing) {
+      return incoming;
+    } else {
+      return schema.merge(existing, incoming);
+    }
+  } else {
+    return existing;
+  }
+}
 
 function expectedSchemaType(schema: Schema) {
   return ['object', 'function'].includes(typeof schema)

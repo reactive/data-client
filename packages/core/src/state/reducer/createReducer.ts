@@ -1,3 +1,6 @@
+import { fetchReducer } from './fetchReducer.js';
+import { invalidateReducer } from './invalidateReducer.js';
+import { setReducer } from './setReducer.js';
 import {
   SET_TYPE,
   INVALIDATE_TYPE,
@@ -9,9 +12,6 @@ import {
 } from '../../actionTypes.js';
 import type Controller from '../../controller/Controller.js';
 import type { OldActionTypes, ActionTypes, State } from '../../types.js';
-import { fetchReducer } from './fetchReducer.js';
-import { invalidateReducer } from './invalidateReducer.js';
-import { setReducer } from './setReducer.js';
 
 export default function createReducer(controller: Controller): ReducerType {
   return function reducer(
