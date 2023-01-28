@@ -238,7 +238,7 @@ export interface RestEndpointConstructor {
         ? ReturnType<O['process']>
         : any /*Denormalize<O['schema']>*/
     >,
-    O['schema'] extends Schema | undefined ? O['schema'] : undefined,
+    'schema' extends keyof O ? O['schema'] : undefined,
     MethodToSide<O['method']>,
     OptionsBodyDefault<O>
   >;
@@ -271,15 +271,19 @@ export type RestType<
     searchParams?: any;
   } = { path: string },
   // eslint-disable-next-line @typescript-eslint/ban-types
-> = Body extends {}
-  ? RestTypeWithBody<UrlParams, S, M, Body, R, O>
-  : RestTypeNoBody<UrlParams, S, M, R, O>;
+> = IfTypeScriptLooseNull<
+  | RestTypeWithBody<UrlParams, S, M, Body, R, O>
+  | RestTypeNoBody<UrlParams, S, M, R, O>,
+  Body extends {}
+    ? RestTypeWithBody<UrlParams, S, M, Body, R, O>
+    : RestTypeNoBody<UrlParams, S, M, R, O>
+>;
 
 export type RestTypeWithBody<
   UrlParams = any,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined,
-  Body extends BodyInit | Record<string, any> = any,
+  Body = any,
   R = any /*Denormalize<S>*/,
   O extends {
     path: string;
@@ -306,27 +310,35 @@ export type RestFetch<
   // eslint-disable-next-line @typescript-eslint/ban-types
   Body = {},
   Resolve = any,
-> = Body extends {}
-  ? ParamFetchWithBody<UrlParams, Body, Resolve>
-  : ParamFetchNoBody<UrlParams, Resolve>;
+> = IfTypeScriptLooseNull<
+  | ParamFetchNoBody<UrlParams, Resolve>
+  | ParamFetchWithBody<UrlParams, Body, Resolve>,
+  Body extends {}
+    ? ParamFetchWithBody<UrlParams, Body, Resolve>
+    : ParamFetchNoBody<UrlParams, Resolve>
+>;
 
-export type ParamFetchWithBody<
-  P,
-  B extends {} = {},
-  R = any,
-> = keyof P extends undefined
-  ? (this: EndpointInstanceInterface, body: B) => Promise<R>
-  : undefined extends P
-  ? (this: EndpointInstanceInterface, body: B) => Promise<R>
-  : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>;
+export type ParamFetchWithBody<P, B = {}, R = any> = IfTypeScriptLooseNull<
+  | ((this: EndpointInstanceInterface, body: B) => Promise<R>)
+  | ((this: EndpointInstanceInterface, params: P, body: B) => Promise<R>),
+  P extends undefined
+    ? (this: EndpointInstanceInterface, body: B) => Promise<R>
+    : undefined extends P
+    ? (this: EndpointInstanceInterface, body: B) => Promise<R>
+    : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>
+>;
 
-export type ParamFetchNoBody<P, R = any> = /*string extends keyof P
-  ? (this: EndpointInstanceInterface, params?: P) => Promise<R>
-  :*/ P extends undefined
-  ? (this: EndpointInstanceInterface) => Promise<R>
-  : undefined extends P
-  ? (this: EndpointInstanceInterface) => Promise<R>
-  : (this: EndpointInstanceInterface, params: P) => Promise<R>;
+export type ParamFetchNoBody<P, R = any> = IfTypeScriptLooseNull<
+  | ((this: EndpointInstanceInterface, params: P) => Promise<R>)
+  | ((this: EndpointInstanceInterface) => Promise<R>),
+  P extends undefined
+    ? (this: EndpointInstanceInterface) => Promise<R>
+    : undefined extends P
+    ? (this: EndpointInstanceInterface) => Promise<R>
+    : (this: EndpointInstanceInterface, params: P) => Promise<R>
+>;
+
+type IfTypeScriptLooseNull<Y, N> = 1 | undefined extends 1 ? Y : N;
 
 export type KeyofRestEndpoint = keyof RestInstance;
 

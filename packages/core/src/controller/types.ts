@@ -4,8 +4,11 @@ import type {
   ResolveType,
 } from '@rest-hooks/normalizr';
 
-export type ResultEntry<E extends EndpointInterface> =
-  E['schema'] extends undefined ? ResolveType<E> : Normalize<E>;
+export type ResultEntry<E extends EndpointInterface> = E['schema'] extends
+  | undefined
+  | null
+  ? ResolveType<E>
+  : Normalize<E>;
 
 export type EndpointUpdateFunction<
   Source extends EndpointInterface,

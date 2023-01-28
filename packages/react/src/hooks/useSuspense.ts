@@ -1,10 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import {
-  DenormalizeNullable,
   ExpiryStatus,
-  ResolveType,
-} from '@rest-hooks/normalizr';
-import {
   EndpointInterface,
   Denormalize,
   Schema,
@@ -12,6 +8,7 @@ import {
 } from '@rest-hooks/normalizr';
 import { useMemo } from 'react';
 
+import { SuspenseReturn } from './types.js';
 import useCacheState from './useCacheState.js';
 import useController from '../hooks/useController.js';
 
@@ -27,16 +24,7 @@ import useController from '../hooks/useController.js';
 export default function useSuspense<
   E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
   Args extends readonly [...Parameters<E>] | readonly [null],
->(
-  endpoint: E,
-  ...args: Args
-): Args extends [null]
-  ? E['schema'] extends Exclude<Schema, null>
-    ? DenormalizeNullable<E['schema']>
-    : undefined
-  : E['schema'] extends Exclude<Schema, null>
-  ? Denormalize<E['schema']>
-  : ResolveType<E> {
+>(endpoint: E, ...args: Args): SuspenseReturn<E, Args> {
   const state = useCacheState();
   const controller = useController();
 

@@ -7,6 +7,7 @@ import {
   FetchFunction,
 } from '@rest-hooks/normalizr';
 
+import { SuspenseReturn } from './types.js';
 import useSubscription from './useSubscription.js';
 import useSuspense from './useSuspense.js';
 
@@ -21,16 +22,7 @@ import useSuspense from './useSuspense.js';
 export default function useLive<
   E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
   Args extends readonly [...Parameters<E>] | readonly [null],
->(
-  endpoint: E,
-  ...args: Args
-): Args extends [null]
-  ? E['schema'] extends Exclude<Schema, null>
-    ? DenormalizeNullable<E['schema']>
-    : undefined
-  : E['schema'] extends Exclude<Schema, null>
-  ? Denormalize<E['schema']>
-  : ResolveType<E> {
+>(endpoint: E, ...args: Args): SuspenseReturn<E, Args> {
   useSubscription(endpoint, ...args);
   return useSuspense(endpoint, ...args);
 }
