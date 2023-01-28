@@ -68,40 +68,9 @@ Entities are bound to Endpoints using [GQLEndpoint.schema](./GQLEndpoint.md#sche
 
 ## Data lifecycle
 
-```mermaid
-flowchart BT
-  subgraph getResponse
-    pk2("pk()")-->denormalize
-    subgraph denormalize
-      direction TB
-      validate2("validate()")---fromJS("fromJS()")
-      fromJS---denormNest("denormalize(this.schema)")
-    end
-  end
-  subgraph receive
-    direction TB
-    subgraph normalize
-      direction TB
-      process("process()")-->pk("pk()")
-      pk---validate("validate()")
-      process-->validate
-      validate---normNest("normalize(this.schema)")
-    end
-    process-->useincoming("useIncoming()")
-    useincoming-->merge("merge()")
-    process-->merge
-    process-->expiresAt("expiresAt()")
-  end
-  click process "#process"
-  click pk "#pk"
-  click pk2 "#pk"
-  click fromJS "#fromJS"
-  click validate "#validate"
-  click validate2 "#validate"
-  click expiresAt "#expiresat"
-  click useincoming "#useincoming"
-  click merge "#merge"
-```
+import Lifecycle from '../diagrams/\_entity_lifecycle.mdx';
+
+<Lifecycle/>
 
 ## Methods
 
@@ -164,6 +133,36 @@ pk() {
 This defines the key for the Entity itself, rather than an instance. This needs to be a globally
 unique value.
 
+### static merge(existing, incoming): mergedValue {#merge}
+
+```typescript
+static merge(existing: any, incoming: any) {
+  return {
+    ...existing,
+    ...incoming,
+  };
+}
+```
+
+Merge is used to handle cases when an incoming entity is already found. This is called directly
+when the same entity is found in one response. By default it is also called when [mergeWithStore()](#mergeWithStore)
+determines the incoming entity should be merged with an entity already persisted in the Rest Hooks store.
+
+### static mergeWithStore(existingMeta, incomingMeta, existing, incoming): mergedValue {#mergeWithStore}
+
+```typescript
+static mergeWithStore(
+  existingMeta: { date: number; fetchedAt: number },
+  incomingMeta: { date: number; fetchedAt: number },
+  existing: any,
+  incoming: any,
+): any;
+```
+
+`mergeWithStore()` is called during normalization when a processed entity is already found in the store.
+
+This calls [useIncoming()](#useIncoming) and potentially [merge()](#merge)
+
 ### static useIncoming(existingMeta, incomingMeta, existing, incoming): mergedValue {#useincoming}
 
 ```typescript
@@ -223,20 +222,6 @@ class LatestPriceEntity extends Entity {
   }
 }
 ```
-
-
-### static merge(existing, incoming): mergedValue {#merge}
-
-```typescript
-static merge<T extends typeof SimpleRecord>(
-  existing: InstanceType<T>,
-  incoming: InstanceType<T>,
-  ) => InstanceType<T>
-```
-
-Merge is used to resolve the same entity. This can be because it was previously put in the cache,
-or it was found in multiple places nested in one response. By default it is the SimpleRecord merge, which
-prefers values from the newer item but only if they are actually set.
 
 ### static validate(processedEntity): errorMessage? {#validate}
 

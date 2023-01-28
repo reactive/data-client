@@ -136,6 +136,36 @@ pk() {
 This defines the key for the Entity itself, rather than an instance. This needs to be a globally
 unique value.
 
+### static merge(existing, incoming): mergedValue {#merge}
+
+```typescript
+static merge(existing: any, incoming: any) {
+  return {
+    ...existing,
+    ...incoming,
+  };
+}
+```
+
+Merge is used to handle cases when an incoming entity is already found. This is called directly
+when the same entity is found in one response. By default it is also called when [mergeWithStore()](#mergeWithStore)
+determines the incoming entity should be merged with an entity already persisted in the Rest Hooks store.
+
+### static mergeWithStore(existingMeta, incomingMeta, existing, incoming): mergedValue {#mergeWithStore}
+
+```typescript
+static mergeWithStore(
+  existingMeta: { date: number; fetchedAt: number },
+  incomingMeta: { date: number; fetchedAt: number },
+  existing: any,
+  incoming: any,
+): any;
+```
+
+`mergeWithStore()` is called during normalization when a processed entity is already found in the store.
+
+This calls [useIncoming()](#useIncoming) and potentially [merge()](#merge)
+
 ### static useIncoming(existingMeta, incomingMeta, existing, incoming): mergedValue {#useincoming}
 
 ```typescript
@@ -195,19 +225,6 @@ class LatestPriceEntity extends Entity {
   }
 }
 ```
-
-### static merge(existing, incoming): mergedValue {#merge}
-
-```typescript
-static merge<T extends typeof SimpleRecord>(
-  existing: InstanceType<T>,
-  incoming: InstanceType<T>,
-  ) => InstanceType<T>
-```
-
-Merge is used to resolve the same entity. This can be because it was previously put in the cache,
-or it was found in multiple places nested in one response. By default it is the SimpleRecord merge, which
-prefers values from the newer item but only if they are actually set.
 
 ### static validate(processedEntity): errorMessage? {#validate}
 

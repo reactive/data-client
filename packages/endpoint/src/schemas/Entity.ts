@@ -106,6 +106,7 @@ export default abstract class Entity {
       this.useIncoming(existingMeta, incomingMeta, existing, incoming);
 
     if (useIncoming) {
+      // distinct types are not mergeable, so just replace
       if (typeof incoming !== typeof existing) {
         return incoming;
       } else {
