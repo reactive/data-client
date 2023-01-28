@@ -27,7 +27,7 @@ export default function useCache<
 >(
   endpoint: E,
   ...args: Args
-): E['schema'] extends undefined
+): E['schema'] extends undefined | null
   ? E extends (...args: any) => any
     ? ResolveType<E> | undefined
     : any

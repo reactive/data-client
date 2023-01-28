@@ -364,7 +364,7 @@ export default function TodoItem({ todo }: { todo: Todo }) {
 import TodoItem from './TodoItem';
 
 function TodoList() {
-  const todos = useSuspense(TodoResource.getList);
+  const todos = useSuspense(TodoResource.getList, { userId: 1 });
   return (
     <div>
       {todos.map(todo => (

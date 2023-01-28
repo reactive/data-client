@@ -42,7 +42,7 @@ export default function useDLE<
 >(
   endpoint: E,
   ...args: Args
-): E['schema'] extends undefined
+): E['schema'] extends undefined | null
   ? {
       data: E extends (...args: any) => any ? ResolveType<E> | undefined : any;
       loading: boolean;

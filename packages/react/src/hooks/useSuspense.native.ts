@@ -13,6 +13,7 @@ import {
 import { useMemo } from 'react';
 import { InteractionManager } from 'react-native';
 
+import { SuspenseReturn } from './types.js';
 import useCacheState from './useCacheState.js';
 import useController from './useController.js';
 import useFocusEffect from './useFocusEffect.native.js';
@@ -29,16 +30,7 @@ import useFocusEffect from './useFocusEffect.native.js';
 export default function useSuspense<
   E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
   Args extends readonly [...Parameters<E>] | readonly [null],
->(
-  endpoint: E,
-  ...args: Args
-): Args extends [null]
-  ? E['schema'] extends Exclude<Schema, null>
-    ? DenormalizeNullable<E['schema']>
-    : undefined
-  : E['schema'] extends Exclude<Schema, null>
-  ? Denormalize<E['schema']>
-  : ResolveType<E> {
+>(endpoint: E, ...args: Args): SuspenseReturn<E, Args> {
   const state = useCacheState();
   const controller = useController();
 
