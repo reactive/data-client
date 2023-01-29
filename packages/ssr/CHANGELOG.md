@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.7.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.7.5...@rest-hooks/ssr@0.7.6) (2023-01-29)
+
+### 🐛 Bug Fix
+
+* Update peerDeps for proper ssr range ([2462bcd](https://github.com/coinbase/rest-hooks/commit/2462bcdd726ab63a4f30013cedbf975c227a9bce))
+
 ### [0.7.5](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.7.4...@rest-hooks/ssr@0.7.5) (2023-01-23)
 
 ### 🚀 Features
