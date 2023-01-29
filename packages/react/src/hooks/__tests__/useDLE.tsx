@@ -111,6 +111,33 @@ describe('useDLE()', () => {
     expect(result.current.data).toEqual(CoolerArticle.fromJS(payload));
   });
 
+  it('should properly discriminate null args types', () => {
+    () => {
+      const result = useDLE(
+        TypedArticleResource.get,
+        (true as boolean)
+          ? {
+              id: payload.id,
+            }
+          : null,
+      );
+      if (!result.loading && !result.error) {
+        // @ts-expect-error
+        result.data.title;
+
+        result.data && result.data.title;
+      }
+    };
+    () => {
+      const result = useDLE(TypedArticleResource.get, {
+        id: payload.id,
+      });
+      if (!result.loading && !result.error) {
+        result.data.title;
+      }
+    };
+  });
+
   it('should return errors on bad network', async () => {
     const { result, waitForNextUpdate } = renderRestHook(() => {
       return useDLE(CoolerArticleResource.get, {

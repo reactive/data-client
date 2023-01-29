@@ -341,7 +341,7 @@ export const FutureArticleResource = {
       CoolerArticle
     >
   ).extend({
-    url(id: string) {
+    url(id: string, body) {
       return `http://test.com/article-cooler/${id}`;
     },
   }),

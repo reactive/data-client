@@ -121,6 +121,9 @@ describe.each([
       .get(`/article/${articlePayload.id}`)
       .reply(200, { ...articlePayload, title: 'sixer' });
     jest.advanceTimersByTime(frequency);
+    // @ts-expect-error
+    () => result.current.title;
+    () => result.current && result.current.title;
     expect(result.current).toBeUndefined();
 
     // errors should not fail when data already exists
