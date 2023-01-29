@@ -25,6 +25,7 @@ interface EntityInterface<T = any> extends SchemaSimple {
     readonly key: string;
     merge(existing: any, incoming: any): any;
     expiresAt?(meta: any, input: any): number;
+    mergeWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     useIncoming?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): boolean;
     indexes?: any;
     schema: Record<string, Schema>;
@@ -196,7 +197,7 @@ type NormalizeNullable<S> = Extract<S, EntityInterface> extends never ? Extract<
 
 declare const RIC: (cb: (...args: any[]) => void, options: any) => void;
 
-type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined ? ResolveType<E> : Normalize<E>;
+type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined | null ? ResolveType<E> : Normalize<E>;
 type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: Parameters<Source>) => {
     [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
 };

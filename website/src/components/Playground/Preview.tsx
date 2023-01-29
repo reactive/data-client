@@ -1,7 +1,4 @@
-import {
-  useScrollPositionBlocker,
-  useTabGroupChoice,
-} from '@docusaurus/theme-common/internal';
+import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
 import {
   type Fixture,
   type Interceptor,
@@ -19,6 +16,7 @@ import {
 import Boundary from './Boundary';
 import StoreInspector from './StoreInspector';
 import styles from './styles.module.css';
+import { useTabStorage } from '../../utils/tabStorage';
 
 function Preview({
   groupId,
@@ -31,16 +29,15 @@ function Preview({
   defaultOpen: 'y' | 'n';
   fixtures: (Fixture | Interceptor)[];
 }) {
-  const { tabGroupChoices, setTabGroupChoices } = useTabGroupChoice();
+  const [choice, setTabGroupChoice] = useTabStorage(
+    `docusaurus.tab.${groupId}`,
+  );
   const [selectedValue, setSelectedValue] = useState(defaultOpen);
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
 
-  if (groupId != null) {
-    const choice = tabGroupChoices[groupId];
-    if (choice != null && choice !== selectedValue) {
-      setSelectedValue(choice as any);
-    }
+  if (choice != null && choice !== selectedValue) {
+    setSelectedValue(choice as any);
   }
 
   const toggle = useCallback(
@@ -49,13 +46,12 @@ function Preview({
     ) => {
       blockElementScrollPositionUntilNextRender(event.currentTarget);
       setSelectedValue(open => (open === 'y' ? 'n' : 'y'));
-      setTabGroupChoices(groupId, selectedValue === 'y' ? 'n' : 'y');
+      setTabGroupChoice(selectedValue === 'y' ? 'n' : 'y');
     },
     [
       blockElementScrollPositionUntilNextRender,
-      groupId,
       selectedValue,
-      setTabGroupChoices,
+      setTabGroupChoice,
     ],
   );
 

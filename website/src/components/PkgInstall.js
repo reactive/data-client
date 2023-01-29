@@ -1,10 +1,12 @@
-import { useTabGroupChoice } from '@docusaurus/theme-common/internal';
+import { useStorageSlot } from '@docusaurus/theme-common';
 import CodeBlock from '@theme/CodeBlock';
 import React from 'react';
 
 export default function PkgInstall({ pkgs, dev = false }) {
-  const { tabGroupChoices } = useTabGroupChoice();
-  const relevantTabGroupChoice = tabGroupChoices['node-packages-program'];
+  const [relevantTabGroupChoice] = useStorageSlot(
+    'docusaurus.tab.node-packages-program',
+  );
+  //const relevantTabGroupChoice = tabGroupChoices['node-packages-program'];
   if (relevantTabGroupChoice === 'yarn') {
     return (
       <CodeBlock className="language-bash">

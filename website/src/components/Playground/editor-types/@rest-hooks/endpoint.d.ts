@@ -769,6 +769,14 @@ declare abstract class Entity {
     }, existing: any, incoming: any): boolean;
     /** Creates new instance copying over defined values of arguments */
     static merge(existing: any, incoming: any): any;
+    /** Run when an existing entity is found in the store */
+    static mergeWithStore(existingMeta: {
+        date: number;
+        fetchedAt: number;
+    } | undefined, incomingMeta: {
+        date: number;
+        fetchedAt: number;
+    }, existing: any, incoming: any): any;
     /** Factory method to convert from Plain JS Objects.
      *
      * @param [props] Plain Object of properties to assign.

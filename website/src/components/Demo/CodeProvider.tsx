@@ -1,10 +1,8 @@
-import {
-  useScrollPositionBlocker,
-  useTabGroupChoice,
-} from '@docusaurus/theme-common/internal';
+import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
 import React, { memo, useState } from 'react';
 
 import CodeTabContext from './CodeTabContext';
+import { useTabStorage } from '../../utils/tabStorage';
 
 interface Props<V extends { label: string; value: string }[]> {
   values: V;
@@ -21,20 +19,19 @@ export function CodeProvider<V extends { label: string; value: string }[]>({
   playgroundRef,
   children,
 }: Props<V>) {
-  const { tabGroupChoices, setTabGroupChoices } = useTabGroupChoice();
+  const [choice, setTabGroupChoice] = useTabStorage(
+    `docusaurus.tab.${groupId}`,
+  );
   const [selectedValue, setLocalSelectedValue] = useState(defaultValue);
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
 
-  if (groupId != null) {
-    const choice = tabGroupChoices[groupId];
-    if (
-      choice != null &&
-      choice !== selectedValue &&
-      values.find(({ value }) => value === choice)
-    ) {
-      setLocalSelectedValue(choice as any);
-    }
+  if (
+    choice != null &&
+    choice !== selectedValue &&
+    values.find(({ value }) => value === choice)
+  ) {
+    setLocalSelectedValue(choice as any);
   }
 
   const setSelectedValue = (
@@ -48,7 +45,7 @@ export function CodeProvider<V extends { label: string; value: string }[]>({
       setLocalSelectedValue(newTabValue);
 
       if (groupId != null) {
-        setTabGroupChoices(groupId, newTabValue);
+        setTabGroupChoice(`${newTabValue}`);
       }
     }
   };

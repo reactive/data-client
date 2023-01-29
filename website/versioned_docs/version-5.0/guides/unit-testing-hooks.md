@@ -32,13 +32,7 @@ Node doesn't come with fetch out of the box, so we need to be sure to polyfill i
 
 <PkgTabs pkgs="whatwg-fetch" dev />
 
-<Tabs
-defaultValue="jest"
-values={[
-{ label: 'jest', value: 'jest' },
-]}>
-<TabItem value="jest">
-
+#### Jest
 
 ```js
 // jest.config.js
@@ -51,9 +45,6 @@ module.exports = {
 // testSetup.js
 require('whatwg-fetch');
 ```
-
-</TabItem>
-</Tabs>
 
 ### Example:
 
