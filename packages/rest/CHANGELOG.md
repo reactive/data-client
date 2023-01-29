@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.3.2](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.3.1...@rest-hooks/rest@6.3.2) (2023-01-29)
+
+### 💅 Enhancement
+
+* Improve .extends() type edge cases ([4c347bf](https://github.com/coinbase/rest-hooks/commit/4c347bfdcb5c355b109e261fcea64b405b62584f))
+
 ### [6.3.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.3.0...@rest-hooks/rest@6.3.1) (2023-01-29)
 
 ### 💅 Enhancement
