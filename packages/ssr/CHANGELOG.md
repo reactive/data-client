@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.7.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.7.6...@rest-hooks/ssr@0.7.7) (2023-01-29)
+
+### 📦 Package
+
+* Fix versions to match actual released range: ([0ebd28b](https://github.com/coinbase/rest-hooks/commit/0ebd28b45838e7151f5edea4d6bde544dbf15105))
+
 ### [0.7.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/ssr@0.7.5...@rest-hooks/ssr@0.7.6) (2023-01-29)
 
 ### 🐛 Bug Fix
