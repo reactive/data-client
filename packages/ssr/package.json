@@ -114,7 +114,7 @@
   },
   "peerDependencies": {
     "@rest-hooks/react": "^6.0.0 || ^7.0.0",
-    "@rest-hooks/redux": "^7.3.0",
+    "@rest-hooks/redux": "^6.3.0 || ^7.0.0",
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
     "next": ">=12.0.0",
     "react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",
