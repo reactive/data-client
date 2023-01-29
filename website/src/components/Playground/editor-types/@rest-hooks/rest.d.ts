@@ -652,7 +652,7 @@ interface EndpointInstanceInterface<
   /** @deprecated */
   readonly type: M extends undefined
     ? 'read'
-    : IfAny<M, any, IfTypeScriptLooseNull<'read', 'mutate'>>;
+    : IfAny<M, any, IfTypeScriptLooseNull$1<'read', 'mutate'>>;
 
   /** @deprecated */
   getFetchKey(...args: OnlyFirst<Parameters<F>>): string;
@@ -698,7 +698,7 @@ interface ExtendableEndpointConstructor {
 declare let ExtendableEndpoint: ExtendableEndpointConstructor;
 
 type IfAny<T, Y, N> = 0 extends 1 & T ? Y : N;
-type IfTypeScriptLooseNull<Y, N> = 1 | undefined extends 1 ? Y : N;
+type IfTypeScriptLooseNull$1<Y, N> = 1 | undefined extends 1 ? Y : N;
 
 type OnlyFirst<A extends unknown[]> = A extends [] ? [] : [A[0]];
 
@@ -765,6 +765,14 @@ declare abstract class Entity {
     }, existing: any, incoming: any): boolean;
     /** Creates new instance copying over defined values of arguments */
     static merge(existing: any, incoming: any): any;
+    /** Run when an existing entity is found in the store */
+    static mergeWithStore(existingMeta: {
+        date: number;
+        fetchedAt: number;
+    } | undefined, incomingMeta: {
+        date: number;
+        fetchedAt: number;
+    }, existing: any, incoming: any): any;
     /** Factory method to convert from Plain JS Objects.
      *
      * @param [props] Plain Object of properties to assign.
@@ -844,9 +852,6 @@ type KeysToArgs<Key extends string> = {
 } & {
     [K in Key as OnlyRequired<K>]: string | number;
 };
-type PathArgsAndSearch<S extends string> = OnlyRequired<PathKeys<S>> extends never ? Record<string, number | string | boolean> | undefined : {
-    [K in PathKeys<S> as OnlyRequired<K>]: string | number;
-} & Record<string, number | string>;
 /** Removes the last :token */
 type ShortenPath<S extends string> = string extends S ? string : S extends `${infer B}:${infer R}` ? TrimColon<`${B}:${ShortenPath<R>}`> : '';
 type TrimColon<S extends string> = string extends S ? string : S extends `${infer R}:` ? R : S;
@@ -1083,7 +1088,7 @@ interface RestEndpointConstructor {
         ? ReturnType<O['process']>
         : any /*Denormalize<O['schema']>*/
     >,
-    O['schema'] extends Schema | undefined ? O['schema'] : undefined,
+    'schema' extends keyof O ? O['schema'] : undefined,
     MethodToSide<O['method']>,
     OptionsBodyDefault<O>
   >;
@@ -1116,15 +1121,19 @@ type RestType<
     searchParams?: any;
   } = { path: string },
   // eslint-disable-next-line @typescript-eslint/ban-types
-> = Body extends {}
-  ? RestTypeWithBody<UrlParams, S, M, Body, R, O>
-  : RestTypeNoBody<UrlParams, S, M, R, O>;
+> = IfTypeScriptLooseNull<
+  | RestTypeWithBody<UrlParams, S, M, Body, R, O>
+  | RestTypeNoBody<UrlParams, S, M, R, O>,
+  Body extends {}
+    ? RestTypeWithBody<UrlParams, S, M, Body, R, O>
+    : RestTypeNoBody<UrlParams, S, M, R, O>
+>;
 
 type RestTypeWithBody<
   UrlParams = any,
   S extends Schema | undefined = Schema | undefined,
   M extends true | undefined = true | undefined,
-  Body extends BodyInit | Record<string, any> = any,
+  Body = any,
   R = any /*Denormalize<S>*/,
   O extends {
     path: string;
@@ -1151,27 +1160,35 @@ type RestFetch<
   // eslint-disable-next-line @typescript-eslint/ban-types
   Body = {},
   Resolve = any,
-> = Body extends {}
-  ? ParamFetchWithBody<UrlParams, Body, Resolve>
-  : ParamFetchNoBody<UrlParams, Resolve>;
+> = IfTypeScriptLooseNull<
+  | ParamFetchNoBody<UrlParams, Resolve>
+  | ParamFetchWithBody<UrlParams, Body, Resolve>,
+  Body extends {}
+    ? ParamFetchWithBody<UrlParams, Body, Resolve>
+    : ParamFetchNoBody<UrlParams, Resolve>
+>;
 
-type ParamFetchWithBody<
-  P,
-  B extends {} = {},
-  R = any,
-> = keyof P extends undefined
-  ? (this: EndpointInstanceInterface, body: B) => Promise<R>
-  : undefined extends P
-  ? (this: EndpointInstanceInterface, body: B) => Promise<R>
-  : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>;
+type ParamFetchWithBody<P, B = {}, R = any> = IfTypeScriptLooseNull<
+  | ((this: EndpointInstanceInterface, body: B) => Promise<R>)
+  | ((this: EndpointInstanceInterface, params: P, body: B) => Promise<R>),
+  P extends undefined
+    ? (this: EndpointInstanceInterface, body: B) => Promise<R>
+    : undefined extends P
+    ? (this: EndpointInstanceInterface, body: B) => Promise<R>
+    : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>
+>;
 
-type ParamFetchNoBody<P, R = any> = /*string extends keyof P
-  ? (this: EndpointInstanceInterface, params?: P) => Promise<R>
-  :*/ P extends undefined
-  ? (this: EndpointInstanceInterface) => Promise<R>
-  : undefined extends P
-  ? (this: EndpointInstanceInterface) => Promise<R>
-  : (this: EndpointInstanceInterface, params: P) => Promise<R>;
+type ParamFetchNoBody<P, R = any> = IfTypeScriptLooseNull<
+  | ((this: EndpointInstanceInterface, params: P) => Promise<R>)
+  | ((this: EndpointInstanceInterface) => Promise<R>),
+  P extends undefined
+    ? (this: EndpointInstanceInterface) => Promise<R>
+    : undefined extends P
+    ? (this: EndpointInstanceInterface) => Promise<R>
+    : (this: EndpointInstanceInterface, params: P) => Promise<R>
+>;
+
+type IfTypeScriptLooseNull<Y, N> = 1 | undefined extends 1 ? Y : N;
 
 type KeyofRestEndpoint = keyof RestInstance;
 
@@ -1205,6 +1222,40 @@ type Defaults<O, D> = {
     : D[Extract<K, keyof D>];
 };
 
+type NewGetEndpoint<
+  O extends {
+    path: string;
+    searchParams?: any;
+  } = { path: string },
+  S extends Schema | undefined = Schema | undefined,
+> = RestTypeNoBody<
+  'searchParams' extends keyof O
+    ? O['searchParams'] & PathArgs<O['path']>
+    : PathArgs<O['path']>,
+  S,
+  undefined,
+  any,
+  O & { body: undefined }
+>;
+
+type NewMutateEndpoint<
+  O extends {
+    path: string;
+    body?: any;
+    searchParams?: any;
+  } = { path: string; body: any },
+  S extends Schema | undefined = Schema | undefined,
+> = RestTypeWithBody<
+  'searchParams' extends keyof O
+    ? O['searchParams'] & PathArgs<O['path']>
+    : PathArgs<O['path']>,
+  S,
+  true,
+  O['body'],
+  any,
+  O
+>;
+
 /** Creates collection of Endpoints for common operations on a given data/schema.
  *
  * @see https://resthooks.io/rest/api/createResource
@@ -1220,34 +1271,50 @@ interface Resource<U extends string, S extends Schema> {
      *
      * @see https://resthooks.io/rest/api/createResource#get
      */
-    get: GetEndpoint<PathArgs<U>, S>;
+    get: NewGetEndpoint<{
+        path: U;
+    }, S>;
     /** Get a list of item
      *
      * @see https://resthooks.io/rest/api/createResource#getlist
      */
-    getList: GetEndpoint<PathArgsAndSearch<ShortenPath<U>>, S[]>;
+    getList: NewGetEndpoint<{
+        path: ShortenPath<U>;
+        searchParams: Record<string, number | string | boolean> | undefined;
+    }, S[]>;
     /** Create a new item (POST)
      *
      * @see https://resthooks.io/rest/api/createResource#create
      */
-    create: MutateEndpoint<PathArgs<ShortenPath<U>>, Partial<Denormalize<S>>, S>;
+    create: NewMutateEndpoint<{
+        path: ShortenPath<U>;
+        body: Partial<Denormalize<S>>;
+    }, S>;
     /** Update an item (PUT)
      *
      * @see https://resthooks.io/rest/api/createResource#update
      */
-    update: MutateEndpoint<PathArgs<U>, Partial<Denormalize<S>>, S>;
+    update: NewMutateEndpoint<{
+        path: U;
+        body: Partial<Denormalize<S>>;
+    }, S>;
     /** Update an item (PATCH)
      *
      * @see https://resthooks.io/rest/api/createResource#partialupdate
      */
-    partialUpdate: MutateEndpoint<PathArgs<U>, Partial<Denormalize<S>>, S>;
+    partialUpdate: NewMutateEndpoint<{
+        path: U;
+        body: Partial<Denormalize<S>>;
+    }, S>;
     /** Delete an item (DELETE)
      *
      * @see https://resthooks.io/rest/api/createResource#delete
      */
     delete: RestTypeNoBody<PathArgs<U>, S extends EntityInterface & {
         process: any;
-    } ? Delete<S> : S, undefined, Partial<PathArgs<U>>>;
+    } ? Delete<S> : S, undefined, Partial<PathArgs<U>>, {
+        path: U;
+    }>;
 }
 
 interface HookableEndpointInterface extends EndpointInterface {
@@ -1281,4 +1348,4 @@ declare function paginationUpdate<E extends {
     [x: number]: (existing: any) => any;
 };
 
-export { AbortOptimistic, AbstractInstanceType, ArrayElement, DELETED, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, FetchGet, FetchMutate, GetEndpoint, HookResource, HookableEndpointInterface, Index, IndexParams, KeyofEndpointInstance, KeyofRestEndpoint, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, PathArgs, PathKeys, Query, ReadEndpoint, ResolveType, Resource, RestEndpoint, RestEndpointConstructorOptions, RestFetch, RestGenerics, RestType, Schema, SchemaDetail, SchemaList, ShortenPath, SnapshotInterface, UnknownError, createResource, hookifyResource, paginationUpdate, schema_d as schema, validateRequired };
+export { AbortOptimistic, AbstractInstanceType, ArrayElement, DELETED, Defaults, Denormalize, DenormalizeNullable, Endpoint, EndpointExtendOptions, EndpointExtraOptions, EndpointInstance, EndpointInstanceInterface, EndpointInterface, EndpointOptions, EndpointParam, Entity, ErrorTypes, ExpiryStatusInterface, ExtendableEndpoint, FetchFunction, FetchGet, FetchMutate, GetEndpoint, HookResource, HookableEndpointInterface, Index, IndexParams, KeyofEndpointInstance, KeyofRestEndpoint, MutateEndpoint, NetworkError, NewGetEndpoint, NewMutateEndpoint, Normalize, NormalizeNullable, PathArgs, PathKeys, Query, ReadEndpoint, ResolveType, Resource, RestEndpoint, RestEndpointConstructorOptions, RestFetch, RestGenerics, RestType, Schema, SchemaDetail, SchemaList, ShortenPath, SnapshotInterface, UnknownError, createResource, hookifyResource, paginationUpdate, schema_d as schema, validateRequired };

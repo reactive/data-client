@@ -2,8 +2,6 @@
 title: Unit testing hooks
 ---
 import PkgTabs from '@site/src/components/PkgTabs';
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 
 :::danger
 
@@ -43,13 +41,7 @@ Node doesn't come with fetch out of the box, so we need to be sure to polyfill i
 
 <PkgTabs pkgs="whatwg-fetch" dev />
 
-<Tabs
-defaultValue="jest"
-values={[
-{ label: 'jest', value: 'jest' },
-]}>
-<TabItem value="jest">
-
+### Jest
 
 ```js
 // jest.config.js
@@ -58,13 +50,11 @@ module.exports = {
   setupFiles: ['./testSetup.js'],
 };
 ```
+
 ```js
 // testSetup.js
 require('whatwg-fetch');
 ```
-
-</TabItem>
-</Tabs>
 
 ### Example:
 

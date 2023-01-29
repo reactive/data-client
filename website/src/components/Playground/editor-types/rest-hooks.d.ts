@@ -426,6 +426,7 @@ interface EntityInterface<T = any> extends SchemaSimple {
     readonly key: string;
     merge(existing: any, incoming: any): any;
     expiresAt?(meta: any, input: any): number;
+    mergeWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     useIncoming?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): boolean;
     indexes?: any;
     schema: Record<string, Schema>;
@@ -538,6 +539,9 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 type Denormalize<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? Denormalize$1<S> : Denormalize$1<Extract<S, EntityInterface[]>> : Denormalize$1<Extract<S, EntityInterface>>;
 type DenormalizeNullable<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? DenormalizeNullable$1<S> : DenormalizeNullable$1<Extract<S, EntityInterface[]>> : DenormalizeNullable$1<Extract<S, EntityInterface>>;
 
+type CondNull$2<P, A, B> = P extends null ? A : B;
+type SuspenseReturn<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>, Args extends readonly [...Parameters<E>] | readonly [null]> = CondNull$2<Args[0], E['schema'] extends undefined | null ? undefined : DenormalizeNullable<E['schema']>, E['schema'] extends undefined | null ? ResolveType<E> : Denormalize<E['schema']>>;
+
 /**
  * Ensure an endpoint is available.
  * Suspends until it is.
@@ -547,7 +551,7 @@ type DenormalizeNullable<S> = Extract<S, EntityInterface> extends never ? Extrac
  * @throws {Promise} If data is not yet available.
  * @throws {NetworkError} If fetch fails.
  */
-declare function useSuspense<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): Args extends [null] ? E['schema'] extends Exclude<Schema, null> ? DenormalizeNullable<E['schema']> : undefined : E['schema'] extends Exclude<Schema, null> ? Denormalize<E['schema']> : ResolveType<E>;
+declare function useSuspense<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): SuspenseReturn<E, Args>;
 
 /**
  * Request a resource if it is not in cache.
@@ -577,7 +581,7 @@ type StatefulReturn<S extends Schema | undefined, P> = CondNull$1<P, {
  * Use async date with { data, loading, error } (DLE)
  * @see https://resthooks.io/docs/api/useDLE
  */
-declare function useDLE<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): E['schema'] extends undefined ? {
+declare function useDLE<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): E['schema'] extends undefined | null ? {
     data: E extends (...args: any) => any ? ResolveType<E> | undefined : any;
     loading: boolean;
     error: ErrorTypes$1 | undefined;
@@ -597,7 +601,7 @@ declare function useController(): Controller;
  * @throws {Promise} If data is not yet available.
  * @throws {NetworkError} If fetch fails.
  */
-declare function useLive<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): Args extends [null] ? E['schema'] extends Exclude<Schema, null> ? DenormalizeNullable<E['schema']> : undefined : E['schema'] extends Exclude<Schema, null> ? Denormalize<E['schema']> : ResolveType<E>;
+declare function useLive<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): SuspenseReturn<E, Args>;
 
 declare const StateContext: Context<State$1<unknown>>;
 /** @deprecated use Controller.dispatch */
