@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.4.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@3.3.0...@rest-hooks/endpoint@3.4.0) (2023-01-29)
+
+### 🚀 Features
+
+* Add Entity.mergeWithStore() ([#2384](https://github.com/coinbase/rest-hooks/issues/2384)) ([617d3f1](https://github.com/coinbase/rest-hooks/commit/617d3f1618784542ec7f3675efa44aaf8105f348))
+
+### 📝 Documentation
+
+* Add Entity.mergeWithStore() ([e2ac322](https://github.com/coinbase/rest-hooks/commit/e2ac3222a0cfd1d3698787f8eb2bcc433636dbcf))
+
 ### [3.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/endpoint@3.2.8...@rest-hooks/endpoint@3.3.0) (2023-01-23)
 
 ### 🚀 Features

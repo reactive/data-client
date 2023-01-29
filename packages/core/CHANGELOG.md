@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@4.1.6...@rest-hooks/core@4.2.0) (2023-01-29)
+
+### 🚀 Features
+
+* Add controller.invalidateAll() ([#2382](https://github.com/coinbase/rest-hooks/issues/2382)) ([d145057](https://github.com/coinbase/rest-hooks/commit/d145057bbafb4a2efee5a31fdf2e32f1b16971b6))
+* Add SetAction, SET_TYPE ([#2381](https://github.com/coinbase/rest-hooks/issues/2381)) ([5365244](https://github.com/coinbase/rest-hooks/commit/5365244b224b62678bd6d0574da85765832867d7))
+* Add support for Entity.mergeWithStore() ([#2384](https://github.com/coinbase/rest-hooks/issues/2384)) ([3633bfe](https://github.com/coinbase/rest-hooks/commit/3633bfe64dfb25a9bdafe9ab6849a5dd1c95455b))
+
+### 💅 Enhancement
+
+* Improve strictNullChecks: false compatibility ([#2386](https://github.com/coinbase/rest-hooks/issues/2386)) ([1cfb5a5](https://github.com/coinbase/rest-hooks/commit/1cfb5a53564719952ee30b1b3160cd32f6bd2603))
+* Split reducer into functions for each action ([1313176](https://github.com/coinbase/rest-hooks/commit/131317631c059dc7594797e8096b90cd090adea6))
+
 ### [4.1.6](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/core@4.1.5...@rest-hooks/core@4.1.6) (2023-01-23)
 
 ### 🚀 Features

@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.3.13](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/graphql@0.3.12...@rest-hooks/graphql@0.3.13) (2023-01-29)
+
+**Note:** Version bump only for package @rest-hooks/graphql
+
 ### [0.3.12](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/graphql@0.3.11...@rest-hooks/graphql@0.3.12) (2023-01-23)
 
 **Note:** Version bump only for package @rest-hooks/graphql

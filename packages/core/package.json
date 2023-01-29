@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/core",
-  "version": "4.1.6",
+  "version": "4.2.0",
   "description": "Normalized Asynchronous data framework. Protocol and View agnostic.",
   "sideEffects": false,
   "main": "dist/index.js",
@@ -107,7 +107,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@rest-hooks/normalizr": "^9.3.7",
+    "@rest-hooks/normalizr": "^9.4.0",
     "flux-standard-action": "^2.1.1"
   },
   "devDependencies": {

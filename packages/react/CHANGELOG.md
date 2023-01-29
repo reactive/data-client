@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [7.2.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/react@7.1.7...@rest-hooks/react@7.2.0) (2023-01-29)
+
+### 🚀 Features
+
+* Add controller.invalidateAll() ([#2382](https://github.com/coinbase/rest-hooks/issues/2382)) ([d145057](https://github.com/coinbase/rest-hooks/commit/d145057bbafb4a2efee5a31fdf2e32f1b16971b6))
+* Add Interceptors ([#2380](https://github.com/coinbase/rest-hooks/issues/2380)) ([53653ba](https://github.com/coinbase/rest-hooks/commit/53653ba9462510938f57cfe4ff907fda2efcc874))
+
+### 💅 Enhancement
+
+* Improve strictNullChecks: false compatibility ([#2386](https://github.com/coinbase/rest-hooks/issues/2386)) ([1cfb5a5](https://github.com/coinbase/rest-hooks/commit/1cfb5a53564719952ee30b1b3160cd32f6bd2603))
+
+### 🐛 Bug Fix
+
+* Conditional null args type handling ([#2386](https://github.com/coinbase/rest-hooks/issues/2386)) ([6d6e0f7](https://github.com/coinbase/rest-hooks/commit/6d6e0f74399452fcf3e78561a69edcb6e8e78a9d))
+
 ### [7.1.7](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/react@7.1.6...@rest-hooks/react@7.1.7) (2023-01-23)
 
 ### 🐛 Bug Fix

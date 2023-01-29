@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.3.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.3.0...@rest-hooks/rest@6.3.1) (2023-01-29)
+
+### 💅 Enhancement
+
+* Improve strictNullChecks: false compatibility ([#2386](https://github.com/coinbase/rest-hooks/issues/2386)) ([1cfb5a5](https://github.com/coinbase/rest-hooks/commit/1cfb5a53564719952ee30b1b3160cd32f6bd2603))
+
+### 🐛 Bug Fix
+
+* Improve resource endpoint .extend() works with searchParams ([#2386](https://github.com/coinbase/rest-hooks/issues/2386)) ([e33e155](https://github.com/coinbase/rest-hooks/commit/e33e15580c309a3453ba57afec006e496f64c23b))
+
+### 📝 Documentation
+
+* Add Interceptor to testing docs ([80ebf4d](https://github.com/coinbase/rest-hooks/commit/80ebf4d1e6678bba588eab444d919232b42995e8))
+
 ## [6.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/rest@6.2.6...@rest-hooks/rest@6.3.0) (2023-01-23)
 
 ### 🚀 Features

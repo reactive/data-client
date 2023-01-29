@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [9.3.1](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@9.3.0...@rest-hooks/experimental@9.3.1) (2023-01-29)
+
+### 💅 Enhancement
+
+* Improve strictNullChecks: false compatibility ([#2386](https://github.com/coinbase/rest-hooks/issues/2386)) ([1cfb5a5](https://github.com/coinbase/rest-hooks/commit/1cfb5a53564719952ee30b1b3160cd32f6bd2603))
+
 ## [9.3.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/experimental@9.2.4...@rest-hooks/experimental@9.3.0) (2023-01-23)
 
 ### 🚀 Features
