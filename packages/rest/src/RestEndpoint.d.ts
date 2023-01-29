@@ -375,3 +375,37 @@ export type Defaults<O, D> = {
     ? Exclude<O[K], undefined>
     : D[Extract<K, keyof D>];
 };
+
+export type NewGetEndpoint<
+  O extends {
+    path: string;
+    searchParams?: any;
+  } = { path: string },
+  S extends Schema | undefined = Schema | undefined,
+> = RestTypeNoBody<
+  'searchParams' extends keyof O
+    ? O['searchParams'] & PathArgs<O['path']>
+    : PathArgs<O['path']>,
+  S,
+  undefined,
+  any,
+  O & { body: undefined }
+>;
+
+export type NewMutateEndpoint<
+  O extends {
+    path: string;
+    body?: any;
+    searchParams?: any;
+  } = { path: string; body: any },
+  S extends Schema | undefined = Schema | undefined,
+> = RestTypeWithBody<
+  'searchParams' extends keyof O
+    ? O['searchParams'] & PathArgs<O['path']>
+    : PathArgs<O['path']>,
+  S,
+  true,
+  O['body'],
+  any,
+  O
+>;

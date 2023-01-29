@@ -5,7 +5,7 @@ import {
   PathKeys,
   ShortenPath,
 } from '../pathTypes';
-import { GetEndpoint } from '../RestEndpoint';
+import { GetEndpoint, NewGetEndpoint } from '../RestEndpoint';
 
 describe('PathArgs', () => {
   it('should infer types', () => {
@@ -108,6 +108,17 @@ describe('PathArgs', () => {
     () => a({ cursor: '5' }, { cursor: '5' });
   });
 
+  it('searchParams', () => {
+    const a: GetEndpoint<undefined | { cursor?: string | number }> = 0 as any;
+    () => a();
+    () => a({});
+    () => a({ cursor: 5 });
+    // @ts-expect-error
+    () => a({ id: '5' });
+    //@ts-expect-error
+    () => a({ cursor: '5' }, { cursor: '5' });
+  });
+
   describe('PathArgsAndSearch', () => {
     it('works with required path member', () => {
       const a: GetEndpoint<
@@ -125,8 +136,12 @@ describe('PathArgs', () => {
       () => a();
     });
     it('works with no path members', () => {
-      const a: GetEndpoint<PathArgsAndSearch<'http\\://test.com/groups/'>> =
-        0 as any;
+      const a: NewGetEndpoint<{
+        path: 'http\\://test.com/groups';
+        searchParams: Record<string, number | string | boolean> | undefined;
+      }> = 0 as any;
+      /*const a: GetEndpoint<PathArgsAndSearch<'http\\://test.com/groups/'>> =
+        0 as any;*/
       () => a({ group: '5' });
       () => a({ group: '5', sdf: '5' });
       () => a();
@@ -134,6 +149,16 @@ describe('PathArgs', () => {
       () => a({});
       //@ts-expect-error
       () => a({ page: '5' }, { hi: '5' });
+
+      () => {
+        const b = a.extend({
+          searchParams: {} as { userId?: number | string } | undefined,
+        });
+        b({ userId: '5' });
+        b();
+        // @ts-expect-error
+        b({ sdf: '5' });
+      };
     });
   });
 });

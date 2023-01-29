@@ -3,7 +3,7 @@ import { useController } from '@rest-hooks/react';
 import { useSuspense } from '@rest-hooks/react';
 import { CacheProvider } from '@rest-hooks/react';
 import { act } from '@testing-library/react-hooks';
-import { CoolerArticle, CoolerArticleResource } from '__tests__/new';
+import { Article, CoolerArticle, CoolerArticleResource } from '__tests__/new';
 import nock from 'nock';
 
 import { makeRenderRestHook } from '../../../test';
@@ -799,6 +799,29 @@ describe('RestEndpoint', () => {
           bigger: true,
         }),
       ).toMatchInlineSnapshot(`"http://test.com/user/what?bigger=true"`);
+
+      const searchParams4 = getUserBase
+        .extend({
+          path: '/users',
+        })
+        .extend({ searchParams: {} as { bigger?: boolean } | undefined });
+      () => searchParams4({ bigger: true });
+      () => searchParams4();
+      () => searchParams4({});
+      // @ts-expect-error
+      () => searchParams4({ id: 'what', bigger: false });
+      // @ts-expect-error
+      () => searchParams4({ bigger: 5 });
+      // @ts-expect-error
+      () => searchParams4({ id: 'what' });
+      // @ts-expect-error
+      () => searchParams4.url({ id: 'what' });
+      expect(
+        searchParams4.url({
+          bigger: true,
+        }),
+      ).toMatchInlineSnapshot(`"/users?bigger=true"`);
+      expect(searchParams4.url()).toMatchInlineSnapshot(`"/users"`);
     });
   });
   it('extending with name should work', () => {
