@@ -5,10 +5,10 @@ import {
   type EndpointExtraOptions,
 } from '@rest-hooks/endpoint';
 
-import { PathArgs, PathArgsAndSearch, ShortenPath } from './pathTypes.js';
+import { PathArgs, ShortenPath } from './pathTypes.js';
 import RestEndpoint, {
-  GetEndpoint,
-  MutateEndpoint,
+  NewGetEndpoint,
+  NewMutateEndpoint,
   RestTypeNoBody,
 } from './RestEndpoint.js';
 import { shortenPath } from './RestHelpers.js';
@@ -80,27 +80,39 @@ export interface Resource<U extends string, S extends Schema> {
    *
    * @see https://resthooks.io/rest/api/createResource#get
    */
-  get: GetEndpoint<PathArgs<U>, S>;
+  get: NewGetEndpoint<{ path: U }, S>;
   /** Get a list of item
    *
    * @see https://resthooks.io/rest/api/createResource#getlist
    */
-  getList: GetEndpoint<PathArgsAndSearch<ShortenPath<U>>, S[]>;
+  getList: NewGetEndpoint<
+    {
+      path: ShortenPath<U>;
+      searchParams: Record<string, number | string | boolean> | undefined;
+    },
+    S[]
+  >;
   /** Create a new item (POST)
    *
    * @see https://resthooks.io/rest/api/createResource#create
    */
-  create: MutateEndpoint<PathArgs<ShortenPath<U>>, Partial<Denormalize<S>>, S>;
+  create: NewMutateEndpoint<
+    { path: ShortenPath<U>; body: Partial<Denormalize<S>> },
+    S
+  >;
   /** Update an item (PUT)
    *
    * @see https://resthooks.io/rest/api/createResource#update
    */
-  update: MutateEndpoint<PathArgs<U>, Partial<Denormalize<S>>, S>;
+  update: NewMutateEndpoint<{ path: U; body: Partial<Denormalize<S>> }, S>;
   /** Update an item (PATCH)
    *
    * @see https://resthooks.io/rest/api/createResource#partialupdate
    */
-  partialUpdate: MutateEndpoint<PathArgs<U>, Partial<Denormalize<S>>, S>;
+  partialUpdate: NewMutateEndpoint<
+    { path: U; body: Partial<Denormalize<S>> },
+    S
+  >;
   /** Delete an item (DELETE)
    *
    * @see https://resthooks.io/rest/api/createResource#delete
@@ -109,6 +121,9 @@ export interface Resource<U extends string, S extends Schema> {
     PathArgs<U>,
     S extends schema.EntityInterface & { process: any } ? schema.Delete<S> : S,
     undefined,
-    Partial<PathArgs<U>>
+    Partial<PathArgs<U>>,
+    {
+      path: U;
+    }
   >;
 }

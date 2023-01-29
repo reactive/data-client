@@ -7,6 +7,8 @@ export { default as RestEndpoint } from './RestEndpoint.js';
 export type {
   GetEndpoint,
   MutateEndpoint,
+  NewGetEndpoint,
+  NewMutateEndpoint,
   Defaults,
   RestGenerics,
   FetchGet,
