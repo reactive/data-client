@@ -1,6 +1,12 @@
 import { Endpoint } from '@rest-hooks/endpoint';
 import { render } from '@testing-library/react';
-import React, { useContext, ReactChild, ReactNode, ReactElement } from 'react';
+import React, {
+  useContext,
+  ReactChild,
+  ReactNode,
+  ReactElement,
+  StrictMode,
+} from 'react';
 
 import { useSuspense } from '../../hooks';
 import AsyncBoundary from '../AsyncBoundary';
@@ -31,11 +37,13 @@ describe('<AsyncBoundary />', () => {
       return <div>{thing}</div>;
     }
     const tree = (
-      <CacheProvider>
-        <AsyncBoundary fallback="loading">
-          <Data />
-        </AsyncBoundary>
-      </CacheProvider>
+      <StrictMode>
+        <CacheProvider>
+          <AsyncBoundary fallback="loading">
+            <Data />
+          </AsyncBoundary>
+        </CacheProvider>
+      </StrictMode>
     );
     const { getByText } = render(tree);
     expect(getByText(/loading/i)).toBeDefined();

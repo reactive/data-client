@@ -10,7 +10,7 @@ import {
 import { act, render } from '@testing-library/react';
 import { CoolerArticle, CoolerArticleResource } from '__tests__/new';
 import nock from 'nock';
-import React, { useContext, Suspense } from 'react';
+import React, { useContext, Suspense, StrictMode } from 'react';
 
 import { ControllerContext, StateContext } from '../../context';
 import { useController, useSuspense } from '../../hooks';
@@ -72,11 +72,13 @@ describe('<CacheProvider />', () => {
       return <div>{article.title}</div>;
     };
     const tree = (
-      <CacheProvider>
-        <Suspense fallback="loading">
-          <Component />
-        </Suspense>
-      </CacheProvider>
+      <StrictMode>
+        <CacheProvider>
+          <Suspense fallback="loading">
+            <Component />
+          </Suspense>
+        </CacheProvider>
+      </StrictMode>
     );
     const { getByText } = render(tree);
     const msg = getByText('loading');
