@@ -26,7 +26,7 @@ export function createPlaceholderResource<U extends string, S extends Schema>({
       return {
         ...(await base.partialUpdate.call(this, ...args)),
         id: args[0].id,
-      };
+      } as any;
     },
   });
   return {
@@ -43,7 +43,7 @@ export function createPlaceholderResource<U extends string, S extends Schema>({
         return {
           ...(await base.create.call(this, ...args)),
           id: args[args.length - 1].id,
-        };
+        } as any;
       },
     }),
   };
