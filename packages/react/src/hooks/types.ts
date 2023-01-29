@@ -7,13 +7,18 @@ import {
   FetchFunction,
 } from '@rest-hooks/normalizr';
 
+/* Inlining this on unions does not work for some reason, so make it a generic type to call */
+export type CondNull<P, A, B> = P extends null ? A : B;
+
 export type SuspenseReturn<
   E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
   Args extends readonly [...Parameters<E>] | readonly [null],
-> = Args extends [null]
-  ? E['schema'] extends undefined | null
+> = CondNull<
+  Args[0],
+  E['schema'] extends undefined | null
     ? undefined
-    : DenormalizeNullable<E['schema']>
-  : E['schema'] extends undefined | null
-  ? ResolveType<E>
-  : Denormalize<E['schema']>;
+    : DenormalizeNullable<E['schema']>,
+  E['schema'] extends undefined | null
+    ? ResolveType<E>
+    : Denormalize<E['schema']>
+>;
