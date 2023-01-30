@@ -517,4 +517,52 @@ describe('createResource()', () => {
       `"http://test.com/groups/hi/users"`,
     );
   });
+
+  it('UserResource.create.extends() should work with zero urlParams', async () => {
+    const UserResource = createResource({
+      path: 'http\\://test.com/users/:id',
+      schema: User,
+      Endpoint: MyEndpoint,
+    });
+    interface CreateDeviceBody {
+      username: string;
+    }
+    interface UserInterface {
+      readonly id: number | undefined;
+      readonly username: string;
+      readonly email: string;
+      readonly isAdmin: boolean;
+    }
+
+    const createUser = UserResource.create.extend({
+      update: (newId, params) => {
+        return {
+          [UserResource.getList.key({ group: params.group })]: (
+            prevResponse = { items: [] },
+          ) => ({
+            items: [...prevResponse.items, newId],
+          }),
+        };
+      },
+      //searchParams: undefined as any,
+      body: {} as CreateDeviceBody,
+      schema: User,
+      sideEffect: true,
+      process(...args: any) {
+        return UserResource.create.process.apply(this, args) as UserInterface;
+      },
+    });
+    const ctrl = new Controller();
+    () => ctrl.fetch(createUser, { username: 'bob' });
+    () => createUser({ username: 'bob' });
+    // @ts-expect-error
+    () => createUser({ id: 'what' }, { username: 'bob' });
+    // @ts-expect-error
+    () => createUser({ id: 'what' });
+    // @ts-expect-error
+    () => createUser.url({ id: 'what' }, { username: 'bob' });
+    expect(createUser.url({} as any)).toMatchInlineSnapshot(
+      `"http://test.com/users"`,
+    );
+  });
 });
