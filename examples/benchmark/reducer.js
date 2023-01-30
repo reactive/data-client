@@ -1,8 +1,8 @@
 import { createReducer, initialState, Controller } from '@rest-hooks/core';
 import { Endpoint } from '@rest-hooks/endpoint';
 
-import data from './data.json';
-import { ProjectSchema, ProjectSchemaSimpleMerge } from './schemas';
+import data from './data.json' assert { type: 'json' };
+import { ProjectSchema, ProjectSchemaSimpleMerge } from './schemas.js';
 
 export default function addReducerSuite(suite) {
   let state = initialState;

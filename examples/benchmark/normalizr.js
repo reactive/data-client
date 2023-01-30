@@ -5,8 +5,8 @@ import {
   inferResults,
 } from '@rest-hooks/normalizr';
 
-import data from './data.json';
-import { ProjectSchema, ProjectQuery, ProjectQuerySorted } from './schemas';
+import data from './data.json' assert { type: 'json' };
+import { ProjectSchema, ProjectQuery, ProjectQuerySorted } from './schemas.js';
 
 const { result, entities } = normalize(data, ProjectSchema);
 const queryState = normalize(data, ProjectQuery);
