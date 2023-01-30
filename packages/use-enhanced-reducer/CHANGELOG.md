@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.2.5](https://github.com/data-client/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.2.4...@rest-hooks/use-enhanced-reducer@1.2.5) (2023-01-30)
+
+### 📝 Documentation
+
+* Update github organization to data-client ([#2396](https://github.com/data-client/rest-hooks/issues/2396)) ([45faab1](https://github.com/data-client/rest-hooks/commit/45faab1962cad292d1f77a0a997e8c321a6917db))
+
 ### [1.2.4](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.2.3...@rest-hooks/use-enhanced-reducer@1.2.4) (2023-01-14)
 
 ### 🐛 Bug Fix

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [10.1.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/test@10.1.0...@rest-hooks/test@10.1.1) (2023-01-30)
+
+### 📝 Documentation
+
+* Update github organization to data-client ([#2396](https://github.com/data-client/rest-hooks/issues/2396)) ([45faab1](https://github.com/data-client/rest-hooks/commit/45faab1962cad292d1f77a0a997e8c321a6917db))
+
 ## [10.1.0](https://github.com/coinbase/rest-hooks/compare/@rest-hooks/test@10.0.0...@rest-hooks/test@10.1.0) (2023-01-23)
 
 ### 🚀 Features
