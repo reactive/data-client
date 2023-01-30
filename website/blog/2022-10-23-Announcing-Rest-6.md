@@ -299,7 +299,7 @@ Explore common patterns with this implementation using the GitHub API.
 
 <iframe
   loading="lazy"
-  src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fresources%2FIssue.tsx&hideNavigation=1&hideDevTools=1&view=editor&terminalHeight=1"
+  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fresources%2FIssue.tsx&hideNavigation=1&hideDevTools=1&view=editor&terminalHeight=1"
   width="738"
   height="700"
   style={{ width: '100%' }}
@@ -309,4 +309,4 @@ Explore common patterns with this implementation using the GitHub API.
 
 See the [full documentation for @rest-hooks/rest@6](/rest) for more detailed guides that cover all the functionality.
 
-[The PR for RestEndpoint, createResource, and hookifyResource](https://github.com/coinbase/rest-hooks/pull/2187)
+[The PR for RestEndpoint, createResource, and hookifyResource](https://github.com/data-client/rest-hooks/pull/2187)

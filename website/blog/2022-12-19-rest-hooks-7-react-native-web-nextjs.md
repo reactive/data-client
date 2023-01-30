@@ -48,7 +48,7 @@ New additions in 7.1
 - [useLive()](/docs/api/useLive) combines useSuspense() with useSubscription()
 - [&lt;AsyncBoundary/>](/docs/api/AsyncBoundary) combines Suspense with NetworkErrorBoundary
 - [Middleware API gets full controller](/docs/api/Manager)
-- Block dispatches after unmount ([#2307](https://github.com/coinbase/rest-hooks/issues/2307))
+- Block dispatches after unmount ([#2307](https://github.com/data-client/rest-hooks/issues/2307))
 
 ### @rest-hooks/ssr&#64;0.7
 
@@ -86,7 +86,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
 <iframe
   loading="lazy"
-  src="https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/nextjs?embed=1&file=pages%2FAssetPrice.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
+  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?embed=1&file=pages%2FAssetPrice.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
   width="100%"
   height="500"
 ></iframe>
@@ -187,7 +187,7 @@ export default function App({ Component, pageProps }: AppProps) {
 </TabItem>
 </Tabs>
 
-[PR #2293](https://github.com/coinbase/rest-hooks/pull/2293)
+[PR #2293](https://github.com/data-client/rest-hooks/pull/2293)
 
 ### useLive
 
@@ -243,7 +243,7 @@ render(<AssetPrice symbol="BTC" />);
 
 </HooksPlayground>
 
-[PR #2287](https://github.com/coinbase/rest-hooks/issues/2287)
+[PR #2287](https://github.com/data-client/rest-hooks/issues/2287)
 
 ### AsyncBoundary
 
@@ -263,7 +263,7 @@ function App() {
 }
 ```
 
-[PR #2270](https://github.com/coinbase/rest-hooks/pull/2270)
+[PR #2270](https://github.com/data-client/rest-hooks/pull/2270)
 
 ### Manager.getMiddleware() API changes
 
@@ -295,4 +295,4 @@ class Controller {
 
 Of course existing Managers just using dispatch and/or getState will continue to work.
 
-[PR #2290](https://github.com/coinbase/rest-hooks/issues/2290)
+[PR #2290](https://github.com/data-client/rest-hooks/issues/2290)

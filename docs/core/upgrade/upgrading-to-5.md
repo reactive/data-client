@@ -131,7 +131,7 @@ will sometimes throw an error. This only occurs during development, to
 help users correctly define their schemas and endpoints.
 
 While the heuristics have been heavily tuned, if you don't believe
-the errors reported are valid please [report a bug](https://github.com/coinbase/rest-hooks/issues/new/choose).
+the errors reported are valid please [report a bug](https://github.com/data-client/rest-hooks/issues/new/choose).
 
 When reporting, be sure to include
 
@@ -251,7 +251,7 @@ The last breaking changes introduced to `rest-hook` were in `delta.0` where TTL
 and deletes were reworked. If you are on a more recent beta (`i`, `j`, `k`, `rc`),
 upgrades should be as simple as updating the version.
 
-If this is not the case, please [report a bug](https://github.com/coinbase/rest-hooks/issues/new/choose).
+If this is not the case, please [report a bug](https://github.com/data-client/rest-hooks/issues/new/choose).
 
 ## Deprecations
 
@@ -549,10 +549,10 @@ Eventually support for FetchShape will be deprecated, and then removed.
 
 </details>
 
-[Full Release notes](https://github.com/coinbase/rest-hooks/releases/tag/rest-hooks%405.0.0)
+[Full Release notes](https://github.com/data-client/rest-hooks/releases/tag/rest-hooks%405.0.0)
 
 ## Support
 
 If you have any trouble upgrading, you can get some help from the community discord [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
-If you find any bugs or other issues, feel free to open a [github ticket](https://github.com/coinbase/rest-hooks/issues/new/choose)
+If you find any bugs or other issues, feel free to open a [github ticket](https://github.com/data-client/rest-hooks/issues/new/choose)

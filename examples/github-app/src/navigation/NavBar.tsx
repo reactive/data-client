@@ -27,7 +27,7 @@ function NavBar() {
         label: (
           <Link
             name="IssueList"
-            props={{ repo: 'rest-hooks', owner: 'coinbase' }}
+            props={{ repo: 'rest-hooks', owner: 'data-client' }}
           >
             Rest Hooks Issues
           </Link>

@@ -75,7 +75,7 @@ function MyComponent({ id }) {
 }
 ```
 
-[PR](https://github.com/coinbase/rest-hooks/pull/1048)
+[PR](https://github.com/data-client/rest-hooks/pull/1048)
 
 ### Motivation
 
@@ -295,7 +295,7 @@ await act(async () => {
 
 :::
 
-[PR](https://github.com/coinbase/rest-hooks/pull/1046)
+[PR](https://github.com/data-client/rest-hooks/pull/1046)
 
 ### What's Next
 
@@ -376,7 +376,7 @@ function NewsList() {
 }
 ```
 
-[PR](https://github.com/coinbase/rest-hooks/pull/868)
+[PR](https://github.com/data-client/rest-hooks/pull/868)
 
 ### New Hiearchy
 
@@ -414,4 +414,4 @@ abstract class Resource extends BaseResource {
 This should make it much easier to get started quickly, while allowing for a powerful yet flexible
 options in `BaseResource`. We expect most medium-to-large applications to mostly use this class.
 
-[PR](https://github.com/coinbase/rest-hooks/pull/841)
+[PR](https://github.com/data-client/rest-hooks/pull/841)

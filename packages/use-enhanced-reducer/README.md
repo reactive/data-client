@@ -1,7 +1,7 @@
 # useEnhancedReducer() - middlewares for React Hooks flux stores
 
-[![CircleCI](https://circleci.com/gh/coinbase/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/coinbase/rest-hooks)
-[![Coverage Status](https://img.shields.io/codecov/c/gh/coinbase/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/coinbase/rest-hooks?branch=master)
+[![CircleCI](https://circleci.com/gh/data-client/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/rest-hooks)
+[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/rest-hooks?branch=master)
 [![npm downloads](https://img.shields.io/npm/dm/@rest-hooks/use-enhanced-reducer.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/use-enhanced-reducer)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/@rest-hooks/use-enhanced-reducer?style=flat-square)](https://bundlephobia.com/result?p=@rest-hooks/use-enhanced-reducer)
 [![npm version](https://img.shields.io/npm/v/@rest-hooks/use-enhanced-reducer.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/use-enhanced-reducer)
@@ -63,5 +63,5 @@ export default function CacheProvider({
 
 ## Middleware Examples
 
-- Rest Hook's [NetworkManager](https://github.com/coinbase/rest-hooks/blob/master/packages/rest-hooks/src/state/NetworkManager.ts)
-- Rest Hook's [PollingSubscription](https://github.com/coinbase/rest-hooks/blob/master/packages/rest-hooks/src/state/PollingSubscription.ts)
+- Rest Hook's [NetworkManager](https://github.com/data-client/rest-hooks/blob/master/packages/rest-hooks/src/state/NetworkManager.ts)
+- Rest Hook's [PollingSubscription](https://github.com/data-client/rest-hooks/blob/master/packages/rest-hooks/src/state/PollingSubscription.ts)

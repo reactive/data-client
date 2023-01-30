@@ -114,11 +114,11 @@
   "homepage": "https://resthooks.io",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:coinbase/rest-hooks.git",
+    "url": "git+ssh://git@github.com:data-client/rest-hooks.git",
     "directory": "packages/redux"
   },
   "bugs": {
-    "url": "https://github.com/coinbase/rest-hooks/issues"
+    "url": "https://github.com/data-client/rest-hooks/issues"
   },
   "dependencies": {
     "@babel/runtime": "^7.17.0"

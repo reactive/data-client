@@ -12,7 +12,7 @@ tags:
   ]
 ---
 
-We recently release two new package versions [Rest Hooks@6.5](https://github.com/coinbase/rest-hooks/releases/tag/rest-hooks%406.5.0) and [@rest-hooks/rest@6.1](https://github.com/coinbase/rest-hooks/releases/tag/%40rest-hooks%2Frest%406.1.0). These
+We recently release two new package versions [Rest Hooks@6.5](https://github.com/data-client/rest-hooks/releases/tag/rest-hooks%406.5.0) and [@rest-hooks/rest@6.1](https://github.com/data-client/rest-hooks/releases/tag/%40rest-hooks%2Frest%406.1.0). These
 include some solutions to long-standing user-requested functionality. Additionally, we'll give a preview of even more
 features soon to come.
 
@@ -47,7 +47,7 @@ In addition, the [SSR helpers](https://www.npmjs.com/package/@rest-hooks/ssr) we
 handle these use cases. You can use the [@rest-hooks/ssr readme](https://www.npmjs.com/package/@rest-hooks/ssr) for
 instructions on usage with vanilla React 18.
 
-[PR](https://github.com/coinbase/rest-hooks/pull/2253)
+[PR](https://github.com/data-client/rest-hooks/pull/2253)
 
 #### What's next
 
@@ -87,7 +87,7 @@ const updateHandler = useCallback(
 );
 ```
 
-[PR](https://github.com/coinbase/rest-hooks/pull/2252)
+[PR](https://github.com/data-client/rest-hooks/pull/2252)
 
 ### Query
 
@@ -153,7 +153,7 @@ render(<UsersPage />);
 
 </HooksPlayground>
 
-[PR](https://github.com/coinbase/rest-hooks/pull/2229)
+[PR](https://github.com/data-client/rest-hooks/pull/2229)
 
 ### schema.All
 

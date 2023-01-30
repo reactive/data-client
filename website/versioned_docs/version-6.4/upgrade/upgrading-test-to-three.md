@@ -19,4 +19,4 @@ also apply to `@rest-hooks/test@3`
 (see https://github.com/testing-library/react-hooks-testing-library/releases/tag/v5.0.0)
 
 
-`@rest-hooks/test@3` [Release notes](https://github.com/coinbase/rest-hooks/releases/tag/%40rest-hooks%2Ftest%403.0.0)
+`@rest-hooks/test@3` [Release notes](https://github.com/data-client/rest-hooks/releases/tag/%40rest-hooks%2Ftest%403.0.0)

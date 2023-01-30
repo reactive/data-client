@@ -63,14 +63,14 @@
   ],
   "author": "Nathaniel Tucker <me@ntucker.me> (https://github.com/ntucker)",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/coinbase/rest-hooks/tree/master/packages/use-enhanced-reducer#readme",
+  "homepage": "https://github.com/data-client/rest-hooks/tree/master/packages/use-enhanced-reducer#readme",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:coinbase/rest-hooks.git",
+    "url": "git+ssh://git@github.com:data-client/rest-hooks.git",
     "directory": "packages/use-enhanced-reducer"
   },
   "bugs": {
-    "url": "https://github.com/coinbase/rest-hooks/issues"
+    "url": "https://github.com/data-client/rest-hooks/issues"
   },
   "peerDependencies": {
     "@types/react": "^16.8.4 || ^17.0.0 || ^18.0.0-0",

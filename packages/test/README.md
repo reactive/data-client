@@ -1,6 +1,6 @@
 # ![🛌🎣 Rest Hooks Testing](../../packages/rest-hooks/rest_hooks_logo_and_text.svg?sanitize=true)
 
-[![Coverage Status](https://img.shields.io/codecov/c/gh/coinbase/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/coinbase/rest-hooks?branch=master)
+[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/rest-hooks?branch=master)
 
 <div align="center">
 

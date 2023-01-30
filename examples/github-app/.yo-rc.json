@@ -1,6 +1,6 @@
 {
   "@anansi/generator-js": {
-    "githubOrg": "coinbase",
+    "githubOrg": "data-client",
     "rootPath": "src",
     "assetPath": "dist",
     "appName": "github-app",

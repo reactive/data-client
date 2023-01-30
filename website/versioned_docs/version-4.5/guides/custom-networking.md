@@ -21,7 +21,7 @@ useful in environments that don't support it, like node and older browsers
 (Internet Explorer). Be sure to include it in any bundles that need it.
 
 This implementation is provided as a useful reference for building your own.
-For the most up-to-date implementation, see the [source on master](https://github.com/coinbase/rest-hooks/blob/master/packages/rest-hooks/src/resource/Resource.ts)
+For the most up-to-date implementation, see the [source on master](https://github.com/data-client/rest-hooks/blob/master/packages/rest-hooks/src/resource/Resource.ts)
 
 ```typescript
 import { Method } from '~/types';
