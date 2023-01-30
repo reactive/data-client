@@ -11,7 +11,7 @@ module.exports = {
   tagline: 'Async State Management for React',
   url: 'https://resthooks.io',
   baseUrl: '/',
-  organizationName: 'coinbase',
+  organizationName: 'data-client',
   projectName: 'rest-hooks',
   trailingSlash: false,
   markdown: {
@@ -104,7 +104,7 @@ module.exports = {
   favicon: 'img/favicon/favicon.ico',
   themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
   customFields: {
-    repoUrl: 'https://github.com/coinbase/rest-hooks',
+    repoUrl: 'https://github.com/data-client/rest-hooks',
   },
   onBrokenLinks: 'log',
   onBrokenMarkdownLinks: 'log',
@@ -127,7 +127,7 @@ module.exports = {
             // We want users to submit doc updates to the upstream/next version!
             // Otherwise we risk losing the update on the next release.
             const nextVersionDocsDirPath = 'docs';
-            return `https://github.com/coinbase/rest-hooks/edit/master/${nextVersionDocsDirPath}/${docPath}`;
+            return `https://github.com/data-client/rest-hooks/edit/master/${nextVersionDocsDirPath}/${docPath}`;
           },
           lastVersion: 'current',
           includeCurrentVersion: true,
@@ -172,7 +172,7 @@ module.exports = {
           // We want users to submit doc updates to the upstream/next version!
           // Otherwise we risk losing the update on the next release.
           const nextVersionDocsDirPath = 'docs/rest';
-          return `https://github.com/coinbase/rest-hooks/edit/master/${nextVersionDocsDirPath}/${docPath}`;
+          return `https://github.com/data-client/rest-hooks/edit/master/${nextVersionDocsDirPath}/${docPath}`;
         },
         lastVersion: 'current',
         includeCurrentVersion: true,
@@ -201,7 +201,7 @@ module.exports = {
           // We want users to submit doc updates to the upstream/next version!
           // Otherwise we risk losing the update on the next release.
           const nextVersionDocsDirPath = 'docs/graphql';
-          return `https://github.com/coinbase/rest-hooks/edit/master/${nextVersionDocsDirPath}/${docPath}`;
+          return `https://github.com/data-client/rest-hooks/edit/master/${nextVersionDocsDirPath}/${docPath}`;
         },
         lastVersion: 'current',
         includeCurrentVersion: true,
@@ -354,7 +354,7 @@ module.exports = {
       twitterImage: 'img/rest_hooks_logo.png',
       announcementBar: {
         id: 'announcementBar-3', // Increment on change
-        content: `Give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/coinbase/rest-hooks">GitHub</a>. Get support on <a target="_blank" rel="noopener noreferrer" href="https://discord.gg/35nb8Mz">Discord</a>. File <a target="_blank" rel="noopener noreferrer" href="https://github.com/coinbase/rest-hooks/issues/new/choose">bug report</a>.`,
+        content: `Give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/data-client/rest-hooks">GitHub</a>. Get support on <a target="_blank" rel="noopener noreferrer" href="https://discord.gg/35nb8Mz">Discord</a>. File <a target="_blank" rel="noopener noreferrer" href="https://github.com/data-client/rest-hooks/issues/new/choose">bug report</a>.`,
       },
       navbar: {
         title: 'Rest Hooks',
@@ -415,7 +415,7 @@ module.exports = {
             'aria-label': 'GitHub repository',
           },
           {
-            href: 'https://www.github.com/coinbase/rest-hooks',
+            href: 'https://www.github.com/data-client/rest-hooks',
             position: 'right',
             className: 'header-github-link',
             'aria-label': 'GitHub repository',
@@ -476,7 +476,7 @@ module.exports = {
               },
               {
                 label: 'Bug Report',
-                href: 'https://github.com/coinbase/rest-hooks/issues/new/choose',
+                href: 'https://github.com/data-client/rest-hooks/issues/new/choose',
               },
             ],
           },
@@ -489,23 +489,23 @@ module.exports = {
               },
               {
                 label: 'Github',
-                to: 'https://github.com/coinbase/rest-hooks',
+                to: 'https://github.com/data-client/rest-hooks',
               },
               {
                 label: 'Demo (Github)',
-                to: 'https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx',
+                to: 'https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx',
               },
               {
                 label: 'Demo (Todo)',
-                to: 'https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx',
+                to: 'https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx',
               },
               {
                 label: 'Demo (NextJS)',
-                to: 'https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx',
+                to: 'https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx',
               },
               /*{
               html: `<iframe
-              src="https://ghbtns.com/github-btn.html?user=coinbase&amp;repo=rest-hooks&amp;type=star&amp;count=true&amp;size=small"
+              src="https://ghbtns.com/github-btn.html?user=data-client&amp;repo=rest-hooks&amp;type=star&amp;count=true&amp;size=small"
               width="110"
               height="19.6"
               title="GitHub Stars"

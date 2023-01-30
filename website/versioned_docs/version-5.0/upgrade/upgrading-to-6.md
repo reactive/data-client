@@ -159,7 +159,7 @@ These add on to the [existing changes](https://resthooks.io/docs/upgrade/upgradi
       }
     ```
 
-    https://github.com/coinbase/rest-hooks/pull/971
+    https://github.com/data-client/rest-hooks/pull/971
 
      </details>
 
@@ -180,4 +180,4 @@ Removed exports from 'rest-hooks': NestedEntity, schemas, isEntity, Entity, Reso
 
 - peerDep @rest-hooks/endpoint > 2
 
-[Full Release notes](https://github.com/coinbase/rest-hooks/releases/tag/rest-hooks%406.0.0)
+[Full Release notes](https://github.com/data-client/rest-hooks/releases/tag/rest-hooks%406.0.0)

@@ -13,4 +13,4 @@ react-hooks-testing-library)
 - requires node 12 or above
 
 
-`@rest-hooks/test@6` [Release notes](https://github.com/coinbase/rest-hooks/releases/tag/%40rest-hooks%2Ftest%406.0.0)
+`@rest-hooks/test@6` [Release notes](https://github.com/data-client/rest-hooks/releases/tag/%40rest-hooks%2Ftest%406.0.0)

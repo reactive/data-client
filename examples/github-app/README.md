@@ -2,7 +2,7 @@
 
 ### Getting started (remote)
 
-See this demo live in your browser at [Stackblitz](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/github-app)
+See this demo live in your browser at [Stackblitz](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app)
 
 This currently only works in chrome. This method allows quick exploration with 0 installation.
 

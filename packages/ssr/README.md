@@ -1,7 +1,7 @@
 # Rest Hooks Server Side Rendering helpers
 
-[![CircleCI](https://circleci.com/gh/coinbase/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/coinbase/rest-hooks)
-[![Coverage Status](https://img.shields.io/codecov/c/gh/coinbase/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/coinbase/rest-hooks?branch=master)
+[![CircleCI](https://circleci.com/gh/data-client/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/rest-hooks)
+[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/rest-hooks?branch=master)
 [![npm downloads](https://img.shields.io/npm/dm/@rest-hooks/ssr.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/ssr)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/@rest-hooks/ssr?style=flat-square)](https://bundlephobia.com/result?p=@rest-hooks/ssr)
 [![npm version](https://img.shields.io/npm/v/@rest-hooks/ssr.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/ssr)
@@ -11,7 +11,7 @@
 <div align="center">
 
 **[📖Read The Docs](https://resthooks.io/docs/guides/ssr)** &nbsp;|&nbsp;
-[🎮NextJS SSR Demo](https://stackblitz.com/github/coinbase/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
+[🎮NextJS SSR Demo](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
 
 </div>
 

@@ -4,7 +4,7 @@ import store from './src/redux';
 import * as Action from './src/redux/actions';
 import * as Selector from './src/redux/selectors';
 
-const REPO = 'coinbase/rest-hooks';
+const REPO = 'data-client/rest-hooks';
 
 const start = () => {
   inquirer

@@ -33,7 +33,7 @@ From those adopting Rest Hooks we've seen
 | View Library        |    React web, React Native, [NextJS](../guides/ssr#nextjs), [React SSR](../guides/ssr#express-js)     |           React web            |                      React web, Svelte                       |                      React web                      |   React web, React native   |
 
 While the maintainers do check this from time to time, we encourage you to [fix any inaccuracies
-on this table](https://github.com/coinbase/rest-hooks/edit/master/docs/getting-started/comparison.md). Be sure to include
+on this table](https://github.com/data-client/rest-hooks/edit/master/docs/getting-started/comparison.md). Be sure to include
 relevant links to docs as well as PRS for newly added features in the PR description.
 
 We focus on _outcomes_ rather than _how_ they are achieved, as that can be somewhat subjective. Such

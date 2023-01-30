@@ -15,4 +15,4 @@ with tooling that supports package exports, it will not work at all.
 Node 10 support is dropped.
 
 
-`@rest-hooks/test@7` [Release notes](https://github.com/coinbase/rest-hooks/blob/master/packages/test/CHANGELOG.md#700-2021-09-08)
+`@rest-hooks/test@7` [Release notes](https://github.com/data-client/rest-hooks/blob/master/packages/test/CHANGELOG.md#700-2021-09-08)

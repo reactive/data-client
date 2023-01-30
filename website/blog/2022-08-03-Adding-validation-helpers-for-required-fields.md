@@ -22,7 +22,7 @@ class CustomBaseEntity extends Entity {
 
 Currently the https://resthooks.io/docs/concepts/validation#partial-results case is a rather cumbersome endeavor; requiring users to maintain custom validation methods for each Resource/Entity they define. Furthermore, in some systems like GraphQL having partial results is quite common.
 
-What makes this more problematic is doing this incorrectly can lead to serious bugs, where data is missing when it is expected. For most cases the default fields provide information about which fields are expected. However, fields can be optional. Unfortunately in these cases, the default value isn't always something that is obvious like `null`. For instance [here, a user had an API that sometimes had a Date field](https://github.com/coinbase/rest-hooks/issues/492). However, the default case the date would be there so it made more sense to have an actual Date default.
+What makes this more problematic is doing this incorrectly can lead to serious bugs, where data is missing when it is expected. For most cases the default fields provide information about which fields are expected. However, fields can be optional. Unfortunately in these cases, the default value isn't always something that is obvious like `null`. For instance [here, a user had an API that sometimes had a Date field](https://github.com/data-client/rest-hooks/issues/492). However, the default case the date would be there so it made more sense to have an actual Date default.
 
 While we have made it easier to 'opt-out' of these sorts of validations, it has become clear that doing this out of the box is not intuitive behavior.
 

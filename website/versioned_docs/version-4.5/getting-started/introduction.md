@@ -411,4 +411,4 @@ del({ id: 5 });
 
 ## Demo
 
-See this all in action in [examples/todo-app](https://github.com/coinbase/rest-hooks/tree/master/examples/todo-app)
+See this all in action in [examples/todo-app](https://github.com/data-client/rest-hooks/tree/master/examples/todo-app)

@@ -15,7 +15,7 @@ these are the right changes to make.
 While some of these changes are simple renames to make the library more intuitive - some represent
 important progress to empowering the next chapter of Rest Hooks.
 
-See https://github.com/coinbase/rest-hooks/releases/tag/2.0.0 for a complete list of changes
+See https://github.com/data-client/rest-hooks/releases/tag/2.0.0 for a complete list of changes
 
 <!--truncate-->
 
@@ -91,7 +91,7 @@ just the url portion of a shape for custom endpoints.
 
 However, for protocols that don't base their requests on url like GraphQL this was a bit
 awkward. Additionally, manipulating the request/response based on fetch params [became
-cumbersome when the fetch method had to parse the url](https://github.com/coinbase/rest-hooks/issues/87)
+cumbersome when the fetch method had to parse the url](https://github.com/data-client/rest-hooks/issues/87)
 instead of just access those params itself.
 
 - [getUrl() -> getFetchKey() + fetch()](/docs/2.2/guides/endpoints#rpc)
@@ -151,7 +151,7 @@ While an important milestone for Rest Hooks, work is far from over. We have some
 features planned to be released soon. Here's a sneak peak of the 'soon' lineup:
 
 - Garbage collection
-- [Optimistic query update on create](https://github.com/coinbase/rest-hooks/issues/96)
+- [Optimistic query update on create](https://github.com/data-client/rest-hooks/issues/96)
 - Automatic query batching
 - Caching in Service Workers (PWA)
 - Server Side Rendering guide
@@ -161,5 +161,5 @@ We're also experimenting with a CLI to generate [Resource](/docs/2.2/api/resourc
 schemas.
 
 If any of these ideas excite you, or you have ideas of your own for Rest Hooks, we encourage you
-to share your feedback by [creating an issue](https://github.com/coinbase/rest-hooks/issues/new/choose)
-or [contributing code](https://github.com/coinbase/rest-hooks/compare).
+to share your feedback by [creating an issue](https://github.com/data-client/rest-hooks/issues/new/choose)
+or [contributing code](https://github.com/data-client/rest-hooks/compare).

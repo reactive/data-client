@@ -210,7 +210,7 @@ is actually used within node. (SSR or testing are likely cases.)
       }
     ```
 
-    https://github.com/coinbase/rest-hooks/pull/971
+    https://github.com/data-client/rest-hooks/pull/971
 
      </details>
 
@@ -231,10 +231,10 @@ Removed exports from 'rest-hooks': NestedEntity, schemas, isEntity, Entity, Reso
 
 - peerDep @rest-hooks/endpoint > 2
 
-[Full Release notes](https://github.com/coinbase/rest-hooks/releases/tag/rest-hooks%406.0.0)
+[Full Release notes](https://github.com/data-client/rest-hooks/releases/tag/rest-hooks%406.0.0)
 
 ## Support
 
 If you have any trouble upgrading, you can get some help from the community discord [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
-If you find any bugs or other issues, feel free to open a [github ticket](https://github.com/coinbase/rest-hooks/issues/new/choose)
+If you find any bugs or other issues, feel free to open a [github ticket](https://github.com/data-client/rest-hooks/issues/new/choose)

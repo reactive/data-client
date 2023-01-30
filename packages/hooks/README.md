@@ -1,6 +1,6 @@
 # Networking Hooks
-[![CircleCI](https://circleci.com/gh/coinbase/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/coinbase/rest-hooks)
-[![Coverage Status](https://img.shields.io/codecov/c/gh/coinbase/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/coinbase/rest-hooks?branch=master)
+[![CircleCI](https://circleci.com/gh/data-client/rest-hooks/tree/master.svg?style=shield)](https://circleci.com/gh/data-client/rest-hooks)
+[![Coverage Status](https://img.shields.io/codecov/c/gh/data-client/rest-hooks/master.svg?style=flat-square)](https://app.codecov.io/gh/data-client/rest-hooks?branch=master)
 [![npm downloads](https://img.shields.io/npm/dm/@rest-hooks/hooks.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/hooks)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/@rest-hooks/hooks?style=flat-square)](https://bundlephobia.com/result?p=@rest-hooks/hooks)
 [![npm version](https://img.shields.io/npm/v/@rest-hooks/hooks.svg?style=flat-square)](https://www.npmjs.com/package/@rest-hooks/hooks)
