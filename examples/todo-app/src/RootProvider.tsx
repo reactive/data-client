@@ -1,7 +1,5 @@
-import { CacheProvider } from '@rest-hooks/react';
+import { CacheProvider, AsyncBoundary } from '@rest-hooks/react';
 import type { ReactNode } from 'react';
-
-import Boundary from './Boundary';
 
 type ComponentProps<T> = T extends
   | React.ComponentType<infer P>
@@ -14,7 +12,7 @@ type Props = { children: ReactNode } & ComponentProps<typeof CacheProvider>;
 export default function RootProvider({ children, ...rest }: Props) {
   return (
     <CacheProvider {...rest}>
-      <Boundary>{children}</Boundary>
+      <AsyncBoundary>{children}</AsyncBoundary>
     </CacheProvider>
   );
 }

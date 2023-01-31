@@ -52,8 +52,8 @@ const TodoBox = styled.div`
 const TitleInput = styled.input`
   flex: 1 1 auto;
   width: 100%;
-  background: #e1e1e1;
+  background: #efefef;
   &:focus {
-    background: eeeeee;
+    background: eaeaea;
   }
 `;

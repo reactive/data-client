@@ -4,17 +4,17 @@ import { memo, useCallback } from 'react';
 import { TodoResource, Todo } from 'resources/TodoResource';
 
 function TodoListItem({ todo }: { todo: Todo }) {
-  const controller = useController();
+  const ctrl = useController();
 
   const toggleHandler = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
-      await controller.fetch(
+      await ctrl.fetch(
         TodoResource.partialUpdate,
         { id: todo.id },
         { completed: e.currentTarget.checked },
       );
     },
-    [controller, todo.id],
+    [ctrl, todo.id],
   );
   return (
     <TodoBox>
