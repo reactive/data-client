@@ -955,7 +955,7 @@ type OptionsToRestEndpoint<
   ? RestType<
       'searchParams' extends keyof O
         ? O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>
-        : UrlParamsFromFunction<Parameters<E>>,
+        : PathArgs<Exclude<E['path'], undefined>>,
       O['body'],
       'schema' extends keyof O ? O['schema'] : E['schema'],
       'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect'],
@@ -1012,7 +1012,7 @@ type OptionsToFunction<
   ? RestFetch<
       'searchParams' extends keyof O
         ? O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>
-        : UrlParamsFromFunction<Parameters<E>>,
+        : PathArgs<Exclude<E['path'], undefined>>,
       O['body'],
       O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>
     >
@@ -1028,10 +1028,6 @@ type OptionsToFunction<
     ) => Promise<
       O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>
     >;
-
-type UrlParamsFromFunction<Args extends any[]> = 1 extends keyof Args
-  ? Args[0]
-  : undefined;
 
 type RestExtendedEndpoint<
   O extends PartialRestGenerics,
