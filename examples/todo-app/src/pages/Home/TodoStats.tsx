@@ -1,8 +1,8 @@
 import { useCache } from '@rest-hooks/react';
-import { TodoResource } from 'resources/TodoResource';
+import { tasksRemaining } from 'resources/TodoResource';
 
 export default function TodoStats({ userId }: { userId?: number }) {
-  const remaining = useCache(TodoResource.tasksRemaining, { userId });
+  const remaining = useCache(tasksRemaining, { userId });
 
   return <div>{remaining} tasks remaining</div>;
 }

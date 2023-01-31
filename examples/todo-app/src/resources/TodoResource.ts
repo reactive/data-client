@@ -43,14 +43,13 @@ export const TodoResource = {
       return params;
     },
   }),
-  tasksRemaining: new Query(
-    new schema.All(Todo),
-    (entries, { userId } = {}) => {
-      if (userId !== undefined)
-        return entries.filter(
-          (todo) => todo.userId === userId && !todo.completed,
-        ).length;
-      return entries.filter((todo) => !todo.completed).length;
-    },
-  ),
 };
+export const tasksRemaining = new Query(
+  new schema.All(Todo),
+  (entries, { userId } = {}) => {
+    if (userId !== undefined)
+      return entries.filter((todo) => todo.userId === userId && !todo.completed)
+        .length;
+    return entries.filter((todo) => !todo.completed).length;
+  },
+);
