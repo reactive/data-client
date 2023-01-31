@@ -3,7 +3,13 @@ import { useController } from '@rest-hooks/react';
 import { useCallback, useRef, useState } from 'react';
 import { TodoResource, Todo } from 'resources/TodoResource';
 
-export default function NewTodo({ lastId }: { lastId: number }) {
+export default function NewTodo({
+  lastId,
+  userId,
+}: {
+  lastId: number;
+  userId?: number;
+}) {
   const ctrl = useController();
   const [title, setTitle] = useState('');
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
@@ -14,8 +20,8 @@ export default function NewTodo({ lastId }: { lastId: number }) {
   );
 
   // this allows handlePress to never change referential equality
-  const payload = useRef({ id: lastId + 1, title: title });
-  payload.current = { id: lastId + 1, title: title };
+  const payload = useRef({ id: lastId + 1, title: title, userId });
+  payload.current = { id: lastId + 1, title: title, userId };
 
   const handlePress = useCallback(
     async (e: React.KeyboardEvent<HTMLInputElement>) => {

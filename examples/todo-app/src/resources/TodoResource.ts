@@ -15,6 +15,9 @@ const TodoResourceBase = createPlaceholderResource({
 });
 export const TodoResource = {
   ...TodoResourceBase,
+  getList: TodoResourceBase.getList.extend({
+    searchParams: {} as { userId?: string | number } | undefined,
+  }),
   partialUpdate: TodoResourceBase.partialUpdate.extend({
     getOptimisticResponse(snap, params, body) {
       return {
@@ -27,11 +30,10 @@ export const TodoResource = {
     getOptimisticResponse(snap, body) {
       return body;
     },
-    update: (newResourceId: string) => ({
-      [TodoResourceBase.getList.key()]: (resourceIds: string[] = []) => [
-        ...resourceIds,
-        newResourceId,
-      ],
+    update: (newResourceId: string, urlParams) => ({
+      [TodoResourceBase.getList.key({ userId: urlParams?.userId })]: (
+        resourceIds: string[] = [],
+      ) => [...resourceIds, newResourceId],
     }),
   }),
 };

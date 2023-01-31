@@ -10,7 +10,7 @@ export default function Home() {
       <Title>Todo List</Title>
       <main style={{ paddingTop: '50px' }}>
         <Boundary>
-          <TodoList />
+          <TodoList userId={1} />
         </Boundary>
       </main>
     </div>
