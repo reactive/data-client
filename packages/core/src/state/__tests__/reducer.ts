@@ -17,8 +17,8 @@ import {
   GC_TYPE,
 } from '../../actionTypes';
 import { UpdateFunction, State, ActionTypes, legacyActions } from '../../types';
-import createReducer, { initialState } from '../reducer/createReducer';
 import { createReceive } from '../legacy-actions';
+import createReducer, { initialState } from '../reducer/createReducer';
 
 type FetchAction = legacyActions.FetchAction;
 type ReceiveAction<T extends string | number | object | null = any> =
