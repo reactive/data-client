@@ -248,7 +248,10 @@ module.exports = {
           },
           {
             to: '/docs/concepts/atomic-mutations',
-            from: ['/docs/getting-started/immediate-updates'],
+            from: [
+              '/docs/getting-started/immediate-updates',
+              '/docs/guides/immediate-updates',
+            ],
           },
           {
             to: '/docs/concepts/validation',
