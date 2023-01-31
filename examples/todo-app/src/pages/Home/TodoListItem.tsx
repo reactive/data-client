@@ -26,6 +26,21 @@ function TodoListItem({ todo }: { todo: Todo }) {
         />
         {todo.completed ? <strike>{todo.title}</strike> : todo.title}
       </label>
+      <span
+        style={{ cursor: 'pointer', marginLeft: '.5em' }}
+        onClick={() =>
+          ctrl.fetch(TodoResource.delete, {
+            id: todo.id,
+          })
+        }
+      >
+        <img
+          src="https://resthooks.io/img/cancel.png"
+          width="16"
+          height="16"
+          style={{ marginBottom: '-3px' }}
+        />
+      </span>
     </TodoBox>
   );
 }

@@ -1,3 +1,5 @@
+import { Query, schema } from '@rest-hooks/rest';
+
 import {
   createPlaceholderResource,
   PlaceholderEntity,
@@ -10,7 +12,7 @@ export class Todo extends PlaceholderEntity {
 }
 
 const TodoResourceBase = createPlaceholderResource({
-  path: 'https\\://jsonplaceholder.typicode.com/todos/:id',
+  path: '/todos/:id',
   schema: Todo,
 });
 export const TodoResource = {
@@ -19,9 +21,9 @@ export const TodoResource = {
     searchParams: {} as { userId?: string | number } | undefined,
   }),
   partialUpdate: TodoResourceBase.partialUpdate.extend({
-    getOptimisticResponse(snap, params, body) {
+    getOptimisticResponse(snap, { id }, body) {
       return {
-        id: params.id,
+        id,
         ...body,
       };
     },
@@ -36,4 +38,19 @@ export const TodoResource = {
       ) => [...resourceIds, newResourceId],
     }),
   }),
+  delete: TodoResourceBase.delete.extend({
+    getOptimisticResponse(snap, params) {
+      return params;
+    },
+  }),
+  tasksRemaining: new Query(
+    new schema.All(Todo),
+    (entries, { userId } = {}) => {
+      if (userId !== undefined)
+        return entries.filter(
+          (todo) => todo.userId === userId && !todo.completed,
+        ).length;
+      return entries.filter((todo) => !todo.completed).length;
+    },
+  ),
 };

@@ -53,7 +53,9 @@ const TitleInput = styled.input`
   flex: 1 1 auto;
   width: 100%;
   background: #efefef;
-  &:focus {
-    background: eaeaea;
+  opacity: 0.5;
+  &:focus,
+  &:hover {
+    opacity: 1;
   }
 `;
