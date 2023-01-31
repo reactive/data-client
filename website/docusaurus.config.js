@@ -356,8 +356,8 @@ module.exports = {
       ogImage: 'img/rest_hooks_logo.png',
       twitterImage: 'img/rest_hooks_logo.png',
       announcementBar: {
-        id: 'announcementBar-3', // Increment on change
-        content: `Give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/data-client/rest-hooks">GitHub</a>. Get support on <a target="_blank" rel="noopener noreferrer" href="https://discord.gg/35nb8Mz">Discord</a>. File <a target="_blank" rel="noopener noreferrer" href="https://github.com/data-client/rest-hooks/issues/new/choose">bug report</a>.`,
+        id: 'announcementBar-5', // Increment on change
+        content: `This project will soon be renamed. 🗳️ <a target="_blank" rel="noopener noreferrer" href="https://github.com/data-client/rest-hooks/discussions/2407">Vote</a> on a new name to influence its direction!`,
       },
       navbar: {
         title: 'Rest Hooks',

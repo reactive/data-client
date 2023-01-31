@@ -175,7 +175,7 @@ Use [schema.Delete](/rest/api/Delete) to invalidate every endpoint that contains
 
 ## invalidateAll({ testKey }) {#invalidateAll}
 
-[Invalidates](../concepts/expiry-policy#invalid) all endpoint configurations matching `testKey`.
+[Invalidates](../concepts/expiry-policy#invalid) all [endpoint keys](/rest/api/RestEndpoint#key) matching `testKey`.
 
 ```tsx
 function ArticleName({ id }: { id: string }) {

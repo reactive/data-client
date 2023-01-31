@@ -674,9 +674,19 @@ export const TodoResource = {
 };
 ```
 
+## key(urlParams): string {#key}
+
+Serializes the parameters. This is used to build a lookup key in global stores.
+
+Default:
+
+```typescript
+`${this.method} ${this.url(urlParams)}`
+```
+
 ## testKey(key): boolean
 
-Returns `true` if the provided (fetch) key matches this endpoint.
+Returns `true` if the provided (fetch) [key](#key) matches this endpoint.
 
 This is used for mock interceptors with with [<MockResolver /&gt;](/docs/api/MockResolver)
 
