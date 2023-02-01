@@ -3036,21 +3036,21 @@ __metadata:
 
 "@rest-hooks/core@file:../packages/core::locator=root-workspace-0b6124%40workspace%3A.":
   version: 4.2.1
-  resolution: "@rest-hooks/core@file:../packages/core#../packages/core::hash=c6ef4d&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/core@file:../packages/core#../packages/core::hash=e9bcd3&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/normalizr": ^9.4.1
     flux-standard-action: ^2.1.1
-  checksum: 52f4a49e054115c0542d00af0b95755b13449ef616284a3720d817c23ba73a0aef9191a2bb5c17aebd9bee2c56c8b44af9fefc4052b6d71b7b77367303de56da
+  checksum: d18ceec6e82dd4275921e79eabb8b993aa0415a9850342b8f265d6cd7fd949f6840156fb63873d9dd935f055dee30db8d0e417c9b5cc20925a429bdf71be9ee1
   languageName: node
   linkType: hard
 
 "@rest-hooks/endpoint@file:../packages/endpoint::locator=root-workspace-0b6124%40workspace%3A.":
   version: 3.4.1
-  resolution: "@rest-hooks/endpoint@file:../packages/endpoint#../packages/endpoint::hash=4e1511&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/endpoint@file:../packages/endpoint#../packages/endpoint::hash=b4db48&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
-  checksum: 6cce4b4bec7e4a01226e47e0dc0ebc420c782116a71cb6d71aee21a4a7252c1391aec9a647ec44de090199016b3ef935272fcb2711b0633ba2302186903538cb
+  checksum: 3b741c2e549721037c6098170043467d25090069a3209b77789561f5678ad7cf2f98ead30671cac97b3625a465026bd114cd8d080282600338eace44dd85bc93
   languageName: node
   linkType: hard
 
@@ -14208,7 +14208,7 @@ __metadata:
 
 "typescript@patch:typescript@next#~builtin<compat/typescript>":
   version: 4.9.0-dev.20221005
-  resolution: "typescript@patch:typescript@npm%3A4.9.0-dev.20221005#~builtin<compat/typescript>::version=4.9.0-dev.20221005&hash=0102e9"
+  resolution: "typescript@patch:typescript@npm%3A4.9.0-dev.20221005#~builtin<compat/typescript>::version=4.9.0-dev.20221005&hash=1a91c8"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
