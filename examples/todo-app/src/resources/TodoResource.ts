@@ -44,7 +44,7 @@ export const TodoResource = {
     },
   }),
 };
-export const tasksRemaining = new Query(
+export const queryRemaining = new Query(
   new schema.All(Todo),
   (entries, { userId } = {}) => {
     if (userId !== undefined)

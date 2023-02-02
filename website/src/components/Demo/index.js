@@ -313,6 +313,15 @@ export const TodoResource = {
       return params;
     },
   }),
+  queryRemaining: new Query(
+    new schema.All(Todo),
+    (entries, { userId } = {}) => {
+      if (userId !== undefined)
+        return entries.filter((todo) => todo.userId === userId && !todo.completed)
+          .length;
+      return entries.filter((todo) => !todo.completed).length;
+    },
+  ),
 };`,
       },
       {
@@ -338,23 +347,27 @@ export default function TodoItem({ todo }: { todo: Todo }) {
         />
         {todo.completed ? <strike>{todo.title}</strike> : todo.title}
       </label>
-      <span
-        style={{ cursor: 'pointer', marginLeft: '.5em' }}
+      <CancelButton
         onClick={() =>
           controller.fetch(TodoResource.delete, {
             id: todo.id,
           })
         }
-      >
-        <img
-          src="/img/cancel.png"
-          width="16"
-          height="16"
-          style={{ marginBottom: '-3px' }}
-        />
-      </span>
+      />
     </div>
   );
+}
+`,
+      },
+      {
+        path: 'TodoStats',
+        code: `import { useCache } from '@rest-hooks/react';
+import { TodoResource } from './api';
+
+export default function TodoStats({ userId }: { userId?: number }) {
+  const remaining = useCache(TodoResource.queryRemaining, { userId });
+
+  return <div style={{ textAlign: 'center' }}>{remaining} tasks remaining</div>;
 }
 `,
       },
@@ -362,11 +375,14 @@ export default function TodoItem({ todo }: { todo: Todo }) {
         path: 'TodoList',
         code: `import { TodoResource } from './api';
 import TodoItem from './TodoItem';
+import TodoStats from './TodoStats';
 
 function TodoList() {
-  const todos = useSuspense(TodoResource.getList, { userId: 1 });
+  const userId = 1;
+  const todos = useSuspense(TodoResource.getList, { userId });
   return (
     <div>
+      <TodoStats userId={userId} />
       {todos.map(todo => (
         <TodoItem key={todo.pk()} todo={todo} />
       ))}
@@ -438,6 +454,15 @@ export const TodoResource = {
     }\`,
     { updateTodo: Todo },
   ),
+  queryRemaining: new Query(
+    new schema.All(Todo),
+    (entries, { userId } = {}) => {
+      if (userId !== undefined)
+        return entries.filter((todo) => todo.userId === userId && !todo.completed)
+          .length;
+      return entries.filter((todo) => !todo.completed).length;
+    },
+  ),
 };`,
       },
       {
@@ -467,14 +492,28 @@ export default function TodoItem({ todo }: { todo: Todo }) {
 `,
       },
       {
+        path: 'TodoStats',
+        code: `import { useCache } from '@rest-hooks/react';
+import { TodoResource } from './api';
+
+export default function TodoStats({ userId }: { userId?: number }) {
+  const remaining = useCache(TodoResource.queryRemaining, { userId });
+
+  return <div style={{ textAlign: 'center' }}>{remaining} tasks remaining</div>;
+}
+`,
+      },
+      {
         path: 'TodoList',
         code: `import { TodoResource } from './api';
 import TodoItem from './TodoItem';
+import TodoStats from './TodoStats';
 
 function TodoList() {
   const { todos } = useSuspense(TodoResource.getList, {});
   return (
     <div>
+      <TodoStats />
       {todos.map(todo => (
         <TodoItem key={todo.pk()} todo={todo} />
       ))}

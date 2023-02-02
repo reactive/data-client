@@ -204,6 +204,7 @@ if (
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare function render(component:JSX.Element):void;
         declare function CurrentTime(props: {}):JSX.Element;
+        declare function CancelButton(props: { onClick: () => void }):JSX.Element;
         declare function ResetableErrorBoundary(props: { children: JSX.ReactChild }):JSX.Element;
         declare function randomFloatInRange(min: number, max: number, decimals?: number): number;`,
       );

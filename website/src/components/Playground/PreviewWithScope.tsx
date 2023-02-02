@@ -4,9 +4,10 @@ import * as rhReact from '@rest-hooks/react';
 import * as rest from '@rest-hooks/rest';
 import type { Fixture, Interceptor } from '@rest-hooks/test';
 import BigNumber from 'bignumber.js';
-import React, { useEffect, useState, memo } from 'react';
+import React from 'react';
 import { LiveProvider } from 'react-live';
 
+import * as designSystem from './DesignSystem';
 import PreviewWithHeader from './PreviewWithHeader';
 import {
   TodoResource as BaseTodoResource,
@@ -59,19 +60,6 @@ const lastUpdated = new rest.Endpoint(mockLastUpdated, {
   schema: TimedEntity,
 });
 
-function CurrentTime() {
-  const [time, setTime] = useState(() => new Date());
-  useEffect(() => {
-    const intervalID = setInterval(() => setTime(new Date()));
-    return () => clearInterval(intervalID);
-  }, []);
-  return (
-    <time>
-      {Intl.DateTimeFormat('en-US', { timeStyle: 'long' }).format(time)}
-    </time>
-  );
-}
-
 const TodoResource = {
   ...BaseTodoResource,
   getList: BaseTodoResource.getList.extend({
@@ -89,8 +77,8 @@ const scope = {
   randomFloatInRange,
   mockFetch,
   BigNumber,
-  CurrentTime,
   ResetableErrorBoundary,
+  ...designSystem,
 };
 const scopeWithEndpoint = {
   ...scope,
