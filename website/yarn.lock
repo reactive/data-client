@@ -3036,37 +3036,37 @@ __metadata:
 
 "@rest-hooks/core@file:../packages/core::locator=root-workspace-0b6124%40workspace%3A.":
   version: 4.2.1
-  resolution: "@rest-hooks/core@file:../packages/core#../packages/core::hash=f4da36&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/core@file:../packages/core#../packages/core::hash=03c8c7&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/normalizr": ^9.4.1
     flux-standard-action: ^2.1.1
-  checksum: 6bdccb522728ad31a7a07fcc4c07264c5f10c7b1f499f04ca8a9a6ea6626bccfd9be774997186c1a0757e53142f327240ccb5068c48f8eff1be0af337df0ee30
+  checksum: ed4cae305c92c783ea3d5490c6d399175ee96b9f5aac44698b0de19d57edbd5272a3aafb209910ffd636d137c3f1c0ac9e0975f37d8d89742a1fe35e012ce310
   languageName: node
   linkType: hard
 
 "@rest-hooks/endpoint@file:../packages/endpoint::locator=root-workspace-0b6124%40workspace%3A.":
   version: 3.4.1
-  resolution: "@rest-hooks/endpoint@file:../packages/endpoint#../packages/endpoint::hash=6d7fab&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/endpoint@file:../packages/endpoint#../packages/endpoint::hash=b29b56&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
-  checksum: 6246086eed00f33a21c4060e8d1a77ee6060a5b23ff9c4df1f29ef1e712ddead5d2499d04568f32dcf20cd15554ce74f6d77dbbb93a5739a588451e8b1e06b01
+  checksum: 71e19d2fbc6071a3ce84b523cd2e8075b7a1d7ed2dc56c3b65c099f99e6d6d2d1b13c33d37d27b3a8c3ed6aa71244b1dfee3d2f1a58d6cc71523f8367dfa422e
   languageName: node
   linkType: hard
 
 "@rest-hooks/graphql@file:../packages/graphql::locator=root-workspace-0b6124%40workspace%3A.":
   version: 0.3.14
-  resolution: "@rest-hooks/graphql@file:../packages/graphql#../packages/graphql::hash=cf7832&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/graphql@file:../packages/graphql#../packages/graphql::hash=721838&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.4.1
-  checksum: dee2c2552e0a17abbc82810f5de531d7544dbc12c405a4f80327c794f1738ef49d8bd7cdfebf5681341a5bad05613c71a3b9d252ec095242e3b5f04f1afe2b0f
+  checksum: 44f5fc5644d5b15c0e0e909c4daf0fea4d08c5d8a178553f1b33294695faad8cdae127f804204e72589885d6df68e2907c60ee667d352f021ac190dc55236244
   languageName: node
   linkType: hard
 
 "@rest-hooks/hooks@file:../packages/hooks::locator=root-workspace-0b6124%40workspace%3A.":
   version: 3.1.7
-  resolution: "@rest-hooks/hooks@file:../packages/hooks#../packages/hooks::hash=ef726b&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/hooks@file:../packages/hooks#../packages/hooks::hash=2961bb&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/normalizr": ^9.4.1
@@ -3076,22 +3076,22 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 2e1ac2a5997751936a180adb55bd5f559547a7926c736db1325c5d558c8896708891245155b5cc2baabbc1bfde71321606e2c254ecd095b8c69dd68796753ff8
+  checksum: 292e741d010cabde868f0960400f4a982d05e433eea1a17c6d3c346719d22eceb8e3daa17ccc4acf5dcee0befe2061aa18a7d68adc951a08f3787d7a3900dff8
   languageName: node
   linkType: hard
 
 "@rest-hooks/normalizr@file:../packages/normalizr::locator=root-workspace-0b6124%40workspace%3A.":
   version: 9.4.1
-  resolution: "@rest-hooks/normalizr@file:../packages/normalizr#../packages/normalizr::hash=6ea9dc&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/normalizr@file:../packages/normalizr#../packages/normalizr::hash=1305d5&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
-  checksum: 5a193ce9157e6d0944dc229b8c210f8bfdbef28114345efdc223c32a1506bf75b329874530ddcd5abb03d5dd78b2c02607124d26cad601a020b758d80ec4f7bc
+  checksum: f919ecb9996f5d5ce5f2f92bebd292052b47ffce90f994a2651939be7aae288383efb9d88102f51e80e85460c8f8be9d936c2cde3816cdf3851279cb7a0cab08
   languageName: node
   linkType: hard
 
 "@rest-hooks/react@file:../packages/react::locator=root-workspace-0b6124%40workspace%3A.":
   version: 7.2.1
-  resolution: "@rest-hooks/react@file:../packages/react#../packages/react::hash=0305a3&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/react@file:../packages/react#../packages/react::hash=c81d03&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/core": ^4.2.1
@@ -3105,24 +3105,24 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: 3ff0512a4ca3a39034f7edf22c7b64b130d73f41bd9d89d093a8745aea419b60f3dc0b8914a65bfaef1166de215ae78021ec8fc59133c8bcf1ac5dfd23189eb9
+  checksum: 4c34caeb9ffc44b39f0996a5a2911b6e939d22d87e9479372a262246ecc013a4761ed320224e38488aa608fe5d4c8680c7ff76bbeb5ca81ada385f82afb97602
   languageName: node
   linkType: hard
 
 "@rest-hooks/rest@file:../packages/rest::locator=root-workspace-0b6124%40workspace%3A.":
   version: 6.3.3
-  resolution: "@rest-hooks/rest@file:../packages/rest#../packages/rest::hash=99341f&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/rest@file:../packages/rest#../packages/rest::hash=97a04d&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.4.1
     path-to-regexp: ^6.2.1
-  checksum: d129e79702c4cf384a47cfee90acbb27c2449e13f04e2c492c499dff91defc49c84cbf70ebd7d9efc3f8d46220c2e46f7cf51c25a496999c64e095eb580da661
+  checksum: 5ea3f03dc937de7d24fb9d2cd1388c51ae60c61666676a808a4568cbdfe82973ab81cb1e8fa4f5f6b31d333cb6db3c941ca1721a38bf57eea80133d3b4d9e639
   languageName: node
   linkType: hard
 
 "@rest-hooks/test@file:../packages/test::locator=root-workspace-0b6124%40workspace%3A.":
   version: 10.1.1
-  resolution: "@rest-hooks/test@file:../packages/test#../packages/test::hash=cc9ff7&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/test@file:../packages/test#../packages/test::hash=de68fe&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@testing-library/react": ^13.4.0
@@ -3148,20 +3148,20 @@ __metadata:
       optional: true
     react-test-renderer:
       optional: true
-  checksum: 2a5641a8bb7bb311b588e9a693b16ebc75b88b826d7fc8f421347105a1ef8c66f154bdc0ecc0071d5640947a84e8bf24302ef69c23856b55640a07846bd9b7db
+  checksum: 23d28c51e932ba6b533f14ee73ef4bb2084666f884e3d16bdace8e4d13983f72fc63690826339006e95aeeb8659af925469285edec9a730deb85be44a79fcf9c
   languageName: node
   linkType: hard
 
 "@rest-hooks/use-enhanced-reducer@file:../packages/use-enhanced-reducer::locator=root-workspace-0b6124%40workspace%3A.":
   version: 1.2.5
-  resolution: "@rest-hooks/use-enhanced-reducer@file:../packages/use-enhanced-reducer#../packages/use-enhanced-reducer::hash=1e1e71&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/use-enhanced-reducer@file:../packages/use-enhanced-reducer#../packages/use-enhanced-reducer::hash=729f5d&locator=root-workspace-0b6124%40workspace%3A."
   peerDependencies:
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
     react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: c4aa4f99d25b9153ccc3ef9021e4106de408ff8169233db2413d0b8c62099667b3965a7a3db7f68e5525b249feadf473dc6dbb027b8d120da742335784b73a46
+  checksum: 8d880b60c5cd42e55c1d6d05a0807e31faf8c76b2186eb2f9f5ca1f8629520180a37f0e2761a9166b5385b5d04477ead1fb505c6e5a06908aa6f85138429f9d4
   languageName: node
   linkType: hard
 
@@ -8398,9 +8398,9 @@ __metadata:
   linkType: hard
 
 "http-cache-semantics@npm:^4.0.0, http-cache-semantics@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "http-cache-semantics@npm:4.1.0"
-  checksum: 974de94a81c5474be07f269f9fd8383e92ebb5a448208223bfb39e172a9dbc26feff250192ecc23b9593b3f92098e010406b0f24bd4d588d631f80214648ed42
+  version: 4.1.1
+  resolution: "http-cache-semantics@npm:4.1.1"
+  checksum: 83ac0bc60b17a3a36f9953e7be55e5c8f41acc61b22583060e8dedc9dd5e3607c823a88d0926f9150e571f90946835c7fe150732801010845c72cd8bbff1a236
   languageName: node
   linkType: hard
 
@@ -12806,7 +12806,7 @@ __metadata:
 
 "rest-hooks@file:../packages/rest-hooks::locator=root-workspace-0b6124%40workspace%3A.":
   version: 7.0.9
-  resolution: "rest-hooks@file:../packages/rest-hooks#../packages/rest-hooks::hash=ee5785&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "rest-hooks@file:../packages/rest-hooks#../packages/rest-hooks::hash=63af0f&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.4.1
@@ -12818,7 +12818,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: b6cdf10c5faf952ab4df713ab33e1cb5e2bfb589447343707abb7949aa92b5cbdfdb45d2be801eacd7f51da96d2e47f82ab8862da5bb996b0d843c97c30331d0
+  checksum: fd8209d1e6e1fbce010a345b5cb62a46080bead64e10ad6f5ec2e00755234b280e29044584d8fdebb0493d16a5d79ab96a64ce8b8236f3e1dd76fb9e66e65aea
   languageName: node
   linkType: hard
 
