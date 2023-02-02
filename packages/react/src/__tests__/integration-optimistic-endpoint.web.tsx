@@ -416,11 +416,10 @@ describe.each([
 
     it('should clear optimistic when server response resolves in order', async () => {
       const params = { id: payload.id };
-      const { result, waitForNextUpdate } = renderRestHook(
+      const { result, controller } = renderRestHook(
         () => {
-          const { fetch } = useController();
           const article = useCache(CoolerArticleResource.get, params);
-          return { fetch, article };
+          return article;
         },
         {
           initialFixtures: [
@@ -439,7 +438,7 @@ describe.each([
       // first optimistic
       act(() => {
         fetches.push(
-          result.current.fetch(
+          controller.fetch(
             CoolerArticleResource.partialUpdate.extend({
               fetch(...args: any[]) {
                 return new Promise(resolve => {
@@ -455,7 +454,7 @@ describe.each([
           ),
         );
       });
-      expect(result.current.article).toEqual(
+      expect(result.current).toEqual(
         CoolerArticle.fromJS({
           ...payload,
           title: 'firstoptimistic',
@@ -467,7 +466,7 @@ describe.each([
       // second optimistic
       act(() => {
         fetches.push(
-          result.current.fetch(
+          controller.fetch(
             CoolerArticleResource.partialUpdate.extend({
               fetch(...args: any[]) {
                 return new Promise(resolve => {
@@ -482,7 +481,7 @@ describe.each([
           ),
         );
       });
-      expect(result.current.article).toEqual(
+      expect(result.current).toEqual(
         CoolerArticle.fromJS({
           ...payload,
           title: 'secondoptimistic',
@@ -494,7 +493,7 @@ describe.each([
       // third optimistic
       act(() => {
         fetches.push(
-          result.current.fetch(
+          controller.fetch(
             CoolerArticleResource.partialUpdate.extend({
               fetch(...args: any[]) {
                 return new Promise(resolve => {
@@ -509,7 +508,7 @@ describe.each([
           ),
         );
       });
-      expect(result.current.article).toEqual(
+      expect(result.current).toEqual(
         CoolerArticle.fromJS({
           ...payload,
           title: 'secondoptimistic',
@@ -520,12 +519,12 @@ describe.each([
 
       // resolve first request
       act(() => {
-        setTimeout(() => resolves[0]({ ...payload, content: 'first' }), 1);
+        setTimeout(() => resolves[0]({ ...payload, content: 'first' }), 0);
       });
       await act(() => fetches[0]);
 
       // replace optimistic with response
-      expect(result.current.article).toEqual(
+      expect(result.current).toEqual(
         CoolerArticle.fromJS({
           ...payload,
           title: 'secondoptimistic',
@@ -535,15 +534,13 @@ describe.each([
       );
 
       // resolve second request
-      act(() =>
-        resolves[1]({
-          ...payload,
-          title: 'second',
-          content: 'first',
-        }),
-      );
+      resolves[1]({
+        ...payload,
+        title: 'second',
+        content: 'first',
+      });
       await act(() => fetches[0]);
-      expect(result.current.article).toEqual(
+      expect(result.current).toEqual(
         CoolerArticle.fromJS({
           ...payload,
           title: 'second',
@@ -553,16 +550,14 @@ describe.each([
       );
 
       // resolve third request
-      act(() =>
-        resolves[2]({
-          ...payload,
-          title: 'second',
-          content: 'first',
-          tags: ['third'],
-        }),
-      );
+      resolves[2]({
+        ...payload,
+        title: 'second',
+        content: 'first',
+        tags: ['third'],
+      });
       await act(() => fetches[0]);
-      expect(result.current.article).toEqual(
+      expect(result.current).toEqual(
         CoolerArticle.fromJS({
           ...payload,
           title: 'second',
