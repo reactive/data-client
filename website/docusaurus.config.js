@@ -331,6 +331,7 @@ module.exports = {
     ],
     path.resolve(__dirname, './node-plugin'),
     path.resolve(__dirname, './profiling-plugin'),
+    path.resolve(__dirname, './raw-plugin'),
   ],
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
