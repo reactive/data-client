@@ -13,7 +13,7 @@
     "docusaurus": "docusaurus"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "2.3.0",
+    "@docusaurus/module-type-aliases": "2.3.1",
     "@tsconfig/docusaurus": "^1.0.6",
     "@types/react": "17.0.53",
     "@types/react-dom": "^17.0.0",
@@ -25,12 +25,12 @@
   "dependencies": {
     "@anansi/browserslist-config": "1.4.1",
     "@anansi/webpack-config": "14.1.2",
-    "@docusaurus/core": "2.3.0",
-    "@docusaurus/plugin-client-redirects": "2.3.0",
-    "@docusaurus/plugin-content-docs": "2.3.0",
-    "@docusaurus/preset-classic": "2.3.0",
-    "@docusaurus/theme-live-codeblock": "2.3.0",
-    "@docusaurus/theme-mermaid": "2.3.0",
+    "@docusaurus/core": "2.3.1",
+    "@docusaurus/plugin-client-redirects": "2.3.1",
+    "@docusaurus/plugin-content-docs": "2.3.1",
+    "@docusaurus/preset-classic": "2.3.1",
+    "@docusaurus/theme-live-codeblock": "2.3.1",
+    "@docusaurus/theme-mermaid": "2.3.1",
     "@monaco-editor/react": "^4.4.6",
     "@rest-hooks/endpoint": "file:../packages/endpoint",
     "@rest-hooks/graphql": "file:../packages/graphql",
