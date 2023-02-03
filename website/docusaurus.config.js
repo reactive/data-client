@@ -150,7 +150,7 @@ module.exports = {
           ],
         },
         gtag: {
-          trackingID: 'UA-138752992-1',
+          trackingID: 'G-ZCSW2H8FQR',
         },
       },
     ],
