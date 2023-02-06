@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1675184360501,
+  "lastUpdate": 1675717004592,
   "repoUrl": "https://github.com/data-client/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -11615,6 +11615,93 @@ window.BENCHMARK_DATA = {
             "range": "±1.02%",
             "unit": "ops/sec",
             "extra": "77 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c1b628bcca7dd1044b31cdae41574c64aa147d48",
+          "message": "pkg: Update JS test packages (#2391)\n\n* pkg: Update JS test packages\r\n\r\n* internal(fix): Restore warn mock\r\n\r\n---------\r\n\r\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\r\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2023-02-06T12:50:34-08:00",
+          "tree_id": "80ed91821d60248e75822e8ef630ea231595498f",
+          "url": "https://github.com/data-client/rest-hooks/commit/c1b628bcca7dd1044b31cdae41574c64aa147d48"
+        },
+        "date": 1675717002894,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 79.75,
+            "range": "±1.66%",
+            "unit": "ops/sec",
+            "extra": "66 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 4749,
+            "range": "±1.14%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 37.15,
+            "range": "±1.92%",
+            "unit": "ops/sec",
+            "extra": "51 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 41.17,
+            "range": "±2.31%",
+            "unit": "ops/sec",
+            "extra": "54 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 41.84,
+            "range": "±2.49%",
+            "unit": "ops/sec",
+            "extra": "54 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 40.71,
+            "range": "±2.16%",
+            "unit": "ops/sec",
+            "extra": "53 samples"
+          },
+          {
+            "name": "receiveLong",
+            "value": 74.76,
+            "range": "±2.63%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "receiveLongWithMerge",
+            "value": 52.21,
+            "range": "±2.93%",
+            "unit": "ops/sec",
+            "extra": "56 samples"
+          },
+          {
+            "name": "receiveLongWithSimpleMerge",
+            "value": 76.87,
+            "range": "±2.23%",
+            "unit": "ops/sec",
+            "extra": "65 samples"
           }
         ]
       }
