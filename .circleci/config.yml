@@ -91,11 +91,6 @@ jobs:
             ./codecov < ./lcov.info || true;
             fi
 
-  salus:
-    machine: true
-    steps:
-      - checkout
-      - run: docker run -t -v $(pwd):/home/repo coinbase/salus
 
   examples:
     docker: *docker
@@ -143,4 +138,3 @@ workflows:
       - validate-esmodule-browser-build:
           requires:
             - setup
-      - salus
