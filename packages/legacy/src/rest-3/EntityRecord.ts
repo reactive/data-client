@@ -90,7 +90,7 @@ export default abstract class EntityRecord extends Entity {
   }
 
   /** Used by denormalize to set nested members */
-  protected static set(entity: any, key: string, value: any) {
+  static set(entity: any, key: string, value: any) {
     entity[key] = value;
     entity[DefinedMembersKey][key] = value;
   }

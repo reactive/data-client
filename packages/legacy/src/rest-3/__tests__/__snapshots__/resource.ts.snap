@@ -51,5 +51,5 @@ exports[`Resource nested schema should throw a custom error if data does not inc
   Value (processed): {
   "content": "hi"
 }
-  "
+"
 `;

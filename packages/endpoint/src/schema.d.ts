@@ -19,6 +19,11 @@ import type {
   EntityMap,
 } from './normal.js';
 import { default as Delete } from './schemas/Delete.js';
+import {
+  EntityOptions,
+  IEntityClass,
+  IEntityInstance,
+} from './schemas/EntitySchema.js';
 
 export { Delete, EntityMap };
 
@@ -316,3 +321,17 @@ export interface SchemaClass<T = any, N = T | undefined>
   // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo
   _denormalizeNullable(): [N, boolean, boolean];
 }
+
+type Constructor = abstract new (...args: any[]) => {};
+
+export function Entity<
+  TBase extends Constructor,
+  TOptions extends EntityOptions | undefined,
+>(
+  Base: TBase,
+  opt?: TOptions,
+): 'pk' extends keyof TOptions
+  ? ((new (...args: any[]) => IEntityInstance) & IEntityClass<TBase>) & TBase
+  : (abstract new (...args: any[]) => IEntityInstance) &
+      IEntityClass<TBase> &
+      TBase;
