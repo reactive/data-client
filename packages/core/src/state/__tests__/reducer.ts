@@ -652,28 +652,32 @@ describe('reducer', () => {
     expect(newState.entities).toBe(iniState.entities);
   });
   it('rest-hooks/fetch should console.warn()', () => {
-    global.console.warn = jest.fn();
-    const action: FetchAction = {
-      type: FETCH_TYPE,
-      payload: () => new Promise<any>(() => null),
-      meta: {
-        schema: Article,
-        key: ArticleResource.get.url({ id: 5 }),
-        type: 'read' as const,
-        throttle: true,
-        reject: (v: any) => null,
-        resolve: (v: any) => null,
-        promise: new Promise((v: any) => null),
-        createdAt: 0,
-      },
-    };
-    const iniState = {
-      ...initialState,
-      results: { abc: '5' },
-    };
-    const newState = reducer(iniState, action);
-    expect(newState).toBe(iniState);
-    expect((global.console.warn as jest.Mock).mock.calls.length).toBe(2);
+    const warnspy = jest.spyOn(global.console, 'warn');
+    try {
+      const action: FetchAction = {
+        type: FETCH_TYPE,
+        payload: () => new Promise<any>(() => null),
+        meta: {
+          schema: Article,
+          key: ArticleResource.get.url({ id: 5 }),
+          type: 'read' as const,
+          throttle: true,
+          reject: (v: any) => null,
+          resolve: (v: any) => null,
+          promise: new Promise((v: any) => null),
+          createdAt: 0,
+        },
+      };
+      const iniState = {
+        ...initialState,
+        results: { abc: '5' },
+      };
+      const newState = reducer(iniState, action);
+      expect(newState).toBe(iniState);
+      expect(warnspy.mock.calls.length).toBe(2);
+    } finally {
+      warnspy.mockRestore();
+    }
   });
   it('other types should do nothing', () => {
     const action: any = {
