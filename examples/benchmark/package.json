@@ -8,7 +8,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "NODE_ENV=production BROWSERSLIST_ENV=modern babel-node --root-mode upward ./ --extensions '.ts,.tsx,.js' --ignore ."
+    "start": "NODE_ENV=production BROWSERSLIST_ENV=modern babel-node --allow-natives-syntax --root-mode upward ./ --extensions '.ts,.tsx,.js' --ignore .",
+    "start:trace": "yarn run start --trace_opt --trace_deopt"
   },
   "dependencies": {
     "@rest-hooks/core": "workspace:^",

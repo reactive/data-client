@@ -1,8 +1,14 @@
 import { createReducer, initialState, Controller } from '@rest-hooks/core';
-import { Endpoint } from '@rest-hooks/endpoint';
+import { Endpoint, Entity } from '@rest-hooks/endpoint';
+import { normalize } from '@rest-hooks/normalizr';
 
 import data from './data.json' assert { type: 'json' };
-import { ProjectSchema, ProjectSchemaSimpleMerge } from './schemas.js';
+import { printStatus } from './printStatus.js';
+import {
+  ProjectSchema,
+  ProjectSchemaSimpleMerge,
+  ProjectWithBuildTypesDescriptionSimpleMerge,
+} from './schemas.js';
 
 export default function addReducerSuite(suite) {
   let state = initialState;
@@ -46,6 +52,18 @@ export default function addReducerSuite(suite) {
       // biggest performance bump is not spreading in merge
       .add('receiveLongWithSimpleMerge', () => {
         return controllerPop.setResponse(getProjectSimple, data);
+      })
+      .on('complete', function () {
+        if (process.env.SHOW_OPTIMIZATION) {
+          console.error('reducer bench complete\n');
+          printStatus(normalize);
+          printStatus(Entity.normalize);
+          printStatus(Entity.denormalize);
+          printStatus(ProjectWithBuildTypesDescriptionSimpleMerge.merge);
+          printStatus(Entity.merge);
+          printStatus(Entity.process);
+          printStatus(Entity.validate);
+        }
       })
   );
 }

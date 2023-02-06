@@ -1,3 +1,4 @@
+import { Entity } from '@rest-hooks/endpoint';
 import {
   normalize,
   denormalize,
@@ -6,7 +7,13 @@ import {
 } from '@rest-hooks/normalizr';
 
 import data from './data.json' assert { type: 'json' };
-import { ProjectSchema, ProjectQuery, ProjectQuerySorted } from './schemas.js';
+import { printStatus } from './printStatus.js';
+import {
+  ProjectSchema,
+  ProjectQuery,
+  ProjectQuerySorted,
+  ProjectWithBuildTypesDescription,
+} from './schemas.js';
 
 const { result, entities } = normalize(data, ProjectSchema);
 const queryState = normalize(data, ProjectQuery);
@@ -43,6 +50,7 @@ export default function addNormlizrSuite(suite) {
     denormCache.entities,
     denormCache.results['/fakeQuery'],
   );
+  %OptimizeFunctionOnNextCall(denormalize);
 
   return suite
     .add('normalizeLong', () => {
@@ -85,5 +93,15 @@ export default function addNormlizrSuite(suite) {
         denormCache.entities,
         denormCache.results['/fakeQuery'],
       );
+    })
+    .on('complete', function () {
+      if (process.env.SHOW_OPTIMIZATION) {
+        printStatus(denormalize);
+        printStatus(Entity.normalize);
+        printStatus(Entity.denormalize);
+        printStatus(ProjectWithBuildTypesDescription.prototype.pk);
+        printStatus(Entity.merge);
+        printStatus(Entity.validate);
+      }
     });
 }

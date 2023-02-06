@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "start",
+			"path": "examples/benchmark",
+			"problemMatcher": [],
+			"label": "npm: start - examples/benchmark",
+			"detail": "NODE_ENV=production BROWSERSLIST_ENV=modern babel-node --trace_opt --trace_deopt --allow-natives-syntax --root-mode upward ./ --extensions '.ts,.tsx,.js' --ignore ."
+		}
+	]
+}
