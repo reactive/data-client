@@ -48,10 +48,18 @@ export interface SchemaClass<T = any, N = T | undefined>
 }
 
 export interface EntityInterface<T = any> extends SchemaSimple {
+  createIfValid?(props: any): any;
   pk(params: any, parent?: any, key?: string): string | undefined;
   readonly key: string;
   merge(existing: any, incoming: any): any;
   expiresAt?(meta: any, input: any): number;
+  mergeWithStore?(
+    existingMeta: any,
+    incomingMeta: any,
+    existing: any,
+    incoming: any,
+  ): any;
+  // TODO(breaking): deprecate this
   useIncoming?(
     existingMeta: any,
     incomingMeta: any,

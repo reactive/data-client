@@ -1,14 +1,17 @@
+/**
+ * All entities tests, but for @rest-hooks/normalizr@9.4.1 and before versions of normalizr
+ */
+
 // eslint-env jest
 import { normalize } from '@rest-hooks/normalizr';
 import { DELETED } from '@rest-hooks/normalizr';
-import { WeakListMap } from '@rest-hooks/normalizr';
+import { WeakListMap, AbstractInstanceType } from '@rest-hooks/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS, Record } from 'immutable';
 
-import denormalize from './denormalize';
-import { AbstractInstanceType } from '../../';
-import { schema } from '../../';
-import Entity from '../Entity';
+import { denormalizeSimple as denormalize } from './denormalize';
+import { schema } from '../../..';
+import Entity from '../../Entity';
 
 let dateSpy: jest.SpyInstance;
 beforeAll(() => {
@@ -676,7 +679,7 @@ describe(`${Entity.name} normalization`, () => {
         readonly type: string = '';
 
         static schema = {
-          data: { attachment: AttachmentsEntity },
+          data: new schema.Object({ attachment: AttachmentsEntity }),
         };
 
         static process(input: any, parent: any, key: string | undefined): any {
@@ -932,7 +935,7 @@ describe(`${Entity.name} denormalization`, () => {
     };
   }
   User.schema = {
-    reports: [Report],
+    reports: new schema.Array(Report),
   };
   class Comment extends IDEntity {
     readonly body: string = '';
@@ -1067,14 +1070,14 @@ describe(`${Entity.name} denormalization`, () => {
     const resultCache = new WeakListMap();
 
     const input = { report: '123', comment: '999' };
-    const schema = {
+    const sch = new schema.Object({
       report: Report,
       comment: Comment,
-    };
+    });
 
     const [denormalizedReport] = denormalize(
       input,
-      schema,
+      sch,
       entities,
       entityCache,
       resultCache,
@@ -1091,7 +1094,7 @@ describe(`${Entity.name} denormalization`, () => {
 
     const [denormalizedReport2] = denormalize(
       input,
-      schema,
+      sch,
       entities,
       entityCache,
       resultCache,
@@ -1114,7 +1117,7 @@ describe(`${Entity.name} denormalization`, () => {
 
     const [denormalizedReport3] = denormalize(
       input,
-      schema,
+      sch,
       nextEntities,
       entityCache,
       resultCache,
@@ -1239,7 +1242,7 @@ describe(`${Entity.name} denormalization`, () => {
     it('should be both deleted and not found when both are true in different parts of schema', () => {
       const [denormalized, found, deleted] = denormalize(
         { data: 'abc' },
-        { data: WithOptional, other: ArticleEntity },
+        new schema.Object({ data: WithOptional, other: ArticleEntity }),
         {
           [WithOptional.key]: {
             abc: WithOptional.fromJS({

@@ -120,8 +120,6 @@ export default abstract class Entity {
   /** Factory method to convert from Plain JS Objects.
    *
    * @param [props] Plain Object of properties to assign.
-   * @param [parent] When normalizing, the object which included the record
-   * @param [key] When normalizing, the key where this record was found
    */
   static fromJS<T extends typeof Entity>(
     this: T,
@@ -134,6 +132,21 @@ export default abstract class Entity {
     // all occur after the constructor
     Object.assign(instance, props);
     return instance;
+  }
+
+  /** Factory method to convert from Plain JS Objects.
+   *
+   * @param [props] Plain Object of properties to assign.
+   */
+  static createIfValid<T extends typeof Entity>(
+    this: T,
+    // TODO: this should only accept members that are not functions
+    props: Partial<AbstractInstanceType<T>>,
+  ): AbstractInstanceType<T> | undefined {
+    if (this.validate(props)) {
+      return undefined as any;
+    }
+    return this.fromJS(props);
   }
 
   /** Do any transformations when first receiving input */
@@ -373,6 +386,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     if (typeof input === 'symbol') {
       return [undefined, true, true] as any;
     }
+    // TODO(breaking): Remove fromJS and setLocal call once old versions are no longer supported
     if (isImmutable(input)) {
       if (this.validate((input as any).toJS()))
         return [undefined as any, false, true];
@@ -384,30 +398,35 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
         input,
         unvisit,
       );
-      return [this.fromJS(denormEntity.toObject()), found, deleted];
+      return [this.fromJS(denormEntity.toObject()) as any, true, deleted];
     }
-    if (this.validate(input)) {
-      return [undefined as any, false, true];
+    let entityCopy: any;
+    // new path
+    if (input instanceof this) {
+      entityCopy = input;
+      // TODO(breaking): Remove fromJS and setLocal call once old versions are no longer supported
+    } else {
+      if (this.validate(input)) {
+        return [undefined as any, false, true];
+      }
+      entityCopy = this.fromJS(input);
+      // Need to set this first so that if it is referenced further within the
+      // denormalization the reference will already exist.
+      unvisit.setLocal?.(entityCopy);
     }
-    const entityCopy: any = this.fromJS(input);
-    // Need to set this first so that if it is referenced further within the
-    // denormalization the reference will already exist.
-    unvisit.setLocal?.(entityCopy);
 
     let deleted = false;
 
     // note: iteration order must be stable
     Object.keys(this.schema).forEach(key => {
       const schema = this.schema[key];
-      const nextInput = Object.hasOwn(input, key)
-        ? (input as any)[key]
-        : undefined;
+      const nextInput = (input as any)[key];
       const [value, , deletedItem] = unvisit(nextInput, schema);
 
-      if (deletedItem && !(Object.hasOwn(input, key) && !this.defaults[key])) {
+      if (deletedItem && !!this.defaults[key]) {
         deleted = true;
       }
-      if (Object.hasOwn(input, key) && (input as any)[key] !== value) {
+      if ((input as any)[key] !== value) {
         this.set(entityCopy, key, value);
       }
     });

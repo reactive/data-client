@@ -102,10 +102,12 @@ interface SchemaClass$1<T = any, N = T | undefined> extends SchemaSimple$1<T> {
     _denormalizeNullable(): [N, boolean, boolean];
 }
 interface EntityInterface$1<T = any> extends SchemaSimple$1 {
+    createIfValid?(props: any): any;
     pk(params: any, parent?: any, key?: string): string | undefined;
     readonly key: string;
     merge(existing: any, incoming: any): any;
     expiresAt?(meta: any, input: any): number;
+    mergeWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     useIncoming?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): boolean;
     indexes?: any;
     schema: Record<string, Schema$1>;
@@ -422,6 +424,7 @@ interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
     _denormalizeNullable(): [N, boolean, boolean];
 }
 interface EntityInterface<T = any> extends SchemaSimple {
+    createIfValid?(props: any): any;
     pk(params: any, parent?: any, key?: string): string | undefined;
     readonly key: string;
     merge(existing: any, incoming: any): any;
