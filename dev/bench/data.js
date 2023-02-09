@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1675717004592,
+  "lastUpdate": 1675962402190,
   "repoUrl": "https://github.com/data-client/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -11702,6 +11702,100 @@ window.BENCHMARK_DATA = {
             "range": "±2.23%",
             "unit": "ops/sec",
             "extra": "65 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5f851da99be356c5805d76fb3b2242cd84966e5e",
+          "message": "internal(build): Hoist sourcemap inline to babel.config (#2421)",
+          "timestamp": "2023-02-09T09:01:14-08:00",
+          "tree_id": "184cda04fe36a5766ef51bc974b835c7eb9d7b48",
+          "url": "https://github.com/data-client/rest-hooks/commit/5f851da99be356c5805d76fb3b2242cd84966e5e"
+        },
+        "date": 1675962400352,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 264,
+            "range": "±1.30%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 4486,
+            "range": "±1.45%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 121,
+            "range": "±2.98%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 133,
+            "range": "±1.52%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 134,
+            "range": "±1.31%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 126,
+            "range": "±3.06%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 133,
+            "range": "±1.38%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 262,
+            "range": "±1.25%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 102,
+            "range": "±0.88%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 254,
+            "range": "±1.20%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
           }
         ]
       }
