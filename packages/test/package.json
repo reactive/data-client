@@ -63,8 +63,8 @@
     "README.md"
   ],
   "scripts": {
-    "build:lib": "NODE_ENV=production BROWSERSLIST_ENV=2020 BROWSERSLIST_ENV='modern' babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.cts,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts' && mv ./lib/makeRenderRestHook/renderHook.js ./lib/makeRenderRestHook/renderHook.cjs",
-    "build:legacy:lib": "NODE_ENV=production BROWSERSLIST_ENV=2018 babel --root-mode upward src --out-dir legacy --source-maps inline --extensions '.ts,.tsx,.cts,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:lib": "NODE_ENV=production BROWSERSLIST_ENV=2020 BROWSERSLIST_ENV='modern' babel --root-mode upward src --out-dir lib --extensions '.ts,.tsx,.cts,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts' && mv ./lib/makeRenderRestHook/renderHook.js ./lib/makeRenderRestHook/renderHook.cjs",
+    "build:legacy:lib": "NODE_ENV=production BROWSERSLIST_ENV=2018 babel --root-mode upward src --out-dir legacy --extensions '.ts,.tsx,.cts,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
     "build:bundle": "BROWSERSLIST_ENV=node12 rollup -c && COMPILE_TARGET=native BROWSERSLIST_ENV=node12 rollup -c && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:clean": "rimraf lib dist ts3.4 legacy *.tsbuildinfo",
     "build:legacy-types": "yarn run downlevel-dts lib ts3.4",

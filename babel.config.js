@@ -59,6 +59,7 @@ module.exports = function (api) {
       objectRestNoSymbols: true,
       pureGetters: true,
     },
+    sourceMaps: 'inline',
     // allows us to load .babelrc in addition to this
     babelrcRoots: ['packages/*', '__tests__'],
     // this is just for testing react native...they ship packages with flowtype in them

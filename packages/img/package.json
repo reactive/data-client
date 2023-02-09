@@ -35,7 +35,7 @@
     "README.md"
   ],
   "scripts": {
-    "build:lib": "NODE_ENV=production BROWSERSLIST_ENV=2019 babel --root-mode upward src --out-dir lib --source-maps inline --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:lib": "NODE_ENV=production BROWSERSLIST_ENV=2019 babel --root-mode upward src --out-dir lib --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
     "build:bundle": "rollup -c",
     "build:clean": "rimraf lib dist ts3.4 *.tsbuildinfo",
     "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
