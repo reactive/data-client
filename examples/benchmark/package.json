@@ -7,8 +7,10 @@
   "license": "MIT",
   "private": true,
   "type": "module",
+  "engines": {"node": "18"},
   "scripts": {
-    "start": "NODE_ENV=production BROWSERSLIST_ENV=modern babel-node --allow-natives-syntax --root-mode upward ./ --extensions '.ts,.tsx,.js' --ignore .",
+    "build": "BROWSERSLIST_ENV=node18 webpack --mode=production --target=node --env readable",
+    "start": "NODE_ENV=production node --allow-natives-syntax ./index.js",
     "start:trace": "yarn run start --trace_opt --trace_deopt"
   },
   "dependencies": {
@@ -23,6 +25,7 @@
     "@babel/node": "7.20.7",
     "@types/babel__core": "^7",
     "@types/benchmark": "2.1.2",
-    "@types/react": "18.0.27"
+    "@types/react": "18.0.27",
+    "webpack": "^5.75.0"
   }
 }

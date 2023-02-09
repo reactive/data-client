@@ -10332,6 +10332,7 @@ __metadata:
     "@types/react": 18.0.27
     benchmark: ^2.1.4
     react: ^18.2.0
+    webpack: ^5.75.0
   languageName: unknown
   linkType: soft
 
@@ -23288,7 +23289,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:5.75.0, webpack@npm:^5":
+"webpack@npm:5.75.0, webpack@npm:^5, webpack@npm:^5.75.0":
   version: 5.75.0
   resolution: "webpack@npm:5.75.0"
   dependencies:

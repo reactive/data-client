@@ -6,12 +6,45 @@
   "configurations": [
     {
       "type": "node",
+      "name": "vscode-jest-tests.v2",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "--runInBand",
+        "--watchAll=false",
+        "--testNamePattern",
+        "${jest.testNamePattern}",
+        "--runTestsByPath",
+        "${jest.testFile}"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+      }
+    },
+    {
+      "type": "node",
       "request": "launch",
       "name": "Benchmark",
+      "preLaunchTask": "npm: build - examples/benchmark",
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/examples/benchmark/index.js",
-      "env": { "NODE_ENV": "production", "BROWSERSLIST_ENV": "modern" },
+      "env": { "NODE_ENV": "production" },
       "runtimeArgs": ["--allow-natives-syntax", "--prof"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "yarn Benchmark",
+      "preLaunchTask": "npm: build - examples/benchmark",
+      "runtimeExecutable": "yarn",
+      "cwd": "${workspaceFolder}/examples/benchmark",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "start",
+      "runtimeArgs": ["--prof"]
     }
   ]
 }

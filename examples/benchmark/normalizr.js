@@ -1,10 +1,10 @@
-import { Entity } from '@rest-hooks/endpoint';
 import {
+  Entity,
   normalize,
   denormalize,
   WeakListMap,
   inferResults,
-} from '@rest-hooks/normalizr';
+} from './dist/index.js';
 
 import data from './data.json' assert { type: 'json' };
 import { printStatus } from './printStatus.js';

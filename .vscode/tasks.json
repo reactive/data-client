@@ -7,7 +7,15 @@
 			"path": "examples/benchmark",
 			"problemMatcher": [],
 			"label": "npm: start - examples/benchmark",
-			"detail": "NODE_ENV=production BROWSERSLIST_ENV=modern babel-node --trace_opt --trace_deopt --allow-natives-syntax --root-mode upward ./ --extensions '.ts,.tsx,.js' --ignore ."
+			"detail": "NODE_ENV=production node --allow-natives-syntax ./index.js"
+		},
+		{
+			"type": "npm",
+			"script": "build",
+			"path": "examples/benchmark",
+			"problemMatcher": [],
+			"label": "npm: build - examples/benchmark",
+			"detail": "BROWSERSLIST_ENV=node18 webpack --mode=production --target=node --env readable"
 		}
 	]
 }

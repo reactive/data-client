@@ -1,13 +1,18 @@
-import { createReducer, initialState, Controller } from '@rest-hooks/core';
-import { Endpoint, Entity } from '@rest-hooks/endpoint';
-import { normalize } from '@rest-hooks/normalizr';
-
 import data from './data.json' assert { type: 'json' };
+import {
+  createReducer,
+  initialState,
+  Controller,
+  Endpoint,
+  Entity,
+  normalize,
+} from './dist/index.js';
 import { printStatus } from './printStatus.js';
 import {
   ProjectSchema,
   ProjectSchemaSimpleMerge,
   ProjectWithBuildTypesDescriptionSimpleMerge,
+  ProjectWithBuildTypesDescription,
 } from './schemas.js';
 
 export default function addReducerSuite(suite) {
@@ -18,10 +23,15 @@ export default function addReducerSuite(suite) {
       return '/fake';
     },
   });
+  let cachedState = state;
 
   // receiveLong
   const controller = new Controller({});
   const reducer = createReducer(controller);
+  controller.dispatch = action => {
+    cachedState = reducer(state, action);
+  };
+  controller.setResponse(getProject, data);
   controller.dispatch = action => {
     reducer(state, action);
   };
@@ -43,14 +53,17 @@ export default function addReducerSuite(suite) {
 
   return (
     suite
-      .add('receiveLong', () => {
+      .add('getResponse', () => {
+        return controller.getResponse(getProject, cachedState);
+      })
+      .add('setLong', () => {
         return controller.setResponse(getProject, data);
       })
-      .add('receiveLongWithMerge', () => {
+      .add('setLongWithMerge', () => {
         return controllerPop.setResponse(getProject, data);
       })
       // biggest performance bump is not spreading in merge
-      .add('receiveLongWithSimpleMerge', () => {
+      .add('setLongWithSimpleMerge', () => {
         return controllerPop.setResponse(getProjectSimple, data);
       })
       .on('complete', function () {

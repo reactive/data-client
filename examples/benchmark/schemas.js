@@ -1,4 +1,4 @@
-import { Entity, schema, Query } from '@rest-hooks/endpoint';
+import { Entity, schema, Query } from './dist/index.js';
 
 class BuildTypeDescription extends Entity {
   pk() {
