@@ -7,7 +7,9 @@
   "license": "MIT",
   "private": true,
   "type": "module",
-  "engines": {"node": "18"},
+  "engines": {
+    "node": "18"
+  },
   "scripts": {
     "build": "BROWSERSLIST_ENV=node18 webpack --mode=production --target=node --env readable",
     "start": "NODE_ENV=production node --allow-natives-syntax ./index.js",
