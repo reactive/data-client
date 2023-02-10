@@ -74,7 +74,7 @@
     "react-markdown": "8.0.5",
     "rehype-highlight": "6.0.0",
     "remark-gfm": "^3.0.1",
-    "remark-remove-comments": "^1.0.0",
+    "remark-remove-comments": "^1.0.1",
     "uuid": "^9.0.0"
   }
 }

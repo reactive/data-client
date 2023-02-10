@@ -11295,7 +11295,7 @@ __metadata:
     react-refresh: 0.14.0
     rehype-highlight: 6.0.0
     remark-gfm: ^3.0.1
-    remark-remove-comments: ^1.0.0
+    remark-remove-comments: ^1.0.1
     rollup: 2.79.1
     rollup-plugin-babel: ^4.4.0
     rollup-plugin-commonjs: ^10.1.0
@@ -15445,11 +15445,12 @@ __metadata:
   linkType: hard
 
 "micromark@npm:^3.0.0":
-  version: 3.0.5
-  resolution: "micromark@npm:3.0.5"
+  version: 3.1.0
+  resolution: "micromark@npm:3.1.0"
   dependencies:
     "@types/debug": ^4.0.0
     debug: ^4.0.0
+    decode-named-character-reference: ^1.0.0
     micromark-core-commonmark: ^1.0.1
     micromark-factory-space: ^1.0.0
     micromark-util-character: ^1.0.0
@@ -15463,8 +15464,8 @@ __metadata:
     micromark-util-subtokenize: ^1.0.0
     micromark-util-symbol: ^1.0.0
     micromark-util-types: ^1.0.1
-    parse-entities: ^3.0.0
-  checksum: 613208b6e7e967e7da0c773950d25acc7154e9bfedfe66a4946c77f34d95ef1c7c08cc9a31142cdf4d84ccbfab310fece15f74dae1f1f70348390266ede26ebf
+    uvu: ^0.5.0
+  checksum: 5fe5bc3bf92e2ddd37b5f0034080fc3a4d4b3c1130dd5e435bb96ec75e9453091272852e71a4d74906a8fcf992d6f79d794607657c534bda49941e9950a92e28
   languageName: node
   linkType: hard
 
@@ -19901,13 +19902,13 @@ __metadata:
   linkType: hard
 
 "remark-parse@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "remark-parse@npm:10.0.0"
+  version: 10.0.1
+  resolution: "remark-parse@npm:10.0.1"
   dependencies:
     "@types/mdast": ^3.0.0
     mdast-util-from-markdown: ^1.0.0
     unified: ^10.0.0
-  checksum: cebd0d8f95b7b0b827277773ddafd05d295a450a2a712f085ccedad2572678712785869b7a0dea53c215f124c22dad5b5247c29d461729933565ed7b5f262e6d
+  checksum: 505088e564ab53ff054433368adbb7b551f69240c7d9768975529837a86f1d0f085e72d6211929c5c42db315273df4afc94f3d3a8662ffdb69468534c6643d29
   languageName: node
   linkType: hard
 
@@ -19923,13 +19924,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-remove-comments@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "remark-remove-comments@npm:1.0.0"
+"remark-remove-comments@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "remark-remove-comments@npm:1.0.1"
   dependencies:
     html-comment-regex: ^1.1.2
     unist-util-visit: ^4.1.1
-  checksum: 6f865671f9352b0ad937f16e818393e369de07eaccb716268d924087ca6bc108e5f6f4bbdcaa5d236e7bfa00b93aa0f4903bfdf51e534067dd6ddf94d04bde77
+  checksum: 92170406f2db1b60dbf7a90f61bdcfabb03063d5e63202b22c3965441bf8ae7e352cba625c592c5b3e50a5c7c2ccd8b7a065ab1d85d98f2a1c52d1e247757425
   languageName: node
   linkType: hard
 
@@ -21791,9 +21792,9 @@ __metadata:
   linkType: hard
 
 "tapable@npm:^2.0.0, tapable@npm:^2.1.1, tapable@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "tapable@npm:2.2.0"
-  checksum: 5a7e31ddd2400d524b68e7ba0373e492ba52b321b8e1eb15b65956e9c1b9ba90dd175210a1318b6752538cbe3b284f4a7218a714be942aeeb812623c243aea25
+  version: 2.2.1
+  resolution: "tapable@npm:2.2.1"
+  checksum: 3b7a1b4d86fa940aad46d9e73d1e8739335efd4c48322cb37d073eb6f80f5281889bf0320c6d8ffcfa1a0dd5bfdbd0f9d037e252ef972aca595330538aac4d51
   languageName: node
   linkType: hard
 
