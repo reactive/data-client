@@ -14,7 +14,7 @@
     "@rest-hooks/rest": "^6.2.4",
     "@rest-hooks/ssr": "^0.7.3",
     "@rest-hooks/test": "^10.0.0",
-    "@types/node": "18.11.18",
+    "@types/node": "18.13.0",
     "@types/react": "18.0.27",
     "@types/react-dom": "18.0.10",
     "eslint": "8.33.0",
