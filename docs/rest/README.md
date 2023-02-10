@@ -58,6 +58,10 @@ export class Article extends Entity {
     author: User,
     createdAt: Date,
   }
+
+  static get key() {
+    return 'Article';
+  }
 }
 
 export const ArticleResource = createResource({
@@ -88,6 +92,10 @@ export class Article extends Entity {
   static schema = {
     author: User,
     createdAt: Date,
+  }
+
+  static get key() {
+    return 'Article';
   }
 }
 export const ArticleResource = createResource({

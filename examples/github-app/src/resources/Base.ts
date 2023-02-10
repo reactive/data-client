@@ -84,13 +84,14 @@ export function createGithubResource<U extends string, S extends Schema>({
   path,
   schema,
   Endpoint = GithubEndpoint,
+  ...options
 }: {
   readonly path: U;
   readonly schema: S;
   readonly Endpoint?: typeof GithubEndpoint;
   urlPrefix?: string;
 } & EndpointExtraOptions): GithubResource<U, S> {
-  const baseResource = createResource({ path, schema, Endpoint });
+  const baseResource = createResource({ path, schema, Endpoint, ...options });
 
   const getList: GetEndpoint<
     PathArgs<ShortenPath<U>>,

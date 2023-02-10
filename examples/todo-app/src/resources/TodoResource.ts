@@ -9,6 +9,10 @@ export class Todo extends PlaceholderEntity {
   readonly userId: number = 0;
   readonly title: string = '';
   readonly completed: boolean = false;
+
+  static get key() {
+    return 'Todo';
+  }
 }
 
 const TodoResourceBase = createPlaceholderResource({
