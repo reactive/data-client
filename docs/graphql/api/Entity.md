@@ -76,7 +76,7 @@ import Lifecycle from '../diagrams/\_entity_lifecycle.mdx';
 
 ### static fromJS(props): Entity {#fromJS}
 
-Factory method called during denormalization. Use this instead of `new MyEntity()`
+Factory method that copies props to a new instance. Use this instead of `new MyEntity()`
 
 ### process(input, parent, key): processedEntity {#process}
 
@@ -220,6 +220,25 @@ class LatestPriceEntity extends Entity {
   ) {
     return !deepEqual(incoming, existing);
   }
+}
+```
+
+### createIfValid(processedEntity): Entity | undefined {#createIfValid}
+
+Called when denormalizing an entity. This will create an instance of this class
+if it is deemed 'valid'.
+
+`undefined` return will result in [Invalid expiry status](/docs/concepts/expiry-policy#expiry-status),
+like [Delete](./Delete.md).
+
+[`Invalid`](/docs/concepts/expiry-policy#expiry-status) expiry generally means hooks will enter a loading state and attempt a new fetch.
+
+```ts
+static createIfValid(props): AbstractInstanceType<this> | undefined {
+  if (this.validate(props)) {
+    return undefined as any;
+  }
+  return this.fromJS(props);
 }
 ```
 

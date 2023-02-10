@@ -2,14 +2,14 @@
 flowchart BT
   subgraph Controller.getResponse
     infer("Entity.infer()")---pk2
-    pk2("Entity.pk()")-->denormalize
-    subgraph Entity.denormalize
+    pk2("Entity.pk()")---Entity.createIfValid
+    subgraph Entity.createIfValid
       direction TB
       validate2("Entity.validate()")---fromJS("Entity.fromJS()")
-      fromJS---denormNest("denormalize(this.schema)")
     end
+    Entity.createIfValid-->denormNest("Entity.denormalize")
   end
-  subgraph reducer:SET
+  subgraph Controller.setResponse
     direction LR
     subgraph Entity.normalize
       direction TB

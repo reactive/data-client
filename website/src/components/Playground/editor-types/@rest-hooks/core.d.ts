@@ -21,6 +21,7 @@ interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
     _denormalizeNullable(): [N, boolean, boolean];
 }
 interface EntityInterface<T = any> extends SchemaSimple {
+    createIfValid?(props: any): any;
     pk(params: any, parent?: any, key?: string): string | undefined;
     readonly key: string;
     merge(existing: any, incoming: any): any;

@@ -480,10 +480,12 @@ interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
     _denormalizeNullable(): [N, boolean, boolean];
 }
 interface EntityInterface<T = any> extends SchemaSimple {
+    createIfValid?(props: any): any;
     pk(params: any, parent?: any, key?: string): string | undefined;
     readonly key: string;
     merge(existing: any, incoming: any): any;
     expiresAt?(meta: any, input: any): number;
+    mergeWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
     useIncoming?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): boolean;
     indexes?: any;
     schema: Record<string, Schema>;
@@ -776,10 +778,13 @@ declare abstract class Entity {
     /** Factory method to convert from Plain JS Objects.
      *
      * @param [props] Plain Object of properties to assign.
-     * @param [parent] When normalizing, the object which included the record
-     * @param [key] When normalizing, the key where this record was found
      */
     static fromJS<T extends typeof Entity>(this: T, props?: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T>;
+    /** Factory method to convert from Plain JS Objects.
+     *
+     * @param [props] Plain Object of properties to assign.
+     */
+    static createIfValid<T extends typeof Entity>(this: T, props: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T> | undefined;
     /** Do any transformations when first receiving input */
     static process(input: any, parent: any, key: string | undefined): any;
     static normalize(input: any, parent: any, key: string | undefined, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): any;

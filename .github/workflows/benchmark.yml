@@ -6,7 +6,7 @@ on:
       - master
     paths:
       - 'packages/normalizr/**'
-      - 'packages/endpoint/schemas/**'
+      - 'packages/endpoint/src/schemas/**'
       - 'packages/core/**'
       - 'examples/benchmark/**'
   push:
@@ -14,7 +14,7 @@ on:
       - master
     paths:
       - 'packages/normalizr/**'
-      - 'packages/endpoint/schemas/**'
+      - 'packages/endpoint/src/schemas/**'
       - 'packages/core/**'
       - 'examples/benchmark/**'
 jobs:
