@@ -9,6 +9,11 @@ export class ExchangeRates extends Entity {
   pk(): string {
     return this.currency;
   }
+
+  // implementing `key` makes us robust against class name mangling
+  static get key() {
+    return 'ExchangeRates';
+  }
 }
 
 export const getExchangeRates = new RestEndpoint({

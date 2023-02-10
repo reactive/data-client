@@ -9,6 +9,7 @@ const options = {
     template: 'index.ejs',
   },
   globalStyleDir: 'style',
+  terserOptions: { keep_classnames: true },
 };
 
 const generateConfig = makeConfig(options);

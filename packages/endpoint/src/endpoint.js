@@ -96,5 +96,16 @@ export default class Endpoint extends Function {
 
     return instance;
   }
+
+  /* istanbul ignore next */
+  static {
+    /* istanbul ignore if */
+    if (this.name !== 'Endpoint') {
+      this.prototype.key = function (...args) {
+        console.error('Rest Hooks Error: https://resthooks.io/errors/osid');
+        return `${this.name} ${JSON.stringify(args)}`;
+      };
+    }
+  }
 }
 export const ExtendableEndpoint = Endpoint;

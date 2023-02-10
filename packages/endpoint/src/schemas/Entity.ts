@@ -446,6 +446,19 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
   protected static set(entity: any, key: string, value: any) {
     entity[key] = value;
   }
+
+  /* istanbul ignore next */
+  static {
+    /* istanbul ignore if */
+    if (this.name !== 'Entity') {
+      Object.defineProperty(this, 'key', {
+        get() {
+          console.error('Rest Hooks Error: https://resthooks.io/errors/dklj');
+          return this.name;
+        },
+      });
+    }
+  }
 }
 
 /* istanbul ignore else */

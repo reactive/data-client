@@ -136,6 +136,16 @@ pk() {
 This defines the key for the Entity itself, rather than an instance. This needs to be a globally
 unique value.
 
+:::caution
+
+This defaults to `this.name`; however this may break in production builds that change class names.
+This is often know as [class name mangling](https://terser.org/docs/api-reference#mangle-options).
+
+In these cases you can override `key` or disable class mangling.
+
+:::
+
+
 ### static merge(existing, incoming): mergedValue {#merge}
 
 ```typescript
