@@ -90,20 +90,32 @@ export default class SubscriptionManager<S extends SubscriptionConstructable>
     dispatch: (action: any) => Promise<void>,
     getState: () => State<unknown>,
   ) {
-    const key = action.meta.key;
-    const frequency = action.meta.options?.pollFrequency;
-
-    if (key in this.subscriptions) {
-      this.subscriptions[key].add(frequency);
+    let options: SubscriptionInit;
+    if (action.endpoint) {
+      const { endpoint } = action;
+      const { args } = action.meta;
+      options = {
+        schema: endpoint.schema,
+        fetch: () => endpoint(...args),
+        frequency: endpoint.pollFrequency,
+        key: endpoint.key(...args),
+        getState,
+      };
     } else {
-      this.subscriptions[key] = new this.Subscription(
-        {
-          schema: action.meta.schema,
-          fetch: action.meta.fetch,
-          frequency,
-          key,
-          getState,
-        },
+      options = {
+        key: action.meta.key,
+        frequency: action.meta.options?.pollFrequency,
+        schema: action.meta.schema,
+        fetch: action.meta.fetch,
+        getState,
+      };
+    }
+
+    if (options.key in this.subscriptions) {
+      this.subscriptions[options.key].add(options.frequency);
+    } else {
+      this.subscriptions[options.key] = new this.Subscription(
+        options,
         dispatch,
       ) as InstanceType<S>;
     }

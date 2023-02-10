@@ -800,7 +800,7 @@ declare class Controller<D extends GenericDispatch = CompatibleDispatch> {
      * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
      * @see https://resthooks.io/docs/api/Controller#getResponse
      */
-    getResponse: <E extends Pick<EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined>, "schema" | "key" | "invalidIfStale">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => {
+    getResponse: <E extends Pick<EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined>, "key" | "schema" | "invalidIfStale">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => {
         data: DenormalizeNullable<E["schema"]>;
         expiryStatus: ExpiryStatus;
         expiresAt: number;
