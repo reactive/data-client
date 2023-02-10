@@ -24,7 +24,7 @@
     "@anansi/babel-preset": "3.4.1",
     "@anansi/browserslist-config": "1.4.1",
     "@anansi/eslint-plugin": "0.15.2",
-    "@anansi/webpack-config": "14.1.3",
+    "@anansi/webpack-config": "14.1.4",
     "@babel/core": "7.20.12",
     "@linaria/babel-preset": "4.4.1",
     "@linaria/core": "4.2.6",
