@@ -51,6 +51,7 @@ export default function addNormlizrSuite(suite) {
     denormCache.results['/fakeQuery'],
   );
   %OptimizeFunctionOnNextCall(denormalize);
+  %OptimizeFunctionOnNextCall(normalize);
 
   return suite
     .add('normalizeLong', () => {

@@ -6,7 +6,6 @@ import {
   Endpoint,
   Entity,
   normalize,
-  User,
 } from './dist/index.js';
 import { printStatus } from './printStatus.js';
 import {
@@ -14,19 +13,20 @@ import {
   ProjectSchemaSimpleMerge,
   ProjectWithBuildTypesDescriptionSimpleMerge,
   ProjectWithBuildTypesDescription,
+  User,
 } from './schemas.js';
 import userData from './user.json' assert { type: 'json' };
 
 export default function addReducerSuite(suite) {
   let state = initialState;
-  const getProject = new Endpoint(() => Promise.resolve(null), {
+  const getProject = new Endpoint(() => Promise.resolve(data), {
     schema: ProjectSchema,
     key() {
       return '/fake';
     },
   });
   // eslint-disable-next-line no-unused-vars
-  const getUser = new Endpoint(login => Promise.resolve(null), {
+  const getUser = new Endpoint(login => Promise.resolve(userData), {
     schema: User,
     key(login) {
       return '/user' + login;
@@ -80,7 +80,7 @@ export default function addReducerSuite(suite) {
       })
       .add('getSmallResponse', () => {
         // more commonly we'll be dealing with many usages of simple data
-        for (let i = 0; i < 1000; ++i) {
+        for (let i = 0; i < 500; ++i) {
           controller.getResponse(getUser, 'gnoff', githubState);
         }
       })
