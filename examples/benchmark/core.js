@@ -6,6 +6,7 @@ import {
   Endpoint,
   Entity,
   normalize,
+  UserResource,
 } from './dist/index.js';
 import { printStatus } from './printStatus.js';
 import {
@@ -14,6 +15,7 @@ import {
   ProjectWithBuildTypesDescriptionSimpleMerge,
   ProjectWithBuildTypesDescription,
 } from './schemas.js';
+import userData from './user.json' assert { type: 'json' };
 
 export default function addReducerSuite(suite) {
   let state = initialState;
@@ -51,10 +53,33 @@ export default function addReducerSuite(suite) {
     schema: ProjectSchemaSimpleMerge,
   });
 
+  // small response (github user)
+  let githubState = state;
+  const githubCtrl = new Controller({});
+  const githubReducer = createReducer(githubCtrl);
+  githubCtrl.dispatch = action => {
+    githubState = githubReducer(githubState, action);
+  };
+  githubCtrl.setResponse(UserResource.get, { login: 'gnoff' }, userData);
+  githubCtrl.dispatch = action => {
+    githubReducer(githubState, action);
+  };
+  console.log(githubState);
+
   return (
     suite
       .add('getResponse', () => {
         return controller.getResponse(getProject, cachedState);
+      })
+      .add('getSmallResponse', () => {
+        // more commonly we'll be dealing with many usages of simple data
+        for (let i = 0; i < 1000; ++i) {
+          controller.getResponse(
+            UserResource.get,
+            { login: 'gnoff' },
+            githubState,
+          );
+        }
       })
       .add('setLong', () => {
         return controller.setResponse(getProject, data);
