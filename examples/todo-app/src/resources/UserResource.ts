@@ -32,9 +32,7 @@ export class User extends PlaceholderEntity {
     return `https://i.pravatar.cc/256?img=${this.id + 4}`;
   }
 
-  static get key() {
-    return 'User';
-  }
+  static key = 'User';
 }
 
 export const UserResource = createPlaceholderResource({

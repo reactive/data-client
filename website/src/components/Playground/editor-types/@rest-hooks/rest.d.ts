@@ -737,7 +737,7 @@ declare abstract class Entity {
      */
     abstract pk(parent?: any, key?: string): string | undefined;
     /** Returns the globally unique identifier for the static Entity */
-    static get key(): string;
+    static key: string;
     /** Defines indexes to enable lookup by */
     static indexes?: readonly string[];
     /** Control how automatic schema validation is handled

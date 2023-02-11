@@ -291,9 +291,7 @@ export class EditorArticle extends CoolerArticle {
     editor: User,
   };
 
-  static get key() {
-    return 'CoolerArticle';
-  }
+  static key = 'CoolerArticle';
 }
 export const EditorArticleResource = createArticleResource(
   EditorArticle,

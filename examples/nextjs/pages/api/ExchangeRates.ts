@@ -11,9 +11,7 @@ export class ExchangeRates extends Entity {
   }
 
   // implementing `key` makes us robust against class name mangling
-  static get key() {
-    return 'ExchangeRates';
-  }
+  static key = 'ExchangeRates';
 }
 
 export const getExchangeRates = new RestEndpoint({

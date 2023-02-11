@@ -141,11 +141,8 @@ class User extends Entity {
 
   pk() { return this.id }
 
-  // highlight-start
-  static get key() {
-    return 'User';
-  }
-  // highlight-end
+  // highlight-next-line
+  static key = 'User';
 }
 ```
 
