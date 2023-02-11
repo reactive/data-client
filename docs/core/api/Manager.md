@@ -87,7 +87,7 @@ values={[
 import { CacheProvider } from '@rest-hooks/react';
 import ReactDOM from 'react-dom';
 
-const managers = [...CacheProvider.defaultProps.managers, MyManager];
+const managers = [...CacheProvider.defaultProps.managers, new MyManager()];
 
 ReactDOM.render(
   <CacheProvider managers={managers}>
@@ -105,7 +105,7 @@ ReactDOM.render(
 import { CacheProvider } from '@rest-hooks/react';
 import ReactDOM from 'react-dom';
 
-const managers = [...CacheProvider.defaultProps.managers, MyManager];
+const managers = [...CacheProvider.defaultProps.managers, new MyManager()];
 
 ReactDOM.createRoot(document.body).render(
   <CacheProvider managers={managers}>
@@ -122,7 +122,7 @@ ReactDOM.createRoot(document.body).render(
 import { CacheProvider } from '@rest-hooks/react';
 import { AppRegistry } from 'react-native';
 
-const managers = [...CacheProvider.defaultProps.managers, MyManager];
+const managers = [...CacheProvider.defaultProps.managers, new MyManager()];
 
 const Root = () => (
   <CacheProvider managers={managers}>
@@ -141,7 +141,7 @@ import { CacheProvider } from '@rest-hooks/react';
 import { AppCacheProvider } from '@rest-hooks/ssr/nextjs';
 import type { AppProps } from 'next/app';
 
-const managers = [...CacheProvider.defaultProps.managers, MyManager];
+const managers = [...CacheProvider.defaultProps.managers, new MyManager()];
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
