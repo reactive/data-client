@@ -4,6 +4,10 @@ class BuildTypeDescription extends Entity {
   pk() {
     return this.id;
   }
+
+  static get key() {
+    return 'BuildTypeDescription';
+  }
 }
 
 export class ProjectWithBuildTypesDescription extends Entity {
@@ -14,6 +18,10 @@ export class ProjectWithBuildTypesDescription extends Entity {
   static schema = {
     buildTypes: { buildType: [BuildTypeDescription] },
   };
+
+  static get key() {
+    return 'ProjectWithBuildTypesDescription';
+  }
 }
 
 export const ProjectSchema = { project: [ProjectWithBuildTypesDescription] };
@@ -36,6 +44,10 @@ class BuildTypeDescriptionSimpleMerge extends Entity {
   static merge(existing, incoming) {
     return incoming;
   }
+
+  static get key() {
+    return 'BuildTypeDescriptionSimpleMerge';
+  }
 }
 
 export class ProjectWithBuildTypesDescriptionSimpleMerge extends Entity {
@@ -49,6 +61,10 @@ export class ProjectWithBuildTypesDescriptionSimpleMerge extends Entity {
 
   static merge(existing, incoming) {
     return incoming;
+  }
+
+  static get key() {
+    return 'ProjectWithBuildTypesDescriptionSimpleMerge';
   }
 }
 
