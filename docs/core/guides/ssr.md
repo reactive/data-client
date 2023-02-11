@@ -11,7 +11,6 @@ import PkgTabs from '@site/src/components/PkgTabs';
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
-
 ## NextJS
 
 We've optimized integration into NextJS with a custom [Document](https://nextjs.org/docs/advanced-features/custom-document)
@@ -25,7 +24,7 @@ import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
 export default RestHooksDocument;
 ```
 
-```tsx  title="pages/_app.tsx"
+```tsx title="pages/_app.tsx"
 import { AppCacheProvider } from '@rest-hooks/ssr/nextjs';
 import type { AppProps } from 'next/app';
 
@@ -72,26 +71,26 @@ Make sure you use `super.getInitialProps()` instead of `Document.getInitialProps
 or the Rest Hooks code won't run!
 
 ```tsx title="pages/_document.tsx"
-import { Html, Head, Main, NextScript } from 'next/document'
+import { Html, Head, Main, NextScript } from 'next/document';
 import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
 
 export default class MyDocument extends RestHooksDocument {
   static async getInitialProps(ctx) {
-    const originalRenderPage = ctx.renderPage
+    const originalRenderPage = ctx.renderPage;
 
     // Run the React rendering logic synchronously
     ctx.renderPage = () =>
       originalRenderPage({
         // Useful for wrapping the whole react tree
-        enhanceApp: (App) => App,
+        enhanceApp: App => App,
         // Useful for wrapping in a per-page basis
-        enhanceComponent: (Component) => Component,
-      })
+        enhanceComponent: Component => Component,
+      });
 
     // Run the parent `getInitialProps`, it now includes the custom `renderPage`
-    const initialProps = await super.getInitialProps(ctx)
+    const initialProps = await super.getInitialProps(ctx);
 
-    return initialProps
+    return initialProps;
   }
 
   render() {
@@ -103,11 +102,10 @@ export default class MyDocument extends RestHooksDocument {
           <NextScript />
         </body>
       </Html>
-    )
+    );
   }
 }
 ```
-
 
 ### CSP Nonce
 
@@ -119,7 +117,6 @@ Since there is no standard way of handling [nonce](https://developer.mozilla.org
 in NextJS, this allows you
 to retrieve any nonce you created in the DocumentContext to use with Rest Hooks.
 
-
 ```tsx title="pages/_document.tsx"
 import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
 
@@ -128,6 +125,27 @@ export default class MyDocument extends RestHooksDocument {
     // this assumes nonce has been added here - customize as you need
     return ctx.res.nonce;
   }
+}
+```
+
+### Class mangling and Entity.key
+
+NextJS will rename classes for production builds. Due to this, it's critical to
+define [Entity.key](/rest/api/Entity#key) as its default implementation is based on
+the class name.
+
+```ts
+class User extends Entity {
+  id = '';
+  username = '';
+
+  pk() { return this.id }
+
+  // highlight-start
+  static get key() {
+    return 'User';
+  }
+  // highlight-end
 }
 ```
 
@@ -189,7 +207,7 @@ app.get('/*', (req: any, res: any) => {
 app.listen(3000, () => {
   console.log(`Listening at ${PORT}...`);
 });
-```
+````
 
 ### Client
 
