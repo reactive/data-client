@@ -29,17 +29,8 @@ export default abstract class Entity {
   abstract pk(parent?: any, key?: string): string | undefined;
 
   /** Returns the globally unique identifier for the static Entity */
-  static get key(): string {
-    /* istanbul ignore next */
-    if (
-      process.env.NODE_ENV !== 'production' &&
-      (this.name === '' || this.name === 'Entity' || this.name === '_temp')
-    )
-      throw new Error(
-        'Entity classes without a name must define `static get key()`',
-      );
-    return this.name;
-  }
+  declare static key: string;
+  // default implementation in class static block at bottom of definition
 
   /** Defines indexes to enable lookup by */
   declare static indexes?: readonly string[];
@@ -449,15 +440,46 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
 
   /* istanbul ignore next */
   static {
-    /* istanbul ignore if */
-    if (this.name !== 'Entity') {
-      Object.defineProperty(this, 'key', {
-        get() {
-          console.error('Rest Hooks Error: https://resthooks.io/errors/dklj');
-          return this.name;
-        },
-      });
-    }
+    const get =
+      /* istanbul ignore if */
+      this.name !== 'Entity'
+        ? /* istanbul ignore next */ function (this: {
+            name: string;
+            __keyErr?: boolean;
+          }): string {
+            if (!this.__keyErr) {
+              console.error(
+                'Rest Hooks Error: https://resthooks.io/errors/dklj',
+              );
+              this.__keyErr = true;
+            }
+            return this.name;
+          }
+        : function (this: { name: string }): string {
+            /* istanbul ignore next */
+            if (
+              process.env.NODE_ENV !== 'production' &&
+              (this.name === '' ||
+                this.name === 'Entity' ||
+                this.name === '_temp')
+            )
+              throw new Error(
+                'Entity classes without a name must define `static key`\nSee: https://resthooks.io/rest/api/Entity#key',
+              );
+            return this.name;
+          };
+
+    Object.defineProperty(this, 'key', {
+      get,
+      // this allows assignment in strict-mode
+      set(value: string) {
+        Object.defineProperty(this, 'key', {
+          value,
+          writable: true,
+          enumerable: true,
+        });
+      },
+    });
   }
 }
 

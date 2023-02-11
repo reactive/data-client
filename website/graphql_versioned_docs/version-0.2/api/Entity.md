@@ -25,9 +25,7 @@ export default class Article extends Entity {
     return this.id?.toString();
   }
 
-  static get key() {
-    return 'Article';
-  }
+  static key = 'Article';
 }
 ```
 
@@ -45,9 +43,7 @@ export default class Article extends Entity {
     return this.id?.toString();
   }
 
-  static get key() {
-    return 'Article';
-  }
+  static key = 'Article';
 }
 ```
 

@@ -27,9 +27,7 @@ export default class Article extends Entity {
     return this.id?.toString();
   }
 
-  static get key() {
-    return 'Article';
-  }
+  static key = 'Article';
 }
 ```
 
@@ -47,9 +45,7 @@ export default class Article extends Entity {
     return this.id?.toString();
   }
 
-  static get key() {
-    return 'Article';
-  }
+  static key = 'Article';
 }
 ```
 
@@ -131,7 +127,7 @@ pk() {
 }
 ```
 
-### static get key(): string {#key}
+### static key: string {#key}
 
 This defines the key for the Entity itself, rather than an instance. This needs to be a globally
 unique value.
@@ -145,6 +141,18 @@ In these cases you can override `key` or disable class mangling.
 
 :::
 
+```ts
+class User extends Entity {
+  id = '';
+  username = '';
+  pk() {
+    return this.id;
+  }
+
+  // highlight-next-line
+  static key = 'User';
+}
+```
 
 ### static merge(existing, incoming): mergedValue {#merge}
 

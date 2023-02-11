@@ -59,9 +59,7 @@ export class Article extends Entity {
     createdAt: Date,
   }
 
-  static get key() {
-    return 'Article';
-  }
+  static key = 'Article';
 }
 
 export const ArticleResource = createResource({
@@ -94,9 +92,7 @@ export class Article extends Entity {
     createdAt: Date,
   }
 
-  static get key() {
-    return 'Article';
-  }
+  static key = 'Article';
 }
 export const ArticleResource = createResource({
   urlPrefix: 'http://test.com',

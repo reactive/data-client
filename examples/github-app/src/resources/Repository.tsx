@@ -41,9 +41,7 @@ export class Repository extends GithubEntity {
   }
 
   // for the inheritance
-  static get key() {
-    return 'Repository';
-  }
+  static key = 'Repository';
 }
 
 export class GqlRepository extends Repository {

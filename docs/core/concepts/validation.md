@@ -187,9 +187,7 @@ export class ArticlePreview extends Entity {
   pk() {
     return this.id;
   }
-  static get key() {
-    return 'Article';
-  }
+  static key = 'Article';
 }
 export const getArticleList = new RestEndpoint({
   path: '/article',

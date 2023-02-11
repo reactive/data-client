@@ -54,9 +54,8 @@ class ArticleSummary extends Entity {
     return this.id;
   }
   // this ensures `Article` maps to the same entity
-  static get key() {
-    return 'Article';
-  }
+  // highlight-next-line
+  static key = 'Article';
 }
 
 class Article extends ArticleSummary {
@@ -156,9 +155,8 @@ class ArticleSummary extends Entity {
     return this.id;
   }
   // this ensures `Article` maps to the same entity
-  static get key() {
-    return 'Article';
-  }
+  // highlight-next-line
+  static key = 'Article';
 }
 
 class Article extends ArticleSummary {

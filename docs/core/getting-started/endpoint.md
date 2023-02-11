@@ -46,6 +46,7 @@ export class Todo extends Entity {
   pk() {
     return `${this.id}`;
   }
+  static key = 'Todo';
 }
 
 export const TodoResource = createResource({
@@ -87,8 +88,10 @@ import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
 const gql = new GQLEndpoint('/');
 
 export class Todo extends GQLEntity {
-  readonly title: string = '';
-  readonly completed: boolean = false;
+  title = '';
+  completed = false;
+
+  static key = 'Todo';
 }
 
 export const TodoResource = {
@@ -138,6 +141,7 @@ export class Todo extends Entity {
   pk() {
     return `${this.id}`;
   }
+  static key = 'Todo';
 }
 
 export const TodoResource = {

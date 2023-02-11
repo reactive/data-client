@@ -5,9 +5,7 @@ class BuildTypeDescription extends Entity {
     return this.id;
   }
 
-  static get key() {
-    return 'BuildTypeDescription';
-  }
+  static key = 'BuildTypeDescription';
 }
 
 export class ProjectWithBuildTypesDescription extends Entity {
@@ -19,9 +17,7 @@ export class ProjectWithBuildTypesDescription extends Entity {
     buildTypes: { buildType: [BuildTypeDescription] },
   };
 
-  static get key() {
-    return 'ProjectWithBuildTypesDescription';
-  }
+  static key = 'ProjectWithBuildTypesDescription';
 }
 
 export const ProjectSchema = { project: [ProjectWithBuildTypesDescription] };
@@ -45,9 +41,7 @@ class BuildTypeDescriptionSimpleMerge extends Entity {
     return incoming;
   }
 
-  static get key() {
-    return 'BuildTypeDescriptionSimpleMerge';
-  }
+  static key = 'BuildTypeDescriptionSimpleMerge';
 }
 
 export class ProjectWithBuildTypesDescriptionSimpleMerge extends Entity {
@@ -63,9 +57,7 @@ export class ProjectWithBuildTypesDescriptionSimpleMerge extends Entity {
     return incoming;
   }
 
-  static get key() {
-    return 'ProjectWithBuildTypesDescriptionSimpleMerge';
-  }
+  static key = 'ProjectWithBuildTypesDescriptionSimpleMerge';
 }
 
 export const ProjectSchemaSimpleMerge = {
