@@ -64,7 +64,6 @@ export default function addReducerSuite(suite) {
   githubCtrl.dispatch = action => {
     githubReducer(githubState, action);
   };
-  console.log(githubState);
 
   return (
     suite
