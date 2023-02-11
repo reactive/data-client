@@ -4497,7 +4497,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/rest@^6.2.4, @rest-hooks/rest@workspace:packages/rest":
+"@rest-hooks/rest@^6.2.4, @rest-hooks/rest@workspace:^, @rest-hooks/rest@workspace:packages/rest":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/rest@workspace:packages/rest"
   dependencies:
@@ -10320,6 +10320,7 @@ __metadata:
     "@rest-hooks/core": "workspace:^"
     "@rest-hooks/endpoint": "workspace:^"
     "@rest-hooks/normalizr": "workspace:^"
+    "@rest-hooks/rest": "workspace:^"
     "@types/babel__core": ^7
     "@types/benchmark": 2.1.2
     "@types/react": 18.0.27
