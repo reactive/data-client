@@ -41,7 +41,7 @@ class BuildTypeDescriptionSimpleMerge extends Entity {
     return incoming;
   }
 
-  static key = 'BuildTypeDescriptionSimpleMerge';
+  static key = 'BuildTypeDescription';
 }
 
 export class ProjectWithBuildTypesDescriptionSimpleMerge extends Entity {
@@ -57,7 +57,7 @@ export class ProjectWithBuildTypesDescriptionSimpleMerge extends Entity {
     return incoming;
   }
 
-  static key = 'ProjectWithBuildTypesDescriptionSimpleMerge';
+  static key = 'ProjectWithBuildTypesDescription';
 }
 
 export const ProjectSchemaSimpleMerge = {

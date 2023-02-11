@@ -1,14 +1,6 @@
 import { createResource, RestEndpoint, Entity } from '@rest-hooks/rest';
 
-class GithubEntity extends Entity {
-  readonly id: number = -1;
-
-  pk() {
-    return this.id?.toString();
-  }
-}
-
-export class User extends GithubEntity {
+export class User extends Entity {
   readonly nodeId: string = '';
   readonly login: string = '';
   readonly avatarUrl: string = '';

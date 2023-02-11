@@ -6,7 +6,7 @@ import {
   Endpoint,
   Entity,
   normalize,
-  UserResource,
+  User,
 } from './dist/index.js';
 import { printStatus } from './printStatus.js';
 import {
@@ -25,6 +25,14 @@ export default function addReducerSuite(suite) {
       return '/fake';
     },
   });
+  // eslint-disable-next-line no-unused-vars
+  const getUser = new Endpoint(login => Promise.resolve(null), {
+    schema: User,
+    key(login) {
+      return '/user' + login;
+    },
+  });
+
   let cachedState = state;
 
   // receiveLong
@@ -60,7 +68,7 @@ export default function addReducerSuite(suite) {
   githubCtrl.dispatch = action => {
     githubState = githubReducer(githubState, action);
   };
-  githubCtrl.setResponse(UserResource.get, { login: 'gnoff' }, userData);
+  githubCtrl.setResponse(getUser, 'gnoff', userData);
   githubCtrl.dispatch = action => {
     githubReducer(githubState, action);
   };
@@ -73,11 +81,7 @@ export default function addReducerSuite(suite) {
       .add('getSmallResponse', () => {
         // more commonly we'll be dealing with many usages of simple data
         for (let i = 0; i < 1000; ++i) {
-          controller.getResponse(
-            UserResource.get,
-            { login: 'gnoff' },
-            githubState,
-          );
+          controller.getResponse(getUser, 'gnoff', githubState);
         }
       })
       .add('setLong', () => {
