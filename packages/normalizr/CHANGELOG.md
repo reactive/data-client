@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [9.5.0](https://github.com/data-client/rest-hooks/compare/@rest-hooks/normalizr@9.4.1...@rest-hooks/normalizr@9.5.0) (2023-02-11)
+
+### 🚀 Features
+
+* Entity.createIfValid() lifecycle ([#2417](https://github.com/data-client/rest-hooks/issues/2417)) ([41153c6](https://github.com/data-client/rest-hooks/commit/41153c63f9e3b32ef48cf6a3f0a81d1d1185c17b))
+
 ### [9.4.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/normalizr@9.4.0...@rest-hooks/normalizr@9.4.1) (2023-01-30)
 
 ### 📝 Documentation

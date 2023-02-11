@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.2.2](https://github.com/data-client/rest-hooks/compare/@rest-hooks/core@4.2.1...@rest-hooks/core@4.2.2) (2023-02-11)
+
+### 💅 Enhancement
+
+* Distinctly handle legacy and new actions ([#2429](https://github.com/data-client/rest-hooks/issues/2429)) ([617bfcf](https://github.com/data-client/rest-hooks/commit/617bfcfad80ce8fc3b7c83f5b45bac6848d6bab0))
+
+### 📦 Package
+
+* Update JS test packages ([#2391](https://github.com/data-client/rest-hooks/issues/2391)) ([c1b628b](https://github.com/data-client/rest-hooks/commit/c1b628bcca7dd1044b31cdae41574c64aa147d48))
+
 ### [4.2.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/core@4.2.0...@rest-hooks/core@4.2.1) (2023-01-30)
 
 ### 📝 Documentation

@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.2.6](https://github.com/data-client/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.2.5...@rest-hooks/use-enhanced-reducer@1.2.6) (2023-02-11)
+
+**Note:** Version bump only for package @rest-hooks/use-enhanced-reducer
+
 ### [1.2.5](https://github.com/data-client/rest-hooks/compare/@rest-hooks/use-enhanced-reducer@1.2.4...@rest-hooks/use-enhanced-reducer@1.2.5) (2023-01-30)
 
 ### 📝 Documentation

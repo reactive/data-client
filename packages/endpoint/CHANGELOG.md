@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.5.0](https://github.com/data-client/rest-hooks/compare/@rest-hooks/endpoint@3.4.1...@rest-hooks/endpoint@3.5.0) (2023-02-11)
+
+### 🚀 Features
+
+* Allow direct assignment to Entity.key ([#2430](https://github.com/data-client/rest-hooks/issues/2430)) ([b248903](https://github.com/data-client/rest-hooks/commit/b2489032c8ebc8f542fccafa046df906f52cab72))
+* Entity.createIfValid() lifecycle ([#2417](https://github.com/data-client/rest-hooks/issues/2417)) ([41153c6](https://github.com/data-client/rest-hooks/commit/41153c63f9e3b32ef48cf6a3f0a81d1d1185c17b))
+
+### 💅 Enhancement
+
+* Alert users of class mangling issues ([#2428](https://github.com/data-client/rest-hooks/issues/2428)) ([7f67b82](https://github.com/data-client/rest-hooks/commit/7f67b8255f9938fce2a125df5c31eb73380bc844))
+
+### 📦 Package
+
+* Update all non-major dependencies ([#2399](https://github.com/data-client/rest-hooks/issues/2399)) ([7efa267](https://github.com/data-client/rest-hooks/commit/7efa2677f11fee08ddbe8251d0fe80023aec152f))
+
 ### [3.4.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/endpoint@3.4.0...@rest-hooks/endpoint@3.4.1) (2023-01-30)
 
 ### 📝 Documentation

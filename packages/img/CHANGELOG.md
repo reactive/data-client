@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.8.5](https://github.com/data-client/rest-hooks/compare/@rest-hooks/img@0.8.4...@rest-hooks/img@0.8.5) (2023-02-11)
+
+### 💅 Enhancement
+
+* Make endpoint a normal dep ([#2431](https://github.com/data-client/rest-hooks/issues/2431)) ([9d77bc5](https://github.com/data-client/rest-hooks/commit/9d77bc5229f6ddc40a3972e49cb957e47d1e453e))
+
 ### [0.8.4](https://github.com/data-client/rest-hooks/compare/@rest-hooks/img@0.8.3...@rest-hooks/img@0.8.4) (2023-01-30)
 
 ### 📝 Documentation

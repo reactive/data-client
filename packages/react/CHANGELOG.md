@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.2.2](https://github.com/data-client/rest-hooks/compare/@rest-hooks/react@7.2.1...@rest-hooks/react@7.2.2) (2023-02-11)
+
+**Note:** Version bump only for package @rest-hooks/react
+
 ### [7.2.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/react@7.2.0...@rest-hooks/react@7.2.1) (2023-01-30)
 
 ### 📝 Documentation
