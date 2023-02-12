@@ -25,7 +25,6 @@ const unvisitEntity = (
   cycleIndex: { i: number },
 ): [denormalized: object | undefined, found: boolean, deleted: boolean] => {
   const entity = getEntity(entityOrId, schema);
-  const key = schema.key;
   if (
     typeof entity === 'symbol' &&
     (entity as symbol).toString().includes('DELETED')
@@ -53,46 +52,53 @@ const unvisitEntity = (
     return [entity, false, false];
   }
 
+  const key = schema.key;
   if (!(key in localCache)) {
     localCache[key] = Object.create(null);
   }
   if (!(key in cycleCache)) {
     cycleCache[key] = Object.create(null);
   }
+  if (!(key in entityCache)) {
+    entityCache[key] = Object.create(null);
+  }
+  const localCacheKey = localCache[key];
+  const cycleCacheKey = cycleCache[key];
+  const entityCacheKey = entityCache[key];
 
   let found = true;
   let deleted = false;
 
-  if (!localCache[key][pk]) {
+  if (!localCacheKey[pk]) {
     const trackingIndex = dependencies.length;
     dependencies.push(entity);
 
     let entityCopy: any;
     if (schema.createIfValid) {
-      entityCopy = localCache[key][pk] = isImmutable(entity)
+      entityCopy = localCacheKey[pk] = isImmutable(entity)
         ? schema.createIfValid(entity.toObject())
         : schema.createIfValid(entity);
       // TODO(breaking): remove once old verions no longer supported
     } else {
       entityCopy = entity;
       unvisit = withTrackedEntities(unvisit);
-      unvisit.setLocal = entityCopy =>
-        (localCache[schema.key][pk] = entityCopy);
+      unvisit.setLocal = entityCopy => (localCacheKey[pk] = entityCopy);
     }
-    cycleCache[key][pk] = trackingIndex;
-    const globalCacheEntry = getGlobalCacheEntry(entityCache, schema, pk);
 
+    cycleCacheKey[pk] = trackingIndex;
     if (entityCopy === undefined) {
       // undefined indicates we should suspense (perhaps failed validation)
       found = false;
       deleted = true;
     } else {
-      [localCache[key][pk], found, deleted] = schema.denormalize(
+      [localCacheKey[pk], found, deleted] = schema.denormalize(
         entityCopy,
         unvisit,
       );
     }
-    delete cycleCache[key][pk];
+    delete cycleCacheKey[pk];
+
+    const globalCacheEntry = getGlobalCacheEntry(entityCacheKey, pk);
 
     // if in cycle, use the start of the cycle to track all deps
     // otherwise, we use our own trackingIndex
@@ -101,9 +107,9 @@ const unvisitEntity = (
     );
 
     if (!globalCacheEntry.has(localKey)) {
-      globalCacheEntry.set(localKey, localCache[key][pk]);
+      globalCacheEntry.set(localKey, localCacheKey[pk]);
     } else {
-      localCache[key][pk] = globalCacheEntry.get(localKey);
+      localCacheKey[pk] = globalCacheEntry.get(localKey);
     }
 
     // start of cycle - reset cycle detection
@@ -112,15 +118,15 @@ const unvisitEntity = (
     }
   } else {
     // cycle detected
-    if (pk in cycleCache[key]) {
-      cycleIndex.i = cycleCache[key][pk];
+    if (pk in cycleCacheKey) {
+      cycleIndex.i = cycleCacheKey[pk];
     } else {
       // with no cycle, globalCacheEntry will have already been set
       dependencies.push(entity);
     }
   }
 
-  return [localCache[key][pk], found, deleted];
+  return [localCacheKey[pk], found, deleted];
 };
 
 const getUnvisit = (
@@ -294,16 +300,12 @@ export const denormalizeSimple = <S extends Schema>(
   ) as any;
 
 function getGlobalCacheEntry(
-  entityCache: {
-    [key: string]: { [pk: string]: WeakListMap<object, EntityInterface<any>> };
-  },
-  schema: any,
+  entityCache: { [pk: string]: WeakListMap<object, EntityInterface<any>> },
+
   id: any,
 ) {
-  if (!entityCache[schema.key]) entityCache[schema.key] = Object.create(null);
-  if (!entityCache[schema.key][id])
-    entityCache[schema.key][id] = new WeakListMap();
-  return entityCache[schema.key][id];
+  if (!entityCache[id]) entityCache[id] = new WeakListMap();
+  return entityCache[id];
 }
 
 // TODO(breaking): remove once unused

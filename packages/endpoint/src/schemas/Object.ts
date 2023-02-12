@@ -65,9 +65,9 @@ export function infer(
   entities: any,
 ) {
   const resultObject: any = {};
-  for (const k of Object.keys(schema)) {
+  Object.keys(schema).forEach(k => {
     resultObject[k] = recurse(schema[k], args, indexes, entities);
-  }
+  });
   return resultObject;
 }
 
