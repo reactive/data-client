@@ -53,6 +53,16 @@ export default class Endpoint extends Function {
       delete options.name;
     } else if (fetchFunction) {
       self.__name = fetchFunction.name;
+      if (
+        /* istanbul ignore else */ process.env.NODE_ENV !== 'production' &&
+        (fetchFunction.name === 'anonymous' || fetchFunction.name === '') &&
+        (!options || !('key' in options)) &&
+        this.key === Endpoint.prototype.key
+      ) {
+        console.error(
+          'Endpoint: Autonaming failure.\n\nEndpoint initialized with anonymous function.\nPlease add `name` option or hoist the function definition. https://resthooks.io/rest/api/Endpoint#name',
+        );
+      }
     }
     Object.assign(self, options);
     Object.defineProperty(self, 'name', {
@@ -100,7 +110,7 @@ export default class Endpoint extends Function {
   /* istanbul ignore next */
   static {
     /* istanbul ignore if */
-    if (this.name !== 'Endpoint') {
+    if (runCompat.name !== 'runCompat') {
       this.prototype.key = function (...args) {
         console.error('Rest Hooks Error: https://resthooks.io/errors/osid');
         return `${this.name} ${JSON.stringify(args)}`;

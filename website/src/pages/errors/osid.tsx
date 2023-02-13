@@ -1,22 +1,20 @@
 import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
-import TabItem from '@theme/TabItem';
-import Tabs from '@theme/Tabs';
 import React from 'react';
 
-export default function MangledClassnames() {
+export default function MangledFunctionnames() {
   return (
-    <Layout title="Rest Hooks Error: Mangled class names detected">
+    <Layout title="Rest Hooks Error: Mangled function names detected">
       <header>
         <div className="container">
-          <h2>Error: Mangled class names detected</h2>
+          <h2>Error: Mangled function names detected</h2>
         </div>
       </header>
       <main>
         <div className="container">
           <p>
             Either add a custom{' '}
-            <Link to="/rest/api/Endpoint#key">Endpoint key</Link>
+            <Link to="/rest/api/Endpoint#name">Endpoint name</Link>
           </p>
 
           <p>
@@ -26,7 +24,7 @@ export default function MangledClassnames() {
               target="_blank"
               rel="noreferrer"
             >
-              disable class name mangling
+              disable function name mangling
             </a>
           </p>
         </div>

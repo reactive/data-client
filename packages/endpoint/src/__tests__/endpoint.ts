@@ -71,6 +71,12 @@ describe('Endpoint', () => {
   });
 
   describe('Function', () => {
+    let errorSpy: jest.SpyInstance;
+    afterEach(() => {
+      errorSpy.mockRestore();
+    });
+    beforeEach(() => (errorSpy = jest.spyOn(console, 'error')));
+
     it('should work when called as function', async () => {
       const UserDetail = new Endpoint(fetchUsers);
 
@@ -115,6 +121,16 @@ describe('Endpoint', () => {
       expect(Fourth.name).toBe('fetchUserList');
       const Weird = new Endpoint(fetchUsersIdParam, { fetch: fetchUserList });
       expect(Weird.name).toBe(`fetchUsersIdParam`);
+    });
+
+    it('should console.error with autoname failures', () => {
+      const UserDetail = new Endpoint(function (this: any, id: string) {
+        return fetch(`/${this.root || 'users'}/${id}`).then(res =>
+          res.json(),
+        ) as Promise<typeof payload>;
+      });
+      expect(errorSpy.mock.calls.length).toBe(1);
+      expect(errorSpy.mock.calls).toMatchSnapshot();
     });
 
     it('should work when called with string parameter', async () => {

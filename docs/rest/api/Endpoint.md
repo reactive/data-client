@@ -130,15 +130,21 @@ Serializes the parameters. This is used to build a lookup key in global stores.
 Default:
 
 ```typescript
-`${this.fetch.name} ${JSON.stringify(params)}`;
+`${this.name} ${JSON.stringify(params)}`;
 ```
+
+### name: string {#name}
+
+Used in [key](#key) to distinguish endpoints. Should be globally unique.
+
+Defaults to `this.fetch.name`
 
 :::caution
 
-This may break in production builds that change class names.
-This is often know as [class name mangling](https://terser.org/docs/api-reference#mangle-options).
+This may break in production builds that change function names.
+This is often know as [function name mangling](https://terser.org/docs/api-reference#mangle-options).
 
-In these cases you can override `key` or disable class mangling.
+In these cases you can override `name` or disable function mangling.
 
 :::
 
