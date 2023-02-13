@@ -75,7 +75,9 @@ describe('Endpoint', () => {
     afterEach(() => {
       errorSpy.mockRestore();
     });
-    beforeEach(() => (errorSpy = jest.spyOn(console, 'error')));
+    beforeEach(
+      () => (errorSpy = jest.spyOn(console, 'error').mockImplementation()),
+    );
 
     it('should work when called as function', async () => {
       const UserDetail = new Endpoint(fetchUsers);
@@ -129,6 +131,7 @@ describe('Endpoint', () => {
           res.json(),
         ) as Promise<typeof payload>;
       });
+      UserDetail.name;
       expect(errorSpy.mock.calls.length).toBe(1);
       expect(errorSpy.mock.calls).toMatchSnapshot();
     });
@@ -485,6 +488,7 @@ describe('Endpoint', () => {
           url,
           random: 599,
           dataExpiryLength: 5000,
+          name: 'UserDetai',
         },
       );
       const a: undefined = UserDetail.sideEffect;

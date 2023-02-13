@@ -44,6 +44,14 @@ export default class RestEndpoint extends Endpoint {
     this.#hasBody =
       (!('body' in this) || this.body !== undefined) &&
       !['GET', 'DELETE'].includes(this.method);
+
+    Object.defineProperty(this, 'name', {
+      get() {
+        // using 'in' to ensure inheritance lookup
+        if ('__name' in this) return this.__name;
+        return this.urlPrefix + this.path;
+      },
+    });
   }
 
   key(...args) {
@@ -181,21 +189,14 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
   }
 
   extend(options) {
-    // fetch overrides are banned
-    /*if ('fetch' in options)
-      throw new Error('fetch overrides not allowed for RestEndpoint');
-      we now just only allow the same type*/
-
     // make a constructor/prototype based off this
     // extend from it and init with options sent
     class E extends this.constructor {}
 
     Object.assign(E.prototype, this);
     const instance = new E(
-      // name and fetch get overridden by function prototype, so we must set it explicitly every time
-      this.name
-        ? { name: this.name, fetch: this.fetch, ...options }
-        : { fetch: this.fetch, ...options },
+      //  fetch get overridden by function prototype, so we must set it explicitly every time
+      { fetch: this.fetch, ...options },
     );
 
     return instance;
