@@ -1,6 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Endpoint Function should console.error with autoname failures 1`] = `
+exports[`Endpoint (CSP false) Function should console.error with autoname failures 1`] = `
+[
+  [
+    "Endpoint: Autonaming failure.
+
+Endpoint initialized with anonymous function.
+Please add \`name\` option or hoist the function definition. https://resthooks.io/rest/api/Endpoint#name",
+  ],
+]
+`;
+
+exports[`Endpoint (CSP true) Function should console.error with autoname failures 1`] = `
 [
   [
     "Endpoint: Autonaming failure.

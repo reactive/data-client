@@ -1,10 +1,18 @@
 import nock from 'nock';
 
-import Endpoint, { EndpointInstance } from '../endpoint';
+import type { default as TEndpoint, EndpointInstance } from '../endpoint';
 import { EndpointInterface } from '../interface';
 import Entity from '../schemas/Entity';
 
-describe('Endpoint', () => {
+describe.each([true, false])(`Endpoint (CSP %s)`, mockCSP => {
+  jest.resetModules();
+  jest.mock('../CSP', () => ({ CSP: mockCSP }));
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const Endpoint: typeof TEndpoint = require('../endpoint').default;
+  afterAll(() => {
+    jest.clearAllMocks();
+  });
+
   const payload = { id: '5', username: 'bobber' };
   const payload2 = { id: '6', username: 'tomm' };
   const assetPayload = { symbol: 'btc', price: '5.0' };

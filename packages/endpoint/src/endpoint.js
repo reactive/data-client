@@ -1,3 +1,5 @@
+import { CSP } from './CSP.js';
+
 function runCompat(endpoint, options) {
   endpoint.type = endpoint.sideEffect ? 'mutate' : 'read';
   endpoint.options = { ...options };
@@ -13,19 +15,6 @@ function runCompat(endpoint, options) {
   if (endpoint.schema === undefined) endpoint.schema = null;
 }
 
-let CSP = false;
-try {
-  Function();
-} catch (e) {
-  /* istanbul ignore next */
-  CSP = true;
-  // TODO: figure out how to supress the error log instead of tell people it's okay
-  /* istanbul ignore next */
-  console.error(
-    'Content Security Policy: The previous CSP log can be safely ignored - @rest-hooks/endpoint will use setPrototypeOf instead',
-  );
-}
-
 /**
  * Defines an async data source.
  * @see https://resthooks.io/docs/api/Endpoint
@@ -33,9 +22,6 @@ try {
 export default class Endpoint extends Function {
   constructor(fetchFunction, options) {
     let self;
-    // TODO: Test the fallback?
-    /* istanbul ignore if */
-    /* istanbul ignore next */
     if (CSP) {
       self = (...args) => self.fetch(...args);
       Object.setPrototypeOf(self, new.target.prototype);
