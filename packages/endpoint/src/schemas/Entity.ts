@@ -425,12 +425,15 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
     return [entityCopy, true, deleted];
   }
 
-  private declare static __defaults: any;
   /** All instance defaults set */
-  protected static get defaults() {
-    if (!Object.hasOwn(this, '__defaults'))
-      this.__defaults = new (this as any)();
-    return this.__defaults;
+  protected static get defaults(): any {
+    // memoization pattern from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get#smart_self-overwriting_lazy_getters
+    delete (this as any).defaults;
+    // this is necessary to overcome inheritance limitations
+    Object.defineProperty(this, 'defaults', {
+      value: new (this as any)(),
+    });
+    return this.defaults;
   }
 
   /** Used by denormalize to set nested members */
