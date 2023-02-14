@@ -41,6 +41,10 @@ export default class GQLEndpoint<
     return `${this.getQuery(variables)} ${JSON.stringify(variables)}`;
   }
 
+  testKey(key: string): boolean {
+    return key.startsWith(this.getQuery({} as any));
+  }
+
   getQuery(variables: Variables): string {
     throw new Error('You must include a query');
   }

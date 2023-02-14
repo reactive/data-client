@@ -684,7 +684,7 @@ Default:
 `${this.method} ${this.url(urlParams)}`
 ```
 
-## testKey(key): boolean
+## testKey(key): boolean {#testKey}
 
 Returns `true` if the provided (fetch) [key](#key) matches this endpoint.
 

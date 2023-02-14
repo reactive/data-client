@@ -133,6 +133,19 @@ Default:
 `${this.name} ${JSON.stringify(params)}`;
 ```
 
+:::caution Overrides
+
+When overriding `key`, be sure to also include an updated [testKey](#testKey) if
+you intend on using that method.
+
+:::
+
+## testKey(key): boolean {#testKey}
+
+Returns `true` if the provided (fetch) [key](#key) matches this endpoint.
+
+This is used for mock interceptors with with [<MockResolver /&gt;](/docs/api/MockResolver)
+
 ### name: string {#name}
 
 Used in [key](#key) to distinguish endpoints. Should be globally unique.

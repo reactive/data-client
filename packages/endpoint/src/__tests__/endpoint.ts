@@ -585,6 +585,15 @@ describe.each([true, false])(`Endpoint (CSP %s)`, mockCSP => {
       // @ts-expect-error
       () => UserDetail.key({ id: 5 });
     });
+
+    it('testKey should match keys', () => {
+      const getUsers = new Endpoint(fetchUsers);
+      const nomatch = getUsers.extend({ name: 'not matching' });
+      expect(getUsers.testKey(getUsers.key({ id: '5' }))).toBeTruthy();
+      expect(getUsers.testKey(getUsers.key({ id: '100' }))).toBeTruthy();
+      expect(getUsers.testKey(getUsers.key({ id: 'xxx?*' }))).toBeTruthy();
+      expect(getUsers.testKey(nomatch.key({ id: '5' }))).toBeFalsy();
+    });
   });
 
   describe('AbortController', () => {

@@ -84,6 +84,10 @@ export default class Endpoint extends Function {
     return `${this.name} ${JSON.stringify(args)}`;
   }
 
+  testKey(key) {
+    return key.startsWith(this.name);
+  }
+
   bind(thisArg, ...args) {
     const fetchFunc = this.fetch;
     const keyFunc = this.key;
