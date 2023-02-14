@@ -34,7 +34,7 @@ export class ResetError extends Error {
  * @see https://resthooks.io/docs/api/NetworkManager
  */
 export default class NetworkManager implements Manager {
-  protected fetched: { [k: string]: Promise<any> } = {};
+  protected fetched: { [k: string]: Promise<any> } = Object.create(null);
   protected resolvers: { [k: string]: (value?: any) => void } = {};
   protected rejectors: { [k: string]: (value?: any) => void } = {};
   protected fetchedAt: { [k: string]: number } = {};
@@ -109,9 +109,7 @@ export default class NetworkManager implements Manager {
   /** Used by DevtoolsManager to determine whether to log an action */
   skipLogging(action: ActionTypes) {
     /* istanbul ignore next */
-    return (
-      action.type === FETCH_TYPE && Object.hasOwn(this.fetched, action.meta.key)
-    );
+    return action.type === FETCH_TYPE && action.meta.key in this.fetched;
   }
 
   /** On mount */
@@ -280,7 +278,7 @@ export default class NetworkManager implements Manager {
    */
   protected handleReceive(action: ReceiveAction) {
     // this can still turn out to be untrue since this is async
-    if (Object.hasOwn(this.fetched, action.meta.key)) {
+    if (action.meta.key in this.fetched) {
       let promiseHandler: (value?: any) => void;
       if (action.error) {
         promiseHandler = this.rejectors[action.meta.key];
