@@ -650,6 +650,10 @@ interface EndpointInstanceInterface<
 
   fetch: F;
 
+  /* utilities */
+  /** @see https://resthooks.io/rest/api/Endpoint#testKey */
+  testKey(key: string): boolean;
+
   /** The following is for compatibility with FetchShape */
   /** @deprecated */
   readonly type: M extends undefined
@@ -796,6 +800,7 @@ declare abstract class Entity {
         fetchedAt: number;
     }, input: any): number;
     static denormalize<T extends typeof Entity>(this: T, input: any, unvisit: UnvisitFunction): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean];
+    private static __defaults;
     /** All instance defaults set */
     protected static get defaults(): any;
     /** Used by denormalize to set nested members */

@@ -276,6 +276,10 @@ interface EndpointInstanceInterface<
 
   fetch: F;
 
+  /* utilities */
+  /** @see https://resthooks.io/rest/api/Endpoint#testKey */
+  testKey(key: string): boolean;
+
   /** The following is for compatibility with FetchShape */
   /** @deprecated */
   readonly type: M extends undefined

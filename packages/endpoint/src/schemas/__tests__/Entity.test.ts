@@ -1271,3 +1271,41 @@ describe(`${Entity.name} denormalization`, () => {
     });
   });
 });
+
+describe('Entity.defaults', () => {
+  it('should work with inheritance', () => {
+    abstract class DefaultsEntity extends Entity {
+      static getMyDefaults() {
+        return this.defaults;
+      }
+    }
+
+    class ID extends DefaultsEntity {
+      id = '';
+      pk() {
+        return this.id;
+      }
+    }
+    class UserEntity extends ID {
+      username = '';
+      createdAt = new Date(0);
+
+      static schema = {
+        createdAt: Date,
+      };
+    }
+
+    expect(ID.getMyDefaults()).toMatchInlineSnapshot(`
+      ID {
+        "id": "",
+      }
+    `);
+    expect(UserEntity.getMyDefaults()).toMatchInlineSnapshot(`
+      UserEntity {
+        "createdAt": 1970-01-01T00:00:00.000Z,
+        "id": "",
+        "username": "",
+      }
+    `);
+  });
+});
