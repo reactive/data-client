@@ -1,10 +1,18 @@
 import nock from 'nock';
 
-import Endpoint, { EndpointInstance } from '../endpoint';
+import type { default as TEndpoint, EndpointInstance } from '../endpoint';
 import { EndpointInterface } from '../interface';
 import Entity from '../schemas/Entity';
 
-describe('Endpoint', () => {
+describe.each([true, false])(`Endpoint (CSP %s)`, mockCSP => {
+  jest.resetModules();
+  jest.mock('../CSP', () => ({ CSP: mockCSP }));
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const Endpoint: typeof TEndpoint = require('../endpoint').default;
+  afterAll(() => {
+    jest.clearAllMocks();
+  });
+
   const payload = { id: '5', username: 'bobber' };
   const payload2 = { id: '6', username: 'tomm' };
   const assetPayload = { symbol: 'btc', price: '5.0' };
@@ -75,7 +83,9 @@ describe('Endpoint', () => {
     afterEach(() => {
       errorSpy.mockRestore();
     });
-    beforeEach(() => (errorSpy = jest.spyOn(console, 'error')));
+    beforeEach(
+      () => (errorSpy = jest.spyOn(console, 'error').mockImplementation()),
+    );
 
     it('should work when called as function', async () => {
       const UserDetail = new Endpoint(fetchUsers);
@@ -129,6 +139,7 @@ describe('Endpoint', () => {
           res.json(),
         ) as Promise<typeof payload>;
       });
+      UserDetail.name;
       expect(errorSpy.mock.calls.length).toBe(1);
       expect(errorSpy.mock.calls).toMatchSnapshot();
     });
@@ -485,6 +496,7 @@ describe('Endpoint', () => {
           url,
           random: 599,
           dataExpiryLength: 5000,
+          name: 'UserDetai',
         },
       );
       const a: undefined = UserDetail.sideEffect;

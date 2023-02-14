@@ -57,7 +57,6 @@ export class PaginatedArticle extends Entity {
 const getArticleList = new RestEndpoint({
   urlPrefix: 'http://test.com',
   path: '/article-paginated',
-  name: 'get',
   schema: {
     nextPage: '',
     data: { results: [PaginatedArticle] },
@@ -221,6 +220,12 @@ describe('RestEndpoint', () => {
 
   it('should automatically name methods', () => {
     expect(getUser.name).toBe('User.get');
+    expect(getArticleList.name).toMatchInlineSnapshot(
+      `"http://test.com/article-paginated"`,
+    );
+    expect(
+      getArticleList.extend({ path: '/:something' }).name,
+    ).toMatchInlineSnapshot(`"http://test.com/:something"`);
   });
 
   it('should update on get for a paginated resource', async () => {
@@ -689,6 +694,7 @@ describe('RestEndpoint', () => {
       });
       getUserBase.body;
       expect(getUserBase.name).toBe('getuser');
+      expect(getUserBase.extend({ method: 'GET' }).name).toBe('getuser');
       expect(getUser.name).toBe('getuser');
       expect(getUser.additional).toBe(5);
       expect(getUser.method).toBe('GET');
@@ -826,7 +832,12 @@ describe('RestEndpoint', () => {
   });
   it('extending with name should work', () => {
     const endpoint = CoolerArticleResource.get.extend({ name: 'mything' });
+    const endpoint2 = CoolerArticleResource.get.extend({ path: '/:bob' });
+    expect(CoolerArticleResource.get.name).toMatchInlineSnapshot(
+      `"CoolerArticle.get"`,
+    );
     expect(endpoint.name).toBe('mything');
+    expect(endpoint2.name).toMatchInlineSnapshot(`"CoolerArticle.get"`);
   });
   it('should infer default method when sideEffect is set', async () => {
     const endpoint = new RestEndpoint({
