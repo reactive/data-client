@@ -13,7 +13,7 @@ import {
   DenormalizeCache,
   isEntity,
   Schema,
-  WeakListMap,
+  WeakEntityMap,
 } from '@rest-hooks/normalizr';
 import { inferResults } from '@rest-hooks/normalizr';
 
@@ -384,7 +384,7 @@ export default class Controller<
     }
 
     if (isActive && !this.globalCache.results[key])
-      this.globalCache.results[key] = new WeakListMap();
+      this.globalCache.results[key] = new WeakMap();
 
     // second argument is false if any entities are missing
     // eslint-disable-next-line prefer-const

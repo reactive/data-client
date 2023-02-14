@@ -2,7 +2,7 @@ import {
   denormalize as denormalizeCore,
   Schema,
   DenormalizeCache,
-  WeakListMap,
+  WeakEntityMap,
   Denormalize,
   DenormalizeNullable,
 } from '@rest-hooks/normalizr';
@@ -12,7 +12,7 @@ export const denormalizeSimple = <S extends Schema>(
   schema: S | undefined,
   entities: any,
   entityCache: DenormalizeCache['entities'] = {},
-  resultCache: WeakListMap<object, any> = new WeakListMap(),
+  resultCache: DenormalizeCache['results'][string] = new WeakMap(),
 ):
   | [denormalized: Denormalize<S>, found: true, deleted: false]
   | [denormalized: DenormalizeNullable<S>, found: boolean, deleted: true]

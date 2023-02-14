@@ -1,6 +1,7 @@
-import { initialState } from '@rest-hooks/core';
+import { Controller, initialState } from '@rest-hooks/core';
 import { normalize, NormalizedIndex } from '@rest-hooks/normalizr';
 import { ExpiryStatus } from '@rest-hooks/normalizr';
+import { ControllerContext } from '@rest-hooks/react';
 import { renderHook, act } from '@testing-library/react-hooks';
 import {
   CoolerArticleResource,
@@ -493,24 +494,29 @@ describe('useDenormalized()', () => {
         },
       };
       let result: any;
-      const denormalizeCache = {
-        entities: {},
-        results: {},
-      };
+      const controller = new Controller();
 
       beforeEach(() => {
-        const v = renderHook(() => {
-          const [usedState, setState] = useState(state);
-          return {
-            ret: useDenormalized(
-              PaginatedArticleResource.listShape(),
-              params,
-              usedState,
-              denormalizeCache,
+        const v = renderHook(
+          () => {
+            const [usedState, setState] = useState(state);
+            return {
+              ret: useDenormalized(
+                PaginatedArticleResource.listShape(),
+                params,
+                usedState,
+              ),
+              setState,
+            };
+          },
+          {
+            wrapper: ({ children }: React.PropsWithChildren<any>) => (
+              <ControllerContext.Provider value={controller}>
+                {children}
+              </ControllerContext.Provider>
             ),
-            setState,
-          };
-        });
+          },
+        );
         result = v.result;
       });
 

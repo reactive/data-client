@@ -5,11 +5,12 @@
 // eslint-env jest
 import { normalize } from '@rest-hooks/normalizr';
 import { DELETED } from '@rest-hooks/normalizr';
-import { WeakListMap, AbstractInstanceType } from '@rest-hooks/normalizr';
+import { AbstractInstanceType } from '@rest-hooks/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS, Record } from 'immutable';
 
 import { denormalizeSimple as denormalize } from './denormalize';
+import WeakListMap from './WeakListMap';
 import { schema } from '../../..';
 import Entity from '../../Entity';
 

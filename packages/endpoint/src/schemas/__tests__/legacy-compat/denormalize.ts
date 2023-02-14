@@ -1,8 +1,9 @@
 /**
  * Snapshot of denormalize from @rest-hooks/normalizr@9.4.1
  */
-import { WeakListMap, isEntity, DenormalizeCache } from '@rest-hooks/normalizr';
+import { isEntity } from '@rest-hooks/normalizr';
 
+import WeakListMap from './WeakListMap.js';
 import type {
   Schema,
   EntityInterface,
@@ -10,6 +11,17 @@ import type {
 } from '../../../interface.js';
 import { Denormalize, DenormalizeNullable } from '../../../normal';
 import { isImmutable } from '../../ImmutableUtils.js';
+
+interface DenormalizeCache {
+  entities: {
+    [key: string]: {
+      [pk: string]: WeakListMap<object, EntityInterface>;
+    };
+  };
+  results: {
+    [key: string]: WeakListMap<object, any>;
+  };
+}
 
 const DRAFT = Symbol('draft');
 

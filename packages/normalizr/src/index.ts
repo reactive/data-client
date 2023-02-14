@@ -6,7 +6,7 @@ Object.hasOwn =
 import { denormalize } from './denormalize.js';
 import { isEntity } from './isEntity.js';
 import { normalize } from './normalize.js';
-import WeakListMap from './WeakListMap.js';
+import WeakEntityMap from './WeakEntityMap.js';
 export { default as inferResults } from './inferResults.js';
 export { DELETED } from './special.js';
 
@@ -22,4 +22,4 @@ export * from './interface.js';
 export * from './Expiry.js';
 export * from './normal.js';
 
-export { denormalize, normalize, isEntity, WeakListMap };
+export { denormalize, normalize, isEntity, WeakEntityMap };

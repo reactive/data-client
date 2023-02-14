@@ -5,7 +5,6 @@ import {
   denormalize,
   DELETED,
   AbstractInstanceType,
-  WeakListMap,
 } from '@rest-hooks/normalizr';
 import { fromJS, Record } from 'immutable';
 
@@ -685,12 +684,19 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
     const entityCache = {};
-    const resultCache = new WeakListMap();
+    const resultCache = new WeakMap();
 
     const [first] = denormalize('1', Menu, entities, entityCache, resultCache);
     const [second] = denormalize('1', Menu, entities, entityCache, resultCache);
     expect(first).toBe(second);
     expect(first?.food).toBe(second?.food);
+
+    // immutablejs
+    const immE = fromJS(entities);
+    const [first2] = denormalize('1', Menu, immE, entityCache, resultCache);
+    const [second2] = denormalize('1', Menu, immE, entityCache, resultCache);
+    expect(first2).toBe(second2);
+    expect(first2?.food).toBe(second2?.food);
   });
 
   test('denormalizes to undefined for missing data', () => {
@@ -835,7 +841,7 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
     const entityCache: any = {};
-    const resultCache = new WeakListMap();
+    const resultCache = new WeakMap();
 
     const [denormalizedReport] = denormalize(
       '123',

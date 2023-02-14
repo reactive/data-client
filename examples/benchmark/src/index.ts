@@ -1,7 +1,7 @@
 export {
   normalize,
   denormalize,
-  WeakListMap,
+  WeakEntityMap,
   inferResults,
 } from '@rest-hooks/normalizr';
 export * from '@rest-hooks/core';

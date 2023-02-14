@@ -5,7 +5,7 @@ import type {
   NormalizedIndex,
   SchemaClass,
 } from './interface.js';
-import type WeakListMap from './WeakListMap.js';
+import type WeakEntityMap from './WeakEntityMap.js';
 
 export type AbstractInstanceType<T> = T extends { prototype: infer U }
   ? U
@@ -46,11 +46,14 @@ export interface RecordClass<T = any> extends NestedSchemaClass<T> {
 export interface DenormalizeCache {
   entities: {
     [key: string]: {
-      [pk: string]: WeakListMap<object, EntityInterface>;
+      [pk: string]: WeakMap<EntityInterface, WeakEntityMap<object, any>>;
     };
   };
   results: {
-    [key: string]: WeakListMap<object, any>;
+    [key: string]: WeakMap<
+      Exclude<Schema, null | string>,
+      WeakEntityMap<object, any>
+    >;
   };
 }
 

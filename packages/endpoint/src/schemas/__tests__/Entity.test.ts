@@ -1,7 +1,6 @@
 // eslint-env jest
 import { normalize } from '@rest-hooks/normalizr';
 import { DELETED } from '@rest-hooks/normalizr';
-import { WeakListMap } from '@rest-hooks/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS, Record } from 'immutable';
 
@@ -747,7 +746,7 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
     const entityCache = {};
-    const resultCache = new WeakListMap();
+    const resultCache = new WeakMap();
 
     const [first] = denormalize('1', Menu, entities, entityCache, resultCache);
     const [second] = denormalize('1', Menu, entities, entityCache, resultCache);
@@ -1000,7 +999,7 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
     const entityCache: any = {};
-    const resultCache = new WeakListMap();
+    const resultCache = new WeakMap();
 
     const [denormalizedReport] = denormalize(
       '123',
@@ -1064,7 +1063,7 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
     const entityCache: any = {};
-    const resultCache = new WeakListMap();
+    const resultCache = new WeakMap();
 
     const input = { report: '123', comment: '999' };
     const schema = {
