@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [9.5.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/normalizr@9.5.0...@rest-hooks/normalizr@9.5.1) (2023-02-14)
+
+### 💅 Enhancement
+
+* Denormalize code clean and slight optimize ([#2434](https://github.com/data-client/rest-hooks/issues/2434)) ([64eb635](https://github.com/data-client/rest-hooks/commit/64eb635bbef725abfab4537e15ae7cb1c467abc9))
+
 ## [9.5.0](https://github.com/data-client/rest-hooks/compare/@rest-hooks/normalizr@9.4.1...@rest-hooks/normalizr@9.5.0) (2023-02-11)
 
 ### 🚀 Features

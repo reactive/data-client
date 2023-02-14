@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.2.3](https://github.com/data-client/rest-hooks/compare/@rest-hooks/core@4.2.2...@rest-hooks/core@4.2.3) (2023-02-14)
+
+**Note:** Version bump only for package @rest-hooks/core
+
 ### [4.2.2](https://github.com/data-client/rest-hooks/compare/@rest-hooks/core@4.2.1...@rest-hooks/core@4.2.2) (2023-02-11)
 
 ### 💅 Enhancement

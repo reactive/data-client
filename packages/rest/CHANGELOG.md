@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.3.5](https://github.com/data-client/rest-hooks/compare/@rest-hooks/rest@6.3.4...@rest-hooks/rest@6.3.5) (2023-02-14)
+
+### 💅 Enhancement
+
+* Default RestEndpoint name based on url path ([#2436](https://github.com/data-client/rest-hooks/issues/2436)) ([13e2d4d](https://github.com/data-client/rest-hooks/commit/13e2d4de1b6eaae9fe2fbaca62eb6c6480990815))
+
 ### [6.3.4](https://github.com/data-client/rest-hooks/compare/@rest-hooks/rest@6.3.3...@rest-hooks/rest@6.3.4) (2023-02-11)
 
 **Note:** Version bump only for package @rest-hooks/rest

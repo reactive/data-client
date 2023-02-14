@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.5.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/endpoint@3.5.0...@rest-hooks/endpoint@3.5.1) (2023-02-14)
+
+### 💅 Enhancement
+
+* Default RestEndpoint name based on url path ([#2436](https://github.com/data-client/rest-hooks/issues/2436)) ([13e2d4d](https://github.com/data-client/rest-hooks/commit/13e2d4de1b6eaae9fe2fbaca62eb6c6480990815))
+* Denormalize code clean and slight optimize ([#2434](https://github.com/data-client/rest-hooks/issues/2434)) ([64eb635](https://github.com/data-client/rest-hooks/commit/64eb635bbef725abfab4537e15ae7cb1c467abc9))
+* Improve autonaming failure detection for Endpoint ([#2435](https://github.com/data-client/rest-hooks/issues/2435)) ([5287bd4](https://github.com/data-client/rest-hooks/commit/5287bd43fc059bf5f5503a42eeb919fd1190d835))
+* Use self-overwriting memoization pattern ([#2437](https://github.com/data-client/rest-hooks/issues/2437)) ([395e3d8](https://github.com/data-client/rest-hooks/commit/395e3d8ca554552736b4b7c3c3af823ca6290ae9))
+* Use self-overwriting pattern to limit error spam ([#2438](https://github.com/data-client/rest-hooks/issues/2438)) ([88750ee](https://github.com/data-client/rest-hooks/commit/88750ee92c635dc101c832f829cea1ed4accd455))
+
 ## [3.5.0](https://github.com/data-client/rest-hooks/compare/@rest-hooks/endpoint@3.4.1...@rest-hooks/endpoint@3.5.0) (2023-02-11)
 
 ### 🚀 Features
