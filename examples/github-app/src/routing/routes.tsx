@@ -31,9 +31,9 @@ export const routes = [
     repo: 'react',
     resolveData: async (
       controller: Controller,
-      match: { owner: string; repo: string },
+      { owner, repo }: { owner: string; repo: string },
     ) => {
-      controller.fetch(IssueResource.getList, match);
+      controller.fetch(IssueResource.getList, { owner, repo });
     },
   },
   {
@@ -41,9 +41,9 @@ export const routes = [
     component: lazyPage('IssueList'),
     resolveData: async (
       controller: Controller,
-      match: { owner: string; repo: string },
+      { owner, repo }: { owner: string; repo: string },
     ) => {
-      controller.fetch(IssueResource.getList, match);
+      controller.fetch(IssueResource.getList, { owner, repo });
     },
   },
   {
@@ -51,26 +51,29 @@ export const routes = [
     component: lazyPage('IssueDetail'),
     resolveData: async (
       controller: Controller,
-      match: { owner: string; repo: string; number: string },
+      { owner, repo, number }: { owner: string; repo: string; number: string },
     ) => {
-      const params = match;
-      controller.fetch(ReactionResource.getList, params);
-      controller.fetch(CommentResource.getList, params);
-      await controller.fetch(IssueResource.get, params);
+      controller.fetch(ReactionResource.getList, { owner, repo, number });
+      controller.fetch(CommentResource.getList, { owner, repo, number });
+      await controller.fetch(IssueResource.get, { owner, repo, number });
     },
   },
   {
     name: 'ProfileDetail',
     component: lazyPage('ProfileDetail'),
-    resolveData: async (controller: Controller, match: { login: string }) => {
-      controller.fetch(UserResource.get, match);
-      controller.fetch(RepositoryResource.getByUser, match);
+    resolveData: async (
+      controller: Controller,
+      { login }: { login: string },
+    ) => {
+      controller.fetch(UserResource.get, { login });
+      controller.fetch(RepositoryResource.getByUser, { login });
       const { data: currentUser } = controller.getResponse(
         UserResource.current,
         controller.getState(),
       );
-      if (currentUser) controller.fetch(RepositoryResource.getByPinned, match);
-      controller.fetch(EventResource.getList, match);
+      if (currentUser)
+        controller.fetch(RepositoryResource.getByPinned, { login });
+      controller.fetch(EventResource.getList, { login });
     },
   },
 ];
