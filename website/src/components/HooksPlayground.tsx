@@ -10,6 +10,7 @@ const HooksPlayground = ({
   defaultOpen,
   row = false,
   fixtures,
+  getInitialInterceptorData,
 }: PlaygroundProps) => (
   <Playground
     includeEndpoints={!Array.isArray(children)}
@@ -19,6 +20,7 @@ const HooksPlayground = ({
     row={row}
     hidden={hidden}
     fixtures={fixtures}
+    getInitialInterceptorData={getInitialInterceptorData}
   >
     {typeof children === 'string'
       ? children
@@ -30,17 +32,19 @@ const HooksPlayground = ({
 HooksPlayground.defaultProps = {
   defaultOpen: 'n' as const,
   fixtures: [] as Fixture[],
+  getInitialInterceptorData: () => ({}),
 };
 export default memo(HooksPlayground);
 
 //child.props.children.props.title
 
-interface PlaygroundProps {
+interface PlaygroundProps<T = any> {
   groupId: string;
   defaultOpen: 'y' | 'n';
   row: boolean;
   hidden: boolean;
-  fixtures: (Fixture | Interceptor)[];
+  fixtures: (Fixture | Interceptor<T>)[];
+  getInitialInterceptorData?: () => T;
   children: React.ReactNode;
   reverse?: boolean;
   includeEndpoints: boolean;

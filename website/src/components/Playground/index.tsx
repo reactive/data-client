@@ -11,7 +11,7 @@ import { PlaygroundTextEdit, useCode } from './PlaygroundTextEdit';
 import PreviewWithHeader from './PreviewWithHeader';
 import styles from './styles.module.css';
 
-export default function Playground({
+export default function Playground<T>({
   children,
   transformCode,
   groupId,
@@ -20,13 +20,15 @@ export default function Playground({
   hidden,
   fixtures,
   includeEndpoints,
+  getInitialInterceptorData,
   ...props
 }: Omit<LiveProviderProps, 'ref'> & {
   groupId: string;
   defaultOpen: 'y' | 'n';
   row: boolean;
   children: string | any[];
-  fixtures: (Fixture | Interceptor)[];
+  fixtures: (Fixture | Interceptor<T>)[];
+  getInitialInterceptorData?: () => T;
   includeEndpoints: boolean;
 }) {
   const {
@@ -50,6 +52,7 @@ export default function Playground({
             includeEndpoints={includeEndpoints}
             groupId={groupId}
             defaultOpen={defaultOpen}
+            getInitialInterceptorData={getInitialInterceptorData}
           >
             {children}
           </PlaygroundContent>
@@ -64,7 +67,7 @@ Playground.defaultProps = {
   hidden: false,
 };
 
-function PlaygroundContent({
+function PlaygroundContent<T>({
   reverse,
   children,
   row,
@@ -72,7 +75,8 @@ function PlaygroundContent({
   includeEndpoints,
   groupId,
   defaultOpen,
-}: ContentProps) {
+  getInitialInterceptorData,
+}: ContentProps<T>) {
   const { handleCodeChange, codes, codeTabs } = useCode(children);
   /*const code = ready.every(v => v)
     ? codes.join('\n')
@@ -103,6 +107,7 @@ function PlaygroundContent({
                 defaultOpen,
                 row,
                 fixtures,
+                getInitialInterceptorData,
               }}
             />
           </LiveProvider>
@@ -110,20 +115,28 @@ function PlaygroundContent({
       >
         <PreviewWithScopeLazy
           code={code}
-          {...{ includeEndpoints, groupId, defaultOpen, row, fixtures }}
+          {...{
+            includeEndpoints,
+            groupId,
+            defaultOpen,
+            row,
+            fixtures,
+            getInitialInterceptorData,
+          }}
         />
       </Boundary>
     </Reversible>
   );
 }
-interface ContentProps {
+interface ContentProps<T = any> {
   groupId: string;
   defaultOpen: 'y' | 'n';
   row: boolean;
-  fixtures: (Fixture | Interceptor)[];
+  fixtures: (Fixture | Interceptor<T>)[];
   children: React.ReactNode;
   reverse?: boolean;
   includeEndpoints: boolean;
+  getInitialInterceptorData?: () => T;
 }
 
 const isGoogleBot =

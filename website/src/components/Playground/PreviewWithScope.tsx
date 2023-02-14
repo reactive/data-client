@@ -89,7 +89,7 @@ const scopeWithEndpoint = {
   TodoEndpoint,
 };
 
-export default function PreviewWithScope({
+export default function PreviewWithScope<T>({
   code,
   includeEndpoints,
   ...props
@@ -99,7 +99,8 @@ export default function PreviewWithScope({
   groupId: string;
   defaultOpen: 'y' | 'n';
   row: boolean;
-  fixtures: (Fixture | Interceptor)[];
+  fixtures: (Fixture | Interceptor<T>)[];
+  getInitialInterceptorData?: () => T;
 }) {
   return (
     <LiveProvider

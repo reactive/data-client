@@ -40,12 +40,13 @@ export default function makeRenderRestHook(
     }
   }
 
-  const renderRestHook: RenderRestHook = (<P, R>(
+  const renderRestHook: RenderRestHook = (<P, R, T = any>(
     callback: (props: P) => R,
     options?: {
       initialProps?: P;
       initialFixtures?: Fixture[];
-      resolverFixtures?: (Fixture | Interceptor)[];
+      resolverFixtures?: (Fixture | Interceptor<T>)[];
+      getInitialInterceptorData?: () => T;
       wrapper?: React.ComponentType<React.PropsWithChildren<P>>;
     },
   ): RenderHookResult<R, P> & { controller: Controller } => {
@@ -137,6 +138,7 @@ export default function makeRenderRestHook(
       (managers[0] as any).controller,
       fixtureMap,
       interceptors,
+      options?.getInitialInterceptorData ?? (() => ({})),
     );
     return ret;
   }) as any;

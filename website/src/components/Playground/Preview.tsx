@@ -18,16 +18,18 @@ import StoreInspector from './StoreInspector';
 import styles from './styles.module.css';
 import { useTabStorage } from '../../utils/tabStorage';
 
-function Preview({
+function Preview<T>({
   groupId,
   defaultOpen,
   row,
   fixtures,
+  getInitialInterceptorData,
 }: {
   groupId: string;
   row: boolean;
   defaultOpen: 'y' | 'n';
-  fixtures: (Fixture | Interceptor)[];
+  fixtures: (Fixture | Interceptor<T>)[];
+  getInitialInterceptorData?: () => T;
 }) {
   const [choice, setTabGroupChoice] = useTabStorage(
     `docusaurus.tab.${groupId}`,
@@ -61,10 +63,13 @@ function Preview({
   );
 
   const hiddenResult = !(selectedValue === 'n' || !row);
-
   return (
     <CacheProvider managers={managers}>
-      <MockResolver fixtures={fixtures} silenceMissing={true}>
+      <MockResolver
+        fixtures={fixtures}
+        silenceMissing={true}
+        getInitialInterceptorData={getInitialInterceptorData}
+      >
         <div
           className={clsx(styles.playgroundPreview, {
             [styles.hidden]: hiddenResult,

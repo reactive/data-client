@@ -36,12 +36,13 @@ Returned from makeRenderRestHook():
 
 ```typescript
 type RenderRestHookFunction = {
-  <P, R>(
+  <P, R, T=any>(
     callback: (props: P) => R,
     options?: {
       initialProps?: P;
       initialFixtures?: Fixture[];
-      resolverFixtures?: (Fixture | Interceptor)[];
+      resolverFixtures?: (Fixture | Interceptor<T>)[];
+      getInitialInterceptorData?: () => T;
       wrapper?: React.ComponentType;
     },
   ): {
@@ -84,7 +85,11 @@ This has the same effect as initializing [<CacheProvider /\>](../api/CacheProvid
 
 These fixtures are used to resolve any new requests. This is most useful for mocking imperative fetches like mutations, but can also allow testing suspending states or transitions.
 
-Wrrks by adding [MockResolver](../api/MockResolver) as a wrapper.
+Works by adding [MockResolver](../api/MockResolver) as a wrapper.
+
+#### options.getInitialInterceptorData
+
+Function that initializes the `this` attribute for all interceptors.
 
 #### options.initialProps
 

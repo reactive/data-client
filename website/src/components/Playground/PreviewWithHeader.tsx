@@ -6,7 +6,13 @@ import Header from './Header';
 import Preview from './Preview';
 import styles from './styles.module.css';
 
-function PreviewWithHeader({ groupId, defaultOpen, row, fixtures }: Props) {
+function PreviewWithHeader<T>({
+  groupId,
+  defaultOpen,
+  row,
+  fixtures,
+  getInitialInterceptorData,
+}: Props<T>) {
   return (
     <div
       style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
@@ -25,6 +31,7 @@ function PreviewWithHeader({ groupId, defaultOpen, row, fixtures }: Props) {
           defaultOpen={defaultOpen}
           row={row}
           fixtures={fixtures}
+          getInitialInterceptorData={getInitialInterceptorData}
         />
       </div>
     </div>
@@ -32,9 +39,10 @@ function PreviewWithHeader({ groupId, defaultOpen, row, fixtures }: Props) {
 }
 export default memo(PreviewWithHeader);
 
-interface Props {
+interface Props<T = any> {
   groupId: string;
   defaultOpen: 'y' | 'n';
   row: boolean;
-  fixtures: (Fixture | Interceptor)[];
+  fixtures: (Fixture | Interceptor<T>)[];
+  getInitialInterceptorData?: () => T;
 }
