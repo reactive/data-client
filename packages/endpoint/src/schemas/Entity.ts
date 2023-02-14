@@ -443,20 +443,29 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
 
   /* istanbul ignore next */
   static {
+    // this allows assignment in strict-mode
+    function set(this: any, value: string) {
+      Object.defineProperty(this, 'key', {
+        value,
+        writable: true,
+        enumerable: true,
+      });
+    }
     const get =
       /* istanbul ignore if */
       this.name !== 'Entity'
         ? /* istanbul ignore next */ function (this: {
             name: string;
-            __keyErr?: boolean;
+            key: string;
           }): string {
-            if (!this.__keyErr) {
-              console.error(
-                'Rest Hooks Error: https://resthooks.io/errors/dklj',
-              );
-              this.__keyErr = true;
-            }
-            return this.name;
+            console.error('Rest Hooks Error: https://resthooks.io/errors/dklj');
+            Object.defineProperty(this, 'key', {
+              get() {
+                return this.name;
+              },
+              set,
+            });
+            return this.key;
           }
         : function (this: { name: string }): string {
             /* istanbul ignore next */
@@ -474,14 +483,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
 
     Object.defineProperty(this, 'key', {
       get,
-      // this allows assignment in strict-mode
-      set(value: string) {
-        Object.defineProperty(this, 'key', {
-          value,
-          writable: true,
-          enumerable: true,
-        });
-      },
+      set,
     });
   }
 }
