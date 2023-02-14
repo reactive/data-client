@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1676392313901,
+  "lastUpdate": 1676398100283,
   "repoUrl": "https://github.com/data-client/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -13370,6 +13370,107 @@ window.BENCHMARK_DATA = {
             "range": "±0.18%",
             "unit": "ops/sec",
             "extra": "84 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "28f3fe8890da119c7fa6498d4617a66da74ed0b4",
+          "message": "enhance: Use null-object over Object.hasOwn when possible (#2441)",
+          "timestamp": "2023-02-14T10:03:40-08:00",
+          "tree_id": "a01ea9d578fd04369bcc090f636b276c7a61ee0f",
+          "url": "https://github.com/data-client/rest-hooks/commit/28f3fe8890da119c7fa6498d4617a66da74ed0b4"
+        },
+        "date": 1676398099124,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 340,
+            "range": "±0.49%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 7056,
+            "range": "±0.35%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 209,
+            "range": "±1.46%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 252,
+            "range": "±0.16%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 251,
+            "range": "±0.19%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 245,
+            "range": "±0.20%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 249,
+            "range": "±0.28%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 641,
+            "range": "±0.10%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 338,
+            "range": "±0.28%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 129,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 136,
+            "range": "±0.22%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
           }
         ]
       }
