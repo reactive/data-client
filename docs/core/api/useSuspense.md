@@ -3,7 +3,7 @@ title: useSuspense()
 ---
 
 <head>
-  <title>useSuspense() - Data fetching with Suspense</title>
+  <title>useSuspense() - Stable data fetching for React and NextJS</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 

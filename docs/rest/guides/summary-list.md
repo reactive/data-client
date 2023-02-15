@@ -45,7 +45,7 @@ delay: 150,
 },
 ]}>
 
-```typescript title="api/Article.ts"
+```typescript title="api/Article.ts" {9}
 class ArticleSummary extends Entity {
   readonly id: string = '';
   readonly title: string = '';
@@ -54,7 +54,6 @@ class ArticleSummary extends Entity {
     return this.id;
   }
   // this ensures `Article` maps to the same entity
-  // highlight-next-line
   static key = 'Article';
 }
 

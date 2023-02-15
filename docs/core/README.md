@@ -1,5 +1,5 @@
 ---
-title: Introducing the Relational Data Client
+title: The Relational Data Client
 sidebar_label: Introduction
 slug: /
 ---
@@ -13,7 +13,7 @@ import ProtocolTabs from '@site/src/components/ProtocolTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
 <head>
-  <title>Introducing The Relational Data Client for React: Rest Hooks ✨</title>
+  <title>The Relational Data Client for React: Rest Hooks ✨</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
