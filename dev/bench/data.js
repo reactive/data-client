@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1676398100283,
+  "lastUpdate": 1676833787362,
   "repoUrl": "https://github.com/data-client/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -13471,6 +13471,107 @@ window.BENCHMARK_DATA = {
             "range": "±0.22%",
             "unit": "ops/sec",
             "extra": "86 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f963675ecde98b9008cedef192b938654a59de05",
+          "message": "enhance: Global denormalize cache lookups up to 25x faster (#2444)",
+          "timestamp": "2023-02-19T11:04:50-08:00",
+          "tree_id": "754c04b434d96c1784492b3d283980b8c9a3c0a5",
+          "url": "https://github.com/data-client/rest-hooks/commit/f963675ecde98b9008cedef192b938654a59de05"
+        },
+        "date": 1676833786331,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 243,
+            "range": "±0.98%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 4798,
+            "range": "±0.46%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 122,
+            "range": "±1.22%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 3516,
+            "range": "±1.23%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 4196,
+            "range": "±1.85%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 4227,
+            "range": "±0.89%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 3973,
+            "range": "±3.65%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 1510,
+            "range": "±3.23%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 249,
+            "range": "±0.55%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 102,
+            "range": "±1.28%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 107,
+            "range": "±0.92%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
           }
         ]
       }
