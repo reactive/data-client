@@ -4,6 +4,11 @@ class Link<K extends object, V> {
   declare value?: V;
 }
 
+interface Path {
+  key: string;
+  pk: string;
+}
+
 class KeySize extends Error {
   message = 'Keys must include at least one member';
 }
@@ -63,3 +68,4 @@ export default class WeakListMap<K extends object, V> {
     return link;
   }
 }
+it('should', () => {});

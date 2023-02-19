@@ -8,7 +8,7 @@ import type {
   DenormalizeNullable,
   DenormalizeCache,
 } from './types.js';
-import WeakListMap from './WeakListMap.js';
+import WeakEntityMap, { type Dep } from './WeakEntityMap.js';
 
 const unvisitEntity = (
   entityOrId: Record<string, any> | string,
@@ -16,15 +16,15 @@ const unvisitEntity = (
   unvisit: UnvisitFunction,
   getEntity: (
     entityOrId: Record<string, any> | string,
-    schema: EntityInterface,
+    key: string,
   ) => object | symbol,
+  getCache: (pk: string, schema: EntityInterface) => any,
   localCache: Record<string, Record<string, any>>,
   cycleCache: Record<string, Record<string, number>>,
-  entityCache: DenormalizeCache['entities'],
-  dependencies: object[],
+  dependencies: Dep[],
   cycleIndex: { i: number },
 ): [denormalized: object | undefined, found: boolean, deleted: boolean] => {
-  const entity = getEntity(entityOrId, schema);
+  const entity = getEntity(entityOrId, schema.key);
   if (
     typeof entity === 'symbol' &&
     (entity as symbol).toString().includes('DELETED')
@@ -59,62 +59,68 @@ const unvisitEntity = (
   if (!(key in cycleCache)) {
     cycleCache[key] = Object.create(null);
   }
-  if (!(key in entityCache)) {
-    entityCache[key] = Object.create(null);
-  }
   const localCacheKey = localCache[key];
   const cycleCacheKey = cycleCache[key];
-  const entityCacheKey = entityCache[key];
 
   let found = true;
   let deleted = false;
 
+  // local cache lookup first
   if (!localCacheKey[pk]) {
-    const trackingIndex = dependencies.length;
-    dependencies.push(entity);
+    const globalCache = getCache(pk, schema);
+    const cacheValue = globalCache.get(entity);
 
-    let entityCopy: any;
-    if (schema.createIfValid) {
-      entityCopy = localCacheKey[pk] = isImmutable(entity)
-        ? schema.createIfValid(entity.toObject())
-        : schema.createIfValid(entity);
-      // TODO(breaking): remove once old verions no longer supported
-    } else {
-      entityCopy = entity;
-      unvisit = withTrackedEntities(unvisit);
-      unvisit.setLocal = entityCopy => (localCacheKey[pk] = entityCopy);
+    if (cacheValue) {
+      localCacheKey[pk] = cacheValue.value[0];
+      // TODO: can we store the cache values instead of tracking *all* their sources?
+      dependencies.push(...cacheValue.dependencies);
+      return cacheValue.value;
     }
+    // if we don't find in denormalize cache then do full denormalize
+    else {
+      const trackingIndex = dependencies.length;
+      dependencies.push({ entity, path: { key, pk } });
 
-    cycleCacheKey[pk] = trackingIndex;
-    if (entityCopy === undefined) {
-      // undefined indicates we should suspense (perhaps failed validation)
-      found = false;
-      deleted = true;
-    } else {
-      [localCacheKey[pk], found, deleted] = schema.denormalize(
-        entityCopy,
-        unvisit,
+      let entityCopy: any;
+      if (schema.createIfValid) {
+        entityCopy = localCacheKey[pk] = isImmutable(entity)
+          ? schema.createIfValid(entity.toObject())
+          : schema.createIfValid(entity);
+        // TODO(breaking): remove once old verions no longer supported
+      } else {
+        entityCopy = entity;
+        unvisit = withTrackedEntities(unvisit);
+        unvisit.setLocal = entityCopy => (localCacheKey[pk] = entityCopy);
+      }
+
+      cycleCacheKey[pk] = trackingIndex;
+      if (entityCopy === undefined) {
+        // undefined indicates we should suspense (perhaps failed validation)
+        found = false;
+        deleted = true;
+      } else {
+        [localCacheKey[pk], found, deleted] = schema.denormalize(
+          entityCopy,
+          unvisit,
+        );
+      }
+      delete cycleCacheKey[pk];
+
+      // if in cycle, use the start of the cycle to track all deps
+      // otherwise, we use our own trackingIndex
+      const localKey = dependencies.slice(
+        cycleIndex.i === -1 ? trackingIndex : cycleIndex.i,
       );
-    }
-    delete cycleCacheKey[pk];
+      const cacheValue = {
+        dependencies: localKey,
+        value: [localCacheKey[pk], found, deleted],
+      };
+      globalCache.set(localKey, cacheValue);
 
-    const globalCacheEntry = getGlobalCacheEntry(entityCacheKey, pk);
-
-    // if in cycle, use the start of the cycle to track all deps
-    // otherwise, we use our own trackingIndex
-    const localKey = dependencies.slice(
-      cycleIndex.i === -1 ? trackingIndex : cycleIndex.i,
-    );
-
-    if (!globalCacheEntry.has(localKey)) {
-      globalCacheEntry.set(localKey, localCacheKey[pk]);
-    } else {
-      localCacheKey[pk] = globalCacheEntry.get(localKey);
-    }
-
-    // start of cycle - reset cycle detection
-    if (cycleIndex.i === trackingIndex) {
-      cycleIndex.i = -1;
+      // start of cycle - reset cycle detection
+      if (cycleIndex.i === trackingIndex) {
+        cycleIndex.i = -1;
+      }
     }
   } else {
     // cycle detected
@@ -122,7 +128,7 @@ const unvisitEntity = (
       cycleIndex.i = cycleCacheKey[pk];
     } else {
       // with no cycle, globalCacheEntry will have already been set
-      dependencies.push(entity);
+      dependencies.push({ entity, path: { key, pk } });
     }
   }
 
@@ -132,11 +138,12 @@ const unvisitEntity = (
 const getUnvisit = (
   entities: Record<string, Record<string, any>>,
   entityCache: DenormalizeCache['entities'],
-  resultCache: WeakListMap<object, any>,
+  resultCache: DenormalizeCache['results'][string],
   localCache: Record<string, Record<string, any>>,
 ) => {
   const getEntity = getEntities(entities);
-  const dependencies: object[] = [];
+  const getCache = getCaches(entities, entityCache);
+  const dependencies: Dep[] = [];
   const cycleIndex = { i: -1 };
   const cycleCache = {};
 
@@ -177,9 +184,9 @@ const getUnvisit = (
         schema,
         unvisit,
         getEntity,
+        getCache,
         localCache,
         cycleCache,
-        entityCache,
         dependencies,
         cycleIndex,
       );
@@ -198,39 +205,75 @@ const getUnvisit = (
     input: any,
     schema: any,
   ): [denormalized: any, found: boolean, deleted: boolean] => {
-    const ret = unvisit(input, schema);
     // in the case where WeakMap cannot be used
     // this test ensures null is properly excluded from WeakMap
-    if (Object(input) !== input) return ret;
+    const cachable = Object(input) === input && schema;
+    if (!cachable) return unvisit(input, schema);
 
-    dependencies.push(input);
-    if (!resultCache.has(dependencies)) {
-      resultCache.set(dependencies, ret[0]);
-      return ret;
+    let resultSchemaCache: WeakEntityMap<
+      object,
+      [denormalized: any, found: boolean, deleted: boolean]
+    >;
+    resultSchemaCache = resultCache.get(schema) as any;
+    if (!resultSchemaCache) {
+      resultSchemaCache = new WeakEntityMap();
+      resultCache.set(schema, resultSchemaCache);
     } else {
-      return [resultCache.get(dependencies), ret[1], ret[2]];
+      const ret = WeakEntityMap.fromState(resultSchemaCache, entities).get(
+        input,
+      );
+      if (ret !== undefined) return ret;
     }
+
+    const ret = unvisit(input, schema);
+    // for the first entry, `path` is ignored so empty members is fine
+    dependencies.unshift({ entity: input, path: { key: '', pk: '' } });
+    //console.log('almost set', dependencies);
+    resultSchemaCache.set(dependencies, ret);
+    return ret;
   };
 };
 
 const getEntities = (entities: Record<string, any>) => {
   const entityIsImmutable = isImmutable(entities);
 
-  return (
-    entityOrId: Record<string, any> | string,
-    schema: EntityInterface,
-  ) => {
-    const schemaKey = schema.key;
-
+  return (entityOrId: Record<string, any> | string, key: string) => {
     if (typeof entityOrId === 'object') {
       return entityOrId;
     }
 
     if (entityIsImmutable) {
-      return entities.getIn([schemaKey, entityOrId]);
+      return entities.getIn([key, entityOrId]);
     }
 
-    return entities[schemaKey]?.[entityOrId];
+    return entities[key]?.[entityOrId];
+  };
+};
+
+const getCaches = (
+  entities: Record<string, any>,
+  entityCache: DenormalizeCache['entities'],
+) => {
+  return (pk: string, schema: EntityInterface) => {
+    const key = schema.key;
+
+    if (!(key in entityCache)) {
+      entityCache[key] = Object.create(null);
+    }
+    const entityCacheKey = entityCache[key];
+    if (!entityCacheKey[pk])
+      entityCacheKey[pk] = new WeakMap<
+        EntityInterface,
+        WeakEntityMap<object, any>
+      >();
+
+    let wem: WeakEntityMap<object, any> = entityCacheKey[pk].get(schema) as any;
+    if (!wem) {
+      wem = new WeakEntityMap<object, any>();
+      entityCacheKey[pk].set(schema, wem);
+    }
+
+    return WeakEntityMap.fromState(wem, entities);
   };
 };
 
@@ -260,7 +303,7 @@ export const denormalize = <S extends Schema>(
   schema: S | undefined,
   entities: any,
   entityCache: DenormalizeCache['entities'] = {},
-  resultCache: WeakListMap<object, any> = new WeakListMap(),
+  resultCache: DenormalizeCache['results'][string] = new WeakMap(),
 ): DenormalizeReturn<S> => {
   // undefined mean don't do anything
   if (schema === undefined) {
@@ -289,7 +332,7 @@ export const denormalizeSimple = <S extends Schema>(
   schema: S | undefined,
   entities: any,
   entityCache: DenormalizeCache['entities'] = {},
-  resultCache: WeakListMap<object, any> = new WeakListMap(),
+  resultCache: DenormalizeCache['results'][string] = new WeakMap(),
 ):
   | [denormalized: Denormalize<S>, found: true, deleted: false]
   | [denormalized: DenormalizeNullable<S>, found: boolean, deleted: true]
@@ -298,15 +341,6 @@ export const denormalizeSimple = <S extends Schema>(
     0,
     3,
   ) as any;
-
-function getGlobalCacheEntry(
-  entityCache: { [pk: string]: WeakListMap<object, EntityInterface<any>> },
-
-  id: any,
-) {
-  if (!entityCache[id]) entityCache[id] = new WeakListMap();
-  return entityCache[id];
-}
 
 // TODO(breaking): remove once unused
 function withTrackedEntities(unvisit: UnvisitFunction): UnvisitFunction {

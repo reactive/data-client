@@ -42,8 +42,7 @@ export default class AllSchema<
     let found = false;
     const list = Object.values(this.schema as Record<string, any>).flatMap(
       (schema: EntityInterface) => {
-        if (!Object.hasOwn(entities, schema.key) || !entities[schema.key])
-          return [];
+        if (!entities[schema.key]) return [];
         found = true;
         return Object.values(entities[schema.key] as Record<string, any>).map(
           entity => ({

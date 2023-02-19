@@ -5,6 +5,7 @@ import { fromJS } from 'immutable';
 
 import denormalize from './denormalize';
 import { schema, AbstractInstanceType } from '../..';
+import { EntityTable } from '../../interface';
 import { DELETED } from '../../special';
 
 let dateSpy: jest.SpyInstance<number, []>;
@@ -180,6 +181,7 @@ describe.each([
       };
       const input = inferResults(catSchema, [], {}, entities);
       let [value, found] = denormalize(input, catSchema, createInput(entities));
+      expect(createOutput(value.results).length).toBe(2);
       expect(createOutput(value.results)).toMatchSnapshot();
       expect(found).toBe(true);
       [value, found] = denormalize(
@@ -189,6 +191,69 @@ describe.each([
       );
       expect(createOutput(value)).toMatchSnapshot();
       expect(found).toBe(true);
+    });
+
+    test('denormalize maintains referential equality until entities are added', () => {
+      class Cat extends IDEntity {}
+      (Cat as any).defaults;
+      const catSchema = { results: new schema.All(Cat), nextPage: '' };
+      let entities: EntityTable = {
+        Cat: {
+          1: { id: '1', name: 'Milo' },
+          2: { id: '2', name: 'Jake' },
+        },
+      };
+      const input = createInput(inferResults(catSchema, [], {}, entities));
+      const entityCache = {};
+      const resultCache = new WeakMap();
+      const [value, found] = denormalize(
+        input,
+        catSchema,
+        entities,
+        entityCache,
+        resultCache,
+      );
+
+      expect(createOutput(value).results?.length).toBe(2);
+      expect(createOutput(value).results).toMatchSnapshot();
+      expect(found).toBe(true);
+      const [value2, found2] = denormalize(
+        input,
+        catSchema,
+        entities,
+        entityCache,
+        resultCache,
+      );
+      expect(createOutput(value).results[0]).toBe(
+        createOutput(value2).results[0],
+      );
+      expect(value).toBe(value2);
+      expect(found).toBe(found2);
+
+      entities = {
+        ...entities,
+        Cat: {
+          ...entities.Cat,
+          3: { id: '3', name: 'Jelico' },
+        },
+      };
+      const input3 = createInput(inferResults(catSchema, [], {}, entities));
+      const [value3, found3] = denormalize(
+        input3,
+        catSchema,
+        entities,
+        entityCache,
+        resultCache,
+      );
+      expect(createOutput(value3).results?.length).toBe(3);
+      expect(createOutput(value3).results).toMatchSnapshot();
+      expect(createOutput(value).results[0]).toBe(
+        createOutput(value3).results[0],
+      );
+      expect(createOutput(value).results[2]).not.toBe(
+        createOutput(value3).results[2],
+      );
+      expect(value).not.toBe(value3);
     });
 
     test('denormalizes should not be found when no entities are present', () => {

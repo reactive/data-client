@@ -2,7 +2,6 @@ import {
   Entity,
   normalize,
   denormalize,
-  WeakListMap,
   inferResults,
 } from './dist/index.js';
 
@@ -33,7 +32,7 @@ const queryInfer = inferResults(
 export default function addNormlizrSuite(suite) {
   let denormCache = {
     entities: {},
-    results: { '/fake': new WeakListMap(), '/fakeQuery': new WeakListMap() },
+    results: { '/fake': new WeakMap(), '/fakeQuery': new WeakMap() },
   };
   // prime the cache
   denormalize(

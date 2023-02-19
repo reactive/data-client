@@ -305,6 +305,36 @@ exports[`AllSchema normalization (%s) should throw a custom error if data loads 
           Input: "abc""
 `;
 
+exports[`ArraySchema denormalization (direct) denormalize maintains referential equality until entities are added 1`] = `
+[
+  Cat {
+    "id": "1",
+    "name": "Milo",
+  },
+  Cat {
+    "id": "2",
+    "name": "Jake",
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (direct) denormalize maintains referential equality until entities are added 2`] = `
+[
+  Cat {
+    "id": "1",
+    "name": "Milo",
+  },
+  Cat {
+    "id": "2",
+    "name": "Jake",
+  },
+  Cat {
+    "id": "3",
+    "name": "Jelico",
+  },
+]
+`;
+
 exports[`ArraySchema denormalization (direct) denormalizes a single entity 1`] = `
 [
   [
@@ -424,6 +454,36 @@ exports[`ArraySchema denormalization (direct) returns the input value if is null
   },
   true,
   false,
+]
+`;
+
+exports[`ArraySchema denormalization (immutable) denormalize maintains referential equality until entities are added 1`] = `
+[
+  Cat {
+    "id": "1",
+    "name": "Milo",
+  },
+  Cat {
+    "id": "2",
+    "name": "Jake",
+  },
+]
+`;
+
+exports[`ArraySchema denormalization (immutable) denormalize maintains referential equality until entities are added 2`] = `
+[
+  Cat {
+    "id": "1",
+    "name": "Milo",
+  },
+  Cat {
+    "id": "2",
+    "name": "Jake",
+  },
+  Cat {
+    "id": "3",
+    "name": "Jelico",
+  },
 ]
 `;
 

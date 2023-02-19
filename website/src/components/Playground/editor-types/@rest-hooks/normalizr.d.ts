@@ -47,23 +47,39 @@ interface EntityTable {
     } | undefined;
 }
 
+/** Maps entity dependencies to a value (usually their denormalized form)
+ *
+ * Dependencies store `Path` to enable quick traversal using only `State`
+ * If *any* members of the dependency get cleaned up, so does that key/value pair get removed.
+ */
+declare class WeakEntityMap<K extends object, V> {
+    readonly next: WeakMap<K, Link<K, V>>;
+    get(entity: K, getEntity: GetEntity<K>): V | undefined;
+    set(dependencies: Dep<K>[], value: V): void;
+    /** Builds essentially the same intereface but binds entity state */
+    static fromState<T extends WeakEntityMap<object, any>>(wem: T, state: State<Parameters<T['get']>[0]>): {
+        get(entity: Parameters<T['get']>[0]): ReturnType<T['get']>;
+        set(deps: Parameters<T['set']>[0], value: Parameters<T['set']>[1]): void;
+    };
+}
+type GetEntity<K> = (lookup: Path) => K;
 /** Link in a chain */
 declare class Link<K extends object, V> {
-    children: WeakMap<K, Link<K, V>>;
+    next: WeakMap<K, Link<K, V>>;
     value?: V;
+    nextPath?: Path;
 }
-/** Maps from a list of objects (referentially) to any value
- *
- * If *any* members of the list get claned up, so does that key/value pair get removed.
- */
-declare class WeakListMap<K extends object, V> {
-    readonly first: WeakMap<K, Link<K, V>>;
-    delete(key: K[]): boolean;
-    get(key: K[]): V | undefined;
-    has(key: K[]): boolean;
-    set(key: K[], value: V): WeakListMap<K, V>;
-    protected traverse(key: K[]): Link<K, V> | undefined;
+interface Path {
+    key: string;
+    pk: string;
 }
+interface Dep<K = object> {
+    path: Path;
+    entity: K;
+}
+type State<K extends object> = Record<string, Record<string, K>> | {
+    getIn(path: [string, string]): K;
+};
 
 type AbstractInstanceType<T> = T extends {
     prototype: infer U;
@@ -90,11 +106,11 @@ interface RecordClass<T = any> extends NestedSchemaClass<T> {
 interface DenormalizeCache {
     entities: {
         [key: string]: {
-            [pk: string]: WeakListMap<object, EntityInterface>;
+            [pk: string]: WeakMap<EntityInterface, WeakEntityMap<object, any>>;
         };
     };
     results: {
-        [key: string]: WeakListMap<object, any>;
+        [key: string]: WeakMap<Exclude<Schema, null | string>, WeakEntityMap<object, any>>;
     };
 }
 type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> = keyof S['schema'] extends never ? S['prototype'] : string extends keyof S['schema'] ? S['prototype'] : S['prototype'];
@@ -143,7 +159,7 @@ type DenormalizeReturn<S extends Schema> = [
     deleted: boolean,
     resolvedEntities: Record<string, Record<string, any>>
 ];
-declare const denormalize: <S extends Schema>(input: unknown, schema: S | undefined, entities: any, entityCache?: DenormalizeCache['entities'], resultCache?: WeakListMap<object, any>) => DenormalizeReturn<S>;
+declare const denormalize: <S extends Schema>(input: unknown, schema: S | undefined, entities: any, entityCache?: DenormalizeCache['entities'], resultCache?: DenormalizeCache['results'][string]) => DenormalizeReturn<S>;
 
 declare function isEntity(schema: Schema): schema is EntityInterface;
 
@@ -263,4 +279,4 @@ type DenormalizeNullable<S> = Extract<S, EntityInterface> extends never ? Extrac
 type Normalize<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? Normalize$1<S> : Normalize$1<Extract<S, EntityInterface[]>> : Normalize$1<Extract<S, EntityInterface>>;
 type NormalizeNullable<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? NormalizeNullable$1<S> : NormalizeNullable$1<Extract<S, EntityInterface[]>> : NormalizeNullable$1<Extract<S, EntityInterface>>;
 
-export { AbstractInstanceType, ArrayElement, DELETED, Denormalize, DenormalizeCache, DenormalizeNullable, DenormalizeReturnType, EndpointExtraOptions, EndpointInterface, EntityInterface, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, IndexInterface, IndexParams, InferReturn, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, ReadEndpoint, ResolveType, Schema, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UnvisitFunction, UpdateFunction, WeakListMap, denormalize, inferResults, isEntity, normalize };
+export { AbstractInstanceType, ArrayElement, DELETED, Denormalize, DenormalizeCache, DenormalizeNullable, DenormalizeReturnType, EndpointExtraOptions, EndpointInterface, EntityInterface, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, IndexInterface, IndexParams, InferReturn, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, ReadEndpoint, ResolveType, Schema, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UnvisitFunction, UpdateFunction, WeakEntityMap, denormalize, inferResults, isEntity, normalize };

@@ -1,10 +1,5 @@
 // eslint-env jest
-import {
-  denormalize,
-  normalize,
-  DELETED,
-  WeakListMap,
-} from '@rest-hooks/normalizr';
+import { denormalize, normalize, DELETED } from '@rest-hooks/normalizr';
 import { fromJS } from 'immutable';
 
 import Entity from '../Entity';
@@ -637,7 +632,7 @@ describe('denormalize', () => {
 describe('denormalize with global cache', () => {
   test('maintains referential equality with same results', () => {
     const entityCache = {};
-    const resultCache = new WeakListMap();
+    const resultCache = new WeakMap();
     const entities = {
       Tacos: {
         1: { id: '1', type: 'foo' },
@@ -645,16 +640,17 @@ describe('denormalize with global cache', () => {
       },
     };
     const result = ['1', '2'];
+    const schema = [Tacos];
     const [first] = denormalize(
       result,
-      [Tacos],
+      schema,
       entities,
       entityCache,
       resultCache,
     );
     const [second] = denormalize(
       result,
-      [Tacos],
+      schema,
       entities,
       entityCache,
       resultCache,
@@ -663,7 +659,7 @@ describe('denormalize with global cache', () => {
 
     const [third] = denormalize(
       [...result],
-      [Tacos],
+      schema,
       entities,
       entityCache,
       resultCache,
@@ -673,7 +669,7 @@ describe('denormalize with global cache', () => {
 
     const fourth = denormalize(
       result,
-      [Tacos],
+      schema,
       { Tacos: { ...entities.Tacos, 2: { id: '2', type: 'bar' } } },
       entityCache,
       resultCache,
@@ -730,19 +726,20 @@ describe('denormalize with global cache', () => {
 
     test('maintains referential equality with nested entities', () => {
       const entityCache = {};
-      const resultCache = new WeakListMap();
+      const resultCache = new WeakMap();
 
       const result = { data: '123' };
+      const schema = { data: Article };
       const first = denormalize(
         result,
-        { data: Article },
+        schema,
         entities,
         entityCache,
         resultCache,
       )[0];
       const second = denormalize(
         result,
-        { data: Article },
+        schema,
         entities,
         entityCache,
         resultCache,
@@ -767,7 +764,7 @@ describe('denormalize with global cache', () => {
 
     test('entity equality changes', () => {
       const entityCache = {};
-      const resultCache = new WeakListMap();
+      const resultCache = new WeakMap();
 
       const result = { data: '123' };
       const [first] = denormalize(
@@ -803,18 +800,19 @@ describe('denormalize with global cache', () => {
 
   test('denormalizes plain object with no entities', () => {
     const entityCache = {};
-    const resultCache = new WeakListMap();
+    const resultCache = new WeakMap();
 
     const input = {
       firstThing: { five: 5, seven: 42 },
       secondThing: { cars: 'fifo' },
     };
+    const schema = {
+      firstThing: { five: 0, seven: 0 },
+      secondThing: { cars: '' },
+    };
     const [first, found, deleted] = denormalize(
       input,
-      {
-        firstThing: { five: 0, seven: 0 },
-        secondThing: { cars: '' },
-      },
+      schema,
       {},
       entityCache,
       resultCache,
@@ -823,22 +821,13 @@ describe('denormalize with global cache', () => {
     expect(found).toBe(true);
     expect(deleted).toBe(false);
     // should maintain referential equality
-    const [second] = denormalize(
-      input,
-      {
-        firstThing: { five: 0, seven: 0 },
-        secondThing: { cars: '' },
-      },
-      {},
-      {},
-      resultCache,
-    );
+    const [second] = denormalize(input, schema, {}, {}, resultCache);
     expect(second).toBe(first);
   });
 
   test('passthrough for null schema and an object input', () => {
     const entityCache = {};
-    const resultCache = new WeakListMap();
+    const resultCache = new WeakMap();
 
     const input = {
       firstThing: { five: 5, seven: 42 },
@@ -858,7 +847,7 @@ describe('denormalize with global cache', () => {
 
   test('passthrough for null schema and an number input', () => {
     const entityCache = {};
-    const resultCache = new WeakListMap();
+    const resultCache = new WeakMap();
 
     const input = 5;
     const [denorm, found, deleted] = denormalize(
@@ -875,7 +864,7 @@ describe('denormalize with global cache', () => {
 
   test('passthrough for undefined schema and an object input', () => {
     const entityCache = {};
-    const resultCache = new WeakListMap();
+    const resultCache = new WeakMap();
 
     const input = {
       firstThing: { five: 5, seven: 42 },
@@ -914,7 +903,7 @@ describe('denormalize with global cache', () => {
 
     test('handles null at top level', () => {
       const entityCache = {};
-      const resultCache = new WeakListMap();
+      const resultCache = new WeakMap();
 
       const [denorm, found, deleted] = denormalize(
         null,
@@ -930,7 +919,7 @@ describe('denormalize with global cache', () => {
 
     test('handles undefined at top level', () => {
       const entityCache = {};
-      const resultCache = new WeakListMap();
+      const resultCache = new WeakMap();
 
       const [denorm, found, deleted] = denormalize(
         undefined,
@@ -946,7 +935,7 @@ describe('denormalize with global cache', () => {
 
     test('handles null in nested place', () => {
       const entityCache = {};
-      const resultCache = new WeakListMap();
+      const resultCache = new WeakMap();
 
       const input = {
         data: { id: '5', title: 'hehe', author: null, comments: [] },
