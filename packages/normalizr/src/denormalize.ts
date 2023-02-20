@@ -87,6 +87,7 @@ const unvisitEntity = (
     if (cacheValue) {
       localCacheKey[pk] = cacheValue.value[0];
       // TODO: can we store the cache values instead of tracking *all* their sources?
+      // this is only used for setting results cache correctly. if we got this far we will def need to set as we would have already tried getting it
       dependencies.push(...cacheValue.dependencies);
       return cacheValue.value;
     }
@@ -228,8 +229,12 @@ const getUnvisit = (
       Object(input) === input &&
       Object(schema) === schema &&
       getResultCache(resultCache, schema);
-    if (!resultSchemaCache)
-      return [...unvisit(input, schema), depToPaths(dependencies)];
+    if (!resultSchemaCache) {
+      const ret = unvisit(input, schema);
+      // this is faster than spread
+      // https://www.measurethat.net/Benchmarks/Show/23636/0/spread-with-tuples
+      return [ret[0], ret[1], ret[2], depToPaths(dependencies)];
+    }
 
     let [ret, entityPaths] = resultSchemaCache.get(input, getEntity);
 
@@ -242,7 +247,7 @@ const getUnvisit = (
       resultSchemaCache.set(dependencies, ret);
     }
 
-    return [...ret, entityPaths as Path[]];
+    return [ret[0], ret[1], ret[2], entityPaths as Path[]];
   };
 };
 

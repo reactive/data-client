@@ -401,15 +401,17 @@ export default class Controller<
     if (!expiresAt) {
       // expiresAt existance is equivalent to cacheResults
       if (found) {
+        const entityMeta = state.entityMeta;
         // oldest entity dictates age
-        expiresAt = Infinity;
-        // using Object.keys ensures we don't hit `toString` type members
-        entityPaths.forEach(({ pk, key }) => {
-          expiresAt = Math.min(
-            expiresAt,
-            state.entityMeta[key]?.[pk]?.expiresAt ?? Infinity,
-          );
-        });
+        expiresAt = entityPaths.reduce(
+          (expiresAt: number, { pk, key }) =>
+            Math.min(expiresAt, entityMeta[key]?.[pk]?.expiresAt ?? Infinity),
+          Infinity,
+        );
+        /*expiresAt = entityPaths
+          .map(({ pk, key }) => entityMeta[key]?.[pk]?.expiresAt)
+          .filter(a => a)
+          .reduce((a, b) => Math.min(a, b), Infinity); Alternative method - is it faster?*/
       } else {
         expiresAt = 0;
       }

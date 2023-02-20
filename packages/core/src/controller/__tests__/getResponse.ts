@@ -84,13 +84,25 @@ describe('Controller.getResponse()', () => {
     const state = {
       ...initialState,
       entities,
+      entityMeta: {
+        Tacos: {
+          1: { date: 1000000, expiresAt: 1100000, fetchedAt: 1000000 },
+          2: { date: 2000000, expiresAt: 2100000, fetchedAt: 2000000 },
+        },
+      },
     };
-    const { data, expiryStatus } = controller.getResponse(
+    const { data, expiryStatus, expiresAt } = controller.getResponse(
       ep,
       { id: '1' },
       state,
     );
     expect(expiryStatus).toBe(ExpiryStatus.Valid);
     expect(data).toMatchSnapshot();
+    expect(expiresAt).toBe(1100000);
+    // test caching
+    const second = controller.getResponse(ep, { id: '1' }, state);
+    expect(second.data.data).toBe(data.data);
+    expect(second.expiryStatus).toBe(expiryStatus);
+    expect(second.expiresAt).toBe(expiresAt);
   });
 });
