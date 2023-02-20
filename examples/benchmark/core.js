@@ -12,7 +12,7 @@ import {
   ProjectSchema,
   ProjectSchemaSimpleMerge,
   ProjectWithBuildTypesDescriptionSimpleMerge,
-  ProjectWithBuildTypesDescription,
+  ProjectQuerySorted,
   User,
 } from './schemas.js';
 import userData from './user.json' assert { type: 'json' };
@@ -83,6 +83,9 @@ export default function addReducerSuite(suite) {
         for (let i = 0; i < 500; ++i) {
           controller.getResponse(getUser, 'gnoff', githubState);
         }
+      })
+      .add('getResponse Query-sorted', () => {
+        return controller.getResponse(ProjectQuerySorted, cachedState);
       })
       .add('setLong', () => {
         return controller.setResponse(getProject, data);

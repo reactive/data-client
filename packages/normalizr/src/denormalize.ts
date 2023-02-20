@@ -228,7 +228,6 @@ const getUnvisit = (
     const ret = unvisit(input, schema);
     // for the first entry, `path` is ignored so empty members is fine
     dependencies.unshift({ entity: input, path: { key: '', pk: '' } });
-    //console.log('almost set', dependencies);
     resultSchemaCache.set(dependencies, ret);
     return ret;
   };
@@ -331,8 +330,8 @@ export const denormalizeSimple = <S extends Schema>(
   input: any,
   schema: S | undefined,
   entities: any,
-  entityCache: DenormalizeCache['entities'] = {},
-  resultCache: DenormalizeCache['results'][string] = new WeakMap(),
+  entityCache?: DenormalizeCache['entities'],
+  resultCache?: DenormalizeCache['results'][string],
 ):
   | [denormalized: Denormalize<S>, found: true, deleted: false]
   | [denormalized: DenormalizeNullable<S>, found: boolean, deleted: true]
