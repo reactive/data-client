@@ -142,7 +142,7 @@ const getUnvisit = (
   localCache: Record<string, Record<string, any>>,
 ) => {
   const getEntity = getEntities(entities);
-  const getCache = getCaches(entities, entityCache);
+  const getCache = getEntityCaches(entities, entityCache);
   const dependencies: Dep[] = [];
   const cycleIndex = { i: -1 };
   const cycleCache = {};
@@ -207,28 +207,19 @@ const getUnvisit = (
   ): [denormalized: any, found: boolean, deleted: boolean] => {
     // in the case where WeakMap cannot be used
     // this test ensures null is properly excluded from WeakMap
-    const cachable = Object(input) === input && schema;
-    if (!cachable) return unvisit(input, schema);
+    const resultSchemaCache =
+      Object(input) === input && getResultCache(entities, resultCache, schema);
+    if (!resultSchemaCache) return unvisit(input, schema);
 
-    let resultSchemaCache: WeakEntityMap<
-      object,
-      [denormalized: any, found: boolean, deleted: boolean]
-    >;
-    resultSchemaCache = resultCache.get(schema) as any;
-    if (!resultSchemaCache) {
-      resultSchemaCache = new WeakEntityMap();
-      resultCache.set(schema, resultSchemaCache);
-    } else {
-      const ret = WeakEntityMap.fromState(resultSchemaCache, entities).get(
-        input,
-      );
-      if (ret !== undefined) return ret;
+    let ret = resultSchemaCache.get(input);
+
+    if (ret === undefined) {
+      ret = unvisit(input, schema);
+      // for the first entry, `path` is ignored so empty members is fine
+      dependencies.unshift({ entity: input, path: { key: '', pk: '' } });
+      resultSchemaCache.set(dependencies, ret);
     }
 
-    const ret = unvisit(input, schema);
-    // for the first entry, `path` is ignored so empty members is fine
-    dependencies.unshift({ entity: input, path: { key: '', pk: '' } });
-    resultSchemaCache.set(dependencies, ret);
     return ret;
   };
 };
@@ -249,7 +240,7 @@ const getEntities = (entities: Record<string, any>) => {
   };
 };
 
-const getCaches = (
+const getEntityCaches = (
   entities: Record<string, any>,
   entityCache: DenormalizeCache['entities'],
 ) => {
@@ -274,6 +265,26 @@ const getCaches = (
 
     return WeakEntityMap.fromState(wem, entities);
   };
+};
+
+const getResultCache = (
+  entities: Record<string, any>,
+  resultCache: DenormalizeCache['results'][string],
+  schema: Schema,
+) => {
+  // not cachable
+  if (Object(schema) !== schema) return;
+
+  let resultSchemaCache: WeakEntityMap<
+    object,
+    [denormalized: any, found: boolean, deleted: boolean]
+  >;
+  resultSchemaCache = resultCache.get(schema as any) as any;
+  if (!resultSchemaCache) {
+    resultSchemaCache = new WeakEntityMap();
+    resultCache.set(schema as any, resultSchemaCache);
+  }
+  return WeakEntityMap.fromState(resultSchemaCache, entities);
 };
 
 type DenormalizeReturn<S extends Schema> =
