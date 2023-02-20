@@ -32,6 +32,15 @@ export default function addReducerSuite(suite) {
       return '/user' + login;
     },
   });
+  const getUserByEntity = new Endpoint(
+    ({ login }) => Promise.resolve(userData),
+    {
+      schema: User,
+      key({ login }) {
+        return '/userByEntity' + login;
+      },
+    },
+  );
 
   let cachedState = state;
 
@@ -82,6 +91,16 @@ export default function addReducerSuite(suite) {
         // more commonly we'll be dealing with many usages of simple data
         for (let i = 0; i < 500; ++i) {
           controller.getResponse(getUser, 'gnoff', githubState);
+        }
+      })
+      .add('getSmallInferredResponse', () => {
+        // more commonly we'll be dealing with many usages of simple data
+        for (let i = 0; i < 500; ++i) {
+          controller.getResponse(
+            getUserByEntity,
+            { login: 'gnoff' },
+            githubState,
+          );
         }
       })
       .add('getResponse Query-sorted', () => {
