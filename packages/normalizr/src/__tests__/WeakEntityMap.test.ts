@@ -1,10 +1,10 @@
-import WeakEntityMap from '../WeakEntityMap';
+import WeakEntityMap, { getEntities } from '../WeakEntityMap';
 
 describe('WeakEntityMap', () => {
   const a = { hi: '5' };
   const b = [1, 2, 3];
   const c = new Date(0);
-  const state = {
+  const state: Record<string, Record<string, object>> = {
     A: {
       '1': a,
     },
@@ -15,6 +15,7 @@ describe('WeakEntityMap', () => {
       '3': c,
     },
   };
+  const getEntity = getEntities(state);
   const depA = { path: { key: 'A', pk: '1' }, entity: a };
   const depB = { path: { key: 'B', pk: '2' }, entity: b };
   const depC = { path: { key: 'C', pk: '3' }, entity: c };
@@ -24,18 +25,18 @@ describe('WeakEntityMap', () => {
   });
 
   it('should set one item', () => {
-    const wem = WeakEntityMap.fromState(new WeakEntityMap(), state);
+    const wem = new WeakEntityMap();
     const deps = [depA];
     wem.set(deps, 'myvalue');
 
-    expect(wem.get(a)).toBe('myvalue');
+    expect(wem.get(a, getEntity)).toBe('myvalue');
 
-    expect(wem.get(b)).toBeUndefined();
-    expect(wem.get(c)).toBeUndefined();
+    expect(wem.get(b, getEntity)).toBeUndefined();
+    expect(wem.get(c, getEntity)).toBeUndefined();
   });
 
   it('should set multiple on same path', () => {
-    const wem = WeakEntityMap.fromState(new WeakEntityMap(), state);
+    const wem = new WeakEntityMap();
     const attempts = [
       { key: [depA], value: 'first' },
       {
@@ -51,11 +52,11 @@ describe('WeakEntityMap', () => {
     for (const attempt of attempts) {
       wem.set(attempt.key, attempt.value);
     }
-    expect(wem.get(a)).toBe('third');
+    expect(wem.get(a, getEntity)).toBe('third');
   });
 
   it('should set multiple on distinct paths', () => {
-    const wem = WeakEntityMap.fromState(new WeakEntityMap(), state);
+    const wem = new WeakEntityMap();
     const attempts = [
       {
         key: [depA, depB],
@@ -79,19 +80,19 @@ describe('WeakEntityMap', () => {
     for (const attempt of attempts) {
       wem.set(attempt.key, attempt.value);
     }
-    expect(wem.get(a)).toBe('fourth');
-    expect(wem.get(b)).toBe('second');
-    expect(wem.get(c)).toBe('fifth');
+    expect(wem.get(a, getEntity)).toBe('fourth');
+    expect(wem.get(b, getEntity)).toBe('second');
+    expect(wem.get(c, getEntity)).toBe('fifth');
 
-    expect(wem.get({})).toBeUndefined();
+    expect(wem.get({}, getEntity)).toBeUndefined();
   });
 
   it('considers empty key list invalid', () => {
-    const wem = WeakEntityMap.fromState(new WeakEntityMap(), state);
+    const wem = new WeakEntityMap();
     expect(() => wem.set([], 'whatever')).toThrowErrorMatchingInlineSnapshot(
       `"Keys must include at least one member"`,
     );
 
-    expect(wem.get([])).toBeUndefined();
+    expect(wem.get([], getEntity)).toBeUndefined();
   });
 });

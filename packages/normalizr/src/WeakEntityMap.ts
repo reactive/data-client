@@ -8,12 +8,12 @@ import { isImmutable } from './schemas/ImmutableUtils.js';
 export default class WeakEntityMap<K extends object, V> {
   readonly next = new WeakMap<K, Link<K, V>>();
 
-  get(entity: K, getEntity: GetEntity<K>) {
+  get(entity: K, getEntity: GetEntity<K | symbol>) {
     let curLink = this.next.get(entity);
     if (!curLink) return;
     while (curLink.nextPath) {
       const nextEntity = getEntity(curLink.nextPath);
-      curLink = curLink.next.get(nextEntity);
+      curLink = curLink.next.get(nextEntity as any);
       if (!curLink) return;
     }
     // curLink exists, but has no path - so must have a value
@@ -36,35 +36,19 @@ export default class WeakEntityMap<K extends object, V> {
     delete curLink.nextPath;
     curLink.value = value;
   }
-
-  /** Builds essentially the same intereface but binds entity state */
-  static fromState<T extends WeakEntityMap<object, any>>(
-    wem: T,
-    state: State<Parameters<T['get']>[0]>,
-  ) {
-    const getEntity = getEntities(state);
-    return {
-      get(entity: Parameters<T['get']>[0]): ReturnType<T['get']> {
-        return wem.get(entity, getEntity);
-      },
-      set(deps: Parameters<T['set']>[0], value: Parameters<T['set']>[1]) {
-        wem.set(deps, value);
-      },
-    };
-  }
 }
 
-function getEntities<K extends object>(state: State<K>): GetEntity<K> {
+export function getEntities<K extends object>(state: State<K>): GetEntity<K> {
   const entityIsImmutable = isImmutable(state);
 
   if (entityIsImmutable) {
-    return (lookup: Path) => state.getIn([lookup.key, lookup.pk]);
+    return ({ key, pk }: Path) => state.getIn([key, pk]);
   } else {
-    return (lookup: Path) => state[lookup.key][lookup.pk];
+    return ({ key, pk }: Path) => state[key]?.[pk];
   }
 }
 
-type GetEntity<K> = (lookup: Path) => K;
+export type GetEntity<K = object | symbol> = (lookup: Path) => K;
 
 /** Link in a chain */
 class Link<K extends object, V> {

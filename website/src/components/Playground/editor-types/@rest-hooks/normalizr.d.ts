@@ -54,7 +54,7 @@ interface EntityTable {
  */
 declare class WeakEntityMap<K extends object, V> {
     readonly next: WeakMap<K, Link<K, V>>;
-    get(entity: K, getEntity: GetEntity<K>): V | undefined;
+    get(entity: K, getEntity: GetEntity<K | symbol>): V | undefined;
     set(dependencies: Dep<K>[], value: V): void;
     /** Builds essentially the same intereface but binds entity state */
     static fromState<T extends WeakEntityMap<object, any>>(wem: T, state: State<Parameters<T['get']>[0]>): {
@@ -62,7 +62,7 @@ declare class WeakEntityMap<K extends object, V> {
         set(deps: Parameters<T['set']>[0], value: Parameters<T['set']>[1]): void;
     };
 }
-type GetEntity<K> = (lookup: Path) => K;
+type GetEntity<K = object | symbol> = (lookup: Path) => K;
 /** Link in a chain */
 declare class Link<K extends object, V> {
     next: WeakMap<K, Link<K, V>>;
