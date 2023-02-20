@@ -8,23 +8,27 @@ import type {
   DenormalizeNullable,
   DenormalizeCache,
 } from './types.js';
-import WeakEntityMap, { type Dep } from './WeakEntityMap.js';
+import WeakEntityMap, {
+  type Dep,
+  getEntities,
+  type GetEntity,
+} from './WeakEntityMap.js';
 
 const unvisitEntity = (
   entityOrId: Record<string, any> | string,
   schema: EntityInterface,
   unvisit: UnvisitFunction,
-  getEntity: (
-    entityOrId: Record<string, any> | string,
-    key: string,
-  ) => object | symbol,
-  getCache: (pk: string, schema: EntityInterface) => any,
+  getEntity: GetEntity,
+  getCache: ReturnType<typeof getEntityCaches>,
   localCache: Record<string, Record<string, any>>,
   cycleCache: Record<string, Record<string, number>>,
   dependencies: Dep[],
   cycleIndex: { i: number },
 ): [denormalized: object | undefined, found: boolean, deleted: boolean] => {
-  const entity = getEntity(entityOrId, schema.key);
+  const entity =
+    typeof entityOrId === 'object'
+      ? entityOrId
+      : getEntity({ pk: entityOrId, key: schema.key });
   if (
     typeof entity === 'symbol' &&
     (entity as symbol).toString().includes('DELETED')
@@ -68,7 +72,7 @@ const unvisitEntity = (
   // local cache lookup first
   if (!localCacheKey[pk]) {
     const globalCache = getCache(pk, schema);
-    const cacheValue = globalCache.get(entity);
+    const cacheValue = globalCache.get(entity, getEntity);
 
     if (cacheValue) {
       localCacheKey[pk] = cacheValue.value[0];
@@ -142,7 +146,7 @@ const getUnvisit = (
   localCache: Record<string, Record<string, any>>,
 ) => {
   const getEntity = getEntities(entities);
-  const getCache = getEntityCaches(entities, entityCache);
+  const getCache = getEntityCaches(entityCache);
   const dependencies: Dep[] = [];
   const cycleIndex = { i: -1 };
   const cycleCache = {};
@@ -199,8 +203,6 @@ const getUnvisit = (
     return [input, true, false];
   }
 
-  //const wrappedUnvisit = withTrackedEntities(unvisit, globalKey);
-
   return (
     input: any,
     schema: any,
@@ -208,10 +210,12 @@ const getUnvisit = (
     // in the case where WeakMap cannot be used
     // this test ensures null is properly excluded from WeakMap
     const resultSchemaCache =
-      Object(input) === input && getResultCache(entities, resultCache, schema);
+      Object(input) === input &&
+      Object(schema) === schema &&
+      getResultCache(resultCache, schema);
     if (!resultSchemaCache) return unvisit(input, schema);
 
-    let ret = resultSchemaCache.get(input);
+    let ret = resultSchemaCache.get(input, getEntity);
 
     if (ret === undefined) {
       ret = unvisit(input, schema);
@@ -224,26 +228,7 @@ const getUnvisit = (
   };
 };
 
-const getEntities = (entities: Record<string, any>) => {
-  const entityIsImmutable = isImmutable(entities);
-
-  return (entityOrId: Record<string, any> | string, key: string) => {
-    if (typeof entityOrId === 'object') {
-      return entityOrId;
-    }
-
-    if (entityIsImmutable) {
-      return entities.getIn([key, entityOrId]);
-    }
-
-    return entities[key]?.[entityOrId];
-  };
-};
-
-const getEntityCaches = (
-  entities: Record<string, any>,
-  entityCache: DenormalizeCache['entities'],
-) => {
+const getEntityCaches = (entityCache: DenormalizeCache['entities']) => {
   return (pk: string, schema: EntityInterface) => {
     const key = schema.key;
 
@@ -263,18 +248,14 @@ const getEntityCaches = (
       entityCacheKey[pk].set(schema, wem);
     }
 
-    return WeakEntityMap.fromState(wem, entities);
+    return wem;
   };
 };
 
 const getResultCache = (
-  entities: Record<string, any>,
   resultCache: DenormalizeCache['results'][string],
-  schema: Schema,
+  schema: Exclude<Schema, null | undefined | string | number>,
 ) => {
-  // not cachable
-  if (Object(schema) !== schema) return;
-
   let resultSchemaCache: WeakEntityMap<
     object,
     [denormalized: any, found: boolean, deleted: boolean]
@@ -284,7 +265,7 @@ const getResultCache = (
     resultSchemaCache = new WeakEntityMap();
     resultCache.set(schema as any, resultSchemaCache);
   }
-  return WeakEntityMap.fromState(resultSchemaCache, entities);
+  return resultSchemaCache;
 };
 
 type DenormalizeReturn<S extends Schema> =
