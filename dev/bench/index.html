@@ -113,7 +113,7 @@
         const toolColors = {
           cargo: '#dea584',
           go: '#00add8',
-          benchmarkjs: '#f1e05a',
+          benchmarkjs: '#3e96db',
           pytest: '#3572a5',
           googlecpp: '#f34b7d',
           catch2: '#f34b7d',
@@ -257,7 +257,23 @@
             graphsElem.className = 'benchmark-graphs';
             setElem.appendChild(graphsElem);
 
-            for (const [benchName, benches] of benchSet.entries()) {
+            //benchEntries.sort()
+            const groupByCategory = [...benchSet.entries()].reduce((group, benchEntry) => {
+              const category = benchEntry[0].substr(0,3);
+              group[category] = group[category] ?? [];
+              group[category].push(benchEntry);
+              return group;
+            }, {});
+            const benchEntries = Object.entries(groupByCategory)
+            benchEntries.sort(([a], [b]) => {
+              if (b==='get') return 1;
+              if (a==='get') return -1;
+              if (b==='set') return 1;
+              if (a==='set') return -1;
+              return a.localeCompare(b)
+            })
+            for (const [benchName, benches] of benchEntries.flatMap(([_,value]) => value)) {
+              if (benchName.startsWith('receive')) continue;
               renderGraph(graphsElem, benchName, benches)
             }
           }
