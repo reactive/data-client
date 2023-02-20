@@ -43,6 +43,6 @@ exports[`UnionSchema denormalization denormalizes deleted entities as undefined 
   },
   true,
   true,
-  {},
+  [],
 ]
 `;

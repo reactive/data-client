@@ -7,13 +7,19 @@ import type {
   Denormalize,
   DenormalizeNullable,
   DenormalizeCache,
+  Path,
 } from './types.js';
 import WeakEntityMap, {
   type Dep,
   getEntities,
   type GetEntity,
+  depToPaths,
 } from './WeakEntityMap.js';
 
+interface EntityCacheValue {
+  dependencies: Dep[];
+  value: [any, boolean, boolean];
+}
 const unvisitEntity = (
   entityOrId: Record<string, any> | string,
   schema: EntityInterface,
@@ -71,8 +77,12 @@ const unvisitEntity = (
 
   // local cache lookup first
   if (!localCacheKey[pk]) {
-    const globalCache = getCache(pk, schema);
-    const cacheValue = globalCache.get(entity, getEntity);
+    const globalCache: WeakEntityMap<object, EntityCacheValue> = getCache(
+      pk,
+      schema,
+    );
+    const [cacheValue] = globalCache.get(entity, getEntity);
+    // TODO: what if this just returned the deps - then we don't need to store them
 
     if (cacheValue) {
       localCacheKey[pk] = cacheValue.value[0];
@@ -115,7 +125,7 @@ const unvisitEntity = (
       const localKey = dependencies.slice(
         cycleIndex.i === -1 ? trackingIndex : cycleIndex.i,
       );
-      const cacheValue = {
+      const cacheValue: EntityCacheValue = {
         dependencies: localKey,
         value: [localCacheKey[pk], found, deleted],
       };
@@ -143,10 +153,10 @@ const getUnvisit = (
   entities: Record<string, Record<string, any>>,
   entityCache: DenormalizeCache['entities'],
   resultCache: DenormalizeCache['results'][string],
-  localCache: Record<string, Record<string, any>>,
 ) => {
   const getEntity = getEntities(entities);
   const getCache = getEntityCaches(entityCache);
+  const localCache: Record<string, Record<string, any>> = {};
   const dependencies: Dep[] = [];
   const cycleIndex = { i: -1 };
   const cycleCache = {};
@@ -206,25 +216,33 @@ const getUnvisit = (
   return (
     input: any,
     schema: any,
-  ): [denormalized: any, found: boolean, deleted: boolean] => {
+  ): [
+    denormalized: any,
+    found: boolean,
+    deleted: boolean,
+    entityPaths: Path[],
+  ] => {
     // in the case where WeakMap cannot be used
     // this test ensures null is properly excluded from WeakMap
     const resultSchemaCache =
       Object(input) === input &&
       Object(schema) === schema &&
       getResultCache(resultCache, schema);
-    if (!resultSchemaCache) return unvisit(input, schema);
+    if (!resultSchemaCache)
+      return [...unvisit(input, schema), depToPaths(dependencies)];
 
-    let ret = resultSchemaCache.get(input, getEntity);
+    let [ret, entityPaths] = resultSchemaCache.get(input, getEntity);
 
     if (ret === undefined) {
       ret = unvisit(input, schema);
+      // we want to do this before we add our 'input' entry
+      entityPaths = depToPaths(dependencies);
       // for the first entry, `path` is ignored so empty members is fine
       dependencies.unshift({ entity: input, path: { key: '', pk: '' } });
       resultSchemaCache.set(dependencies, ret);
     }
 
-    return ret;
+    return [...ret, entityPaths as Path[]];
   };
 };
 
@@ -273,19 +291,19 @@ type DenormalizeReturn<S extends Schema> =
       denormalized: Denormalize<S>,
       found: true,
       deleted: false,
-      resolvedEntities: Record<string, Record<string, any>>,
+      entityPaths: Path[],
     ]
   | [
       denormalized: DenormalizeNullable<S>,
       found: boolean,
       deleted: true,
-      resolvedEntities: Record<string, Record<string, any>>,
+      entityPaths: Path[],
     ]
   | [
       denormalized: DenormalizeNullable<S>,
       found: false,
       deleted: boolean,
-      resolvedEntities: Record<string, Record<string, any>>,
+      entityPaths: Path[],
     ];
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -298,24 +316,12 @@ export const denormalize = <S extends Schema>(
 ): DenormalizeReturn<S> => {
   // undefined mean don't do anything
   if (schema === undefined) {
-    return [input, true, false, {}] as [any, boolean, boolean, any];
+    return [input, true, false, []] as [any, boolean, boolean, any];
   }
   if (input === undefined) {
-    return [undefined, false, false, {}] as [any, boolean, boolean, any];
+    return [undefined, false, false, []] as [any, boolean, boolean, any];
   }
-  const resolvedEntities: Record<string, Record<string, any>> = {};
-  const unvisit = getUnvisit(
-    entities,
-    entityCache,
-    resultCache,
-    resolvedEntities,
-  );
-  return [...unvisit(input, schema), resolvedEntities] as [
-    any,
-    boolean,
-    boolean,
-    any,
-  ];
+  return getUnvisit(entities, entityCache, resultCache)(input, schema);
 };
 
 export const denormalizeSimple = <S extends Schema>(

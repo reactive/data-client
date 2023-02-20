@@ -358,7 +358,7 @@ describe('normalize', () => {
 describe('denormalize', () => {
   test('passthrough with undefined schema', () => {
     const input = {};
-    expect(denormalize(input)).toStrictEqual([input, true, false, {}]);
+    expect(denormalize(input)).toStrictEqual([input, true, false, []]);
   });
 
   test('returns the input if undefined', () => {
@@ -366,12 +366,12 @@ describe('denormalize', () => {
       undefined,
       false,
       false,
-      {},
+      [],
     ]);
   });
 
   test('returns the input if string', () => {
-    expect(denormalize('bob', '', {})).toEqual(['bob', true, false, {}]);
+    expect(denormalize('bob', '', {})).toEqual(['bob', true, false, []]);
   });
 
   test('denormalizes entities', () => {
@@ -389,7 +389,7 @@ describe('denormalize', () => {
     expect(
       denormalize(fromJS({ data: '1' }), { data: Tacos }, {}),
     ).toMatchSnapshot();
-    expect(denormalize('1', Tacos, {})).toEqual([undefined, false, false, {}]);
+    expect(denormalize('1', Tacos, {})).toEqual([undefined, false, false, []]);
   });
 
   test('denormalizes ignoring unfound entities in arrays', () => {

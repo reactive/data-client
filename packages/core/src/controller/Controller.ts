@@ -4,6 +4,7 @@ import type {
   ResolveType,
   DenormalizeNullable,
   EntityTable,
+  Path,
 } from '@rest-hooks/normalizr';
 import { ExpiryStatus } from '@rest-hooks/normalizr';
 import {
@@ -388,18 +389,13 @@ export default class Controller<
 
     // second argument is false if any entities are missing
     // eslint-disable-next-line prefer-const
-    const [data, found, suspend, resolvedEntities] = denormalize(
+    const [data, found, suspend, entityPaths] = denormalize(
       results,
       schema,
       state.entities,
       this.globalCache.entities,
       isActive ? this.globalCache.results[key] : undefined,
-    ) as [
-      DenormalizeNullable<E['schema']>,
-      boolean,
-      boolean,
-      Record<string, Record<string, any>>,
-    ];
+    ) as [DenormalizeNullable<E['schema']>, boolean, boolean, Path[]];
 
     // fallback to entity expiry time
     if (!expiresAt) {
@@ -408,14 +404,12 @@ export default class Controller<
         // oldest entity dictates age
         expiresAt = Infinity;
         // using Object.keys ensures we don't hit `toString` type members
-        Object.entries(resolvedEntities).forEach(([key, entities]) =>
-          Object.keys(entities).forEach(pk => {
-            expiresAt = Math.min(
-              expiresAt,
-              state.entityMeta[key]?.[pk]?.expiresAt ?? Infinity,
-            );
-          }),
-        );
+        entityPaths.forEach(({ pk, key }) => {
+          expiresAt = Math.min(
+            expiresAt,
+            state.entityMeta[key]?.[pk]?.expiresAt ?? Infinity,
+          );
+        });
       } else {
         expiresAt = 0;
       }

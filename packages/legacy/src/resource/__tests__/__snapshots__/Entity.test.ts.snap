@@ -10,21 +10,16 @@ exports[`Entity denormalization can denormalize already partially denormalized d
   },
   true,
   false,
-  {
-    "Food": {
-      "1": Food {
-        "id": "1",
-      },
+  [
+    {
+      "key": "Menu",
+      "pk": "1",
     },
-    "Menu": {
-      "1": Menu {
-        "food": Food {
-          "id": "1",
-        },
-        "id": "1",
-      },
+    {
+      "key": "Food",
+      "pk": "1",
     },
-  },
+  ],
 ]
 `;
 
@@ -38,21 +33,16 @@ exports[`Entity denormalization can denormalize already partially denormalized d
   },
   true,
   false,
-  {
-    "Food": {
-      "1": Food {
-        "id": "1",
-      },
+  [
+    {
+      "key": "Menu",
+      "pk": "1",
     },
-    "Menu": {
-      "1": Menu {
-        "food": Food {
-          "id": "1",
-        },
-        "id": "1",
-      },
+    {
+      "key": "Food",
+      "pk": "1",
     },
-  },
+  ],
 ]
 `;
 
@@ -66,16 +56,12 @@ exports[`Entity denormalization denormalizes an entity 1`] = `
   },
   true,
   false,
-  {
-    "Tacos": {
-      "1": Tacos {
-        "alias": undefined,
-        "id": "1",
-        "name": "",
-        "type": "foo",
-      },
+  [
+    {
+      "key": "Tacos",
+      "pk": "1",
     },
-  },
+  ],
 ]
 `;
 
@@ -89,16 +75,12 @@ exports[`Entity denormalization denormalizes an entity 2`] = `
   },
   true,
   false,
-  {
-    "Tacos": {
-      "1": Tacos {
-        "alias": undefined,
-        "id": "1",
-        "name": "",
-        "type": "foo",
-      },
+  [
+    {
+      "key": "Tacos",
+      "pk": "1",
     },
-  },
+  ],
 ]
 `;
 
@@ -112,21 +94,16 @@ exports[`Entity denormalization denormalizes deep entities 1`] = `
   },
   true,
   false,
-  {
-    "Food": {
-      "1": Food {
-        "id": "1",
-      },
+  [
+    {
+      "key": "Menu",
+      "pk": "1",
     },
-    "Menu": {
-      "1": Menu {
-        "food": Food {
-          "id": "1",
-        },
-        "id": "1",
-      },
+    {
+      "key": "Food",
+      "pk": "1",
     },
-  },
+  ],
 ]
 `;
 
@@ -140,21 +117,16 @@ exports[`Entity denormalization denormalizes deep entities 2`] = `
   },
   true,
   false,
-  {
-    "Food": {
-      "1": Food {
-        "id": "1",
-      },
+  [
+    {
+      "key": "Menu",
+      "pk": "1",
     },
-    "Menu": {
-      "1": Menu {
-        "food": Food {
-          "id": "1",
-        },
-        "id": "1",
-      },
+    {
+      "key": "Food",
+      "pk": "1",
     },
-  },
+  ],
 ]
 `;
 
@@ -168,16 +140,12 @@ exports[`Entity denormalization denormalizes deep entities 3`] = `
   },
   true,
   false,
-  {
-    "Menu": {
-      "2": Menu {
-        "food": Food {
-          "id": undefined,
-        },
-        "id": "2",
-      },
+  [
+    {
+      "key": "Menu",
+      "pk": "2",
     },
-  },
+  ],
 ]
 `;
 
@@ -191,16 +159,12 @@ exports[`Entity denormalization denormalizes deep entities 4`] = `
   },
   false,
   false,
-  {
-    "Menu": {
-      "2": Menu {
-        "food": Food {
-          "id": undefined,
-        },
-        "id": "2",
-      },
+  [
+    {
+      "key": "Menu",
+      "pk": "2",
     },
-  },
+  ],
 ]
 `;
 
@@ -214,21 +178,16 @@ exports[`Entity denormalization denormalizes deep entities with records 1`] = `
   },
   true,
   false,
-  {
-    "Food": {
-      "1": Food {
-        "id": "1",
-      },
+  [
+    {
+      "key": "Menu",
+      "pk": "1",
     },
-    "Menu": {
-      "1": Menu {
-        "food": Food {
-          "id": "1",
-        },
-        "id": "1",
-      },
+    {
+      "key": "Food",
+      "pk": "1",
     },
-  },
+  ],
 ]
 `;
 
@@ -242,21 +201,16 @@ exports[`Entity denormalization denormalizes deep entities with records 2`] = `
   },
   true,
   false,
-  {
-    "Food": {
-      "1": Food {
-        "id": "1",
-      },
+  [
+    {
+      "key": "Menu",
+      "pk": "1",
     },
-    "Menu": {
-      "1": Menu {
-        "food": Food {
-          "id": "1",
-        },
-        "id": "1",
-      },
+    {
+      "key": "Food",
+      "pk": "1",
     },
-  },
+  ],
 ]
 `;
 
@@ -268,14 +222,12 @@ exports[`Entity denormalization denormalizes deep entities with records 3`] = `
   },
   true,
   false,
-  {
-    "Menu": {
-      "2": Menu {
-        "food": null,
-        "id": "2",
-      },
+  [
+    {
+      "key": "Menu",
+      "pk": "2",
     },
-  },
+  ],
 ]
 `;
 
@@ -287,14 +239,12 @@ exports[`Entity denormalization denormalizes deep entities with records 4`] = `
   },
   true,
   false,
-  {
-    "Menu": {
-      "2": Menu {
-        "food": null,
-        "id": "2",
-      },
+  [
+    {
+      "key": "Menu",
+      "pk": "2",
     },
-  },
+  ],
 ]
 `;
 
@@ -320,42 +270,20 @@ exports[`Entity denormalization denormalizes recursive dependencies 1`] = `
   },
   true,
   false,
-  {
-    "Report": {
-      "123": Report {
-        "draftedBy": User {
-          "id": "456",
-          "reports": [
-            [Circular],
-          ],
-          "role": "manager",
-        },
-        "id": "123",
-        "publishedBy": User {
-          "id": "456",
-          "reports": [
-            [Circular],
-          ],
-          "role": "manager",
-        },
-        "title": "Weekly report",
-      },
+  [
+    {
+      "key": "Report",
+      "pk": "123",
     },
-    "User": {
-      "456": User {
-        "id": "456",
-        "reports": [
-          Report {
-            "draftedBy": [Circular],
-            "id": "123",
-            "publishedBy": [Circular],
-            "title": "Weekly report",
-          },
-        ],
-        "role": "manager",
-      },
+    {
+      "key": "User",
+      "pk": "456",
     },
-  },
+    {
+      "key": "User",
+      "pk": "456",
+    },
+  ],
 ]
 `;
 
@@ -391,52 +319,20 @@ exports[`Entity denormalization denormalizes recursive dependencies 2`] = `
   },
   true,
   false,
-  {
-    "Report": {
-      "123": Report {
-        "draftedBy": User {
-          "id": "456",
-          "reports": Immutable.List [
-            Immutable.Map {
-              "id": "123",
-              "title": "Weekly report",
-              "draftedBy": "456",
-              "publishedBy": "456",
-            },
-          ],
-          "role": "manager",
-        },
-        "id": "123",
-        "publishedBy": User {
-          "id": "456",
-          "reports": Immutable.List [
-            Immutable.Map {
-              "id": "123",
-              "title": "Weekly report",
-              "draftedBy": "456",
-              "publishedBy": "456",
-            },
-          ],
-          "role": "manager",
-        },
-        "title": "Weekly report",
-      },
+  [
+    {
+      "key": "Report",
+      "pk": "123",
     },
-    "User": {
-      "456": User {
-        "id": "456",
-        "reports": Immutable.List [
-          Immutable.Map {
-            "id": "123",
-            "title": "Weekly report",
-            "draftedBy": "456",
-            "publishedBy": "456",
-          },
-        ],
-        "role": "manager",
-      },
+    {
+      "key": "User",
+      "pk": "456",
     },
-  },
+    {
+      "key": "User",
+      "pk": "456",
+    },
+  ],
 ]
 `;
 
@@ -456,42 +352,16 @@ exports[`Entity denormalization denormalizes recursive dependencies 3`] = `
   },
   true,
   false,
-  {
-    "Report": {
-      "123": Report {
-        "draftedBy": User {
-          "id": "456",
-          "reports": [
-            [Circular],
-          ],
-          "role": "manager",
-        },
-        "id": "123",
-        "publishedBy": User {
-          "id": "456",
-          "reports": [
-            [Circular],
-          ],
-          "role": "manager",
-        },
-        "title": "Weekly report",
-      },
+  [
+    {
+      "key": "User",
+      "pk": "456",
     },
-    "User": {
-      "456": User {
-        "id": "456",
-        "reports": [
-          Report {
-            "draftedBy": [Circular],
-            "id": "123",
-            "publishedBy": [Circular],
-            "title": "Weekly report",
-          },
-        ],
-        "role": "manager",
-      },
+    {
+      "key": "Report",
+      "pk": "123",
     },
-  },
+  ],
 ]
 `;
 
@@ -523,54 +393,16 @@ exports[`Entity denormalization denormalizes recursive dependencies 4`] = `
   },
   true,
   false,
-  {
-    "Report": {
-      "123": Report {
-        "draftedBy": Immutable.Map {
-          "id": "456",
-          "role": "manager",
-          "reports": Immutable.List [
-            "123",
-          ],
-        },
-        "id": "123",
-        "publishedBy": Immutable.Map {
-          "id": "456",
-          "role": "manager",
-          "reports": Immutable.List [
-            "123",
-          ],
-        },
-        "title": "Weekly report",
-      },
+  [
+    {
+      "key": "User",
+      "pk": "456",
     },
-    "User": {
-      "456": User {
-        "id": "456",
-        "reports": Immutable.List [
-          Report {
-            "draftedBy": Immutable.Map {
-              "id": "456",
-              "role": "manager",
-              "reports": Immutable.List [
-                "123",
-              ],
-            },
-            "id": "123",
-            "publishedBy": Immutable.Map {
-              "id": "456",
-              "role": "manager",
-              "reports": Immutable.List [
-                "123",
-              ],
-            },
-            "title": "Weekly report",
-          },
-        ],
-        "role": "manager",
-      },
+    {
+      "key": "Report",
+      "pk": "123",
     },
-  },
+  ],
 ]
 `;
 
@@ -582,14 +414,12 @@ exports[`Entity denormalization denormalizes to undefined for deleted data 1`] =
   },
   true,
   true,
-  {
-    "Menu": {
-      "1": Menu {
-        "food": undefined,
-        "id": "1",
-      },
+  [
+    {
+      "key": "Menu",
+      "pk": "1",
     },
-  },
+  ],
 ]
 `;
 
@@ -601,14 +431,12 @@ exports[`Entity denormalization denormalizes to undefined for deleted data 2`] =
   },
   true,
   true,
-  {
-    "Menu": {
-      "1": Menu {
-        "food": undefined,
-        "id": "1",
-      },
+  [
+    {
+      "key": "Menu",
+      "pk": "1",
     },
-  },
+  ],
 ]
 `;
 
@@ -617,7 +445,7 @@ exports[`Entity denormalization denormalizes to undefined for deleted data 3`] =
   undefined,
   true,
   true,
-  {},
+  [],
 ]
 `;
 
@@ -626,7 +454,7 @@ exports[`Entity denormalization denormalizes to undefined for deleted data 4`] =
   undefined,
   true,
   true,
-  {},
+  [],
 ]
 `;
 
@@ -638,14 +466,12 @@ exports[`Entity denormalization denormalizes to undefined for missing data 1`] =
   },
   true,
   false,
-  {
-    "Menu": {
-      "1": Menu {
-        "food": undefined,
-        "id": "1",
-      },
+  [
+    {
+      "key": "Menu",
+      "pk": "1",
     },
-  },
+  ],
 ]
 `;
 
@@ -657,14 +483,12 @@ exports[`Entity denormalization denormalizes to undefined for missing data 2`] =
   },
   false,
   false,
-  {
-    "Menu": {
-      "1": Menu {
-        "food": undefined,
-        "id": "1",
-      },
+  [
+    {
+      "key": "Menu",
+      "pk": "1",
     },
-  },
+  ],
 ]
 `;
 
@@ -673,7 +497,7 @@ exports[`Entity denormalization denormalizes to undefined for missing data 3`] =
   undefined,
   false,
   false,
-  {},
+  [],
 ]
 `;
 
@@ -682,7 +506,7 @@ exports[`Entity denormalization denormalizes to undefined for missing data 4`] =
   undefined,
   false,
   false,
-  {},
+  [],
 ]
 `;
 
