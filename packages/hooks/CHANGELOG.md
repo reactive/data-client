@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.1.10](https://github.com/data-client/rest-hooks/compare/@rest-hooks/hooks@3.1.9...@rest-hooks/hooks@3.1.10) (2023-02-21)
+
+**Note:** Version bump only for package @rest-hooks/hooks
+
 ### [3.1.9](https://github.com/data-client/rest-hooks/compare/@rest-hooks/hooks@3.1.8...@rest-hooks/hooks@3.1.9) (2023-02-14)
 
 **Note:** Version bump only for package @rest-hooks/hooks

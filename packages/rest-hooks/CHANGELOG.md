@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.0.12](https://github.com/data-client/rest-hooks/compare/rest-hooks@7.0.11...rest-hooks@7.0.12) (2023-02-21)
+
+### 💅 Enhancement
+
+* Global denormalize cache lookups up to 25x faster ([#2444](https://github.com/data-client/rest-hooks/issues/2444)) ([f963675](https://github.com/data-client/rest-hooks/commit/f963675ecde98b9008cedef192b938654a59de05))
+
 ### [7.0.11](https://github.com/data-client/rest-hooks/compare/rest-hooks@7.0.10...rest-hooks@7.0.11) (2023-02-14)
 
 **Note:** Version bump only for package rest-hooks

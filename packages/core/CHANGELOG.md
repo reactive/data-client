@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.2.4](https://github.com/data-client/rest-hooks/compare/@rest-hooks/core@4.2.3...@rest-hooks/core@4.2.4) (2023-02-21)
+
+### 💅 Enhancement
+
+* Do not key on schema in result cache ([#2448](https://github.com/data-client/rest-hooks/issues/2448)) ([14bd762](https://github.com/data-client/rest-hooks/commit/14bd76225701b8d443fc41d006995da3c2532050))
+* Global denormalize cache lookups up to 25x faster ([#2444](https://github.com/data-client/rest-hooks/issues/2444)) ([f963675](https://github.com/data-client/rest-hooks/commit/f963675ecde98b9008cedef192b938654a59de05))
+* Use null-object over Object.hasOwn when possible ([#2441](https://github.com/data-client/rest-hooks/issues/2441)) ([28f3fe8](https://github.com/data-client/rest-hooks/commit/28f3fe8890da119c7fa6498d4617a66da74ed0b4))
+
+### 🐛 Bug Fix
+
+* Correct `expiresAt` computation when cached + inferred results ([#2447](https://github.com/data-client/rest-hooks/issues/2447)) ([32de97f](https://github.com/data-client/rest-hooks/commit/32de97fb1d37f95a13ef6cd524c29c008d870482))
+
 ### [4.2.3](https://github.com/data-client/rest-hooks/compare/@rest-hooks/core@4.2.2...@rest-hooks/core@4.2.3) (2023-02-14)
 
 **Note:** Version bump only for package @rest-hooks/core

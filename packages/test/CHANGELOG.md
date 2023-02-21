@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [10.2.0](https://github.com/data-client/rest-hooks/compare/@rest-hooks/test@10.1.2...@rest-hooks/test@10.2.0) (2023-02-21)
+
+### 🚀 Features
+
+* Interceptor response 'this' can be used to track 'server state' ([#2442](https://github.com/data-client/rest-hooks/issues/2442)) ([d5ada6e](https://github.com/data-client/rest-hooks/commit/d5ada6eee63f32727b535126d449946feebd6b22))
+
 ### [10.1.2](https://github.com/data-client/rest-hooks/compare/@rest-hooks/test@10.1.1...@rest-hooks/test@10.1.2) (2023-02-11)
 
 **Note:** Version bump only for package @rest-hooks/test

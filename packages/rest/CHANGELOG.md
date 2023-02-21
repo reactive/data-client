@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.3.6](https://github.com/data-client/rest-hooks/compare/@rest-hooks/rest@6.3.5...@rest-hooks/rest@6.3.6) (2023-02-21)
+
+### 💅 Enhancement
+
+* Use null-object over Object.hasOwn when possible ([#2441](https://github.com/data-client/rest-hooks/issues/2441)) ([28f3fe8](https://github.com/data-client/rest-hooks/commit/28f3fe8890da119c7fa6498d4617a66da74ed0b4))
+
 ### [6.3.5](https://github.com/data-client/rest-hooks/compare/@rest-hooks/rest@6.3.4...@rest-hooks/rest@6.3.5) (2023-02-14)
 
 ### 💅 Enhancement

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.0](https://github.com/data-client/rest-hooks/compare/@rest-hooks/graphql@0.3.16...@rest-hooks/graphql@0.4.0) (2023-02-21)
+
+### 🚀 Features
+
+* Add Endpoint.testKey ([#2439](https://github.com/data-client/rest-hooks/issues/2439)) ([d183216](https://github.com/data-client/rest-hooks/commit/d1832163aea11b69106d96955a0da58825dc8753))
+
 ### [0.3.16](https://github.com/data-client/rest-hooks/compare/@rest-hooks/graphql@0.3.15...@rest-hooks/graphql@0.3.16) (2023-02-14)
 
 **Note:** Version bump only for package @rest-hooks/graphql

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.2.4](https://github.com/data-client/rest-hooks/compare/@rest-hooks/react@7.2.3...@rest-hooks/react@7.2.4) (2023-02-21)
+
+### 💅 Enhancement
+
+* Use null-object over Object.hasOwn when possible ([#2441](https://github.com/data-client/rest-hooks/issues/2441)) ([28f3fe8](https://github.com/data-client/rest-hooks/commit/28f3fe8890da119c7fa6498d4617a66da74ed0b4))
+
 ### [7.2.3](https://github.com/data-client/rest-hooks/compare/@rest-hooks/react@7.2.2...@rest-hooks/react@7.2.3) (2023-02-14)
 
 **Note:** Version bump only for package @rest-hooks/react

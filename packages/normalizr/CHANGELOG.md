@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [10.0.0](https://github.com/data-client/rest-hooks/compare/@rest-hooks/normalizr@9.5.1...@rest-hooks/normalizr@10.0.0) (2023-02-21)
+
+### ⚠ 💥 BREAKING CHANGES
+
+* - Denormalize fourth value is now an array of entity paths
+- Denormalize resultCache expects a WeakMap
+- Removed WeakListMap export
+
+### 💅 Enhancement
+
+* Denormalize optimizations ([#2445](https://github.com/data-client/rest-hooks/issues/2445)) ([05855b4](https://github.com/data-client/rest-hooks/commit/05855b4b4d74b03a2fbe67d6f0bb7f3863280856))
+* Do not key on schema in result cache ([#2448](https://github.com/data-client/rest-hooks/issues/2448)) ([14bd762](https://github.com/data-client/rest-hooks/commit/14bd76225701b8d443fc41d006995da3c2532050))
+* Global denormalize cache lookups up to 25x faster ([#2444](https://github.com/data-client/rest-hooks/issues/2444)) ([f963675](https://github.com/data-client/rest-hooks/commit/f963675ecde98b9008cedef192b938654a59de05))
+* Use null-object over Object.hasOwn when possible ([#2441](https://github.com/data-client/rest-hooks/issues/2441)) ([28f3fe8](https://github.com/data-client/rest-hooks/commit/28f3fe8890da119c7fa6498d4617a66da74ed0b4))
+
+### 🐛 Bug Fix
+
+* Correct `expiresAt` computation when cached + inferred results ([#2447](https://github.com/data-client/rest-hooks/issues/2447)) ([32de97f](https://github.com/data-client/rest-hooks/commit/32de97fb1d37f95a13ef6cd524c29c008d870482))
+
+### 🏠 Internal
+
+* Add code comment ([fa8dd14](https://github.com/data-client/rest-hooks/commit/fa8dd141dc68b7be8ee063ecc012c88a3f4eae62))
+
 ### [9.5.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/normalizr@9.5.0...@rest-hooks/normalizr@9.5.1) (2023-02-14)
 
 ### 💅 Enhancement

@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.6.0](https://github.com/data-client/rest-hooks/compare/@rest-hooks/endpoint@3.5.1...@rest-hooks/endpoint@3.6.0) (2023-02-21)
+
+### 🚀 Features
+
+* Add Endpoint.testKey ([#2439](https://github.com/data-client/rest-hooks/issues/2439)) ([d183216](https://github.com/data-client/rest-hooks/commit/d1832163aea11b69106d96955a0da58825dc8753))
+
+### 💅 Enhancement
+
+* Do not key on schema in result cache ([#2448](https://github.com/data-client/rest-hooks/issues/2448)) ([14bd762](https://github.com/data-client/rest-hooks/commit/14bd76225701b8d443fc41d006995da3c2532050))
+* Global denormalize cache lookups up to 25x faster ([#2444](https://github.com/data-client/rest-hooks/issues/2444)) ([f963675](https://github.com/data-client/rest-hooks/commit/f963675ecde98b9008cedef192b938654a59de05))
+* Make Entity.__defaults non-enumerable ([1a836e4](https://github.com/data-client/rest-hooks/commit/1a836e43286f1866b62b61789f824f02ba0674d0))
+
+### 🐛 Bug Fix
+
+* Entity.defaults should work with inheritance ([#2440](https://github.com/data-client/rest-hooks/issues/2440)) ([44e8534](https://github.com/data-client/rest-hooks/commit/44e85349f129c8c611412b7e0a824fea6895e214))
+
 ### [3.5.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/endpoint@3.5.0...@rest-hooks/endpoint@3.5.1) (2023-02-14)
 
 ### 💅 Enhancement
