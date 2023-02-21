@@ -55,10 +55,7 @@ export interface DenormalizeCache {
     };
   };
   results: {
-    [key: string]: WeakMap<
-      Exclude<Schema, null | string>,
-      WeakEntityMap<object, any>
-    >;
+    [key: string]: WeakEntityMap<object, any>;
   };
 }
 

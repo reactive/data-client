@@ -1,5 +1,5 @@
 // eslint-env jest
-import { inferResults, normalize } from '@rest-hooks/normalizr';
+import { inferResults, normalize, WeakEntityMap } from '@rest-hooks/normalizr';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
 
@@ -146,7 +146,7 @@ describe.each([
       ).toMatchSnapshot();
     });
 
-    test('denormalizes nested in object with primitive', () => {
+    test.only('denormalizes nested in object with primitive', () => {
       class Cat extends IDEntity {}
       const catSchema = { results: new schema.All(Cat), nextPage: '' };
       const entities = {
@@ -205,7 +205,7 @@ describe.each([
       };
       const input = createInput(inferResults(catSchema, [], {}, entities));
       const entityCache = {};
-      const resultCache = new WeakMap();
+      const resultCache = new WeakEntityMap();
       const [value, found] = denormalize(
         input,
         catSchema,

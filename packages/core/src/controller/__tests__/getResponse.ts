@@ -50,6 +50,80 @@ describe('Controller.getResponse()', () => {
     expect(data).toMatchSnapshot();
   });
 
+  it('denormalizes distinct schemas for null arg', () => {
+    const controller = new Contoller();
+    class Tacos extends Entity {
+      type = '';
+      id = '';
+      pk() {
+        return this.id;
+      }
+    }
+    const ep = new Endpoint(() => Promise.resolve(), {
+      key() {
+        return 'mytest';
+      },
+      schema: {
+        data: [Tacos],
+        extra: '',
+        page: {
+          first: null,
+          second: undefined,
+          third: 0,
+          complex: { complex: true, next: false },
+        },
+      },
+    });
+    const entities = {
+      Tacos: {
+        1: { id: '1', type: 'foo' },
+        2: { id: '2', type: 'bar' },
+      },
+    };
+
+    const state = {
+      ...initialState,
+      entities,
+      results: {
+        [ep.key()]: {
+          data: ['1', '2'],
+        },
+      },
+    };
+    const { data, expiryStatus } = controller.getResponse(ep, null, state);
+    expect(expiryStatus).toBe(ExpiryStatus.InvalidIfStale);
+    // null args means don't fill anything in
+    expect(data.data).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+      {
+        "data": undefined,
+        "extra": "",
+        "page": {
+          "complex": {
+            "complex": true,
+            "next": false,
+          },
+          "first": null,
+          "second": undefined,
+          "third": 0,
+        },
+      }
+    `);
+    expect(controller.getResponse(ep, null, state).data).toStrictEqual(data);
+
+    const ep2 = ep.extend({ schema: { data: Tacos, nextPage: { five: '5' } } });
+    const data2 = controller.getResponse(ep2, null, state).data;
+    expect(data2.data).toBeUndefined();
+    expect(data2).toMatchInlineSnapshot(`
+      {
+        "data": undefined,
+        "nextPage": {
+          "five": "5",
+        },
+      }
+    `);
+  });
+
   it('infers schema with extra members but not set', () => {
     const controller = new Contoller();
     class Tacos extends Entity {
