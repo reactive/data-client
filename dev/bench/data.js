@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1676941650468,
+  "lastUpdate": 1676988748029,
   "repoUrl": "https://github.com/data-client/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -14126,6 +14126,121 @@ window.BENCHMARK_DATA = {
             "range": "±0.56%",
             "unit": "ops/sec",
             "extra": "73 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": true,
+          "id": "fa8dd141dc68b7be8ee063ecc012c88a3f4eae62",
+          "message": "internal: Add code comment\n\nBREAKING CHANGE:\n- Denormalize fourth value is now an array of entity paths\n- Denormalize resultCache expects a WeakMap\n- Removed WeakListMap export",
+          "timestamp": "2023-02-21T08:03:45-06:00",
+          "tree_id": "eceeb2e1251348693ecdb907a1125c8e76874366",
+          "url": "https://github.com/data-client/rest-hooks/commit/fa8dd141dc68b7be8ee063ecc012c88a3f4eae62"
+        },
+        "date": 1676988746948,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 320,
+            "range": "±2.05%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 7182,
+            "range": "±0.31%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 148,
+            "range": "±1.45%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 4707,
+            "range": "±0.57%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 5717,
+            "range": "±0.10%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 5639,
+            "range": "±0.20%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 5259,
+            "range": "±3.75%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 1859,
+            "range": "±3.74%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 1671,
+            "range": "±0.09%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getResponse Query-sorted",
+            "value": 545,
+            "range": "±1.16%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 312,
+            "range": "±2.43%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 127,
+            "range": "±1.31%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 135,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
           }
         ]
       }
