@@ -430,7 +430,11 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
   protected static get defaults() {
     // we use hasOwn because we don't want to use a parents' defaults
     if (!Object.hasOwn(this, '__defaults'))
-      this.__defaults = new (this as any)();
+      Object.defineProperty(this, '__defaults', {
+        value: new (this as any)(),
+        writable: true,
+        configurable: true,
+      });
     return this.__defaults;
   }
 
