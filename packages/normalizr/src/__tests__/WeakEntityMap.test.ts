@@ -29,10 +29,10 @@ describe('WeakEntityMap', () => {
     const deps = [depA];
     wem.set(deps, 'myvalue');
 
-    expect(wem.get(a, getEntity)).toBe('myvalue');
+    expect(wem.get(a, getEntity)[0]).toBe('myvalue');
 
-    expect(wem.get(b, getEntity)).toBeUndefined();
-    expect(wem.get(c, getEntity)).toBeUndefined();
+    expect(wem.get(b, getEntity)[0]).toBeUndefined();
+    expect(wem.get(c, getEntity)[0]).toBeUndefined();
   });
 
   it('should set multiple on same path', () => {
@@ -52,7 +52,7 @@ describe('WeakEntityMap', () => {
     for (const attempt of attempts) {
       wem.set(attempt.key, attempt.value);
     }
-    expect(wem.get(a, getEntity)).toBe('third');
+    expect(wem.get(a, getEntity)[0]).toBe('third');
   });
 
   it('should set multiple on distinct paths', () => {
@@ -80,11 +80,11 @@ describe('WeakEntityMap', () => {
     for (const attempt of attempts) {
       wem.set(attempt.key, attempt.value);
     }
-    expect(wem.get(a, getEntity)).toBe('fourth');
-    expect(wem.get(b, getEntity)).toBe('second');
-    expect(wem.get(c, getEntity)).toBe('fifth');
+    expect(wem.get(a, getEntity)[0]).toBe('fourth');
+    expect(wem.get(b, getEntity)[0]).toBe('second');
+    expect(wem.get(c, getEntity)[0]).toBe('fifth');
 
-    expect(wem.get({}, getEntity)).toBeUndefined();
+    expect(wem.get({}, getEntity)[0]).toBeUndefined();
   });
 
   it('considers empty key list invalid', () => {
@@ -93,6 +93,6 @@ describe('WeakEntityMap', () => {
       `"Keys must include at least one member"`,
     );
 
-    expect(wem.get([], getEntity)).toBeUndefined();
+    expect(wem.get([], getEntity)[0]).toBeUndefined();
   });
 });

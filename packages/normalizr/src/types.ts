@@ -7,6 +7,11 @@ import type {
 } from './interface.js';
 import type WeakEntityMap from './WeakEntityMap.js';
 
+export interface Path {
+  key: string;
+  pk: string;
+}
+
 export type AbstractInstanceType<T> = T extends { prototype: infer U }
   ? U
   : never;

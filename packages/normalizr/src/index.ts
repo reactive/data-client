@@ -16,6 +16,7 @@ export type {
   NormalizedSchema,
   DenormalizeReturnType,
   DenormalizeCache,
+  Path,
 } from './types.js';
 export * from './endpoint/types.js';
 export * from './interface.js';
