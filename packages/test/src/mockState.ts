@@ -32,14 +32,14 @@ export default function mockInitialState(
 }
 
 function dispatchFixture(
-  fixture: Fixture | Interceptor,
+  fixture: Fixture,
   args: any[],
   controller: Controller,
   fetchedAt?: number,
 ) {
   // eslint-disable-next-line prefer-const
   let { endpoint } = fixture;
-  const { response, error } = collapseFixture(fixture, args);
+  const { response, error } = collapseFixture(fixture, args, {});
   if (controller.resolve) {
     controller.resolve(endpoint, {
       args,

@@ -3,12 +3,14 @@ import { actionTypes, ActionTypes, Controller } from '@rest-hooks/react';
 import { collapseFixture } from './collapseFixture.js';
 import type { Fixture, Interceptor } from './fixtureTypes.js';
 
-export function createControllerInterceptor(
+export function createControllerInterceptor<T>(
   controller: Controller,
   fixtureMap: Record<string, Fixture>,
-  interceptors: Interceptor[],
+  interceptors: Interceptor<T>[],
+  getInitialInterceptorData: () => T,
   silenceMissing = false,
 ) {
+  const interceptorData = getInitialInterceptorData();
   const dispatchInterceptor = function (action: ActionTypes) {
     if (action.type === actionTypes.FETCH_TYPE) {
       // eslint-disable-next-line prefer-const
@@ -43,12 +45,20 @@ export function createControllerInterceptor(
               // collapsed: https://en.wikipedia.org/wiki/Copenhagen_interpretation
               if (fixture.delayCollapse) {
                 setTimeout(() => {
-                  const result = collapseFixture(fixture as any, args as any);
+                  const result = collapseFixture(
+                    fixture as any,
+                    args as any,
+                    interceptorData,
+                  );
                   const complete = result.error ? reject : resolve;
                   complete(result.response);
                 }, delayMs);
               } else {
-                const result = collapseFixture(fixture, args as any);
+                const result = collapseFixture(
+                  fixture,
+                  args as any,
+                  interceptorData,
+                );
                 const complete = result.error ? reject : resolve;
                 setTimeout(() => {
                   complete(result.response);

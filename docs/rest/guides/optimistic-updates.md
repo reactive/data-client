@@ -216,12 +216,16 @@ response: { count: 0 }
     method: 'POST',
     body: undefined,
   }),
-  response: () => ({
-    "count": (globalThis.RH_count = (globalThis.RH_count ?? 0) + 1),
-  }),
+  response() {
+    return ({
+      "count": (this.count = this.count + 1),
+    });
+  },
   delay: () => 500 + Math.random() * 4500,
 }
-]}>
+]}
+getInitialInterceptorData={() => ({count: 0})}
+>
 
 ```ts title="api/Count.ts" {19-25}
 export class CountEntity extends Entity {
@@ -356,7 +360,9 @@ endpoint: new RestEndpoint({path: '/api/count'}),
 args: [],
 response: { count: 0, updatedAt: Date.now() }
 },
-]}>
+]}
+getInitialInterceptorData={() => ({ count: 0 })}
+>
 
 ```ts title="api/Count.ts" {24-29,35}
 export class CountEntity extends Entity {
