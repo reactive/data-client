@@ -57,33 +57,26 @@ interface EntityTable {
  */
 declare class WeakEntityMap<K extends object, V> {
     readonly next: WeakMap<K, Link<K, V>>;
-    get(entity: K, getEntity: GetEntity<K | symbol>): V | undefined;
+    get(entity: K, getEntity: GetEntity<K | symbol>): readonly [undefined, undefined] | [V, Path[]];
     set(dependencies: Dep<K>[], value: V): void;
-    /** Builds essentially the same intereface but binds entity state */
-    static fromState<T extends WeakEntityMap<object, any>>(wem: T, state: State$1<Parameters<T['get']>[0]>): {
-        get(entity: Parameters<T['get']>[0]): ReturnType<T['get']>;
-        set(deps: Parameters<T['set']>[0], value: Parameters<T['set']>[1]): void;
-    };
 }
 type GetEntity<K = object | symbol> = (lookup: Path) => K;
 /** Link in a chain */
 declare class Link<K extends object, V> {
     next: WeakMap<K, Link<K, V>>;
     value?: V;
+    journey?: Path[];
     nextPath?: Path;
-}
-interface Path {
-    key: string;
-    pk: string;
 }
 interface Dep<K = object> {
     path: Path;
     entity: K;
 }
-type State$1<K extends object> = Record<string, Record<string, K>> | {
-    getIn(path: [string, string]): K;
-};
 
+interface Path {
+    key: string;
+    pk: string;
+}
 type AbstractInstanceType<T> = T extends {
     prototype: infer U;
 } ? U : never;

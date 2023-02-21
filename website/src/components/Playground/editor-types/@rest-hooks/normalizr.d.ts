@@ -54,33 +54,26 @@ interface EntityTable {
  */
 declare class WeakEntityMap<K extends object, V> {
     readonly next: WeakMap<K, Link<K, V>>;
-    get(entity: K, getEntity: GetEntity<K | symbol>): V | undefined;
+    get(entity: K, getEntity: GetEntity<K | symbol>): readonly [undefined, undefined] | [V, Path[]];
     set(dependencies: Dep<K>[], value: V): void;
-    /** Builds essentially the same intereface but binds entity state */
-    static fromState<T extends WeakEntityMap<object, any>>(wem: T, state: State<Parameters<T['get']>[0]>): {
-        get(entity: Parameters<T['get']>[0]): ReturnType<T['get']>;
-        set(deps: Parameters<T['set']>[0], value: Parameters<T['set']>[1]): void;
-    };
 }
 type GetEntity<K = object | symbol> = (lookup: Path) => K;
 /** Link in a chain */
 declare class Link<K extends object, V> {
     next: WeakMap<K, Link<K, V>>;
     value?: V;
+    journey?: Path[];
     nextPath?: Path;
-}
-interface Path {
-    key: string;
-    pk: string;
 }
 interface Dep<K = object> {
     path: Path;
     entity: K;
 }
-type State<K extends object> = Record<string, Record<string, K>> | {
-    getIn(path: [string, string]): K;
-};
 
+interface Path {
+    key: string;
+    pk: string;
+}
 type AbstractInstanceType<T> = T extends {
     prototype: infer U;
 } ? U : never;
@@ -147,17 +140,17 @@ type DenormalizeReturn<S extends Schema> = [
     denormalized: Denormalize$1<S>,
     found: true,
     deleted: false,
-    resolvedEntities: Record<string, Record<string, any>>
+    entityPaths: Path[]
 ] | [
     denormalized: DenormalizeNullable$1<S>,
     found: boolean,
     deleted: true,
-    resolvedEntities: Record<string, Record<string, any>>
+    entityPaths: Path[]
 ] | [
     denormalized: DenormalizeNullable$1<S>,
     found: false,
     deleted: boolean,
-    resolvedEntities: Record<string, Record<string, any>>
+    entityPaths: Path[]
 ];
 declare const denormalize: <S extends Schema>(input: unknown, schema: S | undefined, entities: any, entityCache?: DenormalizeCache['entities'], resultCache?: DenormalizeCache['results'][string]) => DenormalizeReturn<S>;
 
@@ -279,4 +272,4 @@ type DenormalizeNullable<S> = Extract<S, EntityInterface> extends never ? Extrac
 type Normalize<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? Normalize$1<S> : Normalize$1<Extract<S, EntityInterface[]>> : Normalize$1<Extract<S, EntityInterface>>;
 type NormalizeNullable<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? NormalizeNullable$1<S> : NormalizeNullable$1<Extract<S, EntityInterface[]>> : NormalizeNullable$1<Extract<S, EntityInterface>>;
 
-export { AbstractInstanceType, ArrayElement, DELETED, Denormalize, DenormalizeCache, DenormalizeNullable, DenormalizeReturnType, EndpointExtraOptions, EndpointInterface, EntityInterface, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, IndexInterface, IndexParams, InferReturn, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, ReadEndpoint, ResolveType, Schema, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UnvisitFunction, UpdateFunction, WeakEntityMap, denormalize, inferResults, isEntity, normalize };
+export { AbstractInstanceType, ArrayElement, DELETED, Denormalize, DenormalizeCache, DenormalizeNullable, DenormalizeReturnType, EndpointExtraOptions, EndpointInterface, EntityInterface, EntityTable, ErrorTypes, ExpiryStatus, ExpiryStatusInterface, FetchFunction, IndexInterface, IndexParams, InferReturn, MutateEndpoint, NetworkError, Normalize, NormalizeNullable, NormalizeReturnType, NormalizedIndex, NormalizedSchema, OptimisticUpdateParams, Path, ReadEndpoint, ResolveType, Schema, SchemaClass, SchemaSimple, Serializable, SnapshotInterface, UnknownError, UnvisitFunction, UpdateFunction, WeakEntityMap, denormalize, inferResults, isEntity, normalize };

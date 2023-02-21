@@ -175,6 +175,7 @@ const getUnvisit = (
 
     const hasDenormalize = typeof schema.denormalize === 'function';
 
+    // deserialize fields (like Date)
     if (!hasDenormalize && typeof schema === 'function') {
       if (input instanceof schema) return [input, true, false];
       // field deserialization should never count against 'found' (whether to used inferred results)
