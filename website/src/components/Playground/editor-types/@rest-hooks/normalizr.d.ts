@@ -103,7 +103,7 @@ interface DenormalizeCache {
         };
     };
     results: {
-        [key: string]: WeakMap<Exclude<Schema, null | string>, WeakEntityMap<object, any>>;
+        [key: string]: WeakEntityMap<object, any>;
     };
 }
 type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> = keyof S['schema'] extends never ? S['prototype'] : string extends keyof S['schema'] ? S['prototype'] : S['prototype'];

@@ -12,7 +12,7 @@ export const denormalizeSimple = <S extends Schema>(
   schema: S | undefined,
   entities: any,
   entityCache: DenormalizeCache['entities'] = {},
-  resultCache: DenormalizeCache['results'][string] = new WeakMap(),
+  resultCache: DenormalizeCache['results'][string] = new WeakEntityMap(),
 ):
   | [denormalized: Denormalize<S>, found: true, deleted: false]
   | [denormalized: DenormalizeNullable<S>, found: boolean, deleted: true]

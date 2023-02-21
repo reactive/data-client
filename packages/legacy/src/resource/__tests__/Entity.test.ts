@@ -5,6 +5,7 @@ import {
   denormalize,
   DELETED,
   AbstractInstanceType,
+  WeakEntityMap,
 } from '@rest-hooks/normalizr';
 import { fromJS, Record } from 'immutable';
 
@@ -684,7 +685,7 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
     const entityCache = {};
-    const resultCache = new WeakMap();
+    const resultCache = new WeakEntityMap();
 
     const [first] = denormalize('1', Menu, entities, entityCache, resultCache);
     const [second] = denormalize('1', Menu, entities, entityCache, resultCache);
@@ -841,7 +842,7 @@ describe(`${Entity.name} denormalization`, () => {
       },
     };
     const entityCache: any = {};
-    const resultCache = new WeakMap();
+    const resultCache = new WeakEntityMap();
 
     const [denormalizedReport] = denormalize(
       '123',

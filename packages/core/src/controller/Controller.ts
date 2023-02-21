@@ -385,7 +385,7 @@ export default class Controller<
     }
 
     if (isActive && !this.globalCache.results[key])
-      this.globalCache.results[key] = new WeakMap();
+      this.globalCache.results[key] = new WeakEntityMap();
 
     // second argument is false if any entities are missing
     // eslint-disable-next-line prefer-const

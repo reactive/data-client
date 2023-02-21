@@ -226,18 +226,15 @@ const getUnvisit = (
   ] => {
     // in the case where WeakMap cannot be used
     // this test ensures null is properly excluded from WeakMap
-    const resultSchemaCache =
-      Object(input) === input &&
-      Object(schema) === schema &&
-      getResultCache(resultCache, schema);
-    if (!resultSchemaCache) {
+    const cachable = Object(input) === input && Object(schema) === schema;
+    if (!cachable) {
       const ret = unvisit(input, schema);
       // this is faster than spread
       // https://www.measurethat.net/Benchmarks/Show/23636/0/spread-with-tuples
       return [ret[0], ret[1], ret[2], depToPaths(dependencies)];
     }
 
-    let [ret, entityPaths] = resultSchemaCache.get(input, getEntity);
+    let [ret, entityPaths] = resultCache.get(input, getEntity);
 
     if (ret === undefined) {
       ret = unvisit(input, schema);
@@ -245,7 +242,7 @@ const getUnvisit = (
       entityPaths = depToPaths(dependencies);
       // for the first entry, `path` is ignored so empty members is fine
       dependencies.unshift({ entity: input, path: { key: '', pk: '' } });
-      resultSchemaCache.set(dependencies, ret);
+      resultCache.set(dependencies, ret);
     }
 
     return [ret[0], ret[1], ret[2], entityPaths as Path[]];
@@ -276,22 +273,6 @@ const getEntityCaches = (entityCache: DenormalizeCache['entities']) => {
   };
 };
 
-const getResultCache = (
-  resultCache: DenormalizeCache['results'][string],
-  schema: Exclude<Schema, null | undefined | string | number>,
-) => {
-  let resultSchemaCache: WeakEntityMap<
-    object,
-    [denormalized: any, found: boolean, deleted: boolean]
-  >;
-  resultSchemaCache = resultCache.get(schema as any) as any;
-  if (!resultSchemaCache) {
-    resultSchemaCache = new WeakEntityMap();
-    resultCache.set(schema as any, resultSchemaCache);
-  }
-  return resultSchemaCache;
-};
-
 type DenormalizeReturn<S extends Schema> =
   | [
       denormalized: Denormalize<S>,
@@ -318,7 +299,7 @@ export const denormalize = <S extends Schema>(
   schema: S | undefined,
   entities: any,
   entityCache: DenormalizeCache['entities'] = {},
-  resultCache: DenormalizeCache['results'][string] = new WeakMap(),
+  resultCache: DenormalizeCache['results'][string] = new WeakEntityMap(),
 ): DenormalizeReturn<S> => {
   // undefined mean don't do anything
   if (schema === undefined) {
