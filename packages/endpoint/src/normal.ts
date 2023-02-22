@@ -6,7 +6,10 @@ import type {
   SchemaClass,
 } from './interface.js';
 
-export type AbstractInstanceType<T> = T extends { prototype: infer U }
+// TypeScript <4.2 InstanceType<> does not work on abstract classes
+export type AbstractInstanceType<T> = T extends new (...args: any) => infer U
+  ? U
+  : T extends { prototype: infer U }
   ? U
   : never;
 

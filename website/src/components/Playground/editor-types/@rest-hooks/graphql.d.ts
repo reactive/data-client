@@ -1,4 +1,4 @@
-type AbstractInstanceType<T> = T extends {
+type AbstractInstanceType<T> = T extends new (...args: any) => infer U ? U : T extends {
     prototype: infer U;
 } ? U : never;
 type DenormalizeObject<S extends Record<string, any>> = {
@@ -68,6 +68,107 @@ declare class Delete<E extends EntityInterface & {
         date: number;
         fetchedAt: number;
     }, existing: any, incoming: any): boolean;
+}
+
+type Constructor = abstract new (...args: any[]) => {};
+type IDClass = abstract new (...args: any[]) => {
+    id: string | number | undefined;
+};
+type PKClass = abstract new (...args: any[]) => {
+    pk(parent?: any, key?: string): string | undefined;
+};
+type ValidSchemas<TInstance> = {
+    [k in keyof TInstance]?: Schema;
+};
+interface EntityOptions<TInstance> {
+    readonly schema?: ValidSchemas<TInstance>;
+    readonly pk?: ((value: TInstance, parent?: any, key?: string) => string | undefined) | keyof TInstance;
+    readonly key?: string;
+}
+interface RequiredPKOptions<TInstance> extends EntityOptions<TInstance> {
+    readonly pk: ((value: TInstance, parent?: any, key?: string) => string | undefined) | keyof TInstance;
+}
+interface IEntityClass<TBase extends Constructor = any> {
+    toJSON(): {
+        name: string;
+        schema: {
+            [k: string]: Schema;
+        };
+        key: string;
+    };
+    /** Defines nested entities */
+    schema: {
+        [k: string]: Schema;
+    };
+    /** Returns the globally unique identifier for the static Entity */
+    key: string;
+    /** Defines indexes to enable lookup by */
+    indexes?: readonly string[] | undefined;
+    /**
+     * A unique identifier for each Entity
+     *
+     * @param [value] POJO of the entity or subset used
+     * @param [parent] When normalizing, the object which included the entity
+     * @param [key] When normalizing, the key where this entity was found
+     */
+    pk<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, value: Partial<AbstractInstanceType<T>>, parent?: any, key?: string): string | undefined;
+    /** Return true to merge incoming data; false keeps existing entity */
+    useIncoming(existingMeta: {
+        date: number;
+        fetchedAt: number;
+    }, incomingMeta: {
+        date: number;
+        fetchedAt: number;
+    }, existing: any, incoming: any): boolean;
+    cmpIncoming(existingMeta: {
+        date: number;
+        fetchedAt: number;
+    }, incomingMeta: {
+        date: number;
+        fetchedAt: number;
+    }, existing: any, incoming: any): number;
+    /** Creates new instance copying over defined values of arguments */
+    merge(existing: any, incoming: any): any;
+    /** Run when an existing entity is found in the store */
+    mergeWithStore(existingMeta: {
+        date: number;
+        fetchedAt: number;
+    }, incomingMeta: {
+        date: number;
+        fetchedAt: number;
+    }, existing: any, incoming: any): any;
+    /** Factory method to convert from Plain JS Objects.
+     *
+     * @param [props] Plain Object of properties to assign.
+     */
+    fromJS<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, props?: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T>;
+    /** Factory method to convert from Plain JS Objects.
+     *
+     * @param [props] Plain Object of properties to assign.
+     */
+    createIfValid<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, props: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T> | undefined;
+    /** Do any transformations when first receiving input */
+    process(input: any, parent: any, key: string | undefined): any;
+    normalize(input: any, parent: any, key: string | undefined, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): any;
+    validate(processedEntity: any): string | undefined;
+    infer(args: readonly any[], indexes: NormalizedIndex, recurse: any): any;
+    expiresAt(meta: {
+        expiresAt: number;
+        date: number;
+        fetchedAt: number;
+    }, input: any): number;
+    denormalize<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, input: any, unvisit: UnvisitFunction): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean];
+    /** All instance defaults set */
+    readonly defaults: any;
+}
+interface IEntityInstance {
+    /**
+     * A unique identifier for each Entity
+     *
+     * @param [parent] When normalizing, the object which included the entity
+     * @param [key] When normalizing, the key where this entity was found
+     */
+    pk(parent?: any, key?: string): string | undefined;
 }
 
 /**
@@ -363,6 +464,28 @@ interface SchemaClass$1<T = any, N = T | undefined>
   _denormalizeNullable(): [N, boolean, boolean];
 }
 
+// id is in Instance, so we default to that as pk
+/**
+ * Represents data that should be deduped by specifying a primary key.
+ * @see https://resthooks.io/docs/api/schema.Entity
+ */
+declare function Entity$1<TBase extends PKClass>(
+  Base: TBase,
+  opt?: EntityOptions<InstanceType<TBase>>,
+): IEntityClass<TBase> & TBase;
+
+// id is in Instance, so we default to that as pk
+declare function Entity$1<TBase extends IDClass>(
+  Base: TBase,
+  opt?: EntityOptions<InstanceType<TBase>>,
+): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
+
+// pk was specified in options, so we don't need to redefine
+declare function Entity$1<TBase extends Constructor>(
+  Base: TBase,
+  opt: RequiredPKOptions<InstanceType<TBase>>,
+): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
+
 type schema_d_Delete<E extends EntityInterface & {
     process: any;
 }> = Delete<E>;
@@ -397,6 +520,7 @@ declare namespace schema_d {
     schema_d_SchemaAttributeFunction as SchemaAttributeFunction,
     schema_d_UnionResult as UnionResult,
     SchemaClass$1 as SchemaClass,
+    Entity$1 as Entity,
     schema_d_EntityInterface as EntityInterface,
   };
 }
@@ -721,22 +845,16 @@ type RemoveArray<Orig extends any[], Rem extends any[]> = Rem extends [
     : never
   : Orig;
 
+declare const Entity_base: IEntityClass<abstract new (...args: any[]) => {
+    pk(parent?: any, key?: string | undefined): string | undefined;
+}> & (abstract new (...args: any[]) => {
+    pk(parent?: any, key?: string | undefined): string | undefined;
+});
 /**
  * Represents data that should be deduped by specifying a primary key.
  * @see https://resthooks.io/docs/api/Entity
  */
-declare abstract class Entity {
-    static toJSON(): {
-        name: string;
-        schema: {
-            [k: string]: Schema;
-        };
-        key: string;
-    };
-    /** Defines nested entities */
-    static schema: {
-        [k: string]: Schema;
-    };
+declare abstract class Entity extends Entity_base {
     /**
      * A unique identifier for each Entity
      *
@@ -744,10 +862,6 @@ declare abstract class Entity {
      * @param [key] When normalizing, the key where this entity was found
      */
     abstract pk(parent?: any, key?: string): string | undefined;
-    /** Returns the globally unique identifier for the static Entity */
-    static key: string;
-    /** Defines indexes to enable lookup by */
-    static indexes?: readonly string[];
     /** Control how automatic schema validation is handled
      *
      * `undefined`: Defaults - throw error in worst offense
@@ -757,14 +871,6 @@ declare abstract class Entity {
      * Note: this only applies to non-nested members.
      */
     protected static automaticValidation?: 'warn' | 'silent';
-    /**
-     * A unique identifier for each Entity
-     *
-     * @param [value] POJO of the entity or subset used
-     * @param [parent] When normalizing, the object which included the entity
-     * @param [key] When normalizing, the key where this entity was found
-     */
-    static pk<T extends typeof Entity>(this: T, value: Partial<AbstractInstanceType<T>>, parent?: any, key?: string): string | undefined;
     /** Return true to merge incoming data; false keeps existing entity */
     static useIncoming(existingMeta: {
         date: number;
@@ -773,8 +879,6 @@ declare abstract class Entity {
         date: number;
         fetchedAt: number;
     }, existing: any, incoming: any): boolean;
-    /** Creates new instance copying over defined values of arguments */
-    static merge(existing: any, incoming: any): any;
     /** Run when an existing entity is found in the store */
     static mergeWithStore(existingMeta: {
         date: number;
@@ -787,28 +891,21 @@ declare abstract class Entity {
      *
      * @param [props] Plain Object of properties to assign.
      */
-    static fromJS<T extends typeof Entity>(this: T, props?: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T>;
-    /** Factory method to convert from Plain JS Objects.
+    static fromJS: <T extends typeof Entity>(this: T, props?: Partial<AbstractInstanceType<T>>) => AbstractInstanceType<T>;
+    /**
+     * A unique identifier for each Entity
      *
-     * @param [props] Plain Object of properties to assign.
+     * @param [value] POJO of the entity or subset used
+     * @param [parent] When normalizing, the object which included the entity
+     * @param [key] When normalizing, the key where this entity was found
      */
-    static createIfValid<T extends typeof Entity>(this: T, props: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T> | undefined;
+    static pk: <T extends typeof Entity>(this: T, value: Partial<AbstractInstanceType<T>>, parent?: any, key?: string) => string | undefined;
     /** Do any transformations when first receiving input */
     static process(input: any, parent: any, key: string | undefined): any;
-    static normalize(input: any, parent: any, key: string | undefined, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): any;
-    protected static validate(processedEntity: any): string | undefined;
-    static infer(args: readonly any[], indexes: NormalizedIndex, recurse: any): any;
-    static expiresAt(meta: {
-        expiresAt: number;
-        date: number;
-        fetchedAt: number;
-    }, input: any): number;
+    static validate(processedEntity: any): string | undefined;
     static denormalize<T extends typeof Entity>(this: T, input: any, unvisit: UnvisitFunction): [denormalized: AbstractInstanceType<T>, found: boolean, suspend: boolean];
-    private static __defaults;
-    /** All instance defaults set */
-    protected static get defaults(): any;
     /** Used by denormalize to set nested members */
-    protected static set(entity: any, key: string, value: any): void;
+    protected static set?(entity: any, key: string, value: any): void;
 }
 
 declare function validateRequired(processedEntity: any, requiredDefaults: Record<string, unknown>): string | undefined;

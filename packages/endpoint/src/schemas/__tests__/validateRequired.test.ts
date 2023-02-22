@@ -31,7 +31,7 @@ class Tacos extends IDEntity {
   readonly name: string = '';
   readonly alias?: string = undefined;
 
-  protected static validate(processedEntity: any): string | undefined {
+  static validate(processedEntity: any): string | undefined {
     return validateRequired(processedEntity, exclude(this.defaults, ['alias']));
   }
 }
@@ -47,7 +47,7 @@ class MyEntity extends Entity {
     blarb: Date,
   };
 
-  protected static validate(processedEntity: any): string | undefined {
+  static validate(processedEntity: any): string | undefined {
     return validateRequired(processedEntity, exclude(this.defaults, ['blarb']));
   }
 }

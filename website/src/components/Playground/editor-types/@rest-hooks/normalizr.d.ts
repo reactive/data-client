@@ -74,7 +74,7 @@ interface Path {
     key: string;
     pk: string;
 }
-type AbstractInstanceType<T> = T extends {
+type AbstractInstanceType<T> = T extends new (...args: any) => infer U ? U : T extends {
     prototype: infer U;
 } ? U : never;
 type DenormalizeObject<S extends Record<string, any>> = {
@@ -222,7 +222,7 @@ interface SnapshotInterface {
 }
 
 /** Defines a networking endpoint */
-interface EndpointInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined> extends EndpointExtraOptions<F> {
+interface EndpointInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends EndpointExtraOptions<F> {
     (...args: Parameters<F>): InferReturn<F, S>;
     key(...args: Parameters<F>): string;
     readonly sideEffect?: M;
@@ -259,7 +259,7 @@ interface MutateEndpoint<F extends FetchFunction = FetchFunction, S extends Sche
     sideEffect: true;
 }
 /** For retrieval requests */
-type ReadEndpoint<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined> = EndpointInterface<F, S, undefined>;
+type ReadEndpoint<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined> = EndpointInterface<F, S, undefined | false>;
 
 type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Promise<R>;
 

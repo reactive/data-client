@@ -24,6 +24,8 @@ export function createPlaceholderResource<U extends string, S extends Schema>({
     schema,
     Endpoint,
     urlPrefix: 'https://jsonplaceholder.typicode.com',
+    // hour expiry time since we want to keep our example mutations and the api itself never actually changes
+    dataExpiryLength: 1000 * 60 * 60,
   });
   const partialUpdate = base.partialUpdate.extend({
     fetch: async function (...args: any) {

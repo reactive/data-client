@@ -84,6 +84,30 @@ describe(`${Entity.name} normalization`, () => {
     ).toMatchSnapshot();
   });
 
+  test('normalizes does not change value when useIncoming() returns false', () => {
+    class MyEntity extends IDEntity {
+      id = '';
+      title = '';
+      static useIncoming() {
+        return false;
+      }
+    }
+
+    const { entities, entityMeta } = normalize(
+      { id: '1', title: 'hi' },
+      MyEntity,
+    );
+    const secondEntities = normalize(
+      { id: '1', title: 'second' },
+      MyEntity,
+      entities,
+      {},
+      entityMeta,
+    ).entities;
+    expect(entities.MyEntity['1']).toBeDefined();
+    expect(entities.MyEntity['1']).toBe(secondEntities.MyEntity['1']);
+  });
+
   it('should throw a custom error if data does not include pk', () => {
     class MyEntity extends Entity {
       readonly name: string = '';

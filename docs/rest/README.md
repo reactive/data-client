@@ -21,7 +21,13 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 [RestEndpoint](/rest/api/RestEndpoint) are the _methods_ of your data. [Schemas](api/schema.md) define the data model. [Resources](./api/createResource.md) are
 a collection of `endpoints` around one `schema`.
 
-<LanguageTabs>
+<Tabs
+defaultValue="Class"
+values={[
+{ label: 'Class', value: 'Class' },
+{ label: 'Mixin', value: 'Mixin' },
+]}>
+<TabItem value="Class">
 
 <TypeScriptEditor>
 
@@ -57,7 +63,7 @@ export class Article extends Entity {
   static schema = {
     author: User,
     createdAt: Date,
-  }
+  };
 
   static key = 'Article';
 }
@@ -71,37 +77,54 @@ export const ArticleResource = createResource({
 
 </TypeScriptEditor>
 
+</TabItem>
+<TabItem value="Mixin">
 
-```js title="api/Article.js"
-import { Entity, createResource } from '@rest-hooks/rest';
+<TypeScriptEditor>
 
-export class Article extends Entity {
-  id = undefined;
+```typescript title="api/User" collapsed
+import { schema } from '@rest-hooks/rest';
+
+export class User {
+  id: number | undefined = undefined;
+  username = '';
+}
+export class UserEntity extends schema.Entity(User) {}
+```
+
+```typescript title="api/Article"
+import { schema, createResource } from '@rest-hooks/rest';
+import { UserEntity } from './User';
+
+export class Article {
+  id: number | undefined = undefined;
   title = '';
   content = '';
-  author = User.fromJS({});
-  tags = [];
+  author = UserEntity.fromJS({});
+  tags: string[] = [];
   createdAt = new Date(0);
-
-  pk() {
-    return this.id?.toString();
-  }
-
-  static schema = {
-    author: User,
-    createdAt: Date,
-  }
-
-  static key = 'Article';
 }
+
+export class ArticleEntity extends schema.Entity(Article, {
+  schema: {
+    author: UserEntity,
+    createdAt: Date,
+  },
+  key: 'Article',
+}) {}
+
 export const ArticleResource = createResource({
   urlPrefix: 'http://test.com',
   path: '/article/:id',
-  schema: Article,
+  schema: ArticleEntity,
 });
 ```
 
-</LanguageTabs>
+</TypeScriptEditor>
+
+</TabItem>
+
+</Tabs>
 
 [Entity](./api/Entity.md) is a kind of schema that [has a primary key (pk)](/docs/concepts/normalization). This is what allows us
 to [avoid state duplication](https://beta.reactjs.org/learn/choosing-the-state-structure#principles-for-structuring-state), which
@@ -114,7 +137,7 @@ TypeScript enforces the arguments specified with a prefixed colon like `:id` in 
 
 ```ts
 // GET http://test.com/article/5
-TodoResource.get({ id: 5 })
+TodoResource.get({ id: 5 });
 ```
 
 ## Bind the data with Suspense
@@ -186,9 +209,7 @@ export default function NewArticleForm() {
   const ctrl = useController();
   return (
     <Form
-      onSubmit={e =>
-        ctrl.fetch(ArticleResource.create, new FormData(e.target))
-      }
+      onSubmit={e => ctrl.fetch(ArticleResource.create, new FormData(e.target))}
     >
       <FormField name="title" />
       <FormField name="content" type="textarea" />
@@ -244,9 +265,7 @@ export default function ArticleWithDelete({ article }: { article: Article }) {
       <h2>{article.title}</h2>
       <div>{article.content}</div>
       <button
-        onClick={() =>
-          ctrl.fetch(ArticleResource.delete, { id: article.id })
-        }
+        onClick={() => ctrl.fetch(ArticleResource.delete, { id: article.id })}
       >
         Delete
       </button>
@@ -262,5 +281,5 @@ We use [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData/Form
 the example since it doesn't require any opinionated form state management solution.
 Feel free to use whichever one you prefer.
 
-[Mutations](/docs/getting-started/mutations) automatically updates *all* usages without the need for
+[Mutations](/docs/getting-started/mutations) automatically updates _all_ usages without the need for
 additional requests.

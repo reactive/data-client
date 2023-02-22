@@ -688,7 +688,7 @@ exports[`Entity normalization should throw a custom error if data does not inclu
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about schemas: https://resthooks.io/docs/api/schema
+  Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
 
   Entity: MyEntity
   Value (processed): {
@@ -721,7 +721,7 @@ exports[`Entity normalization should throw a custom error if data loads with no 
   This is likely due to a malformed response.
   Try inspecting the network response or fetch() return value.
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about schemas: https://resthooks.io/docs/api/schema
+  Learn more about primary keys: https://resthooks.io/rest/api/Entity#pk
 
   Entity: MyEntity
   Value (processed): {}
@@ -746,7 +746,7 @@ exports[`Entity normalization should throw a custom error if schema key is missi
 
   Be sure all schema members are also part of the entity
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about nesting schemas: https://resthooks.io/docs/guides/nested-response
+  Learn more about nesting schemas: https://resthooks.io/rest/guides/nested-response
 
   Entity keys: name,secondthing
   Schema key(missing): blarb

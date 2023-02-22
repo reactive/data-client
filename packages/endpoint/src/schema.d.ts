@@ -19,6 +19,15 @@ import type {
   EntityMap,
 } from './normal.js';
 import { default as Delete } from './schemas/Delete.js';
+import {
+  EntityOptions,
+  IEntityClass,
+  IEntityInstance,
+  RequiredPKOptions,
+  IDClass,
+  Constructor,
+  PKClass,
+} from './schemas/EntitySchema';
 
 export { Delete, EntityMap };
 
@@ -316,3 +325,36 @@ export interface SchemaClass<T = any, N = T | undefined>
   // this is not an actual member, but is needed for the recursive DenormalizeNullable<> type algo
   _denormalizeNullable(): [N, boolean, boolean];
 }
+
+// id is in Instance, so we default to that as pk
+/**
+ * Represents data that should be deduped by specifying a primary key.
+ * @see https://resthooks.io/docs/api/schema.Entity
+ */
+export function Entity<TBase extends PKClass>(
+  Base: TBase,
+  opt?: EntityOptions<InstanceType<TBase>>,
+): IEntityClass<TBase> & TBase;
+
+// id is in Instance, so we default to that as pk
+export function Entity<TBase extends IDClass>(
+  Base: TBase,
+  opt?: EntityOptions<InstanceType<TBase>>,
+): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
+
+// pk was specified in options, so we don't need to redefine
+export function Entity<TBase extends Constructor>(
+  Base: TBase,
+  opt: RequiredPKOptions<InstanceType<TBase>>,
+): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
+
+/* TODO: figure out how to make abstract class mixins work. until then we will require PK in options
+export function Entity<TBase extends Constructor>(
+  Base: TBase,
+  opt?: EntityOptions<keyof InstanceType<TBase>>,
+): (abstract new (...args: any[]) => {
+  pk(parent?: any, key?: string): string | undefined;
+}) &
+  IEntityClass<TBase> &
+  TBase;
+*/

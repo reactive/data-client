@@ -32,11 +32,11 @@ export class IDEntity extends Entity {
   }
 }
 
-interface Vis {
-  readonly id: number | undefined;
-  readonly visType: 'graph' | 'line';
-  readonly numCols: number;
-  readonly updatedAt: number;
+class Vis {
+  readonly id: number | undefined = undefined;
+  readonly visType: 'graph' | 'line' = 'graph';
+  readonly numCols: number = 0;
+  readonly updatedAt: number = 0;
 }
 
 export class VisSettings extends Entity implements Vis {
@@ -57,6 +57,20 @@ export class VisSettings extends Entity implements Vis {
   ) {
     return existing.updatedAt <= incoming.updatedAt;
   }
+
+  static key = 'VisSettings';
+}
+export class VisSettingsFromMixin extends schema.Entity(Vis) {
+  static cmpIncoming(
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
+    existing: any,
+    incoming: any,
+  ) {
+    return incoming.updatedAt - existing.updatedAt;
+  }
+
+  static key = 'VisSettings';
 }
 export class VisEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
   getRequestInit(body: any): RequestInit {
@@ -102,7 +116,48 @@ export const VisSettingsResource = {
     },
   }),
 };
-VisSettingsResource.incrementCols;
+const VisSettingsResourceBaseFromMixin = createResource({
+  path: 'http\\://test.com/vis-settings/:id',
+  schema: VisSettingsFromMixin,
+  Endpoint: VisEndpoint,
+});
+export const VisSettingsResourceFromMixin = {
+  ...VisSettingsResourceBaseFromMixin,
+  partialUpdate: VisSettingsResourceBaseFromMixin.partialUpdate.extend({
+    getOptimisticResponse(snap, params, body) {
+      const { data } = snap.getResponse(
+        VisSettingsResourceBaseFromMixin.get,
+        params,
+      );
+      if (!data) throw new AbortOptimistic();
+      return {
+        ...data,
+        ...body,
+        updatedAt: snap.fetchedAt,
+      };
+    },
+  }),
+  incrementCols: new VisEndpoint({
+    schema: VisSettingsFromMixin,
+    path: 'http\\://test.com/vis-settings/:id/incCol',
+    body: undefined,
+    method: 'POST',
+    name: 'incrementCols',
+  }).extend({
+    getOptimisticResponse(snap, params) {
+      const { data } = snap.getResponse(
+        VisSettingsResourceBaseFromMixin.get,
+        params,
+      );
+      const numCols = data ? data.numCols + 1 : 0;
+      return {
+        ...data,
+        numCols,
+        updatedAt: snap.fetchedAt,
+      } as any;
+    },
+  }),
+};
 
 export class User extends Entity {
   readonly id: number | undefined = undefined;
@@ -134,6 +189,16 @@ export class Article extends Entity {
     author: User,
   };
 }
+class ArticleData {
+  readonly id: number | undefined = undefined;
+  readonly title: string = '';
+  readonly content: string = '';
+  readonly author: User | null = null;
+  readonly tags: string[] = [];
+}
+export class ArticleFromMixin extends schema.Entity(ArticleData, {
+  schema: { author: User },
+}) {}
 class ArticleEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {}
 
 function createArticleResource<S extends Schema>(
@@ -280,6 +345,19 @@ export const CoolerArticleResource = {
   }) as any as GetEndpoint<
     { id: string | number } | { title: string | number },
     typeof CoolerArticle
+  >,
+};
+const CoolerArticleResourceFromMixinBase = createArticleResource(
+  ArticleFromMixin,
+  'article-cooler',
+);
+export const CoolerArticleResourceFromMixin = {
+  ...CoolerArticleResourceFromMixinBase,
+  get: CoolerArticleResourceFromMixinBase.get.extend({
+    path: '/:id?/:title?',
+  }) as any as GetEndpoint<
+    { id: string | number } | { title: string | number },
+    typeof ArticleFromMixin
   >,
 };
 

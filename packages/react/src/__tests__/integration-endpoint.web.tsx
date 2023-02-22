@@ -15,6 +15,7 @@ import {
   CoolerArticle,
   FirstUnion,
   PaginatedArticle,
+  CoolerArticleResourceFromMixin,
 } from '__tests__/new';
 import nock from 'nock';
 
@@ -121,38 +122,41 @@ describe.each([
       expect(result.current.lafsjlfd).toBeUndefined();
     });
 
-    it('should resolve useSuspense() with Interceptors', async () => {
-      nock.cleanAll();
-      const { result, waitFor, controller } = renderRestHook(
-        () => {
-          return useSuspense(CoolerArticleResource.get, { id: 'abc123' });
-        },
-        {
-          resolverFixtures: [
-            {
-              endpoint: CoolerArticleResource.get,
-              response: ({ id }) => ({ ...payload, id }),
-            },
-            {
-              endpoint: CoolerArticleResource.partialUpdate,
-              response: ({ id }, body) => ({ ...body, id }),
-              delay: () => 1,
-            },
-          ],
-        },
-      );
-      expect(result.current).toBeUndefined();
-      await waitFor(() => expect(result.current).toBeDefined());
-      expect(result.current.title).toBe(payload.title);
-      // @ts-expect-error
-      expect(result.current.lafsjlfd).toBeUndefined();
-      await controller.fetch(
-        CoolerArticleResource.partialUpdate,
-        { id: 'abc123' },
-        { title: 'updated title' },
-      );
-      expect(result.current.title).toBe('updated title');
-    });
+    it.each([CoolerArticleResource, CoolerArticleResourceFromMixin])(
+      'should resolve useSuspense() with Interceptors',
+      async ArticleResource => {
+        nock.cleanAll();
+        const { result, waitFor, controller } = renderRestHook(
+          () => {
+            return useSuspense(ArticleResource.get, { id: 'abc123' });
+          },
+          {
+            resolverFixtures: [
+              {
+                endpoint: ArticleResource.get,
+                response: ({ id }) => ({ ...payload, id }),
+              },
+              {
+                endpoint: ArticleResource.partialUpdate,
+                response: ({ id }, body) => ({ ...body, id }),
+                delay: () => 1,
+              },
+            ],
+          },
+        );
+        expect(result.current).toBeUndefined();
+        await waitFor(() => expect(result.current).toBeDefined());
+        expect(result.current.title).toBe(payload.title);
+        // @ts-expect-error
+        expect(result.current.lafsjlfd).toBeUndefined();
+        await controller.fetch(
+          ArticleResource.partialUpdate,
+          { id: 'abc123' },
+          { title: 'updated title' },
+        );
+        expect(result.current.title).toBe('updated title');
+      },
+    );
 
     it('should maintain global referential equality', async () => {
       const { result, waitForNextUpdate } = renderRestHook(() => {
@@ -432,55 +436,58 @@ describe.each([
     expect(result.current.results).toMatchSnapshot();
   });
 
-  it('should suspend once deleted', async () => {
-    const temppayload = {
-      ...payload,
-      id: 1234,
-    };
-    mynock
-      .get(`/article-cooler/${temppayload.id}`)
-      .reply(200, temppayload)
-      .delete(`/article-cooler/${temppayload.id}`)
-      .reply(204, '');
-    const throws: Promise<any>[] = [];
-    const { result, waitForNextUpdate } = renderRestHook(() => {
-      try {
-        return [
-          useSuspense(CoolerArticleResource.get, {
-            id: temppayload.id,
-          }),
-          useController().fetch,
-        ] as const;
-      } catch (e: any) {
-        if (typeof e.then === 'function') {
-          if (e !== throws[throws.length - 1]) {
-            throws.push(e);
+  it.each([CoolerArticleResource, CoolerArticleResourceFromMixin])(
+    'should suspend once deleted (%#)',
+    async ArticleResource => {
+      const temppayload = {
+        ...payload,
+        id: 1234,
+      };
+      mynock
+        .get(`/article-cooler/${temppayload.id}`)
+        .reply(200, temppayload)
+        .delete(`/article-cooler/${temppayload.id}`)
+        .reply(204, '');
+      const throws: Promise<any>[] = [];
+      const { result, waitForNextUpdate } = renderRestHook(() => {
+        try {
+          return [
+            useSuspense(ArticleResource.get, {
+              id: temppayload.id,
+            }),
+            useController().fetch,
+          ] as const;
+        } catch (e: any) {
+          if (typeof e.then === 'function') {
+            if (e !== throws[throws.length - 1]) {
+              throws.push(e);
+            }
           }
+          throw e;
         }
-        throw e;
-      }
-    });
-    expect(result.current).toBeUndefined();
-    await waitForNextUpdate();
-    let [data, fetch] = result.current;
-    expect(data).toBeInstanceOf(CoolerArticle);
-    expect(data.title).toBe(temppayload.title);
-    expect(throws.length).toBe(1);
+      });
+      expect(result.current).toBeUndefined();
+      await waitForNextUpdate();
+      let [data, fetch] = result.current;
+      expect(data).toBeInstanceOf(ArticleResource.get.schema);
+      expect(data.title).toBe(temppayload.title);
+      expect(throws.length).toBe(1);
 
-    mynock
-      .persist()
-      .get(`/article-cooler/${temppayload.id}`)
-      .reply(200, { ...temppayload, title: 'othertitle' });
+      mynock
+        .persist()
+        .get(`/article-cooler/${temppayload.id}`)
+        .reply(200, { ...temppayload, title: 'othertitle' });
 
-    await act(async () => {
-      await fetch(CoolerArticleResource.delete, { id: temppayload.id });
-    });
-    expect(throws.length).toBeGreaterThanOrEqual(2); //TODO: delete seems to have receive process multiple times. we suspect this is because of test+act integration.
-    await Promise.race([waitForNextUpdate(), throws[throws.length - 1]]);
-    [data, fetch] = result.current;
-    expect(data).toBeInstanceOf(CoolerArticle);
-    expect(data.title).toBe('othertitle');
-  });
+      await act(async () => {
+        await fetch(ArticleResource.delete, { id: temppayload.id });
+      });
+      expect(throws.length).toBeGreaterThanOrEqual(2); //TODO: delete seems to have receive process multiple times. we suspect this is because of test+act integration.
+      await Promise.race([waitForNextUpdate(), throws[throws.length - 1]]);
+      [data, fetch] = result.current;
+      expect(data).toBeInstanceOf(ArticleResource.get.schema);
+      expect(data.title).toBe('othertitle');
+    },
+  );
 
   it('should suspend once invalidated', async () => {
     const temppayload = {

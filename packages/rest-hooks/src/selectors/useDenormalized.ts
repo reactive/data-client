@@ -14,7 +14,7 @@ import { ReadShape, ParamsFromShape } from '../endpoint/index.js';
  * using params and schema. This increases cache hit rate for many
  * detail shapes.
  *
- * @returns [denormalizedValue, ready]
+ * @returns {denormalizedValue, expiryStatus,expiresAt}
  */
 export default function useDenormalized<
   Shape extends Pick<
