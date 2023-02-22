@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-### [6.3.6](https://github.com/data-client/rest-hooks/compare/@rest-hooks/rest@6.3.5...@rest-hooks/rest@6.3.6) (2023-02-21)
+### [6.3.7](https://github.com/data-client/rest-hooks/compare/@rest-hooks/rest@6.3.5...@rest-hooks/rest@6.3.6) (2023-02-21)
 
 ### 💅 Enhancement
 
