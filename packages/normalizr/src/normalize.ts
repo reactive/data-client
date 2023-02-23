@@ -78,9 +78,13 @@ const addEntities =
         : meta.expiresAt;
 
       const inStoreEntity = existingEntities[schemaKey][id];
+      let inStoreMeta: {
+        date: number;
+        expiresAt: number;
+        fetchedAt: number;
+      };
       // this case we already have this entity in store
-      if (inStoreEntity) {
-        const inStoreMeta = entityMeta[schemaKey][id];
+      if (inStoreEntity && (inStoreMeta = entityMeta[schemaKey][id])) {
         entities[schemaKey][id] = schema.mergeWithStore
           ? schema.mergeWithStore(
               inStoreMeta,
@@ -96,9 +100,9 @@ const addEntities =
               processedEntity,
             );
         entityMeta[schemaKey][id] = {
-          expiresAt: Math.max(entityExpiresAt, inStoreMeta?.expiresAt),
-          date: Math.max(meta.date, inStoreMeta?.date ?? 0),
-          fetchedAt: Math.max(meta.fetchedAt ?? 0, inStoreMeta?.fetchedAt ?? 0),
+          expiresAt: Math.max(entityExpiresAt, inStoreMeta.expiresAt),
+          date: Math.max(meta.date, inStoreMeta.date),
+          fetchedAt: Math.max(meta.fetchedAt ?? 0, inStoreMeta.fetchedAt),
         };
       } else {
         entities[schemaKey][id] = processedEntity;
@@ -153,13 +157,11 @@ Entity: ${JSON.stringify(entity, undefined, 2)}`);
 /** @deprecated use Entity.mergeStore() instead */
 function mergeWithStore(
   schema: EntityInterface<any>,
-  existingMeta:
-    | {
-        date: number;
-        expiresAt: number;
-        fetchedAt: number;
-      }
-    | undefined,
+  existingMeta: {
+    date: number;
+    expiresAt: number;
+    fetchedAt: number;
+  },
   incomingMeta: {
     expiresAt: number;
     date: number;
@@ -169,12 +171,10 @@ function mergeWithStore(
   incoming: any,
 ) {
   const useIncoming =
-    // we may have in store but not in meta; so this existance check is still important
-    !existingMeta ||
     // useIncoming should not be used with legacy optimistic
-    (schema.useIncoming && incomingMeta.fetchedAt
+    schema.useIncoming && incomingMeta.fetchedAt
       ? schema.useIncoming(existingMeta, incomingMeta, existing, incoming)
-      : existingMeta.date <= incomingMeta.date);
+      : existingMeta.date <= incomingMeta.date;
   if (useIncoming) {
     if (typeof incoming !== typeof existing) {
       return incoming;

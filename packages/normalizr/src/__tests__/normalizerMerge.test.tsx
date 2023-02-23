@@ -8,7 +8,7 @@ describe('normalizer() merging', () => {
   describe('with instance.constructor.merge()', () => {
     it('should merge two Resource instances', () => {
       const id = 20;
-      const { entities: first } = normalize(
+      const { entities: first, entityMeta: firstEM } = normalize(
         {
           id,
           title: 'hi',
@@ -21,6 +21,8 @@ describe('normalizer() merging', () => {
         { id, title: 'hello' },
         Article,
         first,
+        {},
+        firstEM,
       );
 
       const [merged] = denormalize(result, Article, entities);
@@ -64,7 +66,7 @@ describe('normalizer() merging', () => {
   describe('basics', function () {
     it('should assign `null` values', () => {
       const id = 20;
-      const { entities: first } = normalize(
+      const { entities: first, entityMeta: firstEM } = normalize(
         {
           id,
           title: 'hi',
@@ -77,6 +79,8 @@ describe('normalizer() merging', () => {
         { id, title: null },
         Article,
         first,
+        {},
+        firstEM,
       );
 
       const [merged] = denormalize(result, Article, entities);
