@@ -115,7 +115,7 @@ const addEntities =
     }
 
     // update index
-    if (Array.isArray(schema.indexes)) {
+    if (schema.indexes) {
       const entity = entities[schemaKey][id];
       if (!(schemaKey in indexes)) {
         indexes[schemaKey] = {};
