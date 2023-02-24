@@ -1,6 +1,7 @@
 import { css } from '@linaria/core';
 import { styled } from '@linaria/react';
 import { AsyncBoundary } from '@rest-hooks/react';
+import LoadingBar from 'components/LoadingBar';
 import useNavigationState from 'useNavigationState';
 
 import TodoList from './TodoList';
@@ -8,9 +9,10 @@ import TodoStats from './TodoStats';
 import UserSelection from './UserSelection';
 
 export default function Home() {
-  const [userId, setUserId] = useNavigationState(1);
+  const [userId, setUserId, loading] = useNavigationState(1);
   return (
     <div className={home}>
+      <LoadingBar duration={100} loading={loading} />
       <Title>Todo List</Title>
       <Main>
         <AsyncBoundary>
@@ -25,7 +27,7 @@ export default function Home() {
   );
 }
 
-const margin = '8px';
+const margin = '0px';
 
 const home = css`
   min-height: 100vh;
@@ -40,7 +42,7 @@ const home = css`
 
 const Title = styled.nav`
   position: fixed;
-  top: 0;
+  top: 4px;
   width: 100%;
   padding: 18px;
   background: white;
