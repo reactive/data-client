@@ -362,7 +362,7 @@ export default class Controller<
       state.entities,
     );
 
-    if (!endpoint.schema || !schemaHasEntity(endpoint.schema)) {
+    if (!endpoint.schema || !schemaHasEntity(endpoint)) {
       return {
         data: results,
         expiryStatus: meta?.invalidated
@@ -455,19 +455,31 @@ export default class Controller<
  *
  * Without entities, denormalization is not needed, and results should not be inferred.
  */
-function schemaHasEntity(schema: Schema): boolean {
+function schemaHasEntityCompute(schema: Schema): boolean {
   if (isEntity(schema)) return true;
   if (Array.isArray(schema))
-    return schema.length !== 0 && schemaHasEntity(schema[0]);
+    return schema.length !== 0 && schemaHasEntityCompute(schema[0]);
   if (schema && (typeof schema === 'object' || typeof schema === 'function')) {
     const nestedSchema =
       'schema' in schema ? (schema.schema as Record<string, Schema>) : schema;
     if (typeof nestedSchema === 'function') {
-      return schemaHasEntity(nestedSchema);
+      return schemaHasEntityCompute(nestedSchema);
     }
-    return Object.values(nestedSchema).some(x => schemaHasEntity(x));
+    return Object.values(nestedSchema).some(x => schemaHasEntityCompute(x));
   }
   return false;
+}
+const HASENTITYCACHE = Symbol('cache');
+function schemaHasEntity(endpoint: {
+  schema?: Schema;
+  [HASENTITYCACHE]?: boolean;
+}): boolean {
+  if (!(HASENTITYCACHE in endpoint)) {
+    endpoint[HASENTITYCACHE] = schemaHasEntityCompute(
+      endpoint.schema as Schema,
+    );
+  }
+  return endpoint[HASENTITYCACHE] as any;
 }
 
 export type { ErrorTypes };
