@@ -11,7 +11,11 @@ import {
 export type CondNull<P, A, B> = P extends null ? A : B;
 
 export type SuspenseReturn<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined | false
+  >,
   Args extends readonly [...Parameters<E>] | readonly [null],
 > = CondNull<
   Args[0],

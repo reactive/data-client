@@ -15,7 +15,7 @@ import { ReadShape, ParamsFromShape } from '../endpoint/index.js';
  */
 export default function useSubscription<
   E extends
-    | EndpointInterface<FetchFunction, Schema | undefined, undefined>
+    | EndpointInterface<FetchFunction, Schema | undefined, undefined | false>
     | ReadShape<any, any>,
   Args extends
     | (E extends (...args: any) => any

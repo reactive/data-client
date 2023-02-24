@@ -20,7 +20,11 @@ import useSuspense from './useSuspense.js';
  * @throws {NetworkError} If fetch fails.
  */
 export default function useLive<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined | false
+  >,
   Args extends readonly [...Parameters<E>] | readonly [null],
 >(endpoint: E, ...args: Args): SuspenseReturn<E, Args> {
   useSubscription(endpoint, ...args);

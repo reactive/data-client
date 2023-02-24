@@ -28,7 +28,11 @@ import useFocusEffect from './useFocusEffect.native.js';
  * @throws {NetworkError} If fetch fails.
  */
 export default function useSuspense<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined | false
+  >,
   Args extends readonly [...Parameters<E>] | readonly [null],
 >(endpoint: E, ...args: Args): SuspenseReturn<E, Args> {
   const state = useCacheState();

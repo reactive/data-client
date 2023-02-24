@@ -12,7 +12,11 @@ import useController from './useController.js';
  * @see https://resthooks.io/docs/api/useSubscription
  */
 export default function useSubscription<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined | false
+  >,
   Args extends readonly [...Parameters<E>] | readonly [null],
 >(endpoint: E, ...args: Args) {
   const controller = useController();
