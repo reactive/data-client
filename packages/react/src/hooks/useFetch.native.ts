@@ -18,7 +18,11 @@ import useFocusEffect from './useFocusEffect.native.js';
  * @see https://resthooks.io/docs/api/useFetch
  */
 export default function useFetch<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined | false
+  >,
   Args extends readonly [...Parameters<E>] | readonly [null],
 >(endpoint: E, ...args: Args) {
   const state = useCacheState();

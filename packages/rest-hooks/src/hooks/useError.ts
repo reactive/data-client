@@ -22,7 +22,7 @@ type UseErrorReturn<P> = P extends [null] ? undefined : ErrorTypes | undefined;
 export default function useError<
   E extends
     | Pick<
-        EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+        EndpointInterface<FetchFunction, Schema | undefined, undefined | false>,
         'key' | 'schema' | 'invalidIfStale'
       >
     | Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>,

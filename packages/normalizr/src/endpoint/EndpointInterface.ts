@@ -9,7 +9,7 @@ import { Normalize } from '../types.js';
 export interface EndpointInterface<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
-  M extends true | undefined = true | undefined,
+  M extends boolean | undefined = boolean | undefined,
 > extends EndpointExtraOptions<F> {
   (...args: Parameters<F>): InferReturn<F, S>;
   key(...args: Parameters<F>): string;
@@ -70,4 +70,4 @@ export interface MutateEndpoint<
 export type ReadEndpoint<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = Schema | undefined,
-> = EndpointInterface<F, S, undefined>;
+> = EndpointInterface<F, S, undefined | false>;

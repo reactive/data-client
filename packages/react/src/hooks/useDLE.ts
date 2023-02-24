@@ -37,7 +37,11 @@ type StatefulReturn<S extends Schema | undefined, P> = CondNull<
  * @see https://resthooks.io/docs/api/useDLE
  */
 export default function useDLE<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined | false
+  >,
   Args extends readonly [...Parameters<E>] | readonly [null],
 >(
   endpoint: E,

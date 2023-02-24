@@ -252,7 +252,11 @@ export default class Controller<
    * @see https://resthooks.io/docs/api/Controller#subscribe
    */
   subscribe = <
-    E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+    E extends EndpointInterface<
+      FetchFunction,
+      Schema | undefined,
+      undefined | false
+    >,
   >(
     endpoint: E,
     ...args: readonly [...Parameters<E>] | readonly [null]
@@ -270,7 +274,11 @@ export default class Controller<
    * @see https://resthooks.io/docs/api/Controller#unsubscribe
    */
   unsubscribe = <
-    E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+    E extends EndpointInterface<
+      FetchFunction,
+      Schema | undefined,
+      undefined | false
+    >,
   >(
     endpoint: E,
     ...args: readonly [...Parameters<E>] | readonly [null]

@@ -21,7 +21,7 @@ import { ReadShape, ParamsFromShape } from '../endpoint/index.js';
 export default function useCache<
   E extends
     | Pick<
-        EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+        EndpointInterface<FetchFunction, Schema | undefined, undefined | false>,
         'key' | 'schema' | 'invalidIfStale'
       >
     | Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>,
