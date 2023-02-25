@@ -92,7 +92,7 @@ Specifies the [Entity.schema](./Entity.md#schema)
 `schema.Entity` has the same methods as [Entity](./Entity.md) with an improved `mergeWithStore()` lifecycle.
 
 This method uses [shouldReorder()](#shouldReorder) to handle race conditions rather than [useIncoming()](#useIncoming),
-which is better able to handle [partial field entities](../guides/summary-list.md).
+which is better able to handle [partial field entities](/rest/guides/summary-list).
 
 Eventually `Entity` will also be converted to use this default implementation. You can prepare for this by copying
 the [mergeWithStore](#mergeWithStore) default implementation below.
