@@ -146,7 +146,7 @@ describe.each([
       ).toMatchSnapshot();
     });
 
-    test.only('denormalizes nested in object with primitive', () => {
+    test('denormalizes nested in object with primitive', () => {
       class Cat extends IDEntity {}
       const catSchema = { results: new schema.All(Cat), nextPage: '' };
       const entities = {
