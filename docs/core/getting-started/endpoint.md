@@ -17,7 +17,7 @@ import ProtocolTabs from '@site/src/components/ProtocolTabs';
 import PkgInstall from '@site/src/components/PkgInstall';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
-[Endpoints](/rest/api/RestEndpoint) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) of your data. [Schemas](../concepts/normalization.md) define the data model. [Resources](/rest/api/createResource) are
+[Endpoints](/rest/api/RestEndpoint) are the [_methods_](<https://en.wikipedia.org/wiki/Method_(computer_programming)>) of your data. [Entities](/rest/api/Entity) are a type of [Schema](../concepts/normalization.md), which define the data model. [Resources](/rest/api/createResource) are
 a collection of `endpoints` around one `schema`.
 
 <Tabs

@@ -14,14 +14,14 @@ import { RestEndpoint } from '@rest-hooks/rest';
 <LanguageTabs>
 
 ```typescript
-import { Entity } from '@rest-hooks/endpoint';
+import { Entity } from '@rest-hooks/rest';
 
 export default class Article extends Entity {
-  readonly id: number | undefined = undefined;
-  readonly title: string = '';
-  readonly content: string = '';
-  readonly author: number | null = null;
-  readonly tags: string[] = [];
+  id: number | undefined = undefined;
+  title = '';
+  content = '';
+  author: number | null = null;
+  tags: string[] = [];
 
   pk() {
     return this.id?.toString();
@@ -32,7 +32,7 @@ export default class Article extends Entity {
 ```
 
 ```js
-import { Entity } from '@rest-hooks/endpoint';
+import { Entity } from '@rest-hooks/rest';
 
 export default class Article extends Entity {
   id = undefined;
@@ -65,6 +65,13 @@ Entities are bound to Endpoints using [createResource.schema](./createResource.m
 
 :::
 
+:::tip
+
+If you already have your classes defined, [schema.Entity](./schema.Entity.md) mixin can also be
+used to make Entities.
+
+:::
+
 ## Data lifecycle
 
 import Lifecycle from '../diagrams/\_entity_lifecycle.mdx';
@@ -72,17 +79,6 @@ import Lifecycle from '../diagrams/\_entity_lifecycle.mdx';
 <Lifecycle/>
 
 ## Methods
-
-### static fromJS(props): Entity {#fromJS}
-
-Factory method that copies props to a new instance. Use this instead of `new MyEntity()`
-
-### process(input, parent, key): processedEntity {#process}
-
-Run at the start of normalization for this entity. Return value is saved in store
-and sent to [pk()](#pk).
-
-**Defaults** to simply copying the response (`{...input}`)
 
 ### abstract pk: (parent?, key?): pk? {#pk}
 
@@ -154,6 +150,17 @@ class User extends Entity {
 }
 ```
 
+### static fromJS(props): Entity {#fromJS}
+
+Factory method that copies props to a new instance. Use this instead of `new MyEntity()`
+
+### process(input, parent, key): processedEntity {#process}
+
+Run at the start of normalization for this entity. Return value is saved in store
+and sent to [pk()](#pk).
+
+**Defaults** to simply copying the response (`{...input}`)
+
 ### static merge(existing, incoming): mergedValue {#merge}
 
 ```typescript
@@ -184,7 +191,7 @@ static mergeWithStore(
 
 This calls [useIncoming()](#useIncoming) and potentially [merge()](#merge)
 
-### static useIncoming(existingMeta, incomingMeta, existing, incoming): mergedValue {#useincoming}
+### static useIncoming(existingMeta, incomingMeta, existing, incoming): boolean {#useincoming}
 
 ```typescript
 static useIncoming(
@@ -294,6 +301,8 @@ By **default** uses the first argument to lookup in [pk()](#pk) and [indexes](#i
 This determines expiry time when entity is part of a result that is inferred.
 
 Overriding can be used to change TTL policy specifically for inferred responses.
+
+## Members
 
 ### static indexes?: (keyof this)[] {#indexes}
 

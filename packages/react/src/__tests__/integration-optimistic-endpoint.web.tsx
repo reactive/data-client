@@ -12,6 +12,8 @@ import {
   VisEndpoint,
   CoolerArticle,
   Article,
+  VisSettingsResourceFromMixin,
+  VisSettingsFromMixin,
 } from '__tests__/new';
 import { SpyInstance } from 'jest-mock';
 import nock from 'nock';
@@ -841,139 +843,144 @@ describe.each([
       });
 
       describe('with timestamps', () => {
-        it('should handle out of order server responses', async () => {
-          jest.useFakeTimers({ legacyFakeTimers: false });
+        it.each([VisSettingsResource, VisSettingsResourceFromMixin])(
+          'should handle out of order server responses (%#)',
+          async VisResource => {
+            jest.useFakeTimers({ legacyFakeTimers: false });
 
-          const initVis = {
-            id: 5,
-            visType: 'graph',
-            numCols: 0,
-            updatedAt: Date.now(),
-          };
-
-          const { result } = renderRestHook(
-            () => {
-              const { fetch } = useController();
-              const vis = useCache(VisSettingsResource.get, { id: 5 });
-              // @ts-expect-error
-              vis.doesnotexist;
-              return { fetch, vis };
-            },
-            {
-              initialFixtures: [
-                {
-                  endpoint: VisSettingsResource.get,
-                  args: [{ id: 5 }],
-                  response: initVis,
-                },
-              ],
-            },
-          );
-          expect(result.current.vis).toEqual(initVis);
-
-          let resolvePartial = (resolution: any) => {};
-          let partialPromise: Promise<any>;
-          let fetchSpy = jest.spyOn(VisSettingsResource.partialUpdate, 'fetch');
-          fetchSpy.mockImplementationOnce(
-            () =>
-              (partialPromise = new Promise(resolve => {
-                resolvePartial = (resolution: any) => {
-                  resolve(resolution);
-                };
-              })),
-          );
-          jest.advanceTimersByTime(100);
-          act(() => {
-            result.current.fetch(
-              VisSettingsResource.partialUpdate,
-              { id: 5 },
-              { visType: 'line' },
-            );
-          });
-          expect(result.current.vis?.visType).toEqual('line');
-
-          let resolveIncrement = (resolution: any) => {};
-          let incrementPromise: Promise<any>;
-          fetchSpy = jest.spyOn(VisSettingsResource.incrementCols, 'fetch');
-          fetchSpy.mockImplementationOnce(
-            () =>
-              (incrementPromise = new Promise(resolve => {
-                resolveIncrement = (resolution: any) => {
-                  resolve(resolution);
-                };
-              })),
-          );
-          jest.advanceTimersByTime(100);
-          act(() => {
-            result.current.fetch(VisSettingsResource.incrementCols, { id: 5 });
-          });
-          expect(result.current.vis?.visType).toEqual('line');
-          expect(result.current.vis?.numCols).toEqual(1);
-
-          const betweenDate = Date.now();
-
-          let resolveIncrement2 = (resolution: any) => {};
-          let incrementPromise2: Promise<any>;
-
-          fetchSpy.mockImplementationOnce(
-            () =>
-              (incrementPromise2 = new Promise(resolve => {
-                resolveIncrement2 = (resolution: any) => {
-                  resolve(resolution);
-                };
-              })),
-          );
-          jest.advanceTimersByTime(100);
-          act(() => {
-            result.current.fetch(VisSettingsResource.incrementCols, { id: 5 });
-          });
-          expect(result.current.vis?.visType).toEqual('line');
-          expect(result.current.vis?.numCols).toEqual(2);
-
-          const afterDate = Date.now();
-
-          jest.advanceTimersByTime(100);
-          await act(() => {
-            resolvePartial({
+            const initVis = {
               id: 5,
-              visType: 'line',
-              numCols: 5,
-              updatedAt: betweenDate,
-            });
-            return partialPromise;
-          });
-
-          expect(result.current.vis?.visType).toEqual('line');
-          // the server is not aware of our client's last increment, so we +1 to response
-          expect(result.current.vis?.numCols).toEqual(7);
-
-          jest.advanceTimersByTime(100);
-          const finalObject = {
-            id: 5,
-            visType: 'graph',
-            numCols: 100,
-            updatedAt: afterDate,
-          };
-          await act(() => {
-            resolveIncrement2(finalObject);
-            return incrementPromise2;
-          });
-
-          expect(result.current.vis).toEqual(finalObject);
-
-          await act(() => {
-            resolveIncrement({
-              id: 5,
-              visType: 'line',
+              visType: 'graph',
               numCols: 0,
-              updatedAt: 0,
-            });
-            return incrementPromise;
-          });
-          expect(result.current.vis).toEqual(finalObject);
+              updatedAt: Date.now(),
+            };
 
-          fetchSpy.mockClear();
-        });
+            const { result } = renderRestHook(
+              () => {
+                const { fetch } = useController();
+                const vis = useCache(VisResource.get, { id: 5 });
+                // @ts-expect-error
+                vis.doesnotexist;
+                return { fetch, vis };
+              },
+              {
+                initialFixtures: [
+                  {
+                    endpoint: VisResource.get,
+                    args: [{ id: 5 }],
+                    response: initVis,
+                  },
+                ],
+              },
+            );
+            expect(result.current.vis).toEqual(initVis);
+
+            let resolvePartial = (resolution: any) => {};
+            let partialPromise: Promise<any>;
+            let fetchSpy = jest.spyOn(VisResource.partialUpdate, 'fetch');
+            fetchSpy.mockImplementationOnce(
+              () =>
+                (partialPromise = new Promise(resolve => {
+                  resolvePartial = (resolution: any) => {
+                    resolve(resolution);
+                  };
+                })),
+            );
+            jest.advanceTimersByTime(100);
+            act(() => {
+              result.current.fetch(
+                VisResource.partialUpdate,
+                { id: 5 },
+                { visType: 'line' },
+              );
+            });
+            expect(result.current.vis?.visType).toEqual('line');
+
+            let resolveIncrement = (resolution: any) => {};
+            let incrementPromise: Promise<any>;
+            fetchSpy = jest.spyOn(VisResource.incrementCols, 'fetch');
+            fetchSpy.mockImplementationOnce(
+              () =>
+                (incrementPromise = new Promise(resolve => {
+                  resolveIncrement = (resolution: any) => {
+                    resolve(resolution);
+                  };
+                })),
+            );
+            jest.advanceTimersByTime(100);
+            act(() => {
+              result.current.fetch(VisResource.incrementCols, { id: 5 });
+            });
+            expect(result.current.vis?.visType).toEqual('line');
+            expect(result.current.vis?.numCols).toEqual(1);
+
+            const betweenDate = Date.now();
+
+            let resolveIncrement2 = (resolution: any) => {};
+            let incrementPromise2: Promise<any>;
+
+            fetchSpy.mockImplementationOnce(
+              () =>
+                (incrementPromise2 = new Promise(resolve => {
+                  resolveIncrement2 = (resolution: any) => {
+                    resolve(resolution);
+                  };
+                })),
+            );
+            jest.advanceTimersByTime(100);
+            act(() => {
+              result.current.fetch(VisResource.incrementCols, { id: 5 });
+            });
+            expect(result.current.vis?.visType).toEqual('line');
+            expect(result.current.vis?.numCols).toEqual(2);
+
+            const afterDate = Date.now();
+
+            jest.advanceTimersByTime(100);
+            await act(() => {
+              resolvePartial({
+                id: 5,
+                visType: 'line',
+                numCols: 5,
+                updatedAt: betweenDate,
+              });
+              return partialPromise;
+            });
+
+            expect(result.current.vis?.visType).toEqual('line');
+            // the server is not aware of our client's last increment, so we +1 to response
+            expect(result.current.vis?.numCols).toEqual(7);
+
+            jest.advanceTimersByTime(100);
+            const finalObject = {
+              id: 5,
+              visType: 'graph',
+              numCols: 100,
+              updatedAt: afterDate,
+            };
+            await act(() => {
+              resolveIncrement2(finalObject);
+              return incrementPromise2;
+            });
+
+            expect(result.current.vis).toEqual(finalObject);
+
+            await act(() => {
+              resolveIncrement({
+                id: 5,
+                visType: 'line',
+                numCols: 0,
+                updatedAt: 0,
+              });
+              return incrementPromise;
+            });
+            expect(result.current.vis).toEqual(finalObject);
+
+            fetchSpy.mockClear();
+            jest.useRealTimers();
+            await renderRestHook.allSettled();
+          },
+        );
       });
     });
   });

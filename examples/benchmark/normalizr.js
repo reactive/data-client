@@ -1,3 +1,4 @@
+import data from './data.json' assert { type: 'json' };
 import {
   Entity,
   normalize,
@@ -5,14 +6,13 @@ import {
   inferResults,
   WeakEntityMap,
 } from './dist/index.js';
-
-import data from './data.json' assert { type: 'json' };
 import { printStatus } from './printStatus.js';
 import {
   ProjectSchema,
   ProjectQuery,
   ProjectQuerySorted,
   ProjectWithBuildTypesDescription,
+  ProjectSchemaMixin,
 } from './schemas.js';
 
 const { result, entities } = normalize(data, ProjectSchema);
@@ -33,7 +33,10 @@ const queryInfer = inferResults(
 export default function addNormlizrSuite(suite) {
   let denormCache = {
     entities: {},
-    results: { '/fake': new WeakEntityMap(), '/fakeQuery': new WeakEntityMap() },
+    results: {
+      '/fake': new WeakEntityMap(),
+      '/fakeQuery': new WeakEntityMap(),
+    },
   };
   // prime the cache
   denormalize(
@@ -67,6 +70,9 @@ export default function addNormlizrSuite(suite) {
     })
     .add('denormalizeLong', () => {
       return denormalize(result, ProjectSchema, entities);
+    })
+    .add('denormalizeLong with mixin Entity', () => {
+      return denormalize(result, ProjectSchemaMixin, entities);
     })
     .add('denormalizeLong withCache', () => {
       return denormalize(

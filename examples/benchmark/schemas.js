@@ -1,14 +1,51 @@
 import { Entity, schema, Query } from './dist/index.js';
 
-class BuildTypeDescription extends Entity {
+export class BuildTypeDescription extends Entity {
+  id = '';
+  internalId = 'bt17590';
+  name = 'Auto build with Scala 2.11';
+  type = 'regular';
+  paused = false;
+  projectId = 'OpenSourceProjects_AbsaOSS_Commons';
+
   pk() {
     return this.id;
   }
 
   static key = 'BuildTypeDescription';
 }
+export class BuildTypeDescriptionEmpty extends Entity {
+  pk() {
+    return this.id;
+  }
+
+  static key = 'BuildTypeDescription';
+}
+export const BuildTypeDescriptionEntity = schema.Entity(
+  class {
+    id = '';
+    internalId = 'bt17590';
+    name = 'Auto build with Scala 2.11';
+    type = 'regular';
+    paused = false;
+    projectId = 'OpenSourceProjects_AbsaOSS_Commons';
+  },
+  {
+    pk: 'id',
+    key: 'BuildTypeDescription',
+  },
+);
 
 export class ProjectWithBuildTypesDescription extends Entity {
+  id = '';
+  internalId = 'project3239';
+  name = 'AbsaOSS';
+  parentProjectId = 'OpenSourceProjects';
+  archived = false;
+  buildTypes = {
+    buildType: [],
+  };
+
   pk() {
     return this.id;
   }
@@ -19,8 +56,43 @@ export class ProjectWithBuildTypesDescription extends Entity {
 
   static key = 'ProjectWithBuildTypesDescription';
 }
+export class ProjectWithBuildTypesDescriptionEmpty extends Entity {
+  pk() {
+    return this.id;
+  }
 
-export const ProjectSchema = { project: [ProjectWithBuildTypesDescription] };
+  static schema = {
+    buildTypes: { buildType: [BuildTypeDescriptionEmpty] },
+  };
+
+  static key = 'ProjectWithBuildTypesDescription';
+}
+export const ProjectWithBuildTypesDescriptionEntity = schema.Entity(
+  class {
+    id = '';
+    internalId = 'project3239';
+    name = 'AbsaOSS';
+    parentProjectId = 'OpenSourceProjects';
+    archived = false;
+    buildTypes = {
+      buildType: [],
+    };
+  },
+  {
+    pk: 'id',
+    key: 'ProjectWithBuildTypesDescription',
+    schema: {
+      buildTypes: { buildType: [BuildTypeDescriptionEntity] },
+    },
+  },
+);
+
+export const ProjectSchema = {
+  project: [ProjectWithBuildTypesDescription],
+};
+export const ProjectSchemaMixin = {
+  project: [ProjectWithBuildTypesDescriptionEntity],
+};
 
 export const ProjectQuery = {
   project: new schema.All(ProjectWithBuildTypesDescription),

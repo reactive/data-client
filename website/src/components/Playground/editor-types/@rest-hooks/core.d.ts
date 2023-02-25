@@ -77,7 +77,7 @@ interface Path {
     key: string;
     pk: string;
 }
-type AbstractInstanceType<T> = T extends {
+type AbstractInstanceType<T> = T extends new (...args: any) => infer U ? U : T extends {
     prototype: infer U;
 } ? U : never;
 type DenormalizeObject<S extends Record<string, any>> = {
@@ -166,7 +166,7 @@ interface SnapshotInterface {
 }
 
 /** Defines a networking endpoint */
-interface EndpointInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined> extends EndpointExtraOptions<F> {
+interface EndpointInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends EndpointExtraOptions<F> {
     (...args: Parameters<F>): InferReturn<F, S>;
     key(...args: Parameters<F>): string;
     readonly sideEffect?: M;
@@ -723,14 +723,14 @@ declare class Controller<D extends GenericDispatch = CompatibleDispatch> {
      * Fetches the endpoint with given args, updating the Rest Hooks cache with the response or error upon completion.
      * @see https://resthooks.io/docs/api/Controller#fetch
      */
-    fetch: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined> & {
+    fetch: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
     }>(endpoint: E, ...args_0: Parameters<E>) => ReturnType<E>;
     /**
      * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
      * @see https://resthooks.io/docs/api/Controller#invalidate
      */
-    invalidate: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
+    invalidate: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
     /**
      * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
      * @see https://resthooks.io/docs/api/Controller#invalidateAll
@@ -747,35 +747,35 @@ declare class Controller<D extends GenericDispatch = CompatibleDispatch> {
      * Stores response in cache for given Endpoint and args.
      * @see https://resthooks.io/docs/api/Controller#set
      */
-    setResponse: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined> & {
+    setResponse: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, any]) => Promise<void>;
     /**
      * Another name for setResponse
      * @see https://resthooks.io/docs/api/Controller#setResponse
      */
-    receive: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined> & {
+    receive: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, any]) => Promise<void>;
     /**
      * Stores the result of Endpoint and args as the error provided.
      * @see https://resthooks.io/docs/api/Controller#setError
      */
-    setError: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined> & {
+    setError: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, Error]) => Promise<void>;
     /**
      * Another name for setError
      * @see https://resthooks.io/docs/api/Controller#setError
      */
-    receiveError: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined> & {
+    receiveError: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, Error]) => Promise<void>;
     /**
      * Resolves an inflight fetch. `fetchedAt` should `fetch`'s `createdAt`
      * @see https://resthooks.io/docs/api/Controller#resolve
      */
-    resolve: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined> & {
+    resolve: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined> & {
         update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
     }>(endpoint: E, meta: {
         args: readonly [...Parameters<E>];
@@ -792,24 +792,24 @@ declare class Controller<D extends GenericDispatch = CompatibleDispatch> {
      * Marks a new subscription to a given Endpoint.
      * @see https://resthooks.io/docs/api/Controller#subscribe
      */
-    subscribe: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, undefined>>(endpoint: E, ...args: readonly [null] | readonly [...Parameters<E>]) => Promise<void>;
+    subscribe: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [null] | readonly [...Parameters<E>]) => Promise<void>;
     /**
      * Marks completion of subscription to a given Endpoint.
      * @see https://resthooks.io/docs/api/Controller#unsubscribe
      */
-    unsubscribe: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, undefined>>(endpoint: E, ...args: readonly [null] | readonly [...Parameters<E>]) => Promise<void>;
+    unsubscribe: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [null] | readonly [...Parameters<E>]) => Promise<void>;
     /*************** More ***************/
     snapshot: (state: State<unknown>, fetchedAt?: number) => SnapshotInterface;
     /**
      * Gets the error, if any, for a given endpoint. Returns undefined for no errors.
      * @see https://resthooks.io/docs/api/Controller#getError
      */
-    getError: <E extends Pick<EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined>, "key">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => ErrorTypes | undefined;
+    getError: <E extends Pick<EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined>, "key">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => ErrorTypes | undefined;
     /**
      * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
      * @see https://resthooks.io/docs/api/Controller#getResponse
      */
-    getResponse: <E extends Pick<EndpointInterface<FetchFunction<any, any>, Schema | undefined, true | undefined>, "key" | "schema" | "invalidIfStale">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => {
+    getResponse: <E extends Pick<EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined>, "schema" | "key" | "invalidIfStale">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => {
         data: DenormalizeNullable<E["schema"]>;
         expiryStatus: ExpiryStatus;
         expiresAt: number;

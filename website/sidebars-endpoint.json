@@ -17,6 +17,10 @@
   },
   {
     "type": "doc",
+    "id": "api/schema.Entity"
+  },
+  {
+    "type": "doc",
     "id": "api/Object"
   },
   {

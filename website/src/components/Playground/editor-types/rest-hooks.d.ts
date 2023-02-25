@@ -4,7 +4,7 @@ export { AbstractInstanceType, ActionTypes, Controller, DefaultConnectionListene
 import React$1, { Context } from 'react';
 import * as packages_core_lib_controller_Controller from 'packages/core/lib/controller/Controller';
 
-type AbstractInstanceType$1<T> = T extends {
+type AbstractInstanceType$1<T> = T extends new (...args: any) => infer U ? U : T extends {
     prototype: infer U;
 } ? U : never;
 type DenormalizeObject$1<S extends Record<string, any>> = {
@@ -457,7 +457,7 @@ interface EntityTable {
     } | undefined;
 }
 
-type AbstractInstanceType<T> = T extends {
+type AbstractInstanceType<T> = T extends new (...args: any) => infer U ? U : T extends {
     prototype: infer U;
 } ? U : never;
 type DenormalizeObject<S extends Record<string, any>> = {
@@ -510,7 +510,7 @@ interface SnapshotInterface {
 }
 
 /** Defines a networking endpoint */
-interface EndpointInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends true | undefined = true | undefined> extends EndpointExtraOptions<F> {
+interface EndpointInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends EndpointExtraOptions<F> {
     (...args: Parameters<F>): InferReturn<F, S>;
     key(...args: Parameters<F>): string;
     readonly sideEffect?: M;
@@ -547,7 +547,7 @@ type Denormalize<S> = Extract<S, EntityInterface> extends never ? Extract<S, Ent
 type DenormalizeNullable<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? DenormalizeNullable$1<S> : DenormalizeNullable$1<Extract<S, EntityInterface[]>> : DenormalizeNullable$1<Extract<S, EntityInterface>>;
 
 type CondNull$2<P, A, B> = P extends null ? A : B;
-type SuspenseReturn<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>, Args extends readonly [...Parameters<E>] | readonly [null]> = CondNull$2<Args[0], E['schema'] extends undefined | null ? undefined : DenormalizeNullable<E['schema']>, E['schema'] extends undefined | null ? ResolveType<E> : Denormalize<E['schema']>>;
+type SuspenseReturn<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>, Args extends readonly [...Parameters<E>] | readonly [null]> = CondNull$2<Args[0], E['schema'] extends undefined | null ? undefined : DenormalizeNullable<E['schema']>, E['schema'] extends undefined | null ? ResolveType<E> : Denormalize<E['schema']>>;
 
 /**
  * Ensure an endpoint is available.
@@ -558,13 +558,13 @@ type SuspenseReturn<E extends EndpointInterface<FetchFunction, Schema | undefine
  * @throws {Promise} If data is not yet available.
  * @throws {NetworkError} If fetch fails.
  */
-declare function useSuspense<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): SuspenseReturn<E, Args>;
+declare function useSuspense<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): SuspenseReturn<E, Args>;
 
 /**
  * Request a resource if it is not in cache.
  * @see https://resthooks.io/docs/api/useFetch
  */
-declare function useFetch<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): ReturnType<E> | undefined;
+declare function useFetch<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): ReturnType<E> | undefined;
 
 type CondNull$1<P, A, B> = P extends null ? A : B;
 type StatefulReturn<S extends Schema | undefined, P> = CondNull$1<P, {
@@ -588,7 +588,7 @@ type StatefulReturn<S extends Schema | undefined, P> = CondNull$1<P, {
  * Use async date with { data, loading, error } (DLE)
  * @see https://resthooks.io/docs/api/useDLE
  */
-declare function useDLE<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): E['schema'] extends undefined | null ? {
+declare function useDLE<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): E['schema'] extends undefined | null ? {
     data: E extends (...args: any) => any ? ResolveType<E> | undefined : any;
     loading: boolean;
     error: ErrorTypes$1 | undefined;
@@ -608,7 +608,7 @@ declare function useController(): Controller;
  * @throws {Promise} If data is not yet available.
  * @throws {NetworkError} If fetch fails.
  */
-declare function useLive<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): SuspenseReturn<E, Args>;
+declare function useLive<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>, Args extends readonly [...Parameters<E>] | readonly [null]>(endpoint: E, ...args: Args): SuspenseReturn<E, Args>;
 
 declare const StateContext: Context<State$1<unknown>>;
 /** @deprecated use Controller.dispatch */
@@ -743,7 +743,7 @@ denormalizeCache?: any): {
  * `useCache` guarantees referential equality globally.
  * @see https://resthooks.io/docs/api/useCache
  */
-declare function useCache<E extends Pick<EndpointInterface$2<FetchFunction$2, Schema$2 | undefined, undefined>, 'key' | 'schema' | 'invalidIfStale'> | Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>, Args extends (E extends {
+declare function useCache<E extends Pick<EndpointInterface$2<FetchFunction$2, Schema$2 | undefined, undefined | false>, 'key' | 'schema' | 'invalidIfStale'> | Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>, Args extends (E extends {
     key: any;
 } ? readonly [...Parameters<E['key']>] : readonly [ParamsFromShape<E>]) | readonly [null]>(endpoint: E, ...args: Args): E['schema'] extends {} ? DenormalizeNullable$3<E['schema']> : E extends (...args: any) => any ? ResolveType$2<E> | undefined : any;
 
@@ -753,7 +753,7 @@ type UseErrorReturn<P> = P extends [null] ? undefined : ErrorTypes | undefined;
  * Get any errors for a given request
  * @see https://resthooks.io/docs/api/useError
  */
-declare function useError<E extends Pick<EndpointInterface$2<FetchFunction$2, Schema$2 | undefined, undefined>, 'key' | 'schema' | 'invalidIfStale'> | Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>, Args extends (E extends {
+declare function useError<E extends Pick<EndpointInterface$2<FetchFunction$2, Schema$2 | undefined, undefined | false>, 'key' | 'schema' | 'invalidIfStale'> | Pick<ReadShape<any, any>, 'getFetchKey' | 'schema' | 'options'>, Args extends (E extends {
     key: any;
 } ? readonly [...Parameters<E['key']>] : readonly [ParamsFromShape<E>]) | readonly [null]>(endpoint: E, ...args: Args): UseErrorReturn<typeof args>;
 
@@ -951,6 +951,6 @@ declare function useRetrieve<Shape extends ReadShape<any, any>>(fetchShape: Shap
  * Keeps a resource fresh by subscribing to updates.
  * @see https://resthooks.io/docs/api/useSubscription
  */
-declare function useSubscription<E extends EndpointInterface$2<FetchFunction$2, Schema$2 | undefined, undefined> | ReadShape<any, any>, Args extends (E extends (...args: any) => any ? readonly [...Parameters<E>] : readonly [ParamsFromShape<E>]) | readonly [null]>(endpoint: E, ...args: Args): void;
+declare function useSubscription<E extends EndpointInterface$2<FetchFunction$2, Schema$2 | undefined, undefined | false> | ReadShape<any, any>, Args extends (E extends (...args: any) => any ? readonly [...Parameters<E>] : readonly [ParamsFromShape<E>]) | readonly [null]>(endpoint: E, ...args: Args): void;
 
 export { ArrayElement, _default as AsyncBoundary, _default$1 as BackupBoundary, CacheProvider, ControllerContext, DeleteShape, DenormalizeCacheContext, DispatchContext, Endpoint, EndpointParam, EndpointExtraOptions$1 as FetchOptions, FetchShape, Index, IndexParams, MutateEndpoint, MutateShape, NetworkErrorBoundary, ParamsFromShape, ReadEndpoint, ReadShape, SetShapeParams, StateContext, Store, StoreContext, internal_d as __INTERNAL__, makeCacheProvider, useCache, useController, useDLE, useDenormalized, useError, useFetch, useLive, useMeta, usePromisifiedDispatch, useResource, useRetrieve, useSubscription, useSuspense };
