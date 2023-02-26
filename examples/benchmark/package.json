@@ -23,7 +23,7 @@
     "react": "^18.2.0"
   },
   "devDependencies": {
-    "@babel/core": "7.20.12",
+    "@babel/core": "7.21.0",
     "@babel/node": "7.20.7",
     "@types/babel__core": "^7",
     "@types/benchmark": "2.1.2",
