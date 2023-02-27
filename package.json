@@ -48,7 +48,7 @@
     "@react-navigation/native-stack": "^6.9.1",
     "@rest-hooks/react": "workspace:^",
     "@rest-hooks/test": "workspace:^",
-    "@testing-library/react": "13.4.0",
+    "@testing-library/react": "14.0.0",
     "@testing-library/react-hooks": "8.0.1",
     "@testing-library/react-native": "11.5.2",
     "@types/jest": "29.4.0",
