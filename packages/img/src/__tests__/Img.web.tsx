@@ -19,9 +19,6 @@ describe('<Img />', () => {
     MockImg.prototype = Image;
     jest.spyOn(globalThis, 'Image').mockImplementation(MockImg);
   });
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
 
   it('suspends then resolves', async () => {
     const tree = (

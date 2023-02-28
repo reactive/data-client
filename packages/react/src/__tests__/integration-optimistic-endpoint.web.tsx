@@ -94,9 +94,6 @@ describe.each([
       nock.cleanAll();
       jest.useRealTimers().clearAllMocks();
     });
-    afterAll(() => {
-      jest.restoreAllMocks();
-    });
 
     beforeEach(() => {
       renderRestHook = makeRenderRestHook(makeProvider);
