@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
+import { pbkdf2 } from 'crypto';
+
 import type { Schema, NormalizedIndex, UnvisitFunction } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 
@@ -14,15 +16,28 @@ export type PKClass = abstract new (...args: any[]) => {
 // TODO: Figure out what Schema must be for each key
 type ValidSchemas<TInstance> = { [k in keyof TInstance]?: Schema };
 
-export interface EntityOptions<TInstance> {
+export type EntityOptions<TInstance extends {}> = {
   readonly schema?: ValidSchemas<TInstance>;
   readonly pk?:
     | ((value: TInstance, parent?: any, key?: string) => string | undefined)
     | keyof TInstance;
   readonly key?: string;
-}
+} & {
+  readonly [K in Extract<
+    keyof IEntityClass,
+    | 'process'
+    | 'merge'
+    | 'expiresAt'
+    | 'createIfValid'
+    | 'mergeWithStore'
+    | 'validate'
+    | 'shouldReorder'
+    | 'useIncoming'
+  >]?: IEntityClass<abstract new (...args: any[]) => TInstance>[K];
+};
 
-export interface RequiredPKOptions<TInstance> extends EntityOptions<TInstance> {
+export interface RequiredPKOptions<TInstance extends {}>
+  extends EntityOptions<TInstance> {
   readonly pk:
     | ((value: TInstance, parent?: any, key?: string) => string | undefined)
     | keyof TInstance;
@@ -37,6 +52,10 @@ export default function EntitySchema<TBase extends Constructor>(
    * @see https://resthooks.io/docs/api/Entity
    */
   abstract class EntityMixin extends Base {
+    static toString() {
+      return this.key;
+    }
+
     static toJSON() {
       return {
         name: this.name,
@@ -351,6 +370,10 @@ export default function EntitySchema<TBase extends Constructor>(
       return (this as any).__defaults;
     }
   }
+
+  const { pk, schema, key, ...staticProps } = options;
+  // remaining options
+  Object.assign(EntityMixin, staticProps);
 
   if ('schema' in options) {
     EntityMixin.schema = options.schema as any;

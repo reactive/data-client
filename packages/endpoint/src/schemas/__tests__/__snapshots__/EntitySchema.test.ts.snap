@@ -511,8 +511,20 @@ EntityMixin {
 }
 `;
 
-exports[`EntitySchema normalization process is run before and passed to the schema denormalization 1`] = `
+exports[`EntitySchema normalization process schema denormalization is run before and passed to the schema denormalization EntriesEntity 1`] = `
 EntriesEntity {
+  "data": {
+    "attachment": AttachmentsEntity {
+      "id": "456",
+    },
+  },
+  "id": "123",
+  "type": "message",
+}
+`;
+
+exports[`EntitySchema normalization process schema denormalization is run before and passed to the schema denormalization EntriesEntity2 1`] = `
+EntriesEntity2 {
   "data": {
     "attachment": AttachmentsEntity {
       "id": "456",
