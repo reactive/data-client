@@ -112,7 +112,10 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @param [key] When normalizing, the key where this entity was found
      */
     pk<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, value: Partial<AbstractInstanceType<T>>, parent?: any, key?: string): string | undefined;
-    /** Return true to merge incoming data; false keeps existing entity */
+    /** Return true to merge incoming data; false keeps existing entity
+     *
+     * @see https://resthooks.io/docs/api/schema.Entity#useIncoming
+     */
     useIncoming(existingMeta: {
         date: number;
         fetchedAt: number;
@@ -120,13 +123,18 @@ interface IEntityClass<TBase extends Constructor = any> {
         date: number;
         fetchedAt: number;
     }, existing: any, incoming: any): boolean;
-    cmpIncoming(existingMeta: {
+    /** Determines the order of incoming entity vs entity already in store\
+     *
+     * @see https://resthooks.io/docs/api/schema.Entity#shouldReorder
+     * @returns true if incoming entity should be first argument of merge()
+     */
+    shouldReorder(existingMeta: {
         date: number;
         fetchedAt: number;
     }, incomingMeta: {
         date: number;
         fetchedAt: number;
-    }, existing: any, incoming: any): number;
+    }, existing: any, incoming: any): boolean;
     /** Creates new instance copying over defined values of arguments */
     merge(existing: any, incoming: any): any;
     /** Run when an existing entity is found in the store */
@@ -871,7 +879,10 @@ declare abstract class Entity extends Entity_base {
      * Note: this only applies to non-nested members.
      */
     protected static automaticValidation?: 'warn' | 'silent';
-    /** Return true to merge incoming data; false keeps existing entity */
+    /** Return true to merge incoming data; false keeps existing entity
+     *
+     * @see https://resthooks.io/docs/api/schema.Entity#useIncoming
+     */
     static useIncoming(existingMeta: {
         date: number;
         fetchedAt: number;

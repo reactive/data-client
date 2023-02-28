@@ -727,7 +727,7 @@ declare namespace internal_d {
  * using params and schema. This increases cache hit rate for many
  * detail shapes.
  *
- * @returns [denormalizedValue, ready]
+ * @returns {denormalizedValue, expiryStatus, expiresAt}
  */
 declare function useDenormalized<Shape extends Pick<ReadShape<Schema$2 | undefined, any>, 'getFetchKey' | 'schema' | 'options'>>(shape: Shape, params: ParamsFromShape<Shape> | null, state: State$1<any>, 
 /** @deprecated */
