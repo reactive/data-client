@@ -177,9 +177,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:14.3.0":
-  version: 14.3.0
-  resolution: "@anansi/webpack-config@npm:14.3.0"
+"@anansi/webpack-config@npm:14.3.3":
+  version: 14.3.3
+  resolution: "@anansi/webpack-config@npm:14.3.3"
   dependencies:
     "@babel/runtime": ^7.17.2
     "@linaria/webpack5-loader": 4.1.15
@@ -287,7 +287,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: efc9f88693fa4d8f2406b91433b82804407f3d5f012e680a0435cc85ab3765296ad638683c9b7b5ed58187690de18b980b9ce5a3c1872d13be9b37e2fb763c23
+  checksum: 63855e739f66877b5cd77f225b50768941838450ec760905b6cac3880f08c80a74bb07119ccb8912b84d42b66f3751e451250bdbb36a82838e691d38bbfe0226
   languageName: node
   linkType: hard
 
@@ -11299,7 +11299,7 @@ __metadata:
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.15.4
     "@anansi/router": 0.7.18
-    "@anansi/webpack-config": 14.3.0
+    "@anansi/webpack-config": 14.3.3
     "@ant-design/icons": ^5.0.0
     "@babel/core": 7.21.0
     "@linaria/babel-preset": 4.4.3
@@ -22084,7 +22084,7 @@ __metadata:
     "@anansi/babel-preset": 3.4.2
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.15.4
-    "@anansi/webpack-config": 14.3.0
+    "@anansi/webpack-config": 14.3.3
     "@babel/core": 7.21.0
     "@linaria/babel-preset": 4.4.3
     "@linaria/core": 4.2.8
