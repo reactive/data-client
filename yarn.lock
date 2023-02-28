@@ -150,12 +150,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:0.7.16":
-  version: 0.7.16
-  resolution: "@anansi/router@npm:0.7.16"
+"@anansi/router@npm:0.7.18":
+  version: 0.7.18
+  resolution: "@anansi/router@npm:0.7.18"
   dependencies:
     "@babel/runtime": ^7.17.0
-    "@pojo-router/core": ^0.5.63
+    "@pojo-router/core": ^0.5.65
     history: ^5.3.0
     nano-memoize: ^3.0.8
   peerDependencies:
@@ -164,7 +164,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 7830d0f8c630d5c509f81e05d51f9402126ffafd087f0e4b79a62801f011e66ef504065bdc8d1ca4a37018b3b2003876a73b90b0ff4af90cd6e402550869b30c
+  checksum: c3704bb6f8c39af9e54d4305729e9bc0bd78d9115217798dbdd6774b36d54cca13a583f168ce42c80e6ad293698386768e01bc33c93d8a5a1e403252f483438c
   languageName: node
   linkType: hard
 
@@ -3882,9 +3882,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.5.63":
-  version: 0.5.63
-  resolution: "@pojo-router/core@npm:0.5.63"
+"@pojo-router/core@npm:^0.5.65":
+  version: 0.5.65
+  resolution: "@pojo-router/core@npm:0.5.65"
   dependencies:
     "@babel/runtime": ^7.17.0
     history: 5.3.0
@@ -3895,7 +3895,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: a8963b73eccee461146a58dee282283e2ed72b332603be00e32bebe4189f2cae0619874ced3c99696633c342129561719ca23fac42aa9fa793a9822a4a048438
+  checksum: 83d8d9a2a18798cc06fd3b8ff404ec1543d038398c12dc5fe042f506f541b24fc4c7c24fe5bbb5b38cd135a8bcec99b0a0fb33e294c13da93cce54c0fe7cd865
   languageName: node
   linkType: hard
 
@@ -6259,9 +6259,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"antd@npm:5.2.2":
-  version: 5.2.2
-  resolution: "antd@npm:5.2.2"
+"antd@npm:5.2.3":
+  version: 5.2.3
+  resolution: "antd@npm:5.2.3"
   dependencies:
     "@ant-design/colors": ^7.0.0
     "@ant-design/cssinjs": ^1.5.6
@@ -6313,7 +6313,7 @@ __metadata:
   peerDependencies:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
-  checksum: e758fb8b1c5604c4f61bf3fab0f272fbf40251ef1dda6c60e824cec1549c92f7e4a4e28ee1260cde703c2a374ba501fa97da9788db4d379e81888473cdb94fc9
+  checksum: 01024f7e2d091bfdb261a47e9ac50ae73a8dd3000f3b4a0c19574bbd02c931da85876e765a16162982329a79008dac98b7457cb4375ec6e8e9d0343ffe8cc9e2
   languageName: node
   linkType: hard
 
@@ -11298,7 +11298,7 @@ __metadata:
     "@anansi/babel-preset": 3.4.2
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.15.4
-    "@anansi/router": 0.7.16
+    "@anansi/router": 0.7.18
     "@anansi/webpack-config": 14.2.1
     "@ant-design/icons": ^5.0.0
     "@babel/core": 7.21.0
@@ -11319,7 +11319,7 @@ __metadata:
     "@types/uuid": ^9.0.0
     "@typescript-eslint/eslint-plugin": 5.53.0
     "@typescript-eslint/parser": 5.53.0
-    antd: 5.2.2
+    antd: 5.2.3
     eslint: 8.35.0
     eslint-plugin-import: 2.27.5
     eslint-plugin-prettier: 4.2.1
