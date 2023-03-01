@@ -1,7 +1,4 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-
-import { pbkdf2 } from 'crypto';
-
 import type { Schema, NormalizedIndex, UnvisitFunction } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 
