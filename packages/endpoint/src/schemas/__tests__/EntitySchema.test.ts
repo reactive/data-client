@@ -717,7 +717,7 @@ describe(`${schema.Entity.name} normalization`, () => {
       expect(final).toMatchSnapshot();
     });
 
-    test('is run before and passed to the schema denormalization', () => {
+    describe('schema denormalization', () => {
       class AttachmentsEntity extends schema.Entity(
         class {
           id = '';
@@ -727,6 +727,7 @@ describe(`${schema.Entity.name} normalization`, () => {
       class Entries {
         id = '';
         readonly type: string = '';
+        data = { attachment: undefined };
       }
       class EntriesEntity extends schema.Entity(Entries) {
         static schema = {
@@ -740,14 +741,30 @@ describe(`${schema.Entity.name} normalization`, () => {
           };
         }
       }
+      class EntriesEntity2 extends schema.Entity(Entries, {
+        schema: {
+          data: { attachment: AttachmentsEntity },
+        },
+        process(input, parent, key) {
+          return {
+            ...values(input)[0],
+            type: Object.keys(input)[0],
+          };
+        },
+      }) {}
 
-      const { entities, result } = normalize(
-        { message: { id: '123', data: { attachment: { id: '456' } } } },
-        EntriesEntity,
+      it.each([EntriesEntity, EntriesEntity2])(
+        'is run before and passed to the schema denormalization %s',
+        EntriesEntity => {
+          const { entities, result } = normalize(
+            { message: { id: '123', data: { attachment: { id: '456' } } } },
+            EntriesEntity,
+          );
+          const [final] = denormalize(result, EntriesEntity, entities);
+          expect(final?.type).toEqual('message');
+          expect(final).toMatchSnapshot();
+        },
       );
-      const [final] = denormalize(result, EntriesEntity, entities);
-      expect(final?.type).toEqual('message');
-      expect(final).toMatchSnapshot();
     });
   });
 });
