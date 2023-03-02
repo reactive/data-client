@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.6.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/endpoint@3.6.0...@rest-hooks/endpoint@3.6.1) (2023-03-02)
+
+### 🚀 Features
+
+* Add Entity lifecycle overrides to mixin options ([#2468](https://github.com/data-client/rest-hooks/issues/2468)) ([24e8ec6](https://github.com/data-client/rest-hooks/commit/24e8ec6a5bac201f673d85a6ab9836a2c11502f6))
+* Add mixin schema.Entity() ([#2449](https://github.com/data-client/rest-hooks/issues/2449)) ([6c5d5db](https://github.com/data-client/rest-hooks/commit/6c5d5db7f5856c21927e9fa389c09ead11e93ea0))
+
+### 🐛 Bug Fix
+
+* Remove accidental import ([908e6d6](https://github.com/data-client/rest-hooks/commit/908e6d627daf8de8ce7d07f9cc1d29e8c8399352))
+
+### 📦 Package
+
+* Update babel packages ([#2457](https://github.com/data-client/rest-hooks/issues/2457)) ([45c4a0a](https://github.com/data-client/rest-hooks/commit/45c4a0ab4ebd6112db75e8c6f09e5ad1add74c8b))
+
 ## [3.6.0](https://github.com/data-client/rest-hooks/compare/@rest-hooks/endpoint@3.5.1...@rest-hooks/endpoint@3.6.0) (2023-02-21)
 
 ### 🚀 Features

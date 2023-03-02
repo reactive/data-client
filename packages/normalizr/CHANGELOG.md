@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [10.0.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/normalizr@10.0.0...@rest-hooks/normalizr@10.0.1) (2023-03-02)
+
+### 🚀 Features
+
+* Add mixin schema.Entity() ([#2449](https://github.com/data-client/rest-hooks/issues/2449)) ([6c5d5db](https://github.com/data-client/rest-hooks/commit/6c5d5db7f5856c21927e9fa389c09ead11e93ea0))
+
+### 💅 Enhancement
+
+* Allow 'false' as Endpoint.sideEffect ([#2452](https://github.com/data-client/rest-hooks/issues/2452)) ([69b6a04](https://github.com/data-client/rest-hooks/commit/69b6a049861eeefc608f5a5df86b9833021961df))
+* Only use mergeWithStore logic when entityMeta exists ([#2450](https://github.com/data-client/rest-hooks/issues/2450)) ([efb159d](https://github.com/data-client/rest-hooks/commit/efb159de96315c80cffd80838f9941afe59761b8))
+* Optimize index check in normalize ([#2451](https://github.com/data-client/rest-hooks/issues/2451)) ([bdbed37](https://github.com/data-client/rest-hooks/commit/bdbed37b419c6f4b1b626e5d811f283e187ad7e1))
+
+### 📦 Package
+
+* Update babel packages ([#2457](https://github.com/data-client/rest-hooks/issues/2457)) ([45c4a0a](https://github.com/data-client/rest-hooks/commit/45c4a0ab4ebd6112db75e8c6f09e5ad1add74c8b))
+
 ## [10.0.0](https://github.com/data-client/rest-hooks/compare/@rest-hooks/normalizr@9.5.1...@rest-hooks/normalizr@10.0.0) (2023-02-21)
 
 ### ⚠ 💥 BREAKING CHANGES

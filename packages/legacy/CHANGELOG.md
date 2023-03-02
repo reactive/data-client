@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.0.3](https://github.com/data-client/rest-hooks/compare/@rest-hooks/legacy@6.0.2...@rest-hooks/legacy@6.0.3) (2023-03-02)
+
+### 🚀 Features
+
+* Add mixin schema.Entity() ([#2449](https://github.com/data-client/rest-hooks/issues/2449)) ([6c5d5db](https://github.com/data-client/rest-hooks/commit/6c5d5db7f5856c21927e9fa389c09ead11e93ea0))
+
+### 💅 Enhancement
+
+* Do not key on schema in result cache ([#2448](https://github.com/data-client/rest-hooks/issues/2448)) ([14bd762](https://github.com/data-client/rest-hooks/commit/14bd76225701b8d443fc41d006995da3c2532050))
+* Global denormalize cache lookups up to 25x faster ([#2444](https://github.com/data-client/rest-hooks/issues/2444)) ([f963675](https://github.com/data-client/rest-hooks/commit/f963675ecde98b9008cedef192b938654a59de05))
+
+### 🐛 Bug Fix
+
+* Correct `expiresAt` computation when cached + inferred results ([#2447](https://github.com/data-client/rest-hooks/issues/2447)) ([32de97f](https://github.com/data-client/rest-hooks/commit/32de97fb1d37f95a13ef6cd524c29c008d870482))
+
+### 📦 Package
+
+* Update babel packages ([#2457](https://github.com/data-client/rest-hooks/issues/2457)) ([45c4a0a](https://github.com/data-client/rest-hooks/commit/45c4a0ab4ebd6112db75e8c6f09e5ad1add74c8b))
+
 ### [6.0.2](https://github.com/data-client/rest-hooks/compare/@rest-hooks/legacy@6.0.1...@rest-hooks/legacy@6.0.2) (2023-02-11)
 
 **Note:** Version bump only for package @rest-hooks/legacy

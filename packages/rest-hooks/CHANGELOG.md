@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.0.13](https://github.com/data-client/rest-hooks/compare/rest-hooks@7.0.12...rest-hooks@7.0.13) (2023-03-02)
+
+### 🚀 Features
+
+* Add mixin schema.Entity() ([#2449](https://github.com/data-client/rest-hooks/issues/2449)) ([6c5d5db](https://github.com/data-client/rest-hooks/commit/6c5d5db7f5856c21927e9fa389c09ead11e93ea0))
+
+### 💅 Enhancement
+
+* Allow 'false' as Endpoint.sideEffect ([#2452](https://github.com/data-client/rest-hooks/issues/2452)) ([69b6a04](https://github.com/data-client/rest-hooks/commit/69b6a049861eeefc608f5a5df86b9833021961df))
+
+### 📦 Package
+
+* Update babel packages ([#2457](https://github.com/data-client/rest-hooks/issues/2457)) ([45c4a0a](https://github.com/data-client/rest-hooks/commit/45c4a0ab4ebd6112db75e8c6f09e5ad1add74c8b))
+
+### 📝 Documentation
+
+* Update website rest hooks types ([90e035c](https://github.com/data-client/rest-hooks/commit/90e035c0dcc1597eb24e11624367bd90b61338a6))
+
 ### [7.0.12](https://github.com/data-client/rest-hooks/compare/rest-hooks@7.0.11...rest-hooks@7.0.12) (2023-02-21)
 
 ### 💅 Enhancement

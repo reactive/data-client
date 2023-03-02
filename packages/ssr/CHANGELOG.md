@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.7.10](https://github.com/data-client/rest-hooks/compare/@rest-hooks/ssr@0.7.9...@rest-hooks/ssr@0.7.10) (2023-03-02)
+
+### 📦 Package
+
+* Update babel packages ([#2457](https://github.com/data-client/rest-hooks/issues/2457)) ([45c4a0a](https://github.com/data-client/rest-hooks/commit/45c4a0ab4ebd6112db75e8c6f09e5ad1add74c8b))
+
 ### [0.7.9](https://github.com/data-client/rest-hooks/compare/@rest-hooks/ssr@0.7.8...@rest-hooks/ssr@0.7.9) (2023-02-11)
 
 **Note:** Version bump only for package @rest-hooks/ssr

@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.8.8](https://github.com/data-client/rest-hooks/compare/@rest-hooks/img@0.8.7...@rest-hooks/img@0.8.8) (2023-03-02)
+
+### 📦 Package
+
+* Update babel packages ([#2457](https://github.com/data-client/rest-hooks/issues/2457)) ([45c4a0a](https://github.com/data-client/rest-hooks/commit/45c4a0ab4ebd6112db75e8c6f09e5ad1add74c8b))
+* Update JS test packages ([#2456](https://github.com/data-client/rest-hooks/issues/2456)) ([6732e63](https://github.com/data-client/rest-hooks/commit/6732e63a10ab3cebe70f22e44429c5edae65186e))
+
 ### [0.8.7](https://github.com/data-client/rest-hooks/compare/@rest-hooks/img@0.8.6...@rest-hooks/img@0.8.7) (2023-02-21)
 
 **Note:** Version bump only for package @rest-hooks/img

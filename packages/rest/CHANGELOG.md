@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.3.8](https://github.com/data-client/rest-hooks/compare/@rest-hooks/rest@6.3.6...@rest-hooks/rest@6.3.8) (2023-03-02)
+
+### 🚀 Features
+
+* Add Entity lifecycle overrides to mixin options ([#2468](https://github.com/data-client/rest-hooks/issues/2468)) ([24e8ec6](https://github.com/data-client/rest-hooks/commit/24e8ec6a5bac201f673d85a6ab9836a2c11502f6))
+
+### 📦 Package
+
+* Update babel packages ([#2457](https://github.com/data-client/rest-hooks/issues/2457)) ([45c4a0a](https://github.com/data-client/rest-hooks/commit/45c4a0ab4ebd6112db75e8c6f09e5ad1add74c8b))
+
 ### [6.3.7](https://github.com/data-client/rest-hooks/compare/@rest-hooks/rest@6.3.5...@rest-hooks/rest@6.3.6) (2023-02-21)
 
 ### 💅 Enhancement

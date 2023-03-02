@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [9.3.5](https://github.com/data-client/rest-hooks/compare/@rest-hooks/experimental@9.3.4...@rest-hooks/experimental@9.3.5) (2023-03-02)
+
+### 💅 Enhancement
+
+* Allow 'false' as Endpoint.sideEffect ([#2452](https://github.com/data-client/rest-hooks/issues/2452)) ([69b6a04](https://github.com/data-client/rest-hooks/commit/69b6a049861eeefc608f5a5df86b9833021961df))
+
+### 📦 Package
+
+* Update babel packages ([#2457](https://github.com/data-client/rest-hooks/issues/2457)) ([45c4a0a](https://github.com/data-client/rest-hooks/commit/45c4a0ab4ebd6112db75e8c6f09e5ad1add74c8b))
+
 ### [9.3.4](https://github.com/data-client/rest-hooks/compare/@rest-hooks/experimental@9.3.3...@rest-hooks/experimental@9.3.4) (2023-02-21)
 
 **Note:** Version bump only for package @rest-hooks/experimental

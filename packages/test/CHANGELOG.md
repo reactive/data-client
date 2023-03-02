@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [10.2.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/test@10.2.0...@rest-hooks/test@10.2.1) (2023-03-02)
+
+### 📦 Package
+
+* Update `@testing-library/react` to v14 ([#2461](https://github.com/data-client/rest-hooks/issues/2461)) ([fbb7661](https://github.com/data-client/rest-hooks/commit/fbb7661643bde86a54b3a1df47476671e1405574))
+* Update babel packages ([#2457](https://github.com/data-client/rest-hooks/issues/2457)) ([45c4a0a](https://github.com/data-client/rest-hooks/commit/45c4a0ab4ebd6112db75e8c6f09e5ad1add74c8b))
+
 ## [10.2.0](https://github.com/data-client/rest-hooks/compare/@rest-hooks/test@10.1.2...@rest-hooks/test@10.2.0) (2023-02-21)
 
 ### 🚀 Features
