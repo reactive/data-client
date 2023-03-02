@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-### [3.6.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/endpoint@3.6.0...@rest-hooks/endpoint@3.6.1) (2023-03-02)
+### [3.7.0](https://github.com/data-client/rest-hooks/compare/@rest-hooks/endpoint@3.6.0...@rest-hooks/endpoint@3.7.0) (2023-03-02)
 
 ### 🚀 Features
 

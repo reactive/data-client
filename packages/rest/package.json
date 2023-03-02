@@ -108,7 +108,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@rest-hooks/endpoint": "^3.6.1",
+    "@rest-hooks/endpoint": "^3.7.0",
     "path-to-regexp": "^6.2.1"
   },
   "devDependencies": {
