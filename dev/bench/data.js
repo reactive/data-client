@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1677632015031,
+  "lastUpdate": 1677771695903,
   "repoUrl": "https://github.com/data-client/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -15663,6 +15663,128 @@ window.BENCHMARK_DATA = {
             "range": "±0.45%",
             "unit": "ops/sec",
             "extra": "78 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": true,
+          "id": "b5df3f876753dd79d9202720edb9fcd8f3e5fa3e",
+          "message": "internal: publish\n\n - @rest-hooks/core@4.2.5\n - @rest-hooks/endpoint@3.6.1\n - @rest-hooks/experimental@9.3.5\n - @rest-hooks/graphql@0.4.1\n - @rest-hooks/hooks@3.1.11\n - @rest-hooks/img@0.8.8\n - @rest-hooks/legacy@6.0.3\n - @rest-hooks/normalizr@10.0.1\n - @rest-hooks/react@7.2.5\n - @rest-hooks/redux@6.3.3\n - rest-hooks@7.0.13\n - @rest-hooks/rest@6.3.8\n - @rest-hooks/ssr@0.7.10\n - @rest-hooks/test@10.2.1\n - @rest-hooks/use-enhanced-reducer@1.2.7",
+          "timestamp": "2023-03-02T09:35:27-06:00",
+          "tree_id": "dc6754e45a31f781d355c74d917468910c882ce5",
+          "url": "https://github.com/data-client/rest-hooks/commit/b5df3f876753dd79d9202720edb9fcd8f3e5fa3e"
+        },
+        "date": 1677771694282,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 205,
+            "range": "±1.27%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 4380,
+            "range": "±1.31%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 98.33,
+            "range": "±1.65%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 104,
+            "range": "±1.28%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 3091,
+            "range": "±0.97%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 3385,
+            "range": "±1.61%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 3372,
+            "range": "±0.96%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 3159,
+            "range": "±2.67%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 1410,
+            "range": "±1.04%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 1065,
+            "range": "±1.16%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "getResponse Query-sorted",
+            "value": 335,
+            "range": "±1.61%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 210,
+            "range": "±1.08%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 87.4,
+            "range": "±1.46%",
+            "unit": "ops/sec",
+            "extra": "63 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 89.22,
+            "range": "±2.01%",
+            "unit": "ops/sec",
+            "extra": "64 samples"
           }
         ]
       }
