@@ -344,7 +344,7 @@ const price = useCache(LatestPrice, { symbol: 'BTC' });
 
 ### static schema: { [k: keyof this]: Schema } {#schema}
 
-Set this to [define entities nested](/rest/guides/nested-response) inside this one.
+Set this to [define entities nested](/rest/guides/relational-data) inside this one.
 
 Additionally can be used to [declare field deserialization](/rest/guides/network-transform#deserializing-fields)
 

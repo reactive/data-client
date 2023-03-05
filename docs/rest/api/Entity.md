@@ -390,9 +390,8 @@ const price = useCache(latestPriceFromCache, { symbol: 'BTC' });
 
 ### static schema: { [k: keyof this]: Schema } {#schema}
 
-Set this to [define entities nested](/rest/guides/nested-response) inside this one.
-
-Additionally can be used to [declare field deserialization](/rest/guides/network-transform#deserializing-fields)
+Defines [related entity](/rest/guides/relational-data) members, or
+[field deserialization](/rest/guides/network-transform#deserializing-fields) like Date and BigNumber.
 
 <HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
 {

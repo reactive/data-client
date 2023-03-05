@@ -423,7 +423,7 @@ class MyResource extends Resource {}
 
 <details><summary>static schema</summary>
 
-[Nesting](/rest/guides/nested-response) entities inside a schema will now denormalize those nested items.
+[Nesting](/rest/guides/relational-data) entities inside a schema will now denormalize those nested items.
 
 <BeforeAfterTabs>
 

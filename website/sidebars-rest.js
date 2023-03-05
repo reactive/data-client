@@ -42,7 +42,7 @@ module.exports = {
       items: [
         {
           type: 'doc',
-          id: 'guides/nested-response',
+          id: 'guides/relational-data',
         },
         {
           type: 'doc',

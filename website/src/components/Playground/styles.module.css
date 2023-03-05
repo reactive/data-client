@@ -44,7 +44,7 @@
   flex: 1 1 auto;
 }
 .playgroundContainer > div:first-child {
-  flex: 0 0 70%;
+  flex: 0 0 65%;
 }
 .row.playgroundContainer > div:first-child {
   background-color: var(--monoco-code-background);
@@ -164,7 +164,7 @@ div > .playgroundHeader.subtabs {
 :global(.col) .playgroundPreview {
   padding: 1rem;
   background-color: var(--ifm-pre-background);
-  flex: 1 4 20%;
+  flex: 1 4 30%;
   overflow: auto;
 }
 :global(.col) .playgroundError {

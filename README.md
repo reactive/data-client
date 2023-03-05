@@ -27,6 +27,16 @@ For [REST](https://resthooks.io/rest), [GraphQL](https://resthooks.io/graphql), 
 
 </div>
 
+## Installation
+
+```bash
+npm install @rest-hooks/react @rest-hooks/rest @rest-hooks/test
+```
+
+For more details, see [the Installation docs page](https://resthooks.io/docs/getting-started/installation).
+
+## Usage
+
 ### Simple [TypeScript definition](https://resthooks.io/rest/api/Entity)
 
 ```typescript
@@ -128,14 +138,6 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 - [x] 💽 Global data consistency guarantees
 - [x] 🏇 Automatic race condition elimination
 - [x] 👯 Global referential equality guarantees
-
-## Installation
-
-```bash
-npm install @rest-hooks/react @rest-hooks/rest @rest-hooks/test
-```
-
-For more details, see [the Installation docs page](https://resthooks.io/docs/getting-started/installation).
 
 ## Examples
 
