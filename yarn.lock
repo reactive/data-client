@@ -1947,6 +1947,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.17.0":
+  version: 7.21.0
+  resolution: "@babel/runtime@npm:7.21.0"
+  dependencies:
+    regenerator-runtime: ^0.13.11
+  checksum: 7b33e25bfa9e0e1b9e8828bb61b2d32bdd46b41b07ba7cb43319ad08efc6fda8eb89445193e67d6541814627df0ca59122c0ea795e412b99c5183a0540d338ab
+  languageName: node
+  linkType: hard
+
 "@babel/template@npm:^7.0.0, @babel/template@npm:^7.18.10, @babel/template@npm:^7.18.6, @babel/template@npm:^7.3.3":
   version: 7.18.10
   resolution: "@babel/template@npm:7.18.10"
@@ -3798,6 +3807,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@rest-hooks/endpoint@npm:^3.7.0":
+  version: 3.7.0
+  resolution: "@rest-hooks/endpoint@npm:3.7.0"
+  dependencies:
+    "@babel/runtime": ^7.17.0
+  checksum: e936a0a1fa02f7edb964c9027e828a9cde095bbd5017f819b4da56cb9f4a38634b82e417ac0f77c365d904bba95f6c5f69b7afb1395a2f3c16287fcd37cd8eda
+  languageName: node
+  linkType: hard
+
 "@rest-hooks/experimental@^7.1.0, @rest-hooks/experimental@workspace:packages/experimental":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/experimental@workspace:packages/experimental"
@@ -3962,7 +3980,7 @@ __metadata:
     "@babel/cli": 7.18.10
     "@babel/core": 7.19.1
     "@babel/runtime": ^7.13.0
-    "@rest-hooks/endpoint": ^3.0.0
+    "@rest-hooks/endpoint": ^3.7.0
     "@types/babel__core": ^7
     downlevel-dts: ^0.10.0
     npm-run-all: ^4.1.5
@@ -18603,6 +18621,13 @@ __metadata:
   version: 1.4.2
   resolution: "regenerate@npm:1.4.2"
   checksum: 3317a09b2f802da8db09aa276e469b57a6c0dd818347e05b8862959c6193408242f150db5de83c12c3fa99091ad95fb42a6db2c3329bfaa12a0ea4cbbeb30cb0
+  languageName: node
+  linkType: hard
+
+"regenerator-runtime@npm:^0.13.11":
+  version: 0.13.11
+  resolution: "regenerator-runtime@npm:0.13.11"
+  checksum: 27481628d22a1c4e3ff551096a683b424242a216fee44685467307f14d58020af1e19660bf2e26064de946bad7eff28950eae9f8209d55723e2d9351e632bbb4
   languageName: node
   linkType: hard
 
