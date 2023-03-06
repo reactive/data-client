@@ -31,9 +31,9 @@ For [REST](https://resthooks.io/rest), [GraphQL](https://resthooks.io/graphql), 
 
 ```typescript
 class Article extends Entity {
-  readonly id: string = '';
-  readonly title: string = '';
-  readonly body: string = '';
+  id = '';
+  title = '';
+  body = '';
 
   pk() {
     return this.id;
@@ -129,33 +129,16 @@ For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://re
 - [x] 🏇 Automatic race condition elimination
 - [x] 👯 Global referential equality guarantees
 
-## Principals of Rest Hooks
+## Installation
 
-### ![TS](./packages/rest-hooks/typescript.svg?sanitize=true) Integrity
+```bash
+npm install @rest-hooks/react @rest-hooks/rest @rest-hooks/test
+```
 
-- Strong inferred types
-- Global referential equality guarantees
-- Normalized store creates a single source of truth
-- Strong invariants robust against race conditions
-- Validation
+For more details, see [the Installation docs page](https://resthooks.io/docs/getting-started/installation).
 
-### <img src="./website/static/img/fast-car.svg" width="25" height="25"/> Performance
+## Examples
 
-- Stale While Revalidate configurable cache
-- Only re-render
-
-### <img src="./website/static/img/chemical-composition.svg" width="25" height="25"/> Composition over configuration
-
-- Declarative data definitions
-- Decoupled API definitions from usage
-- Co-located data dependencies
-  - Centralized orchestration
-- Extensible orchestration through Managers (middleware)
-- Composable hooks
-  - subject pattern
-- Suspense + concurrent mode async orchestration
-
-### <img src="./website/static/img/growing-bar-chart.svg" width="25" height="25"/> Incremental Adoption
-
-- Simple case is simple
-- Scale as your app scales
+- Todo: [Source](https://github.com/data-client/rest-hooks/tree/master/examples/todo-app) | [Sandbox](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx)
+- Github: [Source](https://github.com/data-client/rest-hooks/tree/master/examples/github-app) | [Sandbox](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?file=src%2Fpages%2FIssueList.tsx)
+- NextJS: [Source](https://github.com/data-client/rest-hooks/tree/master/examples/nextjs) | [Sandbox](https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?file=pages%2FAssetPrice.tsx)
