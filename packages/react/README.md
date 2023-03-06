@@ -43,7 +43,7 @@ const ArticleResource = createResource({
 })
 ```
 
-### One line [data binding](https://resthooks.io/docs/api/useSuspense)
+### One line [data binding](https://resthooks.io/docs/getting-started/data-dependency)
 
 ```tsx
 const article = useSuspense(ArticleResource.get, { id });
