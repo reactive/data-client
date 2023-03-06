@@ -1,44 +1,20 @@
-import { MiddlewareController } from '../middlewareTypes.js';
+import type { DevToolsConfig } from './devtoolsTypes.js';
+import type { Middleware } from './LogoutManager.js';
 import createReducer from '../state/reducer/createReducer.js';
-import type {
-  Manager,
-  State,
-  ActionTypes,
-  MiddlewareAPI,
-  Middleware,
-} from '../types.js';
+import type { Manager, State, ActionTypes } from '../types.js';
 
-export type DevToolsConfig = {
-  [k: string]: unknown;
-  name: string;
-};
+export type { DevToolsConfig };
 
 const HASINTL = typeof Intl !== 'undefined';
-
-/** Integrates with https://github.com/zalmoxisus/redux-devtools-extension
- *
- * Options: https://github.com/zalmoxisus/redux-devtools-extension/blob/master/docs/API/Arguments.md
- *
- * @see https://resthooks.io/docs/api/DevToolsManager
- */
-export default class DevToolsManager implements Manager {
-  protected declare middleware: Middleware;
-  protected declare devTools: undefined | any;
-
-  constructor(
-    config: DevToolsConfig = {
-      name: `Rest Hooks: ${globalThis.document?.title}`,
-      autoPause: true,
-      serialize: {
-        // the default options are only used if serialize isn't specified, so we include the default here
-        options: {
-          circular: '[CIRCULAR]',
-          date: true,
-        },
-        /* istanbul ignore next */
-        replacer: (key: string | number | symbol, value: unknown) => {
+const DEFAULT_CONFIG = {
+  name: `Rest Hooks: ${globalThis.document?.title}`,
+  autoPause: true,
+  serialize: {
+    options: undefined,
+    /* istanbul ignore next */
+    replacer: HASINTL
+      ? (key: string | number | symbol, value: unknown) => {
           if (
-            HASINTL &&
             typeof value === 'number' &&
             typeof key === 'string' &&
             isFinite(value) &&
@@ -52,35 +28,53 @@ export default class DevToolsManager implements Manager {
             }).format(value);
           }
           return value;
-        },
-      },
-    },
+        }
+      : undefined,
+  },
+};
+
+/** Integrates with https://github.com/reduxjs/redux-devtools
+ *
+ * Options: https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md
+ *
+ * @see https://resthooks.io/docs/api/DevToolsManager
+ */
+export default class DevToolsManager implements Manager {
+  protected declare middleware: Middleware;
+  protected declare devTools: undefined | any;
+
+  constructor(
+    config?: DevToolsConfig,
     skipLogging?: (action: ActionTypes) => boolean,
   ) {
     /* istanbul ignore next */
     this.devTools =
       typeof window !== 'undefined' &&
       (window as any).__REDUX_DEVTOOLS_EXTENSION__ &&
-      (window as any).__REDUX_DEVTOOLS_EXTENSION__.connect(config);
+      (window as any).__REDUX_DEVTOOLS_EXTENSION__.connect({
+        ...DEFAULT_CONFIG,
+        config,
+      });
 
     /* istanbul ignore if */
     /* istanbul ignore next */
-    if (process.env.NODE_ENV === 'development' && this.devTools) {
-      this.middleware = <C extends MiddlewareController>(controller: C) => {
+    if (this.devTools) {
+      this.middleware = controller => {
         const reducer = createReducer(controller as any);
-        return (next: C['dispatch']): C['dispatch'] =>
-          action => {
-            return next(action).then(() => {
-              if (skipLogging?.(action)) return;
-              const state = controller.getState();
-              this.devTools.send(
-                action,
-                state.optimistic.reduce(reducer, state),
-                undefined,
-                'REST_HOOKS',
-              );
-            });
-          };
+        return next => action => {
+          const ret = next(action);
+          ret.then(() => {
+            if (skipLogging?.(action)) return;
+            const state = controller.getState();
+            this.devTools.send(
+              action,
+              state.optimistic.reduce(reducer, state),
+              undefined,
+              'REST_HOOKS',
+            );
+          });
+          return ret;
+        };
       };
     } else {
       this.middleware = () => next => action => next(action);
