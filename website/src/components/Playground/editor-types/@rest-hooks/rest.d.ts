@@ -80,12 +80,14 @@ type PKClass = abstract new (...args: any[]) => {
 type ValidSchemas<TInstance> = {
     [k in keyof TInstance]?: Schema;
 };
-interface EntityOptions<TInstance> {
+type EntityOptions<TInstance extends {}> = {
     readonly schema?: ValidSchemas<TInstance>;
     readonly pk?: ((value: TInstance, parent?: any, key?: string) => string | undefined) | keyof TInstance;
     readonly key?: string;
-}
-interface RequiredPKOptions<TInstance> extends EntityOptions<TInstance> {
+} & {
+    readonly [K in Extract<keyof IEntityClass, 'process' | 'merge' | 'expiresAt' | 'createIfValid' | 'mergeWithStore' | 'validate' | 'shouldReorder' | 'useIncoming'>]?: IEntityClass<abstract new (...args: any[]) => TInstance>[K];
+};
+interface RequiredPKOptions<TInstance extends {}> extends EntityOptions<TInstance> {
     readonly pk: ((value: TInstance, parent?: any, key?: string) => string | undefined) | keyof TInstance;
 }
 interface IEntityClass<TBase extends Constructor = any> {

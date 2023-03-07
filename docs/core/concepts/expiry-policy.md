@@ -8,6 +8,7 @@ sidebar_label: Expiry Policy
 </head>
 
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import {RestEndpoint} from '@rest-hooks/rest';
 
 By default, Rest Hooks cache policy can be described as [stale-while-revalidate](https://web.dev/stale-while-revalidate/).
 This means that when data is available it can avoid blocking the application by using the stale data. However, in the background
@@ -30,7 +31,6 @@ class TimedEntity extends Entity {
 const lastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   schema: TimedEntity,
-  fetch: mockLastUpdated,
 });
 ```
 
@@ -63,22 +63,23 @@ to make it becomes stale almost instantly; or a very large number to stay around
 Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
 you will continue to see the old time without any refresh.
 
-<HooksPlayground>
+<HooksPlayground fixtures={[
+{
+  endpoint: new RestEndpoint({
+    path: '/api/currentTime/:id',
+  }),
+  response({ id }) {
+    return ({
+      id,
+      updatedAt: new Date().toISOString(),
+    });
+  },
+  delay: () => 150,
+}
+]}
+>
 
 ```ts title="api/lastUpdated" collapsed
-const mockLastUpdated = ({ id }) => {
-  return new Promise(resolve => {
-    setTimeout(
-      () =>
-        resolve({
-          id,
-          updatedAt: new Date().toISOString(),
-        }),
-      150,
-    );
-  });
-};
-
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = new Date(0);
@@ -94,7 +95,6 @@ export class TimedEntity extends Entity {
 export const lastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   schema: TimedEntity,
-  fetch: mockLastUpdated,
 });
 ```
 
@@ -188,22 +188,23 @@ that expires immediately be considered 'invalid'.
 This is demonstrated by the component suspending once its data goes stale. If the data is still
 within the expiry time it just continues to display it.
 
-<HooksPlayground>
+<HooksPlayground fixtures={[
+{
+  endpoint: new RestEndpoint({
+    path: '/api/currentTime/:id',
+  }),
+  response({ id }) {
+    return ({
+      id,
+      updatedAt: new Date().toISOString(),
+    });
+  },
+  delay: () => 150,
+}
+]}
+>
 
 ```ts title="api/lastUpdated" collapsed
-const mockLastUpdated = ({ id }) => {
-  return new Promise(resolve => {
-    setTimeout(
-      () =>
-        resolve({
-          id,
-          updatedAt: new Date().toISOString(),
-        }),
-      150,
-    );
-  });
-};
-
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = new Date(0);
@@ -219,7 +220,6 @@ export class TimedEntity extends Entity {
 export const lastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   schema: TimedEntity,
-  fetch: mockLastUpdated,
 });
 ```
 
@@ -273,22 +273,23 @@ render(<Navigator />);
 [Controller.fetch](../api/Controller#fetch) can be used to trigger a fetch while still showing
 the previous data. This can be done even with 'fresh' data.
 
-<HooksPlayground>
+<HooksPlayground fixtures={[
+{
+  endpoint: new RestEndpoint({
+    path: '/api/currentTime/:id',
+  }),
+  response({ id }) {
+    return ({
+      id,
+      updatedAt: new Date().toISOString(),
+    });
+  },
+  delay: () => 150,
+}
+]}
+>
 
 ```ts title="api/lastUpdated" collapsed
-const mockLastUpdated = ({ id }) => {
-  return new Promise(resolve => {
-    setTimeout(
-      () =>
-        resolve({
-          id,
-          updatedAt: new Date().toISOString(),
-        }),
-      150,
-    );
-  });
-};
-
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = new Date(0);
@@ -304,7 +305,6 @@ export class TimedEntity extends Entity {
 export const lastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   schema: TimedEntity,
-  fetch: mockLastUpdated,
 });
 ```
 
@@ -338,22 +338,23 @@ Both endpoints and entities can be targetted to be invalidated.
 
 In this example we can see invalidating the endpoint shows the loading fallback since the data is not allowed to be displayed.
 
-<HooksPlayground>
+<HooksPlayground fixtures={[
+{
+  endpoint: new RestEndpoint({
+    path: '/api/currentTime/:id',
+  }),
+  response({ id }) {
+    return ({
+      id,
+      updatedAt: new Date().toISOString(),
+    });
+  },
+  delay: () => 150,
+}
+]}
+>
 
 ```ts title="api/lastUpdated" collapsed
-const mockLastUpdated = ({ id }) => {
-  return new Promise(resolve => {
-    setTimeout(
-      () =>
-        resolve({
-          id,
-          updatedAt: new Date().toISOString(),
-        }),
-      150,
-    );
-  });
-};
-
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = new Date(0);
@@ -369,7 +370,6 @@ export class TimedEntity extends Entity {
 export const lastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   schema: TimedEntity,
-  fetch: mockLastUpdated,
 });
 ```
 
@@ -436,22 +436,23 @@ render(<Demo />);
 Using [Delete](/rest/api/Delete) allows us to invalidate _any_ endpoint that includes that relies on that entity in their
 response. If the endpoint uses the entity in an Array, it will simply be removed from that Array.
 
-<HooksPlayground>
+<HooksPlayground fixtures={[
+{
+  endpoint: new RestEndpoint({
+    path: '/api/currentTime/:id',
+  }),
+  response({ id }) {
+    return ({
+      id,
+      updatedAt: new Date().toISOString(),
+    });
+  },
+  delay: () => 150,
+}
+]}
+>
 
 ```ts title="api/lastUpdated" collapsed
-const mockLastUpdated = ({ id }) => {
-  return new Promise(resolve => {
-    setTimeout(
-      () =>
-        resolve({
-          id,
-          updatedAt: new Date().toISOString(),
-        }),
-      150,
-    );
-  });
-};
-
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = new Date(0);
@@ -467,7 +468,6 @@ export class TimedEntity extends Entity {
 export const lastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   schema: TimedEntity,
-  fetch: mockLastUpdated,
 });
 ```
 
@@ -513,22 +513,23 @@ error. This can be caught with [NetworkErrorBoundary](../api/NetworkErrorBoundar
 
 Hard errors always invalidate a response with the rejection - even when data has previously made available.
 
-<HooksPlayground>
+<HooksPlayground fixtures={[
+{
+  endpoint: new RestEndpoint({
+    path: '/api/currentTime/:id',
+  }),
+  response({ id }) {
+    return ({
+      id,
+      updatedAt: new Date().toISOString(),
+    });
+  },
+  delay: () => 150,
+}
+]}
+>
 
 ```ts title="api/lastUpdated" collapsed
-const mockLastUpdated = ({ id }) => {
-  return new Promise(resolve => {
-    setTimeout(
-      () =>
-        resolve({
-          id,
-          updatedAt: new Date().toISOString(),
-        }),
-      150,
-    );
-  });
-};
-
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = new Date(0);
@@ -544,7 +545,6 @@ export class TimedEntity extends Entity {
 export const lastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   schema: TimedEntity,
-  fetch: mockLastUpdated,
 });
 ```
 
