@@ -512,7 +512,7 @@ their effect on the cache state as well as current cache state.
 
 ## Mock data
 
-Writing `Fixture`s is a standard format that can be used across all `@rest-hooks/test` helpers as well as your own uses.
+Writing [Fixtures](./api/Fixtures.md) is a standard format that can be used across all `@rest-hooks/test` helpers as well as your own uses.
 
 <Tabs
 defaultValue="detail"
@@ -520,15 +520,17 @@ values={[
 { label: 'Detail', value: 'detail' },
 { label: 'Update', value: 'update' },
 { label: '404 error', value: 'detail404' },
+{ label: 'Interceptor', value: 'interceptor' },
+{ label: 'Interceptor (stateful)', value: 'interceptor-stateful' },
 ]}>
 <TabItem value="detail">
 
 ```typescript
 import type { Fixture } from '@rest-hooks/test';
-import { todoDetail } from './todo';
+import { getTodo } from './todo';
 
 const todoDetailFixture: Fixture = {
-  endpoint: todoDetail,
+  endpoint: getTodo,
   args: [{ id: 5 }] as const,
   response: {
     id: 5,
@@ -544,10 +546,10 @@ const todoDetailFixture: Fixture = {
 
 ```typescript
 import type { Fixture } from '@rest-hooks/test';
-import { todoUpdate } from './todo';
+import { updateTodo } from './todo';
 
 const todoUpdateFixture: Fixture = {
-  endpoint: todoUpdate,
+  endpoint: updateTodo,
   args: [{ id: 5 }, { completed: true }] as const,
   response: {
     id: 5,
@@ -563,13 +565,54 @@ const todoUpdateFixture: Fixture = {
 
 ```typescript
 import type { Fixture } from '@rest-hooks/test';
-import { todoDetail } from './todo';
+import { getTodo } from './todo';
 
 const todoDetail404Fixture: Fixture = {
-  endpoint: todoDetail,
+  endpoint: getTodo,
   args: [{ id: 9001 }] as const,
   response: { status: 404, response: 'Not found' },
   error: true,
+};
+```
+
+</TabItem>
+<TabItem value="interceptor">
+
+```typescript
+import type { Interceptor } from '@rest-hooks/test';
+
+const currentTimeInterceptor: Interceptor = {
+  endpoint: new RestEndpoint({
+    path: '/api/currentTime/:id',
+  }),
+  response({ id }) {
+    return ({
+      id,
+      updatedAt: new Date().toISOString(),
+    });
+  },
+  delay: () => 150,
+};
+```
+
+</TabItem>
+<TabItem value="interceptor-stateful">
+
+```typescript
+import type { Interceptor } from '@rest-hooks/test';
+
+const incrementInterceptor: Interceptor = {
+  endpoint: new RestEndpoint({
+    path: '/api/count/increment',
+    method: 'POST',
+    body: undefined,
+  }),
+  response() {
+    return {
+      count: (this.count = this.count + 1),
+    };
+  },
+  delay: () => 150,
 };
 ```
 

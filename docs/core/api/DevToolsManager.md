@@ -7,7 +7,7 @@ sidebar_label: DevToolsManager
 class DevToolsManager implements Manager
 ```
 
-Integrates with [Redux DevTools](https://github.com/zalmoxisus/redux-devtools-extension) to track
+Integrates with [Redux DevTools](https://github.com/reduxjs/redux-devtools) to track
 state and actions. Note: does not integrate time-travel.
 
 Add the [chrome extension](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)

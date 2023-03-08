@@ -256,6 +256,10 @@
           "items": [
             {
               "type": "doc",
+              "id": "api/Fixtures"
+            },
+            {
+              "type": "doc",
               "id": "api/MockResolver"
             },
             {

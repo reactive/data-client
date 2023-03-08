@@ -16,9 +16,11 @@ endpoints.
 
 If you need to add unit tests to your components to check some behavior you might want
 avoid dealing with network fetch cycle as that is probably orthogonal to what your are
-trying to test. Using [<MockResolver /\>](../api/MockResolver) in our tests allow
+trying to test. Using [<CacheProvider /\>](../api/CacheProvider.md) with [mockInitialState](../api/mockInitialState.md) in our tests allow
 us to prime the cache with provided fixtures so the components will immediately render
 with said results.
+
+Testing user interactions that trigger mutations can be aided with the use of [<MockResolver /\>](../api/MockResolver.md)
 
 ```typescript title="__tests__/fixtures.ts"
 export default {

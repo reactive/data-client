@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 [Storybook](https://storybook.js.org/) is a great utility to do isolated development and
 testing, potentially speeding up development time greatly.
 
-[<MockResolver /\>](../api/MockResolver.md) enables easy loading of fixtures to see what
+[<MockResolver /\>](../api/MockResolver.md) enables easy loading of [fixtures or interceptors](./Fixtures.md) to see what
 different network responses might look like. It can be layered, composed, and even used
 for [imperative fetches](../api/Controller.md#fetch) usually used with side-effect endpoints like [create](/rest/api/createResource#create) and [update](/rest/api/createResource#update).
 

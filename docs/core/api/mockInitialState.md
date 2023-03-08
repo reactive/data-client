@@ -6,7 +6,7 @@ title: mockInitialState()
 function mockInitialState(results: Fixture[]): State;
 ```
 
-`mockInitialState()` makes it easy to construct prefill the cache with fixtures. It's
+`mockInitialState()` makes it easy to construct prefill the cache with [fixtures](./Fixtures.md). It's
 used in [<MockResolver /\>](./MockResolver) to process the results prop. However, this
 can also be useful to send into a normal provider when testing more complete flows
 that need to handle `dispatches` (and thus fetch).
@@ -16,36 +16,10 @@ that need to handle `dispatches` (and thus fetch).
 #### results
 
 ```typescript
-export interface SuccessFixture<
-  E extends EndpointInterface = EndpointInterface,
-> {
-  readonly endpoint: E;
-  readonly args: Parameters<E>;
-  readonly response:
-    | ResolveType<E>
-    | ((...args: Parameters<E>) => ResolveType<E>);
-  readonly error?: false;
-  /** Number of miliseconds to wait before resolving */
-  readonly delay?: number;
-  /** Waits to run `response()` after `delay` time */
-  readonly delayCollapse?: boolean;
-}
-
-export interface ErrorFixture<E extends EndpointInterface = EndpointInterface> {
-  readonly endpoint: E;
-  readonly args: Parameters<E>;
-  readonly response: any;
-  readonly error: true;
-  /** Number of miliseconds to wait before resolving */
-  readonly delay?: number;
-  /** Waits to run `response()` after `delay` time */
-  readonly delayCollapse?: boolean;
-}
-
 export type Fixture = SuccessFixture | ErrorFixture;
 ```
 
-This prop specifies the fixtures to use data from. Each item represents a fetch defined by the
+This prop specifies the [fixtures](./Fixtures.md) to use data from. Each item represents a fetch defined by the
 [Endpoint](/rest/api/Endpoint) and params. `Result` contains the JSON response expected from said fetch.
 
 

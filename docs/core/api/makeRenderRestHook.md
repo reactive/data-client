@@ -76,16 +76,16 @@ Hooks to run inside React. Return value will become available in `result`
 
 #### options.initialFixtures
 
-Can be used to prime the cache if test expects cache values to already be filled. Takes same
-[array of fixtures as MockResolver](../api/MockResolver#fixtures)
+Can be used to prime the cache if test expects cache values to already be filled. Takes an
+[array of fixtures](./Fixtures.md)
 
 This has the same effect as initializing [<CacheProvider /\>](../api/CacheProvider) with [mockInitialState()](../api/mockInitialState)
 
 #### options.resolverFixtures
 
-These fixtures are used to resolve any new requests. This is most useful for mocking imperative fetches like mutations, but can also allow testing suspending states or transitions.
+These [fixtures or interceptors](./Fixtures.md) are used to resolve any new requests. This is most useful for mocking imperative fetches like mutations, but can also allow testing suspending states or transitions.
 
-Works by adding [MockResolver](../api/MockResolver) as a wrapper.
+Works by adding [MockResolver](../api/MockResolver.md) as a wrapper.
 
 #### options.getInitialInterceptorData
 
