@@ -17,29 +17,45 @@ it is able to dedupe identical requests if they are made using the throttle flag
 
 :::
 
-## constructor(dataExpiryLength = 60000, errorExpiryLength = 1000) {#constructor}
+## Members
+
+### constructor(dataExpiryLength = 60000, errorExpiryLength = 1000) {#constructor}
 
 Arguments represent the default time (in miliseconds) before a resource is considered 'stale'.
 
-## Consumed Actions
+### middleware
 
-- 'rest-hooks/fetch'
+#### Consumed Actions
+
+- [fetch](./Controller.md#fetch)
 
 Will initiate network request and then dispatch upon completion.
 
-## Processed Actions
+#### Processed Actions
 
-- 'rest-hooks/purge'
-- 'rest-hooks/rpc'
-- 'rest-hooks/receive'
+- [fetch](./Controller.md#fetch)
+- [setResponse](./Controller.md#setResponse)
+- [resetEntireStore](./Controller.md#resetEntireStore)
 
-Marks request as complete.
+#### Dispatched Actions
 
-## Dispatched Actions
+- [resolve](./Controller.md#resolve)
 
-- 'rest-hooks/purge'
-- 'rest-hooks/rpc'
-- 'rest-hooks/receive'
+### allSettled(): Promise {#allSettled}
+
+Resolves once all fetches inflight are complete. Conceptually [Promise.allSettled](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled)
+
+### skipLogging(action) {#skipLogging}
+
+Used by DevtoolsManager to determine whether to log an action
+
+Default:
+
+```ts
+skipLogging(action: ActionTypes) {
+  return action.type === FETCH_TYPE && action.meta.key in this.fetched;
+}
+```
 
 ## Protected members
 
@@ -77,3 +93,4 @@ Clear promise state for a given key
 ### clearAll()
 
 Ensures all promises are completed by rejecting remaining
+

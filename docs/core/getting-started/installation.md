@@ -11,6 +11,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
 import PkgInstall from '@site/src/components/PkgInstall';
+import Installation from '../shared/\_installation.mdx';
 
 <PkgTabs pkgs="@rest-hooks/react @rest-hooks/test @rest-hooks/hooks @rest-hooks/rest" />
 
@@ -18,89 +19,7 @@ TypeScript is optional, but requires at least version [3.7](https://www.typescri
 
 ## Add provider at top-level component
 
-<Tabs
-defaultValue="18-web"
-groupId="platform"
-values={[
-{ label: 'React Web 16+', value: 'web' },
-{ label: 'React Web 18+', value: '18-web' },
-{ label: 'React Native', value: 'native' },
-{ label: 'NextJS', value: 'nextjs' },
-]}>
-<TabItem value="web">
-
-```tsx title="/index.tsx"
-import { CacheProvider } from '@rest-hooks/react';
-import ReactDOM from 'react-dom';
-
-ReactDOM.render(
-  <CacheProvider>
-    <App />
-  </CacheProvider>,
-  document.body,
-);
-```
-
-</TabItem>
-
-<TabItem value="18-web">
-
-```tsx title="/index.tsx"
-import { CacheProvider } from '@rest-hooks/react';
-import ReactDOM from 'react-dom';
-
-ReactDOM.createRoot(document.body).render(
-  <CacheProvider>
-    <App />
-  </CacheProvider>,
-);
-```
-
-</TabItem>
-
-<TabItem value="native">
-
-```tsx title="/index.tsx"
-import { CacheProvider } from '@rest-hooks/react';
-import { AppRegistry } from 'react-native';
-
-const Root = () => (
-  <CacheProvider>
-    <App />
-  </CacheProvider>
-);
-AppRegistry.registerComponent('MyApp', () => Root);
-```
-
-</TabItem>
-
-<TabItem value="nextjs">
-
-<PkgInstall pkgs="@rest-hooks/ssr @rest-hooks/redux redux" />
-
-```tsx title="pages/_document.tsx"
-import { RestHooksDocument } from '@rest-hooks/ssr/nextjs';
-
-export default RestHooksDocument;
-```
-
-```tsx title="pages/_app.tsx"
-import { AppCacheProvider } from '@rest-hooks/ssr/nextjs';
-import type { AppProps } from 'next/app';
-
-export default function App({ Component, pageProps }: AppProps) {
-  return (
-    <AppCacheProvider>
-      <Component {...pageProps} />
-    </AppCacheProvider>
-  );
-}
-```
-
-[Full NextJS Guide](../guides/ssr.md#nextjs)
-
-</TabItem>
-</Tabs>
+<Installation />
 
 Alternatively [integrate state with redux](../guides/redux.md)
 

@@ -6,12 +6,24 @@ title: Endpoint
   <title>Endpoint - Strongly typed API definitions</title>
 </head>
 
-
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import HooksPlayground from '@site/src/components/HooksPlayground';
 
 Endpoint defines a standard interface that describes the nature of an networking endpoint.
 It is both strongly typed, and encapsulates runtime-relevant information.
+
+Package: [@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint)
+
+:::tip
+
+Endpoint is a protocol independent class. Try using the protocol specific patterns
+[REST](./RestEndpoint.md), [GraphQL](/graphql/api/GQLEndpoint),
+or [getImage](/docs/guides/img-media#just-images) instead.
+
+:::
+
+<details><summary><b>Interface</b></summary>
 
 <Tabs
 defaultValue="Interface"
@@ -94,15 +106,45 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
 </TabItem>
 </Tabs>
 
-Package: [@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint)
+</details>
 
-:::tip
+## Usage
 
-Endpoint is a protocol independent class. Try using the protocol specific patterns
-[REST](./RestEndpoint.md), [GraphQL](/graphql/api/GQLEndpoint),
-or [getImage](/docs/guides/img-media#just-images) instead.
+`Endpoint` makes existing async functions usable in any Rest Hooks context. Types are fully maintained
 
-:::
+<HooksPlayground defaultOpen="n">
+
+```ts title="Interface" collapsed
+export interface Todo {
+  id: number;
+  userId: number;
+  title: string;
+  completed: boolean;
+}
+```
+
+```ts title="API" {6}
+import { Todo } from './interface';
+
+const getTodoOriginal = (id: number): Promise<Todo> =>
+  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res =>
+    res.json(),
+  );
+
+export const getTodo = new Endpoint(getTodoOriginal);
+```
+
+```ts title="React"
+import { getTodo } from './api';
+
+function TodoDetail({ id }: { id: number }) {
+  const todo = useSuspense(getTodo, id);
+  return <div>{todo.title}</div>;
+}
+render(<TodoDetail id={1} />);
+```
+
+</HooksPlayground>
 
 ## Lifecycle
 

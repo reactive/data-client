@@ -14,6 +14,14 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 `RestEndpoints` are for [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP) based protocols like REST.
 
+:::info extends
+
+`RestEndpoint` extends [Endpoint](./Endpoint.md)
+
+:::
+
+<details><summary><b>Interface</b></summary>
+
 <Tabs
 defaultValue="RestEndpoint"
 values={[
@@ -85,11 +93,7 @@ class Endpoint<F extends (...args: any) => Promise<any>> {
 </TabItem>
 </Tabs>
 
-:::info extends
-
-`RestEndpoint` extends [Endpoint](./Endpoint.md)
-
-:::
+</details>
 
 ## Usage
 

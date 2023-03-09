@@ -8,7 +8,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
-Define your [async methods](https://resthooks.io/docs/getting-started/endpoint ). Use them [synchronously in React](https://resthooks.io/docs/getting-started/data-dependency). [Instantly mutate](https://resthooks.io/docs/getting-started/mutations) the data and automatically update all usages.
+Define your [async methods](https://resthooks.io/docs/getting-started/endpoint). Use them [synchronously in React](https://resthooks.io/docs/getting-started/data-dependency). [Instantly mutate](https://resthooks.io/docs/getting-started/mutations) the data and automatically update all usages.
 
 For [REST](https://resthooks.io/rest), [GraphQL](https://resthooks.io/graphql), [Websockets+SSE](https://resthooks.io/docs/api/Manager#middleware-data-stream) and [more](https://resthooks.io/docs/guides/img-media)
 
@@ -83,7 +83,7 @@ return (
 );
 ```
 
-### And [subscriptions](https://resthooks.io/docs/api/useLive)
+### [Subscriptions](https://resthooks.io/docs/api/useLive)
 
 ```tsx
 const price = useLive(PriceResource.get, { symbol });
