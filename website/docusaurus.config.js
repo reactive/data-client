@@ -319,6 +319,10 @@ module.exports = {
             from: ['/docs/guides/infinite-scrolling-pagination'],
           },
           {
+            to: '/rest/guides/relational-data',
+            from: ['/rest/guides/nested-response'],
+          },
+          {
             to: '/rest',
             from: ['/rest/usage', '/docs/rest'],
           },

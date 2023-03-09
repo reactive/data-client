@@ -276,7 +276,7 @@ have shorthands of using object and array literals.
 
 ### Nesting
 
-Additionally, [Entities](/rest/api/Entity) themselves can specify [nested schemas](/rest/guides/nested-response)
+Additionally, [Entities](/rest/api/Entity) themselves can specify [nested schemas](/rest/guides/relational-data)
 by specifying a [static schema](/rest/api/Entity#schema) member.
 
 <Tabs
@@ -335,7 +335,7 @@ class User extends Entity {
 </TabItem>
 </Tabs>
 
-[Learn more](/rest/guides/nested-response)
+[Learn more](/rest/guides/relational-data)
 
 ### Data Representations
 

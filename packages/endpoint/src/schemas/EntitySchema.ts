@@ -281,7 +281,7 @@ export default function EntitySchema<TBase extends Constructor>(
 
   Be sure all schema members are also part of the entity
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about nesting schemas: https://resthooks.io/rest/guides/nested-response
+  Learn more about nesting schemas: https://resthooks.io/rest/guides/relational-data
 
   Entity keys: ${Object.keys(this.defaults)}
   Schema key(missing): ${key}

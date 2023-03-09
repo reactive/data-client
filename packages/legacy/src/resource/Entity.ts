@@ -224,7 +224,7 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
 
   Be sure all schema members are also part of the entity
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about nesting schemas: https://resthooks.io/docs/guides/nested-response
+  Learn more about nesting schemas: https://resthooks.io/docs/guides/relational-data
 
   Entity keys: ${Object.keys(processedEntity)}
   Schema key(missing): ${key}

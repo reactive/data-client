@@ -21,7 +21,7 @@ export default function Output({ value }: { value: any }) {
     () => ({
       tree: {
         overflow: 'auto',
-        flex: '4 1 70%',
+        flex: '4 1 40%',
         margin: 0,
         padding: '0 0.5rem 0 0.8rem',
         backgroundColor: isDarkTheme
@@ -71,12 +71,13 @@ export default function Output({ value }: { value: any }) {
 
 const shouldExpandNode = () => {
   let entityCount = 0;
+  let schemaCount = 0;
 
   return (keyName, data, level) => {
     if (level === 0) return true;
     if (level === 1 && ['entities', 'results'].includes(keyName[0]))
       return true;
-    if (level === 2 && keyName[1] === 'entities') return true;
+    if (level === 2 && keyName[1] === 'entities') return schemaCount++ < 2;
     if (level === 2 && keyName[1] === 'results') return true;
     if (level === 3 && keyName[2] === 'entities') {
       return entityCount++ < 4;

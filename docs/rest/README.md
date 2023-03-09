@@ -130,7 +130,7 @@ export const ArticleResource = createResource({
 to [avoid state duplication](https://beta.reactjs.org/learn/choosing-the-state-structure#principles-for-structuring-state), which
 is one of the core design choices that enable such high safety and performance characteristics.
 
-[static schema](./api/Entity.md#schema) lets us specify declarative transformations like auto [field deserialization](./guides/network-transform.md#deserializing-fields) with `createdAt` and [nesting the author field](./guides/nested-response.md).
+[static schema](./api/Entity.md#schema) lets us specify declarative transformations like auto [field deserialization](./guides/network-transform.md#deserializing-fields) with `createdAt` and [nesting the author field](./guides/relational-data.md).
 
 [Urls are constructed](./api/RestEndpoint.md#url) by combining the urlPrefix with [path templating](https://www.npmjs.com/package/path-to-regexp).
 TypeScript enforces the arguments specified with a prefixed colon like `:id` in this example.

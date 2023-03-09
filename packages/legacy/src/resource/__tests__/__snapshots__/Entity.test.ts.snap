@@ -985,7 +985,7 @@ exports[`Entity normalization should throw a custom error if schema key is missi
 
   Be sure all schema members are also part of the entity
   Or use debugging tools: https://resthooks.io/docs/guides/debugging
-  Learn more about nesting schemas: https://resthooks.io/docs/guides/nested-response
+  Learn more about nesting schemas: https://resthooks.io/docs/guides/relational-data
 
   Entity keys: name,secondthing
   Schema key(missing): blarb
