@@ -1,7 +1,7 @@
-import type { Fixture, Interceptor } from './fixtureTypes.js';
+import type { Fixture, ResponseInterceptor } from './fixtureTypes.js';
 
-export function collapseFixture(
-  fixture: Fixture | Interceptor,
+export async function collapseFixture(
+  fixture: Fixture | ResponseInterceptor,
   args: any[],
   interceptorData: any,
 ) {
@@ -9,7 +9,7 @@ export function collapseFixture(
   let response = fixture.response;
   if (typeof fixture.response === 'function') {
     try {
-      response = fixture.response.apply(interceptorData, args);
+      response = await fixture.response.apply(interceptorData, args);
       // dispatch goes through user-code that can sometimes fail.
       // let's ensure we always handle errors
     } catch (e: any) {

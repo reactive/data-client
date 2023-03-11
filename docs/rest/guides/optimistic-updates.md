@@ -360,6 +360,20 @@ endpoint: new RestEndpoint({path: '/api/count'}),
 args: [],
 response: { count: 0, updatedAt: Date.now() }
 },
+{
+  endpoint: new RestEndpoint({
+    path: '/api/count/increment',
+    method: 'POST',
+    body: undefined,
+  }),
+  fetchResponse(input, init) {
+    return ({
+      "count": (this.count = this.count + 1),
+      "updatedAt": JSON.parse(init.body).updatedAt,
+    });
+  },
+  delay: () => 500 + Math.random() * 4500,
+}
 ]}
 getInitialInterceptorData={() => ({ count: 0 })}
 >
@@ -390,7 +404,7 @@ export const increment = new RestEndpoint({
   schema: CountEntity,
   getRequestInit() {
     // this is a substitute for super.getRequestInit() since we aren't in a class context
-    return this.constructor.prototype.getRequestInit.call(this, {
+    return RestEndpoint.prototype.getRequestInit.call(this, {
       updatedAt: Date.now(),
     });
   },

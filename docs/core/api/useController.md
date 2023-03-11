@@ -11,7 +11,7 @@ title: useController()
 function useController(): Controller;
 ```
 
-Provides access to [Controller](./Controller.md) which can be used for imperative control
+Provides access to [Controller](./Controller.md) from React, which can be used for imperative control
 over the cache. For instance [fetch](./Controller.md#fetch), [invalidate](./Controller.md#invalidate),
 and [setResponse](./Controller.md#setResponse)
 

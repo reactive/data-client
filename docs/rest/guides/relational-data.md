@@ -324,7 +324,7 @@ Comment.schema = {
 export const PostResource = createResource({
   path: '/posts/:id',
   schema: Post,
-  dataExpiryLength: 3600000,
+  dataExpiryLength: Infinity,
 });
 export const UserResource = createResource({
   path: '/users/:id',

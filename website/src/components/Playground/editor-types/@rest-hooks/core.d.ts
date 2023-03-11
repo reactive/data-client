@@ -255,14 +255,14 @@ interface ReceiveMeta$2 {
     expiresAt: number;
 }
 interface ReceiveActionSuccess<E extends EndpointInterface = EndpointInterface> {
-    type: typeof RECEIVE_TYPE;
+    type: typeof SET_TYPE;
     endpoint: E;
     meta: ReceiveMeta$2;
     payload: ResolveType<E>;
     error?: false;
 }
 interface ReceiveActionError<E extends EndpointInterface = EndpointInterface> {
-    type: typeof RECEIVE_TYPE;
+    type: typeof SET_TYPE;
     endpoint: E;
     meta: ReceiveMeta$2;
     payload: UnknownError;
@@ -543,7 +543,7 @@ interface MiddlewareAPI$1<R extends RestHooksReducer = RestHooksReducer> extends
 interface MiddlewareController<Actions = ActionTypes> extends Controller<RHDispatch<Actions>> {
     controller: Controller<RHDispatch<Actions>>;
 }
-type Middleware$2<Actions = any> = <A extends MiddlewareController<Actions>>(controller: A) => (next: A['dispatch']) => A['dispatch'];
+type Middleware$2<Actions = any> = <C extends MiddlewareController<Actions>>(controller: C) => (next: C['dispatch']) => C['dispatch'];
 type RestHooksReducer = React.Reducer<State<unknown>, ActionTypes$2>;
 type Dispatch$1<R extends Reducer<any, any>> = (action: ReducerAction<R>) => Promise<void>;
 type Reducer<S, A> = (prevState: S, action: A) => S;
@@ -895,6 +895,11 @@ declare class NetworkManager implements Manager {
      * Will resolve the promise associated with receive key.
      */
     protected handleReceive(action: ReceiveAction): void;
+    /** Called when middleware intercepts a set action.
+     *
+     * Will resolve the promise associated with set key.
+     */
+    protected handleSet(action: SetAction): void;
     /** Attaches NetworkManager to store
      *
      * Intercepts 'rest-hooks/fetch' actions to start requests.
