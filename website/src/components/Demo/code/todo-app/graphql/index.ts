@@ -10,6 +10,7 @@ import TodoItem from '!!raw-loader!./TodoItem.tsx';
 import TodoList from '!!raw-loader!./TodoList.tsx';
 import TodoStats from '!!raw-loader!./TodoStats.tsx';
 
+import { TodoResource } from './api';
 import { TODOS } from '../../../../../mocks/handlers';
 
 export default {
@@ -17,21 +18,26 @@ export default {
   value: 'graphql',
   fixtures: [
     {
-      endpoint: new GQLEndpoint('/').query(`
-query GetTodos {
-  todo {
-    id
-    title
-    completed
-    userId
-  }
-}
-`),
-      args: [{}],
-      response: { todos: TODOS },
+      endpoint: TodoResource.getList,
+      response() {
+        return { todos: Object.values(this) };
+      },
+      delay: 150,
+    },
+    {
+      endpoint: TodoResource.update,
+      response({ todo }) {
+        const pk = todo.id;
+        this[pk] = { ...this[pk], ...todo };
+        return { updateTodo: this[pk] };
+      },
       delay: 150,
     },
   ],
+  getInitialInterceptorData: () =>
+    Object.fromEntries(
+      TODOS.map(todo => [todo.id, { ...todo, updatedAt: Date.now() }]),
+    ),
   code: [
     {
       path: 'api',
