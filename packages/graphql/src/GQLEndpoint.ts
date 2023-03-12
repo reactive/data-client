@@ -103,12 +103,16 @@ export default class GQLEndpoint<
     S,
     undefined
   > {
+    let getQuery: (...args: any) => any;
+    if (typeof queryOrGetQuery === 'function') {
+      getQuery = queryOrGetQuery;
+    } else {
+      const cleanedQuery = queryOrGetQuery.replaceAll(/\s+/gm, ' ').trim();
+      getQuery = () => cleanedQuery;
+    }
     const options: any = {
       schema,
-      getQuery:
-        typeof queryOrGetQuery === 'function'
-          ? queryOrGetQuery
-          : () => queryOrGetQuery,
+      getQuery,
     };
     return this.extend(options) as any;
   }
@@ -126,13 +130,17 @@ export default class GQLEndpoint<
     S,
     undefined
   > {
+    let getQuery: (...args: any) => any;
+    if (typeof queryOrGetQuery === 'function') {
+      getQuery = queryOrGetQuery;
+    } else {
+      const cleanedQuery = queryOrGetQuery.replaceAll(/\s+/gm, ' ').trim();
+      getQuery = () => cleanedQuery;
+    }
     const options: any = {
       sideEffect: true,
       schema,
-      getQuery:
-        typeof queryOrGetQuery === 'function'
-          ? queryOrGetQuery
-          : () => queryOrGetQuery,
+      getQuery,
     };
     return this.extend(options) as any;
   }
