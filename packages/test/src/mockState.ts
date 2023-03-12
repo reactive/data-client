@@ -6,8 +6,7 @@ import {
   __INTERNAL__,
 } from '@rest-hooks/react';
 
-import { collapseFixture } from './collapseFixture.js';
-import type { Fixture, Interceptor } from './fixtureTypes.js';
+import type { Fixture } from './fixtureTypes.js';
 
 const { initialState, createReducer } = __INTERNAL__;
 
@@ -39,7 +38,7 @@ function dispatchFixture(
 ) {
   // eslint-disable-next-line prefer-const
   let { endpoint } = fixture;
-  const { response, error } = collapseFixture(fixture, args, {});
+  const { response, error } = fixture;
   if (controller.resolve) {
     controller.resolve(endpoint, {
       args,

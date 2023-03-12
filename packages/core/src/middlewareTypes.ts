@@ -19,10 +19,10 @@ export interface MiddlewareController<Actions = LegacyActionTypes>
 }
 
 export type Middleware<Actions = any> = <
-  A extends MiddlewareController<Actions>,
+  C extends MiddlewareController<Actions>,
 >(
-  controller: A,
-) => (next: A['dispatch']) => A['dispatch'];
+  controller: C,
+) => (next: C['dispatch']) => C['dispatch'];
 
 export type RestHooksReducer = React.Reducer<State<unknown>, ActionTypes>;
 

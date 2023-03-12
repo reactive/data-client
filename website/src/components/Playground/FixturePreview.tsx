@@ -20,7 +20,11 @@ function FixtureResponse({
 }: {
   fixture: Fixture | Interceptor;
 }): ReactElement {
-  return typeof fixture.response === 'function' ? (
+  return 'fetchResponse' in fixture ? (
+    <CodeBlock language="javascript" className={styles.fixtureJson}>
+      {`${fixture.fetchResponse}`}
+    </CodeBlock>
+  ) : typeof fixture.response === 'function' ? (
     <CodeBlock language="javascript" className={styles.fixtureJson}>
       {`${fixture.response}`}
     </CodeBlock>

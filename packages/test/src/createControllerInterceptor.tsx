@@ -38,6 +38,28 @@ export function createControllerInterceptor<T>(
             ? fixture.delay(...(args as any))
             : fixture.delay ?? 0;
 
+        if ('fetchResponse' in fixture) {
+          const { fetchResponse } = fixture;
+          fixture = {
+            endpoint: fixture.endpoint,
+            response(...args) {
+              const endpoint = (action.endpoint as any).extend({
+                fetchResponse: (input: RequestInfo, init: RequestInit) => {
+                  const ret = fetchResponse.call(this, input, init);
+                  return Promise.resolve(
+                    new Response(JSON.stringify(ret), {
+                      status: 200,
+                      headers: new Headers({
+                        'Content-Type': 'application/json',
+                      }),
+                    }),
+                  );
+                },
+              });
+              return (endpoint as any)(...args);
+            },
+          };
+        }
         replacedAction.payload = () =>
           new Promise((resolve, reject) => {
             if (fixture !== undefined) {
@@ -45,24 +67,26 @@ export function createControllerInterceptor<T>(
               // collapsed: https://en.wikipedia.org/wiki/Copenhagen_interpretation
               if (fixture.delayCollapse) {
                 setTimeout(() => {
-                  const result = collapseFixture(
+                  collapseFixture(
                     fixture as any,
                     args as any,
                     interceptorData,
-                  );
-                  const complete = result.error ? reject : resolve;
-                  complete(result.response);
+                  ).then(result => {
+                    const complete = result.error ? reject : resolve;
+                    complete(result.response);
+                  });
                 }, delayMs);
               } else {
-                const result = collapseFixture(
-                  fixture,
+                collapseFixture(
+                  fixture as any,
                   args as any,
                   interceptorData,
-                );
-                const complete = result.error ? reject : resolve;
-                setTimeout(() => {
-                  complete(result.response);
-                }, delayMs);
+                ).then(result => {
+                  const complete = result.error ? reject : resolve;
+                  setTimeout(() => {
+                    complete(result.response);
+                  }, delayMs);
+                });
               }
             }
           });

@@ -66,7 +66,7 @@ Interceptors will match a request based on its [`testKey()`](/rest/api/RestEndpo
 compute the response dynamically using the `response()` method.
 
 ```ts
-export interface Interceptor<
+interface ResponseInterceptor<
   T = any,
   E extends EndpointInterface & {
     update?: Updater;
@@ -80,6 +80,29 @@ export interface Interceptor<
   /** Waits to run `response()` after `delay` time */
   readonly delayCollapse?: boolean;
 }
+
+interface FetchInterceptor<
+  T = any,
+  E extends EndpointInterface & {
+    update?: Updater;
+    testKey(key: string): boolean;
+    fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
+    extend(options: any): any;
+  } = EndpointInterface & {
+    testKey(key: string): boolean;
+    fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response>;
+    extend(options: any): any;
+  },
+> {
+  readonly endpoint: E;
+  fetchResponse(this: T, input: RequestInfo, init: RequestInit): ResolveType<E>;
+  /** Number of miliseconds (or function that returns) to wait before resolving */
+  readonly delay?: number | ((...args: Parameters<E>) => number);
+  /** Waits to run `response()` after `delay` time */
+  readonly delayCollapse?: boolean;
+}
+
+type Interceptor<T, E> = ResponseInterceptor<T, E> | FetchInterceptor<T, E>;
 ```
 
 ```ts
@@ -108,7 +131,7 @@ The endpoint to match.
 
 (Fixtures only) The args to match.
 
-### response
+### response(...args) {#response}
 
 Determines what the response for this mock should be. If a function it will be run.
 
@@ -116,7 +139,32 @@ Function running is called 'collapsing' after the mechanism in [Quantum Mechanic
 
 `this` can be used to store simulated server-side data. It is initialized using [getInitialInterceptorData](./MockResolver.md#getinitialinterceptordata). It's important to not use arrow functions when using this as they disallow `this` binding.
 
-### delay
+### fetchResponse(input, init) {#fetchResponse}
+
+When provided, will construct a response() method to be used based on overriding
+(by calling [.extend](https://resthooks.io/rest/api/RestEndpoint#extend)) [fetchResponse](/rest/api/RestEndpoint#fetchResponse).
+
+Simply return the value expected, rather than an actual HTTP [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response).
+
+```ts
+const incrementInterceptor = {
+  endpoint: new RestEndpoint({
+    path: '/api/count/increment',
+    method: 'POST',
+    body: undefined,
+  }),
+  fetchResponse(input, init) {
+    return {
+      count: (this.count = this.count + 1),
+      updatedAt: JSON.parse(init.body).updatedAt,
+    };
+  },
+};
+```
+
+This can be useful when you want to use the body generated in a custom [getRequestInit()](/rest/api/RestEndpoint#getRequestInit)
+
+### delay: number {#delay}
 
 This is the number of miliseconds to wait before resolving the promise. This can be useful
 when simulating race conditions.

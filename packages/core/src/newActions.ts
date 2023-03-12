@@ -5,7 +5,7 @@ import type {
 } from '@rest-hooks/normalizr';
 
 import type {
-  RECEIVE_TYPE,
+  SET_TYPE,
   RESET_TYPE,
   FETCH_TYPE,
   SUBSCRIBE_TYPE,
@@ -27,7 +27,7 @@ export interface ReceiveMeta {
 export interface ReceiveActionSuccess<
   E extends EndpointInterface = EndpointInterface,
 > {
-  type: typeof RECEIVE_TYPE;
+  type: typeof SET_TYPE;
   endpoint: E;
   meta: ReceiveMeta;
   payload: ResolveType<E>;
@@ -36,7 +36,7 @@ export interface ReceiveActionSuccess<
 export interface ReceiveActionError<
   E extends EndpointInterface = EndpointInterface,
 > {
-  type: typeof RECEIVE_TYPE;
+  type: typeof SET_TYPE;
   endpoint: E;
   meta: ReceiveMeta;
   payload: UnknownError;

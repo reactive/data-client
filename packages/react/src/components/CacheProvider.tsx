@@ -68,6 +68,9 @@ Try using https://resthooks.io/docs/api/ExternalCacheProvider for server entry p
     </ControllerContext.Provider>
   );
 }
+/** Default props for CacheProvider
+ * @see https://resthooks.io/docs/api/CacheProvider#defaultprops
+ */
 CacheProvider.defaultProps = {
   managers: [
     new NetworkManager(),
