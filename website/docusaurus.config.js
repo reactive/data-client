@@ -146,7 +146,6 @@ module.exports = {
           customCss: [
             require.resolve('./src/css/root.css'),
             require.resolve('./src/css/customTheme.css'),
-            require.resolve('./src/mocks/init.js'),
           ],
         },
         gtag: {

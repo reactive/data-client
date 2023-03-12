@@ -1,4 +1,4 @@
-import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
+import { GQLEndpoint, GQLEntity, Query, schema } from '@rest-hooks/graphql';
 
 const gql = new GQLEndpoint('/');
 

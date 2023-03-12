@@ -81,11 +81,33 @@ render(<TodoDetail id={1} />);
     }
   }
 `),
-        args: [{ id: 1 }],
-        response: { todo: TODOS.find(todo => todo.id === 1) },
+        response({ id }) {
+          return { todo: this[id] };
+        },
+        delay: 150,
+      },
+      {
+        endpoint: new GQLEndpoint('/').mutation(
+          `mutation UpdateTodo($todo: Todo!) {
+          updateTodo(todo: $todo) {
+            id
+            title
+            completed
+          }
+        }`,
+        ),
+        response({ todo }) {
+          const pk = todo.id;
+          this[pk] = { ...this[pk], ...todo };
+          return { updateTodo: this[pk] };
+        },
         delay: 150,
       },
     ],
+    getInitialInterceptorData: () =>
+      Object.fromEntries(
+        TODOS.map(todo => [todo.id, { ...todo, updatedAt: Date.now() }]),
+      ),
     code: [
       {
         path: 'api',
