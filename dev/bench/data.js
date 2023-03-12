@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1678394266543,
+  "lastUpdate": 1678581217932,
   "repoUrl": "https://github.com/data-client/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -16029,6 +16029,128 @@ window.BENCHMARK_DATA = {
             "range": "±0.50%",
             "unit": "ops/sec",
             "extra": "83 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8945e7a41e3943149fc083693dbf4eb58a466c83",
+          "message": "feat: Add FetchInterceptor - a lower-level interceptor (#2479)",
+          "timestamp": "2023-03-11T16:28:17-08:00",
+          "tree_id": "0409b6bfcda2a848a39bcafa24db1d8a80b17e11",
+          "url": "https://github.com/data-client/rest-hooks/commit/8945e7a41e3943149fc083693dbf4eb58a466c83"
+        },
+        "date": 1678581216232,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 259,
+            "range": "±0.99%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 5287,
+            "range": "±0.93%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 122,
+            "range": "±1.81%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 124,
+            "range": "±1.89%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 3866,
+            "range": "±1.87%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 4260,
+            "range": "±0.74%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 4166,
+            "range": "±0.78%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 4213,
+            "range": "±2.60%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 1732,
+            "range": "±0.87%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 1503,
+            "range": "±0.66%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "getResponse Query-sorted",
+            "value": 439,
+            "range": "±1.51%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 262,
+            "range": "±0.86%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 112,
+            "range": "±1.13%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 115,
+            "range": "±1.04%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
           }
         ]
       }
