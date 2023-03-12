@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1678581217932,
+  "lastUpdate": 1678588308007,
   "repoUrl": "https://github.com/data-client/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -16151,6 +16151,128 @@ window.BENCHMARK_DATA = {
             "range": "±1.04%",
             "unit": "ops/sec",
             "extra": "73 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": true,
+          "id": "e219f0a91d60d7a31a1ab26d0245b317556eb6e8",
+          "message": "fix: Keep same Entity.key algo even when mangling is detected",
+          "timestamp": "2023-03-11T20:25:58-06:00",
+          "tree_id": "c345d9ad76a13c8e0b0f10d9a1aa9848f33babd2",
+          "url": "https://github.com/data-client/rest-hooks/commit/e219f0a91d60d7a31a1ab26d0245b317556eb6e8"
+        },
+        "date": 1678588306224,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 242,
+            "range": "±0.92%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 4797,
+            "range": "±1.30%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 114,
+            "range": "±1.96%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 114,
+            "range": "±1.75%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 3397,
+            "range": "±1.49%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 3511,
+            "range": "±1.41%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 3308,
+            "range": "±1.43%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 3263,
+            "range": "±2.92%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 1457,
+            "range": "±3.87%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 1186,
+            "range": "±1.50%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "getResponse Query-sorted",
+            "value": 350,
+            "range": "±1.75%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 230,
+            "range": "±0.94%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 96.94,
+            "range": "±1.19%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 104,
+            "range": "±1.06%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
           }
         ]
       }
