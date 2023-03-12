@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.2.6](https://github.com/data-client/rest-hooks/compare/@rest-hooks/core@4.2.5...@rest-hooks/core@4.2.6) (2023-03-12)
+
+### 🚀 Features
+
+* Add FetchInterceptor - a lower-level interceptor ([#2479](https://github.com/data-client/rest-hooks/issues/2479)) ([8945e7a](https://github.com/data-client/rest-hooks/commit/8945e7a41e3943149fc083693dbf4eb58a466c83))
+
+### 💅 Enhancement
+
+* Allow DevToolsManager in prod ([#2471](https://github.com/data-client/rest-hooks/issues/2471)) ([b2ac7b6](https://github.com/data-client/rest-hooks/commit/b2ac7b6127a2109b6bbb016cc386830bafc3c17a))
+
 ### [4.2.5](https://github.com/data-client/rest-hooks/compare/@rest-hooks/core@4.2.4...@rest-hooks/core@4.2.5) (2023-03-02)
 
 ### 💅 Enhancement

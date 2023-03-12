@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.8.9](https://github.com/data-client/rest-hooks/compare/@rest-hooks/img@0.8.8...@rest-hooks/img@0.8.9) (2023-03-12)
+
+**Note:** Version bump only for package @rest-hooks/img
+
 ### [0.8.8](https://github.com/data-client/rest-hooks/compare/@rest-hooks/img@0.8.7...@rest-hooks/img@0.8.8) (2023-03-02)
 
 ### 📦 Package

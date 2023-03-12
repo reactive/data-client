@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.7.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/endpoint@3.7.0...@rest-hooks/endpoint@3.7.1) (2023-03-12)
+
+### 🐛 Bug Fix
+
+* Keep same Entity.key algo even when mangling is detected ([e219f0a](https://github.com/data-client/rest-hooks/commit/e219f0a91d60d7a31a1ab26d0245b317556eb6e8))
+
+### 📝 Documentation
+
+* Update relational guide ([#2472](https://github.com/data-client/rest-hooks/issues/2472)) ([3b07608](https://github.com/data-client/rest-hooks/commit/3b0760808bafe3f0fcacd1c30668343e9b4dd470))
+
 ### [3.7.0](https://github.com/data-client/rest-hooks/compare/@rest-hooks/endpoint@3.6.0...@rest-hooks/endpoint@3.7.0) (2023-03-02)
 
 ### 🚀 Features

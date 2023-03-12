@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.0.4](https://github.com/data-client/rest-hooks/compare/@rest-hooks/legacy@6.0.3...@rest-hooks/legacy@6.0.4) (2023-03-12)
+
+### 📝 Documentation
+
+* Update relational guide ([#2472](https://github.com/data-client/rest-hooks/issues/2472)) ([3b07608](https://github.com/data-client/rest-hooks/commit/3b0760808bafe3f0fcacd1c30668343e9b4dd470))
+
 ### [6.0.3](https://github.com/data-client/rest-hooks/compare/@rest-hooks/legacy@6.0.2...@rest-hooks/legacy@6.0.3) (2023-03-02)
 
 ### 🚀 Features

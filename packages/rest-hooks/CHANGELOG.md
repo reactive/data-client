@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.0.14](https://github.com/data-client/rest-hooks/compare/rest-hooks@7.0.13...rest-hooks@7.0.14) (2023-03-12)
+
+### 📝 Documentation
+
+* Update links in readme ([1141c0b](https://github.com/data-client/rest-hooks/commit/1141c0b41c05250e5455457d00a2c54b631e4f91))
+
 ### [7.0.13](https://github.com/data-client/rest-hooks/compare/rest-hooks@7.0.12...rest-hooks@7.0.13) (2023-03-02)
 
 ### 🚀 Features

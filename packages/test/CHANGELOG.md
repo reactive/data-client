@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [10.2.2](https://github.com/data-client/rest-hooks/compare/@rest-hooks/test@10.2.1...@rest-hooks/test@10.2.2) (2023-03-12)
+
+### 🚀 Features
+
+* Add FetchInterceptor - a lower-level interceptor ([#2479](https://github.com/data-client/rest-hooks/issues/2479)) ([8945e7a](https://github.com/data-client/rest-hooks/commit/8945e7a41e3943149fc083693dbf4eb58a466c83))
+
 ### [10.2.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/test@10.2.0...@rest-hooks/test@10.2.1) (2023-03-02)
 
 ### 📦 Package

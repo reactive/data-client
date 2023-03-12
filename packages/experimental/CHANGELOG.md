@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [9.3.6](https://github.com/data-client/rest-hooks/compare/@rest-hooks/experimental@9.3.5...@rest-hooks/experimental@9.3.6) (2023-03-12)
+
+**Note:** Version bump only for package @rest-hooks/experimental
+
 ### [9.3.5](https://github.com/data-client/rest-hooks/compare/@rest-hooks/experimental@9.3.4...@rest-hooks/experimental@9.3.5) (2023-03-02)
 
 ### 💅 Enhancement
