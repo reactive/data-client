@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-### [10.2.2](https://github.com/data-client/rest-hooks/compare/@rest-hooks/test@10.2.1...@rest-hooks/test@10.2.2) (2023-03-12)
+### [10.3.0](https://github.com/data-client/rest-hooks/compare/@rest-hooks/test@10.2.1...@rest-hooks/test@10.3.0) (2023-03-12)
 
 ### 🚀 Features
 

@@ -5,10 +5,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### [7.2.6](https://github.com/data-client/rest-hooks/compare/@rest-hooks/react@7.2.5...@rest-hooks/react@7.2.6) (2023-03-12)
 
-### 🚀 Features
-
-* Add FetchInterceptor - a lower-level interceptor ([#2479](https://github.com/data-client/rest-hooks/issues/2479)) ([8945e7a](https://github.com/data-client/rest-hooks/commit/8945e7a41e3943149fc083693dbf4eb58a466c83))
-
 ### 📝 Documentation
 
 * Update links in readme ([1141c0b](https://github.com/data-client/rest-hooks/commit/1141c0b41c05250e5455457d00a2c54b631e4f91))
