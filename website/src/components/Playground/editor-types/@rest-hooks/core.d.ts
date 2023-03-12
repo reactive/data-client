@@ -895,11 +895,6 @@ declare class NetworkManager implements Manager {
      * Will resolve the promise associated with receive key.
      */
     protected handleReceive(action: ReceiveAction): void;
-    /** Called when middleware intercepts a set action.
-     *
-     * Will resolve the promise associated with set key.
-     */
-    protected handleSet(action: SetAction): void;
     /** Attaches NetworkManager to store
      *
      * Intercepts 'rest-hooks/fetch' actions to start requests.

@@ -417,10 +417,11 @@ export default function EntitySchema<TBase extends Constructor>(
             name: string;
             key: string;
           }): string {
+            const name = this.name === 'EntityMixin' ? Base.name : this.name;
             console.error('Rest Hooks Error: https://resthooks.io/errors/dklj');
             Object.defineProperty(this, 'key', {
               get() {
-                return Base.name;
+                return name;
               },
               set,
             });
