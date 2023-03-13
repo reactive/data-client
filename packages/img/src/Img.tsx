@@ -1,7 +1,7 @@
 import { useSuspense } from '@rest-hooks/react';
 import React from 'react';
 
-import getImage from './getImage';
+import getImage from './getImage.js';
 
 type Props<
   C extends

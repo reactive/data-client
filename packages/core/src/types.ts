@@ -20,7 +20,7 @@ import { EndpointUpdateFunction } from './controller/types.js';
 import * as legacyActions from './legacyActions.js';
 import { Dispatch, Middleware, MiddlewareAPI } from './middlewareTypes.js';
 import * as newActions from './newActions.js';
-import * as previousActions from './previousActions';
+import * as previousActions from './previousActions.js';
 
 export type { AbstractInstanceType, UpdateFunction };
 

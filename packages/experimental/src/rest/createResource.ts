@@ -4,9 +4,9 @@ import RestEndpoint, {
   GetEndpoint,
   MutateEndpoint,
   RestTypeNoBody,
-} from './RestEndpoint';
-import { shortenPath } from './RestHelpers';
-import { PathArgs, ShortenPath } from './types';
+} from './RestEndpoint.js';
+import { shortenPath } from './RestHelpers.js';
+import { PathArgs, ShortenPath } from './types.js';
 
 const { Delete } = schema;
 

@@ -1,6 +1,6 @@
 import { compile, PathFunction, parse } from 'path-to-regexp';
 
-import { ShortenPath } from './types';
+import { ShortenPath } from './types.js';
 
 const urlBaseCache: Record<string, PathFunction<object>> = {};
 export function getUrlBase(path: string): PathFunction {

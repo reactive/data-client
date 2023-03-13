@@ -1,11 +1,11 @@
-import commonjs from 'rollup-plugin-commonjs';
-import resolve from 'rollup-plugin-node-resolve';
 import babel from 'rollup-plugin-babel';
-import json from 'rollup-plugin-json';
-import { terser } from 'rollup-plugin-terser';
-import filesize from 'rollup-plugin-filesize';
-import replace from 'rollup-plugin-replace';
+import commonjs from 'rollup-plugin-commonjs';
 import dts from 'rollup-plugin-dts';
+import filesize from 'rollup-plugin-filesize';
+import json from 'rollup-plugin-json';
+import resolve from 'rollup-plugin-node-resolve';
+import replace from 'rollup-plugin-replace';
+import { terser } from 'rollup-plugin-terser';
 
 import pkg from './package.json';
 
@@ -17,7 +17,6 @@ const extensions = ['.js', '.ts', '.tsx', '.mjs', '.json', '.node'];
 const nativeExtensions = ['.native.ts', ...extensions];
 process.env.NODE_ENV = 'production';
 process.env.BROWSERSLIST_ENV = 'legacy';
-process.env.ROOT_PATH_PREFIX = '@rest-hooks/hooks';
 
 function isExternal(id) {
   const ret = dependencies.includes(id);
@@ -32,7 +31,7 @@ function isExternal(id) {
 export default [
   // browser-friendly UMD build
   {
-    input: 'src/index.ts',
+    input: 'lib/index.js',
     external: isExternal,
     output: [{ file: pkg.unpkg, format: 'umd', name: 'restHookHooks' }],
     plugins: [
@@ -57,7 +56,7 @@ export default [
   },
   // node-friendly commonjs build
   {
-    input: 'src/index.ts',
+    input: 'lib/index.js',
     external: isExternal,
     output: [{ file: pkg.main, format: 'cjs' }],
     plugins: [

@@ -5,8 +5,8 @@ import { act } from '@testing-library/react-hooks';
 import nock from 'nock';
 
 import { makeRenderRestHook } from '../../../../test';
-import createResource from '../createResource';
-import RestEndpoint from '../RestEndpoint';
+import createResource from '../createResource.js';
+import RestEndpoint from '../RestEndpoint.js';
 import {
   payload,
   createPayload,
@@ -15,7 +15,7 @@ import {
   moreNested,
   paginatedFirstPage,
   paginatedSecondPage,
-} from '../test-fixtures';
+} from '../test-fixtures.js';
 
 export class User extends Entity {
   readonly id: number | undefined = undefined;

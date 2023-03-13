@@ -6,8 +6,8 @@ import React, {
   useCallback,
 } from 'react';
 
-import { Middleware, Dispatch } from './types';
-import usePromisifiedDispatch from './usePromisifiedDispatch';
+import { Middleware, Dispatch } from './types.js';
+import usePromisifiedDispatch from './usePromisifiedDispatch.js';
 
 export const unsetDispatch = () => {
   throw new Error(

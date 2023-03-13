@@ -1,6 +1,6 @@
 import { Schema } from '@rest-hooks/endpoint';
 
-import getArrayPath from './getArrayPath';
+import getArrayPath from './getArrayPath.js';
 
 export default function paginationUpdate<
   E extends { schema: Schema; key: any } & ((...args: any) => Promise<any>),

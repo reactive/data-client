@@ -1,5 +1,5 @@
-import { GetEndpoint } from '../RestEndpoint';
-import { PathArgs, ShortenPath } from '../types';
+import { GetEndpoint } from '../RestEndpoint.js';
+import { PathArgs, ShortenPath } from '../types.js';
 
 describe('PathArgs', () => {
   it('should infer types', () => {
