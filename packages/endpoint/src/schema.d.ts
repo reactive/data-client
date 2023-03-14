@@ -27,7 +27,7 @@ import {
   IDClass,
   Constructor,
   PKClass,
-} from './schemas/EntitySchema';
+} from './schemas/EntitySchema.js';
 
 export { Delete, EntityMap };
 

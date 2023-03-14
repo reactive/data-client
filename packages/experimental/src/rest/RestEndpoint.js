@@ -1,9 +1,9 @@
 import { Endpoint } from '@rest-hooks/endpoint';
 
-import NetworkError from './NetworkError';
-import paginationUpdate from './paginationUpdate';
-import paramsToString from './paramsToString';
-import { getUrlBase, getUrlTokens, isPojo } from './RestHelpers';
+import NetworkError from './NetworkError.js';
+import paginationUpdate from './paginationUpdate.js';
+import paramsToString from './paramsToString.js';
+import { getUrlBase, getUrlTokens, isPojo } from './RestHelpers.js';
 
 /** Simplifies endpoint definitions that follow REST patterns
  *

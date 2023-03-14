@@ -4490,7 +4490,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rest-hooks/react@^7.1.3, @rest-hooks/react@workspace:^, @rest-hooks/react@workspace:packages/react":
+"@rest-hooks/react@^7.1.3, @rest-hooks/react@^7.2.6, @rest-hooks/react@workspace:^, @rest-hooks/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/react@workspace:packages/react"
   dependencies:
@@ -4523,7 +4523,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/redux@^6.2.2, @rest-hooks/redux@workspace:packages/redux":
+"@rest-hooks/redux@^6.3.3, @rest-hooks/redux@workspace:packages/redux":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/redux@workspace:packages/redux"
   dependencies:
@@ -16043,8 +16043,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "next-app@workspace:examples/nextjs"
   dependencies:
-    "@rest-hooks/react": ^7.1.3
-    "@rest-hooks/redux": ^6.2.2
+    "@rest-hooks/react": ^7.2.6
+    "@rest-hooks/redux": ^6.3.3
     "@rest-hooks/rest": ^6.2.7
     "@rest-hooks/ssr": ^0.7.3
     "@rest-hooks/test": ^10.0.0

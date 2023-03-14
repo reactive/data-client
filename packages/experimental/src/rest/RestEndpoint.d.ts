@@ -7,7 +7,7 @@ import type {
   FetchFunction,
 } from '@rest-hooks/endpoint';
 
-import { PathArgs } from './types';
+import { PathArgs } from './types.js';
 
 export interface RestInstance<
   F extends FetchFunction = FetchFunction,

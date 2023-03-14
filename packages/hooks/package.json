@@ -26,6 +26,7 @@
       ]
     }
   },
+  "type": "module",
   "files": [
     "src",
     "dist",
@@ -36,7 +37,7 @@
   ],
   "scripts": {
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV=2019 ROOT_PATH_PREFIX='@rest-hooks/hooks' babel --root-mode upward src --out-dir lib --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
-    "build:bundle": "rollup -c",
+    "build:bundle": "rollup -c && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:clean": "rimraf lib dist ts3.4 *.tsbuildinfo",
     "build": "yarn run build:lib && yarn run build:bundle",
     "build:legacy-types": "yarn run downlevel-dts lib ts3.4",

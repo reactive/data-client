@@ -13,6 +13,7 @@ module.exports = function (api) {
           loose: true,
           resolver: {
             resolvePath(sourcePath, currentFile, opts) {
+              // babel needs to handle .js imports that refer to .ts files
               if (
                 process.env.NODE_ENV === 'test' &&
                 sourcePath.startsWith('.') &&

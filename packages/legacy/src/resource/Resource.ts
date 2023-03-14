@@ -36,7 +36,7 @@ export default abstract class Resource extends SimpleResource {
   static fetchResponse(
     method: Method,
     url: string,
-    body?: Readonly<object | string>,
+    body?: Readonly<object | string> | BodyInit,
   ) {
     let options: RequestInit = {
       method: method.toUpperCase(),

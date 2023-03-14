@@ -9,7 +9,7 @@ import RestEndpoint, {
   Defaults,
   RestEndpointConstructorOptions,
   RestGenerics,
-} from '../RestEndpoint';
+} from '../RestEndpoint.js';
 import {
   payload,
   createPayload,
@@ -18,7 +18,7 @@ import {
   moreNested,
   paginatedFirstPage,
   paginatedSecondPage,
-} from '../test-fixtures';
+} from '../test-fixtures.js';
 
 export class User extends Entity {
   readonly id: number | undefined = undefined;

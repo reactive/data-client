@@ -1,10 +1,10 @@
 import { AppType } from 'next/app.js';
 import Document, {
-  type default as DType,
   DocumentContext,
   DocumentInitialProps,
 } from 'next/document.js';
 
+import { DType } from './docType.cjs';
 import createPersistedStore from '../createPersistedStore.js';
 import createServerDataComponent from '../createServerDataComponent.js';
 

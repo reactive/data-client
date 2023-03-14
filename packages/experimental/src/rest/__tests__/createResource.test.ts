@@ -12,8 +12,8 @@ import { act } from '@testing-library/react-hooks';
 import nock from 'nock';
 import { useContext } from 'react';
 
-import createResource from '../createResource';
-import RestEndpoint, { RestGenerics } from '../RestEndpoint';
+import createResource from '../createResource.js';
+import RestEndpoint, { RestGenerics } from '../RestEndpoint.js';
 
 describe('resource', () => {
   const renderRestHook: ReturnType<typeof makeRenderRestHook> =

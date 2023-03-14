@@ -12,8 +12,8 @@ import {
   SchemaDetail,
 } from '@rest-hooks/endpoint';
 import { rest3 } from '@rest-hooks/legacy';
-import React from 'react';
 import { SimpleRecord } from '@rest-hooks/legacy';
+import React from 'react';
 
 export const { Resource } = rest3;
 

@@ -13,7 +13,7 @@ import {
 } from '@testing-library/react-hooks';
 import type { act as reactAct } from 'react-dom/test-utils';
 
-import { USE18 } from './use18.js';
+import { USE18 } from './use18.cjs';
 
 export const renderHook: RenderHook = USE18
   ? require('./render18HookWrapped.js').render18Wrapper

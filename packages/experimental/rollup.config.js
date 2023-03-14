@@ -1,10 +1,10 @@
-import commonjs from 'rollup-plugin-commonjs';
-import resolve from 'rollup-plugin-node-resolve';
 import babel from 'rollup-plugin-babel';
-import json from 'rollup-plugin-json';
-import { terser } from 'rollup-plugin-terser';
+import commonjs from 'rollup-plugin-commonjs';
 import filesize from 'rollup-plugin-filesize';
+import json from 'rollup-plugin-json';
+import resolve from 'rollup-plugin-node-resolve';
 import replace from 'rollup-plugin-replace';
+import { terser } from 'rollup-plugin-terser';
 
 import pkg from './package.json';
 
@@ -26,7 +26,7 @@ function isExternal(id) {
 export default [
   // browser-friendly UMD build
   {
-    input: 'src/index.ts',
+    input: 'lib/index.js',
     external: isExternal,
     output: [{ file: pkg.unpkg, format: 'umd', name: 'restHookImg' }],
     plugins: [
@@ -46,7 +46,7 @@ export default [
   },
   // node-friendly commonjs build
   {
-    input: 'src/index.ts',
+    input: 'lib/index.js',
     external: isExternal,
     output: [{ file: pkg.main, format: 'cjs' }],
     plugins: [
