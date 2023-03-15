@@ -21,7 +21,7 @@
     "@types/react-router-dom": "^5.3.3",
     "raw-loader": "^4.0.2",
     "serve": "14.2.0",
-    "webpack": "^5.74.0"
+    "webpack": "^5.76.0"
   },
   "dependencies": {
     "@anansi/browserslist-config": "1.4.1",
