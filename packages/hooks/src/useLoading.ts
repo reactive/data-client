@@ -25,12 +25,12 @@ export default function useLoading<F extends (...args: any) => Promise<any>>(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<undefined | Error>(undefined);
   const isMountedRef = useRef(true);
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
       isMountedRef.current = false;
-    },
-    [],
-  );
+    };
+  }, []);
   const depsList = deps || [func];
   const wrappedFunc = useCallback(async (...args: any) => {
     setLoading(true);

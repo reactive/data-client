@@ -53,12 +53,12 @@ export default function ExternalCacheProvider<S>({
   const [state, setState] = useState(selectState);
 
   const isMounted = useRef(true);
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    isMounted.current = true;
+    () => {
       isMounted.current = false;
-    },
-    [],
-  );
+    };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = store.subscribe(() => {
