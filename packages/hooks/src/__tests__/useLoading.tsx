@@ -1,3 +1,4 @@
+import { render, waitFor } from '@testing-library/react';
 import { renderHook, act } from '@testing-library/react-hooks';
 
 import useLoading from '../useLoading';
@@ -140,6 +141,36 @@ describe('useLoading()', () => {
     expect(result.current[2]).toBe(error);
     // maintain referential equality
     expect(result.current[0]).toBe(wrappedFunc);
+  });
+
+  it('should work in strictmode', async () => {
+    const error = new Error('ack');
+    function fun(value: string) {
+      return new Promise<string>((resolve, reject) =>
+        setTimeout(() => reject(error), 1000),
+      ).catch(err => {
+        rejectedError = err;
+        throw err;
+      });
+    }
+    let rejectedError: Error | null = null;
+    let wrappedFunc: (value: string) => Promise<string>;
+    const Data = () => {
+      let loading: boolean;
+      [wrappedFunc, loading] = useLoading(fun);
+      return <div>{loading ? 'loading' : 'loaded'}</div>;
+    };
+    const tree = <Data />;
+    const { getByText } = render(tree);
+    expect(getByText(/loaded/i)).toBeDefined();
+    act(() => {
+      wrappedFunc('test string');
+    });
+    expect(getByText(/loading/i)).toBeDefined();
+    act(() => {
+      jest.advanceTimersByTime(1100);
+    });
+    await waitFor(() => expect(getByText(/loaded/i)).toBeDefined());
   });
 
   it('should maintain referential equality if function does', async () => {
