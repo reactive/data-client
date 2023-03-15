@@ -141,7 +141,7 @@
   },
   "devDependencies": {
     "@babel/cli": "7.21.0",
-    "@babel/core": "7.21.0",
+    "@babel/core": "7.21.3",
     "@types/babel__core": "^7",
     "@types/react-test-renderer": "^18",
     "downlevel-dts": "^0.10.0",
