@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.4.3](https://github.com/data-client/rest-hooks/compare/@rest-hooks/graphql@0.4.2...@rest-hooks/graphql@0.4.3) (2023-03-15)
+
+### 📦 Package
+
+* Update babel packages ([#2487](https://github.com/data-client/rest-hooks/issues/2487)) ([3fc9efc](https://github.com/data-client/rest-hooks/commit/3fc9efc0bfc818ae7b4a1113cf6f7daa8bbcba8c))
+
 ### [0.4.2](https://github.com/data-client/rest-hooks/compare/@rest-hooks/graphql@0.4.1...@rest-hooks/graphql@0.4.2) (2023-03-12)
 
 ### 💅 Enhancement

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.0.15](https://github.com/data-client/rest-hooks/compare/rest-hooks@7.0.14...rest-hooks@7.0.15) (2023-03-15)
+
+### 📦 Package
+
+* Update babel packages ([#2487](https://github.com/data-client/rest-hooks/issues/2487)) ([3fc9efc](https://github.com/data-client/rest-hooks/commit/3fc9efc0bfc818ae7b4a1113cf6f7daa8bbcba8c))
+
 ### [7.0.14](https://github.com/data-client/rest-hooks/compare/rest-hooks@7.0.13...rest-hooks@7.0.14) (2023-03-12)
 
 ### 📝 Documentation

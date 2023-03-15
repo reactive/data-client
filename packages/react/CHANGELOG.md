@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.2.7](https://github.com/data-client/rest-hooks/compare/@rest-hooks/react@7.2.6...@rest-hooks/react@7.2.7) (2023-03-15)
+
+### 💅 Enhancement
+
+* Mark useController() as 'use client' since it has context ([5f25fba](https://github.com/data-client/rest-hooks/commit/5f25fbadd4747cd47962b27ba1400acba4753310))
+
+### 📦 Package
+
+* Update babel packages ([#2487](https://github.com/data-client/rest-hooks/issues/2487)) ([3fc9efc](https://github.com/data-client/rest-hooks/commit/3fc9efc0bfc818ae7b4a1113cf6f7daa8bbcba8c))
+
 ### [7.2.6](https://github.com/data-client/rest-hooks/compare/@rest-hooks/react@7.2.5...@rest-hooks/react@7.2.6) (2023-03-12)
 
 ### 📝 Documentation

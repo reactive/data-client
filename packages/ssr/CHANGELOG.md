@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [0.7.11](https://github.com/data-client/rest-hooks/compare/@rest-hooks/ssr@0.7.10...@rest-hooks/ssr@0.7.11) (2023-03-15)
+
+### 💅 Enhancement
+
+* Include extension in all imports ([#2482](https://github.com/data-client/rest-hooks/issues/2482)) ([9d57220](https://github.com/data-client/rest-hooks/commit/9d57220d4cb82fa3090f4127b277bcf6b62a34b1))
+
+### 📦 Package
+
+* Update babel packages ([#2487](https://github.com/data-client/rest-hooks/issues/2487)) ([3fc9efc](https://github.com/data-client/rest-hooks/commit/3fc9efc0bfc818ae7b4a1113cf6f7daa8bbcba8c))
+
 ### [0.7.10](https://github.com/data-client/rest-hooks/compare/@rest-hooks/ssr@0.7.9...@rest-hooks/ssr@0.7.10) (2023-03-02)
 
 ### 📦 Package

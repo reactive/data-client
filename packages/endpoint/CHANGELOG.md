@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.7.2](https://github.com/data-client/rest-hooks/compare/@rest-hooks/endpoint@3.7.1...@rest-hooks/endpoint@3.7.2) (2023-03-15)
+
+### 💅 Enhancement
+
+* Avoid CSP check if we find a CS Policy ([132582e](https://github.com/data-client/rest-hooks/commit/132582eda80fb7a30637da1a2280fd6be15922c6))
+* Include extension in all imports ([#2482](https://github.com/data-client/rest-hooks/issues/2482)) ([9d57220](https://github.com/data-client/rest-hooks/commit/9d57220d4cb82fa3090f4127b277bcf6b62a34b1))
+
+### 📦 Package
+
+* Update babel packages ([#2487](https://github.com/data-client/rest-hooks/issues/2487)) ([3fc9efc](https://github.com/data-client/rest-hooks/commit/3fc9efc0bfc818ae7b4a1113cf6f7daa8bbcba8c))
+
 ### [3.7.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/endpoint@3.7.0...@rest-hooks/endpoint@3.7.1) (2023-03-12)
 
 ### 🐛 Bug Fix

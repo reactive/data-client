@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/use-enhanced-reducer",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "Add powerful orchestration to hooks-based Flux stores",
   "sideEffects": false,
   "main": "dist/index.cjs.js",

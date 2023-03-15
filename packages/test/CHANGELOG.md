@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [10.3.1](https://github.com/data-client/rest-hooks/compare/@rest-hooks/test@10.3.0...@rest-hooks/test@10.3.1) (2023-03-15)
+
+### 💅 Enhancement
+
+* Include extension in all imports ([#2482](https://github.com/data-client/rest-hooks/issues/2482)) ([9d57220](https://github.com/data-client/rest-hooks/commit/9d57220d4cb82fa3090f4127b277bcf6b62a34b1))
+
+### 📦 Package
+
+* Update `@testing-library/react-native` to v12 ([#2491](https://github.com/data-client/rest-hooks/issues/2491)) ([3405461](https://github.com/data-client/rest-hooks/commit/340546110f95213e1f3093c731a97aafc6e644db))
+* Update babel packages ([#2487](https://github.com/data-client/rest-hooks/issues/2487)) ([3fc9efc](https://github.com/data-client/rest-hooks/commit/3fc9efc0bfc818ae7b4a1113cf6f7daa8bbcba8c))
+
 ### [10.3.0](https://github.com/data-client/rest-hooks/compare/@rest-hooks/test@10.2.1...@rest-hooks/test@10.3.0) (2023-03-12)
 
 ### 🚀 Features

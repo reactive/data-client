@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [9.3.7](https://github.com/data-client/rest-hooks/compare/@rest-hooks/experimental@9.3.6...@rest-hooks/experimental@9.3.7) (2023-03-15)
+
+### 💅 Enhancement
+
+* Include extension in all imports ([#2482](https://github.com/data-client/rest-hooks/issues/2482)) ([9d57220](https://github.com/data-client/rest-hooks/commit/9d57220d4cb82fa3090f4127b277bcf6b62a34b1))
+
+### 📦 Package
+
+* Update babel packages ([#2487](https://github.com/data-client/rest-hooks/issues/2487)) ([3fc9efc](https://github.com/data-client/rest-hooks/commit/3fc9efc0bfc818ae7b4a1113cf6f7daa8bbcba8c))
+
 ### [9.3.6](https://github.com/data-client/rest-hooks/compare/@rest-hooks/experimental@9.3.5...@rest-hooks/experimental@9.3.6) (2023-03-12)
 
 **Note:** Version bump only for package @rest-hooks/experimental
