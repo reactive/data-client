@@ -151,12 +151,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:0.7.25":
-  version: 0.7.25
-  resolution: "@anansi/router@npm:0.7.25"
+"@anansi/router@npm:0.7.27":
+  version: 0.7.27
+  resolution: "@anansi/router@npm:0.7.27"
   dependencies:
     "@babel/runtime": ^7.17.0
-    "@pojo-router/core": ^0.5.72
+    "@pojo-router/core": ^0.5.74
     history: ^5.3.0
     nano-memoize: ^3.0.8
   peerDependencies:
@@ -165,7 +165,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 941565ca346847ce1620a838da7b96a86e8a1fe2e27059fcc48785edda545e97f1ca59cc18a0d0b0ff9325a87e5b1fe7ff5c4d7da05582ad64b73914d7344d7c
+  checksum: 84a3124a15197aaf37c4447e8e6a71e77187d75db43d4436b974ebbfb13a89583fc4c4e8226f1b1724e0a271707550dfcee4a760a545330ae9df8337ee6f9037
   languageName: node
   linkType: hard
 
@@ -2992,15 +2992,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lerna-lite/cli@npm:1.16.2":
-  version: 1.16.2
-  resolution: "@lerna-lite/cli@npm:1.16.2"
+"@lerna-lite/cli@npm:1.17.0":
+  version: 1.17.0
+  resolution: "@lerna-lite/cli@npm:1.17.0"
   dependencies:
-    "@lerna-lite/core": 1.16.2
-    "@lerna-lite/init": 1.16.2
-    "@lerna-lite/listable": 1.16.2
-    "@lerna-lite/publish": 1.16.2
-    "@lerna-lite/version": 1.16.2
+    "@lerna-lite/core": 1.17.0
+    "@lerna-lite/init": 1.17.0
+    "@lerna-lite/listable": 1.17.0
+    "@lerna-lite/publish": 1.17.0
+    "@lerna-lite/version": 1.17.0
     dedent: ^0.7.0
     dotenv: ^16.0.3
     import-local: ^3.1.0
@@ -3010,13 +3010,13 @@ __metadata:
     yargs: ^17.7.1
   bin:
     lerna: dist/cli.js
-  checksum: ae781ca3c8d269731f7d418c7f330c08fb3c60cbe23f795e542438f0656eba47fac6036e74d9033debf29be2171bf42d78c2357d9f23857b0676953419fd1c70
+  checksum: 243e378ba0bbafc7fec611c7e2ceff2c9b7fa95fb54acb0df3306804cf436e525fcbfc2126659606b8d0eac070161844a87ea11268a0e5407bffbc6f7087e484
   languageName: node
   linkType: hard
 
-"@lerna-lite/core@npm:1.16.2":
-  version: 1.16.2
-  resolution: "@lerna-lite/core@npm:1.16.2"
+"@lerna-lite/core@npm:1.17.0":
+  version: 1.17.0
+  resolution: "@lerna-lite/core@npm:1.17.0"
   dependencies:
     "@npmcli/run-script": ^6.0.0
     chalk: ^4.1.2
@@ -3044,40 +3044,40 @@ __metadata:
     write-file-atomic: ^5.0.0
     write-json-file: ^4.3.0
     write-pkg: ^4.0.0
-  checksum: e5e018b78f8b8fe38ac1e5cf56edde9551de2535b114a93e7cdbee76ad70fbe880bc8e8c4dc1e48e18326ce8a805051b62660af59021d215c853757f5f4f6742
+  checksum: efd74e1fd0dc6b3b121e7dd5c263aaf3e22401b7e84c24d5102b283a1646da14ec186327052c8652e34b957b597e9597cee57925592c490cf1bb4106e57503c4
   languageName: node
   linkType: hard
 
-"@lerna-lite/init@npm:1.16.2":
-  version: 1.16.2
-  resolution: "@lerna-lite/init@npm:1.16.2"
+"@lerna-lite/init@npm:1.17.0":
+  version: 1.17.0
+  resolution: "@lerna-lite/init@npm:1.17.0"
   dependencies:
-    "@lerna-lite/core": 1.16.2
+    "@lerna-lite/core": 1.17.0
     fs-extra: ^11.1.0
     p-map: ^4.0.0
     path: ^0.12.7
     write-json-file: ^4.3.0
-  checksum: ccdc0055e2753f664d069fb5b60b258bbb9aea044ef1a05e86d882dcd18c4c9abd3ccd5ce8bf6314370433b914c801d7325b88ac73343bd6c7db9b011d010a72
+  checksum: 4565e6d143ed4e6832186653796988644bb6b6a44fcda6b9b9552f9718a4f4ccc0989b7cd8fda2c87ebae6b63bf8ebbe838029300c80eea5251a23e6096d1632
   languageName: node
   linkType: hard
 
-"@lerna-lite/listable@npm:1.16.2":
-  version: 1.16.2
-  resolution: "@lerna-lite/listable@npm:1.16.2"
+"@lerna-lite/listable@npm:1.17.0":
+  version: 1.17.0
+  resolution: "@lerna-lite/listable@npm:1.17.0"
   dependencies:
-    "@lerna-lite/core": 1.16.2
+    "@lerna-lite/core": 1.17.0
     chalk: ^4.1.2
     columnify: ^1.6.0
-  checksum: 814535689dbd290263636a403cd30d47bf8975d0760d4c778f4608fed3f138079c367e62af4d05cce9673955f99f8cdab5e05c73f177281cdea1b2c0b9ce262d
+  checksum: 682a2cbfc2a298a0fb0e42e131c0b05fb3f282ff8a3f895fed5e8aa48cee5a7037cea9f3ecd5ec2cb219a9aaecff19f732ede557a6b318fc008ab36fd42caf8e
   languageName: node
   linkType: hard
 
-"@lerna-lite/publish@npm:1.16.2":
-  version: 1.16.2
-  resolution: "@lerna-lite/publish@npm:1.16.2"
+"@lerna-lite/publish@npm:1.17.0":
+  version: 1.17.0
+  resolution: "@lerna-lite/publish@npm:1.17.0"
   dependencies:
-    "@lerna-lite/core": 1.16.2
-    "@lerna-lite/version": 1.16.2
+    "@lerna-lite/core": 1.17.0
+    "@lerna-lite/version": 1.17.0
     "@npmcli/arborist": ^6.2.5
     byte-size: ^7.0.1
     chalk: ^4.1.2
@@ -3086,7 +3086,7 @@ __metadata:
     glob: ^7.2.3
     has-unicode: ^2.0.1
     libnpmaccess: ^7.0.2
-    libnpmpublish: ^7.1.1
+    libnpmpublish: ^7.1.2
     npm-package-arg: ^10.1.0
     npm-packlist: ^7.0.4
     npm-registry-fetch: ^14.0.3
@@ -3101,15 +3101,15 @@ __metadata:
     ssri: ^10.0.1
     tar: ^6.1.13
     temp-dir: ^2.0.0
-  checksum: e74404c5fc12833f9c260263a216fc250f32d2895b92c6efe766b2b0ae045f88debf6a1ad3f6b14d1b9df5563690dfbc0916484d5ed3bd6ecbd44ada143e5be8
+  checksum: f678345a783031ce5cdd00e2d093df22adce15327a4af42ee5c8ff7c7ecad6399046b6d2f443b77c1ed8ae5cce06d2668628dfb92718e13245594038bce68d71
   languageName: node
   linkType: hard
 
-"@lerna-lite/version@npm:1.16.2":
-  version: 1.16.2
-  resolution: "@lerna-lite/version@npm:1.16.2"
+"@lerna-lite/version@npm:1.17.0":
+  version: 1.17.0
+  resolution: "@lerna-lite/version@npm:1.17.0"
   dependencies:
-    "@lerna-lite/core": 1.16.2
+    "@lerna-lite/core": 1.17.0
     "@octokit/plugin-enterprise-rest": ^6.0.1
     "@octokit/rest": ^19.0.7
     chalk: ^4.1.2
@@ -3141,7 +3141,7 @@ __metadata:
     temp-dir: ^1.0.0
     uuid: ^9.0.0
     write-json-file: ^4.3.0
-  checksum: 064813c1e63a20e8878cdfb5a14ec5b698f314c112163db35fa8c63143cb262e5e9409dd0e2968c6ed1712df92c3cc467cc8cd3e69ec7e0cc572268ede5bd2e5
+  checksum: 45c3645d02f5d7e0a970f494c38d08358285ea53c98e27b9adb18be2320c4153189d8cf32fc3766efd19bab7d263a48d337f0a799ce8440958a7eeefefcd17b0
   languageName: node
   linkType: hard
 
@@ -3902,9 +3902,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.5.72":
-  version: 0.5.72
-  resolution: "@pojo-router/core@npm:0.5.72"
+"@pojo-router/core@npm:^0.5.74":
+  version: 0.5.74
+  resolution: "@pojo-router/core@npm:0.5.74"
   dependencies:
     "@babel/runtime": ^7.17.0
     history: 5.3.0
@@ -3915,7 +3915,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: f5ebd0b66c0f8c8600ed3be1b92be024d7ce4fa104ec6f4d20cb03251fc50cb8f620e3603dc82911a3f527efc51f3e7cde6d63d7056621fdc81ca68c47f32f71
+  checksum: 03e0cd9a1955e920fd3039f21311409939c7a561b16e79558b56de57fccc90544619c1db0c6d12ef0c56d28f26590c9e3cba69ee6cac58514a73a5569fcd9330
   languageName: node
   linkType: hard
 
@@ -11338,7 +11338,7 @@ __metadata:
     "@anansi/babel-preset": 4.1.1
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.16.2
-    "@anansi/router": 0.7.25
+    "@anansi/router": 0.7.27
     "@anansi/webpack-config": 14.3.9
     "@ant-design/icons": ^5.0.0
     "@babel/core": 7.21.3
@@ -14133,7 +14133,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"libnpmpublish@npm:^7.1.1":
+"libnpmpublish@npm:^7.1.2":
   version: 7.1.2
   resolution: "libnpmpublish@npm:7.1.2"
   dependencies:
@@ -14473,12 +14473,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magic-string@npm:^0.29.0":
-  version: 0.29.0
-  resolution: "magic-string@npm:0.29.0"
+"magic-string@npm:^0.30.0":
+  version: 0.30.0
+  resolution: "magic-string@npm:0.30.0"
   dependencies:
     "@jridgewell/sourcemap-codec": ^1.4.13
-  checksum: 19e5398fcfc44804917127c72ad622c68a19a0a10cbdb8d4f9f9417584a087fe9e117140bfb2463d86743cf1ed9cf4182ae0b0ad1a7536f7fdda257ee4449ffb
+  checksum: 7bdf22e27334d8a393858a16f5f840af63a7c05848c000fd714da5aa5eefa09a1bc01d8469362f25cc5c4a14ec01b46557b7fff8751365522acddf21e57c488d
   languageName: node
   linkType: hard
 
@@ -20425,18 +20425,18 @@ __metadata:
   linkType: hard
 
 "rollup-plugin-dts@npm:^5.0.0":
-  version: 5.2.0
-  resolution: "rollup-plugin-dts@npm:5.2.0"
+  version: 5.3.0
+  resolution: "rollup-plugin-dts@npm:5.3.0"
   dependencies:
     "@babel/code-frame": ^7.18.6
-    magic-string: ^0.29.0
+    magic-string: ^0.30.0
   peerDependencies:
     rollup: ^3.0.0
-    typescript: ^4.1
+    typescript: ^4.1 || ^5.0
   dependenciesMeta:
     "@babel/code-frame":
       optional: true
-  checksum: cb4a1ff5307efb9a89edd72b5bd1760d8dd3df7b7c5ea61615755669619ec1441e916fe1452068bc17dbae17efbd4cfe6f55478690eb809800f0ffdb76a52fc9
+  checksum: ba3a6065598586c52af60211877a234b8c829b8a7ecd6e6b426e52ec4dc2c8c8ac6e1fb9f47db6afd91858be0dcb09fd3d312c865e972fb72ae8c9ee00eb1d36
   languageName: node
   linkType: hard
 
@@ -20541,7 +20541,7 @@ __metadata:
     "@babel/preset-flow": ^7.18.6
     "@commitlint/cli": 17.4.2
     "@commitlint/config-conventional": 17.4.2
-    "@lerna-lite/cli": 1.16.2
+    "@lerna-lite/cli": 1.17.0
     "@react-navigation/native": ^6.0.13
     "@react-navigation/native-stack": ^6.9.1
     "@rest-hooks/react": "workspace:^"
