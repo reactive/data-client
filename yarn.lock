@@ -11383,7 +11383,7 @@ __metadata:
     rollup-plugin-terser: ^7.0.2
     serve: 14.2.0
     uuid: ^9.0.0
-    webpack: 5.76.1
+    webpack: ^5.75.0
     webpack-cli: 5.0.1
     webpack-dev-server: 4.12.0
   languageName: unknown
@@ -22208,7 +22208,7 @@ __metadata:
     rollup-plugin-replace: ^2.2.0
     rollup-plugin-terser: ^7.0.2
     serve: 14.2.0
-    webpack: 5.76.1
+    webpack: ^5.75.0
     webpack-cli: 5.0.1
     webpack-dev-server: 4.12.0
   languageName: unknown
@@ -23454,9 +23454,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:5.76.1, webpack@npm:^5, webpack@npm:^5.75.0":
-  version: 5.76.1
-  resolution: "webpack@npm:5.76.1"
+"webpack@npm:^5, webpack@npm:^5.75.0":
+  version: 5.76.2
+  resolution: "webpack@npm:5.76.2"
   dependencies:
     "@types/eslint-scope": ^3.7.3
     "@types/estree": ^0.0.51
@@ -23487,7 +23487,7 @@ __metadata:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: b01fe0bc2dbca0e10d290ddb0bf81e807a031de48028176e2b21afd696b4d3f25ab9accdad888ef4a1f7c7f4d41f13d5bf2395b7653fdf3e5e3dafa54e56dab2
+  checksum: 86db98299a175c371031449c26077e87b33acd8f45de7f7945ed4b9b37c8ca11bc5169af9c44743efccd4d55e08042a3aa3a3bc42aff831309a0821ffbcd395e
   languageName: node
   linkType: hard
 
