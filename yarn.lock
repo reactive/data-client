@@ -15,9 +15,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:4.0.3":
-  version: 4.0.3
-  resolution: "@anansi/babel-preset@npm:4.0.3"
+"@anansi/babel-preset@npm:4.1.1":
+  version: 4.1.1
+  resolution: "@anansi/babel-preset@npm:4.1.1"
   dependencies:
     "@anansi/ts-utils": ^0.3.2
     "@babel/plugin-proposal-class-properties": ^7.18.6
@@ -38,12 +38,11 @@ __metadata:
     "@babel/plugin-transform-typescript": ^7.21.3
     "@babel/preset-env": ^7.20.2
     "@babel/preset-react": ^7.18.6
-    babel-plugin-lodash: ^3.3.4
     babel-plugin-macros: ^3.1.0
     babel-plugin-module-resolver: ^5.0.0
-    babel-plugin-ramda: ^2.1.1
     babel-plugin-react-require: ^3.1.3
     babel-plugin-root-import: ^6.6.0
+    babel-plugin-transform-import-meta: ^2.2.0
     babel-plugin-transform-react-remove-prop-types: ^0.4.24
     core-js-compat: ^3.23.5
     glob-to-regexp: ^0.4.1
@@ -81,7 +80,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: c522db4fcc00203e744e50732eebd711908c69fc4674bf5a3cd71ecca83f8696fec595b279271aeab165facf828fefb1c8f47afe7ebf5142a93290a1bc34d134
+  checksum: 9fbf750f87e40560ddf901f9d3af2c81f2d4e9c172477783b0cc1dd7d317ecb7b1d39348f907058b5d8e500ae79843b9090cd679def7058d2ad2fda509b8e980
   languageName: node
   linkType: hard
 
@@ -582,7 +581,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/helper-module-imports@npm:^7.0.0, @babel/helper-module-imports@npm:^7.0.0-beta.49, @babel/helper-module-imports@npm:^7.18.6":
+"@babel/helper-module-imports@npm:^7.0.0, @babel/helper-module-imports@npm:^7.18.6":
   version: 7.18.6
   resolution: "@babel/helper-module-imports@npm:7.18.6"
   dependencies:
@@ -1969,7 +1968,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/template@npm:^7.0.0, @babel/template@npm:^7.18.10, @babel/template@npm:^7.20.7, @babel/template@npm:^7.3.3":
+"@babel/template@npm:^7.0.0, @babel/template@npm:^7.18.10, @babel/template@npm:^7.20.7, @babel/template@npm:^7.3.3, @babel/template@npm:^7.4.4":
   version: 7.20.7
   resolution: "@babel/template@npm:7.20.7"
   dependencies:
@@ -1998,7 +1997,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/types@npm:^7.0.0, @babel/types@npm:^7.0.0-beta.49, @babel/types@npm:^7.18.10, @babel/types@npm:^7.18.6, @babel/types@npm:^7.18.9, @babel/types@npm:^7.19.0, @babel/types@npm:^7.20.0, @babel/types@npm:^7.20.2, @babel/types@npm:^7.20.7, @babel/types@npm:^7.21.0, @babel/types@npm:^7.21.2, @babel/types@npm:^7.21.3, @babel/types@npm:^7.3.0, @babel/types@npm:^7.3.3, @babel/types@npm:^7.4.4, @babel/types@npm:^7.8.3":
+"@babel/types@npm:^7.0.0, @babel/types@npm:^7.18.10, @babel/types@npm:^7.18.6, @babel/types@npm:^7.18.9, @babel/types@npm:^7.19.0, @babel/types@npm:^7.20.0, @babel/types@npm:^7.20.2, @babel/types@npm:^7.20.7, @babel/types@npm:^7.21.0, @babel/types@npm:^7.21.2, @babel/types@npm:^7.21.3, @babel/types@npm:^7.3.0, @babel/types@npm:^7.3.3, @babel/types@npm:^7.4.4, @babel/types@npm:^7.8.3":
   version: 7.21.3
   resolution: "@babel/types@npm:7.21.3"
   dependencies:
@@ -6874,19 +6873,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-lodash@npm:^3.3.4":
-  version: 3.3.4
-  resolution: "babel-plugin-lodash@npm:3.3.4"
-  dependencies:
-    "@babel/helper-module-imports": ^7.0.0-beta.49
-    "@babel/types": ^7.0.0-beta.49
-    glob: ^7.1.1
-    lodash: ^4.17.10
-    require-package-name: ^2.0.1
-  checksum: 044a4261e689b7058cdcbd4a37e5229797e652534a889a553e7d3cff87cf72283e4a68d3be4c3c305c96214f77f2e09ca376c68c45923aeb0de14514b0fb27d3
-  languageName: node
-  linkType: hard
-
 "babel-plugin-macros@npm:^3.1.0":
   version: 3.1.0
   resolution: "babel-plugin-macros@npm:3.1.0"
@@ -6947,15 +6933,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-ramda@npm:^2.1.1":
-  version: 2.1.1
-  resolution: "babel-plugin-ramda@npm:2.1.1"
-  dependencies:
-    "@babel/helper-module-imports": ^7.0.0
-  checksum: abdac0d4ea32f8802c22dbdef7cbc1807a3c3d07956837ba94c628970db0c17028523328e0354b9f875faae2067a4fe628cdb29b7754f4847ff41ffb1c296c65
-  languageName: node
-  linkType: hard
-
 "babel-plugin-react-require@npm:^3.1.3":
   version: 3.1.3
   resolution: "babel-plugin-react-require@npm:3.1.3"
@@ -6976,6 +6953,18 @@ __metadata:
   version: 7.0.0-beta.0
   resolution: "babel-plugin-syntax-trailing-function-commas@npm:7.0.0-beta.0"
   checksum: e37509156ca945dd9e4b82c66dd74f2d842ad917bd280cb5aa67960942300cd065eeac476d2514bdcdedec071277a358f6d517c31d9f9244d9bbc3619a8ecf8a
+  languageName: node
+  linkType: hard
+
+"babel-plugin-transform-import-meta@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "babel-plugin-transform-import-meta@npm:2.2.0"
+  dependencies:
+    "@babel/template": ^7.4.4
+    tslib: ^2.4.0
+  peerDependencies:
+    "@babel/core": ^7.10.0
+  checksum: 305b0750f957e4df3ce08e0b24359dc55fb789c96477e944d113d259a8292e7bb8d665944e04b5a690c82a8dc23f54b711a85917d80988dffe1e046e1db940ee
   languageName: node
   linkType: hard
 
@@ -11344,7 +11333,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "github-app@workspace:examples/github-app"
   dependencies:
-    "@anansi/babel-preset": 4.0.3
+    "@anansi/babel-preset": 4.1.1
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.16.1
     "@anansi/router": 0.7.25
@@ -11439,7 +11428,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^7.0.0, glob@npm:^7.0.3, glob@npm:^7.0.5, glob@npm:^7.1.1, glob@npm:^7.1.3, glob@npm:^7.1.4, glob@npm:^7.1.6, glob@npm:^7.2.0, glob@npm:^7.2.3":
+"glob@npm:^7.0.0, glob@npm:^7.0.3, glob@npm:^7.0.5, glob@npm:^7.1.3, glob@npm:^7.1.4, glob@npm:^7.1.6, glob@npm:^7.2.0, glob@npm:^7.2.3":
   version: 7.2.3
   resolution: "glob@npm:7.2.3"
   dependencies:
@@ -14364,7 +14353,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4.17.10, lodash@npm:^4.17.15, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4":
+"lodash@npm:^4.17.15, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -20148,13 +20137,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"require-package-name@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "require-package-name@npm:2.0.1"
-  checksum: 00f4e9e467ebe2bbced2b4198a165de11c83b5ee9f4c20b05a8782659b92bcb544dbd50be9a3eed746d05ecd875453e258c079eb3a79604b50a27cf8ab0798b5
-  languageName: node
-  linkType: hard
-
 "requires-port@npm:^1.0.0":
   version: 1.0.0
   resolution: "requires-port@npm:1.0.0"
@@ -20547,7 +20529,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": 4.0.3
+    "@anansi/babel-preset": 4.1.1
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.16.1
     "@anansi/jest-preset": 0.9.0
@@ -22191,7 +22173,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "todo-app@workspace:examples/todo-app"
   dependencies:
-    "@anansi/babel-preset": 4.0.3
+    "@anansi/babel-preset": 4.1.1
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.16.1
     "@anansi/webpack-config": 14.3.7
