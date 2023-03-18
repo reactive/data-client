@@ -176,9 +176,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/webpack-config@npm:14.3.7":
-  version: 14.3.7
-  resolution: "@anansi/webpack-config@npm:14.3.7"
+"@anansi/webpack-config@npm:14.3.9":
+  version: 14.3.9
+  resolution: "@anansi/webpack-config@npm:14.3.9"
   dependencies:
     "@babel/runtime": ^7.17.2
     "@linaria/webpack5-loader": 4.1.15
@@ -209,13 +209,13 @@ __metadata:
     https-browserify: ^1.0.0
     is-wsl: ^2.2.0
     markdown-loader: ^8.0.0
-    mini-css-extract-plugin: ^2.7.3
+    mini-css-extract-plugin: ^2.7.5
     mkdirp: ^2.1.5
     os-browserify: ^0.3.0
     path: ^0.12.7
     path-browserify: ^1.0.1
     postcss: ^8.4.21
-    postcss-loader: ^7.0.2
+    postcss-loader: ^7.1.0
     postcss-preset-env: ^8.0.1
     process: ^0.11.10
     punycode: ^2.3.0
@@ -251,7 +251,7 @@ __metadata:
     "@babel/core": ^6 || ^7 || ^8
     "@hot-loader/react-dom": ^16.0.0 || ^17.0.0
     "@linaria/babel-preset": ^4.0.0
-    "@storybook/react": ^6.2.0
+    "@storybook/react": ^6.2.0 || ^7.0.0-rc.0
     "@types/react": ^16.0.0 || ^17.0.0 || ^18.0.0
     node-sass: ^7.0.1 || ^8.0.0
     react: "*"
@@ -286,7 +286,7 @@ __metadata:
       optional: true
     webpack-dev-server:
       optional: true
-  checksum: f1d3c1e9d8a1f28b15e433c55bdc2d16b6f52f938cae1ddd3fe798fbce19815f5db07f9b8021f33fb6e199347c1765d6c631c580cb59b322f79a14b90083b8da
+  checksum: de8880af5660753bb41c8f66f01dad5296a94196e9a849a3095b0d9e512b3fdb28ef8012b793b354f5cc18fa5e7b794ff18d8d637c28e3dac41261b9dbca6c34
   languageName: node
   linkType: hard
 
@@ -10390,7 +10390,7 @@ __metadata:
     "@types/react": 18.0.28
     benchmark: ^2.1.4
     react: ^18.2.0
-    webpack: ^5.75.0
+    webpack: ^5.76.2
   languageName: unknown
   linkType: soft
 
@@ -11337,7 +11337,7 @@ __metadata:
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.16.1
     "@anansi/router": 0.7.25
-    "@anansi/webpack-config": 14.3.7
+    "@anansi/webpack-config": 14.3.9
     "@ant-design/icons": ^5.0.0
     "@babel/core": 7.21.3
     "@linaria/babel-preset": 4.4.3
@@ -11383,9 +11383,9 @@ __metadata:
     rollup-plugin-terser: ^7.0.2
     serve: 14.2.0
     uuid: ^9.0.0
-    webpack: ^5.75.0
+    webpack: 5.76.2
     webpack-cli: 5.0.1
-    webpack-dev-server: 4.12.0
+    webpack-dev-server: 4.13.0
   languageName: unknown
   linkType: soft
 
@@ -14052,10 +14052,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"klona@npm:^2.0.4, klona@npm:^2.0.5":
-  version: 2.0.5
-  resolution: "klona@npm:2.0.5"
-  checksum: 8c976126ea252b766e648a4866e1bccff9d3b08432474ad80c559f6c7265cf7caede2498d463754d8c88c4759895edd8210c85c0d3155e6aae4968362889466f
+"klona@npm:^2.0.4, klona@npm:^2.0.6":
+  version: 2.0.6
+  resolution: "klona@npm:2.0.6"
+  checksum: ac9ee3732e42b96feb67faae4d27cf49494e8a3bf3fa7115ce242fe04786788e0aff4741a07a45a2462e2079aa983d73d38519c85d65b70ef11447bbc3c58ce7
   languageName: node
   linkType: hard
 
@@ -15683,14 +15683,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mini-css-extract-plugin@npm:^2.7.3":
-  version: 2.7.3
-  resolution: "mini-css-extract-plugin@npm:2.7.3"
+"mini-css-extract-plugin@npm:^2.7.5":
+  version: 2.7.5
+  resolution: "mini-css-extract-plugin@npm:2.7.5"
   dependencies:
     schema-utils: ^4.0.0
   peerDependencies:
     webpack: ^5.0.0
-  checksum: 9f3a25c1298280d40e56552e5cfd7f84fea25ddd8530bd8ecfd6b08caffe59a1c55c020f1f3c8beb7c04f5e92ce71ed43a52a72deed5570c686316348f13b6f4
+  checksum: afc37cdfb765e8826a1babbab3cd8a99ffc4eaeabb6c013a6b3c80801e44ebc37d930b98c6f66168bb8cd545fcb2e8fc2630d72b4501a1bb8add1547c2534a53
   languageName: node
   linkType: hard
 
@@ -17901,17 +17901,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-loader@npm:^7.0.2":
-  version: 7.0.2
-  resolution: "postcss-loader@npm:7.0.2"
+"postcss-loader@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "postcss-loader@npm:7.1.0"
   dependencies:
-    cosmiconfig: ^7.0.0
-    klona: ^2.0.5
+    cosmiconfig: ^8.0.0
+    klona: ^2.0.6
     semver: ^7.3.8
   peerDependencies:
     postcss: ^7.0.0 || ^8.0.1
     webpack: ^5.0.0
-  checksum: 2d251537d482eb751f812c96c8b515f46d7c9905cad7afab33f0f34872670619b7440cefc9e2babbf89fb11b4708850d522d79fa5ff788227587645e78f16638
+  checksum: 44e4018a8f2f81150f501a5ca56e59571d81c965b5a8581f5dbae5e55a113b79bde33c3de0d4397cbf36a3be0c24b7e7e37f0154b6e63df16185edd086d4e352
   languageName: node
   linkType: hard
 
@@ -22176,7 +22176,7 @@ __metadata:
     "@anansi/babel-preset": 4.1.1
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.16.1
-    "@anansi/webpack-config": 14.3.7
+    "@anansi/webpack-config": 14.3.9
     "@babel/core": 7.21.3
     "@linaria/babel-preset": 4.4.3
     "@linaria/core": 4.2.8
@@ -22208,9 +22208,9 @@ __metadata:
     rollup-plugin-replace: ^2.2.0
     rollup-plugin-terser: ^7.0.2
     serve: 14.2.0
-    webpack: ^5.75.0
+    webpack: 5.76.2
     webpack-cli: 5.0.1
-    webpack-dev-server: 4.12.0
+    webpack-dev-server: 4.13.0
   languageName: unknown
   linkType: soft
 
@@ -23367,9 +23367,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-dev-server@npm:4.12.0":
-  version: 4.12.0
-  resolution: "webpack-dev-server@npm:4.12.0"
+"webpack-dev-server@npm:4.13.0":
+  version: 4.13.0
+  resolution: "webpack-dev-server@npm:4.13.0"
   dependencies:
     "@types/bonjour": ^3.5.9
     "@types/connect-history-api-fallback": ^1.3.5
@@ -23408,7 +23408,7 @@ __metadata:
       optional: true
   bin:
     webpack-dev-server: bin/webpack-dev-server.js
-  checksum: 3e33acb774457ee787038d66c12e04c3e4a9f91bbff7ca143083e4ac1937b1615a1b9e7387ec623df8ebc36f56b3c34742578c09f665fe811b6e38d2e8222a94
+  checksum: 7546dd3b5a05f886209caf3c06265c717dea292e5a1a8e392bb8f1c9c58c7f87cc03daa0b92fa6eb56812c8c88304044bef923642e18c54b0a17ea233c02fdf4
   languageName: node
   linkType: hard
 
@@ -23454,7 +23454,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:^5, webpack@npm:^5.75.0":
+"webpack@npm:5.76.2, webpack@npm:^5, webpack@npm:^5.76.2":
   version: 5.76.2
   resolution: "webpack@npm:5.76.2"
   dependencies:
