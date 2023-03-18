@@ -91,12 +91,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/eslint-plugin@npm:0.16.1":
-  version: 0.16.1
-  resolution: "@anansi/eslint-plugin@npm:0.16.1"
+"@anansi/eslint-plugin@npm:0.16.2":
+  version: 0.16.2
+  resolution: "@anansi/eslint-plugin@npm:0.16.2"
   dependencies:
-    "@babel/eslint-parser": ^7.19.1
-    "@typescript-eslint/parser": ^5.54.1
+    "@babel/eslint-parser": ^7.21.3
+    "@typescript-eslint/parser": ^5.55.0
     eslint-config-prettier: ^8.7.0
     eslint-import-resolver-typescript: ^3.5.3
     eslint-import-resolver-webpack: ^0.13.2
@@ -120,7 +120,7 @@ __metadata:
       optional: true
     webpack:
       optional: true
-  checksum: 61b461fd856efde746b6b61316137fbc1648c3aec78695c80ba1971ce25571c6dfa125e4ec9bb44623c2fca932e991402e949e3d40804f657c724099300c7928
+  checksum: 9ff44b761f05f1ecbd9212cd684e0ebbe33f2fa8cb83fc62f7d93233e6542c79d82cbecc4aaf49cc91dafa595e1461af96bff85b481f01cf3fc49997e914d4c0
   languageName: node
   linkType: hard
 
@@ -423,9 +423,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/eslint-parser@npm:^7.19.1":
-  version: 7.19.1
-  resolution: "@babel/eslint-parser@npm:7.19.1"
+"@babel/eslint-parser@npm:^7.21.3":
+  version: 7.21.3
+  resolution: "@babel/eslint-parser@npm:7.21.3"
   dependencies:
     "@nicolo-ribaudo/eslint-scope-5-internals": 5.1.1-v1
     eslint-visitor-keys: ^2.1.0
@@ -433,7 +433,7 @@ __metadata:
   peerDependencies:
     "@babel/core": ">=7.11.0"
     eslint: ^7.5.0 || ^8.0.0
-  checksum: 6d5360f62f25ed097250657deb1bc4c4f51a5f5f2fe456e98cda13727753fdf7a11a109b4cfa03ef0dd6ced3beaeb703b76193c1141e29434d1f91f1bac0517d
+  checksum: cc44a26a518c62ca93cdbee4ec4fa195c5a69b4f85d696c9df572b1ada99446ebdf3caef58a124f401a798279a765f858c88292bc7a8fc0485c34e178b1a9e82
   languageName: node
   linkType: hard
 
@@ -5651,7 +5651,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:5.55.0, @typescript-eslint/parser@npm:^5.42.0, @typescript-eslint/parser@npm:^5.54.1":
+"@typescript-eslint/parser@npm:5.55.0, @typescript-eslint/parser@npm:^5.42.0, @typescript-eslint/parser@npm:^5.55.0":
   version: 5.55.0
   resolution: "@typescript-eslint/parser@npm:5.55.0"
   dependencies:
@@ -11337,7 +11337,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": 4.1.1
     "@anansi/browserslist-config": 1.4.1
-    "@anansi/eslint-plugin": 0.16.1
+    "@anansi/eslint-plugin": 0.16.2
     "@anansi/router": 0.7.25
     "@anansi/webpack-config": 14.3.9
     "@ant-design/icons": ^5.0.0
@@ -20533,7 +20533,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": 4.1.1
     "@anansi/browserslist-config": 1.4.1
-    "@anansi/eslint-plugin": 0.16.1
+    "@anansi/eslint-plugin": 0.16.2
     "@anansi/jest-preset": 0.10.2
     "@babel/cli": 7.21.0
     "@babel/core": 7.21.3
@@ -22177,7 +22177,7 @@ __metadata:
   dependencies:
     "@anansi/babel-preset": 4.1.1
     "@anansi/browserslist-config": 1.4.1
-    "@anansi/eslint-plugin": 0.16.1
+    "@anansi/eslint-plugin": 0.16.2
     "@anansi/webpack-config": 14.3.9
     "@babel/core": 7.21.3
     "@linaria/babel-preset": 4.4.3
