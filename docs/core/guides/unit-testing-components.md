@@ -44,7 +44,7 @@ export default {
       ],
     },
     {
-      endpoint: ArticleResource.update(),
+      endpoint: ArticleResource.update,
       args: [{ id: 532 }] as const,
       response: {
         id: 532,
