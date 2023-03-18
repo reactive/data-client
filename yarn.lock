@@ -124,16 +124,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/jest-preset@npm:0.9.0":
-  version: 0.9.0
-  resolution: "@anansi/jest-preset@npm:0.9.0"
+"@anansi/jest-preset@npm:0.10.2":
+  version: 0.10.2
+  resolution: "@anansi/jest-preset@npm:0.10.2"
   dependencies:
     "@anansi/ts-utils": ^0.3.2
     babel-jest: ^29.5.0
     core-js: ^3.21.0
+    cross-fetch: ^3.1.5
     identity-obj-proxy: ^3.0.0
     jest-pnp-resolver: ^1.2.3
     mitt: ^3.0.0
+    node-fetch: ^3.3.1
     semver: ^7.3.8
     ts-jest: ^29.0.5
     whatwg-fetch: ^3.0.0
@@ -145,7 +147,7 @@ __metadata:
   peerDependenciesMeta:
     react:
       optional: true
-  checksum: 34fcc775b1aaf64cdf025f09ea0851f4a361551c9cd6914cabee8805887d6faf8a3eecf144800b8c059a414a0493bb247eafa938a95ddb7c988785b2a389efa1
+  checksum: 28d752555916a85f595de9c1be5322f2056dc62eea2143dfaeb784fb57f9fe1c423e788f0dbd5c8674f82e6cadd2a1941b711dc660ca4fcc4e249b643ee8c9ac
   languageName: node
   linkType: hard
 
@@ -5305,13 +5307,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:29.4.4":
-  version: 29.4.4
-  resolution: "@types/jest@npm:29.4.4"
+"@types/jest@npm:29.5.0":
+  version: 29.5.0
+  resolution: "@types/jest@npm:29.5.0"
   dependencies:
     expect: ^29.0.0
     pretty-format: ^29.0.0
-  checksum: 754c21d996c3457c761e55c4076a2dd14d82e6290c3f57122db17aa07ef59c12af7df50a82a06845ef9ba1fbf75bb024a1fed68426514618856bda7fb90eb773
+  checksum: cd877e5c56d299cceb8bfdcbb1a77723c706750dd3c3bc47403bc3599b8faff590a3b009c68bb5b11bf7a8c77d1fb01de5e124329b4a08e65f1cdda28b0ecdb8
   languageName: node
   linkType: hard
 
@@ -8750,7 +8752,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-fetch@npm:^3.0.6":
+"cross-fetch@npm:^3.0.6, cross-fetch@npm:^3.1.5":
   version: 3.1.5
   resolution: "cross-fetch@npm:3.1.5"
   dependencies:
@@ -16234,7 +16236,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:^3.3.0":
+"node-fetch@npm:^3.3.0, node-fetch@npm:^3.3.1":
   version: 3.3.1
   resolution: "node-fetch@npm:3.3.1"
   dependencies:
@@ -20532,7 +20534,7 @@ __metadata:
     "@anansi/babel-preset": 4.1.1
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.16.1
-    "@anansi/jest-preset": 0.9.0
+    "@anansi/jest-preset": 0.10.2
     "@babel/cli": 7.21.0
     "@babel/core": 7.21.3
     "@babel/node": 7.20.7
@@ -20547,7 +20549,7 @@ __metadata:
     "@testing-library/react": 14.0.0
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/react-native": 12.0.0
-    "@types/jest": 29.4.4
+    "@types/jest": 29.5.0
     "@types/lodash": 4.14.191
     "@types/node": 18.15.3
     "@types/react": 18.0.28
