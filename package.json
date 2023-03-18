@@ -43,7 +43,7 @@
     "@babel/preset-flow": "^7.18.6",
     "@commitlint/cli": "17.4.2",
     "@commitlint/config-conventional": "17.4.2",
-    "@lerna-lite/cli": "1.16.2",
+    "@lerna-lite/cli": "1.17.0",
     "@react-navigation/native": "^6.0.13",
     "@react-navigation/native-stack": "^6.9.1",
     "@rest-hooks/react": "workspace:^",
