@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.3.11](https://github.com/data-client/rest-hooks/compare/@rest-hooks/rest@6.3.10...@rest-hooks/rest@6.3.11) (2023-03-19)
+
+### 💅 Enhancement
+
+* Improve types with null checks off ([#2502](https://github.com/data-client/rest-hooks/issues/2502)) ([8bb970f](https://github.com/data-client/rest-hooks/commit/8bb970f0362b98acd46fb75ab6dd1dfa071121e2))
+
+### 🐛 Bug Fix
+
+* Legacy type compatibility ([02870c0](https://github.com/data-client/rest-hooks/commit/02870c0054b6b7ad3b09c1ec42574a267df02492))
+
 ### [6.3.10](https://github.com/data-client/rest-hooks/compare/@rest-hooks/rest@6.3.9...@rest-hooks/rest@6.3.10) (2023-03-15)
 
 ### 📦 Package

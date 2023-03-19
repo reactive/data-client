@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [9.3.8](https://github.com/data-client/rest-hooks/compare/@rest-hooks/experimental@9.3.7...@rest-hooks/experimental@9.3.8) (2023-03-19)
+
+### 💅 Enhancement
+
+* Remove legacy type defs for experimental pkg ([4830c11](https://github.com/data-client/rest-hooks/commit/4830c11eca31e32676d5bee47e877e12ce2b309c))
+
 ### [9.3.7](https://github.com/data-client/rest-hooks/compare/@rest-hooks/experimental@9.3.6...@rest-hooks/experimental@9.3.7) (2023-03-15)
 
 ### 💅 Enhancement

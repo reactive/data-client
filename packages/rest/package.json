@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/rest",
-  "version": "6.3.10",
+  "version": "6.3.11",
   "description": "Endpoints for REST APIs",
   "sideEffects": false,
   "main": "dist/index.js",
@@ -100,7 +100,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@rest-hooks/endpoint": "^3.7.2",
+    "@rest-hooks/endpoint": "^3.7.3",
     "path-to-regexp": "^6.2.1"
   },
   "devDependencies": {

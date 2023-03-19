@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.3.5](https://github.com/data-client/rest-hooks/compare/@rest-hooks/redux@6.3.4...@rest-hooks/redux@6.3.5) (2023-03-19)
+
+**Note:** Version bump only for package @rest-hooks/redux
+
 ### [6.3.4](https://github.com/data-client/rest-hooks/compare/@rest-hooks/redux@6.3.3...@rest-hooks/redux@6.3.4) (2023-03-15)
 
 ### 🐛 Bug Fix

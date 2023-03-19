@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/img",
-  "version": "0.8.10",
+  "version": "0.8.11",
   "description": "Suspenseful images",
   "sideEffects": false,
   "main": "dist/index.cjs.js",
@@ -70,7 +70,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.17.0",
-    "@rest-hooks/endpoint": "^3.7.2"
+    "@rest-hooks/endpoint": "^3.7.3"
   },
   "peerDependencies": {
     "@rest-hooks/react": "^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0",

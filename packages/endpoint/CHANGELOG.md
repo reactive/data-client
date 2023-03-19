@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [3.7.3](https://github.com/data-client/rest-hooks/compare/@rest-hooks/endpoint@3.7.2...@rest-hooks/endpoint@3.7.3) (2023-03-19)
+
+### 🐛 Bug Fix
+
+* Legacy type compatibility ([02870c0](https://github.com/data-client/rest-hooks/commit/02870c0054b6b7ad3b09c1ec42574a267df02492))
+
+### 📦 Package
+
+* Update `typescript` to v5 ([#2494](https://github.com/data-client/rest-hooks/issues/2494)) ([52094d9](https://github.com/data-client/rest-hooks/commit/52094d981670384f15427892f0db45fba0419bb2))
+
 ### [3.7.2](https://github.com/data-client/rest-hooks/compare/@rest-hooks/endpoint@3.7.1...@rest-hooks/endpoint@3.7.2) (2023-03-15)
 
 ### 💅 Enhancement

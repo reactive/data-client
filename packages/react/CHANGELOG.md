@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [7.2.8](https://github.com/data-client/rest-hooks/compare/@rest-hooks/react@7.2.7...@rest-hooks/react@7.2.8) (2023-03-19)
+
+### 🐛 Bug Fix
+
+* Controller type generics refer to findable types ([449d326](https://github.com/data-client/rest-hooks/commit/449d326b0163cd3f915dedf7406c6a18857c1550))
+
 ### [7.2.7](https://github.com/data-client/rest-hooks/compare/@rest-hooks/react@7.2.6...@rest-hooks/react@7.2.7) (2023-03-15)
 
 ### 💅 Enhancement

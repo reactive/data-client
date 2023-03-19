@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/redux",
-  "version": "6.3.4",
+  "version": "6.3.5",
   "description": "Asynchronous data framework for React",
   "sideEffects": false,
   "main": "dist/index.js",
