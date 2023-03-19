@@ -16,15 +16,15 @@ function LinkPagination({ link }: PageProps) {
   const parsed = parseLink(link);
   const curPage =
     parsed && parsed.next
-      ? Number.parseInt(parsed.next.page) - 1
+      ? Number.parseInt(parsed.next.page ?? '0') - 1
       : parsed && parsed.prev
-      ? Number.parseInt(parsed.prev.page) + 1
+      ? Number.parseInt(parsed.prev.page ?? '0') + 1
       : 1;
   let total;
   if (!parsed) {
     total = 1;
   } else if (parsed.last) {
-    total = Number.parseInt(parsed.last.page);
+    total = Number.parseInt(parsed.last.page ?? '0');
   } else {
     total = curPage;
   }

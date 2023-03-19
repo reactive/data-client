@@ -1,6 +1,6 @@
 import { Link, useShowLoading } from '@anansi/router';
 import { AsyncBoundary, useCache, useSuspense } from '@rest-hooks/react';
-import { Layout, Menu, Spin, Affix } from 'antd';
+import { Layout, Menu, Spin, Affix, MenuProps } from 'antd';
 import { Avatar } from 'antd';
 import { memo, useContext, useMemo, useState } from 'react';
 import UserResource from 'resources/User';
@@ -17,7 +17,7 @@ function NavBar() {
   const { logout } = useContext(authdContext);
 
   const menuItems = useMemo(() => {
-    const items = [
+    const items: MenuProps['items'] = [
       {
         key: 'home',
         label: <Link name="Home">React Issues</Link>,

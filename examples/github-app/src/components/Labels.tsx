@@ -1,6 +1,6 @@
 import { Tag } from 'antd';
 import { memo } from 'react';
-import { type Label } from 'resources/Label';
+import type { Label } from 'resources/Label';
 
 function Labels({ labels }: { labels: Label[] }) {
   return (

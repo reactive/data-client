@@ -723,14 +723,14 @@ declare class Controller<D extends GenericDispatch = CompatibleDispatch> {
      * Fetches the endpoint with given args, updating the Rest Hooks cache with the response or error upon completion.
      * @see https://resthooks.io/docs/api/Controller#fetch
      */
-    fetch: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined> & {
-        update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
+    fetch: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
+        update?: EndpointUpdateFunction<E> | undefined;
     }>(endpoint: E, ...args_0: Parameters<E>) => ReturnType<E>;
     /**
      * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
      * @see https://resthooks.io/docs/api/Controller#invalidate
      */
-    invalidate: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
+    invalidate: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]) => Promise<void>;
     /**
      * Forces refetching and suspense on useSuspense on all matching endpoint result keys.
      * @see https://resthooks.io/docs/api/Controller#invalidateAll
@@ -747,36 +747,36 @@ declare class Controller<D extends GenericDispatch = CompatibleDispatch> {
      * Stores response in cache for given Endpoint and args.
      * @see https://resthooks.io/docs/api/Controller#set
      */
-    setResponse: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined> & {
-        update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
+    setResponse: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
+        update?: EndpointUpdateFunction<E> | undefined;
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, any]) => Promise<void>;
     /**
      * Another name for setResponse
      * @see https://resthooks.io/docs/api/Controller#setResponse
      */
-    receive: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined> & {
-        update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
+    receive: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
+        update?: EndpointUpdateFunction<E> | undefined;
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, any]) => Promise<void>;
     /**
      * Stores the result of Endpoint and args as the error provided.
      * @see https://resthooks.io/docs/api/Controller#setError
      */
-    setError: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined> & {
-        update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
+    setError: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
+        update?: EndpointUpdateFunction<E> | undefined;
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, Error]) => Promise<void>;
     /**
      * Another name for setError
      * @see https://resthooks.io/docs/api/Controller#setError
      */
-    receiveError: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined> & {
-        update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
+    receiveError: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
+        update?: EndpointUpdateFunction<E> | undefined;
     }>(endpoint: E, ...rest: readonly [...Parameters<E>, Error]) => Promise<void>;
     /**
      * Resolves an inflight fetch. `fetchedAt` should `fetch`'s `createdAt`
      * @see https://resthooks.io/docs/api/Controller#resolve
      */
-    resolve: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined> & {
-        update?: EndpointUpdateFunction<E, Record<string, any>> | undefined;
+    resolve: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
+        update?: EndpointUpdateFunction<E> | undefined;
     }>(endpoint: E, meta: {
         args: readonly [...Parameters<E>];
         response: Error;
@@ -792,24 +792,24 @@ declare class Controller<D extends GenericDispatch = CompatibleDispatch> {
      * Marks a new subscription to a given Endpoint.
      * @see https://resthooks.io/docs/api/Controller#subscribe
      */
-    subscribe: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [null] | readonly [...Parameters<E>]) => Promise<void>;
+    subscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [null] | readonly [...Parameters<E>]) => Promise<void>;
     /**
      * Marks completion of subscription to a given Endpoint.
      * @see https://resthooks.io/docs/api/Controller#unsubscribe
      */
-    unsubscribe: <E extends EndpointInterface<FetchFunction<any, any>, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [null] | readonly [...Parameters<E>]) => Promise<void>;
+    unsubscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [null] | readonly [...Parameters<E>]) => Promise<void>;
     /*************** More ***************/
     snapshot: (state: State<unknown>, fetchedAt?: number) => SnapshotInterface;
     /**
      * Gets the error, if any, for a given endpoint. Returns undefined for no errors.
      * @see https://resthooks.io/docs/api/Controller#getError
      */
-    getError: <E extends Pick<EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined>, "key">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => ErrorTypes | undefined;
+    getError: <E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>, "key">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => ErrorTypes | undefined;
     /**
      * Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
      * @see https://resthooks.io/docs/api/Controller#getResponse
      */
-    getResponse: <E extends Pick<EndpointInterface<FetchFunction<any, any>, Schema | undefined, boolean | undefined>, "schema" | "key" | "invalidIfStale">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => {
+    getResponse: <E extends Pick<EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined>, "schema" | "key" | "invalidIfStale">, Args extends readonly [null] | readonly [...Parameters<E["key"]>]>(endpoint: E, ...rest: [...Args, State<unknown>]) => {
         data: DenormalizeNullable<E["schema"]>;
         expiryStatus: ExpiryStatus;
         expiresAt: number;
@@ -902,7 +902,7 @@ declare class NetworkManager implements Manager {
      * Resolve/rejects a request when matching 'rest-hooks/receive' event
      * is seen.
      */
-    getMiddleware(): Middleware$2<any>;
+    getMiddleware(): Middleware$2;
     /** Ensures only one request for a given key is in flight at any time
      *
      * Uses key to either retrieve in-flight promise, or if not
@@ -1062,7 +1062,7 @@ declare class SubscriptionManager<S extends SubscriptionConstructable> implement
      * Will possibly dispatch 'rest-hooks/fetch' or 'rest-hooks/receive' to keep resources fresh
      *
      */
-    getMiddleware(): Middleware$2<any>;
+    getMiddleware(): Middleware$2;
 }
 
 /**
@@ -1350,4 +1350,4 @@ declare class DevToolsManager implements Manager {
     getMiddleware(): Middleware;
 }
 
-export { AbstractInstanceType, ActionTypes, BodyFromShape, CombinedActionTypes, ConnectionListener, Controller, DefaultConnectionListener, DeleteShape, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, FetchShape, GCAction, InvalidateAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, MutateShape, NetworkError, NetworkManager, Normalize, NormalizeNullable, OldActionTypes, OptimisticAction, PK, ParamsFromShape, PollingSubscription, ReadShape, ReceiveAction, ReceiveTypes, ResetAction, ResetError, ResolveType, ResponseActions, ResultEntry, ReturnFromShape, Schema, SetAction, SetShapeParams, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch$1 as createFetch, createReceive$1 as createReceive, createReducer, initialState, index_d as legacyActions, newActions, reducer };
+export { AbstractInstanceType, ActionTypes, BodyFromShape, CombinedActionTypes, CompatibleDispatch, ConnectionListener, Controller, DefaultConnectionListener, DeleteShape, Denormalize, DenormalizeCache, DenormalizeNullable, DevToolsConfig, DevToolsManager, Dispatch$1 as Dispatch, EndpointExtraOptions, EndpointInterface, EndpointUpdateFunction, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, FetchShape, GCAction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware$2 as Middleware, MiddlewareAPI$1 as MiddlewareAPI, MutateShape, NetworkError, NetworkManager, Normalize, NormalizeNullable, OldActionTypes, OptimisticAction, PK, ParamsFromShape, PollingSubscription, ReadShape, ReceiveAction, ReceiveTypes, ResetAction, ResetError, ResolveType, ResponseActions, ResultEntry, ReturnFromShape, Schema, SetAction, SetShapeParams, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, internal_d as __INTERNAL__, actionTypes_d as actionTypes, applyManager, createFetch$1 as createFetch, createReceive$1 as createReceive, createReducer, initialState, index_d as legacyActions, newActions, reducer };

@@ -1,5 +1,5 @@
 import { CacheProvider, AsyncBoundary } from '@rest-hooks/react';
-import type { ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 type ComponentProps<T> = T extends
   | React.ComponentType<infer P>

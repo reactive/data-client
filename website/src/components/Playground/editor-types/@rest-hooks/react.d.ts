@@ -1,8 +1,7 @@
 import * as _rest_hooks_core from '@rest-hooks/core';
 import { Manager, State as State$1, Controller, NetworkError as NetworkError$1, ActionTypes, DenormalizeCache, legacyActions, __INTERNAL__, createReducer, applyManager } from '@rest-hooks/core';
-export { AbstractInstanceType, ActionTypes, Controller, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ExpiryStatus, FetchAction, FetchFunction, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ReceiveAction, ReceiveTypes, ResetAction, ResolveType, Schema, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@rest-hooks/core';
+export { AbstractInstanceType, ActionTypes, CompatibleDispatch, Controller, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ReceiveAction, ReceiveTypes, ResetAction, ResolveType, Schema, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@rest-hooks/core';
 import React$1, { Context } from 'react';
-import * as packages_core_lib_controller_Controller from 'packages/core/lib/controller/Controller';
 
 declare const _default$1: React$1.NamedExoticComponent<{
     children: React$1.ReactNode;
@@ -298,7 +297,7 @@ declare const StateContext: Context<State$1<unknown>>;
 declare const DispatchContext: Context<(value: ActionTypes) => Promise<void>>;
 /** @deprecated */
 declare const DenormalizeCacheContext: Context<DenormalizeCache>;
-declare const ControllerContext: Context<Controller<packages_core_lib_controller_Controller.CompatibleDispatch>>;
+declare const ControllerContext: Context<Controller<_rest_hooks_core.CompatibleDispatch>>;
 interface Store<S> {
     subscribe(listener: () => void): () => void;
     dispatch: React.Dispatch<ActionTypes>;

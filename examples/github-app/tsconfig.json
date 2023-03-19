@@ -5,14 +5,20 @@
     "target": "esnext",
     "module": "esnext",
     "lib": ["dom", "esnext"],
-    "jsx": "react-jsx",
+    "jsx": "preserve", // this is just to make it work with older typescript versions in our tests
     "declaration": true,
     "strict": true,
     "moduleResolution": "node",
+    "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "typeRoots": [
+      "node_modules/@types",
+      "../../node_modules/@types",
+      "./src/types"
+    ],
     "types": ["@anansi/webpack-config/types"],
     "paths": {
       "resources/*": ["resources/*"]
