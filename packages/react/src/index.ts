@@ -42,6 +42,9 @@ export type {
   Middleware,
   MiddlewareAPI,
   Manager,
+  // used in Controller generic
+  CompatibleDispatch,
+  GenericDispatch,
 } from '@rest-hooks/core';
 export * from './components/index.js';
 export * from './hooks/index.js';
@@ -51,7 +54,7 @@ export {
   ControllerContext,
   StoreContext,
   DenormalizeCacheContext,
-  type Store,
 } from './context.js';
+export type { Store } from './context.js';
 export * as __INTERNAL__ from './internal.js';
 export { usePromisifiedDispatch } from '@rest-hooks/use-enhanced-reducer';
