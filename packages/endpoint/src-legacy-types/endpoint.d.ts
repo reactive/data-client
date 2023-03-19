@@ -1,3 +1,5 @@
+// had to remove all [...T], which included importing PartialArray from types
+
 /* eslint-disable @typescript-eslint/ban-types */
 import { EndpointInterface, Schema } from './interface.js';
 import { EndpointExtraOptions, FetchFunction } from './types.js';
@@ -58,10 +60,11 @@ export interface EndpointInstance<
       true | undefined
     >,
     O extends EndpointExtendOptions<F> &
-      Partial<Omit<E, keyof EndpointInstance<FetchFunction>>>,
+      Partial<Omit<E, keyof EndpointInstance<FetchFunction>>> &
+      Record<string, unknown>,
   >(
     this: E,
-    options: O,
+    options: Readonly<O>,
   ): ExtendedEndpoint<typeof options, E, F>;
 }
 /**
@@ -79,21 +82,21 @@ export interface EndpointInstanceInterface<
    * @param thisArg The object to be used as the this object.
    * @param argArray A set of arguments to be passed to the function.
    */
-  apply(
-    this: F,
-    thisArg: ThisParameterType<F>,
-    argArray?: Parameters<F>,
-  ): ReturnType<F>;
+  apply<E extends FetchFunction>(
+    this: E,
+    thisArg: ThisParameterType<E>,
+    argArray?: Parameters<E>,
+  ): ReturnType<E>;
   /**
    * Calls a method of an object, substituting another object for the current object.
    * @param thisArg The object to be used as the current object.
    * @param argArray A list of arguments to be passed to the method.
    */
-  call(
-    this: F,
-    thisArg: ThisParameterType<F>,
-    ...argArray: Parameters<F>
-  ): ReturnType<F>;
+  call<E extends FetchFunction>(
+    this: E,
+    thisArg: ThisParameterType<E>,
+    ...argArray: Parameters<E>
+  ): ReturnType<E>;
   /**
    * For a given function, creates a bound function that has the same body as the original function.
    * The this object of the bound function is associated with the specified object, and has the specified initial parameters.
@@ -117,13 +120,16 @@ export interface EndpointInstanceInterface<
   readonly sideEffect: M;
   readonly schema: S;
   fetch: F;
+  /* utilities */
+  /** @see https://resthooks.io/rest/api/Endpoint#testKey */
+  testKey(key: string): boolean;
   /** The following is for compatibility with FetchShape */
   /** @deprecated */
   readonly type: M extends undefined
     ? 'read'
     : IfAny<M, any, IfTypeScriptLooseNull<'read', 'mutate'>>;
   /** @deprecated */
-  getFetchKey(params: Parameters<F>[0]): string;
+  getFetchKey(...args: OnlyFirst<Parameters<F>>): string;
   /** @deprecated */
   options?: EndpointExtraOptions<F>;
 }
@@ -157,10 +163,11 @@ interface ExtendableEndpointConstructor {
     E extends Record<string, any> = {},
   >(
     RestFetch: F,
-    options?: EndpointOptions<F, S, M> & E,
+    options?: Readonly<EndpointOptions<F, S, M>> & E,
   ): EndpointInstanceInterface<F, S, M> & E;
   readonly prototype: Function;
 }
 export declare let ExtendableEndpoint: ExtendableEndpointConstructor;
 type IfAny<T, Y, N> = 0 extends 1 & T ? Y : N;
 type IfTypeScriptLooseNull<Y, N> = 1 | undefined extends 1 ? Y : N;
+type OnlyFirst<A extends unknown[]> = A extends [] ? [] : [A[0]];
