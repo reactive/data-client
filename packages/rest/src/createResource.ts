@@ -1,8 +1,8 @@
-import {
-  type Schema,
-  type Denormalize,
-  schema,
-  type EndpointExtraOptions,
+import { schema } from '@rest-hooks/endpoint';
+import type {
+  Schema,
+  Denormalize,
+  EndpointExtraOptions,
 } from '@rest-hooks/endpoint';
 
 import { PathArgs, ShortenPath } from './pathTypes.js';
