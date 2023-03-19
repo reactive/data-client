@@ -61,9 +61,9 @@
   "scripts": {
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV='2020' babel --root-mode upward src --out-dir lib --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
     "build:legacy:lib": "NODE_ENV=production BROWSERSLIST_ENV='2018' babel --root-mode upward src --out-dir legacy --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
-    "build:js:node": "BROWSERSLIST_ENV=node12 rollup -c",
+    "build:js:node": "BROWSERSLIST_ENV=node12 rollup -c && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:js:browser": "BROWSERSLIST_ENV=legacy rollup -c",
-    "build:bundle": "run-s build:js:\\* && echo '{\"type\":\"commonjs\"}' > dist/package.json",
+    "build:bundle": "run-s build:js:\\*",
     "build:clean": "rimraf lib dist legacy ts3.4 ts4.0 *.tsbuildinfo",
     "build": "yarn run build:lib && yarn run build:legacy:lib && yarn run build:bundle",
     "build:legacy-types": "yarn run downlevel-dts lib ts3.4 && yarn run downlevel-dts lib ts4.0 --to=4.0 && copyfiles --up 1 ./src-4.0-types/**/*.d.ts ./ts3.4/ && copyfiles --up 1 ./src-4.0-types/**/*.d.ts ./ts4.0 && copyfiles --up 1 ./src-legacy-types/**/*.d.ts ./ts3.4/",
