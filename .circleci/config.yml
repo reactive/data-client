@@ -28,7 +28,7 @@ jobs:
             - .yarn/install-state.gz
           key: v7-dependencies-{{ checksum "yarn.lock" }}
       - run: yarn run ci:build:types
-      - run: yarn workspaces foreach -ptiv --no-private run build
+      - run: yarn run ci:build
       - persist_to_workspace:
           root: ~/
           paths:
