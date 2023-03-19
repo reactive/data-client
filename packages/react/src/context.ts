@@ -1,6 +1,7 @@
 import { Controller, initialState } from '@rest-hooks/core';
 import type { ActionTypes, State, DenormalizeCache } from '@rest-hooks/core';
-import { createContext, type Context } from 'react';
+import { createContext } from 'react';
+import type { Context } from 'react';
 
 export const StateContext: Context<State<unknown>> =
   createContext(initialState);
