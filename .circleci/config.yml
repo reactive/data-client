@@ -10,7 +10,14 @@ jobs:
       - image: cimg/node:18.15
     resource_class: large
     steps:
-      - checkout
+      - run:
+          name: checkout
+          command: |
+            echo 'Cloning git repository'
+            existing_repo='false'
+            mkdir -p '/home/circleci/project'
+            cd '/home/circleci/project'
+            git clone -b "$CIRCLE_BRANCH" --depth 1 --no-checkout "$CIRCLE_REPOSITORY_URL" .
       - restore_cache:
           keys:
             - v7-dependencies-{{ checksum "yarn.lock" }}
