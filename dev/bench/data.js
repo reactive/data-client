@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1679108547932,
+  "lastUpdate": 1679186441897,
   "repoUrl": "https://github.com/data-client/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -17005,6 +17005,128 @@ window.BENCHMARK_DATA = {
             "range": "±0.52%",
             "unit": "ops/sec",
             "extra": "78 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "natmaster@gmail.com",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": true,
+          "id": "ea8b4b7a0a6aabcf4808513e5e32406bad6edbc1",
+          "message": "internal: Test multiple typescript versions",
+          "timestamp": "2023-03-18T19:36:12-05:00",
+          "tree_id": "97493dd4f5679a38325f8ef4d4971c44dd27f413",
+          "url": "https://github.com/data-client/rest-hooks/commit/ea8b4b7a0a6aabcf4808513e5e32406bad6edbc1"
+        },
+        "date": 1679186440189,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 263,
+            "range": "±2.00%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 5215,
+            "range": "±1.24%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 113,
+            "range": "±2.01%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 119,
+            "range": "±1.54%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 3050,
+            "range": "±2.01%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 3569,
+            "range": "±1.72%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 3497,
+            "range": "±1.45%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 3634,
+            "range": "±2.80%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 1759,
+            "range": "±3.89%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 1662,
+            "range": "±1.10%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "getResponse Query-sorted",
+            "value": 407,
+            "range": "±2.74%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 267,
+            "range": "±1.64%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 114,
+            "range": "±1.51%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 121,
+            "range": "±1.72%",
+            "unit": "ops/sec",
+            "extra": "68 samples"
           }
         ]
       }
