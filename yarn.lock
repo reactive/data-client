@@ -11346,7 +11346,6 @@ __metadata:
     "@linaria/core": 4.2.8
     "@linaria/react": 4.3.6
     "@linaria/shaker": 4.2.9
-    "@rest-hooks/endpoint": ^3.2.6
     "@rest-hooks/graphql": ^0.3.9
     "@rest-hooks/hooks": ^3.1.2
     "@rest-hooks/react": ^7.1.3

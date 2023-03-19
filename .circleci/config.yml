@@ -27,7 +27,7 @@ jobs:
             - .yarn/cache
             - .yarn/install-state.gz
           key: v7-dependencies-{{ checksum "yarn.lock" }}
-      - run: yarn build:types
+      - run: yarn run ci:build:types
       - run: yarn workspaces foreach -ptiv --no-private run build
       - persist_to_workspace:
           root: ~/
@@ -36,7 +36,7 @@ jobs:
 
   lint:
     docker: *docker
-    resource_class: large
+    resource_class: medium+
     steps:
       - attach_workspace:
           at: ~/
@@ -46,6 +46,7 @@ jobs:
 
   typecheck:
     docker: *docker
+    resource_class: small
     steps:
       - attach_workspace:
           at: ~/
@@ -95,6 +96,7 @@ jobs:
 
   examples:
     docker: *docker
+    resource_class: small
     steps:
       - attach_workspace:
           at: ~/
@@ -102,6 +104,27 @@ jobs:
           command: |
             cd examples/normalizr-relationships
             yarn run start
+
+  validate-esmodule-types:
+    parameters:
+      typescript-version:
+        type: string
+    docker: *docker
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          command: |
+            if [ "<< parameters.typescript-version >>" != "latest" ]; then
+            yarn add --dev typescript@<< parameters.typescript-version >>
+            fi
+      - run:
+          name: typecheck
+          command: |
+            yarn run tsc --project examples/todo-app/tsconfig.json
+            if [ "<< parameters.typescript-version >>" == "latest" ] || [ "<< parameters.typescript-version >>" == "~4.8" ]; then
+            yarn run tsc --project examples/github-app/tsconfig.json
+            fi
 
   validate-esmodule-browser-build:
     docker: *docker
@@ -137,5 +160,15 @@ workflows:
           requires:
             - setup
       - validate-esmodule-browser-build:
+          requires:
+            - setup
+      - validate-esmodule-types:
+          matrix:
+            parameters:
+              # 3.7 is min version for 'full enforcement' (TODO: we need to do a test without rest lib for this to work)
+              # 4.1 is min version for rest package working
+              # 4.3 is min version for rest package working well
+              # TODO: Add back "~4.1", "~4.3", once we can get around linaria types
+              typescript-version: ["~4.8", "latest"]
           requires:
             - setup

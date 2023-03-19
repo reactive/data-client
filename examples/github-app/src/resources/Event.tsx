@@ -5,7 +5,7 @@ import {
   EyeOutlined,
   PullRequestOutlined,
 } from '@ant-design/icons';
-import { schema } from '@rest-hooks/endpoint';
+import { schema } from '@rest-hooks/rest';
 
 import { createGithubResource, GithubEntity } from './Base';
 import { Issue } from './Issue';
@@ -121,4 +121,4 @@ export const typeToIcon: Record<Event['type'], JSX.Element> = {
   IssueCommentEvent: <CommentOutlined />,
   PullRequestReviewEvent: <EyeOutlined />,
   IssuesEvent: <ExclamationCircleOutlined />,
-};
+} as any;

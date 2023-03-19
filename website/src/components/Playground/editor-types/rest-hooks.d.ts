@@ -1,8 +1,7 @@
 import * as _rest_hooks_core from '@rest-hooks/core';
 import { Manager, State as State$1, Controller, NetworkError as NetworkError$2, ActionTypes, DenormalizeCache, legacyActions, __INTERNAL__, Schema as Schema$2, EndpointExtraOptions as EndpointExtraOptions$2, createReducer as createReducer$1, applyManager as applyManager$1, DenormalizeNullable as DenormalizeNullable$3, ExpiryStatus, EndpointInterface as EndpointInterface$2, FetchFunction as FetchFunction$2, ResolveType as ResolveType$2, UnknownError as UnknownError$2, Denormalize as Denormalize$3 } from '@rest-hooks/core';
-export { AbstractInstanceType, ActionTypes, Controller, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ExpiryStatus, FetchAction, FetchFunction, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ReceiveAction, ReceiveTypes, ResetAction, ResolveType, Schema, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@rest-hooks/core';
+export { AbstractInstanceType, ActionTypes, CompatibleDispatch, Controller, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ReceiveAction, ReceiveTypes, ResetAction, ResolveType, Schema, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@rest-hooks/core';
 import React$1, { Context } from 'react';
-import * as packages_core_lib_controller_Controller from 'packages/core/lib/controller/Controller';
 
 type AbstractInstanceType$1<T> = T extends new (...args: any) => infer U ? U : T extends {
     prototype: infer U;
@@ -615,7 +614,7 @@ declare const StateContext: Context<State$1<unknown>>;
 declare const DispatchContext: Context<(value: ActionTypes) => Promise<void>>;
 /** @deprecated */
 declare const DenormalizeCacheContext: Context<DenormalizeCache>;
-declare const ControllerContext: Context<Controller<packages_core_lib_controller_Controller.CompatibleDispatch>>;
+declare const ControllerContext: Context<Controller<_rest_hooks_core.CompatibleDispatch>>;
 interface Store<S> {
     subscribe(listener: () => void): () => void;
     dispatch: React.Dispatch<ActionTypes>;

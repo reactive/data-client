@@ -24,7 +24,7 @@ function TodoListItem({ todo }: { todo: Todo }) {
           checked={todo.completed}
           onChange={toggleHandler}
         />
-        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+        {todo.completed ? <s>{todo.title}</s> : todo.title}
       </label>
       <span
         style={{ cursor: 'pointer', marginLeft: '.5em' }}
