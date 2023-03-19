@@ -7,7 +7,7 @@ import {
   ShortenPath,
   Resource,
   createResource,
-  GetEndpoint,
+  NewGetEndpoint,
   RestGenerics,
   EndpointExtraOptions,
 } from '@rest-hooks/rest';
@@ -94,8 +94,8 @@ export function createGithubResource<U extends string, S extends Schema>({
 } & EndpointExtraOptions): GithubResource<U, S> {
   const baseResource = createResource({ path, schema, Endpoint, ...options });
 
-  const getList: GetEndpoint<
-    PathArgs<ShortenPath<U>>,
+  const getList: NewGetEndpoint<
+    { path: ShortenPath<U> },
     { results: S[]; link: string }
   > = baseResource.getList.extend({
     schema: { results: [schema], link: '' },
@@ -103,7 +103,7 @@ export function createGithubResource<U extends string, S extends Schema>({
   const getNextPage = getList.paginated(
     ({ page, ...rest }: { page: string | number } & PathArgs<ShortenPath<U>>) =>
       (Object.keys(rest).length ? [rest] : []) as any,
-  );
+  ) as any;
 
   return {
     ...baseResource,
@@ -114,12 +114,12 @@ export function createGithubResource<U extends string, S extends Schema>({
 
 export interface GithubResource<U extends string, S extends Schema>
   extends Omit<Resource<U, S>, 'getList'> {
-  getList: GetEndpoint<
-    PathArgs<ShortenPath<U>>,
+  getList: NewGetEndpoint<
+    { path: ShortenPath<U> },
     { results: S[]; link: string }
   >;
-  getNextPage: GetEndpoint<
-    PathArgs<ShortenPath<U>> & { page: string | number },
+  getNextPage: NewGetEndpoint<
+    { path: ShortenPath<U>; searchParams: { page: string | number } },
     { results: S[]; link: string }
   >;
 }

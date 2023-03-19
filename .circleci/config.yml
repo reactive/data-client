@@ -105,7 +105,7 @@ jobs:
             cd examples/normalizr-relationships
             yarn run start
 
-  validate-esmodule-types:
+  esmodule-types:
     parameters:
       typescript-version:
         type: string
@@ -125,6 +125,17 @@ jobs:
             if [ "<< parameters.typescript-version >>" == "latest" ] || [ "<< parameters.typescript-version >>" == "~4.8" ]; then
             yarn run tsc --project examples/github-app/tsconfig.json
             fi
+
+  esmodule-loosenulltypes:
+    docker: *docker
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: typecheck
+          command: |
+            yarn run tsc --project examples/todo-app/tsconfig.json --strictNullChecks false
+            yarn run tsc --project examples/github-app/tsconfig.json --strictNullChecks false
 
   validate-esmodule-browser-build:
     docker: *docker
@@ -162,7 +173,7 @@ workflows:
       - validate-esmodule-browser-build:
           requires:
             - setup
-      - validate-esmodule-types:
+      - esmodule-types:
           matrix:
             parameters:
               # 3.7 is min version for 'full enforcement' (TODO: we need to do a test without rest lib for this to work)
@@ -170,5 +181,8 @@ workflows:
               # 4.3 is min version for rest package working well
               # TODO: Add back "~4.1", "~4.3", once we can get around linaria types
               typescript-version: ["~4.8", "latest"]
+          requires:
+            - setup
+      - esmodule-loosenulltypes:
           requires:
             - setup
