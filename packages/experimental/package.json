@@ -8,24 +8,6 @@
   "module": "lib/index.js",
   "unpkg": "dist/index.umd.min.js",
   "types": "lib/index.d.ts",
-  "typesVersions": {
-    ">=4.0": {
-      "": [
-        "lib/index.d.ts"
-      ],
-      "*": [
-        "lib/index.d.ts"
-      ]
-    },
-    ">=3.4": {
-      "": [
-        "ts3.4/index.d.ts"
-      ],
-      "*": [
-        "ts3.4/index.d.ts"
-      ]
-    }
-  },
   "type": "module",
   "engines": {
     "node": "^12.17 || ^13.7 || >=14"
@@ -34,15 +16,13 @@
     "src",
     "dist",
     "lib",
-    "ts3.4",
     "LICENSE",
     "README.md"
   ],
   "scripts": {
     "build:lib": "NODE_ENV=production BROWSERSLIST_ENV=2019 babel --root-mode upward src --out-dir lib --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
     "build:bundle": "rollup -c && echo '{\"type\":\"commonjs\"}' > dist/package.json",
-    "build:clean": "rimraf lib dist ts3.4 *.tsbuildinfo",
-    "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
+    "build:clean": "rimraf lib dist *.tsbuildinfo",
     "build": "yarn run build:lib && yarn run build:bundle",
     "dev": "yarn run build:lib -w",
     "prepare": "yarn run build:lib",
