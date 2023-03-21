@@ -15,7 +15,8 @@ export type EndpointUpdateFunction<
   Updaters extends Record<string, any> = Record<string, any>,
 > = (
   source: ResultEntry<Source>,
-  ...args: Parameters<Source>
+  // this is hopeless because typescript doesn't think it should be contravariant
+  ...args: any
 ) => {
   [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
 };
