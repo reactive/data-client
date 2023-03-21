@@ -22,6 +22,6 @@ jobs:
           corepack enable
           yarn install --immutable
       - run: yarn run build
-      - run: yarn run release from-package
+      - run: yarn run release from-package -y
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
