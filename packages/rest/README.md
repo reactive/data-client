@@ -97,6 +97,13 @@ const articlesAscending = useCache(sortedArticles, { asc: true });
 const articlesDescending = useCache(sortedArticles, { asc: false });
 ```
 
+### TypeScript requirements
+
+TypeScript is optional, but will only work with 4.0 or above. 4.1 is needed for stronger types as it
+supports inferring argument types from the path templates.
+
+Version 5.x can be used for older TypeScript versions.
+
 ### Prior Art
 
 - [Backbone Model](https://backbonejs.org/#Model)

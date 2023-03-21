@@ -18,3 +18,10 @@ export type PartialArray<A> = A extends []
   : A extends (infer T)[]
   ? T[]
   : never;
+
+// workaround for https://github.com/microsoft/TypeScript/issues/29919
+export type PartialParameters<T extends (...args: any[]) => any> = T extends (
+  ...args: infer P
+) => any
+  ? Partial<P>
+  : never;

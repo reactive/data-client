@@ -1,9 +1,11 @@
+// relaxed constraints on call,apply,bind *this*
+
 /* eslint-disable @typescript-eslint/ban-types */
 import type { EndpointInterface, Schema } from './interface.js';
 import type {
   EndpointExtraOptions,
   FetchFunction,
-  PartialParameters,
+  PartialArray,
 } from './types.js';
 
 export interface EndpointOptions<
@@ -96,7 +98,7 @@ export interface EndpointInstanceInterface<
    */
   apply<E extends FetchFunction>(
     this: E,
-    thisArg: ThisParameterType<E>,
+    thisArg: any,
     argArray?: Parameters<E>,
   ): ReturnType<E>;
 
@@ -107,7 +109,7 @@ export interface EndpointInstanceInterface<
    */
   call<E extends FetchFunction>(
     this: E,
-    thisArg: ThisParameterType<E>,
+    thisArg: any,
     ...argArray: Parameters<E>
   ): ReturnType<E>;
 
@@ -117,9 +119,9 @@ export interface EndpointInstanceInterface<
    * @param thisArg An object to which the this keyword can refer inside the new function.
    * @param argArray A list of arguments to be passed to the new function.
    */
-  bind<E extends FetchFunction, P extends PartialParameters<E>>(
+  bind<E extends FetchFunction, P extends PartialArray<Parameters<E>>>(
     this: E,
-    thisArg: ThisParameterType<E>,
+    thisArg: any,
     ...args: readonly [...P]
   ): EndpointInstance<
     (...args: readonly [...RemoveArray<Parameters<E>, P>]) => ReturnType<E>,

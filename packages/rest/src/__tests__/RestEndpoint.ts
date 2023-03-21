@@ -160,6 +160,24 @@ describe('RestEndpoint', () => {
     const y: undefined = updateUser.sideEffect;
   });
 
+  it('only optional path means the arg is not required', () => {
+    const ep = new RestEndpoint({ path: '/users/:id?/:group?' });
+    const epbody = new RestEndpoint({
+      path: '/users/:id?/:group?',
+      body: { title: '' },
+    });
+    () => ep();
+    () => ep({ id: 5 });
+    () => ep({ group: 5 });
+    () => ep({ id: 5, group: 5 });
+    () => epbody({ title: 'hi' });
+    () => epbody({ id: 5 }, { title: 'hi' });
+    () => epbody({ group: 5 }, { title: 'hi' });
+    () => epbody({ id: 5, group: 5 }, { title: 'hi' });
+    // @ts-expect-error
+    () => epbody({ title: 'hi' }, { title: 'hi' });
+  });
+
   /* TODO: it('should allow sideEffect overrides', () => {
     const weirdGetUser = new RestEndpoint({
       path: 'http\\://test.com/user/:id',

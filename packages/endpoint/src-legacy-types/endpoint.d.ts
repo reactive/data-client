@@ -1,4 +1,5 @@
 // had to remove all [...T], which included importing PartialArray from types
+// also relaxed constraints on call,apply,bind *this*
 
 /* eslint-disable @typescript-eslint/ban-types */
 import { EndpointInterface, Schema } from './interface.js';
@@ -84,7 +85,7 @@ export interface EndpointInstanceInterface<
    */
   apply<E extends FetchFunction>(
     this: E,
-    thisArg: ThisParameterType<E>,
+    thisArg: any,
     argArray?: Parameters<E>,
   ): ReturnType<E>;
   /**
@@ -94,7 +95,7 @@ export interface EndpointInstanceInterface<
    */
   call<E extends FetchFunction>(
     this: E,
-    thisArg: ThisParameterType<E>,
+    thisArg: any,
     ...argArray: Parameters<E>
   ): ReturnType<E>;
   /**
@@ -105,7 +106,7 @@ export interface EndpointInstanceInterface<
    */
   bind<E extends FetchFunction, P extends Parameters<E>>(
     this: E,
-    thisArg: ThisParameterType<E>,
+    thisArg: any,
     ...args: P
   ): EndpointInstance<() => ReturnType<E>, S, M> &
     Pick<E, Exclude<keyof E, keyof EndpointInstance<FetchFunction>>>;

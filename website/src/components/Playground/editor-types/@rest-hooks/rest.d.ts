@@ -1189,7 +1189,9 @@ type PaginationEndpoint<
   ParamFetchNoBody<A[0], ResolveType<E>>,
   E['schema'],
   E['sideEffect'],
-  Pick<E, 'path' | 'searchParams' | 'body'>
+  Pick<E, 'path' | 'searchParams' | 'body'> & {
+    searchParams: Omit<A[0], keyof PathArgs<E['path']>>;
+  }
 >;
 
 type BodyDefault<O extends RestGenerics> = 'body' extends keyof O
@@ -1284,8 +1286,26 @@ type RestType<
   } = { path: string },
   // eslint-disable-next-line @typescript-eslint/ban-types
 > = IfTypeScriptLooseNull<
-  | RestTypeWithBody<UrlParams, S, M, Body, R, O>
-  | RestTypeNoBody<UrlParams, S, M, R, O>,
+  RestInstance<
+    keyof UrlParams extends never
+      ? (this: EndpointInstanceInterface, body?: Body) => Promise<R>
+      : string extends keyof UrlParams
+      ?
+          | ((this: EndpointInstanceInterface, body?: Body) => Promise<R>)
+          | ((
+              this: EndpointInstanceInterface,
+              params: UrlParams,
+              body?: Body,
+            ) => Promise<R>)
+      : (
+          this: EndpointInstanceInterface,
+          params: UrlParams,
+          body?: Body,
+        ) => Promise<R>,
+    S,
+    M,
+    O
+  >,
   Body extends {}
     ? RestTypeWithBody<UrlParams, S, M, Body, R, O>
     : RestTypeNoBody<UrlParams, S, M, R, O>
@@ -1331,8 +1351,13 @@ type RestFetch<
 >;
 
 type ParamFetchWithBody<P, B = {}, R = any> = IfTypeScriptLooseNull<
-  | ((this: EndpointInstanceInterface, body: B) => Promise<R>)
-  | ((this: EndpointInstanceInterface, params: P, body: B) => Promise<R>),
+  keyof P extends never
+    ? (this: EndpointInstanceInterface, body: B) => Promise<R>
+    : string extends keyof P
+    ?
+        | ((this: EndpointInstanceInterface, body: B) => Promise<R>)
+        | ((this: EndpointInstanceInterface, params: P, body: B) => Promise<R>)
+    : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>,
   P extends undefined
     ? (this: EndpointInstanceInterface, body: B) => Promise<R>
     : undefined extends P
@@ -1341,8 +1366,11 @@ type ParamFetchWithBody<P, B = {}, R = any> = IfTypeScriptLooseNull<
 >;
 
 type ParamFetchNoBody<P, R = any> = IfTypeScriptLooseNull<
-  | ((this: EndpointInstanceInterface, params: P) => Promise<R>)
-  | ((this: EndpointInstanceInterface) => Promise<R>),
+  keyof P extends never
+    ? (this: EndpointInstanceInterface) => Promise<R>
+    : string extends keyof P
+    ? (this: EndpointInstanceInterface, params?: P) => Promise<R>
+    : (this: EndpointInstanceInterface, params: P) => Promise<R>,
   P extends undefined
     ? (this: EndpointInstanceInterface) => Promise<R>
     : undefined extends P

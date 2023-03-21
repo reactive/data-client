@@ -9,7 +9,7 @@
   "unpkg": "dist/index.umd.min.js",
   "types": "lib/index.d.ts",
   "typesVersions": {
-    ">=4.3": {
+    ">=4.1": {
       "": [
         "lib/index.d.ts"
       ],
@@ -17,12 +17,12 @@
         "lib/index.d.ts"
       ]
     },
-    ">=4.1": {
+    ">=4.0": {
       "": [
-        "ts4.1/index.d.ts"
+        "ts4.0/index.d.ts"
       ],
       "*": [
-        "ts4.1/index.d.ts"
+        "ts4.0/index.d.ts"
       ]
     }
   },
@@ -45,7 +45,7 @@
     "lib",
     "node.mjs",
     "legacy",
-    "ts4.1",
+    "ts4.0",
     "LICENSE",
     "README.md"
   ],
@@ -55,8 +55,8 @@
     "build:js:node": "BROWSERSLIST_ENV=node12 rollup -c",
     "build:js:browser": "BROWSERSLIST_ENV=legacy rollup -c",
     "build:bundle": "run-s build:js:\\* && echo '{\"type\":\"commonjs\"}' > dist/package.json",
-    "build:clean": "rimraf lib ts4.1 legacy dist *.tsbuildinfo",
-    "build:legacy-types": "yarn run downlevel-dts lib ts4.1 --to=4.1 && copyfiles --up 1 ./src-4.1-types/**/*.d.ts ./ts4.1",
+    "build:clean": "rimraf lib ts4.0 legacy dist *.tsbuildinfo",
+    "build:legacy-types": "yarn run downlevel-dts lib ts4.0 --to=4.0 && copyfiles --up 1 ./src-4.0-types/**/*.d.ts ./ts4.0",
     "build": "yarn run build:lib && yarn run build:legacy:lib && yarn run build:bundle",
     "dev": "yarn run build:lib -w",
     "prepare": "yarn run build:lib",
