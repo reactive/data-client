@@ -93,6 +93,21 @@ jobs:
             ./codecov < ./lcov.info || true;
             fi
 
+  node_matrix:
+    parameters:
+      node-version:
+        type: string
+    docker:
+      - image: cimg/node:<< parameters.node-version >>
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          command: |
+            node --version
+      - run:
+          command: |
+            yarn test:ci --maxWorkers=3 --selectProjects Node
 
   examples:
     docker: *docker
@@ -160,6 +175,12 @@ workflows:
           requires:
             - setup
       - test_coverage:
+          requires:
+            - setup
+      - node_matrix:
+          matrix:
+            parameters:
+              node-version: ["14.21", "16.19"]
           requires:
             - setup
       - lint:
