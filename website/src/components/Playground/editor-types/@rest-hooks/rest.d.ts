@@ -378,7 +378,7 @@ declare class Union<Choices extends EntityMap = any> implements SchemaClass$1 {
  * Represents variably sized objects
  * @see https://resthooks.io/rest/api/Values
  */
-declare class Values<Choices extends Schema = any> implements SchemaClass$1 {
+declare class Values$1<Choices extends Schema = any> implements SchemaClass$1 {
   constructor(
     definition: Choices,
     schemaAttribute?: Choices extends EntityMap<infer T>
@@ -506,8 +506,6 @@ type schema_d_All<S extends EntityMap | EntityInterface = EntityMap | EntityInte
 declare const schema_d_All: typeof All;
 type schema_d_Union<Choices extends EntityMap = any> = Union<Choices>;
 declare const schema_d_Union: typeof Union;
-type schema_d_Values<Choices extends Schema = any> = Values<Choices>;
-declare const schema_d_Values: typeof Values;
 type schema_d_StrategyFunction<T> = StrategyFunction<T>;
 type schema_d_SchemaFunction<K = string> = SchemaFunction<K>;
 type schema_d_MergeFunction = MergeFunction;
@@ -523,7 +521,7 @@ declare namespace schema_d {
     schema_d_All as All,
     Object$1 as Object,
     schema_d_Union as Union,
-    schema_d_Values as Values,
+    Values$1 as Values,
     schema_d_StrategyFunction as StrategyFunction,
     schema_d_SchemaFunction as SchemaFunction,
     schema_d_MergeFunction as MergeFunction,
@@ -562,7 +560,7 @@ type EndpointParam<E> = E extends (first: infer A, ...rest: any) => any ? A : E 
 } ? A : never;
 /** What the function's promise resolves to */
 type ResolveType<E extends (...args: any) => any> = ReturnType<E> extends Promise<infer R> ? R : never;
-type PartialArray<A> = A extends [] ? [] : A extends [infer F] ? [F] | [] : A extends [infer F, ...infer Rest] ? [F] | [F, ...PartialArray<Rest>] : A extends (infer T)[] ? T[] : never;
+type PartialParameters<T extends (...args: any[]) => any> = T extends (...args: infer P) => any ? Partial<P> : never;
 
 type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Promise<R>;
 /** @deprecated */
@@ -755,7 +753,7 @@ interface EndpointInstanceInterface<
    * @param thisArg An object to which the this keyword can refer inside the new function.
    * @param argArray A list of arguments to be passed to the new function.
    */
-  bind<E extends FetchFunction, P extends PartialArray<Parameters<E>>>(
+  bind<E extends FetchFunction, P extends PartialParameters<E>>(
     this: E,
     thisArg: ThisParameterType<E>,
     ...args: readonly [...P]
@@ -960,7 +958,7 @@ declare class AbortOptimistic extends Error {
 }
 
 type OnlyOptional<S extends string> = S extends `${infer K}?` ? K : never;
-type OnlyRequired<S extends string> = S extends `${string}?` ? never : S;
+type OnlyRequired$1<S extends string> = S extends `${string}?` ? never : S;
 /** Computes the union of keys for a path string */
 type PathKeys<S extends string> = string extends S ? string : S extends `${infer A}\\:${infer B}` ? PathKeys<A> | PathKeys<B> : S extends `${infer A}\\?${infer B}` ? PathKeys<A> | PathKeys<B> : PathSplits<S>;
 type PathSplits<S extends string> = S extends `${string}:${infer K}/${infer R}` ? PathSplits<`:${K}`> | PathSplits<R> : S extends `${string}:${infer K}:${infer R}` ? PathSplits<`:${K}`> | PathSplits<`:${R}`> : S extends `${string}:${infer K}` ? K : never;
@@ -969,11 +967,35 @@ type PathArgs<S extends string> = PathKeys<S> extends never ? unknown : KeysToAr
 type KeysToArgs<Key extends string> = {
     [K in Key as OnlyOptional<K>]?: string | number;
 } & {
-    [K in Key as OnlyRequired<K>]: string | number;
+    [K in Key as OnlyRequired$1<K>]: string | number;
 };
 /** Removes the last :token */
 type ShortenPath<S extends string> = string extends S ? string : S extends `${infer B}:${infer R}` ? TrimColon<`${B}:${ShortenPath<R>}`> : '';
 type TrimColon<S extends string> = string extends S ? string : S extends `${infer R}:` ? R : S;
+
+type OptionsToFunction<O extends PartialRestGenerics, E extends RestInstance & {
+    body?: any;
+}, F extends FetchFunction> = 'path' extends keyof O ? RestFetch<'searchParams' extends keyof O ? O['searchParams'] & PathArgs<Exclude<O['path'], undefined>> : PathArgs<Exclude<O['path'], undefined>>, 'body' extends keyof O ? O['body'] : E['body'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>> : 'body' extends keyof O ? RestFetch<'searchParams' extends keyof O ? O['searchParams'] & PathArgs<Exclude<E['path'], undefined>> : PathArgs<Exclude<E['path'], undefined>>, O['body'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>> : 'searchParams' extends keyof O ? RestFetch<O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>, E['body'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>> : (this: ThisParameterType<F>, ...args: Parameters<F>) => Promise<O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>>;
+
+/** Extracts only the keys that will be required
+ *
+ * Removes optional, as well as unbounded (aka 'string')
+ *
+ * @example
+ ```
+RequiredKeys<{
+  opt?: string;
+  bob: string;
+  alice: number;
+  [k: string]: string | number | undefined;
+}> // = 'bob' | 'alice'
+ ```
+ */
+type RequiredKeys<T> = Values<OnlyRequired<T>>;
+type OnlyRequired<T> = {
+    [K in keyof T as string extends K ? never : K]-?: {} extends Pick<T, K> ? never : K;
+};
+type Values<T> = T[keyof T];
 
 /* eslint-disable @typescript-eslint/ban-types */
 
@@ -1113,39 +1135,6 @@ type OptionsToRestEndpoint<
           ? O['searchParams']
           : E['searchParams'];
       }
-    >;
-
-type OptionsToFunction<
-  O extends PartialRestGenerics,
-  E extends RestInstance & { body?: any },
-  F extends FetchFunction,
-> = 'path' extends keyof O
-  ? RestFetch<
-      'searchParams' extends keyof O
-        ? O['searchParams'] & PathArgs<Exclude<O['path'], undefined>>
-        : PathArgs<Exclude<O['path'], undefined>>,
-      'body' extends keyof O ? O['body'] : E['body'],
-      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>
-    >
-  : 'body' extends keyof O
-  ? RestFetch<
-      'searchParams' extends keyof O
-        ? O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>
-        : PathArgs<Exclude<E['path'], undefined>>,
-      O['body'],
-      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>
-    >
-  : 'searchParams' extends keyof O
-  ? RestFetch<
-      O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>,
-      E['body'],
-      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>
-    >
-  : (
-      this: ThisParameterType<F>,
-      ...args: Parameters<F>
-    ) => Promise<
-      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>
     >;
 
 type RestExtendedEndpoint<
@@ -1362,6 +1351,10 @@ type ParamFetchWithBody<P, B = {}, R = any> = IfTypeScriptLooseNull<
     ? (this: EndpointInstanceInterface, body: B) => Promise<R>
     : undefined extends P
     ? (this: EndpointInstanceInterface, body: B) => Promise<R>
+    : RequiredKeys<P> extends never
+    ?
+        | ((this: EndpointInstanceInterface, body: B) => Promise<R>)
+        | ((this: EndpointInstanceInterface, params: P, body: B) => Promise<R>)
     : (this: EndpointInstanceInterface, params: P, body: B) => Promise<R>
 >;
 
@@ -1375,6 +1368,8 @@ type ParamFetchNoBody<P, R = any> = IfTypeScriptLooseNull<
     ? (this: EndpointInstanceInterface) => Promise<R>
     : undefined extends P
     ? (this: EndpointInstanceInterface) => Promise<R>
+    : RequiredKeys<P> extends never
+    ? (this: EndpointInstanceInterface, params?: P) => Promise<R>
     : (this: EndpointInstanceInterface, params: P) => Promise<R>
 >;
 
