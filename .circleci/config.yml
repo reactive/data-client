@@ -13,26 +13,28 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v7-dependencies-{{ checksum "yarn.lock" }}
+            - v8-dependencies-{{ checksum "yarn.lock" }}
             # fallback to using the latest cache if no exact match is found
-            - v7-dependencies-
+            - v8-dependencies-
       - run:
           name: yarn install
           command: |
             sudo npm install -g corepack
             sudo corepack enable
             yarn install --immutable
-      - save_cache:
-          paths:
-            - .yarn/cache
-            - .yarn/install-state.gz
-          key: v7-dependencies-{{ checksum "yarn.lock" }}
       - run: yarn run ci:build:types
       - run: yarn run ci:build
       - persist_to_workspace:
           root: ~/
           paths:
             - project
+      # we want these to be in cache
+      - run: yarn add --dev react@^17.0.0 react-dom@^17.0.0 react-test-renderer@^17.0.0 @testing-library/react@^12.0.0
+      - save_cache:
+          paths:
+            - .yarn/cache
+            - .yarn/install-state.gz
+          key: v8-dependencies-{{ checksum "yarn.lock" }}
 
   lint:
     docker: *docker
