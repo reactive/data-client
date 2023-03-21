@@ -132,6 +132,7 @@ jobs:
             yarn run tsc --project examples/github-app/tsconfig.json
             fi
             yarn run tsc --project examples/todo-app/tsconfig.typetest.json
+            yarn run tsc --project examples/github-app/tsconfig.typetest.json
 
   esmodule-loosenulltypes:
     docker: *docker
@@ -143,6 +144,18 @@ jobs:
           command: |
             yarn run tsc --project examples/todo-app/tsconfig.json --strictNullChecks false
             yarn run tsc --project examples/github-app/tsconfig.json --strictNullChecks false
+
+
+  esmodule-exactOptionalPropertyTypes:
+    docker: *docker
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: typecheck
+          command: |
+            yarn run tsc --project examples/todo-app/tsconfig.typetest.json --exactOptionalPropertyTypes true
+            yarn run tsc --project examples/github-app/tsconfig.typetest.json --exactOptionalPropertyTypes true
 
   validate-esmodule-browser-build:
     docker: *docker
@@ -195,5 +208,8 @@ workflows:
           requires:
             - setup
       - esmodule-loosenulltypes:
+          requires:
+            - setup
+      - esmodule-exactOptionalPropertyTypes:
           requires:
             - setup

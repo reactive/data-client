@@ -101,7 +101,7 @@ export function createGithubResource<U extends string, S extends Schema>({
     schema: { results: [schema], link: '' },
   }) as any;
   const getNextPage = getList.paginated(
-    ({ page, ...rest }: { page: string | number } & PathArgs<ShortenPath<U>>) =>
+    ({ page, ...rest }: { page: string | number }) =>
       (Object.keys(rest).length ? [rest] : []) as any,
   ) as any;
 
