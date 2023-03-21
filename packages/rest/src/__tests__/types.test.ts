@@ -6,6 +6,7 @@ import {
   ShortenPath,
 } from '../pathTypes';
 import { GetEndpoint, NewGetEndpoint } from '../RestEndpoint';
+import { RequiredKeys } from '../utiltypes';
 
 describe('PathArgs', () => {
   it('should infer types', () => {
@@ -161,4 +162,20 @@ describe('PathArgs', () => {
       };
     });
   });
+});
+
+describe('RequiredKeys', () => {
+  type Y = {
+    opt?: string;
+    bob: string;
+    charles: number;
+    [k: string]: string | number | undefined;
+  };
+  const a: Record<RequiredKeys<Y>, any> = 5 as any;
+  () => a.bob;
+  () => a.charles;
+  // @ts-expect-error
+  () => a.opt;
+  // @ts-expect-error
+  () => a.sdfsdf;
 });
