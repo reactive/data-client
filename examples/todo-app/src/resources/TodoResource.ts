@@ -31,13 +31,17 @@ export const TodoResource = {
     },
   }),
   create: TodoResourceBase.create.extend({
+    searchParams: {} as { userId?: string | number } | undefined,
     getOptimisticResponse(snap, body) {
       return body;
     },
-    update: (newResourceId: string, urlParams) => ({
-      [TodoResourceBase.getList.key({ userId: urlParams?.userId })]: (
-        resourceIds: string[] = [],
-      ) => [...resourceIds, newResourceId],
+    update: (
+      newResourceId: string,
+      urlParams?: { userId?: string | number },
+    ) => ({
+      [TodoResourceBase.getList.key(
+        urlParams?.userId ? { userId: urlParams?.userId } : undefined,
+      )]: (resourceIds: string[] = []) => [...resourceIds, newResourceId],
     }),
   }),
   delete: TodoResourceBase.delete.extend({

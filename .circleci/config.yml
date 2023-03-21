@@ -121,10 +121,11 @@ jobs:
       - run:
           name: typecheck
           command: |
-            yarn run tsc --project examples/todo-app/tsconfig.json
             if [ "<< parameters.typescript-version >>" == "latest" ] || [ "<< parameters.typescript-version >>" == "~4.8" ]; then
+            yarn run tsc --project examples/todo-app/tsconfig.json
             yarn run tsc --project examples/github-app/tsconfig.json
             fi
+            yarn run tsc --project examples/todo-app/tsconfig.typetest.json
 
   esmodule-loosenulltypes:
     docker: *docker
@@ -177,10 +178,11 @@ workflows:
           matrix:
             parameters:
               # 3.7 is min version for 'full enforcement' (TODO: we need to do a test without rest lib for this to work)
-              # 4.1 is min version for rest package working
-              # 4.3 is min version for rest package working well
-              # TODO: Add back "~4.1", "~4.3", once we can get around linaria types
-              typescript-version: ["~4.8", "latest"]
+              # 4.0 is min version for rest package working
+              # 4.1 is min version for rest package working well
+              # 4.3
+              # 4.7 (but its broken so we do 4.8) lets you apply a generic type to a function type to see its return value
+              typescript-version: ["~4.0", "~4.1", "~4.3", "~4.8", "latest"]
           requires:
             - setup
       - esmodule-loosenulltypes:

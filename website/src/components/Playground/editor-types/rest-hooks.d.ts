@@ -57,7 +57,7 @@ type EndpointParam<E> = E extends (first: infer A, ...rest: any) => any ? A : E 
 } ? A : never;
 /** What the function's promise resolves to */
 type ResolveType$1<E extends (...args: any) => any> = ReturnType<E> extends Promise<infer R> ? R : never;
-type PartialArray<A> = A extends [] ? [] : A extends [infer F] ? [F] | [] : A extends [infer F, ...infer Rest] ? [F] | [F, ...PartialArray<Rest>] : A extends (infer T)[] ? T[] : never;
+type PartialParameters<T extends (...args: any[]) => any> = T extends (...args: infer P) => any ? Partial<P> : never;
 
 type FetchFunction$1<A extends readonly any[] = any, R = any> = (...args: A) => Promise<R>;
 interface EndpointExtraOptions$1<F extends FetchFunction$1 = FetchFunction$1> {
@@ -246,7 +246,7 @@ interface EndpointInstanceInterface<
    * @param thisArg An object to which the this keyword can refer inside the new function.
    * @param argArray A list of arguments to be passed to the new function.
    */
-  bind<E extends FetchFunction$1, P extends PartialArray<Parameters<E>>>(
+  bind<E extends FetchFunction$1, P extends PartialParameters<E>>(
     this: E,
     thisArg: ThisParameterType<E>,
     ...args: readonly [...P]
