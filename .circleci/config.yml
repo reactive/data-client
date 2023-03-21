@@ -71,7 +71,7 @@ jobs:
             fi
       - run:
           command: |
-            if [ "<< parameters.react-version >>" != "^18" ]; then
+            if [ "<< parameters.react-version >>" == "^17.0.0" ]; then
               curl -Os https://uploader.codecov.io/latest/linux/codecov;
               chmod +x codecov;
               yarn run test:coverage --ci --maxWorkers=3 --coverageReporters=text-lcov > ./lcov.info;
