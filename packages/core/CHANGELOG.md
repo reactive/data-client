@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.2.9](https://github.com/data-client/rest-hooks/compare/@rest-hooks/core@4.2.8...@rest-hooks/core@4.2.9) (2023-03-21)
+
+### 💅 Enhancement
+
+* Loosen endpoint.update TS requirements for better 4.7 and below support ([#2505](https://github.com/data-client/rest-hooks/issues/2505)) ([3612a25](https://github.com/data-client/rest-hooks/commit/3612a2574cbdb90259506504bc4b8ac2af19427e))
+
 ### [4.2.8](https://github.com/data-client/rest-hooks/compare/@rest-hooks/core@4.2.7...@rest-hooks/core@4.2.8) (2023-03-19)
 
 ### 🐛 Bug Fix

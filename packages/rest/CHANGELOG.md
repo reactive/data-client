@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [6.3.12](https://github.com/data-client/rest-hooks/compare/@rest-hooks/rest@6.3.11...@rest-hooks/rest@6.3.12) (2023-03-21)
+
+### 💅 Enhancement
+
+* Improve legacy TypeScript compatibility ([#2505](https://github.com/data-client/rest-hooks/issues/2505)) ([8bcaf1a](https://github.com/data-client/rest-hooks/commit/8bcaf1a9b7af7769d7984ca1afc4b1ac40adf060))
+
 ### [6.3.11](https://github.com/data-client/rest-hooks/compare/@rest-hooks/rest@6.3.10...@rest-hooks/rest@6.3.11) (2023-03-19)
 
 ### 💅 Enhancement
