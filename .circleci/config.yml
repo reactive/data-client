@@ -71,26 +71,17 @@ jobs:
             fi
       - run:
           command: |
-            yarn test:ci --maxWorkers=3
-
-  test_coverage:
-    docker: *docker
-    resource_class: large
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run:
-          command: |
-            yarn add --dev react@^17.0.0 react-dom@^17.0.0 react-test-renderer@^17.0.0 @testing-library/react@^12.0.0
-      - run:
-          command: |
-            curl -Os https://uploader.codecov.io/latest/linux/codecov;
-            chmod +x codecov;
-            yarn run test:coverage --ci --maxWorkers=3 --coverageReporters=text-lcov > ./lcov.info;
-            if [ "$CODECOV_TOKEN" != "" ]; then
-            ./codecov -t ${CODECOV_TOKEN} < ./lcov.info || true;
+            if [ "<< parameters.react-version >>" != "^18" ]; then
+              curl -Os https://uploader.codecov.io/latest/linux/codecov;
+              chmod +x codecov;
+              yarn run test:coverage --ci --maxWorkers=3 --coverageReporters=text-lcov > ./lcov.info;
+              if [ "$CODECOV_TOKEN" != "" ]; then
+                ./codecov -t ${CODECOV_TOKEN} < ./lcov.info || true;
+              else
+                ./codecov < ./lcov.info || true;
+              fi
             else
-            ./codecov < ./lcov.info || true;
+              yarn test:ci --maxWorkers=3
             fi
 
   node_matrix:
@@ -172,9 +163,6 @@ workflows:
           matrix:
             parameters:
               react-version: ["^17.0.0", "^18"]
-          requires:
-            - setup
-      - test_coverage:
           requires:
             - setup
       - node_matrix:
