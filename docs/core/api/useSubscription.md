@@ -9,38 +9,19 @@ title: useSubscription()
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 
-<GenericsTabs>
-
-```typescript
-function useSubscription(
-  endpoint: ReadEndpoint,
-  ...args: Parameters<typeof endpoint> | [null]
-): void;
-```
-
-```typescript
-function useSubscription<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
-  Args extends readonly [...Parameters<E>] | readonly [null],
->(endpoint: E, ...args: Args): void;
-```
-
-</GenericsTabs>
 
 Great for keeping resources up-to-date with frequent changes.
 
 When using the default [polling subscriptions](./PollingSubscription), frequency must be set in
 [Endpoint](/rest/api/Endpoint), otherwise will have no effect.
 
-<ConditionalDependencies hook="useSubscription" />
+:::tip
 
-:::info React Native
-
-When using React Navigation, useSubscription() will sub/unsub with focus/unfocus respectively.
+[useLive()](./useLive.md) is a terser way to use in combination with [useSuspense()](./useSuspense.md),
 
 :::
 
-## Example
+## Usage
 
 ```typescript title="api/Price.ts"
 import { Resource, Entity } from '@rest-hooks/rest';
@@ -74,13 +55,20 @@ function MasterPrice({ symbol }: { symbol: string }) {
 }
 ```
 
-:::tip
 
-[useLive()](./useLive.md) is a terser way to use in combination with [useSuspense()](./useSuspense.md),
+## Behavior
+
+<ConditionalDependencies hook="useSubscription" />
+
+:::info React Native
+
+When using React Navigation, useSubscription() will sub/unsub with focus/unfocus respectively.
 
 :::
 
-## Only subscribe while element is visible
+## Examples
+
+### Only subscribe while element is visible
 
 ```tsx title="MasterPrice.tsx"
 import { useRef } from 'react';
@@ -105,11 +93,22 @@ based on whether the element rendered is [visible on screen](https://usehooks.co
 
 [useOnScreen()](https://usehooks.com/useOnScreen/) uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant.
 
-## Useful `Endpoint`s to send
+## Types
 
-[Resource](/rest/api/createResource#members) provides these built-in:
+<GenericsTabs>
 
-- get
-- getList
+```typescript
+function useSubscription(
+  endpoint: ReadEndpoint,
+  ...args: Parameters<typeof endpoint> | [null]
+): void;
+```
 
-Feel free to add your own [RestEndpoint](/rest/api/RestEndpoint) as well.
+```typescript
+function useSubscription<
+  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  Args extends readonly [...Parameters<E>] | readonly [null],
+>(endpoint: E, ...args: Args): void;
+```
+
+</GenericsTabs>

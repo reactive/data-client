@@ -11,91 +11,113 @@ import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@rest-hooks/rest';
 
-<GenericsTabs>
+Data rendering without the fetch.
 
-```typescript
-function useCache(
-  endpoint: ReadEndpoint,
-  ...args: Parameters<typeof endpoint> | [null]
-): Denormalize<typeof endpoint.schema> | null;
-```
+General purpose store access can be useful when the data's existance is of interest (like if a user is authenticated),
+or general purpose store access like [Query](/rest/api/Query)
 
-```typescript
-function useCache<
-  E extends Pick<
-    EndpointInterface<FetchFunction, Schema | undefined, undefined>,
-    'key' | 'schema' | 'invalidIfStale'
-  >,
-  Args extends readonly [...Parameters<E['key']>] | readonly [null],
->(endpoint: E, ...args: Args): DenormalizeNullable<E['schema']>;
-```
+## Usage
 
-</GenericsTabs>
+<HooksPlayground fixtures={[
+{
+endpoint: new RestEndpoint({path: '/user'}),
+args: [],
+response: { id: '777', name: 'Albatras', isAdmin: true },
+delay: 500,
+},
+]}>
 
-Excellent to use data in the normalized cache without fetching.
-
-| Expiry Status | Returns      | Conditions                                                                                                                                                                          |
-| ------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Invalid       | `undefined`  | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
-| Stale         | denormalized | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                                                                 |
-| Valid         | denormalized | fetch completion                                                                                                                                                                    |
-|               | `undefined`  | `null` used as second argument                                                                                                                                                      |
-
-## Example
-
-### Using a type guard to deal with null
-
-```tsx
-function Post({ id }: { id: number }) {
-  const post = useCache(PostResource.get, { id });
-  // post as PostResource | null
-  if (!post) return null;
-  // post as PostResource (typeguarded)
-  // ...render stuff here
-}
-```
-
-### Paginated data
-
-When entities are stored in nested structures, that structure will remain.
-
-```typescript
-export class PaginatedPost extends Entity {
-  readonly id: number | null = null;
-  readonly title: string = '';
-  readonly content: string = '';
-
+```ts title="api/User" collapsed
+export class User extends Entity {
+  id = '';
+  name = '';
+  isAdmin = false;
   pk() {
     return this.id;
   }
 }
-
-export const getPosts = new RestEndpoint({
-  path: '/post\\?page=:page',
-  schema: { results: [PaginatedPost], nextPage: '', lastPage: '' },
-});
+export const UserResource = {
+  ...createResource({
+    path: '/users/:id',
+    schema: User,
+  }),
+  current: new RestEndpoint({
+    path: '/user',
+    schema: User,
+  }),
+};
 ```
 
-```tsx
-function ArticleList({ page }: { page: string }) {
-  const { results: posts, nextPage, lastPage } = useCache(getPosts, { page });
-  // posts as PaginatedPost[] | null
-  if (!posts) return null;
-  // posts as PaginatedPost[] (typeguarded)
-  // ...render stuff here
+```tsx title="NotAuthorized" collapsed
+import { useLoading } from '@rest-hooks/hooks';
+import { UserResource } from './api/User';
+
+export default function NotAuthorized() {
+  const ctrl = useController();
+  const [handleLogin, loading] = useLoading((e: any) => {
+    e.preventDefault();
+    return ctrl.fetch(UserResource.current);
+  }, []);
+  return (
+    <div>
+      <p>Not authorized</p>
+      {loading ? (
+        'logging in...'
+      ) : (
+        <a href="#" onClick={handleLogin}>
+          Login
+        </a>
+      )}
+    </div>
+  );
 }
 ```
 
+```tsx title="AuthorizedUserOnlyControls" collapsed
+import { User } from './api/User';
+
+export default function AuthorizedUserOnlyControls({ user }: { user: User }) {
+  return (
+    <div>
+      <p>Welcome, {user.name}!</p>
+    </div>
+  );
+}
+```
+
+```tsx title="AuthorizedPage"
+import { UserResource } from './api/User';
+import NotAuthorized from './NotAuthorized';
+import AuthorizedUserOnlyControls from './AuthorizedUserOnlyControls';
+
+function AuthorizedPage() {
+  // currentUser as User | undefined
+  const currentUser = useCache(UserResource.current);
+  // user is not logged in
+  if (!currentUser) return <NotAuthorized />;
+  // currentUser as User (typeguarded)
+  return <AuthorizedUserOnlyControls user={currentUser} />;
+}
+render(<AuthorizedPage />);
+```
+
+</HooksPlayground>
+
+See [truthiness narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#truthiness-narrowing) for
+more information about type handling
+
+## Behavior
+
+| Expiry Status | Returns      | Conditions                                                                                                                                                                   |
+| ------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Invalid       | `undefined`  | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
+| Stale         | denormalized | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                                                                 |
+| Valid         | denormalized | fetch completion                                                                                                                                                             |
+|               | `undefined`  | `null` used as second argument                                                                                                                                               |
+
 <ConditionalDependencies hook="useCache" />
 
-## Useful `Endpoint`s to send
-
-[Resource](/rest/api/createResource#members) provides these built-in:
-
-- [get](/rest/api/createResource#get)
-- [getList](/rest/api/createResource#getlist)
-
-Feel free to add your own [RestEndpoint](/rest/api/RestEndpoint) as well.
+## Examples
 
 ### Query arbitrary Entities
 
@@ -158,3 +180,57 @@ render(<UsersPage />);
 ```
 
 </HooksPlayground>
+
+### Paginated data
+
+When entities are stored in nested structures, that structure will remain.
+
+```typescript
+export class PaginatedPost extends Entity {
+  readonly id: number | null = null;
+  readonly title: string = '';
+  readonly content: string = '';
+
+  pk() {
+    return this.id;
+  }
+}
+
+export const getPosts = new RestEndpoint({
+  path: '/post\\?page=:page',
+  schema: { results: [PaginatedPost], nextPage: '', lastPage: '' },
+});
+```
+
+```tsx
+function ArticleList({ page }: { page: string }) {
+  const { results: posts, nextPage, lastPage } = useCache(getPosts, { page });
+  // posts as PaginatedPost[] | null
+  if (!posts) return null;
+  // posts as PaginatedPost[] (typeguarded)
+  // ...render stuff here
+}
+```
+
+## Types
+
+<GenericsTabs>
+
+```typescript
+function useCache(
+  endpoint: ReadEndpoint,
+  ...args: Parameters<typeof endpoint> | [null]
+): Denormalize<typeof endpoint.schema> | null;
+```
+
+```typescript
+function useCache<
+  E extends Pick<
+    EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+    'key' | 'schema' | 'invalidIfStale'
+  >,
+  Args extends readonly [...Parameters<E['key']>] | readonly [null],
+>(endpoint: E, ...args: Args): DenormalizeNullable<E['schema']>;
+```
+
+</GenericsTabs>

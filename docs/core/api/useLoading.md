@@ -6,14 +6,18 @@ title: useLoading()
   <title>useLoading() - Turn any promise into React State</title>
 </head>
 
-```typescript
-export default function useLoading<F extends (...args: any) => Promise<any>>(
-  func: F,
-  deps: readonly any[] = [],
-): [F, boolean];
-```
 
 Helps track loading state of imperative async functions.
+
+:::tip
+
+[useSuspense()](./useSuspense.md) or [useDLE()](./useDLE.md) are better for GET/read endpoints.
+
+:::
+
+Part of [@rest-hooks/hooks](https://www.npmjs.com/package/@rest-hooks/hooks)
+
+## Usage
 
 ```tsx
 import { useLoading } from '@rest-hooks/hooks';
@@ -28,13 +32,6 @@ function Button({ onClick, children, ...props }) {
 }
 ```
 
-Part of [@rest-hooks/hooks](https://www.npmjs.com/package/@rest-hooks/hooks)
-
-:::tip
-
-[useSuspense()](./useSuspense.md) or [useDLE()](./useDLE.md) are better for GET/read endpoints.
-
-:::
 
 ### Todo toggle example
 
@@ -44,10 +41,6 @@ import { useController } from '@rest-hooks/react';
 import { useLoading } from '@rest-hooks/hooks';
 
 import { TodoResource, Todo } from 'api/Todo';
-
-interface Props {
-  todo: Todo;
-}
 
 function TodoListItem({ todo }) {
   const ctrl = useController();
@@ -75,7 +68,13 @@ function TodoListItem({ todo }) {
     </div>
   );
 }
+
+interface Props {
+  todo: Todo;
+}
 ```
+
+## Eslint
 
 :::tip Eslint configuration
 
@@ -94,3 +93,13 @@ of [react-hooks/exhaustive-deps](https://www.npmjs.com/package/eslint-plugin-rea
 ```
 
 :::
+
+## Types
+
+
+```typescript
+export default function useLoading<F extends (...args: any) => Promise<any>>(
+  func: F,
+  deps: readonly any[] = [],
+): [F, boolean];
+```

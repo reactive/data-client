@@ -12,59 +12,12 @@ import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@rest-hooks/rest';
 
-<GenericsTabs>
+High performance async data rendering without overfetching.
 
-```typescript
-function useSuspense(
-  endpoint: ReadEndpoint,
-  ...args: Parameters<typeof endpoint> | [null]
-): Denormalize<typeof endpoint.schema>;
-```
+`useSuspense()` [suspends](../getting-started/data-dependency#async-fallbacks) rendering until the data is available. This is much like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)ing an [async](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) function. This avoids the complexity of handling loading and error conditions in your components and
+instead centralizing them with [AsyncBoundary](../getting-started/data-dependency.md#async-fallbacks).
 
-```typescript
-function useSuspense<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
-  Args extends readonly [...Parameters<E>] | readonly [null],
->(
-  endpoint: E,
-  ...args: Args
-): E['schema'] extends Exclude<Schema, null>
-  ? Denormalize<E['schema']>
-  : ReturnType<E>;
-```
-
-</GenericsTabs>
-
-Excellent for guaranteed data rendering.
-
-`useSuspense()` [suspends](../getting-started/data-dependency#async-fallbacks) rendering until the data is available. This is much like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)ing an [async](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) function. That is to say, the lines after the function won't be run until resolution (data is available).
-
-Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by default but also [configurable](../concepts/expiry-policy.md).
-
-| Expiry Status | Fetch           | Suspend | Error             | Conditions                                                                                                                                                                          |
-| ------------- | --------------- | ------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Invalid       | yes<sup>1</sup> | yes     | no                | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
-| Stale         | yes<sup>1</sup> | no      | no                | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                                                                 |
-| Valid         | no              | no      | maybe<sup>2</sup> | fetch completion                                                                                                                                                                    |
-|               | no              | no      | no                | `null` used as second argument                                                                                                                                                      |
-
-:::note
-
-1. Identical fetches are automatically deduplicated
-2. [Hard errors](../concepts/expiry-policy.md#error-policy) to be [caught](../getting-started/data-dependency#async-fallbacks) by [Error Boundaries](./AsyncBoundary.md)
-
-:::
-
-:::info React Native
-
-When using React Navigation, useSuspense() will trigger fetches on focus if the data is considered
-stale.
-
-:::
-
-<ConditionalDependencies />
-
-## Single
+## Usage
 
 <HooksPlayground fixtures={[
 {
@@ -119,7 +72,63 @@ render(<ProfileDetail />);
 
 </HooksPlayground>
 
-## List
+## Behavior
+
+Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by default but also [configurable](../concepts/expiry-policy.md).
+
+| Expiry Status | Fetch           | Suspend | Error             | Conditions                                                                                                                                                                          |
+| ------------- | --------------- | ------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Invalid       | yes<sup>1</sup> | yes     | no                | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
+| Stale         | yes<sup>1</sup> | no      | no                | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                                                                 |
+| Valid         | no              | no      | maybe<sup>2</sup> | fetch completion                                                                                                                                                                    |
+|               | no              | no      | no                | `null` used as second argument                                                                                                                                                      |
+
+:::note
+
+1. Identical fetches are automatically deduplicated
+2. [Hard errors](../concepts/expiry-policy.md#error-policy) to be [caught](../getting-started/data-dependency#async-fallbacks) by [Error Boundaries](./AsyncBoundary.md)
+
+:::
+
+:::info React Native
+
+When using React Navigation, useSuspense() will trigger fetches on focus if the data is considered
+stale.
+
+:::
+
+<ConditionalDependencies />
+
+
+
+## Types
+
+<GenericsTabs>
+
+```typescript
+function useSuspense(
+  endpoint: ReadEndpoint,
+  ...args: Parameters<typeof endpoint> | [null]
+): Denormalize<typeof endpoint.schema>;
+```
+
+```typescript
+function useSuspense<
+  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  Args extends readonly [...Parameters<E>] | readonly [null],
+>(
+  endpoint: E,
+  ...args: Args
+): E['schema'] extends Exclude<Schema, null>
+  ? Denormalize<E['schema']>
+  : ReturnType<E>;
+```
+
+</GenericsTabs>
+
+## Examples
+
+### List
 
 <HooksPlayground fixtures={[
 {
@@ -172,7 +181,7 @@ render(<ProfileList />);
 
 </HooksPlayground>
 
-## Sequential
+### Sequential
 
 ```tsx
 function PostWithAuthor() {
@@ -185,7 +194,7 @@ function PostWithAuthor() {
 }
 ```
 
-## Embedded data
+### Embedded data
 
 When entities are stored in nested structures, that structure will remain.
 
@@ -216,12 +225,3 @@ function ArticleList({ page }: { page: string }) {
   // posts as PaginatedPostResource[]
 }
 ```
-
-## Useful `Endpoint`s to send
-
-[Resource](/rest/api/createResource#members) provides these built-in:
-
-- [get](/rest/api/createResource#get)
-- [getList](/rest/api/createResource#getlist)
-
-Feel free to add your own [RestEndpoint](/rest/api/RestEndpoint) as well.

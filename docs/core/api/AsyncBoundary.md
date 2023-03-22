@@ -12,27 +12,13 @@ Handles loading and error conditions of Suspense.
 In React 18, this will create a concurrent split, and in 16 and 17 it will show loading fallbacks. If there is an
 irrecoverable API error, it will show an error fallback.
 
-```tsx
-function AsyncBoundary({
-  children,
-  errorComponent,
-  fallback,
-}: {
-  children: React.ReactNode;
-  fallback?: React.ReactNode;
-  errorComponent?: React.ComponentType<{
-    error: NetworkError;
-  }>;
-}): JSX.Element;
-```
-
 :::tip
 
 Learn more about boundary placement by learning how to [co-locate data dependencies](../getting-started/data-dependency.md)
 
 :::
 
-## Example
+## Usage
 
 ```tsx
 import React from 'react';
@@ -53,7 +39,27 @@ function SuspendingComponent() {
 }
 ```
 
-## Custom fallback example {#custom-fallback}
+## Props
+
+```ts
+interface BoundaryProps {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+  errorComponent?: React.ComponentType<{
+    error: NetworkError;
+  }>;
+}
+```
+
+### fallback
+
+Any renderable (React Node) element to show when loading
+
+### errorComponent
+
+Component to handle caught errors
+
+#### Custom fallback example {#custom-fallback}
 
 ```tsx
 import React from 'react';
@@ -82,3 +88,4 @@ Note: Once `<AsyncBoundary />` catches an error it will only render the fallback
 until it is remounted. To get around this you'll likely want to place the boundary at
 locations that will cause remounts when the error should be cleared. This is usually
 below the route itself.
+

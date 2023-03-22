@@ -12,43 +12,11 @@ import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@rest-hooks/rest';
 
-<GenericsTabs>
-
-```typescript
-function useLive(
-  endpoint: ReadEndpoint,
-  ...args: Parameters<typeof endpoint> | [null]
-): Denormalize<typeof endpoint.schema>;
-```
-
-```typescript
-function useLive<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
-  Args extends readonly [...Parameters<E>] | readonly [null],
->(
-  endpoint: E,
-  ...args: Args
-): E['schema'] extends Exclude<Schema, null>
-  ? Denormalize<E['schema']>
-  : ReturnType<E>;
-```
-
-</GenericsTabs>
-
-Fetch and use data, while keeping it updated with remote changes.
+Async rendering of frequently changing remote data.
 
 [useSuspense()](./useSuspense.md) + [useSubscription()](./useSubscription.md) in one hook.
 
-<ConditionalDependencies hook="useLive" />
-
-:::info React Native
-
-When using React Navigation, useLive() will trigger fetches on focus if the data is considered
-stale. useLive() will also sub/unsub with focus/unfocus respectively.
-
-:::
-
-## Example
+## Usage
 
 <HooksPlayground>
 
@@ -98,3 +66,39 @@ render(<AssetPrice symbol="BTC" />);
 ```
 
 </HooksPlayground>
+
+## Behavior
+
+<ConditionalDependencies hook="useLive" />
+
+:::info React Native
+
+When using React Navigation, useLive() will trigger fetches on focus if the data is considered
+stale. useLive() will also sub/unsub with focus/unfocus respectively.
+
+:::
+
+## Types
+
+<GenericsTabs>
+
+```typescript
+function useLive(
+  endpoint: ReadEndpoint,
+  ...args: Parameters<typeof endpoint> | [null]
+): Denormalize<typeof endpoint.schema>;
+```
+
+```typescript
+function useLive<
+  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  Args extends readonly [...Parameters<E>] | readonly [null],
+>(
+  endpoint: E,
+  ...args: Args
+): E['schema'] extends Exclude<Schema, null>
+  ? Denormalize<E['schema']>
+  : ReturnType<E>;
+```
+
+</GenericsTabs>

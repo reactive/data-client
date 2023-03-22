@@ -7,12 +7,9 @@ title: useController()
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
-```typescript
-function useController(): Controller;
-```
+[Controller](./Controller.md) provides type-safe methods to manipulate the store.
 
-Provides access to [Controller](./Controller.md) from React, which can be used for imperative control
-over the cache. For instance [fetch](./Controller.md#fetch), [invalidate](./Controller.md#invalidate),
+For instance [fetch](./Controller.md#fetch), [invalidate](./Controller.md#invalidate),
 and [setResponse](./Controller.md#setResponse)
 
 ```tsx
