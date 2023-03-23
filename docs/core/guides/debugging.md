@@ -5,8 +5,8 @@ sidebar_label: Debugging
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-By default [CacheProvider](../api/CacheProvider) includes the [DevToolsManager](../api/DevToolsManager),
-which means in development mode (`process.env.NODE_ENV !== 'production'`) it will send state and actions
+By [default](../api/CacheProvider.md#defaultprops) (in dev mode) [CacheProvider](../api/CacheProvider.md) includes the [DevToolsManager](../api/DevToolsManager.md),
+which sends state and actions
 to [Redux DevTools](https://github.com/zalmoxisus/redux-devtools-extension).
 
 ## Getting Started

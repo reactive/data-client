@@ -73,7 +73,7 @@ export class VisSettingsFromMixin extends schema.Entity(Vis) {
   static key = 'VisSettings';
 }
 export class VisEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
-  getRequestInit(body: any): RequestInit {
+  getRequestInit(body: any) {
     if (body && typeof body === 'object') {
       body = { ...body, updatedAt: Date.now() };
     }

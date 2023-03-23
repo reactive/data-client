@@ -392,7 +392,7 @@ describe('RestEndpoint', () => {
       path: 'http\\://test.com/user/:id',
       name: 'get',
       schema: User,
-      getRequestInit(body): RequestInit {
+      getRequestInit(body) {
         if (body && isPojo(body)) {
           return RestEndpoint.prototype.getRequestInit.call(this, {
             ...body,
@@ -431,7 +431,7 @@ describe('RestEndpoint', () => {
         return super.parseResponse(response);
       }
 
-      getRequestInit(body: any): RequestInit {
+      getRequestInit(body: any) {
         if (isPojo(body)) {
           return super.getRequestInit({ ...body, email: 'always@always.com' });
         }

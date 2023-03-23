@@ -40,3 +40,14 @@ If you see `Uncaught TypeError: Class constructor Resource cannot be invoked wit
 follow the instructions to [add legacy browser support to packages](../guides/legacy-browser)
 
 </details>
+
+## Example
+
+<iframe
+  loading="lazy"
+  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?file=src%2FRootProvider.tsx&embed=1&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1&ctl=1"
+  width="100%"
+  height="500"
+></iframe>
+
+Explore more [Rest Hooks demos](/demos)

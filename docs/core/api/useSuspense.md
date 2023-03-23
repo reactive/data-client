@@ -15,8 +15,8 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 High performance async data rendering without overfetching.
 
-`useSuspense()` [suspends](../getting-started/data-dependency#async-fallbacks) rendering until the data is available. This is much like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)ing an [async](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) function. This avoids the complexity of handling loading and error conditions in your components and
-instead centralizing them with [AsyncBoundary](../getting-started/data-dependency.md#async-fallbacks).
+`useSuspense()` [suspends](../getting-started/data-dependency#async-fallbacks) rendering until the data is available. This is much like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)ing an [async](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) function. This avoids the complexity of handling loading and error conditions in your components by
+centralizing them with a singular [AsyncBoundary](../getting-started/data-dependency.md#async-fallbacks).
 
 ## Usage
 

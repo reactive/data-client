@@ -34,7 +34,7 @@ values={[
 
 <TypeScriptEditor row={false}>
 
-```typescript title="api/Todo.ts"
+```typescript title="api/Todo"
 import { createResource, Entity } from '@rest-hooks/rest';
 
 export class Todo extends Entity {
@@ -56,7 +56,7 @@ export const TodoResource = createResource({
 });
 ```
 
-```typescript title="Six_Methods" collapsed
+```typescript title="Methods"
 import { TodoResource } from './api/Todo';
 
 // GET https://jsonplaceholder.typicode.com/todos/5
@@ -82,7 +82,7 @@ TodoResource.delete({ id: 5 });
 
 <TypeScriptEditor row={false}>
 
-```typescript title="api/Todo.ts"
+```typescript title="api/Todo"
 import { GQLEndpoint, GQLEntity } from '@rest-hooks/graphql';
 
 const gql = new GQLEndpoint('/');
@@ -129,7 +129,7 @@ export const TodoResource = {
 
 <TypeScriptEditor row={false}>
 
-```typescript title="api/Todo.ts"
+```typescript title="api/Todo"
 import { Entity, Endpoint } from '@rest-hooks/endpoint';
 
 export class Todo extends Entity {

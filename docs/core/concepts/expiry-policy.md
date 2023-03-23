@@ -16,7 +16,7 @@ it will still refresh the data if old enough.
 
 To explain these concepts we'll be faking an endpoint that gives us the current time so it is easy to tell how stale it is.
 
-```tsx title="lastUpdated.ts"
+```tsx title="lastUpdated"
 class TimedEntity extends Entity {
   id = '';
   updatedAt = new Date(0);
@@ -98,7 +98,7 @@ export const lastUpdated = new RestEndpoint({
 });
 ```
 
-```tsx title="TimePage.tsx"
+```tsx title="TimePage"
 import { lastUpdated } from './api/lastUpdated';
 
 const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
@@ -223,7 +223,7 @@ export const lastUpdated = new RestEndpoint({
 });
 ```
 
-```tsx title="TimePage.tsx"
+```tsx title="TimePage"
 import { lastUpdated } from './api/lastUpdated';
 
 const getUpdated = lastUpdated.extend({
@@ -308,7 +308,7 @@ export const lastUpdated = new RestEndpoint({
 });
 ```
 
-```tsx title="ShowTime.tsx"
+```tsx title="ShowTime"
 import { lastUpdated } from './api/lastUpdated';
 
 function ShowTime() {
@@ -471,7 +471,7 @@ export const lastUpdated = new RestEndpoint({
 });
 ```
 
-```tsx title="ShowTime.tsx"
+```tsx title="ShowTime"
 import { lastUpdated, TimedEntity } from './api/lastUpdated';
 
 const mockDelete = ({ id }) => Promise.resolve({ id });
@@ -548,7 +548,7 @@ export const lastUpdated = new RestEndpoint({
 });
 ```
 
-```tsx title="ShowTime.tsx"
+```tsx title="ShowTime"
 import { lastUpdated } from './api/lastUpdated';
 
 let FAKE_ERROR: Error | undefined = undefined;

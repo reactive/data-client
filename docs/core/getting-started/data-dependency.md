@@ -134,8 +134,6 @@ us to make error/loading disjoint from data usage.
 Instead we place [<AsyncBoundary /\>](../api/AsyncBoundary.md) at or above navigational boundaries like pages,
 routes or modals.
 
-<LanguageTabs>
-
 ```tsx {6,12,23-25}
 import React, { Suspense } from 'react';
 import { AsyncBoundary } from '@rest-hooks/react';
@@ -152,25 +150,6 @@ export default function TodoPage({ id }: { id: number }) {
   );
 }
 ```
-
-```jsx {6,12,18-20}
-import React, { Suspense } from 'react';
-import { AsyncBoundary } from '@rest-hooks/react';
-
-export default function TodoPage({ id }) {
-  return (
-    <AsyncBoundary>
-      <section>
-        <TodoDetail id={1} />
-        <TodoDetail id={5} />
-        <TodoDetail id={10} />
-      </section>
-    </AsyncBoundary>
-  );
-}
-```
-
-</LanguageTabs>
 
 [useTransition](https://beta.reactjs.org/apis/react/useTransition) powered routers or navigation
 means React never has to show a loading fallback. Of course, these are only possible in React 18 or above,
@@ -217,6 +196,9 @@ render(<TodoDetail id={1} />);
 ```
 
 </HooksPlayground>
+
+This downside of [useDLE](../api/useDLE.md) vs [useSuspense](../api/useSuspense.md) is more loading and error handling code and potentially
+a much worse user experience.
 
 ## Subscriptions
 

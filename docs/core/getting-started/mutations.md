@@ -22,7 +22,7 @@ Just like [setState()](https://beta.reactjs.org/apis/react/useState), we must ma
 
 <HooksPlayground defaultOpen="n" row>
 
-```ts title="api/Todo.ts" collapsed
+```ts title="api/Todo" collapsed
 export class Todo extends Entity {
   id = 0;
   userId = 0;
@@ -39,7 +39,7 @@ export const TodoResource = createResource({
 });
 ```
 
-```tsx title="Todo.tsx" {8}
+```tsx title="Todo" {8}
 import { useSuspense } from '@rest-hooks/react';
 import { TodoResource } from './api/Todo';
 
@@ -112,7 +112,7 @@ a frame this can be too slow!
 
 <HooksPlayground defaultOpen="n" row>
 
-```ts title="api/Todo.ts" collapsed
+```ts title="api/Todo" collapsed
 export class Todo extends Entity {
   id = 0;
   userId = 0;
@@ -146,7 +146,7 @@ export const TodoResource = {
 };
 ```
 
-```tsx title="TodoItem.tsx" {12-16}
+```tsx title="TodoItem" {12-16}
 import { useController } from '@rest-hooks/react';
 import { TodoResource, Todo } from './api/Todo';
 
@@ -171,7 +171,7 @@ export function TodoItem({ todo }: { todo: Todo }) {
 }
 ```
 
-```tsx title="TodoList.tsx" collapsed
+```tsx title="TodoList" collapsed
 import { useSuspense } from '@rest-hooks/react';
 import { TodoItem } from './TodoItem';
 import { TodoResource, Todo } from './api/Todo';
