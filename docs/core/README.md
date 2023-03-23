@@ -668,3 +668,5 @@ const incrementInterceptor: Interceptor = {
 [Explore on github](https://github.com/data-client/rest-hooks/tree/master/examples/nextjs)
 </TabItem>
 </Tabs>
+
+Explore more [Rest Hooks demos](/demos)

@@ -105,3 +105,14 @@ render(<FeedList />);
 ```
 
 </HooksPlayground>
+
+### Github Events
+
+<iframe
+  loading="lazy"
+  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fpages%2FProfileDetail%2FUserEvents.tsx,src%2Fresources%2FEvent.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
+  width="100%"
+  height="700"
+></iframe>
+
+Explore more [Rest Hooks demos](/demos)

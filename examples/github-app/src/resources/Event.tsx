@@ -15,15 +15,7 @@ import { Push } from './Push';
 import { Review } from './Review';
 
 export class Event extends GithubEntity {
-  readonly type:
-    | 'WatchEvent'
-    | 'PushEvent'
-    | 'IssuesEvent'
-    | 'IssueCommentEvent'
-    | 'CreateEvent'
-    | 'PullRequestReviewCommentEvent'
-    | 'PullRequestReviewEvent'
-    | 'PullRequestEvent' = 'WatchEvent';
+  readonly type: EventType = 'WatchEvent';
 
   readonly actor: Record<string, any> = {};
   readonly repo: { id: number; name: string; url: string } = {} as any;
@@ -122,3 +114,13 @@ export const typeToIcon: Record<Event['type'], JSX.Element> = {
   PullRequestReviewEvent: <EyeOutlined />,
   IssuesEvent: <ExclamationCircleOutlined />,
 } as any;
+
+type EventType =
+  | 'WatchEvent'
+  | 'PushEvent'
+  | 'IssuesEvent'
+  | 'IssueCommentEvent'
+  | 'CreateEvent'
+  | 'PullRequestReviewCommentEvent'
+  | 'PullRequestReviewEvent'
+  | 'PullRequestEvent';

@@ -117,6 +117,29 @@ more information about type handling
 
 <ConditionalDependencies hook="useCache" />
 
+## Types
+
+<GenericsTabs>
+
+```typescript
+function useCache(
+  endpoint: ReadEndpoint,
+  ...args: Parameters<typeof endpoint> | [null]
+): Denormalize<typeof endpoint.schema> | null;
+```
+
+```typescript
+function useCache<
+  E extends Pick<
+    EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+    'key' | 'schema' | 'invalidIfStale'
+  >,
+  Args extends readonly [...Parameters<E['key']>] | readonly [null],
+>(endpoint: E, ...args: Args): DenormalizeNullable<E['schema']>;
+```
+
+</GenericsTabs>
+
 ## Examples
 
 ### Query arbitrary Entities
@@ -181,56 +204,13 @@ render(<UsersPage />);
 
 </HooksPlayground>
 
-### Paginated data
+### Todo App
 
-When entities are stored in nested structures, that structure will remain.
+<iframe
+  loading="lazy"
+  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?embed=1&file=src%2Fresources%2FTodoResource.ts,src%2Fpages%2FHome%2FTodoStats.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
+  width="100%"
+  height="500"
+></iframe>
 
-```typescript
-export class PaginatedPost extends Entity {
-  readonly id: number | null = null;
-  readonly title: string = '';
-  readonly content: string = '';
-
-  pk() {
-    return this.id;
-  }
-}
-
-export const getPosts = new RestEndpoint({
-  path: '/post\\?page=:page',
-  schema: { results: [PaginatedPost], nextPage: '', lastPage: '' },
-});
-```
-
-```tsx
-function ArticleList({ page }: { page: string }) {
-  const { results: posts, nextPage, lastPage } = useCache(getPosts, { page });
-  // posts as PaginatedPost[] | null
-  if (!posts) return null;
-  // posts as PaginatedPost[] (typeguarded)
-  // ...render stuff here
-}
-```
-
-## Types
-
-<GenericsTabs>
-
-```typescript
-function useCache(
-  endpoint: ReadEndpoint,
-  ...args: Parameters<typeof endpoint> | [null]
-): Denormalize<typeof endpoint.schema> | null;
-```
-
-```typescript
-function useCache<
-  E extends Pick<
-    EndpointInterface<FetchFunction, Schema | undefined, undefined>,
-    'key' | 'schema' | 'invalidIfStale'
-  >,
-  Args extends readonly [...Parameters<E['key']>] | readonly [null],
->(endpoint: E, ...args: Args): DenormalizeNullable<E['schema']>;
-```
-
-</GenericsTabs>
+Explore more [Rest Hooks demos](/demos)

@@ -102,3 +102,16 @@ function useLive<
 ```
 
 </GenericsTabs>
+
+## Examples
+
+### Bitcoin Price
+
+<iframe
+  loading="lazy"
+  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/nextjs?embed=1&file=pages%2Fapi%2FExchangeRates.ts,pages%2FAssetPrice.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
+  width="100%"
+  height="500"
+></iframe>
+
+Explore more [Rest Hooks demos](/demos)

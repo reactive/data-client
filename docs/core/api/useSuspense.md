@@ -11,6 +11,7 @@ import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {RestEndpoint} from '@rest-hooks/rest';
+import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 High performance async data rendering without overfetching.
 
@@ -34,14 +35,14 @@ delay: 150,
 },
 ]}>
 
-```typescript title="api/Profile.ts" collapsed
+```typescript title="api/Profile" collapsed
 import { Entity, createResource } from '@rest-hooks/rest';
 
 export class Profile extends Entity {
-  readonly id: number | undefined = undefined;
-  readonly img: string = '';
-  readonly fullName: string = '';
-  readonly bio: string = '';
+  id: number | undefined = undefined;
+  img = '';
+  fullName = '';
+  bio = '';
 
   pk() {
     return this.id?.toString();
@@ -54,7 +55,7 @@ export const ProfileResource = createResource({
 });
 ```
 
-```tsx title="ProfileList.tsx"
+```tsx title="ProfileList"
 import { useSuspense } from '@rest-hooks/react';
 import { ProfileResource } from './api/Profile';
 
@@ -76,12 +77,12 @@ render(<ProfileDetail />);
 
 Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by default but also [configurable](../concepts/expiry-policy.md).
 
-| Expiry Status | Fetch           | Suspend | Error             | Conditions                                                                                                                                                                          |
-| ------------- | --------------- | ------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Expiry Status | Fetch           | Suspend | Error             | Conditions                                                                                                                                                                   |
+| ------------- | --------------- | ------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Invalid       | yes<sup>1</sup> | yes     | no                | not in store, [deletion](/rest/api/createResource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
 | Stale         | yes<sup>1</sup> | no      | no                | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                                                                 |
-| Valid         | no              | no      | maybe<sup>2</sup> | fetch completion                                                                                                                                                                    |
-|               | no              | no      | no                | `null` used as second argument                                                                                                                                                      |
+| Valid         | no              | no      | maybe<sup>2</sup> | fetch completion                                                                                                                                                             |
+|               | no              | no      | no                | `null` used as second argument                                                                                                                                               |
 
 :::note
 
@@ -98,8 +99,6 @@ stale.
 :::
 
 <ConditionalDependencies />
-
-
 
 ## Types
 
@@ -139,14 +138,14 @@ delay: 150,
 },
 ]}>
 
-```typescript title="api/Profile.ts" collapsed
+```typescript title="api/Profile" collapsed
 import { Entity, createResource } from '@rest-hooks/rest';
 
 export class Profile extends Entity {
-  readonly id: number | undefined = undefined;
-  readonly img: string = '';
-  readonly fullName: string = '';
-  readonly bio: string = '';
+  id: number | undefined = undefined;
+  img = '';
+  fullName = '';
+  bio = '';
 
   pk() {
     return this.id?.toString();
@@ -159,7 +158,7 @@ export const ProfileResource = createResource({
 });
 ```
 
-```tsx title="ProfileList.tsx"
+```tsx title="ProfileList"
 import { useSuspense } from '@rest-hooks/react';
 import { ProfileResource } from './api/Profile';
 
@@ -183,6 +182,8 @@ render(<ProfileList />);
 
 ### Sequential
 
+When fetch parameters depend on data from another resource.
+
 ```tsx
 function PostWithAuthor() {
   const post = useSuspense(PostResource.get, { id });
@@ -198,11 +199,13 @@ function PostWithAuthor() {
 
 When entities are stored in nested structures, that structure will remain.
 
-```typescript
+<TypeScriptEditor row={false}>
+
+```typescript title="api/Post
 export class PaginatedPost extends Entity {
-  readonly id: number | null = null;
-  readonly title: string = '';
-  readonly content: string = '';
+  id = '';
+  title = '';
+  content = '';
 
   pk() {
     return this.id;
@@ -210,18 +213,40 @@ export class PaginatedPost extends Entity {
 }
 
 export const getPosts = new RestEndpoint({
-  path: '/post\\?page=:page',
+  path: '/post',
+  searchParams: { page: '' },
   schema: { results: [PaginatedPost], nextPage: '', lastPage: '' },
 });
 ```
 
-```tsx
-function ArticleList({ page }: { page: string }) {
+```tsx title="ArticleList"
+import { getPosts } from './api/Post';
+
+export default function ArticleList({ page }: { page: string }) {
   const {
     results: posts,
     nextPage,
     lastPage,
   } = useSuspense(getPosts, { page });
-  // posts as PaginatedPostResource[]
+  return (
+    <div>
+      {posts.map(post => (
+        <div key={post.pk()}>{post.title}</div>
+      ))}
+    </div>
+  );
 }
 ```
+
+</TypeScriptEditor>
+
+### Todo App
+
+<iframe
+  loading="lazy"
+  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?embed=1&file=src%2Fresources%2FTodoResource.ts,src%2Fpages%2FHome%2FTodoList.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
+  width="100%"
+  height="500"
+></iframe>
+
+Explore more [Rest Hooks demos](/demos)
