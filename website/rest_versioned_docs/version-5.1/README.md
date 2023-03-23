@@ -12,7 +12,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
 
-<PkgTabs pkgs="@rest-hooks/rest" />
+<PkgTabs pkgs="@rest-hooks/rest@5.1" />
 
 ## Define a Resource
 

@@ -16,7 +16,6 @@ import { Review } from './Review';
 
 export class Event extends GithubEntity {
   readonly type: EventType = 'WatchEvent';
-
   readonly actor: Record<string, any> = {};
   readonly repo: { id: number; name: string; url: string } = {} as any;
   readonly payload: Record<string, any> = {};
