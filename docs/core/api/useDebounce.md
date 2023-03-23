@@ -3,7 +3,7 @@ title: useDebounce()
 ---
 
 <head>
-  <title>useDebounce() - Declarative value delays</title>
+  <title>useDebounce() - Declarative value delays for React</title>
 </head>
 
 ```typescript

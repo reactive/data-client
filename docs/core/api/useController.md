@@ -3,7 +3,7 @@ title: useController()
 ---
 
 <head>
-  <title>useController() - Imperative Controls for Rest Hooks</title>
+  <title>useController() - Type safe store manipulation in React</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 

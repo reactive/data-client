@@ -6,7 +6,7 @@ import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 
 <head>
-  <title>useFetch() - Declarative fetch triggers</title>
+  <title>useFetch() - Declarative fetch triggers for React</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 

@@ -5,7 +5,7 @@ title: useCancelling()
 import HooksPlayground from '@site/src/components/HooksPlayground';
 
 <head>
-  <title>useCancelling() - Declarative fetch aborting</title>
+  <title>useCancelling() - Declarative fetch aborting for React</title>
 </head>
 
 ```typescript

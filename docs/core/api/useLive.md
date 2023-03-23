@@ -3,7 +3,7 @@ title: useLive()
 ---
 
 <head>
-  <title>useLive() - Use data that is always fresh</title>
+  <title>useLive() - Data fetching and updating for React</title>
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 

@@ -1,6 +1,9 @@
 ---
 title: '<CacheProvider />'
 ---
+<head>
+  <title>CacheProvider - Normalized async data management in React</title>
+</head>
 
 import Installation from '../shared/\_installation.mdx';
 import Tabs from '@theme/Tabs';

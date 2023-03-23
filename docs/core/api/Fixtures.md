@@ -3,6 +3,8 @@ title: Fixtures and Interceptors
 sidebar_label: Fixtures and Interceptors
 ---
 
+import GenericsTabs from '@site/src/components/GenericsTabs';
+
 Fixtures and Interceptors allow universal data mocking without the need for monkeypatching
 fetch behaviors. Fixtures define static responses to specific endpoint arg combinations. This
 allows them to be used in static contexts like [mockInitialState()](./mockInitialState.md).
@@ -12,6 +14,18 @@ in dynamic response contexts like [MockResolver](./MockResolver.md).
 ## SuccessFixture
 
 Represents a successful response
+
+<GenericsTabs>
+
+```ts
+export interface SuccessFixture {
+  endpoint;
+  args;
+  response;
+  error?;
+  delay?;
+}
+```
 
 ```ts
 export interface SuccessFixture<
@@ -28,6 +42,8 @@ export interface SuccessFixture<
 }
 ```
 
+</GenericsTabs>
+
 ```ts
 const countFixture = {
   endpoint: new RestEndpoint({ path: '/api/count' }),
@@ -40,6 +56,18 @@ const countFixture = {
 
 Represents a failed/errored response
 
+<GenericsTabs>
+
+```ts
+export interface ErrorFixture {
+  endpoint;
+  args;
+  response;
+  error;
+  delay?;
+}
+```
+
 ```ts
 export interface ErrorFixture<E extends EndpointInterface = EndpointInterface> {
   readonly endpoint: E;
@@ -50,6 +78,8 @@ export interface ErrorFixture<E extends EndpointInterface = EndpointInterface> {
   readonly delay?: number;
 }
 ```
+
+</GenericsTabs>
 
 ```ts
 const countErrorFixture = {
@@ -64,6 +94,27 @@ const countErrorFixture = {
 
 Interceptors will match a request based on its [`testKey()`](/rest/api/RestEndpoint#testKey) method, then
 compute the response dynamically using the `response()` method.
+
+<GenericsTabs>
+
+```ts
+interface ResponseInterceptor {
+  endpoint;
+  response(...args);
+  delay?;
+  delayCollapse?;
+}
+
+interface FetchInterceptor {
+  endpoint;
+  fetchResponse(input, init);
+  delay?;
+  delayCollapse?;
+}
+
+type Interceptor = ResponseInterceptor | FetchInterceptor;
+```
+
 
 ```ts
 interface ResponseInterceptor<
@@ -104,6 +155,8 @@ interface FetchInterceptor<
 
 type Interceptor<T, E> = ResponseInterceptor<T, E> | FetchInterceptor<T, E>;
 ```
+
+</GenericsTabs>
 
 ```ts
 const incrementInterceptor = {

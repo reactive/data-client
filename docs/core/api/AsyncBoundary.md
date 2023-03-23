@@ -3,7 +3,7 @@ title: '<AsyncBoundary />'
 ---
 
 <head>
-  <title>&lt;AsyncBoundary /&gt; - Handle asynchronous loading and error conditions</title>
+  <title>AsyncBoundary - Centralize loading and error handling</title>
   <meta name="docsearch:pagerank" content="20"/>
 </head>
 

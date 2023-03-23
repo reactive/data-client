@@ -3,7 +3,7 @@ title: useCache()
 ---
 
 <head>
-  <title>useCache() - Accessing Rest Hooks data without fetching</title>
+  <title>useCache() - Normalized data store access in React</title>
 </head>
 
 import GenericsTabs from '@site/src/components/GenericsTabs';

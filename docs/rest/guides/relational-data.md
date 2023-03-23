@@ -3,6 +3,10 @@ title: Relational data
 sidebar_label: Relational data
 ---
 
+<head>
+  <title>Simplified relational data rendering in React</title>
+</head>
+
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@rest-hooks/rest';
 

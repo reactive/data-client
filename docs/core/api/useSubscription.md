@@ -3,7 +3,7 @@ title: useSubscription()
 ---
 
 <head>
-  <title>useSubscription() - Responding to push-based data changes</title>
+  <title>useSubscription() - Updating frequent data changes in React</title>
 </head>
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
