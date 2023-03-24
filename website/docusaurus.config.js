@@ -419,7 +419,7 @@ module.exports = {
             //label: '🎮 Demos',
             position: 'right',
             className: 'header-demos-link',
-            'aria-label': 'GitHub repository',
+            'aria-label': 'Demo Applications',
           },
           {
             href: 'https://www.github.com/data-client/rest-hooks',
