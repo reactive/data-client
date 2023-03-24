@@ -11901,13 +11901,13 @@ __metadata:
   linkType: hard
 
 "react-live@npm:^3.1.1":
-  version: 3.1.2
-  resolution: "react-live@npm:3.1.2"
+  version: 3.2.0
+  resolution: "react-live@npm:3.2.0"
   dependencies:
     prism-react-renderer: ^1.3.1
     sucrase: ^3.21.0
     use-editable: ^2.3.3
-  checksum: 6eb26f8041ed3bc9f8d3d849e84119eb08784cb407f4f2eb8b500bc66eaec2638567ac729670b374e09dfb3170b36abe07f4bbab275e849e52cb5ccfdcba1d44
+  checksum: 376cb8fbf11abdcd920c7d8ff5bc717a369b93452c0f767c76dee26fba0cdf6cfb492c59cf5bc097eaeed92a0d1f328a7c3d727a71d77bd56d9596703b3a8e29
   languageName: node
   linkType: hard
 
