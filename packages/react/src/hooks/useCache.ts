@@ -5,8 +5,8 @@ import {
   Schema,
   FetchFunction,
   ResolveType,
-} from '@rest-hooks/normalizr';
-import { ExpiryStatus } from '@rest-hooks/normalizr';
+} from '@rest-hooks/core';
+import { ExpiryStatus } from '@rest-hooks/core';
 import { useMemo } from 'react';
 
 import useCacheState from './useCacheState.js';

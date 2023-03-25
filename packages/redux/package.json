@@ -121,7 +121,8 @@
     "url": "https://github.com/data-client/rest-hooks/issues"
   },
   "dependencies": {
-    "@babel/runtime": "^7.17.0"
+    "@babel/runtime": "^7.17.0",
+    "@rest-hooks/core": "^4.2.9"
   },
   "peerDependencies": {
     "@rest-hooks/react": "^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0",
