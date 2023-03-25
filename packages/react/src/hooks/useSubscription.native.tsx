@@ -1,8 +1,4 @@
-import {
-  EndpointInterface,
-  Schema,
-  FetchFunction,
-} from '@rest-hooks/normalizr';
+import { EndpointInterface, Schema, FetchFunction } from '@rest-hooks/core';
 
 import useController from './useController.js';
 import useFocusEffect from './useFocusEffect.native.js';

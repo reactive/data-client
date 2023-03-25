@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { DenormalizeNullable, ResolveType } from '@rest-hooks/normalizr';
 import {
   EndpointInterface,
   Denormalize,
   Schema,
   FetchFunction,
-} from '@rest-hooks/normalizr';
+} from '@rest-hooks/core';
 
 import { SuspenseReturn } from './types.js';
 import useSubscription from './useSubscription.js';

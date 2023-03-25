@@ -5,7 +5,7 @@ import {
   Denormalize,
   Schema,
   FetchFunction,
-} from '@rest-hooks/normalizr';
+} from '@rest-hooks/core';
 import { useMemo } from 'react';
 
 import { SuspenseReturn } from './types.js';

@@ -3,13 +3,13 @@ import {
   DenormalizeNullable,
   ExpiryStatus,
   ResolveType,
-} from '@rest-hooks/normalizr';
-import {
+} from '@rest-hooks/core';
+import type {
   EndpointInterface,
   Denormalize,
   Schema,
   FetchFunction,
-} from '@rest-hooks/normalizr';
+} from '@rest-hooks/core';
 import { useMemo } from 'react';
 import { InteractionManager } from 'react-native';
 
