@@ -9,6 +9,7 @@ title: useCache()
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import StackBlitz from '@site/src/components/StackBlitz';
 import { RestEndpoint } from '@rest-hooks/rest';
 
 Data rendering without the fetch.
@@ -206,11 +207,6 @@ render(<UsersPage />);
 
 ### Todo App
 
-<iframe
-  loading="lazy"
-  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/todo-app?embed=1&file=src%2Fresources%2FTodoResource.ts,src%2Fpages%2FHome%2FTodoStats.tsx&hidedevtools=1&view=both&terminalHeight=0&hideNavigation=1"
-  width="100%"
-  height="500"
-></iframe>
+<StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoStats.tsx" />
 
 Explore more [Rest Hooks demos](/demos)

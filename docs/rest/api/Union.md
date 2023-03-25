@@ -8,6 +8,7 @@ title: schema.Union
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { RestEndpoint } from '@rest-hooks/rest';
+import StackBlitz from '@site/src/components/StackBlitz';
 
 Describe a schema which is a union of multiple schemas. This is useful if you need the polymorphic behavior provided by [schema.Array](./Array.md) or [schema.Values](./Values.md) but for non-collection fields.
 
@@ -108,11 +109,9 @@ render(<FeedList />);
 
 ### Github Events
 
-<iframe
-  loading="lazy"
-  src="https://stackblitz.com/github/data-client/rest-hooks/tree/master/examples/github-app?embed=1&file=src%2Fpages%2FProfileDetail%2FUserEvents.tsx,src%2Fresources%2FEvent.tsx&hidedevtools=1&view=preview&terminalHeight=0&hideNavigation=1&initialpath=/users/ntucker"
-  width="100%"
-  height="700"
-></iframe>
+Contribution activity comes from grouping github events by their type. Each type of Event has its
+own distinct schema, which is why we use `schema.Union`
+
+<StackBlitz app="github-app" file="src/pages/ProfileDetail/UserEvents.tsx,src/resources/Event.tsx" view="preview" initialpath="/users/ntucker" height="700" ctl="1" />
 
 Explore more [Rest Hooks demos](/demos)
