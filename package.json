@@ -5,6 +5,7 @@
     "examples/*"
   ],
   "scripts": {
+    "changesetversion": "run changeset version && yarn install",
     "release": "lerna publish --no-private --create-release=github",
     "version": "lerna version --no-private --create-release=github",
     "version:breaking": "lerna version --create-release=github",
