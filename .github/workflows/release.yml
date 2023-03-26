@@ -28,7 +28,8 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          version: yarn changesetversion
+          version: yarn changeset:version
+          publish: yarn changeset:publish
           commit: "internal: Publish new version"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
