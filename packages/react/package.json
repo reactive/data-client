@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/react",
-  "version": "7.2.9",
+  "version": "7.2.10",
   "description": "Normalized state management for async data. Safe. Fast. Reusable.",
   "sideEffects": [
     "./lib/hooks/useFocusEffect.native.js"
