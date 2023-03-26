@@ -28,6 +28,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
+          version: yarn changeset version && yarn install
           commit: "internal: Publish new version"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
