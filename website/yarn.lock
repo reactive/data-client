@@ -182,10 +182,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/browserslist-config@npm:1.4.1":
-  version: 1.4.1
-  resolution: "@anansi/browserslist-config@npm:1.4.1"
-  checksum: 1a495f4f7d94a19fc60d0fc53f962d19f0b03a1cf48127257f43f8b067d622d73db6759340bf4d82e029c980ab85cba205fe657cccd59fb919a6cd8c8df797ef
+"@anansi/browserslist-config@npm:1.4.2":
+  version: 1.4.2
+  resolution: "@anansi/browserslist-config@npm:1.4.2"
+  checksum: 01c86263c645decba66921bcb9497874196be8e30c3f1bd246c15639fbded5572ceb75d54b0e4fd6c0532388fa23677d0dcc2cfb9dab94082f9c29f0be9a42bf
   languageName: node
   linkType: hard
 
@@ -3083,8 +3083,8 @@ __metadata:
   linkType: hard
 
 "@rest-hooks/react@file:../packages/react::locator=root-workspace-0b6124%40workspace%3A.":
-  version: 7.2.9
-  resolution: "@rest-hooks/react@file:../packages/react#../packages/react::hash=b12af0&locator=root-workspace-0b6124%40workspace%3A."
+  version: 7.2.10
+  resolution: "@rest-hooks/react@file:../packages/react#../packages/react::hash=49043e&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@rest-hooks/core": ^4.2.9
@@ -3098,7 +3098,7 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: 5482f88a767b2a2395a3e8c7cf27ea90d62d8c0c4b57bef6d4366812ad2698801150919374b8ae7eecd5859afef32888d01c06f910d9c086ca941081b05b9c48
+  checksum: 4a2c9d8185cea127d2026dd36e34b31ba4b5472503656e1a2500f98ccfbe8dda8b71871e9c5a19fef4f5b48bfa97e66aee722602202d3ba9532a532b44489ef5
   languageName: node
   linkType: hard
 
@@ -3115,7 +3115,7 @@ __metadata:
 
 "@rest-hooks/test@file:../packages/test::locator=root-workspace-0b6124%40workspace%3A.":
   version: 10.3.1
-  resolution: "@rest-hooks/test@file:../packages/test#../packages/test::hash=438ec4&locator=root-workspace-0b6124%40workspace%3A."
+  resolution: "@rest-hooks/test@file:../packages/test#../packages/test::hash=322e86&locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.17.0
     "@testing-library/react": ^14.0.0
@@ -3141,7 +3141,7 @@ __metadata:
       optional: true
     react-test-renderer:
       optional: true
-  checksum: 8df766b4f5a8e81d3d45d7528ad1152f8ce098f91976049f551f144d1d2603fc6cbe024e11ed0c55883b79aed22f5ce270525890fc1fccc32fbe1a74e82b1b6b
+  checksum: 2b34c250ac76947ee2d4994313288282066c63a14bf2db10709dbceeaf69ef2bd9e36e83dca33013f1aeda0177b2672428430f5e66bcf4b602cfef4b726cf225
   languageName: node
   linkType: hard
 
@@ -12688,7 +12688,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/browserslist-config": 1.4.1
+    "@anansi/browserslist-config": 1.4.2
     "@anansi/webpack-config": 15.0.0
     "@docusaurus/core": 2.4.0
     "@docusaurus/module-type-aliases": 2.4.0

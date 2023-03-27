@@ -22,7 +22,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@anansi/babel-preset": "4.2.0",
-    "@anansi/browserslist-config": "1.4.1",
+    "@anansi/browserslist-config": "1.4.2",
     "@anansi/eslint-plugin": "0.16.3",
     "@anansi/webpack-config": "15.0.0",
     "@babel/core": "7.21.3",
@@ -33,7 +33,7 @@
     "@types/eslint": "8.21.3",
     "@types/parse-link-header": "^2.0.0",
     "@types/prettier": "2.7.2",
-    "@types/react": "18.0.28",
+    "@types/react": "18.0.29",
     "@types/react-dom": "18.0.11",
     "@types/uuid": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "5.56.0",
@@ -59,7 +59,7 @@
     "webpack-dev-server": "4.13.0"
   },
   "dependencies": {
-    "@anansi/router": "0.7.28",
+    "@anansi/router": "0.7.31",
     "@ant-design/icons": "^5.0.0",
     "@rest-hooks/graphql": "^0.3.9",
     "@rest-hooks/hooks": "^3.1.2",

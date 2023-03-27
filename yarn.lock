@@ -84,10 +84,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/browserslist-config@npm:1.4.1":
-  version: 1.4.1
-  resolution: "@anansi/browserslist-config@npm:1.4.1"
-  checksum: 1a495f4f7d94a19fc60d0fc53f962d19f0b03a1cf48127257f43f8b067d622d73db6759340bf4d82e029c980ab85cba205fe657cccd59fb919a6cd8c8df797ef
+"@anansi/browserslist-config@npm:1.4.2":
+  version: 1.4.2
+  resolution: "@anansi/browserslist-config@npm:1.4.2"
+  checksum: 01c86263c645decba66921bcb9497874196be8e30c3f1bd246c15639fbded5572ceb75d54b0e4fd6c0532388fa23677d0dcc2cfb9dab94082f9c29f0be9a42bf
   languageName: node
   linkType: hard
 
@@ -151,34 +151,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/router@npm:0.7.28":
-  version: 0.7.28
-  resolution: "@anansi/router@npm:0.7.28"
+"@anansi/router@npm:0.7.31":
+  version: 0.7.31
+  resolution: "@anansi/router@npm:0.7.31"
   dependencies:
     "@babel/runtime": ^7.17.0
-    "@pojo-router/core": ^0.5.75
+    "@pojo-router/core": ^0.5.78
     history: ^5.3.0
     nano-memoize: ^3.0.8
   peerDependencies:
-    "@types/react": ^17.0.40 || ^18.0.0-0
-    react: ^18.0.0-0
+    "@types/react": ^18.0.0
+    react: ^18.0.0
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: e0e5217266aeaeb17ae76f41a257bcbb45c8b3e31487fce700c10a3c154d5172b94fc7e4a0b359b6a19dc676260f91ec0e03cda19718818379477a1c3cedde37
+  checksum: 266a78e56fb312ac3f0c8cebb63d0cd6d01509dcf7508430d0d7f32aad364f7e68267fd2b20cb84236510054e22749131a3c678dae800c32db42ee79221655f5
   languageName: node
   linkType: hard
 
-"@anansi/ts-utils@npm:^0.3.2":
-  version: 0.3.2
-  resolution: "@anansi/ts-utils@npm:0.3.2"
-  peerDependencies:
-    typescript: ^3.0.0 || ^4.0.0 || ^5.0.0
-  checksum: b29c54079f28a54feb159daccbaa8c14aa63ec9f91bb6f353ac656f0e76b09e7531f31b89415c42ca2fe574f808571ddc4e317c7dda9815cf9b47f4cb8009e1c
-  languageName: node
-  linkType: hard
-
-"@anansi/ts-utils@npm:^0.3.4":
+"@anansi/ts-utils@npm:^0.3.2, @anansi/ts-utils@npm:^0.3.4":
   version: 0.3.4
   resolution: "@anansi/ts-utils@npm:0.3.4"
   peerDependencies:
@@ -1970,16 +1961,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.10.1, @babel/runtime@npm:^7.10.4, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.8, @babel/runtime@npm:^7.16.7, @babel/runtime@npm:^7.17.0, @babel/runtime@npm:^7.17.2, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.20.0, @babel/runtime@npm:^7.20.7, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.9.2":
-  version: 7.20.13
-  resolution: "@babel/runtime@npm:7.20.13"
-  dependencies:
-    regenerator-runtime: ^0.13.11
-  checksum: 09b7a97a05c80540db6c9e4ddf8c5d2ebb06cae5caf3a87e33c33f27f8c4d49d9c67a2d72f1570e796045288fad569f98a26ceba0c4f5fad2af84b6ad855c4fb
-  languageName: node
-  linkType: hard
-
-"@babel/runtime@npm:^7.20.1, @babel/runtime@npm:^7.5.5":
+"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.10.1, @babel/runtime@npm:^7.10.4, @babel/runtime@npm:^7.11.1, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.8, @babel/runtime@npm:^7.16.7, @babel/runtime@npm:^7.17.0, @babel/runtime@npm:^7.17.2, @babel/runtime@npm:^7.18.0, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.20.0, @babel/runtime@npm:^7.20.1, @babel/runtime@npm:^7.20.7, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.9.2":
   version: 7.21.0
   resolution: "@babel/runtime@npm:7.21.0"
   dependencies:
@@ -4182,20 +4164,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pojo-router/core@npm:^0.5.75":
-  version: 0.5.75
-  resolution: "@pojo-router/core@npm:0.5.75"
+"@pojo-router/core@npm:^0.5.78":
+  version: 0.5.78
+  resolution: "@pojo-router/core@npm:0.5.78"
   dependencies:
     "@babel/runtime": ^7.17.0
     history: 5.3.0
     path-to-regexp: 6.2.1
   peerDependencies:
-    "@types/react": ^16.8.0 || ^17.0.0 || ^18.0.0-0
-    react: ^16.8.2 || ^17.0.0 || ^18.0.0-0
+    "@types/react": ^16.8.0 || ^17.0.0 || ^18.0.0
+    react: ^16.8.2 || ^17.0.0 || ^18.0.0
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 749cb57e1e107acff8c0d7f101d9dea9a1b423d1efef8cc7c2920f8f453c689268e156db3c90f272623b8ce6aa145e0e4f469792c0e3a548e86f8cfb852125d2
+  checksum: 8f974219e1ad1fd8460fd81c431f2f988d33438ca316597cc9a4461b1bb079a0ea7a898db5a27525f3d4822f6399d69d26da76401cc1bf85339a32bdae419059
   languageName: node
   linkType: hard
 
@@ -5680,10 +5662,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:18.15.6":
-  version: 18.15.6
-  resolution: "@types/node@npm:18.15.6"
-  checksum: 46a1b04553a03574fb845bb4414292d47338d29c40fa25861d3c9e8a957455dfb23ff6385428da1613b02ddc3b5b5fe91c9227c55db80a46a655799ea2add285
+"@types/node@npm:*, @types/node@npm:18.15.10":
+  version: 18.15.10
+  resolution: "@types/node@npm:18.15.10"
+  checksum: 9aeae0b683eda82892def5315812bdee3f1a28c4898b7e70f8e2514564538b16c4dccbe8339c1266f8fc1d707a48f152689264a854f5ebc2eba5011e793612d9
   languageName: node
   linkType: hard
 
@@ -5770,14 +5752,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:18.0.28":
-  version: 18.0.28
-  resolution: "@types/react@npm:18.0.28"
+"@types/react@npm:*, @types/react@npm:18.0.29":
+  version: 18.0.29
+  resolution: "@types/react@npm:18.0.29"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: e752df961105e5127652460504785897ca6e77259e0da8f233f694f9e8f451cde7fa0709d4456ade0ff600c8ce909cfe29f9b08b9c247fa9b734e126ec53edd7
+  checksum: 75f56f81d80a1c15ee3fcd2039bdc5f7a70f49cf69827ee0fc8beece9809b234f245dd62552e91018d8f25792986bd513b44caf054554d5c5eb979a5f9460214
   languageName: node
   linkType: hard
 
@@ -10860,7 +10842,7 @@ __metadata:
     "@rest-hooks/normalizr": "workspace:^"
     "@types/babel__core": ^7
     "@types/benchmark": 2.1.2
-    "@types/react": 18.0.28
+    "@types/react": 18.0.29
     benchmark: ^2.1.4
     react: ^18.2.0
     webpack: ^5.76.2
@@ -11835,9 +11817,9 @@ __metadata:
   resolution: "github-app@workspace:examples/github-app"
   dependencies:
     "@anansi/babel-preset": 4.2.0
-    "@anansi/browserslist-config": 1.4.1
+    "@anansi/browserslist-config": 1.4.2
     "@anansi/eslint-plugin": 0.16.3
-    "@anansi/router": 0.7.28
+    "@anansi/router": 0.7.31
     "@anansi/webpack-config": 15.0.0
     "@ant-design/icons": ^5.0.0
     "@babel/core": 7.21.3
@@ -11852,7 +11834,7 @@ __metadata:
     "@types/eslint": 8.21.3
     "@types/parse-link-header": ^2.0.0
     "@types/prettier": 2.7.2
-    "@types/react": 18.0.28
+    "@types/react": 18.0.29
     "@types/react-dom": 18.0.11
     "@types/uuid": ^9.0.0
     "@typescript-eslint/eslint-plugin": 5.56.0
@@ -12075,14 +12057,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graceful-fs@npm:^4.1.11, graceful-fs@npm:^4.1.15, graceful-fs@npm:^4.1.2, graceful-fs@npm:^4.1.3, graceful-fs@npm:^4.1.6, graceful-fs@npm:^4.2.0, graceful-fs@npm:^4.2.10, graceful-fs@npm:^4.2.3, graceful-fs@npm:^4.2.4, graceful-fs@npm:^4.2.6, graceful-fs@npm:^4.2.9":
-  version: 4.2.10
-  resolution: "graceful-fs@npm:4.2.10"
-  checksum: 3f109d70ae123951905d85032ebeae3c2a5a7a997430df00ea30df0e3a6c60cf6689b109654d6fdacd28810a053348c4d14642da1d075049e6be1ba5216218da
-  languageName: node
-  linkType: hard
-
-"graceful-fs@npm:^4.1.5":
+"graceful-fs@npm:^4.1.11, graceful-fs@npm:^4.1.15, graceful-fs@npm:^4.1.2, graceful-fs@npm:^4.1.3, graceful-fs@npm:^4.1.5, graceful-fs@npm:^4.1.6, graceful-fs@npm:^4.2.0, graceful-fs@npm:^4.2.10, graceful-fs@npm:^4.2.3, graceful-fs@npm:^4.2.4, graceful-fs@npm:^4.2.6, graceful-fs@npm:^4.2.9":
   version: 4.2.11
   resolution: "graceful-fs@npm:4.2.11"
   checksum: ac85f94da92d8eb6b7f5a8b20ce65e43d66761c55ce85ac96df6865308390da45a8d3f0296dd3a663de65d30ba497bd46c696cc1e248c72b13d6d567138a4fc7
@@ -14236,7 +14211,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:^3.13.0, js-yaml@npm:^3.6.1":
+"js-yaml@npm:^3.13.0, js-yaml@npm:^3.13.1, js-yaml@npm:^3.6.1":
   version: 3.14.1
   resolution: "js-yaml@npm:3.14.1"
   dependencies:
@@ -14245,18 +14220,6 @@ __metadata:
   bin:
     js-yaml: bin/js-yaml.js
   checksum: bef146085f472d44dee30ec34e5cf36bf89164f5d585435a3d3da89e52622dff0b188a580e4ad091c3341889e14cb88cac6e4deb16dc5b1e9623bb0601fc255c
-  languageName: node
-  linkType: hard
-
-"js-yaml@npm:^3.13.1":
-  version: 3.13.1
-  resolution: "js-yaml@npm:3.13.1"
-  dependencies:
-    argparse: ^1.0.7
-    esprima: ^4.0.0
-  bin:
-    js-yaml: bin/js-yaml.js
-  checksum: 7511b764abb66d8aa963379f7d2a404f078457d106552d05a7b556d204f7932384e8477513c124749fa2de52eb328961834562bd09924902c6432e40daa408bc
   languageName: node
   linkType: hard
 
@@ -16671,8 +16634,8 @@ __metadata:
     "@rest-hooks/rest": ^6.2.7
     "@rest-hooks/ssr": ^0.7.3
     "@rest-hooks/test": ^10.0.0
-    "@types/node": 18.15.6
-    "@types/react": 18.0.28
+    "@types/node": 18.15.10
+    "@types/react": 18.0.29
     "@types/react-dom": 18.0.11
     eslint: 8.36.0
     eslint-config-next: 13.2.4
@@ -21185,7 +21148,7 @@ __metadata:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     "@anansi/babel-preset": 4.2.0
-    "@anansi/browserslist-config": 1.4.1
+    "@anansi/browserslist-config": 1.4.2
     "@anansi/eslint-plugin": 0.16.3
     "@anansi/jest-preset": 0.10.2
     "@babel/cli": 7.21.0
@@ -21205,8 +21168,8 @@ __metadata:
     "@testing-library/react-native": 12.0.0
     "@types/jest": 29.5.0
     "@types/lodash": 4.14.191
-    "@types/node": 18.15.6
-    "@types/react": 18.0.28
+    "@types/node": 18.15.10
+    "@types/react": 18.0.29
     "@typescript-eslint/eslint-plugin": 5.56.0
     "@typescript-eslint/parser": 5.56.0
     benchmark: ^2.1.4
@@ -22887,7 +22850,7 @@ __metadata:
   resolution: "todo-app@workspace:examples/todo-app"
   dependencies:
     "@anansi/babel-preset": 4.2.0
-    "@anansi/browserslist-config": 1.4.1
+    "@anansi/browserslist-config": 1.4.2
     "@anansi/eslint-plugin": 0.16.3
     "@anansi/webpack-config": 15.0.0
     "@babel/core": 7.21.3
