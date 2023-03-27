@@ -16,5 +16,6 @@ export type {
   Interceptor,
 } from './fixtureTypes.js';
 export { act } from './makeRenderRestHook/renderHook.cjs';
+export type { RenderHookOptions } from './makeRenderRestHook/renderHook.cjs';
 
 export { makeRenderRestHook, mockInitialState };

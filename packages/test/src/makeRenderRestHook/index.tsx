@@ -15,6 +15,8 @@ import { Interceptor, Fixture, FixtureEndpoint } from '../fixtureTypes.js';
 import MockResolver from '../MockResolver.js';
 import mockInitialState from '../mockState.js';
 
+export type { RenderHookOptions } from './renderHook.cjs';
+
 export default function makeRenderRestHook(
   Provider: React.ComponentType<ProviderProps>,
 ) {
