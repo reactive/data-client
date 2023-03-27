@@ -10523,6 +10523,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-plugin-babel@npm:^5.3.1":
+  version: 5.3.1
+  resolution: "eslint-plugin-babel@npm:5.3.1"
+  dependencies:
+    eslint-rule-composer: ^0.3.0
+  peerDependencies:
+    eslint: ">=4.0.0"
+  checksum: 18b0bfda53deab4056160a4f3a89a4649b6ae17e4970cc836f7d586c8abab5ebb492440e2acf4770a463138a44a4ee7f9b22b4ed1fdbe69c652f714c1d973e38
+  languageName: node
+  linkType: hard
+
 "eslint-plugin-import@npm:2.27.5, eslint-plugin-import@npm:^2.26.0":
   version: 2.27.5
   resolution: "eslint-plugin-import@npm:2.27.5"
@@ -10620,6 +10631,13 @@ __metadata:
   peerDependencies:
     eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8
   checksum: 2232b3b8945aa50b7773919c15cd96892acf35d2f82503667a79e2f55def90f728ed4f0e496f0f157acbe1bd4397c5615b676ae7428fe84488a544ca53feb944
+  languageName: node
+  linkType: hard
+
+"eslint-rule-composer@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "eslint-rule-composer@npm:0.3.0"
+  checksum: c2f57cded8d1c8f82483e0ce28861214347e24fd79fd4144667974cd334d718f4ba05080aaef2399e3bbe36f7d6632865110227e6b176ed6daa2d676df9281b1
   languageName: node
   linkType: hard
 
@@ -11823,6 +11841,7 @@ __metadata:
     "@typescript-eslint/parser": 5.57.0
     antd: 5.3.2
     eslint: 8.36.0
+    eslint-plugin-babel: ^5.3.1
     eslint-plugin-import: 2.27.5
     eslint-plugin-prettier: 4.2.1
     eslint-plugin-react: 7.32.2
@@ -21162,6 +21181,7 @@ __metadata:
     cpy-cli: 4.2.0
     cross-fetch: ^3.0.6
     eslint: 8.36.0
+    eslint-plugin-babel: ^5.3.1
     eslint-plugin-import: 2.27.5
     eslint-plugin-prettier: 4.2.1
     eslint-plugin-react: 7.32.2
@@ -22849,6 +22869,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": 5.57.0
     "@typescript-eslint/parser": 5.57.0
     eslint: 8.36.0
+    eslint-plugin-babel: ^5.3.1
     eslint-plugin-import: 2.27.5
     eslint-plugin-prettier: 4.2.1
     eslint-plugin-react: 7.32.2
