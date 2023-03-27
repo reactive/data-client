@@ -4906,7 +4906,7 @@ __metadata:
     "@babel/runtime": ^7.17.0
     "@testing-library/react": ^14.0.0
     "@testing-library/react-hooks": ~8.0.0
-    "@testing-library/react-native": ^12.0.0
+    "@testing-library/react-native": ^12.0.1
     "@types/babel__core": ^7
     "@types/react-test-renderer": ^18
     downlevel-dts: ^0.10.0
@@ -5221,7 +5221,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-native@npm:^12.0.0":
+"@testing-library/react-native@npm:12.0.0":
+  version: 12.0.0
+  resolution: "@testing-library/react-native@npm:12.0.0"
+  dependencies:
+    pretty-format: ^29.0.0
+  peerDependencies:
+    jest: ">=28.0.0"
+    react: ">=16.8.0"
+    react-native: ">=0.59"
+    react-test-renderer: ">=16.8.0"
+  peerDependenciesMeta:
+    jest:
+      optional: true
+  checksum: f3f565dfe7cfc527fc5a34b3290274cc1829f548b3ad68d2fca17cf826f49ae62d8f676b33f1489975c8da92da4028a851693173ac04b5dfc72242f23847b861
+  languageName: node
+  linkType: hard
+
+"@testing-library/react-native@npm:^12.0.1":
   version: 12.0.1
   resolution: "@testing-library/react-native@npm:12.0.1"
   dependencies:
@@ -21165,7 +21182,7 @@ __metadata:
     "@rest-hooks/test": "workspace:^"
     "@testing-library/react": 14.0.0
     "@testing-library/react-hooks": 8.0.1
-    "@testing-library/react-native": ^12.0.0
+    "@testing-library/react-native": 12.0.0
     "@types/jest": 29.5.0
     "@types/lodash": 4.14.191
     "@types/node": 18.15.10
