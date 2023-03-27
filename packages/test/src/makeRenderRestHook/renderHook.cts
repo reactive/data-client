@@ -26,6 +26,8 @@ export const act: typeof reactAct extends undefined
   ? (require('./render18HookWrapped.js').act as any)
   : (act17 as any);
 
+export type { RenderHookOptions } from '@testing-library/react';
+
 type RenderHook = <
   Result,
   Props,
