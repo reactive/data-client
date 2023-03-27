@@ -15,11 +15,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:4.1.1":
-  version: 4.1.1
-  resolution: "@anansi/babel-preset@npm:4.1.1"
+"@anansi/babel-preset@npm:4.2.0":
+  version: 4.2.0
+  resolution: "@anansi/babel-preset@npm:4.2.0"
   dependencies:
-    "@anansi/ts-utils": ^0.3.2
+    "@anansi/ts-utils": ^0.3.4
     "@babel/plugin-proposal-class-properties": ^7.18.6
     "@babel/plugin-proposal-class-static-block": ^7.21.0
     "@babel/plugin-proposal-decorators": ^7.21.0
@@ -57,7 +57,7 @@ __metadata:
     lodash: "*"
     ramda: "*"
     react-hot-loader: ^4.12.0
-    react-refresh: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0-0 || ^0.12.0 || ^0.13.0 || ^0.14.0
+    react-refresh: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^0.14.0
     typescript: ^3.0.0 || ^4.0.0 || ^5.0.0
   peerDependenciesMeta:
     "@babel/runtime":
@@ -80,7 +80,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 9fbf750f87e40560ddf901f9d3af2c81f2d4e9c172477783b0cc1dd7d317ecb7b1d39348f907058b5d8e500ae79843b9090cd679def7058d2ad2fda509b8e980
+  checksum: e07f2962dd5fbd5d8e2a864d6de372dc7ebd09915b65e3a847714640983676a4426e308a4368103f26a485e2eee7f402280632522ce3e42dbf610e49f03ae6e8
   languageName: node
   linkType: hard
 
@@ -175,6 +175,15 @@ __metadata:
   peerDependencies:
     typescript: ^3.0.0 || ^4.0.0 || ^5.0.0
   checksum: b29c54079f28a54feb159daccbaa8c14aa63ec9f91bb6f353ac656f0e76b09e7531f31b89415c42ca2fe574f808571ddc4e317c7dda9815cf9b47f4cb8009e1c
+  languageName: node
+  linkType: hard
+
+"@anansi/ts-utils@npm:^0.3.4":
+  version: 0.3.4
+  resolution: "@anansi/ts-utils@npm:0.3.4"
+  peerDependencies:
+    typescript: ^3.0.0 || ^4.0.0 || ^5.0.0
+  checksum: 319cec285bd0d78cf6b7fb3abd37789538eeac8d05882b8274812b2b1e768ba1565f8e1947fc5646050fe8fcd4cc2c96e5754775c0bbf915efb7cbd429c7a976
   languageName: node
   linkType: hard
 
@@ -11825,7 +11834,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "github-app@workspace:examples/github-app"
   dependencies:
-    "@anansi/babel-preset": 4.1.1
+    "@anansi/babel-preset": 4.2.0
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.16.3
     "@anansi/router": 0.7.28
@@ -21175,7 +21184,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": 4.1.1
+    "@anansi/babel-preset": 4.2.0
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.16.3
     "@anansi/jest-preset": 0.10.2
@@ -22877,7 +22886,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "todo-app@workspace:examples/todo-app"
   dependencies:
-    "@anansi/babel-preset": 4.1.1
+    "@anansi/babel-preset": 4.2.0
     "@anansi/browserslist-config": 1.4.1
     "@anansi/eslint-plugin": 0.16.3
     "@anansi/webpack-config": 15.0.0

@@ -68,6 +68,7 @@ jobs:
           command: |
             if [ "<< parameters.react-version >>" != "^18" ]; then
             yarn add --dev react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >> @testing-library/react@^12.0.0
+            yarn workspace @rest-hooks/test add @testing-library/react@^12.0.0
             fi
       - run:
           command: |

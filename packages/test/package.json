@@ -63,13 +63,15 @@
     "README.md"
   ],
   "scripts": {
-    "build:lib": "NODE_ENV=production BROWSERSLIST_ENV=2020 BROWSERSLIST_ENV='modern' babel --root-mode upward src --out-dir lib --extensions '.ts,.tsx,.cts,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts' && mv ./lib/makeRenderRestHook/renderHook.js ./lib/makeRenderRestHook/renderHook.cjs && mv ./lib/makeRenderRestHook/use18.js ./lib/makeRenderRestHook/use18.cjs",
+    "build:lib": "run build:lib:esm && run build:lib:cjs",
+    "build:lib:esm": "NODE_ENV=production BROWSERSLIST_ENV=2020 babel --root-mode upward src --out-dir lib --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "build:lib:cjs": "BROWSERSLIST_ENV=node12 BABEL_MODULES=cjs babel --root-mode upward src --out-dir lib --extensions '.cts' --ignore '**/__tests__/**' --ignore '**/*.d.ts' && mv ./lib/makeRenderRestHook/renderHook.js ./lib/makeRenderRestHook/renderHook.cjs && mv ./lib/makeRenderRestHook/use18.js ./lib/makeRenderRestHook/use18.cjs",
     "build:legacy:lib": "NODE_ENV=production BROWSERSLIST_ENV=2018 babel --root-mode upward src --out-dir legacy --extensions '.ts,.tsx,.cts,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
     "build:bundle": "BROWSERSLIST_ENV=node12 rollup -c && COMPILE_TARGET=native BROWSERSLIST_ENV=node12 rollup -c && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:clean": "rimraf lib dist ts3.4 legacy *.tsbuildinfo",
     "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
     "build": "yarn run build:lib && yarn run build:legacy:lib && yarn run build:bundle",
-    "dev": "yarn run build:lib -w",
+    "dev": "yarn run build:lib:esm -w & yarn run build:lib:cjs -w && fg",
     "prepare": "yarn run build:lib",
     "prepack": "yarn prepare",
     "prepublishOnly": "yarn run build:bundle && yarn run build:legacy:lib"
