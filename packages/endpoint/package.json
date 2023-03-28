@@ -78,8 +78,7 @@
     "build:legacy-types": "yarn g:downtypes lib ts3.4 && yarn g:downtypes lib ts4.0 --to=4.0 && yarn g:downtypes lib ts4.2 --to=4.2 && yarn g:copy --up 1 ./src-4.2-types/**/*.d.ts ./ts4.0/ && yarn g:copy --up 1 ./src-4.2-types/**/*.d.ts ./ts4.2 && yarn g:copy --up 1 ./src-4.0-types/**/*.d.ts ./ts3.4/ && yarn g:copy --up 1 ./src-4.0-types/**/*.d.ts ./ts4.0 && yarn g:copy --up 1 ./src-legacy-types/**/*.d.ts ./ts3.4/",
     "dev": "run build:lib -w",
     "prepare": "run build:lib",
-    "prepack": "run prepare",
-    "prepublishOnly": "run build:bundle && run build:legacy:lib",
+    "prepack": "run prepare && run build:bundle && run build:legacy:lib",
     "tsc:ci": "yarn g:tsc --project tsconfig.test.json",
     "typecheck": "run tsc:ci"
   },

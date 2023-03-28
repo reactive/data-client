@@ -76,8 +76,7 @@
     "build": "run build:lib && run build:legacy:lib && run build:bundle",
     "dev": "run build:lib -w",
     "prepare": "run build:lib",
-    "prepack": "run prepare",
-    "prepublishOnly": "run build:bundle && run build:legacy:lib"
+    "prepack": "run prepare && run build:bundle && run build:legacy:lib"
   },
   "keywords": [
     "react",
