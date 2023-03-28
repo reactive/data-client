@@ -1,5 +1,13 @@
 # Change Log
 
+## 7.2.11
+
+### Patch Changes
+
+- f927a15c14: Add ErrorTypes export
+- Updated dependencies [f927a15c14]
+  - @rest-hooks/core@4.2.10
+
 ## 7.2.10
 
 ### Patch Changes

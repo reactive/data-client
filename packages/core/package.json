@@ -1,6 +1,6 @@
 {
   "name": "@rest-hooks/core",
-  "version": "4.2.9",
+  "version": "4.2.10",
   "description": "Normalized Asynchronous data framework. Protocol and View agnostic.",
   "sideEffects": false,
   "main": "dist/index.js",
