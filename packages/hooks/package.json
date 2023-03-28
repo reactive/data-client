@@ -36,15 +36,15 @@
     "README.md"
   ],
   "scripts": {
-    "build:lib": "NODE_ENV=production BROWSERSLIST_ENV=2019 ROOT_PATH_PREFIX='@rest-hooks/hooks' babel --root-mode upward src --out-dir lib --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
-    "build:bundle": "rollup -c && echo '{\"type\":\"commonjs\"}' > dist/package.json",
-    "build:clean": "rimraf lib dist ts3.4 *.tsbuildinfo",
-    "build": "yarn run build:lib && yarn run build:bundle",
-    "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
-    "dev": "yarn run build:lib -w",
-    "prepare": "yarn run build:lib",
-    "prepack": "yarn prepare",
-    "prepublishOnly": "yarn run build:bundle"
+    "build:lib": "NODE_ENV=production BROWSERSLIST_ENV=2019 ROOT_PATH_PREFIX='@rest-hooks/hooks' yarn g:babel --out-dir lib",
+    "build:bundle": "yarn g:rollup && echo '{\"type\":\"commonjs\"}' > dist/package.json",
+    "build:clean": "yarn g:clean",
+    "build": "run build:lib && run build:bundle",
+    "build:legacy-types": "yarn g:downtypes lib ts3.4",
+    "dev": "run build:lib -w",
+    "prepare": "run build:lib",
+    "prepack": "run prepare",
+    "prepublishOnly": "run build:bundle"
   },
   "keywords": [
     "hooks",
@@ -84,19 +84,5 @@
     "@types/react": {
       "optional": true
     }
-  },
-  "devDependencies": {
-    "@babel/cli": "7.21.0",
-    "@babel/core": "7.21.3",
-    "@types/babel__core": "^7",
-    "downlevel-dts": "^0.10.0",
-    "rollup": "2.79.1",
-    "rollup-plugin-babel": "^4.4.0",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-filesize": "^9.1.2",
-    "rollup-plugin-json": "^4.0.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-replace": "^2.2.0",
-    "rollup-plugin-terser": "^7.0.2"
   }
 }

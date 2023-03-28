@@ -4553,23 +4553,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/core@workspace:packages/core"
   dependencies:
-    "@babel/cli": 7.21.0
-    "@babel/core": 7.21.3
     "@babel/runtime": ^7.17.0
     "@rest-hooks/normalizr": ^10.0.3
-    "@types/babel__core": ^7
-    downlevel-dts: ^0.10.0
     flux-standard-action: ^2.1.1
-    npm-run-all: ^4.1.5
-    rollup: 2.79.1
-    rollup-plugin-babel: ^4.4.0
-    rollup-plugin-commonjs: ^10.1.0
-    rollup-plugin-dts: ^5.0.0
-    rollup-plugin-filesize: ^9.1.2
-    rollup-plugin-json: ^4.0.0
-    rollup-plugin-node-resolve: ^5.2.0
-    rollup-plugin-replace: ^2.2.0
-    rollup-plugin-terser: ^7.0.2
   languageName: unknown
   linkType: soft
 
@@ -4577,21 +4563,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/endpoint@workspace:packages/endpoint"
   dependencies:
-    "@babel/cli": 7.21.0
-    "@babel/core": 7.21.3
     "@babel/runtime": ^7.17.0
-    "@types/babel__core": ^7
-    downlevel-dts: ^0.10.0
-    npm-run-all: ^4.1.5
-    rollup: 2.79.1
-    rollup-plugin-babel: ^4.4.0
-    rollup-plugin-commonjs: ^10.1.0
-    rollup-plugin-filesize: ^9.1.2
-    rollup-plugin-json: ^4.0.0
-    rollup-plugin-node-resolve: ^5.2.0
-    rollup-plugin-replace: ^2.2.0
-    rollup-plugin-terser: ^7.0.2
-    typescript: 5.0.2
   languageName: unknown
   linkType: soft
 
@@ -4599,22 +4571,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/experimental@workspace:packages/experimental"
   dependencies:
-    "@babel/cli": 7.21.0
-    "@babel/core": 7.21.3
     "@babel/runtime": ^7.17.0
-    "@rest-hooks/test": "workspace:^"
-    "@types/babel__core": ^7
+    "@rest-hooks/test": "workspace:*"
     "@types/path-to-regexp": ^1.7.0
-    downlevel-dts: ^0.10.0
     path-to-regexp: ^6.2.0
-    rollup: 2.79.1
-    rollup-plugin-babel: ^4.4.0
-    rollup-plugin-commonjs: ^10.1.0
-    rollup-plugin-filesize: ^9.1.2
-    rollup-plugin-json: ^4.0.0
-    rollup-plugin-node-resolve: ^5.2.0
-    rollup-plugin-replace: ^2.2.0
-    rollup-plugin-terser: ^7.0.2
   peerDependencies:
     "@rest-hooks/endpoint": ^2.2.0-beta.2 || ^3.3.0
     "@rest-hooks/react": ^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0
@@ -4641,21 +4601,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/graphql@workspace:packages/graphql"
   dependencies:
-    "@babel/cli": 7.21.0
-    "@babel/core": 7.21.3
     "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.7.4
-    "@types/babel__core": ^7
-    downlevel-dts: ^0.10.0
-    npm-run-all: ^4.1.5
-    rollup: 2.79.1
-    rollup-plugin-babel: ^4.4.0
-    rollup-plugin-commonjs: ^10.1.0
-    rollup-plugin-filesize: ^9.1.2
-    rollup-plugin-json: ^4.0.0
-    rollup-plugin-node-resolve: ^5.2.0
-    rollup-plugin-replace: ^2.2.0
-    rollup-plugin-terser: ^7.0.2
   languageName: unknown
   linkType: soft
 
@@ -4663,20 +4610,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/hooks@workspace:packages/hooks"
   dependencies:
-    "@babel/cli": 7.21.0
-    "@babel/core": 7.21.3
     "@babel/runtime": ^7.17.0
     "@rest-hooks/normalizr": ^10.0.3
-    "@types/babel__core": ^7
-    downlevel-dts: ^0.10.0
-    rollup: 2.79.1
-    rollup-plugin-babel: ^4.4.0
-    rollup-plugin-commonjs: ^10.1.0
-    rollup-plugin-filesize: ^9.1.2
-    rollup-plugin-json: ^4.0.0
-    rollup-plugin-node-resolve: ^5.2.0
-    rollup-plugin-replace: ^2.2.0
-    rollup-plugin-terser: ^7.0.2
   peerDependencies:
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
     react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
@@ -4690,20 +4625,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/img@workspace:packages/img"
   dependencies:
-    "@babel/cli": 7.21.0
-    "@babel/core": 7.21.3
     "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.7.4
-    "@types/babel__core": ^7
-    downlevel-dts: ^0.10.0
-    rollup: 2.79.1
-    rollup-plugin-babel: ^4.4.0
-    rollup-plugin-commonjs: ^10.1.0
-    rollup-plugin-filesize: ^9.1.2
-    rollup-plugin-json: ^4.0.0
-    rollup-plugin-node-resolve: ^5.2.0
-    rollup-plugin-replace: ^2.2.0
-    rollup-plugin-terser: ^7.0.2
   peerDependencies:
     "@rest-hooks/react": ^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
@@ -4717,20 +4640,6 @@ __metadata:
 "@rest-hooks/legacy@workspace:packages/legacy":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/legacy@workspace:packages/legacy"
-  dependencies:
-    "@babel/cli": 7.21.0
-    "@babel/core": 7.21.3
-    "@types/babel__core": ^7
-    downlevel-dts: ^0.10.0
-    npm-run-all: ^4.1.5
-    rollup: 2.79.1
-    rollup-plugin-babel: ^4.4.0
-    rollup-plugin-commonjs: ^10.1.0
-    rollup-plugin-filesize: ^9.1.2
-    rollup-plugin-json: ^4.0.0
-    rollup-plugin-node-resolve: ^5.2.0
-    rollup-plugin-replace: ^2.2.0
-    rollup-plugin-terser: ^7.0.2
   peerDependencies:
     "@rest-hooks/react": ^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
@@ -4745,21 +4654,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/normalizr@workspace:packages/normalizr"
   dependencies:
-    "@babel/cli": 7.21.0
-    "@babel/core": 7.21.3
     "@babel/runtime": ^7.17.0
-    "@types/babel__core": ^7
-    downlevel-dts: ^0.10.0
     immutable: 4.2.2
-    npm-run-all: ^4.1.5
-    rollup: 2.79.1
-    rollup-plugin-babel: ^4.4.0
-    rollup-plugin-commonjs: ^10.1.0
-    rollup-plugin-filesize: ^9.1.2
-    rollup-plugin-json: ^4.0.0
-    rollup-plugin-node-resolve: ^5.2.0
-    rollup-plugin-replace: ^2.2.0
-    rollup-plugin-terser: ^7.0.2
   languageName: unknown
   linkType: soft
 
@@ -4776,23 +4672,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/react@workspace:packages/react"
   dependencies:
-    "@babel/cli": 7.21.0
-    "@babel/core": 7.21.3
     "@babel/runtime": ^7.17.0
     "@rest-hooks/core": ^4.2.9
     "@rest-hooks/use-enhanced-reducer": ^1.2.8
-    "@types/babel__core": ^7
-    downlevel-dts: ^0.10.0
-    npm-run-all: ^4.1.5
-    rollup: 2.79.1
-    rollup-plugin-babel: ^4.4.0
-    rollup-plugin-commonjs: ^10.1.0
-    rollup-plugin-dts: ^5.0.0
-    rollup-plugin-filesize: ^9.1.2
-    rollup-plugin-json: ^4.0.0
-    rollup-plugin-node-resolve: ^5.2.0
-    rollup-plugin-replace: ^2.2.0
-    rollup-plugin-terser: ^7.0.2
   peerDependencies:
     "@react-navigation/native": ^6.0.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
@@ -4809,23 +4691,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/redux@workspace:packages/redux"
   dependencies:
-    "@babel/cli": 7.21.0
-    "@babel/core": 7.21.3
     "@babel/runtime": ^7.17.0
     "@rest-hooks/core": ^4.2.9
-    "@types/babel__core": ^7
-    downlevel-dts: ^0.10.0
-    npm-run-all: ^4.1.5
-    redux: ^4.2.0
-    rollup: 2.79.1
-    rollup-plugin-babel: ^4.4.0
-    rollup-plugin-commonjs: ^10.1.0
-    rollup-plugin-dts: ^5.0.0
-    rollup-plugin-filesize: ^9.1.2
-    rollup-plugin-json: ^4.0.0
-    rollup-plugin-node-resolve: ^5.2.0
-    rollup-plugin-replace: ^2.2.0
-    rollup-plugin-terser: ^7.0.2
   peerDependencies:
     "@rest-hooks/react": ^0.1.0 || ^0.2.0 || ^6.0.0 || ^7.0.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
@@ -4841,25 +4708,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/rest@workspace:packages/rest"
   dependencies:
-    "@babel/cli": 7.21.0
-    "@babel/core": 7.21.3
     "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.7.4
-    "@types/babel__core": ^7
-    "@types/copyfiles": ^2
     "@types/path-to-regexp": ^1.7.0
-    copyfiles: ^2.4.1
-    downlevel-dts: ^0.10.0
-    npm-run-all: ^4.1.5
     path-to-regexp: ^6.2.1
-    rollup: 2.79.1
-    rollup-plugin-babel: ^4.4.0
-    rollup-plugin-commonjs: ^10.1.0
-    rollup-plugin-filesize: ^9.1.2
-    rollup-plugin-json: ^4.0.0
-    rollup-plugin-node-resolve: ^5.2.0
-    rollup-plugin-replace: ^2.2.0
-    rollup-plugin-terser: ^7.0.2
   languageName: unknown
   linkType: soft
 
@@ -4867,21 +4719,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rest-hooks/ssr@workspace:packages/ssr"
   dependencies:
-    "@babel/cli": 7.21.0
-    "@babel/core": 7.21.3
     "@babel/runtime": ^7.17.0
-    "@types/babel__core": ^7
-    downlevel-dts: ^0.10.0
     next: ^13.0.4
-    npm-run-all: ^4.1.5
-    rollup: 2.79.1
-    rollup-plugin-babel: ^4.4.0
-    rollup-plugin-commonjs: ^10.1.0
-    rollup-plugin-filesize: ^9.1.2
-    rollup-plugin-json: ^4.0.0
-    rollup-plugin-node-resolve: ^5.2.0
-    rollup-plugin-replace: ^2.2.0
-    rollup-plugin-terser: ^7.0.2
   peerDependencies:
     "@rest-hooks/react": ^6.0.0 || ^7.0.0
     "@rest-hooks/redux": ^6.3.0 || ^7.0.0
@@ -4897,28 +4736,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/test@^10.0.0, @rest-hooks/test@workspace:^, @rest-hooks/test@workspace:packages/test":
+"@rest-hooks/test@^10.0.0, @rest-hooks/test@workspace:*, @rest-hooks/test@workspace:^, @rest-hooks/test@workspace:packages/test":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/test@workspace:packages/test"
   dependencies:
-    "@babel/cli": 7.21.0
-    "@babel/core": 7.21.3
     "@babel/runtime": ^7.17.0
     "@testing-library/react": ^14.0.0
     "@testing-library/react-hooks": ~8.0.0
     "@testing-library/react-native": ^12.0.1
-    "@types/babel__core": ^7
     "@types/react-test-renderer": ^18
-    downlevel-dts: ^0.10.0
     react-error-boundary: ^4.0.0
-    rollup: 2.79.1
-    rollup-plugin-babel: ^4.4.0
-    rollup-plugin-commonjs: ^10.1.0
-    rollup-plugin-filesize: ^9.1.2
-    rollup-plugin-json: ^4.0.0
-    rollup-plugin-node-resolve: ^5.2.0
-    rollup-plugin-replace: ^2.2.0
-    rollup-plugin-terser: ^7.0.2
   peerDependencies:
     "@rest-hooks/react": ^0.2.0 || ^0.3.0 || ^1.0.0 || ^6.0.0 || ^7.0.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
@@ -4944,19 +4771,6 @@ __metadata:
 "@rest-hooks/use-enhanced-reducer@^1.2.8, @rest-hooks/use-enhanced-reducer@workspace:packages/use-enhanced-reducer":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/use-enhanced-reducer@workspace:packages/use-enhanced-reducer"
-  dependencies:
-    "@babel/cli": 7.21.0
-    "@babel/core": 7.21.3
-    "@types/babel__core": ^7
-    downlevel-dts: ^0.10.0
-    rollup: 2.79.1
-    rollup-plugin-babel: ^4.4.0
-    rollup-plugin-commonjs: ^10.1.0
-    rollup-plugin-filesize: ^9.1.2
-    rollup-plugin-json: ^4.0.0
-    rollup-plugin-node-resolve: ^5.2.0
-    rollup-plugin-replace: ^2.2.0
-    rollup-plugin-terser: ^7.0.2
   peerDependencies:
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
     react: ^16.8.4 || ^17.0.0 || ^18.0.0-0
@@ -5407,13 +5221,6 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: fe81351470f2d3165e8b12ce33542eef89ea893e36dd62e8f7d72566dfb7e448376ae962f9f3ea888547ce8b55a40020ca0e01d637fab5d99567673084542641
-  languageName: node
-  linkType: hard
-
-"@types/copyfiles@npm:^2":
-  version: 2.4.1
-  resolution: "@types/copyfiles@npm:2.4.1"
-  checksum: e586284f736c5e1336c7760972db44c26cb4aa02a7fea0d31694306b5569a499546f35990aec9c007df7506a9c0ab62ddb019d96d054560d39d423ebd5ecb917
   languageName: node
   linkType: hard
 
@@ -20886,22 +20693,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "rest-hooks@workspace:packages/rest-hooks"
   dependencies:
-    "@babel/cli": 7.21.0
-    "@babel/core": 7.21.3
     "@babel/runtime": ^7.17.0
     "@rest-hooks/endpoint": ^3.7.4
-    "@types/babel__core": ^7
-    downlevel-dts: ^0.10.0
-    npm-run-all: ^4.1.5
     redux: ^4.0.0
-    rollup: 2.79.1
-    rollup-plugin-babel: ^4.4.0
-    rollup-plugin-commonjs: ^10.1.0
-    rollup-plugin-filesize: ^9.1.2
-    rollup-plugin-json: ^4.0.0
-    rollup-plugin-node-resolve: ^5.2.0
-    rollup-plugin-replace: ^2.2.0
-    rollup-plugin-terser: ^7.0.2
   peerDependencies:
     "@rest-hooks/react": ^6.0.0 || ^7.0.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0-0
@@ -21180,6 +20974,7 @@ __metadata:
     coveralls: ^3.1.0
     cpy-cli: 4.2.0
     cross-fetch: ^3.0.6
+    downlevel-dts: ^0.10.0
     eslint: 8.36.0
     eslint-plugin-babel: ^5.3.1
     eslint-plugin-import: 2.27.5
@@ -21192,6 +20987,7 @@ __metadata:
     mkdirp: ^2.0.0
     nock: 13.3.0
     node-fetch: ^3.3.0
+    npm-run-all: ^4.1.5
     prettier: 2.8.7
     react: 18.2.0
     react-dom: 18.2.0
@@ -21202,6 +20998,15 @@ __metadata:
     redux: 4.2.1
     rest-hooks: "workspace:^"
     rimraf: ^4.0.0
+    rollup: 2.79.1
+    rollup-plugin-babel: ^4.4.0
+    rollup-plugin-commonjs: ^10.1.0
+    rollup-plugin-dts: ^5.0.0
+    rollup-plugin-filesize: ^9.1.2
+    rollup-plugin-json: ^4.0.0
+    rollup-plugin-node-resolve: ^5.2.0
+    rollup-plugin-replace: ^2.2.0
+    rollup-plugin-terser: ^7.0.2
     ts-node: 10.9.1
     typescript: 5.0.2
     whatwg-fetch: 3.0.0
