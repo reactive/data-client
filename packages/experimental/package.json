@@ -26,8 +26,7 @@
     "build": "run build:lib && run build:bundle",
     "dev": "run build:lib -w",
     "prepare": "run build:lib",
-    "prepack": "run prepare",
-    "prepublishOnly": "run build:bundle"
+    "prepack": "run prepare && run build:bundle"
   },
   "keywords": [
     "rest",
