@@ -1,5 +1,11 @@
 # Change Log
 
+## 10.3.4
+
+### Patch Changes
+
+- f927a15c14: Add optional peerDep
+
 ## 10.3.3
 
 ### Patch Changes
