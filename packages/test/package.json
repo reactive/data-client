@@ -64,17 +64,19 @@
   ],
   "scripts": {
     "build:lib": "run build:lib:esm && run build:lib:cjs",
-    "build:lib:esm": "NODE_ENV=production BROWSERSLIST_ENV=2020 babel --root-mode upward src --out-dir lib --extensions '.ts,.tsx,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
-    "build:lib:cjs": "BROWSERSLIST_ENV=node12 BABEL_MODULES=cjs babel --root-mode upward src --out-dir lib --extensions '.cts' --ignore '**/__tests__/**' --ignore '**/*.d.ts' && mv ./lib/makeRenderRestHook/renderHook.js ./lib/makeRenderRestHook/renderHook.cjs && mv ./lib/makeRenderRestHook/use18.js ./lib/makeRenderRestHook/use18.cjs",
-    "build:legacy:lib": "NODE_ENV=production BROWSERSLIST_ENV=2018 babel --root-mode upward src --out-dir legacy --extensions '.ts,.tsx,.cts,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
-    "build:bundle": "BROWSERSLIST_ENV=node12 rollup -c && COMPILE_TARGET=native BROWSERSLIST_ENV=node12 rollup -c && echo '{\"type\":\"commonjs\"}' > dist/package.json",
-    "build:clean": "rimraf lib dist ts3.4 legacy *.tsbuildinfo",
-    "build:legacy-types": "yarn run downlevel-dts lib ts3.4",
-    "build": "yarn run build:lib && yarn run build:legacy:lib && yarn run build:bundle",
-    "dev": "yarn run build:lib:esm -w & yarn run build:lib:cjs -w && fg",
-    "prepare": "yarn run build:lib",
-    "prepack": "yarn prepare",
-    "prepublishOnly": "yarn run build:bundle && yarn run build:legacy:lib"
+    "build:lib:esm": "NODE_ENV=production BROWSERSLIST_ENV=2020 yarn g:babel-lite --out-dir lib --extensions '.ts,.tsx,.js'",
+    "build:lib:cjs": "BROWSERSLIST_ENV=node12 BABEL_MODULES=cjs yarn g:babel-lite --out-dir lib --extensions '.cts' && mv ./lib/makeRenderRestHook/renderHook.js ./lib/makeRenderRestHook/renderHook.cjs && mv ./lib/makeRenderRestHook/use18.js ./lib/makeRenderRestHook/use18.cjs && mv ./lib/makeRenderRestHook/use18.native.js ./lib/makeRenderRestHook/use18.native.cjs",
+    "build:legacy:lib": "run build:legacy:lib:esm && run build:legacy:lib:cjs",
+    "build:legacy:lib:esm": "NODE_ENV=production BROWSERSLIST_ENV=2018 yarn g:babel-lite --out-dir legacy --extensions '.ts,.tsx,.js'",
+    "build:legacy:lib:cjs": "BABEL_MODULES=cjs BROWSERSLIST_ENV=2018 yarn g:babel-lite --out-dir legacy --extensions '.cts' && mv ./legacy/makeRenderRestHook/renderHook.js ./legacy/makeRenderRestHook/renderHook.cjs && mv ./legacy/makeRenderRestHook/use18.js ./legacy/makeRenderRestHook/use18.cjs && mv ./legacy/makeRenderRestHook/use18.native.js ./legacy/makeRenderRestHook/use18.native.cjs",
+    "build:bundle": "BROWSERSLIST_ENV=node12 yarn g:rollup && COMPILE_TARGET=native BROWSERSLIST_ENV=node12 yarn g:rollup && echo '{\"type\":\"commonjs\"}' > dist/package.json",
+    "build:clean": "yarn g:clean",
+    "build:legacy-types": "yarn g:downtypes lib ts3.4",
+    "build": "run build:lib && run build:legacy:lib && run build:bundle",
+    "dev": "run build:lib:esm -w & run build:lib:cjs -w && fg",
+    "prepare": "run build:lib",
+    "prepack": "run prepare",
+    "prepublishOnly": "run build:bundle && run build:legacy:lib"
   },
   "keywords": [
     "test",
@@ -142,18 +144,6 @@
     }
   },
   "devDependencies": {
-    "@babel/cli": "7.21.0",
-    "@babel/core": "7.21.3",
-    "@types/babel__core": "^7",
-    "@types/react-test-renderer": "^18",
-    "downlevel-dts": "^0.10.0",
-    "rollup": "2.79.1",
-    "rollup-plugin-babel": "^4.4.0",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-filesize": "^9.1.2",
-    "rollup-plugin-json": "^4.0.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-replace": "^2.2.0",
-    "rollup-plugin-terser": "^7.0.2"
+    "@types/react-test-renderer": "^18"
   }
 }

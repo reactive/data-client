@@ -27,7 +27,15 @@
     "test:coverage": "yarn test --coverage --testPathIgnorePatterns=\"packages/(experimental)\"",
     "prepare": "yarn build:copy:ambient && tsc --build",
     "prepack": "yarn prepare",
-    "prepublishOnly": "yarn workspaces foreach -pti --no-private run build:legacy-types"
+    "prepublishOnly": "yarn workspaces foreach -pti --no-private run build:legacy-types",
+    "g:babel": "cd $INIT_CWD && babel --root-mode upward src --source-maps inline --extensions '.ts,.tsx,.cts,.js' --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "g:babel-lite": "cd $INIT_CWD && babel --root-mode upward src --source-maps inline --ignore '**/__tests__/**' --ignore '**/*.d.ts'",
+    "g:rollup": "cd $INIT_CWD && rollup -c",
+    "g:clean": "cd $INIT_CWD && rimraf lib ts3.4 legacy dist *.tsbuildinfo",
+    "g:downtypes": "cd $INIT_CWD && downlevel-dts",
+    "g:tsc": "cd $INIT_CWD && tsc",
+    "g:runs": "cd $INIT_CWD && run-s",
+    "g:copy": "cd $INIT_CWD && copyfiles"
   },
   "engines": {
     "node": "^12.17 || ^13.7 || >=14"
@@ -68,6 +76,7 @@
     "coveralls": "^3.1.0",
     "cpy-cli": "4.2.0",
     "cross-fetch": "^3.0.6",
+    "downlevel-dts": "^0.10.0",
     "eslint": "8.36.0",
     "eslint-plugin-babel": "^5.3.1",
     "eslint-plugin-import": "2.27.5",
@@ -80,6 +89,7 @@
     "mkdirp": "^2.0.0",
     "nock": "13.3.0",
     "node-fetch": "^3.3.0",
+    "npm-run-all": "^4.1.5",
     "prettier": "2.8.7",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -90,6 +100,15 @@
     "redux": "4.2.1",
     "rest-hooks": "workspace:^",
     "rimraf": "^4.0.0",
+    "rollup": "2.79.1",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-dts": "^5.0.0",
+    "rollup-plugin-filesize": "^9.1.2",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-replace": "^2.2.0",
+    "rollup-plugin-terser": "^7.0.2",
     "ts-node": "10.9.1",
     "typescript": "5.0.2",
     "whatwg-fetch": "3.0.0"
