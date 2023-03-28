@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1680032027252,
+  "lastUpdate": 1680036585253,
   "repoUrl": "https://github.com/data-client/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -17981,6 +17981,128 @@ window.BENCHMARK_DATA = {
             "range": "±0.49%",
             "unit": "ops/sec",
             "extra": "79 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "distinct": true,
+          "id": "0c5cee8afb8b4322175043d67453ddf72086fdbb",
+          "message": "fix: PnP compatibility improvements (#2535)",
+          "timestamp": "2023-03-28T15:45:17-05:00",
+          "tree_id": "ffecf1c4af4ad951823e1a3751e27af93afbf5ad",
+          "url": "https://github.com/data-client/rest-hooks/commit/0c5cee8afb8b4322175043d67453ddf72086fdbb"
+        },
+        "date": 1680036583763,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 280,
+            "range": "±0.15%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 5541,
+            "range": "±0.31%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 127,
+            "range": "±0.53%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 134,
+            "range": "±0.55%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 3890,
+            "range": "±0.39%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 4757,
+            "range": "±0.12%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 4752,
+            "range": "±0.58%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 4477,
+            "range": "±3.26%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 1861,
+            "range": "±0.11%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 1530,
+            "range": "±0.08%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getResponse Query-sorted",
+            "value": 408,
+            "range": "±1.91%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 280,
+            "range": "±0.17%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 116,
+            "range": "±0.35%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 125,
+            "range": "±0.22%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
           }
         ]
       }
