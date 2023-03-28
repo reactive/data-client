@@ -1,5 +1,11 @@
 # Change Log
 
+## 10.3.3
+
+### Patch Changes
+
+- 8e25fb496a: Fix pnp compatibility by not exporting a type in a js file
+
 ## 10.3.2
 
 ### Patch Changes
