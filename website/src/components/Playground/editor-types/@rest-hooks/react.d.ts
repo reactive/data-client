@@ -1,5 +1,5 @@
 import * as _rest_hooks_core from '@rest-hooks/core';
-import { Manager, State as State$1, Controller, NetworkError as NetworkError$1, ActionTypes, DenormalizeCache, legacyActions, __INTERNAL__, createReducer, applyManager } from '@rest-hooks/core';
+import { Manager, State as State$1, Controller, NetworkError, EndpointInterface, FetchFunction, Schema, DenormalizeNullable, ResolveType, Denormalize, UnknownError, ErrorTypes as ErrorTypes$1, ActionTypes, DenormalizeCache, legacyActions, __INTERNAL__, createReducer, applyManager } from '@rest-hooks/core';
 export { AbstractInstanceType, ActionTypes, CompatibleDispatch, Controller, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, ExpiryStatus, FetchAction, FetchFunction, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, ReceiveAction, ReceiveTypes, ResetAction, ResolveType, Schema, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@rest-hooks/core';
 import React$1, { Context } from 'react';
 
@@ -36,175 +36,37 @@ declare function AsyncBoundary({ children, errorComponent, fallback, }: {
     children: React$1.ReactNode;
     fallback?: React$1.ReactNode;
     errorComponent?: React$1.ComponentType<{
-        error: NetworkError$1;
+        error: NetworkError;
     }>;
 }): JSX.Element;
 declare const _default: React$1.MemoExoticComponent<typeof AsyncBoundary>;
 //# sourceMappingURL=AsyncBoundary.d.ts.map
 
-interface Props<E extends NetworkError$1> {
+interface Props<E extends NetworkError> {
     children: React$1.ReactNode;
     fallbackComponent: React$1.ComponentType<{
         error: E;
     }>;
 }
-interface State<E extends NetworkError$1> {
+interface State<E extends NetworkError> {
     error?: E;
 }
 /**
  * Handles any networking errors from suspense
  * @see https://resthooks.io/docs/api/NetworkErrorBoundary
  */
-declare class NetworkErrorBoundary<E extends NetworkError$1> extends React$1.Component<Props<E>, State<E>> {
+declare class NetworkErrorBoundary<E extends NetworkError> extends React$1.Component<Props<E>, State<E>> {
     static defaultProps: {
         fallbackComponent: ({ error }: {
-            error: NetworkError$1;
+            error: NetworkError;
         }) => JSX.Element;
     };
-    static getDerivedStateFromError(error: NetworkError$1 | any): {
-        error: NetworkError$1;
+    static getDerivedStateFromError(error: NetworkError | any): {
+        error: NetworkError;
     };
     state: State<E>;
     render(): JSX.Element;
 }
-
-type Schema = null | string | {
-    [K: string]: any;
-} | Schema[] | SchemaSimple | Serializable;
-type Serializable<T extends {
-    toJSON(): string;
-} = {
-    toJSON(): string;
-}> = {
-    prototype: T;
-};
-interface SchemaSimple<T = any> {
-    normalize(input: any, parent: any, key: any, visit: (...args: any) => any, addEntity: (...args: any) => any, visitedEntities: Record<string, any>): any;
-    denormalize(input: {}, unvisit: UnvisitFunction): [denormalized: T, found: boolean, suspend: boolean];
-    infer(args: readonly any[], indexes: NormalizedIndex, recurse: (...args: any) => any, entities: EntityTable): any;
-}
-interface SchemaClass<T = any, N = T | undefined> extends SchemaSimple<T> {
-    _normalizeNullable(): any;
-    _denormalizeNullable(): [N, boolean, boolean];
-}
-interface EntityInterface<T = any> extends SchemaSimple {
-    createIfValid?(props: any): any;
-    pk(params: any, parent?: any, key?: string): string | undefined;
-    readonly key: string;
-    merge(existing: any, incoming: any): any;
-    expiresAt?(meta: any, input: any): number;
-    mergeWithStore?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): any;
-    useIncoming?(existingMeta: any, incomingMeta: any, existing: any, incoming: any): boolean;
-    indexes?: any;
-    schema: Record<string, Schema>;
-    prototype: T;
-}
-interface UnvisitFunction {
-    (input: any, schema: any): [any, boolean, boolean];
-    og?: UnvisitFunction;
-    setLocal?: (entity: any) => void;
-}
-interface NormalizedIndex {
-    readonly [entityKey: string]: {
-        readonly [indexName: string]: {
-            readonly [lookup: string]: string;
-        };
-    };
-}
-interface EntityTable {
-    [entityKey: string]: {
-        [pk: string]: unknown;
-    } | undefined;
-}
-
-type AbstractInstanceType<T> = T extends new (...args: any) => infer U ? U : T extends {
-    prototype: infer U;
-} ? U : never;
-type DenormalizeObject<S extends Record<string, any>> = {
-    [K in keyof S]: S[K] extends Schema ? Denormalize$1<S[K]> : S[K];
-};
-type DenormalizeNullableObject<S extends Record<string, any>> = {
-    [K in keyof S]: S[K] extends Schema ? DenormalizeNullable$1<S[K]> : S[K];
-};
-interface NestedSchemaClass<T = any> {
-    schema: Record<string, Schema>;
-    prototype: T;
-}
-interface RecordClass<T = any> extends NestedSchemaClass<T> {
-    fromJS: (...args: any) => AbstractInstanceType<T>;
-}
-type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> = keyof S['schema'] extends never ? S['prototype'] : string extends keyof S['schema'] ? S['prototype'] : S['prototype'];
-type DenormalizeReturnType<T> = T extends (input: any, unvisit: any) => [infer R, any, any] ? R : never;
-type Denormalize$1<S> = S extends EntityInterface<infer U> ? U : S extends RecordClass ? AbstractInstanceType<S> : S extends SchemaClass ? DenormalizeReturnType<S['denormalize']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize$1<F>[] : S extends {
-    [K: string]: any;
-} ? DenormalizeObject<S> : S;
-type DenormalizeNullable$1<S> = S extends EntityInterface<any> ? DenormalizeNullableNestedSchema<S> | undefined : S extends RecordClass ? DenormalizeNullableNestedSchema<S> : S extends SchemaClass ? DenormalizeReturnType<S['_denormalizeNullable']> : S extends Serializable<infer T> ? T : S extends Array<infer F> ? Denormalize$1<F>[] | undefined : S extends {
-    [K: string]: any;
-} ? DenormalizeNullableObject<S> : S;
-
-interface NetworkError extends Error {
-    status: number;
-    response?: Response;
-}
-interface UnknownError extends Error {
-    status?: unknown;
-    response?: unknown;
-}
-type ErrorTypes$1 = NetworkError | UnknownError;
-
-/** What the function's promise resolves to */
-type ResolveType<E extends (...args: any) => any> = ReturnType<E> extends Promise<infer R> ? R : never;
-/** Fallback to schema if fetch function isn't defined */
-type InferReturn<F extends FetchFunction, S extends Schema | undefined> = S extends undefined ? ReturnType<F> : ReturnType<F> extends unknown ? Promise<Denormalize$1<S>> : ReturnType<F>;
-
-type ExpiryStatusInterface = 1 | 2 | 3;
-
-interface SnapshotInterface {
-    getResponse: <E extends Pick<EndpointInterface, 'key' | 'schema' | 'invalidIfStale'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => {
-        data: any;
-        expiryStatus: ExpiryStatusInterface;
-        expiresAt: number;
-    };
-    getError: <E extends Pick<EndpointInterface, 'key'>, Args extends readonly [...Parameters<E['key']>]>(endpoint: E, ...args: Args) => ErrorTypes$1 | undefined;
-    readonly fetchedAt: number;
-}
-
-/** Defines a networking endpoint */
-interface EndpointInterface<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends EndpointExtraOptions<F> {
-    (...args: Parameters<F>): InferReturn<F, S>;
-    key(...args: Parameters<F>): string;
-    readonly sideEffect?: M;
-    readonly schema?: S;
-}
-interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
-    /** Default data expiry length, will fall back to NetworkManager default if not defined */
-    readonly dataExpiryLength?: number;
-    /** Default error expiry length, will fall back to NetworkManager default if not defined */
-    readonly errorExpiryLength?: number;
-    /** Poll with at least this frequency in miliseconds */
-    readonly pollFrequency?: number;
-    /** Marks cached resources as invalid if they are stale */
-    readonly invalidIfStale?: boolean;
-    /** Enables optimistic updates for this request - uses return value as assumed network response
-     * @deprecated use https://resthooks.io/docs/api/Endpoint#getoptimisticresponse instead
-     */
-    optimisticUpdate?(...args: Parameters<F>): ResolveType<F>;
-    /** Enables optimistic updates for this request - uses return value as assumed network response */
-    getOptimisticResponse?(snap: SnapshotInterface, ...args: Parameters<F>): ResolveType<F>;
-    /** Determines whether to throw or fallback to */
-    errorPolicy?(error: any): 'hard' | 'soft' | undefined;
-    /** User-land extra data to send */
-    readonly extra?: any;
-}
-
-type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Promise<R>;
-
-/** This file exists to keep compatibility with SchemaDetail, and SchemaList type hacks
- * Support can be dropped once @rest-hooks/rest@5 support is dropped
- */
-
-type Denormalize<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? Denormalize$1<S> : Denormalize$1<Extract<S, EntityInterface[]>> : Denormalize$1<Extract<S, EntityInterface>>;
-type DenormalizeNullable<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? DenormalizeNullable$1<S> : DenormalizeNullable$1<Extract<S, EntityInterface[]>> : DenormalizeNullable$1<Extract<S, EntityInterface>>;
 
 type CondNull$1<P, A, B> = P extends null ? A : B;
 type SuspenseReturn<E extends EndpointInterface<FetchFunction, Schema | undefined, undefined | false>, Args extends readonly [...Parameters<E>] | readonly [null]> = CondNull$1<Args[0], E['schema'] extends undefined | null ? undefined : DenormalizeNullable<E['schema']>, E['schema'] extends undefined | null ? ResolveType<E> : Denormalize<E['schema']>>;
