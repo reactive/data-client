@@ -15,11 +15,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/babel-preset@npm:4.2.0":
-  version: 4.2.0
-  resolution: "@anansi/babel-preset@npm:4.2.0"
+"@anansi/babel-preset@npm:4.2.1":
+  version: 4.2.1
+  resolution: "@anansi/babel-preset@npm:4.2.1"
   dependencies:
-    "@anansi/ts-utils": ^0.3.4
+    "@anansi/ts-utils": ^0.3.5
     "@babel/plugin-proposal-class-properties": ^7.18.6
     "@babel/plugin-proposal-class-static-block": ^7.21.0
     "@babel/plugin-proposal-decorators": ^7.21.0
@@ -80,7 +80,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: e07f2962dd5fbd5d8e2a864d6de372dc7ebd09915b65e3a847714640983676a4426e308a4368103f26a485e2eee7f402280632522ce3e42dbf610e49f03ae6e8
+  checksum: 0310cec64d3e9fa6ba7d32f9c8ef2b56d927fccf8cd4470a0f68d9b511088854f19f6e5f276585f8ce7180c239071df559e0e9692a3e04c7f23b8efbebf94613
   languageName: node
   linkType: hard
 
@@ -169,12 +169,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/ts-utils@npm:^0.3.4":
-  version: 0.3.4
-  resolution: "@anansi/ts-utils@npm:0.3.4"
+"@anansi/ts-utils@npm:^0.3.4, @anansi/ts-utils@npm:^0.3.5":
+  version: 0.3.5
+  resolution: "@anansi/ts-utils@npm:0.3.5"
   peerDependencies:
     typescript: ^3.0.0 || ^4.0.0 || ^5.0.0
-  checksum: 319cec285bd0d78cf6b7fb3abd37789538eeac8d05882b8274812b2b1e768ba1565f8e1947fc5646050fe8fcd4cc2c96e5754775c0bbf915efb7cbd429c7a976
+  checksum: bd7ae6eedcfc2f5f1d7420a14ccc35c759c92bb4777736c205f8c8a6e6acdc0b8a7f334e1c170dba59c32d5f812004c069cb5aa49635e82065269cd36f1c0e08
   languageName: node
   linkType: hard
 
@@ -11682,7 +11682,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "github-app@workspace:examples/github-app"
   dependencies:
-    "@anansi/babel-preset": 4.2.0
+    "@anansi/babel-preset": 4.2.1
     "@anansi/browserslist-config": 1.4.2
     "@anansi/eslint-plugin": 0.16.4
     "@anansi/router": 0.7.31
@@ -20972,7 +20972,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@anansi/babel-preset": 4.2.0
+    "@anansi/babel-preset": 4.2.1
     "@anansi/browserslist-config": 1.4.2
     "@anansi/eslint-plugin": 0.16.4
     "@anansi/jest-preset": 0.10.5
@@ -22686,7 +22686,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "todo-app@workspace:examples/todo-app"
   dependencies:
-    "@anansi/babel-preset": 4.2.0
+    "@anansi/babel-preset": 4.2.1
     "@anansi/browserslist-config": 1.4.2
     "@anansi/eslint-plugin": 0.16.4
     "@anansi/webpack-config": 15.0.2
