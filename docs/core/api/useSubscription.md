@@ -91,7 +91,8 @@ function MasterPrice({ symbol }: { symbol: string }) {
 Using the last argument `active` we control whether the subscription is active or not
 based on whether the element rendered is [visible on screen](https://usehooks.com/useOnScreen/).
 
-[useOnScreen()](https://usehooks.com/useOnScreen/) uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant.
+[useOnScreen()](https://usehooks.com/useOnScreen/) uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant. [useRef](https://react.dev/reference/react/useRef) allows
+us to access the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
 
 ## Types
 

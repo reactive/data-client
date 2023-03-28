@@ -13,7 +13,7 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 
 ## Tell react to update
 
-Just like [setState()](https://beta.reactjs.org/apis/react/useState), we must make React aware of the any mutations so it can rerender.
+Just like [setState()](https://react.dev/reference/react/useState#setstate), we must make React aware of the any mutations so it can rerender.
 
 [Controller](../api/Controller.md) from [useController](../api/useController.md) provides this functionality in a type-safe manner.
 [Controller.fetch()](../api/Controller.md#fetch) lets us trigger async mutations.
@@ -83,7 +83,7 @@ function ArticleEdit() {
 }
 ```
 
-React 18 version with [useTransition](https://beta.reactjs.org/apis/react/useTransition)
+React 18 version with [useTransition](https://react.dev/reference/react/useTransition)
 
 ```tsx
 import { useTransition } from 'react';
@@ -104,7 +104,7 @@ function ArticleEdit() {
 ## Zero delay mutations {#optimistic-updates}
 
 [Controller.fetch](../api/Controller.md#fetch) call the mutation endpoint, and update React based on the response.
-While [useTransition](https://beta.reactjs.org/apis/react/useTransition) improves the experience,
+While [useTransition](https://react.dev/reference/react/useTransition) improves the experience,
 the UI still ultimately waits on the fetch completion to update.
 
 For many cases like toggling todo.completed, incrementing an upvote, or dragging and drop
@@ -191,7 +191,7 @@ render(<TodoList />);
 
 </HooksPlayground>
 
-[getOptimisticResponse](/rest/guides/optimistic-updates) is just like [setState with an updater function](https://beta.reactjs.org/apis/react/useState#updating-state-based-on-the-previous-state). Using [snap](../api/Snapshot.md) for access to the store to get the previous
+[getOptimisticResponse](/rest/guides/optimistic-updates) is just like [setState with an updater function](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state). Using [snap](../api/Snapshot.md) for access to the store to get the previous
 value, as well as the fetch arguments, we return the _expected_ fetch response.
 
 ```typescript

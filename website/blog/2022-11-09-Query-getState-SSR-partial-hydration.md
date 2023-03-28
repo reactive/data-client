@@ -40,7 +40,7 @@ Client-side React concurrent features like startTransition only work with Contex
 React will only re-render Suspended elements. This means any context provides must suspend the context themselves,
 which would mean the suspense boundaries would have to be around the entire application.
 
-With this update, we use [useSyncExternalStore](https://reactjs.org/docs/hooks-reference.html#usesyncexternalstore) if
+With this update, we use [useSyncExternalStore](https://react.dev/reference/react/useSyncExternalStore) if
 when running SSR. This is not ideal to replace client render because it eliminates startTransition benefits client-side.
 
 In addition, the [SSR helpers](https://www.npmjs.com/package/@rest-hooks/ssr) were updated to better

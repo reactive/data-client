@@ -186,7 +186,7 @@ export class Todo extends GQLEntity {
 
 The [pk()](/rest/api/Entity#pk) (primary key) method is used to build a lookup table. This is
 commonly known as data normalization. To avoid bugs, application jank and performance problems,
-it is critical to [choose the right (normalized) state structure](https://beta.reactjs.org/learn/choosing-the-state-structure).
+it is critical to [choose the right (normalized) state structure](https://react.dev/learn/choosing-the-state-structure).
 
 We can now bind our Entity to both our get endpoint and update endpoint, providing our runtime
 data integrity as well as TypeScript definitions.
@@ -280,7 +280,7 @@ function ArticleEdit() {
 }
 ```
 
-React 18 version with [useTransition](https://beta.reactjs.org/apis/react/useTransition)
+React 18 version with [useTransition](https://react.dev/reference/react/useTransition)
 
 ```tsx
 import { useTransition } from 'react';
@@ -401,7 +401,7 @@ ctrl.fetch(TodoResource.delete, { id: 5 });
 ### Zero delay mutations {#optimistic-updates}
 
 [Controller.fetch](./api/Controller.md#fetch) call the mutation endpoint, and update React based on the response.
-While [useTransition](https://beta.reactjs.org/apis/react/useTransition) improves the experience,
+While [useTransition](https://react.dev/reference/react/useTransition) improves the experience,
 the UI still ultimately waits on the fetch completion to update.
 
 For many cases like toggling todo.completed, incrementing an upvote, or dragging and drop
@@ -410,7 +410,7 @@ a frame this can be too slow!
 We can optionally tell Rest Hooks to perform the React renders immediately. To do this
 we'll need to specify _how_.
 
-[getOptimisticResponse](/rest/guides/optimistic-updates) is just like [setState with an updater function](https://beta.reactjs.org/apis/react/useState#updating-state-based-on-the-previous-state). Using [snap](./api/Snapshot.md) for access to the store to get the previous
+[getOptimisticResponse](/rest/guides/optimistic-updates) is just like [setState with an updater function](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state). Using [snap](./api/Snapshot.md) for access to the store to get the previous
 value, as well as the fetch arguments, we return the _expected_ fetch response.
 
 ```typescript

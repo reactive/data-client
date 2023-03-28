@@ -102,7 +102,7 @@ render(<TodoList />);
 </TabItem>
 </Tabs>
 
-<a href="https://beta.reactjs.org/learn/passing-data-deeply-with-context" target="_blank">
+<a href="https://react.dev/learn/passing-data-deeply-with-context" target="_blank">
 <ThemedImage
 alt="Endpoints used in many contexts"
 sources={{
@@ -151,7 +151,7 @@ export default function TodoPage({ id }: { id: number }) {
 }
 ```
 
-[useTransition](https://beta.reactjs.org/apis/react/useTransition) powered routers or navigation
+[useTransition](https://react.dev/reference/react/useTransition) powered routers or navigation
 means React never has to show a loading fallback. Of course, these are only possible in React 18 or above,
 so for 16 and 17 this will merely centralize the fallback, eliminating 100s of loading spinners.
 

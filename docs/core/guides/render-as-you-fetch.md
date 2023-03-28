@@ -16,8 +16,8 @@ These are some scenarios where this pattern is especially useful:
 
 - Server Side Rendering
 - Loading data in parallel with code
-- [Concurrent Mode](https://reactjs.org/docs/concurrent-mode-intro.html)
-  - [useTransition()](https://reactjs.org/docs/concurrent-mode-reference.html#usetransition)
+- [Concurrent Mode](https://react.dev/blog/2022/03/29/react-v18#what-is-concurrent-react)
+  - [useTransition()](https://react.dev/reference/react/useTransition)
 
 Fetch-as-you-render can be adopted incrementally. Components using data can [useSuspense()](../api/useSuspense)
 and be assured they will get their data when it's ready. And when render-as-you-fetch optimizations

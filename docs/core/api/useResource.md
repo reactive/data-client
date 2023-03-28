@@ -56,7 +56,7 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
   - and When no identical requests are in flight
   - and when params are not null
 - [On Error (404, 500, etc)](https://www.restapitutorial.com/httpstatuscodes.html):
-  - Throws error to be [caught](../getting-started/data-dependency#async-fallbacks) by [Error Boundaries](https://reactjs.org/docs/error-boundaries.html)
+  - Throws error to be [caught](../getting-started/data-dependency#async-fallbacks) by [Error Boundaries](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary)
 - While Loading:
   - Returns previously cached if exists (even if stale)
     - except in case of delete or [invalidation](./Controller.md#invalidate)

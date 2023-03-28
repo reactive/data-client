@@ -134,7 +134,7 @@ export const ArticleResource = createResource({
 </Tabs>
 
 [Entity](./api/Entity.md) is a kind of schema that [has a primary key (pk)](/docs/concepts/normalization). This is what allows us
-to [avoid state duplication](https://beta.reactjs.org/learn/choosing-the-state-structure#principles-for-structuring-state), which
+to [avoid state duplication](https://react.dev/learn/choosing-the-state-structure#principles-for-structuring-state), which
 is one of the core design choices that enable such high safety and performance characteristics.
 
 [static schema](./api/Entity.md#schema) lets us specify declarative transformations like auto [field deserialization](./guides/network-transform.md#deserializing-fields) with `createdAt` and [nesting the author field](./guides/relational-data.md).
