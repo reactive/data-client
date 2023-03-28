@@ -6,6 +6,9 @@
   },
   "include": ["src"],
   "references": [
+    { "path": "../core" },
+    { "path": "../endpoint" },
+    { "path": "../normalizr" },
     { "path": "../react" },
     { "path": "../test" }
   ]

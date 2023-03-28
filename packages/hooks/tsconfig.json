@@ -8,6 +8,6 @@
   "include": ["src"],
   "references": [
     { "path": "../../__tests__" },
-    { "path": "../endpoint" }
+    { "path": "../normalizr" }
   ]
 }

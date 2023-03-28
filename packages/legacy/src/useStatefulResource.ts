@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import type { ErrorTypes } from '@rest-hooks/core';
+import { denormalize } from '@rest-hooks/normalizr';
 import type {
   Schema,
   Denormalize,
   DenormalizeNullable,
-  ErrorTypes,
   EndpointInterface,
   FetchFunction,
-} from '@rest-hooks/normalizr';
-import { denormalize, ExpiryStatus } from '@rest-hooks/normalizr';
+} from '@rest-hooks/react';
+import { ExpiryStatus } from '@rest-hooks/react';
 import { StateContext, __INTERNAL__, useController } from '@rest-hooks/react';
 import { useContext, useMemo } from 'react';
 

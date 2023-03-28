@@ -5,18 +5,18 @@ on:
     branches:
       - master
     paths:
-      - 'packages/normalizr/**'
+      - 'packages/normalizr/src/**'
       - 'packages/endpoint/src/schemas/**'
-      - 'packages/core/**'
+      - 'packages/core/src/**'
       - 'examples/benchmark/**'
       - '.github/workflows/benchmark.yml'
   push:
     branches:
       - master
     paths:
-      - 'packages/normalizr/**'
+      - 'packages/normalizr/src/**'
       - 'packages/endpoint/src/schemas/**'
-      - 'packages/core/**'
+      - 'packages/core/src/**'
       - 'examples/benchmark/**'
 jobs:
   benchmark:

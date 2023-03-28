@@ -129,6 +129,13 @@
     }
   },
   "devDependencies": {
-    "next": "^13.0.4"
+    "@rest-hooks/react": "workspace:*",
+    "@rest-hooks/redux": "workspace:*",
+    "@types/node": "^18.15.10",
+    "@types/react": "^18.0.30",
+    "@types/react-dom": "^18.0.11",
+    "next": "^13.0.4",
+    "react-dom": "^18.2.0",
+    "redux": "^4.2.1"
   }
 }

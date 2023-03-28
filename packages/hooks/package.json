@@ -84,5 +84,9 @@
     "@types/react": {
       "optional": true
     }
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.10",
+    "@types/react": "^18.0.30"
   }
 }

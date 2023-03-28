@@ -139,5 +139,11 @@
     "@types/react": {
       "optional": true
     }
+  },
+  "devDependencies": {
+    "@react-navigation/native": "^6.1.6",
+    "@types/node": "^18.15.10",
+    "@types/react": "^18.0.30",
+    "react-native": "^0.71.4"
   }
 }

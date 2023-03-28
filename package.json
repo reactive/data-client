@@ -5,8 +5,8 @@
     "examples/*"
   ],
   "scripts": {
-    "changeset:version": "run changeset version && yarn install",
-    "changeset:publish": "run build && run changeset publish",
+    "changeset:version": "run changeset version && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install",
+    "changeset:publish": "run build:types && run changeset publish",
     "release": "lerna publish --no-private --create-release=github",
     "version": "lerna version --no-private --create-release=github",
     "version:breaking": "lerna version --create-release=github",
@@ -66,9 +66,10 @@
     "@types/jest": "29.5.0",
     "@types/lodash": "4.14.191",
     "@types/node": "18.15.10",
-    "@types/react": "18.0.29",
+    "@types/react": "18.0.30",
     "@typescript-eslint/eslint-plugin": "5.57.0",
     "@typescript-eslint/parser": "5.57.0",
+    "babel-plugin-module-resolver": "5.0.0",
     "benchmark": "^2.1.4",
     "conventional-changelog-anansi": "^0.2.0",
     "copyfiles": "^2.4.1",

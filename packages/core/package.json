@@ -109,5 +109,8 @@
     "@babel/runtime": "^7.17.0",
     "@rest-hooks/normalizr": "^10.0.3",
     "flux-standard-action": "^2.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.10"
   }
 }
