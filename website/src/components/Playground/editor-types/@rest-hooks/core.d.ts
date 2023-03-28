@@ -1,4 +1,3 @@
-/// <reference types="react" />
 import { ErrorFluxStandardActionWithPayloadAndMeta, FSA, FSAWithPayloadAndMeta, FSAWithMeta } from 'flux-standard-action';
 
 type Schema = null | string | {
@@ -544,7 +543,7 @@ interface MiddlewareController<Actions = ActionTypes> extends Controller<RHDispa
     controller: Controller<RHDispatch<Actions>>;
 }
 type Middleware$2<Actions = any> = <C extends MiddlewareController<Actions>>(controller: C) => (next: C['dispatch']) => C['dispatch'];
-type RestHooksReducer = React.Reducer<State<unknown>, ActionTypes$2>;
+type RestHooksReducer = (prevState: State<unknown>, action: ActionTypes$2) => State<unknown>;
 type Dispatch$1<R extends Reducer<any, any>> = (action: ReducerAction<R>) => Promise<void>;
 type Reducer<S, A> = (prevState: S, action: A) => S;
 type ReducerState<R extends Reducer<any, any>> = R extends Reducer<infer S, any> ? S : never;

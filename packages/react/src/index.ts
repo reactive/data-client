@@ -34,6 +34,7 @@ export type {
   ReceiveTypes,
   NetworkError,
   UnknownError,
+  ErrorTypes,
   AbstractInstanceType,
   UpdateFunction,
   State,

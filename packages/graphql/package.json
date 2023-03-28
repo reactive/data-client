@@ -104,5 +104,8 @@
   "dependencies": {
     "@babel/runtime": "^7.17.0",
     "@rest-hooks/endpoint": "^3.7.4"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.10"
   }
 }

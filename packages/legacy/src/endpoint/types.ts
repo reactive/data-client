@@ -1,7 +1,14 @@
-import { Schema } from '@rest-hooks/normalizr';
-import type { Denormalize, UpdateFunction } from '@rest-hooks/normalizr';
+import type { Schema, Denormalize, Normalize } from '@rest-hooks/endpoint';
 
 import { FetchShape } from './shapes.js';
+
+export type UpdateFunction<
+  SourceSchema extends Schema | undefined,
+  DestSchema extends Schema,
+> = (
+  sourceResults: Normalize<SourceSchema>,
+  destResults: Normalize<DestSchema> | undefined,
+) => Normalize<DestSchema>;
 
 export type ResultShape<RS> = RS extends { schema: infer U } ? U : never;
 export type SelectReturn<RS> = RS extends {

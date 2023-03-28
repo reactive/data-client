@@ -24,7 +24,10 @@ export type Middleware<Actions = any> = <
   controller: C,
 ) => (next: C['dispatch']) => C['dispatch'];
 
-export type RestHooksReducer = React.Reducer<State<unknown>, ActionTypes>;
+export type RestHooksReducer = (
+  prevState: State<unknown>,
+  action: ActionTypes,
+) => State<unknown>;
 
 /* The next are types from React; but we don't want dependencies on it */
 export type Dispatch<R extends Reducer<any, any>> = (

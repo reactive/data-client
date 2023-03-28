@@ -1,8 +1,8 @@
-import {
+import type {
   EndpointInterface,
   Schema,
   FetchFunction,
-} from '@rest-hooks/normalizr';
+} from '@rest-hooks/react';
 import { useController } from '@rest-hooks/react';
 import { useEffect } from 'react';
 
@@ -11,11 +11,7 @@ import { useEffect } from 'react';
  * @see https://resthooks.io/docs/api/useSubscription
  */
 export default function useSubscription<
-  E extends EndpointInterface<
-    FetchFunction,
-    Schema | undefined,
-    undefined | false
-  >,
+  E extends EndpointInterface<FetchFunction, Schema | undefined>,
   Args extends readonly [...Parameters<E>] | readonly [null],
 >(endpoint: E, ...args: Args) {
   const controller = useController();
@@ -25,9 +21,9 @@ export default function useSubscription<
   useEffect(() => {
     if (!key) return;
 
-    controller.subscribe(endpoint, ...args);
+    controller.subscribe(endpoint as any, ...args);
     return () => {
-      controller.unsubscribe(endpoint, ...args);
+      controller.unsubscribe(endpoint as any, ...args);
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

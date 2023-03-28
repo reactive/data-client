@@ -1,5 +1,4 @@
 import { Schema, schema as schemas } from '@rest-hooks/endpoint';
-import { isEntity } from '@rest-hooks/normalizr';
 
 export default function getEntityPath(schema: Schema): string[] | false {
   if (
@@ -21,4 +20,8 @@ export default function getEntityPath(schema: Schema): string[] | false {
     }
   }
   return false;
+}
+
+export function isEntity(schema: Schema) {
+  return schema !== null && (schema as any).pk !== undefined;
 }
