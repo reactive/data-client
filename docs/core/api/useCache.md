@@ -78,9 +78,18 @@ export default function NotAuthorized() {
 import { User } from './api/User';
 
 export default function AuthorizedUserOnlyControls({ user }: { user: User }) {
+  const ctrl = useController();
+  const handleLogout = (e: any) => {
+    e.preventDefault();
+    return ctrl.invalidate(UserResource.current);
+  };
+
   return (
     <div>
       <p>Welcome, {user.name}!</p>
+      <a href="#" onClick={handleLogout}>
+        Logout
+      </a>
     </div>
   );
 }

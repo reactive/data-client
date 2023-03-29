@@ -161,6 +161,8 @@ and sent to [pk()](#pk).
 
 **Defaults** to simply copying the response (`{...input}`)
 
+How to override to [build reverse-lookups for relational data](../guides/relational-data.md#reverse-lookups)
+
 ### static merge(existing, incoming): mergedValue {#merge}
 
 ```typescript
@@ -175,6 +177,8 @@ static merge(existing: any, incoming: any) {
 Merge is used to handle cases when an incoming entity is already found. This is called directly
 when the same entity is found in one response. By default it is also called when [mergeWithStore()](#mergeWithStore)
 determines the incoming entity should be merged with an entity already persisted in the Rest Hooks store.
+
+How to override to [build reverse-lookups for relational data](../guides/relational-data.md#reverse-lookups)
 
 ### static mergeWithStore(existingMeta, incomingMeta, existing, incoming): mergedValue {#mergeWithStore}
 

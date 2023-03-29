@@ -448,6 +448,16 @@ response. If the endpoint uses the entity in an Array, it will simply be removed
     });
   },
   delay: () => 150,
+},
+{
+  endpoint: new RestEndpoint({
+    path: '/api/currentTime/:id',
+    method: 'DELETE',
+  }),
+  response({ id }) {
+    return {id}
+  },
+  delay: () => 150,
 }
 ]}
 >
@@ -469,13 +479,15 @@ export const lastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   schema: TimedEntity,
 });
+
 ```
 
 ```tsx title="ShowTime"
 import { lastUpdated, TimedEntity } from './api/lastUpdated';
 
-const mockDelete = ({ id }) => Promise.resolve({ id });
-const deleteLastUpdated = new Endpoint(mockDelete, {
+export const deleteLastUpdated = new RestEndpoint({
+  path: '/api/currentTime/:id',
+  method: 'DELETE',
   schema: new schema.Delete(TimedEntity),
 });
 
@@ -490,6 +502,9 @@ function ShowTime() {
       <button onClick={() => ctrl.fetch(deleteLastUpdated, { id: '1' })}>
         Delete
       </button>
+      <button onClick={() => ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })}>
+        Delete (with no fetch)
+      </button>
     </div>
   );
 }
@@ -497,6 +512,10 @@ render(<ShowTime />);
 ```
 
 </HooksPlayground>
+
+[Controller.fetch()](../api/Controller.md#fetch) lets us update the server and store.
+We can use [Controller.setResponse()](../api/Controller.md#setResponse) for cases where we
+simply want to change the local store without updating the server.
 
 ## Error policy
 
