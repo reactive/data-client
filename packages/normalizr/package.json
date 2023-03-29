@@ -93,6 +93,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@anansi/browserslist-config": "^1.4.2",
     "@types/node": "^18.15.10",
     "immutable": "4.2.2"
   },

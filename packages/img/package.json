@@ -82,6 +82,7 @@
     }
   },
   "devDependencies": {
+    "@anansi/browserslist-config": "^1.4.2",
     "@rest-hooks/react": "^7.2.10",
     "@types/node": "^18.15.10",
     "@types/react": "^18.0.30"

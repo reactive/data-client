@@ -74,6 +74,7 @@
     }
   },
   "devDependencies": {
+    "@anansi/browserslist-config": "^1.4.2",
     "@rest-hooks/endpoint": "workspace:*",
     "@rest-hooks/react": "workspace:*",
     "@rest-hooks/rest": "workspace:*",
