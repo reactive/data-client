@@ -5,7 +5,7 @@
   "commitMessageTopic": "`{{depName}}`",
   "dependencyDashboardApproval": true,
   "rangeStrategy": "auto",
-  "ignoreDeps": ["whatwg-fetch", "react-error-overlay", "msw", "downlevel-dts", "immutable"],
+  "ignoreDeps": ["react-error-overlay", "downlevel-dts", "immutable"],
   "timezone": "America/Chicago",
   "postUpdateOptions": ["yarnDedupeHighest"],
   "packageRules": [
