@@ -4749,7 +4749,7 @@ __metadata:
     "@rest-hooks/use-enhanced-reducer": ^1.2.8
     "@types/node": ^18.15.10
     "@types/react": ^18.0.30
-    react-native: ^0.71.4
+    react-native: ^0.71.5
   peerDependencies:
     "@react-navigation/native": ^6.0.0
     "@types/react": ^16.8.4 || ^17.0.0 || ^18.0.0
@@ -20038,7 +20038,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native@npm:^0.71.4":
+"react-native@npm:0.71.5, react-native@npm:^0.71.5":
   version: 0.71.5
   resolution: "react-native@npm:0.71.5"
   dependencies:
@@ -21071,7 +21071,7 @@ __metadata:
     prettier: 2.8.7
     react: 18.2.0
     react-dom: 18.2.0
-    react-native: ^0.71.4
+    react-native: 0.71.5
     react-native-safe-area-context: ^4.4.1
     react-native-screens: ^3.18.2
     react-test-renderer: 18.2.0
