@@ -1,5 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`PollingSubscription fresh data cleanup() should not run even if interval not cancelled 1`] = `
+[
+  "Poll intervalId for test.com2 still running, but intervalId deleted",
+]
+`;
+
 exports[`PollingSubscription fresh data should call after period 1`] = `
 [
   {

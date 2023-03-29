@@ -107,9 +107,10 @@ describe.each([
     jest.useRealTimers();
   });
 
-  /* TODO: this uses non-native testing so it doesn't work
   it('useSubscription() + useCache()', async () => {
-    jest.useFakeTimers();
+    jest.useFakeTimers({
+      legacyFakeTimers: true,
+    });
     const frequency = PollingArticleResource.get.pollFrequency as number;
     expect(frequency).toBeDefined();
 
@@ -124,12 +125,7 @@ describe.each([
       { initialProps: { active: true } },
     );
 
-    await validateSubscription(
-      result,
-      frequency,
-      articlePayload,
-      waitFor,
-    );
+    await validateSubscription(result, frequency, articlePayload, waitFor);
 
     // should not update if active is false
     rerender({ active: false });
@@ -141,14 +137,16 @@ describe.each([
 
     // errors should not fail when data already exists
     nock.cleanAll();
-    jsonNock().get(`/article/${articlePayload.id}`).reply(403, () => {
-      return { message: 'you fail' };
-    });
+    jsonNock()
+      .get(`/article/${articlePayload.id}`)
+      .reply(403, () => {
+        return { message: 'you fail' };
+      });
     rerender({ active: true });
     jest.advanceTimersByTime(frequency);
     expect((result.current as any).title).toBe('fiver');
     jest.useRealTimers();
-  });*/
+  });
 
   it('should console.error() with no frequency specified', async () => {
     const oldError = console.error;
@@ -164,21 +162,22 @@ describe.each([
     await renderRestHook.allSettled();
   });
 
-  /*it.only('useSubscription() without active arg', async () => {
-    jest.useFakeTimers();
+  it('useSubscription() without active arg', async () => {
+    jest.useFakeTimers({
+      legacyFakeTimers: true,
+    });
     const frequency = PollingArticleResource.get.pollFrequency as number;
     expect(frequency).toBeDefined();
     expect(PollingArticleResource.anotherGet.pollFrequency).toBeDefined();
 
-    const { result } = renderRestHook(() => {
+    const { result, waitFor } = renderRestHook(() => {
       useSubscription(PollingArticleResource.get, { id: articlePayload.id });
       return useCache(PollingArticleResource.get, { id: articlePayload.id });
     });
 
-    await validateSubscription(result, frequency, articlePayload);
+    await validateSubscription(result, frequency, articlePayload, waitFor);
     await renderRestHook.allSettled();
-
-  });*/
+  });
 
   it('useSubscription() should dispatch rest-hooks/subscribe only once even with rerender', async () => {
     const fakeDispatch = jest.fn();

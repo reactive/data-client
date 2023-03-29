@@ -65,6 +65,7 @@ export default function makeRenderRestHook(
         rej();
       });
       (managers[0] as any).clearAll();
+      managers.forEach(manager => manager.cleanup());
     };
     renderRestHook.allSettled = async () => {
       return (managers[0] as NetworkManager).allSettled();
@@ -145,7 +146,7 @@ export default function makeRenderRestHook(
     return ret;
   }) as any;
   renderRestHook.cleanup = () => {};
-  renderRestHook.allSettled = () => Promise.resolve();
+  renderRestHook.allSettled = () => Promise.allSettled([]);
   return renderRestHook;
 }
 interface ProviderProps {
@@ -165,4 +166,7 @@ type RenderRestHook = (<P, R>(
   },
 ) => RenderHookResult<R, P> & {
   controller: Controller;
-}) & { cleanup: () => void; allSettled: () => Promise<unknown> };
+}) & {
+  cleanup: () => void;
+  allSettled: () => Promise<PromiseSettledResult<unknown>[]>;
+};

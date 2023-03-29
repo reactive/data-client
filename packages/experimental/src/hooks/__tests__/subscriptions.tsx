@@ -110,7 +110,9 @@ describe.each([
   });
 
   it('useSubscription() + useCache()', async () => {
-    jest.useFakeTimers();
+    jest.useFakeTimers({
+      legacyFakeTimers: true,
+    });
     const frequency = PollingArticleResource.get.pollFrequency as number;
     expect(frequency).toBeDefined();
 
@@ -169,7 +171,9 @@ describe.each([
   });
 
   it('useSubscription() without active arg', async () => {
-    jest.useFakeTimers();
+    jest.useFakeTimers({
+      legacyFakeTimers: true,
+    });
     const frequency = PollingArticleResource.get.pollFrequency as number;
     expect(frequency).toBeDefined();
     expect(PollingArticleResource.anotherGet.pollFrequency).toBeDefined();
