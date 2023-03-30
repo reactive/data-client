@@ -5,8 +5,6 @@ import type {
   Schema,
   FetchFunction,
   ResolveType,
-  EndpointInterface,
-  Normalize,
 } from '@rest-hooks/endpoint';
 
 import { OptionsToFunction } from './OptionsToFunction.js';
