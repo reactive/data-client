@@ -5,10 +5,13 @@ import type {
   Schema,
   FetchFunction,
   ResolveType,
+  EndpointInterface,
+  Normalize,
 } from '@rest-hooks/endpoint';
 
 import { OptionsToFunction } from './OptionsToFunction.js';
 import { PathArgs } from './pathTypes.js';
+import { EndpointUpdateFunction } from './RestEndpointTypeHelp.js';
 import { RequiredKeys } from './utiltypes.js';
 
 export interface RestInstance<
@@ -79,7 +82,12 @@ export type RestEndpointExtendOptions<
   O extends PartialRestGenerics | {},
   E extends RestInstance,
   F extends FetchFunction,
-> = RestEndpointOptions<OptionsToFunction<O, E, F>> &
+> = RestEndpointOptions<
+  OptionsToFunction<O, E, F>,
+  'schema' extends keyof O
+    ? Extract<O['schema'], Schema | undefined>
+    : E['schema']
+> &
   Partial<Omit<E, KeyofRestEndpoint | 'body' | 'searchParams'>>;
 
 type OptionsToRestEndpoint<
@@ -206,8 +214,10 @@ type OptionsBodyDefault<O extends RestGenerics> = 'body' extends keyof O
   ? O & { body: any }
   : O & { body: undefined };
 
-export interface RestEndpointOptions<F extends FetchFunction = FetchFunction>
-  extends EndpointExtraOptions<F> {
+export interface RestEndpointOptions<
+  F extends FetchFunction = FetchFunction,
+  S extends Schema | undefined = undefined,
+> extends EndpointExtraOptions<F> {
   fetch?: F;
   urlPrefix?: string;
   requestInit?: RequestInit;
@@ -220,7 +230,7 @@ export interface RestEndpointOptions<F extends FetchFunction = FetchFunction>
   getRequestInit?(body: any): RequestInit;
   fetchResponse?(input: RequestInfo, init: RequestInit): Promise<any>;
   parseResponse?(response: Response): Promise<any>;
-  update?(...args: any): any;
+  update?: EndpointUpdateFunction<F, S>;
 }
 
 export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
@@ -233,7 +243,8 @@ export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
       O['process'] extends {}
         ? ReturnType<O['process']>
         : any /*Denormalize<O['schema']>*/
-    >
+    >,
+    O['schema']
   >;
 
 export interface RestEndpointConstructor {

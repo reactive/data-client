@@ -206,7 +206,7 @@ type NormalizeNullable<S> = Extract<S, EntityInterface> extends never ? Extract<
 
 declare const RIC: (cb: (...args: any[]) => void, options: any) => void;
 
-type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined | null ? ResolveType<E> : Normalize<E>;
+type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined | null ? ResolveType<E> : Normalize<E['schema']>;
 type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: any) => {
     [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
 };
@@ -791,6 +791,10 @@ declare class Controller$1<D extends GenericDispatch = CompatibleDispatch> {
      */
     unsubscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [null] | readonly [...Parameters<E>]) => Promise<void>;
     /*************** More ***************/
+    /**
+     * Gets a snapshot (https://resthooks.io/docs/api/Snapshot)
+     * @see https://resthooks.io/docs/api/Controller#snapshot
+     */
     snapshot: (state: State<unknown>, fetchedAt?: number) => SnapshotInterface;
     /**
      * Gets the error, if any, for a given endpoint. Returns undefined for no errors.

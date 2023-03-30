@@ -296,7 +296,7 @@ export const ArticleResourceWithOtherListUrl = {
   }),
   create: ArticleResource.create.extend({
     getOptimisticResponse: (snap, body) => body,
-    update: (newArticleID: string) => ({
+    update: newArticleID => ({
       [ArticleResource.getList.key()]: (articleIDs: string[] | undefined) => [
         ...(articleIDs || []),
         newArticleID,
@@ -449,7 +449,7 @@ export const FutureArticleResource = {
     } {
       return value;
     },
-    update: (newid: string) => ({
+    update: newid => ({
       [CoolerArticleResource.getList.key()]: (existing: string[] = []) => [
         newid,
         ...existing,
