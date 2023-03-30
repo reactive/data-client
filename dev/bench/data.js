@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1680216411665,
+  "lastUpdate": 1680218165502,
   "repoUrl": "https://github.com/data-client/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -19201,6 +19201,128 @@ window.BENCHMARK_DATA = {
             "range": "±1.39%",
             "unit": "ops/sec",
             "extra": "72 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "41898282+github-actions[bot]@users.noreply.github.com",
+            "name": "github-actions[bot]",
+            "username": "github-actions[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5eb3a564700ad3d0be6c0d1cacac5e9469fce6a4",
+          "message": "internal: Publish new version (#2546)\n\nCo-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>",
+          "timestamp": "2023-03-30T23:03:43Z",
+          "tree_id": "2996ce98b9d330f81ea1984a4d6e3b2fde5f0e14",
+          "url": "https://github.com/data-client/rest-hooks/commit/5eb3a564700ad3d0be6c0d1cacac5e9469fce6a4"
+        },
+        "date": 1680218163692,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 244,
+            "range": "±0.98%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 4895,
+            "range": "±0.82%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 117,
+            "range": "±1.97%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 113,
+            "range": "±1.15%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 3393,
+            "range": "±2.96%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 3806,
+            "range": "±1.21%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 3786,
+            "range": "±0.98%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 3779,
+            "range": "±2.92%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 1494,
+            "range": "±3.87%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 1356,
+            "range": "±1.00%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "getResponse Query-sorted",
+            "value": 381,
+            "range": "±1.97%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 245,
+            "range": "±1.10%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 103,
+            "range": "±1.12%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 105,
+            "range": "±1.15%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
           }
         ]
       }
