@@ -14,8 +14,9 @@ describe('useCancelling()', () => {
     title: 'second one',
   };
   beforeAll(() => {
-    jest.useFakeTimers();
-
+    jest.useFakeTimers({
+      legacyFakeTimers: true,
+    });
     const mynock = nock(/.*/)
       .persist()
       .defaultReplyHeaders({

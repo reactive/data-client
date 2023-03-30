@@ -288,6 +288,12 @@ describe('PollingSubscription', () => {
     });
 
     describe('cleanup()', () => {
+      let warnSpy: jest.SpyInstance;
+      afterEach(() => {
+        warnSpy.mockRestore();
+      });
+      beforeEach(() => (warnSpy = jest.spyOn(console, 'warn')));
+
       it('should stop all timers', () => {
         dispatch.mockClear();
         sub.cleanup();
@@ -296,6 +302,27 @@ describe('PollingSubscription', () => {
       });
       it('should be idempotent', () => {
         sub.cleanup();
+      });
+      it('should not run even if interval not cancelled', () => {
+        sub.cleanup();
+        sub = new PollingSubscription(
+          {
+            key: 'test.com2',
+            schema: Article,
+            fetch,
+            frequency: 5000,
+            getState: makeState('test.com', 0),
+          },
+          dispatch,
+        );
+        sub.add(5000);
+        jest.runOnlyPendingTimers();
+        delete (sub as any).intervalId;
+        jest.advanceTimersByTime(5000 * 13);
+
+        expect(dispatch.mock.calls.length).toBe(1);
+        expect(warnSpy.mock.calls.length).toBe(13);
+        expect(warnSpy.mock.calls[0]).toMatchSnapshot();
       });
     });
   });
@@ -362,6 +389,21 @@ describe('PollingSubscription', () => {
       expect(dispatch.mock.calls.length).toBe(1);
       jest.advanceTimersByTime(5000);
       expect(dispatch.mock.calls.length).toBe(2);
+      expect(listener.offlineHandlers.length).toBe(1);
+      expect(listener.onlineHandlers.length).toBe(0);
+    });
+
+    it('should not run when timeoutId is deleted after coming online', () => {
+      const listener = new MockConnectionListener(false);
+      const { dispatch, pollingSubscription } = createMocks(listener);
+      expect(dispatch.mock.calls.length).toBe(0);
+
+      listener.trigger('online');
+      delete (pollingSubscription as any).startId;
+      jest.advanceTimersByTime(1);
+      expect(dispatch.mock.calls.length).toBe(0);
+      jest.advanceTimersByTime(5000);
+      expect(dispatch.mock.calls.length).toBe(0);
       expect(listener.offlineHandlers.length).toBe(1);
       expect(listener.onlineHandlers.length).toBe(0);
     });

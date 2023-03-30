@@ -147,9 +147,15 @@ export default class PollingSubscription implements Subscription {
     this.connectionListener.removeOnlineListener(this.onlineListener);
     const now = Date.now();
     this.startId = setTimeout(() => {
-      delete this.startId;
-      this.update();
-      this.run();
+      if (this.startId) {
+        delete this.startId;
+        this.update();
+        this.run();
+      } else if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          `Poll setTimeout for ${this.key} still running, but timeoutId deleted`,
+        );
+      }
     }, Math.max(0, this.lastFetchTime() - now + this.frequency));
     this.connectionListener.addOfflineListener(this.offlineListener);
   };
@@ -168,7 +174,12 @@ export default class PollingSubscription implements Subscription {
         clearInterval(this.lastIntervalId);
         delete this.lastIntervalId;
       }
-      this.update();
+      if (this.intervalId) this.update();
+      else if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          `Poll intervalId for ${this.key} still running, but intervalId deleted`,
+        );
+      }
     }, this.frequency);
   }
 
