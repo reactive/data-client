@@ -25,6 +25,8 @@ const baseConfig = {
     'packages/redux',
     'packages/ssr',
     'packages/rest/src/next',
+    'packages/core/src/next',
+    'packages/react/src/next',
     'packages/legacy/src/resource',
     'packages/legacy/src/rest-3',
     'packages/rest-hooks/src/hooks/hasUsableData',

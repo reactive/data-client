@@ -9,6 +9,8 @@ if (
   const rhDeps = [
     'rest',
     'rest/next',
+    'react/next',
+    'core/next',
     'core',
     'react',
     'endpoint',

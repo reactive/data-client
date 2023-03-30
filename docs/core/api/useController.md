@@ -7,6 +7,8 @@ title: useController()
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
+import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+
 [Controller](./Controller.md) provides type-safe methods to manipulate the store.
 
 For instance [fetch](./Controller.md#fetch), [invalidate](./Controller.md#invalidate),
@@ -42,6 +44,19 @@ function MyComponent({ id }) {
 ```
 
 ## Examples
+
+### /next
+
+`@rest-hooks/react/next` contains the version of `useController()` that will ship with the next version.
+This provides a return value that matches [useSuspense()](./useSuspense.md) - utilizing the [Endpoint.schema](/rest/api/RestEndpoint#schema)
+
+```ts
+import { useController } from '@rest-hooks/react/next';
+
+const post = await controller.fetch(PostResource.create, createPayload);
+post.title;
+post.pk();
+```
 
 ### Todo App
 

@@ -6,4 +6,9 @@ cp ./packages/hooks/index.d.ts ./website/src/components/Playground/editor-types/
 cp ./packages/normalizr/index.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/normalizr.d.ts
 cp ./packages/react/index.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/react.d.ts
 cp ./packages/rest/index.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/rest.d.ts
+mkdir -p ./website/src/components/Playground/editor-types/@rest-hooks/rest
+mkdir -p ./website/src/components/Playground/editor-types/@rest-hooks/core
+mkdir -p ./website/src/components/Playground/editor-types/@rest-hooks/react
 cp ./packages/rest/next.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/rest/next.d.ts
+cp ./packages/core/next.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/core/next.d.ts
+cp ./packages/react/next.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/react/next.d.ts

@@ -113,16 +113,15 @@ function PostListItem({ post }: { post: PostResource }) {
 :::tip
 
 `fetch` has the same return value as the [Endpoint](/rest/api/Endpoint) passed to it.
-When using schemas, the denormalized value can be retrieved using a combination of
-[Controller.getResponse](#getResponse) and [Controller.getState](#getState)
+When using schemas, the denormalized value can be retrieved using the future-compatible /next import
 
 ```ts
-await controller.fetch(PostResource.create, createPayload);
-const { data: denormalizedResponse } = controller.getResponse(
-  PostResource.create,
-  createPayload,
-  controller.getState(),
-);
+// highlight-next-line
+import { useController } from '@rest-hooks/react/next';
+
+const post = await controller.fetch(PostResource.create, createPayload);
+post.title;
+post.pk();
 ```
 
 :::
