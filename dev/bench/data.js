@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1680046733899,
+  "lastUpdate": 1680136814828,
   "repoUrl": "https://github.com/data-client/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -18713,6 +18713,128 @@ window.BENCHMARK_DATA = {
             "range": "±0.28%",
             "unit": "ops/sec",
             "extra": "79 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "dbc4d0b84319879cb331526dce9015d2139df91b",
+          "message": "fix: Improve subscription edge case handling (#2540)",
+          "timestamp": "2023-03-29T17:37:52-07:00",
+          "tree_id": "a5b3a01d0f5922568843e1c23fc90963f4330851",
+          "url": "https://github.com/data-client/rest-hooks/commit/dbc4d0b84319879cb331526dce9015d2139df91b"
+        },
+        "date": 1680136813720,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 312,
+            "range": "±1.90%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 7276,
+            "range": "±0.43%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 135,
+            "range": "±0.89%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 138,
+            "range": "±0.43%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 5744,
+            "range": "±1.27%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 5652,
+            "range": "±0.12%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 5794,
+            "range": "±0.15%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 5242,
+            "range": "±2.94%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 1814,
+            "range": "±3.11%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 1601,
+            "range": "±0.13%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getResponse Query-sorted",
+            "value": 507,
+            "range": "±1.12%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 304,
+            "range": "±2.85%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 128,
+            "range": "±0.35%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 136,
+            "range": "±0.22%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
           }
         ]
       }
