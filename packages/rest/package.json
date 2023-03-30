@@ -33,6 +33,10 @@
       "require": "./dist/index.js",
       "default": "./lib/index.js"
     },
+    "./next": {
+      "types": "./lib/next/index.d.ts",
+      "default": "./lib/next/index.js"
+    },
     "./package.json": "./package.json"
   },
   "type": "module",

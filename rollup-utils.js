@@ -13,6 +13,12 @@ export const typeConfig = {
   external: isExternalTypes,
   plugins: [dts({ respectExternal: true })],
 };
+export const typeConfigNext = {
+  input: './lib/next/index.d.ts',
+  output: [{ file: 'next.d.ts', format: 'es' }],
+  external: isExternalTypes,
+  plugins: [dts({ respectExternal: true })],
+};
 
 export const esnextConfig = {
   input: '../../node_modules/typescript/lib/lib.es2022.array.d.ts',

@@ -1,0 +1,9 @@
+cp ./packages/rest-hooks/index.d.ts ./website/src/components/Playground/editor-types/rest-hooks.d.ts
+cp ./packages/core/index.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/core.d.ts
+cp ./packages/endpoint/index.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/endpoint.d.ts
+cp ./packages/graphql/index.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/graphql.d.ts
+cp ./packages/hooks/index.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/hooks.d.ts
+cp ./packages/normalizr/index.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/normalizr.d.ts
+cp ./packages/react/index.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/react.d.ts
+cp ./packages/rest/index.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/rest.d.ts
+cp ./packages/rest/next.d.ts ./website/src/components/Playground/editor-types/@rest-hooks/rest/next.d.ts

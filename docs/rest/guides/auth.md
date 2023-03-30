@@ -51,6 +51,7 @@ defaultValue="static"
 values={[
 { label: 'static member', value: 'static' },
 { label: 'function singleton', value: 'function' },
+{ label: 'async function', value: 'async' },
 ]}>
 <TabItem value="static">
 
@@ -63,7 +64,7 @@ export default class AuthdEndpoint<
   // highlight-next-line
   declare static accessToken?: string;
 
-  getHeaders(headers: HeadersInit): HeadersInit {
+  getHeaders(headers: HeadersInit) {
     return {
       ...headers,
       // highlight-next-line
@@ -85,6 +86,51 @@ function Auth() {
       // success!
       // highlight-next-line
       AuthdEndpoint.accessToken = accessToken;
+    },
+    [login],
+  );
+
+  return <AuthForm onSubmit={handleLogin} />;
+}
+```
+
+</TabItem>
+<TabItem value="async">
+
+We'll grab RestEndpoint from `@rest-hooks/rest/next` as this version supports
+async `getHeaders`. `@rest-hooks/rest@8` will have these changes.
+
+```ts title="api/AuthdEndpoint.ts"
+import { getAuthToken } from 'authorization-singleton';
+// highlight-next-line
+import { RestEndpoint } from '@rest-hooks/rest/next';
+
+export default class AuthdEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  async getHeaders(headers: HeadersInit) {
+    return {
+      ...headers,
+      // highlight-next-line
+      'Access-Token': await getAuthToken(),
+    };
+  }
+}
+```
+
+Upon login we set the token:
+
+```tsx title="Auth.tsx"
+import { setAuthToken } from 'authorization-singleton';
+import AuthdResource from 'resources/AuthdResource';
+
+function Auth() {
+  const handleLogin = useCallback(
+    async e => {
+      const { accessToken } = await login(new FormData(e.target));
+      // success!
+      // highlight-next-line
+      setAuthToken(accessToken);
     },
     [login],
   );
