@@ -1,5 +1,11 @@
 # Change Log
 
+## 10.3.5
+
+### Patch Changes
+
+- dbc4d0b843: allSettled() always returns an allsettled promise
+
 ## 10.3.4
 
 ### Patch Changes

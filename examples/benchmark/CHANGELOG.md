@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.4.5
+
+### Patch Changes
+
+- Updated dependencies [dbc4d0b843]
+- Updated dependencies [dbc4d0b843]
+  - @rest-hooks/core@4.2.11
+
 ## 0.4.4
 
 ### Patch Changes
