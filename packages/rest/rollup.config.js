@@ -47,21 +47,26 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
   configs.push(typeConfigNext);
 } else {
   // node-friendly commonjs build
-  configs.push({
-    input: 'lib/index.js',
-    external: isExternal,
-    output: [{ file: pkg.main, format: 'cjs' }],
-    plugins: [
-      babel({
-        exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
-        extensions: nativeExtensions,
-        rootMode: 'upward',
-        runtimeHelpers: true,
-      }),
-      replace({ 'process.env.CJS': 'true' }),
-      resolve({ extensions: nativeExtensions }),
-      commonjs({ extensions: nativeExtensions }),
-    ],
+  [
+    { input: 'lib/index.js', output: pkg.main },
+    { input: 'lib/next/index.js', output: 'dist/next.js' },
+  ].forEach(({ input, output }) => {
+    configs.push({
+      input,
+      external: isExternal,
+      output: [{ file: output, format: 'cjs' }],
+      plugins: [
+        babel({
+          exclude: ['node_modules/**', '**/__tests__/**', '**/*.d.ts'],
+          extensions: nativeExtensions,
+          rootMode: 'upward',
+          runtimeHelpers: true,
+        }),
+        replace({ 'process.env.CJS': 'true' }),
+        resolve({ extensions: nativeExtensions }),
+        commonjs({ extensions: nativeExtensions }),
+      ],
+    });
   });
 }
 export default configs;

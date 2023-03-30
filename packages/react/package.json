@@ -18,6 +18,9 @@
       "makeCacheProvider": [
         "lib/makeCacheProvider.d.ts"
       ],
+      "next": [
+        "lib/next/index.d.ts"
+      ],
       "*": [
         "lib/index.d.ts"
       ]
@@ -28,6 +31,9 @@
       ],
       "makeCacheProvider": [
         "ts3.4/makeCacheProvider.d.ts"
+      ],
+      "next": [
+        "ts3.4/next/index.d.ts"
       ],
       "*": [
         "ts3.4/index.d.ts"
@@ -47,6 +53,11 @@
       "import": "./makeCacheProvider.mjs",
       "require": "./dist/makeCacheProvider.js",
       "default": "./lib/makeCacheProvider.js"
+    },
+    "./next": {
+      "types": "./lib/next/index.d.ts",
+      "require": "./dist/next.js",
+      "default": "./lib/next/index.js"
     },
     "./package.json": "./package.json"
   },

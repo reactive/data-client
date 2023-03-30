@@ -700,7 +700,7 @@ interface ConstructorProps<D extends GenericDispatch = CompatibleDispatch> {
  * Imperative control of Rest Hooks store
  * @see https://resthooks.io/docs/api/Controller
  */
-declare class Controller<D extends GenericDispatch = CompatibleDispatch> {
+declare class Controller$1<D extends GenericDispatch = CompatibleDispatch> {
     /**
      * Dispatches an action to Rest Hooks reducer.
      *
@@ -718,13 +718,6 @@ declare class Controller<D extends GenericDispatch = CompatibleDispatch> {
     readonly globalCache: DenormalizeCache;
     constructor({ dispatch, getState, globalCache, }?: ConstructorProps<D>);
     /*************** Action Dispatchers ***************/
-    /**
-     * Fetches the endpoint with given args, updating the Rest Hooks cache with the response or error upon completion.
-     * @see https://resthooks.io/docs/api/Controller#fetch
-     */
-    fetch: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
-        update?: EndpointUpdateFunction<E> | undefined;
-    }>(endpoint: E, ...args_0: Parameters<E>) => ReturnType<E>;
     /**
      * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
      * @see https://resthooks.io/docs/api/Controller#invalidate
@@ -814,6 +807,16 @@ declare class Controller<D extends GenericDispatch = CompatibleDispatch> {
         expiresAt: number;
     };
     private getResults;
+}
+
+declare class Controller<D extends GenericDispatch = CompatibleDispatch> extends Controller$1<D> {
+    /**
+     * Fetches the endpoint with given args, updating the Rest Hooks cache with the response or error upon completion.
+     * @see https://resthooks.io/docs/api/Controller#fetch
+     */
+    fetch: <E extends EndpointInterface<FetchFunction, Schema | undefined, boolean | undefined> & {
+        update?: EndpointUpdateFunction<E> | undefined;
+    }>(endpoint: E, ...args_0: Parameters<E>) => ReturnType<E>;
 }
 
 declare function createReducer(controller: Controller): ReducerType;

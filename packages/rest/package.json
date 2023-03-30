@@ -13,6 +13,9 @@
       "": [
         "lib/index.d.ts"
       ],
+      "next": [
+        "lib/next/index.d.ts"
+      ],
       "*": [
         "lib/index.d.ts"
       ]
@@ -20,6 +23,9 @@
     ">=4.0": {
       "": [
         "ts4.0/index.d.ts"
+      ],
+      "next": [
+        "ts4.0/next/index.d.ts"
       ],
       "*": [
         "ts4.0/index.d.ts"
@@ -35,6 +41,7 @@
     },
     "./next": {
       "types": "./lib/next/index.d.ts",
+      "require": "./dist/next.js",
       "default": "./lib/next/index.js"
     },
     "./package.json": "./package.json"
