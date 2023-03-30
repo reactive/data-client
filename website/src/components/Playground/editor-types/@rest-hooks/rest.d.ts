@@ -977,6 +977,15 @@ type OptionsToFunction<O extends PartialRestGenerics, E extends RestInstance & {
     body?: any;
 }, F extends FetchFunction> = 'path' extends keyof O ? RestFetch<'searchParams' extends keyof O ? O['searchParams'] & PathArgs<Exclude<O['path'], undefined>> : PathArgs<Exclude<O['path'], undefined>>, 'body' extends keyof O ? O['body'] : E['body'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>> : 'body' extends keyof O ? RestFetch<'searchParams' extends keyof O ? O['searchParams'] & PathArgs<Exclude<E['path'], undefined>> : PathArgs<Exclude<E['path'], undefined>>, O['body'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>> : 'searchParams' extends keyof O ? RestFetch<O['searchParams'] & PathArgs<Exclude<E['path'], undefined>>, E['body'], O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>> : (this: ThisParameterType<F>, ...args: Parameters<F>) => Promise<O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>>;
 
+type EndpointUpdateFunction<Source extends FetchFunction, Schema, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source & {
+    schema: Schema;
+}>, ...args: Parameters<Source>) => {
+    [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
+};
+type ResultEntry<E extends FetchFunction & {
+    schema: any;
+}> = E['schema'] extends undefined | null ? ResolveType<E> : Normalize<E['schema']>;
+
 /** Extracts only the keys that will be required
  *
  * Removes optional, as well as unbounded (aka 'string')
@@ -1068,7 +1077,12 @@ type RestEndpointExtendOptions<
   O extends PartialRestGenerics | {},
   E extends RestInstance,
   F extends FetchFunction,
-> = RestEndpointOptions<OptionsToFunction<O, E, F>> &
+> = RestEndpointOptions<
+  OptionsToFunction<O, E, F>,
+  'schema' extends keyof O
+    ? Extract<O['schema'], Schema | undefined>
+    : E['schema']
+> &
   Partial<Omit<E, KeyofRestEndpoint | 'body' | 'searchParams'>>;
 
 type OptionsToRestEndpoint<
@@ -1195,8 +1209,10 @@ type OptionsBodyDefault<O extends RestGenerics> = 'body' extends keyof O
   ? O & { body: any }
   : O & { body: undefined };
 
-interface RestEndpointOptions<F extends FetchFunction = FetchFunction>
-  extends EndpointExtraOptions<F> {
+interface RestEndpointOptions<
+  F extends FetchFunction = FetchFunction,
+  S extends Schema | undefined = undefined,
+> extends EndpointExtraOptions<F> {
   fetch?: F;
   urlPrefix?: string;
   requestInit?: RequestInit;
@@ -1209,7 +1225,7 @@ interface RestEndpointOptions<F extends FetchFunction = FetchFunction>
   getRequestInit?(body: any): RequestInit;
   fetchResponse?(input: RequestInfo, init: RequestInit): Promise<any>;
   parseResponse?(response: Response): Promise<any>;
-  update?(...args: any): any;
+  update?: EndpointUpdateFunction<F, S>;
 }
 
 type RestEndpointConstructorOptions<O extends RestGenerics = any> =
@@ -1222,7 +1238,8 @@ type RestEndpointConstructorOptions<O extends RestGenerics = any> =
       O['process'] extends {}
         ? ReturnType<O['process']>
         : any /*Denormalize<O['schema']>*/
-    >
+    >,
+    O['schema']
   >;
 
 interface RestEndpointConstructor {

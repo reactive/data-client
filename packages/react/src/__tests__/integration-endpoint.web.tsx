@@ -723,7 +723,7 @@ describe.each([
     });
     await waitForNextUpdate();
     const createEndpoint = CoolerArticleResource.create.extend({
-      update: (newid: string) => ({
+      update: newid => ({
         [CoolerArticleResource.getList.key()]: (existing: string[] = []) => [
           ...existing,
           newid,
@@ -751,7 +751,7 @@ describe.each([
     });
     await waitForNextUpdate();
     const extendEndpoint = PaginatedArticleResource.getList.extend({
-      update: (newArticles: { results: string[] }, ...args: any) => ({
+      update: (newArticles, ...args) => ({
         [PaginatedArticleResource.getList.key()]: (articles: {
           results?: string[];
         }) => ({

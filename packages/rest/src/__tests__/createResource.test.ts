@@ -535,11 +535,9 @@ describe('createResource()', () => {
     }
 
     const createUser = UserResource.create.extend({
-      update: (newId, params) => {
+      update: newId => {
         return {
-          [UserResource.getList.key({ group: params.group })]: (
-            prevResponse = { items: [] },
-          ) => ({
+          [UserResource.getList.key()]: (prevResponse = { items: [] }) => ({
             items: [...prevResponse.items, newId],
           }),
         };

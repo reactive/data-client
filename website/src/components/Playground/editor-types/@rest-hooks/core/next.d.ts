@@ -189,7 +189,7 @@ type Denormalize<S> = Extract<S, EntityInterface> extends never ? Extract<S, Ent
 type DenormalizeNullable<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? DenormalizeNullable$1<S> : DenormalizeNullable$1<Extract<S, EntityInterface[]>> : DenormalizeNullable$1<Extract<S, EntityInterface>>;
 type Normalize<S> = Extract<S, EntityInterface> extends never ? Extract<S, EntityInterface[]> extends never ? Normalize$1<S> : Normalize$1<Extract<S, EntityInterface[]>> : Normalize$1<Extract<S, EntityInterface>>;
 
-type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined | null ? ResolveType<E> : Normalize<E>;
+type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined | null ? ResolveType<E> : Normalize<E['schema']>;
 type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: any) => {
     [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
 };
@@ -602,6 +602,10 @@ declare class Controller$1<D extends GenericDispatch = CompatibleDispatch> {
      */
     unsubscribe: <E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>>(endpoint: E, ...args: readonly [null] | readonly [...Parameters<E>]) => Promise<void>;
     /*************** More ***************/
+    /**
+     * Gets a snapshot (https://resthooks.io/docs/api/Snapshot)
+     * @see https://resthooks.io/docs/api/Controller#snapshot
+     */
     snapshot: (state: State<unknown>, fetchedAt?: number) => SnapshotInterface;
     /**
      * Gets the error, if any, for a given endpoint. Returns undefined for no errors.
@@ -630,4 +634,4 @@ declare class Controller<D extends GenericDispatch = CompatibleDispatch> extends
     }>(endpoint: E, ...args_0: Parameters<E>) => E["schema"] extends null | undefined ? ReturnType<E> : Promise<Denormalize<E["schema"]>>;
 }
 
-export { Controller };
+export { CompatibleDispatch, Controller, ErrorTypes, GenericDispatch };

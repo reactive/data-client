@@ -5,7 +5,7 @@ type ResultEntry<E extends EndpointInterface> = E['schema'] extends
   | undefined
   | null
   ? ResolveType<E>
-  : Normalize<E>;
+  : Normalize<E['schema']>;
 
 export type UpdateFunction<
   Source extends EndpointInterface,
