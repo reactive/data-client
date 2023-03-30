@@ -1,5 +1,20 @@
 # Change Log
 
+## 7.3.0
+
+### Minor Changes
+
+- 775352c9ab: useController().fetch resolves to denormalized form
+- 775352c9ab: Add /next export for early adoption of breaking changes
+
+### Patch Changes
+
+- 54aad5e028: FIx ResultEntry with schema
+- Updated dependencies [54aad5e028]
+- Updated dependencies [775352c9ab]
+- Updated dependencies [775352c9ab]
+  - @rest-hooks/core@4.3.0
+
 ## 7.2.12
 
 ### Patch Changes

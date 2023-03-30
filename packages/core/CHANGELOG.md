@@ -1,5 +1,16 @@
 # Change Log
 
+## 4.3.0
+
+### Minor Changes
+
+- 775352c9ab: Add /next export for early adoption of breaking changes
+- 775352c9ab: Controller.fetch resolves to denormalized form and is fully typed
+
+### Patch Changes
+
+- 54aad5e028: FIx ResultEntry with schema
+
 ## 4.2.11
 
 ### Patch Changes

@@ -4608,7 +4608,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rest-hooks/core@^4.2.11, @rest-hooks/core@workspace:^, @rest-hooks/core@workspace:packages/core":
+"@rest-hooks/core@^4.3.0, @rest-hooks/core@workspace:^, @rest-hooks/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/core@workspace:packages/core"
   dependencies:
@@ -4745,7 +4745,7 @@ __metadata:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
     "@react-navigation/native": ^6.1.6
-    "@rest-hooks/core": ^4.2.11
+    "@rest-hooks/core": ^4.3.0
     "@rest-hooks/use-enhanced-reducer": ^1.2.8
     "@types/node": ^18.15.10
     "@types/react": ^18.0.30
@@ -4768,7 +4768,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@rest-hooks/core": ^4.2.11
+    "@rest-hooks/core": ^4.3.0
     "@rest-hooks/react": "workspace:*"
     "@types/node": ^18.15.10
     "@types/react": ^18.0.30
