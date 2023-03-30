@@ -24,6 +24,7 @@ const baseConfig = {
     'packages/graphql',
     'packages/redux',
     'packages/ssr',
+    'packages/rest/src/next',
     'packages/legacy/src/resource',
     'packages/legacy/src/rest-3',
     'packages/rest-hooks/src/hooks/hasUsableData',

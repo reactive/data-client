@@ -1,13 +1,13 @@
-import commonjs from 'rollup-plugin-commonjs';
-import resolve from 'rollup-plugin-node-resolve';
 import babel from 'rollup-plugin-babel';
-import json from 'rollup-plugin-json';
-import { terser } from 'rollup-plugin-terser';
+import commonjs from 'rollup-plugin-commonjs';
 import filesize from 'rollup-plugin-filesize';
+import json from 'rollup-plugin-json';
+import resolve from 'rollup-plugin-node-resolve';
 import replace from 'rollup-plugin-replace';
+import { terser } from 'rollup-plugin-terser';
 
-import { typeConfig } from '../../rollup-utils';
 import pkg from './package.json';
+import { typeConfig, typeConfigNext } from '../../rollup-utils';
 
 const dependencies = Object.keys(pkg.dependencies).filter(
   dep => !['@babel/runtime'].includes(dep),
@@ -44,6 +44,7 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
     ],
   });
   configs.push(typeConfig);
+  configs.push(typeConfigNext);
 } else {
   // node-friendly commonjs build
   configs.push({

@@ -33,7 +33,7 @@ describe('createResource()', () => {
       return super.parseResponse(response);
     }
 
-    getRequestInit(body: any): RequestInit {
+    getRequestInit(body: any) {
       if (typeof body === 'object') {
         return super.getRequestInit({ ...body, email: 'always@always.com' });
       }

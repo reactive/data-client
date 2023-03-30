@@ -874,7 +874,7 @@ declare class NetworkManager implements Manager {
     init(): void;
     /** Ensures all promises are completed by rejecting remaining. */
     cleanup(): void;
-    allSettled(): Promise<PromiseSettledResult<any>[]> | undefined;
+    allSettled(): Promise<PromiseSettledResult<any>[]>;
     /** Clear all promise state */
     protected clearAll(): void;
     /** Clear promise state for a given key */

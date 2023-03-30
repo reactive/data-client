@@ -384,7 +384,8 @@ const getReactSite = new RestEndpoint({
 });
 
 getReactSite({ slug: 'cool', isReact: true });
-getReactSite.url({ slug: 'cool', isReact: true }) === 'https://site.com/cool?isReact=true';
+getReactSite.url({ slug: 'cool', isReact: true }) ===
+  'https://site.com/cool?isReact=true';
 ```
 
 </TypeScriptEditor>
@@ -456,6 +457,35 @@ to indicate there is no body.
 Prepares [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) used in fetch.
 This is sent to [fetchResponse](#fetchResponse)
 
+:::tip async
+
+Import from `@rest-hooks/rest/next` to get the next version, which is `async`
+
+<TypeScriptEditor>
+
+```ts
+import { RestEndpoint, RestGenerics } from '@rest-hooks/rest/next';
+
+export default class AuthdEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  async getRequestInit(body) {
+    return {
+      ...super.getRequestInit(body),
+      method: await getMethod(),
+    };
+  }
+}
+
+async function getMethod() {
+  return 'GET';
+}
+```
+
+</TypeScriptEditor>
+
+:::
+
 ### getHeaders(headers: HeadersInit): HeadersInit {#getHeaders}
 
 Called by [getRequestInit](#getRequestInit) to determine [HTTP Headers](https://developer.mozilla.org/en-US/docs/Web/API/Request/headers)
@@ -465,6 +495,35 @@ This is often useful for [authentication](../guides/auth)
 :::caution
 
 Don't use hooks here.
+
+:::
+
+:::tip async
+
+Import from `@rest-hooks/rest/next` to get the next version, which is `async`
+
+<TypeScriptEditor>
+
+```ts
+import { RestEndpoint, RestGenerics } from '@rest-hooks/rest/next';
+
+export default class AuthdEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  async getHeaders(headers: HeadersInit) {
+    return {
+      ...headers,
+      'Access-Token': await getAuthToken(),
+    };
+  }
+}
+
+async function getAuthToken() {
+  return 'example';
+}
+```
+
+</TypeScriptEditor>
 
 :::
 
@@ -685,7 +744,7 @@ Serializes the parameters. This is used to build a lookup key in global stores.
 Default:
 
 ```typescript
-`${this.method} ${this.url(urlParams)}`
+`${this.method} ${this.url(urlParams)}`;
 ```
 
 ## testKey(key): boolean {#testKey}

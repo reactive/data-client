@@ -8,6 +8,7 @@ if (
 ) {
   const rhDeps = [
     'rest',
+    'rest/next',
     'core',
     'react',
     'endpoint',
