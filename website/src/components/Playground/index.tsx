@@ -2,14 +2,27 @@ import { usePrismTheme } from '@docusaurus/theme-common';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import type { Fixture, FixtureEndpoint, Interceptor } from '@rest-hooks/test';
 import clsx from 'clsx';
+import type { Language, PrismTheme } from 'prism-react-renderer';
 import React, { lazy } from 'react';
-import { LiveProvider, LiveProviderProps } from 'react-live';
+import { LiveProvider } from 'react-live';
 
 import Boundary from './Boundary';
 import MonacoPreloads from './MonacoPreloads';
 import { PlaygroundTextEdit, useCode } from './PlaygroundTextEdit';
 import PreviewWithHeader from './PreviewWithHeader';
 import styles from './styles.module.css';
+
+// previously exported by react-live
+type LiveProviderProps = {
+  code?: string;
+  disabled?: boolean;
+  enableTypeScript?: boolean;
+  language?: Language;
+  noInline?: boolean;
+  scope?: Record<string, unknown>;
+  theme?: PrismTheme;
+  transformCode?(code: string): void;
+};
 
 export default function Playground<T>({
   children,
@@ -44,7 +57,7 @@ export default function Playground<T>({
           [styles.hidden]: hidden,
         })}
       >
-        <LiveProvider theme={prismTheme} {...props}>
+        <LiveProvider theme={prismTheme} enableTypeScript={true} {...props}>
           <PlaygroundContent
             reverse={playgroundPosition === 'top'}
             row={row}

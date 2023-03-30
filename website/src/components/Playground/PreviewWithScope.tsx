@@ -107,6 +107,7 @@ export default function PreviewWithScope<T>({
       key="preview"
       code={code}
       transformCode={transformCode}
+      enableTypeScript={true}
       noInline
       scope={includeEndpoints ? scopeWithEndpoint : scope}
     >
