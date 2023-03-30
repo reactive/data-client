@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.2.11
+
+### Patch Changes
+
+- dbc4d0b843: Polling intervals double check cancellation before dispatching fetch
+- dbc4d0b843: allSettled() always returns an allsettled promise
+
 ## 4.2.10
 
 ### Patch Changes

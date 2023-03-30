@@ -1,5 +1,14 @@
 # Change Log
 
+## 7.2.12
+
+### Patch Changes
+
+- dbc4d0b843: Polling intervals double check cancellation before dispatching fetch
+- Updated dependencies [dbc4d0b843]
+- Updated dependencies [dbc4d0b843]
+  - @rest-hooks/core@4.2.11
+
 ## 7.2.11
 
 ### Patch Changes
