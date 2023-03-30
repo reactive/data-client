@@ -1,5 +1,11 @@
 # Change Log
 
+## 9.4.1
+
+### Patch Changes
+
+- 54aad5e028: FIx ResultEntry with schema
+
 ## 9.4.0
 
 ### Minor Changes

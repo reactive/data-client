@@ -1,5 +1,15 @@
 # Change Log
 
+## 6.5.0
+
+### Minor Changes
+
+- 54aad5e028: Type RestEndpoint.update in constructor and .extends
+
+### Patch Changes
+
+- 775352c9ab: Add commonjs export for /next
+
 ## 6.4.0
 
 ### Minor Changes
