@@ -1,5 +1,12 @@
 # Change Log
 
+## 7.0.3
+
+### Patch Changes
+
+- Updated dependencies [9157e9eba8]
+  - @rest-hooks/core@4.3.1
+
 ## 7.0.2
 
 ### Patch Changes

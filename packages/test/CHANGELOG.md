@@ -1,5 +1,11 @@
 # Change Log
 
+## 10.3.6
+
+### Patch Changes
+
+- 9157e9eba8: renderRestHook.allSettled() sometimes returns undefined
+
 ## 10.3.5
 
 ### Patch Changes

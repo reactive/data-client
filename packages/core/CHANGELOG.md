@@ -1,5 +1,12 @@
 # Change Log
 
+## 4.3.1
+
+### Patch Changes
+
+- 9157e9eba8: Fix: SSR previously would never unsuspend cache provider
+  (NetworkManager.allSettled() must return undefined if nothing in flight)
+
 ## 4.3.0
 
 ### Minor Changes
