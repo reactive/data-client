@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1680230128878,
+  "lastUpdate": 1680231058302,
   "repoUrl": "https://github.com/data-client/rest-hooks",
   "entries": {
     "Benchmark": [
@@ -19445,6 +19445,128 @@ window.BENCHMARK_DATA = {
             "range": "±0.31%",
             "unit": "ops/sec",
             "extra": "82 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "41898282+github-actions[bot]@users.noreply.github.com",
+            "name": "github-actions[bot]",
+            "username": "github-actions[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "220e5caef02c8e28dd6f7643e14531c3ad0ab86b",
+          "message": "internal: Publish new version (#2549)\n\nCo-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>",
+          "timestamp": "2023-03-31T02:40:27Z",
+          "tree_id": "a16f0edb0b77d7df4309f33fd31db2abccdc6df5",
+          "url": "https://github.com/data-client/rest-hooks/commit/220e5caef02c8e28dd6f7643e14531c3ad0ab86b"
+        },
+        "date": 1680231057253,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 237,
+            "range": "±1.01%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "infer All",
+            "value": 4794,
+            "range": "±1.11%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 107,
+            "range": "±2.43%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 112,
+            "range": "±1.10%",
+            "unit": "ops/sec",
+            "extra": "72 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 3131,
+            "range": "±0.74%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 3432,
+            "range": "±1.13%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 3454,
+            "range": "±0.78%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 3209,
+            "range": "±2.15%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 1484,
+            "range": "±4.30%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 1310,
+            "range": "±1.08%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "getResponse Query-sorted",
+            "value": 356,
+            "range": "±1.20%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 232,
+            "range": "±1.05%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 97.45,
+            "range": "±1.01%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 102,
+            "range": "±1.93%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
           }
         ]
       }
