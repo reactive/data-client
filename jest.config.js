@@ -20,7 +20,6 @@ const baseConfig = {
     '/__tests__',
     'DevtoolsManager',
     'packages/test',
-    'packages/experimental',
     'packages/graphql',
     'packages/redux',
     'packages/ssr',
@@ -48,7 +47,6 @@ const baseConfig = {
 
 const packages = [
   'legacy',
-  'experimental',
   'endpoint',
   'rest',
   'graphql',
