@@ -67,7 +67,7 @@ export default function makeRenderRestHook(
       (managers[0] as any).clearAll();
       managers.forEach(manager => manager.cleanup());
     };
-    renderRestHook.allSettled = async () => {
+    renderRestHook.allSettled = () => {
       return (managers[0] as NetworkManager).allSettled();
     };
 
@@ -168,5 +168,5 @@ type RenderRestHook = (<P, R>(
   controller: Controller;
 }) & {
   cleanup: () => void;
-  allSettled: () => Promise<PromiseSettledResult<unknown>[]>;
+  allSettled: () => Promise<PromiseSettledResult<unknown>[]> | undefined;
 };

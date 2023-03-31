@@ -126,7 +126,7 @@ export default class NetworkManager implements Manager {
 
   allSettled() {
     const fetches = Object.values(this.fetched);
-    return Promise.allSettled(fetches);
+    if (fetches.length) return Promise.allSettled(fetches);
   }
 
   /** Clear all promise state */
