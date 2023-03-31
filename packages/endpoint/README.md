@@ -14,32 +14,72 @@ Declarative, strongly typed, reusable network definitions for networking librari
 
 </div>
 
-### 1) Define the function
+## Usage
+
+### 1) Take any class and async functions
 
 ```typescript
-import { Endpoint } from '@rest-hooks/endpoint';
+export class Todo {
+  id = 0;
+  userId = 0;
+  title = '';
+  completed = false;
+}
 
-const fetchUser = ({ id }) ⇒ fetch(`/users/${id}`).then(res => res.json());
-const UserDetail = new Endpoint(fetchUser);
+export const getTodo = (id: string) =>
+  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res => res.json());
+
+export const getTodoList = () =>
+  fetch('https://jsonplaceholder.typicode.com/todos').then(res => res.json());
+
+export const updateTodo = (id: string, body: Partial<Todo>) =>
+  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  }).then(res => res.json());
 ```
 
-### 2) Reuse with different hooks
+### 2) Turn them into Resources
+
+```typescript
+import { schema, Endpoint } from '@rest-hooks/endpoint';
+import { Todo, getTodoList, updateTodo } from './existing';
+
+export const TodoEntity = schema.Entity(Todo, { key: 'Todo' });
+
+export const TodoResource = {
+  get: new Endpoint(getTodo, {
+    schema: TodoEntity,
+  }),
+  getList: new Endpoint(getTodoList, {
+    schema: [TodoEntity],
+  }),
+  update: new Endpoint(updateTodo, {
+    schema: TodoEntity,
+    sideEffect: true,
+  }),
+};
+```
+
+### 3) Reuse with different hooks
 
 ```tsx
-function UserProfile() {
-  const user = useSuspense(UserDetail, { id });
-  const ctrl = useController();
-  const updateUser = (data) => ctrl.fetch(UserDetail, { id }, data);
+import { useSuspense, useController } from '@rest-hooks/react';
 
-  return <UserForm user={user} onSubmit={updateUser} />
+function TodoEdit() {
+  const todo = useSuspense(TodoResource.get, '5');
+  const ctrl = useController();
+  const updateTodo = (data) => ctrl.fetch(TodoResource.update, id, data);
+
+  return <TodoForm todo={todo} onSubmit={updateTodo} />
 }
 ```
 
-### 3) Or call directly
+### 4) Or call directly in node
 
 ```typescript
-const user = await UserDetail({ id: '5' });
-console.log(user);
+const todo = await TodoResource.get('5')
+console.log(todo);
 ```
 
 ## Why

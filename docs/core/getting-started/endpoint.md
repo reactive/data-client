@@ -129,42 +129,44 @@ export const TodoResource = {
 
 <TypeScriptEditor row={false}>
 
-```typescript title="api/Todo"
-import { Entity, Endpoint } from '@rest-hooks/endpoint';
-
-export class Todo extends Entity {
+```typescript title="existing/Todo"
+export class Todo {
   id = 0;
   userId = 0;
   title = '';
   completed = false;
-
-  pk() {
-    return `${this.id}`;
-  }
-  static key = 'Todo';
 }
 
+export const getTodo = (id: string) =>
+  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res => res.json());
+
+export const getTodoList = () =>
+  fetch('https://jsonplaceholder.typicode.com/todos').then(res => res.json());
+
+export const updateTodo = (id: string, body: Partial<Todo>) =>
+  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  }).then(res => res.json());
+```
+
+```typescript title="api/Todo"
+import { schema, Endpoint } from '@rest-hooks/endpoint';
+import { Todo, getTodo, getTodoList, updateTodo } from '../existing/Todo';
+
+export const TodoEntity = schema.Entity(Todo, { key: 'Todo' });
+
 export const TodoResource = {
-  getList: new Endpoint(
-    () =>
-      fetch('https://jsonplaceholder.typicode.com/todos').then(res =>
-        res.json(),
-      ),
-    {
-      schema: [Todo],
-    },
-  ),
-  update: new Endpoint(
-    (id: string, body: Partial<Todo>) =>
-      fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(body),
-      }).then(res => res.json()),
-    {
-      schema: Todo,
-      sideEffect: true,
-    },
-  ),
+  get: new Endpoint(getTodo, {
+    schema: TodoEntity,
+  }),
+  getList: new Endpoint(getTodoList, {
+    schema: [TodoEntity],
+  }),
+  update: new Endpoint(updateTodo, {
+    schema: TodoEntity,
+    sideEffect: true,
+  }),
 };
 ```
 
@@ -233,3 +235,7 @@ It's highly encouraged to design APIs with consistent patterns. Because of this,
 you can extend our protocol specific helpers. After choosing your protocol, you can
 read up on the full docs for reach protocol [REST](/rest), [GraphQL](/graphql),
 [Image/binary](../guides/img-media.md), [Websockets+SSE](../api/Manager.md#middleware-data-stream)
+
+To use your own protocol or existing helpers, use the lower-level primitives from
+[@rest-hooks/endpoint](https://www.npmjs.com/package/@rest-hooks/endpoint) like [Endpoint](/rest/api/Endpoint) and [schema.Entity](/rest/api/schema.Entity).
+[See `Promise` tab above]
