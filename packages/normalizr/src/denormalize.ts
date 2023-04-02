@@ -94,33 +94,20 @@ const unvisitEntity = (
     // if we don't find in denormalize cache then do full denormalize
     else {
       const trackingIndex = dependencies.length;
+      cycleCacheKey[pk] = trackingIndex;
       dependencies.push({ entity, path: { key, pk } });
 
-      let entityCopy: any;
-      if (schema.createIfValid) {
-        entityCopy = localCacheKey[pk] = isImmutable(entity)
-          ? schema.createIfValid(entity.toObject())
-          : schema.createIfValid(entity);
-        // TODO(breaking): remove once old verions no longer supported
-      } else {
-        entityCopy = entity;
-        unvisit = withTrackedEntities(unvisit);
-        unvisit.setLocal = entityCopy => (localCacheKey[pk] = entityCopy);
-      }
+      /** NON-GLOBAL_CACHE CODE */
+      [unvisit, found, deleted] = setLocalCache(
+        entity,
+        schema,
+        unvisit,
+        pk,
+        localCacheKey,
+      );
+      /** /END NON-GLOBAL_CACHE CODE */
 
-      cycleCacheKey[pk] = trackingIndex;
-      if (entityCopy === undefined) {
-        // undefined indicates we should suspense (perhaps failed validation)
-        found = false;
-        deleted = true;
-      } else {
-        [localCacheKey[pk], found, deleted] = schema.denormalize(
-          entityCopy,
-          unvisit,
-        );
-      }
       delete cycleCacheKey[pk];
-
       // if in cycle, use the start of the cycle to track all deps
       // otherwise, we use our own trackingIndex
       const localKey = dependencies.slice(
@@ -149,6 +136,38 @@ const unvisitEntity = (
 
   return [localCacheKey[pk], found, deleted];
 };
+
+function setLocalCache(
+  entity: object,
+  schema: EntityInterface<any>,
+  unvisit: UnvisitFunction,
+  pk: string,
+  localCacheKey: Record<string, any>,
+) {
+  let entityCopy: any, found, deleted;
+  if (schema.createIfValid) {
+    entityCopy = localCacheKey[pk] = isImmutable(entity)
+      ? schema.createIfValid(entity.toObject())
+      : schema.createIfValid(entity);
+    // TODO(breaking): remove once old verions no longer supported
+  } else {
+    entityCopy = entity;
+    unvisit = withTrackedEntities(unvisit);
+    unvisit.setLocal = entityCopy => (localCacheKey[pk] = entityCopy);
+  }
+
+  if (entityCopy === undefined) {
+    // undefined indicates we should suspense (perhaps failed validation)
+    found = false;
+    deleted = true;
+  } else {
+    [localCacheKey[pk], found, deleted] = schema.denormalize(
+      entityCopy,
+      unvisit,
+    );
+  }
+  return [unvisit, found, deleted];
+}
 
 const getUnvisit = (
   entities: Record<string, Record<string, any>>,
