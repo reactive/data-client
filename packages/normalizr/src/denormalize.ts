@@ -1,3 +1,4 @@
+import GlobalCache from './cache.js';
 import type { Schema, EntityInterface, UnvisitFunction } from './interface.js';
 import { isEntity } from './isEntity.js';
 import { denormalize as arrayDenormalize } from './schemas/Array.js';
@@ -16,20 +17,12 @@ import WeakEntityMap, {
   depToPaths,
 } from './WeakEntityMap.js';
 
-interface EntityCacheValue {
-  dependencies: Dep[];
-  value: [any, boolean, boolean];
-}
 const unvisitEntity = (
   entityOrId: Record<string, any> | string,
   schema: EntityInterface,
   unvisit: UnvisitFunction,
   getEntity: GetEntity,
-  getCache: ReturnType<typeof getEntityCaches>,
-  localCache: Record<string, Record<string, any>>,
-  cycleCache: Record<string, Record<string, number>>,
-  dependencies: Dep[],
-  cycleIndex: { i: number },
+  cache: GlobalCache,
 ): [denormalized: object | undefined, found: boolean, deleted: boolean] => {
   const entity =
     typeof entityOrId === 'object'
@@ -62,79 +55,10 @@ const unvisitEntity = (
     return [entity, false, false];
   }
 
-  const key = schema.key;
-  if (!(key in localCache)) {
-    localCache[key] = Object.create(null);
-  }
-  if (!(key in cycleCache)) {
-    cycleCache[key] = Object.create(null);
-  }
-  const localCacheKey = localCache[key];
-  const cycleCacheKey = cycleCache[key];
-
-  let found = true;
-  let deleted = false;
-
-  // local cache lookup first
-  if (!localCacheKey[pk]) {
-    const globalCache: WeakEntityMap<object, EntityCacheValue> = getCache(
-      pk,
-      schema,
-    );
-    const [cacheValue] = globalCache.get(entity, getEntity);
-    // TODO: what if this just returned the deps - then we don't need to store them
-
-    if (cacheValue) {
-      localCacheKey[pk] = cacheValue.value[0];
-      // TODO: can we store the cache values instead of tracking *all* their sources?
-      // this is only used for setting results cache correctly. if we got this far we will def need to set as we would have already tried getting it
-      dependencies.push(...cacheValue.dependencies);
-      return cacheValue.value;
-    }
-    // if we don't find in denormalize cache then do full denormalize
-    else {
-      const trackingIndex = dependencies.length;
-      cycleCacheKey[pk] = trackingIndex;
-      dependencies.push({ entity, path: { key, pk } });
-
-      /** NON-GLOBAL_CACHE CODE */
-      [unvisit, found, deleted] = setLocalCache(
-        entity,
-        schema,
-        unvisit,
-        pk,
-        localCacheKey,
-      );
-      /** /END NON-GLOBAL_CACHE CODE */
-
-      delete cycleCacheKey[pk];
-      // if in cycle, use the start of the cycle to track all deps
-      // otherwise, we use our own trackingIndex
-      const localKey = dependencies.slice(
-        cycleIndex.i === -1 ? trackingIndex : cycleIndex.i,
-      );
-      const cacheValue: EntityCacheValue = {
-        dependencies: localKey,
-        value: [localCacheKey[pk], found, deleted],
-      };
-      globalCache.set(localKey, cacheValue);
-
-      // start of cycle - reset cycle detection
-      if (cycleIndex.i === trackingIndex) {
-        cycleIndex.i = -1;
-      }
-    }
-  } else {
-    // cycle detected
-    if (pk in cycleCacheKey) {
-      cycleIndex.i = cycleCacheKey[pk];
-    } else {
-      // with no cycle, globalCacheEntry will have already been set
-      dependencies.push({ entity, path: { key, pk } });
-    }
-  }
-
-  return [localCacheKey[pk], found, deleted];
+  // last function computes if it is not in any caches
+  return cache.get(pk, schema, entity, localCacheKey =>
+    setLocalCache(entity, schema, unvisit, pk, localCacheKey),
+  );
 };
 
 function setLocalCache(
@@ -143,7 +67,7 @@ function setLocalCache(
   unvisit: UnvisitFunction,
   pk: string,
   localCacheKey: Record<string, any>,
-) {
+): [found: boolean, deleted: boolean] {
   let entityCopy: any, found, deleted;
   if (schema.createIfValid) {
     entityCopy = localCacheKey[pk] = isImmutable(entity)
@@ -166,7 +90,7 @@ function setLocalCache(
       unvisit,
     );
   }
-  return [unvisit, found, deleted];
+  return [found, deleted];
 }
 
 const getUnvisit = (
@@ -175,11 +99,7 @@ const getUnvisit = (
   resultCache: DenormalizeCache['results'][string],
 ) => {
   const getEntity = getEntities(entities);
-  const getCache = getEntityCaches(entityCache);
-  const localCache: Record<string, Record<string, any>> = {};
-  const dependencies: Dep[] = [];
-  const cycleIndex = { i: -1 };
-  const cycleCache = {};
+  const cache = new GlobalCache(getEntity, getEntityCaches(entityCache));
 
   function unvisit(
     input: any,
@@ -214,17 +134,7 @@ const getUnvisit = (
     }
 
     if (isEntity(schema)) {
-      return unvisitEntity(
-        input,
-        schema,
-        unvisit,
-        getEntity,
-        getCache,
-        localCache,
-        cycleCache,
-        dependencies,
-        cycleIndex,
-      );
+      return unvisitEntity(input, schema, unvisit, getEntity, cache);
     }
 
     if (hasDenormalize) {
@@ -250,7 +160,7 @@ const getUnvisit = (
       const ret = unvisit(input, schema);
       // this is faster than spread
       // https://www.measurethat.net/Benchmarks/Show/23636/0/spread-with-tuples
-      return [ret[0], ret[1], ret[2], depToPaths(dependencies)];
+      return [ret[0], ret[1], ret[2], cache.paths()];
     }
 
     let [ret, entityPaths] = resultCache.get(input, getEntity);
@@ -258,10 +168,10 @@ const getUnvisit = (
     if (ret === undefined) {
       ret = unvisit(input, schema);
       // we want to do this before we add our 'input' entry
-      entityPaths = depToPaths(dependencies);
+      entityPaths = cache.paths();
       // for the first entry, `path` is ignored so empty members is fine
-      dependencies.unshift({ entity: input, path: { key: '', pk: '' } });
-      resultCache.set(dependencies, ret);
+      cache.dependencies.unshift({ entity: input, path: { key: '', pk: '' } });
+      resultCache.set(cache.dependencies, ret);
     }
 
     return [ret[0], ret[1], ret[2], entityPaths as Path[]];
