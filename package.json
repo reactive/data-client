@@ -7,10 +7,6 @@
   "scripts": {
     "changeset:version": "run changeset version && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install",
     "changeset:publish": "run build:types && run changeset publish",
-    "release": "lerna publish --no-private --create-release=github",
-    "version": "lerna version --no-private --create-release=github",
-    "version:breaking": "lerna version --create-release=github",
-    "version:beta": "lerna version  --create-release=github --no-git-tag-version --conventional-prerelease",
     "lint": "eslint --ext .ts,.tsx,.js",
     "format": "eslint --fix \"packages/*/src/**/*.{js,ts,tsx,cts}\"",
     "clean:types": "rimraf packages/*/*.tsbuildinfo",
@@ -55,7 +51,6 @@
     "@changesets/cli": "^2.26.1",
     "@commitlint/cli": "17.4.2",
     "@commitlint/config-conventional": "17.4.2",
-    "@lerna-lite/cli": "1.17.0",
     "@react-navigation/native": "^6.0.13",
     "@react-navigation/native-stack": "^6.9.1",
     "@rest-hooks/react": "workspace:^",
