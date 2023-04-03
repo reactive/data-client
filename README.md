@@ -40,13 +40,27 @@ For more details, see [the Installation docs page](https://resthooks.io/docs/get
 ### Simple [TypeScript definition](https://resthooks.io/rest/api/Entity)
 
 ```typescript
+class User extends Entity {
+  id = '';
+  username = '';
+
+  pk() {
+    return this.id;
+  }
+}
+
 class Article extends Entity {
   id = '';
   title = '';
   body = '';
+  author = User.fromJS();
 
   pk() {
     return this.id;
+  }
+
+  static schema = {
+    author: User,
   }
 }
 ```
@@ -54,10 +68,15 @@ class Article extends Entity {
 ### Create [collection of API Endpoints](https://resthooks.io/rest/api/createResource)
 
 ```typescript
+const UserResource = createResource({
+  path: '/users/:id',
+  schema: User,
+});
+
 const ArticleResource = createResource({
   path: '/articles/:id',
   schema: Article,
-})
+});
 ```
 
 ### One line [data binding](https://resthooks.io/docs/getting-started/data-dependency)
@@ -66,19 +85,19 @@ const ArticleResource = createResource({
 const article = useSuspense(ArticleResource.get, { id });
 return (
   <>
-    <h2>{article.title}</h2>
+    <h2>{article.title} by {article.author.username}</h2>
     <p>{article.body}</p>
   </>
 );
 ```
 
-### [Mutation](https://resthooks.io/docs/getting-started/mutations)
+### [Reactive Mutations](https://resthooks.io/docs/getting-started/mutations)
 
 ```tsx
 const ctrl = useController();
 return (
-  <ArticleForm
-    onSubmit={data => ctrl.fetch(ArticleResource.update, { id }, data)}
+  <ProfileForm
+    onSubmit={data => ctrl.fetch(UserResource.update, { id }, data)}
   />
 );
 ```
