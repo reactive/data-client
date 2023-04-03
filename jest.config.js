@@ -101,8 +101,8 @@ const projects = [
     roots: packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
     displayName: 'React Native',
     testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.native\\.(j|t)sx?$',
-    testEnvironment: 'node',
-    //'<rootDir>/node_modules/react-native/jest/react-native-env.js', //from RN preset future version
+    testEnvironment:
+      '<rootDir>/node_modules/react-native/jest/react-native-env.js',
     transformIgnorePatterns: [
       'node_modules\\/(?!(((jest-)?react-native)|@react-native(-community)?|react-navigation))', //from RN preset
       '<rootDir>/.*__tests__/[^/]+\\.(web|node)\\.(j|t)sx?$',
