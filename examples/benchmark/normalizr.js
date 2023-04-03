@@ -5,6 +5,7 @@ import {
   denormalize,
   inferResults,
   WeakEntityMap,
+  denormalizeSimple,
 } from './dist/index.js';
 import { printStatus } from './printStatus.js';
 import {
@@ -13,7 +14,10 @@ import {
   ProjectQuerySorted,
   ProjectWithBuildTypesDescription,
   ProjectSchemaMixin,
+  User,
 } from './schemas.js';
+import userData from './user.json' assert { type: 'json' };
+
 
 const { result, entities } = normalize(data, ProjectSchema);
 const queryState = normalize(data, ProjectQuery);
@@ -29,6 +33,8 @@ const queryInfer = inferResults(
   queryState.indexes,
   queryState.entities,
 );
+
+let githubState = normalize(userData, User);
 
 export default function addNormlizrSuite(suite) {
   let denormCache = {
@@ -70,6 +76,19 @@ export default function addNormlizrSuite(suite) {
     })
     .add('denormalizeLong', () => {
       return denormalize(result, ProjectSchema, entities);
+    })
+    .add('denormalizeLong donotcache', () => {
+      return denormalizeSimple(result, ProjectSchema, entities);
+    })
+    .add('denormalizeShort donotcache 500x', () => {
+      for (let i = 0; i < 500; ++i) {
+        denormalizeSimple('gnoff', User, githubState.entities);
+      }
+    })
+    .add('denormalizeShort 500x', () => {
+      for (let i = 0; i < 500; ++i) {
+        denormalize('gnoff', User, githubState.entities);
+      }
     })
     .add('denormalizeLong with mixin Entity', () => {
       return denormalize(result, ProjectSchemaMixin, entities);
