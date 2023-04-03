@@ -26,7 +26,7 @@ const baseConfig = {
     'packages/rest/src/next',
     'packages/core/src/next',
     'packages/react/src/next',
-    'packages/legacy/src/resource',
+    'packages/legacy/src/SimpleRecord',
     'packages/legacy/src/rest-3',
     'packages/rest-hooks/src/hooks/hasUsableData',
     'packages/core/src/state/legacy-actions/createFetch',

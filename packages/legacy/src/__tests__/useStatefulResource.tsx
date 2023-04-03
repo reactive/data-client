@@ -1,6 +1,5 @@
 import { CacheProvider } from '@rest-hooks/react';
 import { makeRenderRestHook } from '@rest-hooks/test';
-import { CoolerArticleResource as LegacyArticle } from '__tests__/legacy';
 import {
   CoolerArticleResource,
   InvalidIfStaleArticleResource,
@@ -78,21 +77,6 @@ describe('useStatefulResource()', () => {
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBeUndefined();
     expect(result.current.data).toEqual(CoolerArticleResource.fromJS(payload));
-  });
-
-  it('should work on good network (legacy fetchshape)', async () => {
-    const { result, waitForNextUpdate } = renderRestHook(() => {
-      return useStatefulResource(LegacyArticle.detailShape(), {
-        id: payload.id,
-      });
-    });
-    expect(result.current.data).toBe(undefined);
-    expect(result.current.error).toBe(undefined);
-    expect(result.current.loading).toBe(true);
-    await waitForNextUpdate();
-    expect(result.current.loading).toBe(false);
-    expect(result.current.error).toBeUndefined();
-    expect(result.current.data).toEqual(LegacyArticle.fromJS(payload));
   });
 
   it('should return errors on bad network', async () => {

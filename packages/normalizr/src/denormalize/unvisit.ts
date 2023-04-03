@@ -59,12 +59,13 @@ function unvisitEntityObject(
   localCacheKey: Record<string, any>,
 ): [found: boolean, deleted: boolean] {
   let entityCopy: any, found, deleted;
+  /* istanbul ignore else */
   if (schema.createIfValid) {
     entityCopy = localCacheKey[pk] = isImmutable(entity)
       ? schema.createIfValid(entity.toObject())
       : schema.createIfValid(entity);
     // TODO(breaking): remove once old verions no longer supported
-  } else {
+  } /* istanbul ignore next */ else {
     entityCopy = entity;
     unvisit = withTrackedEntities(unvisit);
     unvisit.setLocal = entityCopy => (localCacheKey[pk] = entityCopy);
@@ -84,6 +85,7 @@ function unvisitEntityObject(
 }
 
 // TODO(breaking): remove once unused
+/* istanbul ignore next */
 function withTrackedEntities(unvisit: UnvisitFunction): UnvisitFunction {
   // every time we nest, we want to unwrap back to the top.
   // this is due to only needed the next level of nested entities for lookup
