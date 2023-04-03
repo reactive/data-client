@@ -1,10 +1,7 @@
 // eslint-env jest
-import { Entity, schema } from '@rest-hooks/endpoint';
-import { fromJS } from 'immutable';
+import { Entity } from '@rest-hooks/endpoint';
 
-import { normalize } from '..';
 import { denormalize } from '../denormalizeCached';
-import { DELETED } from '../special';
 import WeakEntityMap from '../WeakEntityMap';
 
 class IDEntity extends Entity {

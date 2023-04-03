@@ -4,8 +4,8 @@ import { fromJS } from 'immutable';
 
 import { normalize } from '../';
 import { denormalize } from '../denormalize';
+import { denormalize as denormalizeCached } from '../denormalizeCached';
 import { DELETED } from '../special';
-import WeakEntityMap from '../WeakEntityMap';
 
 class IDEntity extends Entity {
   id = '';
@@ -386,18 +386,29 @@ describe('normalize', () => {
   });
 });
 
-describe('denormalize', () => {
+describe.each([
+  ['fast', denormalize],
+  ['cached', denormalizeCached],
+])(`denormalize [%s]`, (_, denormalize) => {
   test('passthrough with undefined schema', () => {
     const input = {};
-    expect(denormalize(input)).toStrictEqual([input, true, false]);
+    expect(denormalize(input).slice(0, 3)).toStrictEqual([input, true, false]);
   });
 
   test('returns the input if undefined', () => {
-    expect(denormalize(undefined, {}, {})).toEqual([undefined, false, false]);
+    expect(denormalize(undefined, {}, {}).slice(0, 3)).toEqual([
+      undefined,
+      false,
+      false,
+    ]);
   });
 
   test('returns the input if string', () => {
-    expect(denormalize('bob', '', {})).toEqual(['bob', true, false]);
+    expect(denormalize('bob', '', {}).slice(0, 3)).toEqual([
+      'bob',
+      true,
+      false,
+    ]);
   });
 
   test('denormalizes entities', () => {
@@ -415,7 +426,11 @@ describe('denormalize', () => {
     expect(
       denormalize(fromJS({ data: '1' }), { data: Tacos }, {}),
     ).toMatchSnapshot();
-    expect(denormalize('1', Tacos, {})).toEqual([undefined, false, false]);
+    expect(denormalize('1', Tacos, {}).slice(0, 3)).toEqual([
+      undefined,
+      false,
+      false,
+    ]);
   });
 
   test('denormalizes ignoring unfound entities in arrays', () => {
@@ -436,7 +451,11 @@ describe('denormalize', () => {
         1: Symbol('ENTITY WAS DELETED'),
       },
     };
-    expect(denormalize('1', Tacos, entities)).toEqual([undefined, true, true]);
+    expect(denormalize('1', Tacos, entities).slice(0, 3)).toEqual([
+      undefined,
+      true,
+      true,
+    ]);
   });
 
   test('denormalizes ignoring deleted entities in arrays', () => {
