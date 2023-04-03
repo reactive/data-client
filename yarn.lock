@@ -5286,7 +5286,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^18.0.30":
+"@types/react@npm:*, @types/react@npm:18.0.32, @types/react@npm:^18.0.30":
   version: 18.0.32
   resolution: "@types/react@npm:18.0.32"
   dependencies:
@@ -10148,7 +10148,7 @@ __metadata:
     "@rest-hooks/normalizr": "workspace:^"
     "@types/babel__core": ^7
     "@types/benchmark": 2.1.2
-    "@types/react": ^18.0.30
+    "@types/react": 18.0.32
     benchmark: ^2.1.4
     react: ^18.2.0
     webpack: ^5.76.2
@@ -11042,7 +11042,7 @@ __metadata:
     "@types/eslint": 8.37.0
     "@types/parse-link-header": ^2.0.0
     "@types/prettier": 2.7.2
-    "@types/react": ^18.0.30
+    "@types/react": 18.0.32
     "@types/react-dom": 18.0.11
     "@types/uuid": ^9.0.0
     "@typescript-eslint/eslint-plugin": 5.57.1
@@ -15626,7 +15626,7 @@ __metadata:
     "@rest-hooks/ssr": ^0.7.3
     "@rest-hooks/test": ^10.0.0
     "@types/node": 18.15.11
-    "@types/react": ^18.0.30
+    "@types/react": 18.0.32
     "@types/react-dom": 18.0.11
     eslint: 8.37.0
     eslint-config-next: 13.2.4
@@ -18876,7 +18876,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native@npm:^0.71.5":
+"react-native@npm:0.71.6, react-native@npm:^0.71.5":
   version: 0.71.6
   resolution: "react-native@npm:0.71.6"
   dependencies:
@@ -19841,7 +19841,7 @@ __metadata:
     "@types/jest": 29.5.0
     "@types/lodash": 4.14.192
     "@types/node": 18.15.11
-    "@types/react": ^18.0.30
+    "@types/react": 18.0.32
     "@typescript-eslint/eslint-plugin": 5.57.1
     "@typescript-eslint/parser": 5.57.1
     babel-plugin-module-resolver: 5.0.0
@@ -19869,7 +19869,7 @@ __metadata:
     prettier: 2.8.7
     react: 18.2.0
     react-dom: 18.2.0
-    react-native: ^0.71.5
+    react-native: 0.71.6
     react-native-safe-area-context: ^4.4.1
     react-native-screens: ^3.18.2
     react-test-renderer: 18.2.0
