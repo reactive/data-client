@@ -85,6 +85,11 @@ export default function addNormlizrSuite(suite) {
         denormalizeSimple('gnoff', User, githubState.entities);
       }
     })
+    .add('denormalizeShort 500x', () => {
+      for (let i = 0; i < 500; ++i) {
+        denormalize('gnoff', User, githubState.entities);
+      }
+    })
     .add('denormalizeLong with mixin Entity', () => {
       return denormalize(result, ProjectSchemaMixin, entities);
     })
