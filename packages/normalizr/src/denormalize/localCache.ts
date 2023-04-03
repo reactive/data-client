@@ -1,18 +1,11 @@
 import type Cache from './cache.js';
-import type { EntityInterface } from './interface.js';
-import type { Path } from './types.js';
-import { type GetEntity } from './WeakEntityMap.js';
+import type { EntityInterface } from '../interface.js';
+import type { Path } from '../types.js';
 
 export default class LocalCache implements Cache {
-  localCache: Record<string, Record<string, any>> = {};
+  private localCache: Record<string, Record<string, any>> = {};
 
-  declare getEntity: GetEntity;
-
-  constructor(getEntity: GetEntity) {
-    this.getEntity = getEntity;
-  }
-
-  get(
+  getEntity(
     pk: string,
     schema: EntityInterface,
     entity: any,

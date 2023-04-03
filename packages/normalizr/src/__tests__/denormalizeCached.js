@@ -1,7 +1,7 @@
 // eslint-env jest
 import { Entity } from '@rest-hooks/endpoint';
 
-import { denormalize } from '../denormalizeCached';
+import { denormalize } from '../denormalize/denormalizeCached';
 import WeakEntityMap from '../WeakEntityMap';
 
 class IDEntity extends Entity {

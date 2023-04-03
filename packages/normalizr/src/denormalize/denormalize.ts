@@ -1,8 +1,8 @@
-import type { Schema } from './interface.js';
 import LocalCache from './localCache.js';
-import type { Denormalize, DenormalizeNullable } from './types.js';
 import getUnvisit from './unvisit.js';
-import { getEntities } from './WeakEntityMap.js';
+import type { Schema } from '../interface.js';
+import type { Denormalize, DenormalizeNullable } from '../types.js';
+import { getEntities } from '../WeakEntityMap.js';
 
 export const denormalize = <S extends Schema>(
   input: any,
@@ -21,6 +21,6 @@ export const denormalize = <S extends Schema>(
   }
   const getEntity = getEntities(entities);
 
-  const ret = getUnvisit(getEntity, new LocalCache(getEntity))(input, schema);
+  const ret = getUnvisit(getEntity, new LocalCache())(input, schema);
   return [ret[0], ret[1], ret[2]];
 };

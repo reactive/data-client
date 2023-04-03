@@ -1,37 +1,37 @@
 import type Cache from './cache.js';
-import type { EntityInterface } from './interface.js';
-import type { DenormalizeCache, Path } from './types.js';
+import type { EntityInterface } from '../interface.js';
+import type { DenormalizeCache, Path } from '../types.js';
 import WeakEntityMap, {
   type Dep,
   type GetEntity,
   depToPaths,
-} from './WeakEntityMap.js';
+} from '../WeakEntityMap.js';
 
 export default class GlobalCache implements Cache {
-  dependencies: Dep[] = [];
-  cycleCache: Record<string, Record<string, number>> = {};
-  cycleIndex = -1;
-  localCache: Record<string, Record<string, any>> = {};
+  private dependencies: Dep[] = [];
+  private cycleCache: Record<string, Record<string, number>> = {};
+  private cycleIndex = -1;
+  private localCache: Record<string, Record<string, any>> = {};
 
-  declare getCache: (
+  private declare getCache: (
     pk: string,
     schema: EntityInterface,
   ) => WeakEntityMap<object, any>;
 
-  declare getEntity: GetEntity;
-  declare resultCache: DenormalizeCache['results'][string];
+  private declare _getEntity: GetEntity;
+  private declare resultCache: DenormalizeCache['results'][string];
 
   constructor(
     getEntity: GetEntity,
     entityCache: DenormalizeCache['entities'],
     resultCache: DenormalizeCache['results'][string],
   ) {
-    this.getEntity = getEntity;
+    this._getEntity = getEntity;
     this.getCache = getEntityCaches(entityCache);
     this.resultCache = resultCache;
   }
 
-  get(
+  getEntity(
     pk: string,
     schema: EntityInterface,
     entity: any,
@@ -52,7 +52,7 @@ export default class GlobalCache implements Cache {
     if (!localCacheKey[pk]) {
       const globalCache: WeakEntityMap<object, EntityCacheValue> =
         this.getCache(pk, schema);
-      const [cacheValue] = globalCache.get(entity, this.getEntity);
+      const [cacheValue] = globalCache.get(entity, this._getEntity);
       // TODO: what if this just returned the deps - then we don't need to store them
 
       if (cacheValue) {
@@ -118,7 +118,7 @@ export default class GlobalCache implements Cache {
       return [ret[0], ret[1], ret[2], this.paths()];
     }
 
-    let [ret, entityPaths] = this.resultCache.get(input, this.getEntity);
+    let [ret, entityPaths] = this.resultCache.get(input, this._getEntity);
 
     if (ret === undefined) {
       ret = computeValue();

@@ -1,7 +1,7 @@
 import { schema } from '@rest-hooks/endpoint';
 import { Article, IDEntity } from '__tests__/new';
 
-import { denormalize } from '../denormalize';
+import { denormalize } from '../denormalize/denormalize';
 import { normalize } from '../normalize';
 
 describe('normalizer() merging', () => {

@@ -1,8 +1,8 @@
-import type { EntityInterface } from './interface.js';
-import { Path } from './types.js';
+import type { EntityInterface } from '../interface.js';
+import { Path } from '../types.js';
 
 export default interface Cache {
-  get(
+  getEntity(
     pk: string,
     schema: EntityInterface,
     entity: any,

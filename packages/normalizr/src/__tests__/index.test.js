@@ -3,8 +3,8 @@ import { Entity, schema } from '@rest-hooks/endpoint';
 import { fromJS } from 'immutable';
 
 import { normalize } from '../';
-import { denormalize } from '../denormalize';
-import { denormalize as denormalizeCached } from '../denormalizeCached';
+import { denormalize } from '../denormalize/denormalize';
+import { denormalize as denormalizeCached } from '../denormalize/denormalizeCached';
 import { DELETED } from '../special';
 
 class IDEntity extends Entity {

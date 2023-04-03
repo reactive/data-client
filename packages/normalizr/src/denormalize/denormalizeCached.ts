@@ -1,13 +1,13 @@
 import GlobalCache from './globalCache.js';
-import type { Schema } from './interface.js';
+import getUnvisit from './unvisit.js';
+import type { Schema } from '../interface.js';
 import type {
   Denormalize,
   DenormalizeNullable,
   DenormalizeCache,
   Path,
-} from './types.js';
-import getUnvisit from './unvisit.js';
-import WeakEntityMap, { getEntities } from './WeakEntityMap.js';
+} from '../types.js';
+import WeakEntityMap, { getEntities } from '../WeakEntityMap.js';
 
 type DenormalizeReturn<S extends Schema> =
   | [

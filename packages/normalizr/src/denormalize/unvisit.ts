@@ -1,11 +1,11 @@
 import type Cache from './cache.js';
-import type { EntityInterface, UnvisitFunction } from './interface.js';
-import { isEntity } from './isEntity.js';
-import { denormalize as arrayDenormalize } from './schemas/Array.js';
-import { isImmutable } from './schemas/ImmutableUtils.js';
-import { denormalize as objectDenormalize } from './schemas/Object.js';
-import type { Path } from './types.js';
-import { type GetEntity } from './WeakEntityMap.js';
+import type { EntityInterface, UnvisitFunction } from '../interface.js';
+import { isEntity } from '../isEntity.js';
+import { denormalize as arrayDenormalize } from '../schemas/Array.js';
+import { isImmutable } from '../schemas/ImmutableUtils.js';
+import { denormalize as objectDenormalize } from '../schemas/Object.js';
+import type { Path } from '../types.js';
+import { type GetEntity } from '../WeakEntityMap.js';
 
 const unvisitEntity = (
   entityOrId: Record<string, any> | string,
@@ -46,7 +46,7 @@ const unvisitEntity = (
   }
 
   // last function computes if it is not in any caches
-  return cache.get(pk, schema, entity, localCacheKey =>
+  return cache.getEntity(pk, schema, entity, localCacheKey =>
     unvisitEntityObject(entity, schema, unvisit, pk, localCacheKey),
   );
 };

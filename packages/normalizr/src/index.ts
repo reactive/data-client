@@ -3,8 +3,8 @@ Object.hasOwn =
   /* istanbul ignore next */ function hasOwn(it, key) {
     return Object.prototype.hasOwnProperty.call(it, key);
   };
-import { denormalize as denormalizeSimple } from './denormalize.js';
-import { denormalize } from './denormalizeCached.js';
+import { denormalize as denormalizeSimple } from './denormalize/denormalize.js';
+import { denormalize } from './denormalize/denormalizeCached.js';
 import { isEntity } from './isEntity.js';
 import { normalize } from './normalize.js';
 import WeakEntityMap from './WeakEntityMap.js';
