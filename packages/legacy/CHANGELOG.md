@@ -1,5 +1,18 @@
 # Change Log
 
+## 8.0.0
+
+### Major Changes
+
+- a46695be71: Legacy resources removed and replaced with rest-3 versions
+
+### Patch Changes
+
+- Updated dependencies [1951401dbe]
+- Updated dependencies [1951401dbe]
+  - @rest-hooks/normalizr@10.1.0
+  - @rest-hooks/core@4.3.2
+
 ## 7.0.3
 
 ### Patch Changes
