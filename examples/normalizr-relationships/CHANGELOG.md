@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [1951401dbe]
+  - @rest-hooks/normalizr@10.1.0
+
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
@@ -7,71 +14,71 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### 📦 Package
 
-* Update babel packages ([#2227](https://github.com/coinbase/rest-hooks/issues/2227)) ([4e652a1](https://github.com/coinbase/rest-hooks/commit/4e652a13552cbf467ca140738f9603aba06cffee))
-* Update babel packages ([#2237](https://github.com/coinbase/rest-hooks/issues/2237)) ([e9ce203](https://github.com/coinbase/rest-hooks/commit/e9ce2032b799992ddbb57729f9521e8d3ecf7393))
-* Update babel packages ([#2255](https://github.com/coinbase/rest-hooks/issues/2255)) ([4d739a9](https://github.com/coinbase/rest-hooks/commit/4d739a9dbe2d9796f21e24ebb2022e10575bd0c4))
-* Update babel packages ([#2308](https://github.com/coinbase/rest-hooks/issues/2308)) ([e3ee5ee](https://github.com/coinbase/rest-hooks/commit/e3ee5ee57431971ba4bdb47b48ed89933412374c))
-* Update babel packages ([#2339](https://github.com/coinbase/rest-hooks/issues/2339)) ([2cc99b9](https://github.com/coinbase/rest-hooks/commit/2cc99b99aeece58b0e7674ca80d3372555612c63))
+- Update babel packages ([#2227](https://github.com/coinbase/rest-hooks/issues/2227)) ([4e652a1](https://github.com/coinbase/rest-hooks/commit/4e652a13552cbf467ca140738f9603aba06cffee))
+- Update babel packages ([#2237](https://github.com/coinbase/rest-hooks/issues/2237)) ([e9ce203](https://github.com/coinbase/rest-hooks/commit/e9ce2032b799992ddbb57729f9521e8d3ecf7393))
+- Update babel packages ([#2255](https://github.com/coinbase/rest-hooks/issues/2255)) ([4d739a9](https://github.com/coinbase/rest-hooks/commit/4d739a9dbe2d9796f21e24ebb2022e10575bd0c4))
+- Update babel packages ([#2308](https://github.com/coinbase/rest-hooks/issues/2308)) ([e3ee5ee](https://github.com/coinbase/rest-hooks/commit/e3ee5ee57431971ba4bdb47b48ed89933412374c))
+- Update babel packages ([#2339](https://github.com/coinbase/rest-hooks/issues/2339)) ([2cc99b9](https://github.com/coinbase/rest-hooks/commit/2cc99b99aeece58b0e7674ca80d3372555612c63))
 
 ### [0.1.1](https://github.com/coinbase/rest-hooks/compare/normalizr-relationships@0.1.0...normalizr-relationships@0.1.1) (2022-10-01)
 
 ### 📦 Package
 
-* Update all non-major dependencies ([#2190](https://github.com/coinbase/rest-hooks/issues/2190)) ([c2c7403](https://github.com/coinbase/rest-hooks/commit/c2c74033ecf2004ddebaf064af64f37894f20dec))
-* Update babel packages ([#2192](https://github.com/coinbase/rest-hooks/issues/2192)) ([7c9d3bc](https://github.com/coinbase/rest-hooks/commit/7c9d3bc8ea3019490a1f9e1978c3709b346d582d))
+- Update all non-major dependencies ([#2190](https://github.com/coinbase/rest-hooks/issues/2190)) ([c2c7403](https://github.com/coinbase/rest-hooks/commit/c2c74033ecf2004ddebaf064af64f37894f20dec))
+- Update babel packages ([#2192](https://github.com/coinbase/rest-hooks/issues/2192)) ([7c9d3bc](https://github.com/coinbase/rest-hooks/commit/7c9d3bc8ea3019490a1f9e1978c3709b346d582d))
 
 ## [0.1.0](https://github.com/coinbase/rest-hooks/compare/normalizr-relationships@0.0.14...normalizr-relationships@0.1.0) (2022-09-19)
 
 ### 🚀 Features
 
-* Move schema implementations to @rest-hooks/endpoint ([#2159](https://github.com/coinbase/rest-hooks/issues/2159)) ([a4be8c0](https://github.com/coinbase/rest-hooks/commit/a4be8c08ea515a27254ea480da2baffa1534b09d))
+- Move schema implementations to @rest-hooks/endpoint ([#2159](https://github.com/coinbase/rest-hooks/issues/2159)) ([a4be8c0](https://github.com/coinbase/rest-hooks/commit/a4be8c08ea515a27254ea480da2baffa1534b09d))
 
 ### 📦 Package
 
-* Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
+- Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
 
 ## [0.1.0-beta.1](https://github.com/coinbase/rest-hooks/compare/normalizr-relationships@0.0.14...normalizr-relationships@0.1.0-beta.1) (2022-09-17)
 
 ### 🚀 Features
 
-* Move schema implementations to @rest-hooks/endpoint ([#2159](https://github.com/coinbase/rest-hooks/issues/2159)) ([a4be8c0](https://github.com/coinbase/rest-hooks/commit/a4be8c08ea515a27254ea480da2baffa1534b09d))
+- Move schema implementations to @rest-hooks/endpoint ([#2159](https://github.com/coinbase/rest-hooks/issues/2159)) ([a4be8c0](https://github.com/coinbase/rest-hooks/commit/a4be8c08ea515a27254ea480da2baffa1534b09d))
 
 ### 📦 Package
 
-* Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
+- Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
 
 ## [0.1.0-beta.0](https://github.com/coinbase/rest-hooks/compare/normalizr-relationships@0.0.14...normalizr-relationships@0.1.0-beta.0) (2022-09-16)
 
 ### 🚀 Features
 
-* Move schema implementations to @rest-hooks/endpoint ([#2159](https://github.com/coinbase/rest-hooks/issues/2159)) ([ffaed57](https://github.com/coinbase/rest-hooks/commit/ffaed57a3b397f6eeb69ab3a9fd51366b298b3e5))
+- Move schema implementations to @rest-hooks/endpoint ([#2159](https://github.com/coinbase/rest-hooks/issues/2159)) ([ffaed57](https://github.com/coinbase/rest-hooks/commit/ffaed57a3b397f6eeb69ab3a9fd51366b298b3e5))
 
 ### 📦 Package
 
-* Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
+- Update babel packages ([#2174](https://github.com/coinbase/rest-hooks/issues/2174)) ([dab7ac7](https://github.com/coinbase/rest-hooks/commit/dab7ac798850fc0519ffe5793601757b10d949b2))
 
 ### [0.0.14](https://github.com/coinbase/rest-hooks/compare/normalizr-relationships@0.0.12...normalizr-relationships@0.0.14) (2022-09-10)
 
 ### 📦 Package
 
-* Update all non-major dependencies ([#2113](https://github.com/coinbase/rest-hooks/issues/2113)) ([f9b7a6e](https://github.com/coinbase/rest-hooks/commit/f9b7a6e5b19a0d6f26208af517451affa161b070))
-* Update all non-major dependencies ([#2119](https://github.com/coinbase/rest-hooks/issues/2119)) ([3003348](https://github.com/coinbase/rest-hooks/commit/3003348ba96781085a6f8a6a86a882438ba2b5ea))
-* Update all non-major dependencies ([#2136](https://github.com/coinbase/rest-hooks/issues/2136)) ([f7c8649](https://github.com/coinbase/rest-hooks/commit/f7c864998abc68cae1a4130f2de50e055c7a5269))
-* Update all non-major dependencies ([#2150](https://github.com/coinbase/rest-hooks/issues/2150)) ([eb480f1](https://github.com/coinbase/rest-hooks/commit/eb480f1f567944208483c9239256e7bcf81351e7))
-* Update babel packages ([#2124](https://github.com/coinbase/rest-hooks/issues/2124)) ([bab76ae](https://github.com/coinbase/rest-hooks/commit/bab76ae4ac54474634d3cb323b69ef9be5773a03))
-* Update babel packages ([#2140](https://github.com/coinbase/rest-hooks/issues/2140)) ([bc4d12d](https://github.com/coinbase/rest-hooks/commit/bc4d12d5369f4eee17f32d9379793cfc9b679d61))
-* Update babel packages ([#2161](https://github.com/coinbase/rest-hooks/issues/2161)) ([31b2c8f](https://github.com/coinbase/rest-hooks/commit/31b2c8ff3d9f9001c31f3f5c15bec1321a15361d))
+- Update all non-major dependencies ([#2113](https://github.com/coinbase/rest-hooks/issues/2113)) ([f9b7a6e](https://github.com/coinbase/rest-hooks/commit/f9b7a6e5b19a0d6f26208af517451affa161b070))
+- Update all non-major dependencies ([#2119](https://github.com/coinbase/rest-hooks/issues/2119)) ([3003348](https://github.com/coinbase/rest-hooks/commit/3003348ba96781085a6f8a6a86a882438ba2b5ea))
+- Update all non-major dependencies ([#2136](https://github.com/coinbase/rest-hooks/issues/2136)) ([f7c8649](https://github.com/coinbase/rest-hooks/commit/f7c864998abc68cae1a4130f2de50e055c7a5269))
+- Update all non-major dependencies ([#2150](https://github.com/coinbase/rest-hooks/issues/2150)) ([eb480f1](https://github.com/coinbase/rest-hooks/commit/eb480f1f567944208483c9239256e7bcf81351e7))
+- Update babel packages ([#2124](https://github.com/coinbase/rest-hooks/issues/2124)) ([bab76ae](https://github.com/coinbase/rest-hooks/commit/bab76ae4ac54474634d3cb323b69ef9be5773a03))
+- Update babel packages ([#2140](https://github.com/coinbase/rest-hooks/issues/2140)) ([bc4d12d](https://github.com/coinbase/rest-hooks/commit/bc4d12d5369f4eee17f32d9379793cfc9b679d61))
+- Update babel packages ([#2161](https://github.com/coinbase/rest-hooks/issues/2161)) ([31b2c8f](https://github.com/coinbase/rest-hooks/commit/31b2c8ff3d9f9001c31f3f5c15bec1321a15361d))
 
 ### [0.0.13](https://github.com/coinbase/rest-hooks/compare/normalizr-relationships@0.0.12...normalizr-relationships@0.0.13) (2022-09-04)
 
 ### 📦 Package
 
-* Update all non-major dependencies ([#2113](https://github.com/coinbase/rest-hooks/issues/2113)) ([f9b7a6e](https://github.com/coinbase/rest-hooks/commit/f9b7a6e5b19a0d6f26208af517451affa161b070))
-* Update all non-major dependencies ([#2119](https://github.com/coinbase/rest-hooks/issues/2119)) ([3003348](https://github.com/coinbase/rest-hooks/commit/3003348ba96781085a6f8a6a86a882438ba2b5ea))
-* Update all non-major dependencies ([#2136](https://github.com/coinbase/rest-hooks/issues/2136)) ([f7c8649](https://github.com/coinbase/rest-hooks/commit/f7c864998abc68cae1a4130f2de50e055c7a5269))
-* Update all non-major dependencies ([#2150](https://github.com/coinbase/rest-hooks/issues/2150)) ([eb480f1](https://github.com/coinbase/rest-hooks/commit/eb480f1f567944208483c9239256e7bcf81351e7))
-* Update babel packages ([#2124](https://github.com/coinbase/rest-hooks/issues/2124)) ([bab76ae](https://github.com/coinbase/rest-hooks/commit/bab76ae4ac54474634d3cb323b69ef9be5773a03))
-* Update babel packages ([#2140](https://github.com/coinbase/rest-hooks/issues/2140)) ([bc4d12d](https://github.com/coinbase/rest-hooks/commit/bc4d12d5369f4eee17f32d9379793cfc9b679d61))
+- Update all non-major dependencies ([#2113](https://github.com/coinbase/rest-hooks/issues/2113)) ([f9b7a6e](https://github.com/coinbase/rest-hooks/commit/f9b7a6e5b19a0d6f26208af517451affa161b070))
+- Update all non-major dependencies ([#2119](https://github.com/coinbase/rest-hooks/issues/2119)) ([3003348](https://github.com/coinbase/rest-hooks/commit/3003348ba96781085a6f8a6a86a882438ba2b5ea))
+- Update all non-major dependencies ([#2136](https://github.com/coinbase/rest-hooks/issues/2136)) ([f7c8649](https://github.com/coinbase/rest-hooks/commit/f7c864998abc68cae1a4130f2de50e055c7a5269))
+- Update all non-major dependencies ([#2150](https://github.com/coinbase/rest-hooks/issues/2150)) ([eb480f1](https://github.com/coinbase/rest-hooks/commit/eb480f1f567944208483c9239256e7bcf81351e7))
+- Update babel packages ([#2124](https://github.com/coinbase/rest-hooks/issues/2124)) ([bab76ae](https://github.com/coinbase/rest-hooks/commit/bab76ae4ac54474634d3cb323b69ef9be5773a03))
+- Update babel packages ([#2140](https://github.com/coinbase/rest-hooks/issues/2140)) ([bc4d12d](https://github.com/coinbase/rest-hooks/commit/bc4d12d5369f4eee17f32d9379793cfc9b679d61))
 
 ### [0.0.12](https://github.com/coinbase/rest-hooks/compare/normalizr-relationships@0.0.11...normalizr-relationships@0.0.12) (2022-05-30)
 
@@ -133,4 +140,4 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### 📝 Documentation
 
-* Update links ([#954](https://github.com/coinbase/rest-hooks/issues/954)) ([80c4f90](https://github.com/coinbase/rest-hooks/commit/80c4f90cc36e26297751fa8d5ee710f819d169b3))
+- Update links ([#954](https://github.com/coinbase/rest-hooks/issues/954)) ([80c4f90](https://github.com/coinbase/rest-hooks/commit/80c4f90cc36e26297751fa8d5ee710f819d169b3))

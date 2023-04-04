@@ -1,5 +1,14 @@
 # Change Log
 
+## 0.4.8
+
+### Patch Changes
+
+- Updated dependencies [1951401dbe]
+- Updated dependencies [1951401dbe]
+  - @rest-hooks/normalizr@10.1.0
+  - @rest-hooks/core@4.3.2
+
 ## 0.4.7
 
 ### Patch Changes

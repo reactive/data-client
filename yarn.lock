@@ -4300,7 +4300,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": ^1.4.2
     "@babel/runtime": ^7.17.0
-    "@rest-hooks/normalizr": ^10.0.3
+    "@rest-hooks/normalizr": ^10.1.0
     "@types/node": ^18.15.10
     flux-standard-action: ^2.1.1
   languageName: unknown
@@ -4387,7 +4387,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@rest-hooks/normalizr@^10.0.3, @rest-hooks/normalizr@workspace:*, @rest-hooks/normalizr@workspace:^, @rest-hooks/normalizr@workspace:packages/normalizr":
+"@rest-hooks/normalizr@^10.0.3, @rest-hooks/normalizr@^10.1.0, @rest-hooks/normalizr@workspace:*, @rest-hooks/normalizr@workspace:^, @rest-hooks/normalizr@workspace:packages/normalizr":
   version: 0.0.0-use.local
   resolution: "@rest-hooks/normalizr@workspace:packages/normalizr"
   dependencies:

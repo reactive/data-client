@@ -1,5 +1,13 @@
 # Change Log
 
+## 4.3.2
+
+### Patch Changes
+
+- 1951401dbe: /new Controller.fetch() is 50% to 300% faster (cpu)
+- Updated dependencies [1951401dbe]
+  - @rest-hooks/normalizr@10.1.0
+
 ## 4.3.1
 
 ### Patch Changes
