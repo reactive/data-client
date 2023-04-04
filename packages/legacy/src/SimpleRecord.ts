@@ -1,8 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { AbstractInstanceType, Schema } from '@rest-hooks/endpoint';
-
-import { normalize, infer } from './Object.js';
-import { NormalizedEntity } from './types.js';
+import { AbstractInstanceType, Schema, schema } from '@rest-hooks/endpoint';
 
 const DefinedMembersKey = Symbol('Defined Members');
 const UniqueIdentifierKey = Symbol('unq');
@@ -119,7 +116,7 @@ export default abstract class SimpleRecord {
       visitedEntities: Record<string, any>,
     ]
   ): NormalizedEntity<T> {
-    return normalize(this.schema, ...args) as any;
+    return schema.Object.prototype.normalize.call(this, ...args) as any;
   }
 
   static infer<T extends typeof SimpleRecord>(
@@ -128,7 +125,7 @@ export default abstract class SimpleRecord {
     indexes: any,
     recurse: any,
   ): NormalizedEntity<T> {
-    return infer(this.schema, args, indexes, recurse);
+    return schema.Object.prototype.infer.call(this, args, indexes, recurse);
   }
 
   static denormalize<T extends typeof SimpleRecord>(
@@ -168,15 +165,11 @@ export default abstract class SimpleRecord {
       (this as any).__defaults = new (this as any)();
     return this.__defaults;
   }
-
-  /** @deprecated */
-  /* istanbul ignore next */
-  static asSchema<T extends typeof SimpleRecord>(this: T) {
-    /* istanbul ignore next */
-    if (process.env.NODE_ENV === 'development') {
-      console.error('asSchema() is deprecated - use Entity directly instead.');
-    }
-    /* istanbul ignore next */
-    return this;
-  }
 }
+
+type NormalizedEntity<T> = T extends {
+  prototype: infer U;
+  schema: infer S;
+}
+  ? { [K in Exclude<keyof U, keyof S>]: U[K] } & { [K in keyof S]: string }
+  : never;

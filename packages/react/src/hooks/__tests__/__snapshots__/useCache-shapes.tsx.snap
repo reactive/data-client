@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`useCache() should select paginated results 1`] = `
+[
+  PaginatedArticleResource {
+    "author": null,
+    "content": "the best things in life com efree",
+    "id": 23,
+    "tags": [
+      "one",
+      "two",
+    ],
+    "title": "the first draft",
+  },
+  PaginatedArticleResource {
+    "author": null,
+    "content": "the best things in life com efree",
+    "id": 44,
+    "tags": [
+      "hbh",
+      "wew",
+    ],
+    "title": "the second book",
+  },
+  PaginatedArticleResource {
+    "author": null,
+    "content": "the best things in life com efree",
+    "id": 2,
+    "tags": [
+      "free",
+      "honey",
+    ],
+    "title": "the third novel",
+  },
+  PaginatedArticleResource {
+    "author": null,
+    "content": "the best things in life com efree",
+    "id": 643,
+    "tags": [],
+    "title": "a long time ago",
+  },
+]
+`;
