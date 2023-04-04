@@ -124,11 +124,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/jest-preset@npm:0.10.5":
-  version: 0.10.5
-  resolution: "@anansi/jest-preset@npm:0.10.5"
+"@anansi/jest-preset@npm:0.10.7":
+  version: 0.10.7
+  resolution: "@anansi/jest-preset@npm:0.10.7"
   dependencies:
-    "@anansi/ts-utils": ^0.3.4
+    "@anansi/ts-utils": ^0.3.5
+    "@types/babel__core": ^7.20.0
     babel-jest: ^29.5.0
     core-js: ^3.21.0
     cross-fetch: ^3.1.5
@@ -137,17 +138,20 @@ __metadata:
     mitt: ^3.0.0
     node-fetch: ^3.3.1
     semver: ^7.3.8
-    ts-jest: ^29.0.5
+    ts-jest: ^29.1.0
     whatwg-fetch: ^3.0.0
   peerDependencies:
     "@babel/core": ^7.0.0
+    "@types/babel__core": ^7.0.0
     jest: ^28.0.0 || ^29.0.0
     react: "*"
     typescript: ^4.3.0 || ^5.0.0
   peerDependenciesMeta:
+    "@types/babel__core":
+      optional: true
     react:
       optional: true
-  checksum: 8766143b9078af6547edd0d611859535f42cf66c335d45956cc70fe8c134c0ca72aa8039324d3e47ab66aec2e80116be8512c0065b6b11a8e822228f6251cc95
+  checksum: cc44af8b408e88835550ce6e1c146f5570b168eeb5fe8707fe756a14bc4872a60d6427ba0542c7acbe03c144d426f4743e5908f1707251d5d57327eba88531b9
   languageName: node
   linkType: hard
 
@@ -169,7 +173,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anansi/ts-utils@npm:^0.3.4, @anansi/ts-utils@npm:^0.3.5":
+"@anansi/ts-utils@npm:^0.3.5":
   version: 0.3.5
   resolution: "@anansi/ts-utils@npm:0.3.5"
   peerDependencies:
@@ -4894,7 +4898,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/babel__core@npm:^7, @types/babel__core@npm:^7.1.14":
+"@types/babel__core@npm:^7, @types/babel__core@npm:^7.1.14, @types/babel__core@npm:^7.20.0":
   version: 7.20.0
   resolution: "@types/babel__core@npm:7.20.0"
   dependencies:
@@ -19817,7 +19821,7 @@ __metadata:
     "@anansi/babel-preset": 4.2.2
     "@anansi/browserslist-config": 1.4.2
     "@anansi/eslint-plugin": 0.16.5
-    "@anansi/jest-preset": 0.10.5
+    "@anansi/jest-preset": 0.10.7
     "@babel/cli": 7.21.0
     "@babel/core": 7.21.4
     "@babel/node": 7.20.7
@@ -21559,9 +21563,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^29.0.5":
-  version: 29.0.5
-  resolution: "ts-jest@npm:29.0.5"
+"ts-jest@npm:^29.1.0":
+  version: 29.1.0
+  resolution: "ts-jest@npm:29.1.0"
   dependencies:
     bs-logger: 0.x
     fast-json-stable-stringify: 2.x
@@ -21576,7 +21580,7 @@ __metadata:
     "@jest/types": ^29.0.0
     babel-jest: ^29.0.0
     jest: ^29.0.0
-    typescript: ">=4.3"
+    typescript: ">=4.3 <6"
   peerDependenciesMeta:
     "@babel/core":
       optional: true
@@ -21588,7 +21592,7 @@ __metadata:
       optional: true
   bin:
     ts-jest: cli.js
-  checksum: f60f129c2287f4c963d9ee2677132496c5c5a5d39c27ad234199a1140c26318a7d5bda34890ab0e30636ec42a8de28f84487c09e9dcec639c9c67812b3a38373
+  checksum: 535dc42ad523cbe1e387701fb2e448518419b515c082f09b25411f0b3dd0b854cf3e8141c316d6f4b99883aeb4a4f94159cbb1edfb06d7f77ea6229fadb2e1bf
   languageName: node
   linkType: hard
 
