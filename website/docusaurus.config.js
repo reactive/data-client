@@ -360,8 +360,8 @@ module.exports = {
       ogImage: 'img/rest_hooks_logo.png',
       twitterImage: 'img/rest_hooks_logo.png',
       announcementBar: {
-        id: 'announcementBar-5', // Increment on change
-        content: `This project will soon be renamed. 🗳️ <a target="_blank" rel="noopener noreferrer" href="https://github.com/data-client/rest-hooks/discussions/2407">Vote</a> on a new name to influence its direction!`,
+        id: 'announcementBar-2', // Increment on change
+        content: `If you like Rest Hooks, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/data-client/rest-hooks">GitHub</a>`,
       },
       navbar: {
         title: 'Rest Hooks',
