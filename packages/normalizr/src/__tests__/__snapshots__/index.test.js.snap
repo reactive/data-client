@@ -221,6 +221,19 @@ exports[`denormalize [cached] denormalizes schema with extra members but not set
 ]
 `;
 
+exports[`denormalize [cached] denormalizes where id is only in key 1`] = `
+{
+  "1": Tacos {
+    "id": "",
+    "type": "foo",
+  },
+  "2": Tacos {
+    "id": "",
+    "type": "bar",
+  },
+}
+`;
+
 exports[`denormalize [cached] denormalizes with function as pk() 1`] = `
 [
   [
@@ -467,6 +480,19 @@ exports[`denormalize [fast] denormalizes schema with extra members but not set 1
   false,
   false,
 ]
+`;
+
+exports[`denormalize [fast] denormalizes where id is only in key 1`] = `
+{
+  "1": Tacos {
+    "id": "",
+    "type": "foo",
+  },
+  "2": Tacos {
+    "id": "",
+    "type": "bar",
+  },
+}
 `;
 
 exports[`denormalize [fast] denormalizes with function as pk() 1`] = `
