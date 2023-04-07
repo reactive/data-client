@@ -9,8 +9,8 @@ import { DELETED } from '../special';
 
 class IDEntity extends Entity {
   id = '';
-  pk() {
-    return this.id;
+  pk(parent, key) {
+    return this.id || key;
   }
 }
 
@@ -725,6 +725,19 @@ describe.each([
 
     expect(
       denormalize(normalizedData.result, [Patron], normalizedData.entities),
+    ).toMatchSnapshot();
+  });
+
+  test('denormalizes where id is only in key', () => {
+    expect(
+      denormalize(
+        {
+          1: { type: 'foo' },
+          2: { type: 'bar' },
+        },
+        new schema.Values(Tacos),
+        {},
+      )[0],
     ).toMatchSnapshot();
   });
 });

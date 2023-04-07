@@ -38,11 +38,13 @@ const unvisitEntity = (
     typeof entityOrId === 'string'
       ? entityOrId
       : schema.pk(isImmutable(entity) ? (entity as any).toJS() : entity);
-  // if we can't generate a working pk; this is hopeless so let's give them what's already there
-  // otherwise, even when we aren't doing a lookup we want to turn the entityOrId object into the
-  // expected class, and cache that class for referential equality. PK is used for global equality lookup.
+
+  // if we can't generate a working pk we cannot do cache lookups properly,
+  // so simply denormalize without caching
   if (pk === undefined || pk === '' || pk === 'undefined') {
-    return [entity, false, false];
+    return noCacheGetEntity(localCacheKey =>
+      unvisitEntityObject(entity, schema, unvisit, '', localCacheKey),
+    );
   }
 
   // last function computes if it is not in any caches
@@ -50,6 +52,15 @@ const unvisitEntity = (
     unvisitEntityObject(entity, schema, unvisit, pk, localCacheKey),
   );
 };
+
+function noCacheGetEntity(
+  computeValue: (localCacheKey: Record<string, any>) => [boolean, boolean],
+): [denormalized: object | undefined, found: boolean, deleted: boolean] {
+  const localCacheKey = {};
+  const [found, deleted] = computeValue(localCacheKey);
+
+  return [localCacheKey[''], found, deleted];
+}
 
 function unvisitEntityObject(
   entity: object,

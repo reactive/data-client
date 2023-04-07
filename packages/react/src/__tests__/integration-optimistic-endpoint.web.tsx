@@ -628,13 +628,13 @@ describe.each([
           mynock
             .persist()
             .post('/toggle/5')
-            .delay(2000)
+            .delay(500)
             .reply(200, () => {
               visible = visible ? false : true;
               return { id: 5, visible };
             });
 
-          const { result, waitForNextUpdate } = renderRestHook(
+          const { result } = renderRestHook(
             () => {
               const { fetch } = useController();
               const tog = useCache(getbool, 5);
@@ -662,7 +662,7 @@ describe.each([
           // nothing should change since this failed
           expect(result.current.tog).toEqual({ id: 5, visible: false });
           expect(result.current.err).toEqual(toThrow);
-          await act(() => promise);
+          renderRestHook.cleanup();
         },
       );
 
@@ -677,7 +677,7 @@ describe.each([
         mynock
           .persist()
           .post('/toggle/5')
-          .delay(2000)
+          .delay(700)
           .reply(200, () => {
             visible = visible ? false : true;
             return { id: 5, visible };
@@ -710,16 +710,19 @@ describe.each([
         act(() => {
           promises.push(result.current.fetch(toggle, 5));
         });
+        jest.runOnlyPendingTimers();
         expect(result.current.tog).toEqual({ id: 5, visible: true });
 
         act(() => {
           promises.push(result.current.fetch(toggle, 5));
         });
+        jest.runOnlyPendingTimers();
         expect(result.current.tog).toEqual({ id: 5, visible: false });
 
         act(() => {
           promises.push(result.current.fetch(toggle, 5));
         });
+        jest.runOnlyPendingTimers();
         expect(result.current.tog).toEqual({ id: 5, visible: true });
 
         jest.advanceTimersByTime(300);
@@ -727,9 +730,11 @@ describe.each([
         act(() => {
           promises2.push(result.current.fetch(toggle, 5));
         });
+        jest.runOnlyPendingTimers();
         expect(result.current.tog).toEqual({ id: 5, visible: false });
 
-        jest.advanceTimersByTime(2001);
+        jest.advanceTimersByTime(701);
+        jest.runOnlyPendingTimers();
         await act(async () => {
           await Promise.all(promises);
         });
@@ -744,6 +749,8 @@ describe.each([
         });
 
         expect(result.current.tog).toEqual({ id: 5, visible: false });
+
+        renderRestHook.cleanup();
       });
 
       it('toggle should handle when response is missing', async () => {

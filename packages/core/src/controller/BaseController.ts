@@ -393,7 +393,7 @@ export default class Controller<
       // expiresAt existance is equivalent to cacheResults
       if (found) {
         const entityMeta = state.entityMeta;
-        // oldest entity dictates age
+        // earliest expiry dictates age
         expiresAt = entityPaths.reduce(
           (expiresAt: number, { pk, key }) =>
             Math.min(expiresAt, entityMeta[key]?.[pk]?.expiresAt ?? Infinity),

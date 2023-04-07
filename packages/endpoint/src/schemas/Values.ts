@@ -48,7 +48,7 @@ export default class ValuesSchema extends PolymorphicSchema {
         if (deletedItem) {
           deleted = true;
         }
-        if (!foundItem || deletedItem) return output;
+        if (!value || deletedItem) return output;
         return {
           ...output,
           [key]: value,
