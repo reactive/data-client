@@ -1,5 +1,5 @@
 import {
-  denormalize as denormalizeCore,
+  denormalizeCached as denormalizeCore,
   Schema,
   DenormalizeCache,
   WeakEntityMap,

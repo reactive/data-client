@@ -8,19 +8,11 @@ export const denormalize = <S extends Schema>(
   input: any,
   schema: S | undefined,
   entities: any,
-):
-  | [denormalized: Denormalize<S>, found: true, deleted: false]
-  | [denormalized: DenormalizeNullable<S>, found: boolean, deleted: true]
-  | [denormalized: DenormalizeNullable<S>, found: false, deleted: boolean] => {
+): Denormalize<S> | DenormalizeNullable<S> => {
   // undefined means don't do anything
-  if (schema === undefined) {
-    return [input, true, false] as [any, boolean, boolean];
+  if (schema === undefined || input === undefined) {
+    return input as any;
   }
-  if (input === undefined) {
-    return [undefined, false, false] as [any, boolean, boolean];
-  }
-  const getEntity = getEntities(entities);
 
-  const ret = getUnvisit(getEntity, new LocalCache())(input, schema);
-  return [ret[0], ret[1], ret[2]];
+  return getUnvisit(getEntities(entities), new LocalCache())(input, schema)[0];
 };

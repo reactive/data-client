@@ -28,7 +28,7 @@ exports[`Controller.getResponse() infers schema with extra members but not set 1
       "next": false,
     },
     "first": null,
-    "second": undefined,
+    "second": "",
     "third": 0,
   },
 }

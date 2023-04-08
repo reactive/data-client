@@ -142,7 +142,7 @@ describe('Controller.getResponse()', () => {
         extra: '',
         page: {
           first: null,
-          second: undefined,
+          second: '',
           third: 0,
           complex: { complex: true, next: false },
         },

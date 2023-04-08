@@ -27,6 +27,18 @@ afterAll(() => {
 });
 
 describe('denormalize with global cache', () => {
+  test('denormalizes suspends when symbol contains DELETED string', () => {
+    const entities = {
+      Tacos: {
+        1: Symbol('ENTITY WAS DELETED'),
+      },
+    };
+    expect(denormalize('1', Tacos, entities).slice(0, 3)).toEqual([
+      undefined,
+      true,
+      true,
+    ]);
+  });
   test('maintains referential equality with same results', () => {
     const entityCache = {};
     const resultCache = new WeakEntityMap();

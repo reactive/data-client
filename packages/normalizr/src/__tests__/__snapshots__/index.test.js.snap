@@ -477,7 +477,7 @@ exports[`denormalize [fast] denormalizes schema with extra members but not set 1
       },
     ],
   },
-  false,
+  true,
   false,
 ]
 `;
@@ -521,7 +521,7 @@ exports[`denormalize [fast] denormalizes without entities fills undefined 1`] = 
   {
     "data": undefined,
   },
-  false,
+  true,
   false,
 ]
 `;
@@ -531,7 +531,7 @@ exports[`denormalize [fast] denormalizes without entities fills undefined 2`] = 
   Immutable.Map {
     "data": undefined,
   },
-  false,
+  true,
   false,
 ]
 `;

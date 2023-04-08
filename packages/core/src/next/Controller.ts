@@ -1,5 +1,5 @@
 import type { EndpointInterface, Denormalize } from '@rest-hooks/normalizr';
-import { denormalizeSimple } from '@rest-hooks/normalizr';
+import { denormalize } from '@rest-hooks/normalizr';
 
 import BaseController, {
   CompatibleDispatch,
@@ -29,8 +29,8 @@ export default class Controller<
     this.dispatch(action);
 
     if (endpoint.schema) {
-      return action.meta.promise.then(
-        input => denormalizeSimple(input, endpoint.schema, {})[0],
+      return action.meta.promise.then(input =>
+        denormalize(input, endpoint.schema, {}),
       ) as any;
     }
     return action.meta.promise as any;

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { ErrorTypes } from '@rest-hooks/core';
-import { denormalize } from '@rest-hooks/normalizr';
+import { denormalizeCached } from '@rest-hooks/normalizr';
 import type {
   Schema,
   Denormalize,
@@ -101,7 +101,7 @@ export default function useStatefulResource<
   const loading = expiryStatus !== ExpiryStatus.Valid && !!maybePromise;
 
   if (loading && adaptedEndpoint.schema)
-    data = denormalize(
+    data = denormalizeCached(
       inferResults(
         adaptedEndpoint.schema,
         args as any,

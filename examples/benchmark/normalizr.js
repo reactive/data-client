@@ -5,7 +5,7 @@ import {
   denormalize,
   inferResults,
   WeakEntityMap,
-  denormalizeSimple,
+  denormalizeCached,
 } from './dist/index.js';
 import { printStatus } from './printStatus.js';
 import {
@@ -45,21 +45,21 @@ export default function addNormlizrSuite(suite) {
     },
   };
   // prime the cache
-  denormalize(
+  denormalizeCached(
     result,
     ProjectSchema,
     entities,
     denormCache.entities,
     denormCache.results['/fake'],
   );
-  denormalize(
+  denormalizeCached(
     queryState.result,
     ProjectQuery,
     queryState.entities,
     denormCache.entities,
     denormCache.results['/fakeQuery'],
   );
-  %OptimizeFunctionOnNextCall(denormalize);
+  %OptimizeFunctionOnNextCall(denormalizeCached);
   %OptimizeFunctionOnNextCall(normalize);
 
   return suite
@@ -75,26 +75,26 @@ export default function addNormlizrSuite(suite) {
       );
     })
     .add('denormalizeLong', () => {
-      return denormalize(result, ProjectSchema, entities);
+      return denormalizeCached(result, ProjectSchema, entities);
     })
     .add('denormalizeLong donotcache', () => {
-      return denormalizeSimple(result, ProjectSchema, entities);
+      return denormalize(result, ProjectSchema, entities);
     })
     .add('denormalizeShort donotcache 500x', () => {
-      for (let i = 0; i < 500; ++i) {
-        denormalizeSimple('gnoff', User, githubState.entities);
-      }
-    })
-    .add('denormalizeShort 500x', () => {
       for (let i = 0; i < 500; ++i) {
         denormalize('gnoff', User, githubState.entities);
       }
     })
+    .add('denormalizeShort 500x', () => {
+      for (let i = 0; i < 500; ++i) {
+        denormalizeCached('gnoff', User, githubState.entities);
+      }
+    })
     .add('denormalizeLong with mixin Entity', () => {
-      return denormalize(result, ProjectSchemaMixin, entities);
+      return denormalizeCached(result, ProjectSchemaMixin, entities);
     })
     .add('denormalizeLong withCache', () => {
-      return denormalize(
+      return denormalizeCached(
         result,
         ProjectSchema,
         entities,
@@ -103,7 +103,7 @@ export default function addNormlizrSuite(suite) {
       );
     })
     .add('denormalizeLong All withCache', () => {
-      return denormalize(
+      return denormalizeCached(
         queryState.result,
         ProjectQuery,
         queryState.entities,
@@ -112,7 +112,7 @@ export default function addNormlizrSuite(suite) {
       );
     })
     .add('denormalizeLong Query-sorted withCache', () => {
-      return denormalize(
+      return denormalizeCached(
         queryInfer,
         ProjectQuerySorted.schema,
         queryState.entities,
@@ -122,7 +122,7 @@ export default function addNormlizrSuite(suite) {
     })
     .on('complete', function () {
       if (process.env.SHOW_OPTIMIZATION) {
-        printStatus(denormalize);
+        printStatus(denormalizeCached);
         printStatus(Entity.normalize);
         printStatus(Entity.denormalize);
         printStatus(ProjectWithBuildTypesDescription.prototype.pk);

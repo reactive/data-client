@@ -124,8 +124,15 @@ export default abstract class SimpleRecord {
     args: readonly any[],
     indexes: any,
     recurse: any,
+    entities?: any,
   ): NormalizedEntity<T> {
-    return schema.Object.prototype.infer.call(this, args, indexes, recurse);
+    return (schema.Object.prototype.infer as any).call(
+      this,
+      args,
+      indexes,
+      recurse,
+      entities,
+    );
   }
 
   static denormalize<T extends typeof SimpleRecord>(
