@@ -25,7 +25,7 @@ describe('normalizer() merging', () => {
         firstEM,
       );
 
-      const [merged] = denormalize(result, Article, entities);
+      const merged = denormalize(result, Article, entities);
       expect(merged).toBeInstanceOf(Article);
       expect(merged).toEqual(
         Article.fromJS({
@@ -83,7 +83,7 @@ describe('normalizer() merging', () => {
         firstEM,
       );
 
-      const [merged] = denormalize(result, Article, entities);
+      const merged = denormalize(result, Article, entities);
       expect(merged).toBeInstanceOf(Article);
       expect(merged).toEqual(
         Article.fromJS({
@@ -107,7 +107,7 @@ describe('normalizer() merging', () => {
 
       normalize({ id, title: 'hello' }, Article, first);
 
-      const [merged] = denormalize(id, Article, first);
+      const merged = denormalize(id, Article, first);
       expect(merged).toBeInstanceOf(Article);
       expect(merged).toEqual(
         Article.fromJS({

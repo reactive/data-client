@@ -1,16 +1,7 @@
 import data from './data.json' assert { type: 'json' };
-import {
-  Entity,
-  normalize,
-  denormalize,
-  inferResults,
-  WeakEntityMap,
-} from './dist/index.js';
+import { Entity } from './dist/index.js';
 import { printStatus } from './printStatus.js';
 import {
-  ProjectSchema,
-  ProjectQuery,
-  ProjectQuerySorted,
   BuildTypeDescription,
   BuildTypeDescriptionEntity,
   BuildTypeDescriptionEmpty,

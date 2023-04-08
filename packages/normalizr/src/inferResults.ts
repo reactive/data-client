@@ -4,6 +4,7 @@ import type {
   NormalizedIndex,
   EntityTable,
 } from './interface.js';
+import { isEntity } from './isEntity.js';
 import { infer as arrayInfer } from './schemas/Array.js';
 import { infer as objectInfer } from './schemas/Object.js';
 import type { NormalizeNullable } from './types.js';
@@ -16,11 +17,16 @@ export default function inferResults<S extends Schema>(
   schema: S,
   args: any[],
   indexes: NormalizedIndex,
-  entities: EntityTable = {},
+  entities: EntityTable,
 ): NormalizeNullable<S> {
   // schema classes
   if (canInfer(schema)) {
-    return schema.infer(args, indexes, inferResults, entities);
+    const ret = schema.infer(args, indexes, inferResults, entities);
+    // TODO(breaking): back compatibility with endpoint@3.7 and less
+    if (isEntity(schema) && ret !== undefined && !entities[schema.key]?.[ret]) {
+      return undefined as any;
+    }
+    return ret;
   }
 
   // plain case
@@ -35,4 +41,13 @@ export default function inferResults<S extends Schema>(
 
 function canInfer(schema: Schema): schema is Pick<SchemaSimple, 'infer'> {
   return !!schema && typeof (schema as any).infer === 'function';
+}
+
+// this only works if entity does a lookup first to see if its entity is 'found'
+export function validateInference(results: unknown) {
+  if (results === undefined) return false;
+  if (results && typeof results === 'object' && !Array.isArray(results)) {
+    return Object.values(results).every(validateInference);
+  }
+  return true;
 }

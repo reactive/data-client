@@ -296,24 +296,12 @@ export default function EntitySchema<TBase extends Constructor>(
       args: readonly any[],
       indexes: NormalizedIndex,
       recurse: any,
+      entities: any,
     ): any {
       if (!args[0]) return undefined;
-      if (['string', 'number'].includes(typeof args[0])) {
-        return `${args[0]}`;
-      }
-      const id = this.pk(args[0], undefined, '');
-      // Was able to infer the entity's primary key from params
-      if (id !== undefined && id !== '') return id;
-      // now attempt lookup in indexes
-      const indexName = indexFromParams(args[0], this.indexes);
-      if (indexName && indexes[this.key]) {
-        // 'as Record<string, any>': indexName can only be found if params is a string key'd object
-        const id =
-          indexes[this.key][indexName][
-            (args[0] as Record<string, any>)[indexName]
-          ];
-        return id;
-      }
+      const id = inferId(this, args, indexes);
+      // no entity arg is back-compatibility
+      if (!entities || entities[this.key]?.[id]) return id;
       return undefined;
     }
 
@@ -610,4 +598,23 @@ export interface IEntityInstance {
    * @param [key] When normalizing, the key where this entity was found
    */
   pk(parent?: any, key?: string): string | undefined;
+}
+
+function inferId(schema: any, args: readonly any[], indexes: NormalizedIndex) {
+  if (['string', 'number'].includes(typeof args[0])) {
+    return `${args[0]}`;
+  }
+  const id = schema.pk(args[0], undefined, '');
+  // Was able to infer the entity's primary key from params
+  if (id !== undefined && id !== '') return id;
+  // now attempt lookup in indexes
+  const indexName = indexFromParams(args[0], schema.indexes);
+  if (indexName && indexes[schema.key]) {
+    // 'as Record<string, any>': indexName can only be found if params is a string key'd object
+    const id =
+      indexes[schema.key][indexName][
+        (args[0] as Record<string, any>)[indexName]
+      ];
+    return id;
+  }
 }

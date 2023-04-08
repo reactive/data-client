@@ -1,4 +1,7 @@
-import { normalize, denormalize } from '@rest-hooks/normalizr';
+import {
+  normalize,
+  denormalizeCached as denormalize,
+} from '@rest-hooks/normalizr';
 import { IDEntity } from '__tests__/new';
 
 import { schema, DenormalizeNullable, Normalize, Denormalize } from '../src';
@@ -43,7 +46,7 @@ const r = normalize({}, scheme);
 type A = DenormalizeNullable<typeof scheme>;
 type B = A['thing']['members'];
 type C = DenormalizeNullable<typeof schemeEntity>;
-type D = ReturnType<typeof unionSchema['_denormalizeNullable']>;
+type D = ReturnType<(typeof unionSchema)['_denormalizeNullable']>;
 type F = Denormalize<typeof unionSchema>;
 type E = Normalize<typeof scheme>['thing']['data'];
 

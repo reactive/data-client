@@ -10,13 +10,13 @@ import {
   ExpiryStatus,
   ErrorTypes,
   SnapshotInterface,
-  denormalize,
+  denormalizeCached,
   DenormalizeCache,
   isEntity,
   Schema,
   WeakEntityMap,
 } from '@rest-hooks/normalizr';
-import { inferResults } from '@rest-hooks/normalizr';
+import { inferResults, validateInference } from '@rest-hooks/normalizr';
 
 import createInvalidate from './createInvalidate.js';
 import createInvalidateAll from './createInvalidateAll.js';
@@ -332,18 +332,25 @@ export default class Controller<
     const args: any = rest.slice(0, rest.length - 1) as Parameters<E['key']>;
     const isActive = args.length !== 1 || args[0] !== null;
     const key = isActive ? endpoint.key(...args) : '';
-    const cacheResults = isActive && state.results[key];
+    const cacheResults = isActive ? state.results[key] : undefined;
     const schema = endpoint.schema;
     const meta = selectMeta(state, key);
     let expiresAt = meta?.expiresAt;
 
-    const results = this.getResults(
-      endpoint.schema,
-      cacheResults,
-      args,
-      state.indexes,
-      state.entities,
-    );
+    let invalidResults = false;
+    let results;
+    if (cacheResults === undefined && endpoint.schema !== undefined) {
+      results = inferResults(
+        endpoint.schema,
+        args,
+        state.indexes,
+        state.entities,
+      );
+      invalidResults = !validateInference(results);
+      if (!expiresAt && invalidResults) expiresAt = 1;
+    } else {
+      results = cacheResults;
+    }
 
     if (!endpoint.schema || !schemaHasEntity(endpoint.schema)) {
       return {
@@ -360,6 +367,7 @@ export default class Controller<
         expiresAt: number;
       };
     }
+
     // Warn users with bad configurations
     /* istanbul ignore next */
     if (process.env.NODE_ENV !== 'production' && schema && isEntity(schema)) {
@@ -380,7 +388,7 @@ export default class Controller<
 
     // second argument is false if any entities are missing
     // eslint-disable-next-line prefer-const
-    const [data, found, suspend, entityPaths] = denormalize(
+    const [data, _, invalidDenormalize, entityPaths] = denormalizeCached(
       results,
       schema,
       state.entities,
@@ -390,47 +398,33 @@ export default class Controller<
 
     // fallback to entity expiry time
     if (!expiresAt) {
-      // expiresAt existance is equivalent to cacheResults
-      if (found) {
-        const entityMeta = state.entityMeta;
-        // earliest expiry dictates age
-        expiresAt = entityPaths.reduce(
-          (expiresAt: number, { pk, key }) =>
-            Math.min(expiresAt, entityMeta[key]?.[pk]?.expiresAt ?? Infinity),
-          Infinity,
-        );
-        /*expiresAt = entityPaths
+      const entityMeta = state.entityMeta;
+      // earliest expiry dictates age
+      expiresAt = entityPaths.reduce(
+        (expiresAt: number, { pk, key }) =>
+          Math.min(expiresAt, entityMeta[key]?.[pk]?.expiresAt ?? Infinity),
+        Infinity,
+      );
+      /*expiresAt = entityPaths
           .map(({ pk, key }) => entityMeta[key]?.[pk]?.expiresAt)
           .filter(a => a)
           .reduce((a, b) => Math.min(a, b), Infinity); Alternative method - is it faster?*/
-      } else {
-        expiresAt = 0;
-      }
     }
 
     // https://resthooks.io/docs/concepts/expiry-policy#expiry-status
     // we don't track the difference between stale or fresh because that is tied to triggering
     // conditions
     const expiryStatus =
-      meta?.invalidated || (suspend && !meta?.error)
+      meta?.invalidated || (invalidDenormalize && !meta?.error)
         ? ExpiryStatus.Invalid
-        : suspend || endpoint.invalidIfStale || (!cacheResults && !found)
+        : invalidDenormalize ||
+          endpoint.invalidIfStale ||
+          !isActive ||
+          invalidResults
         ? ExpiryStatus.InvalidIfStale
         : ExpiryStatus.Valid;
 
     return { data, expiryStatus, expiresAt };
-  };
-
-  private getResults = (
-    schema: Schema | undefined,
-    cacheResults: any,
-    args: any[],
-    indexes: any,
-    entities: EntityTable,
-  ) => {
-    if (cacheResults || schema === undefined) return cacheResults;
-
-    return inferResults(schema, args, indexes, entities);
   };
 }
 
