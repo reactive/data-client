@@ -8,7 +8,6 @@ exports[`ObjectSchema denormalization denormalizes an object 1`] = `
       "name": "Nacho",
     },
   },
-  true,
   false,
 ]
 `;
@@ -21,7 +20,6 @@ exports[`ObjectSchema denormalization denormalizes an object 2`] = `
       "name": "Nacho",
     },
   },
-  true,
   false,
 ]
 `;
@@ -34,7 +32,6 @@ exports[`ObjectSchema denormalization denormalizes an object 3`] = `
       "name": "Nacho",
     },
   },
-  true,
   false,
 ]
 `;
@@ -47,7 +44,6 @@ exports[`ObjectSchema denormalization denormalizes an object that contains a pro
       "name": "Chancho",
     },
   },
-  true,
   false,
 ]
 `;
@@ -60,7 +56,6 @@ exports[`ObjectSchema denormalization denormalizes an object that contains a pro
       "name": "Chancho",
     },
   },
-  true,
   false,
 ]
 `;
@@ -73,7 +68,6 @@ exports[`ObjectSchema denormalization denormalizes an object that contains a pro
       "name": "Chancho",
     },
   },
-  true,
   false,
 ]
 `;
@@ -86,7 +80,6 @@ exports[`ObjectSchema denormalization denormalizes an object with plain members 
       "name": "Nacho",
     },
   },
-  true,
   false,
 ]
 `;
@@ -99,7 +92,6 @@ exports[`ObjectSchema denormalization denormalizes an object with plain members 
       "name": "Nacho",
     },
   },
-  true,
   false,
 ]
 `;
@@ -112,7 +104,6 @@ exports[`ObjectSchema denormalization denormalizes an object with plain members 
       "name": "Nacho",
     },
   },
-  true,
   false,
 ]
 `;
@@ -126,7 +117,6 @@ exports[`ObjectSchema denormalization denormalizes plain object shorthand 1`] = 
     },
   },
   false,
-  false,
 ]
 `;
 
@@ -138,7 +128,6 @@ exports[`ObjectSchema denormalization denormalizes plain object shorthand 2`] = 
       "name": "Jane",
     },
   },
-  false,
   false,
 ]
 `;
@@ -152,7 +141,6 @@ exports[`ObjectSchema denormalization denormalizes plain object shorthand 3`] = 
     },
   },
   false,
-  false,
 ]
 `;
 
@@ -165,7 +153,6 @@ exports[`ObjectSchema denormalization denormalizes plain object shorthand 4`] = 
       "name": "Jane",
     },
   },
-  true,
   false,
 ]
 `;
@@ -179,7 +166,6 @@ exports[`ObjectSchema denormalization denormalizes plain object shorthand 5`] = 
       "name": "Jane",
     },
   },
-  true,
   false,
 ]
 `;
@@ -193,7 +179,6 @@ exports[`ObjectSchema denormalization denormalizes plain object shorthand 6`] = 
     },
     "tacos": Immutable.Map {},
   },
-  true,
   false,
 ]
 `;

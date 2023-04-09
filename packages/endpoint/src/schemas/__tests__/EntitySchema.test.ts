@@ -843,12 +843,10 @@ describe(`${schema.Entity.name} denormalization`, () => {
     };
     expect(denormalize('1', MyTacos, entities)).toStrictEqual([
       undefined,
-      false,
       true,
     ]);
     expect(denormalize('1', MyTacos, fromJS(entities))).toStrictEqual([
       undefined,
-      false,
       true,
     ]);
   });
@@ -892,7 +890,6 @@ describe(`${schema.Entity.name} denormalization`, () => {
           "name": "bob",
           "secondthing": "hi",
         },
-        true,
         false,
       ]
     `);
@@ -920,7 +917,6 @@ describe(`${schema.Entity.name} denormalization`, () => {
           "name": "bob",
           "secondthing": "hi",
         },
-        true,
         false,
       ]
     `);
@@ -1200,7 +1196,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
 
     describe('optional entities', () => {
       it('should be marked as found even when optional is not there', () => {
-        const [denormalized, found] = denormalize('abc', WithOptional, {
+        const [denormalized] = denormalize('abc', WithOptional, {
           [WithOptional.key]: {
             abc: {
               id: 'abc',
@@ -1213,7 +1209,6 @@ describe(`${schema.Entity.name} denormalization`, () => {
             ['5']: { id: '5' },
           },
         });
-        expect(found).toBe(true);
         const response = denormalized;
         expect(response).toBeDefined();
         expect(response).toBeInstanceOf(WithOptional);
@@ -1226,24 +1221,19 @@ describe(`${schema.Entity.name} denormalization`, () => {
       });
 
       it('should be marked as found when nested entity is missing', () => {
-        const [denormalized, found, deleted] = denormalize(
-          'abc',
-          WithOptional,
-          {
-            [WithOptional.key]: {
-              abc: WithOptional.fromJS({
-                id: 'abc',
-                // this is typed because we're actually sending wrong data to it
-                article: '5' as any,
-                nextPage: 'blob',
-              }),
-            },
-            [ArticleEntity.key]: {
-              ['5']: ArticleEntity.fromJS({ id: '5' }),
-            },
+        const [denormalized, deleted] = denormalize('abc', WithOptional, {
+          [WithOptional.key]: {
+            abc: WithOptional.fromJS({
+              id: 'abc',
+              // this is typed because we're actually sending wrong data to it
+              article: '5' as any,
+              nextPage: 'blob',
+            }),
           },
-        );
-        expect(found).toBe(true);
+          [ArticleEntity.key]: {
+            ['5']: ArticleEntity.fromJS({ id: '5' }),
+          },
+        });
         expect(deleted).toBe(false);
         const response = denormalized;
         expect(response).toBeDefined();
@@ -1257,24 +1247,19 @@ describe(`${schema.Entity.name} denormalization`, () => {
       });
 
       it('should be marked as deleted when required entity is deleted symbol', () => {
-        const [denormalized, found, deleted] = denormalize(
-          'abc',
-          WithOptional,
-          {
-            [WithOptional.key]: {
-              abc: {
-                id: 'abc',
-                // this is typed because we're actually sending wrong data to it
-                requiredArticle: '5' as any,
-                nextPage: 'blob',
-              },
-            },
-            [ArticleEntity.key]: {
-              ['5']: DELETED,
+        const [denormalized, deleted] = denormalize('abc', WithOptional, {
+          [WithOptional.key]: {
+            abc: {
+              id: 'abc',
+              // this is typed because we're actually sending wrong data to it
+              requiredArticle: '5' as any,
+              nextPage: 'blob',
             },
           },
-        );
-        expect(found).toBe(true);
+          [ArticleEntity.key]: {
+            ['5']: DELETED,
+          },
+        });
         expect(deleted).toBe(true);
         const response = denormalized;
         expect(response).toBeDefined();
@@ -1288,26 +1273,21 @@ describe(`${schema.Entity.name} denormalization`, () => {
       });
 
       it('should be non-required deleted members should not result in deleted indicator', () => {
-        const [denormalized, found, deleted] = denormalize(
-          'abc',
-          WithOptional,
-          {
-            [WithOptional.key]: {
-              abc: WithOptional.fromJS({
-                id: 'abc',
-                // this is typed because we're actually sending wrong data to it
-                article: '5' as any,
-                requiredArticle: '6' as any,
-                nextPage: 'blob',
-              }),
-            },
-            [ArticleEntity.key]: {
-              ['5']: DELETED,
-              ['6']: ArticleEntity.fromJS({ id: '6' }),
-            },
+        const [denormalized, deleted] = denormalize('abc', WithOptional, {
+          [WithOptional.key]: {
+            abc: WithOptional.fromJS({
+              id: 'abc',
+              // this is typed because we're actually sending wrong data to it
+              article: '5' as any,
+              requiredArticle: '6' as any,
+              nextPage: 'blob',
+            }),
           },
-        );
-        expect(found).toBe(true);
+          [ArticleEntity.key]: {
+            ['5']: DELETED,
+            ['6']: ArticleEntity.fromJS({ id: '6' }),
+          },
+        });
         expect(deleted).toBe(false);
         const response = denormalized;
         expect(response).toBeDefined();
@@ -1321,7 +1301,7 @@ describe(`${schema.Entity.name} denormalization`, () => {
       });
 
       it('should be both deleted and not found when both are true in different parts of schema', () => {
-        const [denormalized, found, deleted] = denormalize(
+        const [denormalized, deleted] = denormalize(
           { data: 'abc' },
           { data: WithOptional, other: ArticleEntity },
           {
@@ -1340,7 +1320,6 @@ describe(`${schema.Entity.name} denormalization`, () => {
             },
           },
         );
-        expect(found).toBe(false);
         expect(deleted).toBe(true);
         const response = denormalized;
         expect(response).toBeDefined();

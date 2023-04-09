@@ -87,12 +87,11 @@ describe.each([
       };
       const input = inferResults(sortedUsers.schema, [], {}, entities);
 
-      const [value, found] = denormalize(
+      const [value] = denormalize(
         createInput(input),
         sortedUsers.schema,
         createInput(entities),
       );
-      expect(found).toBe(false);
 
       expect(createOutput(value)).toEqual(undefined);
     });

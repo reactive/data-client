@@ -74,7 +74,7 @@ describe(`Serializable denormalization`, () => {
         },
       },
     };
-    const [response, found] = denormalize(
+    const [response] = denormalize(
       {
         user: '1',
         anotherItem: new Other({ thing: 500 }),
@@ -88,7 +88,6 @@ describe(`Serializable denormalization`, () => {
     expect(response.user?.createdAt.getTime()).toBe(
       response.user?.createdAt.getTime(),
     );
-    expect(found).toBe(true);
     expect(response).toMatchSnapshot();
   });
 
@@ -102,7 +101,7 @@ describe(`Serializable denormalization`, () => {
         },
       },
     };
-    const [response, found] = denormalize(
+    const [response] = denormalize(
       {
         user: '1',
         anotherItem: { thing: 500 },
@@ -116,7 +115,6 @@ describe(`Serializable denormalization`, () => {
     expect(response.user?.createdAt.getTime()).toBe(
       response.user?.createdAt.getTime(),
     );
-    expect(found).toBe(true);
     expect(response).toMatchSnapshot();
   });
 });

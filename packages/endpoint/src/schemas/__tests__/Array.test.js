@@ -274,20 +274,18 @@ describe.each([
             2: { id: '2', name: 'Jake' },
           },
         };
-        let [value, found] = denormalize(
+        let [value] = denormalize(
           { results: ['1', '2'] },
           catSchema,
           createInput(entities),
         );
         expect(value).toMatchSnapshot();
-        expect(found).toBe(true);
-        [value, found] = denormalize(
+        [value] = denormalize(
           createInput({ results: ['1', '2'] }),
           catSchema,
           createInput(entities),
         );
         expect(value).toMatchSnapshot();
-        expect(found).toBe(true);
       });
 
       test('denormalizes removes undefined', () => {
@@ -299,20 +297,18 @@ describe.each([
             2: { id: '2', name: 'Jake' },
           },
         };
-        let [value, found] = denormalize(
+        let [value] = denormalize(
           createInput({ results: ['1', undefined, '2'] }),
           catSchema,
           createInput(entities),
         );
         expect(value).toMatchSnapshot();
-        expect(found).toBe(true);
-        [value, found] = denormalize(
+        [value] = denormalize(
           { results: ['1', '2'] },
           catSchema,
           createInput(entities),
         );
         expect(value).toMatchSnapshot();
-        expect(found).toBe(true);
       });
 
       test('denormalizes should not be found when result array is undefined', () => {
@@ -324,13 +320,12 @@ describe.each([
             2: { id: '2', name: 'Jake' },
           },
         };
-        let [value, found] = denormalize(
+        let [value] = denormalize(
           createInput({ results: undefined }),
           catSchema,
           createInput(entities),
         );
         expect(value).toMatchSnapshot();
-        expect(found).toBe(false);
       });
 
       test('denormalizes with missing entity should have true second value', () => {
@@ -341,13 +336,12 @@ describe.each([
             2: { id: '2', name: 'Jake' },
           },
         };
-        let [value, foundEntities] = denormalize(
+        let [value] = denormalize(
           createInput([{ data: '1' }, { data: '2' }, { data: '3' }]),
           createSchema({ data: Cat }),
           createInput(entities),
         );
         expect(value).toMatchSnapshot();
-        expect(foundEntities).toBe(true);
       });
 
       test('returns the input value if is not an array', () => {
@@ -411,12 +405,11 @@ describe.each([
           { id: '456', schema: 'Cat' },
         ];
 
-        const [value, found, deleted] = denormalize(
+        const [value, deleted] = denormalize(
           createInput(input),
           listSchema,
           createInput(entities),
         );
-        expect(found).toBe(true);
         expect(deleted).toBe(false);
         expect(value).toMatchSnapshot();
       });
@@ -435,7 +428,6 @@ describe.each([
         expect(output).toMatchSnapshot();
         expect(denormalize(output.result, catList, output.entities)).toEqual([
           input,
-          true,
           false,
         ]);
       });

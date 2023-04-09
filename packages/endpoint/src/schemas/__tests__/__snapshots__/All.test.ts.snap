@@ -347,7 +347,6 @@ exports[`ArraySchema denormalization (direct) denormalizes a single entity 1`] =
       "name": "Jake",
     },
   ],
-  true,
   false,
 ]
 `;
@@ -383,7 +382,6 @@ exports[`ArraySchema denormalization (direct) denormalizes nested in object 1`] 
       },
     ],
   },
-  true,
   false,
 ]
 `;
@@ -452,7 +450,6 @@ exports[`ArraySchema denormalization (direct) returns the input value if is null
     "fillings": null,
     "id": "123",
   },
-  true,
   false,
 ]
 `;
@@ -499,7 +496,6 @@ exports[`ArraySchema denormalization (immutable) denormalizes a single entity 1`
       "name": "Jake",
     },
   ],
-  true,
   false,
 ]
 `;
@@ -535,7 +531,6 @@ exports[`ArraySchema denormalization (immutable) denormalizes nested in object 1
       },
     ],
   },
-  true,
   false,
 ]
 `;
@@ -604,7 +599,6 @@ exports[`ArraySchema denormalization (immutable) returns the input value if is n
     "fillings": null,
     "id": "123",
   },
-  true,
   false,
 ]
 `;

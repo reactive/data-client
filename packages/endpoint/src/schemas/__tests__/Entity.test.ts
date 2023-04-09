@@ -791,12 +791,10 @@ describe(`${Entity.name} denormalization`, () => {
     };
     expect(denormalize('1', MyTacos, entities)).toStrictEqual([
       undefined,
-      false,
       true,
     ]);
     expect(denormalize('1', MyTacos, fromJS(entities))).toStrictEqual([
       undefined,
-      false,
       true,
     ]);
   });
@@ -844,7 +842,6 @@ describe(`${Entity.name} denormalization`, () => {
           "name": "bob",
           "secondthing": "hi",
         },
-        true,
         false,
       ]
     `);
@@ -876,7 +873,6 @@ describe(`${Entity.name} denormalization`, () => {
           "name": "bob",
           "secondthing": "hi",
         },
-        true,
         false,
       ]
     `);
@@ -1151,7 +1147,7 @@ describe(`${Entity.name} denormalization`, () => {
 
   describe('optional entities', () => {
     it('should be marked as found even when optional is not there', () => {
-      const [denormalized, found] = denormalize('abc', WithOptional, {
+      const [denormalized] = denormalize('abc', WithOptional, {
         [WithOptional.key]: {
           abc: {
             id: 'abc',
@@ -1164,7 +1160,6 @@ describe(`${Entity.name} denormalization`, () => {
           ['5']: { id: '5' },
         },
       });
-      expect(found).toBe(true);
       const response = denormalized;
       expect(response).toBeDefined();
       expect(response).toBeInstanceOf(WithOptional);
@@ -1177,7 +1172,7 @@ describe(`${Entity.name} denormalization`, () => {
     });
 
     it('should be marked as found when nested entity is missing', () => {
-      const [denormalized, found, deleted] = denormalize('abc', WithOptional, {
+      const [denormalized, deleted] = denormalize('abc', WithOptional, {
         [WithOptional.key]: {
           abc: WithOptional.fromJS({
             id: 'abc',
@@ -1190,7 +1185,6 @@ describe(`${Entity.name} denormalization`, () => {
           ['5']: ArticleEntity.fromJS({ id: '5' }),
         },
       });
-      expect(found).toBe(true);
       expect(deleted).toBe(false);
       const response = denormalized;
       expect(response).toBeDefined();
@@ -1204,7 +1198,7 @@ describe(`${Entity.name} denormalization`, () => {
     });
 
     it('should be marked as deleted when required entity is deleted symbol', () => {
-      const [denormalized, found, deleted] = denormalize('abc', WithOptional, {
+      const [denormalized, deleted] = denormalize('abc', WithOptional, {
         [WithOptional.key]: {
           abc: {
             id: 'abc',
@@ -1217,7 +1211,6 @@ describe(`${Entity.name} denormalization`, () => {
           ['5']: DELETED,
         },
       });
-      expect(found).toBe(true);
       expect(deleted).toBe(true);
       const response = denormalized;
       expect(response).toBeDefined();
@@ -1231,7 +1224,7 @@ describe(`${Entity.name} denormalization`, () => {
     });
 
     it('should be non-required deleted members should not result in deleted indicator', () => {
-      const [denormalized, found, deleted] = denormalize('abc', WithOptional, {
+      const [denormalized, deleted] = denormalize('abc', WithOptional, {
         [WithOptional.key]: {
           abc: WithOptional.fromJS({
             id: 'abc',
@@ -1246,7 +1239,6 @@ describe(`${Entity.name} denormalization`, () => {
           ['6']: ArticleEntity.fromJS({ id: '6' }),
         },
       });
-      expect(found).toBe(true);
       expect(deleted).toBe(false);
       const response = denormalized;
       expect(response).toBeDefined();
@@ -1260,7 +1252,7 @@ describe(`${Entity.name} denormalization`, () => {
     });
 
     it('should be both deleted and not found when both are true in different parts of schema', () => {
-      const [denormalized, found, deleted] = denormalize(
+      const [denormalized, deleted] = denormalize(
         { data: 'abc' },
         { data: WithOptional, other: ArticleEntity },
         {
@@ -1279,7 +1271,6 @@ describe(`${Entity.name} denormalization`, () => {
           },
         },
       );
-      expect(found).toBe(false);
       expect(deleted).toBe(true);
       const response = denormalized;
       expect(response).toBeDefined();

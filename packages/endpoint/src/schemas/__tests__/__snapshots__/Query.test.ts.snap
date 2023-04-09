@@ -49,7 +49,6 @@ exports[`ArraySchema denormalization (direct) denormalize sorts with arg 1`] = `
       "name": "Zeta",
     },
   ],
-  true,
   false,
 ]
 `;
@@ -103,7 +102,6 @@ exports[`ArraySchema denormalization (immutable) denormalize sorts with arg 1`] 
       "name": "Zeta",
     },
   ],
-  true,
   false,
 ]
 `;

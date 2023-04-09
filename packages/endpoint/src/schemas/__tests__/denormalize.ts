@@ -14,12 +14,12 @@ export const denormalizeSimple = <S extends Schema>(
   entityCache: DenormalizeCache['entities'] = {},
   resultCache: DenormalizeCache['results'][string] = new WeakEntityMap(),
 ):
-  | [denormalized: Denormalize<S>, found: true, deleted: false]
-  | [denormalized: DenormalizeNullable<S>, found: boolean, deleted: true]
-  | [denormalized: DenormalizeNullable<S>, found: false, deleted: boolean] =>
+  | [denormalized: Denormalize<S>, deleted: false]
+  | [denormalized: DenormalizeNullable<S>, deleted: true]
+  | [denormalized: DenormalizeNullable<S>, deleted: boolean] =>
   denormalizeCore(input, schema, entities, entityCache, resultCache).slice(
     0,
-    3,
+    2,
   ) as any;
 
 export default denormalizeSimple;

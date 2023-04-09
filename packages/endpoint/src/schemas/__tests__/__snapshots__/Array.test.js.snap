@@ -12,7 +12,6 @@ exports[`ArraySchema denormalization (class, direct) Object denormalizes a singl
       "name": "Jake",
     },
   ],
-  true,
   false,
 ]
 `;
@@ -51,7 +50,6 @@ exports[`ArraySchema denormalization (class, direct) Object denormalizes nested 
       },
     ],
   },
-  true,
   false,
 ]
 `;
@@ -92,7 +90,6 @@ exports[`ArraySchema denormalization (class, direct) Object denormalizes non-arr
     "a": "1",
     "b": "2",
   },
-  true,
   false,
 ]
 `;
@@ -106,7 +103,6 @@ exports[`ArraySchema denormalization (class, direct) Object denormalizes plain a
     },
   },
   false,
-  false,
 ]
 `;
 
@@ -118,7 +114,6 @@ exports[`ArraySchema denormalization (class, direct) Object denormalizes plain a
       "name": "Jane",
     },
   },
-  false,
   false,
 ]
 `;
@@ -132,7 +127,6 @@ exports[`ArraySchema denormalization (class, direct) Object denormalizes plain a
       "name": "Jane",
     },
   },
-  true,
   false,
 ]
 `;
@@ -146,7 +140,6 @@ exports[`ArraySchema denormalization (class, direct) Object denormalizes plain a
       "name": "Jane",
     },
   },
-  true,
   false,
 ]
 `;
@@ -160,7 +153,6 @@ exports[`ArraySchema denormalization (class, direct) Object denormalizes plain a
     },
   },
   false,
-  false,
 ]
 `;
 
@@ -172,7 +164,6 @@ exports[`ArraySchema denormalization (class, direct) Object denormalizes plain a
       "name": "Jane",
     },
   },
-  false,
   false,
 ]
 `;
@@ -186,7 +177,6 @@ exports[`ArraySchema denormalization (class, direct) Object denormalizes plain a
       "name": "Jane",
     },
   },
-  true,
   false,
 ]
 `;
@@ -200,7 +190,6 @@ exports[`ArraySchema denormalization (class, direct) Object denormalizes plain a
       "name": "Jane",
     },
   },
-  true,
   false,
 ]
 `;
@@ -307,7 +296,6 @@ exports[`ArraySchema denormalization (class, direct) Object returns the input va
     "fillings": null,
     "id": "123",
   },
-  true,
   false,
 ]
 `;
@@ -324,7 +312,6 @@ exports[`ArraySchema denormalization (class, immutable) Object denormalizes a si
       "name": "Jake",
     },
   ],
-  true,
   false,
 ]
 `;
@@ -363,7 +350,6 @@ exports[`ArraySchema denormalization (class, immutable) Object denormalizes nest
       },
     ],
   },
-  true,
   false,
 ]
 `;
@@ -404,7 +390,6 @@ exports[`ArraySchema denormalization (class, immutable) Object denormalizes non-
     "a": "1",
     "b": "2",
   },
-  true,
   false,
 ]
 `;
@@ -418,7 +403,6 @@ exports[`ArraySchema denormalization (class, immutable) Object denormalizes plai
     },
   },
   false,
-  false,
 ]
 `;
 
@@ -430,7 +414,6 @@ exports[`ArraySchema denormalization (class, immutable) Object denormalizes plai
       "name": "Jane",
     },
   },
-  false,
   false,
 ]
 `;
@@ -444,7 +427,6 @@ exports[`ArraySchema denormalization (class, immutable) Object denormalizes plai
       "name": "Jane",
     },
   },
-  true,
   false,
 ]
 `;
@@ -458,7 +440,6 @@ exports[`ArraySchema denormalization (class, immutable) Object denormalizes plai
     },
     "tacos": Immutable.List [],
   },
-  true,
   false,
 ]
 `;
@@ -472,7 +453,6 @@ exports[`ArraySchema denormalization (class, immutable) Object denormalizes plai
     },
   },
   false,
-  false,
 ]
 `;
 
@@ -484,7 +464,6 @@ exports[`ArraySchema denormalization (class, immutable) Object denormalizes plai
       "name": "Jane",
     },
   },
-  false,
   false,
 ]
 `;
@@ -498,7 +477,6 @@ exports[`ArraySchema denormalization (class, immutable) Object denormalizes plai
       "name": "Jane",
     },
   },
-  true,
   false,
 ]
 `;
@@ -512,7 +490,6 @@ exports[`ArraySchema denormalization (class, immutable) Object denormalizes plai
     },
     "tacos": Immutable.List [],
   },
-  true,
   false,
 ]
 `;
@@ -619,7 +596,6 @@ exports[`ArraySchema denormalization (class, immutable) Object returns the input
     "fillings": null,
     "id": "123",
   },
-  true,
   false,
 ]
 `;
@@ -636,7 +612,6 @@ exports[`ArraySchema denormalization (object, direct) Object denormalizes a sing
       "name": "Jake",
     },
   ],
-  true,
   false,
 ]
 `;
@@ -675,7 +650,6 @@ exports[`ArraySchema denormalization (object, direct) Object denormalizes nested
       },
     ],
   },
-  true,
   false,
 ]
 `;
@@ -716,7 +690,6 @@ exports[`ArraySchema denormalization (object, direct) Object denormalizes non-ar
     "a": "1",
     "b": "2",
   },
-  true,
   false,
 ]
 `;
@@ -730,7 +703,6 @@ exports[`ArraySchema denormalization (object, direct) Object denormalizes plain 
     },
   },
   false,
-  false,
 ]
 `;
 
@@ -742,7 +714,6 @@ exports[`ArraySchema denormalization (object, direct) Object denormalizes plain 
       "name": "Jane",
     },
   },
-  false,
   false,
 ]
 `;
@@ -756,7 +727,6 @@ exports[`ArraySchema denormalization (object, direct) Object denormalizes plain 
       "name": "Jane",
     },
   },
-  true,
   false,
 ]
 `;
@@ -770,7 +740,6 @@ exports[`ArraySchema denormalization (object, direct) Object denormalizes plain 
       "name": "Jane",
     },
   },
-  true,
   false,
 ]
 `;
@@ -784,7 +753,6 @@ exports[`ArraySchema denormalization (object, direct) Object denormalizes plain 
     },
   },
   false,
-  false,
 ]
 `;
 
@@ -796,7 +764,6 @@ exports[`ArraySchema denormalization (object, direct) Object denormalizes plain 
       "name": "Jane",
     },
   },
-  false,
   false,
 ]
 `;
@@ -810,7 +777,6 @@ exports[`ArraySchema denormalization (object, direct) Object denormalizes plain 
       "name": "Jane",
     },
   },
-  true,
   false,
 ]
 `;
@@ -824,7 +790,6 @@ exports[`ArraySchema denormalization (object, direct) Object denormalizes plain 
       "name": "Jane",
     },
   },
-  true,
   false,
 ]
 `;
@@ -931,7 +896,6 @@ exports[`ArraySchema denormalization (object, direct) Object returns the input v
     "fillings": null,
     "id": "123",
   },
-  true,
   false,
 ]
 `;
@@ -948,7 +912,6 @@ exports[`ArraySchema denormalization (object, immutable) Object denormalizes a s
       "name": "Jake",
     },
   ],
-  true,
   false,
 ]
 `;
@@ -987,7 +950,6 @@ exports[`ArraySchema denormalization (object, immutable) Object denormalizes nes
       },
     ],
   },
-  true,
   false,
 ]
 `;
@@ -1028,7 +990,6 @@ exports[`ArraySchema denormalization (object, immutable) Object denormalizes non
     "a": "1",
     "b": "2",
   },
-  true,
   false,
 ]
 `;
@@ -1042,7 +1003,6 @@ exports[`ArraySchema denormalization (object, immutable) Object denormalizes pla
     },
   },
   false,
-  false,
 ]
 `;
 
@@ -1054,7 +1014,6 @@ exports[`ArraySchema denormalization (object, immutable) Object denormalizes pla
       "name": "Jane",
     },
   },
-  false,
   false,
 ]
 `;
@@ -1068,7 +1027,6 @@ exports[`ArraySchema denormalization (object, immutable) Object denormalizes pla
       "name": "Jane",
     },
   },
-  true,
   false,
 ]
 `;
@@ -1082,7 +1040,6 @@ exports[`ArraySchema denormalization (object, immutable) Object denormalizes pla
     },
     "tacos": Immutable.List [],
   },
-  true,
   false,
 ]
 `;
@@ -1096,7 +1053,6 @@ exports[`ArraySchema denormalization (object, immutable) Object denormalizes pla
     },
   },
   false,
-  false,
 ]
 `;
 
@@ -1108,7 +1064,6 @@ exports[`ArraySchema denormalization (object, immutable) Object denormalizes pla
       "name": "Jane",
     },
   },
-  false,
   false,
 ]
 `;
@@ -1122,7 +1077,6 @@ exports[`ArraySchema denormalization (object, immutable) Object denormalizes pla
       "name": "Jane",
     },
   },
-  true,
   false,
 ]
 `;
@@ -1136,7 +1090,6 @@ exports[`ArraySchema denormalization (object, immutable) Object denormalizes pla
     },
     "tacos": Immutable.List [],
   },
-  true,
   false,
 ]
 `;
@@ -1243,7 +1196,6 @@ exports[`ArraySchema denormalization (object, immutable) Object returns the inpu
     "fillings": null,
     "id": "123",
   },
-  true,
   false,
 ]
 `;

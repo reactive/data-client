@@ -7,7 +7,6 @@ exports[`Delete denormalization denormalizes deleted entities as undefined (dire
       "data": undefined,
     },
   ],
-  true,
   false,
 ]
 `;
@@ -19,7 +18,6 @@ exports[`Delete denormalization denormalizes deleted entities as undefined (dire
       "data": undefined,
     },
   ],
-  true,
   false,
 ]
 `;
@@ -31,7 +29,6 @@ exports[`Delete denormalization denormalizes deleted entities as undefined (dire
       "data": undefined,
     },
   ],
-  true,
   false,
 ]
 `;
@@ -43,7 +40,6 @@ exports[`Delete denormalization denormalizes deleted entities as undefined (dire
       "data": undefined,
     },
   ],
-  true,
   false,
 ]
 `;
@@ -54,7 +50,6 @@ exports[`Delete denormalization denormalizes deleted entities as undefined (dire
     "data": undefined,
   },
   true,
-  true,
 ]
 `;
 
@@ -63,7 +58,6 @@ exports[`Delete denormalization denormalizes deleted entities as undefined (dire
   {
     "data": undefined,
   },
-  true,
   true,
 ]
 `;
@@ -75,7 +69,6 @@ exports[`Delete denormalization denormalizes deleted entities as undefined (immu
       "data": undefined,
     },
   ],
-  true,
   false,
 ]
 `;
@@ -87,7 +80,6 @@ exports[`Delete denormalization denormalizes deleted entities as undefined (immu
       "data": undefined,
     },
   ],
-  true,
   false,
 ]
 `;
@@ -99,7 +91,6 @@ exports[`Delete denormalization denormalizes deleted entities as undefined (immu
       "data": undefined,
     },
   ],
-  true,
   false,
 ]
 `;
@@ -111,7 +102,6 @@ exports[`Delete denormalization denormalizes deleted entities as undefined (immu
       "data": undefined,
     },
   ],
-  true,
   false,
 ]
 `;
@@ -122,7 +112,6 @@ exports[`Delete denormalization denormalizes deleted entities as undefined (immu
     "data": undefined,
   },
   true,
-  true,
 ]
 `;
 
@@ -131,7 +120,6 @@ exports[`Delete denormalization denormalizes deleted entities as undefined (immu
   Immutable.Map {
     "data": undefined,
   },
-  true,
   true,
 ]
 `;

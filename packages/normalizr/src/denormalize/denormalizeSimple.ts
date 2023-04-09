@@ -7,8 +7,8 @@ export const denormalizeSimple = <S extends Schema>(
   schema: S | undefined,
   entities: any,
 ):
-  | [denormalized: Denormalize<S>, found: true, deleted: false]
-  | [denormalized: DenormalizeNullable<S>, found: boolean, deleted: true]
-  | [denormalized: DenormalizeNullable<S>, found: false, deleted: boolean] => {
-  return [denormalize(input, schema, entities), true, false] as any;
+  | [denormalized: Denormalize<S>, deleted: false]
+  | [denormalized: DenormalizeNullable<S>, deleted: true]
+  | [denormalized: DenormalizeNullable<S>, deleted: boolean] => {
+  return [denormalize(input, schema, entities), false] as any;
 };

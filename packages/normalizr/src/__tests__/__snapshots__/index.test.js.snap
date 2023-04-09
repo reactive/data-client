@@ -35,7 +35,6 @@ exports[`denormalize [cached] denormalizes ignoring deleted entities in arrays 1
       "type": "foo",
     },
   ],
-  true,
   false,
   [
     {
@@ -56,7 +55,6 @@ exports[`denormalize [cached] denormalizes ignoring deleted entities in arrays 2
       },
     ],
   },
-  true,
   false,
   [
     {
@@ -75,7 +73,6 @@ exports[`denormalize [cached] denormalizes ignoring unfound entities in arrays 1
       "type": "foo",
     },
   ],
-  true,
   false,
   [
     {
@@ -96,7 +93,6 @@ exports[`denormalize [cached] denormalizes ignoring unfound entities in arrays 2
       },
     ],
   },
-  true,
   false,
   [
     {
@@ -128,7 +124,6 @@ exports[`denormalize [cached] denormalizes nested entities 1`] = `
     "id": "123",
     "title": "A Great Article",
   },
-  true,
   false,
   [
     {
@@ -177,7 +172,6 @@ exports[`denormalize [cached] denormalizes schema with extra members 1`] = `
       "third": 1,
     },
   },
-  true,
   false,
   [
     {
@@ -206,7 +200,6 @@ exports[`denormalize [cached] denormalizes schema with extra members but not set
       },
     ],
   },
-  false,
   false,
   [
     {
@@ -250,7 +243,6 @@ exports[`denormalize [cached] denormalizes with function as pk() 1`] = `
       "name": "Tom",
     },
   ],
-  true,
   false,
   [
     {
@@ -275,7 +267,6 @@ exports[`denormalize [cached] denormalizes without entities fills undefined 1`] 
     "data": undefined,
   },
   false,
-  false,
   [],
 ]
 `;
@@ -285,7 +276,6 @@ exports[`denormalize [cached] denormalizes without entities fills undefined 2`] 
   Immutable.Map {
     "data": undefined,
   },
-  false,
   false,
   [],
 ]
@@ -308,7 +298,6 @@ exports[`denormalize [cached] set to undefined if schema key is not in entities 
     "id": "123",
     "title": "",
   },
-  true,
   false,
   [
     {
@@ -358,7 +347,6 @@ exports[`denormalize [fast] denormalizes ignoring deleted entities in arrays 1`]
       "type": "foo",
     },
   ],
-  true,
   false,
 ]
 `;
@@ -373,7 +361,6 @@ exports[`denormalize [fast] denormalizes ignoring deleted entities in arrays 2`]
       },
     ],
   },
-  true,
   false,
 ]
 `;
@@ -386,7 +373,6 @@ exports[`denormalize [fast] denormalizes ignoring unfound entities in arrays 1`]
       "type": "foo",
     },
   ],
-  true,
   false,
 ]
 `;
@@ -401,7 +387,6 @@ exports[`denormalize [fast] denormalizes ignoring unfound entities in arrays 2`]
       },
     ],
   },
-  true,
   false,
 ]
 `;
@@ -427,7 +412,6 @@ exports[`denormalize [fast] denormalizes nested entities 1`] = `
     "id": "123",
     "title": "A Great Article",
   },
-  true,
   false,
 ]
 `;
@@ -458,7 +442,6 @@ exports[`denormalize [fast] denormalizes schema with extra members 1`] = `
       "third": 1,
     },
   },
-  true,
   false,
 ]
 `;
@@ -477,7 +460,6 @@ exports[`denormalize [fast] denormalizes schema with extra members but not set 1
       },
     ],
   },
-  true,
   false,
 ]
 `;
@@ -511,7 +493,6 @@ exports[`denormalize [fast] denormalizes with function as pk() 1`] = `
       "name": "Tom",
     },
   ],
-  true,
   false,
 ]
 `;
@@ -521,7 +502,6 @@ exports[`denormalize [fast] denormalizes without entities fills undefined 1`] = 
   {
     "data": undefined,
   },
-  true,
   false,
 ]
 `;
@@ -531,7 +511,6 @@ exports[`denormalize [fast] denormalizes without entities fills undefined 2`] = 
   Immutable.Map {
     "data": undefined,
   },
-  true,
   false,
 ]
 `;
@@ -553,7 +532,6 @@ exports[`denormalize [fast] set to undefined if schema key is not in entities 1`
     "id": "123",
     "title": "",
   },
-  true,
   false,
 ]
 `;

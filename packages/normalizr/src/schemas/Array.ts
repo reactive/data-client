@@ -42,7 +42,7 @@ export const denormalize = (
   schema: any,
   input: any,
   unvisit: any,
-): [denormalized: any, found: boolean, suspend: boolean] => {
+): [denormalized: any, suspend: boolean] => {
   schema = validateSchema(schema);
   return [
     input.map
@@ -51,7 +51,6 @@ export const denormalize = (
           .filter(filterEmpty)
           .map(([value]) => value)
       : input,
-    true,
     false,
   ];
 };

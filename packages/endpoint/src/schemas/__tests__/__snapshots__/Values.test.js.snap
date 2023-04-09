@@ -12,7 +12,6 @@ exports[`ValuesSchema denormalization denormalizes the values of an object with 
       "type": "cats",
     },
   },
-  true,
   false,
 ]
 `;
@@ -29,7 +28,6 @@ exports[`ValuesSchema denormalization denormalizes the values of an object with 
       "type": "cats",
     },
   },
-  true,
   false,
 ]
 `;
@@ -47,7 +45,6 @@ exports[`ValuesSchema denormalization denormalizes with deleted entity should ha
     },
   },
   true,
-  true,
 ]
 `;
 
@@ -63,7 +60,6 @@ exports[`ValuesSchema denormalization denormalizes with deleted entity should ha
       "type": "cats",
     },
   },
-  true,
   true,
 ]
 `;
@@ -81,7 +77,6 @@ exports[`ValuesSchema denormalization denormalizes with missing entity should ha
     },
   },
   false,
-  false,
 ]
 `;
 
@@ -98,7 +93,6 @@ exports[`ValuesSchema denormalization denormalizes with missing entity should ha
     },
   },
   false,
-  false,
 ]
 `;
 
@@ -114,7 +108,6 @@ exports[`ValuesSchema denormalization denormalizes without schemaAttribute 1`] =
       "name": "second thing",
     },
   },
-  true,
   false,
 ]
 `;

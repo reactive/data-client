@@ -74,7 +74,7 @@ const unvisitEntity = (
 
     const wrappedUnvisit = withTrackedEntities(unvisit);
     // { [DRAFT] } means we are still processing - which if found indicates a cycle
-    wrappedUnvisit.setLocal = entityCopy =>
+    (wrappedUnvisit as any).setLocal = (entityCopy: any) =>
       (localCache[schema.key][pk] = { [DRAFT]: entityCopy, i: trackingIndex });
 
     const globalCacheEntry = getGlobalCacheEntry(entityCache, schema, pk);
@@ -295,7 +295,7 @@ function getGlobalCacheEntry(
 function withTrackedEntities(unvisit: UnvisitFunction): UnvisitFunction {
   // every time we nest, we want to unwrap back to the top.
   // this is due to only needed the next level of nested entities for lookup
-  const originalUnvisit = unvisit.og || unvisit;
+  const originalUnvisit = (unvisit as any).og || unvisit;
   const wrappedUnvisit = (input: any, schema: any) =>
     originalUnvisit(input, schema);
   wrappedUnvisit.og = unvisit;

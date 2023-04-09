@@ -10,21 +10,10 @@ import type {
 import WeakEntityMap, { getEntities } from '../WeakEntityMap.js';
 
 type DenormalizeReturn<S extends Schema> =
-  | [
-      denormalized: Denormalize<S>,
-      found: true,
-      deleted: false,
-      entityPaths: Path[],
-    ]
+  | [denormalized: Denormalize<S>, deleted: false, entityPaths: Path[]]
+  | [denormalized: DenormalizeNullable<S>, deleted: true, entityPaths: Path[]]
   | [
       denormalized: DenormalizeNullable<S>,
-      found: boolean,
-      deleted: true,
-      entityPaths: Path[],
-    ]
-  | [
-      denormalized: DenormalizeNullable<S>,
-      found: false,
       deleted: boolean,
       entityPaths: Path[],
     ];
@@ -39,10 +28,10 @@ export const denormalize = <S extends Schema>(
 ): DenormalizeReturn<S> => {
   // undefined means don't do anything
   if (schema === undefined) {
-    return [input, true, false, []] as [any, boolean, boolean, any[]];
+    return [input, false, []] as [any, boolean, any[]];
   }
   if (input === undefined) {
-    return [undefined, false, false, []] as [any, boolean, boolean, any[]];
+    return [undefined, false, []] as [any, boolean, any[]];
   }
   const getEntity = getEntities(entities);
 

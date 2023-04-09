@@ -34,27 +34,23 @@ export const denormalize = (
   // eslint-disable-next-line @typescript-eslint/ban-types
   input: {},
   unvisit: any,
-): [denormalized: any, found: boolean, deleted: boolean] => {
+): [denormalized: any, deleted: boolean] => {
   if (isImmutable(input)) {
     return denormalizeImmutable(schema, input, unvisit);
   }
 
   const object = { ...input };
-  let found = true;
   let deleted = false;
   Object.keys(schema).forEach(key => {
-    const [item, foundItem, deletedItem] = unvisit(object[key], schema[key]);
+    const [item, deletedItem] = unvisit(object[key], schema[key]);
     if (object[key] !== undefined) {
       object[key] = item;
     }
     if (deletedItem) {
       deleted = true;
     }
-    if (!foundItem) {
-      found = false;
-    }
   });
-  return [object, found, deleted];
+  return [object, deleted];
 };
 
 export function infer(

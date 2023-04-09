@@ -36,8 +36,7 @@ export function denormalizeImmutable(
   schema: any,
   input: any,
   unvisit: any,
-): [denormalized: any, found: boolean, deleted: boolean] {
-  let found = true;
+): [denormalized: any, deleted: boolean] {
   let deleted = false;
   return [
     Object.keys(schema).reduce((object, key) => {
@@ -45,13 +44,10 @@ export function denormalizeImmutable(
       // we're accessing them using string keys.
       const stringKey = `${key}`;
 
-      const [item, foundItem, deletedItem] = unvisit(
+      const [item, deletedItem] = unvisit(
         object.get(stringKey),
         schema[stringKey],
       );
-      if (!foundItem) {
-        found = false;
-      }
       if (deletedItem) {
         deleted = true;
       }
@@ -61,7 +57,7 @@ export function denormalizeImmutable(
         return object;
       }
     }, input),
-    found,
+
     deleted,
   ];
 }

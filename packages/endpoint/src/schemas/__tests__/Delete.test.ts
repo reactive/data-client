@@ -76,15 +76,10 @@ describe(`${schema.Delete.name} denormalization`, () => {
   };
 
   test('denormalizes an object in the same manner as the Entity', () => {
-    const [user, ready, deleted] = denormalize(
-      '1',
-      new schema.Delete(User),
-      entities,
-    );
+    const [user, deleted] = denormalize('1', new schema.Delete(User), entities);
     expect(user).toBeDefined();
     expect(user).toBeInstanceOf(User);
     expect(user?.username).toBe('Janey');
-    expect(ready).toBe(true);
     expect(deleted).toBe(false);
   });
 
@@ -94,11 +89,10 @@ describe(`${schema.Delete.name} denormalization`, () => {
   ] as const)(
     `denormalizes deleted entities as undefined (%s)`,
     (_, createInput) => {
-      const [user, ready, deleted] = denormalize('1', new schema.Delete(User), {
+      const [user, deleted] = denormalize('1', new schema.Delete(User), {
         User: { '1': DELETED },
       });
       expect(user).toBe(undefined);
-      expect(ready).toBe(true);
       expect(deleted).toBe(true);
 
       expect(

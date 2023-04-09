@@ -7,7 +7,6 @@ exports[`UnionSchema denormalization denormalizes an array of multiple entities 
     "type": "users",
     "username": "Janey",
   },
-  true,
   false,
 ]
 `;
@@ -19,7 +18,6 @@ exports[`UnionSchema denormalization denormalizes an array of multiple entities 
     "type": "users",
     "username": "Janey",
   },
-  true,
   false,
 ]
 `;
@@ -31,7 +29,6 @@ exports[`UnionSchema denormalization denormalizes an array of multiple entities 
     "id": "2",
     "type": "groups",
   },
-  true,
   false,
 ]
 `;
@@ -43,7 +40,6 @@ exports[`UnionSchema denormalization denormalizes an array of multiple entities 
     "id": "2",
     "type": "groups",
   },
-  true,
   false,
 ]
 `;
@@ -55,7 +51,6 @@ exports[`UnionSchema denormalization denormalizes an object using string schemaA
     "type": "users",
     "username": "Janey",
   },
-  true,
   false,
 ]
 `;
@@ -67,7 +62,6 @@ exports[`UnionSchema denormalization denormalizes an object using string schemaA
     "type": "users",
     "username": "Janey",
   },
-  true,
   false,
 ]
 `;
@@ -79,7 +73,6 @@ exports[`UnionSchema denormalization denormalizes an object using string schemaA
     "id": "2",
     "type": "groups",
   },
-  true,
   false,
 ]
 `;
@@ -91,7 +84,6 @@ exports[`UnionSchema denormalization denormalizes an object using string schemaA
     "id": "2",
     "type": "groups",
   },
-  true,
   false,
 ]
 `;
@@ -101,7 +93,6 @@ exports[`UnionSchema denormalization returns the original value when no schema i
   {
     "id": "1",
   },
-  true,
   false,
 ]
 `;
@@ -111,7 +102,6 @@ exports[`UnionSchema denormalization returns the original value when no schema i
   Immutable.Map {
     "id": "1",
   },
-  true,
   false,
 ]
 `;
@@ -119,7 +109,6 @@ exports[`UnionSchema denormalization returns the original value when no schema i
 exports[`UnionSchema denormalization returns the original value when string is given 1`] = `
 [
   "1",
-  true,
   false,
 ]
 `;
@@ -614,7 +603,6 @@ exports[`complex case works with undefined 2`] = `
       },
     ],
   },
-  true,
   false,
 ]
 `;

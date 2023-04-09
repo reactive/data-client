@@ -67,7 +67,6 @@ describe(`validateRequired`, () => {
           "name": "bob",
           "secondthing": "hi",
         },
-        true,
         false,
       ]
     `);
@@ -92,7 +91,6 @@ describe(`validateRequired`, () => {
           "name": "bob",
           "secondthing": "hi",
         },
-        true,
         false,
       ]
     `);
@@ -100,7 +98,7 @@ describe(`validateRequired`, () => {
   it('should error with required fields missing', () => {
     const schema = MyEntity;
 
-    const [data, found, suspend] = denormalize('bob', schema, {
+    const [data, suspend] = denormalize('bob', schema, {
       MyEntity: {
         bob: {
           name: 'bob',
